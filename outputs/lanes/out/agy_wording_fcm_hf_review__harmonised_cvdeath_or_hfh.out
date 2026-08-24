@@ -1,0 +1,16 @@
+1. **OVERCLAIM:** 
+- *"IRONMAN FAVOURING THE CONTROL ARM CONTRADICTS THE PUBLISHED TRIAL."* The extra claim is that the published trial was consulted. The packet explicitly states "No source document was consulted", traces the data "NOT to a paper", and notes "No manuscript exists". The object only states the "direction contradicts IRONMAN".
+- *"this object never recorded where they did [come from]"*. The extra claim is the complete absence of a record. The object actually records provenance for these counts in two conflicting places: `inputs.trials` says "extractor recovery from the published page" and `harmonised_cvdeath_or_hfh.per_trial` explicitly claims "REGISTRY -- ClinicalTrials.gov posted results".
+
+2. **UNDERCLAIM:** 
+The packet shows a severe internal contradiction in the object's data integrity. The harmonised block attributes the IRONMAN counts to "REGISTRY -- ClinicalTrials.gov posted results" (`as_posted`), while the inputs block verifies that "NCT02642562 posts NO RESULTS SECTION". The withdrawal text misses that the object hallucinates/contradicts its own provenance.
+
+3. **FACT vs JUDGEMENT:** 
+- *"A POOL AT I2=97.9% BUILT ON AN UNATTRIBUTED ROW WHOSE DIRECTION CONTRADICTS ITS OWN TRIAL IS NOT AN ESTIMATE."* This is a methodological standard and interpretive judgement written as an absolute fact.
+- *"the IRONMAN row cannot be relied on in either direction."* This is an evaluative judgement of data quality stated in the grammar of a fact.
+
+4. **IS THE STATED REASON THE ACTUAL REASON?** 
+Yes, the stated reason (invalid data causing extreme heterogeneity) logically follows from the corrected arm inversion, the opposing directions, and the missing registry source. However, the packet supports a different, unstated reason: the harmonised block itself is internally compromised, inventing registry provenance for counts the inputs block already confirmed do not exist in the registry.
+
+5. **VERDICT:** 
+REJECT. The text relies on knowledge of the "published trial" which the packet confirms was not consulted, and claims provenance was "never recorded" when the object actually records conflicting provenances. The text must be rewritten to assert only what the object's evidence supports.

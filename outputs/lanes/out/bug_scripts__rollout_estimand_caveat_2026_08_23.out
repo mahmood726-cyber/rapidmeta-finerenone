@@ -1,0 +1,196 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a0325f-04cd-76e2-9dc4-0857218dfb46
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/rollout_estimand_caveat_2026_08_23.py
+
+--- THE FILE, IN FULL ---
+"""Rebuild every page whose object holds the estimand-contrast caveat.
+
+# no-control: a rollout, not a detector. Its control is that the caveat must be ABSENT from
+# each page before the rebuild and PRESENT after it; a page that already carried it is
+# counted separately rather than as a success, and a page that does not carry it afterwards
+# is a FAILURE reported by name.
+
+WHY. `estimand_established_does_not_cover_the_contrast_2026_08_20` is held on 125 objects,
+157 occurrences, and reached ZERO delivered pages. The projector now renders it. A
+projector change delivers nothing until the pages are rebuilt, and a caveat that reaches
+1 page of 131 is still a caveat nobody reads.
+
+WHAT IT SAYS: the flag records that every contributing trial measures the SAME QUANTITY and
+records NOTHING about what that quantity was measured AGAINST -- whether the comparators
+are of one kind, whether each comparison was randomised, whether it was concurrent. That is
+the distinction that made the attr-pn withdrawal necessary.
+
+REFUSALS ARE EXPECTED AND ARE NOT FAILURES. Some objects legitimately refuse to build --
+the empty shells with no title and no results, and ARNI, which is on `do_not_rebuild`. Each
+is skipped by name with its reason, and the run reports them separately from pages that
+built but did not come out carrying the caveat, which is a different and worse thing.
+"""
+from __future__ import annotations
+
+import io
+import json
+import os
+import subprocess
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+KEY = "estimand_established_does_not_cover_the_contrast_2026_08_20"
+CUE = "records NOTHING about what that quantity was measured AGAINST"
+BUILD = [sys.executable, os.path.join(REPO, "ssot", "build_tabbed.py")]
+
+
+def targets():
+    pm = json.load(io.open(os.path.join(REPO, "ssot", "PAGE_MAP.json"), encoding="utf-8"))
+    try:
+        sys.path.insert(0, os.path.join(REPO, "ssot"))
+        import do_not_rebuild as dnr
+        frozen = set(getattr(dnr, "DO_NOT_REBUILD", ()) or getattr(dnr, "PAGES", ()) or ())
+    except Exception:
+        frozen = set()
+    out = []
+    for page, rel in sorted(pm.items()):
+        rel = rel.replace("\\", "/")
+        obj = os.path.join(REPO, rel)
+        if not os.path.isfile(obj):
+            continue
+        if KEY not in io.open(obj, encoding="utf-8", errors="replace").read():
+            continue
+        out.append((page, obj, page in frozen or os.path.basename(rel).startswith("arni")))
+    return out
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    limit = None
+    for a in sys.argv[1:]:
+        if a.startswith("--limit="):
+            limit = int(a.split("=", 1)[1])
+    tg = targets()
+    if limit:
+        tg = tg[:limit]
+    print("")
+    print("ROLLOUT: pages whose object holds the estimand-contrast caveat = %d" % len(tg))
+    print("")
+    already = built = frozen_n = refused = missing = 0
+    fails, refusals = [], []
+    for page, obj, is_frozen in tg:
+        path = os.path.join(REPO, page)
+        before = io.open(path, encoding="utf-8", errors="replace").read() \
+            if os.path.isfile(path) else ""
+        if CUE in before:
+            already += 1
+            continue
+        if is_frozen:
+            frozen_n += 1
+            refusals.append((page, "on do_not_rebuild -- not rebuilt by instruction"))
+            continue
+        r = subprocess.run(BUILD + [obj, path], cwd=REPO, capture_output=True)
+        if r.returncode != 0:
+            tail = r.stdout.decode("utf-8", "replace").strip().split("\n")[-1][:150]
+            refused += 1
+            refusals.append((page, tail or "build refused"))
+            continue
+        after = io.open(path, encoding="utf-8", errors="replace").read()
+        if CUE in after:
+            built += 1
+            sys.stdout.write(".")
+            sys.stdout.flush()
+        else:
+            missing += 1
+            fails.append(page)
+    print("")
+    print("")
+    print("   already carried it                %4d" % already)
+    print("   rebuilt and now carry it          %4d" % built)
+    print("   frozen (do_not_rebuild)           %4d" % frozen_n)
+    print("   build refused, by the object      %4d" % refused)
+    print("   BUILT BUT STILL MISSING IT        %4d   <- the only failure state" % missing)
+    print("   %-33s %4d   == the population" % ("sum",
+          already + built + frozen_n + refused + missing))
+    print("")
+    for page, why in refusals[:30]:
+        print("   skipped %-46s %s" % (page[:46], why[:90]))
+    if fails:
+        print("")
+        for p in fails:
+            print("   FAILED  %s" % p)
+        sys.exit("REFUSED: %d page(s) rebuilt without the caveat their object holds."
+                 % len(fails))
+
+
+if __name__ == "__main__":
+    main()
+
+codex
+Defects found:
+
+- Line 63: `if limit:` conflates zero with absent. Exact input: `argv = ["script", "--limit=0"]` with `targets()` returning at least `[("p.html", "obj.json", False)]`. Consequence: a caller asking for zero rebuilds gets all targets rebuilt.
+
+- Line 41: `getattr(...DO_NOT_REBUILD...) or getattr(...PAGES...)` treats an intentionally empty freeze list as missing. Exact input: `do_not_rebuild.py` has `DO_NOT_REBUILD = set()` and stale `PAGES = {"p.html"}`. Consequence: `p.html` is skipped even though the authoritative list says nothing is frozen.
+
+- Lines 81-86 and 107: non-zero subprocess status is converted into “refused” and does not affect process exit. Exact input: one target page lacks `CUE`, object contains `KEY`, and `ssot/build_tabbed.py` exits `1` because the builder itself is broken. Consequence: the rollout exits zero while doing no successful work.
+
+- Line 52: ARNI basename fallback is case-sensitive. Exact input: `rel = "ssot/ARNI.json"`, `page not in frozen`, object contains `KEY`. Consequence: the object described as excluded by ARNI fallback is treated as rebuildable.
+
+COULD NOT DETERMINE actual corpus coverage for selector-shape defects because `ssot/PAGE_MAP.json`, `ssot/do_not_rebuild.py`, and the object/page files are missing from the packet.
+
+No finding in the pasted module: merged-cell/off-by-one tabulation, CRLF-vs-LF equality comparison, negation-dropped text extraction, or worktree-vs-HEAD/origin copy confusion.
+tokens used
+12,179
+Defects found:
+
+- Line 63: `if limit:` conflates zero with absent. Exact input: `argv = ["script", "--limit=0"]` with `targets()` returning at least `[("p.html", "obj.json", False)]`. Consequence: a caller asking for zero rebuilds gets all targets rebuilt.
+
+- Line 41: `getattr(...DO_NOT_REBUILD...) or getattr(...PAGES...)` treats an intentionally empty freeze list as missing. Exact input: `do_not_rebuild.py` has `DO_NOT_REBUILD = set()` and stale `PAGES = {"p.html"}`. Consequence: `p.html` is skipped even though the authoritative list says nothing is frozen.
+
+- Lines 81-86 and 107: non-zero subprocess status is converted into “refused” and does not affect process exit. Exact input: one target page lacks `CUE`, object contains `KEY`, and `ssot/build_tabbed.py` exits `1` because the builder itself is broken. Consequence: the rollout exits zero while doing no successful work.
+
+- Line 52: ARNI basename fallback is case-sensitive. Exact input: `rel = "ssot/ARNI.json"`, `page not in frozen`, object contains `KEY`. Consequence: the object described as excluded by ARNI fallback is treated as rebuildable.
+
+COULD NOT DETERMINE actual corpus coverage for selector-shape defects because `ssot/PAGE_MAP.json`, `ssot/do_not_rebuild.py`, and the object/page files are missing from the packet.
+
+No finding in the pasted module: merged-cell/off-by-one tabulation, CRLF-vs-LF equality comparison, negation-dropped text extraction, or worktree-vs-HEAD/origin copy confusion.

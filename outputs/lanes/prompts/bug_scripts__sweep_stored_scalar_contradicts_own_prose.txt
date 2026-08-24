@@ -1,0 +1,199 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/sweep_stored_scalar_contradicts_own_prose.py
+
+--- THE FILE, IN FULL ---
+"""A stored scalar that its object's own sentences contradict. Third instance of the shape.
+
+`incretin-hfpef-review/kccq_css_change` stored `k: 1` while carrying TWO per-trial rows and
+while its own `pooled.stands_because` said, twice, "k=2, 1,094 participants". THE OBJECT
+CONTRADICTED ITSELF IN WRITING and nothing noticed, because a number and a sentence are stored
+in different fields and nothing reads both.
+
+    THIS IS CHECKABLE. That is the whole argument for the sweep: the object states the value in
+    prose, so the prose is a second independent record of the same fact, and where the two
+    disagree ONE OF THEM IS WRONG AND THE OBJECT ITSELF TELLS YOU SO.
+
+Third instance of the shape in three different fields:
+
+    the k field         incretin-hfpef, k=1 against its own "k=2" -- found 2026-08-21
+    the estimator       ten stored outputs printing DL where the object declares REML
+    the interval        three notes citing metafor's raw value as "this project's"
+
+WHAT IS CHECKED. For each pooled outcome block, the scalar fields `k`, the pooled `point`, and
+the heterogeneity `i2` are compared against every number the SAME BLOCK states in prose next to
+a matching cue word. Only cue-anchored numbers are read: "k = 2", "k=2", "I-squared 0 per cent",
+"I2 = 68.8%". A number floating in a sentence with no cue is NOT matched to a field, because
+prose is full of numbers and pattern-matching them all would manufacture disagreements.
+
+WHY THIS CANNOT SIMPLY BE MADE A GATE YET. A prose sentence may legitimately quote a DIFFERENT
+value from the field beside it -- a superseded estimate, another review's number, a value from
+a sibling outcome. Every hit here is REPORTED FOR READING, and the file says so rather than
+exiting non-zero on a population it has not characterised.
+"""
+import glob
+import io
+import json
+import os
+import re
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from instrument_controls import require_controls          # noqa: E402
+
+NUM = r"(\d+(?:\.\d+)?)"
+
+CUES = {
+    "k": [re.compile(r"\bk\s*=\s*" + NUM), re.compile(r"\bk\s+of\s+" + NUM),
+          re.compile(r"pooled at k\s*=\s*" + NUM, re.I)],
+    "i2": [re.compile(r"I-squared\s+" + NUM + r"\s*(?:%|per cent)", re.I),
+           re.compile(r"I\^?2\s*=?\s*" + NUM + r"\s*%", re.I),
+           re.compile(r"I-squared of\s+" + NUM, re.I)],
+}
+
+# Prose keys whose whole purpose is to describe something OTHER than this block's own current
+# value. Reading them would manufacture disagreements out of correct records.
+SKIP_KEYS = re.compile(
+    r"superseded|previous|prior|withdrawn|replaces|was_|_was|history|restored|corrected|"
+    r"POOL_FINDINGS|published_comparison|r_output|verbatim|display_change|why_this_was_re_run|"
+    r"_2026_|comparison|their_|SECOND_ASSESSOR", re.I)
+
+
+def prose_of(blk, depth=0):
+    """Every string leaf under a result block, skipping keys that describe other values."""
+    out = []
+    if isinstance(blk, str):
+        return [blk]
+    if isinstance(blk, dict):
+        for k, v in blk.items():
+            if SKIP_KEYS.search(str(k)):
+                continue
+            out.extend(prose_of(v, depth + 1))
+    elif isinstance(blk, list):
+        for v in blk:
+            out.extend(prose_of(v, depth + 1))
+    return out
+
+
+def stated(text, field):
+    vals = set()
+    for pat in CUES[field]:
+        for m in pat.finditer(text):
+            vals.add(m.group(1))
+    return vals
+
+
+def main():
+    # KNOWN ANSWER. The case that prompted this file, as it stood before the fix, must be
+    # detected; and a block whose prose agrees with its field must not be.
+    demo_bad = {"k": 1, "pooled": {"stands_because": "IT IS POOLED AT k=2, NOT k=3."}}
+    demo_ok = {"k": 2, "pooled": {"stands_because": "IT IS POOLED AT k=2, NOT k=3."}}
+    # THE CONTROL TESTS THE VERDICT, NOT THE INTERMEDIATE SET.
+    #
+    # A first version asserted that the extracted set equals {"2"}. It does not: the sentence
+    # says "POOLED AT k=2, NOT k=3" and states BOTH numbers, so the set is {"2","3"}. The
+    # control failed on a correct extraction -- an instrument refusing to run because its own
+    # expectation was wrong about the data. The verdict is what matters: does ANY stated value
+    # agree with the stored field.
+    def contradicted(block, field):
+        said = stated(" ".join(prose_of(block)), field)
+        stored = block.get(field)
+        if not said or not isinstance(stored, (int, float)):
+            return None
+        return not any(abs(float(x) - float(stored)) < 0.05 for x in said)
+
+    require_controls(
+        "sweep_stored_scalar_contradicts_own_prose",
+        positive=("incretin-hfpef's k=1 against its own 'POOLED AT k=2, NOT k=3' is detected "
+                  "-- the prose states TWO values and neither is 1",
+                  contradicted(demo_bad, "k") is True, True),
+        negative=("a block whose prose states k=2 alongside a stored k of 2 is reported as "
+                  "contradicting itself",
+                  contradicted(demo_ok, "k") is True, True))
+
+    blocks = 0
+    checked = 0
+    hits = []
+    for p in sorted(glob.glob(os.path.join(REPO, "ssot", "*", "*.json"))):
+        topic = os.path.basename(os.path.dirname(p))
+        if os.path.basename(p) != topic + ".json":
+            continue
+        try:
+            obj = json.load(io.open(p, encoding="utf-8"))
+        except ValueError:
+            continue
+        for oid, blk in sorted(((obj.get("results") or {}).get("by_outcome") or {}).items()):
+            if not isinstance(blk, dict):
+                continue
+            blocks += 1
+            text = " ".join(prose_of(blk))
+            if not text.strip():
+                continue
+            for field, stored in (("k", blk.get("k")),
+                                  ("i2", (blk.get("heterogeneity") or {}).get("i2"))):
+                if not isinstance(stored, (int, float)):
+                    continue
+                said = stated(text, field)
+                if not said:
+                    continue
+                checked += 1
+                agree = any(abs(float(s) - float(stored)) < 0.05 for s in said)
+                if not agree:
+                    hits.append((topic, oid, field, stored, sorted(said)))
+
+    print("")
+    print("POPULATION")
+    print("   outcome blocks swept                                  %d" % blocks)
+    print("   blocks where the block's OWN PROSE states the value    %d" % checked)
+    print("   (a block whose prose never states the number cannot be checked and is not")
+    print("    counted as passing)")
+    print("")
+    if hits:
+        print("STORED SCALARS THEIR OBJECT'S OWN SENTENCES CONTRADICT: %d" % len(hits))
+        for topic, oid, field, stored, said in hits:
+            print("   %-34s %-30s %-4s field=%s  prose says %s"
+                  % (topic[:34], oid[:30], field, stored, ", ".join(said)))
+    else:
+        print("NO STORED SCALAR IS CONTRADICTED BY ITS OWN OBJECT'S PROSE.")
+    print("")
+    print("NOT A GATE. A sentence may legitimately quote a value other than the field beside")
+    print("it -- a superseded estimate, a sibling outcome, another review's number. Keys whose")
+    print("purpose is to describe another value are skipped by name, and what remains is")
+    print("reported for reading rather than exited on.")
+
+
+if __name__ == "__main__":
+    main()

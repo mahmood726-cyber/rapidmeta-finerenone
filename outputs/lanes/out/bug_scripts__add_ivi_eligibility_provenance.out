@@ -1,0 +1,333 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a0311a-d442-7dd0-b373-45e8c5e2de3f
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/add_ivi_eligibility_provenance.py
+
+--- THE FILE, IN FULL ---
+#!/usr/bin/env python3
+"""Write `screening.eligibility_provenance` onto iv-iron-hf, one element at a time.
+
+WHY THE BLOCK LIVES ON THE OBJECT AND NOT IN THE BUILDER. P3 checks for this block. If the
+builder wrote it, the build would be verifying something the same build had just produced,
+which is not a check. The object carries it; the builder reads it.
+
+WHY EACH ELEMENT NAMES A SOURCE FIELD. `inclusion_criteria_auditable` failing is not a
+retrieval problem -- it is a claim about whether each criterion can be checked against a named
+field on each contributing trial. So every element below records the registry field that
+settles it, and where no field settles it, that is recorded too rather than left blank.
+"""
+import io
+import json
+import os
+
+OBJ = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                   "ssot", "iv-iron-hf", "iv-iron-hf.json")
+
+BLOCK = {
+    "state": "NATIVE_TO_THIS_OBJECT",
+    "predefined": None,
+    "predefined_is_null_because": (
+        "UNKNOWN, and null is the honest value -- the third state, not a soft 'no'. These "
+        "criteria are this object's OWN: they turn on population, intervention, comparator, "
+        "route and outcome, and the object states on its face that NO CRITERION REFERS TO "
+        "MEMBERSHIP OF A LIST, which is the signature of criteria written backwards from an "
+        "included set. But no protocol record exists, so whether they were fixed BEFORE the "
+        "included set was chosen cannot be established either way. `false` would claim they "
+        "were post hoc; `true` would claim a pre-specification we cannot show. Precondition "
+        "criteria_predefined is therefore NOT_ASSESSABLE."),
+    "derived": False,
+    "authority_it_satisfies": "MECIR R29/R30/R31 -- the review STATES its eligibility criteria.",
+    "authority_it_does_NOT_establish": "MECIR C5/C7 -- criteria DEFINED IN ADVANCE.",
+    "what_would_settle_it": "a protocol record with a timestamp preceding the first executed query",
+    "elements": [
+        {"element": "POPULATION", "criterion": "adults with heart failure and iron deficiency",
+         "auditable_against": "protocolSection.conditionsModule.conditions",
+         "settles_it": True,
+         "evidence": "All five contributing registrations name BOTH limbs in that field: "
+                     "'Iron Deficiency; Chronic Heart Failure' (CONFIRM-HF), 'Iron Deficiency; "
+                     "Heart Failure' (AFFIRM-AHF), 'Chronic Heart Failure; Iron Deficiency; "
+                     "Left Ventricular Systolic Dysfunction' (IRONMAN), 'Heart Failure; "
+                     "Iron-deficiency' (HEART-FID), 'Systolic Heart Failure; Iron Deficiency' "
+                     "(FAIR-HF2)."},
+        {"element": "INTERVENTION",
+         "criterion": "iron as ferric carboxymaltose or ferric derisomaltose",
+         "auditable_against": "protocolSection.armsInterventionsModule.interventions[].name",
+         "settles_it": True,
+         "evidence": "Matched by the declared synonym set in ssot/topic_identity.TOPIC_SYNONYMS "
+                     "['intravenous iron'], against intervention NAMES rather than descriptions "
+                     "-- a description mentioning a drug does not mean the drug was randomised."},
+        {"element": "ROUTE (intravenous)", "criterion": "INTRAVENOUS administration",
+         "auditable_against": "protocolSection.armsInterventionsModule.interventions[].name",
+         "settles_it": True,
+         "evidence": "Carried by the agent name itself: ferric carboxymaltose and ferric "
+                     "derisomaltose are intravenous-only preparations, so the route is entailed "
+                     "by the intervention field and needs no separate route field."},
+        {"element": "COMPARATOR", "criterion": "placebo OR usual care",
+         "auditable_against": "protocolSection.armsInterventionsModule.armGroups[].type",
+         "settles_it": False,
+         "evidence_and_why_it_does_not_settle": (
+             "THE FIELD IS NOT SUFFICIENT HERE, and this is the element that most needed "
+             "checking rather than asserting. AFFIRM-AHF and HEART-FID type their IRON arm "
+             "ACTIVE_COMPARATOR against a PLACEBO_COMPARATOR saline arm and declare NO arm "
+             "typed EXPERIMENTAL at all. Read literally, the arm-type field would place the "
+             "topic drug in the comparator role on 2 of the 5 contributing trials. The "
+             "criterion is settled instead by ssot/topic_identity.locate()'s "
+             "placebo-discriminator -- placebo is never the intervention, so a drug randomised "
+             "against it is -- which is a DERIVED judgement and is labelled as one. The 'OR "
+             "usual care' half is load-bearing rather than generous: IRONMAN randomised against "
+             "usual care, and a placebo-only criterion would exclude a contributing trial."),
+         "derived_by": "ssot/topic_identity.locate() over raw v2 armGroups"},
+        {"element": "OUTCOME",
+         "criterion": "a designated CLINICAL-EVENT endpoint, or a registered functional primary "
+                      "that a regulator relies on",
+         "auditable_against": "protocolSection.outcomesModule.primaryOutcomes[].measure",
+         "settles_it": True,
+         "evidence": "Read verbatim per trial and recorded in the extraction table. The "
+                     "'or a registered functional primary' half admits CONFIRM-HF, whose "
+                     "primary is 'Change in six minute walk test from baseline to week 24' -- "
+                     "a unit of METRES, which is why it is reported as its own estimand and "
+                     "not harmonised into an event composite."},
+        {"element": "ADJUDICATION", "criterion": "DELIBERATELY ABSENT from the criteria",
+         "auditable_against": "no registry field records adjudication",
+         "settles_it": False,
+         "evidence_and_why_it_does_not_settle": (
+             "Recorded because its ABSENCE is a decision, not an oversight, and an unstated "
+             "decision is indistinguishable from an unnoticed one. Two contributing trials' "
+             "staged sources state adjudication plainly. What cannot be shown is that EVERY "
+             "contributing trial's sources establish it -- so a criterion demanding adjudication "
+             "would be one this review could not show all its own members satisfy.")},
+    ],
+    "elements_summary": (
+        "6 elements: 4 settled by a named registry field, 2 NOT settled by any field and "
+        "labelled as derived or as a recorded absence. THE COUNT OF UNSETTLED ELEMENTS IS "
+        "STATED because a provenance block listing only the auditable elements would report "
+        "that everything is auditable."),
+}
+
+
+def main():
+    with io.open(OBJ, encoding="utf-8") as fh:
+        obj = json.load(fh)
+    scr = obj.setdefault("screening", {})
+    before = set(scr.keys())
+    scr["eligibility_provenance"] = BLOCK
+    assert before <= set(scr.keys()), "this script ADDS only"
+    with io.open(OBJ, "w", encoding="utf-8", newline="") as fh:
+        fh.write(json.dumps(obj, indent=1, ensure_ascii=False) + "\n")
+    print("eligibility_provenance written: %d elements, %d settled by a named field"
+          % (len(BLOCK["elements"]), sum(1 for e in BLOCK["elements"] if e["settles_it"])))
+
+
+if __name__ == "__main__":
+    main()
+
+codex
+I’m going to keep this to the pasted module and verify line numbers against the workspace copy only for numbering, not to add facts outside the packet.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$paths=@('"'F:\\ProjectIndex\\INDEX.md','F:\\E156\\rewrite-workbook.txt'); foreach ("'$p in $paths) { if (Test-Path -LiteralPath $p) { '"'{0}: PRESENT' -f "'$p } else { '"'{0}: MISSING' -f "'$p } }' in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$p='"'F:\\rapidmeta-ssot-shell\\scripts\\add_ivi_eligibility_provenance.py'; if (Test-Path -LiteralPath "'$p) { $i=1; Get-Content -LiteralPath $p | ForEach-Object { '"'{0,4}: {1}' -f "'$i, $_; $i++ } } else { '"'MISSING' }" in F:\rapidmeta-ssot-shell
+ succeeded in 1710ms:
+F:\ProjectIndex\INDEX.md: PRESENT
+F:\E156\rewrite-workbook.txt: PRESENT
+
+ succeeded in 1783ms:
+   1: #!/usr/bin/env python3
+   2: """Write `screening.eligibility_provenance` onto iv-iron-hf, one element at a time.
+   3: 
+   4: WHY THE BLOCK LIVES ON THE OBJECT AND NOT IN THE BUILDER. P3 checks for this block. If the
+   5: builder wrote it, the build would be verifying something the same build had just produced,
+   6: which is not a check. The object carries it; the builder reads it.
+   7: 
+   8: WHY EACH ELEMENT NAMES A SOURCE FIELD. `inclusion_criteria_auditable` failing is not a
+   9: retrieval problem -- it is a claim about whether each criterion can be checked against a named
+  10: field on each contributing trial. So every element below records the registry field that
+  11: settles it, and where no field settles it, that is recorded too rather than left blank.
+  12: """
+  13: import io
+  14: import json
+  15: import os
+  16: 
+  17: OBJ = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+  18:                    "ssot", "iv-iron-hf", "iv-iron-hf.json")
+  19: 
+  20: BLOCK = {
+  21:     "state": "NATIVE_TO_THIS_OBJECT",
+  22:     "predefined": None,
+  23:     "predefined_is_null_because": (
+  24:         "UNKNOWN, and null is the honest value -- the third state, not a soft 'no'. These "
+  25:         "criteria are this object's OWN: they turn on population, intervention, comparator, "
+  26:         "route and outcome, and the object states on its face that NO CRITERION REFERS TO "
+  27:         "MEMBERSHIP OF A LIST, which is the signature of criteria written backwards from an "
+  28:         "included set. But no protocol record exists, so whether they were fixed BEFORE the "
+  29:         "included set was chosen cannot be established either way. `false` would claim they "
+  30:         "were post hoc; `true` would claim a pre-specification we cannot show. Precondition "
+  31:         "criteria_predefined is therefore NOT_ASSESSABLE."),
+  32:     "derived": False,
+  33:     "authority_it_satisfies": "MECIR R29/R30/R31 -- the review STATES its eligibility criteria.",
+  34:     "authority_it_does_NOT_establish": "MECIR C5/C7 -- criteria DEFINED IN ADVANCE.",
+  35:     "what_would_settle_it": "a protocol record with a timestamp preceding the first executed query",
+  36:     "elements": [
+  37:         {"element": "POPULATION", "criterion": "adults with heart failure and iron deficiency",
+  38:          "auditable_against": "protocolSection.conditionsModule.conditions",
+  39:          "settles_it": True,
+  40:          "evidence": "All five contributing registrations name BOTH limbs in that field: "
+  41:                      "'Iron Deficiency; Chronic Heart Failure' (CONFIRM-HF), 'Iron Deficiency; "
+  42:                      "Heart Failure' (AFFIRM-AHF), 'Chronic Heart Failure; Iron Deficiency; "
+  43:                      "Left Ventricular Systolic Dysfunction' (IRONMAN), 'Heart Failure; "
+  44:                      "Iron-deficiency' (HEART-FID), 'Systolic Heart Failure; Iron Deficiency' "
+  45:                      "(FAIR-HF2)."},
+  46:         {"element": "INTERVENTION",
+  47:          "criterion": "iron as ferric carboxymaltose or ferric derisomaltose",
+  48:          "auditable_against": "protocolSection.armsInterventionsModule.interventions[].name",
+  49:          "settles_it": True,
+  50:          "evidence": "Matched by the declared synonym set in ssot/topic_identity.TOPIC_SYNONYMS "
+  51:                      "['intravenous iron'], against intervention NAMES rather than descriptions "
+  52:                      "-- a description mentioning a drug does not mean the drug was randomised."},
+  53:         {"element": "ROUTE (intravenous)", "criterion": "INTRAVENOUS administration",
+  54:          "auditable_against": "protocolSection.armsInterventionsModule.interventions[].name",
+  55:          "settles_it": True,
+  56:          "evidence": "Carried by the agent name itself: ferric carboxymaltose and ferric "
+  57:                      "derisomaltose are intravenous-only preparations, so the route is entailed "
+  58:                      "by the intervention field and needs no separate route field."},
+  59:         {"element": "COMPARATOR", "criterion": "placebo OR usual care",
+  60:          "auditable_against": "protocolSection.armsInterventionsModule.armGroups[].type",
+  61:          "settles_it": False,
+  62:          "evidence_and_why_it_does_not_settle": (
+  63:              "THE FIELD IS NOT SUFFICIENT HERE, and this is the element that most needed "
+  64:              "checking rather than asserting. AFFIRM-AHF and HEART-FID type their IRON arm "
+  65:              "ACTIVE_COMPARATOR against a PLACEBO_COMPARATOR saline arm and declare NO arm "
+  66:              "typed EXPERIMENTAL at all. Read literally, the arm-type field would place the "
+  67:              "topic drug in the comparator role on 2 of the 5 contributing trials. The "
+  68:              "criterion is settled instead by ssot/topic_identity.locate()'s "
+  69:              "placebo-discriminator -- placebo is never the intervention, so a drug randomised "
+  70:              "against it is -- which is a DERIVED judgement and is labelled as one. The 'OR "
+  71:              "usual care' half is load-bearing rather than generous: IRONMAN randomised against "
+  72:              "usual care, and a placebo-only criterion would exclude a contributing trial."),
+  73:          "derived_by": "ssot/topic_identity.locate() over raw v2 armGroups"},
+  74:         {"element": "OUTCOME",
+  75:          "criterion": "a designated CLINICAL-EVENT endpoint, or a registered functional primary "
+  76:                       "that a regulator relies on",
+  77:          "auditable_against": "protocolSection.outcomesModule.primaryOutcomes[].measure",
+  78:          "settles_it": True,
+  79:          "evidence": "Read verbatim per trial and recorded in the extraction table. The "
+  80:                      "'or a registered functional primary' half admits CONFIRM-HF, whose "
+  81:                      "primary is 'Change in six minute walk test from baseline to week 24' -- "
+  82:                      "a unit of METRES, which is why it is reported as its own estimand and "
+  83:                      "not harmonised into an event composite."},
+  84:         {"element": "ADJUDICATION", "criterion": "DELIBERATELY ABSENT from the criteria",
+  85:          "auditable_against": "no registry field records adjudication",
+  86:          "settles_it": False,
+  87:          "evidence_and_why_it_does_not_settle": (
+  88:              "Recorded because its ABSENCE is a decision, not an oversight, and an unstated "
+  89:              "decision is indistinguishable from an unnoticed one. Two contributing trials' "
+  90:              "staged sources state adjudication plainly. What cannot be shown is that EVERY "
+  91:              "contributing trial's sources establish it -- so a criterion demanding adjudication "
+  92:              "would be one this review could not show all its own members satisfy.")},
+  93:     ],
+  94:     "elements_summary": (
+  95:         "6 elements: 4 settled by a named registry field, 2 NOT settled by any field and "
+  96:         "labelled as derived or as a recorded absence. THE COUNT OF UNSETTLED ELEMENTS IS "
+  97:         "STATED because a provenance block listing only the auditable elements would report "
+  98:         "that everything is auditable."),
+  99: }
+ 100: 
+ 101: 
+ 102: def main():
+ 103:     with io.open(OBJ, encoding="utf-8") as fh:
+ 104:         obj = json.load(fh)
+ 105:     scr = obj.setdefault("screening", {})
+ 106:     before = set(scr.keys())
+ 107:     scr["eligibility_provenance"] = BLOCK
+ 108:     assert before <= set(scr.keys()), "this script ADDS only"
+ 109:     with io.open(OBJ, "w", encoding="utf-8", newline="") as fh:
+ 110:         fh.write(json.dumps(obj, indent=1, ensure_ascii=False) + "\n")
+ 111:     print("eligibility_provenance written: %d elements, %d settled by a named field"
+ 112:           % (len(BLOCK["elements"]), sum(1 for e in BLOCK["elements"] if e["settles_it"])))
+ 113: 
+ 114: 
+ 115: if __name__ == "__main__":
+ 116:     main()
+
+codex
+Defect found:
+
+- **A check that CANNOT FAIL**: line 108  
+  Exact input in `ssot/iv-iron-hf/iv-iron-hf.json`:
+  ```json
+  {"screening":{"eligibility_provenance":{"state":"OLD"},"keep":1}}
+  ```
+  Consequence: line 107 overwrites existing `eligibility_provenance`, but `before <= set(scr.keys())` still passes because the key set did not shrink, so the “ADDS only” assertion cannot detect replacement.
+
+No finding: probe keyed to the string a fix removes.  
+No finding: idempotency guard satisfied by its own comment or marker.  
+No finding: instrument reading a different copy.  
+No finding: selector keyed to a form the corpus does not use.  
+No finding: values compared as text with CRLF/LF sensitivity.  
+No finding: merged-cell or off-by-one tabulation/count error.  
+No finding: zero conflated with absent.  
+No finding: negation dropped.  
+No finding: status code reporting wrapper rather than work.
+tokens used
+9,055
+Defect found:
+
+- **A check that CANNOT FAIL**: line 108  
+  Exact input in `ssot/iv-iron-hf/iv-iron-hf.json`:
+  ```json
+  {"screening":{"eligibility_provenance":{"state":"OLD"},"keep":1}}
+  ```
+  Consequence: line 107 overwrites existing `eligibility_provenance`, but `before <= set(scr.keys())` still passes because the key set did not shrink, so the “ADDS only” assertion cannot detect replacement.
+
+No finding: probe keyed to the string a fix removes.  
+No finding: idempotency guard satisfied by its own comment or marker.  
+No finding: instrument reading a different copy.  
+No finding: selector keyed to a form the corpus does not use.  
+No finding: values compared as text with CRLF/LF sensitivity.  
+No finding: merged-cell or off-by-one tabulation/count error.  
+No finding: zero conflated with absent.  
+No finding: negation dropped.  
+No finding: status code reporting wrapper rather than work.

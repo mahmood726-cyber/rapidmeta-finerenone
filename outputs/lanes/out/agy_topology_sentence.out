@@ -1,0 +1,15 @@
+**1. Facts and Non-Facts**
+The clause *"every non-comparator treatment is evaluated purely via indirect comparison..."* is **not** a fact about the graph. It is an assertion about an analytical action. The topology only dictates that *if* relative effects are estimated, the path must be indirect. In the `antimalarial-act` network, this clause is demonstrably false because the JSON explicitly states, "NO INDIRECT ESTIMATE IS COMPUTED." 
+
+**2. Omissions from the Topology**
+The sentence leaves out two topological facts:
+* Paths between non-comparators **do exist** (as the JSON notes: "An indirect comparison... IS constructible here"). The star shape provides the path; it does not forbid the comparison.
+* The direct comparisons against the common comparator are informed *exclusively* by direct evidence, as the absence of loops means no indirect pathways exist to contribute weight to those edges.
+
+**3. The Temptation to Judgement**
+A well-meaning author might be tempted to append a qualitative conclusion about the *validity* or *reliability* of the network, such as "therefore the rankings are highly uncertain," "rendering the indirect comparisons unreliable," or stating that the transitivity assumption has failed. The graph dictates that consistency *cannot be checked*; declaring the estimates untrustworthy because of that missing check is a judgement.
+
+**4. Checking the Real Networks**
+* **`antimalarial-act`:** The sentence is **FALSE**. While the topology is a loopless star, the non-comparators are *not* evaluated against each other; the authors withheld the calculation based on clinical transitivity grounds.
+* **`cryptococcal-meningitis`:** The sentence is **FALSE**. The graph is not a star. It is disconnected (`components: 2`, `connected: false`) with no universal reference treatment, and it *does* contain a closed loop (`closed_loops: 1`).
+* **Replacement for the non-star:** "This network is disconnected into multiple components with no single common comparator linking all treatments. Its single closed loop is drawn entirely by one multi-arm trial, which provides no independent indirect evidence to assess statistical consistency."

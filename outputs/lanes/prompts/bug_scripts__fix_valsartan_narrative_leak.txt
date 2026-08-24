@@ -1,0 +1,177 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/fix_valsartan_narrative_leak.py
+
+--- THE FILE, IN FULL ---
+"""
+Fix the residual valsartan/sacubitril leak in user-visible English narrative,
+patient summary, README content, embedded HTML output, and Python script
+metadata. Complements the prior `app:` and filename fixes.
+
+Strategy: derive a per-file "drug name" from the dashboard's <title>
+(text between "| " and the next " for|in|v"), then replace all visible
+"Sacubitril/Valsartan" / "sacubitril/valsartan" (English-narrative,
+non-i18n-key) instances with that drug name.
+
+Also strips the hard-coded ", a non-steroidal mineralocorticoid receptor
+antagonist," phrase that is finerenone's class -- accidentally hard-coded
+into the narrative for every clone. Replace with a generic ",".
+
+Skipped: ARNI_HF_REVIEW.html (real sacubitril/valsartan dashboard) and
+frozen e156-submission snapshots.
+
+Idempotent: skipped if no visible-narrative leaks remain.
+
+Usage: python scripts/fix_valsartan_narrative_leak.py [--dry-run]
+"""
+import argparse
+import io
+import os
+import re
+import sys
+
+if sys.platform == 'win32':
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+
+ROOT = os.environ.get(
+    'RAPIDMETA_REPO_ROOT',
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+)
+
+SKIP = {'ARNI_HF_REVIEW.html'}
+
+TITLE_RE = re.compile(r'<title>RapidMeta\s+[^|]+\|\s*(.+?)\s*v\d', re.IGNORECASE)
+TITLE_FALLBACK_RE = re.compile(r'<title>\s*(.*?)\s*</title>', re.IGNORECASE | re.DOTALL)
+
+
+def derive_drug_name(html: str, fallback: str) -> str:
+    m = TITLE_RE.search(html)
+    if not m:
+        m2 = TITLE_FALLBACK_RE.search(html)
+        if m2:
+            t = m2.group(1).strip()
+            return t.split('|', 1)[-1].strip().rstrip('v0123456789. ').strip() or fallback
+        return fallback
+    drug = m.group(1).strip()
+    # Trim trailing " for ..." / " in ..." clauses to get the bare drug name
+    drug = re.split(r'\s+(?:for|in)\s+', drug, maxsplit=1)[0].strip()
+    drug = drug.rstrip(',. ')
+    return drug or fallback
+
+
+# Specific replacement passes. Each is a (pattern, replacement-fn) tuple.
+# The replacement-fn takes the per-file `drug` and returns the new string.
+def make_replacements(drug):
+    # Strip hard-coded mechanism (finerenone-specific) where it appears.
+    # The narrative says "<DRUG>, a non-steroidal mineralocorticoid receptor
+    # antagonist, ..." — for any non-finerenone dashboard this clause is
+    # incorrect. Replace with bare comma.
+    return [
+        # Narrative comma-clause
+        (r'Sacubitril/Valsartan, a non-steroidal mineralocorticoid receptor antagonist,',
+         f'{drug},'),
+        # i18n source-key (English side) for the narrative -- still leaks if any
+        # English-side dictionary lookup happens. We replace the English key
+        # only; the Arabic translation is left untouched.
+        (r'Sacubitril/Valsartan reduced the risk of major heart and kidney events by about',
+         f'{drug} reduced the risk of the primary outcome by about'),
+        (r'Sacubitril/Valsartan was associated with a',
+         f'{drug} was associated with a'),
+        (r'Sacubitril/Valsartan Waiting Room Summary',
+         f'{drug} Waiting Room Summary'),
+        # Plain-text and HTML headings / fragments
+        (r'<h1 style="text-align:center;margin-bottom:1.5rem;font-size:1.3rem">Sacubitril/Valsartan ',
+         f'<h1 style="text-align:center;margin-bottom:1.5rem;font-size:1.3rem">{drug} '),
+        # README content
+        (r'Sacubitril/Valsartan v12\.0 Reproducibility Capsule',
+         f'{drug} v12.0 Reproducibility Capsule'),
+        (r'Sacubitril/Valsartan v12\.0 - Python validation \(numpy only, no scipy\)',
+         f'{drug} v12.0 - Python validation (numpy only, no scipy)'),
+        (r'RapidMeta v11\.0 - Python validation script for Sacubitril/Valsartan meta-analysis\.',
+         f'RapidMeta v11.0 - Python validation script for {drug} meta-analysis.'),
+        # meta.app fields
+        (r"app: 'RapidMeta Sacubitril/Valsartan',",
+         f"app: 'RapidMeta {drug}',"),
+        # Embedded HTML
+        (r'<h1>Sacubitril/Valsartan in Heart Failure</h1>',
+         f'<h1>{drug}</h1>'),
+        (r'Generated by RapidMeta Sacubitril/Valsartan v12\.0\.',
+         f'Generated by RapidMeta {drug} v12.0.'),
+        # Catch-all for any remaining literal Sacubitril/Valsartan in
+        # JS-template-string narrative contexts (e.g. const narrative = `...`)
+        # We only replace standalone `Sacubitril/Valsartan` not preceded by
+        # a quote-and-key (i18n English key) or comment marker.
+        (r"`Sacubitril/Valsartan,", f"`{drug},"),
+    ]
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument('--dry-run', action='store_true')
+    args = ap.parse_args()
+    print(f'Mode: {"DRY-RUN" if args.dry_run else "APPLY"}')
+    files = sorted(
+        f for f in os.listdir(ROOT)
+        if f.endswith('_REVIEW.html')
+        and not f.endswith('.bak.html')
+        and f not in SKIP
+    )
+    summary = {'changed': 0, 'unchanged': 0, 'no_drug': 0}
+    for fname in files:
+        path = os.path.join(ROOT, fname)
+        src = open(path, 'r', encoding='utf-8').read()
+        # Quick check: any of the patterns present?
+        if 'Sacubitril/Valsartan' not in src and 'sacubitril/valsartan' not in src:
+            summary['unchanged'] += 1
+            continue
+        drug_fallback = fname.replace('_REVIEW.html', '').replace('_', ' ').title()
+        drug = derive_drug_name(src, drug_fallback)
+        if not drug or drug == drug_fallback:
+            summary['no_drug'] += 1
+        out = src
+        for old_pat, new_str in make_replacements(drug):
+            out = re.sub(old_pat, new_str, out)
+        if out != src:
+            if not args.dry_run:
+                open(path, 'w', encoding='utf-8').write(out)
+            summary['changed'] += 1
+        else:
+            summary['unchanged'] += 1
+    print(f'Summary: {summary}')
+    return 0
+
+
+if __name__ == '__main__':
+    sys.exit(main())

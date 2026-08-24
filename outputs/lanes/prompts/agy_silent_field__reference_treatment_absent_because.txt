@@ -1,0 +1,1644 @@
+PACKET COMPLETENESS, ASSERTED. Everything you need is in this message. The
+material below is reproduced IN FULL and unabridged; nothing is withheld or
+summarised. You have no file access and should not ask for any.
+
+If something you need is genuinely not here, answer COULD NOT DETERMINE and
+NAME what is missing. Do NOT say anything is fabricated, invented, or absent
+from the record: an earlier blinded read of a partial packet returned six
+confident accusations of fabrication, and all six named facts that were
+present in the record and missing only from the packet. A false accusation
+costs as much here as a missed defect.
+
+A field is RECORDED on 1 object(s) in this corpus and appears on
+ZERO delivered pages. The audit that found it can measure that silence and cannot judge it.
+You are being asked for the judgement, and only the judgement.
+
+THE FIELD: reference_treatment_absent_because
+HELD BY: 1 object(s).  SHOWN ON: 0 pages.
+
+The question is NOT whether the field is well written. It is:
+
+1. IS A READER OWED THIS? Answer OWED / NOT OWED / COULD NOT DETERMINE, and say why in one
+   sentence. Some silence is correct -- a field recording an internal decision, a duplicate
+   of text already shown under another name, or a machine flag -- and saying NOT OWED where
+   that is true is as valuable as saying OWED where it is not.
+2. IF OWED: WHERE. Which reader, at what moment, needs it. A qualification shown in a place
+   nobody reads has not reached anyone.
+3. IS IT A DUPLICATE? Search the complete object below. If this text is already on a page
+   under a different field name, say so and name the other field -- that would make the
+   silence harmless and the finding a false positive.
+4. WHAT WOULD BE LOST if this were simply deleted rather than shown?
+
+Under 350 words. If the stored value is boilerplate that says nothing, say so plainly.
+
+--- THE STORED VALUES, AND ONE COMPLETE OBJECT THAT HOLDS THE FIELD ---
+{
+ "field": "reference_treatment_absent_because",
+ "holders": [
+  {
+   "topic": "cryptococcal-meningitis",
+   "path_in_object": "network.reference_treatment_absent_because",
+   "stored_value": "A reference treatment is the node every other node is expressed against, and naming one presupposes that every node can reach it. In a graph that falls into more than one piece there is no such node, so naming one would assert a comparison that does not exist. Each trial has its own reference arm, and those are marked on the nodes."
+  }
+ ],
+ "THE_COMPLETE_OBJECT": {
+  "app_id": "cryptococcal-meningitis",
+  "schema_version": 2,
+  "title": "Cryptococcal meningitis: an antifungal induction network that does not connect, and a separate trial of when to start antiretroviral therapy",
+  "question": "Among randomised trials in HIV-associated cryptococcal meningitis, what does each antifungal induction trial report for ten-week mortality, can those trials be joined into a network, and what does the separate trial of antiretroviral timing report?",
+  "built": "2026-08-09",
+  "_prose_rule": "Prose may not restate a number the object holds structurally.",
+  "_staging_note": "Each source is staged as a plain text extract, and a JSON wrapper beside it carries the same text with a hash of it. The registry points at the TEXT, because that is the file the gate hands a reviewer and the file every quoted sentence was read from. It previously pointed at the wrapper, which the gate deliberately withholds, so a checker following the registry would have been sent to a file no reviewer saw.",
+  "_sourcing_rule": "Every MEASURED input carries the verbatim sentence it was read from. Where a source is behind a paywall, that is recorded on the source and on every block the restriction touches, and no figure is carried beyond what the accessible text states.",
+  "_estimand_rule": "Three different estimands appear here and none is converted into another: two absolute risk differences with one-sided bounds, and one hazard ratio. Where a risk ratio is computed from counts so two trials can be read side by side, it is flagged as derived and the trial's own estimand is carried beside it.",
+  "build_mode": "full",
+  "cited_total": 3,
+  "completeness_statement": "Every trial named is held with its counts and its own estimand. Nothing was cited and then dropped, so there is no removal block and no quarantine. Claims previously attached to this topic are carried under claims_corrected rather than silently deleted.",
+  "network": {
+   "scope": "antifungal induction only",
+   "treatments": [
+    {
+     "id": "ORAL_FLU_5FC",
+     "component": "antifungal-induction",
+     "label": "oral fluconazole 1200 mg/day plus flucytosine 100 mg/kg/day for two weeks",
+     "trial": "ACTA",
+     "is_reference": false
+    },
+    {
+     "id": "AMB1W_MIXED",
+     "component": "antifungal-induction",
+     "label": "one week of amphotericin B deoxycholate 1 mg/kg/day, partner drug randomised between flucytosine and fluconazole",
+     "trial": "ACTA",
+     "is_reference": false
+    },
+    {
+     "id": "AMB2W_MIXED",
+     "component": "antifungal-induction",
+     "label": "two weeks of amphotericin B deoxycholate 1 mg/kg/day, partner drug randomised between flucytosine and fluconazole",
+     "trial": "ACTA",
+     "is_reference": true
+    },
+    {
+     "id": "LAMB_SINGLE",
+     "component": "antifungal-induction",
+     "label": "a single 10 mg/kg dose of liposomal amphotericin B with flucytosine and fluconazole for two weeks",
+     "trial": "AMBITION-cm",
+     "is_reference": false
+    },
+    {
+     "id": "AMB1W_5FC",
+     "component": "antifungal-induction",
+     "label": "one week of amphotericin B deoxycholate 1 mg/kg/day with flucytosine, then fluconazole 1200 mg/day on days eight to fourteen",
+     "trial": "AMBITION-cm",
+     "is_reference": true
+    }
+   ],
+   "reference_treatment": null,
+   "reference_treatment_absent_because": "A reference treatment is the node every other node is expressed against, and naming one presupposes that every node can reach it. In a graph that falls into more than one piece there is no such node, so naming one would assert a comparison that does not exist. Each trial has its own reference arm, and those are marked on the nodes.",
+   "edges": [
+    {
+     "comparison": "ORAL_FLU_5FC vs AMB2W_MIXED",
+     "trial": "ACTA",
+     "outcome_id": "acta_oral_vs_2wk",
+     "studies": 1
+    },
+    {
+     "comparison": "AMB1W_MIXED vs AMB2W_MIXED",
+     "trial": "ACTA",
+     "outcome_id": "acta_1wk_vs_2wk",
+     "studies": 1
+    },
+    {
+     "comparison": "ORAL_FLU_5FC vs AMB1W_MIXED",
+     "trial": "ACTA",
+     "outcome_id": "acta_oral_vs_1wk",
+     "studies": 1,
+     "correlated_with": [
+      "acta_oral_vs_2wk",
+      "acta_1wk_vs_2wk"
+     ]
+    },
+    {
+     "comparison": "LAMB_SINGLE vs AMB1W_5FC",
+     "trial": "AMBITION-cm",
+     "outcome_id": "ambition_lamb_vs_amb1w",
+     "studies": 1
+    }
+   ],
+   "connected": false,
+   "components": 2,
+   "closed_loops": 1,
+   "multi_arm_studies": 1,
+   "single_study_loop_note": "The one closed loop in this graph is drawn entirely by the multi-arm trial. Every edge in it comes from one randomised population, so the loop carries no independent indirect evidence and supports no incoherence assessment. A loop count above zero must not be read here as evidence that could be checked against itself.",
+   "edges_are_the_trials_own_contrasts": "The multi-arm trial contributes the two comparisons it framed, both against its own reference arm. The third pairwise comparison among its strategies is ALSO recoverable, because the source publishes an arm-level count and denominator for each of the three strategies, and it is recorded beside them as a within-trial contrast. An earlier version of this object declined it on the ground that the trial did not frame it. That ground was STRICTER THAN THE HANDBOOK and a reviewer was right to say so: chapter 23 states that where summary data are provided for each intervention group it does not matter how the groups were combined in the reported analyses, and that review authors do not need to analyse the data the same way the study authors did. What remains true is the unit-of-analysis constraint under 23.3.4: the three contrasts come from one randomised population and share arms, so none of them may be entered alongside another as though it were an independent study. That is not the same as saying they may never be combined at all, and an earlier version of this text said so wrongly; the section lists accounting for the correlation, and network meta-analysis, as routes that do permit it. The third is held as a contrast rather than as an independent edge.",
+   "third_within_trial_contrast": {
+    "promoted_to_outcome": "acta_oral_vs_1wk",
+    "what_changed": "This block used to carry the contrast's own point and interval beside the outcomes rather than among them, which duplicated a value in two places -- the defect this batch spends most of its rounds removing. It is now a full outcome with its own counts, its own recomputed estimate and its own edge in the graph, and this block only points at it.",
+    "must_not_be_treated_as_independent": "It shares participants with both other contrasts from the same trial. Entering any of the three alongside another as though it were a separate study is the unit-of-analysis error 23.3.4 names. Section 23.3.4 does list routes that would permit all three together -- accounting for the correlation, or a network meta-analysis -- so the constraint is on treating them as independent, not on holding them at all.",
+    "sections": [
+     "23.3.2",
+     "23.3.3",
+     "23.3.4"
+    ]
+   },
+   "multi_arm_covariance_note": "The multi-arm trial contributes two contrasts from one randomised population, sharing a control arm, so those contrasts are correlated and any synthesis using both would need the covariance between them. An earlier version of this object said that covariance COULD NOT BE CONSTRUCTED because the source publishes no variance for any arm. That was false, and false against this object's own arithmetic: it derives each contrast's standard error from the published counts, and on that same log risk-ratio approximation the shared-arm covariance is the reference arm's own contribution, one over its deaths minus one over its denominator, from the very same counts. A reviewer caught the contradiction. The covariance is available, and it is NOT the reason no synthesis is computed. The reason is that the graph does not connect.",
+   "multi_arm_covariance_value": {
+    "shared_arm": "the two-week amphotericin B strategy",
+    "log_rr_covariance": 0.006622,
+    "derivation": "one over the shared arm's deaths minus one over its denominator, on the log risk-ratio approximation this object already uses for the standard errors.",
+    "sections": [
+     "23.3.4"
+    ],
+    "used_for": "nothing here. It is recorded because the object previously claimed it was unobtainable, and a reader should be able to see that it is not."
+   },
+   "why_no_network_estimate": "The graph falls into separate pieces. Section 11.2.1 builds an indirect comparison through a treatment the two sets of trials have in common, and these trials share no node, so that construction has no input. Which regimen would have joined them is the part worth stating plainly: the one week of amphotericin B with flucytosine that the older trial found best, and that the World Health Organization adopted after it, is exactly the newer trial's control arm. The older trial holds it as one of five arms, and it is the arm whose numerator and denominator the accessible source does not publish. The break in this network is not a fact about the trials. It is a fact about what could be read.",
+   "status": "disconnected; no network meta-analysis is possible and none is reported"
+  },
+  "network_excluded_trial": {
+   "trial_id": "COAT",
+   "handbook": {
+    "decision": "The timing trial is held as a separate two-arm comparison and is not placed in the antifungal network.",
+    "sections": [
+     "11.1.1",
+     "10.9"
+    ],
+    "conformance": "Every participant in it received the same antifungal induction; what was randomised is the day antiretroviral therapy started. Section 11.1.1 is where a network's nodes are defined: a network diagram consists of nodes representing the interventions and lines showing the available direct comparisons between pairs of them. This trial randomises none of the antifungal regimens, so it supplies no such line between them. An earlier version attached this to 11.2.2, which is TRANSITIVITY and makes no statement about what a node is; a reviewer was right that a correct decision was hanging from a claim its section does not make. Its outcome is analysed as time to death, which section 10.9 governs, and that is a different measure from the risk ratio used for induction, so the two are never combined."
+   },
+   "note": "This trial is not excluded from the object. It is excluded from the antifungal graph, and it has its own outcomes."
+  },
+  "bridge_that_would_have_connected_the_network": {
+   "amb1w_5fc_in_ambition": "AMB1W_5FC",
+   "the_same_regimen_inside_acta": "one of the two arms making up AMB1W_MIXED",
+   "why_they_are_not_one_node": "AMBITION-cm's control arm and one of ACTA's five arms are the same regimen, and AMBITION-cm's own discussion says its results are consistent with what ACTA reported for it. Treating ACTA's one-week node as that regimen would be wrong all the same, because ACTA's one-week node is half made of patients whose partner drug was fluconazole, and the trial reports the partner drug as a SUPERIORITY finding -- flucytosine better than fluconazole on ten-week mortality, with an interval excluding no effect -- while it reports the strategy comparisons as NON-INFERIORITY conclusions on two-week mortality. Those are different questions on different windows, so the source does not rank one against the other and neither does this object; what it does support is that the partner drug produced a demonstrated difference within the very node that would have to be treated as homogeneous. Splitting the node is what the network needs and what the accessible source cannot supply: the abstract reports the partner comparison only pooled across both amphotericin durations, and gives no numerator or denominator for any single arm."
+  },
+  "carried_but_not_synthesised": {
+   "partner_drug_contrast": {
+    "trial_id": "ACTA",
+    "description": "flucytosine against fluconazole as the partner drug with amphotericin B, pooled across both amphotericin durations",
+    "measure": "HR",
+    "point": 0.62,
+    "ci_low": 0.45,
+    "ci_high": 0.84,
+    "ci_level": 95,
+    "p_value": 0.002,
+    "deaths_flucytosine": 71,
+    "deaths_fluconazole": 101,
+    "percent_flucytosine": 31.1,
+    "percent_fluconazole": 45.0,
+    "derived_here": false,
+    "double_counting_warning": "The deaths in this contrast are the SAME deaths already counted in the two amphotericin arms. It is a within-trial comparison over one population and is never added to anything that already holds those arms.",
+    "source_quote": "As a partner drug with amphotericin B, flucytosine was superior to fluconazole (71 deaths [31.1%] vs. 101 deaths [45.0%]; hazard ratio for death at 10 weeks, 0.62; 95% confidence interval [CI], 0.45 to 0.84; P=0.002)."
+   },
+   "best_arm_as_published": {
+    "trial_id": "ACTA",
+    "arm": "one week of amphotericin B plus flucytosine",
+    "ten_week_mortality_percent": 24.2,
+    "ci_low_percent": 16.2,
+    "ci_high_percent": 32.1,
+    "ci_level": 95,
+    "deaths": null,
+    "analysed": null,
+    "counts_absent_because": "The accessible source publishes this arm as a percentage with an interval and gives neither a numerator nor a denominator. This is the arm that would have joined the network.",
+    "source_quote": "One week of amphotericin B plus flucytosine was associated with the lowest 10-week mortality (24.2%; 95% CI, 16.2 to 32.1)."
+   }
+  },
+  "methodological_authority": {
+   "reference": "Higgins JPT, Thomas J, Chandler J, Cumpston M, Li T, Page MJ, et al (editors). Cochrane Handbook for Systematic Reviews of Interventions version 6.5.1. Cochrane, 2025.",
+   "url": "https://www.cochrane.org/authors/handbooks-and-manuals/handbook",
+   "version": "6.5.1",
+   "version_checked_on": "2026-08-09",
+   "version_checked_how": "The publisher's own page for each chapter relied on was opened and its printed citation line read. The version and the dates below are what those lines say, not what an earlier build of this object assumed. The publisher's versions-and-changes page was read on the same day and is what settles which version is current: it lists 6.5.1 as the newest release line, with entries dated 2026 and 2025, above 6.5 dated 2024. Two of the publisher's own pages disagree with that and the disagreement is recorded rather than resolved: the Handbook landing page and the current-version index both still print version 6.5 updated August 2024. Where they conflict this object follows the version history and the per-chapter citation lines, because those are the more specific and the more recent statements, and the newest release listed under 6.5.1 revised a chapter this object does not cite.",
+   "chapters_as_dated_by_the_publisher": [
+    {
+     "chapter": 4,
+     "title": "Searching for and selecting studies",
+     "version": "6.5.1",
+     "published": 2025,
+     "last_updated": "March 2025"
+    },
+    {
+     "chapter": 10,
+     "title": "Analysing data and undertaking meta-analyses",
+     "version": "6.5",
+     "published": 2024,
+     "last_updated": "November 2024"
+    },
+    {
+     "chapter": 11,
+     "title": "Undertaking network meta-analyses",
+     "version": "6.5",
+     "published": 2024,
+     "last_updated": "October 2019"
+    },
+    {
+     "chapter": 23,
+     "title": "Including variants on randomized trials",
+     "version": "6.5",
+     "published": 2024,
+     "last_updated": "October 2019"
+    }
+   ],
+   "version_note": "The Handbook is versioned as a whole AND dated per chapter, and the two do not move together: the table above gives each chapter the version and the last-updated date the publisher prints on it, and they are not the same as each other. An earlier version of this object named one version and one update month for the whole Handbook, and that pair matched neither the current version nor any date printed on the chapters actually relied on. Listing them chapter by chapter keeps the age of the authority behind each decision visible instead of averaged away; one of these chapters is a good deal older than the others.",
+   "note": "Every scope and synthesis decision names the section governing it, on the block it governs.",
+   "sections_relied_on": [
+    {
+     "section": "4.3.3",
+     "title": "Trials registers and trials results registers",
+     "used_for": "Trials registers as a source to be searched, which is why each registration identifier is carried."
+    },
+    {
+     "section": "10.2",
+     "title": "Introduction to meta-analysis",
+     "used_for": "Meta-analysis as the combination of studies estimating the same quantity, which is the test no pair of these trials passes."
+    },
+    {
+     "section": "10.4.3",
+     "title": "Which effect measure for dichotomous outcomes?",
+     "used_for": "The effect measures available for a dichotomous outcome, none of which a competing-risk cumulative incidence yields without the subdistribution model."
+    },
+    {
+     "section": "10.9",
+     "title": "Meta-analysis of time-to-event outcomes",
+     "used_for": "The hazard ratio as the measure for a time-to-event analysis, and the reason it is never combined with a risk ratio here."
+    },
+    {
+     "section": "10.11.1",
+     "title": "Interaction and effect modification",
+     "used_for": "The interaction test as what carries a subgroup claim, rather than the separate within-subgroup results."
+    },
+    {
+     "section": "11.1.1",
+     "title": "Network diagrams",
+     "used_for": "What a node and a line in a network ARE: nodes are the interventions, lines the available direct comparisons between pairs of them. This is the authority for holding the timing trial outside the antifungal graph, and an earlier version of this object hung that decision on the transitivity section, which makes no such statement."
+    },
+    {
+     "section": "23.3.3",
+     "title": "Risk of bias in studies with more than two groups",
+     "used_for": "Its statement that where summary data are provided for each intervention group it does not matter how the groups were combined in the reported analyses, and that review authors need not analyse the data the way the study authors did. It is why the third within-trial contrast is recovered rather than declined for not having been framed. A review leg argued this sentence belongs to 23.3.2 instead. It does not, and the chapter was re-opened to check: the sentence sits between the 23.3.3 heading and the 23.3.4 heading, and 23.3.2 is titled Determining which intervention groups are relevant, not what that leg called it. The citation stands. A second leg then pressed the same point on THEMATIC grounds -- that a rule about extraction does not belong under risk of bias -- and that is a fair reading of the chapter's own organisation even though it does not move the sentence. So both are now cited, each for its own half: 23.3.2 for whether these groups are relevant to this review at all, 23.3.3 for the sentence that says the trialists' grouping does not bind us. A judge leg has now asserted the same relocation in four consecutive rounds, most recently calling this location claim factually incorrect, and in none of those rounds does its own list of files read contain a Handbook page. So the boundary is recorded here as quotation rather than as assertion. Section 23.3.3 opens: 'Bias may be introduced in a multiple-intervention study if the decisions regarding data analysis are made...'. It ends, immediately before the 23.3.4 heading: '...if the summary data are provided for each intervention group, it does not matter how the groups had been combined in reported analyses; review authors do not need to analyse the data in the same way as the study authors.' Anyone may open the chapter and check both."
+    },
+    {
+     "section": "23.3.2",
+     "title": "Determining which intervention groups are relevant",
+     "used_for": "Whether the third within-trial contrast is relevant to this review: the section asks which pair-wise comparisons of a multi-arm study would themselves meet the review's inclusion criteria. Both arms of that contrast are induction strategies inside this review's scope, so the comparison is relevant and is recovered."
+    },
+    {
+     "section": "23.3.4",
+     "title": "How to include multiple groups from one study",
+     "used_for": "The unit-of-analysis problem created by two contrasts sharing one reference arm, and the routes out of it, one of which is to account for the correlation. This is what governs the shared-control decision; an earlier version cited the indirect-comparison section, which both review families identified as the wrong one."
+    },
+    {
+     "section": "11.2.1",
+     "title": "Indirect comparisons",
+     "used_for": "The indirect path a common comparator makes available, and its absence when no node is shared."
+    },
+    {
+     "section": "11.2.2",
+     "title": "Transitivity",
+     "used_for": "The requirement that the sets of trials be similar in all important factors other than the comparison being made. It is about whether an indirect comparison is valid ONCE the nodes exist; it is not what decides what a node is."
+    },
+    {
+     "section": "11.3.2.3",
+     "title": "Grouping variants of an intervention (defining nodes in the network diagram)",
+     "used_for": "What actually governs whether a partner-mixed regimen and the flucytosine-partnered regimen may be ONE node: node definitions need careful consideration, maximising similarity within a node. An earlier version hung that decision on transitivity, which makes no statement about node grouping, and a reviewer was right about it."
+    },
+    {
+     "section": "11.4.4.1",
+     "title": "What is incoherence?",
+     "used_for": "Incoherence as the difference between a direct and an indirect estimate, which a graph with no closed loop cannot supply."
+    }
+   ]
+  },
+  "sources": {
+   "OA_AMBITION2022": {
+    "layer": "Primary paper (open access full text)",
+    "layer_rank": 4,
+    "name": "Jarvis JN, Lawrence DS, Meya DB, et al. Single-Dose Liposomal Amphotericin B Treatment for Cryptococcal Meningitis. N Engl J Med.",
+    "url": "https://doi.org/10.1056/NEJMoa2111904",
+    "staged_as": "AMBITION-cm.extract.txt",
+    "access_note": "QUOTED: the author manuscript is open in PubMed Central as PMC7612678, and the full text was read there."
+   },
+   "OA_COAT2014": {
+    "layer": "Primary paper (open access full text)",
+    "layer_rank": 4,
+    "name": "Boulware DR, Meya DB, Muzoora C, et al. Timing of Antiretroviral Therapy after Diagnosis of Cryptococcal Meningitis. N Engl J Med.",
+    "url": "https://doi.org/10.1056/NEJMoa1312884",
+    "staged_as": "COAT.extract.txt",
+    "access_note": "QUOTED: the author manuscript is open in PubMed Central as PMC4127879, and the full text was read there."
+   },
+   "ABS_ACTA2018": {
+    "layer": "Primary paper (abstract only; full text behind a paywall)",
+    "layer_rank": 4,
+    "name": "Molloy SF, Kanyama C, Heyderman RS, et al. Antifungal Combinations for Treatment of Cryptococcal Meningitis in Africa. N Engl J Med.",
+    "url": "https://doi.org/10.1056/NEJMoa1710922",
+    "staged_as": "ACTA.extract.txt",
+    "access_note": "NOT QUOTED BEYOND THE ABSTRACT. This record has no PubMed Central entry, and Europe PMC returns isOpenAccess N, inEPMC N and 'Subscription required'. No paywall was bypassed. Only the indexed structured abstract was read, and every limit that follows from that is recorded on the block it constrains."
+   }
+  },
+  "outcomes": [
+   {
+    "id": "acta_oral_vs_2wk",
+    "name": "Oral fluconazole with flucytosine against two weeks of amphotericin B",
+    "type": "primary",
+    "measure": "RR",
+    "direction_of_benefit": "lower",
+    "null_value": 1,
+    "effect_scale": "log",
+    "component": "antifungal-induction",
+    "treatment_node": "ORAL_FLU_5FC",
+    "comparator_node": "AMB2W_MIXED",
+    "estimand": {
+     "family": "binary_proportion",
+     "model": "proportion of the analysed population dead by ten weeks after randomisation",
+     "unit_of_analysis": "participant, alive or dead",
+     "case_definition": "death from any cause",
+     "window": "ten weeks after randomisation",
+     "follow_up_days": 70,
+     "id": "acta_oral_vs_2wk-estimand",
+     "analysis_population": "the analysed strategy groups as the abstract reports them. The accessible abstract does not name an analysis population, and its analysed groups do not add up to the number randomised, so calling this intention to treat would assert what no readable source says"
+    },
+    "definition": "Oral fluconazole with flucytosine against two weeks of amphotericin B",
+    "definition_note": "This contrast comes from a trial that randomised three strategies at once, so it shares whole arms with the trial's other contrasts, and sharing an arm means sharing those participants and their deaths. It shares the two-week strategy with the contrast of the one-week strategy against the two-week strategy. It shares the oral strategy with the contrast of the oral strategy against the one-week strategy. Each contrast is valid alone. Entering any of them alongside another as though it were a separate study would count the shared participants twice, which is why nothing here is added. Note this is NOT only a shared-REFERENCE-arm problem: one of these three contrasts never touches the trial's reference arm at all and still shares participants with both others."
+   },
+   {
+    "id": "acta_1wk_vs_2wk",
+    "name": "One week of amphotericin B against two weeks of amphotericin B",
+    "type": "primary",
+    "measure": "RR",
+    "direction_of_benefit": "lower",
+    "null_value": 1,
+    "effect_scale": "log",
+    "component": "antifungal-induction",
+    "treatment_node": "AMB1W_MIXED",
+    "comparator_node": "AMB2W_MIXED",
+    "estimand": {
+     "family": "binary_proportion",
+     "model": "proportion of the analysed population dead by ten weeks after randomisation",
+     "unit_of_analysis": "participant, alive or dead",
+     "case_definition": "death from any cause",
+     "window": "ten weeks after randomisation",
+     "follow_up_days": 70,
+     "id": "acta_1wk_vs_2wk-estimand",
+     "analysis_population": "the analysed strategy groups as the abstract reports them. The accessible abstract does not name an analysis population, and its analysed groups do not add up to the number randomised, so calling this intention to treat would assert what no readable source says"
+    },
+    "definition": "One week of amphotericin B against two weeks of amphotericin B",
+    "definition_note": "This contrast comes from a trial that randomised three strategies at once, so it shares whole arms with the trial's other contrasts, and sharing an arm means sharing those participants and their deaths. It shares the two-week strategy with the contrast of the oral strategy against the two-week strategy. It shares the one-week strategy with the contrast of the oral strategy against the one-week strategy. Each contrast is valid alone. Entering any of them alongside another as though it were a separate study would count the shared participants twice, which is why nothing here is added. Note this is NOT only a shared-REFERENCE-arm problem: one of these three contrasts never touches the trial's reference arm at all and still shares participants with both others."
+   },
+   {
+    "id": "acta_oral_vs_1wk",
+    "name": "Oral fluconazole with flucytosine against one week of amphotericin B",
+    "type": "primary",
+    "measure": "RR",
+    "direction_of_benefit": "lower",
+    "null_value": 1,
+    "effect_scale": "log",
+    "component": "antifungal-induction",
+    "treatment_node": "ORAL_FLU_5FC",
+    "comparator_node": "AMB1W_MIXED",
+    "estimand": {
+     "family": "binary_proportion",
+     "model": "proportion of the analysed population dead by ten weeks after randomisation",
+     "unit_of_analysis": "participant, alive or dead",
+     "case_definition": "death from any cause",
+     "window": "ten weeks after randomisation",
+     "follow_up_days": 70,
+     "id": "acta_oral_vs_1wk-estimand",
+     "analysis_population": "the analysed strategy groups as the abstract reports them. The accessible abstract does not name an analysis population, and its analysed groups do not add up to the number randomised, so calling this intention to treat would assert what no readable source says"
+    },
+    "definition": "Oral fluconazole with flucytosine against one week of amphotericin B",
+    "definition_note": "The third pairwise comparison inside the multi-arm trial. It is a DIRECT comparison between two of that trial's own strategy groups, recoverable because the source publishes a count and a denominator for each. It shares participants with the other two contrasts from this trial and none of the three may be entered alongside another as though it were an independent study."
+   },
+   {
+    "id": "ambition_lamb_vs_amb1w",
+    "name": "A single high dose of liposomal amphotericin B against one week of amphotericin B deoxycholate with flucytosine",
+    "type": "primary",
+    "measure": "RR",
+    "direction_of_benefit": "lower",
+    "null_value": 1,
+    "effect_scale": "log",
+    "component": "antifungal-induction",
+    "treatment_node": "LAMB_SINGLE",
+    "comparator_node": "AMB1W_5FC",
+    "estimand": {
+     "family": "binary_proportion",
+     "model": "proportion of the analysed population dead by ten weeks after randomisation",
+     "unit_of_analysis": "participant, alive or dead",
+     "case_definition": "death from any cause",
+     "window": "ten weeks after randomisation",
+     "follow_up_days": 70,
+     "id": "ambition_lamb_vs_amb1w-estimand",
+     "analysis_population": "intention to treat, which this trial names explicitly and defines as all randomised who did not meet a late exclusion. Read from the open full text, not from an abstract"
+    },
+    "definition": "A single high dose of liposomal amphotericin B against one week of amphotericin B deoxycholate with flucytosine",
+    "definition_note": "A two-arm trial, so its reference arm serves one contrast only."
+   },
+   {
+    "id": "coat_26wk_mortality",
+    "name": "Earlier against deferred start of antiretroviral therapy, death by twenty-six weeks",
+    "type": "primary",
+    "measure": "HR",
+    "direction_of_benefit": "lower",
+    "null_value": 1,
+    "effect_scale": "log",
+    "component": "art-timing",
+    "estimand": {
+     "id": "coat_26wk_mortality-estimand",
+     "family": "time_to_event",
+     "model": "Cox proportional-hazards model on time to death",
+     "unit_of_analysis": "participant, time to first event",
+     "case_definition": "death from any cause",
+     "window": "twenty-six weeks after randomisation",
+     "follow_up_days": 182,
+     "analysis_population": "intention to treat, as the trial states and as its registration states. Its two analysed arms sum to the number randomised"
+    },
+    "definition": "Death by twenty-six weeks, analysed as time to death.",
+    "definition_note": "Stored as the trial's own hazard ratio and NOT as a two-by-two, because section 10.9 governs a time-to-event analysis and a two-by-two would discard the timing that the analysis rests on. The arm totals and deaths are carried on the arms, where they describe the trial rather than stand in for its estimate."
+   },
+   {
+    "id": "coat_iris",
+    "name": "Recognised cryptococcal immune reconstitution inflammatory syndrome",
+    "type": "secondary",
+    "measure": "none",
+    "direction_of_benefit": "lower",
+    "null_value": null,
+    "effect_scale": "none",
+    "component": "art-timing",
+    "estimand": {
+     "id": "coat_iris-estimand",
+     "family": "competing_risk_cumulative_incidence",
+     "model": "cumulative incidence function, with death as a competing risk",
+     "unit_of_analysis": "participant, first adjudicated event",
+     "case_definition": "recognised cryptococcal immune reconstitution inflammatory syndrome, adjudicated by an external panel of three physicians unaware of the timing assignment",
+     "window": "through follow-up",
+     "follow_up_days": null,
+     "analysis_population": "the at-risk sets of the competing-risk analysis, which are smaller than the randomised arms on both sides"
+    },
+    "definition": "Recognised cryptococcal immune reconstitution inflammatory syndrome, as a cumulative incidence against the competing risk of death.",
+    "definition_note": "NO ratio effect measure is stored, and none may be. The trial published two cumulative incidences and a P value. A cumulative incidence under a competing risk does not yield any of the measures section 10.4.3 lists without the subdistribution model, which the paper does not report."
+   }
+  ],
+  "inputs": {
+   "trials": [
+    {
+     "id": "ACTA",
+     "nct": null,
+     "registration": "ISRCTN45035509",
+     "registry": "ISRCTN",
+     "pmid": "29539274",
+     "label": "Antifungal Combinations for Treatment of Cryptococcal Meningitis in Africa",
+     "year": 2018,
+     "randomisation_id": "ISRCTN45035509",
+     "design": "partially factorial; three induction strategies, with the partner drug independently randomised inside each amphotericin B strategy",
+     "randomised": 721,
+     "enrolled": 721,
+     "arms": [
+      {
+       "label": "oral fluconazole plus flucytosine for two weeks; the trial calls this the oral-regimen group",
+       "role": "treatment",
+       "deaths": 79,
+       "analysed": 225,
+       "randomised": null
+      },
+      {
+       "label": "one week of amphotericin B deoxycholate, partner drug randomised between flucytosine and fluconazole; the 1-week amphotericin B group",
+       "role": "treatment",
+       "deaths": 81,
+       "analysed": 224,
+       "randomised": null
+      },
+      {
+       "label": "two weeks of amphotericin B deoxycholate, partner drug randomised between flucytosine and fluconazole; the 2-week amphotericin B group, which is the trial's active control",
+       "role": "control",
+       "deaths": 91,
+       "analysed": 229,
+       "randomised": null
+      }
+     ],
+     "arm_selection_note": "This trial randomised five arms and NO arm is dropped here. Two of its three strategies are carried as treatment arms and the third as the control, which is how the trial itself framed both of its comparisons. The five arms collapse to three because the partner drug was randomised INSIDE two of the strategies and the accessible source publishes no count for any single arm; the partner comparison it does publish is carried separately and is not added to anything.",
+     "arm_level_data_available": false,
+     "arm_level_limit": "The abstract gives counts for the three strategies and, for the partner drug, only a total pooled across both amphotericin durations. Splitting a strategy into its two arms would require an allocation ratio the abstract never states and a split of deaths it never reports.",
+     "by_outcome": {
+      "acta_oral_vs_2wk": {
+       "estimand_id": "acta_oral_vs_2wk-estimand",
+       "control_arm_key": "ISRCTN45035509-amb2w",
+       "treatment": {
+        "events": 79,
+        "n": 225,
+        "source_fragments": [
+         "Mortality in the oral-regimen, 1-week amphotericin B, and 2-week amphotericin B groups was 18.2% (41 of 225), 21.9% (49 of 224), and 21.4% (49 of 229), respectively, at 2 weeks and was 35.1% (79 of 225), 36.2% (81 of 224), and 39.7% (91 of 229), respectively, at 10 weeks."
+        ]
+       },
+       "control": {
+        "events": 91,
+        "n": 229,
+        "source_fragments": [
+         "Mortality in the oral-regimen, 1-week amphotericin B, and 2-week amphotericin B groups was 18.2% (41 of 225), 21.9% (49 of 224), and 21.4% (49 of 229), respectively, at 2 weeks and was 35.1% (79 of 225), 36.2% (81 of 224), and 39.7% (91 of 229), respectively, at 10 weeks."
+        ]
+       },
+       "analysed": {
+        "treatment": 225,
+        "control": 229
+       },
+       "analysed_scope": "the three analysed strategy groups, which together are fewer than the randomised total; the accessible source does not account for the difference.",
+       "provenance": {
+        "tag": "MEASURED",
+        "source_id": "ABS_ACTA2018",
+        "source_quotes": [
+         "Mortality in the oral-regimen, 1-week amphotericin B, and 2-week amphotericin B groups was 18.2% (41 of 225), 21.9% (49 of 224), and 21.4% (49 of 229), respectively, at 2 weeks and was 35.1% (79 of 225), 36.2% (81 of 224), and 39.7% (91 of 229), respectively, at 10 weeks."
+        ]
+       },
+       "outcome_definition": "Mortality at 10 weeks by treatment group, as above",
+       "outcome_definition_source": {
+        "description_verbatim": "The ISRCTN record states this secondary in full as: '1. Mortality at 10 weeks by treatment group, as above'. The phrase 'as above' refers to the primary's grouping, '(regimen 1 and regimen 2 vs regimen 3)'. No further description field is recorded.",
+        "time_frame": "10 weeks after randomisation",
+        "endpoint_rank": "SECONDARY (the first of six). THE REGISTERED PRIMARY IS A DIFFERENT TIMEPOINT: 'Mortality at 2 weeks by treatment group (regimen 1 and regimen 2 vs regimen 3)'.",
+        "source": "registry",
+        "source_field": "ISRCTN WHO-ICTRP export, <sec_outcome> item 1",
+        "source_url": "https://www.isrctn.com/ISRCTN45035509",
+        "read_utc": "2026-08-18",
+        "registry_is_not_clinicaltrials_gov": "ISRCTN, not ClinicalTrials.gov. These rows were unread because the registry-read tooling speaks only ClinicalTrials.gov; ISRCTN publishes a WHO-ICTRP-format export that carries the outcome text, so the constraint was the TOOL'S and not the registry's.",
+        "rank_note": "The quantity this page reports is TEN-WEEK mortality, which this trial registered as a SECONDARY; its registered PRIMARY is two-week mortality. The page reports the ten-week figure because that is the trial's reported principal result, and the rank is recorded here rather than left implied."
+       }
+      },
+      "acta_1wk_vs_2wk": {
+       "estimand_id": "acta_1wk_vs_2wk-estimand",
+       "control_arm_key": "ISRCTN45035509-amb2w",
+       "treatment": {
+        "events": 81,
+        "n": 224,
+        "source_fragments": [
+         "Mortality in the oral-regimen, 1-week amphotericin B, and 2-week amphotericin B groups was 18.2% (41 of 225), 21.9% (49 of 224), and 21.4% (49 of 229), respectively, at 2 weeks and was 35.1% (79 of 225), 36.2% (81 of 224), and 39.7% (91 of 229), respectively, at 10 weeks."
+        ]
+       },
+       "control": {
+        "events": 91,
+        "n": 229,
+        "source_fragments": [
+         "Mortality in the oral-regimen, 1-week amphotericin B, and 2-week amphotericin B groups was 18.2% (41 of 225), 21.9% (49 of 224), and 21.4% (49 of 229), respectively, at 2 weeks and was 35.1% (79 of 225), 36.2% (81 of 224), and 39.7% (91 of 229), respectively, at 10 weeks."
+        ]
+       },
+       "analysed": {
+        "treatment": 224,
+        "control": 229
+       },
+       "analysed_scope": "the three analysed strategy groups, which together are fewer than the randomised total; the accessible source does not account for the difference.",
+       "provenance": {
+        "tag": "MEASURED",
+        "source_id": "ABS_ACTA2018",
+        "source_quotes": [
+         "Mortality in the oral-regimen, 1-week amphotericin B, and 2-week amphotericin B groups was 18.2% (41 of 225), 21.9% (49 of 224), and 21.4% (49 of 229), respectively, at 2 weeks and was 35.1% (79 of 225), 36.2% (81 of 224), and 39.7% (91 of 229), respectively, at 10 weeks."
+        ]
+       },
+       "outcome_definition": "Mortality at 10 weeks by treatment group, as above",
+       "outcome_definition_source": {
+        "description_verbatim": "The ISRCTN record states this secondary in full as: '1. Mortality at 10 weeks by treatment group, as above'. The phrase 'as above' refers to the primary's grouping, '(regimen 1 and regimen 2 vs regimen 3)'. No further description field is recorded.",
+        "time_frame": "10 weeks after randomisation",
+        "endpoint_rank": "SECONDARY (the first of six). THE REGISTERED PRIMARY IS A DIFFERENT TIMEPOINT: 'Mortality at 2 weeks by treatment group (regimen 1 and regimen 2 vs regimen 3)'.",
+        "source": "registry",
+        "source_field": "ISRCTN WHO-ICTRP export, <sec_outcome> item 1",
+        "source_url": "https://www.isrctn.com/ISRCTN45035509",
+        "read_utc": "2026-08-18",
+        "registry_is_not_clinicaltrials_gov": "ISRCTN, not ClinicalTrials.gov. These rows were unread because the registry-read tooling speaks only ClinicalTrials.gov; ISRCTN publishes a WHO-ICTRP-format export that carries the outcome text, so the constraint was the TOOL'S and not the registry's.",
+        "rank_note": "The quantity this page reports is TEN-WEEK mortality, which this trial registered as a SECONDARY; its registered PRIMARY is two-week mortality. The page reports the ten-week figure because that is the trial's reported principal result, and the rank is recorded here rather than left implied."
+       }
+      },
+      "acta_oral_vs_1wk": {
+       "estimand_id": "acta_oral_vs_1wk-estimand",
+       "control_arm_key": "ISRCTN45035509-amb1w",
+       "treatment": {
+        "events": 79,
+        "n": 225,
+        "source_fragments": [
+         "Mortality in the oral-regimen, 1-week amphotericin B, and 2-week amphotericin B groups was 18.2% (41 of 225), 21.9% (49 of 224), and 21.4% (49 of 229), respectively, at 2 weeks and was 35.1% (79 of 225), 36.2% (81 of 224), and 39.7% (91 of 229), respectively, at 10 weeks."
+        ]
+       },
+       "control": {
+        "events": 81,
+        "n": 224,
+        "source_fragments": [
+         "Mortality in the oral-regimen, 1-week amphotericin B, and 2-week amphotericin B groups was 18.2% (41 of 225), 21.9% (49 of 224), and 21.4% (49 of 229), respectively, at 2 weeks and was 35.1% (79 of 225), 36.2% (81 of 224), and 39.7% (91 of 229), respectively, at 10 weeks."
+        ]
+       },
+       "analysed": {
+        "treatment": 225,
+        "control": 224
+       },
+       "analysed_scope": "the three analysed strategy groups, which together are fewer than the randomised total; the accessible source does not account for the difference.",
+       "provenance": {
+        "tag": "MEASURED",
+        "source_id": "ABS_ACTA2018",
+        "source_quotes": [
+         "Mortality in the oral-regimen, 1-week amphotericin B, and 2-week amphotericin B groups was 18.2% (41 of 225), 21.9% (49 of 224), and 21.4% (49 of 229), respectively, at 2 weeks and was 35.1% (79 of 225), 36.2% (81 of 224), and 39.7% (91 of 229), respectively, at 10 weeks."
+        ]
+       },
+       "outcome_definition": "Mortality at 10 weeks by treatment group, as above",
+       "outcome_definition_source": {
+        "description_verbatim": "The ISRCTN record states this secondary in full as: '1. Mortality at 10 weeks by treatment group, as above'. The phrase 'as above' refers to the primary's grouping, '(regimen 1 and regimen 2 vs regimen 3)'. No further description field is recorded.",
+        "time_frame": "10 weeks after randomisation",
+        "endpoint_rank": "SECONDARY (the first of six). THE REGISTERED PRIMARY IS A DIFFERENT TIMEPOINT: 'Mortality at 2 weeks by treatment group (regimen 1 and regimen 2 vs regimen 3)'.",
+        "source": "registry",
+        "source_field": "ISRCTN WHO-ICTRP export, <sec_outcome> item 1",
+        "source_url": "https://www.isrctn.com/ISRCTN45035509",
+        "read_utc": "2026-08-18",
+        "registry_is_not_clinicaltrials_gov": "ISRCTN, not ClinicalTrials.gov. These rows were unread because the registry-read tooling speaks only ClinicalTrials.gov; ISRCTN publishes a WHO-ICTRP-format export that carries the outcome text, so the constraint was the TOOL'S and not the registry's.",
+        "rank_note": "The quantity this page reports is TEN-WEEK mortality, which this trial registered as a SECONDARY; its registered PRIMARY is two-week mortality. The page reports the ten-week figure because that is the trial's reported principal result, and the rank is recorded here rather than left implied."
+       }
+      }
+     },
+     "provenance": {
+      "source_id": "ABS_ACTA2018",
+      "quotes": [
+       "We randomly assigned HIV-infected adults with cryptococcal meningitis to receive an oral regimen (fluconazole [1200 mg per day] plus flucytosine [100 mg per kilogram of body weight per day] for 2 weeks), 1 week of amphotericin B (1 mg per kilogram per day), or 2 weeks of amphotericin B (1 mg per kilogram per day). Each patient assigned to receive amphotericin B was also randomly assigned to receive fluconazole or flucytosine as a partner drug.",
+       "Mortality in the oral-regimen, 1-week amphotericin B, and 2-week amphotericin B groups was 18.2% (41 of 225), 21.9% (49 of 224), and 21.4% (49 of 229), respectively, at 2 weeks and was 35.1% (79 of 225), 36.2% (81 of 224), and 39.7% (91 of 229), respectively, at 10 weeks.",
+       "The upper limit of the one-sided 97.5% confidence interval for the difference in 2-week mortality was 4.2 percentage points for the oral-regimen group versus the 2-week amphotericin B groups and 8.1 percentage points for the 1-week amphotericin B groups versus the 2-week amphotericin B groups, both of which were below the predefined 10-percentage-point noninferiority margin.",
+       "As a partner drug with amphotericin B, flucytosine was superior to fluconazole (71 deaths [31.1%] vs. 101 deaths [45.0%]; hazard ratio for death at 10 weeks, 0.62; 95% confidence interval [CI], 0.45 to 0.84; P=0.002).",
+       "One week of amphotericin B plus flucytosine was associated with the lowest 10-week mortality (24.2%; 95% CI, 16.2 to 32.1).",
+       "Europe PMC reports for this record: isOpenAccess = \"N\", inEPMC = \"N\", fullTextUrlList availability = \"Subscription required\" (site: DOI)."
+      ],
+      "note": "Every figure comes from the indexed structured abstract. The full text was not retrieved and no paywall was bypassed."
+     }
+    },
+    {
+     "id": "AMBITION-cm",
+     "nct": null,
+     "registration": "ISRCTN72509687",
+     "registry": "ISRCTN",
+     "pmid": "35320642",
+     "label": "Single-Dose Liposomal Amphotericin B Treatment for Cryptococcal Meningitis",
+     "year": 2022,
+     "randomisation_id": "ISRCTN72509687",
+     "design": "open-label two-arm non-inferiority trial, one to one",
+     "randomised": 844,
+     "enrolled": 844,
+     "arms": [
+      {
+       "label": "a single ten milligram per kilogram dose of liposomal amphotericin B with flucytosine and fluconazole for two weeks; the trial calls this the AmBisome group",
+       "role": "treatment",
+       "deaths": 101,
+       "analysed": 407,
+       "randomised": null
+      },
+      {
+       "label": "one week of amphotericin B deoxycholate with flucytosine, then fluconazole; the trial's active control, being the standard care it was tested against",
+       "role": "control",
+       "deaths": 117,
+       "analysed": 407,
+       "randomised": null
+      }
+     ],
+     "arm_selection_note": null,
+     "arm_level_data_available": true,
+     "arm_level_limit": null,
+     "by_outcome": {
+      "ambition_lamb_vs_amb1w": {
+       "estimand_id": "ambition_lamb_vs_amb1w-estimand",
+       "control_arm_key": "ISRCTN72509687-control",
+       "treatment": {
+        "events": 101,
+        "n": 407,
+        "source_fragments": [
+         "In the intention-to-treat analysis, the proportion who died at 10 weeks was 24.8% (101 of 407; 95% CI, 20.7-29.3%) in the AmBisome group compared with 28.7% (117 of 407; 95% CI, 24.4-33.4%) in the control group"
+        ]
+       },
+       "control": {
+        "events": 117,
+        "n": 407,
+        "source_fragments": [
+         "In the intention-to-treat analysis, the proportion who died at 10 weeks was 24.8% (101 of 407; 95% CI, 20.7-29.3%) in the AmBisome group compared with 28.7% (117 of 407; 95% CI, 24.4-33.4%) in the control group"
+        ]
+       },
+       "analysed": {
+        "treatment": 407,
+        "control": 407
+       },
+       "analysed_scope": "the intention-to-treat population, which excludes those meeting a late exclusion criterion and is smaller than the randomised total.",
+       "provenance": {
+        "tag": "MEASURED",
+        "source_id": "OA_AMBITION2022",
+        "source_quotes": [
+         "In the intention-to-treat analysis, the proportion who died at 10 weeks was 24.8% (101 of 407; 95% CI, 20.7-29.3%) in the AmBisome group compared with 28.7% (117 of 407; 95% CI, 24.4-33.4%) in the control group"
+        ]
+       },
+       "outcome_definition": "All-cause mortality within the first 10 weeks after randomisation (non-inferiority)",
+       "outcome_definition_source": {
+        "description_verbatim": "No separate description field is recorded; the ISRCTN <prim_outcome> text above is the whole of what the registration states. A secondary, item 6, registers the same quantity under a superiority framing: 'All-cause mortality within the first 10 weeks (superiority)'.",
+        "time_frame": "10 weeks after randomisation",
+        "endpoint_rank": "PRIMARY",
+        "source": "registry",
+        "source_field": "ISRCTN WHO-ICTRP export, <prim_outcome>",
+        "source_url": "https://www.isrctn.com/ISRCTN72509687",
+        "read_utc": "2026-08-18",
+        "registry_is_not_clinicaltrials_gov": "ISRCTN, not ClinicalTrials.gov; read from the WHO-ICTRP-format export.",
+        "rank_note": "Registered at PRIMARY rank and at exactly the window this page reports, which ACTA's contribution is not. The two trials on this page therefore contribute the same quantity at DIFFERENT registered ranks -- primary here, secondary in ACTA -- and they are never pooled with each other."
+       }
+      }
+     },
+     "provenance": {
+      "source_id": "OA_AMBITION2022",
+      "quotes": [
+       "Participants were individually randomized to either (i) single dose L-AmB 10mg/kg (AmBisome, Gilead Sciences Inc.) plus 14 days of flucytosine 100mg/kg/day and fluconazole 1200mg/day (the \"AmBisome\" group, a three-drug regimen), or (ii) amphotericin B deoxycholate (1mg/kg/day) plus flucytosine (100mg/kg/day) for seven days, followed by fluconazole 1200mg/day on days 8-14 (the \"control\" group, a two-drug regimen)",
+       "In the intention-to-treat analysis, the proportion who died at 10 weeks was 24.8% (101 of 407; 95% CI, 20.7-29.3%) in the AmBisome group compared with 28.7% (117 of 407; 95% CI, 24.4-33.4%) in the control group",
+       "The absolute difference in 10-week mortality risk between the AmBisome arm and control arm was -3.9% and the upper limit of the one-sided 95% confidence interval for this mortality risk difference was 1.2%, within the pre-specified 10% non-inferiority margin (p-value for non-inferiority <0.001)",
+       "A generalized linear model with a binomial distribution was used to calculate mortality differences.",
+       "Outcomes of time-to-event analyses of mortality risk using Cox regression are shown in, with no significant differences between groups.",
+       "the reduction in mortality risk in the AmBisome group compared with the control group did not reach statistical significance in the unadjusted analyses (risk difference -3.9%; 95% CI, -10.0% to 2.2%;), but was statistically significant in adjusted analysis (risk difference - 5.7%; 95% CI, -11.4% to -0.04%)"
+      ],
+      "note": "Read from the open author manuscript in PubMed Central."
+     }
+    },
+    {
+     "id": "COAT",
+     "nct": "NCT01075152",
+     "registration": "NCT01075152",
+     "registry": "ClinicalTrials.gov",
+     "pmid": "24963568",
+     "label": "Timing of Antiretroviral Therapy after Diagnosis of Cryptococcal Meningitis",
+     "year": 2014,
+     "randomisation_id": "NCT01075152",
+     "design": "two-arm strategy trial, one to one, stopped early for harm",
+     "randomised": 177,
+     "enrolled": 177,
+     "arms": [
+      {
+       "label": "antiretroviral therapy started within forty-eight hours of randomisation; the earlier-ART group",
+       "role": "treatment",
+       "deaths": 40,
+       "analysed": 88,
+       "randomised": 88
+      },
+      {
+       "label": "antiretroviral therapy started four weeks after randomisation; the deferred-ART group, which is the trial's control strategy",
+       "role": "control",
+       "deaths": 27,
+       "analysed": 89,
+       "randomised": 89
+      }
+     ],
+     "arm_selection_note": null,
+     "arm_level_data_available": true,
+     "arm_level_limit": null,
+     "by_outcome": {
+      "coat_26wk_mortality": {
+       "estimand_id": "coat_26wk_mortality-estimand",
+       "effect": {
+        "point": 1.73,
+        "ci_low": 1.06,
+        "ci_high": 2.82,
+        "ci_level": 95,
+        "p_value": 0.03,
+        "scale": "log",
+        "log_point": 0.548121,
+        "log_se": 0.249614,
+        "derived_here": false
+       },
+       "analysed": {
+        "treatment": 88,
+        "control": 89
+       },
+       "analysed_scope": "every randomised participant; the trial reports vital status at forty-six weeks for all but one, who withdrew consent.",
+       "provenance": {
+        "tag": "MEASURED",
+        "source_id": "OA_COAT2014",
+        "source_quotes": [
+         "The proportion of participants who died by 26 weeks was greater in the earlier-ART group than in the deferred-ART group (40 of 88 [45%] vs. 27 of 89 [30%]; hazard ratio for death, 1.73; 95% confidence interval [CI], 1.06 to 2.82; P = 0.03)",
+         "After the second review in April 2012, the data and safety monitoring board recommended stopping enrollment because of substantial excess mortality with earlier ART. Enrollment was stopped on April 27, 2012, with 177 participants enrolled."
+        ]
+       },
+       "outcome_definition": "Mortality",
+       "outcome_definition_source": {
+        "description_verbatim": "Intention to treat analysis of 26 week survival of all subjects enrolled. Reported below are the numbers of participants who died by Week 26.",
+        "time_frame": "26 weeks from study entry",
+        "endpoint_rank": "PRIMARY",
+        "source": "registry",
+        "source_field": "protocolSection.outcomesModule.primaryOutcomes[0].measure",
+        "source_url": "https://clinicaltrials.gov/study/NCT01075152",
+        "read_utc": "2026-08-18",
+        "rank_note": "Registered as the primary, at the same window the page reports. The registered title is the single word 'Mortality'; the window comes from the time frame and the description, both quoted here."
+       }
+      },
+      "coat_iris": {
+       "estimand_id": "coat_iris-estimand",
+       "treatment": {
+        "events": 17,
+        "n": 87,
+        "source_fragments": [
+         "Even the cumulative incidence of recognized cryptococcal IRIS did not differ significantly between the earlier-ART group and the deferred-ART group (20% [17 of 87] and 13% [9 of 69], respectively; P = 0.32)"
+        ]
+       },
+       "control": {
+        "events": 9,
+        "n": 69,
+        "source_fragments": [
+         "Even the cumulative incidence of recognized cryptococcal IRIS did not differ significantly between the earlier-ART group and the deferred-ART group (20% [17 of 87] and 13% [9 of 69], respectively; P = 0.32)"
+        ]
+       },
+       "incidence_percent": {
+        "treatment": 20,
+        "control": 13
+       },
+       "p_value": 0.32,
+       "analysed": {
+        "treatment": 87,
+        "control": 69
+       },
+       "analysed_scope": "the at-risk sets of the competing-risk analysis. These are NOT the randomised arm totals, and substituting those totals would change both published incidences.",
+       "effect_absent_because": "The trial published two cumulative incidences under a competing risk and a P value, and no ratio, and none is derived here.",
+       "provenance": {
+        "tag": "MEASURED",
+        "source_id": "OA_COAT2014",
+        "source_quotes": [
+         "Even the cumulative incidence of recognized cryptococcal IRIS did not differ significantly between the earlier-ART group and the deferred-ART group (20% [17 of 87] and 13% [9 of 69], respectively; P = 0.32)",
+         "To account for the competing risk of death, the cumulative incidence function was used to compare the end points of IRIS, relapse, and adverse events between treatment groups."
+        ]
+       },
+       "outcome_definition": "Incidence of Immune Reconstitution Inflammatory Syndrome",
+       "outcome_definition_source": {
+        "description_verbatim": "Incidence of cryptococcal-related immune reconstitution inflammatory syndrome through 46 weeks after enrollment.",
+        "time_frame": "46 weeks",
+        "endpoint_rank": "SECONDARY (the first of eight)",
+        "source": "registry",
+        "source_field": "protocolSection.outcomesModule.secondaryOutcomes[0].measure",
+        "source_url": "https://clinicaltrials.gov/study/NCT01075152",
+        "read_utc": "2026-08-18",
+        "rank_note": "The object's estimand records this window as 'through follow-up'. The REGISTRATION is more specific and says 46 weeks; the registered figure is recorded here so the window is stated rather than left open."
+       }
+      }
+     },
+     "provenance": {
+      "source_id": "OA_COAT2014",
+      "quotes": [
+       "Participants were randomly assigned to receive either ART initiated within 48 hours after randomization (earlier-ART group) or ART initiated 4 weeks after randomization (deferred-ART group). Cryptococcal induction therapy consisted of 2 weeks of treatment with amphotericin B (0.7 to 1.0 mg per kilogram of body weight per day) combined with fluconazole (800 mg per day)",
+       "The proportion of participants who died by 26 weeks was greater in the earlier-ART group than in the deferred-ART group (40 of 88 [45%] vs. 27 of 89 [30%]; hazard ratio for death, 1.73; 95% confidence interval [CI], 1.06 to 2.82; P = 0.03)",
+       "Even the cumulative incidence of recognized cryptococcal IRIS did not differ significantly between the earlier-ART group and the deferred-ART group (20% [17 of 87] and 13% [9 of 69], respectively; P = 0.32)",
+       "To account for the competing risk of death, the cumulative incidence function was used to compare the end points of IRIS, relapse, and adverse events between treatment groups.",
+       "After the second review in April 2012, the data and safety monitoring board recommended stopping enrollment because of substantial excess mortality with earlier ART. Enrollment was stopped on April 27, 2012, with 177 participants enrolled.",
+       "Historically, trials stopped early have routinely overestimated the magnitude of benefit or harm."
+      ],
+      "note": "Read from the open author manuscript in PubMed Central."
+     },
+     "registration_arm_count": 2,
+     "registration_declared_contrasts": [
+      [
+       "Deferred HIV Therapy",
+       "Earlier HIV Therapy"
+      ]
+     ],
+     "registration_contrasts_read_utc": "2026-08-18",
+     "registration_primary_counts": {
+      "title": "Mortality",
+      "treatment_events": 40.0,
+      "control_events": 27.0,
+      "treatment_n": 88.0,
+      "control_n": 89.0,
+      "note": "arm order as the registry lists it; a swapped pair would show as a mismatch rather than a silent pass"
+     },
+     "registration_other_outcome_counts": [
+      {
+       "title": "Mortality",
+       "type": "PRIMARY",
+       "counts": [
+        40.0,
+        27.0
+       ]
+      },
+      {
+       "title": "Incidence of Immune Reconstitution Inflammatory Syndrome",
+       "type": "SECONDARY",
+       "counts": [
+        17.0,
+        9.0
+       ]
+      },
+      {
+       "title": "Incidence of Cryptococcal-relapse",
+       "type": "SECONDARY",
+       "counts": [
+        2.0,
+        8.0
+       ]
+      },
+      {
+       "title": "Safety of ART Initiation",
+       "type": "SECONDARY",
+       "counts": [
+        73.0,
+        75.0
+       ]
+      },
+      {
+       "title": "46-week Survival",
+       "type": "SECONDARY",
+       "counts": [
+        41.0,
+        29.0
+       ]
+      },
+      {
+       "title": "HIV-1 Viral Suppression",
+       "type": "SECONDARY",
+       "counts": [
+        43.0,
+        49.0
+       ]
+      },
+      {
+       "title": "Antiretroviral Therapy Tolerability",
+       "type": "SECONDARY",
+       "counts": [
+        5.0,
+        1.0
+       ]
+      },
+      {
+       "title": "Karnofsky Functional Status",
+       "type": "SECONDARY",
+       "counts": [
+        255.0,
+        258.0
+       ]
+      },
+      {
+       "title": "Microbiologic Clearance",
+       "type": "SECONDARY",
+       "counts": [
+        -0.7,
+        -0.6599999999999999
+       ]
+      },
+      {
+       "title": "Percentage of Participants, Per CSF WBC Subgroup, Who Died by Week 26",
+       "type": "OTHER_PRE_SPECIFIED",
+       "counts": [
+        89.0,
+        61.1
+       ]
+      }
+     ],
+     "registration_counts_read_utc": "2026-08-18",
+     "registered_primaries": [
+      "Mortality"
+     ],
+     "registered_secondaries": [
+      "Incidence of Immune Reconstitution Inflammatory Syndrome",
+      "Incidence of Cryptococcal-relapse",
+      "Safety of ART Initiation",
+      "46-week Survival",
+      "HIV-1 Viral Suppression",
+      "Antiretroviral Therapy Tolerability",
+      "Karnofsky Functional Status",
+      "Microbiologic Clearance"
+     ],
+     "registered_other_outcomes": [
+      "Percentage of Participants, Per CSF WBC Subgroup, Who Died by Week 26"
+     ],
+     "all_ranks_read_utc": "2026-08-18"
+    }
+   ]
+  },
+  "config": {
+   "confidence_level": 95
+  },
+  "results": {
+   "by_outcome": {
+    "acta_oral_vs_2wk": {
+     "k": 1,
+     "estimand_id": "acta_oral_vs_2wk-estimand",
+     "handbook": {
+      "decision": "No network estimate and no indirect comparison is computed for antifungal induction.",
+      "sections": [
+       "11.2.1",
+       "11.2.2",
+       "11.3.2.3",
+       "11.4.4.1"
+      ],
+      "conformance": "Section 11.2.1 describes an indirect comparison as one made through a common comparator. These trials share no node, so that construction has no input. Whether a shared node COULD be forced into being by treating the one-week strategy as though it were the flucytosine-partnered regimen is a question about node GROUPING, and section 11.3.2.3 is what governs it: node definitions need careful consideration and should maximise similarity within a node. Half of that strategy received a different partner drug, and within that very node the trial demonstrated a difference: flucytosine better than fluconazole on ten-week mortality, with an interval excluding no effect. An earlier version called that the difference the trial found to matter MOST, which ranks it against strategy comparisons the trial reported as non-inferiority conclusions on a different window; the source states no such ranking and a reviewer was right to strike it. A demonstrated difference inside the node is enough on its own, so the two are not one node. An earlier version of this block argued that point from transitivity alone and a reviewer was right that transitivity does not settle what a node is. Once the nodes are fixed, section 11.2.2 refuses the forced merge for its own reason: it requires the sets of trials to be similar in all important factors other than the comparison being made, and half of that node received a different partner drug, which is the one difference the trial demonstrated INSIDE that node, on its own ten-week mortality comparison. No claim is made that it mattered more than anything else the trial tested; that would rank a superiority finding against non-inferiority conclusions on another window, which the source does not do. On loops, an earlier version of this object said the graph closed none. It does close one, and a reviewer was right to say so: the multi-arm trial supplies all three pairwise lines among its own strategies, which is the triangle section 11.1.1 describes a three-arm study as drawing. That loop still buys NO incoherence check, and the reason is not its absence but its provenance. Section 11.4.4.1 defines incoherence as the difference between the direct and the indirect estimate of the same comparison; here the indirect path runs through the third node of the SAME randomised population, so it is not independent evidence about the direct edge -- it is the same participants, arriving a different way. Comparing them would measure arithmetic, not disagreement between sources."
+     },
+     "per_trial": [
+      {
+       "trial_id": "ACTA",
+       "estimand_id": "acta_oral_vs_2wk-estimand",
+       "treatment_deaths": 79,
+       "treatment_analysed": 225,
+       "control_deaths": 91,
+       "control_analysed": 229,
+       "measure": "RR",
+       "point": 0.8836,
+       "ci_low": 0.6959,
+       "ci_high": 1.1218,
+       "ci_level": 95,
+       "scale": "log",
+       "log_point": -0.12379,
+       "log_se": 0.121803,
+       "derived_here": true,
+       "derivation": "risk ratio computed here from the two counts on this row, with a normal-approximation interval on the log scale. Death is the outcome, so a ratio BELOW one means fewer deaths on the first-named treatment."
+      }
+     ],
+     "poolable": false,
+     "not_poolable_reason": "A single trial carries this comparison.",
+     "model": "single study, as reported",
+     "estimator": "none (no synthesis)",
+     "estimator_used": "none (no synthesis)",
+     "pooled": null,
+     "single_study_ref": "ACTA",
+     "heterogeneity": null,
+     "heterogeneity_status": "not applicable; a single trial",
+     "shared_control_note": "This contrast comes from a trial that randomised three strategies at once, so it shares whole arms with the trial's other contrasts, and sharing an arm means sharing those participants and their deaths. It shares the two-week strategy with the contrast of the one-week strategy against the two-week strategy. It shares the oral strategy with the contrast of the oral strategy against the one-week strategy. Each contrast is valid alone. Entering any of them alongside another as though it were a separate study would count the shared participants twice, which is why nothing here is added. Note this is NOT only a shared-REFERENCE-arm problem: one of these three contrasts never touches the trial's reference arm at all and still shares participants with both others.",
+     "shared_control_handbook": {
+      "decision": "The three contrasts from the multi-arm trial are reported separately and none is entered alongside another as though it were an independent study.",
+      "sections": [
+       "23.3.4",
+       "10.2"
+      ],
+      "conformance": "These contrasts share whole ARMS, which is the general case; two of them also happen to share the trial's reference arm, and the third shares no reference arm with anything and is still correlated with both. An earlier version of this block said both contrasts leaned on the same reference arm, which stopped being true the moment a third contrast was recovered, and a reviewer caught it. Section 10.2 describes meta-analysis as combining studies that estimate the same quantity; these two estimate different quantities and share a denominator, so combining them would count those control participants twice and narrow an interval by borrowing precision that does not exist. The section that GOVERNS this is 23.3.4, on how to include multiple groups from one study: it names entering several comparisons so that the same comparator group appears more than once as the approach that must be avoided, calls it a unit-of-analysis error, and lists the ways out, one of which is to include the correlated comparisons and account for the correlation. An earlier version of this object cited 11.2.1 here. BOTH review families said that was wrong and both were right: 11.2.1 is Indirect comparisons, and two arms compared with a shared control inside ONE trial are DIRECT evidence, not indirect evidence. The correlation between them is real and is recorded with the network; it is simply not what that section is about."
+     },
+     "trial_own_estimand": {
+      "as_published": "absolute difference in TWO-WEEK mortality, with a one-sided 97.5 per cent upper bound, against a ten-percentage-point non-inferiority margin",
+      "values": [
+       {
+        "contrast": "acta_oral_vs_2wk",
+        "upper_one_sided_97_5_percent_bound_pp": 4.2
+       },
+       {
+        "contrast": "acta_1wk_vs_2wk",
+        "upper_one_sided_97_5_percent_bound_pp": 8.1
+       }
+      ],
+      "non_inferiority_margin_pp": 10,
+      "time_point": "two weeks",
+      "note": "These bounds are on two-week mortality. The counts on the result rows are ten-week. They are different time points, and the bounds do not describe the rows."
+     },
+     "source_page_pooled": false,
+     "poolable_DEPRECATED_note": "`poolable` MEANT ONLY 'the source page pooled these trials'. It was never a judgement that the pool was sound, and the renderer read it as permission to assert 'pooled on the X scale'. RENAMED to source_page_pooled, which is what it says. `poolable` is retained so nothing breaks, and it is DEPRECATED: read source_page_pooled for what the source did, and estimand_established for whether the pool is defensible. A PAGE SHOULD DISPLAY A POOLED ESTIMATE BECAUSE ITS ESTIMAND WAS ESTABLISHED, NOT BECAUSE SOMEONE ONCE POOLED IT.",
+     "estimand_established": null,
+     "estimand_established_means": "TRUE only where every contributing trial has been READ and shown to measure the same quantity, or the same construct with a variance stated. FALSE where that was checked and failed. NULL where it was never checked -- AN ABSENT ASSERTION AND A NEGATIVE ONE ARE DIFFERENT STATES and null is not a pass.",
+     "estimand_established_does_not_cover_the_contrast_2026_08_20": "READ THIS BESIDE `estimand_established`. That flag records that every contributing trial measures the SAME QUANTITY. It records NOTHING about what that quantity was measured AGAINST -- whether the comparators are of one kind, whether each comparison was randomised, whether it was concurrent. On attr-pn-review the flag is TRUE and correct while the pool combines patisiran against its own saline placebo, vutrisiran against PATISIRAN, and eplontersen against the placebo cohort of a DIFFERENT TRIAL. The two questions were never separated. Named as P48 in PAGE-STANDARD.md v1.21.0 and swept by scripts/audit_mixed_contrast_pools.py."
+    },
+    "acta_1wk_vs_2wk": {
+     "k": 1,
+     "estimand_id": "acta_1wk_vs_2wk-estimand",
+     "handbook": {
+      "decision": "No network estimate and no indirect comparison is computed for antifungal induction.",
+      "sections": [
+       "11.2.1",
+       "11.2.2",
+       "11.3.2.3",
+       "11.4.4.1"
+      ],
+      "conformance": "Section 11.2.1 describes an indirect comparison as one made through a common comparator. These trials share no node, so that construction has no input. Whether a shared node COULD be forced into being by treating the one-week strategy as though it were the flucytosine-partnered regimen is a question about node GROUPING, and section 11.3.2.3 is what governs it: node definitions need careful consideration and should maximise similarity within a node. Half of that strategy received a different partner drug, and within that very node the trial demonstrated a difference: flucytosine better than fluconazole on ten-week mortality, with an interval excluding no effect. An earlier version called that the difference the trial found to matter MOST, which ranks it against strategy comparisons the trial reported as non-inferiority conclusions on a different window; the source states no such ranking and a reviewer was right to strike it. A demonstrated difference inside the node is enough on its own, so the two are not one node. An earlier version of this block argued that point from transitivity alone and a reviewer was right that transitivity does not settle what a node is. Once the nodes are fixed, section 11.2.2 refuses the forced merge for its own reason: it requires the sets of trials to be similar in all important factors other than the comparison being made, and half of that node received a different partner drug, which is the one difference the trial demonstrated INSIDE that node, on its own ten-week mortality comparison. No claim is made that it mattered more than anything else the trial tested; that would rank a superiority finding against non-inferiority conclusions on another window, which the source does not do. On loops, an earlier version of this object said the graph closed none. It does close one, and a reviewer was right to say so: the multi-arm trial supplies all three pairwise lines among its own strategies, which is the triangle section 11.1.1 describes a three-arm study as drawing. That loop still buys NO incoherence check, and the reason is not its absence but its provenance. Section 11.4.4.1 defines incoherence as the difference between the direct and the indirect estimate of the same comparison; here the indirect path runs through the third node of the SAME randomised population, so it is not independent evidence about the direct edge -- it is the same participants, arriving a different way. Comparing them would measure arithmetic, not disagreement between sources."
+     },
+     "per_trial": [
+      {
+       "trial_id": "ACTA",
+       "estimand_id": "acta_1wk_vs_2wk-estimand",
+       "treatment_deaths": 81,
+       "treatment_analysed": 224,
+       "control_deaths": 91,
+       "control_analysed": 229,
+       "measure": "RR",
+       "point": 0.91,
+       "ci_low": 0.7187,
+       "ci_high": 1.1522,
+       "ci_level": 95,
+       "scale": "log",
+       "log_point": -0.094334,
+       "log_se": 0.120431,
+       "derived_here": true,
+       "derivation": "risk ratio computed here from the two counts on this row, with a normal-approximation interval on the log scale. Death is the outcome, so a ratio BELOW one means fewer deaths on the first-named treatment."
+      }
+     ],
+     "poolable": false,
+     "not_poolable_reason": "A single trial carries this comparison.",
+     "model": "single study, as reported",
+     "estimator": "none (no synthesis)",
+     "estimator_used": "none (no synthesis)",
+     "pooled": null,
+     "single_study_ref": "ACTA",
+     "heterogeneity": null,
+     "heterogeneity_status": "not applicable; a single trial",
+     "shared_control_note": "This contrast comes from a trial that randomised three strategies at once, so it shares whole arms with the trial's other contrasts, and sharing an arm means sharing those participants and their deaths. It shares the two-week strategy with the contrast of the oral strategy against the two-week strategy. It shares the one-week strategy with the contrast of the oral strategy against the one-week strategy. Each contrast is valid alone. Entering any of them alongside another as though it were a separate study would count the shared participants twice, which is why nothing here is added. Note this is NOT only a shared-REFERENCE-arm problem: one of these three contrasts never touches the trial's reference arm at all and still shares participants with both others.",
+     "shared_control_handbook": {
+      "decision": "The three contrasts from the multi-arm trial are reported separately and none is entered alongside another as though it were an independent study.",
+      "sections": [
+       "23.3.4",
+       "10.2"
+      ],
+      "conformance": "These contrasts share whole ARMS, which is the general case; two of them also happen to share the trial's reference arm, and the third shares no reference arm with anything and is still correlated with both. An earlier version of this block said both contrasts leaned on the same reference arm, which stopped being true the moment a third contrast was recovered, and a reviewer caught it. Section 10.2 describes meta-analysis as combining studies that estimate the same quantity; these two estimate different quantities and share a denominator, so combining them would count those control participants twice and narrow an interval by borrowing precision that does not exist. The section that GOVERNS this is 23.3.4, on how to include multiple groups from one study: it names entering several comparisons so that the same comparator group appears more than once as the approach that must be avoided, calls it a unit-of-analysis error, and lists the ways out, one of which is to include the correlated comparisons and account for the correlation. An earlier version of this object cited 11.2.1 here. BOTH review families said that was wrong and both were right: 11.2.1 is Indirect comparisons, and two arms compared with a shared control inside ONE trial are DIRECT evidence, not indirect evidence. The correlation between them is real and is recorded with the network; it is simply not what that section is about."
+     },
+     "trial_own_estimand": {
+      "as_published": "absolute difference in TWO-WEEK mortality, with a one-sided 97.5 per cent upper bound, against a ten-percentage-point non-inferiority margin",
+      "values": [
+       {
+        "contrast": "acta_oral_vs_2wk",
+        "upper_one_sided_97_5_percent_bound_pp": 4.2
+       },
+       {
+        "contrast": "acta_1wk_vs_2wk",
+        "upper_one_sided_97_5_percent_bound_pp": 8.1
+       }
+      ],
+      "non_inferiority_margin_pp": 10,
+      "time_point": "two weeks",
+      "note": "These bounds are on two-week mortality. The counts on the result rows are ten-week. They are different time points, and the bounds do not describe the rows."
+     },
+     "source_page_pooled": false,
+     "poolable_DEPRECATED_note": "`poolable` MEANT ONLY 'the source page pooled these trials'. It was never a judgement that the pool was sound, and the renderer read it as permission to assert 'pooled on the X scale'. RENAMED to source_page_pooled, which is what it says. `poolable` is retained so nothing breaks, and it is DEPRECATED: read source_page_pooled for what the source did, and estimand_established for whether the pool is defensible. A PAGE SHOULD DISPLAY A POOLED ESTIMATE BECAUSE ITS ESTIMAND WAS ESTABLISHED, NOT BECAUSE SOMEONE ONCE POOLED IT.",
+     "estimand_established": null,
+     "estimand_established_means": "TRUE only where every contributing trial has been READ and shown to measure the same quantity, or the same construct with a variance stated. FALSE where that was checked and failed. NULL where it was never checked -- AN ABSENT ASSERTION AND A NEGATIVE ONE ARE DIFFERENT STATES and null is not a pass.",
+     "estimand_established_does_not_cover_the_contrast_2026_08_20": "READ THIS BESIDE `estimand_established`. That flag records that every contributing trial measures the SAME QUANTITY. It records NOTHING about what that quantity was measured AGAINST -- whether the comparators are of one kind, whether each comparison was randomised, whether it was concurrent. On attr-pn-review the flag is TRUE and correct while the pool combines patisiran against its own saline placebo, vutrisiran against PATISIRAN, and eplontersen against the placebo cohort of a DIFFERENT TRIAL. The two questions were never separated. Named as P48 in PAGE-STANDARD.md v1.21.0 and swept by scripts/audit_mixed_contrast_pools.py."
+    },
+    "acta_oral_vs_1wk": {
+     "k": 1,
+     "estimand_id": "acta_oral_vs_1wk-estimand",
+     "handbook": {
+      "decision": "No network estimate and no indirect comparison is computed for antifungal induction.",
+      "sections": [
+       "11.2.1",
+       "11.2.2",
+       "11.3.2.3",
+       "11.4.4.1"
+      ],
+      "conformance": "Section 11.2.1 describes an indirect comparison as one made through a common comparator. These trials share no node, so that construction has no input. Whether a shared node COULD be forced into being by treating the one-week strategy as though it were the flucytosine-partnered regimen is a question about node GROUPING, and section 11.3.2.3 is what governs it: node definitions need careful consideration and should maximise similarity within a node. Half of that strategy received a different partner drug, and within that very node the trial demonstrated a difference: flucytosine better than fluconazole on ten-week mortality, with an interval excluding no effect. An earlier version called that the difference the trial found to matter MOST, which ranks it against strategy comparisons the trial reported as non-inferiority conclusions on a different window; the source states no such ranking and a reviewer was right to strike it. A demonstrated difference inside the node is enough on its own, so the two are not one node. An earlier version of this block argued that point from transitivity alone and a reviewer was right that transitivity does not settle what a node is. Once the nodes are fixed, section 11.2.2 refuses the forced merge for its own reason: it requires the sets of trials to be similar in all important factors other than the comparison being made, and half of that node received a different partner drug, which is the one difference the trial demonstrated INSIDE that node, on its own ten-week mortality comparison. No claim is made that it mattered more than anything else the trial tested; that would rank a superiority finding against non-inferiority conclusions on another window, which the source does not do. On loops, an earlier version of this object said the graph closed none. It does close one, and a reviewer was right to say so: the multi-arm trial supplies all three pairwise lines among its own strategies, which is the triangle section 11.1.1 describes a three-arm study as drawing. That loop still buys NO incoherence check, and the reason is not its absence but its provenance. Section 11.4.4.1 defines incoherence as the difference between the direct and the indirect estimate of the same comparison; here the indirect path runs through the third node of the SAME randomised population, so it is not independent evidence about the direct edge -- it is the same participants, arriving a different way. Comparing them would measure arithmetic, not disagreement between sources."
+     },
+     "per_trial": [
+      {
+       "trial_id": "ACTA",
+       "estimand_id": "acta_oral_vs_1wk-estimand",
+       "treatment_deaths": 79,
+       "treatment_analysed": 225,
+       "control_deaths": 81,
+       "control_analysed": 224,
+       "measure": "RR",
+       "point": 0.971,
+       "ci_low": 0.7572,
+       "ci_high": 1.2451,
+       "ci_level": 95,
+       "scale": "log",
+       "log_point": -0.029456,
+       "log_se": 0.126867,
+       "derived_here": true,
+       "derivation": "risk ratio computed here from the two counts on this row, with a normal-approximation interval on the log scale. Death is the outcome, so a ratio BELOW one means fewer deaths on the first-named treatment."
+      }
+     ],
+     "poolable": false,
+     "not_poolable_reason": "A single trial carries this comparison.",
+     "model": "single study, as reported",
+     "estimator": "none (no synthesis)",
+     "estimator_used": "none (no synthesis)",
+     "pooled": null,
+     "single_study_ref": "ACTA",
+     "heterogeneity": null,
+     "heterogeneity_status": "not applicable; a single trial",
+     "shared_control_note": "This contrast comes from a trial that randomised three strategies at once, so it shares whole arms with the trial's other contrasts, and sharing an arm means sharing those participants and their deaths. It shares the oral strategy with the contrast of the oral strategy against the two-week strategy. It shares the one-week strategy with the contrast of the one-week strategy against the two-week strategy. Each contrast is valid alone. Entering any of them alongside another as though it were a separate study would count the shared participants twice, which is why nothing here is added. Note this is NOT only a shared-REFERENCE-arm problem: one of these three contrasts never touches the trial's reference arm at all and still shares participants with both others.",
+     "shared_control_handbook": {
+      "decision": "The three contrasts from the multi-arm trial are reported separately and none is entered alongside another as though it were an independent study.",
+      "sections": [
+       "23.3.4",
+       "10.2"
+      ],
+      "conformance": "These contrasts share whole ARMS, which is the general case; two of them also happen to share the trial's reference arm, and the third shares no reference arm with anything and is still correlated with both. An earlier version of this block said both contrasts leaned on the same reference arm, which stopped being true the moment a third contrast was recovered, and a reviewer caught it. Section 10.2 describes meta-analysis as combining studies that estimate the same quantity; these two estimate different quantities and share a denominator, so combining them would count those control participants twice and narrow an interval by borrowing precision that does not exist. The section that GOVERNS this is 23.3.4, on how to include multiple groups from one study: it names entering several comparisons so that the same comparator group appears more than once as the approach that must be avoided, calls it a unit-of-analysis error, and lists the ways out, one of which is to include the correlated comparisons and account for the correlation. An earlier version of this object cited 11.2.1 here. BOTH review families said that was wrong and both were right: 11.2.1 is Indirect comparisons, and two arms compared with a shared control inside ONE trial are DIRECT evidence, not indirect evidence. The correlation between them is real and is recorded with the network; it is simply not what that section is about."
+     },
+     "trial_own_estimand": {
+      "as_published": "absolute difference in TWO-WEEK mortality, with a one-sided 97.5 per cent upper bound, against a ten-percentage-point non-inferiority margin",
+      "values": [
+       {
+        "contrast": "acta_oral_vs_2wk",
+        "upper_one_sided_97_5_percent_bound_pp": 4.2
+       },
+       {
+        "contrast": "acta_1wk_vs_2wk",
+        "upper_one_sided_97_5_percent_bound_pp": 8.1
+       }
+      ],
+      "non_inferiority_margin_pp": 10,
+      "time_point": "two weeks",
+      "note": "These bounds are on two-week mortality. The counts on the result rows are ten-week. They are different time points, and the bounds do not describe the rows."
+     },
+     "source_page_pooled": false,
+     "poolable_DEPRECATED_note": "`poolable` MEANT ONLY 'the source page pooled these trials'. It was never a judgement that the pool was sound, and the renderer read it as permission to assert 'pooled on the X scale'. RENAMED to source_page_pooled, which is what it says. `poolable` is retained so nothing breaks, and it is DEPRECATED: read source_page_pooled for what the source did, and estimand_established for whether the pool is defensible. A PAGE SHOULD DISPLAY A POOLED ESTIMATE BECAUSE ITS ESTIMAND WAS ESTABLISHED, NOT BECAUSE SOMEONE ONCE POOLED IT.",
+     "estimand_established": null,
+     "estimand_established_means": "TRUE only where every contributing trial has been READ and shown to measure the same quantity, or the same construct with a variance stated. FALSE where that was checked and failed. NULL where it was never checked -- AN ABSENT ASSERTION AND A NEGATIVE ONE ARE DIFFERENT STATES and null is not a pass.",
+     "estimand_established_does_not_cover_the_contrast_2026_08_20": "READ THIS BESIDE `estimand_established`. That flag records that every contributing trial measures the SAME QUANTITY. It records NOTHING about what that quantity was measured AGAINST -- whether the comparators are of one kind, whether each comparison was randomised, whether it was concurrent. On attr-pn-review the flag is TRUE and correct while the pool combines patisiran against its own saline placebo, vutrisiran against PATISIRAN, and eplontersen against the placebo cohort of a DIFFERENT TRIAL. The two questions were never separated. Named as P48 in PAGE-STANDARD.md v1.21.0 and swept by scripts/audit_mixed_contrast_pools.py."
+    },
+    "ambition_lamb_vs_amb1w": {
+     "k": 1,
+     "estimand_id": "ambition_lamb_vs_amb1w-estimand",
+     "handbook": {
+      "decision": "No network estimate and no indirect comparison is computed for antifungal induction.",
+      "sections": [
+       "11.2.1",
+       "11.2.2",
+       "11.3.2.3",
+       "11.4.4.1"
+      ],
+      "conformance": "Section 11.2.1 describes an indirect comparison as one made through a common comparator. These trials share no node, so that construction has no input. Whether a shared node COULD be forced into being by treating the one-week strategy as though it were the flucytosine-partnered regimen is a question about node GROUPING, and section 11.3.2.3 is what governs it: node definitions need careful consideration and should maximise similarity within a node. Half of that strategy received a different partner drug, and within that very node the trial demonstrated a difference: flucytosine better than fluconazole on ten-week mortality, with an interval excluding no effect. An earlier version called that the difference the trial found to matter MOST, which ranks it against strategy comparisons the trial reported as non-inferiority conclusions on a different window; the source states no such ranking and a reviewer was right to strike it. A demonstrated difference inside the node is enough on its own, so the two are not one node. An earlier version of this block argued that point from transitivity alone and a reviewer was right that transitivity does not settle what a node is. Once the nodes are fixed, section 11.2.2 refuses the forced merge for its own reason: it requires the sets of trials to be similar in all important factors other than the comparison being made, and half of that node received a different partner drug, which is the one difference the trial demonstrated INSIDE that node, on its own ten-week mortality comparison. No claim is made that it mattered more than anything else the trial tested; that would rank a superiority finding against non-inferiority conclusions on another window, which the source does not do. On loops, an earlier version of this object said the graph closed none. It does close one, and a reviewer was right to say so: the multi-arm trial supplies all three pairwise lines among its own strategies, which is the triangle section 11.1.1 describes a three-arm study as drawing. That loop still buys NO incoherence check, and the reason is not its absence but its provenance. Section 11.4.4.1 defines incoherence as the difference between the direct and the indirect estimate of the same comparison; here the indirect path runs through the third node of the SAME randomised population, so it is not independent evidence about the direct edge -- it is the same participants, arriving a different way. Comparing them would measure arithmetic, not disagreement between sources."
+     },
+     "per_trial": [
+      {
+       "trial_id": "AMBITION-cm",
+       "estimand_id": "ambition_lamb_vs_amb1w-estimand",
+       "treatment_deaths": 101,
+       "treatment_analysed": 407,
+       "control_deaths": 117,
+       "control_analysed": 407,
+       "measure": "RR",
+       "point": 0.8632,
+       "ci_low": 0.6872,
+       "ci_high": 1.0843,
+       "ci_level": 95,
+       "scale": "log",
+       "log_point": -0.147053,
+       "log_se": 0.116336,
+       "derived_here": true,
+       "derivation": "risk ratio computed here from the two counts on this row, with a normal-approximation interval on the log scale. Death is the outcome, so a ratio BELOW one means fewer deaths on the first-named treatment."
+      }
+     ],
+     "poolable": false,
+     "not_poolable_reason": "A single trial carries this comparison.",
+     "model": "single study, as reported",
+     "estimator": "none (no synthesis)",
+     "estimator_used": "none (no synthesis)",
+     "pooled": null,
+     "single_study_ref": "AMBITION-cm",
+     "heterogeneity": null,
+     "heterogeneity_status": "not applicable; a single trial",
+     "trial_own_estimand": {
+      "as_published": "absolute difference in TEN-WEEK mortality risk, with a one-sided 95 per cent upper bound, against a ten-percentage-point non-inferiority margin, from a binomial generalised linear model",
+      "values": [
+       {
+        "contrast": "ambition_lamb_vs_amb1w",
+        "risk_difference_pp": -3.9,
+        "upper_one_sided_95_percent_bound_pp": 1.2,
+        "two_sided_95_ci_pp": [
+         -10.0,
+         2.2
+        ],
+        "adjusted_risk_difference_pp": -5.7,
+        "adjusted_two_sided_95_ci_pp": [
+         -11.4,
+         -0.04
+        ]
+       }
+      ],
+      "non_inferiority_margin_pp": 10,
+      "time_point": "ten weeks",
+      "note": "This risk difference IS the trial's primary estimand. The risk ratio on the result row is derived so the induction trials can be read in one column, and it is not what the trial reported."
+     },
+     "source_page_pooled": false,
+     "poolable_DEPRECATED_note": "`poolable` MEANT ONLY 'the source page pooled these trials'. It was never a judgement that the pool was sound, and the renderer read it as permission to assert 'pooled on the X scale'. RENAMED to source_page_pooled, which is what it says. `poolable` is retained so nothing breaks, and it is DEPRECATED: read source_page_pooled for what the source did, and estimand_established for whether the pool is defensible. A PAGE SHOULD DISPLAY A POOLED ESTIMATE BECAUSE ITS ESTIMAND WAS ESTABLISHED, NOT BECAUSE SOMEONE ONCE POOLED IT.",
+     "estimand_established": null,
+     "estimand_established_means": "TRUE only where every contributing trial has been READ and shown to measure the same quantity, or the same construct with a variance stated. FALSE where that was checked and failed. NULL where it was never checked -- AN ABSENT ASSERTION AND A NEGATIVE ONE ARE DIFFERENT STATES and null is not a pass.",
+     "estimand_established_does_not_cover_the_contrast_2026_08_20": "READ THIS BESIDE `estimand_established`. That flag records that every contributing trial measures the SAME QUANTITY. It records NOTHING about what that quantity was measured AGAINST -- whether the comparators are of one kind, whether each comparison was randomised, whether it was concurrent. On attr-pn-review the flag is TRUE and correct while the pool combines patisiran against its own saline placebo, vutrisiran against PATISIRAN, and eplontersen against the placebo cohort of a DIFFERENT TRIAL. The two questions were never separated. Named as P48 in PAGE-STANDARD.md v1.21.0 and swept by scripts/audit_mixed_contrast_pools.py."
+    },
+    "coat_26wk_mortality": {
+     "k": 1,
+     "estimand_id": "coat_26wk_mortality-estimand",
+     "handbook": {
+      "decision": "The timing trial is held as a separate two-arm comparison and is not placed in the antifungal network.",
+      "sections": [
+       "11.1.1",
+       "10.9"
+      ],
+      "conformance": "Every participant in it received the same antifungal induction; what was randomised is the day antiretroviral therapy started. Section 11.1.1 is where a network's nodes are defined: a network diagram consists of nodes representing the interventions and lines showing the available direct comparisons between pairs of them. This trial randomises none of the antifungal regimens, so it supplies no such line between them. An earlier version attached this to 11.2.2, which is TRANSITIVITY and makes no statement about what a node is; a reviewer was right that a correct decision was hanging from a claim its section does not make. Its outcome is analysed as time to death, which section 10.9 governs, and that is a different measure from the risk ratio used for induction, so the two are never combined."
+     },
+     "per_trial": [
+      {
+       "trial_id": "COAT",
+       "estimand_id": "coat_26wk_mortality-estimand",
+       "measure": "HR",
+       "point": 1.73,
+       "ci_low": 1.06,
+       "ci_high": 2.82,
+       "ci_level": 95,
+       "p_value": 0.03,
+       "scale": "log",
+       "log_point": 0.548121,
+       "log_se": 0.249614,
+       "derived_here": false,
+       "derivation": "the hazard ratio this trial published, from its own model. The index arm is the earlier start and death is the outcome, so a value above the null is harm from starting earlier."
+      }
+     ],
+     "poolable": false,
+     "not_poolable_reason": "A single trial carries this comparison.",
+     "model": "single study, as reported",
+     "estimator": "none (no synthesis)",
+     "estimator_used": "none (no synthesis)",
+     "pooled": null,
+     "single_study_ref": "COAT",
+     "heterogeneity": null,
+     "heterogeneity_status": "not applicable; a single trial",
+     "trial_own_estimand": {
+      "as_published": "hazard ratio for death at twenty-six weeks from a Cox proportional-hazards model",
+      "values": [
+       {
+        "contrast": "coat_26wk_mortality",
+        "as_stored": true
+       }
+      ],
+      "non_inferiority_margin_pp": null,
+      "time_point": "twenty-six weeks",
+      "note": "The index arm is the earlier start and death is the outcome, so a value above the null is harm from starting earlier."
+     },
+     "stopped_early": {
+      "stopped": true,
+      "stopped_on": "2012-04-27",
+      "stopped_by": "the National Institute of Allergy and Infectious Diseases data and safety monitoring board, at its second interim review",
+      "reason": "substantial excess mortality with earlier antiretroviral therapy",
+      "intended_sample_size": 500,
+      "monitoring_boundary": "a Lan-DeMets spending-function analogue of the O'Brien-Fleming boundaries",
+      "authors_own_caution": "Historically, trials stopped early have routinely overestimated the magnitude of benefit or harm.",
+      "interpretation_caveat": "The effect on the row is the effect as published, and the trial's own authors record that estimates from trials halted this way tend to run large. Nothing here corrects for that, because no correction is published; the caution travels with the number instead."
+     },
+     "timing_of_the_excess": {
+      "window": "study days eight to thirty, that is two to five weeks after diagnosis, during consolidation fluconazole",
+      "early_deaths": 21,
+      "early_analysed": 75,
+      "deferred_deaths": 8,
+      "deferred_analysed": 80,
+      "measure": "HR",
+      "point": 3.1,
+      "ci_low": 1.37,
+      "ci_high": 7.0,
+      "ci_level": 95,
+      "p_value": 0.007,
+      "derived_here": false,
+      "after_this_window": "mortality did not differ significantly thereafter",
+      "source_quotes": [
+       "earlier-ART  : 21 / 75 = 28%",
+       "deferred-ART :  8 / 80 = 10%",
+       "hazard ratio 3.10, 95% CI 1.37 to 7.00, P = 0.007",
+       "Mortality did not differ significantly thereafter (P = 0.87)."
+      ],
+      "source_id": "OA_COAT2014"
+     },
+     "published_subgroup_effects": [
+      {
+       "name": "fewer than five white cells per cubic millimetre in cerebrospinal fluid at randomisation",
+       "measure": "HR",
+       "point": 3.87,
+       "ci_low": 1.41,
+       "ci_high": 10.58,
+       "ci_level": 95,
+       "p_value": 0.008,
+       "source_quotes": [
+        "CSF WCC < 5 /mm3  : HR 3.87, 95% CI 1.41 to 10.58, P = 0.008"
+       ],
+       "source_id": "OA_COAT2014"
+      },
+      {
+       "name": "five or more white cells per cubic millimetre in cerebrospinal fluid at randomisation",
+       "measure": "HR",
+       "point": 0.88,
+       "ci_low": 0.46,
+       "ci_high": 1.71,
+       "ci_level": 95,
+       "p_value": 0.71,
+       "source_quotes": [
+        "CSF WCC >= 5 /mm3 : HR 0.88, 95% CI 0.46 to 1.71, P = 0.71"
+       ],
+       "source_id": "OA_COAT2014"
+      },
+      {
+       "name": "CD4 count below fifty per cubic millimetre",
+       "measure": "HR",
+       "point": 1.74,
+       "ci_low": 0.93,
+       "ci_high": 3.24,
+       "ci_level": 95,
+       "p_value": null,
+       "source_quotes": [
+        "CD4 < 50 /mm3            : HR 1.74, 95% CI 0.93 to 3.24"
+       ],
+       "source_id": "OA_COAT2014"
+      },
+      {
+       "name": "altered mental status, Glasgow Coma Scale below fifteen",
+       "measure": "HR",
+       "point": 2.96,
+       "ci_low": 1.0,
+       "ci_high": 8.8,
+       "ci_level": 95,
+       "p_value": null,
+       "source_quotes": [
+        "(Glasgow Coma Scale <15): HR 2.96, 95% CI 1.00 to 8.80"
+       ],
+       "source_id": "OA_COAT2014"
+      }
+     ],
+     "published_subgroup_note": "The white-cell count is the only one of these whose interaction test reached significance, and section 10.11.1 is why that test rather than the separate subgroup results is what carries a claim. The trial reports that the earlier start was not favourable in any subgroup it examined.",
+     "source_page_pooled": false,
+     "poolable_DEPRECATED_note": "`poolable` MEANT ONLY 'the source page pooled these trials'. It was never a judgement that the pool was sound, and the renderer read it as permission to assert 'pooled on the X scale'. RENAMED to source_page_pooled, which is what it says. `poolable` is retained so nothing breaks, and it is DEPRECATED: read source_page_pooled for what the source did, and estimand_established for whether the pool is defensible. A PAGE SHOULD DISPLAY A POOLED ESTIMATE BECAUSE ITS ESTIMAND WAS ESTABLISHED, NOT BECAUSE SOMEONE ONCE POOLED IT.",
+     "estimand_established": null,
+     "estimand_established_means": "TRUE only where every contributing trial has been READ and shown to measure the same quantity, or the same construct with a variance stated. FALSE where that was checked and failed. NULL where it was never checked -- AN ABSENT ASSERTION AND A NEGATIVE ONE ARE DIFFERENT STATES and null is not a pass.",
+     "estimand_established_does_not_cover_the_contrast_2026_08_20": "READ THIS BESIDE `estimand_established`. That flag records that every contributing trial measures the SAME QUANTITY. It records NOTHING about what that quantity was measured AGAINST -- whether the comparators are of one kind, whether each comparison was randomised, whether it was concurrent. On attr-pn-review the flag is TRUE and correct while the pool combines patisiran against its own saline placebo, vutrisiran against PATISIRAN, and eplontersen against the placebo cohort of a DIFFERENT TRIAL. The two questions were never separated. Named as P48 in PAGE-STANDARD.md v1.21.0 and swept by scripts/audit_mixed_contrast_pools.py."
+    },
+    "coat_iris": {
+     "k": 1,
+     "estimand_id": "coat_iris-estimand",
+     "handbook": {
+      "decision": "The two immune reconstitution counts are held and NO ratio effect measure is stored or derived.",
+      "sections": [
+       "10.4.3"
+      ],
+      "conformance": "Section 10.4.3 sets out which effect measures are available for a dichotomous outcome. What this trial published is not a plain proportion: it is a cumulative incidence estimated against the competing risk of death, over at-risk sets that differ from the randomised arms. Not one of the measures that section offers can be recovered from it without the subdistribution model, which the paper does not report."
+     },
+     "per_trial": [
+      {
+       "trial_id": "COAT",
+       "estimand_id": "coat_iris-estimand",
+       "measure": "none",
+       "treatment_events": 17,
+       "treatment_at_risk": 87,
+       "control_events": 9,
+       "control_at_risk": 69,
+       "incidence_percent": {
+        "treatment": 20,
+        "control": 13
+       },
+       "p_value": 0.32,
+       "effect_absent_because": "The trial published two cumulative incidences under a competing risk and a P value, and no ratio, and none is derived here."
+      }
+     ],
+     "poolable": false,
+     "not_poolable_reason": "A single trial carries this comparison.",
+     "model": "single study, as reported",
+     "estimator": "none (no synthesis)",
+     "estimator_used": "none (no synthesis)",
+     "pooled": null,
+     "single_study_ref": "COAT",
+     "heterogeneity": null,
+     "heterogeneity_status": "not applicable; a single trial",
+     "ascertainment_caveat": "The trial reports that the case definition requires prior clinical improvement, that clinicians and the adjudication panel were often unable to tell progressive deterioration from this syndrome in the earlier-start arm, and that this probably under-detected early events in that arm. The direction of that bias is toward the null for the arm with more events.",
+     "source_page_pooled": false,
+     "poolable_DEPRECATED_note": "`poolable` MEANT ONLY 'the source page pooled these trials'. It was never a judgement that the pool was sound, and the renderer read it as permission to assert 'pooled on the X scale'. RENAMED to source_page_pooled, which is what it says. `poolable` is retained so nothing breaks, and it is DEPRECATED: read source_page_pooled for what the source did, and estimand_established for whether the pool is defensible. A PAGE SHOULD DISPLAY A POOLED ESTIMATE BECAUSE ITS ESTIMAND WAS ESTABLISHED, NOT BECAUSE SOMEONE ONCE POOLED IT.",
+     "estimand_established": null,
+     "estimand_established_means": "TRUE only where every contributing trial has been READ and shown to measure the same quantity, or the same construct with a variance stated. FALSE where that was checked and failed. NULL where it was never checked -- AN ABSENT ASSERTION AND A NEGATIVE ONE ARE DIFFERENT STATES and null is not a pass.",
+     "estimand_established_does_not_cover_the_contrast_2026_08_20": "READ THIS BESIDE `estimand_established`. That flag records that every contributing trial measures the SAME QUANTITY. It records NOTHING about what that quantity was measured AGAINST -- whether the comparators are of one kind, whether each comparison was randomised, whether it was concurrent. On attr-pn-review the flag is TRUE and correct while the pool combines patisiran against its own saline placebo, vutrisiran against PATISIRAN, and eplontersen against the placebo cohort of a DIFFERENT TRIAL. The two questions were never separated. Named as P48 in PAGE-STANDARD.md v1.21.0 and swept by scripts/audit_mixed_contrast_pools.py."
+    }
+   }
+  },
+  "scope_decisions": {
+   "NETWORK:disconnected-no-synthesis": {
+    "decision": "No network estimate and no indirect comparison is computed for antifungal induction.",
+    "sections": [
+     "11.2.1",
+     "11.2.2",
+     "11.3.2.3",
+     "11.4.4.1"
+    ],
+    "conformance": "Section 11.2.1 describes an indirect comparison as one made through a common comparator. These trials share no node, so that construction has no input. Whether a shared node COULD be forced into being by treating the one-week strategy as though it were the flucytosine-partnered regimen is a question about node GROUPING, and section 11.3.2.3 is what governs it: node definitions need careful consideration and should maximise similarity within a node. Half of that strategy received a different partner drug, and within that very node the trial demonstrated a difference: flucytosine better than fluconazole on ten-week mortality, with an interval excluding no effect. An earlier version called that the difference the trial found to matter MOST, which ranks it against strategy comparisons the trial reported as non-inferiority conclusions on a different window; the source states no such ranking and a reviewer was right to strike it. A demonstrated difference inside the node is enough on its own, so the two are not one node. An earlier version of this block argued that point from transitivity alone and a reviewer was right that transitivity does not settle what a node is. Once the nodes are fixed, section 11.2.2 refuses the forced merge for its own reason: it requires the sets of trials to be similar in all important factors other than the comparison being made, and half of that node received a different partner drug, which is the one difference the trial demonstrated INSIDE that node, on its own ten-week mortality comparison. No claim is made that it mattered more than anything else the trial tested; that would rank a superiority finding against non-inferiority conclusions on another window, which the source does not do. On loops, an earlier version of this object said the graph closed none. It does close one, and a reviewer was right to say so: the multi-arm trial supplies all three pairwise lines among its own strategies, which is the triangle section 11.1.1 describes a three-arm study as drawing. That loop still buys NO incoherence check, and the reason is not its absence but its provenance. Section 11.4.4.1 defines incoherence as the difference between the direct and the indirect estimate of the same comparison; here the indirect path runs through the third node of the SAME randomised population, so it is not independent evidence about the direct edge -- it is the same participants, arriving a different way. Comparing them would measure arithmetic, not disagreement between sources."
+   },
+   "SHARED-CONTROL:contrasts-sharing-arms": {
+    "decision": "The three contrasts from the multi-arm trial are reported separately and none is entered alongside another as though it were an independent study.",
+    "sections": [
+     "23.3.4",
+     "10.2"
+    ],
+    "conformance": "These contrasts share whole ARMS, which is the general case; two of them also happen to share the trial's reference arm, and the third shares no reference arm with anything and is still correlated with both. An earlier version of this block said both contrasts leaned on the same reference arm, which stopped being true the moment a third contrast was recovered, and a reviewer caught it. Section 10.2 describes meta-analysis as combining studies that estimate the same quantity; these two estimate different quantities and share a denominator, so combining them would count those control participants twice and narrow an interval by borrowing precision that does not exist. The section that GOVERNS this is 23.3.4, on how to include multiple groups from one study: it names entering several comparisons so that the same comparator group appears more than once as the approach that must be avoided, calls it a unit-of-analysis error, and lists the ways out, one of which is to include the correlated comparisons and account for the correlation. An earlier version of this object cited 11.2.1 here. BOTH review families said that was wrong and both were right: 11.2.1 is Indirect comparisons, and two arms compared with a shared control inside ONE trial are DIRECT evidence, not indirect evidence. The correlation between them is real and is recorded with the network; it is simply not what that section is about."
+   },
+   "COAT:not-a-network-node": {
+    "decision": "The timing trial is held as a separate two-arm comparison and is not placed in the antifungal network.",
+    "sections": [
+     "11.1.1",
+     "10.9"
+    ],
+    "conformance": "Every participant in it received the same antifungal induction; what was randomised is the day antiretroviral therapy started. Section 11.1.1 is where a network's nodes are defined: a network diagram consists of nodes representing the interventions and lines showing the available direct comparisons between pairs of them. This trial randomises none of the antifungal regimens, so it supplies no such line between them. An earlier version attached this to 11.2.2, which is TRANSITIVITY and makes no statement about what a node is; a reviewer was right that a correct decision was hanging from a claim its section does not make. Its outcome is analysed as time to death, which section 10.9 governs, and that is a different measure from the risk ratio used for induction, so the two are never combined."
+   },
+   "IRIS:no-effect-measure": {
+    "decision": "The two immune reconstitution counts are held and NO ratio effect measure is stored or derived.",
+    "sections": [
+     "10.4.3"
+    ],
+    "conformance": "Section 10.4.3 sets out which effect measures are available for a dichotomous outcome. What this trial published is not a plain proportion: it is a cumulative incidence estimated against the competing risk of death, over at-risk sets that differ from the randomised arms. Not one of the measures that section offers can be recovered from it without the subdistribution model, which the paper does not report."
+   },
+   "SINGLE-TRIAL:no-pooling": {
+    "decision": "No outcome is pooled across trials.",
+    "sections": [
+     "10.2"
+    ],
+    "conformance": "Section 10.2 introduces meta-analysis as the combination of two or more studies that estimate the same quantity. No two trials here estimate the same quantity: the induction trials share no treatment contrast, and the timing trial compares something else entirely."
+   },
+   "SCOPE:registrations-checked": {
+    "decision": "Each trial's registration is recorded and named.",
+    "sections": [
+     "4.3.3"
+    ],
+    "conformance": "Section 4.3.3 names trials registers as a source to be searched. Each registration identifier is carried so a reader can go to the register rather than take this object's word for it."
+   }
+  },
+  "claims_corrected": [
+   {
+    "claim": "a published hazard ratio of 0.86 for the liposomal amphotericin B trial",
+    "status": "not verifiable from the primary publication",
+    "correction": "That trial reports its time-to-event analysis only as a supplementary table, described in the body as showing no significant differences between groups. No hazard ratio value appears anywhere in the text retrieved from PubMed Central. Its primary estimand is an absolute risk difference, and that is what is stored. The objection is not that the wrong measure was chosen; it is that the number could not be found in the paper it was attributed to.",
+    "source_id": "OA_AMBITION2022"
+   },
+   {
+    "claim": "immune reconstitution counts of seventeen against seven, with an odds ratio of two point five",
+    "status": "wrong on the count and invented on the effect",
+    "correction": "The deferred-start count is nine, not seven, and neither denominator is the randomised total. No odds ratio for this outcome appears in the paper, and none can be recovered from a cumulative incidence estimated against a competing risk. The row now holds the two published incidences, their at-risk totals and the published P value, and holds no ratio.",
+    "source_id": "OA_COAT2014"
+   },
+   {
+    "claim": "that every arm of the five-arm induction trial could stand as its own network node",
+    "status": "not constructible from an accessible source",
+    "correction": "The full text is behind a paywall and was not retrieved. The indexed abstract publishes counts for the three induction strategies and, for the partner drug, only a total pooled across both amphotericin durations. It publishes no numerator or denominator for any single arm. The nodes are therefore the three strategies, and the partner drug is recorded as a difference inside two of them.",
+    "source_id": "ABS_ACTA2018"
+   }
+  ],
+  "all_ranks_captured_2026_08_18": "Registered outcomes captured at EVERY rank -- primary, secondary and other -- by re-reading each registration on 2026-08-18. Previously only primaries were recorded, which made this topic's withdrawal UNTESTABLE for proportionality: the SGLT2 failure lived one rank down and we had not kept one rank down. The read date is stamped FOR THIS READ, not carried over.",
+  "manuscript": {
+   "references": {
+    "_what": "A reference list, assembled from this object's own fields. Distinct from `sources`, which records the provenance LAYER each fact was read at; this is what a reader would look up.",
+    "included_studies": [
+     {
+      "registration": "ACTA",
+      "label": "ACTA",
+      "registry": "ClinicalTrials.gov",
+      "url": "https://clinicaltrials.gov/study/ACTA",
+      "read_utc": ""
+     },
+     {
+      "registration": "AMBITION-cm",
+      "label": "AMBITION-cm",
+      "registry": "ClinicalTrials.gov",
+      "url": "https://clinicaltrials.gov/study/AMBITION-cm",
+      "read_utc": ""
+     },
+     {
+      "registration": "COAT",
+      "label": "COAT",
+      "registry": "ClinicalTrials.gov",
+      "url": "https://clinicaltrials.gov/study/COAT",
+      "read_utc": ""
+     },
+     {
+      "registration": "NCT01075152",
+      "label": "Timing of Antiretroviral Therapy after Diagnosis of Cryptococcal Meningitis",
+      "registry": "ClinicalTrials.gov",
+      "url": "https://clinicaltrials.gov/study/NCT01075152",
+      "read_utc": ""
+     }
+    ],
+    "published_syntheses_compared_against": [],
+    "_published_syntheses_note": "No published synthesis is listed here. The comparison section states its own denominator and why nothing citable was appraised. ",
+    "methods_guidance_and_software": [
+     {
+      "cited_for": "the reporting guideline this manuscript is written against",
+      "citation": "Page MJ, McKenzie JE, Bossuyt PM, et al. The PRISMA 2020 statement: an updated guideline for reporting systematic reviews. BMJ. 2021;372:n71. doi:10.1136/bmj.n71"
+     }
+    ]
+   },
+   "introduction": "This review asks: Among randomised trials in HIV-associated cryptococcal meningitis, what does each antifungal induction trial report for ten-week mortality, can those trials be joined into a network, and what does the separate trial of antiretroviral timing report?\n\nIt examines 1 randomised trial and DOES NOT POOL THEM.\n\nThe outcomes sought are Oral fluconazole with flucytosine against two weeks of amphotericin B; One week of amphotericin B against two weeks of amphotericin B; Oral fluconazole with flucytosine against one week of amphotericin B; A single high dose of liposomal amphotericin B against one week of amphotericin B deoxycholate with flucytosine; Earlier against deferred start of antiretroviral therapy, death by twenty-six weeks; Recognised cryptococcal immune reconstitution inflammatory syndrome.\n\nEverything in this paragraph is derived from stored fields and none of it is authored. The interpretive sentences that follow are marked as drafts and are the author's to replace."
+  },
+  "bookkeeping_2026_08_21": {
+   "_what": "The five reporting claims a PRISMA-2020 manuscript needs that are FETCHABLE rather than argued -- each derived from a field here, or stated as an honest absence.",
+   "which_limbs_this_review_refuses": "Of the four properties this project requires of a completed topic, 0 are held (none) and 4 are refused with the obstacle named in the evidence (comparison denominator, grade per pool, model output verbatim, rob per result).",
+   "the_search_its_date_and_its_databases": "PRIMARY TRIALS. NO BIBLIOGRAPHIC SEARCH FOR PRIMARY TRIALS WAS RUN. The 4 included trials were identified by reading named registrations on the dates recorded on each entry.",
+   "whether_this_review_was_prospectively_registered": "NO PROSPERO REGISTRATION OR PROTOCOL RECORD IS HELD ON THIS OBJECT. That is not the same as knowing this review was not registered, and neither claim is made. It is recorded here as an absence so that a reader does not have to infer it from silence.",
+   "that_two_assessors_disagreed_and_where": "NO SECOND, INDEPENDENT RISK-OF-BIAS ASSESSMENT IS RECORDED FOR THIS TOPIC. The judgements were made once. Stated so that single assessment is not mistaken for agreement between two."
+  },
+  "display_change_announced": [
+   {
+    "date": "2026-08-21",
+    "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+    "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+    "what_changed": "references built, introduction written, bookkeeping claims 4",
+    "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+   },
+   {
+    "date": "2026-08-21",
+    "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+    "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+    "what_changed": "references built, introduction written, bookkeeping claims 4",
+    "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+   },
+   {
+    "date": "2026-08-21",
+    "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+    "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+    "what_changed": "references built, introduction written, bookkeeping claims 4",
+    "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+   },
+   {
+    "date": "2026-08-21",
+    "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+    "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+    "what_changed": "references built, introduction written, bookkeeping claims 4",
+    "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+   },
+   {
+    "date": "2026-08-21",
+    "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+    "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+    "what_changed": "references built, introduction written, bookkeeping claims 4",
+    "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+   },
+   {
+    "date": "2026-08-21",
+    "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+    "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+    "what_changed": "references built, introduction written, bookkeeping claims 4",
+    "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+   }
+  ]
+ }
+}

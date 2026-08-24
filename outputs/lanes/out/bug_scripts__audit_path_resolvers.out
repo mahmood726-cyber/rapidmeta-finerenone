@@ -1,0 +1,688 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a03147-a1f9-7333-95f1-1e4403838103
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/audit_path_resolvers.py
+
+--- THE FILE, IN FULL ---
+"""Which path resolvers in this repository can return a CONTAINER where a LEAF was named?
+
+THE BUG THIS IS SWEEPING FOR, from scripts/lint_method_claim_has_a_field.py on 2026-08-20.
+
+Its `get()` supported a `*` wildcard, and at the wildcard it RETURNED the matching child
+instead of continuing down the remaining segments. So:
+
+    get(obj, "results.by_outcome.*.cross_engine")
+
+resolved to the OUTCOME BLOCK -- `{k, estimand_id, comparator_type, poolable, ...}` -- and
+never applied `.cross_engine` at all. A non-empty dict is truthy, the caller's test was
+`if v is None or v == [] or v == {} or v == ""`, and the claim passed.
+
+THAT IS WORSE THAN A WRONG ADDRESS. A path pointing somewhere that does not exist fails
+loudly the first time a value is printed. THIS ONE RESOLVED TO SOMETHING REAL ON EVERY
+OBJECT IN THE CORPUS, so the claim it guarded had NO CONSTRUCTIBLE FAILING INPUT -- reached
+by a traversal bug rather than by design, which is the one property this project has a rule
+about and the one hardest to notice.
+
+THE GENERAL FORM:
+
+    A resolver must distinguish "this path TERMINATED EARLY" from "this path RESOLVED",
+    and any resolver that returns an intermediate node where a leaf was named has
+    SILENTLY WIDENED every claim that uses it.
+
+A truth test on the result cannot tell the difference, because a non-empty dict is truthy.
+That is why reading booleans hid it and printing values found it -- the second time this
+week that a defect survived until somebody looked at the PAYLOAD rather than the JUDGEMENT.
+
+WHAT THIS FILE FLAGS. Any resolver that walks a dotted or segmented path and can exit the
+loop without having consumed every segment: an early `return` inside the walk, a `break`,
+or a wildcard branch. It is a REPORTER -- it cannot prove a given resolver is wrong, only
+that it has the shape in which this defect lives, and it says so rather than claiming more.
+
+THE CRITERION TO READ EACH UNREAD BODY AGAINST, so the twelve readings are a comparison
+rather than a vibe:
+
+    ATTRIBUTION-AFTER-THE-FACT IS THE EXPOSED PATTERN. READING A DECLARED FIELD IS NOT.
+
+A consumer that scans strings, or nodes, and then works out AFTERWARDS which outcome or
+entity each one belonged to is exposed: its answer depends on a path shape it assumed, and
+a path-shaped assumption is invisible to its author because it is the shape they were
+thinking in. A consumer that reads a NAMED FIELD -- `results.by_outcome.<oid>.estimator_used`
+-- is not exposed, because the object told it what the field is instead of it inferring.
+
+That is the same principle as the object declaring which outcome leads and the consumer
+refusing when several exist and none is declared; it simply arrives from the string-handling
+side. Verified 2026-08-20 on the two consumers most likely to be affected:
+ssot/paper_projector.py and scripts/lint_reader_facing_sections.py both read named fields
+and neither walks prose, so NEITHER IS EXPOSED -- a negative result, and the one most worth
+computing.
+
+So for each body below, ask: does it attribute after scanning, or read what was declared?
+"""
+import io
+import os
+import re
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+SEARCH = [os.path.join(REPO, "scripts"), os.path.join(REPO, "ssot")]
+
+# THREE STATES, AND UNREAD IS THE LOUD DEFAULT.
+#
+# "16 resolvers have the shape" is not "16 bugs", and that distinction does not survive a
+# retelling if it lives only in prose. A shape-flag is a reason to OPEN THE BODY, nothing
+# more. So every flagged resolver is UNREAD until someone records a verdict here, and the
+# summary refuses to let the unread count be quoted as a finding.
+#
+# Adjudicated 2026-08-20 by reading each body. The four opened were chosen because they are
+# load-bearing: the projector feeds the manuscript a reader meets, and two are CHECKERS --
+# a checker with a silently widened resolver certifies rather than catches.
+ADJUDICATED = {
+    ("ssot/paper_projector.py", "get"): (
+        "CORRECT",
+        "Returns None ONLY on a missing segment (`else: return None`) and returns `cur` "
+        "only after consuming every segment. No wildcard. The early return is on ABSENCE, "
+        "which is the correct case for this shape."),
+    ("scripts/lint_refusal_citation_resolves.py", "resolve"): (
+        "CORRECT",
+        "Returns (False, None) only on a missing or malformed segment and (True, cur) only "
+        "after the full walk. IT IS THE ONLY RESOLVER IN THE CORPUS THAT EXPLICITLY "
+        "DISTINGUISHES 'resolved' FROM 'terminated early', by returning the boolean beside "
+        "the node -- which is the general form the wildcard bug violated."),
+    ("ssot/apply_reml_corpus.py", "main"): (
+        "CORRECT",
+        "Walks every segment but the last and reads the last by name; the `continue` "
+        "statements the sweep flagged are in the loop over PATHS, not over segments. It "
+        "would raise on a missing segment rather than widen, and its paths come from the "
+        "guard's own output."),
+    ("scripts/prose_claim_gate.py", "check"): (
+        "DEFECT",
+        "NOT the container-return bug -- a different narrowing, and real. It takes the "
+        "FIRST outcome's pooled interval (`for res in ...values(): pooled = ...; break`) "
+        "and then judges direction claims found ANYWHERE on the object against that one "
+        "interval. On an object with several pooled outcomes -- sglt2-hf has three -- the "
+        "interval judged against is whichever dict ordering puts first, and a claim about "
+        "outcome B is tested against outcome A's interval. Same family as reading the "
+        "primary by position rather than by identity. A GATE THAT NARROWS SILENTLY "
+        "CERTIFIES RATHER THAN CATCHES."),
+}
+
+# A resolver: a def whose body splits a path and iterates the segments.
+DEF = re.compile(r"^([ 	]*)def\s+(\w+)\s*\(([^)]*)\)\s*:", re.M)
+# `\s*` NOT `[ 	]*` -- the first version used \s*, which under re.M consumed the
+# preceding NEWLINES into the indent capture, so every extracted body came back as two
+# empty lines and the sweep reported ZERO resolvers across 782 files. It returned
+# NOT_ASSESSABLE rather than a clean bill, which is the only reason it was noticed --
+# a matcher that matched and yielded nothing, in the file written to sweep for matchers
+# that resolve to the wrong thing.
+SPLITS = re.compile(r"\.split\(\s*['\"]\.['\"]\s*\)|\.split\(\s*['\"]/['\"]\s*\)")
+WALKS = re.compile(r"\bfor\s+\w+(?:\s*,\s*\w+)?\s+in\s+")
+
+
+def body_of(src, start, indent):
+    """The lines of a def, by indentation."""
+    lines = src[start:].split("\n")
+    out = [lines[0]]
+    for ln in lines[1:]:
+        if ln.strip() and not ln.startswith(indent + " ") and not ln.startswith(indent + "\t"):
+            break
+        out.append(ln)
+    return "\n".join(out)
+
+
+def main():
+    resolvers, flagged = 0, []
+    files = 0
+    for root in SEARCH:
+        if not os.path.isdir(root):
+            continue
+        for dirpath, _dirs, names in os.walk(root):
+            for nm in sorted(names):
+                if not nm.endswith(".py"):
+                    continue
+                fp = os.path.join(dirpath, nm)
+                try:
+                    src = io.open(fp, encoding="utf-8", errors="replace").read()
+                except Exception:
+                    continue
+                files += 1
+                for m in DEF.finditer(src):
+                    indent, name = m.group(1), m.group(2)
+                    body = body_of(src, m.start(), indent)
+                    if not SPLITS.search(body) or not WALKS.search(body):
+                        continue
+                    resolvers += 1
+                    reasons = []
+                    # Does it exit the walk without consuming every segment?
+                    walk_at = WALKS.search(body).start()
+                    tail = body[walk_at:]
+                    if re.search(r"^\s+return\b(?!\s*(None|obj|cur)\s*$)", tail, re.M):
+                        reasons.append("returns from inside the walk")
+                    if re.search(r"^\s+break\b", tail, re.M):
+                        reasons.append("breaks out of the walk")
+                    if re.search(r"['\"]\*['\"]", body):
+                        reasons.append("has a wildcard branch")
+                    if reasons:
+                        rel = os.path.relpath(fp, REPO).replace("\\", "/")
+                        flagged.append((rel, name, "; ".join(reasons)))
+
+    print("python files read              %d" % files)
+    print("path resolvers found           %d" % resolvers)
+    print("with the container-return shape %d" % len(flagged))
+    print()
+    if resolvers == 0:
+        print("NOT_ASSESSABLE: found no path resolver at all across %d files. The matcher "
+              "is wrong, not the corpus." % files)
+        return 2
+    defect = [f for f in flagged if ADJUDICATED.get((f[0], f[1]), ("UNREAD",))[0] == "DEFECT"]
+    correct = [f for f in flagged if ADJUDICATED.get((f[0], f[1]), ("UNREAD",))[0] == "CORRECT"]
+    unread = [f for f in flagged if (f[0], f[1]) not in ADJUDICATED]
+
+    print("  CONFIRMED DEFECT   %2d   a body was read and it widens" % len(defect))
+    print("  CONFIRMED CORRECT  %2d   a body was read and it does not" % len(correct))
+    print("  UNREAD             %2d   <- NOT A FINDING. Nobody has opened these."
+          % len(unread))
+    print()
+    for state, rows in (("DEFECT", defect), ("CORRECT", correct)):
+        for rel, name, why in sorted(rows):
+            verdict, reason = ADJUDICATED[(rel, name)]
+            print("[%s] %s::%s" % (verdict, rel, name))
+            print("    shape flagged: %s" % why)
+            print("    verdict      : %s" % reason)
+            print()
+    if unread:
+        print("THE REFERENCE IMPLEMENTATION IS scripts/lint_refusal_citation_resolves.py::")
+        print("resolve. It is the only resolver in this corpus that RETURNS THE ANSWER TO")
+        print("'did this path resolve?' BESIDE THE NODE -- `(ok, node)` -- so a caller")
+        print("cannot mistake an intermediate container for a leaf, which is the exact")
+        print("mistake the wildcard made. READ EACH BODY BELOW AGAINST THAT ONE: the")
+        print("question is whether it can exit the walk with segments remaining, and")
+        print("whether its caller could tell if it did. That makes each reading a")
+        print("COMPARISON rather than a fresh judgement.")
+        print()
+        print("UNREAD -- flagged by shape and never opened. THE SHAPE IS A REASON TO READ")
+        print("THE BODY AND NOTHING ELSE. A resolver that returns early on a MISSING segment")
+        print("is correct; one that returns early on a PRESENT segment while segments remain")
+        print("is the defect. These counts must not be quoted as defects:")
+        print()
+        print("%-56s %-22s %s" % ("file", "function", "why it has the shape"))
+        print("-" * 130)
+        for rel, name, why in sorted(unread):
+            print("%-56s %-22s %s" % (rel, name, why))
+        print()
+        print("REPORTED WITH %d UNREAD. This is not a clean bill and it is not a defect "
+              "count; it is a reading list." % len(unread))
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Get-Content -Path F:\\ProjectIndex\\INDEX.md -TotalCount 20" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Get-Content -Path F:\\E156\\rewrite-workbook.txt -TotalCount 20" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=0; Get-Content -Path .'"\\scripts\\audit_path_resolvers.py | ForEach-Object { "'$i++; '"'{0,4}: {1}' -f "'$i, $_ }' in F:\rapidmeta-ssot-shell
+ succeeded in 977ms:
+E156 REWRITE WORKBOOK
+sentinel:skip-file
+sentinel:claim-language-allow
+(Sentinel markers above:
+ - sentinel:skip-file: this workbook intentionally contains C:\Users\... PATH:
+   lines pointing to each project's local source directory â€” they're metadata,
+   not code. The marker keeps Sentinel from emitting ~16 P0 hardcoded-path
+   BLOCKs every push.
+ - sentinel:claim-language-allow: CURRENT BODY entries are the AI-drafted
+   summaries that students rewrite into hedged language â€” flagging overclaim
+   words IN those drafts is the whole pedagogical point, not a defect.
+   File-scope marker here suppresses the ~1293 claim-language WARNs on the
+   CURRENT BODY entries; the YOUR REWRITE entries are where the hedging
+   discipline matters and remains lintable in the rendered student board.)
+
+DENOMINATOR CONVENTION (added 2026-05-06 after review-findings P1-5):
+  Each entry header is `[N/total]` where N = ordinal insertion index and
+  `total` = current portfolio size as of the most recent reconcile sweep.
+  Older entries are back-rewritten on milestone boundaries (rather than
+  preserving their insertion-time denominator) to keep
+
+ succeeded in 981ms:
+<!-- sentinel:skip-file - portfolio registry; absolute paths ARE the data -->
+# C: Drive Project Index
+> **Last updated**: 2026-05-14 (C:\HTML apps focused repair batch continued: hub shell launch fix, static contracts across ten HTML app repos, NMA/living-meta/nma-dose-response landing and asset-link repairs, and NMA doc hardcoded-path cleanup. Prior SheafNMA v0.2.0, D-drive legacy smoke-contract continuation, CardioOracle lifecycle status freeze, C-drive model/project smoke-contract continuation, mahmood789 consolidation, Sentinel/Overmind JSONL and verification repair, C-drive reproducibility audit continuation, C-drive verification repair, D-drive repair batch, superapp, C-drive sweep, home-folder hardening, Trial Truthfulness Atlas, and portfolio notes retained below.)
+
+### C:\HTML apps focused repair batch (2026-05-14)
+> - `C:\HTML apps\hub\`: added a launchable `index.html` shell and static contract tests for required registry/runtime wiring; fixed `app.js` local `file://` launch resolution so the hub opened from `hub\index.html` links sibling apps from the parent HTML-apps directory instead of nesting paths under `hub`. Verification: `pytest -q -p no:cacheprovider` -> `3 passed`; `node --check app.js && node --check projects.js` -> PASS; headless Chrome smoke on `file:///mnt/c/HTML%20apps/hub/index.html` confirmed the page title and sibling app links. GitHub pushed: `mahmood726-cyber/hub` main `c1a6725`.
+> - `C:\HTML apps\evidence-board\`, `C:\HTML apps\focus-studio\`, `C:\HTML apps\kanban-lab\`: added pytest-visible static app shell contracts covering title/description, localStorage persistence hooks, key controls, and absence of unresolved templates or hardcoded local drive paths; added repo `.gitignore` entries for Python caches and `PROGRESS.md`. Verification: each `pytest -q -p no:cacheprovider` -> `2 passed` with the existing pytest `cache_dir` warning; scoped `git diff --check` -> PASS. GitHub pushed: `evidence-board` master `9a87c8b`, `focus-studio` master `0fa728b`, `kanban-lab` master `81cad38`.
+> - `C:\HTML apps\nma-pro-v2\`: fixed the landing page's broken app links from absent v6/v7 asset filenames to the current `e156-submission/assets/nma-pro-v8.0.html`, added static link-resolution contracts, and removed Sentinel P0 hardcoded local OneDrive paths from legacy docs. Verification: `pytest -q -p no:cacheprovider tests/test_smoke.py tests/test_static_links.py` -> `3 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=1 INFO=302` (pre-existing tracked autogen warning plus HTML a11y INFO). GitHub pushed: master `a2834e7` for the link fix and master `a74e385` for the P0 doc cleanup.
+> - `C:\HTML apps\IPD-Meta-Pro\` and `C:\HTML apps\Truthcert1\`: added static link-resolution contracts for landing-page local assets and canonical app entrypoints. Verification: `IPD-Meta-Pro` `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; `Truthcert1` same command -> `2 passed` with existing pytest `cache_dir` warning. GitHub pushed: `IPD-Meta-Pro` master `b26ee09`, `Truthcert1` master `81eddd3`.
+> - `C:\HTML apps\living-meta\`: repaired landing-page validation links that pointed to a missing HTML asset and an out-of-repo sibling path; linked the existing validation and limitations docs instead, and added a static link-resolution contract. Verification: `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=8` (pre-existing HTML a11y INFO). GitHub pushed: master `c3c8a9b`.
+> - `C:\HTML apps\Pairwiseai\`: added a static landing-page contract covering local link resolution, absence of unresolved templates/local drive paths, and the key app entrypoints under `e156-submission/assets`. Verification: `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=1731` (pre-existing HTML a11y INFO). GitHub pushed: master `2ade493`.
+> - `C:\HTML apps\nma-dose-response-app\`: pushed the existing smoke-blocker commit and added an E156 asset-bundle repair so `e156-submission\assets\index*.html` resolves its JS runtime dependencies from inside the assets folder; added a static link-resolution contract covering root and E156 app entrypoints. Verification: `pytest -q -p no:cacheprovider tests/test_smoke.py tests/test_static_links.py` -> `4 passed` with the existing pytest `cache_dir` warning; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=442` (pre-existing HTML a11y INFO). GitHub pushed: master `e95fae0` and `96594b6`.
+> - Push gate: Windows Git credential path succeeded after WSL Git lacked HTTPS credentials. Sentinel pre-push/manual scan verdicts were BLOCK=0; evidence-board INFO=18, focus-studio INFO=10, kanban-lab INFO=10, living-meta INFO=8, Pairwiseai INFO=1731, nma-dose-response-app INFO=442 (pre-existing P2 HTML accessibility notes); hub push emitted no Sentinel findings.
+> - Existing unrelated dirty files were left unstaged in these repos, mainly protocol/license/doc edits and untracked `paper\` outputs in the three app repos, plus pre-existing hub metadata/submission/style edits.
+
+### SheafNMA (2026-05-12; v0.2.0 real-NMA-corpus validation + 36-cell Ã— 1000-rep simulation + methods paper draft)
+> - `C:\Models\SheafNMA\` â€” cellular-sheaf inconsistency localization for network meta-analysis. v0.1.0 (2026-04-07) was math + single-file HTML dashboard + E156 #153 micro-paper on a synthetic 12-contrast network. v0.2.0 refactored the 457-LOC `generate_figures.py` into a `sheafnma/` package (`core`, `io`, `simulate`, `comparators`, `r_bridge`), validated on 13 R-netmeta built-in NMAs, and shipped a methods-paper draft for Research Synthesis Methods.
+> - Method: precision-weighted coboundary `F[e, treat1] = -1/SE_e, F[e, treat2] = +1/SE_e`; sheaf Laplacian `L = Fáµ€F` (symmetric PSD); WLS-solve node estimates with node 0 anchored; per-edge residuals `r_e = dÌƒ_e âˆ’ (F x*)_e` localize inconsistency; **Global Inconsistency Index** `GII = Î£ rÂ²` is the global statistic. One algebraic object yields both global + per-edge â€” complements (not replaces) node-splitting.
+> - Real-corpus headline: across **13 R-netmeta built-in NMAs** (Senn 2013 diabetes, Dias smokingcessation, Dong 2013 thrombolytics, Linde 2015/2016 acupuncture, Salanti antimanic, Baker, Dogliotti, Franchini, Gurusamy, Stowe, Woods, dietaryfat, parkinson) the global design-by-treatment Ï‡Â² (Higgins 2012) failed to reject in all 13. **SheafNMA flagged â‰¥1 localized inconsistency edge in 5 of those 13 (38.5%)** at the Youden-frozen threshold of **2.6912** â€” networks that look globally consistent harbor at least one inconsistent edge the global test misses.
+> - Simulation rigor: 36-cell grid (n_treatments âˆˆ {4,6,8} Ã— n_studies_per_edge âˆˆ {3,5,10} Ã— Ï„_inc âˆˆ {0,0.2,0.5,1.0}) Ã— **1000 replications per cell**, held-out training cell at (6,5,0.5) for Youden's-J threshold selection (frozen before evaluating remaining 35 cells). Type-I error at Ï„_inc=0 was **0.000 across all cells**. Mean per-edge sensitivity 0.981 / specificity 0.945 at Ï„_inc=0.5.
+
+ succeeded in 2083ms:
+   1: """Which path resolvers in this repository can return a CONTAINER where a LEAF was named?
+   2: 
+   3: THE BUG THIS IS SWEEPING FOR, from scripts/lint_method_claim_has_a_field.py on 2026-08-20.
+   4: 
+   5: Its `get()` supported a `*` wildcard, and at the wildcard it RETURNED the matching child
+   6: instead of continuing down the remaining segments. So:
+   7: 
+   8:     get(obj, "results.by_outcome.*.cross_engine")
+   9: 
+  10: resolved to the OUTCOME BLOCK -- `{k, estimand_id, comparator_type, poolable, ...}` -- and
+  11: never applied `.cross_engine` at all. A non-empty dict is truthy, the caller's test was
+  12: `if v is None or v == [] or v == {} or v == ""`, and the claim passed.
+  13: 
+  14: THAT IS WORSE THAN A WRONG ADDRESS. A path pointing somewhere that does not exist fails
+  15: loudly the first time a value is printed. THIS ONE RESOLVED TO SOMETHING REAL ON EVERY
+  16: OBJECT IN THE CORPUS, so the claim it guarded had NO CONSTRUCTIBLE FAILING INPUT -- reached
+  17: by a traversal bug rather than by design, which is the one property this project has a rule
+  18: about and the one hardest to notice.
+  19: 
+  20: THE GENERAL FORM:
+  21: 
+  22:     A resolver must distinguish "this path TERMINATED EARLY" from "this path RESOLVED",
+  23:     and any resolver that returns an intermediate node where a leaf was named has
+  24:     SILENTLY WIDENED every claim that uses it.
+  25: 
+  26: A truth test on the result cannot tell the difference, because a non-empty dict is truthy.
+  27: That is why reading booleans hid it and printing values found it -- the second time this
+  28: week that a defect survived until somebody looked at the PAYLOAD rather than the JUDGEMENT.
+  29: 
+  30: WHAT THIS FILE FLAGS. Any resolver that walks a dotted or segmented path and can exit the
+  31: loop without having consumed every segment: an early `return` inside the walk, a `break`,
+  32: or a wildcard branch. It is a REPORTER -- it cannot prove a given resolver is wrong, only
+  33: that it has the shape in which this defect lives, and it says so rather than claiming more.
+  34: 
+  35: THE CRITERION TO READ EACH UNREAD BODY AGAINST, so the twelve readings are a comparison
+  36: rather than a vibe:
+  37: 
+  38:     ATTRIBUTION-AFTER-THE-FACT IS THE EXPOSED PATTERN. READING A DECLARED FIELD IS NOT.
+  39: 
+  40: A consumer that scans strings, or nodes, and then works out AFTERWARDS which outcome or
+  41: entity each one belonged to is exposed: its answer depends on a path shape it assumed, and
+  42: a path-shaped assumption is invisible to its author because it is the shape they were
+  43: thinking in. A consumer that reads a NAMED FIELD -- `results.by_outcome.<oid>.estimator_used`
+  44: -- is not exposed, because the object told it what the field is instead of it inferring.
+  45: 
+  46: That is the same principle as the object declaring which outcome leads and the consumer
+  47: refusing when several exist and none is declared; it simply arrives from the string-handling
+  48: side. Verified 2026-08-20 on the two consumers most likely to be affected:
+  49: ssot/paper_projector.py and scripts/lint_reader_facing_sections.py both read named fields
+  50: and neither walks prose, so NEITHER IS EXPOSED -- a negative result, and the one most worth
+  51: computing.
+  52: 
+  53: So for each body below, ask: does it attribute after scanning, or read what was declared?
+  54: """
+  55: import io
+  56: import os
+  57: import re
+  58: import sys
+  59: 
+  60: REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+  61: SEARCH = [os.path.join(REPO, "scripts"), os.path.join(REPO, "ssot")]
+  62: 
+  63: # THREE STATES, AND UNREAD IS THE LOUD DEFAULT.
+  64: #
+  65: # "16 resolvers have the shape" is not "16 bugs", and that distinction does not survive a
+  66: # retelling if it lives only in prose. A shape-flag is a reason to OPEN THE BODY, nothing
+  67: # more. So every flagged resolver is UNREAD until someone records a verdict here, and the
+  68: # summary refuses to let the unread count be quoted as a finding.
+  69: #
+  70: # Adjudicated 2026-08-20 by reading each body. The four opened were chosen because they are
+  71: # load-bearing: the projector feeds the manuscript a reader meets, and two are CHECKERS --
+  72: # a checker with a silently widened resolver certifies rather than catches.
+  73: ADJUDICATED = {
+  74:     ("ssot/paper_projector.py", "get"): (
+  75:         "CORRECT",
+  76:         "Returns None ONLY on a missing segment (`else: return None`) and returns `cur` "
+  77:         "only after consuming every segment. No wildcard. The early return is on ABSENCE, "
+  78:         "which is the correct case for this shape."),
+  79:     ("scripts/lint_refusal_citation_resolves.py", "resolve"): (
+  80:         "CORRECT",
+  81:         "Returns (False, None) only on a missing or malformed segment and (True, cur) only "
+  82:         "after the full walk. IT IS THE ONLY RESOLVER IN THE CORPUS THAT EXPLICITLY "
+  83:         "DISTINGUISHES 'resolved' FROM 'terminated early', by returning the boolean beside "
+  84:         "the node -- which is the general form the wildcard bug violated."),
+  85:     ("ssot/apply_reml_corpus.py", "main"): (
+  86:         "CORRECT",
+  87:         "Walks every segment but the last and reads the last by name; the `continue` "
+  88:         "statements the sweep flagged are in the loop over PATHS, not over segments. It "
+  89:         "would raise on a missing segment rather than widen, and its paths come from the "
+  90:         "guard's own output."),
+  91:     ("scripts/prose_claim_gate.py", "check"): (
+  92:         "DEFECT",
+  93:         "NOT the container-return bug -- a different narrowing, and real. It takes the "
+  94:         "FIRST outcome's pooled interval (`for res in ...values(): pooled = ...; break`) "
+  95:         "and then judges direction claims found ANYWHERE on the object against that one "
+  96:         "interval. On an object with several pooled outcomes -- sglt2-hf has three -- the "
+  97:         "interval judged against is whichever dict ordering puts first, and a claim about "
+  98:         "outcome B is tested against outcome A's interval. Same family as reading the "
+  99:         "primary by position rather than by identity. A GATE THAT NARROWS SILENTLY "
+ 100:         "CERTIFIES RATHER THAN CATCHES."),
+ 101: }
+ 102: 
+ 103: # A resolver: a def whose body splits a path and iterates the segments.
+ 104: DEF = re.compile(r"^([ 	]*)def\s+(\w+)\s*\(([^)]*)\)\s*:", re.M)
+ 105: # `\s*` NOT `[ 	]*` -- the first version used \s*, which under re.M consumed the
+ 106: # preceding NEWLINES into the indent capture, so every extracted body came back as two
+ 107: # empty lines and the sweep reported ZERO resolvers across 782 files. It returned
+ 108: # NOT_ASSESSABLE rather than a clean bill, which is the only reason it was noticed --
+ 109: # a matcher that matched and yielded nothing, in the file written to sweep for matchers
+ 110: # that resolve to the wrong thing.
+ 111: SPLITS = re.compile(r"\.split\(\s*['\"]\.['\"]\s*\)|\.split\(\s*['\"]/['\"]\s*\)")
+ 112: WALKS = re.compile(r"\bfor\s+\w+(?:\s*,\s*\w+)?\s+in\s+")
+ 113: 
+ 114: 
+ 115: def body_of(src, start, indent):
+ 116:     """The lines of a def, by indentation."""
+ 117:     lines = src[start:].split("\n")
+ 118:     out = [lines[0]]
+ 119:     for ln in lines[1:]:
+ 120:         if ln.strip() and not ln.startswith(indent + " ") and not ln.startswith(indent + "\t"):
+ 121:             break
+ 122:         out.append(ln)
+ 123:     return "\n".join(out)
+ 124: 
+ 125: 
+ 126: def main():
+ 127:     resolvers, flagged = 0, []
+ 128:     files = 0
+ 129:     for root in SEARCH:
+ 130:         if not os.path.isdir(root):
+ 131:             continue
+ 132:         for dirpath, _dirs, names in os.walk(root):
+ 133:             for nm in sorted(names):
+ 134:                 if not nm.endswith(".py"):
+ 135:                     continue
+ 136:                 fp = os.path.join(dirpath, nm)
+ 137:                 try:
+ 138:                     src = io.open(fp, encoding="utf-8", errors="replace").read()
+ 139:                 except Exception:
+ 140:                     continue
+ 141:                 files += 1
+ 142:                 for m in DEF.finditer(src):
+ 143:                     indent, name = m.group(1), m.group(2)
+ 144:                     body = body_of(src, m.start(), indent)
+ 145:                     if not SPLITS.search(body) or not WALKS.search(body):
+ 146:                         continue
+ 147:                     resolvers += 1
+ 148:                     reasons = []
+ 149:                     # Does it exit the walk without consuming every segment?
+ 150:                     walk_at = WALKS.search(body).start()
+ 151:                     tail = body[walk_at:]
+ 152:                     if re.search(r"^\s+return\b(?!\s*(None|obj|cur)\s*$)", tail, re.M):
+ 153:                         reasons.append("returns from inside the walk")
+ 154:                     if re.search(r"^\s+break\b", tail, re.M):
+ 155:                         reasons.append("breaks out of the walk")
+ 156:                     if re.search(r"['\"]\*['\"]", body):
+ 157:                         reasons.append("has a wildcard branch")
+ 158:                     if reasons:
+ 159:                         rel = os.path.relpath(fp, REPO).replace("\\", "/")
+ 160:                         flagged.append((rel, name, "; ".join(reasons)))
+ 161: 
+ 162:     print("python files read              %d" % files)
+ 163:     print("path resolvers found           %d" % resolvers)
+ 164:     print("with the container-return shape %d" % len(flagged))
+ 165:     print()
+ 166:     if resolvers == 0:
+ 167:         print("NOT_ASSESSABLE: found no path resolver at all across %d files. The matcher "
+ 168:               "is wrong, not the corpus." % files)
+ 169:         return 2
+ 170:     defect = [f for f in flagged if ADJUDICATED.get((f[0], f[1]), ("UNREAD",))[0] == "DEFECT"]
+ 171:     correct = [f for f in flagged if ADJUDICATED.get((f[0], f[1]), ("UNREAD",))[0] == "CORRECT"]
+ 172:     unread = [f for f in flagged if (f[0], f[1]) not in ADJUDICATED]
+ 173: 
+ 174:     print("  CONFIRMED DEFECT   %2d   a body was read and it widens" % len(defect))
+ 175:     print("  CONFIRMED CORRECT  %2d   a body was read and it does not" % len(correct))
+ 176:     print("  UNREAD             %2d   <- NOT A FINDING. Nobody has opened these."
+ 177:           % len(unread))
+ 178:     print()
+ 179:     for state, rows in (("DEFECT", defect), ("CORRECT", correct)):
+ 180:         for rel, name, why in sorted(rows):
+ 181:             verdict, reason = ADJUDICATED[(rel, name)]
+ 182:             print("[%s] %s::%s" % (verdict, rel, name))
+ 183:             print("    shape flagged: %s" % why)
+ 184:             print("    verdict      : %s" % reason)
+ 185:             print()
+ 186:     if unread:
+ 187:         print("THE REFERENCE IMPLEMENTATION IS scripts/lint_refusal_citation_resolves.py::")
+ 188:         print("resolve. It is the only resolver in this corpus that RETURNS THE ANSWER TO")
+ 189:         print("'did this path resolve?' BESIDE THE NODE -- `(ok, node)` -- so a caller")
+ 190:         print("cannot mistake an intermediate container for a leaf, which is the exact")
+ 191:         print("mistake the wildcard made. READ EACH BODY BELOW AGAINST THAT ONE: the")
+ 192:         print("question is whether it can exit the walk with segments remaining, and")
+ 193:         print("whether its caller could tell if it did. That makes each reading a")
+ 194:         print("COMPARISON rather than a fresh judgement.")
+ 195:         print()
+ 196:         print("UNREAD -- flagged by shape and never opened. THE SHAPE IS A REASON TO READ")
+ 197:         print("THE BODY AND NOTHING ELSE. A resolver that returns early on a MISSING segment")
+ 198:         print("is correct; one that returns early on a PRESENT segment while segments remain")
+ 199:         print("is the defect. These counts must not be quoted as defects:")
+ 200:         print()
+ 201:         print("%-56s %-22s %s" % ("file", "function", "why it has the shape"))
+ 202:         print("-" * 130)
+ 203:         for rel, name, why in sorted(unread):
+ 204:             print("%-56s %-22s %s" % (rel, name, why))
+ 205:         print()
+ 206:         print("REPORTED WITH %d UNREAD. This is not a clean bill and it is not a defect "
+ 207:               "count; it is a reading list." % len(unread))
+ 208:     return 0
+ 209: 
+ 210: 
+ 211: if __name__ == "__main__":
+ 212:     sys.exit(main())
+
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "@'
+import re, textwrap
+DEF = re.compile(r\""'^([ '"\\t]*)def\\s+(\\w+)\\s*\\((["'^)]*)'"\\)\\s*:\", re.M)
+SPLITS = re.compile(r\"\\.split\\(\\s*['\\\"]\\.['\\\"]\\s*\\)|\\.split\\(\\s*['\\\"]/['\\\"]\\s*\\)\")
+WALKS = re.compile(r\"\\bfor\\s+\\w+(?:\\s*,\\s*\\w+)?\\s+in\\s+\")
+def body_of(src,start,indent):
+    lines=src[start:].split('\\n'); out=[lines[0]]
+    for ln in lines[1:]:
+        if ln.strip() and not ln.startswith(indent+' ') and not ln.startswith(indent+'\\t'):
+            break
+        out.append(ln)
+    return '\\n'.join(out)
+def scan(src):
+    out=[]
+    for m in DEF.finditer(src):
+        body=body_of(src,m.start(),m.group(1))
+        if not SPLITS.search(body) or not WALKS.search(body):
+            continue
+        reasons=[]; tail=body[WALKS.search(body).start():]
+        if re.search(r\""'^'"\\s+return\\b(?"'!'"\\s*(None|obj|cur)\\s*"'$)", tail, re.M): reasons.append('"'returns')
+        if re.search(r\""'^'"\\s+break\\b\", tail, re.M): reasons.append('breaks')
+        if re.search(r\"['\\\"]\\*['\\\"]\", body): reasons.append('wildcard')
+        out.append((m.group(2), reasons))
+    return out
+snips={
+'miss_return_cur': '''def get(obj, path):\\n    cur = obj\\n    for part in path.split(\".\"):\\n        if part == \"metadata\":\\n            return cur\\n        cur = cur[part]\\n    return cur\\n''',
+'false_wildcard_string': '''def get(obj, path):\\n    marker = \"*\"\\n    for part in path.split(\".\"):\\n        obj = obj[part]\\n    return obj\\n''',
+'false_after_walk': '''def get(obj, path):\\n    for part in path.split(\".\"):\\n        obj = obj[part]\\n    for item in (1,):\\n        return 7\\n    return obj\\n''',
+'body_docstring': '''def get(obj, path):\\n    \"\"\"\\nnot indented\\n    \"\"\"\\n    for part in path.split(\".\"):\\n        if part == \"metadata\":\\n            return obj[part]\\n        obj = obj[part]\\n    return obj\\n'''
+}
+for k,v in snips.items(): print(k, scan(v))
+'@ | python -" in F:\rapidmeta-ssot-shell
+ succeeded in 1838ms:
+miss_return_cur [('get', [])]
+false_wildcard_string [('get', ['wildcard'])]
+false_after_walk [('get', ['returns'])]
+body_docstring []
+
+codex
+COULD NOT DETERMINE actual corpus incidence: missing scanned bodies under `scripts/**/*.py` and `ssot/**/*.py`.
+
+Defects found by exact input corpus snippets:
+
+1. **Check that cannot fail**: line 152 exempts `return obj` and `return cur`, even inside the segment loop.
+
+```python
+# scripts/x.py
+def get(obj, path):
+    cur = obj
+    for part in path.split("."):
+        if part == "metadata":
+            return cur
+        cur = cur[part]
+    return cur
+```
+
+Exact resolver input: `get({"metadata": {"leaf": 1}}, "metadata.leaf")`.  
+Consequence: it returns an intermediate container, but the audit records no shape reason.
+
+2. **Probe satisfied by marker/string, not work**: line 156 treats any literal `"*"` as a wildcard branch.
+
+```python
+# scripts/x.py
+def get(obj, path):
+    marker = "*"
+    for part in path.split("."):
+        obj = obj[part]
+    return obj
+```
+
+Consequence: a harmless marker string is reported as `has a wildcard branch`.
+
+3. **Instrument reads a different loop than the one being judged**: lines 150-152 set `tail` from the first `for` to function end, not the path-walk loop body.
+
+```python
+# scripts/x.py
+def get(obj, path):
+    for part in path.split("."):
+        obj = obj[part]
+    for item in (1,):
+        return 7
+    return obj
+```
+
+Consequence: it reports `returns from inside the walk` for a return in a later, different loop.
+
+4. **Status code reports wrapper, not work**: line 208 returns `0` even when `defect` is non-empty.
+
+```python
+# scripts/prose_claim_gate.py
+def check(obj, path):
+    for part in path.split("."):
+        break
+    return obj
+```
+
+Consequence: with the existing `ADJUDICATED` entry at lines 91-100, the script can print `CONFIRMED DEFECT 1` and still exit success.
+
+No proven defect from this file alone for CRLF text comparison, merged-cell/off-by-one tabulation, zero-conflated-with-absent, or negation-dropped.
+tokens used
+30,677
+COULD NOT DETERMINE actual corpus incidence: missing scanned bodies under `scripts/**/*.py` and `ssot/**/*.py`.
+
+Defects found by exact input corpus snippets:
+
+1. **Check that cannot fail**: line 152 exempts `return obj` and `return cur`, even inside the segment loop.
+
+```python
+# scripts/x.py
+def get(obj, path):
+    cur = obj
+    for part in path.split("."):
+        if part == "metadata":
+            return cur
+        cur = cur[part]
+    return cur
+```
+
+Exact resolver input: `get({"metadata": {"leaf": 1}}, "metadata.leaf")`.  
+Consequence: it returns an intermediate container, but the audit records no shape reason.
+
+2. **Probe satisfied by marker/string, not work**: line 156 treats any literal `"*"` as a wildcard branch.
+
+```python
+# scripts/x.py
+def get(obj, path):
+    marker = "*"
+    for part in path.split("."):
+        obj = obj[part]
+    return obj
+```
+
+Consequence: a harmless marker string is reported as `has a wildcard branch`.
+
+3. **Instrument reads a different loop than the one being judged**: lines 150-152 set `tail` from the first `for` to function end, not the path-walk loop body.
+
+```python
+# scripts/x.py
+def get(obj, path):
+    for part in path.split("."):
+        obj = obj[part]
+    for item in (1,):
+        return 7
+    return obj
+```
+
+Consequence: it reports `returns from inside the walk` for a return in a later, different loop.
+
+4. **Status code reports wrapper, not work**: line 208 returns `0` even when `defect` is non-empty.
+
+```python
+# scripts/prose_claim_gate.py
+def check(obj, path):
+    for part in path.split("."):
+        break
+    return obj
+```
+
+Consequence: with the existing `ADJUDICATED` entry at lines 91-100, the script can print `CONFIRMED DEFECT 1` and still exit success.
+
+No proven defect from this file alone for CRLF text comparison, merged-cell/off-by-one tabulation, zero-conflated-with-absent, or negation-dropped.

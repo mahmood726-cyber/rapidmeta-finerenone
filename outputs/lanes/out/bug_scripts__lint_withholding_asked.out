@@ -1,0 +1,411 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a031fa-6cf6-7622-9beb-989112bf5f63
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/lint_withholding_asked.py
+
+--- THE FILE, IN FULL ---
+#!/usr/bin/env python3
+"""E4 MADE MECHANICAL: A REVIEW MAY NOT CONCLUDE "THESE DO NOT POOL" WITHOUT READING EVERY RANK.
+
+TWICE IN ONE NIGHT THE ANSWER WAS BELOW THE PRIMARY, AND BOTH TIMES IT WAS FOUND BY ASKING
+RATHER THAN BY ANY GUARD.
+
+    sglt2-hf                   the harmonisable estimand was a SECONDARY. Recovered a pool.
+    apixaban-vte-prophylaxis   all four trials register "proximal DVT, non-fatal PE, or
+                               VTE-related death" -- a SECONDARY IN ALL FOUR. It replaced a
+                               k=1 figure that was not an estimate of the review's question at
+                               all (a 400-patient trial reporting BLEEDING endpoints) with a
+                               pool of four trials and 13,570 participants.
+
+WHY THIS IS THE HARDEST CLASS IN THE REGISTRY. Every other defect leaves a trace: a wrong
+number, a mismatched count, a contradicted block. WITHHOLDING LEAVES NOTHING. A review that
+stopped at the primaries and concluded "different quantities, not poolable" produces an object
+that is internally consistent, arithmetically sound, and silently missing its own evidence base.
+There is no residue for a guard to find -- which is exactly why the guard has to be about the
+PROCESS rather than about the result.
+
+THE RULE. A topic that declines to pool ANY outcome -- `pooled.withdrawn`, a null pooled point,
+or a NOT_POOLABLE disposition -- must carry, on at least one trial, evidence that ranks BELOW
+the primary were read: `all_ranks_read_utc`, or a `registered_secondaries` field, or a screening
+record whose `outcome_ranks_searched` / `ranks_read` exceeds the primary count. A refusal with
+no such evidence anywhere is a refusal that may never have looked.
+
+WHAT IT FOUND ON ITS FIRST RUN. 115 of 137 topics decline at least one outcome, and 48 of them
+carry NO evidence, on any trial, that anything below the primary was ever read. Those 48 are
+carried as a NAMED baseline and PRINTED EVERY RUN. They are not absolved: each is a topic whose
+"does not pool" may be a k=1 non-estimate standing where a pool belongs, and two of exactly that
+shape were converted into real pooled estimates tonight.
+
+WHAT IT CANNOT DO, STATED PLAINLY. It proves that SOMETHING below the primary was read, not that
+the withholding question was asked at EVERY rank, and not that the answer was right. It is a
+floor, not a ceiling. A floor is still the difference between a refusal that looked and one that
+did not.
+"""
+import io
+import json
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+SSOT = os.path.join(REPO, "ssot")
+BASELINE = os.path.join(REPO, "evidence", "withholding_asked_baseline.json")
+
+DECLINED_VALUES = (False, "NOT_POOLABLE", "NOT_POOLABLE_QUANTITY", "NO", "REFUSED")
+
+
+def declines(obj):
+    """Outcome ids this object declines to pool, by any of the three shapes in use."""
+    out = []
+    for oid, v in (((obj.get("results") or {}).get("by_outcome")) or {}).items():
+        v = v or {}
+        pooled = v.get("pooled") or {}
+        if pooled.get("withdrawn") is True:
+            out.append(oid)
+        elif v.get("poolable") in DECLINED_VALUES:
+            out.append(oid)
+        elif pooled.get("point") is None and (v.get("k") or 0) >= 2:
+            out.append(oid)
+    return out
+
+
+def read_below_primary(obj):
+    """Trials carrying evidence that ranks below the primary were read."""
+    hits = []
+    for t in ((obj.get("inputs") or {}).get("trials") or []):
+        if t.get("all_ranks_read_utc"):
+            hits.append((t.get("id") or t.get("nct") or "?", "all_ranks_read_utc"))
+        elif "registered_secondaries" in t:
+            hits.append((t.get("id") or t.get("nct") or "?", "registered_secondaries"))
+    # A screening record that counted ranks is equally good evidence, and some topics carry it
+    # there rather than on the trial.
+    for key in ("screening", "screening_of_remainder"):
+        blk = obj.get(key)
+        recs = blk.get("records") if isinstance(blk, dict) else blk
+        for r in (recs or []) if isinstance(recs, list) else []:
+            if isinstance(r, dict) and ((r.get("outcome_ranks_searched") or 0) > 1
+                                        or (r.get("ranks_read") or 0) > 1):
+                hits.append((r.get("nct") or "?", key))
+                break
+    return hits
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    declining, unasked, asked = 0, [], 0
+    for topic in sorted(os.listdir(SSOT)):
+        path = os.path.join(SSOT, topic, "%s.json" % topic)
+        if not os.path.isfile(path):
+            continue
+        try:
+            with io.open(path, encoding="utf-8") as fh:
+                obj = json.load(fh)
+        except Exception:
+            continue
+        d = declines(obj)
+        if not d:
+            continue
+        declining += 1
+        if read_below_primary(obj):
+            asked += 1
+        else:
+            unasked.append(topic)
+
+    if declining == 0:
+        # NO TOPIC DECLINES ANYTHING. Either the corpus changed shape or the three field names
+        # this reads have been renamed. A check with nothing to check against passes everything.
+        print("REFUSED: no topic in the corpus declines to pool anything. This detector's")
+        print("vocabulary no longer matches the objects -- that is a broken instrument, not a")
+        print("clean corpus.")
+        return 2
+
+    print("REFUSALS TO POOL, AND WHETHER ANYTHING BELOW THE PRIMARY WAS EVER READ")
+    print("  topics declining at least one outcome   %3d" % declining)
+    print("  with evidence ranks below primary read  %3d" % asked)
+    print("  WITH NO SUCH EVIDENCE ANYWHERE          %3d" % len(unasked))
+    print("\nEach of those is a topic whose \"does not pool\" may be standing where a pool")
+    print("belongs. Two of exactly that shape became real pooled estimates tonight:")
+    print("  sglt2-hf                 the harmonisable estimand was a SECONDARY")
+    print("  apixaban-vte-prophylaxis a SECONDARY in all four -> k=4, 13,570 participants,")
+    print("                           replacing a k=1 figure that measured BLEEDING")
+
+    if not os.path.exists(BASELINE):
+        with io.open(BASELINE, "w", encoding="utf-8") as fh:
+            fh.write(json.dumps({"unasked": sorted(unasked), "not_absolved": True,
+                                 "why": ("Carried so the lint can block a NEW refusal that "
+                                         "never looked below the primary. Listed is not "
+                                         "cleared: each remains a candidate recovery.")},
+                                indent=1))
+        print("\nbaseline written (NOT an absolution), %d topic(s): %s"
+              % (len(unasked), BASELINE))
+        return 0
+
+    with io.open(BASELINE, encoding="utf-8") as fh:
+        base = set(json.load(fh)["unasked"])
+    new = sorted(set(unasked) - base)
+    fixed = sorted(base - set(unasked))
+    if fixed:
+        print("\n%d topic(s) now carry the evidence -- baseline tightened: %s"
+              % (len(fixed), ", ".join(fixed)))
+        with io.open(BASELINE, encoding="utf-8") as fh:
+            b = json.load(fh)
+        b["unasked"] = sorted(set(unasked) & base)
+        with io.open(BASELINE, "w", encoding="utf-8") as fh:
+            fh.write(json.dumps(b, indent=1))
+    if new:
+        print("\nREFUSED -- %d topic(s) newly decline to pool with no evidence that any rank"
+              % len(new))
+        print("below the primary was read:")
+        for t in new:
+            print("   %s" % t)
+        print("\nAsk the withholding question at EVERY registered rank before concluding that")
+        print("trials do not pool. Twice tonight the answer was a secondary.")
+        return 1
+    print("\n%d baselined topic(s) remain, and being listed is not being cleared."
+          % len(base & set(unasked)))
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+
+codex
+I’m numbering the pasted module so the defect references are exact. I’ll keep the response constrained to the requested defect shapes and inputs.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=0; Get-Content -LiteralPath '"'scripts/lint_withholding_asked.py' | ForEach-Object { "'$i++; '"'{0,4}: {1}' -f "'$i, $_ }' in F:\rapidmeta-ssot-shell
+ succeeded in 1522ms:
+   1: #!/usr/bin/env python3
+   2: """E4 MADE MECHANICAL: A REVIEW MAY NOT CONCLUDE "THESE DO NOT POOL" WITHOUT READING EVERY RANK.
+   3: 
+   4: TWICE IN ONE NIGHT THE ANSWER WAS BELOW THE PRIMARY, AND BOTH TIMES IT WAS FOUND BY ASKING
+   5: RATHER THAN BY ANY GUARD.
+   6: 
+   7:     sglt2-hf                   the harmonisable estimand was a SECONDARY. Recovered a pool.
+   8:     apixaban-vte-prophylaxis   all four trials register "proximal DVT, non-fatal PE, or
+   9:                                VTE-related death" -- a SECONDARY IN ALL FOUR. It replaced a
+  10:                                k=1 figure that was not an estimate of the review's question at
+  11:                                all (a 400-patient trial reporting BLEEDING endpoints) with a
+  12:                                pool of four trials and 13,570 participants.
+  13: 
+  14: WHY THIS IS THE HARDEST CLASS IN THE REGISTRY. Every other defect leaves a trace: a wrong
+  15: number, a mismatched count, a contradicted block. WITHHOLDING LEAVES NOTHING. A review that
+  16: stopped at the primaries and concluded "different quantities, not poolable" produces an object
+  17: that is internally consistent, arithmetically sound, and silently missing its own evidence base.
+  18: There is no residue for a guard to find -- which is exactly why the guard has to be about the
+  19: PROCESS rather than about the result.
+  20: 
+  21: THE RULE. A topic that declines to pool ANY outcome -- `pooled.withdrawn`, a null pooled point,
+  22: or a NOT_POOLABLE disposition -- must carry, on at least one trial, evidence that ranks BELOW
+  23: the primary were read: `all_ranks_read_utc`, or a `registered_secondaries` field, or a screening
+  24: record whose `outcome_ranks_searched` / `ranks_read` exceeds the primary count. A refusal with
+  25: no such evidence anywhere is a refusal that may never have looked.
+  26: 
+  27: WHAT IT FOUND ON ITS FIRST RUN. 115 of 137 topics decline at least one outcome, and 48 of them
+  28: carry NO evidence, on any trial, that anything below the primary was ever read. Those 48 are
+  29: carried as a NAMED baseline and PRINTED EVERY RUN. They are not absolved: each is a topic whose
+  30: "does not pool" may be a k=1 non-estimate standing where a pool belongs, and two of exactly that
+  31: shape were converted into real pooled estimates tonight.
+  32: 
+  33: WHAT IT CANNOT DO, STATED PLAINLY. It proves that SOMETHING below the primary was read, not that
+  34: the withholding question was asked at EVERY rank, and not that the answer was right. It is a
+  35: floor, not a ceiling. A floor is still the difference between a refusal that looked and one that
+  36: did not.
+  37: """
+  38: import io
+  39: import json
+  40: import os
+  41: import sys
+  42: 
+  43: REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+  44: SSOT = os.path.join(REPO, "ssot")
+  45: BASELINE = os.path.join(REPO, "evidence", "withholding_asked_baseline.json")
+  46: 
+  47: DECLINED_VALUES = (False, "NOT_POOLABLE", "NOT_POOLABLE_QUANTITY", "NO", "REFUSED")
+  48: 
+  49: 
+  50: def declines(obj):
+  51:     """Outcome ids this object declines to pool, by any of the three shapes in use."""
+  52:     out = []
+  53:     for oid, v in (((obj.get("results") or {}).get("by_outcome")) or {}).items():
+  54:         v = v or {}
+  55:         pooled = v.get("pooled") or {}
+  56:         if pooled.get("withdrawn") is True:
+  57:             out.append(oid)
+  58:         elif v.get("poolable") in DECLINED_VALUES:
+  59:             out.append(oid)
+  60:         elif pooled.get("point") is None and (v.get("k") or 0) >= 2:
+  61:             out.append(oid)
+  62:     return out
+  63: 
+  64: 
+  65: def read_below_primary(obj):
+  66:     """Trials carrying evidence that ranks below the primary were read."""
+  67:     hits = []
+  68:     for t in ((obj.get("inputs") or {}).get("trials") or []):
+  69:         if t.get("all_ranks_read_utc"):
+  70:             hits.append((t.get("id") or t.get("nct") or "?", "all_ranks_read_utc"))
+  71:         elif "registered_secondaries" in t:
+  72:             hits.append((t.get("id") or t.get("nct") or "?", "registered_secondaries"))
+  73:     # A screening record that counted ranks is equally good evidence, and some topics carry it
+  74:     # there rather than on the trial.
+  75:     for key in ("screening", "screening_of_remainder"):
+  76:         blk = obj.get(key)
+  77:         recs = blk.get("records") if isinstance(blk, dict) else blk
+  78:         for r in (recs or []) if isinstance(recs, list) else []:
+  79:             if isinstance(r, dict) and ((r.get("outcome_ranks_searched") or 0) > 1
+  80:                                         or (r.get("ranks_read") or 0) > 1):
+  81:                 hits.append((r.get("nct") or "?", key))
+  82:                 break
+  83:     return hits
+  84: 
+  85: 
+  86: def main():
+  87:     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+  88:     declining, unasked, asked = 0, [], 0
+  89:     for topic in sorted(os.listdir(SSOT)):
+  90:         path = os.path.join(SSOT, topic, "%s.json" % topic)
+  91:         if not os.path.isfile(path):
+  92:             continue
+  93:         try:
+  94:             with io.open(path, encoding="utf-8") as fh:
+  95:                 obj = json.load(fh)
+  96:         except Exception:
+  97:             continue
+  98:         d = declines(obj)
+  99:         if not d:
+ 100:             continue
+ 101:         declining += 1
+ 102:         if read_below_primary(obj):
+ 103:             asked += 1
+ 104:         else:
+ 105:             unasked.append(topic)
+ 106: 
+ 107:     if declining == 0:
+ 108:         # NO TOPIC DECLINES ANYTHING. Either the corpus changed shape or the three field names
+ 109:         # this reads have been renamed. A check with nothing to check against passes everything.
+ 110:         print("REFUSED: no topic in the corpus declines to pool anything. This detector's")
+ 111:         print("vocabulary no longer matches the objects -- that is a broken instrument, not a")
+ 112:         print("clean corpus.")
+ 113:         return 2
+ 114: 
+ 115:     print("REFUSALS TO POOL, AND WHETHER ANYTHING BELOW THE PRIMARY WAS EVER READ")
+ 116:     print("  topics declining at least one outcome   %3d" % declining)
+ 117:     print("  with evidence ranks below primary read  %3d" % asked)
+ 118:     print("  WITH NO SUCH EVIDENCE ANYWHERE          %3d" % len(unasked))
+ 119:     print("\nEach of those is a topic whose \"does not pool\" may be standing where a pool")
+ 120:     print("belongs. Two of exactly that shape became real pooled estimates tonight:")
+ 121:     print("  sglt2-hf                 the harmonisable estimand was a SECONDARY")
+ 122:     print("  apixaban-vte-prophylaxis a SECONDARY in all four -> k=4, 13,570 participants,")
+ 123:     print("                           replacing a k=1 figure that measured BLEEDING")
+ 124: 
+ 125:     if not os.path.exists(BASELINE):
+ 126:         with io.open(BASELINE, "w", encoding="utf-8") as fh:
+ 127:             fh.write(json.dumps({"unasked": sorted(unasked), "not_absolved": True,
+ 128:                                  "why": ("Carried so the lint can block a NEW refusal that "
+ 129:                                          "never looked below the primary. Listed is not "
+ 130:                                          "cleared: each remains a candidate recovery.")},
+ 131:                                 indent=1))
+ 132:         print("\nbaseline written (NOT an absolution), %d topic(s): %s"
+ 133:               % (len(unasked), BASELINE))
+ 134:         return 0
+ 135: 
+ 136:     with io.open(BASELINE, encoding="utf-8") as fh:
+ 137:         base = set(json.load(fh)["unasked"])
+ 138:     new = sorted(set(unasked) - base)
+ 139:     fixed = sorted(base - set(unasked))
+ 140:     if fixed:
+ 141:         print("\n%d topic(s) now carry the evidence -- baseline tightened: %s"
+ 142:               % (len(fixed), ", ".join(fixed)))
+ 143:         with io.open(BASELINE, encoding="utf-8") as fh:
+ 144:             b = json.load(fh)
+ 145:         b["unasked"] = sorted(set(unasked) & base)
+ 146:         with io.open(BASELINE, "w", encoding="utf-8") as fh:
+ 147:             fh.write(json.dumps(b, indent=1))
+ 148:     if new:
+ 149:         print("\nREFUSED -- %d topic(s) newly decline to pool with no evidence that any rank"
+ 150:               % len(new))
+ 151:         print("below the primary was read:")
+ 152:         for t in new:
+ 153:             print("   %s" % t)
+ 154:         print("\nAsk the withholding question at EVERY registered rank before concluding that")
+ 155:         print("trials do not pool. Twice tonight the answer was a secondary.")
+ 156:         return 1
+ 157:     print("\n%d baselined topic(s) remain, and being listed is not being cleared."
+ 158:           % len(base & set(unasked)))
+ 159:     return 0
+ 160: 
+ 161: 
+ 162: if __name__ == "__main__":
+ 163:     sys.exit(main())
+
+codex
+- **a check that CANNOT FAIL** — line 134. Exact input: `evidence/` exists, `evidence/withholding_asked_baseline.json` absent, and `ssot/t/t.json` is `{"results":{"by_outcome":{"o":{"poolable":"NOT_POOLABLE"}}},"inputs":{"trials":[{"id":"T1"}]}}`. Consequence: a brand-new unasked refusal is written into the baseline and the gate exits 0.
+
+- **an idempotency guard satisfied by its OWN marker** — line 71. Exact input: `{"results":{"by_outcome":{"o":{"poolable":"NOT_POOLABLE"}}},"inputs":{"trials":[{"id":"T1","registered_secondaries":null}]}}`. Consequence: mere key presence, even `null`, is counted as evidence that ranks below primary were read.
+
+- **STATUS CODE REPORTING THE WRAPPER rather than the work** — line 97. Exact input: existing baseline `{"unasked":[]}`, `ssot/good/good.json` as `{"results":{"by_outcome":{"o":{"poolable":"NOT_POOLABLE"}}},"inputs":{"trials":[{"id":"T1","all_ranks_read_utc":"2026-01-01T00:00:00Z"}]}}`, and `ssot/bad/bad.json` containing exactly `{`. Consequence: the unreadable topic is silently skipped and the process can still exit 0.
+
+- **probe keyed to the STRING A FIX REMOVES** — no proven defect in this file.
+- **instrument reading a DIFFERENT COPY** — COULD NOT DETERMINE: missing caller/hook context.
+- **SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE** — COULD NOT DETERMINE: missing corpus field inventory.
+- **values compared AS TEXT where line endings differ** — no text equality comparison found.
+- **merged-cell and OFF-BY-ONE errors** — COULD NOT DETERMINE: missing source schema for primary-count representation.
+- **ZERO CONFLATED WITH ABSENT** — no proven behavior-changing zero/absent conflation found.
+- **NEGATION DROPPED** — no negated sentence parsing or matching found.
+tokens used
+18,454
+- **a check that CANNOT FAIL** — line 134. Exact input: `evidence/` exists, `evidence/withholding_asked_baseline.json` absent, and `ssot/t/t.json` is `{"results":{"by_outcome":{"o":{"poolable":"NOT_POOLABLE"}}},"inputs":{"trials":[{"id":"T1"}]}}`. Consequence: a brand-new unasked refusal is written into the baseline and the gate exits 0.
+
+- **an idempotency guard satisfied by its OWN marker** — line 71. Exact input: `{"results":{"by_outcome":{"o":{"poolable":"NOT_POOLABLE"}}},"inputs":{"trials":[{"id":"T1","registered_secondaries":null}]}}`. Consequence: mere key presence, even `null`, is counted as evidence that ranks below primary were read.
+
+- **STATUS CODE REPORTING THE WRAPPER rather than the work** — line 97. Exact input: existing baseline `{"unasked":[]}`, `ssot/good/good.json` as `{"results":{"by_outcome":{"o":{"poolable":"NOT_POOLABLE"}}},"inputs":{"trials":[{"id":"T1","all_ranks_read_utc":"2026-01-01T00:00:00Z"}]}}`, and `ssot/bad/bad.json` containing exactly `{`. Consequence: the unreadable topic is silently skipped and the process can still exit 0.
+
+- **probe keyed to the STRING A FIX REMOVES** — no proven defect in this file.
+- **instrument reading a DIFFERENT COPY** — COULD NOT DETERMINE: missing caller/hook context.
+- **SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE** — COULD NOT DETERMINE: missing corpus field inventory.
+- **values compared AS TEXT where line endings differ** — no text equality comparison found.
+- **merged-cell and OFF-BY-ONE errors** — COULD NOT DETERMINE: missing source schema for primary-count representation.
+- **ZERO CONFLATED WITH ABSENT** — no proven behavior-changing zero/absent conflation found.
+- **NEGATION DROPPED** — no negated sentence parsing or matching found.

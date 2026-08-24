@@ -1,0 +1,1323 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a0319f-cbe5-7ab0-a74f-6062c1129c27
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/export_artefact.py
+
+--- THE FILE, IN FULL ---
+"""EXPORTER -- SSOT object  ->  the build artefact the harness detectors read.
+
+WHY THIS EXISTS
+    The verification lane built 30 detectors, 20 of them artefact-decidable, and
+    proved they block on 13 real past defects. They caught nothing here, because
+    nothing produced the shape they read: `payloads_for()` extracted ZERO
+    payloads from our objects (41 top-level keys on ARNI, 32 on FINERENONE_CV),
+    and the gate then printed PASS on an artefact it could not see.
+
+    INVOKED IS NOT SEEING. That is the join this file supplies, and it is the
+    fifth instance of one meta-mechanism -- the action succeeded, the effect was
+    never confirmed -- after push-is-not-deploy, the-repair-existing-is-not-the-
+    repair-arriving, a-library-no-build-invokes, and writing-is-not-preserving.
+    It is the first of the five caught BEFORE shipping rather than after.
+
+THE RULE THIS FILE OBEYS ABOVE ALL OTHERS
+    NEVER SYNTHESISE A FIELD. Where the object does not carry what a detector
+    needs, the field is OMITTED, which the harness reports as NOT APPLICABLE --
+    a different statement from "checked and clean". A guessed `direction_of_
+    benefit` or an assumed `declared_class` would produce confident green on
+    exactly the detectors that exist to catch confident green.
+
+    Every omission is counted and printed. An export that activates few checks
+    must look thin, not clean.
+
+WHAT A FULL PASS OF THE GATE ON THESE ARTEFACTS DOES NOT ESTABLISH
+    - NOT that the page is correct: 10 of 30 detectors are retrieval-scoped and
+      cannot run against any static artefact.
+    - NOT that the object is complete. An absent field yields no payload, and no
+      payload is not a pass.
+    - NOT that this mapping is faithful. That is what the fixture-replay
+      acceptance test is for, and until a REAL past defect in a REAL object is
+      blocked through this exporter, the mapping is unvalidated however many
+      fixtures pass.
+"""
+from __future__ import annotations
+
+import argparse, io, json, os, re, sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import retirement as R                                       # noqa: E402
+
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# Sentinels the reader must never meet. Kept here rather than defaulted inside
+# the harness so the list is visible at the point of export.
+SENTINELS = ["NOT RECOVERABLE FROM THE PAGE", "REPLACE_ME", "__PLACEHOLDER__",
+             "{{", "TODO", "undefined", "NaN"]
+
+
+# THE TWO VOCABULARIES, WRITTEN DOWN. Left: what the SSOT objects say. Right:
+# (stored_scale, back_transform) as the harness detectors read them. Anything not
+# in this table is NOT mapped and the fields are omitted -- an unmappable scale
+# must reach the detector as "not declared", never as a guess.
+_SCALE_VOCAB = {
+    "log":      ("log", "exp"),
+    "linear":   ("natural", "identity"),
+    "natural":  ("natural", "identity"),
+    "identity": ("natural", "identity"),
+}
+
+
+def _measure_for(results, oid, trial):
+    """The effect MEASURE this object records for this trial-outcome, or None.
+
+    The objects carry the measure on `results.by_outcome[oid].per_trial[]` and
+    usually NOT on the trial's own effect block, so reading only the effect block
+    left `measure` null on nine of ten rows and CHK021 returned INVALID -- ran,
+    saw nothing, reported nothing. This joins the two places the object records
+    the same fact. It is a LOOKUP, not an inference: no match, no measure.
+    """
+    tid, nct = trial.get("id"), trial.get("nct")
+    for row in ((results.get(oid) or {}).get("per_trial") or []):
+        if (nct and row.get("nct") == nct) or (tid and row.get("trial_id") == tid):
+            return row.get("measure")
+    return None
+
+
+def _visible(html):
+    html = re.sub(r"<(script|style)\b[^>]*>.*?</\1\s*>", " ", html, flags=re.S | re.I)
+    return re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", html))
+
+
+def _pool_from_outcome(oid, res, outcome_def, omissions):
+    """One pool payload. Returns None when the object cannot support one."""
+    per = res.get("per_trial") or []
+    pooled = res.get("pooled") or {}
+    if not per:
+        omissions.append("%s: no per_trial rows -> no pool payload" % oid)
+        return None
+
+    entries, rows = [], []
+    for t in per:
+        est = t.get("log_point")
+        se = t.get("log_se")
+        # The estimate/variance pair is what the duplicate and measure-mixing
+        # detectors compare. Deriving variance from a CI we already stored is a
+        # READ, not a guess; inventing one where no CI exists would not be.
+        if est is None or se is None:
+            omissions.append("%s/%s: no log_point+log_se -> entry omitted"
+                             % (oid, t.get("trial_id") or "?"))
+            continue
+        entries.append({
+            "id": t.get("trial_id") or t.get("nct") or "?",
+            "estimate": est,
+            "variance": se * se,
+            "measure": t.get("measure"),
+            # direction_of_benefit and intervention are NOT synthesised. The
+            # object records direction at OUTCOME level, so it is read from
+            # there; intervention is omitted unless the trial names one.
+            **({"direction_of_benefit": "efficacy"}
+               if (outcome_def or {}).get("direction_of_benefit") else {}),
+        })
+        rows.append(t)
+
+    if not entries:
+        return None
+
+    panel_rows = []
+    for t in per:
+        # A NULLED ENTRY IS NOT A CONTRIBUTING TRIAL AND MUST NOT BE COUNTED AS ONE.
+        # `finerenone-review` carries `NULLED:NCT01874431` in `per_trial` with a value while
+        # `k` is 3, so the panel showed four rows under a headline stating three --
+        # CHK009_POOL_IDENTITY, correctly. The entry stays on the object; it leaves the count.
+        if t.get("nulled") or str(t.get("trial_id") or t.get("nct") or "").startswith("NULLED:"):
+            continue
+        panel_rows.append({
+            "id": t.get("trial_id") or t.get("nct") or "?",
+            "outcome": res.get("estimand_id") or oid,
+            "population": t.get("population") or "randomised",
+            "window": "full",
+        })
+
+    pool = {
+        "pool_id": oid,
+        "headline_k": res.get("k"),
+        "headline_outcome": res.get("estimand_id") or oid,
+        "panel_rows": panel_rows,
+        "entries": entries,
+    }
+    # declared_class is REQUIRED by the cross-agent detector and must never be
+    # invented: its absence is the defect that detector exists to catch.
+    dc = ((outcome_def or {}).get("declared_class")
+          or res.get("declared_class")
+          or (res.get("pool_uniformity") or {}).get("declared_class"))
+    if dc:
+        pool["declared_class"] = dc
+    else:
+        omissions.append("%s: no declared_class in the object -- LEFT ABSENT, "
+                         "which is what CHK on cross-agent pooling reads" % oid)
+    if pooled.get("point") is not None:
+        # The harness compares entry estimates on the SAME scale they are stored
+        # on. Our pooled point is natural-scale for ratios; the log is what the
+        # entries carry, so the log is what is exported.
+        import math
+        p = pooled["point"]
+        pool["pooled_estimate"] = (math.log(p) if (pooled.get("scale") == "log"
+                                                   and p > 0) else p)
+    return pool
+
+
+def export(obj, page_html=None):
+    """SSOT object -> artefact dict. Omits what the object does not carry."""
+    omissions = []
+    art = {}
+    art["page_id"] = obj.get("app_id") or "<unnamed>"
+
+    bm = (obj.get("build_mode") or "").upper()
+    if bm:
+        art["build_path"] = "converted" if bm == "CONVERTED" else "author"
+        art["page_provenance"] = ("converted" if bm == "CONVERTED"
+                                  else "authored-reconciliation")
+
+    # THE ARTEFACT CARRIES ITS OWN STATE, the same way a page carries `rapidmeta:page-state`.
+    # Downstream, `harness_gate.py` sees only artefacts -- it cannot open the object -- so an
+    # artefact from a topic that publishes no estimate looked identical to one from an adapter
+    # that recognised nothing. Two different states, indistinguishable, which is exactly the
+    # confusion this project keeps paying for. The exporter knows the difference and stamps it.
+    _pr = (((obj.get("results") or {}).get("by_outcome") or {}).get("primary") or {})
+    _pl = _pr.get("pooled") or {}
+    _k = _pr.get("k")
+    if _pl.get("point") is None and (_pl.get("withdrawn") or _pl.get("absent")
+                                     or (isinstance(_k, int) and _k < 2)):
+        art["publishes_no_estimate"] = {
+            "k": _k,
+            "because": ("withdrawn" if _pl.get("withdrawn") else
+                        "absent" if _pl.get("absent") else
+                        "k<2 -- one trial is not a meta-analysis"),
+            "means": ("This artefact yielding ZERO check executions is the CORRECT result, not "
+                      "an adapter that recognised nothing. PUBLISHES-NOTHING and UNRECOGNISED "
+                      "are different states and are never summed."),
+            "stamped_by": "scripts/export_artefact.py",
+        }
+
+    trials = ((obj.get("inputs") or {}).get("trials")) or []
+    data_ids = [t.get("nct") or t.get("id") for t in trials if (t.get("nct") or t.get("id"))]
+
+    results = ((obj.get("results") or {}).get("by_outcome")) or {}
+    engine_ids = []
+    for res in results.values():
+        for t in (res.get("per_trial") or []):
+            v = t.get("nct") or t.get("trial_id")
+            if v and v not in engine_ids:
+                engine_ids.append(v)
+
+    if data_ids and engine_ids:
+        art["engine_trial_ids"] = engine_ids
+        art["data_trial_ids"] = data_ids
+    else:
+        omissions.append("engine/data trial ids incomplete -> inert-engine check "
+                         "not emitted")
+
+    outcomes = {o.get("id"): o for o in (obj.get("outcomes") or [])}
+    pools = []
+    any_pooled = None
+    for oid, res in results.items():
+        p = _pool_from_outcome(oid, res, outcomes.get(oid), omissions)
+        if p:
+            pools.append(p)
+        if (res.get("pooled") or {}).get("point") is not None:
+            any_pooled = res["pooled"]["point"]
+    if pools:
+        art["pools"] = pools
+
+    # POOL CAPABILITY, PER OUTCOME -- AND THE FLATTENING IT REPLACES WAS A JOIN
+    # DEFECT, not a tuning choice.
+    #
+    # The previous version collapsed three per-outcome facts into one triple:
+    # engine_can_pool was ANDed across EVERY outcome, displayed_pooled_estimate
+    # was whichever outcome came last with a number, and engine_block_reason was
+    # the first outcome that said false. On SOTAGLIFLOZIN that produced a FAIL
+    # joining the hfcv_first pool's displayed 0.7488 to mace3_first's reason --
+    # "only one contributing trial reports this estimand" -- which is TRUE, of a
+    # DIFFERENT ESTIMAND. Two of the three fields came from outcomes the third
+    # had nothing to do with, and the detector had no way to know.
+    #
+    # It blocked a push, so this one failed toward ALARM. That is the rarer
+    # direction and the reason it was found in minutes rather than surviving a
+    # day feeding false assurance. It is still not the safe kind of wrong: acting
+    # on it would have meant withdrawing a sound estimate, and a withdrawal needs
+    # the same evidentiary standard as a claim.
+    #
+    # READ FROM THE OBJECT'S OWN POOLABILITY VERDICT, never from "is there a
+    # number": a displayed estimate on an outcome the object says cannot pool is
+    # precisely the orphan defect, and deriving the verdict from the presence of
+    # the number would make it unfindable.
+    caps = []
+    for oid, res in results.items():
+        if res.get("poolable") is None:
+            continue
+        can = bool(res.get("poolable"))
+        # A SINGLE-TRIAL RESULT IS NOT AN ORPHAN POOL.
+        # `poolable: false` was carrying two incompatible meanings: "this cannot
+        # legitimately be pooled" and "there is only one trial here". CHK020 read
+        # the first and blocked BEMPEDOIC_ACID, whose displayed 0.87 IS CLEAR
+        # Outcomes' own registered hazard ratio -- a value whose derivation is not
+        # missing, because nothing needed deriving. The third condition is now
+        # stated rather than inferred, so the check can tell "no derivation" from
+        # "no synthesis required". An object with poolable=false, k>1, a displayed
+        # value and NO single_study_ref is untouched by this and still fails, which
+        # is the real orphan defect.
+        _single = res.get("single_study_ref")
+        _k = res.get("k")
+        _is_single = bool(_single) and _k == 1
+        caps.append({
+            "outcome_id": oid,
+            "displayed_pooled_estimate": (res.get("pooled") or {}).get("point"),
+            "engine_can_pool": can or _is_single,
+            "single_study": _is_single,
+            "single_study_ref": _single if _is_single else "",
+            # EMIT IN BOTH STATES. This field was written only when poolability
+            # was FALSE, so CHK020_ORPHAN_POOLED_RESULT returned INVALID on every
+            # clean artefact: it could not tell "can pool" from "was never
+            # asked". That is an ABSENT FIELD STANDING FOR A TRUE CONDITION --
+            # exactly what declared_class taught, committed in the exporter
+            # written to avoid it. An explicit value is not a synthesised one: it
+            # states which branch the object recorded FOR THIS OUTCOME.
+            "engine_block_reason": (
+                "" if (can or _is_single) else
+                (res.get("poolable_reason")
+                 or "the object records poolable=false with no reason given")),
+        })
+    if caps:
+        art["pool_capability"] = caps
+    else:
+        omissions.append("no poolable verdict in the object -> orphan-pool check "
+                         "not emitted")
+
+    # rows: the per-trial numbers the back-transform and precision-sample
+    # detectors read. Counts come from the trial's own arms, not from anywhere else.
+    rows = []
+    for t in trials:
+        arms = {a.get("role"): a for a in (t.get("arms") or []) if a.get("role")}
+        tre, con = arms.get("treatment") or {}, arms.get("control") or {}
+        for oid, bo in (t.get("by_outcome") or {}).items():
+            eff = bo.get("effect") or {}
+            if eff.get("point") is None:
+                continue
+            row = {"row_id": "%s::%s" % (t.get("nct") or t.get("id") or "?", oid),
+                   "estimate": eff.get("point"),
+                   "ci_low": eff.get("ci_low"), "ci_high": eff.get("ci_high"),
+                   "measure": eff.get("measure") or _measure_for(results, oid, t)}
+            # SCALE VOCABULARY, TRANSLATED RATHER THAN PASSED THROUGH OR GUESSED.
+            #
+            # Two defects lived on this line. The objects write "linear" for a
+            # natural-scale difference and the detector's vocabulary is
+            # "natural", so EVERY difference-measure row in this corpus produced
+            # a false FAIL -- "MD is a difference on the natural scale but is
+            # stored as 'linear'" -- which is the adapter's word for exactly the
+            # thing the detector was asking for. A field-name contract across a
+            # module boundary, unstated and therefore unchecked.
+            #
+            # The worse one was the fallback: `eff.get("scale") or "log"`. An
+            # object that records no scale had one ASSERTED for it, and "log" is
+            # the assertion that makes a difference measure look like a ratio.
+            # That is a synthesised field in the exporter whose own first rule is
+            # never to synthesise a field, and it fails toward comfort -- the
+            # detector cannot tell a declared scale from a defaulted one.
+            _sc = (eff.get("scale") or "").strip().lower()
+            if _sc in _SCALE_VOCAB:
+                row["stored_scale"], row["back_transform"] = _SCALE_VOCAB[_sc]
+            else:
+                omissions.append(
+                    "%s: scale %r is not one this exporter can map -> the "
+                    "measure/scale check is NOT emitted for this row, which is "
+                    "not a pass on it" % (row["row_id"], eff.get("scale")))
+            if tre.get("events") is not None and con.get("events") is not None:
+                row.update({"events_t": tre.get("events"), "n_t": tre.get("participants"),
+                            "events_c": con.get("events"), "n_c": con.get("participants")})
+            else:
+                omissions.append("%s: no per-arm counts -> precision-sample check "
+                                 "cannot run on this row" % row["row_id"])
+            rows.append(row)
+    if rows:
+        art["rows"] = rows
+
+    # claimed_method: read, never assumed. An NMA claim with no network is the
+    # defect; a pairwise object simply says pairwise.
+    cm = (obj.get("config") or {}).get("method_class") or obj.get("method_class")
+    if cm:
+        art["claimed_method"] = cm
+        art["network_edges"] = obj.get("network_edges") or []
+    elif results:
+        art["claimed_method"] = "pairwise"
+        art["network_edges"] = []
+
+    if page_html:
+        art["reader_text"] = _visible(page_html)[:200000]
+        art["sentinels"] = SENTINELS
+        art["numeric_fields"] = [
+            {"field_id": "raw-%d" % i, "raw": m,
+             "naive_value": float(re.sub(r"[^0-9.\-]", "", m) or 0)}
+            for i, m in enumerate(re.findall(r"&minus;\s*[\d.]+|&#8722;\s*[\d.]+",
+                                             page_html)[:40])]
+        if not art["numeric_fields"]:
+            art.pop("numeric_fields")
+    else:
+        omissions.append("no page HTML given -> sentinel-leak and unicode-minus "
+                         "checks not emitted")
+
+    return art, omissions
+
+
+def selftest():
+    """REPLAYS THE JOIN DEFECT ON THE OBJECT THAT PRODUCED IT.
+
+    Not a fixture. SOTAGLIFLOZIN carries three outcomes -- two pooled at k=2 and
+    one reported from a single trial with poolable=false -- which is the exact
+    shape that made the flattened export attach mace3_first's reason to
+    hfcv_first's displayed 0.7488 and block a push over a defect that did not
+    exist. The old join is recomputed here so the test can show it failing; a
+    test that only exercises the new code proves the fix runs, not that it fixes
+    anything.
+    """
+    ok = True
+    p = os.path.join(REPO, "ssot", "sotagliflozin-hf", "sotagliflozin-hf.json")
+    if not os.path.exists(p):
+        print("  fixture absent: sotagliflozin-hf -- NOT PROVEN")
+        return 1
+    obj = json.loads(open(p, encoding="utf-8").read())
+    results = (obj.get("results") or {}).get("by_outcome") or {}
+
+    # THE OLD JOIN, recomputed exactly as it was.
+    old_can = all(bool(r.get("poolable")) for r in results.values()
+                  if r.get("poolable") is not None)
+    old_shown = None
+    for r in results.values():
+        if (r.get("pooled") or {}).get("point") is not None:
+            old_shown = r["pooled"]["point"]
+    old_would_fail = old_shown is not None and not old_can
+    print("  POSITIVE the flattened join on this object -> orphan FAIL: %-5s %s"
+          % (old_would_fail, "correct -- this is the defect" if old_would_fail
+             else "the replay proved nothing: the object no longer has the shape"))
+    ok &= old_would_fail
+
+    art, _ = export(obj)
+    caps = art.get("pool_capability") or []
+    print("  per-outcome capability entries: %d" % len(caps))
+    bad = [c for c in caps
+           if c.get("displayed_pooled_estimate") is not None
+           and not c.get("engine_can_pool")]
+    for c in caps:
+        print("      %-14s displayed=%-8s can_pool=%-5s %s"
+              % (c["outcome_id"], c["displayed_pooled_estimate"],
+                 c["engine_can_pool"], (c["engine_block_reason"] or "")[:46]))
+    print("  NEGATIVE per-outcome, on the same object -> orphan FAIL: %-5s %s"
+          % (bool(bad), "correct" if not bad else "WRONG"))
+    ok &= not bad
+    ok &= len(caps) >= 2
+
+    # A REASON MUST BELONG TO ITS OWN OUTCOME. A capability that can pool must
+    # carry no block reason at all -- that is what stops a reason migrating
+    # across estimands the way the flattened version let it.
+    stray = [c for c in caps if c["engine_can_pool"] and c["engine_block_reason"]]
+    print("  NEGATIVE a poolable outcome carrying a block reason: %-5s %s"
+          % (bool(stray), "correct" if not stray else "WRONG"))
+    ok &= not stray
+
+    # SCALE VOCABULARY, replayed on the object that exposed it. IV iron carries a
+    # mean difference stored as "linear"; the detector's word is "natural", and
+    # the mismatch produced a FAIL saying the row was not on the scale it was
+    # already on. The second half matters more: an object with NO scale must
+    # yield NO scale fields, because the old `or "log"` default asserted the one
+    # value that makes a difference measure look like a ratio.
+    p2 = os.path.join(REPO, "ssot", "iv-iron-hf", "iv-iron-hf.json")
+    if os.path.exists(p2):
+        iv = json.loads(open(p2, encoding="utf-8").read())
+        art2, _ = export(iv)
+        rows = {r["row_id"]: r for r in (art2.get("rows") or [])}
+        md = rows.get("NCT01453608::six_min_walk_24w") or {}
+        good = (md.get("measure") == "MD" and md.get("stored_scale") == "natural"
+                and md.get("back_transform") == "identity")
+        ok &= good
+        print("  NEGATIVE a mean difference stored as 'linear' -> %r/%r %s"
+              % (md.get("stored_scale"), md.get("back_transform"),
+                 "correct" if good else "WRONG -- the false FAIL is back"))
+        named = sum(1 for r in art2.get("rows") or [] if r.get("measure"))
+        ok &= named == len(art2.get("rows") or [])
+        print("  NEGATIVE every row carries the measure the object records: %d/%d %s"
+              % (named, len(art2.get("rows") or []),
+                 "correct" if named == len(art2.get("rows") or []) else "WRONG"))
+
+        stripped = json.loads(json.dumps(iv))
+        for t in stripped["inputs"]["trials"]:
+            for bo in (t.get("by_outcome") or {}).values():
+                (bo.get("effect") or {}).pop("scale", None)
+        art3, om3 = export(stripped)
+        leaked = [r for r in (art3.get("rows") or []) if "stored_scale" in r]
+        ok &= not leaked
+        print("  POSITIVE an object with no scale recorded -> scale asserted on "
+              "%d row(s) %s" % (len(leaked), "correct" if not leaked else
+                                "WRONG -- the exporter is inventing a scale"))
+    else:
+        print("  fixture absent: iv-iron-hf -- NOT PROVEN"); ok = False
+
+    print("\nWHAT A FAILURE WOULD LOOK LIKE: a displayed estimate paired with a "
+          "reason that is true of a different estimand, blocking a push and "
+          "arguing for the withdrawal of a sound number; or a scale the object "
+          "never recorded, asserted by the adapter and checked as though it had.")
+    print("-> SELFTEST PASS" if ok else "-> SELFTEST FAILED")
+    return 0 if ok else 1
+
+
+def main():
+    if "--selftest" in sys.argv:
+        return selftest()
+    ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    ap.add_argument("objects", nargs="+", help="ssot/<app>/<app>.json files")
+    ap.add_argument("--outdir", default=os.path.join(REPO, "build-artefacts"))
+    ap.add_argument("--page", default="", help="optional built HTML for one object")
+    a = ap.parse_args()
+    os.makedirs(a.outdir, exist_ok=True)
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from nafis_harness.artefact import payloads_for
+
+    total_payloads = 0
+    retired = []
+    for src in a.objects:
+        obj = json.loads(open(src, encoding="utf-8").read())
+        # A RETIRED TOPIC IS NOT AN UNRECOGNISED ONE, and folding the two together would make
+        # this gate refuse every merge for the rest of the project's life.
+        #
+        # A tombstone deliberately holds no `results` and no top-level `inputs.trials` -- it
+        # holds the object it replaced, nested, plus who absorbed it and when. So the exporter
+        # correctly produces zero payloads for it, and the "nothing checkable" refusal below
+        # correctly fires on a corpus of nothing BUT tombstones. The two states are distinct:
+        #   UNRECOGNISED  the exporter looked and could not read the object -- a real failure
+        #   RETIRED       the object declares itself retired -- there is nothing to check, and
+        #                 that is the correct and intended state
+        # Counted separately, and a run consisting only of tombstones is reported as such rather
+        # than as an exporter that recognised nothing.
+        # RETIREMENT IS DECIDED BY `state` ALONE -- see scripts/retirement.py. This test read
+        # `state == RETIRED **and** o.get("absorbed_by")`, which made the successor field a
+        # PRECONDITION for seeing a tombstone at all. A topic retired by SPLIT records
+        # `split_into`, so it was not recognised as retired and fell through to the live path.
+        if R.is_retired(obj):
+            retired.append((os.path.basename(src), R.successor_label(obj)))
+            print("%-34s -> RETIRED, succeeded by %-26s  no payload BY DESIGN"
+                  % (os.path.basename(src), R.successor_label(obj)))
+            continue
+        html = None
+        if a.page and os.path.exists(a.page):
+            html = open(a.page, encoding="utf-8", errors="replace").read()
+        art, omissions = export(obj, html)
+        n = len(payloads_for(art))
+        total_payloads += n
+        out = os.path.join(a.outdir, (obj.get("app_id") or "unnamed") + ".json")
+        with open(out, "w", encoding="utf-8") as fh:
+            json.dump(art, fh, indent=1)
+        print("%-34s -> %-46s %2d check payload(s)"
+              % (os.path.basename(src), os.path.relpath(out, REPO), n))
+        for o in omissions[:6]:
+            print("      omitted: %s" % o)
+        if len(omissions) > 6:
+            print("      omitted: ... and %d more" % (len(omissions) - 6))
+    if retired:
+        print("\n%d of the %d object(s) are RETIRED TOMBSTONES and produce no payload by "
+              "design: %s" % (len(retired), len(a.objects),
+                              ", ".join("%s -> %s" % r for r in retired)))
+    if total_payloads == 0:
+        if retired and len(retired) == len(a.objects):
+            print("EVERY object in this run is a retired tombstone. There is nothing to check "
+                  "and that is the CORRECT state, not an exporter that recognised nothing. "
+                  "RETIRED and UNRECOGNISED are different states and are never summed.")
+            return 0
+        # A THIRD LEGITIMATE STATE, and the third instrument to have lacked the concept. The
+        # tombstone case above was encoded when the merge gates refused a retired page. This is
+        # the same missing idea one state along: A LIVE REVIEW THAT PUBLISHES NO ESTIMATE has
+        # nothing to check either. `mavacamten-ohcm-review` holds ONE trial -- no per-trial
+        # rows, no poolable verdict, no pool -- so every detector correctly declines, and the
+        # run then read as an exporter that recognised nothing.
+        #
+        # ENCODED, NOT EXEMPTED. The object must SAY it publishes nothing: `pooled.point` is
+        # None AND the pool is explicitly `withdrawn` or `absent`, or k < 2. An object that
+        # simply FAILED to produce a payload -- one that claims a pool and yields no rows --
+        # still fails, which is the case this gate exists for.
+        declares_nothing, undecided = [], []
+        for src in a.objects:
+            with open(src, "r", encoding="utf-8") as fh:
+                o = json.load(fh)
+            if str(o.get("state") or "").upper() == "RETIRED":
+                continue
+            pr = (((o.get("results") or {}).get("by_outcome") or {}).get("primary") or {})
+            pl = pr.get("pooled") or {}
+            k = pr.get("k")
+            if pl.get("point") is None and (pl.get("withdrawn") or pl.get("absent")
+                                            or (isinstance(k, int) and k < 2)):
+                declares_nothing.append("%s (k=%s, %s)" % (
+                    o.get("app_id"), k,
+                    "withdrawn" if pl.get("withdrawn") else
+                    "absent" if pl.get("absent") else "k<2"))
+            else:
+                undecided.append(o.get("app_id"))
+        if declares_nothing and not undecided:
+            print("\nEVERY live object in this run DECLARES THAT IT PUBLISHES NO ESTIMATE: %s. "
+                  "There is nothing to check and that is the CORRECT state, not an exporter "
+                  "that recognised nothing. PUBLISHES-NOTHING and UNRECOGNISED are different "
+                  "states and are never summed." % ", ".join(declares_nothing))
+            return 0
+        print("\nNO CHECK PAYLOADS PRODUCED AT ALL. That is not a clean export; "
+              "it is an exporter that recognised nothing.")
+        if undecided:
+            print("These object(s) do NOT declare that they publish nothing, so producing no "
+                  "payload is a failure rather than a design: %s" % ", ".join(undecided))
+        return 2
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+
+codex
+I’ll verify the local file line numbers against the pasted packet and do the required session-start reads, then I’ll keep the response limited to concrete defects only.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "if (Test-Path 'F:\\E156\\rewrite-workbook.txt') { Get-Content -LiteralPath 'F:\\E156\\rewrite-workbook.txt' -TotalCount 40 } else { Write-Output 'MISSING F:\\E156\\rewrite-workbook.txt' }" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "if (Test-Path 'F:\\ProjectIndex\\INDEX.md') { Get-Content -LiteralPath 'F:\\ProjectIndex\\INDEX.md' -TotalCount 40 } else { Write-Output 'MISSING F:\\ProjectIndex\\INDEX.md' }" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=0; Get-Content -LiteralPath '"'scripts\\export_artefact.py' | ForEach-Object { "'$i++; '"'{0,4}: {1}' -f "'$i, $_ }' in F:\rapidmeta-ssot-shell
+ succeeded in 2268ms:
+E156 REWRITE WORKBOOK
+sentinel:skip-file
+sentinel:claim-language-allow
+(Sentinel markers above:
+ - sentinel:skip-file: this workbook intentionally contains C:\Users\... PATH:
+   lines pointing to each project's local source directory â€” they're metadata,
+   not code. The marker keeps Sentinel from emitting ~16 P0 hardcoded-path
+   BLOCKs every push.
+ - sentinel:claim-language-allow: CURRENT BODY entries are the AI-drafted
+   summaries that students rewrite into hedged language â€” flagging overclaim
+   words IN those drafts is the whole pedagogical point, not a defect.
+   File-scope marker here suppresses the ~1293 claim-language WARNs on the
+   CURRENT BODY entries; the YOUR REWRITE entries are where the hedging
+   discipline matters and remains lintable in the rendered student board.)
+
+DENOMINATOR CONVENTION (added 2026-05-06 after review-findings P1-5):
+  Each entry header is `[N/total]` where N = ordinal insertion index and
+  `total` = current portfolio size as of the most recent reconcile sweep.
+  Older entries are back-rewritten on milestone boundaries (rather than
+  preserving their insertion-time denominator) to keep
+  reconcile_counts.py from flagging "WORKBOOK DRIFT". The pre-commit
+  guard (scripts/check_workbook_commit.py) blocks commits that bundle a
+  denominator sweep with substantive content edits to existing entries.
+
+======================================================================
+
+INSTRUCTIONS:
+- Replace text under YOUR REWRITE with your body (at most 156 words, 7 sentences)
+- S1=Question S2=Dataset S3=Method S4=Result(number+interval) S5=Robustness S6=Interpretation S7=Boundary(limitation)
+- Leave YOUR REWRITE blank to keep current version
+- Run: python C:/E156/scripts/apply_rewrites.py          (validate)
+- Run: python C:/E156/scripts/apply_rewrites.py --apply (apply)
+
+AUTHORSHIP RULE (mandatory for every submission):
+- Mahmood Ahmad (MA) must NEVER be listed as first author and NEVER as
+  last (senior) author. The student rewriter is first author. Last/senior
+  author must be a faculty supervisor or co-investigator distinct from MA.
+  MA's position is middle-author only (e.g. role: data curation, software,
+  methodology, supervision-of-tooling). This applies to every paper in
+  this workbook regardless of contribution depth.
+
+ succeeded in 2285ms:
+<!-- sentinel:skip-file - portfolio registry; absolute paths ARE the data -->
+# C: Drive Project Index
+> **Last updated**: 2026-05-14 (C:\HTML apps focused repair batch continued: hub shell launch fix, static contracts across ten HTML app repos, NMA/living-meta/nma-dose-response landing and asset-link repairs, and NMA doc hardcoded-path cleanup. Prior SheafNMA v0.2.0, D-drive legacy smoke-contract continuation, CardioOracle lifecycle status freeze, C-drive model/project smoke-contract continuation, mahmood789 consolidation, Sentinel/Overmind JSONL and verification repair, C-drive reproducibility audit continuation, C-drive verification repair, D-drive repair batch, superapp, C-drive sweep, home-folder hardening, Trial Truthfulness Atlas, and portfolio notes retained below.)
+
+### C:\HTML apps focused repair batch (2026-05-14)
+> - `C:\HTML apps\hub\`: added a launchable `index.html` shell and static contract tests for required registry/runtime wiring; fixed `app.js` local `file://` launch resolution so the hub opened from `hub\index.html` links sibling apps from the parent HTML-apps directory instead of nesting paths under `hub`. Verification: `pytest -q -p no:cacheprovider` -> `3 passed`; `node --check app.js && node --check projects.js` -> PASS; headless Chrome smoke on `file:///mnt/c/HTML%20apps/hub/index.html` confirmed the page title and sibling app links. GitHub pushed: `mahmood726-cyber/hub` main `c1a6725`.
+> - `C:\HTML apps\evidence-board\`, `C:\HTML apps\focus-studio\`, `C:\HTML apps\kanban-lab\`: added pytest-visible static app shell contracts covering title/description, localStorage persistence hooks, key controls, and absence of unresolved templates or hardcoded local drive paths; added repo `.gitignore` entries for Python caches and `PROGRESS.md`. Verification: each `pytest -q -p no:cacheprovider` -> `2 passed` with the existing pytest `cache_dir` warning; scoped `git diff --check` -> PASS. GitHub pushed: `evidence-board` master `9a87c8b`, `focus-studio` master `0fa728b`, `kanban-lab` master `81cad38`.
+> - `C:\HTML apps\nma-pro-v2\`: fixed the landing page's broken app links from absent v6/v7 asset filenames to the current `e156-submission/assets/nma-pro-v8.0.html`, added static link-resolution contracts, and removed Sentinel P0 hardcoded local OneDrive paths from legacy docs. Verification: `pytest -q -p no:cacheprovider tests/test_smoke.py tests/test_static_links.py` -> `3 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=1 INFO=302` (pre-existing tracked autogen warning plus HTML a11y INFO). GitHub pushed: master `a2834e7` for the link fix and master `a74e385` for the P0 doc cleanup.
+> - `C:\HTML apps\IPD-Meta-Pro\` and `C:\HTML apps\Truthcert1\`: added static link-resolution contracts for landing-page local assets and canonical app entrypoints. Verification: `IPD-Meta-Pro` `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; `Truthcert1` same command -> `2 passed` with existing pytest `cache_dir` warning. GitHub pushed: `IPD-Meta-Pro` master `b26ee09`, `Truthcert1` master `81eddd3`.
+> - `C:\HTML apps\living-meta\`: repaired landing-page validation links that pointed to a missing HTML asset and an out-of-repo sibling path; linked the existing validation and limitations docs instead, and added a static link-resolution contract. Verification: `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=8` (pre-existing HTML a11y INFO). GitHub pushed: master `c3c8a9b`.
+> - `C:\HTML apps\Pairwiseai\`: added a static landing-page contract covering local link resolution, absence of unresolved templates/local drive paths, and the key app entrypoints under `e156-submission/assets`. Verification: `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=1731` (pre-existing HTML a11y INFO). GitHub pushed: master `2ade493`.
+> - `C:\HTML apps\nma-dose-response-app\`: pushed the existing smoke-blocker commit and added an E156 asset-bundle repair so `e156-submission\assets\index*.html` resolves its JS runtime dependencies from inside the assets folder; added a static link-resolution contract covering root and E156 app entrypoints. Verification: `pytest -q -p no:cacheprovider tests/test_smoke.py tests/test_static_links.py` -> `4 passed` with the existing pytest `cache_dir` warning; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=442` (pre-existing HTML a11y INFO). GitHub pushed: master `e95fae0` and `96594b6`.
+> - Push gate: Windows Git credential path succeeded after WSL Git lacked HTTPS credentials. Sentinel pre-push/manual scan verdicts were BLOCK=0; evidence-board INFO=18, focus-studio INFO=10, kanban-lab INFO=10, living-meta INFO=8, Pairwiseai INFO=1731, nma-dose-response-app INFO=442 (pre-existing P2 HTML accessibility notes); hub push emitted no Sentinel findings.
+> - Existing unrelated dirty files were left unstaged in these repos, mainly protocol/license/doc edits and untracked `paper\` outputs in the three app repos, plus pre-existing hub metadata/submission/style edits.
+
+### SheafNMA (2026-05-12; v0.2.0 real-NMA-corpus validation + 36-cell Ã— 1000-rep simulation + methods paper draft)
+> - `C:\Models\SheafNMA\` â€” cellular-sheaf inconsistency localization for network meta-analysis. v0.1.0 (2026-04-07) was math + single-file HTML dashboard + E156 #153 micro-paper on a synthetic 12-contrast network. v0.2.0 refactored the 457-LOC `generate_figures.py` into a `sheafnma/` package (`core`, `io`, `simulate`, `comparators`, `r_bridge`), validated on 13 R-netmeta built-in NMAs, and shipped a methods-paper draft for Research Synthesis Methods.
+> - Method: precision-weighted coboundary `F[e, treat1] = -1/SE_e, F[e, treat2] = +1/SE_e`; sheaf Laplacian `L = Fáµ€F` (symmetric PSD); WLS-solve node estimates with node 0 anchored; per-edge residuals `r_e = dÌƒ_e âˆ’ (F x*)_e` localize inconsistency; **Global Inconsistency Index** `GII = Î£ rÂ²` is the global statistic. One algebraic object yields both global + per-edge â€” complements (not replaces) node-splitting.
+> - Real-corpus headline: across **13 R-netmeta built-in NMAs** (Senn 2013 diabetes, Dias smokingcessation, Dong 2013 thrombolytics, Linde 2015/2016 acupuncture, Salanti antimanic, Baker, Dogliotti, Franchini, Gurusamy, Stowe, Woods, dietaryfat, parkinson) the global design-by-treatment Ï‡Â² (Higgins 2012) failed to reject in all 13. **SheafNMA flagged â‰¥1 localized inconsistency edge in 5 of those 13 (38.5%)** at the Youden-frozen threshold of **2.6912** â€” networks that look globally consistent harbor at least one inconsistent edge the global test misses.
+> - Simulation rigor: 36-cell grid (n_treatments âˆˆ {4,6,8} Ã— n_studies_per_edge âˆˆ {3,5,10} Ã— Ï„_inc âˆˆ {0,0.2,0.5,1.0}) Ã— **1000 replications per cell**, held-out training cell at (6,5,0.5) for Youden's-J threshold selection (frozen before evaluating remaining 35 cells). Type-I error at Ï„_inc=0 was **0.000 across all cells**. Mean per-edge sensitivity 0.981 / specificity 0.945 at Ï„_inc=0.5.
+> - Comparator suite: DBT-Ï‡Â² (Higgins 2012 Â§3.2, pure-Python), Bucher loop closure (Bucher 1997, pure-Python), node-splitting (Dias 2010, via `netmeta::netsplit` shelled to R 4.5.2). Per-edge agreement with node-splitting was 45.4% â€” asymmetric: SheafNMA flags 12/506 = 2.4% of edges vs node-splitting's 250/436 = 57% at p<0.05 Bonferroni-uncorrected (the calibrated Youden cut is much more conservative than a per-edge Î±-test). Â§4.2 of the paper explicitly explains this rather than presenting the 45.4% bare.
+> - Corpus export: `corpus/export_netmeta.R` handles 7 distinct netmeta dataset formats (contrast-level TE/seTE, arm-based event/n, arm-based mean/sd/n, wide multi-arm OR/MD, three-arm smokingcessation, rate-based IRR/person-years) and exports all 13 to `corpus/data/*.csv` in the sheafnma standard schema (`study, treat1, treat2, effect, se`).
+> - GitHub: `https://github.com/mahmood726-cyber/sheaf-nma` (master `6c7db13`, tag `v0.2.0`). Pages LIVE: `https://mahmood726-cyber.github.io/sheaf-nma/` (Phase-1 dashboard unchanged in v0.2). 33 tests passing; Sentinel BLOCK=0 WARN=0 (2 INFO = pre-existing HTML a11y items in the v0.1 dashboard).
+> - Workbook entry: `[153/919] SheafNMA`. CURRENT BODY updated 2026-05-12 to the v0.2 156-word / 7-sentence body (replaces v0.1 synthetic-"smoking cessation" framing with the real netmeta corpus). SUBMITTED `[ ]`; YOUR REWRITE preserved untouched per workbook protection rules. Target: Research Synthesis Methods full methods paper (`paper/sheafnma_v2.md`, 1190 words drafted; [TODO] prose blocks in Â§1 Background / Â§4.3 case studies / Â§5 Discussion) + SynthÄ“sis Methods Note companion (`paper/methods_note.md`, 156-word).
+> - Known landmine: `Dong2013` netsplit fails inside netmeta's multi-arm validator ("wrong number of comparisons"); SheafNMA + DBT + Bucher still run on it, only `netsplit_p` column is blank for its 70 edges.
+> - v0.2 deferrals (spec Â§10): multi-arm covariance correction (single-D stalks only), higher-D stalks (Phase 1 Â§3.4 future work), Bayesian sheaf priors, OTS / Bitcoin anchor (broken on Py 3.13 Windows per `lessons.md`).
+
+### hksj-q-floor-atlas (2026-05-12; 8th Pairwise70 atlas; tags prereg-v0.0.1 + v0.1.0)
+> - `C:\Projects\hksj-q-floor-atlas\` â€” 8th calibration atlas in the Pairwise70 series. Sister to `cochrane-modern-re` (engine source), `repro-floor-atlas`, `responder-floor-atlas`, `trial-truthfulness-atlas`, `africa-tb-atlas`, `pactr-hiddenness-atlas`, `africa-hiv-prep-atlas`.
+> - Question: how often does omitting the `max(1, Q/(k-1))` floor on HKSJ variance, in the I^2=0 regime where un-floored HKSJ narrows below REML+Wald, overstate precision across the Cochrane CDSR? Pre-registered via `prereg-v0.0.1` tag + 4 Internet Archive snapshots (Bitcoin OTS deferred â€” Python 3.13 SSL libeay32 bug per lessons.md; web-stamper fallback documented).
+> - Headline: D_1 (I^2=0, k>=2, converged) = 3,677 MAs = 57.6% of corpus. On D_1a (Q>0, n=3,536): median CI-width ratio (floored / un-floored) = 3.64x (IQR 1.60-10.56; 95th pct 57.4x); significance lost in 17.08% of MAs. D_1b (Q=0, n=141 = 3.83% of D_1): sig_loss 24.8%, ratio unbounded â€” un-floored HKSJ SE is exactly zero (the floor effect is unbounded); see `docs/AMENDMENTS.md` entry 1 for split rationale.
+> - Per k-stratum medians: k=2: 4.26x (sig_loss 8.6%); k=3: 3.64x (12.9%); k=4-5: 3.10x (13.1%); k=6-9: 3.18x (17.3%); k>=10: 3.80x (25.1%). sig_loss increases with k because higher-k pooled effects sit closer to null, so floor widening crosses zero more often.
+> - Engine: independent metafor pass via fork of cochrane-modern-re's `run_metafor.R` minus the floor block. Input parquet SHA-256 pinned in `docs/spec.md` sec.1.5 (`31434fb118c6ec44a025eeb43a90e35ef9e050711fa45aa2cb5c1244b2d89751`). 3 hand-verified golden MAs match metafor reference within 1e-6.
+> - GitHub: `https://github.com/mahmood726-cyber/hksj-q-floor-atlas` (master + tags `prereg-v0.0.1` and `v0.1.0`). Pages LIVE: `https://mahmood726-cyber.github.io/hksj-q-floor-atlas/`.
+> - 64 tests; Sentinel BLOCK=0 WARN=0 INFO=0; 7 IA snapshots recorded in `docs/preregistration.md`.
+> - Workbook entry: `[920/920] hksj-q-floor-atlas`; target SynthÄ“sis Methods Note (340w draft, â‰¤400 cap).
+> - v0.2 candidates (NOT in v0.1.0): published-CI matching ("is THIS Cochrane review wrong?"), PM/SJ/Bayesian Ï„Â² robustness, DL re-pooling, Bitcoin OTS once Python 3.13 issue is resolved.
+
+### D-drive legacy smoke-contract continuation (2026-05-12)
+> - `D:\Projects\mahmood789\786-MIII-Mean-single-group\`: fixed the placeholder issue-tracker link in `README.md` and added a pytest-visible static contract for the Shiny app package surface, sample-data schema, metafor workflow, downloads, and absence of local paths/template links. Verification: `pytest -q -p no:cacheprovider` -> `2 passed`; `git diff --check` -> PASS.
+
+ succeeded in 2426ms:
+   1: """EXPORTER -- SSOT object  ->  the build artefact the harness detectors read.
+   2: 
+   3: WHY THIS EXISTS
+   4:     The verification lane built 30 detectors, 20 of them artefact-decidable, and
+   5:     proved they block on 13 real past defects. They caught nothing here, because
+   6:     nothing produced the shape they read: `payloads_for()` extracted ZERO
+   7:     payloads from our objects (41 top-level keys on ARNI, 32 on FINERENONE_CV),
+   8:     and the gate then printed PASS on an artefact it could not see.
+   9: 
+  10:     INVOKED IS NOT SEEING. That is the join this file supplies, and it is the
+  11:     fifth instance of one meta-mechanism -- the action succeeded, the effect was
+  12:     never confirmed -- after push-is-not-deploy, the-repair-existing-is-not-the-
+  13:     repair-arriving, a-library-no-build-invokes, and writing-is-not-preserving.
+  14:     It is the first of the five caught BEFORE shipping rather than after.
+  15: 
+  16: THE RULE THIS FILE OBEYS ABOVE ALL OTHERS
+  17:     NEVER SYNTHESISE A FIELD. Where the object does not carry what a detector
+  18:     needs, the field is OMITTED, which the harness reports as NOT APPLICABLE --
+  19:     a different statement from "checked and clean". A guessed `direction_of_
+  20:     benefit` or an assumed `declared_class` would produce confident green on
+  21:     exactly the detectors that exist to catch confident green.
+  22: 
+  23:     Every omission is counted and printed. An export that activates few checks
+  24:     must look thin, not clean.
+  25: 
+  26: WHAT A FULL PASS OF THE GATE ON THESE ARTEFACTS DOES NOT ESTABLISH
+  27:     - NOT that the page is correct: 10 of 30 detectors are retrieval-scoped and
+  28:       cannot run against any static artefact.
+  29:     - NOT that the object is complete. An absent field yields no payload, and no
+  30:       payload is not a pass.
+  31:     - NOT that this mapping is faithful. That is what the fixture-replay
+  32:       acceptance test is for, and until a REAL past defect in a REAL object is
+  33:       blocked through this exporter, the mapping is unvalidated however many
+  34:       fixtures pass.
+  35: """
+  36: from __future__ import annotations
+  37: 
+  38: import argparse, io, json, os, re, sys
+  39: 
+  40: sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+  41: import retirement as R                                       # noqa: E402
+  42: 
+  43: if __name__ == "__main__":
+  44:     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+  45: 
+  46: REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+  47: 
+  48: # Sentinels the reader must never meet. Kept here rather than defaulted inside
+  49: # the harness so the list is visible at the point of export.
+  50: SENTINELS = ["NOT RECOVERABLE FROM THE PAGE", "REPLACE_ME", "__PLACEHOLDER__",
+  51:              "{{", "TODO", "undefined", "NaN"]
+  52: 
+  53: 
+  54: # THE TWO VOCABULARIES, WRITTEN DOWN. Left: what the SSOT objects say. Right:
+  55: # (stored_scale, back_transform) as the harness detectors read them. Anything not
+  56: # in this table is NOT mapped and the fields are omitted -- an unmappable scale
+  57: # must reach the detector as "not declared", never as a guess.
+  58: _SCALE_VOCAB = {
+  59:     "log":      ("log", "exp"),
+  60:     "linear":   ("natural", "identity"),
+  61:     "natural":  ("natural", "identity"),
+  62:     "identity": ("natural", "identity"),
+  63: }
+  64: 
+  65: 
+  66: def _measure_for(results, oid, trial):
+  67:     """The effect MEASURE this object records for this trial-outcome, or None.
+  68: 
+  69:     The objects carry the measure on `results.by_outcome[oid].per_trial[]` and
+  70:     usually NOT on the trial's own effect block, so reading only the effect block
+  71:     left `measure` null on nine of ten rows and CHK021 returned INVALID -- ran,
+  72:     saw nothing, reported nothing. This joins the two places the object records
+  73:     the same fact. It is a LOOKUP, not an inference: no match, no measure.
+  74:     """
+  75:     tid, nct = trial.get("id"), trial.get("nct")
+  76:     for row in ((results.get(oid) or {}).get("per_trial") or []):
+  77:         if (nct and row.get("nct") == nct) or (tid and row.get("trial_id") == tid):
+  78:             return row.get("measure")
+  79:     return None
+  80: 
+  81: 
+  82: def _visible(html):
+  83:     html = re.sub(r"<(script|style)\b[^>]*>.*?</\1\s*>", " ", html, flags=re.S | re.I)
+  84:     return re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", html))
+  85: 
+  86: 
+  87: def _pool_from_outcome(oid, res, outcome_def, omissions):
+  88:     """One pool payload. Returns None when the object cannot support one."""
+  89:     per = res.get("per_trial") or []
+  90:     pooled = res.get("pooled") or {}
+  91:     if not per:
+  92:         omissions.append("%s: no per_trial rows -> no pool payload" % oid)
+  93:         return None
+  94: 
+  95:     entries, rows = [], []
+  96:     for t in per:
+  97:         est = t.get("log_point")
+  98:         se = t.get("log_se")
+  99:         # The estimate/variance pair is what the duplicate and measure-mixing
+ 100:         # detectors compare. Deriving variance from a CI we already stored is a
+ 101:         # READ, not a guess; inventing one where no CI exists would not be.
+ 102:         if est is None or se is None:
+ 103:             omissions.append("%s/%s: no log_point+log_se -> entry omitted"
+ 104:                              % (oid, t.get("trial_id") or "?"))
+ 105:             continue
+ 106:         entries.append({
+ 107:             "id": t.get("trial_id") or t.get("nct") or "?",
+ 108:             "estimate": est,
+ 109:             "variance": se * se,
+ 110:             "measure": t.get("measure"),
+ 111:             # direction_of_benefit and intervention are NOT synthesised. The
+ 112:             # object records direction at OUTCOME level, so it is read from
+ 113:             # there; intervention is omitted unless the trial names one.
+ 114:             **({"direction_of_benefit": "efficacy"}
+ 115:                if (outcome_def or {}).get("direction_of_benefit") else {}),
+ 116:         })
+ 117:         rows.append(t)
+ 118: 
+ 119:     if not entries:
+ 120:         return None
+ 121: 
+ 122:     panel_rows = []
+ 123:     for t in per:
+ 124:         # A NULLED ENTRY IS NOT A CONTRIBUTING TRIAL AND MUST NOT BE COUNTED AS ONE.
+ 125:         # `finerenone-review` carries `NULLED:NCT01874431` in `per_trial` with a value while
+ 126:         # `k` is 3, so the panel showed four rows under a headline stating three --
+ 127:         # CHK009_POOL_IDENTITY, correctly. The entry stays on the object; it leaves the count.
+ 128:         if t.get("nulled") or str(t.get("trial_id") or t.get("nct") or "").startswith("NULLED:"):
+ 129:             continue
+ 130:         panel_rows.append({
+ 131:             "id": t.get("trial_id") or t.get("nct") or "?",
+ 132:             "outcome": res.get("estimand_id") or oid,
+ 133:             "population": t.get("population") or "randomised",
+ 134:             "window": "full",
+ 135:         })
+ 136: 
+ 137:     pool = {
+ 138:         "pool_id": oid,
+ 139:         "headline_k": res.get("k"),
+ 140:         "headline_outcome": res.get("estimand_id") or oid,
+ 141:         "panel_rows": panel_rows,
+ 142:         "entries": entries,
+ 143:     }
+ 144:     # declared_class is REQUIRED by the cross-agent detector and must never be
+ 145:     # invented: its absence is the defect that detector exists to catch.
+ 146:     dc = ((outcome_def or {}).get("declared_class")
+ 147:           or res.get("declared_class")
+ 148:           or (res.get("pool_uniformity") or {}).get("declared_class"))
+ 149:     if dc:
+ 150:         pool["declared_class"] = dc
+ 151:     else:
+ 152:         omissions.append("%s: no declared_class in the object -- LEFT ABSENT, "
+ 153:                          "which is what CHK on cross-agent pooling reads" % oid)
+ 154:     if pooled.get("point") is not None:
+ 155:         # The harness compares entry estimates on the SAME scale they are stored
+ 156:         # on. Our pooled point is natural-scale for ratios; the log is what the
+ 157:         # entries carry, so the log is what is exported.
+ 158:         import math
+ 159:         p = pooled["point"]
+ 160:         pool["pooled_estimate"] = (math.log(p) if (pooled.get("scale") == "log"
+ 161:                                                    and p > 0) else p)
+ 162:     return pool
+ 163: 
+ 164: 
+ 165: def export(obj, page_html=None):
+ 166:     """SSOT object -> artefact dict. Omits what the object does not carry."""
+ 167:     omissions = []
+ 168:     art = {}
+ 169:     art["page_id"] = obj.get("app_id") or "<unnamed>"
+ 170: 
+ 171:     bm = (obj.get("build_mode") or "").upper()
+ 172:     if bm:
+ 173:         art["build_path"] = "converted" if bm == "CONVERTED" else "author"
+ 174:         art["page_provenance"] = ("converted" if bm == "CONVERTED"
+ 175:                                   else "authored-reconciliation")
+ 176: 
+ 177:     # THE ARTEFACT CARRIES ITS OWN STATE, the same way a page carries `rapidmeta:page-state`.
+ 178:     # Downstream, `harness_gate.py` sees only artefacts -- it cannot open the object -- so an
+ 179:     # artefact from a topic that publishes no estimate looked identical to one from an adapter
+ 180:     # that recognised nothing. Two different states, indistinguishable, which is exactly the
+ 181:     # confusion this project keeps paying for. The exporter knows the difference and stamps it.
+ 182:     _pr = (((obj.get("results") or {}).get("by_outcome") or {}).get("primary") or {})
+ 183:     _pl = _pr.get("pooled") or {}
+ 184:     _k = _pr.get("k")
+ 185:     if _pl.get("point") is None and (_pl.get("withdrawn") or _pl.get("absent")
+ 186:                                      or (isinstance(_k, int) and _k < 2)):
+ 187:         art["publishes_no_estimate"] = {
+ 188:             "k": _k,
+ 189:             "because": ("withdrawn" if _pl.get("withdrawn") else
+ 190:                         "absent" if _pl.get("absent") else
+ 191:                         "k<2 -- one trial is not a meta-analysis"),
+ 192:             "means": ("This artefact yielding ZERO check executions is the CORRECT result, not "
+ 193:                       "an adapter that recognised nothing. PUBLISHES-NOTHING and UNRECOGNISED "
+ 194:                       "are different states and are never summed."),
+ 195:             "stamped_by": "scripts/export_artefact.py",
+ 196:         }
+ 197: 
+ 198:     trials = ((obj.get("inputs") or {}).get("trials")) or []
+ 199:     data_ids = [t.get("nct") or t.get("id") for t in trials if (t.get("nct") or t.get("id"))]
+ 200: 
+ 201:     results = ((obj.get("results") or {}).get("by_outcome")) or {}
+ 202:     engine_ids = []
+ 203:     for res in results.values():
+ 204:         for t in (res.get("per_trial") or []):
+ 205:             v = t.get("nct") or t.get("trial_id")
+ 206:             if v and v not in engine_ids:
+ 207:                 engine_ids.append(v)
+ 208: 
+ 209:     if data_ids and engine_ids:
+ 210:         art["engine_trial_ids"] = engine_ids
+ 211:         art["data_trial_ids"] = data_ids
+ 212:     else:
+ 213:         omissions.append("engine/data trial ids incomplete -> inert-engine check "
+ 214:                          "not emitted")
+ 215: 
+ 216:     outcomes = {o.get("id"): o for o in (obj.get("outcomes") or [])}
+ 217:     pools = []
+ 218:     any_pooled = None
+ 219:     for oid, res in results.items():
+ 220:         p = _pool_from_outcome(oid, res, outcomes.get(oid), omissions)
+ 221:         if p:
+ 222:             pools.append(p)
+ 223:         if (res.get("pooled") or {}).get("point") is not None:
+ 224:             any_pooled = res["pooled"]["point"]
+ 225:     if pools:
+ 226:         art["pools"] = pools
+ 227: 
+ 228:     # POOL CAPABILITY, PER OUTCOME -- AND THE FLATTENING IT REPLACES WAS A JOIN
+ 229:     # DEFECT, not a tuning choice.
+ 230:     #
+ 231:     # The previous version collapsed three per-outcome facts into one triple:
+ 232:     # engine_can_pool was ANDed across EVERY outcome, displayed_pooled_estimate
+ 233:     # was whichever outcome came last with a number, and engine_block_reason was
+ 234:     # the first outcome that said false. On SOTAGLIFLOZIN that produced a FAIL
+ 235:     # joining the hfcv_first pool's displayed 0.7488 to mace3_first's reason --
+ 236:     # "only one contributing trial reports this estimand" -- which is TRUE, of a
+ 237:     # DIFFERENT ESTIMAND. Two of the three fields came from outcomes the third
+ 238:     # had nothing to do with, and the detector had no way to know.
+ 239:     #
+ 240:     # It blocked a push, so this one failed toward ALARM. That is the rarer
+ 241:     # direction and the reason it was found in minutes rather than surviving a
+ 242:     # day feeding false assurance. It is still not the safe kind of wrong: acting
+ 243:     # on it would have meant withdrawing a sound estimate, and a withdrawal needs
+ 244:     # the same evidentiary standard as a claim.
+ 245:     #
+ 246:     # READ FROM THE OBJECT'S OWN POOLABILITY VERDICT, never from "is there a
+ 247:     # number": a displayed estimate on an outcome the object says cannot pool is
+ 248:     # precisely the orphan defect, and deriving the verdict from the presence of
+ 249:     # the number would make it unfindable.
+ 250:     caps = []
+ 251:     for oid, res in results.items():
+ 252:         if res.get("poolable") is None:
+ 253:             continue
+ 254:         can = bool(res.get("poolable"))
+ 255:         # A SINGLE-TRIAL RESULT IS NOT AN ORPHAN POOL.
+ 256:         # `poolable: false` was carrying two incompatible meanings: "this cannot
+ 257:         # legitimately be pooled" and "there is only one trial here". CHK020 read
+ 258:         # the first and blocked BEMPEDOIC_ACID, whose displayed 0.87 IS CLEAR
+ 259:         # Outcomes' own registered hazard ratio -- a value whose derivation is not
+ 260:         # missing, because nothing needed deriving. The third condition is now
+ 261:         # stated rather than inferred, so the check can tell "no derivation" from
+ 262:         # "no synthesis required". An object with poolable=false, k>1, a displayed
+ 263:         # value and NO single_study_ref is untouched by this and still fails, which
+ 264:         # is the real orphan defect.
+ 265:         _single = res.get("single_study_ref")
+ 266:         _k = res.get("k")
+ 267:         _is_single = bool(_single) and _k == 1
+ 268:         caps.append({
+ 269:             "outcome_id": oid,
+ 270:             "displayed_pooled_estimate": (res.get("pooled") or {}).get("point"),
+ 271:             "engine_can_pool": can or _is_single,
+ 272:             "single_study": _is_single,
+ 273:             "single_study_ref": _single if _is_single else "",
+ 274:             # EMIT IN BOTH STATES. This field was written only when poolability
+ 275:             # was FALSE, so CHK020_ORPHAN_POOLED_RESULT returned INVALID on every
+ 276:             # clean artefact: it could not tell "can pool" from "was never
+ 277:             # asked". That is an ABSENT FIELD STANDING FOR A TRUE CONDITION --
+ 278:             # exactly what declared_class taught, committed in the exporter
+ 279:             # written to avoid it. An explicit value is not a synthesised one: it
+ 280:             # states which branch the object recorded FOR THIS OUTCOME.
+ 281:             "engine_block_reason": (
+ 282:                 "" if (can or _is_single) else
+ 283:                 (res.get("poolable_reason")
+ 284:                  or "the object records poolable=false with no reason given")),
+ 285:         })
+ 286:     if caps:
+ 287:         art["pool_capability"] = caps
+ 288:     else:
+ 289:         omissions.append("no poolable verdict in the object -> orphan-pool check "
+ 290:                          "not emitted")
+ 291: 
+ 292:     # rows: the per-trial numbers the back-transform and precision-sample
+ 293:     # detectors read. Counts come from the trial's own arms, not from anywhere else.
+ 294:     rows = []
+ 295:     for t in trials:
+ 296:         arms = {a.get("role"): a for a in (t.get("arms") or []) if a.get("role")}
+ 297:         tre, con = arms.get("treatment") or {}, arms.get("control") or {}
+ 298:         for oid, bo in (t.get("by_outcome") or {}).items():
+ 299:             eff = bo.get("effect") or {}
+ 300:             if eff.get("point") is None:
+ 301:                 continue
+ 302:             row = {"row_id": "%s::%s" % (t.get("nct") or t.get("id") or "?", oid),
+ 303:                    "estimate": eff.get("point"),
+ 304:                    "ci_low": eff.get("ci_low"), "ci_high": eff.get("ci_high"),
+ 305:                    "measure": eff.get("measure") or _measure_for(results, oid, t)}
+ 306:             # SCALE VOCABULARY, TRANSLATED RATHER THAN PASSED THROUGH OR GUESSED.
+ 307:             #
+ 308:             # Two defects lived on this line. The objects write "linear" for a
+ 309:             # natural-scale difference and the detector's vocabulary is
+ 310:             # "natural", so EVERY difference-measure row in this corpus produced
+ 311:             # a false FAIL -- "MD is a difference on the natural scale but is
+ 312:             # stored as 'linear'" -- which is the adapter's word for exactly the
+ 313:             # thing the detector was asking for. A field-name contract across a
+ 314:             # module boundary, unstated and therefore unchecked.
+ 315:             #
+ 316:             # The worse one was the fallback: `eff.get("scale") or "log"`. An
+ 317:             # object that records no scale had one ASSERTED for it, and "log" is
+ 318:             # the assertion that makes a difference measure look like a ratio.
+ 319:             # That is a synthesised field in the exporter whose own first rule is
+ 320:             # never to synthesise a field, and it fails toward comfort -- the
+ 321:             # detector cannot tell a declared scale from a defaulted one.
+ 322:             _sc = (eff.get("scale") or "").strip().lower()
+ 323:             if _sc in _SCALE_VOCAB:
+ 324:                 row["stored_scale"], row["back_transform"] = _SCALE_VOCAB[_sc]
+ 325:             else:
+ 326:                 omissions.append(
+ 327:                     "%s: scale %r is not one this exporter can map -> the "
+ 328:                     "measure/scale check is NOT emitted for this row, which is "
+ 329:                     "not a pass on it" % (row["row_id"], eff.get("scale")))
+ 330:             if tre.get("events") is not None and con.get("events") is not None:
+ 331:                 row.update({"events_t": tre.get("events"), "n_t": tre.get("participants"),
+ 332:                             "events_c": con.get("events"), "n_c": con.get("participants")})
+ 333:             else:
+ 334:                 omissions.append("%s: no per-arm counts -> precision-sample check "
+ 335:                                  "cannot run on this row" % row["row_id"])
+ 336:             rows.append(row)
+ 337:     if rows:
+ 338:         art["rows"] = rows
+ 339: 
+ 340:     # claimed_method: read, never assumed. An NMA claim with no network is the
+ 341:     # defect; a pairwise object simply says pairwise.
+ 342:     cm = (obj.get("config") or {}).get("method_class") or obj.get("method_class")
+ 343:     if cm:
+ 344:         art["claimed_method"] = cm
+ 345:         art["network_edges"] = obj.get("network_edges") or []
+ 346:     elif results:
+ 347:         art["claimed_method"] = "pairwise"
+ 348:         art["network_edges"] = []
+ 349: 
+ 350:     if page_html:
+ 351:         art["reader_text"] = _visible(page_html)[:200000]
+ 352:         art["sentinels"] = SENTINELS
+ 353:         art["numeric_fields"] = [
+ 354:             {"field_id": "raw-%d" % i, "raw": m,
+ 355:              "naive_value": float(re.sub(r"[^0-9.\-]", "", m) or 0)}
+ 356:             for i, m in enumerate(re.findall(r"&minus;\s*[\d.]+|&#8722;\s*[\d.]+",
+ 357:                                              page_html)[:40])]
+ 358:         if not art["numeric_fields"]:
+ 359:             art.pop("numeric_fields")
+ 360:     else:
+ 361:         omissions.append("no page HTML given -> sentinel-leak and unicode-minus "
+ 362:                          "checks not emitted")
+ 363: 
+ 364:     return art, omissions
+ 365: 
+ 366: 
+ 367: def selftest():
+ 368:     """REPLAYS THE JOIN DEFECT ON THE OBJECT THAT PRODUCED IT.
+ 369: 
+ 370:     Not a fixture. SOTAGLIFLOZIN carries three outcomes -- two pooled at k=2 and
+ 371:     one reported from a single trial with poolable=false -- which is the exact
+ 372:     shape that made the flattened export attach mace3_first's reason to
+ 373:     hfcv_first's displayed 0.7488 and block a push over a defect that did not
+ 374:     exist. The old join is recomputed here so the test can show it failing; a
+ 375:     test that only exercises the new code proves the fix runs, not that it fixes
+ 376:     anything.
+ 377:     """
+ 378:     ok = True
+ 379:     p = os.path.join(REPO, "ssot", "sotagliflozin-hf", "sotagliflozin-hf.json")
+ 380:     if not os.path.exists(p):
+ 381:         print("  fixture absent: sotagliflozin-hf -- NOT PROVEN")
+ 382:         return 1
+ 383:     obj = json.loads(open(p, encoding="utf-8").read())
+ 384:     results = (obj.get("results") or {}).get("by_outcome") or {}
+ 385: 
+ 386:     # THE OLD JOIN, recomputed exactly as it was.
+ 387:     old_can = all(bool(r.get("poolable")) for r in results.values()
+ 388:                   if r.get("poolable") is not None)
+ 389:     old_shown = None
+ 390:     for r in results.values():
+ 391:         if (r.get("pooled") or {}).get("point") is not None:
+ 392:             old_shown = r["pooled"]["point"]
+ 393:     old_would_fail = old_shown is not None and not old_can
+ 394:     print("  POSITIVE the flattened join on this object -> orphan FAIL: %-5s %s"
+ 395:           % (old_would_fail, "correct -- this is the defect" if old_would_fail
+ 396:              else "the replay proved nothing: the object no longer has the shape"))
+ 397:     ok &= old_would_fail
+ 398: 
+ 399:     art, _ = export(obj)
+ 400:     caps = art.get("pool_capability") or []
+ 401:     print("  per-outcome capability entries: %d" % len(caps))
+ 402:     bad = [c for c in caps
+ 403:            if c.get("displayed_pooled_estimate") is not None
+ 404:            and not c.get("engine_can_pool")]
+ 405:     for c in caps:
+ 406:         print("      %-14s displayed=%-8s can_pool=%-5s %s"
+ 407:               % (c["outcome_id"], c["displayed_pooled_estimate"],
+ 408:                  c["engine_can_pool"], (c["engine_block_reason"] or "")[:46]))
+ 409:     print("  NEGATIVE per-outcome, on the same object -> orphan FAIL: %-5s %s"
+ 410:           % (bool(bad), "correct" if not bad else "WRONG"))
+ 411:     ok &= not bad
+ 412:     ok &= len(caps) >= 2
+ 413: 
+ 414:     # A REASON MUST BELONG TO ITS OWN OUTCOME. A capability that can pool must
+ 415:     # carry no block reason at all -- that is what stops a reason migrating
+ 416:     # across estimands the way the flattened version let it.
+ 417:     stray = [c for c in caps if c["engine_can_pool"] and c["engine_block_reason"]]
+ 418:     print("  NEGATIVE a poolable outcome carrying a block reason: %-5s %s"
+ 419:           % (bool(stray), "correct" if not stray else "WRONG"))
+ 420:     ok &= not stray
+ 421: 
+ 422:     # SCALE VOCABULARY, replayed on the object that exposed it. IV iron carries a
+ 423:     # mean difference stored as "linear"; the detector's word is "natural", and
+ 424:     # the mismatch produced a FAIL saying the row was not on the scale it was
+ 425:     # already on. The second half matters more: an object with NO scale must
+ 426:     # yield NO scale fields, because the old `or "log"` default asserted the one
+ 427:     # value that makes a difference measure look like a ratio.
+ 428:     p2 = os.path.join(REPO, "ssot", "iv-iron-hf", "iv-iron-hf.json")
+ 429:     if os.path.exists(p2):
+ 430:         iv = json.loads(open(p2, encoding="utf-8").read())
+ 431:         art2, _ = export(iv)
+ 432:         rows = {r["row_id"]: r for r in (art2.get("rows") or [])}
+ 433:         md = rows.get("NCT01453608::six_min_walk_24w") or {}
+ 434:         good = (md.get("measure") == "MD" and md.get("stored_scale") == "natural"
+ 435:                 and md.get("back_transform") == "identity")
+ 436:         ok &= good
+ 437:         print("  NEGATIVE a mean difference stored as 'linear' -> %r/%r %s"
+ 438:               % (md.get("stored_scale"), md.get("back_transform"),
+ 439:                  "correct" if good else "WRONG -- the false FAIL is back"))
+ 440:         named = sum(1 for r in art2.get("rows") or [] if r.get("measure"))
+ 441:         ok &= named == len(art2.get("rows") or [])
+ 442:         print("  NEGATIVE every row carries the measure the object records: %d/%d %s"
+ 443:               % (named, len(art2.get("rows") or []),
+ 444:                  "correct" if named == len(art2.get("rows") or []) else "WRONG"))
+ 445: 
+ 446:         stripped = json.loads(json.dumps(iv))
+ 447:         for t in stripped["inputs"]["trials"]:
+ 448:             for bo in (t.get("by_outcome") or {}).values():
+ 449:                 (bo.get("effect") or {}).pop("scale", None)
+ 450:         art3, om3 = export(stripped)
+ 451:         leaked = [r for r in (art3.get("rows") or []) if "stored_scale" in r]
+ 452:         ok &= not leaked
+ 453:         print("  POSITIVE an object with no scale recorded -> scale asserted on "
+ 454:               "%d row(s) %s" % (len(leaked), "correct" if not leaked else
+ 455:                                 "WRONG -- the exporter is inventing a scale"))
+ 456:     else:
+ 457:         print("  fixture absent: iv-iron-hf -- NOT PROVEN"); ok = False
+ 458: 
+ 459:     print("\nWHAT A FAILURE WOULD LOOK LIKE: a displayed estimate paired with a "
+ 460:           "reason that is true of a different estimand, blocking a push and "
+ 461:           "arguing for the withdrawal of a sound number; or a scale the object "
+ 462:           "never recorded, asserted by the adapter and checked as though it had.")
+ 463:     print("-> SELFTEST PASS" if ok else "-> SELFTEST FAILED")
+ 464:     return 0 if ok else 1
+ 465: 
+ 466: 
+ 467: def main():
+ 468:     if "--selftest" in sys.argv:
+ 469:         return selftest()
+ 470:     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+ 471:     ap.add_argument("objects", nargs="+", help="ssot/<app>/<app>.json files")
+ 472:     ap.add_argument("--outdir", default=os.path.join(REPO, "build-artefacts"))
+ 473:     ap.add_argument("--page", default="", help="optional built HTML for one object")
+ 474:     a = ap.parse_args()
+ 475:     os.makedirs(a.outdir, exist_ok=True)
+ 476:     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+ 477:     from nafis_harness.artefact import payloads_for
+ 478: 
+ 479:     total_payloads = 0
+ 480:     retired = []
+ 481:     for src in a.objects:
+ 482:         obj = json.loads(open(src, encoding="utf-8").read())
+ 483:         # A RETIRED TOPIC IS NOT AN UNRECOGNISED ONE, and folding the two together would make
+ 484:         # this gate refuse every merge for the rest of the project's life.
+ 485:         #
+ 486:         # A tombstone deliberately holds no `results` and no top-level `inputs.trials` -- it
+ 487:         # holds the object it replaced, nested, plus who absorbed it and when. So the exporter
+ 488:         # correctly produces zero payloads for it, and the "nothing checkable" refusal below
+ 489:         # correctly fires on a corpus of nothing BUT tombstones. The two states are distinct:
+ 490:         #   UNRECOGNISED  the exporter looked and could not read the object -- a real failure
+ 491:         #   RETIRED       the object declares itself retired -- there is nothing to check, and
+ 492:         #                 that is the correct and intended state
+ 493:         # Counted separately, and a run consisting only of tombstones is reported as such rather
+ 494:         # than as an exporter that recognised nothing.
+ 495:         # RETIREMENT IS DECIDED BY `state` ALONE -- see scripts/retirement.py. This test read
+ 496:         # `state == RETIRED **and** o.get("absorbed_by")`, which made the successor field a
+ 497:         # PRECONDITION for seeing a tombstone at all. A topic retired by SPLIT records
+ 498:         # `split_into`, so it was not recognised as retired and fell through to the live path.
+ 499:         if R.is_retired(obj):
+ 500:             retired.append((os.path.basename(src), R.successor_label(obj)))
+ 501:             print("%-34s -> RETIRED, succeeded by %-26s  no payload BY DESIGN"
+ 502:                   % (os.path.basename(src), R.successor_label(obj)))
+ 503:             continue
+ 504:         html = None
+ 505:         if a.page and os.path.exists(a.page):
+ 506:             html = open(a.page, encoding="utf-8", errors="replace").read()
+ 507:         art, omissions = export(obj, html)
+ 508:         n = len(payloads_for(art))
+ 509:         total_payloads += n
+ 510:         out = os.path.join(a.outdir, (obj.get("app_id") or "unnamed") + ".json")
+ 511:         with open(out, "w", encoding="utf-8") as fh:
+ 512:             json.dump(art, fh, indent=1)
+ 513:         print("%-34s -> %-46s %2d check payload(s)"
+ 514:               % (os.path.basename(src), os.path.relpath(out, REPO), n))
+ 515:         for o in omissions[:6]:
+ 516:             print("      omitted: %s" % o)
+ 517:         if len(omissions) > 6:
+ 518:             print("      omitted: ... and %d more" % (len(omissions) - 6))
+ 519:     if retired:
+ 520:         print("\n%d of the %d object(s) are RETIRED TOMBSTONES and produce no payload by "
+ 521:               "design: %s" % (len(retired), len(a.objects),
+ 522:                               ", ".join("%s -> %s" % r for r in retired)))
+ 523:     if total_payloads == 0:
+ 524:         if retired and len(retired) == len(a.objects):
+ 525:             print("EVERY object in this run is a retired tombstone. There is nothing to check "
+ 526:                   "and that is the CORRECT state, not an exporter that recognised nothing. "
+ 527:                   "RETIRED and UNRECOGNISED are different states and are never summed.")
+ 528:             return 0
+ 529:         # A THIRD LEGITIMATE STATE, and the third instrument to have lacked the concept. The
+ 530:         # tombstone case above was encoded when the merge gates refused a retired page. This is
+ 531:         # the same missing idea one state along: A LIVE REVIEW THAT PUBLISHES NO ESTIMATE has
+ 532:         # nothing to check either. `mavacamten-ohcm-review` holds ONE trial -- no per-trial
+ 533:         # rows, no poolable verdict, no pool -- so every detector correctly declines, and the
+ 534:         # run then read as an exporter that recognised nothing.
+ 535:         #
+ 536:         # ENCODED, NOT EXEMPTED. The object must SAY it publishes nothing: `pooled.point` is
+ 537:         # None AND the pool is explicitly `withdrawn` or `absent`, or k < 2. An object that
+ 538:         # simply FAILED to produce a payload -- one that claims a pool and yields no rows --
+ 539:         # still fails, which is the case this gate exists for.
+ 540:         declares_nothing, undecided = [], []
+ 541:         for src in a.objects:
+ 542:             with open(src, "r", encoding="utf-8") as fh:
+ 543:                 o = json.load(fh)
+ 544:             if str(o.get("state") or "").upper() == "RETIRED":
+ 545:                 continue
+ 546:             pr = (((o.get("results") or {}).get("by_outcome") or {}).get("primary") or {})
+ 547:             pl = pr.get("pooled") or {}
+ 548:             k = pr.get("k")
+ 549:             if pl.get("point") is None and (pl.get("withdrawn") or pl.get("absent")
+ 550:                                             or (isinstance(k, int) and k < 2)):
+ 551:                 declares_nothing.append("%s (k=%s, %s)" % (
+ 552:                     o.get("app_id"), k,
+ 553:                     "withdrawn" if pl.get("withdrawn") else
+ 554:                     "absent" if pl.get("absent") else "k<2"))
+ 555:             else:
+ 556:                 undecided.append(o.get("app_id"))
+ 557:         if declares_nothing and not undecided:
+ 558:             print("\nEVERY live object in this run DECLARES THAT IT PUBLISHES NO ESTIMATE: %s. "
+ 559:                   "There is nothing to check and that is the CORRECT state, not an exporter "
+ 560:                   "that recognised nothing. PUBLISHES-NOTHING and UNRECOGNISED are different "
+ 561:                   "states and are never summed." % ", ".join(declares_nothing))
+ 562:             return 0
+ 563:         print("\nNO CHECK PAYLOADS PRODUCED AT ALL. That is not a clean export; "
+ 564:               "it is an exporter that recognised nothing.")
+ 565:         if undecided:
+ 566:             print("These object(s) do NOT declare that they publish nothing, so producing no "
+ 567:                   "payload is a failure rather than a design: %s" % ", ".join(undecided))
+ 568:         return 2
+ 569:     return 0
+ 570: 
+ 571: 
+ 572: if __name__ == "__main__":
+ 573:     sys.exit(main())
+
+codex
+Defects found.
+
+- Shape: instrument reads a name, not its binding. Line 114. Input: `export({"outcomes":[{"id":"o","direction_of_benefit":"harm","declared_class":"x"}],"results":{"by_outcome":{"o":{"per_trial":[{"trial_id":"T1","log_point":0.0,"log_se":0.1,"measure":"HR"}]}}}})[0]["pools"][0]["entries"][0]`. Consequence: exported `direction_of_benefit` is `"efficacy"`, replacing the object’s recorded `"harm"`.
+
+- Shape: selector keyed to too-narrow form. Line 160. Input: same pool shape with `"pooled":{"point":0.5,"scale":"LOG"}`. Consequence: `pooled_estimate` exports as `0.5` instead of `log(0.5)`, so pooled and per-trial estimates are on different scales.
+
+- Shape: zero conflated with absent. Line 350. Input: `export({"app_id":"x"}, page_html="")`. Consequence: an existing empty page is treated as “no page HTML given”, so page-scoped sentinel/unicode-minus checks are not emitted.
+
+- Shape: negation dropped. Line 355. Input: `export({"app_id":"x"}, page_html="&minus; 1.25")[0]["numeric_fields"][0]["naive_value"]`. Consequence: the negative value exports as positive `1.25`, masking sign loss.
+
+- Shape: selector keyed to a form the page need not use. Line 356. Input: `export({"app_id":"x"}, page_html="− 1.25")[0].get("numeric_fields")`. Consequence: literal Unicode minus creates no numeric payload, so the unicode-minus marker cannot fire.
+
+- Shape: check cannot fail. Line 505. Input: CLI `python scripts/export_artefact.py obj.json --page missing.html`. Consequence: a requested missing page is silently treated as absent; if object payloads exist, page checks are skipped without a page-specific non-zero exit.
+
+No proven hit in this file for: probe keyed to the string a fix removes; idempotency guard satisfied by its own comment/marker; CRLF/LF text comparison; merged-cell/off-by-one tabulation.
+tokens used
+34,818
+Defects found.
+
+- Shape: instrument reads a name, not its binding. Line 114. Input: `export({"outcomes":[{"id":"o","direction_of_benefit":"harm","declared_class":"x"}],"results":{"by_outcome":{"o":{"per_trial":[{"trial_id":"T1","log_point":0.0,"log_se":0.1,"measure":"HR"}]}}}})[0]["pools"][0]["entries"][0]`. Consequence: exported `direction_of_benefit` is `"efficacy"`, replacing the object’s recorded `"harm"`.
+
+- Shape: selector keyed to too-narrow form. Line 160. Input: same pool shape with `"pooled":{"point":0.5,"scale":"LOG"}`. Consequence: `pooled_estimate` exports as `0.5` instead of `log(0.5)`, so pooled and per-trial estimates are on different scales.
+
+- Shape: zero conflated with absent. Line 350. Input: `export({"app_id":"x"}, page_html="")`. Consequence: an existing empty page is treated as “no page HTML given”, so page-scoped sentinel/unicode-minus checks are not emitted.
+
+- Shape: negation dropped. Line 355. Input: `export({"app_id":"x"}, page_html="&minus; 1.25")[0]["numeric_fields"][0]["naive_value"]`. Consequence: the negative value exports as positive `1.25`, masking sign loss.
+
+- Shape: selector keyed to a form the page need not use. Line 356. Input: `export({"app_id":"x"}, page_html="− 1.25")[0].get("numeric_fields")`. Consequence: literal Unicode minus creates no numeric payload, so the unicode-minus marker cannot fire.
+
+- Shape: check cannot fail. Line 505. Input: CLI `python scripts/export_artefact.py obj.json --page missing.html`. Consequence: a requested missing page is silently treated as absent; if object payloads exist, page checks are skipped without a page-specific non-zero exit.
+
+No proven hit in this file for: probe keyed to the string a fix removes; idempotency guard satisfied by its own comment/marker; CRLF/LF text comparison; merged-cell/off-by-one tabulation.

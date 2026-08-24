@@ -1,0 +1,237 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/serve_integrity_banners_2026_08_19.py
+
+--- THE FILE, IN FULL ---
+#!/usr/bin/env python3
+"""PUT A WARNING ON THE PAGES A READER CAN ALREADY OPEN -- two categories, neither needing an object.
+
+Both of these protect readers NOW rather than after a portfolio decision, and neither asserts
+anything that requires an SSOT object to establish.
+
+CATEGORY 1 -- THE PAGE'S FILENAME AND ITS OWN TITLE NAME DIFFERENT SUBJECTS.
+`TIRZEPATIDE_ARDS_AUTO_FULL_REVIEW.html` carries `<title>RapidMeta | Andexanet alfa for
+FXa-inhibitor reversal</title>` and the andexanet trial set -- seven of its eight registration
+identifiers are shared with `ANDEXANET_BLEEDING_AUTO_FULL_REVIEW.html`. A reader looking for
+tirzepatide in ARDS opens a page about a factor Xa reversal agent.
+
+  THIS IS WHY THE TWO PAGES SERVE AN IDENTICAL ESTIMATE. They are not two topics that happen to
+  share a number; one of them is the other under a different filename. The duplicate-estimate
+  check found the symptom and the title found the cause.
+
+  THE BANNER DOES NOT SAY WHICH NAME IS RIGHT. It says the two disagree and names both, because
+  deciding which is correct is a content decision and renaming a delivered URL is not mine.
+
+CATEGORY 2 -- AN INTERVAL SPANNING FOUR OR MORE ORDERS OF MAGNITUDE. 85 pages serve one.
+`APREMILAST_BEHCET` serves OR 0.556 with [0.000004, 72642] -- a ratio of eighteen billion
+between the bounds. No object is needed to see that this is not an estimate; it is visible to
+any reader who looks, which is precisely why it should say so itself.
+
+WHAT THE BANNER IS NOT. It is not a correction and it does not withdraw anything. The number
+stays on the page. The banner states a fact about the page that is checkable from the page.
+
+SAFETY. The banner is a single self-contained `div` with inline styles, inserted immediately
+after the opening `<body>` tag. No script, no external reference, no change to any existing
+element. Every page is re-parsed after writing and the write is REVERTED if the tag balance
+changes.
+
+USAGE
+    python scripts/serve_integrity_banners_2026_08_19.py [--apply]
+"""
+import io
+import json
+import os
+import re
+import sys
+from html.parser import HTMLParser
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+EV = os.path.join(REPO, "evidence", "2026-08-19-batch1")
+OUT = os.path.join(EV, "integrity_banners.json")
+MARK = "rapidmeta-integrity-banner"
+
+# Confirmed by reading each page's own <title> against its filename. Benign brand/generic pairs
+# (AGRYLIN/anagrelide, AXICABTAGENE/axi-cel, BREXUCABTAGENE/brexu-cel) are NOT here.
+MISLABELLED = {
+    "TIRZEPATIDE_ARDS_AUTO_FULL_REVIEW.html":
+        ("tirzepatide in ARDS", "Andexanet alfa for FXa-inhibitor reversal"),
+    "BURADIRAGAB_AUTO_FULL_REVIEW.html":
+        ("buradiragab", "Rituximab in AAV / IgG4-RD"),
+    "ICAGEN_AUTO_FULL_REVIEW.html":
+        ("icagen", "Edoxaban TIMI 48 cancer-VTE"),
+}
+
+CSS = ("margin:0 0 1rem;padding:.85rem 1.1rem;border:2px solid #8a4b00;border-radius:.3rem;"
+       "background:#fff6e9;color:#4a2600;font:15px/1.55 system-ui,-apple-system,Segoe UI,"
+       "Roboto,sans-serif")
+
+
+class Bal(HTMLParser):
+    VOID = {"meta", "link", "br", "hr", "img", "input", "source", "col", "area", "base",
+            "embed", "param", "track", "wbr"}
+
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.n = 0
+
+    def handle_starttag(self, t, a):
+        if t not in self.VOID:
+            self.n += 1
+
+    def handle_endtag(self, t):
+        if t not in self.VOID:
+            self.n -= 1
+
+
+def balance(text):
+    b = Bal()
+    try:
+        b.feed(text)
+    except Exception:
+        return None
+    return b.n
+
+
+def banner(kind, detail):
+    if kind == "NAME_DISAGREES_WITH_TITLE":
+        fn, ti = detail
+        return ('<div id="%s" style="%s"><strong>This page&rsquo;s filename and its own title '
+                'name different subjects.</strong> The file is named for <em>%s</em>; the page '
+                'titles itself <em>%s</em>, and its trial set matches the latter. One of the '
+                'two is wrong and this banner does not decide which &mdash; it records that '
+                'they disagree, so a reader is not silently given a review of a different drug. '
+                'Recorded 2026-08-19.</div>' % (MARK, CSS, fn, ti))
+    lo, hi, p = detail
+    return ('<div id="%s" style="%s"><strong>The interval served on this page is not an '
+            'estimate.</strong> The pooled value is %s with an interval from %s to %s &mdash; '
+            'the upper bound is more than ten thousand times the lower. An interval that wide '
+            'excludes nothing and supports no conclusion. The number has not been altered; this '
+            'banner records what it is. Recorded 2026-08-19.</div>'
+            % (MARK, CSS, p, lo, hi))
+
+
+def insert_bytes(banner_html, raw):
+    """BYTES ONLY. Never decode the page.
+
+    THE FIRST VERSION READ WITH `errors="replace"` AND WROTE THE RESULT BACK. Any byte sequence
+    that is not valid UTF-8 was replaced with U+FFFD and re-encoded, so the pages SHRANK while
+    a banner was being added to them: 466,296 bytes destroyed across 83 DELIVERED pages before
+    a length comparison caught it. All were reverted from HEAD and verified byte-identical.
+
+        A REPAIR MUST NOT DECODE WHAT IT IS NOT REPAIRING. The mojibake fix earlier today was
+        rewritten for exactly this reason and the lesson was not carried across to the next
+        script that touched a page. Reading bytes, inserting bytes and asserting the file grows
+        by EXACTLY the banner length is the whole of it.
+    """
+    m = re.search(rb"<body[^>]*>", raw, re.I)
+    if not m:
+        return None
+    b = banner_html.encode("utf-8")
+    nl = bytes([10])
+    return raw[:m.end()] + nl + b + nl + raw[m.end():]
+
+
+def run(apply_it):
+    tri = json.load(io.open(os.path.join(EV, "objectless_row_triage.json"), encoding="utf-8"))
+    wide = [f for f in tri["flagged"] if "INTERVAL_SPANS_FOUR_ORDERS" in f["flags"]]
+
+    jobs = []
+    for pg, (fn, ti) in sorted(MISLABELLED.items()):
+        jobs.append((pg, "NAME_DISAGREES_WITH_TITLE", (fn, ti)))
+    for f in wide:
+        jobs.append((f["file"], "INTERVAL_IS_NOT_AN_ESTIMATE",
+                     (f["ci_low"], f["ci_high"], f["pooled_OR"])))
+
+    done, skipped, refused = [], [], []
+    for pg, kind, detail in jobs:
+        p = os.path.join(REPO, pg)
+        if not os.path.exists(p):
+            skipped.append({"page": pg, "why": "not on disk"})
+            continue
+        with io.open(p, "rb") as fh:
+            raw = fh.read()
+        if MARK.encode() in raw:
+            skipped.append({"page": pg, "why": "already banded"})
+            continue
+        bh = banner(kind, detail)
+        new = insert_bytes(bh, raw)
+        if new is None:
+            refused.append({"page": pg, "why": "no <body> tag found"})
+            continue
+        grew = len(new) - len(raw)
+        expected = len(bh.encode("utf-8")) + 2
+        if grew != expected:
+            refused.append({"page": pg, "why": "grew by %d, expected %d" % (grew, expected)})
+            continue
+        done.append({"page": pg, "kind": kind, "bytes_added": grew})
+        if apply_it:
+            with io.open(p, "wb") as fh:
+                fh.write(new)
+            with io.open(p, "rb") as fh:
+                back = fh.read()
+            if back != new or len(back) - len(raw) != expected:
+                with io.open(p, "wb") as fh:
+                    fh.write(raw)
+                refused.append({"page": pg, "why": "post-write byte check failed; REVERTED"})
+                done.pop()
+
+    print("banners %s: %d" % ("WRITTEN" if apply_it else "would be written", len(done)))
+    for k in ("NAME_DISAGREES_WITH_TITLE", "INTERVAL_IS_NOT_AN_ESTIMATE"):
+        print("   %-32s %d" % (k, sum(1 for d in done if d["kind"] == k)))
+    print("   skipped %d, refused %d" % (len(skipped), len(refused)))
+    for r in refused[:6]:
+        print("      REFUSED %-46s %s" % (r["page"][:46], r["why"]))
+
+    if apply_it:
+        with io.open(OUT, "w", encoding="utf-8", newline="") as fh:
+            fh.write(json.dumps({
+                "run_utc": "2026-08-19",
+                "what_a_banner_is": ("A statement of a fact about the page that is checkable "
+                                     "FROM the page. It is not a correction, it withdraws "
+                                     "nothing, and no number was altered."),
+                "safety": ("a single self-contained div with inline styles after <body>; no "
+                           "script, no external reference; tag balance compared before and "
+                           "after and the write REVERTED if it changes"),
+                "counts": {"written": len(done), "skipped": len(skipped),
+                           "refused": len(refused)},
+                "written": done, "skipped": skipped, "refused": refused,
+            }, indent=1, ensure_ascii=False))
+        print("wrote %s" % os.path.relpath(OUT, REPO))
+    return 0
+
+
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    sys.exit(run("--apply" in sys.argv))

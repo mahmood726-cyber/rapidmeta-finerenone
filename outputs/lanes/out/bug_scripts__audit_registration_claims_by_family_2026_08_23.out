@@ -1,0 +1,271 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a0314c-d4b4-7530-8ca3-f8f393b6c652
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/audit_registration_claims_by_family_2026_08_23.py
+
+--- THE FILE, IN FULL ---
+"""Registration claims, split by family -- because only one of the two families is defective.
+
+# control: routed through require_controls with pages a census lane read. POSITIVE is
+# BARIATRIC_RYGB_VS_SG, reported as carrying a BARE UNVERIFIED COUNT with no identifier (47).
+# NEGATIVE is that the *_AUTO_FULL family must NOT be counted as making an unsupportable claim,
+# because it answers "No" honestly -- the error this script exists to avoid.
+
+REPORTING WHAT THE CORPUS DOES RIGHT IS PART OF THE MEASUREMENT, NOT A COURTESY. An earlier
+count said "422 pages assert a registration claim" and treated the whole set as one defect.
+That was wrong twice over, and the split is the finding:
+
+  THE HONEST FAMILY -- `*_AUTO_FULL`. Answers AMSTAR 2 item 2 with **No**: "Retrospective
+  public protocol pack ... not prospectively registered." That is a correct answer to a
+  question about itself, volunteered where a false Yes would never have been checked. IT NEEDS
+  NOTHING DONE TO IT, and a repair programme that rewrites it would be removing the one thing
+  on the page that was already right.
+
+  THE DEFECTIVE FAMILY -- hand-built NMA / broad reviews. Answers **Yes**, self-certified via
+  "This protocol tab (living protocol)", with no external registration identifier. A protocol
+  that registers itself, after the fact, on the page whose method it is describing, is not a
+  registration -- it is the claim restating itself. Only this group is making an unsupportable
+  claim and only this group is counted as a defect.
+
+AND A WORSE VARIANT OF THE UNVERIFIED-IDENTIFIER PROBLEM, COUNTED SEPARATELY BECAUSE THE
+REASONING SHOULD BE TESTED RATHER THAN TAKEN:
+
+    "156 number(s) on this page marked UNVERIFIED -- no resolvable trial id"
+
+The argument for separating these is that a NAMED unresolvable NCT can be looked up by a
+reader and argued with, whereas a bare COUNT cannot be checked at all -- it reports a quantity
+of doubt without exposing anything to inspect. This run prints both populations and the
+overlap so the distinction can be inspected rather than assumed; if a page turns out to carry
+BOTH a bare count and named ids, the argument is weaker than it looks and the overlap column
+is where that shows.
+"""
+from __future__ import annotations
+
+import collections
+import io
+import json
+import os
+import re
+import subprocess
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from instrument_controls import require_controls  # noqa: E402
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+REF = "origin/main"
+CLASSES = os.path.join(REPO, "outputs", "five_bucket_classes_2026_08_23.json")
+OUT = os.path.join(REPO, "outputs", "registration_claims_by_family_2026_08_23.json")
+
+# AMSTAR 2 item 2, answered Yes, self-certified by pointing at the page's own protocol tab.
+SELF_CERT = re.compile(
+    r"(?is)protocol registered before commencement.{0,400}?\byes\b.{0,300}?"
+    r"(this protocol tab|living protocol)")
+# The same item answered No, with the reason given.
+HONEST_NO = re.compile(
+    r"(?is)protocol registered before commencement.{0,400}?\bno\b.{0,300}?"
+    r"(retrospective|not prospectively registered)")
+# A bare count of unverified numbers, with no identifier exposed.
+BARE_COUNT = re.compile(
+    r"(?i)(\d{1,4})\s*number\(?s?\)?\s*on this page marked\s*UNVERIFIED")
+# A named identifier flagged unverified -- checkable by a reader.
+NAMED_UNVERIFIED = re.compile(r"(?i)UNVERIFIED.{0,200}?\b(NCT\d{8})\b")
+
+
+def git(*a):
+    return subprocess.run(["git"] + list(a), cwd=REPO, capture_output=True)
+
+
+def text(p):
+    r = git("show", "%s:%s" % (REF, p))
+    return "" if r.returncode else r.stdout.decode("utf-8", "replace")
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    if not os.path.isfile(CLASSES):
+        sys.exit("REFUSED: %s is missing. Run classify_five_buckets first -- this script "
+                 "reports per family and cannot invent the families."
+                 % os.path.relpath(CLASSES, REPO))
+    cls = json.load(io.open(CLASSES, encoding="utf-8"))
+    names = sorted(set(cls.get("legacy", []) + cls.get("audit-first", [])
+                       + cls.get("unclassifiable", [])))
+
+    ctrl = text("BARIATRIC_RYGB_VS_SG_REVIEW.html")
+    ctrl_bare = bool(BARE_COUNT.search(ctrl)) if ctrl else None
+    sample_full = next((n for n in names if "_AUTO_FULL" in n and HONEST_NO.search(text(n))),
+                       None)
+    require_controls(
+        "registration_claims_by_family",
+        ("BARIATRIC_RYGB_VS_SG carries a bare UNVERIFIED count with no identifier "
+         "(reported by a census lane reading the page)", bool(ctrl_bare), True),
+        ("an *_AUTO_FULL page answering 'No -- retrospective, not prospectively registered' "
+         "is NOT counted as self-certifying (found %s)" % sample_full,
+         bool(sample_full) and bool(SELF_CERT.search(text(sample_full))), True))
+
+    fam = collections.Counter()
+    self_cert, honest, bare, named, both = [], [], [], [], []
+    bare_totals = {}
+    read = 0
+    for n in names:
+        t = text(n)
+        if not t:
+            continue
+        read += 1
+        f = "AUTO_FULL" if "_AUTO_FULL" in n else (
+            "AUTO_2" if "_AUTO_2" in n else "NMA/broad")
+        fam[f] += 1
+        sc = bool(SELF_CERT.search(t))
+        hn = bool(HONEST_NO.search(t))
+        bc = BARE_COUNT.search(t)
+        nu = NAMED_UNVERIFIED.search(t)
+        if sc:
+            self_cert.append((n, f))
+        if hn:
+            honest.append((n, f))
+        if bc:
+            bare.append(n)
+            bare_totals[n] = int(bc.group(1))
+        if nu:
+            named.append(n)
+        if bc and nu:
+            both.append(n)
+
+    print("")
+    print("REGISTRATION CLAIMS BY FAMILY, %d non-SSOT reachable page(s) at %s" % (read, REF))
+    print("")
+    print("   family distribution:")
+    for k, v in fam.most_common():
+        print("      %-24s %5d" % (k, v))
+    print("")
+    print("   THE DEFECT -- AMSTAR item 2 answered YES, self-certified via the page's own")
+    print("   protocol tab, no external registration id:      %5d" % len(self_cert))
+    for n, f in self_cert[:10]:
+        print("      %-52s %s" % (n[:52], f))
+    print("")
+    print("   NOT A DEFECT -- answered NO, reason given ('retrospective public protocol")
+    print("   pack, not prospectively registered'):           %5d" % len(honest))
+    print("      This family volunteered a correct answer where a false Yes would never")
+    print("      have been checked. It is left alone, and that is a finding, not a courtesy.")
+    print("")
+    print("   UNVERIFIED IDENTIFIERS, two shapes:")
+    print("      a NAMED unresolvable id a reader can look up      %5d" % len(named))
+    print("      a BARE COUNT with no identifier exposed           %5d" % len(bare))
+    print("      pages carrying BOTH                               %5d" % len(both))
+    if bare_totals:
+        top = sorted(bare_totals.items(), key=lambda kv: -kv[1])[:8]
+        print("      largest bare counts:")
+        for n, c in top:
+            print("         %-50s %4d numbers" % (n[:50], c))
+    print("")
+    if both:
+        print("   THE DISTINCTION IS WEAKER THAN IT LOOKS ON %d PAGE(S): they carry a bare" % len(both))
+        print("   count AND named ids, so a reader does have something to check there.")
+    else:
+        print("   THE DISTINCTION HOLDS: no page carries both, so a bare-count page exposes")
+        print("   nothing a reader can look up, which is the argument for separating them.")
+
+    json.dump({"ref": REF, "read": read, "family": dict(fam),
+               "self_certifying": [n for n, _f in self_cert],
+               "honest_no": [n for n, _f in honest],
+               "bare_count": bare_totals, "named_unverified": named, "both": both},
+              io.open(OUT, "w", encoding="utf-8"), indent=1)
+
+
+if __name__ == "__main__":
+    main()
+
+codex
+I’m reading this as a defect hunt against the pasted packet only, so I’m only using defects that can be demonstrated from the shown code and naming missing corpus only where the proof would require it.
+codex
+Defects found:
+
+- **NEGATION DROPPED, line 98**  
+  Exact input: `sample_full="X_AUTO_FULL.html"` and `text(sample_full)="protocol registered before commencement No retrospective not prospectively registered"`.  
+  Consequence: the control text says the page is “NOT counted as self-certifying,” but the asserted predicate requires `SELF_CERT` to match and therefore fails when the intended negative control is actually clean.
+
+- **DIFFERENT COPY, lines 50, 84, 74, 105-107**  
+  Exact input: local `outputs/five_bucket_classes_2026_08_23.json` contains `{"legacy":["NEW_REVIEW.html"],"audit-first":[],"unclassifiable":[]}`, while `git show origin/main:NEW_REVIEW.html` exits non-zero.  
+  Consequence: the audit enumerates the worktree class file but reads pages from `origin/main`, then silently skips the missing page, so local changed pages can be absent from the measurement.
+
+- **STATUS CODE IGNORED, line 75**  
+  Exact input: `git show origin/main:RENAMED_OR_MISSING.html` returns exit code `128`.  
+  Consequence: the subprocess failure is converted to `""`, and line 106 treats it like an empty/unreachable page instead of a failed audit input.
+
+- **SELECTOR TOO NARROW, line 66**  
+  Exact input: `"NCT12345678 marked UNVERIFIED"`.  
+  Consequence: a named unverified identifier is missed unless `UNVERIFIED` appears before the `NCT` within 200 characters.
+
+- **COUNT/TABULATION LOSS, lines 114 and 122**  
+  Exact input: `"10 number(s) on this page marked UNVERIFIED\n20 number(s) on this page marked UNVERIFIED"`.  
+  Consequence: only the first bare count is stored, so page totals and “largest bare counts” can underreport.
+
+Not proven from the packet: fix-string probe, own-comment idempotency guard, CRLF/LF text comparison, zero conflated with absent.
+tokens used
+12,623
+Defects found:
+
+- **NEGATION DROPPED, line 98**  
+  Exact input: `sample_full="X_AUTO_FULL.html"` and `text(sample_full)="protocol registered before commencement No retrospective not prospectively registered"`.  
+  Consequence: the control text says the page is “NOT counted as self-certifying,” but the asserted predicate requires `SELF_CERT` to match and therefore fails when the intended negative control is actually clean.
+
+- **DIFFERENT COPY, lines 50, 84, 74, 105-107**  
+  Exact input: local `outputs/five_bucket_classes_2026_08_23.json` contains `{"legacy":["NEW_REVIEW.html"],"audit-first":[],"unclassifiable":[]}`, while `git show origin/main:NEW_REVIEW.html` exits non-zero.  
+  Consequence: the audit enumerates the worktree class file but reads pages from `origin/main`, then silently skips the missing page, so local changed pages can be absent from the measurement.
+
+- **STATUS CODE IGNORED, line 75**  
+  Exact input: `git show origin/main:RENAMED_OR_MISSING.html` returns exit code `128`.  
+  Consequence: the subprocess failure is converted to `""`, and line 106 treats it like an empty/unreachable page instead of a failed audit input.
+
+- **SELECTOR TOO NARROW, line 66**  
+  Exact input: `"NCT12345678 marked UNVERIFIED"`.  
+  Consequence: a named unverified identifier is missed unless `UNVERIFIED` appears before the `NCT` within 200 characters.
+
+- **COUNT/TABULATION LOSS, lines 114 and 122**  
+  Exact input: `"10 number(s) on this page marked UNVERIFIED\n20 number(s) on this page marked UNVERIFIED"`.  
+  Consequence: only the first bare count is stored, so page totals and “largest bare counts” can underreport.
+
+Not proven from the packet: fix-string probe, own-comment idempotency guard, CRLF/LF text comparison, zero conflated with absent.

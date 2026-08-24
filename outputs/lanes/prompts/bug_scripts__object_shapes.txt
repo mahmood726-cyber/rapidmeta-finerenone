@@ -1,0 +1,165 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/object_shapes.py
+
+--- THE FILE, IN FULL ---
+"""One reader for the two trial-carrying object schemas in this repo.
+
+WHY THIS EXISTS
+    `arm_identity_gate` and `poolability` returned UNCHECKABLE and UNASSESSABLE
+    on 100% of a real v1 object. Neither was broken: both read
+    `canonical.trials[]`, the extraction artefact's shape, while the v1 objects
+    carry `inputs.trials[]`. Two of the standard's own properties were unmeasured
+    on the architecture the standard exists to describe, and I had been citing
+    both as coverage.
+
+    A gate pointed at the wrong schema does not announce itself. It reports the
+    honest thing it can see -- nothing -- and if it had defaulted that to PASS
+    instead of UNCHECKABLE, every cardiology topic would have shipped with green
+    properties. That is why this file exists rather than a quiet `or {}`.
+
+WHAT THIS DOES NOT DO
+    - It does NOT invent a field. A schema that carries no arms yields no arms,
+      and the caller must report UNCHECKABLE rather than assume two.
+    - It does NOT reconcile the two schemas' semantics. It exposes what each one
+      states, and where they disagree the caller decides.
+"""
+from __future__ import annotations
+
+
+def trials_of(obj):
+    """-> list of normalised trials from EITHER schema. Empty list is honest."""
+    out = []
+
+    # SSOT / v1 objects
+    for t in ((obj.get("inputs") or {}).get("trials")) or []:
+        arms = []
+        for a in (t.get("arms") or []):
+            arms.append({"label": a.get("label") or "", "role": a.get("role") or ""})
+        out.append({
+            "id": t.get("nct") or t.get("id") or "",
+            "nct": t.get("nct") or "",
+            "name": t.get("name") or "",
+            "arms": arms,
+            "comparator_type": t.get("comparator_type") or "",
+            "_schema": "ssot",
+            "_raw": t,
+        })
+    if out:
+        return out
+
+    # extraction canonical artefacts
+    for t in ((obj.get("canonical") or {}).get("trials")) or []:
+        arms = []
+        for key in ("intervention", "comparator"):
+            v = t.get(key)
+            if isinstance(v, dict):
+                arms.append({"label": v.get("label") or v.get("name") or "",
+                             "role": "treatment" if key == "intervention" else "control"})
+            elif isinstance(v, str) and v:
+                arms.append({"label": v,
+                             "role": "treatment" if key == "intervention" else "control"})
+        for a in (t.get("arms") or []):
+            if isinstance(a, dict):
+                arms.append({"label": a.get("label") or "", "role": a.get("role") or ""})
+        out.append({
+            "id": t.get("nct") or t.get("id") or "",
+            "nct": t.get("nct") or "",
+            "name": t.get("name") or t.get("label") or "",
+            "arms": arms,
+            "comparator_type": t.get("comparator_type") or "",
+            "_schema": "canonical",
+            "_raw": t,
+        })
+    return out
+
+
+def definitions_of(trial):
+    """-> {outcome_id: definition text} for a normalised trial, either schema.
+
+    WHY THIS IS HERE AND NOT INLINE IN THE CALLER
+        `poolability` read `trial["outcome"]["definition"]` -- a field only the
+        extraction schema carries -- and therefore reported "N of N trials carry
+        no outcome definition" on EVERY SSOT object in this repository,
+        including ones whose definitions were read from the registry word for
+        word. It fired on the correct work and the incorrect work alike, which
+        is a check that discriminates nothing.
+
+        Note the direction: this one failed toward ALARM, which is the rarer
+        specimen and most of the reason it was found at all. It is still not the
+        safe kind of wrong. Its output argues for WITHDRAWING an estimate, and a
+        wrong withdrawal destroys a true finding and publishes the destruction
+        as a discovery.
+
+    NOT A DEFINITION READER OF LAST RESORT: it returns what is RECORDED. An
+    empty result means nothing was recorded, never that the trial has no
+    endpoint.
+    """
+    raw = trial.get("_raw") or {}
+    out = {}
+    if trial.get("_schema") == "ssot":
+        import estimand_definition_gate as _e
+        for oid, bo in (raw.get("by_outcome") or {}).items():
+            d = _e.definition_for(bo)
+            if d:
+                out[oid] = d
+        return out
+    o = raw.get("outcome")
+    if isinstance(o, dict) and (o.get("definition") or o.get("name")):
+        out["outcome"] = o.get("definition") or o.get("name")
+    elif isinstance(o, str) and o:
+        out["outcome"] = o
+    return out
+
+
+def pooled_of(obj):
+    """-> (k, pooled_dict) from either schema, or (None, {})."""
+    by = ((obj.get("results") or {}).get("by_outcome")) or {}
+    for res in by.values():
+        p = res.get("pooled") or {}
+        if p.get("point") is not None:
+            return res.get("k"), p
+    rep = (((obj.get("canonical") or {}).get("result")) or {}).get("reported") or {}
+    if rep:
+        return rep.get("k"), rep
+    return None, {}
+
+
+def schema_of(obj):
+    if ((obj.get("inputs") or {}).get("trials")):
+        return "ssot"
+    if ((obj.get("canonical") or {}).get("trials")):
+        return "canonical"
+    return "unknown"

@@ -1,0 +1,1253 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a0316c-4986-7a73-8518-e832a20dadf0
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/build_paper_bookkeeping_2026_08_21.py
+
+--- THE FILE, IN FULL ---
+"""Assemble the three parts of a paper that are NOT argument: references, the Introduction's
+factual half, and the five fetchable bookkeeping claims.
+
+NOTHING HERE IS AUTHORED. Every sentence is assembled from a field this object already holds,
+and where a field does not exist the absence is STATED rather than filled. The four
+interpretive claims -- why the question is open, what this review adds, what the effect means
+clinically, and the conclusion -- are NOT written here and are named as owed.
+
+WHAT IS BUILT
+
+  manuscript.references          a bibliography, in three parts:
+                                   included studies, by registration
+                                   published syntheses this review was compared against
+                                   methods guidance and software, with versions
+                                 This is NOT the same thing as `sources`, which records the
+                                 data provenance layer each fact was read at. Both belong: one
+                                 is what a reader would look up, the other is what an auditor
+                                 would re-read. The References section refused entirely on
+                                 topics whose `sources` is empty, and a paper with no
+                                 reference list is incomplete in a way nobody would defend.
+
+  manuscript.introduction        the factual half only: what is being compared, in whom, on
+                                 what outcome, over how many trials and participants, and how
+                                 the evidence base was assembled -- then a final sentence
+                                 naming what is still owed and by whom.
+
+  bookkeeping_2026_08_21         the five claims measured as FETCHABLE, missing on 9 to 20 of
+                                 28 topics: which limbs this review refuses, the search with
+                                 its date and databases, whether it was prospectively
+                                 registered, that a second assessor disagreed and where, and
+                                 which risk-of-bias domains drove the rating.
+
+THE SEARCH CLAIM HAS TWO HALVES AND CONFLATING THEM WOULD BE A FALSE CLAIM. The stored
+`query_as_executed` is the search for PUBLISHED SYNTHESES (P46 limb 3), not for primary
+trials. Most of these topics identified their trials by reading NAMED REGISTRATIONS, which is
+not a database search and must not be described as one. Both halves are written, separately
+labelled, and the registry half says plainly that no bibliographic search for primary trials
+was run.
+"""
+import glob
+import importlib.util
+import io
+import json
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(REPO, "ssot"))
+import atomic_write                                            # noqa: E402
+import paper_projector as _pp                                  # noqa: E402
+import do_not_rebuild as _dnr                                  # noqa: E402
+import authored_guard as _ag                                  # noqa: E402
+
+_q = importlib.util.spec_from_file_location(
+    "p46_queue", os.path.join(REPO, "scripts", "p46_queue.py"))
+p46 = importlib.util.module_from_spec(_q)
+_q.loader.exec_module(p46)
+
+ALL_TOPICS = "--all" in sys.argv
+TODAY = "2026-08-21"
+
+GUIDANCE = {
+    "rob2": ("Sterne JAC, Savovic J, Page MJ, et al. RoB 2: a revised tool for assessing risk "
+             "of bias in randomised trials. BMJ. 2019;366:l4898. doi:10.1136/bmj.l4898"),
+    "grade": ("Schunemann HJ, Higgins JPT, Vist GE, et al. Chapter 14: Completing 'Summary of "
+              "findings' tables and grading the certainty of the evidence. In: Cochrane "
+              "Handbook for Systematic Reviews of Interventions version 6.5. Cochrane; 2024."),
+    "metafor": ("Viechtbauer W. Conducting meta-analyses in R with the metafor package. "
+                "J Stat Softw. 2010;36(3):1-48. doi:10.18637/jss.v036.i03"),
+    "prisma": ("Page MJ, McKenzie JE, Bossuyt PM, et al. The PRISMA 2020 statement: an updated "
+               "guideline for reporting systematic reviews. BMJ. 2021;372:n71. "
+               "doi:10.1136/bmj.n71"),
+}
+
+
+def _flat(v):
+    """A stored value as prose. NEVER `str()` a container into a manuscript.
+
+    `str(obj.get("verification_basis") or "")` put this, verbatim, into MAVACAMTEN's
+    Methods -- search paragraph on a page built 2026-08-18:
+
+        {'what_verifies_this_object': 'ClinicalTrials.gov protocol records, read 2026-08-18',
+         'what_is_not_claimed': 'that any per-trial count was checked against a results
+         record', 'families': [], 'bar': 'not recorded on the page this object was built from'}
+
+    `verification_basis` is a STRING on most objects and a MAPPING on some. The string path was
+    the one written and tested; the mapping path reached a reader as a Python repr. This is the
+    container-repr class recurring in the one file added to fix the reading experience.
+    """
+    if v is None:
+        return ""
+    if isinstance(v, str):
+        return v.strip()
+    if isinstance(v, (int, float)):
+        return str(v)
+    if isinstance(v, (list, tuple)):
+        parts = [_flat(x) for x in v]
+        parts = [x for x in parts if x]
+        if not parts:
+            return ""
+        return ", ".join(parts[:-1]) + (" and " + parts[-1] if len(parts) > 1 else parts[0])
+    if isinstance(v, dict):
+        bits = []
+        for k, val in v.items():
+            if str(k).startswith("_"):
+                continue
+            t = _flat(val)
+            if t:
+                # THE SAME MAP THE PROJECTOR READS -- `ssot/field_lead_ins.json`, via
+                # `paper_projector._lead_in`. ONE SOURCE, DELIBERATELY.
+                #
+                # This function and `_flatten_container` produce the same shape from the same
+                # containers, and for two days only one of them was fixed: the projector's
+                # flattener was corrected and MAVACAMTEN still rendered `bar:` because THIS
+                # writer had baked the text into the object. If the two can hold different
+                # maps they will drift, which is the two-locations problem that produced the
+                # GRADE disagreement on 23 of 34 pooled outcomes.
+                bits.append(_pp._lead_in(str(k), t))
+        return " ".join(bits)
+    return ""
+
+
+def _join_clause(tail):
+    """Attach a flattened block to a clause with the punctuation the tail actually needs.
+
+    THE SEAM, AND IT APPEARED THE MOMENT THE LEAD-INS LANDED. The join was hardcoded as
+    `"; " + tail.rstrip(".")`, which was right while `_flat` produced a lowercase key --
+    "... on each entry; what verifies this object: ...". With English lead-ins the tail is a
+    capitalised SENTENCE, so the same join produced:
+
+        "... on the dates recorded on each entry; This object's verification rests on ..."
+
+    A semicolon followed by a capital is wrong either way round: a full stop before a sentence,
+    or a lowercase continuation after a semicolon. `.rstrip(".")` compounded it by removing the
+    sentence's own terminator.
+
+    So the connector is chosen from the TAIL rather than fixed: a sentence gets a full stop and
+    keeps its punctuation; a lowercase fragment keeps the semicolon it was written for. Returns
+    "." alone when there is no tail, so the head still ends as a sentence.
+    """
+    t = (tail or "").strip()
+    if not t:
+        return "."
+    if t[:1].isupper():
+        return ". " + (t if t.endswith((".", "?", "!")) else t + ".")
+    return "; " + t.rstrip(".") + "."
+
+
+def g(o, path, default=None):
+    cur = o
+    for part in path.split("."):
+        if not isinstance(cur, dict):
+            return default
+        cur = cur.get(part)
+    return default if cur is None else cur
+
+
+def pooled_blocks(obj):
+    return ((obj.get("results") or {}).get("by_outcome") or {})
+
+
+def included_studies(obj):
+    """Every trial this review pools, keyed by registration. Deduplicated across outcomes."""
+    seen, rows = set(), []
+    pools = list(pooled_blocks(obj).values())
+    srcs = list((obj.get("inputs") or {}).get("trials") or [])
+    for blk in pools:
+        srcs.extend((blk or {}).get("per_trial") or [])
+    for t in srcs:
+        if not isinstance(t, dict):
+            continue
+        nct = t.get("nct") or t.get("trial_id")
+        # A NULLED TRIAL IS NOT AN INCLUDED STUDY. It appeared in the reference list under
+        # "Included studies, by registration" on finerenone-review while k said three.
+        if t.get("nulled") or str(nct or "").startswith("NULLED:"):
+            continue
+        if not nct or nct in seen:
+            continue
+        seen.add(nct)
+        rows.append({
+            "registration": str(nct),
+            "label": str(t.get("label") or t.get("trial_id") or "").strip(),
+            "registry": str(t.get("registry") or "ClinicalTrials.gov"),
+            "url": str(t.get("source_url") or ("https://clinicaltrials.gov/study/%s" % nct)),
+            "read_utc": str(t.get("read_utc") or ""),
+        })
+    return sorted(rows, key=lambda r: r["registration"])
+
+
+def published_syntheses(obj):
+    out = []
+    for r in (g(obj, "published_comparison.reviews") or []):
+        if not isinstance(r, dict):
+            continue
+        bits = [str(r.get("title") or "").strip().rstrip(".")]
+        if r.get("journal"):
+            bits.append(str(r["journal"]))
+        if r.get("year"):
+            bits.append(str(r["year"]))
+        cite = ". ".join([b for b in bits if b])
+        ident = []
+        if r.get("pmid"):
+            ident.append("PMID: %s" % r["pmid"])
+        if r.get("doi"):
+            ident.append("doi:%s" % r["doi"])
+        # A ROW THAT IS BLANK EXCEPT FOR ITS IDENTIFIER IS NOT A REFERENCE.
+        # Seven topics hold an appraised synthesis with a PMID and no title, journal or year;
+        # emitted as rows they made `add_table` refuse the whole table -- correctly, since an
+        # empty cell under a filled header asserts a citation that has nothing behind it.
+        # They are counted and named in the note instead of drawn as a blank line.
+        if not cite:
+            continue
+        out.append({
+            "citation": cite + ("." if cite and not cite.endswith(".") else ""),
+            "identifier": "; ".join(ident) or "no PMID or DOI recorded",
+            "url": ("https://pubmed.ncbi.nlm.nih.gov/%s/" % r["pmid"]) if r.get("pmid") else "",
+        })
+    return out
+
+
+def unciteable_syntheses(obj):
+    """Appraised syntheses whose record carries an identifier and no citable text."""
+    out = []
+    for r in (g(obj, "published_comparison.reviews") or []):
+        if isinstance(r, dict) and not str(r.get("title") or "").strip():
+            out.append(str(r.get("pmid") or r.get("doi") or "an unidentified record"))
+    return out
+
+
+def software(obj):
+    """The engine string, read from wherever this object actually stored it."""
+    cands = [g(obj, "model_output.engine")]
+    for blk in pooled_blocks(obj).values():
+        ro = (blk or {}).get("r_output") or {}
+        cands.append(ro.get("environment") or ro.get("_environment"))
+    for c in cands:
+        if isinstance(c, str) and c.strip():
+            return c.strip()
+    return None
+
+
+def references(obj):
+    inc = included_studies(obj)
+    pub = published_syntheses(obj)
+    meth = []
+    if isinstance(obj.get("risk_of_bias"), dict) and (obj["risk_of_bias"].get("by_outcome")):
+        meth.append({"cited_for": "risk of bias in the included results",
+                     "citation": GUIDANCE["rob2"]})
+    if isinstance(obj.get("grade"), dict) and obj["grade"].get("by_outcome"):
+        meth.append({"cited_for": "certainty of the evidence",
+                     "citation": GUIDANCE["grade"]})
+    sw = software(obj)
+    if sw:
+        meth.append({"cited_for": "the model fitted, as %s" % sw,
+                     "citation": GUIDANCE["metafor"]})
+    meth.append({"cited_for": "the reporting guideline this manuscript is written against",
+                 "citation": GUIDANCE["prisma"]})
+    if not inc:
+        return None
+    return {
+        "_what": ("A reference list, assembled from this object's own fields. Distinct from "
+                  "`sources`, which records the provenance LAYER each fact was read at; this "
+                  "is what a reader would look up."),
+        "included_studies": inc,
+        "published_syntheses_compared_against": pub,
+        "_published_syntheses_note": (
+            ("Appraised against this review; the comparison and its denominator are in "
+             "`published_comparison`. " if pub else
+             "No published synthesis is listed here. The comparison section states its own "
+             "denominator and why nothing citable was appraised. ")
+            + (("%d appraised record(s) -- %s -- carry an identifier and NO title, journal or "
+                "year, so they cannot be written as a citation and are named here rather than "
+                "drawn as a blank row under a filled header."
+                % (len(unc), ", ".join(unc))) if (unc := unciteable_syntheses(obj)) else "")),
+        "methods_guidance_and_software": meth,
+    }
+
+
+def introduction(obj):
+    """The factual half. The interpretive sentences are named as owed, never written."""
+    q = str(obj.get("question") or "").strip()
+    outs = [o for o in (obj.get("outcomes") or []) if isinstance(o, dict)]
+    pools = pooled_blocks(obj)
+    ks, n = [], 0
+    for blk in pools.values():
+        if isinstance((blk or {}).get("k"), int):
+            ks.append(blk["k"])
+        for t in ((blk or {}).get("per_trial") or []):
+            for key in ("n", "n_total", "enrolment", "registered_enrolment"):
+                if isinstance((t or {}).get(key), int):
+                    n += t[key]
+                    break
+    if not q or not pools:
+        return None
+    k = max(ks) if ks else 0
+    names = [str(o.get("name") or o.get("id")) for o in outs if o.get("name") or o.get("id")]
+    comp = next((str(o.get("comparator")) for o in outs if o.get("comparator")), None)
+    if not comp:
+        comp = next((str((b or {}).get("comparator")) for b in pools.values()
+                     if (b or {}).get("comparator")), None)
+
+    parts = []
+    # TERMINAL PUNCTUATION IS NOT ONLY "?". This tested for a question mark and appended a full
+    # stop otherwise, so a question already ending in a full stop got a second one: "... which
+    # is not what the withdrawal on this page said.. It examines 2 randomised trials ...", on
+    # ~20 objects. Found by the grammar-seam gate on its first real run, and it predates the
+    # lead-in work entirely -- nothing had ever looked at the joins.
+    parts.append("This review asks: %s"
+                 % (q if q.rstrip().endswith(("?", ".", "!")) else q + "."))
+    # "IT POOLS 3 RANDOMISED TRIALS" ON A PAGE WHOSE THESIS IS THAT THEY CANNOT BE COMBINED.
+    #
+    # mavacamten-hcm exists to say its three trials register three unrelated primaries and are
+    # not poolable; its Introduction announced a pool anyway. malaria-act read "It pools 0
+    # randomised trials, against not applicable." The verb was unconditional -- the same defect
+    # as the abstract's Methods sentence, in a second section, from the same field.
+    _pooled_any = any(
+        isinstance((b or {}).get("pooled"), dict)
+        and (b or {}).get("pooled", {}).get("point") is not None
+        and not (b or {}).get("pooled", {}).get("withdrawn")
+        for b in pools.values())
+    if _pooled_any:
+        base = "It pools %d randomised trial%s" % (k, "" if k == 1 else "s")
+    elif k:
+        base = ("It examines %d randomised trial%s and DOES NOT POOL THEM"
+                % (k, "" if k == 1 else "s"))
+    else:
+        base = "It identifies no trial that can be pooled"
+    if n:
+        base += " comprising %s participants as registered" % format(n, ",")
+    if comp and str(comp).strip().lower() not in (
+            "", "none", "not applicable", "n/a", "not recorded", "unknown"):
+        base += ", against %s" % comp
+    parts.append(base + ".")
+    if names:
+        # THE THIRD SURFACE ASSERTING A POOL. "The outcome pooled is ..." on a page that
+        # pools nothing is the same defect as the Methods sentence and the "It pools N"
+        # clause, in a third place, and it would have survived fixing the other two.
+        parts.append(("The outcome%s pooled %s %s." if _pooled_any else
+                      "The outcome%s sought %s %s.")
+                     # STRIPPED BEFORE JOINING. An outcome name carrying trailing whitespace
+                     # -- "Percentage of Observed Participants With Outcome " -- met the
+                     # appended full stop and produced "... With Outcome ." on pcsk9. A stored
+                     # value is not guaranteed tidy, and a join is the wrong place to assume it.
+                     % ("" if len(names) == 1 else "s",
+                        "is" if len(names) == 1 else "are",
+                        "; ".join(str(n).strip() for n in names[:6])))
+    prov = _flat(obj.get("provenance"))
+    if prov:
+        parts.append("Every count and denominator behind those estimates is read as follows. "
+                     + (prov if prov.endswith(".") else prov + "."))
+    parts.append(
+        "Everything in this paragraph is derived from stored fields and none of it is "
+        "authored. The interpretive sentences that follow are marked as drafts and are the "
+        "author's to replace.")
+    return "\n\n".join(parts)
+
+
+def bookkeeping(obj, topic):
+    out = {"_what": ("The five reporting claims a PRISMA-2020 manuscript needs that are "
+                     "FETCHABLE rather than argued -- each derived from a field here, or "
+                     "stated as an honest absence.")}
+
+    # 1. WHICH LIMBS THIS REVIEW REFUSES
+    try:
+        sc = p46.score(obj)
+    except Exception:                                          # noqa: BLE001
+        sc = None
+    if isinstance(sc, dict):
+        # `score` returns {limb: [STATE, detail]}, not {limb: STATE}. Read the state.
+        def _state(v):
+            return str(v[0] if isinstance(v, (list, tuple)) and v else v).upper()
+        held = sorted(k for k, v in sc.items() if _state(v) == "HELD")
+        not_held = sorted(k for k, v in sc.items() if k not in held)
+        out["which_limbs_this_review_refuses"] = (
+            "Of the four properties this project requires of a completed topic, %d are held "
+            "(%s)%s." % (len(held), ", ".join(x.replace("_", " ") for x in held) or "none",
+                         "" if not not_held else
+                         " and %d are refused with the obstacle named in the evidence (%s)"
+                         % (len(not_held),
+                            ", ".join(x.replace("_", " ") for x in not_held))))
+
+    # 2. THE SEARCH -- TWO HALVES, NEVER CONFLATED
+    scr = None
+    for p in sorted(glob.glob(os.path.join(REPO, "ssot", topic, "appraisal", "*.json"))):
+        try:
+            d = json.load(io.open(p, encoding="utf-8"))
+        except ValueError:
+            continue
+        if d.get("query_as_executed"):
+            scr = d
+            break
+    halves = []
+    prov = _flat(obj.get("provenance"))
+    vb = _flat(obj.get("verification_basis"))
+    inc = included_studies(obj)
+    if inc:
+        dates = sorted({r["read_utc"] for r in inc if r["read_utc"]})
+        halves.append(
+            "PRIMARY TRIALS. NO BIBLIOGRAPHIC SEARCH FOR PRIMARY TRIALS WAS RUN. The %d "
+            "included trial%s %s identified by reading named registration%s on %s%s"
+            % (len(inc), "" if len(inc) == 1 else "s",
+               "was" if len(inc) == 1 else "were", "" if len(inc) == 1 else "s",
+               " and ".join(dates) if dates else "the dates recorded on each entry",
+               _join_clause(vb or prov)))
+    if scr:
+        halves.append(
+            "PUBLISHED SYNTHESES. %s, executed %s. Query as executed: %s. It matched %s "
+            "record(s), of which %s were retrieved and %s read; %s appraised."
+            % (scr.get("source", "a bibliographic database"), scr.get("executed_utc", "?"),
+               scr.get("query_as_executed"), scr.get("matched", "?"),
+               scr.get("retrieved", "?"), scr.get("read", "?"),
+               len(scr.get("appraised") or []) if isinstance(scr.get("appraised"), list)
+               else scr.get("appraised", "?")))
+    if halves:
+        out["the_search_its_date_and_its_databases"] = " ".join(halves)
+
+    # 3. PROSPECTIVE REGISTRATION
+    pro = g(obj, "prospero") or g(obj, "protocol.prospero") or g(obj, "protocol.registration")
+    out["whether_this_review_was_prospectively_registered"] = (
+        str(pro) if isinstance(pro, str) and pro.strip() else
+        "NO PROSPERO REGISTRATION OR PROTOCOL RECORD IS HELD ON THIS OBJECT. That is not the "
+        "same as knowing this review was not registered, and neither claim is made. It is "
+        "recorded here as an absence so that a reader does not have to infer it from silence.")
+
+    # 4. THE SECOND ASSESSOR
+    rob = obj.get("risk_of_bias") or {}
+    sa = next((rob[k] for k in sorted(rob) if str(k).startswith("SECOND_ASSESSOR")
+               and isinstance(rob[k], dict)), None)
+    if sa:
+        rc = next((sa[k] for k in sorted(sa) if k.startswith("RECOUNTED_AFTER")
+                   and isinstance(sa[k], dict)), None)
+        out["that_two_assessors_disagreed_and_where"] = (
+            "Risk of bias was assessed independently a second time by %s, blind to this "
+            "assessment and given the same registry facts. %s By domain: %s.%s"
+            % (sa.get("assessor_2", "a second assessor"),
+               sa.get("DISAGREEMENT_RATE", ""),
+               ", ".join("%s %s" % (k, v) for k, v in
+                         sorted((sa.get("PER_DOMAIN") or {}).items())) or "not recorded",
+               (" Recounted after this review's D1 judgements moved: %s."
+                % rc.get("recounted_now", "")) if rc else ""))
+    else:
+        out["that_two_assessors_disagreed_and_where"] = (
+            "NO SECOND, INDEPENDENT RISK-OF-BIAS ASSESSMENT IS RECORDED FOR THIS TOPIC. The "
+            "judgements were made once. Stated so that single assessment is not mistaken for "
+            "agreement between two.")
+
+    # 5. WHICH ROB DOMAINS DROVE THE RATING
+    drove = {}
+    for oid, per in (rob.get("by_outcome") or {}).items():
+        if not isinstance(per, dict):
+            continue
+        for rid, j in per.items():
+            if not isinstance(j, dict):
+                continue
+            ov = str(j.get("overall") or "").upper()
+            if ov in ("", "LOW"):
+                continue
+            for k, v in (j.get("domains") or {}).items():
+                if isinstance(v, dict) and str(v.get("judgement") or "").upper() == ov:
+                    drove[str(k).split("_")[0].upper()] = drove.get(
+                        str(k).split("_")[0].upper(), 0) + 1
+    if drove:
+        out["which_risk_of_bias_domains_drove_the_rating"] = (
+            "Where a result is rated worse than LOW overall, the domain carrying that "
+            "judgement is: %s. The overall rating is the worst domain, so these are the "
+            "domains that determine it."
+            % ", ".join("%s on %d result(s)" % (k, n)
+                        for k, n in sorted(drove.items(), key=lambda kv: (-kv[1], kv[0]))))
+    return out
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    dry = "--apply" not in sys.argv
+    only = [a for a in sys.argv[1:] if not a.startswith("--")]
+    n_ref = n_int = n_bk = topics = 0
+    no_ref = []
+    for path in sorted(glob.glob(os.path.join(REPO, "ssot", "*", "*.json"))):
+        topic = os.path.basename(os.path.dirname(path))
+        if os.path.basename(path) != topic + ".json":
+            continue
+        if only and topic not in only:
+            continue
+        try:
+            obj = json.load(io.open(path, encoding="utf-8"))
+        except ValueError:
+            continue
+        # `--all` WIDENS THE SCOPE TO EVERY TOPIC WITH A PAGE, not only the 28 that
+        # pool. Each part still refuses on its own terms: a topic with no included
+        # registration gets no reference list, one with no pooled interval gets no
+        # drafts. That is a per-part absence with a reason, not a whole topic
+        # skipped for want of one field.
+        if not ALL_TOPICS and not p46.pooled_outcomes(obj):
+            continue
+        topics += 1
+        # `setdefault` RETURNS AN EXISTING NULL. Twelve topics hold `manuscript: null`, so
+        # `setdefault("manuscript", {})` handed back None, the isinstance guard skipped them,
+        # and the run reported 16 of 28 while printing no reason for the other 12.
+        # THE GUARD, IMPORTED RATHER THAN REMEMBERED. `man["references"] = refs`
+        # below is UNCONDITIONAL, so a `--all` run over an authored object replaces
+        # written argument with a projection. `do_not_rebuild` guarded the BUILDER and
+        # this write came through a different door.
+        _dnr.check_object(path)
+        man = obj.get("manuscript")
+        if not isinstance(man, dict):
+            man = {}
+            obj["manuscript"] = man
+
+        refs = references(obj)
+        if refs:
+            # AUTHORED PROSE IS THE ONE THING HERE THAT CANNOT BE REGENERATED. This assignment
+            # was unconditional while `introduction` below was guarded -- one field careful and
+            # the next not, in the same function.
+            _ag.refuse_if_authored(man, "references", topic,
+                                   "build_paper_bookkeeping_2026_08_21")
+            man["references"] = refs
+            n_ref += 1
+        else:
+            no_ref.append(topic)
+
+        intro = introduction(obj)
+        if intro and not str(man.get("introduction") or "").strip():
+            _ag.refuse_if_authored(man, "introduction", topic,
+                                   "build_paper_bookkeeping_2026_08_21")
+            man["introduction"] = intro
+            n_int += 1
+
+        bk = bookkeeping(obj, topic)
+        if len(bk) > 1:
+            obj["bookkeeping_%s" % TODAY.replace("-", "_")] = bk
+            n_bk += 1
+
+        obj.setdefault("display_change_announced", []).append({
+            "date": TODAY,
+            "change": "references, the Introduction's factual half, and the five fetchable "
+                      "bookkeeping claims assembled from stored fields",
+            "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+            "what_changed": "references %s, introduction %s, bookkeeping claims %d"
+                            % ("built" if refs else "not buildable",
+                               "written" if intro else "not buildable", len(bk) - 1),
+            "why": ("A paper with no reference list and a 47-character Introduction is "
+                    "incomplete in ways that are pure assembly. Nothing interpretive is "
+                    "written: the four judgement claims are named as owed."),
+        })
+        print("%-44s refs %-3s intro %-3s bookkeeping %d"
+              % (topic[:44], "yes" if refs else "NO", "yes" if intro else "NO", len(bk) - 1))
+        if not dry:
+            atomic_write.write_json(path, obj, indent=1)
+
+    if not topics:
+        sys.exit("PROOF FAILED: no topic with a pooled outcome was read. 28 have one.")
+    print("\n%d topic(s): references on %d, introduction on %d, bookkeeping on %d"
+          % (topics, n_ref, n_int, n_bk))
+    if no_ref:
+        print("NO REFERENCE LIST BUILDABLE (no included trial carries a registration): %s"
+              % ", ".join(no_ref))
+    if dry:
+        print("DRY RUN -- pass --apply to write")
+
+
+if __name__ == "__main__":
+    main()
+
+codex
+I’ll treat the pasted module as the review record and use the workspace copy only to get reliable line numbers, then I’ll report only defects that can be demonstrated from the provided code.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "if (Test-Path F:\\ProjectIndex\\INDEX.md) { Get-Content -Path F:\\ProjectIndex\\INDEX.md -TotalCount 20 } else { 'MISSING F:\\ProjectIndex\\INDEX.md' }" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "if (Test-Path F:\\E156\\rewrite-workbook.txt) { Get-Content -Path F:\\E156\\rewrite-workbook.txt -TotalCount 20 } else { 'MISSING F:\\E156\\rewrite-workbook.txt' }" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=1; Get-Content -Path scripts'"\\build_paper_bookkeeping_2026_08_21.py | ForEach-Object { '{0,4}: {1}' -f "'$i, $_; $i++ }' in F:\rapidmeta-ssot-shell
+ succeeded in 1805ms:
+E156 REWRITE WORKBOOK
+sentinel:skip-file
+sentinel:claim-language-allow
+(Sentinel markers above:
+ - sentinel:skip-file: this workbook intentionally contains C:\Users\... PATH:
+   lines pointing to each project's local source directory â€” they're metadata,
+   not code. The marker keeps Sentinel from emitting ~16 P0 hardcoded-path
+   BLOCKs every push.
+ - sentinel:claim-language-allow: CURRENT BODY entries are the AI-drafted
+   summaries that students rewrite into hedged language â€” flagging overclaim
+   words IN those drafts is the whole pedagogical point, not a defect.
+   File-scope marker here suppresses the ~1293 claim-language WARNs on the
+   CURRENT BODY entries; the YOUR REWRITE entries are where the hedging
+   discipline matters and remains lintable in the rendered student board.)
+
+DENOMINATOR CONVENTION (added 2026-05-06 after review-findings P1-5):
+  Each entry header is `[N/total]` where N = ordinal insertion index and
+  `total` = current portfolio size as of the most recent reconcile sweep.
+  Older entries are back-rewritten on milestone boundaries (rather than
+  preserving their insertion-time denominator) to keep
+
+ succeeded in 1808ms:
+<!-- sentinel:skip-file - portfolio registry; absolute paths ARE the data -->
+# C: Drive Project Index
+> **Last updated**: 2026-05-14 (C:\HTML apps focused repair batch continued: hub shell launch fix, static contracts across ten HTML app repos, NMA/living-meta/nma-dose-response landing and asset-link repairs, and NMA doc hardcoded-path cleanup. Prior SheafNMA v0.2.0, D-drive legacy smoke-contract continuation, CardioOracle lifecycle status freeze, C-drive model/project smoke-contract continuation, mahmood789 consolidation, Sentinel/Overmind JSONL and verification repair, C-drive reproducibility audit continuation, C-drive verification repair, D-drive repair batch, superapp, C-drive sweep, home-folder hardening, Trial Truthfulness Atlas, and portfolio notes retained below.)
+
+### C:\HTML apps focused repair batch (2026-05-14)
+> - `C:\HTML apps\hub\`: added a launchable `index.html` shell and static contract tests for required registry/runtime wiring; fixed `app.js` local `file://` launch resolution so the hub opened from `hub\index.html` links sibling apps from the parent HTML-apps directory instead of nesting paths under `hub`. Verification: `pytest -q -p no:cacheprovider` -> `3 passed`; `node --check app.js && node --check projects.js` -> PASS; headless Chrome smoke on `file:///mnt/c/HTML%20apps/hub/index.html` confirmed the page title and sibling app links. GitHub pushed: `mahmood726-cyber/hub` main `c1a6725`.
+> - `C:\HTML apps\evidence-board\`, `C:\HTML apps\focus-studio\`, `C:\HTML apps\kanban-lab\`: added pytest-visible static app shell contracts covering title/description, localStorage persistence hooks, key controls, and absence of unresolved templates or hardcoded local drive paths; added repo `.gitignore` entries for Python caches and `PROGRESS.md`. Verification: each `pytest -q -p no:cacheprovider` -> `2 passed` with the existing pytest `cache_dir` warning; scoped `git diff --check` -> PASS. GitHub pushed: `evidence-board` master `9a87c8b`, `focus-studio` master `0fa728b`, `kanban-lab` master `81cad38`.
+> - `C:\HTML apps\nma-pro-v2\`: fixed the landing page's broken app links from absent v6/v7 asset filenames to the current `e156-submission/assets/nma-pro-v8.0.html`, added static link-resolution contracts, and removed Sentinel P0 hardcoded local OneDrive paths from legacy docs. Verification: `pytest -q -p no:cacheprovider tests/test_smoke.py tests/test_static_links.py` -> `3 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=1 INFO=302` (pre-existing tracked autogen warning plus HTML a11y INFO). GitHub pushed: master `a2834e7` for the link fix and master `a74e385` for the P0 doc cleanup.
+> - `C:\HTML apps\IPD-Meta-Pro\` and `C:\HTML apps\Truthcert1\`: added static link-resolution contracts for landing-page local assets and canonical app entrypoints. Verification: `IPD-Meta-Pro` `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; `Truthcert1` same command -> `2 passed` with existing pytest `cache_dir` warning. GitHub pushed: `IPD-Meta-Pro` master `b26ee09`, `Truthcert1` master `81eddd3`.
+> - `C:\HTML apps\living-meta\`: repaired landing-page validation links that pointed to a missing HTML asset and an out-of-repo sibling path; linked the existing validation and limitations docs instead, and added a static link-resolution contract. Verification: `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=8` (pre-existing HTML a11y INFO). GitHub pushed: master `c3c8a9b`.
+> - `C:\HTML apps\Pairwiseai\`: added a static landing-page contract covering local link resolution, absence of unresolved templates/local drive paths, and the key app entrypoints under `e156-submission/assets`. Verification: `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=1731` (pre-existing HTML a11y INFO). GitHub pushed: master `2ade493`.
+> - `C:\HTML apps\nma-dose-response-app\`: pushed the existing smoke-blocker commit and added an E156 asset-bundle repair so `e156-submission\assets\index*.html` resolves its JS runtime dependencies from inside the assets folder; added a static link-resolution contract covering root and E156 app entrypoints. Verification: `pytest -q -p no:cacheprovider tests/test_smoke.py tests/test_static_links.py` -> `4 passed` with the existing pytest `cache_dir` warning; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=442` (pre-existing HTML a11y INFO). GitHub pushed: master `e95fae0` and `96594b6`.
+> - Push gate: Windows Git credential path succeeded after WSL Git lacked HTTPS credentials. Sentinel pre-push/manual scan verdicts were BLOCK=0; evidence-board INFO=18, focus-studio INFO=10, kanban-lab INFO=10, living-meta INFO=8, Pairwiseai INFO=1731, nma-dose-response-app INFO=442 (pre-existing P2 HTML accessibility notes); hub push emitted no Sentinel findings.
+> - Existing unrelated dirty files were left unstaged in these repos, mainly protocol/license/doc edits and untracked `paper\` outputs in the three app repos, plus pre-existing hub metadata/submission/style edits.
+
+### SheafNMA (2026-05-12; v0.2.0 real-NMA-corpus validation + 36-cell Ã— 1000-rep simulation + methods paper draft)
+> - `C:\Models\SheafNMA\` â€” cellular-sheaf inconsistency localization for network meta-analysis. v0.1.0 (2026-04-07) was math + single-file HTML dashboard + E156 #153 micro-paper on a synthetic 12-contrast network. v0.2.0 refactored the 457-LOC `generate_figures.py` into a `sheafnma/` package (`core`, `io`, `simulate`, `comparators`, `r_bridge`), validated on 13 R-netmeta built-in NMAs, and shipped a methods-paper draft for Research Synthesis Methods.
+> - Method: precision-weighted coboundary `F[e, treat1] = -1/SE_e, F[e, treat2] = +1/SE_e`; sheaf Laplacian `L = Fáµ€F` (symmetric PSD); WLS-solve node estimates with node 0 anchored; per-edge residuals `r_e = dÌƒ_e âˆ’ (F x*)_e` localize inconsistency; **Global Inconsistency Index** `GII = Î£ rÂ²` is the global statistic. One algebraic object yields both global + per-edge â€” complements (not replaces) node-splitting.
+> - Real-corpus headline: across **13 R-netmeta built-in NMAs** (Senn 2013 diabetes, Dias smokingcessation, Dong 2013 thrombolytics, Linde 2015/2016 acupuncture, Salanti antimanic, Baker, Dogliotti, Franchini, Gurusamy, Stowe, Woods, dietaryfat, parkinson) the global design-by-treatment Ï‡Â² (Higgins 2012) failed to reject in all 13. **SheafNMA flagged â‰¥1 localized inconsistency edge in 5 of those 13 (38.5%)** at the Youden-frozen threshold of **2.6912** â€” networks that look globally consistent harbor at least one inconsistent edge the global test misses.
+> - Simulation rigor: 36-cell grid (n_treatments âˆˆ {4,6,8} Ã— n_studies_per_edge âˆˆ {3,5,10} Ã— Ï„_inc âˆˆ {0,0.2,0.5,1.0}) Ã— **1000 replications per cell**, held-out training cell at (6,5,0.5) for Youden's-J threshold selection (frozen before evaluating remaining 35 cells). Type-I error at Ï„_inc=0 was **0.000 across all cells**. Mean per-edge sensitivity 0.981 / specificity 0.945 at Ï„_inc=0.5.
+
+ succeeded in 1922ms:
+   1: """Assemble the three parts of a paper that are NOT argument: references, the Introduction's
+   2: factual half, and the five fetchable bookkeeping claims.
+   3: 
+   4: NOTHING HERE IS AUTHORED. Every sentence is assembled from a field this object already holds,
+   5: and where a field does not exist the absence is STATED rather than filled. The four
+   6: interpretive claims -- why the question is open, what this review adds, what the effect means
+   7: clinically, and the conclusion -- are NOT written here and are named as owed.
+   8: 
+   9: WHAT IS BUILT
+  10: 
+  11:   manuscript.references          a bibliography, in three parts:
+  12:                                    included studies, by registration
+  13:                                    published syntheses this review was compared against
+  14:                                    methods guidance and software, with versions
+  15:                                  This is NOT the same thing as `sources`, which records the
+  16:                                  data provenance layer each fact was read at. Both belong: one
+  17:                                  is what a reader would look up, the other is what an auditor
+  18:                                  would re-read. The References section refused entirely on
+  19:                                  topics whose `sources` is empty, and a paper with no
+  20:                                  reference list is incomplete in a way nobody would defend.
+  21: 
+  22:   manuscript.introduction        the factual half only: what is being compared, in whom, on
+  23:                                  what outcome, over how many trials and participants, and how
+  24:                                  the evidence base was assembled -- then a final sentence
+  25:                                  naming what is still owed and by whom.
+  26: 
+  27:   bookkeeping_2026_08_21         the five claims measured as FETCHABLE, missing on 9 to 20 of
+  28:                                  28 topics: which limbs this review refuses, the search with
+  29:                                  its date and databases, whether it was prospectively
+  30:                                  registered, that a second assessor disagreed and where, and
+  31:                                  which risk-of-bias domains drove the rating.
+  32: 
+  33: THE SEARCH CLAIM HAS TWO HALVES AND CONFLATING THEM WOULD BE A FALSE CLAIM. The stored
+  34: `query_as_executed` is the search for PUBLISHED SYNTHESES (P46 limb 3), not for primary
+  35: trials. Most of these topics identified their trials by reading NAMED REGISTRATIONS, which is
+  36: not a database search and must not be described as one. Both halves are written, separately
+  37: labelled, and the registry half says plainly that no bibliographic search for primary trials
+  38: was run.
+  39: """
+  40: import glob
+  41: import importlib.util
+  42: import io
+  43: import json
+  44: import os
+  45: import sys
+  46: 
+  47: REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+  48: sys.path.insert(0, os.path.join(REPO, "ssot"))
+  49: import atomic_write                                            # noqa: E402
+  50: import paper_projector as _pp                                  # noqa: E402
+  51: import do_not_rebuild as _dnr                                  # noqa: E402
+  52: import authored_guard as _ag                                  # noqa: E402
+  53: 
+  54: _q = importlib.util.spec_from_file_location(
+  55:     "p46_queue", os.path.join(REPO, "scripts", "p46_queue.py"))
+  56: p46 = importlib.util.module_from_spec(_q)
+  57: _q.loader.exec_module(p46)
+  58: 
+  59: ALL_TOPICS = "--all" in sys.argv
+  60: TODAY = "2026-08-21"
+  61: 
+  62: GUIDANCE = {
+  63:     "rob2": ("Sterne JAC, Savovic J, Page MJ, et al. RoB 2: a revised tool for assessing risk "
+  64:              "of bias in randomised trials. BMJ. 2019;366:l4898. doi:10.1136/bmj.l4898"),
+  65:     "grade": ("Schunemann HJ, Higgins JPT, Vist GE, et al. Chapter 14: Completing 'Summary of "
+  66:               "findings' tables and grading the certainty of the evidence. In: Cochrane "
+  67:               "Handbook for Systematic Reviews of Interventions version 6.5. Cochrane; 2024."),
+  68:     "metafor": ("Viechtbauer W. Conducting meta-analyses in R with the metafor package. "
+  69:                 "J Stat Softw. 2010;36(3):1-48. doi:10.18637/jss.v036.i03"),
+  70:     "prisma": ("Page MJ, McKenzie JE, Bossuyt PM, et al. The PRISMA 2020 statement: an updated "
+  71:                "guideline for reporting systematic reviews. BMJ. 2021;372:n71. "
+  72:                "doi:10.1136/bmj.n71"),
+  73: }
+  74: 
+  75: 
+  76: def _flat(v):
+  77:     """A stored value as prose. NEVER `str()` a container into a manuscript.
+  78: 
+  79:     `str(obj.get("verification_basis") or "")` put this, verbatim, into MAVACAMTEN's
+  80:     Methods -- search paragraph on a page built 2026-08-18:
+  81: 
+  82:         {'what_verifies_this_object': 'ClinicalTrials.gov protocol records, read 2026-08-18',
+  83:          'what_is_not_claimed': 'that any per-trial count was checked against a results
+  84:          record', 'families': [], 'bar': 'not recorded on the page this object was built from'}
+  85: 
+  86:     `verification_basis` is a STRING on most objects and a MAPPING on some. The string path was
+  87:     the one written and tested; the mapping path reached a reader as a Python repr. This is the
+  88:     container-repr class recurring in the one file added to fix the reading experience.
+  89:     """
+  90:     if v is None:
+  91:         return ""
+  92:     if isinstance(v, str):
+  93:         return v.strip()
+  94:     if isinstance(v, (int, float)):
+  95:         return str(v)
+  96:     if isinstance(v, (list, tuple)):
+  97:         parts = [_flat(x) for x in v]
+  98:         parts = [x for x in parts if x]
+  99:         if not parts:
+ 100:             return ""
+ 101:         return ", ".join(parts[:-1]) + (" and " + parts[-1] if len(parts) > 1 else parts[0])
+ 102:     if isinstance(v, dict):
+ 103:         bits = []
+ 104:         for k, val in v.items():
+ 105:             if str(k).startswith("_"):
+ 106:                 continue
+ 107:             t = _flat(val)
+ 108:             if t:
+ 109:                 # THE SAME MAP THE PROJECTOR READS -- `ssot/field_lead_ins.json`, via
+ 110:                 # `paper_projector._lead_in`. ONE SOURCE, DELIBERATELY.
+ 111:                 #
+ 112:                 # This function and `_flatten_container` produce the same shape from the same
+ 113:                 # containers, and for two days only one of them was fixed: the projector's
+ 114:                 # flattener was corrected and MAVACAMTEN still rendered `bar:` because THIS
+ 115:                 # writer had baked the text into the object. If the two can hold different
+ 116:                 # maps they will drift, which is the two-locations problem that produced the
+ 117:                 # GRADE disagreement on 23 of 34 pooled outcomes.
+ 118:                 bits.append(_pp._lead_in(str(k), t))
+ 119:         return " ".join(bits)
+ 120:     return ""
+ 121: 
+ 122: 
+ 123: def _join_clause(tail):
+ 124:     """Attach a flattened block to a clause with the punctuation the tail actually needs.
+ 125: 
+ 126:     THE SEAM, AND IT APPEARED THE MOMENT THE LEAD-INS LANDED. The join was hardcoded as
+ 127:     `"; " + tail.rstrip(".")`, which was right while `_flat` produced a lowercase key --
+ 128:     "... on each entry; what verifies this object: ...". With English lead-ins the tail is a
+ 129:     capitalised SENTENCE, so the same join produced:
+ 130: 
+ 131:         "... on the dates recorded on each entry; This object's verification rests on ..."
+ 132: 
+ 133:     A semicolon followed by a capital is wrong either way round: a full stop before a sentence,
+ 134:     or a lowercase continuation after a semicolon. `.rstrip(".")` compounded it by removing the
+ 135:     sentence's own terminator.
+ 136: 
+ 137:     So the connector is chosen from the TAIL rather than fixed: a sentence gets a full stop and
+ 138:     keeps its punctuation; a lowercase fragment keeps the semicolon it was written for. Returns
+ 139:     "." alone when there is no tail, so the head still ends as a sentence.
+ 140:     """
+ 141:     t = (tail or "").strip()
+ 142:     if not t:
+ 143:         return "."
+ 144:     if t[:1].isupper():
+ 145:         return ". " + (t if t.endswith((".", "?", "!")) else t + ".")
+ 146:     return "; " + t.rstrip(".") + "."
+ 147: 
+ 148: 
+ 149: def g(o, path, default=None):
+ 150:     cur = o
+ 151:     for part in path.split("."):
+ 152:         if not isinstance(cur, dict):
+ 153:             return default
+ 154:         cur = cur.get(part)
+ 155:     return default if cur is None else cur
+ 156: 
+ 157: 
+ 158: def pooled_blocks(obj):
+ 159:     return ((obj.get("results") or {}).get("by_outcome") or {})
+ 160: 
+ 161: 
+ 162: def included_studies(obj):
+ 163:     """Every trial this review pools, keyed by registration. Deduplicated across outcomes."""
+ 164:     seen, rows = set(), []
+ 165:     pools = list(pooled_blocks(obj).values())
+ 166:     srcs = list((obj.get("inputs") or {}).get("trials") or [])
+ 167:     for blk in pools:
+ 168:         srcs.extend((blk or {}).get("per_trial") or [])
+ 169:     for t in srcs:
+ 170:         if not isinstance(t, dict):
+ 171:             continue
+ 172:         nct = t.get("nct") or t.get("trial_id")
+ 173:         # A NULLED TRIAL IS NOT AN INCLUDED STUDY. It appeared in the reference list under
+ 174:         # "Included studies, by registration" on finerenone-review while k said three.
+ 175:         if t.get("nulled") or str(nct or "").startswith("NULLED:"):
+ 176:             continue
+ 177:         if not nct or nct in seen:
+ 178:             continue
+ 179:         seen.add(nct)
+ 180:         rows.append({
+ 181:             "registration": str(nct),
+ 182:             "label": str(t.get("label") or t.get("trial_id") or "").strip(),
+ 183:             "registry": str(t.get("registry") or "ClinicalTrials.gov"),
+ 184:             "url": str(t.get("source_url") or ("https://clinicaltrials.gov/study/%s" % nct)),
+ 185:             "read_utc": str(t.get("read_utc") or ""),
+ 186:         })
+ 187:     return sorted(rows, key=lambda r: r["registration"])
+ 188: 
+ 189: 
+ 190: def published_syntheses(obj):
+ 191:     out = []
+ 192:     for r in (g(obj, "published_comparison.reviews") or []):
+ 193:         if not isinstance(r, dict):
+ 194:             continue
+ 195:         bits = [str(r.get("title") or "").strip().rstrip(".")]
+ 196:         if r.get("journal"):
+ 197:             bits.append(str(r["journal"]))
+ 198:         if r.get("year"):
+ 199:             bits.append(str(r["year"]))
+ 200:         cite = ". ".join([b for b in bits if b])
+ 201:         ident = []
+ 202:         if r.get("pmid"):
+ 203:             ident.append("PMID: %s" % r["pmid"])
+ 204:         if r.get("doi"):
+ 205:             ident.append("doi:%s" % r["doi"])
+ 206:         # A ROW THAT IS BLANK EXCEPT FOR ITS IDENTIFIER IS NOT A REFERENCE.
+ 207:         # Seven topics hold an appraised synthesis with a PMID and no title, journal or year;
+ 208:         # emitted as rows they made `add_table` refuse the whole table -- correctly, since an
+ 209:         # empty cell under a filled header asserts a citation that has nothing behind it.
+ 210:         # They are counted and named in the note instead of drawn as a blank line.
+ 211:         if not cite:
+ 212:             continue
+ 213:         out.append({
+ 214:             "citation": cite + ("." if cite and not cite.endswith(".") else ""),
+ 215:             "identifier": "; ".join(ident) or "no PMID or DOI recorded",
+ 216:             "url": ("https://pubmed.ncbi.nlm.nih.gov/%s/" % r["pmid"]) if r.get("pmid") else "",
+ 217:         })
+ 218:     return out
+ 219: 
+ 220: 
+ 221: def unciteable_syntheses(obj):
+ 222:     """Appraised syntheses whose record carries an identifier and no citable text."""
+ 223:     out = []
+ 224:     for r in (g(obj, "published_comparison.reviews") or []):
+ 225:         if isinstance(r, dict) and not str(r.get("title") or "").strip():
+ 226:             out.append(str(r.get("pmid") or r.get("doi") or "an unidentified record"))
+ 227:     return out
+ 228: 
+ 229: 
+ 230: def software(obj):
+ 231:     """The engine string, read from wherever this object actually stored it."""
+ 232:     cands = [g(obj, "model_output.engine")]
+ 233:     for blk in pooled_blocks(obj).values():
+ 234:         ro = (blk or {}).get("r_output") or {}
+ 235:         cands.append(ro.get("environment") or ro.get("_environment"))
+ 236:     for c in cands:
+ 237:         if isinstance(c, str) and c.strip():
+ 238:             return c.strip()
+ 239:     return None
+ 240: 
+ 241: 
+ 242: def references(obj):
+ 243:     inc = included_studies(obj)
+ 244:     pub = published_syntheses(obj)
+ 245:     meth = []
+ 246:     if isinstance(obj.get("risk_of_bias"), dict) and (obj["risk_of_bias"].get("by_outcome")):
+ 247:         meth.append({"cited_for": "risk of bias in the included results",
+ 248:                      "citation": GUIDANCE["rob2"]})
+ 249:     if isinstance(obj.get("grade"), dict) and obj["grade"].get("by_outcome"):
+ 250:         meth.append({"cited_for": "certainty of the evidence",
+ 251:                      "citation": GUIDANCE["grade"]})
+ 252:     sw = software(obj)
+ 253:     if sw:
+ 254:         meth.append({"cited_for": "the model fitted, as %s" % sw,
+ 255:                      "citation": GUIDANCE["metafor"]})
+ 256:     meth.append({"cited_for": "the reporting guideline this manuscript is written against",
+ 257:                  "citation": GUIDANCE["prisma"]})
+ 258:     if not inc:
+ 259:         return None
+ 260:     return {
+ 261:         "_what": ("A reference list, assembled from this object's own fields. Distinct from "
+ 262:                   "`sources`, which records the provenance LAYER each fact was read at; this "
+ 263:                   "is what a reader would look up."),
+ 264:         "included_studies": inc,
+ 265:         "published_syntheses_compared_against": pub,
+ 266:         "_published_syntheses_note": (
+ 267:             ("Appraised against this review; the comparison and its denominator are in "
+ 268:              "`published_comparison`. " if pub else
+ 269:              "No published synthesis is listed here. The comparison section states its own "
+ 270:              "denominator and why nothing citable was appraised. ")
+ 271:             + (("%d appraised record(s) -- %s -- carry an identifier and NO title, journal or "
+ 272:                 "year, so they cannot be written as a citation and are named here rather than "
+ 273:                 "drawn as a blank row under a filled header."
+ 274:                 % (len(unc), ", ".join(unc))) if (unc := unciteable_syntheses(obj)) else "")),
+ 275:         "methods_guidance_and_software": meth,
+ 276:     }
+ 277: 
+ 278: 
+ 279: def introduction(obj):
+ 280:     """The factual half. The interpretive sentences are named as owed, never written."""
+ 281:     q = str(obj.get("question") or "").strip()
+ 282:     outs = [o for o in (obj.get("outcomes") or []) if isinstance(o, dict)]
+ 283:     pools = pooled_blocks(obj)
+ 284:     ks, n = [], 0
+ 285:     for blk in pools.values():
+ 286:         if isinstance((blk or {}).get("k"), int):
+ 287:             ks.append(blk["k"])
+ 288:         for t in ((blk or {}).get("per_trial") or []):
+ 289:             for key in ("n", "n_total", "enrolment", "registered_enrolment"):
+ 290:                 if isinstance((t or {}).get(key), int):
+ 291:                     n += t[key]
+ 292:                     break
+ 293:     if not q or not pools:
+ 294:         return None
+ 295:     k = max(ks) if ks else 0
+ 296:     names = [str(o.get("name") or o.get("id")) for o in outs if o.get("name") or o.get("id")]
+ 297:     comp = next((str(o.get("comparator")) for o in outs if o.get("comparator")), None)
+ 298:     if not comp:
+ 299:         comp = next((str((b or {}).get("comparator")) for b in pools.values()
+ 300:                      if (b or {}).get("comparator")), None)
+ 301: 
+ 302:     parts = []
+ 303:     # TERMINAL PUNCTUATION IS NOT ONLY "?". This tested for a question mark and appended a full
+ 304:     # stop otherwise, so a question already ending in a full stop got a second one: "... which
+ 305:     # is not what the withdrawal on this page said.. It examines 2 randomised trials ...", on
+ 306:     # ~20 objects. Found by the grammar-seam gate on its first real run, and it predates the
+ 307:     # lead-in work entirely -- nothing had ever looked at the joins.
+ 308:     parts.append("This review asks: %s"
+ 309:                  % (q if q.rstrip().endswith(("?", ".", "!")) else q + "."))
+ 310:     # "IT POOLS 3 RANDOMISED TRIALS" ON A PAGE WHOSE THESIS IS THAT THEY CANNOT BE COMBINED.
+ 311:     #
+ 312:     # mavacamten-hcm exists to say its three trials register three unrelated primaries and are
+ 313:     # not poolable; its Introduction announced a pool anyway. malaria-act read "It pools 0
+ 314:     # randomised trials, against not applicable." The verb was unconditional -- the same defect
+ 315:     # as the abstract's Methods sentence, in a second section, from the same field.
+ 316:     _pooled_any = any(
+ 317:         isinstance((b or {}).get("pooled"), dict)
+ 318:         and (b or {}).get("pooled", {}).get("point") is not None
+ 319:         and not (b or {}).get("pooled", {}).get("withdrawn")
+ 320:         for b in pools.values())
+ 321:     if _pooled_any:
+ 322:         base = "It pools %d randomised trial%s" % (k, "" if k == 1 else "s")
+ 323:     elif k:
+ 324:         base = ("It examines %d randomised trial%s and DOES NOT POOL THEM"
+ 325:                 % (k, "" if k == 1 else "s"))
+ 326:     else:
+ 327:         base = "It identifies no trial that can be pooled"
+ 328:     if n:
+ 329:         base += " comprising %s participants as registered" % format(n, ",")
+ 330:     if comp and str(comp).strip().lower() not in (
+ 331:             "", "none", "not applicable", "n/a", "not recorded", "unknown"):
+ 332:         base += ", against %s" % comp
+ 333:     parts.append(base + ".")
+ 334:     if names:
+ 335:         # THE THIRD SURFACE ASSERTING A POOL. "The outcome pooled is ..." on a page that
+ 336:         # pools nothing is the same defect as the Methods sentence and the "It pools N"
+ 337:         # clause, in a third place, and it would have survived fixing the other two.
+ 338:         parts.append(("The outcome%s pooled %s %s." if _pooled_any else
+ 339:                       "The outcome%s sought %s %s.")
+ 340:                      # STRIPPED BEFORE JOINING. An outcome name carrying trailing whitespace
+ 341:                      # -- "Percentage of Observed Participants With Outcome " -- met the
+ 342:                      # appended full stop and produced "... With Outcome ." on pcsk9. A stored
+ 343:                      # value is not guaranteed tidy, and a join is the wrong place to assume it.
+ 344:                      % ("" if len(names) == 1 else "s",
+ 345:                         "is" if len(names) == 1 else "are",
+ 346:                         "; ".join(str(n).strip() for n in names[:6])))
+ 347:     prov = _flat(obj.get("provenance"))
+ 348:     if prov:
+ 349:         parts.append("Every count and denominator behind those estimates is read as follows. "
+ 350:                      + (prov if prov.endswith(".") else prov + "."))
+ 351:     parts.append(
+ 352:         "Everything in this paragraph is derived from stored fields and none of it is "
+ 353:         "authored. The interpretive sentences that follow are marked as drafts and are the "
+ 354:         "author's to replace.")
+ 355:     return "\n\n".join(parts)
+ 356: 
+ 357: 
+ 358: def bookkeeping(obj, topic):
+ 359:     out = {"_what": ("The five reporting claims a PRISMA-2020 manuscript needs that are "
+ 360:                      "FETCHABLE rather than argued -- each derived from a field here, or "
+ 361:                      "stated as an honest absence.")}
+ 362: 
+ 363:     # 1. WHICH LIMBS THIS REVIEW REFUSES
+ 364:     try:
+ 365:         sc = p46.score(obj)
+ 366:     except Exception:                                          # noqa: BLE001
+ 367:         sc = None
+ 368:     if isinstance(sc, dict):
+ 369:         # `score` returns {limb: [STATE, detail]}, not {limb: STATE}. Read the state.
+ 370:         def _state(v):
+ 371:             return str(v[0] if isinstance(v, (list, tuple)) and v else v).upper()
+ 372:         held = sorted(k for k, v in sc.items() if _state(v) == "HELD")
+ 373:         not_held = sorted(k for k, v in sc.items() if k not in held)
+ 374:         out["which_limbs_this_review_refuses"] = (
+ 375:             "Of the four properties this project requires of a completed topic, %d are held "
+ 376:             "(%s)%s." % (len(held), ", ".join(x.replace("_", " ") for x in held) or "none",
+ 377:                          "" if not not_held else
+ 378:                          " and %d are refused with the obstacle named in the evidence (%s)"
+ 379:                          % (len(not_held),
+ 380:                             ", ".join(x.replace("_", " ") for x in not_held))))
+ 381: 
+ 382:     # 2. THE SEARCH -- TWO HALVES, NEVER CONFLATED
+ 383:     scr = None
+ 384:     for p in sorted(glob.glob(os.path.join(REPO, "ssot", topic, "appraisal", "*.json"))):
+ 385:         try:
+ 386:             d = json.load(io.open(p, encoding="utf-8"))
+ 387:         except ValueError:
+ 388:             continue
+ 389:         if d.get("query_as_executed"):
+ 390:             scr = d
+ 391:             break
+ 392:     halves = []
+ 393:     prov = _flat(obj.get("provenance"))
+ 394:     vb = _flat(obj.get("verification_basis"))
+ 395:     inc = included_studies(obj)
+ 396:     if inc:
+ 397:         dates = sorted({r["read_utc"] for r in inc if r["read_utc"]})
+ 398:         halves.append(
+ 399:             "PRIMARY TRIALS. NO BIBLIOGRAPHIC SEARCH FOR PRIMARY TRIALS WAS RUN. The %d "
+ 400:             "included trial%s %s identified by reading named registration%s on %s%s"
+ 401:             % (len(inc), "" if len(inc) == 1 else "s",
+ 402:                "was" if len(inc) == 1 else "were", "" if len(inc) == 1 else "s",
+ 403:                " and ".join(dates) if dates else "the dates recorded on each entry",
+ 404:                _join_clause(vb or prov)))
+ 405:     if scr:
+ 406:         halves.append(
+ 407:             "PUBLISHED SYNTHESES. %s, executed %s. Query as executed: %s. It matched %s "
+ 408:             "record(s), of which %s were retrieved and %s read; %s appraised."
+ 409:             % (scr.get("source", "a bibliographic database"), scr.get("executed_utc", "?"),
+ 410:                scr.get("query_as_executed"), scr.get("matched", "?"),
+ 411:                scr.get("retrieved", "?"), scr.get("read", "?"),
+ 412:                len(scr.get("appraised") or []) if isinstance(scr.get("appraised"), list)
+ 413:                else scr.get("appraised", "?")))
+ 414:     if halves:
+ 415:         out["the_search_its_date_and_its_databases"] = " ".join(halves)
+ 416: 
+ 417:     # 3. PROSPECTIVE REGISTRATION
+ 418:     pro = g(obj, "prospero") or g(obj, "protocol.prospero") or g(obj, "protocol.registration")
+ 419:     out["whether_this_review_was_prospectively_registered"] = (
+ 420:         str(pro) if isinstance(pro, str) and pro.strip() else
+ 421:         "NO PROSPERO REGISTRATION OR PROTOCOL RECORD IS HELD ON THIS OBJECT. That is not the "
+ 422:         "same as knowing this review was not registered, and neither claim is made. It is "
+ 423:         "recorded here as an absence so that a reader does not have to infer it from silence.")
+ 424: 
+ 425:     # 4. THE SECOND ASSESSOR
+ 426:     rob = obj.get("risk_of_bias") or {}
+ 427:     sa = next((rob[k] for k in sorted(rob) if str(k).startswith("SECOND_ASSESSOR")
+ 428:                and isinstance(rob[k], dict)), None)
+ 429:     if sa:
+ 430:         rc = next((sa[k] for k in sorted(sa) if k.startswith("RECOUNTED_AFTER")
+ 431:                    and isinstance(sa[k], dict)), None)
+ 432:         out["that_two_assessors_disagreed_and_where"] = (
+ 433:             "Risk of bias was assessed independently a second time by %s, blind to this "
+ 434:             "assessment and given the same registry facts. %s By domain: %s.%s"
+ 435:             % (sa.get("assessor_2", "a second assessor"),
+ 436:                sa.get("DISAGREEMENT_RATE", ""),
+ 437:                ", ".join("%s %s" % (k, v) for k, v in
+ 438:                          sorted((sa.get("PER_DOMAIN") or {}).items())) or "not recorded",
+ 439:                (" Recounted after this review's D1 judgements moved: %s."
+ 440:                 % rc.get("recounted_now", "")) if rc else ""))
+ 441:     else:
+ 442:         out["that_two_assessors_disagreed_and_where"] = (
+ 443:             "NO SECOND, INDEPENDENT RISK-OF-BIAS ASSESSMENT IS RECORDED FOR THIS TOPIC. The "
+ 444:             "judgements were made once. Stated so that single assessment is not mistaken for "
+ 445:             "agreement between two.")
+ 446: 
+ 447:     # 5. WHICH ROB DOMAINS DROVE THE RATING
+ 448:     drove = {}
+ 449:     for oid, per in (rob.get("by_outcome") or {}).items():
+ 450:         if not isinstance(per, dict):
+ 451:             continue
+ 452:         for rid, j in per.items():
+ 453:             if not isinstance(j, dict):
+ 454:                 continue
+ 455:             ov = str(j.get("overall") or "").upper()
+ 456:             if ov in ("", "LOW"):
+ 457:                 continue
+ 458:             for k, v in (j.get("domains") or {}).items():
+ 459:                 if isinstance(v, dict) and str(v.get("judgement") or "").upper() == ov:
+ 460:                     drove[str(k).split("_")[0].upper()] = drove.get(
+ 461:                         str(k).split("_")[0].upper(), 0) + 1
+ 462:     if drove:
+ 463:         out["which_risk_of_bias_domains_drove_the_rating"] = (
+ 464:             "Where a result is rated worse than LOW overall, the domain carrying that "
+ 465:             "judgement is: %s. The overall rating is the worst domain, so these are the "
+ 466:             "domains that determine it."
+ 467:             % ", ".join("%s on %d result(s)" % (k, n)
+ 468:                         for k, n in sorted(drove.items(), key=lambda kv: (-kv[1], kv[0]))))
+ 469:     return out
+ 470: 
+ 471: 
+ 472: def main():
+ 473:     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+ 474:     dry = "--apply" not in sys.argv
+ 475:     only = [a for a in sys.argv[1:] if not a.startswith("--")]
+ 476:     n_ref = n_int = n_bk = topics = 0
+ 477:     no_ref = []
+ 478:     for path in sorted(glob.glob(os.path.join(REPO, "ssot", "*", "*.json"))):
+ 479:         topic = os.path.basename(os.path.dirname(path))
+ 480:         if os.path.basename(path) != topic + ".json":
+ 481:             continue
+ 482:         if only and topic not in only:
+ 483:             continue
+ 484:         try:
+ 485:             obj = json.load(io.open(path, encoding="utf-8"))
+ 486:         except ValueError:
+ 487:             continue
+ 488:         # `--all` WIDENS THE SCOPE TO EVERY TOPIC WITH A PAGE, not only the 28 that
+ 489:         # pool. Each part still refuses on its own terms: a topic with no included
+ 490:         # registration gets no reference list, one with no pooled interval gets no
+ 491:         # drafts. That is a per-part absence with a reason, not a whole topic
+ 492:         # skipped for want of one field.
+ 493:         if not ALL_TOPICS and not p46.pooled_outcomes(obj):
+ 494:             continue
+ 495:         topics += 1
+ 496:         # `setdefault` RETURNS AN EXISTING NULL. Twelve topics hold `manuscript: null`, so
+ 497:         # `setdefault("manuscript", {})` handed back None, the isinstance guard skipped them,
+ 498:         # and the run reported 16 of 28 while printing no reason for the other 12.
+ 499:         # THE GUARD, IMPORTED RATHER THAN REMEMBERED. `man["references"] = refs`
+ 500:         # below is UNCONDITIONAL, so a `--all` run over an authored object replaces
+ 501:         # written argument with a projection. `do_not_rebuild` guarded the BUILDER and
+ 502:         # this write came through a different door.
+ 503:         _dnr.check_object(path)
+ 504:         man = obj.get("manuscript")
+ 505:         if not isinstance(man, dict):
+ 506:             man = {}
+ 507:             obj["manuscript"] = man
+ 508: 
+ 509:         refs = references(obj)
+ 510:         if refs:
+ 511:             # AUTHORED PROSE IS THE ONE THING HERE THAT CANNOT BE REGENERATED. This assignment
+ 512:             # was unconditional while `introduction` below was guarded -- one field careful and
+ 513:             # the next not, in the same function.
+ 514:             _ag.refuse_if_authored(man, "references", topic,
+ 515:                                    "build_paper_bookkeeping_2026_08_21")
+ 516:             man["references"] = refs
+ 517:             n_ref += 1
+ 518:         else:
+ 519:             no_ref.append(topic)
+ 520: 
+ 521:         intro = introduction(obj)
+ 522:         if intro and not str(man.get("introduction") or "").strip():
+ 523:             _ag.refuse_if_authored(man, "introduction", topic,
+ 524:                                    "build_paper_bookkeeping_2026_08_21")
+ 525:             man["introduction"] = intro
+ 526:             n_int += 1
+ 527: 
+ 528:         bk = bookkeeping(obj, topic)
+ 529:         if len(bk) > 1:
+ 530:             obj["bookkeeping_%s" % TODAY.replace("-", "_")] = bk
+ 531:             n_bk += 1
+ 532: 
+ 533:         obj.setdefault("display_change_announced", []).append({
+ 534:             "date": TODAY,
+ 535:             "change": "references, the Introduction's factual half, and the five fetchable "
+ 536:                       "bookkeeping claims assembled from stored fields",
+ 537:             "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+ 538:             "what_changed": "references %s, introduction %s, bookkeeping claims %d"
+ 539:                             % ("built" if refs else "not buildable",
+ 540:                                "written" if intro else "not buildable", len(bk) - 1),
+ 541:             "why": ("A paper with no reference list and a 47-character Introduction is "
+ 542:                     "incomplete in ways that are pure assembly. Nothing interpretive is "
+ 543:                     "written: the four judgement claims are named as owed."),
+ 544:         })
+ 545:         print("%-44s refs %-3s intro %-3s bookkeeping %d"
+ 546:               % (topic[:44], "yes" if refs else "NO", "yes" if intro else "NO", len(bk) - 1))
+ 547:         if not dry:
+ 548:             atomic_write.write_json(path, obj, indent=1)
+ 549: 
+ 550:     if not topics:
+ 551:         sys.exit("PROOF FAILED: no topic with a pooled outcome was read. 28 have one.")
+ 552:     print("\n%d topic(s): references on %d, introduction on %d, bookkeeping on %d"
+ 553:           % (topics, n_ref, n_int, n_bk))
+ 554:     if no_ref:
+ 555:         print("NO REFERENCE LIST BUILDABLE (no included trial carries a registration): %s"
+ 556:               % ", ".join(no_ref))
+ 557:     if dry:
+ 558:         print("DRY RUN -- pass --apply to write")
+ 559: 
+ 560: 
+ 561: if __name__ == "__main__":
+ 562:     main()
+
+codex
+- Line 291 — merged/count error. Input to `introduction()`: `{"question":"Q?","results":{"by_outcome":{"a":{"k":1,"pooled":{"point":1},"per_trial":[{"trial_id":"NCT1","n":100}]},"b":{"k":1,"pooled":{"point":2},"per_trial":[{"trial_id":"NCT1","n":100}]}}}}`. Consequence: one 100-participant trial is reported as 200 participants.
+
+- Line 225 — selector keyed to the wrong field. Input to `references()`: `{"inputs":{"trials":[{"nct":"NCT1"}]},"published_comparison":{"reviews":[{"journal":"BMJ","year":2024,"pmid":"123"}]}}`. Consequence: the record is both cited as `BMJ. 2024.` and named in the note as carrying “NO title, journal or year.”
+
+- Line 328 — zero conflated with absent. Input to `introduction()`: `{"question":"Q?","results":{"by_outcome":{"o":{"k":1,"pooled":{"point":0.0},"per_trial":[{"trial_id":"NCT1","n":0}]}}}}`. Consequence: a recorded zero participant count is suppressed exactly like a missing count.
+
+- Line 529 — check that cannot fail after normal return. Input to `bookkeeping()`: `({}, "__no_appraisal_files__")`, with no matching `ssot/__no_appraisal_files__/appraisal/*.json`. Consequence: `len(bk) > 1` is still true because registration absence and second-assessor absence are always written, so “bookkeeping on” can report success while search, limb, and RoB-domain claims are absent.
+
+- Line 540 — status reports buildability, not work done. Input file for `main --all t`: `{"question":"Q?","manuscript":{"introduction":"existing"},"results":{"by_outcome":{"o":{"k":1,"pooled":{"point":1},"per_trial":[]}}}}`. Consequence: line 522 skips the write, but `display_change_announced.what_changed` still says `introduction written`.
+
+No proven CRLF/LF text-compare defect, negation-dropped defect, or probe-keyed-to-removed-string defect in this file.
+tokens used
+44,620
+- Line 291 — merged/count error. Input to `introduction()`: `{"question":"Q?","results":{"by_outcome":{"a":{"k":1,"pooled":{"point":1},"per_trial":[{"trial_id":"NCT1","n":100}]},"b":{"k":1,"pooled":{"point":2},"per_trial":[{"trial_id":"NCT1","n":100}]}}}}`. Consequence: one 100-participant trial is reported as 200 participants.
+
+- Line 225 — selector keyed to the wrong field. Input to `references()`: `{"inputs":{"trials":[{"nct":"NCT1"}]},"published_comparison":{"reviews":[{"journal":"BMJ","year":2024,"pmid":"123"}]}}`. Consequence: the record is both cited as `BMJ. 2024.` and named in the note as carrying “NO title, journal or year.”
+
+- Line 328 — zero conflated with absent. Input to `introduction()`: `{"question":"Q?","results":{"by_outcome":{"o":{"k":1,"pooled":{"point":0.0},"per_trial":[{"trial_id":"NCT1","n":0}]}}}}`. Consequence: a recorded zero participant count is suppressed exactly like a missing count.
+
+- Line 529 — check that cannot fail after normal return. Input to `bookkeeping()`: `({}, "__no_appraisal_files__")`, with no matching `ssot/__no_appraisal_files__/appraisal/*.json`. Consequence: `len(bk) > 1` is still true because registration absence and second-assessor absence are always written, so “bookkeeping on” can report success while search, limb, and RoB-domain claims are absent.
+
+- Line 540 — status reports buildability, not work done. Input file for `main --all t`: `{"question":"Q?","manuscript":{"introduction":"existing"},"results":{"by_outcome":{"o":{"k":1,"pooled":{"point":1},"per_trial":[]}}}}`. Consequence: line 522 skips the write, but `display_change_announced.what_changed` still says `introduction written`.
+
+No proven CRLF/LF text-compare defect, negation-dropped defect, or probe-keyed-to-removed-string defect in this file.

@@ -1,0 +1,216 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a031ea-5f4b-7332-9bfe-8ed70528a6aa
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/lint_expected_value_is_a_literal.py
+
+--- THE FILE, IN FULL ---
+"""A check whose expected value is TYPED rather than READ from the artefact.
+
+THE INSTANCE. `ssot/boco_refit.R` printed a CHECK line asserting the object's stored values
+were "MD -55.24 (-58.27 to -52.21), I^2 = 41.5" and reported that the heterogeneity did not
+reproduce. NONE OF THOSE NUMBERS CAME FROM THE OBJECT. They were typed into the script, and
+41.5 is the stored I-squared of a DIFFERENT TOPIC. **There was no discrepancy and one was
+reported**, to a reader who relayed it onward and built three instructions on it.
+
+    A CHECK LINE MUST READ ITS EXPECTED VALUES FROM THE ARTEFACT, NEVER ACCEPT TYPED ONES.
+
+A typed expected value is not a check. It is two assertions -- the computed one and the
+remembered one -- compared against each other, and when they disagree the script cannot say
+which is wrong. It is the same class as an identifier written from recall and as a
+fabricated provenance constant: A NUMBER IN SOURCE THAT CLAIMS TO DESCRIBE A FILE.
+
+WHAT THIS FINDS. In `.py` and `.R` under `ssot/` and `scripts/`: a line that reports or
+compares a "stored", "expected", "published" or "prior" value where that value is a NUMERIC
+LITERAL rather than an expression reading the artefact. Reported as candidates -- a literal
+in a CONSTRUCTED FIXTURE is correct and is exactly what class 58 requires, so the judgement
+is made against a list.
+"""
+import io
+import os
+import re
+import sys
+import glob
+
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from instrument_controls import require_controls
+
+# NARROWED AFTER ITS FIRST RUN, WHICH MATCHED PROSE. The first pattern found any line
+# with a claim word near a number, so it flagged docstring sentences -- "was 2.2%",
+# "was Colombel Gut 2009" -- and reported them as typed expected values. A sweep that
+# cannot tell a sentence from a check is measuring English, not code.
+#
+# The line must BE a check: it prints, asserts or compares. Prose does not.
+IS_A_CHECK = re.compile(r"\bcat\(|\bprint\(|\bsprintf\(|\bassert\b|[=!]=|\bstopifnot\(")
+# "stored: ... -55.24" / "expected 41.5" -- a claim about an artefact's contents carrying a
+# bare decimal. Integers are excluded: a count in a check line is usually a length, and
+# including them buried the signal.
+CLAIM = re.compile(
+    r"(?i)\b(stored|expected|published|prior|baseline|should\s+be)\b"
+    r"[^\n]{0,40}?(-?\d+\.\d+)")
+# A read: the line pulls from an object, a dict, a file or a parsed structure.
+READS = re.compile(
+    r"\.get\(|\[[\"'][\w.]+[\"']\]|json\.load|fromJSON|read\(|obj\b|blk\b|canon\b|"
+    r"args_stored|%s|%\(|\{\}|format\(|sprintf\(.*%[sdf]")
+FIXTURE = re.compile(r"(?i)fixture|control|graft|proof|self.?test|example|_bad|_good")
+
+
+def scan(path):
+    src = io.open(path, encoding="utf-8", errors="replace").read()
+    hits = []
+    for i, line in enumerate(src.split("\n")):
+        s = line.strip()
+        if not s or s.startswith("#"):
+            continue
+        if not IS_A_CHECK.search(s):
+            continue
+        m = CLAIM.search(s)
+        if not m:
+            continue
+        if READS.search(s):
+            continue                     # the value comes from the artefact
+        if FIXTURE.search(s):
+            continue                     # a constructed fixture is meant to be literal
+        hits.append((i + 1, s[:96]))
+    return hits
+
+
+def main():
+    bad = 'cat(sprintf("  stored:  MD -55.24 (-58.27 to -52.21)   I^2 = 41.5\\n"))'
+    good = ('cat(sprintf("  stored:  MD %s   I^2 = %s\\n", '
+            'args_stored[["point"]], args_stored[["i2"]]))')
+    tmp_bad = os.path.join(REPO, "outputs", "_evl_bad.R")
+    tmp_good = os.path.join(REPO, "outputs", "_evl_good.R")
+    os.makedirs(os.path.dirname(tmp_bad), exist_ok=True)
+    io.open(tmp_bad, "w", encoding="utf-8", newline=chr(10)).write(bad + chr(10))
+    io.open(tmp_good, "w", encoding="utf-8", newline=chr(10)).write(good + chr(10))
+    try:
+        require_controls(
+            "lint_expected_value_is_a_literal",
+            positive=("the boco_refit check line as it was written -- a typed stored value",
+                      bool(scan(tmp_bad)), True),
+            negative=("the same line reading its stored values from the object",
+                      bool(scan(tmp_good)), True))
+    finally:
+        for p in (tmp_bad, tmp_good):
+            if os.path.exists(p):
+                os.remove(p)
+
+    paths = sorted(glob.glob(os.path.join(REPO, "ssot", "*.py"))
+                   + glob.glob(os.path.join(REPO, "ssot", "*.R"))
+                   + glob.glob(os.path.join(REPO, "scripts", "*.py"))
+                   + glob.glob(os.path.join(REPO, "scripts", "*.R")))
+    total = 0
+    print("")
+    for p in paths:
+        rel = os.path.relpath(p, REPO).replace("\\", "/")
+        if rel.endswith("lint_expected_value_is_a_literal.py"):
+            continue
+        for ln, s in scan(p):
+            total += 1
+            print("    %s:%d" % (rel, ln))
+            print("        %s" % s)
+    print("")
+    print("TYPED EXPECTED VALUES: %d candidate(s) across %d file(s)" % (total, len(paths)))
+    print("")
+    print("CANDIDATES, NOT DEFECTS. A literal inside a CONSTRUCTED FIXTURE is correct and is")
+    print("what registry class 58 requires -- lines matching fixture, control, graft or")
+    print("proof are excluded for that reason. What is a defect is a line that claims to")
+    print("describe what an artefact CONTAINS while carrying a number nobody read from it.")
+
+
+if __name__ == "__main__":
+    main()
+
+codex
+I’ll stay inside the pasted record and only name missing context where the defect depends on an imported contract.
+codex
+- Line 50: input `cat(sprintf("stored: MD -55.24, n=%d\n", n))`  
+  Defect shape: selector keyed to the string a fix removes.  
+  Consequence: `READS` treats any `sprintf(...%d` as an artefact read, so a typed stored decimal is silently skipped.
+
+- Line 68: input `print("expected 41.5")  # proof`  
+  Defect shape: idempotency guard satisfied by its own comment or marker.  
+  Consequence: the fixture exemption fires on an inline comment, so the bad line is excluded without being a constructed fixture.
+
+- Line 49: input `print("expected obj value 41.5")`  
+  Defect shape: selector keyed to a form the corpus does not use correctly.  
+  Consequence: the word `obj` inside report text is treated as evidence of reading an object, making the check vacuous for that line.
+
+- Line 40: input `note = "expected 41.5 == baseline"`  
+  Defect shape: selector keyed to a string form, not the code operation.  
+  Consequence: `==` inside a string literal makes a non-check assignment look like a check and produces a false candidate.
+
+- Line 110: input filesystem containing this module plus `scripts/a.py` with `print("expected 1.2")`.  
+  Defect shape: off-by-one/tabulation count.  
+  Consequence: the script skips this module at lines 103-104 but still reports `len(paths)`, so it says candidates are across 2 files when only 1 file was actually scanned for findings.
+
+- COULD NOT DETERMINE: line 89 may be wrong because the negative control passes `True` while `scan(tmp_good)` is expected to be false, but the contract of missing module `scripts/instrument_controls.py` is not in the record.
+tokens used
+10,990
+- Line 50: input `cat(sprintf("stored: MD -55.24, n=%d\n", n))`  
+  Defect shape: selector keyed to the string a fix removes.  
+  Consequence: `READS` treats any `sprintf(...%d` as an artefact read, so a typed stored decimal is silently skipped.
+
+- Line 68: input `print("expected 41.5")  # proof`  
+  Defect shape: idempotency guard satisfied by its own comment or marker.  
+  Consequence: the fixture exemption fires on an inline comment, so the bad line is excluded without being a constructed fixture.
+
+- Line 49: input `print("expected obj value 41.5")`  
+  Defect shape: selector keyed to a form the corpus does not use correctly.  
+  Consequence: the word `obj` inside report text is treated as evidence of reading an object, making the check vacuous for that line.
+
+- Line 40: input `note = "expected 41.5 == baseline"`  
+  Defect shape: selector keyed to a string form, not the code operation.  
+  Consequence: `==` inside a string literal makes a non-check assignment look like a check and produces a false candidate.
+
+- Line 110: input filesystem containing this module plus `scripts/a.py` with `print("expected 1.2")`.  
+  Defect shape: off-by-one/tabulation count.  
+  Consequence: the script skips this module at lines 103-104 but still reports `len(paths)`, so it says candidates are across 2 files when only 1 file was actually scanned for findings.
+
+- COULD NOT DETERMINE: line 89 may be wrong because the negative control passes `True` while `scan(tmp_good)` is expected to be false, but the contract of missing module `scripts/instrument_controls.py` is not in the record.

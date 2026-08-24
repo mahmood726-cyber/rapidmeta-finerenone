@@ -1,0 +1,257 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a03200-3d9c-7963-9567-04c6c32cec82
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/metric_consistency_triage.py
+
+--- THE FILE, IN FULL ---
+"""METRIC MISMATCH: do the contributing trials report the outcome in the SAME UNIT?
+
+THE FOURTH CLASS IN THE PUBLISHED-ERROR TAXONOMY, and the one we had no check for. We have
+been verifying that endpoints MATCH and never that their METRICS do.
+
+THE FOUNDING INSTANCE. FOURIER and ODYSSEY OUTCOMES both report cardiovascular death.
+FOURIER posts an ANNUALISED INCIDENCE RATE (0.40 vs 0.39); ODYSSEY posts a CUMULATIVE
+PERCENTAGE of observed participants over a longer median follow-up (2.9 vs 2.5). Same
+clinical concept, incommensurable units, and no event counts posted to reduce them to a
+common form. A PUBLISHED META-ANALYSIS POOLING THOSE TWO ON "CARDIOVASCULAR DEATH" WOULD
+BE COMBINING A RATE WITH A PROPORTION, and nothing in the numbers would show it.
+
+Three further instances found the same day: DELIVER's recurrent-event composite against the
+others' first-event composite; and two topics whose trials share no unit at all.
+
+WHY IT MATTERS AND WHY NOTHING CATCHES IT. A pool of a rate and a proportion is
+arithmetically well-formed, internally consistent, and wrong. That is the signature shared
+by every class in this taxonomy -- reference errors, heterogeneity reported then ignored,
+non-randomised comparators inside a registered primary, and now this. PEER REVIEW CANNOT
+SEE THEM BECAUSE THE ARITHMETIC IS IMPECCABLE.
+
+READ, NOT INFERRED. The unit comes from the registry's own `unitOfMeasure` field on each
+posted outcome measure. We do not parse titles or guess from magnitudes.
+
+RUN AGAINST OUR OWN PUBLISHED POOLS FIRST. We have spent a day establishing that our
+WITHDRAWALS were sound; the open question is whether our ESTIMATES are. A live pool mixing
+metrics is a defect on a page a reader can open today, and it outranks recovering
+withdrawn ones.
+
+THIS IS A TRIAGE, NOT A VERDICT. Trials legitimately post many outcomes in many units; a
+shared unit somewhere does not prove the POOLED quantity used it. A topic with NO shared
+unit is the strong signal; a topic with several shared units needs the pooled outcome
+identified by hand.
+"""
+from __future__ import annotations
+import io
+import json
+import os
+import sys
+import time
+import urllib.request
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from text_match import label  # noqa: E402
+
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+API = "https://clinicaltrials.gov/api/v2/studies/{}?format=json"
+CACHE = os.path.join(REPO, ".metric-cache.json")
+cache = json.load(io.open(CACHE, encoding="utf-8")) if os.path.exists(CACHE) else {}
+
+# units that mean fundamentally different things even when the concept matches
+RATE = ("per 100 person-years", "per 100 patient years", "events per", "per 100 py",
+        "incidence rate")
+PROP = ("percentage of participants", "participants", "percentage of observed",
+        "number of participants", "percentage of subjects")
+
+
+def kind_of(u):
+    u = (u or "").lower()
+    if any(r in u for r in RATE):
+        return "RATE"
+    if any(p in u for p in PROP):
+        return "PROPORTION"
+    return None
+
+
+def units(nct):
+    if nct in cache:
+        return cache[nct]
+    try:
+        req = urllib.request.Request(API.format(nct), headers={"User-Agent": "rm-metric"})
+        with urllib.request.urlopen(req, timeout=45) as r:
+            d = json.loads(r.read().decode("utf-8"))
+        oms = (((d.get("resultsSection") or {}).get("outcomeMeasuresModule") or {})
+               .get("outcomeMeasures") or [])
+        # paramType NAMES THE EFFECT MEASURE. unitOfMeasure describes how the ARM-LEVEL
+        # DESCRIPTIVE COLUMN is tabulated, which is a different thing and not what a pool
+        # combines. The first version read unitOfMeasure and flagged FIVE LIVE POOLS
+        # including the flagship: DAPA-HF posts "Participants" while EMPEROR posts
+        # "Patients with events/100 pt-yrs", yet ALL THREE report paramType "Hazard Ratio
+        # (HR)" -- the same quantity, presented differently. THE LABEL A READER SEES IS
+        # NOT THE QUANTITY BEING POOLED.
+        # NORMALISED THROUGH scripts/text_match.label -- 'Relative Risk Reduction' and
+        # 'Relative Risk Reduction (RRR)' are ONE label. The unnormalised version flagged
+        # a sound nirsevimab pool as a live defect: the FOURTH unnormalised-match defect
+        # this week, inside a check written to catch that shape in other people's work.
+        u = sorted({label(a.get("paramType"))
+                    for o in oms for a in (o.get("analyses") or [])
+                    if a.get("paramType")})
+    except Exception:
+        u = None
+    cache[nct] = u
+    time.sleep(0.06)
+    return u
+
+
+def main() -> int:
+    only_pooled = "--pooled-only" in sys.argv
+    ss = os.path.join(REPO, "ssot")
+    rows = []
+    for d in sorted(os.listdir(ss)):
+        f = os.path.join(ss, d, d + ".json")
+        if not os.path.exists(f):
+            continue
+        try:
+            o = json.load(io.open(f, encoding="utf-8"))
+        except Exception:
+            continue
+        bo = (o.get("results") or {}).get("by_outcome") or {}
+        pooled = any(isinstance(b, dict) and (b.get("pooled") or {}).get("point") is not None
+                     for b in bo.values())
+        if only_pooled and not pooled:
+            continue
+        sets = []
+        for t in ((o.get("inputs") or {}).get("trials") or []):
+            n = (t.get("nct") or t.get("trial_id") or "")
+            if not n.startswith("NCT"):
+                continue
+            u = units(n)
+            if u:
+                sets.append((n, set(u)))
+        json.dump(cache, io.open(CACHE, "w", encoding="utf-8", newline="\n"),
+                  ensure_ascii=False)
+        if len(sets) < 2:
+            rows.append((d, pooled, "UNASSESSABLE", "<2 trials post results"))
+            continue
+        common = set.intersection(*[s for _, s in sets])
+        kinds = {k for _, s in sets for k in (kind_of(x) for x in s) if k}
+        if not common:
+            rows.append((d, pooled, "NO SHARED UNIT", ""))
+        elif "RATE" in kinds and "PROPORTION" in kinds:
+            rows.append((d, pooled, "MIXED RATE/PROPORTION present",
+                         ", ".join(sorted(common))[:44]))
+        else:
+            rows.append((d, pooled, "shared", ", ".join(sorted(common))[:44]))
+
+    bad = [r for r in rows if r[2] in ("NO SHARED UNIT", "MIXED RATE/PROPORTION present")]
+    live = [r for r in bad if r[1]]
+    print("topics examined: %d   (%s)" % (len(rows),
+                                          "PUBLISHED POOLS ONLY" if only_pooled else "all"))
+    print()
+    print("  LIVE POOLS FLAGGED -- a defect a reader can open today: %d" % len(live))
+    for d, _, why, u in live:
+        print("      %-44s %s  %s" % (d[:43], why, u))
+    print()
+    print("  flagged but not publishing a pool: %d" % (len(bad) - len(live)))
+    print("  unassessable: %d   (NOT a pass)"
+          % sum(1 for r in rows if r[2] == "UNASSESSABLE"))
+    print()
+    print("TRIAGE, NOT A VERDICT. A shared unit somewhere does not prove the POOLED")
+    print("quantity used it; NO shared unit is the strong signal. Units are read from the")
+    print("registry's own unitOfMeasure field, never parsed from titles.")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+
+codex
+**Defects Found**
+
+1. **Probe keyed to the string a fix removes / selector keyed to wrong form**  
+Line 131 uses `kind_of(x)` on values produced at line 90 from `paramType`, but `RATE`/`PROP` at lines 55-58 are `unitOfMeasure` strings.  
+Exact input: CT.gov response for `NCT00000001` has `unitOfMeasure: "Events per 100 person-years"`, `analyses: [{"paramType":"Hazard Ratio"}]`; `NCT00000002` has `unitOfMeasure: "Percentage of participants"`, `analyses: [{"paramType":"Hazard Ratio"}]`; `ssot/t/t.json` pools both.  
+Consequence: mixed rate/proportion inputs are classified as `"shared"` because both sets contain only `"hazard ratio"`.
+
+2. **Instrument reading a different copy than the one being changed**  
+Line 71 returns cached values before the line-90 `paramType` read, but `.metric-cache.json` has no schema/version after the documented change from `unitOfMeasure` to `paramType`.  
+Exact input: `.metric-cache.json = {"NCT00000001":["Participants"],"NCT00000002":["Patients with events/100 pt-yrs"]}` and `ssot/t/t.json` pools those two NCTs.  
+Consequence: a run after the fix can still use pre-fix unit strings and report the old false defect.
+
+3. **Status code reporting the wrapper rather than the work / check cannot fail**  
+Line 156 returns `0` unconditionally after computing `live`.  
+Exact input: `.metric-cache.json = {"NCT00000001":["hazard ratio"],"NCT00000002":["risk ratio"]}`, `ssot/t/t.json = {"inputs":{"trials":[{"nct":"NCT00000001"},{"nct":"NCT00000002"}]},"results":{"by_outcome":{"o":{"pooled":{"point":1.0}}}}}`, argv includes `--pooled-only`.  
+Consequence: the script prints one live flagged pool but exits success, so an exit-code gate passes.
+
+No proven idempotency guard satisfied by its own comment or marker.  
+No proven CRLF/LF text-comparison defect.  
+No proven merged-cell or off-by-one defect.  
+No proven zero-conflated-with-absent numeric defect; `point = 0` survives line 113.  
+No proven negation-dropped defect.
+tokens used
+13,531
+**Defects Found**
+
+1. **Probe keyed to the string a fix removes / selector keyed to wrong form**  
+Line 131 uses `kind_of(x)` on values produced at line 90 from `paramType`, but `RATE`/`PROP` at lines 55-58 are `unitOfMeasure` strings.  
+Exact input: CT.gov response for `NCT00000001` has `unitOfMeasure: "Events per 100 person-years"`, `analyses: [{"paramType":"Hazard Ratio"}]`; `NCT00000002` has `unitOfMeasure: "Percentage of participants"`, `analyses: [{"paramType":"Hazard Ratio"}]`; `ssot/t/t.json` pools both.  
+Consequence: mixed rate/proportion inputs are classified as `"shared"` because both sets contain only `"hazard ratio"`.
+
+2. **Instrument reading a different copy than the one being changed**  
+Line 71 returns cached values before the line-90 `paramType` read, but `.metric-cache.json` has no schema/version after the documented change from `unitOfMeasure` to `paramType`.  
+Exact input: `.metric-cache.json = {"NCT00000001":["Participants"],"NCT00000002":["Patients with events/100 pt-yrs"]}` and `ssot/t/t.json` pools those two NCTs.  
+Consequence: a run after the fix can still use pre-fix unit strings and report the old false defect.
+
+3. **Status code reporting the wrapper rather than the work / check cannot fail**  
+Line 156 returns `0` unconditionally after computing `live`.  
+Exact input: `.metric-cache.json = {"NCT00000001":["hazard ratio"],"NCT00000002":["risk ratio"]}`, `ssot/t/t.json = {"inputs":{"trials":[{"nct":"NCT00000001"},{"nct":"NCT00000002"}]},"results":{"by_outcome":{"o":{"pooled":{"point":1.0}}}}}`, argv includes `--pooled-only`.  
+Consequence: the script prints one live flagged pool but exits success, so an exit-code gate passes.
+
+No proven idempotency guard satisfied by its own comment or marker.  
+No proven CRLF/LF text-comparison defect.  
+No proven merged-cell or off-by-one defect.  
+No proven zero-conflated-with-absent numeric defect; `point = 0` survives line 113.  
+No proven negation-dropped defect.

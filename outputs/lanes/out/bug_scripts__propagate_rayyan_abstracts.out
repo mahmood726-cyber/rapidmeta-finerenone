@@ -1,0 +1,761 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a03220-f4a5-7a32-a30c-234fa4f52134
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/propagate_rayyan_abstracts.py
+
+--- THE FILE, IN FULL ---
+#!/usr/bin/env python3
+# sentinel:skip-file — developer tool; hardcoded ROOT is intentional (local Finrenone checkout only)
+"""
+Propagate the Rayyan-style inline-abstract fix across every RapidMeta _REVIEW.html.
+
+Migration, applied idempotently:
+  1. Insert the AbstractHydrator namespace immediately before `const ScreenEngine = {`.
+  2. Insert `AbstractHydrator.hydrateTrials(this.state.trials)` in init() after the
+     `bootstrapSeed.changed` block.
+  3. Replace the 200-char preview + "Show Full Abstract" toggle with a single
+     always-inline abstract block (white-space: pre-line).
+
+Ground truth for the snippets is CFTR_MODULATORS_NMA_REVIEW.html (commit 47a25a7,
+validated 2026-04-22 by user).
+
+Usage:
+    python propagate_rayyan_abstracts.py --dry-run            # walk all apps, report action
+    python propagate_rayyan_abstracts.py --dry-run --file X   # single-file dry run with diff
+    python propagate_rayyan_abstracts.py --apply              # apply to all apps
+    python propagate_rayyan_abstracts.py --apply --file X     # apply to one file
+"""
+from __future__ import annotations
+import argparse, difflib, pathlib, sys
+
+ROOT = pathlib.Path(__file__).resolve().parent.parent
+
+HYDRATOR_MARKER = "const AbstractHydrator = {"
+
+# ---------------------------------------------------------------------------
+# Edit 1: insert the AbstractHydrator namespace immediately before ScreenEngine.
+# Match the exact line, preserving file-level indentation (8 spaces).
+# ---------------------------------------------------------------------------
+EDIT1_OLD = "        const ScreenEngine = {"
+EDIT1_NEW = """\
+        /* ── Abstract hydration: Rayyan-style rich abstracts in Screening tab.
+           Uses Europe PMC (CORS-friendly) via AutoExtractEngine.fetchAbstract.
+           Cache: localStorage keyed by PMID, 90-day TTL.
+           Sync pass applies cached abstracts before first render; async pass
+           fetches missing ones in parallel and re-renders on each arrival. ── */
+        const AbstractHydrator = {
+            CACHE_PREFIX: 'rm_abstract_v1_',
+            CACHE_TTL_MS: 90 * 24 * 60 * 60 * 1000,
+
+            cacheKey(pmid) { return this.CACHE_PREFIX + String(pmid).trim(); },
+
+            getCached(pmid) {
+                try {
+                    const raw = localStorage.getItem(this.cacheKey(pmid));
+                    if (!raw) return null;
+                    const { text, fetchedAt } = JSON.parse(raw);
+                    if (!text || !fetchedAt) return null;
+                    if (Date.now() - fetchedAt > this.CACHE_TTL_MS) return null;
+                    return text;
+                } catch (e) { return null; }
+            },
+
+            setCached(pmid, text) {
+                try {
+                    localStorage.setItem(this.cacheKey(pmid), JSON.stringify({ text, fetchedAt: Date.now() }));
+                } catch (e) { /* quota exceeded — ignore */ }
+            },
+
+            resolvePmid(trial) {
+                return String(trial?.pmid
+                    ?? trial?.data?.pmid
+                    ?? (typeof RapidMeta !== 'undefined' && RapidMeta.realData?.[trial?.id]?.pmid)
+                    ?? '').trim() || null;
+            },
+
+            /* Only overwrite if the incoming text is richer than what's on the trial.
+               Protects search-fetched and hand-authored abstracts from being clobbered. */
+            applyToTrial(trial, text) {
+                if (!trial || !text) return false;
+                const current = String(trial.abstract ?? '');
+                if (current && current.length >= text.length) return false;
+                trial.abstract = text;
+                return true;
+            },
+
+            async hydrateTrials(trials) {
+                if (!Array.isArray(trials) || trials.length === 0) return;
+                let anyChanged = false;
+
+                /* Sync cache pass — applies before caller gets control back */
+                trials.forEach(t => {
+                    const pmid = this.resolvePmid(t);
+                    if (!pmid) return;
+                    const cached = this.getCached(pmid);
+                    if (cached && this.applyToTrial(t, cached)) anyChanged = true;
+                });
+                if (anyChanged && typeof ScreenEngine !== 'undefined') {
+                    try { ScreenEngine.render?.(); } catch (e) {}
+                }
+
+                /* Async fetch pass — in parallel for anything not cached */
+                const fetcher = typeof AutoExtractEngine !== 'undefined' ? AutoExtractEngine : null;
+                if (!fetcher?.fetchAbstract) return;
+
+                const pending = trials
+                    .map(t => ({ trial: t, pmid: this.resolvePmid(t) }))
+                    .filter(({ pmid }) => pmid && !this.getCached(pmid));
+                if (pending.length === 0) return;
+
+                await Promise.allSettled(pending.map(async ({ trial, pmid }) => {
+                    try {
+                        const text = await fetcher.fetchAbstract(pmid);
+                        if (!text) return;
+                        this.setCached(pmid, text);
+                        if (this.applyToTrial(trial, text) && typeof ScreenEngine !== 'undefined') {
+                            try { ScreenEngine.render?.(); } catch (e) {}
+                            try { RapidMeta.save?.(); } catch (e) {}
+                        }
+                    } catch (e) { /* swallow — trial keeps its snippet as fallback */ }
+                }));
+            }
+        };
+
+        const ScreenEngine = {"""
+
+# ---------------------------------------------------------------------------
+# Edit 2: hook the hydrator call into init() after the bootstrap-seed block.
+# ---------------------------------------------------------------------------
+EDIT2_OLD = """                const bootstrapSeed = !this.hasAnalysisReadyTrials() ? this.ensureCanonicalAnalysisSeed() : { changed: false, seeded: [] };
+                if (bootstrapSeed.changed) {
+                    this.state.results = null;
+                    this.save();
+                }"""
+
+EDIT2_NEW = EDIT2_OLD + """
+                /* Rayyan-style abstract hydration: apply cached abstracts synchronously,
+                   then fetch any missing ones in parallel (non-blocking). Falls back to
+                   the per-trial snippet if the PMID lookup fails or the user is offline. */
+                try { AbstractHydrator.hydrateTrials(this.state.trials); } catch (e) {}"""
+
+# ---------------------------------------------------------------------------
+# Edit 3a: replace the preview+toggle variable block.
+# Python raw-string-ish literal kept single-line per original source line.
+# ---------------------------------------------------------------------------
+EDIT3A_OLD = """                /* Full abstract toggle (Task 6: D2) */
+                const hasFullAbstract = (t.abstract ?? '').length > 200;
+                const abstractPreview = hasFullAbstract ? escapeHtml(t.abstract.slice(0, 200)) + '...' : escapeHtml(absText);
+                const fullAbstractToggle = hasFullAbstract
+                    ? '<button type="button" class="text-[10px] text-slate-500 hover:text-slate-300 mt-2 underline" aria-expanded="false" onclick="const el=this.nextElementSibling;el.classList.toggle(\\'hidden\\');const exp=!el.classList.contains(\\'hidden\\');this.setAttribute(\\'aria-expanded\\',exp);this.textContent=exp?\\'Collapse Abstract\\':\\'Show Full Abstract\\'">Show Full Abstract</button><div class="hidden text-[13px] text-slate-400 mt-2 leading-[1.7] max-h-64 overflow-y-auto pr-2" style="font-family: Georgia, serif;">' + SearchEngine._highlightScreening(escapeHtml(t.abstract), screenHits) + '</div>'
+                    : '';"""
+
+EDIT3A_NEW = """                /* Full abstract — always rendered inline, no truncation, no toggle.
+                   Rayyan-style: the whole abstract is there from first paint so the
+                   reviewer doesn't have to click to read it. Section breaks in
+                   structured PubMed abstracts (BACKGROUND/METHODS/RESULTS/CONCLUSIONS)
+                   are preserved via `white-space: pre-line`. */
+                const abstractHtml = (t.abstract ?? '').trim()
+                    ? SearchEngine._highlightScreening(escapeHtml(t.abstract), screenHits)
+                    : escapeHtml(absText);"""
+
+# ---------------------------------------------------------------------------
+# Edit 3b: replace the markup paragraph + toggle insertion with the inline block.
+# ---------------------------------------------------------------------------
+EDIT3B_OLD = """                    <div class="bg-slate-950 p-8 rounded-[30px] border border-slate-800 shadow-2xl">
+                        <h3 class="text-[10px] opacity-50 font-bold uppercase tracking-[0.3em] mb-5 flex items-center gap-2"><i class="fa-solid fa-file-lines" style="font-size:11px"></i> Abstract <span class="text-[9px] text-slate-600 ml-2">(screening keywords highlighted)</span></h3>
+                        <p class="text-[15px] text-slate-300 leading-[1.8] font-medium" style="font-family: Georgia, serif;">${SearchEngine._highlightScreening(abstractPreview, screenHits)}</p>
+                        ${fullAbstractToggle}
+                    </div>"""
+
+EDIT3B_NEW = """                    <div class="bg-slate-950 p-8 rounded-[30px] border border-slate-800 shadow-2xl">
+                        <h3 class="text-[10px] opacity-50 font-bold uppercase tracking-[0.3em] mb-5 flex items-center gap-2"><i class="fa-solid fa-file-lines" style="font-size:11px"></i> Abstract <span class="text-[9px] text-slate-600 ml-2">(screening keywords highlighted)</span></h3>
+                        <div class="text-[15px] text-slate-300 leading-[1.8] font-medium" style="font-family: Georgia, serif; white-space: pre-line;">${abstractHtml}</div>
+                    </div>"""
+
+# ---------------------------------------------------------------------------
+# VARIANT B — for older apps that never had the preview-toggle at all.
+# They use `const abstractPreview = escapeHtml(absText);` directly and a plain
+# <p> render. We keep `abstractPreview` as the variable name (no need to rename)
+# and only swap the <p> for a <div white-space: pre-line>.
+# ---------------------------------------------------------------------------
+VARB_ABSTRACT_PREVIEW_LINE = "                const abstractPreview = escapeHtml(absText);"
+
+VARB_P_OLD = """                        <p class="text-[15px] text-slate-300 leading-[1.8] font-medium" style="font-family: Georgia, serif;">${SearchEngine._highlightScreening(abstractPreview, screenHits)}</p>"""
+
+VARB_P_NEW = """                        <div class="text-[15px] text-slate-300 leading-[1.8] font-medium" style="font-family: Georgia, serif; white-space: pre-line;">${SearchEngine._highlightScreening(abstractPreview, screenHits)}</div>"""
+
+
+def migrate(text: str) -> tuple[str, list[str]]:
+    """Atomic: returns (migrated_text, statuses). If any edit fails, the ORIGINAL
+    text is returned unchanged so we never write a partially-migrated file.
+    Both the input and the patch strings are LF-normalised so CRLF files match."""
+    statuses = []
+    if HYDRATOR_MARKER in text:
+        return text, ["skip: already-migrated (AbstractHydrator present)"]
+
+    # Remember the original line-ending so we can restore it after the replacements.
+    original_uses_crlf = "\r\n" in text
+    work = text.replace("\r\n", "\n") if original_uses_crlf else text
+
+    # Variant detection: apps with the toggle pattern get VARIANT A; those
+    # without (older, simpler template) get VARIANT B. Detect by the toggle's
+    # distinctive leading comment.
+    has_toggle = "/* Full abstract toggle (Task 6: D2) */" in work
+
+    if has_toggle:
+        edit_sequence = (
+            ("edit1-hydrator-namespace",   EDIT1_OLD,  EDIT1_NEW),
+            ("edit2-init-hook",            EDIT2_OLD,  EDIT2_NEW),
+            ("edit3a-toggle-variables",    EDIT3A_OLD, EDIT3A_NEW),
+            ("edit3b-inline-markup",       EDIT3B_OLD, EDIT3B_NEW),
+        )
+        variant = "A"
+    else:
+        # Variant B: no toggle to remove, just tighten the render tag.
+        edit_sequence = (
+            ("edit1-hydrator-namespace",   EDIT1_OLD,          EDIT1_NEW),
+            ("edit2-init-hook",            EDIT2_OLD,          EDIT2_NEW),
+            ("edit3b-p-to-div-preline",    VARB_P_OLD,         VARB_P_NEW),
+        )
+        variant = "B"
+
+    statuses.append(f"variant={variant}")
+
+    scratch = work
+    for label, old, new in edit_sequence:
+        hit = scratch.count(old)
+        if hit != 1:
+            return text, statuses + [f"fail: {label} marker matched {hit} times (expected 1)"]
+        scratch = scratch.replace(old, new, 1)
+        statuses.append(f"{label}: OK")
+
+    migrated = scratch.replace("\n", "\r\n") if original_uses_crlf else scratch
+    return migrated, statuses
+
+
+def process(path: pathlib.Path, dry_run: bool) -> tuple[str, list[str], str | None]:
+    """Read file, migrate, write if !dry_run. Return (path_str, statuses, diff_or_None)."""
+    original = path.read_text(encoding="utf-8", newline="")
+    migrated, statuses = migrate(original)
+    diff = None
+    if migrated != original:
+        diff = f"+{len(migrated) - len(original)} chars"
+        if not dry_run:
+            path.write_text(migrated, encoding="utf-8", newline="")
+    return str(path.name), statuses, diff
+
+
+def main():
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("--dry-run", action="store_true", help="Report action without writing")
+    ap.add_argument("--apply", action="store_true", help="Apply changes to disk")
+    ap.add_argument("--file", type=str, default=None, help="Restrict to one filename (basename) under the Finrenone root")
+    args = ap.parse_args()
+
+    if not (args.dry_run or args.apply):
+        ap.error("pass --dry-run or --apply")
+    if args.dry_run and args.apply:
+        ap.error("--dry-run and --apply are mutually exclusive")
+
+    if args.file:
+        p = pathlib.Path(args.file)
+        # Accept either an absolute path or a basename under ROOT.
+        targets = [p if p.is_absolute() else (ROOT / args.file)]
+        if not targets[0].exists():
+            sys.exit(f"file not found: {targets[0]}")
+    else:
+        targets = sorted(ROOT.glob("*_REVIEW.html"))
+
+    migrated_ok, skipped, failed = 0, 0, 0
+    for p in targets:
+        name, statuses, diff = process(p, dry_run=args.dry_run)
+        last = statuses[-1] if statuses else ""
+        if last.startswith("fail:"):
+            failed += 1
+            print(f"FAIL  {name:50s}  {last}")
+        elif last.startswith("skip:"):
+            skipped += 1
+            print(f"SKIP  {name:50s}  {last}")
+        else:
+            migrated_ok += 1
+            tag = "DRY" if args.dry_run else "APPLIED"
+            print(f"{tag:7s} {name:50s}  {', '.join(statuses)}  ({diff or 'no-op'})")
+
+    total = len(targets)
+    print()
+    print(f"Summary: {total} files  |  {migrated_ok} migrate  |  {skipped} skip  |  {failed} fail  |  mode={'dry-run' if args.dry_run else 'apply'}")
+    if failed and args.apply:
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()
+
+codex
+I’ll stay inside the pasted record and report only defects I can demonstrate from this file. I’m checking the listed shapes against concrete control flow and literal inputs rather than inferring repository state.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Get-Content -Path F:\\ProjectIndex\\INDEX.md -TotalCount 40" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Get-Content -Path F:\\E156\\rewrite-workbook.txt -TotalCount 40" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=0; Get-Content -Path scripts'"\\propagate_rayyan_abstracts.py | ForEach-Object { "'$i++; '"'{0,4}: {1}' -f "'$i, $_ }' in F:\rapidmeta-ssot-shell
+ succeeded in 380ms:
+<!-- sentinel:skip-file - portfolio registry; absolute paths ARE the data -->
+# C: Drive Project Index
+> **Last updated**: 2026-05-14 (C:\HTML apps focused repair batch continued: hub shell launch fix, static contracts across ten HTML app repos, NMA/living-meta/nma-dose-response landing and asset-link repairs, and NMA doc hardcoded-path cleanup. Prior SheafNMA v0.2.0, D-drive legacy smoke-contract continuation, CardioOracle lifecycle status freeze, C-drive model/project smoke-contract continuation, mahmood789 consolidation, Sentinel/Overmind JSONL and verification repair, C-drive reproducibility audit continuation, C-drive verification repair, D-drive repair batch, superapp, C-drive sweep, home-folder hardening, Trial Truthfulness Atlas, and portfolio notes retained below.)
+
+### C:\HTML apps focused repair batch (2026-05-14)
+> - `C:\HTML apps\hub\`: added a launchable `index.html` shell and static contract tests for required registry/runtime wiring; fixed `app.js` local `file://` launch resolution so the hub opened from `hub\index.html` links sibling apps from the parent HTML-apps directory instead of nesting paths under `hub`. Verification: `pytest -q -p no:cacheprovider` -> `3 passed`; `node --check app.js && node --check projects.js` -> PASS; headless Chrome smoke on `file:///mnt/c/HTML%20apps/hub/index.html` confirmed the page title and sibling app links. GitHub pushed: `mahmood726-cyber/hub` main `c1a6725`.
+> - `C:\HTML apps\evidence-board\`, `C:\HTML apps\focus-studio\`, `C:\HTML apps\kanban-lab\`: added pytest-visible static app shell contracts covering title/description, localStorage persistence hooks, key controls, and absence of unresolved templates or hardcoded local drive paths; added repo `.gitignore` entries for Python caches and `PROGRESS.md`. Verification: each `pytest -q -p no:cacheprovider` -> `2 passed` with the existing pytest `cache_dir` warning; scoped `git diff --check` -> PASS. GitHub pushed: `evidence-board` master `9a87c8b`, `focus-studio` master `0fa728b`, `kanban-lab` master `81cad38`.
+> - `C:\HTML apps\nma-pro-v2\`: fixed the landing page's broken app links from absent v6/v7 asset filenames to the current `e156-submission/assets/nma-pro-v8.0.html`, added static link-resolution contracts, and removed Sentinel P0 hardcoded local OneDrive paths from legacy docs. Verification: `pytest -q -p no:cacheprovider tests/test_smoke.py tests/test_static_links.py` -> `3 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=1 INFO=302` (pre-existing tracked autogen warning plus HTML a11y INFO). GitHub pushed: master `a2834e7` for the link fix and master `a74e385` for the P0 doc cleanup.
+> - `C:\HTML apps\IPD-Meta-Pro\` and `C:\HTML apps\Truthcert1\`: added static link-resolution contracts for landing-page local assets and canonical app entrypoints. Verification: `IPD-Meta-Pro` `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; `Truthcert1` same command -> `2 passed` with existing pytest `cache_dir` warning. GitHub pushed: `IPD-Meta-Pro` master `b26ee09`, `Truthcert1` master `81eddd3`.
+> - `C:\HTML apps\living-meta\`: repaired landing-page validation links that pointed to a missing HTML asset and an out-of-repo sibling path; linked the existing validation and limitations docs instead, and added a static link-resolution contract. Verification: `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=8` (pre-existing HTML a11y INFO). GitHub pushed: master `c3c8a9b`.
+> - `C:\HTML apps\Pairwiseai\`: added a static landing-page contract covering local link resolution, absence of unresolved templates/local drive paths, and the key app entrypoints under `e156-submission/assets`. Verification: `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=1731` (pre-existing HTML a11y INFO). GitHub pushed: master `2ade493`.
+> - `C:\HTML apps\nma-dose-response-app\`: pushed the existing smoke-blocker commit and added an E156 asset-bundle repair so `e156-submission\assets\index*.html` resolves its JS runtime dependencies from inside the assets folder; added a static link-resolution contract covering root and E156 app entrypoints. Verification: `pytest -q -p no:cacheprovider tests/test_smoke.py tests/test_static_links.py` -> `4 passed` with the existing pytest `cache_dir` warning; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=442` (pre-existing HTML a11y INFO). GitHub pushed: master `e95fae0` and `96594b6`.
+> - Push gate: Windows Git credential path succeeded after WSL Git lacked HTTPS credentials. Sentinel pre-push/manual scan verdicts were BLOCK=0; evidence-board INFO=18, focus-studio INFO=10, kanban-lab INFO=10, living-meta INFO=8, Pairwiseai INFO=1731, nma-dose-response-app INFO=442 (pre-existing P2 HTML accessibility notes); hub push emitted no Sentinel findings.
+> - Existing unrelated dirty files were left unstaged in these repos, mainly protocol/license/doc edits and untracked `paper\` outputs in the three app repos, plus pre-existing hub metadata/submission/style edits.
+
+### SheafNMA (2026-05-12; v0.2.0 real-NMA-corpus validation + 36-cell Ã— 1000-rep simulation + methods paper draft)
+> - `C:\Models\SheafNMA\` â€” cellular-sheaf inconsistency localization for network meta-analysis. v0.1.0 (2026-04-07) was math + single-file HTML dashboard + E156 #153 micro-paper on a synthetic 12-contrast network. v0.2.0 refactored the 457-LOC `generate_figures.py` into a `sheafnma/` package (`core`, `io`, `simulate`, `comparators`, `r_bridge`), validated on 13 R-netmeta built-in NMAs, and shipped a methods-paper draft for Research Synthesis Methods.
+> - Method: precision-weighted coboundary `F[e, treat1] = -1/SE_e, F[e, treat2] = +1/SE_e`; sheaf Laplacian `L = Fáµ€F` (symmetric PSD); WLS-solve node estimates with node 0 anchored; per-edge residuals `r_e = dÌƒ_e âˆ’ (F x*)_e` localize inconsistency; **Global Inconsistency Index** `GII = Î£ rÂ²` is the global statistic. One algebraic object yields both global + per-edge â€” complements (not replaces) node-splitting.
+> - Real-corpus headline: across **13 R-netmeta built-in NMAs** (Senn 2013 diabetes, Dias smokingcessation, Dong 2013 thrombolytics, Linde 2015/2016 acupuncture, Salanti antimanic, Baker, Dogliotti, Franchini, Gurusamy, Stowe, Woods, dietaryfat, parkinson) the global design-by-treatment Ï‡Â² (Higgins 2012) failed to reject in all 13. **SheafNMA flagged â‰¥1 localized inconsistency edge in 5 of those 13 (38.5%)** at the Youden-frozen threshold of **2.6912** â€” networks that look globally consistent harbor at least one inconsistent edge the global test misses.
+> - Simulation rigor: 36-cell grid (n_treatments âˆˆ {4,6,8} Ã— n_studies_per_edge âˆˆ {3,5,10} Ã— Ï„_inc âˆˆ {0,0.2,0.5,1.0}) Ã— **1000 replications per cell**, held-out training cell at (6,5,0.5) for Youden's-J threshold selection (frozen before evaluating remaining 35 cells). Type-I error at Ï„_inc=0 was **0.000 across all cells**. Mean per-edge sensitivity 0.981 / specificity 0.945 at Ï„_inc=0.5.
+> - Comparator suite: DBT-Ï‡Â² (Higgins 2012 Â§3.2, pure-Python), Bucher loop closure (Bucher 1997, pure-Python), node-splitting (Dias 2010, via `netmeta::netsplit` shelled to R 4.5.2). Per-edge agreement with node-splitting was 45.4% â€” asymmetric: SheafNMA flags 12/506 = 2.4% of edges vs node-splitting's 250/436 = 57% at p<0.05 Bonferroni-uncorrected (the calibrated Youden cut is much more conservative than a per-edge Î±-test). Â§4.2 of the paper explicitly explains this rather than presenting the 45.4% bare.
+> - Corpus export: `corpus/export_netmeta.R` handles 7 distinct netmeta dataset formats (contrast-level TE/seTE, arm-based event/n, arm-based mean/sd/n, wide multi-arm OR/MD, three-arm smokingcessation, rate-based IRR/person-years) and exports all 13 to `corpus/data/*.csv` in the sheafnma standard schema (`study, treat1, treat2, effect, se`).
+> - GitHub: `https://github.com/mahmood726-cyber/sheaf-nma` (master `6c7db13`, tag `v0.2.0`). Pages LIVE: `https://mahmood726-cyber.github.io/sheaf-nma/` (Phase-1 dashboard unchanged in v0.2). 33 tests passing; Sentinel BLOCK=0 WARN=0 (2 INFO = pre-existing HTML a11y items in the v0.1 dashboard).
+> - Workbook entry: `[153/919] SheafNMA`. CURRENT BODY updated 2026-05-12 to the v0.2 156-word / 7-sentence body (replaces v0.1 synthetic-"smoking cessation" framing with the real netmeta corpus). SUBMITTED `[ ]`; YOUR REWRITE preserved untouched per workbook protection rules. Target: Research Synthesis Methods full methods paper (`paper/sheafnma_v2.md`, 1190 words drafted; [TODO] prose blocks in Â§1 Background / Â§4.3 case studies / Â§5 Discussion) + SynthÄ“sis Methods Note companion (`paper/methods_note.md`, 156-word).
+> - Known landmine: `Dong2013` netsplit fails inside netmeta's multi-arm validator ("wrong number of comparisons"); SheafNMA + DBT + Bucher still run on it, only `netsplit_p` column is blank for its 70 edges.
+> - v0.2 deferrals (spec Â§10): multi-arm covariance correction (single-D stalks only), higher-D stalks (Phase 1 Â§3.4 future work), Bayesian sheaf priors, OTS / Bitcoin anchor (broken on Py 3.13 Windows per `lessons.md`).
+
+### hksj-q-floor-atlas (2026-05-12; 8th Pairwise70 atlas; tags prereg-v0.0.1 + v0.1.0)
+> - `C:\Projects\hksj-q-floor-atlas\` â€” 8th calibration atlas in the Pairwise70 series. Sister to `cochrane-modern-re` (engine source), `repro-floor-atlas`, `responder-floor-atlas`, `trial-truthfulness-atlas`, `africa-tb-atlas`, `pactr-hiddenness-atlas`, `africa-hiv-prep-atlas`.
+> - Question: how often does omitting the `max(1, Q/(k-1))` floor on HKSJ variance, in the I^2=0 regime where un-floored HKSJ narrows below REML+Wald, overstate precision across the Cochrane CDSR? Pre-registered via `prereg-v0.0.1` tag + 4 Internet Archive snapshots (Bitcoin OTS deferred â€” Python 3.13 SSL libeay32 bug per lessons.md; web-stamper fallback documented).
+> - Headline: D_1 (I^2=0, k>=2, converged) = 3,677 MAs = 57.6% of corpus. On D_1a (Q>0, n=3,536): median CI-width ratio (floored / un-floored) = 3.64x (IQR 1.60-10.56; 95th pct 57.4x); significance lost in 17.08% of MAs. D_1b (Q=0, n=141 = 3.83% of D_1): sig_loss 24.8%, ratio unbounded â€” un-floored HKSJ SE is exactly zero (the floor effect is unbounded); see `docs/AMENDMENTS.md` entry 1 for split rationale.
+> - Per k-stratum medians: k=2: 4.26x (sig_loss 8.6%); k=3: 3.64x (12.9%); k=4-5: 3.10x (13.1%); k=6-9: 3.18x (17.3%); k>=10: 3.80x (25.1%). sig_loss increases with k because higher-k pooled effects sit closer to null, so floor widening crosses zero more often.
+> - Engine: independent metafor pass via fork of cochrane-modern-re's `run_metafor.R` minus the floor block. Input parquet SHA-256 pinned in `docs/spec.md` sec.1.5 (`31434fb118c6ec44a025eeb43a90e35ef9e050711fa45aa2cb5c1244b2d89751`). 3 hand-verified golden MAs match metafor reference within 1e-6.
+> - GitHub: `https://github.com/mahmood726-cyber/hksj-q-floor-atlas` (master + tags `prereg-v0.0.1` and `v0.1.0`). Pages LIVE: `https://mahmood726-cyber.github.io/hksj-q-floor-atlas/`.
+> - 64 tests; Sentinel BLOCK=0 WARN=0 INFO=0; 7 IA snapshots recorded in `docs/preregistration.md`.
+> - Workbook entry: `[920/920] hksj-q-floor-atlas`; target SynthÄ“sis Methods Note (340w draft, â‰¤400 cap).
+> - v0.2 candidates (NOT in v0.1.0): published-CI matching ("is THIS Cochrane review wrong?"), PM/SJ/Bayesian Ï„Â² robustness, DL re-pooling, Bitcoin OTS once Python 3.13 issue is resolved.
+
+### D-drive legacy smoke-contract continuation (2026-05-12)
+> - `D:\Projects\mahmood789\786-MIII-Mean-single-group\`: fixed the placeholder issue-tracker link in `README.md` and added a pytest-visible static contract for the Shiny app package surface, sample-data schema, metafor workflow, downloads, and absence of local paths/template links. Verification: `pytest -q -p no:cacheprovider` -> `2 passed`; `git diff --check` -> PASS.
+
+ succeeded in 407ms:
+E156 REWRITE WORKBOOK
+sentinel:skip-file
+sentinel:claim-language-allow
+(Sentinel markers above:
+ - sentinel:skip-file: this workbook intentionally contains C:\Users\... PATH:
+   lines pointing to each project's local source directory â€” they're metadata,
+   not code. The marker keeps Sentinel from emitting ~16 P0 hardcoded-path
+   BLOCKs every push.
+ - sentinel:claim-language-allow: CURRENT BODY entries are the AI-drafted
+   summaries that students rewrite into hedged language â€” flagging overclaim
+   words IN those drafts is the whole pedagogical point, not a defect.
+   File-scope marker here suppresses the ~1293 claim-language WARNs on the
+   CURRENT BODY entries; the YOUR REWRITE entries are where the hedging
+   discipline matters and remains lintable in the rendered student board.)
+
+DENOMINATOR CONVENTION (added 2026-05-06 after review-findings P1-5):
+  Each entry header is `[N/total]` where N = ordinal insertion index and
+  `total` = current portfolio size as of the most recent reconcile sweep.
+  Older entries are back-rewritten on milestone boundaries (rather than
+  preserving their insertion-time denominator) to keep
+  reconcile_counts.py from flagging "WORKBOOK DRIFT". The pre-commit
+  guard (scripts/check_workbook_commit.py) blocks commits that bundle a
+  denominator sweep with substantive content edits to existing entries.
+
+======================================================================
+
+INSTRUCTIONS:
+- Replace text under YOUR REWRITE with your body (at most 156 words, 7 sentences)
+- S1=Question S2=Dataset S3=Method S4=Result(number+interval) S5=Robustness S6=Interpretation S7=Boundary(limitation)
+- Leave YOUR REWRITE blank to keep current version
+- Run: python C:/E156/scripts/apply_rewrites.py          (validate)
+- Run: python C:/E156/scripts/apply_rewrites.py --apply (apply)
+
+AUTHORSHIP RULE (mandatory for every submission):
+- Mahmood Ahmad (MA) must NEVER be listed as first author and NEVER as
+  last (senior) author. The student rewriter is first author. Last/senior
+  author must be a faculty supervisor or co-investigator distinct from MA.
+  MA's position is middle-author only (e.g. role: data curation, software,
+  methodology, supervision-of-tooling). This applies to every paper in
+  this workbook regardless of contribution depth.
+
+ succeeded in 1434ms:
+   1: #!/usr/bin/env python3
+   2: # sentinel:skip-file â€” developer tool; hardcoded ROOT is intentional (local Finrenone checkout only)
+   3: """
+   4: Propagate the Rayyan-style inline-abstract fix across every RapidMeta _REVIEW.html.
+   5: 
+   6: Migration, applied idempotently:
+   7:   1. Insert the AbstractHydrator namespace immediately before `const ScreenEngine = {`.
+   8:   2. Insert `AbstractHydrator.hydrateTrials(this.state.trials)` in init() after the
+   9:      `bootstrapSeed.changed` block.
+  10:   3. Replace the 200-char preview + "Show Full Abstract" toggle with a single
+  11:      always-inline abstract block (white-space: pre-line).
+  12: 
+  13: Ground truth for the snippets is CFTR_MODULATORS_NMA_REVIEW.html (commit 47a25a7,
+  14: validated 2026-04-22 by user).
+  15: 
+  16: Usage:
+  17:     python propagate_rayyan_abstracts.py --dry-run            # walk all apps, report action
+  18:     python propagate_rayyan_abstracts.py --dry-run --file X   # single-file dry run with diff
+  19:     python propagate_rayyan_abstracts.py --apply              # apply to all apps
+  20:     python propagate_rayyan_abstracts.py --apply --file X     # apply to one file
+  21: """
+  22: from __future__ import annotations
+  23: import argparse, difflib, pathlib, sys
+  24: 
+  25: ROOT = pathlib.Path(__file__).resolve().parent.parent
+  26: 
+  27: HYDRATOR_MARKER = "const AbstractHydrator = {"
+  28: 
+  29: # ---------------------------------------------------------------------------
+  30: # Edit 1: insert the AbstractHydrator namespace immediately before ScreenEngine.
+  31: # Match the exact line, preserving file-level indentation (8 spaces).
+  32: # ---------------------------------------------------------------------------
+  33: EDIT1_OLD = "        const ScreenEngine = {"
+  34: EDIT1_NEW = """\
+  35:         /* â”€â”€ Abstract hydration: Rayyan-style rich abstracts in Screening tab.
+  36:            Uses Europe PMC (CORS-friendly) via AutoExtractEngine.fetchAbstract.
+  37:            Cache: localStorage keyed by PMID, 90-day TTL.
+  38:            Sync pass applies cached abstracts before first render; async pass
+  39:            fetches missing ones in parallel and re-renders on each arrival. â”€â”€ */
+  40:         const AbstractHydrator = {
+  41:             CACHE_PREFIX: 'rm_abstract_v1_',
+  42:             CACHE_TTL_MS: 90 * 24 * 60 * 60 * 1000,
+  43: 
+  44:             cacheKey(pmid) { return this.CACHE_PREFIX + String(pmid).trim(); },
+  45: 
+  46:             getCached(pmid) {
+  47:                 try {
+  48:                     const raw = localStorage.getItem(this.cacheKey(pmid));
+  49:                     if (!raw) return null;
+  50:                     const { text, fetchedAt } = JSON.parse(raw);
+  51:                     if (!text || !fetchedAt) return null;
+  52:                     if (Date.now() - fetchedAt > this.CACHE_TTL_MS) return null;
+  53:                     return text;
+  54:                 } catch (e) { return null; }
+  55:             },
+  56: 
+  57:             setCached(pmid, text) {
+  58:                 try {
+  59:                     localStorage.setItem(this.cacheKey(pmid), JSON.stringify({ text, fetchedAt: Date.now() }));
+  60:                 } catch (e) { /* quota exceeded â€” ignore */ }
+  61:             },
+  62: 
+  63:             resolvePmid(trial) {
+  64:                 return String(trial?.pmid
+  65:                     ?? trial?.data?.pmid
+  66:                     ?? (typeof RapidMeta !== 'undefined' && RapidMeta.realData?.[trial?.id]?.pmid)
+  67:                     ?? '').trim() || null;
+  68:             },
+  69: 
+  70:             /* Only overwrite if the incoming text is richer than what's on the trial.
+  71:                Protects search-fetched and hand-authored abstracts from being clobbered. */
+  72:             applyToTrial(trial, text) {
+  73:                 if (!trial || !text) return false;
+  74:                 const current = String(trial.abstract ?? '');
+  75:                 if (current && current.length >= text.length) return false;
+  76:                 trial.abstract = text;
+  77:                 return true;
+  78:             },
+  79: 
+  80:             async hydrateTrials(trials) {
+  81:                 if (!Array.isArray(trials) || trials.length === 0) return;
+  82:                 let anyChanged = false;
+  83: 
+  84:                 /* Sync cache pass â€” applies before caller gets control back */
+  85:                 trials.forEach(t => {
+  86:                     const pmid = this.resolvePmid(t);
+  87:                     if (!pmid) return;
+  88:                     const cached = this.getCached(pmid);
+  89:                     if (cached && this.applyToTrial(t, cached)) anyChanged = true;
+  90:                 });
+  91:                 if (anyChanged && typeof ScreenEngine !== 'undefined') {
+  92:                     try { ScreenEngine.render?.(); } catch (e) {}
+  93:                 }
+  94: 
+  95:                 /* Async fetch pass â€” in parallel for anything not cached */
+  96:                 const fetcher = typeof AutoExtractEngine !== 'undefined' ? AutoExtractEngine : null;
+  97:                 if (!fetcher?.fetchAbstract) return;
+  98: 
+  99:                 const pending = trials
+ 100:                     .map(t => ({ trial: t, pmid: this.resolvePmid(t) }))
+ 101:                     .filter(({ pmid }) => pmid && !this.getCached(pmid));
+ 102:                 if (pending.length === 0) return;
+ 103: 
+ 104:                 await Promise.allSettled(pending.map(async ({ trial, pmid }) => {
+ 105:                     try {
+ 106:                         const text = await fetcher.fetchAbstract(pmid);
+ 107:                         if (!text) return;
+ 108:                         this.setCached(pmid, text);
+ 109:                         if (this.applyToTrial(trial, text) && typeof ScreenEngine !== 'undefined') {
+ 110:                             try { ScreenEngine.render?.(); } catch (e) {}
+ 111:                             try { RapidMeta.save?.(); } catch (e) {}
+ 112:                         }
+ 113:                     } catch (e) { /* swallow â€” trial keeps its snippet as fallback */ }
+ 114:                 }));
+ 115:             }
+ 116:         };
+ 117: 
+ 118:         const ScreenEngine = {"""
+ 119: 
+ 120: # ---------------------------------------------------------------------------
+ 121: # Edit 2: hook the hydrator call into init() after the bootstrap-seed block.
+ 122: # ---------------------------------------------------------------------------
+ 123: EDIT2_OLD = """                const bootstrapSeed = !this.hasAnalysisReadyTrials() ? this.ensureCanonicalAnalysisSeed() : { changed: false, seeded: [] };
+ 124:                 if (bootstrapSeed.changed) {
+ 125:                     this.state.results = null;
+ 126:                     this.save();
+ 127:                 }"""
+ 128: 
+ 129: EDIT2_NEW = EDIT2_OLD + """
+ 130:                 /* Rayyan-style abstract hydration: apply cached abstracts synchronously,
+ 131:                    then fetch any missing ones in parallel (non-blocking). Falls back to
+ 132:                    the per-trial snippet if the PMID lookup fails or the user is offline. */
+ 133:                 try { AbstractHydrator.hydrateTrials(this.state.trials); } catch (e) {}"""
+ 134: 
+ 135: # ---------------------------------------------------------------------------
+ 136: # Edit 3a: replace the preview+toggle variable block.
+ 137: # Python raw-string-ish literal kept single-line per original source line.
+ 138: # ---------------------------------------------------------------------------
+ 139: EDIT3A_OLD = """                /* Full abstract toggle (Task 6: D2) */
+ 140:                 const hasFullAbstract = (t.abstract ?? '').length > 200;
+ 141:                 const abstractPreview = hasFullAbstract ? escapeHtml(t.abstract.slice(0, 200)) + '...' : escapeHtml(absText);
+ 142:                 const fullAbstractToggle = hasFullAbstract
+ 143:                     ? '<button type="button" class="text-[10px] text-slate-500 hover:text-slate-300 mt-2 underline" aria-expanded="false" onclick="const el=this.nextElementSibling;el.classList.toggle(\\'hidden\\');const exp=!el.classList.contains(\\'hidden\\');this.setAttribute(\\'aria-expanded\\',exp);this.textContent=exp?\\'Collapse Abstract\\':\\'Show Full Abstract\\'">Show Full Abstract</button><div class="hidden text-[13px] text-slate-400 mt-2 leading-[1.7] max-h-64 overflow-y-auto pr-2" style="font-family: Georgia, serif;">' + SearchEngine._highlightScreening(escapeHtml(t.abstract), screenHits) + '</div>'
+ 144:                     : '';"""
+ 145: 
+ 146: EDIT3A_NEW = """                /* Full abstract â€” always rendered inline, no truncation, no toggle.
+ 147:                    Rayyan-style: the whole abstract is there from first paint so the
+ 148:                    reviewer doesn't have to click to read it. Section breaks in
+ 149:                    structured PubMed abstracts (BACKGROUND/METHODS/RESULTS/CONCLUSIONS)
+ 150:                    are preserved via `white-space: pre-line`. */
+ 151:                 const abstractHtml = (t.abstract ?? '').trim()
+ 152:                     ? SearchEngine._highlightScreening(escapeHtml(t.abstract), screenHits)
+ 153:                     : escapeHtml(absText);"""
+ 154: 
+ 155: # ---------------------------------------------------------------------------
+ 156: # Edit 3b: replace the markup paragraph + toggle insertion with the inline block.
+ 157: # ---------------------------------------------------------------------------
+ 158: EDIT3B_OLD = """                    <div class="bg-slate-950 p-8 rounded-[30px] border border-slate-800 shadow-2xl">
+ 159:                         <h3 class="text-[10px] opacity-50 font-bold uppercase tracking-[0.3em] mb-5 flex items-center gap-2"><i class="fa-solid fa-file-lines" style="font-size:11px"></i> Abstract <span class="text-[9px] text-slate-600 ml-2">(screening keywords highlighted)</span></h3>
+ 160:                         <p class="text-[15px] text-slate-300 leading-[1.8] font-medium" style="font-family: Georgia, serif;">${SearchEngine._highlightScreening(abstractPreview, screenHits)}</p>
+ 161:                         ${fullAbstractToggle}
+ 162:                     </div>"""
+ 163: 
+ 164: EDIT3B_NEW = """                    <div class="bg-slate-950 p-8 rounded-[30px] border border-slate-800 shadow-2xl">
+ 165:                         <h3 class="text-[10px] opacity-50 font-bold uppercase tracking-[0.3em] mb-5 flex items-center gap-2"><i class="fa-solid fa-file-lines" style="font-size:11px"></i> Abstract <span class="text-[9px] text-slate-600 ml-2">(screening keywords highlighted)</span></h3>
+ 166:                         <div class="text-[15px] text-slate-300 leading-[1.8] font-medium" style="font-family: Georgia, serif; white-space: pre-line;">${abstractHtml}</div>
+ 167:                     </div>"""
+ 168: 
+ 169: # ---------------------------------------------------------------------------
+ 170: # VARIANT B â€” for older apps that never had the preview-toggle at all.
+ 171: # They use `const abstractPreview = escapeHtml(absText);` directly and a plain
+ 172: # <p> render. We keep `abstractPreview` as the variable name (no need to rename)
+ 173: # and only swap the <p> for a <div white-space: pre-line>.
+ 174: # ---------------------------------------------------------------------------
+ 175: VARB_ABSTRACT_PREVIEW_LINE = "                const abstractPreview = escapeHtml(absText);"
+ 176: 
+ 177: VARB_P_OLD = """                        <p class="text-[15px] text-slate-300 leading-[1.8] font-medium" style="font-family: Georgia, serif;">${SearchEngine._highlightScreening(abstractPreview, screenHits)}</p>"""
+ 178: 
+ 179: VARB_P_NEW = """                        <div class="text-[15px] text-slate-300 leading-[1.8] font-medium" style="font-family: Georgia, serif; white-space: pre-line;">${SearchEngine._highlightScreening(abstractPreview, screenHits)}</div>"""
+ 180: 
+ 181: 
+ 182: def migrate(text: str) -> tuple[str, list[str]]:
+ 183:     """Atomic: returns (migrated_text, statuses). If any edit fails, the ORIGINAL
+ 184:     text is returned unchanged so we never write a partially-migrated file.
+ 185:     Both the input and the patch strings are LF-normalised so CRLF files match."""
+ 186:     statuses = []
+ 187:     if HYDRATOR_MARKER in text:
+ 188:         return text, ["skip: already-migrated (AbstractHydrator present)"]
+ 189: 
+ 190:     # Remember the original line-ending so we can restore it after the replacements.
+ 191:     original_uses_crlf = "\r\n" in text
+ 192:     work = text.replace("\r\n", "\n") if original_uses_crlf else text
+ 193: 
+ 194:     # Variant detection: apps with the toggle pattern get VARIANT A; those
+ 195:     # without (older, simpler template) get VARIANT B. Detect by the toggle's
+ 196:     # distinctive leading comment.
+ 197:     has_toggle = "/* Full abstract toggle (Task 6: D2) */" in work
+ 198: 
+ 199:     if has_toggle:
+ 200:         edit_sequence = (
+ 201:             ("edit1-hydrator-namespace",   EDIT1_OLD,  EDIT1_NEW),
+ 202:             ("edit2-init-hook",            EDIT2_OLD,  EDIT2_NEW),
+ 203:             ("edit3a-toggle-variables",    EDIT3A_OLD, EDIT3A_NEW),
+ 204:             ("edit3b-inline-markup",       EDIT3B_OLD, EDIT3B_NEW),
+ 205:         )
+ 206:         variant = "A"
+ 207:     else:
+ 208:         # Variant B: no toggle to remove, just tighten the render tag.
+ 209:         edit_sequence = (
+ 210:             ("edit1-hydrator-namespace",   EDIT1_OLD,          EDIT1_NEW),
+ 211:             ("edit2-init-hook",            EDIT2_OLD,          EDIT2_NEW),
+ 212:             ("edit3b-p-to-div-preline",    VARB_P_OLD,         VARB_P_NEW),
+ 213:         )
+ 214:         variant = "B"
+ 215: 
+ 216:     statuses.append(f"variant={variant}")
+ 217: 
+ 218:     scratch = work
+ 219:     for label, old, new in edit_sequence:
+ 220:         hit = scratch.count(old)
+ 221:         if hit != 1:
+ 222:             return text, statuses + [f"fail: {label} marker matched {hit} times (expected 1)"]
+ 223:         scratch = scratch.replace(old, new, 1)
+ 224:         statuses.append(f"{label}: OK")
+ 225: 
+ 226:     migrated = scratch.replace("\n", "\r\n") if original_uses_crlf else scratch
+ 227:     return migrated, statuses
+ 228: 
+ 229: 
+ 230: def process(path: pathlib.Path, dry_run: bool) -> tuple[str, list[str], str | None]:
+ 231:     """Read file, migrate, write if !dry_run. Return (path_str, statuses, diff_or_None)."""
+ 232:     original = path.read_text(encoding="utf-8", newline="")
+ 233:     migrated, statuses = migrate(original)
+ 234:     diff = None
+ 235:     if migrated != original:
+ 236:         diff = f"+{len(migrated) - len(original)} chars"
+ 237:         if not dry_run:
+ 238:             path.write_text(migrated, encoding="utf-8", newline="")
+ 239:     return str(path.name), statuses, diff
+ 240: 
+ 241: 
+ 242: def main():
+ 243:     ap = argparse.ArgumentParser(description=__doc__)
+ 244:     ap.add_argument("--dry-run", action="store_true", help="Report action without writing")
+ 245:     ap.add_argument("--apply", action="store_true", help="Apply changes to disk")
+ 246:     ap.add_argument("--file", type=str, default=None, help="Restrict to one filename (basename) under the Finrenone root")
+ 247:     args = ap.parse_args()
+ 248: 
+ 249:     if not (args.dry_run or args.apply):
+ 250:         ap.error("pass --dry-run or --apply")
+ 251:     if args.dry_run and args.apply:
+ 252:         ap.error("--dry-run and --apply are mutually exclusive")
+ 253: 
+ 254:     if args.file:
+ 255:         p = pathlib.Path(args.file)
+ 256:         # Accept either an absolute path or a basename under ROOT.
+ 257:         targets = [p if p.is_absolute() else (ROOT / args.file)]
+ 258:         if not targets[0].exists():
+ 259:             sys.exit(f"file not found: {targets[0]}")
+ 260:     else:
+ 261:         targets = sorted(ROOT.glob("*_REVIEW.html"))
+ 262: 
+ 263:     migrated_ok, skipped, failed = 0, 0, 0
+ 264:     for p in targets:
+ 265:         name, statuses, diff = process(p, dry_run=args.dry_run)
+ 266:         last = statuses[-1] if statuses else ""
+ 267:         if last.startswith("fail:"):
+ 268:             failed += 1
+ 269:             print(f"FAIL  {name:50s}  {last}")
+ 270:         elif last.startswith("skip:"):
+ 271:             skipped += 1
+ 272:             print(f"SKIP  {name:50s}  {last}")
+ 273:         else:
+ 274:             migrated_ok += 1
+ 275:             tag = "DRY" if args.dry_run else "APPLIED"
+ 276:             print(f"{tag:7s} {name:50s}  {', '.join(statuses)}  ({diff or 'no-op'})")
+ 277: 
+ 278:     total = len(targets)
+ 279:     print()
+ 280:     print(f"Summary: {total} files  |  {migrated_ok} migrate  |  {skipped} skip  |  {failed} fail  |  mode={'dry-run' if args.dry_run else 'apply'}")
+ 281:     if failed and args.apply:
+ 282:         sys.exit(1)
+ 283: 
+ 284: 
+ 285: if __name__ == "__main__":
+ 286:     main()
+
+codex
+- **Line 187, idempotency guard satisfied by its own marker.**  
+  Exact input to `migrate`: `"<p>unmigrated</p>\n<!-- const AbstractHydrator = { -->"`  
+  Consequence: `migrate()` returns `skip: already-migrated` even though none of the required edits were applied.
+
+- **Line 197, probe keyed to the string the fix removes.**  
+  Exact input to `migrate`: `EDIT1_OLD + "\n" + EDIT2_OLD + "\n" + EDIT3A_OLD.replace("/* Full abstract toggle (Task 6: D2) */", "/* Full abstract */") + "\n" + EDIT3B_OLD`  
+  Consequence: the file is misclassified as Variant B, reports success, and leaves the old toggle machinery in place.
+
+- **Lines 209-213, check that cannot fail for Variant B’s defining variable.**  
+  Exact input to `migrate`: `EDIT1_OLD + "\n" + EDIT2_OLD + "\n" + VARB_P_OLD`  
+  Consequence: migration succeeds while producing markup that references `abstractPreview` without proving that variable exists.
+
+- **Line 66, absent PMID becomes the string `"false"`.**  
+  Exact inserted-JS input: `delete window.RapidMeta; AbstractHydrator.resolvePmid({id: "T1"})`  
+  Consequence: trials with no PMID resolve to `"false"`, so the hydrator can fetch/cache under a fake PMID instead of skipping.
+
+- **Line 281, status code reports the wrapper mode rather than the failed work.**  
+  Exact command input: `python scripts/propagate_rayyan_abstracts.py --dry-run --file bad_REVIEW.html` where `bad_REVIEW.html` contains `"x"`.  
+  Consequence: it prints `FAIL` and `failed=1` but exits `0`, so a dry-run gate can pass failed migrations.
+
+No proven merged-cell/off-by-one or negation-dropped defect in this pasted file.
+tokens used
+26,820
+- **Line 187, idempotency guard satisfied by its own marker.**  
+  Exact input to `migrate`: `"<p>unmigrated</p>\n<!-- const AbstractHydrator = { -->"`  
+  Consequence: `migrate()` returns `skip: already-migrated` even though none of the required edits were applied.
+
+- **Line 197, probe keyed to the string the fix removes.**  
+  Exact input to `migrate`: `EDIT1_OLD + "\n" + EDIT2_OLD + "\n" + EDIT3A_OLD.replace("/* Full abstract toggle (Task 6: D2) */", "/* Full abstract */") + "\n" + EDIT3B_OLD`  
+  Consequence: the file is misclassified as Variant B, reports success, and leaves the old toggle machinery in place.
+
+- **Lines 209-213, check that cannot fail for Variant B’s defining variable.**  
+  Exact input to `migrate`: `EDIT1_OLD + "\n" + EDIT2_OLD + "\n" + VARB_P_OLD`  
+  Consequence: migration succeeds while producing markup that references `abstractPreview` without proving that variable exists.
+
+- **Line 66, absent PMID becomes the string `"false"`.**  
+  Exact inserted-JS input: `delete window.RapidMeta; AbstractHydrator.resolvePmid({id: "T1"})`  
+  Consequence: trials with no PMID resolve to `"false"`, so the hydrator can fetch/cache under a fake PMID instead of skipping.
+
+- **Line 281, status code reports the wrapper mode rather than the failed work.**  
+  Exact command input: `python scripts/propagate_rayyan_abstracts.py --dry-run --file bad_REVIEW.html` where `bad_REVIEW.html` contains `"x"`.  
+  Consequence: it prints `FAIL` and `failed=1` but exits `0`, so a dry-run gate can pass failed migrations.
+
+No proven merged-cell/off-by-one or negation-dropped defect in this pasted file.

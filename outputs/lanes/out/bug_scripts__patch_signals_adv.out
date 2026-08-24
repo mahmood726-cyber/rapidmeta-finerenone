@@ -1,0 +1,153 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a0320b-b45f-7e32-8842-af5555b3bc2f
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/patch_signals_adv.py
+
+--- THE FILE, IN FULL ---
+"""Close the adversarial findings from the laptop review of the SSOT signals.
+
+Every one of these is a guard that would have passed a page it exists to catch.
+The pattern across them is the same and worth naming: each was written to match
+the shape of the ONE bad page I had in front of me, not the class of bad pages.
+Attribute order, a hyphen, a full stop, a substring boundary -- none changes what
+the defect IS, and every one of them defeated the check.
+"""
+import ast
+import io
+import re
+import sys
+
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+N = [0]
+
+
+def sub(path, old, new, tag):
+    s = open(path, encoding="utf-8").read()
+    if old not in s:
+        raise SystemExit("ANCHOR MISSING (%s)" % tag)
+    open(path, "w", encoding="utf-8").write(s.replace(old, new, 1))
+    N[0] += 1
+    print("  %s" % tag)
+
+
+S = "scripts/ssot_signals.py"
+
+# 6 -- READY-ISH passed because (?![A-Za-z]) permits a hyphen.
+sub(S, r'r"(READY|NOT READY|NOT YET DETERMINED)(?![A-Za-z])", text)',
+    r'r"(READY|NOT READY|NOT YET DETERMINED)(?![-\w])", text)',
+    "sig_no_verdict: anchor rejects READY-ISH as well as READYISH")
+
+# 7 -- the two-human check tested a SUBSTRING, so READYISH satisfied it.
+sub(S, '    if "Submission readiness: READY" in text:\n        return None',
+    '    # Substring, not state. "Submission readiness: READYISH" contains\n'
+    '    # "Submission readiness: READY" and silenced the worst claim the page\n'
+    '    # can carry. Anchored to the exact state.\n'
+    '    if re.search(r"Submission readiness:\\s*READY(?![-\\w])", text):\n'
+    '        return None',
+    "sig_unsourced_two_human_claim: anchored, not substring")
+
+# 5 -- attribute order. class before id was assumed.
+sub(S, r'r\'<section class="panel" id="(pn-[a-z]+)"(.*?)</section>\'',
+    r'r\'<section\\b(?=[^>]*class="[^"]*panel)(?=[^>]*id="(pn-[a-z]+)")[^>]*>(.*?)</section>\'',
+    "sig_empty_panel: attribute-order agnostic")
+
+# 11 -- a full stop after None broke the value-slot match.
+sub(S, r'((r">\s*(?:None|undefined|NaN)\s*<", "bare None/undefined/NaN in a value slot"),',
+    r'((r">\s*(?:None|undefined|NaN)\s*[.,;:]?\s*<",'
+    r' "bare None/undefined/NaN in a value slot"),',
+    "sig_placeholder_leak: trailing punctuation no longer hides it")
+
+# 9 -- "badger-note" matched "badge".
+sub(S, r'r"""class=["\'][^"\']*(?:badge|banner)[^"\']*["\'][^>]*>\s*"',
+    r'r"""class=["\'][^"\']*\b(?:badge|banner)\b[^"\']*["\'][^>]*>(?:\s|<[^>]+>)*"',
+    "sig_constant_verdict: word boundary, and reaches through a child element")
+
+# 10 -- a NEGATED footer sentence satisfied the check.
+sub(S, '    return (None if "projected from a single canonical object" in text\n'
+       '            else "projection provenance footer missing")',
+    '    # A negated sentence contains the phrase. "This page is NOT projected\n'
+    '    # from a single canonical object" passed the check that exists to\n'
+    '    # confirm the opposite claim.\n'
+    '    if re.search(r"\\b(?:not|never|isn\'t|is not)\\s+projected from a single "\n'
+    '                 r"canonical object", text, re.I):\n'
+    '        return "page DENIES the projection claim the footer should make"\n'
+    '    return (None if "projected from a single canonical object" in text\n'
+    '            else "projection provenance footer missing")',
+    "sig_no_projection_footer: rejects the negated form")
+
+for f in (S,):
+    ast.parse(open(f, encoding="utf-8").read())
+print("\n%d fixes applied; module parses" % N[0])
+
+codex
+Defects found:
+
+- Line 31: input text `UNREADY` matches `READY` because the regex has only a right boundary, `(?![-\w])`, and no left boundary. Consequence: a page with no valid verdict can suppress `sig_no_verdict`.
+
+- Line 44: target input containing the intended source literal `r'<section class="panel" id="(pn-[a-z]+)"(.*?)</section>'` will not match, because the patch string searches for `r\'...\'` with literal backslashes. Consequence: the patch aborts with `ANCHOR MISSING (sig_empty_panel...)` on the normal Python source form.
+
+- Line 45: the replacement writes `<section\\b` into a raw regex literal; exact HTML input `<section class="panel" id="pn-a"></section>` is not matched by that regex because `\\b` means a literal backslash-b, not a word boundary. Consequence: the empty-panel selector can be made unable to match real `<section>` tags.
+
+- Line 56: exact input `<span class="badge-note">READY</span>` still matches `\bbadge\b`, because `-` is a non-word character and creates a word boundary. Consequence: the fix still treats hyphenated non-`badge` class tokens as `badge`.
+
+- Line 65: exact input `This page is not actually projected from a single canonical object` is not caught by the negation regex, but still contains `projected from a single canonical object`. Consequence: the footer check can still pass a sentence that denies the required provenance claim.
+
+No proven CRLF text-comparison, merged-cell/off-by-one, zero-vs-absent, or subprocess-wrapper status defect is present in this packet.
+tokens used
+16,658
+Defects found:
+
+- Line 31: input text `UNREADY` matches `READY` because the regex has only a right boundary, `(?![-\w])`, and no left boundary. Consequence: a page with no valid verdict can suppress `sig_no_verdict`.
+
+- Line 44: target input containing the intended source literal `r'<section class="panel" id="(pn-[a-z]+)"(.*?)</section>'` will not match, because the patch string searches for `r\'...\'` with literal backslashes. Consequence: the patch aborts with `ANCHOR MISSING (sig_empty_panel...)` on the normal Python source form.
+
+- Line 45: the replacement writes `<section\\b` into a raw regex literal; exact HTML input `<section class="panel" id="pn-a"></section>` is not matched by that regex because `\\b` means a literal backslash-b, not a word boundary. Consequence: the empty-panel selector can be made unable to match real `<section>` tags.
+
+- Line 56: exact input `<span class="badge-note">READY</span>` still matches `\bbadge\b`, because `-` is a non-word character and creates a word boundary. Consequence: the fix still treats hyphenated non-`badge` class tokens as `badge`.
+
+- Line 65: exact input `This page is not actually projected from a single canonical object` is not caught by the negation regex, but still contains `projected from a single canonical object`. Consequence: the footer check can still pass a sentence that denies the required provenance claim.
+
+No proven CRLF text-comparison, merged-cell/off-by-one, zero-vs-absent, or subprocess-wrapper status defect is present in this packet.

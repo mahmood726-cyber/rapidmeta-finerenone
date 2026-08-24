@@ -1,0 +1,198 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a0316c-48d6-76c0-856c-af40491bda6f
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/build_multi_agent_sample_r3.py
+
+--- THE FILE, IN FULL ---
+"""Round 3 sample.
+
+Strategy:
+  Tier A — R2 1-of-3 single-lens findings (re-grade with multi-lens scrutiny)
+  Tier B — All trials from the 10 fully-fabricated reviews (deep audit)
+  Tier C — Random calibration from previously-unsampled reviews
+
+Target ~200 trials. Output: outputs/extraction_audit/multi_agent_sample_r3.json
+"""
+from __future__ import annotations
+import json, sys, io, random
+from pathlib import Path
+
+if hasattr(sys.stdout, "buffer") and getattr(sys.stdout, "encoding", "").lower() != "utf-8":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+HERE = Path(__file__).resolve().parent.parent
+DATA = HERE / "outputs" / "extraction_audit" / "data"
+random.seed(2027)
+
+all_trials = []
+for f in sorted(DATA.glob("*.json")):
+    if f.name.startswith("_"): continue
+    stem = f.stem
+    try: d = json.loads(f.read_text(encoding="utf-8"))
+    except Exception: continue
+    rd = d.get("realData") or {}
+    if not isinstance(rd, dict): continue
+    for nct, t in rd.items():
+        if not isinstance(t, dict): continue
+        if nct.startswith("NULLED:"): continue
+        all_trials.append({
+            "review": stem, "nct": nct, "name": t.get("name"),
+            "year": t.get("year"), "pmid": t.get("pmid"),
+            "group": t.get("group"),
+            "tE": t.get("tE"), "tN": t.get("tN"),
+            "cE": t.get("cE"), "cN": t.get("cN"),
+            "publishedHR": t.get("publishedHR"),
+            "hrLCI": t.get("hrLCI"), "hrUCI": t.get("hrUCI"),
+            "estimandType": t.get("estimandType"),
+        })
+by_key = {(t["review"], t["nct"]): t for t in all_trials}
+
+# Exclude trials already auto-fixed
+r1_fixed = {(o["review"], o["nct"]) for o in json.loads(
+    (HERE / "outputs/extraction_audit/multi_agent_fixes_applied.json").read_text(encoding="utf-8"))}
+r2_fixed_log = json.loads((HERE / "outputs/extraction_audit/multi_agent_fixes_applied_r2.json").read_text(encoding="utf-8"))
+r2_fixed = {(o["review"], o["nct"]) for o in r2_fixed_log.get("batch1", [])}
+for entry in r2_fixed_log.get("batch2", []):
+    for nct in entry.get("ncts", []):
+        r2_fixed.add((entry["review"], nct))
+all_fixed = r1_fixed | r2_fixed
+
+# Tier A — R2 1-of-3 single-lens
+r2_consensus = json.loads((HERE / "outputs/extraction_audit/multi_agent_consensus_r2.json").read_text(encoding="utf-8"))
+tier_a = []
+for r in r2_consensus["records"]:
+    if len(r["agents_flagged"]) != 1: continue
+    key = (r["review"], r["nct"])
+    if key in all_fixed: continue
+    t = by_key.get(key)
+    if t: tier_a.append({**t, "tier": "A"})
+tier_a = tier_a[:90]
+print(f"Tier A (R2 1-of-3 re-grade): {len(tier_a)}")
+
+# Tier B — 10 fully-fabricated reviews (audit ALL their trials)
+fully_fab = json.loads((HERE / "outputs/extraction_audit/fully_fabricated_reviews.json").read_text(encoding="utf-8"))
+fab_review_set = {x["review"] for x in fully_fab}
+already_in_sample = {(t["review"], t["nct"]) for t in tier_a}
+tier_b = []
+for rv in fab_review_set:
+    candidates = [t for t in all_trials if t["review"] == rv
+                   and (t["review"], t["nct"]) not in already_in_sample
+                   and (t["review"], t["nct"]) not in all_fixed]
+    for t in candidates:
+        tier_b.append({**t, "tier": "B"})
+        already_in_sample.add((t["review"], t["nct"]))
+print(f"Tier B (fully-fabricated reviews deep-audit): {len(tier_b)} from {len(fab_review_set)} reviews")
+
+# Tier C — random unsampled
+r1 = json.loads((HERE / "outputs/extraction_audit/multi_agent_sample.json").read_text(encoding="utf-8"))
+r2 = json.loads((HERE / "outputs/extraction_audit/multi_agent_sample_r2.json").read_text(encoding="utf-8"))
+sampled_reviews = ({t["review"] for t in r1} | {t["review"] for t in r2} | fab_review_set)
+unsampled = [t for t in all_trials if t["review"] not in sampled_reviews
+              and (t["review"], t["nct"]) not in already_in_sample]
+random.shuffle(unsampled)
+tier_c = [{**t, "tier": "C"} for t in unsampled[:40]]
+print(f"Tier C (unsampled-review calibration): {len(tier_c)}")
+
+sample = tier_a + tier_b + tier_c
+for i, t in enumerate(sample):
+    t["id"] = 2000 + i
+
+print(f"Round 3 total: {len(sample)}")
+out_p = HERE / "outputs/extraction_audit" / "multi_agent_sample_r3.json"
+out_p.write_text(json.dumps(sample, indent=2, ensure_ascii=False), encoding="utf-8")
+print(f"Wrote {out_p}")
+
+codex
+I’m treating this as a defect hunt only, keyed to the shapes you listed. I’m going to stay inside the pasted packet and only name missing context if a claim needs data/caller behavior that is not present.
+codex
+**Defects Found**
+
+- **STATUS CODE REPORTING THE WRAPPER / check cannot fail**: lines 25-26, 94-96.  
+  Exact input: `outputs/extraction_audit/data/a.json = "{"`; side files: `multi_agent_fixes_applied.json=[]`, `multi_agent_fixes_applied_r2.json={}`, `multi_agent_consensus_r2.json={"records":[]}`, `fully_fabricated_reviews.json=[]`, `multi_agent_sample.json=[]`, `multi_agent_sample_r2.json=[]`.  
+  Consequence: the corrupt corpus file is silently skipped and the script writes an empty output with success status.
+
+- **ZERO CONFLATED WITH ABSENT**: line 27.  
+  Exact input: `outputs/extraction_audit/data/a.json = {"realData":0}` with the same valid empty side files above.  
+  Consequence: malformed explicit `realData: 0` is converted to `{}` before the type check, so invalid data is treated as absent/empty.
+
+- **Already-fixed exclusion gap**: line 85.  
+  Exact input: `data/newreview.json={"realData":{"NCT00000001":{"name":"x"}}}`, `multi_agent_fixes_applied.json=[{"review":"newreview","nct":"NCT00000001"}]`, `multi_agent_fixes_applied_r2.json={}`, `multi_agent_consensus_r2.json={"records":[]}`, `fully_fabricated_reviews.json=[]`, `multi_agent_sample.json=[]`, `multi_agent_sample_r2.json=[]`.  
+  Consequence: a trial listed in `all_fixed` can still enter Tier C because Tier C checks `already_in_sample` but not `all_fixed`.
+
+**No Finding By Shape**
+
+- Probe keyed to the string a fix removes: none found in the pasted module.
+- Idempotency guard satisfied by its own comment/marker: none found.
+- Instrument reading a different copy: COULD NOT DETERMINE; caller, served artifact, HEAD/origin state are missing.
+- Selector keyed to a corpus form not used: COULD NOT DETERMINE; actual JSON schemas/content are missing.
+- Text comparison with CRLF/LF sensitivity: none found.
+- Merged-cell or off-by-one tabulation/count: none found.
+- Negation dropped: none found.
+tokens used
+13,453
+**Defects Found**
+
+- **STATUS CODE REPORTING THE WRAPPER / check cannot fail**: lines 25-26, 94-96.  
+  Exact input: `outputs/extraction_audit/data/a.json = "{"`; side files: `multi_agent_fixes_applied.json=[]`, `multi_agent_fixes_applied_r2.json={}`, `multi_agent_consensus_r2.json={"records":[]}`, `fully_fabricated_reviews.json=[]`, `multi_agent_sample.json=[]`, `multi_agent_sample_r2.json=[]`.  
+  Consequence: the corrupt corpus file is silently skipped and the script writes an empty output with success status.
+
+- **ZERO CONFLATED WITH ABSENT**: line 27.  
+  Exact input: `outputs/extraction_audit/data/a.json = {"realData":0}` with the same valid empty side files above.  
+  Consequence: malformed explicit `realData: 0` is converted to `{}` before the type check, so invalid data is treated as absent/empty.
+
+- **Already-fixed exclusion gap**: line 85.  
+  Exact input: `data/newreview.json={"realData":{"NCT00000001":{"name":"x"}}}`, `multi_agent_fixes_applied.json=[{"review":"newreview","nct":"NCT00000001"}]`, `multi_agent_fixes_applied_r2.json={}`, `multi_agent_consensus_r2.json={"records":[]}`, `fully_fabricated_reviews.json=[]`, `multi_agent_sample.json=[]`, `multi_agent_sample_r2.json=[]`.  
+  Consequence: a trial listed in `all_fixed` can still enter Tier C because Tier C checks `already_in_sample` but not `all_fixed`.
+
+**No Finding By Shape**
+
+- Probe keyed to the string a fix removes: none found in the pasted module.
+- Idempotency guard satisfied by its own comment/marker: none found.
+- Instrument reading a different copy: COULD NOT DETERMINE; caller, served artifact, HEAD/origin state are missing.
+- Selector keyed to a corpus form not used: COULD NOT DETERMINE; actual JSON schemas/content are missing.
+- Text comparison with CRLF/LF sensitivity: none found.
+- Merged-cell or off-by-one tabulation/count: none found.
+- Negation dropped: none found.

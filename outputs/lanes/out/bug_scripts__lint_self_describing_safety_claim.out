@@ -1,0 +1,231 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a031f8-4907-73a3-91bf-139f8d8c6361
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/lint_self_describing_safety_claim.py
+
+--- THE FILE, IN FULL ---
+"""Find object fields whose PROSE asserts that a defect would be visible.
+
+REGISTRY CLASS: A FIELD'S OWN PROSE NAMING ITS OWN DEFENCE, WHERE THE DEFENCE DOES NOT
+EXIST.
+
+This is distinct from an undefended claim. An undefended claim simply has no check behind
+it and nobody said otherwise. THIS one names the check. It says, in the object a reader
+trusts, that a particular failure "would show as a mismatch", "would be caught", "cannot
+happen because" -- and a reader who meets that sentence stops looking, which is exactly
+what it was written to let them do.
+
+THE FOUNDING INSTANCE, 2026-08-20. Every `registration_primary_counts` block in this
+corpus carries:
+
+    "arm order as the registry lists it; a swapped pair would show as a mismatch rather
+     than a silent pass"
+
+It was written by whoever built the block. It was plausible. It was FALSE FOR THE ENTIRE
+LIFE OF THE FIELD, because nothing in this repository ever compared that block against
+`arms[]`. When a lint was finally written to make it true, it found 23 inconsistent rows
+across 75 -- on two of which the block, read as labelled, said the drug was WORSE than
+placebo while the effect beside it said the opposite.
+
+THE DIRECTION IS WORTH RECORDING. This one biases toward MANUFACTURING a contradiction
+rather than hiding one: a reader who did the check the sentence promised would have
+concluded the ESTIMATE was wrong, when the estimate was right and the label was wrong.
+That is the second instance of the rarer direction in two days -- the first being the
+arm-role precondition on 2026-08-19 -- and the third followed within the hour, when THIS
+FILE'S SIBLING lint manufactured four false alarms of its own by comparing an odds ratio
+against a stored hazard ratio.
+
+WHAT THIS FILE DOES. It reports every such sentence with its path, and it CANNOT decide
+whether a command tests any of them -- that requires knowing what every script does. It is
+a REPORTER with a ratchet, not a verifier, and it says so rather than printing PASS. The
+list is the work item; each sentence is either backed by a named command or it is this
+class.
+
+    PROVEN BY GRAFT 2026-08-20: scripts/prove_never_fired_by_graft.py constructs an
+    input this check must refuse, inside a temp tree so it is the only corpus the check
+    can see, and requires a non-zero exit. Before that this check had never fired on
+    any real run -- CAPABLE OF FAILING, CONDITION NOT YET OBSERVED, which is a
+    legitimate state and a different one from vacuous.
+"""
+import io
+import json
+import os
+import re
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+SSOT = os.path.join(REPO, "ssot")
+
+# Phrases that promise a defect would be visible. Deliberately narrow: each asserts a
+# DETECTION property, not merely a fact.
+PATTERNS = [
+    r"would show as", r"would be caught", r"would surface", r"would be visible",
+    r"would fail\b", r"would refuse", r"cannot happen because", r"could not happen",
+    r"rather than a silent pass", r"would not go unnoticed", r"would be detected",
+    r"is guaranteed", r"guarantees that", r"ensures that no", r"makes it impossible",
+]
+RE = re.compile("|".join(PATTERNS), re.I)
+
+
+def leaves(o, p=""):
+    if isinstance(o, dict):
+        for k, v in o.items():
+            yield from leaves(v, p + "." + k)
+    elif isinstance(o, list):
+        for i, v in enumerate(o):
+            yield from leaves(v, p + "[%d]" % i)
+    else:
+        yield p, o
+
+
+def main():
+    objects_read = 0
+    hits = []
+    for name in sorted(os.listdir(SSOT)):
+        d = os.path.join(SSOT, name)
+        if not os.path.isdir(d):
+            continue
+        fp = os.path.join(d, name + ".json")
+        if not os.path.exists(fp):
+            continue
+        try:
+            obj = json.load(io.open(fp, encoding="utf-8"))
+        except Exception:
+            continue
+        objects_read += 1
+        for path, val in leaves(obj):
+            if isinstance(val, str) and RE.search(val):
+                m = RE.search(val)
+                hits.append((name, re.sub(r"\[\d+\]", "[]", path), m.group(0),
+                             val[max(0, m.start() - 70):m.end() + 90].replace("\n", " ")))
+
+    if objects_read == 0:
+        print("NOT_ASSESSABLE: read zero objects.")
+        return 2
+
+    # Group by the (path-shape, phrase) pair -- one sentence repeated across 75 trial rows
+    # is ONE claim, not 75, and counting it 75 times would misdescribe the work.
+    groups = {}
+    for name, path, phrase, ctx in hits:
+        groups.setdefault((path, phrase), {"objects": set(), "example": ctx})
+        groups[(path, phrase)]["objects"].add(name)
+
+    print("objects read                                  %d" % objects_read)
+    print("field values asserting their own detection    %d" % len(hits))
+    print("DISTINCT CLAIMS (path-shape x phrase)         %d" % len(groups))
+    print()
+    print("A claim repeated across many rows is ONE claim. The 23-row founding instance is")
+    print("a single sentence on a single field shape, and counting it once is the honest")
+    print("unit of work.")
+    print()
+    print("%-52s %-26s %6s  %s" % ("path shape", "phrase", "objs", "example"))
+    print("-" * 160)
+    for (path, phrase), g in sorted(groups.items(), key=lambda kv: -len(kv[1]["objects"])):
+        print("%-52s %-26s %6d  %s" % (path[:52], phrase[:26], len(g["objects"]),
+                                       g["example"][:70]))
+
+    baseline_path = os.path.join(REPO, "evidence", "self_describing_safety_baseline.json")
+    if "--baseline" in sys.argv:
+        with io.open(baseline_path, "w", encoding="utf-8", newline="\n") as fh:
+            json.dump({"measured_utc": "2026-08-20", "distinct_claims": len(groups),
+                       "field_values": len(hits), "objects_read": objects_read,
+                       "measured_by": os.path.basename(__file__),
+                       "_what_a_pass_means": (
+                           "That no NEW self-describing safety sentence appeared. It does "
+                           "NOT mean the existing ones are backed by a command -- this file "
+                           "cannot know that, and says so rather than printing PASS.")}, fh,
+                      indent=1)
+            fh.write("\n")
+        print("\nbaseline written: %d distinct claim(s)" % len(groups))
+        return 0
+    if not os.path.exists(baseline_path):
+        print("\nNOT_ASSESSABLE: no baseline. Run with --baseline.")
+        return 2
+    base = json.load(io.open(baseline_path, encoding="utf-8"))["distinct_claims"]
+    if len(groups) > base:
+        print("\nREFUSED: %d distinct self-describing safety claims, up from %d. Each new "
+              "one must name the command that makes it true, or it is a sentence promising "
+              "a check that nothing performs." % (len(groups), base))
+        return 1
+    print("\nREPORTED, NOT PASSED: %d distinct claims against a baseline of %d, none new. "
+          "THIS FILE CANNOT TELL WHETHER ANY OF THEM IS BACKED BY A COMMAND -- that is the "
+          "work item, and the founding instance was false for the entire life of its field."
+          % (len(groups), base))
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+
+codex
+- MERGED-CELL/count gate: lines 104 and 139. Exact input: baseline `{"distinct_claims":1}`; `ssot/t/t.json` = `{"rows":[{"note":"arm order would be caught by command A"},{"note":"date drift would be caught by command B"}]}`. Consequence: both normalize to `.rows[].note` + `would be caught`, so two distinct claims count as one and exit 0.
+
+- Ratchet compares count, not identity: lines 124 and 138-139. Exact input sequence: baseline first made from `{"old":"old invariant would be caught"}`, then current `ssot/t/t.json` changed to `{"new":"new invariant would be caught"}` with the same baseline file. Consequence: a new claim replaces an old one without increasing `len(groups)`, so the “new claim” gate cannot fire.
+
+- NEGATION DROPPED: line 59, pattern `is guaranteed`. Exact input: baseline `{"distinct_claims":0}`; `ssot/t/t.json` = `{"note":"No command is guaranteed to catch swapped arms."}`. Consequence: it flags a sentence denying a guarantee as if it asserted one.
+
+- STATUS CODE REPORTING SKIPPED WORK: lines 87-88. Exact input: baseline `{"distinct_claims":0}`; `ssot/good/good.json` = `{}`; `ssot/bad/bad.json` = `{"note":"would be caught",`. Consequence: the malformed corpus object is silently skipped and the run can exit 0 after inspecting only the unrelated valid object.
+
+No proven CRLF/LF text-compare defect: no text equality comparison exists in the packet.
+
+No proven ZERO CONFLATED WITH ABSENT defect: no zero-valued field is truth-tested or defaulted with `or 0`.
+
+COULD NOT DETERMINE different-copy defects: missing caller/CI command and any served/origin/worktree context.
+tokens used
+13,324
+- MERGED-CELL/count gate: lines 104 and 139. Exact input: baseline `{"distinct_claims":1}`; `ssot/t/t.json` = `{"rows":[{"note":"arm order would be caught by command A"},{"note":"date drift would be caught by command B"}]}`. Consequence: both normalize to `.rows[].note` + `would be caught`, so two distinct claims count as one and exit 0.
+
+- Ratchet compares count, not identity: lines 124 and 138-139. Exact input sequence: baseline first made from `{"old":"old invariant would be caught"}`, then current `ssot/t/t.json` changed to `{"new":"new invariant would be caught"}` with the same baseline file. Consequence: a new claim replaces an old one without increasing `len(groups)`, so the “new claim” gate cannot fire.
+
+- NEGATION DROPPED: line 59, pattern `is guaranteed`. Exact input: baseline `{"distinct_claims":0}`; `ssot/t/t.json` = `{"note":"No command is guaranteed to catch swapped arms."}`. Consequence: it flags a sentence denying a guarantee as if it asserted one.
+
+- STATUS CODE REPORTING SKIPPED WORK: lines 87-88. Exact input: baseline `{"distinct_claims":0}`; `ssot/good/good.json` = `{}`; `ssot/bad/bad.json` = `{"note":"would be caught",`. Consequence: the malformed corpus object is silently skipped and the run can exit 0 after inspecting only the unrelated valid object.
+
+No proven CRLF/LF text-compare defect: no text equality comparison exists in the packet.
+
+No proven ZERO CONFLATED WITH ABSENT defect: no zero-valued field is truth-tested or defaulted with `or 0`.
+
+COULD NOT DETERMINE different-copy defects: missing caller/CI command and any served/origin/worktree context.

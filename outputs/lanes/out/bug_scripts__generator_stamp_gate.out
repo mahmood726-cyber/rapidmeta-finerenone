@@ -1,0 +1,198 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a031d1-18a1-7c61-830d-9ea9f574a0f9
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/generator_stamp_gate.py
+
+--- THE FILE, IN FULL ---
+#!/usr/bin/env python3
+"""E8 -- ASSERT THAT A SHIPPED PAGE NAMES A BUILD COMMAND THAT EXISTS AND A COMMIT THAT RESOLVES.
+
+WHY THIS EXISTS. Two pages were rebuilt and re-gated in served bytes on 2026-08-19, and hours
+later, in the same session, THE ROUTE USED TO BUILD THEM COULD NOT BE STATED. It had to be
+recovered from a commit diff by working out which module emits the `Page standard` card.
+
+    A BUILD PATH NOBODY CAN NAME IS A BUILD PATH NOBODY CAN AUDIT -- and one nobody can
+    reproduce, which makes every artefact it produced unverifiable in principle.
+
+`build_tabbed.py` already emits a generator stamp, and it is an honest one: it reports DIRTY
+when a generator file is uncommitted and UNKNOWN when git is unavailable, rather than guessing.
+So the recording was never the gap. THE GAP WAS THE ASSERTION -- nothing checked that the stamp
+on a shipped page names something real.
+
+WHAT THIS CHECKS, on the page's actual bytes:
+
+  1. THE STAMP IS PRESENT.        A page with no `Generator build` stamp cannot be traced at all.
+  2. THE COMMIT RESOLVES.         `git cat-file -e <sha>` -- the stamp names a commit that
+                                  EXISTS in this repository, not a plausible-looking hex string.
+  3. THE STAMP IS NOT UNKNOWN.    "UNKNOWN -- git unavailable at build time" is honest, and it
+                                  is also unverifiable. Honest is not the same as sufficient.
+  4. DIRTY IS REPORTED, NOT PASSED. A page built from uncommitted generator code cannot be
+                                  reproduced from its stamp. The stamp says so; this makes that
+                                  statement BLOCKING for a page being gated, instead of prose a
+                                  reader may or may not notice.
+  5. THE BUILD COMMAND EXISTS.    The module the route depends on is on disk and importable.
+
+WHAT IT DOES NOT CHECK, named rather than implied: it does not re-run the generator and compare
+bytes. That would be the complete answer and it costs a full page build (minutes, plus figure
+rasterisation) per page. This asserts the stamp is TRACEABLE, not that it is TRUE. The
+difference is real and is the residual half of E8.
+"""
+import io
+import os
+import re
+import subprocess
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BUILD_MODULE = os.path.join(REPO, "ssot", "build_tabbed.py")
+BUILD_COMMAND = "python ssot/build_tabbed.py <object.json> <out.html>"
+
+STAMP_RE = re.compile(r"Generator build.{0,80}?<code>([^<]{1,60})</code>([^<]{0,160})",
+                      re.DOTALL)
+
+# Pages under gate. Declared, because a glob over ~1500 shipped pages would make this
+# unrunnable and would silently include pages nobody claims to have rebuilt.
+GATED_PAGES = ["IV_IRON_HF_REVIEW.html", "SGLT2_HF_REVIEW.html", "BEMPEDOIC_ACID_REVIEW.html"]
+
+
+def commit_exists(sha):
+    try:
+        r = subprocess.run(["git", "-C", REPO, "cat-file", "-e", sha + "^{commit}"],
+                           capture_output=True, timeout=30)
+        return r.returncode == 0
+    except (OSError, subprocess.SubprocessError):
+        return None          # git unavailable HERE -- not the same as a bad stamp
+
+
+def check(page):
+    """Return (ok, [messages])."""
+    path = os.path.join(REPO, page)
+    if not os.path.exists(path):
+        return False, ["page not on disk"]
+    with io.open(path, encoding="utf-8", errors="replace") as fh:
+        html = fh.read()
+    m = STAMP_RE.search(html)
+    if not m:
+        return False, ["NO generator stamp -- this page cannot be traced to any build"]
+    sha, suffix = m.group(1).strip(), m.group(2)
+    msgs = ["stamp %r" % sha]
+    ok = True
+    if sha.upper() == "UNKNOWN":
+        return False, msgs + ["stamp is UNKNOWN (git unavailable at build time). Honest, and "
+                              "unverifiable -- honest is not the same as sufficient."]
+    exists = commit_exists(sha)
+    if exists is None:
+        return False, msgs + ["git unavailable HERE, so the stamp could not be resolved. "
+                              "Reported as UNRESOLVED, never as a pass."]
+    if not exists:
+        ok = False
+        msgs.append("commit does NOT exist in this repository -- the stamp names nothing")
+    else:
+        msgs.append("commit resolves")
+    if "NOT REPRODUCIBLE" in suffix or "uncommitted" in suffix:
+        ok = False
+        msgs.append("built from UNCOMMITTED generator code -- not reproducible from this stamp")
+    if not os.path.exists(BUILD_MODULE):
+        ok = False
+        msgs.append("build module missing: %s" % BUILD_MODULE)
+    return ok, msgs
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    print("build command asserted: %s" % BUILD_COMMAND)
+    print("build module present:   %s" % os.path.exists(BUILD_MODULE))
+    print()
+    bad = 0
+    for page in GATED_PAGES:
+        ok, msgs = check(page)
+        print("%-28s %s" % (page, "OK" if ok else "REFUSED"))
+        for m in msgs:
+            print("      %s" % m)
+        if not ok:
+            bad += 1
+    print()
+    print("gated pages   %d" % len(GATED_PAGES))
+    print("failing       %d" % bad)
+    print()
+    print("NOT CHECKED, and named rather than implied: this asserts the stamp is TRACEABLE,")
+    print("not that it is TRUE. Re-running the generator and comparing bytes would settle it")
+    print("and costs a full page build per page. That is the residual half of E8.")
+    if bad:
+        print()
+        print("REFUSED: %d gated page(s) carry a stamp that names nothing checkable." % bad)
+        return 1
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+
+codex
+- **Instrument reads a name, not its binding**, line 54: exact input `commit_exists("HEAD")`, or page bytes `<html>Generator build <code>HEAD</code></html>` with `ssot/build_tabbed.py` present. Consequence: `HEAD^{commit}` resolves now, so a moving ref can pass as a reproducible commit stamp.
+
+- **Selector keyed to a form it does not test**, line 86: exact input page bytes `<html>Generator build <code>HEAD</code> DIRTY</html>`. Consequence: the predicate ignores `DIRTY`, despite the module saying dirty stamps are reported as `DIRTY`, so dirty generator code can be reported `OK`.
+
+- **Selector only reads raw text immediately after `</code>`**, lines 44 and 86: exact input page bytes `<html>Generator build <code>HEAD</code><span>NOT REPRODUCIBLE: uncommitted generator code</span></html>`. Consequence: group 2 is empty because it stops at `<`, so the blocking dirty marker is present in the page bytes but not detected.
+
+- **Build-command check proves existence, not importability**, line 89: exact input filesystem state `ssot/build_tabbed.py` exists with contents `def =`, plus a resolving stamp. Consequence: the gate can pass the “build module present” check even though the named build command cannot run.
+
+COULD NOT DETERMINE whether these are present in the current shipped corpus: missing `IV_IRON_HF_REVIEW.html`, `SGLT2_HF_REVIEW.html`, `BEMPEDOIC_ACID_REVIEW.html`, and `ssot/build_tabbed.py`.
+
+No proven instance found: CRLF/LF text comparison; merged-cell/off-by-one tabulation; zero conflated with absent; negation dropped; wrapper status code masking work; idempotency guard satisfied by its own marker.
+tokens used
+13,953
+- **Instrument reads a name, not its binding**, line 54: exact input `commit_exists("HEAD")`, or page bytes `<html>Generator build <code>HEAD</code></html>` with `ssot/build_tabbed.py` present. Consequence: `HEAD^{commit}` resolves now, so a moving ref can pass as a reproducible commit stamp.
+
+- **Selector keyed to a form it does not test**, line 86: exact input page bytes `<html>Generator build <code>HEAD</code> DIRTY</html>`. Consequence: the predicate ignores `DIRTY`, despite the module saying dirty stamps are reported as `DIRTY`, so dirty generator code can be reported `OK`.
+
+- **Selector only reads raw text immediately after `</code>`**, lines 44 and 86: exact input page bytes `<html>Generator build <code>HEAD</code><span>NOT REPRODUCIBLE: uncommitted generator code</span></html>`. Consequence: group 2 is empty because it stops at `<`, so the blocking dirty marker is present in the page bytes but not detected.
+
+- **Build-command check proves existence, not importability**, line 89: exact input filesystem state `ssot/build_tabbed.py` exists with contents `def =`, plus a resolving stamp. Consequence: the gate can pass the “build module present” check even though the named build command cannot run.
+
+COULD NOT DETERMINE whether these are present in the current shipped corpus: missing `IV_IRON_HF_REVIEW.html`, `SGLT2_HF_REVIEW.html`, `BEMPEDOIC_ACID_REVIEW.html`, and `ssot/build_tabbed.py`.
+
+No proven instance found: CRLF/LF text comparison; merged-cell/off-by-one tabulation; zero conflated with absent; negation dropped; wrapper status code masking work; idempotency guard satisfied by its own marker.

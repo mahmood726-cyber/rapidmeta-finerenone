@@ -1,0 +1,668 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a0312f-a02d-7d73-9499-b0d35983f5d4
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/apply_review_structural_fixes.py
+
+--- THE FILE, IN FULL ---
+"""Idempotent codemod for *_REVIEW.html structural fixes.
+
+Applies two byte-identical replacements across the RapidMeta scaffold:
+
+(P1-2) `highlightEvidence` → regex-auto-highlight version that lights up
+  P-values, signed decimals, percentages, n=N counts, and 3+ digit integers
+  in addition to per-row literal terms (with overlap merge).
+
+(P1-3) CT.gov design-metadata evidence row relabeled so the trial-profile
+  data-source toggle no longer appears to contradict the curated D1-D5
+  RoB-2 narrative.
+
+Usage:
+  python scripts/apply_review_structural_fixes.py --dry-run
+  python scripts/apply_review_structural_fixes.py --apply
+"""
+from __future__ import annotations
+import argparse
+import os
+import sys
+from pathlib import Path
+
+OLD_HE = """        const highlightEvidence = (text, highlights) => {
+
+
+            let safe = escapeHtml(text);
+
+
+            const terms = sanitizeHighlightTerms(highlights);
+
+
+            if (terms.length === 0) return safe;
+
+
+            terms.forEach(h => {
+
+
+                const escaped = escapeHtml(h);
+
+
+                safe = safe.replace(new RegExp(escaped.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&'), 'g'),
+
+
+                    `<span class="highlight-data">${escaped}</span>`);
+
+
+            });
+
+
+            return safe;
+
+
+        };"""
+
+NEW_HE = """        const HIGHLIGHT_AUTO_PATTERNS = [
+            /P\\s*[<>=]\\s*0?\\.\\d+/g,           // P-values: P=0.0004, P<0.0001
+            /\\b\\d+(?:\\.\\d+)?\\s*%/g,            // percentages: 22%, 2.1%
+            /-?\\d+\\.\\d+/g,                     // signed decimals: -0.41, 1.30
+            /\\bn\\s*=\\s*\\d+\\b/gi,               // n=N counts: n=202
+            /\\b\\d{3,}\\b/g                      // multi-digit integers: 637, 2023
+        ];
+
+
+        const highlightEvidence = (text, highlights) => {
+
+
+            const terms = sanitizeHighlightTerms(highlights);
+
+
+            const ranges = [];
+
+
+            for (const re of HIGHLIGHT_AUTO_PATTERNS) {
+
+
+                for (const m of String(text ?? '').matchAll(re)) {
+
+
+                    ranges.push([m.index, m.index + m[0].length]);
+
+
+                }
+
+
+            }
+
+
+            for (const term of terms) {
+
+
+                const escapedTerm = String(term).replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&');
+
+
+                const re = new RegExp(escapedTerm, 'g');
+
+
+                for (const m of String(text ?? '').matchAll(re)) {
+
+
+                    ranges.push([m.index, m.index + m[0].length]);
+
+
+                }
+
+
+            }
+
+
+            if (ranges.length === 0) return escapeHtml(text);
+
+
+            ranges.sort((a, b) => a[0] - b[0] || b[1] - a[1]);
+
+
+            const merged = [];
+
+
+            for (const [s, e] of ranges) {
+
+
+                if (merged.length && s < merged[merged.length - 1][1]) {
+
+
+                    merged[merged.length - 1][1] = Math.max(merged[merged.length - 1][1], e);
+
+
+                } else {
+
+
+                    merged.push([s, e]);
+
+
+                }
+
+
+            }
+
+
+            let out = '';
+
+
+            let cursor = 0;
+
+
+            const src = String(text ?? '');
+
+
+            for (const [s, e] of merged) {
+
+
+                out += escapeHtml(src.substring(cursor, s));
+
+
+                out += `<span class="highlight-data">${escapeHtml(src.substring(s, e))}</span>`;
+
+
+                cursor = e;
+
+
+            }
+
+
+            out += escapeHtml(src.substring(cursor));
+
+
+            return out;
+
+
+        };"""
+
+OLD_CTGOV = """                    items.push({
+
+
+                        label: 'Design — Allocation & masking',
+
+
+                        source: `CT.gov ${nct} protocolSection.designModule`,
+
+
+                        text: `Allocation: ${allocText}. Masking: ${maskText}${whoMasked ? ' (' + whoMasked + ')' : ''}.`,
+
+
+                        highlights: [allocText, maskText, whoMasked].filter(Boolean)
+
+
+                    });"""
+
+NEW_CTGOV = """                    items.push({
+
+
+                        label: 'CT.gov design metadata (informs RoB — NOT a RoB-2 judgment)',
+
+
+                        source: `CT.gov ${nct} protocolSection.designModule (auto-derived from registry; see \"Risk of Bias (RoB 2.0)\" evidence row and RoB tab for the curated 5-domain assessment)`,
+
+
+                        text: `[CT.gov registry metadata] Allocation: ${allocText}. Masking: ${maskText}${whoMasked ? ' (' + whoMasked + ')' : ''}. — Note: this row is structured CT.gov registration metadata, not a RoB-2 domain rating. The curated D1–D5 RoB-2 judgments are in the separate \"Risk of Bias (RoB 2.0)\" evidence row and in the RoB tab. Do not treat the two as conflicting; they answer different questions.`,
+
+
+                        highlights: [allocText, maskText, whoMasked].filter(Boolean)
+
+
+                    });"""
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--apply", action="store_true", help="Write changes to disk (default: dry-run)")
+    parser.add_argument("--root", default=".", help="Root directory containing *_REVIEW.html files")
+    args = parser.parse_args()
+
+    root = Path(args.root)
+    files = sorted(root.glob("*_REVIEW.html"))
+
+    stats = {"he_applied": 0, "he_already": 0, "he_missing": 0,
+             "ctgov_applied": 0, "ctgov_already": 0, "ctgov_missing": 0,
+             "files_changed": 0}
+    skipped: list[str] = []
+
+    for f in files:
+        text = f.read_text(encoding="utf-8")
+        original = text
+        any_change = False
+
+        # P1-2: highlightEvidence
+        if NEW_HE in text:
+            stats["he_already"] += 1
+        elif OLD_HE in text:
+            text = text.replace(OLD_HE, NEW_HE, 1)
+            stats["he_applied"] += 1
+            any_change = True
+        else:
+            stats["he_missing"] += 1
+            skipped.append(f"{f.name}: highlightEvidence not found")
+
+        # P1-3: CT.gov design metadata label
+        if NEW_CTGOV in text:
+            stats["ctgov_already"] += 1
+        elif OLD_CTGOV in text:
+            text = text.replace(OLD_CTGOV, NEW_CTGOV, 1)
+            stats["ctgov_applied"] += 1
+            any_change = True
+        else:
+            stats["ctgov_missing"] += 1
+            # Only log if highlightEvidence was found — otherwise it's a DTA file
+            if "highlightEvidence" in original:
+                skipped.append(f"{f.name}: CT.gov design block not found")
+
+        if any_change:
+            stats["files_changed"] += 1
+            if args.apply:
+                f.write_text(text, encoding="utf-8")
+
+    print(f"Files scanned: {len(files)}")
+    print(f"Mode: {'APPLY' if args.apply else 'DRY-RUN'}")
+    print()
+    print(f"P1-2 highlightEvidence: applied={stats['he_applied']}, already-fixed={stats['he_already']}, not-found={stats['he_missing']}")
+    print(f"P1-3 CT.gov metadata:    applied={stats['ctgov_applied']}, already-fixed={stats['ctgov_already']}, not-found={stats['ctgov_missing']}")
+    print(f"Files {'changed' if args.apply else 'would-change'}: {stats['files_changed']}")
+    if skipped:
+        print(f"\nNotes ({len(skipped)} entries):")
+        for s in skipped[:20]:
+            print(f"  {s}")
+        if len(skipped) > 20:
+            print(f"  ... and {len(skipped) - 20} more")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+
+codex
+I’ll stay within the pasted packet and treat this as a defect-hunt/code-review answer, with line-specific findings only.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=0; Get-Content -Path scripts/apply_review_structural_fixes.py | ForEach-Object { $i++; if ($i -ge 1 -and $i -le 260) { '"'{0,4}: {1}' -f "'$i, $_ } }' in F:\rapidmeta-ssot-shell
+ succeeded in 3172ms:
+   1: """Idempotent codemod for *_REVIEW.html structural fixes.
+   2: 
+   3: Applies two byte-identical replacements across the RapidMeta scaffold:
+   4: 
+   5: (P1-2) `highlightEvidence` â†’ regex-auto-highlight version that lights up
+   6:   P-values, signed decimals, percentages, n=N counts, and 3+ digit integers
+   7:   in addition to per-row literal terms (with overlap merge).
+   8: 
+   9: (P1-3) CT.gov design-metadata evidence row relabeled so the trial-profile
+  10:   data-source toggle no longer appears to contradict the curated D1-D5
+  11:   RoB-2 narrative.
+  12: 
+  13: Usage:
+  14:   python scripts/apply_review_structural_fixes.py --dry-run
+  15:   python scripts/apply_review_structural_fixes.py --apply
+  16: """
+  17: from __future__ import annotations
+  18: import argparse
+  19: import os
+  20: import sys
+  21: from pathlib import Path
+  22: 
+  23: OLD_HE = """        const highlightEvidence = (text, highlights) => {
+  24: 
+  25: 
+  26:             let safe = escapeHtml(text);
+  27: 
+  28: 
+  29:             const terms = sanitizeHighlightTerms(highlights);
+  30: 
+  31: 
+  32:             if (terms.length === 0) return safe;
+  33: 
+  34: 
+  35:             terms.forEach(h => {
+  36: 
+  37: 
+  38:                 const escaped = escapeHtml(h);
+  39: 
+  40: 
+  41:                 safe = safe.replace(new RegExp(escaped.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&'), 'g'),
+  42: 
+  43: 
+  44:                     `<span class="highlight-data">${escaped}</span>`);
+  45: 
+  46: 
+  47:             });
+  48: 
+  49: 
+  50:             return safe;
+  51: 
+  52: 
+  53:         };"""
+  54: 
+  55: NEW_HE = """        const HIGHLIGHT_AUTO_PATTERNS = [
+  56:             /P\\s*[<>=]\\s*0?\\.\\d+/g,           // P-values: P=0.0004, P<0.0001
+  57:             /\\b\\d+(?:\\.\\d+)?\\s*%/g,            // percentages: 22%, 2.1%
+  58:             /-?\\d+\\.\\d+/g,                     // signed decimals: -0.41, 1.30
+  59:             /\\bn\\s*=\\s*\\d+\\b/gi,               // n=N counts: n=202
+  60:             /\\b\\d{3,}\\b/g                      // multi-digit integers: 637, 2023
+  61:         ];
+  62: 
+  63: 
+  64:         const highlightEvidence = (text, highlights) => {
+  65: 
+  66: 
+  67:             const terms = sanitizeHighlightTerms(highlights);
+  68: 
+  69: 
+  70:             const ranges = [];
+  71: 
+  72: 
+  73:             for (const re of HIGHLIGHT_AUTO_PATTERNS) {
+  74: 
+  75: 
+  76:                 for (const m of String(text ?? '').matchAll(re)) {
+  77: 
+  78: 
+  79:                     ranges.push([m.index, m.index + m[0].length]);
+  80: 
+  81: 
+  82:                 }
+  83: 
+  84: 
+  85:             }
+  86: 
+  87: 
+  88:             for (const term of terms) {
+  89: 
+  90: 
+  91:                 const escapedTerm = String(term).replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&');
+  92: 
+  93: 
+  94:                 const re = new RegExp(escapedTerm, 'g');
+  95: 
+  96: 
+  97:                 for (const m of String(text ?? '').matchAll(re)) {
+  98: 
+  99: 
+ 100:                     ranges.push([m.index, m.index + m[0].length]);
+ 101: 
+ 102: 
+ 103:                 }
+ 104: 
+ 105: 
+ 106:             }
+ 107: 
+ 108: 
+ 109:             if (ranges.length === 0) return escapeHtml(text);
+ 110: 
+ 111: 
+ 112:             ranges.sort((a, b) => a[0] - b[0] || b[1] - a[1]);
+ 113: 
+ 114: 
+ 115:             const merged = [];
+ 116: 
+ 117: 
+ 118:             for (const [s, e] of ranges) {
+ 119: 
+ 120: 
+ 121:                 if (merged.length && s < merged[merged.length - 1][1]) {
+ 122: 
+ 123: 
+ 124:                     merged[merged.length - 1][1] = Math.max(merged[merged.length - 1][1], e);
+ 125: 
+ 126: 
+ 127:                 } else {
+ 128: 
+ 129: 
+ 130:                     merged.push([s, e]);
+ 131: 
+ 132: 
+ 133:                 }
+ 134: 
+ 135: 
+ 136:             }
+ 137: 
+ 138: 
+ 139:             let out = '';
+ 140: 
+ 141: 
+ 142:             let cursor = 0;
+ 143: 
+ 144: 
+ 145:             const src = String(text ?? '');
+ 146: 
+ 147: 
+ 148:             for (const [s, e] of merged) {
+ 149: 
+ 150: 
+ 151:                 out += escapeHtml(src.substring(cursor, s));
+ 152: 
+ 153: 
+ 154:                 out += `<span class="highlight-data">${escapeHtml(src.substring(s, e))}</span>`;
+ 155: 
+ 156: 
+ 157:                 cursor = e;
+ 158: 
+ 159: 
+ 160:             }
+ 161: 
+ 162: 
+ 163:             out += escapeHtml(src.substring(cursor));
+ 164: 
+ 165: 
+ 166:             return out;
+ 167: 
+ 168: 
+ 169:         };"""
+ 170: 
+ 171: OLD_CTGOV = """                    items.push({
+ 172: 
+ 173: 
+ 174:                         label: 'Design â€” Allocation & masking',
+ 175: 
+ 176: 
+ 177:                         source: `CT.gov ${nct} protocolSection.designModule`,
+ 178: 
+ 179: 
+ 180:                         text: `Allocation: ${allocText}. Masking: ${maskText}${whoMasked ? ' (' + whoMasked + ')' : ''}.`,
+ 181: 
+ 182: 
+ 183:                         highlights: [allocText, maskText, whoMasked].filter(Boolean)
+ 184: 
+ 185: 
+ 186:                     });"""
+ 187: 
+ 188: NEW_CTGOV = """                    items.push({
+ 189: 
+ 190: 
+ 191:                         label: 'CT.gov design metadata (informs RoB â€” NOT a RoB-2 judgment)',
+ 192: 
+ 193: 
+ 194:                         source: `CT.gov ${nct} protocolSection.designModule (auto-derived from registry; see \"Risk of Bias (RoB 2.0)\" evidence row and RoB tab for the curated 5-domain assessment)`,
+ 195: 
+ 196: 
+ 197:                         text: `[CT.gov registry metadata] Allocation: ${allocText}. Masking: ${maskText}${whoMasked ? ' (' + whoMasked + ')' : ''}. â€” Note: this row is structured CT.gov registration metadata, not a RoB-2 domain rating. The curated D1â€“D5 RoB-2 judgments are in the separate \"Risk of Bias (RoB 2.0)\" evidence row and in the RoB tab. Do not treat the two as conflicting; they answer different questions.`,
+ 198: 
+ 199: 
+ 200:                         highlights: [allocText, maskText, whoMasked].filter(Boolean)
+ 201: 
+ 202: 
+ 203:                     });"""
+ 204: 
+ 205: 
+ 206: def main() -> int:
+ 207:     parser = argparse.ArgumentParser()
+ 208:     parser.add_argument("--apply", action="store_true", help="Write changes to disk (default: dry-run)")
+ 209:     parser.add_argument("--root", default=".", help="Root directory containing *_REVIEW.html files")
+ 210:     args = parser.parse_args()
+ 211: 
+ 212:     root = Path(args.root)
+ 213:     files = sorted(root.glob("*_REVIEW.html"))
+ 214: 
+ 215:     stats = {"he_applied": 0, "he_already": 0, "he_missing": 0,
+ 216:              "ctgov_applied": 0, "ctgov_already": 0, "ctgov_missing": 0,
+ 217:              "files_changed": 0}
+ 218:     skipped: list[str] = []
+ 219: 
+ 220:     for f in files:
+ 221:         text = f.read_text(encoding="utf-8")
+ 222:         original = text
+ 223:         any_change = False
+ 224: 
+ 225:         # P1-2: highlightEvidence
+ 226:         if NEW_HE in text:
+ 227:             stats["he_already"] += 1
+ 228:         elif OLD_HE in text:
+ 229:             text = text.replace(OLD_HE, NEW_HE, 1)
+ 230:             stats["he_applied"] += 1
+ 231:             any_change = True
+ 232:         else:
+ 233:             stats["he_missing"] += 1
+ 234:             skipped.append(f"{f.name}: highlightEvidence not found")
+ 235: 
+ 236:         # P1-3: CT.gov design metadata label
+ 237:         if NEW_CTGOV in text:
+ 238:             stats["ctgov_already"] += 1
+ 239:         elif OLD_CTGOV in text:
+ 240:             text = text.replace(OLD_CTGOV, NEW_CTGOV, 1)
+ 241:             stats["ctgov_applied"] += 1
+ 242:             any_change = True
+ 243:         else:
+ 244:             stats["ctgov_missing"] += 1
+ 245:             # Only log if highlightEvidence was found â€” otherwise it's a DTA file
+ 246:             if "highlightEvidence" in original:
+ 247:                 skipped.append(f"{f.name}: CT.gov design block not found")
+ 248: 
+ 249:         if any_change:
+ 250:             stats["files_changed"] += 1
+ 251:             if args.apply:
+ 252:                 f.write_text(text, encoding="utf-8")
+ 253: 
+ 254:     print(f"Files scanned: {len(files)}")
+ 255:     print(f"Mode: {'APPLY' if args.apply else 'DRY-RUN'}")
+ 256:     print()
+ 257:     print(f"P1-2 highlightEvidence: applied={stats['he_applied']}, already-fixed={stats['he_already']}, not-found={stats['he_missing']}")
+ 258:     print(f"P1-3 CT.gov metadata:    applied={stats['ctgov_applied']}, already-fixed={stats['ctgov_already']}, not-found={stats['ctgov_missing']}")
+ 259:     print(f"Files {'changed' if args.apply else 'would-change'}: {stats['files_changed']}")
+ 260:     if skipped:
+
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=0; Get-Content -Path scripts/apply_review_structural_fixes.py | ForEach-Object { $i++; if ($i -ge 260) { '"'{0,4}: {1}' -f "'$i, $_ } }' in F:\rapidmeta-ssot-shell
+ succeeded in 4281ms:
+ 260:     if skipped:
+ 261:         print(f"\nNotes ({len(skipped)} entries):")
+ 262:         for s in skipped[:20]:
+ 263:             print(f"  {s}")
+ 264:         if len(skipped) > 20:
+ 265:             print(f"  ... and {len(skipped) - 20} more")
+ 266:     return 0
+ 267: 
+ 268: 
+ 269: if __name__ == "__main__":
+ 270:     sys.exit(main())
+
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "@'
+import scripts.apply_review_structural_fixes as m
+for i, line in enumerate(m.NEW_HE.splitlines(), 1):
+    if 'replace' in line or 'RegExp' in line:
+        print(i, repr(line))
+for i, line in enumerate(m.OLD_HE.splitlines(), 1):
+    if 'replace' in line or 'RegExp' in line:
+        print('OLD', i, repr(line))
+'@ | python -" in F:\rapidmeta-ssot-shell
+ succeeded in 5248ms:
+37 "                const escapedTerm = String(term).replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&');"
+40 "                const re = new RegExp(escapedTerm, 'g');"
+OLD 19 "                safe = safe.replace(new RegExp(escaped.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&'), 'g'),"
+
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "@'
+import scripts.apply_review_structural_fixes as m
+line = [l for l in m.NEW_HE.splitlines() if 'replace' in l][0]
+print(line)
+print([c for c in line[line.index('/') : line.index('/g')+2]])
+print([ord(c) for c in line[line.index('/') : line.index('/g')+2]])
+'@ | python -" in F:\rapidmeta-ssot-shell
+ succeeded in 4615ms:
+                const escapedTerm = String(term).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+['/', '[', '.', '*', '+', '?', '^', '$', '{', '}', '(', ')', '|', '[', '\\', ']', '\\', '\\', ']', '/', 'g']
+[47, 91, 46, 42, 43, 63, 94, 36, 123, 125, 40, 41, 124, 91, 92, 93, 92, 92, 93, 47, 103]
+
+codex
+Found defects:
+
+- **Line 266: check that cannot fail / wrapper status code.**  
+  Exact input: run `python scripts/apply_review_structural_fixes.py --apply --root F:\tmp\definitely_missing_root`.  
+  Consequence: `root.glob("*_REVIEW.html")` scans zero files, reports success, and returns `0`, so a release gate can pass without touching any review file.
+
+- **Line 226: idempotency guard satisfied by marker text, not the live work.**  
+  Exact input: one `A_REVIEW.html` containing the literal bytes of `NEW_HE` inside an HTML comment, followed by the literal bytes of `OLD_HE` as the actual live `highlightEvidence` function; run `--apply --root <dir>`.  
+  Consequence: `if NEW_HE in text` fires first, so the old live function is left unfixed.
+
+- **Line 237: same marker-text idempotency defect for CT.gov.**  
+  Exact input: one `A_REVIEW.html` containing the literal bytes of `NEW_CTGOV` inside an HTML comment, followed by the literal bytes of `OLD_CTGOV` as the actual live `items.push` block; run `--apply --root <dir>`.  
+  Consequence: `if NEW_CTGOV in text` fires first, so the old live CT.gov row is left unfixed.
+
+- **Line 213: COULD NOT DETERMINE selector keyed to corpus form.**  
+  Missing: the actual caller contract / directory layout for where `*_REVIEW.html` files live; this code only scans direct children of `--root`, not nested files.
+
+No proven defect found in this packet for CRLF/LF text comparison, merged-cell/off-by-one tabulation, zero conflated with absent, or negation dropped.
+tokens used
+38,177
+Found defects:
+
+- **Line 266: check that cannot fail / wrapper status code.**  
+  Exact input: run `python scripts/apply_review_structural_fixes.py --apply --root F:\tmp\definitely_missing_root`.  
+  Consequence: `root.glob("*_REVIEW.html")` scans zero files, reports success, and returns `0`, so a release gate can pass without touching any review file.
+
+- **Line 226: idempotency guard satisfied by marker text, not the live work.**  
+  Exact input: one `A_REVIEW.html` containing the literal bytes of `NEW_HE` inside an HTML comment, followed by the literal bytes of `OLD_HE` as the actual live `highlightEvidence` function; run `--apply --root <dir>`.  
+  Consequence: `if NEW_HE in text` fires first, so the old live function is left unfixed.
+
+- **Line 237: same marker-text idempotency defect for CT.gov.**  
+  Exact input: one `A_REVIEW.html` containing the literal bytes of `NEW_CTGOV` inside an HTML comment, followed by the literal bytes of `OLD_CTGOV` as the actual live `items.push` block; run `--apply --root <dir>`.  
+  Consequence: `if NEW_CTGOV in text` fires first, so the old live CT.gov row is left unfixed.
+
+- **Line 213: COULD NOT DETERMINE selector keyed to corpus form.**  
+  Missing: the actual caller contract / directory layout for where `*_REVIEW.html` files live; this code only scans direct children of `--root`, not nested files.
+
+No proven defect found in this packet for CRLF/LF text comparison, merged-cell/off-by-one tabulation, zero conflated with absent, or negation dropped.

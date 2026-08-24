@@ -1,0 +1,803 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a031f2-04f3-7632-b753-900617cca049
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/lint_pmid_names_two_trials.py
+
+--- THE FILE, IN FULL ---
+#!/usr/bin/env python3
+"""ONE PMID ATTRIBUTED TO TWO DIFFERENT TRIALS SOMEWHERE IN THE CORPUS.
+
+THE INSTANCE, 2026-08-19. `PUBLISHED_META_BENCHMARKS.json` recorded, for the colchicine topic:
+
+    "source": "COLCOT (Tardif 2019) + LoDoCo2 (Nidorf SM, N Engl J Med 2020; 383:1838)",
+    "pmid_lodoco2": "32865375"
+
+PMID 32865375 is **EAST-AFNET 4** -- *Early Rhythm-Control Therapy in Patients with Atrial
+Fibrillation*, N Engl J Med 2020, `10.1056/NEJMoa2019422`, `NCT01288352`. LoDoCo2 is **32865380**,
+*Colchicine in Patients with Chronic Coronary Disease*, `10.1056/NEJMoa2021372`.
+
+    THE TWO DIFFER BY FIVE, IN THE SAME JOURNAL, IN THE SAME WEEK OF AUGUST 2020. That is the
+    signature of an identifier written from memory rather than looked up, and it is the class
+    this registry calls "identifiers from recall".
+
+WHY IT IS ITS OWN DETECTOR AND NOT JUST AN INSTANCE OF THAT CLASS. **The corpus already held
+the evidence to refute it and nothing compared the two.** PMID 32865375 is cited CORRECTLY, as
+EAST-AFNET 4 and keyed to NCT01288352, on `ABLATION_AF_REVIEW.html` and
+`EARLY_RHYTHM_CONTROL_AF_REVIEW.html` -- two delivered pages of this same project. So one
+identifier named an atrial-fibrillation trial on two pages and a colchicine trial on a third,
+simultaneously, for months.
+
+    A WRONG IDENTIFIER IS UNCHECKABLE IN ISOLATION AND TRIVIALLY CHECKABLE IN AGGREGATE. No
+    amount of reading the colchicine benchmark record can reveal that its PMID belongs to a
+    heart-rhythm trial. Reading it BESIDE the rest of the corpus reveals it immediately, and
+    that is a comparison no human does and a command does in a second.
+
+WHAT IT SCANS
+    - every SSOT object's `inputs.trials[*]`, pairing `pmid` with `nct`
+    - `PUBLISHED_META_BENCHMARKS.json`, pairing each `pmid_<name>` with `<name>`
+    - `scripts/pmid_results/lookup.json`, pairing `best_pmid` with its keyed trial
+
+WHAT IT CANNOT DO, stated so a clean run is not read as more than it is
+    - It CANNOT tell which of two attributions is the right one. It reports the collision and
+      names both sides; a human or a lookup decides. Reporting the wrong one as correct would
+      be worse than reporting neither.
+    - It CANNOT see a PMID that is wrong CONSISTENTLY. If a trial carries one wrong identifier
+      everywhere, there is no collision and this is silent. That case needs a lookup against
+      PubMed, not a comparison inside the corpus. THIS IS A FLOOR, NOT A CEILING.
+    - A PMID legitimately covering two trials -- a combined report of two sibling trials in one
+      paper -- is a real pattern and is reported. It is a collision to LOOK AT, not a defect
+      proven.
+
+USAGE:  python scripts/lint_pmid_names_two_trials.py
+        python scripts/lint_pmid_names_two_trials.py --selftest
+"""
+import glob
+import io
+import json
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+
+def _norm(s):
+    return " ".join(str(s or "").strip().lower().split())
+
+
+def _digits(p):
+    d = "".join(ch for ch in str(p or "") if ch.isdigit())
+    return d or None
+
+
+def add_attribution(seen, pmid, identity, where, name=None):
+    """Identity is recorded WITH ITS KIND, because the kinds are not comparable.
+
+    THE FIRST VERSION COMPARED THEM ANYWAY AND MANUFACTURED THREE FALSE ALARMS out of four
+    findings. An SSOT object keys a trial by `NCT03315143`; the benchmark file keys the same
+    trial by the name `scored`. Those are the SAME TRIAL under two conventions, and a
+    detector that calls that a collision is reporting its own inability to join two tables.
+
+    A benchmark record carries no NCT id at all, so name-versus-NCT can NEVER match -- which
+    means the naive version flags every trial the corpus happens to cite from both sides,
+    i.e. exactly the well-recorded ones. It fires hardest where the corpus is most careful.
+    NCT-versus-NCT and name-versus-name are comparable and are compared; the cross pair is
+    reported as NOT_ASSESSABLE and is never counted as a collision.
+    """
+    pmid = _digits(pmid)
+    if not pmid or not identity:
+        return
+    ident = _norm(identity)
+    kind = "nct" if ident.startswith("nct") and ident[3:].isdigit() else "name"
+    rec = seen.setdefault(pmid, {"nct": {}, "name": {}, "where": []})
+    rec[kind].setdefault(ident, []).append(where)
+    rec["where"].append(where)
+    # A trial NAME recorded alongside its identifier lets two naming conventions be joined.
+    #
+    # THE ALIAS IS RECORDED FOR **EITHER** KIND, AND THE FIRST VERSION RECORDED IT ONLY FOR
+    # `nct`. That fix covered the case it was written for and not the class.
+    #
+    # LoDoCo2 has NO ClinicalTrials.gov identifier -- it is ACTRN12614000093684 on ANZCTR --
+    # so its identity is itself a NAME. The object keys it `actrn12614000093684` and the
+    # benchmark file keys it `lodoco2`, both under PMID 32865380, and with the alias limited
+    # to `nct` records there was nothing to join them with. THIS GATE THEN REFUSED THE FIRST
+    # COMMIT OF THE VERY OBJECT THAT INTRODUCED THE ANZCTR TRIAL -- correctly firing on real
+    # ambiguity, and on a pair that is one trial.
+    #
+    # Fixing the branch that was caught is not fixing the class: the same shape returns for
+    # EudraCT, ISRCTN, ChiCTR and JPRN identifiers, none of which start with `nct`.
+    if name:
+        rec.setdefault("aka", {}).setdefault(ident, set()).add(_norm(name))
+
+
+def collect(repo=REPO):
+    """{pmid: {kind: {identity: [where]}}} over every place the corpus asserts a PMID.
+
+    The scanning and the RECORDING are separated on purpose. `add_attribution` is module level
+    so the selftest can build fixtures THROUGH IT rather than beside it -- a hand-written
+    fixture does not follow a refactor, and this file has already had one proof silently stop
+    proving anything for exactly that reason.
+    """
+    seen = {}
+
+    def add(pmid, identity, where, name=None):
+        add_attribution(seen, pmid, identity, where, name)
+
+    for path in sorted(glob.glob(os.path.join(repo, "ssot", "*", "*.json"))):
+        try:
+            with io.open(path, "r", encoding="utf-8") as fh:
+                obj = json.load(fh)
+        except (OSError, ValueError):
+            continue
+        rel = os.path.relpath(path, repo)
+        for t in ((obj.get("inputs") or {}).get("trials") or []):
+            if not isinstance(t, dict):
+                continue
+            add(t.get("pmid"), t.get("nct") or t.get("id") or t.get("name"), rel,
+                name=t.get("name"))
+
+    bpath = os.path.join(repo, "PUBLISHED_META_BENCHMARKS.json")
+    if os.path.exists(bpath):
+        try:
+            with io.open(bpath, "r", encoding="utf-8") as fh:
+                bm = json.load(fh)
+        except (OSError, ValueError):
+            bm = {}
+        for page, blk in (bm.get("benchmarks") or {}).items():
+            if not isinstance(blk, dict):
+                continue
+            for k, v in blk.items():
+                if k.startswith("pmid_") and not k.endswith("_corrected_2026_08_19"):
+                    add(v, k[len("pmid_"):], "PUBLISHED_META_BENCHMARKS.json::%s" % page)
+
+    lpath = os.path.join(repo, "scripts", "pmid_results", "lookup.json")
+    if os.path.exists(lpath):
+        try:
+            with io.open(lpath, "r", encoding="utf-8") as fh:
+                lk = json.load(fh)
+        except (OSError, ValueError):
+            lk = {}
+        rows = lk if isinstance(lk, list) else (lk.get("rows") or lk.get("results") or [])
+        if isinstance(rows, dict):
+            rows = [dict(v, _key=k) for k, v in rows.items()]
+        for r in rows:
+            if isinstance(r, dict):
+                add(r.get("best_pmid"), r.get("nct") or r.get("trial") or r.get("_key"),
+                    "scripts/pmid_results/lookup.json")
+    return seen
+
+
+def collisions(seen):
+    """{pmid: {kind: {identity: [where]}}} for PMIDs naming two COMPARABLE identities."""
+    out = {}
+    for pmid, rec in seen.items():
+        ncts = rec.get("nct") or {}
+        names = rec.get("name") or {}
+        aka = rec.get("aka") or {}
+        # A NAME that matches the trial name recorded beside ANY identity is the SAME trial --
+        # and an identity's own alias set covers it whether that identity is an NCT or, as for
+        # an ANZCTR-only trial, itself a name.
+        # An ALIAS is folded away. AN IDENTITY IS NOT, even when it has aliases.
+        #
+        # The first attempt dropped every name that was a key of `aka` as well, which removed
+        # the PRIMARY identity from the comparison -- and with it the ability to see a real
+        # collision. `ACTRN12614000093684` (aka LoDoCo2) beside a bare `east-afnet 4` under one
+        # PMID stopped colliding, which is the exact case this detector exists for. THE
+        # NEGATIVE CONTROL CAUGHT IT: widening a join until nothing collides is not a fix.
+        known = set()
+        for _ident, al in aka.items():
+            known |= set(al or ())
+        unmatched = {k: v for k, v in names.items() if k not in known}
+        hit = {}
+        if len(ncts) > 1:
+            hit["nct"] = ncts
+        if len(unmatched) > 1:
+            hit["name"] = unmatched
+        if hit:
+            out[pmid] = hit
+    return out
+
+
+def cross_kind_unjoined(seen):
+    """PMIDs whose only disagreement is NCT-versus-NAME. NOT a collision -- NOT_ASSESSABLE."""
+    out = {}
+    for pmid, rec in seen.items():
+        ncts, names, aka = rec.get("nct") or {}, rec.get("name") or {}, rec.get("aka") or {}
+        known = set()
+        for n in ncts:
+            known |= set(aka.get(n) or ())
+        unmatched = {k: v for k, v in names.items() if k not in known}
+        if ncts and unmatched and len(ncts) <= 1 and len(unmatched) <= 1:
+            out[pmid] = {"nct": sorted(ncts), "name": sorted(unmatched)}
+    return out
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    seen = collect()
+    bad = collisions(seen)
+    cross = cross_kind_unjoined(seen)
+    print("PMIDs carrying at least one attribution : %d" % len(seen))
+    print("PMIDs naming two COMPARABLE identities -- COLLISION : %d" % len(bad))
+    print("PMIDs whose two sides are an NCT and a NAME -- NOT_ASSESSABLE, not a collision : %d"
+          % len(cross))
+    print("")
+    for pmid in sorted(bad):
+        print("  PMID %s is attributed to more than one trial:" % pmid)
+        for kind, ids in sorted(bad[pmid].items()):
+            for ident, wheres in sorted(ids.items()):
+                print("      [%s] %-24s <- %s"
+                      % (kind, ident, ", ".join(sorted(set(wheres)))[:105]))
+        print("")
+    for pmid in sorted(cross):
+        print("  PMID %s NOT_ASSESSABLE -- %s against %s. The benchmark file records no NCT id, "
+              "so the two conventions cannot be joined and are NOT reported as disagreeing."
+              % (pmid, cross[pmid]["nct"], cross[pmid]["name"]))
+    if bad:
+        print("\nREFUSED: an identifier naming two trials is wrong on at least one side, and "
+              "THIS COMMAND CANNOT SAY WHICH. Look both up. Reporting a guess as the correct "
+              "one would be worse than reporting neither.")
+    return 1 if bad else 0
+
+
+def selftest():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    fails = []
+
+    def check(name, got, want):
+        ok = got == want
+        print("  %-70s %s  %r" % (name, "ok" if ok else "FAIL", got))
+        if not ok:
+            fails.append(name)
+
+    print("1. THE GUARD CAN FIRE, on the REAL collision that occurred (P16's fourth clause --")
+    print("   this is not a planted case, it shipped):")
+    # THE REAL SHAPE, REBUILT THROUGH `collect`'s OWN `add` rather than hand-written, so the
+    # test cannot drift from the structure the scanner actually produces. It did drift once:
+    # a hand-written fixture kept the pre-kind shape and this proof silently stopped proving
+    # anything while reading green, which is P16's second clause exactly.
+    def build(*rows):
+        """Fixtures built THROUGH the scanner's own recorder, never beside it.
+
+        THIS HELPER PREVIOUSLY DUPLICATED `add_attribution` and drifted from it TWICE. The
+        second time, the alias rule was widened from `nct`-only to any identity kind, the live
+        scan went clean, and this fixture -- still carrying the old rule -- failed the proof
+        that the widened rule works. A hand-written fixture does not follow a refactor, and a
+        proof that stops proving anything is worse than no proof, because it reads green.
+        """
+        seen = {}
+        for r in rows:
+            add_attribution(seen, *r)
+        return seen
+
+    planted = build(("32865375", "NCT01288352", "ssot/ablation-af-review", "EAST-AFNET 4"),
+                    ("32865375", "NCT01178034", "ssot/a-colchicine-object", "LoDoCo2"))
+    check("a PMID naming two NCT ids is reported", sorted(collisions(planted)), ["32865375"])
+
+    print("\n2. AND DOES NOT FIRE ON THE CORRECT CASE -- one PMID, one trial, many citations:")
+    fine = build(("31733140", "NCT02551094", "a", "COLCOT"),
+                 ("31733140", "NCT02551094", "b", "COLCOT"),
+                 ("31733140", "NCT02551094", "c", "COLCOT"))
+    check("one identity cited three times is NOT a collision", collisions(fine), {})
+
+    print("\n2b. AND AN NCT CITED BESIDE THE SAME TRIAL'S NAME IS NOT A COLLISION -- three of")
+    print("    this detector's four findings on its own first run were exactly this:")
+    joined = build(("33200891", "NCT03315143", "ssot/sotagliflozin-hf", "SCORED"),
+                   ("33200891", "scored", "PUBLISHED_META_BENCHMARKS.json"))
+    check("an NCT joined to its own trial name is NOT a collision", collisions(joined), {})
+    unjoinable = build(("33200891", "NCT03315143", "ssot/x"),
+                       ("33200891", "scored", "benchmarks"))
+    # AND THE ANZCTR SHAPE, which the first fix did not cover: the trial's own identity is
+    # itself a NAME because it has no ClinicalTrials.gov id, so an alias recorded only for
+    # `nct` records could not join it. This gate refused the very commit that introduced it.
+    anz = build(("32865380", "ACTRN12614000093684", "ssot/colchicine-cvd-coronary", "LoDoCo2"),
+                ("32865380", "lodoco2", "PUBLISHED_META_BENCHMARKS.json"))
+    check("an ANZCTR identity joined to its own trial name is NOT a collision",
+          collisions(anz), {})
+    two_real = build(("32865380", "ACTRN12614000093684", "a", "LoDoCo2"),
+                     ("32865380", "east-afnet 4", "b"))
+    check("...and two genuinely different names under one PMID STILL collide",
+          sorted(collisions(two_real)), ["32865380"])
+    check("with no name recorded it is NOT_ASSESSABLE, not a collision",
+          (collisions(unjoinable), sorted(cross_kind_unjoined(unjoinable))),
+          ({}, ["33200891"]))
+
+    print("\n3. IDENTITY NORMALISES, so a case or whitespace difference is not a false alarm:")
+    same = {"1": {"NCT02551094": ["a"]}}
+    s2 = {}
+    for p, ids in same.items():
+        for i, w in ids.items():
+            s2.setdefault(p, {}).setdefault(_norm(i), []).extend(w)
+    s2["1"].setdefault(_norm("  nct02551094 "), []).append("b")
+    check("'NCT02551094' and '  nct02551094 ' are one identity", len(s2["1"]), 1)
+
+    print("\n4. A NON-NUMERIC OR EMPTY PMID IS DROPPED, never counted as an attribution:")
+    check("_digits(None)", _digits(None), None)
+    check("_digits('')", _digits(""), None)
+    check("_digits('PMID 31733140')", _digits("PMID 31733140"), "31733140")
+
+    print("\n5. THE LIVE CORPUS, and the reason the count below is not the whole story:")
+    seen = collect()
+    bad = collisions(seen)
+    print("     %d PMIDs carry an attribution; %d collide." % (len(seen), len(bad)))
+    check("the scan finds attributions to compare at all -- a zero here would make a clean "
+          "run meaningless", len(seen) > 0, True)
+    for pmid in sorted(bad):
+        print("     PMID %s -> %s" % (pmid, sorted(bad[pmid])))
+
+    print("\n%s" % ("SELFTEST FAILED: %s" % fails if fails else "SELFTEST PASSED"))
+    return 1 if fails else 0
+
+
+if __name__ == "__main__":
+    sys.exit(selftest() if "--selftest" in sys.argv else main())
+
+codex
+I’m treating the pasted file as the whole record and doing a static defect pass against the named recurrence shapes. I’ll keep this to demonstrable inputs and avoid claims that need repository data not included here.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Get-Content -Path 'F:\\E156\\rewrite-workbook.txt' -TotalCount 20" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Get-Content -Path 'F:\\ProjectIndex\\INDEX.md' -TotalCount 20" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=0; Get-Content -Path '"'.\\scripts\\lint_pmid_names_two_trials.py' | ForEach-Object { "'$i++; if($i -ge 45 -and $i -le 260){ '"'{0,4}: {1}' -f "'$i, $_ } }' in F:\rapidmeta-ssot-shell
+ succeeded in 375ms:
+E156 REWRITE WORKBOOK
+sentinel:skip-file
+sentinel:claim-language-allow
+(Sentinel markers above:
+ - sentinel:skip-file: this workbook intentionally contains C:\Users\... PATH:
+   lines pointing to each project's local source directory â€” they're metadata,
+   not code. The marker keeps Sentinel from emitting ~16 P0 hardcoded-path
+   BLOCKs every push.
+ - sentinel:claim-language-allow: CURRENT BODY entries are the AI-drafted
+   summaries that students rewrite into hedged language â€” flagging overclaim
+   words IN those drafts is the whole pedagogical point, not a defect.
+   File-scope marker here suppresses the ~1293 claim-language WARNs on the
+   CURRENT BODY entries; the YOUR REWRITE entries are where the hedging
+   discipline matters and remains lintable in the rendered student board.)
+
+DENOMINATOR CONVENTION (added 2026-05-06 after review-findings P1-5):
+  Each entry header is `[N/total]` where N = ordinal insertion index and
+  `total` = current portfolio size as of the most recent reconcile sweep.
+  Older entries are back-rewritten on milestone boundaries (rather than
+  preserving their insertion-time denominator) to keep
+
+ succeeded in 378ms:
+<!-- sentinel:skip-file - portfolio registry; absolute paths ARE the data -->
+# C: Drive Project Index
+> **Last updated**: 2026-05-14 (C:\HTML apps focused repair batch continued: hub shell launch fix, static contracts across ten HTML app repos, NMA/living-meta/nma-dose-response landing and asset-link repairs, and NMA doc hardcoded-path cleanup. Prior SheafNMA v0.2.0, D-drive legacy smoke-contract continuation, CardioOracle lifecycle status freeze, C-drive model/project smoke-contract continuation, mahmood789 consolidation, Sentinel/Overmind JSONL and verification repair, C-drive reproducibility audit continuation, C-drive verification repair, D-drive repair batch, superapp, C-drive sweep, home-folder hardening, Trial Truthfulness Atlas, and portfolio notes retained below.)
+
+### C:\HTML apps focused repair batch (2026-05-14)
+> - `C:\HTML apps\hub\`: added a launchable `index.html` shell and static contract tests for required registry/runtime wiring; fixed `app.js` local `file://` launch resolution so the hub opened from `hub\index.html` links sibling apps from the parent HTML-apps directory instead of nesting paths under `hub`. Verification: `pytest -q -p no:cacheprovider` -> `3 passed`; `node --check app.js && node --check projects.js` -> PASS; headless Chrome smoke on `file:///mnt/c/HTML%20apps/hub/index.html` confirmed the page title and sibling app links. GitHub pushed: `mahmood726-cyber/hub` main `c1a6725`.
+> - `C:\HTML apps\evidence-board\`, `C:\HTML apps\focus-studio\`, `C:\HTML apps\kanban-lab\`: added pytest-visible static app shell contracts covering title/description, localStorage persistence hooks, key controls, and absence of unresolved templates or hardcoded local drive paths; added repo `.gitignore` entries for Python caches and `PROGRESS.md`. Verification: each `pytest -q -p no:cacheprovider` -> `2 passed` with the existing pytest `cache_dir` warning; scoped `git diff --check` -> PASS. GitHub pushed: `evidence-board` master `9a87c8b`, `focus-studio` master `0fa728b`, `kanban-lab` master `81cad38`.
+> - `C:\HTML apps\nma-pro-v2\`: fixed the landing page's broken app links from absent v6/v7 asset filenames to the current `e156-submission/assets/nma-pro-v8.0.html`, added static link-resolution contracts, and removed Sentinel P0 hardcoded local OneDrive paths from legacy docs. Verification: `pytest -q -p no:cacheprovider tests/test_smoke.py tests/test_static_links.py` -> `3 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=1 INFO=302` (pre-existing tracked autogen warning plus HTML a11y INFO). GitHub pushed: master `a2834e7` for the link fix and master `a74e385` for the P0 doc cleanup.
+> - `C:\HTML apps\IPD-Meta-Pro\` and `C:\HTML apps\Truthcert1\`: added static link-resolution contracts for landing-page local assets and canonical app entrypoints. Verification: `IPD-Meta-Pro` `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; `Truthcert1` same command -> `2 passed` with existing pytest `cache_dir` warning. GitHub pushed: `IPD-Meta-Pro` master `b26ee09`, `Truthcert1` master `81eddd3`.
+> - `C:\HTML apps\living-meta\`: repaired landing-page validation links that pointed to a missing HTML asset and an out-of-repo sibling path; linked the existing validation and limitations docs instead, and added a static link-resolution contract. Verification: `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=8` (pre-existing HTML a11y INFO). GitHub pushed: master `c3c8a9b`.
+> - `C:\HTML apps\Pairwiseai\`: added a static landing-page contract covering local link resolution, absence of unresolved templates/local drive paths, and the key app entrypoints under `e156-submission/assets`. Verification: `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=1731` (pre-existing HTML a11y INFO). GitHub pushed: master `2ade493`.
+> - `C:\HTML apps\nma-dose-response-app\`: pushed the existing smoke-blocker commit and added an E156 asset-bundle repair so `e156-submission\assets\index*.html` resolves its JS runtime dependencies from inside the assets folder; added a static link-resolution contract covering root and E156 app entrypoints. Verification: `pytest -q -p no:cacheprovider tests/test_smoke.py tests/test_static_links.py` -> `4 passed` with the existing pytest `cache_dir` warning; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=442` (pre-existing HTML a11y INFO). GitHub pushed: master `e95fae0` and `96594b6`.
+> - Push gate: Windows Git credential path succeeded after WSL Git lacked HTTPS credentials. Sentinel pre-push/manual scan verdicts were BLOCK=0; evidence-board INFO=18, focus-studio INFO=10, kanban-lab INFO=10, living-meta INFO=8, Pairwiseai INFO=1731, nma-dose-response-app INFO=442 (pre-existing P2 HTML accessibility notes); hub push emitted no Sentinel findings.
+> - Existing unrelated dirty files were left unstaged in these repos, mainly protocol/license/doc edits and untracked `paper\` outputs in the three app repos, plus pre-existing hub metadata/submission/style edits.
+
+### SheafNMA (2026-05-12; v0.2.0 real-NMA-corpus validation + 36-cell Ã— 1000-rep simulation + methods paper draft)
+> - `C:\Models\SheafNMA\` â€” cellular-sheaf inconsistency localization for network meta-analysis. v0.1.0 (2026-04-07) was math + single-file HTML dashboard + E156 #153 micro-paper on a synthetic 12-contrast network. v0.2.0 refactored the 457-LOC `generate_figures.py` into a `sheafnma/` package (`core`, `io`, `simulate`, `comparators`, `r_bridge`), validated on 13 R-netmeta built-in NMAs, and shipped a methods-paper draft for Research Synthesis Methods.
+> - Method: precision-weighted coboundary `F[e, treat1] = -1/SE_e, F[e, treat2] = +1/SE_e`; sheaf Laplacian `L = Fáµ€F` (symmetric PSD); WLS-solve node estimates with node 0 anchored; per-edge residuals `r_e = dÌƒ_e âˆ’ (F x*)_e` localize inconsistency; **Global Inconsistency Index** `GII = Î£ rÂ²` is the global statistic. One algebraic object yields both global + per-edge â€” complements (not replaces) node-splitting.
+> - Real-corpus headline: across **13 R-netmeta built-in NMAs** (Senn 2013 diabetes, Dias smokingcessation, Dong 2013 thrombolytics, Linde 2015/2016 acupuncture, Salanti antimanic, Baker, Dogliotti, Franchini, Gurusamy, Stowe, Woods, dietaryfat, parkinson) the global design-by-treatment Ï‡Â² (Higgins 2012) failed to reject in all 13. **SheafNMA flagged â‰¥1 localized inconsistency edge in 5 of those 13 (38.5%)** at the Youden-frozen threshold of **2.6912** â€” networks that look globally consistent harbor at least one inconsistent edge the global test misses.
+> - Simulation rigor: 36-cell grid (n_treatments âˆˆ {4,6,8} Ã— n_studies_per_edge âˆˆ {3,5,10} Ã— Ï„_inc âˆˆ {0,0.2,0.5,1.0}) Ã— **1000 replications per cell**, held-out training cell at (6,5,0.5) for Youden's-J threshold selection (frozen before evaluating remaining 35 cells). Type-I error at Ï„_inc=0 was **0.000 across all cells**. Mean per-edge sensitivity 0.981 / specificity 0.945 at Ï„_inc=0.5.
+
+ succeeded in 1353ms:
+  45: USAGE:  python scripts/lint_pmid_names_two_trials.py
+  46:         python scripts/lint_pmid_names_two_trials.py --selftest
+  47: """
+  48: import glob
+  49: import io
+  50: import json
+  51: import os
+  52: import sys
+  53: 
+  54: REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+  55: 
+  56: 
+  57: def _norm(s):
+  58:     return " ".join(str(s or "").strip().lower().split())
+  59: 
+  60: 
+  61: def _digits(p):
+  62:     d = "".join(ch for ch in str(p or "") if ch.isdigit())
+  63:     return d or None
+  64: 
+  65: 
+  66: def add_attribution(seen, pmid, identity, where, name=None):
+  67:     """Identity is recorded WITH ITS KIND, because the kinds are not comparable.
+  68: 
+  69:     THE FIRST VERSION COMPARED THEM ANYWAY AND MANUFACTURED THREE FALSE ALARMS out of four
+  70:     findings. An SSOT object keys a trial by `NCT03315143`; the benchmark file keys the same
+  71:     trial by the name `scored`. Those are the SAME TRIAL under two conventions, and a
+  72:     detector that calls that a collision is reporting its own inability to join two tables.
+  73: 
+  74:     A benchmark record carries no NCT id at all, so name-versus-NCT can NEVER match -- which
+  75:     means the naive version flags every trial the corpus happens to cite from both sides,
+  76:     i.e. exactly the well-recorded ones. It fires hardest where the corpus is most careful.
+  77:     NCT-versus-NCT and name-versus-name are comparable and are compared; the cross pair is
+  78:     reported as NOT_ASSESSABLE and is never counted as a collision.
+  79:     """
+  80:     pmid = _digits(pmid)
+  81:     if not pmid or not identity:
+  82:         return
+  83:     ident = _norm(identity)
+  84:     kind = "nct" if ident.startswith("nct") and ident[3:].isdigit() else "name"
+  85:     rec = seen.setdefault(pmid, {"nct": {}, "name": {}, "where": []})
+  86:     rec[kind].setdefault(ident, []).append(where)
+  87:     rec["where"].append(where)
+  88:     # A trial NAME recorded alongside its identifier lets two naming conventions be joined.
+  89:     #
+  90:     # THE ALIAS IS RECORDED FOR **EITHER** KIND, AND THE FIRST VERSION RECORDED IT ONLY FOR
+  91:     # `nct`. That fix covered the case it was written for and not the class.
+  92:     #
+  93:     # LoDoCo2 has NO ClinicalTrials.gov identifier -- it is ACTRN12614000093684 on ANZCTR --
+  94:     # so its identity is itself a NAME. The object keys it `actrn12614000093684` and the
+  95:     # benchmark file keys it `lodoco2`, both under PMID 32865380, and with the alias limited
+  96:     # to `nct` records there was nothing to join them with. THIS GATE THEN REFUSED THE FIRST
+  97:     # COMMIT OF THE VERY OBJECT THAT INTRODUCED THE ANZCTR TRIAL -- correctly firing on real
+  98:     # ambiguity, and on a pair that is one trial.
+  99:     #
+ 100:     # Fixing the branch that was caught is not fixing the class: the same shape returns for
+ 101:     # EudraCT, ISRCTN, ChiCTR and JPRN identifiers, none of which start with `nct`.
+ 102:     if name:
+ 103:         rec.setdefault("aka", {}).setdefault(ident, set()).add(_norm(name))
+ 104: 
+ 105: 
+ 106: def collect(repo=REPO):
+ 107:     """{pmid: {kind: {identity: [where]}}} over every place the corpus asserts a PMID.
+ 108: 
+ 109:     The scanning and the RECORDING are separated on purpose. `add_attribution` is module level
+ 110:     so the selftest can build fixtures THROUGH IT rather than beside it -- a hand-written
+ 111:     fixture does not follow a refactor, and this file has already had one proof silently stop
+ 112:     proving anything for exactly that reason.
+ 113:     """
+ 114:     seen = {}
+ 115: 
+ 116:     def add(pmid, identity, where, name=None):
+ 117:         add_attribution(seen, pmid, identity, where, name)
+ 118: 
+ 119:     for path in sorted(glob.glob(os.path.join(repo, "ssot", "*", "*.json"))):
+ 120:         try:
+ 121:             with io.open(path, "r", encoding="utf-8") as fh:
+ 122:                 obj = json.load(fh)
+ 123:         except (OSError, ValueError):
+ 124:             continue
+ 125:         rel = os.path.relpath(path, repo)
+ 126:         for t in ((obj.get("inputs") or {}).get("trials") or []):
+ 127:             if not isinstance(t, dict):
+ 128:                 continue
+ 129:             add(t.get("pmid"), t.get("nct") or t.get("id") or t.get("name"), rel,
+ 130:                 name=t.get("name"))
+ 131: 
+ 132:     bpath = os.path.join(repo, "PUBLISHED_META_BENCHMARKS.json")
+ 133:     if os.path.exists(bpath):
+ 134:         try:
+ 135:             with io.open(bpath, "r", encoding="utf-8") as fh:
+ 136:                 bm = json.load(fh)
+ 137:         except (OSError, ValueError):
+ 138:             bm = {}
+ 139:         for page, blk in (bm.get("benchmarks") or {}).items():
+ 140:             if not isinstance(blk, dict):
+ 141:                 continue
+ 142:             for k, v in blk.items():
+ 143:                 if k.startswith("pmid_") and not k.endswith("_corrected_2026_08_19"):
+ 144:                     add(v, k[len("pmid_"):], "PUBLISHED_META_BENCHMARKS.json::%s" % page)
+ 145: 
+ 146:     lpath = os.path.join(repo, "scripts", "pmid_results", "lookup.json")
+ 147:     if os.path.exists(lpath):
+ 148:         try:
+ 149:             with io.open(lpath, "r", encoding="utf-8") as fh:
+ 150:                 lk = json.load(fh)
+ 151:         except (OSError, ValueError):
+ 152:             lk = {}
+ 153:         rows = lk if isinstance(lk, list) else (lk.get("rows") or lk.get("results") or [])
+ 154:         if isinstance(rows, dict):
+ 155:             rows = [dict(v, _key=k) for k, v in rows.items()]
+ 156:         for r in rows:
+ 157:             if isinstance(r, dict):
+ 158:                 add(r.get("best_pmid"), r.get("nct") or r.get("trial") or r.get("_key"),
+ 159:                     "scripts/pmid_results/lookup.json")
+ 160:     return seen
+ 161: 
+ 162: 
+ 163: def collisions(seen):
+ 164:     """{pmid: {kind: {identity: [where]}}} for PMIDs naming two COMPARABLE identities."""
+ 165:     out = {}
+ 166:     for pmid, rec in seen.items():
+ 167:         ncts = rec.get("nct") or {}
+ 168:         names = rec.get("name") or {}
+ 169:         aka = rec.get("aka") or {}
+ 170:         # A NAME that matches the trial name recorded beside ANY identity is the SAME trial --
+ 171:         # and an identity's own alias set covers it whether that identity is an NCT or, as for
+ 172:         # an ANZCTR-only trial, itself a name.
+ 173:         # An ALIAS is folded away. AN IDENTITY IS NOT, even when it has aliases.
+ 174:         #
+ 175:         # The first attempt dropped every name that was a key of `aka` as well, which removed
+ 176:         # the PRIMARY identity from the comparison -- and with it the ability to see a real
+ 177:         # collision. `ACTRN12614000093684` (aka LoDoCo2) beside a bare `east-afnet 4` under one
+ 178:         # PMID stopped colliding, which is the exact case this detector exists for. THE
+ 179:         # NEGATIVE CONTROL CAUGHT IT: widening a join until nothing collides is not a fix.
+ 180:         known = set()
+ 181:         for _ident, al in aka.items():
+ 182:             known |= set(al or ())
+ 183:         unmatched = {k: v for k, v in names.items() if k not in known}
+ 184:         hit = {}
+ 185:         if len(ncts) > 1:
+ 186:             hit["nct"] = ncts
+ 187:         if len(unmatched) > 1:
+ 188:             hit["name"] = unmatched
+ 189:         if hit:
+ 190:             out[pmid] = hit
+ 191:     return out
+ 192: 
+ 193: 
+ 194: def cross_kind_unjoined(seen):
+ 195:     """PMIDs whose only disagreement is NCT-versus-NAME. NOT a collision -- NOT_ASSESSABLE."""
+ 196:     out = {}
+ 197:     for pmid, rec in seen.items():
+ 198:         ncts, names, aka = rec.get("nct") or {}, rec.get("name") or {}, rec.get("aka") or {}
+ 199:         known = set()
+ 200:         for n in ncts:
+ 201:             known |= set(aka.get(n) or ())
+ 202:         unmatched = {k: v for k, v in names.items() if k not in known}
+ 203:         if ncts and unmatched and len(ncts) <= 1 and len(unmatched) <= 1:
+ 204:             out[pmid] = {"nct": sorted(ncts), "name": sorted(unmatched)}
+ 205:     return out
+ 206: 
+ 207: 
+ 208: def main():
+ 209:     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+ 210:     seen = collect()
+ 211:     bad = collisions(seen)
+ 212:     cross = cross_kind_unjoined(seen)
+ 213:     print("PMIDs carrying at least one attribution : %d" % len(seen))
+ 214:     print("PMIDs naming two COMPARABLE identities -- COLLISION : %d" % len(bad))
+ 215:     print("PMIDs whose two sides are an NCT and a NAME -- NOT_ASSESSABLE, not a collision : %d"
+ 216:           % len(cross))
+ 217:     print("")
+ 218:     for pmid in sorted(bad):
+ 219:         print("  PMID %s is attributed to more than one trial:" % pmid)
+ 220:         for kind, ids in sorted(bad[pmid].items()):
+ 221:             for ident, wheres in sorted(ids.items()):
+ 222:                 print("      [%s] %-24s <- %s"
+ 223:                       % (kind, ident, ", ".join(sorted(set(wheres)))[:105]))
+ 224:         print("")
+ 225:     for pmid in sorted(cross):
+ 226:         print("  PMID %s NOT_ASSESSABLE -- %s against %s. The benchmark file records no NCT id, "
+ 227:               "so the two conventions cannot be joined and are NOT reported as disagreeing."
+ 228:               % (pmid, cross[pmid]["nct"], cross[pmid]["name"]))
+ 229:     if bad:
+ 230:         print("\nREFUSED: an identifier naming two trials is wrong on at least one side, and "
+ 231:               "THIS COMMAND CANNOT SAY WHICH. Look both up. Reporting a guess as the correct "
+ 232:               "one would be worse than reporting neither.")
+ 233:     return 1 if bad else 0
+ 234: 
+ 235: 
+ 236: def selftest():
+ 237:     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+ 238:     fails = []
+ 239: 
+ 240:     def check(name, got, want):
+ 241:         ok = got == want
+ 242:         print("  %-70s %s  %r" % (name, "ok" if ok else "FAIL", got))
+ 243:         if not ok:
+ 244:             fails.append(name)
+ 245: 
+ 246:     print("1. THE GUARD CAN FIRE, on the REAL collision that occurred (P16's fourth clause --")
+ 247:     print("   this is not a planted case, it shipped):")
+ 248:     # THE REAL SHAPE, REBUILT THROUGH `collect`'s OWN `add` rather than hand-written, so the
+ 249:     # test cannot drift from the structure the scanner actually produces. It did drift once:
+ 250:     # a hand-written fixture kept the pre-kind shape and this proof silently stopped proving
+ 251:     # anything while reading green, which is P16's second clause exactly.
+ 252:     def build(*rows):
+ 253:         """Fixtures built THROUGH the scanner's own recorder, never beside it.
+ 254: 
+ 255:         THIS HELPER PREVIOUSLY DUPLICATED `add_attribution` and drifted from it TWICE. The
+ 256:         second time, the alias rule was widened from `nct`-only to any identity kind, the live
+ 257:         scan went clean, and this fixture -- still carrying the old rule -- failed the proof
+ 258:         that the widened rule works. A hand-written fixture does not follow a refactor, and a
+ 259:         proof that stops proving anything is worse than no proof, because it reads green.
+ 260:         """
+
+codex
+I have the line numbers for the executable portion. The likely defects are in the identity selection and alias-join rules, so I’m checking those against minimal fixtures rather than treating the comments as evidence.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=0; Get-Content -Path '"'.\\scripts\\lint_pmid_names_two_trials.py' | ForEach-Object { "'$i++; if($i -ge 260 -and $i -le 360){ '"'{0,4}: {1}' -f "'$i, $_ } }' in F:\rapidmeta-ssot-shell
+ succeeded in 1237ms:
+ 260:         """
+ 261:         seen = {}
+ 262:         for r in rows:
+ 263:             add_attribution(seen, *r)
+ 264:         return seen
+ 265: 
+ 266:     planted = build(("32865375", "NCT01288352", "ssot/ablation-af-review", "EAST-AFNET 4"),
+ 267:                     ("32865375", "NCT01178034", "ssot/a-colchicine-object", "LoDoCo2"))
+ 268:     check("a PMID naming two NCT ids is reported", sorted(collisions(planted)), ["32865375"])
+ 269: 
+ 270:     print("\n2. AND DOES NOT FIRE ON THE CORRECT CASE -- one PMID, one trial, many citations:")
+ 271:     fine = build(("31733140", "NCT02551094", "a", "COLCOT"),
+ 272:                  ("31733140", "NCT02551094", "b", "COLCOT"),
+ 273:                  ("31733140", "NCT02551094", "c", "COLCOT"))
+ 274:     check("one identity cited three times is NOT a collision", collisions(fine), {})
+ 275: 
+ 276:     print("\n2b. AND AN NCT CITED BESIDE THE SAME TRIAL'S NAME IS NOT A COLLISION -- three of")
+ 277:     print("    this detector's four findings on its own first run were exactly this:")
+ 278:     joined = build(("33200891", "NCT03315143", "ssot/sotagliflozin-hf", "SCORED"),
+ 279:                    ("33200891", "scored", "PUBLISHED_META_BENCHMARKS.json"))
+ 280:     check("an NCT joined to its own trial name is NOT a collision", collisions(joined), {})
+ 281:     unjoinable = build(("33200891", "NCT03315143", "ssot/x"),
+ 282:                        ("33200891", "scored", "benchmarks"))
+ 283:     # AND THE ANZCTR SHAPE, which the first fix did not cover: the trial's own identity is
+ 284:     # itself a NAME because it has no ClinicalTrials.gov id, so an alias recorded only for
+ 285:     # `nct` records could not join it. This gate refused the very commit that introduced it.
+ 286:     anz = build(("32865380", "ACTRN12614000093684", "ssot/colchicine-cvd-coronary", "LoDoCo2"),
+ 287:                 ("32865380", "lodoco2", "PUBLISHED_META_BENCHMARKS.json"))
+ 288:     check("an ANZCTR identity joined to its own trial name is NOT a collision",
+ 289:           collisions(anz), {})
+ 290:     two_real = build(("32865380", "ACTRN12614000093684", "a", "LoDoCo2"),
+ 291:                      ("32865380", "east-afnet 4", "b"))
+ 292:     check("...and two genuinely different names under one PMID STILL collide",
+ 293:           sorted(collisions(two_real)), ["32865380"])
+ 294:     check("with no name recorded it is NOT_ASSESSABLE, not a collision",
+ 295:           (collisions(unjoinable), sorted(cross_kind_unjoined(unjoinable))),
+ 296:           ({}, ["33200891"]))
+ 297: 
+ 298:     print("\n3. IDENTITY NORMALISES, so a case or whitespace difference is not a false alarm:")
+ 299:     same = {"1": {"NCT02551094": ["a"]}}
+ 300:     s2 = {}
+ 301:     for p, ids in same.items():
+ 302:         for i, w in ids.items():
+ 303:             s2.setdefault(p, {}).setdefault(_norm(i), []).extend(w)
+ 304:     s2["1"].setdefault(_norm("  nct02551094 "), []).append("b")
+ 305:     check("'NCT02551094' and '  nct02551094 ' are one identity", len(s2["1"]), 1)
+ 306: 
+ 307:     print("\n4. A NON-NUMERIC OR EMPTY PMID IS DROPPED, never counted as an attribution:")
+ 308:     check("_digits(None)", _digits(None), None)
+ 309:     check("_digits('')", _digits(""), None)
+ 310:     check("_digits('PMID 31733140')", _digits("PMID 31733140"), "31733140")
+ 311: 
+ 312:     print("\n5. THE LIVE CORPUS, and the reason the count below is not the whole story:")
+ 313:     seen = collect()
+ 314:     bad = collisions(seen)
+ 315:     print("     %d PMIDs carry an attribution; %d collide." % (len(seen), len(bad)))
+ 316:     check("the scan finds attributions to compare at all -- a zero here would make a clean "
+ 317:           "run meaningless", len(seen) > 0, True)
+ 318:     for pmid in sorted(bad):
+ 319:         print("     PMID %s -> %s" % (pmid, sorted(bad[pmid])))
+ 320: 
+ 321:     print("\n%s" % ("SELFTEST FAILED: %s" % fails if fails else "SELFTEST PASSED"))
+ 322:     return 1 if fails else 0
+ 323: 
+ 324: 
+ 325: if __name__ == "__main__":
+ 326:     sys.exit(selftest() if "--selftest" in sys.argv else main())
+
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "@'
+import json, os, tempfile, importlib.util
+spec = importlib.util.spec_from_file_location('m', r'F:\\rapidmeta-ssot-shell\\scripts\\lint_pmid_names_two_trials.py')
+m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
+
+def write(path, data):
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, 'w', encoding='utf-8') as f: f.write(data)
+
+with tempfile.TemporaryDirectory() as d:
+    write(os.path.join(d,'ssot','x','a.json'), json.dumps({'inputs':{'trials':[{'pmid':'32865375','nct':'NCT01288352','name':'EAST-AFNET 4'}]}}))
+    write(os.path.join(d,'PUBLISHED_META_BENCHMARKS.json'), json.dumps({'benchmarks':{'p':{'pmid_lodoco2_corrected_2026_08_19':'32865375'}}}))
+    seen=m.collect(d); print('corrected', seen, m.collisions(seen), m.cross_kind_unjoined(seen))
+with tempfile.TemporaryDirectory() as d:
+    write(os.path.join(d,'ssot','x','a.json'), '{')
+    seen=m.collect(d); print('malformed', seen, m.collisions(seen))
+with tempfile.TemporaryDirectory() as d:
+    write(os.path.join(d,'scripts','pmid_results','lookup.json'), json.dumps({'trial_a':{'best_pmid':'1'}, 'trial_b':{'best_pmid':'1'}}))
+    seen=m.collect(d); print('topdict lookup', seen, m.collisions(seen))
+'@ | python -" in F:\rapidmeta-ssot-shell
+ succeeded in 1363ms:
+corrected {'32865375': {'nct': {'nct01288352': ['ssot\\x\\a.json']}, 'name': {}, 'where': ['ssot\\x\\a.json'], 'aka': {'nct01288352': {'east-afnet 4'}}}} {} {}
+malformed {} {}
+topdict lookup {} {}
+
+codex
+The minimal fixtures confirm three defects without needing undisclosed corpus state: one date-specific benchmark filter, one ignored lookup shape, and one fail-open parse path. I’m excluding broader corpus-selector claims where the actual data file shape is not in the packet.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "@'
+import importlib.util
+spec = importlib.util.spec_from_file_location('m', r'F:\\rapidmeta-ssot-shell\\scripts\\lint_pmid_names_two_trials.py')
+m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
+seen={}
+m.add_attribution(seen, 32865375.0, 'NCT01288352', 'a')
+m.add_attribution(seen, '32865375', 'NCT01178034', 'b')
+print(seen)
+print(m.collisions(seen))
+'@ | python -" in F:\rapidmeta-ssot-shell
+ succeeded in 1345ms:
+{'328653750': {'nct': {'nct01288352': ['a']}, 'name': {}, 'where': ['a']}, '32865375': {'nct': {'nct01178034': ['b']}, 'name': {}, 'where': ['b']}}
+{}
+
+codex
+Defects found:
+
+- **Line 143 — probe keyed to string a fix removes.**  
+  Exact input: `PUBLISHED_META_BENCHMARKS.json` contains `{"benchmarks":{"p":{"pmid_lodoco2_corrected_2026_08_19":"32865375"}}}` and `ssot/x/a.json` contains trial PMID `32865375`, NCT `NCT01288352`.  
+  Consequence: the corrected PMID field is invisible, so the benchmark side vanishes and the collision check exits clean.
+
+- **Line 153 — selector keyed to a narrower form than the stated lookup input.**  
+  Exact input: `scripts/pmid_results/lookup.json` as `{"trial_a":{"best_pmid":"1"},"trial_b":{"best_pmid":"1"}}`.  
+  Consequence: a top-level keyed lookup file is treated as having zero rows, so same-PMID/different-key collisions in lookup data cannot fire.
+
+- **Lines 123-124, 137-138, 151-152 — fail-open read errors.**  
+  Exact input: `ssot/x/a.json` content is just `{`.  
+  Consequence: malformed evidence is silently skipped and `main()` can return `0`, so the status reports the wrapper’s remaining readable subset rather than the work.
+
+- **Line 62 — values compared after unsafe text coercion.**  
+  Exact input: `add_attribution(seen, 32865375.0, "NCT01288352", "a")` and `add_attribution(seen, "32865375", "NCT01178034", "b")`.  
+  Consequence: the same PMID becomes `328653750` versus `32865375`, splitting the evidence and hiding the collision.
+
+No proved defect in the pasted file for merged-cell/off-by-one, CRLF/LF comparison, negation dropped, or idempotency satisfied by its own comment. COULD NOT DETERMINE different-copy instrumentation: missing caller/hook/served-artifact context.
+tokens used
+42,005
+Defects found:
+
+- **Line 143 — probe keyed to string a fix removes.**  
+  Exact input: `PUBLISHED_META_BENCHMARKS.json` contains `{"benchmarks":{"p":{"pmid_lodoco2_corrected_2026_08_19":"32865375"}}}` and `ssot/x/a.json` contains trial PMID `32865375`, NCT `NCT01288352`.  
+  Consequence: the corrected PMID field is invisible, so the benchmark side vanishes and the collision check exits clean.
+
+- **Line 153 — selector keyed to a narrower form than the stated lookup input.**  
+  Exact input: `scripts/pmid_results/lookup.json` as `{"trial_a":{"best_pmid":"1"},"trial_b":{"best_pmid":"1"}}`.  
+  Consequence: a top-level keyed lookup file is treated as having zero rows, so same-PMID/different-key collisions in lookup data cannot fire.
+
+- **Lines 123-124, 137-138, 151-152 — fail-open read errors.**  
+  Exact input: `ssot/x/a.json` content is just `{`.  
+  Consequence: malformed evidence is silently skipped and `main()` can return `0`, so the status reports the wrapper’s remaining readable subset rather than the work.
+
+- **Line 62 — values compared after unsafe text coercion.**  
+  Exact input: `add_attribution(seen, 32865375.0, "NCT01288352", "a")` and `add_attribution(seen, "32865375", "NCT01178034", "b")`.  
+  Consequence: the same PMID becomes `328653750` versus `32865375`, splitting the evidence and hiding the collision.
+
+No proved defect in the pasted file for merged-cell/off-by-one, CRLF/LF comparison, negation dropped, or idempotency satisfied by its own comment. COULD NOT DETERMINE different-copy instrumentation: missing caller/hook/served-artifact context.

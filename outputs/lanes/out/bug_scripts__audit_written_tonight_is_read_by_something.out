@@ -1,0 +1,243 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a03156-b27c-7243-910e-c431671fd23d
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/audit_written_tonight_is_read_by_something.py
+
+--- THE FILE, IN FULL ---
+"""Fields written onto objects tonight, and whether any consumer reads them.
+
+REGISTRY CLASS 65 SAYS: a correct object, a correct refusal, and no consumer obliged to read
+it. THE AUTHOR OF THAT ENTRY BREACHED IT WITHIN THE HOUR -- a complete risk-of-bias
+assessment for both EMPEROR results was written to
+`risk_of_bias.by_outcome["primary/NCT03057977"]`, a flat key nothing reads, while
+`scripts/p46_queue.py` went on reporting the limb REFUSED. The assessment was correct,
+present, and invisible.
+
+    A CORRECT ARTEFACT NOBODY READS IS INDISTINGUISHABLE FROM AN ABSENT ONE.
+
+So this asks the question of everything written tonight rather than waiting for the next
+scorer to disagree with a field. For each key added to the objects on 2026-08-20, it greps
+the renderers, the projectors and the scorers for that key name.
+
+WHAT A "NO" MEANS, AND WHAT IT DOES NOT. Some of these fields are written FOR A HUMAN
+READING THE OBJECT -- a finding recorded where the next person to open the file will meet
+it. That is a legitimate purpose and it is not the same as an oversight. What the sweep
+gives is the list; which are deliberate is a judgement, and the judgement is written beside
+each one rather than assumed.
+
+THE SWEEP CANNOT SEE DYNAMIC ACCESS. A renderer that walks every key of a block -- `for k, v
+in blk.items()` -- reads these without naming them. Such a walk is reported separately,
+because "no consumer names this key" and "no consumer reads this key" are different claims
+and only the first is measurable here.
+"""
+import io
+import os
+import re
+import sys
+import json
+import glob
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from instrument_controls import require_controls
+
+CONSUMERS = ["ssot/build_tabbed.py", "ssot/build_app_v2.py", "ssot/paper_projector.py",
+             "ssot/projectors.py", "ssot/projectors2.py", "ssot/build_to_standard.py",
+             "ssot/validate_v2.py", "ssot/assessment.py", "ssot/preconditions.py"]
+SELF = os.path.abspath(__file__)
+# THIS FILE MUST NOT COUNT AS A CONSUMER OF THE KEYS IT NAMES. The first version globbed
+# audit_*.py into the scorer list and so included ITSELF -- every key in WRITTEN_TONIGHT
+# appears in this source, so every one would have come back "read", and the sweep would
+# have reported a clean corpus BECAUSE IT WAS READING ITS OWN TABLE. Caught by the negative
+# control on the first run: a key that exists nowhere came back as read.
+SCORERS = [p for p in (glob.glob(os.path.join(REPO, "scripts", "p46_queue.py"))
+                       + glob.glob(os.path.join(REPO, "scripts", "audit_*.py"))
+                       + glob.glob(os.path.join(REPO, "scripts", "lint_*.py")))
+           if os.path.abspath(p) != SELF]
+
+# Keys written onto objects on 2026-08-20, with what each is FOR.
+WRITTEN_TONIGHT = [
+    ("THE_POOL_IS_REFERRED_2026_08_20",
+     "attr-pn, sglt2-mace: the referral and its reason"),
+    ("estimand_established_does_not_cover_the_contrast_2026_08_20",
+     "156 outcome blocks: the P48 gap named beside the flag"),
+    ("registration_read_2026_08_20",
+     "trials: the registration read verbatim, with the arm reversal named"),
+    ("arm_roles_contradicted_by_this_object_2026_08_20",
+     "8 trial rows: the label/name/role contradictions"),
+    ("estimator_note_2026_08_20",
+     "10 pools: why the estimator moved to REML"),
+    ("house_rule_interval_2026_08_18",
+     "pools: the floored Hartung-Knapp sensitivity interval"),
+    ("r_output",
+     "pools: the model output quoted verbatim -- P46's fourth criterion"),
+    ("risk_of_bias",
+     "empagliflozin: the per-result assessment written tonight"),
+    ("display_change_announced",
+     "the log of what changed and why"),
+]
+
+DYNAMIC_WALK = re.compile(r"\.items\(\)|for\s+\w+\s*,\s*\w+\s+in\s+\w+\.items")
+
+
+def reads(name, paths):
+    hits = []
+    for p in paths:
+        try:
+            src = io.open(p, encoding="utf-8", errors="replace").read()
+        except OSError:
+            continue
+        if name in src:
+            hits.append(os.path.relpath(p, REPO).replace("\\", "/"))
+    return hits
+
+
+def main():
+    consumer_paths = [os.path.join(REPO, c) for c in CONSUMERS]
+    require_controls(
+        "audit_written_tonight_is_read_by_something",
+        positive=("`r_output` -- P46's verbatim-output criterion, which the paper "
+                  "projector demonstrably names",
+                  bool(reads("r_output", consumer_paths + SCORERS)), True),
+        negative=("a key nothing could possibly read",
+                  bool(reads("__no_such_key_written_anywhere__",
+                             consumer_paths + SCORERS)), True))
+
+    dyn = [os.path.relpath(p, REPO).replace("\\", "/") for p in consumer_paths
+           if os.path.exists(p) and DYNAMIC_WALK.search(
+               io.open(p, encoding="utf-8", errors="replace").read())]
+
+    print("")
+    print("%-58s %-22s %s" % ("key written 2026-08-20", "named by a RENDERER",
+                              "named by a SCORER"))
+    print("-" * 110)
+    unread = []
+    for name, what in WRITTEN_TONIGHT:
+        r = reads(name, consumer_paths)
+        s = reads(name, SCORERS)
+        print("%-58s %-22s %s" % (name[:58], "yes (%d)" % len(r) if r else "NO",
+                                  "yes (%d)" % len(s) if s else "NO"))
+        print("        %s" % what)
+        if not r and not s:
+            unread.append((name, what))
+
+    print("")
+    print("NAMED BY NOTHING: %d of %d" % (len(unread), len(WRITTEN_TONIGHT)))
+    for name, what in unread:
+        print("    %s" % name)
+        print("        %s" % what)
+
+    print("")
+    print("%d of the %d consumer files walk keys dynamically (`.items()`), so a field they"
+          % (len(dyn), len(CONSUMERS)))
+    print("do not NAME may still reach a page: %s" % ", ".join(os.path.basename(d)
+                                                               for d in dyn))
+    print("`no consumer names this key` and `no consumer reads this key` are DIFFERENT")
+    print("claims and only the first is measured here.")
+    print("")
+    print("AND A KEY NAMED BY NOTHING IS NOT AUTOMATICALLY A DEFECT. Several of these are")
+    print("written FOR A HUMAN OPENING THE OBJECT -- a finding recorded where the next")
+    print("person will meet it. That is a purpose, not an oversight. What is a defect is a")
+    print("field written to satisfy a CHECK that the check does not read, which is what")
+    print("happened to the empagliflozin assessment an hour ago.")
+
+
+if __name__ == "__main__":
+    main()
+
+codex
+Line numbers from the pasted file.
+
+- **Line 84: idempotency/comment and negation false positive.**  
+  Exact input: scanned file `ssot/paper_projector.py` contains only `# risk_of_bias is not read here`.  
+  Consequence: `reads("risk_of_bias", ...)` returns that file, so a denial/comment is reported as a consumer.
+
+- **Line 84: selector matches a larger name, not the key.**  
+  Exact input: scanned file contains `risk_of_bias_summary = build_summary(obj)`, with no `risk_of_bias` field access.  
+  Consequence: the audit reports `risk_of_bias` as named even though only a different identifier was present.
+
+- **Line 68: probe keyed to the wrong field depth.**  
+  Exact input: object has `risk_of_bias.by_outcome["primary/NCT03057977"]`, while a consumer contains only `obj["risk_of_bias"].get("overall")`.  
+  Consequence: the recurring flat/nested invisible-assessment defect is masked because the audit searches only `risk_of_bias`, not the outcome key actually needing consumption.
+
+- **Line 74: dynamic-walk detector is over-broad.**  
+  Exact input: `ssot/preconditions.py` contains `for k, v in os.environ.items(): pass`.  
+  Consequence: the file is reported as dynamically walking object keys even when the `.items()` loop is unrelated.
+
+- **Lines 115-122: central finding has no failing status.**  
+  Exact input: after controls return normally, no scanned file contains `display_change_announced`.  
+  Consequence: the script prints `NAMED BY NOTHING` but still has no assertion or non-zero exit tied to that finding.
+
+COULD NOT DETERMINE whether lines 91-98 invert the negative control: missing `scripts/instrument_controls.py`.
+
+No proven CRLF/LF text comparison, merged-cell/off-by-one, or zero-vs-absent defect in this packet.
+tokens used
+13,242
+Line numbers from the pasted file.
+
+- **Line 84: idempotency/comment and negation false positive.**  
+  Exact input: scanned file `ssot/paper_projector.py` contains only `# risk_of_bias is not read here`.  
+  Consequence: `reads("risk_of_bias", ...)` returns that file, so a denial/comment is reported as a consumer.
+
+- **Line 84: selector matches a larger name, not the key.**  
+  Exact input: scanned file contains `risk_of_bias_summary = build_summary(obj)`, with no `risk_of_bias` field access.  
+  Consequence: the audit reports `risk_of_bias` as named even though only a different identifier was present.
+
+- **Line 68: probe keyed to the wrong field depth.**  
+  Exact input: object has `risk_of_bias.by_outcome["primary/NCT03057977"]`, while a consumer contains only `obj["risk_of_bias"].get("overall")`.  
+  Consequence: the recurring flat/nested invisible-assessment defect is masked because the audit searches only `risk_of_bias`, not the outcome key actually needing consumption.
+
+- **Line 74: dynamic-walk detector is over-broad.**  
+  Exact input: `ssot/preconditions.py` contains `for k, v in os.environ.items(): pass`.  
+  Consequence: the file is reported as dynamically walking object keys even when the `.items()` loop is unrelated.
+
+- **Lines 115-122: central finding has no failing status.**  
+  Exact input: after controls return normally, no scanned file contains `display_change_announced`.  
+  Consequence: the script prints `NAMED BY NOTHING` but still has no assertion or non-zero exit tied to that finding.
+
+COULD NOT DETERMINE whether lines 91-98 invert the negative control: missing `scripts/instrument_controls.py`.
+
+No proven CRLF/LF text comparison, merged-cell/off-by-one, or zero-vs-absent defect in this packet.

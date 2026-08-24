@@ -1,0 +1,248 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a0322a-84da-7703-b9e1-307cb5c180e9
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/prove_the_never_fired.py
+
+--- THE FILE, IN FULL ---
+"""For each check that has never fired: can a failing input be built from the corpus?
+
+A CHECK THAT HAS NEVER FIRED READS AS COVERAGE ON EVERY TABLE ANYONE MAKES. That is worse
+than a discipline written down, because a discipline at least announces that it depends on a
+person. Three never-firing branches were found in `regression_check.py` alone tonight, one
+of them in its BLOCKING set, reporting zero on every run this project has ever made -- where
+the zero meant the marker did not exist.
+
+SO "NEVER FIRED" MUST BE RESOLVED INTO ONE OF THREE STATES, NOT LEFT AS ONE:
+
+    CAN FIRE, CONDITION ABSENT   a failing input was CONSTRUCTED and the check refused it.
+                                 The corpus is clean; the detector works. LEGITIMATE, and
+                                 it is now a demonstrated fact rather than an assumption.
+    CANNOT FIRE                  no input makes it refuse. It is not a check.
+    NOT A GATE                   it reports a reading list and was never meant to refuse.
+                                 Legitimate, and it must not be counted as mechanised.
+
+EVERY GRAFT IS MADE ON A COPY IN A TEMP DIRECTORY. Nothing here writes to the corpus.
+"""
+import io
+import os
+import re
+import sys
+import json
+import shutil
+import subprocess
+import tempfile
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+
+def run(script, cwd=None, args=()):
+    r = subprocess.run([sys.executable, os.path.join(REPO, "scripts", script)] + list(args),
+                       cwd=cwd or REPO, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    return r.returncode, r.stdout.decode("utf-8", "replace")
+
+
+def graft_no_false_allclear():
+    """Class 44. Plant a census site that coerces an uncounted topic to zero."""
+    tmp = tempfile.mkdtemp(prefix="graft44_")
+    try:
+        d = os.path.join(tmp, "scripts")
+        os.makedirs(d)
+        shutil.copy(os.path.join(REPO, "scripts", "lint_no_false_allclear.py"), d)
+        bad = os.path.join(d, "graft_census.py")
+        io.open(bad, "w", encoding="utf-8", newline=chr(10)).write(chr(10).join([
+            "def census(topics, counts):",
+            "    rows = []",
+            "    for t in topics:",
+            "        rows.append((t, counts.get(t, 0)))",
+            "    return rows",
+        ]))
+        # The lint scans the repo it lives in; run it from the temp root.
+        code, out = run("lint_no_false_allclear.py", cwd=tmp)
+        return code, out
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+
+
+def graft_self_describing():
+    """Class 50. The check is a RATCHET on a baseline of 7 claims; an 8th must refuse."""
+    base = os.path.join(REPO, "scripts", "baselines")
+    cands = [f for f in os.listdir(base) if "self_describing" in f or "safety_claim" in f]
+    if not cands:
+        return None, "no baseline file found for lint_self_describing_safety_claim"
+    p = os.path.join(base, cands[0])
+    original = io.open(p, encoding="utf-8").read()
+    try:
+        data = json.loads(original)
+        key = next((k for k, v in data.items() if isinstance(v, list) and v), None)
+        if key is None:
+            return None, "baseline has no list to shrink"
+        data[key] = data[key][:-1]        # drop one -> the corpus now has one MORE than known
+        io.open(p, "w", encoding="utf-8", newline=chr(10)).write(
+            json.dumps(data, indent=1, ensure_ascii=False))
+        return run("lint_self_describing_safety_claim.py", args=("--gate",))
+    finally:
+        io.open(p, "w", encoding="utf-8", newline=chr(10)).write(original)
+
+
+def graft_method_claim():
+    """Class 46. Graft a method claim naming a field the object does not hold."""
+    src = os.path.join(REPO, "ssot", "arni-hfref", "arni-hfref.json")
+    if not os.path.exists(src):
+        return None, "arni-hfref is not on disk"
+    tmp = tempfile.mkdtemp(prefix="graft46_")
+    try:
+        obj = json.load(io.open(src, encoding="utf-8"))
+        man = obj.get("manuscript")
+        if not isinstance(man, dict):
+            return None, "arni-hfref carries no manuscript dict"
+        target = next((k for k, v in man.items() if isinstance(v, str) and len(v) > 200),
+                      None)
+        if target is None:
+            return None, "no manuscript prose long enough to graft into"
+        man[target] = man[target] + (
+            " Records were screened in duplicate by two independent reviewers, as recorded "
+            "in `screening.duplicate_screening.performed_by_two`.")
+        d = os.path.join(tmp, "ssot", "arni-hfref")
+        os.makedirs(d)
+        io.open(os.path.join(d, "arni-hfref.json"), "w", encoding="utf-8",
+                newline=chr(10)).write(json.dumps(obj, indent=1, ensure_ascii=False))
+        shutil.copytree(os.path.join(REPO, "scripts"), os.path.join(tmp, "scripts"),
+                        ignore=shutil.ignore_patterns("baselines", "__pycache__"))
+        return run("lint_method_claim_has_a_field.py", cwd=tmp)
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+
+
+def main():
+    print("CAN THE NEVER-FIRED CHECKS FIRE? Each answer is a CONSTRUCTED failing input,")
+    print("grafted on a copy. Nothing here writes to the corpus.")
+    print("")
+
+    results = []
+
+    code, out = graft_no_false_allclear()
+    results.append((
+        "44  lint_no_false_allclear", code,
+        "a census site doing counts.get(topic, 0) on an uncounted topic", out))
+
+    code, out = graft_self_describing()
+    results.append((
+        "50  lint_self_describing_safety_claim", code,
+        "one claim removed from the baseline, so the corpus carries an unbaselined one",
+        out))
+
+    code, out = graft_method_claim()
+    results.append((
+        "46  lint_method_claim_has_a_field", code,
+        "a duplicate-screening sentence naming a field arni-hfref does not hold", out))
+
+    for name, code, what, out in results:
+        if code is None:
+            state = "NOT GRAFTABLE"
+        elif code != 0:
+            state = "CAN FIRE, CONDITION ABSENT"
+        else:
+            state = "DID NOT REFUSE THE GRAFT"
+        print("%-42s %s" % (name, state))
+        print("      graft: %s" % what)
+        tail = " ".join((out or "").strip().split())[-220:]
+        print("      %s" % tail)
+        print("")
+
+    print("47  audit_path_resolvers                   NOT A GATE")
+    print("      It prints a reading list -- 14 resolvers, of which 12 are unread -- and was")
+    print("      never written to refuse. That is legitimate and it must NOT be counted as")
+    print("      mechanised. Its own last line says 'this is not a clean bill and it is not a")
+    print("      defect count; it is a reading list.'")
+    print("")
+    print("52  regression_check.py                    HAS FIRED, ON A LIVE RUN")
+    print("      Its NOT_ASSESSABLE line printed on the pre-push check of the seven-page")
+    print("      rollout: wrong_protocol_link reported 0 AND the marker arni_hf_protocol was")
+    print("      not seen on any page read. Written blind hours earlier; it has now spoken.")
+
+
+if __name__ == "__main__":
+    main()
+
+codex
+I’m going line by line against the named defect shapes and only using the pasted packet as evidence. The main risk surface here is not what the target linters do, but what this harness actually executes and mutates.
+codex
+Defects found:
+
+- Line 32: `run("probe.py", cwd=<tmp containing tmp/scripts/probe.py>)` executes `REPO/scripts/probe.py`, not `<tmp>/scripts/probe.py`. Consequence: the harness can test a different script copy than the one it just staged.
+
+- Lines 61-75: input `scripts/baselines/x_self_describing.json` containing `{"claims":["a","b"]}`. Consequence: this graft writes the real worktree baseline, contradicting “copy in a temp directory” and risking corpus mutation.
+
+- Lines 66 and 77: input baseline bytes `{\r\n "claims": ["a"]\r\n}\r\n`. Consequence: restore reads universal newlines and writes LF, so unchanged logical content becomes a changed file.
+
+- Line 69: input baseline JSON `{"notes":["not a claim"],"claims":["a","b"]}`. Consequence: the first non-empty list is shrunk, so the probe may not remove a safety claim at all.
+
+- Lines 95-97: input `arni-hfref.json` with `{"manuscript":{"body":"x"*201},"screening":{"duplicate_screening":{"performed_by_two":true}}}`. Consequence: the graft claims to name a field the object does not hold, but no absence check exists, so the constructed input may not be failing.
+
+- Lines 135-136: input result tuple `("x", 2, "graft", "python: can't open file")`. Consequence: any subprocess crash or missing script is reported as “CAN FIRE, CONDITION ABSENT.”
+
+Shapes not found in this module: probe keyed to string a fix removes; idempotency guard satisfied by own comment/marker; merged-cell/off-by-one tabulation; negation dropped.
+
+COULD NOT DETERMINE: whether the target checks themselves cannot fail or use corpus-mismatched selectors, because `scripts/lint_no_false_allclear.py`, `scripts/lint_self_describing_safety_claim.py`, and `scripts/lint_method_claim_has_a_field.py` are missing from the packet.
+tokens used
+12,857
+Defects found:
+
+- Line 32: `run("probe.py", cwd=<tmp containing tmp/scripts/probe.py>)` executes `REPO/scripts/probe.py`, not `<tmp>/scripts/probe.py`. Consequence: the harness can test a different script copy than the one it just staged.
+
+- Lines 61-75: input `scripts/baselines/x_self_describing.json` containing `{"claims":["a","b"]}`. Consequence: this graft writes the real worktree baseline, contradicting “copy in a temp directory” and risking corpus mutation.
+
+- Lines 66 and 77: input baseline bytes `{\r\n "claims": ["a"]\r\n}\r\n`. Consequence: restore reads universal newlines and writes LF, so unchanged logical content becomes a changed file.
+
+- Line 69: input baseline JSON `{"notes":["not a claim"],"claims":["a","b"]}`. Consequence: the first non-empty list is shrunk, so the probe may not remove a safety claim at all.
+
+- Lines 95-97: input `arni-hfref.json` with `{"manuscript":{"body":"x"*201},"screening":{"duplicate_screening":{"performed_by_two":true}}}`. Consequence: the graft claims to name a field the object does not hold, but no absence check exists, so the constructed input may not be failing.
+
+- Lines 135-136: input result tuple `("x", 2, "graft", "python: can't open file")`. Consequence: any subprocess crash or missing script is reported as “CAN FIRE, CONDITION ABSENT.”
+
+Shapes not found in this module: probe keyed to string a fix removes; idempotency guard satisfied by own comment/marker; merged-cell/off-by-one tabulation; negation dropped.
+
+COULD NOT DETERMINE: whether the target checks themselves cannot fail or use corpus-mismatched selectors, because `scripts/lint_no_false_allclear.py`, `scripts/lint_self_describing_safety_claim.py`, and `scripts/lint_method_claim_has_a_field.py` are missing from the packet.

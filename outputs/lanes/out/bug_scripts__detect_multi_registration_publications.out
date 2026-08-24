@@ -1,0 +1,572 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a03195-b42c-7c82-9e16-2a8ea7184827
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/detect_multi_registration_publications.py
+
+--- THE FILE, IN FULL ---
+#!/usr/bin/env python3
+"""DOES ONE PUBLICATION NAME MORE THAN ONE REGISTRATION? -- the only detector this class allows.
+
+THE CLASS. A trial that registers its nested substudy separately appears in a registry-derived
+review as TWO trials. `COLCHICINE-PCI` is the worked case: NCT02594111 (n=714) and NCT01709981
+(n=280, the nested biomarker substudy), and PMID 32295417 closes its abstract "Unique
+Identifiers: NCT02594111, NCT01709981."
+
+WHY NO REGISTRY-ONLY METHOD CAN SEE IT. The duplicate detector in this project pairs
+registrations on identical official title AND identical enrolment. Parent and substudy differ on
+BOTH -- 280 against 714 -- so this is not a near-miss for that detector, it is out of its reach
+entirely. The relationship is stated in exactly one place: THE PUBLICATION.
+
+    A REGISTRY-DERIVED k IS AN OVERCOUNT BY AN UNKNOWN AMOUNT, and the correction is only
+    available from the literature the review was avoiding.
+
+SO THE DETECTOR IS THIS: for every publication resolved anywhere in this corpus, extract every
+registration identifier appearing in its title, abstract or metadata, and flag any naming two or
+more. It is a cheap extra field on work already being done and it is the only signal available.
+
+AND A HIT IS NOT AUTOMATICALLY AN OVERCOUNT. Two shapes produce the same signal:
+
+    PARENT_AND_SUBSTUDY   one trial, two registrations -> k IS INFLATED. (COLCHICINE-PCI)
+    TWO_TRIALS_ONE_REPORT two genuinely separate trials reported together -> k is CORRECT,
+                          but citing two references for them would be wrong. (SPIRE-1/SPIRE-2)
+
+The detector cannot tell them apart and does not try. It surfaces the pair and names the
+question; classification is a human read of the paper. Reporting a hit as an overcount without
+that read would be the same error as reading a title match as an estimand.
+
+USAGE
+    python scripts/detect_multi_registration_publications.py [--apply]
+"""
+import glob
+import io
+import json
+import os
+import re
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+EV = os.path.join(REPO, "evidence", "2026-08-19-batch1")
+OUT = os.path.join(EV, "multi_registration_publications.json")
+
+NCT = re.compile(r"NCT\d{8}")
+
+# Classifications made by reading the paper. A pair not listed here is UNCLASSIFIED and is
+# reported as a question, never as an overcount.
+CLASSIFIED = {
+    ("NCT01709981", "NCT02594111"): {
+        "shape": "PARENT_AND_SUBSTUDY",
+        "k_effect": "INFLATES k BY 1",
+        "evidence": ("PMID 32295417: NCT01709981 (n=280, primary percent change in IL-6) is the "
+                     "nested inflammatory biomarker substudy of NCT02594111 (n=714, primary "
+                     "peri-procedural myocardial necrosis). One trial."),
+    },
+    ("NCT01975376", "NCT01975389"): {
+        "shape": "TWO_TRIALS_ONE_REPORT",
+        "k_effect": "k IS CORRECT -- these are two genuinely separate trials",
+        "evidence": ("PMID 28304242: SPIRE-1 (n=16,784) and SPIRE-2 (n=10,564), both terminated "
+                     "early and reported together. Two trials, one paper. Citing two references "
+                     "for them would be wrong; counting them as one trial would also be wrong."),
+    },
+    ("NCT03104413", "NCT03105128"): {
+        "shape": "TWO_TRIALS_ONE_REPORT",
+        "k_effect": "k IS CORRECT",
+        "evidence": ("PMID 35644154: ADVANCE (n=931) and MOTIVATE (n=618), two induction trials "
+                     "reported in one paper."),
+    },
+}
+
+
+def registry_side_pairs():
+    """A PMID listed by TWO OR MORE registrations is the same signal, from the registry alone.
+
+    THE CHEAPER ROUTE, AND A DIFFERENT ONE. Scanning 258 abstracts for registration identifiers
+    answers "does this paper name two trials". Asking which PMIDs appear on more than one
+    registration's reference list answers the same question from the other side, over EVERY
+    trial in the corpus rather than only those whose abstracts we happened to fetch.
+
+    ITS BLIND SPOT IS NAMED. It requires BOTH registrations to list the shared publication. Where
+    only the parent lists it -- which is common, because a substudy registration is often
+    abandoned after the parent reports -- the pair is invisible to this route and visible only to
+    the abstract scan. NEITHER ROUTE DOMINATES; both are lower bounds and they miss different
+    things.
+    """
+    import ctgov_transport as X
+    ncts = set()
+    for p in sorted(glob.glob(os.path.join(REPO, "ssot", "*", "*.json"))):
+        try:
+            with io.open(p, "r", encoding="utf-8") as fh:
+                o = json.load(fh)
+        except Exception:
+            continue
+        for t in ((o.get("inputs") or {}).get("trials") or []):
+            if isinstance(t, dict) and t.get("nct"):
+                ncts.add(t["nct"])
+        ncts |= set(NCT.findall(json.dumps(o.get("screening") or {})))
+    ncts = sorted(n for n in ncts if NCT.fullmatch(n))
+    by_pmid, unreachable = {}, []
+    for i, n in enumerate(ncts):
+        st, s, d = X.fetch_raw(n, fields="protocolSection")
+        if st != X.OK:
+            unreachable.append(n)
+            continue
+        refs = (((s.get("protocolSection") or {}).get("referencesModule") or {})
+                .get("references") or [])
+        for r in refs:
+            if r.get("pmid"):
+                by_pmid.setdefault(r["pmid"], {})[n] = r.get("type")
+        if (i + 1) % 50 == 0:
+            print("   ...%d/%d registrations read" % (i + 1, len(ncts)))
+    return ncts, by_pmid, unreachable
+
+
+def scan(records):
+    """records: {pmid: {'title':..., 'abstract':..., 'ncts':[...]}}"""
+    out = []
+    for pmid, r in sorted(records.items()):
+        ids = sorted(set(r.get("ncts") or []))
+        if len(ids) < 2:
+            continue
+        key = tuple(sorted(ids))
+        cls = CLASSIFIED.get(key)
+        out.append({
+            "pmid": pmid,
+            "title": r.get("title"),
+            "registration_identifiers_named": ids,
+            "n_named": len(ids),
+            "classification": cls or {
+                "shape": "UNCLASSIFIED",
+                "k_effect": "UNKNOWN -- requires a human read of the paper",
+                "evidence": ("The detector surfaces the pair and names the question. It cannot "
+                             "distinguish parent-and-substudy from two-trials-one-report and "
+                             "does not try."),
+            },
+        })
+    return out
+
+
+def run(apply_it):
+    sys.path.insert(0, os.path.join(REPO, "ssot"))
+    print("reading every registration named in an ssot object ...")
+    ncts, by_pmid, unreachable = registry_side_pairs()
+    print("registrations read: %d  (unreachable %d)" % (len(ncts) - len(unreachable),
+                                                        len(unreachable)))
+    print("distinct PMIDs on their reference lists: %d" % len(by_pmid))
+
+    # STRATIFY BY REFERENCE TYPE, because the raw count is dominated by noise. A registration
+    # citing someone else's landmark paper as BACKGROUND is not a paper reporting that trial --
+    # PMID 9725923 is listed by SEVEN registrations and is plainly a shared citation. The
+    # informative stratum is RESULT and DERIVED: the registration's own report.
+    #
+    #   AND THE TYPE FILTER IS WRONG IN THE OTHER DIRECTION TOO, which is why both strata are
+    #   reported. CLEAR Outcomes' own primary is typed BACKGROUND on its own registration, so a
+    #   RESULT/DERIVED restriction can miss a real self-report. Neither stratum is the answer;
+    #   the RESULT/DERIVED one is the one worth a human read.
+    shared = {p: v for p, v in by_pmid.items() if len(v) > 1}
+    hits = []
+    for pmid, byn in sorted(shared.items()):
+        ids = sorted(byn)
+        own = sorted(n for n, t in byn.items() if t in ("RESULT", "DERIVED"))
+        # MATCH ON SUBSET, NOT ON THE EXACT TUPLE. The worked case failed an exact-tuple lookup
+        # because a THIRD registration (NCT05739929) also cites PMID 32295417 -- as background.
+        # A classification about two registrations must still apply when a third cites the paper.
+        cls = None
+        for key, val in CLASSIFIED.items():
+            if set(key) <= set(ids):
+                cls = dict(val)
+                cls["classified_pair"] = list(key)
+                if len(ids) > len(key):
+                    cls["note"] = ("%d further registration(s) also cite this PMID: %s. The "
+                                   "classification concerns the named pair only."
+                                   % (len(ids) - len(key),
+                                      ", ".join(sorted(set(ids) - set(key)))))
+                break
+        hits.append({
+            "pmid": pmid,
+            "registrations_listing_it": ids,
+            "n_registrations": len(ids),
+            "reference_type_per_registration": byn,
+            "registrations_listing_it_as_their_OWN_report": own,
+            "n_listing_it_as_their_own_report": len(own),
+            "stratum": ("SELF_REPORT_BY_TWO_OR_MORE" if len(own) > 1 else
+                        "SHARED_CITATION_ONLY -- at most one registration calls this its own "
+                        "report; the others cite it as BACKGROUND"),
+            "classification": cls or {
+                "shape": "UNCLASSIFIED",
+                "k_effect": "UNKNOWN -- requires a human read of the paper",
+                "evidence": ("The detector surfaces the pair and names the question. It cannot "
+                             "distinguish parent-and-substudy from two-trials-one-report."),
+            },
+        })
+
+    informative = [h for h in hits if h["n_listing_it_as_their_own_report"] > 1]
+    infl = [h for h in hits if h["classification"]["shape"] == "PARENT_AND_SUBSTUDY"]
+    twot = [h for h in hits if h["classification"]["shape"] == "TWO_TRIALS_ONE_REPORT"]
+    unkn = [h for h in hits if h["classification"]["shape"] == "UNCLASSIFIED"]
+
+    doc = {
+        "scanned_utc": "2026-08-19",
+        "what_this_enumerated_over": {
+            "route": ("ClinicalTrials.gov referencesModule for EVERY registration named in an "
+                      "ssot object's included set or screening record"),
+            "n_registrations_read": len(ncts) - len(unreachable),
+            "n_unreachable": len(unreachable),
+            "unreachable": unreachable,
+            "n_distinct_pmids": len(by_pmid),
+            "blind_spot_NAMED": (
+                "This route requires BOTH registrations to list the shared publication. Where "
+                "only the parent lists it -- common, because a substudy registration is often "
+                "abandoned once the parent reports -- the pair is INVISIBLE here and visible "
+                "only to an abstract scan. Neither route dominates; both are lower bounds and "
+                "they miss different things."),
+            "routes_NOT_run": ["abstract/full-text scan for registration identifiers across all "
+                               "258 PMIDs this corpus has resolved"],
+        },
+        "a_hit_is_not_automatically_an_overcount": {
+            "PARENT_AND_SUBSTUDY": "one trial, two registrations -> k IS INFLATED",
+            "TWO_TRIALS_ONE_REPORT": "two separate trials reported together -> k is CORRECT",
+            "so": ("Reporting a hit as an overcount without reading the paper would be the same "
+                   "error as reading a title match as an estimand."),
+        },
+        "counts": {
+            "publications_listed_by_more_than_one_registration": len(hits),
+            "OF_WHICH_two_or_more_call_it_their_OWN_report": len(informative),
+            "the_rest_are_shared_citations": len(hits) - len(informative),
+            "classified_PARENT_AND_SUBSTUDY": len(infl),
+            "classified_TWO_TRIALS_ONE_REPORT": len(twot),
+            "UNCLASSIFIED": len(unkn),
+            "k_inflation_confirmed_so_far": len(infl),
+        },
+        "hits_informative_stratum": informative,
+        "hits_all": hits,
+        "status": "LOWER BOUND -- see blind_spot_NAMED.",
+    }
+    print("")
+    print("publications listed by MORE THAN ONE registration: %d" % len(hits))
+    print("   of which TWO OR MORE call it their OWN report (RESULT/DERIVED): %d" % len(informative))
+    print("   the rest are shared citations (BACKGROUND): %d" % (len(hits) - len(informative)))
+    print("")
+    print("THE INFORMATIVE STRATUM:")
+    for h in informative:
+        print("   PMID %-9s %-30s %s"
+              % (h["pmid"], ",".join(h["registrations_listing_it"]),
+                 h["classification"]["shape"]))
+    print("")
+    print("   PARENT_AND_SUBSTUDY (k inflated) : %d" % len(infl))
+    print("   TWO_TRIALS_ONE_REPORT (k correct): %d" % len(twot))
+    print("   UNCLASSIFIED (needs a read)      : %d" % len(unkn))
+
+    if apply_it:
+        with io.open(OUT, "w", encoding="utf-8", newline="") as fh:
+            fh.write(json.dumps(doc, indent=1, ensure_ascii=False))
+        print("wrote %s" % os.path.relpath(OUT, REPO))
+    return 0
+
+
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    sys.exit(run("--apply" in sys.argv))
+
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=0; Get-Content -Path scripts/detect_multi_registration_publications.py | ForEach-Object { $i++; if ($i -ge 90 -and $i -le 205) { '"'{0,4}: {1}' -f "'$i, $_ } }' in F:\rapidmeta-ssot-shell
+ succeeded in 1493ms:
+  90:         try:
+  91:             with io.open(p, "r", encoding="utf-8") as fh:
+  92:                 o = json.load(fh)
+  93:         except Exception:
+  94:             continue
+  95:         for t in ((o.get("inputs") or {}).get("trials") or []):
+  96:             if isinstance(t, dict) and t.get("nct"):
+  97:                 ncts.add(t["nct"])
+  98:         ncts |= set(NCT.findall(json.dumps(o.get("screening") or {})))
+  99:     ncts = sorted(n for n in ncts if NCT.fullmatch(n))
+ 100:     by_pmid, unreachable = {}, []
+ 101:     for i, n in enumerate(ncts):
+ 102:         st, s, d = X.fetch_raw(n, fields="protocolSection")
+ 103:         if st != X.OK:
+ 104:             unreachable.append(n)
+ 105:             continue
+ 106:         refs = (((s.get("protocolSection") or {}).get("referencesModule") or {})
+ 107:                 .get("references") or [])
+ 108:         for r in refs:
+ 109:             if r.get("pmid"):
+ 110:                 by_pmid.setdefault(r["pmid"], {})[n] = r.get("type")
+ 111:         if (i + 1) % 50 == 0:
+ 112:             print("   ...%d/%d registrations read" % (i + 1, len(ncts)))
+ 113:     return ncts, by_pmid, unreachable
+ 114: 
+ 115: 
+ 116: def scan(records):
+ 117:     """records: {pmid: {'title':..., 'abstract':..., 'ncts':[...]}}"""
+ 118:     out = []
+ 119:     for pmid, r in sorted(records.items()):
+ 120:         ids = sorted(set(r.get("ncts") or []))
+ 121:         if len(ids) < 2:
+ 122:             continue
+ 123:         key = tuple(sorted(ids))
+ 124:         cls = CLASSIFIED.get(key)
+ 125:         out.append({
+ 126:             "pmid": pmid,
+ 127:             "title": r.get("title"),
+ 128:             "registration_identifiers_named": ids,
+ 129:             "n_named": len(ids),
+ 130:             "classification": cls or {
+ 131:                 "shape": "UNCLASSIFIED",
+ 132:                 "k_effect": "UNKNOWN -- requires a human read of the paper",
+ 133:                 "evidence": ("The detector surfaces the pair and names the question. It cannot "
+ 134:                              "distinguish parent-and-substudy from two-trials-one-report and "
+ 135:                              "does not try."),
+ 136:             },
+ 137:         })
+ 138:     return out
+ 139: 
+ 140: 
+ 141: def run(apply_it):
+ 142:     sys.path.insert(0, os.path.join(REPO, "ssot"))
+ 143:     print("reading every registration named in an ssot object ...")
+ 144:     ncts, by_pmid, unreachable = registry_side_pairs()
+ 145:     print("registrations read: %d  (unreachable %d)" % (len(ncts) - len(unreachable),
+ 146:                                                         len(unreachable)))
+ 147:     print("distinct PMIDs on their reference lists: %d" % len(by_pmid))
+ 148: 
+ 149:     # STRATIFY BY REFERENCE TYPE, because the raw count is dominated by noise. A registration
+ 150:     # citing someone else's landmark paper as BACKGROUND is not a paper reporting that trial --
+ 151:     # PMID 9725923 is listed by SEVEN registrations and is plainly a shared citation. The
+ 152:     # informative stratum is RESULT and DERIVED: the registration's own report.
+ 153:     #
+ 154:     #   AND THE TYPE FILTER IS WRONG IN THE OTHER DIRECTION TOO, which is why both strata are
+ 155:     #   reported. CLEAR Outcomes' own primary is typed BACKGROUND on its own registration, so a
+ 156:     #   RESULT/DERIVED restriction can miss a real self-report. Neither stratum is the answer;
+ 157:     #   the RESULT/DERIVED one is the one worth a human read.
+ 158:     shared = {p: v for p, v in by_pmid.items() if len(v) > 1}
+ 159:     hits = []
+ 160:     for pmid, byn in sorted(shared.items()):
+ 161:         ids = sorted(byn)
+ 162:         own = sorted(n for n, t in byn.items() if t in ("RESULT", "DERIVED"))
+ 163:         # MATCH ON SUBSET, NOT ON THE EXACT TUPLE. The worked case failed an exact-tuple lookup
+ 164:         # because a THIRD registration (NCT05739929) also cites PMID 32295417 -- as background.
+ 165:         # A classification about two registrations must still apply when a third cites the paper.
+ 166:         cls = None
+ 167:         for key, val in CLASSIFIED.items():
+ 168:             if set(key) <= set(ids):
+ 169:                 cls = dict(val)
+ 170:                 cls["classified_pair"] = list(key)
+ 171:                 if len(ids) > len(key):
+ 172:                     cls["note"] = ("%d further registration(s) also cite this PMID: %s. The "
+ 173:                                    "classification concerns the named pair only."
+ 174:                                    % (len(ids) - len(key),
+ 175:                                       ", ".join(sorted(set(ids) - set(key)))))
+ 176:                 break
+ 177:         hits.append({
+ 178:             "pmid": pmid,
+ 179:             "registrations_listing_it": ids,
+ 180:             "n_registrations": len(ids),
+ 181:             "reference_type_per_registration": byn,
+ 182:             "registrations_listing_it_as_their_OWN_report": own,
+ 183:             "n_listing_it_as_their_own_report": len(own),
+ 184:             "stratum": ("SELF_REPORT_BY_TWO_OR_MORE" if len(own) > 1 else
+ 185:                         "SHARED_CITATION_ONLY -- at most one registration calls this its own "
+ 186:                         "report; the others cite it as BACKGROUND"),
+ 187:             "classification": cls or {
+ 188:                 "shape": "UNCLASSIFIED",
+ 189:                 "k_effect": "UNKNOWN -- requires a human read of the paper",
+ 190:                 "evidence": ("The detector surfaces the pair and names the question. It cannot "
+ 191:                              "distinguish parent-and-substudy from two-trials-one-report."),
+ 192:             },
+ 193:         })
+ 194: 
+ 195:     informative = [h for h in hits if h["n_listing_it_as_their_own_report"] > 1]
+ 196:     infl = [h for h in hits if h["classification"]["shape"] == "PARENT_AND_SUBSTUDY"]
+ 197:     twot = [h for h in hits if h["classification"]["shape"] == "TWO_TRIALS_ONE_REPORT"]
+ 198:     unkn = [h for h in hits if h["classification"]["shape"] == "UNCLASSIFIED"]
+ 199: 
+ 200:     doc = {
+ 201:         "scanned_utc": "2026-08-19",
+ 202:         "what_this_enumerated_over": {
+ 203:             "route": ("ClinicalTrials.gov referencesModule for EVERY registration named in an "
+ 204:                       "ssot object's included set or screening record"),
+ 205:             "n_registrations_read": len(ncts) - len(unreachable),
+
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=0; Get-Content -Path scripts/detect_multi_registration_publications.py | ForEach-Object { $i++; if (($i -ge 60 -and $i -le 90) -or ($i -ge 205 -and $i -le 270)) { '"'{0,4}: {1}' -f "'$i, $_ } }' in F:\rapidmeta-ssot-shell
+ succeeded in 2887ms:
+  60:         "evidence": ("PMID 28304242: SPIRE-1 (n=16,784) and SPIRE-2 (n=10,564), both terminated "
+  61:                      "early and reported together. Two trials, one paper. Citing two references "
+  62:                      "for them would be wrong; counting them as one trial would also be wrong."),
+  63:     },
+  64:     ("NCT03104413", "NCT03105128"): {
+  65:         "shape": "TWO_TRIALS_ONE_REPORT",
+  66:         "k_effect": "k IS CORRECT",
+  67:         "evidence": ("PMID 35644154: ADVANCE (n=931) and MOTIVATE (n=618), two induction trials "
+  68:                      "reported in one paper."),
+  69:     },
+  70: }
+  71: 
+  72: 
+  73: def registry_side_pairs():
+  74:     """A PMID listed by TWO OR MORE registrations is the same signal, from the registry alone.
+  75: 
+  76:     THE CHEAPER ROUTE, AND A DIFFERENT ONE. Scanning 258 abstracts for registration identifiers
+  77:     answers "does this paper name two trials". Asking which PMIDs appear on more than one
+  78:     registration's reference list answers the same question from the other side, over EVERY
+  79:     trial in the corpus rather than only those whose abstracts we happened to fetch.
+  80: 
+  81:     ITS BLIND SPOT IS NAMED. It requires BOTH registrations to list the shared publication. Where
+  82:     only the parent lists it -- which is common, because a substudy registration is often
+  83:     abandoned after the parent reports -- the pair is invisible to this route and visible only to
+  84:     the abstract scan. NEITHER ROUTE DOMINATES; both are lower bounds and they miss different
+  85:     things.
+  86:     """
+  87:     import ctgov_transport as X
+  88:     ncts = set()
+  89:     for p in sorted(glob.glob(os.path.join(REPO, "ssot", "*", "*.json"))):
+  90:         try:
+ 205:             "n_registrations_read": len(ncts) - len(unreachable),
+ 206:             "n_unreachable": len(unreachable),
+ 207:             "unreachable": unreachable,
+ 208:             "n_distinct_pmids": len(by_pmid),
+ 209:             "blind_spot_NAMED": (
+ 210:                 "This route requires BOTH registrations to list the shared publication. Where "
+ 211:                 "only the parent lists it -- common, because a substudy registration is often "
+ 212:                 "abandoned once the parent reports -- the pair is INVISIBLE here and visible "
+ 213:                 "only to an abstract scan. Neither route dominates; both are lower bounds and "
+ 214:                 "they miss different things."),
+ 215:             "routes_NOT_run": ["abstract/full-text scan for registration identifiers across all "
+ 216:                                "258 PMIDs this corpus has resolved"],
+ 217:         },
+ 218:         "a_hit_is_not_automatically_an_overcount": {
+ 219:             "PARENT_AND_SUBSTUDY": "one trial, two registrations -> k IS INFLATED",
+ 220:             "TWO_TRIALS_ONE_REPORT": "two separate trials reported together -> k is CORRECT",
+ 221:             "so": ("Reporting a hit as an overcount without reading the paper would be the same "
+ 222:                    "error as reading a title match as an estimand."),
+ 223:         },
+ 224:         "counts": {
+ 225:             "publications_listed_by_more_than_one_registration": len(hits),
+ 226:             "OF_WHICH_two_or_more_call_it_their_OWN_report": len(informative),
+ 227:             "the_rest_are_shared_citations": len(hits) - len(informative),
+ 228:             "classified_PARENT_AND_SUBSTUDY": len(infl),
+ 229:             "classified_TWO_TRIALS_ONE_REPORT": len(twot),
+ 230:             "UNCLASSIFIED": len(unkn),
+ 231:             "k_inflation_confirmed_so_far": len(infl),
+ 232:         },
+ 233:         "hits_informative_stratum": informative,
+ 234:         "hits_all": hits,
+ 235:         "status": "LOWER BOUND -- see blind_spot_NAMED.",
+ 236:     }
+ 237:     print("")
+ 238:     print("publications listed by MORE THAN ONE registration: %d" % len(hits))
+ 239:     print("   of which TWO OR MORE call it their OWN report (RESULT/DERIVED): %d" % len(informative))
+ 240:     print("   the rest are shared citations (BACKGROUND): %d" % (len(hits) - len(informative)))
+ 241:     print("")
+ 242:     print("THE INFORMATIVE STRATUM:")
+ 243:     for h in informative:
+ 244:         print("   PMID %-9s %-30s %s"
+ 245:               % (h["pmid"], ",".join(h["registrations_listing_it"]),
+ 246:                  h["classification"]["shape"]))
+ 247:     print("")
+ 248:     print("   PARENT_AND_SUBSTUDY (k inflated) : %d" % len(infl))
+ 249:     print("   TWO_TRIALS_ONE_REPORT (k correct): %d" % len(twot))
+ 250:     print("   UNCLASSIFIED (needs a read)      : %d" % len(unkn))
+ 251: 
+ 252:     if apply_it:
+ 253:         with io.open(OUT, "w", encoding="utf-8", newline="") as fh:
+ 254:             fh.write(json.dumps(doc, indent=1, ensure_ascii=False))
+ 255:         print("wrote %s" % os.path.relpath(OUT, REPO))
+ 256:     return 0
+ 257: 
+ 258: 
+ 259: if __name__ == "__main__":
+ 260:     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+ 261:     sys.exit(run("--apply" in sys.argv))
+
+codex
+- **STATUS CODE REPORTING THE WRAPPER / check cannot fail:** line 256.  
+  Exact input: `registry_side_pairs = lambda: ([], {}, [])`; then `run(False)`.  
+  Consequence: the script returns `0` after scanning zero registrations, so a caller/gate sees success when the detector did no work.
+
+- **SELECTOR KEYED TO A FIELD PATH THAT MISSES THE STATED SIGNAL:** line 120.  
+  Exact input: `scan({"32295417": {"title": "Unique Identifiers: NCT02594111, NCT01709981", "abstract": "", "ncts": []}})`.  
+  Consequence: returns `[]`, missing two registration IDs present in the publication text because it only reads prefilled `ncts`.
+
+- **SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE:** lines 123-124.  
+  Exact input: `scan({"32295417": {"title": "", "abstract": "", "ncts": ["NCT01709981", "NCT02594111", "NCT05739929"]}})`.  
+  Consequence: the known classified pair is reported `UNCLASSIFIED` because `scan()` still requires the exact tuple that lines 163-165 say failed in this corpus.
+
+- **SELECTOR KEYED TOO BROADLY:** line 168.  
+  Exact input: `registry_side_pairs = lambda: (["NCT01709981","NCT02594111"], {"99999999": {"NCT01709981": "BACKGROUND", "NCT02594111": "BACKGROUND"}}, [])`; then `run(False)`.  
+  Consequence: PMID `99999999` inherits classification/evidence for PMID `32295417`, inflating confirmed counts for a paper not actually classified.
+
+No proven idempotency-guard defect.  
+No proven probe-keyed-to-fix-string defect.  
+COULD NOT DETERMINE different-copy/worktree-vs-served defects: caller/deployment context is missing.  
+No proven CRLF/LF text-comparison defect.  
+No proven merged-cell/off-by-one defect.  
+No proven zero-conflated-with-absent defect.  
+No proven negation-dropped defect.
+tokens used
+26,708
+- **STATUS CODE REPORTING THE WRAPPER / check cannot fail:** line 256.  
+  Exact input: `registry_side_pairs = lambda: ([], {}, [])`; then `run(False)`.  
+  Consequence: the script returns `0` after scanning zero registrations, so a caller/gate sees success when the detector did no work.
+
+- **SELECTOR KEYED TO A FIELD PATH THAT MISSES THE STATED SIGNAL:** line 120.  
+  Exact input: `scan({"32295417": {"title": "Unique Identifiers: NCT02594111, NCT01709981", "abstract": "", "ncts": []}})`.  
+  Consequence: returns `[]`, missing two registration IDs present in the publication text because it only reads prefilled `ncts`.
+
+- **SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE:** lines 123-124.  
+  Exact input: `scan({"32295417": {"title": "", "abstract": "", "ncts": ["NCT01709981", "NCT02594111", "NCT05739929"]}})`.  
+  Consequence: the known classified pair is reported `UNCLASSIFIED` because `scan()` still requires the exact tuple that lines 163-165 say failed in this corpus.
+
+- **SELECTOR KEYED TOO BROADLY:** line 168.  
+  Exact input: `registry_side_pairs = lambda: (["NCT01709981","NCT02594111"], {"99999999": {"NCT01709981": "BACKGROUND", "NCT02594111": "BACKGROUND"}}, [])`; then `run(False)`.  
+  Consequence: PMID `99999999` inherits classification/evidence for PMID `32295417`, inflating confirmed counts for a paper not actually classified.
+
+No proven idempotency-guard defect.  
+No proven probe-keyed-to-fix-string defect.  
+COULD NOT DETERMINE different-copy/worktree-vs-served defects: caller/deployment context is missing.  
+No proven CRLF/LF text-comparison defect.  
+No proven merged-cell/off-by-one defect.  
+No proven zero-conflated-with-absent defect.  
+No proven negation-dropped defect.

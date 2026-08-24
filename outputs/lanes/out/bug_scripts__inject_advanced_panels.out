@@ -1,0 +1,239 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a031d9-cfa7-7a41-bac8-3b20c7456e75
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/inject_advanced_panels.py
+
+--- THE FILE, IN FULL ---
+"""Inject vendor/_panel-helper.js + 5 analysis-panel scripts into every
+*_REVIEW.html. Idempotent. Inserts immediately before the final </body>.
+
+Modules added:
+  _panel-helper.js  (loaded first; shared utilities)
+  nnt-panel.js
+  leave-one-out.js
+  grade-sof.js
+  cumulative-ma.js
+  baujat-plot.js
+  tsa-panel.js
+"""
+from __future__ import annotations
+import sys, io
+from pathlib import Path
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+REPO = Path(__file__).resolve().parent.parent
+
+# Order matters: helper first, then panels (defer so they execute after helper loads)
+TAGS = [
+    '<script src="vendor/_panel-helper.js" defer></script>',
+    '<script src="vendor/nnt-panel.js" defer></script>',
+    '<script src="vendor/leave-one-out.js" defer></script>',
+    '<script src="vendor/grade-sof.js" defer></script>',
+    '<script src="vendor/cumulative-ma.js" defer></script>',
+    '<script src="vendor/baujat-plot.js" defer></script>',
+    '<script src="vendor/tsa-panel.js" defer></script>',
+    # NMA-only modules — self-guard and exit silently in pairwise reviews,
+    # so it's safe to inject everywhere.
+    '<script src="vendor/nma-league-table.js" defer></script>',
+    '<script src="vendor/nma-forest-all-treatments.js" defer></script>',
+    # Master accordion: consolidates all of the above into one ~31 px
+    # collapsed row so the RapidMeta tabs stay above the fold.
+    '<script src="vendor/advanced-stats-suite.js" defer></script>',
+    # Stats tab: moves panels into a new tab in the RapidMeta nav. Loaded
+    # last so it can take over from the legacy floating accordion.
+    '<script src="vendor/stats-tab.js" defer></script>',
+    # RevMan-compatible PDF export — adds a button in Scientific Output
+    # that bundles tab-report + tab-statistics into one printable document.
+    '<script src="vendor/cochrane-export.js" defer></script>',
+    # Trial-integrity sensitivity (concordance heuristics from AACT)
+    '<script src="vendor/trial-integrity-panel.js" defer></script>',
+    # Bayesian sensitivity (pure-JS grid; weakly-informative priors)
+    '<script src="vendor/bayesian-sensitivity.js" defer></script>',
+    # Tier A: Cochrane v6.5 explicit recommendations
+    '<script src="vendor/subgroup-interaction.js" defer></script>',
+    '<script src="vendor/rr-sensitivity.js" defer></script>',
+    '<script src="vendor/meta-regression.js" defer></script>',
+    # Tier B: well-validated, ubiquitous in published MAs
+    '<script src="vendor/funnel-diagnostics.js" defer></script>',
+    '<script src="vendor/influence-diagnostics.js" defer></script>',
+    # Continuous-outcome support (MD + Hedges' g)
+    '<script src="vendor/continuous-outcome.js" defer></script>',
+    # INSPECT-SR per-review trustworthiness card
+    '<script src="vendor/inspect-sr-panel.js" defer></script>',
+    # NMA forest for continuous outcomes (analogue of nma-forest-all-treatments.js)
+    '<script src="vendor/nma-forest-continuous.js" defer></script>',
+    # Single-arm / proportion meta-analysis (Cochrane v6.5 §10.3.2)
+    '<script src="vendor/single-arm-proportion.js" defer></script>',
+    # Dose-response meta-regression (Greenland-Longnecker 1992; Cochrane v6.5 §10.4)
+    '<script src="vendor/dose-response.js" defer></script>',
+    # Diagnostic Test Accuracy (Cochrane DTA Handbook; Reitsma 2005)
+    '<script src="vendor/dta-bivariate.js" defer></script>',
+    # DTA twin forest (per-metric Se/Sp + Wilson CIs)
+    '<script src="vendor/dta-forest.js" defer></script>',
+    # DTA Deeks' funnel (publication bias)
+    '<script src="vendor/dta-funnel.js" defer></script>',
+    # QUADAS-2 RoB for DTA reviews
+    '<script src="vendor/quadas2-panel.js" defer></script>',
+    # Per-drug stratified dose-response (companion to dose-response.js)
+    '<script src="vendor/dose-stratified.js" defer></script>',
+    # Single-arm forest with Wilson CIs
+    '<script src="vendor/single-arm-forest.js" defer></script>',
+    # Single-arm leave-one-out sensitivity
+    '<script src="vendor/single-arm-influence.js" defer></script>',
+    # NMA league table for continuous outcomes
+    '<script src="vendor/nma-league-continuous.js" defer></script>',
+    # SUCRA + Monte-Carlo ranking probabilities (Salanti JCE 2011)
+    '<script src="vendor/nma-sucra.js" defer></script>',
+    # Fagan nomogram — interactive PPV/NPV from pooled DTA LR+/LR-
+    '<script src="vendor/fagan-nomogram.js" defer></script>',
+    # Restricted cubic spline dose-response (3-knot)
+    '<script src="vendor/dose-spline.js" defer></script>',
+    # Cumulative MA for single-arm proportion pools
+    '<script src="vendor/single-arm-cumulative.js" defer></script>',
+    # Tier 1: Cochrane v6.5 + reviewer-completeness panels
+    '<script src="vendor/tau2-qprofile.js" defer></script>',
+    '<script src="vendor/pi-convention.js" defer></script>',
+    '<script src="vendor/grade-nma-comparison.js" defer></script>',
+    '<script src="vendor/prisma-checklist.js" defer></script>',
+    # Tier 2: methodological depth + data integrity
+    '<script src="vendor/meta-regression-permutation.js" defer></script>',
+    '<script src="vendor/grim-benford.js" defer></script>',
+]
+
+
+def patch(text: str) -> tuple[str, int]:
+    final_body = text.rfind("</body>")
+    if final_body < 0:
+        return text, 0
+    n_added = 0
+    block = ""
+    for tag in TAGS:
+        if tag in text:
+            continue
+        block += "  " + tag + "\n"
+        n_added += 1
+    if n_added == 0:
+        return text, 0
+    new_text = text[:final_body] + block + text[final_body:]
+    return new_text, n_added
+
+
+def main():
+    files = sorted(REPO.glob("*_REVIEW.html"))
+    n_files, n_total = 0, 0
+    for hp in files:
+        text = hp.read_text(encoding="utf-8", errors="replace")
+        new, n = patch(text)
+        if n > 0:
+            hp.write_text(new, encoding="utf-8")
+            n_files += 1
+            n_total += n
+    print(f"Files updated: {n_files}")
+    print(f"Tags inserted: {n_total}")
+
+
+if __name__ == "__main__":
+    main()
+
+codex
+**Defects Found**
+
+- Line 105: input `"<html><body><!-- <script src=\"vendor/nnt-panel.js\" defer></script> --></body></html>"`  
+  Consequence: the idempotency guard is satisfied by a comment, so `nnt-panel.js` is skipped as an active script.
+
+- Line 105: input `"<html><body><script defer src=\"vendor/_panel-helper.js\"></script></body></html>"`  
+  Consequence: the same script with reordered attributes is treated as absent, so the helper is injected twice.
+
+- Line 99: input `"<html><body></body><!-- </body> --></html>"`  
+  Consequence: `rfind("</body>")` selects the comment marker, causing inserted scripts to land inside the comment and not execute.
+
+- Line 99: input `"<HTML><BODY></BODY></HTML>"`  
+  Consequence: the lowercase-only selector misses a valid HTML body close and silently inserts nothing.
+
+- Lines 100 and 130: filesystem input: `A_REVIEW.html` containing `"<html><body></html>"`  
+  Consequence: an unpatchable review exits status 0 with `Files updated: 0`, so a wrapper/gate cannot distinguish failure from success.
+
+- Line 116: filesystem input: only `reviews/A_REVIEW.html` containing `"<html><body></body></html>"`  
+  Consequence: a matching review outside the repo root is ignored while the run still reports success.
+
+**Shapes Not Found / Not Determined**
+
+- Probe keyed to string a fix removes: none found.
+- Instrument reading a different copy: COULD NOT DETERMINE — caller/CI/deployment path is missing.
+- CRLF/LF text comparison: none found; no equality comparison is present.
+- Merged-cell/off-by-one tabulation: none found.
+- Zero conflated with absent: none found.
+- Negation dropped: none found.
+tokens used
+11,565
+**Defects Found**
+
+- Line 105: input `"<html><body><!-- <script src=\"vendor/nnt-panel.js\" defer></script> --></body></html>"`  
+  Consequence: the idempotency guard is satisfied by a comment, so `nnt-panel.js` is skipped as an active script.
+
+- Line 105: input `"<html><body><script defer src=\"vendor/_panel-helper.js\"></script></body></html>"`  
+  Consequence: the same script with reordered attributes is treated as absent, so the helper is injected twice.
+
+- Line 99: input `"<html><body></body><!-- </body> --></html>"`  
+  Consequence: `rfind("</body>")` selects the comment marker, causing inserted scripts to land inside the comment and not execute.
+
+- Line 99: input `"<HTML><BODY></BODY></HTML>"`  
+  Consequence: the lowercase-only selector misses a valid HTML body close and silently inserts nothing.
+
+- Lines 100 and 130: filesystem input: `A_REVIEW.html` containing `"<html><body></html>"`  
+  Consequence: an unpatchable review exits status 0 with `Files updated: 0`, so a wrapper/gate cannot distinguish failure from success.
+
+- Line 116: filesystem input: only `reviews/A_REVIEW.html` containing `"<html><body></body></html>"`  
+  Consequence: a matching review outside the repo root is ignored while the run still reports success.
+
+**Shapes Not Found / Not Determined**
+
+- Probe keyed to string a fix removes: none found.
+- Instrument reading a different copy: COULD NOT DETERMINE — caller/CI/deployment path is missing.
+- CRLF/LF text comparison: none found; no equality comparison is present.
+- Merged-cell/off-by-one tabulation: none found.
+- Zero conflated with absent: none found.
+- Negation dropped: none found.

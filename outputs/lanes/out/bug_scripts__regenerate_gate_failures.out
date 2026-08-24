@@ -1,0 +1,283 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a0324c-3653-7921-af6c-57b2aa1b5c29
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/regenerate_gate_failures.py
+
+--- THE FILE, IN FULL ---
+"""Regenerate the remaining gate-failure R-validation sidecars.
+
+These sidecars match the metafor pooled OR + lower CI to within 1e-6 but
+diverge on the upper CI by 1e-4..1e-1 — signature of a different DF or
+floor convention used when the sidecar was originally written.
+
+Mechanism: extract publishedHR + hrLCI + hrUCI per trial from each page's
+realData, write a per-topic R script that pools via metafor REML+HKSJ at
+Cochrane v6.5 t_{k-1} convention, and write a fresh sidecar.
+
+Same approach used for the 5 catastrophes in commit 7606eda9b; this just
+extends it to the 12 non-catastrophic gate failures plus any others the
+parity gate flags above 1e-4.
+"""
+from __future__ import annotations
+import json
+import re
+import subprocess
+import sys
+import io
+from pathlib import Path
+
+if "pytest" not in sys.modules and hasattr(sys.stdout, "buffer"):
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+HERE = Path(__file__).resolve().parent.parent
+
+GATE_FAILURES = [
+    "AGYW_HIV_PREP", "BIMEKIZUMAB_PSORIASIS", "CAB_PREP_HIV",
+    "COVID_ORAL_ANTIVIRALS", "ETRASIMOD_UC", "KRAS_G12C",
+    "LENACAPAVIR_PREP", "MAVACAMTEN_HCM", "OBESITY_DRUGS",
+    "PBC_PPAR", "POLYCYTHEMIA_VERA", "SEVERE_ASTHMA_NMA",
+]
+
+# Match a per-trial object in realData with name + publishedHR + hrLCI + hrUCI.
+# The realData blocks can be JS literal (single quotes) or JSON (double quotes).
+TRIAL_RE = re.compile(
+    r"['\"]NCT\d{7,8}['\"]\s*:\s*\{(?P<body>(?:[^{}]|\{[^{}]*\}){0,4000})\}",
+    re.DOTALL,
+)
+FIELD_RE = re.compile(
+    r"['\"]?(name|publishedHR|hrLCI|hrUCI)['\"]?\s*:\s*['\"]?(-?[\d.eE+-]+|null|None|[^,'\"}\n]+)",
+)
+
+
+def extract_trials(stem: str) -> list[dict] | None:
+    """Find the *_REVIEW.html for the topic and pull per-trial publishedHR + CI."""
+    candidates = [
+        HERE / f"{stem}_REVIEW.html",
+        HERE / f"{stem}_REVIEW.html".replace("_REVIEW.html", ".html"),
+    ]
+    page = next((p for p in candidates if p.exists()), None)
+    if page is None:
+        return None
+    txt = page.read_text(encoding="utf-8", errors="replace")
+    trials: list[dict] = []
+    for m in TRIAL_RE.finditer(txt):
+        body = m.group("body")
+        d: dict = {}
+        for fm in FIELD_RE.finditer(body):
+            k, v = fm.group(1), fm.group(2).strip().strip("'\"")
+            if k == "name":
+                d["name"] = v
+            elif k in ("publishedHR", "hrLCI", "hrUCI") and v not in ("null", "None"):
+                try:
+                    d[k] = float(v)
+                except ValueError:
+                    pass
+        if "name" in d and {"publishedHR", "hrLCI", "hrUCI"} <= set(d):
+            trials.append(d)
+    return trials or None
+
+
+def emit_r_script(stem: str, trials: list[dict]) -> Path:
+    names = [t["name"] for t in trials]
+    hrs = [t["publishedHR"] for t in trials]
+    lcis = [t["hrLCI"] for t in trials]
+    ucis = [t["hrUCI"] for t in trials]
+    r = [
+        'user_lib <- file.path(Sys.getenv("APPDATA"), "R-libs")',
+        'if (dir.exists(user_lib)) .libPaths(c(user_lib, .libPaths()))',
+        'suppressMessages(library(metafor))',
+        f'trials <- data.frame(',
+        f'  name = c({", ".join(repr(n) for n in names)}),',
+        f'  hr   = c({", ".join(str(h) for h in hrs)}),',
+        f'  lci  = c({", ".join(str(l) for l in lcis)}),',
+        f'  uci  = c({", ".join(str(u) for u in ucis)})',
+        ')',
+        'trials$yi  <- log(trials$hr)',
+        'trials$sei <- (log(trials$uci) - log(trials$lci)) / (2 * qnorm(0.975))',
+        'trials$vi  <- trials$sei^2',
+        'fit <- rma(yi = yi, vi = vi, data = trials, method = "REML", test = "knha")',
+        'pi_se <- sqrt(fit$tau2 + fit$se^2)',
+        't_v65 <- qt(0.975, df = max(1, fit$k - 1))',
+        'pi_lo <- exp(fit$b[1] - t_v65 * pi_se)',
+        'pi_hi <- exp(fit$b[1] + t_v65 * pi_se)',
+        'esc <- function(s) gsub("\\\\\\\\", "\\\\\\\\\\\\\\\\", gsub("\\"", "\\\\\\\\\\"", s))',
+        f'path <- "outputs/r_validation/{stem}.json"',
+        'lines <- c("{",',
+        '  sprintf("  \\"k\\": %d,", fit$k),',
+        '  sprintf("  \\"pooled_logOR\\": %.10f,", unname(fit$b[1])),',
+        '  sprintf("  \\"pooled_se\\": %.10f,", fit$se),',
+        '  sprintf("  \\"pooled_OR\\": %.10f,", unname(exp(fit$b[1]))),',
+        '  sprintf("  \\"ci_low_OR\\": %.10f,", unname(exp(fit$ci.lb))),',
+        '  sprintf("  \\"ci_high_OR\\": %.10f,", unname(exp(fit$ci.ub))),',
+        '  sprintf("  \\"tau2\\": %.10f,", fit$tau2),',
+        '  sprintf("  \\"I2\\": %.10f,", fit$I2),',
+        '  sprintf("  \\"H2\\": %.10f,", fit$H2),',
+        '  sprintf("  \\"Q\\": %.10f,", fit$QE),',
+        '  sprintf("  \\"Qdf\\": %d,", fit$k - 1),',
+        '  sprintf("  \\"Qp\\": %.6e,", fit$QEp),',
+        '  sprintf("  \\"PI_low_OR\\": %.10f,", pi_lo),',
+        '  sprintf("  \\"PI_high_OR\\": %.10f,", pi_hi),',
+        '  "  \\"pi_df_convention\\": \\"t_{k-1}_Cochrane_v6.5\\",",',
+        '  "  \\"method\\": \\"REML+HKSJ\\",",',
+        f'  sprintf("  \\"regenerated_from\\": \\"curated_publishedHR_via_metafor_%s\\",",',
+        '          as.character(packageVersion("metafor"))),',
+        '  sprintf("  \\"regenerated_on\\": \\"%s\\",", Sys.Date()),',
+        '  "  \\"trials\\": ["',
+        ')',
+        'for (i in 1:nrow(trials)) {',
+        '  lines <- c(lines, "    {",',
+        '             sprintf("      \\"name\\": \\"%s\\",", esc(trials$name[i])),',
+        '             sprintf("      \\"hr\\": %.4f,", trials$hr[i]),',
+        '             sprintf("      \\"hr_lci\\": %.4f,", trials$lci[i]),',
+        '             sprintf("      \\"hr_uci\\": %.4f,", trials$uci[i]),',
+        '             sprintf("      \\"yi\\": %.10f,", trials$yi[i]),',
+        '             sprintf("      \\"vi\\": %.10f", trials$vi[i]),',
+        '             if (i == nrow(trials)) "    }" else "    },")',
+        '}',
+        'lines <- c(lines, "  ]", "}")',
+        'writeLines(lines, path)',
+        f'cat(sprintf("  {stem}: pooled OR=%.4f [%.4f, %.4f] k=%d\\n",',
+        '            exp(fit$b[1]), exp(fit$ci.lb), exp(fit$ci.ub), fit$k))',
+    ]
+    tmp = HERE / f".regen_{stem.lower()}.R"
+    tmp.write_text("\n".join(r), encoding="utf-8")
+    return tmp
+
+
+def main():
+    print(f"Regenerating {len(GATE_FAILURES)} gate-failure sidecars...")
+    n_ok = n_skip = 0
+    for stem in GATE_FAILURES:
+        trials = extract_trials(stem)
+        if not trials:
+            print(f"  SKIP {stem}: page has no publishedHR per trial")
+            n_skip += 1
+            continue
+        rs = emit_r_script(stem, trials)
+        try:
+            proc = subprocess.run(
+                ["Rscript", str(rs)],
+                capture_output=True, text=True, timeout=60, encoding="utf-8",
+                errors="replace", cwd=str(HERE),
+            )
+            if proc.returncode != 0:
+                print(f"  FAIL {stem}: Rscript exit {proc.returncode}\n    {proc.stderr.strip()[:200]}")
+                continue
+            print(proc.stdout.strip())
+            n_ok += 1
+        finally:
+            rs.unlink(missing_ok=True)
+    print(f"\nRegenerated: {n_ok}, skipped: {n_skip}")
+
+
+if __name__ == "__main__":
+    main()
+
+codex
+Defects found:
+
+- `STATUS CODE REPORTING THE WRAPPER rather than the work`  
+  Lines `157-164`: exact input: a valid page such as `AGYW_HIV_PREP_REVIEW.html` containing `{"NCT00000001":{"name":"T","publishedHR":1.2,"hrLCI":1.0,"hrUCI":1.4}}`, with `Rscript` returning exit `1`.  
+  Consequence: the script prints `FAIL ...` but still reaches the final print and exits `0`, so a failing regeneration can pass CI.
+
+- `SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE / matches far less than intended`  
+  Line `38`: exact input: `{"NCT00000001":{"meta":{"arm":{"x":1}},"name":"T","publishedHR":1.2,"hrLCI":1.0,"hrUCI":1.4}}`.  
+  Consequence: `TRIAL_RE` cannot match trial objects containing nested braces deeper than one level, so a valid trial is silently skipped.
+
+- `SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE / matches far less than intended`  
+  Line `42`: exact input: `{"NCT00000001":{"name":"Trial A, phase 3","publishedHR":1.2,"hrLCI":1.0,"hrUCI":1.4}}`.  
+  Consequence: `FIELD_RE` captures the name as `Trial A`, corrupting the emitted sidecar metadata.
+
+- `SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE / matches far less than intended`  
+  Line `42`: exact input: `{"NCT00000001":{"name":"T","publishedHR":1.2,"hrLCI":1.0,"hrUCI":1.4,"publishedHR_note":"do not use"}}`.  
+  Consequence: because the field-name quote is optional and unanchored to a real key boundary, the regex can match inside longer key names.
+
+No proven defect found for `probe keyed to the STRING A FIX REMOVES`.
+
+No proven defect found for `idempotency guard satisfied by its OWN comment or marker`.
+
+COULD NOT DETERMINE `instrument reading a DIFFERENT COPY`: missing caller/served-page convention for `_REVIEW.html` versus `.html`.
+
+No proven defect found for `values compared AS TEXT where line endings differ`.
+
+No proven defect found for `merged-cell and OFF-BY-ONE errors`.
+
+No proven defect found for `ZERO CONFLATED WITH ABSENT`.
+
+No proven defect found for `NEGATION DROPPED`.
+tokens used
+13,445
+Defects found:
+
+- `STATUS CODE REPORTING THE WRAPPER rather than the work`  
+  Lines `157-164`: exact input: a valid page such as `AGYW_HIV_PREP_REVIEW.html` containing `{"NCT00000001":{"name":"T","publishedHR":1.2,"hrLCI":1.0,"hrUCI":1.4}}`, with `Rscript` returning exit `1`.  
+  Consequence: the script prints `FAIL ...` but still reaches the final print and exits `0`, so a failing regeneration can pass CI.
+
+- `SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE / matches far less than intended`  
+  Line `38`: exact input: `{"NCT00000001":{"meta":{"arm":{"x":1}},"name":"T","publishedHR":1.2,"hrLCI":1.0,"hrUCI":1.4}}`.  
+  Consequence: `TRIAL_RE` cannot match trial objects containing nested braces deeper than one level, so a valid trial is silently skipped.
+
+- `SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE / matches far less than intended`  
+  Line `42`: exact input: `{"NCT00000001":{"name":"Trial A, phase 3","publishedHR":1.2,"hrLCI":1.0,"hrUCI":1.4}}`.  
+  Consequence: `FIELD_RE` captures the name as `Trial A`, corrupting the emitted sidecar metadata.
+
+- `SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE / matches far less than intended`  
+  Line `42`: exact input: `{"NCT00000001":{"name":"T","publishedHR":1.2,"hrLCI":1.0,"hrUCI":1.4,"publishedHR_note":"do not use"}}`.  
+  Consequence: because the field-name quote is optional and unanchored to a real key boundary, the regex can match inside longer key names.
+
+No proven defect found for `probe keyed to the STRING A FIX REMOVES`.
+
+No proven defect found for `idempotency guard satisfied by its OWN comment or marker`.
+
+COULD NOT DETERMINE `instrument reading a DIFFERENT COPY`: missing caller/served-page convention for `_REVIEW.html` versus `.html`.
+
+No proven defect found for `values compared AS TEXT where line endings differ`.
+
+No proven defect found for `merged-cell and OFF-BY-ONE errors`.
+
+No proven defect found for `ZERO CONFLATED WITH ABSENT`.
+
+No proven defect found for `NEGATION DROPPED`.

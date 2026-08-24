@@ -1,0 +1,689 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a031a3-9e29-7881-96e5-f924f11c3e36
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/extract_realdata.py
+
+--- THE FILE, IN FULL ---
+"""Extract `realData` (and `NMA_CONFIG` if present) JS objects from every
+*_REVIEW.html into JSON files for downstream audit.
+
+Strategy: locate `var realData = { ... };` (or const/let), then balance braces
+respecting JS strings. Convert the JS object literal to JSON via a small
+JS5-style cleaner (single-quoted strings → double-quoted; trailing commas
+removed; unquoted keys quoted; comments stripped).
+
+Output: outputs/extraction_audit/data/<REVIEW_NAME>.json  (per-review)
+        outputs/extraction_audit/data/_index.json          (manifest)
+"""
+from __future__ import annotations
+import io, json, re, sys
+from pathlib import Path
+
+if __name__ == "__main__" and sys.platform == "win32" and hasattr(sys.stdout, "buffer"):
+    try:
+        sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+
+REPO = Path(__file__).resolve().parent.parent
+OUT_DIR = REPO / "outputs" / "extraction_audit" / "data"
+OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+
+def find_balanced_object(text: str, start: int) -> int:
+    """Return index AFTER the closing `}` of the object beginning at text[start]=='{'."""
+    assert text[start] == "{", f"expected '{{' at {start}, got {text[start]!r}"
+    depth = 0
+    i = start
+    in_str: str | None = None
+    while i < len(text):
+        c = text[i]
+        if in_str is not None:
+            if c == "\\":
+                i += 2
+                continue
+            if c == in_str:
+                in_str = None
+        else:
+            if c in ('"', "'", "`"):
+                in_str = c
+            elif c == "/" and i + 1 < len(text) and text[i + 1] == "/":
+                # line comment
+                j = text.find("\n", i)
+                i = j if j != -1 else len(text)
+                continue
+            elif c == "/" and i + 1 < len(text) and text[i + 1] == "*":
+                j = text.find("*/", i + 2)
+                i = (j + 2) if j != -1 else len(text)
+                continue
+            elif c == "{":
+                depth += 1
+            elif c == "}":
+                depth -= 1
+                if depth == 0:
+                    return i + 1
+        i += 1
+    return -1
+
+
+def js_object_to_json(s: str) -> str:
+    """Convert a JS object literal to JSON via a character-level walker that
+    knows the difference between strings and code positions:
+    - converts ' and ` strings to "..."
+    - strips // and /* */ comments
+    - quotes unquoted identifier keys (only at code positions)
+    - strips trailing commas
+    - replaces undefined / NaN / Infinity with null
+    """
+    out: list[str] = []
+    i = 0
+    n = len(s)
+
+    def append_string(open_quote: str) -> int:
+        """Walk a string literal starting at s[i]==open_quote; emit JSON-quoted form."""
+        nonlocal i
+        j = i + 1
+        buf = ['"']
+        # JSON allows: \" \\ \/ \b \f \n \r \t \uXXXX. Anything else is illegal.
+        json_ok = set('"\\/bfnrtu')
+        while j < n:
+            c = s[j]
+            if c == "\\" and j + 1 < n:
+                nxt = s[j + 1]
+                if nxt in json_ok:
+                    # Valid JSON escape — pass through verbatim. (Includes \" inside
+                    # double-quoted strings, which is the most common case.)
+                    buf.append(s[j:j+2]); j += 2; continue
+                if nxt == open_quote:
+                    # \' inside '...' or \` inside `...` — emit literal char (the
+                    # JSON output uses double-quotes, so the JS-specific same-quote
+                    # escape is not meaningful and would just be passed through).
+                    buf.append(nxt); j += 2; continue
+                # JS-only escape (e.g. \<, \>, \?, \xNN): JS treats as literal char.
+                # Emit just the char (drop the backslash).
+                buf.append(nxt); j += 2; continue
+            if c == open_quote:
+                buf.append('"'); j += 1; break
+            if c == '"' and open_quote != '"':
+                buf.append('\\"'); j += 1; continue
+            if c == "\\":
+                buf.append("\\\\"); j += 1; continue
+            if c == "\n":
+                buf.append("\\n"); j += 1; continue
+            if c == "\r":
+                buf.append("\\r"); j += 1; continue
+            if c == "\t":
+                buf.append("\\t"); j += 1; continue
+            # Strip control chars that JSON disallows
+            if ord(c) < 0x20:
+                buf.append("\\u%04x" % ord(c)); j += 1; continue
+            buf.append(c); j += 1
+        out.append("".join(buf))
+        return j
+
+    while i < n:
+        c = s[i]
+        # Comments (only at code position)
+        if c == "/" and i + 1 < n and s[i + 1] == "/":
+            j = s.find("\n", i)
+            i = j if j != -1 else n
+            continue
+        if c == "/" and i + 1 < n and s[i + 1] == "*":
+            j = s.find("*/", i + 2)
+            i = (j + 2) if j != -1 else n
+            continue
+        # Strings
+        if c == '"':
+            i = append_string('"'); continue
+        if c == "'":
+            i = append_string("'"); continue
+        if c == "`":
+            i = append_string("`"); continue
+        # Identifier key? Look back through `out` (in reverse) to confirm we're at a key
+        # position: previous non-space code char should be `{` or `,`.
+        if c.isalpha() or c == "_" or c == "$":
+            # Read identifier
+            j = i + 1
+            while j < n and (s[j].isalnum() or s[j] in "_$"):
+                j += 1
+            ident = s[i:j]
+            # Look ahead: is the next non-space char a colon?
+            k = j
+            while k < n and s[k] in " \t\r\n":
+                k += 1
+            is_key = k < n and s[k] == ":"
+            # Look back at `out` to find previous non-space char
+            prev_code = None
+            for blob in reversed(out):
+                t = blob.rstrip(" \t\r\n")
+                if not t:
+                    continue
+                prev_code = t[-1]
+                break
+            if is_key and prev_code in ("{", ",", None):
+                out.append('"' + ident + '"')
+                i = j
+                continue
+            # Identifier as value? Replace JS literals with JSON literals.
+            if ident == "undefined" or ident == "NaN" or ident == "Infinity":
+                out.append("null"); i = j; continue
+            if ident == "true" or ident == "false" or ident == "null":
+                out.append(ident); i = j; continue
+            # Fallback: treat as bareword string (defensive, rare)
+            out.append('"' + ident + '"'); i = j; continue
+        # Comma handling.
+        if c == ",":
+            j = i + 1
+            while j < n and s[j] in " \t\r\n":
+                j += 1
+            if j < n and s[j] in "}]":
+                # Trailing comma — drop it.
+                i = j; continue
+            if j < n and s[j] == ",":
+                # Consecutive commas (sparse-array hole). Insert null.
+                out.append(","); out.append("null"); i = j; continue
+        # Leading comma after `[` (sparse array). E.g. `[,{...}]` → `[null,{...}]`.
+        if c == "[":
+            j = i + 1
+            while j < n and s[j] in " \t\r\n":
+                j += 1
+            if j < n and s[j] == ",":
+                out.append("[null"); i = j; continue
+        out.append(c); i += 1
+    return "".join(out)
+
+
+def extract_var(text: str, varname: str) -> str | None:
+    """Locate `<varname> = { ... }` or `<varname>: { ... }` (object-literal property).
+    Skips the rare prop-access reference (this.<varname>) by requiring no `.` before the name.
+    """
+    # Try: top-level declaration first
+    pat_decl = re.compile(r"(?:const|var|let)\s+" + re.escape(varname) + r"\s*=\s*(?=\{)")
+    m = pat_decl.search(text)
+    if m:
+        start = m.end()
+        end = find_balanced_object(text, start)
+        if end > 0:
+            return text[start:end]
+    # Fallback: property declaration `<varname>: { ... }` not preceded by `.`
+    pat_prop = re.compile(r"(?<![\w.])" + re.escape(varname) + r"\s*:\s*(?=\{)")
+    for m in pat_prop.finditer(text):
+        start = m.end()
+        end = find_balanced_object(text, start)
+        if end > 0:
+            block = text[start:end]
+            # Heuristic: must contain at least one NCT key OR look big enough
+            if "NCT" in block or len(block) > 300:
+                return block
+    return None
+
+
+def extract_review(html_path: Path) -> dict | None:
+    text = html_path.read_text(encoding="utf-8", errors="replace")
+    rd_src = extract_var(text, "realData")
+    nma_src = extract_var(text, "NMA_CONFIG")
+    out: dict = {"file": html_path.name}
+
+    def _try_parse(src: str, label: str) -> tuple[bool, object, str]:
+        try:
+            json_src = js_object_to_json(src)
+            parsed = json.loads(json_src)
+            return True, parsed, ""
+        except Exception as e:
+            return False, None, f"{type(e).__name__}: {e}"
+
+    if rd_src:
+        ok, parsed, err = _try_parse(rd_src, "realData")
+        if ok:
+            out["realData"] = parsed
+        else:
+            out["realData_parse_error"] = err
+    else:
+        out["realData_missing"] = True
+
+    if nma_src:
+        ok, parsed, err = _try_parse(nma_src, "NMA_CONFIG")
+        if ok:
+            out["NMA_CONFIG"] = parsed
+        else:
+            out["NMA_CONFIG_parse_error"] = err
+
+    # Capture <title> + h1 for context
+    title_m = re.search(r"<title>([^<]+)</title>", text)
+    if title_m:
+        out["title"] = title_m.group(1).strip()
+    h1_m = re.search(r"<h1[^>]*>([^<]+)</h1>", text)
+    if h1_m:
+        out["h1"] = h1_m.group(1).strip()
+    return out
+
+
+def main() -> None:
+    review_files = sorted(p for p in REPO.glob("*_REVIEW.html") if ".bak." not in p.name and ".pre_" not in p.name)
+    print(f"Found {len(review_files)} review files")
+    manifest: list[dict] = []
+    n_ok, n_partial, n_fail = 0, 0, 0
+    for hp in review_files:
+        try:
+            data = extract_review(hp)
+        except Exception as e:
+            data = {"file": hp.name, "extract_error": f"{type(e).__name__}: {e}"}
+        out_path = OUT_DIR / (hp.stem + ".json")
+        out_path.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
+        has_rd = "realData" in data
+        has_pe = any(k.endswith("_parse_error") for k in data)
+        if has_rd and not has_pe:
+            n_ok += 1
+        elif has_rd:
+            n_partial += 1
+        else:
+            n_fail += 1
+        manifest.append({
+            "file": hp.name,
+            "stem": hp.stem,
+            "has_realData": has_rd,
+            "has_NMA_CONFIG": "NMA_CONFIG" in data,
+            "trials": len(data.get("realData") or {}) if has_rd else 0,
+            "errors": [k for k in data if k.endswith("_error") or k.endswith("_missing")],
+        })
+    (OUT_DIR / "_index.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+    print(f"OK: {n_ok}  partial: {n_partial}  fail: {n_fail}")
+
+
+if __name__ == "__main__":
+    main()
+
+codex
+I’ll pin line numbers against the module text and keep the result focused only on provable defects in the requested shapes.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=0; Get-Content -Path .'"\\scripts\\extract_realdata.py | ForEach-Object { "'$i++; '"'{0,4}: {1}' -f "'$i, $_ }' in F:\rapidmeta-ssot-shell
+ succeeded in 2395ms:
+   1: """Extract `realData` (and `NMA_CONFIG` if present) JS objects from every
+   2: *_REVIEW.html into JSON files for downstream audit.
+   3: 
+   4: Strategy: locate `var realData = { ... };` (or const/let), then balance braces
+   5: respecting JS strings. Convert the JS object literal to JSON via a small
+   6: JS5-style cleaner (single-quoted strings â†’ double-quoted; trailing commas
+   7: removed; unquoted keys quoted; comments stripped).
+   8: 
+   9: Output: outputs/extraction_audit/data/<REVIEW_NAME>.json  (per-review)
+  10:         outputs/extraction_audit/data/_index.json          (manifest)
+  11: """
+  12: from __future__ import annotations
+  13: import io, json, re, sys
+  14: from pathlib import Path
+  15: 
+  16: if __name__ == "__main__" and sys.platform == "win32" and hasattr(sys.stdout, "buffer"):
+  17:     try:
+  18:         sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+  19:     except Exception:
+  20:         pass
+  21: 
+  22: REPO = Path(__file__).resolve().parent.parent
+  23: OUT_DIR = REPO / "outputs" / "extraction_audit" / "data"
+  24: OUT_DIR.mkdir(parents=True, exist_ok=True)
+  25: 
+  26: 
+  27: def find_balanced_object(text: str, start: int) -> int:
+  28:     """Return index AFTER the closing `}` of the object beginning at text[start]=='{'."""
+  29:     assert text[start] == "{", f"expected '{{' at {start}, got {text[start]!r}"
+  30:     depth = 0
+  31:     i = start
+  32:     in_str: str | None = None
+  33:     while i < len(text):
+  34:         c = text[i]
+  35:         if in_str is not None:
+  36:             if c == "\\":
+  37:                 i += 2
+  38:                 continue
+  39:             if c == in_str:
+  40:                 in_str = None
+  41:         else:
+  42:             if c in ('"', "'", "`"):
+  43:                 in_str = c
+  44:             elif c == "/" and i + 1 < len(text) and text[i + 1] == "/":
+  45:                 # line comment
+  46:                 j = text.find("\n", i)
+  47:                 i = j if j != -1 else len(text)
+  48:                 continue
+  49:             elif c == "/" and i + 1 < len(text) and text[i + 1] == "*":
+  50:                 j = text.find("*/", i + 2)
+  51:                 i = (j + 2) if j != -1 else len(text)
+  52:                 continue
+  53:             elif c == "{":
+  54:                 depth += 1
+  55:             elif c == "}":
+  56:                 depth -= 1
+  57:                 if depth == 0:
+  58:                     return i + 1
+  59:         i += 1
+  60:     return -1
+  61: 
+  62: 
+  63: def js_object_to_json(s: str) -> str:
+  64:     """Convert a JS object literal to JSON via a character-level walker that
+  65:     knows the difference between strings and code positions:
+  66:     - converts ' and ` strings to "..."
+  67:     - strips // and /* */ comments
+  68:     - quotes unquoted identifier keys (only at code positions)
+  69:     - strips trailing commas
+  70:     - replaces undefined / NaN / Infinity with null
+  71:     """
+  72:     out: list[str] = []
+  73:     i = 0
+  74:     n = len(s)
+  75: 
+  76:     def append_string(open_quote: str) -> int:
+  77:         """Walk a string literal starting at s[i]==open_quote; emit JSON-quoted form."""
+  78:         nonlocal i
+  79:         j = i + 1
+  80:         buf = ['"']
+  81:         # JSON allows: \" \\ \/ \b \f \n \r \t \uXXXX. Anything else is illegal.
+  82:         json_ok = set('"\\/bfnrtu')
+  83:         while j < n:
+  84:             c = s[j]
+  85:             if c == "\\" and j + 1 < n:
+  86:                 nxt = s[j + 1]
+  87:                 if nxt in json_ok:
+  88:                     # Valid JSON escape â€” pass through verbatim. (Includes \" inside
+  89:                     # double-quoted strings, which is the most common case.)
+  90:                     buf.append(s[j:j+2]); j += 2; continue
+  91:                 if nxt == open_quote:
+  92:                     # \' inside '...' or \` inside `...` â€” emit literal char (the
+  93:                     # JSON output uses double-quotes, so the JS-specific same-quote
+  94:                     # escape is not meaningful and would just be passed through).
+  95:                     buf.append(nxt); j += 2; continue
+  96:                 # JS-only escape (e.g. \<, \>, \?, \xNN): JS treats as literal char.
+  97:                 # Emit just the char (drop the backslash).
+  98:                 buf.append(nxt); j += 2; continue
+  99:             if c == open_quote:
+ 100:                 buf.append('"'); j += 1; break
+ 101:             if c == '"' and open_quote != '"':
+ 102:                 buf.append('\\"'); j += 1; continue
+ 103:             if c == "\\":
+ 104:                 buf.append("\\\\"); j += 1; continue
+ 105:             if c == "\n":
+ 106:                 buf.append("\\n"); j += 1; continue
+ 107:             if c == "\r":
+ 108:                 buf.append("\\r"); j += 1; continue
+ 109:             if c == "\t":
+ 110:                 buf.append("\\t"); j += 1; continue
+ 111:             # Strip control chars that JSON disallows
+ 112:             if ord(c) < 0x20:
+ 113:                 buf.append("\\u%04x" % ord(c)); j += 1; continue
+ 114:             buf.append(c); j += 1
+ 115:         out.append("".join(buf))
+ 116:         return j
+ 117: 
+ 118:     while i < n:
+ 119:         c = s[i]
+ 120:         # Comments (only at code position)
+ 121:         if c == "/" and i + 1 < n and s[i + 1] == "/":
+ 122:             j = s.find("\n", i)
+ 123:             i = j if j != -1 else n
+ 124:             continue
+ 125:         if c == "/" and i + 1 < n and s[i + 1] == "*":
+ 126:             j = s.find("*/", i + 2)
+ 127:             i = (j + 2) if j != -1 else n
+ 128:             continue
+ 129:         # Strings
+ 130:         if c == '"':
+ 131:             i = append_string('"'); continue
+ 132:         if c == "'":
+ 133:             i = append_string("'"); continue
+ 134:         if c == "`":
+ 135:             i = append_string("`"); continue
+ 136:         # Identifier key? Look back through `out` (in reverse) to confirm we're at a key
+ 137:         # position: previous non-space code char should be `{` or `,`.
+ 138:         if c.isalpha() or c == "_" or c == "$":
+ 139:             # Read identifier
+ 140:             j = i + 1
+ 141:             while j < n and (s[j].isalnum() or s[j] in "_$"):
+ 142:                 j += 1
+ 143:             ident = s[i:j]
+ 144:             # Look ahead: is the next non-space char a colon?
+ 145:             k = j
+ 146:             while k < n and s[k] in " \t\r\n":
+ 147:                 k += 1
+ 148:             is_key = k < n and s[k] == ":"
+ 149:             # Look back at `out` to find previous non-space char
+ 150:             prev_code = None
+ 151:             for blob in reversed(out):
+ 152:                 t = blob.rstrip(" \t\r\n")
+ 153:                 if not t:
+ 154:                     continue
+ 155:                 prev_code = t[-1]
+ 156:                 break
+ 157:             if is_key and prev_code in ("{", ",", None):
+ 158:                 out.append('"' + ident + '"')
+ 159:                 i = j
+ 160:                 continue
+ 161:             # Identifier as value? Replace JS literals with JSON literals.
+ 162:             if ident == "undefined" or ident == "NaN" or ident == "Infinity":
+ 163:                 out.append("null"); i = j; continue
+ 164:             if ident == "true" or ident == "false" or ident == "null":
+ 165:                 out.append(ident); i = j; continue
+ 166:             # Fallback: treat as bareword string (defensive, rare)
+ 167:             out.append('"' + ident + '"'); i = j; continue
+ 168:         # Comma handling.
+ 169:         if c == ",":
+ 170:             j = i + 1
+ 171:             while j < n and s[j] in " \t\r\n":
+ 172:                 j += 1
+ 173:             if j < n and s[j] in "}]":
+ 174:                 # Trailing comma â€” drop it.
+ 175:                 i = j; continue
+ 176:             if j < n and s[j] == ",":
+ 177:                 # Consecutive commas (sparse-array hole). Insert null.
+ 178:                 out.append(","); out.append("null"); i = j; continue
+ 179:         # Leading comma after `[` (sparse array). E.g. `[,{...}]` â†’ `[null,{...}]`.
+ 180:         if c == "[":
+ 181:             j = i + 1
+ 182:             while j < n and s[j] in " \t\r\n":
+ 183:                 j += 1
+ 184:             if j < n and s[j] == ",":
+ 185:                 out.append("[null"); i = j; continue
+ 186:         out.append(c); i += 1
+ 187:     return "".join(out)
+ 188: 
+ 189: 
+ 190: def extract_var(text: str, varname: str) -> str | None:
+ 191:     """Locate `<varname> = { ... }` or `<varname>: { ... }` (object-literal property).
+ 192:     Skips the rare prop-access reference (this.<varname>) by requiring no `.` before the name.
+ 193:     """
+ 194:     # Try: top-level declaration first
+ 195:     pat_decl = re.compile(r"(?:const|var|let)\s+" + re.escape(varname) + r"\s*=\s*(?=\{)")
+ 196:     m = pat_decl.search(text)
+ 197:     if m:
+ 198:         start = m.end()
+ 199:         end = find_balanced_object(text, start)
+ 200:         if end > 0:
+ 201:             return text[start:end]
+ 202:     # Fallback: property declaration `<varname>: { ... }` not preceded by `.`
+ 203:     pat_prop = re.compile(r"(?<![\w.])" + re.escape(varname) + r"\s*:\s*(?=\{)")
+ 204:     for m in pat_prop.finditer(text):
+ 205:         start = m.end()
+ 206:         end = find_balanced_object(text, start)
+ 207:         if end > 0:
+ 208:             block = text[start:end]
+ 209:             # Heuristic: must contain at least one NCT key OR look big enough
+ 210:             if "NCT" in block or len(block) > 300:
+ 211:                 return block
+ 212:     return None
+ 213: 
+ 214: 
+ 215: def extract_review(html_path: Path) -> dict | None:
+ 216:     text = html_path.read_text(encoding="utf-8", errors="replace")
+ 217:     rd_src = extract_var(text, "realData")
+ 218:     nma_src = extract_var(text, "NMA_CONFIG")
+ 219:     out: dict = {"file": html_path.name}
+ 220: 
+ 221:     def _try_parse(src: str, label: str) -> tuple[bool, object, str]:
+ 222:         try:
+ 223:             json_src = js_object_to_json(src)
+ 224:             parsed = json.loads(json_src)
+ 225:             return True, parsed, ""
+ 226:         except Exception as e:
+ 227:             return False, None, f"{type(e).__name__}: {e}"
+ 228: 
+ 229:     if rd_src:
+ 230:         ok, parsed, err = _try_parse(rd_src, "realData")
+ 231:         if ok:
+ 232:             out["realData"] = parsed
+ 233:         else:
+ 234:             out["realData_parse_error"] = err
+ 235:     else:
+ 236:         out["realData_missing"] = True
+ 237: 
+ 238:     if nma_src:
+ 239:         ok, parsed, err = _try_parse(nma_src, "NMA_CONFIG")
+ 240:         if ok:
+ 241:             out["NMA_CONFIG"] = parsed
+ 242:         else:
+ 243:             out["NMA_CONFIG_parse_error"] = err
+ 244: 
+ 245:     # Capture <title> + h1 for context
+ 246:     title_m = re.search(r"<title>([^<]+)</title>", text)
+ 247:     if title_m:
+ 248:         out["title"] = title_m.group(1).strip()
+ 249:     h1_m = re.search(r"<h1[^>]*>([^<]+)</h1>", text)
+ 250:     if h1_m:
+ 251:         out["h1"] = h1_m.group(1).strip()
+ 252:     return out
+ 253: 
+ 254: 
+ 255: def main() -> None:
+ 256:     review_files = sorted(p for p in REPO.glob("*_REVIEW.html") if ".bak." not in p.name and ".pre_" not in p.name)
+ 257:     print(f"Found {len(review_files)} review files")
+ 258:     manifest: list[dict] = []
+ 259:     n_ok, n_partial, n_fail = 0, 0, 0
+ 260:     for hp in review_files:
+ 261:         try:
+ 262:             data = extract_review(hp)
+ 263:         except Exception as e:
+ 264:             data = {"file": hp.name, "extract_error": f"{type(e).__name__}: {e}"}
+ 265:         out_path = OUT_DIR / (hp.stem + ".json")
+ 266:         out_path.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
+ 267:         has_rd = "realData" in data
+ 268:         has_pe = any(k.endswith("_parse_error") for k in data)
+ 269:         if has_rd and not has_pe:
+ 270:             n_ok += 1
+ 271:         elif has_rd:
+ 272:             n_partial += 1
+ 273:         else:
+ 274:             n_fail += 1
+ 275:         manifest.append({
+ 276:             "file": hp.name,
+ 277:             "stem": hp.stem,
+ 278:             "has_realData": has_rd,
+ 279:             "has_NMA_CONFIG": "NMA_CONFIG" in data,
+ 280:             "trials": len(data.get("realData") or {}) if has_rd else 0,
+ 281:             "errors": [k for k in data if k.endswith("_error") or k.endswith("_missing")],
+ 282:         })
+ 283:     (OUT_DIR / "_index.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+ 284:     print(f"OK: {n_ok}  partial: {n_partial}  fail: {n_fail}")
+ 285: 
+ 286: 
+ 287: if __name__ == "__main__":
+ 288:     main()
+
+codex
+- **check that CANNOT FAIL / STATUS CODE REPORTING THE WRAPPER**: line 284.  
+  Input: one `BAD_REVIEW.html` containing `<script>const realData = {NCT001:{x: }};</script>`.  
+  Consequence: the script prints `fail: 1` but returns process exit code 0, so a CI/check wrapper passes failed extraction.
+
+- **SELECTOR MATCHES A NON-CODE COPY**: line 196.  
+  Input: `<script>/* const realData = {BROKEN: }; */ const realData = {NCT001:{x:1}};</script>`.  
+  Consequence: the first match is inside the comment, producing `realData_parse_error` and missing the valid later object.
+
+- **SELECTOR MATCHES A STRING COPY**: line 204.  
+  Input: `<script>const banner = "realData: {NCT_BAD:{x:999}}"; const cfg = {realData:{NCT_GOOD:{x:1}}};</script>`.  
+  Consequence: fallback extraction can return `NCT_BAD` from a string literal instead of the actual `realData` binding.
+
+- **idempotency/marker guard satisfied by marker, not work**: line 210.  
+  Input: `<script>const cfg = {realData:{/* NCT */ foo:1}};</script>`.  
+  Consequence: `"NCT"` in a comment satisfies the “must contain NCT key” heuristic, then the comment is stripped and `foo` is accepted/countable as real data.
+
+- **probe keyed to STRING A FIX REMOVES**: none proven.
+
+- **instrument reading a DIFFERENT COPY**: COULD NOT DETERMINE; missing caller/invocation/deployment path.
+
+- **values compared AS TEXT with CRLF/LF**: none present.
+
+- **merged-cell / off-by-one tabulation**: none present.
+
+- **ZERO CONFLATED WITH ABSENT**: none proven for reachable `realData` object extraction.
+
+- **NEGATION DROPPED**: none present.
+tokens used
+24,457
+- **check that CANNOT FAIL / STATUS CODE REPORTING THE WRAPPER**: line 284.  
+  Input: one `BAD_REVIEW.html` containing `<script>const realData = {NCT001:{x: }};</script>`.  
+  Consequence: the script prints `fail: 1` but returns process exit code 0, so a CI/check wrapper passes failed extraction.
+
+- **SELECTOR MATCHES A NON-CODE COPY**: line 196.  
+  Input: `<script>/* const realData = {BROKEN: }; */ const realData = {NCT001:{x:1}};</script>`.  
+  Consequence: the first match is inside the comment, producing `realData_parse_error` and missing the valid later object.
+
+- **SELECTOR MATCHES A STRING COPY**: line 204.  
+  Input: `<script>const banner = "realData: {NCT_BAD:{x:999}}"; const cfg = {realData:{NCT_GOOD:{x:1}}};</script>`.  
+  Consequence: fallback extraction can return `NCT_BAD` from a string literal instead of the actual `realData` binding.
+
+- **idempotency/marker guard satisfied by marker, not work**: line 210.  
+  Input: `<script>const cfg = {realData:{/* NCT */ foo:1}};</script>`.  
+  Consequence: `"NCT"` in a comment satisfies the “must contain NCT key” heuristic, then the comment is stripped and `foo` is accepted/countable as real data.
+
+- **probe keyed to STRING A FIX REMOVES**: none proven.
+
+- **instrument reading a DIFFERENT COPY**: COULD NOT DETERMINE; missing caller/invocation/deployment path.
+
+- **values compared AS TEXT with CRLF/LF**: none present.
+
+- **merged-cell / off-by-one tabulation**: none present.
+
+- **ZERO CONFLATED WITH ABSENT**: none proven for reachable `realData` object extraction.
+
+- **NEGATION DROPPED**: none present.

@@ -1,0 +1,444 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/withdraw_dead_audit_rows_2026_08_23.py
+
+--- THE FILE, IN FULL ---
+"""Take the 97 rows that point at nothing out of the reader-facing audit table, and put
+the record somewhere a reader can reach.
+
+# no-control: an edit, not a detector. Its controls are asserted inline and the run REFUSES
+# rather than writes if any fails: every withdrawn target must resolve nowhere -- not on
+# disk, not in the deploy tree -- every surviving target must still be linked, no row may
+# mix a withdrawn target with a live one, and every advertised count must equal the list it
+# describes.
+
+WHAT IS LEFT AFTER THE LAST PASS. `rewrite_audit_table_delisting_2026_08_23.py` cleared the
+dead links in the appended `<li>` section -- 569 down to 97. The 97 that remain are not in
+that section. They are SCORED `<tr>` ROWS, which the earlier script deliberately did not
+touch because they carry findings. They still carry findings; the pages those findings are
+about are gone.
+
+THE MAPPING IS ONE-TO-ONE AND THAT IS WHY THIS IS SAFE. 97 unresolvable targets, 97 rows,
+and ZERO rows that link both a withdrawn page and a live one. Nothing is hidden as a side
+effect of hiding something else.
+
+THE ROWS ARE NOT NEUTRAL, WHICH IS THE REASON THIS IS NOT MERELY TIDYING. 80 of the 97
+carry `data-band="OK"` and render a green `INTERNAL CHECKS PASSED` badge. Twelve of those
+eighty are pages that a 2026-07-06 pass found CONTAMINATED and withdrew for it. A reader
+sorting this table by band is being shown a pass for a page that was taken down as unsound,
+and cannot click through to find out, because the link resolves nowhere.
+
+THE FOUR EVENTS, each with the record that already exists for it:
+
+  K1_REMOVAL_2026_06_07      47  `Remove 519 single-trial AUTO apps (k=1, not
+                                 meta-analyses)`, recorded at 2a011cdfe. A HARD delete --
+                                 no copy was retained, which is why these have no manifest
+                                 row and no file anywhere. NOTE, and it is stated rather
+                                 than smoothed: 2a011cdfe is NOT an ancestor of
+                                 origin/main. The commit is findable with `git log --all`
+                                 and the files are absent from the deploy tree; the event
+                                 is identified by its message and date, not by ancestry.
+  CONTAMINATED_2026_07_06    29  `removed/REMOVED_MANIFEST.md` -- built on contaminated or
+                                 absent primary sources, no truthful single-drug pivotal.
+                                 Moved root -> `removed/`, reversible, files retained.
+  DO2_PIVOTAL_2026_07_07     18  `removed/REMOVED_MANIFEST_DO2.md` -- no clean
+                                 drug-vs-control pivotal. Moved, reversible, retained.
+  DO2_SOURCING_2026_07_07     3  `removed/REMOVED_MANIFEST_SOURCED.md` -- same pass, the
+                                 sourcing half. Moved, reversible, retained.
+
+The 29 is the number the instruction asked to be preserved legibly, and it is the manifest's
+own count of primary apps: "32 (29 primary apps + 3 `_AUTO_REVIEW` short-format siblings)".
+The three siblings are not in this table, which is why 29 and not 32 appear here.
+
+A RECORD NOBODY LINKS TO IS DELETED IN PRACTICE. So the record is an HTML page at the repo
+root -- `withdrawn_audit_rows.html` -- linked from the audit table's footer and listed in
+`sitemap.xml`. It carries every withdrawn row with the band it was showing when it was
+withdrawn, the event it traces to, and, where a manifest recorded one, the verbatim reason.
+
+A COUNT THIS SCRIPT DID NOT INTRODUCE AND DOES NOT INHERIT. The header advertises `944
+meta-analysis reviews` and `823 Trustworthy` over a table that holds 943 data rows, 822 of
+them banded OK. Both are one too many, before this edit and independently of it. The
+rewritten counts are computed from the rows that remain, so the off-by-one is corrected as
+a consequence rather than carried forward -- said here so the change in the number is not
+read as an effect of the withdrawal.
+"""
+from __future__ import annotations
+
+import io
+import os
+import re
+import subprocess
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+PAGE = os.path.join(REPO, "audit_table.html")
+RECORD = os.path.join(REPO, "withdrawn_audit_rows.html")
+SITEMAP = os.path.join(REPO, "sitemap.xml")
+REF = "refs/remotes/origin/main"
+SITE = "https://mahmood726-cyber.github.io/rapidmeta-finerenone/"
+
+ROW = re.compile(r'[ \t]*<tr data-band="([^"]+)" data-name="([^"]+)"[^>]*>.*?</tr>\n?', re.S)
+HREF = re.compile(r'href="([^"]+\.html)"')
+NUMCARD = re.compile(r'(<div class="num">)(\d+)(</div>\s*<div class="label">([^<]+)</div>)')
+HEADCOUNT = re.compile(r"(\n\s*)(\d+)( meta-analysis reviews · audit-classified)")
+
+EVENTS = [
+    ("CONTAMINATED_2026_07_06", "removed/REMOVED_MANIFEST.md", "2026-07-06",
+     "built on contaminated or absent primary sources; no truthful single-drug pivotal",
+     "moved root -> removed/, reversible, file retained"),
+    ("DO2_PIVOTAL_2026_07_07", "removed/REMOVED_MANIFEST_DO2.md", "2026-07-07",
+     "no clean drug-vs-control pivotal trial",
+     "moved root -> removed/, reversible, file retained"),
+    ("DO2_SOURCING_2026_07_07", "removed/REMOVED_MANIFEST_SOURCED.md", "2026-07-07",
+     "no clean drug-vs-control pivotal trial (sourcing half of the same pass)",
+     "moved root -> removed/, reversible, file retained"),
+]
+K1 = ("K1_REMOVAL_2026_06_07", "2026-06-07",
+      "Remove 519 single-trial AUTO apps (k=1, not meta-analyses), recorded at 2a011cdfe "
+      "-- a commit findable with `git log --all` but NOT an ancestor of origin/main",
+      "HARD delete -- no copy was retained anywhere")
+
+MANIFEST_ROW = re.compile(r"^\|\s*\d+\s*\|\s*`([^`]+)`\s*\|\s*(.+?)\s*\|\s*$", re.M)
+
+
+def esc(s):
+    return (s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+             .replace('"', "&quot;"))
+
+
+def tree_root_files():
+    out = subprocess.run(["git", "ls-tree", "-r", "--name-only", REF],
+                         cwd=REPO, capture_output=True).stdout.decode("utf-8", "replace")
+    return set(f for f in out.split("\n") if f.endswith(".html") and "/" not in f)
+
+
+def manifest_reasons():
+    """filename -> (event_key, verbatim reason as the manifest recorded it)."""
+    out = {}
+    for key, rel, _d, _w, _r in EVENTS:
+        p = os.path.join(REPO, rel)
+        if not os.path.isfile(p):
+            sys.exit("REFUSED: %s missing -- the record this cites must exist." % rel)
+        for fn, why in MANIFEST_ROW.findall(io.open(p, encoding="utf-8",
+                                                    errors="replace").read()):
+            out.setdefault(fn, (key, why))
+    return out
+
+
+def build_record(withdrawn, counts):
+    """The page the footer points at. Every withdrawn row, with its band and its event."""
+    ev = {k: (d, r, w) for k, _rel, d, r, w in EVENTS}
+    ev[K1[0]] = (K1[1], K1[2], K1[3])
+    rel_of = {k: rel for k, rel, _d, _r, _w in EVENTS}
+    out = []
+    out.append("<!doctype html>")
+    out.append('<html lang="en"><head><meta charset="utf-8">')
+    out.append('<meta name="viewport" content="width=device-width,initial-scale=1">')
+    out.append("<title>Withdrawn audit rows — rapidmeta-finerenone</title>")
+    out.append('<meta name="description" content="The %d rows withdrawn from the '
+               'data-integrity index because the page each described no longer exists, '
+               'with the deletion event each traces to.">' % len(withdrawn))
+    out.append("<style>body{margin:0;background:#0f172a;color:#e2e8f0;"
+               "font-family:system-ui,-apple-system,sans-serif;line-height:1.55}"
+               "header,section{padding:24px;max-width:1100px}"
+               "h1{font-size:22px;margin:0 0 10px}h2{font-size:16px;margin:26px 0 8px}"
+               "table{width:100%;border-collapse:collapse;font-size:13px}"
+               "th{text-align:left;padding:8px;color:#94a3b8;font-size:11px;"
+               "text-transform:uppercase;letter-spacing:.05em;"
+               "border-bottom:1px solid #1f2a44}"
+               "td{padding:7px 8px;border-bottom:1px solid #1f2a44;vertical-align:top}"
+               "code{font-family:JetBrains Mono,monospace;font-size:12px;color:#7dd3fc}"
+               "a{color:#7dd3fc}.b{display:inline-block;padding:1px 7px;border-radius:4px;"
+               "font-size:11px;font-weight:600}"
+               ".OK{background:#16a34a;color:#fff}.LOW_CONCERN{background:#ca8a04;color:#fff}"
+               ".MANUAL_REVIEW{background:#ea580c;color:#fff}"
+               ".QUARANTINE{background:#7f1d1d;color:#fff}</style></head><body>")
+    out.append("<header><h1>Withdrawn audit rows</h1>")
+    out.append('<div style="color:#94a3b8;font-size:13px;max-width:78ch;">')
+    out.append("These %d rows were taken out of <a href=\"audit_table.html\">the "
+               "data-integrity index</a> because the page each one described no longer "
+               "resolves. The rows are kept here rather than deleted: a finding about a "
+               "page outlives the page." % len(withdrawn))
+    out.append("</div>")
+    out.append('<div style="color:#fca5a5;font-size:13px;margin-top:12px;max-width:78ch;">')
+    out.append("<strong>%d of these rows were showing a green <code "
+               "style=\"color:#fca5a5\">INTERNAL CHECKS PASSED</code> badge.</strong> "
+               "%d of those are pages the 2026-07-06 pass found CONTAMINATED and withdrew "
+               "for it. The badge described the automated checks that ran; it never "
+               "described the finding that took the page down."
+               % (counts["ok_badge"], counts["contaminated_but_ok"]))
+    out.append("</div></header>")
+
+    out.append("<section><h2>The four deletion events</h2><table><thead><tr>"
+               "<th>Event</th><th>Rows</th><th>Date</th><th>Why</th>"
+               "<th>What happened to the file</th><th>Record</th></tr></thead><tbody>")
+    for key in [K1[0]] + [e[0] for e in EVENTS]:
+        d, why, what = ev[key]
+        rec = rel_of.get(key)
+        rec_html = ('<a href="%s"><code>%s</code></a>' % (esc(rec), esc(rec))) if rec else \
+            '<span style="color:#94a3b8;">none — hard delete, nothing retained</span>'
+        out.append("<tr><td><code>%s</code></td><td>%d</td><td>%s</td><td>%s</td>"
+                   "<td>%s</td><td>%s</td></tr>"
+                   % (esc(key), counts["by_event"].get(key, 0), esc(d), esc(why),
+                      esc(what), rec_html))
+    out.append("</tbody></table></section>")
+
+    out.append("<section><h2>The %d rows</h2>" % len(withdrawn))
+    out.append('<div style="color:#94a3b8;font-size:12px;margin-bottom:10px;">'
+               "Band and score are as the row stood when it was withdrawn. The reason is "
+               "verbatim from the manifest that recorded the withdrawal, where one did."
+               "</div>")
+    out.append("<table><thead><tr><th>Review</th><th>Band at withdrawal</th>"
+               "<th>Score</th><th>Event</th><th>Recorded reason</th>"
+               "</tr></thead><tbody>")
+    for w in withdrawn:
+        why = w["reason"] or "—"
+        out.append("<tr><td><code>%s</code></td>"
+                   '<td><span class="b %s">%s</span></td><td><code>%s</code></td>'
+                   "<td><code>%s</code></td><td>%s</td></tr>"
+                   % (esc(w["target"]), esc(w["band"]), esc(w["band"]), esc(w["score"]),
+                      esc(w["event"]), esc(why)))
+    out.append("</tbody></table></section>")
+    out.append('<section style="color:#94a3b8;font-size:12px;">Written by <code>'
+               "scripts/withdraw_dead_audit_rows_2026_08_23.py</code>. Every target listed "
+               "here was checked against the working tree and against <code>%s</code>; a "
+               "target that still resolved anywhere was KEPT in the index and does not "
+               "appear on this page.</section>" % esc(REF))
+    out.append("</body></html>")
+    return "\n".join(out) + "\n"
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    tree = tree_root_files()
+    if not tree:
+        sys.exit("REFUSED: could not read the tree at %s." % REF)
+    src = io.open(PAGE, encoding="utf-8", newline="").read()
+    reasons = manifest_reasons()
+
+    rows = list(ROW.finditer(src))
+    if len(rows) < 800:
+        sys.exit("REFUSED: only %d data rows matched. The markup has changed and this "
+                 "script's assumption about it is stale." % len(rows))
+
+    def resolves(h):
+        return os.path.isfile(os.path.join(REPO, h)) or h in tree
+
+    withdrawn, kept_live, mixed = [], 0, []
+    for m in rows:
+        band, name = m.group(1), m.group(2)
+        hrefs = [h for h in HREF.findall(m.group(0)) if "/" not in h]
+        if not hrefs:
+            kept_live += 1
+            continue
+        # DISTINCT targets, not occurrences. A row links its target twice -- once as the
+        # review name, once as the "full dashboard" affordance -- and comparing an
+        # occurrence list against a target set called all 69 two-link rows mixed.
+        targets = set(hrefs)
+        bad = sorted(t for t in targets if not resolves(t))
+        if not bad:
+            kept_live += 1
+            continue
+        if len(bad) != len(targets):
+            mixed.append(name)
+            continue
+        sc = re.search(r'data-score="([^"]+)"', m.group(0))
+        tgt = bad[0]
+        ev, why = reasons.get(tgt, (K1[0], ""))
+        withdrawn.append({"span": m.span(), "target": tgt, "band": band, "name": name,
+                          "score": sc.group(1) if sc else "—", "event": ev,
+                          "reason": why})
+
+    # CONTROL 1 -- a row that links both a withdrawn page and a live one would hide the
+    # live one as a side effect. There must be none, and the run refuses rather than
+    # deciding which link matters more.
+    if mixed:
+        sys.exit("REFUSED: %d row(s) link both an unresolvable target and a live one (%s). "
+                 "Hiding those would take a live page out of the index as a side effect."
+                 % (len(mixed), ", ".join(mixed[:5])))
+
+    # CONTROL 2 -- every withdrawn target must resolve NOWHERE. Belt and braces over the
+    # per-row test, because this is the assertion the whole edit rests on.
+    still = [w["target"] for w in withdrawn if resolves(w["target"])]
+    if still:
+        sys.exit("REFUSED: %d target(s) marked for withdrawal still resolve (%s)."
+                 % (len(still), ", ".join(still[:5])))
+
+    by_event = {}
+    for w in withdrawn:
+        by_event[w["event"]] = by_event.get(w["event"], 0) + 1
+    ok_badge = sum(1 for w in withdrawn if w["band"] == "OK")
+    contam_ok = sum(1 for w in withdrawn
+                    if w["band"] == "OK" and w["event"] == "CONTAMINATED_2026_07_06")
+
+    # CONTROL 3 -- the advertised count must equal the list it describes.
+    if sum(by_event.values()) != len(withdrawn):
+        sys.exit("REFUSED: event tally %d does not equal the withdrawn list %d."
+                 % (sum(by_event.values()), len(withdrawn)))
+
+    surviving = {}
+    for m in rows:
+        if any(w["span"] == m.span() for w in withdrawn):
+            continue
+        surviving[m.group(1)] = surviving.get(m.group(1), 0) + 1
+    n_surv = sum(surviving.values())
+
+    print("")
+    print("AUDIT TABLE -- rows whose page resolves nowhere")
+    print("")
+    print("   data rows before                     %5d" % len(rows))
+    print("   withdrawn (target resolves nowhere)  %5d" % len(withdrawn))
+    print("   rows remaining                       %5d" % n_surv)
+    print("")
+    print("   of the withdrawn, banded OK          %5d   (green INTERNAL CHECKS PASSED)"
+          % ok_badge)
+    print("      ...of which found CONTAMINATED    %5d" % contam_ok)
+    print("")
+    for key in [K1[0]] + [e[0] for e in EVENTS]:
+        print("   %-28s %5d" % (key, by_event.get(key, 0)))
+    print("   %-28s %5d   == the withdrawn list" % ("sum", sum(by_event.values())))
+    print("")
+    for b in sorted(surviving):
+        print("   remaining %-18s %5d" % (b, surviving[b]))
+
+    # ---- write the record FIRST, so the footer never points at a page that is not there
+    io.open(RECORD, "w", encoding="utf-8", newline="\n").write(
+        build_record(sorted(withdrawn, key=lambda w: w["target"]),
+                     {"by_event": by_event, "ok_badge": ok_badge,
+                      "contaminated_but_ok": contam_ok}))
+
+    # ---- excise the rows, last first so the offsets stay valid
+    out = src
+    for w in sorted(withdrawn, key=lambda w: w["span"][0], reverse=True):
+        out = out[:w["span"][0]] + out[w["span"][1]:]
+
+    # ---- the counts, computed from what remains rather than edited by hand
+    label_to_band = {"Trustworthy": "OK", "Low concern": "LOW_CONCERN",
+                     "Manual review": "MANUAL_REVIEW", "Quarantined": "QUARANTINE"}
+
+    def fix_card(m):
+        band = label_to_band.get(m.group(4))
+        return m.group(1) + str(surviving.get(band, 0)) + m.group(3) if band else m.group(0)
+
+    out, ncards = NUMCARD.subn(fix_card, out)
+    if ncards != 4:
+        sys.exit("REFUSED: %d summary cards rewritten, expected 4." % ncards)
+    out, nhead = HEADCOUNT.subn(lambda m: m.group(1) + str(n_surv) + m.group(3), out, 1)
+    if nhead != 1:
+        sys.exit("REFUSED: the header review count was not found; it would be left "
+                 "asserting a number the table no longer holds.")
+
+    # CONTROL 4 -- EVERY SURVIVING TARGET MUST STILL BE LINKED. Excising by byte span is
+    # exactly the operation that takes a neighbour with it, and a row count agreeing is not
+    # the same as the same pages being reachable. This compares the SETS.
+    live_before = set(h for h in HREF.findall(src) if "/" not in h and resolves(h))
+    live_after = set(h for h in HREF.findall(out) if "/" not in h and resolves(h))
+    lost = sorted(live_before - live_after)
+    if lost:
+        sys.exit("REFUSED: %d live page(s) stopped being linked by this edit (%s). The "
+                 "excision took a neighbour with it." % (len(lost), ", ".join(lost[:5])))
+    gone = sorted(t for t in set(w["target"] for w in withdrawn)
+                  if t in set(HREF.findall(out)))
+    if gone:
+        sys.exit("REFUSED: %d withdrawn target(s) are still linked after the edit (%s)."
+                 % (len(gone), ", ".join(gone[:5])))
+    print("")
+    print("   live targets linked before           %5d" % len(live_before))
+    print("   live targets linked after            %5d   (set-equal, none lost)"
+          % len(live_after))
+
+    note = (
+        '\n<div style="margin:0 24px 18px;padding:12px 14px;background:#1e293b;'
+        'border-left:3px solid #ea580c;color:#cbd5e1;font-size:13px;max-width:96ch;">\n'
+        "  <strong>%d rows were withdrawn from this table.</strong> Each described a page "
+        "that no longer resolves, so the row could be read but not checked. They are kept "
+        'in full — band, score, event and recorded reason — at\n'
+        '  <a href="withdrawn_audit_rows.html">withdrawn audit rows</a>.\n'
+        '  <div style="margin-top:8px;color:#94a3b8;">\n'
+        "    %d traced to the 2026-06-07 removal of 519 single-trial (k=1) apps, which was "
+        "a hard delete and retained nothing;\n"
+        "    <strong style=\"color:#fca5a5;\">%d were found CONTAMINATED</strong> on "
+        "2026-07-06 and moved to <code>removed/</code>;\n"
+        "    %d and %d came from the two halves of the 2026-07-07 pivotal-sourcing pass.\n"
+        "    %d of the %d were still showing a green INTERNAL CHECKS PASSED badge, %d of "
+        "them among the contaminated.\n"
+        "  </div>\n"
+        "</div>\n" % (len(withdrawn), by_event.get(K1[0], 0),
+                      by_event.get("CONTAMINATED_2026_07_06", 0),
+                      by_event.get("DO2_PIVOTAL_2026_07_07", 0),
+                      by_event.get("DO2_SOURCING_2026_07_07", 0),
+                      ok_badge, len(withdrawn), contam_ok))
+    anchor = '\n<div class="controls">'
+    if anchor not in out:
+        sys.exit("REFUSED: the controls block was not found; the note has nowhere to go "
+                 "that a reader reaches before the table.")
+    out = out.replace(anchor, note + anchor, 1)
+
+    # AND IN THE FOOTER. The banner above is what a reader meets first; the footer is where
+    # a reader who has just scrolled 846 rows is standing, and it is the place the
+    # generated-by provenance already lives. Both, not one.
+    foot_anchor = "\n<footer>\n"
+    if foot_anchor not in out:
+        sys.exit("REFUSED: the footer was not found.")
+    foot = (foot_anchor +
+            "<div style=\"color:#cbd5e1;margin-bottom:10px;\">\n"
+            "  <strong>%d rows are not in this table.</strong> Each described a page that "
+            "no longer resolves. They are retained in full at\n"
+            "  <a href=\"withdrawn_audit_rows.html\">withdrawn_audit_rows.html</a> — with "
+            "the band each was showing, the deletion event it traces to, and the reason "
+            "recorded at the time. %d of them were found CONTAMINATED on 2026-07-06; that "
+            "finding outlives the page it is about.\n"
+            "</div>\n" % (len(withdrawn),
+                          by_event.get("CONTAMINATED_2026_07_06", 0)))
+    out = out.replace(foot_anchor, foot, 1)
+
+    io.open(PAGE, "w", encoding="utf-8", newline="").write(out)
+
+    # ---- sitemap: the record must be reachable, not merely present
+    sm = io.open(SITEMAP, encoding="utf-8", newline="").read()
+    loc = SITE + "withdrawn_audit_rows.html"
+    if loc not in sm:
+        entry = "  <url>\n    <loc>%s</loc>\n  </url>\n" % loc
+        sm = sm.replace("</urlset>", entry + "</urlset>", 1)
+        io.open(SITEMAP, "w", encoding="utf-8", newline="").write(sm)
+        print("\n   sitemap.xml: added withdrawn_audit_rows.html")
+    else:
+        print("\n   sitemap.xml: already lists withdrawn_audit_rows.html")
+
+    print("   written: audit_table.html, withdrawn_audit_rows.html")
+
+
+if __name__ == "__main__":
+    main()

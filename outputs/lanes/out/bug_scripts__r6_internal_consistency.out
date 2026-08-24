@@ -1,0 +1,929 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a03237-6a5e-76f0-8cc1-e76c8d87875e
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/r6_internal_consistency.py
+
+--- THE FILE, IN FULL ---
+"""Round 6 — internal-consistency-only audit + auto-fix.
+
+No external lookups. No human review needed. Each check fires only when
+the extracted data is internally contradictory, so the fix is unambiguous.
+
+Checks:
+
+C1 — DIRECTION_INCONSISTENT
+  For binary outcomes (estimandType ∈ {OR, RR, HR}) with valid tE/tN/cE/cN,
+  compute crude_RR = (tE/tN) / (cE/cN). If sign(log(crude_RR)) ≠
+  sign(log(publishedHR)) AND both magnitudes are non-trivial (|log| > 0.1),
+  the direction is inconsistent. ACTION: null publishedHR + CI.
+
+C2 — COPY_PASTE_ARMS
+  Same (tE, tN, cE, cN) integer 4-tuple appearing across ≥2 distinct NCTs
+  (across all reviews). The first occurrence (by alphabetical review) keeps;
+  others get effect fields nulled. ACTION: null publishedHR + CI on duplicates.
+
+C3 — CONSECUTIVE_NCT_RUN
+  Within a single review, ≥3 NCTs whose integer suffix is consecutive
+  (NCT05000294, ...295, ...296). Statistically improbable for genuine
+  trial enumeration. ACTION: null pmid on all members of the run.
+
+C4 — CI_ASYMMETRY
+  For log-scale effects (HR/OR/RR), check ratio of log-distances
+  (log UCI − log HR) vs (log HR − log LCI). Ratio > 5 OR < 0.2 implies
+  transcription error. ACTION: null CI (keep HR; CI bounds are likely wrong).
+
+C5 — YEAR_NCT_ERA
+  NCT integer suffix vs year. NCT01xxxxxx registered ~2010; NCT02xxxxxx
+  ~2014; NCT03xxxxxx ~2017; NCT04xxxxxx ~2020; NCT05xxxxxx ~2022;
+  NCT06xxxxxx ~2024. If publication year is >7 years off the NCT era,
+  the year is suspicious. ACTION: null year (keep NCT).
+
+C6 — WITHIN_REVIEW_NAME_DUPLICATE
+  Same trial name (acronym) attached to ≥2 different NCTs in the same review.
+  The lower-NCT entry keeps; others get NCT and HR/CI nulled.
+  ACTION: null key on duplicates.
+
+Output:
+  outputs/extraction_audit/r6_internal_consistency.json
+"""
+from __future__ import annotations
+import json, re, sys, io, math
+from pathlib import Path
+from collections import defaultdict
+
+if hasattr(sys.stdout, "buffer") and getattr(sys.stdout, "encoding", "").lower() != "utf-8":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+HERE = Path(__file__).resolve().parent.parent
+OUT = HERE / "outputs" / "extraction_audit"
+DATA = OUT / "data"
+DRY = "--dry-run" in sys.argv
+
+
+def find_block(txt, nct):
+    key_pat = re.compile(r'(["\'])' + re.escape(nct) + r'\1\s*:\s*\{')
+    m = key_pat.search(txt)
+    if not m: return None
+    start = m.end(); depth = 1; i = start; in_str = None
+    while i < len(txt) and depth > 0:
+        ch = txt[i]
+        if in_str:
+            if ch == "\\": i += 2; continue
+            if ch == in_str: in_str = None
+        else:
+            if ch in ('"', "'"): in_str = ch
+            elif ch == "{": depth += 1
+            elif ch == "}":
+                depth -= 1
+                if depth == 0: return (m.start(), i+1, start, i)
+        i += 1
+    return None
+
+
+def null_field_in_block(txt, body_start, body_end, field):
+    body = txt[body_start:body_end]
+    new_body, n = re.subn(
+        r'((["\']?)' + re.escape(field) + r'\2\s*:\s*)(?:["\'][^"\']*["\']|[0-9.eE+-]+|true|false)(?=\s*[,}])',
+        r'\1null', body, flags=re.IGNORECASE)
+    if n == 0: return txt, False
+    return txt[:body_start] + new_body + txt[body_end:], True
+
+
+def null_key(txt, nct):
+    nulled = f"NULLED:{nct}"
+    if nulled in txt: return txt, 0
+    pat = re.compile(r'(["\'])(' + re.escape(nct) + r')(\1)(\s*:)')
+    new_txt, n = pat.subn(
+        lambda m: f'{m.group(1)}NULLED:{m.group(2)}{m.group(3)}{m.group(4)}', txt)
+    return new_txt, n
+
+
+# Load all trial data
+all_trials = []  # list of (review, nct, trial_dict)
+for json_p in sorted(DATA.glob("*.json")):
+    if json_p.name.startswith("_"): continue
+    rv = json_p.stem
+    try: d = json.loads(json_p.read_text(encoding="utf-8"))
+    except: continue
+    rd = d.get("realData") or {}
+    if not isinstance(rd, dict): continue
+    for nct, t in rd.items():
+        if not isinstance(t, dict): continue
+        if nct.startswith("NULLED:"): continue
+        all_trials.append((rv, nct, t))
+
+print(f"Total trials: {len(all_trials)}")
+
+# Helper: numeric extraction
+def f(v):
+    try:
+        return float(v) if v is not None else None
+    except: return None
+
+
+def i(v):
+    try:
+        return int(v) if v is not None else None
+    except: return None
+
+
+# ─────── C1: Direction inconsistent ───────
+def check_c1():
+    findings = []
+    for rv, nct, t in all_trials:
+        et = (t.get("estimandType") or "").upper()
+        if et not in ("OR", "RR", "HR"): continue
+        tE, tN, cE, cN = (i(t.get("tE")), i(t.get("tN")),
+                           i(t.get("cE")), i(t.get("cN")))
+        hr = f(t.get("publishedHR"))
+        if not all(v is not None for v in (tE, tN, cE, cN, hr)): continue
+        if tN <= 0 or cN <= 0: continue
+        if cE == 0 or tE == 0: continue  # zero cells need correction; skip
+        if hr <= 0: continue
+        rate_t = tE / tN; rate_c = cE / cN
+        if rate_c <= 0: continue
+        crude_rr = rate_t / rate_c
+        log_crude = math.log(crude_rr); log_hr = math.log(hr)
+        # Both directions must be non-trivial AND opposite-signed
+        if abs(log_crude) > 0.10 and abs(log_hr) > 0.10:
+            if (log_crude > 0) != (log_hr > 0):
+                findings.append({
+                    "check": "C1_DIRECTION_INCONSISTENT",
+                    "review": rv, "nct": nct,
+                    "crude_RR": round(crude_rr, 3),
+                    "publishedHR": hr,
+                    "log_crude": round(log_crude, 3),
+                    "log_hr": round(log_hr, 3),
+                    "fix": "NULL_HR_AND_CI",
+                })
+    return findings
+
+
+# ─────── C2: Copy-paste arms ───────
+def check_c2():
+    findings = []
+    tuple_index = defaultdict(list)  # (tE,tN,cE,cN) → [(rv, nct, hr)]
+    for rv, nct, t in all_trials:
+        tE, tN, cE, cN = (i(t.get("tE")), i(t.get("tN")),
+                           i(t.get("cE")), i(t.get("cN")))
+        if not all(v is not None and v > 0 for v in (tN, cN)): continue
+        # Require all 4 present; skip pure single-arm
+        if tE is None or cE is None: continue
+        # Skip tiny-N tuples (likely coincidence)
+        if tN < 30 or cN < 30: continue
+        tuple_index[(tE, tN, cE, cN)].append((rv, nct, f(t.get("publishedHR"))))
+
+    for tup, occurrences in tuple_index.items():
+        if len(occurrences) < 2: continue
+        # Distinct NCTs only (multi-review for same NCT is normal)
+        ncts = {o[1] for o in occurrences}
+        if len(ncts) < 2: continue
+        # First (review, nct) alphabetically keeps; others flagged
+        occurrences.sort()
+        keeper = occurrences[0]
+        for rv, nct, hr in occurrences[1:]:
+            if nct == keeper[1]: continue
+            findings.append({
+                "check": "C2_COPY_PASTE_ARMS",
+                "review": rv, "nct": nct,
+                "tuple": list(tup),
+                "keeper": {"review": keeper[0], "nct": keeper[1]},
+                "fix": "NULL_HR_AND_CI",
+            })
+    return findings
+
+
+# ─────── C3: Consecutive NCT runs ───────
+def check_c3():
+    findings = []
+    by_review = defaultdict(list)
+    for rv, nct, t in all_trials:
+        m = re.match(r"NCT(\d{8})$", nct)
+        if not m: continue
+        by_review[rv].append((int(m.group(1)), nct))
+    for rv, lst in by_review.items():
+        lst.sort()
+        # Find runs of ≥3 consecutive integers
+        run = [lst[0]] if lst else []
+        for j in range(1, len(lst)):
+            if lst[j][0] == lst[j-1][0] + 1:
+                run.append(lst[j])
+            else:
+                if len(run) >= 3:
+                    for _, n in run:
+                        findings.append({
+                            "check": "C3_CONSECUTIVE_NCT",
+                            "review": rv, "nct": n,
+                            "run_length": len(run),
+                            "fix": "NULL_PMID",
+                        })
+                run = [lst[j]]
+        if len(run) >= 3:
+            for _, n in run:
+                findings.append({
+                    "check": "C3_CONSECUTIVE_NCT",
+                    "review": rv, "nct": n,
+                    "run_length": len(run),
+                    "fix": "NULL_PMID",
+                })
+    return findings
+
+
+# ─────── C4: CI asymmetry ───────
+def check_c4():
+    findings = []
+    for rv, nct, t in all_trials:
+        et = (t.get("estimandType") or "").upper()
+        if et not in ("OR", "RR", "HR"): continue
+        hr, lci, uci = f(t.get("publishedHR")), f(t.get("hrLCI")), f(t.get("hrUCI"))
+        if not all(v is not None and v > 0 for v in (hr, lci, uci)): continue
+        if not (lci < hr < uci): continue  # let other check handle
+        log_hr = math.log(hr); log_lci = math.log(lci); log_uci = math.log(uci)
+        upper_half = log_uci - log_hr
+        lower_half = log_hr - log_lci
+        if upper_half <= 0 or lower_half <= 0: continue
+        ratio = max(upper_half / lower_half, lower_half / upper_half)
+        if ratio > 5:
+            findings.append({
+                "check": "C4_CI_ASYMMETRY",
+                "review": rv, "nct": nct,
+                "hr": hr, "lci": lci, "uci": uci,
+                "log_asymmetry_ratio": round(ratio, 2),
+                "fix": "NULL_CI",
+            })
+    return findings
+
+
+# ─────── C5: Year vs NCT era ───────
+NCT_ERA_LOWER_BOUND_YEAR = {
+    "01": 2009, "02": 2013, "03": 2016, "04": 2019, "05": 2022, "06": 2024,
+}
+NCT_ERA_UPPER_BOUND_YEAR = {
+    "01": 2018, "02": 2022, "03": 2025, "04": 2026, "05": 2026, "06": 2026,
+}
+def check_c5():
+    findings = []
+    for rv, nct, t in all_trials:
+        year = i(t.get("year"))
+        if year is None or year < 1990 or year > 2030: continue
+        m = re.match(r"NCT(\d{2})\d{6}$", nct)
+        if not m: continue
+        prefix = m.group(1)
+        lower = NCT_ERA_LOWER_BOUND_YEAR.get(prefix)
+        upper = NCT_ERA_UPPER_BOUND_YEAR.get(prefix)
+        if not lower or not upper: continue
+        # NCT prefix gives a registration era; publication is typically 2-7 years later
+        # Allow generous window: year >= lower - 1
+        if year < lower - 1:
+            findings.append({
+                "check": "C5_YEAR_NCT_ERA",
+                "review": rv, "nct": nct, "year": year,
+                "expected_year_range": [lower, upper + 8],
+                "fix": "NULL_YEAR",
+            })
+        elif year > upper + 8:
+            findings.append({
+                "check": "C5_YEAR_NCT_ERA",
+                "review": rv, "nct": nct, "year": year,
+                "expected_year_range": [lower, upper + 8],
+                "fix": "NULL_YEAR",
+            })
+    return findings
+
+
+# ─────── C6: Within-review name duplicate ───────
+def check_c6():
+    findings = []
+    by_review_name = defaultdict(list)
+    for rv, nct, t in all_trials:
+        name = (t.get("name") or "").strip()
+        if not name or len(name) < 3: continue
+        # Skip generic/placeholder names
+        if re.match(r"NCT\d|Study|Trial \d|Phase \d|C\d{3}|N0\d", name): continue
+        by_review_name[(rv, name)].append(nct)
+    for (rv, name), ncts in by_review_name.items():
+        if len(set(ncts)) < 2: continue
+        # Multiple NCTs same name in same review — suspicious
+        # Keep lowest-NCT, flag others
+        sorted_ncts = sorted(ncts)
+        keeper = sorted_ncts[0]
+        for nct in sorted_ncts[1:]:
+            if nct == keeper: continue
+            findings.append({
+                "check": "C6_NAME_DUPLICATE",
+                "review": rv, "nct": nct, "name": name,
+                "keeper_nct": keeper,
+                "fix": "NULL_KEY",
+            })
+    return findings
+
+
+# Run all checks
+all_findings = []
+for chk in [check_c1, check_c2, check_c3, check_c4, check_c5, check_c6]:
+    all_findings.extend(chk())
+
+from collections import Counter
+by_check = Counter(f["check"] for f in all_findings)
+print(f"\nFindings by check:")
+for c, n in by_check.most_common():
+    print(f"  {c}: {n}")
+
+
+# Apply fixes
+log = []
+n_hr = n_pmid = n_key = n_ci = n_year = 0
+# dedupe per (review, nct, fix) — same trial may be hit by multiple checks
+seen = set()
+for finding in all_findings:
+    rv, nct, fix = finding["review"], finding["nct"], finding["fix"]
+    key = (rv, nct, fix)
+    if key in seen: continue
+    seen.add(key)
+    html_path = HERE / f"{rv}.html"
+    if not html_path.exists():
+        log.append({**finding, "status": "FILE_MISSING"})
+        continue
+    txt = html_path.read_text(encoding="utf-8")
+
+    if fix == "NULL_HR_AND_CI":
+        block = find_block(txt, nct)
+        if not block:
+            log.append({**finding, "status": "BLOCK_NOT_FOUND"})
+            continue
+        _, _, bs, be = block
+        for fld in ("publishedHR", "hrLCI", "hrUCI"):
+            new_txt, ok = null_field_in_block(txt, bs, be, fld)
+            if ok:
+                txt = new_txt
+                block = find_block(txt, nct)
+                if not block: break
+                _, _, bs, be = block
+        if not DRY: html_path.write_text(txt, encoding="utf-8")
+        log.append({**finding, "status": "NULLED_HR_CI"})
+        n_hr += 1
+    elif fix == "NULL_PMID":
+        block = find_block(txt, nct)
+        if not block:
+            log.append({**finding, "status": "BLOCK_NOT_FOUND"})
+            continue
+        _, _, bs, be = block
+        new_txt, ok = null_field_in_block(txt, bs, be, "pmid")
+        if ok:
+            if not DRY: html_path.write_text(new_txt, encoding="utf-8")
+            log.append({**finding, "status": "NULLED_PMID"})
+            n_pmid += 1
+        else:
+            log.append({**finding, "status": "PMID_ALREADY_NULL"})
+    elif fix == "NULL_KEY":
+        new_txt, n = null_key(txt, nct)
+        if n > 0:
+            if not DRY: html_path.write_text(new_txt, encoding="utf-8")
+            log.append({**finding, "status": "NULLED_KEY"})
+            n_key += 1
+        elif f"NULLED:{nct}" in txt:
+            log.append({**finding, "status": "ALREADY_NULLED"})
+    elif fix == "NULL_CI":
+        block = find_block(txt, nct)
+        if not block:
+            log.append({**finding, "status": "BLOCK_NOT_FOUND"})
+            continue
+        _, _, bs, be = block
+        for fld in ("hrLCI", "hrUCI"):
+            new_txt, ok = null_field_in_block(txt, bs, be, fld)
+            if ok:
+                txt = new_txt
+                block = find_block(txt, nct)
+                if not block: break
+                _, _, bs, be = block
+        if not DRY: html_path.write_text(txt, encoding="utf-8")
+        log.append({**finding, "status": "NULLED_CI"})
+        n_ci += 1
+    elif fix == "NULL_YEAR":
+        block = find_block(txt, nct)
+        if not block:
+            log.append({**finding, "status": "BLOCK_NOT_FOUND"})
+            continue
+        _, _, bs, be = block
+        new_txt, ok = null_field_in_block(txt, bs, be, "year")
+        if ok:
+            if not DRY: html_path.write_text(new_txt, encoding="utf-8")
+            log.append({**finding, "status": "NULLED_YEAR"})
+            n_year += 1
+
+out_p = OUT / "r6_internal_consistency.json"
+out_p.write_text(json.dumps({"findings": all_findings, "fixes": log,
+                              "counts": {"HR_CI_nulls": n_hr, "PMID_nulls": n_pmid,
+                                         "NCT_key_nulls": n_key, "CI_nulls": n_ci,
+                                         "year_nulls": n_year}},
+                             indent=2, ensure_ascii=False), encoding="utf-8")
+
+print(f"\n{'DRY-RUN ' if DRY else ''}Fixes applied:")
+print(f"  HR+CI nulls (C1, C2):   {n_hr}")
+print(f"  PMID nulls (C3):        {n_pmid}")
+print(f"  NCT key nulls (C6):     {n_key}")
+print(f"  CI-only nulls (C4):     {n_ci}")
+print(f"  Year nulls (C5):        {n_year}")
+print(f"\nLog → {out_p}")
+
+codex
+I’ll treat the pasted packet as the authoritative record and look only for provable defects in that code. I’m going to pin line numbers before giving findings so the examples are concrete.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=0; Get-Content -LiteralPath '"'scripts/r6_internal_consistency.py' | ForEach-Object { "'$i++; '"'{0,4}: {1}' -f "'$i, $_ }' in F:\rapidmeta-ssot-shell
+ succeeded in 1319ms:
+   1: """Round 6 â€” internal-consistency-only audit + auto-fix.
+   2: 
+   3: No external lookups. No human review needed. Each check fires only when
+   4: the extracted data is internally contradictory, so the fix is unambiguous.
+   5: 
+   6: Checks:
+   7: 
+   8: C1 â€” DIRECTION_INCONSISTENT
+   9:   For binary outcomes (estimandType âˆˆ {OR, RR, HR}) with valid tE/tN/cE/cN,
+  10:   compute crude_RR = (tE/tN) / (cE/cN). If sign(log(crude_RR)) â‰ 
+  11:   sign(log(publishedHR)) AND both magnitudes are non-trivial (|log| > 0.1),
+  12:   the direction is inconsistent. ACTION: null publishedHR + CI.
+  13: 
+  14: C2 â€” COPY_PASTE_ARMS
+  15:   Same (tE, tN, cE, cN) integer 4-tuple appearing across â‰¥2 distinct NCTs
+  16:   (across all reviews). The first occurrence (by alphabetical review) keeps;
+  17:   others get effect fields nulled. ACTION: null publishedHR + CI on duplicates.
+  18: 
+  19: C3 â€” CONSECUTIVE_NCT_RUN
+  20:   Within a single review, â‰¥3 NCTs whose integer suffix is consecutive
+  21:   (NCT05000294, ...295, ...296). Statistically improbable for genuine
+  22:   trial enumeration. ACTION: null pmid on all members of the run.
+  23: 
+  24: C4 â€” CI_ASYMMETRY
+  25:   For log-scale effects (HR/OR/RR), check ratio of log-distances
+  26:   (log UCI âˆ’ log HR) vs (log HR âˆ’ log LCI). Ratio > 5 OR < 0.2 implies
+  27:   transcription error. ACTION: null CI (keep HR; CI bounds are likely wrong).
+  28: 
+  29: C5 â€” YEAR_NCT_ERA
+  30:   NCT integer suffix vs year. NCT01xxxxxx registered ~2010; NCT02xxxxxx
+  31:   ~2014; NCT03xxxxxx ~2017; NCT04xxxxxx ~2020; NCT05xxxxxx ~2022;
+  32:   NCT06xxxxxx ~2024. If publication year is >7 years off the NCT era,
+  33:   the year is suspicious. ACTION: null year (keep NCT).
+  34: 
+  35: C6 â€” WITHIN_REVIEW_NAME_DUPLICATE
+  36:   Same trial name (acronym) attached to â‰¥2 different NCTs in the same review.
+  37:   The lower-NCT entry keeps; others get NCT and HR/CI nulled.
+  38:   ACTION: null key on duplicates.
+  39: 
+  40: Output:
+  41:   outputs/extraction_audit/r6_internal_consistency.json
+  42: """
+  43: from __future__ import annotations
+  44: import json, re, sys, io, math
+  45: from pathlib import Path
+  46: from collections import defaultdict
+  47: 
+  48: if hasattr(sys.stdout, "buffer") and getattr(sys.stdout, "encoding", "").lower() != "utf-8":
+  49:     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+  50: 
+  51: HERE = Path(__file__).resolve().parent.parent
+  52: OUT = HERE / "outputs" / "extraction_audit"
+  53: DATA = OUT / "data"
+  54: DRY = "--dry-run" in sys.argv
+  55: 
+  56: 
+  57: def find_block(txt, nct):
+  58:     key_pat = re.compile(r'(["\'])' + re.escape(nct) + r'\1\s*:\s*\{')
+  59:     m = key_pat.search(txt)
+  60:     if not m: return None
+  61:     start = m.end(); depth = 1; i = start; in_str = None
+  62:     while i < len(txt) and depth > 0:
+  63:         ch = txt[i]
+  64:         if in_str:
+  65:             if ch == "\\": i += 2; continue
+  66:             if ch == in_str: in_str = None
+  67:         else:
+  68:             if ch in ('"', "'"): in_str = ch
+  69:             elif ch == "{": depth += 1
+  70:             elif ch == "}":
+  71:                 depth -= 1
+  72:                 if depth == 0: return (m.start(), i+1, start, i)
+  73:         i += 1
+  74:     return None
+  75: 
+  76: 
+  77: def null_field_in_block(txt, body_start, body_end, field):
+  78:     body = txt[body_start:body_end]
+  79:     new_body, n = re.subn(
+  80:         r'((["\']?)' + re.escape(field) + r'\2\s*:\s*)(?:["\'][^"\']*["\']|[0-9.eE+-]+|true|false)(?=\s*[,}])',
+  81:         r'\1null', body, flags=re.IGNORECASE)
+  82:     if n == 0: return txt, False
+  83:     return txt[:body_start] + new_body + txt[body_end:], True
+  84: 
+  85: 
+  86: def null_key(txt, nct):
+  87:     nulled = f"NULLED:{nct}"
+  88:     if nulled in txt: return txt, 0
+  89:     pat = re.compile(r'(["\'])(' + re.escape(nct) + r')(\1)(\s*:)')
+  90:     new_txt, n = pat.subn(
+  91:         lambda m: f'{m.group(1)}NULLED:{m.group(2)}{m.group(3)}{m.group(4)}', txt)
+  92:     return new_txt, n
+  93: 
+  94: 
+  95: # Load all trial data
+  96: all_trials = []  # list of (review, nct, trial_dict)
+  97: for json_p in sorted(DATA.glob("*.json")):
+  98:     if json_p.name.startswith("_"): continue
+  99:     rv = json_p.stem
+ 100:     try: d = json.loads(json_p.read_text(encoding="utf-8"))
+ 101:     except: continue
+ 102:     rd = d.get("realData") or {}
+ 103:     if not isinstance(rd, dict): continue
+ 104:     for nct, t in rd.items():
+ 105:         if not isinstance(t, dict): continue
+ 106:         if nct.startswith("NULLED:"): continue
+ 107:         all_trials.append((rv, nct, t))
+ 108: 
+ 109: print(f"Total trials: {len(all_trials)}")
+ 110: 
+ 111: # Helper: numeric extraction
+ 112: def f(v):
+ 113:     try:
+ 114:         return float(v) if v is not None else None
+ 115:     except: return None
+ 116: 
+ 117: 
+ 118: def i(v):
+ 119:     try:
+ 120:         return int(v) if v is not None else None
+ 121:     except: return None
+ 122: 
+ 123: 
+ 124: # â”€â”€â”€â”€â”€â”€â”€ C1: Direction inconsistent â”€â”€â”€â”€â”€â”€â”€
+ 125: def check_c1():
+ 126:     findings = []
+ 127:     for rv, nct, t in all_trials:
+ 128:         et = (t.get("estimandType") or "").upper()
+ 129:         if et not in ("OR", "RR", "HR"): continue
+ 130:         tE, tN, cE, cN = (i(t.get("tE")), i(t.get("tN")),
+ 131:                            i(t.get("cE")), i(t.get("cN")))
+ 132:         hr = f(t.get("publishedHR"))
+ 133:         if not all(v is not None for v in (tE, tN, cE, cN, hr)): continue
+ 134:         if tN <= 0 or cN <= 0: continue
+ 135:         if cE == 0 or tE == 0: continue  # zero cells need correction; skip
+ 136:         if hr <= 0: continue
+ 137:         rate_t = tE / tN; rate_c = cE / cN
+ 138:         if rate_c <= 0: continue
+ 139:         crude_rr = rate_t / rate_c
+ 140:         log_crude = math.log(crude_rr); log_hr = math.log(hr)
+ 141:         # Both directions must be non-trivial AND opposite-signed
+ 142:         if abs(log_crude) > 0.10 and abs(log_hr) > 0.10:
+ 143:             if (log_crude > 0) != (log_hr > 0):
+ 144:                 findings.append({
+ 145:                     "check": "C1_DIRECTION_INCONSISTENT",
+ 146:                     "review": rv, "nct": nct,
+ 147:                     "crude_RR": round(crude_rr, 3),
+ 148:                     "publishedHR": hr,
+ 149:                     "log_crude": round(log_crude, 3),
+ 150:                     "log_hr": round(log_hr, 3),
+ 151:                     "fix": "NULL_HR_AND_CI",
+ 152:                 })
+ 153:     return findings
+ 154: 
+ 155: 
+ 156: # â”€â”€â”€â”€â”€â”€â”€ C2: Copy-paste arms â”€â”€â”€â”€â”€â”€â”€
+ 157: def check_c2():
+ 158:     findings = []
+ 159:     tuple_index = defaultdict(list)  # (tE,tN,cE,cN) â†’ [(rv, nct, hr)]
+ 160:     for rv, nct, t in all_trials:
+ 161:         tE, tN, cE, cN = (i(t.get("tE")), i(t.get("tN")),
+ 162:                            i(t.get("cE")), i(t.get("cN")))
+ 163:         if not all(v is not None and v > 0 for v in (tN, cN)): continue
+ 164:         # Require all 4 present; skip pure single-arm
+ 165:         if tE is None or cE is None: continue
+ 166:         # Skip tiny-N tuples (likely coincidence)
+ 167:         if tN < 30 or cN < 30: continue
+ 168:         tuple_index[(tE, tN, cE, cN)].append((rv, nct, f(t.get("publishedHR"))))
+ 169: 
+ 170:     for tup, occurrences in tuple_index.items():
+ 171:         if len(occurrences) < 2: continue
+ 172:         # Distinct NCTs only (multi-review for same NCT is normal)
+ 173:         ncts = {o[1] for o in occurrences}
+ 174:         if len(ncts) < 2: continue
+ 175:         # First (review, nct) alphabetically keeps; others flagged
+ 176:         occurrences.sort()
+ 177:         keeper = occurrences[0]
+ 178:         for rv, nct, hr in occurrences[1:]:
+ 179:             if nct == keeper[1]: continue
+ 180:             findings.append({
+ 181:                 "check": "C2_COPY_PASTE_ARMS",
+ 182:                 "review": rv, "nct": nct,
+ 183:                 "tuple": list(tup),
+ 184:                 "keeper": {"review": keeper[0], "nct": keeper[1]},
+ 185:                 "fix": "NULL_HR_AND_CI",
+ 186:             })
+ 187:     return findings
+ 188: 
+ 189: 
+ 190: # â”€â”€â”€â”€â”€â”€â”€ C3: Consecutive NCT runs â”€â”€â”€â”€â”€â”€â”€
+ 191: def check_c3():
+ 192:     findings = []
+ 193:     by_review = defaultdict(list)
+ 194:     for rv, nct, t in all_trials:
+ 195:         m = re.match(r"NCT(\d{8})$", nct)
+ 196:         if not m: continue
+ 197:         by_review[rv].append((int(m.group(1)), nct))
+ 198:     for rv, lst in by_review.items():
+ 199:         lst.sort()
+ 200:         # Find runs of â‰¥3 consecutive integers
+ 201:         run = [lst[0]] if lst else []
+ 202:         for j in range(1, len(lst)):
+ 203:             if lst[j][0] == lst[j-1][0] + 1:
+ 204:                 run.append(lst[j])
+ 205:             else:
+ 206:                 if len(run) >= 3:
+ 207:                     for _, n in run:
+ 208:                         findings.append({
+ 209:                             "check": "C3_CONSECUTIVE_NCT",
+ 210:                             "review": rv, "nct": n,
+ 211:                             "run_length": len(run),
+ 212:                             "fix": "NULL_PMID",
+ 213:                         })
+ 214:                 run = [lst[j]]
+ 215:         if len(run) >= 3:
+ 216:             for _, n in run:
+ 217:                 findings.append({
+ 218:                     "check": "C3_CONSECUTIVE_NCT",
+ 219:                     "review": rv, "nct": n,
+ 220:                     "run_length": len(run),
+ 221:                     "fix": "NULL_PMID",
+ 222:                 })
+ 223:     return findings
+ 224: 
+ 225: 
+ 226: # â”€â”€â”€â”€â”€â”€â”€ C4: CI asymmetry â”€â”€â”€â”€â”€â”€â”€
+ 227: def check_c4():
+ 228:     findings = []
+ 229:     for rv, nct, t in all_trials:
+ 230:         et = (t.get("estimandType") or "").upper()
+ 231:         if et not in ("OR", "RR", "HR"): continue
+ 232:         hr, lci, uci = f(t.get("publishedHR")), f(t.get("hrLCI")), f(t.get("hrUCI"))
+ 233:         if not all(v is not None and v > 0 for v in (hr, lci, uci)): continue
+ 234:         if not (lci < hr < uci): continue  # let other check handle
+ 235:         log_hr = math.log(hr); log_lci = math.log(lci); log_uci = math.log(uci)
+ 236:         upper_half = log_uci - log_hr
+ 237:         lower_half = log_hr - log_lci
+ 238:         if upper_half <= 0 or lower_half <= 0: continue
+ 239:         ratio = max(upper_half / lower_half, lower_half / upper_half)
+ 240:         if ratio > 5:
+ 241:             findings.append({
+ 242:                 "check": "C4_CI_ASYMMETRY",
+ 243:                 "review": rv, "nct": nct,
+ 244:                 "hr": hr, "lci": lci, "uci": uci,
+ 245:                 "log_asymmetry_ratio": round(ratio, 2),
+ 246:                 "fix": "NULL_CI",
+ 247:             })
+ 248:     return findings
+ 249: 
+ 250: 
+ 251: # â”€â”€â”€â”€â”€â”€â”€ C5: Year vs NCT era â”€â”€â”€â”€â”€â”€â”€
+ 252: NCT_ERA_LOWER_BOUND_YEAR = {
+ 253:     "01": 2009, "02": 2013, "03": 2016, "04": 2019, "05": 2022, "06": 2024,
+ 254: }
+ 255: NCT_ERA_UPPER_BOUND_YEAR = {
+ 256:     "01": 2018, "02": 2022, "03": 2025, "04": 2026, "05": 2026, "06": 2026,
+ 257: }
+ 258: def check_c5():
+ 259:     findings = []
+ 260:     for rv, nct, t in all_trials:
+ 261:         year = i(t.get("year"))
+ 262:         if year is None or year < 1990 or year > 2030: continue
+ 263:         m = re.match(r"NCT(\d{2})\d{6}$", nct)
+ 264:         if not m: continue
+ 265:         prefix = m.group(1)
+ 266:         lower = NCT_ERA_LOWER_BOUND_YEAR.get(prefix)
+ 267:         upper = NCT_ERA_UPPER_BOUND_YEAR.get(prefix)
+ 268:         if not lower or not upper: continue
+ 269:         # NCT prefix gives a registration era; publication is typically 2-7 years later
+ 270:         # Allow generous window: year >= lower - 1
+ 271:         if year < lower - 1:
+ 272:             findings.append({
+ 273:                 "check": "C5_YEAR_NCT_ERA",
+ 274:                 "review": rv, "nct": nct, "year": year,
+ 275:                 "expected_year_range": [lower, upper + 8],
+ 276:                 "fix": "NULL_YEAR",
+ 277:             })
+ 278:         elif year > upper + 8:
+ 279:             findings.append({
+ 280:                 "check": "C5_YEAR_NCT_ERA",
+ 281:                 "review": rv, "nct": nct, "year": year,
+ 282:                 "expected_year_range": [lower, upper + 8],
+ 283:                 "fix": "NULL_YEAR",
+ 284:             })
+ 285:     return findings
+ 286: 
+ 287: 
+ 288: # â”€â”€â”€â”€â”€â”€â”€ C6: Within-review name duplicate â”€â”€â”€â”€â”€â”€â”€
+ 289: def check_c6():
+ 290:     findings = []
+ 291:     by_review_name = defaultdict(list)
+ 292:     for rv, nct, t in all_trials:
+ 293:         name = (t.get("name") or "").strip()
+ 294:         if not name or len(name) < 3: continue
+ 295:         # Skip generic/placeholder names
+ 296:         if re.match(r"NCT\d|Study|Trial \d|Phase \d|C\d{3}|N0\d", name): continue
+ 297:         by_review_name[(rv, name)].append(nct)
+ 298:     for (rv, name), ncts in by_review_name.items():
+ 299:         if len(set(ncts)) < 2: continue
+ 300:         # Multiple NCTs same name in same review â€” suspicious
+ 301:         # Keep lowest-NCT, flag others
+ 302:         sorted_ncts = sorted(ncts)
+ 303:         keeper = sorted_ncts[0]
+ 304:         for nct in sorted_ncts[1:]:
+ 305:             if nct == keeper: continue
+ 306:             findings.append({
+ 307:                 "check": "C6_NAME_DUPLICATE",
+ 308:                 "review": rv, "nct": nct, "name": name,
+ 309:                 "keeper_nct": keeper,
+ 310:                 "fix": "NULL_KEY",
+ 311:             })
+ 312:     return findings
+ 313: 
+ 314: 
+ 315: # Run all checks
+ 316: all_findings = []
+ 317: for chk in [check_c1, check_c2, check_c3, check_c4, check_c5, check_c6]:
+ 318:     all_findings.extend(chk())
+ 319: 
+ 320: from collections import Counter
+ 321: by_check = Counter(f["check"] for f in all_findings)
+ 322: print(f"\nFindings by check:")
+ 323: for c, n in by_check.most_common():
+ 324:     print(f"  {c}: {n}")
+ 325: 
+ 326: 
+ 327: # Apply fixes
+ 328: log = []
+ 329: n_hr = n_pmid = n_key = n_ci = n_year = 0
+ 330: # dedupe per (review, nct, fix) â€” same trial may be hit by multiple checks
+ 331: seen = set()
+ 332: for finding in all_findings:
+ 333:     rv, nct, fix = finding["review"], finding["nct"], finding["fix"]
+ 334:     key = (rv, nct, fix)
+ 335:     if key in seen: continue
+ 336:     seen.add(key)
+ 337:     html_path = HERE / f"{rv}.html"
+ 338:     if not html_path.exists():
+ 339:         log.append({**finding, "status": "FILE_MISSING"})
+ 340:         continue
+ 341:     txt = html_path.read_text(encoding="utf-8")
+ 342: 
+ 343:     if fix == "NULL_HR_AND_CI":
+ 344:         block = find_block(txt, nct)
+ 345:         if not block:
+ 346:             log.append({**finding, "status": "BLOCK_NOT_FOUND"})
+ 347:             continue
+ 348:         _, _, bs, be = block
+ 349:         for fld in ("publishedHR", "hrLCI", "hrUCI"):
+ 350:             new_txt, ok = null_field_in_block(txt, bs, be, fld)
+ 351:             if ok:
+ 352:                 txt = new_txt
+ 353:                 block = find_block(txt, nct)
+ 354:                 if not block: break
+ 355:                 _, _, bs, be = block
+ 356:         if not DRY: html_path.write_text(txt, encoding="utf-8")
+ 357:         log.append({**finding, "status": "NULLED_HR_CI"})
+ 358:         n_hr += 1
+ 359:     elif fix == "NULL_PMID":
+ 360:         block = find_block(txt, nct)
+ 361:         if not block:
+ 362:             log.append({**finding, "status": "BLOCK_NOT_FOUND"})
+ 363:             continue
+ 364:         _, _, bs, be = block
+ 365:         new_txt, ok = null_field_in_block(txt, bs, be, "pmid")
+ 366:         if ok:
+ 367:             if not DRY: html_path.write_text(new_txt, encoding="utf-8")
+ 368:             log.append({**finding, "status": "NULLED_PMID"})
+ 369:             n_pmid += 1
+ 370:         else:
+ 371:             log.append({**finding, "status": "PMID_ALREADY_NULL"})
+ 372:     elif fix == "NULL_KEY":
+ 373:         new_txt, n = null_key(txt, nct)
+ 374:         if n > 0:
+ 375:             if not DRY: html_path.write_text(new_txt, encoding="utf-8")
+ 376:             log.append({**finding, "status": "NULLED_KEY"})
+ 377:             n_key += 1
+ 378:         elif f"NULLED:{nct}" in txt:
+ 379:             log.append({**finding, "status": "ALREADY_NULLED"})
+ 380:     elif fix == "NULL_CI":
+ 381:         block = find_block(txt, nct)
+ 382:         if not block:
+ 383:             log.append({**finding, "status": "BLOCK_NOT_FOUND"})
+ 384:             continue
+ 385:         _, _, bs, be = block
+ 386:         for fld in ("hrLCI", "hrUCI"):
+ 387:             new_txt, ok = null_field_in_block(txt, bs, be, fld)
+ 388:             if ok:
+ 389:                 txt = new_txt
+ 390:                 block = find_block(txt, nct)
+ 391:                 if not block: break
+ 392:                 _, _, bs, be = block
+ 393:         if not DRY: html_path.write_text(txt, encoding="utf-8")
+ 394:         log.append({**finding, "status": "NULLED_CI"})
+ 395:         n_ci += 1
+ 396:     elif fix == "NULL_YEAR":
+ 397:         block = find_block(txt, nct)
+ 398:         if not block:
+ 399:             log.append({**finding, "status": "BLOCK_NOT_FOUND"})
+ 400:             continue
+ 401:         _, _, bs, be = block
+ 402:         new_txt, ok = null_field_in_block(txt, bs, be, "year")
+ 403:         if ok:
+ 404:             if not DRY: html_path.write_text(new_txt, encoding="utf-8")
+ 405:             log.append({**finding, "status": "NULLED_YEAR"})
+ 406:             n_year += 1
+ 407: 
+ 408: out_p = OUT / "r6_internal_consistency.json"
+ 409: out_p.write_text(json.dumps({"findings": all_findings, "fixes": log,
+ 410:                               "counts": {"HR_CI_nulls": n_hr, "PMID_nulls": n_pmid,
+ 411:                                          "NCT_key_nulls": n_key, "CI_nulls": n_ci,
+ 412:                                          "year_nulls": n_year}},
+ 413:                              indent=2, ensure_ascii=False), encoding="utf-8")
+ 414: 
+ 415: print(f"\n{'DRY-RUN ' if DRY else ''}Fixes applied:")
+ 416: print(f"  HR+CI nulls (C1, C2):   {n_hr}")
+ 417: print(f"  PMID nulls (C3):        {n_pmid}")
+ 418: print(f"  NCT key nulls (C6):     {n_key}")
+ 419: print(f"  CI-only nulls (C4):     {n_ci}")
+ 420: print(f"  Year nulls (C5):        {n_year}")
+ 421: print(f"\nLog â†’ {out_p}")
+
+codex
+- **instrument reading a different copy than changed**: lines 97 and 337. Exact input: `outputs/extraction_audit/data/a.json` contains `{"realData":{"NCT00000001":{"estimandType":"HR","tE":20,"tN":100,"cE":5,"cN":100,"publishedHR":0.5,"hrLCI":0.3,"hrUCI":0.8}}}`, while `a.html` contains `"NCT00000001": {"publishedHR": 0.5, "hrLCI": 0.3, "hrUCI": 0.8}` but no arm counts. Consequence: the predicate is proven on JSON data but the mutation is applied to a separate HTML copy that may not contain the contradiction.
+
+- **idempotency guard satisfied by its own marker/comment**: line 88. Exact input to `null_key`: `txt='<!-- NULLED:NCT00000002 -->\n"NCT00000002": {"publishedHR": 1.2}'`, `nct='NCT00000002'`. Consequence: it returns without renaming the live key, and line 378 can report `ALREADY_NULLED` even though the work was not done.
+
+- **status code reporting wrapper rather than work**: lines 338-340. Exact input: the JSON above named `missing.html`’s review stem, with no corresponding `missing.html` file. Consequence: the fix failure is only logged as `FILE_MISSING`; the script still writes an audit file and exits zero.
+
+- **status/count reporting wrapper rather than work**: lines 356-358. Exact input: JSON data triggers C1 for `NCT00000001`, but `a.html` has `"NCT00000001": {"publishedHR": null, "hrLCI": null, "hrUCI": null}`. Consequence: zero fields change, yet the log says `NULLED_HR_CI` and `HR_CI_nulls` increments.
+
+- **check that cannot fail**: line 101. Exact input: `outputs/extraction_audit/data/bad.json` containing `{`. Consequence: a malformed extraction file is silently skipped, so the audit can report fewer or zero trials with exit zero.
+
+No proven CRLF/LF text-compare defect.  
+No proven merged-cell/off-by-one tabulation defect.  
+No proven negation-dropped sentence parsing defect.  
+No proven selector-keyed-to-unused-corpus-form defect without the HTML/data corpus.
+tokens used
+22,565
+- **instrument reading a different copy than changed**: lines 97 and 337. Exact input: `outputs/extraction_audit/data/a.json` contains `{"realData":{"NCT00000001":{"estimandType":"HR","tE":20,"tN":100,"cE":5,"cN":100,"publishedHR":0.5,"hrLCI":0.3,"hrUCI":0.8}}}`, while `a.html` contains `"NCT00000001": {"publishedHR": 0.5, "hrLCI": 0.3, "hrUCI": 0.8}` but no arm counts. Consequence: the predicate is proven on JSON data but the mutation is applied to a separate HTML copy that may not contain the contradiction.
+
+- **idempotency guard satisfied by its own marker/comment**: line 88. Exact input to `null_key`: `txt='<!-- NULLED:NCT00000002 -->\n"NCT00000002": {"publishedHR": 1.2}'`, `nct='NCT00000002'`. Consequence: it returns without renaming the live key, and line 378 can report `ALREADY_NULLED` even though the work was not done.
+
+- **status code reporting wrapper rather than work**: lines 338-340. Exact input: the JSON above named `missing.html`’s review stem, with no corresponding `missing.html` file. Consequence: the fix failure is only logged as `FILE_MISSING`; the script still writes an audit file and exits zero.
+
+- **status/count reporting wrapper rather than work**: lines 356-358. Exact input: JSON data triggers C1 for `NCT00000001`, but `a.html` has `"NCT00000001": {"publishedHR": null, "hrLCI": null, "hrUCI": null}`. Consequence: zero fields change, yet the log says `NULLED_HR_CI` and `HR_CI_nulls` increments.
+
+- **check that cannot fail**: line 101. Exact input: `outputs/extraction_audit/data/bad.json` containing `{`. Consequence: a malformed extraction file is silently skipped, so the audit can report fewer or zero trials with exit zero.
+
+No proven CRLF/LF text-compare defect.  
+No proven merged-cell/off-by-one tabulation defect.  
+No proven negation-dropped sentence parsing defect.  
+No proven selector-keyed-to-unused-corpus-form defect without the HTML/data corpus.

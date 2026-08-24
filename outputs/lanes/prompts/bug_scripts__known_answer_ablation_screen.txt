@@ -1,0 +1,156 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/known_answer_ablation_screen.py
+
+--- THE FILE, IN FULL ---
+"""KNOWN-ANSWER TEST for the ablation screener's rules, on REAL registrations.
+
+Detector 10's rule: the known answer must come from the data, never from a fixture the author
+invented. Every instance below is a registration this corpus already holds, and the expected
+answer is one established BEFORE this screener existed -- three from the included set of
+`ablation-af-medical-therapy`, and five from the hand-written 43-row screen of the sibling
+review `ablation-af-heart-failure`, where each verdict was reasoned individually and recorded
+with the field that settles it.
+
+    A SCREENER TESTED ONLY ON TRIALS IT WAS WRITTEN AGAINST IS TESTED AGAINST ITS AUTHOR.
+    The five sibling instances were decided by hand, on a different day's reasoning, for a
+    review with a NARROWER population -- so they are an outside answer, not a restatement of
+    this file's own logic.
+
+The population limb DIFFERS between the two reviews (this one does not require heart failure),
+so only the INTERVENTION and COMPARATOR limbs are asserted for the sibling instances. Asserting
+the sibling's final VERDICT would test this screener against a criterion it does not have.
+"""
+import io
+import json
+import os
+import sys
+
+REPO = "F:/rapidmeta-ssot-shell"
+sys.path.insert(0, REPO + "/ssot")
+sys.path.insert(0, REPO + "/scripts")
+os.environ.setdefault(
+    "RM_CTGOV_CACHE",
+    "F:/claude-temp/claude/F--rapidmeta-ssot-shell/"
+    "eb4d84e5-8a24-4c3b-afe2-34bd91c20bc7/scratchpad/.ctgov-raw-cache")
+
+import ctgov_transport as X                                   # noqa: E402
+import screen_ablation_medical_remainder_2026_08_19 as S      # noqa: E402
+
+# (nct, what, expected limb states asserted -- only the limbs the instance actually establishes)
+CASES = [
+    # --- The three trials THIS review includes. All three must clear intervention and
+    # --- comparator, or the screener would exclude the review's own evidence base.
+    ("NCT00643188", "CASTLE-AF: catheter ablation vs conventional treatment",
+     {"INTERVENTION": "HOLDS", "COMPARATOR": "HOLDS", "POPULATION": "HOLDS"}),
+    ("NCT00911508", "CABANA: left atrial ablation vs rate-or-rhythm control, BOTH arms typed "
+                    "ACTIVE_COMPARATOR",
+     {"INTERVENTION": "HOLDS", "COMPARATOR": "HOLDS", "POPULATION": "HOLDS"}),
+    # AND ONE EXPECTED ANSWER IN THIS FILE WAS WRONG WHEN IT WAS WRITTEN.
+    #
+    # I asserted RAFT-AF must clear INTERVENTION and COMPARATOR because I know the trial is
+    # ablation-based -- its TITLE says "Catheter Ablation With or Without Anti-arrhythmic Drug
+    # Control". Its armGroups do not. They declare:
+    #     ACTIVE_COMPARATOR  'Rhythm Control'  ['Procedure: Rhythm control']
+    #     ACTIVE_COMPARATOR  'Rate Control'    ['Other: Rate Control']
+    # A PROCEDURE named "rhythm control" may be an ablation and may be a cardioversion
+    # programme. THE SCREENER IS RIGHT TO REFUSE AND THE EXPECTATION WAS KNOWLEDGE FROM
+    # OUTSIDE THE FIELDS THE RULE READS -- which is precisely what a known-answer file must
+    # not smuggle in. Corrected to UNSETTLED, and RAFT-AF is adjudicated by hand afterwards.
+    #
+    # This is the second time in this repository that writing a known-answer instance produced
+    # a better finding than the one expected: the placebo-naming file expected ADVANCE-3 to
+    # match ADVANCE-2 and the registry said otherwise.
+    ("NCT01420393", "RAFT-AF: 'Procedure: Rhythm control' vs 'Other: Rate Control'. The arms "
+                    "do NOT declare an ablation; only the title does. UNSETTLED is correct.",
+     {"INTERVENTION": "UNSETTLED", "COMPARATOR": "UNSETTLED", "POPULATION": "HOLDS"}),
+    # --- Five decided BY HAND in the sibling review's 43-row screen, on the two limbs the two
+    # --- reviews share.
+    ("NCT00589303", "AV node ablation and pacemaker vs drug therapy -- conduction-system "
+                    "ablation, hand-excluded on INTERVENTION",
+     {"INTERVENTION": "FAILS"}),
+    ("NCT01522898", "AV nodal ablation vs medical rate control -- hand-excluded on "
+                    "INTERVENTION, and it registers THIS estimand, so the boundary is what "
+                    "excludes it",
+     {"INTERVENTION": "FAILS"}),
+    ("NCT01877473", "ablation vs ablation ('Reverse remodeling' vs 'Standard ablation') -- "
+                    "hand-excluded on COMPARATOR",
+     {"COMPARATOR": "FAILS"}),
+    ("NCT01639495", "single arm, THERMOCOOL catheter, no control -- hand-excluded on "
+                    "COMPARATOR",
+     {"COMPARATOR": "FAILS"}),
+    ("NCT06528262", "enavogliflozin vs placebo AFTER ablation -- the randomised contrast is a "
+                    "drug and ablation is background; hand-excluded on INTERVENTION",
+     {"INTERVENTION": "FAILS"}),
+]
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    failures = []
+    for nct, what, expected in CASES:
+        st, study, det = X.fetch_raw(nct)
+        if st != X.OK:
+            print("%s  UNREACHABLE (%s) -- NOT_ASSESSABLE, and a known-answer test that "
+                  "cannot read its instance has not passed" % (nct, det))
+            failures.append((nct, "unreachable"))
+            continue
+        doc = X.require_raw_v2(study, nct)
+        _v, _axis, _crit, limbs, kinds, _status, _conds, _reason = S.screen(nct, doc)
+        bad = {k: (limbs.get(k), v) for k, v in expected.items() if limbs.get(k) != v}
+        print("%s  %s" % (nct, "OK  " if not bad else "WRONG"))
+        print("      %s" % what)
+        print("      arms %s -> %s" % (kinds, limbs))
+        if bad:
+            for k, (got, want) in bad.items():
+                print("      %s: expected %s, got %s" % (k, want, got))
+            failures.append((nct, bad))
+        print()
+
+    print("instances %d, failures %d" % (len(CASES), len(failures)))
+    if failures:
+        print("\nREFUSED: the screener disagrees with answers established independently of it. "
+              "The\nrules are wrong, or the term sets are, and a 621-trial pass must not run "
+              "on them.")
+        return 1
+    print("\nAll instances agree. The screener may be run over the remainder.")
+    print("WHAT THIS DOES NOT ESTABLISH: eight instances cannot show the term sets are "
+          "complete.\nThat is what NEEDS_ADJUDICATION is for -- it is the screener saying so "
+          "rather than guessing.")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

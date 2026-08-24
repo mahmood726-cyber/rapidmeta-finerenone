@@ -1,0 +1,261 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a03177-b069-7ed1-88ac-00f2e0d74902
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/cascade_ablation_split_2026_08_19.py
+
+--- THE FILE, IN FULL ---
+"""ARM-ROLE CASCADE for the three topics `ablation-af-review` was split into.
+
+ONE FETCH POOL, THREE INDEPENDENT CLASSIFICATIONS, AND THE DISTINCTION MATTERS.
+The three surfaced sets overlap heavily (931, 959 and 67 records over one registry on one
+date), so each registration is fetched ONCE. What is NOT shared is the classification: each
+topic declares its own synonym set and its own counts, and no topic's k is derived from
+another's. Sharing a FETCH is a network economy; sharing a COUNT would be the contamination
+class this project has now met five times.
+
+WHY k3 AND k4 MUST BE READ TOGETHER ON THIS TOPIC, AND IT IS NOT A JUDGEMENT CALL.
+Two of the three trials `ablation-af-medical-therapy` includes declare NO ARM TYPED
+EXPERIMENTAL:
+
+    CABANA   NCT00911508   ACTIVE_COMPARATOR 'Left Atrial Ablation'
+                           ACTIVE_COMPARATOR 'Rate or Rhythm Control Therapy'
+    RAFT-AF  NCT01420393   ACTIVE_COMPARATOR 'Rhythm Control'
+                           ACTIVE_COMPARATOR 'Rate Control'
+
+Both arms are typed the same, so the registry's typing carries no information about which side
+is the intervention -- and `locate()` correctly declines to invent one. These are HEAD-TO-HEAD
+STRATEGY TRIALS, which is what an ablation-versus-medical-therapy review is made of. A cascade
+that reported k3 alone would put the two largest trials of the topic outside the count.
+
+    THE REGISTRY'S ARM TYPING IS A DATA-ENTRY CONVENTION. It was already established that
+    trials exist with no arm typed EXPERIMENTAL, and that one programme can type two identical
+    designs oppositely (ADVANCE-2 / ADVANCE-3). Here it is not an anomaly at the edge of the
+    corpus -- it is the DOMINANT shape of the topic's own pivotal evidence.
+"""
+import io
+import json
+import os
+import sys
+import time
+
+REPO = "F:/rapidmeta-ssot-shell"
+sys.path.insert(0, REPO + "/ssot")
+sys.path.insert(0, REPO + "/scripts")
+os.environ.setdefault(
+    "RM_CTGOV_CACHE",
+    "F:/claude-temp/claude/F--rapidmeta-ssot-shell/"
+    "eb4d84e5-8a24-4c3b-afe2-34bd91c20bc7/scratchpad/.ctgov-raw-cache")
+
+import ctgov_transport as X          # noqa: E402
+import topic_identity as T           # noqa: E402
+
+SEARCH = os.path.join(REPO, "evidence", "2026-08-19-batch1", "ablation_split_search.json")
+DEST = os.path.join(REPO, "evidence", "2026-08-19-batch1", "ablation_split_cascade.json")
+
+# Each topic's own synonym key. `catheter ablation` is already declared in
+# topic_identity.TOPIC_SYNONYMS; the rhythm-control topic is a STRATEGY and its identity is
+# stated here as its own declared set rather than borrowed from the ablation one.
+TOPIC_KEY = {
+    "ablation-af-medical-therapy": "catheter ablation",
+    "early-rhythm-control-af": "rhythm control strategy",
+    "ablation-af-heart-failure": "catheter ablation",
+}
+INCLUDED = {
+    "ablation-af-medical-therapy": ["NCT00643188", "NCT00911508", "NCT01420393"],
+    "early-rhythm-control-af": ["NCT00643188", "NCT00911508", "NCT01288352", "NCT01420393"],
+    "ablation-af-heart-failure": ["NCT00643188", "NCT01420393"],
+}
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    with io.open(SEARCH, encoding="utf-8") as fh:
+        searches = json.load(fh)
+
+    chosen = {}
+    for topic, rec in searches.items():
+        label = rec.get("chosen")
+        q = next(q for q in rec["queries"] if q["label"] == label)
+        chosen[topic] = q
+        print("%-30s %-58s k0=%d" % (topic, label[:58], q["k0"]))
+
+    pool = sorted({n for q in chosen.values() for n in q["ids"]})
+    print("\nONE FETCH POOL: %d distinct registrations across the three surfaced sets "
+          "(%s)\n" % (len(pool), " + ".join(str(q["k0"]) for q in chosen.values())))
+
+    payloads, unreachable = {}, []
+    for i, nct in enumerate(pool, 1):
+        st, study, det = X.fetch_raw(nct)
+        if st != X.OK:
+            unreachable.append(nct)
+            continue
+        payloads[nct] = X.require_raw_v2(study, nct)
+        if i % 200 == 0:
+            print("   fetched %d/%d" % (i, len(pool)))
+        time.sleep(0.01)
+    print("   fetched %d, UNREACHABLE %d -- never read, not a verdict\n"
+          % (len(payloads), len(unreachable)))
+
+    out = {}
+    for topic, q in chosen.items():
+        syns = T.synonyms_for(TOPIC_KEY[topic])
+        roles, evidence = {}, {}
+        unr = []
+        for nct in q["ids"]:
+            if nct not in payloads:
+                unr.append(nct)
+                continue
+            role, ev = T.locate(payloads[nct], syns)
+            roles[nct] = role
+            evidence[nct] = ev
+        tally = {r: [n for n, v in roles.items() if v == r]
+                 for r in (T.EXPERIMENTAL, T.COMPARATOR, T.BACKGROUND, T.NOT_ASSESSABLE)}
+        k3, k4 = len(tally[T.EXPERIMENTAL]), len(tally[T.COMPARATOR])
+        k5, kna = len(tally[T.BACKGROUND]), len(tally[T.NOT_ASSESSABLE])
+        inc = INCLUDED[topic]
+        out[topic] = {
+            "topic_key": TOPIC_KEY[topic], "query_label": q["label"], "query_expr": q["expr"],
+            "search_detail": q["detail"],
+            "k0_surfaced": q["k0"], "k2_role_located": k3 + k4 + k5,
+            "k3_experimental": k3, "k4_comparator": k4, "k5_background": k5,
+            "kNA_not_assessable": kna, "kUNREACHABLE": len(unr),
+            "k_included_in_object": len(inc),
+            "candidate_pool_k3_plus_k4": k3 + k4,
+            "experimental_ids": tally[T.EXPERIMENTAL], "comparator_ids": tally[T.COMPARATOR],
+            "not_assessable_ids": tally[T.NOT_ASSESSABLE],
+            "unreachable_ids": unr,
+            "included": inc,
+            "role_of_each_included": {n: roles.get(n, "UNREACHABLE") for n in inc},
+            "evidence_for_each_included": {n: evidence.get(n) for n in inc},
+        }
+        print("--- %s   [%s]" % (topic, TOPIC_KEY[topic]))
+        print("    k0 surfaced        %5d" % q["k0"])
+        print("    k2 role located    %5d" % (k3 + k4 + k5))
+        print("    k3 EXPERIMENTAL    %5d" % k3)
+        print("    k4 COMPARATOR      %5d   <- read WITH k3 on this topic; see module docstring"
+              % k4)
+        print("    k5 background      %5d" % k5)
+        print("    kNA not assessable %5d   <- could not classify, NOT excluded" % kna)
+        print("    kUNREACHABLE       %5d   <- never read" % len(unr))
+        print("    reconciles: %d == %d + %d + %d + %d + %d -> %s"
+              % (q["k0"], k3, k4, k5, kna, len(unr),
+                 q["k0"] == k3 + k4 + k5 + kna + len(unr)))
+        print("    CANDIDATE POOL (k3+k4) %d, of which %d are in this object"
+              % (k3 + k4, len(inc)))
+        for n in inc:
+            print("       %s  %-28s %s" % (n, roles.get(n, "UNREACHABLE"),
+                                           (evidence.get(n) or "")[:80]))
+        missing = [n for n in inc if n not in roles]
+        if missing:
+            print("    !! INCLUDED BUT NOT IN THE SURFACED SET: %s" % missing)
+        print()
+
+    with io.open(DEST, "w", encoding="utf-8") as fh:
+        fh.write(json.dumps(out, indent=1))
+    print("wrote %s" % DEST)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+
+codex
+Defects found:
+
+- Line 142: `missing = [n for n in inc if n not in roles]` checks `roles`, not the surfaced set `q["ids"]`.
+  Exact input: `topic="ablation-af-medical-therapy"`, `q["ids"]=["NCT00643188","NCT00911508","NCT01420393"]`, `INCLUDED[topic]=["NCT00643188","NCT00911508","NCT01420393"]`, and `X.fetch_raw("NCT00911508")` returns non-`X.OK`.
+  Consequence: line 144 reports `NCT00911508` as `INCLUDED BUT NOT IN THE SURFACED SET` even though it was surfaced; it was unreachable.
+
+- Line 128: `"role_of_each_included": {n: roles.get(n, "UNREACHABLE") for n in inc}` uses absence from `roles` as unreachable.
+  Exact input: `topic="ablation-af-medical-therapy"`, `q["ids"]=["NCT00643188"]`, `INCLUDED[topic]=["NCT00643188","NCT00911508"]`, with `NCT00643188` fetched successfully.
+  Consequence: `NCT00911508` is serialized as `"UNREACHABLE"` even though it was never in the surfaced set, conflating absent with unreachable.
+
+No check that cannot fail found.
+
+No probe keyed to the string a fix removes found.
+
+No idempotency guard satisfied by its own comment or marker found.
+
+No selector keyed to a corpus form found in this file alone.
+
+No text comparison over CRLF/LF found.
+
+No merged-cell or off-by-one tabulation defect found.
+
+No zero-conflated-with-absent defect found.
+
+No dropped-negation text parsing found.
+
+No wrapper-status reporting defect found.
+tokens used
+7,358
+Defects found:
+
+- Line 142: `missing = [n for n in inc if n not in roles]` checks `roles`, not the surfaced set `q["ids"]`.
+  Exact input: `topic="ablation-af-medical-therapy"`, `q["ids"]=["NCT00643188","NCT00911508","NCT01420393"]`, `INCLUDED[topic]=["NCT00643188","NCT00911508","NCT01420393"]`, and `X.fetch_raw("NCT00911508")` returns non-`X.OK`.
+  Consequence: line 144 reports `NCT00911508` as `INCLUDED BUT NOT IN THE SURFACED SET` even though it was surfaced; it was unreachable.
+
+- Line 128: `"role_of_each_included": {n: roles.get(n, "UNREACHABLE") for n in inc}` uses absence from `roles` as unreachable.
+  Exact input: `topic="ablation-af-medical-therapy"`, `q["ids"]=["NCT00643188"]`, `INCLUDED[topic]=["NCT00643188","NCT00911508"]`, with `NCT00643188` fetched successfully.
+  Consequence: `NCT00911508` is serialized as `"UNREACHABLE"` even though it was never in the surfaced set, conflating absent with unreachable.
+
+No check that cannot fail found.
+
+No probe keyed to the string a fix removes found.
+
+No idempotency guard satisfied by its own comment or marker found.
+
+No selector keyed to a corpus form found in this file alone.
+
+No text comparison over CRLF/LF found.
+
+No merged-cell or off-by-one tabulation defect found.
+
+No zero-conflated-with-absent defect found.
+
+No dropped-negation text parsing found.
+
+No wrapper-status reporting defect found.

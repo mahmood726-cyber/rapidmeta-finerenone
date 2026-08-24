@@ -1,0 +1,658 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a031ee-7fe6-75e3-a8f1-e22100a80c5d
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/lint_method_claim_has_a_field.py
+
+--- THE FILE, IN FULL ---
+"""A METHOD-CLAIM sentence must resolve to a field path on the object it is rendered for.
+
+THE MECHANISM THIS EXISTS TO STOP, stated exactly.
+
+`arni-hfref` is the only object in 141 carrying authored manuscript prose, and eight of its
+paragraphs assert HOW THE REVIEW WAS CONDUCTED with no substitution token in them:
+
+    "Two assessors worked independently, drawn from different model families"
+    "Certainty was rated with GRADE"
+    "The protocol was registered before the first query with a machine-checkable
+     ordering test"
+    "The whole synthesis was recomputed independently and the two engines agreed"
+
+EVERY ONE OF THOSE IS TRUE OF ARNI. Its object carries `rob2.assessors`, `grade.approach`,
+`screening.dual_screening`. THAT IS WHAT MAKES THEM DANGEROUS: a sentence that is a
+faithful record on the object it was written for becomes A FABRICATION THE MOMENT IT IS
+COPIED -- and it arrives wearing the authority of the flagship, so a reviewer recognises it
+from a page they trust and does not question it.
+
+A token is a claim the object holds; the substitution IS the check. An un-tokened method
+sentence has no such check, and copying one asserts a procedure that never happened.
+
+THE DIRECTION, AND IT IS THE RARER ONE. This class MANUFACTURES ASSERTIONS rather than
+hiding findings. Third instance in three days, after the arm-role precondition (2026-08-19)
+and the swapped-arm provenance block (2026-08-20), and a fourth was this lane's own lint
+comparing an odds ratio against a stored hazard ratio. **Our whole defensive posture is
+built around the other direction**, and three instances is no longer a curiosity.
+
+WHY A DETECTOR AND NOT A NOTE. The documentation-failed-as-a-control result: a written-down
+rule here WILL be breached. Five detectors are the only thing that has worked.
+
+THE KNOWN-ANSWER SET IS DRAWN FROM THE CORPUS, NOT FROM FIXTURES -- which is the property
+this project keeps finding missing. Each claim below must PASS on `arni-hfref`, whose object
+backs it, and FAIL on any object that does not. `--selftest` asserts both directions.
+
+    PROVEN BY GRAFT 2026-08-20: scripts/prove_never_fired_by_graft.py constructs an
+    input this check must refuse, inside a temp tree so it is the only corpus the check
+    can see, and requires a non-zero exit. Before that this check had never fired on
+    any real run -- CAPABLE OF FAILING, CONDITION NOT YET OBSERVED, which is a
+    legitimate state and a different one from vacuous.
+"""
+import io
+import json
+import os
+import re
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+SSOT = os.path.join(REPO, "ssot")
+
+# Each claim: a matcher for the sentence, and EVERY field path that must resolve for the
+# object to be entitled to assert it. No defaults, no partial credit.
+CLAIMS = [
+    ("dual RoB assessors",
+     re.compile(r"two (?:independent )?(?:AI )?assessors|assessors worked independently"
+                r"|by two independ", re.I),
+     ["rob2.assessors", "rob2.trials"]),
+    ("RoB-2 was applied",
+     re.compile(r"assessed with (?:Cochrane )?RoB[- ]?2|RoB[- ]?2 using the effect", re.I),
+     ["rob2.tool", "rob2.trials"]),
+    ("GRADE was applied",
+     re.compile(r"[Cc]ertainty was rated with GRADE|rated with GRADE", re.I),
+     ["grade.approach", "grade.by_outcome"]),
+    ("records were dual-screened",
+     re.compile(r"[Rr]ecords were screened against the eligibility axes"
+                r"|screened in duplicate", re.I),
+     ["screening.records", "screening.dual_screening"]),
+    ("an independent second engine recomputed the synthesis",
+     re.compile(r"recomputed independently and the two engines agreed"
+                r"|two engines agreed", re.I),
+     ["results.by_outcome.*.cross_engine"]),
+    ("the protocol was registered before the first query",
+     re.compile(r"protocol was registered (?:before the first query|as a timestamped)"
+                r"|registered before the first query", re.I),
+     ["registration.ordering.protocol_committed_utc"]),
+    ("leave-one-out robustness was run",
+     re.compile(r"[Rr]obustness was examined by leave-one-out", re.I),
+     ["results.by_outcome.*.sensitivity.method"]),
+    ("effects were taken from the primary publications",
+     re.compile(r"were taken from the primary publications", re.I),
+     ["inputs.trials.*.by_outcome.*.source_tier"]),
+]
+
+
+def get(obj, path):  # noqa: C901
+    """Resolve a dotted path. `*` matches any key of a dict and succeeds if ANY does.
+
+    THE WILDCARD IS HERE BECAUSE I DECLARED TWO PATHS WRONG AND THE DETECTOR CALLED THE
+    FLAGSHIP A LIAR FOR IT. Its first run reported that arni-hfref asserts "the two engines
+    agreed" and "the protocol was registered before the first query" with nothing behind
+    them. Both ARE backed -- at `results.by_outcome.<oid>.cross_engine` and at
+    `registration.ordering.protocol_committed_utc` -- and I had declared `cross_engine` and
+    `protocol.registration_commit`.
+
+    So the path declarations in CLAIMS are themselves unchecked claims about where things
+    live, and I got two of eight wrong on the ONE object I could verify against. That is
+    the manufacturing direction again, produced by the very file written to warn about it,
+    within minutes. It is recorded rather than quietly corrected because the correction is
+    less interesting than the recurrence.
+    """
+    parts = path.split(".")
+    for i, part in enumerate(parts):
+        if part == "*":
+            # AND THE FIRST WILDCARD RETURNED HERE INSTEAD OF DESCENDING, which discarded
+            # every remaining segment. `results.by_outcome.*.cross_engine` therefore
+            # resolved to the OUTCOME BLOCK -- a dict that exists, is non-empty, and is not
+            # the field meant. It passed. The claim it guards was reported as backed on the
+            # strength of a node with keys `k, estimand_id, comparator_type, poolable`.
+            #
+            # A path that resolves is not a path that resolves to the right thing, and this
+            # was invisible until the VALUE was printed rather than the boolean.
+            # AND IT ONLY WALKED DICTS, so `inputs.trials.*` -- a LIST -- resolved to
+            # nothing and reported the flagship as unable to say its effects came from the
+            # primary publications. Third wrong path declaration of eight, found the same
+            # way as the first two: by printing the value instead of the verdict.
+            if isinstance(obj, dict):
+                children = list(obj.values())
+            elif isinstance(obj, list):
+                children = list(obj)
+            else:
+                return None
+            rest = parts[i + 1:]
+            for v in children:
+                got = get(v, ".".join(rest)) if rest else v
+                if got not in (None, [], {}, ""):
+                    return got
+            return None
+        if not isinstance(obj, dict) or part not in obj:
+            return None
+        obj = obj[part]
+    return obj
+
+
+def entitled(obj, paths):
+    """Every path must resolve to something non-empty. No partial credit."""
+    for p in paths:
+        v = get(obj, p)
+        if v is None or v == [] or v == {} or v == "":
+            return False, p
+    return True, None
+
+
+def manuscript_text(obj):
+    """Every string under `manuscript.*` -- the prose that could enter a page."""
+    m = obj.get("manuscript")
+    out = []
+    stack = [m]
+    while stack:
+        n = stack.pop()
+        if isinstance(n, str):
+            out.append(n)
+        elif isinstance(n, dict):
+            stack.extend(n.values())
+        elif isinstance(n, list):
+            stack.extend(n)
+    return "\n".join(out)
+
+
+def scan(obj):
+    """Claims asserted by this object's manuscript that its fields do not entitle it to."""
+    text = manuscript_text(obj)
+    if not text:
+        return [], []
+    asserted, unbacked = [], []
+    for label, rx, paths in CLAIMS:
+        if not rx.search(text):
+            continue
+        asserted.append(label)
+        ok, missing = entitled(obj, paths)
+        if not ok:
+            unbacked.append((label, missing))
+    return asserted, unbacked
+
+
+def selftest():
+    """PASS on arni-hfref, FAIL on an object that does not hold the fields.
+
+    The failing input is CONSTRUCTED FROM THE CORPUS: ARNI's own manuscript block is
+    grafted onto another real object, which is exactly the copy this lint exists to
+    prevent. If that does not raise every claim as unbacked, the lint cannot fire.
+    """
+    arni = json.load(io.open(os.path.join(SSOT, "arni-hfref", "arni-hfref.json"),
+                             encoding="utf-8"))
+    asserted, unbacked = scan(arni)
+    print("SELFTEST 1 -- arni-hfref, which the sentences were written for")
+    print("   claims asserted : %d  %s" % (len(asserted), ", ".join(asserted)))
+    print("   unbacked        : %d  %s"
+          % (len(unbacked), "; ".join("%s (no %s)" % u for u in unbacked)))
+    if not asserted:
+        print("   FAILED: matched no claim at all on the object the matchers were written "
+              "from. The matchers are wrong.")
+        return 1
+
+    host = json.load(io.open(os.path.join(SSOT, "sglt2-hf", "sglt2-hf.json"),
+                             encoding="utf-8"))
+    host = dict(host)
+    host["manuscript"] = arni["manuscript"]
+    a2, u2 = scan(host)
+    print()
+    print("SELFTEST 2 -- ARNI's manuscript grafted onto sglt2-hf, the copy this prevents")
+    print("   claims asserted : %d" % len(a2))
+    print("   unbacked        : %d  %s"
+          % (len(u2), "; ".join("%s (no %s)" % u for u in u2)))
+    if len(u2) <= len(unbacked):
+        print("   FAILED: grafting the flagship's prose onto another object raised no new "
+              "unbacked claim. THE LINT CANNOT FIRE ON THE THING IT EXISTS FOR.")
+        return 1
+    print()
+    print("SELFTEST PASSED: %d claims are backed on arni-hfref and unbacked on the graft. "
+          "The failing input is a real object carrying real prose, not a fixture."
+          % (len(u2) - len(unbacked)))
+    return 0
+
+
+def main():
+    if "--selftest" in sys.argv:
+        return selftest()
+    objects = 0
+    with_prose = 0
+    offenders = []
+    for name in sorted(os.listdir(SSOT)):
+        d = os.path.join(SSOT, name)
+        if not os.path.isdir(d):
+            continue
+        fp = os.path.join(d, name + ".json")
+        if not os.path.exists(fp):
+            continue
+        try:
+            obj = json.load(io.open(fp, encoding="utf-8"))
+        except Exception:
+            continue
+        objects += 1
+        if not obj.get("manuscript"):
+            continue
+        with_prose += 1
+        asserted, unbacked = scan(obj)
+        if unbacked:
+            offenders.append((name, unbacked))
+        print("%-40s asserts %d claim(s), %d unbacked" % (name, len(asserted), len(unbacked)))
+
+    print()
+    print("objects read                     %d" % objects)
+    print("objects carrying manuscript prose %d" % with_prose)
+    if with_prose == 0:
+        print("NOT_ASSESSABLE: no object carries manuscript prose, so no method claim can "
+              "have been asserted. A checker with nothing to check has not passed.")
+        return 2
+    if offenders:
+        print()
+        for name, unbacked in offenders:
+            for label, missing in unbacked:
+                print("REFUSED %-34s asserts %-46s and holds no %s"
+                      % (name, label, missing))
+        return 1
+    print("PASS, measured on %d object(s) carrying manuscript prose: every method claim "
+          "asserted resolves to a field path on the object asserting it. THIS SAYS NOTHING "
+          "ABOUT THE 140 OBJECTS WITH NO PROSE -- they assert nothing because they say "
+          "nothing, and that is not the same as being safe." % with_prose)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+
+codex
+I’m going to pin the findings to the pasted module’s line numbers and keep the scope to the named defect shapes, with no repo-wide assumptions.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=0; Get-Content -Path scripts/lint_method_claim_has_a_field.py | ForEach-Object { $i++; '"'{0,4}: {1}' -f "'$i, $_ } | Select-Object -First 260' in F:\rapidmeta-ssot-shell
+ succeeded in 1415ms:
+   1: """A METHOD-CLAIM sentence must resolve to a field path on the object it is rendered for.
+   2: 
+   3: THE MECHANISM THIS EXISTS TO STOP, stated exactly.
+   4: 
+   5: `arni-hfref` is the only object in 141 carrying authored manuscript prose, and eight of its
+   6: paragraphs assert HOW THE REVIEW WAS CONDUCTED with no substitution token in them:
+   7: 
+   8:     "Two assessors worked independently, drawn from different model families"
+   9:     "Certainty was rated with GRADE"
+  10:     "The protocol was registered before the first query with a machine-checkable
+  11:      ordering test"
+  12:     "The whole synthesis was recomputed independently and the two engines agreed"
+  13: 
+  14: EVERY ONE OF THOSE IS TRUE OF ARNI. Its object carries `rob2.assessors`, `grade.approach`,
+  15: `screening.dual_screening`. THAT IS WHAT MAKES THEM DANGEROUS: a sentence that is a
+  16: faithful record on the object it was written for becomes A FABRICATION THE MOMENT IT IS
+  17: COPIED -- and it arrives wearing the authority of the flagship, so a reviewer recognises it
+  18: from a page they trust and does not question it.
+  19: 
+  20: A token is a claim the object holds; the substitution IS the check. An un-tokened method
+  21: sentence has no such check, and copying one asserts a procedure that never happened.
+  22: 
+  23: THE DIRECTION, AND IT IS THE RARER ONE. This class MANUFACTURES ASSERTIONS rather than
+  24: hiding findings. Third instance in three days, after the arm-role precondition (2026-08-19)
+  25: and the swapped-arm provenance block (2026-08-20), and a fourth was this lane's own lint
+  26: comparing an odds ratio against a stored hazard ratio. **Our whole defensive posture is
+  27: built around the other direction**, and three instances is no longer a curiosity.
+  28: 
+  29: WHY A DETECTOR AND NOT A NOTE. The documentation-failed-as-a-control result: a written-down
+  30: rule here WILL be breached. Five detectors are the only thing that has worked.
+  31: 
+  32: THE KNOWN-ANSWER SET IS DRAWN FROM THE CORPUS, NOT FROM FIXTURES -- which is the property
+  33: this project keeps finding missing. Each claim below must PASS on `arni-hfref`, whose object
+  34: backs it, and FAIL on any object that does not. `--selftest` asserts both directions.
+  35: 
+  36:     PROVEN BY GRAFT 2026-08-20: scripts/prove_never_fired_by_graft.py constructs an
+  37:     input this check must refuse, inside a temp tree so it is the only corpus the check
+  38:     can see, and requires a non-zero exit. Before that this check had never fired on
+  39:     any real run -- CAPABLE OF FAILING, CONDITION NOT YET OBSERVED, which is a
+  40:     legitimate state and a different one from vacuous.
+  41: """
+  42: import io
+  43: import json
+  44: import os
+  45: import re
+  46: import sys
+  47: 
+  48: REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+  49: SSOT = os.path.join(REPO, "ssot")
+  50: 
+  51: # Each claim: a matcher for the sentence, and EVERY field path that must resolve for the
+  52: # object to be entitled to assert it. No defaults, no partial credit.
+  53: CLAIMS = [
+  54:     ("dual RoB assessors",
+  55:      re.compile(r"two (?:independent )?(?:AI )?assessors|assessors worked independently"
+  56:                 r"|by two independ", re.I),
+  57:      ["rob2.assessors", "rob2.trials"]),
+  58:     ("RoB-2 was applied",
+  59:      re.compile(r"assessed with (?:Cochrane )?RoB[- ]?2|RoB[- ]?2 using the effect", re.I),
+  60:      ["rob2.tool", "rob2.trials"]),
+  61:     ("GRADE was applied",
+  62:      re.compile(r"[Cc]ertainty was rated with GRADE|rated with GRADE", re.I),
+  63:      ["grade.approach", "grade.by_outcome"]),
+  64:     ("records were dual-screened",
+  65:      re.compile(r"[Rr]ecords were screened against the eligibility axes"
+  66:                 r"|screened in duplicate", re.I),
+  67:      ["screening.records", "screening.dual_screening"]),
+  68:     ("an independent second engine recomputed the synthesis",
+  69:      re.compile(r"recomputed independently and the two engines agreed"
+  70:                 r"|two engines agreed", re.I),
+  71:      ["results.by_outcome.*.cross_engine"]),
+  72:     ("the protocol was registered before the first query",
+  73:      re.compile(r"protocol was registered (?:before the first query|as a timestamped)"
+  74:                 r"|registered before the first query", re.I),
+  75:      ["registration.ordering.protocol_committed_utc"]),
+  76:     ("leave-one-out robustness was run",
+  77:      re.compile(r"[Rr]obustness was examined by leave-one-out", re.I),
+  78:      ["results.by_outcome.*.sensitivity.method"]),
+  79:     ("effects were taken from the primary publications",
+  80:      re.compile(r"were taken from the primary publications", re.I),
+  81:      ["inputs.trials.*.by_outcome.*.source_tier"]),
+  82: ]
+  83: 
+  84: 
+  85: def get(obj, path):  # noqa: C901
+  86:     """Resolve a dotted path. `*` matches any key of a dict and succeeds if ANY does.
+  87: 
+  88:     THE WILDCARD IS HERE BECAUSE I DECLARED TWO PATHS WRONG AND THE DETECTOR CALLED THE
+  89:     FLAGSHIP A LIAR FOR IT. Its first run reported that arni-hfref asserts "the two engines
+  90:     agreed" and "the protocol was registered before the first query" with nothing behind
+  91:     them. Both ARE backed -- at `results.by_outcome.<oid>.cross_engine` and at
+  92:     `registration.ordering.protocol_committed_utc` -- and I had declared `cross_engine` and
+  93:     `protocol.registration_commit`.
+  94: 
+  95:     So the path declarations in CLAIMS are themselves unchecked claims about where things
+  96:     live, and I got two of eight wrong on the ONE object I could verify against. That is
+  97:     the manufacturing direction again, produced by the very file written to warn about it,
+  98:     within minutes. It is recorded rather than quietly corrected because the correction is
+  99:     less interesting than the recurrence.
+ 100:     """
+ 101:     parts = path.split(".")
+ 102:     for i, part in enumerate(parts):
+ 103:         if part == "*":
+ 104:             # AND THE FIRST WILDCARD RETURNED HERE INSTEAD OF DESCENDING, which discarded
+ 105:             # every remaining segment. `results.by_outcome.*.cross_engine` therefore
+ 106:             # resolved to the OUTCOME BLOCK -- a dict that exists, is non-empty, and is not
+ 107:             # the field meant. It passed. The claim it guards was reported as backed on the
+ 108:             # strength of a node with keys `k, estimand_id, comparator_type, poolable`.
+ 109:             #
+ 110:             # A path that resolves is not a path that resolves to the right thing, and this
+ 111:             # was invisible until the VALUE was printed rather than the boolean.
+ 112:             # AND IT ONLY WALKED DICTS, so `inputs.trials.*` -- a LIST -- resolved to
+ 113:             # nothing and reported the flagship as unable to say its effects came from the
+ 114:             # primary publications. Third wrong path declaration of eight, found the same
+ 115:             # way as the first two: by printing the value instead of the verdict.
+ 116:             if isinstance(obj, dict):
+ 117:                 children = list(obj.values())
+ 118:             elif isinstance(obj, list):
+ 119:                 children = list(obj)
+ 120:             else:
+ 121:                 return None
+ 122:             rest = parts[i + 1:]
+ 123:             for v in children:
+ 124:                 got = get(v, ".".join(rest)) if rest else v
+ 125:                 if got not in (None, [], {}, ""):
+ 126:                     return got
+ 127:             return None
+ 128:         if not isinstance(obj, dict) or part not in obj:
+ 129:             return None
+ 130:         obj = obj[part]
+ 131:     return obj
+ 132: 
+ 133: 
+ 134: def entitled(obj, paths):
+ 135:     """Every path must resolve to something non-empty. No partial credit."""
+ 136:     for p in paths:
+ 137:         v = get(obj, p)
+ 138:         if v is None or v == [] or v == {} or v == "":
+ 139:             return False, p
+ 140:     return True, None
+ 141: 
+ 142: 
+ 143: def manuscript_text(obj):
+ 144:     """Every string under `manuscript.*` -- the prose that could enter a page."""
+ 145:     m = obj.get("manuscript")
+ 146:     out = []
+ 147:     stack = [m]
+ 148:     while stack:
+ 149:         n = stack.pop()
+ 150:         if isinstance(n, str):
+ 151:             out.append(n)
+ 152:         elif isinstance(n, dict):
+ 153:             stack.extend(n.values())
+ 154:         elif isinstance(n, list):
+ 155:             stack.extend(n)
+ 156:     return "\n".join(out)
+ 157: 
+ 158: 
+ 159: def scan(obj):
+ 160:     """Claims asserted by this object's manuscript that its fields do not entitle it to."""
+ 161:     text = manuscript_text(obj)
+ 162:     if not text:
+ 163:         return [], []
+ 164:     asserted, unbacked = [], []
+ 165:     for label, rx, paths in CLAIMS:
+ 166:         if not rx.search(text):
+ 167:             continue
+ 168:         asserted.append(label)
+ 169:         ok, missing = entitled(obj, paths)
+ 170:         if not ok:
+ 171:             unbacked.append((label, missing))
+ 172:     return asserted, unbacked
+ 173: 
+ 174: 
+ 175: def selftest():
+ 176:     """PASS on arni-hfref, FAIL on an object that does not hold the fields.
+ 177: 
+ 178:     The failing input is CONSTRUCTED FROM THE CORPUS: ARNI's own manuscript block is
+ 179:     grafted onto another real object, which is exactly the copy this lint exists to
+ 180:     prevent. If that does not raise every claim as unbacked, the lint cannot fire.
+ 181:     """
+ 182:     arni = json.load(io.open(os.path.join(SSOT, "arni-hfref", "arni-hfref.json"),
+ 183:                              encoding="utf-8"))
+ 184:     asserted, unbacked = scan(arni)
+ 185:     print("SELFTEST 1 -- arni-hfref, which the sentences were written for")
+ 186:     print("   claims asserted : %d  %s" % (len(asserted), ", ".join(asserted)))
+ 187:     print("   unbacked        : %d  %s"
+ 188:           % (len(unbacked), "; ".join("%s (no %s)" % u for u in unbacked)))
+ 189:     if not asserted:
+ 190:         print("   FAILED: matched no claim at all on the object the matchers were written "
+ 191:               "from. The matchers are wrong.")
+ 192:         return 1
+ 193: 
+ 194:     host = json.load(io.open(os.path.join(SSOT, "sglt2-hf", "sglt2-hf.json"),
+ 195:                              encoding="utf-8"))
+ 196:     host = dict(host)
+ 197:     host["manuscript"] = arni["manuscript"]
+ 198:     a2, u2 = scan(host)
+ 199:     print()
+ 200:     print("SELFTEST 2 -- ARNI's manuscript grafted onto sglt2-hf, the copy this prevents")
+ 201:     print("   claims asserted : %d" % len(a2))
+ 202:     print("   unbacked        : %d  %s"
+ 203:           % (len(u2), "; ".join("%s (no %s)" % u for u in u2)))
+ 204:     if len(u2) <= len(unbacked):
+ 205:         print("   FAILED: grafting the flagship's prose onto another object raised no new "
+ 206:               "unbacked claim. THE LINT CANNOT FIRE ON THE THING IT EXISTS FOR.")
+ 207:         return 1
+ 208:     print()
+ 209:     print("SELFTEST PASSED: %d claims are backed on arni-hfref and unbacked on the graft. "
+ 210:           "The failing input is a real object carrying real prose, not a fixture."
+ 211:           % (len(u2) - len(unbacked)))
+ 212:     return 0
+ 213: 
+ 214: 
+ 215: def main():
+ 216:     if "--selftest" in sys.argv:
+ 217:         return selftest()
+ 218:     objects = 0
+ 219:     with_prose = 0
+ 220:     offenders = []
+ 221:     for name in sorted(os.listdir(SSOT)):
+ 222:         d = os.path.join(SSOT, name)
+ 223:         if not os.path.isdir(d):
+ 224:             continue
+ 225:         fp = os.path.join(d, name + ".json")
+ 226:         if not os.path.exists(fp):
+ 227:             continue
+ 228:         try:
+ 229:             obj = json.load(io.open(fp, encoding="utf-8"))
+ 230:         except Exception:
+ 231:             continue
+ 232:         objects += 1
+ 233:         if not obj.get("manuscript"):
+ 234:             continue
+ 235:         with_prose += 1
+ 236:         asserted, unbacked = scan(obj)
+ 237:         if unbacked:
+ 238:             offenders.append((name, unbacked))
+ 239:         print("%-40s asserts %d claim(s), %d unbacked" % (name, len(asserted), len(unbacked)))
+ 240: 
+ 241:     print()
+ 242:     print("objects read                     %d" % objects)
+ 243:     print("objects carrying manuscript prose %d" % with_prose)
+ 244:     if with_prose == 0:
+ 245:         print("NOT_ASSESSABLE: no object carries manuscript prose, so no method claim can "
+ 246:               "have been asserted. A checker with nothing to check has not passed.")
+ 247:         return 2
+ 248:     if offenders:
+ 249:         print()
+ 250:         for name, unbacked in offenders:
+ 251:             for label, missing in unbacked:
+ 252:                 print("REFUSED %-34s asserts %-46s and holds no %s"
+ 253:                       % (name, label, missing))
+ 254:         return 1
+ 255:     print("PASS, measured on %d object(s) carrying manuscript prose: every method claim "
+ 256:           "asserted resolves to a field path on the object asserting it. THIS SAYS NOTHING "
+ 257:           "ABOUT THE 140 OBJECTS WITH NO PROSE -- they assert nothing because they say "
+ 258:           "nothing, and that is not the same as being safe." % with_prose)
+ 259:     return 0
+ 260: 
+
+codex
+I’ve got a concrete false-negative path and a concrete false-positive path; I’m checking the minimal inputs so the final answer can name exact demonstrations rather than inferred behavior.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "@'
+from scripts.lint_method_claim_has_a_field import scan
+cases = [
+    {\"manuscript\":\"Records were screened against the eligibility axes\",\"screening\":{\"records\":1,\"dual_screening\":False}},
+    {\"manuscript\":\"Records were not screened in duplicate\"},
+    {\"manuscript\":\"The effects were taken from the primary publications\",\"inputs\":{\"trials\":[{\"by_outcome\":{\"a\":{\"source_tier\":\"primary\"}}},{\"by_outcome\":{\"b\":{}}}]}}
+]
+for c in cases:
+    print(scan(c))
+'@ | python -" in F:\rapidmeta-ssot-shell
+ succeeded in 1391ms:
+(['records were dual-screened'], [])
+(['records were dual-screened'], [('records were dual-screened', 'screening.records')])
+(['effects were taken from the primary publications'], [])
+
+codex
+Line numbers from the pasted file.
+
+**Defects found**
+
+- **ZERO/FALSE CONFLATED WITH PRESENT**: line 138.  
+  Exact input: `scan({"manuscript":"Records were screened against the eligibility axes","screening":{"records":1,"dual_screening":False}})`  
+  Consequence: the positive dual-screening claim is accepted even though the object explicitly says `dual_screening` is false.
+
+- **NEGATION DROPPED**: line 66.  
+  Exact input: `scan({"manuscript":"Records were not screened in duplicate"})`  
+  Consequence: a negated sentence is treated as asserting “records were dual-screened” and can produce a false refusal.
+
+- **PARTIAL WILDCARD BACKS PLURAL CLAIM**: line 125.  
+  Exact input: `scan({"manuscript":"The effects were taken from the primary publications","inputs":{"trials":[{"by_outcome":{"a":{"source_tier":"primary"}}},{"by_outcome":{"b":{}}}]}})`  
+  Consequence: one populated wildcard branch backs a claim about “effects” generally, while another effect has no backing field.
+
+- **STATUS CODE REPORTS WRAPPER, NOT WORK**: lines 228-231.  
+  Exact input: `ssot/bad/bad.json` containing `{`, plus any other valid prose object with no offenders.  
+  Consequence: an unreadable object is silently skipped and the run can still exit 0.
+
+**Shapes With None Proven From This Packet**
+
+- Check that cannot fail: none proven.
+- Probe keyed to string a fix removes: none proven.
+- Idempotency guard satisfied by own comment/marker: none present.
+- Instrument reading different copy: COULD NOT DETERMINE; missing caller/invocation contract.
+- Selector keyed to corpus form not used: COULD NOT DETERMINE; missing SSOT corpus contents.
+- CRLF/LF text comparison: none present.
+- Merged-cell/off-by-one tabulation/count: none present.
+tokens used
+21,059
+Line numbers from the pasted file.
+
+**Defects found**
+
+- **ZERO/FALSE CONFLATED WITH PRESENT**: line 138.  
+  Exact input: `scan({"manuscript":"Records were screened against the eligibility axes","screening":{"records":1,"dual_screening":False}})`  
+  Consequence: the positive dual-screening claim is accepted even though the object explicitly says `dual_screening` is false.
+
+- **NEGATION DROPPED**: line 66.  
+  Exact input: `scan({"manuscript":"Records were not screened in duplicate"})`  
+  Consequence: a negated sentence is treated as asserting “records were dual-screened” and can produce a false refusal.
+
+- **PARTIAL WILDCARD BACKS PLURAL CLAIM**: line 125.  
+  Exact input: `scan({"manuscript":"The effects were taken from the primary publications","inputs":{"trials":[{"by_outcome":{"a":{"source_tier":"primary"}}},{"by_outcome":{"b":{}}}]}})`  
+  Consequence: one populated wildcard branch backs a claim about “effects” generally, while another effect has no backing field.
+
+- **STATUS CODE REPORTS WRAPPER, NOT WORK**: lines 228-231.  
+  Exact input: `ssot/bad/bad.json` containing `{`, plus any other valid prose object with no offenders.  
+  Consequence: an unreadable object is silently skipped and the run can still exit 0.
+
+**Shapes With None Proven From This Packet**
+
+- Check that cannot fail: none proven.
+- Probe keyed to string a fix removes: none proven.
+- Idempotency guard satisfied by own comment/marker: none present.
+- Instrument reading different copy: COULD NOT DETERMINE; missing caller/invocation contract.
+- Selector keyed to corpus form not used: COULD NOT DETERMINE; missing SSOT corpus contents.
+- CRLF/LF text comparison: none present.
+- Merged-cell/off-by-one tabulation/count: none present.

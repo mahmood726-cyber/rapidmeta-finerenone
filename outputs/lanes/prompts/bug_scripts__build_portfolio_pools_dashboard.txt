@@ -1,0 +1,416 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/build_portfolio_pools_dashboard.py
+
+--- THE FILE, IN FULL ---
+r"""Build portfolio_pools.html — a sortable/filterable dashboard of every
+R-validation pool in the portfolio (binary + continuous, ~1,317 sidecars).
+
+For each sidecar, the row carries: topic name, scale, k, pooled estimate,
+95% CI, I-squared, Q p-value, prediction interval, and a link to the
+source review page. Sortable client-side; filterable by scale, k tier,
+and free-text topic search.
+
+Strictly additive: writes one new file at the repo root.
+"""
+from __future__ import annotations
+import sys, io, json, html
+from pathlib import Path
+
+if "pytest" not in sys.modules and hasattr(sys.stdout, "buffer"):
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+HERE = Path(__file__).resolve().parent.parent
+BIN_DIR = HERE / "outputs" / "r_validation"
+CONT_DIR = HERE / "outputs" / "r_validation" / "continuous"
+
+
+def _round(v, n=3):
+    if v is None: return ""
+    try:
+        return f"{float(v):.{n}f}"
+    except (TypeError, ValueError):
+        return ""
+
+
+def _find_source_page(stem: str) -> str:
+    """Best-effort: locate the review HTML for this sidecar stem.
+
+    Sidecars under outputs/r_validation/<STEM>.json are named after the
+    page name minus _REVIEW.html (e.g. ABALOPARATIDE_OSTEO_AUTO_FULL ->
+    ABALOPARATIDE_OSTEO_AUTO_FULL_REVIEW.html). For legacy sidecars
+    (FINERENONE) the page is <STEM>_REVIEW.html.
+
+    Continuous sidecars under outputs/r_validation/continuous/<STEM>.json
+    use the FULL page name (with _REVIEW suffix) e.g.
+    SEMAGLUTIDE_OBESITY_REVIEW.json -> SEMAGLUTIDE_OBESITY_REVIEW.html.
+    """
+    candidates = [
+        HERE / f"{stem}_REVIEW.html",
+        HERE / f"{stem}.html",
+    ]
+    for c in candidates:
+        if c.exists():
+            return c.name
+    return f"{stem}_REVIEW.html"
+
+
+def read_binary_sidecars():
+    rows = []
+    for p in sorted(BIN_DIR.glob("*.json")):
+        try:
+            d = json.loads(p.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            continue
+        stem = p.stem
+        k = d.get("k", 0)
+        if not k: continue
+        rows.append({
+            "stem": stem,
+            "kind": "binary",
+            "scale": d.get("method", "").startswith("REML") and "OR" or d.get("scale", "OR"),
+            "k": k,
+            "pool": d.get("pooled_OR"),
+            "lci": d.get("ci_low_OR"),
+            "uci": d.get("ci_high_OR"),
+            "i2": d.get("I2"),
+            "qp": d.get("Qp"),
+            "pi_lci": d.get("PI_low_OR"),
+            "pi_uci": d.get("PI_high_OR"),
+            "tau2": d.get("tau2"),
+            "hksj_floor": bool(d.get("hksj_floor_applied", False)),
+            "page": _find_source_page(stem),
+        })
+    return rows
+
+
+def read_continuous_sidecars():
+    rows = []
+    if not CONT_DIR.exists():
+        return rows
+    for p in sorted(CONT_DIR.glob("*.json")):
+        try:
+            d = json.loads(p.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            continue
+        stem = p.stem
+        k = d.get("k", 0)
+        if not k: continue
+        scale = d.get("scale", "MD")
+        # Continuous sidecars keep their _REVIEW suffix in the stem
+        page = f"{stem}.html"
+        if not (HERE / page).exists():
+            page = stem + ".html"
+        rows.append({
+            "stem": stem,
+            "kind": "continuous",
+            "scale": scale,
+            "k": k,
+            "pool": d.get("pool"),
+            "lci": d.get("lci"),
+            "uci": d.get("uci"),
+            "i2": d.get("I2"),
+            "qp": d.get("Qp") or d.get("Qp"),
+            "pi_lci": d.get("PI_lci"),
+            "pi_uci": d.get("PI_uci"),
+            "tau2": d.get("tau2"),
+            "hksj_floor": bool(d.get("hksj_floor_applied", False)),
+            "page": page,
+        })
+    return rows
+
+
+def _row_html(r: dict, idx: int) -> str:
+    """Render one <tr> for the table."""
+    sig_class = ""
+    pool = r["pool"]
+    lci, uci = r["lci"], r["uci"]
+    # Significance heuristic (binary OR vs 1, continuous MD vs 0)
+    if r["kind"] == "binary" and lci is not None and uci is not None:
+        if uci < 1.0:
+            sig_class = "sig-benefit"   # CI fully below null
+        elif lci > 1.0:
+            sig_class = "sig-harm"
+    elif r["kind"] == "continuous" and lci is not None and uci is not None:
+        if uci < 0:
+            sig_class = "sig-benefit"
+        elif lci > 0:
+            sig_class = "sig-harm"
+
+    pool_fmt = _round(pool, 3) if pool is not None else "—"
+    ci_fmt = (
+        f"{_round(lci, 3)} to {_round(uci, 3)}"
+        if lci is not None and uci is not None
+        else "—"
+    )
+    pi_fmt = (
+        f"{_round(r['pi_lci'], 3)} to {_round(r['pi_uci'], 3)}"
+        if r["pi_lci"] is not None and r["pi_uci"] is not None
+        else "—"
+    )
+    qp = r["qp"]
+    qp_fmt = "—"
+    if qp is not None:
+        try:
+            v = float(qp)
+            qp_fmt = f"{v:.3f}" if v >= 0.001 else f"{v:.2e}"
+        except (TypeError, ValueError):
+            pass
+    i2_fmt = _round(r["i2"], 1)
+    tau2_fmt = _round(r["tau2"], 4)
+    floor_badge = (
+        '<span class="floor-yes" title="HKSJ floor applied (Wiksten 2016)">Yes</span>'
+        if r["hksj_floor"] else '<span class="floor-no">—</span>'
+    )
+
+    page_link = html.escape(r["page"])
+    stem_disp = html.escape(r["stem"])
+
+    return (
+        f'<tr data-stem="{html.escape(r["stem"].lower())}" data-scale="{r["scale"]}" '
+        f'data-k="{r["k"]}" class="{sig_class}">'
+        f'<td><a href="{page_link}">{stem_disp}</a></td>'
+        f'<td class="scale">{r["scale"]}</td>'
+        f'<td class="k">{r["k"]}</td>'
+        f'<td class="pool">{pool_fmt}</td>'
+        f'<td class="ci">{ci_fmt}</td>'
+        f'<td class="pi">{pi_fmt}</td>'
+        f'<td class="i2">{i2_fmt}{"%" if i2_fmt else ""}</td>'
+        f'<td class="qp">{qp_fmt}</td>'
+        f'<td class="tau2">{tau2_fmt}</td>'
+        f'<td class="floor">{floor_badge}</td>'
+        f'</tr>'
+    )
+
+
+def main():
+    binary = read_binary_sidecars()
+    cont = read_continuous_sidecars()
+    rows = binary + cont
+    rows.sort(key=lambda r: (r["stem"], r["kind"]))
+    print(f"Binary rows: {len(binary)}")
+    print(f"Continuous rows: {len(cont)}")
+    print(f"Total: {len(rows)}")
+
+    # Summary stats
+    from collections import Counter
+    scale_dist = Counter(r["scale"] for r in rows)
+    k_dist = Counter()
+    for r in rows:
+        k = r["k"]
+        if k == 1: k_dist["k=1"] += 1
+        elif k <= 3: k_dist["k=2-3"] += 1
+        elif k <= 10: k_dist["k=4-10"] += 1
+        else: k_dist["k>10"] += 1
+    floor_count = sum(1 for r in rows if r["hksj_floor"])
+    sig_benefit = sum(1 for r in rows if r["kind"] == "binary" and r["uci"] is not None and r["uci"] < 1.0)
+    sig_harm = sum(1 for r in rows if r["kind"] == "binary" and r["lci"] is not None and r["lci"] > 1.0)
+
+    body = "\n".join(_row_html(r, i) for i, r in enumerate(rows))
+    summary_row = f"""
+    <div class="summary-row">
+      <div class="summary-card"><div class="num">{len(rows):,}</div><div class="lab">Total pools</div></div>
+      <div class="summary-card"><div class="num">{len(binary):,}</div><div class="lab">Binary (OR)</div></div>
+      <div class="summary-card"><div class="num">{len(cont):,}</div><div class="lab">Continuous (MD/HR/RR/RD)</div></div>
+      <div class="summary-card"><div class="num">{floor_count:,}</div><div class="lab">HKSJ-floor applied</div></div>
+      <div class="summary-card sig-benefit-card"><div class="num">{sig_benefit:,}</div><div class="lab">Binary pools with 95% CI &lt; 1 (benefit)</div></div>
+      <div class="summary-card sig-harm-card"><div class="num">{sig_harm:,}</div><div class="lab">Binary pools with 95% CI &gt; 1 (harm)</div></div>
+    </div>
+    """
+
+    out = HERE / "portfolio_pools.html"
+    out.write_text(f"""<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Portfolio pools — rapidmeta-finerenone</title>
+<meta name="description" content="Sortable dashboard of every R-validation meta-analysis pool in the rapidmeta-finerenone portfolio">
+<style>
+  body {{ margin:0; background:#0f172a; color:#e2e8f0; font-family:system-ui,-apple-system,sans-serif; font-size:13px; line-height:1.5; }}
+  header {{ padding:24px; background:#0a0f1f; border-bottom:1px solid #1f2a44; }}
+  h1 {{ margin:0 0 8px 0; font-size:20px; }}
+  .desc {{ color:#94a3b8; font-size:13px; max-width:1100px; margin-top:8px; }}
+  .summary-row {{ display:flex; gap:10px; flex-wrap:wrap; margin:14px 0; max-width:1200px; }}
+  .summary-card {{ background:#1e293b; padding:10px 14px; border-radius:6px; min-width:130px; }}
+  .summary-card .num {{ font-size:22px; font-weight:600; color:#7dd3fc; }}
+  .summary-card .lab {{ font-size:11px; color:#94a3b8; text-transform:uppercase; letter-spacing:0.04em; }}
+  .summary-card.sig-benefit-card .num {{ color:#86efac; }}
+  .summary-card.sig-harm-card .num {{ color:#fca5a5; }}
+  main {{ padding:24px; max-width:1400px; margin:0 auto; }}
+  .controls {{ display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px; align-items:center; }}
+  .controls input, .controls select {{ background:#1e293b; color:#e2e8f0; border:1px solid #334155; padding:6px 10px; border-radius:4px; font-size:13px; }}
+  .controls input {{ min-width:240px; }}
+  .controls .count {{ color:#94a3b8; font-size:12px; }}
+  table {{ width:100%; border-collapse:collapse; background:#0a0f1f; font-size:12px; }}
+  th, td {{ text-align:left; padding:6px 10px; border-bottom:1px solid #1f2a44; }}
+  th {{ background:#1e293b; cursor:pointer; user-select:none; position:sticky; top:0; }}
+  th:hover {{ background:#334155; }}
+  th .arrow {{ color:#7dd3fc; margin-left:4px; font-size:10px; }}
+  td.k, td.pool, td.i2, td.qp, td.tau2 {{ font-family:JetBrains Mono,monospace; }}
+  td.scale {{ font-family:JetBrains Mono,monospace; color:#7dd3fc; font-size:11px; }}
+  td a {{ color:#e2e8f0; text-decoration:none; font-family:JetBrains Mono,monospace; font-size:11px; }}
+  td a:hover {{ color:#7dd3fc; text-decoration:underline; }}
+  tr.sig-benefit td.pool {{ color:#86efac; font-weight:600; }}
+  tr.sig-harm td.pool {{ color:#fca5a5; font-weight:600; }}
+  .floor-yes {{ background:#15803d; color:#fff; padding:1px 6px; border-radius:3px; font-size:10px; }}
+  .floor-no {{ color:#64748b; }}
+  footer {{ padding:14px 24px; background:#0a0f1f; border-top:1px solid #1f2a44; color:#94a3b8; font-size:11px; max-width:1400px; margin:0 auto; }}
+  footer code {{ background:#1e293b; padding:1px 4px; border-radius:3px; }}
+</style>
+</head>
+<body>
+<header>
+  <h1>Portfolio pools — every R-validated meta-analysis in this corpus</h1>
+  <div class="desc">
+    Each row is one topic's pooled estimate from <code>outputs/r_validation/*.json</code> (binary OR)
+    or <code>outputs/r_validation/continuous/*.json</code> (MD/HR/OR/RR/RD). Methodology:
+    REML &tau;<sup>2</sup>, HKSJ variance scaling with floor at 1 (Wiksten 2016),
+    prediction interval via t<sub>(k-1)</sub> per Cochrane Handbook v6.5. Significance
+    coding: 95% CI fully below null = benefit (green); fully above = harm (red).
+  </div>
+  {summary_row}
+</header>
+<main>
+<div class="controls">
+  <input id="search" type="text" placeholder="Filter by topic name…" aria-label="Filter by topic name">
+  <select id="scale-filter" aria-label="Filter by scale">
+    <option value="">All scales</option>
+    <option value="OR">OR (binary)</option>
+    <option value="MD">MD</option>
+    <option value="HR">HR</option>
+    <option value="RR">RR</option>
+    <option value="RD">RD</option>
+  </select>
+  <select id="k-filter" aria-label="Filter by k tier">
+    <option value="">All k</option>
+    <option value="2-3">k = 2-3</option>
+    <option value="4-10">k = 4-10</option>
+    <option value="10+">k &gt; 10</option>
+  </select>
+  <span class="count" id="visible-count"></span>
+</div>
+<table>
+  <thead>
+    <tr>
+      <th onclick="sortBy('stem')">Topic <span class="arrow"></span></th>
+      <th onclick="sortBy('scale')">Scale <span class="arrow"></span></th>
+      <th onclick="sortBy('k')">k <span class="arrow"></span></th>
+      <th onclick="sortBy('pool')">Pooled <span class="arrow"></span></th>
+      <th>95% CI</th>
+      <th>95% PI</th>
+      <th onclick="sortBy('i2')">I&sup2; <span class="arrow"></span></th>
+      <th onclick="sortBy('qp')">Q p-val <span class="arrow"></span></th>
+      <th onclick="sortBy('tau2')">&tau;&sup2; <span class="arrow"></span></th>
+      <th>HKSJ floor</th>
+    </tr>
+  </thead>
+  <tbody id="rows">
+  {body}
+  </tbody>
+</table>
+</main>
+<footer>
+  Generated by <code>scripts/build_portfolio_pools_dashboard.py</code> · Total rows: {len(rows):,} ·
+  <a href="index.html" style="color:#7dd3fc;">back to portfolio index</a>
+</footer>
+<script>
+  const tbody = document.getElementById('rows');
+  const search = document.getElementById('search');
+  const scaleF = document.getElementById('scale-filter');
+  const kF = document.getElementById('k-filter');
+  const visCount = document.getElementById('visible-count');
+  let sortKey = null;
+  let sortAsc = true;
+
+  function applyFilters() {{
+    const q = search.value.toLowerCase();
+    const s = scaleF.value;
+    const k = kF.value;
+    let visible = 0;
+    for (const tr of tbody.children) {{
+      const stem = tr.dataset.stem;
+      const scale = tr.dataset.scale;
+      const kVal = +tr.dataset.k;
+      let show = (!q || stem.includes(q));
+      if (show && s) show = scale === s;
+      if (show && k) {{
+        if (k === '2-3') show = kVal >= 2 && kVal <= 3;
+        else if (k === '4-10') show = kVal >= 4 && kVal <= 10;
+        else if (k === '10+') show = kVal > 10;
+      }}
+      tr.style.display = show ? '' : 'none';
+      if (show) visible++;
+    }}
+    visCount.textContent = visible + ' visible';
+  }}
+
+  function sortBy(key) {{
+    const rows = Array.from(tbody.children);
+    sortAsc = (sortKey === key) ? !sortAsc : true;
+    sortKey = key;
+    rows.sort((a, b) => {{
+      let av, bv;
+      if (key === 'stem' || key === 'scale') {{
+        av = a.dataset[key] || ''; bv = b.dataset[key] || '';
+        return sortAsc ? av.localeCompare(bv) : bv.localeCompare(av);
+      }}
+      const cellMap = {{ k: 2, pool: 3, i2: 6, qp: 7, tau2: 8 }};
+      const idx = cellMap[key];
+      const ap = parseFloat(a.cells[idx].textContent.replace('%','').replace(/[^\\d.\\-eE]/g, '')) || -Infinity;
+      const bp = parseFloat(b.cells[idx].textContent.replace('%','').replace(/[^\\d.\\-eE]/g, '')) || -Infinity;
+      return sortAsc ? ap - bp : bp - ap;
+    }});
+    tbody.replaceChildren(...rows);
+    // Update arrow
+    document.querySelectorAll('th .arrow').forEach(a => a.textContent = '');
+    const th = Array.from(document.querySelectorAll('th'))
+      .find(t => t.getAttribute('onclick') && t.getAttribute('onclick').includes(`'${{key}}'`));
+    if (th) th.querySelector('.arrow').textContent = sortAsc ? '▲' : '▼';
+  }}
+
+  search.addEventListener('input', applyFilters);
+  scaleF.addEventListener('change', applyFilters);
+  kF.addEventListener('change', applyFilters);
+  applyFilters();
+</script>
+</body>
+</html>
+""", encoding="utf-8")
+    print(f"\nWrote {out.relative_to(HERE)} ({out.stat().st_size:,} bytes)")
+
+
+if __name__ == "__main__":
+    main()

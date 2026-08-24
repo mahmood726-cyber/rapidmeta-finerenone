@@ -1,0 +1,601 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a0320f-d550-7fe2-aad2-164dfeac94d0
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/poolability.py
+
+--- THE FILE, IN FULL ---
+"""POOLABILITY -- can this topic support a pooled estimate at all?
+
+THE RULE THIS IMPLEMENTS
+    The corpus should carry POOLABLE QUESTIONS. Where a topic cannot support a
+    pooled estimate it is replaced by one that can, rather than kept as a page
+    presenting an unpoolable set.
+
+THE DISTINCTION THAT MAKES THE RULE SAFE
+    (A) POOLABLE AS POSED. Nothing to do.
+
+    (B) POOLABLE AFTER A STATED ADJUSTMENT. The question is mis-specified but a
+        poolable question exists nearby, and the defect can be NAMED. FINERENONE
+        pooled a kidney outcome with a CV outcome while both DKD trials report the
+        CV composite; DOAC_CANCER_VTE mixed an efficacy-plus-harm composite with
+        pure efficacy while all three trials report recurrent VTE separately.
+        The adjustment is stated BEFORE any number exists. That ordering is the
+        entire guard: adjust because the trials cannot answer the question, never
+        because a different question yields a nicer estimate.
+
+    (C) NOT POOLABLE. Trials too clinically distinct, no common outcome, or a
+        single trial. THESE MUST NOT BE REPLACED WITH A MANUFACTURED QUESTION SO
+        THE PAGE CAN SHOW A NUMBER. "Replace with a topic where pooling is
+        possible" must not become "keep adjusting until a number appears". The
+        honest output is a page presenting the trials separately with the reason -
+        as MITRAL now does for COAPT and MITRA-FR at I-squared 88 - or removal of
+        the topic. A page reporting two discordant trials separately and explaining
+        the discordance is more useful than a pooled estimate that conceals it.
+
+        NOTHING IS REMOVED BY THIS SCRIPT. Category C is a list for a human.
+
+WHAT A CLASSIFICATION DOES NOT ESTABLISH -- written in advance
+    - NOT that a category-A page's estimate is correct. Poolable is not right.
+    - NOT that a category-B adjustment is the BEST question, only that one exists.
+    - NOT clinical judgement. Whether two populations are "too distinct" is a
+      clinician's call; this flags candidates on mechanical signals and says so.
+    - The test for a replacement question is whether a clinician would actually ask
+      it. No script can check that, which is why category C goes to a human.
+"""
+from __future__ import annotations
+import json, os, re, sys, io, glob, collections
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+HARM = re.compile(r"\b(bleed\w*|h[ae]morrhag\w*|adverse events?|serious adverse|toxicit\w*)\b", re.I)
+EFF = re.compile(r"\b(death|mortality|survival|stroke|myocardial infarction|hospitali[sz]ation|"
+                 r"thromboembol\w*|\bVTE\b|infection|cure|clearance|response)\b", re.I)
+
+
+def classify(path):
+    # Accepts a path or an already-loaded object, so the selftest can MUTATE a
+    # real object and replay it. A fixture only proves the check can fire; a
+    # mutated real object proves it fires on the state this repository was
+    # actually in.
+    d = (path if isinstance(path, dict)
+         else json.loads(open(path, encoding="utf-8", errors="replace").read()))
+    c = d.get("canonical") or {}
+    # BOTH SCHEMAS -- see arm_identity_gate. UNASSESSABLE on 100% of the v1
+    # objects was this gate reading the extraction artefact's shape only.
+    import object_shapes as _os
+    trials = _os.trials_of(d)
+    est = c.get("estimand") or {}
+    _k, rep = _os.pooled_of(d)
+    k = _k if _k is not None else rep.get("k")
+    reasons = []
+
+    # A WITHDRAWN POOL IS THE PROPERTY BEING MET, NOT AN ABSENT ONE.
+    # `pooled_of` only returns a pool with a live point, so a page that had
+    # correctly withdrawn its estimate WITH ITS REASON arrived here as
+    # "no pooled result recorded" -- UNASSESSABLE. That reads as unmeasured when
+    # in fact it is the exact state the standard asks for, and it would have
+    # counted a completed withdrawal as a gap in the ledger.
+    live, withdrawn, silent = [], [], []
+    for oid, res in (((d.get("results") or {}).get("by_outcome")) or {}).items():
+        p = res.get("pooled")
+        if not isinstance(p, dict):
+            continue
+        if p.get("point") is not None:
+            live.append(oid)
+        elif p.get("withdrawn") and (p.get("withdrawn_reason") or "").strip():
+            withdrawn.append(oid)
+        else:
+            silent.append(oid)
+    if silent:
+        return "UNASSESSABLE", [
+            "%d outcome(s) carry no pooled point and no withdrawal reason: %s. "
+            "An absent number that does not say why it is absent is not a "
+            "withholding, it is a gap." % (len(silent), ", ".join(silent[:6]))]
+    if withdrawn and not live:
+        return "D_WITHHELD_WITH_REASON", [
+            "%d outcome(s) withdrawn WITH a stated reason: %s"
+            % (len(withdrawn), ", ".join(withdrawn[:6]))]
+
+    if not trials or k is None:
+        return "UNASSESSABLE", ["no trials or no pooled result recorded"]
+    if k == 1 or len(trials) == 1:
+        return "C_NOT_POOLABLE", ["a single trial: there is nothing to pool"]
+
+    # THE DEFECT THAT WITHDREW A LIVE ESTIMATE IS CONSULTED HERE RATHER THAN
+    # RE-IMPLEMENTED. Before this, SGLT2_HF -- four trials, two endpoint
+    # definitions, the object whose pool was withdrawn for exactly that -- came
+    # out of this script as A_POOLABLE_AS_POSED. A gate named `poolability`
+    # returning a clean verdict on the canonical unpoolable object is the
+    # comfortable failure this repository keeps finding, one level up.
+    try:
+        import estimand_definition_gate as _eg
+        _v, _notes = _eg.check(d)
+        if _v == "FAIL":
+            for n in _notes:
+                if "DISAGREE" in n or "NO endpoint definition" in n:
+                    reasons.append("estimand definitions: %s" % n)
+    except Exception as ex:                           # noqa: BLE001
+        reasons.append("the estimand-definition check could not run (%s), so "
+                       "endpoint agreement is UNMEASURED here" % ex)
+
+    # multiple declared outcomes is the object saying so itself
+    od = est.get("outcome_definition") or ""
+    if od.startswith("Multiple trial-declared outcomes"):
+        reasons.append("the object itself records MULTIPLE trial-declared outcomes, so the "
+                       "trials are not reporting one common quantity")
+
+    # DEFINITIONS, FROM EITHER SCHEMA. This line used to read
+    # `t["outcome"]["definition"]` -- a field only the extraction schema has --
+    # so it reported "N of N trials carry no outcome definition" on every SSOT
+    # object in the repository, whether or not the definitions had been read
+    # from the registry word for word. A complaint that fires on the correct
+    # work and the incorrect work alike distinguishes nothing, and this one
+    # argues for a WITHDRAWAL, which is the expensive direction to be wrong in.
+    defs = []
+    for t in trials:
+        _dfs = _os.definitions_of(t)      # not `d`: that name holds the object
+        defs.append(" ".join(_dfs.values()) if _dfs else "")
+    named = [x for x in defs if x]
+    h = sum(1 for x in named if HARM.search(x) and not EFF.search(x))
+    e = sum(1 for x in named if EFF.search(x) and not HARM.search(x))
+    if h and e:
+        reasons.append("harm endpoints pooled with efficacy endpoints (%d vs %d): the two move "
+                       "in opposite directions by construction" % (h, e))
+    if len(named) < len(trials):
+        reasons.append("%d of %d trials carry no outcome definition, so a common outcome cannot "
+                       "be established" % (len(trials) - len(named), len(trials)))
+
+    i2 = rep.get("I2")
+    if i2 is not None and i2 >= 90:
+        reasons.append("I-squared %.0f%%: the trials disagree so strongly that an average "
+                       "conceals more than it conveys" % i2)
+
+    if reasons:
+        # a NAMED defect with a common quantity still available -> adjustable
+        adjustable = (len(named) >= 2 and not (h and e) and (i2 is None or i2 < 90))
+        return ("B_POOLABLE_AFTER_ADJUSTMENT" if adjustable else "C_NOT_POOLABLE"), reasons
+    return "A_POOLABLE_AS_POSED", ["k=%s, one common outcome, no mixed directions" % k]
+
+
+def selftest() -> int:
+    """A gate that cannot fail reports success without having checked.
+
+    Replayed against real objects, not fixtures: SGLT2_HF records no endpoint
+    definition on any trial and must stay category C; SOTAGLIFLOZIN records one
+    per trial, read from the registry, and must NOT be C for want of a
+    definition. Before 2026-08-17 both came out C for the same wrong reason.
+    """
+    ok = True
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+    def _nodef(obj):
+        _v, _why = classify(obj)
+        return any("carry no outcome definition" in w for w in _why)
+
+    for app, label in (("sotagliflozin-hf", "definitions read from the registry"),
+                       ("sglt2-hf", "definitions quoted, and they DISAGREE"),
+                       ("finerenone-cv", "endpoint TITLES quoted from the registry")):
+        p = os.path.join(root, "ssot", app, "%s.json" % app)
+        if not os.path.exists(p):
+            print("  fixture absent: %s -- NOT PROVEN" % app); ok = False; continue
+        n = _nodef(p)
+        ok &= not n
+        print("  NEGATIVE %-17s %-38s complaint: %-5s %s"
+              % (app, label[:38], n, "correct" if not n else "WRONG"))
+
+    # POSITIVE, BY MUTATING A REAL OBJECT rather than authoring a fixture: strip
+    # every recorded definition from SOTAGLIFLOZIN and the complaint must fire.
+    # That state is not hypothetical -- it is what this object looked like this
+    # morning, and what SGLT2_HF looked like when it pooled two endpoints as one.
+    p = os.path.join(root, "ssot", "sotagliflozin-hf", "sotagliflozin-hf.json")
+    if os.path.exists(p):
+        mut = json.loads(open(p, encoding="utf-8").read())
+        for t in mut["inputs"]["trials"]:
+            for bo in (t.get("by_outcome") or {}).values():
+                bo.pop("outcome_definition", None)
+                (bo.get("provenance") or {}).pop("source_quotes", None)
+        n = _nodef(mut)
+        ok &= n
+        print("  POSITIVE %-17s %-38s complaint: %-5s %s"
+              % ("sotagliflozin-hf", "every definition stripped", n,
+                 "correct" if n else "WRONG"))
+    else:
+        print("  fixture absent: sotagliflozin-hf -- NOT PROVEN"); ok = False
+    print("\nWHAT A FAILURE WOULD LOOK LIKE: the no-definition complaint firing on "
+          "an object whose definitions were read word for word, which would argue "
+          "for withdrawing a sound estimate.")
+    print("-> SELFTEST PASS" if ok else "-> SELFTEST FAILED")
+    return 0 if ok else 1
+
+
+def main() -> int:
+    if len(sys.argv) < 2 or sys.argv[1] == "--selftest":
+        return selftest()
+    paths = sorted(glob.glob(sys.argv[1]))
+    if not paths:
+        print("no object matched %r. NOT RUN -- which is not a pass." % sys.argv[1],
+              file=sys.stderr)
+        return 2
+    tot = collections.Counter()
+    rows = []
+    for p in paths:
+        try:
+            v, why = classify(p)
+        except Exception as ex:                       # noqa: BLE001
+            print("  %-46s COULD NOT BE READ: %s" % (os.path.basename(p)[:46], ex))
+            tot["UNASSESSABLE"] += 1
+            continue
+        tot[v] += 1
+        rows.append((os.path.basename(p).replace(".html.canonical.json", ""), v, why))
+    n = sum(tot.values())
+    print("topics assessed: %d" % n)
+    for k in ("A_POOLABLE_AS_POSED", "D_WITHHELD_WITH_REASON",
+              "B_POOLABLE_AFTER_ADJUSTMENT", "C_NOT_POOLABLE", "UNASSESSABLE"):
+        print("  %-30s %4d  %5.1f%%" % (k, tot[k], 100 * tot[k] / n if n else 0))
+    print("\nCATEGORY C -- FOR A HUMAN DECISION, nothing removed by this script:")
+    for pg, v, why in rows:
+        if v == "C_NOT_POOLABLE":
+            print("  %-46s %s" % (pg[:46], why[0][:88]))
+    # The dump used to go to a hardcoded absolute path in a DIFFERENT project's
+    # gitignored outputs/ directory. It wrote fine, read back fine, and existed
+    # in no clone -- the durable-artefact failure exactly. It is opt-in now, and
+    # the caller names a path inside a repository.
+    for i, a in enumerate(sys.argv):
+        if a == "--dump" and i + 1 < len(sys.argv):
+            json.dump([{"page": r[0], "category": r[1], "reasons": r[2]} for r in rows],
+                      open(sys.argv[i + 1], "w", encoding="utf-8"), indent=1)
+            print("\ndump written to %s" % sys.argv[i + 1])
+    # THIS SCRIPT USED TO RETURN 0 WHATEVER IT FOUND. v1_coverage_audit maps the
+    # exit code to a property verdict, so poolable_or_withheld could only ever
+    # have read PASS -- a standard property watched by a check with no failure
+    # path. UNASSESSABLE is exit 2 (unmeasured, not a pass); category C is exit 1.
+    if tot["UNASSESSABLE"]:
+        return 2
+    # B IS A FAILURE OF THIS PROPERTY, NOT A SOFTER PASS. B means the question as
+    # posed cannot be pooled and a nearby one can -- so while the live estimate
+    # answers the posed question, `poolable_or_withheld` is not met. Scoring B as
+    # a pass is how SGLT2_HF would have kept its green.
+    return 1 if (tot["C_NOT_POOLABLE"] or tot["B_POOLABLE_AFTER_ADJUSTMENT"]) else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+
+codex
+I’m going to keep this to defect findings only and anchor them to the pasted module, not infer behavior from unstated callers.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command 'Get-Content -Path scripts/poolability.py | ForEach-Object -Begin {$i=1} -Process { '"'{0,4}: {1}' -f "'$i, $_; $i++ }' in F:\rapidmeta-ssot-shell
+ succeeded in 1295ms:
+   1: """POOLABILITY -- can this topic support a pooled estimate at all?
+   2: 
+   3: THE RULE THIS IMPLEMENTS
+   4:     The corpus should carry POOLABLE QUESTIONS. Where a topic cannot support a
+   5:     pooled estimate it is replaced by one that can, rather than kept as a page
+   6:     presenting an unpoolable set.
+   7: 
+   8: THE DISTINCTION THAT MAKES THE RULE SAFE
+   9:     (A) POOLABLE AS POSED. Nothing to do.
+  10: 
+  11:     (B) POOLABLE AFTER A STATED ADJUSTMENT. The question is mis-specified but a
+  12:         poolable question exists nearby, and the defect can be NAMED. FINERENONE
+  13:         pooled a kidney outcome with a CV outcome while both DKD trials report the
+  14:         CV composite; DOAC_CANCER_VTE mixed an efficacy-plus-harm composite with
+  15:         pure efficacy while all three trials report recurrent VTE separately.
+  16:         The adjustment is stated BEFORE any number exists. That ordering is the
+  17:         entire guard: adjust because the trials cannot answer the question, never
+  18:         because a different question yields a nicer estimate.
+  19: 
+  20:     (C) NOT POOLABLE. Trials too clinically distinct, no common outcome, or a
+  21:         single trial. THESE MUST NOT BE REPLACED WITH A MANUFACTURED QUESTION SO
+  22:         THE PAGE CAN SHOW A NUMBER. "Replace with a topic where pooling is
+  23:         possible" must not become "keep adjusting until a number appears". The
+  24:         honest output is a page presenting the trials separately with the reason -
+  25:         as MITRAL now does for COAPT and MITRA-FR at I-squared 88 - or removal of
+  26:         the topic. A page reporting two discordant trials separately and explaining
+  27:         the discordance is more useful than a pooled estimate that conceals it.
+  28: 
+  29:         NOTHING IS REMOVED BY THIS SCRIPT. Category C is a list for a human.
+  30: 
+  31: WHAT A CLASSIFICATION DOES NOT ESTABLISH -- written in advance
+  32:     - NOT that a category-A page's estimate is correct. Poolable is not right.
+  33:     - NOT that a category-B adjustment is the BEST question, only that one exists.
+  34:     - NOT clinical judgement. Whether two populations are "too distinct" is a
+  35:       clinician's call; this flags candidates on mechanical signals and says so.
+  36:     - The test for a replacement question is whether a clinician would actually ask
+  37:       it. No script can check that, which is why category C goes to a human.
+  38: """
+  39: from __future__ import annotations
+  40: import json, os, re, sys, io, glob, collections
+  41: sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+  42: 
+  43: if __name__ == "__main__":
+  44:     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+  45: 
+  46: HARM = re.compile(r"\b(bleed\w*|h[ae]morrhag\w*|adverse events?|serious adverse|toxicit\w*)\b", re.I)
+  47: EFF = re.compile(r"\b(death|mortality|survival|stroke|myocardial infarction|hospitali[sz]ation|"
+  48:                  r"thromboembol\w*|\bVTE\b|infection|cure|clearance|response)\b", re.I)
+  49: 
+  50: 
+  51: def classify(path):
+  52:     # Accepts a path or an already-loaded object, so the selftest can MUTATE a
+  53:     # real object and replay it. A fixture only proves the check can fire; a
+  54:     # mutated real object proves it fires on the state this repository was
+  55:     # actually in.
+  56:     d = (path if isinstance(path, dict)
+  57:          else json.loads(open(path, encoding="utf-8", errors="replace").read()))
+  58:     c = d.get("canonical") or {}
+  59:     # BOTH SCHEMAS -- see arm_identity_gate. UNASSESSABLE on 100% of the v1
+  60:     # objects was this gate reading the extraction artefact's shape only.
+  61:     import object_shapes as _os
+  62:     trials = _os.trials_of(d)
+  63:     est = c.get("estimand") or {}
+  64:     _k, rep = _os.pooled_of(d)
+  65:     k = _k if _k is not None else rep.get("k")
+  66:     reasons = []
+  67: 
+  68:     # A WITHDRAWN POOL IS THE PROPERTY BEING MET, NOT AN ABSENT ONE.
+  69:     # `pooled_of` only returns a pool with a live point, so a page that had
+  70:     # correctly withdrawn its estimate WITH ITS REASON arrived here as
+  71:     # "no pooled result recorded" -- UNASSESSABLE. That reads as unmeasured when
+  72:     # in fact it is the exact state the standard asks for, and it would have
+  73:     # counted a completed withdrawal as a gap in the ledger.
+  74:     live, withdrawn, silent = [], [], []
+  75:     for oid, res in (((d.get("results") or {}).get("by_outcome")) or {}).items():
+  76:         p = res.get("pooled")
+  77:         if not isinstance(p, dict):
+  78:             continue
+  79:         if p.get("point") is not None:
+  80:             live.append(oid)
+  81:         elif p.get("withdrawn") and (p.get("withdrawn_reason") or "").strip():
+  82:             withdrawn.append(oid)
+  83:         else:
+  84:             silent.append(oid)
+  85:     if silent:
+  86:         return "UNASSESSABLE", [
+  87:             "%d outcome(s) carry no pooled point and no withdrawal reason: %s. "
+  88:             "An absent number that does not say why it is absent is not a "
+  89:             "withholding, it is a gap." % (len(silent), ", ".join(silent[:6]))]
+  90:     if withdrawn and not live:
+  91:         return "D_WITHHELD_WITH_REASON", [
+  92:             "%d outcome(s) withdrawn WITH a stated reason: %s"
+  93:             % (len(withdrawn), ", ".join(withdrawn[:6]))]
+  94: 
+  95:     if not trials or k is None:
+  96:         return "UNASSESSABLE", ["no trials or no pooled result recorded"]
+  97:     if k == 1 or len(trials) == 1:
+  98:         return "C_NOT_POOLABLE", ["a single trial: there is nothing to pool"]
+  99: 
+ 100:     # THE DEFECT THAT WITHDREW A LIVE ESTIMATE IS CONSULTED HERE RATHER THAN
+ 101:     # RE-IMPLEMENTED. Before this, SGLT2_HF -- four trials, two endpoint
+ 102:     # definitions, the object whose pool was withdrawn for exactly that -- came
+ 103:     # out of this script as A_POOLABLE_AS_POSED. A gate named `poolability`
+ 104:     # returning a clean verdict on the canonical unpoolable object is the
+ 105:     # comfortable failure this repository keeps finding, one level up.
+ 106:     try:
+ 107:         import estimand_definition_gate as _eg
+ 108:         _v, _notes = _eg.check(d)
+ 109:         if _v == "FAIL":
+ 110:             for n in _notes:
+ 111:                 if "DISAGREE" in n or "NO endpoint definition" in n:
+ 112:                     reasons.append("estimand definitions: %s" % n)
+ 113:     except Exception as ex:                           # noqa: BLE001
+ 114:         reasons.append("the estimand-definition check could not run (%s), so "
+ 115:                        "endpoint agreement is UNMEASURED here" % ex)
+ 116: 
+ 117:     # multiple declared outcomes is the object saying so itself
+ 118:     od = est.get("outcome_definition") or ""
+ 119:     if od.startswith("Multiple trial-declared outcomes"):
+ 120:         reasons.append("the object itself records MULTIPLE trial-declared outcomes, so the "
+ 121:                        "trials are not reporting one common quantity")
+ 122: 
+ 123:     # DEFINITIONS, FROM EITHER SCHEMA. This line used to read
+ 124:     # `t["outcome"]["definition"]` -- a field only the extraction schema has --
+ 125:     # so it reported "N of N trials carry no outcome definition" on every SSOT
+ 126:     # object in the repository, whether or not the definitions had been read
+ 127:     # from the registry word for word. A complaint that fires on the correct
+ 128:     # work and the incorrect work alike distinguishes nothing, and this one
+ 129:     # argues for a WITHDRAWAL, which is the expensive direction to be wrong in.
+ 130:     defs = []
+ 131:     for t in trials:
+ 132:         _dfs = _os.definitions_of(t)      # not `d`: that name holds the object
+ 133:         defs.append(" ".join(_dfs.values()) if _dfs else "")
+ 134:     named = [x for x in defs if x]
+ 135:     h = sum(1 for x in named if HARM.search(x) and not EFF.search(x))
+ 136:     e = sum(1 for x in named if EFF.search(x) and not HARM.search(x))
+ 137:     if h and e:
+ 138:         reasons.append("harm endpoints pooled with efficacy endpoints (%d vs %d): the two move "
+ 139:                        "in opposite directions by construction" % (h, e))
+ 140:     if len(named) < len(trials):
+ 141:         reasons.append("%d of %d trials carry no outcome definition, so a common outcome cannot "
+ 142:                        "be established" % (len(trials) - len(named), len(trials)))
+ 143: 
+ 144:     i2 = rep.get("I2")
+ 145:     if i2 is not None and i2 >= 90:
+ 146:         reasons.append("I-squared %.0f%%: the trials disagree so strongly that an average "
+ 147:                        "conceals more than it conveys" % i2)
+ 148: 
+ 149:     if reasons:
+ 150:         # a NAMED defect with a common quantity still available -> adjustable
+ 151:         adjustable = (len(named) >= 2 and not (h and e) and (i2 is None or i2 < 90))
+ 152:         return ("B_POOLABLE_AFTER_ADJUSTMENT" if adjustable else "C_NOT_POOLABLE"), reasons
+ 153:     return "A_POOLABLE_AS_POSED", ["k=%s, one common outcome, no mixed directions" % k]
+ 154: 
+ 155: 
+ 156: def selftest() -> int:
+ 157:     """A gate that cannot fail reports success without having checked.
+ 158: 
+ 159:     Replayed against real objects, not fixtures: SGLT2_HF records no endpoint
+ 160:     definition on any trial and must stay category C; SOTAGLIFLOZIN records one
+ 161:     per trial, read from the registry, and must NOT be C for want of a
+ 162:     definition. Before 2026-08-17 both came out C for the same wrong reason.
+ 163:     """
+ 164:     ok = True
+ 165:     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ 166: 
+ 167:     def _nodef(obj):
+ 168:         _v, _why = classify(obj)
+ 169:         return any("carry no outcome definition" in w for w in _why)
+ 170: 
+ 171:     for app, label in (("sotagliflozin-hf", "definitions read from the registry"),
+ 172:                        ("sglt2-hf", "definitions quoted, and they DISAGREE"),
+ 173:                        ("finerenone-cv", "endpoint TITLES quoted from the registry")):
+ 174:         p = os.path.join(root, "ssot", app, "%s.json" % app)
+ 175:         if not os.path.exists(p):
+ 176:             print("  fixture absent: %s -- NOT PROVEN" % app); ok = False; continue
+ 177:         n = _nodef(p)
+ 178:         ok &= not n
+ 179:         print("  NEGATIVE %-17s %-38s complaint: %-5s %s"
+ 180:               % (app, label[:38], n, "correct" if not n else "WRONG"))
+ 181: 
+ 182:     # POSITIVE, BY MUTATING A REAL OBJECT rather than authoring a fixture: strip
+ 183:     # every recorded definition from SOTAGLIFLOZIN and the complaint must fire.
+ 184:     # That state is not hypothetical -- it is what this object looked like this
+ 185:     # morning, and what SGLT2_HF looked like when it pooled two endpoints as one.
+ 186:     p = os.path.join(root, "ssot", "sotagliflozin-hf", "sotagliflozin-hf.json")
+ 187:     if os.path.exists(p):
+ 188:         mut = json.loads(open(p, encoding="utf-8").read())
+ 189:         for t in mut["inputs"]["trials"]:
+ 190:             for bo in (t.get("by_outcome") or {}).values():
+ 191:                 bo.pop("outcome_definition", None)
+ 192:                 (bo.get("provenance") or {}).pop("source_quotes", None)
+ 193:         n = _nodef(mut)
+ 194:         ok &= n
+ 195:         print("  POSITIVE %-17s %-38s complaint: %-5s %s"
+ 196:               % ("sotagliflozin-hf", "every definition stripped", n,
+ 197:                  "correct" if n else "WRONG"))
+ 198:     else:
+ 199:         print("  fixture absent: sotagliflozin-hf -- NOT PROVEN"); ok = False
+ 200:     print("\nWHAT A FAILURE WOULD LOOK LIKE: the no-definition complaint firing on "
+ 201:           "an object whose definitions were read word for word, which would argue "
+ 202:           "for withdrawing a sound estimate.")
+ 203:     print("-> SELFTEST PASS" if ok else "-> SELFTEST FAILED")
+ 204:     return 0 if ok else 1
+ 205: 
+ 206: 
+ 207: def main() -> int:
+ 208:     if len(sys.argv) < 2 or sys.argv[1] == "--selftest":
+ 209:         return selftest()
+ 210:     paths = sorted(glob.glob(sys.argv[1]))
+ 211:     if not paths:
+ 212:         print("no object matched %r. NOT RUN -- which is not a pass." % sys.argv[1],
+ 213:               file=sys.stderr)
+ 214:         return 2
+ 215:     tot = collections.Counter()
+ 216:     rows = []
+ 217:     for p in paths:
+ 218:         try:
+ 219:             v, why = classify(p)
+ 220:         except Exception as ex:                       # noqa: BLE001
+ 221:             print("  %-46s COULD NOT BE READ: %s" % (os.path.basename(p)[:46], ex))
+ 222:             tot["UNASSESSABLE"] += 1
+ 223:             continue
+ 224:         tot[v] += 1
+ 225:         rows.append((os.path.basename(p).replace(".html.canonical.json", ""), v, why))
+ 226:     n = sum(tot.values())
+ 227:     print("topics assessed: %d" % n)
+ 228:     for k in ("A_POOLABLE_AS_POSED", "D_WITHHELD_WITH_REASON",
+ 229:               "B_POOLABLE_AFTER_ADJUSTMENT", "C_NOT_POOLABLE", "UNASSESSABLE"):
+ 230:         print("  %-30s %4d  %5.1f%%" % (k, tot[k], 100 * tot[k] / n if n else 0))
+ 231:     print("\nCATEGORY C -- FOR A HUMAN DECISION, nothing removed by this script:")
+ 232:     for pg, v, why in rows:
+ 233:         if v == "C_NOT_POOLABLE":
+ 234:             print("  %-46s %s" % (pg[:46], why[0][:88]))
+ 235:     # The dump used to go to a hardcoded absolute path in a DIFFERENT project's
+ 236:     # gitignored outputs/ directory. It wrote fine, read back fine, and existed
+ 237:     # in no clone -- the durable-artefact failure exactly. It is opt-in now, and
+ 238:     # the caller names a path inside a repository.
+ 239:     for i, a in enumerate(sys.argv):
+ 240:         if a == "--dump" and i + 1 < len(sys.argv):
+ 241:             json.dump([{"page": r[0], "category": r[1], "reasons": r[2]} for r in rows],
+ 242:                       open(sys.argv[i + 1], "w", encoding="utf-8"), indent=1)
+ 243:             print("\ndump written to %s" % sys.argv[i + 1])
+ 244:     # THIS SCRIPT USED TO RETURN 0 WHATEVER IT FOUND. v1_coverage_audit maps the
+ 245:     # exit code to a property verdict, so poolable_or_withheld could only ever
+ 246:     # have read PASS -- a standard property watched by a check with no failure
+ 247:     # path. UNASSESSABLE is exit 2 (unmeasured, not a pass); category C is exit 1.
+ 248:     if tot["UNASSESSABLE"]:
+ 249:         return 2
+ 250:     # B IS A FAILURE OF THIS PROPERTY, NOT A SOFTER PASS. B means the question as
+ 251:     # posed cannot be pooled and a nearby one can -- so while the live estimate
+ 252:     # answers the posed question, `poolable_or_withheld` is not met. Scoring B as
+ 253:     # a pass is how SGLT2_HF would have kept its green.
+ 254:     return 1 if (tot["C_NOT_POOLABLE"] or tot["B_POOLABLE_AFTER_ADJUSTMENT"]) else 0
+ 255: 
+ 256: 
+ 257: if __name__ == "__main__":
+ 258:     sys.exit(main())
+
+codex
+Findings:
+
+- Line 169 / 178, check that CANNOT FAIL for the promised SGLT2 category invariant. Exact input/state: `classify(p)` returns `("A_POOLABLE_AS_POSED", ["k=4, one common outcome, no mixed directions"])` for the `sglt2-hf` loop entry. Consequence: `_v` is ignored, so selftest can print/pass “correct” even when the object that “must stay category C” is classified A.
+
+- Line 111, probe keyed to the STRING A FIX REMOVES. Exact input/state: `_v = "FAIL"; _notes = ["endpoint definitions differ: CV composite vs kidney composite"]`. Consequence: the delegated gate reports failure, but this module appends no reason unless the note contains literal `DISAGREE` or `NO endpoint definition`.
+
+- Lines 135-137, SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE. Exact input: `named = ["recurrent VTE or major bleeding", "recurrent VTE"]`. Consequence: the efficacy-plus-harm composite matches both regexes and is counted as neither harm nor efficacy, so the mixed-direction defect named in the header can be missed.
+
+- Lines 46-48 / 135-136, NEGATION DROPPED. Exact input: `named = ["not death", "bleeding"]`. Consequence: `death` is counted as an efficacy endpoint despite being negated, allowing a denied endpoint to drive a mixed-direction classification.
+
+COULD NOT DETERMINE whole-`classify()` reachability from the packet alone: missing `object_shapes.py`, `estimand_definition_gate.py`, and the concrete SSOT JSON objects/callers.
+
+No proven pasted-file defect for CRLF/LF text comparison, merged-cell/off-by-one tabulation, zero conflated with absent, different-copy instrumentation, or wrapper status-code reporting.
+tokens used
+21,035
+Findings:
+
+- Line 169 / 178, check that CANNOT FAIL for the promised SGLT2 category invariant. Exact input/state: `classify(p)` returns `("A_POOLABLE_AS_POSED", ["k=4, one common outcome, no mixed directions"])` for the `sglt2-hf` loop entry. Consequence: `_v` is ignored, so selftest can print/pass “correct” even when the object that “must stay category C” is classified A.
+
+- Line 111, probe keyed to the STRING A FIX REMOVES. Exact input/state: `_v = "FAIL"; _notes = ["endpoint definitions differ: CV composite vs kidney composite"]`. Consequence: the delegated gate reports failure, but this module appends no reason unless the note contains literal `DISAGREE` or `NO endpoint definition`.
+
+- Lines 135-137, SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE. Exact input: `named = ["recurrent VTE or major bleeding", "recurrent VTE"]`. Consequence: the efficacy-plus-harm composite matches both regexes and is counted as neither harm nor efficacy, so the mixed-direction defect named in the header can be missed.
+
+- Lines 46-48 / 135-136, NEGATION DROPPED. Exact input: `named = ["not death", "bleeding"]`. Consequence: `death` is counted as an efficacy endpoint despite being negated, allowing a denied endpoint to drive a mixed-direction classification.
+
+COULD NOT DETERMINE whole-`classify()` reachability from the packet alone: missing `object_shapes.py`, `estimand_definition_gate.py`, and the concrete SSOT JSON objects/callers.
+
+No proven pasted-file defect for CRLF/LF text comparison, merged-cell/off-by-one tabulation, zero conflated with absent, different-copy instrumentation, or wrapper status-code reporting.

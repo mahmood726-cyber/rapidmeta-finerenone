@@ -1,0 +1,43 @@
+[pre-push] Durable artefacts tracked.
+[pre-push] Harness gate: exporting artefacts ...
+[harness-gate] 138 artefact(s), 318 check execution(s): 313 PASS, 0 FAIL, 5 INVALID
+[harness-gate] artefact-decidable detectors: 20
+[harness-gate] NOT RUN HERE (retrieval-scoped, 10): CHK001, CHK003, CHK004, CHK007, CHK010, CHK011, CHK012, CHK014, CHK015, CHK022
+[harness-gate] Those are not covered by this gate. Silence from them is not evidence.
+
+[harness-gate] INVALID -- ran but could not see. Not a pass:
+  CHK016_PRECISION_SAMPLE_MISMATCH on apixaban-vte-treatment.json: a zero cell makes the sample-implied standard error undefined without a continuity correction
+  CHK016_PRECISION_SAMPLE_MISMATCH on bococizumab-lipid-review.json: no usable confidence interval on the row
+  CHK016_PRECISION_SAMPLE_MISMATCH on bococizumab-lipid-review.json: no usable confidence interval on the row
+  CHK016_PRECISION_SAMPLE_MISMATCH on bococizumab-lipid-review.json: no usable confidence interval on the row
+  CHK016_PRECISION_SAMPLE_MISMATCH on finerenone-review.json: PASS is vacuous -- verdict survived forcing ci_high to its flipping value, so the check does not depend on the term it claims to o
+[harness-gate] PASS.
+[pre-push] Regression checking 138 changed app page(s) ...
+[pre-push] Port 8787 is answering but is NOT serving F:/rapidmeta-ssot-shell.
+[pre-push] Using an unused port instead of another tree's bytes.
+Regression checking 138 apps (scoped by --only)
+
+============================================================
+page_errors:    0/138
+no_trials:    0/138
+no_studies_rendered:    0/138
+nondeterministic_render:    0/138
+no_rob_banner:    0/138
+wrong_protocol_link:    0/138
+no_webr_tag:    0/138
+pool_broken:    0/138
+pool_withdrawn_with_reason:    0/138
+fully_ok:    138/138
+
+NOT_ASSESSABLE: wrong_protocol_link reported 0, AND the marker 'arni_hf_protocol' was not seen on ANY of the 138 pages
+    read this run. THE SEARCH CANNOT MATCH. This zero is not evidence that no
+    page has the defect, and this signal is in the BLOCKING set, so it has
+    been contributing a clean verdict it could never have contributed
+    otherwise. Either the marker is stale or the check is.
+
+Raw JSON saved to /tmp/regression_results.json
+
+Regression check clean across the pages in scope.
+[pre-push] Regression check PASS on 138 page(s). Proceeding with push.
+To https://github.com/mahmood726-cyber/rapidmeta-finerenone.git
+   cb88d1001..a23c704fb  HEAD -> main

@@ -1,0 +1,233 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a031ce-7f5c-7a40-ac19-71e12e4cd6d5
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/gate_no_prose_bypasses_the_tidy_2026_08_23.py
+
+--- THE FILE, IN FULL ---
+"""Every path that puts prose on a page must reach the render transform. Proven, not asserted.
+
+SEVEN PATHS, SIX FIXED ONE AT A TIME, ONE ARCHITECTURE CHANGE CLOSING ALL OF THEM.
+
+`Section.add` applied `_tidy`. These did not, and each was found by a person reading a page:
+
+    1  refusal text                       "Background is ARGUMENT -- why this question matters"
+    2  add_table captions                 shouted openers in a caption
+    3  add_table cells                    "THREE TRIALS. NCT00761267's registered primary is..."
+    4  s.paras.append for referrals       "NOTED ON THIS POOL. READ THIS BESIDE THE ESTIMATE."
+    5  s.paras.append for findings        the same
+    6  the build-stamp ratchet note       "this page is BELOW it and knowably so"
+    7  s.paras.append for eligibility     "ELIGIBILITY turns on population, intervention..."
+
+The seventh was found by Mahmood, on the page he had complained about six times, after the
+first six were fixed and reported as closed. THAT IS THE ARGUMENT FOR THE RENDER POINT: a choke
+point that can be bypassed is not a choke point, and the evidence is the ratio -- six
+individual fixes did not close the class, one placement did.
+
+WHAT THIS GATE ASSERTS. `build_tabbed` renders paragraphs in exactly one loop, and that loop
+must apply the transform. If the transform is removed from it, or a second rendering loop
+appears that does not apply it, this fails. It does NOT try to forbid `s.paras.append` -- that
+would be the wrong rule, because appending is legitimate; what matters is that everything
+appended is transformed on the way out.
+
+PROVEN BOTH WAYS on every run: the real source must pass, and a mutant with the transform
+removed from the render loop must fail. A gate that has never seen its own failure is a gate
+nobody has tested.
+"""
+import io
+import os
+import re
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BUILDER = os.path.join(REPO, "ssot", "build_tabbed.py")
+
+# The one loop that turns Section.paras into page text.
+RENDER_LOOP = re.compile(r"for\s+text,\s*fields\s+in\s+(.+?):")
+TIDIED = re.compile(r"_tidy\s*\(")
+
+# THE SECOND RENDER POINT, ADDED 2026-08-23 AFTER AN EIGHTH SURFACE WAS FOUND.
+#
+# The loop above renders the PAPER panel. The protocol, search, screening, extraction,
+# analysis, report and statistics panels do not go through it -- their card builders are
+# handed a callable `p` and everything they put on the page passes through THAT. So the
+# corpus carried `ELIGIBILITY turns` in `pn-protocol` and `pn-extract` for a day after the
+# construction was reported closed, and a full corpus rebuild did not remove it: the
+# projector was still emitting it.
+#
+# A SECOND RENDER POINT THAT NOTHING GUARDS IS HOW AN EIGHTH SURFACE BECOMES A NINTH.
+CARD_RENDER = re.compile(
+    r"def p\(s, scope=None\):.*?\n\s*return\s+(.+?)\n", re.S)
+
+
+def check(src):
+    """-> (ok, reason). The render loop exists exactly once and applies the transform."""
+    loops = RENDER_LOOP.findall(src)
+    if not loops:
+        return False, "no paragraph render loop found in the builder at all"
+    if len(loops) > 1:
+        untidied = [l for l in loops if not TIDIED.search(l)]
+        if untidied:
+            return False, ("%d paragraph render loops, and %d of them do not apply the "
+                           "transform: %s" % (len(loops), len(untidied), untidied[:2]))
+    if not TIDIED.search(loops[0]):
+        return False, ("the paragraph render loop does not apply the transform -- prose "
+                       "appended by any path reaches the page untouched: %r" % loops[0][:80])
+    cards = CARD_RENDER.findall(src)
+    if not cards:
+        return False, ("the card render callable `p` was not found -- every non-paper panel "
+                       "renders through it, so its absence means this gate is guarding one "
+                       "surface and blind to seven")
+    untidied_cards = [c for c in cards if not TIDIED.search(c)]
+    if untidied_cards:
+        return False, ("the card render callable does not apply the transform -- the "
+                       "protocol, search, screening, extraction, analysis, report and "
+                       "statistics panels reach the page untouched: %r"
+                       % untidied_cards[0][:90])
+    return True, "both render points apply the transform"
+
+
+def prove():
+    src = io.open(BUILDER, encoding="utf-8", errors="replace").read()
+    ok, why = check(src)
+    if not ok:
+        sys.exit("PROOF FAILED on the real source: %s" % why)
+    # the mutant: strip the transform from the render loop, as a careless edit would
+    mutant = RENDER_LOOP.sub(lambda m: "for text, fields in s.paras:", src, count=1)
+    mok, mwhy = check(mutant)
+    if mok:
+        sys.exit("PROOF FAILED: a source with the transform REMOVED from the render loop "
+                 "still passes. This gate cannot detect the thing it exists to detect.")
+    # THE SECOND MUTANT. One control per render point: a gate proven on the paper loop alone
+    # would have passed happily through the whole day the card path was emitting untidied
+    # prose, which is exactly what happened before this limb existed.
+    mutant2 = CARD_RENDER.sub(
+        "def p(s, scope=None):\n        return e_(G.render(canon, s, scope))\n",
+        src, count=1)
+    m2ok, _ = check(mutant2)
+    if m2ok:
+        sys.exit("PROOF FAILED: a source with the transform REMOVED from the card render "
+                 "callable still passes. That is the eighth surface, undetected.")
+    print("PROOF PASSED on BOTH render points: the real source passes; a source with the")
+    print("transform stripped from the paragraph loop fails; and one with it stripped from")
+    print("the card callable fails -- %s" % mwhy)
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    prove()
+    src = io.open(BUILDER, encoding="utf-8", errors="replace").read()
+    ok, why = check(src)
+    appends = len(re.findall(r"\.paras\.append\(", src)) + len(
+        re.findall(r"\.paras\.append\(",
+                   io.open(os.path.join(REPO, "ssot", "paper_projector.py"),
+                           encoding="utf-8", errors="replace").read()))
+    print("")
+    print("PATHS THAT APPEND PROSE:            %d" % appends)
+    print("PARAGRAPH RENDER LOOPS:             %d" % len(RENDER_LOOP.findall(src)))
+    print("TRANSFORM APPLIED AT THE RENDER:    %s" % ("yes" if ok else "NO"))
+    print("")
+    print("Any of those append sites may be added to without touching this gate. That is the")
+    print("point: appending is legitimate, and what matters is that everything appended is")
+    print("transformed on the way out. An eighth bypass is now a build-time impossibility")
+    print("rather than something a reader has to find.")
+    if not ok:
+        sys.exit("REFUSED: %s" % why)
+
+
+if __name__ == "__main__":
+    main()
+
+codex
+I’ll treat this as a defect hunt, not a general review. I’m going line-by-line against the pasted module only and will call out missing external source only where the claim depends on `build_tabbed.py` or `paper_projector.py`.
+codex
+Defects found:
+
+- `line 40` - NEGATION DROPPED / substring match.
+  Input: `for text, fields in not_tidy(s.paras): pass\ndef p(s, scope=None):\n    return not_tidy(G.render(canon, s, scope))\n`
+  Consequence: `check()` returns pass because `not_tidy(` contains `_tidy(`.
+
+- `line 39` - idempotency guard satisfied by comment/marker.
+  Input: `# for text, fields in _tidy(s.paras):\ndef p(s, scope=None):\n    return _tidy(G.render(canon, s, scope))\n`
+  Consequence: `check()` passes with no real paragraph render loop.
+
+- `lines 52-53` - selector only sees the first `return` in `p`.
+  Input: `for text, fields in _tidy(s.paras): pass\ndef p(s, scope=None):\n    if scope:\n        return _tidy(G.render(canon, s, scope))\n    return G.render(canon, s, scope)\n`
+  Consequence: the untidied card-render branch is invisible and `check()` passes.
+
+- `line 61` - off-by-one/topology check does not enforce “exactly once”.
+  Input: `for text, fields in _tidy(s.paras): pass\nfor text, fields in _tidy(other.paras): pass\ndef p(s, scope=None):\n    return _tidy(G.render(canon, s, scope))\n`
+  Consequence: two paragraph render loops pass despite the stated invariant that there is exactly one.
+
+- `lines 114-117` - selector keyed to one append spelling.
+  Input in `build_tabbed.py` or `paper_projector.py`: `s.paras.append ("x")`
+  Consequence: the reported append-path count omits a real append site.
+
+None found in this file for CRLF text comparison, zero conflated with absent, merged-cell tabulation, or wrapper-status-code reporting.
+tokens used
+12,836
+Defects found:
+
+- `line 40` - NEGATION DROPPED / substring match.
+  Input: `for text, fields in not_tidy(s.paras): pass\ndef p(s, scope=None):\n    return not_tidy(G.render(canon, s, scope))\n`
+  Consequence: `check()` returns pass because `not_tidy(` contains `_tidy(`.
+
+- `line 39` - idempotency guard satisfied by comment/marker.
+  Input: `# for text, fields in _tidy(s.paras):\ndef p(s, scope=None):\n    return _tidy(G.render(canon, s, scope))\n`
+  Consequence: `check()` passes with no real paragraph render loop.
+
+- `lines 52-53` - selector only sees the first `return` in `p`.
+  Input: `for text, fields in _tidy(s.paras): pass\ndef p(s, scope=None):\n    if scope:\n        return _tidy(G.render(canon, s, scope))\n    return G.render(canon, s, scope)\n`
+  Consequence: the untidied card-render branch is invisible and `check()` passes.
+
+- `line 61` - off-by-one/topology check does not enforce “exactly once”.
+  Input: `for text, fields in _tidy(s.paras): pass\nfor text, fields in _tidy(other.paras): pass\ndef p(s, scope=None):\n    return _tidy(G.render(canon, s, scope))\n`
+  Consequence: two paragraph render loops pass despite the stated invariant that there is exactly one.
+
+- `lines 114-117` - selector keyed to one append spelling.
+  Input in `build_tabbed.py` or `paper_projector.py`: `s.paras.append ("x")`
+  Consequence: the reported append-path count omits a real append site.
+
+None found in this file for CRLF text comparison, zero conflated with absent, merged-cell tabulation, or wrapper-status-code reporting.

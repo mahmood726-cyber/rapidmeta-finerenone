@@ -1,0 +1,189 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a0321f-1eb4-7582-9ae0-0cf40d20bdc3
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/propagate_pi_k1.py
+
+--- THE FILE, IN FULL ---
+"""Propagate Cochrane Handbook v6.5 prediction-interval df (t_{k-1}) across the
+curated REVIEW dashboards that still use IntHout 2016's t_{k-2}.
+
+The fix is a single substitution per file:
+    tCritPI = tQuantile(..., k - 2)    -> tCritPI = tQuantile(..., k - 1)
+
+Sentinel rule "Prediction interval still uses t_{k-2} (IntHout 2016) instead
+of t_{k-1} (Cochrane v6.5)" flagged this across 213 curated dashboards (per
+scripts/scan_stat_engine_violations.py).
+
+Methodology rationale, since the project's own advanced-stats.md previously
+recommended t_{k-2}:
+  - Cochrane Handbook for Systematic Reviews of Interventions v6.5 (2024)
+    Section 10.10.4.3 specifies df = k - 1 for the prediction interval based
+    on the random-effects pooled estimate, treating the heterogeneity
+    variance estimator as a nuisance parameter NOT consuming an additional
+    degree of freedom.
+  - IntHout, Ioannidis, Borm, Goeman 2016 (BMJ Open) argued for k - 2,
+    treating tau-hat^2 as a separately-estimated nuisance.
+  - Modern consensus (metafor v4+, meta v7+, Cochrane v6.5) defaults to
+    k - 1. Picking the same here for portfolio-wide consistency with the
+    R-metafor cross-validation reference.
+  - The project's lessons.md previously snapshotted IntHout's k - 2; that
+    line is being updated in the same commit to match Cochrane v6.5.
+
+Safe-by-construction: the substitution only matches inside a `tCritPI`
+assignment, AND we verify each post-fix file's JS still parses via the
+build-time JS parse gate.
+
+Idempotent.
+"""
+from __future__ import annotations
+import re
+import sys
+import io
+from pathlib import Path
+
+if "pytest" not in sys.modules and hasattr(sys.stdout, "buffer"):
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+try:
+    from _js_parse_gate import js_parse_ok
+except ImportError:
+    js_parse_ok = lambda _t: True  # type: ignore
+
+HERE = Path(__file__).resolve().parent.parent
+
+# Exact targeted pattern - only in PI t-critical computation.
+# Matches `tCritPI = tQuantile(..., k - 2)` with any expression in the middle.
+# Note: cannot use [^=\n]*? — JS conditions like `(k >= 3) ?` contain `=`.
+# Bound with [\s\S]{0,200}? (a non-greedy any) capped at 200 chars so we
+# don't accidentally match across multiple PI blocks.
+PAT = re.compile(
+    r"(tCritPI\s*=\s*[\s\S]{0,200}?tQuantile\s*\([^,]+,\s*k\s*)-\s*2(\s*\))",
+)
+
+
+def patch_file(p: Path) -> int:
+    txt = p.read_text(encoding="utf-8", errors="replace")
+    new, n = PAT.subn(r"\1- 1\2", txt)
+    if n == 0:
+        return 0
+    if not js_parse_ok(new):
+        print(f"  ROLLBACK {p.name}: post-fix JS parse failed; keeping original")
+        return 0
+    # Also update the user-facing prose copy that mentions "k - 2 degrees of freedom".
+    new = re.sub(
+        r"(prediction interval was computed using a t-distribution with k)\\u2212\s*2(\s+degrees of freedom)",
+        r"\1\\u2212 1\2",
+        new,
+    )
+    new = re.sub(
+        r"(prediction interval[^.]*?\bt-distribution with k\s*-\s*)2(\s+degrees of freedom)",
+        r"\g<1>1\2",
+        new,
+    )
+    p.write_text(new, encoding="utf-8")
+    return n
+
+
+def main():
+    targets = [
+        p for p in HERE.glob("*_REVIEW.html")
+        if p.is_file()
+        and "AUTO" not in p.name
+        and "FULL_REVIEW" not in p.name
+    ]
+    print(f"Targets: {len(targets):,} curated REVIEW files")
+    n_files = n_subs = 0
+    for i, p in enumerate(targets, 1):
+        n = patch_file(p)
+        if n:
+            n_files += 1
+            n_subs += n
+        if i % 100 == 0:
+            print(f"  [{i}/{len(targets)}] {p.name}: subs={n}")
+    print(f"\nFiles changed: {n_files:,}, PI-df substitutions: {n_subs:,}")
+
+
+if __name__ == "__main__":
+    main()
+
+codex
+- **Check cannot fail**: line 45. Exact input: no importable `scripts/_js_parse_gate.py`, with `A_REVIEW.html` containing `<script>tCritPI = tQuantile(0.975, k - 2));</script>`. Consequence: parse validation becomes `True`, so invalid post-fix JS can be written.
+
+- **Probe keyed to string fix removes**: lines 62-63. Exact input: `tCritPI = tQuantile(0.975, k - 1);\nprediction interval was computed using a t-distribution with k - 2 degrees of freedom`. Consequence: once code is fixed, stale prose cannot be repaired.
+
+- **Idempotency guard satisfied by comment/marker**: lines 55 and 61. Exact input: `<script>// tCritPI = tQuantile(0.975, k - 2)</script>`. Consequence: the substitution count can increment after changing only a comment.
+
+- **Instrument reads a different copy**: line 64. Exact input: `tCritPI = tQuantile(0.975, k - 2);\nprediction interval was computed using a t-distribution with k - 2 degrees of freedom`. Consequence: `js_parse_ok` checks the pre-prose-rewrite string, while line 78 writes a later string.
+
+- **Selector keyed to wrong form**: line 55. Exact input: `tCritPI = tQuantile(Math.min(Math.max(1 - alpha / 2, 0.5), 0.999), k - 2);`. Consequence: a valid target with commas in the first argument is missed.
+
+- **Negation dropped**: line 74. Exact input: `tCritPI = tQuantile(0.975, k - 2);\nThe prediction interval was not computed using a t-distribution with k - 2 degrees of freedom.` Consequence: denied prose is rewritten as though it were an affirmative PI-method statement.
+
+- **Status code reports wrapper**: lines 64-66 and 98. Exact input: set `js_parse_ok = lambda _: False`, with file text `tCritPI = tQuantile(0.975, k - 2)`. Consequence: rollback becomes `0` substitutions and `main()` still exits success.
+
+No CRLF/LF text-comparison defect found; no text equality comparison exists.  
+No merged-cell/off-by-one tabulation defect found; no tabulation exists.  
+No zero-conflated-with-absent defect found; no `or 0`, `or {}`, or truthy numeric guard exists.
+tokens used
+14,331
+- **Check cannot fail**: line 45. Exact input: no importable `scripts/_js_parse_gate.py`, with `A_REVIEW.html` containing `<script>tCritPI = tQuantile(0.975, k - 2));</script>`. Consequence: parse validation becomes `True`, so invalid post-fix JS can be written.
+
+- **Probe keyed to string fix removes**: lines 62-63. Exact input: `tCritPI = tQuantile(0.975, k - 1);\nprediction interval was computed using a t-distribution with k - 2 degrees of freedom`. Consequence: once code is fixed, stale prose cannot be repaired.
+
+- **Idempotency guard satisfied by comment/marker**: lines 55 and 61. Exact input: `<script>// tCritPI = tQuantile(0.975, k - 2)</script>`. Consequence: the substitution count can increment after changing only a comment.
+
+- **Instrument reads a different copy**: line 64. Exact input: `tCritPI = tQuantile(0.975, k - 2);\nprediction interval was computed using a t-distribution with k - 2 degrees of freedom`. Consequence: `js_parse_ok` checks the pre-prose-rewrite string, while line 78 writes a later string.
+
+- **Selector keyed to wrong form**: line 55. Exact input: `tCritPI = tQuantile(Math.min(Math.max(1 - alpha / 2, 0.5), 0.999), k - 2);`. Consequence: a valid target with commas in the first argument is missed.
+
+- **Negation dropped**: line 74. Exact input: `tCritPI = tQuantile(0.975, k - 2);\nThe prediction interval was not computed using a t-distribution with k - 2 degrees of freedom.` Consequence: denied prose is rewritten as though it were an affirmative PI-method statement.
+
+- **Status code reports wrapper**: lines 64-66 and 98. Exact input: set `js_parse_ok = lambda _: False`, with file text `tCritPI = tQuantile(0.975, k - 2)`. Consequence: rollback becomes `0` substitutions and `main()` still exits success.
+
+No CRLF/LF text-comparison defect found; no text equality comparison exists.  
+No merged-cell/off-by-one tabulation defect found; no tabulation exists.  
+No zero-conflated-with-absent defect found; no `or 0`, `or {}`, or truthy numeric guard exists.

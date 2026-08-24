@@ -1,0 +1,171 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a031be-d69a-7f71-bc7f-576618b89f8a
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/fix_pearl_denominators.py
+
+--- THE FILE, IN FULL ---
+#!/usr/bin/env python
+"""Fix PEARL-1 / PEARL-2 ligelizumab records in CHRONIC_URTICARIA_BIOLOGICS.
+
+The records compare ligelizumab 120 mg vs omalizumab (UAS7=0 at week 12) but
+stored 502/501 and 498/498 -- denominators that match no real arm -- AND effect
+values (1.26, 1.23) that show false superiority. Per ClinicalTrials.gov results
+(UAS7=0 responders, Lige 120 mg vs Omalizumab 300 mg):
+
+  PEARL-1 (NCT03580356): Lige120 103/320 vs Oma 94/321  -> RR 1.10 [0.87, 1.39]
+  PEARL-2 (NCT03580369): Lige120 104/322 vs Oma 116/318 -> RR 0.89 [0.71, 1.10]
+
+This matches the trials' real outcome: ligelizumab did NOT beat omalizumab (PEARL
+failed; ligelizumab was not approved). Fills tE/cE, corrects tN/cN and
+baseline.n, and replaces the inflated effect+CI with the count-derived RR + Wald
+log-RR CI. Object-scoped, binary-safe, asserting, idempotent.
+"""
+from __future__ import annotations
+import importlib.util
+import os
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+PATH = os.path.join(REPO, "CHRONIC_URTICARIA_BIOLOGICS_REVIEW.html")
+_spec = importlib.util.spec_from_file_location(
+    "dia", os.path.join(REPO, "scripts", "data_integrity_audit.py"))
+dia = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(dia)
+
+EDITS = {
+    "NCT03580356": [  # PEARL-1
+        ("baseline:{n:1003,age:42}", "baseline:{n:641,age:42}"),
+        ("tE:null,tN:502,cE:null,cN:501", "tE:103,tN:320,cE:94,cN:321"),
+        ("publishedHR:1.26,hrLCI:1.04,hrUCI:1.52", "publishedHR:1.1,hrLCI:0.87,hrUCI:1.39"),
+        ('tE:null,cE:null,type:"PRIMARY",matchScore:95,effect:1.26,lci:1.04,uci:1.52',
+         'tE:103,cE:94,type:"PRIMARY",matchScore:95,effect:1.1,lci:0.87,uci:1.39'),
+    ],
+    "NCT03580369": [  # PEARL-2
+        ("baseline:{n:996,age:42}", "baseline:{n:640,age:42}"),
+        ("tE:null,tN:498,cE:null,cN:498", "tE:104,tN:322,cE:116,cN:318"),
+        ("publishedHR:1.23,hrLCI:1.02,hrUCI:1.49", "publishedHR:0.89,hrLCI:0.71,hrUCI:1.1"),
+        ('tE:null,cE:null,type:"PRIMARY",matchScore:95,effect:1.23,lci:1.02,uci:1.49',
+         'tE:104,cE:116,type:"PRIMARY",matchScore:95,effect:0.89,lci:0.71,uci:1.1'),
+    ],
+}
+
+
+def main():
+    data = open(PATH, "rb").read().decode("utf-8", "replace")
+    total = 0
+    for key, obj in dia.find_trial_objects(data):
+        nct = key.split("_")[0]
+        edits = EDITS.get(nct)
+        if not edits:
+            continue
+        new_obj = obj
+        for old, new in edits:
+            if old not in new_obj:
+                assert new in new_obj, f"{nct}: neither old nor new for {old!r}"
+                continue
+            assert new_obj.count(old) == 1, f"{nct}: {old!r} not unique"
+            new_obj = new_obj.replace(old, new, 1)
+        if new_obj != obj:
+            assert data.count(obj) == 1, f"{nct}: object not unique"
+            data = data.replace(obj, new_obj, 1)
+            total += 1
+            print(f"fixed {nct}")
+    open(PATH, "wb").write(data.encode("utf-8"))
+    print(f"records updated: {total}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+
+codex
+Defects found:
+
+- **STATUS CODE REPORTING THE WRAPPER / check that can pass without work**: lines 61-68.  
+  Exact input: `dia.find_trial_objects(data)` returns `[]`, e.g. no parseable trial objects in `CHRONIC_URTICARIA_BIOLOGICS_REVIEW.html`.  
+  Consequence: prints `records updated: 0` and exits `0`, so a gate can pass when neither PEARL record was found or fixed.
+
+- **check that CANNOT FAIL when assertions are disabled**: lines 57, 59, 62.  
+  Exact input: run `python -O scripts/fix_pearl_denominators.py` with an `NCT03580356_*` object containing `baseline:{n:999,age:42}` and none of `baseline:{n:1003,age:42}` / `baseline:{n:641,age:42}`.  
+  Consequence: all integrity checks are stripped, missing/duplicate/object-uniqueness failures cannot raise, and the script can still exit `0`.
+
+- **idempotency guard satisfied by marker/comment rather than work**: line 57.  
+  Exact input object for key `NCT03580356_x`: `baseline:{n:999,age:42},/* baseline:{n:641,age:42} */,/* tE:103,tN:320,cE:94,cN:321 */,/* publishedHR:1.1,hrLCI:0.87,hrUCI:1.39 */,/* tE:103,cE:94,type:"PRIMARY",matchScore:95,effect:1.1,lci:0.87,uci:1.39 */`.  
+  Consequence: each absent old string is accepted because the replacement string exists only in comments, leaving the actual fields unfixed.
+
+COULD NOT DETERMINE corpus-keyed selector defects: missing `scripts/data_integrity_audit.py` and `CHRONIC_URTICARIA_BIOLOGICS_REVIEW.html`.
+
+No merged-cell/off-by-one tabulation defect found in this file.
+
+No zero-conflated-with-absent defect found in this file.
+
+No negation-dropped parsing defect found in this file.
+
+No CRLF-vs-LF text comparison defect proven from this file alone.
+tokens used
+11,112
+Defects found:
+
+- **STATUS CODE REPORTING THE WRAPPER / check that can pass without work**: lines 61-68.  
+  Exact input: `dia.find_trial_objects(data)` returns `[]`, e.g. no parseable trial objects in `CHRONIC_URTICARIA_BIOLOGICS_REVIEW.html`.  
+  Consequence: prints `records updated: 0` and exits `0`, so a gate can pass when neither PEARL record was found or fixed.
+
+- **check that CANNOT FAIL when assertions are disabled**: lines 57, 59, 62.  
+  Exact input: run `python -O scripts/fix_pearl_denominators.py` with an `NCT03580356_*` object containing `baseline:{n:999,age:42}` and none of `baseline:{n:1003,age:42}` / `baseline:{n:641,age:42}`.  
+  Consequence: all integrity checks are stripped, missing/duplicate/object-uniqueness failures cannot raise, and the script can still exit `0`.
+
+- **idempotency guard satisfied by marker/comment rather than work**: line 57.  
+  Exact input object for key `NCT03580356_x`: `baseline:{n:999,age:42},/* baseline:{n:641,age:42} */,/* tE:103,tN:320,cE:94,cN:321 */,/* publishedHR:1.1,hrLCI:0.87,hrUCI:1.39 */,/* tE:103,cE:94,type:"PRIMARY",matchScore:95,effect:1.1,lci:0.87,uci:1.39 */`.  
+  Consequence: each absent old string is accepted because the replacement string exists only in comments, leaving the actual fields unfixed.
+
+COULD NOT DETERMINE corpus-keyed selector defects: missing `scripts/data_integrity_audit.py` and `CHRONIC_URTICARIA_BIOLOGICS_REVIEW.html`.
+
+No merged-cell/off-by-one tabulation defect found in this file.
+
+No zero-conflated-with-absent defect found in this file.
+
+No negation-dropped parsing defect found in this file.
+
+No CRLF-vs-LF text comparison defect proven from this file alone.

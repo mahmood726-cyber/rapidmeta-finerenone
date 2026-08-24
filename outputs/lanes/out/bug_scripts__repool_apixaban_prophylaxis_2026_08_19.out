@@ -1,0 +1,242 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a03254-eda3-7340-8d5c-8c1bfbff8bbe
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/repool_apixaban_prophylaxis_2026_08_19.py
+
+--- THE FILE, IN FULL ---
+"""RE-POOL `apixaban-vte-prophylaxis` on the estimand its four recovered trials ACTUALLY SHARE.
+
+THE DECISION, MADE THE SAME WAY THE ABLATION PAGES AND sglt2-hf MADE THEIRS.
+
+The four large trials register FOUR DIFFERENT PRIMARY COMPOSITES under names that all read as
+"VTE and death", and their primary event rates span SIXFOLD -- 1.39% to 8.99% -- across one
+drug for one indication. That spread is a fact about WHAT EACH COUNTED and WHICH SURGERY, not
+about apixaban.
+
+    ADOPT      total VTE + VTE-RELATED death          2.71% vs 3.06%   medically ill
+    ADVANCE-3  VTE-related events                     1.39% vs 3.86%   hip replacement
+    ADVANCE-1  VTE + ALL-CAUSE death                  8.99% vs 8.85%   knee replacement
+    ADVANCE-2  VTE-related + all-cause death          (primary)        knee replacement
+
+THE WITHHOLDING QUESTION WAS ASKED AT EVERY REGISTERED RANK BEFORE CONCLUDING ANYTHING, AND IT
+FOUND ONE. All four register:
+
+    PROXIMAL DVT, NON-FATAL PE, OR VTE-RELATED DEATH
+
+and it is a SECONDARY in all four. That is the sglt2-hf recovery shape exactly: the harmonisable
+estimand was below the primary, and only reading every rank surfaced it.
+
+    A REVIEW THAT POOLS FOUR DIFFERENT PRIMARIES BECAUSE THEY SHARE A NAME IS WORSE THAN ONE
+    THAT POOLS FOUR MATCHING SECONDARIES, AND THE SECOND IS AVAILABLE ONLY IF SOMEONE ASKS.
+
+THE DECLINED POOL IS COMPUTED AND SHOWN, because on current form the incoherent one will look
+statistically comfortable and that is precisely the trap this project has now met three times.
+
+AND THE PRIMARY IS READ BY MATCHING ITS OWN TEXT, NEVER BY POSITION. `outcomeMeasures[0]` is
+the MAJOR-VTE secondary for ADVANCE-2 and the primary for the other three; taking element zero
+would have pooled one trial's secondary against three trials' primaries with nothing malformed
+anywhere.
+"""
+import io
+import json
+import math
+import os
+import sys
+import urllib.request
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DEST = os.path.join(REPO, "evidence", "2026-08-19-batch1", "apixaban_prophylaxis_repool.json")
+Z = 1.959963984540054
+
+# (acronym, nct, apixaban %, enoxaparin %, n apix, n enox) -- READ from each trial's own posted
+# results for the shared MAJOR-VTE composite, and each carries the title it was read from.
+SHARED = [
+    ("ADOPT", "NCT00457002", 2.71, 2.93, 2211, 2283,
+     "Incidence of Adjudicated Proximal DVT, Non-Fatal PE or VTE-Related Death"),
+    ("ADVANCE-3", "NCT00423319", 0.45, 1.14, 2199, 2195,
+     "Rate of Composite of Adjudicated Proximal DVT, Nonfatal PE, VTE-related death"),
+    ("ADVANCE-1", "NCT00371683", 1.97, 1.40, 1268, 1213,
+     "Event Rate for Participants With Proximal DVT/Non-Fatal PE/VTE-Related Death"),
+    ("ADVANCE-2", "NCT00452530", 1.09, 2.17, 1195, 1199,
+     "Rate of Adjudicated Proximal DVT, Nonfatal PE, and VTE-related death"),
+]
+# The four PRIMARIES, which do NOT share a definition. Pooled only to show what is declined.
+PRIMARIES = [
+    ("ADOPT", 2.71, 3.06, 2211, 2284, "total VTE + VTE-related death"),
+    ("ADVANCE-3", 1.39, 3.86, 1949, 1917, "VTE-related events"),
+    ("ADVANCE-1", 8.99, 8.85, 1157, 1130, "VTE + ALL-CAUSE death"),
+    ("ADVANCE-2", 1.09, 2.17, 1195, 1199, "VTE-related + all-cause death (element 0 is the "
+                                          "MAJOR-VTE secondary; the primary text differs)"),
+]
+
+
+def rr_pool(rows):
+    """DerSimonian-Laird on log risk ratio. Events derived from rate x n, rounded."""
+    ys, ses, per = [], [], []
+    for r in rows:
+        acr, ap, ep, na, ne = r[0], r[-5], r[-4], r[-3], r[-2]
+        ea, ee = round(ap * na / 100.0), round(ep * ne / 100.0)
+        # 0.5 continuity correction ONLY if a cell is zero -- unconditional correction biases
+        # the ratio toward 1 (rules/advanced-stats).
+        a, b = (ea, ee) if (ea and ee) else (ea + 0.5, ee + 0.5)
+        na2, ne2 = (na, ne) if (ea and ee) else (na + 1, ne + 1)
+        y = math.log((a / na2) / (b / ne2))
+        se = math.sqrt(1.0 / a - 1.0 / na2 + 1.0 / b - 1.0 / ne2)
+        ys.append(y)
+        ses.append(se)
+        per.append({"trial": acr, "events_apixaban": ea, "n_apixaban": na,
+                    "events_enoxaparin": ee, "n_enoxaparin": ne,
+                    "rr": round(math.exp(y), 4),
+                    "ci_low": round(math.exp(y - Z * se), 4),
+                    "ci_high": round(math.exp(y + Z * se), 4)})
+    k = len(ys)
+    w = [1.0 / s ** 2 for s in ses]
+    fe = sum(a * b for a, b in zip(w, ys)) / sum(w)
+    q = sum(a * (b - fe) ** 2 for a, b in zip(w, ys))
+    c = sum(w) - sum(x * x for x in w) / sum(w)
+    tau2 = max(0.0, (q - (k - 1)) / c)
+    w2 = [1.0 / (s ** 2 + tau2) for s in ses]
+    mu = sum(a * b for a, b in zip(w2, ys)) / sum(w2)
+    se = math.sqrt(1.0 / sum(w2))
+    i2 = max(0.0, (q - (k - 1)) / q) * 100.0 if q > 0 else 0.0
+    return {"k": k, "rr": round(math.exp(mu), 4),
+            "ci_low": round(math.exp(mu - Z * se), 4),
+            "ci_high": round(math.exp(mu + Z * se), 4),
+            "q": round(q, 4), "df": k - 1, "tau2": round(tau2, 5),
+            "i2_pct": round(i2, 1), "per_trial": per}
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    shared = rr_pool(SHARED)
+    declined = rr_pool(PRIMARIES)
+
+    print("THE POOL THIS REVIEW REPORTS -- proximal DVT, non-fatal PE, or VTE-related death")
+    print("   (a SECONDARY in all four trials, and the only estimand they share)")
+    for p in shared["per_trial"]:
+        print("   %-10s %4d/%-5d vs %4d/%-5d  RR %.3f (%.3f-%.3f)"
+              % (p["trial"], p["events_apixaban"], p["n_apixaban"],
+                 p["events_enoxaparin"], p["n_enoxaparin"], p["rr"],
+                 p["ci_low"], p["ci_high"]))
+    print("   POOLED k=%d  RR %.3f (%.3f to %.3f)  Q %.2f df %d  tau2 %.5f  I2 %.1f%%"
+          % (shared["k"], shared["rr"], shared["ci_low"], shared["ci_high"],
+             shared["q"], shared["df"], shared["tau2"], shared["i2_pct"]))
+
+    print("\nTHE POOL THIS REVIEW DECLINES -- the four DIFFERENT primaries")
+    print("   POOLED k=%d  RR %.3f (%.3f to %.3f)  Q %.2f df %d  I2 %.1f%%"
+          % (declined["k"], declined["rr"], declined["ci_low"], declined["ci_high"],
+             declined["q"], declined["df"], declined["i2_pct"]))
+
+    out = {"topic": "apixaban-vte-prophylaxis", "repooled_utc": "2026-08-19",
+           "estimand_reported": {
+               "definition": "proximal DVT, non-fatal pulmonary embolism, or VTE-related death",
+               "rank_in_each_trial": "SECONDARY in all four",
+               "found_by": ("asking the withholding question at EVERY registered rank before "
+                            "concluding the trials do not pool -- the sglt2-hf recovery shape"),
+               "titles_read": {r[1] if len(r) > 6 else r[0]: r[-1] for r in SHARED},
+               **{k: v for k, v in shared.items() if k != "per_trial"},
+               "per_trial": shared["per_trial"]},
+           "estimand_declined": {
+               "definition": "each trial's own primary composite -- FOUR DIFFERENT ONES",
+               "why": ("ADOPT counts VTE-related death, ADVANCE-1 counts ALL-CAUSE death, and "
+                       "the primary event rates span 1.39% to 8.99% across one drug for one "
+                       "indication. That spread is a fact about what each counted and which "
+                       "surgery, not about apixaban."),
+               **{k: v for k, v in declined.items() if k != "per_trial"}},
+           "what_this_replaces": (
+               "THIS REVIEW PREVIOUSLY REPORTED ONE TRIAL'S RESULT AND NOT A POOLED ESTIMATE. "
+               "Its single included trial, NCT02366871, is n=400 and its registered primaries "
+               "are MAJOR BLEEDING and clinically relevant non-major bleeding -- so the "
+               "previous figure was not an estimate of this review's question at all. It now "
+               "pools four trials and 13,570 participants on an efficacy estimand all four "
+               "register. This is NOT a delta and must not be presented as one."),
+           "and_the_primary_is_read_by_text_never_by_position": (
+               "outcomeMeasures[0] is the MAJOR-VTE SECONDARY for ADVANCE-2 and the PRIMARY "
+               "for the other three. Taking element zero would have pooled one trial's "
+               "secondary against three trials' primaries, with nothing malformed anywhere."),
+           }
+    with io.open(DEST, "w", encoding="utf-8") as fh:
+        fh.write(json.dumps(out, indent=1))
+    print("\nwrote %s" % DEST)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+
+codex
+Defect found:
+
+- **Merged-cell / off-by-one count:** line 145 says `13,570 participants`; exact input is `SHARED` denominators on lines 48-55: `2211+2283+2199+2195+1268+1213+1195+1199 = 13,763`. Consequence: the emitted JSON undercounts the pooled population by 193 and contradicts its own per-trial denominators.
+
+Shapes checked:
+
+- **A check that CANNOT FAIL:** none found.
+- **Probe keyed to the STRING A FIX REMOVES:** none found.
+- **Idempotency guard satisfied by its OWN comment/marker:** none found.
+- **Instrument reading a DIFFERENT COPY:** COULD NOT DETERMINE; missing caller/test/deploy context.
+- **Selector keyed to a form the corpus does not use:** none found.
+- **Values compared AS TEXT with CRLF/LF drift:** none found.
+- **ZERO CONFLATED WITH ABSENT:** none found.
+- **NEGATION DROPPED:** none found.
+- **STATUS CODE REPORTING THE WRAPPER rather than the work:** COULD NOT DETERMINE; missing caller/gate that consumes this script’s exit code.
+tokens used
+15,005
+Defect found:
+
+- **Merged-cell / off-by-one count:** line 145 says `13,570 participants`; exact input is `SHARED` denominators on lines 48-55: `2211+2283+2199+2195+1268+1213+1195+1199 = 13,763`. Consequence: the emitted JSON undercounts the pooled population by 193 and contradicts its own per-trial denominators.
+
+Shapes checked:
+
+- **A check that CANNOT FAIL:** none found.
+- **Probe keyed to the STRING A FIX REMOVES:** none found.
+- **Idempotency guard satisfied by its OWN comment/marker:** none found.
+- **Instrument reading a DIFFERENT COPY:** COULD NOT DETERMINE; missing caller/test/deploy context.
+- **Selector keyed to a form the corpus does not use:** none found.
+- **Values compared AS TEXT with CRLF/LF drift:** none found.
+- **ZERO CONFLATED WITH ABSENT:** none found.
+- **NEGATION DROPPED:** none found.
+- **STATUS CODE REPORTING THE WRAPPER rather than the work:** COULD NOT DETERMINE; missing caller/gate that consumes this script’s exit code.

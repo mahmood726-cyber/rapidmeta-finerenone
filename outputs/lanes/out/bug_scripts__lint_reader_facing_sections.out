@@ -1,0 +1,948 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a031f4-c49e-7a81-93c1-7379035b74ba
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/lint_reader_facing_sections.py
+
+--- THE FILE, IN FULL ---
+"""P47: a manuscript whose reader-facing sections are refusals is not complete.
+
+WHY THIS EXISTS. On 2026-08-20 Mahmood opened SGLT2_HF_REVIEW.html#paper and called it
+incomplete. Measured against ARNI:
+
+                                  SGLT2_HF     ARNI
+    paper sections (h3)                 27       29
+    words in the paper               5,111   11,182
+
+THE SECTION COUNT WAS ESSENTIALLY EQUAL AND THE SUBSTANCE WAS 2.2x APART, which is exactly
+why ssot/manuscript_guard.py could not see it: that guard knows delivered LENGTH and
+SECTION COUNT, and both of those said the two pages were siblings.
+
+The distribution was the finding, not the total. The four sections a reader of a paper
+opens first came to 219 WORDS AND EIGHT REFUSALS between them --
+
+    Abstract        83 words
+    Introduction    50 words   2 refusals
+    Discussion      43 words   2 refusals
+    Conclusions     43 words   2 refusals
+
+-- while Certainty of the evidence ran to 651 and Methods-synthesis to 550. THE MANUSCRIPT
+WAS HEAVIEST WHERE A READER IS LEAST LIKELY TO START AND THINNEST WHERE THEY ARE.
+
+And the refusals were CORRECT. The object holds no discussion and no conclusions, so the
+projector refused them by name, as the standard requires. That is the finding rather than
+the excuse: A TOPIC CAN SATISFY ALL FOUR P46 CRITERIA AND STILL RENDER A PAPER WITH NOTHING
+IN THE SECTIONS A READER READS. P46 counts artefacts an object HOLDS; it says nothing about
+whether the manuscript those artefacts project can be read as a paper.
+
+THE ONE-SENTENCE DIAGNOSIS, because it is what the totals concealed: ARNI IS ORGANISED
+AROUND FINDINGS AND THIS IS ORGANISED AROUND THE OBJECT'S FIELD STRUCTURE. ARNI's discussion
+is seven named findings -- Principal findings, Interpreting the estimate, Heterogeneity, The
+leave-one-out finding, Why the risk-of-bias rating did not change, Comparison with other
+evidence, Strengths. Its "Where our result differs from theirs" runs to 1,559 words against
+this page's comparison section at 29 words and a refusal. That is the difference between a
+paper and a rendered record.
+
+WEIGHTED BY SECTION, NOT BY PAGE, deliberately. A page total cannot express this: 5,111
+words is not a small manuscript, and the whole point is that the total was never the
+problem.
+
+This is a REPORTER with a ratchet. It does not block: 22 of 24 projectable topics fail it
+today, and a gate that refuses everything gets deleted rather than satisfied. It states the
+number, names the sections, and refuses only on a RISE.
+"""
+import io
+import json
+import os
+import re
+import subprocess
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+SSOT = os.path.join(REPO, "ssot")
+
+# The sections a reader of a paper opens first. Keys as ssot/paper_projector.py emits them.
+READER_FACING = ("abstract", "introduction", "discussion", "conclusions")
+MIN_WORDS = 60          # below this a section is a stub whether or not it refuses
+
+
+def main():
+    sys.path.insert(0, SSOT)
+    import paper_projector as PP
+
+    rows = []
+    for name in sorted(os.listdir(SSOT)):
+        d = os.path.join(SSOT, name)
+        if not os.path.isdir(d):
+            continue
+        fp = os.path.join(d, name + ".json")
+        if not os.path.exists(fp):
+            continue
+        try:
+            obj = json.load(io.open(fp, encoding="utf-8"))
+        except Exception:
+            continue
+        if not ((obj.get("results") or {}).get("by_outcome")):
+            continue
+        try:
+            secs = PP.project(obj)
+        except Exception as e:
+            rows.append((name, None, "PROJECTION FAILED: %s" % str(e)[:60]))
+            continue
+        bykey = {getattr(s, "key", None): s for s in secs}
+        bad = []
+        for key in READER_FACING:
+            s = bykey.get(key)
+            if s is None:
+                bad.append("%s: absent" % key)
+                continue
+            words = sum(len(str(t).split()) for t, _ in s.paras)
+            if s.refusals and not s.paras:
+                bad.append("%s: refused" % key)
+            elif words < MIN_WORDS:
+                bad.append("%s: %d words" % (key, words))
+        rows.append((name, len(bad), "; ".join(bad)))
+
+    projectable = [r for r in rows if r[1] is not None]
+    if not projectable:
+        print("NOT_ASSESSABLE: no topic projected a manuscript. A checker with nothing to "
+              "check has not passed.")
+        return 2
+    failing = [r for r in projectable if r[1] > 0]
+
+    print("topics projecting a manuscript          %d" % len(projectable))
+    print("topics with a stub or refused           %d" % len(failing))
+    print("reader-facing sections examined         %d" % (len(projectable) * len(READER_FACING)))
+    print()
+    print("%-46s %5s  %s" % ("topic", "bad", "which"))
+    print("-" * 130)
+    for name, nbad, detail in sorted(projectable, key=lambda r: (-(r[1] or 0), r[0])):
+        print("%-46s %5s  %s" % (name[:46], nbad, detail[:74]))
+
+    baseline_path = os.path.join(REPO, "evidence", "reader_facing_sections_baseline.json")
+    if "--baseline" in sys.argv:
+        with io.open(baseline_path, "w", encoding="utf-8", newline="\n") as fh:
+            json.dump({"measured_utc": "2026-08-20", "failing_topics": len(failing),
+                       "projectable_topics": len(projectable),
+                       "reader_facing": list(READER_FACING), "min_words": MIN_WORDS,
+                       "measured_by": os.path.basename(__file__),
+                       "_what_a_pass_means": (
+                           "That no ADDITIONAL topic renders a paper with stubs or refusals "
+                           "in the four sections a reader opens first. It does NOT mean the "
+                           "existing ones are acceptable -- most of the corpus fails this "
+                           "today and the number is the work item.")}, fh, indent=1)
+            fh.write("\n")
+        print("\nbaseline written: %d failing of %d" % (len(failing), len(projectable)))
+        return 0
+    if not os.path.exists(baseline_path):
+        print("\nNOT_ASSESSABLE: no baseline. Run with --baseline.")
+        return 2
+    base = json.load(io.open(baseline_path, encoding="utf-8"))["failing_topics"]
+    if len(failing) > base:
+        print("\nREFUSED: %d topics render a paper whose reader-facing sections are stubs or "
+              "refusals, up from %d." % (len(failing), base))
+        return 1
+    print("\nREPORTED, NOT PASSED: %d of %d topics fail P47 against a baseline of %d, none "
+          "new. A MANUSCRIPT WHOSE READER-FACING SECTIONS ARE REFUSALS IS NOT COMPLETE "
+          "REGARDLESS OF ITS TOTALS, and %d topics are in that state right now."
+          % (len(failing), len(projectable), base, len(failing)))
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+
+codex
+I’ll keep this to defects only and use the pasted module as the record; I’m checking line-specific failure modes against the named shapes rather than inferring missing callers.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=0; Get-Content -LiteralPath '"'scripts/lint_reader_facing_sections.py' | ForEach-Object { "'$i++; '"'{0,4}: {1}' -f "'$i, $_ }' in F:\rapidmeta-ssot-shell
+ succeeded in 1230ms:
+   1: """P47: a manuscript whose reader-facing sections are refusals is not complete.
+   2: 
+   3: WHY THIS EXISTS. On 2026-08-20 Mahmood opened SGLT2_HF_REVIEW.html#paper and called it
+   4: incomplete. Measured against ARNI:
+   5: 
+   6:                                   SGLT2_HF     ARNI
+   7:     paper sections (h3)                 27       29
+   8:     words in the paper               5,111   11,182
+   9: 
+  10: THE SECTION COUNT WAS ESSENTIALLY EQUAL AND THE SUBSTANCE WAS 2.2x APART, which is exactly
+  11: why ssot/manuscript_guard.py could not see it: that guard knows delivered LENGTH and
+  12: SECTION COUNT, and both of those said the two pages were siblings.
+  13: 
+  14: The distribution was the finding, not the total. The four sections a reader of a paper
+  15: opens first came to 219 WORDS AND EIGHT REFUSALS between them --
+  16: 
+  17:     Abstract        83 words
+  18:     Introduction    50 words   2 refusals
+  19:     Discussion      43 words   2 refusals
+  20:     Conclusions     43 words   2 refusals
+  21: 
+  22: -- while Certainty of the evidence ran to 651 and Methods-synthesis to 550. THE MANUSCRIPT
+  23: WAS HEAVIEST WHERE A READER IS LEAST LIKELY TO START AND THINNEST WHERE THEY ARE.
+  24: 
+  25: And the refusals were CORRECT. The object holds no discussion and no conclusions, so the
+  26: projector refused them by name, as the standard requires. That is the finding rather than
+  27: the excuse: A TOPIC CAN SATISFY ALL FOUR P46 CRITERIA AND STILL RENDER A PAPER WITH NOTHING
+  28: IN THE SECTIONS A READER READS. P46 counts artefacts an object HOLDS; it says nothing about
+  29: whether the manuscript those artefacts project can be read as a paper.
+  30: 
+  31: THE ONE-SENTENCE DIAGNOSIS, because it is what the totals concealed: ARNI IS ORGANISED
+  32: AROUND FINDINGS AND THIS IS ORGANISED AROUND THE OBJECT'S FIELD STRUCTURE. ARNI's discussion
+  33: is seven named findings -- Principal findings, Interpreting the estimate, Heterogeneity, The
+  34: leave-one-out finding, Why the risk-of-bias rating did not change, Comparison with other
+  35: evidence, Strengths. Its "Where our result differs from theirs" runs to 1,559 words against
+  36: this page's comparison section at 29 words and a refusal. That is the difference between a
+  37: paper and a rendered record.
+  38: 
+  39: WEIGHTED BY SECTION, NOT BY PAGE, deliberately. A page total cannot express this: 5,111
+  40: words is not a small manuscript, and the whole point is that the total was never the
+  41: problem.
+  42: 
+  43: This is a REPORTER with a ratchet. It does not block: 22 of 24 projectable topics fail it
+  44: today, and a gate that refuses everything gets deleted rather than satisfied. It states the
+  45: number, names the sections, and refuses only on a RISE.
+  46: """
+  47: import io
+  48: import json
+  49: import os
+  50: import re
+  51: import subprocess
+  52: import sys
+  53: 
+  54: REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+  55: SSOT = os.path.join(REPO, "ssot")
+  56: 
+  57: # The sections a reader of a paper opens first. Keys as ssot/paper_projector.py emits them.
+  58: READER_FACING = ("abstract", "introduction", "discussion", "conclusions")
+  59: MIN_WORDS = 60          # below this a section is a stub whether or not it refuses
+  60: 
+  61: 
+  62: def main():
+  63:     sys.path.insert(0, SSOT)
+  64:     import paper_projector as PP
+  65: 
+  66:     rows = []
+  67:     for name in sorted(os.listdir(SSOT)):
+  68:         d = os.path.join(SSOT, name)
+  69:         if not os.path.isdir(d):
+  70:             continue
+  71:         fp = os.path.join(d, name + ".json")
+  72:         if not os.path.exists(fp):
+  73:             continue
+  74:         try:
+  75:             obj = json.load(io.open(fp, encoding="utf-8"))
+  76:         except Exception:
+  77:             continue
+  78:         if not ((obj.get("results") or {}).get("by_outcome")):
+  79:             continue
+  80:         try:
+  81:             secs = PP.project(obj)
+  82:         except Exception as e:
+  83:             rows.append((name, None, "PROJECTION FAILED: %s" % str(e)[:60]))
+  84:             continue
+  85:         bykey = {getattr(s, "key", None): s for s in secs}
+  86:         bad = []
+  87:         for key in READER_FACING:
+  88:             s = bykey.get(key)
+  89:             if s is None:
+  90:                 bad.append("%s: absent" % key)
+  91:                 continue
+  92:             words = sum(len(str(t).split()) for t, _ in s.paras)
+  93:             if s.refusals and not s.paras:
+  94:                 bad.append("%s: refused" % key)
+  95:             elif words < MIN_WORDS:
+  96:                 bad.append("%s: %d words" % (key, words))
+  97:         rows.append((name, len(bad), "; ".join(bad)))
+  98: 
+  99:     projectable = [r for r in rows if r[1] is not None]
+ 100:     if not projectable:
+ 101:         print("NOT_ASSESSABLE: no topic projected a manuscript. A checker with nothing to "
+ 102:               "check has not passed.")
+ 103:         return 2
+ 104:     failing = [r for r in projectable if r[1] > 0]
+ 105: 
+ 106:     print("topics projecting a manuscript          %d" % len(projectable))
+ 107:     print("topics with a stub or refused           %d" % len(failing))
+ 108:     print("reader-facing sections examined         %d" % (len(projectable) * len(READER_FACING)))
+ 109:     print()
+ 110:     print("%-46s %5s  %s" % ("topic", "bad", "which"))
+ 111:     print("-" * 130)
+ 112:     for name, nbad, detail in sorted(projectable, key=lambda r: (-(r[1] or 0), r[0])):
+ 113:         print("%-46s %5s  %s" % (name[:46], nbad, detail[:74]))
+ 114: 
+ 115:     baseline_path = os.path.join(REPO, "evidence", "reader_facing_sections_baseline.json")
+ 116:     if "--baseline" in sys.argv:
+ 117:         with io.open(baseline_path, "w", encoding="utf-8", newline="\n") as fh:
+ 118:             json.dump({"measured_utc": "2026-08-20", "failing_topics": len(failing),
+ 119:                        "projectable_topics": len(projectable),
+ 120:                        "reader_facing": list(READER_FACING), "min_words": MIN_WORDS,
+ 121:                        "measured_by": os.path.basename(__file__),
+ 122:                        "_what_a_pass_means": (
+ 123:                            "That no ADDITIONAL topic renders a paper with stubs or refusals "
+ 124:                            "in the four sections a reader opens first. It does NOT mean the "
+ 125:                            "existing ones are acceptable -- most of the corpus fails this "
+ 126:                            "today and the number is the work item.")}, fh, indent=1)
+ 127:             fh.write("\n")
+ 128:         print("\nbaseline written: %d failing of %d" % (len(failing), len(projectable)))
+ 129:         return 0
+ 130:     if not os.path.exists(baseline_path):
+ 131:         print("\nNOT_ASSESSABLE: no baseline. Run with --baseline.")
+ 132:         return 2
+ 133:     base = json.load(io.open(baseline_path, encoding="utf-8"))["failing_topics"]
+ 134:     if len(failing) > base:
+ 135:         print("\nREFUSED: %d topics render a paper whose reader-facing sections are stubs or "
+ 136:               "refusals, up from %d." % (len(failing), base))
+ 137:         return 1
+ 138:     print("\nREPORTED, NOT PASSED: %d of %d topics fail P47 against a baseline of %d, none "
+ 139:           "new. A MANUSCRIPT WHOSE READER-FACING SECTIONS ARE REFUSALS IS NOT COMPLETE "
+ 140:           "REGARDLESS OF ITS TOTALS, and %d topics are in that state right now."
+ 141:           % (len(failing), len(projectable), base, len(failing)))
+ 142:     return 0
+ 143: 
+ 144: 
+ 145: if __name__ == "__main__":
+ 146:     sys.exit(main())
+
+codex
+I have the reviewed file’s line numbers now. One likely issue depends on the `paper_projector` section-object contract; I’m checking only enough local context to avoid accusing a selector mismatch without evidence.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "rg -n \"key=.*conclusion|conclusions|class .*Section|def project|refusals|paras\" ssot/paper_projector.py ssot -g '*.py'" in F:\rapidmeta-ssot-shell
+ succeeded in 1255ms:
+ssot/paper_projector.py:188:    It read top-level `discussion`, `conclusions` and `protocol.rationale`. arni-hfref --
+ssot/paper_projector.py:190:    under `manuscript.{abstract,introduction,discussion,limitations,conclusions}`, and all
+ssot/paper_projector.py:207:    Shapes seen on ARNI: a plain string (`conclusions`), a list of paragraphs
+ssot/paper_projector.py:833:class Section(object):
+ssot/paper_projector.py:844:        self.paras = []          # [(text, [field paths])]
+ssot/paper_projector.py:847:        self.refusals = []       # [(what was not written, which field was absent)]
+ssot/paper_projector.py:853:            self.refusals.append((_tidy(text)[:70] + ("..." if len(text) > 70 else ""),
+ssot/paper_projector.py:857:        self.paras.append((_tidy(text), list(fields)))
+ssot/paper_projector.py:874:            self.refusals.append((_tidy(caption), missing))
+ssot/paper_projector.py:877:            self.refusals.append((_tidy(caption) + " (no rows resolved)", list(fields)))
+ssot/paper_projector.py:907:            self.refusals.append(
+ssot/paper_projector.py:914:            self.paras.append(
+ssot/paper_projector.py:927:        manuscript projector could emit prose, tables and refusals and had no way to carry
+ssot/paper_projector.py:952:            self.refusals.append((caption, missing))
+ssot/paper_projector.py:967:        return WRITTEN if (self.paras or self.tables or self.figures) else REFUSED
+ssot/paper_projector.py:1562:def project(obj, journal="generic", length="standard"):
+ssot/paper_projector.py:1611:            s.refusals.append(("a search entry with no executed query",
+ssot/paper_projector.py:1637:        s.paras.append((txt, ["search.databases[%d]" % i]))
+ssot/paper_projector.py:1639:        s.refusals.append(("the entire search description", ["search.databases"]))
+ssot/paper_projector.py:1641:    # section this line made `s.paras` non-empty, the `if not (s.paras or
+ssot/paper_projector.py:1657:        s.paras.append((elig, ["screening.eligibility"]))
+ssot/paper_projector.py:1661:                s.paras.append(("%s: %s" % (k.replace("_", " ").capitalize(), v),
+ssot/paper_projector.py:1663:    if not s.paras:
+ssot/paper_projector.py:1664:        s.refusals.append(("the eligibility criteria", ["screening.eligibility"]))
+ssot/paper_projector.py:1667:        s.paras.append(("Each criterion above is recorded with the source it was derived from "
+ssot/paper_projector.py:1693:        s.refusals.append(("the k cascade", ["k_cascade"]))
+ssot/paper_projector.py:1695:        s.paras.append(("The PRISMA 2020 flow counts are recorded in `prisma_flow` and "
+ssot/paper_projector.py:1699:        s.paras.append(("The unscreened remainder is %d." % rem,
+ssot/paper_projector.py:1715:        s.paras.append((txt, ["withholding_question.question",
+ssot/paper_projector.py:1728:            s.paras.append(("Every registered rank -- primary, secondary and other -- was read "
+ssot/paper_projector.py:1734:            s.refusals.append(("the statement that outcomes were sought below the primary",
+ssot/paper_projector.py:1753:            s.paras.append(("For %s, a %s model was fitted with the %s estimator."
+ssot/paper_projector.py:1762:            s.refusals.append(("the model/estimator sentence for %s -- %s"
+ssot/paper_projector.py:1771:        s.paras.append(("Intervals are %s%% confidence intervals." % cl,
+ssot/paper_projector.py:1775:        s.paras.append(("Methodological decisions follow %s%s, and the sections relied on are "
+ssot/paper_projector.py:1796:        s.paras.append((txt, ["screening.duplicate_screening"]))
+ssot/paper_projector.py:1798:        s.refusals.append(("the claim that records were screened in duplicate -- and this "
+ssot/paper_projector.py:1802:        s.refusals.append(("the claim that records were screened in duplicate by two "
+ssot/paper_projector.py:1809:        s.paras.append(("Risk of bias was assessed with %s (%s), following %s. %s %d "
+ssot/paper_projector.py:1827:            s.paras.append(("A ceiling applies to every risk-of-bias judgement in this "
+ssot/paper_projector.py:1831:        s.refusals.append(("the claim that risk of bias was assessed with a named tool",
+ssot/paper_projector.py:1848:        s.paras.append((txt, ["grade.approach", "grade.by_outcome"]))
+ssot/paper_projector.py:1866:            s.paras.append((
+ssot/paper_projector.py:1884:            s.refusals.append(("the claim that certainty of evidence was graded",
+ssot/paper_projector.py:1890:        s.refusals.append(("the claim that the review methods were prespecified before data "
+ssot/paper_projector.py:1896:        s.refusals.append(("the claim that the review methods were prespecified before data "
+ssot/paper_projector.py:1907:        s.paras.append(("%d contributing record(s) could not be joined by registration "
+ssot/paper_projector.py:1916:        s.refusals.append(("the entire results section", ["results.by_outcome"]))
+ssot/paper_projector.py:1934:            s.refusals.append(("the result sentence for the outcome recorded as `%s` -- its "
+ssot/paper_projector.py:1959:        s.paras.append((txt, f))
+ssot/paper_projector.py:1968:            s.paras.append((_tidy(_ref_txt),
+ssot/paper_projector.py:1972:            s.paras.append((_tidy(_fnd_txt),
+ssot/paper_projector.py:2012:            s.paras.append((ht, hf))
+ssot/paper_projector.py:2025:                s.paras.append(("The grounds for pooling are recorded as: %s Where a later "
+ssot/paper_projector.py:2035:                s.paras.append(("%s%s" % (lead_in, blk[reason_field]),
+ssot/paper_projector.py:2084:            s.refusals.append(("the declined-pool sentence for `%s` -- no registered outcome "
+ssot/paper_projector.py:2088:            s.paras.append(("%s. These %s trials are NOT pooled, and the reason is stated "
+ssot/paper_projector.py:2093:            s.refusals.append(("the reason the pool over %s is declined -- NEITHER "
+ssot/paper_projector.py:2115:            s.paras.append((_tidy(_ref_txt),
+ssot/paper_projector.py:2119:            s.paras.append((_tidy(_fnd_txt),
+ssot/paper_projector.py:2155:            s.paras.append((txt, [field]))
+ssot/paper_projector.py:2158:        s.paras.append(("%d claim(s) previously made about this review were corrected and the "
+ssot/paper_projector.py:2161:    if not s.paras:
+ssot/paper_projector.py:2162:        s.refusals.append(("the limitations section", ["screening.known_limitation"]))
+ssot/paper_projector.py:2187:    # abstract and none of our conclusions, GPT-5 said a reader "would reasonably conclude the
+ssot/paper_projector.py:2273:        s.refusals.append((
+ssot/paper_projector.py:2339:        s.refusals.append((
+ssot/paper_projector.py:2385:        s.refusals.append((
+ssot/paper_projector.py:2393:    for _f in ("manuscript.abstract.Conclusions", "conclusions", "manuscript.conclusions"):
+ssot/paper_projector.py:2403:        s.refusals.append((
+ssot/paper_projector.py:2425:        s.refusals.append(("the Introduction -- no background or rationale is recorded on "
+ssot/paper_projector.py:2458:    if not (s.paras or s.tables):
+ssot/paper_projector.py:2459:        s.refusals.append(("the certainty assessment -- no GRADE record is held, so the "
+ssot/paper_projector.py:2463:    # section this line made `s.paras` non-empty, the `if not (s.paras or
+ssot/paper_projector.py:2711:    if not (s.paras or s.tables):
+ssot/paper_projector.py:2712:        s.refusals.append(("the risk-of-bias assessment", ["risk_of_bias"]))
+ssot/paper_projector.py:2714:    # section this line made `s.paras` non-empty, the `if not (s.paras or
+ssot/paper_projector.py:2741:    if not (s.paras or s.tables):
+ssot/paper_projector.py:2742:        s.refusals.append(("the reconciliation against other sources",
+ssot/paper_projector.py:2785:    if not (s.paras or s.tables):
+ssot/paper_projector.py:2786:        s.refusals.append(("the comparison with published syntheses -- no published "
+ssot/paper_projector.py:2842:    if not any_out and not s.paras:
+ssot/paper_projector.py:2843:        s.refusals.append(("the verbatim model output -- no analysis output is stored on "
+ssot/paper_projector.py:2851:                                ("conclusions", "Conclusions", "conclusions")):
+ssot/paper_projector.py:2863:            s.refusals.append(("the %s -- this is a CONTENT gap. The object records no "
+ssot/paper_projector.py:2882:        s.refusals.append(("the list of refused properties", ["build_stamp.refusing"]))
+ssot/paper_projector.py:2884:    # section this line made `s.paras` non-empty, the `if not (s.paras or
+ssot/paper_projector.py:2894:        s.refusals.append(("the funding and conflict-of-interest statement -- a CONTENT "
+ssot/paper_projector.py:2926:            s.refusals.append((what, [field]))
+ssot/paper_projector.py:2954:        s.refusals.append((
+ssot/paper_projector.py:2972:        s.refusals.append((
+ssot/paper_projector.py:3035:        s.refusals.append(("the reference list", ["sources"]))
+ssot/paper_projector.py:3043:        s.refusals.append(("the keyword list -- a CONTENT gap; no keywords are recorded "
+ssot/paper_projector.py:3103:    if not (s.paras or s.tables):
+ssot/paper_projector.py:3104:        s.refusals.append(("the data availability statement",
+ssot/paper_projector.py:3120:    if not s.paras:
+ssot/paper_projector.py:3121:        s.refusals.append(("the software and environment statement",
+ssot/paper_projector.py:3139:        s.refusals.append(("the registration note", ["protocol"]))
+ssot/paper_projector.py:3141:    # section this line made `s.paras` non-empty, the `if not (s.paras or
+ssot/paper_projector.py:3160:        s.refusals.append(("the trial characteristics table", ["inputs.trials"]))
+ssot/paper_projector.py:3183:        s.refusals.append(("the figure legends", ["results.by_outcome"]))
+ssot/paper_projector.py:3195:        s.refusals.append(("the figures -- this object records no pooled outcome, so there "
+ssot/paper_projector.py:3307:    if not s.paras:
+ssot/paper_projector.py:3308:        s.refusals.append(("the submission conformance statement", ["build_stamp"]))
+ssot/paper_projector.py:3313:            sec.paras = sec.paras[:2]
+ssot/paper_projector.py:3367:    "discussion", "published_comparison", "disagreements", "limitations", "conclusions",
+ssot/paper_projector.py:3407:        for text, fields in s.paras:
+ssot/paper_projector.py:3422:        for what, missing in s.refusals:
+ssot/paper_projector.py:3440:    nref = sum(len(s.refusals) for s in secs)
+ssot\apply_cangrelor_published_comparison.py:122:                "AND OURS DOES NOT -- opposite conclusions, not a rounding gap. The k "
+ssot\apply_gepo_lefa_published_comparison.py:17:    opposite conclusions -- but they are NOT the same quantity, and this is recorded as an
+ssot\apply_gepo_lefa_grade.py:76:                        "but the non-overlap of conclusions is.")},
+ssot\apply_malaria_vaccines_four_limbs.py:27:CLINICAL MALARIA MEETING A CASE DEFINITION: a child is brought in, assessed, and a parasite
+ssot\apply_malaria_vaccines_four_limbs.py:112:               "assessed, and a parasite-density threshold applied. Both halves of that -- "
+ssot\apply_malaria_vaccines_four_limbs.py:444:            "facility, assessed, and a parasite threshold applied -- so neither the family's "
+ssot\apply_paper_register_2026_08_20.py:50:Conclusions -- come to EIGHT SENTENCES on this page, three of them single-line refusals.
+ssot\apply_paper_register_2026_08_20.py:88:        for text, fields in s.paras:
+ssot\apply_paper_register_2026_08_20.py:102:        for what, missing in s.refusals:
+ssot\apply_paper_register_2026_08_20.py:129:        for text, fields in s.paras:
+ssot\apply_paper_register_2026_08_20.py:141:        for what, missing in s.refusals:
+ssot\apply_paper_register_2026_08_20.py:169:        s.paras.append(("k is reported at every stage rather than as a single number: %s."
+ssot\apply_paper_register_2026_08_20.py:212:            s.paras.append(("For %s, a %s model was fitted with the %s estimator."
+ssot\apply_paper_register_2026_08_20.py:218:            s.paras.append(("For %s, a %s model was fitted with the %s estimator."
+ssot\build_tabbed.py:836:        # `Section.add` tidied; SEVEN other paths appended straight to `paras` and did not --
+ssot\build_tabbed.py:837:        # eligibility criteria, referrals, findings, refusals, table cells, the stamp note.
+ssot\build_tabbed.py:841:        for text, fields in [(_pp._tidy(t), f) for t, f in s.paras]:
+ssot\build_tabbed.py:885:        for what, missing in s.refusals:
+ssot\ctgov_transport.py:19:**That is a cascade of silent refusals that reads as caution and is actually breakage**, and
+ssot\make_docx.py:845:# --- Discussion / limitations / conclusions -------------------------------
+ssot\make_docx.py:957:doc.add_paragraph(fill(MS["conclusions"], "conclusions") if MS.get("conclusions")
+ssot\paper.py:234:    concl = f(m.get("conclusions", ""), "conclusions")
+ssot\paper_projector.py:188:    It read top-level `discussion`, `conclusions` and `protocol.rationale`. arni-hfref --
+ssot\paper_projector.py:190:    under `manuscript.{abstract,introduction,discussion,limitations,conclusions}`, and all
+ssot\paper_projector.py:207:    Shapes seen on ARNI: a plain string (`conclusions`), a list of paragraphs
+ssot\paper_projector.py:833:class Section(object):
+ssot\paper_projector.py:844:        self.paras = []          # [(text, [field paths])]
+ssot\paper_projector.py:847:        self.refusals = []       # [(what was not written, which field was absent)]
+ssot\paper_projector.py:853:            self.refusals.append((_tidy(text)[:70] + ("..." if len(text) > 70 else ""),
+ssot\paper_projector.py:857:        self.paras.append((_tidy(text), list(fields)))
+ssot\paper_projector.py:874:            self.refusals.append((_tidy(caption), missing))
+ssot\paper_projector.py:877:            self.refusals.append((_tidy(caption) + " (no rows resolved)", list(fields)))
+ssot\paper_projector.py:907:            self.refusals.append(
+ssot\paper_projector.py:914:            self.paras.append(
+ssot\paper_projector.py:927:        manuscript projector could emit prose, tables and refusals and had no way to carry
+ssot\paper_projector.py:952:            self.refusals.append((caption, missing))
+ssot\paper_projector.py:967:        return WRITTEN if (self.paras or self.tables or self.figures) else REFUSED
+ssot\paper_projector.py:1562:def project(obj, journal="generic", length="standard"):
+ssot\paper_projector.py:1611:            s.refusals.append(("a search entry with no executed query",
+ssot\paper_projector.py:1637:        s.paras.append((txt, ["search.databases[%d]" % i]))
+ssot\paper_projector.py:1639:        s.refusals.append(("the entire search description", ["search.databases"]))
+ssot\paper_projector.py:1641:    # section this line made `s.paras` non-empty, the `if not (s.paras or
+ssot\paper_projector.py:1657:        s.paras.append((elig, ["screening.eligibility"]))
+ssot\paper_projector.py:1661:                s.paras.append(("%s: %s" % (k.replace("_", " ").capitalize(), v),
+ssot\paper_projector.py:1663:    if not s.paras:
+ssot\paper_projector.py:1664:        s.refusals.append(("the eligibility criteria", ["screening.eligibility"]))
+ssot\paper_projector.py:1667:        s.paras.append(("Each criterion above is recorded with the source it was derived from "
+ssot\paper_projector.py:1693:        s.refusals.append(("the k cascade", ["k_cascade"]))
+ssot\paper_projector.py:1695:        s.paras.append(("The PRISMA 2020 flow counts are recorded in `prisma_flow` and "
+ssot\paper_projector.py:1699:        s.paras.append(("The unscreened remainder is %d." % rem,
+ssot\paper_projector.py:1715:        s.paras.append((txt, ["withholding_question.question",
+ssot\paper_projector.py:1728:            s.paras.append(("Every registered rank -- primary, secondary and other -- was read "
+ssot\paper_projector.py:1734:            s.refusals.append(("the statement that outcomes were sought below the primary",
+ssot\paper_projector.py:1753:            s.paras.append(("For %s, a %s model was fitted with the %s estimator."
+ssot\paper_projector.py:1762:            s.refusals.append(("the model/estimator sentence for %s -- %s"
+ssot\paper_projector.py:1771:        s.paras.append(("Intervals are %s%% confidence intervals." % cl,
+ssot\paper_projector.py:1775:        s.paras.append(("Methodological decisions follow %s%s, and the sections relied on are "
+ssot\paper_projector.py:1796:        s.paras.append((txt, ["screening.duplicate_screening"]))
+ssot\paper_projector.py:1798:        s.refusals.append(("the claim that records were screened in duplicate -- and this "
+ssot\paper_projector.py:1802:        s.refusals.append(("the claim that records were screened in duplicate by two "
+ssot\paper_projector.py:1809:        s.paras.append(("Risk of bias was assessed with %s (%s), following %s. %s %d "
+ssot\paper_projector.py:1827:            s.paras.append(("A ceiling applies to every risk-of-bias judgement in this "
+ssot\paper_projector.py:1831:        s.refusals.append(("the claim that risk of bias was assessed with a named tool",
+ssot\paper_projector.py:1848:        s.paras.append((txt, ["grade.approach", "grade.by_outcome"]))
+ssot\paper_projector.py:1866:            s.paras.append((
+ssot\paper_projector.py:1884:            s.refusals.append(("the claim that certainty of evidence was graded",
+ssot\paper_projector.py:1890:        s.refusals.append(("the claim that the review methods were prespecified before data "
+ssot\paper_projector.py:1896:        s.refusals.append(("the claim that the review methods were prespecified before data "
+ssot\paper_projector.py:1907:        s.paras.append(("%d contributing record(s) could not be joined by registration "
+ssot\paper_projector.py:1916:        s.refusals.append(("the entire results section", ["results.by_outcome"]))
+ssot\paper_projector.py:1934:            s.refusals.append(("the result sentence for the outcome recorded as `%s` -- its "
+ssot\paper_projector.py:1959:        s.paras.append((txt, f))
+ssot\paper_projector.py:1968:            s.paras.append((_tidy(_ref_txt),
+ssot\paper_projector.py:1972:            s.paras.append((_tidy(_fnd_txt),
+ssot\paper_projector.py:2012:            s.paras.append((ht, hf))
+ssot\paper_projector.py:2025:                s.paras.append(("The grounds for pooling are recorded as: %s Where a later "
+ssot\paper_projector.py:2035:                s.paras.append(("%s%s" % (lead_in, blk[reason_field]),
+ssot\paper_projector.py:2084:            s.refusals.append(("the declined-pool sentence for `%s` -- no registered outcome "
+ssot\paper_projector.py:2088:            s.paras.append(("%s. These %s trials are NOT pooled, and the reason is stated "
+ssot\paper_projector.py:2093:            s.refusals.append(("the reason the pool over %s is declined -- NEITHER "
+ssot\paper_projector.py:2115:            s.paras.append((_tidy(_ref_txt),
+ssot\paper_projector.py:2119:            s.paras.append((_tidy(_fnd_txt),
+ssot\paper_projector.py:2155:            s.paras.append((txt, [field]))
+ssot\paper_projector.py:2158:        s.paras.append(("%d claim(s) previously made about this review were corrected and the "
+ssot\paper_projector.py:2161:    if not s.paras:
+ssot\paper_projector.py:2162:        s.refusals.append(("the limitations section", ["screening.known_limitation"]))
+ssot\paper_projector.py:2187:    # abstract and none of our conclusions, GPT-5 said a reader "would reasonably conclude the
+ssot\paper_projector.py:2273:        s.refusals.append((
+ssot\paper_projector.py:2339:        s.refusals.append((
+ssot\paper_projector.py:2385:        s.refusals.append((
+ssot\paper_projector.py:2393:    for _f in ("manuscript.abstract.Conclusions", "conclusions", "manuscript.conclusions"):
+ssot\paper_projector.py:2403:        s.refusals.append((
+ssot\paper_projector.py:2425:        s.refusals.append(("the Introduction -- no background or rationale is recorded on "
+ssot\paper_projector.py:2458:    if not (s.paras or s.tables):
+ssot\paper_projector.py:2459:        s.refusals.append(("the certainty assessment -- no GRADE record is held, so the "
+ssot\paper_projector.py:2463:    # section this line made `s.paras` non-empty, the `if not (s.paras or
+ssot\paper_projector.py:2711:    if not (s.paras or s.tables):
+ssot\paper_projector.py:2712:        s.refusals.append(("the risk-of-bias assessment", ["risk_of_bias"]))
+ssot\paper_projector.py:2714:    # section this line made `s.paras` non-empty, the `if not (s.paras or
+ssot\paper_projector.py:2741:    if not (s.paras or s.tables):
+ssot\paper_projector.py:2742:        s.refusals.append(("the reconciliation against other sources",
+ssot\paper_projector.py:2785:    if not (s.paras or s.tables):
+ssot\paper_projector.py:2786:        s.refusals.append(("the comparison with published syntheses -- no published "
+ssot\paper_projector.py:2842:    if not any_out and not s.paras:
+ssot\paper_projector.py:2843:        s.refusals.append(("the verbatim model output -- no analysis output is stored on "
+ssot\paper_projector.py:2851:                                ("conclusions", "Conclusions", "conclusions")):
+ssot\paper_projector.py:2863:            s.refusals.append(("the %s -- this is a CONTENT gap. The object records no "
+ssot\paper_projector.py:2882:        s.refusals.append(("the list of refused properties", ["build_stamp.refusing"]))
+ssot\paper_projector.py:2884:    # section this line made `s.paras` non-empty, the `if not (s.paras or
+ssot\paper_projector.py:2894:        s.refusals.append(("the funding and conflict-of-interest statement -- a CONTENT "
+ssot\paper_projector.py:2926:            s.refusals.append((what, [field]))
+ssot\paper_projector.py:2954:        s.refusals.append((
+ssot\paper_projector.py:2972:        s.refusals.append((
+ssot\paper_projector.py:3035:        s.refusals.append(("the reference list", ["sources"]))
+ssot\paper_projector.py:3043:        s.refusals.append(("the keyword list -- a CONTENT gap; no keywords are recorded "
+ssot\paper_projector.py:3103:    if not (s.paras or s.tables):
+ssot\paper_projector.py:3104:        s.refusals.append(("the data availability statement",
+ssot\paper_projector.py:3120:    if not s.paras:
+ssot\paper_projector.py:3121:        s.refusals.append(("the software and environment statement",
+ssot\paper_projector.py:3139:        s.refusals.append(("the registration note", ["protocol"]))
+ssot\paper_projector.py:3141:    # section this line made `s.paras` non-empty, the `if not (s.paras or
+ssot\paper_projector.py:3160:        s.refusals.append(("the trial characteristics table", ["inputs.trials"]))
+ssot\paper_projector.py:3183:        s.refusals.append(("the figure legends", ["results.by_outcome"]))
+ssot\paper_projector.py:3195:        s.refusals.append(("the figures -- this object records no pooled outcome, so there "
+ssot\paper_projector.py:3307:    if not s.paras:
+ssot\paper_projector.py:3308:        s.refusals.append(("the submission conformance statement", ["build_stamp"]))
+ssot\paper_projector.py:3313:            sec.paras = sec.paras[:2]
+ssot\paper_projector.py:3367:    "discussion", "published_comparison", "disagreements", "limitations", "conclusions",
+ssot\paper_projector.py:3407:        for text, fields in s.paras:
+ssot\paper_projector.py:3422:        for what, missing in s.refusals:
+ssot\paper_projector.py:3440:    nref = sum(len(s.refusals) for s in secs)
+ssot\preconditions.py:17:preconditions is also the author of the refusals, then a topic's refusal is not evidence
+ssot\publish_refusals.py:1:"""Write the precondition refusals into their objects. ADDITIVE ONLY, and it proves it.
+ssot\publish_refusals.py:17:called refusals.
+ssot\publish_refusals.py:144:print(f"RECORDED AS NOT_ASSESSED ({len(recorded_unassessed)}) -- NOT refusals")
+ssot\projectors2.py:224:    protocol. A refusal nobody checks is still a claim, and refusals escape scrutiny precisely
+ssot\topic_identity.py:77:    # STRATEGY TRIALS, and the refusals were the instrument saying so.
+
+codex
+The projector contract confirms `paras` and `refusals` can coexist on one section, so the refusal predicate is not just theoretical. I’m trimming the answer to only proven findings plus explicit no-finding lines for the requested shapes.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Get-Content -LiteralPath 'ssot/paper_projector.py' | Select-Object -Skip 828 -First 55" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Get-Content -LiteralPath 'ssot/paper_projector.py' | Select-Object -Skip 2846 -First 25" in F:\rapidmeta-ssot-shell
+ succeeded in 1533ms:
+        if protect:
+            _KEEP_CAPS.difference_update(protect)
+
+
+class Section(object):
+    """A manuscript section, its text, and THE FIELDS IT WAS PROJECTED FROM.
+
+    `fields` is not documentation. It is the section's licence to exist: a section is WRITTEN
+    only if it lists at least one field that resolved, and every field it lists is checked to
+    resolve before the section is emitted.
+    """
+
+    def __init__(self, key, heading):
+        self.key = key
+        self.heading = heading
+        self.paras = []          # [(text, [field paths])]
+        self.tables = []         # [(caption, [headers], [[cells]], [field paths])]
+        self.figures = []        # [(n, caption, svg, refusal_reason, [field paths])]
+        self.refusals = []       # [(what was not written, which field was absent)]
+
+    def add(self, obj, text, fields):
+        """Emit `text` only if EVERY field it cites resolves. Otherwise record the refusal."""
+        missing = [f for f in fields if get(obj, f) is None]
+        if missing:
+            self.refusals.append((_tidy(text)[:70] + ("..." if len(text) > 70 else ""),
+                                  missing))
+            return False
+        # EVERY PARAGRAPH IS TIDIED HERE, which is the whole point of doing it here.
+        self.paras.append((_tidy(text), list(fields)))
+        return True
+
+    def add_table(self, obj, caption, headers, rows, fields):
+        """A TABLE IS A PROJECTION TOO, and it obeys the same licence as a paragraph.
+
+        Added 2026-08-20. Until now a projected manuscript could only emit prose, so
+        per-trial characteristics, GRADE domain steps and risk-of-bias judgements -- all
+        of which the objects hold, and all of which ARNI presents as tables -- had no way
+        to reach the page at all. That is not a formatting limitation, it is 18 tables of
+        substance the projector could not express.
+
+        Refuses on the same terms as `add`: every field cited must resolve, and a table
+        with no rows is a refusal rather than an empty frame with a caption on it.
+        """
+        missing = [f for f in fields if get(obj, f) is None]
+        if missing:
+            self.refusals.append((_tidy(caption), missing))
+            return False
+        if not rows:
+            self.refusals.append((_tidy(caption) + " (no rows resolved)", list(fields)))
+            return False
+
+        # A TABLE CELL CAN HOLD A PARAGRAPH, AND FOUR OF THEM WERE STILL SHOUTING.
+        #
+        # `add` tidied every paragraph; `add_table` tidied nothing, so a cell carrying
+        # "THREE TRIALS. NCT00761267's registered primary is ADVERSE EVENTS" reached the page
+
+ succeeded in 1545ms:
+    secs.append(s)
+
+    # ---- DISCUSSION / CONCLUSIONS (content gaps, refused by name) ----------------------
+    for key, heading, field in (("discussion", "Discussion", "discussion"),
+                                ("conclusions", "Conclusions", "conclusions")):
+        s = Section(key, heading)
+        _src = (field if get(obj, field)
+                else ("manuscript.%s" % field if _manuscript_prose(obj, field) else None))
+        _txt = (get(obj, field) if _src == field else _manuscript_prose(obj, field))
+        _has = bool(_src and s.add(obj, str(_txt), [_src]))
+        # THE DRAFTS, AFTER ANY AUTHORED TEXT AND AFTER THE REFUSAL DECISION.
+        #
+        # A topic the author has written reads as a finished paper: his prose first, and the
+        # drafts still beneath it so he can see what they said. A topic he has not touched
+        # reads as a full draft he can dictate over rather than an empty refusal.
+        if not _has and not _drafted(obj, heading):
+            s.refusals.append(("the %s -- this is a CONTENT gap. The object records no "
+                               "interpretive text, and none is generated here: a %s "
+                               "written by the renderer would be an argument no field "
+                               "supports" % (heading, heading.lower()), [field]))
+        _add_drafts(s, obj, heading)
+        secs.append(s)
+
+    # ---- SECTIONS NOT WRITTEN, AND WHY -------------------------------------------------
+    # APPARATUS, NAMED AS APPARATUS. This was a heading in the article's own sequence,
+
+codex
+I found one additional count-ratchet defect that is visible from the module alone: the comparison stores only the total, so topic churn can be reported as “none new.” I’m checking whether that can be demonstrated without inventing corpus details.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command 'rg -n "def _drafted|def _add_drafts|draft" ssot/paper_projector.py | Select-Object -First 40' in F:\rapidmeta-ssot-shell
+ succeeded in 1420ms:
+96:def _drafted(obj, section):
+97:    """The drafted interpretive claims for one section, newest dated key wins.
+103:    k = next((x for x in sorted(obj) if str(x).startswith("manuscript_draft_")
+119:        if isinstance(cv, dict) and cv.get("section") == section and cv.get("is_a_draft"):
+121:                        "%s.claims.%s.draft" % (k, ck)))
+148:def _add_drafts(s, obj, section):
+161:    # NOTHING HERE REWRITES THE PROSE. Deciding what a draft should say once its estimate
+167:    for ck, cv, path in _drafted(obj, section):
+168:        body = cv.get("draft", "") or ""
+816:    r"The interpretive sentences that follow are marked as drafts and are the author's to "
+2423:    _add_drafts(s, obj, "Introduction")
+2424:    if not _intro_ok and not _drafted(obj, "Introduction"):
+2860:        # drafts still beneath it so he can see what they said. A topic he has not touched
+2861:        # reads as a full draft he can dictate over rather than an empty refusal.
+2862:        if not _has and not _drafted(obj, heading):
+2867:        _add_drafts(s, obj, heading)
+
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Get-Content -LiteralPath 'ssot/paper_projector.py' | Select-Object -Skip 90 -First 90" in F:\rapidmeta-ssot-shell
+ succeeded in 1291ms:
+def _add_bookkeeping(s, obj, field):
+    t, src = _bookkeeping(obj, field)
+    return bool(t) and s.add(obj, t, src)
+
+
+def _drafted(obj, section):
+    """The drafted interpretive claims for one section, newest dated key wins.
+
+    A DRAFT IS NEVER RETURNED AS THOUGH IT WERE READ. The caller renders these in a marked
+    block, separately from projected facts, because the author replaces them by dictation and
+    must be able to see at a glance which sentences are his to replace.
+    """
+    k = next((x for x in sorted(obj) if str(x).startswith("manuscript_draft_")
+              and isinstance(obj[x], dict)), None)
+    if not k:
+        return []
+    # READING ORDER, NOT KEY ORDER. Sorted alphabetically, the Discussion opened with
+    # "whether the effect size is clinically meaningful" and reached "why this result differs
+    # from the published ones" last -- a paper does not argue in alphabetical order.
+    order = ["why_the_question_is_open", "why_a_new_synthesis",
+             "what_the_evidence_shows", "is_the_effect_size_clinically_meaningful",
+             "is_the_heterogeneity_clinically_important",
+             "why_this_differs_from_published", "is_the_evidence_base_adequate",
+             "was_the_search_broad_enough", "what_further_evidence_would_change_it",
+             "implication_for_practice", "implication_for_policy",
+             "implication_for_research"]
+    out = []
+    for ck, cv in (obj[k].get("claims") or {}).items():
+        if isinstance(cv, dict) and cv.get("section") == section and cv.get("is_a_draft"):
+            out.append((order.index(ck) if ck in order else 99, ck, cv,
+                        "%s.claims.%s.draft" % (k, ck)))
+    return [(ck, cv, path) for _n, ck, cv, path in sorted(out)]
+
+
+def _withdrawn_points(obj):
+    """Every pooled point this object has WITHDRAWN, as the strings prose would print.
+
+    `previous_values` is a LIST on some objects and a DICT on others, and reading it as
+    one shape raises on the other. Both are accepted rather than one being declared
+    correct, because nothing here is authorised to migrate a schema.
+    """
+    out = []
+    for _oid, blk in ((obj.get("results") or {}).get("by_outcome") or {}).items():
+        if not isinstance(blk, dict):
+            continue
+        pl = blk.get("pooled") or {}
+        if not pl.get("withdrawn"):
+            continue
+        prev = pl.get("previous_values") or []
+        if isinstance(prev, dict):
+            prev = [prev]
+        for pv in prev:
+            if isinstance(pv, dict) and pv.get("point") is not None:
+                out.append("%g" % pv["point"])
+    return out
+
+
+def _add_drafts(s, obj, section):
+    # A STORED DRAFT CANNOT BE REACHED BY A PROJECTOR FIX, AND BOTH LOOK THE SAME ON THE
+    # PAGE. These passages are prose held on the object, with the estimate BAKED INTO the
+    # sentence rather than substituted at render time. So withdrawing a pooled estimate
+    # nulls the point, prints the withdrawal notice, and leaves the Discussion still
+    # saying "That is the estimate" about the number that was just taken down.
+    #
+    # MEASURED, NOT ASSUMED. Only three withdrawn pools in the corpus record a previous
+    # point at all; the other hundred record none, so there is no number to leak. Two of
+    # those three still asserted it in prose -- attr-pn-review, and SGLT2_HF_REVIEW,
+    # whose OWN `withdrawn_note` documents this exact lesson and was written believing it
+    # closed. The object was corrected. The stored prose was not.
+    #
+    # NOTHING HERE REWRITES THE PROSE. Deciding what a draft should say once its estimate
+    # is gone is the author's, and these passages are explicitly his to replace. What is
+    # not his to supply is the fact that the sentence predates the withdrawal, so the
+    # marker carries it and the number stops being asserted as current.
+    n = 0
+    gone = _withdrawn_points(obj)
+    for ck, cv, path in _drafted(obj, section):
+        body = cv.get("draft", "") or ""
+        stale = sorted({g for g in gone if g in body})
+        # ONE SHORT MARKER, SENTENCE CASE, ONCE PER PASSAGE. The marker was longer than
+        # some of the sentences it marked, shouted, and repeated for every claim.
+        mark = "[Draft] "
+        if stale:
+            mark = ("[Draft, SUPERSEDED] This passage was written before the pooled "
+                    "estimate it quotes (%s) was withdrawn, and it is shown unaltered "
+                    "rather than quietly edited or dropped. The withdrawal and its "
+                    "reason are in Results. The number below is NOT this review's "
+                    "current estimate. " % ", ".join(stale))
+        if s.add(obj, "%s%s" % (mark, body), [path]):
+            n += 1
+
+codex
+The local contract gives a concrete object input for the missed-refusal path: draft prose can make `paras` non-empty after the refusal decision. I have enough for the final defect list.
+codex
+Correction during verification: for Discussion/Conclusions specifically, the projector suppresses that content-gap refusal when a draft exists, so I’m not going to claim that path. The line-93 issue is still demonstrable for any projected reader-facing section object that has both `refusals` and >=60 words of `paras`; the packet alone does not prove whether the current corpus has one.
+codex
+I’m doing one bounded corpus check now because the packet says to name missing data if needed; if the current `ssot` corpus supplies a concrete case, I can give an exact topic input instead of a hypothetical section object.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "@'
+import os, sys, json, io
+repo=os.getcwd(); ssot=os.path.join(repo,'ssot'); sys.path.insert(0, ssot)
+import paper_projector as PP
+reader=('abstract','introduction','discussion','conclusions')
+for name in sorted(os.listdir(ssot)):
+    d=os.path.join(ssot,name); fp=os.path.join(d,name+'.json')
+    if not os.path.exists(fp): continue
+    try:
+        obj=json.load(io.open(fp,encoding='utf-8'))
+    except Exception:
+        continue
+    if not ((obj.get('results') or {}).get('by_outcome')): continue
+    try:
+        secs=PP.project(obj)
+    except Exception:
+        continue
+    by={getattr(s,'key',None):s for s in secs}
+    for key in reader:
+        s=by.get(key)
+        if not s: continue
+        words=sum(len(str(t).split()) for t,_ in s.paras)
+        if s.refusals and s.paras and words>=60:
+            print(name, key, 'words', words, 'refusals', len(s.refusals))
+            print(' first_refusal=', s.refusals[0])
+            raise SystemExit
+print('NONE')
+'@ | python -" in F:\rapidmeta-ssot-shell
+ succeeded in 1419ms:
+ablation-af-heart-failure abstract words 68 refusals 2
+ first_refusal= ('the Background sentence of the abstract. Background is ARGUMENT -- why this question matters -- and no arrangement of the quantities this object holds yields it. It is emitted only from an authored field and there is no composition path for it here', ['manuscript.abstract.Background'])
+
+codex
+The corpus supplies a concrete missed-refusal case: `ablation-af-heart-failure` has an abstract with refusals and 68 paragraph words, so line 93 does not classify that abstract as refused or stub.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "python scripts/lint_reader_facing_sections.py | Select-String -Pattern 'ablation-af-heart-failure|topic|topics with'" in F:\rapidmeta-ssot-shell
+ succeeded in 1915ms:
+
+topics projecting a manuscript          141
+topics with a stub or refused           114
+topic                                            bad  which
+ablation-af-heart-failure                          2  discussion: refused; conclusions: refused
+REPORTED, NOT PASSED: 114 of 141 topics fail P47 against a baseline of 141, none new. A MANUSCRIPT WHOSE READER-FACING 
+SECTIONS ARE REFUSALS IS NOT COMPLETE REGARDLESS OF ITS TOTALS, and 114 topics are in that state right now.
+
+
+
+codex
+I’m checking whether the same defect produces a full false negative topic, not just an undercount. If none exists in the current corpus, I’ll state the demonstrated undercount only.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "@'
+import os,sys,json,io
+repo=os.getcwd(); ssot=os.path.join(repo,'ssot'); sys.path.insert(0,ssot)
+import paper_projector as PP
+reader=('abstract','introduction','discussion','conclusions'); MIN=60
+for name in sorted(os.listdir(ssot)):
+    fp=os.path.join(ssot,name,name+'.json')
+    if not os.path.exists(fp): continue
+    try: obj=json.load(io.open(fp,encoding='utf-8'))
+    except Exception: continue
+    if not ((obj.get('results') or {}).get('by_outcome')): continue
+    try: secs=PP.project(obj)
+    except Exception: continue
+    by={getattr(s,'key',None):s for s in secs}
+    bad=[]; missed=[]
+    for key in reader:
+        s=by.get(key)
+        if s is None:
+            bad.append((key,'absent')); continue
+        words=sum(len(str(t).split()) for t,_ in s.paras)
+        if s.refusals and not s.paras: bad.append((key,'refused'))
+        elif words<MIN: bad.append((key,f'{words} words'))
+        if s.refusals and words>=MIN:
+            missed.append((key,words,len(s.refusals)))
+    if missed and not bad:
+        print('FALSE_NEG_TOPIC',name,missed); raise SystemExit
+print('NO_FALSE_NEG_TOPIC')
+'@ | python -" in F:\rapidmeta-ssot-shell
+ succeeded in 1328ms:
+FALSE_NEG_TOPIC agyw-hiv-prep-review [('abstract', 115, 2)]
+
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "python scripts/lint_reader_facing_sections.py | Select-String -Pattern 'agyw-hiv-prep-review|topics with|REPORTED'" in F:\rapidmeta-ssot-shell
+ succeeded in 1975ms:
+
+topics with a stub or refused           114
+agyw-hiv-prep-review                               0  
+REPORTED, NOT PASSED: 114 of 141 topics fail P47 against a baseline of 141, none new. A MANUSCRIPT WHOSE READER-FACING 
+SECTIONS ARE REFUSALS IS NOT COMPLETE REGARDLESS OF ITS TOTALS, and 114 topics are in that state right now.
+
+
+
+codex
+**Defects Found**
+
+- **SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE**: line 93, `if s.refusals and not s.paras:`.
+  Exact input: `ssot/agyw-hiv-prep-review/agyw-hiv-prep-review.json`, whose projected `abstract` has `len(refusals) == 2` and `115` paragraph words; the script reports `agyw-hiv-prep-review 0`.
+  Consequence: a reader-facing section with refusals is counted clean if it also has at least `MIN_WORDS` prose.
+
+- **CHECK THAT CANNOT FAIL for replacement regressions**: lines 118 and 134 store/read only `failing_topics`, then compare only `len(failing) > base`.
+  Exact input: baseline JSON `{"failing_topics": 1}` from topic `old` failing; current corpus where `old` is fixed and `new` now fails, so `len(failing) == 1`.
+  Consequence: a new failing topic is reported as “none new” because identity was discarded.
+
+**No Finding By Shape**
+
+- Probe keyed to the string a fix removes: no finding.
+- Idempotency guard satisfied by its own comment/marker: no finding.
+- Instrument reading a different copy: no finding.
+- Text comparison sensitive to CRLF/LF: no finding.
+- Merged-cell or off-by-one tabulation/count: no finding.
+- Zero conflated with absent: no finding; line 112’s `or 0` is after `None` filtering.
+- Negation dropped: no finding.
+- Wrapper status code reported instead of work status: no finding.
+tokens used
+38,839
+**Defects Found**
+
+- **SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE**: line 93, `if s.refusals and not s.paras:`.
+  Exact input: `ssot/agyw-hiv-prep-review/agyw-hiv-prep-review.json`, whose projected `abstract` has `len(refusals) == 2` and `115` paragraph words; the script reports `agyw-hiv-prep-review 0`.
+  Consequence: a reader-facing section with refusals is counted clean if it also has at least `MIN_WORDS` prose.
+
+- **CHECK THAT CANNOT FAIL for replacement regressions**: lines 118 and 134 store/read only `failing_topics`, then compare only `len(failing) > base`.
+  Exact input: baseline JSON `{"failing_topics": 1}` from topic `old` failing; current corpus where `old` is fixed and `new` now fails, so `len(failing) == 1`.
+  Consequence: a new failing topic is reported as “none new” because identity was discarded.
+
+**No Finding By Shape**
+
+- Probe keyed to the string a fix removes: no finding.
+- Idempotency guard satisfied by its own comment/marker: no finding.
+- Instrument reading a different copy: no finding.
+- Text comparison sensitive to CRLF/LF: no finding.
+- Merged-cell or off-by-one tabulation/count: no finding.
+- Zero conflated with absent: no finding; line 112’s `or 0` is after `None` filtering.
+- Negation dropped: no finding.
+- Wrapper status code reported instead of work status: no finding.

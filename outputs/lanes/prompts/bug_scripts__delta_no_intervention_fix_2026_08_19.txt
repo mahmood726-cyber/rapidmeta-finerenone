@@ -1,0 +1,185 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/delta_no_intervention_fix_2026_08_19.py
+
+--- THE FILE, IN FULL ---
+"""CORPUS-WIDE DELTA for the NO_INTERVENTION / OTHER-arm fix, old code LOADED FROM GIT.
+
+THE RULE: A COMPARATOR THAT IS NOTHING -- PLACEBO, SHAM, OR NO_INTERVENTION -- IS NEVER THE
+INTERVENTION, SO THE ARM CONTRASTED AGAINST IT IS. The placebo rule's non-drug analogue.
+
+WHAT WAS WRONG. `locate()` matched arm hits against EXPERIMENTAL and against any *COMPARATOR*
+type, and everything else fell through to `return BACKGROUND`. An arm typed `OTHER` therefore
+produced "the intervention was given in every arm" -- on EAST-AFNET 4, whose OTHER arm is
+contrasted against an arm typed NO_INTERVENTION. AN ABSENCE OF A MATCHING BRANCH REPORTED AS A
+POSITIVE FINDING ABOUT THE TRIAL.
+
+A PREDICTION IS CHECKED HERE, NOT ONLY A TEST PASSED. `early-rhythm-control-af` carried
+kNA = 202 against 45 on the sibling's near-identical surfaced set -- 4.5x the refusals on the
+topic whose designs are strategies rather than procedures. If the diagnosis is right that
+number must move substantially. If it does not, the diagnosis is wrong and the fix is doing
+something else; that is stated BEFORE the run so the result cannot be read only in the
+direction that flatters it.
+
+    (kNA is not what this branch returns -- it returns EXPERIMENTAL instead of BACKGROUND --
+    so the prediction is really about k3 and k5 on that topic. The kNA figure is a SYMPTOM of
+    strategy-typed designs being hard for this instrument, and the honest test is whether the
+    EAST-shaped trials move. Both are measured below.)
+
+EVERY NON-ABSENCE CHANGE IS OPENED INDIVIDUALLY. A change into or out of NOT_ASSESSABLE is an
+absence moving; a change between experimental / comparator / background is a claim about a
+trial, and each of those is printed with its arms so it can be read rather than counted.
+"""
+import collections
+import importlib.util
+import io
+import json
+import os
+import subprocess
+import sys
+
+REPO = "F:/rapidmeta-ssot-shell"
+sys.path.insert(0, REPO + "/ssot")
+os.environ.setdefault(
+    "RM_CTGOV_CACHE",
+    "F:/claude-temp/claude/F--rapidmeta-ssot-shell/"
+    "eb4d84e5-8a24-4c3b-afe2-34bd91c20bc7/scratchpad/.ctgov-raw-cache")
+
+import ctgov_transport as X          # noqa: E402
+import topic_identity as NEW         # noqa: E402
+
+SCRATCH = ("F:/claude-temp/claude/F--rapidmeta-ssot-shell/"
+           "6b629e1e-cc8c-4565-af03-e40341ee43f3/scratchpad")
+DEST = os.path.join(REPO, "evidence", "2026-08-19-batch1", "no_intervention_fix_delta.json")
+CACHE = os.environ["RM_CTGOV_CACHE"]
+
+
+def load_old():
+    """The classifier as HEAD has it -- i.e. before this working-tree change."""
+    src = subprocess.run(["git", "-C", REPO, "show", "HEAD:ssot/topic_identity.py"],
+                         capture_output=True, check=True).stdout.decode("utf-8", "replace")
+    path = os.path.join(SCRATCH, "topic_identity_HEAD.py")
+    with io.open(path, "w", encoding="utf-8") as fh:
+        fh.write(src)
+    spec = importlib.util.spec_from_file_location("topic_identity_HEAD", path)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    OLD = load_old()
+    print("OLD loaded from git HEAD, NEW from the working tree.")
+    if OLD.TOPIC_SYNONYMS != NEW.TOPIC_SYNONYMS:
+        print("!! synonym sets differ between revisions -- the delta is NOT attributable to "
+              "locate() alone.")
+        return 1
+
+    files = [f for f in sorted(os.listdir(CACHE)) if f.endswith(".json")]
+    payloads = {}
+    for f in files:
+        try:
+            with io.open(os.path.join(CACHE, f), encoding="utf-8") as fh:
+                blob = json.load(fh)
+        except (ValueError, OSError):
+            continue
+        doc = blob.get("payload") if isinstance(blob, dict) and "payload" in blob else blob
+        if not isinstance(doc, dict) or "protocolSection" not in doc:
+            continue
+        nct = (((doc["protocolSection"].get("identificationModule")) or {}).get("nctId"))
+        if nct:
+            payloads[nct] = doc
+    topics = sorted(NEW.TOPIC_SYNONYMS)
+    print("cached registrations %d x declared topics %d = %d classifications\n"
+          % (len(payloads), len(topics), len(payloads) * len(topics)))
+
+    changed, by_kind = [], collections.Counter()
+    for topic in topics:
+        so, sn = OLD.synonyms_for(topic), NEW.synonyms_for(topic)
+        for nct, doc in payloads.items():
+            try:
+                o, _oe = OLD.locate(doc, so)
+                n, ne = NEW.locate(doc, sn)
+            except Exception:                            # noqa: BLE001 - reported, not hidden
+                continue
+            if o != n:
+                changed.append({"topic": topic, "nct": nct, "old": o, "new": n,
+                                "new_evidence": ne})
+                by_kind["%s -> %s" % (o, n)] += 1
+
+    print("CHANGED CLASSIFICATIONS: %d" % len(changed))
+    for k, v in by_kind.most_common():
+        print("   %-58s %4d" % (k, v))
+
+    absence = [c for c in changed
+               if NEW.NOT_ASSESSABLE in (c["old"], c["new"])]
+    claims = [c for c in changed if c not in absence]
+    print("\n   of which absence moving (to/from NOT_ASSESSABLE): %d" % len(absence))
+    print("   of which CLAIMS ABOUT A TRIAL:                     %d   <- every one opened below"
+          % len(claims))
+
+    print("\nEVERY NON-ABSENCE CHANGE, WITH ITS ARMS")
+    for c in claims:
+        doc = payloads[c["nct"]]
+        ai = (doc["protocolSection"].get("armsInterventionsModule") or {})
+        print("\n   %s  [%s]  %s -> %s" % (c["nct"], c["topic"], c["old"], c["new"]))
+        for a in (ai.get("armGroups") or []):
+            names = "; ".join(str(x) for x in (a.get("interventionNames") or [])) or "(none)"
+            print("      [%s] %s -- %s" % (a.get("type"), a.get("label"), names[:90]))
+
+    # --- the prediction, checked ---------------------------------------------------------
+    print("\nTHE PREDICTION, CHECKED RATHER THAN ASSUMED")
+    east = payloads.get("NCT01288352")
+    if east is None:
+        print("   NOT_ASSESSABLE: EAST-AFNET 4 is not in the cache, so the named instance "
+              "cannot be checked here.")
+    else:
+        so, sn = OLD.synonyms_for("catheter ablation"), NEW.synonyms_for("catheter ablation")
+        o, _ = OLD.locate(east, so)
+        n, ev = NEW.locate(east, sn)
+        print("   EAST-AFNET 4 NCT01288352: %s -> %s" % (o, n))
+        print("      %s" % ev)
+
+    with io.open(DEST, "w", encoding="utf-8") as fh:
+        fh.write(json.dumps({"changed": len(changed), "by_kind": dict(by_kind),
+                             "absence_moving": len(absence), "claims": len(claims),
+                             "changes": changed}, indent=1))
+    print("\nwrote %s" % DEST)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

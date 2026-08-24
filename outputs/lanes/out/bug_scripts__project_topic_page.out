@@ -1,0 +1,513 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a03219-c4f4-7f82-875b-86678863eb4e
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/project_topic_page.py
+
+--- THE FILE, IN FULL ---
+"""THE PROJECTOR: write a topic page's values from its canonical object, or refuse.
+
+This is the straight path's missing final segment. Before this, nothing in the repository
+turned an object into a page: `PAGE_MAP` is a registry of correspondence, and the
+`tabbed_build` property is "checkbuild-equivalent" -- established for pages built through a
+path, with no runnable checker for a page already on disk.
+
+THREE INVARIANTS, EACH EARNED THIS WEEK.
+
+  1. THE BLOCK LIST COMES FROM THE OBJECT, NOT FROM THIS CODE.
+     The object carries `render: [{block, slot, path}, ...]`. This module maps a BLOCK
+     TYPE to a formatter and knows nothing about which blocks a topic has. Adding a
+     seventh block later is DATA. If this file hardcoded five, adding a sixth would be a
+     rewrite -- and a projector whose property model cannot grow is the thing that would
+     have to be rewritten when the methods work lands.
+
+  2. A MISSING VALUE IS A REFUSAL, NEVER A PLACEHOLDER.
+     If a declared block names a path the object does not carry, this raises. It does not
+     substitute a default, an em-dash, or an empty string. AN OMITTED FIELD IS DATA; A
+     DEFAULTED FIELD IS A LIE -- the same rule that governs the objects, arriving at the
+     rendering layer. A renderer that can invent a value can diverge from its object, and
+     the whole point of this file is that it structurally cannot.
+
+  3. ALL OR NOTHING.
+     Every block is formatted and every slot located BEFORE a single byte is written. A
+     page half-filled from an object is worse than an empty one: a reader cannot tell
+     which values came from the object and which are still placeholders, and the page
+     would assert a provenance it only partly has.
+
+AND THE PATTERN IS BORROWED DELIBERATELY from F:\\allmeta\\audit\\render.py -- one
+canonical input, N renderers, no renderer holding data of its own. That signature is what
+makes the multi-route defect structurally impossible rather than merely discouraged.
+
+DONE IS NOT "A FILE WAS WRITTEN". Done is the LIVE page rendering the object's values,
+cache-busted. This module writes; it does not confirm.
+"""
+from __future__ import annotations
+import io
+import json
+import os
+import re
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+STAMP_ID = "projector-build-stamp"
+
+
+class Refused(Exception):
+    """Raised instead of writing anything. Never caught inside this module."""
+
+
+def dig(obj, path):
+    """Fetch obj at a dotted path. RAISES if any segment is absent."""
+    cur = obj
+    for seg in path.split("."):
+        if isinstance(cur, list):
+            try:
+                cur = cur[int(seg)]
+                continue
+            except (ValueError, IndexError):
+                raise Refused("path %r: index %r not present" % (path, seg))
+        if not isinstance(cur, dict) or seg not in cur:
+            raise Refused("path %r: segment %r not present in the object" % (path, seg))
+        cur = cur[seg]
+    if cur is None:
+        raise Refused("path %r resolves to null -- a null is an absence, not a value"
+                      % path)
+    return cur
+
+
+# ---- BLOCK FORMATTERS. Each is a pure function of values dug from the object. ----
+def _fmt_effect(o, spec):
+    v = dig(o, spec["path"])
+    return "%.2f" % v if isinstance(v, (int, float)) else str(v)
+
+
+def _fmt_interval(o, spec):
+    lo = dig(o, spec["path_low"])
+    hi = dig(o, spec["path_high"])
+    return "%.2f to %.2f" % (lo, hi)
+
+
+def _fmt_percent(o, spec):
+    return "%.1f%%" % dig(o, spec["path"])
+
+
+def _fmt_text(o, spec):
+    return str(dig(o, spec["path"]))
+
+
+def _fmt_count(o, spec):
+    return str(int(dig(o, spec["path"])))
+
+
+FORMATTERS = {"effect": _fmt_effect, "interval": _fmt_interval,
+              "percent": _fmt_percent, "text": _fmt_text, "count": _fmt_count}
+
+
+def project(page_path: str, obj_path: str, *, commit: str, dry_run: bool = True):
+    obj = json.load(io.open(obj_path, encoding="utf-8"))
+    blocks = obj.get("render")
+    if not blocks:
+        raise Refused("the object declares no `render` list. THE BLOCK LIST IS THE "
+                      "OBJECT'S TO DECLARE -- this projector will not invent one.")
+
+    raw = open(page_path, "rb").read()
+    html = raw.decode("utf-8", "replace")
+
+    # PASS 1 -- format every block and locate every slot. Nothing is written yet.
+    planned = []
+    for spec in blocks:
+        btype, slot = spec.get("block"), spec.get("slot")
+        if btype not in FORMATTERS:
+            raise Refused("unknown block type %r. Add a formatter deliberately; do not "
+                          "let an unknown block render as empty." % btype)
+        value = FORMATTERS[btype](obj, spec)          # raises on any missing path
+        pat = re.compile(r'(<[^<>]*id="%s"[^<>]*>)\s*--\s*(</)' % re.escape(slot))
+        if not pat.search(html):
+            raise Refused("slot id=%r not found on the page carrying a `--` placeholder. "
+                          "The page may already be filled, or the slot may not exist; "
+                          "either way this projector will not guess." % slot)
+        planned.append((pat, value, slot, btype))
+
+    # PASS 2 -- apply. Only reached if every block formatted and every slot resolved.
+    out = html
+    for pat, value, slot, _ in planned:
+        out, n = pat.subn(lambda m: m.group(1) + value + m.group(2), out, count=1)
+        if n != 1:
+            raise Refused("slot %r did not substitute exactly once" % slot)
+
+    stamp = ('<div id="%s" data-object="%s" data-commit="%s" hidden>'
+             'projected from %s at %s</div>'
+             % (STAMP_ID, os.path.relpath(obj_path, REPO), commit,
+                os.path.relpath(obj_path, REPO), commit))
+    if STAMP_ID in out:
+        out = re.sub(r'<div id="%s".*?</div>' % STAMP_ID, stamp, out, flags=re.S)
+    else:
+        # THE LAST </body>, NOT THE FIRST, AND ONLY IF IT IS OUTSIDE <script>.
+        # This page holds FOUR "</body>" strings and the first sits inside a
+        # JavaScript string literal. Inserting there produced
+        # "Unexpected identifier 'projector'" and the page rendered zero studies.
+        # The pre-push regression gate caught it. FIRST MATCH IS NOT THE RIGHT
+        # MATCH -- the same family as substring-is-not-identity.
+        idx = -1
+        for m in re.finditer(r"</body>", out):
+            i = m.start()
+            if out.rfind("<script", 0, i) <= out.rfind("</script>", 0, i):
+                idx = i          # outside any script block
+        if idx < 0:
+            raise Refused("no </body> outside a <script> block, and no existing stamp. "
+                          "This page holds %d </body> strings, all inside script; there "
+                          "is nowhere safe to record provenance, and an unstamped page "
+                          "cannot be told from a hand-edited one."
+                          % out.count("</body>"))
+        out = out[:idx] + stamp + out[idx:]
+
+    if out.count("\r\n") != raw.decode("utf-8", "replace").count("\r\n"):
+        raise Refused("line-ending count changed")
+    if out.count("</script>") != html.count("</script>"):
+        raise Refused("script count changed")
+    si = out.find(STAMP_ID)
+    if si >= 0 and out.rfind("<script", 0, si) > out.rfind("</script>", 0, si):
+        raise Refused("the build stamp landed INSIDE a <script> block -- this is the "
+                      "defect the regression gate caught on 2026-08-18 and it is now "
+                      "structurally refused rather than merely avoided.")
+
+    # MEASURE IN BYTES ON BOTH SIDES. The first version compared len(str) to
+    # len(bytes) and reported a 16,291-byte "shrink" on a page that grew by 45 --
+    # non-ASCII characters are multi-byte. An alarming number from a unit mismatch,
+    # which is the shape that has produced every instrument artefact this week.
+    out_bytes = out.encode("utf-8")
+    if not dry_run:
+        open(page_path, "wb").write(out_bytes)
+    return [(s, v, b) for _, v, s, b in planned], len(out_bytes) - len(raw)
+
+
+def main() -> int:
+    import subprocess
+    args = sys.argv[1:]
+    apply_it = "--apply" in args
+    args = [a for a in args if a != "--apply"]
+    if len(args) != 2:
+        print("usage: project_topic_page.py <page.html> <object.json> [--apply]")
+        return 2
+    page, obj = args
+    commit = subprocess.run(["git", "rev-parse", "--short", "HEAD"],
+                            capture_output=True).stdout.decode("utf-8").strip() or "UNKNOWN"
+    try:
+        done, delta = project(os.path.join(REPO, page), os.path.join(REPO, obj),
+                              commit=commit, dry_run=not apply_it)
+    except Refused as e:
+        print("REFUSED -- nothing written.")
+        print("   %s" % e)
+        return 1
+    print("%s %d block(s), %+d bytes" % ("WROTE" if apply_it else "DRY RUN",
+                                         len(done), delta))
+    for slot, value, btype in done:
+        print("   %-16s %-10s %s" % (slot, btype, value))
+    if not apply_it:
+        print("\n(dry run -- pass --apply to write)")
+    else:
+        print("\nWRITTEN IS NOT DELIVERED. Done is the LIVE page rendering these values, "
+              "cache-busted.")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+
+codex
+I’ll use the pasted module as the review record and pin findings to exact source lines. I’m only looking for the named defect shapes, not making a general quality assessment.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=0; Get-Content -Path scripts/project_topic_page.py | ForEach-Object { $i++; '"'{0,4}: {1}' -f "'$i, $_ }' in F:\rapidmeta-ssot-shell
+ succeeded in 1251ms:
+   1: """THE PROJECTOR: write a topic page's values from its canonical object, or refuse.
+   2: 
+   3: This is the straight path's missing final segment. Before this, nothing in the repository
+   4: turned an object into a page: `PAGE_MAP` is a registry of correspondence, and the
+   5: `tabbed_build` property is "checkbuild-equivalent" -- established for pages built through a
+   6: path, with no runnable checker for a page already on disk.
+   7: 
+   8: THREE INVARIANTS, EACH EARNED THIS WEEK.
+   9: 
+  10:   1. THE BLOCK LIST COMES FROM THE OBJECT, NOT FROM THIS CODE.
+  11:      The object carries `render: [{block, slot, path}, ...]`. This module maps a BLOCK
+  12:      TYPE to a formatter and knows nothing about which blocks a topic has. Adding a
+  13:      seventh block later is DATA. If this file hardcoded five, adding a sixth would be a
+  14:      rewrite -- and a projector whose property model cannot grow is the thing that would
+  15:      have to be rewritten when the methods work lands.
+  16: 
+  17:   2. A MISSING VALUE IS A REFUSAL, NEVER A PLACEHOLDER.
+  18:      If a declared block names a path the object does not carry, this raises. It does not
+  19:      substitute a default, an em-dash, or an empty string. AN OMITTED FIELD IS DATA; A
+  20:      DEFAULTED FIELD IS A LIE -- the same rule that governs the objects, arriving at the
+  21:      rendering layer. A renderer that can invent a value can diverge from its object, and
+  22:      the whole point of this file is that it structurally cannot.
+  23: 
+  24:   3. ALL OR NOTHING.
+  25:      Every block is formatted and every slot located BEFORE a single byte is written. A
+  26:      page half-filled from an object is worse than an empty one: a reader cannot tell
+  27:      which values came from the object and which are still placeholders, and the page
+  28:      would assert a provenance it only partly has.
+  29: 
+  30: AND THE PATTERN IS BORROWED DELIBERATELY from F:\\allmeta\\audit\\render.py -- one
+  31: canonical input, N renderers, no renderer holding data of its own. That signature is what
+  32: makes the multi-route defect structurally impossible rather than merely discouraged.
+  33: 
+  34: DONE IS NOT "A FILE WAS WRITTEN". Done is the LIVE page rendering the object's values,
+  35: cache-busted. This module writes; it does not confirm.
+  36: """
+  37: from __future__ import annotations
+  38: import io
+  39: import json
+  40: import os
+  41: import re
+  42: import sys
+  43: 
+  44: sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+  45: if __name__ == "__main__":
+  46:     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+  47: 
+  48: REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+  49: STAMP_ID = "projector-build-stamp"
+  50: 
+  51: 
+  52: class Refused(Exception):
+  53:     """Raised instead of writing anything. Never caught inside this module."""
+  54: 
+  55: 
+  56: def dig(obj, path):
+  57:     """Fetch obj at a dotted path. RAISES if any segment is absent."""
+  58:     cur = obj
+  59:     for seg in path.split("."):
+  60:         if isinstance(cur, list):
+  61:             try:
+  62:                 cur = cur[int(seg)]
+  63:                 continue
+  64:             except (ValueError, IndexError):
+  65:                 raise Refused("path %r: index %r not present" % (path, seg))
+  66:         if not isinstance(cur, dict) or seg not in cur:
+  67:             raise Refused("path %r: segment %r not present in the object" % (path, seg))
+  68:         cur = cur[seg]
+  69:     if cur is None:
+  70:         raise Refused("path %r resolves to null -- a null is an absence, not a value"
+  71:                       % path)
+  72:     return cur
+  73: 
+  74: 
+  75: # ---- BLOCK FORMATTERS. Each is a pure function of values dug from the object. ----
+  76: def _fmt_effect(o, spec):
+  77:     v = dig(o, spec["path"])
+  78:     return "%.2f" % v if isinstance(v, (int, float)) else str(v)
+  79: 
+  80: 
+  81: def _fmt_interval(o, spec):
+  82:     lo = dig(o, spec["path_low"])
+  83:     hi = dig(o, spec["path_high"])
+  84:     return "%.2f to %.2f" % (lo, hi)
+  85: 
+  86: 
+  87: def _fmt_percent(o, spec):
+  88:     return "%.1f%%" % dig(o, spec["path"])
+  89: 
+  90: 
+  91: def _fmt_text(o, spec):
+  92:     return str(dig(o, spec["path"]))
+  93: 
+  94: 
+  95: def _fmt_count(o, spec):
+  96:     return str(int(dig(o, spec["path"])))
+  97: 
+  98: 
+  99: FORMATTERS = {"effect": _fmt_effect, "interval": _fmt_interval,
+ 100:               "percent": _fmt_percent, "text": _fmt_text, "count": _fmt_count}
+ 101: 
+ 102: 
+ 103: def project(page_path: str, obj_path: str, *, commit: str, dry_run: bool = True):
+ 104:     obj = json.load(io.open(obj_path, encoding="utf-8"))
+ 105:     blocks = obj.get("render")
+ 106:     if not blocks:
+ 107:         raise Refused("the object declares no `render` list. THE BLOCK LIST IS THE "
+ 108:                       "OBJECT'S TO DECLARE -- this projector will not invent one.")
+ 109: 
+ 110:     raw = open(page_path, "rb").read()
+ 111:     html = raw.decode("utf-8", "replace")
+ 112: 
+ 113:     # PASS 1 -- format every block and locate every slot. Nothing is written yet.
+ 114:     planned = []
+ 115:     for spec in blocks:
+ 116:         btype, slot = spec.get("block"), spec.get("slot")
+ 117:         if btype not in FORMATTERS:
+ 118:             raise Refused("unknown block type %r. Add a formatter deliberately; do not "
+ 119:                           "let an unknown block render as empty." % btype)
+ 120:         value = FORMATTERS[btype](obj, spec)          # raises on any missing path
+ 121:         pat = re.compile(r'(<[^<>]*id="%s"[^<>]*>)\s*--\s*(</)' % re.escape(slot))
+ 122:         if not pat.search(html):
+ 123:             raise Refused("slot id=%r not found on the page carrying a `--` placeholder. "
+ 124:                           "The page may already be filled, or the slot may not exist; "
+ 125:                           "either way this projector will not guess." % slot)
+ 126:         planned.append((pat, value, slot, btype))
+ 127: 
+ 128:     # PASS 2 -- apply. Only reached if every block formatted and every slot resolved.
+ 129:     out = html
+ 130:     for pat, value, slot, _ in planned:
+ 131:         out, n = pat.subn(lambda m: m.group(1) + value + m.group(2), out, count=1)
+ 132:         if n != 1:
+ 133:             raise Refused("slot %r did not substitute exactly once" % slot)
+ 134: 
+ 135:     stamp = ('<div id="%s" data-object="%s" data-commit="%s" hidden>'
+ 136:              'projected from %s at %s</div>'
+ 137:              % (STAMP_ID, os.path.relpath(obj_path, REPO), commit,
+ 138:                 os.path.relpath(obj_path, REPO), commit))
+ 139:     if STAMP_ID in out:
+ 140:         out = re.sub(r'<div id="%s".*?</div>' % STAMP_ID, stamp, out, flags=re.S)
+ 141:     else:
+ 142:         # THE LAST </body>, NOT THE FIRST, AND ONLY IF IT IS OUTSIDE <script>.
+ 143:         # This page holds FOUR "</body>" strings and the first sits inside a
+ 144:         # JavaScript string literal. Inserting there produced
+ 145:         # "Unexpected identifier 'projector'" and the page rendered zero studies.
+ 146:         # The pre-push regression gate caught it. FIRST MATCH IS NOT THE RIGHT
+ 147:         # MATCH -- the same family as substring-is-not-identity.
+ 148:         idx = -1
+ 149:         for m in re.finditer(r"</body>", out):
+ 150:             i = m.start()
+ 151:             if out.rfind("<script", 0, i) <= out.rfind("</script>", 0, i):
+ 152:                 idx = i          # outside any script block
+ 153:         if idx < 0:
+ 154:             raise Refused("no </body> outside a <script> block, and no existing stamp. "
+ 155:                           "This page holds %d </body> strings, all inside script; there "
+ 156:                           "is nowhere safe to record provenance, and an unstamped page "
+ 157:                           "cannot be told from a hand-edited one."
+ 158:                           % out.count("</body>"))
+ 159:         out = out[:idx] + stamp + out[idx:]
+ 160: 
+ 161:     if out.count("\r\n") != raw.decode("utf-8", "replace").count("\r\n"):
+ 162:         raise Refused("line-ending count changed")
+ 163:     if out.count("</script>") != html.count("</script>"):
+ 164:         raise Refused("script count changed")
+ 165:     si = out.find(STAMP_ID)
+ 166:     if si >= 0 and out.rfind("<script", 0, si) > out.rfind("</script>", 0, si):
+ 167:         raise Refused("the build stamp landed INSIDE a <script> block -- this is the "
+ 168:                       "defect the regression gate caught on 2026-08-18 and it is now "
+ 169:                       "structurally refused rather than merely avoided.")
+ 170: 
+ 171:     # MEASURE IN BYTES ON BOTH SIDES. The first version compared len(str) to
+ 172:     # len(bytes) and reported a 16,291-byte "shrink" on a page that grew by 45 --
+ 173:     # non-ASCII characters are multi-byte. An alarming number from a unit mismatch,
+ 174:     # which is the shape that has produced every instrument artefact this week.
+ 175:     out_bytes = out.encode("utf-8")
+ 176:     if not dry_run:
+ 177:         open(page_path, "wb").write(out_bytes)
+ 178:     return [(s, v, b) for _, v, s, b in planned], len(out_bytes) - len(raw)
+ 179: 
+ 180: 
+ 181: def main() -> int:
+ 182:     import subprocess
+ 183:     args = sys.argv[1:]
+ 184:     apply_it = "--apply" in args
+ 185:     args = [a for a in args if a != "--apply"]
+ 186:     if len(args) != 2:
+ 187:         print("usage: project_topic_page.py <page.html> <object.json> [--apply]")
+ 188:         return 2
+ 189:     page, obj = args
+ 190:     commit = subprocess.run(["git", "rev-parse", "--short", "HEAD"],
+ 191:                             capture_output=True).stdout.decode("utf-8").strip() or "UNKNOWN"
+ 192:     try:
+ 193:         done, delta = project(os.path.join(REPO, page), os.path.join(REPO, obj),
+ 194:                               commit=commit, dry_run=not apply_it)
+ 195:     except Refused as e:
+ 196:         print("REFUSED -- nothing written.")
+ 197:         print("   %s" % e)
+ 198:         return 1
+ 199:     print("%s %d block(s), %+d bytes" % ("WROTE" if apply_it else "DRY RUN",
+ 200:                                          len(done), delta))
+ 201:     for slot, value, btype in done:
+ 202:         print("   %-16s %-10s %s" % (slot, btype, value))
+ 203:     if not apply_it:
+ 204:         print("\n(dry run -- pass --apply to write)")
+ 205:     else:
+ 206:         print("\nWRITTEN IS NOT DELIVERED. Done is the LIVE page rendering these values, "
+ 207:               "cache-busted.")
+ 208:     return 0
+ 209: 
+ 210: 
+ 211: if __name__ == "__main__":
+ 212:     sys.exit(main())
+
+codex
+- **Check that cannot fail**: lines 131-132. Input page `<html><body><span id="x">--</span><span id="x">--</span></body></html>` with object `{"x":"ok","render":[{"block":"text","slot":"x","path":"x"}]}`. Consequence: `count=1` caps `n` at 1, so duplicate matching slots are not detected and one placeholder remains.
+
+- **Idempotency guard satisfied by own marker**: line 139. Input page `<html><body><!-- projector-build-stamp --><span id="x">--</span></body></html>` with object `{"x":"ok","render":[{"block":"text","slot":"x","path":"x"}]}`. Consequence: `STAMP_ID in out` is true, line 140 replaces no `<div>`, and the page can be written without a real provenance stamp.
+
+- **Instrument reading a different copy / wrapper status**: lines 190-191. Input: run `python F:\rapidmeta-ssot-shell\scripts\project_topic_page.py page.html obj.json --apply` from a non-git directory, with otherwise valid repo-relative files. Consequence: failed `git rev-parse` is ignored and a successful wrapper exit can stamp `UNKNOWN` instead of the repo commit.
+
+- **Selector keyed to a form it does not handle**: lines 151 and 166. Input page `<html><SCRIPT>const s="</body>";</SCRIPT><span id="x">--</span></html>` with object `{"x":"ok","render":[{"block":"text","slot":"x","path":"x"}]}`. Consequence: uppercase `<SCRIPT>` is not recognized, so the stamp can be inserted inside JavaScript and the guard misses it.
+
+- **CRLF/LF text comparison**: line 161. Input CRLF page `<html>\r\n<body>\r\n<span id="x">--</span>\r\n</body>\r\n</html>\r\n` with object value `"a\nb"`. Consequence: the check compares only CRLF counts, so it accepts newly introduced bare-LF line endings.
+
+- **Probe keyed to string a fix removes**: lines 121-122. Input: apply once to `<span id="x">--</span>` with object `{"x":"ok","render":[{"block":"text","slot":"x","path":"x"}]}`, then run the same command again. Consequence: success removes `--`, making the rerun refuse instead of verifying the projected value.
+
+- **Merged-cell/off-by-one tabulation**: none found in this file.
+- **Zero conflated with absent**: none proven.
+- **Negation dropped**: none found.
+tokens used
+18,637
+- **Check that cannot fail**: lines 131-132. Input page `<html><body><span id="x">--</span><span id="x">--</span></body></html>` with object `{"x":"ok","render":[{"block":"text","slot":"x","path":"x"}]}`. Consequence: `count=1` caps `n` at 1, so duplicate matching slots are not detected and one placeholder remains.
+
+- **Idempotency guard satisfied by own marker**: line 139. Input page `<html><body><!-- projector-build-stamp --><span id="x">--</span></body></html>` with object `{"x":"ok","render":[{"block":"text","slot":"x","path":"x"}]}`. Consequence: `STAMP_ID in out` is true, line 140 replaces no `<div>`, and the page can be written without a real provenance stamp.
+
+- **Instrument reading a different copy / wrapper status**: lines 190-191. Input: run `python F:\rapidmeta-ssot-shell\scripts\project_topic_page.py page.html obj.json --apply` from a non-git directory, with otherwise valid repo-relative files. Consequence: failed `git rev-parse` is ignored and a successful wrapper exit can stamp `UNKNOWN` instead of the repo commit.
+
+- **Selector keyed to a form it does not handle**: lines 151 and 166. Input page `<html><SCRIPT>const s="</body>";</SCRIPT><span id="x">--</span></html>` with object `{"x":"ok","render":[{"block":"text","slot":"x","path":"x"}]}`. Consequence: uppercase `<SCRIPT>` is not recognized, so the stamp can be inserted inside JavaScript and the guard misses it.
+
+- **CRLF/LF text comparison**: line 161. Input CRLF page `<html>\r\n<body>\r\n<span id="x">--</span>\r\n</body>\r\n</html>\r\n` with object value `"a\nb"`. Consequence: the check compares only CRLF counts, so it accepts newly introduced bare-LF line endings.
+
+- **Probe keyed to string a fix removes**: lines 121-122. Input: apply once to `<span id="x">--</span>` with object `{"x":"ok","render":[{"block":"text","slot":"x","path":"x"}]}`, then run the same command again. Consequence: success removes `--`, making the rerun refuse instead of verifying the projected value.
+
+- **Merged-cell/off-by-one tabulation**: none found in this file.
+- **Zero conflated with absent**: none proven.
+- **Negation dropped**: none found.

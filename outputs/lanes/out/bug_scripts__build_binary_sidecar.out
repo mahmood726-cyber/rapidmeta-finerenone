@@ -1,0 +1,955 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a03166-2b50-76f3-a962-27c300ce0aac
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/build_binary_sidecar.py
+
+--- THE FILE, IN FULL ---
+r"""Generate an R-validation sidecar JSON for binary-outcome meta-analyses
+using REML + HKSJ + HKSJ-floor + Cochrane-v6.5 t_(k-1) prediction interval.
+
+Same JSON schema as the existing outputs/r_validation/*.json so the page
+engine renders the sidecar's "R-validation" panel.
+
+Inputs: a FULL_REVIEW HTML containing trial blocks with tE/tN/cE/cN.
+Output: outputs/r_validation/<TOPIC>.json
+
+Methodology rationale (advanced-stats.md gotchas):
+  * Yates 0.5 correction: applied ONLY when at least one cell is zero,
+    not unconditionally (unconditional biases OR -> 1).
+  * tau-squared via REML (Viechtbauer 2005): iterative, robust for k<10.
+  * HKSJ floor at 1: when Q/(k-1) < 1, the HKSJ variance scaling would
+    narrow CIs below DL; floor it (Wiksten et al. 2016).
+  * Prediction interval via t_(k-1) per Cochrane Handbook v6.5
+    (resolved 2026-05-25; supersedes IntHout 2016 t_(k-2)).
+  * Fisher z / log scale -> back-transform after pooling.
+
+Limitations:
+  * Binary outcomes only. Pages with continuous outcomes (publishedHR/MD)
+    are handled by a separate path or left to the existing R generator.
+  * Requires k >= 2 trials (k=1 is a single-study summary, not a pool).
+"""
+from __future__ import annotations
+import sys, io, re, json, math
+from pathlib import Path
+
+# sys.stdout reassignment lives in main() to avoid breaking importers
+# (see lessons.md: module-level sys.stdout reassignment kills pytest /
+# downstream callers' stdout when they import this module).
+
+HERE = Path(__file__).resolve().parent.parent
+SIDECAR_DIR = HERE / "outputs" / "r_validation"
+SIDECAR_DIR.mkdir(parents=True, exist_ok=True)
+
+# Trial-block regex handles all three NCT-key quote forms (post-terser).
+TRIAL_RE = re.compile(
+    r"(?:'(NCT\d{7,8})'|\"(NCT\d{7,8})\"|\b(NCT\d{7,8}))\s*:\s*\{"
+    r"(?P<body>(?:[^{}]|\{[^{}]*\}){0,4000})\}",
+    re.DOTALL,
+)
+
+
+def get_num(body, name):
+    """Get a numeric field. None on null/missing."""
+    m = re.search(
+        rf"['\"]?{name}['\"]?\s*:\s*(-?[\d.eE+-]+|null|None)",
+        body,
+    )
+    if not m: return None
+    v = m.group(1)
+    if v in ("null", "None"): return None
+    try:
+        return float(v) if "." in v or "e" in v.lower() else int(v)
+    except ValueError:
+        return None
+
+
+def get_str(body, name):
+    """Get a string field (handles JSON-quoted and JS unquoted keys)."""
+    m = re.search(rf"['\"]?{name}['\"]?\s*:\s*['\"]([^'\"]*)['\"]", body)
+    return m.group(1) if m else None
+
+
+def normal_quantile(p):
+    """Inverse normal CDF, no scipy dependency. Acklam approximation."""
+    # See Peter J. Acklam's algorithm. Accurate to ~1e-9 in central region.
+    a = [-39.69683028665376, 220.9460984245205, -275.9285104469687,
+         138.3577518672690, -30.66479806614716, 2.506628277459239]
+    b = [-54.47609879822406, 161.5858368580409, -155.6989798598866,
+         66.80131188771972, -13.28068155288572]
+    c = [-0.007784894002430293, -0.3223964580411365, -2.400758277161838,
+         -2.549732539343734, 4.374664141464968, 2.938163982698783]
+    d = [0.007784695709041462, 0.3224671290700398, 2.445134137142996,
+         3.754408661907416]
+    plow = 0.02425
+    phigh = 1 - plow
+    if p < plow:
+        q = math.sqrt(-2 * math.log(p))
+        return ((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5] / \
+               ((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1)
+    if p > phigh:
+        q = math.sqrt(-2 * math.log(1 - p))
+        return -((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5] / \
+               ((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1)
+    q = p - 0.5
+    r = q*q
+    return (((((a[0]*r+a[1])*r+a[2])*r+a[3])*r+a[4])*r+a[5])*q / \
+           (((((b[0]*r+b[1])*r+b[2])*r+b[3])*r+b[4])*r+1)
+
+
+def t_quantile_975(df):
+    """Two-sided 97.5% t-quantile (alpha=0.025 upper tail), with df>=1.
+    Hill (1970) approximation; good to ~1e-4 for df>=2."""
+    if df <= 0:
+        return float('nan')
+    if df == 1:
+        return 12.7062
+    if df == 2:
+        return 4.30265
+    if df == 3:
+        return 3.18245
+    if df == 4:
+        return 2.77645
+    if df == 5:
+        return 2.57058
+    if df == 6:
+        return 2.44691
+    if df == 7:
+        return 2.36462
+    if df == 8:
+        return 2.306
+    if df == 9:
+        return 2.26216
+    if df == 10:
+        return 2.22814
+    if df == 12:
+        return 2.1788
+    if df == 15:
+        return 2.13145
+    if df == 20:
+        return 2.08596
+    if df == 30:
+        return 2.04227
+    if df == 60:
+        return 2.0003
+    # Hill's algorithm for general df
+    z = 1.959964   # qnorm(0.975)
+    g1 = (z**3 + z) / 4
+    g2 = (5*z**5 + 16*z**3 + 3*z) / 96
+    g3 = (3*z**7 + 19*z**5 + 17*z**3 - 15*z) / 384
+    g4 = (79*z**9 + 776*z**7 + 1482*z**5 - 1920*z**3 - 945*z) / 92160
+    return z + g1/df + g2/df**2 + g3/df**3 + g4/df**4
+
+
+def log_or_per_trial(tE, tN, cE, cN):
+    """Compute logOR + variance for one trial. Returns (yi, vi) or None
+    if the trial is unanalyzable (e.g., 100% in both arms)."""
+    # Yates 0.5 only if any cell is 0
+    tNE = tN - tE
+    cNE = cN - cE
+    cells = [tE, tNE, cE, cNE]
+    if any(c < 0 for c in cells):
+        return None
+    if min(cells) == 0:
+        a = tE + 0.5
+        b = tNE + 0.5
+        c = cE + 0.5
+        d = cNE + 0.5
+    else:
+        a, b, c, d = tE, tNE, cE, cNE
+    try:
+        yi = math.log((a * d) / (b * c))
+        vi = 1/a + 1/b + 1/c + 1/d
+    except (ValueError, ZeroDivisionError):
+        return None
+    if not math.isfinite(yi) or not math.isfinite(vi) or vi <= 0:
+        return None
+    return yi, vi
+
+
+def reml_tau2(yis, vis, max_iter=200, tol=1e-10):
+    """REML estimator of tau-squared. Iterative per Viechtbauer 2005.
+    Returns tau^2."""
+    k = len(yis)
+    if k < 2:
+        return 0.0
+    tau2 = 0.0
+    for _ in range(max_iter):
+        ws = [1.0 / (v + tau2) for v in vis]
+        sw = sum(ws)
+        mu = sum(w * y for w, y in zip(ws, yis)) / sw
+        # REML update: numerator and denominator per V&D 2005
+        num = sum((w**2) * ((y - mu)**2 - v) for w, y, v in zip(ws, yis, vis))
+        den = sum(w**2 for w in ws)
+        new_tau2 = tau2 + num / den
+        new_tau2 = max(0.0, new_tau2)
+        if abs(new_tau2 - tau2) < tol:
+            tau2 = new_tau2
+            break
+        tau2 = new_tau2
+    return tau2
+
+
+def pool_binary(trials_xy):
+    """Pool a list of (yi, vi) tuples via REML+HKSJ+floor and compute the
+    Cochrane v6.5 prediction interval. Returns a dict ready for JSON output."""
+    yis = [t[0] for t in trials_xy]
+    vis = [t[1] for t in trials_xy]
+    k = len(yis)
+
+    tau2 = reml_tau2(yis, vis)
+    ws = [1.0 / (v + tau2) for v in vis]
+    sw = sum(ws)
+    mu = sum(w * y for w, y in zip(ws, yis)) / sw
+    var_mu_re = 1.0 / sw
+    se_re = math.sqrt(var_mu_re)
+
+    # Q statistic (random-effects: still computed at fixed-effect weights)
+    ws_fe = [1.0 / v for v in vis]
+    mu_fe = sum(w * y for w, y in zip(ws_fe, yis)) / sum(ws_fe)
+    Q = sum(w * (y - mu_fe)**2 for w, y in zip(ws_fe, yis))
+    Qdf = k - 1
+    # Chi-square upper-tail p via Wilson-Hilferty approximation
+    # X^2(df) ~ df * (1 - 2/(9df) + z * sqrt(2/(9df)))^3  =>  invert
+    if Qdf > 0:
+        # Use Pearson chi-square approximation
+        from math import exp, sqrt as _sqrt, lgamma
+        # Use complementary CDF via incomplete gamma series
+        # Simplification: use the regularized incomplete gamma function Q(s, x)
+        # via series. Acceptable for our display purposes.
+        def _gammaincc(s, x):
+            # Complementary regularized incomplete gamma function.
+            if x < 0 or s <= 0: return 1.0
+            if x == 0: return 1.0
+            # Continued fraction for x > s+1, series otherwise
+            if x < s + 1:
+                # series
+                ap = s
+                summ = 1 / s
+                term = summ
+                for _ in range(200):
+                    ap += 1
+                    term *= x / ap
+                    summ += term
+                    if abs(term) < abs(summ) * 1e-12:
+                        break
+                return 1 - summ * exp(-x + s * math.log(x) - lgamma(s))
+            else:
+                # continued fraction
+                b = x + 1 - s
+                c = 1e300
+                d = 1.0 / b
+                h = d
+                for i in range(1, 200):
+                    an = -i * (i - s)
+                    b += 2
+                    d = an * d + b
+                    if abs(d) < 1e-30: d = 1e-30
+                    c = b + an / c
+                    if abs(c) < 1e-30: c = 1e-30
+                    d = 1.0 / d
+                    delt = d * c
+                    h *= delt
+                    if abs(delt - 1.0) < 1e-12:
+                        break
+                return h * exp(-x + s * math.log(x) - lgamma(s))
+        Qp = _gammaincc(Qdf / 2.0, Q / 2.0)
+    else:
+        Qp = float('nan')
+
+    # I^2
+    I2 = max(0.0, (Q - Qdf) / Q) * 100 if Q > 0 else 0.0
+    H2 = max(1.0, Q / Qdf) if Qdf > 0 else 1.0
+
+    # HKSJ correction with floor at 1 (Wiksten 2016)
+    hksj_scale_raw = sum(w * (y - mu)**2 for w, y in zip(ws, yis)) / (k - 1) if k > 1 else 1.0
+    hksj_scale = max(1.0, hksj_scale_raw)
+    se_hksj = math.sqrt(hksj_scale * var_mu_re)
+    floor_applied = hksj_scale_raw < 1.0
+
+    # CI on log scale using t_(k-1)
+    t_crit = t_quantile_975(k - 1)
+    ci_lo = mu - t_crit * se_hksj
+    ci_hi = mu + t_crit * se_hksj
+
+    # Prediction interval via t_(k-1) (Cochrane v6.5)
+    if k >= 3:
+        pi_se = math.sqrt(tau2 + se_hksj**2)
+        pi_lo = mu - t_crit * pi_se
+        pi_hi = mu + t_crit * pi_se
+    else:
+        pi_lo = pi_hi = float('nan')
+
+    return {
+        "k": k,
+        "pooled_logOR": mu,
+        "pooled_se": se_hksj,
+        "pooled_OR": math.exp(mu),
+        "ci_low_OR": math.exp(ci_lo),
+        "ci_high_OR": math.exp(ci_hi),
+        "tau2": tau2,
+        "I2": I2,
+        "H2": H2,
+        "Q": Q,
+        "Qdf": Qdf,
+        "Qp": Qp,
+        "PI_low_OR": math.exp(pi_lo) if not math.isnan(pi_lo) else None,
+        "PI_high_OR": math.exp(pi_hi) if not math.isnan(pi_hi) else None,
+        "pi_df_convention": "t_{k-1}_Cochrane_v6.5",
+        "hksj_floor_applied": floor_applied,
+        "hksj_scale_raw": hksj_scale_raw,
+        "method": "REML+HKSJ+floor",
+    }
+
+
+def extract_binary_trials(page_path):
+    """Return list of dicts with name/nct/pmid/tE/tN/cE/cN/yi/vi.
+    Skips trials without 4 binary counts."""
+    txt = page_path.read_text(encoding="utf-8", errors="replace")
+    out = []
+    for m in TRIAL_RE.finditer(txt):
+        nct = m.group(1) or m.group(2) or m.group(3)
+        body = m.group("body")
+        tE = get_num(body, "tE")
+        tN = get_num(body, "tN")
+        cE = get_num(body, "cE")
+        cN = get_num(body, "cN")
+        if None in (tE, tN, cE, cN):
+            continue
+        if tN <= 0 or cN <= 0:
+            continue
+        if tE > tN or cE > cN:
+            continue  # impossible; skip
+        r = log_or_per_trial(int(tE), int(tN), int(cE), int(cN))
+        if r is None:
+            continue
+        yi, vi = r
+        out.append({
+            "name": get_str(body, "name") or nct,
+            "nct": nct,
+            "pmid": get_str(body, "pmid"),
+            "tE": tE,
+            "tN": tN,
+            "cE": cE,
+            "cN": cN,
+            "yi": yi,
+            "vi": vi,
+        })
+    return out
+
+
+def sidecar_stem(page_name: str) -> str:
+    """The engine fetches outputs/r_validation/<STEM>.json where <STEM> is
+    the page name with only the final _REVIEW.html removed. Verified via
+    puppeteer log: ABALOPARATIDE_OSTEO_AUTO_FULL_REVIEW.html fetches
+    `ABALOPARATIDE_OSTEO_AUTO_FULL.json`, not the topic-only stem.
+    Existing sidecars (FINERENONE.json for FINERENONE_REVIEW.html) match
+    this rule once you account for `_REVIEW` being the only suffix on
+    those flagship pages.
+    """
+    n = page_name.replace(".html", "")
+    if n.endswith("_REVIEW"):
+        n = n[: -len("_REVIEW")]
+    return n
+
+
+def emit_sidecar(page_path: Path, force=False) -> dict:
+    """Generate (or refuse) a sidecar for the given page. Returns status dict."""
+    stem = sidecar_stem(page_path.name)
+    out_path = SIDECAR_DIR / f"{stem}.json"
+    if out_path.exists() and not force:
+        return {"status": "exists", "page": page_path.name, "stem": stem}
+
+    trials = extract_binary_trials(page_path)
+    if len(trials) < 2:
+        return {"status": "insufficient_k", "page": page_path.name, "k": len(trials)}
+
+    pool = pool_binary([(t["yi"], t["vi"]) for t in trials])
+    # Trim trial detail to publishable fields
+    trial_records = [{
+        "name": t["name"],
+        "nct": t["nct"],
+        "tE": t["tE"], "tN": t["tN"], "cE": t["cE"], "cN": t["cN"],
+        "yi": round(t["yi"], 6),
+        "vi": round(t["vi"], 6),
+    } for t in trials]
+
+    # Match the existing field ordering (FINERENONE.json layout)
+    sidecar = {
+        "k": pool["k"],
+        "pooled_logOR": round(pool["pooled_logOR"], 6),
+        "pooled_se": round(pool["pooled_se"], 6),
+        "pooled_OR": round(pool["pooled_OR"], 6),
+        "ci_low_OR": round(pool["ci_low_OR"], 6),
+        "ci_high_OR": round(pool["ci_high_OR"], 6),
+        "tau2": round(pool["tau2"], 10),
+        "I2": round(pool["I2"], 6),
+        "H2": round(pool["H2"], 6),
+        "Q": round(pool["Q"], 6),
+        "Qdf": pool["Qdf"],
+        "Qp": float(f"{pool['Qp']:.6e}") if pool["Qp"] == pool["Qp"] else None,
+        "PI_low_OR": round(pool["PI_low_OR"], 6) if pool["PI_low_OR"] is not None else None,
+        "PI_high_OR": round(pool["PI_high_OR"], 6) if pool["PI_high_OR"] is not None else None,
+        "pi_df_convention": pool["pi_df_convention"],
+        "hksj_floor_applied": pool["hksj_floor_applied"],
+        "method": pool["method"],
+        "generated_by": "scripts/build_binary_sidecar.py",
+        "generated_on": "2026-05-26",
+        "trials": trial_records,
+    }
+    out_path.write_text(json.dumps(sidecar, indent=2), encoding="utf-8")
+    return {"status": "generated", "page": page_path.name, "stem": stem,
+            "k": pool["k"], "pooled_OR": pool["pooled_OR"]}
+
+
+def main():
+    if hasattr(sys.stdout, "buffer"):
+        sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    targets = sorted(p for p in HERE.glob("*_FULL_REVIEW.html") if p.is_file())
+    print(f"Candidate FULL_REVIEW pages: {len(targets):,}")
+
+    stats = {"generated": 0, "exists": 0, "insufficient_k": 0}
+    for i, p in enumerate(targets, 1):
+        r = emit_sidecar(p)
+        stats[r["status"]] = stats.get(r["status"], 0) + 1
+        if i % 200 == 0:
+            print(f"  [{i}/{len(targets)}]  {stats}")
+    print(f"\nDone. {stats}")
+    print(f"Existing sidecars before: 378")
+    print(f"Sidecars now in outputs/r_validation: {len(list(SIDECAR_DIR.rglob('*.json'))):,}")
+
+
+if __name__ == "__main__":
+    main()
+
+codex
+I’ll treat the pasted file as the complete record and keep this to proven defects with concrete inputs. I’m only using external facts where the function itself promises a numerical method or output contract.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=1; Get-Content -Path scripts/build_binary_sidecar.py | ForEach-Object { '"'{0,4}: {1}' -f "'$i, $_; $i++ }' in F:\rapidmeta-ssot-shell
+ succeeded in 1780ms:
+   1: r"""Generate an R-validation sidecar JSON for binary-outcome meta-analyses
+   2: using REML + HKSJ + HKSJ-floor + Cochrane-v6.5 t_(k-1) prediction interval.
+   3: 
+   4: Same JSON schema as the existing outputs/r_validation/*.json so the page
+   5: engine renders the sidecar's "R-validation" panel.
+   6: 
+   7: Inputs: a FULL_REVIEW HTML containing trial blocks with tE/tN/cE/cN.
+   8: Output: outputs/r_validation/<TOPIC>.json
+   9: 
+  10: Methodology rationale (advanced-stats.md gotchas):
+  11:   * Yates 0.5 correction: applied ONLY when at least one cell is zero,
+  12:     not unconditionally (unconditional biases OR -> 1).
+  13:   * tau-squared via REML (Viechtbauer 2005): iterative, robust for k<10.
+  14:   * HKSJ floor at 1: when Q/(k-1) < 1, the HKSJ variance scaling would
+  15:     narrow CIs below DL; floor it (Wiksten et al. 2016).
+  16:   * Prediction interval via t_(k-1) per Cochrane Handbook v6.5
+  17:     (resolved 2026-05-25; supersedes IntHout 2016 t_(k-2)).
+  18:   * Fisher z / log scale -> back-transform after pooling.
+  19: 
+  20: Limitations:
+  21:   * Binary outcomes only. Pages with continuous outcomes (publishedHR/MD)
+  22:     are handled by a separate path or left to the existing R generator.
+  23:   * Requires k >= 2 trials (k=1 is a single-study summary, not a pool).
+  24: """
+  25: from __future__ import annotations
+  26: import sys, io, re, json, math
+  27: from pathlib import Path
+  28: 
+  29: # sys.stdout reassignment lives in main() to avoid breaking importers
+  30: # (see lessons.md: module-level sys.stdout reassignment kills pytest /
+  31: # downstream callers' stdout when they import this module).
+  32: 
+  33: HERE = Path(__file__).resolve().parent.parent
+  34: SIDECAR_DIR = HERE / "outputs" / "r_validation"
+  35: SIDECAR_DIR.mkdir(parents=True, exist_ok=True)
+  36: 
+  37: # Trial-block regex handles all three NCT-key quote forms (post-terser).
+  38: TRIAL_RE = re.compile(
+  39:     r"(?:'(NCT\d{7,8})'|\"(NCT\d{7,8})\"|\b(NCT\d{7,8}))\s*:\s*\{"
+  40:     r"(?P<body>(?:[^{}]|\{[^{}]*\}){0,4000})\}",
+  41:     re.DOTALL,
+  42: )
+  43: 
+  44: 
+  45: def get_num(body, name):
+  46:     """Get a numeric field. None on null/missing."""
+  47:     m = re.search(
+  48:         rf"['\"]?{name}['\"]?\s*:\s*(-?[\d.eE+-]+|null|None)",
+  49:         body,
+  50:     )
+  51:     if not m: return None
+  52:     v = m.group(1)
+  53:     if v in ("null", "None"): return None
+  54:     try:
+  55:         return float(v) if "." in v or "e" in v.lower() else int(v)
+  56:     except ValueError:
+  57:         return None
+  58: 
+  59: 
+  60: def get_str(body, name):
+  61:     """Get a string field (handles JSON-quoted and JS unquoted keys)."""
+  62:     m = re.search(rf"['\"]?{name}['\"]?\s*:\s*['\"]([^'\"]*)['\"]", body)
+  63:     return m.group(1) if m else None
+  64: 
+  65: 
+  66: def normal_quantile(p):
+  67:     """Inverse normal CDF, no scipy dependency. Acklam approximation."""
+  68:     # See Peter J. Acklam's algorithm. Accurate to ~1e-9 in central region.
+  69:     a = [-39.69683028665376, 220.9460984245205, -275.9285104469687,
+  70:          138.3577518672690, -30.66479806614716, 2.506628277459239]
+  71:     b = [-54.47609879822406, 161.5858368580409, -155.6989798598866,
+  72:          66.80131188771972, -13.28068155288572]
+  73:     c = [-0.007784894002430293, -0.3223964580411365, -2.400758277161838,
+  74:          -2.549732539343734, 4.374664141464968, 2.938163982698783]
+  75:     d = [0.007784695709041462, 0.3224671290700398, 2.445134137142996,
+  76:          3.754408661907416]
+  77:     plow = 0.02425
+  78:     phigh = 1 - plow
+  79:     if p < plow:
+  80:         q = math.sqrt(-2 * math.log(p))
+  81:         return ((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5] / \
+  82:                ((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1)
+  83:     if p > phigh:
+  84:         q = math.sqrt(-2 * math.log(1 - p))
+  85:         return -((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5] / \
+  86:                ((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1)
+  87:     q = p - 0.5
+  88:     r = q*q
+  89:     return (((((a[0]*r+a[1])*r+a[2])*r+a[3])*r+a[4])*r+a[5])*q / \
+  90:            (((((b[0]*r+b[1])*r+b[2])*r+b[3])*r+b[4])*r+1)
+  91: 
+  92: 
+  93: def t_quantile_975(df):
+  94:     """Two-sided 97.5% t-quantile (alpha=0.025 upper tail), with df>=1.
+  95:     Hill (1970) approximation; good to ~1e-4 for df>=2."""
+  96:     if df <= 0:
+  97:         return float('nan')
+  98:     if df == 1:
+  99:         return 12.7062
+ 100:     if df == 2:
+ 101:         return 4.30265
+ 102:     if df == 3:
+ 103:         return 3.18245
+ 104:     if df == 4:
+ 105:         return 2.77645
+ 106:     if df == 5:
+ 107:         return 2.57058
+ 108:     if df == 6:
+ 109:         return 2.44691
+ 110:     if df == 7:
+ 111:         return 2.36462
+ 112:     if df == 8:
+ 113:         return 2.306
+ 114:     if df == 9:
+ 115:         return 2.26216
+ 116:     if df == 10:
+ 117:         return 2.22814
+ 118:     if df == 12:
+ 119:         return 2.1788
+ 120:     if df == 15:
+ 121:         return 2.13145
+ 122:     if df == 20:
+ 123:         return 2.08596
+ 124:     if df == 30:
+ 125:         return 2.04227
+ 126:     if df == 60:
+ 127:         return 2.0003
+ 128:     # Hill's algorithm for general df
+ 129:     z = 1.959964   # qnorm(0.975)
+ 130:     g1 = (z**3 + z) / 4
+ 131:     g2 = (5*z**5 + 16*z**3 + 3*z) / 96
+ 132:     g3 = (3*z**7 + 19*z**5 + 17*z**3 - 15*z) / 384
+ 133:     g4 = (79*z**9 + 776*z**7 + 1482*z**5 - 1920*z**3 - 945*z) / 92160
+ 134:     return z + g1/df + g2/df**2 + g3/df**3 + g4/df**4
+ 135: 
+ 136: 
+ 137: def log_or_per_trial(tE, tN, cE, cN):
+ 138:     """Compute logOR + variance for one trial. Returns (yi, vi) or None
+ 139:     if the trial is unanalyzable (e.g., 100% in both arms)."""
+ 140:     # Yates 0.5 only if any cell is 0
+ 141:     tNE = tN - tE
+ 142:     cNE = cN - cE
+ 143:     cells = [tE, tNE, cE, cNE]
+ 144:     if any(c < 0 for c in cells):
+ 145:         return None
+ 146:     if min(cells) == 0:
+ 147:         a = tE + 0.5
+ 148:         b = tNE + 0.5
+ 149:         c = cE + 0.5
+ 150:         d = cNE + 0.5
+ 151:     else:
+ 152:         a, b, c, d = tE, tNE, cE, cNE
+ 153:     try:
+ 154:         yi = math.log((a * d) / (b * c))
+ 155:         vi = 1/a + 1/b + 1/c + 1/d
+ 156:     except (ValueError, ZeroDivisionError):
+ 157:         return None
+ 158:     if not math.isfinite(yi) or not math.isfinite(vi) or vi <= 0:
+ 159:         return None
+ 160:     return yi, vi
+ 161: 
+ 162: 
+ 163: def reml_tau2(yis, vis, max_iter=200, tol=1e-10):
+ 164:     """REML estimator of tau-squared. Iterative per Viechtbauer 2005.
+ 165:     Returns tau^2."""
+ 166:     k = len(yis)
+ 167:     if k < 2:
+ 168:         return 0.0
+ 169:     tau2 = 0.0
+ 170:     for _ in range(max_iter):
+ 171:         ws = [1.0 / (v + tau2) for v in vis]
+ 172:         sw = sum(ws)
+ 173:         mu = sum(w * y for w, y in zip(ws, yis)) / sw
+ 174:         # REML update: numerator and denominator per V&D 2005
+ 175:         num = sum((w**2) * ((y - mu)**2 - v) for w, y, v in zip(ws, yis, vis))
+ 176:         den = sum(w**2 for w in ws)
+ 177:         new_tau2 = tau2 + num / den
+ 178:         new_tau2 = max(0.0, new_tau2)
+ 179:         if abs(new_tau2 - tau2) < tol:
+ 180:             tau2 = new_tau2
+ 181:             break
+ 182:         tau2 = new_tau2
+ 183:     return tau2
+ 184: 
+ 185: 
+ 186: def pool_binary(trials_xy):
+ 187:     """Pool a list of (yi, vi) tuples via REML+HKSJ+floor and compute the
+ 188:     Cochrane v6.5 prediction interval. Returns a dict ready for JSON output."""
+ 189:     yis = [t[0] for t in trials_xy]
+ 190:     vis = [t[1] for t in trials_xy]
+ 191:     k = len(yis)
+ 192: 
+ 193:     tau2 = reml_tau2(yis, vis)
+ 194:     ws = [1.0 / (v + tau2) for v in vis]
+ 195:     sw = sum(ws)
+ 196:     mu = sum(w * y for w, y in zip(ws, yis)) / sw
+ 197:     var_mu_re = 1.0 / sw
+ 198:     se_re = math.sqrt(var_mu_re)
+ 199: 
+ 200:     # Q statistic (random-effects: still computed at fixed-effect weights)
+ 201:     ws_fe = [1.0 / v for v in vis]
+ 202:     mu_fe = sum(w * y for w, y in zip(ws_fe, yis)) / sum(ws_fe)
+ 203:     Q = sum(w * (y - mu_fe)**2 for w, y in zip(ws_fe, yis))
+ 204:     Qdf = k - 1
+ 205:     # Chi-square upper-tail p via Wilson-Hilferty approximation
+ 206:     # X^2(df) ~ df * (1 - 2/(9df) + z * sqrt(2/(9df)))^3  =>  invert
+ 207:     if Qdf > 0:
+ 208:         # Use Pearson chi-square approximation
+ 209:         from math import exp, sqrt as _sqrt, lgamma
+ 210:         # Use complementary CDF via incomplete gamma series
+ 211:         # Simplification: use the regularized incomplete gamma function Q(s, x)
+ 212:         # via series. Acceptable for our display purposes.
+ 213:         def _gammaincc(s, x):
+ 214:             # Complementary regularized incomplete gamma function.
+ 215:             if x < 0 or s <= 0: return 1.0
+ 216:             if x == 0: return 1.0
+ 217:             # Continued fraction for x > s+1, series otherwise
+ 218:             if x < s + 1:
+ 219:                 # series
+ 220:                 ap = s
+ 221:                 summ = 1 / s
+ 222:                 term = summ
+ 223:                 for _ in range(200):
+ 224:                     ap += 1
+ 225:                     term *= x / ap
+ 226:                     summ += term
+ 227:                     if abs(term) < abs(summ) * 1e-12:
+ 228:                         break
+ 229:                 return 1 - summ * exp(-x + s * math.log(x) - lgamma(s))
+ 230:             else:
+ 231:                 # continued fraction
+ 232:                 b = x + 1 - s
+ 233:                 c = 1e300
+ 234:                 d = 1.0 / b
+ 235:                 h = d
+ 236:                 for i in range(1, 200):
+ 237:                     an = -i * (i - s)
+ 238:                     b += 2
+ 239:                     d = an * d + b
+ 240:                     if abs(d) < 1e-30: d = 1e-30
+ 241:                     c = b + an / c
+ 242:                     if abs(c) < 1e-30: c = 1e-30
+ 243:                     d = 1.0 / d
+ 244:                     delt = d * c
+ 245:                     h *= delt
+ 246:                     if abs(delt - 1.0) < 1e-12:
+ 247:                         break
+ 248:                 return h * exp(-x + s * math.log(x) - lgamma(s))
+ 249:         Qp = _gammaincc(Qdf / 2.0, Q / 2.0)
+ 250:     else:
+ 251:         Qp = float('nan')
+ 252: 
+ 253:     # I^2
+ 254:     I2 = max(0.0, (Q - Qdf) / Q) * 100 if Q > 0 else 0.0
+ 255:     H2 = max(1.0, Q / Qdf) if Qdf > 0 else 1.0
+ 256: 
+ 257:     # HKSJ correction with floor at 1 (Wiksten 2016)
+ 258:     hksj_scale_raw = sum(w * (y - mu)**2 for w, y in zip(ws, yis)) / (k - 1) if k > 1 else 1.0
+ 259:     hksj_scale = max(1.0, hksj_scale_raw)
+ 260:     se_hksj = math.sqrt(hksj_scale * var_mu_re)
+ 261:     floor_applied = hksj_scale_raw < 1.0
+ 262: 
+ 263:     # CI on log scale using t_(k-1)
+ 264:     t_crit = t_quantile_975(k - 1)
+ 265:     ci_lo = mu - t_crit * se_hksj
+ 266:     ci_hi = mu + t_crit * se_hksj
+ 267: 
+ 268:     # Prediction interval via t_(k-1) (Cochrane v6.5)
+ 269:     if k >= 3:
+ 270:         pi_se = math.sqrt(tau2 + se_hksj**2)
+ 271:         pi_lo = mu - t_crit * pi_se
+ 272:         pi_hi = mu + t_crit * pi_se
+ 273:     else:
+ 274:         pi_lo = pi_hi = float('nan')
+ 275: 
+ 276:     return {
+ 277:         "k": k,
+ 278:         "pooled_logOR": mu,
+ 279:         "pooled_se": se_hksj,
+ 280:         "pooled_OR": math.exp(mu),
+ 281:         "ci_low_OR": math.exp(ci_lo),
+ 282:         "ci_high_OR": math.exp(ci_hi),
+ 283:         "tau2": tau2,
+ 284:         "I2": I2,
+ 285:         "H2": H2,
+ 286:         "Q": Q,
+ 287:         "Qdf": Qdf,
+ 288:         "Qp": Qp,
+ 289:         "PI_low_OR": math.exp(pi_lo) if not math.isnan(pi_lo) else None,
+ 290:         "PI_high_OR": math.exp(pi_hi) if not math.isnan(pi_hi) else None,
+ 291:         "pi_df_convention": "t_{k-1}_Cochrane_v6.5",
+ 292:         "hksj_floor_applied": floor_applied,
+ 293:         "hksj_scale_raw": hksj_scale_raw,
+ 294:         "method": "REML+HKSJ+floor",
+ 295:     }
+ 296: 
+ 297: 
+ 298: def extract_binary_trials(page_path):
+ 299:     """Return list of dicts with name/nct/pmid/tE/tN/cE/cN/yi/vi.
+ 300:     Skips trials without 4 binary counts."""
+ 301:     txt = page_path.read_text(encoding="utf-8", errors="replace")
+ 302:     out = []
+ 303:     for m in TRIAL_RE.finditer(txt):
+ 304:         nct = m.group(1) or m.group(2) or m.group(3)
+ 305:         body = m.group("body")
+ 306:         tE = get_num(body, "tE")
+ 307:         tN = get_num(body, "tN")
+ 308:         cE = get_num(body, "cE")
+ 309:         cN = get_num(body, "cN")
+ 310:         if None in (tE, tN, cE, cN):
+ 311:             continue
+ 312:         if tN <= 0 or cN <= 0:
+ 313:             continue
+ 314:         if tE > tN or cE > cN:
+ 315:             continue  # impossible; skip
+ 316:         r = log_or_per_trial(int(tE), int(tN), int(cE), int(cN))
+ 317:         if r is None:
+ 318:             continue
+ 319:         yi, vi = r
+ 320:         out.append({
+ 321:             "name": get_str(body, "name") or nct,
+ 322:             "nct": nct,
+ 323:             "pmid": get_str(body, "pmid"),
+ 324:             "tE": tE,
+ 325:             "tN": tN,
+ 326:             "cE": cE,
+ 327:             "cN": cN,
+ 328:             "yi": yi,
+ 329:             "vi": vi,
+ 330:         })
+ 331:     return out
+ 332: 
+ 333: 
+ 334: def sidecar_stem(page_name: str) -> str:
+ 335:     """The engine fetches outputs/r_validation/<STEM>.json where <STEM> is
+ 336:     the page name with only the final _REVIEW.html removed. Verified via
+ 337:     puppeteer log: ABALOPARATIDE_OSTEO_AUTO_FULL_REVIEW.html fetches
+ 338:     `ABALOPARATIDE_OSTEO_AUTO_FULL.json`, not the topic-only stem.
+ 339:     Existing sidecars (FINERENONE.json for FINERENONE_REVIEW.html) match
+ 340:     this rule once you account for `_REVIEW` being the only suffix on
+ 341:     those flagship pages.
+ 342:     """
+ 343:     n = page_name.replace(".html", "")
+ 344:     if n.endswith("_REVIEW"):
+ 345:         n = n[: -len("_REVIEW")]
+ 346:     return n
+ 347: 
+ 348: 
+ 349: def emit_sidecar(page_path: Path, force=False) -> dict:
+ 350:     """Generate (or refuse) a sidecar for the given page. Returns status dict."""
+ 351:     stem = sidecar_stem(page_path.name)
+ 352:     out_path = SIDECAR_DIR / f"{stem}.json"
+ 353:     if out_path.exists() and not force:
+ 354:         return {"status": "exists", "page": page_path.name, "stem": stem}
+ 355: 
+ 356:     trials = extract_binary_trials(page_path)
+ 357:     if len(trials) < 2:
+ 358:         return {"status": "insufficient_k", "page": page_path.name, "k": len(trials)}
+ 359: 
+ 360:     pool = pool_binary([(t["yi"], t["vi"]) for t in trials])
+ 361:     # Trim trial detail to publishable fields
+ 362:     trial_records = [{
+ 363:         "name": t["name"],
+ 364:         "nct": t["nct"],
+ 365:         "tE": t["tE"], "tN": t["tN"], "cE": t["cE"], "cN": t["cN"],
+ 366:         "yi": round(t["yi"], 6),
+ 367:         "vi": round(t["vi"], 6),
+ 368:     } for t in trials]
+ 369: 
+ 370:     # Match the existing field ordering (FINERENONE.json layout)
+ 371:     sidecar = {
+ 372:         "k": pool["k"],
+ 373:         "pooled_logOR": round(pool["pooled_logOR"], 6),
+ 374:         "pooled_se": round(pool["pooled_se"], 6),
+ 375:         "pooled_OR": round(pool["pooled_OR"], 6),
+ 376:         "ci_low_OR": round(pool["ci_low_OR"], 6),
+ 377:         "ci_high_OR": round(pool["ci_high_OR"], 6),
+ 378:         "tau2": round(pool["tau2"], 10),
+ 379:         "I2": round(pool["I2"], 6),
+ 380:         "H2": round(pool["H2"], 6),
+ 381:         "Q": round(pool["Q"], 6),
+ 382:         "Qdf": pool["Qdf"],
+ 383:         "Qp": float(f"{pool['Qp']:.6e}") if pool["Qp"] == pool["Qp"] else None,
+ 384:         "PI_low_OR": round(pool["PI_low_OR"], 6) if pool["PI_low_OR"] is not None else None,
+ 385:         "PI_high_OR": round(pool["PI_high_OR"], 6) if pool["PI_high_OR"] is not None else None,
+ 386:         "pi_df_convention": pool["pi_df_convention"],
+ 387:         "hksj_floor_applied": pool["hksj_floor_applied"],
+ 388:         "method": pool["method"],
+ 389:         "generated_by": "scripts/build_binary_sidecar.py",
+ 390:         "generated_on": "2026-05-26",
+ 391:         "trials": trial_records,
+ 392:     }
+ 393:     out_path.write_text(json.dumps(sidecar, indent=2), encoding="utf-8")
+ 394:     return {"status": "generated", "page": page_path.name, "stem": stem,
+ 395:             "k": pool["k"], "pooled_OR": pool["pooled_OR"]}
+ 396: 
+ 397: 
+ 398: def main():
+ 399:     if hasattr(sys.stdout, "buffer"):
+ 400:         sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+ 401:     targets = sorted(p for p in HERE.glob("*_FULL_REVIEW.html") if p.is_file())
+ 402:     print(f"Candidate FULL_REVIEW pages: {len(targets):,}")
+ 403: 
+ 404:     stats = {"generated": 0, "exists": 0, "insufficient_k": 0}
+ 405:     for i, p in enumerate(targets, 1):
+ 406:         r = emit_sidecar(p)
+ 407:         stats[r["status"]] = stats.get(r["status"], 0) + 1
+ 408:         if i % 200 == 0:
+ 409:             print(f"  [{i}/{len(targets)}]  {stats}")
+ 410:     print(f"\nDone. {stats}")
+ 411:     print(f"Existing sidecars before: 378")
+ 412:     print(f"Sidecars now in outputs/r_validation: {len(list(SIDECAR_DIR.rglob('*.json'))):,}")
+ 413: 
+ 414: 
+ 415: if __name__ == "__main__":
+ 416:     main()
+
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "@'
+import importlib.util, math
+p='scripts/build_binary_sidecar.py'
+spec=importlib.util.spec_from_file_location('bbs', p)
+m=importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
+for q in [0.001,0.999,0.975,0.5]:
+    try: print(q, m.normal_quantile(q))
+    except Exception as e: print(q, type(e).__name__, e)
+print('sidecar stem', m.sidecar_stem('A.html_FULL_REVIEW.html'))
+'@ | python -" in F:\rapidmeta-ssot-shell
+ succeeded in 3074ms:
+0.001 -209.2615490021395
+0.999 209.349543617892
+0.975 1.959963986120195
+0.5 0.0
+sidecar stem A_FULL
+
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "@'
+import importlib.util, tempfile, pathlib
+spec=importlib.util.spec_from_file_location('bbs','scripts/build_binary_sidecar.py')
+m=importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
+print(m.get_num('notE: 7, tN: 10, cE: 2, cN: 10','tE'))
+with tempfile.TemporaryDirectory() as d:
+    p=pathlib.Path(d)/'X_FULL_REVIEW.html'
+    p.write_text('NCT0000001: { notE: 7, tN: 10, cE: 2, cN: 10 }', encoding='utf-8')
+    print(m.extract_binary_trials(p))
+with tempfile.TemporaryDirectory() as d:
+    p=pathlib.Path(d)/'X_FULL_REVIEW.html'
+    p.write_text('NCT0000001: { meta: { inner: { a: 1 } }, tE: 1, tN: 10, cE: 2, cN: 10 }', encoding='utf-8')
+    print(m.extract_binary_trials(p))
+'@ | python -" in F:\rapidmeta-ssot-shell
+ succeeded in 2606ms:
+7
+[{'name': 'NCT0000001', 'nct': 'NCT0000001', 'pmid': None, 'tE': 7, 'tN': 10, 'cE': 2, 'cN': 10, 'yi': 2.2335922215070942, 'vi': 1.1011904761904763}]
+[]
+
+codex
+- **Idempotency guard satisfied by marker** — line 353. Exact input: existing `outputs/r_validation/X_FULL.json` containing `{"k":999}`, plus `X_FULL_REVIEW.html` containing `NCT00000001: {tE:1,tN:10,cE:2,cN:10} NCT00000002: {tE:2,tN:10,cE:3,cN:10}`; call `emit_sidecar(Path("X_FULL_REVIEW.html"))`. Consequence: it returns `exists` and leaves stale/wrong JSON untouched.
+
+- **Selector overmatches key names** — line 48. Exact input: `NCT00000001: { notE: 7, tN: 10, cE: 2, cN: 10 }`. Consequence: `get_num(body, "tE")` reads `notE` as `tE`, so a missing treatment-event count is fabricated into the pool.
+
+- **Selector keyed to too-flat trial form** — line 40. Exact input: `NCT00000001: { meta: { inner: { a: 1 } }, tE: 1, tN: 10, cE: 2, cN: 10 }`. Consequence: the trial is skipped because the block regex cannot consume nested braces beyond one level.
+
+- **Off-by-one ID acceptance** — line 39. Exact input: `NCT1234567: {tE:1,tN:10,cE:2,cN:10}`. Consequence: a 7-digit NCT key is accepted and can be emitted as a source-backed trial ID.
+
+- **Tail quantile arithmetic defect** — lines 81 and 85. Exact input: `normal_quantile(0.001)` returns about `-209.26` and `normal_quantile(0.999)` returns about `209.35`; the inverse-normal values should be near `-3.09` and `3.09`. Consequence: any caller using this advertised inverse CDF gets unusable tail critical values.
+
+- **Generated-date provenance is hardcoded** — line 390. Exact input: any successful generation run on `2026-08-24`. Consequence: the JSON still reports `"generated_on": "2026-05-26"`, so freshness/audit checks read false metadata.
+
+No proven text-line-ending comparison, merged-cell tabulation, zero-vs-absent numeric conflation, or negation-dropped defect in this packet. COULD NOT DETERMINE corpus-wide “matches nothing” probes or wrapper status-gate behavior without the actual FULL_REVIEW corpus and caller/CI gate.
+tokens used
+30,173
+- **Idempotency guard satisfied by marker** — line 353. Exact input: existing `outputs/r_validation/X_FULL.json` containing `{"k":999}`, plus `X_FULL_REVIEW.html` containing `NCT00000001: {tE:1,tN:10,cE:2,cN:10} NCT00000002: {tE:2,tN:10,cE:3,cN:10}`; call `emit_sidecar(Path("X_FULL_REVIEW.html"))`. Consequence: it returns `exists` and leaves stale/wrong JSON untouched.
+
+- **Selector overmatches key names** — line 48. Exact input: `NCT00000001: { notE: 7, tN: 10, cE: 2, cN: 10 }`. Consequence: `get_num(body, "tE")` reads `notE` as `tE`, so a missing treatment-event count is fabricated into the pool.
+
+- **Selector keyed to too-flat trial form** — line 40. Exact input: `NCT00000001: { meta: { inner: { a: 1 } }, tE: 1, tN: 10, cE: 2, cN: 10 }`. Consequence: the trial is skipped because the block regex cannot consume nested braces beyond one level.
+
+- **Off-by-one ID acceptance** — line 39. Exact input: `NCT1234567: {tE:1,tN:10,cE:2,cN:10}`. Consequence: a 7-digit NCT key is accepted and can be emitted as a source-backed trial ID.
+
+- **Tail quantile arithmetic defect** — lines 81 and 85. Exact input: `normal_quantile(0.001)` returns about `-209.26` and `normal_quantile(0.999)` returns about `209.35`; the inverse-normal values should be near `-3.09` and `3.09`. Consequence: any caller using this advertised inverse CDF gets unusable tail critical values.
+
+- **Generated-date provenance is hardcoded** — line 390. Exact input: any successful generation run on `2026-08-24`. Consequence: the JSON still reports `"generated_on": "2026-05-26"`, so freshness/audit checks read false metadata.
+
+No proven text-line-ending comparison, merged-cell tabulation, zero-vs-absent numeric conflation, or negation-dropped defect in this packet. COULD NOT DETERMINE corpus-wide “matches nothing” probes or wrapper status-gate behavior without the actual FULL_REVIEW corpus and caller/CI gate.

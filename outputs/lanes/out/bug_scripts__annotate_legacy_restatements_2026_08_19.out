@@ -1,0 +1,185 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a0312a-85de-76a2-a556-04945504da6e
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/annotate_legacy_restatements_2026_08_19.py
+
+--- THE FILE, IN FULL ---
+"""GIVE THE TWO LEGACY RESTATEMENT BLOCKS A COMMAND THAT RE-DERIVES THEM (P18).
+
+`restated_2026_08_19_placebo_discriminator` lives on the OBJECT rather than in the builder's
+per-topic spec, so it is annotated here. Both blocks narrate a delta that, until
+`scripts/regate_across_revisions.py` existed, no command could reproduce -- which is precisely
+the condition that let sglt2-hf's cascade go stale while looking corrected.
+
+AND ONE OF THE TWO NARRATES ITS DELTA WRONG. Re-derived across every commit that touched the
+classifier, bempedoic-acid-review went:
+
+    e6c08d3be  17 / 4 / 0
+    92d84da72  15 / 4 / 2    <- the BOTH-ARMS rule moved NCT06450366 and NCT07614958
+                                experimental -> background
+    f2bf16022  16 / 3 / 2    <- the PLACEBO-DISCRIMINATOR moved NCT05263778
+                                comparator -> EXPERIMENTAL
+    e20f94068  16 / 5 / 0    <- the same two records moved background -> comparator
+
+The stored sentence says the placebo-discriminator "moved one to comparator and two to
+background". It caused NEITHER of those: the two-to-background move belongs to an earlier
+commit, and its own single move ran in the OPPOSITE direction.
+
+    THE NUMBER 16 WAS RIGHT AND THE STORY OF HOW IT GOT THERE WAS WRONG -- the same class as
+    P15, one stage later. A reader checks a verdict against its reason, and nothing downstream
+    ever recomputes a reason.
+
+The original text is kept beside the correction, not replaced.
+"""
+import io
+import json
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+KEY = "restated_2026_08_19_placebo_discriminator"
+
+REPRODUCER = (
+    "scripts/regate_across_revisions.py <topic> -- re-executes this topic's own recorded "
+    "query, loads EVERY revision of ssot/topic_identity.py from git, and reports at which of "
+    "them the stored cascade reproduces. Added 2026-08-19 under PAGE-STANDARD P18, after "
+    "sglt2-hf's cascade was found to reproduce at exactly one revision and no other while "
+    "carrying a restatement note that made it look current.")
+
+PATCH = {
+    "sglt2-hf": {
+        "reproduced_by": REPRODUCER,
+        "verified_2026_08_19": (
+            "36 -> 46 CONFIRMED at f2bf16022: ten records moved comparator -> experimental "
+            "there, and the attribution in this block is correct. What was NOT correct is that "
+            "the block was left standing as the current state after two further revisions "
+            "moved three more records. Those are at "
+            "k_cascade.restated_2026_08_19_two_missed_revisions."),
+    },
+    "bempedoic-acid-review": {
+        "reproduced_by": REPRODUCER,
+        "attribution_corrected_2026_08_19": (
+            "THIS BLOCK'S NUMBER IS RIGHT AND ITS ATTRIBUTION IS WRONG, and only a walk across "
+            "revisions could show it. 17 -> 16 is not one move by the placebo-discriminator. "
+            "It is 17 -> 15 at 92d84da72, where the BOTH-ARMS rule moved NCT06450366 and "
+            "NCT07614958 experimental -> background, then 15 -> 16 at f2bf16022, where the "
+            "placebo-discriminator moved NCT05263778 comparator -> EXPERIMENTAL. The stored "
+            "sentence credits the placebo-discriminator with the entire delta and describes "
+            "its single move in the opposite direction to the one it made. A CORRECT NUMBER "
+            "REACHED BY A WRONG ACCOUNT passes every check that reads quantities."),
+    },
+}
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    rc = 0
+    for topic, extra in sorted(PATCH.items()):
+        path = os.path.join(REPO, "ssot", topic, topic + ".json")
+        with io.open(path, encoding="utf-8") as fh:
+            obj = json.load(fh)
+        blk = (obj.get("k_cascade") or {}).get(KEY)
+        if not isinstance(blk, dict):
+            print("%-24s NOT_ASSESSABLE: no %s block to annotate" % (topic, KEY))
+            rc = 1
+            continue
+        blk.update(extra)
+        with io.open(path, "w", encoding="utf-8") as fh:
+            fh.write(json.dumps(obj, indent=1, ensure_ascii=True))
+        print("%-24s annotated: %s" % (topic, ", ".join(sorted(extra))))
+    return rc
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+
+codex
+I’m treating this as a constrained code-review packet, so I’m only using the pasted file and will call out anything that depends on missing runtime files as not determinable.
+codex
+Defects found:
+
+1. **STATUS CODE REPORTING THE WRAPPER rather than the work**  
+Line 76: `if not isinstance(blk, dict):`  
+Exact input, for both `ssot/sglt2-hf/sglt2-hf.json` and `ssot/bempedoic-acid-review/bempedoic-acid-review.json`:
+```json
+{"k_cascade":{"restated_2026_08_19_placebo_discriminator":{}}}
+```
+Consequence: the script exits `0` and prints `annotated` even though no legacy restatement text existed to preserve or correct.
+
+2. **ZERO CONFLATED WITH ABSENT**  
+Line 75: `blk = (obj.get("k_cascade") or {}).get(KEY)`  
+Exact input, for either target JSON file:
+```json
+{"k_cascade":0}
+```
+Consequence: malformed `k_cascade` is treated as “no block to annotate,” so schema corruption is misreported as absence.
+
+No proven defect in the pasted file for: probe keyed to string a fix removes; idempotency guard satisfied by own comment/marker; text comparison across CRLF/LF; merged-cell/off-by-one tabulation; negation dropped.
+
+COULD NOT DETERMINE for actual corpus-form selector coverage or different-copy instrumentation: missing `ssot/sglt2-hf/sglt2-hf.json`, `ssot/bempedoic-acid-review/bempedoic-acid-review.json`, and the caller/runner context.
+tokens used
+10,531
+Defects found:
+
+1. **STATUS CODE REPORTING THE WRAPPER rather than the work**  
+Line 76: `if not isinstance(blk, dict):`  
+Exact input, for both `ssot/sglt2-hf/sglt2-hf.json` and `ssot/bempedoic-acid-review/bempedoic-acid-review.json`:
+```json
+{"k_cascade":{"restated_2026_08_19_placebo_discriminator":{}}}
+```
+Consequence: the script exits `0` and prints `annotated` even though no legacy restatement text existed to preserve or correct.
+
+2. **ZERO CONFLATED WITH ABSENT**  
+Line 75: `blk = (obj.get("k_cascade") or {}).get(KEY)`  
+Exact input, for either target JSON file:
+```json
+{"k_cascade":0}
+```
+Consequence: malformed `k_cascade` is treated as “no block to annotate,” so schema corruption is misreported as absence.
+
+No proven defect in the pasted file for: probe keyed to string a fix removes; idempotency guard satisfied by own comment/marker; text comparison across CRLF/LF; merged-cell/off-by-one tabulation; negation dropped.
+
+COULD NOT DETERMINE for actual corpus-form selector coverage or different-copy instrumentation: missing `ssot/sglt2-hf/sglt2-hf.json`, `ssot/bempedoic-acid-review/bempedoic-acid-review.json`, and the caller/runner context.

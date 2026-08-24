@@ -1,0 +1,218 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: ssot/apply_k4.py
+
+--- THE FILE, IN FULL ---
+"""Apply the ANSWER-HF inclusion. One transaction: data, prose, and the re-read.
+
+Adjudicated INCLUDE by Mahmood 2026-08-13T13:55:30Z. Every number here comes from
+the search lane's adjudication and from the metafor run in
+outputs/k4_registered_analysis.json -- none is typed from a summary.
+
+THIS IS WRITTEN AS ONE TRANSACTION ON PURPOSE. The pooled estimate now includes
+the null. Landing the numbers without the prose would leave the page asserting a
+benefit its own figures no longer support, which is a worse state than either
+end of the change.
+"""
+import io
+import json
+import sys
+
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+P = "ssot/arni-hfref/arni-hfref.json"
+A = json.load(open("outputs/k4_registered_analysis.json", encoding="utf-8"))
+d = json.load(open(P, encoding="utf-8"))
+OID = "cvdeath_or_hfh_first"
+res = d["results"]["by_outcome"][OID]
+NOW = "2026-08-13T13:55:30Z"
+reml = A["pools"]["REML"]
+
+# ---------------------------------------------------------------- 1. the trial
+d["inputs"]["trials"].append({
+    "id": "answer-hf",
+    "name": "ANSWER-HF",
+    "nct": "NCT04853758",
+    "pmid": "41396086",
+    "year": 2026,
+    "design": "phase 4, randomised, double-blind, 1:1 against an active comparator, "
+              "single-centre (InCor, Sao Paulo)",
+    "population": "adults with heart failure, LVEF below 40%, NYHA II-IV, chronic "
+                  "Chagas cardiomyopathy",
+    "comparator_type": "active",
+    "comparator_type_basis": "randomised head-to-head against enalapril, 1:1",
+    "enrolled": 190,
+    "arms": [
+        {"label": "sacubitril/valsartan", "role": "treatment", "participants": 95,
+         "events": 12},
+        {"label": "enalapril", "role": "control", "participants": 95, "events": 8}],
+    "denominator_populations": {
+        "_rule": "Protocol section 7: where two populations exist for one outcome, "
+                 "both are recorded, exactly one is marked selected, and the "
+                 "population is named on the cell.",
+        "selected": {"population": "randomised", "treatment_n": 95, "control_n": 95,
+                     "why": "The randomised totals are the correct denominators for "
+                            "this composite and are what Table 2's clinical "
+                            "endpoints use."},
+        "recorded_not_selected": {
+            "population": "modified intention-to-treat", "treatment_n": 87,
+            "control_n": 87,
+            "why_not_selected": (
+                "The trial's PRIMARY endpoint (change in LVEF) used a modified ITT "
+                "of 87 per group which EXCLUDED PATIENTS WHO DIED, because paired "
+                "echocardiography at baseline and six months was required. A lane "
+                "extracting from the primary-endpoint analysis would take 87/87 and "
+                "silently apply a denominator with deaths removed from it -- into a "
+                "review whose estimand is partly about death. Recorded as a standing "
+                "extraction hazard for this trial.")},
+    },
+    "by_outcome": {OID: {
+        "treatment": {"events": 12, "n": 95, "source_tier": "T1",
+                      "source_pointer": "JACC 2026;87(10):1220-1232 Table 2, "
+                                        "Clinical Endpoints at 6 Months"},
+        "control": {"events": 8, "n": 95, "source_tier": "T1",
+                    "source_pointer": "JACC 2026;87(10):1220-1232 Table 2"},
+        "effect": {"measure": "HR", "point": 1.83, "ci_low": 0.72, "ci_high": 4.67,
+                   "ci_level": 95, "p": 0.205,
+                   "model": "Cox proportional hazards, treatment and site as fixed effects"}}},
+    "component_endpoints": {"rows": [
+        {"endpoint": "Cardiovascular death", "treatment_events": 7, "control_events": 6,
+         "treatment_n": 95, "control_n": 95, "source_tier": "T1",
+         "source_pointer": "JACC Table 2", "read_or_derived": "read"},
+        {"endpoint": "First heart-failure hospitalisation", "treatment_events": 7,
+         "control_events": 5, "treatment_n": 95, "control_n": 95, "source_tier": "T1",
+         "source_pointer": "JACC Table 2", "read_or_derived": "read"}],
+        "note": "Read from source and shown, NOT pooled here."},
+    "caption_trap": {
+        "what": "Table 2 captions the row 'Cardiovascular death AND heart failure "
+                "hospitalization'. Read literally, 'and' is an intersection, which "
+                "cannot exceed min(7,7)=7. The reported 12 is impossible under that "
+                "reading.",
+        "why_it_is_a_union": "12 < 7+7 and 8 < 6+5. If the composite were a sum of "
+                             "events it would be 14 and 11. It is smaller in both "
+                             "arms, so patients with both components are counted "
+                             "once at their first event -- at least 2 per arm. That "
+                             "is a patient-level time-to-first composite, which is "
+                             "the registered estimand.",
+        "recorded_because": "A lane matching on caption text rather than checking "
+                            "the arithmetic could read it as an intersection and "
+                            "either exclude the trial or extract the wrong quantity."},
+    "evidence_basis": {
+        "level": "FULL TEXT VIA INSTITUTIONAL ACCESS, TRANSCRIBED BY THE ADJUDICATOR",
+        "not": "read at source by screener A",
+        "why_stated": "Every open route returned closed on this row. It was resolved "
+                      "by Royal Free London institutional access and transcribed. If "
+                      "a later lane obtains the PDF directly the cells should be "
+                      "re-checked against it. That is cheap, and it is the honest "
+                      "standing of this row."},
+    "inclusion_provenance": {
+        "screener_a": "excluded at stage 1 on the outcome axis, then held as undetermined",
+        "resolved_by": "named human adjudication",
+        "adjudicator": "Mahmood Ahmad",
+        "adjudicated_utc": NOW,
+        "note": "Screener A's exclusion and its subsequent undetermined holding both "
+                "STAND UNALTERED in the screening record. The adjudication overrides "
+                "them; it does not erase them."},
+})
+
+# ---------------------------------------------------------------- 2. the pool
+# R serialises a data.frame as a list of ROW objects, not as columns.
+_ANS = next(r for r in A["per_trial"] if r["trial"] == "answer-hf")
+
+res["per_trial"].append({
+    "trial_id": "answer-hf", "nct": "NCT04853758", "measure": "HR",
+    "point": 1.83, "ci_low": 0.72, "ci_high": 4.67, "ci_level": 95,
+    "log_point": _ANS["yi"], "log_se": _ANS["sei"],
+    "population": "adults with HFrEF and chronic Chagas cardiomyopathy",
+    "endpoint_rank_in_its_own_trial": "a secondary endpoint; the trial's primary is "
+                                      "change in left ventricular ejection fraction",
+    "derivation": "the published hazard ratio, stored on the log scale with the "
+                  "standard error its published interval implies"})
+res["k"] = 4
+res["pooled"] = {"measure": "HR", "point": reml["wald"]["point"],
+                 "ci_low": reml["wald"]["lo"], "ci_high": reml["wald"]["hi"],
+                 "ci_level": 95, "scale": "log"}
+res["heterogeneity"] = {"tau2": reml["tau2"], "i2": reml["i2"], "q": reml["q"],
+                        "df": 3, "q_p": reml["qp"]}
+res["prediction_interval"] = {"low": reml["pi"]["lo"], "high": reml["pi"]["hi"],
+                              "method": "REML, t distribution on k-1 df"}
+res["hksj"] = {"point": reml["hksj"]["point"], "ci_low": reml["hksj"]["lo"],
+               "ci_high": reml["hksj"]["hi"],
+               "agreement_with_wald": "At k=3 Wald excluded the null and HKSJ did "
+                                      "not. At k=4 both include it, so the two "
+                                      "interval methods now agree."}
+res["sensitivity"]["analyses"] = [
+    {"omitted": v["omitted"], "point": v["point"], "ci_low": v["lo"],
+     "ci_high": v["hi"], "i2": v["i2"], "k": v["k"]} for v in A["loo"].values()]
+res["sensitivity"]["leave_one_out_finding"] = (
+    "Omitting PARADIGM-HF gives 0.9660 (0.7897 to 1.1818) with I-squared falling to "
+    "1.2%. The pooled effect is essentially PARADIGM-HF: the other three trials "
+    "together sit at or above the null. Omitting ANSWER-HF returns exactly the "
+    "previous 0.8392 (0.7429 to 0.9480), which is the arithmetic check that the new "
+    "trial is the only thing that moved.")
+res["sensitivity"]["between_study_variance_method_comparison"] = [
+    {"between_study_variance_estimator": m, "interval_method": im,
+     "point": A["pools"][m][k]["point"], "lower": A["pools"][m][k]["lo"],
+     "upper": A["pools"][m][k]["hi"], "tau_squared": A["pools"][m]["tau2"],
+     "i2": A["pools"][m]["i2"]}
+    for m in ("REML", "DL", "PM") for k, im in (("wald", "Wald"), ("hksj", "HKSJ"))]
+
+ks = res.setdefault("k_status", {})
+ks["k_reported"] = 4
+ks["is_lower_bound"] = True
+ks["why"] = (
+    "ANSWER-HF is RESOLVED and included, so the reason this count was previously a "
+    "lower bound is gone. It remains a lower bound for a DIFFERENT reason, and the "
+    "difference is stated rather than quietly carried: two screening records are "
+    "still undetermined. If those resolve to exclusions, k=4 becomes settled.")
+
+g = res["grade"]["domains"]
+g["inconsistency"]["rating_before_k4"] = g["inconsistency"].get("rating")
+g["inconsistency"]["needs_rereading"] = (
+    "This domain was rated on an I-squared of 14.9% at k=3. At k=4 it is 32.9% under "
+    "REML, 41.9% under DerSimonian-Laird and 55.7% under Paule-Mandel, and the "
+    "prediction interval spans 0.686 to 1.107. The rating is flagged for re-reading "
+    "rather than silently carried forward or silently changed: a domain rating that "
+    "survives a change in its own input should say so, and one that does not should "
+    "be re-argued, not re-labelled.")
+
+json.dump(d, open(P, "w", encoding="utf-8"), indent=1, ensure_ascii=False)
+print("k %s -> %s | pooled %.4f (%.4f-%.4f) | I2 %.1f%% | PI %.3f-%.3f"
+      % (3, res["k"], res["pooled"]["point"], res["pooled"]["ci_low"],
+         res["pooled"]["ci_high"], res["heterogeneity"]["i2"],
+         res["prediction_interval"]["low"], res["prediction_interval"]["high"]))
+print("trials now:", [t["id"] for t in d["inputs"]["trials"]])
+print("leave-one-out rows:", len(res["sensitivity"]["analyses"]))
+print("estimator x interval rows:", len(res["sensitivity"]["between_study_variance_method_comparison"]))

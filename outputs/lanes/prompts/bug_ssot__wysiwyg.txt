@@ -1,0 +1,189 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: ssot/wysiwyg.py
+
+--- THE FILE, IN FULL ---
+"""Render the manuscript on the page as the document it is, not as cards about it.
+
+WHY THIS EXISTS. Paper Studio projected the manuscript as a set of cards -- an
+abstract card, a methods card, a references card. That describes a paper. The
+.docx CONTAINED one: eleven laid-out tables, ten embedded figures, numbered
+captions, a reference list. Two renderings of the same work that a reader could
+not check against each other, and which had already drifted once (the .docx was
+still printing "this section is not written here" after the page had a full
+manuscript).
+
+The fix is not to re-implement the document twice. `make_docx.py` now records
+every block it emits -- heading, paragraph, table, figure, in order -- and writes
+that record to `manuscript_docmodel.json`. This module renders THAT record. So
+the page does not resemble the Word file; it is the same block sequence in a
+different renderer, and a table that appears in one appears in the other because
+there is only one list.
+
+Figures are embedded as base64 PNGs -- the SAME png files the .docx embeds, not a
+re-render of the SVG -- so the download-equals-render check spans both surfaces.
+"""
+import base64
+import html
+import json
+import os
+
+NL = "\n"
+e = html.escape
+
+
+def _img(path):
+    try:
+        with open(path, "rb") as f:
+            return "data:image/png;base64," + base64.b64encode(f.read()).decode()
+    except Exception:                                   # noqa: BLE001
+        return None
+
+
+def _table(b):
+    head = "".join("<th>%s</th>" % e(str(h)) for h in b.get("headers", []))
+    body = ""
+    mono = set(b.get("mono_cols") or [])
+    for r in b.get("rows", []):
+        # A verbatim cell keeps its own line breaks and column alignment. Without
+        # this the page reflows a metafor table that the Word file preserves, and
+        # the two surfaces would be showing different quotations.
+        body += ("      <tr>%s</tr>%s"
+                 % ("".join(("<td><pre class='cellpre'>%s</pre></td>"
+                             if i in mono else "<td>%s</td>")
+                            % e(str(v)) for i, v in enumerate(r)), NL))
+    return ("  <figure class='doc-t'>%s"
+            "    <figcaption><strong>Table %s.</strong> %s</figcaption>%s"
+            "    <table>%s      <tr>%s</tr>%s%s    </table>%s  </figure>%s"
+            % (NL, b.get("n", ""), e(str(b.get("caption", ""))), NL,
+               NL, head, NL, body, NL, NL))
+
+
+def _figure(b):
+    uri = _img(b.get("png", ""))
+    if not uri:
+        return ("  <figure class='doc-f'><figcaption><strong>Figure %s.</strong> "
+                "%s &mdash; image not available at build time, stated rather than "
+                "shown as a blank</figcaption></figure>%s"
+                % (b.get("n", ""), e(str(b.get("caption", ""))), NL))
+    return ("  <figure class='doc-f'>%s    <img alt=\"%s\" src=\"%s\">%s"
+            "    <figcaption><strong>Figure %s.</strong> %s</figcaption>%s"
+            "  </figure>%s"
+            % (NL, e(str(b.get("caption", ""))), uri, NL,
+               b.get("n", ""), e(str(b.get("caption", ""))), NL, NL))
+
+
+def render(path, dl_html=""):
+    """The manuscript as a document. Returns "" if the model is not on disk."""
+    if not os.path.exists(path):
+        return ""
+    m = json.load(open(path, encoding="utf-8"))
+    out = []
+    li_open = False
+    for b in m.get("blocks", []):
+        k = b.get("kind")
+        if k != "li" and li_open:
+            out.append("  </ul>" + NL)
+            li_open = False
+        if k == "table":
+            out.append(_table(b))
+        elif k == "figure":
+            out.append(_figure(b))
+        elif k == "li":
+            if not li_open:
+                out.append("  <ul>" + NL)
+                li_open = True
+            out.append("    <li>%s</li>%s" % (e(b.get("text", "")), NL))
+        elif k in ("h1", "h2", "h3", "h4"):
+            lvl = {"h1": "h2", "h2": "h3", "h3": "h4", "h4": "h5"}[k]
+            out.append("  <%s>%s</%s>%s" % (lvl, e(b.get("text", "")), lvl, NL))
+        elif k == "pre":
+            # Verbatim, so <pre> and not <p>: the Word file sets these lines in
+            # Consolas with the spacing intact, and a quotation the page reflows
+            # would no longer be the same quotation.
+            out.append("  <pre>%s</pre>%s" % (e(b.get("text", "")), NL))
+        elif k == "p":
+            out.append("  <p>%s</p>%s" % (e(b.get("text", "")), NL))
+    if li_open:
+        out.append("  </ul>" + NL)
+    stat = ("<p><small>Rendered from the same block sequence the Word file is "
+            "built from: <span class='num'>%s</span> tables and "
+            "<span class='num'>%s</span> figures, in the same order, with the "
+            "same numbering. The figures are the identical PNG files the .docx "
+            "embeds, not a second render. Built %s.</small></p>%s"
+            % (m.get("tables", "?"), m.get("figures", "?"),
+               e(str(m.get("built_utc", ""))), NL))
+    return ("<div class='card doc-wrap'>%s"
+            "  <h2>Manuscript &mdash; document view</h2>%s%s%s"
+            "  <div class='doc'>%s%s  </div>%s</div>%s"
+            % (NL, NL, stat, dl_html, NL, "".join(out), NL, NL))
+
+
+DOC_CSS = """
+ .doc-wrap{padding:1rem}
+ /* max-width was 52rem inside a 46rem body, so the document view was wider than
+    the page that contains it and dragged horizontal scroll onto the whole
+    document -- 473px of it at 1280. box-sizing so the 2.6rem padding is inside
+    the width rather than added to it. */
+ .doc{background:var(--paper);color:var(--paperfg);border:1px solid var(--line);
+      border-radius:.35rem;padding:2.2rem 1.6rem;max-width:100%;box-sizing:border-box;
+      margin:0 auto;
+      font-family:Georgia,'Times New Roman',serif;line-height:1.55}
+ .doc h2{font-size:1.35rem;margin:1.6rem 0 .5rem;border-bottom:1px solid var(--line);
+      padding-bottom:.25rem}
+ .doc h3{font-size:1.08rem;margin:1.2rem 0 .35rem}
+ .doc h4{font-size:.98rem;margin:1rem 0 .3rem;font-style:italic}
+ .doc p{margin:.55rem 0;text-align:justify}
+ .doc ul{margin:.4rem 0 .4rem 1.1rem}
+ .doc figure{margin:1.2rem 0}
+ /* Captions and table text follow the document face, not the interface face.
+    This view claims to BE the Word file rendered differently; a serif paragraph
+    above a sans table breaks that claim on sight, and the .docx sets both in the
+    text face. Numerals stay tabular so columns still line up by place value. */
+ .doc figcaption{font-size:.86rem;margin:.4rem 0}
+ .doc .doc-f img{width:100%;height:auto;display:block;border:1px solid var(--line)}
+ .doc pre.cellpre{margin:0;padding:.2rem .25rem;border:0;background:none;
+      font-size:.66rem;line-height:1.25;white-space:pre;overflow-x:auto}
+ .doc pre{font-family:Consolas,'SF Mono',Menlo,monospace;font-size:.76rem;
+      background:var(--soft);border:1px solid var(--line);border-radius:.3rem;
+      padding:.6rem .7rem;overflow-x:auto;white-space:pre;line-height:1.35}
+ .doc table{border-collapse:collapse;width:100%;font-size:.82rem;
+      font-variant-numeric:tabular-nums}
+ .doc th,.doc td{border:1px solid var(--line);padding:.32rem .45rem;
+      text-align:left;vertical-align:top}
+ .doc th{background:var(--thbg);font-weight:600}
+ .doc-t{max-width:100%;overflow-x:auto}
+ .doc img{max-width:100%;height:auto}
+"""

@@ -1,0 +1,1151 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a03218-1667-7a00-a53a-5b4b54803c89
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/precision_sample_gate.py
+
+--- THE FILE, IN FULL ---
+"""precision-sample mismatch -- is this estimate's precision consistent with its own arms?
+
+WHY THIS EXISTS
+    MAVACAMTEN_HCM displayed OR 6.67 (2.09-21.30) against EXPLORER-HCM arms of
+    45/123 vs 22/128. Eight reconstruction routes were computed from those counts
+    and NONE produced 6.67. But the value is not junk: its interval is
+    log-symmetric (sqrt(2.09*21.30) = 6.6721), so it is a genuinely computed odds
+    ratio -- with an implied SE(lnOR) of 0.5922, while the arms it is attached to
+    support SE 0.2999. Since SE^2 = 1/a+1/b+1/c+1/d, that is roughly FOUR TIMES
+    less information than the stated sample carries: tens of patients, not 123 v 128.
+
+    So the defect is legitimate arithmetic on the WRONG POPULATION. That is worse
+    than a mislabelled measure, because the value survives every label-consistency
+    check we own while describing a different population. Relabelling it would have
+    left 6.67 attached to a population it does not describe.
+
+WHAT THIS CHECKS
+    SE implied by the reported interval (or stored variance), against SE implied by
+    the reported arm sizes. A large mismatch means the estimate and the sample it is
+    attached to are inconsistent -- the number came from somewhere else.
+
+    Needs only the row itself: no primary source, no registry, no network.
+
+SCOPE -- READ THIS BEFORE TRUSTING A RATE
+    The identity SE^2 = 1/a + 1/b + 1/c + 1/d holds for a log ODDS RATIO from a 2x2
+    table. It does NOT hold for a hazard ratio from a time-to-event analysis (whose
+    variance depends on event times and censoring, not cell counts), nor for a mean
+    difference. Rows that are not count-derived ORs are reported UNMEASURABLE, never
+    PASS. A field nobody could check must not read as a field that passed.
+
+Exit: 0 = no mismatch found, 1 = mismatch(es) found, 2 = nothing assessable.
+"""
+from __future__ import annotations
+import argparse, json, math, sys, glob, os
+
+# ratio of claimed SE to implied SE beyond which we call it a mismatch.
+# 1.5 is deliberately loose: a 1.5x SE gap is a 2.25x information gap, which no
+# rounding or continuity correction explains. MAVACAMTEN sits at 1.97.
+THRESH = 1.5
+
+
+def se_from_counts(a, n1, c, n0):
+    """SE(ln OR) implied by a 2x2 table. Returns (se, corrected)."""
+    b, d = n1 - a, n0 - c
+    corrected = False
+    if min(a, b, c, d) <= 0:                 # Haldane-Anscombe, only when needed
+        a, b, c, d = a + .5, b + .5, c + .5, d + .5
+        corrected = True
+    return math.sqrt(1 / a + 1 / b + 1 / c + 1 / d), corrected
+
+
+def se_from_ci(lo, hi, z=1.959963984540054):
+    """SE(ln OR) implied by a log-symmetric 95% interval."""
+    if not lo or not hi or lo <= 0 or hi <= 0:
+        return None
+    return (math.log(hi) - math.log(lo)) / (2 * z)
+
+
+def assess_trial(t):
+    """-> (verdict, detail). verdict in PASS / MISMATCH / UNMEASURABLE."""
+    eff = t.get("effect") or {}
+    meas, scale = eff.get("measure"), eff.get("scale")
+    if scale != "log":
+        return "UNMEASURABLE", f"scale={scale!r}: the 1/a+1/b+1/c+1/d identity does not apply"
+    if meas not in ("OR",):
+        return "UNMEASURABLE", f"measure={meas!r}: identity holds for log OR only (an HR's variance is not a cell-count function)"
+    arms = {a.get("role"): a for a in (t.get("arms") or [])}
+    i, c = arms.get("intervention"), arms.get("control")
+    if not i or not c or i.get("events") is None or c.get("events") is None \
+       or i.get("n") is None or c.get("n") is None:
+        return "UNMEASURABLE", "arm events/n missing -- cannot imply an SE from the sample"
+    var = eff.get("variance")
+    if var is None or var <= 0:
+        return "UNMEASURABLE", "no stored variance"
+    se_claimed = math.sqrt(var)
+    se_implied, corr = se_from_counts(i["events"], i["n"], c["events"], c["n"])
+    ratio = se_claimed / se_implied if se_implied else None
+    info_ratio = ratio ** 2 if ratio else None
+    d = (f"claimed SE {se_claimed:.4f} vs implied {se_implied:.4f} "
+         f"(ratio {ratio:.3f}, information x{1/info_ratio:.2f})"
+         + (" [continuity-corrected]" if corr else ""))
+    if ratio and (ratio > THRESH or ratio < 1 / THRESH):
+        return "MISMATCH", d
+    return "PASS", d
+
+
+def run(paths, verbose=False):
+    tot = {"PASS": 0, "MISMATCH": 0, "UNMEASURABLE": 0}
+    hits = []
+    for p in paths:
+        try:
+            d = json.loads(open(p, encoding="utf-8", errors="replace").read())
+        except Exception:
+            continue
+        for t in ((d.get("canonical") or {}).get("trials") or []):
+            v, det = assess_trial(t)
+            tot[v] += 1
+            if v == "MISMATCH":
+                hits.append((os.path.basename(p).replace(".html.canonical.json", ""),
+                             (t.get("identity") or {}).get("label"), det))
+    return tot, hits
+
+
+def selftest() -> int:
+    """Positive AND negative, from real corpus material. A gate that cannot fail is not a gate."""
+    ok = True
+    # POSITIVE: MAVACAMTEN's displayed interval against EXPLORER-HCM's real arms.
+    se_claimed = se_from_ci(2.09, 21.30)
+    se_implied, _ = se_from_counts(45, 123, 22, 128)
+    ratio = se_claimed / se_implied
+    p_ok = ratio > THRESH
+    print(f"  POSITIVE MAVACAMTEN_HCM: claimed SE {se_claimed:.4f} (from 2.09-21.30), "
+          f"implied {se_implied:.4f} (45/123 v 22/128), ratio {ratio:.3f} -> "
+          f"{'FIRES' if p_ok else 'SILENT -- WRONG'}")
+    ok &= p_ok
+    # log-symmetry of the claimed interval, which is what makes it a real OR
+    gm = math.sqrt(2.09 * 21.30)
+    print(f"  ... and the interval is log-symmetric: sqrt(2.09*21.30) = {gm:.4f} vs claimed 6.67")
+    # NEGATIVE: the MITRAL object, internally consistent.
+    mp = r"F:\E156\outputs\codex-corpus-scan\extract\full_run\MITRAL_FUNCMR_REVIEW.html.canonical.json"
+    try:
+        d = json.loads(open(mp, encoding="utf-8", errors="replace").read())
+        n_ok, shown = True, []
+        for t in (d["canonical"]["trials"]):
+            v, det = assess_trial(t)
+            shown.append(f"{(t['identity'].get('label') or '?')[:12]}={v}")
+            if v == "MISMATCH":
+                n_ok = False
+        print(f"  NEGATIVE MITRAL_FUNCMR : {', '.join(shown)} -> "
+              f"{'SILENT' if n_ok else 'FIRES -- WRONG'}")
+        ok &= n_ok
+    except FileNotFoundError:
+        print("  NEGATIVE MITRAL_FUNCMR : object not found -- NEGATIVE NOT PROVEN")
+        ok = False
+    print(f"\nWHAT A FAILURE WOULD LOOK LIKE: the positive staying silent (we would have "
+          f"missed 6.67 attached to the wrong population), or the negative firing (a "
+          f"false-positive flood across ~791 pages that nobody would work through).")
+    print("-> SELFTEST PASS" if ok else "-> SELFTEST FAILED")
+    return 0 if ok else 1
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--glob", help="canonical object glob to sweep")
+    ap.add_argument("--selftest", action="store_true")
+    a = ap.parse_args()
+    if a.selftest:
+        return selftest()
+    if not a.glob:
+        ap.error("--glob or --selftest required")
+    paths = sorted(glob.glob(a.glob))
+    tot, hits = run(paths)
+    n = sum(tot.values())
+    print(f"objects swept: {len(paths)}   trial rows examined: {n}")
+    print(f"  PASS         {tot['PASS']}")
+    print(f"  MISMATCH     {tot['MISMATCH']}")
+    print(f"  UNMEASURABLE {tot['UNMEASURABLE']}  (not a pass -- scale/measure/counts unavailable)")
+    denom = tot["PASS"] + tot["MISMATCH"]
+    if denom:
+        print(f"  rate among ASSESSABLE rows: {tot['MISMATCH']}/{denom} = {100*tot['MISMATCH']/denom:.1f}%")
+    else:
+        print("  no assessable rows -- rate UNDEFINED, not zero")
+    for pg, lab, det in sorted(hits):
+        print(f"    {pg[:44]:44s} {str(lab)[:20]:20s} {det}")
+    if not denom:
+        return 2
+    return 1 if tot["MISMATCH"] else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+
+
+# --- L2: pooled estimates resting on unverifiable inputs -------------------
+# The L1 check above compares a trial's stored variance against its own counts.
+# That passes BY CONSTRUCTION whenever the variance was computed from those counts,
+# which is why it returned 0/1111 corpus-wide and did NOT catch MAVACAMTEN:
+# EXPLORER-HCM's own row is consistent (ratio 1.07). MAVACAMTEN's 6.67 is a k=3
+# POOL in which 2 of 3 trials carry no arm counts at all, displayed as if it were
+# one trial's result. L2 is the check that fires on that.
+def l2(paths):
+    rows = []
+    for p in paths:
+        try:
+            d = json.loads(open(p, encoding="utf-8", errors="replace").read())
+        except Exception:
+            continue
+        c = d.get("canonical") or {}
+        tr = c.get("trials") or []
+        rep = ((c.get("result") or {}).get("reported") or {})
+        if not tr or rep.get("logEffect") is None:
+            continue
+        noc = sum(1 for t in tr
+                  if any((a.get("events") is None) for a in (t.get("arms") or []))
+                  or not t.get("arms"))
+        if noc:
+            rows.append((os.path.basename(p).replace(".html.canonical.json", ""),
+                         noc, len(tr), rep.get("k")))
+    return rows
+
+
+if os.environ.get("PSG_L2"):
+    _paths = sorted(glob.glob(os.environ["PSG_L2"]))
+    _r = l2(_paths)
+    _all = sum(1 for p in _paths
+               if ((json.loads(open(p, encoding="utf-8", errors="replace").read())
+                    .get("canonical") or {}).get("result") or {}).get("reported", {}).get("logEffect") is not None)
+    print(f"L2 pooled-on-unverifiable-inputs: {len(_r)}/{_all} pooled objects "
+          f"have >=1 contributing trial with NO arm counts")
+    _full = [x for x in _r if x[1] == x[2]]
+    print(f"   of which {len(_full)} have NO counts on ANY contributing trial "
+          f"(the pooled value rests on nothing extractable)")
+    for pg, noc, n, k in sorted(_r, key=lambda x: -x[1])[:25]:
+        print(f"     {pg[:50]:50s} {noc}/{n} trials without counts (reported k={k})")
+
+codex
+I’ll verify line numbers against the workspace copy, then I’ll keep the answer strictly to proven defect shapes and concrete repro inputs.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=0; Get-Content -LiteralPath '"'scripts/precision_sample_gate.py' | ForEach-Object { "'$i++; '"'{0,4}: {1}' -f "'$i, $_ }' in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command 'git status --short' in F:\rapidmeta-ssot-shell
+ succeeded in 2123ms:
+   1: """precision-sample mismatch -- is this estimate's precision consistent with its own arms?
+   2: 
+   3: WHY THIS EXISTS
+   4:     MAVACAMTEN_HCM displayed OR 6.67 (2.09-21.30) against EXPLORER-HCM arms of
+   5:     45/123 vs 22/128. Eight reconstruction routes were computed from those counts
+   6:     and NONE produced 6.67. But the value is not junk: its interval is
+   7:     log-symmetric (sqrt(2.09*21.30) = 6.6721), so it is a genuinely computed odds
+   8:     ratio -- with an implied SE(lnOR) of 0.5922, while the arms it is attached to
+   9:     support SE 0.2999. Since SE^2 = 1/a+1/b+1/c+1/d, that is roughly FOUR TIMES
+  10:     less information than the stated sample carries: tens of patients, not 123 v 128.
+  11: 
+  12:     So the defect is legitimate arithmetic on the WRONG POPULATION. That is worse
+  13:     than a mislabelled measure, because the value survives every label-consistency
+  14:     check we own while describing a different population. Relabelling it would have
+  15:     left 6.67 attached to a population it does not describe.
+  16: 
+  17: WHAT THIS CHECKS
+  18:     SE implied by the reported interval (or stored variance), against SE implied by
+  19:     the reported arm sizes. A large mismatch means the estimate and the sample it is
+  20:     attached to are inconsistent -- the number came from somewhere else.
+  21: 
+  22:     Needs only the row itself: no primary source, no registry, no network.
+  23: 
+  24: SCOPE -- READ THIS BEFORE TRUSTING A RATE
+  25:     The identity SE^2 = 1/a + 1/b + 1/c + 1/d holds for a log ODDS RATIO from a 2x2
+  26:     table. It does NOT hold for a hazard ratio from a time-to-event analysis (whose
+  27:     variance depends on event times and censoring, not cell counts), nor for a mean
+  28:     difference. Rows that are not count-derived ORs are reported UNMEASURABLE, never
+  29:     PASS. A field nobody could check must not read as a field that passed.
+  30: 
+  31: Exit: 0 = no mismatch found, 1 = mismatch(es) found, 2 = nothing assessable.
+  32: """
+  33: from __future__ import annotations
+  34: import argparse, json, math, sys, glob, os
+  35: 
+  36: # ratio of claimed SE to implied SE beyond which we call it a mismatch.
+  37: # 1.5 is deliberately loose: a 1.5x SE gap is a 2.25x information gap, which no
+  38: # rounding or continuity correction explains. MAVACAMTEN sits at 1.97.
+  39: THRESH = 1.5
+  40: 
+  41: 
+  42: def se_from_counts(a, n1, c, n0):
+  43:     """SE(ln OR) implied by a 2x2 table. Returns (se, corrected)."""
+  44:     b, d = n1 - a, n0 - c
+  45:     corrected = False
+  46:     if min(a, b, c, d) <= 0:                 # Haldane-Anscombe, only when needed
+  47:         a, b, c, d = a + .5, b + .5, c + .5, d + .5
+  48:         corrected = True
+  49:     return math.sqrt(1 / a + 1 / b + 1 / c + 1 / d), corrected
+  50: 
+  51: 
+  52: def se_from_ci(lo, hi, z=1.959963984540054):
+  53:     """SE(ln OR) implied by a log-symmetric 95% interval."""
+  54:     if not lo or not hi or lo <= 0 or hi <= 0:
+  55:         return None
+  56:     return (math.log(hi) - math.log(lo)) / (2 * z)
+  57: 
+  58: 
+  59: def assess_trial(t):
+  60:     """-> (verdict, detail). verdict in PASS / MISMATCH / UNMEASURABLE."""
+  61:     eff = t.get("effect") or {}
+  62:     meas, scale = eff.get("measure"), eff.get("scale")
+  63:     if scale != "log":
+  64:         return "UNMEASURABLE", f"scale={scale!r}: the 1/a+1/b+1/c+1/d identity does not apply"
+  65:     if meas not in ("OR",):
+  66:         return "UNMEASURABLE", f"measure={meas!r}: identity holds for log OR only (an HR's variance is not a cell-count function)"
+  67:     arms = {a.get("role"): a for a in (t.get("arms") or [])}
+  68:     i, c = arms.get("intervention"), arms.get("control")
+  69:     if not i or not c or i.get("events") is None or c.get("events") is None \
+  70:        or i.get("n") is None or c.get("n") is None:
+  71:         return "UNMEASURABLE", "arm events/n missing -- cannot imply an SE from the sample"
+  72:     var = eff.get("variance")
+  73:     if var is None or var <= 0:
+  74:         return "UNMEASURABLE", "no stored variance"
+  75:     se_claimed = math.sqrt(var)
+  76:     se_implied, corr = se_from_counts(i["events"], i["n"], c["events"], c["n"])
+  77:     ratio = se_claimed / se_implied if se_implied else None
+  78:     info_ratio = ratio ** 2 if ratio else None
+  79:     d = (f"claimed SE {se_claimed:.4f} vs implied {se_implied:.4f} "
+  80:          f"(ratio {ratio:.3f}, information x{1/info_ratio:.2f})"
+  81:          + (" [continuity-corrected]" if corr else ""))
+  82:     if ratio and (ratio > THRESH or ratio < 1 / THRESH):
+  83:         return "MISMATCH", d
+  84:     return "PASS", d
+  85: 
+  86: 
+  87: def run(paths, verbose=False):
+  88:     tot = {"PASS": 0, "MISMATCH": 0, "UNMEASURABLE": 0}
+  89:     hits = []
+  90:     for p in paths:
+  91:         try:
+  92:             d = json.loads(open(p, encoding="utf-8", errors="replace").read())
+  93:         except Exception:
+  94:             continue
+  95:         for t in ((d.get("canonical") or {}).get("trials") or []):
+  96:             v, det = assess_trial(t)
+  97:             tot[v] += 1
+  98:             if v == "MISMATCH":
+  99:                 hits.append((os.path.basename(p).replace(".html.canonical.json", ""),
+ 100:                              (t.get("identity") or {}).get("label"), det))
+ 101:     return tot, hits
+ 102: 
+ 103: 
+ 104: def selftest() -> int:
+ 105:     """Positive AND negative, from real corpus material. A gate that cannot fail is not a gate."""
+ 106:     ok = True
+ 107:     # POSITIVE: MAVACAMTEN's displayed interval against EXPLORER-HCM's real arms.
+ 108:     se_claimed = se_from_ci(2.09, 21.30)
+ 109:     se_implied, _ = se_from_counts(45, 123, 22, 128)
+ 110:     ratio = se_claimed / se_implied
+ 111:     p_ok = ratio > THRESH
+ 112:     print(f"  POSITIVE MAVACAMTEN_HCM: claimed SE {se_claimed:.4f} (from 2.09-21.30), "
+ 113:           f"implied {se_implied:.4f} (45/123 v 22/128), ratio {ratio:.3f} -> "
+ 114:           f"{'FIRES' if p_ok else 'SILENT -- WRONG'}")
+ 115:     ok &= p_ok
+ 116:     # log-symmetry of the claimed interval, which is what makes it a real OR
+ 117:     gm = math.sqrt(2.09 * 21.30)
+ 118:     print(f"  ... and the interval is log-symmetric: sqrt(2.09*21.30) = {gm:.4f} vs claimed 6.67")
+ 119:     # NEGATIVE: the MITRAL object, internally consistent.
+ 120:     mp = r"F:\E156\outputs\codex-corpus-scan\extract\full_run\MITRAL_FUNCMR_REVIEW.html.canonical.json"
+ 121:     try:
+ 122:         d = json.loads(open(mp, encoding="utf-8", errors="replace").read())
+ 123:         n_ok, shown = True, []
+ 124:         for t in (d["canonical"]["trials"]):
+ 125:             v, det = assess_trial(t)
+ 126:             shown.append(f"{(t['identity'].get('label') or '?')[:12]}={v}")
+ 127:             if v == "MISMATCH":
+ 128:                 n_ok = False
+ 129:         print(f"  NEGATIVE MITRAL_FUNCMR : {', '.join(shown)} -> "
+ 130:               f"{'SILENT' if n_ok else 'FIRES -- WRONG'}")
+ 131:         ok &= n_ok
+ 132:     except FileNotFoundError:
+ 133:         print("  NEGATIVE MITRAL_FUNCMR : object not found -- NEGATIVE NOT PROVEN")
+ 134:         ok = False
+ 135:     print(f"\nWHAT A FAILURE WOULD LOOK LIKE: the positive staying silent (we would have "
+ 136:           f"missed 6.67 attached to the wrong population), or the negative firing (a "
+ 137:           f"false-positive flood across ~791 pages that nobody would work through).")
+ 138:     print("-> SELFTEST PASS" if ok else "-> SELFTEST FAILED")
+ 139:     return 0 if ok else 1
+ 140: 
+ 141: 
+ 142: def main() -> int:
+ 143:     ap = argparse.ArgumentParser()
+ 144:     ap.add_argument("--glob", help="canonical object glob to sweep")
+ 145:     ap.add_argument("--selftest", action="store_true")
+ 146:     a = ap.parse_args()
+ 147:     if a.selftest:
+ 148:         return selftest()
+ 149:     if not a.glob:
+ 150:         ap.error("--glob or --selftest required")
+ 151:     paths = sorted(glob.glob(a.glob))
+ 152:     tot, hits = run(paths)
+ 153:     n = sum(tot.values())
+ 154:     print(f"objects swept: {len(paths)}   trial rows examined: {n}")
+ 155:     print(f"  PASS         {tot['PASS']}")
+ 156:     print(f"  MISMATCH     {tot['MISMATCH']}")
+ 157:     print(f"  UNMEASURABLE {tot['UNMEASURABLE']}  (not a pass -- scale/measure/counts unavailable)")
+ 158:     denom = tot["PASS"] + tot["MISMATCH"]
+ 159:     if denom:
+ 160:         print(f"  rate among ASSESSABLE rows: {tot['MISMATCH']}/{denom} = {100*tot['MISMATCH']/denom:.1f}%")
+ 161:     else:
+ 162:         print("  no assessable rows -- rate UNDEFINED, not zero")
+ 163:     for pg, lab, det in sorted(hits):
+ 164:         print(f"    {pg[:44]:44s} {str(lab)[:20]:20s} {det}")
+ 165:     if not denom:
+ 166:         return 2
+ 167:     return 1 if tot["MISMATCH"] else 0
+ 168: 
+ 169: 
+ 170: if __name__ == "__main__":
+ 171:     sys.exit(main())
+ 172: 
+ 173: 
+ 174: # --- L2: pooled estimates resting on unverifiable inputs -------------------
+ 175: # The L1 check above compares a trial's stored variance against its own counts.
+ 176: # That passes BY CONSTRUCTION whenever the variance was computed from those counts,
+ 177: # which is why it returned 0/1111 corpus-wide and did NOT catch MAVACAMTEN:
+ 178: # EXPLORER-HCM's own row is consistent (ratio 1.07). MAVACAMTEN's 6.67 is a k=3
+ 179: # POOL in which 2 of 3 trials carry no arm counts at all, displayed as if it were
+ 180: # one trial's result. L2 is the check that fires on that.
+ 181: def l2(paths):
+ 182:     rows = []
+ 183:     for p in paths:
+ 184:         try:
+ 185:             d = json.loads(open(p, encoding="utf-8", errors="replace").read())
+ 186:         except Exception:
+ 187:             continue
+ 188:         c = d.get("canonical") or {}
+ 189:         tr = c.get("trials") or []
+ 190:         rep = ((c.get("result") or {}).get("reported") or {})
+ 191:         if not tr or rep.get("logEffect") is None:
+ 192:             continue
+ 193:         noc = sum(1 for t in tr
+ 194:                   if any((a.get("events") is None) for a in (t.get("arms") or []))
+ 195:                   or not t.get("arms"))
+ 196:         if noc:
+ 197:             rows.append((os.path.basename(p).replace(".html.canonical.json", ""),
+ 198:                          noc, len(tr), rep.get("k")))
+ 199:     return rows
+ 200: 
+ 201: 
+ 202: if os.environ.get("PSG_L2"):
+ 203:     _paths = sorted(glob.glob(os.environ["PSG_L2"]))
+ 204:     _r = l2(_paths)
+ 205:     _all = sum(1 for p in _paths
+ 206:                if ((json.loads(open(p, encoding="utf-8", errors="replace").read())
+ 207:                     .get("canonical") or {}).get("result") or {}).get("reported", {}).get("logEffect") is not None)
+ 208:     print(f"L2 pooled-on-unverifiable-inputs: {len(_r)}/{_all} pooled objects "
+ 209:           f"have >=1 contributing trial with NO arm counts")
+ 210:     _full = [x for x in _r if x[1] == x[2]]
+ 211:     print(f"   of which {len(_full)} have NO counts on ANY contributing trial "
+ 212:           f"(the pooled value rests on nothing extractable)")
+ 213:     for pg, noc, n, k in sorted(_r, key=lambda x: -x[1])[:25]:
+ 214:         print(f"     {pg[:50]:50s} {noc}/{n} trials without counts (reported k={k})")
+
+ succeeded in 2133ms:
+ M ABLATION_AF_REVIEW.html
+ M ACS_ANTIPLATELET_REVIEW.html
+ M ALIROCUMAB_LIPID_AUTO_FULL_REVIEW.html
+ M ANIDULAFUNGIN_CANDIDA_AUTO_FULL_REVIEW.html
+ M ANIDULAFUNGIN_FUNGAL_AUTO_FULL_REVIEW.html
+ M APIXABAN_ACS_AUTO_FULL_REVIEW.html
+ M APIXABAN_AF_AUTO_FULL_REVIEW.html
+ M APIXABAN_VTE_AUTO_FULL_REVIEW.html
+ M ATTR_CM_REVIEW.html
+ M ATTR_PN_REVIEW.html
+ M AZILSARTAN_CLD_VS_OLM_HCTZ_REVIEW.html
+ M AZILSARTAN_HTN_AUTO_FULL_REVIEW.html
+ M BAMLANIVIMAB_COVID_AUTO_FULL_REVIEW.html
+ M BEMPEDOIC_ACID_REVIEW.html
+ M BEZLOTOXUMAB_CDI_AUTO_FULL_REVIEW.html
+ M BOCOCIZUMAB_LIPID_AUTO_FULL_REVIEW.html
+ M BOSENTAN_PAH_AUTO_FULL_REVIEW.html
+ M CANGRELOR_PCI_REVIEW.html
+ M CASIRIVIMAB_COVID_AUTO_FULL_REVIEW.html
+ M CASPOFUNGIN_FUNGAL_AUTO_FULL_REVIEW.html
+ M CEFEPIME_TAZ_AUTO_FULL_REVIEW.html
+ M CEFTAZIDIME_AVIBACTAM_AUTO_FULL_REVIEW.html
+ M CEFTOLOZANE_INFECTION_AUTO_FULL_REVIEW.html
+ M COLCHICINE_CVD_REVIEW.html
+ M COLCHICINE_ICH_REVIEW.html
+ M COLCHICINE_MIXED_ASCVD_REVIEW.html
+ M COLCHICINE_PAD_REVIEW.html
+ M COLCHICINE_PERICARDITIS_REVIEW.html
+ M COLCHICINE_PERIPROCEDURAL_REVIEW.html
+ M COLCHICINE_STROKE_REVIEW.html
+ M COVID19_VACCINES_REVIEW.html
+ M COVID_ORAL_ANTIVIRALS_REVIEW.html
+ M CRYPTOCOCCAL_MENINGITIS_AFRICA_REVIEW.html
+ M CVNCOV_COVID19_AUTO_FULL_REVIEW.html
+ M DABIGATRAN_AF_AUTO_FULL_REVIEW.html
+ M DABIGATRAN_STROKE_AUTO_FULL_REVIEW.html
+ M DABIGATRAN_VTE_CEREBRAL_REVIEW.html
+ M DABIGATRAN_VTE_EXTENDED_REVIEW.html
+ M DABIGATRAN_VTE_SURGICAL_REVIEW.html
+ M DABIGATRAN_VTE_TREATMENT_REVIEW.html
+ M DELAMANID_TB_AUTO_FULL_REVIEW.html
+ M DOAC_AF_NMA_REVIEW.html
+ M DOAC_AF_REVIEW.html
+ M DOAC_CANCER_VTE_REVIEW.html
+ M DORAVIRINE_HIV_REVIEW.html
+ M DORIPENEM_AUTO_FULL_REVIEW.html
+ M DROTRECOGIN_SEPSIS_AUTO_FULL_REVIEW.html
+ M EDOXABAN_CANCER_VTE_AUTO_FULL_REVIEW.html
+ M EDOXABAN_VTE_AUTO_FULL_REVIEW.html
+ M EMPAGLIFLOZIN_HF_AUTO_FULL_REVIEW.html
+ M EMTRICITABINE_HIV_AUTO_FULL_REVIEW.html
+ M ENOXAPARIN_VTE_AUTO_FULL_REVIEW.html
+ M ERAVACYCLINE_INFECTION_AUTO_FULL_REVIEW.html
+ M ERTAPENEM_AUTO_FULL_REVIEW.html
+ M ETESEVIMAB_COVID_AUTO_FULL_REVIEW.html
+ M ETRIPAMIL_PAROXYSMAL_SUPRAVENTRICU_AUTO_FULL_REVIEW.html
+ M EVINACUMAB_HOFH_AUTO_FULL_REVIEW.html
+ M EVOLOCUMAB_ASCVD_AUTO_2.html
+ M EVOLOCUMAB_ASCVD_AUTO_2_FULL_REVIEW.html
+ M EVOLOCUMAB_DYSLIPIDEMIA_AUTO_FULL_REVIEW.html
+ M EVOLOCUMAB_MIXED_DYSLIPIDEMIA_AUTO_FULL_REVIEW.html
+ M FCM_HF_REVIEW.html
+ M FIDAXOMICIN_CDIFF_AUTO_FULL_REVIEW.html
+ M FIDAXOMICIN_CDI_AUTO_FULL_REVIEW.html
+ M FINERENONE_CV_REVIEW.html
+ M FINERENONE_REVIEW.html
+ M FONDAPARINUX_AUTO_FULL_REVIEW.html
+ M FONDAPARINUX_VTE_AUTO_FULL_REVIEW.html
+ M HEPATITIS_B_TAF_TDF_REVIEW.html
+ M HIV_LA_PREP_REVIEW.html
+ M HIV_PREP_INJECTABLE_REVIEW.html
+ M ICOSAPENT_LIPID_AUTO_FULL_REVIEW.html
+ M INCLISIRAN_HOFH_AUTO_FULL_REVIEW.html
+ M INCLISIRAN_LIPID_KIDNEY_AUTO_FULL_REVIEW.html
+ M INCRETIN_HFpEF_REVIEW.html
+ M INTENSIVE_BP_REVIEW.html
+ M IVERMECTIN_LF_AUTO_FULL_REVIEW.html
+ M LENACAPAVIR_PREP_SSOT.html
+ M MALARIA_ACT_REVIEW.html
+ M MALARIA_VACCINE_REVIEW.html
+ M MARIBAVIR_CMV_AUTO_FULL_REVIEW.html
+ M MAVACAMTEN_HCM_REVIEW.html
+ M MAVACAMTEN_OHCM_REVIEW.html
+ M MDR_TB_SHORTENED_REVIEW.html
+ M MENACYW_HEALTHY_VOLUNTEERS_AUTO_FULL_REVIEW.html
+ M MEN_ACWY_AUTO_FULL_REVIEW.html
+ M MEROPENEM_AUTO_FULL_REVIEW.html
+ M MIPOMERSEN_HOFH_AUTO_FULL_REVIEW.html
+ M MITRAL_FUNCMR_REVIEW.html
+ M MOXIFLOXACIN_RESPI_AUTO_FULL_REVIEW.html
+ M OLMESARTAN_HTN_AUTO_FULL_REVIEW.html
+ M OMECAMTIV_HEARTFAIL_AUTO_FULL_REVIEW.html
+ M PCSK9_INHIBITORS_CV_REVIEW.html
+ M PCSK9_LIPID_NMA_REVIEW.html
+ M PEDIATRIC_HIV_ART_REVIEW.html
+ M PITAVASTATIN_AUTO_FULL_REVIEW.html
+ M PLAZOMICIN_INFECTION_AUTO_FULL_REVIEW.html
+ M PREVNAR15_PNEUMO_AUTO_FULL_REVIEW.html
+ M RALTEGRAVIR_HIV_AUTO_FULL_REVIEW.html
+ M REMDESIVIR_COVID_AUTO_FULL_REVIEW.html
+ M RIOCIGUAT_PAH_AUTO_FULL_REVIEW.html
+ M RIVAROXABAN_ACS_AUTO_FULL_REVIEW.html
+ M RIVAROXABAN_VASC_REVIEW.html
+ M ROSUVASTATIN_AUTO_FULL_REVIEW.html
+ M ROTAVIRUS_VACCINE_AFRICA_REVIEW.html
+ M ROTAVIRUS_VACCINE_AUTO_FULL_REVIEW.html
+ M SACUBITRIL_HEARTFAIL_AUTO_FULL_REVIEW.html
+ M SARILUMAB_COVID_AUTO_FULL_REVIEW.html
+ M SELEXIPAG_PAH_AUTO_FULL_REVIEW.html
+ M SER109_CDI_AUTO_FULL_REVIEW.html
+ M SGLT2_CKD_REVIEW.html
+ M SGLT2_MACE_CVOT_REVIEW.html
+ M SOTAGLIFLOZIN_HF_REVIEW.html
+ M SOTATERCEPT_PAH_AUTO_2_FULL_REVIEW.html
+ M SOTATERCEPT_PAH_AUTO_FULL_REVIEW.html
+ M TECOVIRIMAT_MPOX_AUTO_FULL_REVIEW.html
+ M TIGECYCLINE_CIAI_SSOT.html
+ M WARFARIN_AF_AUTO_FULL_REVIEW.html
+ M evidence/withholding_asked_baseline.json
+ M figs/forest.html
+ M figs/forest_fit.html
+ M figs/forest_w1.html
+ M figs/forest_w2.html
+ M figs/forest_w3.html
+ M figs/visual-abstract.html
+?? ._rm_hook_identity_1012889
+?? ._rm_hook_identity_1013901
+?? ._rm_hook_identity_10202
+?? ._rm_hook_identity_103677
+?? ._rm_hook_identity_103811
+?? ._rm_hook_identity_103900
+?? ._rm_hook_identity_105793
+?? ._rm_hook_identity_105837
+?? ._rm_hook_identity_1058434
+?? ._rm_hook_identity_1058738
+?? ._rm_hook_identity_105892
+?? ._rm_hook_identity_106011
+?? ._rm_hook_identity_106145
+?? ._rm_hook_identity_106200
+?? ._rm_hook_identity_107675
+?? ._rm_hook_identity_107723
+?? ._rm_hook_identity_108131
+?? ._rm_hook_identity_108188
+?? ._rm_hook_identity_108466
+?? ._rm_hook_identity_108502
+?? ._rm_hook_identity_1089738
+?? ._rm_hook_identity_1090125
+?? ._rm_hook_identity_109194
+?? ._rm_hook_identity_109230
+?? ._rm_hook_identity_109573
+?? ._rm_hook_identity_109615
+?? ._rm_hook_identity_1105408
+?? ._rm_hook_identity_1105772
+?? ._rm_hook_identity_111223
+?? ._rm_hook_identity_111280
+?? ._rm_hook_identity_111480
+?? ._rm_hook_identity_111633
+?? ._rm_hook_identity_111677
+?? ._rm_hook_identity_1119259
+?? ._rm_hook_identity_1119673
+?? ._rm_hook_identity_112100
+?? ._rm_hook_identity_112164
+?? ._rm_hook_identity_112400
+?? ._rm_hook_identity_112450
+?? ._rm_hook_identity_114192
+?? ._rm_hook_identity_114239
+?? ._rm_hook_identity_1159304
+?? ._rm_hook_identity_1159752
+?? ._rm_hook_identity_1171650
+?? ._rm_hook_identity_1171988
+?? ._rm_hook_identity_1187595
+?? ._rm_hook_identity_1187922
+?? ._rm_hook_identity_119758
+?? ._rm_hook_identity_1418275
+?? ._rm_hook_identity_1418639
+?? ._rm_hook_identity_1455212
+?? ._rm_hook_identity_1455606
+?? ._rm_hook_identity_1475100
+?? ._rm_hook_identity_1475391
+?? ._rm_hook_identity_1489392
+?? ._rm_hook_identity_1489627
+?? ._rm_hook_identity_1510305
+?? ._rm_hook_identity_1510550
+?? ._rm_hook_identity_1529213
+?? ._rm_hook_identity_1529602
+?? ._rm_hook_identity_1557274
+?? ._rm_hook_identity_1557522
+?? ._rm_hook_identity_1578745
+?? ._rm_hook_identity_1579126
+?? ._rm_hook_identity_1585450
+?? ._rm_hook_identity_1585653
+?? ._rm_hook_identity_1610522
+?? ._rm_hook_identity_1610768
+?? ._rm_hook_identity_1633580
+?? ._rm_hook_identity_1633902
+?? ._rm_hook_identity_1669456
+?? ._rm_hook_identity_1669796
+?? ._rm_hook_identity_1685107
+?? ._rm_hook_identity_1685367
+?? ._rm_hook_identity_1732655
+?? ._rm_hook_identity_1732925
+?? ._rm_hook_identity_1832973
+?? ._rm_hook_identity_1834181
+?? ._rm_hook_identity_1908950
+?? ._rm_hook_identity_1909614
+?? ._rm_hook_identity_2005712
+?? ._rm_hook_identity_2006416
+?? ._rm_hook_identity_2048492
+?? ._rm_hook_identity_2049080
+?? ._rm_hook_identity_2099825
+?? ._rm_hook_identity_2100422
+?? ._rm_hook_identity_2169172
+?? ._rm_hook_identity_2169560
+?? ._rm_hook_identity_2285986
+?? ._rm_hook_identity_2287555
+?? ._rm_hook_identity_2336467
+?? ._rm_hook_identity_2336967
+?? ._rm_hook_identity_2378679
+?? ._rm_hook_identity_2379023
+?? ._rm_hook_identity_254861
+?? ._rm_hook_identity_2757541
+?? ._rm_hook_identity_2758988
+?? ._rm_hook_identity_2759591
+?? ._rm_hook_identity_2803845
+?? ._rm_hook_identity_2805298
+?? ._rm_hook_identity_2868738
+?? ._rm_hook_identity_2870407
+?? ._rm_hook_identity_2870690
+?? ._rm_hook_identity_2870966
+?? ._rm_hook_identity_3023756
+?? ._rm_hook_identity_3024279
+?? ._rm_hook_identity_304653
+?? ._rm_hook_identity_3210374
+?? ._rm_hook_identity_3211915
+?? ._rm_hook_identity_3278777
+?? ._rm_hook_identity_3279182
+?? ._rm_hook_identity_3389420
+?? ._rm_hook_identity_3390803
+?? ._rm_hook_identity_3482515
+?? ._rm_hook_identity_3482922
+?? ._rm_hook_identity_3655619
+?? ._rm_hook_identity_3752719
+?? ._rm_hook_identity_39074
+?? ._rm_hook_identity_3913616
+?? ._rm_hook_identity_39180
+?? ._rm_hook_identity_39929
+?? ._rm_hook_identity_40167
+?? ._rm_hook_identity_40309
+?? ._rm_hook_identity_40651
+?? ._rm_hook_identity_40760
+?? ._rm_hook_identity_408889
+?? ._rm_hook_identity_409393
+?? ._rm_hook_identity_41582
+?? ._rm_hook_identity_42187
+?? ._rm_hook_identity_452084
+?? ._rm_hook_identity_452477
+?? ._rm_hook_identity_45800
+?? ._rm_hook_identity_473067
+?? ._rm_hook_identity_473314
+?? ._rm_hook_identity_525137
+?? ._rm_hook_identity_525388
+?? ._rm_hook_identity_53532
+?? ._rm_hook_identity_54494
+?? ._rm_hook_identity_55529
+?? ._rm_hook_identity_612403
+?? ._rm_hook_identity_614013
+?? ._rm_hook_identity_758804
+?? ._rm_hook_identity_758851
+?? ._rm_hook_identity_759134
+?? ._rm_hook_identity_759136
+?? ._rm_hook_identity_82656
+?? ._rm_hook_identity_83157
+?? ._rm_hook_identity_83687
+?? ._rm_hook_identity_84020
+?? ._rm_hook_identity_84372
+?? ._rm_hook_identity_84523
+?? ._rm_hook_identity_86777
+?? ._rm_hook_identity_86845
+?? ._rm_hook_identity_87499
+?? ._rm_hook_identity_87531
+?? ._rm_hook_identity_887954
+?? ._rm_hook_identity_889137
+?? ._rm_hook_identity_89112
+?? ._rm_hook_identity_89155
+?? ._rm_hook_identity_89350
+?? ._rm_hook_identity_89382
+?? ._rm_hook_identity_89730
+?? ._rm_hook_identity_89762
+?? ._rm_hook_identity_90945
+?? ._rm_hook_identity_90977
+?? ._rm_hook_identity_91341
+?? ._rm_hook_identity_91373
+?? ._rm_hook_identity_94621
+?? ._rm_hook_identity_94656
+?? ._rm_hook_identity_95052
+?? ._rm_hook_identity_95087
+?? ._rm_hook_identity_96084
+?? ._rm_hook_identity_96238
+?? ._rm_hook_identity_96281
+?? ._rm_identity_034e3b7d0f20
+?? ._rm_identity_07f88ed7d954
+?? ._rm_identity_0bcaec440b4c
+?? ._rm_identity_0c26b35824a9
+?? ._rm_identity_0f2d5deab6c5
+?? ._rm_identity_1031f09e26b3
+?? ._rm_identity_10d64e0b900b
+?? ._rm_identity_11f139a858e6
+?? ._rm_identity_12d6621ba79a
+?? ._rm_identity_13eda4f9f2af
+?? ._rm_identity_147969d954b7
+?? ._rm_identity_15358c8642cc
+?? ._rm_identity_154521deb5da
+?? ._rm_identity_16fc1eb0c506
+?? ._rm_identity_175a84b86880
+?? ._rm_identity_19816373599c
+?? ._rm_identity_1f72fdf1d651
+?? ._rm_identity_2027c55dcd48
+?? ._rm_identity_20fc57ed5bbf
+?? ._rm_identity_210153122e3a
+?? ._rm_identity_21dc5b597745
+?? ._rm_identity_22799604faa0
+?? ._rm_identity_2350dbd8f19e
+?? ._rm_identity_2380564c8cec
+?? ._rm_identity_29dc85d6098e
+?? ._rm_identity_2d05d58c484a
+?? ._rm_identity_2f45861a99cb
+?? ._rm_identity_339e2ffabf98
+?? ._rm_identity_348d8eab8dd6
+?? ._rm_identity_3572f9727dcd
+?? ._rm_identity_38272936cdcc
+?? ._rm_identity_384f64705f09
+?? ._rm_identity_398887496afa
+?? ._rm_identity_3a612ae67da5
+?? ._rm_identity_3abec9a1e937
+?? ._rm_identity_3bc92f33e6fc
+?? ._rm_identity_3be1a7ae9ce0
+?? ._rm_identity_412bb509ed31
+?? ._rm_identity_418812264db7
+?? ._rm_identity_42515bfcbe11
+?? ._rm_identity_435191add2ff
+?? ._rm_identity_45d5c763ab47
+?? ._rm_identity_492402847454
+?? ._rm_identity_4a78461b4390
+?? ._rm_identity_4ae1d150d516
+?? ._rm_identity_4c99c8d36ef0
+?? ._rm_identity_4e76f6427355
+?? ._rm_identity_4ef5b62a6809
+?? ._rm_identity_4f96ae0a8d2c
+?? ._rm_identity_50243e7b4687
+?? ._rm_identity_5164e497e6d4
+?? ._rm_identity_54680643b708
+?? ._rm_identity_54f5547aad1f
+?? ._rm_identity_559adc9c7b2b
+?? ._rm_identity_571aac64f01b
+?? ._rm_identity_589129de75ba
+?? ._rm_identity_59b182273c85
+?? ._rm_identity_5b017288a626
+?? ._rm_identity_5b91dcfffcce
+?? ._rm_identity_5e6d6f0ce5c8
+?? ._rm_identity_60ceeb4d5c1c
+?? ._rm_identity_65ea900d5b15
+?? ._rm_identity_6910ade38240
+?? ._rm_identity_6a7496ca58ab
+?? ._rm_identity_6a8ada66600e
+?? ._rm_identity_6b9c5b571e75
+?? ._rm_identity_6ca811581a05
+?? ._rm_identity_6caab401530b
+?? ._rm_identity_6de4793a6489
+?? ._rm_identity_6fcd81157233
+?? ._rm_identity_708919f5939a
+?? ._rm_identity_722fc34e457d
+?? ._rm_identity_73a84c2ebe46
+?? ._rm_identity_73d5fd9454ef
+?? ._rm_identity_7496684a4676
+?? ._rm_identity_75f2e87b9bc4
+?? ._rm_identity_7a9cec53157b
+?? ._rm_identity_7ccc61202e9c
+?? ._rm_identity_811851725b3b
+?? ._rm_identity_82adc98eb3a5
+?? ._rm_identity_8436e55e1f3a
+?? ._rm_identity_85e2d33e5087
+?? ._rm_identity_87814dbcf28a
+?? ._rm_identity_8928dfd72468
+?? ._rm_identity_8a74e88efc18
+?? ._rm_identity_8ad156c56487
+?? ._rm_identity_8cd208b4162c
+?? ._rm_identity_8db2d11bdacb
+?? ._rm_identity_8ea5cb9417e7
+?? ._rm_identity_8faf1a127938
+?? ._rm_identity_9084cdff75c0
+?? ._rm_identity_9153e4257957
+?? ._rm_identity_91838d3e8753
+?? ._rm_identity_925d4185aac3
+?? ._rm_identity_933a4de5700e
+?? ._rm_identity_986d420cb81f
+?? ._rm_identity_98d5287bc5d4
+?? ._rm_identity_9a61f23602ec
+?? ._rm_identity_9b5a94b5a58d
+?? ._rm_identity_9c49790b72b3
+?? ._rm_identity_9cdbb6a61392
+?? ._rm_identity_9f26400ddaa7
+?? ._rm_identity_a02ece3a93bc
+?? ._rm_identity_a336f24ccc09
+?? ._rm_identity_a39aaf11ad51
+?? ._rm_identity_a3e45771ddb3
+?? ._rm_identity_a9a6e9f22925
+?? ._rm_identity_aa972e7aa551
+?? ._rm_identity_aab593156a2e
+?? ._rm_identity_ab0a8bf9100f
+?? ._rm_identity_ab8b7998ad8f
+?? ._rm_identity_abe1b913e5d9
+?? ._rm_identity_adc84277ad55
+?? ._rm_identity_ae79057bf553
+?? ._rm_identity_b053c25e31ae
+?? ._rm_identity_b27923c92d64
+?? ._rm_identity_b592451c81eb
+?? ._rm_identity_b60111a69ea4
+?? ._rm_identity_b786f5aca0e7
+?? ._rm_identity_b906f457a8e6
+?? ._rm_identity_bd908869ed6d
+?? ._rm_identity_be4b50134170
+?? ._rm_identity_bffb6a039de2
+?? ._rm_identity_c10d658b9d6a
+?? ._rm_identity_c357f488c27d
+?? ._rm_identity_c51531a156ac
+?? ._rm_identity_c9295514dff2
+?? ._rm_identity_c96d79abfd51
+?? ._rm_identity_c9a3e2f6dc17
+?? ._rm_identity_ca4a7a92450d
+?? ._rm_identity_cbb632264fd8
+?? ._rm_identity_cdceac0ff667
+?? ._rm_identity_cf0187c91d91
+?? ._rm_identity_d205a2ba8902
+?? ._rm_identity_d3d6e92584f1
+?? ._rm_identity_d61dc511d55d
+?? ._rm_identity_d6c9ecc77218
+?? ._rm_identity_d733a1a2779f
+?? ._rm_identity_d75ea7319142
+?? ._rm_identity_d8e07a44e966
+?? ._rm_identity_d9da7ddd0b9d
+?? ._rm_identity_da1926330b77
+?? ._rm_identity_db6a6a241aaa
+?? ._rm_identity_dcb8a7414d87
+?? ._rm_identity_ddb8258813bb
+?? ._rm_identity_ddebac644b6a
+?? ._rm_identity_dded20fc90be
+?? ._rm_identity_e6a15f4626e3
+?? ._rm_identity_e763a2e1cae7
+?? ._rm_identity_e83ba9ad7c83
+?? ._rm_identity_e853e3dcb77d
+?? ._rm_identity_e9a197405628
+?? ._rm_identity_e9b3fc25c207
+?? ._rm_identity_ec0443c41226
+?? ._rm_identity_ed6ffd47ed71
+?? ._rm_identity_efa35989d234
+?? ._rm_identity_f2e1cdad0ff9
+?? ._rm_identity_f3a90c4e02ec
+?? ._rm_identity_f434fdf33df4
+?? ._rm_identity_f5acc4d6fff4
+?? ._rm_identity_f5edea517542
+?? ._rm_identity_f6009b3906e1
+?? ._rm_identity_f813636f31da
+?? ._rm_identity_f880e1b8a196
+?? ._rm_identity_f8b8decea698
+?? ._rm_identity_f97bcf78c66a
+?? ._rm_identity_fc57f35c672d
+?? ._rm_identity_fdcd7d2ad91b
+?? ._rm_identity_fdd751c0cb72
+?? .agy_seven.txt
+?? .agy_seven_prompt.txt
+?? .agy_seven_verdict.txt
+?? .agy_sglt2.txt
+?? .agy_sglt2_verdict.txt
+?? .allranks-cache.json
+?? .armrole-cache.json
+?? .blank57.json
+?? .buildability.json
+?? .codex_arni_review.txt
+?? .codex_blinded_prompt.txt
+?? .codex_rebuilt_prompt.txt
+?? .codex_rebuilt_review.txt
+?? .fifteen_seeds.json
+?? .g_one.txt
+?? .gate_pairs.txt
+?? .gate_run2.txt
+?? .metric-cache.json
+?? .nejm2307563.txt
+?? .noprov.json
+?? .othernames-cache.json
+?? .proportionality.json
+?? .prov-cache.json
+?? .sglt2_registry.txt
+?? .subjectrole-cache.json
+?? CODEX_NAME_VS_PREDICATE.md
+?? evidence/2026-08-19-batch2/arni_docmodel_port.json
+?? figs/baujat.eps
+?? figs/baujat.html
+?? figs/baujat.png
+?? figs/baujat.tiff
+?? figs/baujat_src.svg
+?? figs/bubble.eps
+?? figs/bubble.png
+?? figs/bubble.tiff
+?? figs/bubble_src.svg
+?? figs/cumulative.eps
+?? figs/cumulative.html
+?? figs/cumulative.png
+?? figs/cumulative.tiff
+?? figs/cumulative_src.svg
+?? figs/forest.eps
+?? figs/forest.png
+?? figs/forest.tiff
+?? figs/forest_fit.eps
+?? figs/forest_fit.png
+?? figs/forest_fit.tiff
+?? figs/forest_fit_src.svg
+?? figs/forest_src.svg
+?? figs/forest_w1.eps
+?? figs/forest_w1.png
+?? figs/forest_w1.tiff
+?? figs/forest_w1_src.svg
+?? figs/forest_w2.eps
+?? figs/forest_w2.png
+?? figs/forest_w2.tiff
+?? figs/forest_w2_src.svg
+?? figs/forest_w3.eps
+?? figs/forest_w3.png
+?? figs/forest_w3.tiff
+?? figs/forest_w3_src.svg
+?? figs/funnel.eps
+?? figs/funnel.html
+?? figs/funnel.png
+?? figs/funnel.tiff
+?? figs/funnel_src.svg
+?? figs/galbraith.eps
+?? figs/galbraith.html
+?? figs/galbraith.png
+?? figs/galbraith.tiff
+?? figs/galbraith_src.svg
+?? figs/gosh.eps
+?? figs/gosh.png
+?? figs/gosh.tiff
+?? figs/gosh_src.svg
+?? figs/influence.eps
+?? figs/influence.html
+?? figs/influence.png
+?? figs/influence.tiff
+?? figs/influence_src.svg
+?? figs/labbe.eps
+?? figs/labbe.html
+?? figs/labbe.png
+?? figs/labbe.tiff
+?? figs/labbe_src.svg
+?? figs/leave-one-out.eps
+?? figs/leave-one-out.html
+?? figs/leave-one-out.png
+?? figs/leave-one-out.tiff
+?? figs/leave-one-out_src.svg
+?? figs/nnt-curve.eps
+?? figs/nnt-curve.html
+?? figs/nnt-curve.png
+?? figs/nnt-curve.tiff
+?? figs/nnt-curve_src.svg
+?? figs/posterior.eps
+?? figs/posterior.html
+?? figs/posterior.png
+?? figs/posterior.tiff
+?? figs/posterior_src.svg
+?? figs/prisma-flow.eps
+?? figs/prisma-flow.html
+?? figs/prisma-flow.png
+?? figs/prisma-flow.tiff
+?? figs/prisma-flow_src.svg
+?? figs/rob-traffic-light.eps
+?? figs/rob-traffic-light.png
+?? figs/rob-traffic-light.tiff
+?? figs/rob-traffic-light_src.svg
+?? figs/tsa.eps
+?? figs/tsa.png
+?? figs/tsa.tiff
+?? figs/tsa_src.svg
+?? figs/visual-abstract.eps
+?? figs/visual-abstract.png
+?? figs/visual-abstract.tiff
+?? figs/visual-abstract_src.svg
+?? outputs/_cross_meta_violations.log
+?? outputs/c2.log
+?? outputs/c3.log
+?? outputs/c4.log
+?? outputs/c5.log
+?? outputs/c6.log
+?? outputs/commit.log
+?? outputs/corpus_rebuild_2026_08_23.log
+?? outputs/corpus_rebuild_round2.log
+?? outputs/corpus_rebuild_round3.log
+?? outputs/corpus_rebuild_round4.log
+?? outputs/eighth_rebuild.log
+?? outputs/figs/
+?? outputs/held_triage.log
+?? outputs/lanes/
+?? outputs/mav_build.log
+?? outputs/p2.log
+?? outputs/p3.log
+?? outputs/p5.log
+?? outputs/p6.log
+?? outputs/p7.log
+?? outputs/push.log
+?? outputs/qual_before.txt
+?? outputs/quarantine_bookkeeping_2026_08_23/
+?? outputs/rebuild_backup_2026_08_23/
+?? outputs/reg_family.log
+?? outputs/triage.log
+?? scripts/audit_prisma_nma_block_2026_08_23.py
+warning: could not open directory 'docs/verification-lane/.pytest_cache/': Permission denied
+
+codex
+Defects found:
+
+- **Check CANNOT FAIL / STATUS CODE wrapper**: lines 170-214.  
+  Exact input: set `PSG_L2=F:\tmp\one.html.canonical.json`, file content `{"canonical":{"result":{"reported":{"logEffect":0.1,"k":1}},"trials":[{"arms":[]}]}}`, then run `python scripts/precision_sample_gate.py --glob F:\tmp\one.html.canonical.json`.  
+  Consequence: `sys.exit(main())` runs before L2 is defined or checked, so the advertised L2 gate never fires in normal script execution.
+
+- **STATUS CODE reporting wrapper, not work**: lines 202-214.  
+  Exact input: same file as above, then run `python -c "import scripts.precision_sample_gate"` with `PSG_L2=F:\tmp\one.html.canonical.json`.  
+  Consequence: L2 can print that pooled objects rest on missing counts but has no non-zero exit path, so a CI/import wrapper exits 0 after detecting the condition.
+
+- **SELECTOR keyed to too-narrow field path**: lines 193-195.  
+  Exact input to `l2([path])`: `{"canonical":{"result":{"reported":{"logEffect":0.1,"k":1}},"trials":[{"arms":[{"role":"intervention","events":1},{"role":"control","events":2}]}]}}`.  
+  Consequence: missing `n` makes the trial unverifiable, but L2 counts only missing `events`, so this row is silently omitted.
+
+- **Instrument reading a DIFFERENT COPY**: line 120.  
+  Exact input: `python scripts/precision_sample_gate.py --selftest` from any checkout whose intended MITRAL fixture is not exactly `F:\E156\outputs\codex-corpus-scan\extract\full_run\MITRAL_FUNCMR_REVIEW.html.canonical.json`.  
+  Consequence: the negative selftest validates a hardcoded external object, not necessarily the corpus/worktree being changed.
+
+- **Silent skipped work can report pass**: lines 91-94.  
+  Exact input: glob over `bad.html.canonical.json` containing `{` plus `good.html.canonical.json` containing `{"canonical":{"trials":[{"effect":{"measure":"OR","scale":"log","variance":4},"arms":[{"role":"intervention","events":1,"n":2},{"role":"control","events":1,"n":2}]}]}}`.  
+  Consequence: the malformed object is discarded and the sweep can exit 0 from the remaining PASS row.
+
+No proven defect: string-a-fix-removes probe; own-comment idempotency guard; CRLF/LF text comparison; merged-cell/off-by-one; zero conflated with absent; negation dropped.
+tokens used
+25,159
+Defects found:
+
+- **Check CANNOT FAIL / STATUS CODE wrapper**: lines 170-214.  
+  Exact input: set `PSG_L2=F:\tmp\one.html.canonical.json`, file content `{"canonical":{"result":{"reported":{"logEffect":0.1,"k":1}},"trials":[{"arms":[]}]}}`, then run `python scripts/precision_sample_gate.py --glob F:\tmp\one.html.canonical.json`.  
+  Consequence: `sys.exit(main())` runs before L2 is defined or checked, so the advertised L2 gate never fires in normal script execution.
+
+- **STATUS CODE reporting wrapper, not work**: lines 202-214.  
+  Exact input: same file as above, then run `python -c "import scripts.precision_sample_gate"` with `PSG_L2=F:\tmp\one.html.canonical.json`.  
+  Consequence: L2 can print that pooled objects rest on missing counts but has no non-zero exit path, so a CI/import wrapper exits 0 after detecting the condition.
+
+- **SELECTOR keyed to too-narrow field path**: lines 193-195.  
+  Exact input to `l2([path])`: `{"canonical":{"result":{"reported":{"logEffect":0.1,"k":1}},"trials":[{"arms":[{"role":"intervention","events":1},{"role":"control","events":2}]}]}}`.  
+  Consequence: missing `n` makes the trial unverifiable, but L2 counts only missing `events`, so this row is silently omitted.
+
+- **Instrument reading a DIFFERENT COPY**: line 120.  
+  Exact input: `python scripts/precision_sample_gate.py --selftest` from any checkout whose intended MITRAL fixture is not exactly `F:\E156\outputs\codex-corpus-scan\extract\full_run\MITRAL_FUNCMR_REVIEW.html.canonical.json`.  
+  Consequence: the negative selftest validates a hardcoded external object, not necessarily the corpus/worktree being changed.
+
+- **Silent skipped work can report pass**: lines 91-94.  
+  Exact input: glob over `bad.html.canonical.json` containing `{` plus `good.html.canonical.json` containing `{"canonical":{"trials":[{"effect":{"measure":"OR","scale":"log","variance":4},"arms":[{"role":"intervention","events":1,"n":2},{"role":"control","events":1,"n":2}]}]}}`.  
+  Consequence: the malformed object is discarded and the sweep can exit 0 from the remaining PASS row.
+
+No proven defect: string-a-fix-removes probe; own-comment idempotency guard; CRLF/LF text comparison; merged-cell/off-by-one; zero conflated with absent; negation dropped.

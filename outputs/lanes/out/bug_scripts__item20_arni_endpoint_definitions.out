@@ -1,0 +1,843 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a031e1-a81f-7860-9afd-4ec90df3978a
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/item20_arni_endpoint_definitions.py
+
+--- THE FILE, IN FULL ---
+"""ITEM 20, row 1 of 22: arni-hfref -- the flagship's three unread endpoint definitions.
+
+WHAT THIS RECORDS, and it is not what was expected
+    An earlier lane recorded `pool_uniformity.outcome_definition = ["identical",
+    ...]` on this object. That is an ASSERTION about four trials. Three of the
+    four trial rows carried no `outcome_definition` at all, so the assertion
+    stood on nothing a reader could check, and the page said so on its face:
+    three rows reading "No endpoint definition is recorded for this trial. Its
+    effect was pooled without one."
+
+    Reading the four registrations word for word confirms the assertion for
+    THREE of the four trials and REFUTES the object's claim about the fourth.
+
+    PARADIGM-HF and PARALLEL-HF register this composite as their PRIMARY.
+    PARACHUTE-HF registers it as its FIRST SECONDARY. Both facts were already
+    claimed by the object and both are now confirmed from the registry text.
+
+    ANSWER-HF DOES NOT REGISTER THIS ENDPOINT AT ANY RANK. NCT04853758 carries
+    two primary outcomes (change in LVEF; a four-level hierarchical win ratio)
+    and eighteen secondary outcomes, and none of the twenty is a first-event
+    union of cardiovascular death and heart-failure hospitalisation. The object
+    recorded its rank as "a secondary endpoint" and that is FALSE.
+
+WHAT THIS DELIBERATELY DOES NOT DO
+    It does not remove ANSWER-HF and it does not change one published number.
+    Removing it would move the pooled hazard ratio from 0.8715 (0.7461-1.0181),
+    which crosses one, to 0.8333 (0.7473-0.9292), which does not -- a null
+    converted into a positive result by dropping the trial that disagrees. A
+    withdrawal needs the same evidence as a claim. What an unregistered endpoint
+    justifies is DISCLOSURE and a risk-of-bias entry, not deletion; and whether
+    an unregistered publication-only endpoint should be ELIGIBLE at all is an
+    eligibility-rule change, which is parked, not decided here.
+
+USAGE  python scripts/item20_arni_endpoint_definitions.py
+"""
+from __future__ import annotations
+import io
+import json
+import os
+import sys
+
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+ROOT = os.path.dirname(HERE)
+OBJ = os.path.join(ROOT, "ssot", "arni-hfref", "arni-hfref.json")
+OID = "cvdeath_or_hfh_first"
+READ = "2026-08-18"
+
+DEFS = {
+    "paradigm-hf": {
+        "outcome_definition": (
+            "Number of Participants That Had First Occurrence of the Composite "
+            "Endpoint, Which is Defined as Either Cardiovascular (CV) Death or "
+            "Heart Failure (HF) Hospitalization"),
+        "outcome_definition_source": {
+            "description_verbatim": (
+                "Number of participants that had first occurrence of the composite "
+                "endpoint, which is defined as either CV death or HF hospitalization "
+                "due to HF."),
+            "time_frame": "up to 51 months",
+            "endpoint_rank": "PRIMARY",
+            "source": "registry",
+            "source_field": "protocolSection.outcomesModule.primaryOutcomes[0].measure",
+            "source_url": "https://clinicaltrials.gov/study/NCT01035255",
+            "read_utc": READ,
+            "agrees_with_the_others": (
+                "Cardiovascular death or heart-failure hospitalisation, counted at "
+                "the FIRST occurrence. The registry's own title says “First "
+                "Occurrence” in words, so this row establishes the first-event "
+                "structure of the pooled estimand rather than assuming it. Identical "
+                "in components and in first-event structure to PARALLEL-HF and to "
+                "PARACHUTE-HF's first secondary. The row previously stood on a "
+                "publication sentence, which happened to say the same thing; the "
+                "registry says it in the record that fixes what was counted."),
+        },
+    },
+    "parachute-hf": {
+        "outcome_definition": (
+            "Percentage of Participants With First Hospitalization Due to Heart "
+            "Failure or Death From Cardiovascular Causes"),
+        "outcome_definition_source": {
+            "description_verbatim": (
+                "NO DESCRIPTION IS RECORDED IN THIS REGISTRY FIELD. The registration "
+                "carries a description for its primary win-ratio endpoint and none "
+                "for this secondary. The title and the time frame are the whole of "
+                "what the registry states, and they are quoted here in full rather "
+                "than supplemented from the publication."),
+            "time_frame": (
+                "From the date of randomization to the first occurrence (total follow "
+                "up time up to approximately 36 months)"),
+            "endpoint_rank": "SECONDARY (the first of six secondary outcomes)",
+            "source": "registry",
+            "source_field": "protocolSection.outcomesModule.secondaryOutcomes[0].measure",
+            "source_url": "https://clinicaltrials.gov/study/NCT04023227",
+            "read_utc": READ,
+            "agrees_with_the_others": (
+                "Cardiovascular death or heart-failure hospitalisation, counted to "
+                "the first occurrence -- which the time frame states in words. Same "
+                "components and same first-event structure as PARADIGM-HF and "
+                "PARALLEL-HF. The registry's MEASURE is a percentage of participants "
+                "and this object stores a hazard ratio taken from the publication; "
+                "those are two analyses of the same registered endpoint, not two "
+                "endpoints. The registry's posted results give 33.5% against 36.7%, "
+                "which is 155/462 and 169/460 -- the counts this object already "
+                "held, confirmed digit for digit against a source it had not used."),
+            "registry_results_confirm_the_stored_counts": (
+                "resultsSection outcome “Percentage of Participants With First "
+                "Hospitalization Due to Heart Failure or Death From Cardiovascular "
+                "Causes”: 33.5 in the sacubitril/valsartan group, 36.7 in the "
+                "enalapril group. 155/462 = 33.55% and 169/460 = 36.74%. The stored "
+                "arm sizes and event counts are the registry's own."),
+        },
+    },
+    "answer-hf": {
+        "outcome_definition": (
+            "NOT REGISTERED. NCT04853758 registers no outcome measure -- primary, "
+            "secondary or other -- that is a first-event union of cardiovascular "
+            "death and heart-failure hospitalisation. The quantity this object "
+            "pools from this trial exists only in the publication."),
+        "outcome_definition_source": {
+            "description_verbatim": (
+                "There is no field to quote. The registration's TWO primary outcome "
+                "measures are “Change of left ventricular ejection fraction "
+                "(LVEF)” and “Win Ratio Analysis”, the latter "
+                "described as “Hierarchical composite analysis composed of: 1. "
+                "Time to cardiovascular death; 2. Time to first heart failure "
+                "hospitalization; 3. Relative change in NT-proBNP from baseline to "
+                "final visit; 4. Relative change in left ventricular ejection "
+                "fraction from baseline to final visit”. Its EIGHTEEN secondary "
+                "outcome measures are Holter, echocardiographic, functional-class and "
+                "biomarker measures: premature ventricular beats (count and "
+                "percentage), ventricular arrhythmia density, sustained ventricular "
+                "tachycardia rate, NYHA class, six ventricular-remodelling "
+                "measurements, urea, creatinine, potassium, sodium, systemic "
+                "cytokines, microRNA and NT-proBNP. There are no “other” "
+                "outcome measures. None of the twenty is the endpoint pooled here."),
+            "time_frame": "not applicable -- the endpoint is not registered",
+            "endpoint_rank": "NOT REGISTERED AT ANY RANK",
+            "source": "registry",
+            "source_field": (
+                "protocolSection.outcomesModule -- primaryOutcomes (2), "
+                "secondaryOutcomes (18), otherOutcomes (0), enumerated in full and "
+                "none matching"),
+            "source_url": "https://clinicaltrials.gov/study/NCT04853758",
+            "read_utc": READ,
+            "registry_state_when_read": (
+                "overallStatus UNKNOWN, hasResults false, enrolment 200 (ESTIMATED), "
+                "last update 2024-04-03. No results are posted, so the registry "
+                "cannot be asked for this trial's counts the way PARACHUTE-HF's were."),
+            "agrees_with_the_others": (
+                "IT CANNOT BE ASKED TO. The other three trials' endpoint definitions "
+                "agree with each other in the registry; this one has no registry "
+                "definition to agree or disagree. The publication's Table 2 row is "
+                "“Cardiovascular death and heart failure hospitalization 12/95 "
+                "(12.6) 8/95 (8.4) 1.83 (0.72-4.67) 0.205”, and the row is a "
+                "first-event UNION despite the caption's “and”: Table 2's "
+                "own arithmetic gives cardiovascular death 7 plus heart-failure "
+                "hospitalisation 7 against a composite of 12, so two patients had "
+                "both and are counted once. The COMPONENTS therefore match the other "
+                "three and the STRUCTURE matches them. What does not match is the "
+                "status of the endpoint: theirs were fixed before the data, this one "
+                "was not."),
+            "what_this_costs_the_pool": (
+                "This is a selective-reporting exposure, not an estimand mismatch. "
+                "An endpoint absent from the registration cannot be shown to have "
+                "been specified before the results were seen, and the protection "
+                "every other row in this table has, this row does not. It is carried "
+                "into risk of bias and stated on the face of the page. It is NOT "
+                "treated as grounds for removing the trial: removing it moves the "
+                "pooled hazard ratio from 0.8715 (0.7461-1.0181) to 0.8333 (0.7473-"
+                "0.9292), turning a result that crosses one into one that does not. "
+                "Dropping the only trial that disagrees, on a defect that argues for "
+                "disclosure, would manufacture the positive finding this review does "
+                "not have."),
+        },
+    },
+}
+
+RANK_FIX = {
+    "answer-hf": (
+        "NOT REGISTERED AT ANY RANK. NCT04853758 registers two primary outcomes "
+        "-- change in left ventricular ejection fraction, and a four-level "
+        "hierarchical win ratio -- and eighteen secondary outcomes, none of which "
+        "is this composite. The endpoint pooled here appears only in the "
+        "publication. The object previously recorded this row as “a secondary "
+        "endpoint”, which the registration refutes."),
+}
+
+UNIFORMITY = {
+    "effect_measure": [
+        "identical",
+        "All FOUR report a hazard ratio for the time to a first event of the same "
+        "composite. No conversion is performed and none would be valid: the trials "
+        "excluded from this pool are excluded largely because their quantities "
+        "cannot be converted into this one. This row read “all three” "
+        "until 2026-08-18, when the pool had been k=4 for a day; the whole of this "
+        "table described the pool as it stood before ANSWER-HF was resolved into "
+        "it, which is the table that justifies the pool describing a different "
+        "pool from the one published.",
+    ],
+    "comparator": [
+        "identical",
+        "All four randomised against enalapril at a target of 10 mg twice daily. "
+        "ANSWER-HF's own registration names enalapril as the comparator. This is "
+        "the axis on which PARAGON-HF, PARAGLIDE-HF and PARADISE-MI fail, and it "
+        "is checked rather than assumed.",
+    ],
+    "outcome_definition": [
+        "identical in the three that register it",
+        "Cardiovascular death or hospitalization for heart failure, whichever "
+        "comes first. PARADIGM-HF's registered title says “First Occurrence "
+        "of the Composite Endpoint, Which is Defined as Either Cardiovascular (CV) "
+        "Death or Heart Failure (HF) Hospitalization”; PARALLEL-HF's "
+        "registered description says “either cardiovascular (CV) death or "
+        "heart failure (HF) hospitalization”; PARACHUTE-HF's registered "
+        "secondary says “First Hospitalization Due to Heart Failure or Death "
+        "From Cardiovascular Causes”, counted “to the first "
+        "occurrence”. All three are read from the registry and quoted in full "
+        "in the endpoint-definition table. ANSWER-HF REGISTERS NO SUCH ENDPOINT, "
+        "so on that trial there is nothing to compare and this row does not claim "
+        "there is. Its publication reports the same two components in the same "
+        "first-event structure, which is agreement of the reported quantity and "
+        "not of the registered one.",
+    ],
+    "endpoint_registered_in_its_own_trial": [
+        "differs",
+        "THREE OF THE FOUR TRIALS REGISTERED THIS ENDPOINT BEFORE THEY RAN; ONE DID "
+        "NOT. PARADIGM-HF and PARALLEL-HF register it as their primary outcome and "
+        "PARACHUTE-HF as the first of six secondaries. ANSWER-HF registers neither "
+        "it nor anything equivalent, at any rank, and its registration is not "
+        "silent by omission -- it declares twenty outcome measures and this is not "
+        "among them. A quarter of this pool therefore has no protection against "
+        "selective outcome reporting, and the trial concerned is the one whose "
+        "estimate is furthest from the rest. It stays in, because removing it "
+        "would convert a null into a positive result, and a withdrawal needs the "
+        "same evidence as a claim.",
+    ],
+    "aetiology_of_heart_failure": [
+        "differs",
+        "PARACHUTE-HF and ANSWER-HF admitted only chronic Chagas cardiomyopathy, "
+        "confirmed serologically at entry -- a distinct disease with a different "
+        "natural history and a high burden of conduction disease. Neither "
+        "PARADIGM-HF nor PARALLEL-HF restricted aetiology at all, so the pool "
+        "crosses two narrow-aetiology trials with two unrestricted ones, and that "
+        "is the most substantive thing it crosses. It is also HALF the pool rather "
+        "than a third, which is what this row said before ANSWER-HF was counted "
+        "into it. What the contributing trials' own sources say about their "
+        "aetiology MIX differs in how much they say, and this row says only what "
+        "they support: the EPAR records ischaemic cardiac disease as the primary "
+        "cause of heart failure in the majority of PARADIGM-HF participants, and "
+        "the staged sources for PARALLEL-HF characterise its population by "
+        "ejection fraction and functional class without describing its aetiology "
+        "mix at all. An earlier version of this row described both unrestricted "
+        "trials as largely ischaemic or idiopathic; a review leg was right that "
+        "the second half of that had no basis in anything staged, and it is the "
+        "more serious kind of over-claim for sitting inside the table that "
+        "justifies pooling across aetiology.",
+    ],
+    "ejection_fraction_ceiling": [
+        "differs",
+        "40% or less in PARADIGM-HF and PARACHUTE-HF; 35% or less in PARALLEL-HF; "
+        "ANSWER-HF enrolled Chagas cardiomyopathy with reduced ejection fraction. "
+        "All are within the reduced-ejection-fraction population the question "
+        "fixes, and they are not the same entry criterion.",
+    ],
+    "blinding": [
+        "differs",
+        "PARADIGM-HF and PARALLEL-HF were double-blind. PARACHUTE-HF was "
+        "OPEN-LABEL with blinded endpoint adjudication. Blinded adjudication "
+        "protects the outcome ascertainment and does not protect the management "
+        "decisions that lead to a hospitalization, so the difference is carried "
+        "into the GRADE risk-of-bias domain rather than dismissed here.",
+    ],
+    "endpoint_rank_within_its_own_trial": [
+        "differs",
+        "This composite is the PRIMARY endpoint of PARADIGM-HF and of PARALLEL-HF. "
+        "In PARACHUTE-HF it is the first SECONDARY endpoint, the primary there "
+        "being a hierarchical composite analysed by win ratio. A trial is not "
+        "powered for its secondary endpoints, and the pool crosses that. IN "
+        "ANSWER-HF IT HAS NO RANK, because it is not registered: that trial's "
+        "registered primaries are change in ejection fraction and a four-level "
+        "hierarchical win ratio. “Unregistered” is a fourth state on "
+        "this axis and not a third kind of secondary.",
+    ],
+    "follow_up_length": [
+        "differs",
+        "Medians of 27 months, 25.2 months and 33.9 months in the three trials "
+        "that report one; ANSWER-HF's registered outcome window is 6 months, the "
+        "shortest in the pool by a factor of four. PARADIGM-HF's follow-up ended "
+        "early by prespecified rule when a boundary for overwhelming benefit was "
+        "crossed, which is a different reason for a follow-up length than the "
+        "others have. A composite counted to first event over 6 months and the "
+        "same composite counted over 34 months are not the same exposure to risk, "
+        "and this is the dimension on which the pool's shortest trial is also its "
+        "most discrepant estimate.",
+    ],
+    "analysis_population": [
+        "differs",
+        "All four use the trial's own full analysis set. In PARACHUTE-HF and "
+        "ANSWER-HF that equals the randomised total; in PARADIGM-HF and PARALLEL-HF "
+        "it is smaller, and each cell shows the arithmetic from the randomised "
+        "total rather than leaving the difference unexplained.",
+    ],
+}
+
+ESTIMAND_POP = (
+    "each trial's own full analysis set, which in two of the four is smaller than "
+    "the randomised total for reasons the trial states and this object reproduces")
+
+
+def main():
+    with io.open(OBJ, encoding="utf-8") as fh:
+        obj = json.load(fh)
+
+    changed = []
+
+    by_id = {t["id"]: t for t in obj["inputs"]["trials"]}
+    for tid, payload in DEFS.items():
+        bo = by_id[tid]["by_outcome"][OID]
+        if bo.get("outcome_definition"):
+            print("REFUSING to overwrite an existing definition on %s" % tid)
+            return 1
+        bo["outcome_definition"] = payload["outcome_definition"]
+        bo["outcome_definition_source"] = payload["outcome_definition_source"]
+        changed.append("definition recorded: %s" % tid)
+
+    res = obj["results"]["by_outcome"][OID]
+    for row in res["per_trial"]:
+        fix = RANK_FIX.get(row.get("trial_id") or row.get("id"))
+        if fix:
+            row["endpoint_rank_in_its_own_trial_superseded"] = \
+                row["endpoint_rank_in_its_own_trial"]
+            row["endpoint_rank_in_its_own_trial"] = fix
+            changed.append("rank corrected: %s" % (row.get("trial_id") or row.get("id")))
+
+    old_uniformity = res["pool_uniformity"]
+    res["pool_uniformity"] = UNIFORMITY
+    res["pool_uniformity_superseded_2026_08_18"] = {
+        "why": (
+            "Every row of the previous table described THREE trials while the pool "
+            "published FOUR. ANSWER-HF appeared in none of the nine rows. The table "
+            "that justifies the pool was describing a different pool from the one on "
+            "the page. Kept here so the change can be read rather than taken on "
+            "trust; no pooled number changed."),
+        "rows": old_uniformity,
+    }
+    changed.append("pool_uniformity rewritten k=3 -> k=4, one row added")
+
+    est = obj["outcomes"][0]["estimand"]
+    if "two of the three" in (est.get("analysis_population") or ""):
+        est["analysis_population"] = ESTIMAND_POP
+        changed.append("estimand.analysis_population: 'two of the three' -> 'two of the four'")
+
+    with io.open(OBJ, "w", encoding="utf-8") as fh:
+        json.dump(obj, fh, ensure_ascii=False, indent=1)
+        fh.write("\n")
+
+    for c in changed:
+        print("  " + c)
+    print("%d changes written to %s" % (len(changed), OBJ))
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+
+codex
+I’ll pin line numbers against the module and only report defects that can be demonstrated from this file plus an explicit JSON input shape.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$paths = @('"'F:\\ProjectIndex\\INDEX.md','F:\\E156\\rewrite-workbook.txt','scripts\\item20_arni_endpoint_definitions.py'); foreach ("'$p in $paths) { if (Test-Path -LiteralPath $p) { Write-Output "FOUND $p" } else { Write-Output "MISSING $p" } }' in F:\rapidmeta-ssot-shell
+ succeeded in 2204ms:
+FOUND F:\ProjectIndex\INDEX.md
+FOUND F:\E156\rewrite-workbook.txt
+FOUND scripts\item20_arni_endpoint_definitions.py
+
+codex
+The required session files are present. I’m using the pasted file as the review record and the local copy only to get stable line numbers.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Get-Content -LiteralPath 'F:\\ProjectIndex\\INDEX.md' -TotalCount 40" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Get-Content -LiteralPath 'F:\\E156\\rewrite-workbook.txt' -TotalCount 40" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=1; Get-Content -LiteralPath '"'scripts\\item20_arni_endpoint_definitions.py' | ForEach-Object { '{0,4}: {1}' -f "'$i, $_; $i++ } | Select-Object -Skip 330 -First 60' in F:\rapidmeta-ssot-shell
+ succeeded in 425ms:
+<!-- sentinel:skip-file - portfolio registry; absolute paths ARE the data -->
+# C: Drive Project Index
+> **Last updated**: 2026-05-14 (C:\HTML apps focused repair batch continued: hub shell launch fix, static contracts across ten HTML app repos, NMA/living-meta/nma-dose-response landing and asset-link repairs, and NMA doc hardcoded-path cleanup. Prior SheafNMA v0.2.0, D-drive legacy smoke-contract continuation, CardioOracle lifecycle status freeze, C-drive model/project smoke-contract continuation, mahmood789 consolidation, Sentinel/Overmind JSONL and verification repair, C-drive reproducibility audit continuation, C-drive verification repair, D-drive repair batch, superapp, C-drive sweep, home-folder hardening, Trial Truthfulness Atlas, and portfolio notes retained below.)
+
+### C:\HTML apps focused repair batch (2026-05-14)
+> - `C:\HTML apps\hub\`: added a launchable `index.html` shell and static contract tests for required registry/runtime wiring; fixed `app.js` local `file://` launch resolution so the hub opened from `hub\index.html` links sibling apps from the parent HTML-apps directory instead of nesting paths under `hub`. Verification: `pytest -q -p no:cacheprovider` -> `3 passed`; `node --check app.js && node --check projects.js` -> PASS; headless Chrome smoke on `file:///mnt/c/HTML%20apps/hub/index.html` confirmed the page title and sibling app links. GitHub pushed: `mahmood726-cyber/hub` main `c1a6725`.
+> - `C:\HTML apps\evidence-board\`, `C:\HTML apps\focus-studio\`, `C:\HTML apps\kanban-lab\`: added pytest-visible static app shell contracts covering title/description, localStorage persistence hooks, key controls, and absence of unresolved templates or hardcoded local drive paths; added repo `.gitignore` entries for Python caches and `PROGRESS.md`. Verification: each `pytest -q -p no:cacheprovider` -> `2 passed` with the existing pytest `cache_dir` warning; scoped `git diff --check` -> PASS. GitHub pushed: `evidence-board` master `9a87c8b`, `focus-studio` master `0fa728b`, `kanban-lab` master `81cad38`.
+> - `C:\HTML apps\nma-pro-v2\`: fixed the landing page's broken app links from absent v6/v7 asset filenames to the current `e156-submission/assets/nma-pro-v8.0.html`, added static link-resolution contracts, and removed Sentinel P0 hardcoded local OneDrive paths from legacy docs. Verification: `pytest -q -p no:cacheprovider tests/test_smoke.py tests/test_static_links.py` -> `3 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=1 INFO=302` (pre-existing tracked autogen warning plus HTML a11y INFO). GitHub pushed: master `a2834e7` for the link fix and master `a74e385` for the P0 doc cleanup.
+> - `C:\HTML apps\IPD-Meta-Pro\` and `C:\HTML apps\Truthcert1\`: added static link-resolution contracts for landing-page local assets and canonical app entrypoints. Verification: `IPD-Meta-Pro` `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; `Truthcert1` same command -> `2 passed` with existing pytest `cache_dir` warning. GitHub pushed: `IPD-Meta-Pro` master `b26ee09`, `Truthcert1` master `81eddd3`.
+> - `C:\HTML apps\living-meta\`: repaired landing-page validation links that pointed to a missing HTML asset and an out-of-repo sibling path; linked the existing validation and limitations docs instead, and added a static link-resolution contract. Verification: `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=8` (pre-existing HTML a11y INFO). GitHub pushed: master `c3c8a9b`.
+> - `C:\HTML apps\Pairwiseai\`: added a static landing-page contract covering local link resolution, absence of unresolved templates/local drive paths, and the key app entrypoints under `e156-submission/assets`. Verification: `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=1731` (pre-existing HTML a11y INFO). GitHub pushed: master `2ade493`.
+> - `C:\HTML apps\nma-dose-response-app\`: pushed the existing smoke-blocker commit and added an E156 asset-bundle repair so `e156-submission\assets\index*.html` resolves its JS runtime dependencies from inside the assets folder; added a static link-resolution contract covering root and E156 app entrypoints. Verification: `pytest -q -p no:cacheprovider tests/test_smoke.py tests/test_static_links.py` -> `4 passed` with the existing pytest `cache_dir` warning; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=442` (pre-existing HTML a11y INFO). GitHub pushed: master `e95fae0` and `96594b6`.
+> - Push gate: Windows Git credential path succeeded after WSL Git lacked HTTPS credentials. Sentinel pre-push/manual scan verdicts were BLOCK=0; evidence-board INFO=18, focus-studio INFO=10, kanban-lab INFO=10, living-meta INFO=8, Pairwiseai INFO=1731, nma-dose-response-app INFO=442 (pre-existing P2 HTML accessibility notes); hub push emitted no Sentinel findings.
+> - Existing unrelated dirty files were left unstaged in these repos, mainly protocol/license/doc edits and untracked `paper\` outputs in the three app repos, plus pre-existing hub metadata/submission/style edits.
+
+### SheafNMA (2026-05-12; v0.2.0 real-NMA-corpus validation + 36-cell Ã— 1000-rep simulation + methods paper draft)
+> - `C:\Models\SheafNMA\` â€” cellular-sheaf inconsistency localization for network meta-analysis. v0.1.0 (2026-04-07) was math + single-file HTML dashboard + E156 #153 micro-paper on a synthetic 12-contrast network. v0.2.0 refactored the 457-LOC `generate_figures.py` into a `sheafnma/` package (`core`, `io`, `simulate`, `comparators`, `r_bridge`), validated on 13 R-netmeta built-in NMAs, and shipped a methods-paper draft for Research Synthesis Methods.
+> - Method: precision-weighted coboundary `F[e, treat1] = -1/SE_e, F[e, treat2] = +1/SE_e`; sheaf Laplacian `L = Fáµ€F` (symmetric PSD); WLS-solve node estimates with node 0 anchored; per-edge residuals `r_e = dÌƒ_e âˆ’ (F x*)_e` localize inconsistency; **Global Inconsistency Index** `GII = Î£ rÂ²` is the global statistic. One algebraic object yields both global + per-edge â€” complements (not replaces) node-splitting.
+> - Real-corpus headline: across **13 R-netmeta built-in NMAs** (Senn 2013 diabetes, Dias smokingcessation, Dong 2013 thrombolytics, Linde 2015/2016 acupuncture, Salanti antimanic, Baker, Dogliotti, Franchini, Gurusamy, Stowe, Woods, dietaryfat, parkinson) the global design-by-treatment Ï‡Â² (Higgins 2012) failed to reject in all 13. **SheafNMA flagged â‰¥1 localized inconsistency edge in 5 of those 13 (38.5%)** at the Youden-frozen threshold of **2.6912** â€” networks that look globally consistent harbor at least one inconsistent edge the global test misses.
+> - Simulation rigor: 36-cell grid (n_treatments âˆˆ {4,6,8} Ã— n_studies_per_edge âˆˆ {3,5,10} Ã— Ï„_inc âˆˆ {0,0.2,0.5,1.0}) Ã— **1000 replications per cell**, held-out training cell at (6,5,0.5) for Youden's-J threshold selection (frozen before evaluating remaining 35 cells). Type-I error at Ï„_inc=0 was **0.000 across all cells**. Mean per-edge sensitivity 0.981 / specificity 0.945 at Ï„_inc=0.5.
+> - Comparator suite: DBT-Ï‡Â² (Higgins 2012 Â§3.2, pure-Python), Bucher loop closure (Bucher 1997, pure-Python), node-splitting (Dias 2010, via `netmeta::netsplit` shelled to R 4.5.2). Per-edge agreement with node-splitting was 45.4% â€” asymmetric: SheafNMA flags 12/506 = 2.4% of edges vs node-splitting's 250/436 = 57% at p<0.05 Bonferroni-uncorrected (the calibrated Youden cut is much more conservative than a per-edge Î±-test). Â§4.2 of the paper explicitly explains this rather than presenting the 45.4% bare.
+> - Corpus export: `corpus/export_netmeta.R` handles 7 distinct netmeta dataset formats (contrast-level TE/seTE, arm-based event/n, arm-based mean/sd/n, wide multi-arm OR/MD, three-arm smokingcessation, rate-based IRR/person-years) and exports all 13 to `corpus/data/*.csv` in the sheafnma standard schema (`study, treat1, treat2, effect, se`).
+> - GitHub: `https://github.com/mahmood726-cyber/sheaf-nma` (master `6c7db13`, tag `v0.2.0`). Pages LIVE: `https://mahmood726-cyber.github.io/sheaf-nma/` (Phase-1 dashboard unchanged in v0.2). 33 tests passing; Sentinel BLOCK=0 WARN=0 (2 INFO = pre-existing HTML a11y items in the v0.1 dashboard).
+> - Workbook entry: `[153/919] SheafNMA`. CURRENT BODY updated 2026-05-12 to the v0.2 156-word / 7-sentence body (replaces v0.1 synthetic-"smoking cessation" framing with the real netmeta corpus). SUBMITTED `[ ]`; YOUR REWRITE preserved untouched per workbook protection rules. Target: Research Synthesis Methods full methods paper (`paper/sheafnma_v2.md`, 1190 words drafted; [TODO] prose blocks in Â§1 Background / Â§4.3 case studies / Â§5 Discussion) + SynthÄ“sis Methods Note companion (`paper/methods_note.md`, 156-word).
+> - Known landmine: `Dong2013` netsplit fails inside netmeta's multi-arm validator ("wrong number of comparisons"); SheafNMA + DBT + Bucher still run on it, only `netsplit_p` column is blank for its 70 edges.
+> - v0.2 deferrals (spec Â§10): multi-arm covariance correction (single-D stalks only), higher-D stalks (Phase 1 Â§3.4 future work), Bayesian sheaf priors, OTS / Bitcoin anchor (broken on Py 3.13 Windows per `lessons.md`).
+
+### hksj-q-floor-atlas (2026-05-12; 8th Pairwise70 atlas; tags prereg-v0.0.1 + v0.1.0)
+> - `C:\Projects\hksj-q-floor-atlas\` â€” 8th calibration atlas in the Pairwise70 series. Sister to `cochrane-modern-re` (engine source), `repro-floor-atlas`, `responder-floor-atlas`, `trial-truthfulness-atlas`, `africa-tb-atlas`, `pactr-hiddenness-atlas`, `africa-hiv-prep-atlas`.
+> - Question: how often does omitting the `max(1, Q/(k-1))` floor on HKSJ variance, in the I^2=0 regime where un-floored HKSJ narrows below REML+Wald, overstate precision across the Cochrane CDSR? Pre-registered via `prereg-v0.0.1` tag + 4 Internet Archive snapshots (Bitcoin OTS deferred â€” Python 3.13 SSL libeay32 bug per lessons.md; web-stamper fallback documented).
+> - Headline: D_1 (I^2=0, k>=2, converged) = 3,677 MAs = 57.6% of corpus. On D_1a (Q>0, n=3,536): median CI-width ratio (floored / un-floored) = 3.64x (IQR 1.60-10.56; 95th pct 57.4x); significance lost in 17.08% of MAs. D_1b (Q=0, n=141 = 3.83% of D_1): sig_loss 24.8%, ratio unbounded â€” un-floored HKSJ SE is exactly zero (the floor effect is unbounded); see `docs/AMENDMENTS.md` entry 1 for split rationale.
+> - Per k-stratum medians: k=2: 4.26x (sig_loss 8.6%); k=3: 3.64x (12.9%); k=4-5: 3.10x (13.1%); k=6-9: 3.18x (17.3%); k>=10: 3.80x (25.1%). sig_loss increases with k because higher-k pooled effects sit closer to null, so floor widening crosses zero more often.
+> - Engine: independent metafor pass via fork of cochrane-modern-re's `run_metafor.R` minus the floor block. Input parquet SHA-256 pinned in `docs/spec.md` sec.1.5 (`31434fb118c6ec44a025eeb43a90e35ef9e050711fa45aa2cb5c1244b2d89751`). 3 hand-verified golden MAs match metafor reference within 1e-6.
+> - GitHub: `https://github.com/mahmood726-cyber/hksj-q-floor-atlas` (master + tags `prereg-v0.0.1` and `v0.1.0`). Pages LIVE: `https://mahmood726-cyber.github.io/hksj-q-floor-atlas/`.
+> - 64 tests; Sentinel BLOCK=0 WARN=0 INFO=0; 7 IA snapshots recorded in `docs/preregistration.md`.
+> - Workbook entry: `[920/920] hksj-q-floor-atlas`; target SynthÄ“sis Methods Note (340w draft, â‰¤400 cap).
+> - v0.2 candidates (NOT in v0.1.0): published-CI matching ("is THIS Cochrane review wrong?"), PM/SJ/Bayesian Ï„Â² robustness, DL re-pooling, Bitcoin OTS once Python 3.13 issue is resolved.
+
+### D-drive legacy smoke-contract continuation (2026-05-12)
+> - `D:\Projects\mahmood789\786-MIII-Mean-single-group\`: fixed the placeholder issue-tracker link in `README.md` and added a pytest-visible static contract for the Shiny app package surface, sample-data schema, metafor workflow, downloads, and absence of local paths/template links. Verification: `pytest -q -p no:cacheprovider` -> `2 passed`; `git diff --check` -> PASS.
+
+ succeeded in 464ms:
+E156 REWRITE WORKBOOK
+sentinel:skip-file
+sentinel:claim-language-allow
+(Sentinel markers above:
+ - sentinel:skip-file: this workbook intentionally contains C:\Users\... PATH:
+   lines pointing to each project's local source directory â€” they're metadata,
+   not code. The marker keeps Sentinel from emitting ~16 P0 hardcoded-path
+   BLOCKs every push.
+ - sentinel:claim-language-allow: CURRENT BODY entries are the AI-drafted
+   summaries that students rewrite into hedged language â€” flagging overclaim
+   words IN those drafts is the whole pedagogical point, not a defect.
+   File-scope marker here suppresses the ~1293 claim-language WARNs on the
+   CURRENT BODY entries; the YOUR REWRITE entries are where the hedging
+   discipline matters and remains lintable in the rendered student board.)
+
+DENOMINATOR CONVENTION (added 2026-05-06 after review-findings P1-5):
+  Each entry header is `[N/total]` where N = ordinal insertion index and
+  `total` = current portfolio size as of the most recent reconcile sweep.
+  Older entries are back-rewritten on milestone boundaries (rather than
+  preserving their insertion-time denominator) to keep
+  reconcile_counts.py from flagging "WORKBOOK DRIFT". The pre-commit
+  guard (scripts/check_workbook_commit.py) blocks commits that bundle a
+  denominator sweep with substantive content edits to existing entries.
+
+======================================================================
+
+INSTRUCTIONS:
+- Replace text under YOUR REWRITE with your body (at most 156 words, 7 sentences)
+- S1=Question S2=Dataset S3=Method S4=Result(number+interval) S5=Robustness S6=Interpretation S7=Boundary(limitation)
+- Leave YOUR REWRITE blank to keep current version
+- Run: python C:/E156/scripts/apply_rewrites.py          (validate)
+- Run: python C:/E156/scripts/apply_rewrites.py --apply (apply)
+
+AUTHORSHIP RULE (mandatory for every submission):
+- Mahmood Ahmad (MA) must NEVER be listed as first author and NEVER as
+  last (senior) author. The student rewriter is first author. Last/senior
+  author must be a faculty supervisor or co-investigator distinct from MA.
+  MA's position is middle-author only (e.g. role: data curation, software,
+  methodology, supervision-of-tooling). This applies to every paper in
+  this workbook regardless of contribution depth.
+
+ succeeded in 1516ms:
+ 331:         fix = RANK_FIX.get(row.get("trial_id") or row.get("id"))
+ 332:         if fix:
+ 333:             row["endpoint_rank_in_its_own_trial_superseded"] = \
+ 334:                 row["endpoint_rank_in_its_own_trial"]
+ 335:             row["endpoint_rank_in_its_own_trial"] = fix
+ 336:             changed.append("rank corrected: %s" % (row.get("trial_id") or row.get("id")))
+ 337: 
+ 338:     old_uniformity = res["pool_uniformity"]
+ 339:     res["pool_uniformity"] = UNIFORMITY
+ 340:     res["pool_uniformity_superseded_2026_08_18"] = {
+ 341:         "why": (
+ 342:             "Every row of the previous table described THREE trials while the pool "
+ 343:             "published FOUR. ANSWER-HF appeared in none of the nine rows. The table "
+ 344:             "that justifies the pool was describing a different pool from the one on "
+ 345:             "the page. Kept here so the change can be read rather than taken on "
+ 346:             "trust; no pooled number changed."),
+ 347:         "rows": old_uniformity,
+ 348:     }
+ 349:     changed.append("pool_uniformity rewritten k=3 -> k=4, one row added")
+ 350: 
+ 351:     est = obj["outcomes"][0]["estimand"]
+ 352:     if "two of the three" in (est.get("analysis_population") or ""):
+ 353:         est["analysis_population"] = ESTIMAND_POP
+ 354:         changed.append("estimand.analysis_population: 'two of the three' -> 'two of the four'")
+ 355: 
+ 356:     with io.open(OBJ, "w", encoding="utf-8") as fh:
+ 357:         json.dump(obj, fh, ensure_ascii=False, indent=1)
+ 358:         fh.write("\n")
+ 359: 
+ 360:     for c in changed:
+ 361:         print("  " + c)
+ 362:     print("%d changes written to %s" % (len(changed), OBJ))
+ 363:     return 0
+ 364: 
+ 365: 
+ 366: if __name__ == "__main__":
+ 367:     sys.exit(main())
+
+codex
+I found the likely failure surface in the write loop and rank rewrite. I’m checking whether the local JSON has the inputs needed to prove reachability, without treating unstated callers as evidence.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=1; Get-Content -LiteralPath '"'scripts\\item20_arni_endpoint_definitions.py' | ForEach-Object { '{0,4}: {1}' -f "'$i, $_; $i++ } | Select-Object -Skip 300 -First 45' in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "if (Test-Path -LiteralPath 'ssot\\arni-hfref\\arni-hfref.json') { @'
+import json
+from pathlib import Path
+p=Path('ssot/arni-hfref/arni-hfref.json')
+obj=json.loads(p.read_text(encoding='utf-8'))
+print('trials', [t.get('id') for t in obj['inputs']['trials']])
+OID='cvdeath_or_hfh_first'
+for t in obj['inputs']['trials']:
+    bo=t.get('by_outcome',{}).get(OID,{})
+    print(t.get('id'), 'outcome_definition_present=', 'outcome_definition' in bo, 'truthy=', bool(bo.get('outcome_definition')))
+for i,row in enumerate(obj['results']['by_outcome'][OID]['per_trial']):
+    print(i, row.get('trial_id'), row.get('id'), 'rank_present=', 'endpoint_rank_in_its_own_trial' in row)
+print('outcomes_len', len(obj.get('outcomes',[])))
+for i,o in enumerate(obj.get('outcomes',[])):
+    print(i, o.get('id'), o.get('estimand',{}).get('analysis_population'))
+'@ | python - } else { Write-Output 'missing json' }" in F:\rapidmeta-ssot-shell
+ succeeded in 1472ms:
+ 301:         "All four use the trial's own full analysis set. In PARACHUTE-HF and "
+ 302:         "ANSWER-HF that equals the randomised total; in PARADIGM-HF and PARALLEL-HF "
+ 303:         "it is smaller, and each cell shows the arithmetic from the randomised "
+ 304:         "total rather than leaving the difference unexplained.",
+ 305:     ],
+ 306: }
+ 307: 
+ 308: ESTIMAND_POP = (
+ 309:     "each trial's own full analysis set, which in two of the four is smaller than "
+ 310:     "the randomised total for reasons the trial states and this object reproduces")
+ 311: 
+ 312: 
+ 313: def main():
+ 314:     with io.open(OBJ, encoding="utf-8") as fh:
+ 315:         obj = json.load(fh)
+ 316: 
+ 317:     changed = []
+ 318: 
+ 319:     by_id = {t["id"]: t for t in obj["inputs"]["trials"]}
+ 320:     for tid, payload in DEFS.items():
+ 321:         bo = by_id[tid]["by_outcome"][OID]
+ 322:         if bo.get("outcome_definition"):
+ 323:             print("REFUSING to overwrite an existing definition on %s" % tid)
+ 324:             return 1
+ 325:         bo["outcome_definition"] = payload["outcome_definition"]
+ 326:         bo["outcome_definition_source"] = payload["outcome_definition_source"]
+ 327:         changed.append("definition recorded: %s" % tid)
+ 328: 
+ 329:     res = obj["results"]["by_outcome"][OID]
+ 330:     for row in res["per_trial"]:
+ 331:         fix = RANK_FIX.get(row.get("trial_id") or row.get("id"))
+ 332:         if fix:
+ 333:             row["endpoint_rank_in_its_own_trial_superseded"] = \
+ 334:                 row["endpoint_rank_in_its_own_trial"]
+ 335:             row["endpoint_rank_in_its_own_trial"] = fix
+ 336:             changed.append("rank corrected: %s" % (row.get("trial_id") or row.get("id")))
+ 337: 
+ 338:     old_uniformity = res["pool_uniformity"]
+ 339:     res["pool_uniformity"] = UNIFORMITY
+ 340:     res["pool_uniformity_superseded_2026_08_18"] = {
+ 341:         "why": (
+ 342:             "Every row of the previous table described THREE trials while the pool "
+ 343:             "published FOUR. ANSWER-HF appeared in none of the nine rows. The table "
+ 344:             "that justifies the pool was describing a different pool from the one on "
+ 345:             "the page. Kept here so the change can be read rather than taken on "
+
+ succeeded in 1508ms:
+trials ['paradigm-hf', 'parachute-hf', 'parallel-hf', 'answer-hf']
+paradigm-hf outcome_definition_present= True truthy= True
+parachute-hf outcome_definition_present= True truthy= True
+parallel-hf outcome_definition_present= True truthy= True
+answer-hf outcome_definition_present= True truthy= True
+0 paradigm-hf None rank_present= True
+1 parachute-hf None rank_present= True
+2 parallel-hf None rank_present= True
+3 answer-hf None rank_present= True
+outcomes_len 1
+0 cvdeath_or_hfh_first each trial's own full analysis set, which in two of the four is smaller than the randomised total for reasons the trial states and this object reproduces
+
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=1; Get-Content -LiteralPath '"'scripts\\item20_arni_endpoint_definitions.py' | ForEach-Object { '{0,4}: {1}' -f "'$i, $_; $i++ } | Select-Object -Skip 220 -First 90' in F:\rapidmeta-ssot-shell
+ succeeded in 1353ms:
+ 221:         "in the endpoint-definition table. ANSWER-HF REGISTERS NO SUCH ENDPOINT, "
+ 222:         "so on that trial there is nothing to compare and this row does not claim "
+ 223:         "there is. Its publication reports the same two components in the same "
+ 224:         "first-event structure, which is agreement of the reported quantity and "
+ 225:         "not of the registered one.",
+ 226:     ],
+ 227:     "endpoint_registered_in_its_own_trial": [
+ 228:         "differs",
+ 229:         "THREE OF THE FOUR TRIALS REGISTERED THIS ENDPOINT BEFORE THEY RAN; ONE DID "
+ 230:         "NOT. PARADIGM-HF and PARALLEL-HF register it as their primary outcome and "
+ 231:         "PARACHUTE-HF as the first of six secondaries. ANSWER-HF registers neither "
+ 232:         "it nor anything equivalent, at any rank, and its registration is not "
+ 233:         "silent by omission -- it declares twenty outcome measures and this is not "
+ 234:         "among them. A quarter of this pool therefore has no protection against "
+ 235:         "selective outcome reporting, and the trial concerned is the one whose "
+ 236:         "estimate is furthest from the rest. It stays in, because removing it "
+ 237:         "would convert a null into a positive result, and a withdrawal needs the "
+ 238:         "same evidence as a claim.",
+ 239:     ],
+ 240:     "aetiology_of_heart_failure": [
+ 241:         "differs",
+ 242:         "PARACHUTE-HF and ANSWER-HF admitted only chronic Chagas cardiomyopathy, "
+ 243:         "confirmed serologically at entry -- a distinct disease with a different "
+ 244:         "natural history and a high burden of conduction disease. Neither "
+ 245:         "PARADIGM-HF nor PARALLEL-HF restricted aetiology at all, so the pool "
+ 246:         "crosses two narrow-aetiology trials with two unrestricted ones, and that "
+ 247:         "is the most substantive thing it crosses. It is also HALF the pool rather "
+ 248:         "than a third, which is what this row said before ANSWER-HF was counted "
+ 249:         "into it. What the contributing trials' own sources say about their "
+ 250:         "aetiology MIX differs in how much they say, and this row says only what "
+ 251:         "they support: the EPAR records ischaemic cardiac disease as the primary "
+ 252:         "cause of heart failure in the majority of PARADIGM-HF participants, and "
+ 253:         "the staged sources for PARALLEL-HF characterise its population by "
+ 254:         "ejection fraction and functional class without describing its aetiology "
+ 255:         "mix at all. An earlier version of this row described both unrestricted "
+ 256:         "trials as largely ischaemic or idiopathic; a review leg was right that "
+ 257:         "the second half of that had no basis in anything staged, and it is the "
+ 258:         "more serious kind of over-claim for sitting inside the table that "
+ 259:         "justifies pooling across aetiology.",
+ 260:     ],
+ 261:     "ejection_fraction_ceiling": [
+ 262:         "differs",
+ 263:         "40% or less in PARADIGM-HF and PARACHUTE-HF; 35% or less in PARALLEL-HF; "
+ 264:         "ANSWER-HF enrolled Chagas cardiomyopathy with reduced ejection fraction. "
+ 265:         "All are within the reduced-ejection-fraction population the question "
+ 266:         "fixes, and they are not the same entry criterion.",
+ 267:     ],
+ 268:     "blinding": [
+ 269:         "differs",
+ 270:         "PARADIGM-HF and PARALLEL-HF were double-blind. PARACHUTE-HF was "
+ 271:         "OPEN-LABEL with blinded endpoint adjudication. Blinded adjudication "
+ 272:         "protects the outcome ascertainment and does not protect the management "
+ 273:         "decisions that lead to a hospitalization, so the difference is carried "
+ 274:         "into the GRADE risk-of-bias domain rather than dismissed here.",
+ 275:     ],
+ 276:     "endpoint_rank_within_its_own_trial": [
+ 277:         "differs",
+ 278:         "This composite is the PRIMARY endpoint of PARADIGM-HF and of PARALLEL-HF. "
+ 279:         "In PARACHUTE-HF it is the first SECONDARY endpoint, the primary there "
+ 280:         "being a hierarchical composite analysed by win ratio. A trial is not "
+ 281:         "powered for its secondary endpoints, and the pool crosses that. IN "
+ 282:         "ANSWER-HF IT HAS NO RANK, because it is not registered: that trial's "
+ 283:         "registered primaries are change in ejection fraction and a four-level "
+ 284:         "hierarchical win ratio. â€œUnregisteredâ€ is a fourth state on "
+ 285:         "this axis and not a third kind of secondary.",
+ 286:     ],
+ 287:     "follow_up_length": [
+ 288:         "differs",
+ 289:         "Medians of 27 months, 25.2 months and 33.9 months in the three trials "
+ 290:         "that report one; ANSWER-HF's registered outcome window is 6 months, the "
+ 291:         "shortest in the pool by a factor of four. PARADIGM-HF's follow-up ended "
+ 292:         "early by prespecified rule when a boundary for overwhelming benefit was "
+ 293:         "crossed, which is a different reason for a follow-up length than the "
+ 294:         "others have. A composite counted to first event over 6 months and the "
+ 295:         "same composite counted over 34 months are not the same exposure to risk, "
+ 296:         "and this is the dimension on which the pool's shortest trial is also its "
+ 297:         "most discrepant estimate.",
+ 298:     ],
+ 299:     "analysis_population": [
+ 300:         "differs",
+ 301:         "All four use the trial's own full analysis set. In PARACHUTE-HF and "
+ 302:         "ANSWER-HF that equals the randomised total; in PARADIGM-HF and PARALLEL-HF "
+ 303:         "it is smaller, and each cell shows the arithmetic from the randomised "
+ 304:         "total rather than leaving the difference unexplained.",
+ 305:     ],
+ 306: }
+ 307: 
+ 308: ESTIMAND_POP = (
+ 309:     "each trial's own full analysis set, which in two of the four is smaller than "
+ 310:     "the randomised total for reasons the trial states and this object reproduces")
+
+codex
+I’m not finding evidence for the line-ending, merged-cell/count, negation, or wrapper-status shapes in this single file. The defensible defects are selector/guard defects in the mutation logic.
+codex
+Defects found:
+
+1. Line 351: `est = obj["outcomes"][0]["estimand"]`
+
+Exact input:
+```json
+{
+  "inputs":{"trials":[
+    {"id":"paradigm-hf","by_outcome":{"cvdeath_or_hfh_first":{}}},
+    {"id":"parachute-hf","by_outcome":{"cvdeath_or_hfh_first":{}}},
+    {"id":"answer-hf","by_outcome":{"cvdeath_or_hfh_first":{}}}
+  ]},
+  "results":{"by_outcome":{"cvdeath_or_hfh_first":{"per_trial":[],"pool_uniformity":{}}}},
+  "outcomes":[
+    {"id":"wrong_outcome","estimand":{"analysis_population":"two of the three wrong"}},
+    {"id":"cvdeath_or_hfh_first","estimand":{"analysis_population":"two of the three target"}}
+  ]
+}
+```
+Consequence: the script edits the first outcome’s estimand, not the `cvdeath_or_hfh_first` outcome it is otherwise changing by ID.
+
+2. Line 322: `if bo.get("outcome_definition"):`
+
+Exact input:
+```json
+{
+  "inputs":{"trials":[
+    {"id":"paradigm-hf","by_outcome":{"cvdeath_or_hfh_first":{"outcome_definition":"already present"}}}
+  ]}
+}
+```
+Consequence: a single truthy definition aborts before rank, uniformity, or source-field repairs, so the guard is satisfied by one marker field rather than by completion of the intended work.
+
+3. Lines 333-335: superseded rank is overwritten unconditionally.
+
+Exact input:
+```json
+{
+  "inputs":{"trials":[
+    {"id":"paradigm-hf","by_outcome":{"cvdeath_or_hfh_first":{}}},
+    {"id":"parachute-hf","by_outcome":{"cvdeath_or_hfh_first":{}}},
+    {"id":"answer-hf","by_outcome":{"cvdeath_or_hfh_first":{}}}
+  ]},
+  "results":{"by_outcome":{"cvdeath_or_hfh_first":{
+    "pool_uniformity":{},
+    "per_trial":[{"trial_id":"answer-hf","endpoint_rank_in_its_own_trial":"NOT REGISTERED AT ANY RANK","endpoint_rank_in_its_own_trial_superseded":"a secondary endpoint"}]
+  }}},
+  "outcomes":[{"id":"cvdeath_or_hfh_first","estimand":{"analysis_population":""}}]
+}
+```
+Consequence: rerunning after a partial repair destroys the original superseded value and replaces it with the already-fixed value.
+
+No CRLF text-compare, merged-cell/off-by-one, negation-dropped, or wrapper-status defect is proven from this file.
+tokens used
+28,653
+Defects found:
+
+1. Line 351: `est = obj["outcomes"][0]["estimand"]`
+
+Exact input:
+```json
+{
+  "inputs":{"trials":[
+    {"id":"paradigm-hf","by_outcome":{"cvdeath_or_hfh_first":{}}},
+    {"id":"parachute-hf","by_outcome":{"cvdeath_or_hfh_first":{}}},
+    {"id":"answer-hf","by_outcome":{"cvdeath_or_hfh_first":{}}}
+  ]},
+  "results":{"by_outcome":{"cvdeath_or_hfh_first":{"per_trial":[],"pool_uniformity":{}}}},
+  "outcomes":[
+    {"id":"wrong_outcome","estimand":{"analysis_population":"two of the three wrong"}},
+    {"id":"cvdeath_or_hfh_first","estimand":{"analysis_population":"two of the three target"}}
+  ]
+}
+```
+Consequence: the script edits the first outcome’s estimand, not the `cvdeath_or_hfh_first` outcome it is otherwise changing by ID.
+
+2. Line 322: `if bo.get("outcome_definition"):`
+
+Exact input:
+```json
+{
+  "inputs":{"trials":[
+    {"id":"paradigm-hf","by_outcome":{"cvdeath_or_hfh_first":{"outcome_definition":"already present"}}}
+  ]}
+}
+```
+Consequence: a single truthy definition aborts before rank, uniformity, or source-field repairs, so the guard is satisfied by one marker field rather than by completion of the intended work.
+
+3. Lines 333-335: superseded rank is overwritten unconditionally.
+
+Exact input:
+```json
+{
+  "inputs":{"trials":[
+    {"id":"paradigm-hf","by_outcome":{"cvdeath_or_hfh_first":{}}},
+    {"id":"parachute-hf","by_outcome":{"cvdeath_or_hfh_first":{}}},
+    {"id":"answer-hf","by_outcome":{"cvdeath_or_hfh_first":{}}}
+  ]},
+  "results":{"by_outcome":{"cvdeath_or_hfh_first":{
+    "pool_uniformity":{},
+    "per_trial":[{"trial_id":"answer-hf","endpoint_rank_in_its_own_trial":"NOT REGISTERED AT ANY RANK","endpoint_rank_in_its_own_trial_superseded":"a secondary endpoint"}]
+  }}},
+  "outcomes":[{"id":"cvdeath_or_hfh_first","estimand":{"analysis_population":""}}]
+}
+```
+Consequence: rerunning after a partial repair destroys the original superseded value and replaces it with the already-fixed value.
+
+No CRLF text-compare, merged-cell/off-by-one, negation-dropped, or wrapper-status defect is proven from this file.

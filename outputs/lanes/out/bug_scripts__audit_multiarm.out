@@ -1,0 +1,158 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a03141-8aa0-7a70-b946-9d3e6424c420
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/audit_multiarm.py
+
+--- THE FILE, IN FULL ---
+#!/usr/bin/env python
+"""Read-only audit: detect shared-control multi-arm extraction errors in RapidMeta apps.
+
+A parent trial with >=2 intervention arms vs ONE shared control is sometimes extracted
+as >=2 rows that each REPEAT the same control (cE,cN). Naive pairwise pooling then
+double-counts the control patients/events. Flag those apps.
+
+Signals (per app, among included binary trials):
+  A) same pmid in >=2 rows                         -> definite multi-arm
+  B) identical (cE,cN) in >=2 rows, cN>0           -> shared-control duplication
+  C) normalized name collision (dose/arm suffix)   -> multi-arm split
+"""
+import re, io, os, glob, json, sys, collections
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+def extract(src):
+    rows=[]
+    for c in src.split('{name:"')[1:]:
+        name=c.split('"',1)[0]
+        win=c[:900]
+        def g(k):
+            m=re.search(k+r':(-?\d+(?:\.\d+)?)',win); return m.group(1) if m else None
+        tE,tN,cE,cN=g('tE'),g('tN'),g('cE'),g('cN')
+        pm=re.search(r'pmid:"([^"]*)"',win)
+        inc = not re.search(r'included:\s*false', win[:200])
+        if tE and tN and cE and cN:
+            rows.append(dict(name=name,pmid=(pm.group(1) if pm else ""),
+                             tE=int(float(tE)),tN=int(float(tN)),
+                             cE=int(float(cE)),cN=int(float(cN)),inc=inc))
+    return rows
+
+def norm(n):
+    n=n.lower()
+    n=re.sub(r'\s*\(.*?\)','',n)              # drop parenthetical (dose/arm)
+    n=re.sub(r'\b(high|low|mid|medium|\d+\s*mg|once|twice|daily|bid|qd|arm|dose)\b','',n)
+    return re.sub(r'[^a-z0-9]','',n)
+
+def audit(path):
+    src=io.open(path,encoding="utf-8",errors="replace").read()
+    rows=[r for r in extract(src) if r['inc']]
+    if len(rows)<2: return None
+    flags=[]
+    # A: pmid repeats
+    pm=collections.Counter(r['pmid'] for r in rows if r['pmid'])
+    pdup={k:v for k,v in pm.items() if v>=2}
+    # B: identical control (cE,cN) across rows
+    ctl=collections.defaultdict(list)
+    for i,r in enumerate(rows):
+        ctl[(r['cE'],r['cN'])].append(i)
+    cdup={k:v for k,v in ctl.items() if len(v)>=2 and k[1]>0}
+    # C: normalized-name collision
+    nm=collections.defaultdict(list)
+    for i,r in enumerate(rows): nm[norm(r['name'])].append(i)
+    ndup={k:v for k,v in nm.items() if len(v)>=2}
+    if not (pdup or cdup or ndup): return None
+    return dict(path=os.path.basename(path),k=len(rows),
+                pmid_dups=pdup, ctrl_dups={f"{k[0]}/{k[1]}":[rows[i]['name'] for i in v] for k,v in cdup.items()},
+                name_dups={k:[rows[i]['name'] for i in v] for k,v in ndup.items()})
+
+files=[f for f in glob.glob("*REVIEW.html") if os.path.getsize(f)>100_000]
+hits=[]
+for f in sorted(files):
+    try:
+        r=audit(f)
+        if r: hits.append(r)
+    except Exception as e:
+        print("ERR",f,e)
+print(f"Scanned {len(files)} apps (>100KB). Flagged {len(hits)}.\n")
+for h in hits:
+    print(f"== {h['path']}  (k={h['k']})")
+    if h['pmid_dups']: print("   PMID repeat:",h['pmid_dups'])
+    if h['ctrl_dups']: print("   SHARED CONTROL:",h['ctrl_dups'])
+    if h['name_dups']: print("   NAME collision:",h['name_dups'])
+json.dump(hits,open("findings/multiarm_audit.json","w"),indent=1)
+print(f"\nWrote findings/multiarm_audit.json")
+
+codex
+**Findings**
+
+- Line 18, selector keyed to unused form: input `[{ name:"A",tE:1,tN:10,cE:2,cN:20,pmid:"1"},{ name:"B",tE:2,tN:10,cE:2,cN:20,pmid:"1"}]` yields zero rows because it only splits on exact `{name:"`; consequence: valid rows with whitespace are invisible.
+
+- Line 22, selector too narrow: input `{name:"A",tE: 1,tN:10,cE:2,cN:20,pmid:"1"}{name:"B",tE:2,tN:10,cE:2,cN:20,pmid:"1"}` drops row A because `tE: 1` does not match `tE:(...)`; consequence: spacing alone can erase a duplicated-control case.
+
+- Line 22, negation/substring match: input `{name:"A",notE:9,tN:10,cE:2,cN:20,pmid:"1"}` is accepted with `tE=9` because `tE:` matches inside `notE:`; consequence: a non-treatment or negated field can be read as treatment events.
+
+- Line 24, selector too narrow: input `{name:"A",tE:1,tN:10,cE:2,cN:20,pmid: "1"}{name:"B",tE:3,tN:11,cE:4,cN:21,pmid: "1"}` misses the repeated PMID because only `pmid:"..."` matches; consequence: signal A can be vacuous under whitespace formatting.
+
+- Line 25, selector window off-by-one/too short: input `{name:"A",` + `"x"*210` + `included:false,tE:1,tN:10,cE:2,cN:20,pmid:"1"}{name:"B",tE:3,tN:10,cE:2,cN:20,pmid:"2"}` treats A as included because `included:false` is after `win[:200]`; consequence: excluded rows can create false shared-control findings.
+
+- Line 60, check can report zero because marker cannot fire: a current directory containing only `A_REVIEW.html` under 100,000 bytes with `{name:"A",tE:1,tN:10,cE:2,cN:20,pmid:"1"}{name:"B",tE:3,tN:10,cE:2,cN:20,pmid:"1"}` is skipped; consequence: a real duplicate can produce `Scanned 0`.
+
+No finding: CRLF/LF text comparison, merged-cell tabulation, zero conflated with absent.
+tokens used
+11,166
+**Findings**
+
+- Line 18, selector keyed to unused form: input `[{ name:"A",tE:1,tN:10,cE:2,cN:20,pmid:"1"},{ name:"B",tE:2,tN:10,cE:2,cN:20,pmid:"1"}]` yields zero rows because it only splits on exact `{name:"`; consequence: valid rows with whitespace are invisible.
+
+- Line 22, selector too narrow: input `{name:"A",tE: 1,tN:10,cE:2,cN:20,pmid:"1"}{name:"B",tE:2,tN:10,cE:2,cN:20,pmid:"1"}` drops row A because `tE: 1` does not match `tE:(...)`; consequence: spacing alone can erase a duplicated-control case.
+
+- Line 22, negation/substring match: input `{name:"A",notE:9,tN:10,cE:2,cN:20,pmid:"1"}` is accepted with `tE=9` because `tE:` matches inside `notE:`; consequence: a non-treatment or negated field can be read as treatment events.
+
+- Line 24, selector too narrow: input `{name:"A",tE:1,tN:10,cE:2,cN:20,pmid: "1"}{name:"B",tE:3,tN:11,cE:4,cN:21,pmid: "1"}` misses the repeated PMID because only `pmid:"..."` matches; consequence: signal A can be vacuous under whitespace formatting.
+
+- Line 25, selector window off-by-one/too short: input `{name:"A",` + `"x"*210` + `included:false,tE:1,tN:10,cE:2,cN:20,pmid:"1"}{name:"B",tE:3,tN:10,cE:2,cN:20,pmid:"2"}` treats A as included because `included:false` is after `win[:200]`; consequence: excluded rows can create false shared-control findings.
+
+- Line 60, check can report zero because marker cannot fire: a current directory containing only `A_REVIEW.html` under 100,000 bytes with `{name:"A",tE:1,tN:10,cE:2,cN:20,pmid:"1"}{name:"B",tE:3,tN:10,cE:2,cN:20,pmid:"1"}` is skipped; consequence: a real duplicate can produce `Scanned 0`.
+
+No finding: CRLF/LF text comparison, merged-cell tabulation, zero conflated with absent.

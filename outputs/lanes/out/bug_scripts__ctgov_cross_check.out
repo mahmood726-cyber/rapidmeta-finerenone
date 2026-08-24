@@ -1,0 +1,801 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a0318d-c129-78c1-9f9f-0f0dc983c73a
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/ctgov_cross_check.py
+
+--- THE FILE, IN FULL ---
+"""Live CT.gov cross-check across the *_REVIEW.html portfolio.
+
+For each unique NCT in any realData block:
+  1. Fetch enrollment from CT.gov v2 REST API
+  2. For each (file, row) referencing that NCT, compare row tN+cN against CT.gov enrollment
+  3. Flag (a) raw outliers (file claim differs from CT.gov by >50%) and (b) swap candidates
+     (within a file, the file's claim for NCT_A matches CT.gov for NCT_B better than for NCT_A)
+
+Outputs:
+  outputs/ctgov_cache.json — per-NCT enrollment cache (resumable)
+  outputs/ctgov_cross_check.csv — findings
+
+Usage:
+  python scripts/ctgov_cross_check.py
+"""
+from __future__ import annotations
+import json
+import os
+import re
+import sys
+import time
+import urllib.request
+import urllib.error
+from pathlib import Path
+
+ROW_RE = re.compile(
+    r"'(?P<key>(?:NCT\d+(?:_[A-Za-z0-9]+)?|ISRCTN\d+|LEGACY-[A-Za-z0-9-]+))'\s*:\s*\{\s*\n[^\n]*"
+    r"name:\s*'(?P<name>[^']+)'[^\n]*?"
+    r"tN:\s*(?P<tN>\d+|null)[^\n]*?"
+    r"cN:\s*(?P<cN>\d+|null)",
+    re.DOTALL,
+)
+
+# Cluster RCT by-design overrides: (file, NCT) where CT.gov enrollment is the COMMUNITY
+# total or children-targeted denominator, not individual randomization. The trial is correct
+# but the audit ratio is meaningless because the unit of analysis is the cluster.
+CLUSTER_RCT_BY_DESIGN = {
+    ("AZITHROMYCIN_CHILD_MORTALITY_REVIEW.html", "NCT04224987"),  # AVENIR Niger cluster
+    ("AZITHROMYCIN_CHILD_MORTALITY_REVIEW.html", "NCT02048007"),  # MORDOR-II Niger cluster
+}
+
+# Single-arm trials with synthetic historical-control comparator. Row total = ~2x CT.gov n
+# because the trial enrolled only one arm but the realData encoding adds a benchmark cN row
+# for forest-plot/NMA contrast. Allowed ratios: ~1.8-2.2.
+SINGLE_ARM_HISTORICAL_CONTROL = {
+    ("MDR_TB_SHORTENED_NMA_REVIEW.html", "NCT02333799"),  # Nix-TB BPaL single-arm, n=109
+    # Hemophilia gene therapy: each is single-arm pre-vs-post prophylactic baseline
+    ("HEMOPHILIA_GENE_THERAPY_NMA_REVIEW.html", "NCT03370913"),  # GENEr8-1 valoctocogene
+    ("HEMOPHILIA_GENE_THERAPY_NMA_REVIEW.html", "NCT03569891"),  # HOPE-B etranacogene
+    ("HEMOPHILIA_GENE_THERAPY_NMA_REVIEW.html", "NCT04370054"),  # AFFINE giroctocogene
+}
+
+# Multi-trial program overrides: (file, NCT) where the realData row reports the COMBINED
+# enrollment across two NCTs registered as one program (e.g. CANVAS + CANVAS-R = CANVAS Program n=10142).
+MULTI_TRIAL_PROGRAM = {
+    ("SGLT2_MACE_CVOT_REVIEW.html", "NCT01032629"),  # CANVAS Program = CANVAS NCT01032629 + CANVAS-R NCT01989754
+    ("BIOLOGIC_ASTHMA_REVIEW.html", "NCT01914757"),  # CALIMA single-dose-arm subset of 3-arm benralizumab trial
+    ("CFTR_CF_REVIEW.html", "NCT03525548"),  # VX17-445-103 Trikafta multi-cohort phase 3 (4 cohorts)
+    ("HIFPH_CKD_ANEMIA_REVIEW.html", "NCT02648347"),  # PRO2TECT vadadustat = Conversion + Correction sub-studies
+    ("SEVERE_ASTHMA_NMA_REVIEW.html", "NCT01287039"),  # Castro 2015 reslizumab = pooled 2 trials registered as 1
+    ("SPONDYLOARTHRITIS_NMA_REVIEW.html", "NCT03928704"),  # BE MOBILE 1 actual enrollment 386 (CT.gov 274 stale)
+    ("SPONDYLOARTHRITIS_NMA_REVIEW.html", "NCT03928743"),  # BE MOBILE 2 actual enrollment 442 (CT.gov 332 stale)
+    ("UC_BIOLOGICS_NMA_REVIEW.html", "NCT00488774"),  # PURSUIT-SC golimumab maintenance n=662 (CT.gov 291 induction-only)
+}
+
+
+def is_ctgov_key(key: str) -> bool:
+    """True if key is a CT.gov NCT (skips ISRCTN/LEGACY synthetic keys)."""
+    return key.startswith("NCT")
+
+
+def base_nct(key: str) -> str:
+    """Strip _PEOM, _A, _SUBGROUP suffixes to get the canonical NCT for CT.gov.
+    Returns the key unchanged if it's a non-CT.gov registry (ISRCTN/LEGACY-)."""
+    if not is_ctgov_key(key):
+        return key
+    return re.sub(r"_[A-Za-z][A-Za-z0-9]*$", "", key)
+
+
+def fetch_enrollment(nct: str, cache: dict, retries: int = 3) -> dict:
+    """Fetch enrollment for an NCT, with on-disk cache and retry.
+    For non-CT.gov keys (ISRCTN, LEGACY-), returns a synthetic 'NON_CTGOV' record."""
+    if nct in cache:
+        return cache[nct]
+    if not is_ctgov_key(nct):
+        cache[nct] = {"nct": nct, "found": False, "error": "NON_CTGOV_REGISTRY"}
+        return cache[nct]
+    url = f"https://clinicaltrials.gov/api/v2/studies/{nct}?format=json&fields=protocolSection.identificationModule.briefTitle,protocolSection.designModule.enrollmentInfo,protocolSection.identificationModule.acronym"
+    last_err = None
+    for attempt in range(retries):
+        try:
+            req = urllib.request.Request(url, headers={"User-Agent": "FinrenoneAuditBot/1.0"})
+            with urllib.request.urlopen(req, timeout=15) as r:
+                data = json.loads(r.read().decode("utf-8"))
+            proto = data.get("protocolSection", {})
+            ident = proto.get("identificationModule", {})
+            design = proto.get("designModule", {})
+            enroll = design.get("enrollmentInfo", {}) or {}
+            result = {
+                "nct": nct,
+                "found": True,
+                "enrollment": enroll.get("count"),
+                "enrollment_type": enroll.get("type"),
+                "title": ident.get("briefTitle"),
+                "acronym": ident.get("acronym"),
+            }
+            cache[nct] = result
+            return result
+        except urllib.error.HTTPError as e:
+            if e.code == 404:
+                cache[nct] = {"nct": nct, "found": False, "error": "404"}
+                return cache[nct]
+            last_err = f"HTTP {e.code}"
+        except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as e:
+            last_err = str(e)
+        time.sleep(1 + attempt)
+    cache[nct] = {"nct": nct, "found": False, "error": last_err}
+    return cache[nct]
+
+
+def collect_rows(root: Path) -> list[dict]:
+    rows = []
+    for f in sorted(root.glob("*_REVIEW.html")):
+        with f.open(encoding="utf-8") as fh:
+            text = fh.read()
+        for m in ROW_RE.finditer(text):
+            tN = m.group("tN")
+            cN = m.group("cN")
+            if tN == "null" or cN == "null":
+                continue
+            rows.append({
+                "file": f.name,
+                "key": m.group("key"),
+                "base_nct": base_nct(m.group("key")),
+                "name": m.group("name"),
+                "tN": int(tN),
+                "cN": int(cN),
+                "row_total": int(tN) + int(cN),
+            })
+    return rows
+
+
+def main() -> int:
+    root = Path(".")
+    out_dir = Path("outputs")
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    cache_path = out_dir / "ctgov_cache.json"
+    cache: dict = json.loads(cache_path.read_text(encoding="utf-8")) if cache_path.exists() else {}
+    rows = collect_rows(root)
+    unique_ncts = sorted({r["base_nct"] for r in rows})
+    print(f"Files with rows: {len({r['file'] for r in rows})}")
+    print(f"Total trial-rows: {len(rows)}")
+    print(f"Unique base NCTs to fetch: {len(unique_ncts)}")
+    print(f"Cached already: {sum(1 for n in unique_ncts if n in cache)}")
+
+    fetched = 0
+    for i, n in enumerate(unique_ncts, 1):
+        if n not in cache:
+            fetch_enrollment(n, cache)
+            fetched += 1
+            time.sleep(0.15)  # be polite to CT.gov
+            if fetched % 25 == 0:
+                cache_path.write_text(json.dumps(cache, indent=1), encoding="utf-8")
+                print(f"  [{i}/{len(unique_ncts)}] cached={len(cache)}")
+    cache_path.write_text(json.dumps(cache, indent=1), encoding="utf-8")
+    print(f"Fetched {fetched} new NCTs; total cache: {len(cache)}")
+
+    # Aggregate row totals per (file, base_nct). For multi-row shared-control
+    # splits (e.g. PEOM/_NONAV variants of one trial), use MAX of row_totals
+    # rather than SUM — summing double-counts the shared control arm and
+    # produces false-positive outliers (~1.3× ratio) for valid designs.
+    agg: dict[tuple[str, str], dict] = {}
+    for r in rows:
+        key = (r["file"], r["base_nct"])
+        if key not in agg:
+            agg[key] = {"file": r["file"], "base_nct": r["base_nct"], "names": [], "total": 0, "row_totals": []}
+        agg[key]["names"].append(r["name"])
+        agg[key]["row_totals"].append(r["row_total"])
+    for k, v in agg.items():
+        # Use MAX row_total as the representative; falls back to SUM if rows
+        # differ wildly (suggesting genuinely independent contrasts).
+        v["total"] = max(v["row_totals"])
+
+    findings = []
+    swap_candidates = []
+
+    # Per-row outlier check (single-trial scope)
+    for (f, nct), info in agg.items():
+        ctg = cache.get(nct, {})
+        if not ctg.get("found"):
+            err = ctg.get("error", "")
+            cat = "NON_CTGOV_REGISTRY" if err == "NON_CTGOV_REGISTRY" else "CTGOV_NOT_FOUND"
+            findings.append({**info, "ctg_enrollment": None, "ctg_acronym": None,
+                            "ratio": None, "category": cat,
+                            "ctg_title": err})
+            continue
+        ctg_n = ctg.get("enrollment")
+        if ctg_n is None or ctg_n == 0:
+            findings.append({**info, "ctg_enrollment": ctg_n, "ctg_acronym": ctg.get("acronym"),
+                            "ratio": None, "category": "CTGOV_NO_ENROLLMENT",
+                            "ctg_title": ctg.get("title", "")})
+            continue
+        ratio = info["total"] / ctg_n
+        # Multi-arm trials usually give row_total / ctg_enrollment ≈ 0.4–0.7 (2 of 3-4 arms).
+        # mITT vs randomized usually 0.85–1.0. Same-trial direct match: ≈1.0.
+        # Flag if outside 0.30–1.10 → either swap, wrong NCT, or substantial extraction error.
+        cat = "OK"
+        nct = info.get("base_nct", "")
+        fname = info.get("file", "")
+        # Cluster RCT by design: community-randomized children-targeted vs total community
+        # population (azithromycin AVENIR/MORDOR-II). row total can be far from CT.gov n.
+        if (fname, nct) in CLUSTER_RCT_BY_DESIGN:
+            cat = "CLUSTER_RCT_BY_DESIGN"
+        # Single-arm trial with synthetic historical-control comparator (Nix-TB).
+        elif (fname, nct) in SINGLE_ARM_HISTORICAL_CONTROL:
+            cat = "SINGLE_ARM_HISTORICAL_CONTROL"
+        # Multi-trial program (CANVAS = CANVAS + CANVAS-R combined under one NCT)
+        elif (fname, nct) in MULTI_TRIAL_PROGRAM:
+            cat = "MULTI_TRIAL_PROGRAM"
+        # MULTI_ARM_SUBSET (true 2-of-3-arm or 2-of-4-arm comparisons): row 20-55% of CT.gov n
+        elif 0.20 <= ratio < 0.55:
+            cat = "MULTI_ARM_SUBSET"
+        # MITT_FRACTION (mITT or per-protocol subset of full randomized population): 55-85%
+        elif 0.55 <= ratio < 0.85:
+            cat = "MITT_FRACTION"
+        # MITT_PLUS_OLE (mITT + open-label-extension or external reference cohort): 1.10-1.30
+        elif 1.10 < ratio <= 1.30:
+            cat = "MITT_PLUS_OLE"
+        elif ratio > 1.30 or ratio < 0.20:
+            cat = "OUTLIER"
+        findings.append({
+            **info,
+            "ctg_enrollment": ctg_n,
+            "ctg_acronym": ctg.get("acronym"),
+            "ctg_title": (ctg.get("title") or "")[:80],
+            "ratio": round(ratio, 3),
+            "category": cat,
+        })
+
+    # Pairwise swap detection within each file
+    by_file: dict[str, list] = {}
+    for fi in findings:
+        if fi.get("ctg_enrollment"):
+            by_file.setdefault(fi["file"], []).append(fi)
+
+    for f, items in by_file.items():
+        if len(items) < 2:
+            continue
+        for i, a in enumerate(items):
+            for b in items[i + 1:]:
+                a_self = abs(a["total"] - a["ctg_enrollment"]) / max(a["ctg_enrollment"], 1)
+                a_swap = abs(a["total"] - b["ctg_enrollment"]) / max(b["ctg_enrollment"], 1)
+                b_self = abs(b["total"] - b["ctg_enrollment"]) / max(b["ctg_enrollment"], 1)
+                b_swap = abs(b["total"] - a["ctg_enrollment"]) / max(a["ctg_enrollment"], 1)
+                # Swap candidate: BOTH would fit better swapped, AND swap is meaningfully better
+                if a_swap < a_self - 0.15 and b_swap < b_self - 0.15:
+                    swap_candidates.append({
+                        "file": f,
+                        "trial_A": a["base_nct"],
+                        "trial_A_names": ",".join(a["names"]),
+                        "trial_A_total": a["total"],
+                        "trial_A_ctg": a["ctg_enrollment"],
+                        "trial_B": b["base_nct"],
+                        "trial_B_names": ",".join(b["names"]),
+                        "trial_B_total": b["total"],
+                        "trial_B_ctg": b["ctg_enrollment"],
+                        "self_diff_A": round(a_self, 2),
+                        "swap_diff_A": round(a_swap, 2),
+                        "self_diff_B": round(b_self, 2),
+                        "swap_diff_B": round(b_swap, 2),
+                    })
+
+    # Write findings
+    import csv
+    findings_csv = out_dir / "ctgov_cross_check.csv"
+    if findings:
+        keys = ["file", "base_nct", "names", "total", "ctg_enrollment", "ctg_acronym", "ctg_title", "ratio", "category"]
+        with findings_csv.open("w", encoding="utf-8", newline="") as fh:
+            w = csv.DictWriter(fh, fieldnames=keys, extrasaction="ignore")
+            w.writeheader()
+            for fi in findings:
+                row = {k: fi.get(k) for k in keys}
+                if isinstance(row["names"], list):
+                    row["names"] = ",".join(row["names"])
+                w.writerow(row)
+    swaps_csv = out_dir / "ctgov_swap_candidates.csv"
+    if swap_candidates:
+        with swaps_csv.open("w", encoding="utf-8", newline="") as fh:
+            w = csv.DictWriter(fh, fieldnames=list(swap_candidates[0].keys()))
+            w.writeheader()
+            w.writerows(swap_candidates)
+
+    # Summary
+    cats: dict[str, int] = {}
+    for fi in findings:
+        cats[fi["category"]] = cats.get(fi["category"], 0) + 1
+    print("\n=== Summary ===")
+    for c, n in sorted(cats.items()):
+        print(f"  {c}: {n}")
+    print(f"\n=== Outliers (top 20 by |ratio-1|) ===")
+    outliers = [fi for fi in findings if fi["category"] == "OUTLIER"]
+    outliers.sort(key=lambda x: abs((x["ratio"] or 1) - 1), reverse=True)
+    for fi in outliers[:20]:
+        names = ",".join(fi["names"]) if isinstance(fi["names"], list) else fi["names"]
+        print(f"  {fi['file']:42s} {fi['base_nct']:14s} {names[:24]:24s} "
+              f"row={fi['total']:6d} ctg={fi['ctg_enrollment']:6d} ratio={fi['ratio']}")
+    print(f"\n=== Swap candidates: {len(swap_candidates)} ===")
+    for s in swap_candidates[:10]:
+        print(f"  {s['file']}")
+        print(f"    {s['trial_A']} ({s['trial_A_names']}): claim={s['trial_A_total']} ctg={s['trial_A_ctg']}  self_diff={s['self_diff_A']} swap_diff={s['swap_diff_A']}")
+        print(f"    {s['trial_B']} ({s['trial_B_names']}): claim={s['trial_B_total']} ctg={s['trial_B_ctg']}  self_diff={s['self_diff_B']} swap_diff={s['swap_diff_B']}")
+
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=0; Get-Content -Path scripts/ctgov_cross_check.py | ForEach-Object { $i++; '"'{0,4}: {1}' -f "'$i, $_ } | Select-String -Pattern '"'enroll =|ctg_n is None|if fi.get\\(\"ctg_enrollment\"\\)|v\\[\"total\"\\] = max|ROW_RE|name:' -Context 2,2" in F:\rapidmeta-ssot-shell
+ succeeded in 1550ms:
+
+    24: from pathlib import Path
+    25: 
+>   26: ROW_RE = re.compile(
+    27:     r"'(?P<key>(?:NCT\d+(?:_[A-Za-z0-9]+)?|ISRCTN\d+|LEGACY-[A-Za-z0-9-]+))'\s*:\s*\{\s*\n[^\n]*"
+>   28:     r"name:\s*'(?P<name>[^']+)'[^\n]*?"
+    29:     r"tN:\s*(?P<tN>\d+|null)[^\n]*?"
+    30:     r"cN:\s*(?P<cN>\d+|null)",
+    96:             ident = proto.get("identificationModule", {})
+    97:             design = proto.get("designModule", {})
+>   98:             enroll = design.get("enrollmentInfo", {}) or {}
+    99:             result = {
+   100:                 "nct": nct,
+   124:         with f.open(encoding="utf-8") as fh:
+   125:             text = fh.read()
+>  126:         for m in ROW_RE.finditer(text):
+   127:             tN = m.group("tN")
+   128:             cN = m.group("cN")
+   181:         # Use MAX row_total as the representative; falls back to SUM if rows
+   182:         # differ wildly (suggesting genuinely independent contrasts).
+>  183:         v["total"] = max(v["row_totals"])
+   184: 
+   185:     findings = []
+   197:             continue
+   198:         ctg_n = ctg.get("enrollment")
+>  199:         if ctg_n is None or ctg_n == 0:
+   200:             findings.append({**info, "ctg_enrollment": ctg_n, "ctg_acronym": ctg.get("acronym"),
+   201:                             "ratio": None, "category": "CTGOV_NO_ENROLLMENT",
+   242:     by_file: dict[str, list] = {}
+   243:     for fi in findings:
+>  244:         if fi.get("ctg_enrollment"):
+   245:             by_file.setdefault(fi["file"], []).append(fi)
+   246: 
+
+
+
+codex
+I’m going to verify line numbers and, where the issue depends on the HTML corpus shape rather than this module alone, check only the local target files the module itself scans.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$patterns = @("'"'NCT\", '\"NCT', 'name:', '\"name\"', 'tN:', '\"tN\"'); foreach ("'$p in $patterns) { $count = (Get-ChildItem -Path . -Filter '"'*_REVIEW.html' | Select-String -Pattern ([regex]::Escape("'$p)) -SimpleMatch:$false).Count; "$p`t$count" }' in F:\rapidmeta-ssot-shell
+2026-08-24T02:16:53.782515Z ERROR codex_core::tools::router: error=Exit code: 124
+Wall time: 11.2 seconds
+Output:
+command timed out after 11226 milliseconds
+
+ exited 124 in 11226ms:
+codex
+The first corpus scan was too slow through PowerShell file objects. I’m switching to `rg` so I can tell whether a selector defect is provable from the files this script actually scans.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "rg -n --glob '*_REVIEW.html' '\"name\"\\s*:' -m 5" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "rg -n --glob '*_REVIEW.html' '\"NCT[0-9]+(?:_[A-Za-z0-9]+)?\"\\s*:\\s*\\{' -m 5" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "rg -n --glob '*_REVIEW.html' \"'NCT[0-9]+(?:_[A-Za-z0-9]+)?'\\s*:\\s*\\{\" -m 5" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "rg --files -g '*_REVIEW.html' | Measure-Object | % Count" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "rg -n --glob '*_REVIEW.html' \"name:\\s*'\" -m 5" in F:\rapidmeta-ssot-shell
+2026-08-24T02:17:05.433741Z ERROR codex_core::tools::router: error=Exit code: 1
+Wall time: 2.9 seconds
+Output:
+
+ exited 1 in 2922ms:
+2026-08-24T02:17:05.440324Z ERROR codex_core::tools::router: error=Exit code: 1
+Wall time: 2.9 seconds
+Output:
+
+ exited 1 in 2926ms:
+2026-08-24T02:17:05.517245Z ERROR codex_core::tools::router: error=Exit code: 1
+Wall time: 3 seconds
+Output:
+
+ exited 1 in 2994ms:
+2026-08-24T02:17:05.519611Z ERROR codex_core::tools::router: error=Exit code: 1
+Wall time: 3 seconds
+Output:
+
+ exited 1 in 2961ms:
+ succeeded in 3058ms:
+1835
+
+codex
+The scan found 1,835 review HTML files but no first-pass hits for the regex’s expected quoted object shape. I’m checking the script’s own collector now because that is the concrete marker for whether the check can fire.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "python - <<'PY'
+from pathlib import Path
+from scripts.ctgov_cross_check import collect_rows
+rows=collect_rows(Path('.'))
+print(len(rows))
+print(rows[:3])
+PY" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "rg -n --glob '*_REVIEW.html' 'realData|NCT[0-9]{8}|tN|cN' -m 20" in F:\rapidmeta-ssot-shell
+2026-08-24T02:17:13.481865Z ERROR codex_core::tools::router: error=Exit code: 1
+Wall time: 1.6 seconds
+Output:
+
+ exited 1 in 1616ms:
+2026-08-24T02:17:13.517129Z ERROR codex_core::tools::router: error=Exit code: 1
+Wall time: 1.7 seconds
+Output:
+At line:2 char:11
++ python - <<'PY'
++           ~
+Missing file specification after redirection operator.
+At line:2 char:10
++ python - <<'PY'
++          ~
+The '<' operator is reserved for future use.
+At line:2 char:11
++ python - <<'PY'
++           ~
+The '<' operator is reserved for future use.
+At line:3 char:1
++ from pathlib import Path
++ ~~~~
+The 'from' keyword is not supported in this version of the language.
+At line:4 char:1
++ from scripts.ctgov_cross_check import collect_rows
++ ~~~~
+The 'from' keyword is not supported in this version of the language.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : MissingFileSpecification
+ 
+
+ exited 1 in 1670ms:
+At line:2 char:11
++ python - <<'PY'
++           ~
+Missing file specification after redirection operator.
+At line:2 char:10
++ python - <<'PY'
++          ~
+The '<' operator is reserved for future use.
+At line:2 char:11
++ python - <<'PY'
++           ~
+The '<' operator is reserved for future use.
+At line:3 char:1
++ from pathlib import Path
++ ~~~~
+The 'from' keyword is not supported in this version of the language.
+At line:4 char:1
++ from scripts.ctgov_cross_check import collect_rows
++ ~~~~
+The 'from' keyword is not supported in this version of the language.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : MissingFileSpecification
+ 
+
+codex
+PowerShell rejected the heredoc form, so I’m rerunning that collector check with a PowerShell-safe inline Python call.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "@'
+from pathlib import Path
+from scripts.ctgov_cross_check import collect_rows
+rows=collect_rows(Path('.'))
+print(len(rows))
+print(rows[:3])
+'@ | python -" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "rg --files -g '*_REVIEW.html' | Select-Object -First 20" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "rg -n --glob '*_REVIEW.html' 'NCT[0-9]{8}' -m 20" in F:\rapidmeta-ssot-shell
+2026-08-24T02:17:21.372037Z ERROR codex_core::tools::router: error=Exit code: 1
+Wall time: 1.9 seconds
+Output:
+
+ exited 1 in 1877ms:
+2026-08-24T02:17:21.662334Z ERROR codex_core::tools::router: error=Exit code: 1
+Wall time: 2.2 seconds
+Output:
+ACALABRUTINIB_CLL_REVIEW.html
+AGYW_HIV_PREP_REVIEW.html
+ABLATION_AF_REVIEW.html
+ABLATION_AF_MEDICAL_THERAPY_REVIEW.html
+ABLATION_AF_HEART_FAILURE_REVIEW.html
+ABEMACICLIB_BREAST_AUTO_REVIEW.html
+AGRYLIN_ET_AUTO_REVIEW.html
+ABEMACICLIB_BREAST_AUTO_FULL_REVIEW.html
+ABATACEPT_RA_AUTO_REVIEW.html
+AGRYLIN_ET_AUTO_FULL_REVIEW.html
+ABATACEPT_RA_AUTO_FULL_REVIEW.html
+ABATACEPT_PSA_AUTO_REVIEW.html
+AGALSIDASE_FABRY_AUTO_REVIEW.html
+ABATACEPT_PSA_AUTO_FULL_REVIEW.html
+AGALSIDASE_FABRY_AUTO_FULL_REVIEW.html
+ABALOPARATIDE_OSTEO_AUTO_REVIEW.html
+AGALSIDASE_BETA_FABRY_AUTO_REVIEW.html
+ABALOPARATIDE_OSTEO_AUTO_FULL_REVIEW.html
+AGALSIDASE_BETA_FABRY_AUTO_FULL_REVIEW.html
+AFLIBERCEPT_RVO_AUTO_REVIEW.html
+
+ exited 1 in 2190ms:
+ACALABRUTINIB_CLL_REVIEW.html
+AGYW_HIV_PREP_REVIEW.html
+ABLATION_AF_REVIEW.html
+ABLATION_AF_MEDICAL_THERAPY_REVIEW.html
+ABLATION_AF_HEART_FAILURE_REVIEW.html
+ABEMACICLIB_BREAST_AUTO_REVIEW.html
+AGRYLIN_ET_AUTO_REVIEW.html
+ABEMACICLIB_BREAST_AUTO_FULL_REVIEW.html
+ABATACEPT_RA_AUTO_REVIEW.html
+AGRYLIN_ET_AUTO_FULL_REVIEW.html
+ABATACEPT_RA_AUTO_FULL_REVIEW.html
+ABATACEPT_PSA_AUTO_REVIEW.html
+AGALSIDASE_FABRY_AUTO_REVIEW.html
+ABATACEPT_PSA_AUTO_FULL_REVIEW.html
+AGALSIDASE_FABRY_AUTO_FULL_REVIEW.html
+ABALOPARATIDE_OSTEO_AUTO_REVIEW.html
+AGALSIDASE_BETA_FABRY_AUTO_REVIEW.html
+ABALOPARATIDE_OSTEO_AUTO_FULL_REVIEW.html
+AGALSIDASE_BETA_FABRY_AUTO_FULL_REVIEW.html
+AFLIBERCEPT_RVO_AUTO_REVIEW.html
+
+ succeeded in 11302ms:
+0
+[]
+
+codex
+I have enough for the concrete review points: one is independent of the corpus, and one is demonstrable because the current corpus yields zero rows through this module’s own parser.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=0; Get-Content -Path scripts/ctgov_cross_check.py | ForEach-Object { $i++; if($i -ge 238 -and $i -le 250){ '"'{0,4}: {1}' -f "'$i, $_ } }' in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=0; Get-Content -Path scripts/ctgov_cross_check.py | ForEach-Object { $i++; if($i -ge 295 -and $i -le 306){ '"'{0,4}: {1}' -f "'$i, $_ } }' in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=0; Get-Content -Path scripts/ctgov_cross_check.py | ForEach-Object { $i++; if($i -ge 26 -and $i -le 31){ '"'{0,4}: {1}' -f "'$i, $_ } }' in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=0; Get-Content -Path scripts/ctgov_cross_check.py | ForEach-Object { $i++; if($i -ge 170 -and $i -le 205){ '"'{0,4}: {1}' -f "'$i, $_ } }' in F:\rapidmeta-ssot-shell
+ succeeded in 2497ms:
+ 295:     cats: dict[str, int] = {}
+ 296:     for fi in findings:
+ 297:         cats[fi["category"]] = cats.get(fi["category"], 0) + 1
+ 298:     print("\n=== Summary ===")
+ 299:     for c, n in sorted(cats.items()):
+ 300:         print(f"  {c}: {n}")
+ 301:     print(f"\n=== Outliers (top 20 by |ratio-1|) ===")
+ 302:     outliers = [fi for fi in findings if fi["category"] == "OUTLIER"]
+ 303:     outliers.sort(key=lambda x: abs((x["ratio"] or 1) - 1), reverse=True)
+ 304:     for fi in outliers[:20]:
+ 305:         names = ",".join(fi["names"]) if isinstance(fi["names"], list) else fi["names"]
+ 306:         print(f"  {fi['file']:42s} {fi['base_nct']:14s} {names[:24]:24s} "
+
+ succeeded in 2515ms:
+ 238:             "category": cat,
+ 239:         })
+ 240: 
+ 241:     # Pairwise swap detection within each file
+ 242:     by_file: dict[str, list] = {}
+ 243:     for fi in findings:
+ 244:         if fi.get("ctg_enrollment"):
+ 245:             by_file.setdefault(fi["file"], []).append(fi)
+ 246: 
+ 247:     for f, items in by_file.items():
+ 248:         if len(items) < 2:
+ 249:             continue
+ 250:         for i, a in enumerate(items):
+
+ succeeded in 2535ms:
+  26: ROW_RE = re.compile(
+  27:     r"'(?P<key>(?:NCT\d+(?:_[A-Za-z0-9]+)?|ISRCTN\d+|LEGACY-[A-Za-z0-9-]+))'\s*:\s*\{\s*\n[^\n]*"
+  28:     r"name:\s*'(?P<name>[^']+)'[^\n]*?"
+  29:     r"tN:\s*(?P<tN>\d+|null)[^\n]*?"
+  30:     r"cN:\s*(?P<cN>\d+|null)",
+  31:     re.DOTALL,
+
+ succeeded in 2531ms:
+ 170:     # splits (e.g. PEOM/_NONAV variants of one trial), use MAX of row_totals
+ 171:     # rather than SUM â€” summing double-counts the shared control arm and
+ 172:     # produces false-positive outliers (~1.3Ã— ratio) for valid designs.
+ 173:     agg: dict[tuple[str, str], dict] = {}
+ 174:     for r in rows:
+ 175:         key = (r["file"], r["base_nct"])
+ 176:         if key not in agg:
+ 177:             agg[key] = {"file": r["file"], "base_nct": r["base_nct"], "names": [], "total": 0, "row_totals": []}
+ 178:         agg[key]["names"].append(r["name"])
+ 179:         agg[key]["row_totals"].append(r["row_total"])
+ 180:     for k, v in agg.items():
+ 181:         # Use MAX row_total as the representative; falls back to SUM if rows
+ 182:         # differ wildly (suggesting genuinely independent contrasts).
+ 183:         v["total"] = max(v["row_totals"])
+ 184: 
+ 185:     findings = []
+ 186:     swap_candidates = []
+ 187: 
+ 188:     # Per-row outlier check (single-trial scope)
+ 189:     for (f, nct), info in agg.items():
+ 190:         ctg = cache.get(nct, {})
+ 191:         if not ctg.get("found"):
+ 192:             err = ctg.get("error", "")
+ 193:             cat = "NON_CTGOV_REGISTRY" if err == "NON_CTGOV_REGISTRY" else "CTGOV_NOT_FOUND"
+ 194:             findings.append({**info, "ctg_enrollment": None, "ctg_acronym": None,
+ 195:                             "ratio": None, "category": cat,
+ 196:                             "ctg_title": err})
+ 197:             continue
+ 198:         ctg_n = ctg.get("enrollment")
+ 199:         if ctg_n is None or ctg_n == 0:
+ 200:             findings.append({**info, "ctg_enrollment": ctg_n, "ctg_acronym": ctg.get("acronym"),
+ 201:                             "ratio": None, "category": "CTGOV_NO_ENROLLMENT",
+ 202:                             "ctg_title": ctg.get("title", "")})
+ 203:             continue
+ 204:         ratio = info["total"] / ctg_n
+ 205:         # Multi-arm trials usually give row_total / ctg_enrollment â‰ˆ 0.4â€“0.7 (2 of 3-4 arms).
+
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=0; Get-Content -Path scripts/ctgov_cross_check.py | ForEach-Object { $i++; if($i -ge 306 -and $i -le 318){ '"'{0,4}: {1}' -f "'$i, $_ } }' in F:\rapidmeta-ssot-shell
+ succeeded in 1474ms:
+ 306:         print(f"  {fi['file']:42s} {fi['base_nct']:14s} {names[:24]:24s} "
+ 307:               f"row={fi['total']:6d} ctg={fi['ctg_enrollment']:6d} ratio={fi['ratio']}")
+ 308:     print(f"\n=== Swap candidates: {len(swap_candidates)} ===")
+ 309:     for s in swap_candidates[:10]:
+ 310:         print(f"  {s['file']}")
+ 311:         print(f"    {s['trial_A']} ({s['trial_A_names']}): claim={s['trial_A_total']} ctg={s['trial_A_ctg']}  self_diff={s['self_diff_A']} swap_diff={s['swap_diff_A']}")
+ 312:         print(f"    {s['trial_B']} ({s['trial_B_names']}): claim={s['trial_B_total']} ctg={s['trial_B_ctg']}  self_diff={s['self_diff_B']} swap_diff={s['swap_diff_B']}")
+ 313: 
+ 314:     return 0
+ 315: 
+ 316: 
+ 317: if __name__ == "__main__":
+ 318:     sys.exit(main())
+
+codex
+One more concrete defect is the script binding its scan to the caller’s current directory, not the module/repo location. I’m pulling that line number and then I’ll answer directly.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=0; Get-Content -Path scripts/ctgov_cross_check.py | ForEach-Object { $i++; if($i -ge 145 -and $i -le 153){ '"'{0,4}: {1}' -f "'$i, $_ } }' in F:\rapidmeta-ssot-shell
+ succeeded in 1421ms:
+ 145:     out_dir = Path("outputs")
+ 146:     out_dir.mkdir(parents=True, exist_ok=True)
+ 147: 
+ 148:     cache_path = out_dir / "ctgov_cache.json"
+ 149:     cache: dict = json.loads(cache_path.read_text(encoding="utf-8")) if cache_path.exists() else {}
+ 150:     rows = collect_rows(root)
+ 151:     unique_ncts = sorted({r["base_nct"] for r in rows})
+ 152:     print(f"Files with rows: {len({r['file'] for r in rows})}")
+ 153:     print(f"Total trial-rows: {len(rows)}")
+
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=0; Get-Content -Path scripts/ctgov_cross_check.py | ForEach-Object { $i++; if($i -ge 140 -and $i -le 146){ '"'{0,4}: {1}' -f "'$i, $_ } }' in F:\rapidmeta-ssot-shell
+ succeeded in 1365ms:
+ 140:     return rows
+ 141: 
+ 142: 
+ 143: def main() -> int:
+ 144:     root = Path(".")
+ 145:     out_dir = Path("outputs")
+ 146:     out_dir.mkdir(parents=True, exist_ok=True)
+
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=0; Get-Content -Path scripts/ctgov_cross_check.py | ForEach-Object { $i++; if($i -ge 266 -and $i -le 284){ '"'{0,4}: {1}' -f "'$i, $_ } }' in F:\rapidmeta-ssot-shell
+ succeeded in 1551ms:
+ 266:                         "trial_B_total": b["total"],
+ 267:                         "trial_B_ctg": b["ctg_enrollment"],
+ 268:                         "self_diff_A": round(a_self, 2),
+ 269:                         "swap_diff_A": round(a_swap, 2),
+ 270:                         "self_diff_B": round(b_self, 2),
+ 271:                         "swap_diff_B": round(b_swap, 2),
+ 272:                     })
+ 273: 
+ 274:     # Write findings
+ 275:     import csv
+ 276:     findings_csv = out_dir / "ctgov_cross_check.csv"
+ 277:     if findings:
+ 278:         keys = ["file", "base_nct", "names", "total", "ctg_enrollment", "ctg_acronym", "ctg_title", "ratio", "category"]
+ 279:         with findings_csv.open("w", encoding="utf-8", newline="") as fh:
+ 280:             w = csv.DictWriter(fh, fieldnames=keys, extrasaction="ignore")
+ 281:             w.writeheader()
+ 282:             for fi in findings:
+ 283:                 row = {k: fi.get(k) for k in keys}
+ 284:                 if isinstance(row["names"], list):
+
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=0; Get-Content -Path scripts/ctgov_cross_check.py | ForEach-Object { $i++; if($i -ge 284 -and $i -le 294){ '"'{0,4}: {1}' -f "'$i, $_ } }' in F:\rapidmeta-ssot-shell
+ succeeded in 1720ms:
+ 284:                 if isinstance(row["names"], list):
+ 285:                     row["names"] = ",".join(row["names"])
+ 286:                 w.writerow(row)
+ 287:     swaps_csv = out_dir / "ctgov_swap_candidates.csv"
+ 288:     if swap_candidates:
+ 289:         with swaps_csv.open("w", encoding="utf-8", newline="") as fh:
+ 290:             w = csv.DictWriter(fh, fieldnames=list(swap_candidates[0].keys()))
+ 291:             w.writeheader()
+ 292:             w.writerows(swap_candidates)
+ 293: 
+ 294:     # Summary
+
+codex
+- **STATUS CODE REPORTING WRAPPER / check cannot fail**: line 314.  
+  Exact input: `BAD_REVIEW.html` containing `'NCT00000001': {\n  name: 'Bad', tN: 200, cN: 0\n}` and `outputs/ctgov_cache.json` containing `{"NCT00000001":{"found":true,"enrollment":100}}`.  
+  Consequence: the script reports an `OUTLIER` but exits `0`, so a CI gate passes the failed check.
+
+- **INSTRUMENT READING A DIFFERENT COPY**: line 144.  
+  Exact input: run `python F:\rapidmeta-ssot-shell\scripts\ctgov_cross_check.py` from `F:\tmp` instead of the repo root.  
+  Consequence: it scans and writes relative to `F:\tmp`, so the reviewed worktree is not checked.
+
+- **SELECTOR KEYED TO TOO-NARROW FORM**: lines 28-30.  
+  Exact input: `'NCT00000001': {\n  name: 'Trial',\n  tN: 50,\n  cN: 50\n}`.  
+  Consequence: valid row data split across normal per-field lines is silently skipped because `name`, `tN`, and `cN` must all be on one physical line.
+
+- **TABULATION / COUNT ERROR**: line 183.  
+  Exact input: same file containing `'NCT00000001_A': {\n  name: 'A', tN: 50, cN: 50\n}` and `'NCT00000001_B': {\n  name: 'B', tN: 60, cN: 60\n}`, with cache enrollment `220`.  
+  Consequence: aggregate total becomes `120` instead of `220`, misclassifying independent contrasts as a low enrollment fraction.
+
+- **ZERO CONFLATED WITH ABSENT**: line 303.  
+  Exact input: `'NCT00000002': {\n  name: 'Zero', tN: 0, cN: 0\n}` with cache `{"NCT00000002":{"found":true,"enrollment":100}}`.  
+  Consequence: ratio `0.0` is sorted as if it were `1`, hiding the most extreme outlier from the top-20 display.
+
+No defect found in packet for: probe keyed to string a fix removes; idempotency guard satisfied by own comment/marker; CRLF-vs-LF text comparison; negation dropped; merged-cell/off-by-one specifically.
+tokens used
+52,312
+- **STATUS CODE REPORTING WRAPPER / check cannot fail**: line 314.  
+  Exact input: `BAD_REVIEW.html` containing `'NCT00000001': {\n  name: 'Bad', tN: 200, cN: 0\n}` and `outputs/ctgov_cache.json` containing `{"NCT00000001":{"found":true,"enrollment":100}}`.  
+  Consequence: the script reports an `OUTLIER` but exits `0`, so a CI gate passes the failed check.
+
+- **INSTRUMENT READING A DIFFERENT COPY**: line 144.  
+  Exact input: run `python F:\rapidmeta-ssot-shell\scripts\ctgov_cross_check.py` from `F:\tmp` instead of the repo root.  
+  Consequence: it scans and writes relative to `F:\tmp`, so the reviewed worktree is not checked.
+
+- **SELECTOR KEYED TO TOO-NARROW FORM**: lines 28-30.  
+  Exact input: `'NCT00000001': {\n  name: 'Trial',\n  tN: 50,\n  cN: 50\n}`.  
+  Consequence: valid row data split across normal per-field lines is silently skipped because `name`, `tN`, and `cN` must all be on one physical line.
+
+- **TABULATION / COUNT ERROR**: line 183.  
+  Exact input: same file containing `'NCT00000001_A': {\n  name: 'A', tN: 50, cN: 50\n}` and `'NCT00000001_B': {\n  name: 'B', tN: 60, cN: 60\n}`, with cache enrollment `220`.  
+  Consequence: aggregate total becomes `120` instead of `220`, misclassifying independent contrasts as a low enrollment fraction.
+
+- **ZERO CONFLATED WITH ABSENT**: line 303.  
+  Exact input: `'NCT00000002': {\n  name: 'Zero', tN: 0, cN: 0\n}` with cache `{"NCT00000002":{"found":true,"enrollment":100}}`.  
+  Consequence: ratio `0.0` is sorted as if it were `1`, hiding the most extreme outlier from the top-20 display.
+
+No defect found in packet for: probe keyed to string a fix removes; idempotency guard satisfied by own comment/marker; CRLF-vs-LF text comparison; negation dropped; merged-cell/off-by-one specifically.

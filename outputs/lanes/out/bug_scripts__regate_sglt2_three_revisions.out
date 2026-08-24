@@ -1,0 +1,318 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a0324b-24d8-70d3-ad9e-8ca820bbffe8
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/regate_sglt2_three_revisions.py
+
+--- THE FILE, IN FULL ---
+"""WHY sglt2-hf's STORED CASCADE DOES NOT REPRODUCE -- measured across three revisions.
+
+The re-gate run found four of five gated topics moving under the repaired classifier. Four of
+them also REPRODUCED their stored numbers exactly under the classifier as it stood immediately
+before the repair. `sglt2-hf` did not:
+
+    stored on the object   k3 46   k4 2   k5 8   kNA 0
+    recomputed at 7a08bcbe1 (pre-repair)   k3 48   k4 2   k5 6   kNA 0
+
+Two trials' worth of disagreement that the repair cannot explain, because the repair had not
+happened yet at that revision. So either the stored numbers were produced by an EARLIER
+classifier and never re-run, or the registry records changed under a constant k0.
+
+THIS FILE DECIDES BETWEEN THOSE TWO, and it decides by loading each revision from git rather
+than by argument. `ssot/topic_identity.py` was touched by exactly these commits, newest last:
+
+    e6c08d3be  bcce1602a  92d84da72  b65d892de  f2bf16022  c5b98b329  e20f94068
+
+`sglt2-hf`'s own k_cascade records `restated_2026_08_19_placebo_discriminator: k3 36 -> 46`,
+which is the f2bf16022 rule. If the stored 46 reproduces at f2bf16022 and not after, the
+answer is "restated once and never re-run", and the missing re-run is c5b98b329 -- the
+LEADING-anchor placebo fix, which shipped on the same night and was never carried back to a
+page that had already been gated.
+"""
+import importlib.util
+import json
+import os
+import subprocess
+import sys
+
+REPO = "F:/rapidmeta-ssot-shell"
+sys.path.insert(0, REPO + "/ssot")
+os.environ.setdefault(
+    "RM_CTGOV_CACHE",
+    "F:/claude-temp/claude/F--rapidmeta-ssot-shell/"
+    "eb4d84e5-8a24-4c3b-afe2-34bd91c20bc7/scratchpad/.ctgov-raw-cache")
+
+import ctgov_transport as X          # noqa: E402
+
+SCRATCH = ("F:/claude-temp/claude/F--rapidmeta-ssot-shell/"
+           "6b629e1e-cc8c-4565-af03-e40341ee43f3/scratchpad")
+
+REVISIONS = [
+    ("b65d892de", "reframe(locate): what was randomised"),
+    ("f2bf16022", "placebo-discriminator -- the rule sglt2-hf's own restatement cites"),
+    ("c5b98b329", "E1 LEADING anchor: 'Placebo (for alirocumab)'"),
+    ("e20f94068", "E1 TRAILING anchor: 'Apixaban-matching placebo'  == HEAD for this file"),
+]
+
+STORED = {"k3_experimental": 46, "k4_comparator": 2, "k5_background": 8,
+          "kNA_not_assessable": 0}
+
+
+def load_rev(rev):
+    src = subprocess.run(["git", "-C", REPO, "show", f"{rev}:ssot/topic_identity.py"],
+                         capture_output=True, check=True).stdout.decode("utf-8", "replace")
+    os.makedirs(SCRATCH, exist_ok=True)
+    path = os.path.join(SCRATCH, f"ti_{rev}.py")
+    with open(path, "w", encoding="utf-8") as fh:
+        fh.write(src)
+    spec = importlib.util.spec_from_file_location(f"ti_{rev}", path)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+def main():
+    ids = sorted(set(json.load(open(
+        os.path.join(SCRATCH, "regate_cascade_2026_08_19.json"),
+        encoding="utf-8"))["sglt2-hf"]["included_in_object"]))
+    # The surfaced set, not just the included set -- reread from the same run.
+    run = json.load(open(os.path.join(SCRATCH, "regate_cascade_2026_08_19.json"),
+                         encoding="utf-8"))["sglt2-hf"]
+    surfaced = sorted(set(list(run["changed"]) + run["included_in_object"]))
+    # `changed` only holds movers; re-execute the recorded query for the full set instead.
+    sys.path.insert(0, REPO + "/scripts")
+    import regate_cascade_2026_08_19 as R          # noqa: E402
+    state, all_ids, detail = R.raw_search(R.TOPICS["sglt2-hf"]["raw_expr"])
+    all_ids = sorted(set(all_ids))
+    print(f"surfaced set re-executed: {state} -- {detail}")
+    if state != X.OK:
+        print("REFUSING: the surfaced set is incomplete, so every k below would be a floor.")
+        return 1
+
+    payloads = {}
+    for nct in all_ids:
+        st, study, det = X.fetch_raw(nct)
+        if st != X.OK:
+            print(f"  UNREACHABLE {nct}: {st} {det} -- never read, not a verdict")
+            continue
+        payloads[nct] = X.require_raw_v2(study, nct)
+
+    print(f"\n{'revision':<12}{'k3':>5}{'k4':>5}{'k5':>5}{'kNA':>5}   "
+          f"reproduces the stored 46/2/8/0?")
+    per_rev = {}
+    for rev, why in REVISIONS:
+        mod = load_rev(rev)
+        syns = mod.synonyms_for("sglt2 inhibitors")
+        roles = {n: mod.locate(p, syns)[0] for n, p in payloads.items()}
+        per_rev[rev] = roles
+        t = {"k3_experimental": sum(1 for r in roles.values() if r == mod.EXPERIMENTAL),
+             "k4_comparator": sum(1 for r in roles.values() if r == mod.COMPARATOR),
+             "k5_background": sum(1 for r in roles.values() if r == mod.BACKGROUND),
+             "kNA_not_assessable": sum(1 for r in roles.values() if r == mod.NOT_ASSESSABLE)}
+        same = all(t[k] == STORED[k] for k in STORED)
+        print(f"{rev:<12}{t['k3_experimental']:>5}{t['k4_comparator']:>5}"
+              f"{t['k5_background']:>5}{t['kNA_not_assessable']:>5}   "
+              f"{'YES -- this is the revision the page was built to' if same else 'no'}")
+        print(f"            {why}")
+
+    print("\nPER-TRIAL MOVEMENT between consecutive revisions:")
+    for (a, _), (b, _) in zip(REVISIONS, REVISIONS[1:]):
+        moved = {n: (per_rev[a][n], per_rev[b][n]) for n in per_rev[a]
+                 if per_rev[a][n] != per_rev[b][n]}
+        print(f"  {a} -> {b}: {len(moved)} moved")
+        for n, (x, y) in sorted(moved.items()):
+            flag = "  *** INCLUDED IN THE OBJECT ***" if n in ids else ""
+            print(f"      {n}  {x} -> {y}{flag}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+
+codex
+I’ll treat the pasted file as the full record and do this as a defect hunt against the named shapes only. I’m not going to infer missing caller behavior beyond what this module shows.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Get-Content -LiteralPath 'F:\\E156\\rewrite-workbook.txt' -TotalCount 40" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Get-Content -LiteralPath 'F:\\ProjectIndex\\INDEX.md' -TotalCount 40" in F:\rapidmeta-ssot-shell
+ succeeded in 411ms:
+<!-- sentinel:skip-file - portfolio registry; absolute paths ARE the data -->
+# C: Drive Project Index
+> **Last updated**: 2026-05-14 (C:\HTML apps focused repair batch continued: hub shell launch fix, static contracts across ten HTML app repos, NMA/living-meta/nma-dose-response landing and asset-link repairs, and NMA doc hardcoded-path cleanup. Prior SheafNMA v0.2.0, D-drive legacy smoke-contract continuation, CardioOracle lifecycle status freeze, C-drive model/project smoke-contract continuation, mahmood789 consolidation, Sentinel/Overmind JSONL and verification repair, C-drive reproducibility audit continuation, C-drive verification repair, D-drive repair batch, superapp, C-drive sweep, home-folder hardening, Trial Truthfulness Atlas, and portfolio notes retained below.)
+
+### C:\HTML apps focused repair batch (2026-05-14)
+> - `C:\HTML apps\hub\`: added a launchable `index.html` shell and static contract tests for required registry/runtime wiring; fixed `app.js` local `file://` launch resolution so the hub opened from `hub\index.html` links sibling apps from the parent HTML-apps directory instead of nesting paths under `hub`. Verification: `pytest -q -p no:cacheprovider` -> `3 passed`; `node --check app.js && node --check projects.js` -> PASS; headless Chrome smoke on `file:///mnt/c/HTML%20apps/hub/index.html` confirmed the page title and sibling app links. GitHub pushed: `mahmood726-cyber/hub` main `c1a6725`.
+> - `C:\HTML apps\evidence-board\`, `C:\HTML apps\focus-studio\`, `C:\HTML apps\kanban-lab\`: added pytest-visible static app shell contracts covering title/description, localStorage persistence hooks, key controls, and absence of unresolved templates or hardcoded local drive paths; added repo `.gitignore` entries for Python caches and `PROGRESS.md`. Verification: each `pytest -q -p no:cacheprovider` -> `2 passed` with the existing pytest `cache_dir` warning; scoped `git diff --check` -> PASS. GitHub pushed: `evidence-board` master `9a87c8b`, `focus-studio` master `0fa728b`, `kanban-lab` master `81cad38`.
+> - `C:\HTML apps\nma-pro-v2\`: fixed the landing page's broken app links from absent v6/v7 asset filenames to the current `e156-submission/assets/nma-pro-v8.0.html`, added static link-resolution contracts, and removed Sentinel P0 hardcoded local OneDrive paths from legacy docs. Verification: `pytest -q -p no:cacheprovider tests/test_smoke.py tests/test_static_links.py` -> `3 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=1 INFO=302` (pre-existing tracked autogen warning plus HTML a11y INFO). GitHub pushed: master `a2834e7` for the link fix and master `a74e385` for the P0 doc cleanup.
+> - `C:\HTML apps\IPD-Meta-Pro\` and `C:\HTML apps\Truthcert1\`: added static link-resolution contracts for landing-page local assets and canonical app entrypoints. Verification: `IPD-Meta-Pro` `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; `Truthcert1` same command -> `2 passed` with existing pytest `cache_dir` warning. GitHub pushed: `IPD-Meta-Pro` master `b26ee09`, `Truthcert1` master `81eddd3`.
+> - `C:\HTML apps\living-meta\`: repaired landing-page validation links that pointed to a missing HTML asset and an out-of-repo sibling path; linked the existing validation and limitations docs instead, and added a static link-resolution contract. Verification: `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=8` (pre-existing HTML a11y INFO). GitHub pushed: master `c3c8a9b`.
+> - `C:\HTML apps\Pairwiseai\`: added a static landing-page contract covering local link resolution, absence of unresolved templates/local drive paths, and the key app entrypoints under `e156-submission/assets`. Verification: `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=1731` (pre-existing HTML a11y INFO). GitHub pushed: master `2ade493`.
+> - `C:\HTML apps\nma-dose-response-app\`: pushed the existing smoke-blocker commit and added an E156 asset-bundle repair so `e156-submission\assets\index*.html` resolves its JS runtime dependencies from inside the assets folder; added a static link-resolution contract covering root and E156 app entrypoints. Verification: `pytest -q -p no:cacheprovider tests/test_smoke.py tests/test_static_links.py` -> `4 passed` with the existing pytest `cache_dir` warning; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=442` (pre-existing HTML a11y INFO). GitHub pushed: master `e95fae0` and `96594b6`.
+> - Push gate: Windows Git credential path succeeded after WSL Git lacked HTTPS credentials. Sentinel pre-push/manual scan verdicts were BLOCK=0; evidence-board INFO=18, focus-studio INFO=10, kanban-lab INFO=10, living-meta INFO=8, Pairwiseai INFO=1731, nma-dose-response-app INFO=442 (pre-existing P2 HTML accessibility notes); hub push emitted no Sentinel findings.
+> - Existing unrelated dirty files were left unstaged in these repos, mainly protocol/license/doc edits and untracked `paper\` outputs in the three app repos, plus pre-existing hub metadata/submission/style edits.
+
+### SheafNMA (2026-05-12; v0.2.0 real-NMA-corpus validation + 36-cell Ã— 1000-rep simulation + methods paper draft)
+> - `C:\Models\SheafNMA\` â€” cellular-sheaf inconsistency localization for network meta-analysis. v0.1.0 (2026-04-07) was math + single-file HTML dashboard + E156 #153 micro-paper on a synthetic 12-contrast network. v0.2.0 refactored the 457-LOC `generate_figures.py` into a `sheafnma/` package (`core`, `io`, `simulate`, `comparators`, `r_bridge`), validated on 13 R-netmeta built-in NMAs, and shipped a methods-paper draft for Research Synthesis Methods.
+> - Method: precision-weighted coboundary `F[e, treat1] = -1/SE_e, F[e, treat2] = +1/SE_e`; sheaf Laplacian `L = Fáµ€F` (symmetric PSD); WLS-solve node estimates with node 0 anchored; per-edge residuals `r_e = dÌƒ_e âˆ’ (F x*)_e` localize inconsistency; **Global Inconsistency Index** `GII = Î£ rÂ²` is the global statistic. One algebraic object yields both global + per-edge â€” complements (not replaces) node-splitting.
+> - Real-corpus headline: across **13 R-netmeta built-in NMAs** (Senn 2013 diabetes, Dias smokingcessation, Dong 2013 thrombolytics, Linde 2015/2016 acupuncture, Salanti antimanic, Baker, Dogliotti, Franchini, Gurusamy, Stowe, Woods, dietaryfat, parkinson) the global design-by-treatment Ï‡Â² (Higgins 2012) failed to reject in all 13. **SheafNMA flagged â‰¥1 localized inconsistency edge in 5 of those 13 (38.5%)** at the Youden-frozen threshold of **2.6912** â€” networks that look globally consistent harbor at least one inconsistent edge the global test misses.
+> - Simulation rigor: 36-cell grid (n_treatments âˆˆ {4,6,8} Ã— n_studies_per_edge âˆˆ {3,5,10} Ã— Ï„_inc âˆˆ {0,0.2,0.5,1.0}) Ã— **1000 replications per cell**, held-out training cell at (6,5,0.5) for Youden's-J threshold selection (frozen before evaluating remaining 35 cells). Type-I error at Ï„_inc=0 was **0.000 across all cells**. Mean per-edge sensitivity 0.981 / specificity 0.945 at Ï„_inc=0.5.
+> - Comparator suite: DBT-Ï‡Â² (Higgins 2012 Â§3.2, pure-Python), Bucher loop closure (Bucher 1997, pure-Python), node-splitting (Dias 2010, via `netmeta::netsplit` shelled to R 4.5.2). Per-edge agreement with node-splitting was 45.4% â€” asymmetric: SheafNMA flags 12/506 = 2.4% of edges vs node-splitting's 250/436 = 57% at p<0.05 Bonferroni-uncorrected (the calibrated Youden cut is much more conservative than a per-edge Î±-test). Â§4.2 of the paper explicitly explains this rather than presenting the 45.4% bare.
+> - Corpus export: `corpus/export_netmeta.R` handles 7 distinct netmeta dataset formats (contrast-level TE/seTE, arm-based event/n, arm-based mean/sd/n, wide multi-arm OR/MD, three-arm smokingcessation, rate-based IRR/person-years) and exports all 13 to `corpus/data/*.csv` in the sheafnma standard schema (`study, treat1, treat2, effect, se`).
+> - GitHub: `https://github.com/mahmood726-cyber/sheaf-nma` (master `6c7db13`, tag `v0.2.0`). Pages LIVE: `https://mahmood726-cyber.github.io/sheaf-nma/` (Phase-1 dashboard unchanged in v0.2). 33 tests passing; Sentinel BLOCK=0 WARN=0 (2 INFO = pre-existing HTML a11y items in the v0.1 dashboard).
+> - Workbook entry: `[153/919] SheafNMA`. CURRENT BODY updated 2026-05-12 to the v0.2 156-word / 7-sentence body (replaces v0.1 synthetic-"smoking cessation" framing with the real netmeta corpus). SUBMITTED `[ ]`; YOUR REWRITE preserved untouched per workbook protection rules. Target: Research Synthesis Methods full methods paper (`paper/sheafnma_v2.md`, 1190 words drafted; [TODO] prose blocks in Â§1 Background / Â§4.3 case studies / Â§5 Discussion) + SynthÄ“sis Methods Note companion (`paper/methods_note.md`, 156-word).
+> - Known landmine: `Dong2013` netsplit fails inside netmeta's multi-arm validator ("wrong number of comparisons"); SheafNMA + DBT + Bucher still run on it, only `netsplit_p` column is blank for its 70 edges.
+> - v0.2 deferrals (spec Â§10): multi-arm covariance correction (single-D stalks only), higher-D stalks (Phase 1 Â§3.4 future work), Bayesian sheaf priors, OTS / Bitcoin anchor (broken on Py 3.13 Windows per `lessons.md`).
+
+### hksj-q-floor-atlas (2026-05-12; 8th Pairwise70 atlas; tags prereg-v0.0.1 + v0.1.0)
+> - `C:\Projects\hksj-q-floor-atlas\` â€” 8th calibration atlas in the Pairwise70 series. Sister to `cochrane-modern-re` (engine source), `repro-floor-atlas`, `responder-floor-atlas`, `trial-truthfulness-atlas`, `africa-tb-atlas`, `pactr-hiddenness-atlas`, `africa-hiv-prep-atlas`.
+> - Question: how often does omitting the `max(1, Q/(k-1))` floor on HKSJ variance, in the I^2=0 regime where un-floored HKSJ narrows below REML+Wald, overstate precision across the Cochrane CDSR? Pre-registered via `prereg-v0.0.1` tag + 4 Internet Archive snapshots (Bitcoin OTS deferred â€” Python 3.13 SSL libeay32 bug per lessons.md; web-stamper fallback documented).
+> - Headline: D_1 (I^2=0, k>=2, converged) = 3,677 MAs = 57.6% of corpus. On D_1a (Q>0, n=3,536): median CI-width ratio (floored / un-floored) = 3.64x (IQR 1.60-10.56; 95th pct 57.4x); significance lost in 17.08% of MAs. D_1b (Q=0, n=141 = 3.83% of D_1): sig_loss 24.8%, ratio unbounded â€” un-floored HKSJ SE is exactly zero (the floor effect is unbounded); see `docs/AMENDMENTS.md` entry 1 for split rationale.
+> - Per k-stratum medians: k=2: 4.26x (sig_loss 8.6%); k=3: 3.64x (12.9%); k=4-5: 3.10x (13.1%); k=6-9: 3.18x (17.3%); k>=10: 3.80x (25.1%). sig_loss increases with k because higher-k pooled effects sit closer to null, so floor widening crosses zero more often.
+> - Engine: independent metafor pass via fork of cochrane-modern-re's `run_metafor.R` minus the floor block. Input parquet SHA-256 pinned in `docs/spec.md` sec.1.5 (`31434fb118c6ec44a025eeb43a90e35ef9e050711fa45aa2cb5c1244b2d89751`). 3 hand-verified golden MAs match metafor reference within 1e-6.
+> - GitHub: `https://github.com/mahmood726-cyber/hksj-q-floor-atlas` (master + tags `prereg-v0.0.1` and `v0.1.0`). Pages LIVE: `https://mahmood726-cyber.github.io/hksj-q-floor-atlas/`.
+> - 64 tests; Sentinel BLOCK=0 WARN=0 INFO=0; 7 IA snapshots recorded in `docs/preregistration.md`.
+> - Workbook entry: `[920/920] hksj-q-floor-atlas`; target SynthÄ“sis Methods Note (340w draft, â‰¤400 cap).
+> - v0.2 candidates (NOT in v0.1.0): published-CI matching ("is THIS Cochrane review wrong?"), PM/SJ/Bayesian Ï„Â² robustness, DL re-pooling, Bitcoin OTS once Python 3.13 issue is resolved.
+
+### D-drive legacy smoke-contract continuation (2026-05-12)
+> - `D:\Projects\mahmood789\786-MIII-Mean-single-group\`: fixed the placeholder issue-tracker link in `README.md` and added a pytest-visible static contract for the Shiny app package surface, sample-data schema, metafor workflow, downloads, and absence of local paths/template links. Verification: `pytest -q -p no:cacheprovider` -> `2 passed`; `git diff --check` -> PASS.
+
+ succeeded in 416ms:
+E156 REWRITE WORKBOOK
+sentinel:skip-file
+sentinel:claim-language-allow
+(Sentinel markers above:
+ - sentinel:skip-file: this workbook intentionally contains C:\Users\... PATH:
+   lines pointing to each project's local source directory â€” they're metadata,
+   not code. The marker keeps Sentinel from emitting ~16 P0 hardcoded-path
+   BLOCKs every push.
+ - sentinel:claim-language-allow: CURRENT BODY entries are the AI-drafted
+   summaries that students rewrite into hedged language â€” flagging overclaim
+   words IN those drafts is the whole pedagogical point, not a defect.
+   File-scope marker here suppresses the ~1293 claim-language WARNs on the
+   CURRENT BODY entries; the YOUR REWRITE entries are where the hedging
+   discipline matters and remains lintable in the rendered student board.)
+
+DENOMINATOR CONVENTION (added 2026-05-06 after review-findings P1-5):
+  Each entry header is `[N/total]` where N = ordinal insertion index and
+  `total` = current portfolio size as of the most recent reconcile sweep.
+  Older entries are back-rewritten on milestone boundaries (rather than
+  preserving their insertion-time denominator) to keep
+  reconcile_counts.py from flagging "WORKBOOK DRIFT". The pre-commit
+  guard (scripts/check_workbook_commit.py) blocks commits that bundle a
+  denominator sweep with substantive content edits to existing entries.
+
+======================================================================
+
+INSTRUCTIONS:
+- Replace text under YOUR REWRITE with your body (at most 156 words, 7 sentences)
+- S1=Question S2=Dataset S3=Method S4=Result(number+interval) S5=Robustness S6=Interpretation S7=Boundary(limitation)
+- Leave YOUR REWRITE blank to keep current version
+- Run: python C:/E156/scripts/apply_rewrites.py          (validate)
+- Run: python C:/E156/scripts/apply_rewrites.py --apply (apply)
+
+AUTHORSHIP RULE (mandatory for every submission):
+- Mahmood Ahmad (MA) must NEVER be listed as first author and NEVER as
+  last (senior) author. The student rewriter is first author. Last/senior
+  author must be a faculty supervisor or co-investigator distinct from MA.
+  MA's position is middle-author only (e.g. role: data curation, software,
+  methodology, supervision-of-tooling). This applies to every paper in
+  this workbook regardless of contribution depth.
+
+codex
+Line numbers counted from the pasted file.
+
+**Defects**
+
+- `line 77` / `line 78` - instrument reading a different copy than the one being changed.  
+  Exact input: current worktree `scripts/regate_cascade_2026_08_19.py` has an uncommitted change so `TOPICS["sglt2-hf"]["raw_expr"]` returns only `["NCT00000001"]`, while `REVISIONS` still names old git commits.  
+  Consequence: the table changes because of the current worktree query module, not because of any listed `topic_identity.py` revision.
+
+- `line 90` plus `line 119` - status code reports the wrapper rather than the work / zero conflated with absent.  
+  Exact input: `R.raw_search(...) -> (X.OK, ["NCT00000001"], "ok")`; `X.fetch_raw("NCT00000001") -> ("TIMEOUT", None, "timeout")`.  
+  Consequence: the only trial is dropped, counts are computed on an incomplete denominator, and the script still exits `0`.
+
+- `line 119` - status code reports the wrapper rather than the work.  
+  Exact input: `R.raw_search(...) -> (X.OK, ["NCT00000001"], "ok")`; fetch succeeds; every loaded revision returns `EXPERIMENTAL`, producing `1/0/0/0`, so no revision equals stored `46/2/8/0`.  
+  Consequence: the script fails to decide the asserted question but still reports shell success.
+
+**No Packet-Proven Defect Found**
+
+- Check that cannot fail: none beyond the ignored failed fetch above.
+- Probe keyed to the string a fix removes: none found.
+- Idempotency guard satisfied by its own comment/marker: none found.
+- Selector keyed to a form the corpus does not use: COULD NOT DETERMINE; missing the historical `ssot/topic_identity.py` revision contents and CT.gov payload corpus.
+- Text comparison with CRLF/LF sensitivity: none found.
+- Merged-cell/off-by-one tabulation/count: none found.
+- Negation dropped: COULD NOT DETERMINE; missing classifier source and payload text.
+- Wrapper status-code defect: found above.
+tokens used
+29,469
+Line numbers counted from the pasted file.
+
+**Defects**
+
+- `line 77` / `line 78` - instrument reading a different copy than the one being changed.  
+  Exact input: current worktree `scripts/regate_cascade_2026_08_19.py` has an uncommitted change so `TOPICS["sglt2-hf"]["raw_expr"]` returns only `["NCT00000001"]`, while `REVISIONS` still names old git commits.  
+  Consequence: the table changes because of the current worktree query module, not because of any listed `topic_identity.py` revision.
+
+- `line 90` plus `line 119` - status code reports the wrapper rather than the work / zero conflated with absent.  
+  Exact input: `R.raw_search(...) -> (X.OK, ["NCT00000001"], "ok")`; `X.fetch_raw("NCT00000001") -> ("TIMEOUT", None, "timeout")`.  
+  Consequence: the only trial is dropped, counts are computed on an incomplete denominator, and the script still exits `0`.
+
+- `line 119` - status code reports the wrapper rather than the work.  
+  Exact input: `R.raw_search(...) -> (X.OK, ["NCT00000001"], "ok")`; fetch succeeds; every loaded revision returns `EXPERIMENTAL`, producing `1/0/0/0`, so no revision equals stored `46/2/8/0`.  
+  Consequence: the script fails to decide the asserted question but still reports shell success.
+
+**No Packet-Proven Defect Found**
+
+- Check that cannot fail: none beyond the ignored failed fetch above.
+- Probe keyed to the string a fix removes: none found.
+- Idempotency guard satisfied by its own comment/marker: none found.
+- Selector keyed to a form the corpus does not use: COULD NOT DETERMINE; missing the historical `ssot/topic_identity.py` revision contents and CT.gov payload corpus.
+- Text comparison with CRLF/LF sensitivity: none found.
+- Merged-cell/off-by-one tabulation/count: none found.
+- Negation dropped: COULD NOT DETERMINE; missing classifier source and payload text.
+- Wrapper status-code defect: found above.

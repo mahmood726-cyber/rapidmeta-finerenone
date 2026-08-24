@@ -1,0 +1,865 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a0314a-ed9b-7d31-a0b4-a1b57bbe7f80
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/audit_published_over_unestablished_estimand.py
+
+--- THE FILE, IN FULL ---
+"""Pages publishing a pooled estimate for an outcome whose own object declines to stand behind it.
+
+THE SHAPE, AND IT IS DIFFERENT FROM EVERY OTHER DEFECT FOUND TONIGHT. Every other one was an
+instrument or a projector saying something WRONG. This one is a CORRECT OBJECT, CORRECT
+FIELDS, A CORRECT REFUSAL -- AND NO CONSUMER OBLIGED TO READ THEM.
+
+`sglt2-mace-cvot-review` is the worked case. Its outcome `name` begins "Multiple
+trial-declared outcomes:" and concatenates FOUR different registered titles separated by
+pipes. `estimand_established` is FALSE. `estimand_id_means` says "not recorded on the page
+this object was extracted from". `pool_uniformity.effect_measure` says "NOT ESTABLISHED".
+Every one of those fields is honest and correct, and the page published 0.9074 (0.831 to
+0.9908) anyway.
+
+    A DECLARATION NOBODY IS REQUIRED TO CONSULT IS DOCUMENTATION, AND DOCUMENTATION HAS
+    FAILED AS A CONTROL EVERY TIME THIS PROJECT HAS TESTED IT.
+
+That is the same law arriving in the DATA layer rather than in the code layer. The heredoc
+rule was breached nine times by an author who had read it; `estimand_established: false` is
+breached by a renderer that was never told to ask.
+
+WHAT THIS COUNTS. For every outcome block that publishes a pooled point (not null, not
+withdrawn), the state of `estimand_established`:
+
+    TRUE   established: every contributing trial read and shown to measure the same quantity
+    FALSE  CHECKED AND FAILED -- the object states the trials do NOT measure one quantity
+    NULL   never checked. `estimand_established_means` on these objects says explicitly that
+           an ABSENT assertion and a NEGATIVE one are different states and null is not a pass
+
+FALSE is the sharp population: the object has looked and said no, and the page publishes.
+NULL is larger and softer -- nobody asked. Reported separately and never summed, because
+summing them would make an unasked question look like a failed one.
+
+THIS FILE RECOMMENDS AND DOES NOT ACT. Whether the remedy is a build-time refusal or a
+disclosure on the page is a published-number decision. The count is what that decision
+should be made on.
+"""
+import io
+import json
+import os
+import sys
+import glob
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from instrument_controls import require_controls
+
+
+def published_blocks(obj):
+    out = []
+    for name, blk in ((obj.get("results") or {}).get("by_outcome") or {}).items():
+        if not isinstance(blk, dict):
+            continue
+        p = blk.get("pooled")
+        if not isinstance(p, dict):
+            continue
+        if p.get("point") is None or p.get("withdrawn"):
+            continue
+        out.append((name, blk, p))
+    return out
+
+
+def main():
+    # CONSTRUCTED CONTROLS. The positive is the sglt2-mace shape; the negative is the same
+    # block with the flag TRUE, which must not be counted.
+    bad = {"results": {"by_outcome": {"primary": {
+        "pooled": {"point": 0.9074}, "estimand_established": False}}}}
+    good = {"results": {"by_outcome": {"primary": {
+        "pooled": {"point": 0.9074}, "estimand_established": True}}}}
+    require_controls(
+        "audit_published_over_unestablished_estimand",
+        positive=("a published point over estimand_established FALSE -- the sglt2-mace shape",
+                  any(b.get("estimand_established") is False
+                      for _n, b, _p in published_blocks(bad)), True),
+        negative=("the same block with the flag TRUE",
+                  any(b.get("estimand_established") is False
+                      for _n, b, _p in published_blocks(good)), True))
+
+    false_hits, null_hits, true_hits, absent = [], [], [], []
+    topics = 0
+    for path in sorted(glob.glob(os.path.join(REPO, "ssot", "*", "*.json"))):
+        topic = os.path.basename(os.path.dirname(path))
+        if os.path.basename(path) != topic + ".json":
+            continue
+        try:
+            obj = json.load(io.open(path, encoding="utf-8"))
+        except Exception:
+            continue
+        topics += 1
+        for name, blk, p in published_blocks(obj):
+            flag = blk.get("estimand_established", "__missing__")
+            row = (topic, name, p.get("point"), p.get("measure"),
+                   str(blk.get("estimand_id_means") or "")[:70])
+            if flag is False:
+                false_hits.append(row)
+            elif flag is None:
+                null_hits.append(row)
+            elif flag == "__missing__":
+                absent.append(row)
+            else:
+                true_hits.append(row)
+
+    total = len(false_hits) + len(null_hits) + len(true_hits) + len(absent)
+    print("")
+    print("OBJECTS READ: %d.  POOLED ESTIMATES PUBLISHED (point set, not withdrawn): %d"
+          % (topics, total))
+    print("")
+    print("    estimand_established TRUE      %3d   established and published" % len(true_hits))
+    print("    estimand_established FALSE     %3d   THE OBJECT LOOKED AND SAID NO"
+          % len(false_hits))
+    print("    estimand_established NULL      %3d   never checked" % len(null_hits))
+    print("    the field is ABSENT            %3d   the question was never posed" % len(absent))
+    print("")
+    print("NEVER SUMMED. A question nobody asked and a question answered NO are different")
+    print("states, and the objects' own `estimand_established_means` says so.")
+
+    print("")
+    print("PUBLISHED OVER A FALSE FLAG -- the object has looked and said the trials do NOT")
+    print("measure one quantity, and a reader meets the number anyway:")
+    for topic, name, point, measure, means in false_hits:
+        print("    %-40s %-28s %s %s" % (topic, name, measure or "?", point))
+        if means:
+            print("        estimand_id_means: %s" % means)
+    if not false_hits:
+        print("    none")
+
+    print("")
+    print("PUBLISHED OVER A NULL FLAG -- nobody asked (%d):" % len(null_hits))
+    for topic, name, point, measure, _m in null_hits[:20]:
+        print("    %-40s %-28s %s %s" % (topic, name, measure or "?", point))
+    if len(null_hits) > 20:
+        print("    ... +%d more" % (len(null_hits) - 20))
+
+    print("")
+    print("RECOMMENDATION, NOT AN ACTION. Whether the remedy is a build-time REFUSAL or a")
+    print("DISCLOSURE beside the number is a published-number decision and belongs to")
+    print("Mahmood. The count above is what that decision should be made on.")
+
+
+if __name__ == "__main__":
+    main()
+
+codex
+I’m treating the pasted packet as the full record and reviewing only the visible module. I’ll report only defects that are demonstrable from this file’s own inputs and behavior.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$path='"'scripts/audit_published_over_unestablished_estimand.py'; if (Test-Path "'$path) { $i=0; Get-Content -LiteralPath $path | ForEach-Object { $i++; '"'{0,4}: {1}' -f "'$i, $_ } | Select-Object -First 150 } else { '"'missing' }" in F:\rapidmeta-ssot-shell
+ succeeded in 1670ms:
+   1: """Pages publishing a pooled estimate for an outcome whose own object declines to stand behind it.
+   2: 
+   3: THE SHAPE, AND IT IS DIFFERENT FROM EVERY OTHER DEFECT FOUND TONIGHT. Every other one was an
+   4: instrument or a projector saying something WRONG. This one is a CORRECT OBJECT, CORRECT
+   5: FIELDS, A CORRECT REFUSAL -- AND NO CONSUMER OBLIGED TO READ THEM.
+   6: 
+   7: `sglt2-mace-cvot-review` is the worked case. Its outcome `name` begins "Multiple
+   8: trial-declared outcomes:" and concatenates FOUR different registered titles separated by
+   9: pipes. `estimand_established` is FALSE. `estimand_id_means` says "not recorded on the page
+  10: this object was extracted from". `pool_uniformity.effect_measure` says "NOT ESTABLISHED".
+  11: Every one of those fields is honest and correct, and the page published 0.9074 (0.831 to
+  12: 0.9908) anyway.
+  13: 
+  14:     A DECLARATION NOBODY IS REQUIRED TO CONSULT IS DOCUMENTATION, AND DOCUMENTATION HAS
+  15:     FAILED AS A CONTROL EVERY TIME THIS PROJECT HAS TESTED IT.
+  16: 
+  17: That is the same law arriving in the DATA layer rather than in the code layer. The heredoc
+  18: rule was breached nine times by an author who had read it; `estimand_established: false` is
+  19: breached by a renderer that was never told to ask.
+  20: 
+  21: WHAT THIS COUNTS. For every outcome block that publishes a pooled point (not null, not
+  22: withdrawn), the state of `estimand_established`:
+  23: 
+  24:     TRUE   established: every contributing trial read and shown to measure the same quantity
+  25:     FALSE  CHECKED AND FAILED -- the object states the trials do NOT measure one quantity
+  26:     NULL   never checked. `estimand_established_means` on these objects says explicitly that
+  27:            an ABSENT assertion and a NEGATIVE one are different states and null is not a pass
+  28: 
+  29: FALSE is the sharp population: the object has looked and said no, and the page publishes.
+  30: NULL is larger and softer -- nobody asked. Reported separately and never summed, because
+  31: summing them would make an unasked question look like a failed one.
+  32: 
+  33: THIS FILE RECOMMENDS AND DOES NOT ACT. Whether the remedy is a build-time refusal or a
+  34: disclosure on the page is a published-number decision. The count is what that decision
+  35: should be made on.
+  36: """
+  37: import io
+  38: import json
+  39: import os
+  40: import sys
+  41: import glob
+  42: 
+  43: REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+  44: sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+  45: from instrument_controls import require_controls
+  46: 
+  47: 
+  48: def published_blocks(obj):
+  49:     out = []
+  50:     for name, blk in ((obj.get("results") or {}).get("by_outcome") or {}).items():
+  51:         if not isinstance(blk, dict):
+  52:             continue
+  53:         p = blk.get("pooled")
+  54:         if not isinstance(p, dict):
+  55:             continue
+  56:         if p.get("point") is None or p.get("withdrawn"):
+  57:             continue
+  58:         out.append((name, blk, p))
+  59:     return out
+  60: 
+  61: 
+  62: def main():
+  63:     # CONSTRUCTED CONTROLS. The positive is the sglt2-mace shape; the negative is the same
+  64:     # block with the flag TRUE, which must not be counted.
+  65:     bad = {"results": {"by_outcome": {"primary": {
+  66:         "pooled": {"point": 0.9074}, "estimand_established": False}}}}
+  67:     good = {"results": {"by_outcome": {"primary": {
+  68:         "pooled": {"point": 0.9074}, "estimand_established": True}}}}
+  69:     require_controls(
+  70:         "audit_published_over_unestablished_estimand",
+  71:         positive=("a published point over estimand_established FALSE -- the sglt2-mace shape",
+  72:                   any(b.get("estimand_established") is False
+  73:                       for _n, b, _p in published_blocks(bad)), True),
+  74:         negative=("the same block with the flag TRUE",
+  75:                   any(b.get("estimand_established") is False
+  76:                       for _n, b, _p in published_blocks(good)), True))
+  77: 
+  78:     false_hits, null_hits, true_hits, absent = [], [], [], []
+  79:     topics = 0
+  80:     for path in sorted(glob.glob(os.path.join(REPO, "ssot", "*", "*.json"))):
+  81:         topic = os.path.basename(os.path.dirname(path))
+  82:         if os.path.basename(path) != topic + ".json":
+  83:             continue
+  84:         try:
+  85:             obj = json.load(io.open(path, encoding="utf-8"))
+  86:         except Exception:
+  87:             continue
+  88:         topics += 1
+  89:         for name, blk, p in published_blocks(obj):
+  90:             flag = blk.get("estimand_established", "__missing__")
+  91:             row = (topic, name, p.get("point"), p.get("measure"),
+  92:                    str(blk.get("estimand_id_means") or "")[:70])
+  93:             if flag is False:
+  94:                 false_hits.append(row)
+  95:             elif flag is None:
+  96:                 null_hits.append(row)
+  97:             elif flag == "__missing__":
+  98:                 absent.append(row)
+  99:             else:
+ 100:                 true_hits.append(row)
+ 101: 
+ 102:     total = len(false_hits) + len(null_hits) + len(true_hits) + len(absent)
+ 103:     print("")
+ 104:     print("OBJECTS READ: %d.  POOLED ESTIMATES PUBLISHED (point set, not withdrawn): %d"
+ 105:           % (topics, total))
+ 106:     print("")
+ 107:     print("    estimand_established TRUE      %3d   established and published" % len(true_hits))
+ 108:     print("    estimand_established FALSE     %3d   THE OBJECT LOOKED AND SAID NO"
+ 109:           % len(false_hits))
+ 110:     print("    estimand_established NULL      %3d   never checked" % len(null_hits))
+ 111:     print("    the field is ABSENT            %3d   the question was never posed" % len(absent))
+ 112:     print("")
+ 113:     print("NEVER SUMMED. A question nobody asked and a question answered NO are different")
+ 114:     print("states, and the objects' own `estimand_established_means` says so.")
+ 115: 
+ 116:     print("")
+ 117:     print("PUBLISHED OVER A FALSE FLAG -- the object has looked and said the trials do NOT")
+ 118:     print("measure one quantity, and a reader meets the number anyway:")
+ 119:     for topic, name, point, measure, means in false_hits:
+ 120:         print("    %-40s %-28s %s %s" % (topic, name, measure or "?", point))
+ 121:         if means:
+ 122:             print("        estimand_id_means: %s" % means)
+ 123:     if not false_hits:
+ 124:         print("    none")
+ 125: 
+ 126:     print("")
+ 127:     print("PUBLISHED OVER A NULL FLAG -- nobody asked (%d):" % len(null_hits))
+ 128:     for topic, name, point, measure, _m in null_hits[:20]:
+ 129:         print("    %-40s %-28s %s %s" % (topic, name, measure or "?", point))
+ 130:     if len(null_hits) > 20:
+ 131:         print("    ... +%d more" % (len(null_hits) - 20))
+ 132: 
+ 133:     print("")
+ 134:     print("RECOMMENDATION, NOT AN ACTION. Whether the remedy is a build-time REFUSAL or a")
+ 135:     print("DISCLOSURE beside the number is a published-number decision and belongs to")
+ 136:     print("Mahmood. The count above is what that decision should be made on.")
+ 137: 
+ 138: 
+ 139: if __name__ == "__main__":
+ 140:     main()
+
+codex
+The line numbers in the workspace copy match the pasted module. I’m checking the imported control helper only where the pasted file’s behavior depends on its tuple contract; otherwise I’m staying inside the packet.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$path='"'scripts/instrument_controls.py'; if (Test-Path "'$path) { $i=0; Get-Content -LiteralPath $path | ForEach-Object { $i++; '"'{0,4}: {1}' -f "'$i, $_ } | Select-Object -First 200 } else { '"'missing' }" in F:\rapidmeta-ssot-shell
+ succeeded in 1806ms:
+   1: """The shared assertions. An instrument routes through these instead of remembering to.
+   2: 
+   3: WHY THIS FILE AND NOT ANOTHER REGISTRY ENTRY. The heredoc class was breached NINE TIMES by
+   4: an author who had just read the rule, and the tenth attempt was stopped by a hook that does
+   5: not care whether anyone understands it. Fifty-five documented classes is more than anyone
+   6: holds. What refuses is what controls.
+   7: 
+   8: TWO ASSERTIONS, BOTH DRAWN FROM DEFECTS THAT ACTUALLY RECURRED TONIGHT.
+   9: 
+  10: `require_controls` -- THE ACCUSING DIRECTION.
+  11:     Four wrong accusations in one night: 0.06 and 1.79 read out of a WITHDRAWAL NOTICE and
+  12:     relayed to a reader; `pool_broken` reported against a pool that was withdrawn on
+  13:     purpose; two unbacked-claim findings against the flagship that were not unbacked; a
+  14:     count of 49 never-taken branches from an extraction that captured code spans. Every one
+  15:     was caught by a person reading the instance. NONE was caught by the instrument.
+  16: 
+  17:     So the reading becomes part of the instrument. An instrument that reports a corpus-wide
+  18:     finding declares a POSITIVE control -- a real corpus item whose answer is already
+  19:     established -- and, where the failure mode is over-flagging, a NEGATIVE control it must
+  20:     NOT flag. If either disagrees, NOTHING IS PRINTED. A detector that can only say yes is
+  21:     not a detector, and the malaria false positive is why the negative side is not optional.
+  22: 
+  23: `zero_has_a_reading` -- CLASS 52.
+  24:     A check reporting zero has two readings and only one is reassuring: "looked, found
+  25:     none" and "the marker does not exist so nothing could ever match". Three instances in
+  26:     one night, TWO OF THEM INSIDE `regression_check.py`, one of those in its BLOCKING set,
+  27:     reporting 0 on every run this project has ever made -- where the zero meant the marker
+  28:     was absent from the corpus entirely and was read as "no page has this defect".
+  29: 
+  30:     A zero is only reportable if the thing being searched FOR is known to exist somewhere.
+  31:     When it is not, the answer is NOT_ASSESSABLE, which is a different word on purpose.
+  32: 
+  33: NEITHER FUNCTION PRINTS A REASSURANCE IT CANNOT SUPPORT. Both raise SystemExit, because a
+  34: warning an operator can ignore is the control that has already failed.
+  35: """
+  36: import sys
+  37: 
+  38: 
+  39: class ControlFailed(SystemExit):
+  40:     pass
+  41: 
+  42: 
+  43: def require_controls(instrument, positive, negative=None, out=None):
+  44:     """Refuse to proceed unless the known answers come back known.
+  45: 
+  46:     positive -- (label, actual, expected). A real corpus item whose answer is established
+  47:                 independently of this instrument. Established means read from a
+  48:                 registration, a delivered page, or a prior recorded finding -- NOT inferred
+  49:                 by the same logic under test, which would only prove the code agrees with
+  50:                 itself.
+  51:     negative -- (label, actual, must_not_be). The case the instrument must NOT flag. Supply
+  52:                 it whenever the instrument can over-flag, which is nearly always.
+  53: 
+  54:     Returns None on success. Raises ControlFailed otherwise, before any count is printed.
+  55:     """
+  56:     say = out or (lambda s: sys.stdout.write(s + "\n"))
+  57:     plab, pact, pexp = positive
+  58:     say("CONTROL (positive) %s: %s -> %r, expected %r" % (instrument, plab, pact, pexp))
+  59:     if pact != pexp:
+  60:         raise ControlFailed(
+  61:             "REFUSED: %s does not reproduce the one answer that is already established "
+  62:             "(%s gave %r, not %r). It is not trusted for anything else and NO COUNT IS "
+  63:             "PRINTED." % (instrument, plab, pact, pexp))
+  64:     if negative is None:
+  65:         say("CONTROL (negative) %s: NONE DECLARED -- this instrument can only say yes."
+  66:             % instrument)
+  67:         return
+  68:     nlab, nact, nforbid = negative
+  69:     say("CONTROL (negative) %s: %s -> %r, must not be %r" % (instrument, nlab, nact, nforbid))
+  70:     if nact == nforbid:
+  71:         raise ControlFailed(
+  72:             "REFUSED: %s FLAGS THE CASE IT MUST NOT (%s came back %r). Accusing in the "
+  73:             "wrong direction is the failure this control exists to catch. NO COUNT IS "
+  74:             "PRINTED." % (instrument, nlab, nact))
+  75:     say("    both controls held.")
+  76: 
+  77: 
+  78: def zero_has_a_reading(count, marker_exists_somewhere, what, where):
+  79:     """Return a reportable string for a count, or NOT_ASSESSABLE when a zero is ambiguous.
+  80: 
+  81:     marker_exists_somewhere -- True only if the thing searched FOR has been observed at
+  82:     least once, anywhere, in this run. Not "the vocabulary is non-empty"; the vocabulary
+  83:     being non-empty is what `arni_hf_protocol` had.
+  84:     """
+  85:     if count > 0:
+  86:         return "%d %s in %s" % (count, what, where)
+  87:     if marker_exists_somewhere:
+  88:         return "0 %s in %s -- LOOKED AND FOUND NONE (the marker occurs elsewhere, so the " \
+  89:                "search is live)" % (what, where)
+  90:     return "NOT_ASSESSABLE: 0 %s in %s, AND THE MARKER OCCURS NOWHERE AT ALL. This zero " \
+  91:            "means the search cannot match, not that the defect is absent." % (what, where)
+  92: 
+  93: 
+  94: def refuse_unless_marker_lives(marker, corpus_hits, fixture_hit, instrument):
+  95:     """A marker-keyed check must be able to fire. Raise if it provably cannot.
+  96: 
+  97:     `arni_hf_protocol` was in `regression_check.py`'s BLOCKING set and appears on 0 of 888
+  98:     pages. It has reported clean on every run this project has ever made and could not have
+  99:     reported anything else.
+ 100:     """
+ 101:     if corpus_hits or fixture_hit:
+ 102:         return
+ 103:     raise ControlFailed(
+ 104:         "REFUSED: %s keys on %r, which occurs on NO page in the corpus and in NO fixture. "
+ 105:         "The check cannot fire. A clean result from it is not evidence." % (instrument, marker))
+ 106: 
+ 107: def same_bytes(a_bytes, b_bytes):
+ 108:     """Compare DELIVERED bytes to LOCAL bytes. Both arguments must already be `bytes`.
+ 109: 
+ 110:     READ BYTES, COMPARE BYTES -- CLASS: THE INSTRUMENT NORMALISED WHAT IT WAS MEASURING.
+ 111:     ---------------------------------------------------------------------------------
+ 112:     A page was reported to Mahmood as a deploy gap, and the report had to be withdrawn. The
+ 113:     evidence was that local content differed from `origin/main` by 752 bytes on a file git
+ 114:     reported unmodified. The mechanism was the reader, not the repo:
+ 115: 
+ 116:         io.open(name, encoding="utf-8").read()   -> TEXT mode, converts CRLF to LF
+ 117:         git show origin/main:name                -> raw bytes, CRLF preserved
+ 118: 
+ 119:     752 was the line count. The two were identical. Worse, the same artefact was used to
+ 120:     argue the local tree was a MIXTURE OF BUILDS -- which is a frightening claim, because one
+ 121:     passing spot-check would then license trusting a corpus that could not be trusted -- and
+ 122:     it was false. Read in binary, local equalled origin on 156 of 157 pages.
+ 123: 
+ 124:     THE CORPUS *WAS* A MIXTURE, JUST NOT IN THE WAY THE BROKEN READ SUGGESTED: 133 pages
+ 125:     carried generator `a3c7bb8b2` and 7 carried the current one. A real finding was nearly
+ 126:     buried under a fake one produced by the instrument.
+ 127: 
+ 128:     So: open in "rb", or `git show` into bytes, and compare bytes. If a comparison must be
+ 129:     newline-insensitive, normalise BOTH sides explicitly and say so -- never let one side be
+ 130:     normalised by the mode the file happened to be opened in.
+ 131:     """
+ 132:     if not isinstance(a_bytes, bytes) or not isinstance(b_bytes, bytes):
+ 133:         raise ControlFailed(
+ 134:             "REFUSED: same_bytes was handed %s and %s, not bytes. A str argument means the "
+ 135:             "caller already read in text mode, which is the defect this function exists to "
+ 136:             "prevent -- the newline conversion has happened before the comparison."
+ 137:             % (type(a_bytes).__name__, type(b_bytes).__name__))
+ 138:     return a_bytes == b_bytes
+ 139: 
+ 140: 
+ 141: def plant_and_require(instrument, detector, clean_case, planted_case):
+ 142:     """THE HOUSE REQUIREMENT FOR GATES: plant the defect, require the gate to find it.
+ 143: 
+ 144:     Three gates earned their result this way -- the bypass mutant that strips the render-point
+ 145:     transform, the dead link planted in a synthetic hub, the known-bad input handed to the
+ 146:     pass/fail audit. Each of the three was written after a gate had already shipped that could
+ 147:     only say yes. A pre-push hook once printed "Regression check PASS" at 0 of 1522 fully-ok,
+ 148:     because nothing in it could return non-zero.
+ 149: 
+ 150:     A GATE THAT HAS NEVER BEEN SEEN TO FAIL IS NOT A GATE. It is a log line. `detector` is
+ 151:     called on both cases; it must be quiet on `clean_case` and must fire on `planted_case`,
+ 152:     and this refuses before the gate is allowed to report anything about real data.
+ 153:     """
+ 154:     if detector(planted_case) and not detector(clean_case):
+ 155:         return
+ 156:     raise ControlFailed(
+ 157:         "REFUSED: %s did not survive its planted control -- it %s on the planted defect and "
+ 158:         "%s on the clean case. A gate that cannot be seen to fail cannot be trusted when it "
+ 159:         "passes." % (instrument,
+ 160:                      "fired" if detector(planted_case) else "STAYED QUIET",
+ 161:                      "fired" if detector(clean_case) else "stayed quiet"))
+ 162: 
+ 163: 
+ 164: def scan_covers_what_it_emits(function_name, own_literals_matched, callee_renders, what):
+ 165:     """A LITERAL CAN LIVE ONE CALL AWAY, AND A SCAN OF A FUNCTION'S OWN BODY IS NOT A SCAN OF
+ 166:     WHAT IT EMITS. Same family as `composed_or_stored`, one level up.
+ 167: 
+ 168:     THE INCIDENT, 2026-08-23. An audit was written to find procedural sentences asserted from
+ 169:     literals rather than projected from fields. It filtered to "functions that emit markup" by
+ 170:     looking for HTML tags among each function's OWN string constants -- and missed
+ 171:     `protocol_card`, THE FUNCTION IT WAS WRITTEN FOR. That function holds only the sentences;
+ 172:     it returns `kv_card(...)`, and the tags live in the callee.
+ 173: 
+ 174:     The hand-classified control caught it, which is the only reason it was caught: a scan that
+ 175:     cannot see the known instance cannot be trusted to report an absence.
+ 176: 
+ 177:     THE FAMILY THIS BELONGS TO, now six deep in one day: the fix, the probe, or the scan lands
+ 178:     where the author was looking rather than where the text is produced.
+ 179: 
+ 180:         composed at render time, or stored          -- the value was baked into the object
+ 181:         one render point of two                     -- seven panels used a different callable
+ 182:         two surfaces of three de-indexed            -- audit_table.html was never touched
+ 183:         a probe keyed to what the fix removed       -- braces, not field names
+ 184:         a selector keyed to the defect              -- shrank as the work succeeded
+ 185:         a scan of a body, not of what it emits      -- THIS ONE
+ 186: 
+ 187:     THE CHECK: when classifying functions by what they render, ask whether rendering happens
+ 188:     HERE or in something this calls. If a function's content is handed to a builder, the scan
+ 189:     must follow the call or key on the handoff, not on tags.
+ 190:     """
+ 191:     if own_literals_matched or callee_renders:
+ 192:         return
+ 193:     raise ControlFailed(
+ 194:         "REFUSED: %s classified `%s` as non-emitting on the strength of its own literals, but "
+ 195:         "it hands its content to a renderer. A scan of a function's body is not a scan of what "
+ 196:         "it emits." % (what, function_name))
+ 197: 
+ 198: 
+ 199: def method_before_impossibility(measurement, method_tried, work_the_question_needs):
+ 200:     """BEFORE ACCEPTING THAT A MEASUREMENT CANNOT BE MADE HERE, CHECK WHETHER THE METHOD IS
+
+codex
+The imported helper confirms the negative control tuple is `(label, actual, must_not_be)`, so the visible negative control is not inverted. I’m now checking only whether the module’s selectors are live against the actual `ssot` files, because several requested defect shapes are corpus-dependent.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command 'rg --files ssot | Select-Object -First 80' in F:\rapidmeta-ssot-shell
+2026-08-24T01:05:08.558335Z ERROR codex_core::tools::router: error=Exit code: 1
+Wall time: 2.6 seconds
+Output:
+ssot\apply_cangrelor_finding_on_primary.py
+ssot\apply_cangrelor_disagreement_renders.py
+ssot\apply_breadth_and_tigecycline_disclosure.py
+ssot\apply_bococizumab_rob_per_result.py
+ssot\apply_azilsartan_grade.py
+ssot\apply_attrpn_published_comparison.py
+ssot\apply_attrpn_contrast_finding.py
+ssot\apply_apixaban_vte_treatment_rob.py
+ssot\apply_antibiotic_population_estimand.py
+ssot\apply_africa_prep_four_limbs.py
+ssot\apixaban-vte-treatment\apixaban-vte-treatment.json
+ssot\apixaban-vte-prophylaxis\apixaban-vte-prophylaxis.json
+ssot\apixaban-vte\apixaban-vte.json
+ssot\apixaban-af-review\apixaban-af-review.json
+ssot\apixaban-acs-review\apixaban-acs-review.json
+ssot\antimalarial-act\sources\PMID37179349.pubmed.xml
+ssot\antimalarial-act\sources\PMID35189818.pubmed.xml
+ssot\antimalarial-act\sources\PMID27649561.pubmed.xml
+ssot\antimalarial-act\sources\NCT06076213.ctgov.json
+ssot\antimalarial-act\sources\NCT05192265.ctgov.json
+ssot\antimalarial-act\sources\NCT04767191.ctgov.json
+ssot\antimalarial-act\sources\NCT04565184.ctgov.json
+ssot\antimalarial-act\sources\NCT01704508.ctgov.json
+ssot\antimalarial-act\sources\ACT-trials.extract.txt
+ssot\antimalarial-act\sources\ACT-trials.extract.json
+ssot\antimalarial-act\GEMINI_VERDICT.txt
+ssot\antimalarial-act\CODEX_VERDICT.txt
+ssot\antimalarial-act\antimalarial-act.json
+ssot\anidulafungin-fungal-auto-full-review\anidulafungin-fungal-auto-full-review.json
+ssot\anidulafungin-candida-auto-full-review\anidulafungin-candida-auto-full-review.json
+ssot\amoxicillin-aom\amoxicillin-aom.json
+ssot\ali_topic_data.py
+ssot\ali_repool.R
+ssot\wysiwyg.py
+ssot\warfarin-af\warfarin-af.json
+ssot\validate_v2.py
+ssot\topic_identity.py
+ssot\alirocumab-lipid\sources\README.txt
+ssot\alirocumab-lipid\sources\NCT02107898.ctgov.json
+ssot\alirocumab-lipid\sources\NCT01709500.ctgov.json
+ssot\alirocumab-lipid\sources\NCT01644175.ctgov.json
+ssot\alirocumab-lipid\sources\NCT01623115.ctgov.json
+ssot\alirocumab-lipid\sources\NCT01617655.ctgov.json
+ssot\alirocumab-lipid\sources\NCT01507831.ctgov.json
+ssot\alirocumab-lipid\sources\INDEX.json
+ssot\alirocumab-lipid\GEMINI_VERDICT.txt
+ssot\alirocumab-lipid\CODEX_VERDICT.txt
+ssot\tigecycline-infection\tigecycline-infection.json
+ssot\apply_finerenone_cv_published_comparison.py
+ssot\apply_finerenone_and_sglt2_limbs.py
+ssot\apply_f1000_declarations.py
+ssot\apply_empagliflozin_summary_measure_disclosure.py
+ssot\apply_empagliflozin_rob_per_result.py
+ssot\apply_empagliflozin_published_comparison.py
+ssot\apply_empagliflozin_estimand.py
+ssot\apply_empagliflozin_card_contradiction.py
+ssot\apply_derived_criteria.py
+ssot\apply_d1_resolved_by_guidance.py
+ssot\apply_contrast_gap_2026_08_20.py
+ssot\apply_container_repr_2026_08_20.py
+ssot\apply_ceft_tige_limbs.py
+ssot\apply_ceft_tige_comparison.py
+ssot\apply_cangrelor_published_comparison.py
+ssot\alirocumab-lipid\appraisal\PUBLISHED_SYNTHESIS_SCREEN.json
+ssot\alirocumab-lipid\alirocumab-lipid.json
+ssot\tigecycline-ciai\tigecycline-ciai.json
+ssot\caspofungin-fungal-auto-full-review\caspofungin-fungal-auto-full-review.json
+ssot\agyw-hiv-prep-review\appraisal\PUBLISHED_SYNTHESIS_SCREEN.json
+ssot\agyw-hiv-prep-review\agyw-hiv-prep-review.json
+ssot\add_f1000_fields.py
+ssot\add_availability_blocks.py
+ssot\casirivimab-covid\casirivimab-covid.json
+ssot\acs-antiplatelet-review\acs-antiplatelet-review.json
+ssot\abmt_topic_data.py
+ssot\tigecycline-ciai\sources\TIGE-ciai.extract.txt
+ssot\tigecycline-ciai\sources\SUPERSEDED-sidecar.TIGECYCLINE_INFECTION_AUTO_REVIEW.json
+ssot\tigecycline-ciai\sources\PMID37085768.pubmed.xml
+ssot\tigecycline-ciai\sources\PMID31577763.pubmed.xml
+ssot\tigecycline-ciai\sources\PMID30584308.pubmed.xml
+ssot\tigecycline-ciai\sources\PMID20670293.pubmed.xml
+
+ exited 1 in 2577ms:
+ssot\apply_cangrelor_finding_on_primary.py
+ssot\apply_cangrelor_disagreement_renders.py
+ssot\apply_breadth_and_tigecycline_disclosure.py
+ssot\apply_bococizumab_rob_per_result.py
+ssot\apply_azilsartan_grade.py
+ssot\apply_attrpn_published_comparison.py
+ssot\apply_attrpn_contrast_finding.py
+ssot\apply_apixaban_vte_treatment_rob.py
+ssot\apply_antibiotic_population_estimand.py
+ssot\apply_africa_prep_four_limbs.py
+ssot\apixaban-vte-treatment\apixaban-vte-treatment.json
+ssot\apixaban-vte-prophylaxis\apixaban-vte-prophylaxis.json
+ssot\apixaban-vte\apixaban-vte.json
+ssot\apixaban-af-review\apixaban-af-review.json
+ssot\apixaban-acs-review\apixaban-acs-review.json
+ssot\antimalarial-act\sources\PMID37179349.pubmed.xml
+ssot\antimalarial-act\sources\PMID35189818.pubmed.xml
+ssot\antimalarial-act\sources\PMID27649561.pubmed.xml
+ssot\antimalarial-act\sources\NCT06076213.ctgov.json
+ssot\antimalarial-act\sources\NCT05192265.ctgov.json
+ssot\antimalarial-act\sources\NCT04767191.ctgov.json
+ssot\antimalarial-act\sources\NCT04565184.ctgov.json
+ssot\antimalarial-act\sources\NCT01704508.ctgov.json
+ssot\antimalarial-act\sources\ACT-trials.extract.txt
+ssot\antimalarial-act\sources\ACT-trials.extract.json
+ssot\antimalarial-act\GEMINI_VERDICT.txt
+ssot\antimalarial-act\CODEX_VERDICT.txt
+ssot\antimalarial-act\antimalarial-act.json
+ssot\anidulafungin-fungal-auto-full-review\anidulafungin-fungal-auto-full-review.json
+ssot\anidulafungin-candida-auto-full-review\anidulafungin-candida-auto-full-review.json
+ssot\amoxicillin-aom\amoxicillin-aom.json
+ssot\ali_topic_data.py
+ssot\ali_repool.R
+ssot\wysiwyg.py
+ssot\warfarin-af\warfarin-af.json
+ssot\validate_v2.py
+ssot\topic_identity.py
+ssot\alirocumab-lipid\sources\README.txt
+ssot\alirocumab-lipid\sources\NCT02107898.ctgov.json
+ssot\alirocumab-lipid\sources\NCT01709500.ctgov.json
+ssot\alirocumab-lipid\sources\NCT01644175.ctgov.json
+ssot\alirocumab-lipid\sources\NCT01623115.ctgov.json
+ssot\alirocumab-lipid\sources\NCT01617655.ctgov.json
+ssot\alirocumab-lipid\sources\NCT01507831.ctgov.json
+ssot\alirocumab-lipid\sources\INDEX.json
+ssot\alirocumab-lipid\GEMINI_VERDICT.txt
+ssot\alirocumab-lipid\CODEX_VERDICT.txt
+ssot\tigecycline-infection\tigecycline-infection.json
+ssot\apply_finerenone_cv_published_comparison.py
+ssot\apply_finerenone_and_sglt2_limbs.py
+ssot\apply_f1000_declarations.py
+ssot\apply_empagliflozin_summary_measure_disclosure.py
+ssot\apply_empagliflozin_rob_per_result.py
+ssot\apply_empagliflozin_published_comparison.py
+ssot\apply_empagliflozin_estimand.py
+ssot\apply_empagliflozin_card_contradiction.py
+ssot\apply_derived_criteria.py
+ssot\apply_d1_resolved_by_guidance.py
+ssot\apply_contrast_gap_2026_08_20.py
+ssot\apply_container_repr_2026_08_20.py
+ssot\apply_ceft_tige_limbs.py
+ssot\apply_ceft_tige_comparison.py
+ssot\apply_cangrelor_published_comparison.py
+ssot\alirocumab-lipid\appraisal\PUBLISHED_SYNTHESIS_SCREEN.json
+ssot\alirocumab-lipid\alirocumab-lipid.json
+ssot\tigecycline-ciai\tigecycline-ciai.json
+ssot\caspofungin-fungal-auto-full-review\caspofungin-fungal-auto-full-review.json
+ssot\agyw-hiv-prep-review\appraisal\PUBLISHED_SYNTHESIS_SCREEN.json
+ssot\agyw-hiv-prep-review\agyw-hiv-prep-review.json
+ssot\add_f1000_fields.py
+ssot\add_availability_blocks.py
+ssot\casirivimab-covid\casirivimab-covid.json
+ssot\acs-antiplatelet-review\acs-antiplatelet-review.json
+ssot\abmt_topic_data.py
+ssot\tigecycline-ciai\sources\TIGE-ciai.extract.txt
+ssot\tigecycline-ciai\sources\SUPERSEDED-sidecar.TIGECYCLINE_INFECTION_AUTO_REVIEW.json
+ssot\tigecycline-ciai\sources\PMID37085768.pubmed.xml
+ssot\tigecycline-ciai\sources\PMID31577763.pubmed.xml
+ssot\tigecycline-ciai\sources\PMID30584308.pubmed.xml
+ssot\tigecycline-ciai\sources\PMID20670293.pubmed.xml
+
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "@'
+import json, glob, os, collections, math
+root='.'
+vals=collections.Counter(); files=0; blocks=0; skipped=[]; noncanon=[]; false=[]; null=[]; absent=[]; true=[]; other=[]; withdrawn_vals=collections.Counter(); point_types=collections.Counter(); badjson=[]
+for path in sorted(glob.glob(os.path.join(root,'ssot','*','*.json'))):
+    topic=os.path.basename(os.path.dirname(path))
+    if os.path.basename(path)"'!=topic+'"'.json':
+        noncanon.append(path); continue
+    try:
+        obj=json.load(open(path,encoding='utf-8'))
+    except Exception as e:
+        badjson.append((path,type(e).__name__,str(e)[:80])); continue
+    files+=1
+    by=((obj.get('results') or {}).get('by_outcome') or {})
+    if not isinstance(by, dict):
+        other.append((path,'by_outcome_type',type(by).__name__)); continue
+    for name, blk in by.items():
+        if not isinstance(blk,dict): continue
+        p=blk.get('pooled')
+        if not isinstance(p,dict): continue
+        point_types[type(p.get('point')).__name__]+=1
+        withdrawn_vals[repr(p.get('withdrawn'))]+=1
+        if p.get('point') is None or p.get('withdrawn'): continue
+        blocks+=1
+        if 'estimand_established' in blk:
+            v=blk.get('estimand_established')
+            vals[(type(v).__name__,repr(v))]+=1
+        else:
+            vals[('MISSING','MISSING')]+=1
+print('files',files,'blocks',blocks,'badjson',len(badjson),'noncanon',len(noncanon))
+print('flag vals')
+for k,c in vals.most_common(): print(c,k)
+print('withdrawn vals', withdrawn_vals.most_common(20))
+print('point types', point_types)
+print('badjson', badjson[:5])
+print('noncanon sample', noncanon[:20])
+'@ | python -" in F:\rapidmeta-ssot-shell
+ succeeded in 1915ms:
+files 155 blocks 33 badjson 0 noncanon 1
+flag vals
+14 ('NoneType', 'None')
+11 ('MISSING', 'MISSING')
+6 ('bool', 'True')
+2 ('bool', 'False')
+withdrawn vals [('True', 103), ('None', 40), ('False', 3)]
+point types Counter({'NoneType': 113, 'float': 33})
+badjson []
+noncanon sample ['.\\ssot\\arni-hfref\\manuscript_docmodel.json']
+
+codex
+The corpus selector is live for the current tree: canonical topic JSON files exist, JSON parsing succeeds, and observed `estimand_established` values are only `true`, `false`, `null`, or absent for published pooled blocks. That rules out several selector/type-defect accusations for this file on the current corpus.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command 'python scripts/audit_published_over_unestablished_estimand.py' in F:\rapidmeta-ssot-shell
+ succeeded in 2057ms:
+CONTROL (positive) audit_published_over_unestablished_estimand: a published point over estimand_established FALSE -- the sglt2-mace shape -> True, expected True
+CONTROL (negative) audit_published_over_unestablished_estimand: the same block with the flag TRUE -> False, must not be True
+    both controls held.
+
+OBJECTS READ: 155.  POOLED ESTIMATES PUBLISHED (point set, not withdrawn): 33
+
+    estimand_established TRUE        6   established and published
+    estimand_established FALSE       2   THE OBJECT LOOKED AND SAID NO
+    estimand_established NULL       14   never checked
+    the field is ABSENT             11   the question was never posed
+
+NEVER SUMMED. A question nobody asked and a question answered NO are different
+states, and the objects' own `estimand_established_means` says so.
+
+PUBLISHED OVER A FALSE FLAG -- the object has looked and said the trials do NOT
+measure one quantity, and a reader meets the number anyway:
+    rosuvastatin-auto-full-review            primary                      OR 0.6561
+        estimand_id_means: not recorded on the page this object was extracted from
+    sglt2-mace-cvot-review                   primary                      OR 0.9074
+        estimand_id_means: not recorded on the page this object was extracted from
+
+PUBLISHED OVER A NULL FLAG -- nobody asked (14):
+    alirocumab-lipid                         ldlc_pct_change_wk24         MD -54.72
+    arni-hfref                               cvdeath_or_hfh_first         HR 0.87153524291
+    azilsartan-chlorthalidone-vs-olmesartan-hctz sbp_change_wk8               MD -5.691
+    bempedoic-acid-review                    primary                      HR 0.87
+    finerenone-cv                            cv_composite_first           HR 0.8655
+    iv-iron-hf                               hfh_cvd_recurrent            RATE_RATIO 0.8066
+    iv-iron-hf                               hfh_cvd_first                HR 0.7957
+    iv-iron-hf                               hfh_recurrent                RATE_RATIO 0.7645
+    iv-iron-hf                               acm                          HR 0.978
+    malaria-vaccines                         r21_seasonal_first_12m       HR 0.2167
+    malaria-vaccines                         rtss_recurrent_children_final IRR 0.6372
+    sotagliflozin-hf                         hfcv_total                   HR 0.7171
+    sotagliflozin-hf                         hfcv_first                   HR 0.7488
+    tigecycline-ciai                         cure_toc_me                  RR 0.9351
+
+RECOMMENDATION, NOT AN ACTION. Whether the remedy is a build-time REFUSAL or a
+DISCLOSURE beside the number is a published-number decision and belongs to
+Mahmood. The count above is what that decision should be made on.
+
+codex
+- `ZERO CONFLATED WITH ABSENT` — line 50.  
+  Exact input: `published_blocks({"results": 0})` returns `[]`, same as absent `results`.  
+  Consequence: a malformed zero-valued top-level field is silently treated as no outcomes, so the audit can report clean coverage instead of failing closed.
+
+- `STATUS CODE REPORTING THE WRAPPER rather than the work` — lines 84-87.  
+  Exact input: file `ssot/bad-topic/bad-topic.json` containing exactly `{`.  
+  Consequence: the malformed topic is skipped and the script can still exit `0`, so the printed count is a count of readable survivors, not of the intended corpus.
+
+- `ZERO CONFLATED WITH ABSENT` — lines 90, 93-100.  
+  Exact input: `{"results":{"by_outcome":{"primary":{"pooled":{"point":1.0},"estimand_established":0}}}}`.  
+  Consequence: `0` is neither `False` by identity nor `None` nor missing, so it is counted as `TRUE`.
+
+- `a check that CANNOT FAIL`: none found in the visible module; the constructed controls can fail.
+
+- `probe keyed to the STRING A FIX REMOVES`: none found.
+
+- `idempotency guard satisfied by its OWN comment or marker`: none found.
+
+- `instrument reading a DIFFERENT COPY`: none found in this module.
+
+- `SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE`: COULD NOT DETERMINE from the pasted module alone; missing actual `ssot/` corpus contract.
+
+- `values compared AS TEXT where line endings differ`: none found.
+
+- `merged-cell and OFF-BY-ONE errors`: none found.
+
+- `NEGATION DROPPED`: none found.
+tokens used
+30,888
+- `ZERO CONFLATED WITH ABSENT` — line 50.  
+  Exact input: `published_blocks({"results": 0})` returns `[]`, same as absent `results`.  
+  Consequence: a malformed zero-valued top-level field is silently treated as no outcomes, so the audit can report clean coverage instead of failing closed.
+
+- `STATUS CODE REPORTING THE WRAPPER rather than the work` — lines 84-87.  
+  Exact input: file `ssot/bad-topic/bad-topic.json` containing exactly `{`.  
+  Consequence: the malformed topic is skipped and the script can still exit `0`, so the printed count is a count of readable survivors, not of the intended corpus.
+
+- `ZERO CONFLATED WITH ABSENT` — lines 90, 93-100.  
+  Exact input: `{"results":{"by_outcome":{"primary":{"pooled":{"point":1.0},"estimand_established":0}}}}`.  
+  Consequence: `0` is neither `False` by identity nor `None` nor missing, so it is counted as `TRUE`.
+
+- `a check that CANNOT FAIL`: none found in the visible module; the constructed controls can fail.
+
+- `probe keyed to the STRING A FIX REMOVES`: none found.
+
+- `idempotency guard satisfied by its OWN comment or marker`: none found.
+
+- `instrument reading a DIFFERENT COPY`: none found in this module.
+
+- `SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE`: COULD NOT DETERMINE from the pasted module alone; missing actual `ssot/` corpus contract.
+
+- `values compared AS TEXT where line endings differ`: none found.
+
+- `merged-cell and OFF-BY-ONE errors`: none found.
+
+- `NEGATION DROPPED`: none found.

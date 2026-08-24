@@ -1,0 +1,329 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/restate_templated_questions_2026_08_19.py
+
+--- THE FILE, IN FULL ---
+#!/usr/bin/env python3
+"""RESTATE THE TEMPLATED AND TITLE-ECHO QUESTIONS from each topic's OWN registrations.
+
+WHY THIS IS NOT COSMETIC. 52 of 141 live topics carry a question that is either the title plus
+`on each trial's own registered primary outcome?` or an echo of the title. Every question-based
+check in this project reads that field:
+
+    P21 CANNOT FIND AN AMBIGUITY IN A TITLE. A topic whose question is its own name has no axis
+    to be ambiguous along, so the check passes by having nothing to look at.
+
+    A CHECK COMPARING TWO TEMPLATES REPORTS "questions differ: no" AND READS AS THOUGH THE AXIS
+    HAD BEEN EXAMINED. That is the shape this project has spent the day naming, applied to the
+    field that gates the rest.
+
+So this is not only a page improvement. It makes a class of check MEANINGFUL FOR THE FIRST TIME.
+
+THREE OUTCOMES, AND THE RATIO BETWEEN THEM IS ITSELF A FINDING about how these objects were made:
+
+    RESTATED  the topic's registrations resolve to exactly ONE question -- one condition family,
+              one intervention, one comparator family. Restating it is a BUILD, not a decision.
+    SPLIT     the registrations read as SEVERAL legitimate questions. That is a P21 decision and
+              is NOT taken here; the topic is named and left.
+    PACKET    nothing in the object can support a question -- no trials, or trials whose coded
+              fields do not agree on anything. Escalated rather than invented.
+
+AND THE RESTATED FORM IS A PICO SENTENCE, WHICH IS A TEMPLATE OF FORM AND NOT OF CONTENT. Every
+clause is filled from the registrations' own coded fields and differs per topic. Saying "in
+adults with X, does Y compared with Z affect W" is the standard shape of a review question; the
+defect being fixed is a question with NO CONTENT, not a question with a familiar shape. Where a
+clause cannot be filled from source it is LEFT OUT rather than guessed.
+
+USAGE
+    python scripts/restate_templated_questions_2026_08_19.py [--apply]
+"""
+import io
+import json
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(REPO, "ssot"))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import ctgov_transport as X                                             # noqa: E402
+import retirement as R                                                  # noqa: E402
+
+EV = os.path.join(REPO, "evidence", "2026-08-19-batch1")
+AUDIT = os.path.join(EV, "templated_questions_audit.json")
+OUT = os.path.join(EV, "restated_questions.json")
+
+PLACEBO = ("placebo", "sham")
+USUAL = ("usual care", "standard care", "standard of care", "no treatment", "control",
+         "conventional", "observation")
+
+
+def comparator_family(label):
+    lo = (label or "").lower()
+    if any(t in lo for t in PLACEBO):
+        return "placebo"
+    if any(t in lo for t in USUAL):
+        return "usual care"
+    return None
+
+
+def read(nct):
+    st, s, d = X.fetch_raw(nct, fields="protocolSection")
+    if st != X.OK:
+        return None
+    ps = s.get("protocolSection") or {}
+    om = ps.get("outcomesModule") or {}
+    prim = om.get("primaryOutcomes") or []
+    arms = [a.get("label") or "" for a in
+            ((ps.get("armsInterventionsModule") or {}).get("armGroups") or [])]
+    ivs = [(i.get("name") or "") for i in
+           ((ps.get("armsInterventionsModule") or {}).get("interventions") or [])]
+    el = ps.get("eligibilityModule") or {}
+    return {
+        "nct": nct,
+        "conditions": (ps.get("conditionsModule") or {}).get("conditions") or [],
+        "interventions": ivs,
+        "arm_labels": arms,
+        "comparator_families": sorted({c for c in (comparator_family(a) for a in arms) if c}),
+        "primary": (prim[0].get("measure") if prim else None),
+        "std_ages": el.get("stdAges") or [],
+    }
+
+
+def population_word(rows):
+    """ADULTS IS NOT THE DEFAULT. `pediatric-hiv-art` derived "In adults with HIV infection"
+    because the phrase was hardcoded. The registrations declare stdAges; read it."""
+    ages = set()
+    for r in rows:
+        for a in r.get("std_ages") or []:
+            ages.add(a)
+    adult = bool(ages & {"ADULT", "OLDER_ADULT"})
+    child = "CHILD" in ages
+    if adult and child:
+        return "adults and children"
+    if child:
+        return "children"
+    if adult:
+        return "adults"
+    return None
+
+
+def norm(s):
+    return " ".join((s or "").lower().split())
+
+
+def topic_tokens(topic, obj):
+    """The words the TOPIC ITSELF is about -- the only defensible way to pick its intervention."""
+    blob = (topic + " " + (obj.get("title") or "")).lower()
+    return {w for w in "".join(c if c.isalnum() else " " for c in blob).split()
+            if len(w) > 3 and w not in GENERIC}
+
+
+# GENERIC WORDS CANNOT IDENTIFY AN INTERVENTION. `malaria-vaccine` matched the coded
+# intervention "Rabies Vaccine" on the token `vaccine` and produced "does Rabies Vaccine".
+# A token that names a CLASS rather than a THING will match the wrong arm of the wrong trial,
+# which is the shortest-string defect wearing a different hat.
+GENERIC = {"review", "auto", "full", "trial", "trials", "study", "adults", "with", "versus",
+           "outcomes", "vaccine", "vaccines", "therapy", "treatment", "inhibitor", "inhibitors",
+           "disease", "syndrome", "infection", "infections", "acute", "chronic", "oral",
+           "injectable", "combination", "prophylaxis", "prevention", "children", "pediatric",
+           "paediatric", "healthy", "volunteers", "shortened", "mixed"}
+
+
+def derive(topic, obj):
+    """One question, several, or none -- decided from the registrations' coded fields.
+
+    THE FIRST VERSION OF THIS FUNCTION WOULD HAVE WRITTEN 37 WRONG QUESTIONS TO DELIVERED
+    OBJECTS, and the dry run is the only reason it did not. It chose the intervention as
+    `sorted(interventions, key=len)[0]` -- the SHORTEST NAME -- which is arbitrary and repeatedly
+    selected the PLACEBO or the COMPARATOR:
+
+        finerenone-review     "does Placebo compared with placebo affect ..."
+        moxifloxacin-respi    "does Levofloxacin + Ceftriaxone ..."   (the comparator)
+        pitavastatin          "does simvastatin ..."                  (the comparator)
+        raltegravir-hiv       "does amikacin ..."                     (not even the drug class)
+
+    A SHORTEST-STRING TIEBREAK IS NOT A SELECTION RULE. It produced a confident sentence with
+    the wrong subject, which is worse than no sentence. The intervention must be identifiable
+    from the TOPIC itself; where no coded intervention matches the topic's own words, that is a
+    PACKET and not a guess. The same applied to the condition, which was also the shortest
+    string -- `warfarin-af` derived "In adults with stroke".
+    """
+    trials = [t for t in ((obj.get("inputs") or {}).get("trials") or [])
+              if isinstance(t, dict) and t.get("nct")]
+    if not trials:
+        return "PACKET", None, "the object holds no trial with a registration identifier"
+    rows = [r for r in (read(t["nct"]) for t in trials) if r]
+    if not rows:
+        return "PACKET", None, "no registration could be read"
+
+    toks = topic_tokens(topic, obj)
+    conds, ivs = {}, {}
+    for r in rows:
+        for c in r["conditions"]:
+            conds.setdefault(norm(c), c)
+        for i in r["interventions"]:
+            ivs.setdefault(norm(i), i)
+    fams = sorted({f for r in rows for f in r["comparator_families"]})
+    prims = {norm(r["primary"]) for r in rows if r["primary"]}
+
+    if len(conds) > 3 and len(rows) > 1:
+        return ("SPLIT", None,
+                "the registrations code %d distinct conditions across %d trials; that is a P21 "
+                "decision about how many questions this topic is, not a restatement"
+                % (len(conds), len(rows)))
+    if not conds:
+        return "PACKET", None, "no registration codes a condition"
+
+    # THE INTERVENTION MUST BE THE TOPIC'S OWN. Match coded intervention names against the words
+    # the topic is named for; a placebo or comparator arm will not match and cannot be selected.
+    iv_hits = [v for k, v in ivs.items()
+               if any(t in k for t in toks) and not comparator_family(v)]
+    if not iv_hits:
+        return ("PACKET", None,
+                "no coded intervention matches the topic's own words, so the intervention "
+                "cannot be identified from source. %d intervention(s) are coded: %s. Guessing "
+                "one would repeat the shortest-string defect this function was built to remove."
+                % (len(ivs), ", ".join(sorted(ivs.values())[:6])))
+    iv = sorted(iv_hits, key=len)[0]
+
+    # THE CONDITION GETS THE SAME RULE AS THE INTERVENTION. The first fix left a shortest-string
+    # FALLBACK here, and it survived to derive "In adults with stroke" for `warfarin-af`. A
+    # fallback that picks arbitrarily is the defect, not a mitigation of it.
+    cond_hits = [v for k, v in conds.items() if any(t in k for t in toks)]
+    if not cond_hits:
+        return ("PACKET", None,
+                "no coded condition matches the topic's own words, so the population cannot be "
+                "identified from source. %d condition(s) are coded: %s. The first version fell "
+                "back to the shortest string and derived 'In adults with stroke' for warfarin-af."
+                % (len(conds), ", ".join(sorted(conds.values())[:6])))
+    cond = sorted(cond_hits, key=len)[0]
+
+    who = population_word(rows)
+    if not who:
+        return ("PACKET", None,
+                "no registration declares stdAges, so the population cannot be stated from "
+                "source. 'Adults' was hardcoded in the first version and derived 'In adults "
+                "with HIV infection' for pediatric-hiv-art.")
+
+    comp = fams[0] if len(fams) == 1 else None
+    q = "In %s with %s, does %s" % (who, cond.lower(), iv)
+    q += (" compared with %s" % comp) if comp else          " compared with the comparator each trial randomised"
+    if len(prims) == 1:
+        q += " affect %s?" % list(prims)[0].rstrip("?.").lower()
+    else:
+        q += (" affect the outcome each trial registered as its primary, which differ across "
+              "the %d trials here?" % len(rows))
+    return "RESTATED", q, {
+        "n_trials_read": len(rows),
+        "population_from_stdAges": who,
+        "condition_chosen": cond,
+        "condition_matched_the_topic_name": bool(cond_hits),
+        "intervention_chosen": iv,
+        "intervention_matched_the_topic_name": True,
+        "conditions_coded": sorted(conds.values()),
+        "interventions_coded": sorted(ivs.values()),
+        "comparator_families": fams,
+        "n_distinct_registered_primaries": len(prims),
+        "clauses_left_out_because_source_did_not_support_them":
+            ([] if comp else ["a single comparator -- the trials do not share one"])
+            + ([] if len(prims) == 1 else ["a single primary outcome"]),
+        "read_utc": "2026-08-19",
+    }
+
+
+def run(apply_it):
+    audit = json.load(io.open(AUDIT, encoding="utf-8"))
+    targets = [r for r in audit["rows"] if r["state"] in ("TEMPLATED", "TITLE_ECHO")]
+    print("templated or title-echo topics: %d\n" % len(targets))
+
+    out, counts = [], {"RESTATED": 0, "SPLIT": 0, "PACKET": 0}
+    for r in targets:
+        topic = r["topic"]
+        p = os.path.join(REPO, "ssot", topic, topic + ".json")
+        if not os.path.exists(p):
+            continue
+        obj = json.load(io.open(p, encoding="utf-8"))
+        if R.is_retired(obj):
+            continue
+        state, q, detail = derive(topic, obj)
+        counts[state] += 1
+        out.append({"topic": topic, "was_state": r["state"], "was_question": r.get("question"),
+                    "outcome": state, "new_question": q, "detail": detail})
+        print("  %-9s %-42s %s" % (state, topic, (q or detail)[:70] if isinstance(q or detail, str)
+                                   else ""))
+        if state == "RESTATED" and apply_it:
+            obj["question"] = q
+            obj["question_restated_2026_08_19"] = {
+                "was": r.get("question"),
+                "why": ("The previous question was %s -- it named no population, no comparator "
+                        "and no outcome, so every question-based check read a field with no "
+                        "content in it. Restated from THIS TOPIC'S OWN registrations' coded "
+                        "fields." % r["state"]),
+                "derived_from": detail,
+                "what_this_is_not": ("NOT a P21 decision. The registrations resolve to one "
+                                     "question; where they had not, this topic would have been "
+                                     "left for a split rather than restated."),
+            }
+            with io.open(p, "w", encoding="utf-8", newline="") as fh:
+                fh.write(json.dumps(obj, indent=1, ensure_ascii=False))
+
+    print("\n  RESTATED %d   SPLIT %d   PACKET %d" % (counts["RESTATED"], counts["SPLIT"],
+                                                      counts["PACKET"]))
+    doc = {"run_utc": "2026-08-19", "counts": counts,
+           "what_the_ratio_means": (
+               "RESTATED means the topic's own registrations resolved to exactly one question "
+               "and the field had simply never been filled from them. SPLIT means the topic is "
+               "genuinely several questions and needs a P21 decision. PACKET means nothing in "
+               "the object can support a question at all. The ratio is a finding about how "
+               "these objects were made, not about the topics."),
+           "the_restated_form": (
+               "A PICO sentence: population, intervention, comparator, outcome, each clause "
+               "filled from the registrations' own coded fields and different for every topic. "
+               "A template of FORM is not a template of CONTENT -- the defect being fixed is a "
+               "question with no content. Where a clause cannot be filled from source it is "
+               "LEFT OUT rather than guessed, and the omission is recorded."),
+           "rows": out}
+    if apply_it:
+        with io.open(OUT, "w", encoding="utf-8", newline="") as fh:
+            fh.write(json.dumps(doc, indent=1, ensure_ascii=False))
+        print("wrote %s" % os.path.relpath(OUT, REPO))
+    else:
+        print("DRY RUN -- nothing written.")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    sys.exit(run("--apply" in sys.argv))

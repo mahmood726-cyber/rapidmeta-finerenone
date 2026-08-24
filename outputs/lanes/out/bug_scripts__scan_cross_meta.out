@@ -1,0 +1,375 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a03261-5020-70e3-98c9-8fdc4b35f15b
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/scan_cross_meta.py
+
+--- THE FILE, IN FULL ---
+"""Cross-meta contamination gate.
+
+scan_narrative_leftover.py catches dupilumab/COPD BASE-template leftover.
+This catches a different failure: one audit-first topic's trial data (NCTs)
+bleeding into ANOTHER topic's dashboard ("data from across metas by mistake").
+
+For each VIABLE topic:
+  expected_ncts = NCTs of trials that pass all gates (the exact set
+                  bulk_clone_audit_first.build_config injects).
+For its <STEM>_FULL_REVIEW.html:
+  found_ncts    = every NCT\\d{8} literal in the file.
+Violation = a found NCT not in this topic's expected set. Such an NCT is
+either base leftover (NCT03930732/NCT04456673 — also caught by the
+leftover scanner) or, worse, an NCT whose rightful owner is a DIFFERENT
+topic (true cross-meta bleed) — reported with the owning topic.
+
+Exit 0 = clean, 1 = contamination, 2 = usage error.
+"""
+from __future__ import annotations
+import glob, io, json, os, re, sys
+
+if hasattr(sys.stdout, "buffer") and getattr(sys.stdout, "encoding", "").lower() != "utf-8":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+TOPICS = os.path.join(HERE, "outputs", "new_topics")
+NCT_RE = re.compile(r"NCT\d{8}")
+# Base-template trial NCTs (BOREAS / NOTUS) — never legitimate in any clone.
+BASE_NCTS = {"NCT03930732", "NCT04456673"}
+
+# Cross-meta bleed only matters in the ACTIVE per-topic analysis data that
+# clone_dashboard.py rewrites — NOT in shared engine scaffold (alias maps,
+# code comments, UI placeholders, special-case logic) that is identical in
+# every RapidMeta dashboard incl. the ~900 flagships by design. Extract NCTs
+# only from: AUTO_INCLUDE_TRIAL_IDS set, nctAcronyms map, realData block.
+
+
+def _analysis_ncts(src: str) -> set:
+    found = set()
+    m = re.search(r"AUTO_INCLUDE_TRIAL_IDS\s*=\s*new\s+Set\(\[(.*?)\]\)", src, re.DOTALL)
+    if m:
+        found |= set(NCT_RE.findall(m.group(1)))
+    m = re.search(r"nctAcronyms:\s*\{(.*?)\}", src, re.DOTALL)
+    if m:
+        found |= set(NCT_RE.findall(m.group(1)))
+    i = src.find("realData: {")
+    if i >= 0:
+        brace = src.find("{", i)
+        depth = 0
+        for j in range(brace, len(src)):
+            c = src[j]
+            if c == "{":
+                depth += 1
+            elif c == "}":
+                depth -= 1
+                if depth == 0:
+                    found |= set(NCT_RE.findall(src[brace:j + 1]))
+                    break
+    return found
+
+
+def _expected(doc):
+    """NCTs build_config injects: trials where every gate passes."""
+    out = set()
+    for t in doc.get("trials", []):
+        if not all((t.get("gates") or {}).values()):
+            continue
+        nct = (t.get("extracted") or {}).get("nct")
+        if nct:
+            out.add(nct)
+    return out
+
+
+def main():
+    topic_files = sorted(glob.glob(os.path.join(TOPICS, "*.json")))
+    expected_by_stem = {}
+    owner_of_nct = {}        # nct -> set(stems that legitimately own it)
+    for p in topic_files:
+        try:
+            doc = json.loads(io.open(p, encoding="utf-8", errors="replace").read())
+        except Exception:
+            continue
+        # Reference set for EVERY topic with >=1 gate-passing trial (bulk now
+        # builds NON_VIABLE-with-data too). _expected() is verdict-agnostic.
+        stem = doc.get("topic", {}).get("stem")
+        if not stem:
+            continue
+        exp = _expected(doc)
+        expected_by_stem[stem] = exp
+        for n in exp:
+            owner_of_nct.setdefault(n, set()).add(stem)
+
+    htmls = sorted(glob.glob(os.path.join(HERE, "*_FULL_REVIEW.html")))
+    clean = bad = 0
+    violations = []
+    for h in htmls:
+        stem = os.path.basename(h)[:-len("_FULL_REVIEW.html")]
+        exp = expected_by_stem.get(stem)
+        if exp is None:
+            # No matching topic JSON at all -> genuine orphan.
+            violations.append((stem, "ORPHAN", "no matching topic JSON"))
+            bad += 1
+            continue
+        src = io.open(h, encoding="utf-8", errors="replace").read()
+        found = _analysis_ncts(src)   # active per-topic data only, not engine scaffold
+        foreign = found - exp
+        if not foreign:
+            clean += 1
+            continue
+        bad += 1
+        detail = []
+        for n in sorted(foreign):
+            if n in BASE_NCTS:
+                detail.append(f"{n}(BASE-leftover)")
+            elif n in owner_of_nct:
+                detail.append(f"{n}(owned by {','.join(sorted(owner_of_nct[n]))})")
+            else:
+                detail.append(f"{n}(unknown-origin)")
+        violations.append((stem, "FOREIGN_NCT", "; ".join(detail)))
+
+    print(f"=== Cross-meta scan: {clean} CLEAN, {bad} CONTAMINATED (of {len(htmls)}) ===")
+    for stem, kind, det in violations[:40]:
+        print(f"  [{kind}] {stem}: {det[:160]}")
+    if bad:
+        log = os.path.join(HERE, "outputs", "_cross_meta_violations.log")
+        io.open(log, "w", encoding="utf-8").write(
+            "\n".join(f"{s}\t{k}\t{d}" for s, k, d in violations))
+        print(f"  full list -> {log}")
+    return 1 if bad else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+
+codex
+I’m reading this as a defect-hunt packet, not doing a broad repo review. I’ll stay within the pasted module and only name defects that can be demonstrated from it.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=1; Get-Content -LiteralPath '"'scripts/scan_cross_meta.py' | ForEach-Object { '{0,4}: {1}' -f "'$i, $_; $i++ }' in F:\rapidmeta-ssot-shell
+ succeeded in 1607ms:
+   1: """Cross-meta contamination gate.
+   2: 
+   3: scan_narrative_leftover.py catches dupilumab/COPD BASE-template leftover.
+   4: This catches a different failure: one audit-first topic's trial data (NCTs)
+   5: bleeding into ANOTHER topic's dashboard ("data from across metas by mistake").
+   6: 
+   7: For each VIABLE topic:
+   8:   expected_ncts = NCTs of trials that pass all gates (the exact set
+   9:                   bulk_clone_audit_first.build_config injects).
+  10: For its <STEM>_FULL_REVIEW.html:
+  11:   found_ncts    = every NCT\\d{8} literal in the file.
+  12: Violation = a found NCT not in this topic's expected set. Such an NCT is
+  13: either base leftover (NCT03930732/NCT04456673 â€” also caught by the
+  14: leftover scanner) or, worse, an NCT whose rightful owner is a DIFFERENT
+  15: topic (true cross-meta bleed) â€” reported with the owning topic.
+  16: 
+  17: Exit 0 = clean, 1 = contamination, 2 = usage error.
+  18: """
+  19: from __future__ import annotations
+  20: import glob, io, json, os, re, sys
+  21: 
+  22: if hasattr(sys.stdout, "buffer") and getattr(sys.stdout, "encoding", "").lower() != "utf-8":
+  23:     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+  24: 
+  25: HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+  26: TOPICS = os.path.join(HERE, "outputs", "new_topics")
+  27: NCT_RE = re.compile(r"NCT\d{8}")
+  28: # Base-template trial NCTs (BOREAS / NOTUS) â€” never legitimate in any clone.
+  29: BASE_NCTS = {"NCT03930732", "NCT04456673"}
+  30: 
+  31: # Cross-meta bleed only matters in the ACTIVE per-topic analysis data that
+  32: # clone_dashboard.py rewrites â€” NOT in shared engine scaffold (alias maps,
+  33: # code comments, UI placeholders, special-case logic) that is identical in
+  34: # every RapidMeta dashboard incl. the ~900 flagships by design. Extract NCTs
+  35: # only from: AUTO_INCLUDE_TRIAL_IDS set, nctAcronyms map, realData block.
+  36: 
+  37: 
+  38: def _analysis_ncts(src: str) -> set:
+  39:     found = set()
+  40:     m = re.search(r"AUTO_INCLUDE_TRIAL_IDS\s*=\s*new\s+Set\(\[(.*?)\]\)", src, re.DOTALL)
+  41:     if m:
+  42:         found |= set(NCT_RE.findall(m.group(1)))
+  43:     m = re.search(r"nctAcronyms:\s*\{(.*?)\}", src, re.DOTALL)
+  44:     if m:
+  45:         found |= set(NCT_RE.findall(m.group(1)))
+  46:     i = src.find("realData: {")
+  47:     if i >= 0:
+  48:         brace = src.find("{", i)
+  49:         depth = 0
+  50:         for j in range(brace, len(src)):
+  51:             c = src[j]
+  52:             if c == "{":
+  53:                 depth += 1
+  54:             elif c == "}":
+  55:                 depth -= 1
+  56:                 if depth == 0:
+  57:                     found |= set(NCT_RE.findall(src[brace:j + 1]))
+  58:                     break
+  59:     return found
+  60: 
+  61: 
+  62: def _expected(doc):
+  63:     """NCTs build_config injects: trials where every gate passes."""
+  64:     out = set()
+  65:     for t in doc.get("trials", []):
+  66:         if not all((t.get("gates") or {}).values()):
+  67:             continue
+  68:         nct = (t.get("extracted") or {}).get("nct")
+  69:         if nct:
+  70:             out.add(nct)
+  71:     return out
+  72: 
+  73: 
+  74: def main():
+  75:     topic_files = sorted(glob.glob(os.path.join(TOPICS, "*.json")))
+  76:     expected_by_stem = {}
+  77:     owner_of_nct = {}        # nct -> set(stems that legitimately own it)
+  78:     for p in topic_files:
+  79:         try:
+  80:             doc = json.loads(io.open(p, encoding="utf-8", errors="replace").read())
+  81:         except Exception:
+  82:             continue
+  83:         # Reference set for EVERY topic with >=1 gate-passing trial (bulk now
+  84:         # builds NON_VIABLE-with-data too). _expected() is verdict-agnostic.
+  85:         stem = doc.get("topic", {}).get("stem")
+  86:         if not stem:
+  87:             continue
+  88:         exp = _expected(doc)
+  89:         expected_by_stem[stem] = exp
+  90:         for n in exp:
+  91:             owner_of_nct.setdefault(n, set()).add(stem)
+  92: 
+  93:     htmls = sorted(glob.glob(os.path.join(HERE, "*_FULL_REVIEW.html")))
+  94:     clean = bad = 0
+  95:     violations = []
+  96:     for h in htmls:
+  97:         stem = os.path.basename(h)[:-len("_FULL_REVIEW.html")]
+  98:         exp = expected_by_stem.get(stem)
+  99:         if exp is None:
+ 100:             # No matching topic JSON at all -> genuine orphan.
+ 101:             violations.append((stem, "ORPHAN", "no matching topic JSON"))
+ 102:             bad += 1
+ 103:             continue
+ 104:         src = io.open(h, encoding="utf-8", errors="replace").read()
+ 105:         found = _analysis_ncts(src)   # active per-topic data only, not engine scaffold
+ 106:         foreign = found - exp
+ 107:         if not foreign:
+ 108:             clean += 1
+ 109:             continue
+ 110:         bad += 1
+ 111:         detail = []
+ 112:         for n in sorted(foreign):
+ 113:             if n in BASE_NCTS:
+ 114:                 detail.append(f"{n}(BASE-leftover)")
+ 115:             elif n in owner_of_nct:
+ 116:                 detail.append(f"{n}(owned by {','.join(sorted(owner_of_nct[n]))})")
+ 117:             else:
+ 118:                 detail.append(f"{n}(unknown-origin)")
+ 119:         violations.append((stem, "FOREIGN_NCT", "; ".join(detail)))
+ 120: 
+ 121:     print(f"=== Cross-meta scan: {clean} CLEAN, {bad} CONTAMINATED (of {len(htmls)}) ===")
+ 122:     for stem, kind, det in violations[:40]:
+ 123:         print(f"  [{kind}] {stem}: {det[:160]}")
+ 124:     if bad:
+ 125:         log = os.path.join(HERE, "outputs", "_cross_meta_violations.log")
+ 126:         io.open(log, "w", encoding="utf-8").write(
+ 127:             "\n".join(f"{s}\t{k}\t{d}" for s, k, d in violations))
+ 128:         print(f"  full list -> {log}")
+ 129:     return 1 if bad else 0
+ 130: 
+ 131: 
+ 132: if __name__ == "__main__":
+ 133:     sys.exit(main())
+
+codex
+Found:
+
+- `line 66` — **ZERO CONFLATED WITH ABSENT / check that cannot fail**.  
+  Exact input: `_expected({"trials":[{"extracted":{"nct":"NCT12345678"}}]})` returns `{"NCT12345678"}` because missing `gates` becomes `{}` and `all([])` is true.  
+  Consequence: a trial with no gate evidence is treated as gate-passing, so contamination can be masked.
+
+- `line 93` plus `line 129` — **check that cannot fail when predicate matches nothing**.  
+  Exact input: an empty repo root with no `*_FULL_REVIEW.html` files and any `outputs/new_topics` state; run `python scripts/scan_cross_meta.py`.  
+  Consequence: it exits `0` with `0 CLEAN, 0 CONTAMINATED`, so a CI gate can pass while scanning no dashboards.
+
+- `line 46` — **selector keyed to a single source form**.  
+  Exact input: `_analysis_ncts('realData:{trials:[{nct:"NCT12345678"}]}')` returns `set()`.  
+  Consequence: equivalent dashboard data with no space after `realData:` is invisible to the contamination scan.
+
+- `line 54` — **selector/parser misses data due to brace counting inside strings**.  
+  Exact input: `_analysis_ncts('realData: { note: "}", trials: [{ nct: "NCT12345678" }] }')` returns `set()`.  
+  Consequence: a `}` character inside a string ends the scan early and can produce a false clean result.
+
+- `line 129` — **documented status code cannot fire**.  
+  Exact input: `python scripts/scan_cross_meta.py --bad-arg` with no contaminating files.  
+  Consequence: despite line 17 promising exit `2` for usage error, arguments are ignored and only `0` or `1` is reachable.
+
+No proven hit in pasted file: probe keyed to string a fix removes; idempotency guard satisfied by own comment; CRLF/LF text comparison; merged-cell/off-by-one tabulation; negation dropped; wrapper status through pipe.
+
+COULD NOT DETERMINE: different-copy instrumentation requires the caller/CI command or served artifact path.
+tokens used
+20,072
+Found:
+
+- `line 66` — **ZERO CONFLATED WITH ABSENT / check that cannot fail**.  
+  Exact input: `_expected({"trials":[{"extracted":{"nct":"NCT12345678"}}]})` returns `{"NCT12345678"}` because missing `gates` becomes `{}` and `all([])` is true.  
+  Consequence: a trial with no gate evidence is treated as gate-passing, so contamination can be masked.
+
+- `line 93` plus `line 129` — **check that cannot fail when predicate matches nothing**.  
+  Exact input: an empty repo root with no `*_FULL_REVIEW.html` files and any `outputs/new_topics` state; run `python scripts/scan_cross_meta.py`.  
+  Consequence: it exits `0` with `0 CLEAN, 0 CONTAMINATED`, so a CI gate can pass while scanning no dashboards.
+
+- `line 46` — **selector keyed to a single source form**.  
+  Exact input: `_analysis_ncts('realData:{trials:[{nct:"NCT12345678"}]}')` returns `set()`.  
+  Consequence: equivalent dashboard data with no space after `realData:` is invisible to the contamination scan.
+
+- `line 54` — **selector/parser misses data due to brace counting inside strings**.  
+  Exact input: `_analysis_ncts('realData: { note: "}", trials: [{ nct: "NCT12345678" }] }')` returns `set()`.  
+  Consequence: a `}` character inside a string ends the scan early and can produce a false clean result.
+
+- `line 129` — **documented status code cannot fire**.  
+  Exact input: `python scripts/scan_cross_meta.py --bad-arg` with no contaminating files.  
+  Consequence: despite line 17 promising exit `2` for usage error, arguments are ignored and only `0` or `1` is reachable.
+
+No proven hit in pasted file: probe keyed to string a fix removes; idempotency guard satisfied by own comment; CRLF/LF text comparison; merged-cell/off-by-one tabulation; negation dropped; wrapper status through pipe.
+
+COULD NOT DETERMINE: different-copy instrumentation requires the caller/CI command or served artifact path.

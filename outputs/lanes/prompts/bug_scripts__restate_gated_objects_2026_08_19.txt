@@ -1,0 +1,501 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/restate_gated_objects_2026_08_19.py
+
+--- THE FILE, IN FULL ---
+"""OBJECT-SIDE RESTATEMENT of the two gated topics that acquired unscreened trials.
+
+The CASCADE COUNTS live in the builder's per-topic data and are restated there, so they
+survive a rebuild. Everything in this file is the part the builder does NOT write:
+
+  alirocumab-lipid
+    * two newly-experimental trials SCREENED to a disposition
+    * the k=6 numbers still sitting in published_comparison, on a page whose headline is k=8
+    * prediction_interval and estimator_sensitivity, both still computed over SIX trials on a
+      page that pools EIGHT -- recomputed by scripts/recompute_alirocumab_k8.py, which
+      refuses to emit anything unless the STORED headline reproduces from the object's own
+      per-trial values first
+    * `recovery_2026_08_19.not_done_and_named`, which says the two trials are NOT in
+      inputs.trials -- true when written, false since the promotion
+
+  sglt2-hf
+    * two newly-experimental trials SCREENED to a disposition
+    * `k_cascade.source`, which cites a file this topic is not in
+
+EVERY WRITE IS A MERGE AT A NAMED PATH. Nothing is written wholesale, and no superseded text
+is deleted -- it moves to a `*_superseded_2026_08_19` key beside its replacement. A slot that
+is overwritten loses the record that it ever said something else, and on this page that record
+IS the finding.
+"""
+import io
+import json
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+RECOMPUTE = os.path.join(REPO, "evidence", "2026-08-19-batch1", "alirocumab_k8_recompute.json")
+
+
+def load(topic):
+    p = os.path.join(REPO, "ssot", topic, topic + ".json")
+    with io.open(p, encoding="utf-8") as fh:
+        return p, json.load(fh)
+
+
+def save(path, obj):
+    with io.open(path, "w", encoding="utf-8") as fh:
+        fh.write(json.dumps(obj, indent=1, ensure_ascii=True))
+
+
+def supersede(container, key, new_value, why):
+    """Replace container[key], keeping the old value under a superseded key beside it."""
+    old = container.get(key)
+    if old is not None:
+        container[key + "_superseded_2026_08_19"] = {"was": old, "superseded_because": why}
+    container[key] = new_value
+
+
+# ==========================================================================================
+# alirocumab-lipid
+# ==========================================================================================
+ALI_SCREENING = {
+    "screened_utc": "2026-08-19",
+    "why_these_two_exist": (
+        "THE TRAILING-PLACEBO REPAIR (commit e20f94068) MOVED THEM OUT OF BACKGROUND AND INTO "
+        "THE EXPERIMENTAL SET, so a topic whose page said `k_unscreened_remainder: 0` acquired "
+        "two unscreened trials WITHOUT ANYTHING ON THE PAGE CHANGING. The remainder was zero "
+        "and correct when written; a classifier fix two commits later made it false and "
+        "nothing recomputed it. That is why the re-gate exists and why no page is "
+        "grandfathered."),
+    "screened_against": (
+        "screening.eligibility_provenance.elements -- this object's OWN derived criteria "
+        "block, carrying predefined:false on its face. Not a fresh criteria set written to "
+        "fit these two trials."),
+    "axes_kept_separate": (
+        "ELIGIBILITY is POPULATION / INTERVENTION / COMPARATOR. POOLABILITY is the estimand: "
+        "percent change in calculated LDL-C at WEEK 24. A trial can be fully eligible and "
+        "report a different quantity, and both facts are recorded."),
+    "withholding_question_asked_at_every_rank": (
+        "For each trial, EVERY registered outcome rank was read before concluding it does not "
+        "pool -- primaries and all secondaries, not the primary alone. Recorded because "
+        "'it does not report our estimand' is a claim about the whole registration and is "
+        "cheap to assert from the primary outcome alone."),
+    "trials": [
+        {
+            "nct": "NCT01812707",
+            "title": ("Efficacy and Safety Evaluation of Alirocumab in Patients With Primary "
+                      "Hypercholesterolemia on Stable Atorvastatin Therapy in Japan"),
+            "role_change": "background_or_coadministered -> experimental (e20f94068)",
+            "verdict": "ELIGIBLE_NOT_POOLABLE",
+            "axis": "POOLABILITY",
+            "criterion": "ESTIMAND -- TIMEPOINT",
+            "field_read": "protocolSection.outcomesModule.primaryOutcomes + secondaryOutcomes",
+            "eligibility_limbs_all_reported": {
+                "POPULATION": "HOLDS. conditionsModule.conditions = ['Hypercholesterolemia']; "
+                              "inclusion is primary hypercholesterolaemia on stable "
+                              "atorvastatin.",
+                "INTERVENTION": "HOLDS. armsInterventionsModule declares 'Drug: Alirocumab'.",
+                "COMPARATOR": "HOLDS. The PLACEBO_COMPARATOR arm carries 'Drug: Placebo (for "
+                              "alirocumab)' and 'Drug: Atorvastatin'; atorvastatin is in EVERY "
+                              "arm and is therefore background, so the randomised contrast is "
+                              "alirocumab against placebo.",
+            },
+            "reason": (
+                "EVERY REGISTERED RANK IS AT WEEK 12 AND THIS OBJECT'S ESTIMAND IS WEEK 24. "
+                "Primary: 'Percent Change From Baseline in Calculated LDL-C at Week 12'. All "
+                "SIX secondaries are also at week 12 (absolute change mg/dL and mmol/L, "
+                "proportion at goal, total-C/HDL-C/non-HDL-C/ApoB, triglycerides and Lp(a), "
+                "ApoB/ApoA-1). There is no week-24 rank to withhold. This is a POOLABILITY "
+                "verdict and NOT an exclusion: the trial is in scope and measures the right "
+                "quantity at the wrong time."),
+            "also_worth_recording": (
+                "A FOURTH ARM IS TYPED PLACEBO_COMPARATOR AND LABELLED 'Alirocumab 150 mg "
+                "Q2W', carrying 'Drug: Alirocumab'. A mis-typed dose arm -- the same "
+                "registry data-entry class the placebo-discriminator was built for, and the "
+                "reason this trial classifies correctly only because the classifier reads the "
+                "intervention records rather than the arm typing."),
+        },
+        {
+            "nct": "NCT03004001",
+            "title": ("Effect of PCSK9-Antibody (Alirocumab) on Dyslipidemia Secondary to "
+                      "Nephrotic Syndrome"),
+            "role_change": "background_or_coadministered -> experimental (e20f94068)",
+            "verdict": "EXCLUDED",
+            "axis": "ELIGIBILITY",
+            "criterion": "POPULATION",
+            "field_read": "protocolSection.conditionsModule.conditions",
+            "eligibility_limbs_all_reported": {
+                "POPULATION": "FAILS. conditions = ['Nephrotic Syndrome']; inclusion is "
+                              "nephrotic syndrome (FSGS, IMN, or NS with type 2 diabetes). "
+                              "The dyslipidaemia is SECONDARY to a renal disease, and this "
+                              "review's population is adults treated for primary "
+                              "hypercholesterolaemia.",
+                "INTERVENTION": "HOLDS. 'Drug: Alirocumab'.",
+                "COMPARATOR": "HOLDS. 'Drug: Alirocumab placebo' in the PLACEBO_COMPARATOR "
+                              "arm, atorvastatin in both arms as background.",
+                "ESTIMAND": "ALSO FAILS. Primary is 'Levels of plasma lipoproteins' up to 10 "
+                            "months; secondaries are PCSK9 levels, remnant lipoproteins and "
+                            "lipidomics. No percent change in calculated LDL-C at week 24 at "
+                            "ANY rank.",
+            },
+            "reason": (
+                "EXCLUDED ON POPULATION. TWO LIMBS FAIL AND BOTH ARE NAMED rather than the "
+                "first one tested -- P15. The population limb is the uncontestable one and is "
+                "the ground of the verdict; the estimand limb is recorded so a reader who "
+                "widens the population can see that this trial still would not pool."),
+            "and_the_weaker_ground_is_not_leaned_on": (
+                "TERMINATED at n=3 of a planned enrolment. That would settle it on status "
+                "alone, and it is deliberately NOT the stated ground: deciding a trial on "
+                "'it stopped early' when a criterion settles it manufactures a firmer verdict "
+                "than the evidence supports, and it would hide that this population was never "
+                "in scope."),
+        },
+    ],
+    "and_one_that_is_NOT_in_this_list": {
+        "nct": "NCT03067844",
+        "why_not": (
+            "It moved background -> NOT_ASSESSABLE, not into the experimental set, so it is "
+            "not part of the remainder and there is nothing to screen. Its registration "
+            "CONTRADICTS ITSELF: the arm typed PLACEBO_COMPARATOR and labelled 'Placebo' "
+            "carries 'Drug: Alirocumab' and declares no placebo record at all, while the "
+            "EXPERIMENTAL arm declares the same drug. A REFUSAL IS NOT AN EXCLUSION, and "
+            "listing it among screened trials would report a trial we could not read as one "
+            "we assessed and rejected."),
+    },
+    "tally": {"EXCLUDED": 1, "ELIGIBLE_NOT_POOLABLE": 1,
+              "ELIGIBLE_POOLABLE_NOT_INCLUDED": 0,
+              "zero_is_computed": (
+                  "Neither trial is both eligible and poolable, so k stays at 8. That zero is "
+                  "the outcome of two screens, not an empty cell.")},
+}
+
+
+def do_alirocumab(rec):
+    path, obj = load("alirocumab-lipid")
+    blk = obj["results"]["by_outcome"]["ldlc_pct_change_wk24"]
+    pi, dl_, reml_, hksj_ = (rec["prediction_interval"], rec["dl"], rec["reml"], rec["hksj"])
+
+    obj.setdefault("screening_of_remainder", {})
+    obj["screening_of_remainder"]["alirocumab_newly_unscreened_2026_08_19"] = ALI_SCREENING
+
+    # --- prediction interval, recomputed at k=8 -------------------------------------------
+    supersede(blk, "prediction_interval", {
+        "low": round(pi["low"], 2),
+        "high": round(pi["high"], 2),
+        "basis": (f"t_{pi['df']}, DerSimonian-Laird tau-squared, per this project's resolved "
+                  f"convention (Cochrane Handbook v6.5, matching metafor's predict). "
+                  f"t_{pi['df']} = {pi['t']:.4f}."),
+        "recomputed_by": "scripts/recompute_alirocumab_k8.py, gate: the stored k=8 headline "
+                         "reproduces from the object's own per-trial values before anything "
+                         "derived is written",
+        "what_it_says": (
+            "THIS IS THE NUMBER TO QUOTE, and it is not the headline. The confidence interval "
+            "-60.2 to -49.4 is about where the AVERAGE lies. The prediction interval -72.8 to "
+            "-36.9 is about where the effect in a NEW trial of this drug would lie, and it is "
+            "over three times wider. The eight trials range from -39.1 to -64.1 with tight "
+            "intervals of their own, so the spread is real and not sampling noise: dose "
+            "regimen differs, as do population and background statin therapy. A single number "
+            "for 'how much does alirocumab lower LDL' conceals a 25-point range."),
+        "what_changed_from_k6": (
+            "The k=6 interval was -74.08 to -35.23 on t_5. At k=8 it is -72.77 to -36.87 on "
+            "t_7 -- NARROWER BY 3.0 POINTS, and almost all of that is the t multiplier "
+            "falling from 2.5706 to 2.3646 as the degrees of freedom rise. tau-squared went "
+            "UP (47.42 to 50.04). So the prediction interval narrowed while the estimated "
+            "between-trial variance grew, and reporting only the narrowing would suggest the "
+            "evidence became more consistent when it did not."),
+    }, "computed over SIX trials on a page that pools EIGHT, with its own text calling it "
+       "'the number to quote'")
+
+    # --- estimator sensitivity, recomputed at k=8 -----------------------------------------
+    i2dl, i2re = rec["i2_metafor_dl"], rec["i2_metafor_reml"]
+    supersede(blk, "estimator_sensitivity", {
+        "_why": (
+            "What the alternative estimators give on exactly these EIGHT values. Computed "
+            "from the object's own per-trial inputs; the DerSimonian-Laird row reproduces the "
+            "stored headline, which is what licenses printing the others beside it. The REML "
+            "row additionally reproduces metafor's result already stored on this object at "
+            "recovery_2026_08_19.new_reml -- an outside known answer, not this script "
+            "agreeing with itself."),
+        "i2_column_definition": (
+            "metafor's I-squared, tau2/(tau2 + s2) with s2 the typical within-study variance "
+            "-- NOT Higgins (Q-df)/Q. Named because the two disagree here and the sentence "
+            "below turns on which is meant: Higgins is computed from Q, which uses "
+            "fixed-effect weights, so it CANNOT move between estimators and reads 88.0 for "
+            "every row. A sensitivity column that cannot move is not a sensitivity column."),
+        "rows": [
+            {"estimator": "DerSimonian-Laird (as displayed)",
+             "tau2": round(dl_["tau2"], 2), "i2_pct": round(i2dl, 1),
+             "point": round(dl_["point"], 4),
+             "ci_low": round(dl_["ci_low"], 4), "ci_high": round(dl_["ci_high"], 4)},
+            {"estimator": "REML",
+             "tau2": round(reml_["tau2"], 2), "i2_pct": round(i2re, 1),
+             "point": round(reml_["point"], 4),
+             "ci_low": round(reml_["ci_low"], 4), "ci_high": round(reml_["ci_high"], 4)},
+            {"estimator": "REML with Hartung-Knapp-Sidik-Jonkman",
+             "tau2": round(reml_["tau2"], 2), "i2_pct": round(i2re, 1),
+             "point": round(hksj_["point"], 4),
+             "ci_low": round(hksj_["ci_low"], 4), "ci_high": round(hksj_["ci_high"], 4),
+             "note": f"t_{hksj_['df']} = {hksj_['t']:.4f}, not a normal quantile"},
+        ],
+        "what_moves": (
+            "The point estimate barely moves -- 54.8 against 54.7 percent -- and no reading "
+            "of the direction or the magnitude changes. THE INTERVAL MOVES: 10.8 points wide "
+            "under DerSimonian-Laird, 11.8 under REML, 14.7 under REML with Hartung-Knapp. A "
+            "reader who wants the most conservative statement of what eight trials establish "
+            "should take the last of those."),
+        "the_one_that_matters": (
+            "I-SQUARED SITS EXACTLY ON THE THRESHOLD, AND WHICH SIDE DEPENDS ON THE "
+            "DEFINITION AS WELL AS THE ESTIMATOR. 88.0 per cent under DerSimonian-Laird and "
+            "90.0 under REML on metafor's definition; 88.0 under BOTH on Higgins's. This "
+            "project's poolability screen treats 90 per cent as the point at which an average "
+            "conceals more than it conveys, so at k=8 the verdict on whether these eight "
+            "trials should be averaged at all lands ON the line rather than clearly either "
+            "side of it. At k=6 the REML figure was 91.6 and clearly across. THE RECOVERY "
+            "MOVED THIS TOWARD POOLABILITY, which is the opposite direction from the one that "
+            "would flatter a decision already taken, and is stated for that reason."),
+        "what_changed_from_k6": (
+            "k=6 rows were DL 47.42/87.9 and REML 71.22/91.6 with HKSJ -64.13 to -44.53. Two "
+            "more trials RAISED the DL tau-squared (47.42 -> 50.04) and LOWERED the REML one "
+            "(71.22 -> 61.44), because REML's penalty for few studies eases as k grows. Both "
+            "intervals narrowed."),
+    }, "computed over SIX trials on a page that pools EIGHT")
+
+    # --- published comparison: the k=6 estimate presented as this review's ----------------
+    pc = obj["published_comparison"]
+    supersede(pc["divergence_decomposed"], "ours",
+              ("Mean difference -54.82 percent (-60.23 to -49.42) in calculated LDL "
+               "cholesterol at week 24, k=8, random effects, DerSimonian-Laird. PREDICTION "
+               "INTERVAL -72.8 to -36.9, which is the number to quote."),
+              "it stated the SUPERSEDED k=6 estimate as this review's own, in the table a "
+              "reader consults to compare this review against the literature. P7 requires "
+              "that table to agree with the page and with the Word manuscript, and it "
+              "disagreed with both. Caught by scripts/lint_ours_matches_pool.py, which exists "
+              "because lint_block_contradicts_object.py scopes published_comparison out "
+              "entirely as describing OTHER work -- and a field named `ours` is exactly what "
+              "that block-level exclusion hides.")
+
+    pc["_why"] = pc["_why"].replace("Six trials, one endpoint",
+                                    "Eight trials, one endpoint")
+    dd = pc["divergence_decomposed"]
+    dd["why_they_differ"] = dd["why_they_differ"].replace(
+        "six trials running from -39.1 to -64.1",
+        "eight trials running from -39.1 to -64.1")
+    for chk in pc["checks"]:
+        for fld in ("what", "detail"):
+            if fld in chk and isinstance(chk[fld], str):
+                chk[fld] = (chk[fld]
+                            .replace("our -54.66%", "our -54.82%")
+                            .replace("our -54.66", "our -54.82")
+                            .replace("these six trials", "these eight trials")
+                            .replace("the six trials", "the eight trials")
+                            .replace("our six trials", "our eight trials")
+                            .replace("DerSimonian-Laird at k=6", "DerSimonian-Laird at k=8"))
+    for rv in pc["reviews"]:
+        if isinstance(rv.get("how_it_differs_from_ours"), str):
+            rv["how_it_differs_from_ours"] = rv["how_it_differs_from_ours"].replace(
+                "our -54.7", "our -54.8")
+    pc["restated_2026_08_19_to_k8"] = (
+        "This whole block was written when the pool was six trials. Every statement of what "
+        "THIS review found has been moved to the k=8 values; every statement about SOMEONE "
+        "ELSE'S review is untouched, because none of them changed. The superseded text is "
+        "kept at divergence_decomposed.ours_superseded_2026_08_19 rather than deleted -- a "
+        "slot that is overwritten loses the record that it ever said something else.")
+
+    # --- the recovery block's own "not done" note, which is no longer true ----------------
+    supersede(obj["recovery_2026_08_19"], "not_done_and_named",
+              ("SUPERSEDED BY ITS OWN COMPLETION. The two recovered trials WERE promoted into "
+               "inputs.trials and results.by_outcome on 2026-08-19 and the headline was "
+               "restated to k=8. What was NOT carried across at that time, and is carried "
+               "across now: prisma_flow.included (still 6), k_cascade.k_included_in_object "
+               "(still 6), prediction_interval and estimator_sensitivity (both still computed "
+               "over six), and every k=6 figure in published_comparison. A PROMOTION APPLIED "
+               "TO THE HEADLINE AND NOT TO THE DERIVED BLOCKS IS HOW ONE PAGE COMES TO CARRY "
+               "TWO ANSWERS."),
+              "it stated that the recovered trials were not in inputs.trials, which stopped "
+              "being true when they were promoted; a caveat that outlives its condition reads "
+              "as a live limitation")
+
+    save(path, obj)
+    return path
+
+
+# ==========================================================================================
+# sglt2-hf
+# ==========================================================================================
+SGLT2_SCREENING = {
+    "screened_utc": "2026-08-19",
+    "why_these_two_exist": (
+        "THE RE-GATE FOUND THIS OBJECT'S STORED CASCADE UNREPRODUCIBLE. 46/2/8 reproduces at "
+        "exactly one classifier revision (f2bf16022) and at no other; two later revisions "
+        "shipped the same night and were never carried back. Three records moved into the "
+        "experimental set as a result, and two of the three had never been screened. See "
+        "k_cascade.restated_2026_08_19_two_missed_revisions."),
+    "screened_against": (
+        "screening.eligibility -- this object's OWN NATIVE criteria: adults with CHRONIC "
+        "heart failure randomised to an SGLT2 inhibitor against placebo on top of background "
+        "therapy. Not a derived block."),
+    "two_axes_because_the_criteria_say_two": (
+        "ELIGIBILITY turns on population, intervention and comparator ONLY -- the criteria "
+        "deliberately exclude the reported outcome, citing Handbook s3.2.4, because making "
+        "eligibility depend on what a trial reported invites outcome-reporting bias. "
+        "POOLABILITY is separate under s10.9."),
+    "trials": [
+        {
+            "nct": "NCT06434025",
+            "title": ("IV Iron and SGLT2 Inhibitor on Ventricular Function and Myocardial Iron "
+                      "Content in Heart Failure With Iron Deficiency"),
+            "role_change": "background_or_coadministered -> experimental (c5b98b329)",
+            "verdict": "ELIGIBLE_NO_RESULTS_YET",
+            "axis": "STATUS",
+            "field_read": "protocolSection.statusModule.overallStatus",
+            "eligibility_limbs_all_reported": {
+                "POPULATION": "HOLDS. conditions = ['Heart Failure, Systolic', 'Iron "
+                              "Deficiencies']; inclusion requires EF <= 40% with iron "
+                              "deficiency, and the exclusions remove acute coronary "
+                              "presentations. Chronic HFrEF.",
+                "INTERVENTION": "HOLDS. 'Drug: Dapagliflozin 10mg Tab'.",
+                "COMPARATOR": "HOLDS, and it needs the arms read rather than the drug list. "
+                              "Arm 1 is ferric carboxymaltose + dapagliflozin; arm 2 is "
+                              "ferric carboxymaltose + PLACEBO of dapagliflozin. FCM is in "
+                              "both, so it is background and the randomised contrast between "
+                              "those two arms is dapagliflozin against its placebo on top of "
+                              "background therapy -- exactly this review's comparison. A "
+                              "third arm gives placebo for both.",
+            },
+            "reason": (
+                "NOT_YET_RECRUITING, so it has reported nothing. Settled on STATUS, which is "
+                "the uncontestable ground, and the contestable limbs are not argued."),
+            "and_when_it_does_report_it_still_will_not_pool": (
+                "Recorded now so it is not mistaken for a trial that will change the answer. "
+                "Its primary is LVEF by cardiac MRI at 30 days and its two secondaries are "
+                "myocardial iron content and strain by T2* CMR. NO time-to-first-event "
+                "outcome at ANY rank, so s10.9 will not permit combining it with this "
+                "object's hazard ratios however it reports. n=99."),
+        },
+        {
+            "nct": "NCT07025629",
+            "title": "Dapagliflozin for Cardio-renal Protection After ICU Discharge",
+            "role_change": "comparator -> experimental (e20f94068)",
+            "verdict": "EXCLUDED",
+            "axis": "ELIGIBILITY",
+            "criterion": "POPULATION",
+            "field_read": "protocolSection.eligibilityModule.eligibilityCriteria",
+            "eligibility_limbs_all_reported": {
+                "POPULATION": "FAILS. Enrolment is patients READY FOR DISCHARGE FROM ICU "
+                              "after more than 24 hours of mechanical ventilation and/or "
+                              "vasopressors, entering on 'NT-proBNP > 800 ng/L or BNP > 90 "
+                              "ng/L AND/OR eGFR between 25 and 90'. The and/or means a "
+                              "participant can qualify on the RENAL threshold alone with no "
+                              "heart-failure diagnosis at all. This is a "
+                              "post-critical-illness population, not the chronic ambulatory "
+                              "heart failure this review asks about -- the same limb on which "
+                              "this object already excludes SOLOIST-WHF, EMPULSE and eight "
+                              "others.",
+                "INTERVENTION": "HOLDS. 'Drug: Dapagliflozin 10 MG Oral Tablet [Farxiga]'.",
+                "COMPARATOR": "HOLDS. 'Drug: One tablet of placebo of dapagliflozin 10 mg'. "
+                              "Its arm typing is ACTIVE_COMPARATOR for the dapagliflozin arm "
+                              "and PLACEBO_COMPARATOR for the placebo arm -- the inversion "
+                              "that made the old classifier call the drug the comparator, and "
+                              "the reason it surfaced here at all.",
+            },
+            "reason": (
+                "EXCLUDED ON POPULATION. The registered condition string reads 'Heart Failure "
+                "and Chronic Kidney Disease Post-ICU', and it is the POST-ICU qualifier that "
+                "decides it, not the words 'heart failure' inside it. Deciding this from the "
+                "condition string alone would have admitted it."),
+            "what_it_would_have_added_if_the_limb_were_widened": (
+                "n=600, PHASE3, RECRUITING, with all-cause mortality and unscheduled "
+                "hospitalisation for heart failure among its three co-primaries at one year. "
+                "It is not this object's estimand -- a time-to-first CV-death-or-worsening-HF "
+                "composite -- so even under a widened population it would enter on the "
+                "POOLABILITY axis rather than the pool. Stated so a reader can see the cost "
+                "of the boundary rather than take it on trust."),
+        },
+    ],
+    "tally": {"EXCLUDED": 1, "ELIGIBLE_NO_RESULTS_YET": 1,
+              "ELIGIBLE_NOT_POOLABLE": 0, "ELIGIBLE_POOLABLE_NOT_INCLUDED": 0,
+              "k_unchanged": "k stays at 4. Neither trial is both eligible and poolable."},
+    "and_one_that_was_already_screened": {
+        "nct": "NCT04157751",
+        "why_not_here": (
+            "EMPULSE also moved background -> experimental at c5b98b329, but it is already in "
+            "this object's native screening.records, EXCLUDED on population and duration. It "
+            "is counted in the remainder reconciliation and is not re-screened here. Checked "
+            "rather than assumed -- three records moved and only two were new."),
+    },
+}
+
+
+def do_sglt2():
+    path, obj = load("sglt2-hf")
+    obj.setdefault("screening_of_remainder", {})
+    obj["screening_of_remainder"]["sglt2_regate_2026_08_19"] = SGLT2_SCREENING
+
+    kc = obj.setdefault("k_cascade", {})
+    supersede(kc, "source",
+              {"executed_search": "recorded at search.databases in this object",
+               "cascade_recomputed_by": "scripts/regate_cascade_2026_08_19.py",
+               "reproduction_across_revisions": "scripts/regate_sglt2_three_revisions.py",
+               "note": ("Named as SCRIPTS THAT RE-DERIVE THE NUMBERS rather than as a file "
+                        "that once held them, so the citation stays true when the classifier "
+                        "next changes.")},
+              "it cited evidence/2026-08-19-batch1/cascade.json, and sglt2-hf IS NOT IN THAT "
+              "FILE -- that run covered eight other topics. A false provenance record on a "
+              "field whose only job is provenance. iv-iron-hf is absent from the same file; "
+              "its cascade carries no source key at all, which is a gap rather than a wrong "
+              "citation.")
+    save(path, obj)
+    return path
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    if not os.path.exists(RECOMPUTE):
+        print("REFUSED: %s is absent. Run scripts/recompute_alirocumab_k8.py first -- it "
+              "will not emit unless the stored headline reproduces, and this file must not "
+              "write derived values that were never checked." % RECOMPUTE)
+        return 1
+    with io.open(RECOMPUTE, encoding="utf-8") as fh:
+        rec = json.load(fh)
+    if not rec.get("gate_reproduced"):
+        print("REFUSED: the recompute did not pass its own gate.")
+        return 1
+    print("wrote %s" % do_alirocumab(rec))
+    print("wrote %s" % do_sglt2())
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

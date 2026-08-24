@@ -1,0 +1,1043 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a031cc-0d53-7713-af3a-64c61b88ba85
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/gate_integrity.py
+
+--- THE FILE, IN FULL ---
+"""GATE INTEGRITY -- can this gate fail, and does it do what it says?
+
+THE MECHANISM THIS DETECTS, WHICH IS OUR MOST RECURRENT ONE
+    A CHECK THAT REPORTS SUCCESS WITHOUT HAVING PERFORMED THE CHECK.
+
+    Five independent instances, all found in this project:
+      1. The pre-push hook printed "Regression check PASS" while `$?` after a
+         pipeline read `tail`, so the failure branch was unreachable. Every push
+         from that clone was ungated while displaying a green result. 6 of 12
+         checkouts still carried it today.
+      2. figure_audit passed on pages it could not render -- a hidden or 0x0
+         element measured as a silent zero rather than reported unmeasurable.
+      3. A source leg returned a clean verdict having read nothing, because a
+         corpus-reachable gate handed back our own just-written text.
+      4. CHK005's mutation test swept one key and reported the estimate protected;
+         the real pooled value was never mutated, so it could not have failed.
+      5. The Word-vs-HTML alignment gate compared only the sections BOTH surfaces
+         emit, so a section present in one and absent from the other was silently
+         OUT OF SCOPE rather than a divergence. The extraction provenance table
+         was missing from every Word manuscript this project ever produced and
+         nothing could have reported it. A GATE THAT COMPARES ONLY WHAT BOTH
+         SURFACES HAVE CAN NEVER DETECT ABSENCE -- the intersection is not the
+         expected set, and using it as one converts every missing section into a
+         pass. The fix is an expected-section manifest projected from the object,
+         so absence FAILS instead of falling outside the comparison.
+
+    THE COMPANION RULE, AND THE ONE THIS PROJECT HAS HAD TO RE-LEARN FOUR TIMES:
+
+        A VERDICT THAT MEANS "I COULD NOT CHECK" IS NEVER A PASS.
+        NOT_APPLICABLE IS NEVER A PASS.
+        UNCHECKABLE IS NEVER A PASS.
+        UNMEASURED IS NEVER A PASS.
+        AND NONE OF THEM MAY BE COUNTED INTO A CLEAN DENOMINATOR.
+
+    This is stated HERE, once, because it has been restated locally in four gates
+    and four copies of one rule drift apart. Each of the four earned it against a
+    real artefact:
+
+      card_alignment_gate      an audit-first card is UNCHECKABLE by construction.
+                               Folding those into the pass count reported "0.0%
+                               drift" over 1.2% of the corpus -- a reassuring
+                               headline computed over the sliver that could be
+                               read, with the enormous unmeasured remainder
+                               presented as if it were not there.
+      declared_contrast_gate   a two-arm registration returns NOT_APPLICABLE. Only
+                               one contrast is possible, so the trial can neither
+                               exhibit the defect nor clear itself of it. Counting
+                               those as passes would let a corpus of two-arm trials
+                               report 100% clean while establishing nothing.
+      arm_identity_gate        arm labels that identify nothing ('1' vs '2') are
+                               UNCHECKABLE. The gate that returned PASS on finding
+                               nothing to inspect is how eleven properties were
+                               once claimed where four were established.
+      estimand_definition_gate a definition containing an unrecognised event term
+                               is UNCHECKABLE and OUTRANKS both PASS and WITHDRAWN,
+                               because a partial reading that reports agreement is
+                               the CKD false agreement.
+
+    A SECOND RULE OF THE SAME FAMILY, EARNED 2026-08-18:
+
+        A HEADLINE IS A POINT **AND** AN INTERVAL. A REPRODUCTION THAT MATCHES THE
+        POINT AND MISSES THE INTERVAL IS NOT A REPRODUCTION.
+
+    headline_reproducible_gate matched the point alone in its first cut and
+    reported COLCHICINE_CVD as REPRODUCED: fixed-effect over two of its trials
+    gives 0.7506 against a published 0.75, and THAT combination's interval is
+    0.6512 to 0.8652 against a published 0.61 to 0.91. Two digits agreeing is a
+    coincidence, not a derivation, and calling it a reproduction would have cleared
+    a page whose interval follows from nothing.
+
+    This is the same shape as agreement not authenticating anything: matching on
+    the cheap half of a claim says nothing about the half that carries the
+    uncertainty. Where a check compares a composite quantity, it must compare ALL
+    of it or name which part it compared. POINT_ONLY exists as a distinct verdict
+    for exactly that reason.
+
+    THE TEST FOR WHETHER A VERDICT IS BEING MISCOUNTED: ask what the check would
+    report over a corpus in which it can see NOTHING AT ALL. If the answer is
+    anything other than "nothing was established", the not-a-pass verdicts are
+    leaking into the pass count.
+
+    AND A PROPORTION MUST CARRY ITS COMPARABLE FRACTION INLINE OR REFUSE TO
+    RENDER. "0.0% drift" and "0.0% drift over 6 of 514 cards" are different
+    claims, and only the second one is true.
+
+    The shape is identical in all five: the SUCCESS PATH IS REACHABLE AND THE
+    FAILURE PATH IS NOT. A green result is therefore evidence of nothing, and
+    nobody investigates a green result -- which is why these survive.
+
+    SIXTH INSTANCE, AND THE FIRST ON THE MEASURING SIDE RATHER THAN THE CHECKING
+    SIDE. A lane nearly reported the extraction table as MISSING from a page that
+    has it: its text extractor returned 0 occurrences of "Sources" in 101,864
+    characters, and was wrong. The instrument silently omitted content. It caught
+    itself only because a second read of the raw HTML contradicted it.
+
+    A MEASUREMENT INSTRUMENT THAT SILENTLY OMITS CONTENT IS THE SAME MECHANISM AS
+    A GATE PASSING HAVING READ NOTHING. In both, the failure is invisible because
+    the output is well formed: "0 occurrences" and "PASS" are equally ordinary
+    results, and neither carries any signal that the input was incomplete.
+
+    SO THE RULE IS: any page-content check must read RAW HTML, never rendered-text
+    extraction. But the rule has a second half, and missing it produced a wrong
+    number within the hour of adopting the first half:
+
+        RAW HTML DOES NOT MISS HIDDEN CONTENT. IT OVER-COUNTS SOURCE AS CONTENT.
+
+    A census of resolvable source links over raw HTML returned "62.8% of pages
+    carry a registry or PubMed link". They do not. The matches were JavaScript
+    TEMPLATE SOURCE inside <script> -- href="https://clinicaltrials.gov/study/
+    ${escapeHtml(t.id)}" -- counted as links because a raw-HTML regex cannot tell
+    a string literal in a program from an attribute in a document. Recomputed with
+    <script>/<style> BODIES dropped and ${...} placeholders excluded, the figure
+    was 2.2%.
+
+    LOGGED AS A RULE REGRESSION, NOT JUST A MISTAKE. "Read raw HTML, never
+    rendered-text extraction" was ADOPTED AS A RULE in response to the
+    under-counting instance, and within the hour it made a measurement WORSE than
+    no rule at all: 62.8% against a true 2.2%, a factor of forty, AND IT ERRED IN
+    THE REASSURING DIRECTION -- it said the corpus was well sourced when it is
+    not. A rule that fails toward comfort will not be questioned, because its
+    output is the answer everyone hoped for.
+
+    So rules earn the same treatment as gates: state what a rule does NOT
+    establish at the moment it is adopted, and re-derive one number under the new
+    rule and the old one before trusting it. The half-rule was correct about what
+    it was reacting to and silently wrong about everything else, which is the
+    normal shape of a rule written from a single incident.
+
+    Neither instrument alone is correct:
+        rendered text   omits what is not displayed   -> UNDER-counts
+        raw HTML        includes what is not content  -> OVER-counts
+    Read raw HTML so nothing hidden is lost, then ATTRIBUTE CONTENT TO ITS
+    CONTEXT: script and style bodies are program text, not page content. Note
+    this is the same correction already applied to index_markup_gate, which on
+    its first run flagged three anchors inside a script comment -- the corpus has
+    now taught this lesson twice in one day, in opposite directions.
+
+    AND WHEN A PAGE BUILDS ITS OWN DOM, SAY WHICH ONE YOU MEASURED. "In the
+    served markup" and "after JavaScript runs" are different claims about
+    different readers. On this corpus they differ by a factor of forty: 2.2% of
+    pages carry a resolvable registry link in the markup, while 27 of 31 sampled
+    pages carry one once the page has run. Reporting either alone, without
+    naming which, is a true sentence that misleads.
+
+THE MATCHED PAIR -- THE CLEANEST EVIDENCE IN THIS FILE
+    Two probes, one root cause, opposite failure directions, wildly different
+    survival times. This is the selection principle demonstrated rather than
+    argued.
+
+    ROOT CAUSE, both cases: A PROBE THAT ESTABLISHES SOMETHING ANSWERS, NEVER
+    THAT THE RIGHT THING ANSWERS.
+
+    FALSE DEATH -- the agy liveness probe queried the wrong model pool and
+      reported a seat dead that was fully alive. Cost: an entire verification
+      family stood down. CAUGHT THE SAME DAY, because "the seat is dead" is an
+      alarming result and somebody immediately went and looked.
+
+    FALSE LIFE -- the regression gate probed `curl -sf .../index.html` on port
+      8787 and reused whatever answered. What answered was a SIBLING WORKING TREE
+      of the same repository on a different branch. The gate loaded, measured and
+      PASSED pages that were not the pages being pushed -- ARNI at 912,140 bytes
+      over the wire against 6,147,695 on disk. SURVIVED ALL DAY, and every green
+      it produced was relayed upward as confidence, because "regression check
+      PASS" is exactly what everyone wanted to read.
+
+    Same defect class. One was caught in hours, the other ran a full day feeding
+    false assurance into reports, AND THE ONLY DIFFERENCE WAS WHICH DIRECTION IT
+    FAILED IN. Nothing about the false-life version was subtler or better hidden.
+    It simply never gave anyone a reason to look.
+
+    Note also that clones make hash- and size-comparison useless as an identity
+    check here: two working trees of one repository agree on most files most of
+    the time, so any comparison of EXISTING content passes constantly. The only
+    probe another directory cannot satisfy is a NONCE -- content that did not
+    exist anywhere a moment ago. And the response to a failed identity check is
+    REFUSE (exit 2), not warn: a gate reading another directory is worse than no
+    gate, because no gate at least never produces a green.
+
+THE PAYOFF CASE FOR "A GATE NEEDS A CONSTRUCTIBLE FAILING INPUT"
+    The wrong-tree defect was not found by looking for it. It was found because
+    the three-state verdict needed a fixture that could FAIL, the real pages
+    could not produce one (the double-load warms the cache, so they always
+    passed), and a purpose-built fixture therefore had to be written -- which
+    then 404'd against a server that was returning 200 for every real page.
+
+    THE DISCIPLINE DID NOT MERELY VERIFY THE CHECK IT WAS APPLIED TO. IT
+    DISCOVERED AN UNRELATED AND MUCH LARGER DEFECT. That is the argument for the
+    standard, and it belongs here rather than in a footnote: insisting on a
+    constructible failure forces you to interact with the system in a way that
+    passing tests never do, and the discrepancies you trip over on the way are
+    frequently worth more than the check you set out to build.
+
+THE OTHER META-MECHANISM -- THE ACTION SUCCEEDED, THE EFFECT WAS NEVER CONFIRMED
+    Four instances, and it may be the most productive pattern in this file:
+
+        PUSH IS NOT DEPLOY               the ref moved; the site served the old bytes
+        THE REPAIR EXISTING IS NOT THE REPAIR ARRIVING
+                                         the hook was fixed; 6 of 12 checkouts still ran the old one
+        A LIBRARY NO BUILD INVOKES CATCHES NOTHING
+                                         the detector was correct and was never called
+        WRITING AN ARTEFACT IS NOT PRESERVING IT
+                                         the waiver register was written into gitignored outputs/;
+                                         it wrote fine, read back fine, and existed in no clone
+
+    In every one the actor had every reason to believe it had worked, BECAUSE THE
+    ACTION ITSELF SUCCEEDED AND REPORTED SUCCESS. `git push` exits 0. The editor
+    saves. `open(path, "w")` returns. Nothing anywhere is lying; the confirmation
+    simply answers a different question from the one that matters.
+
+    THE QUESTION IS NEVER "DID I DO IT". IT IS "DID IT LAND WHERE IT HAS TO BE."
+    Those come apart whenever an artefact must cross a boundary to take effect --
+    a deploy, a clone, a working tree, an import. Every such boundary needs its
+    own confirmation, taken FROM THE FAR SIDE: fetch the served bytes, run the
+    hook from a second checkout, assert the detector was invoked, ask git whether
+    the file is tracked.
+
+    And note the direction, which is why all four survived: EVERY ONE FAILS
+    TOWARD COMFORT. An untracked backlog does not error, it quietly stops
+    existing, and the corpus then looks better than it is.
+
+THE MECHANISM BEHIND THE MECHANISM -- WHICH DIRECTION DOES THE FAILURE POINT?
+    Ask of every check, gate, rule and instrument: WHEN THIS IS WRONG, IS ITS
+    OUTPUT ALARMING OR REASSURING?
+
+        Fails toward ALARM   -> someone investigates -> it gets fixed or removed.
+                                It cannot survive long, because a false alarm is
+                                expensive to whoever is standing next to it.
+        Fails toward COMFORT -> nobody investigates a green result -> it survives
+                                indefinitely, and its survival is mistaken for
+                                its being correct.
+
+    EVERY MECHANISM FOUND IN THIS PROJECT FAILED TOWARD COMFORT. That is not
+    coincidence, it is SELECTION. The alarming ones were all removed years ago by
+    whoever got tired of them; what remains in any long-lived codebase is
+    disproportionately the set of checks that are wrong in the pleasant direction.
+
+      - the pre-push hook that printed PASS because $? read `tail`   -> comfort
+      - figure_audit scoring an unrenderable element as zero         -> comfort
+      - a source leg verifying against our own just-written text     -> comfort
+      - a mutation test that never mutated the value it protects     -> comfort
+      - an alignment gate comparing only the intersection, so every
+        MISSING section was out of scope rather than a divergence    -> comfort
+      - a text extractor silently dropping content: "0 occurrences"  -> comfort
+      - "read raw HTML", which counted <script> template source and
+        reported 62.8% sourced against a true 2.2%                   -> comfort
+
+    Seven mechanisms, seven in the same direction, zero in the other. A set that
+    lopsided is not a sample of our mistakes -- it is a sample of the mistakes
+    that were ABLE TO LAST.
+
+    PRACTICAL CONSEQUENCE, and the reason this is written here rather than
+    admired: comfortable failure modes cannot be found by waiting for them to
+    cause trouble, because not causing trouble is precisely their property. They
+    have to be hunted deliberately. So when adding any check, write down its
+    comfortable failure mode FIRST -- the specific way it could report success
+    having established nothing -- and then construct that input and confirm it
+    blocks. If you cannot construct it, you have not understood the check yet.
+
+    And prefer designs where the comfortable direction is unavailable: a manifest
+    of EXPECTED sections rather than a comparison of shared ones; UNMEASURED as a
+    distinct verdict from PASS; an unloadable page recorded as unmeasured rather
+    than as zero links. In each case the fix was not a better check but a shape in
+    which silence cannot be read as success.
+
+PROMOTION CRITERION -- REPLAY A REAL PAST DEFECT
+    A synthetic failing input proves a detector CAN fire. It does not prove the
+    detector DISCRIMINATES: a rule that fires on everything also passes that test.
+    Where a real past defect exists, replay it, and require the detector to fire on
+    it AND stay silent on the parts that were genuinely fine.
+
+    Worked example: the section-manifest gate was run against ARNI's pre-port
+    manuscript docmodel taken from git. It fired on extraction_provenance -- the
+    one section actually missing -- and passed certainty, pooled_result,
+    published_comparison, risk_of_bias and screening, all five of which were fine.
+    A synthetic deletion could not have established that.
+
+    Free discriminating cases already sitting in this repo's history, most of which
+    no detector has yet been run against:
+      - the inverted provenance conditional in build_app_v2
+      - the hardcoded _DOCMODEL that put ARNI's manuscript on four other pages
+      - the ordinal-split parser that merged two screening records into one
+      - the unicode-minus comparison that made -71.31 read as +71.31
+      - the substring classifier matching AF_ inside TAF_TDF, TAVI inside roTAVIrus
+      - the citation-year "correction" that changed a value to make a test pass
+    A detector promoted without being run against at least one of these has been
+    tested only against its author's imagination.
+
+THE GENERAL DETECTOR
+    For every gate, ask: WHAT INPUT WOULD MAKE THIS FAIL? Construct it and show it
+    failing. A gate with no constructible failing input is not a gate. That single
+    question would have caught all five.
+
+WHAT THIS SCRIPT CHECKS MECHANICALLY
+    D1 PIPELINE STATUS   `$?` read immediately after a pipeline. Generic: greps
+                         every hook and shell script. One line, and it would have
+                         caught the hook.
+    D2 SCOPE HONESTY     a gate's claimed scope against what it actually globs.
+                         The hook's header said "53 apps ... ~60 seconds" while
+                         its script globbed 1,449 pages. The false claim is what
+                         made bypassing feel reasonable.
+    D3 SKIP FLAGS        an advertised escape hatch. A gate that documents its own
+                         bypass will be bypassed.
+    D4 NO SYS.EXIT       a Python gate that never exits non-zero cannot block.
+
+WHAT A FULL PASS DOES NOT ESTABLISH -- written in advance
+    - NOT that the gate's LOGIC is correct, only that it is capable of failing and
+      honest about its scope. A gate that can fail and checks the wrong thing
+      passes here.
+    - NOT that the gate is wired up. core.hooksPath unset, or set to a directory
+      with no hook file, are separate masks -- both seen today -- and are checked
+      by the clone sweep, not by this.
+    - NOT that a constructible failing input EXISTS. That question is the real
+      detector and it needs a human; this catches four mechanical proxies for it.
+"""
+from __future__ import annotations
+import os, re, sys, io, glob
+
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+PIPE_STATUS = re.compile(r"\|[^\n|]*\n\s*(?:STATUS|RC|rc|status)\s*=\s*\$\?")
+BARE_AFTER_PIPE = re.compile(r"^[^#\n]*\|[^\n]*\n\s*\w+=\$\?", re.M)
+SCOPE_CLAIM = re.compile(r"(\d[\d,]{1,6})\s*(?:-|\s)?apps?\b", re.I)
+GLOB_CALL = re.compile(r"glob\(\s*['\"]([^'\"]+)['\"]")
+SKIP = re.compile(r"^\s*if\s*\[\s*\"?\$\{?(SKIP|BYPASS)[A-Z_]*\}?\"?\s*=", re.M)
+
+
+def check_shell(path, text):
+    out = []
+    if BARE_AFTER_PIPE.search(text):
+        out.append(("D1_PIPELINE_STATUS",
+                    "reads $? immediately after a pipeline: that is the LAST stage's "
+                    "status, so the failure branch is unreachable"))
+    if SKIP.search(text):
+        out.append(("D3_SKIP_FLAG", "advertises an environment-variable bypass"))
+    return out
+
+
+def check_scope(hook_text, script_path):
+    """Claimed app count in the hook header vs what the script really globs.
+
+    A repaired gate that DOCUMENTS the old false claim must not be flagged for
+    quoting it. The first sweep fired on the fixed hook because its header
+    explains "the header claimed 53 apps" as part of the repair note - the
+    detector was reading a description of the defect as the defect. Any scope
+    claim inside a historical block is skipped.
+    """
+    if re.search(r"WHY THIS FILE WAS REWRITTEN|previous version|was rewritten|"
+                 r"the header claimed", hook_text, re.I):
+        return []
+    m = SCOPE_CLAIM.search(hook_text)
+    if not m or not script_path or not os.path.exists(script_path):
+        return []
+    claimed = int(m.group(1).replace(",", ""))
+    st = open(script_path, encoding="utf-8", errors="replace").read()
+    g = GLOB_CALL.search(st)
+    if not g:
+        return []
+    root = os.path.dirname(os.path.dirname(os.path.abspath(script_path)))
+    actual = len(glob.glob(os.path.join(root, g.group(1))))
+    if actual and abs(actual - claimed) > max(5, 0.25 * claimed):
+        return [("D2_SCOPE_DISHONEST",
+                 "header claims %d apps; the script globs %r and matches %d -- a "
+                 "factor of %.1f" % (claimed, g.group(1), actual, actual / max(claimed, 1)))]
+    return []
+
+
+def check_python_gate(path, text):
+    if "sys.exit" not in text and "raise SystemExit" not in text:
+        return [("D4_NO_EXIT", "no sys.exit anywhere: this gate cannot return non-zero")]
+    return []
+
+
+def scan(roots):
+    findings = []
+    for root in roots:
+        for hook in glob.glob(os.path.join(root, ".githooks", "*")) + \
+                    glob.glob(os.path.join(root, ".git", "hooks", "*")):
+            # only real hook files: a README in .githooks is documentation, and
+            # flagging it was noise that inflated the first sweep.
+            if not os.path.isfile(hook) or hook.endswith((".sample", ".md", ".txt")):
+                continue
+            if os.path.basename(hook) not in (
+                    "pre-push", "pre-commit", "commit-msg", "pre-receive",
+                    "prepare-commit-msg", "post-checkout"):
+                continue
+            t = open(hook, encoding="utf-8", errors="replace").read()
+            for c, w in check_shell(hook, t):
+                findings.append((hook, c, w))
+            sp = os.path.join(root, "scripts", "regression_check.py")
+            for c, w in check_scope(t, sp):
+                findings.append((hook, c, w))
+        # D4 applies ONLY to scripts a hook actually invokes. Globbing *gate* and
+        # *check* swept in aggregate_multi_agent.py and friends -- reporting tools
+        # that were never gates. A detector that flags non-gates for not being
+        # gates is measuring the wrong population, and it inflated the first
+        # sweep to 217 findings, most of them meaningless.
+        invoked = set()
+        for hook in glob.glob(os.path.join(root, ".githooks", "pre-*")):
+            if os.path.isfile(hook):
+                ht = open(hook, encoding="utf-8", errors="replace").read()
+                for mm in re.finditer(r"scripts/([A-Za-z0-9_]+\.py)", ht):
+                    invoked.add(os.path.join(root, "scripts", mm.group(1)))
+        for py in sorted(invoked):
+            if not os.path.exists(py):
+                continue
+            t = open(py, encoding="utf-8", errors="replace").read()
+            for c, w in check_python_gate(py, t):
+                findings.append((py, c, w))
+    return findings
+
+
+def selftest() -> int:
+    """The broken hook is kept as a fixture. A detector proved only on the fixed
+    version is the same defect one level up."""
+    ok = True
+    broken = r"F:\claude-temp\finerenone-pre-push.BROKEN.bak"
+    if os.path.exists(broken):
+        t = open(broken, encoding="utf-8", errors="replace").read()
+        hits = {c for c, _ in check_shell(broken, t)}
+        p1 = "D1_PIPELINE_STATUS" in hits
+        p3 = "D3_SKIP_FLAG" in hits
+        print("  POSITIVE the broken hook: D1 pipeline-status %s, D3 skip-flag %s"
+              % ("FIRES" if p1 else "SILENT -- WRONG", "FIRES" if p3 else "SILENT -- WRONG"))
+        ok &= p1 and p3
+    else:
+        print("  POSITIVE fixture absent -- NOT PROVEN"); ok = False
+    fixed = r"F:\rapidmeta-ssot-shell\.githooks\pre-push"
+    if os.path.exists(fixed):
+        t = open(fixed, encoding="utf-8", errors="replace").read()
+        hits = {c for c, _ in check_shell(fixed, t)}
+        clean = not hits
+        print("  NEGATIVE the repaired hook: %s"
+              % ("SILENT" if clean else "FIRES on %s -- WRONG" % sorted(hits)))
+        ok &= clean
+    print("\nWHAT A FAILURE WOULD LOOK LIKE: the broken hook passing, which is a gate "
+          "that cannot fail being certified as a gate.")
+    print("-> SELFTEST PASS" if ok else "-> SELFTEST FAILED")
+    return 0 if ok else 1
+
+
+def main() -> int:
+    if "--selftest" in sys.argv:
+        return selftest()
+    roots = sys.argv[1:] or [r"F:\rapidmeta-ssot-shell", r"F:\rapidmeta-finerenone"]
+    f = scan(roots)
+    print("gates scanned across %d root(s); findings: %d" % (len(roots), len(f)))
+    for path, code, why in f:
+        print("  %-14s %s\n      %s" % (code, path, why))
+    return 1 if f else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+
+codex
+I’ll use the pasted packet as authoritative and only touch the workspace to recover exact line numbers for this file.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$paths = @('"'F:\\ProjectIndex\\INDEX.md','F:\\E156\\rewrite-workbook.txt'); foreach ("'$p in $paths) { if (Test-Path -LiteralPath $p) { Write-Output "FOUND $p" } else { Write-Output "MISSING_OR_UNREADABLE $p" } }' in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=0; Get-Content -LiteralPath scripts'"\\gate_integrity.py | ForEach-Object { "'$i++; '"'{0,4}: {1}' -f "'$i, $_ }' in F:\rapidmeta-ssot-shell
+ succeeded in 1833ms:
+FOUND F:\ProjectIndex\INDEX.md
+FOUND F:\E156\rewrite-workbook.txt
+
+ succeeded in 1829ms:
+   1: """GATE INTEGRITY -- can this gate fail, and does it do what it says?
+   2: 
+   3: THE MECHANISM THIS DETECTS, WHICH IS OUR MOST RECURRENT ONE
+   4:     A CHECK THAT REPORTS SUCCESS WITHOUT HAVING PERFORMED THE CHECK.
+   5: 
+   6:     Five independent instances, all found in this project:
+   7:       1. The pre-push hook printed "Regression check PASS" while `$?` after a
+   8:          pipeline read `tail`, so the failure branch was unreachable. Every push
+   9:          from that clone was ungated while displaying a green result. 6 of 12
+  10:          checkouts still carried it today.
+  11:       2. figure_audit passed on pages it could not render -- a hidden or 0x0
+  12:          element measured as a silent zero rather than reported unmeasurable.
+  13:       3. A source leg returned a clean verdict having read nothing, because a
+  14:          corpus-reachable gate handed back our own just-written text.
+  15:       4. CHK005's mutation test swept one key and reported the estimate protected;
+  16:          the real pooled value was never mutated, so it could not have failed.
+  17:       5. The Word-vs-HTML alignment gate compared only the sections BOTH surfaces
+  18:          emit, so a section present in one and absent from the other was silently
+  19:          OUT OF SCOPE rather than a divergence. The extraction provenance table
+  20:          was missing from every Word manuscript this project ever produced and
+  21:          nothing could have reported it. A GATE THAT COMPARES ONLY WHAT BOTH
+  22:          SURFACES HAVE CAN NEVER DETECT ABSENCE -- the intersection is not the
+  23:          expected set, and using it as one converts every missing section into a
+  24:          pass. The fix is an expected-section manifest projected from the object,
+  25:          so absence FAILS instead of falling outside the comparison.
+  26: 
+  27:     THE COMPANION RULE, AND THE ONE THIS PROJECT HAS HAD TO RE-LEARN FOUR TIMES:
+  28: 
+  29:         A VERDICT THAT MEANS "I COULD NOT CHECK" IS NEVER A PASS.
+  30:         NOT_APPLICABLE IS NEVER A PASS.
+  31:         UNCHECKABLE IS NEVER A PASS.
+  32:         UNMEASURED IS NEVER A PASS.
+  33:         AND NONE OF THEM MAY BE COUNTED INTO A CLEAN DENOMINATOR.
+  34: 
+  35:     This is stated HERE, once, because it has been restated locally in four gates
+  36:     and four copies of one rule drift apart. Each of the four earned it against a
+  37:     real artefact:
+  38: 
+  39:       card_alignment_gate      an audit-first card is UNCHECKABLE by construction.
+  40:                                Folding those into the pass count reported "0.0%
+  41:                                drift" over 1.2% of the corpus -- a reassuring
+  42:                                headline computed over the sliver that could be
+  43:                                read, with the enormous unmeasured remainder
+  44:                                presented as if it were not there.
+  45:       declared_contrast_gate   a two-arm registration returns NOT_APPLICABLE. Only
+  46:                                one contrast is possible, so the trial can neither
+  47:                                exhibit the defect nor clear itself of it. Counting
+  48:                                those as passes would let a corpus of two-arm trials
+  49:                                report 100% clean while establishing nothing.
+  50:       arm_identity_gate        arm labels that identify nothing ('1' vs '2') are
+  51:                                UNCHECKABLE. The gate that returned PASS on finding
+  52:                                nothing to inspect is how eleven properties were
+  53:                                once claimed where four were established.
+  54:       estimand_definition_gate a definition containing an unrecognised event term
+  55:                                is UNCHECKABLE and OUTRANKS both PASS and WITHDRAWN,
+  56:                                because a partial reading that reports agreement is
+  57:                                the CKD false agreement.
+  58: 
+  59:     A SECOND RULE OF THE SAME FAMILY, EARNED 2026-08-18:
+  60: 
+  61:         A HEADLINE IS A POINT **AND** AN INTERVAL. A REPRODUCTION THAT MATCHES THE
+  62:         POINT AND MISSES THE INTERVAL IS NOT A REPRODUCTION.
+  63: 
+  64:     headline_reproducible_gate matched the point alone in its first cut and
+  65:     reported COLCHICINE_CVD as REPRODUCED: fixed-effect over two of its trials
+  66:     gives 0.7506 against a published 0.75, and THAT combination's interval is
+  67:     0.6512 to 0.8652 against a published 0.61 to 0.91. Two digits agreeing is a
+  68:     coincidence, not a derivation, and calling it a reproduction would have cleared
+  69:     a page whose interval follows from nothing.
+  70: 
+  71:     This is the same shape as agreement not authenticating anything: matching on
+  72:     the cheap half of a claim says nothing about the half that carries the
+  73:     uncertainty. Where a check compares a composite quantity, it must compare ALL
+  74:     of it or name which part it compared. POINT_ONLY exists as a distinct verdict
+  75:     for exactly that reason.
+  76: 
+  77:     THE TEST FOR WHETHER A VERDICT IS BEING MISCOUNTED: ask what the check would
+  78:     report over a corpus in which it can see NOTHING AT ALL. If the answer is
+  79:     anything other than "nothing was established", the not-a-pass verdicts are
+  80:     leaking into the pass count.
+  81: 
+  82:     AND A PROPORTION MUST CARRY ITS COMPARABLE FRACTION INLINE OR REFUSE TO
+  83:     RENDER. "0.0% drift" and "0.0% drift over 6 of 514 cards" are different
+  84:     claims, and only the second one is true.
+  85: 
+  86:     The shape is identical in all five: the SUCCESS PATH IS REACHABLE AND THE
+  87:     FAILURE PATH IS NOT. A green result is therefore evidence of nothing, and
+  88:     nobody investigates a green result -- which is why these survive.
+  89: 
+  90:     SIXTH INSTANCE, AND THE FIRST ON THE MEASURING SIDE RATHER THAN THE CHECKING
+  91:     SIDE. A lane nearly reported the extraction table as MISSING from a page that
+  92:     has it: its text extractor returned 0 occurrences of "Sources" in 101,864
+  93:     characters, and was wrong. The instrument silently omitted content. It caught
+  94:     itself only because a second read of the raw HTML contradicted it.
+  95: 
+  96:     A MEASUREMENT INSTRUMENT THAT SILENTLY OMITS CONTENT IS THE SAME MECHANISM AS
+  97:     A GATE PASSING HAVING READ NOTHING. In both, the failure is invisible because
+  98:     the output is well formed: "0 occurrences" and "PASS" are equally ordinary
+  99:     results, and neither carries any signal that the input was incomplete.
+ 100: 
+ 101:     SO THE RULE IS: any page-content check must read RAW HTML, never rendered-text
+ 102:     extraction. But the rule has a second half, and missing it produced a wrong
+ 103:     number within the hour of adopting the first half:
+ 104: 
+ 105:         RAW HTML DOES NOT MISS HIDDEN CONTENT. IT OVER-COUNTS SOURCE AS CONTENT.
+ 106: 
+ 107:     A census of resolvable source links over raw HTML returned "62.8% of pages
+ 108:     carry a registry or PubMed link". They do not. The matches were JavaScript
+ 109:     TEMPLATE SOURCE inside <script> -- href="https://clinicaltrials.gov/study/
+ 110:     ${escapeHtml(t.id)}" -- counted as links because a raw-HTML regex cannot tell
+ 111:     a string literal in a program from an attribute in a document. Recomputed with
+ 112:     <script>/<style> BODIES dropped and ${...} placeholders excluded, the figure
+ 113:     was 2.2%.
+ 114: 
+ 115:     LOGGED AS A RULE REGRESSION, NOT JUST A MISTAKE. "Read raw HTML, never
+ 116:     rendered-text extraction" was ADOPTED AS A RULE in response to the
+ 117:     under-counting instance, and within the hour it made a measurement WORSE than
+ 118:     no rule at all: 62.8% against a true 2.2%, a factor of forty, AND IT ERRED IN
+ 119:     THE REASSURING DIRECTION -- it said the corpus was well sourced when it is
+ 120:     not. A rule that fails toward comfort will not be questioned, because its
+ 121:     output is the answer everyone hoped for.
+ 122: 
+ 123:     So rules earn the same treatment as gates: state what a rule does NOT
+ 124:     establish at the moment it is adopted, and re-derive one number under the new
+ 125:     rule and the old one before trusting it. The half-rule was correct about what
+ 126:     it was reacting to and silently wrong about everything else, which is the
+ 127:     normal shape of a rule written from a single incident.
+ 128: 
+ 129:     Neither instrument alone is correct:
+ 130:         rendered text   omits what is not displayed   -> UNDER-counts
+ 131:         raw HTML        includes what is not content  -> OVER-counts
+ 132:     Read raw HTML so nothing hidden is lost, then ATTRIBUTE CONTENT TO ITS
+ 133:     CONTEXT: script and style bodies are program text, not page content. Note
+ 134:     this is the same correction already applied to index_markup_gate, which on
+ 135:     its first run flagged three anchors inside a script comment -- the corpus has
+ 136:     now taught this lesson twice in one day, in opposite directions.
+ 137: 
+ 138:     AND WHEN A PAGE BUILDS ITS OWN DOM, SAY WHICH ONE YOU MEASURED. "In the
+ 139:     served markup" and "after JavaScript runs" are different claims about
+ 140:     different readers. On this corpus they differ by a factor of forty: 2.2% of
+ 141:     pages carry a resolvable registry link in the markup, while 27 of 31 sampled
+ 142:     pages carry one once the page has run. Reporting either alone, without
+ 143:     naming which, is a true sentence that misleads.
+ 144: 
+ 145: THE MATCHED PAIR -- THE CLEANEST EVIDENCE IN THIS FILE
+ 146:     Two probes, one root cause, opposite failure directions, wildly different
+ 147:     survival times. This is the selection principle demonstrated rather than
+ 148:     argued.
+ 149: 
+ 150:     ROOT CAUSE, both cases: A PROBE THAT ESTABLISHES SOMETHING ANSWERS, NEVER
+ 151:     THAT THE RIGHT THING ANSWERS.
+ 152: 
+ 153:     FALSE DEATH -- the agy liveness probe queried the wrong model pool and
+ 154:       reported a seat dead that was fully alive. Cost: an entire verification
+ 155:       family stood down. CAUGHT THE SAME DAY, because "the seat is dead" is an
+ 156:       alarming result and somebody immediately went and looked.
+ 157: 
+ 158:     FALSE LIFE -- the regression gate probed `curl -sf .../index.html` on port
+ 159:       8787 and reused whatever answered. What answered was a SIBLING WORKING TREE
+ 160:       of the same repository on a different branch. The gate loaded, measured and
+ 161:       PASSED pages that were not the pages being pushed -- ARNI at 912,140 bytes
+ 162:       over the wire against 6,147,695 on disk. SURVIVED ALL DAY, and every green
+ 163:       it produced was relayed upward as confidence, because "regression check
+ 164:       PASS" is exactly what everyone wanted to read.
+ 165: 
+ 166:     Same defect class. One was caught in hours, the other ran a full day feeding
+ 167:     false assurance into reports, AND THE ONLY DIFFERENCE WAS WHICH DIRECTION IT
+ 168:     FAILED IN. Nothing about the false-life version was subtler or better hidden.
+ 169:     It simply never gave anyone a reason to look.
+ 170: 
+ 171:     Note also that clones make hash- and size-comparison useless as an identity
+ 172:     check here: two working trees of one repository agree on most files most of
+ 173:     the time, so any comparison of EXISTING content passes constantly. The only
+ 174:     probe another directory cannot satisfy is a NONCE -- content that did not
+ 175:     exist anywhere a moment ago. And the response to a failed identity check is
+ 176:     REFUSE (exit 2), not warn: a gate reading another directory is worse than no
+ 177:     gate, because no gate at least never produces a green.
+ 178: 
+ 179: THE PAYOFF CASE FOR "A GATE NEEDS A CONSTRUCTIBLE FAILING INPUT"
+ 180:     The wrong-tree defect was not found by looking for it. It was found because
+ 181:     the three-state verdict needed a fixture that could FAIL, the real pages
+ 182:     could not produce one (the double-load warms the cache, so they always
+ 183:     passed), and a purpose-built fixture therefore had to be written -- which
+ 184:     then 404'd against a server that was returning 200 for every real page.
+ 185: 
+ 186:     THE DISCIPLINE DID NOT MERELY VERIFY THE CHECK IT WAS APPLIED TO. IT
+ 187:     DISCOVERED AN UNRELATED AND MUCH LARGER DEFECT. That is the argument for the
+ 188:     standard, and it belongs here rather than in a footnote: insisting on a
+ 189:     constructible failure forces you to interact with the system in a way that
+ 190:     passing tests never do, and the discrepancies you trip over on the way are
+ 191:     frequently worth more than the check you set out to build.
+ 192: 
+ 193: THE OTHER META-MECHANISM -- THE ACTION SUCCEEDED, THE EFFECT WAS NEVER CONFIRMED
+ 194:     Four instances, and it may be the most productive pattern in this file:
+ 195: 
+ 196:         PUSH IS NOT DEPLOY               the ref moved; the site served the old bytes
+ 197:         THE REPAIR EXISTING IS NOT THE REPAIR ARRIVING
+ 198:                                          the hook was fixed; 6 of 12 checkouts still ran the old one
+ 199:         A LIBRARY NO BUILD INVOKES CATCHES NOTHING
+ 200:                                          the detector was correct and was never called
+ 201:         WRITING AN ARTEFACT IS NOT PRESERVING IT
+ 202:                                          the waiver register was written into gitignored outputs/;
+ 203:                                          it wrote fine, read back fine, and existed in no clone
+ 204: 
+ 205:     In every one the actor had every reason to believe it had worked, BECAUSE THE
+ 206:     ACTION ITSELF SUCCEEDED AND REPORTED SUCCESS. `git push` exits 0. The editor
+ 207:     saves. `open(path, "w")` returns. Nothing anywhere is lying; the confirmation
+ 208:     simply answers a different question from the one that matters.
+ 209: 
+ 210:     THE QUESTION IS NEVER "DID I DO IT". IT IS "DID IT LAND WHERE IT HAS TO BE."
+ 211:     Those come apart whenever an artefact must cross a boundary to take effect --
+ 212:     a deploy, a clone, a working tree, an import. Every such boundary needs its
+ 213:     own confirmation, taken FROM THE FAR SIDE: fetch the served bytes, run the
+ 214:     hook from a second checkout, assert the detector was invoked, ask git whether
+ 215:     the file is tracked.
+ 216: 
+ 217:     And note the direction, which is why all four survived: EVERY ONE FAILS
+ 218:     TOWARD COMFORT. An untracked backlog does not error, it quietly stops
+ 219:     existing, and the corpus then looks better than it is.
+ 220: 
+ 221: THE MECHANISM BEHIND THE MECHANISM -- WHICH DIRECTION DOES THE FAILURE POINT?
+ 222:     Ask of every check, gate, rule and instrument: WHEN THIS IS WRONG, IS ITS
+ 223:     OUTPUT ALARMING OR REASSURING?
+ 224: 
+ 225:         Fails toward ALARM   -> someone investigates -> it gets fixed or removed.
+ 226:                                 It cannot survive long, because a false alarm is
+ 227:                                 expensive to whoever is standing next to it.
+ 228:         Fails toward COMFORT -> nobody investigates a green result -> it survives
+ 229:                                 indefinitely, and its survival is mistaken for
+ 230:                                 its being correct.
+ 231: 
+ 232:     EVERY MECHANISM FOUND IN THIS PROJECT FAILED TOWARD COMFORT. That is not
+ 233:     coincidence, it is SELECTION. The alarming ones were all removed years ago by
+ 234:     whoever got tired of them; what remains in any long-lived codebase is
+ 235:     disproportionately the set of checks that are wrong in the pleasant direction.
+ 236: 
+ 237:       - the pre-push hook that printed PASS because $? read `tail`   -> comfort
+ 238:       - figure_audit scoring an unrenderable element as zero         -> comfort
+ 239:       - a source leg verifying against our own just-written text     -> comfort
+ 240:       - a mutation test that never mutated the value it protects     -> comfort
+ 241:       - an alignment gate comparing only the intersection, so every
+ 242:         MISSING section was out of scope rather than a divergence    -> comfort
+ 243:       - a text extractor silently dropping content: "0 occurrences"  -> comfort
+ 244:       - "read raw HTML", which counted <script> template source and
+ 245:         reported 62.8% sourced against a true 2.2%                   -> comfort
+ 246: 
+ 247:     Seven mechanisms, seven in the same direction, zero in the other. A set that
+ 248:     lopsided is not a sample of our mistakes -- it is a sample of the mistakes
+ 249:     that were ABLE TO LAST.
+ 250: 
+ 251:     PRACTICAL CONSEQUENCE, and the reason this is written here rather than
+ 252:     admired: comfortable failure modes cannot be found by waiting for them to
+ 253:     cause trouble, because not causing trouble is precisely their property. They
+ 254:     have to be hunted deliberately. So when adding any check, write down its
+ 255:     comfortable failure mode FIRST -- the specific way it could report success
+ 256:     having established nothing -- and then construct that input and confirm it
+ 257:     blocks. If you cannot construct it, you have not understood the check yet.
+ 258: 
+ 259:     And prefer designs where the comfortable direction is unavailable: a manifest
+ 260:     of EXPECTED sections rather than a comparison of shared ones; UNMEASURED as a
+ 261:     distinct verdict from PASS; an unloadable page recorded as unmeasured rather
+ 262:     than as zero links. In each case the fix was not a better check but a shape in
+ 263:     which silence cannot be read as success.
+ 264: 
+ 265: PROMOTION CRITERION -- REPLAY A REAL PAST DEFECT
+ 266:     A synthetic failing input proves a detector CAN fire. It does not prove the
+ 267:     detector DISCRIMINATES: a rule that fires on everything also passes that test.
+ 268:     Where a real past defect exists, replay it, and require the detector to fire on
+ 269:     it AND stay silent on the parts that were genuinely fine.
+ 270: 
+ 271:     Worked example: the section-manifest gate was run against ARNI's pre-port
+ 272:     manuscript docmodel taken from git. It fired on extraction_provenance -- the
+ 273:     one section actually missing -- and passed certainty, pooled_result,
+ 274:     published_comparison, risk_of_bias and screening, all five of which were fine.
+ 275:     A synthetic deletion could not have established that.
+ 276: 
+ 277:     Free discriminating cases already sitting in this repo's history, most of which
+ 278:     no detector has yet been run against:
+ 279:       - the inverted provenance conditional in build_app_v2
+ 280:       - the hardcoded _DOCMODEL that put ARNI's manuscript on four other pages
+ 281:       - the ordinal-split parser that merged two screening records into one
+ 282:       - the unicode-minus comparison that made -71.31 read as +71.31
+ 283:       - the substring classifier matching AF_ inside TAF_TDF, TAVI inside roTAVIrus
+ 284:       - the citation-year "correction" that changed a value to make a test pass
+ 285:     A detector promoted without being run against at least one of these has been
+ 286:     tested only against its author's imagination.
+ 287: 
+ 288: THE GENERAL DETECTOR
+ 289:     For every gate, ask: WHAT INPUT WOULD MAKE THIS FAIL? Construct it and show it
+ 290:     failing. A gate with no constructible failing input is not a gate. That single
+ 291:     question would have caught all five.
+ 292: 
+ 293: WHAT THIS SCRIPT CHECKS MECHANICALLY
+ 294:     D1 PIPELINE STATUS   `$?` read immediately after a pipeline. Generic: greps
+ 295:                          every hook and shell script. One line, and it would have
+ 296:                          caught the hook.
+ 297:     D2 SCOPE HONESTY     a gate's claimed scope against what it actually globs.
+ 298:                          The hook's header said "53 apps ... ~60 seconds" while
+ 299:                          its script globbed 1,449 pages. The false claim is what
+ 300:                          made bypassing feel reasonable.
+ 301:     D3 SKIP FLAGS        an advertised escape hatch. A gate that documents its own
+ 302:                          bypass will be bypassed.
+ 303:     D4 NO SYS.EXIT       a Python gate that never exits non-zero cannot block.
+ 304: 
+ 305: WHAT A FULL PASS DOES NOT ESTABLISH -- written in advance
+ 306:     - NOT that the gate's LOGIC is correct, only that it is capable of failing and
+ 307:       honest about its scope. A gate that can fail and checks the wrong thing
+ 308:       passes here.
+ 309:     - NOT that the gate is wired up. core.hooksPath unset, or set to a directory
+ 310:       with no hook file, are separate masks -- both seen today -- and are checked
+ 311:       by the clone sweep, not by this.
+ 312:     - NOT that a constructible failing input EXISTS. That question is the real
+ 313:       detector and it needs a human; this catches four mechanical proxies for it.
+ 314: """
+ 315: from __future__ import annotations
+ 316: import os, re, sys, io, glob
+ 317: 
+ 318: if __name__ == "__main__":
+ 319:     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+ 320: 
+ 321: PIPE_STATUS = re.compile(r"\|[^\n|]*\n\s*(?:STATUS|RC|rc|status)\s*=\s*\$\?")
+ 322: BARE_AFTER_PIPE = re.compile(r"^[^#\n]*\|[^\n]*\n\s*\w+=\$\?", re.M)
+ 323: SCOPE_CLAIM = re.compile(r"(\d[\d,]{1,6})\s*(?:-|\s)?apps?\b", re.I)
+ 324: GLOB_CALL = re.compile(r"glob\(\s*['\"]([^'\"]+)['\"]")
+ 325: SKIP = re.compile(r"^\s*if\s*\[\s*\"?\$\{?(SKIP|BYPASS)[A-Z_]*\}?\"?\s*=", re.M)
+ 326: 
+ 327: 
+ 328: def check_shell(path, text):
+ 329:     out = []
+ 330:     if BARE_AFTER_PIPE.search(text):
+ 331:         out.append(("D1_PIPELINE_STATUS",
+ 332:                     "reads $? immediately after a pipeline: that is the LAST stage's "
+ 333:                     "status, so the failure branch is unreachable"))
+ 334:     if SKIP.search(text):
+ 335:         out.append(("D3_SKIP_FLAG", "advertises an environment-variable bypass"))
+ 336:     return out
+ 337: 
+ 338: 
+ 339: def check_scope(hook_text, script_path):
+ 340:     """Claimed app count in the hook header vs what the script really globs.
+ 341: 
+ 342:     A repaired gate that DOCUMENTS the old false claim must not be flagged for
+ 343:     quoting it. The first sweep fired on the fixed hook because its header
+ 344:     explains "the header claimed 53 apps" as part of the repair note - the
+ 345:     detector was reading a description of the defect as the defect. Any scope
+ 346:     claim inside a historical block is skipped.
+ 347:     """
+ 348:     if re.search(r"WHY THIS FILE WAS REWRITTEN|previous version|was rewritten|"
+ 349:                  r"the header claimed", hook_text, re.I):
+ 350:         return []
+ 351:     m = SCOPE_CLAIM.search(hook_text)
+ 352:     if not m or not script_path or not os.path.exists(script_path):
+ 353:         return []
+ 354:     claimed = int(m.group(1).replace(",", ""))
+ 355:     st = open(script_path, encoding="utf-8", errors="replace").read()
+ 356:     g = GLOB_CALL.search(st)
+ 357:     if not g:
+ 358:         return []
+ 359:     root = os.path.dirname(os.path.dirname(os.path.abspath(script_path)))
+ 360:     actual = len(glob.glob(os.path.join(root, g.group(1))))
+ 361:     if actual and abs(actual - claimed) > max(5, 0.25 * claimed):
+ 362:         return [("D2_SCOPE_DISHONEST",
+ 363:                  "header claims %d apps; the script globs %r and matches %d -- a "
+ 364:                  "factor of %.1f" % (claimed, g.group(1), actual, actual / max(claimed, 1)))]
+ 365:     return []
+ 366: 
+ 367: 
+ 368: def check_python_gate(path, text):
+ 369:     if "sys.exit" not in text and "raise SystemExit" not in text:
+ 370:         return [("D4_NO_EXIT", "no sys.exit anywhere: this gate cannot return non-zero")]
+ 371:     return []
+ 372: 
+ 373: 
+ 374: def scan(roots):
+ 375:     findings = []
+ 376:     for root in roots:
+ 377:         for hook in glob.glob(os.path.join(root, ".githooks", "*")) + \
+ 378:                     glob.glob(os.path.join(root, ".git", "hooks", "*")):
+ 379:             # only real hook files: a README in .githooks is documentation, and
+ 380:             # flagging it was noise that inflated the first sweep.
+ 381:             if not os.path.isfile(hook) or hook.endswith((".sample", ".md", ".txt")):
+ 382:                 continue
+ 383:             if os.path.basename(hook) not in (
+ 384:                     "pre-push", "pre-commit", "commit-msg", "pre-receive",
+ 385:                     "prepare-commit-msg", "post-checkout"):
+ 386:                 continue
+ 387:             t = open(hook, encoding="utf-8", errors="replace").read()
+ 388:             for c, w in check_shell(hook, t):
+ 389:                 findings.append((hook, c, w))
+ 390:             sp = os.path.join(root, "scripts", "regression_check.py")
+ 391:             for c, w in check_scope(t, sp):
+ 392:                 findings.append((hook, c, w))
+ 393:         # D4 applies ONLY to scripts a hook actually invokes. Globbing *gate* and
+ 394:         # *check* swept in aggregate_multi_agent.py and friends -- reporting tools
+ 395:         # that were never gates. A detector that flags non-gates for not being
+ 396:         # gates is measuring the wrong population, and it inflated the first
+ 397:         # sweep to 217 findings, most of them meaningless.
+ 398:         invoked = set()
+ 399:         for hook in glob.glob(os.path.join(root, ".githooks", "pre-*")):
+ 400:             if os.path.isfile(hook):
+ 401:                 ht = open(hook, encoding="utf-8", errors="replace").read()
+ 402:                 for mm in re.finditer(r"scripts/([A-Za-z0-9_]+\.py)", ht):
+ 403:                     invoked.add(os.path.join(root, "scripts", mm.group(1)))
+ 404:         for py in sorted(invoked):
+ 405:             if not os.path.exists(py):
+ 406:                 continue
+ 407:             t = open(py, encoding="utf-8", errors="replace").read()
+ 408:             for c, w in check_python_gate(py, t):
+ 409:                 findings.append((py, c, w))
+ 410:     return findings
+ 411: 
+ 412: 
+ 413: def selftest() -> int:
+ 414:     """The broken hook is kept as a fixture. A detector proved only on the fixed
+ 415:     version is the same defect one level up."""
+ 416:     ok = True
+ 417:     broken = r"F:\claude-temp\finerenone-pre-push.BROKEN.bak"
+ 418:     if os.path.exists(broken):
+ 419:         t = open(broken, encoding="utf-8", errors="replace").read()
+ 420:         hits = {c for c, _ in check_shell(broken, t)}
+ 421:         p1 = "D1_PIPELINE_STATUS" in hits
+ 422:         p3 = "D3_SKIP_FLAG" in hits
+ 423:         print("  POSITIVE the broken hook: D1 pipeline-status %s, D3 skip-flag %s"
+ 424:               % ("FIRES" if p1 else "SILENT -- WRONG", "FIRES" if p3 else "SILENT -- WRONG"))
+ 425:         ok &= p1 and p3
+ 426:     else:
+ 427:         print("  POSITIVE fixture absent -- NOT PROVEN"); ok = False
+ 428:     fixed = r"F:\rapidmeta-ssot-shell\.githooks\pre-push"
+ 429:     if os.path.exists(fixed):
+ 430:         t = open(fixed, encoding="utf-8", errors="replace").read()
+ 431:         hits = {c for c, _ in check_shell(fixed, t)}
+ 432:         clean = not hits
+ 433:         print("  NEGATIVE the repaired hook: %s"
+ 434:               % ("SILENT" if clean else "FIRES on %s -- WRONG" % sorted(hits)))
+ 435:         ok &= clean
+ 436:     print("\nWHAT A FAILURE WOULD LOOK LIKE: the broken hook passing, which is a gate "
+ 437:           "that cannot fail being certified as a gate.")
+ 438:     print("-> SELFTEST PASS" if ok else "-> SELFTEST FAILED")
+ 439:     return 0 if ok else 1
+ 440: 
+ 441: 
+ 442: def main() -> int:
+ 443:     if "--selftest" in sys.argv:
+ 444:         return selftest()
+ 445:     roots = sys.argv[1:] or [r"F:\rapidmeta-ssot-shell", r"F:\rapidmeta-finerenone"]
+ 446:     f = scan(roots)
+ 447:     print("gates scanned across %d root(s); findings: %d" % (len(roots), len(f)))
+ 448:     for path, code, why in f:
+ 449:         print("  %-14s %s\n      %s" % (code, path, why))
+ 450:     return 1 if f else 0
+ 451: 
+ 452: 
+ 453: if __name__ == "__main__":
+ 454:     sys.exit(main())
+
+codex
+Found defects:
+
+- **Line 361, ZERO CONFLATED WITH ABSENT**  
+  Input: `hook_text="53 apps\n"` and `script_path` file containing `glob("no_such_dir/*.html")`.  
+  Consequence: `actual == 0` suppresses D2, so a hook claiming 53 apps while checking none passes.
+
+- **Lines 348-350, idempotency guard satisfied by its own marker**  
+  Input: `hook_text="previous version\n53 apps\n"` with a script glob that materially differs from 53.  
+  Consequence: any hook containing that historical phrase disables all scope checking, including live false scope claims.
+
+- **Line 369, idempotency guard satisfied by comment/string**  
+  Input: `text="# TODO: add sys.exit later\ndef main():\n    return 1\n"`.  
+  Consequence: D4 reports clean even though the gate has no reachable non-zero process exit.
+
+- **Line 369, check that cannot fail**  
+  Input: `text="if False:\n    sys.exit(1)\nprint('PASS')\n"`.  
+  Consequence: mere textual `sys.exit` suppresses D4 although no non-zero exit is reachable.
+
+- **Line 402, selector keyed to a form the corpus may not use**  
+  Input hook: `python scripts/gate-integrity.py`.  
+  Consequence: the invoked Python gate is not added to `invoked`, so D4 never inspects it.
+
+- **Lines 399-403, instrument reads only `.githooks/pre-*` for D4**  
+  Input: `.git/hooks/pre-push` containing `python scripts/bad_gate.py`, where `bad_gate.py` lacks `sys.exit`.  
+  Consequence: D1/D3 scan that hook, but D4 ignores its invoked gate and can return clean.
+
+- **Lines 376-450, check cannot fail over absent corpus**  
+  Input: `python scripts/gate_integrity.py Z:\missing-root`.  
+  Consequence: missing roots produce zero globs, zero findings, and exit 0.
+
+- **Lines 428-435, different copy than the one being changed**  
+  Input: run `python scripts/gate_integrity.py --selftest` from any checkout other than `F:\rapidmeta-ssot-shell`.  
+  Consequence: the negative selftest reads the hardcoded F: hook, not the current checkout’s hook.
+
+No proven CRLF text-compare, merged-cell/off-by-one, or negation-dropped defect in this file.
+tokens used
+23,688
+Found defects:
+
+- **Line 361, ZERO CONFLATED WITH ABSENT**  
+  Input: `hook_text="53 apps\n"` and `script_path` file containing `glob("no_such_dir/*.html")`.  
+  Consequence: `actual == 0` suppresses D2, so a hook claiming 53 apps while checking none passes.
+
+- **Lines 348-350, idempotency guard satisfied by its own marker**  
+  Input: `hook_text="previous version\n53 apps\n"` with a script glob that materially differs from 53.  
+  Consequence: any hook containing that historical phrase disables all scope checking, including live false scope claims.
+
+- **Line 369, idempotency guard satisfied by comment/string**  
+  Input: `text="# TODO: add sys.exit later\ndef main():\n    return 1\n"`.  
+  Consequence: D4 reports clean even though the gate has no reachable non-zero process exit.
+
+- **Line 369, check that cannot fail**  
+  Input: `text="if False:\n    sys.exit(1)\nprint('PASS')\n"`.  
+  Consequence: mere textual `sys.exit` suppresses D4 although no non-zero exit is reachable.
+
+- **Line 402, selector keyed to a form the corpus may not use**  
+  Input hook: `python scripts/gate-integrity.py`.  
+  Consequence: the invoked Python gate is not added to `invoked`, so D4 never inspects it.
+
+- **Lines 399-403, instrument reads only `.githooks/pre-*` for D4**  
+  Input: `.git/hooks/pre-push` containing `python scripts/bad_gate.py`, where `bad_gate.py` lacks `sys.exit`.  
+  Consequence: D1/D3 scan that hook, but D4 ignores its invoked gate and can return clean.
+
+- **Lines 376-450, check cannot fail over absent corpus**  
+  Input: `python scripts/gate_integrity.py Z:\missing-root`.  
+  Consequence: missing roots produce zero globs, zero findings, and exit 0.
+
+- **Lines 428-435, different copy than the one being changed**  
+  Input: run `python scripts/gate_integrity.py --selftest` from any checkout other than `F:\rapidmeta-ssot-shell`.  
+  Consequence: the negative selftest reads the hardcoded F: hook, not the current checkout’s hook.
+
+No proven CRLF text-compare, merged-cell/off-by-one, or negation-dropped defect in this file.

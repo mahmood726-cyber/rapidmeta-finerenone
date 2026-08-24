@@ -1,0 +1,765 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a031db-a5df-7673-bcdc-e24b8c2dd856
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/inject_e156_claim_buttons.py
+
+--- THE FILE, IN FULL ---
+"""Inject "Claim on E156" chips into rapidmeta-finerenone/index.html.
+
+For each <a href="X_REVIEW.html"> on the landing page, look up whether that
+review has an E156 paper (parsed from the local e156 students.html, set via
+$E156_STUDENTS_HTML) and add a small green chip linking to
+  https://mahmood726-cyber.github.io/e156/students.html?focus=NNN
+
+Idempotent. Safe to re-run.
+"""
+from __future__ import annotations
+import io, json, os, re, sys
+from pathlib import Path
+
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+REPO = Path(__file__).resolve().parent.parent
+INDEX = REPO / "index.html"
+DASHBOARD = REPO / "dashboard.html"
+# Other landing/index pages that link to reviews. Discovered by grepping
+# for _REVIEW.html across non-review HTML in the repo. Anything matching
+# this list also gets the chip injector + style block.
+EXTRA_LANDING_PAGES = [
+    REPO / "NMA_INDEX.html",
+    REPO / "META_DASHBOARD.html",
+    REPO / "AutoManuscript.html",
+]
+# Local e156 students.html: set $E156_STUDENTS_HTML to your checkout (the chip
+# links always point at the public Pages URL below regardless).
+STUDENTS = Path(os.environ.get("E156_STUDENTS_HTML") or (Path.home() / "e156" / "students.html"))
+E156_BASE = "https://mahmood726-cyber.github.io/e156/students.html"
+RAPIDMETA_REPO_URL = "rapidmeta-finerenone"  # match against e.code_url
+
+MARKER_BEGIN = "<!-- e156-claim-chips:begin -->"
+MARKER_END = "<!-- e156-claim-chips:end -->"
+STYLE_BEGIN = "<!-- e156-claim-chips-style:begin -->"
+STYLE_END = "<!-- e156-claim-chips-style:end -->"
+
+
+def parse_entries(students_html: str) -> list[dict]:
+    """Pull the JS array `const ENTRIES = [...]` and parse as JSON."""
+    m = re.search(r"const\s+ENTRIES\s*=\s*(\[.*?\]);", students_html, re.DOTALL)
+    if not m:
+        raise RuntimeError("ENTRIES const not found in students.html")
+    return json.loads(m.group(1))
+
+
+def _score_match(review_base: str, title: str) -> int:
+    """Heuristic match score between a review filename and an E156 paper title.
+
+    Higher = better. The intent is to pick the most-canonical paper when
+    multiple E156 papers reference the same review HTML. Tie-broken by
+    lower paper number (older / canonical) at the caller.
+    """
+    rev_stem = review_base.replace("_REVIEW.html", "").lower()
+    tit_norm = (title or "").lower().replace("-", "").replace("/", "").replace(" ", "")
+    score = 0
+    # Strong: the entire review stem (no underscores) is a substring of the title
+    rev_norm = rev_stem.replace("_", "")
+    if rev_norm and rev_norm in tit_norm:
+        score += 200
+    # Per-token matches (drug stems, abbreviations)
+    for tok in rev_stem.split("_"):
+        tok = tok.replace("-", "")
+        if len(tok) >= 3 and tok in tit_norm:
+            score += 10 * len(tok)
+    # Slight reward for "RapidMeta" branded papers (canonical series)
+    if "rapidmeta" in tit_norm:
+        score += 5
+    return score
+
+
+def build_map(entries: list[dict]) -> tuple[dict[str, dict], list[dict]]:
+    """Map review-file basename → {num, title} for rapidmeta papers.
+
+    On collision (two E156 papers point to the same _REVIEW.html), pick
+    the higher-scoring match; tie-break by lower paper-num. Returns
+    (mapping, audit) where audit is a list of every collision shown.
+
+    Skips review-file basenames that don't exist on disk (deleted reviews —
+    e.g. fully-fabricated quarantined ones removed 2026-05-11).
+    """
+    candidates: dict[str, list[dict]] = {}
+    for e in entries:
+        code_url = e.get("code_url") or ""
+        if RAPIDMETA_REPO_URL not in code_url:
+            continue
+        pages_url = e.get("pages_url") or ""
+        if not pages_url.endswith(".html"):
+            continue
+        basename = pages_url.rsplit("/", 1)[-1]
+        if not basename.endswith("_REVIEW.html"):
+            continue
+        # Only include reviews whose HTML still exists on disk.
+        if not (REPO / basename).exists():
+            continue
+        candidates.setdefault(basename, []).append({
+            "num": int(e["num"]),
+            "title": e.get("title") or "",
+        })
+
+    mapping: dict[str, dict] = {}
+    audit: list[dict] = []
+    for basename, papers in candidates.items():
+        if len(papers) == 1:
+            mapping[basename] = papers[0]
+            continue
+        # Collision — score, pick highest, tie-break by lower num
+        scored = sorted(
+            papers,
+            key=lambda p: (-_score_match(basename, p["title"]), p["num"]),
+        )
+        mapping[basename] = scored[0]
+        audit.append({
+            "basename": basename,
+            "chosen": scored[0],
+            "rejected": scored[1:],
+            "scores": [(p["num"], _score_match(basename, p["title"])) for p in scored],
+        })
+    return mapping, audit
+
+
+def write_audit_csv(mapping: dict[str, dict], landing_hrefs: set[str], audit_path: Path) -> None:
+    """Write a CSV showing every landing-page review and what chip (if any)
+    was chosen. Helps the user spot bad mappings + uncovered reviews."""
+    import csv
+    audit_path.parent.mkdir(parents=True, exist_ok=True)
+    rows = []
+    for href in sorted(landing_hrefs):
+        if href in mapping:
+            rec = mapping[href]
+            rows.append([href, "MATCH", rec["num"], rec["title"]])
+        else:
+            rows.append([href, "UNCOVERED", "", ""])
+    with audit_path.open("w", encoding="utf-8", newline="") as fh:
+        w = csv.writer(fh)
+        w.writerow(["review_file", "status", "e156_paper_num", "e156_paper_title"])
+        w.writerows(rows)
+
+
+STYLE_BLOCK = """{begin}
+<style>
+.card-host {{ position: relative; display: block; }}
+.claim-chip {{
+  display: inline-block;
+  font-family: system-ui,-apple-system,sans-serif;
+  font-size: .58rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  padding: .22rem .5rem;
+  border-radius: 4px;
+  background: #22c55e;
+  color: #fff !important;
+  text-decoration: none !important;
+  border: 1px solid #16a34a;
+  vertical-align: middle;
+  white-space: nowrap;
+  transition: opacity .15s, transform .15s;
+  opacity: .92;
+}}
+.claim-chip:hover {{ opacity: 1; transform: translateY(-1px); text-decoration: none !important; box-shadow: 0 2px 6px rgba(34,197,94,.25); }}
+.card-host {{ position: relative; display: block; }}
+/* Give the chip its own space at the top-right of the card so it never
+   overlaps long titles. ~108px = the chip width + 6px right margin + 6px left buffer. */
+.card-host > .card {{ padding-right: 108px; }}
+.card-host .claim-chip {{
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  margin: 0;
+  z-index: 5;
+}}
+.inline-claim-chip {{ margin-left: .4rem; }}
+@media (max-width: 540px) {{
+  .card-host > .card {{ padding-right: 1rem; }}
+  .card-host .claim-chip {{
+    position: static;
+    display: block;
+    margin: .4rem 0 0 0;
+    width: max-content;
+    font-size: .52rem;
+    padding: .18rem .4rem;
+  }}
+}}
+</style>
+{end}""".format(begin=STYLE_BEGIN, end=STYLE_END)
+
+
+SCRIPT_TEMPLATE = """__BEGIN__
+<script>
+(function () {
+  var RAPIDMETA_TO_E156 = __JSON__;
+  var E156_BASE = "__E156_BASE__";
+  function buildClaimLink(num, title, klass) {
+    var a = document.createElement("a");
+    a.href = E156_BASE + "?focus=" + encodeURIComponent(num);
+    a.target = "_blank";
+    a.rel = "noopener";
+    a.className = "claim-chip" + (klass ? " " + klass : "");
+    a.textContent = "📋 Claim on E156";
+    a.title = "Open the E156 student board, paper #" + num + (title ? " — " + title : "");
+    a.addEventListener("click", function (e) { e.stopPropagation(); });
+    return a;
+  }
+  function inject() {
+    var anchors = document.querySelectorAll("a[href$='_REVIEW.html']");
+    var injected = 0;
+    anchors.forEach(function (a) {
+      // Per-anchor idempotency flag — descendant search on parent is unsafe
+      // because a single grid/td may contain many sibling anchors and the
+      // first-card chip would falsely satisfy the check for all the others.
+      if (a.dataset && a.dataset.e156ChipInjected === "1") return;
+      var href = a.getAttribute("href") || "";
+      var basename = href.split("/").pop();
+      var rec = RAPIDMETA_TO_E156[basename];
+      if (!rec) return;
+      // Card style — wrap in .card-host so the absolute-positioned chip
+      // can anchor without nesting <a> inside <a> (invalid HTML).
+      if (a.classList && a.classList.contains("card")) {
+        if (a.parentNode && a.parentNode.classList.contains("card-host")) {
+          a.dataset.e156ChipInjected = "1";
+          return;
+        }
+        var wrap = document.createElement("div");
+        wrap.className = "card-host";
+        a.parentNode.insertBefore(wrap, a);
+        wrap.appendChild(a);
+        wrap.appendChild(buildClaimLink(rec.num, rec.title));
+        a.dataset.e156ChipInjected = "1";
+        injected++;
+        return;
+      }
+      // Inline / table cell — append the chip as a sibling of the <a>.
+      var chip = buildClaimLink(rec.num, rec.title, "inline-claim-chip");
+      a.insertAdjacentElement("afterend", chip);
+      a.dataset.e156ChipInjected = "1";
+      injected++;
+    });
+    return injected;
+  }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", inject);
+  } else { inject(); }
+  // Dashboard renders rows after a JSON fetch — re-run inject on DOM
+  // mutations (throttled) so dynamically-added review links also get chips.
+  let __scheduled = false;
+  const __obs = new MutationObserver(() => {
+    if (__scheduled) return;
+    __scheduled = true;
+    setTimeout(() => { __scheduled = false; inject(); }, 250);
+  });
+  if (document.body) __obs.observe(document.body, { childList: true, subtree: true });
+  else document.addEventListener("DOMContentLoaded", () => __obs.observe(document.body, { childList: true, subtree: true }));
+})();
+</script>
+__END__"""
+
+
+def remove_block(html: str, begin: str, end: str) -> str:
+    pat = re.compile(re.escape(begin) + r".*?" + re.escape(end), re.DOTALL)
+    return pat.sub("", html)
+
+
+def patch_index(index_html: str, mapping: dict[str, dict]) -> tuple[str, int]:
+    json_map = json.dumps(mapping, ensure_ascii=False, indent=0).replace("\n", "")
+    script_block = (SCRIPT_TEMPLATE
+                    .replace("__JSON__", json_map)
+                    .replace("__E156_BASE__", E156_BASE)
+                    .replace("__BEGIN__", MARKER_BEGIN)
+                    .replace("__END__", MARKER_END))
+    # Remove any prior version, then insert fresh
+    new_html = remove_block(index_html, STYLE_BEGIN, STYLE_END)
+    new_html = remove_block(new_html, MARKER_BEGIN, MARKER_END)
+    if "</head>" in new_html:
+        new_html = new_html.replace("</head>", STYLE_BLOCK + "\n</head>", 1)
+    if "</body>" in new_html:
+        new_html = new_html.replace("</body>", script_block + "\n</body>", 1)
+    return new_html, len(mapping)
+
+
+def main() -> None:
+    if not STUDENTS.exists():
+        print("ERROR: students.html not found at", STUDENTS)
+        sys.exit(1)
+    if not INDEX.exists():
+        print("ERROR: index.html not found at", INDEX)
+        sys.exit(1)
+
+    students_html = STUDENTS.read_text(encoding="utf-8", errors="replace")
+    entries = parse_entries(students_html)
+    mapping, audit = build_map(entries)
+    print(f"Parsed {len(entries)} ENTRIES; built map with {len(mapping)} review files.")
+    if audit:
+        print(f"Resolved {len(audit)} collisions:")
+        for a in audit:
+            print(f"  {a['basename']}")
+            print(f"    KEEP  #{a['chosen']['num']:3d}  {a['chosen']['title'][:70]}")
+            for r in a["rejected"]:
+                print(f"    drop  #{r['num']:3d}  {r['title'][:70]}")
+
+    if not mapping:
+        print("ERROR: no rapidmeta entries matched. Aborting.")
+        sys.exit(2)
+
+    # Audit CSV: every landing-page review + chip status
+    landing_hrefs: set[str] = set()
+    if INDEX.exists():
+        idx_text = INDEX.read_text(encoding="utf-8", errors="replace")
+        landing_hrefs |= set(re.findall(r'href="([A-Z0-9_]+_REVIEW\.html)"', idx_text))
+    audit_csv = REPO / "outputs" / "e156_chip_audit.csv"
+    write_audit_csv(mapping, landing_hrefs, audit_csv)
+    uncovered = sum(1 for h in landing_hrefs if h not in mapping)
+    print(f"Audit CSV: {audit_csv.relative_to(REPO)}  "
+          f"({len(landing_hrefs)} reviews on landing, {uncovered} UNCOVERED)")
+
+    for target in (INDEX, DASHBOARD, *EXTRA_LANDING_PAGES):
+        if not target.exists():
+            print(f"  skip (missing): {target.name}")
+            continue
+        text = target.read_text(encoding="utf-8", errors="replace")
+        new_text, n = patch_index(text, mapping)
+        if new_text == text:
+            print(f"  no-op: {target.name}")
+            continue
+        target.write_text(new_text, encoding="utf-8")
+        print(f"  patched: {target.name} ({n} mappings)")
+
+
+if __name__ == "__main__":
+    main()
+
+codex
+I’m checking the module only against the named recurring defect shapes and will keep the result to provable cases with inputs.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=0; Get-Content -LiteralPath '"'scripts/inject_e156_claim_buttons.py' | ForEach-Object { "'$i++; '"'{0,4}: {1}' -f "'$i, $_ }' in F:\rapidmeta-ssot-shell
+ succeeded in 1986ms:
+   1: """Inject "Claim on E156" chips into rapidmeta-finerenone/index.html.
+   2: 
+   3: For each <a href="X_REVIEW.html"> on the landing page, look up whether that
+   4: review has an E156 paper (parsed from the local e156 students.html, set via
+   5: $E156_STUDENTS_HTML) and add a small green chip linking to
+   6:   https://mahmood726-cyber.github.io/e156/students.html?focus=NNN
+   7: 
+   8: Idempotent. Safe to re-run.
+   9: """
+  10: from __future__ import annotations
+  11: import io, json, os, re, sys
+  12: from pathlib import Path
+  13: 
+  14: sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+  15: 
+  16: REPO = Path(__file__).resolve().parent.parent
+  17: INDEX = REPO / "index.html"
+  18: DASHBOARD = REPO / "dashboard.html"
+  19: # Other landing/index pages that link to reviews. Discovered by grepping
+  20: # for _REVIEW.html across non-review HTML in the repo. Anything matching
+  21: # this list also gets the chip injector + style block.
+  22: EXTRA_LANDING_PAGES = [
+  23:     REPO / "NMA_INDEX.html",
+  24:     REPO / "META_DASHBOARD.html",
+  25:     REPO / "AutoManuscript.html",
+  26: ]
+  27: # Local e156 students.html: set $E156_STUDENTS_HTML to your checkout (the chip
+  28: # links always point at the public Pages URL below regardless).
+  29: STUDENTS = Path(os.environ.get("E156_STUDENTS_HTML") or (Path.home() / "e156" / "students.html"))
+  30: E156_BASE = "https://mahmood726-cyber.github.io/e156/students.html"
+  31: RAPIDMETA_REPO_URL = "rapidmeta-finerenone"  # match against e.code_url
+  32: 
+  33: MARKER_BEGIN = "<!-- e156-claim-chips:begin -->"
+  34: MARKER_END = "<!-- e156-claim-chips:end -->"
+  35: STYLE_BEGIN = "<!-- e156-claim-chips-style:begin -->"
+  36: STYLE_END = "<!-- e156-claim-chips-style:end -->"
+  37: 
+  38: 
+  39: def parse_entries(students_html: str) -> list[dict]:
+  40:     """Pull the JS array `const ENTRIES = [...]` and parse as JSON."""
+  41:     m = re.search(r"const\s+ENTRIES\s*=\s*(\[.*?\]);", students_html, re.DOTALL)
+  42:     if not m:
+  43:         raise RuntimeError("ENTRIES const not found in students.html")
+  44:     return json.loads(m.group(1))
+  45: 
+  46: 
+  47: def _score_match(review_base: str, title: str) -> int:
+  48:     """Heuristic match score between a review filename and an E156 paper title.
+  49: 
+  50:     Higher = better. The intent is to pick the most-canonical paper when
+  51:     multiple E156 papers reference the same review HTML. Tie-broken by
+  52:     lower paper number (older / canonical) at the caller.
+  53:     """
+  54:     rev_stem = review_base.replace("_REVIEW.html", "").lower()
+  55:     tit_norm = (title or "").lower().replace("-", "").replace("/", "").replace(" ", "")
+  56:     score = 0
+  57:     # Strong: the entire review stem (no underscores) is a substring of the title
+  58:     rev_norm = rev_stem.replace("_", "")
+  59:     if rev_norm and rev_norm in tit_norm:
+  60:         score += 200
+  61:     # Per-token matches (drug stems, abbreviations)
+  62:     for tok in rev_stem.split("_"):
+  63:         tok = tok.replace("-", "")
+  64:         if len(tok) >= 3 and tok in tit_norm:
+  65:             score += 10 * len(tok)
+  66:     # Slight reward for "RapidMeta" branded papers (canonical series)
+  67:     if "rapidmeta" in tit_norm:
+  68:         score += 5
+  69:     return score
+  70: 
+  71: 
+  72: def build_map(entries: list[dict]) -> tuple[dict[str, dict], list[dict]]:
+  73:     """Map review-file basename â†’ {num, title} for rapidmeta papers.
+  74: 
+  75:     On collision (two E156 papers point to the same _REVIEW.html), pick
+  76:     the higher-scoring match; tie-break by lower paper-num. Returns
+  77:     (mapping, audit) where audit is a list of every collision shown.
+  78: 
+  79:     Skips review-file basenames that don't exist on disk (deleted reviews â€”
+  80:     e.g. fully-fabricated quarantined ones removed 2026-05-11).
+  81:     """
+  82:     candidates: dict[str, list[dict]] = {}
+  83:     for e in entries:
+  84:         code_url = e.get("code_url") or ""
+  85:         if RAPIDMETA_REPO_URL not in code_url:
+  86:             continue
+  87:         pages_url = e.get("pages_url") or ""
+  88:         if not pages_url.endswith(".html"):
+  89:             continue
+  90:         basename = pages_url.rsplit("/", 1)[-1]
+  91:         if not basename.endswith("_REVIEW.html"):
+  92:             continue
+  93:         # Only include reviews whose HTML still exists on disk.
+  94:         if not (REPO / basename).exists():
+  95:             continue
+  96:         candidates.setdefault(basename, []).append({
+  97:             "num": int(e["num"]),
+  98:             "title": e.get("title") or "",
+  99:         })
+ 100: 
+ 101:     mapping: dict[str, dict] = {}
+ 102:     audit: list[dict] = []
+ 103:     for basename, papers in candidates.items():
+ 104:         if len(papers) == 1:
+ 105:             mapping[basename] = papers[0]
+ 106:             continue
+ 107:         # Collision â€” score, pick highest, tie-break by lower num
+ 108:         scored = sorted(
+ 109:             papers,
+ 110:             key=lambda p: (-_score_match(basename, p["title"]), p["num"]),
+ 111:         )
+ 112:         mapping[basename] = scored[0]
+ 113:         audit.append({
+ 114:             "basename": basename,
+ 115:             "chosen": scored[0],
+ 116:             "rejected": scored[1:],
+ 117:             "scores": [(p["num"], _score_match(basename, p["title"])) for p in scored],
+ 118:         })
+ 119:     return mapping, audit
+ 120: 
+ 121: 
+ 122: def write_audit_csv(mapping: dict[str, dict], landing_hrefs: set[str], audit_path: Path) -> None:
+ 123:     """Write a CSV showing every landing-page review and what chip (if any)
+ 124:     was chosen. Helps the user spot bad mappings + uncovered reviews."""
+ 125:     import csv
+ 126:     audit_path.parent.mkdir(parents=True, exist_ok=True)
+ 127:     rows = []
+ 128:     for href in sorted(landing_hrefs):
+ 129:         if href in mapping:
+ 130:             rec = mapping[href]
+ 131:             rows.append([href, "MATCH", rec["num"], rec["title"]])
+ 132:         else:
+ 133:             rows.append([href, "UNCOVERED", "", ""])
+ 134:     with audit_path.open("w", encoding="utf-8", newline="") as fh:
+ 135:         w = csv.writer(fh)
+ 136:         w.writerow(["review_file", "status", "e156_paper_num", "e156_paper_title"])
+ 137:         w.writerows(rows)
+ 138: 
+ 139: 
+ 140: STYLE_BLOCK = """{begin}
+ 141: <style>
+ 142: .card-host {{ position: relative; display: block; }}
+ 143: .claim-chip {{
+ 144:   display: inline-block;
+ 145:   font-family: system-ui,-apple-system,sans-serif;
+ 146:   font-size: .58rem;
+ 147:   font-weight: 700;
+ 148:   letter-spacing: .06em;
+ 149:   text-transform: uppercase;
+ 150:   padding: .22rem .5rem;
+ 151:   border-radius: 4px;
+ 152:   background: #22c55e;
+ 153:   color: #fff !important;
+ 154:   text-decoration: none !important;
+ 155:   border: 1px solid #16a34a;
+ 156:   vertical-align: middle;
+ 157:   white-space: nowrap;
+ 158:   transition: opacity .15s, transform .15s;
+ 159:   opacity: .92;
+ 160: }}
+ 161: .claim-chip:hover {{ opacity: 1; transform: translateY(-1px); text-decoration: none !important; box-shadow: 0 2px 6px rgba(34,197,94,.25); }}
+ 162: .card-host {{ position: relative; display: block; }}
+ 163: /* Give the chip its own space at the top-right of the card so it never
+ 164:    overlaps long titles. ~108px = the chip width + 6px right margin + 6px left buffer. */
+ 165: .card-host > .card {{ padding-right: 108px; }}
+ 166: .card-host .claim-chip {{
+ 167:   position: absolute;
+ 168:   top: 6px;
+ 169:   right: 6px;
+ 170:   margin: 0;
+ 171:   z-index: 5;
+ 172: }}
+ 173: .inline-claim-chip {{ margin-left: .4rem; }}
+ 174: @media (max-width: 540px) {{
+ 175:   .card-host > .card {{ padding-right: 1rem; }}
+ 176:   .card-host .claim-chip {{
+ 177:     position: static;
+ 178:     display: block;
+ 179:     margin: .4rem 0 0 0;
+ 180:     width: max-content;
+ 181:     font-size: .52rem;
+ 182:     padding: .18rem .4rem;
+ 183:   }}
+ 184: }}
+ 185: </style>
+ 186: {end}""".format(begin=STYLE_BEGIN, end=STYLE_END)
+ 187: 
+ 188: 
+ 189: SCRIPT_TEMPLATE = """__BEGIN__
+ 190: <script>
+ 191: (function () {
+ 192:   var RAPIDMETA_TO_E156 = __JSON__;
+ 193:   var E156_BASE = "__E156_BASE__";
+ 194:   function buildClaimLink(num, title, klass) {
+ 195:     var a = document.createElement("a");
+ 196:     a.href = E156_BASE + "?focus=" + encodeURIComponent(num);
+ 197:     a.target = "_blank";
+ 198:     a.rel = "noopener";
+ 199:     a.className = "claim-chip" + (klass ? " " + klass : "");
+ 200:     a.textContent = "ðŸ“‹ Claim on E156";
+ 201:     a.title = "Open the E156 student board, paper #" + num + (title ? " â€” " + title : "");
+ 202:     a.addEventListener("click", function (e) { e.stopPropagation(); });
+ 203:     return a;
+ 204:   }
+ 205:   function inject() {
+ 206:     var anchors = document.querySelectorAll("a[href$='_REVIEW.html']");
+ 207:     var injected = 0;
+ 208:     anchors.forEach(function (a) {
+ 209:       // Per-anchor idempotency flag â€” descendant search on parent is unsafe
+ 210:       // because a single grid/td may contain many sibling anchors and the
+ 211:       // first-card chip would falsely satisfy the check for all the others.
+ 212:       if (a.dataset && a.dataset.e156ChipInjected === "1") return;
+ 213:       var href = a.getAttribute("href") || "";
+ 214:       var basename = href.split("/").pop();
+ 215:       var rec = RAPIDMETA_TO_E156[basename];
+ 216:       if (!rec) return;
+ 217:       // Card style â€” wrap in .card-host so the absolute-positioned chip
+ 218:       // can anchor without nesting <a> inside <a> (invalid HTML).
+ 219:       if (a.classList && a.classList.contains("card")) {
+ 220:         if (a.parentNode && a.parentNode.classList.contains("card-host")) {
+ 221:           a.dataset.e156ChipInjected = "1";
+ 222:           return;
+ 223:         }
+ 224:         var wrap = document.createElement("div");
+ 225:         wrap.className = "card-host";
+ 226:         a.parentNode.insertBefore(wrap, a);
+ 227:         wrap.appendChild(a);
+ 228:         wrap.appendChild(buildClaimLink(rec.num, rec.title));
+ 229:         a.dataset.e156ChipInjected = "1";
+ 230:         injected++;
+ 231:         return;
+ 232:       }
+ 233:       // Inline / table cell â€” append the chip as a sibling of the <a>.
+ 234:       var chip = buildClaimLink(rec.num, rec.title, "inline-claim-chip");
+ 235:       a.insertAdjacentElement("afterend", chip);
+ 236:       a.dataset.e156ChipInjected = "1";
+ 237:       injected++;
+ 238:     });
+ 239:     return injected;
+ 240:   }
+ 241:   if (document.readyState === "loading") {
+ 242:     document.addEventListener("DOMContentLoaded", inject);
+ 243:   } else { inject(); }
+ 244:   // Dashboard renders rows after a JSON fetch â€” re-run inject on DOM
+ 245:   // mutations (throttled) so dynamically-added review links also get chips.
+ 246:   let __scheduled = false;
+ 247:   const __obs = new MutationObserver(() => {
+ 248:     if (__scheduled) return;
+ 249:     __scheduled = true;
+ 250:     setTimeout(() => { __scheduled = false; inject(); }, 250);
+ 251:   });
+ 252:   if (document.body) __obs.observe(document.body, { childList: true, subtree: true });
+ 253:   else document.addEventListener("DOMContentLoaded", () => __obs.observe(document.body, { childList: true, subtree: true }));
+ 254: })();
+ 255: </script>
+ 256: __END__"""
+ 257: 
+ 258: 
+ 259: def remove_block(html: str, begin: str, end: str) -> str:
+ 260:     pat = re.compile(re.escape(begin) + r".*?" + re.escape(end), re.DOTALL)
+ 261:     return pat.sub("", html)
+ 262: 
+ 263: 
+ 264: def patch_index(index_html: str, mapping: dict[str, dict]) -> tuple[str, int]:
+ 265:     json_map = json.dumps(mapping, ensure_ascii=False, indent=0).replace("\n", "")
+ 266:     script_block = (SCRIPT_TEMPLATE
+ 267:                     .replace("__JSON__", json_map)
+ 268:                     .replace("__E156_BASE__", E156_BASE)
+ 269:                     .replace("__BEGIN__", MARKER_BEGIN)
+ 270:                     .replace("__END__", MARKER_END))
+ 271:     # Remove any prior version, then insert fresh
+ 272:     new_html = remove_block(index_html, STYLE_BEGIN, STYLE_END)
+ 273:     new_html = remove_block(new_html, MARKER_BEGIN, MARKER_END)
+ 274:     if "</head>" in new_html:
+ 275:         new_html = new_html.replace("</head>", STYLE_BLOCK + "\n</head>", 1)
+ 276:     if "</body>" in new_html:
+ 277:         new_html = new_html.replace("</body>", script_block + "\n</body>", 1)
+ 278:     return new_html, len(mapping)
+ 279: 
+ 280: 
+ 281: def main() -> None:
+ 282:     if not STUDENTS.exists():
+ 283:         print("ERROR: students.html not found at", STUDENTS)
+ 284:         sys.exit(1)
+ 285:     if not INDEX.exists():
+ 286:         print("ERROR: index.html not found at", INDEX)
+ 287:         sys.exit(1)
+ 288: 
+ 289:     students_html = STUDENTS.read_text(encoding="utf-8", errors="replace")
+ 290:     entries = parse_entries(students_html)
+ 291:     mapping, audit = build_map(entries)
+ 292:     print(f"Parsed {len(entries)} ENTRIES; built map with {len(mapping)} review files.")
+ 293:     if audit:
+ 294:         print(f"Resolved {len(audit)} collisions:")
+ 295:         for a in audit:
+ 296:             print(f"  {a['basename']}")
+ 297:             print(f"    KEEP  #{a['chosen']['num']:3d}  {a['chosen']['title'][:70]}")
+ 298:             for r in a["rejected"]:
+ 299:                 print(f"    drop  #{r['num']:3d}  {r['title'][:70]}")
+ 300: 
+ 301:     if not mapping:
+ 302:         print("ERROR: no rapidmeta entries matched. Aborting.")
+ 303:         sys.exit(2)
+ 304: 
+ 305:     # Audit CSV: every landing-page review + chip status
+ 306:     landing_hrefs: set[str] = set()
+ 307:     if INDEX.exists():
+ 308:         idx_text = INDEX.read_text(encoding="utf-8", errors="replace")
+ 309:         landing_hrefs |= set(re.findall(r'href="([A-Z0-9_]+_REVIEW\.html)"', idx_text))
+ 310:     audit_csv = REPO / "outputs" / "e156_chip_audit.csv"
+ 311:     write_audit_csv(mapping, landing_hrefs, audit_csv)
+ 312:     uncovered = sum(1 for h in landing_hrefs if h not in mapping)
+ 313:     print(f"Audit CSV: {audit_csv.relative_to(REPO)}  "
+ 314:           f"({len(landing_hrefs)} reviews on landing, {uncovered} UNCOVERED)")
+ 315: 
+ 316:     for target in (INDEX, DASHBOARD, *EXTRA_LANDING_PAGES):
+ 317:         if not target.exists():
+ 318:             print(f"  skip (missing): {target.name}")
+ 319:             continue
+ 320:         text = target.read_text(encoding="utf-8", errors="replace")
+ 321:         new_text, n = patch_index(text, mapping)
+ 322:         if new_text == text:
+ 323:             print(f"  no-op: {target.name}")
+ 324:             continue
+ 325:         target.write_text(new_text, encoding="utf-8")
+ 326:         print(f"  patched: {target.name} ({n} mappings)")
+ 327: 
+ 328: 
+ 329: if __name__ == "__main__":
+ 330:     main()
+
+codex
+Defects found:
+
+- `instrument reading a name vs its binding` — line 85.  
+  Exact input: local `ABC_REVIEW.html` exists, and `entries=[{"num":1,"code_url":"https://github.com/x/not-rapidmeta-finerenone","pages_url":"https://x/ABC_REVIEW.html","title":"ABC"}]`.  
+  Consequence: a paper from a different repo is accepted because the repo check is substring-based.
+
+- `idempotency guard satisfied by marker rather than work` — lines 220-222.  
+  Exact input DOM after script load: `<div class="card-host"><a class="card" href="ABC_REVIEW.html">ABC</a></div>` with `RAPIDMETA_TO_E156={"ABC_REVIEW.html":{"num":1,"title":"ABC"}}`.  
+  Consequence: the anchor is marked injected and no chip is created.
+
+- `instrument reading a different copy than the one being changed` — lines 307-309 versus line 316.  
+  Exact input: `index.html` contains no review links; `AutoManuscript.html` contains `<a href="ABC_REVIEW.html">ABC</a>`; mapping contains only `OTHER_REVIEW.html`.  
+  Consequence: the audit reports zero uncovered landing reviews while a patched landing page contains an uncovered review link.
+
+- `selector keyed to a form the instrument itself accepts but the audit does not` — line 309.  
+  Exact input: `index.html` contains `<a href="./ABC_REVIEW.html">ABC</a>` and mapping contains `{"ABC_REVIEW.html":{"num":1,"title":"ABC"}}`.  
+  Consequence: runtime injection handles the link, but the audit CSV omits it entirely.
+
+- `status code reporting the wrapper rather than the work` — lines 274-278, reported at line 326.  
+  Exact input: `patch_index('<html><head></head><body><a href="ABC_REVIEW.html">ABC</a></html>', {"ABC_REVIEW.html":{"num":1,"title":"ABC"}})`.  
+  Consequence: style is inserted, script is not inserted, and `main()` can still print `patched`.
+
+No proven defect found for: probe keyed to the string a fix removes; CRLF/LF text comparison; merged-cell/off-by-one tabulation; zero conflated with absent; negation dropped.
+tokens used
+20,839
+Defects found:
+
+- `instrument reading a name vs its binding` — line 85.  
+  Exact input: local `ABC_REVIEW.html` exists, and `entries=[{"num":1,"code_url":"https://github.com/x/not-rapidmeta-finerenone","pages_url":"https://x/ABC_REVIEW.html","title":"ABC"}]`.  
+  Consequence: a paper from a different repo is accepted because the repo check is substring-based.
+
+- `idempotency guard satisfied by marker rather than work` — lines 220-222.  
+  Exact input DOM after script load: `<div class="card-host"><a class="card" href="ABC_REVIEW.html">ABC</a></div>` with `RAPIDMETA_TO_E156={"ABC_REVIEW.html":{"num":1,"title":"ABC"}}`.  
+  Consequence: the anchor is marked injected and no chip is created.
+
+- `instrument reading a different copy than the one being changed` — lines 307-309 versus line 316.  
+  Exact input: `index.html` contains no review links; `AutoManuscript.html` contains `<a href="ABC_REVIEW.html">ABC</a>`; mapping contains only `OTHER_REVIEW.html`.  
+  Consequence: the audit reports zero uncovered landing reviews while a patched landing page contains an uncovered review link.
+
+- `selector keyed to a form the instrument itself accepts but the audit does not` — line 309.  
+  Exact input: `index.html` contains `<a href="./ABC_REVIEW.html">ABC</a>` and mapping contains `{"ABC_REVIEW.html":{"num":1,"title":"ABC"}}`.  
+  Consequence: runtime injection handles the link, but the audit CSV omits it entirely.
+
+- `status code reporting the wrapper rather than the work` — lines 274-278, reported at line 326.  
+  Exact input: `patch_index('<html><head></head><body><a href="ABC_REVIEW.html">ABC</a></html>', {"ABC_REVIEW.html":{"num":1,"title":"ABC"}})`.  
+  Consequence: style is inserted, script is not inserted, and `main()` can still print `patched`.
+
+No proven defect found for: probe keyed to the string a fix removes; CRLF/LF text comparison; merged-cell/off-by-one tabulation; zero conflated with absent; negation dropped.

@@ -1,0 +1,198 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/compare_reask_2026_08_19.py
+
+--- THE FILE, IN FULL ---
+"""COMPARE the two blind re-readings of the 45, under the CORRECTED question.
+
+The first packet asked what an arm CONTAINS. This one asks WHAT DIFFERS BETWEEN THE ARMS, and
+adds the code the old question could not express: ABLATION_IN_ALL, for the adjunct designs where
+every arm receives an ablation and something else is randomised. Twenty of the 25 hand-read
+contradictions were that shape.
+
+If the diagnosis is right, agreement should rise sharply -- because the disagreement was
+substantially about the question rather than about the trials. IF IT DOES NOT RISE, THE
+DIAGNOSIS WAS WRONG and the trials really are hard; that is stated first so the result cannot
+be read only in the direction that flatters the diagnosis.
+"""
+import io
+import json
+import os
+import re
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+S = ("F:/claude-temp/claude/F--rapidmeta-ssot-shell/"
+     "6b629e1e-cc8c-4565-af03-e40341ee43f3/scratchpad")
+DEST = os.path.join(REPO, "evidence", "2026-08-19-batch1", "ablation_reask.json")
+
+CODES = ("CONTRAST_ABLATION", "ABLATION_IN_ALL", "ABLATION_VS_ABLATION", "CONTRAST_NODAL",
+         "CONTRAST_SURGICAL", "CONTRAST_OTHER", "UNCLEAR")
+LINE = re.compile(r"^(NCT\d{8})\s*\|\s*([A-Z_]+)\s*\|\s*CONTROL\s*=\s*([A-Z]+)", re.I)
+
+# What each code implies for THIS review, stated once so the mapping is inspectable.
+IMPLIES = {
+    "CONTRAST_ABLATION": ("ELIGIBLE", "P/I/C",
+                          "ablation is what the randomisation varies"),
+    "ABLATION_IN_ALL": ("EXCLUDED", "INTERVENTION",
+                        "every arm receives the ablation -- it is BACKGROUND, and the "
+                        "randomised contrast is the adjunct"),
+    "ABLATION_VS_ABLATION": ("EXCLUDED", "COMPARATOR",
+                             "what differs is the ablation technique, not ablation against "
+                             "medical therapy"),
+    "CONTRAST_NODAL": ("EXCLUDED", "INTERVENTION",
+                       "conduction-system ablation is rate control, not restoration of sinus "
+                       "rhythm"),
+    "CONTRAST_SURGICAL": ("EXCLUDED", "INTERVENTION",
+                          "surgical or thoracoscopic ablation is not catheter ablation"),
+    "CONTRAST_OTHER": ("EXCLUDED", "INTERVENTION", "no arm receives an atrial ablation"),
+    "UNCLEAR": ("HAND", "UNCLEAR", "the arm data does not say"),
+}
+
+
+def read(prefix):
+    out = {}
+    for i in ("01", "02"):
+        p = os.path.join(S, "%s_reask_%s.txt" % (prefix, i))
+        if not os.path.exists(p):
+            continue
+        for line in io.open(p, encoding="utf-8", errors="replace"):
+            m = LINE.match(line.strip())
+            if not m:
+                continue
+            code = m.group(2).upper()
+            if code not in CODES:
+                continue
+            out[m.group(1)] = (code, m.group(3).upper())
+    return out
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    todo = json.load(io.open(os.path.join(S, "reask_ids.json"), encoding="utf-8"))
+    codex, agy = read("codex"), read("agy")
+    print("to re-ask       %3d" % len(todo))
+    print("codex answered  %3d" % len(codex))
+    print("agy answered    %3d" % len(agy))
+    missing = [n for n in todo if n not in codex or n not in agy]
+    if missing:
+        print("NOT ANSWERED BY BOTH %d -- NOT resolved: %s" % (len(missing), missing))
+
+    agree, differ = [], []
+    for n in todo:
+        if n not in codex or n not in agy:
+            continue
+        c, a = codex[n][0], agy[n][0]
+        if c == a:
+            agree.append((n, c, codex[n][1], agy[n][1]))
+        else:
+            differ.append((n, codex[n], agy[n]))
+
+    n_cmp = len(agree) + len(differ)
+    rate = 100.0 * len(agree) / n_cmp if n_cmp else 0.0
+    print("\nAGREE ON THE CODE   %3d / %d   (%.1f%%)" % (len(agree), n_cmp, rate))
+    print("DIFFER              %3d" % len(differ))
+
+    # THE CODE IS NOT THE UNIT THE SCREEN CONSUMES -- THE DISPOSITION IS.
+    #
+    # Six of the first ten disagreements are ABLATION_IN_ALL against ABLATION_VS_ABLATION.
+    # Those are two different readings of WHY a trial is out (the ablation is background, or
+    # the ablation is on both sides) and BOTH MAP TO EXCLUDED. Reporting them as disagreement
+    # measures how finely the two seats carve the reason, not whether they agree on the
+    # answer -- and it is the answer the screen uses.
+    #
+    #     A DISAGREEMENT ABOUT THE REASON IS NOT A DISAGREEMENT ABOUT THE VERDICT, and
+    #     conflating them understates agreement exactly where the standing rule (P15) says
+    #     the reason must be reported SEPARATELY from the verdict.
+    #
+    # Both are still printed. The code-level rate says how consistently the two instruments
+    # describe a design; the disposition-level rate says how consistently they screen it.
+    def disp(code):
+        return IMPLIES[code][0]
+
+    d_agree = [(n, c, cc, ac) for n, c, cc, ac in agree]
+    d_differ_same, d_differ_real = [], []
+    for n, c, a in differ:
+        (d_differ_same if disp(c[0]) == disp(a[0]) else d_differ_real).append((n, c, a))
+    d_rate = 100.0 * (len(d_agree) + len(d_differ_same)) / n_cmp if n_cmp else 0.0
+    print("\nAGREE ON THE DISPOSITION %3d / %d   (%.1f%%)"
+          % (len(d_agree) + len(d_differ_same), n_cmp, d_rate))
+    print("   of which same verdict, different reason: %d" % len(d_differ_same))
+    print("DISPOSITION ACTUALLY DIFFERS %3d   <- the real judgements" % len(d_differ_real))
+    for n, c, a in d_differ_real:
+        print("   %s  codex %-20s -> %-8s | agy %-20s -> %s"
+              % (n, c[0], disp(c[0]), a[0], disp(a[0])))
+    print("\n   the SAME 45 trials under the OLD question agreed 0 / 45 by construction --")
+    print("   they are exactly the set the old question failed to settle.")
+
+    from collections import Counter
+    print("\nAGREED CODES")
+    for k, v in Counter(c for _n, c, _cc, _ac in agree).most_common():
+        d, limb, why = IMPLIES[k]
+        print("   %-22s %3d  -> %s / %s" % (k, v, d, limb))
+
+    resolved = [(n, c, cc) for n, c, cc, _ac in agree if c != "UNCLEAR"]
+    hand = [(n, c) for n, c, _cc, _ac in agree if c == "UNCLEAR"]
+    print("\nRESOLVED BY AGREEMENT      %3d" % len(resolved))
+    print("BOTH SAY UNCLEAR           %3d  <- hand reading" % len(hand))
+    print("DISAGREE                   %3d  <- hand reading" % len(differ))
+
+    if differ:
+        print("\nDISAGREEMENTS")
+        for n, c, a in differ:
+            print("   %s  codex %-22s CONTROL=%-8s | agy %-22s CONTROL=%s"
+                  % (n, c[0], c[1], a[0], a[1]))
+
+    out = {"reasked_utc": "2026-08-19", "n": n_cmp, "n_agree": len(agree),
+           "n_agree_disposition": len(d_agree) + len(d_differ_same),
+           "disposition_agreement_rate_pct": round(d_rate, 1),
+           "same_verdict_different_reason": [{"nct": n, "codex": c[0], "agy": a[0]} for n, c, a in d_differ_same],
+           "disposition_really_differs": [{"nct": n, "codex": list(c), "agy": list(a)} for n, c, a in d_differ_real],
+           "agreement_rate_pct": round(rate, 1), "n_differ": len(differ),
+           "old_question_agreement_on_this_set": "0 / 45, by construction",
+           "code_meanings": {k: {"disposition": v[0], "limb": v[1], "why": v[2]}
+                             for k, v in IMPLIES.items()},
+           "resolved": [{"nct": n, "code": c, "control": cc} for n, c, cc in resolved],
+           "both_unclear": [n for n, _c in hand],
+           "disagreements": [{"nct": n, "codex": list(c), "agy": list(a)}
+                             for n, c, a in differ]}
+    with io.open(DEST, "w", encoding="utf-8") as fh:
+        fh.write(json.dumps(out, indent=1))
+    print("\nwrote %s" % DEST)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

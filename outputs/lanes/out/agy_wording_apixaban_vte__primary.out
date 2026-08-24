@@ -1,0 +1,18 @@
+**1. OVERCLAIM.** 
+"NCT02829957 (RAMBLE) is rivaroxaban against apixaban in HEAVY MENSTRUAL BLEEDING, n=19, and its registered primary is the PBAC score -- a pictorial menstrual blood-loss chart."
+*Extra claims:* The sample size (`n=19`) and the definition of the PBAC score (`a pictorial menstrual blood-loss chart`) are nowhere in the provided packet. Furthermore, the sweeping claim "Different populations" ignores the fact that both trials explicitly share "Venous Thromboembolism" in their `conditions_as_registered`.
+
+**2. UNDERCLAIM.** 
+NONE. The text comprehensively names the discrepancies across the three failing limbs (Comparator, Participants, Outcome) exactly as recorded in the object's `which_limb_fails` and `inputs.trials` fields. 
+
+**3. FACT vs JUDGEMENT.**
+- *"so apixaban is not even the declared intervention there"* — This is an interpretive deduction drawn from both arms being typed `ACTIVE_COMPARATOR`, stated as an undeniable fact rather than a judgement about what the labels imply.
+- *"No two of these can be averaged into one answer."* — This is the core methodological judgement of the review, yet it is written in the grammar of a universal fact rather than being owned by the author (e.g., "We judge that...").
+
+**4. IS THE STATED REASON THE ACTUAL REASON?** 
+Yes. The packet's `inputs.trials` firmly establishes that the trials test against different comparators (enoxaparin vs. rivaroxaban) and measure entirely different outcomes (incidence of bleeding vs. PBAC Scores). The heterogeneity reason perfectly follows the recorded evidence.
+
+**5. VERDICT: ACCEPT WITH CHANGES**
+- **Remove** the unsupported `n=19` and `-- a pictorial menstrual blood-loss chart` (or pull them into the canonical object first).
+- **Acknowledge** that both trials list "Venous Thromboembolism" as a registered condition before concluding the populations are hopelessly different.
+- **Rephrase** the final sentence to own the clinical judgement preventing the meta-analysis.

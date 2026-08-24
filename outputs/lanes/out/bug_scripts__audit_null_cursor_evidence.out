@@ -1,0 +1,591 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a03144-5b15-7282-8f09-f1e6a4c3858f
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/audit_null_cursor_evidence.py
+
+--- THE FILE, IN FULL ---
+#!/usr/bin/env python3
+"""EVERY SEARCH WHOSE COMPLETENESS RESTED ON A NULL CURSOR, RE-CHECKED AGAINST ITS OWN TOTAL.
+
+WHY. DEFECT-REGISTRY class 20 established that a LIVE `next_page_token` means a search is
+incomplete. Every search recorded since then relied on the CONVERSE -- that a NULL token means
+it is COMPLETE -- and the converse was never tested, because on `colchicine-cvd-review` both
+proofs agreed: 100 + 37 = 137 == totalCount, cursor null.
+
+    ON `acs-antiplatelet-review` THEY DISAGREED. 100 + 100 + 3 = 203 records with the cursor
+    NULL, against a reported totalCount of 430. **227 records the pagination never returned,
+    while the cursor said it was done.**
+
+    THE PROOF IS THE SUM RECONCILED AGAINST totalCount. THE NULL CURSOR IS CORROBORATION.
+
+So every search row in this corpus has to be asked which evidence it actually rests on, and any
+that rests on the cursor ALONE is unproven -- not wrong, UNPROVEN -- and every topic built on
+one is affected until it is re-checked.
+
+THE FOUR STATES, and they are never summed
+    RECONCILES              returned == total. The proof holds regardless of the cursor.
+    SHORTFALL_DECLARED      returned < total AND the row says so. Legitimate (class 20).
+    SHORTFALL_UNDECLARED    returned < total and the row does not say so. A DEFECT.
+    CURSOR_ONLY             the row's completeness evidence is a null/absent cursor and it
+                            states NO total to reconcile against. **UNPROVEN, never clean.**
+
+WHAT THIS CANNOT DO
+    It cannot re-run the searches. It reads what each row SAYS about itself. A row claiming
+    `returned == total` where neither number is true passes here and this file says so.
+
+USAGE:  python scripts/audit_null_cursor_evidence.py
+        python scripts/audit_null_cursor_evidence.py --selftest
+"""
+import glob
+import io
+import json
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DEST = os.path.join(REPO, "evidence", "2026-08-19-batch1", "null_cursor_evidence_audit.json")
+
+# THE VOCABULARY IS NOT ONE VOCABULARY, and assuming it was produced five false
+# NOT_ASSESSABLEs on the first run -- which is class 25 again: a lookup that does not find the
+# field is indistinguishable from a field that is not there. `arni-hfref` spells them
+# `hit_count` and `records_retrieved`; two colchicine records nest theirs one level down under
+# `counts` and `PAGINATION_SHORTFALL_DECLARED`. None of those was a corpus gap; all five were
+# this file failing to look.
+RET = ("records_returned", "returned", "records_returned_total", "count",
+       "records_retrieved", "total_listed_here")
+TOT = ("total_reported", "total_count", "totalCount", "total", "hit_count",
+       "total_reported_by_pubmed", "total_reported_by_the_registry",
+       "total_count_reported_by_pubmed")
+DECL = ("unexamined", "not excluded", "shortfall", "declared", "the other")
+
+RECONCILES = "RECONCILES"
+DECLARED = "SHORTFALL_DECLARED"
+UNDECLARED = "SHORTFALL_UNDECLARED"
+CURSOR_ONLY = "CURSOR_ONLY_UNPROVEN"
+NOT_EXECUTED = "NOT_EXECUTED"
+NA = "NOT_ASSESSABLE"
+
+
+def _num(d, keys):
+    """The first integer under any of `keys`, looking ONE LEVEL DOWN as well as at the top.
+
+    Nested because real records put them there: `colchicine_surfaced_137.json` keeps its totals
+    under `counts`, and the 100-of-523 PubMed record under `PAGINATION_SHORTFALL_DECLARED`. A
+    top-level-only lookup reported both as stating no counts at all.
+    """
+    for k in keys:
+        v = d.get(k)
+        if isinstance(v, int) and not isinstance(v, bool):
+            return v
+    for v in d.values():
+        if isinstance(v, dict):
+            for k in keys:
+                x = v.get(k)
+                if isinstance(x, int) and not isinstance(x, bool):
+                    return x
+    # A `pages` list carries per-page counts; the row's returned total is their sum and its
+    # total is whichever page stated one.
+    pages = d.get("pages")
+    if isinstance(pages, list) and pages:
+        vals = [p[k] for p in pages if isinstance(p, dict)
+                for k in keys if isinstance(p.get(k), int) and not isinstance(p.get(k), bool)]
+        if vals:
+            return sum(vals) if keys is RET else vals[0]
+    return None
+
+
+def classify_row(row):
+    """(state, detail) for one database row of a search block."""
+    blob = json.dumps(row, ensure_ascii=False).lower()
+    tool = str(row.get("tool") or "")
+    if "not executed" in tool.lower() or "NOT EXECUTED" in str(row.get("query_as_executed") or ""):
+        return NOT_EXECUTED, "the row records that this database was not searched"
+    ret, tot = _num(row, RET), _num(row, TOT)
+    if ret is None and tot is None:
+        # A NOT_ASSESSABLE THAT DOES NOT SAY WHAT IT LOOKED FOR IS NOT REFUTABLE, and this file
+        # produced five of them on its first run that were all its own failure to look. The
+        # remedy is the one that works on every form of this class: report the denominator.
+        return NA, ("the row states neither a returned count nor a total under any key this "
+                    "audit knows. KEYS PRESENT: %s. Looked for returned in %s and total in %s."
+                    % (sorted(row.keys())[:14], list(RET), list(TOT)))
+    if tot is None:
+        # THE CASE THIS FILE EXISTS FOR. No total to reconcile against, so whatever the row says
+        # about its cursor, its completeness is unproven.
+        return CURSOR_ONLY, ("the row states returned=%s and NO TOTAL. Its completeness rests "
+                             "on the cursor alone, which is corroboration and not a proof."
+                             % ret)
+    if ret is None:
+        return NA, "the row states a total and no returned count"
+    if ret == tot:
+        return RECONCILES, "returned %d == total %d" % (ret, tot)
+    if any(d in blob for d in DECL):
+        return DECLARED, ("returned %d of %d and the row DECLARES the shortfall of %d"
+                          % (ret, tot, tot - ret))
+    return UNDECLARED, ("returned %d of %d and the row does NOT declare the shortfall of %d"
+                        % (ret, tot, tot - ret))
+
+
+def collect():
+    rows = []
+    for p in sorted(glob.glob(os.path.join(REPO, "ssot", "*", "*.json"))):
+        try:
+            with io.open(p, "r", encoding="utf-8") as fh:
+                o = json.load(fh)
+        except (OSError, ValueError):
+            continue
+        if str(o.get("state") or "").upper() == "RETIRED":
+            continue
+        s = o.get("search") or {}
+        for db in (s.get("databases") or []):
+            if not isinstance(db, dict):
+                continue
+            st, why = classify_row(db)
+            rows.append({"where": "object", "topic": o.get("app_id"),
+                         "database": db.get("database"), "state": st, "why": why,
+                         "built_page": True})
+    for p in sorted(glob.glob(os.path.join(REPO, "evidence", "**", "*.json"), recursive=True)):
+        try:
+            with io.open(p, "r", encoding="utf-8") as fh:
+                d = json.load(fh)
+        except (OSError, ValueError):
+            continue
+        if not isinstance(d, dict) or "query_as_executed" not in d:
+            continue
+        st, why = classify_row(d)
+        rows.append({"where": "evidence", "topic": d.get("topic"),
+                     "database": d.get("database"),
+                     "file": os.path.relpath(p, REPO), "state": st, "why": why,
+                     "built_page": False})
+    return rows
+
+
+def run():
+    rows = collect()
+    tally = {}
+    for r in rows:
+        tally[r["state"]] = tally.get(r["state"], 0) + 1
+    unproven = [r for r in rows if r["state"] == CURSOR_ONLY]
+    bad = [r for r in rows if r["state"] == UNDECLARED]
+    affected = sorted({r["topic"] for r in unproven + bad if r.get("built_page")})
+
+    out = {
+        "audited_utc": "2026-08-19",
+        "why": ("Class 20 established that a LIVE cursor means incomplete. Every search since "
+                "relied on the CONVERSE -- that a NULL cursor means complete -- and it was "
+                "never tested because on colchicine both proofs agreed. On acs-antiplatelet "
+                "they disagreed: 203 returned with a null cursor against a reported 430."),
+        "the_proof_that_holds": ("the sum across pages reconciled against totalCount. The null "
+                                 "cursor is corroboration and never the proof."),
+        "rows_examined": len(rows),
+        "by_state": tally,
+        "UNPROVEN_rows": len(unproven),
+        "UNDECLARED_shortfalls": len(bad),
+        "TOPICS_WITH_A_BUILT_PAGE_RESTING_ON_AN_UNPROVEN_ROW": affected,
+        "what_this_cannot_do": ("It cannot re-run the searches. It reads what each row SAYS "
+                                "about itself; a row whose stated numbers are both untrue "
+                                "passes here."),
+        "rows": rows,
+    }
+    with io.open(DEST, "w", encoding="utf-8") as fh:
+        fh.write(json.dumps(out, indent=1, ensure_ascii=False))
+
+    print("SEARCH ROWS EXAMINED: %d\n" % len(rows))
+    for k in sorted(tally, key=lambda x: -tally[x]):
+        print("   %-24s %3d" % (k, tally[k]))
+    print("\n   UNPROVEN (cursor-only, no total to reconcile): %d" % len(unproven))
+    for r in unproven:
+        print("      %-42s %-38s %s" % (r.get("topic"), str(r.get("database"))[:38],
+                                        "BUILT PAGE" if r.get("built_page") else "evidence only"))
+    print("\n   UNDECLARED SHORTFALLS: %d" % len(bad))
+    for r in bad:
+        print("      %-42s %s" % (r.get("topic"), r["why"]))
+    print("\n   TOPICS WITH A BUILT PAGE RESTING ON AN UNPROVEN ROW: %d" % len(affected))
+    for t in affected:
+        print("      %s" % t)
+    print("\nwrote %s" % os.path.relpath(DEST, REPO))
+    return 1 if (bad or affected) else 0
+
+
+def selftest():
+    fails = []
+
+    def ck(name, got, want):
+        ok = got == want
+        print("  %-66s %s  %r" % (name, "ok" if ok else "FAIL", got))
+        if not ok:
+            fails.append(name)
+
+    print("1. THE FOUR STATES, and none collapses into another:")
+    ck("returned == total reconciles",
+       classify_row({"records_returned": 137, "total_reported": 137})[0], RECONCILES)
+    ck("a declared shortfall is legitimate",
+       classify_row({"records_returned": 50, "total_reported": 439,
+                     "what_is_unexamined": "THE OTHER 389 ARE UNEXAMINED, NOT EXCLUDED"})[0],
+       DECLARED)
+    ck("an undeclared shortfall is a defect",
+       classify_row({"records_returned": 50, "total_reported": 439})[0], UNDECLARED)
+    ck("a row with NO total is CURSOR_ONLY, never clean",
+       classify_row({"records_returned": 57,
+                     "pagination_verified": "next_page_token null"})[0], CURSOR_ONLY)
+
+    print("\n2. AND A NOT-EXECUTED DATABASE IS ITS OWN STATE, never a shortfall:")
+    ck("a row saying NOT EXECUTED",
+       classify_row({"tool": "NOT EXECUTED", "records_returned": None})[0], NOT_EXECUTED)
+
+    print("\n3. A ROW STATING NEITHER NUMBER IS NOT_ASSESSABLE:")
+    ck("no counts at all", classify_row({"database": "PubMed"})[0], NA)
+
+    print("\n4. THE LIVE CORPUS -- a zero here would make the audit meaningless:")
+    rows = collect()
+    ck("search rows were found to classify", len(rows) > 20, True)
+    run()
+
+    print("\n%s" % ("SELFTEST FAILED: %s" % fails if fails else "SELFTEST PASSED"))
+    return 1 if fails else 0
+
+
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    sys.exit(selftest() if "--selftest" in sys.argv else run())
+
+codex
+I’ll treat the pasted packet as authoritative and keep this to concrete defects only: line, reproducing input, and consequence.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=1; Get-Content -LiteralPath '"'scripts/audit_null_cursor_evidence.py' | ForEach-Object { '{0,4}: {1}' -f "'$i, $_; $i++ } | Select-Object -First 280' in F:\rapidmeta-ssot-shell
+ succeeded in 3607ms:
+   1: #!/usr/bin/env python3
+   2: """EVERY SEARCH WHOSE COMPLETENESS RESTED ON A NULL CURSOR, RE-CHECKED AGAINST ITS OWN TOTAL.
+   3: 
+   4: WHY. DEFECT-REGISTRY class 20 established that a LIVE `next_page_token` means a search is
+   5: incomplete. Every search recorded since then relied on the CONVERSE -- that a NULL token means
+   6: it is COMPLETE -- and the converse was never tested, because on `colchicine-cvd-review` both
+   7: proofs agreed: 100 + 37 = 137 == totalCount, cursor null.
+   8: 
+   9:     ON `acs-antiplatelet-review` THEY DISAGREED. 100 + 100 + 3 = 203 records with the cursor
+  10:     NULL, against a reported totalCount of 430. **227 records the pagination never returned,
+  11:     while the cursor said it was done.**
+  12: 
+  13:     THE PROOF IS THE SUM RECONCILED AGAINST totalCount. THE NULL CURSOR IS CORROBORATION.
+  14: 
+  15: So every search row in this corpus has to be asked which evidence it actually rests on, and any
+  16: that rests on the cursor ALONE is unproven -- not wrong, UNPROVEN -- and every topic built on
+  17: one is affected until it is re-checked.
+  18: 
+  19: THE FOUR STATES, and they are never summed
+  20:     RECONCILES              returned == total. The proof holds regardless of the cursor.
+  21:     SHORTFALL_DECLARED      returned < total AND the row says so. Legitimate (class 20).
+  22:     SHORTFALL_UNDECLARED    returned < total and the row does not say so. A DEFECT.
+  23:     CURSOR_ONLY             the row's completeness evidence is a null/absent cursor and it
+  24:                             states NO total to reconcile against. **UNPROVEN, never clean.**
+  25: 
+  26: WHAT THIS CANNOT DO
+  27:     It cannot re-run the searches. It reads what each row SAYS about itself. A row claiming
+  28:     `returned == total` where neither number is true passes here and this file says so.
+  29: 
+  30: USAGE:  python scripts/audit_null_cursor_evidence.py
+  31:         python scripts/audit_null_cursor_evidence.py --selftest
+  32: """
+  33: import glob
+  34: import io
+  35: import json
+  36: import os
+  37: import sys
+  38: 
+  39: REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+  40: DEST = os.path.join(REPO, "evidence", "2026-08-19-batch1", "null_cursor_evidence_audit.json")
+  41: 
+  42: # THE VOCABULARY IS NOT ONE VOCABULARY, and assuming it was produced five false
+  43: # NOT_ASSESSABLEs on the first run -- which is class 25 again: a lookup that does not find the
+  44: # field is indistinguishable from a field that is not there. `arni-hfref` spells them
+  45: # `hit_count` and `records_retrieved`; two colchicine records nest theirs one level down under
+  46: # `counts` and `PAGINATION_SHORTFALL_DECLARED`. None of those was a corpus gap; all five were
+  47: # this file failing to look.
+  48: RET = ("records_returned", "returned", "records_returned_total", "count",
+  49:        "records_retrieved", "total_listed_here")
+  50: TOT = ("total_reported", "total_count", "totalCount", "total", "hit_count",
+  51:        "total_reported_by_pubmed", "total_reported_by_the_registry",
+  52:        "total_count_reported_by_pubmed")
+  53: DECL = ("unexamined", "not excluded", "shortfall", "declared", "the other")
+  54: 
+  55: RECONCILES = "RECONCILES"
+  56: DECLARED = "SHORTFALL_DECLARED"
+  57: UNDECLARED = "SHORTFALL_UNDECLARED"
+  58: CURSOR_ONLY = "CURSOR_ONLY_UNPROVEN"
+  59: NOT_EXECUTED = "NOT_EXECUTED"
+  60: NA = "NOT_ASSESSABLE"
+  61: 
+  62: 
+  63: def _num(d, keys):
+  64:     """The first integer under any of `keys`, looking ONE LEVEL DOWN as well as at the top.
+  65: 
+  66:     Nested because real records put them there: `colchicine_surfaced_137.json` keeps its totals
+  67:     under `counts`, and the 100-of-523 PubMed record under `PAGINATION_SHORTFALL_DECLARED`. A
+  68:     top-level-only lookup reported both as stating no counts at all.
+  69:     """
+  70:     for k in keys:
+  71:         v = d.get(k)
+  72:         if isinstance(v, int) and not isinstance(v, bool):
+  73:             return v
+  74:     for v in d.values():
+  75:         if isinstance(v, dict):
+  76:             for k in keys:
+  77:                 x = v.get(k)
+  78:                 if isinstance(x, int) and not isinstance(x, bool):
+  79:                     return x
+  80:     # A `pages` list carries per-page counts; the row's returned total is their sum and its
+  81:     # total is whichever page stated one.
+  82:     pages = d.get("pages")
+  83:     if isinstance(pages, list) and pages:
+  84:         vals = [p[k] for p in pages if isinstance(p, dict)
+  85:                 for k in keys if isinstance(p.get(k), int) and not isinstance(p.get(k), bool)]
+  86:         if vals:
+  87:             return sum(vals) if keys is RET else vals[0]
+  88:     return None
+  89: 
+  90: 
+  91: def classify_row(row):
+  92:     """(state, detail) for one database row of a search block."""
+  93:     blob = json.dumps(row, ensure_ascii=False).lower()
+  94:     tool = str(row.get("tool") or "")
+  95:     if "not executed" in tool.lower() or "NOT EXECUTED" in str(row.get("query_as_executed") or ""):
+  96:         return NOT_EXECUTED, "the row records that this database was not searched"
+  97:     ret, tot = _num(row, RET), _num(row, TOT)
+  98:     if ret is None and tot is None:
+  99:         # A NOT_ASSESSABLE THAT DOES NOT SAY WHAT IT LOOKED FOR IS NOT REFUTABLE, and this file
+ 100:         # produced five of them on its first run that were all its own failure to look. The
+ 101:         # remedy is the one that works on every form of this class: report the denominator.
+ 102:         return NA, ("the row states neither a returned count nor a total under any key this "
+ 103:                     "audit knows. KEYS PRESENT: %s. Looked for returned in %s and total in %s."
+ 104:                     % (sorted(row.keys())[:14], list(RET), list(TOT)))
+ 105:     if tot is None:
+ 106:         # THE CASE THIS FILE EXISTS FOR. No total to reconcile against, so whatever the row says
+ 107:         # about its cursor, its completeness is unproven.
+ 108:         return CURSOR_ONLY, ("the row states returned=%s and NO TOTAL. Its completeness rests "
+ 109:                              "on the cursor alone, which is corroboration and not a proof."
+ 110:                              % ret)
+ 111:     if ret is None:
+ 112:         return NA, "the row states a total and no returned count"
+ 113:     if ret == tot:
+ 114:         return RECONCILES, "returned %d == total %d" % (ret, tot)
+ 115:     if any(d in blob for d in DECL):
+ 116:         return DECLARED, ("returned %d of %d and the row DECLARES the shortfall of %d"
+ 117:                           % (ret, tot, tot - ret))
+ 118:     return UNDECLARED, ("returned %d of %d and the row does NOT declare the shortfall of %d"
+ 119:                         % (ret, tot, tot - ret))
+ 120: 
+ 121: 
+ 122: def collect():
+ 123:     rows = []
+ 124:     for p in sorted(glob.glob(os.path.join(REPO, "ssot", "*", "*.json"))):
+ 125:         try:
+ 126:             with io.open(p, "r", encoding="utf-8") as fh:
+ 127:                 o = json.load(fh)
+ 128:         except (OSError, ValueError):
+ 129:             continue
+ 130:         if str(o.get("state") or "").upper() == "RETIRED":
+ 131:             continue
+ 132:         s = o.get("search") or {}
+ 133:         for db in (s.get("databases") or []):
+ 134:             if not isinstance(db, dict):
+ 135:                 continue
+ 136:             st, why = classify_row(db)
+ 137:             rows.append({"where": "object", "topic": o.get("app_id"),
+ 138:                          "database": db.get("database"), "state": st, "why": why,
+ 139:                          "built_page": True})
+ 140:     for p in sorted(glob.glob(os.path.join(REPO, "evidence", "**", "*.json"), recursive=True)):
+ 141:         try:
+ 142:             with io.open(p, "r", encoding="utf-8") as fh:
+ 143:                 d = json.load(fh)
+ 144:         except (OSError, ValueError):
+ 145:             continue
+ 146:         if not isinstance(d, dict) or "query_as_executed" not in d:
+ 147:             continue
+ 148:         st, why = classify_row(d)
+ 149:         rows.append({"where": "evidence", "topic": d.get("topic"),
+ 150:                      "database": d.get("database"),
+ 151:                      "file": os.path.relpath(p, REPO), "state": st, "why": why,
+ 152:                      "built_page": False})
+ 153:     return rows
+ 154: 
+ 155: 
+ 156: def run():
+ 157:     rows = collect()
+ 158:     tally = {}
+ 159:     for r in rows:
+ 160:         tally[r["state"]] = tally.get(r["state"], 0) + 1
+ 161:     unproven = [r for r in rows if r["state"] == CURSOR_ONLY]
+ 162:     bad = [r for r in rows if r["state"] == UNDECLARED]
+ 163:     affected = sorted({r["topic"] for r in unproven + bad if r.get("built_page")})
+ 164: 
+ 165:     out = {
+ 166:         "audited_utc": "2026-08-19",
+ 167:         "why": ("Class 20 established that a LIVE cursor means incomplete. Every search since "
+ 168:                 "relied on the CONVERSE -- that a NULL cursor means complete -- and it was "
+ 169:                 "never tested because on colchicine both proofs agreed. On acs-antiplatelet "
+ 170:                 "they disagreed: 203 returned with a null cursor against a reported 430."),
+ 171:         "the_proof_that_holds": ("the sum across pages reconciled against totalCount. The null "
+ 172:                                  "cursor is corroboration and never the proof."),
+ 173:         "rows_examined": len(rows),
+ 174:         "by_state": tally,
+ 175:         "UNPROVEN_rows": len(unproven),
+ 176:         "UNDECLARED_shortfalls": len(bad),
+ 177:         "TOPICS_WITH_A_BUILT_PAGE_RESTING_ON_AN_UNPROVEN_ROW": affected,
+ 178:         "what_this_cannot_do": ("It cannot re-run the searches. It reads what each row SAYS "
+ 179:                                 "about itself; a row whose stated numbers are both untrue "
+ 180:                                 "passes here."),
+ 181:         "rows": rows,
+ 182:     }
+ 183:     with io.open(DEST, "w", encoding="utf-8") as fh:
+ 184:         fh.write(json.dumps(out, indent=1, ensure_ascii=False))
+ 185: 
+ 186:     print("SEARCH ROWS EXAMINED: %d\n" % len(rows))
+ 187:     for k in sorted(tally, key=lambda x: -tally[x]):
+ 188:         print("   %-24s %3d" % (k, tally[k]))
+ 189:     print("\n   UNPROVEN (cursor-only, no total to reconcile): %d" % len(unproven))
+ 190:     for r in unproven:
+ 191:         print("      %-42s %-38s %s" % (r.get("topic"), str(r.get("database"))[:38],
+ 192:                                         "BUILT PAGE" if r.get("built_page") else "evidence only"))
+ 193:     print("\n   UNDECLARED SHORTFALLS: %d" % len(bad))
+ 194:     for r in bad:
+ 195:         print("      %-42s %s" % (r.get("topic"), r["why"]))
+ 196:     print("\n   TOPICS WITH A BUILT PAGE RESTING ON AN UNPROVEN ROW: %d" % len(affected))
+ 197:     for t in affected:
+ 198:         print("      %s" % t)
+ 199:     print("\nwrote %s" % os.path.relpath(DEST, REPO))
+ 200:     return 1 if (bad or affected) else 0
+ 201: 
+ 202: 
+ 203: def selftest():
+ 204:     fails = []
+ 205: 
+ 206:     def ck(name, got, want):
+ 207:         ok = got == want
+ 208:         print("  %-66s %s  %r" % (name, "ok" if ok else "FAIL", got))
+ 209:         if not ok:
+ 210:             fails.append(name)
+ 211: 
+ 212:     print("1. THE FOUR STATES, and none collapses into another:")
+ 213:     ck("returned == total reconciles",
+ 214:        classify_row({"records_returned": 137, "total_reported": 137})[0], RECONCILES)
+ 215:     ck("a declared shortfall is legitimate",
+ 216:        classify_row({"records_returned": 50, "total_reported": 439,
+ 217:                      "what_is_unexamined": "THE OTHER 389 ARE UNEXAMINED, NOT EXCLUDED"})[0],
+ 218:        DECLARED)
+ 219:     ck("an undeclared shortfall is a defect",
+ 220:        classify_row({"records_returned": 50, "total_reported": 439})[0], UNDECLARED)
+ 221:     ck("a row with NO total is CURSOR_ONLY, never clean",
+ 222:        classify_row({"records_returned": 57,
+ 223:                      "pagination_verified": "next_page_token null"})[0], CURSOR_ONLY)
+ 224: 
+ 225:     print("\n2. AND A NOT-EXECUTED DATABASE IS ITS OWN STATE, never a shortfall:")
+ 226:     ck("a row saying NOT EXECUTED",
+ 227:        classify_row({"tool": "NOT EXECUTED", "records_returned": None})[0], NOT_EXECUTED)
+ 228: 
+ 229:     print("\n3. A ROW STATING NEITHER NUMBER IS NOT_ASSESSABLE:")
+ 230:     ck("no counts at all", classify_row({"database": "PubMed"})[0], NA)
+ 231: 
+ 232:     print("\n4. THE LIVE CORPUS -- a zero here would make the audit meaningless:")
+ 233:     rows = collect()
+ 234:     ck("search rows were found to classify", len(rows) > 20, True)
+ 235:     run()
+ 236: 
+ 237:     print("\n%s" % ("SELFTEST FAILED: %s" % fails if fails else "SELFTEST PASSED"))
+ 238:     return 1 if fails else 0
+ 239: 
+ 240: 
+ 241: if __name__ == "__main__":
+ 242:     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+ 243:     sys.exit(selftest() if "--selftest" in sys.argv else run())
+
+codex
+Defects found:
+
+1. **Line 95 - selector keyed to one string form.**  
+   Input: `{"query_as_executed":"not executed","records_returned":0,"total_reported":10}`  
+   Consequence: this returns `SHORTFALL_UNDECLARED`, not `NOT_EXECUTED`, solely because `query_as_executed` is checked for uppercase `"NOT EXECUTED"`.
+
+2. **Line 115 - negation dropped / own marker satisfies declaration.**  
+   Input: `{"records_returned":50,"total_reported":439,"note":"no shortfall declared"}`  
+   Consequence: this returns `SHORTFALL_DECLARED` even though the row explicitly denies declaration.
+
+3. **Line 115 - idempotency guard satisfied by its own false marker.**  
+   Input: `{"records_returned":50,"total_reported":439,"shortfall_declared":false}`  
+   Consequence: the mere key text `"shortfall_declared"` makes the row `SHORTFALL_DECLARED`, hiding an undeclared shortfall.
+
+4. **Lines 84-87 - count/tabulation double-count through alias fields.**  
+   Input: `{"pages":[{"returned":100,"count":100,"totalCount":150}]}`  
+   Consequence: returned is computed as `200` instead of `100`, producing an impossible negative shortfall against total `150`.
+
+5. **Line 235, with line 238 - status code reports the wrapper, not the work.**  
+   Input: monkeypatch `collect()` to return 21 `RECONCILES` rows for line 233, then 21 `UNDECLARED` rows for `run()` at line 235.  
+   Consequence: `run()` returns `1`, but `selftest()` ignores it and exits `0`.
+
+No finding in this packet for CRLF/LF text comparison, merged-cell spreadsheet handling, or zero conflated with absent.
+tokens used
+20,981
+Defects found:
+
+1. **Line 95 - selector keyed to one string form.**  
+   Input: `{"query_as_executed":"not executed","records_returned":0,"total_reported":10}`  
+   Consequence: this returns `SHORTFALL_UNDECLARED`, not `NOT_EXECUTED`, solely because `query_as_executed` is checked for uppercase `"NOT EXECUTED"`.
+
+2. **Line 115 - negation dropped / own marker satisfies declaration.**  
+   Input: `{"records_returned":50,"total_reported":439,"note":"no shortfall declared"}`  
+   Consequence: this returns `SHORTFALL_DECLARED` even though the row explicitly denies declaration.
+
+3. **Line 115 - idempotency guard satisfied by its own false marker.**  
+   Input: `{"records_returned":50,"total_reported":439,"shortfall_declared":false}`  
+   Consequence: the mere key text `"shortfall_declared"` makes the row `SHORTFALL_DECLARED`, hiding an undeclared shortfall.
+
+4. **Lines 84-87 - count/tabulation double-count through alias fields.**  
+   Input: `{"pages":[{"returned":100,"count":100,"totalCount":150}]}`  
+   Consequence: returned is computed as `200` instead of `100`, producing an impossible negative shortfall against total `150`.
+
+5. **Line 235, with line 238 - status code reports the wrapper, not the work.**  
+   Input: monkeypatch `collect()` to return 21 `RECONCILES` rows for line 233, then 21 `UNDECLARED` rows for `run()` at line 235.  
+   Consequence: `run()` returns `1`, but `selftest()` ignores it and exits `0`.
+
+No finding in this packet for CRLF/LF text comparison, merged-cell spreadsheet handling, or zero conflated with absent.

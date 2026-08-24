@@ -1,0 +1,136 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/fix_continuous_hksj_display.py
+
+--- THE FILE, IN FULL ---
+"""
+Fix the HKSJ display path to handle continuous (MD) results correctly.
+
+Pre-existing display logic assumes binary OR/RR-centered values:
+- Clamps lower bound at 0.001 (wrong for negative MDs)
+- Caps upper at 999 with '>10' label (wrong for absolute MDs)
+- Significance check uses (lci > 1) || (uci < 1) (null at 1, not 0)
+
+For continuous results, c.isContinuous === true, and the null is 0.
+
+Patch: add an isContinuous branch that prints the raw HKSJ MD CI without
+clamping, and use null=0 for the significance comparison.
+
+Idempotent: skipped if file already contains the new conditional.
+
+Usage: python scripts/fix_continuous_hksj_display.py [--dry-run]
+"""
+import argparse
+import io
+import os
+import sys
+
+if sys.platform == 'win32':
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+
+ROOT = os.environ.get(
+    'RAPIDMETA_REPO_ROOT',
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+)
+
+OLD = (
+    "                    const _hkLo = Math.max(0.001, c.hksjLCI);\n"
+    "\n"
+    "\n"
+    "                    const _hkHi = Math.min(999, c.hksjUCI);\n"
+    "\n"
+    "\n"
+    "                    const _hkCapped = c.hksjLCI < 0.001 || c.hksjUCI > 999;\n"
+    "\n"
+    "\n"
+    "                    hksjEl.innerText = `${_hkLo.toFixed(2)} \\u2014 ${_hkHi > 10 ? '>10' : _hkHi.toFixed(2)}${_hkCapped ? ' *' : ''}`;\n"
+    "\n"
+    "\n"
+    "                    const waldSig = (c.lci > 1) || (c.uci < 1);\n"
+    "\n"
+    "\n"
+    "                    const hksjSig = (c.hksjLCI > 1) || (c.hksjUCI < 1);"
+)
+
+NEW = (
+    "                    const _isCont = !!c.isContinuous;\n"
+    "                    if (_isCont) {\n"
+    "                        hksjEl.innerText = `${c.hksjLCI.toFixed(2)} \\u2014 ${c.hksjUCI.toFixed(2)}`;\n"
+    "                    } else {\n"
+    "                        const _hkLo = Math.max(0.001, c.hksjLCI);\n"
+    "                        const _hkHi = Math.min(999, c.hksjUCI);\n"
+    "                        const _hkCapped = c.hksjLCI < 0.001 || c.hksjUCI > 999;\n"
+    "                        hksjEl.innerText = `${_hkLo.toFixed(2)} \\u2014 ${_hkHi > 10 ? '>10' : _hkHi.toFixed(2)}${_hkCapped ? ' *' : ''}`;\n"
+    "                    }\n"
+    "                    const _nullVal = _isCont ? 0 : 1;\n"
+    "                    const waldSig = (c.lci > _nullVal) || (c.uci < _nullVal);\n"
+    "                    const hksjSig = (c.hksjLCI > _nullVal) || (c.hksjUCI < _nullVal);"
+)
+
+FIXED_MARKER = "const _isCont = !!c.isContinuous;"
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument('--dry-run', action='store_true')
+    args = ap.parse_args()
+    print(f'Mode: {"DRY-RUN" if args.dry_run else "APPLY"}')
+    files = sorted(
+        f for f in os.listdir(ROOT)
+        if f.endswith('_REVIEW.html') and not f.endswith('.bak.html')
+    )
+    summary = {'changed': 0, 'unchanged': 0, 'no_anchor': 0}
+    for fname in files:
+        path = os.path.join(ROOT, fname)
+        src = open(path, 'r', encoding='utf-8').read()
+        if FIXED_MARKER in src:
+            summary['unchanged'] += 1
+            continue
+        if OLD not in src:
+            if 'res-hksj' in src:
+                summary['no_anchor'] += 1
+            else:
+                summary['unchanged'] += 1
+            continue
+        out = src.replace(OLD, NEW, 1)
+        if not args.dry_run:
+            open(path, 'w', encoding='utf-8').write(out)
+        summary['changed'] += 1
+    print(f'Summary: {summary}')
+    return 0
+
+
+if __name__ == '__main__':
+    sys.exit(main())

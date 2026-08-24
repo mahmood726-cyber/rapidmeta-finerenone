@@ -1,0 +1,692 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a03169-ff31-70e3-8bce-efbd79cbfe82
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/build_hpv_dose_reduction_app.py
+
+--- THE FILE, IN FULL ---
+"""Customize the KRAS_G12C_NMA clone (HPV_DOSE_REDUCTION_NMA_REVIEW.html) for the
+HPV single-dose vs multi-dose topic.
+
+Three trial rows representing a small NMA / paired set:
+  1. KEN-SHE bivalent vs delayed-control (1-dose efficacy primary)
+  2. KEN-SHE nonavalent vs delayed-control (1-dose efficacy primary)
+  3. DoRIS bivalent 1-dose vs 3-dose (immunobridging non-inferiority)
+
+The first two share the same delayed-control sham arm — multi-arm shared-control
+caveat is documented in each row's group field, parallel to the OAKS/DERBY PEOM
+split pattern used elsewhere in the portfolio.
+"""
+from __future__ import annotations
+import sys
+from pathlib import Path
+
+FILE = Path("HPV_DOSE_REDUCTION_NMA_REVIEW.html")
+
+# ---- 1. <title> ----
+OLD_TITLE = "<title>RapidMeta Oncology | KRAS G12C Inhibitors in Pretreated KRAS-G12C-Mutated Advanced NSCLC NMA v1.0</title>"
+NEW_TITLE = "<title>RapidMeta Vaccines | Single-Dose HPV Vaccination NMA v0.1 (Africa post-2012)</title>"
+
+# ---- 2. AUTO_INCLUDE_TRIAL_IDS ----
+OLD_AUTO = "const AUTO_INCLUDE_TRIAL_IDS = new Set(['NCT04303780', 'NCT04685135']);"
+NEW_AUTO = "const AUTO_INCLUDE_TRIAL_IDS = new Set(['NCT03675256', 'NCT03675256_NONAV', 'NCT02834637']);"
+
+# ---- 3. protocol ----
+OLD_PROTO = "protocol: { pop: 'Adults with KRAS-G12C-mutated locally advanced unresectable or metastatic NSCLC after >=1 prior line of platinum-based chemotherapy and PD-(L)1 inhibitor', int: 'Sotorasib 960 mg PO QD or Adagrasib 600 mg PO BID (oral KRAS-G12C inhibitors)', comp: 'Docetaxel 75 mg/m2 IV every 3 weeks', out: 'Investigator-assessed progression-free survival (primary in both pivotal trials); overall survival (key secondary)', subgroup: 'Prior PD-(L)1 line, brain metastases, ECOG PS, CNS metastases status', query: '', rctOnly: true, post2015: true },"
+NEW_PROTO = "protocol: { pop: 'HIV-negative females aged 9-20 years in sub-Saharan Africa (Kenya: KEN-SHE; Tanzania: DoRIS) with no history of HPV vaccination; KEN-SHE additionally required 1-5 lifetime sexual partners (sexually active cohort)', int: '1, 2, or 3 doses of bivalent (Cervarix HPV 16/18) or nonavalent (Gardasil-9 HPV 6/11/16/18/31/33/45/52/58) HPV vaccine', comp: 'Delayed-vaccination control (meningococcal conjugate vaccine immediately, with delayed HPV vaccine after primary endpoint) for KEN-SHE; 3-dose schedule of the same HPV vaccine for DoRIS (immunobridging non-inferiority)', out: 'Persistent HPV 16/18 infection at 18 months post first-dose (KEN-SHE primary); HPV 16/18 antibody seropositivity at month 24 with non-inferiority margin (DoRIS primary). Backing the WHO SAGE 2022 single-dose HPV-vaccine recommendation', subgroup: 'Vaccine type (bivalent vs nonavalent), dose schedule (1 vs 2 vs 3), age stratum, country (Kenya vs Tanzania)', query: '', rctOnly: true, post2015: true },"
+
+# ---- 4. nctAcronyms ----
+OLD_ACRO = "nctAcronyms: { 'NCT04303780': 'CodeBreaK 200', 'NCT04685135': 'KRYSTAL-12' },"
+NEW_ACRO = "nctAcronyms: { 'NCT03675256': 'KEN-SHE bivalent', 'NCT03675256_NONAV': 'KEN-SHE nonavalent', 'NCT02834637': 'DoRIS 1d-vs-3d bivalent' },"
+
+
+# ---- 5. realData — surgical replace ----
+NEW_REAL_DATA_BODY = """
+
+                // ============================================================
+                // KEN-SHE bivalent — 18-month primary endpoint, persistent
+                // HPV 16/18 infection, single-dose bivalent (Cervarix) vs
+                // delayed-meningococcal control. Barnabas RV et al.
+                // NEJM Evid 2022;1:1-10. PMID 35143335.
+                // Kenya: 3 KEMRI sites (Kisumu, Thika, Nairobi).
+                // SHARED-CONTROL CAVEAT: same delayed-control as the
+                // KEN-SHE nonavalent contrast row (NCT03675256_NONAV).
+                // ============================================================
+
+                'NCT03675256': {
+
+
+                    name: 'KEN-SHE bivalent', pmid: '35143335', phase: 'IV', year: 2022, tE: 0, tN: 758, cE: 38, cN: 758, group: 'KEN-SHE bivalent (HPV 16/18) single-dose vs delayed-meningococcal control. tE=0 persistent HPV 16/18 infections at 18 mo (immediate-bivalent arm, n=758 mITT). cE=38 (delayed-control arm, n=758). Vaccine efficacy 97.5% (95% CI 81.7-99.7) per modified-ITT analysis. SHARED-CONTROL CAVEAT: same delayed-control as KEN-SHE nonavalent contrast (NCT03675256_NONAV) — pool one or apply split-control per Cochrane 23.3.4. Barnabas RV et al. NEJM Evid 2022 (DOI 10.1056/EVIDoa2100046).',
+
+
+                    estimandType: 'RR', publishedHR: 0.025, hrLCI: 0.003, hrUCI: 0.183, pubHR: 0.025, pubHR_LCI: 0.003, pubHR_UCI: 0.183,
+
+
+                    allOutcomes: [
+
+
+                        { shortLabel: 'PERS_HPV1618', title: 'Persistent HPV 16/18 infection at 18 months post-vaccination, mITT', tE: 0, cE: 38, type: 'PRIMARY', matchScore: 100, effect: 0.025, lci: 0.003, uci: 0.183, estimandType: 'RR' },
+
+
+                        { shortLabel: 'PERS_HPV79', title: 'Persistent HPV 16/18/31/33/45/52/58 infection at 18 mo, mITT (cross-protection arm-comparison)', tE: 4, cE: 41, type: 'SECONDARY', matchScore: 80, effect: 0.099, lci: 0.036, uci: 0.273, estimandType: 'RR' }
+
+
+                    ],
+
+
+                    rob: ['low', 'low', 'low', 'low', 'low'],
+
+
+                    snippet: 'Source: Barnabas RV et al. Efficacy of single-dose HPV vaccination among young African women. NEJM Evidence 2022;1:1-10. PMID 35143335. DOI 10.1056/EVIDoa2100046.',
+
+
+                    sourceUrl: 'https://evidence.nejm.org/doi/full/10.1056/EVIDoa2100046',
+
+
+                    ctgovUrl: 'https://clinicaltrials.gov/study/NCT03675256',
+
+
+                    evidence: [
+
+
+                        { label: 'Enrollment', source: 'Barnabas 2022 NEJM Evid, CONSORT', text: '2,275 HIV-negative young women aged 15-20 years with 1-5 lifetime sexual partners enrolled at 3 KEMRI clinical-research sites in Kenya (Kisumu, Thika, Nairobi) between Dec 2018 and Jun 2021. Randomized 1:1:1 double-blind to immediate Gardasil-9 nonavalent HPV (n=760), immediate Cervarix bivalent HPV (n=758), or immediate MenACWY meningococcal-conjugate control with delayed-HPV crossover after primary analysis (n=758). 18-month primary endpoint analysis comprised 99% retention. WHO SAGE 2022 single-dose recommendation cited the KEN-SHE 18-mo data alongside the IARC Costa Rica vaccine-trial follow-up.', highlights: ['2,275', 'HIV-negative', '15-20 years', 'Kenya', '760', '758', '758', '99% retention', 'KEMRI', 'WHO SAGE'] },
+
+
+                        { label: 'Primary outcome — persistent HPV 16/18 at 18 mo', source: 'Barnabas 2022 NEJM Evid, primary endpoint', text: 'Persistent HPV 16/18 infection (positive at consecutive visits >=4 mo apart) by 18 months post-randomization: 0/758 in immediate-bivalent (incidence 0 per 100 woman-years) vs 38/758 in delayed-control (incidence 5.27 per 100 woman-years). Vaccine efficacy 97.5% (95% CI 81.7-99.7; P<0.001). Per-protocol consistent. Cross-protective (HPV 31/33/45/52/58) efficacy 90% (95% CI 73-97%) vs the same delayed-control. Bivalent single-dose efficacy at this magnitude was the basis for the WHO SAGE Apr-2022 1-dose recommendation in girls aged 9-20.', highlights: ['0', '758', '38', '5.27', 'VE 97.5%', '81.7', '99.7', 'P<0.001', '90%', '73', 'WHO SAGE', '1-dose'] },
+
+
+                        { label: 'Safety — solicited and unsolicited AEs', source: 'Barnabas 2022 NEJM Evid, safety table', text: 'Solicited injection-site reactions (any) by day 7: bivalent 32%, nonavalent 28%, control 22% — predominantly mild pain and transient swelling. Solicited systemic AEs (fever, headache, fatigue) similar across arms. No vaccine-related serious AEs. No safety differences distinguishing single-dose schedules from prior 3-dose schedule data.', highlights: ['32%', '28%', '22%', 'no vaccine-related serious AEs'] },
+
+
+                        { label: 'Risk of Bias (RoB 2.0)', source: 'Barnabas 2022 design + RoB 2.0', text: 'D1 LOW - 1:1:1 stratified randomization with central web-based system. D2 LOW - double-blind via meningococcal control. D3 LOW - 99% primary follow-up retention (excellent for African field trial). D4 LOW - central HPV genotyping at University of Washington. D5 LOW - SAP locked, all pre-specified endpoints reported. Single-dose hypothesis pre-registered.', highlights: ['LOW', '1:1:1', 'central web-based', 'double-blind', '99%', 'central HPV genotyping'] }
+
+
+                    ]
+
+
+                },
+
+
+                // ============================================================
+                // KEN-SHE nonavalent — same trial as the bivalent row above,
+                // but the immediate-Gardasil-9 (nonavalent) arm vs the same
+                // delayed-meningococcal control. Splitting into a separate
+                // trial-row (NCT03675256_NONAV) preserves the multi-arm
+                // shared-control caveat per Cochrane 23.3.4.
+                // ============================================================
+
+                'NCT03675256_NONAV': {
+
+
+                    name: 'KEN-SHE nonavalent', pmid: '35143335', phase: 'IV', year: 2022, tE: 4, tN: 760, cE: 38, cN: 758, group: 'KEN-SHE nonavalent (HPV 6/11/16/18/31/33/45/52/58) single-dose vs delayed-meningococcal control. tE=4 persistent HPV 16/18 infections at 18 mo (immediate-nonavalent arm, n=760 mITT). cE=38 (delayed-control). Vaccine efficacy 89% (95% CI 70.0-97.4) for HPV 16/18; 86% (95% CI 73-93%) for the broader 9-type panel. SHARED-CONTROL CAVEAT: same delayed-control as KEN-SHE bivalent (NCT03675256). Same trial.',
+
+
+                    estimandType: 'RR', publishedHR: 0.105, hrLCI: 0.038, hrUCI: 0.292, pubHR: 0.105, pubHR_LCI: 0.038, pubHR_UCI: 0.292,
+
+
+                    allOutcomes: [
+
+
+                        { shortLabel: 'PERS_HPV1618', title: 'Persistent HPV 16/18 infection at 18 mo, mITT', tE: 4, cE: 38, type: 'PRIMARY', matchScore: 100, effect: 0.105, lci: 0.038, uci: 0.292, estimandType: 'RR' },
+
+
+                        { shortLabel: 'PERS_HPV9TYPE', title: 'Persistent HPV 6/11/16/18/31/33/45/52/58 infection at 18 mo', tE: 9, cE: 64, type: 'SECONDARY', matchScore: 90, effect: 0.140, lci: 0.069, uci: 0.286, estimandType: 'RR' }
+
+
+                    ],
+
+
+                    rob: ['low', 'low', 'low', 'low', 'low'],
+
+
+                    snippet: 'Source: Barnabas RV et al. NEJM Evidence 2022 (KEN-SHE nonavalent contrast; same trial NCT03675256 as bivalent contrast).',
+
+
+                    sourceUrl: 'https://evidence.nejm.org/doi/full/10.1056/EVIDoa2100046',
+
+
+                    ctgovUrl: 'https://clinicaltrials.gov/study/NCT03675256',
+
+
+                    evidence: [
+
+
+                        { label: 'Arm-Specific Endpoint', source: 'Barnabas 2022 NEJM Evid, primary endpoint', text: 'KEN-SHE nonavalent (Gardasil-9) immediate-vaccination arm: 4/760 persistent HPV 16/18 infections at 18 months vs 38/758 in delayed-control (vaccine efficacy 89%, 95% CI 70.0-97.4; P<0.001). For the broader 9-type panel: 9/760 in nonavalent vs 64/758 control (VE 86%, 95% CI 73-93%; P<0.001). Single-dose nonavalent met the pre-specified efficacy threshold; delta vs single-dose bivalent (97.5%) within stat-uncertainty for HPV 16/18.', highlights: ['4', '760', '38', '758', 'VE 89%', '70.0', '97.4', '9', '64', 'VE 86%', '73', '93', 'P<0.001'] }
+
+
+                    ]
+
+
+                },
+
+
+                // ============================================================
+                // DoRIS — Tanzanian 6-arm immunobridging non-inferiority
+                // study comparing 1-dose vs 2-dose vs 3-dose of bivalent
+                // and nonavalent HPV vaccines in girls aged 9-14.
+                // Watson-Jones D et al. NEJM Evid 2022 (PMID 36410354).
+                // Endpoint is HPV 16/18 antibody seropositivity at M24
+                // (not infection) — feeds the immunobridging arm of the
+                // WHO SAGE 1-dose recommendation alongside KEN-SHE.
+                // For this app: contrast bivalent 1-dose vs 3-dose
+                // (the headline non-inferiority comparison).
+                // ============================================================
+
+                'NCT02834637': {
+
+
+                    name: 'DoRIS 1d-vs-3d bivalent', pmid: '36410354', phase: 'III', year: 2022, tE: 155, tN: 155, cE: 155, cN: 155, group: 'DoRIS bivalent 1-dose vs 3-dose contrast — HPV 16/18 antibody seropositivity at month 24, immunobridging non-inferiority. tE=155/tN=155 (1-dose bivalent arm seropositive at M24, 100%). cE=155/cN=155 (3-dose bivalent arm seropositive at M24, 100%). Non-inferiority margin (10-percentage-point lower bound on the 1-sided 97.5% CI for the difference) was met. Geometric mean titer (GMT) 1-dose ~5x lower than 3-dose but well above the seroprotective threshold derived from historical efficacy cohorts.',
+
+
+                    estimandType: 'RR', publishedHR: 1.0, hrLCI: 0.96, hrUCI: 1.04, pubHR: 1.0, pubHR_LCI: 0.96, pubHR_UCI: 1.04,
+
+
+                    allOutcomes: [
+
+
+                        { shortLabel: 'SEROPOS_M24', title: 'HPV 16/18 antibody seropositivity at month 24, 1-dose vs 3-dose bivalent', tE: 155, cE: 155, type: 'PRIMARY', matchScore: 100, effect: 1.0, lci: 0.96, uci: 1.04, estimandType: 'RR' },
+
+
+                        { shortLabel: 'GMT_RATIO_M24', title: 'GMT ratio 1-dose / 3-dose bivalent at month 24', tE: 1, cE: 5, type: 'SECONDARY', matchScore: 80, effect: 0.20, lci: 0.16, uci: 0.25, estimandType: 'RATIO' }
+
+
+                    ],
+
+
+                    rob: ['low', 'low', 'low', 'low', 'low'],
+
+
+                    snippet: 'Source: Watson-Jones D et al. Single-dose HPV vaccination immunobridging in Tanzanian girls 9-14 years (DoRIS). NEJM Evidence 2022. PMID 36410354.',
+
+
+                    sourceUrl: 'https://evidence.nejm.org/doi/full/10.1056/EVIDoa2200337',
+
+
+                    ctgovUrl: 'https://clinicaltrials.gov/study/NCT02834637',
+
+
+                    evidence: [
+
+
+                        { label: 'Enrollment', source: 'Watson-Jones 2022 NEJM Evid, CONSORT', text: '930 HIV-negative Tanzanian girls aged 9-14 years enrolled at the Mwanza Intervention Trials Unit (MITU) between Feb 2017 and Jan 2018. Randomized 1:1:1:1:1:1 unblinded to 6 arms: bivalent x{1, 2, 3} doses or nonavalent x{1, 2, 3} doses (n~155 per arm). Primary endpoint at month 24. Extended follow-up to month 108 in the 1- and 2-dose arms for durability assessment.', highlights: ['930', 'Tanzania', '9-14 years', '6 arms', '1', '2', '3 doses', 'bivalent', 'nonavalent', '155'] },
+
+
+                        { label: 'Primary outcome — month-24 HPV 16/18 antibody non-inferiority', source: 'Watson-Jones 2022 NEJM Evid, primary endpoint', text: 'HPV 16 antibody seropositivity at M24: 1-dose bivalent 100% (95% CI 96-100%), 3-dose bivalent 100% — difference 0.0 percentage points (97.5% CI lower bound -2.5 pp; non-inferiority margin -10 pp met). HPV 18 seropositivity: 1-dose 99% (94-100%), 3-dose 100% — non-inferior. Nonavalent results similar. GMT 1-dose ~5x below 3-dose (geometric mean titer ratio 0.20, 95% CI 0.16-0.25) but well above the protective antibody threshold derived from CVT/Costa Rica long-term follow-up cohorts. Establishes that single-dose HPV vaccination produces antibody responses likely to be efficacy-preserving in African girls aged 9-14.', highlights: ['100%', '96', '99%', '94', 'non-inferior', '-10 pp', 'GMT', '0.20', '0.16', '0.25', 'CVT', 'Costa Rica'] },
+
+
+                        { label: 'Risk of Bias (RoB 2.0)', source: 'Watson-Jones 2022 design + RoB 2.0', text: 'D1 LOW - 1:1:1:1:1:1 randomization with central allocation. D2 SOME concerns - unblinded by design (different dose-schedules visibly different); however immunological endpoint (antibody titer) is objective. D3 LOW - >97% retention at M24. D4 LOW - central laboratory antibody assays. D5 LOW - SAP and non-inferiority margin pre-specified.', highlights: ['LOW', 'central allocation', 'unblinded', 'objective', '97%', 'central laboratory'] }
+
+
+                    ]
+
+
+                }
+
+            }"""
+
+
+def main() -> int:
+    if not FILE.exists():
+        print(f"ERROR: {FILE} not found. Did you `cp KRAS_G12C_NMA_REVIEW.html HPV_DOSE_REDUCTION_NMA_REVIEW.html` first?", file=sys.stderr)
+        return 1
+    text = FILE.read_text(encoding="utf-8")
+
+    edits = []
+    for desc, old, new in [
+        ("title", OLD_TITLE, NEW_TITLE),
+        ("AUTO_INCLUDE_TRIAL_IDS", OLD_AUTO, NEW_AUTO),
+        ("protocol", OLD_PROTO, NEW_PROTO),
+        ("nctAcronyms", OLD_ACRO, NEW_ACRO),
+    ]:
+        if old in text:
+            text = text.replace(old, new, 1)
+            edits.append(desc)
+
+    # realData — find object boundaries and replace body
+    real_data_marker = "realData: {"
+    start = text.find(real_data_marker)
+    if start < 0:
+        print("ERROR: realData not found", file=sys.stderr)
+        return 1
+    body_start = text.find("{", start)
+    depth = 0
+    i = body_start
+    while i < len(text):
+        c = text[i]
+        if c == "{":
+            depth += 1
+        elif c == "}":
+            depth -= 1
+            if depth == 0:
+                body_end = i
+                break
+        i += 1
+    else:
+        print("ERROR: could not find realData closing brace", file=sys.stderr)
+        return 1
+    text = text[: body_start] + NEW_REAL_DATA_BODY + text[body_end + 1 :]
+    edits.append("realData")
+
+    FILE.write_text(text, encoding="utf-8")
+    print(f"Edits applied: {', '.join(edits)}")
+    print(f"File size: {FILE.stat().st_size:,} bytes")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+
+codex
+I’m going to treat this as a narrow defect hunt on the pasted packet only. I’ll give line-bound findings with concrete triggering inputs and avoid speculating about callers or external files.
+codex
+Defects found:
+
+- **OFF-BY-ONE object replacement**: line 262.  
+  Exact input: `const cfg = { realData: { old: { x: 1 } }, after: 2 };` in `HPV_DOSE_REDUCTION_NMA_REVIEW.html`.  
+  Consequence: the original `realData` opening `{` is removed, but `NEW_REAL_DATA_BODY` does not supply a replacement opening brace, producing invalid JavaScript.
+
+- **Probe keyed to the string a fix removes / status reports wrapper**: lines 236-238 and 268.  
+  Exact input: a file containing `realData: { old: {} }` but already lacking `OLD_TITLE`, `OLD_AUTO`, `OLD_PROTO`, and `OLD_ACRO`.  
+  Consequence: the script exits `0` while silently skipping required substitutions, so a stale or wrong clone can pass as successfully customized.
+
+- **Instrument reads a different copy than the one intended**: line 17.  
+  Exact input: run `python F:\rapidmeta-ssot-shell\scripts\build_hpv_dose_reduction_app.py` from `F:\tmp` where `F:\tmp\HPV_DOSE_REDUCTION_NMA_REVIEW.html` exists.  
+  Consequence: the script edits the current-working-directory copy, not the repo copy beside/above the script.
+
+- **Selector keyed to marker text, not the data binding**: line 242.  
+  Exact input: `// realData: { marker only }\nconst cfg = { realData: { old: 1 } };`.  
+  Consequence: the replacement anchors on the comment marker and corrupts the file while leaving the actual `realData` binding untouched.
+
+No proven finding in this file for CRLF text comparison, merged-cell tabulation/counting, zero conflated with absent, or dropped negation.
+tokens used
+12,242
+Defects found:
+
+- **OFF-BY-ONE object replacement**: line 262.  
+  Exact input: `const cfg = { realData: { old: { x: 1 } }, after: 2 };` in `HPV_DOSE_REDUCTION_NMA_REVIEW.html`.  
+  Consequence: the original `realData` opening `{` is removed, but `NEW_REAL_DATA_BODY` does not supply a replacement opening brace, producing invalid JavaScript.
+
+- **Probe keyed to the string a fix removes / status reports wrapper**: lines 236-238 and 268.  
+  Exact input: a file containing `realData: { old: {} }` but already lacking `OLD_TITLE`, `OLD_AUTO`, `OLD_PROTO`, and `OLD_ACRO`.  
+  Consequence: the script exits `0` while silently skipping required substitutions, so a stale or wrong clone can pass as successfully customized.
+
+- **Instrument reads a different copy than the one intended**: line 17.  
+  Exact input: run `python F:\rapidmeta-ssot-shell\scripts\build_hpv_dose_reduction_app.py` from `F:\tmp` where `F:\tmp\HPV_DOSE_REDUCTION_NMA_REVIEW.html` exists.  
+  Consequence: the script edits the current-working-directory copy, not the repo copy beside/above the script.
+
+- **Selector keyed to marker text, not the data binding**: line 242.  
+  Exact input: `// realData: { marker only }\nconst cfg = { realData: { old: 1 } };`.  
+  Consequence: the replacement anchors on the comment marker and corrupts the file while leaving the actual `realData` binding untouched.
+
+No proven finding in this file for CRLF text comparison, merged-cell tabulation/counting, zero conflated with absent, or dropped negation.
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            succeeded in 9471ms:
+   1: """Customize the KRAS_G12C_NMA clone (HPV_DOSE_REDUCTION_NMA_REVIEW.html) for the
+   2: HPV single-dose vs multi-dose topic.
+   3: 
+   4: Three trial rows representing a small NMA / paired set:
+   5:   1. KEN-SHE bivalent vs delayed-control (1-dose efficacy primary)
+   6:   2. KEN-SHE nonavalent vs delayed-control (1-dose efficacy primary)
+   7:   3. DoRIS bivalent 1-dose vs 3-dose (immunobridging non-inferiority)
+   8: 
+   9: The first two share the same delayed-control sham arm â€” multi-arm shared-control
+  10: caveat is documented in each row's group field, parallel to the OAKS/DERBY PEOM
+  11: split pattern used elsewhere in the portfolio.
+  12: """
+  13: from __future__ import annotations
+  14: import sys
+  15: from pathlib import Path
+  16: 
+  17: FILE = Path("HPV_DOSE_REDUCTION_NMA_REVIEW.html")
+  18: 
+  19: # ---- 1. <title> ----
+  20: OLD_TITLE = "<title>RapidMeta Oncology | KRAS G12C Inhibitors in Pretreated KRAS-G12C-Mutated Advanced NSCLC NMA v1.0</title>"
+  21: NEW_TITLE = "<title>RapidMeta Vaccines | Single-Dose HPV Vaccination NMA v0.1 (Africa post-2012)</title>"
+  22: 
+  23: # ---- 2. AUTO_INCLUDE_TRIAL_IDS ----
+  24: OLD_AUTO = "const AUTO_INCLUDE_TRIAL_IDS = new Set(['NCT04303780', 'NCT04685135']);"
+  25: NEW_AUTO = "const AUTO_INCLUDE_TRIAL_IDS = new Set(['NCT03675256', 'NCT03675256_NONAV', 'NCT02834637']);"
+  26: 
+  27: # ---- 3. protocol ----
+  28: OLD_PROTO = "protocol: { pop: 'Adults with KRAS-G12C-mutated locally advanced unresectable or metastatic NSCLC after >=1 prior line of platinum-based chemotherapy and PD-(L)1 inhibitor', int: 'Sotorasib 960 mg PO QD or Adagrasib 600 mg PO BID (oral KRAS-G12C inhibitors)', comp: 'Docetaxel 75 mg/m2 IV every 3 weeks', out: 'Investigator-assessed progression-free survival (primary in both pivotal trials); overall survival (key secondary)', subgroup: 'Prior PD-(L)1 line, brain metastases, ECOG PS, CNS metastases status', query: '', rctOnly: true, post2015: true },"
+  29: NEW_PROTO = "protocol: { pop: 'HIV-negative females aged 9-20 years in sub-Saharan Africa (Kenya: KEN-SHE; Tanzania: DoRIS) with no history of HPV vaccination; KEN-SHE additionally required 1-5 lifetime sexual partners (sexually active cohort)', int: '1, 2, or 3 doses of bivalent (Cervarix HPV 16/18) or nonavalent (Gardasil-9 HPV 6/11/16/18/31/33/45/52/58) HPV vaccine', comp: 'Delayed-vaccination control (meningococcal conjugate vaccine immediately, with delayed HPV vaccine after primary endpoint) for KEN-SHE; 3-dose schedule of the same HPV vaccine for DoRIS (immunobridging non-inferiority)', out: 'Persistent HPV 16/18 infection at 18 months post first-dose (KEN-SHE primary); HPV 16/18 antibody seropositivity at month 24 with non-inferiority margin (DoRIS primary). Backing the WHO SAGE 2022 single-dose HPV-vaccine recommendation', subgroup: 'Vaccine type (bivalent vs nonavalent), dose schedule (1 vs 2 vs 3), age stratum, country (Kenya vs Tanzania)', query: '', rctOnly: true, post2015: true },"
+  30: 
+  31: # ---- 4. nctAcronyms ----
+  32: OLD_ACRO = "nctAcronyms: { 'NCT04303780': 'CodeBreaK 200', 'NCT04685135': 'KRYSTAL-12' },"
+  33: NEW_ACRO = "nctAcronyms: { 'NCT03675256': 'KEN-SHE bivalent', 'NCT03675256_NONAV': 'KEN-SHE nonavalent', 'NCT02834637': 'DoRIS 1d-vs-3d bivalent' },"
+  34: 
+  35: 
+  36: # ---- 5. realData â€” surgical replace ----
+  37: NEW_REAL_DATA_BODY = """
+  38: 
+  39:                 // ============================================================
+  40:                 // KEN-SHE bivalent â€” 18-month primary endpoint, persistent
+  41:                 // HPV 16/18 infection, single-dose bivalent (Cervarix) vs
+  42:                 // delayed-meningococcal control. Barnabas RV et al.
+  43:                 // NEJM Evid 2022;1:1-10. PMID 35143335.
+  44:                 // Kenya: 3 KEMRI sites (Kisumu, Thika, Nairobi).
+  45:                 // SHARED-CONTROL CAVEAT: same delayed-control as the
+  46:                 // KEN-SHE nonavalent contrast row (NCT03675256_NONAV).
+  47:                 // ============================================================
+  48: 
+  49:                 'NCT03675256': {
+  50: 
+  51: 
+  52:                     name: 'KEN-SHE bivalent', pmid: '35143335', phase: 'IV', year: 2022, tE: 0, tN: 758, cE: 38, cN: 758, group: 'KEN-SHE bivalent (HPV 16/18) single-dose vs delayed-meningococcal control. tE=0 persistent HPV 16/18 infections at 18 mo (immediate-bivalent arm, n=758 mITT). cE=38 (delayed-control arm, n=758). Vaccine efficacy 97.5% (95% CI 81.7-99.7) per modified-ITT analysis. SHARED-CONTROL CAVEAT: same delayed-control as KEN-SHE nonavalent contrast (NCT03675256_NONAV) â€” pool one or apply split-control per Cochrane 23.3.4. Barnabas RV et al. NEJM Evid 2022 (DOI 10.1056/EVIDoa2100046).',
+  53: 
+  54: 
+  55:                     estimandType: 'RR', publishedHR: 0.025, hrLCI: 0.003, hrUCI: 0.183, pubHR: 0.025, pubHR_LCI: 0.003, pubHR_UCI: 0.183,
+  56: 
+  57: 
+  58:                     allOutcomes: [
+  59: 
+  60: 
+  61:                         { shortLabel: 'PERS_HPV1618', title: 'Persistent HPV 16/18 infection at 18 months post-vaccination, mITT', tE: 0, cE: 38, type: 'PRIMARY', matchScore: 100, effect: 0.025, lci: 0.003, uci: 0.183, estimandType: 'RR' },
+  62: 
+  63: 
+  64:                         { shortLabel: 'PERS_HPV79', title: 'Persistent HPV 16/18/31/33/45/52/58 infection at 18 mo, mITT (cross-protection arm-comparison)', tE: 4, cE: 41, type: 'SECONDARY', matchScore: 80, effect: 0.099, lci: 0.036, uci: 0.273, estimandType: 'RR' }
+  65: 
+  66: 
+  67:                     ],
+  68: 
+  69: 
+  70:                     rob: ['low', 'low', 'low', 'low', 'low'],
+  71: 
+  72: 
+  73:                     snippet: 'Source: Barnabas RV et al. Efficacy of single-dose HPV vaccination among young African women. NEJM Evidence 2022;1:1-10. PMID 35143335. DOI 10.1056/EVIDoa2100046.',
+  74: 
+  75: 
+  76:                     sourceUrl: 'https://evidence.nejm.org/doi/full/10.1056/EVIDoa2100046',
+  77: 
+  78: 
+  79:                     ctgovUrl: 'https://clinicaltrials.gov/study/NCT03675256',
+  80: 
+  81: 
+  82:                     evidence: [
+  83: 
+  84: 
+  85:                         { label: 'Enrollment', source: 'Barnabas 2022 NEJM Evid, CONSORT', text: '2,275 HIV-negative young women aged 15-20 years with 1-5 lifetime sexual partners enrolled at 3 KEMRI clinical-research sites in Kenya (Kisumu, Thika, Nairobi) between Dec 2018 and Jun 2021. Randomized 1:1:1 double-blind to immediate Gardasil-9 nonavalent HPV (n=760), immediate Cervarix bivalent HPV (n=758), or immediate MenACWY meningococcal-conjugate control with delayed-HPV crossover after primary analysis (n=758). 18-month primary endpoint analysis comprised 99% retention. WHO SAGE 2022 single-dose recommendation cited the KEN-SHE 18-mo data alongside the IARC Costa Rica vaccine-trial follow-up.', highlights: ['2,275', 'HIV-negative', '15-20 years', 'Kenya', '760', '758', '758', '99% retention', 'KEMRI', 'WHO SAGE'] },
+  86: 
+  87: 
+  88:                         { label: 'Primary outcome â€” persistent HPV 16/18 at 18 mo', source: 'Barnabas 2022 NEJM Evid, primary endpoint', text: 'Persistent HPV 16/18 infection (positive at consecutive visits >=4 mo apart) by 18 months post-randomization: 0/758 in immediate-bivalent (incidence 0 per 100 woman-years) vs 38/758 in delayed-control (incidence 5.27 per 100 woman-years). Vaccine efficacy 97.5% (95% CI 81.7-99.7; P<0.001). Per-protocol consistent. Cross-protective (HPV 31/33/45/52/58) efficacy 90% (95% CI 73-97%) vs the same delayed-control. Bivalent single-dose efficacy at this magnitude was the basis for the WHO SAGE Apr-2022 1-dose recommendation in girls aged 9-20.', highlights: ['0', '758', '38', '5.27', 'VE 97.5%', '81.7', '99.7', 'P<0.001', '90%', '73', 'WHO SAGE', '1-dose'] },
+  89: 
+  90: 
+  91:                         { label: 'Safety â€” solicited and unsolicited AEs', source: 'Barnabas 2022 NEJM Evid, safety table', text: 'Solicited injection-site reactions (any) by day 7: bivalent 32%, nonavalent 28%, control 22% â€” predominantly mild pain and transient swelling. Solicited systemic AEs (fever, headache, fatigue) similar across arms. No vaccine-related serious AEs. No safety differences distinguishing single-dose schedules from prior 3-dose schedule data.', highlights: ['32%', '28%', '22%', 'no vaccine-related serious AEs'] },
+  92: 
+  93: 
+  94:                         { label: 'Risk of Bias (RoB 2.0)', source: 'Barnabas 2022 design + RoB 2.0', text: 'D1 LOW - 1:1:1 stratified randomization with central web-based system. D2 LOW - double-blind via meningococcal control. D3 LOW - 99% primary follow-up retention (excellent for African field trial). D4 LOW - central HPV genotyping at University of Washington. D5 LOW - SAP locked, all pre-specified endpoints reported. Single-dose hypothesis pre-registered.', highlights: ['LOW', '1:1:1', 'central web-based', 'double-blind', '99%', 'central HPV genotyping'] }
+  95: 
+  96: 
+  97:                     ]
+  98: 
+  99: 
+ 100:                 },
+ 101: 
+ 102: 
+ 103:                 // ============================================================
+ 104:                 // KEN-SHE nonavalent â€” same trial as the bivalent row above,
+ 105:                 // but the immediate-Gardasil-9 (nonavalent) arm vs the same
+ 106:                 // delayed-meningococcal control. Splitting into a separate
+ 107:                 // trial-row (NCT03675256_NONAV) preserves the multi-arm
+ 108:                 // shared-control caveat per Cochrane 23.3.4.
+ 109:                 // ============================================================
+ 110: 
+ 111:                 'NCT03675256_NONAV': {
+ 112: 
+ 113: 
+ 114:                     name: 'KEN-SHE nonavalent', pmid: '35143335', phase: 'IV', year: 2022, tE: 4, tN: 760, cE: 38, cN: 758, group: 'KEN-SHE nonavalent (HPV 6/11/16/18/31/33/45/52/58) single-dose vs delayed-meningococcal control. tE=4 persistent HPV 16/18 infections at 18 mo (immediate-nonavalent arm, n=760 mITT). cE=38 (delayed-control). Vaccine efficacy 89% (95% CI 70.0-97.4) for HPV 16/18; 86% (95% CI 73-93%) for the broader 9-type panel. SHARED-CONTROL CAVEAT: same delayed-control as KEN-SHE bivalent (NCT03675256). Same trial.',
+ 115: 
+ 116: 
+ 117:                     estimandType: 'RR', publishedHR: 0.105, hrLCI: 0.038, hrUCI: 0.292, pubHR: 0.105, pubHR_LCI: 0.038, pubHR_UCI: 0.292,
+ 118: 
+ 119: 
+ 120:                     allOutcomes: [
+ 121: 
+ 122: 
+ 123:                         { shortLabel: 'PERS_HPV1618', title: 'Persistent HPV 16/18 infection at 18 mo, mITT', tE: 4, cE: 38, type: 'PRIMARY', matchScore: 100, effect: 0.105, lci: 0.038, uci: 0.292, estimandType: 'RR' },
+ 124: 
+ 125: 
+ 126:                         { shortLabel: 'PERS_HPV9TYPE', title: 'Persistent HPV 6/11/16/18/31/33/45/52/58 infection at 18 mo', tE: 9, cE: 64, type: 'SECONDARY', matchScore: 90, effect: 0.140, lci: 0.069, uci: 0.286, estimandType: 'RR' }
+ 127: 
+ 128: 
+ 129:                     ],
+ 130: 
+ 131: 
+ 132:                     rob: ['low', 'low', 'low', 'low', 'low'],
+ 133: 
+ 134: 
+ 135:                     snippet: 'Source: Barnabas RV et al. NEJM Evidence 2022 (KEN-SHE nonavalent contrast; same trial NCT03675256 as bivalent contrast).',
+ 136: 
+ 137: 
+ 138:                     sourceUrl: 'https://evidence.nejm.org/doi/full/10.1056/EVIDoa2100046',
+ 139: 
+ 140: 
+ 141:                     ctgovUrl: 'https://clinicaltrials.gov/study/NCT03675256',
+ 142: 
+ 143: 
+ 144:                     evidence: [
+ 145: 
+ 146: 
+ 147:                         { label: 'Arm-Specific Endpoint', source: 'Barnabas 2022 NEJM Evid, primary endpoint', text: 'KEN-SHE nonavalent (Gardasil-9) immediate-vaccination arm: 4/760 persistent HPV 16/18 infections at 18 months vs 38/758 in delayed-control (vaccine efficacy 89%, 95% CI 70.0-97.4; P<0.001). For the broader 9-type panel: 9/760 in nonavalent vs 64/758 control (VE 86%, 95% CI 73-93%; P<0.001). Single-dose nonavalent met the pre-specified efficacy threshold; delta vs single-dose bivalent (97.5%) within stat-uncertainty for HPV 16/18.', highlights: ['4', '760', '38', '758', 'VE 89%', '70.0', '97.4', '9', '64', 'VE 86%', '73', '93', 'P<0.001'] }
+ 148: 
+ 149: 
+ 150:                     ]
+ 151: 
+ 152: 
+ 153:                 },
+ 154: 
+ 155: 
+ 156:                 // ============================================================
+ 157:                 // DoRIS â€” Tanzanian 6-arm immunobridging non-inferiority
+ 158:                 // study comparing 1-dose vs 2-dose vs 3-dose of bivalent
+ 159:                 // and nonavalent HPV vaccines in girls aged 9-14.
+ 160:                 // Watson-Jones D et al. NEJM Evid 2022 (PMID 36410354).
+ 161:                 // Endpoint is HPV 16/18 antibody seropositivity at M24
+ 162:                 // (not infection) â€” feeds the immunobridging arm of the
+ 163:                 // WHO SAGE 1-dose recommendation alongside KEN-SHE.
+ 164:                 // For this app: contrast bivalent 1-dose vs 3-dose
+ 165:                 // (the headline non-inferiority comparison).
+ 166:                 // ============================================================
+ 167: 
+ 168:                 'NCT02834637': {
+ 169: 
+ 170: 
+ 171:                     name: 'DoRIS 1d-vs-3d bivalent', pmid: '36410354', phase: 'III', year: 2022, tE: 155, tN: 155, cE: 155, cN: 155, group: 'DoRIS bivalent 1-dose vs 3-dose contrast â€” HPV 16/18 antibody seropositivity at month 24, immunobridging non-inferiority. tE=155/tN=155 (1-dose bivalent arm seropositive at M24, 100%). cE=155/cN=155 (3-dose bivalent arm seropositive at M24, 100%). Non-inferiority margin (10-percentage-point lower bound on the 1-sided 97.5% CI for the difference) was met. Geometric mean titer (GMT) 1-dose ~5x lower than 3-dose but well above the seroprotective threshold derived from historical efficacy cohorts.',
+ 172: 
+ 173: 
+ 174:                     estimandType: 'RR', publishedHR: 1.0, hrLCI: 0.96, hrUCI: 1.04, pubHR: 1.0, pubHR_LCI: 0.96, pubHR_UCI: 1.04,
+ 175: 
+ 176: 
+ 177:                     allOutcomes: [
+ 178: 
+ 179: 
+ 180:                         { shortLabel: 'SEROPOS_M24', title: 'HPV 16/18 antibody seropositivity at month 24, 1-dose vs 3-dose bivalent', tE: 155, cE: 155, type: 'PRIMARY', matchScore: 100, effect: 1.0, lci: 0.96, uci: 1.04, estimandType: 'RR' },
+ 181: 
+ 182: 
+ 183:                         { shortLabel: 'GMT_RATIO_M24', title: 'GMT ratio 1-dose / 3-dose bivalent at month 24', tE: 1, cE: 5, type: 'SECONDARY', matchScore: 80, effect: 0.20, lci: 0.16, uci: 0.25, estimandType: 'RATIO' }
+ 184: 
+ 185: 
+ 186:                     ],
+ 187: 
+ 188: 
+ 189:                     rob: ['low', 'low', 'low', 'low', 'low'],
+ 190: 
+ 191: 
+ 192:                     snippet: 'Source: Watson-Jones D et al. Single-dose HPV vaccination immunobridging in Tanzanian girls 9-14 years (DoRIS). NEJM Evidence 2022. PMID 36410354.',
+ 193: 
+ 194: 
+ 195:                     sourceUrl: 'https://evidence.nejm.org/doi/full/10.1056/EVIDoa2200337',
+ 196: 
+ 197: 
+ 198:                     ctgovUrl: 'https://clinicaltrials.gov/study/NCT02834637',
+ 199: 
+ 200: 
+ 201:                     evidence: [
+ 202: 
+ 203: 
+ 204:                         { label: 'Enrollment', source: 'Watson-Jones 2022 NEJM Evid, CONSORT', text: '930 HIV-negative Tanzanian girls aged 9-14 years enrolled at the Mwanza Intervention Trials Unit (MITU) between Feb 2017 and Jan 2018. Randomized 1:1:1:1:1:1 unblinded to 6 arms: bivalent x{1, 2, 3} doses or nonavalent x{1, 2, 3} doses (n~155 per arm). Primary endpoint at month 24. Extended follow-up to month 108 in the 1- and 2-dose arms for durability assessment.', highlights: ['930', 'Tanzania', '9-14 years', '6 arms', '1', '2', '3 doses', 'bivalent', 'nonavalent', '155'] },
+ 205: 
+ 206: 
+ 207:                         { label: 'Primary outcome â€” month-24 HPV 16/18 antibody non-inferiority', source: 'Watson-Jones 2022 NEJM Evid, primary endpoint', text: 'HPV 16 antibody seropositivity at M24: 1-dose bivalent 100% (95% CI 96-100%), 3-dose bivalent 100% â€” difference 0.0 percentage points (97.5% CI lower bound -2.5 pp; non-inferiority margin -10 pp met). HPV 18 seropositivity: 1-dose 99% (94-100%), 3-dose 100% â€” non-inferior. Nonavalent results similar. GMT 1-dose ~5x below 3-dose (geometric mean titer ratio 0.20, 95% CI 0.16-0.25) but well above the protective antibody threshold derived from CVT/Costa Rica long-term follow-up cohorts. Establishes that single-dose HPV vaccination produces antibody responses likely to be efficacy-preserving in African girls aged 9-14.', highlights: ['100%', '96', '99%', '94', 'non-inferior', '-10 pp', 'GMT', '0.20', '0.16', '0.25', 'CVT', 'Costa Rica'] },
+ 208: 
+ 209: 
+ 210:                         { label: 'Risk of Bias (RoB 2.0)', source: 'Watson-Jones 2022 design + RoB 2.0', text: 'D1 LOW - 1:1:1:1:1:1 randomization with central allocation. D2 SOME concerns - unblinded by design (different dose-schedules visibly different); however immunological endpoint (antibody titer) is objective. D3 LOW - >97% retention at M24. D4 LOW - central laboratory antibody assays. D5 LOW - SAP and non-inferiority margin pre-specified.', highlights: ['LOW', 'central allocation', 'unblinded', 'objective', '97%', 'central laboratory'] }
+ 211: 
+ 212: 
+ 213:                     ]
+ 214: 
+ 215: 
+ 216:                 }
+ 217: 
+ 218:             }"""
+ 219: 
+ 220: 
+ 221: def main() -> int:
+ 222:     if not FILE.exists():
+ 223:         print(f"ERROR: {FILE} not found. Did you `cp KRAS_G12C_NMA_REVIEW.html HPV_DOSE_REDUCTION_NMA_REVIEW.html` first?", file=sys.stderr)
+ 224:         return 1
+ 225:     text = FILE.read_text(encoding="utf-8")
+ 226: 
+ 227:     edits = []
+ 228:     for desc, old, new in [
+ 229:         ("title", OLD_TITLE, NEW_TITLE),
+ 230:         ("AUTO_INCLUDE_TRIAL_IDS", OLD_AUTO, NEW_AUTO),
+ 231:         ("protocol", OLD_PROTO, NEW_PROTO),
+ 232:         ("nctAcronyms", OLD_ACRO, NEW_ACRO),
+ 233:     ]:
+ 234:         if old in text:
+ 235:             text = text.replace(old, new, 1)
+ 236:             edits.append(desc)
+ 237: 
+ 238:     # realData â€” find object boundaries and replace body
+ 239:     real_data_marker = "realData: {"
+ 240:     start = text.find(real_data_marker)
+ 241:     if start < 0:
+ 242:         print("ERROR: realData not found", file=sys.stderr)
+ 243:         return 1
+ 244:     body_start = text.find("{", start)
+ 245:     depth = 0
+ 246:     i = body_start
+ 247:     while i < len(text):
+ 248:         c = text[i]
+ 249:         if c == "{":
+ 250:             depth += 1
+ 251:         elif c == "}":
+ 252:             depth -= 1
+ 253:             if depth == 0:
+ 254:                 body_end = i
+ 255:                 break
+ 256:         i += 1
+ 257:     else:
+ 258:         print("ERROR: could not find realData closing brace", file=sys.stderr)
+ 259:         return 1
+ 260:     text = text[: body_start] + NEW_REAL_DATA_BODY + text[body_end + 1 :]
+ 261:     edits.append("realData")
+ 262: 
+ 263:     FILE.write_text(text, encoding="utf-8")
+ 264:     print(f"Edits applied: {', '.join(edits)}")
+ 265:     print(f"File size: {FILE.stat().st_size:,} bytes")
+ 266:     return 0
+ 267: 
+ 268: 
+ 269: if __name__ == "__main__":
+ 270:     sys.exit(main())
+
+codex
+**Defects Found**
+
+- **OFF-BY-ONE / STATUS CODE REPORTING WRAPPER**: line 260.  
+  Exact input file: `const app = { realData: {}, other: 1 };`  
+  Consequence: the original opening `{` is removed but `NEW_REAL_DATA_BODY` does not add one, producing invalid JS after `realData:` while still returning `0`.
+
+- **STATUS CODE REPORTING WRAPPER / CHECK CANNOT FAIL**: lines 234-237 and 266.  
+  Exact input file: `const app = { realData: {}, other: 1 };`  
+  Consequence: title, AUTO_INCLUDE_TRIAL_IDS, protocol, and nctAcronyms can all be absent, yet the script exits success after only replacing realData.
+
+- **RAW-BRACE PARSER READS NON-STRUCTURAL BRACES**: lines 249-255.  
+  Exact input file: `const app = { realData: { a: "}" }, other: 1 };`  
+  Consequence: the parser treats the `}` inside the string as the object close, writes a corrupted file, and returns success.
+
+- **SELECTOR CAN HIT COMMENT/STRING INSTEAD OF BINDING**: line 240.  
+  Exact input file: `// realData: {}\nconst app = { realData: { old: 1 } };`  
+  Consequence: replacement starts at the comment marker, leaving the actual `realData` binding unchanged or damaging unrelated text.
+
+**No Proven Defect In This Pasted Module**
+
+- Probe keyed to string a fix removes: covered by lines 234-237 above.  
+- Idempotency guard satisfied by own comment/marker: no explicit idempotency guard present.  
+- Different copy: COULD NOT DETERMINE; missing caller/invocation cwd.  
+- Text comparison with CRLF/LF: no text comparison present.  
+- Merged-cell/tabulation/count: no such code present.  
+- Zero conflated with absent: no such predicate present.  
+- Negation dropped: no extraction logic present.
+tokens used
+28,279
+**Defects Found**
+
+- **OFF-BY-ONE / STATUS CODE REPORTING WRAPPER**: line 260.  
+  Exact input file: `const app = { realData: {}, other: 1 };`  
+  Consequence: the original opening `{` is removed but `NEW_REAL_DATA_BODY` does not add one, producing invalid JS after `realData:` while still returning `0`.
+
+- **STATUS CODE REPORTING WRAPPER / CHECK CANNOT FAIL**: lines 234-237 and 266.  
+  Exact input file: `const app = { realData: {}, other: 1 };`  
+  Consequence: title, AUTO_INCLUDE_TRIAL_IDS, protocol, and nctAcronyms can all be absent, yet the script exits success after only replacing realData.
+
+- **RAW-BRACE PARSER READS NON-STRUCTURAL BRACES**: lines 249-255.  
+  Exact input file: `const app = { realData: { a: "}" }, other: 1 };`  
+  Consequence: the parser treats the `}` inside the string as the object close, writes a corrupted file, and returns success.
+
+- **SELECTOR CAN HIT COMMENT/STRING INSTEAD OF BINDING**: line 240.  
+  Exact input file: `// realData: {}\nconst app = { realData: { old: 1 } };`  
+  Consequence: replacement starts at the comment marker, leaving the actual `realData` binding unchanged or damaging unrelated text.
+
+**No Proven Defect In This Pasted Module**
+
+- Probe keyed to string a fix removes: covered by lines 234-237 above.  
+- Idempotency guard satisfied by own comment/marker: no explicit idempotency guard present.  
+- Different copy: COULD NOT DETERMINE; missing caller/invocation cwd.  
+- Text comparison with CRLF/LF: no text comparison present.  
+- Merged-cell/tabulation/count: no such code present.  
+- Zero conflated with absent: no such predicate present.  
+- Negation dropped: no extraction logic present.

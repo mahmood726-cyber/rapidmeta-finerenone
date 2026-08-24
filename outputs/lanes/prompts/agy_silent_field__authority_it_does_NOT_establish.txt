@@ -1,0 +1,1498 @@
+PACKET COMPLETENESS, ASSERTED. Everything you need is in this message. The
+material below is reproduced IN FULL and unabridged; nothing is withheld or
+summarised. You have no file access and should not ask for any.
+
+If something you need is genuinely not here, answer COULD NOT DETERMINE and
+NAME what is missing. Do NOT say anything is fabricated, invented, or absent
+from the record: an earlier blinded read of a partial packet returned six
+confident accusations of fabrication, and all six named facts that were
+present in the record and missing only from the packet. A false accusation
+costs as much here as a missed defect.
+
+A field is RECORDED on 2 object(s) in this corpus and appears on
+ZERO delivered pages. The audit that found it can measure that silence and cannot judge it.
+You are being asked for the judgement, and only the judgement.
+
+THE FIELD: authority_it_does_NOT_establish
+HELD BY: 2 object(s).  SHOWN ON: 0 pages.
+
+The question is NOT whether the field is well written. It is:
+
+1. IS A READER OWED THIS? Answer OWED / NOT OWED / COULD NOT DETERMINE, and say why in one
+   sentence. Some silence is correct -- a field recording an internal decision, a duplicate
+   of text already shown under another name, or a machine flag -- and saying NOT OWED where
+   that is true is as valuable as saying OWED where it is not.
+2. IF OWED: WHERE. Which reader, at what moment, needs it. A qualification shown in a place
+   nobody reads has not reached anyone.
+3. IS IT A DUPLICATE? Search the complete object below. If this text is already on a page
+   under a different field name, say so and name the other field -- that would make the
+   silence harmless and the finding a false positive.
+4. WHAT WOULD BE LOST if this were simply deleted rather than shown?
+
+Under 350 words. If the stored value is boilerplate that says nothing, say so plainly.
+
+--- THE STORED VALUES, AND ONE COMPLETE OBJECT THAT HOLDS THE FIELD ---
+{
+ "field": "authority_it_does_NOT_establish",
+ "holders": [
+  {
+   "topic": "ablation-af-heart-failure",
+   "path_in_object": "screening.eligibility_provenance.authority_it_does_NOT_establish",
+   "stored_value": "MECIR C5/C7 -- criteria DEFINED IN ADVANCE."
+  },
+  {
+   "topic": "ablation-af-medical-therapy",
+   "path_in_object": "screening.eligibility_provenance.authority_it_does_NOT_establish",
+   "stored_value": "MECIR C5/C7 -- criteria DEFINED IN ADVANCE."
+  },
+  {
+   "topic": "alirocumab-lipid",
+   "path_in_object": "screening.eligibility_provenance.authority_it_does_NOT_establish",
+   "stored_value": "MECIR C5/C7 -- criteria DEFINED IN ADVANCE."
+  }
+ ],
+ "THE_COMPLETE_OBJECT": {
+  "app_id": "ablation-af-heart-failure",
+  "schema_version": "2-converted-from-extractor",
+  "title": "Catheter ablation of atrial fibrillation in patients with heart failure, against medical rate- or rhythm-control therapy",
+  "question": "In adults with atrial fibrillation and heart failure, what is the effect of catheter ablation of atrial fibrillation compared with medical rate- or rhythm-control therapy on the composite of all-cause mortality and heart-failure events?",
+  "question_provenance": {
+   "state": "COMPOSED FOR THIS REVIEW, TRACEABLE TO NAMED REGISTRY FIELDS",
+   "not_a_copied_registry_string": "The parent object's question WAS a copied registry string -- CABANA's primary outcome measure, truncated at 120 characters mid-word, filling `title`, `question` and both outcome fields at once. That is the defect this split was decided from. This question is composed, and every limb of it points at a field: POPULATION at conditionsModule.conditions of both included trials ('Atrial Fibrillation', 'Heart Failure'), INTERVENTION and COMPARATOR at their armGroups, and the OUTCOME at each trial's registered primary.",
+   "checkable_by": "scripts/lint_question_is_a_question.py"
+  },
+  "built": "2026-08-19",
+  "build_mode": "split_from_parent",
+  "split_provenance": {
+   "parent": "ablation-af-review",
+   "decision": "DECIDED-ablation-af-review-2026-08-19.md",
+   "why_three_and_not_one": "The parent's question was ambiguous between three legitimate readings and the packet framed the choice as WHICH TRIALS TO DROP. Choosing is a decision to withhold evidence from whichever readings lose, and nothing in this project's guard set catches that -- a dropped trial leaves no trace in any object. PAGE-STANDARD P21.",
+   "siblings": [
+    "ablation-af-medical-therapy",
+    "early-rhythm-control-af"
+   ]
+  },
+  "shared_with_other_topics": {
+   "_rule": "P22 -- sharing is legitimate; UNRECORDED sharing is not.",
+   "computed_against": "the included sets of the two sibling reviews, which are declared in DECIDED-ablation-af-review-2026-08-19.md",
+   "shared": {
+    "NCT00643188": {
+     "acronym": "CASTLE-AF",
+     "also_in": [
+      "ablation-af-medical-therapy",
+      "ablation-af-review",
+      "early-rhythm-control-af"
+     ],
+     "why": "It answers all three questions. It randomised catheter ablation against conventional therapy (so it belongs to the ablation-vs-medical-therapy review), it is a rhythm-control strategy trial (so it belongs to the rhythm-control review), and it required heart failure at entry (so it belongs here). BY DESIGN, not by accident.",
+     "parent_object_note": "`ablation-af-review`, THE PARENT THIS REVIEW WAS SPLIT OUT OF. It still exists and still holds all four of its original trials, so while it does, a corpus-level count that sums per-topic k counts this trial twice. It is pending retirement once all three child reviews are built -- and 'pending retirement' is not 'gone'. Recorded because P22 computed it, not because it was remembered."
+    },
+    "NCT01420393": {
+     "acronym": "RAFT-AF",
+     "also_in": [
+      "ablation-af-medical-therapy",
+      "ablation-af-review",
+      "early-rhythm-control-af"
+     ],
+     "why": "Same three questions, same reason. Its conditionsModule names Heart Failure first.",
+     "parent_object_note": "`ablation-af-review`, THE PARENT THIS REVIEW WAS SPLIT OUT OF. It still exists and still holds all four of its original trials, so while it does, a corpus-level count that sums per-topic k counts this trial twice. It is pending retirement once all three child reviews are built -- and 'pending retirement' is not 'gone'. Recorded because P22 computed it, not because it was remembered."
+    }
+   },
+   "a_corpus_level_k_must_not_be_obtained_by_summing": "BOTH of this review's two trials also appear in both sibling reviews. Adding the three reviews' k together gives 9 where the distinct evidence base is 4 trials. Any corpus-level count computed by summing per-topic k DOUBLE-COUNTS, and roughly a fifth of this corpus's registration identities were already shared across topics before this split made it deliberate.",
+   "siblings_not_yet_built": "TWO OF THE THREE TOPICS NAMED IN `also_in` DO NOT EXIST YET AS OBJECTS -- ablation-af-medical-therapy and early-rhythm-control-af are declared in DECIDED-ablation-af-review-2026-08-19.md and are not built. They are listed anyway, because the sharing is a property of the DECISION rather than of the build order, and because a list that grows as objects appear would let a reader mistake build order for evidence. P22's computed check sees only the objects that exist, so it currently confirms the parent and cannot yet confirm these two."
+  },
+  "sources": {},
+  "outcomes": [
+   {
+    "id": "primary",
+    "name": "Composite of all-cause mortality and heart-failure events",
+    "definition": "Time to first occurrence of death from any cause or a heart-failure event, as each trial's own registered primary composite.",
+    "definition_note": "THE TWO TRIALS DO NOT DEFINE THE HEART-FAILURE LIMB THE SAME WAY, and that is recorded here rather than in a footnote -- see results.by_outcome.primary.poolable_reason.",
+    "measure": "HR",
+    "effect_scale": "log",
+    "type": "primary",
+    "estimand": {
+     "id": "primary",
+     "family": "time-to-first-event",
+     "model": "random-effects"
+    },
+    "comparator": "medical rate- or rhythm-control therapy, or conventional care",
+    "comparator_type": "active",
+    "direction_of_benefit": "lower is better",
+    "null_value": 1
+   }
+  ],
+  "inputs": {
+   "trials": [
+    {
+     "id": "NCT00643188",
+     "name": "CASTLE-AF",
+     "nct": "NCT00643188",
+     "pmid": "29385358",
+     "arms": [
+      {
+       "label": "Catheter ablation",
+       "role": "treatment",
+       "events": 51,
+       "participants": 179
+      },
+      {
+       "label": "Medical therapy (rate or rhythm control)",
+       "role": "control",
+       "events": 82,
+       "participants": 184
+      }
+     ],
+     "by_outcome": {
+      "primary": {
+       "effect": {
+        "measure": "HR",
+        "point": 0.62,
+        "ci_low": 0.43,
+        "ci_high": 0.87,
+        "ci_level": 95,
+        "scale": "log",
+        "log_point": -0.478036,
+        "log_se": 0.179776,
+        "derived_from": "published_hazard_ratio",
+        "derivation_note": "The hazard ratio and its interval are stored as the source prints them, at the level the source prints them at. The log point and log standard error are DERIVED here, the standard error from the width of the printed interval using the multiplier belonging to that interval's own level -- 1.96 at 95 per cent and 2.054 at the 96 per cent EAST-AFNET 4 printed -- and neither is claimed to appear in any source."
+       },
+       "provenance": {
+        "tag": "MEASURED",
+        "source_id": "NCT00643188",
+        "source_quotes": [
+         "All-cause mortality or worsening heart failure requiring unplanned hospitalization",
+         "The primary end point was a composite of death from any cause or hospitalization for worsening heart failure.",
+         "the primary composite end point occurred in significantly fewer patients in the ablation group than in the medical-therapy group (51 patients [28.5%] vs. 82 patients [44.6%]; hazard ratio, 0.62; 95% confidence interval [CI], 0.43 to 0.87; P=0.007)"
+        ],
+        "quote_note": "Three quotes: the endpoint TITLE as the registry states it, the registry's or the report's fuller DEFINITION of what those events are, and the RESULT sentence carrying the number stored. The first two say what was counted and the third says what happened, and this object exists partly because those were once confused."
+       },
+       "source_url": "https://pubmed.ncbi.nlm.nih.gov/29385358/",
+       "analysed": {
+        "treatment": 179,
+        "control": 184
+       },
+       "outcome_definition": "All-cause mortality or worsening heart failure requiring unplanned hospitalization",
+       "outcome_definition_source": {
+        "source": "registry",
+        "source_field": "protocolSection.outcomesModule.primaryOutcomes[0]",
+        "source_url": "https://clinicaltrials.gov/study/NCT00643188",
+        "read_utc": "2026-08-17"
+       },
+       "source_tier": "primary_oa",
+       "registry_results_status": "This trial's registry record posts NO results section, so its effect is read from the publication and there is no second surface to check it against.",
+       "corrected_2026_08_17": "the object stored a DERIVED odds ratio of 0.4956 (0.3206 to 0.7663) from these same counts. The counts were right; the measure was ours, not the trial's, and 0.4956 against 0.62 is not a rounding difference."
+      }
+     },
+     "design": "randomised, open-label; catheter ablation against medical therapy in heart failure with an implanted defibrillator",
+     "comparator_type": "active",
+     "comparator_type_basis": "Every trial in this object randomises against an ACTIVE strategy -- medical therapy, drug therapy, usual care or rate control -- and none against placebo. Read from each registry record's arm types, where no arm is typed PLACEBO_COMPARATOR.",
+     "enrolled": 363,
+     "registration_brief_title": "Catheter Ablation vs. Standard Conventional Treatment in Patients With LV Dysfunction and AF",
+     "registration_org_study_id": "EP020",
+     "registration_read_utc": "2026-08-18",
+     "registration_enrolment": 398,
+     "registration_arm_count": 2,
+     "registration_contrasts_read_utc": "2026-08-18",
+     "registration_counts_read_utc": "2026-08-18",
+     "registered_primaries": [
+      "All-cause mortality or worsening heart failure requiring unplanned hospitalization"
+     ],
+     "registered_secondaries": [
+      "All-cause mortality Cardiovascular mortality Unplanned hospitalization due to cardiovascular reason Worsening heart failure requiring unplanned hospitalization Cerebrovascular accidents Left ventricular function Exercise tolerance Quality of life"
+     ],
+     "registered_other_outcomes": [],
+     "all_ranks_read_utc": "2026-08-18"
+    },
+    {
+     "id": "NCT01420393",
+     "name": "RAFT-AF",
+     "nct": "NCT01420393",
+     "pmid": "35313733",
+     "arms": [
+      {
+       "label": "Ablation-based rhythm control",
+       "role": "treatment",
+       "events": 50,
+       "participants": 214
+      },
+      {
+       "label": "Rate control",
+       "role": "control",
+       "events": 64,
+       "participants": 197
+      }
+     ],
+     "by_outcome": {
+      "primary": {
+       "effect": {
+        "measure": "HR",
+        "point": 0.71,
+        "ci_low": 0.49,
+        "ci_high": 1.03,
+        "ci_level": 95,
+        "scale": "log",
+        "log_point": -0.34249,
+        "log_se": 0.189521,
+        "derived_from": "published_hazard_ratio",
+        "derivation_note": "The hazard ratio and its interval are stored as the source prints them, at the level the source prints them at. The log point and log standard error are DERIVED here, the standard error from the width of the printed interval using the multiplier belonging to that interval's own level -- 1.96 at 95 per cent and 2.054 at the 96 per cent EAST-AFNET 4 printed -- and neither is claimed to appear in any source."
+       },
+       "provenance": {
+        "tag": "MEASURED",
+        "source_id": "NCT01420393",
+        "source_quotes": [
+         "Composite of All-cause Mortality and Heart Failure Events",
+         "Heart failure event defined as an admission to a healthcare facility for > 24 hours or clinically significant worsening heart failure leading to an intervention (defined as treatment in an emergency department, a same-day access clinic, or an infusion centre) or unscheduled visits to a healthcare provider for administration of an intravenous diuretic ... and an increase in chronic heart failure therapy",
+         "The primary outcome occurred in 50 (23.4%) patients in the rhythm-control group and 64 (32.5%) patients in the rate-control group (hazard ratio, 0.71 [95% CI, 0.49-1.03])"
+        ],
+        "quote_note": "Three quotes: the endpoint TITLE as the registry states it, the registry's or the report's fuller DEFINITION of what those events are, and the RESULT sentence carrying the number stored. The first two say what was counted and the third says what happened, and this object exists partly because those were once confused."
+       },
+       "source_url": "https://pubmed.ncbi.nlm.nih.gov/35313733/",
+       "analysed": {
+        "treatment": 214,
+        "control": 197
+       },
+       "outcome_definition": "Composite of All-cause Mortality and Heart Failure Events",
+       "outcome_definition_source": {
+        "source": "registry",
+        "source_field": "protocolSection.outcomesModule.primaryOutcomes[0]",
+        "source_url": "https://clinicaltrials.gov/study/NCT01420393",
+        "read_utc": "2026-08-17"
+       },
+       "source_tier": "primary_oa",
+       "registry_results_status": "The registry posts this trial's primary outcome with both arms' counts -- 50 of 214 and 64 of 197 -- and no analysis. The counts are therefore confirmed on TWO surfaces.",
+       "corrected_2026_08_17": "THE EVENT COUNTS WERE WRONG IN BOTH ARMS: 44 and 55 stored, against 50 and 64 posted by the registry and printed in the publication. The derived odds ratio 0.6682 was computed from the wrong numbers; the odds ratio the true counts give is 0.6336, and the trial's own hazard ratio is 0.71."
+      }
+     },
+     "design": "randomised, open-label; ablation-based rhythm control against rate control in heart failure with high-burden atrial fibrillation",
+     "comparator_type": "active",
+     "comparator_type_basis": "Every trial in this object randomises against an ACTIVE strategy -- medical therapy, drug therapy, usual care or rate control -- and none against placebo. Read from each registry record's arm types, where no arm is typed PLACEBO_COMPARATOR.",
+     "enrolled": 411,
+     "registration_brief_title": "Rhythm Control - Catheter Ablation With or Without Anti-arrhythmic Drug Control of Maintaining Sinus Rhythm Versus Rate Control With Medical Therapy and/or Atrio-ventricular Junction Ablation and Pacemaker Treatment for Atrial Fibrillation",
+     "registration_org_study_id": "231888",
+     "registration_read_utc": "2026-08-18",
+     "registration_enrolment": 411,
+     "registration_arm_count": 2,
+     "registration_contrasts_read_utc": "2026-08-18",
+     "registration_primary_counts": {
+      "title": "Composite of All-cause Mortality and Heart Failure Events",
+      "treatment_events": 50.0,
+      "control_events": 64.0,
+      "treatment_n": 214.0,
+      "control_n": 197.0,
+      "note": "arm order as the registry lists it; a swapped pair would show as a mismatch rather than a silent pass"
+     },
+     "registration_other_outcome_counts": [
+      {
+       "title": "Composite of All-cause Mortality and Heart Failure Events",
+       "type": "PRIMARY",
+       "counts": [
+        50.0,
+        64.0
+       ]
+      }
+     ],
+     "registration_counts_read_utc": "2026-08-18",
+     "registered_primaries": [
+      "Composite of All-cause Mortality and Heart Failure Events"
+     ],
+     "registered_secondaries": [],
+     "registered_other_outcomes": [],
+     "all_ranks_read_utc": "2026-08-18"
+    }
+   ]
+  },
+  "screening": {
+   "eligibility_provenance": {
+    "state": "DERIVED_POST_HOC",
+    "predefined": false,
+    "post_hoc": true,
+    "derived": true,
+    "predefined_is_false_because": "These criteria were written on 2026-08-19, when the parent topic was split into three reviews -- AFTER the included set existed. `false` is asserted rather than left null because the derivation order is known: the trials came first. That is the honest label and it is worse than null, which is why it is on the block's face.",
+    "authority_it_satisfies": "MECIR R29/R30/R31 -- the review STATES its eligibility criteria.",
+    "authority_it_does_NOT_establish": "MECIR C5/C7 -- criteria DEFINED IN ADVANCE.",
+    "what_would_settle_it": "a protocol record timestamped before the first executed query",
+    "elements": [
+     {
+      "element": "POPULATION",
+      "criterion": "adults with atrial fibrillation AND heart failure or left-ventricular dysfunction",
+      "auditable_against": "protocolSection.conditionsModule.conditions",
+      "settles_it": true,
+      "evidence": "Both included registrations list Atrial Fibrillation and Heart Failure among their conditions."
+     },
+     {
+      "element": "INTERVENTION",
+      "criterion": "catheter-based ablation of atrial fibrillation -- pulmonary vein isolation, radiofrequency or cryoballoon -- as the randomised intervention",
+      "auditable_against": "protocolSection.armsInterventionsModule.armGroups",
+      "settles_it": true,
+      "evidence_and_the_judgement_it_carries": "AV-NODE AND AV-JUNCTION ABLATION ARE NOT THIS INTERVENTION. They ablate the conduction system, require a permanent pacemaker, and are RATE CONTROL DELIVERED BY ABLATION -- they do not restore sinus rhythm. Eight of the twenty exclusions turn on this one distinction and every one of them says `ablation` in its arm labels, which is why identity is taken from what the arm DOES rather than from the word it contains. TWO OF THE EIGHT -- NCT01522898 and NCT06833138 -- register EXACTLY this review's estimand, so the boundary is what excludes them and not the outcome. A reader who draws the line elsewhere can see precisely what including them would add. Surgical maze ablation is excluded on the same limb, and drug trials run after an ablation are excluded because the randomised contrast is the drug."
+     },
+     {
+      "element": "COMPARATOR",
+      "criterion": "medical therapy -- rate- or rhythm-control drugs, or conventional / usual / standard care",
+      "auditable_against": "protocolSection.armsInterventionsModule.armGroups",
+      "settles_it": true,
+      "evidence": "Eight exclusions are ablation-against-ablation technique comparisons or single-arm studies with no control declared. A NO_INTERVENTION arm counts as medical therapy where the registration describes it as conventional or usual care."
+     },
+     {
+      "element": "ESTIMAND (poolability, NOT eligibility)",
+      "criterion": "a time-to-first-event composite of all-cause mortality with heart-failure hospitalisation or heart-failure events, as a hazard ratio",
+      "auditable_against": "protocolSection.outcomesModule, EVERY rank",
+      "settles_it": true,
+      "evidence": "Eligibility deliberately does NOT turn on the reported outcome -- Handbook s3.2.4, because making eligibility depend on what a trial reported invites outcome-reporting bias. Poolability is a separate axis under s10.9, and ELIGIBLE_NOT_POOLABLE means the estimand appears at NO rank, primary or secondary."
+     }
+    ]
+   },
+   "duplicate_screening": {
+    "performed": false,
+    "why": "No second independent screen was run for this topic. This is recorded as OWED rather than described: the remedy is to RUN one, and writing a duplicate-screening sentence without one would be the defect this whole exercise exists to prevent.",
+    "remedy": "run a blind second-family screen over this topic's surfaced set"
+   }
+  },
+  "screening_of_remainder": {
+   "ablation_hf_2026_08_19": {
+    "screened_utc": "2026-08-19",
+    "topic": "ablation-af-heart-failure",
+    "criteria_status": "DERIVED POST HOC on 2026-08-19, when ablation-af-review was split into three reviews. predefined: false.",
+    "remainder": 43,
+    "tally": {
+     "EXCLUDED": 20,
+     "ELIGIBLE_NOT_POOLABLE": 12,
+     "ELIGIBLE_NO_RESULTS_YET": 11,
+     "ELIGIBLE_POOLABLE_NOT_INCLUDED": 0
+    },
+    "eligible_poolable_not_included_is_zero_because": "FOUR trials were the only candidates for this cell -- NCT03062241, NCT04160000, NCT04342832 and NCT04649801, each eligible with a composite primary. All four were checked LIVE against the registry and NONE has posted results (hasResults=false, no resultsSection). The zero is what four lookups returned, not a cell nobody filled.",
+    "exclusions_by_failing_limb": {
+     "INTERVENTION": 11,
+     "POPULATION": 1,
+     "COMPARATOR": 8
+    },
+    "av_node_ablation_boundary": "EIGHT exclusions turn on ONE judgement: AV-node / AV-junction ablation is not this review's intervention. It ablates the conduction system, requires a permanent pacemaker, and is rate control delivered by ablation rather than restoration of sinus rhythm. Every one of the eight says `ablation` in its arm labels, which is why identity is taken from what the arm DOES. Two of them -- NCT01522898 and NCT06833138 -- register EXACTLY this review's estimand, so the boundary is what excludes them and not the outcome. A reader who draws it elsewhere can see precisely what including them would add.",
+    "trials": [
+     {
+      "nct": "NCT00292162",
+      "verdict": "ELIGIBLE_NOT_POOLABLE",
+      "axis": "POOLABILITY",
+      "criterion": "ESTIMAND",
+      "field_read": "outcomesModule",
+      "reason": "ELIGIBLE: chronic heart failure + AF, radiofrequency ablation against a medical-therapy arm (ACE inhibitor, beta blocker, aldosterone antagonist). It HAS posted results. Its primaries are all LEFT VENTRICULAR EJECTION FRACTION by MRI (change, baseline, and at 6 months) and its secondaries are plasma BNP. No mortality or heart-failure-event outcome at ANY rank. n=41."
+     },
+     {
+      "nct": "NCT00589303",
+      "verdict": "EXCLUDED",
+      "axis": "ELIGIBILITY",
+      "criterion": "INTERVENTION",
+      "field_read": "armsInterventionsModule.armGroups",
+      "reason": "AV NODE ABLATION AND PACEMAKER against drug therapy. Rate control delivered by ablating the conduction system, not AF ablation. POPULATION holds (AF + heart failure) and COMPARATOR holds (rate and rhythm control drugs); the intervention limb is the one that fails. TERMINATED at n=27, which is NOT the stated ground."
+     },
+     {
+      "nct": "NCT00652522",
+      "verdict": "ELIGIBLE_NOT_POOLABLE",
+      "axis": "POOLABILITY",
+      "criterion": "ESTIMAND",
+      "field_read": "outcomesModule",
+      "reason": "ELIGIBLE: persistent AF + heart failure with an ICD; AF ablation added to ICD/CRT in one arm against ICD/CRT plus best medical treatment in the other, so the device is in BOTH arms and the randomised contrast is the ablation. Primary is LVEF by transthoracic echocardiography. n=202."
+     },
+     {
+      "nct": "NCT00729911",
+      "verdict": "ELIGIBLE_NOT_POOLABLE",
+      "axis": "POOLABILITY",
+      "criterion": "ESTIMAND",
+      "field_read": "outcomesModule",
+      "reason": "ELIGIBLE: AF ablation against amiodarone -- a rhythm-control drug, so a medical-therapy comparator -- in congestive heart failure. Primary is TIME TO RECURRENCE OF AF lasting longer than 15 seconds. An arrhythmia-recurrence endpoint, not a clinical composite. n=203."
+     },
+     {
+      "nct": "NCT00839566",
+      "verdict": "EXCLUDED",
+      "axis": "ELIGIBILITY",
+      "criterion": "INTERVENTION",
+      "field_read": "armsInterventionsModule.armGroups",
+      "reason": "AV ABLATION against rate control and a sinus-rhythm arm. Conduction-system ablation again. POPULATION holds. TERMINATED at n=12, not the stated ground."
+     },
+     {
+      "nct": "NCT00878384",
+      "verdict": "ELIGIBLE_NOT_POOLABLE",
+      "axis": "POOLABILITY",
+      "criterion": "ESTIMAND",
+      "field_read": "outcomesModule",
+      "reason": "ELIGIBLE: catheter ablation against medical rate control in AF + heart failure. Primary is PEAK OXYGEN CONSUMPTION at cardiopulmonary exercise testing -- a functional endpoint. n=52."
+     },
+     {
+      "nct": "NCT01181414",
+      "verdict": "EXCLUDED",
+      "axis": "ELIGIBILITY",
+      "criterion": "INTERVENTION",
+      "field_read": "armsInterventionsModule.armGroups",
+      "reason": "ATRIOVENTRICULAR JUNCTION ABLATION with radiofrequency against drug control of ventricular rate, in cardiac resynchronisation. Conduction-system ablation. POPULATION holds (chronic heart failure, dilated cardiomyopathy, AF)."
+     },
+     {
+      "nct": "NCT01233648",
+      "verdict": "EXCLUDED",
+      "axis": "ELIGIBILITY",
+      "criterion": "POPULATION",
+      "field_read": "conditionsModule.conditions",
+      "reason": "conditions = ['Atrial Fibrillation'] ONLY -- no heart failure or ventricular dysfunction is registered, and this review's population is AF WITH heart failure. INTERVENTION also fails: the comparison is rate control via CRT-D and AV-nodal ablation against rhythm control by 'pharmacologic, electrical or ablative therapies', so neither arm is catheter ablation of AF as such. Both limbs named; the population limb is the ground."
+     },
+     {
+      "nct": "NCT01411371",
+      "verdict": "ELIGIBLE_NOT_POOLABLE",
+      "axis": "POOLABILITY",
+      "criterion": "ESTIMAND",
+      "field_read": "outcomesModule",
+      "reason": "ELIGIBLE: catheter ablation of persistent AF against medical treatment alone, in AF + heart failure. Primary is DIFFERENCE IN EJECTION FRACTION between groups. Settled on the estimand, which the registry states, rather than on its UNKNOWN recruitment status, which it does not: an UNKNOWN status is a fact about the registrant's updating, not about whether the trial reported."
+     },
+     {
+      "nct": "NCT01522898",
+      "verdict": "EXCLUDED",
+      "axis": "ELIGIBILITY",
+      "criterion": "INTERVENTION",
+      "field_read": "armsInterventionsModule.armGroups",
+      "reason": "AV NODAL ABLATION against medical ventricular rate control, with resynchronisation. Conduction-system ablation. POPULATION holds (heart failure + AF) and the primary -- 'All-cause mortality and non-fatal heart failure events' -- IS this review's estimand, which is why the intervention limb has to be stated plainly: this trial would pool, and it is not eligible."
+     },
+     {
+      "nct": "NCT01639495",
+      "verdict": "EXCLUDED",
+      "axis": "ELIGIBILITY",
+      "criterion": "COMPARATOR",
+      "field_read": "armsInterventionsModule.armGroups",
+      "reason": "SINGLE ARM -- one EXPERIMENTAL arm, a THERMOCOOL SMARTTOUCH catheter, and no control. POPULATION also fails: 'Drug Refractory Symptomatic Paroxysmal Atrial Fibrillation', no heart failure. Both named; the absence of any comparator is the ground."
+     },
+     {
+      "nct": "NCT01877473",
+      "verdict": "EXCLUDED",
+      "axis": "ELIGIBILITY",
+      "criterion": "COMPARATOR",
+      "field_read": "armsInterventionsModule.armGroups",
+      "reason": "ABLATION AGAINST ABLATION -- 'Reverse remodeling' against 'Standard ablation', both arms carrying Procedure: Ablation. A technique comparison, not ablation against medical therapy. POPULATION also fails (persistent AF, no heart failure). WITHDRAWN at n=0."
+     },
+     {
+      "nct": "NCT02137187",
+      "verdict": "EXCLUDED",
+      "axis": "ELIGIBILITY",
+      "criterion": "INTERVENTION",
+      "field_read": "armsInterventionsModule.armGroups",
+      "reason": "AV JUNCTION ABLATION with CRT against optimised drug therapy. Conduction-system ablation. POPULATION also fails: conditions = ['Permanent Atrial Fibrillation'] with no heart failure registered."
+     },
+     {
+      "nct": "NCT02321085",
+      "verdict": "ELIGIBLE_NOT_POOLABLE",
+      "axis": "POOLABILITY",
+      "criterion": "ESTIMAND",
+      "field_read": "outcomesModule",
+      "reason": "Primaries are improvement of LEFT VENTRICULAR FUNCTION and FUNCTIONAL CAPACITY by rhythm control. AND THE INTERVENTION LIMB CANNOT BE SETTLED FROM THE RECORD: both arms are 'Procedure: Sinus Rhythm control' and 'Procedure: Pulse Rate control', which do not say whether the rhythm-control arm is delivered by ablation. Recorded as not-poolable on the estimand, which IS settled, with the unsettled limb named rather than guessed."
+     },
+     {
+      "nct": "NCT02509754",
+      "verdict": "ELIGIBLE_NOT_POOLABLE",
+      "axis": "POOLABILITY",
+      "criterion": "ESTIMAND",
+      "field_read": "outcomesModule",
+      "reason": "ELIGIBLE: AF catheter ablation against a rate-control arm in persistent AF with congestive heart failure due to LV systolic dysfunction. Primary is a composite of IMPROVEMENT IN LVEF -- a physiological composite, not a clinical event composite. n=180."
+     },
+     {
+      "nct": "NCT02686749",
+      "verdict": "ELIGIBLE_NOT_POOLABLE",
+      "axis": "POOLABILITY",
+      "criterion": "ESTIMAND",
+      "field_read": "outcomesModule",
+      "reason": "ELIGIBLE: catheter ablation against an FDA-approved antiarrhythmic drug in congestive heart failure with AF. Primary is 'First Hospitalization for Heart Failure, Recurrence of AF or ...' -- a composite that includes ARRHYTHMIA RECURRENCE, so it is not this review's mortality-and-heart-failure composite. TERMINATED at n=4 of its planned enrolment, named but not the ground."
+     },
+     {
+      "nct": "NCT03062241",
+      "verdict": "ELIGIBLE_NO_RESULTS_YET",
+      "axis": "STATUS",
+      "criterion": "NO RESULTS POSTED",
+      "field_read": "hasResults / resultsSection",
+      "reason": "ELIGIBLE AND ITS ESTIMAND IS THE CLOSEST MATCH IN THE REMAINDER: cryoablation against a NO_INTERVENTION conventional-treatment arm in AF with severe heart failure, primary 'Composite outcome of hospitalization due to heart failure worsening, mortality, use of mechanical left ventricle support and heart transplant'. CHECKED LIVE AGAINST THE REGISTRY: hasResults=false and no resultsSection. There is nothing to extract. n=330."
+     },
+     {
+      "nct": "NCT03410966",
+      "verdict": "EXCLUDED",
+      "axis": "ELIGIBILITY",
+      "criterion": "COMPARATOR",
+      "field_read": "armsInterventionsModule.armGroups",
+      "reason": "ONE ARM ONLY -- 'Intervention group', trans-catheter ablation, no control arm declared. POPULATION holds (AF + diastolic heart failure) and the primary is AF recurrence, so the estimand would fail too; the absent comparator is the ground."
+     },
+     {
+      "nct": "NCT03573869",
+      "verdict": "ELIGIBLE_NOT_POOLABLE",
+      "axis": "POOLABILITY",
+      "criterion": "ESTIMAND",
+      "field_read": "outcomesModule",
+      "reason": "ELIGIBLE: cryoballoon ablation against a NO_INTERVENTION standard-treatment arm in AF with systolic heart failure. Primary is TIME TO EXCEED AN AF BURDEN CUT-OFF OF 1% -- an arrhythmia-burden endpoint. n=404."
+     },
+     {
+      "nct": "NCT04160000",
+      "verdict": "ELIGIBLE_NO_RESULTS_YET",
+      "axis": "STATUS",
+      "criterion": "NO RESULTS POSTED",
+      "field_read": "hasResults / resultsSection",
+      "reason": "ELIGIBLE, AND THE SINGLE TRIAL IN THIS REMAINDER MOST LIKELY TO CHANGE THE ANSWER. Catheter ablation against rate- or rhythm-control antiarrhythmic drugs in AF with diastolic heart failure, primary 'TIME TO COMPOSITE OF HEART FAILURE HOSPITALIZATIONS AND/OR CARDIOVASCULAR MORTALITY' -- a time-to-first-event composite of exactly this review's shape -- with all-cause mortality and cardiovascular hospitalisation among its secondaries. CHECKED LIVE: hasResults=false, no resultsSection. n=360, status UNKNOWN."
+     },
+     {
+      "nct": "NCT04282850",
+      "verdict": "ELIGIBLE_NOT_POOLABLE",
+      "axis": "POOLABILITY",
+      "criterion": "ESTIMAND",
+      "field_read": "outcomesModule",
+      "reason": "ELIGIBLE: pulmonary vein isolation against a NO_INTERVENTION medical-management arm in AF with heart failure and normal ejection fraction. Primary is CHANGE IN AF BURDEN. TERMINATED at n=13, named but not the ground."
+     },
+     {
+      "nct": "NCT04327596",
+      "verdict": "ELIGIBLE_NOT_POOLABLE",
+      "axis": "POOLABILITY",
+      "criterion": "ESTIMAND",
+      "field_read": "outcomesModule",
+      "reason": "ELIGIBLE: radiofrequency AF ablation against a NO_INTERVENTION conventional-treatment arm in HFpEF. Primary is RATE OF HEALTHCARE UTILISATION. TERMINATED at n=2."
+     },
+     {
+      "nct": "NCT04342832",
+      "verdict": "ELIGIBLE_NO_RESULTS_YET",
+      "axis": "STATUS",
+      "criterion": "NO RESULTS POSTED",
+      "field_read": "hasResults / resultsSection",
+      "reason": "ELIGIBLE with a near-matching estimand: cryoballoon ablation against a NO_INTERVENTION standard-medical-care arm in AF with HFrEF, primary 'Composite of all-cause mortality, unplanned cardiovascular hospitalizations and stroke (time-to-event analysis)'. It includes STROKE and its hospitalisation limb is cardiovascular rather than heart-failure, so it is a near neighbour and not this estimand. CHECKED LIVE: hasResults=false. TERMINATED at n=64 having posted nothing."
+     },
+     {
+      "nct": "NCT04649801",
+      "verdict": "ELIGIBLE_NO_RESULTS_YET",
+      "axis": "STATUS",
+      "criterion": "NO RESULTS POSTED",
+      "field_read": "hasResults / resultsSection",
+      "reason": "ELIGIBLE: AF ablation against a NO_INTERVENTION conventional arm in end-stage heart failure. COMPLETED at n=194 and CHECKED LIVE: hasResults=false, no resultsSection -- a completed trial that has posted nothing, which is a different state from one still running and is recorded as the same disposition for the same reason: there is nothing to extract. Its primary, 'Mortality or transplantation', is in any case not this review's composite -- named so the disposition does not rest on the posting alone."
+     },
+     {
+      "nct": "NCT04664686",
+      "verdict": "EXCLUDED",
+      "axis": "ELIGIBILITY",
+      "criterion": "COMPARATOR",
+      "field_read": "armsInterventionsModule.armGroups",
+      "reason": "AF CATHETER ABLATION AGAINST AV NODE ABLATION -- both arms are ablation, so the contrast is between two ablation strategies rather than against medical therapy. POPULATION holds (AF + heart failure)."
+     },
+     {
+      "nct": "NCT05023590",
+      "verdict": "EXCLUDED",
+      "axis": "ELIGIBILITY",
+      "criterion": "COMPARATOR",
+      "field_read": "armsInterventionsModule.armGroups",
+      "reason": "CRYO ABLATION AGAINST RADIOFREQUENCY ABLATION, both delivered during open-chest mitral valve surgery. A technique comparison. POPULATION also fails: AF with mitral valve failure, no heart failure registered."
+     },
+     {
+      "nct": "NCT05434819",
+      "verdict": "EXCLUDED",
+      "axis": "ELIGIBILITY",
+      "criterion": "INTERVENTION",
+      "field_read": "armsInterventionsModule.armGroups",
+      "reason": "SURGICAL AF ablation against no surgical ablation. This review's intervention is CATHETER-BASED ablation; a surgical maze performed during cardiac surgery is a different procedure with a different risk profile and a different population pathway. POPULATION holds (AF + heart failure) and the comparator is a genuine no-ablation arm, so the intervention limb alone decides it. RECRUITING, n=2000."
+     },
+     {
+      "nct": "NCT05508256",
+      "verdict": "ELIGIBLE_NO_RESULTS_YET",
+      "axis": "STATUS",
+      "criterion": "NOT YET REPORTED",
+      "field_read": "statusModule.overallStatus",
+      "reason": "ELIGIBLE: CE-marked catheter ablation against a NO_INTERVENTION usual-medical-care arm in AF with HFpEF and HFmrEF, primary a composite of cardiovascular events. RECRUITING at n=1548 -- THE LARGEST UNREPORTED TRIAL IN THIS REMAINDER, and one of the two that will determine whether this question has an answer."
+     },
+     {
+      "nct": "NCT05760833",
+      "verdict": "EXCLUDED",
+      "axis": "ELIGIBILITY",
+      "criterion": "COMPARATOR",
+      "field_read": "armsInterventionsModule.armGroups",
+      "reason": "PULMONARY VEIN ISOLATION AGAINST ATRIOVENTRICULAR NODE ABLATION -- both arms ablation. WITHDRAWN at n=0."
+     },
+     {
+      "nct": "NCT05827172",
+      "verdict": "ELIGIBLE_NOT_POOLABLE",
+      "axis": "POOLABILITY",
+      "criterion": "ESTIMAND",
+      "field_read": "outcomesModule",
+      "reason": "ELIGIBLE: AF ablation against an OTHER-typed 'Medical therapy (rate or rhythm control)' arm in persistent AF with HFrEF. Primary is DIFFERENCE IN EJECTION FRACTION. n=96, COMPLETED."
+     },
+     {
+      "nct": "NCT06125925",
+      "verdict": "ELIGIBLE_NO_RESULTS_YET",
+      "axis": "STATUS",
+      "criterion": "NOT YET REPORTED",
+      "field_read": "statusModule.overallStatus",
+      "reason": "ELIGIBLE with a matching estimand shape: radiofrequency catheter ablation against a medical-therapy arm in AF with HFpEF, primary a 'Composite endpoint of worsening heart failure requiring unplanned ...'. RECRUITING at n=436."
+     },
+     {
+      "nct": "NCT06207383",
+      "verdict": "EXCLUDED",
+      "axis": "ELIGIBILITY",
+      "criterion": "COMPARATOR",
+      "field_read": "armsInterventionsModule.armGroups",
+      "reason": "AF ABLATION AGAINST CONDUCTION SYSTEM PACING PLUS ATRIOVENTRICULAR NODAL ABLATION. The comparator arm is itself an ablation strategy. POPULATION holds."
+     },
+     {
+      "nct": "NCT06299514",
+      "verdict": "EXCLUDED",
+      "axis": "ELIGIBILITY",
+      "criterion": "INTERVENTION",
+      "field_read": "armsInterventionsModule.armGroups",
+      "reason": "'PACE AND ABLATE' -- pacemaker implantation with AV-node ablation -- against pharmacological therapy. Conduction-system ablation, so the intervention limb fails even though the comparator is exactly the medical therapy this review wants."
+     },
+     {
+      "nct": "NCT06528262",
+      "verdict": "EXCLUDED",
+      "axis": "ELIGIBILITY",
+      "criterion": "INTERVENTION",
+      "field_read": "armsInterventionsModule.armGroups",
+      "reason": "THE RANDOMISED CONTRAST IS A DRUG: enavogliflozin against placebo, given AFTER catheter ablation. Ablation is background, present in both arms, and the estimate would be attributable to the SGLT2 inhibitor. POPULATION also fails: conditions = ['Atrial Fibrillation'] with no heart failure."
+     },
+     {
+      "nct": "NCT06740539",
+      "verdict": "ELIGIBLE_NO_RESULTS_YET",
+      "axis": "STATUS",
+      "criterion": "NOT YET REPORTED",
+      "field_read": "statusModule.overallStatus",
+      "reason": "ELIGIBLE: catheter ablation against a NO_INTERVENTION drug-control arm in HFpEF with AF, primary a composite of all-cause death or readmission. NOT_YET_RECRUITING at n=304."
+     },
+     {
+      "nct": "NCT06833138",
+      "verdict": "EXCLUDED",
+      "axis": "ELIGIBILITY",
+      "criterion": "INTERVENTION",
+      "field_read": "armsInterventionsModule.armGroups",
+      "reason": "PACEMAKER IMPLANTATION WITH ATRIOVENTRICULAR NODE ABLATION against a NO_INTERVENTION arm, in HFpEF with persistent AF. Conduction-system ablation. Its primary -- 'Time to the composite of all-cause mortality or hospitalization ...' -- IS this review's estimand, which again is why the intervention boundary is stated rather than assumed."
+     },
+     {
+      "nct": "NCT07118488",
+      "verdict": "EXCLUDED",
+      "axis": "ELIGIBILITY",
+      "criterion": "COMPARATOR",
+      "field_read": "armsInterventionsModule.armGroups",
+      "reason": "SINGLE ARM -- multitarget pulsed-field ablation, no control. POPULATION also fails: longstanding persistent AF with no heart failure registered."
+     },
+     {
+      "nct": "NCT07238452",
+      "verdict": "ELIGIBLE_NO_RESULTS_YET",
+      "axis": "STATUS",
+      "criterion": "NOT YET REPORTED",
+      "field_read": "statusModule.overallStatus",
+      "reason": "ELIGIBLE: pulmonary vein isolation against optimal medical therapy (pharmacological rate control) in HFrEF with AF, primary 'Composite of cardiovascular mortality, stroke, and total number of ...'. NOT_YET_RECRUITING at n=1056."
+     },
+     {
+      "nct": "NCT07254455",
+      "verdict": "ELIGIBLE_NO_RESULTS_YET",
+      "axis": "STATUS",
+      "criterion": "NOT YET REPORTED",
+      "field_read": "statusModule.overallStatus",
+      "reason": "ELIGIBLE: CASTLE-HFpEF -- catheter ablation against a NO_INTERVENTION standard-medical- therapy arm in AF with HFpEF, primary a composite of all-cause mortality, stroke or transient ischaemic attack. NOT_YET_RECRUITING at n=900. Named because it is the explicit HFpEF successor to one of this review's two included trials."
+     },
+     {
+      "nct": "NCT07272902",
+      "verdict": "ELIGIBLE_NO_RESULTS_YET",
+      "axis": "STATUS",
+      "criterion": "NOT YET REPORTED",
+      "field_read": "statusModule.overallStatus",
+      "reason": "ELIGIBLE: catheter ablation against medical rate-control therapy in AF with HFmrEF and HFpEF. RECRUITING at n=84, and its primary is 'FEASIBILITY OF TRIAL CONDUCT' -- so it will not contribute an effect estimate when it does report. Settled on status, which is the uncontestable ground, with the estimand named so the reader is not left expecting a future contribution."
+     },
+     {
+      "nct": "NCT07359872",
+      "verdict": "EXCLUDED",
+      "axis": "ELIGIBILITY",
+      "criterion": "INTERVENTION",
+      "field_read": "armsInterventionsModule.armGroups",
+      "reason": "THE RANDOMISED CONTRAST IS A DRUG: relaxin against placebo, with 'standard of care (including ablation)' in BOTH arms and a crossover design. Ablation is background. POPULATION also fails: AF, arrhythmia, oxidative stress and stroke, no heart failure."
+     },
+     {
+      "nct": "NCT07385417",
+      "verdict": "ELIGIBLE_NO_RESULTS_YET",
+      "axis": "STATUS",
+      "criterion": "NOT YET REPORTED",
+      "field_read": "statusModule.overallStatus",
+      "reason": "ELIGIBLE ON THE ARMS AND THE POPULATION LIMB IS FLAGGED RATHER THAN ASSUMED: AF ablation by electroporation against a NO_INTERVENTION 'best medical AF treatment' arm, and the trial's TITLE names heart failure while conditionsModule.conditions lists only ['Atrial Fibrillation (AF)']. THE CODED FIELD GOVERNS AND IT DOES NOT CARRY HEART FAILURE; the free text does. Recorded as eligible-not-yet-reported because status settles it either way, with the discrepancy stated so the verdict does not rest on the coded field alone. RECRUITING at n=200."
+     },
+     {
+      "nct": "NCT07630454",
+      "verdict": "EXCLUDED",
+      "axis": "ELIGIBILITY",
+      "criterion": "INTERVENTION",
+      "field_read": "armsInterventionsModule.armGroups",
+      "reason": "THE RANDOMISED CONTRAST IS A DRUG: tirzepatide plus lifestyle against lifestyle alone, after catheter ablation. Ablation is background in both arms."
+     }
+    ]
+   }
+  },
+  "results": {
+   "by_outcome": {
+    "primary": {
+     "k": 2,
+     "estimand_id": "primary",
+     "model": "random-effects",
+     "estimator": "DerSimonian-Laird",
+     "estimator_used": "DerSimonian-Laird",
+     "comparator_type": "active",
+     "favours": "treatment",
+     "poolable": false,
+     "poolable_reason": "THE TWO TRIALS DEFINE THE HEART-FAILURE LIMB OF THEIR COMPOSITE DIFFERENTLY, AND THE REGISTRY STATES BOTH. CASTLE-AF counts 'All-cause mortality or worsening heart failure requiring unplanned HOSPITALIZATION'. RAFT-AF counts all-cause mortality plus heart-failure events, where an event is an admission of more than 24 hours OR treatment in an emergency department OR a same-day access clinic OR an infusion centre OR an unscheduled visit for intravenous diuretic with an increase in chronic heart-failure therapy. RAFT-AF's limb counts OUTPATIENT events that CASTLE-AF does not count at all. Two composites of the same SHAPE are not the same QUANTITY, and pooling them would report an average over two definitions as though it were one effect.",
+     "the_split_did_not_dissolve_this": "Stated plainly because it would be easy to read the split as having fixed it. THE SPLIT FIXED THE QUESTION, NOT THE ESTIMAND. The parent object refused to pool four trials measuring four different composites; this review refuses to pool two measuring two. Correctly scoping a review does not make its trials measure the same thing.",
+     "pooled": {
+      "withdrawn": true,
+      "point": null,
+      "withdrawn_because": "see poolable_reason"
+     },
+     "the_pool_this_refusal_declines_to_report": {
+      "_why_shown": "SHOWN SO THE COST OF THE REFUSAL IS INSPECTABLE, and labelled so it cannot be mistaken for this review's answer. A reader who judges the two heart-failure definitions close enough to combine can see exactly what they would get; a reader who agrees with the refusal can see that nothing is being hidden by it.",
+      "measure": "HR",
+      "k": 2,
+      "point": 0.6611,
+      "ci_low": 0.512,
+      "ci_high": 0.8537,
+      "q": 0.2692,
+      "df": 1,
+      "tau2": 0.0,
+      "i2_pct": 0.0,
+      "AND THIS IS THE POINT WORTH TAKING FROM THE PAGE": "I-SQUARED IS EXACTLY ZERO AND Q IS 0.27 ON 1 DEGREE OF FREEDOM. The two trials are as statistically consistent as two trials can be -- and they still measure different things. HETEROGENEITY STATISTICS CANNOT DETECT AN ESTIMAND MISMATCH: they are computed from the numbers, and the numbers are all that survives extraction. A low I-squared is evidence that two estimates agree, and NO evidence that they answer the same question. Had this review pooled on the strength of I-squared = 0, every downstream check would have passed."
+     },
+     "per_trial": [
+      {
+       "trial_id": "CASTLE-AF",
+       "nct": "NCT00643188",
+       "measure": "HR",
+       "point": 0.62,
+       "ci_low": 0.43,
+       "ci_high": 0.87,
+       "ci_level": 95,
+       "endpoint_rank_in_its_own_trial": "PRIMARY",
+       "outcome_definition": "All-cause mortality or worsening heart failure requiring unplanned hospitalization",
+       "derivation": "the hazard ratio the source prints, stored on the log scale with the standard error its printed interval implies at that interval's own level"
+      },
+      {
+       "trial_id": "RAFT-AF",
+       "nct": "NCT01420393",
+       "measure": "HR",
+       "point": 0.71,
+       "ci_low": 0.49,
+       "ci_high": 1.03,
+       "ci_level": 95,
+       "endpoint_rank_in_its_own_trial": "PRIMARY",
+       "outcome_definition": "Composite of All-cause Mortality and Heart Failure Events, where an event includes outpatient intravenous diuretic administration",
+       "derivation": "the hazard ratio the source prints, stored on the log scale with the standard error its printed interval implies at that interval's own level"
+      }
+     ],
+     "heterogeneity": {
+      "q": 0.2692,
+      "df": 1,
+      "tau2": 0.0,
+      "i2": 0.0,
+      "i2_definition": "Higgins (Q - df)/Q, clamped at 0",
+      "note": "Computed for the pool this review DECLINES to report, and carried here for that reason only."
+     },
+     "heterogeneity_status": "not applicable -- nothing was pooled",
+     "r_output": {
+      "state": "ABSENT_AND_THAT_IS_THE_FINDING",
+      "_why_absent": "k=2 and nothing was pooled, so there is NO model call to quote, NO pooled estimate, NO heterogeneity and NO package version. This is not a missing artefact; it is the correct state for a topic with no synthesis.",
+      "k_read_from_object": 2,
+      "quotable_model_call": null,
+      "heterogeneity": null,
+      "heterogeneity_reason": "Undefined: no between-study variance was estimated because no model was run.",
+      "package_version": null,
+      "what_would_change_it": "An estimand shared by two or more included trials. Where k is already above 1 and nothing pooled, the obstacle is the ESTIMAND rather than the evidence base, and this field must say which."
+     }
+    }
+   }
+  },
+  "config": {
+   "model": "random-effects",
+   "method": "DerSimonian-Laird inverse-variance on extracted effect estimates",
+   "scale": "log"
+  },
+  "search": {
+   "executed_by": "lane 1 (Claude, Anthropic family)",
+   "databases": [
+    {
+     "database": "ClinicalTrials.gov API v2 -- CHOSEN QUERY",
+     "tool": "https://clinicaltrials.gov/api/v2/studies (raw)",
+     "query_as_executed": "query.cond=\"atrial fibrillation AND heart failure\"; query.intr=\"catheter ablation OR pulmonary vein isolation OR radiofrequency ablation OR rhythm control\"; filter.advanced=AREA[StudyType]INTERVENTIONAL; pageSize=1000; countTotal=true",
+     "date_executed": "2026-08-19",
+     "http_status": 200,
+     "records_returned": 67,
+     "total_reported": 67,
+     "recall_on_included_set": "2/2",
+     "why_chosen": "The SMALLEST surfaced set achieving full recall. A wider query that finds nothing new costs reviewer time and buys nothing -- stated as a rule rather than as a preference, and the wider query is recorded below so the choice is inspectable."
+    },
+    {
+     "database": "ClinicalTrials.gov API v2 -- WIDER CONDITION TERM, RECORDED AND NOT CHOSEN",
+     "tool": "https://clinicaltrials.gov/api/v2/studies (raw)",
+     "query_as_executed": "query.cond=\"atrial fibrillation AND (heart failure OR ventricular dysfunction OR cardiomyopathy)\"; query.intr=\"catheter ablation OR pulmonary vein isolation OR radiofrequency ablation OR rhythm control\"; filter.advanced=AREA[StudyType]INTERVENTIONAL",
+     "date_executed": "2026-08-19",
+     "http_status": 200,
+     "records_returned": 74,
+     "total_reported": 74,
+     "recall_on_included_set": "2/2",
+     "what_it_establishes": "SEVEN MORE RECORDS AND NOT ONE MORE INCLUDED TRIAL. The condition term 'heart failure' alone did not cost this review anything -- CHECKED rather than assumed, because on two other topics in this corpus a condition term one word too narrow silently lost included trials (sglt2-hf lost DELIVER; iv-iron-hf lost AFFIRM-AHF and HEART-FID). A recall risk that is measured and found absent is a different statement from one that was never looked for."
+    }
+   ],
+   "no_phase_filter_and_that_is_deliberate": "This topic's search carries NO phase filter. The historical ablation query carried phase=[PHASE3,PHASE4] and recalled ONE of the three trials in the sibling review, because CABANA and RAFT-AF are registered `phases: [\"NA\"]`. NA IS NOT A PHASE: a filter that ENUMERATES phases silently drops every registrant who declined to declare one. RAFT-AF is one of THIS review's two included trials, so the filter would have cost half its evidence base. See PAGE-STANDARD P23 and evidence/2026-08-19-batch1/phase_filter_recall_sweep.json.",
+   "pagination_verified": "records_returned == total_reported on both queries (67/67 and 74/74), and the totalCount is read FROM THE FIRST PAGE, which is the only page the API populates it on. The earlier check read it from the LAST page and reported a false mismatch on the first multi-page query ever run here.",
+   "pubmed": {
+    "state": "NOT EXECUTED FOR THIS TOPIC",
+    "why": "RECORDED AS AN ABSENCE RATHER THAN OMITTED. This review's included set is keyed on REGISTRATION IDs and both trials were reached through the registry, so a PubMed search would not have changed the included set. It would have changed the COMPLETENESS CLAIM: a trial published but never registered, or registered under terms this query does not match, would be missed here and no count on this page would look wrong. That is a real and stated limit on this search."
+   }
+  },
+  "prisma_flow": {
+   "_scope": "PRISMA 2020 flow, counted from the executed search above.",
+   "identification": {
+    "ctgov_chosen_query": 67,
+    "ctgov_wider_query": 74,
+    "note": "The wider query is recorded; the narrower is the one counted, and it achieves the same recall."
+   },
+   "eligibility_ctgov": {
+    "role_located": 56,
+    "topic_is_experimental_arm": 28,
+    "topic_is_comparator_arm": 17,
+    "topic_is_background": 11,
+    "not_assessable": 11,
+    "why_experimental_and_comparator_are_added": "The candidate pool for this review is k3 + k4 = 45, not k3 alone. RAFT-AF -- one of the two included trials -- types BOTH its arms ACTIVE_COMPARATOR, so the registry's typing carries no information about which side is the intervention and the classifier correctly declines to invent one. A cascade reporting k3 alone would put half this review's evidence outside its own count."
+   },
+   "included": {
+    "in_this_object": 2,
+    "nct": [
+     "NCT00643188",
+     "NCT01420393"
+    ]
+   },
+   "reconciliation": {
+    "arithmetic": "67 identified = 28 experimental + 17 comparator + 11 background + 11 not_assessable; 56 of the 67 had a role located",
+    "reconciles": true,
+    "unscreened_remainder": 0,
+    "remainder_means": "45 trials place ablation in the randomised contrast; 2 are in this object; the other 43 were ALL SCREENED on 2026-08-19. Dispositions: 20 excluded, 12 eligible but not poolable, 11 eligible with no results yet, and 0 eligible-and-poolable."
+   }
+  },
+  "k_cascade": {
+   "k0_surfaced": 67,
+   "k2_role_located": 56,
+   "k3_experimental": 28,
+   "k4_comparator": 17,
+   "k5_background": 11,
+   "kNA_not_assessable": 11,
+   "k_included_in_object": 2,
+   "k_unscreened_remainder": 0,
+   "candidate_pool_k3_plus_k4": 45,
+   "reproduced_by": "scripts/search_ablation_split_2026_08_19.py (search, with recall measured against this review's own included set) and scripts/cascade_ablation_split_2026_08_19.py (classification). Named as COMMANDS rather than as a file that once held the numbers, so the citation stays true when the classifier next changes -- P18.",
+   "remainder_dispositions": {
+    "EXCLUDED": 20,
+    "ELIGIBLE_NOT_POOLABLE": 12,
+    "ELIGIBLE_NO_RESULTS_YET": 11,
+    "ELIGIBLE_POOLABLE_NOT_INCLUDED": 0,
+    "arithmetic": "45 candidates - 2 included = 43 remainder = 20 + 12 + 11 + 0",
+    "what_this_says": "A FOURTH REMAINDER SHAPE, and it is not one of the three the standard already names. TWENTY-THREE OF THE FORTY-THREE ARE ELIGIBLE and exactly ONE fails on population, so the query is well aimed. The dominant exclusion limb is INTERVENTION (11 of 20): the search term names a FAMILY OF PROCEDURES BROADER THAN THIS REVIEW'S INTERVENTION. AV-node ablation, surgical maze and drug trials run after an ablation all carry the registry label `ablation`. That is a fact about the VOCABULARY -- not about the query's aim, and not about the evidence base.",
+    "zero_is_computed_not_asserted": "FOUR trials were the only candidates for ELIGIBLE_POOLABLE_NOT_INCLUDED -- NCT03062241, NCT04160000, NCT04342832 and NCT04649801, each eligible with a composite primary. All four were checked LIVE against the registry and NONE has posted results (hasResults=false, no resultsSection). NCT04649801 is COMPLETED at n=194 and has posted nothing, which is a different state from still-running and receives the same disposition for the same reason: THERE IS NOTHING TO EXTRACT. The zero is what four lookups returned.",
+    "what_would_change_this_answer": "TWO TRIALS, NAMED RATHER THAN LEFT IN A TALLY. NCT04160000 (n=360) registers 'Time to Composite of Heart failure hospitalizations and/or Cardiovascular mortality' -- this review's estimand shape exactly, with all-cause mortality among its secondaries -- and its status is UNKNOWN. NCT05508256 (n=1548) is the largest unreported trial in the remainder, catheter ablation against usual medical care in HFpEF and HFmrEF, RECRUITING. A review that says 'no pooled answer, and here is what would produce one' is a more useful artefact than one that only refuses."
+   },
+   "_why": "k is never one number. Each stage is what the instrument at that stage could actually decide.",
+   "keyed_on": "registration id"
+  },
+  "precondition_verdict": {
+   "assessed_on": "2026-08-19",
+   "standard_version": "1.6.0-2026-08-19",
+   "authority": {
+    "handbook": "Cochrane Handbook for Systematic Reviews of Interventions",
+    "version": "6.5, 2024",
+    "verified_on": "2026-08-19",
+    "verified_how": "read from cochrane.org/authors/handbooks-and-manuals/handbook/current chapters 10 and 23, and from the official MECIR PDF (February 2022), text extracted locally rather than summarised"
+   },
+   "publishable": true,
+   "authoring_constraint": "These preconditions were authored in the same session that applied them. A reader who disagrees should disagree with ssot/preconditions.py, from which every verdict here is reproducible.",
+   "verdicts": {
+    "population_stated": {
+     "verdict": "PASS",
+     "reason": "present: question carries 236 characters",
+     "authority": "MECIR C62 'Ensuring meta-analyses are meaningful' (Mandatory, READ 2026-08-19): 'Undertake (or display) a meta-analysis only if participants, interventions, comparisons and outcomes are judged to be sufficiently similar...'; MECIR C5 'Predefining unambiguous criteria for participants' (Mandatory)"
+    },
+    "arm_role_resolved": {
+     "verdict": "PASS",
+     "reason": "inputs.trials: all 2 trial(s) carry arms with a readable role",
+     "authority": "MECIR C62 (Mandatory), 'interventions' limb -- this is a PRECONDITION FOR ASSESSING C62, not an enforcement of it: you cannot judge whether interventions are 'sufficiently similar' without knowing which arm is the intervention. NOT cited to C5/C7: those govern PREDEFINITION of criteria, and this check only reads whether a field is populated."
+    },
+    "comparators_identified": {
+     "verdict": "PASS",
+     "reason": "every outcome names a comparator type ['active']; none declares 'mixed'. Within-outcome consistency is visible only through the declared type, and cross-outcome differences are not judged.",
+     "authority": "MECIR C62 (Mandatory), 'comparisons' limb -- a synthesis pools one contrast. NOT cited to C7: C7 governs PREDEFINITION, and this check reads recorded comparator fields and tests them for consistency."
+    },
+    "estimand_named": {
+     "verdict": "PASS",
+     "reason": "outcomes.estimand: all 1 outcome(s) name a quantity",
+     "authority": "MECIR C8 'Clarifying role of outcomes' (Mandatory, READ 2026-08-19); MECIR C62 (Mandatory), 'outcomes' limb"
+    },
+    "criteria_stated": {
+     "verdict": "NOT-ASSESSABLE",
+     "reason": "cannot assess: no key screening.eligibility",
+     "authority": "MECIR R29 'Eligibility criteria for types of participants', R30 '...types of interventions', R31 'Role of outcomes' -- ALL Mandatory REPORTING standards (READ 2026-08-19). Their verb is STATE. A block DERIVED post hoc satisfies this if it is labelled post hoc per R107."
+    },
+    "criteria_predefined": {
+     "verdict": "FAIL",
+     "reason": "screening.eligibility_provenance.predefined is false: the criteria were DERIVED post hoc from this object's own question and recorded exclusions. That is auditable (R29/R30/R31) and is not pre-specification (C5/C7). This FAIL is permanent and correct.",
+     "authority": "MECIR C5 'Predefining unambiguous criteria for participants' AND C7 '...for interventions and comparators', BOTH Mandatory (READ 2026-08-19): 'Predefined, unambiguous eligibility criteria are a fundamental prerequisite for a systematic review.' C5/C7 govern PREDEFINITION and CANNOT be discharged by a post hoc derivation."
+    },
+    "eligibility_met": {
+     "verdict": "NOT-ASSESSABLE",
+     "reason": "cannot assess: criteria are not stated (no key screening.eligibility), so whether any trial met them cannot be decided",
+     "authority": "MECIR C5/C7 (Mandatory) with C6 'Predefining a strategy for studies with a subset of eligible participants' (Highly desirable, READ 2026-08-19) -- eligibility is assessed against the full report"
+    },
+    "contributes_a_randomised_contrast": {
+     "verdict": "PASS",
+     "reason": "inputs.trials.arms: all 2 readable trial(s) contribute one topic-vs-control randomised contrast",
+     "authority": "Handbook 6.5 s23.3.4 'How to include multiple groups from one study' (READ 2026-08-19) and s23.3.6 'Factorial trials'; MECIR C7 'Predefining unambiguous criteria for interventions and comparators' (Mandatory)"
+    }
+   }
+  },
+  "extraction": {
+   "_why": "Every cell says whether it was READ from a named source or DERIVED, and carries the source path it came from. The two trials' effect estimates were carried across from `ablation-af-review`, the object this review was split out of, WITH their original provenance rather than re-typed.",
+   "cells": [
+    {
+     "trial": "CASTLE-AF",
+     "nct": "NCT00643188",
+     "field": "primary composite HR",
+     "value": "0.62 (0.43 to 0.87)",
+     "label": "READ",
+     "source_path": "ablation-af-review inputs.trials[NCT00643188].by_outcome.primary.effect",
+     "verbatim": "the primary composite end point occurred in significantly fewer patients in the ablation group than in the medical-therapy group",
+     "link": "https://pubmed.ncbi.nlm.nih.gov/29385358/"
+    },
+    {
+     "trial": "CASTLE-AF",
+     "nct": "NCT00643188",
+     "field": "outcome definition",
+     "value": "All-cause mortality or worsening heart failure requiring unplanned hospitalization",
+     "label": "READ",
+     "source_path": "protocolSection.outcomesModule.primaryOutcomes[0].measure",
+     "verbatim": "All-cause mortality or worsening heart failure requiring unplanned hospitalization",
+     "link": "https://clinicaltrials.gov/study/NCT00643188"
+    },
+    {
+     "trial": "RAFT-AF",
+     "nct": "NCT01420393",
+     "field": "primary composite HR",
+     "value": "0.71 (0.49 to 1.03)",
+     "label": "READ",
+     "source_path": "ablation-af-review inputs.trials[NCT01420393].by_outcome.primary.effect",
+     "verbatim": "The primary outcome occurred in 50 (23.4%) patients in the rhythm-control group and 64 (32.5%) patients in the rate-control group (hazard ratio, 0.71 [95% CI, 0.49-1.03])",
+     "link": "https://pubmed.ncbi.nlm.nih.gov/35313733/"
+    },
+    {
+     "trial": "RAFT-AF",
+     "nct": "NCT01420393",
+     "field": "outcome definition",
+     "value": "Composite of All-cause Mortality and Heart Failure Events",
+     "label": "READ",
+     "source_path": "protocolSection.outcomesModule.primaryOutcomes[0].measure",
+     "verbatim": "Heart failure event defined as an admission to a healthcare facility for > 24 hours or clinically significant worsening heart failure leading to an intervention (defined as treatment in an emergency department, a same-day access clinic, or an infusion centre) or unscheduled visits to a healthcare provider for administration of an intravenous diuretic",
+     "link": "https://clinicaltrials.gov/study/NCT01420393"
+    },
+    {
+     "trial": "BOTH",
+     "nct": null,
+     "field": "log-scale standard errors",
+     "value": "CASTLE-AF 0.179776; RAFT-AF 0.189521",
+     "label": "DERIVED",
+     "source_path": "computed from each printed 95% interval",
+     "verbatim": "se = (ln(upper) - ln(lower)) / (2 x 1.959964)",
+     "link": null
+    }
+   ]
+  },
+  "published_comparison": {
+   "state": "PENDING_EXTERNAL_RESOLUTION",
+   "_why": "Every page this project ships carries this section with a DENOMINATOR. A comparison without one reports the syntheses it happened to find.",
+   "denominator": null,
+   "denominator_reason": "Not yet established. Establishing it requires resolving published syntheses' included-sets to REGISTRATION IDs. A second lane has validated that pipeline (stated-k table identification plus two-hop citation->PMID->registration) and is running it now.",
+   "explicitly_not_done": "CITATION-STRING MATCHING. It would produce a comparison-shaped answer tonight and it is not identity: two syntheses citing the same trial under different labels would read as different, and the same label on different trials as the same. That is the substitution class this project audits for.",
+   "candidate_source_search": "No PubMed search is recorded on this object. The 2 executed search(es) it holds are registry searches, so no candidate published syntheses have been surfaced for this topic at all.",
+   "blocked_on": "lane 2 registration-id resolution",
+   "candidate_source_search_restated": "Restated 2026-08-20. This field previously read 'PubMed search recorded at search.databases[1] (109 records)' on FOURTEEN objects, which is true of bempedoic-acid-review alone; the count and, on half of them, the database were another topic's. Re-derive with: python scripts/lint_refusal_citation_resolves.py"
+  },
+  "registration_identity": {
+   "verified_utc": "2026-08-19",
+   "method": "live fetch of the raw ClinicalTrials.gov v2 record and comparison of the returned nctId against the id stored on this object",
+   "trials": [
+    {
+     "nct": "NCT00643188",
+     "verified": true,
+     "link": "https://clinicaltrials.gov/study/NCT00643188"
+    },
+    {
+     "nct": "NCT01420393",
+     "verified": true,
+     "link": "https://clinicaltrials.gov/study/NCT01420393"
+    }
+   ],
+   "duplicate_seeding_check": {
+    "state": "CHECKED",
+    "checked_against": "evidence/2026-08-19-corpus/reconcile.json",
+    "n_trials_checked": 2,
+    "shared_with_other_topics": false,
+    "shared": null
+   }
+  },
+  "build_stamp": {
+   "page_standard_version": "1.6.0-2026-08-19",
+   "standard_document": "PAGE-STANDARD.md",
+   "built_utc": "2026-08-19",
+   "built_by": "ssot/build_to_standard.py",
+   "properties": {
+    "P1_executed_search": {
+     "state": "HELD",
+     "reason": "2 database queries recorded verbatim with dates and counts; PRISMA arithmetic reconciles and the 0-trial unscreened remainder is stated as a number rather than omitted."
+    },
+    "P2_k_cascade": {
+     "state": "HELD",
+     "reason": "k at every stage: surfaced 67, located 56, experimental 28, comparator 17, included 2, unscreened remainder 0."
+    },
+    "P3_inclusion_criteria": {
+     "state": "HELD",
+     "reason": "Criteria provenance block present with predefined=False on its face (state 'DERIVED_POST_HOC')."
+    },
+    "P4_preconditions": {
+     "state": "HELD",
+     "reason": "All 8 recorded with verdict and cited authority: 1 FAIL, 2 NOT-ASSESSABLE. criteria_predefined is FAIL -- post hoc criteria, which R107 permits and C5/C7 does not satisfy."
+    },
+    "P5_extraction_table": {
+     "state": "HELD",
+     "reason": "5 cells: 4 READ with source path and verbatim text, 1 DERIVED with the method named."
+    },
+    "P6_analysis_output": {
+     "state": "REFUSING",
+     "reason": "No quotable model output exists: k=2 and nothing was pooled. The absence is recorded as a finding with its cause and its trigger."
+    },
+    "P7_published_comparison": {
+     "state": "REFUSING",
+     "reason": "No denominator yet. Blocked on external registration-id resolution; citation-string matching explicitly refused rather than substituted."
+    },
+    "P8_registration_identity": {
+     "state": "HELD",
+     "reason": "2 of 2 trial(s) verified live against the registry."
+    },
+    "P18_restatement_is_reproducible": {
+     "state": "REFUSING",
+     "reason": "No restatement block on this cascade, so there is nothing to re-derive. This is NOT_ASSESSABLE dressed as a refusal rather than a pass: a topic that has never been restated has not demonstrated that a restatement of it would be checkable."
+    },
+    "P19_promotion_reaches_derived_blocks": {
+     "state": "HELD",
+     "reason": "inputs.trials, k_cascade.k_included_in_object and prisma_flow.included all say 2; no first-person field in published_comparison declares a k the pooled outcome(s) do not."
+    },
+    "P20_cascade_reconciles": {
+     "state": "HELD",
+     "reason": "k2_role_located=56 == k3+k4+k5, and k0_surfaced=67 == k3+k4+k5+kNA. Both checked, and every failing limb would be reported rather than the first."
+    },
+    "P21_ambiguous_question_split": {
+     "state": "HELD",
+     "reason": "Split from 'ablation-af-review' into this review and 2 sibling(s) ['ablation-af-medical-therapy', 'early-rhythm-control-af'], with the decision recorded at 'DECIDED-ablation-af-review-2026-08-19.md'. Nothing was dropped to resolve the ambiguity."
+    },
+    "P22_sharing_recorded": {
+     "state": "HELD",
+     "reason": "2 shared trial(s), each recorded with the topics holding it and why: NCT00643188 in ['ablation-af-review']; NCT01420393 in ['ablation-af-review']. The object also states that summing per-topic k double-counts."
+    },
+    "P23_recall_measured": {
+     "state": "HELD",
+     "reason": "All 2 recorded quer(ies) state their recall against this review's own included set: ['2/2', '2/2']."
+    }
+   },
+   "held": [
+    "P19_promotion_reaches_derived_blocks",
+    "P1_executed_search",
+    "P20_cascade_reconciles",
+    "P21_ambiguous_question_split",
+    "P22_sharing_recorded",
+    "P23_recall_measured",
+    "P2_k_cascade",
+    "P3_inclusion_criteria",
+    "P4_preconditions",
+    "P5_extraction_table",
+    "P8_registration_identity"
+   ],
+   "refusing": [
+    "P18_restatement_is_reproducible",
+    "P6_analysis_output",
+    "P7_published_comparison"
+   ],
+   "_ratchet": "This page is stamped to the standard version above. If the standard rises, this page is BELOW it and knowably so. No page is grandfathered; arni-hfref is presently UNSTAMPED and is therefore unknown-version, not compliant."
+  },
+  "precondition_verdict_superseded": {
+   "superseded_on": "2026-08-19",
+   "superseded_because": "the seven preconditions became eight when inclusion_criteria_auditable split into criteria_stated (MECIR R29/R30/R31) and criteria_predefined (MECIR C5/C7)",
+   "block": {
+    "assessed_on": "2026-08-19",
+    "standard_version": "1.4.0-2026-08-19",
+    "authority": {
+     "handbook": "Cochrane Handbook for Systematic Reviews of Interventions",
+     "version": "6.5, 2024",
+     "verified_on": "2026-08-19",
+     "verified_how": "read from cochrane.org/authors/handbooks-and-manuals/handbook/current chapters 10 and 23, and from the official MECIR PDF (February 2022), text extracted locally rather than summarised"
+    },
+    "publishable": true,
+    "authoring_constraint": "These preconditions were authored in the same session that applied them. A reader who disagrees should disagree with ssot/preconditions.py, from which every verdict here is reproducible.",
+    "verdicts": {
+     "population_stated": {
+      "verdict": "PASS",
+      "reason": "present: question carries 236 characters",
+      "authority": "MECIR C62 'Ensuring meta-analyses are meaningful' (Mandatory, READ 2026-08-19): 'Undertake (or display) a meta-analysis only if participants, interventions, comparisons and outcomes are judged to be sufficiently similar...'; MECIR C5 'Predefining unambiguous criteria for participants' (Mandatory)"
+     },
+     "arm_role_resolved": {
+      "verdict": "PASS",
+      "reason": "inputs.trials: all 2 trial(s) carry arms with a readable role",
+      "authority": "MECIR C62 (Mandatory), 'interventions' limb -- this is a PRECONDITION FOR ASSESSING C62, not an enforcement of it: you cannot judge whether interventions are 'sufficiently similar' without knowing which arm is the intervention. NOT cited to C5/C7: those govern PREDEFINITION of criteria, and this check only reads whether a field is populated."
+     },
+     "comparators_identified": {
+      "verdict": "PASS",
+      "reason": "every outcome names a comparator type ['active']; none declares 'mixed'. Within-outcome consistency is visible only through the declared type, and cross-outcome differences are not judged.",
+      "authority": "MECIR C62 (Mandatory), 'comparisons' limb -- a synthesis pools one contrast. NOT cited to C7: C7 governs PREDEFINITION, and this check reads recorded comparator fields and tests them for consistency."
+     },
+     "estimand_named": {
+      "verdict": "PASS",
+      "reason": "outcomes.estimand: all 1 outcome(s) name a quantity",
+      "authority": "MECIR C8 'Clarifying role of outcomes' (Mandatory, READ 2026-08-19); MECIR C62 (Mandatory), 'outcomes' limb"
+     },
+     "criteria_stated": {
+      "verdict": "NOT-ASSESSABLE",
+      "reason": "cannot assess: no key screening.eligibility",
+      "authority": "MECIR R29 'Eligibility criteria for types of participants', R30 '...types of interventions', R31 'Role of outcomes' -- ALL Mandatory REPORTING standards (READ 2026-08-19). Their verb is STATE. A block DERIVED post hoc satisfies this if it is labelled post hoc per R107."
+     },
+     "criteria_predefined": {
+      "verdict": "FAIL",
+      "reason": "screening.eligibility_provenance.predefined is false: the criteria were DERIVED post hoc from this object's own question and recorded exclusions. That is auditable (R29/R30/R31) and is not pre-specification (C5/C7). This FAIL is permanent and correct.",
+      "authority": "MECIR C5 'Predefining unambiguous criteria for participants' AND C7 '...for interventions and comparators', BOTH Mandatory (READ 2026-08-19): 'Predefined, unambiguous eligibility criteria are a fundamental prerequisite for a systematic review.' C5/C7 govern PREDEFINITION and CANNOT be discharged by a post hoc derivation."
+     },
+     "eligibility_met": {
+      "verdict": "NOT-ASSESSABLE",
+      "reason": "cannot assess: criteria are not stated (no key screening.eligibility), so whether any trial met them cannot be decided",
+      "authority": "MECIR C5/C7 (Mandatory) with C6 'Predefining a strategy for studies with a subset of eligible participants' (Highly desirable, READ 2026-08-19) -- eligibility is assessed against the full report"
+     },
+     "contributes_a_randomised_contrast": {
+      "verdict": "PASS",
+      "reason": "inputs.trials.arms: all 2 readable trial(s) contribute one topic-vs-control randomised contrast",
+      "authority": "Handbook 6.5 s23.3.4 'How to include multiple groups from one study' (READ 2026-08-19) and s23.3.6 'Factorial trials'; MECIR C7 'Predefining unambiguous criteria for interventions and comparators' (Mandatory)"
+     }
+    }
+   }
+  },
+  "risk_of_bias": {
+   "tool": "RoB 2 (Cochrane risk-of-bias tool for randomized trials)",
+   "version": "22 August 2019 version, as reproduced in the Cochrane Handbook",
+   "handbook": "Higgins JPT, Savovic J, Page MJ, Elbers RG, Sterne JAC. Chapter 8: Assessing risk of bias in a randomized trial. In: Cochrane Handbook for Systematic Reviews of Interventions version 6.5.1",
+   "unit_of_assessment": "A RESULT, not a study -- Handbook 8.2: 'risk of bias is assessed for a specific result'. Every judgement below names its outcome.",
+   "default_rule": "A domain that cannot be judged from the registration and the published report is NO_INFORMATION, never LOW. Low-by-default asserts a fact; high-by-default invents a defect.",
+   "ceiling": {
+    "no_result_can_reach_LOW": true,
+    "statement": "NO RESULT IN THIS REVIEW CAN REACH LOW RISK OF BIAS ON THE EVIDENCE WE CAN REACH, AND THAT IS A FACT ABOUT OUR ACCESS RATHER THAN ABOUT THE TRIALS. The two domains that would distinguish LOW from SOME CONCERNS need documents this review does not hold: D1 needs allocation concealment and baseline data, which are in neither the registration nor the published abstract; D5 needs the trial's statistical analysis plan, which is not held for any trial. SOME CONCERNS IS THEREFORE THE CEILING, NOT A FINDING. A trial rated SOME CONCERNS here may well be at low risk of bias -- we cannot show it, and we do not imply the opposite.",
+    "what_would_change_it": "Retrieving each trial's full published report and its statistical analysis plan or protocol. Until then the rating is bounded by what we read, and the bound is reported rather than the reader inferring it.",
+    "why_this_is_stated_rather_than_left_implicit": "A rating of SOME CONCERNS with no explanation reads as a judgement against the trial. Omitting the reason would manufacture a criticism exactly as a low-by-default manufactures a reassurance -- the same defect pointed the other way."
+   },
+   "by_outcome": {
+    "primary": {
+     "NCT00643188": {
+      "trial": "CASTLE-AF",
+      "domains": {
+       "D1_randomisation": {
+        "judgement": "SOME_CONCERNS",
+        "signalling_questions": {
+         "allocation_sequence_random": "PROBABLY_YES",
+         "allocation_concealed": "NO_INFORMATION",
+         "baseline_imbalance_suggesting_a_problem": "NO_INFORMATION"
+        },
+        "evidence": [
+         "`design` states the trial was randomised: 'randomised, open-label; catheter ablation against medical therapy in heart failure with an'",
+         "Allocation concealment and baseline-imbalance data are in neither the registration nor the fields this object holds."
+        ]
+       },
+       "D2_deviations": {
+        "judgement": "NO_INFORMATION",
+        "signalling_questions": {
+         "participants_aware": "NO_INFORMATION",
+         "carers_aware": "NO_INFORMATION",
+         "appropriate_analysis_used": "NO_INFORMATION"
+        },
+        "evidence": []
+       },
+       "D3_missing_outcome_data": {
+        "judgement": "LOW",
+        "signalling_questions": {
+         "data_available_for_all_randomised": "YES"
+        },
+        "evidence": [
+         "analysed 363 of 363 randomised (0.00% not analysed)"
+        ]
+       },
+       "D4_measurement": {
+        "judgement": "SOME_CONCERNS",
+        "signalling_questions": {
+         "method_inappropriate": "PROBABLY_NO",
+         "assessors_aware_of_intervention": "NO_INFORMATION",
+         "assessment_could_be_influenced_by_knowledge": "PROBABLY_NO"
+        },
+        "evidence": [
+         "components are objective (death and/or hospitalisation), which limits the scope for assessor influence"
+        ]
+       },
+       "D5_selection_of_result": {
+        "judgement": "NO_INFORMATION",
+        "signalling_questions": {
+         "analysed_per_prespecified_plan": "NO_INFORMATION",
+         "selected_from_multiple_eligible_measurements": "NO_INFORMATION"
+        },
+        "evidence": [
+         "No trial's statistical analysis plan is held, so whether this analysis was pre-specified cannot be established. D5 therefore cannot reach LOW."
+        ],
+        "adjudicated_2026_08_21": {
+         "assessor_1": "NO_INFORMATION",
+         "assessor_2": "LOW",
+         "resolved_in_favour_of": "ASSESSOR 2",
+         "the_registry_fact_it_turns_on": "registered_primary_count = 1",
+         "why": "ONE REGISTERED PRIMARY OUTCOME. There is no set of eligible measurements to have selected from, so the selection concern cannot arise and LOW is right. ASSESSOR 1 SCORED NO_INFORMATION, WHICH WAS OVER-CAUTIOUS: declining to judge a domain the registry does answer is the mirror of scoring LOW on one it does not.",
+         "discriminator": "WHICH ASSESSOR'S REASON CITES A REGISTRY FACT. Both were asked; assessor 2's stated bases were collected in a second blind round rather than assumed. The count of registered primary outcomes is a field on the registration and is not a matter of judgement."
+        }
+       }
+      },
+      "overall": "NO_INFORMATION",
+      "overall_note": "NO OVERALL JUDGEMENT IS SYNTHESISED because D2_deviations, D5_selection_of_result could not be assessed. RoB 2's algorithm maps domains to an overall rating, but an overall computed over unknowns would present absence as a result.",
+      "contributes_to_a_pooled_estimate": false,
+      "nct": "NCT00643188",
+      "registered_masking": "NONE -- OPEN LABEL",
+      "registered_primary_count": 1,
+      "registered_arm_count": 2,
+      "registered_enrolment": 398,
+      "registered_primary_outcome": "All-cause mortality or worsening heart failure requiring unplanned hospitalization",
+      "registered_sites": "Australia, Austria, Germany, Hungary, Netherlands, Poland, Russia, United Kingdom",
+      "registry_facts_backfilled_2026_08_21": "READ FROM ClinicalTrials.gov API v2 on 2026-08-21. THE JUDGEMENTS ABOVE WERE NOT REVISITED -- this adds the registry evidence beside a verdict that was made from it and did not record it, so a blind second assessor can be shown the same facts. A second assessment built on fewer facts is not a comparable assessment."
+     },
+     "NCT01420393": {
+      "trial": "RAFT-AF",
+      "domains": {
+       "D1_randomisation": {
+        "judgement": "SOME_CONCERNS",
+        "signalling_questions": {
+         "allocation_sequence_random": "PROBABLY_YES",
+         "allocation_concealed": "NO_INFORMATION",
+         "baseline_imbalance_suggesting_a_problem": "NO_INFORMATION"
+        },
+        "evidence": [
+         "`design` states the trial was randomised: 'randomised, open-label; ablation-based rhythm control against rate control in heart failur'",
+         "Allocation concealment and baseline-imbalance data are in neither the registration nor the fields this object holds."
+        ]
+       },
+       "D2_deviations": {
+        "judgement": "NO_INFORMATION",
+        "signalling_questions": {
+         "participants_aware": "NO_INFORMATION",
+         "carers_aware": "NO_INFORMATION",
+         "appropriate_analysis_used": "NO_INFORMATION"
+        },
+        "evidence": []
+       },
+       "D3_missing_outcome_data": {
+        "judgement": "LOW",
+        "signalling_questions": {
+         "data_available_for_all_randomised": "YES"
+        },
+        "evidence": [
+         "analysed 411 of 411 randomised (0.00% not analysed)"
+        ]
+       },
+       "D4_measurement": {
+        "judgement": "SOME_CONCERNS",
+        "signalling_questions": {
+         "method_inappropriate": "PROBABLY_NO",
+         "assessors_aware_of_intervention": "NO_INFORMATION",
+         "assessment_could_be_influenced_by_knowledge": "PROBABLY_NO"
+        },
+        "evidence": [
+         "components are objective (death and/or hospitalisation), which limits the scope for assessor influence"
+        ]
+       },
+       "D5_selection_of_result": {
+        "judgement": "NO_INFORMATION",
+        "signalling_questions": {
+         "analysed_per_prespecified_plan": "NO_INFORMATION",
+         "selected_from_multiple_eligible_measurements": "NO_INFORMATION"
+        },
+        "evidence": [
+         "No trial's statistical analysis plan is held, so whether this analysis was pre-specified cannot be established. D5 therefore cannot reach LOW."
+        ],
+        "adjudicated_2026_08_21": {
+         "assessor_1": "NO_INFORMATION",
+         "assessor_2": "LOW",
+         "resolved_in_favour_of": "ASSESSOR 2",
+         "the_registry_fact_it_turns_on": "registered_primary_count = 1",
+         "why": "ONE REGISTERED PRIMARY OUTCOME. There is no set of eligible measurements to have selected from, so the selection concern cannot arise and LOW is right. ASSESSOR 1 SCORED NO_INFORMATION, WHICH WAS OVER-CAUTIOUS: declining to judge a domain the registry does answer is the mirror of scoring LOW on one it does not.",
+         "discriminator": "WHICH ASSESSOR'S REASON CITES A REGISTRY FACT. Both were asked; assessor 2's stated bases were collected in a second blind round rather than assumed. The count of registered primary outcomes is a field on the registration and is not a matter of judgement."
+        }
+       }
+      },
+      "overall": "NO_INFORMATION",
+      "overall_note": "NO OVERALL JUDGEMENT IS SYNTHESISED because D2_deviations, D5_selection_of_result could not be assessed. RoB 2's algorithm maps domains to an overall rating, but an overall computed over unknowns would present absence as a result.",
+      "contributes_to_a_pooled_estimate": false,
+      "nct": "NCT01420393",
+      "registered_masking": "NONE -- OPEN LABEL",
+      "registered_primary_count": 1,
+      "registered_arm_count": 2,
+      "registered_enrolment": 411,
+      "registered_primary_outcome": "Composite of All-cause Mortality and Heart Failure Events",
+      "registered_sites": "Brazil, Canada, Sweden, Taiwan",
+      "registry_facts_backfilled_2026_08_21": "READ FROM ClinicalTrials.gov API v2 on 2026-08-21. THE JUDGEMENTS ABOVE WERE NOT REVISITED -- this adds the registry evidence beside a verdict that was made from it and did not record it, so a blind second assessor can be shown the same facts. A second assessment built on fewer facts is not a comparable assessment."
+     }
+    }
+   },
+   "SECOND_ASSESSOR_2026_08_21": {
+    "assessor_2": "GPT-5 Codex (openai family), via `codex exec`",
+    "assessor_1": "Claude Opus 5 (anthropic family) -- the assessment above",
+    "how_it_was_asked": "BLIND, from scripts/second_assessor_prompt.py. The prompt is assembled from an ALLOW-LIST of registry-sourced factual fields and REFUSES to send if any RoB 2 verdict word appears in the assembled text. The second assessor was not shown this assessment and was not asked whether it agreed.",
+    "THE_ALLOW_LIST_THE_RATE_IS_CONDITIONAL_ON": "A DISAGREEMENT RATE IS MEANINGLESS WITHOUT THE FACTS BOTH ASSESSORS SAW, so the list is stated here the way a denominator is stated. Fields emitted: trial, cohort, registered enrolment, registered masking, registered sites, registered comparator, number of registered arms, number of registered PRIMARY outcomes, registered PRIMARY outcome, registered analysis population, the rank the pooled result holds, the result being assessed, participants this review pools, registered enrolment minus participants pooled. Established by test, not argument: widening this list from 9 fields to 14 HALVED gepotidacin's disagreement -- its entire D5 divergence was a fact the second assessor had never been shown -- and left ceftaroline and tigecycline unmoved.",
+    "verbatim_reply": "NCT00643188__primary D1=NO_INFORMATION D2=NO_INFORMATION D3=NO_INFORMATION D4=SOME_CONCERNS D5=LOW OVERALL=SOME_CONCERNS\nNCT01420393__primary D1=NO_INFORMATION D2=NO_INFORMATION D3=NO_INFORMATION D4=SOME_CONCERNS D5=LOW OVERALL=SOME_CONCERNS",
+    "DISAGREEMENT_RATE": "8 of 12 judgements -- 66.7%. Reported as DISAGREEMENT: agreement between two assessors given the same facts authenticates nothing.",
+    "PER_DOMAIN": {
+     "D1": "2 of 2 disagree",
+     "D2": "0 of 2 disagree",
+     "D3": "2 of 2 disagree",
+     "D4": "0 of 2 disagree",
+     "D5": "2 of 2 disagree",
+     "OVERALL": "2 of 2 disagree"
+    },
+    "each_disagreement": [
+     "NCT00643188__primary D1: assessor 1 SOME_CONCERNS, assessor 2 NO_INFORMATION",
+     "NCT00643188__primary D3: assessor 1 LOW, assessor 2 NO_INFORMATION",
+     "NCT00643188__primary D5: assessor 1 NO_INFORMATION, assessor 2 LOW",
+     "NCT00643188__primary OVERALL: assessor 1 NO_INFORMATION, assessor 2 SOME_CONCERNS",
+     "NCT01420393__primary D1: assessor 1 SOME_CONCERNS, assessor 2 NO_INFORMATION",
+     "NCT01420393__primary D3: assessor 1 LOW, assessor 2 NO_INFORMATION",
+     "NCT01420393__primary D5: assessor 1 NO_INFORMATION, assessor 2 LOW",
+     "NCT01420393__primary OVERALL: assessor 1 NO_INFORMATION, assessor 2 SOME_CONCERNS"
+    ],
+    "not_resolved_here": "A disagreement is recorded, not adjudicated. The second assessor is NOT an appeal court: where the first assessment is believed right that is written with its reason and both stand."
+   }
+  },
+  "grade": {
+   "approach": "GRADE",
+   "reference": "Schunemann H, Brozek J, Guyatt G, Oxman A (editors). GRADE Handbook for grading quality of evidence and strength of recommendations.",
+   "handbook_chapter": "Cochrane Handbook for Systematic Reviews of Interventions version 6.5.1, Chapter 14: Completing 'Summary of findings' tables and grading the certainty of the evidence",
+   "starting_point": "HIGH for a body of randomised evidence, then rated down with reasons.",
+   "not_rated_up": "No domain is rated UP. Rating up for large effect or dose-response applies to observational evidence that has not already been rated down, and neither condition holds here.",
+   "by_outcome": {
+    "primary": {
+     "rated": false,
+     "why_not": "This pool is declined or withdrawn, so there is no effect estimate to rate the certainty OF. Rating it would be certainty about a number this review refused to publish. The reason for the refusal is on the object."
+    }
+   }
+  },
+  "protocol": {
+   "prespecified": false,
+   "permanently_refused": true,
+   "why": "A protocol specified before data collection is a HISTORICAL FACT ABOUT THE PAST and cannot be created retrospectively. Writing one now and calling it prespecified would invalidate every other refusal on these pages, because a reader who caught it would be right to disbelieve all of them.",
+   "what_was_actually_done": "Eligibility criteria were derived POST HOC from the trials and the methodological authority, and the derivation is recorded element by element in `screening.eligibility_provenance` with the source of each.",
+   "authority_permitting_it": "MECIR R107 permits post-hoc eligibility criteria PROVIDED THEY ARE DECLARED AS SUCH. They are declared, here and on the page, and the page says 'derived, post hoc' in its heading.",
+   "forward_remedy": "For topics not yet built, a protocol is to be written and registered BEFORE the search is executed, so that the claim becomes true GOING FORWARD. It is never to be made true retroactively for a built topic."
+  },
+  "display_change_announced": [
+   {
+    "date": "2026-08-21",
+    "change": "registry facts backfilled onto risk-of-bias entries",
+    "values_moved": "NONE -- no judgement, reason or overall is touched",
+    "what_changed": "2 entr(ies): primary/NCT00643188, primary/NCT01420393",
+    "why": "These entries recorded a judgement and the reason for it without the registry fields the judgement was made from, so no blind second assessment could be given the same evidence."
+   },
+   {
+    "date": "2026-08-21",
+    "change": "a blind cross-family second risk-of-bias assessment was obtained",
+    "values_moved": "NONE",
+    "what_changed": "disagreement 8 of 12 judgements",
+    "why": "Mahmood's specification requires two assessors from different model families."
+   },
+   {
+    "date": "2026-08-21",
+    "change": "D5 disagreements adjudicated on a registry fact",
+    "values_moved": "NONE -- no judgement is changed; the adjudication is recorded beside both",
+    "what_changed": "2 D5 disagreement(s) adjudicated: NCT00643188__primary NO_INFORMATION -> ASSESSOR 2; NCT01420393__primary NO_INFORMATION -> ASSESSOR 2",
+    "why": "An unreconciled disagreement tells a reader less than a single judgement with a reason."
+   },
+   {
+    "date": "2026-08-21",
+    "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+    "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+    "what_changed": "references built, introduction written, bookkeeping claims 5",
+    "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+   },
+   {
+    "date": "2026-08-21",
+    "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+    "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+    "what_changed": "references built, introduction written, bookkeeping claims 5",
+    "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+   },
+   {
+    "date": "2026-08-21",
+    "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+    "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+    "what_changed": "references built, introduction written, bookkeeping claims 5",
+    "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+   },
+   {
+    "date": "2026-08-21",
+    "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+    "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+    "what_changed": "references built, introduction written, bookkeeping claims 5",
+    "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+   },
+   {
+    "date": "2026-08-21",
+    "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+    "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+    "what_changed": "references built, introduction written, bookkeeping claims 5",
+    "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+   },
+   {
+    "date": "2026-08-21",
+    "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+    "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+    "what_changed": "references built, introduction written, bookkeeping claims 5",
+    "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+   }
+  ],
+  "manuscript": {
+   "references": {
+    "_what": "A reference list, assembled from this object's own fields. Distinct from `sources`, which records the provenance LAYER each fact was read at; this is what a reader would look up.",
+    "included_studies": [
+     {
+      "registration": "NCT00643188",
+      "label": "",
+      "registry": "ClinicalTrials.gov",
+      "url": "https://clinicaltrials.gov/study/NCT00643188",
+      "read_utc": ""
+     },
+     {
+      "registration": "NCT01420393",
+      "label": "",
+      "registry": "ClinicalTrials.gov",
+      "url": "https://clinicaltrials.gov/study/NCT01420393",
+      "read_utc": ""
+     }
+    ],
+    "published_syntheses_compared_against": [],
+    "_published_syntheses_note": "No published synthesis is listed here. The comparison section states its own denominator and why nothing citable was appraised. ",
+    "methods_guidance_and_software": [
+     {
+      "cited_for": "risk of bias in the included results",
+      "citation": "Sterne JAC, Savovic J, Page MJ, et al. RoB 2: a revised tool for assessing risk of bias in randomised trials. BMJ. 2019;366:l4898. doi:10.1136/bmj.l4898"
+     },
+     {
+      "cited_for": "certainty of the evidence",
+      "citation": "Schunemann HJ, Higgins JPT, Vist GE, et al. Chapter 14: Completing 'Summary of findings' tables and grading the certainty of the evidence. In: Cochrane Handbook for Systematic Reviews of Interventions version 6.5. Cochrane; 2024."
+     },
+     {
+      "cited_for": "the reporting guideline this manuscript is written against",
+      "citation": "Page MJ, McKenzie JE, Bossuyt PM, et al. The PRISMA 2020 statement: an updated guideline for reporting systematic reviews. BMJ. 2021;372:n71. doi:10.1136/bmj.n71"
+     }
+    ]
+   },
+   "introduction": "This review asks: In adults with atrial fibrillation and heart failure, what is the effect of catheter ablation of atrial fibrillation compared with medical rate- or rhythm-control therapy on the composite of all-cause mortality and heart-failure events?\n\nIt examines 2 randomised trials and DOES NOT POOL THEM, against medical rate- or rhythm-control therapy, or conventional care.\n\nThe outcome sought is Composite of all-cause mortality and heart-failure events.\n\nEverything in this paragraph is derived from stored fields and none of it is authored. The interpretive sentences that follow are marked as drafts and are the author's to replace."
+  },
+  "bookkeeping_2026_08_21": {
+   "_what": "The five reporting claims a PRISMA-2020 manuscript needs that are FETCHABLE rather than argued -- each derived from a field here, or stated as an honest absence.",
+   "which_limbs_this_review_refuses": "Of the four properties this project requires of a completed topic, 1 are held (rob per result) and 3 are refused with the obstacle named in the evidence (comparison denominator, grade per pool, model output verbatim).",
+   "the_search_its_date_and_its_databases": "PRIMARY TRIALS. NO BIBLIOGRAPHIC SEARCH FOR PRIMARY TRIALS WAS RUN. The 2 included trials were identified by reading named registrations on the dates recorded on each entry.",
+   "whether_this_review_was_prospectively_registered": "NO PROSPERO REGISTRATION OR PROTOCOL RECORD IS HELD ON THIS OBJECT. That is not the same as knowing this review was not registered, and neither claim is made. It is recorded here as an absence so that a reader does not have to infer it from silence.",
+   "that_two_assessors_disagreed_and_where": "Risk of bias was assessed independently a second time by GPT-5 Codex (openai family), via `codex exec`, blind to this assessment and given the same registry facts. 8 of 12 judgements -- 66.7%. Reported as DISAGREEMENT: agreement between two assessors given the same facts authenticates nothing. By domain: D1 2 of 2 disagree, D2 0 of 2 disagree, D3 2 of 2 disagree, D4 0 of 2 disagree, D5 2 of 2 disagree, OVERALL 2 of 2 disagree.",
+   "which_risk_of_bias_domains_drove_the_rating": "Where a result is rated worse than LOW overall, the domain carrying that judgement is: D2 on 2 result(s), D5 on 2 result(s). The overall rating is the worst domain, so these are the domains that determine it."
+  }
+ }
+}

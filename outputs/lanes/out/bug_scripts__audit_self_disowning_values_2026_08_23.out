@@ -1,0 +1,270 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a0314f-9f10-7513-b838-cf3e4eab37cc
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/audit_self_disowning_values_2026_08_23.py
+
+--- THE FILE, IN FULL ---
+"""A value whose own source calls it a placeholder, and every surface it reaches.
+
+# no-control: routed through require_controls. POSITIVE is FGFR_INHIBITORS_SOLID, established
+# by hand: `regenerate_catastrophic_sidecars.R:111` writes "Substitute placeholder HRs ... these
+# will be flagged for human verification" and then `hr = c(0.50, 0.45, 0.55)`, and the resulting
+# `pooled_OR: 0.500065` is rendered on dashboard.html under "Pooled OR (95% CI)". NEGATIVE is a
+# sidecar with no placeholder comment upstream, which must not be flagged.
+
+WHEN YOU FIND A COMMENT WARNING ABOUT A VALUE, ASSUME IT IS PUBLISHED UNTIL YOU PROVE
+OTHERWISE. Four of four self-disowning values reached a reader; none stayed internal. That is
+the opposite of the natural assumption and it has been right every time.
+
+THE WORST INSTANCE, AND IT IS DIFFERENT IN KIND FROM EVERYTHING ELSE FOUND THIS WEEK.
+Everything else has been a TRUE fact rendered wrongly -- a real reason under the wrong key, a
+real rating in the wrong location, a real result hidden by a truthiness test. THIS IS A
+FABRICATED NUMBER REACHING A READER AS A FINDING:
+
+    the script      hr = c(0.50, 0.45, 0.55)      three chosen numbers
+    the sidecar     pooled_OR 0.500065, ci 0.396901-0.630043, tau2 0.0, I2 0.0
+    the index       outputs/portfolio_index.json carries the row
+    the reader      dashboard.html renders it under "Pooled OR (95% CI)"
+
+`tau2 = 0.0` and `I2 = 0.0` are the tell: three numbers chosen to look plausible agree
+perfectly, because nothing generated them but a hand. The row also says `n_trials: 0` and
+`ncts: []` while claiming `k: 3`.
+
+AND THE FLAG THE COMMENT PROMISED EXISTS AND LIES. "These will be flagged for human
+verification via 'regenerated_from'" -- and `regenerated_from` reads
+"curated_publishedHR_via_metafor_5.0.1", asserting the numbers came from publications. A false
+provenance claim is worse than no flag: it answers the question a checker would ask.
+
+THIS DOES NOT REPAIR ANYTHING INTO A REAL NUMBER. It finds every value whose source disowns it
+and every surface that renders it, so the row can be withdrawn or refused with its reason
+stated. Establishing what is real is a different job and is not this script's.
+"""
+from __future__ import annotations
+
+import glob
+import io
+import json
+import os
+import re
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from instrument_controls import require_controls          # noqa: E402
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+OUT = os.path.join(REPO, "outputs", "self_disowning_values_2026_08_23.json")
+
+DISOWN = re.compile(
+    r"(?i)(placeholder|synthetic|illustrative|dummy|made[- ]up|invented|"
+    r"for demonstration|example only|not real|fabricat|approximat(?:e|ion) only|"
+    r"will be flagged|needs? human verification|to be replaced)")
+
+# Where a generated value can end up in front of a reader.
+SURFACES = ["dashboard.html", "index.html", "audit_table.html", "portfolio_pools.html"]
+
+
+def sources():
+    for pat in ("scripts/*.R", "scripts/*.py", "*.py"):
+        for p in sorted(glob.glob(os.path.join(REPO, pat))):
+            yield p
+
+
+def disowning_lines(path):
+    out = []
+    try:
+        src = io.open(path, encoding="utf-8", errors="replace").read()
+    except OSError:
+        return out
+    for i, line in enumerate(src.splitlines(), 1):
+        if DISOWN.search(line) and (line.strip().startswith("#") or "#" in line):
+            out.append((i, re.sub(r"\s+", " ", line.strip())[:120]))
+    return out
+
+
+def sidecars_named_near(path, lineno, window=40):
+    """Output files named within a few lines of a disowning comment."""
+    try:
+        lines = io.open(path, encoding="utf-8", errors="replace").read().splitlines()
+    except OSError:
+        return []
+    seg = "\n".join(lines[max(0, lineno - window):lineno + window])
+    return sorted(set(re.findall(r'["\']([\w/\.\-]+\.json)["\']', seg)))
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+    r = os.path.join(REPO, "scripts", "regenerate_catastrophic_sidecars.R")
+    fgfr_flagged = any("placeholder" in t.lower() for _l, t in disowning_lines(r))
+    clean_src = os.path.join(REPO, "scripts", "instrument_controls.py")
+    require_controls(
+        "self_disowning_values",
+        ("regenerate_catastrophic_sidecars.R disowns its own HRs as placeholders",
+         fgfr_flagged, True),
+        ("a file with no placeholder comment is not flagged",
+         bool(disowning_lines(clean_src)), True))
+
+    findings = []
+    for p in sources():
+        rel = os.path.relpath(p, REPO).replace("\\", "/")
+        for line, text in disowning_lines(p):
+            findings.append({"file": rel, "line": line, "comment": text,
+                             "writes": sidecars_named_near(p, line)})
+
+    # which of the named outputs actually exist, and which surfaces carry their numbers
+    reached = []
+    idx_path = os.path.join(REPO, "outputs", "portfolio_index.json")
+    idx = json.load(io.open(idx_path, encoding="utf-8")) if os.path.isfile(idx_path) else []
+    rows = idx if isinstance(idx, list) else idx.get("rows", [])
+    for f in findings:
+        for w in f["writes"]:
+            full = os.path.join(REPO, w)
+            if not os.path.isfile(full):
+                continue
+            try:
+                side = json.load(io.open(full, encoding="utf-8"))
+            except ValueError:
+                continue
+            if not isinstance(side, dict):
+                continue          # a list-shaped output holds no single pooled estimate
+            val = side.get("pooled_OR")
+            if val is None:
+                continue
+            hit = [rr.get("topic") for rr in rows if isinstance(rr, dict)
+                   and isinstance(rr.get("pooled_OR"), (int, float))
+                   and abs(rr["pooled_OR"] - val) < 1e-6]
+            reached.append({"sidecar": w, "pooled_OR": val,
+                            "regenerated_from": side.get("regenerated_from"),
+                            "tau2": side.get("tau2"), "I2": side.get("I2"),
+                            "in_portfolio_index": hit,
+                            "from": "%s:%d" % (f["file"], f["line"])})
+
+    print("")
+    print("SELF-DISOWNING VALUES: a source that calls its own number a placeholder")
+    print("")
+    print("   disowning comments found            %3d" % len(findings))
+    print("   whose output EXISTS and holds a     %3d" % len(reached))
+    print("      pooled estimate")
+    print("")
+    for f in findings[:14]:
+        print("   %-46s:%-5d %s" % (f["file"][:46], f["line"], f["comment"][:58]))
+        if f["writes"]:
+            print("        writes: %s" % ", ".join(f["writes"][:3]))
+    print("")
+    print("   REACHING A READER:")
+    for rr in reached:
+        print("      %-44s pooled_OR %-10s tau2 %-5s I2 %-5s"
+              % (rr["sidecar"][:44], rr["pooled_OR"], rr["tau2"], rr["I2"]))
+        print("         regenerated_from: %r" % rr["regenerated_from"])
+        print("         in portfolio_index -> dashboard: %s" % (rr["in_portfolio_index"] or "no"))
+    print("")
+    print("tau2 = 0 AND I2 = 0 TOGETHER ARE THE TELL: numbers chosen by hand agree perfectly,")
+    print("because nothing generated them. A real three-trial pool almost never does.")
+    if not os.path.isdir(os.path.dirname(OUT)):
+        os.makedirs(os.path.dirname(OUT))
+    json.dump({"disowning": findings, "reaching_a_reader": reached},
+              io.open(OUT, "w", encoding="utf-8"), indent=1)
+    if reached:
+        sys.exit("REFUSED: %d value(s) whose own source calls them placeholders are rendered "
+                 "as findings." % len(reached))
+
+
+if __name__ == "__main__":
+    main()
+
+codex
+Findings:
+
+- **Line 73: NEGATION DROPPED.**  
+  Exact input: `# These HRs are not placeholders; they are extracted from publications.`  
+  Consequence: `placeholder` matches inside a denial, so a real value is flagged as self-disowning.
+
+- **Line 73: idempotency guard satisfied by its OWN marker/comment.**  
+  Exact input: this module itself under `scripts/`; `disowning_lines(__file__)` flags docstring lines 3-7 because they begin with `#` inside a triple-quoted string.  
+  Consequence: the audit can count its own explanatory packet text as evidence from source code.
+
+- **Line 84: OFF-BY-ONE in the lookback window.**  
+  Exact input: line 1 contains `"outputs/a.json"`, line 41 contains `# placeholder HRs`, then call `sidecars_named_near(path, 41, window=40)`.  
+  Consequence: the sidecar exactly 40 lines before the comment is excluded, so a reachable output is missed.
+
+- **Line 85: SELECTOR KEYED TO A FORM IT DOES NOT HANDLE.**  
+  Exact input: `out <- file.path("outputs", "fgfr.json")` near `# placeholder HRs`, with the real file at `outputs/fgfr.json`.  
+  Consequence: the regex captures only `fgfr.json`, line 115 checks the repo root, and the real sidecar is missed.
+
+- **Lines 108, 127-129, 153: instrument reads a DIFFERENT COPY than the one claimed.**  
+  Exact input: `outputs/portfolio_index.json` has `[{"topic":"T","pooled_OR":0.500065}]`, sidecar has `{"pooled_OR":0.500065}`, but `dashboard.html` contains no `0.500065`.  
+  Consequence: the script reports `portfolio_index -> dashboard: T` without reading any dashboard surface.
+
+COULD NOT DETERMINE: lines 94-99 need `scripts/instrument_controls.py` to prove whether the negative control’s third tuple field is an expected value or something else.
+
+No proven CRLF text-comparison defect, zero-vs-absent defect, merged-cell tabulation defect, or wrapper-status-code defect in this packet.
+tokens used
+15,174
+Findings:
+
+- **Line 73: NEGATION DROPPED.**  
+  Exact input: `# These HRs are not placeholders; they are extracted from publications.`  
+  Consequence: `placeholder` matches inside a denial, so a real value is flagged as self-disowning.
+
+- **Line 73: idempotency guard satisfied by its OWN marker/comment.**  
+  Exact input: this module itself under `scripts/`; `disowning_lines(__file__)` flags docstring lines 3-7 because they begin with `#` inside a triple-quoted string.  
+  Consequence: the audit can count its own explanatory packet text as evidence from source code.
+
+- **Line 84: OFF-BY-ONE in the lookback window.**  
+  Exact input: line 1 contains `"outputs/a.json"`, line 41 contains `# placeholder HRs`, then call `sidecars_named_near(path, 41, window=40)`.  
+  Consequence: the sidecar exactly 40 lines before the comment is excluded, so a reachable output is missed.
+
+- **Line 85: SELECTOR KEYED TO A FORM IT DOES NOT HANDLE.**  
+  Exact input: `out <- file.path("outputs", "fgfr.json")` near `# placeholder HRs`, with the real file at `outputs/fgfr.json`.  
+  Consequence: the regex captures only `fgfr.json`, line 115 checks the repo root, and the real sidecar is missed.
+
+- **Lines 108, 127-129, 153: instrument reads a DIFFERENT COPY than the one claimed.**  
+  Exact input: `outputs/portfolio_index.json` has `[{"topic":"T","pooled_OR":0.500065}]`, sidecar has `{"pooled_OR":0.500065}`, but `dashboard.html` contains no `0.500065`.  
+  Consequence: the script reports `portfolio_index -> dashboard: T` without reading any dashboard surface.
+
+COULD NOT DETERMINE: lines 94-99 need `scripts/instrument_controls.py` to prove whether the negative control’s third tuple field is an expected value or something else.
+
+No proven CRLF text-comparison defect, zero-vs-absent defect, merged-cell tabulation defect, or wrapper-status-code defect in this packet.

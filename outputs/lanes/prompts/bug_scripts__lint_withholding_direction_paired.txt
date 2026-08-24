@@ -1,0 +1,278 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/lint_withholding_direction_paired.py
+
+--- THE FILE, IN FULL ---
+#!/usr/bin/env python3
+"""A REVIEW THAT PUBLISHES ONLY ITS RECOVERIES CANNOT BE TOLD APART FROM ONE THAT ASKS UNTIL IT
+LIKES THE ANSWER.
+
+`scripts/lint_withholding_asked.py` refuses a refusal-to-pool with no evidence that any rank
+below the primary was read. It checks that the question was ASKED. It says nothing about what
+happened next, and until 2026-08-19 every recorded instance in this corpus went the same way:
+
+    sglt2-hf                  the question RECOVERED a pool
+    apixaban-vte-prophylaxis  the question RECOVERED a pool,  3 -> 8
+
+A check that has only ever returned the convenient answer is indistinguishable from no check.
+The reader's correct response to a page reporting its own recovery is suspicion, and nothing on
+the page could have answered it.
+
+    THEN apixaban-vte-treatment RAN THE IDENTICAL DISCIPLINE AND ITS POOLABLE SET FELL, 8 -> 3,
+    COSTING IT THE TWO LARGEST TRIALS IN ITS FIELD. One search, one drug, one night, opposite
+    answers. THAT is the evidence that the question is a question, and it arose on its own.
+
+The pair is worth more than either half, and each half alone is worth less than nothing --
+because a recovery published alone is the exact artefact that invites the suspicion. So:
+
+    AN OBJECT THAT STATES ITS OWN WITHHOLDING DIRECTION MUST NAME THE COUNTER-INSTANCE, the
+    counter-instance must EXIST as an object, and it must declare the OPPOSITE direction.
+
+WHAT THIS CHECKS, and every failing limb is reported, never just the first (P15):
+
+  1. `withholding_question.direction` carries `topic`, `moved` and `direction` for itself.
+  2. It carries `counter_instance` with the same three fields.
+  3. The named counter-instance object EXISTS under ssot/ -- a pointer to nothing is worse
+     than no pointer, because it reads as a citation.
+  4. The counter-instance's OWN direction block points back at this topic. An unreciprocated
+     pair is one object's claim about another, which is how P22's sharing defect worked.
+  5. The two directions are OPPOSITE. A pair of recoveries is not a pair; it is two
+     recoveries, and naming it a pair would be the original defect wearing the fix's clothes.
+
+WHAT IT DOES NOT CHECK, stated so a pass is not read as more than it is:
+  - NOT that either direction is CORRECT. It compares two declarations. A topic could declare
+    UP while its own k fell, and this would pass; `lint_block_contradicts_object.py` is the
+    check for a block disagreeing with its own object's fields.
+  - NOT that a topic which SHOULD carry a direction does. A topic with no direction block is
+    silent, not failing -- the property is about publishing one number without the other, and
+    two topics carry them today. Making it mandatory corpus-wide would demand a counter-
+    instance for topics that have none, which would manufacture pairs.
+
+USAGE:  python scripts/lint_withholding_direction_paired.py
+        python scripts/lint_withholding_direction_paired.py --selftest
+"""
+import io
+import json
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+SSOT = os.path.join(REPO, "ssot")
+
+UP = "UP"
+DOWN = "DOWN"
+
+
+def orientation(text):
+    """UP / DOWN / None, from the declared direction string. Read from the DECLARED word.
+
+    Deliberately NOT inferred from the `moved` arrow. Parsing "8 -> 3" would work and would
+    make the check depend on a format nobody promised -- and P14's lesson is that identity is
+    decided by a declared term, never by pattern-matching free text.
+    """
+    t = (text or "").strip().upper()
+    if t.startswith(UP):
+        return UP
+    if t.startswith(DOWN):
+        return DOWN
+    return None
+
+
+def load_objects():
+    out = {}
+    for d in sorted(os.listdir(SSOT)):
+        p = os.path.join(SSOT, d, d + ".json")
+        if not os.path.exists(p):
+            continue
+        try:
+            with io.open(p, encoding="utf-8") as fh:
+                out[d] = json.load(fh)
+        except (ValueError, OSError):
+            continue
+    return out
+
+
+def direction_of(obj):
+    return ((obj.get("withholding_question") or {}).get("direction")) or {}
+
+
+def check(objects):
+    """[(topic, limb, detail)] over every object declaring a direction. Empty list is a pass."""
+    fails = []
+    for topic, obj in sorted(objects.items()):
+        d = direction_of(obj)
+        if not d:
+            continue
+        for field in ("topic", "moved", "direction"):
+            if not d.get(field):
+                fails.append((topic, "SELF_INCOMPLETE",
+                              "direction block has no %r" % field))
+        ci = d.get("counter_instance") or {}
+        if not ci:
+            fails.append((topic, "NO_COUNTER_INSTANCE",
+                          "declares its own withholding direction and names no "
+                          "counter-instance. A recovery published alone is the artefact that "
+                          "invites the suspicion this block exists to answer."))
+            continue
+        for field in ("topic", "moved", "direction"):
+            if not ci.get(field):
+                fails.append((topic, "COUNTER_INCOMPLETE",
+                              "counter_instance has no %r" % field))
+        other = ci.get("topic")
+        if other and other not in objects:
+            fails.append((topic, "COUNTER_ABSENT",
+                          "names counter-instance %r, which is not an object under ssot/. A "
+                          "pointer to nothing reads as a citation." % other))
+            continue
+        if other:
+            back = direction_of(objects[other])
+            if not back:
+                fails.append((topic, "UNRECIPROCATED",
+                              "%r declares no direction block of its own, so this pair is one "
+                              "object's claim about another." % other))
+            elif (back.get("counter_instance") or {}).get("topic") != topic:
+                fails.append((topic, "UNRECIPROCATED",
+                              "%r's counter-instance is %r, not this topic."
+                              % (other, (back.get("counter_instance") or {}).get("topic"))))
+            mine, theirs = orientation(d.get("direction")), orientation(ci.get("direction"))
+            if mine is None or theirs is None:
+                fails.append((topic, "DIRECTION_UNREADABLE",
+                              "a direction string starts with neither UP nor DOWN: %r / %r"
+                              % (d.get("direction"), ci.get("direction"))))
+            elif mine == theirs:
+                fails.append((topic, "NOT_A_PAIR",
+                              "both instances are %s. A pair of recoveries is not a pair; it "
+                              "is two recoveries, and calling it one would be the original "
+                              "defect wearing the fix's clothes." % mine))
+    return fails
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    objects = load_objects()
+    declaring = {t: direction_of(o) for t, o in objects.items() if direction_of(o)}
+    fails = check(objects)
+    print("topic objects scanned            %d" % len(objects))
+    print("declaring a withholding direction %d" % len(declaring))
+    for t, d in sorted(declaring.items()):
+        ci = d.get("counter_instance") or {}
+        print("   %-28s %-8s %-6s   <-> %-28s %-8s %s"
+              % (t, d.get("moved", "?"), orientation(d.get("direction")) or "?",
+                 ci.get("topic", "?"), ci.get("moved", "?"),
+                 orientation(ci.get("direction")) or "?"))
+    if not declaring:
+        # A vocabulary that matches nothing passes everything. Distinguish it from a clean run.
+        print("\nNO object declares a withholding direction. This check has nothing to check "
+              "against, which is a broken instrument and not a clean corpus.")
+        return 2
+    if not fails:
+        print("\nevery declared direction names a counter-instance that exists, points back, "
+              "and runs the other way.")
+        print("NOT CHECKED: whether either direction is TRUE of its own object's k. That is "
+              "scripts/lint_block_contradicts_object.py.")
+        return 0
+    print("")
+    for topic, limb, detail in fails:
+        print("REFUSED [%s] %s: %s" % (limb, topic, detail))
+    return 1
+
+
+def selftest():
+    """P16, all four -- and the fourth uses the REAL pair, not a fixture.
+
+    The known answers are this corpus's own two objects. A synthetic fixture would prove the
+    function parses a dict, which is not the property.
+    """
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    objs = load_objects()
+    fails = []
+
+    def case(name, mutate, want):
+        import copy
+        o = copy.deepcopy(objs)
+        mutate(o)
+        got = {limb for _t, limb, _d in check(o)}
+        ok = got == set(want)
+        print("  %-56s %s  %s" % (name, "ok" if ok else "FAIL", sorted(got) or "clean"))
+        if not ok:
+            fails.append(name)
+
+    T, P = "apixaban-vte-treatment", "apixaban-vte-prophylaxis"
+    if T not in objs or P not in objs:
+        print("  the real pair is not on disk; this check cannot be self-tested against it")
+        return 1
+
+    # (2) does not fire on the correct case -- the live corpus.
+    case("live corpus is clean", lambda o: None, [])
+
+    # (1) + (4) THE STATE THAT WOULD HAVE SHIPPED. Before this block existed, the prophylaxis
+    # review recorded its 3 -> 8 recovery and no counter-instance. That is not hypothetical:
+    # it is what the object held at commit f97f82d0e.
+    # TWO limbs, not one, and the second is the point: stripping the prophylaxis half also
+    # breaks the TREATMENT half's back-pointer, so the corpus reports both. The first draft of
+    # this case expected only NO_COUNTER_INSTANCE and the check reported more -- the check was
+    # right. P15: a short-circuiting check reports every failing limb, and a self-test that
+    # expects one limb quietly asserts the check short-circuits.
+    case("a recovery published with no counter-instance",
+         lambda o: o[P]["withholding_question"]["direction"].pop("counter_instance"),
+         ["NO_COUNTER_INSTANCE", "UNRECIPROCATED"])
+
+    # two recoveries dressed as a pair -- the defect wearing the fix's clothes.
+    def both_up(o):
+        o[T]["withholding_question"]["direction"]["direction"] = "UP -- recovered a pool"
+        o[T]["withholding_question"]["direction"]["counter_instance"]["direction"] = \
+            "UP -- recovered a pool"
+        o[P]["withholding_question"]["direction"]["direction"] = "UP -- recovered a pool"
+        o[P]["withholding_question"]["direction"]["counter_instance"]["direction"] = \
+            "UP -- recovered a pool"
+    case("both instances UP -- not a pair", both_up, ["NOT_A_PAIR"])
+
+    # a pointer to nothing.
+    case("counter-instance names a topic that does not exist",
+         lambda o: o[T]["withholding_question"]["direction"]["counter_instance"]
+         .__setitem__("topic", "no-such-topic"),
+         ["COUNTER_ABSENT", "UNRECIPROCATED"])
+
+    # one-sided claim.
+    case("counter-instance declares no direction of its own",
+         lambda o: o[P]["withholding_question"].pop("direction"),
+         ["UNRECIPROCATED"])
+
+    print("\n%s" % ("ALL FOUR PROOFS HELD" if not fails else "FAILED: %s" % fails))
+    return 1 if fails else 0
+
+
+if __name__ == "__main__":
+    sys.exit(selftest() if "--selftest" in sys.argv else main())

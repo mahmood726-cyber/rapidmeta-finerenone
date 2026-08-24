@@ -1,0 +1,186 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a0318b-4f18-7ed0-9908-cd0b86480cbe
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/cross_app_value_check.py
+
+--- THE FILE, IN FULL ---
+#!/usr/bin/env python
+"""Cross-app value consistency check (doubly-corroborated error finder).
+
+A trial (NCT) often appears in several apps. When the SAME trial carries
+different effect values across apps, at most one can be right. This finds the
+high-confidence errors: cases where one app's value matches the CT.gov
+source-verified value (outputs/pmid_resolver/nct_continuous.json) within
+tolerance, but another app disagrees by >REL. The source-matching value is the
+corroborated reference; the disagreeing app(s) are flagged as likely-wrong.
+
+This surfaces cross-app value inconsistencies, but a "mismatch" is NOT
+necessarily an error and the "reference" (the source-matching value) is NOT
+authoritative. Two distinct cases produce flags:
+
+  * GENUINE ERROR -- one app has a wrong value for the SAME outcome (SIRIUS
+    OCS-OR, EMBARK NSAA-MD, RAISE MG-ADL: the broad app was wrong, the dedicated
+    app + registry right).
+  * DIFFERENT OUTCOME -- the trial has multiple primaries and different apps
+    report different ones, each correct. Verified example: ECZTRA-1 tralokinumab
+    (NCT03131648, BJD 10.1111/bjd.19574) has dual primaries; the broad app
+    reports EASI-75 as OR 2.28 (published 25.0% vs 12.7% => OR ~2.29) and the
+    dedicated app reports IGA 0/1 as RD 8.6 pts (published difference 8.6 pts) --
+    BOTH correct, just different endpoints. The cross-check still flags it.
+
+So this is a TRIAGE aid only. ALWAYS verify against the primary publication's
+stated outcome -- including WHICH endpoint each app is reporting -- before
+changing anything, and never bulk-apply the reference value.
+
+Usage: python scripts/cross_app_value_check.py [--rel 0.05]
+"""
+from __future__ import annotations
+import argparse
+import glob
+import importlib.util
+import json
+import os
+import re
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+_spec = importlib.util.spec_from_file_location(
+    "dia", os.path.join(REPO, "scripts", "data_integrity_audit.py"))
+dia = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(dia)
+CONT = json.load(open(os.path.join(REPO, "outputs", "pmid_resolver", "nct_continuous.json"),
+                     encoding="utf-8"))
+
+
+def outcome_est(obj):
+    tail = obj.split("allOutcomes", 1)
+    if len(tail) < 2:
+        return None
+    m = re.search(r'estimandType:"([^"]+)"', tail[1])
+    return m.group(1).upper() if m else None
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--rel", type=float, default=0.05)
+    args = ap.parse_args()
+
+    # nct -> list of (app, value, est)
+    by_nct = {}
+    for p in sorted(glob.glob(os.path.join(REPO, "*_REVIEW*.html"))):
+        html = open(p, encoding="utf-8", errors="replace").read()
+        for key, obj in dia.find_trial_objects(html):
+            v = dia.as_num(dia.field(obj, "publishedHR"))
+            if v is None:
+                continue
+            by_nct.setdefault(key.split("_")[0], []).append(
+                (os.path.basename(p), v, outcome_est(obj)))
+
+    flagged = []
+    for nct, entries in by_nct.items():
+        vals = {round(v, 4) for _, v, _ in entries}
+        if len(vals) < 2:
+            continue  # all apps agree
+        info = CONT.get(nct, {})
+        src = info.get("effect")
+        src_kind = str(info.get("kind", "")).upper()
+        if src is None or abs(src) < 0.1:
+            continue  # near-zero/degenerate source -> spurious % differences
+        # apps whose value matches the source = corroborated reference
+        matching = [e for e in entries if abs(e[1] - src) / max(1e-9, abs(src)) <= args.rel]
+        if not matching:
+            continue
+        ref = matching[0][1]
+        wrong = [e for e in entries if abs(e[1] - ref) / max(1e-9, abs(ref)) > args.rel]
+        for app, v, est in wrong:
+            # Measure-consistency: only flag when this app's measure matches the
+            # source kind. A different measure (e.g. responder RR vs the MD the
+            # source reports) is a different OUTCOME, not a value error.
+            if est and src_kind and est != src_kind:
+                continue
+            flagged.append({
+                "nct": nct, "wrong_app": app, "wrong_val": v, "est": est,
+                "ref_val": ref, "src_val": src,
+                "ref_apps": ",".join(a for a, vv, _ in matching),
+            })
+
+    flagged.sort(key=lambda f: -abs(f["wrong_val"] - f["ref_val"]) / max(1e-9, abs(f["ref_val"])))
+    print(f"{len(flagged)} doubly-corroborated cross-app value mismatches "
+          f"(another app + CT.gov source agree; this app disagrees):\n")
+    for f in flagged:
+        rel = abs(f["wrong_val"] - f["ref_val"]) / max(1e-9, abs(f["ref_val"]))
+        print(f"  {f['nct']}  {f['wrong_app'][:38]:38} {f['wrong_val']:>8}  "
+              f"vs ref {f['ref_val']:>8} ({rel*100:.0f}% off; src={f['src_val']}, ref_apps={f['ref_apps'][:40]})")
+    return 0
+
+
+if __name__ == "__main__":
+    main()
+
+codex
+Findings:
+
+- Line 87: exact loop input: `args.rel=0.05`, `CONT={"NCT00000001":{"effect":100.0,"kind":"MD"}}`, `by_nct={"NCT00000001":[("a_REVIEW.html",95.0,"MD"),("b_REVIEW.html",105.0,"MD")]}`. Both app values match the source within tolerance, but `ref=95.0`, so `105.0` is flagged as wrong. Consequence: arbitrary first-match order creates a false positive.
+
+- Line 83: exact loop input: `CONT={"NCT00000002":{"effect":1.0,"kind":"HR"}}`, `by_nct={"NCT00000002":[("rr_REVIEW.html",1.0,"RR"),("hr_REVIEW.html",2.0,"HR")]}`. `matching` accepts the RR app as the corroborated reference even though the source kind is HR. Consequence: a different measure can become the reference used to accuse the HR app.
+
+- Line 92: exact loop input: `CONT={"NCT00000003":{"effect":1.0}}`, `by_nct={"NCT00000003":[("a_REVIEW.html",1.0,"HR"),("b_REVIEW.html",2.0,"RR")]}`. Because `src_kind == ""`, the guard is false and the RR mismatch is appended. Consequence: absent source kind disables the same-measure check instead of failing closed.
+
+- Lines 107 and 111: exact input is any input producing nonempty `flagged`, for example the first case above. `main()` returns `0`, and line 111 does not call `sys.exit(main())`. Consequence: as a CI/check script, mismatches print but still report success.
+
+Other named shapes: COULD NOT DETERMINE corpus-form selector issues without `scripts/data_integrity_audit.py`, `outputs/pmid_resolver/nct_continuous.json`, and the actual `*_REVIEW*.html` corpus; no CRLF text comparison, merged-cell/off-by-one tabulation, negation-drop, own-comment idempotency guard, or string-fix probe is proven from this packet.
+tokens used
+12,925
+Findings:
+
+- Line 87: exact loop input: `args.rel=0.05`, `CONT={"NCT00000001":{"effect":100.0,"kind":"MD"}}`, `by_nct={"NCT00000001":[("a_REVIEW.html",95.0,"MD"),("b_REVIEW.html",105.0,"MD")]}`. Both app values match the source within tolerance, but `ref=95.0`, so `105.0` is flagged as wrong. Consequence: arbitrary first-match order creates a false positive.
+
+- Line 83: exact loop input: `CONT={"NCT00000002":{"effect":1.0,"kind":"HR"}}`, `by_nct={"NCT00000002":[("rr_REVIEW.html",1.0,"RR"),("hr_REVIEW.html",2.0,"HR")]}`. `matching` accepts the RR app as the corroborated reference even though the source kind is HR. Consequence: a different measure can become the reference used to accuse the HR app.
+
+- Line 92: exact loop input: `CONT={"NCT00000003":{"effect":1.0}}`, `by_nct={"NCT00000003":[("a_REVIEW.html",1.0,"HR"),("b_REVIEW.html",2.0,"RR")]}`. Because `src_kind == ""`, the guard is false and the RR mismatch is appended. Consequence: absent source kind disables the same-measure check instead of failing closed.
+
+- Lines 107 and 111: exact input is any input producing nonempty `flagged`, for example the first case above. `main()` returns `0`, and line 111 does not call `sys.exit(main())`. Consequence: as a CI/check script, mismatches print but still report success.
+
+Other named shapes: COULD NOT DETERMINE corpus-form selector issues without `scripts/data_integrity_audit.py`, `outputs/pmid_resolver/nct_continuous.json`, and the actual `*_REVIEW*.html` corpus; no CRLF text comparison, merged-cell/off-by-one tabulation, negation-drop, own-comment idempotency guard, or string-fix probe is proven from this packet.

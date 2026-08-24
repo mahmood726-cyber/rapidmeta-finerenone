@@ -1,0 +1,213 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/r_validate_nma.py
+
+--- THE FILE, IN FULL ---
+"""Python wrapper that runs R netmeta cross-validation on every binary NMA
+review.
+
+Inputs: NMA_CONFIG.comparisons + realData per-trial e/n cells.
+
+Outputs: outputs/r_validation/nma/<REVIEW>.json
+"""
+from __future__ import annotations
+import io, json, math, os, shutil, subprocess, sys
+from pathlib import Path
+
+# P1-3 fix: only wrap stdout once; idempotent against multiple imports.
+if (sys.platform == "win32"
+    and hasattr(sys.stdout, "buffer")
+    and getattr(sys.stdout, "encoding", "").lower() != "utf-8"):
+    try:
+        sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+
+REPO = Path(__file__).resolve().parent.parent
+DATA_DIR = REPO / "outputs" / "extraction_audit" / "data"
+OUT_DIR = REPO / "outputs" / "r_validation" / "nma"
+OUT_DIR.mkdir(parents=True, exist_ok=True)
+R_SCRIPT = REPO / "scripts" / "r_validate_nma.R"
+# P0-5 fix: env var → PATH lookup → hardcoded fallback.
+RSCRIPT_EXE = (
+    os.environ.get("RSCRIPT_EXE")
+    or shutil.which("Rscript")
+    or r"C:\Program Files\R\R-4.5.2\bin\Rscript.exe"
+)
+
+# P1-7 fix: path-traversal guard.
+import re as _re_p17
+_STEM_OK = _re_p17.compile(r"^[A-Za-z0-9_.-]+$")
+def _stem_safe(s) -> bool:
+    return isinstance(s, str) and bool(_STEM_OK.match(s)) and ".." not in s
+
+
+def _is_int_like(x):
+    return isinstance(x, (int, float)) and not isinstance(x, bool) and math.isfinite(x)
+
+
+def build_comparisons(rd: dict, nma_cfg: dict) -> list[dict]:
+    """Build a flat list of contrast rows. cfg.comparisons has
+    [{t1, t2, trials: [NCT_ID]}]; we materialise to one row per trial."""
+    out = []
+    comps = nma_cfg.get("comparisons") or []
+    for comp in comps:
+        if not (isinstance(comp, dict) and comp.get("t1") and comp.get("t2")):
+            continue
+        for ref in (comp.get("trials") or []):
+            t = rd.get(ref) if isinstance(ref, str) else ref
+            if not isinstance(t, dict):
+                continue
+            tE, tN, cE, cN = t.get("tE"), t.get("tN"), t.get("cE"), t.get("cN")
+            if not all(_is_int_like(v) for v in (tE, tN, cE, cN)):
+                continue
+            if not (tN > 0 and cN > 0 and tE >= 0 and cE >= 0 and tE <= tN and cE <= cN):
+                continue
+            out.append({
+                "studlab": t.get("name") or ref,
+                "t1": comp["t1"], "t2": comp["t2"],
+                "e1": int(tE), "n1": int(tN), "e2": int(cE), "n2": int(cN),
+            })
+    return out
+
+
+def main() -> None:
+    index = json.loads((DATA_DIR / "_index.json").read_text(encoding="utf-8"))
+    candidates = []
+    for entry in index:
+        if not entry.get("has_realData"):
+            continue
+        if not entry.get("has_NMA_CONFIG"):
+            continue
+        stem = entry["stem"]
+        if not _stem_safe(stem):
+            print(f"  skip (unsafe stem): {stem!r}")
+            continue
+        doc = json.loads((DATA_DIR / f"{stem}.json").read_text(encoding="utf-8"))
+        rd = doc.get("realData") or {}
+        cfg = doc.get("NMA_CONFIG") or {}
+        comps = build_comparisons(rd, cfg)
+        if len(comps) >= 2:
+            # P0-8 fix: ordered-priority reference selection.
+            #   1. cfg.reference (explicit author choice)
+            #   2. case-insensitive match against {Placebo, Control, Sham,
+            #      Standard care, Standard of care, SoC, Usual care, No
+            #      treatment}
+            #   3. highest-degree node in the contrast graph (most-connected)
+            treatments = cfg.get("treatments") or []
+            explicit = cfg.get("reference") if isinstance(cfg.get("reference"), str) else None
+            ref = None
+            if explicit and explicit in treatments:
+                ref = explicit
+            else:
+                preferred = ["Placebo", "Control", "Sham", "Standard care",
+                             "Standard of care", "SoC", "Usual care", "No treatment"]
+                for p in preferred:
+                    for t in treatments:
+                        if str(t).strip().lower() == p.lower():
+                            ref = t; break
+                    if ref: break
+                if ref is None and treatments:
+                    # Highest-degree node fallback
+                    from collections import Counter
+                    deg = Counter()
+                    for c in comps:
+                        deg[c["t1"]] += 1; deg[c["t2"]] += 1
+                    if deg:
+                        ref = deg.most_common(1)[0][0]
+            candidates.append((stem, treatments, comps, ref))
+
+    print(f"Binary NMA review candidates: {len(candidates)}")
+    # P1-1/2/4/5
+    from r_validate_common import (hash_input, already_validated, write_sidecar,
+                                    parallel_run, validate_r_output)
+    import argparse
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--force", action="store_true")
+    ap.add_argument("--max-workers", type=int, default=4)
+    args = ap.parse_args()
+
+    jobs, deferred, skipped = [], [], 0
+    for stem, trts, comps, ref in candidates:
+        input_path  = OUT_DIR / f"{stem}.input.json"
+        output_path = OUT_DIR / f"{stem}.json"
+        sha_sidecar = OUT_DIR / f"{stem}.input.sha256"
+        error_log   = OUT_DIR / f"{stem}.error.log"
+        payload = {"review": stem, "treatments": trts, "comparisons": comps, "reference": ref}
+        expected_sha = hash_input(payload, R_SCRIPT)
+        if not args.force and already_validated(output_path, sha_sidecar, expected_sha):
+            skipped += 1; deferred.append((stem, None, True)); continue
+        input_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+        jobs.append((R_SCRIPT, input_path, output_path, error_log))
+        deferred.append((stem, sha_sidecar, expected_sha))
+
+    if jobs:
+        print(f"  running {len(jobs)} job(s) on {args.max_workers}-worker pool  (skipped {skipped})")
+        results = parallel_run(jobs, max_workers=args.max_workers)
+    else:
+        results = []; print(f"  all {skipped} jobs idempotent — nothing to run")
+
+    n_ok = n_fail = 0
+    res_iter = iter(results)
+    for stem, sidecar, sha_or_done in deferred:
+        if sha_or_done is True: n_ok += 1; continue
+        r = next(res_iter)
+        output_path = OUT_DIR / f"{stem}.json"
+        if not r["ok"]:
+            print(f"  {stem}: [FAIL] exit {r['exit']}: {r['stderr'].strip()[:200]}")
+            n_fail += 1; continue
+        try:
+            result = json.loads(output_path.read_text(encoding="utf-8"))
+        except Exception as e:
+            print(f"  {stem}: [FAIL] parse: {e}"); n_fail += 1; continue
+        if not validate_r_output(result):
+            print(f"  {stem}: [FAIL] schema"); n_fail += 1; continue
+        write_sidecar(sidecar, sha_or_done)
+        if result.get("fit_ok"):
+            n_trts = result.get("n_treatments") or 0
+            kcomp = result.get("k_comparisons") or 0
+            tau2 = result.get("tau2"); tau2 = 0.0 if tau2 is None else tau2
+            i2 = result.get("I2"); i2 = 0.0 if i2 is None else i2
+            print(f"  {stem}: [OK] {n_trts} trts, {kcomp} contrasts, tau2={tau2:.3f}, I2={i2:.0f}%")
+            n_ok += 1
+        else:
+            print(f"  {stem}: [WARN] {result.get('error')}")
+            n_fail += 1
+    print(f"\nOK: {n_ok}  failed: {n_fail}  (idempotent-skipped: {skipped})")
+    sys.exit(1 if n_fail else 0)
+
+
+if __name__ == "__main__":
+    main()

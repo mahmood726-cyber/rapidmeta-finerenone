@@ -1,0 +1,197 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a031c6-f574-7380-8df5-fb381f02afe0
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/fix_valsartan_filename_leak.py
+
+--- THE FILE, IN FULL ---
+"""
+Fix the residual valsartan/sacubitril filename leak across cloned dashboards.
+
+The previous fix (commit aea1768) replaced the `app:` field in
+exportReviewPack(). But filenames inside the export/download paths still
+carry the original sacubitril/valsartan slug -- meaning user-clicked
+downloads land as `sacubitril-valsartan_v12_capsule.zip`,
+`sacubitril/valsartan_meta_analysis_v11.json`, etc., regardless of the
+actual disease.
+
+This script derives a per-file slug from the filename
+(`IL23_PSORIASIS_REVIEW.html` -> `il23_psoriasis`) and replaces every
+hardcoded sacubitril-valsartan filename with that slug.
+
+Replacements:
+  'sacubitril-valsartan_v12_capsule.zip'              -> '<slug>_v12_capsule.zip'
+  'sacubitril/valsartan_meta_analysis_v11.json'       -> '<slug>_meta_analysis_v11.json'
+  'sacubitril\\/valsartan_meta_analysis_data.csv'      -> '<slug>_meta_analysis_data.csv'
+  'sacubitril/valsartan_validation_v11.py'            -> '<slug>_validation_v11.py'
+  'sacubitril\\/valsartan_validation_v11.py'           -> '<slug>_validation_v11.py'
+  'sacubitril\\/valsartan_run_artifact_*'              -> '<slug>_run_artifact_*'
+  'sacubitril\\/valsartan_forest.png'                  -> '<slug>_forest.png'
+
+Skipped: ARNI_HF_REVIEW.html (the legitimate sacubitril/valsartan dashboard)
++ frozen submission snapshots.
+
+Idempotent: skipped if no `sacubitril-valsartan` or `sacubitril/valsartan`
+download / filename remains.
+
+Usage: python scripts/fix_valsartan_filename_leak.py [--dry-run]
+"""
+import argparse
+import io
+import os
+import re
+import sys
+
+if sys.platform == 'win32':
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+
+ROOT = os.environ.get(
+    'RAPIDMETA_REPO_ROOT',
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+)
+
+SKIP = {'ARNI_HF_REVIEW.html'}
+
+# Regex catches both `sacubitril-valsartan` and `sacubitril/valsartan` (with
+# optional JS-escaped backslash) as a "drug slug" in filename / artifact
+# string contexts. We match the slug only; the surrounding suffix remains.
+SLUG_RE = re.compile(r"sacubitril(?:-|\\/|/)valsartan")
+
+
+def derive_slug(fname: str) -> str:
+    base = fname.replace('_REVIEW.html', '').lower()
+    return base
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument('--dry-run', action='store_true')
+    args = ap.parse_args()
+    print(f'Mode: {"DRY-RUN" if args.dry_run else "APPLY"}')
+    files = sorted(
+        f for f in os.listdir(ROOT)
+        if f.endswith('_REVIEW.html')
+        and not f.endswith('.bak.html')
+        and f not in SKIP
+    )
+    summary = {'changed': 0, 'unchanged': 0}
+    for fname in files:
+        path = os.path.join(ROOT, fname)
+        src = open(path, 'r', encoding='utf-8').read()
+        if not SLUG_RE.search(src):
+            summary['unchanged'] += 1
+            continue
+        slug = derive_slug(fname)
+        new = SLUG_RE.sub(slug, src)
+        if new != src:
+            if not args.dry_run:
+                open(path, 'w', encoding='utf-8').write(new)
+            summary['changed'] += 1
+        else:
+            summary['unchanged'] += 1
+    print(f'Summary: {summary}')
+    return 0
+
+
+if __name__ == '__main__':
+    sys.exit(main())
+
+codex
+- **check that CANNOT FAIL / STATUS CODE REPORTING THE WRAPPER**: line 87.  
+  Exact input: `IL23_PSORIASIS_REVIEW.html` containing `href="sacubitril-valsartan_v12_capsule.zip"`, run `python scripts/fix_valsartan_filename_leak.py --dry-run`.  
+  Consequence: the script reports `changed: 1` but exits `0`, so a CI/check caller cannot fail on a detected leak.
+
+- **selector not actually limited to filename/artifact contexts**: lines 52 and 79.  
+  Exact input: `IL23_PSORIASIS_REVIEW.html` containing `<!-- do not replace prose mention sacubitril-valsartan here -->`.  
+  Consequence: prose/comments are rewritten to `il23_psoriasis`, corrupting non-filename text despite the stated filename/artifact scope.
+
+- **values compared/written as text where line endings differ**: lines 74 and 82.  
+  Exact input: on Windows, LF-only `IL23_PSORIASIS_REVIEW.html` containing `x\nsacubitril-valsartan_v12_capsule.zip\n`.  
+  Consequence: applying one slug replacement rewrites file line endings to CRLF, producing unrelated whole-file churn.
+
+- **probe keyed to the STRING A FIX REMOVES**: line 75.  
+  Exact input: `IL23_PSORIASIS_REVIEW.html` containing `href="wrongslug_v12_capsule.zip"` and no `sacubitril[-/]valsartan`.  
+  Consequence: the file is counted `unchanged` and exits success even though the expected per-file slug is absent.
+
+- **idempotency guard satisfied by own comment/marker**: none found in this module.
+
+- **instrument reading a DIFFERENT COPY**: COULD NOT DETERMINE; missing caller/CI invocation and actual `RAPIDMETA_REPO_ROOT` environment.
+
+- **selector keyed to a form the corpus does not use**: COULD NOT DETERMINE; missing dashboard corpus.
+
+- **merged-cell/off-by-one tabulation/count**: none found.
+
+- **ZERO CONFLATED WITH ABSENT**: none found.
+
+- **NEGATION DROPPED**: none found.
+tokens used
+8,847
+- **check that CANNOT FAIL / STATUS CODE REPORTING THE WRAPPER**: line 87.  
+  Exact input: `IL23_PSORIASIS_REVIEW.html` containing `href="sacubitril-valsartan_v12_capsule.zip"`, run `python scripts/fix_valsartan_filename_leak.py --dry-run`.  
+  Consequence: the script reports `changed: 1` but exits `0`, so a CI/check caller cannot fail on a detected leak.
+
+- **selector not actually limited to filename/artifact contexts**: lines 52 and 79.  
+  Exact input: `IL23_PSORIASIS_REVIEW.html` containing `<!-- do not replace prose mention sacubitril-valsartan here -->`.  
+  Consequence: prose/comments are rewritten to `il23_psoriasis`, corrupting non-filename text despite the stated filename/artifact scope.
+
+- **values compared/written as text where line endings differ**: lines 74 and 82.  
+  Exact input: on Windows, LF-only `IL23_PSORIASIS_REVIEW.html` containing `x\nsacubitril-valsartan_v12_capsule.zip\n`.  
+  Consequence: applying one slug replacement rewrites file line endings to CRLF, producing unrelated whole-file churn.
+
+- **probe keyed to the STRING A FIX REMOVES**: line 75.  
+  Exact input: `IL23_PSORIASIS_REVIEW.html` containing `href="wrongslug_v12_capsule.zip"` and no `sacubitril[-/]valsartan`.  
+  Consequence: the file is counted `unchanged` and exits success even though the expected per-file slug is absent.
+
+- **idempotency guard satisfied by own comment/marker**: none found in this module.
+
+- **instrument reading a DIFFERENT COPY**: COULD NOT DETERMINE; missing caller/CI invocation and actual `RAPIDMETA_REPO_ROOT` environment.
+
+- **selector keyed to a form the corpus does not use**: COULD NOT DETERMINE; missing dashboard corpus.
+
+- **merged-cell/off-by-one tabulation/count**: none found.
+
+- **ZERO CONFLATED WITH ABSENT**: none found.
+
+- **NEGATION DROPPED**: none found.

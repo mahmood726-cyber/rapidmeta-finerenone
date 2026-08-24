@@ -1,0 +1,231 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/audit_procedural_constants_all_surfaces_2026_08_23.py
+
+--- THE FILE, IN FULL ---
+"""Every surface that asserts a PROCEDURE from a literal rather than from a field.
+
+# no-control: static classification of source. The control is asserted and is the same pair
+# used by the Table 1 audit: `protocol_card` must come back carrying procedural constants, and
+# a function known to project -- `extraction_provenance_table`, which builds one row per
+# extracted value from the object -- must NOT. If either lands wrong the scan is not reading.
+
+TABLE 1 WAS NOT COVERED BY `lint_method_claim_has_a_field`, WHICH GUARDS THE MANUSCRIPT. So the
+question is not "is Table 1 fixed" but "what else was never covered". That is
+`every_referring_surface` for the sixth time, and this instance PUBLISHES FALSE METHOD CLAIMS
+rather than mis-rendering something.
+
+WHAT COUNTS AS A FINDING HERE. A string literal that asserts a procedure was carried out --
+screeners, adjudication, prespecification, GRADE domains, funnel/Egger/Peters, an estimator
+choice -- inside a function that emits reader-facing markup, where the surrounding expression
+does NOT read the object. A literal that names a tab, labels a column, or explains a method in
+general terms is not a claim that the procedure was performed HERE.
+
+THE DISTINCTION THAT MATTERS, AND IT IS THE ONE THE CORPUS ALREADY DEMONSTRATES: on delivered
+MAVACAMTEN, `Risk of bias method` reads "Not recorded -- no per-domain RoB-2 assessment exists
+yet" because it projects, while `Study selection process` asserts two independent screeners on
+a page whose own text says no screening log is recorded. Same table, same page, one honest.
+
+THIS GATE DEMANDS ZERO. IT IS NOT A RATCHET AND MUST NOT BE "IMPROVED" INTO ONE.
+------------------------------------------------------------------------------
+Most gates in this repository ratchet -- they block on an INCREASE rather than on a nonzero
+count -- and they are right to, because the thing they count has a legitimate nonzero value:
+field names in prose are a standing decision pending a rebuild, restraint candidates are
+disagreements to adjudicate, arm-role contradictions are baselined instances awaiting a source
+read. A ratchet is the correct shape when zero is not currently achievable and the goal is to
+stop the number climbing.
+
+A SENTENCE ASSERTING THAT A PROCEDURE WAS CARRIED OUT HAS NO TOLERABLE FLOOR. There is no
+number of false method claims that is acceptable-for-now: each one, on each page that renders
+it, states that an act was performed. The corpus is at zero, so the gate can demand zero
+without blocking anyone's work -- and if a future run finds this inconvenient, the answer is to
+project the row or refuse it by name, not to baseline it.
+
+Consistency with the other gates is NOT a reason to convert this one. The gates differ because
+the things they count differ.
+"""
+from __future__ import annotations
+
+import ast
+import io
+import json
+import os
+import re
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+SOURCES = [os.path.join(REPO, "ssot", "projectors.py"),
+           os.path.join(REPO, "ssot", "projectors2.py"),
+           os.path.join(REPO, "ssot", "build_tabbed.py")]
+OUT = os.path.join(REPO, "outputs", "procedural_constants_2026_08_23.json")
+
+OBJECT_NAMES = {"canon", "sc", "cfg", "obj", "res", "blk", "t", "trial", "o"}
+
+# Assertions that a procedure WAS CARRIED OUT. Deliberately narrow: each phrase names an act.
+PROCEDURAL = re.compile(
+    r"(?i)("
+    r"two independent screener|independent screeners|named human adjudication|"
+    r"cross-family|title/abstract then full text|"
+    r"pre-?specified before the search|all pre-?specified|were pre-?specified|"
+    r"GRADE, all five domains|all five domains|"
+    r"funnel, egger and peters|each reported as a computed value|"
+    r"random effects on the log scale|REML headline|HKSJ reported alongside|"
+    r"leave-one-out and an estimator comparison|"
+    r"per-arm event counts, and the published effect"
+    r")")
+
+# Markup emission -- a literal only reaches a reader from a function that renders it.
+#
+# THE FIRST VERSION LOOKED ONLY AT THE FUNCTION'S OWN LITERALS AND MISSED `protocol_card`, the
+# function this audit exists for: it returns `kv_card(...)`, so the markup lives in the CALLEE
+# and the caller holds only the sentences. The hand-classified control caught it, which is what
+# the control is for -- a scan that cannot see the known instance cannot report an absence.
+EMITS = re.compile(r"<(?:div|table|tr|td|th|p|section|h[1-6]|li|span)\b")
+# Functions that hand their content to a renderer rather than emitting tags themselves.
+RENDER_CALLS = re.compile(r"\b(kv_card|fig|card|_card|section|rows_svg|add_table|s\.add)\s*\(")
+
+
+def emits_markup(fn, body):
+    if EMITS.search(body):
+        return True
+    seg = ast.dump(fn)
+    return bool(RENDER_CALLS.search(seg)) or fn.name.endswith(
+        ("_card", "_table", "_section", "_panel"))
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    findings = []
+    per_func = {}
+    for src in SOURCES:
+        if not os.path.isfile(src):
+            continue
+        text = io.open(src, encoding="utf-8").read()
+        tree = ast.parse(text)
+        rel = os.path.relpath(src, REPO).replace("\\", "/")
+        for fn in [n for n in ast.walk(tree) if isinstance(n, ast.FunctionDef)]:
+            lits = [n for n in ast.walk(fn)
+                    if isinstance(n, ast.Constant) and isinstance(n.value, str)]
+            body = " ".join(n.value for n in lits)
+            if not emits_markup(fn, body):
+                continue                      # not a markup-emitting function
+            hits = []
+            for n in lits:
+                m = PROCEDURAL.search(n.value)
+                if m:
+                    hits.append((n.lineno, re.sub(r"\s+", " ", n.value)[:110], m.group(1)))
+            if hits:
+                per_func[rel + "::" + fn.name] = len(hits)
+                for line, snippet, phrase in hits:
+                    findings.append({"file": rel, "function": fn.name, "line": line,
+                                     "phrase": phrase, "text": snippet})
+
+    # CONTROLS, AND THE POSITIVE IS A FIXTURE RATHER THAN THE LIVE SOURCE.
+    #
+    # It was keyed to `protocol_card` carrying procedural constants -- true when this scan was
+    # written and FALSE the moment the seven rows were fixed. A control pointing at the defect
+    # the work removes dies on success and then refuses forever. Third instance of that today,
+    # after the field-name lint's control and the seam gate's.
+    #
+    # The fixture is the row as it stood before the fix, so the scan is proven against the
+    # exact text it was built to find, permanently.
+    fixture = (
+        'def _fixture_card(canon, p):\n'
+        '    return kv_card("t", [("Study selection process", "Two independent screeners of '
+        'different model families, title/abstract then full text, with named human '
+        'adjudication")])\n')
+    ftree = ast.parse(fixture)
+    ffn = ftree.body[0]
+    flits = [n for n in ast.walk(ffn)
+             if isinstance(n, ast.Constant) and isinstance(n.value, str)]
+    fbody = " ".join(n.value for n in flits)
+    errs = []
+    if not emits_markup(ffn, fbody):
+        errs.append("the fixture card is not recognised as emitting markup -- it returns "
+                    "kv_card(...), which is exactly how protocol_card was missed")
+    if not any(PROCEDURAL.search(n.value) for n in flits):
+        errs.append("the fixture's known procedural sentence is not detected")
+    funcs = {k.split("::")[1] for k in per_func}
+    if "extraction_provenance_table" in funcs:
+        errs.append("extraction_provenance_table must NOT be flagged -- it builds one row per "
+                    "extracted value from the object")
+    if errs:
+        sys.exit("REFUSED: the scan disagrees with a case established by hand:\n   "
+                 + "\n   ".join(errs))
+
+    print("")
+    print("PROCEDURAL ASSERTIONS FROM LITERALS, across %d projector module(s)" % len(SOURCES))
+    print("")
+    print("   functions carrying at least one     %3d" % len(per_func))
+    print("   total assertions                    %3d" % len(findings))
+    print("")
+    for k, v in sorted(per_func.items(), key=lambda kv: -kv[1]):
+        print("   %-56s %3d" % (k[:56], v))
+    print("")
+    print("EVERY ONE, WITH THE PHRASE THAT MAKES IT A CLAIM:")
+    for f in findings:
+        print("   %s::%s:%d" % (f["file"].split("/")[-1], f["function"], f["line"]))
+        print("        [%s]  %s" % (f["phrase"], f["text"][:92]))
+    print("")
+    print("A LITERAL THAT NAMES A TAB OR LABELS A COLUMN IS NOT A CLAIM THAT A PROCEDURE WAS")
+    print("PERFORMED HERE. Each of the above says an act was carried out, on every page that")
+    print("renders it, whatever the object holds.")
+    json.dump({"findings": findings, "per_function": per_func},
+              io.open(OUT, "w", encoding="utf-8"), indent=1)
+    print("")
+    print("written: %s" % os.path.relpath(OUT, REPO))
+
+    # THIS FILE COULD NOT FAIL, AND I HAD ALREADY COUNTED IT AS A GUARD.
+    #
+    # It printed its findings and exited 0. Planted test: putting the original "Two independent
+    # screeners of different model families ..." constant back into `protocol_card` produced a
+    # full report and exit 0. Second instrument today that could not fail -- after
+    # `lint_field_name_in_reader_prose`, which printed 231 occurrences and exited 0 while wired
+    # into pre-push behind `|| exit 1`.
+    #
+    # ZERO, NOT A RATCHET, deliberately. A procedural assertion from a literal is a FALSE
+    # STATEMENT ABOUT HOW A REVIEW WAS CONDUCTED on every page that renders it. There is no
+    # tolerable floor for that, and the corpus is at zero now, so the gate can demand zero
+    # without blocking work.
+    if findings:
+        sys.exit("REFUSED: %d procedural assertion(s) from literals across %d function(s). "
+                 "A sentence that says a procedure was carried out must be projected from a "
+                 "field or refused by name -- copied as a constant it is true only of the "
+                 "object it was written for, and it arrives wearing that object's authority."
+                 % (len(findings), len(per_func)))
+
+
+if __name__ == "__main__":
+    main()

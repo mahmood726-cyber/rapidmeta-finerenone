@@ -1,0 +1,613 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a03218-64fa-7f52-930e-912dfcc8881b
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/project_dashboard_index.py
+
+--- THE FILE, IN FULL ---
+#!/usr/bin/env python3
+"""PROJECT THE DASHBOARD'S INDEX FROM THE OBJECTS, AND MAKE ITS STALENESS DETECTABLE.
+
+THE DEFECT. `dashboard.html` renders a "Pooled OR (95% CI)" column from
+`outputs/portfolio_index.json`, a snapshot generated 2026-06-24. Of its 711 rows carrying a
+numeric `pooled_OR`, **83 belong to topics whose SSOT object has WITHDRAWN its estimate** and
+**8 to reviews that no longer exist**, having been retired into another topic.
+
+    A WITHDRAWAL IS THE STRONGEST STATEMENT A REVIEW IN THIS CORPUS CAN MAKE. It is what an
+    object says when its trials do not share an endpoint, when its comparator is wrong, or when
+    its headline could not be reproduced from its own trials. SERVING THE NUMBER ANYWAY UNDOES
+    EVERY ONE OF THOSE DECISIONS AT ONCE, for every reader who never opens the page -- and the
+    dashboard is the surface most readers actually look at.
+
+    It is the same class as the page that displayed somebody else's benchmark as its own,
+    at scale, on the aggregate surface.
+
+WHY REGENERATING THE SNAPSHOT IS NOT THE FIX. A regenerated snapshot is correct for a day and
+wrong again the next time an object is withdrawn, silently and with no symptom. The pages solved
+this years of defects ago: a page carries the version it was built to, so being out of date is
+VISIBLE rather than invisible. The dashboard's data gets the same treatment.
+
+WHAT THIS WRITES INTO THE ARTEFACT
+  * per row, `ssot_state` -- LIVE / WITHDRAWN / RETIRED / NO_POOL / UNMAPPED / OBJECT_MISSING
+  * per row that is not LIVE, the pooled value is MOVED to `pooled_OR_superseded` and the live
+    fields are nulled, so the dashboard cannot render a number the object does not support.
+    NOTHING IS DELETED -- the superseded value stays, labelled, exactly as a retired topic keeps
+    a tombstone.
+  * a `projection` block carrying an OBJECTS FINGERPRINT: a hash over every object's path,
+    mtime-independent CONTENT and its derived state. `scripts/dashboard_projection_gate.py`
+    recomputes it and REFUSES when it no longer matches, so staleness is detectable by a command
+    instead of by somebody noticing.
+
+WHAT THIS DOES NOT DO, stated so a clean run is not read as more than it is
+  * It does NOT check the LIVE rows' NUMBERS against their objects. A row that stays LIVE may
+    still be stale by value. This answers only the sharper question -- is a number served where
+    the object says there is none.
+  * It does NOT touch the 602 rows whose page has no SSOT object. They are labelled UNMAPPED and
+    are UNCHECKABLE, never clean, and they are why every count here is a floor.
+
+USAGE:  python scripts/project_dashboard_index.py --check
+        python scripts/project_dashboard_index.py --apply
+        python scripts/project_dashboard_index.py --selftest
+"""
+import hashlib
+import io
+import json
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+SNAP = os.path.join(REPO, "outputs", "portfolio_index.json")
+PMAP = os.path.join(REPO, "ssot", "PAGE_MAP.json")
+
+LIVE, WITHDRAWN, RETIRED, NO_POOL = "LIVE", "WITHDRAWN", "RETIRED", "NO_POOL"
+UNMAPPED, MISSING, UNREADABLE = "UNMAPPED", "OBJECT_MISSING", "OBJECT_UNREADABLE"
+NOT_LIVE = (WITHDRAWN, RETIRED, NO_POOL)
+
+
+def object_state(page, pmap):
+    """(state, detail) for one page. Five states, and none collapses into another."""
+    if page not in pmap:
+        return UNMAPPED, None
+    rel = pmap[page]
+    p = os.path.join(REPO, rel.replace("/", os.sep))
+    if not os.path.exists(p):
+        return MISSING, rel
+    try:
+        with io.open(p, "r", encoding="utf-8") as fh:
+            o = json.load(fh)
+    except ValueError:
+        return UNREADABLE, rel
+    # RETIRED IS DECIDED BY `state` ALONE. This test used to read
+    #     state == RETIRED **and** o.get("absorbed_by")
+    # which made the successor field a precondition for recognising retirement. The first
+    # topic retired by SPLIT rather than by merge carries `split_into`, not `absorbed_by`, so
+    # it fell straight through to NO_POOL and the dashboard reported a topic that no longer
+    # exists as though it were merely unpooled. **A tombstone the projection cannot see is a
+    # retired topic presented as live** -- the same shape as class 25, a lookup keyed on one
+    # spelling of a field reporting something false about the thing it looked at.
+    #
+    # The successor is now read from EITHER field, and a tombstone with neither is still
+    # RETIRED with the successor reported as unrecorded -- never silently downgraded.
+    if str(o.get("state") or "").upper() == "RETIRED":
+        succ = o.get("absorbed_by") or o.get("split_into")
+        if isinstance(succ, list):
+            succ = ", ".join(succ)
+        return RETIRED, (succ or "RETIRED, and no successor field is recorded on the tombstone")
+    res = (o.get("results") or {}).get("by_outcome") or {}
+    live, withdrawn, reason = False, False, None
+    for b in res.values():
+        if not isinstance(b, dict):
+            continue
+        pl = b.get("pooled") or {}
+        if pl.get("withdrawn"):
+            withdrawn = True
+            reason = reason or pl.get("withdrawn_reason") or b.get("poolable_reason")
+        elif pl.get("point") is not None:
+            live = True
+    if live:
+        return LIVE, None
+    if withdrawn:
+        return WITHDRAWN, (reason or "")[:400]
+    return NO_POOL, None
+
+
+def fingerprint(pmap):
+    """A hash over the OBJECT STATE the projection depends on -- not over file mtimes.
+
+    Keyed on content, so touching a file does not invalidate it and CHANGING A WITHDRAWAL does.
+    That is the whole point: the fingerprint must move exactly when the projection would.
+    """
+    h = hashlib.sha256()
+    for page in sorted(pmap):
+        state, detail = object_state(page, pmap)
+        h.update(("%s\x1f%s\x1f%s\x1e" % (page, state, detail or "")).encode("utf-8"))
+    return h.hexdigest()
+
+
+def project(snap, pmap):
+    rows = snap.get("rows") or []
+    tally, changed = {}, 0
+    for r in rows:
+        if not isinstance(r, dict):
+            continue
+        page = r.get("file")
+        state, detail = object_state(page, pmap)
+        tally[state] = tally.get(state, 0) + 1
+        r["ssot_state"] = state
+        if state == RETIRED:
+            r["ssot_absorbed_by"] = detail
+        elif state == WITHDRAWN and detail:
+            r["ssot_withdrawn_reason"] = detail
+        if state in NOT_LIVE and isinstance(r.get("pooled_OR"), (int, float)):
+            # MOVED, NOT DELETED. The value is what the snapshot held on 2026-06-24 and it is
+            # kept, labelled, so a later reader can see what was served rather than infer it.
+            r["pooled_OR_superseded"] = r.get("pooled_OR")
+            r["ci_low_superseded"] = r.get("ci_low")
+            r["ci_high_superseded"] = r.get("ci_high")
+            r["superseded_because"] = (
+                "the SSOT object for this page is %s. A pooled value is not served for a topic "
+                "whose object does not support one." % state)
+            r["pooled_OR"] = None
+            r["ci_low"] = None
+            r["ci_high"] = None
+            changed += 1
+    snap["projection"] = {
+        "projected_utc": "2026-08-19",
+        "projected_by": "scripts/project_dashboard_index.py",
+        "objects_fingerprint": fingerprint(pmap),
+        "what_the_fingerprint_is_over": (
+            "every page in ssot/PAGE_MAP.json, its derived SSOT state and the reason attached "
+            "to it. Keyed on CONTENT, so touching a file does not invalidate it and changing a "
+            "withdrawal does. scripts/dashboard_projection_gate.py recomputes it and refuses "
+            "when it no longer matches -- staleness detected by a command, not by somebody "
+            "noticing."),
+        "by_ssot_state": tally,
+        "rows_whose_pooled_value_was_withdrawn_from_display": changed,
+        "snapshot_generated": snap.get("generated"),
+        "what_this_does_NOT_check": (
+            "It does not compare the LIVE rows' NUMBERS against their objects. A row left LIVE "
+            "may still be stale by value. And the UNMAPPED rows have no object at all -- they "
+            "are uncheckable, never clean, and they are why any count here is a FLOOR."),
+    }
+    return tally, changed
+
+
+def run(apply_changes=False):
+    with io.open(SNAP, "r", encoding="utf-8") as fh:
+        snap = json.load(fh)
+    with io.open(PMAP, "r", encoding="utf-8") as fh:
+        pmap = json.load(fh)
+    before = sum(1 for r in snap.get("rows") or []
+                 if isinstance(r, dict) and isinstance(r.get("pooled_OR"), (int, float)))
+    tally, changed = project(snap, pmap)
+    after = sum(1 for r in snap.get("rows") or []
+                if isinstance(r, dict) and isinstance(r.get("pooled_OR"), (int, float)))
+
+    print("snapshot generated %s   rows %d" % (snap.get("generated"), len(snap.get("rows") or [])))
+    print("rows with a numeric pooled_OR: %d -> %d\n" % (before, after))
+    for k in sorted(tally, key=lambda x: -tally[x]):
+        print("   %-18s %4d" % (k, tally[k]))
+    print("\n   values withdrawn from display: %d" % changed)
+    print("   objects fingerprint: %s" % snap["projection"]["objects_fingerprint"][:16])
+    if apply_changes:
+        with io.open(SNAP, "w", encoding="utf-8") as fh:
+            fh.write(json.dumps(snap, indent=1, ensure_ascii=False))
+        print("\nwrote %s" % os.path.relpath(SNAP, REPO))
+    else:
+        print("\nDRY RUN -- nothing written. Re-run with --apply.")
+    return 0
+
+
+def selftest():
+    fails = []
+
+    def ck(name, got, want):
+        ok = got == want
+        print("  %-66s %s  %r" % (name, "ok" if ok else "FAIL", got))
+        if not ok:
+            fails.append(name)
+
+    with io.open(PMAP, "r", encoding="utf-8") as fh:
+        pmap = json.load(fh)
+
+    print("1. THE STATES ARE DISTINGUISHED ON REAL OBJECTS IN THIS REPOSITORY:")
+    ck("a topic retired by MERGE (carries `absorbed_by`)",
+       object_state("OMECAMTIV_HF_AUTO_FULL_REVIEW.html", pmap)[0], RETIRED)
+    # THE REGRESSION FOR THE DEFECT THIS TEST DID NOT HAVE. A topic retired by SPLIT carries
+    # `split_into` instead, and the old `state == RETIRED and absorbed_by` test reported it as
+    # NO_POOL -- a topic that no longer exists, shown as merely unpooled. Both retirement
+    # routes are now asserted, so neither can regress without the other noticing.
+    ck("a topic retired by SPLIT (carries `split_into`)",
+       object_state("DABIGATRAN_VTE_AUTO_FULL_REVIEW.html", pmap)[0], RETIRED)
+    ck("...and its successors are named rather than left blank",
+       "dabigatran-vte-treatment" in
+       (object_state("DABIGATRAN_VTE_AUTO_FULL_REVIEW.html", pmap)[1] or ""), True)
+    ck("a withdrawn topic", object_state("COLCHICINE_CVD_REVIEW.html", pmap)[0], WITHDRAWN)
+    ck("a live pool", object_state("SGLT2_HF_REVIEW.html", pmap)[0], LIVE)
+    ck("a page with no object", object_state("NO_SUCH_PAGE.html", pmap)[0], UNMAPPED)
+
+    print("\n2. THE PROJECTION NULLS A NOT-LIVE VALUE AND KEEPS IT, never deletes it:")
+    fake = {"rows": [{"file": "COLCHICINE_CVD_REVIEW.html", "pooled_OR": 0.86,
+                      "ci_low": 0.7, "ci_high": 1.0}]}
+    project(fake, pmap)
+    r = fake["rows"][0]
+    ck("the live value is nulled", r["pooled_OR"], None)
+    ck("and the old value is kept", r["pooled_OR_superseded"], 0.86)
+    ck("with the reason attached", "WITHDRAWN" in r["superseded_because"], True)
+
+    print("\n3. A LIVE ROW IS LEFT ALONE:")
+    fake2 = {"rows": [{"file": "SGLT2_HF_REVIEW.html", "pooled_OR": 0.76}]}
+    project(fake2, pmap)
+    ck("a live topic keeps its value", fake2["rows"][0]["pooled_OR"], 0.76)
+    ck("and gains no superseded field", "pooled_OR_superseded" in fake2["rows"][0], False)
+
+    print("\n4. THE FINGERPRINT MOVES WHEN A WITHDRAWAL CHANGES -- and only then:")
+    f1 = fingerprint(pmap)
+    f2 = fingerprint(pmap)
+    ck("it is stable across two runs on unchanged objects", f1 == f2, True)
+    smaller = {k: v for k, v in list(pmap.items())[:-1]}
+    ck("and it MOVES when the object set changes", fingerprint(smaller) != f1, True)
+
+    print("\n5. AN UNMAPPED ROW IS NEVER SILENTLY CLEANED:")
+    fake3 = {"rows": [{"file": "NO_SUCH_PAGE.html", "pooled_OR": 1.23}]}
+    t, c = project(fake3, pmap)
+    ck("it keeps its value", fake3["rows"][0]["pooled_OR"], 1.23)
+    ck("and is labelled UNMAPPED", fake3["rows"][0]["ssot_state"], UNMAPPED)
+    ck("and is not counted as changed", c, 0)
+
+    print("\n%s" % ("SELFTEST FAILED: %s" % fails if fails else "SELFTEST PASSED"))
+    return 1 if fails else 0
+
+
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    if "--selftest" in sys.argv:
+        sys.exit(selftest())
+    sys.exit(run("--apply" in sys.argv))
+
+codex
+I’m checking the pasted module against the local copy only to verify line numbers; the defect analysis is based on the packet content you provided.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=0; Get-Content -LiteralPath '"'scripts/project_dashboard_index.py' | ForEach-Object { "'$i++; '"'{0,4}: {1}' -f "'$i, $_ } | Select-Object -First 270' in F:\rapidmeta-ssot-shell
+ succeeded in 1324ms:
+   1: #!/usr/bin/env python3
+   2: """PROJECT THE DASHBOARD'S INDEX FROM THE OBJECTS, AND MAKE ITS STALENESS DETECTABLE.
+   3: 
+   4: THE DEFECT. `dashboard.html` renders a "Pooled OR (95% CI)" column from
+   5: `outputs/portfolio_index.json`, a snapshot generated 2026-06-24. Of its 711 rows carrying a
+   6: numeric `pooled_OR`, **83 belong to topics whose SSOT object has WITHDRAWN its estimate** and
+   7: **8 to reviews that no longer exist**, having been retired into another topic.
+   8: 
+   9:     A WITHDRAWAL IS THE STRONGEST STATEMENT A REVIEW IN THIS CORPUS CAN MAKE. It is what an
+  10:     object says when its trials do not share an endpoint, when its comparator is wrong, or when
+  11:     its headline could not be reproduced from its own trials. SERVING THE NUMBER ANYWAY UNDOES
+  12:     EVERY ONE OF THOSE DECISIONS AT ONCE, for every reader who never opens the page -- and the
+  13:     dashboard is the surface most readers actually look at.
+  14: 
+  15:     It is the same class as the page that displayed somebody else's benchmark as its own,
+  16:     at scale, on the aggregate surface.
+  17: 
+  18: WHY REGENERATING THE SNAPSHOT IS NOT THE FIX. A regenerated snapshot is correct for a day and
+  19: wrong again the next time an object is withdrawn, silently and with no symptom. The pages solved
+  20: this years of defects ago: a page carries the version it was built to, so being out of date is
+  21: VISIBLE rather than invisible. The dashboard's data gets the same treatment.
+  22: 
+  23: WHAT THIS WRITES INTO THE ARTEFACT
+  24:   * per row, `ssot_state` -- LIVE / WITHDRAWN / RETIRED / NO_POOL / UNMAPPED / OBJECT_MISSING
+  25:   * per row that is not LIVE, the pooled value is MOVED to `pooled_OR_superseded` and the live
+  26:     fields are nulled, so the dashboard cannot render a number the object does not support.
+  27:     NOTHING IS DELETED -- the superseded value stays, labelled, exactly as a retired topic keeps
+  28:     a tombstone.
+  29:   * a `projection` block carrying an OBJECTS FINGERPRINT: a hash over every object's path,
+  30:     mtime-independent CONTENT and its derived state. `scripts/dashboard_projection_gate.py`
+  31:     recomputes it and REFUSES when it no longer matches, so staleness is detectable by a command
+  32:     instead of by somebody noticing.
+  33: 
+  34: WHAT THIS DOES NOT DO, stated so a clean run is not read as more than it is
+  35:   * It does NOT check the LIVE rows' NUMBERS against their objects. A row that stays LIVE may
+  36:     still be stale by value. This answers only the sharper question -- is a number served where
+  37:     the object says there is none.
+  38:   * It does NOT touch the 602 rows whose page has no SSOT object. They are labelled UNMAPPED and
+  39:     are UNCHECKABLE, never clean, and they are why every count here is a floor.
+  40: 
+  41: USAGE:  python scripts/project_dashboard_index.py --check
+  42:         python scripts/project_dashboard_index.py --apply
+  43:         python scripts/project_dashboard_index.py --selftest
+  44: """
+  45: import hashlib
+  46: import io
+  47: import json
+  48: import os
+  49: import sys
+  50: 
+  51: REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+  52: SNAP = os.path.join(REPO, "outputs", "portfolio_index.json")
+  53: PMAP = os.path.join(REPO, "ssot", "PAGE_MAP.json")
+  54: 
+  55: LIVE, WITHDRAWN, RETIRED, NO_POOL = "LIVE", "WITHDRAWN", "RETIRED", "NO_POOL"
+  56: UNMAPPED, MISSING, UNREADABLE = "UNMAPPED", "OBJECT_MISSING", "OBJECT_UNREADABLE"
+  57: NOT_LIVE = (WITHDRAWN, RETIRED, NO_POOL)
+  58: 
+  59: 
+  60: def object_state(page, pmap):
+  61:     """(state, detail) for one page. Five states, and none collapses into another."""
+  62:     if page not in pmap:
+  63:         return UNMAPPED, None
+  64:     rel = pmap[page]
+  65:     p = os.path.join(REPO, rel.replace("/", os.sep))
+  66:     if not os.path.exists(p):
+  67:         return MISSING, rel
+  68:     try:
+  69:         with io.open(p, "r", encoding="utf-8") as fh:
+  70:             o = json.load(fh)
+  71:     except ValueError:
+  72:         return UNREADABLE, rel
+  73:     # RETIRED IS DECIDED BY `state` ALONE. This test used to read
+  74:     #     state == RETIRED **and** o.get("absorbed_by")
+  75:     # which made the successor field a precondition for recognising retirement. The first
+  76:     # topic retired by SPLIT rather than by merge carries `split_into`, not `absorbed_by`, so
+  77:     # it fell straight through to NO_POOL and the dashboard reported a topic that no longer
+  78:     # exists as though it were merely unpooled. **A tombstone the projection cannot see is a
+  79:     # retired topic presented as live** -- the same shape as class 25, a lookup keyed on one
+  80:     # spelling of a field reporting something false about the thing it looked at.
+  81:     #
+  82:     # The successor is now read from EITHER field, and a tombstone with neither is still
+  83:     # RETIRED with the successor reported as unrecorded -- never silently downgraded.
+  84:     if str(o.get("state") or "").upper() == "RETIRED":
+  85:         succ = o.get("absorbed_by") or o.get("split_into")
+  86:         if isinstance(succ, list):
+  87:             succ = ", ".join(succ)
+  88:         return RETIRED, (succ or "RETIRED, and no successor field is recorded on the tombstone")
+  89:     res = (o.get("results") or {}).get("by_outcome") or {}
+  90:     live, withdrawn, reason = False, False, None
+  91:     for b in res.values():
+  92:         if not isinstance(b, dict):
+  93:             continue
+  94:         pl = b.get("pooled") or {}
+  95:         if pl.get("withdrawn"):
+  96:             withdrawn = True
+  97:             reason = reason or pl.get("withdrawn_reason") or b.get("poolable_reason")
+  98:         elif pl.get("point") is not None:
+  99:             live = True
+ 100:     if live:
+ 101:         return LIVE, None
+ 102:     if withdrawn:
+ 103:         return WITHDRAWN, (reason or "")[:400]
+ 104:     return NO_POOL, None
+ 105: 
+ 106: 
+ 107: def fingerprint(pmap):
+ 108:     """A hash over the OBJECT STATE the projection depends on -- not over file mtimes.
+ 109: 
+ 110:     Keyed on content, so touching a file does not invalidate it and CHANGING A WITHDRAWAL does.
+ 111:     That is the whole point: the fingerprint must move exactly when the projection would.
+ 112:     """
+ 113:     h = hashlib.sha256()
+ 114:     for page in sorted(pmap):
+ 115:         state, detail = object_state(page, pmap)
+ 116:         h.update(("%s\x1f%s\x1f%s\x1e" % (page, state, detail or "")).encode("utf-8"))
+ 117:     return h.hexdigest()
+ 118: 
+ 119: 
+ 120: def project(snap, pmap):
+ 121:     rows = snap.get("rows") or []
+ 122:     tally, changed = {}, 0
+ 123:     for r in rows:
+ 124:         if not isinstance(r, dict):
+ 125:             continue
+ 126:         page = r.get("file")
+ 127:         state, detail = object_state(page, pmap)
+ 128:         tally[state] = tally.get(state, 0) + 1
+ 129:         r["ssot_state"] = state
+ 130:         if state == RETIRED:
+ 131:             r["ssot_absorbed_by"] = detail
+ 132:         elif state == WITHDRAWN and detail:
+ 133:             r["ssot_withdrawn_reason"] = detail
+ 134:         if state in NOT_LIVE and isinstance(r.get("pooled_OR"), (int, float)):
+ 135:             # MOVED, NOT DELETED. The value is what the snapshot held on 2026-06-24 and it is
+ 136:             # kept, labelled, so a later reader can see what was served rather than infer it.
+ 137:             r["pooled_OR_superseded"] = r.get("pooled_OR")
+ 138:             r["ci_low_superseded"] = r.get("ci_low")
+ 139:             r["ci_high_superseded"] = r.get("ci_high")
+ 140:             r["superseded_because"] = (
+ 141:                 "the SSOT object for this page is %s. A pooled value is not served for a topic "
+ 142:                 "whose object does not support one." % state)
+ 143:             r["pooled_OR"] = None
+ 144:             r["ci_low"] = None
+ 145:             r["ci_high"] = None
+ 146:             changed += 1
+ 147:     snap["projection"] = {
+ 148:         "projected_utc": "2026-08-19",
+ 149:         "projected_by": "scripts/project_dashboard_index.py",
+ 150:         "objects_fingerprint": fingerprint(pmap),
+ 151:         "what_the_fingerprint_is_over": (
+ 152:             "every page in ssot/PAGE_MAP.json, its derived SSOT state and the reason attached "
+ 153:             "to it. Keyed on CONTENT, so touching a file does not invalidate it and changing a "
+ 154:             "withdrawal does. scripts/dashboard_projection_gate.py recomputes it and refuses "
+ 155:             "when it no longer matches -- staleness detected by a command, not by somebody "
+ 156:             "noticing."),
+ 157:         "by_ssot_state": tally,
+ 158:         "rows_whose_pooled_value_was_withdrawn_from_display": changed,
+ 159:         "snapshot_generated": snap.get("generated"),
+ 160:         "what_this_does_NOT_check": (
+ 161:             "It does not compare the LIVE rows' NUMBERS against their objects. A row left LIVE "
+ 162:             "may still be stale by value. And the UNMAPPED rows have no object at all -- they "
+ 163:             "are uncheckable, never clean, and they are why any count here is a FLOOR."),
+ 164:     }
+ 165:     return tally, changed
+ 166: 
+ 167: 
+ 168: def run(apply_changes=False):
+ 169:     with io.open(SNAP, "r", encoding="utf-8") as fh:
+ 170:         snap = json.load(fh)
+ 171:     with io.open(PMAP, "r", encoding="utf-8") as fh:
+ 172:         pmap = json.load(fh)
+ 173:     before = sum(1 for r in snap.get("rows") or []
+ 174:                  if isinstance(r, dict) and isinstance(r.get("pooled_OR"), (int, float)))
+ 175:     tally, changed = project(snap, pmap)
+ 176:     after = sum(1 for r in snap.get("rows") or []
+ 177:                 if isinstance(r, dict) and isinstance(r.get("pooled_OR"), (int, float)))
+ 178: 
+ 179:     print("snapshot generated %s   rows %d" % (snap.get("generated"), len(snap.get("rows") or [])))
+ 180:     print("rows with a numeric pooled_OR: %d -> %d\n" % (before, after))
+ 181:     for k in sorted(tally, key=lambda x: -tally[x]):
+ 182:         print("   %-18s %4d" % (k, tally[k]))
+ 183:     print("\n   values withdrawn from display: %d" % changed)
+ 184:     print("   objects fingerprint: %s" % snap["projection"]["objects_fingerprint"][:16])
+ 185:     if apply_changes:
+ 186:         with io.open(SNAP, "w", encoding="utf-8") as fh:
+ 187:             fh.write(json.dumps(snap, indent=1, ensure_ascii=False))
+ 188:         print("\nwrote %s" % os.path.relpath(SNAP, REPO))
+ 189:     else:
+ 190:         print("\nDRY RUN -- nothing written. Re-run with --apply.")
+ 191:     return 0
+ 192: 
+ 193: 
+ 194: def selftest():
+ 195:     fails = []
+ 196: 
+ 197:     def ck(name, got, want):
+ 198:         ok = got == want
+ 199:         print("  %-66s %s  %r" % (name, "ok" if ok else "FAIL", got))
+ 200:         if not ok:
+ 201:             fails.append(name)
+ 202: 
+ 203:     with io.open(PMAP, "r", encoding="utf-8") as fh:
+ 204:         pmap = json.load(fh)
+ 205: 
+ 206:     print("1. THE STATES ARE DISTINGUISHED ON REAL OBJECTS IN THIS REPOSITORY:")
+ 207:     ck("a topic retired by MERGE (carries `absorbed_by`)",
+ 208:        object_state("OMECAMTIV_HF_AUTO_FULL_REVIEW.html", pmap)[0], RETIRED)
+ 209:     # THE REGRESSION FOR THE DEFECT THIS TEST DID NOT HAVE. A topic retired by SPLIT carries
+ 210:     # `split_into` instead, and the old `state == RETIRED and absorbed_by` test reported it as
+ 211:     # NO_POOL -- a topic that no longer exists, shown as merely unpooled. Both retirement
+ 212:     # routes are now asserted, so neither can regress without the other noticing.
+ 213:     ck("a topic retired by SPLIT (carries `split_into`)",
+ 214:        object_state("DABIGATRAN_VTE_AUTO_FULL_REVIEW.html", pmap)[0], RETIRED)
+ 215:     ck("...and its successors are named rather than left blank",
+ 216:        "dabigatran-vte-treatment" in
+ 217:        (object_state("DABIGATRAN_VTE_AUTO_FULL_REVIEW.html", pmap)[1] or ""), True)
+ 218:     ck("a withdrawn topic", object_state("COLCHICINE_CVD_REVIEW.html", pmap)[0], WITHDRAWN)
+ 219:     ck("a live pool", object_state("SGLT2_HF_REVIEW.html", pmap)[0], LIVE)
+ 220:     ck("a page with no object", object_state("NO_SUCH_PAGE.html", pmap)[0], UNMAPPED)
+ 221: 
+ 222:     print("\n2. THE PROJECTION NULLS A NOT-LIVE VALUE AND KEEPS IT, never deletes it:")
+ 223:     fake = {"rows": [{"file": "COLCHICINE_CVD_REVIEW.html", "pooled_OR": 0.86,
+ 224:                       "ci_low": 0.7, "ci_high": 1.0}]}
+ 225:     project(fake, pmap)
+ 226:     r = fake["rows"][0]
+ 227:     ck("the live value is nulled", r["pooled_OR"], None)
+ 228:     ck("and the old value is kept", r["pooled_OR_superseded"], 0.86)
+ 229:     ck("with the reason attached", "WITHDRAWN" in r["superseded_because"], True)
+ 230: 
+ 231:     print("\n3. A LIVE ROW IS LEFT ALONE:")
+ 232:     fake2 = {"rows": [{"file": "SGLT2_HF_REVIEW.html", "pooled_OR": 0.76}]}
+ 233:     project(fake2, pmap)
+ 234:     ck("a live topic keeps its value", fake2["rows"][0]["pooled_OR"], 0.76)
+ 235:     ck("and gains no superseded field", "pooled_OR_superseded" in fake2["rows"][0], False)
+ 236: 
+ 237:     print("\n4. THE FINGERPRINT MOVES WHEN A WITHDRAWAL CHANGES -- and only then:")
+ 238:     f1 = fingerprint(pmap)
+ 239:     f2 = fingerprint(pmap)
+ 240:     ck("it is stable across two runs on unchanged objects", f1 == f2, True)
+ 241:     smaller = {k: v for k, v in list(pmap.items())[:-1]}
+ 242:     ck("and it MOVES when the object set changes", fingerprint(smaller) != f1, True)
+ 243: 
+ 244:     print("\n5. AN UNMAPPED ROW IS NEVER SILENTLY CLEANED:")
+ 245:     fake3 = {"rows": [{"file": "NO_SUCH_PAGE.html", "pooled_OR": 1.23}]}
+ 246:     t, c = project(fake3, pmap)
+ 247:     ck("it keeps its value", fake3["rows"][0]["pooled_OR"], 1.23)
+ 248:     ck("and is labelled UNMAPPED", fake3["rows"][0]["ssot_state"], UNMAPPED)
+ 249:     ck("and is not counted as changed", c, 0)
+ 250: 
+ 251:     print("\n%s" % ("SELFTEST FAILED: %s" % fails if fails else "SELFTEST PASSED"))
+ 252:     return 1 if fails else 0
+ 253: 
+ 254: 
+ 255: if __name__ == "__main__":
+ 256:     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+ 257:     if "--selftest" in sys.argv:
+ 258:         sys.exit(selftest())
+ 259:     sys.exit(run("--apply" in sys.argv))
+
+codex
+- **STATUS CODE REPORTING THE WRAPPER / check cannot fail**, line 191 via line 259.  
+  Exact input: `outputs/portfolio_index.json = {"generated":"g","rows":[{"file":"p.html","pooled_OR":1.2,"ci_low":1,"ci_high":2}]}`, `ssot/PAGE_MAP.json = {"p.html":"ssot/p.json"}`, `ssot/p.json = {"results":{"by_outcome":{"x":{"pooled":{"withdrawn":true,"withdrawn_reason":"bad"}}}}}`, command `python scripts/project_dashboard_index.py --check`.  
+  Consequence: it computes one required withdrawal but exits `0`, so CI can pass a stale dashboard.
+
+- **OBJECT_MISSING / OBJECT_UNREADABLE treated as serveable**, lines 57 and 134.  
+  Exact input: `snap={"rows":[{"file":"p.html","pooled_OR":1.2,"ci_low":1,"ci_high":2}]}`, `pmap={"p.html":"ssot/nope.json"}`, with `ssot/nope.json` absent.  
+  Consequence: the row becomes `ssot_state="OBJECT_MISSING"` but keeps `pooled_OR=1.2`, serving a number for an object that cannot be checked.
+
+- **Withdrawal loses to a live sibling outcome**, line 100.  
+  Exact input: object file `{"results":{"by_outcome":{"bad":{"pooled":{"withdrawn":true,"withdrawn_reason":"endpoint mismatch"}},"ok":{"pooled":{"point":0.5}}}}}` with snapshot row `{"file":"p.html","pooled_OR":1.2}`.  
+  Consequence: `object_state` returns `LIVE`, so a row can keep a pooled value even though the object contains a withdrawn pooled result.
+
+- **Reprojection cannot restore a row that becomes live again**, line 134.  
+  Exact input: `snap={"rows":[{"file":"p.html","ssot_state":"WITHDRAWN","pooled_OR":None,"pooled_OR_superseded":0.86,"ssot_withdrawn_reason":"old"}]}`, object now `{"results":{"by_outcome":{"x":{"pooled":{"point":0.86}}}}}`.  
+  Consequence: the row becomes `LIVE` but still has `pooled_OR=None` and stale superseded/withdrawal metadata.
+
+No finding from the pasted file: CRLF/LF text comparison, merged-cell/off-by-one, negation-dropped count parsing.  
+COULD NOT DETERMINE corpus-form selector coverage: missing `ssot/PAGE_MAP.json` and SSOT object corpus.
+tokens used
+39,598
+- **STATUS CODE REPORTING THE WRAPPER / check cannot fail**, line 191 via line 259.  
+  Exact input: `outputs/portfolio_index.json = {"generated":"g","rows":[{"file":"p.html","pooled_OR":1.2,"ci_low":1,"ci_high":2}]}`, `ssot/PAGE_MAP.json = {"p.html":"ssot/p.json"}`, `ssot/p.json = {"results":{"by_outcome":{"x":{"pooled":{"withdrawn":true,"withdrawn_reason":"bad"}}}}}`, command `python scripts/project_dashboard_index.py --check`.  
+  Consequence: it computes one required withdrawal but exits `0`, so CI can pass a stale dashboard.
+
+- **OBJECT_MISSING / OBJECT_UNREADABLE treated as serveable**, lines 57 and 134.  
+  Exact input: `snap={"rows":[{"file":"p.html","pooled_OR":1.2,"ci_low":1,"ci_high":2}]}`, `pmap={"p.html":"ssot/nope.json"}`, with `ssot/nope.json` absent.  
+  Consequence: the row becomes `ssot_state="OBJECT_MISSING"` but keeps `pooled_OR=1.2`, serving a number for an object that cannot be checked.
+
+- **Withdrawal loses to a live sibling outcome**, line 100.  
+  Exact input: object file `{"results":{"by_outcome":{"bad":{"pooled":{"withdrawn":true,"withdrawn_reason":"endpoint mismatch"}},"ok":{"pooled":{"point":0.5}}}}}` with snapshot row `{"file":"p.html","pooled_OR":1.2}`.  
+  Consequence: `object_state` returns `LIVE`, so a row can keep a pooled value even though the object contains a withdrawn pooled result.
+
+- **Reprojection cannot restore a row that becomes live again**, line 134.  
+  Exact input: `snap={"rows":[{"file":"p.html","ssot_state":"WITHDRAWN","pooled_OR":None,"pooled_OR_superseded":0.86,"ssot_withdrawn_reason":"old"}]}`, object now `{"results":{"by_outcome":{"x":{"pooled":{"point":0.86}}}}}`.  
+  Consequence: the row becomes `LIVE` but still has `pooled_OR=None` and stale superseded/withdrawal metadata.
+
+No finding from the pasted file: CRLF/LF text comparison, merged-cell/off-by-one, negation-dropped count parsing.  
+COULD NOT DETERMINE corpus-form selector coverage: missing `ssot/PAGE_MAP.json` and SSOT object corpus.

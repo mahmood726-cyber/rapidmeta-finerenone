@@ -1,0 +1,363 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a03226-75ce-79c1-a138-9cf1ee96de43
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/prove_no_value_lost.py
+
+--- THE FILE, IN FULL ---
+"""Did any leaf VALUE disappear from an SSOT object, as opposed to moving?
+
+THE COMPANION TO THE PATH-KEYED CHECK, AND THE REASON IT EXISTS IS REGISTRY CLASS 68: a
+path-keyed comparison cannot distinguish a relocation from a deletion. Preserving a prior
+state under `superseded_state_<stamp>` is exactly a relocation, so the path-keyed check
+reports it as loss every time the right thing is done.
+
+This asks the other half: is the VALUE still somewhere in the object? Together the two say
+what happened --
+
+    path lost, value present   -> RELOCATED. The right thing, reported as loss by the other
+                                  check, which is why both are needed.
+    path lost, value absent    -> DELETED. The standing rule breached.
+    path present, value changed-> REWRITTEN in place, which neither check flags and which is
+                                  a gap both of them share. Stated rather than implied.
+
+THE GAP IS NOT HYPOTHETICAL AND THIS INSTRUMENT ONLY CAUGHT IT BY LUCK. Converting
+empagliflozin's `risk_of_bias.ceiling` from a bare string to a dict, I RETYPED the sentence
+and wrote `the sources read` where the authored text said `the sources READ`. This check saw
+it -- but only because the SHAPE changed too, so the old scalar path vanished. Had the value
+stayed a string, a retyped word would have passed both checks in silence. A sentence carried
+from one artefact to another should be MOVED, never retyped.
+
+
+NEITHER CHECK ALONE IS A VERDICT. The one that reports zero is not the reassuring one; the
+pair is.
+"""
+import io
+import json
+import os
+import sys
+import glob
+import subprocess
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from instrument_controls import require_controls
+
+BS = chr(92)
+
+
+def leaves(node):
+    out = []
+    if isinstance(node, dict):
+        for v in node.values():
+            out += leaves(v)
+    elif isinstance(node, list):
+        for v in node:
+            out += leaves(v)
+    else:
+        out.append(node)
+    return out
+
+
+def main():
+    gate = "--gate" in sys.argv
+    old_fix = {"a": {"b": "kept"}, "c": "gone"}
+    new_reloc = {"a": {"b": "kept"}, "superseded": {"c": "gone"}}
+    new_del = {"a": {"b": "kept"}}
+    lost = lambda o, n: [v for v in leaves(o) if v not in set(leaves(n))]
+    require_controls(
+        "prove_no_value_lost",
+        positive=("a value deleted outright", bool(lost(old_fix, new_del)), True),
+        negative=("the same value RELOCATED under a superseded key",
+                  bool(lost(old_fix, new_reloc)), True))
+
+    total, files, rows = 0, 0, []
+    new_at_head, unparsable_at_head = [], []
+    for path in sorted(glob.glob(os.path.join(REPO, "ssot", "*", "*.json"))):
+        topic = os.path.basename(os.path.dirname(path))
+        if os.path.basename(path) != topic + ".json":
+            continue
+        rel = os.path.relpath(path, REPO).replace(BS, "/")
+        raw = subprocess.run(["git", "show", "HEAD:" + rel],
+                             capture_output=True).stdout
+        # THE POSITIVE PROPERTY IS `HAS A COMMITTED PRIOR STATE`, and the two ways of not
+        # having one are NAMED rather than skipped. An object absent from HEAD is new, so it
+        # has lost nothing -- but a silent `continue` also drops it out of the denominator,
+        # and a reader seeing `155 objects compared` cannot tell 155-of-155 from 155-of-160.
+        #
+        # THAT IS OPEN ITEM O2 OF THE REGISTRY -- `a scoped pass that does not state its
+        # scope` -- which was written in this project about the pre-push regression check,
+        # and which I then reproduced in a NEW instrument the same night and quoted a number
+        # from. Measured here it was LATENT rather than realised: 155 on disk, 155 compared,
+        # 0 excluded. The count I reported was over the whole population. It was true, and it
+        # was not KNOWN to be true, and those are different things.
+        if not raw:
+            new_at_head.append(topic)
+            continue
+        try:
+            old = json.loads(raw.decode("utf-8"))
+        except ValueError:
+            unparsable_at_head.append(topic)
+            continue
+        new = json.load(io.open(path, encoding="utf-8"))
+        files += 1
+        gone = lost(old, new)
+        if gone:
+            total += len(gone)
+            rows.append((topic, gone))
+
+    print("")
+    print("OBJECTS ON DISK: %d" % (files + len(new_at_head) + len(unparsable_at_head)))
+    print("OBJECTS COMPARED AGAINST HEAD BY VALUE: %d" % files)
+    print("NOT COMPARED -- NO COMMITTED PRIOR STATE, SO NOTHING TO LOSE: %d" % len(new_at_head))
+    for topic in new_at_head:
+        print("    %s -- new since HEAD" % topic)
+    if unparsable_at_head:
+        print("NOT COMPARED -- THE HEAD COPY DOES NOT PARSE: %d" % len(unparsable_at_head))
+        for topic in unparsable_at_head:
+            print("    %s -- READ THIS AS A FINDING, not as an exclusion" % topic)
+    print("LEAF VALUES GENUINELY ABSENT AFTER THE CHANGE: %d" % total)
+    for topic, gone in rows:
+        print("    %s -- %d" % (topic, len(gone)))
+        for v in gone[:3]:
+            print("        %s" % repr(v)[:110])
+    if not rows:
+        print("    none. Every value present at HEAD is still somewhere in its object.")
+    print("")
+    print("READ THIS BESIDE THE PATH-KEYED COUNT, NEVER INSTEAD OF IT. A value that moved is")
+    print("reported as lost by that one and as present by this one, and the disagreement is")
+    print("the information. A value that BOTH report as gone is a deletion.")
+    if gate and rows:
+        return 1
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+
+codex
+I’ll keep this to the pasted record and the named defect shapes. I’m only using the local file to confirm line numbers, not to infer missing context.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=1; Get-Content -Path scripts/prove_no_value_lost.py | ForEach-Object { '"'{0,4}: {1}' -f "'$i, $_; $i++ }' in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "if (Test-Path 'F:\\ProjectIndex\\INDEX.md') { Get-Item 'F:\\ProjectIndex\\INDEX.md' | Select-Object FullName,Length,LastWriteTime } else { 'MISSING F:\\ProjectIndex\\INDEX.md' }" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "if (Test-Path 'F:\\E156\\rewrite-workbook.txt') { Get-Item 'F:\\E156\\rewrite-workbook.txt' | Select-Object FullName,Length,LastWriteTime } else { 'MISSING F:\\E156\\rewrite-workbook.txt' }" in F:\rapidmeta-ssot-shell
+ succeeded in 1666ms:
+   1: """Did any leaf VALUE disappear from an SSOT object, as opposed to moving?
+   2: 
+   3: THE COMPANION TO THE PATH-KEYED CHECK, AND THE REASON IT EXISTS IS REGISTRY CLASS 68: a
+   4: path-keyed comparison cannot distinguish a relocation from a deletion. Preserving a prior
+   5: state under `superseded_state_<stamp>` is exactly a relocation, so the path-keyed check
+   6: reports it as loss every time the right thing is done.
+   7: 
+   8: This asks the other half: is the VALUE still somewhere in the object? Together the two say
+   9: what happened --
+  10: 
+  11:     path lost, value present   -> RELOCATED. The right thing, reported as loss by the other
+  12:                                   check, which is why both are needed.
+  13:     path lost, value absent    -> DELETED. The standing rule breached.
+  14:     path present, value changed-> REWRITTEN in place, which neither check flags and which is
+  15:                                   a gap both of them share. Stated rather than implied.
+  16: 
+  17: THE GAP IS NOT HYPOTHETICAL AND THIS INSTRUMENT ONLY CAUGHT IT BY LUCK. Converting
+  18: empagliflozin's `risk_of_bias.ceiling` from a bare string to a dict, I RETYPED the sentence
+  19: and wrote `the sources read` where the authored text said `the sources READ`. This check saw
+  20: it -- but only because the SHAPE changed too, so the old scalar path vanished. Had the value
+  21: stayed a string, a retyped word would have passed both checks in silence. A sentence carried
+  22: from one artefact to another should be MOVED, never retyped.
+  23: 
+  24: 
+  25: NEITHER CHECK ALONE IS A VERDICT. The one that reports zero is not the reassuring one; the
+  26: pair is.
+  27: """
+  28: import io
+  29: import json
+  30: import os
+  31: import sys
+  32: import glob
+  33: import subprocess
+  34: 
+  35: REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+  36: sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+  37: from instrument_controls import require_controls
+  38: 
+  39: BS = chr(92)
+  40: 
+  41: 
+  42: def leaves(node):
+  43:     out = []
+  44:     if isinstance(node, dict):
+  45:         for v in node.values():
+  46:             out += leaves(v)
+  47:     elif isinstance(node, list):
+  48:         for v in node:
+  49:             out += leaves(v)
+  50:     else:
+  51:         out.append(node)
+  52:     return out
+  53: 
+  54: 
+  55: def main():
+  56:     gate = "--gate" in sys.argv
+  57:     old_fix = {"a": {"b": "kept"}, "c": "gone"}
+  58:     new_reloc = {"a": {"b": "kept"}, "superseded": {"c": "gone"}}
+  59:     new_del = {"a": {"b": "kept"}}
+  60:     lost = lambda o, n: [v for v in leaves(o) if v not in set(leaves(n))]
+  61:     require_controls(
+  62:         "prove_no_value_lost",
+  63:         positive=("a value deleted outright", bool(lost(old_fix, new_del)), True),
+  64:         negative=("the same value RELOCATED under a superseded key",
+  65:                   bool(lost(old_fix, new_reloc)), True))
+  66: 
+  67:     total, files, rows = 0, 0, []
+  68:     new_at_head, unparsable_at_head = [], []
+  69:     for path in sorted(glob.glob(os.path.join(REPO, "ssot", "*", "*.json"))):
+  70:         topic = os.path.basename(os.path.dirname(path))
+  71:         if os.path.basename(path) != topic + ".json":
+  72:             continue
+  73:         rel = os.path.relpath(path, REPO).replace(BS, "/")
+  74:         raw = subprocess.run(["git", "show", "HEAD:" + rel],
+  75:                              capture_output=True).stdout
+  76:         # THE POSITIVE PROPERTY IS `HAS A COMMITTED PRIOR STATE`, and the two ways of not
+  77:         # having one are NAMED rather than skipped. An object absent from HEAD is new, so it
+  78:         # has lost nothing -- but a silent `continue` also drops it out of the denominator,
+  79:         # and a reader seeing `155 objects compared` cannot tell 155-of-155 from 155-of-160.
+  80:         #
+  81:         # THAT IS OPEN ITEM O2 OF THE REGISTRY -- `a scoped pass that does not state its
+  82:         # scope` -- which was written in this project about the pre-push regression check,
+  83:         # and which I then reproduced in a NEW instrument the same night and quoted a number
+  84:         # from. Measured here it was LATENT rather than realised: 155 on disk, 155 compared,
+  85:         # 0 excluded. The count I reported was over the whole population. It was true, and it
+  86:         # was not KNOWN to be true, and those are different things.
+  87:         if not raw:
+  88:             new_at_head.append(topic)
+  89:             continue
+  90:         try:
+  91:             old = json.loads(raw.decode("utf-8"))
+  92:         except ValueError:
+  93:             unparsable_at_head.append(topic)
+  94:             continue
+  95:         new = json.load(io.open(path, encoding="utf-8"))
+  96:         files += 1
+  97:         gone = lost(old, new)
+  98:         if gone:
+  99:             total += len(gone)
+ 100:             rows.append((topic, gone))
+ 101: 
+ 102:     print("")
+ 103:     print("OBJECTS ON DISK: %d" % (files + len(new_at_head) + len(unparsable_at_head)))
+ 104:     print("OBJECTS COMPARED AGAINST HEAD BY VALUE: %d" % files)
+ 105:     print("NOT COMPARED -- NO COMMITTED PRIOR STATE, SO NOTHING TO LOSE: %d" % len(new_at_head))
+ 106:     for topic in new_at_head:
+ 107:         print("    %s -- new since HEAD" % topic)
+ 108:     if unparsable_at_head:
+ 109:         print("NOT COMPARED -- THE HEAD COPY DOES NOT PARSE: %d" % len(unparsable_at_head))
+ 110:         for topic in unparsable_at_head:
+ 111:             print("    %s -- READ THIS AS A FINDING, not as an exclusion" % topic)
+ 112:     print("LEAF VALUES GENUINELY ABSENT AFTER THE CHANGE: %d" % total)
+ 113:     for topic, gone in rows:
+ 114:         print("    %s -- %d" % (topic, len(gone)))
+ 115:         for v in gone[:3]:
+ 116:             print("        %s" % repr(v)[:110])
+ 117:     if not rows:
+ 118:         print("    none. Every value present at HEAD is still somewhere in its object.")
+ 119:     print("")
+ 120:     print("READ THIS BESIDE THE PATH-KEYED COUNT, NEVER INSTEAD OF IT. A value that moved is")
+ 121:     print("reported as lost by that one and as present by this one, and the disagreement is")
+ 122:     print("the information. A value that BOTH report as gone is a deletion.")
+ 123:     if gate and rows:
+ 124:         return 1
+ 125:     return 0
+ 126: 
+ 127: 
+ 128: if __name__ == "__main__":
+ 129:     sys.exit(main())
+
+ succeeded in 1711ms:
+
+FullName                      Length LastWriteTime      
+--------                      ------ -------------      
+F:\E156\rewrite-workbook.txt 7537503 24/06/2026 22:13:31
+
+
+
+ succeeded in 1721ms:
+
+FullName                 Length LastWriteTime      
+--------                 ------ -------------      
+F:\ProjectIndex\INDEX.md 243045 14/05/2026 19:41:46
+
+
+
+codex
+Defects found:
+
+- **ZERO CONFLATED WITH ABSENT** — line 60. Exact input: `old={"x":0}`, `new={"y":False}`. Consequence: `lost(old, new)` returns `[]` because Python treats `0 == False`, so a deleted JSON numeric zero is reported as still present if any `false` remains.
+
+- **instrument reading a DIFFERENT COPY / subprocess status ignored** — lines 74-75 and 87. Exact input: run `cd F:\tmp; python F:\rapidmeta-ssot-shell\scripts\prove_no_value_lost.py --gate` while `F:\rapidmeta-ssot-shell\ssot\t\t.json` has deleted a HEAD value. Consequence: worktree files are read from `REPO`, but `git show HEAD:<rel>` runs in the current directory’s repo/no-repo, returns empty stdout on failure, and every file can be misclassified as “new since HEAD.”
+
+- **ZERO/EMPTY CONFLATED WITH ABSENT** — line 87. Exact input: committed `HEAD:ssot/t/t.json` is a zero-byte file and worktree `ssot/t/t.json` is `{}`. Consequence: an existing but unparsable prior state is classified as “NO COMMITTED PRIOR STATE,” removed from comparison, and cannot fail the gate.
+
+- **STATUS CODE REPORTING THE WRAPPER rather than the work** — line 123. Exact input: `HEAD:ssot/t/t.json` contains `{` and worktree `ssot/t/t.json` contains `{}`, then run with `--gate`. Consequence: the script prints “HEAD COPY DOES NOT PARSE” as a finding, but returns 0 when `rows` is empty.
+
+COULD NOT DETERMINE selector coverage: need the actual `ssot/` tree/corpus convention to prove whether lines 69-72 miss real SSOT objects.
+
+No defect proven in this packet for: probe keyed to string a fix removes; idempotency guard satisfied by own comment/marker; CRLF-vs-LF text comparison; merged-cell/off-by-one tabulation; negation dropped.
+tokens used
+14,328
+Defects found:
+
+- **ZERO CONFLATED WITH ABSENT** — line 60. Exact input: `old={"x":0}`, `new={"y":False}`. Consequence: `lost(old, new)` returns `[]` because Python treats `0 == False`, so a deleted JSON numeric zero is reported as still present if any `false` remains.
+
+- **instrument reading a DIFFERENT COPY / subprocess status ignored** — lines 74-75 and 87. Exact input: run `cd F:\tmp; python F:\rapidmeta-ssot-shell\scripts\prove_no_value_lost.py --gate` while `F:\rapidmeta-ssot-shell\ssot\t\t.json` has deleted a HEAD value. Consequence: worktree files are read from `REPO`, but `git show HEAD:<rel>` runs in the current directory’s repo/no-repo, returns empty stdout on failure, and every file can be misclassified as “new since HEAD.”
+
+- **ZERO/EMPTY CONFLATED WITH ABSENT** — line 87. Exact input: committed `HEAD:ssot/t/t.json` is a zero-byte file and worktree `ssot/t/t.json` is `{}`. Consequence: an existing but unparsable prior state is classified as “NO COMMITTED PRIOR STATE,” removed from comparison, and cannot fail the gate.
+
+- **STATUS CODE REPORTING THE WRAPPER rather than the work** — line 123. Exact input: `HEAD:ssot/t/t.json` contains `{` and worktree `ssot/t/t.json` contains `{}`, then run with `--gate`. Consequence: the script prints “HEAD COPY DOES NOT PARSE” as a finding, but returns 0 when `rows` is empty.
+
+COULD NOT DETERMINE selector coverage: need the actual `ssot/` tree/corpus convention to prove whether lines 69-72 miss real SSOT objects.
+
+No defect proven in this packet for: probe keyed to string a fix removes; idempotency guard satisfied by own comment/marker; CRLF-vs-LF text comparison; merged-cell/off-by-one tabulation; negation dropped.

@@ -1,0 +1,190 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/audit_p46_closure_quality.py
+
+--- THE FILE, IN FULL ---
+"""Of the topics COMPLETE by P46, how many close on a PROVENANCE-shaped refusal?
+
+P46's refinement says a refusal must name an obstacle IN THE EVIDENCE, not an item on our
+queue. "No risk-of-bias assessment was recoverable from the page" is about where somebody
+looked; "k=1, so fitting a model would manufacture an analysis the review never used" is
+about the world.
+
+BUT scripts/p46_queue.py scores any refusal as complete, and it must -- a held-only counter
+reports a correctly-refusing topic as incomplete forever, and somebody eventually "fixes"
+it by writing into the slot. So a topic can be COMPLETE on a criterion the criterion was
+written to exclude, and the count says nothing about which.
+
+THAT IS THE REPORTING-LAYER CLASS INSIDE THE DEFINITION OF DONE ITSELF. This does not
+unmake the count. It measures how much of it is load-bearing.
+
+A refusal is PROVENANCE-SHAPED when its reason is about our access, our pipeline or our
+queue -- where we looked, what a converter carried over, what has not been done yet. It is
+EVIDENCE-SHAPED when the obstacle is a property of the trials, the registrations or the
+literature.
+
+Run: python scripts/audit_p46_closure_quality.py
+"""
+import io
+import json
+import os
+import re
+import sys
+
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(REPO, "scripts"))
+import p46_queue as Q  # noqa: E402
+
+# Reasons about US: our access, our converter, our backlog.
+PROVENANCE = re.compile(
+    r"recoverable from the page|not recorded on the page this object was extracted from|"
+    r"extracted from|inherited|not yet|has not been (?:done|run|written|reached)|"
+    r"blocked on|pending|to be added|converter|conversion|backlog|our queue|"
+    r"nobody has|was never (?:written|added|carried)", re.I)
+
+# Reasons about THE WORLD: the trials, the registry, the literature.
+EVIDENCE = re.compile(
+    r"\bk\s*=\s*1\b|only one trial|one trial\b|no published synthesis|posts? no results|"
+    r"registry posts nothing|carry no trial count|the trial never|no randomis|"
+    r"never registered|declines? to (?:post|declare)|does not exist in the literature|"
+    r"would manufacture|no model (?:call|was fitted)|nothing was pooled", re.I)
+
+LIMBS = ["rob_per_result", "grade_per_pool", "comparison_denominator",
+         "model_output_verbatim"]
+
+
+def reason_text(obj, limb, oids):
+    """The prose a topic offers for refusing this limb."""
+    bits = []
+    if limb == "rob_per_result":
+        for k in ("risk_of_bias", "risk_of_bias_verdict"):
+            v = obj.get(k)
+            if isinstance(v, dict):
+                bits.extend(str(x) for x in v.values() if isinstance(x, str))
+        af = obj.get("absent_from_source")
+        if isinstance(af, dict) and af.get("rob2"):
+            bits.append(str(af["rob2"]))
+    elif limb == "grade_per_pool":
+        g = obj.get("grade")
+        if isinstance(g, dict):
+            bits.extend(str(x) for x in g.values() if isinstance(x, str))
+        af = obj.get("absent_from_source")
+        if isinstance(af, dict) and af.get("grade"):
+            bits.append(str(af["grade"]))
+        for oid in oids:
+            blk = ((obj.get("results") or {}).get("by_outcome") or {}).get(oid) or {}
+            gg = blk.get("grade")
+            if isinstance(gg, dict):
+                bits.extend(str(x) for x in gg.values() if isinstance(x, str))
+    elif limb == "comparison_denominator":
+        pc = obj.get("published_comparison")
+        if isinstance(pc, dict):
+            bits.extend(str(x) for x in pc.values() if isinstance(x, str))
+    elif limb == "model_output_verbatim":
+        for oid in oids:
+            blk = ((obj.get("results") or {}).get("by_outcome") or {}).get(oid) or {}
+            for k in ("r_output", "r_output_refused"):
+                v = blk.get(k)
+                if isinstance(v, dict):
+                    bits.extend(str(x) for x in v.values() if isinstance(x, str))
+    return " ".join(bits)
+
+
+def main():
+    ssot = os.path.join(REPO, "ssot")
+    complete, rows = [], []
+    for name in sorted(os.listdir(ssot)):
+        fp = os.path.join(ssot, name, name + ".json")
+        if not os.path.exists(fp):
+            continue
+        try:
+            obj = json.load(io.open(fp, encoding="utf-8"))
+        except Exception:
+            continue
+        pools = Q.pooled_outcomes(obj)
+        if not pools:
+            continue
+        s = Q.score(obj)
+        if not all(s[l][0] in ("HELD", "REFUSED") for l in LIMBS):
+            continue
+        complete.append(name)
+        oids = [o for o, _ in pools]
+        detail = {}
+        for l in LIMBS:
+            state = s[l][0]
+            if state == "HELD":
+                detail[l] = "HELD"
+                continue
+            txt = reason_text(obj, l, oids)
+            ev, pv = bool(EVIDENCE.search(txt)), bool(PROVENANCE.search(txt))
+            detail[l] = ("REFUSED/evidence" if ev and not pv else
+                         "REFUSED/provenance" if pv and not ev else
+                         "REFUSED/mixed" if ev and pv else "REFUSED/unclassified")
+        rows.append((name, detail))
+
+    if not rows:
+        print("NOT_ASSESSABLE: no topic is complete by P46, so closure quality cannot be "
+              "measured. A zero here would be a statement about the corpus and this is a "
+              "statement about the run.")
+        return 2
+
+    print("topics COMPLETE by P46: %d" % len(rows))
+    print()
+    hdr = "%-42s %s" % ("topic", "  ".join("%-20s" % l[:20] for l in LIMBS))
+    print(hdr)
+    print("-" * len(hdr))
+    load_bearing = 0
+    for name, d in rows:
+        if any(v == "REFUSED/provenance" for v in d.values()):
+            load_bearing += 1
+        print("%-42s %s" % (name[:42], "  ".join("%-20s" % d[l] for l in LIMBS)))
+    print()
+    from collections import Counter
+    c = Counter(v for _n, d in rows for v in d.values())
+    for k in sorted(c):
+        print("   %-24s %d" % (k, c[k]))
+    print()
+    print("TOPICS WHOSE CLOSURE RESTS ON AT LEAST ONE PROVENANCE-SHAPED REFUSAL: %d of %d"
+          % (load_bearing, len(rows)))
+    print()
+    print("This does NOT unmake the count. It says how much of it is load-bearing: a")
+    print("provenance-shaped refusal discharges P46 as written and is the thing P46's")
+    print("refinement was written to exclude. Report it beside the P46 number, as P47 is.")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

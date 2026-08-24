@@ -1,0 +1,506 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a031a2-8c19-7f52-aa00-818b042c01b2
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/extract_baselines.py
+
+--- THE FILE, IN FULL ---
+r"""Extract trial baseline characteristics via regex from the `group:` field
+text and inject as `baseline: {n, age, pct_female, followup}` on each
+realData entry. Idempotent.
+
+Sources of baseline text in our corpus:
+  - `group: '...'` typically contains the population description
+    (e.g., 'Patients aged 60 years (mean), 47% female, n=4668...')
+  - Some trials have a `baseline: {n, age, female}` object already
+
+Regex patterns (best-effort; flagged confidence):
+  age           — 'mean age \d+', 'median age \d+', 'aged \d+ years'
+  pct_female    — '\d+% female', '\d+ women', '\d+ \(\d+%\) female'
+  followup      — 'follow-up X months', 'X-year follow-up', 'X mo' near outcome
+  n             — fallback to tN + cN
+
+Output: outputs/baseline_extraction.csv with what each trial got + a
+file-level inject report.
+"""
+from __future__ import annotations
+import sys, io, csv, re, json
+from pathlib import Path
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+REPO = Path(__file__).resolve().parent.parent
+
+# Match a complete trial entry: name, group, plus tN+cN we'll need
+TRIAL_RE = re.compile(
+    r"('NCT\d+(?:[A-Z]|_[A-Za-z0-9]+)?'\s*:\s*\{[^}]*?"
+    r"name:\s*'([^']+?)',[^}]*?"
+    r"tN:\s*([\d.eE+\-]+|null|None|NaN)[^}]*?"
+    r"cN:\s*([\d.eE+\-]+|null|None|NaN)[^}]*?"
+    r"group:\s*'([^']+?)')",
+    re.DOTALL,
+)
+
+
+def parse_int(s):
+    if s is None: return None
+    s = str(s).strip()
+    if s.lower() in ('null', 'none', 'nan'): return None
+    try:
+        v = float(s)
+        return int(v) if v == int(v) else int(v)
+    except (ValueError, TypeError):
+        return None
+
+
+def extract_age(text):
+    """Best-effort mean age extraction."""
+    # Mean age N years
+    m = re.search(r'mean\s+age\D{0,5}(\d{2,3}(?:\.\d)?)\s*(?:years|y\b|yo\b)?', text, re.IGNORECASE)
+    if m: return float(m.group(1))
+    # Median age N
+    m = re.search(r'median\s+age\D{0,5}(\d{2,3}(?:\.\d)?)\s*(?:years|y\b|yo\b)?', text, re.IGNORECASE)
+    if m: return float(m.group(1))
+    # Aged N years
+    m = re.search(r'\baged?\s+(\d{2,3}(?:\.\d)?)\s*(?:years|y\b|yo\b)', text, re.IGNORECASE)
+    if m: return float(m.group(1))
+    # "age N (SD..)"
+    m = re.search(r'\bage\s*[:=]?\s*(\d{2,3}(?:\.\d)?)\s*(?:years|y\b|yo\b|\(SD)', text, re.IGNORECASE)
+    if m: return float(m.group(1))
+    return None
+
+
+def extract_pct_female(text):
+    """Best-effort percent female."""
+    # "X% female" or "X% women"
+    m = re.search(r'(\d{1,2}(?:\.\d)?)\s*%\s+(?:female|women)', text, re.IGNORECASE)
+    if m: return float(m.group(1))
+    m = re.search(r'(?:female|women)\D{0,10}(\d{1,2}(?:\.\d)?)\s*%', text, re.IGNORECASE)
+    if m: return float(m.group(1))
+    # "X (Y%) female" — extract the percentage
+    m = re.search(r'\(\s*(\d{1,2}(?:\.\d)?)\s*%\s*\)\s+(?:female|women)', text, re.IGNORECASE)
+    if m: return float(m.group(1))
+    # "n=X (Y%) women"
+    m = re.search(r'(?:female|women)[^,;.]{0,30}(\d{1,2}(?:\.\d)?)\s*%', text, re.IGNORECASE)
+    if m:
+        v = float(m.group(1))
+        if 0 <= v <= 100: return v
+    # "Sex: ALL" — undifferentiated, return None
+    return None
+
+
+def extract_followup(text):
+    """Best-effort follow-up duration in MONTHS."""
+    # "median follow-up X months/years"
+    m = re.search(r'(?:median|mean)?\s*follow.?up\D{0,15}(\d+(?:\.\d+)?)\s*(months?|mo\b|years?|yrs?\b|y\b|wks?|weeks?)', text, re.IGNORECASE)
+    if m:
+        v = float(m.group(1))
+        unit = m.group(2).lower()
+        if 'wk' in unit or 'week' in unit: return v / 4.345
+        if 'y' in unit and 'mo' not in unit: return v * 12
+        return v
+    # "X-year follow-up" / "X-month follow-up"
+    m = re.search(r'(\d+(?:\.\d+)?)[\s-]+(year|month|mo|yr|wk|week)\D{0,5}follow.?up', text, re.IGNORECASE)
+    if m:
+        v = float(m.group(1))
+        unit = m.group(2).lower()
+        if 'wk' in unit or 'week' in unit: return v / 4.345
+        if 'y' in unit: return v * 12
+        return v
+    # Trial duration mentioned without "follow-up"
+    m = re.search(r'(?:over|during|across|at)\s+(\d+(?:\.\d+)?)[\s-]+(year|month|mo)', text, re.IGNORECASE)
+    if m:
+        v = float(m.group(1))
+        unit = m.group(2).lower()
+        if 'y' in unit: return v * 12
+        return v
+    # "wk N" or "week N" (treatment endpoint duration)
+    m = re.search(r'(?:wk|week)s?\s+(\d{1,3})\b', text, re.IGNORECASE)
+    if m:
+        return float(m.group(1)) / 4.345
+    return None
+
+
+def extract_for_trial(group_text, tN, cN):
+    """Compute baseline object."""
+    n = (tN or 0) + (cN or 0)
+    age = extract_age(group_text)
+    pct_f = extract_pct_female(group_text)
+    fu = extract_followup(group_text)
+    out = {}
+    if n > 0: out['n'] = n
+    if age is not None: out['age'] = age
+    if pct_f is not None: out['pct_female'] = pct_f
+    if fu is not None: out['followup'] = round(fu, 1)
+    return out
+
+
+def already_has_baseline(block_text):
+    return bool(re.search(r'baseline:\s*\{', block_text))
+
+
+def patch_file(text):
+    """Inject baseline objects in-place. Returns (new_text, n_added)."""
+    out_chunks = []
+    last = 0
+    n_added = 0
+    rows = []
+    for m in TRIAL_RE.finditer(text):
+        block, name, tN_s, cN_s, group = m.group(1), m.group(2), m.group(3), m.group(4), m.group(5)
+        if already_has_baseline(block):
+            continue
+        tN = parse_int(tN_s)
+        cN = parse_int(cN_s)
+        baseline = extract_for_trial(group, tN, cN)
+        rows.append({"name": name, **baseline})
+        if not baseline:
+            continue
+        # Insert "baseline: {...}, " right after `name: '...'` field
+        baseline_str = json.dumps(baseline)
+        # Convert to JS-style (single quotes around keys keep, but we'll go bare)
+        baseline_js = "{" + ", ".join(f"{k}: {json.dumps(v)}" for k, v in baseline.items()) + "}"
+        # Inject right after the "name: '...',"
+        new_block = re.sub(
+            r"(name:\s*'[^']+?',)",
+            r"\1 baseline: " + baseline_js + ",",
+            block,
+            count=1,
+        )
+        out_chunks.append(text[last:m.start()])
+        out_chunks.append(new_block)
+        last = m.end()
+        n_added += 1
+    out_chunks.append(text[last:])
+    return "".join(out_chunks), n_added, rows
+
+
+def main():
+    files = sorted(REPO.glob("*_REVIEW.html"))
+    print(f"Scanning {len(files)} files ...")
+    total_added = 0
+    all_rows = []
+    files_modified = 0
+    for hp in files:
+        text = hp.read_text(encoding="utf-8", errors="replace")
+        new_text, n_added, rows = patch_file(text)
+        for r in rows:
+            r["file"] = hp.name
+            all_rows.append(r)
+        if n_added > 0:
+            hp.write_text(new_text, encoding="utf-8")
+            total_added += n_added
+            files_modified += 1
+
+    out = REPO / "outputs" / "baseline_extraction.csv"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    cols = ['file', 'name', 'n', 'age', 'pct_female', 'followup']
+    with out.open("w", newline="", encoding="utf-8") as f:
+        w = csv.DictWriter(f, fieldnames=cols, extrasaction='ignore')
+        w.writeheader()
+        for r in all_rows:
+            w.writerow(r)
+
+    print(f"\n=== Summary ===")
+    print(f"  Trials with baseline added: {total_added}")
+    print(f"  Files modified:             {files_modified}")
+    n_with_age = sum(1 for r in all_rows if r.get('age'))
+    n_with_pf = sum(1 for r in all_rows if r.get('pct_female'))
+    n_with_fu = sum(1 for r in all_rows if r.get('followup'))
+    n_total = len(all_rows)
+    print(f"  Coverage:")
+    print(f"    age:        {n_with_age}/{n_total} ({100*n_with_age/max(1,n_total):.0f}%)")
+    print(f"    pct_female: {n_with_pf}/{n_total} ({100*n_with_pf/max(1,n_total):.0f}%)")
+    print(f"    followup:   {n_with_fu}/{n_total} ({100*n_with_fu/max(1,n_total):.0f}%)")
+    print(f"\nWritten: {out}")
+
+
+if __name__ == "__main__":
+    main()
+
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Get-Content -LiteralPath 'F:\\E156\\rewrite-workbook.txt' -TotalCount 20" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Get-Content -LiteralPath 'F:\\ProjectIndex\\INDEX.md' -TotalCount 20" in F:\rapidmeta-ssot-shell
+ succeeded in 404ms:
+E156 REWRITE WORKBOOK
+sentinel:skip-file
+sentinel:claim-language-allow
+(Sentinel markers above:
+ - sentinel:skip-file: this workbook intentionally contains C:\Users\... PATH:
+   lines pointing to each project's local source directory â€” they're metadata,
+   not code. The marker keeps Sentinel from emitting ~16 P0 hardcoded-path
+   BLOCKs every push.
+ - sentinel:claim-language-allow: CURRENT BODY entries are the AI-drafted
+   summaries that students rewrite into hedged language â€” flagging overclaim
+   words IN those drafts is the whole pedagogical point, not a defect.
+   File-scope marker here suppresses the ~1293 claim-language WARNs on the
+   CURRENT BODY entries; the YOUR REWRITE entries are where the hedging
+   discipline matters and remains lintable in the rendered student board.)
+
+DENOMINATOR CONVENTION (added 2026-05-06 after review-findings P1-5):
+  Each entry header is `[N/total]` where N = ordinal insertion index and
+  `total` = current portfolio size as of the most recent reconcile sweep.
+  Older entries are back-rewritten on milestone boundaries (rather than
+  preserving their insertion-time denominator) to keep
+
+ succeeded in 414ms:
+<!-- sentinel:skip-file - portfolio registry; absolute paths ARE the data -->
+# C: Drive Project Index
+> **Last updated**: 2026-05-14 (C:\HTML apps focused repair batch continued: hub shell launch fix, static contracts across ten HTML app repos, NMA/living-meta/nma-dose-response landing and asset-link repairs, and NMA doc hardcoded-path cleanup. Prior SheafNMA v0.2.0, D-drive legacy smoke-contract continuation, CardioOracle lifecycle status freeze, C-drive model/project smoke-contract continuation, mahmood789 consolidation, Sentinel/Overmind JSONL and verification repair, C-drive reproducibility audit continuation, C-drive verification repair, D-drive repair batch, superapp, C-drive sweep, home-folder hardening, Trial Truthfulness Atlas, and portfolio notes retained below.)
+
+### C:\HTML apps focused repair batch (2026-05-14)
+> - `C:\HTML apps\hub\`: added a launchable `index.html` shell and static contract tests for required registry/runtime wiring; fixed `app.js` local `file://` launch resolution so the hub opened from `hub\index.html` links sibling apps from the parent HTML-apps directory instead of nesting paths under `hub`. Verification: `pytest -q -p no:cacheprovider` -> `3 passed`; `node --check app.js && node --check projects.js` -> PASS; headless Chrome smoke on `file:///mnt/c/HTML%20apps/hub/index.html` confirmed the page title and sibling app links. GitHub pushed: `mahmood726-cyber/hub` main `c1a6725`.
+> - `C:\HTML apps\evidence-board\`, `C:\HTML apps\focus-studio\`, `C:\HTML apps\kanban-lab\`: added pytest-visible static app shell contracts covering title/description, localStorage persistence hooks, key controls, and absence of unresolved templates or hardcoded local drive paths; added repo `.gitignore` entries for Python caches and `PROGRESS.md`. Verification: each `pytest -q -p no:cacheprovider` -> `2 passed` with the existing pytest `cache_dir` warning; scoped `git diff --check` -> PASS. GitHub pushed: `evidence-board` master `9a87c8b`, `focus-studio` master `0fa728b`, `kanban-lab` master `81cad38`.
+> - `C:\HTML apps\nma-pro-v2\`: fixed the landing page's broken app links from absent v6/v7 asset filenames to the current `e156-submission/assets/nma-pro-v8.0.html`, added static link-resolution contracts, and removed Sentinel P0 hardcoded local OneDrive paths from legacy docs. Verification: `pytest -q -p no:cacheprovider tests/test_smoke.py tests/test_static_links.py` -> `3 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=1 INFO=302` (pre-existing tracked autogen warning plus HTML a11y INFO). GitHub pushed: master `a2834e7` for the link fix and master `a74e385` for the P0 doc cleanup.
+> - `C:\HTML apps\IPD-Meta-Pro\` and `C:\HTML apps\Truthcert1\`: added static link-resolution contracts for landing-page local assets and canonical app entrypoints. Verification: `IPD-Meta-Pro` `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; `Truthcert1` same command -> `2 passed` with existing pytest `cache_dir` warning. GitHub pushed: `IPD-Meta-Pro` master `b26ee09`, `Truthcert1` master `81eddd3`.
+> - `C:\HTML apps\living-meta\`: repaired landing-page validation links that pointed to a missing HTML asset and an out-of-repo sibling path; linked the existing validation and limitations docs instead, and added a static link-resolution contract. Verification: `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=8` (pre-existing HTML a11y INFO). GitHub pushed: master `c3c8a9b`.
+> - `C:\HTML apps\Pairwiseai\`: added a static landing-page contract covering local link resolution, absence of unresolved templates/local drive paths, and the key app entrypoints under `e156-submission/assets`. Verification: `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=1731` (pre-existing HTML a11y INFO). GitHub pushed: master `2ade493`.
+> - `C:\HTML apps\nma-dose-response-app\`: pushed the existing smoke-blocker commit and added an E156 asset-bundle repair so `e156-submission\assets\index*.html` resolves its JS runtime dependencies from inside the assets folder; added a static link-resolution contract covering root and E156 app entrypoints. Verification: `pytest -q -p no:cacheprovider tests/test_smoke.py tests/test_static_links.py` -> `4 passed` with the existing pytest `cache_dir` warning; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=442` (pre-existing HTML a11y INFO). GitHub pushed: master `e95fae0` and `96594b6`.
+> - Push gate: Windows Git credential path succeeded after WSL Git lacked HTTPS credentials. Sentinel pre-push/manual scan verdicts were BLOCK=0; evidence-board INFO=18, focus-studio INFO=10, kanban-lab INFO=10, living-meta INFO=8, Pairwiseai INFO=1731, nma-dose-response-app INFO=442 (pre-existing P2 HTML accessibility notes); hub push emitted no Sentinel findings.
+> - Existing unrelated dirty files were left unstaged in these repos, mainly protocol/license/doc edits and untracked `paper\` outputs in the three app repos, plus pre-existing hub metadata/submission/style edits.
+
+### SheafNMA (2026-05-12; v0.2.0 real-NMA-corpus validation + 36-cell Ã— 1000-rep simulation + methods paper draft)
+> - `C:\Models\SheafNMA\` â€” cellular-sheaf inconsistency localization for network meta-analysis. v0.1.0 (2026-04-07) was math + single-file HTML dashboard + E156 #153 micro-paper on a synthetic 12-contrast network. v0.2.0 refactored the 457-LOC `generate_figures.py` into a `sheafnma/` package (`core`, `io`, `simulate`, `comparators`, `r_bridge`), validated on 13 R-netmeta built-in NMAs, and shipped a methods-paper draft for Research Synthesis Methods.
+> - Method: precision-weighted coboundary `F[e, treat1] = -1/SE_e, F[e, treat2] = +1/SE_e`; sheaf Laplacian `L = Fáµ€F` (symmetric PSD); WLS-solve node estimates with node 0 anchored; per-edge residuals `r_e = dÌƒ_e âˆ’ (F x*)_e` localize inconsistency; **Global Inconsistency Index** `GII = Î£ rÂ²` is the global statistic. One algebraic object yields both global + per-edge â€” complements (not replaces) node-splitting.
+> - Real-corpus headline: across **13 R-netmeta built-in NMAs** (Senn 2013 diabetes, Dias smokingcessation, Dong 2013 thrombolytics, Linde 2015/2016 acupuncture, Salanti antimanic, Baker, Dogliotti, Franchini, Gurusamy, Stowe, Woods, dietaryfat, parkinson) the global design-by-treatment Ï‡Â² (Higgins 2012) failed to reject in all 13. **SheafNMA flagged â‰¥1 localized inconsistency edge in 5 of those 13 (38.5%)** at the Youden-frozen threshold of **2.6912** â€” networks that look globally consistent harbor at least one inconsistent edge the global test misses.
+> - Simulation rigor: 36-cell grid (n_treatments âˆˆ {4,6,8} Ã— n_studies_per_edge âˆˆ {3,5,10} Ã— Ï„_inc âˆˆ {0,0.2,0.5,1.0}) Ã— **1000 replications per cell**, held-out training cell at (6,5,0.5) for Youden's-J threshold selection (frozen before evaluating remaining 35 cells). Type-I error at Ï„_inc=0 was **0.000 across all cells**. Mean per-edge sensitivity 0.981 / specificity 0.945 at Ï„_inc=0.5.
+
+codex
+I’m using the pasted packet as authoritative for the review and only checking line-sensitive defects that are demonstrable from this file’s own callable behavior.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$p='"'F:\\rapidmeta-ssot-shell\\scripts\\extract_baselines.py'; if (Test-Path -LiteralPath "'$p) { $i=1; Get-Content -LiteralPath $p | ForEach-Object { if ($i -ge 110 -and $i -le 205) { '"'{0,4}: {1}' -f "'$i, $_ }; $i++ } } else { '"'missing' }" in F:\rapidmeta-ssot-shell
+ succeeded in 1599ms:
+ 110:     m = re.search(r'(?:wk|week)s?\s+(\d{1,3})\b', text, re.IGNORECASE)
+ 111:     if m:
+ 112:         return float(m.group(1)) / 4.345
+ 113:     return None
+ 114: 
+ 115: 
+ 116: def extract_for_trial(group_text, tN, cN):
+ 117:     """Compute baseline object."""
+ 118:     n = (tN or 0) + (cN or 0)
+ 119:     age = extract_age(group_text)
+ 120:     pct_f = extract_pct_female(group_text)
+ 121:     fu = extract_followup(group_text)
+ 122:     out = {}
+ 123:     if n > 0: out['n'] = n
+ 124:     if age is not None: out['age'] = age
+ 125:     if pct_f is not None: out['pct_female'] = pct_f
+ 126:     if fu is not None: out['followup'] = round(fu, 1)
+ 127:     return out
+ 128: 
+ 129: 
+ 130: def already_has_baseline(block_text):
+ 131:     return bool(re.search(r'baseline:\s*\{', block_text))
+ 132: 
+ 133: 
+ 134: def patch_file(text):
+ 135:     """Inject baseline objects in-place. Returns (new_text, n_added)."""
+ 136:     out_chunks = []
+ 137:     last = 0
+ 138:     n_added = 0
+ 139:     rows = []
+ 140:     for m in TRIAL_RE.finditer(text):
+ 141:         block, name, tN_s, cN_s, group = m.group(1), m.group(2), m.group(3), m.group(4), m.group(5)
+ 142:         if already_has_baseline(block):
+ 143:             continue
+ 144:         tN = parse_int(tN_s)
+ 145:         cN = parse_int(cN_s)
+ 146:         baseline = extract_for_trial(group, tN, cN)
+ 147:         rows.append({"name": name, **baseline})
+ 148:         if not baseline:
+ 149:             continue
+ 150:         # Insert "baseline: {...}, " right after `name: '...'` field
+ 151:         baseline_str = json.dumps(baseline)
+ 152:         # Convert to JS-style (single quotes around keys keep, but we'll go bare)
+ 153:         baseline_js = "{" + ", ".join(f"{k}: {json.dumps(v)}" for k, v in baseline.items()) + "}"
+ 154:         # Inject right after the "name: '...',"
+ 155:         new_block = re.sub(
+ 156:             r"(name:\s*'[^']+?',)",
+ 157:             r"\1 baseline: " + baseline_js + ",",
+ 158:             block,
+ 159:             count=1,
+ 160:         )
+ 161:         out_chunks.append(text[last:m.start()])
+ 162:         out_chunks.append(new_block)
+ 163:         last = m.end()
+ 164:         n_added += 1
+ 165:     out_chunks.append(text[last:])
+ 166:     return "".join(out_chunks), n_added, rows
+ 167: 
+ 168: 
+ 169: def main():
+ 170:     files = sorted(REPO.glob("*_REVIEW.html"))
+ 171:     print(f"Scanning {len(files)} files ...")
+ 172:     total_added = 0
+ 173:     all_rows = []
+ 174:     files_modified = 0
+ 175:     for hp in files:
+ 176:         text = hp.read_text(encoding="utf-8", errors="replace")
+ 177:         new_text, n_added, rows = patch_file(text)
+ 178:         for r in rows:
+ 179:             r["file"] = hp.name
+ 180:             all_rows.append(r)
+ 181:         if n_added > 0:
+ 182:             hp.write_text(new_text, encoding="utf-8")
+ 183:             total_added += n_added
+ 184:             files_modified += 1
+ 185: 
+ 186:     out = REPO / "outputs" / "baseline_extraction.csv"
+ 187:     out.parent.mkdir(parents=True, exist_ok=True)
+ 188:     cols = ['file', 'name', 'n', 'age', 'pct_female', 'followup']
+ 189:     with out.open("w", newline="", encoding="utf-8") as f:
+ 190:         w = csv.DictWriter(f, fieldnames=cols, extrasaction='ignore')
+ 191:         w.writeheader()
+ 192:         for r in all_rows:
+ 193:             w.writerow(r)
+ 194: 
+ 195:     print(f"\n=== Summary ===")
+ 196:     print(f"  Trials with baseline added: {total_added}")
+ 197:     print(f"  Files modified:             {files_modified}")
+ 198:     n_with_age = sum(1 for r in all_rows if r.get('age'))
+ 199:     n_with_pf = sum(1 for r in all_rows if r.get('pct_female'))
+ 200:     n_with_fu = sum(1 for r in all_rows if r.get('followup'))
+ 201:     n_total = len(all_rows)
+ 202:     print(f"  Coverage:")
+ 203:     print(f"    age:        {n_with_age}/{n_total} ({100*n_with_age/max(1,n_total):.0f}%)")
+ 204:     print(f"    pct_female: {n_with_pf}/{n_total} ({100*n_with_pf/max(1,n_total):.0f}%)")
+ 205:     print(f"    followup:   {n_with_fu}/{n_total} ({100*n_with_fu/max(1,n_total):.0f}%)")
+
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$p='"'F:\\rapidmeta-ssot-shell\\scripts\\extract_baselines.py'; if (Test-Path -LiteralPath "'$p) { $i=1; Get-Content -LiteralPath $p | ForEach-Object { if ($i -ge 45 -and $i -le 90) { '"'{0,4}: {1}' -f "'$i, $_ }; $i++ } } else { '"'missing' }" in F:\rapidmeta-ssot-shell
+ succeeded in 1471ms:
+  45:         return None
+  46: 
+  47: 
+  48: def extract_age(text):
+  49:     """Best-effort mean age extraction."""
+  50:     # Mean age N years
+  51:     m = re.search(r'mean\s+age\D{0,5}(\d{2,3}(?:\.\d)?)\s*(?:years|y\b|yo\b)?', text, re.IGNORECASE)
+  52:     if m: return float(m.group(1))
+  53:     # Median age N
+  54:     m = re.search(r'median\s+age\D{0,5}(\d{2,3}(?:\.\d)?)\s*(?:years|y\b|yo\b)?', text, re.IGNORECASE)
+  55:     if m: return float(m.group(1))
+  56:     # Aged N years
+  57:     m = re.search(r'\baged?\s+(\d{2,3}(?:\.\d)?)\s*(?:years|y\b|yo\b)', text, re.IGNORECASE)
+  58:     if m: return float(m.group(1))
+  59:     # "age N (SD..)"
+  60:     m = re.search(r'\bage\s*[:=]?\s*(\d{2,3}(?:\.\d)?)\s*(?:years|y\b|yo\b|\(SD)', text, re.IGNORECASE)
+  61:     if m: return float(m.group(1))
+  62:     return None
+  63: 
+  64: 
+  65: def extract_pct_female(text):
+  66:     """Best-effort percent female."""
+  67:     # "X% female" or "X% women"
+  68:     m = re.search(r'(\d{1,2}(?:\.\d)?)\s*%\s+(?:female|women)', text, re.IGNORECASE)
+  69:     if m: return float(m.group(1))
+  70:     m = re.search(r'(?:female|women)\D{0,10}(\d{1,2}(?:\.\d)?)\s*%', text, re.IGNORECASE)
+  71:     if m: return float(m.group(1))
+  72:     # "X (Y%) female" â€” extract the percentage
+  73:     m = re.search(r'\(\s*(\d{1,2}(?:\.\d)?)\s*%\s*\)\s+(?:female|women)', text, re.IGNORECASE)
+  74:     if m: return float(m.group(1))
+  75:     # "n=X (Y%) women"
+  76:     m = re.search(r'(?:female|women)[^,;.]{0,30}(\d{1,2}(?:\.\d)?)\s*%', text, re.IGNORECASE)
+  77:     if m:
+  78:         v = float(m.group(1))
+  79:         if 0 <= v <= 100: return v
+  80:     # "Sex: ALL" â€” undifferentiated, return None
+  81:     return None
+  82: 
+  83: 
+  84: def extract_followup(text):
+  85:     """Best-effort follow-up duration in MONTHS."""
+  86:     # "median follow-up X months/years"
+  87:     m = re.search(r'(?:median|mean)?\s*follow.?up\D{0,15}(\d+(?:\.\d+)?)\s*(months?|mo\b|years?|yrs?\b|y\b|wks?|weeks?)', text, re.IGNORECASE)
+  88:     if m:
+  89:         v = float(m.group(1))
+  90:         unit = m.group(2).lower()
+
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "@'
+from scripts.extract_baselines import extract_pct_female, extract_followup, extract_age, extract_for_trial, patch_file
+print(extract_pct_female('100% female'))
+print(extract_followup('No follow-up 12 months.'))
+print(extract_age('Patients not aged 60 years.'))
+print(extract_for_trial('mean age 60 years', None, 5))
+s=\"'NCT123': {name: 'A', tN: 1, cN: 1, group: 'mean age 60 years', baseline: {n: 2}},\"
+print(patch_file(s)[0])
+'@ | python -" in F:\rapidmeta-ssot-shell
+ succeeded in 1591ms:
+0.0
+12.0
+60.0
+{'n': 5, 'age': 60.0}
+'NCT123': {name: 'A', baseline: {n: 2, age: 60.0}, tN: 1, cN: 1, group: 'mean age 60 years', baseline: {n: 2}},
+
+codex
+- SELECTOR TOO NARROW: line 68. Input: `extract_pct_female("100% female")` returns `0.0`. Consequence: an all-female trial is recorded as 0% female.
+
+- ZERO CONFLATED WITH ABSENT: line 118. Input: `extract_for_trial("mean age 60 years", None, 5)` returns `{'n': 5, 'age': 60.0}`. Consequence: missing treatment-arm N is treated as zero and a partial N is published as total N.
+
+- NEGATION DROPPED: line 87. Input: `extract_followup("No follow-up 12 months.")` returns `12.0`. Consequence: denied follow-up duration is injected as real follow-up.
+
+- NEGATION DROPPED: line 57. Input: `extract_age("Patients not aged 60 years.")` returns `60.0`. Consequence: an exclusion/negated age phrase becomes baseline age.
+
+- INSTRUMENT READING DIFFERENT COPY / IDEMPOTENCY GUARD: line 142. Input: `patch_file("'NCT123': {name: 'A', tN: 1, cN: 1, group: 'mean age 60 years', baseline: {n: 2}},")`. Consequence: the guard only sees the regex slice ending at `group`, misses the existing later `baseline`, and inserts a duplicate baseline.
+
+- ZERO CONFLATED WITH ABSENT: line 199. Input state: `all_rows = [{'pct_female': 0.0}]`. Consequence: summary coverage reports `pct_female` as absent despite a real extracted 0%.
+
+No proven text-line-ending comparison, merged-cell/off-by-one, pipe/wrapper status-code, or string-a-fix-removes probe defect in this file. COULD NOT DETERMINE corpus-form and CI-gate defects without the actual `*_REVIEW.html` corpus and caller.
+tokens used
+32,778
+- SELECTOR TOO NARROW: line 68. Input: `extract_pct_female("100% female")` returns `0.0`. Consequence: an all-female trial is recorded as 0% female.
+
+- ZERO CONFLATED WITH ABSENT: line 118. Input: `extract_for_trial("mean age 60 years", None, 5)` returns `{'n': 5, 'age': 60.0}`. Consequence: missing treatment-arm N is treated as zero and a partial N is published as total N.
+
+- NEGATION DROPPED: line 87. Input: `extract_followup("No follow-up 12 months.")` returns `12.0`. Consequence: denied follow-up duration is injected as real follow-up.
+
+- NEGATION DROPPED: line 57. Input: `extract_age("Patients not aged 60 years.")` returns `60.0`. Consequence: an exclusion/negated age phrase becomes baseline age.
+
+- INSTRUMENT READING DIFFERENT COPY / IDEMPOTENCY GUARD: line 142. Input: `patch_file("'NCT123': {name: 'A', tN: 1, cN: 1, group: 'mean age 60 years', baseline: {n: 2}},")`. Consequence: the guard only sees the regex slice ending at `group`, misses the existing later `baseline`, and inserts a duplicate baseline.
+
+- ZERO CONFLATED WITH ABSENT: line 199. Input state: `all_rows = [{'pct_female': 0.0}]`. Consequence: summary coverage reports `pct_female` as absent despite a real extracted 0%.
+
+No proven text-line-ending comparison, merged-cell/off-by-one, pipe/wrapper status-code, or string-a-fix-removes probe defect in this file. COULD NOT DETERMINE corpus-form and CI-gate defects without the actual `*_REVIEW.html` corpus and caller.

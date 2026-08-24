@@ -1,0 +1,14 @@
+1. **OVERCLAIM.** Quote: *"Acute limb ischaemia and major amputation are not rare in a post-revascularisation peripheral-artery population; they are much of what that trial was counting."* 
+The extra claim is that these specific limb components comprised a large proportion of VOYAGER PAD's total event count. The packet contains only aggregate primary event counts (`treatment_events: 508.0`), with no component-level breakdown to support how much of the total they represented.
+
+2. **UNDERCLAIM.** Yes. The packet explicitly records `comparator_type: "mixed"` ("aspirin alone or placebo, depending on the trial"). The withdrawal text focuses entirely on endpoint and population heterogeneity, missing that the pool is also averaging fundamentally different control arms.
+
+3. **FACT vs JUDGEMENT.** *"All-cause mortality in a decompensated-heart-failure population includes a great many deaths an antithrombotic cannot prevent, and pooling it with a cardiovascular-death composite averages two different questions."* 
+This is a clinical mechanism and methodological interpretation written as an objective fact, stepping beyond the quoted registry evidence into medical judgement.
+
+4. **IS THE STATED REASON THE ACTUAL REASON?** Yes, the stated reason (mismatched endpoints via distinct components, count vs. rate, and distinct populations) directly follows from the registry extracts in the packet. However, the packet could definitely support a DIFFERENT reason that has not been given: pooling mixed comparators (aspirin vs. placebo), which is explicitly flagged in the metadata as an unresolved contrast issue.
+
+5. **VERDICT: ACCEPT WITH CHANGES.**
+* Strike the clause *"they are much of what that trial was counting"* because the component fractions are unevidenced.
+* Reframe or remove the sentence about which deaths an antithrombotic can prevent, so interpretive clinical judgement isn't presented as registry fact.
+* Consider citing the mixed comparators as a compounding methodological ground for withdrawal, given it is clearly recorded in the object.

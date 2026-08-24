@@ -1,0 +1,16 @@
+**1. OVERCLAIM.** 
+Quote: *"NCT00761267's registered primary is ADVERSE EVENTS... the other two register global response, and NCT00806351 enrols patients WITH NEUTROPENIA."* and *"Shared at some rank: global response and all-cause mortality."*
+**Extra claim:** The text asserts specific primary outcomes, shared rank outcomes, and participant conditions (neutropenia) for the trials. The packet's evidence fields contain none of these details; they only list trial IDs and state that conditions and outcomes were read, without recording what those values actually are. 
+
+**2. UNDERCLAIM.** 
+Yes. The packet explicitly states in `outcomes[0].definition`: *"Recorded per trial; no common quantity exists."* The text completely omits this absolute lack of a shared outcome measure, and in fact contradicts it by inventing the claim that outcomes are *"Shared at some rank"*.
+
+**3. FACT vs JUDGEMENT.** 
+*"...neutropenia changes both the infection and the outcome, because the host response that clears candidaemia is the response neutropenia removes."* 
+This is a clinical and biological interpretation written in the grammar of an absolute fact, rather than owned as the reviewer's clinical judgement.
+
+**4. IS THE STATED REASON THE ACTUAL REASON?** 
+No. The stated reason in the text relies on a clinical argument about neutropenia to justify withdrawal under MECIR C62, claiming outcomes are shared but populations are not. The actual reason supported by the packet is much simpler: `estimand_established` is false and *"no common quantity exists"* across the trials. The packet contains zero evidence to support the neutropenia argument. 
+
+**5. VERDICT: REJECT.** 
+The text relies entirely on specific trial facts that are absent from the evidence record, directly contradicts the object's explicit finding that no common outcome exists, and presents unowned clinical interpretation as fact. It must be rewritten to rely only on the fields present in the packet.

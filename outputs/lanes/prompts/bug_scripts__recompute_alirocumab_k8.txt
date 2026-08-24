@@ -1,0 +1,372 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/recompute_alirocumab_k8.py
+
+--- THE FILE, IN FULL ---
+"""RECOMPUTE alirocumab-lipid's DERIVED QUANTITIES AT k=8.
+
+WHY THIS IS NEEDED. The 2026-08-19 recovery promoted two trials into the included set and
+restated the headline to MD -54.82 (-60.23 to -49.42) at k=8. Three DERIVED blocks were left
+at k=6:
+
+    prediction_interval        -74.08 to -35.23, and its own text calls it
+                               "THIS IS THE NUMBER TO QUOTE"
+    estimator_sensitivity      three estimator rows computed "on exactly these six values"
+    divergence_decomposed      the per-trial spread quoted as "-39.1 to -64.1", over six
+
+    A HEADLINE RESTATED WITHOUT ITS DERIVED QUANTITIES IS A PAGE THAT DISAGREES WITH ITSELF,
+    AND THE DISAGREEMENT SITS IN THE FIELD LABELLED "the number to quote".
+
+THE GATE THIS RUN MUST PASS FIRST. Before printing anything new, the STORED k=8 headline is
+recomputed from the object's own per-trial values. If it does not reproduce, the inputs are
+not what the headline was computed from and nothing below may be written -- the same rule the
+object states for its own estimator_sensitivity block: reproducing the displayed row is what
+licenses printing the others beside it.
+
+Nothing here is read from the recovery narrative. Every number comes from
+results.by_outcome.ldlc_pct_change_wk24.per_trial.
+"""
+import io
+import json
+import math
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+OBJ = os.path.join(REPO, "ssot", "alirocumab-lipid", "alirocumab-lipid.json")
+Z = 1.959963984540054
+
+
+def t_quantile(p, df):
+    """Two-sided upper quantile of Student t, by bisection on the CDF.
+
+    Written out rather than imported: scipy is not a declared dependency of this repo and a
+    silent import failure here would produce a normal-quantile interval wearing a t label.
+    """
+    def betacf(a, b, x):
+        MAXIT, EPS, FPMIN = 300, 3e-16, 1e-300
+        qab, qap, qam = a + b, a + 1.0, a - 1.0
+        c, d = 1.0, 1.0 - qab * x / qap
+        if abs(d) < FPMIN:
+            d = FPMIN
+        d = 1.0 / d
+        h = d
+        for m in range(1, MAXIT + 1):
+            m2 = 2 * m
+            aa = m * (b - m) * x / ((qam + m2) * (a + m2))
+            d = 1.0 + aa * d
+            if abs(d) < FPMIN:
+                d = FPMIN
+            c = 1.0 + aa / c
+            if abs(c) < FPMIN:
+                c = FPMIN
+            d = 1.0 / d
+            h *= d * c
+            aa = -(a + m) * (qab + m) * x / ((a + m2) * (qap + m2))
+            d = 1.0 + aa * d
+            if abs(d) < FPMIN:
+                d = FPMIN
+            c = 1.0 + aa / c
+            if abs(c) < FPMIN:
+                c = FPMIN
+            d = 1.0 / d
+            de = d * c
+            h *= de
+            if abs(de - 1.0) < EPS:
+                break
+        return h
+
+    def betai(a, b, x):
+        if x <= 0.0:
+            return 0.0
+        if x >= 1.0:
+            return 1.0
+        lbeta = (math.lgamma(a + b) - math.lgamma(a) - math.lgamma(b)
+                 + a * math.log(x) + b * math.log(1.0 - x))
+        if x < (a + 1.0) / (a + b + 2.0):
+            return math.exp(lbeta) * betacf(a, b, x) / a
+        return 1.0 - math.exp(lbeta) * betacf(b, a, 1.0 - x) / b
+
+    def cdf(t):
+        x = df / (df + t * t)
+        tail = 0.5 * betai(df / 2.0, 0.5, x)
+        return 1.0 - tail if t > 0 else tail
+
+    lo, hi = 0.0, 200.0
+    for _ in range(200):
+        mid = (lo + hi) / 2.0
+        if cdf(mid) < p:
+            lo = mid
+        else:
+            hi = mid
+    return (lo + hi) / 2.0
+
+
+def dl(points, ses):
+    k = len(points)
+    w = [1.0 / (s * s) for s in ses]
+    fe = sum(wi * yi for wi, yi in zip(w, points)) / sum(w)
+    q = sum(wi * (yi - fe) ** 2 for wi, yi in zip(w, points))
+    c = sum(w) - sum(wi * wi for wi in w) / sum(w)
+    tau2 = max(0.0, (q - (k - 1)) / c)
+    return pool(points, ses, tau2, q, k)
+
+
+def reml(points, ses, iters=500):
+    k = len(points)
+    tau2 = 0.0
+    for _ in range(iters):
+        w = [1.0 / (s * s + tau2) for s in ses]
+        mu = sum(wi * yi for wi, yi in zip(w, points)) / sum(w)
+        # THE REML CORRECTION TERM IS ADDED AFTER THE DIVISION, NOT INSIDE THE NUMERATOR.
+        # Written the wrong way round first, the iteration diverged until every weight
+        # underflowed to zero and the next mean was 0/0 -- which is at least a LOUD failure.
+        # tau2_{n+1} = sum(w^2[(y-mu)^2 - v]) / sum(w^2)  +  1/sum(w)   (Viechtbauer 2005)
+        num = sum(wi ** 2 * ((yi - mu) ** 2 - s * s) for wi, yi, s in zip(w, points, ses))
+        den = sum(wi ** 2 for wi in w)
+        new = max(0.0, num / den + 1.0 / sum(w))
+        if abs(new - tau2) < 1e-12:
+            tau2 = new
+            break
+        tau2 = new
+    w = [1.0 / (s * s) for s in ses]
+    fe = sum(wi * yi for wi, yi in zip(w, points)) / sum(w)
+    q = sum(wi * (yi - fe) ** 2 for wi, yi in zip(w, points))
+    return pool(points, ses, tau2, q, k)
+
+
+def pool(points, ses, tau2, q, k):
+    w = [1.0 / (s * s + tau2) for s in ses]
+    mu = sum(wi * yi for wi, yi in zip(w, points)) / sum(w)
+    se_mu = math.sqrt(1.0 / sum(w))
+    i2 = max(0.0, (q - (k - 1)) / q) * 100.0 if q > 0 else 0.0
+    return {"k": k, "tau2": tau2, "q": q, "df": k - 1, "i2": i2,
+            "point": mu, "se": se_mu,
+            "ci_low": mu - Z * se_mu, "ci_high": mu + Z * se_mu}
+
+
+def i2_metafor(ses, tau2):
+    """metafor's I-squared: tau2 / (tau2 + s2), s2 the TYPICAL within-study variance.
+
+    NOT the same quantity as Higgins (Q - df)/Q, and the difference is the whole reason this
+    function exists. Higgins is computed from Q, which uses FIXED-EFFECT weights, so it does
+    NOT depend on the estimator: it reads 88.0 for DL and 88.0 for REML. metafor's depends on
+    tau2 and therefore does: 88.0 for DL and 90.0 for REML.
+
+    A SENSITIVITY TABLE WHOSE I-SQUARED COLUMN CANNOT MOVE IS NOT A SENSITIVITY TABLE. The
+    stored k=6 rows read 87.9 / 91.6 / 91.6, which only the metafor definition can produce,
+    so that is the definition the column has always used and it is now named rather than
+    assumed. The object's HEADLINE I-squared stays Higgins, where its own heterogeneity block
+    declares it and gives the evidence for that choice.
+    """
+    k = len(ses)
+    w = [1.0 / (s * s) for s in ses]
+    sw, sw2 = sum(w), sum(wi * wi for wi in w)
+    s2 = (k - 1) * sw / (sw * sw - sw2)
+    return 100.0 * tau2 / (tau2 + s2) if (tau2 + s2) > 0 else 0.0
+
+
+def hksj(points, ses, tau2, k):
+    w = [1.0 / (s * s + tau2) for s in ses]
+    mu = sum(wi * yi for wi, yi in zip(w, points)) / sum(w)
+    # HKSJ VARIANCE INFLATION, WITH THE FLOOR. Where Q < k-1 the raw factor is BELOW 1 and
+    # would NARROW the interval below DerSimonian-Laird, which is the opposite of what the
+    # method is for. Floored at 1 per this project's standing rule.
+    raw = sum(wi * (yi - mu) ** 2 for wi, yi in zip(w, points)) / ((k - 1) * sum(w))
+    var = max(raw, 1.0 / sum(w))
+    se = math.sqrt(var)
+    t = t_quantile(0.975, k - 1)
+    return {"point": mu, "se": se, "t": t, "df": k - 1,
+            "ci_low": mu - t * se, "ci_high": mu + t * se}
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    obj = json.load(io.open(OBJ, encoding="utf-8"))
+    blk = obj["results"]["by_outcome"]["ldlc_pct_change_wk24"]
+    per = blk["per_trial"]
+    # THE SE COMES FROM WHEREVER THE OBJECT ACTUALLY RECORDS IT, AND THE FIRST VERSION OF THIS
+    # SCRIPT FAILED ITS OWN GATE BY GUESSING.
+    #
+    # Six of the eight trials record only a CI, and the k=6 pool was computed from those CIs --
+    # the object says so ("Computed from the six registry-posted intervals"). The two RECOVERED
+    # trials record an SE in `recovery_2026_08_19.recovered_trials[].se`, read from their own
+    # posted LS-mean standard errors; their per_trial CI is a ROUNDED presentation of that SE.
+    # Re-deriving an SE from that rounded CI gives 4.174 / 2.505 against the recorded 4.172 /
+    # 2.507, which is enough to miss the stored tau2 by 0.03 and fail the gate.
+    #
+    #     A ROUNDED DISPLAY IS NOT THE VALUE. Reading a quantity back out of its own printed
+    #     form and calling that the input is how a reproduction check comes to disagree with a
+    #     computation that was correct.
+    #
+    # AND THE RECORDED SE IS ROUNDED TOO. `se: 4.172` and `se: 2.507` are themselves 3-dp
+    # displays of quantities assembled from posted LS means, and using them still missed the
+    # stored tau2 by 0.02. The recovered contrasts are therefore REBUILT AT FULL PRECISION
+    # from the posted LS means, by the arithmetic `ssot/ali_repool.R` documents -- and each
+    # rebuild is CHECKED AGAINST the object's own stored display before it is used, so a typo
+    # in these constants fails loudly instead of quietly moving the pool.
+    exact = {}
+    # NCT02289963, two arms. verbatim: "LS means, placebo 6.3 (SE 2.9), alirocumab -57.1 (SE 3.0)"
+    exact["NCT02289963"] = (-57.1 - 6.3, math.sqrt(3.0 ** 2 + 2.9 ** 2))
+    # NCT02585778 ODYSSEY DM-INSULIN posts NO single overall estimate: T1DM and T2DM strata
+    # only, disjoint participants from one randomisation, combined fixed-effect inverse
+    # variance (Handbook 6.5 s23.3). Fixed-effect and not random -- this is ONE trial.
+    _t1, _s1 = -51.8 - (-3.9), math.sqrt(3.7 ** 2 + 5.3 ** 2)
+    _t2, _s2 = -48.2 - 0.8, math.sqrt(1.6 ** 2 + 2.2 ** 2)
+    _w1, _w2 = 1.0 / _s1 ** 2, 1.0 / _s2 ** 2
+    exact["NCT02585778"] = ((_t1 * _w1 + _t2 * _w2) / (_w1 + _w2),
+                            math.sqrt(1.0 / (_w1 + _w2)))
+
+    pts, ses, se_src = [], [], []
+    for t in per:
+        if t["nct"] in exact:
+            mdx, sex = exact[t["nct"]]
+            if round(mdx, 2) != round(t["point"], 2):
+                print("REFUSED: rebuilt MD %.4f for %s does not match the object's stored "
+                      "%.2f. The constants in this script are not the object's values."
+                      % (mdx, t["nct"], t["point"]))
+                return 1
+            pts.append(mdx)
+            ses.append(sex)
+            se_src.append("rebuilt from posted LS means")
+        else:
+            pts.append(t["point"])
+            ses.append((t["ci_high"] - t["ci_low"]) / (2.0 * Z))
+            se_src.append("from CI")
+    print("per_trial read from the object: k=%d" % len(per))
+    for t, s, src in zip(per, ses, se_src):
+        print("   %-14s %8.2f  (%7.2f to %7.2f)   SE %6.3f  [%s]"
+              % (t["nct"], t["point"], t["ci_low"], t["ci_high"], s, src))
+
+    stored = blk["pooled"]
+    het = blk["heterogeneity"]
+    d = dl(pts, ses)
+    print("\nGATE -- does the STORED headline reproduce from these inputs?")
+    print("   stored     point %8.4f  ci %8.4f to %8.4f  tau2 %7.2f  i2 %5.1f  q %6.2f df %d"
+          % (stored["point"], stored["ci_low"], stored["ci_high"],
+             het["tau2"], het["i2"], het["q"], het["df"]))
+    print("   recomputed point %8.4f  ci %8.4f to %8.4f  tau2 %7.2f  i2 %5.1f  q %6.2f df %d"
+          % (d["point"], d["ci_low"], d["ci_high"], d["tau2"], d["i2"], d["q"], d["df"]))
+    ok = (abs(round(d["point"], 2) - stored["point"]) < 0.005
+          and abs(round(d["ci_low"], 2) - stored["ci_low"]) < 0.005
+          and abs(round(d["ci_high"], 2) - stored["ci_high"]) < 0.005
+          and abs(round(d["tau2"], 2) - het["tau2"]) < 0.005
+          and abs(round(d["i2"], 1) - het["i2"]) < 0.05)
+    print("   %s" % ("REPRODUCES -- the derived blocks below may be written"
+                     if ok else "DOES NOT REPRODUCE -- REFUSING to write anything derived"))
+    if not ok:
+        return 1
+
+    tq = t_quantile(0.975, len(pts) - 1)
+    pi_lo = d["point"] - tq * math.sqrt(d["tau2"] + d["se"] ** 2)
+    pi_hi = d["point"] + tq * math.sqrt(d["tau2"] + d["se"] ** 2)
+    print("\nPREDICTION INTERVAL at k=8, t_%d = %.4f, DL tau2" % (len(pts) - 1, tq))
+    print("   %.2f to %.2f      (the stored k=6 value was -74.08 to -35.23)"
+          % (pi_lo, pi_hi))
+
+    r = reml(pts, ses)
+    # SECOND GATE, AND IT IS A KNOWN ANSWER FROM OUTSIDE THIS FILE. The object already stores
+    # metafor's REML result for exactly these eight trials (recovery_2026_08_19.new_reml),
+    # produced by R rather than by this hand-written iteration. If the two disagree, the
+    # iteration is wrong and nothing REML-derived may be printed.
+    ref = (obj.get("recovery_2026_08_19") or {}).get("new_reml") or {}
+    globals()["ref"] = ref
+    if ref:
+        agree = (abs(round(r["point"], 2) - ref["point"]) < 0.015
+                 and abs(round(r["tau2"], 2) - ref["tau2"]) < 0.05
+                 and abs(round(r["ci_low"], 2) - ref["ci_low"]) < 0.015
+                 and abs(round(r["ci_high"], 2) - ref["ci_high"]) < 0.015)
+        print("\nGATE 2 -- this file's REML against metafor's, stored on the object")
+        print("   metafor  point %8.4f  ci %8.4f to %8.4f  tau2 %7.2f  i2 %5.1f"
+              % (ref["point"], ref["ci_low"], ref["ci_high"], ref["tau2"], ref["i2"]))
+        print("   here     point %8.4f  ci %8.4f to %8.4f  tau2 %7.2f  i2 %5.1f"
+              % (r["point"], r["ci_low"], r["ci_high"], r["tau2"], r["i2"]))
+        if not agree:
+            print("   DISAGREES -- REFUSING to write REML-derived values")
+            return 1
+        print("   AGREES")
+    h = hksj(pts, ses, r["tau2"], len(pts))
+    i2_dl, i2_re = i2_metafor(ses, d["tau2"]), i2_metafor(ses, r["tau2"])
+    print("\nGATE 3 -- metafor's I-squared definition against the stored REML I-squared")
+    print("   stored %.1f   here %.1f   %s"
+          % (ref.get("i2", float("nan")), i2_re,
+             "AGREES" if ref and abs(round(i2_re, 1) - ref["i2"]) < 0.05 else "DISAGREES"))
+    if ref and abs(round(i2_re, 1) - ref["i2"]) >= 0.05:
+        print("   REFUSING to write the sensitivity table")
+        return 1
+
+    print("\nESTIMATOR SENSITIVITY at k=8   (i2 column = metafor definition)")
+    print("   %-38s %7s %6s %9s %9s %9s" % ("estimator", "tau2", "i2", "point", "lo", "hi"))
+    for name, row, i2v in (("DerSimonian-Laird (as displayed)", d, i2_dl),
+                           ("REML", r, i2_re)):
+        print("   %-38s %7.2f %6.1f %9.4f %9.4f %9.4f"
+              % (name, row["tau2"], i2v, row["point"], row["ci_low"], row["ci_high"]))
+    print("   %-38s %7.2f %6.1f %9.4f %9.4f %9.4f   t_%d = %.4f"
+          % ("REML with Hartung-Knapp-Sidik-Jonkman", r["tau2"], i2_re,
+             h["point"], h["ci_low"], h["ci_high"], h["df"], h["t"]))
+    print("\n   Higgins (Q-df)/Q for the same eight trials: %.1f -- estimator-invariant, and "
+          "it is\n   the definition the object's HEADLINE heterogeneity block declares."
+          % d["i2"])
+    print("   THE 90 PER CENT THRESHOLD IS CROSSED UNDER ONE DEFINITION AND NOT THE OTHER: "
+          "\n   metafor/REML %.1f vs Higgins %.1f. The object's `the_one_that_matters` "
+          "sentence\n   turns on exactly that crossing, so which definition is meant has to "
+          "be on its face." % (i2_re, d["i2"]))
+
+    print("\nPER-TRIAL SPREAD (the '-39.1 to -64.1 over six trials' sentence)")
+    print("   at k=8 the eight per-trial points run %.1f to %.1f"
+          % (max(pts), min(pts)))
+
+    print("\nINTERVAL WIDTHS")
+    print("   DL   %.1f points" % (d["ci_high"] - d["ci_low"]))
+    print("   REML %.1f points" % (r["ci_high"] - r["ci_low"]))
+    print("   HKSJ %.1f points" % (h["ci_high"] - h["ci_low"]))
+
+    out = {"gate_reproduced": True,
+           "dl": d, "reml": r, "hksj": h,
+           "i2_metafor_dl": i2_dl, "i2_metafor_reml": i2_re,
+           "i2_higgins": d["i2"],
+           "prediction_interval": {"low": pi_lo, "high": pi_hi, "t": tq, "df": len(pts) - 1},
+           "spread": {"min": min(pts), "max": max(pts)}}
+    dest = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                        "..", "evidence", "2026-08-19-batch1", "alirocumab_k8_recompute.json")
+    dest = os.path.normpath(dest)
+    with io.open(dest, "w", encoding="utf-8") as fh:
+        fh.write(json.dumps(out, indent=1))
+    print("\nwrote %s" % dest)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

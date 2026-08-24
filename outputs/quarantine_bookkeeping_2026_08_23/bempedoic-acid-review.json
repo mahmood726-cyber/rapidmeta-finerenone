@@ -1,0 +1,1893 @@
+{
+ "app_id": "bempedoic-acid-review",
+ "schema_version": "2-authored-from-source",
+ "title": "Bempedoic acid and major cardiovascular events",
+ "question": "Does bempedoic acid reduce major cardiovascular events in statin-intolerant patients? One trial answers this; the other three registrations on this page measure something else, and one of them is not a bempedoic acid trial.",
+ "built": "2026-08-18T00:00Z",
+ "build_mode": "AUTHORED",
+ "_estimand_rule": "Every endpoint definition below was READ FROM THE REGISTRY, word for word, before anything was accepted or set aside.",
+ "source_links_enforced": true,
+ "source_links_enforced_means": "every trial row carries its registration link",
+ "cited_total": null,
+ "completeness_statement": "not recorded on the page this object was built from",
+ "verification_basis": {
+  "what_verifies_this_object": "ClinicalTrials.gov protocol and results records, read 2026-08-18",
+  "what_is_not_claimed": "that the value was checked against the journal report; it is the registry's own analysis",
+  "families": [],
+  "bar": "not recorded on the page this object was built from"
+ },
+ "methodological_authority": {
+  "reference": "not recorded on the page this object was built from",
+  "version": "not recorded on the page this object was built from",
+  "version_checked_on": "not recorded on the page this object was built from",
+  "version_checked_how": "not recorded on the page this object was built from",
+  "version_note": "not recorded on the page this object was built from",
+  "scope_of_this_rule": "not recorded on the page this object was built from",
+  "url": "not recorded on the page this object was built from",
+  "note": "not recorded on the page this object was built from"
+ },
+ "config": {
+  "model": "single study",
+  "method": "none -- one trial",
+  "scale": "log"
+ },
+ "screening": {
+  "search_note": "not recorded on the page this object was built from",
+  "eligibility": "Eligible studies are those addressing the review's stated question: Does bempedoic acid reduce major cardiovascular events in statin-intolerant patients? One trial answers this; the other three registrations on this page measure something else, and one of them is not a bempedoic acid trial. Comparator: placebo. Outcome: Number of Participants With First Occurrence of Four Component Major Adverse Cardiovascular Events (MACE). Effect measure: HR. Design as recorded: 2 arms; declared contrast ['Bempedoic Acid 180 mg', 'Placebo Comparator']. DERIVED POST HOC on 2026-08-19 from this object's own recorded fields; NOT pre-specified. See screening.eligibility_provenance for the per-element source paths.",
+  "known_limitation": "not recorded on the page this object was built from",
+  "eligibility_as_extracted": "not recorded on the page this object was built from",
+  "eligibility_as_extracted_means": "The value `screening.eligibility` held BEFORE a criteria block was derived. It describes the SOURCE PAGE and remains true: the page recorded no criteria. It is preserved because `criteria_predefined` depends on it.",
+  "eligibility_provenance": {
+   "state": "DERIVED_FROM_THIS_OBJECT",
+   "predefined": false,
+   "post_hoc": true,
+   "derived_on": "2026-08-19",
+   "topic": "bempedoic-acid-review",
+   "authority_permitting_this": "MECIR R107 'Changes from the protocol' (Mandatory): post hoc decisions about eligibility criteria are permitted where explained, justified, and keeping faith with the objectives of the review rather than being driven by the findings.",
+   "authority_it_satisfies": "MECIR R29/R30/R31 (Mandatory REPORTING standards) -- the review STATES its eligibility criteria. Satisfies precondition `criteria_stated`.",
+   "authority_it_does_NOT_satisfy": "MECIR C5/C7 (Mandatory CONDUCT standards) -- criteria DEFINED IN ADVANCE. A post hoc derivation cannot discharge pre-specification, and precondition `criteria_predefined` therefore FAILS for this topic, permanently and correctly.",
+   "method": "Projected from this object's own recorded fields. Population and intervention from the review's stated objective; comparator, outcome and effect measure from the outcome record; design from registry-derived count fields. Every element names the path it came from.",
+   "what_was_deliberately_not_written": [
+    "'randomised' -- no field in this object asserts randomisation",
+    "any demographic qualifier the question does not state",
+    "any property of an included TRIAL that is not the REVIEW's admission rule"
+   ],
+   "exclusions_not_promoted_to_rules": "Recorded exclusions remain in `eligible_but_not_contributing` with their own reasons. They are NOT generalised into exclusion rules here: inducing a rule from the trials that were dropped is reasoning from the FINDINGS, which is the half R107 forbids.",
+   "elements": [
+    {
+     "limb": "objective",
+     "value": "Does bempedoic acid reduce major cardiovascular events in statin-intolerant patients? One trial answers this; the other three registrations on this page measure something else, and one of them is not a bempedoic acid trial.",
+     "derived_from": "question",
+     "source_text": "Does bempedoic acid reduce major cardiovascular events in statin-intolerant patients? One trial answers this; the other three registrations on this page measure something else, and one of them is not a bempedoic acid trial."
+    },
+    {
+     "limb": "comparator",
+     "value": "placebo",
+     "derived_from": "outcomes[0].comparator",
+     "source_text": "placebo",
+     "corroborated_by": "inputs.trials[0].arms[] carries a control arm labelled 'Placebo Comparator'"
+    },
+    {
+     "limb": "comparator_type",
+     "value": "placebo",
+     "derived_from": "outcomes[0].comparator_type",
+     "source_text": "placebo"
+    },
+    {
+     "limb": "outcome",
+     "value": "Number of Participants With First Occurrence of Four Component Major Adverse Cardiovascular Events (MACE)",
+     "derived_from": "outcomes[0].definition",
+     "source_text": "Number of Participants With First Occurrence of Four Component Major Adverse Cardiovascular Events (MACE)",
+     "corroborated_by": "inputs.trials[0].registered_primaries[] carries this string IDENTICALLY, and that field came from the registry record rather than from the object's own prose -- an independent confirmation"
+    },
+    {
+     "limb": "effect_measure",
+     "value": "HR",
+     "derived_from": "outcomes[0].measure",
+     "source_text": "HR"
+    },
+    {
+     "limb": "effect_scale",
+     "value": "log",
+     "derived_from": "outcomes[0].effect_scale",
+     "source_text": "log"
+    },
+    {
+     "limb": "direction_of_benefit",
+     "value": "lower is better",
+     "derived_from": "outcomes[0].direction_of_benefit",
+     "source_text": "lower is better"
+    },
+    {
+     "limb": "design",
+     "value": "2 arms; declared contrast ['Bempedoic Acid 180 mg', 'Placebo Comparator']",
+     "derived_from": "inputs.trials[0].registration_arm_count + .registration_declared_contrasts",
+     "source_text": "2 / [['Bempedoic Acid 180 mg', 'Placebo Comparator']]"
+    }
+   ],
+   "notes": [
+    "population and intervention are read from question, which is the review's statement of its OWN OBJECTIVE -- the side of R107's line that post hoc derivation is permitted to use",
+    "DESIGN records ONLY arm count and the declared contrast. The word 'randomised' is NOT written, because no field in this object asserts randomisation -- regardless of what is known about the trial elsewhere."
+   ]
+  },
+  "duplicate_screening": {
+   "performed": false,
+   "why": "No second independent screen was run for this topic. This is recorded as OWED rather than described: the remedy is to RUN one, and writing a duplicate-screening sentence without one would be the defect this whole exercise exists to prevent.",
+   "remedy": "run a blind second-family screen over this topic's surfaced set"
+  }
+ },
+ "screening_names_unresolved": [],
+ "eligible_but_not_contributing": {
+  "note": "THREE OF THE FOUR REGISTRATIONS THIS PAGE INCLUDES CONTRIBUTE NOTHING TO ITS ESTIMATE, AND NOTHING ON THE PAGE SAID SO. Two of them are excluded CORRECTLY -- their registered primary outcomes are not cardiovascular events -- and the third should never have been on the list at all: NCT02973841 IS NOT A BEMPEDOIC ACID TRIAL. It is 'Sono-ease', a forty-patient device study of internal jugular vein cannulation.",
+  "studies": [
+   {
+    "id": "NCT02666664",
+    "name": "Evaluation of Long-Term Safety and Toler",
+    "why_not_contributing": "its registered primaries are SAFETY outcomes -- treatment-emergent adverse events and events of special interest -- not cardiovascular events. Correctly excluded from a MACE estimate.",
+    "registered_primary_measure": "Percentage of Participants With Treatment-emergent Adverse Events (TEAEs)",
+    "registered_primary_description_verbatim": "TEAEs, defined as adverse events (AEs) that began or worsened in severity after the first dose of double-blind study drug and up to 30 days after receiving the last dose of double-blind study drug, were collected and reported.",
+    "registered_primary_time_frame": "Up to approximately 52 weeks",
+    "source_url": "https://clinicaltrials.gov/study/NCT02666664",
+    "read_utc": "2026-08-18",
+    "what_the_registry_holds_that_the_page_does_not": "treatment-emergent adverse events in 78.5% on bempedoic acid against 78.7% on placebo, and a set of adverse events of special interest",
+    "why_not_contributing_CORRECTED_2026_08_19": {
+     "the_recorded_reason_was_wrong": "The recorded reason reads: 'its registered primaries are SAFETY outcomes -- treatment-emergent adverse events and events of special interest -- not cardiovascular events.' That is FACTUALLY WRONG. NCT02666664 registers THIRTEEN primary outcomes and the SECOND is 'Percentage of Participants With Adjudicated Major Adverse Cardiovascular Event'. It has a MACE primary.",
+     "how_the_error_happened": "The object stores `registered_primary_measure` as a SCALAR holding ONE of the trial's thirteen primaries -- the first, TEAEs -- and the exclusion reason was written by characterising all primaries from that single value. A scalar field standing for a list is how the other twelve became invisible.",
+     "the_verdict_still_stands_but_on_a_different_limb": "EXCLUDE is still correct. The failing limb is POPULATION, not OUTCOME: this is CLEAR Harmony, in high-cardiovascular-risk patients on maximally tolerated statin therapy, whereas the review's population limb is statin-intolerant patients.",
+     "class": "A correct verdict reached by broken reasoning. It passed every outcome-based check because the outcome -- exclusion -- was right. Only reading the REASON against the registry caught it, and only because the withholding question is asked at every rank rather than at the primary alone.",
+     "found_by": "ssot/screen_remainder.py, 2026-08-19"
+    }
+   },
+   {
+    "id": "NCT02988115",
+    "name": "CLEAR Serenity",
+    "why_not_contributing": "its registered primary is PERCENT CHANGE IN LDL-C AT WEEK 12, a laboratory value. Correctly excluded from a MACE estimate.",
+    "registered_primary_measure": "Percent Change From Baseline (PCFB) in Low-density Lipoprotein Cholesterol (LDL-C) at Week 12",
+    "registered_primary_description_verbatim": "PCFB was calculated as the (\\[post-Baseline (BL) value minus the BL value\\] divided by the BL value ) x 100. BL was defined as the mean of the last two non-missing values on or prior to Day 1. If only one value was available, that single value was used as BL. PCFB in LDL-C was analyzed using analysis of covariance (ANCOVA), with treatment group and stratification factor (primary prevention; secondary prevention) as fixed effects and BL as a covariate. For participants with missing lipid data at Week 12 who were no longer taking study treatment, missing values were imputed using multiple imputation via a regression-based model including stratification and BL data from placebo participants only. In this imputation model, treatment group was not included. For participants with missing lipid data at Week 12 who were still taking study treatment, missing values were imputed using multiple imputation via a regression-based model including treatment, stratification and BL value.",
+    "registered_primary_time_frame": "Baseline; Week 12",
+    "source_url": "https://clinicaltrials.gov/study/NCT02988115",
+    "read_utc": "2026-08-18",
+    "what_the_registry_holds_that_the_page_does_not": "LDL-C percent change -22.58 against -1.17, least-squares mean difference -21.41 (-25.13 to -17.70)"
+   },
+   {
+    "id": "NCT02973841",
+    "name": "Sono-ease",
+    "why_not_contributing": "WRONG REGISTRATION. This id belongs to 'Sono-ease', a 40-patient study of a device for internal jugular vein cannulation, whose registered primary outcome is 'complications rate'. It is not a bempedoic acid trial, it is not a cardiovascular outcomes trial, and it carries no data record on this page, so it touches no number here.",
+    "registered_primary_measure": "complications rate",
+    "registered_primary_description_verbatim": "hematoma-arterial puncture-pneumothorax",
+    "registered_primary_time_frame": "24 hours",
+    "source_url": "https://clinicaltrials.gov/study/NCT02973841",
+    "read_utc": "2026-08-18",
+    "what_the_registry_holds_that_the_page_does_not": "a 40-patient device trial with no relevance to this review"
+   }
+  ]
+ },
+ "reconciliation": {
+  "why_this_step_exists": "not recorded on the page this object was built from",
+  "clean": null,
+  "clean_because": "not recorded on the page this object was built from",
+  "trial_list_diffs": [],
+  "matches": [],
+  "corrections": [],
+  "unresolved": []
+ },
+ "claims_corrected": [],
+ "scope_decisions": {},
+ "conversion_note": "AUTHORED, not converted. This topic had no SSOT object: the number on the index was published by a page nothing in the current standard had checked.",
+ "sources": {},
+ "outcomes": [
+  {
+   "id": "primary",
+   "name": "Four-component MACE: cardiovascular death, nonfatal MI, nonfatal stroke, or coronary revascularization",
+   "definition": "Number of Participants With First Occurrence of Four Component Major Adverse Cardiovascular Events (MACE)",
+   "definition_note": "One trial, one registered primary outcome, quoted verbatim from its registry record. There is no concatenation here because there is nothing to concatenate.",
+   "measure": "HR",
+   "effect_scale": "log",
+   "type": "primary",
+   "estimand": {
+    "id": "primary",
+    "family": "time to first event",
+    "model": "single study"
+   },
+   "comparator": "placebo",
+   "comparator_type": "placebo",
+   "direction_of_benefit": "lower is better",
+   "null_value": 1
+  }
+ ],
+ "inputs": {
+  "trials": [
+   {
+    "id": "NCT02993406",
+    "name": "CLEAR Outcomes",
+    "nct": "NCT02993406",
+    "pmid": null,
+    "arms": [
+     {
+      "label": "Bempedoic Acid",
+      "role": "treatment",
+      "events": 819,
+      "participants": 6992
+     },
+     {
+      "label": "Placebo Comparator",
+      "role": "control",
+      "events": 927,
+      "participants": 6978
+     }
+    ],
+    "arms_as_the_registry_lists_them": "'Bempedoic Acid 180 mg', 'Placebo Comparator'",
+    "by_outcome": {
+     "primary": {
+      "effect": {
+       "measure": "HR",
+       "scale": "log",
+       "point": 0.87,
+       "ci_low": 0.79,
+       "ci_high": 0.96,
+       "ci_level": 95,
+       "derived_from": "the trial's own ClinicalTrials.gov results record",
+       "derivation_note": "READ, not derived: this is the registry's own Cox analysis of the registered primary outcome."
+      },
+      "provenance": {
+       "tag": "REGISTRY-READ",
+       "source_quotes": [],
+       "quote_note": "The endpoint definition and the hazard ratio are both from the registry record; no journal sentence is quoted."
+      },
+      "source_url": "https://clinicaltrials.gov/study/NCT02993406",
+      "analysed": {
+       "treatment": 6992,
+       "control": 6978
+      },
+      "outcome_definition": "Number of Participants With First Occurrence of Four Component Major Adverse Cardiovascular Events (MACE)",
+      "outcome_definition_source": {
+       "time_frame": "Up to 68 months",
+       "description_verbatim": "The primary efficacy end point was a four-component composite of adjudicated MACE, defined as death from cardiovascular causes, nonfatal myocardial infarction, nonfatal stroke, or coronary revascularization, as assessed in a time-to first-event analysis.",
+       "endpoint_rank": "PRIMARY -- this registration's only primary outcome",
+       "source": "registry",
+       "source_field": "protocolSection.outcomesModule.primaryOutcomes[0]",
+       "source_url": "https://clinicaltrials.gov/study/NCT02993406",
+       "read_utc": "2026-08-18",
+       "components_as_the_registry_states_them": "cardiovascular death; nonfatal myocardial infarction; nonfatal stroke; coronary revascularization. Four components, first occurrence, time-to-event.",
+       "analysis_set_as_the_registry_states_it": "Up to 68 months. Registry results: 819 of 6,992 on bempedoic acid against 927 of 6,978 on placebo; Cox hazard ratio 0.87 (0.79 to 0.96). the only included registration with a cardiovascular-event primary"
+      }
+     }
+    },
+    "registration_enrolment": 13970,
+    "registration_arm_count": 2,
+    "registration_brief_title": "Evaluation of Major Cardiovascular Events in Participants With, or at High Risk for, Cardiovascular Disease Who Are Statin Intolerant Treated With Bempedoic Acid (ETC-1002) or Placebo",
+    "registration_org_study_id": "1002-043",
+    "registration_read_utc": "2026-08-18",
+    "registration_declared_contrasts": [
+     [
+      "Bempedoic Acid 180 mg",
+      "Placebo Comparator"
+     ]
+    ],
+    "registration_contrasts_read_utc": "2026-08-18",
+    "registration_primary_counts": {
+     "title": "Number of Participants With First Occurrence of Four Component Major Adverse Cardiovascular Events (MACE)",
+     "treatment_events": 819.0,
+     "control_events": 927.0,
+     "treatment_n": 6992.0,
+     "control_n": 6978.0,
+     "note": "arm order as the registry lists it; a swapped pair would show as a mismatch rather than a silent pass"
+    },
+    "registration_other_outcome_counts": [
+     {
+      "title": "Number of Participants With First Occurrence of Four Component Major Adverse Cardiovascular Events (MACE)",
+      "type": "PRIMARY",
+      "counts": [
+       819.0,
+       927.0
+      ]
+     },
+     {
+      "title": "Number of Participants With First Occurrence of Three Component MACE",
+      "type": "SECONDARY",
+      "counts": [
+       575.0,
+       663.0
+      ]
+     },
+     {
+      "title": "Number of Participants With First Occurrence of Myocardial Infarction",
+      "type": "SECONDARY",
+      "counts": [
+       261.0,
+       334.0
+      ]
+     },
+     {
+      "title": "Number of Participants With Time to First Occurrence of Coronary Revascularization",
+      "type": "SECONDARY",
+      "counts": [
+       435.0,
+       529.0
+      ]
+     },
+     {
+      "title": "Number of Participants With Time to First Occurrence of Stroke",
+      "type": "SECONDARY",
+      "counts": [
+       135.0,
+       158.0
+      ]
+     },
+     {
+      "title": "Number of Participants With Time to Cardiovascular Death",
+      "type": "SECONDARY",
+      "counts": [
+       269.0,
+       257.0
+      ]
+     },
+     {
+      "title": "Number of Participants With Time to All-cause Mortality",
+      "type": "SECONDARY",
+      "counts": [
+       434.0,
+       420.0
+      ]
+     }
+    ],
+    "registration_counts_read_utc": "2026-08-18",
+    "registered_primaries": [
+     "Number of Participants With First Occurrence of Four Component Major Adverse Cardiovascular Events (MACE)"
+    ],
+    "registered_secondaries": [
+     "Number of Participants With First Occurrence of Three Component MACE",
+     "Number of Participants With First Occurrence of Myocardial Infarction",
+     "Number of Participants With Time to First Occurrence of Coronary Revascularization",
+     "Number of Participants With Time to First Occurrence of Stroke",
+     "Number of Participants With Time to Cardiovascular Death",
+     "Number of Participants With Time to All-cause Mortality"
+    ],
+    "registered_other_outcomes": [],
+    "all_ranks_read_utc": "2026-08-18",
+    "provenance": "REGISTRY -- ClinicalTrials.gov, NCT02993406, read 2026-08-18. Arm-level counts were COMPARED AGAINST the posted outcome measure 'Number of Participants With First Occurrence of Four Component Major Adverse Car' and matched exactly. Derived from a comparison that was run, not asserted."
+   }
+  ]
+ },
+ "results": {
+  "by_outcome": {
+   "primary": {
+    "k": 1,
+    "estimand_id": "primary",
+    "model": "single study",
+    "estimator": "none -- one trial, the registry's own Cox analysis",
+    "estimator_used": "none",
+    "handbook": {
+     "decision": "not recorded on the page this object was built from",
+     "sections": [],
+     "conformance": "not recorded on the page this object was built from"
+    },
+    "comparator_type": "placebo",
+    "favours": "treatment",
+    "poolable": false,
+    "poolable_reason": "Nothing is pooled: one trial. This is not a withheld estimate -- the value stands and is CLEAR Outcomes' own.",
+    "pool_uniformity": {
+     "effect_measure": [
+      "NOT APPLICABLE",
+      "one trial"
+     ],
+     "estimand": [
+      "NOT APPLICABLE",
+      "one trial"
+     ]
+    },
+    "heterogeneity": null,
+    "heterogeneity_status": "Not applicable: one trial, so there is no between-study variance to estimate.",
+    "grade": null,
+    "cross_engine": null,
+    "sensitivity": null,
+    "single_study_ref": "NCT02993406",
+    "per_trial": [
+     {
+      "trial_id": "NCT02993406",
+      "nct": "NCT02993406",
+      "measure": "HR",
+      "point": 0.87,
+      "ci_low": 0.79,
+      "ci_high": 0.96,
+      "ci_level": 95,
+      "estimand_id": "primary"
+     }
+    ],
+    "pooled": {
+     "measure": "HR",
+     "point": 0.87,
+     "ci_low": 0.79,
+     "ci_high": 0.96,
+     "ci_level": 95,
+     "scale": "log",
+     "stands_because": "THE ESTIMATE STANDS, AND IT IS ONE TRIAL'S RESULT RATHER THAN A SYNTHESIS -- which the card says, with k=1. HR 0.87 (0.79 to 0.96) IS CLEAR Outcomes' own registered Cox analysis, digit for digit, over its registered primary outcome: 'Number of Participants With First Occurrence of Four Component Major Adverse Cardiovascular Events (MACE)', defined by its registry record as 'death from cardiovascular causes, nonfatal myocardial infarction, nonfatal stroke, or coronary revascularization, as assessed in a time-to first-event analysis'. Its counts are the registry's own: 819 of 6,992 against 927 of 6,978. AND k=1 IS CORRECT RATHER THAN A SHORTFALL. Of the four registrations this page includes, ONLY CLEAR Outcomes registers a cardiovascular-event primary. CLEAR Harmony's registered primaries are SAFETY endpoints -- treatment-emergent adverse events and events of special interest, at 52 weeks. CLEAR Serenity's is PERCENT CHANGE IN LDL-C AT WEEK 12, a laboratory value. Neither can enter a MACE estimate, so leaving them out is right; what is missing is any statement that they were left out or why.",
+     "caveats": "THREE THINGS A READER SHOULD KNOW, NONE OF WHICH OVERTURNS THE ESTIMATE. (1) ONE OF THE FOUR INCLUDED REGISTRATIONS IS NOT A BEMPEDOIC ACID TRIAL AT ALL. NCT02973841 is 'Sono-ease', a FORTY-PATIENT DEVICE STUDY of internal jugular vein cannulation whose registered primary outcome is 'complications rate'. It sits in this page's own include list. It carries no data record, so it touches no number here -- but it is the second wrong registration found in this corpus in one session, after NCT02583191 turned out to be a German treatment-satisfaction study on DOAC_CANCER_VTE. A registration that names an unrelated trial is invisible to every check that asks only whether an id is present and unique. (2) THE PUBLISHED-COMPARISON STEP COMPARES THIS ESTIMATE AGAINST ITSELF. The page's benchmark database holds exactly one entry for this outcome: 'CLEAR Outcomes bempedoic acid vs placebo', Nissen 2023, HR 0.87 (0.79 to 0.96), k=1, n=13,970. That IS the trial whose result is on the card. A comparison of a number with itself agrees perfectly and establishes NOTHING, and the agreement should not be read as external corroboration. THE HONEST DENOMINATOR HERE IS ZERO: no independent synthesis of this estimand is recorded on this page. (3) A SINGLE TRIAL IS NOT A SYNTHESIS. Nothing here is pooled, there is no heterogeneity to report, and the interval is CLEAR Outcomes' own. The value of this page over reading the trial report is the provenance chain, not the statistics.",
+     "verified_on": "2026-08-18",
+     "card_note": "k=1 and that is CORRECT, not a shortfall: only CLEAR Outcomes registers a cardiovascular-event primary. The value is the registry's own Cox analysis. One of the four included registrations, NCT02973841, is NOT a bempedoic acid trial"
+    },
+    "source_page_pooled": false,
+    "poolable_DEPRECATED_note": "`poolable` MEANT ONLY 'the source page pooled these trials'. It was never a judgement that the pool was sound, and the renderer read it as permission to assert 'pooled on the X scale'. RENAMED to source_page_pooled, which is what it says. `poolable` is retained so nothing breaks, and it is DEPRECATED: read source_page_pooled for what the source did, and estimand_established for whether the pool is defensible. A PAGE SHOULD DISPLAY A POOLED ESTIMATE BECAUSE ITS ESTIMAND WAS ESTABLISHED, NOT BECAUSE SOMEONE ONCE POOLED IT.",
+    "estimand_established": null,
+    "estimand_established_means": "TRUE only where every contributing trial has been READ and shown to measure the same quantity, or the same construct with a variance stated. FALSE where that was checked and failed. NULL where it was never checked -- AN ABSENT ASSERTION AND A NEGATIVE ONE ARE DIFFERENT STATES and null is not a pass.",
+    "r_output": {
+     "state": "ABSENT_AND_THAT_IS_THE_FINDING",
+     "_why_absent": "k=1 and nothing was pooled, so there is NO model call to quote, NO pooled estimate, NO heterogeneity and NO package version. This is not a missing artefact; it is the correct state for a topic with no synthesis.",
+     "quotable_model_call": null,
+     "heterogeneity": null,
+     "heterogeneity_reason": "Undefined: no between-study variance was estimated because no model was run.",
+     "package_version": null,
+     "what_stands_instead": {
+      "estimate": "HR 0.87 (95% CI 0.79 to 0.96)",
+      "provenance": "CLEAR Outcomes' OWN registry-posted analysis, NOT a synthesis result computed here",
+      "verbatim_from_registry": "Hazard Ratio (HR) 0.87, CI 0.79 - 0.96, statistical method Log Rank, p=0.004",
+      "read_utc": "2026-08-19"
+     },
+     "what_would_change_it": "An estimand shared by two or more included trials. Where k is already above 1 and nothing pooled, the obstacle is the ESTIMAND rather than the evidence base, and this field must say which.",
+     "refusal_basis": "SCREENED",
+     "k_read_from_object": 1
+    },
+    "r_output_refused": {
+     "why": "NO MODEL WAS FITTED, because k = 1. The interval this page serves is CLEAR Outcomes' own registered Cox analysis, digit for digit, and nothing was pooled.",
+     "why_not_manufactured": "Running metafor over a single trial would print a model fit and satisfy the clause, and it would be a model this review does not use and never used. The clause asks for the output of the analysis that produced the number; where there is no such analysis the honest answer is that there is none.",
+     "what_would_change_it": "A second trial registering the same four-component MACE estimand. Of the four registrations this review includes, only CLEAR Outcomes registers a cardiovascular-event primary at all.",
+     "refusal_discharges_P46_because": "It names what exists (one trial's own Cox interval), why no quotable model output can exist (nothing was pooled), and what would change it."
+    },
+    "estimand_established_does_not_cover_the_contrast_2026_08_20": "READ THIS BESIDE `estimand_established`. That flag records that every contributing trial measures the SAME QUANTITY. It records NOTHING about what that quantity was measured AGAINST -- whether the comparators are of one kind, whether each comparison was randomised, whether it was concurrent. On attr-pn-review the flag is TRUE and correct while the pool combines patisiran against its own saline placebo, vutrisiran against PATISIRAN, and eplontersen against the placebo cohort of a DIFFERENT TRIAL. The two questions were never separated. Named as P48 in PAGE-STANDARD.md v1.21.0 and swept by scripts/audit_mixed_contrast_pools.py."
+   }
+  }
+ },
+ "manuscript": {
+  "references": {
+   "_what": "A reference list, assembled from this object's own fields. Distinct from `sources`, which records the provenance LAYER each fact was read at; this is what a reader would look up.",
+   "included_studies": [
+    {
+     "registration": "NCT02993406",
+     "label": "",
+     "registry": "ClinicalTrials.gov",
+     "url": "https://clinicaltrials.gov/study/NCT02993406",
+     "read_utc": ""
+    }
+   ],
+   "published_syntheses_compared_against": [],
+   "_published_syntheses_note": "No published synthesis is listed here. The comparison section states its own denominator and why nothing citable was appraised. ",
+   "methods_guidance_and_software": [
+    {
+     "cited_for": "risk of bias in the included results",
+     "citation": "Sterne JAC, Savovic J, Page MJ, et al. RoB 2: a revised tool for assessing risk of bias in randomised trials. BMJ. 2019;366:l4898. doi:10.1136/bmj.l4898"
+    },
+    {
+     "cited_for": "certainty of the evidence",
+     "citation": "Schunemann HJ, Higgins JPT, Vist GE, et al. Chapter 14: Completing 'Summary of findings' tables and grading the certainty of the evidence. In: Cochrane Handbook for Systematic Reviews of Interventions version 6.5. Cochrane; 2024."
+    },
+    {
+     "cited_for": "the reporting guideline this manuscript is written against",
+     "citation": "Page MJ, McKenzie JE, Bossuyt PM, et al. The PRISMA 2020 statement: an updated guideline for reporting systematic reviews. BMJ. 2021;372:n71. doi:10.1136/bmj.n71"
+    }
+   ]
+  },
+  "introduction": "This review asks: Does bempedoic acid reduce major cardiovascular events in statin-intolerant patients? One trial answers this; the other three registrations on this page measure something else, and one of them is not a bempedoic acid trial..\n\nIt pools 1 randomised trial, against placebo.\n\nThe outcome pooled is Four-component MACE: cardiovascular death, nonfatal MI, nonfatal stroke, or coronary revascularization.\n\nEverything in this paragraph is derived from stored fields and none of it is authored. The interpretive sentences that follow are marked as drafts and are the author's to replace."
+ },
+ "risk_of_bias_verdict": null,
+ "carried_contrasts": [],
+ "absent_from_source": {
+  "protocol": "No protocol record was recoverable from the page.",
+  "search": "No search strategy was recoverable from the page.",
+  "screening": "No screening log was recoverable from the page.",
+  "rob2": "No risk-of-bias assessment was recoverable from the page.",
+  "grade": "No certainty rating was recoverable from the page.",
+  "sources": "The endpoint definition AND the effect are both read from the trial's own ClinicalTrials.gov record and carry a resolvable link. No journal sentence is quoted for either. A reader can check both against the registry from this page."
+ },
+ "all_ranks_captured_2026_08_18": "Registered outcomes captured at EVERY rank -- primary, secondary and other -- by re-reading each registration on 2026-08-18. Previously only primaries were recorded, which made this topic's withdrawal UNTESTABLE for proportionality: the SGLT2 failure lived one rank down and we had not kept one rank down. The read date is stamped FOR THIS READ, not carried over.",
+ "provenance_verified_2026_08_18": "Provenance written ONLY where the registry confirmed it. Every statement on this object names the outcome measure its counts were matched against and the date of the comparison. Trials whose registration posts no results carry an explicit NOT SUPPLIED BY THE REGISTRY note with the source question recorded as owed.",
+ "precondition_verdict": {
+  "assessed_on": "2026-08-19",
+  "standard_version": "1.10.0-2026-08-19",
+  "authority": {
+   "handbook": "Cochrane Handbook for Systematic Reviews of Interventions",
+   "version": "6.5, 2024",
+   "verified_on": "2026-08-19",
+   "verified_how": "read from cochrane.org/authors/handbooks-and-manuals/handbook/current chapters 10 and 23, and from the official MECIR PDF (February 2022), text extracted locally rather than summarised"
+  },
+  "publishable": true,
+  "authoring_constraint": "These preconditions were authored in the same session that applied them. A reader who disagrees should disagree with ssot/preconditions.py, from which every verdict here is reproducible.",
+  "verdicts": {
+   "population_stated": {
+    "verdict": "PASS",
+    "reason": "present: question carries 223 characters",
+    "authority": "MECIR C62 'Ensuring meta-analyses are meaningful' (Mandatory, READ 2026-08-19): 'Undertake (or display) a meta-analysis only if participants, interventions, comparisons and outcomes are judged to be sufficiently similar...'; MECIR C5 'Predefining unambiguous criteria for participants' (Mandatory)"
+   },
+   "arm_role_resolved": {
+    "verdict": "PASS",
+    "reason": "inputs.trials: all 1 trial(s) carry arms with a readable role",
+    "authority": "MECIR C62 (Mandatory), 'interventions' limb -- this is a PRECONDITION FOR ASSESSING C62, not an enforcement of it: you cannot judge whether interventions are 'sufficiently similar' without knowing which arm is the intervention. NOT cited to C5/C7: those govern PREDEFINITION of criteria, and this check only reads whether a field is populated."
+   },
+   "comparators_identified": {
+    "verdict": "PASS",
+    "reason": "every outcome names a comparator type ['placebo']; none declares 'mixed'. Within-outcome consistency is visible only through the declared type, and cross-outcome differences are not judged.",
+    "authority": "MECIR C62 (Mandatory), 'comparisons' limb -- a synthesis pools one contrast. NOT cited to C7: C7 governs PREDEFINITION, and this check reads recorded comparator fields and tests them for consistency."
+   },
+   "estimand_named": {
+    "verdict": "PASS",
+    "reason": "outcomes.estimand: all 1 outcome(s) name a quantity",
+    "authority": "MECIR C8 'Clarifying role of outcomes' (Mandatory, READ 2026-08-19); MECIR C62 (Mandatory), 'outcomes' limb"
+   },
+   "criteria_stated": {
+    "verdict": "PASS",
+    "reason": "present: screening.eligibility carries 704 characters",
+    "authority": "MECIR R29 'Eligibility criteria for types of participants', R30 '...types of interventions', R31 'Role of outcomes' -- ALL Mandatory REPORTING standards (READ 2026-08-19). Their verb is STATE. A block DERIVED post hoc satisfies this if it is labelled post hoc per R107."
+   },
+   "criteria_predefined": {
+    "verdict": "FAIL",
+    "reason": "screening.eligibility_provenance.predefined is false: the criteria were DERIVED post hoc from this object's own question and recorded exclusions. That is auditable (R29/R30/R31) and is not pre-specification (C5/C7). This FAIL is permanent and correct.",
+    "authority": "MECIR C5 'Predefining unambiguous criteria for participants' AND C7 '...for interventions and comparators', BOTH Mandatory (READ 2026-08-19): 'Predefined, unambiguous eligibility criteria are a fundamental prerequisite for a systematic review.' C5/C7 govern PREDEFINITION and CANNOT be discharged by a post hoc derivation."
+   },
+   "eligibility_met": {
+    "verdict": "NOT-ASSESSABLE",
+    "reason": "cannot assess: criteria are stated, but sources is an empty dict -- no full text was available this pass, and inclusion logic is conditional prose",
+    "authority": "MECIR C5/C7 (Mandatory) with C6 'Predefining a strategy for studies with a subset of eligible participants' (Highly desirable, READ 2026-08-19) -- eligibility is assessed against the full report"
+   },
+   "contributes_a_randomised_contrast": {
+    "verdict": "PASS",
+    "reason": "inputs.trials.arms: all 1 readable trial(s) contribute one topic-vs-control randomised contrast",
+    "authority": "Handbook 6.5 s23.3.4 'How to include multiple groups from one study' (READ 2026-08-19) and s23.3.6 'Factorial trials'; MECIR C7 'Predefining unambiguous criteria for interventions and comparators' (Mandatory)"
+   }
+  }
+ },
+ "search": {
+  "executed_by": "lane 1 (Claude, Anthropic family), Claude-side because the analysis sandbox that holds the classifier has no network egress",
+  "databases": [
+   {
+    "database": "ClinicalTrials.gov API v2",
+    "tool": "mcp__plugin_bio-research_c-trials__search_trials",
+    "query_as_executed": "condition=\"hypercholesterolemia OR dyslipidemia OR cardiovascular disease\"; intervention=\"bempedoic acid\"; study_type=INTERVENTIONAL; phase=[PHASE3,PHASE4]; count_total=true; page_size=60",
+    "query_parameters": {
+     "condition": "hypercholesterolemia OR dyslipidemia OR cardiovascular disease",
+     "intervention": "bempedoic acid",
+     "study_type": "INTERVENTIONAL",
+     "phase": [
+      "PHASE3",
+      "PHASE4"
+     ],
+     "count_total": true,
+     "page_size": 60
+    },
+    "date_executed": "2026-08-18",
+    "records_returned": 21,
+    "total_reported": 21,
+    "corroborating_transport": {
+     "endpoint": "https://clinicaltrials.gov/api/v2/studies",
+     "query.cond": "hypercholesterolemia OR dyslipidemia OR cardiovascular disease",
+     "query.intr": "bempedoic acid",
+     "filter.advanced": "AREA[StudyType]INTERVENTIONAL AND AREA[Phase](PHASE3 OR PHASE4)",
+     "records_returned": 21,
+     "agrees_with_mcp": true,
+     "why_two_transports": "The MCP payload is FLATTENED and carries no arm types, so it cannot support the arm-role cascade. The raw v2 endpoint supplies the role payload. Both totals are recorded side by side and were NOT reconciled silently -- an earlier run showed them diverging, and the divergence was the phase filter missing from the raw query, not a property of either instrument."
+    }
+   },
+   {
+    "database": "PubMed (NCBI E-utilities esearch)",
+    "tool": "mcp__plugin_bio-research_pubmed__search_articles",
+    "query_as_executed": "(bempedoic acid[tiab] OR ETC-1002[tiab] OR Nexletol[tiab] OR Nilemdo[tiab]) AND (cardiovascular[tiab] OR MACE[tiab] OR \"major adverse cardiovascular events\"[tiab]) AND (randomized controlled trial[pt] OR randomised[tiab] OR randomized[tiab])",
+    "query_translation_returned_by_ncbi": "(\"bempedoic acid\"[Title/Abstract] OR \"ETC-1002\"[Title/Abstract] OR \"Nexletol\"[Title/Abstract] OR \"Nilemdo\"[Title/Abstract]) AND (\"cardiovascular\"[Title/Abstract] OR \"MACE\"[Title/Abstract] OR \"major adverse cardiovascular events\"[Title/Abstract]) AND (\"randomized controlled trial\"[Publication Type] OR \"randomised\"[Title/Abstract] OR \"randomized\"[Title/Abstract])",
+    "date_executed": "2026-08-19",
+    "total_count": 109,
+    "records_returned": 50,
+    "records_not_retrieved": 59,
+    "IMPORTANT": "50 of 109 were retrieved. The remaining 59 are NOT screened and NOT excluded -- they are UNEXAMINED. Reporting them as excluded would be the substitution this project audits for. The PRISMA counts below therefore carry an unexamined bucket rather than a clean funnel."
+   }
+  ]
+ },
+ "prisma_flow": {
+  "_scope": "PRISMA 2020 flow, counted from the executed searches above.",
+  "identification": {
+   "ctgov_records": 21,
+   "pubmed_records_retrieved": 50,
+   "pubmed_records_not_retrieved": 59,
+   "total_identified_across_databases": 130,
+   "note": "130 = 21 CTGov + 109 PubMed total. Of the 109, 50 were retrieved."
+  },
+  "screened": {
+   "ctgov_screened_by_arm_role": 21,
+   "pubmed_screened": 0,
+   "why_pubmed_zero": "The topic's included set is keyed on REGISTRATION IDs, and screening ran on the registry side. The PubMed search is recorded because it was executed and because the published-meta comparison (P7) will consume it, NOT because it contributed to the included set. Reporting it as screened would overstate what was done."
+  },
+  "eligibility_ctgov": {
+   "role_located": 21,
+   "topic_is_experimental_arm": 16,
+   "topic_is_comparator_arm": 5,
+   "topic_is_background": 0,
+   "not_assessable": 0
+  },
+  "included": {
+   "in_this_object": 1,
+   "nct": [
+    "NCT02993406"
+   ]
+  },
+  "excluded_with_reasons": {
+   "recorded_on_object": 3,
+   "ids": [
+    "NCT02666664",
+    "NCT02988115",
+    "NCT02973841"
+   ],
+   "screened_remainder": {
+    "n": 16,
+    "by_limb": {
+     "COMPARATOR": 2,
+     "OUTCOME": 13,
+     "POPULATION": 1
+    }
+   }
+  },
+  "reconciliation": {
+   "arithmetic": "21 CTGov identified = 16 experimental + 5 comparator + 0 background + 0 unassessable",
+   "reconciles": true,
+   "included_plus_recorded_exclusions": "1 included + 3 recorded exclusions = 4 registrations the page ever carried",
+   "gap_stated_plainly": "16 CTGov trials place bempedoic acid in an EXPERIMENTAL arm. THE ROUTE FROM 17 TO 16 IS NOT WHAT THIS SENTENCE USED TO SAY, and it took re-deriving across every revision of the classifier to see it -- scripts/regate_across_revisions.py. It went 17 -> 15 at 92d84da72, where the both-arms rule moved NCT06450366 and NCT07614958 experimental -> background; then 15 -> 16 at f2bf16022, where the placebo-discriminator moved NCT05263778 comparator -> EXPERIMENTAL. The old sentence credited the placebo-discriminator with the whole delta and described its one move in the OPPOSITE direction. Then at e20f94068 the same two records moved background -> COMPARATOR, leaving k3 at 16 and background at 0. This object includes ONE. All fifteen of the rest have been SCREENED -- fourteen in the first pass and NCT05263778 in a second, after the restatement moved it into the experimental set -- and none was both eligible and poolable. The unscreened remainder is 0.",
+   "background_is_now_zero_and_it_is_computed": "0 background is the result of classifying 21 records, not an unfilled field. P17: a field whose name implies a check carries a computed value."
+  }
+ },
+ "k_cascade": {
+  "_why": "k is never one number. Each stage is what the instrument at that stage could actually decide.",
+  "k0_surfaced": 21,
+  "k2_role_located": 21,
+  "k3_experimental": 16,
+  "k4_comparator": 5,
+  "k5_background": 0,
+  "kNA_not_assessable": 0,
+  "k_included_in_object": 1,
+  "k_unscreened_remainder": 0,
+  "keyed_on": "registration id",
+  "source": "evidence/2026-08-19-batch1/cascade.json",
+  "k_unscreened_remainder_note": "Was 16. All 16 were screened on 2026-08-19 against the derived criteria block; 0 met all four limbs. See screening_of_remainder.",
+  "restated_2026_08_19_placebo_discriminator": {
+   "k3_was": 17,
+   "k3_now": 16,
+   "delta": -1,
+   "why": "topic_identity.locate() read the registry's arm TYPES literally. Some registrations declare NO arm typed EXPERIMENTAL: AFFIRM-AHF and HEART-FID both type their active drug ACTIVE_COMPARATOR against a PLACEBO_COMPARATOR arm. The classifier called the intervention a comparator and silently shrank the evidence base. Rule adopted: PLACEBO IS NEVER THE INTERVENTION, so a drug compared against it is -- but where the other arm is an ACTIVE drug, the topic drug genuinely is one of two comparators and the rule must not fire.",
+   "why_this_is_a_correction_not_a_relaxation": "It moved counts in BOTH directions across the corpus: sglt2-hf +10, bempedoic-acid-review -1. A LOOSENING ONLY EVER ADDS. Four regression guards pin the negative case, including apixaban vs rivaroxaban where both arms are active.",
+   "how_it_was_found": "By CROSS-CHECKING TWO INSTRUMENTS. The executed search surfaced this object's OWN included trials, and the arm-role classifier then refused to recognise two of them as the intervention. Neither instrument found it alone. This is the first defect tonight found in the WITHHOLDING direction by an instrument rather than by a person noticing -- the class we had said has no guard.",
+   "trials_no_longer_experimental": [
+    "NCT06450366",
+    "NCT07614958"
+   ],
+   "screening_status_after_restatement": "16 experimental, 1 included, 14 already screened, 1 NEWLY UNSCREENED. The screening of this topic was reported COMPLETE and is now INCOMPLETE again. That is the ratchet: no page is grandfathered, including one completed hours ago.",
+   "newly_unscreened_ids": [
+    "NCT05263778"
+   ],
+   "reproduced_by": "scripts/regate_across_revisions.py <topic> -- re-executes this topic's own recorded query, loads EVERY revision of ssot/topic_identity.py from git, and reports at which of them the stored cascade reproduces. Added 2026-08-19 under PAGE-STANDARD P18, after sglt2-hf's cascade was found to reproduce at exactly one revision and no other while carrying a restatement note that made it look current.",
+   "attribution_corrected_2026_08_19": "THIS BLOCK'S NUMBER IS RIGHT AND ITS ATTRIBUTION IS WRONG, and only a walk across revisions could show it. 17 -> 16 is not one move by the placebo-discriminator. It is 17 -> 15 at 92d84da72, where the BOTH-ARMS rule moved NCT06450366 and NCT07614958 experimental -> background, then 15 -> 16 at f2bf16022, where the placebo-discriminator moved NCT05263778 comparator -> EXPERIMENTAL. The stored sentence credits the placebo-discriminator with the entire delta and describes its single move in the opposite direction to the one it made. A CORRECT NUMBER REACHED BY A WRONG ACCOUNT passes every check that reads quantities."
+  },
+  "k_unscreened_remainder_note_2026_08_19": "Was 1 after the placebo-discriminator restatement; NCT05263778 screened 2026-08-19 and EXCLUDED on INTERVENTION -- it randomises a bempedoic acid/ezetimibe FIXED-DOSE COMBINATION against placebo, so two agents differ between arms and no estimate is attributable to bempedoic acid. Population (post-ACS, not statin-intolerant) and outcome (LDL-C, not MACE) also fail and are named rather than relied on. Disposition at screening_of_remainder.bempedoic_newly_unscreened_2026_08_19.",
+  "restated_2026_08_19_trailing_placebo": {
+   "k4_was": 3,
+   "k4_now": 5,
+   "k5_was": 2,
+   "k5_now": 0,
+   "k3_unchanged": 16,
+   "why_no_trial_needs_rescreening": "k3 IS UNCHANGED, so the screened set is unchanged. The two movers (NCT06450366, NCT07614958) went background -> COMPARATOR, and both were already recorded on this object as trials the placebo-discriminator had moved OUT of the experimental set. They have now moved once more, within the non-experimental half, and the remainder is untouched.",
+   "and_k5_is_now_zero_which_is_a_claim": "NO surfaced trial has bempedoic acid in every arm. That is a COMPUTED zero -- 21 records classified, 0 landing in background -- and not an empty field. It reads oddly for an add-on lipid agent and it is correct: the programme's non-experimental records are ACTIVE-COMPARATOR designs (bempedoic acid as the control against another agent), not background-therapy designs.",
+   "measured_how": "Old classifier loaded from git at 7a08bcbe1; surfaced set re-executed and returned 21, identical to the stored k0. scripts/regate_cascade_2026_08_19.py.",
+   "no_included_trial_changed_role": "This object includes one trial, NCT02993406, and it did not move."
+  }
+ },
+ "precondition_verdict_superseded": {
+  "superseded_on": "2026-08-19",
+  "superseded_because": "the seven preconditions became eight when inclusion_criteria_auditable split into criteria_stated (MECIR R29/R30/R31) and criteria_predefined (MECIR C5/C7)",
+  "block": {
+   "assessed_on": "2026-08-19",
+   "assessed_by": "ssot/preconditions.py (seven preconditions, authored 2026-08-19)",
+   "authoring_constraint": "These seven preconditions were authored in the same session that applied them. A reader who disagrees should disagree with the definitions in ssot/preconditions.py, from which every verdict below is reproducible.",
+   "authority": {
+    "handbook": "Cochrane Handbook for Systematic Reviews of Interventions",
+    "version": "6.5, 2024",
+    "verified_on": "2026-08-19",
+    "verified_how": "read from cochrane.org/authors/handbooks-and-manuals/handbook/current chapters 10 and 23, and from the official MECIR PDF (February 2022), text extracted locally rather than summarised"
+   },
+   "builds": false,
+   "status": "REFUSED",
+   "refused_on": {
+    "inclusion_criteria_auditable": {
+     "verdict": "FAIL",
+     "reason": "declared absent: screening.eligibility states its own absence: 'not recorded on the page this object was built from'",
+     "authority": "MECIR C5 'Predefining unambiguous criteria for participants' AND C7 '...for interventions and comparators', BOTH Mandatory (READ 2026-08-19): 'Predefined, unambiguous eligibility criteria are a fundamental prerequisite for a systematic review.'"
+    }
+   },
+   "not_assessed": {
+    "eligibility_met": {
+     "verdict": "NOT-ASSESSABLE",
+     "reason": "cannot assess: criteria are not stated (screening.eligibility states its own absence: 'not recorded on the page this object was built from'), so whether any trial met them cannot be decided",
+     "authority": "MECIR C5/C7 (Mandatory) with C6 'Predefining a strategy for studies with a subset of eligible participants' (Highly desirable, READ 2026-08-19) -- eligibility is assessed against the full report"
+    }
+   },
+   "not_assessed_means": "NOT_ASSESSABLE is not a refusal. These preconditions could not be evaluated against this object; the topic has not been judged on them.",
+   "passed": [
+    "population_stated",
+    "arm_role_resolved",
+    "comparator_identified",
+    "estimand_named",
+    "contributes_a_randomised_contrast"
+   ]
+  }
+ },
+ "extraction": {
+  "_why": "Every cell says whether it was READ from a named source or DERIVED, and carries the sentence it was read from. A cell with no label is not evidence.",
+  "verified_utc": "2026-08-19",
+  "source": {
+   "registry": "ClinicalTrials.gov NCT02993406",
+   "link": "https://clinicaltrials.gov/study/NCT02993406",
+   "api": "https://clinicaltrials.gov/api/v2/studies/NCT02993406",
+   "read_via": "raw v2 API, fields=protocolSection,resultsSection,derivedSection"
+  },
+  "cells": [
+   {
+    "field": "nct",
+    "value": "NCT02993406",
+    "label": "READ",
+    "source_path": "protocolSection.identificationModule.nctId"
+   },
+   {
+    "field": "enrolment",
+    "value": 13970,
+    "label": "READ",
+    "source_path": "protocolSection.designModule.enrollmentInfo",
+    "verbatim": "{'count': 13970, 'type': 'ACTUAL'}"
+   },
+   {
+    "field": "primary_outcome",
+    "label": "READ",
+    "source_path": "protocolSection.outcomesModule.primaryOutcomes[0].measure",
+    "verbatim": "Number of Participants With First Occurrence of Four Component Major Adverse Cardiovascular Events (MACE)"
+   },
+   {
+    "field": "events_treatment",
+    "value": 819,
+    "label": "READ",
+    "source_path": "resultsSection.outcomeMeasuresModule[0] group OG000 'Bempedoic Acid 180 mg'",
+    "verbatim": "OG000 819"
+   },
+   {
+    "field": "events_control",
+    "value": 927,
+    "label": "READ",
+    "source_path": "resultsSection.outcomeMeasuresModule[0] group OG001 'Placebo Comparator'",
+    "verbatim": "OG001 927"
+   },
+   {
+    "field": "participants_treatment",
+    "value": 6992,
+    "label": "READ",
+    "source_path": "resultsSection group OG000 denominator"
+   },
+   {
+    "field": "participants_control",
+    "value": 6978,
+    "label": "READ",
+    "source_path": "resultsSection group OG001 denominator"
+   },
+   {
+    "field": "effect",
+    "value": "HR 0.87 (95% CI 0.79 to 0.96)",
+    "label": "READ",
+    "source_path": "resultsSection.outcomeMeasuresModule[0].analyses[0]",
+    "verbatim": "Hazard Ratio (HR) 0.87, CI 0.79 to 0.96, Log Rank, p=0.004",
+    "note": "NOT derived. This is the registry's own posted analysis, digit for digit. The object's stored value was checked against it and matches."
+   },
+   {
+    "field": "arm_role",
+    "value": "treatment / control",
+    "label": "DERIVED",
+    "derived_by": "ssot/topic_identity.locate() over the raw v2 armGroups",
+    "note": "DERIVED, not read: the registry declares arm TYPE; the topic-vs-control assignment is this project's classification of it."
+   }
+  ]
+ },
+ "published_comparison": {
+  "state": "PENDING_EXTERNAL_RESOLUTION",
+  "_why": "Every page this project ships carries this section with a DENOMINATOR. A comparison without one reports the syntheses it happened to find.",
+  "denominator": null,
+  "denominator_reason": "The honest denominator here is ZERO, and that is a finding rather than a shortfall. The only benchmark this page holds for this estimand is CLEAR Outcomes itself -- the single trial whose result the card serves. A comparison of a number with itself agrees perfectly and establishes nothing, and that agreement must not be read as external corroboration. No INDEPENDENT synthesis of this estimand is recorded.",
+  "explicitly_not_done": "CITATION-STRING MATCHING. It would produce a comparison-shaped answer tonight and it is not identity: two syntheses citing the same trial under different labels would read as different, and the same label on different trials as the same. That is the substitution class this project audits for.",
+  "candidate_source_search": "PubMed search recorded at search.databases[1], which reported 109 record(s) and retrieved 50; 59 were not retrieved.",
+  "blocked_on": "lane 2 registration-id resolution",
+  "candidate_source_search_restated": "Restated 2026-08-20. This field previously read 'PubMed search recorded at search.databases[1] (109 records)' on FOURTEEN objects, which is true of bempedoic-acid-review alone; the count and, on half of them, the database were another topic's. Re-derive with: python scripts/lint_refusal_citation_resolves.py",
+  "what_would_have_to_be_obtained": "An independent synthesis of the four-component MACE estimand in bempedoic acid that is not CLEAR Outcomes. The PubMed search at search.databases[1] reported 109 record(s) and retrieved 50; the remaining 59 are unscreened and may contain one.",
+  "refusal_discharges_P46_because": "It names what was reached (one benchmark for this estimand), what was found insufficient (that benchmark IS the trial on the card, so the comparison would be the number against itself), and what would have to be obtained (an independent synthesis). The reason is a fact about the published evidence, not about our queue."
+ },
+ "registration_identity": {
+  "verified_utc": "2026-08-19",
+  "method": "live fetch of the raw ClinicalTrials.gov v2 record and comparison of the returned nctId against the id stored on this object",
+  "trials": [
+   {
+    "nct": "NCT02993406",
+    "verified": true,
+    "status_returned": "COMPLETED",
+    "org_study_id": "1002-043",
+    "link": "https://clinicaltrials.gov/study/NCT02993406"
+   }
+  ],
+  "duplicate_seeding_check": {
+   "shared_with_other_topics": false,
+   "checked_against": "evidence/2026-08-19-corpus/reconcile.json",
+   "state": "CHECKED",
+   "n_trials_checked": 1,
+   "shared": null
+  }
+ },
+ "build_stamp": {
+  "page_standard_version": "1.10.0-2026-08-19",
+  "standard_document": "PAGE-STANDARD.md",
+  "built_utc": "2026-08-19",
+  "built_by": "ssot/build_to_standard.py",
+  "properties": {
+   "P1_executed_search": {
+    "state": "HELD",
+    "reason": "2 database queries recorded verbatim with dates and counts; PRISMA arithmetic reconciles and the 0-trial unscreened remainder is stated as a number rather than omitted."
+   },
+   "P2_k_cascade": {
+    "state": "HELD",
+    "reason": "k at every stage: surfaced 21, located 21, experimental 16, comparator 5, included 1, unscreened remainder 0."
+   },
+   "P3_inclusion_criteria": {
+    "state": "HELD",
+    "reason": "Criteria provenance block present with predefined=False on its face (state 'DERIVED_FROM_THIS_OBJECT')."
+   },
+   "P4_preconditions": {
+    "state": "HELD",
+    "reason": "All 8 recorded with verdict and cited authority: 1 FAIL, 1 NOT-ASSESSABLE. criteria_predefined is FAIL -- post hoc criteria, which R107 permits and C5/C7 does not satisfy."
+   },
+   "P5_extraction_table": {
+    "state": "HELD",
+    "reason": "9 cells: 8 READ with source path and verbatim text, 1 DERIVED with the method named."
+   },
+   "P6_analysis_output": {
+    "state": "REFUSING",
+    "reason": "No quotable model output exists: k=1 and nothing was pooled. The absence is recorded as a finding with its cause and its trigger."
+   },
+   "P7_published_comparison": {
+    "state": "REFUSING",
+    "reason": "No denominator yet. Blocked on external registration-id resolution; citation-string matching explicitly refused rather than substituted."
+   },
+   "P8_registration_identity": {
+    "state": "HELD",
+    "reason": "1 of 1 trial(s) verified live against the registry."
+   },
+   "P18_restatement_is_reproducible": {
+    "state": "HELD",
+    "reason": "2 restatement block(s), each naming a script that resolves on disk: restated_2026_08_19_placebo_discriminator -> scripts/regate_across_revisions.py, ssot/topic_identity.py; restated_2026_08_19_trailing_placebo -> scripts/regate_cascade_2026_08_19.py"
+   },
+   "P19_promotion_reaches_derived_blocks": {
+    "state": "HELD",
+    "reason": "inputs.trials, k_cascade.k_included_in_object and prisma_flow.included all say 1; no first-person field in published_comparison declares a k the pooled outcome(s) do not."
+   },
+   "P20_cascade_reconciles": {
+    "state": "HELD",
+    "reason": "k2_role_located=21 == k3+k4+k5, and k0_surfaced=21 == k3+k4+k5+kNA. Both checked, and every failing limb would be reported rather than the first."
+   },
+   "P21_ambiguous_question_split": {
+    "state": "REFUSING",
+    "reason": "This object records no split provenance. That is CORRECT for a topic whose question was never ambiguous and it is NOT a pass: this builder cannot tell the two apart, so the property is refused with the reason rather than held on an absence. What would settle it: a `split_provenance` block, or an explicit statement that the question admits one reading."
+   },
+   "P22_sharing_recorded": {
+    "state": "HELD",
+    "reason": "No trial of this review appears in any other object's included set. COMPUTED over the corpus, not asserted: 1 trial(s) checked against every other topic object."
+   },
+   "P23_recall_measured": {
+    "state": "REFUSING",
+    "reason": "2 of 2 recorded quer(ies) do not state their recall against this review's own included set: ['ClinicalTrials.gov API v2', 'PubMed (NCBI E-utilities esearch)']. A query whose recall was never measured may have lost an included trial, and A TRIAL THAT WAS NEVER SURFACED LEAVES NO TRACE IN ANY COUNT -- it cannot appear as an exclusion, a refusal or a remainder."
+   }
+  },
+  "held": [
+   "P18_restatement_is_reproducible",
+   "P19_promotion_reaches_derived_blocks",
+   "P1_executed_search",
+   "P20_cascade_reconciles",
+   "P22_sharing_recorded",
+   "P2_k_cascade",
+   "P3_inclusion_criteria",
+   "P4_preconditions",
+   "P5_extraction_table",
+   "P8_registration_identity"
+  ],
+  "refusing": [
+   "P21_ambiguous_question_split",
+   "P23_recall_measured",
+   "P6_analysis_output",
+   "P7_published_comparison"
+  ],
+  "_ratchet": "This page is stamped to the standard version above. If the standard rises, this page is BELOW it and knowably so. No page is grandfathered; arni-hfref is presently UNSTAMPED and is therefore unknown-version, not compliant."
+ },
+ "screening_of_remainder": {
+  "screened_on": "2026-08-19",
+  "n_screened": 16,
+  "screened_against": "screening.eligibility_provenance -- the DERIVED criteria block (predefined:false, post_hoc:true). This screen is the first test of whether a derived block can do the work criteria are for: admitting and excluding named trials with reasons. It could.",
+  "result": {
+   "include": 0,
+   "exclude": 16,
+   "not_assessable": 0
+  },
+  "k_after_screening": 1,
+  "k_unchanged_because": "None of the 16 met all four limbs. k stays at 1, and P6 therefore continues to refuse a pooled model -- but it now refuses on a SCREENED basis rather than an unexamined one, which is a different and stronger statement.",
+  "exclusions_by_failing_limb": {
+   "COMPARATOR": {
+    "n": 2,
+    "ncts": [
+     "NCT06381947",
+     "NCT07611747"
+    ]
+   },
+   "OUTCOME": {
+    "n": 13,
+    "ncts": [
+     "NCT02988115",
+     "NCT02991118",
+     "NCT03001076",
+     "NCT03067441",
+     "NCT03337308",
+     "NCT06280976",
+     "NCT06450366",
+     "NCT06780410",
+     "NCT06925100",
+     "NCT07440381",
+     "NCT07474649",
+     "NCT07508254",
+     "NCT07614958"
+    ]
+   },
+   "POPULATION": {
+    "n": 1,
+    "ncts": [
+     "NCT02666664"
+    ]
+   }
+  },
+  "withholding_question": {
+   "asked": "does this trial report, AT ANY RANK -- primary, secondary or other -- an outcome matching what the included trial reports as its primary?",
+   "why_asked_before_deciding_not_to_pool": "Reading only registered PRIMARIES is how a poolable outcome one rank down goes unseen. Two of the three MACE-matching outcomes found here sit at SECONDARY rank and a primaries-only screen would have missed both.",
+   "trials_with_a_mace_matching_outcome_at_some_rank": [
+    {
+     "nct": "NCT02666664",
+     "hits": [
+      {
+       "rank": "PRIMARY",
+       "measure": "Percentage of Participants With Adjudicated Major Adverse Cardiovascular Event"
+      }
+     ]
+    },
+    {
+     "nct": "NCT06381947",
+     "hits": [
+      {
+       "rank": "SECONDARY",
+       "measure": "MACE at 12 and 28 weeks"
+      },
+      {
+       "rank": "SECONDARY",
+       "measure": "Rehospitalization at 12 and 28 weeks"
+      },
+      {
+       "rank": "SECONDARY",
+       "measure": "Death at 12 and 28 weeks"
+      }
+     ]
+    },
+    {
+     "nct": "NCT07611747",
+     "hits": [
+      {
+       "rank": "PRIMARY",
+       "measure": "Incidence of Major Adverse Cardiovascular Events (MACE)"
+      }
+     ]
+    }
+   ],
+   "outcome_ranks_searched_total": 193
+  },
+  "rows": [
+   {
+    "nct": "NCT02666664",
+    "title": "Evaluation of Long-Term Safety and Tolerability of ETC-1002 in High-Risk Patients With Hyperlipidemia and High CV Risk (",
+    "phase": "PHASE3",
+    "status": "COMPLETED",
+    "conditions": "Hypercholesterolemia ; Atherosclerotic Cardiovascular Diseases",
+    "outcome_ranks_searched": 30,
+    "mace_at_any_rank": [
+     {
+      "rank": "PRIMARY",
+      "measure": "Percentage of Participants With Adjudicated Major Adverse Cardiovascular Event"
+     }
+    ],
+    "has_placebo_arm": true,
+    "statin_intolerant_population": false,
+    "verdict": "EXCLUDE",
+    "failing_limb": "POPULATION",
+    "reason": "reports a MACE-matching outcome against placebo, but its population is not stated as statin-intolerant. The review's population limb is statin-intolerant patients."
+   },
+   {
+    "nct": "NCT02988115",
+    "title": "Evaluation of the Efficacy and Safety of Bempedoic Acid (ETC-1002) in Patients With Hyperlipidemia and Statin Intolerant",
+    "phase": "PHASE3",
+    "status": "COMPLETED",
+    "conditions": "Hypercholesterolemia ; Atherosclerotic Cardiovascular Disease ; Statin Adverse Reaction",
+    "outcome_ranks_searched": 5,
+    "mace_at_any_rank": [],
+    "has_placebo_arm": true,
+    "statin_intolerant_population": true,
+    "verdict": "EXCLUDE",
+    "failing_limb": "OUTCOME",
+    "reason": "reports no four-component MACE outcome at ANY of its 5 registered ranks (primary, secondary and other all searched). Its registered primary is 'Percent Change From Baseline (PCFB) in Low-density Lipoprotein Cholesterol (LDL-C) at Week'. Different quantity, not poolable with the review's estimand."
+   },
+   {
+    "nct": "NCT02991118",
+    "title": "Evaluation of Long-Term Efficacy of Bempedoic Acid (ETC-1002) in Patients With Hyperlipidemia at High Cardiovascular Ris",
+    "phase": "PHASE3",
+    "status": "COMPLETED",
+    "conditions": "Hypercholesterolemia ; Atherosclerotic Cardiovascular Disease",
+    "outcome_ranks_searched": 20,
+    "mace_at_any_rank": [],
+    "has_placebo_arm": true,
+    "statin_intolerant_population": false,
+    "verdict": "EXCLUDE",
+    "failing_limb": "OUTCOME",
+    "reason": "reports no four-component MACE outcome at ANY of its 20 registered ranks (primary, secondary and other all searched). Its registered primary is 'Percent Change From Baseline to Week 12 in Low-density Lipoprotein Cholesterol (LDL-C)'. Different quantity, not poolable with the review's estimand."
+   },
+   {
+    "nct": "NCT03001076",
+    "title": "Evaluation of the Efficacy and Safety of Bempedoic Acid (ETC-1002) as Add-on to Ezetimibe Therapy in Patients With Eleva",
+    "phase": "PHASE3",
+    "status": "COMPLETED",
+    "conditions": "Hypercholesterolemia ; Atherosclerosis ; Statin Adverse Reaction",
+    "outcome_ranks_searched": 14,
+    "mace_at_any_rank": [],
+    "has_placebo_arm": true,
+    "statin_intolerant_population": true,
+    "verdict": "EXCLUDE",
+    "failing_limb": "OUTCOME",
+    "reason": "reports no four-component MACE outcome at ANY of its 14 registered ranks (primary, secondary and other all searched). Its registered primary is 'Percent Change From Baseline to Week 12 in Low-Density Lipoprotein Cholesterol (LDL-C)'. Different quantity, not poolable with the review's estimand."
+   },
+   {
+    "nct": "NCT03067441",
+    "title": "Assessment of the Long-Term Safety and Efficacy of Bempedoic Acid (CLEAR Harmony OLE)",
+    "phase": "PHASE3",
+    "status": "COMPLETED",
+    "conditions": "Hypercholesterolemia ; Atherosclerotic Cardiovascular Disease",
+    "outcome_ranks_searched": 17,
+    "mace_at_any_rank": [],
+    "has_placebo_arm": false,
+    "statin_intolerant_population": false,
+    "verdict": "EXCLUDE",
+    "failing_limb": "OUTCOME",
+    "reason": "reports no four-component MACE outcome at ANY of its 17 registered ranks (primary, secondary and other all searched). Its registered primary is 'Number of Participants With Treatment-Emergent Adverse Events (TEAEs)'. Different quantity, not poolable with the review's estimand."
+   },
+   {
+    "nct": "NCT03337308",
+    "title": "A Study Evaluating the Safety and Efficacy of Bempedoic Acid Plus Ezetimibe Fixed-Dose Combination Compared to Bempedoic",
+    "phase": "PHASE3",
+    "status": "COMPLETED",
+    "conditions": "Hyperlipidemias",
+    "outcome_ranks_searched": 7,
+    "mace_at_any_rank": [],
+    "has_placebo_arm": true,
+    "statin_intolerant_population": false,
+    "verdict": "EXCLUDE",
+    "failing_limb": "OUTCOME",
+    "reason": "reports no four-component MACE outcome at ANY of its 7 registered ranks (primary, secondary and other all searched). Its registered primary is 'Percent Change From Baseline to Week 12 in Low-density Lipoprotein Cholesterol (LDL-C)'. Different quantity, not poolable with the review's estimand."
+   },
+   {
+    "nct": "NCT06280976",
+    "title": "Aggressive Risk-Prevention Therapies for Coronary Atherosclerotic Plaque (ART-CAP)",
+    "phase": "PHASE4",
+    "status": "WITHDRAWN",
+    "conditions": "Coronary Artery Disease ; Atherosclerosis ; Heart Attack",
+    "outcome_ranks_searched": 20,
+    "mace_at_any_rank": [],
+    "has_placebo_arm": false,
+    "statin_intolerant_population": false,
+    "verdict": "EXCLUDE",
+    "failing_limb": "OUTCOME",
+    "reason": "reports no four-component MACE outcome at ANY of its 20 registered ranks (primary, secondary and other all searched). Its registered primary is 'Plaque quantification'. Different quantity, not poolable with the review's estimand."
+   },
+   {
+    "nct": "NCT06381947",
+    "title": "Efficacy and Safety of Bempedoic Acid in Association With Anti-PCSK9 and Ezetimibe in Statin-intolerant Patients",
+    "phase": "PHASE4",
+    "status": "UNKNOWN",
+    "conditions": "Dyslipidemias ; Statin Adverse Reaction ; Cardiovascular Diseases ; Lipid Metabolism Disorders",
+    "outcome_ranks_searched": 19,
+    "mace_at_any_rank": [
+     {
+      "rank": "SECONDARY",
+      "measure": "MACE at 12 and 28 weeks"
+     },
+     {
+      "rank": "SECONDARY",
+      "measure": "Rehospitalization at 12 and 28 weeks"
+     },
+     {
+      "rank": "SECONDARY",
+      "measure": "Death at 12 and 28 weeks"
+     }
+    ],
+    "has_placebo_arm": false,
+    "statin_intolerant_population": true,
+    "verdict": "EXCLUDE",
+    "failing_limb": "COMPARATOR",
+    "reason": "reports a MACE-matching outcome but declares no placebo arm; arms are ['PCSK9 inhibitors plus ezetimibe and bempedoic acid', 'PCSK9 inhibitors plus ezetimibe']. The review's comparator is placebo."
+   },
+   {
+    "nct": "NCT06450366",
+    "title": "A Study to Evaluate the Efficacy and Safety of Enlicitide (MK-0616, Oral PCSK9 Inhibitor) Compared With Ezetimibe or Bem",
+    "phase": "PHASE3",
+    "status": "COMPLETED",
+    "conditions": "Hypercholesterolemia",
+    "outcome_ranks_searched": 8,
+    "mace_at_any_rank": [],
+    "has_placebo_arm": false,
+    "statin_intolerant_population": false,
+    "verdict": "EXCLUDE",
+    "failing_limb": "OUTCOME",
+    "reason": "reports no four-component MACE outcome at ANY of its 8 registered ranks (primary, secondary and other all searched). Its registered primary is 'Mean Percent Change From Baseline in Low-density Lipoprotein Cholesterol (LDL-C) at Day 56'. Different quantity, not poolable with the review's estimand."
+   },
+   {
+    "nct": "NCT06780410",
+    "title": "A Clinical Study to Evaluate the Efficacy, Tolerability, and Safety of Bempedoic Acid",
+    "phase": "PHASE3",
+    "status": "RECRUITING",
+    "conditions": "Primary Hyperlipidemia",
+    "outcome_ranks_searched": 3,
+    "mace_at_any_rank": [],
+    "has_placebo_arm": true,
+    "statin_intolerant_population": false,
+    "verdict": "EXCLUDE",
+    "failing_limb": "OUTCOME",
+    "reason": "reports no four-component MACE outcome at ANY of its 3 registered ranks (primary, secondary and other all searched). Its registered primary is 'Percentage change from baseline in LDL-C levels at Week 12'. Different quantity, not poolable with the review's estimand."
+   },
+   {
+    "nct": "NCT06925100",
+    "title": "A Study to Investigate the Effectiveness and Safety of Bempedoic Acid in Patients With Primary Hypercholesterolemia or M",
+    "phase": "PHASE4",
+    "status": "COMPLETED",
+    "conditions": "Primary Hypercholesterolemia or Mixed Hyperlipidemia",
+    "outcome_ranks_searched": 7,
+    "mace_at_any_rank": [],
+    "has_placebo_arm": false,
+    "statin_intolerant_population": true,
+    "verdict": "EXCLUDE",
+    "failing_limb": "OUTCOME",
+    "reason": "reports no four-component MACE outcome at ANY of its 7 registered ranks (primary, secondary and other all searched). Its registered primary is 'Percentage change from baseline in LDL-C level at Week 12'. Different quantity, not poolable with the review's estimand."
+   },
+   {
+    "nct": "NCT07440381",
+    "title": "triPle Oral thERapy With Bempedoic Acid vs uSual Care in Early Lipid Management of Patients With acUte coronAry synDromE",
+    "phase": "PHASE3",
+    "status": "NOT_YET_RECRUITING",
+    "conditions": "Acute Coronary Syndromes ; Secondary Prevention ; Lipids",
+    "outcome_ranks_searched": 8,
+    "mace_at_any_rank": [],
+    "has_placebo_arm": false,
+    "statin_intolerant_population": false,
+    "verdict": "EXCLUDE",
+    "failing_limb": "OUTCOME",
+    "reason": "reports no four-component MACE outcome at ANY of its 8 registered ranks (primary, secondary and other all searched). Its registered primary is 'Mean percent change in LDL-c levels'. Different quantity, not poolable with the review's estimand."
+   },
+   {
+    "nct": "NCT07474649",
+    "title": "A Study of Bempedoic Acid/Ezetimibe/High-intensity Statin in Patients Without Cardiovascular Events",
+    "phase": "PHASE3",
+    "status": "NOT_YET_RECRUITING",
+    "conditions": "Coronary Atherosclerosis ; Mixed Dyslipidemia ; Hypercholesterolemia",
+    "outcome_ranks_searched": 17,
+    "mace_at_any_rank": [],
+    "has_placebo_arm": false,
+    "statin_intolerant_population": false,
+    "verdict": "EXCLUDE",
+    "failing_limb": "OUTCOME",
+    "reason": "reports no four-component MACE outcome at ANY of its 17 registered ranks (primary, secondary and other all searched). Its registered primary is 'Annualised change in percentage plaque burden (Δ%PB)'. Different quantity, not poolable with the review's estimand."
+   },
+   {
+    "nct": "NCT07508254",
+    "title": "Triple vs Dual Lipid-Lowering Therapy for LDL-C Reduction in Acute Coronary Syndrome",
+    "phase": "PHASE4",
+    "status": "NOT_YET_RECRUITING",
+    "conditions": "Acute Coronary Syndromes (ACS) ; Hypercholesterolemia",
+    "outcome_ranks_searched": 2,
+    "mace_at_any_rank": [],
+    "has_placebo_arm": false,
+    "statin_intolerant_population": false,
+    "verdict": "EXCLUDE",
+    "failing_limb": "OUTCOME",
+    "reason": "reports no four-component MACE outcome at ANY of its 2 registered ranks (primary, secondary and other all searched). Its registered primary is 'Change in LDL cholesterol level'. Different quantity, not poolable with the review's estimand."
+   },
+   {
+    "nct": "NCT07611747",
+    "title": "Carotid Ultrasound-Based Strategy for Primary Prevention of Cardiovascular Events in Inflammatory Rheumatic Disease (PRE",
+    "phase": "PHASE4",
+    "status": "RECRUITING",
+    "conditions": "Rheumatoid Arthritis (RA) ; Psoriatic Arthritis (PsA) ; Axial Spondy ; Systemic Lupus Erythematosus (SLE) ; Caridovascul",
+    "outcome_ranks_searched": 9,
+    "mace_at_any_rank": [
+     {
+      "rank": "PRIMARY",
+      "measure": "Incidence of Major Adverse Cardiovascular Events (MACE)"
+     }
+    ],
+    "has_placebo_arm": false,
+    "statin_intolerant_population": false,
+    "verdict": "EXCLUDE",
+    "failing_limb": "COMPARATOR",
+    "reason": "reports a MACE-matching outcome but declares no placebo arm; arms are ['Experimental Group: Carotid Ultrasound', 'Control Group: Standard Care']. The review's comparator is placebo."
+   },
+   {
+    "nct": "NCT07614958",
+    "title": "Phase 3 Clinical Study Evaluating Efficacy, Safety, and Tolerability of Obicetrapib Vs Bempedoic Acid to Treat Dyslipide",
+    "phase": "PHASE3",
+    "status": "RECRUITING",
+    "conditions": "Mixed Dyslipidemia ; Hypercholesterolaemia",
+    "outcome_ranks_searched": 7,
+    "mace_at_any_rank": [],
+    "has_placebo_arm": false,
+    "statin_intolerant_population": true,
+    "verdict": "EXCLUDE",
+    "failing_limb": "OUTCOME",
+    "reason": "reports no four-component MACE outcome at ANY of its 7 registered ranks (primary, secondary and other all searched). Its registered primary is 'The primary efficacy endpoint is the percentage change from baseline to Day 84 in LDL-C in'. Different quantity, not poolable with the review's estimand."
+   }
+  ],
+  "evidence_file": "evidence/2026-08-19-batch1/bempedoic_screening.json",
+  "restated_two_axis_2026_08_19": {
+   "why": "sglt2-hf's criteria showed the right structure: ELIGIBILITY turns on population, intervention and comparator and deliberately NOT on what a trial reported, because making eligibility depend on reported outcomes invites outcome-reporting bias. POOLABILITY is a separate axis. The original screen of these 16 used the outcome as an ELIGIBILITY limb and excluded 13 on it. Restated here. The ratchet says no page is grandfathered, including one built four hours earlier.",
+   "counts": {
+    "eligible": 2,
+    "not_eligible": 14,
+    "eligible_and_not_poolable": 2,
+    "not_eligible_and_not_poolable": 11,
+    "not_eligible_but_poolable": 3
+   },
+   "what_the_restatement_changed": "The original reported 13 failing on the OUTCOME limb. Under two axes only TWO trials are ELIGIBLE-but-not-poolable -- because most of those 13 ALSO fail population or comparator. The original screen checked OUTCOME FIRST and returned on the first failure, so the limb it REPORTED was determined by CHECK ORDER rather than by the trial. The verdict (exclude) was right every time; the attributed reason was an artifact of the order I wrote the checks in. Same class as everything else tonight -- right answer, wrong reason, invisible to anything that reads verdicts.",
+   "three_that_are_poolable_but_not_eligible": "Three trials report a MACE-matching outcome yet fail population or comparator. They could contribute a quantity but are out of scope, which is the opposite cell from the eleven eligible-but-not-poolable on sglt2-hf. Both cells are only visible under two axes.",
+   "k_unchanged": "k stays 1. No trial is both eligible and poolable.",
+   "rows": [
+    {
+     "nct": "NCT02666664",
+     "eligibility": "NOT_ELIGIBLE",
+     "eligibility_axis": "POPULATION",
+     "poolable": "POOLABLE_QUANTITY",
+     "mace_at_any_rank": [
+      {
+       "rank": "PRIMARY",
+       "measure": "Percentage of Participants With Adjudicated Major Adverse Cardiovascular Event"
+      }
+     ],
+     "original_single_axis_verdict": "EXCLUDE",
+     "original_single_axis_limb": "POPULATION"
+    },
+    {
+     "nct": "NCT02988115",
+     "eligibility": "ELIGIBLE",
+     "eligibility_axis": null,
+     "poolable": "NOT_POOLABLE_QUANTITY",
+     "mace_at_any_rank": [],
+     "original_single_axis_verdict": "EXCLUDE",
+     "original_single_axis_limb": "OUTCOME"
+    },
+    {
+     "nct": "NCT02991118",
+     "eligibility": "NOT_ELIGIBLE",
+     "eligibility_axis": "POPULATION",
+     "poolable": "NOT_POOLABLE_QUANTITY",
+     "mace_at_any_rank": [],
+     "original_single_axis_verdict": "EXCLUDE",
+     "original_single_axis_limb": "OUTCOME"
+    },
+    {
+     "nct": "NCT03001076",
+     "eligibility": "ELIGIBLE",
+     "eligibility_axis": null,
+     "poolable": "NOT_POOLABLE_QUANTITY",
+     "mace_at_any_rank": [],
+     "original_single_axis_verdict": "EXCLUDE",
+     "original_single_axis_limb": "OUTCOME"
+    },
+    {
+     "nct": "NCT03067441",
+     "eligibility": "NOT_ELIGIBLE",
+     "eligibility_axis": "COMPARATOR",
+     "poolable": "NOT_POOLABLE_QUANTITY",
+     "mace_at_any_rank": [],
+     "original_single_axis_verdict": "EXCLUDE",
+     "original_single_axis_limb": "OUTCOME"
+    },
+    {
+     "nct": "NCT03337308",
+     "eligibility": "NOT_ELIGIBLE",
+     "eligibility_axis": "POPULATION",
+     "poolable": "NOT_POOLABLE_QUANTITY",
+     "mace_at_any_rank": [],
+     "original_single_axis_verdict": "EXCLUDE",
+     "original_single_axis_limb": "OUTCOME"
+    },
+    {
+     "nct": "NCT06280976",
+     "eligibility": "NOT_ELIGIBLE",
+     "eligibility_axis": "COMPARATOR",
+     "poolable": "NOT_POOLABLE_QUANTITY",
+     "mace_at_any_rank": [],
+     "original_single_axis_verdict": "EXCLUDE",
+     "original_single_axis_limb": "OUTCOME"
+    },
+    {
+     "nct": "NCT06381947",
+     "eligibility": "NOT_ELIGIBLE",
+     "eligibility_axis": "COMPARATOR",
+     "poolable": "POOLABLE_QUANTITY",
+     "mace_at_any_rank": [
+      {
+       "rank": "SECONDARY",
+       "measure": "MACE at 12 and 28 weeks"
+      },
+      {
+       "rank": "SECONDARY",
+       "measure": "Rehospitalization at 12 and 28 weeks"
+      },
+      {
+       "rank": "SECONDARY",
+       "measure": "Death at 12 and 28 weeks"
+      }
+     ],
+     "original_single_axis_verdict": "EXCLUDE",
+     "original_single_axis_limb": "COMPARATOR"
+    },
+    {
+     "nct": "NCT06450366",
+     "eligibility": "NOT_ELIGIBLE",
+     "eligibility_axis": "COMPARATOR",
+     "poolable": "NOT_POOLABLE_QUANTITY",
+     "mace_at_any_rank": [],
+     "original_single_axis_verdict": "EXCLUDE",
+     "original_single_axis_limb": "OUTCOME"
+    },
+    {
+     "nct": "NCT06780410",
+     "eligibility": "NOT_ELIGIBLE",
+     "eligibility_axis": "POPULATION",
+     "poolable": "NOT_POOLABLE_QUANTITY",
+     "mace_at_any_rank": [],
+     "original_single_axis_verdict": "EXCLUDE",
+     "original_single_axis_limb": "OUTCOME"
+    },
+    {
+     "nct": "NCT06925100",
+     "eligibility": "NOT_ELIGIBLE",
+     "eligibility_axis": "COMPARATOR",
+     "poolable": "NOT_POOLABLE_QUANTITY",
+     "mace_at_any_rank": [],
+     "original_single_axis_verdict": "EXCLUDE",
+     "original_single_axis_limb": "OUTCOME"
+    },
+    {
+     "nct": "NCT07440381",
+     "eligibility": "NOT_ELIGIBLE",
+     "eligibility_axis": "COMPARATOR",
+     "poolable": "NOT_POOLABLE_QUANTITY",
+     "mace_at_any_rank": [],
+     "original_single_axis_verdict": "EXCLUDE",
+     "original_single_axis_limb": "OUTCOME"
+    },
+    {
+     "nct": "NCT07474649",
+     "eligibility": "NOT_ELIGIBLE",
+     "eligibility_axis": "COMPARATOR",
+     "poolable": "NOT_POOLABLE_QUANTITY",
+     "mace_at_any_rank": [],
+     "original_single_axis_verdict": "EXCLUDE",
+     "original_single_axis_limb": "OUTCOME"
+    },
+    {
+     "nct": "NCT07508254",
+     "eligibility": "NOT_ELIGIBLE",
+     "eligibility_axis": "COMPARATOR",
+     "poolable": "NOT_POOLABLE_QUANTITY",
+     "mace_at_any_rank": [],
+     "original_single_axis_verdict": "EXCLUDE",
+     "original_single_axis_limb": "OUTCOME"
+    },
+    {
+     "nct": "NCT07611747",
+     "eligibility": "NOT_ELIGIBLE",
+     "eligibility_axis": "COMPARATOR",
+     "poolable": "POOLABLE_QUANTITY",
+     "mace_at_any_rank": [
+      {
+       "rank": "PRIMARY",
+       "measure": "Incidence of Major Adverse Cardiovascular Events (MACE)"
+      }
+     ],
+     "original_single_axis_verdict": "EXCLUDE",
+     "original_single_axis_limb": "COMPARATOR"
+    },
+    {
+     "nct": "NCT07614958",
+     "eligibility": "NOT_ELIGIBLE",
+     "eligibility_axis": "COMPARATOR",
+     "poolable": "NOT_POOLABLE_QUANTITY",
+     "mace_at_any_rank": [],
+     "original_single_axis_verdict": "EXCLUDE",
+     "original_single_axis_limb": "OUTCOME"
+    }
+   ]
+  },
+  "bempedoic_newly_unscreened_2026_08_19": {
+   "screened_utc": "2026-08-19",
+   "axes_kept_separate": "ELIGIBILITY and POOLABILITY are recorded as separate verdicts. For sglt2-hf the topic's own criteria put the outcome ENTIRELY on the pooling axis, citing Handbook s3.2.4: making eligibility depend on reported outcomes invites outcome reporting bias. That separation is the topic's and is preserved rather than re-litigated here.",
+   "third_state_why": "ELIGIBLE_NO_RESULTS_YET is neither eligible-and-assessed nor excluded. A trial that has not reported has not been assessed and rejected, and recording it as excluded overstates what the review has settled -- in the same direction the withholding class runs.",
+   "stronger_ground_rule": "Where more than one limb fails, the decision is recorded on the STRONGEST ground and the others are named rather than leaned on. Where STATUS settles a trial, the population question is not argued at all -- deciding a trial on a contestable limb when an uncontestable one is available manufactures a firmer verdict than the evidence supports.",
+   "tally": {
+    "EXCLUDED": 1
+   },
+   "trials": [
+    {
+     "nct": "NCT05263778",
+     "verdict": "EXCLUDED",
+     "axis": "ELIGIBILITY",
+     "criterion": "INTERVENTION",
+     "field_read": "armsInterventionsModule.interventions",
+     "reason": "Randomises 'Bempedoic Acid / Ezetimibe Oral Tablet' -- a FIXED-DOSE COMBINATION -- against placebo. Two agents differ between the arms, so the estimate is not attributable to bempedoic acid. That is the strongest and cleanest ground and it is the one used. Two further limbs also fail and are named rather than relied on: the population is post-ACS (NSTEMI/STEMI) rather than statin-intolerant, and the primary is LDL-C level rather than MACE. n=500, status UNKNOWN."
+    }
+   ]
+  }
+ },
+ "risk_of_bias": {
+  "tool": "RoB 2 (Cochrane risk-of-bias tool for randomized trials)",
+  "version": "22 August 2019 version, as reproduced in the Cochrane Handbook",
+  "handbook": "Higgins JPT, Savovic J, Page MJ, Elbers RG, Sterne JAC. Chapter 8: Assessing risk of bias in a randomized trial. In: Cochrane Handbook for Systematic Reviews of Interventions version 6.5.1",
+  "unit_of_assessment": "A RESULT, not a study -- Handbook 8.2: 'risk of bias is assessed for a specific result'. Every judgement below names its outcome.",
+  "default_rule": "A domain that cannot be judged from the registration and the published report is NO_INFORMATION, never LOW. Low-by-default asserts a fact; high-by-default invents a defect.",
+  "ceiling": {
+   "no_result_can_reach_LOW": true,
+   "statement": "NO RESULT IN THIS REVIEW CAN REACH LOW RISK OF BIAS ON THE EVIDENCE WE CAN REACH, AND THAT IS A FACT ABOUT OUR ACCESS RATHER THAN ABOUT THE TRIALS. The two domains that would distinguish LOW from SOME CONCERNS need documents this review does not hold: D1 needs allocation concealment and baseline data, which are in neither the registration nor the published abstract; D5 needs the trial's statistical analysis plan, which is not held for any trial. SOME CONCERNS IS THEREFORE THE CEILING, NOT A FINDING. A trial rated SOME CONCERNS here may well be at low risk of bias -- we cannot show it, and we do not imply the opposite.",
+   "what_would_change_it": "Retrieving each trial's full published report and its statistical analysis plan or protocol. Until then the rating is bounded by what we read, and the bound is reported rather than the reader inferring it.",
+   "why_this_is_stated_rather_than_left_implicit": "A rating of SOME CONCERNS with no explanation reads as a judgement against the trial. Omitting the reason would manufacture a criticism exactly as a low-by-default manufactures a reassurance -- the same defect pointed the other way."
+  },
+  "by_outcome": {
+   "primary": {
+    "NCT02993406": {
+     "trial": "CLEAR Outcomes",
+     "domains": {
+      "D1_randomisation": {
+       "judgement": "NO_INFORMATION",
+       "signalling_questions": {
+        "allocation_sequence_random": "NO_INFORMATION",
+        "allocation_concealed": "NO_INFORMATION",
+        "baseline_imbalance_suggesting_a_problem": "NO_INFORMATION"
+       },
+       "evidence": [
+        "Allocation concealment and baseline-imbalance data are in neither the registration nor the fields this object holds."
+       ]
+      },
+      "D2_deviations": {
+       "judgement": "NO_INFORMATION",
+       "signalling_questions": {
+        "participants_aware": "NO_INFORMATION",
+        "carers_aware": "NO_INFORMATION",
+        "appropriate_analysis_used": "NO_INFORMATION"
+       },
+       "evidence": []
+      },
+      "D3_missing_outcome_data": {
+       "judgement": "LOW",
+       "signalling_questions": {
+        "data_available_for_all_randomised": "YES"
+       },
+       "evidence": [
+        "analysed 13970 of 13970 randomised (0.00% not analysed)"
+       ]
+      },
+      "D4_measurement": {
+       "judgement": "SOME_CONCERNS",
+       "signalling_questions": {
+        "method_inappropriate": "PROBABLY_NO",
+        "assessors_aware_of_intervention": "NO_INFORMATION",
+        "assessment_could_be_influenced_by_knowledge": "NO_INFORMATION"
+       },
+       "evidence": []
+      },
+      "D5_selection_of_result": {
+       "judgement": "NO_INFORMATION",
+       "signalling_questions": {
+        "analysed_per_prespecified_plan": "NO_INFORMATION",
+        "selected_from_multiple_eligible_measurements": "NO_INFORMATION"
+       },
+       "evidence": [
+        "No trial's statistical analysis plan is held, so whether this analysis was pre-specified cannot be established. D5 therefore cannot reach LOW."
+       ],
+       "adjudicated_2026_08_21": {
+        "assessor_1": "NO_INFORMATION",
+        "assessor_2": "LOW",
+        "resolved_in_favour_of": "ASSESSOR 2",
+        "the_registry_fact_it_turns_on": "registered_primary_count = 1",
+        "why": "ONE REGISTERED PRIMARY OUTCOME. There is no set of eligible measurements to have selected from, so the selection concern cannot arise and LOW is right. ASSESSOR 1 SCORED NO_INFORMATION, WHICH WAS OVER-CAUTIOUS: declining to judge a domain the registry does answer is the mirror of scoring LOW on one it does not.",
+        "discriminator": "WHICH ASSESSOR'S REASON CITES A REGISTRY FACT. Both were asked; assessor 2's stated bases were collected in a second blind round rather than assumed. The count of registered primary outcomes is a field on the registration and is not a matter of judgement."
+       }
+      }
+     },
+     "overall": "NO_INFORMATION",
+     "overall_note": "NO OVERALL JUDGEMENT IS SYNTHESISED because D1_randomisation, D2_deviations, D5_selection_of_result could not be assessed. RoB 2's algorithm maps domains to an overall rating, but an overall computed over unknowns would present absence as a result.",
+     "contributes_to_a_pooled_estimate": true,
+     "nct": "NCT02993406",
+     "registered_masking": "TRIPLE -- participant, investigator, outcomes assessor",
+     "registered_primary_count": 1,
+     "registered_arm_count": 2,
+     "registered_enrolment": 13970,
+     "registered_primary_outcome": "Number of Participants With First Occurrence of Four Component Major Adverse Cardiovascular Events (MACE)",
+     "registered_sites": "Argentina, Australia, Austria, Belgium, Brazil, Bulgaria, Canada, Chile, Colombia, Croatia, Czechia, Denmark, Estonia, Germany, Hungary, India, Latvia, Lithuania, Mexico, Netherlands, New Zealand, Poland, Romania, Russia, Serbia, Slovakia, South Africa, Spain, Turkey (Türkiye), Ukraine, United Kingdom, United States",
+     "registry_facts_backfilled_2026_08_21": "READ FROM ClinicalTrials.gov API v2 on 2026-08-21. THE JUDGEMENTS ABOVE WERE NOT REVISITED -- this adds the registry evidence beside a verdict that was made from it and did not record it, so a blind second assessor can be shown the same facts. A second assessment built on fewer facts is not a comparable assessment."
+    }
+   }
+  },
+  "SECOND_ASSESSOR_2026_08_21": {
+   "assessor_2": "GPT-5 Codex (openai family), via `codex exec`",
+   "assessor_1": "Claude Opus 5 (anthropic family) -- the assessment above",
+   "how_it_was_asked": "BLIND, from scripts/second_assessor_prompt.py. The prompt is assembled from an ALLOW-LIST of registry-sourced factual fields and REFUSES to send if any RoB 2 verdict word appears in the assembled text. The second assessor was not shown this assessment and was not asked whether it agreed.",
+   "THE_ALLOW_LIST_THE_RATE_IS_CONDITIONAL_ON": "A DISAGREEMENT RATE IS MEANINGLESS WITHOUT THE FACTS BOTH ASSESSORS SAW, so the list is stated here the way a denominator is stated. Fields emitted: trial, cohort, registered enrolment, registered masking, registered sites, registered comparator, number of registered arms, number of registered PRIMARY outcomes, registered PRIMARY outcome, registered analysis population, the rank the pooled result holds, the result being assessed, participants this review pools, registered enrolment minus participants pooled. Established by test, not argument: widening this list from 9 fields to 14 HALVED gepotidacin's disagreement -- its entire D5 divergence was a fact the second assessor had never been shown -- and left ceftaroline and tigecycline unmoved.",
+   "verbatim_reply": "NCT02993406__primary D1=NO_INFORMATION D2=NO_INFORMATION D3=NO_INFORMATION D4=SOME_CONCERNS D5=LOW OVERALL=SOME_CONCERNS",
+   "DISAGREEMENT_RATE": "3 of 6 judgements -- 50.0%. Reported as DISAGREEMENT: agreement between two assessors given the same facts authenticates nothing.",
+   "PER_DOMAIN": {
+    "D1": "0 of 1 disagree",
+    "D2": "0 of 1 disagree",
+    "D3": "1 of 1 disagree",
+    "D4": "0 of 1 disagree",
+    "D5": "1 of 1 disagree",
+    "OVERALL": "1 of 1 disagree"
+   },
+   "each_disagreement": [
+    "NCT02993406__primary D3: assessor 1 LOW, assessor 2 NO_INFORMATION",
+    "NCT02993406__primary D5: assessor 1 NO_INFORMATION, assessor 2 LOW",
+    "NCT02993406__primary OVERALL: assessor 1 NO_INFORMATION, assessor 2 SOME_CONCERNS"
+   ],
+   "not_resolved_here": "A disagreement is recorded, not adjudicated. The second assessor is NOT an appeal court: where the first assessment is believed right that is written with its reason and both stand."
+  }
+ },
+ "grade": {
+  "approach": "GRADE",
+  "reference": "Schunemann H, Brozek J, Guyatt G, Oxman A (editors). GRADE Handbook for grading quality of evidence and strength of recommendations.",
+  "handbook_chapter": "Cochrane Handbook for Systematic Reviews of Interventions version 6.5.1, Chapter 14: Completing 'Summary of findings' tables and grading the certainty of the evidence",
+  "starting_point": "HIGH for a body of randomised evidence, then rated down with reasons.",
+  "not_rated_up": "No domain is rated UP. Rating up for large effect or dose-response applies to observational evidence that has not already been rated down, and neither condition holds here.",
+  "by_outcome": {
+   "primary": {
+    "rated": true,
+    "certainty": "LOW",
+    "k": 1,
+    "i2": null,
+    "estimate": {
+     "point": 0.87,
+     "ci_low": 0.79,
+     "ci_high": 0.96
+    },
+    "started_at": "HIGH",
+    "steps": [
+     {
+      "domain": "risk_of_bias",
+      "levels": -1,
+      "from": "HIGH",
+      "to": "MODERATE",
+      "reason": "Result-level RoB 2 over 1 contributing result(s): NO_INFORMATION=1. NOT ONE reaches LOW -- D5 cannot, because no trial's statistical analysis plan is held, and D1 cannot, because allocation concealment is in neither the registration nor this object. 1 have at least one domain at NO INFORMATION. This is a limit on what we can reach, not a finding against the trials."
+     },
+     {
+      "domain": "inconsistency",
+      "levels": 0,
+      "from": "MODERATE",
+      "to": "MODERATE",
+      "reason": "k = 1: inconsistency cannot be assessed with a single contributing result, and NOT ASSESSABLE is recorded rather than 'no inconsistency'."
+     },
+     {
+      "domain": "indirectness",
+      "levels": 0,
+      "from": "MODERATE",
+      "to": "MODERATE",
+      "reason": "The contributing results share one endpoint definition, verified by reading each trial's registered text rather than by comparing names."
+     },
+     {
+      "domain": "imprecision",
+      "levels": -1,
+      "from": "MODERATE",
+      "to": "LOW",
+      "reason": "k = 1. The interval (0.79 to 0.96) does not cross the null, but at k = 1 tau-squared is estimated from almost no information and a random-effects interval is optimistic even when it looks tight. Rated down for a small contributing set rather than reporting the number as if it were robust."
+     },
+     {
+      "domain": "publication_bias",
+      "levels": 0,
+      "from": "LOW",
+      "to": "LOW",
+      "reason": "k = 1. A funnel plot and Egger's test have no power below k = 10, so publication bias is UNDETECTED rather than ABSENT. Not rated down, and not reported as clean: an unreachable state is not a passing one."
+     }
+    ],
+    "summary": "risk_of_bias -1 inconsistency +0 indirectness +0 imprecision -1 publication_bias +0"
+   }
+  }
+ },
+ "protocol": {
+  "prespecified": false,
+  "permanently_refused": true,
+  "why": "A protocol specified before data collection is a HISTORICAL FACT ABOUT THE PAST and cannot be created retrospectively. Writing one now and calling it prespecified would invalidate every other refusal on these pages, because a reader who caught it would be right to disbelieve all of them.",
+  "what_was_actually_done": "Eligibility criteria were derived POST HOC from the trials and the methodological authority, and the derivation is recorded element by element in `screening.eligibility_provenance` with the source of each.",
+  "authority_permitting_it": "MECIR R107 permits post-hoc eligibility criteria PROVIDED THEY ARE DECLARED AS SUCH. They are declared, here and on the page, and the page says 'derived, post hoc' in its heading.",
+  "forward_remedy": "For topics not yet built, a protocol is to be written and registered BEFORE the search is executed, so that the claim becomes true GOING FORWARD. It is never to be made true retroactively for a built topic."
+ },
+ "display_change_announced": [
+  {
+   "date": "2026-08-21",
+   "change": "registry facts backfilled onto risk-of-bias entries",
+   "values_moved": "NONE -- no judgement, reason or overall is touched",
+   "what_changed": "1 entr(ies): primary/NCT02993406",
+   "why": "These entries recorded a judgement and the reason for it without the registry fields the judgement was made from, so no blind second assessment could be given the same evidence."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "a blind cross-family second risk-of-bias assessment was obtained",
+   "values_moved": "NONE",
+   "what_changed": "disagreement 3 of 6 judgements",
+   "why": "Mahmood's specification requires two assessors from different model families."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "D5 disagreements adjudicated on a registry fact",
+   "values_moved": "NONE -- no judgement is changed; the adjudication is recorded beside both",
+   "what_changed": "1 D5 disagreement(s) adjudicated: NCT02993406__primary NO_INFORMATION -> ASSESSOR 2",
+   "why": "An unreconciled disagreement tells a reader less than a single judgement with a reason."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+   "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+   "what_changed": "references built, introduction written, bookkeeping claims 5",
+   "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+   "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+   "what_changed": "references built, introduction written, bookkeeping claims 5",
+   "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+   "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+   "what_changed": "references built, introduction written, bookkeeping claims 5",
+   "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+   "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+   "what_changed": "references built, introduction written, bookkeeping claims 5",
+   "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+   "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+   "what_changed": "references built, introduction written, bookkeeping claims 5",
+   "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+   "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+   "what_changed": "references built, introduction written, bookkeeping claims 5",
+   "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+   "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+   "what_changed": "references built, introduction written, bookkeeping claims 5",
+   "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+   "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+   "what_changed": "references built, introduction written, bookkeeping claims 5",
+   "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+   "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+   "what_changed": "references built, introduction written, bookkeeping claims 5",
+   "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+   "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+   "what_changed": "references built, introduction written, bookkeeping claims 5",
+   "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+   "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+   "what_changed": "references built, introduction written, bookkeeping claims 5",
+   "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+   "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+   "what_changed": "references built, introduction written, bookkeeping claims 5",
+   "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+   "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+   "what_changed": "references built, introduction written, bookkeeping claims 5",
+   "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+   "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+   "what_changed": "references built, introduction written, bookkeeping claims 5",
+   "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+  }
+ ],
+ "manuscript_draft_2026_08_21": {
+  "_what": "The twelve claims a PRISMA manuscript needs that NO FIELD CAN BACK, drafted as scaffolding for the author to dictate over. Each states the facts the judgement needs and then names the judgement as his.",
+  "_status": "DRAFT. Every sentence here was written by the projector's drafter, not read from a source. They are kept under this dated key, each marked `is_a_draft`, so a later pass can always tell what was written from what was read. A draft must never quietly become a fact.",
+  "_the_rule": "No drafted sentence asserts anything this object cannot back. Where the claim requires a judgement, the draft stops at the facts and says so. A plausible sentence is the one most likely to survive dictation unexamined, which is why none is written.",
+  "claims": {
+   "why_the_question_is_open": {
+    "section": "Introduction",
+    "the_claim": "Why the question is still open -- the specific uncertainty this review addresses",
+    "draft": "The evidence identified on this question is 1 randomised trial (NCT02993406), pooled here at 0.87 (95% CI 0.79 to 0.96) for primary. Certainty in that estimate is rated LOW. WHICH OF THOSE UNRESOLVED POINTS MAKES THE QUESTION WORTH ASKING NOW IS THE AUTHOR'S JUDGEMENT.",
+    "facts_from": [
+     "results.by_outcome.primary.pooled",
+     "results.by_outcome.primary.k",
+     "results.by_outcome.primary.what_this_does_not_establish",
+     "grade.by_outcome.primary.certainty"
+    ],
+    "is_a_draft": true,
+    "the_judgement_that_is_the_authors": "This sentence is the author's judgement and is not derivable from any field here."
+   },
+   "why_a_new_synthesis": {
+    "section": "Introduction",
+    "the_claim": "Why a NEW synthesis is warranted rather than citing an existing one",
+    "draft": "No search for published syntheses is recorded on this object. WHETHER THOSE DIFFERENCES WARRANT A NEW SYNTHESIS RATHER THAN CITING THE EXISTING ONE IS THE AUTHOR'S JUDGEMENT.",
+    "facts_from": [
+     "published_comparison.denominator",
+     "published_comparison.reviews"
+    ],
+    "is_a_draft": true,
+    "the_judgement_that_is_the_authors": "This sentence is the author's judgement and is not derivable from any field here."
+   },
+   "why_this_differs_from_published": {
+    "section": "Discussion",
+    "the_claim": "WHY this result differs from the published ones, mechanically or methodologically",
+    "draft": "No published synthesis was appraised against this review, so no difference between this result and a published one is recorded. There is nothing here for this sentence to explain, and stating a reason for a difference that has not been established would be inventing one.",
+    "facts_from": [
+     "published_comparison.reviews",
+     "published_comparison.identity_basis"
+    ],
+    "is_a_draft": true,
+    "the_judgement_that_is_the_authors": "This sentence is the author's judgement and is not derivable from any field here."
+   },
+   "is_the_heterogeneity_clinically_important": {
+    "section": "Discussion",
+    "the_claim": "Whether the observed heterogeneity is clinically important",
+    "draft": "Across 1 trial, every trial interval excludes no effect. WHETHER THAT DEGREE OF DISAGREEMENT MATTERS CLINICALLY -- WHETHER THE TRIALS ARE ANSWERING THE SAME QUESTION IN THE SAME PATIENTS -- IS THE AUTHOR'S JUDGEMENT.",
+    "facts_from": [
+     "results.by_outcome.primary.heterogeneity",
+     "results.by_outcome.primary.per_trial"
+    ],
+    "is_a_draft": true,
+    "the_judgement_that_is_the_authors": "This sentence is the author's judgement and is not derivable from any field here."
+   },
+   "is_the_effect_size_clinically_meaningful": {
+    "section": "Discussion",
+    "the_claim": "Whether the effect size is clinically meaningful",
+    "draft": "The pooled HR is 0.87 (95% CI 0.79 to 0.96) over 1 trial. Certainty is rated LOW. Every contributing interval excludes no effect. WHETHER A CHANGE OF THAT MAGNITUDE IS CLINICALLY MEANINGFUL IN THIS POPULATION IS THE AUTHOR'S JUDGEMENT: NO FIELD ON THIS OBJECT RECORDS A THRESHOLD OF IMPORTANCE, AND NONE IS ASSUMED HERE.",
+    "facts_from": [
+     "results.by_outcome.primary.pooled",
+     "results.by_outcome.primary.k",
+     "results.by_outcome.primary.comparator",
+     "grade.by_outcome.primary.certainty"
+    ],
+    "is_a_draft": true,
+    "the_judgement_that_is_the_authors": "This sentence is the author's judgement and is not derivable from any field here."
+   },
+   "is_the_evidence_base_adequate": {
+    "section": "Discussion",
+    "the_claim": "Whether the evidence base is adequate to answer the question",
+    "draft": "The evidence base is 1 trial, assessed for risk of bias as NO_INFORMATION on 1 result(s). GRADE certainty is LOW. WHETHER THAT IS ENOUGH TO ANSWER THE QUESTION DEPENDS ON THE DECISION THE ANSWER IS FOR, WHICH IS NOT STATED ON THIS OBJECT, AND IS THE AUTHOR'S JUDGEMENT.",
+    "facts_from": [
+     "risk_of_bias.by_outcome",
+     "grade.by_outcome.primary"
+    ],
+    "is_a_draft": true,
+    "the_judgement_that_is_the_authors": "This sentence is the author's judgement and is not derivable from any field here."
+   },
+   "what_further_evidence_would_change_it": {
+    "section": "Discussion",
+    "the_claim": "What further evidence would change the conclusion",
+    "draft": "Certainty was not rated down on any GRADE domain. WHAT FURTHER EVIDENCE WOULD CHANGE THE CONCLUSION IS A JUDGEMENT ABOUT A TRIAL NOBODY HAS RUN, AND IS THE AUTHOR'S.",
+    "facts_from": [
+     "grade.by_outcome.primary.steps"
+    ],
+    "is_a_draft": true,
+    "the_judgement_that_is_the_authors": "This sentence is the author's judgement and is not derivable from any field here."
+   },
+   "was_the_search_broad_enough": {
+    "section": "Discussion",
+    "the_claim": "Whether the search was broad enough",
+    "draft": "PRIMARY TRIALS. NO BIBLIOGRAPHIC SEARCH FOR PRIMARY TRIALS WAS RUN. The 1 included trial was identified by reading named registration on the dates recorded on each entry; {'what_verifies_this_object': 'ClinicalTrials.gov protocol and results records, read 2026-08-18', 'what_is_not_claimed': \"that the value was checked against the journal report; it is the registry's own analysis\", 'families': [], 'bar': 'not recorded on the page this object was built from'}. WHETHER THAT IS BROAD ENOUGH FOR THE CLAIM THIS REVIEW MAKES IS THE AUTHOR'S JUDGEMENT.",
+    "facts_from": [
+     "bookkeeping_2026_08_21.the_search_its_date_and_its_databases"
+    ],
+    "is_a_draft": true,
+    "the_judgement_that_is_the_authors": "This sentence is the author's judgement and is not derivable from any field here."
+   },
+   "what_the_evidence_shows": {
+    "section": "Conclusions",
+    "the_claim": "A one-sentence statement of what the evidence shows",
+    "draft": "Across 1 randomised trial, HR was 0.87 (95% CI 0.79 to 0.96) for primary. Certainty in that estimate is LOW. THAT IS THE ESTIMATE. WHAT THE EVIDENCE SHOWS -- STATED AS A FINDING RATHER THAN AS A NUMBER -- IS THE AUTHOR'S SENTENCE.",
+    "facts_from": [
+     "results.by_outcome.primary.pooled",
+     "results.by_outcome.primary.k",
+     "results.by_outcome.primary.outcome",
+     "grade.by_outcome.primary.certainty"
+    ],
+    "is_a_draft": true,
+    "the_judgement_that_is_the_authors": "This sentence is the author's judgement and is not derivable from any field here."
+   },
+   "implication_for_practice": {
+    "section": "Conclusions",
+    "the_claim": "The implication for clinical practice",
+    "draft": "What a clinician should do differently on this evidence -- the estimate and certainty stated above -- is a RECOMMENDATION, not a measurement. No field on this object can back one, and none is drafted. It is the author's sentence.",
+    "facts_from": [
+     "results.by_outcome.primary.pooled",
+     "results.by_outcome.primary.k",
+     "grade.by_outcome.primary"
+    ],
+    "is_a_draft": true,
+    "the_judgement_that_is_the_authors": "This sentence is the author's judgement and is not derivable from any field here."
+   },
+   "implication_for_policy": {
+    "section": "Conclusions",
+    "the_claim": "The implication for policy",
+    "draft": "What a payer, guideline or programme should do on this evidence -- the estimate and certainty stated above -- is a RECOMMENDATION, not a measurement. No field on this object can back one, and none is drafted. It is the author's sentence.",
+    "facts_from": [
+     "results.by_outcome.primary.pooled",
+     "results.by_outcome.primary.k",
+     "grade.by_outcome.primary"
+    ],
+    "is_a_draft": true,
+    "the_judgement_that_is_the_authors": "This sentence is the author's judgement and is not derivable from any field here."
+   },
+   "implication_for_research": {
+    "section": "Conclusions",
+    "the_claim": "The implication for future research",
+    "draft": "What should be studied next on this evidence -- the estimate and certainty stated above -- is a RECOMMENDATION, not a measurement. No field on this object can back one, and none is drafted. It is the author's sentence.",
+    "facts_from": [
+     "results.by_outcome.primary.pooled",
+     "results.by_outcome.primary.k",
+     "grade.by_outcome.primary"
+    ],
+    "is_a_draft": true,
+    "the_judgement_that_is_the_authors": "This sentence is the author's judgement and is not derivable from any field here."
+   }
+  }
+ },
+ "bookkeeping_2026_08_21": {
+  "_what": "The five reporting claims a PRISMA-2020 manuscript needs that are FETCHABLE rather than argued -- each derived from a field here, or stated as an honest absence.",
+  "which_limbs_this_review_refuses": "Of the four properties this project requires of a completed topic, 2 are held (grade per pool, rob per result) and 2 are refused with the obstacle named in the evidence (comparison denominator, model output verbatim).",
+  "the_search_its_date_and_its_databases": "PRIMARY TRIALS. NO BIBLIOGRAPHIC SEARCH FOR PRIMARY TRIALS WAS RUN. The 1 included trial was identified by reading named registration on the dates recorded on each entry. This object's verification rests on ClinicalTrials.gov protocol and results records, read 2026-08-18. This review does not claim that the value was checked against the journal report; it is the registry's own analysis. The bar this object had to clear is not recorded.",
+  "whether_this_review_was_prospectively_registered": "NO PROSPERO REGISTRATION OR PROTOCOL RECORD IS HELD ON THIS OBJECT. That is not the same as knowing this review was not registered, and neither claim is made. It is recorded here as an absence so that a reader does not have to infer it from silence.",
+  "that_two_assessors_disagreed_and_where": "Risk of bias was assessed independently a second time by GPT-5 Codex (openai family), via `codex exec`, blind to this assessment and given the same registry facts. 3 of 6 judgements -- 50.0%. Reported as DISAGREEMENT: agreement between two assessors given the same facts authenticates nothing. By domain: D1 0 of 1 disagree, D2 0 of 1 disagree, D3 1 of 1 disagree, D4 0 of 1 disagree, D5 1 of 1 disagree, OVERALL 1 of 1 disagree.",
+  "which_risk_of_bias_domains_drove_the_rating": "Where a result is rated worse than LOW overall, the domain carrying that judgement is: D1 on 1 result(s), D2 on 1 result(s), D5 on 1 result(s). The overall rating is the worst domain, so these are the domains that determine it."
+ }
+}

@@ -1,0 +1,217 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a031c4-1df3-7b93-a2fa-727a28c3e1ae
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/fix_r1r3_med_low_carryforward.py
+
+--- THE FILE, IN FULL ---
+"""Apply normalized pattern-match fixes to R1+R2+R3 MED + LOW single-lens findings
+that weren't auto-fixed earlier. Lower confidence than HIGH, so restrict to
+the most-specific actionable categories: PMID + NCT.
+"""
+from __future__ import annotations
+import json, re, sys, io
+from pathlib import Path
+
+if hasattr(sys.stdout, "buffer") and getattr(sys.stdout, "encoding", "").lower() != "utf-8":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+HERE = Path(__file__).resolve().parent.parent
+OUT = HERE / "outputs" / "extraction_audit"
+
+
+def categorize(category, reason="", issue="", evidence=""):
+    blob = " ".join([str(category or ""), str(reason or ""), str(issue or ""), str(evidence or "")]).lower()
+    if re.search(r'pmid|citation.?misatt|name.?collision', blob): return "PMID_NULL"
+    if re.search(r'fabricat.?trial|nct.?(acronym|mismatch)|fake.?nct', blob): return "NCT_NULL_KEY"
+    return "OTHER"
+
+
+def find_block(txt, nct):
+    key_pat = re.compile(r'(["\'])' + re.escape(nct) + r'\1\s*:\s*\{')
+    m = key_pat.search(txt)
+    if not m: return None
+    start = m.end(); depth = 1; i = start; in_str = None
+    while i < len(txt) and depth > 0:
+        ch = txt[i]
+        if in_str:
+            if ch == "\\": i += 2; continue
+            if ch == in_str: in_str = None
+        else:
+            if ch in ('"', "'"): in_str = ch
+            elif ch == "{": depth += 1
+            elif ch == "}":
+                depth -= 1
+                if depth == 0: return (m.start(), i+1, start, i)
+        i += 1
+    return None
+
+
+def null_field_in_block(txt, body_start, body_end, field):
+    body = txt[body_start:body_end]
+    new_body, n = re.subn(
+        r'((["\']?)' + re.escape(field) + r'\2\s*:\s*)(?:["\'][^"\']*["\']|[0-9.eE+-]+|true|false)(?=\s*[,}])',
+        r'\1null', body, flags=re.IGNORECASE)
+    if n == 0: return txt, False
+    return txt[:body_start] + new_body + txt[body_end:], True
+
+
+def null_key(txt, nct):
+    nulled = f"NULLED:{nct}"
+    if nulled in txt: return txt, 0
+    pat = re.compile(r'(["\'])(' + re.escape(nct) + r')(\1)(\s*:)')
+    new_txt, n = pat.subn(
+        lambda m: f'{m.group(1)}NULLED:{m.group(2)}{m.group(3)}{m.group(4)}', txt)
+    return new_txt, n
+
+
+# Collect MED + LOW from R1+R2+R3 consensus files
+candidates = []
+for fname in ["multi_agent_consensus.json", "multi_agent_consensus_r2.json",
+              "multi_agent_consensus_r3.json"]:
+    p = OUT / fname
+    if not p.exists(): continue
+    cs = json.loads(p.read_text(encoding="utf-8"))
+    for r in cs.get("records", []):
+        if r.get("max_severity") not in ("MED", "LOW"): continue
+        for ag, det in r.get("details", {}).items():
+            ft = categorize(det.get("category"), det.get("reason"))
+            if ft in ("PMID_NULL", "NCT_NULL_KEY"):
+                candidates.append({
+                    "review": r["review"], "nct": r["nct"],
+                    "fix_type": ft, "severity": r.get("max_severity"),
+                    "source_round": fname,
+                    "category": det.get("category"),
+                    "reason": (det.get("reason") or "")[:120],
+                })
+                break
+
+# Dedupe by (review, nct, fix_type)
+seen = set(); uniq = []
+for c in candidates:
+    key = (c["review"], c["nct"], c["fix_type"])
+    if key in seen: continue
+    seen.add(key); uniq.append(c)
+
+print(f"Candidates (R1+R2+R3 MED+LOW with actionable categories): {len(uniq)}")
+
+n_pmid = n_nct = n_skip = 0
+log = []
+for c in uniq:
+    rv = c["review"]; nct = c["nct"]; ft = c["fix_type"]
+    html_path = HERE / f"{rv}.html"
+    if not html_path.exists():
+        log.append({**c, "status": "FILE_MISSING"})
+        continue
+    txt = html_path.read_text(encoding="utf-8")
+    if ft == "PMID_NULL":
+        block = find_block(txt, nct)
+        if not block:
+            log.append({**c, "status": "BLOCK_NOT_FOUND_OR_NULLED"})
+            n_skip += 1
+            continue
+        _, _, bs, be = block
+        new_txt, ok = null_field_in_block(txt, bs, be, "pmid")
+        if ok:
+            html_path.write_text(new_txt, encoding="utf-8")
+            log.append({**c, "status": "NULLED_PMID"})
+            n_pmid += 1
+        else:
+            log.append({**c, "status": "PMID_ALREADY_NULL"})
+            n_skip += 1
+    elif ft == "NCT_NULL_KEY":
+        new_txt, n = null_key(txt, nct)
+        if n > 0:
+            html_path.write_text(new_txt, encoding="utf-8")
+            log.append({**c, "status": "NULLED_KEY"})
+            n_nct += 1
+        elif f"NULLED:{nct}" in txt:
+            log.append({**c, "status": "ALREADY_NULLED"})
+            n_skip += 1
+        else:
+            log.append({**c, "status": "NCT_NOT_FOUND"})
+            n_skip += 1
+
+(OUT / "r1r3_med_low_carryforward_fixes.json").write_text(
+    json.dumps(log, indent=2, ensure_ascii=False), encoding="utf-8")
+print(f"  PMID nulls: {n_pmid}")
+print(f"  NCT nulls:  {n_nct}")
+print(f"  Skipped:    {n_skip}")
+
+codex
+I’ll keep this to the requested defect shapes and only use the pasted record. I’m numbering against the file exactly as pasted.
+codex
+Defects found:
+
+- Line 18, NEGATION DROPPED. Exact input: consensus detail `{"category":"other","reason":"not a PMID issue"}` plus an HTML block `"NCT00000001":{"pmid":"123"}`. Consequence: the denied PMID issue is classified as `PMID_NULL` and the PMID is nulled.
+
+- Line 19, NEGATION DROPPED. Exact input: consensus detail `{"category":"other","reason":"not fake NCT"}` plus HTML key `"NCT00000001":{}`. Consequence: the denied fake-NCT issue is classified as `NCT_NULL_KEY` and the real key is renamed.
+
+- Line 43, IDEMPOTENCY GUARD SATISFIED BY OWN MARKER. Exact input: HTML containing `<!-- NULLED:NCT00000001 -->` and later `"NCT00000001":{}`. Consequence: `null_key()` returns without changing the actual key, and line 111 reports `ALREADY_NULLED`.
+
+- Line 66, SELECTOR KEYED TO TOO FEW FIELDS. Exact input: consensus detail `{"issue":"fake nct"}` with empty/missing `category` and `reason`. Consequence: `categorize()` supports `issue`/`evidence`, but the caller never passes them, so the actionable record is silently ignored.
+
+- Line 86, STATUS CODE REPORTING WRAPPER RATHER THAN WORK. Exact input: a MED candidate record with `review:"missing_review"` and no `missing_review.html`. Consequence: the script records `FILE_MISSING`, continues, and exits zero despite applying no required fix.
+
+- Line 102, ZERO CONFLATED WITH ABSENT. Exact input: HTML block `"NCT00000001":{"title":"x"}` for a `PMID_NULL` candidate. Consequence: no `pmid` field is present, but the log says `PMID_ALREADY_NULL`, hiding a missing selector/work failure.
+
+No proven finding from the pasted file for CRLF/LF text comparison, merged-cell/off-by-one tabulation, or instrument reading a different copy.
+tokens used
+10,469
+Defects found:
+
+- Line 18, NEGATION DROPPED. Exact input: consensus detail `{"category":"other","reason":"not a PMID issue"}` plus an HTML block `"NCT00000001":{"pmid":"123"}`. Consequence: the denied PMID issue is classified as `PMID_NULL` and the PMID is nulled.
+
+- Line 19, NEGATION DROPPED. Exact input: consensus detail `{"category":"other","reason":"not fake NCT"}` plus HTML key `"NCT00000001":{}`. Consequence: the denied fake-NCT issue is classified as `NCT_NULL_KEY` and the real key is renamed.
+
+- Line 43, IDEMPOTENCY GUARD SATISFIED BY OWN MARKER. Exact input: HTML containing `<!-- NULLED:NCT00000001 -->` and later `"NCT00000001":{}`. Consequence: `null_key()` returns without changing the actual key, and line 111 reports `ALREADY_NULLED`.
+
+- Line 66, SELECTOR KEYED TO TOO FEW FIELDS. Exact input: consensus detail `{"issue":"fake nct"}` with empty/missing `category` and `reason`. Consequence: `categorize()` supports `issue`/`evidence`, but the caller never passes them, so the actionable record is silently ignored.
+
+- Line 86, STATUS CODE REPORTING WRAPPER RATHER THAN WORK. Exact input: a MED candidate record with `review:"missing_review"` and no `missing_review.html`. Consequence: the script records `FILE_MISSING`, continues, and exits zero despite applying no required fix.
+
+- Line 102, ZERO CONFLATED WITH ABSENT. Exact input: HTML block `"NCT00000001":{"title":"x"}` for a `PMID_NULL` candidate. Consequence: no `pmid` field is present, but the log says `PMID_ALREADY_NULL`, hiding a missing selector/work failure.
+
+No proven finding from the pasted file for CRLF/LF text comparison, merged-cell/off-by-one tabulation, or instrument reading a different copy.

@@ -1,0 +1,241 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a03183-34e9-7873-8fbe-65bab8d7f506
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/compute_trial_integrity.py
+
+--- THE FILE, IN FULL ---
+"""Compute pre-registration concordance heuristics per corpus NCT
+from AACT 2026-04-12 snapshot.
+
+Three flags per trial (NEUTRAL framing — concordance, NOT trustworthiness):
+
+  retro_registered      first_posted_date > start_date (registry posted
+                        AFTER trial start)
+  retro_months          months between (positive ⇒ retro)
+
+  results_overdue       primary_completion_date passed > 12 months ago
+                        AND results never posted (FDAAA-style)
+  results_late_months   months overdue (positive ⇒ late)
+
+  status_unknown        completion_status = "Unknown" or terminated
+                        without posted results
+
+Outputs: outputs/trial_integrity.json — { NCT: { flag fields...,
+         start_date, first_posted, primary_completion_date, results_first_posted } }
+
+Inline evidence is preserved verbatim from AACT so each flag is
+defensible against challenge.
+"""
+from __future__ import annotations
+import sys, io, json, csv
+from pathlib import Path
+from datetime import date, datetime
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+REPO = Path(__file__).resolve().parent.parent
+AACT = Path("D:/AACT-storage/AACT/2026-04-12")
+TODAY = date.today()
+
+
+def parse_date(s):
+    s = (s or "").strip()
+    if not s: return None
+    for fmt in ("%Y-%m-%d", "%m/%d/%Y", "%Y-%m"):
+        try:
+            return datetime.strptime(s, fmt).date()
+        except ValueError:
+            continue
+    return None
+
+
+def months_between(d1, d2):
+    if not d1 or not d2: return None
+    return round((d1 - d2).days / 30.4375, 1)
+
+
+def main():
+    ncts = set((REPO / "outputs/corpus_ncts.txt").read_text().split())
+    print(f"Loaded {len(ncts)} corpus NCTs")
+
+    trial_data = {}
+    studies_path = AACT / "studies.txt"
+    print(f"Streaming {studies_path.stat().st_size/1e6:.1f} MB of studies.txt ...")
+    with studies_path.open("r", encoding="utf-8", errors="replace") as f:
+        header = f.readline().rstrip("\n").split("|")
+        col = {n: i for i, n in enumerate(header)}
+        n_rows = 0
+        n_kept = 0
+        for line in f:
+            n_rows += 1
+            parts = line.rstrip("\n").split("|")
+            if len(parts) < len(header): continue
+            nct = parts[col["nct_id"]]
+            if nct not in ncts: continue
+            n_kept += 1
+            d = {
+                "nct_id": nct,
+                "start_date": parts[col["start_date"]] or None,
+                "first_posted": parts[col["study_first_posted_date"]] or None,
+                "primary_completion_date": parts[col["primary_completion_date"]] or None,
+                "completion_date": parts[col["completion_date"]] or None,
+                "results_first_posted": parts[col["results_first_posted_date"]] or None,
+                "overall_status": parts[col["overall_status"]] or None,
+            }
+            trial_data[nct] = d
+    print(f"  scanned {n_rows:,}, matched {n_kept}")
+
+    # Compute flags
+    out = {}
+    for nct, d in trial_data.items():
+        start = parse_date(d["start_date"])
+        first_posted = parse_date(d["first_posted"])
+        prim_comp = parse_date(d["primary_completion_date"])
+        results_posted = parse_date(d["results_first_posted"])
+
+        retro_months = months_between(first_posted, start) if first_posted and start else None
+        retro_registered = bool(retro_months and retro_months > 1.0)  # >1 month grace
+
+        # Results-overdue: primary_completion > 12 months ago AND no results posted
+        results_late_months = None
+        results_overdue = False
+        if prim_comp and not results_posted:
+            elapsed = months_between(TODAY, prim_comp)
+            if elapsed and elapsed > 12:
+                results_overdue = True
+                results_late_months = elapsed
+        elif prim_comp and results_posted:
+            results_late_months = months_between(results_posted, prim_comp)
+
+        status = (d["overall_status"] or "").strip()
+        status_concern = status in ("Unknown status", "Suspended", "Terminated", "Withdrawn")
+
+        any_flag = retro_registered or results_overdue or status_concern
+
+        out[nct] = {
+            "start_date": d["start_date"],
+            "first_posted": d["first_posted"],
+            "primary_completion_date": d["primary_completion_date"],
+            "results_first_posted": d["results_first_posted"],
+            "overall_status": d["overall_status"],
+            "retro_registered": retro_registered,
+            "retro_months": retro_months,
+            "results_overdue": results_overdue,
+            "results_late_months": results_late_months,
+            "status_concern": status_concern,
+            "any_flag": any_flag,
+        }
+
+    matched = len(out)
+    flagged = sum(1 for v in out.values() if v["any_flag"])
+    retro = sum(1 for v in out.values() if v["retro_registered"])
+    overdue = sum(1 for v in out.values() if v["results_overdue"])
+    status_n = sum(1 for v in out.values() if v["status_concern"])
+
+    print(f"\n=== Summary ===")
+    print(f"  Matched NCTs:       {matched} / {len(ncts)}")
+    print(f"  Any-flag:           {flagged} ({100*flagged/max(1,matched):.1f}%)")
+    print(f"    retro-registered: {retro}")
+    print(f"    results-overdue:  {overdue}")
+    print(f"    status-concern:   {status_n}")
+
+    out_path = REPO / "outputs/trial_integrity.json"
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text(json.dumps(out, indent=2))
+    print(f"\nWritten: {out_path}")
+
+
+if __name__ == "__main__":
+    main()
+
+codex
+Found defects:
+
+- **Line 129, check that cannot fail**  
+  Exact input: `outputs/corpus_ncts.txt` contains `NCT00000001`; `studies.txt` contains only the required header row and no `NCT00000001` row.  
+  Consequence: the script prints `Matched NCTs: 0 / 1`, writes `{}`, and exits zero, so a missing corpus trial is accepted.
+
+- **Line 65, check that cannot fail**  
+  Exact input: `outputs/corpus_ncts.txt` contains `NCT00000001`; `studies.txt` header has the seven referenced columns, but the row is `NCT00000001|2020-01-01`.  
+  Consequence: the malformed target trial row is silently skipped and then reported only as an unmatched count.
+
+- **Line 31, instrument reading a different copy/time basis**  
+  Exact input: run on `2026-08-24` with `primary_completion_date=2025-07-01` and blank `results_first_posted_date`.  
+  Consequence: fixed `AACT 2026-04-12` snapshot data becomes newly `results_overdue` based on wall-clock runtime rather than the snapshot date.
+
+- **Line 90, selector keyed to a narrower form than stated**  
+  Exact input: `start_date=2020-01-01`, `study_first_posted_date=2020-01-02`.  
+  Consequence: the docstring says `first_posted_date > start_date`, but the code suppresses retro registrations up to one month.
+
+- **Line 104, negated condition dropped from stated rule**  
+  Exact input: `overall_status=Terminated`, `results_first_posted_date=2021-01-01`.  
+  Consequence: the stated rule is “terminated without posted results,” but terminated trials with posted results are still flagged.
+
+No proven defect from this pasted file for: probe keyed to string a fix removes; idempotency guard satisfied by own comment; CRLF/LF text comparison; merged-cell/off-by-one tabulation; zero conflated with absent; wrapper status code through pipe/subprocess.
+tokens used
+11,407
+Found defects:
+
+- **Line 129, check that cannot fail**  
+  Exact input: `outputs/corpus_ncts.txt` contains `NCT00000001`; `studies.txt` contains only the required header row and no `NCT00000001` row.  
+  Consequence: the script prints `Matched NCTs: 0 / 1`, writes `{}`, and exits zero, so a missing corpus trial is accepted.
+
+- **Line 65, check that cannot fail**  
+  Exact input: `outputs/corpus_ncts.txt` contains `NCT00000001`; `studies.txt` header has the seven referenced columns, but the row is `NCT00000001|2020-01-01`.  
+  Consequence: the malformed target trial row is silently skipped and then reported only as an unmatched count.
+
+- **Line 31, instrument reading a different copy/time basis**  
+  Exact input: run on `2026-08-24` with `primary_completion_date=2025-07-01` and blank `results_first_posted_date`.  
+  Consequence: fixed `AACT 2026-04-12` snapshot data becomes newly `results_overdue` based on wall-clock runtime rather than the snapshot date.
+
+- **Line 90, selector keyed to a narrower form than stated**  
+  Exact input: `start_date=2020-01-01`, `study_first_posted_date=2020-01-02`.  
+  Consequence: the docstring says `first_posted_date > start_date`, but the code suppresses retro registrations up to one month.
+
+- **Line 104, negated condition dropped from stated rule**  
+  Exact input: `overall_status=Terminated`, `results_first_posted_date=2021-01-01`.  
+  Consequence: the stated rule is “terminated without posted results,” but terminated trials with posted results are still flagged.
+
+No proven defect from this pasted file for: probe keyed to string a fix removes; idempotency guard satisfied by own comment; CRLF/LF text comparison; merged-cell/off-by-one tabulation; zero conflated with absent; wrapper status code through pipe/subprocess.

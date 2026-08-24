@@ -1,0 +1,262 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a0314d-99f4-7152-9676-35a9015ef4f7
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/audit_review_arm_counts.py
+
+--- THE FILE, IN FULL ---
+"""Audit *_REVIEW.html files for arm-count inconsistencies.
+
+For each trial-row in each file, compare:
+  (a) trial-row tN+cN (what the engine uses for analysis)
+  (b) sum of "n=NUM" mentions inside the Enrollment evidence narrative
+      (what reviewers see)
+
+Flags rows where (b) deviates from (a) by more than 5% — typically caused by
+narrative typos or by the narrative being on a different denominator
+(randomized vs mITT vs safety-set) than the trial-row.
+
+Outputs CSV with one row per flagged finding.
+
+Usage:
+  python scripts/audit_review_arm_counts.py --out outputs/arm_count_audit.csv
+"""
+from __future__ import annotations
+import argparse
+import csv
+import os
+import re
+import sys
+from pathlib import Path
+
+# Match a trial-row entry in realData. Captures NCT key, name, tN, cN, and the
+# block of code up to the next entry (or closing brace of realData).
+TRIAL_ROW_RE = re.compile(
+    r"'(?P<nct>NCT[0-9_A-Za-z]+)'\s*:\s*\{\s*"
+    r"\n[^\n]*name:\s*'(?P<name>[^']+)'[^\n]*?"
+    r"tN:\s*(?P<tN>\d+|null)[^\n]*?"
+    r"cN:\s*(?P<cN>\d+|null)[^\n]*?",
+    re.DOTALL,
+)
+
+# Within the row, find Enrollment evidence. The text field contains "n=NUM" mentions.
+ENROLLMENT_RE = re.compile(
+    r"label:\s*'Enrollment'[^}]*?text:\s*'([^']+)'",
+    re.DOTALL,
+)
+N_EQ_RE = re.compile(r"\bn\s*=\s*([\d,]+)", re.IGNORECASE)
+
+
+def parse_n(raw: str) -> int:
+    """Parse 'n=' value, stripping thousands-separator commas."""
+    return int(raw.replace(",", ""))
+
+
+def find_enrollment_context(content: str, name_match_start: int, max_chars: int = 8000) -> str | None:
+    """Find the Enrollment evidence text inside a trial-row body."""
+    block = content[name_match_start : name_match_start + max_chars]
+    m = ENROLLMENT_RE.search(block)
+    return m.group(1) if m else None
+
+
+def audit_file(path: Path) -> list[dict]:
+    findings: list[dict] = []
+    text = path.read_text(encoding="utf-8")
+
+    # Walk each trial-row by its key
+    for m in TRIAL_ROW_RE.finditer(text):
+        nct = m.group("nct")
+        name = m.group("name")
+        tN_raw = m.group("tN")
+        cN_raw = m.group("cN")
+
+        if tN_raw == "null" or cN_raw == "null":
+            continue
+        tN = int(tN_raw)
+        cN = int(cN_raw)
+        row_total = tN + cN
+
+        enroll_text = find_enrollment_context(text, m.start())
+        if not enroll_text:
+            continue
+
+        n_values = [parse_n(x) for x in N_EQ_RE.findall(enroll_text)]
+        # Drop tiny n-values (< 20) — typically "n=2 dropped" or "n=4 lost"
+        n_values = [v for v in n_values if v >= 20]
+        if not n_values:
+            continue
+
+        narr_sum = sum(n_values)
+
+        if len(n_values) < 2:
+            continue
+
+        # Multi-arm filter: if narrative contains BOTH the row's tN and cN as
+        # individual values (within tolerance), this is a multi-arm trial where
+        # the row is a 2-arm contrast and the narrative lists all arms — not a typo.
+        def near(a: int, b: int, tol: float = 0.02) -> bool:
+            return abs(a - b) / max(b, 1) <= tol
+
+        narrative_has_tN = any(near(v, tN) for v in n_values)
+        narrative_has_cN = any(near(v, cN) for v in n_values)
+
+        diff_pct = abs(narr_sum - row_total) / max(row_total, 1) * 100
+        category = "TYPO_OR_REAL"
+        if narrative_has_tN and narrative_has_cN and len(n_values) > 2:
+            # Row's two arms are both in narrative AND there are extra arms — by design
+            category = "MULTI_ARM_BY_DESIGN"
+        elif narrative_has_tN and narrative_has_cN and len(n_values) == 2:
+            # Exact match of the two arms
+            if narr_sum == row_total:
+                continue  # no finding
+            category = "EXACT_TWO_ARM_MATCH"
+
+        if diff_pct > 5.0 and category == "TYPO_OR_REAL":
+            findings.append({
+                "file": path.name,
+                "nct": nct,
+                "trial_name": name,
+                "row_tN": tN,
+                "row_cN": cN,
+                "row_total": row_total,
+                "narrative_n_values": ",".join(str(v) for v in n_values),
+                "narrative_sum": narr_sum,
+                "diff_abs": narr_sum - row_total,
+                "diff_pct": round(diff_pct, 1),
+                "category": category,
+                "enrollment_excerpt": enroll_text[:200].replace("\n", " "),
+            })
+
+    return findings
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--root", default=".", help="Directory containing *_REVIEW.html")
+    parser.add_argument("--out", default="outputs/arm_count_audit.csv", help="CSV output path")
+    parser.add_argument("--threshold", type=float, default=5.0, help="Flag deviation > N%% (default 5)")
+    args = parser.parse_args()
+
+    root = Path(args.root)
+    files = sorted(root.glob("*_REVIEW.html"))
+    print(f"Auditing {len(files)} review files...")
+
+    all_findings: list[dict] = []
+    files_with_issues: set[str] = set()
+    for f in files:
+        findings = audit_file(f)
+        for fi in findings:
+            if fi["diff_pct"] > args.threshold:
+                all_findings.append(fi)
+                files_with_issues.add(fi["file"])
+
+    print(f"Total findings (>{args.threshold}%% deviation): {len(all_findings)}")
+    print(f"Files with at least one finding: {len(files_with_issues)}")
+
+    out_path = Path(args.out)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    if all_findings:
+        fieldnames = list(all_findings[0].keys())
+        with out_path.open("w", encoding="utf-8", newline="") as fh:
+            w = csv.DictWriter(fh, fieldnames=fieldnames)
+            w.writeheader()
+            w.writerows(all_findings)
+        print(f"Wrote: {out_path}")
+        # Also print top 10 to stdout for quick triage
+        print("\nTop findings:")
+        for fi in sorted(all_findings, key=lambda x: -x["diff_pct"])[:10]:
+            print(f"  {fi['file']:50s} {fi['trial_name']:24s} row_total={fi['row_total']:5d}  "
+                  f"narrative_sum={fi['narrative_sum']:5d}  diff={fi['diff_pct']:5.1f}%")
+    else:
+        out_path.write_text("file,nct,trial_name,row_tN,row_cN,row_total,narrative_n_values,narrative_sum,diff_abs,diff_pct,enrollment_excerpt\n", encoding="utf-8")
+        print("(no findings — clean!)")
+
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+
+codex
+- **CHECK CANNOT FAIL / STATUS CODE REPORTING THE WRAPPER**, line 167: input file `x_REVIEW.html` containing `'NCT_FAIL': {\n name: 'T', tN: 10, cN: 10, evidence: [{label: 'Enrollment', text: 'n=100 and n=100'}]\n}`; consequence: the script reports a finding but exits `0`, so CI/pre-push gates cannot fail on discovered defects.
+
+- **Instrument reading a DIFFERENT COPY**, lines 50-51: input file containing `'NCT_A': {\n name: 'A', tN: 50, cN: 50,\n},\n'NCT_B': {\n name: 'B', tN: 500, cN: 500, evidence: [{label: 'Enrollment', text: 'B only n=500 and n=500'}]\n}`; consequence: `NCT_A` is audited using `NCT_B`’s enrollment text.
+
+- **SELECTOR KEYED TO A FORM THE PARSER DOES NOT HANDLE**, lines 29-31: input file containing `'NCT_MULTI': {\n name: 'T',\n tN: 100,\n cN: 100,\n evidence: [{label: 'Enrollment', text: 'n=200 and n=200'}]\n}`; consequence: the row is never matched because `name`, `tN`, and `cN` must be on one physical line.
+
+- **OFF-BY-ONE / count occurrence error**, lines 93-98: input file containing `'NCT_EQ': {\n name: 'T', tN: 100, cN: 100, evidence: [{label: 'Enrollment', text: 'one arm n=100 plus other arms n=130 and n=130'}]\n}`; consequence: one `100` satisfies both `tN` and `cN`, suppressing a large discrepancy as `MULTI_ARM_BY_DESIGN`.
+
+- **NEGATION DROPPED**, line 40: input file containing `'NCT_NEG': {\n name: 'T', tN: 100, cN: 80, evidence: [{label: 'Enrollment', text: 'not n=300; actual treatment n=100 and control 80'}]\n}`; consequence: a denied count is summed as real evidence and creates a false finding.
+
+- **Threshold check uses fixed value instead of requested threshold**, lines 107 and 142: same file with `'NCT_THR': {\n name: 'T', tN: 100, cN: 100, evidence: [{label: 'Enrollment', text: 'n=104 and n=104'}]\n}` run with `--threshold 1`; consequence: a 4% deviation is omitted before the user’s threshold is applied.
+
+- **Probe keyed to string a fix removes**: none found.
+
+- **Idempotency guard satisfied by own comment/marker**: none found.
+
+- **CRLF/LF text comparison defect**: none found.
+
+- **ZERO conflated with ABSENT**: none found.
+tokens used
+15,056
+- **CHECK CANNOT FAIL / STATUS CODE REPORTING THE WRAPPER**, line 167: input file `x_REVIEW.html` containing `'NCT_FAIL': {\n name: 'T', tN: 10, cN: 10, evidence: [{label: 'Enrollment', text: 'n=100 and n=100'}]\n}`; consequence: the script reports a finding but exits `0`, so CI/pre-push gates cannot fail on discovered defects.
+
+- **Instrument reading a DIFFERENT COPY**, lines 50-51: input file containing `'NCT_A': {\n name: 'A', tN: 50, cN: 50,\n},\n'NCT_B': {\n name: 'B', tN: 500, cN: 500, evidence: [{label: 'Enrollment', text: 'B only n=500 and n=500'}]\n}`; consequence: `NCT_A` is audited using `NCT_B`’s enrollment text.
+
+- **SELECTOR KEYED TO A FORM THE PARSER DOES NOT HANDLE**, lines 29-31: input file containing `'NCT_MULTI': {\n name: 'T',\n tN: 100,\n cN: 100,\n evidence: [{label: 'Enrollment', text: 'n=200 and n=200'}]\n}`; consequence: the row is never matched because `name`, `tN`, and `cN` must be on one physical line.
+
+- **OFF-BY-ONE / count occurrence error**, lines 93-98: input file containing `'NCT_EQ': {\n name: 'T', tN: 100, cN: 100, evidence: [{label: 'Enrollment', text: 'one arm n=100 plus other arms n=130 and n=130'}]\n}`; consequence: one `100` satisfies both `tN` and `cN`, suppressing a large discrepancy as `MULTI_ARM_BY_DESIGN`.
+
+- **NEGATION DROPPED**, line 40: input file containing `'NCT_NEG': {\n name: 'T', tN: 100, cN: 80, evidence: [{label: 'Enrollment', text: 'not n=300; actual treatment n=100 and control 80'}]\n}`; consequence: a denied count is summed as real evidence and creates a false finding.
+
+- **Threshold check uses fixed value instead of requested threshold**, lines 107 and 142: same file with `'NCT_THR': {\n name: 'T', tN: 100, cN: 100, evidence: [{label: 'Enrollment', text: 'n=104 and n=104'}]\n}` run with `--threshold 1`; consequence: a 4% deviation is omitted before the user’s threshold is applied.
+
+- **Probe keyed to string a fix removes**: none found.
+
+- **Idempotency guard satisfied by own comment/marker**: none found.
+
+- **CRLF/LF text comparison defect**: none found.
+
+- **ZERO conflated with ABSENT**: none found.

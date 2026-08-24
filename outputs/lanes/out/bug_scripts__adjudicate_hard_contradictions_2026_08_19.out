@@ -1,0 +1,447 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a03124-84a7-78c2-b165-bc44a9594779
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/adjudicate_hard_contradictions_2026_08_19.py
+
+--- THE FILE, IN FULL ---
+"""HAND ADJUDICATION of the 25 cases where two independent seats CONTRADICTED each other.
+
+THE STRUCTURE OF THE DISAGREEMENT WAS THE FINDING, BEFORE ANY TRIAL WAS READ.
+
+    130 sent blind to two families.        agree 62 (47.7%) | differ 68
+    Of the 68: SOFT 43 -- one seat said UNCLEAR where the other committed
+               HARD 25 -- both committed and contradicted each other
+    Of the 25 HARD: 24 are on limb B (the CONTROL arm) and ONE on limb A.
+
+    THE POSITIVE QUESTION WAS NEARLY SETTLED AND THE NEGATIVE ONE WAS NOT. "Is there an
+    ablation arm" produced 1 contradiction in 130. "Is there an arm that is NOT an ablation"
+    produced 24, plus 37 refusals from agy and 0 from Codex. Identifying what something IS is
+    a different order of task from identifying what it IS NOT -- which is the same asymmetry
+    this project already recorded as "a negative claim is the one most worth computing".
+
+AND READING THE 25 SHOWED THE QUESTION ITSELF WAS WRONG.
+
+    Every one of the 25 is EXCLUDED, and 20 of them share one shape: THE ABLATION IS THE
+    SETTING, NOT THE CONTRAST. Deep sedation vs general anaesthesia FOR an ablation.
+    Oesophageal cooling DURING an ablation. Transseptal puncture technique. Haemostasis after
+    venous access. Cerebral protection. Metformin, 2-HOBA, mental training, nurse-led
+    follow-up, risk-factor management, expectation optimisation -- all randomised AROUND an
+    ablation that every participant receives.
+
+    Asked "does any arm deliver catheter ablation", the honest answer for these is YES: every
+    arm does. That is exactly what makes the ablation BACKGROUND rather than the intervention.
+
+        I ASKED THE TWO SEATS A QUESTION THIS PROJECT HAD ALREADY LEARNED NOT TO ASK.
+        `topic_identity.locate()` was reframed on 2026-08-19 from "where does the drug appear"
+        to "WHAT EXACTLY WAS RANDOMISED", and two defects dissolved under it. The adjudication
+        packet reintroduced the discarded form of the question, and the seats' 47.7% agreement
+        is largely a measurement of that ambiguity rather than of the trials.
+
+    The seats were not wrong so much as answering different readings of a question that had
+    two. Recorded that way rather than as "the models disagreed".
+"""
+import io
+import json
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DEST = os.path.join(REPO, "evidence", "2026-08-19-batch1", "ablation_hard_adjudication.json")
+
+# (nct, verdict, limb, why) -- read from armGroups by hand, one at a time.
+ADJUDICATED = [
+    ("NCT00196209", "EXCLUDED", "COMPARATOR",
+     "catheter ablation vs EXTERNAL ELECTRIC CARDIOVERSION. The control is another procedure, "
+     "not medical therapy. codex B=NO was right."),
+    ("NCT01095770", "EXCLUDED", "COMPARATOR",
+     "four arms, two ablation technologies plus a loop recorder and a pacemaker. No medical "
+     "arm. codex B=NO right."),
+    ("NCT01363895", "EXCLUDED", "COMPARATOR",
+     "percutaneous LAA closure vs catheter ablation -- two interventional strategies against "
+     "each other. codex B=NO right."),
+    ("NCT01791218", "EXCLUDED", "INTERVENTION",
+     "CABG/AVR plus SURGICAL pulmonary vein isolation vs CABG/AVR alone. Surgical PVI during "
+     "cardiac surgery is not catheter ablation. BOTH seats said A=NO and were right."),
+    ("NCT02031705", "EXCLUDED", "INTERVENTION",
+     "CAVOTRICUSPID ISTHMUS ablation -- the flutter line in the right atrium -- not pulmonary "
+     "vein isolation for atrial fibrillation."),
+    ("NCT02246803", "EXCLUDED", "INTERVENTION",
+     "CABG plus surgical PVI vs isolated CABG. Surgical again."),
+    ("NCT02474108", "EXCLUDED", "INTERVENTION",
+     "'surgical prevention of atrial fibrillation' during rheumatic valve surgery."),
+    ("NCT04067427", "EXCLUDED", "INTERVENTION",
+     "MENTAL TRAINING vs no intervention, in patients who have all had an ablation. The "
+     "ablation is the setting; the contrast is a behavioural programme."),
+    ("NCT04293757", "EXCLUDED", "INTERVENTION",
+     "ROTATIONAL ANGIOGRAPHY vs none, during cryoballoon ablation. The contrast is an imaging "
+     "technique."),
+    ("NCT04376606", "EXCLUDED", "COMPARATOR",
+     "LAA closure vs radiofrequency ablation vs both. Three interventional arms, no medical "
+     "one."),
+    ("NCT04403412", "EXCLUDED", "COMPARATOR", "the same three-arm design as NCT04376606."),
+    ("NCT04433091", "EXCLUDED", "INTERVENTION",
+     "2-HOBA vs placebo to prevent early recurrence AFTER ablation. The randomised contrast is "
+     "a drug and the ablation is background."),
+    ("NCT04577859", "EXCLUDED", "INTERVENTION",
+     "OESOPHAGEAL COOLING DEVICE vs a temperature probe DURING AF ablation. THE ONLY LIMB-A "
+     "CONTRADICTION IN 130: codex read `Device: ensoETM. Esophageal cooling during AF "
+     "ablation` as an ablation arm because the string contains 'AF ablation'. agy read the "
+     "contrast correctly. A substring inside a device description, which is precisely the "
+     "matching-placebo trap in another costume."),
+    ("NCT04625946", "EXCLUDED", "INTERVENTION",
+     "METFORMIN as an adjunct to ablation vs standard of care. Drug contrast."),
+    ("NCT04685317", "EXCLUDED", "INTERVENTION",
+     "Sentinel CEREBRAL PROTECTION DEVICE during ablation vs standard of care."),
+    ("NCT05007847", "EXCLUDED", "INTERVENTION",
+     "Apple Watch rhythm MONITORING vs no intervention, in cryptogenic stroke."),
+    ("NCT05148338", "EXCLUDED", "INTERVENTION",
+     "comprehensive RISK-FACTOR TREATMENT vs standard of care after PVI."),
+    ("NCT05333445", "EXCLUDED", "INTERVENTION",
+     "NURSE-LED FOLLOW-UP vs usual care after catheter ablation."),
+    ("NCT05557526", "EXCLUDED", "INTERVENTION",
+     "EXPECTATION OPTIMISATION vs standard medical care after ablation."),
+    ("NCT06470555", "EXCLUDED", "INTERVENTION",
+     "HAEMOSTASIS technique and bed-rest duration after venous access for ablation."),
+    ("NCT06751459", "EXCLUDED", "INTERVENTION",
+     "1-day vs 14-day remote ECG MONITORING."),
+    ("NCT06836999", "EXCLUDED", "INTERVENTION",
+     "DEEP vs CONSCIOUS SEDATION during catheter ablation."),
+    ("NCT07028502", "EXCLUDED", "INTERVENTION",
+     "two TRANSSEPTAL PUNCTURE strategies."),
+    ("NCT07174206", "EXCLUDED", "INTERVENTION",
+     "four MONITORING configurations -- smartwatch, holter, telemonitoring."),
+    ("NCT07621432", "EXCLUDED", "INTERVENTION",
+     "DEEP SEDATION vs GENERAL ANAESTHESIA for pulsed-field ablation."),
+]
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    from collections import Counter
+    by_limb = Counter(limb for _n, _v, limb, _w in ADJUDICATED)
+    setting = [n for n, _v, _l, w in ADJUDICATED
+               if "setting" in w or "adjunct" in w or "background" in w
+               or "AFTER ablation" in w or "during" in w.lower()]
+    print("hand-adjudicated hard contradictions: %d" % len(ADJUDICATED))
+    print("verdicts: %s" % Counter(v for _n, v, _l, _w in ADJUDICATED).most_common())
+    print("by limb:  %s" % by_limb.most_common())
+    print("\nALL TWENTY-FIVE ARE EXCLUDED. Not one is a trial this review should hold.")
+    print("The dominant shape is THE ABLATION IS THE SETTING, NOT THE CONTRAST: sedation,")
+    print("imaging, cooling, cerebral protection, puncture technique, haemostasis, monitoring,")
+    print("nursing follow-up, risk-factor management, expectation, and three drugs -- all")
+    print("randomised AROUND an ablation every participant receives.")
+
+    out = {
+        "adjudicated_utc": "2026-08-19",
+        "n": len(ADJUDICATED),
+        "all_excluded": True,
+        "by_limb": dict(by_limb),
+        "disagreement_structure": {
+            "sent_blind": 130, "agreed": 62, "agreement_rate_pct": 47.7,
+            "soft_one_seat_unclear": 43, "hard_both_committed_and_differed": 25,
+            "hard_on_limb_A_ablation_arm": 1, "hard_on_limb_B_control_arm": 24,
+            "agy_said_UNCLEAR_on_B": 37, "codex_said_UNCLEAR_on_B": 0,
+            "what_that_says": (
+                "THE POSITIVE QUESTION WAS NEARLY SETTLED AND THE NEGATIVE ONE WAS NOT. 'Is "
+                "there an ablation arm' produced ONE contradiction in 130. 'Is there an arm "
+                "that is NOT an ablation' produced 24, plus 37 refusals from one seat and 0 "
+                "from the other. Identifying what something IS is a different order of task "
+                "from identifying what it IS NOT."),
+        },
+        "the_question_itself_was_wrong": (
+            "20 of the 25 are trials of something done AROUND an ablation that every arm "
+            "receives. Asked 'does any arm deliver catheter ablation', the honest answer for "
+            "those is YES -- which is exactly what makes the ablation BACKGROUND rather than "
+            "the intervention. THIS PROJECT ALREADY LEARNED THIS: topic_identity.locate() was "
+            "reframed from 'where does the drug appear' to 'WHAT EXACTLY WAS RANDOMISED' and "
+            "two defects dissolved under it. The adjudication packet reintroduced the "
+            "discarded form. The 47.7% agreement is substantially a measurement of that "
+            "ambiguity rather than of the trials, and the seats were answering two different "
+            "readings of a question that had two."),
+        "consequence_for_the_remaining_45": (
+            "The 43 SOFT disagreements and 2 both-UNCLEAR are NOT hand-read here. Given that "
+            "the question was ambiguous, hand-reading answers to it would inherit the "
+            "ambiguity. They are to be RE-ASKED with the corrected question -- what differs "
+            "between the arms -- which is a re-run, not a backlog of readings. Recorded as "
+            "outstanding rather than resolved."),
+        "trials": [{"nct": n, "verdict": v, "limb": limb, "why": w}
+                   for n, v, limb, w in ADJUDICATED],
+    }
+    with io.open(DEST, "w", encoding="utf-8") as fh:
+        fh.write(json.dumps(out, indent=1))
+    print("\nwrote %s" % DEST)
+    print("\nOUTSTANDING: 45 of the 130 (43 soft + 2 both-unclear) must be RE-ASKED with the")
+    print("corrected question, not hand-read against the ambiguous one.")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+
+codex
+I’m numbering the module against the local file only to avoid off-by-one references; the defect assessment stays within the supplied packet.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=1; Get-Content -Path '"'scripts/adjudicate_hard_contradictions_2026_08_19.py' | ForEach-Object { '{0,4}: {1}' -f "'$i, $_; $i++ }' in F:\rapidmeta-ssot-shell
+ succeeded in 2573ms:
+   1: """HAND ADJUDICATION of the 25 cases where two independent seats CONTRADICTED each other.
+   2: 
+   3: THE STRUCTURE OF THE DISAGREEMENT WAS THE FINDING, BEFORE ANY TRIAL WAS READ.
+   4: 
+   5:     130 sent blind to two families.        agree 62 (47.7%) | differ 68
+   6:     Of the 68: SOFT 43 -- one seat said UNCLEAR where the other committed
+   7:                HARD 25 -- both committed and contradicted each other
+   8:     Of the 25 HARD: 24 are on limb B (the CONTROL arm) and ONE on limb A.
+   9: 
+  10:     THE POSITIVE QUESTION WAS NEARLY SETTLED AND THE NEGATIVE ONE WAS NOT. "Is there an
+  11:     ablation arm" produced 1 contradiction in 130. "Is there an arm that is NOT an ablation"
+  12:     produced 24, plus 37 refusals from agy and 0 from Codex. Identifying what something IS is
+  13:     a different order of task from identifying what it IS NOT -- which is the same asymmetry
+  14:     this project already recorded as "a negative claim is the one most worth computing".
+  15: 
+  16: AND READING THE 25 SHOWED THE QUESTION ITSELF WAS WRONG.
+  17: 
+  18:     Every one of the 25 is EXCLUDED, and 20 of them share one shape: THE ABLATION IS THE
+  19:     SETTING, NOT THE CONTRAST. Deep sedation vs general anaesthesia FOR an ablation.
+  20:     Oesophageal cooling DURING an ablation. Transseptal puncture technique. Haemostasis after
+  21:     venous access. Cerebral protection. Metformin, 2-HOBA, mental training, nurse-led
+  22:     follow-up, risk-factor management, expectation optimisation -- all randomised AROUND an
+  23:     ablation that every participant receives.
+  24: 
+  25:     Asked "does any arm deliver catheter ablation", the honest answer for these is YES: every
+  26:     arm does. That is exactly what makes the ablation BACKGROUND rather than the intervention.
+  27: 
+  28:         I ASKED THE TWO SEATS A QUESTION THIS PROJECT HAD ALREADY LEARNED NOT TO ASK.
+  29:         `topic_identity.locate()` was reframed on 2026-08-19 from "where does the drug appear"
+  30:         to "WHAT EXACTLY WAS RANDOMISED", and two defects dissolved under it. The adjudication
+  31:         packet reintroduced the discarded form of the question, and the seats' 47.7% agreement
+  32:         is largely a measurement of that ambiguity rather than of the trials.
+  33: 
+  34:     The seats were not wrong so much as answering different readings of a question that had
+  35:     two. Recorded that way rather than as "the models disagreed".
+  36: """
+  37: import io
+  38: import json
+  39: import os
+  40: import sys
+  41: 
+  42: REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+  43: DEST = os.path.join(REPO, "evidence", "2026-08-19-batch1", "ablation_hard_adjudication.json")
+  44: 
+  45: # (nct, verdict, limb, why) -- read from armGroups by hand, one at a time.
+  46: ADJUDICATED = [
+  47:     ("NCT00196209", "EXCLUDED", "COMPARATOR",
+  48:      "catheter ablation vs EXTERNAL ELECTRIC CARDIOVERSION. The control is another procedure, "
+  49:      "not medical therapy. codex B=NO was right."),
+  50:     ("NCT01095770", "EXCLUDED", "COMPARATOR",
+  51:      "four arms, two ablation technologies plus a loop recorder and a pacemaker. No medical "
+  52:      "arm. codex B=NO right."),
+  53:     ("NCT01363895", "EXCLUDED", "COMPARATOR",
+  54:      "percutaneous LAA closure vs catheter ablation -- two interventional strategies against "
+  55:      "each other. codex B=NO right."),
+  56:     ("NCT01791218", "EXCLUDED", "INTERVENTION",
+  57:      "CABG/AVR plus SURGICAL pulmonary vein isolation vs CABG/AVR alone. Surgical PVI during "
+  58:      "cardiac surgery is not catheter ablation. BOTH seats said A=NO and were right."),
+  59:     ("NCT02031705", "EXCLUDED", "INTERVENTION",
+  60:      "CAVOTRICUSPID ISTHMUS ablation -- the flutter line in the right atrium -- not pulmonary "
+  61:      "vein isolation for atrial fibrillation."),
+  62:     ("NCT02246803", "EXCLUDED", "INTERVENTION",
+  63:      "CABG plus surgical PVI vs isolated CABG. Surgical again."),
+  64:     ("NCT02474108", "EXCLUDED", "INTERVENTION",
+  65:      "'surgical prevention of atrial fibrillation' during rheumatic valve surgery."),
+  66:     ("NCT04067427", "EXCLUDED", "INTERVENTION",
+  67:      "MENTAL TRAINING vs no intervention, in patients who have all had an ablation. The "
+  68:      "ablation is the setting; the contrast is a behavioural programme."),
+  69:     ("NCT04293757", "EXCLUDED", "INTERVENTION",
+  70:      "ROTATIONAL ANGIOGRAPHY vs none, during cryoballoon ablation. The contrast is an imaging "
+  71:      "technique."),
+  72:     ("NCT04376606", "EXCLUDED", "COMPARATOR",
+  73:      "LAA closure vs radiofrequency ablation vs both. Three interventional arms, no medical "
+  74:      "one."),
+  75:     ("NCT04403412", "EXCLUDED", "COMPARATOR", "the same three-arm design as NCT04376606."),
+  76:     ("NCT04433091", "EXCLUDED", "INTERVENTION",
+  77:      "2-HOBA vs placebo to prevent early recurrence AFTER ablation. The randomised contrast is "
+  78:      "a drug and the ablation is background."),
+  79:     ("NCT04577859", "EXCLUDED", "INTERVENTION",
+  80:      "OESOPHAGEAL COOLING DEVICE vs a temperature probe DURING AF ablation. THE ONLY LIMB-A "
+  81:      "CONTRADICTION IN 130: codex read `Device: ensoETM. Esophageal cooling during AF "
+  82:      "ablation` as an ablation arm because the string contains 'AF ablation'. agy read the "
+  83:      "contrast correctly. A substring inside a device description, which is precisely the "
+  84:      "matching-placebo trap in another costume."),
+  85:     ("NCT04625946", "EXCLUDED", "INTERVENTION",
+  86:      "METFORMIN as an adjunct to ablation vs standard of care. Drug contrast."),
+  87:     ("NCT04685317", "EXCLUDED", "INTERVENTION",
+  88:      "Sentinel CEREBRAL PROTECTION DEVICE during ablation vs standard of care."),
+  89:     ("NCT05007847", "EXCLUDED", "INTERVENTION",
+  90:      "Apple Watch rhythm MONITORING vs no intervention, in cryptogenic stroke."),
+  91:     ("NCT05148338", "EXCLUDED", "INTERVENTION",
+  92:      "comprehensive RISK-FACTOR TREATMENT vs standard of care after PVI."),
+  93:     ("NCT05333445", "EXCLUDED", "INTERVENTION",
+  94:      "NURSE-LED FOLLOW-UP vs usual care after catheter ablation."),
+  95:     ("NCT05557526", "EXCLUDED", "INTERVENTION",
+  96:      "EXPECTATION OPTIMISATION vs standard medical care after ablation."),
+  97:     ("NCT06470555", "EXCLUDED", "INTERVENTION",
+  98:      "HAEMOSTASIS technique and bed-rest duration after venous access for ablation."),
+  99:     ("NCT06751459", "EXCLUDED", "INTERVENTION",
+ 100:      "1-day vs 14-day remote ECG MONITORING."),
+ 101:     ("NCT06836999", "EXCLUDED", "INTERVENTION",
+ 102:      "DEEP vs CONSCIOUS SEDATION during catheter ablation."),
+ 103:     ("NCT07028502", "EXCLUDED", "INTERVENTION",
+ 104:      "two TRANSSEPTAL PUNCTURE strategies."),
+ 105:     ("NCT07174206", "EXCLUDED", "INTERVENTION",
+ 106:      "four MONITORING configurations -- smartwatch, holter, telemonitoring."),
+ 107:     ("NCT07621432", "EXCLUDED", "INTERVENTION",
+ 108:      "DEEP SEDATION vs GENERAL ANAESTHESIA for pulsed-field ablation."),
+ 109: ]
+ 110: 
+ 111: 
+ 112: def main():
+ 113:     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+ 114:     from collections import Counter
+ 115:     by_limb = Counter(limb for _n, _v, limb, _w in ADJUDICATED)
+ 116:     setting = [n for n, _v, _l, w in ADJUDICATED
+ 117:                if "setting" in w or "adjunct" in w or "background" in w
+ 118:                or "AFTER ablation" in w or "during" in w.lower()]
+ 119:     print("hand-adjudicated hard contradictions: %d" % len(ADJUDICATED))
+ 120:     print("verdicts: %s" % Counter(v for _n, v, _l, _w in ADJUDICATED).most_common())
+ 121:     print("by limb:  %s" % by_limb.most_common())
+ 122:     print("\nALL TWENTY-FIVE ARE EXCLUDED. Not one is a trial this review should hold.")
+ 123:     print("The dominant shape is THE ABLATION IS THE SETTING, NOT THE CONTRAST: sedation,")
+ 124:     print("imaging, cooling, cerebral protection, puncture technique, haemostasis, monitoring,")
+ 125:     print("nursing follow-up, risk-factor management, expectation, and three drugs -- all")
+ 126:     print("randomised AROUND an ablation every participant receives.")
+ 127: 
+ 128:     out = {
+ 129:         "adjudicated_utc": "2026-08-19",
+ 130:         "n": len(ADJUDICATED),
+ 131:         "all_excluded": True,
+ 132:         "by_limb": dict(by_limb),
+ 133:         "disagreement_structure": {
+ 134:             "sent_blind": 130, "agreed": 62, "agreement_rate_pct": 47.7,
+ 135:             "soft_one_seat_unclear": 43, "hard_both_committed_and_differed": 25,
+ 136:             "hard_on_limb_A_ablation_arm": 1, "hard_on_limb_B_control_arm": 24,
+ 137:             "agy_said_UNCLEAR_on_B": 37, "codex_said_UNCLEAR_on_B": 0,
+ 138:             "what_that_says": (
+ 139:                 "THE POSITIVE QUESTION WAS NEARLY SETTLED AND THE NEGATIVE ONE WAS NOT. 'Is "
+ 140:                 "there an ablation arm' produced ONE contradiction in 130. 'Is there an arm "
+ 141:                 "that is NOT an ablation' produced 24, plus 37 refusals from one seat and 0 "
+ 142:                 "from the other. Identifying what something IS is a different order of task "
+ 143:                 "from identifying what it IS NOT."),
+ 144:         },
+ 145:         "the_question_itself_was_wrong": (
+ 146:             "20 of the 25 are trials of something done AROUND an ablation that every arm "
+ 147:             "receives. Asked 'does any arm deliver catheter ablation', the honest answer for "
+ 148:             "those is YES -- which is exactly what makes the ablation BACKGROUND rather than "
+ 149:             "the intervention. THIS PROJECT ALREADY LEARNED THIS: topic_identity.locate() was "
+ 150:             "reframed from 'where does the drug appear' to 'WHAT EXACTLY WAS RANDOMISED' and "
+ 151:             "two defects dissolved under it. The adjudication packet reintroduced the "
+ 152:             "discarded form. The 47.7% agreement is substantially a measurement of that "
+ 153:             "ambiguity rather than of the trials, and the seats were answering two different "
+ 154:             "readings of a question that had two."),
+ 155:         "consequence_for_the_remaining_45": (
+ 156:             "The 43 SOFT disagreements and 2 both-UNCLEAR are NOT hand-read here. Given that "
+ 157:             "the question was ambiguous, hand-reading answers to it would inherit the "
+ 158:             "ambiguity. They are to be RE-ASKED with the corrected question -- what differs "
+ 159:             "between the arms -- which is a re-run, not a backlog of readings. Recorded as "
+ 160:             "outstanding rather than resolved."),
+ 161:         "trials": [{"nct": n, "verdict": v, "limb": limb, "why": w}
+ 162:                    for n, v, limb, w in ADJUDICATED],
+ 163:     }
+ 164:     with io.open(DEST, "w", encoding="utf-8") as fh:
+ 165:         fh.write(json.dumps(out, indent=1))
+ 166:     print("\nwrote %s" % DEST)
+ 167:     print("\nOUTSTANDING: 45 of the 130 (43 soft + 2 both-unclear) must be RE-ASKED with the")
+ 168:     print("corrected question, not hand-read against the ambiguous one.")
+ 169:     return 0
+ 170: 
+ 171: 
+ 172: if __name__ == "__main__":
+ 173:     sys.exit(main())
+
+codex
+The live issue is in the only derived probe in the file: it tries to classify the “setting/background” shape, but the selector is neither asserted nor aligned with the strings in this packet.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "@'
+import importlib.util
+p='scripts/adjudicate_hard_contradictions_2026_08_19.py'
+spec=importlib.util.spec_from_file_location('m', p)
+m=importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
+setting=[n for n,_v,_l,w in m.ADJUDICATED if 'setting' in w or 'adjunct' in w or 'background' in w or 'AFTER ablation' in w or 'during' in w.lower()]
+print(len(setting))
+print(setting)
+'@ | python -" in F:\rapidmeta-ssot-shell
+ succeeded in 1709ms:
+9
+['NCT01791218', 'NCT02474108', 'NCT04067427', 'NCT04293757', 'NCT04433091', 'NCT04577859', 'NCT04625946', 'NCT04685317', 'NCT06836999']
+
+codex
+Defects found:
+
+1. **Instrument reading a different binding** — lines 132 and 136.
+Exact input: the pasted `ADJUDICATED` list.
+Demonstration: `by_limb` from line 132 is `{'INTERVENTION': 20, 'COMPARATOR': 5}`, while line 136 emits `"hard_on_limb_A_ablation_arm": 1` and `"hard_on_limb_B_control_arm": 24`.
+Consequence: the JSON reports two incompatible limb distributions, so a consumer cannot tell whether the 25 hard contradictions were 20/5 or 1/24 by limb.
+
+2. **Selector keyed to a form the corpus does not use / check that cannot fail** — lines 116-118.
+Exact input: the pasted `ADJUDICATED` list.
+Demonstration: the selector returns 9 NCTs, not the asserted 20: `NCT01791218`, `NCT02474108`, `NCT04067427`, `NCT04293757`, `NCT04433091`, `NCT04577859`, `NCT04625946`, `NCT04685317`, `NCT06836999`; it misses forms present in the corpus like `"after catheter ablation"`, `"after PVI"`, and `"for ... ablation"`, and includes generic `"during"` cases unrelated to ablation-as-background.
+Consequence: the computed probe cannot substantiate the line 146 claim that 20 of 25 have the setting/background shape, and because `setting` is never asserted or emitted, the script still exits 0.
+
+No proven defect found for: string-a-fix-removes probe; own-comment idempotency guard; CRLF/LF text comparison; merged-cell/off-by-one tabulation; zero conflated with absent; negation dropped; wrapper status code.
+tokens used
+41,480
+Defects found:
+
+1. **Instrument reading a different binding** — lines 132 and 136.
+Exact input: the pasted `ADJUDICATED` list.
+Demonstration: `by_limb` from line 132 is `{'INTERVENTION': 20, 'COMPARATOR': 5}`, while line 136 emits `"hard_on_limb_A_ablation_arm": 1` and `"hard_on_limb_B_control_arm": 24`.
+Consequence: the JSON reports two incompatible limb distributions, so a consumer cannot tell whether the 25 hard contradictions were 20/5 or 1/24 by limb.
+
+2. **Selector keyed to a form the corpus does not use / check that cannot fail** — lines 116-118.
+Exact input: the pasted `ADJUDICATED` list.
+Demonstration: the selector returns 9 NCTs, not the asserted 20: `NCT01791218`, `NCT02474108`, `NCT04067427`, `NCT04293757`, `NCT04433091`, `NCT04577859`, `NCT04625946`, `NCT04685317`, `NCT06836999`; it misses forms present in the corpus like `"after catheter ablation"`, `"after PVI"`, and `"for ... ablation"`, and includes generic `"during"` cases unrelated to ablation-as-background.
+Consequence: the computed probe cannot substantiate the line 146 claim that 20 of 25 have the setting/background shape, and because `setting` is never asserted or emitted, the script still exits 0.
+
+No proven defect found for: string-a-fix-removes probe; own-comment idempotency guard; CRLF/LF text comparison; merged-cell/off-by-one tabulation; zero conflated with absent; negation dropped; wrapper status code.

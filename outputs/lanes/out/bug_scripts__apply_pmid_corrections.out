@@ -1,0 +1,236 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a0312f-7cb4-70a1-8e81-666dfaf42882
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/apply_pmid_corrections.py
+
+--- THE FILE, IN FULL ---
+"""
+Apply UNAMBIGUOUS PMID corrections proposed by
+propose_pmid_corrections.py.
+
+What it changes per row:
+  - Replaces the trial's `pmid: 'OLD'` with `pmid: 'NEW'`.
+  - Replaces the trial's `sourceUrl: '...'` with the canonical
+    PubMed URL `https://pubmed.ncbi.nlm.nih.gov/NEW/` (guaranteed
+    to resolve to the right paper; user can swap to journal full-
+    text URL later).
+  - LEAVES snippet text unchanged. The snippet was always
+    describing the right paper -- it's the PMID that pointed to
+    the wrong one. After the swap, snippet + PMID + URL all agree.
+
+What it does NOT change:
+  - Page numbers in the snippet (audit may still flag if old
+    snippet pages were copy-paste from a sibling trial).
+  - Trial values (tE/tN/cE/cN/HR). The audit is citation-only.
+  - PROBABLE / AMBIGUOUS / NO_PUBMED_HITS rows (those need human
+    review via verification cards).
+
+Idempotent: re-runs are no-ops if the dashboard already has the
+new PMID. Anchors on `name: 'TRIAL_NAME'` + `pmid: 'OLD_PMID'` so
+trial-name disambiguates when the same PMID appears in multiple
+trial-rows.
+
+Usage:
+  python scripts/apply_pmid_corrections.py --dry-run
+  python scripts/apply_pmid_corrections.py --apply
+"""
+from __future__ import annotations
+
+import argparse
+import csv
+import io
+import re
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+CORRECTIONS_CSV = ROOT / "outputs" / "pmid_corrections.csv"
+
+
+def patch_dashboard(path: Path, edits: list[dict], dry_run: bool) -> dict:
+    """Apply all edits for one dashboard. Returns {applied, skipped, missing}."""
+    text = path.read_text(encoding="utf-8")
+    orig = text
+    applied = 0
+    skipped = 0
+    missing = 0
+    for edit in edits:
+        old_pmid = edit["current_pmid"]
+        new_pmid = edit["proposed_pmid"]
+        trial_name = edit["trial_name"]
+
+        # Find the trial entry: anchor on `name: 'TRIAL_NAME'` ... `pmid: 'OLD'`
+        # within ~200 chars (single-line trial-row pattern).
+        # If the dashboard ALREADY has the new pmid (idempotent), skip.
+        idempotent_anchor = (
+            f"name: '{trial_name}'" if "'" not in trial_name else None
+        )
+        if idempotent_anchor is None:
+            # Trial name has an apostrophe; we can't safely match. Skip.
+            missing += 1
+            continue
+
+        # Already correct?
+        already_correct_pattern = re.compile(
+            rf"name:\s*'{re.escape(trial_name)}'(?:[^{{}}]{{0,400}}?)pmid:\s*'{new_pmid}'",
+            re.DOTALL,
+        )
+        if already_correct_pattern.search(text):
+            skipped += 1
+            continue
+
+        # Match name + old pmid pair.
+        match_pattern = re.compile(
+            rf"(name:\s*'{re.escape(trial_name)}'(?:[^{{}}]{{0,400}}?)pmid:\s*')"
+            rf"{old_pmid}"
+            rf"(')",
+            re.DOTALL,
+        )
+        m = match_pattern.search(text)
+        if not m:
+            # Either name or old pmid no longer present. Could be already
+            # patched OR trial renamed. Mark missing for user review.
+            missing += 1
+            continue
+        text = text[:m.start()] + m.group(1) + new_pmid + m.group(2) + text[m.end():]
+        applied += 1
+
+        # Update sourceUrl in the same trial block.
+        # Find the next sourceUrl: '...' after the trial name -- replace with
+        # canonical PubMed URL.
+        url_pattern = re.compile(
+            rf"(name:\s*'{re.escape(trial_name)}'(?:.{{0,3000}}?))(sourceUrl:\s*')([^']*)(')",
+            re.DOTALL,
+        )
+        new_url = f"https://pubmed.ncbi.nlm.nih.gov/{new_pmid}/"
+        text2 = url_pattern.sub(rf"\g<1>\g<2>{new_url}\g<4>", text, count=1)
+        if text2 != text:
+            text = text2
+
+    if applied > 0 and not dry_run:
+        path.write_text(text, encoding="utf-8", newline="")
+    return {"applied": applied, "skipped": skipped, "missing": missing}
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--corrections", type=Path, default=CORRECTIONS_CSV)
+    ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument("--apply", action="store_true")
+    args = ap.parse_args()
+
+    if not (args.dry_run or args.apply):
+        print("Specify --dry-run or --apply.")
+        return 2
+
+    if hasattr(sys.stdout, "buffer"):
+        sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace", line_buffering=True)
+
+    with args.corrections.open(encoding="utf-8") as fh:
+        all_props = list(csv.DictReader(fh))
+    unamb = [r for r in all_props if r["status"] == "UNAMBIGUOUS"]
+    print(f"Mode: {'DRY-RUN' if args.dry_run else 'APPLY'}")
+    print(f"Loaded {len(unamb)} UNAMBIGUOUS proposals")
+
+    by_dashboard: dict[str, list[dict]] = {}
+    for r in unamb:
+        by_dashboard.setdefault(r["dashboard"], []).append(r)
+    print(f"Spread across {len(by_dashboard)} dashboards")
+
+    totals = {"applied": 0, "skipped": 0, "missing": 0}
+    for name, edits in sorted(by_dashboard.items()):
+        path = ROOT / name
+        if not path.exists():
+            print(f"  MISSING dashboard: {name}")
+            totals["missing"] += len(edits)
+            continue
+        r = patch_dashboard(path, edits, dry_run=args.dry_run)
+        totals["applied"] += r["applied"]
+        totals["skipped"] += r["skipped"]
+        totals["missing"] += r["missing"]
+        if r["applied"] or r["missing"]:
+            print(f"  {name:42} applied={r['applied']:2} skipped={r['skipped']:2} missing={r['missing']:2}")
+    print()
+    print(f"Totals: {totals}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+
+codex
+COULD NOT DETERMINE corpus-wide selector coverage: actual dashboard files and `pmid_corrections.csv` contents are not in packet.
+
+- **STATUS CODE REPORTING THE WRAPPER** — line 149. Input: CSV row `dashboard,status,trial_name,current_pmid,proposed_pmid` / `missing.html,UNAMBIGUOUS,T,111,222`, with no `missing.html`, run `--apply`. Consequence: it reports missing work but exits `0`, so a gate can pass without applying the correction.
+
+- **idempotency guard satisfied by partial work** — line 72. Input dashboard: `{name: 'T', pmid: '222', sourceUrl: 'https://pubmed.ncbi.nlm.nih.gov/111/'}` with edit `{trial_name:T,current_pmid:111,proposed_pmid:222}`. Consequence: the stale URL remains because “already correct” only checks PMID.
+
+- **STATUS CODE REPORTING THE WRAPPER rather than the work** — lines 90 and 100. Input dashboard: `{name: 'T', pmid: '111'}` with edit `111 -> 222`. Consequence: `applied=1, missing=0` even though the required `sourceUrl` update did not happen.
+
+- **instrument changing a different row** — line 96. Input dashboard: `{name: 'T1', pmid: '111'}, {name: 'T2', pmid: '999', sourceUrl: 'old'}` with edit `T1:111->222`. Consequence: T2’s `sourceUrl` is overwritten with T1’s PubMed URL.
+
+- **SELECTOR KEYED TO A FORM THE INPUT MAY NOT USE** — line 78. Input dashboard: `{name: 'T', stats: {}, pmid: '111', sourceUrl: 'old'}` with edit `111 -> 222`. Consequence: the `{}` between name and PMID makes the selector fail and the edit is falsely marked missing.
+
+- **line-ending text rewrite** — lines 46 and 105. Input: any CRLF dashboard with one valid edit. Consequence: a successful apply rewrites the whole file as LF, creating unrelated diff noise.
+
+None found for: probe keyed to string a fix removes; merged-cell/off-by-one; zero conflated with absent; negation dropped.
+tokens used
+12,620
+COULD NOT DETERMINE corpus-wide selector coverage: actual dashboard files and `pmid_corrections.csv` contents are not in packet.
+
+- **STATUS CODE REPORTING THE WRAPPER** — line 149. Input: CSV row `dashboard,status,trial_name,current_pmid,proposed_pmid` / `missing.html,UNAMBIGUOUS,T,111,222`, with no `missing.html`, run `--apply`. Consequence: it reports missing work but exits `0`, so a gate can pass without applying the correction.
+
+- **idempotency guard satisfied by partial work** — line 72. Input dashboard: `{name: 'T', pmid: '222', sourceUrl: 'https://pubmed.ncbi.nlm.nih.gov/111/'}` with edit `{trial_name:T,current_pmid:111,proposed_pmid:222}`. Consequence: the stale URL remains because “already correct” only checks PMID.
+
+- **STATUS CODE REPORTING THE WRAPPER rather than the work** — lines 90 and 100. Input dashboard: `{name: 'T', pmid: '111'}` with edit `111 -> 222`. Consequence: `applied=1, missing=0` even though the required `sourceUrl` update did not happen.
+
+- **instrument changing a different row** — line 96. Input dashboard: `{name: 'T1', pmid: '111'}, {name: 'T2', pmid: '999', sourceUrl: 'old'}` with edit `T1:111->222`. Consequence: T2’s `sourceUrl` is overwritten with T1’s PubMed URL.
+
+- **SELECTOR KEYED TO A FORM THE INPUT MAY NOT USE** — line 78. Input dashboard: `{name: 'T', stats: {}, pmid: '111', sourceUrl: 'old'}` with edit `111 -> 222`. Consequence: the `{}` between name and PMID makes the selector fail and the edit is falsely marked missing.
+
+- **line-ending text rewrite** — lines 46 and 105. Input: any CRLF dashboard with one valid edit. Consequence: a successful apply rewrites the whole file as LF, creating unrelated diff noise.
+
+None found for: probe keyed to string a fix removes; merged-cell/off-by-one; zero conflated with absent; negation dropped.

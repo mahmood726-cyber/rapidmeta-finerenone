@@ -1,0 +1,119 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/jscheck.py
+
+--- THE FILE, IN FULL ---
+"""Second ship gate: verify a cloned dashboard's inline JS still PARSES.
+
+The leftover scanner proves no base token survived; it does NOT prove the
+clone is a working app. An unescaped apostrophe injected into a single-quoted
+JS string literal (e.g. condition "Crohn's Disease") is a SyntaxError that
+the leftover scanner passes but that breaks the entire dashboard
+(lessons.md, 2026-04-30). This module extracts every inline <script> block
+and runs `node --check` (syntax only, no execution -> browser globals are
+irrelevant) on each.
+
+Returns [] if clean, else [(block_index, first_error_line), ...].
+"""
+from __future__ import annotations
+import io, os, re, subprocess, sys, tempfile
+
+_SCRIPT_RE = re.compile(
+    r"<script\b([^>]*)>(.*?)</script\s*>", re.IGNORECASE | re.DOTALL)
+
+
+def _has_src(attrs: str) -> bool:
+    return re.search(r"\bsrc\s*=", attrs, re.IGNORECASE) is not None
+
+
+def _is_module(attrs: str) -> bool:
+    return re.search(r'type\s*=\s*["\']module["\']', attrs, re.IGNORECASE) is not None
+
+
+def check(html_path: str):
+    src = io.open(html_path, "r", encoding="utf-8", errors="replace").read()
+    problems = []
+    for idx, m in enumerate(_SCRIPT_RE.finditer(src)):
+        attrs, body = m.group(1), m.group(2)
+        if _has_src(attrs):
+            continue
+        t = re.search(r'type\s*=\s*["\']([^"\']+)["\']', attrs or "", re.IGNORECASE)
+        if t and t.group(1).lower() not in ("module", "text/javascript",
+                                            "application/javascript", ""):
+            continue  # JSON-LD, template, etc. — not executable JS
+        if not body.strip():
+            continue
+        suffix = ".mjs" if _is_module(attrs) else ".js"
+        with tempfile.NamedTemporaryFile("w", suffix=suffix, delete=False,
+                                         encoding="utf-8") as fh:
+            fh.write(body)
+            tmp = fh.name
+        try:
+            r = subprocess.run(["node", "--check", tmp],
+                                capture_output=True, text=True, timeout=60,
+                                encoding="utf-8", errors="replace")
+            if r.returncode != 0:
+                err = (r.stderr or r.stdout or "").strip().splitlines()
+                first = next((ln for ln in err if "SyntaxError" in ln
+                              or "Error" in ln), err[0] if err else "?")
+                problems.append((idx, first.strip()[:200]))
+        finally:
+            try:
+                os.unlink(tmp)
+            except OSError:
+                pass
+    return problems
+
+
+def main() -> int:
+    if len(sys.argv) < 2:
+        print("usage: jscheck.py FILE.html", file=sys.stderr)
+        return 2
+    p = sys.argv[1]
+    if not os.path.isfile(p):
+        print(f"not a file: {p}", file=sys.stderr)
+        return 2
+    probs = check(p)
+    if not probs:
+        print(f"  [JS-OK] {os.path.basename(p)}")
+        return 0
+    print(f"  [JS-BROKEN] {os.path.basename(p)}  ({len(probs)} bad script blocks)")
+    for idx, err in probs:
+        print(f"      block #{idx}: {err}")
+    return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())

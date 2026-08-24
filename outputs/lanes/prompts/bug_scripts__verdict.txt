@@ -1,0 +1,155 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/verdict.py
+
+--- THE FILE, IN FULL ---
+"""Three verdict states, and a PASS that has to earn itself.
+
+WHY TWO STATES WERE NOT ENOUGH. A gate that can only say PASS or FAIL reports a
+clean negative when its instrument is dead, and that is indistinguishable from a
+clean negative when the artefact is sound. Every false result this project
+produced in one run was of that shape:
+
+  * a caption check that reported zero problems while reading the downloads
+    block instead of the caption;
+  * a figure audit that reported zero collisions over geometry that was all
+    zeros because the containers measured 0x0;
+  * an extractor that reported a divergence because it never unescaped XML;
+  * a liveness probe that reported death from a model pool the seat never used.
+
+None of those was a FAIL. All of them were PASS or FAIL asserted by an
+instrument that was not in a position to assert anything.
+
+The clinical analogy is the right one and it is not decoration: a diagnostic
+assay runs positive and negative controls on every plate, and when a control
+fails the run is VOID -- the lab does not report a negative result, it reports
+that no result exists. That is the third state.
+
+  PASS     the check ran, its controls behaved, and the artefact is sound.
+           REQUIRES A WITNESS: evidence of what was actually examined.
+  FAIL     the check ran, its controls behaved, and the artefact is not sound.
+  INVALID  the check could not be run in a state where it could have failed.
+           Never reported as PASS. Never counted toward a green run.
+
+A PASS without a witness is refused by this module, because "I checked and it
+was fine" and "I could not check" are the same sentence when neither carries
+what was seen.
+"""
+import io
+import json
+import sys
+
+# Wrap ONCE. This module is imported by the gates, and re-wrapping an
+# already-wrapped stdout closes the caller's wrapper -- the importing
+# script then dies with "I/O operation on closed file" the moment it
+# prints. The same module-level stdout reassignment that has broken
+# pytest collection in this project before.
+if getattr(sys.stdout, "encoding", "").lower() not in ("utf-8", "utf8"):
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8",
+                                  errors="replace")
+
+PASS, FAIL, INVALID = "PASS", "FAIL", "INVALID"
+
+
+class Verdict(object):
+    def __init__(self, name, state, witness=None, detail="",
+                 failure_would_be=""):
+        if state == PASS and not witness:
+            raise ValueError(
+                "PASS without a witness is refused: %r. State what was actually "
+                "examined -- counts, values, the elements read -- or return "
+                "INVALID. A pass with nothing behind it is the failure mode this "
+                "module exists to prevent." % name)
+        self.name, self.state = name, state
+        self.witness, self.detail = witness, detail
+        self.failure_would_be = failure_would_be
+
+    def __repr__(self):
+        return "%-46s %-8s %s" % (self.name[:46], self.state,
+                                  self.witness or self.detail)
+
+    def as_dict(self):
+        return {"check": self.name, "state": self.state,
+                "witness": self.witness, "detail": self.detail,
+                "failure_would_look_like": self.failure_would_be}
+
+
+def summarise(verdicts, label=""):
+    n = {PASS: 0, FAIL: 0, INVALID: 0}
+    for v in verdicts:
+        n[v.state] += 1
+        print("  %r" % v)
+    print("\n%s%d checks: %d PASS, %d FAIL, %d INVALID"
+          % (label + " " if label else "", len(verdicts), n[PASS], n[FAIL],
+             n[INVALID]))
+    if n[INVALID]:
+        print("RUN NOT GREEN: %d check(s) could not be run in a state where "
+              "they could have failed. An INVALID is not a pass." % n[INVALID])
+    # INVALID is not success. Exit code carries both so a batch runner can tell
+    # a broken instrument from a broken artefact.
+    return (1 if n[FAIL] else 0) + (2 if n[INVALID] else 0)
+
+
+def selftest():
+    print("=== the verdict type must refuse a witnessless PASS ===")
+    ok = True
+    try:
+        Verdict("a pass with nothing behind it", PASS)
+        print("  witnessless PASS accepted            WRONG")
+        ok = False
+    except ValueError:
+        print("  witnessless PASS refused             correct")
+    try:
+        v = Verdict("a pass with a witness", PASS, witness="read 16 figures")
+        print("  PASS with a witness accepted         correct")
+    except ValueError:
+        print("  PASS with a witness refused          WRONG")
+        ok = False
+    for st in (FAIL, INVALID):
+        try:
+            Verdict("no witness needed", st)
+            print("  %-8s without a witness accepted  correct" % st)
+        except ValueError:
+            print("  %-8s without a witness refused   WRONG" % st)
+            ok = False
+    rc = summarise([Verdict("a", PASS, witness="w"), Verdict("b", INVALID)],
+                   "selftest")
+    good = rc >= 2
+    print("\nINVALID keeps the run from being green:", good)
+    return 0 if (ok and good) else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(selftest())

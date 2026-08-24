@@ -1,0 +1,783 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a03188-dd03-74d0-813f-b5f5274b030c
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/create_bosentan_four_2026_08_19.py
+
+--- THE FILE, IN FULL ---
+#!/usr/bin/env python3
+"""BUILD THE FOUR REVIEWS `bosentan-pah` WAS SPLIT INTO.
+
+Decision and counts: `DECIDED-bosentan-pah-2026-08-19.md`. Every reading has eligible trials, so
+every reading is a review -- the empty-question test was set in advance and did not fire.
+
+THREE OF THE FOUR PUBLISH A REFUSAL AND ONE PUBLISHES k=1. That is the whole of what this drug's
+registered evidence supports under any reading, and it is a finding about the registrations
+rather than a gap in the work:
+
+    A  monotherapy   4 eligible, 2 with results, NOT ONE registering a walk CHANGE or a
+                     clinical-worsening outcome. Its anchor trial's registered primaries are
+                     the two-word strings "exercise capacity" and "cardiac hemodynamics".
+    B  combination   7 eligible, 1 with results. COMPASS-2's own morbidity/mortality result,
+                     reported as one trial's result and not as a pool.
+    C  not group 1   8 eligible, ZERO with results.
+    D  children      2 eligible, both with results, measuring PK and ventilator weaning.
+
+Run: python scripts/create_bosentan_four_2026_08_19.py
+"""
+import io
+import json
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(REPO, "ssot"))
+import bos_topic_data as D                                              # noqa: E402
+
+EV = os.path.join(REPO, "evidence", "2026-08-19-batch1")
+
+PROTOCOL = {
+    "prespecified": False, "permanently_refused": True,
+    "why": ("A protocol specified before data collection is a HISTORICAL FACT ABOUT THE PAST "
+            "and cannot be created retrospectively."),
+    "what_was_actually_done": ("Eligibility criteria were derived POST HOC on 2026-08-19, when "
+                               "`bosentan-pah` was split into four readings."),
+    "authority_permitting_it": "MECIR R107, provided they are declared as such.",
+    "forward_remedy": "For topics not yet built, register a protocol BEFORE the search.",
+}
+DUP = {
+    "performed": False, "state": "OWED, AND RECORDED AS OWED RATHER THAN DESCRIBED",
+    "what_is_owed": "independent duplicate screening by a second reader.",
+    "what_was_NOT_done": ("No second model family read this screen. An agreement rate over one "
+                          "reader is not an agreement rate."),
+}
+SIBS = ["bosentan-pah-monotherapy", "bosentan-pah-combination",
+        "bosentan-ph-not-group1", "bosentan-pah-children"]
+
+
+def rob(state_note):
+    return {
+        "tool": "RoB 2", "state": "NOT_ASSESSED_FOR_THIS_REVIEW",
+        "why": ("No result-level RoB 2 assessment has been performed. RECORDED AS UNASSESSED, "
+                "NEVER AS ABSENT OF BIAS: an unassessed domain is NOT_ASSESSABLE, not LOW. "
+                + state_note),
+        "what_would_close_it": "RoB 2 per RESULT for each contributing result.",
+    }
+
+
+def build(topic, title, question, provenance, search, prisma, cascade, extraction,
+          eligibility, outcome, result, trials, wq, state, grade):
+    o = {
+        "app_id": topic, "schema_version": 2, "title": title, "question": question,
+        "question_provenance": provenance, "built": "2026-08-19", "build_mode": "AUTHORED",
+        "split_provenance": {
+            "parent": "bosentan-pah",
+            "why_split": ("The parent asked at least four questions under one title and its "
+                          "two trials fell on opposite sides of the split -- COMPASS-2 "
+                          "(combination) and FUTURE-2 (children, open-label, no control arm, "
+                          "primary is growth). See DECIDED-bosentan-pah-2026-08-19.md. P21."),
+            "siblings": [s for s in SIBS if s != topic],
+            "precedence": D._PRECEDENCE,
+        },
+        "outcomes": [outcome], "withholding_question": wq,
+        "inputs": {"trials": trials}, "config": {"confidence_level": 95},
+        "results": {"by_outcome": {outcome["id"]: result}},
+        "search": search, "prisma_flow": prisma, "k_cascade": cascade,
+        "screening": {
+            "search_note": ("Executed 2026-08-19. 57 registrations surfaced by ONE search over "
+                            "the drug; the four readings are applied after it, by a stated "
+                            "precedence."),
+            "eligibility": eligibility,
+            "eligibility_provenance": {
+                "state": "DERIVED_POST_HOC", "predefined": False, "post_hoc": True,
+                "derived": True,
+                "predefined_is_false_because": "written 2026-08-19 when the topic was split.",
+                "authority_it_satisfies": "MECIR R29/R30/R31.",
+                "authority_it_does_NOT_establish": "MECIR C5/C7.",
+                "precedence": D._PRECEDENCE,
+                "adjudication": D._ADJUDICATION,
+            },
+            "duplicate_screening": DUP,
+        },
+        "screening_of_remainder": {"unscreened_remainder": 0,
+                                   "adjudication": D._ADJUDICATION},
+        "topic_state": state, "risk_of_bias": rob(""), "grade": grade,
+        "protocol": PROTOCOL, "sources": {},
+        "sources_note": ("Every number is traceable to a ClinicalTrials.gov v2 payload read on "
+                         "2026-08-19. No journal article was read for any effect estimate."),
+        "extraction": extraction,
+    }
+    # P22: SHARING, COMPUTED AGAINST THE WHOLE CORPUS. The four readings share nothing with
+    # EACH OTHER by construction, and the combination reading DOES share COMPASS-2 with the
+    # unretired parent `bosentan-pah`. P22 refused that object on the first build and was
+    # right: the sharing is legitimate and unrecorded sharing is not.
+    ssot_dir = os.path.join(REPO, "ssot")
+    mine = [t.get("nct") for t in o["inputs"]["trials"] if t.get("nct")]
+    found, checked = {}, 0
+    for dd in sorted(os.listdir(ssot_dir)):
+        if dd == topic:
+            continue
+        p2 = os.path.join(ssot_dir, dd, dd + ".json")
+        if not os.path.exists(p2):
+            continue
+        checked += 1
+        try:
+            with io.open(p2, encoding="utf-8") as fh:
+                o2 = json.load(fh)
+        except (ValueError, OSError):
+            continue
+        their = {t.get("nct") for t in ((o2.get("inputs") or {}).get("trials") or [])}
+        for n in mine:
+            if n in their:
+                found.setdefault(n, []).append(dd)
+    o["shared_with_other_topics"] = {
+        "computed": True,
+        "computed_against": ("every other topic object under ssot/ -- %d checked -- by reading "
+                             "each one's inputs.trials. Not asserted." % checked),
+        "shared": {n: {"also_in": ts,
+                       "why": ("The parent `bosentan-pah` has not been retired and still holds "
+                               "this trial. The sharing is a consequence of the split, not of "
+                               "two reviews independently including it."
+                               if ts == ["bosentan-pah"] else
+                               "held by another topic; recorded rather than left to a summed "
+                               "corpus k to hide.")}
+                   for n, ts in sorted(found.items())},
+        "summing_per_topic_k_double_counts": (
+            "A CORPUS-LEVEL k OBTAINED BY SUMMING PER-TOPIC k DOUBLE-COUNTS. %d of this "
+            "review's %d trials are also held elsewhere. Measured corpus-wide on 2026-08-19: "
+            "354 summed against 286 distinct registrations, 68 double-counted."
+            % (len(found), len(mine))),
+        "and_the_four_readings_share_NOTHING_with_each_other": (
+            "COMPUTED, not asserted: the precedence rule assigns every record to exactly one "
+            "reading, so the four intersect emptily by construction. Any sharing reported "
+            "above is with a topic OUTSIDE the split."),
+    }
+
+    d = os.path.join(REPO, "ssot", topic)
+    os.makedirs(d, exist_ok=True)
+    dest = os.path.join(d, "%s.json" % topic)
+    if os.path.exists(dest) and "--recreate" not in sys.argv:
+        raise SystemExit("REFUSED: %s exists. This script CREATES." % dest)
+    if os.path.exists(dest):
+        with io.open(dest, encoding="utf-8") as fh:
+            if json.load(fh).get("build_stamp"):
+                raise SystemExit("REFUSED: %s is stamped; MERGE instead." % dest)
+    with io.open(dest, "w", encoding="utf-8") as fh:
+        fh.write(json.dumps(o, indent=1))
+    return dest
+
+
+def refusing_outcome(oid, name, definition):
+    # `definition_note` is REQUIRED by the projector -- it renders it unconditionally beside the
+    # definition. Discovered by the page build raising KeyError on all four objects at once,
+    # which is the ordinary way this codebase's object contract gets found (see the memory note
+    # on build_tabbed's unwritten type contracts).
+    return {"id": oid, "name": name, "definition": definition,
+            "definition_note": ("This reading registers no shared estimand. The definition "
+                                "above names what a pooled outcome WOULD have been, and the "
+                                "page reports why there is none rather than leaving the slot "
+                                "blank."),
+            "measure": "MD", "effect_scale": "natural", "type": "primary",
+            "estimand": {"id": oid, "family": "not established", "model": "none"},
+            "comparator": "placebo or an inactive control", "comparator_type": "placebo",
+            "direction_of_benefit": "higher", "null_value": 0}
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    with io.open(os.path.join(EV, "bosentan_readings_estimand.json"), encoding="utf-8") as fh:
+        est = json.load(fh)
+    wrote = []
+
+    def wq_for(key, answer):
+        rows = est["by_reading"].get(key, [])
+        return {
+            "asked_on": "2026-08-19",
+            "question": est["withholding_question"]["question"],
+            "detected_structurally_not_by_keyword":
+                est["withholding_question"]["detected_structurally_not_by_keyword"],
+            "answer": answer,
+            "per_trial": {r["nct"]: {
+                "name": r["name"],
+                "two_component": "%d rank(s) read; %s" % (
+                    r["ranks_read"], "RESULTS POSTED" if r["has_results"] else "no results"),
+                "three_component": "; ".join(
+                    "[%s] %s" % (h["rank"], h["measure"][:80])
+                    for h in (r["walk_change_at_ranks"] + r["worsening_at_ranks"]))
+                    or "NO walk-change and NO clinical-worsening outcome at any rank"}
+                for r in rows},
+        }
+
+    def trials_for(key):
+        return [{"id": r["nct"], "nct": r["nct"], "name": r["name"][:60],
+                 "enrolled": r["enrolment"], "arms": [],
+                 "design": r["status"], "comparator_type": "placebo",
+                 "comparator_type_basis": "read from the registration",
+                 "by_outcome": {},
+                 "registered_primaries": r["registered_primaries"],
+                 "has_posted_results": r["has_results"],
+                 "registration_read_utc": "2026-08-19",
+                 "all_ranks_read_utc": "2026-08-19"}
+                for r in est["by_reading"].get(key, [])]
+
+    # ---- A -------------------------------------------------------------------------
+    wrote.append(build(
+        "bosentan-pah-monotherapy",
+        ("Bosentan alone against an inactive control in pulmonary arterial hypertension: four "
+         "eligible trials, and not one registering an endpoint this review could pool"),
+        ("In adults with WHO group 1 pulmonary arterial hypertension, what is the effect of "
+         "bosentan compared with placebo or no active pulmonary vasodilator on exercise "
+         "capacity and on clinical worsening?"),
+        ("One of the four readings `bosentan-pah` was split into on 2026-08-19. The parent's "
+         "question was the OBJECT'S OWN VERDICT with a question mark appended."),
+        D.BOSA_SEARCH, D.BOSA_PRISMA, D.BOSA_CASCADE, D.BOSA_EXTRACTION,
+        ("POPULATION: adults with WHO group 1 pulmonary arterial hypertension. INTERVENTION: "
+         "bosentan as the randomised intervention -- NOT named in an arm description as prior "
+         "or background therapy, which is how two records entered other readings wrongly. "
+         "COMPARATOR: placebo or no active pulmonary vasodilator; a trial in which a second "
+         "PAH-specific drug is part of the contrast belongs to the COMBINATION reading. "
+         "ESTIMAND, which governs POOLABILITY and not eligibility: a six-minute walk distance "
+         "CHANGE, or a clinical-worsening / morbidity-mortality outcome, at ANY rank. "
+         "Criteria are DERIVED POST HOC and say so."),
+        refusing_outcome("exercise_or_worsening",
+                         "Six-minute walk distance change, or clinical worsening",
+                         "Neither endpoint is registered by any eligible trial in this reading."),
+        {"k": 4, "estimand_id": "exercise_or_worsening", "model": "none",
+         "estimator_used": "not applicable", "comparator_type": "placebo", "poolable": False,
+         "poolable_reason": (
+             "FOUR TRIALS ARE ELIGIBLE AND NONE REGISTERS AN ENDPOINT THIS REVIEW CAN POOL. "
+             "Not one of the four registers a six-minute walk distance CHANGE or a "
+             "clinical-worsening outcome at any rank. The two that have posted results "
+             "register 'Total Exercise Time on the Exercise Echocardiogram' (n=5, TERMINATED) "
+             "and 'Insulin Resistance Profile Change - Triglyceride:HDL Cholesterol Ratio' "
+             "(n=2, TERMINATED). AND THE READING'S ANCHOR TRIAL REGISTERS NO MEASURABLE "
+             "ENDPOINT AT ALL: EARLY (NCT00091715, n=185) declares the two-word primaries "
+             "'exercise capacity' and 'cardiac hemodynamics' -- no measure, no timepoint, no "
+             "direction -- and has posted no results. A REVIEW CANNOT POOL A CONSTRUCT."),
+         "pooled": {"withdrawn": True, "point": None,
+                    "withdrawn_because": "see poolable_reason"},
+         "heterogeneity_status": "NOT_ASSESSABLE -- nothing was pooled",
+         "and_the_weaker_limb_is_reported_too": (
+             "TWO of the four name a walk-distance endpoint AT ALL, as a bare construct with "
+             "no change term, timepoint or direction. THE GAP BETWEEN 0 AND 2 IS THE FINDING: "
+             "registrations too thin to establish a shared estimand look identical to "
+             "registrations that establish one until both limbs are counted. Treating a bare "
+             "construct as a change endpoint would be inferring the analysis from the name."),
+         "r_output": {"state": "ABSENT_AND_THAT_IS_THE_FINDING",
+                      "_why_absent": "k=4 and nothing was pooled, so there is no model call.",
+                      "what_would_hold_P6": "an estimand shared by two or more eligible trials."},
+         },
+        trials_for("A_monotherapy"),
+        wq_for("A_monotherapy",
+               "NO, AND FOR EVERY ONE OF THE FOUR. Asked at every registered rank before any "
+               "pooling decision; not one eligible trial registers a walk CHANGE or a "
+               "clinical-worsening outcome."),
+        ("REPORTED AS A REFUSAL, WITH A ZERO REMAINDER. Four eligible trials, two with posted "
+         "results, and no shared estimand anywhere. This review is complete in its screening "
+         "and empty in its synthesis, and the difference matters."),
+        {"approach": "GRADE", "by_outcome": {"exercise_or_worsening": {
+            "rated": False,
+            "why_not": ("Nothing was pooled, so there is no effect estimate whose certainty "
+                        "could be rated. Rating it would be certainty about a number this "
+                        "review did not produce.")}}}))
+
+    # ---- B -------------------------------------------------------------------------
+    wrote.append(build(
+        "bosentan-pah-combination",
+        ("Bosentan added to established pulmonary arterial hypertension therapy: one trial has "
+         "reported, and its design is invisible in the registry's arm fields"),
+        ("In adults with pulmonary arterial hypertension already receiving a PAH-specific "
+         "therapy, what is the effect of adding bosentan, compared with continuing that "
+         "therapy alone, on morbidity and mortality?"),
+        ("One of the four readings `bosentan-pah` was split into on 2026-08-19."),
+        D.BOSB_SEARCH, D.BOSB_PRISMA, D.BOSB_CASCADE, D.BOSB_EXTRACTION,
+        ("POPULATION: adults with pulmonary arterial hypertension. INTERVENTION: bosentan added "
+         "to, or combined with, another PAH-specific therapy as the randomised contrast. "
+         "COMPARATOR: the background therapy alone. ESTIMAND, which governs POOLABILITY and "
+         "not eligibility: a morbidity/mortality or clinical-worsening outcome, or a "
+         "six-minute walk distance CHANGE, at ANY rank. "
+         "AND THE DEFINING FEATURE OF THIS READING IS NOT A CODED FIELD. Background therapy is "
+         "not a registered intervention, so a combination trial can declare exactly what a "
+         "monotherapy trial declares. COMPASS-2's arms are `bosentan | placebo` and its "
+         "interventions are `['bosentan','placebo']` -- identical in shape to EARLY's. The "
+         "design is named only in the official title, and the assignment records that it rests "
+         "on TEXT. Criteria are DERIVED POST HOC and say so."),
+        {"id": "morbidity_mortality", "name": "Time to first morbidity or mortality event",
+         "definition": ("Time to the first confirmed morbidity or mortality event, as each "
+                        "trial registers it."),
+         "definition_note": ("ONE trial in this reading has posted results, so this definition "
+                             "describes COMPASS-2's registered primary and not a harmonised "
+                             "estimand across several trials. Six eligible trials have "
+                             "reported nothing, so whether they share it is unknown."),
+         "measure": "HR", "effect_scale": "log", "type": "primary",
+         "estimand": {"id": "morbidity_mortality", "family": "time-to-first-event",
+                      "model": "none -- single trial"},
+         "comparator": "background PAH therapy alone", "comparator_type": "placebo",
+         "direction_of_benefit": "lower", "null_value": 1.0},
+        {"k": 7, "estimand_id": "morbidity_mortality", "model": "none -- single trial",
+         "estimator_used": "not applicable", "comparator_type": "placebo", "poolable": False,
+         "poolable_reason": (
+             "SEVEN TRIALS ARE ELIGIBLE AND ONE HAS REPORTED. COMPASS-2 (NCT00303459, n=334) "
+             "is the only trial in this reading with posted results; its registered primary is "
+             "'Time to First Confirmed Morbidity/Mortality Event up to the End of Treatment' "
+             "and it also registers a Week-16 six-minute walk change at secondary rank. The "
+             "other six -- 268 participants across five completed or unknown-status trials and "
+             "110 in an ongoing sixth -- have posted nothing. k=1 IS A FLOOR AND NOT AN ANSWER, "
+             "and this review reports one trial's result AS one trial's result rather than "
+             "assembling a pool from a single row."),
+         "pooled": {"withdrawn": True, "point": None,
+                    "withdrawn_because": "k=1; there is nothing to combine"},
+         "single_study_ref": {
+             "trial": "COMPASS-2", "nct": "NCT00303459", "enrolled": 334,
+             "registered_primary": "Time to First Confirmed Morbidity/Mortality Event up to "
+                                   "the End of Treatment",
+             "what_this_is": ("ONE TRIAL'S RESULT, REPORTED AS ONE TRIAL'S RESULT. The effect "
+                              "estimate itself is NOT extracted onto this object: the posted "
+                              "results were not read cell by cell in this pass, and stating a "
+                              "hazard ratio here without that reading would be a number with "
+                              "no provenance. WHAT IS OWED IS NAMED RATHER THAN GUESSED.")},
+         "heterogeneity_status": "NOT_ASSESSABLE -- k = 1",
+         "and_the_add_on_design_is_invisible_in_the_arms": (
+             "THE ONE DISTINCTION THIS READING TURNS ON IS PRECISELY THE ONE THE REGISTRY DOES "
+             "NOT ENCODE. Background therapy is not a registered intervention, so COMPASS-2 -- "
+             "a combination trial -- declares exactly what EARLY, a monotherapy trial, "
+             "declares: `armGroups: bosentan | placebo`, `interventions: ['bosentan', "
+             "'placebo']`. Read from the arms alone the two are indistinguishable, and "
+             "COMPASS-2 was first assigned to the MONOTHERAPY reading. A reader will assume "
+             "monotherapy versus combination is a coded fact. IT IS NOT."),
+         "r_output": {"state": "ABSENT_AND_THAT_IS_THE_FINDING",
+                      "_why_absent": "k=1; nothing was pooled.",
+                      "what_would_hold_P6": "a second reporting trial in this reading."},
+         },
+        trials_for("B_add_on"),
+        wq_for("B_add_on",
+               "YES FOR FOUR OF THE SEVEN, AND ONLY ONE HAS REPORTED. Four register a "
+               "clinical-worsening outcome and three a walk change; six have posted no "
+               "results, so the shared estimand exists on paper and not in data."),
+        ("REPORTED AT k=1, WITH A ZERO REMAINDER AND SIX ELIGIBLE TRIALS THAT HAVE NEVER "
+         "REPORTED. This review is not complete and its face says so."),
+        {"approach": "GRADE", "by_outcome": {"morbidity_mortality": {
+            "rated": False,
+            "why_not": ("k=1 and no pooled estimate. GRADE rates the certainty of a body of "
+                        "evidence; one trial's result is reported here as one trial's result "
+                        "and its own report is where its certainty is judged.")}}}))
+
+    # ---- C -------------------------------------------------------------------------
+    wrote.append(build(
+        "bosentan-ph-not-group1",
+        ("Bosentan in pulmonary hypertension that is not WHO group 1: eight eligible trials and "
+         "not one posted result"),
+        ("In adults with pulmonary hypertension due to chronic thromboembolic disease, lung "
+         "disease, left heart disease, sickle cell disease or sarcoidosis, what is the effect "
+         "of bosentan compared with placebo or usual care on exercise capacity and on clinical "
+         "worsening?"),
+        ("One of the four readings `bosentan-pah` was split into on 2026-08-19. It exists "
+         "because a CTEPH trial is not a PAH trial whatever its comparator, and the parent "
+         "object held neither."),
+        D.BOSC_SEARCH, D.BOSC_PRISMA, D.BOSC_CASCADE, D.BOSC_EXTRACTION,
+        ("POPULATION: adults with pulmonary hypertension that is NOT WHO group 1 -- chronic "
+         "thromboembolic, lung-disease or hypoxia related, left-heart related, or associated "
+         "with sickle cell disease or sarcoidosis. READ FROM THE CODED CONDITION, AND FROM THE "
+         "TITLE WHERE THE CODED FIELD NAMES ONLY THE SYNDROME: ASSET-1 and ASSET-2 declare "
+         "`conditions: ['Pulmonary Hypertension']` and are titled '...in Sickle Cell Disease "
+         "(SCD) Patients', so reading the code alone put both into the WHO-group-1 reading. "
+         "INTERVENTION: bosentan as the randomised intervention. COMPARATOR: placebo, usual "
+         "care, or another active regimen. ESTIMAND, which governs POOLABILITY and not "
+         "eligibility: a walk-distance CHANGE or a clinical-worsening outcome at ANY rank. "
+         "Criteria are DERIVED POST HOC and say so."),
+        refusing_outcome("exercise_or_worsening",
+                         "Six-minute walk distance change, or clinical worsening",
+                         "No eligible trial in this reading has posted any result."),
+        {"k": 8, "estimand_id": "exercise_or_worsening", "model": "none",
+         "estimator_used": "not applicable", "comparator_type": "placebo", "poolable": False,
+         "poolable_reason": (
+             "EIGHT TRIALS ARE ELIGIBLE AND NOT ONE HAS POSTED A RESULT. Sarcoidosis, "
+             "interstitial lung disease, diastolic heart failure, sickle-cell disease twice, "
+             "idiopathic pulmonary fibrosis, and a treatment-regimen comparison. Six of the "
+             "eight register a walk-distance endpoint and three a clinical-worsening outcome, "
+             "SO THE SHARED ESTIMAND EXISTS ON PAPER AND IN NO DATABASE. Two are TERMINATED at "
+             "n=14 and n=12 and one was WITHDRAWN at n=0."),
+         "pooled": {"withdrawn": True, "point": None,
+                    "withdrawn_because": "see poolable_reason"},
+         "heterogeneity_status": "NOT_ASSESSABLE -- nothing was pooled",
+         "and_this_page_is_a_finding_and_not_a_gap": (
+             "Under the remainder reading in PAGE-STANDARD.md, a body of eligible-but-"
+             "unreported trials means the query is well aimed and THE FIELD IS STILL IN "
+             "FLIGHT. Here it means something sharper: A WHOLE SET OF DISEASE AREAS IN WHICH "
+             "THIS DRUG WAS TRIED AND NOTHING WAS EVER REPORTED. All eight are named on this "
+             "page with their status and enrolment, because naming them is the result."),
+         "r_output": {"state": "ABSENT_AND_THAT_IS_THE_FINDING",
+                      "_why_absent": "no eligible trial has posted results.",
+                      "what_would_hold_P6": "any one of the eight posting its results."},
+         },
+        trials_for("C_not_group1"),
+        wq_for("C_not_group1",
+               "YES ON PAPER FOR SIX OF THE EIGHT, AND IN NO DATABASE. Six register a "
+               "walk-distance endpoint and three a clinical-worsening outcome; ZERO have "
+               "posted results."),
+        ("REPORTED AS A REFUSAL, WITH A ZERO REMAINDER AND EIGHT ELIGIBLE TRIALS THAT HAVE "
+         "NEVER REPORTED. The screening is complete; the literature is not."),
+        {"approach": "GRADE", "by_outcome": {"exercise_or_worsening": {
+            "rated": False,
+            "why_not": "No eligible trial has posted a result. There is no evidence to rate."}}}))
+
+    # ---- D -------------------------------------------------------------------------
+    wrote.append(build(
+        "bosentan-pah-children",
+        ("Bosentan in children with pulmonary hypertension: two trials have reported, and they "
+         "measure different things"),
+        ("In children with pulmonary arterial hypertension or persistent pulmonary hypertension "
+         "of the newborn, what is the effect of bosentan compared with placebo or an "
+         "alternative regimen on clinical outcomes?"),
+        ("One of the four readings `bosentan-pah` was split into on 2026-08-19. The parent "
+         "object held FUTURE-2, an open-label paediatric extension with no control arm whose "
+         "registered primary is growth."),
+        D.BOSD_SEARCH, D.BOSD_PRISMA, D.BOSD_CASCADE, D.BOSD_EXTRACTION,
+        ("POPULATION: children. READ FROM THE ELIGIBILITY MODULE AND NOT FROM A MINIMUM AGE: a "
+         "paediatric trial is one with NO ADULT STRATUM AT ALL, or a maximum age under 18. "
+         "Assigning by `minimumAge < 18` pulled EARLY and COMPASS-2 -- adult trials admitting "
+         "adolescents from 12 -- into this reading and out of their own. INTERVENTION: "
+         "bosentan as the randomised intervention, and NOT named in an arm description as "
+         "background therapy: NCT01824290 records 'All participants were taking endothelin "
+         "receptor antagonist (ERA) (such as bosentan...)' on BOTH arms and is adjudicated out. "
+         "COMPARATOR: placebo, an alternative regimen, or an alternative dosing schedule. "
+         "ESTIMAND, which governs POOLABILITY and not eligibility: any clinical outcome shared "
+         "by two or more trials. Criteria are DERIVED POST HOC and say so."),
+        refusing_outcome("shared_clinical_outcome", "Any shared clinical outcome",
+                         "The two reporting trials share none."),
+        {"k": 2, "estimand_id": "shared_clinical_outcome", "model": "none",
+         "estimator_used": "not applicable", "comparator_type": "placebo", "poolable": False,
+         "poolable_reason": (
+             "BOTH ELIGIBLE TRIALS HAVE POSTED RESULTS AND THEY MEASURE DIFFERENT THINGS. "
+             "FUTURE-3 (NCT01223352, n=64) compares TWO DOSING REGIMENS and registers "
+             "'Dose-corrected Daily Exposure [AUC(0-24c)] to Bosentan' -- a PHARMACOKINETIC "
+             "endpoint. The PPHN trial (NCT01389856, n=23, TERMINATED) registers 'Percentage "
+             "of Patients With Treatment Failure', 'Time to Complete Weaning From iNO' and "
+             "'Time to Complete Weaning From Mechanical Ventilation'. Neither registers a "
+             "walk-distance or clinical-worsening outcome and NO ESTIMAND IS SHARED. This is "
+             "not a case of unreported data -- both reported, and there is still nothing to "
+             "combine."),
+         "pooled": {"withdrawn": True, "point": None,
+                    "withdrawn_because": "see poolable_reason"},
+         "heterogeneity_status": "NOT_ASSESSABLE -- nothing was pooled",
+         "and_a_dosing_comparison_is_not_a_drug_comparison": (
+             "FUTURE-3 randomises bosentan twice daily against bosentan three times daily. "
+             "Every participant receives the drug; the contrast is the SCHEDULE. It is in "
+             "scope by population and by intervention and it cannot contribute to a question "
+             "about the effect of bosentan against anything else."),
+         "r_output": {"state": "ABSENT_AND_THAT_IS_THE_FINDING",
+                      "_why_absent": "k=2 and no shared estimand.",
+                      "what_would_hold_P6": "an outcome both trials register."},
+         },
+        trials_for("D_children"),
+        wq_for("D_children",
+               "NO, AND DECISIVELY. Both trials have posted results and neither registers a "
+               "walk change or a clinical-worsening outcome; their primaries are a "
+               "pharmacokinetic exposure and ventilator weaning."),
+        ("REPORTED AS A REFUSAL, WITH A ZERO REMAINDER. Both eligible trials reported and "
+         "share no estimand -- which is a different and stronger statement than 'the data are "
+         "not in'."),
+        {"approach": "GRADE", "by_outcome": {"shared_clinical_outcome": {
+            "rated": False,
+            "why_not": "Nothing was pooled; there is no estimate whose certainty to rate."}}}))
+
+    for w in wrote:
+        print("wrote %s" % w)
+    print("\nA refusal | B k=1 | C refusal | D refusal")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+
+codex
+I’m going line-by-line against the pasted module and limiting findings to defects demonstrable from this file plus the named runtime inputs it explicitly reads. I’ll name anything that depends on unavailable imported/data content as `COULD NOT DETERMINE` rather than filling gaps.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Get-Content -Path F:\\ProjectIndex\\INDEX.md -TotalCount 40" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Select-String -Path scripts\\create_bosentan_four_2026_08_19.py -Pattern 'for dd in sorted|their = \\{t\\.get|for n in mine|if n in their|computed_against|for r in rows|rows = est|return 0|with io\\.open\\(dest|json\\.load\\(fh\\)\\.get|mine = \\[t\\.get'" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Get-Content -Path F:\\E156\\rewrite-workbook.txt -TotalCount 40" in F:\rapidmeta-ssot-shell
+ succeeded in 979ms:
+E156 REWRITE WORKBOOK
+sentinel:skip-file
+sentinel:claim-language-allow
+(Sentinel markers above:
+ - sentinel:skip-file: this workbook intentionally contains C:\Users\... PATH:
+   lines pointing to each project's local source directory â€” they're metadata,
+   not code. The marker keeps Sentinel from emitting ~16 P0 hardcoded-path
+   BLOCKs every push.
+ - sentinel:claim-language-allow: CURRENT BODY entries are the AI-drafted
+   summaries that students rewrite into hedged language â€” flagging overclaim
+   words IN those drafts is the whole pedagogical point, not a defect.
+   File-scope marker here suppresses the ~1293 claim-language WARNs on the
+   CURRENT BODY entries; the YOUR REWRITE entries are where the hedging
+   discipline matters and remains lintable in the rendered student board.)
+
+DENOMINATOR CONVENTION (added 2026-05-06 after review-findings P1-5):
+  Each entry header is `[N/total]` where N = ordinal insertion index and
+  `total` = current portfolio size as of the most recent reconcile sweep.
+  Older entries are back-rewritten on milestone boundaries (rather than
+  preserving their insertion-time denominator) to keep
+  reconcile_counts.py from flagging "WORKBOOK DRIFT". The pre-commit
+  guard (scripts/check_workbook_commit.py) blocks commits that bundle a
+  denominator sweep with substantive content edits to existing entries.
+
+======================================================================
+
+INSTRUCTIONS:
+- Replace text under YOUR REWRITE with your body (at most 156 words, 7 sentences)
+- S1=Question S2=Dataset S3=Method S4=Result(number+interval) S5=Robustness S6=Interpretation S7=Boundary(limitation)
+- Leave YOUR REWRITE blank to keep current version
+- Run: python C:/E156/scripts/apply_rewrites.py          (validate)
+- Run: python C:/E156/scripts/apply_rewrites.py --apply (apply)
+
+AUTHORSHIP RULE (mandatory for every submission):
+- Mahmood Ahmad (MA) must NEVER be listed as first author and NEVER as
+  last (senior) author. The student rewriter is first author. Last/senior
+  author must be a faculty supervisor or co-investigator distinct from MA.
+  MA's position is middle-author only (e.g. role: data curation, software,
+  methodology, supervision-of-tooling). This applies to every paper in
+  this workbook regardless of contribution depth.
+
+ succeeded in 1046ms:
+<!-- sentinel:skip-file - portfolio registry; absolute paths ARE the data -->
+# C: Drive Project Index
+> **Last updated**: 2026-05-14 (C:\HTML apps focused repair batch continued: hub shell launch fix, static contracts across ten HTML app repos, NMA/living-meta/nma-dose-response landing and asset-link repairs, and NMA doc hardcoded-path cleanup. Prior SheafNMA v0.2.0, D-drive legacy smoke-contract continuation, CardioOracle lifecycle status freeze, C-drive model/project smoke-contract continuation, mahmood789 consolidation, Sentinel/Overmind JSONL and verification repair, C-drive reproducibility audit continuation, C-drive verification repair, D-drive repair batch, superapp, C-drive sweep, home-folder hardening, Trial Truthfulness Atlas, and portfolio notes retained below.)
+
+### C:\HTML apps focused repair batch (2026-05-14)
+> - `C:\HTML apps\hub\`: added a launchable `index.html` shell and static contract tests for required registry/runtime wiring; fixed `app.js` local `file://` launch resolution so the hub opened from `hub\index.html` links sibling apps from the parent HTML-apps directory instead of nesting paths under `hub`. Verification: `pytest -q -p no:cacheprovider` -> `3 passed`; `node --check app.js && node --check projects.js` -> PASS; headless Chrome smoke on `file:///mnt/c/HTML%20apps/hub/index.html` confirmed the page title and sibling app links. GitHub pushed: `mahmood726-cyber/hub` main `c1a6725`.
+> - `C:\HTML apps\evidence-board\`, `C:\HTML apps\focus-studio\`, `C:\HTML apps\kanban-lab\`: added pytest-visible static app shell contracts covering title/description, localStorage persistence hooks, key controls, and absence of unresolved templates or hardcoded local drive paths; added repo `.gitignore` entries for Python caches and `PROGRESS.md`. Verification: each `pytest -q -p no:cacheprovider` -> `2 passed` with the existing pytest `cache_dir` warning; scoped `git diff --check` -> PASS. GitHub pushed: `evidence-board` master `9a87c8b`, `focus-studio` master `0fa728b`, `kanban-lab` master `81cad38`.
+> - `C:\HTML apps\nma-pro-v2\`: fixed the landing page's broken app links from absent v6/v7 asset filenames to the current `e156-submission/assets/nma-pro-v8.0.html`, added static link-resolution contracts, and removed Sentinel P0 hardcoded local OneDrive paths from legacy docs. Verification: `pytest -q -p no:cacheprovider tests/test_smoke.py tests/test_static_links.py` -> `3 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=1 INFO=302` (pre-existing tracked autogen warning plus HTML a11y INFO). GitHub pushed: master `a2834e7` for the link fix and master `a74e385` for the P0 doc cleanup.
+> - `C:\HTML apps\IPD-Meta-Pro\` and `C:\HTML apps\Truthcert1\`: added static link-resolution contracts for landing-page local assets and canonical app entrypoints. Verification: `IPD-Meta-Pro` `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; `Truthcert1` same command -> `2 passed` with existing pytest `cache_dir` warning. GitHub pushed: `IPD-Meta-Pro` master `b26ee09`, `Truthcert1` master `81eddd3`.
+> - `C:\HTML apps\living-meta\`: repaired landing-page validation links that pointed to a missing HTML asset and an out-of-repo sibling path; linked the existing validation and limitations docs instead, and added a static link-resolution contract. Verification: `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=8` (pre-existing HTML a11y INFO). GitHub pushed: master `c3c8a9b`.
+> - `C:\HTML apps\Pairwiseai\`: added a static landing-page contract covering local link resolution, absence of unresolved templates/local drive paths, and the key app entrypoints under `e156-submission/assets`. Verification: `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=1731` (pre-existing HTML a11y INFO). GitHub pushed: master `2ade493`.
+> - `C:\HTML apps\nma-dose-response-app\`: pushed the existing smoke-blocker commit and added an E156 asset-bundle repair so `e156-submission\assets\index*.html` resolves its JS runtime dependencies from inside the assets folder; added a static link-resolution contract covering root and E156 app entrypoints. Verification: `pytest -q -p no:cacheprovider tests/test_smoke.py tests/test_static_links.py` -> `4 passed` with the existing pytest `cache_dir` warning; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=442` (pre-existing HTML a11y INFO). GitHub pushed: master `e95fae0` and `96594b6`.
+> - Push gate: Windows Git credential path succeeded after WSL Git lacked HTTPS credentials. Sentinel pre-push/manual scan verdicts were BLOCK=0; evidence-board INFO=18, focus-studio INFO=10, kanban-lab INFO=10, living-meta INFO=8, Pairwiseai INFO=1731, nma-dose-response-app INFO=442 (pre-existing P2 HTML accessibility notes); hub push emitted no Sentinel findings.
+> - Existing unrelated dirty files were left unstaged in these repos, mainly protocol/license/doc edits and untracked `paper\` outputs in the three app repos, plus pre-existing hub metadata/submission/style edits.
+
+### SheafNMA (2026-05-12; v0.2.0 real-NMA-corpus validation + 36-cell Ã— 1000-rep simulation + methods paper draft)
+> - `C:\Models\SheafNMA\` â€” cellular-sheaf inconsistency localization for network meta-analysis. v0.1.0 (2026-04-07) was math + single-file HTML dashboard + E156 #153 micro-paper on a synthetic 12-contrast network. v0.2.0 refactored the 457-LOC `generate_figures.py` into a `sheafnma/` package (`core`, `io`, `simulate`, `comparators`, `r_bridge`), validated on 13 R-netmeta built-in NMAs, and shipped a methods-paper draft for Research Synthesis Methods.
+> - Method: precision-weighted coboundary `F[e, treat1] = -1/SE_e, F[e, treat2] = +1/SE_e`; sheaf Laplacian `L = Fáµ€F` (symmetric PSD); WLS-solve node estimates with node 0 anchored; per-edge residuals `r_e = dÌƒ_e âˆ’ (F x*)_e` localize inconsistency; **Global Inconsistency Index** `GII = Î£ rÂ²` is the global statistic. One algebraic object yields both global + per-edge â€” complements (not replaces) node-splitting.
+> - Real-corpus headline: across **13 R-netmeta built-in NMAs** (Senn 2013 diabetes, Dias smokingcessation, Dong 2013 thrombolytics, Linde 2015/2016 acupuncture, Salanti antimanic, Baker, Dogliotti, Franchini, Gurusamy, Stowe, Woods, dietaryfat, parkinson) the global design-by-treatment Ï‡Â² (Higgins 2012) failed to reject in all 13. **SheafNMA flagged â‰¥1 localized inconsistency edge in 5 of those 13 (38.5%)** at the Youden-frozen threshold of **2.6912** â€” networks that look globally consistent harbor at least one inconsistent edge the global test misses.
+> - Simulation rigor: 36-cell grid (n_treatments âˆˆ {4,6,8} Ã— n_studies_per_edge âˆˆ {3,5,10} Ã— Ï„_inc âˆˆ {0,0.2,0.5,1.0}) Ã— **1000 replications per cell**, held-out training cell at (6,5,0.5) for Youden's-J threshold selection (frozen before evaluating remaining 35 cells). Type-I error at Ï„_inc=0 was **0.000 across all cells**. Mean per-edge sensitivity 0.981 / specificity 0.945 at Ï„_inc=0.5.
+> - Comparator suite: DBT-Ï‡Â² (Higgins 2012 Â§3.2, pure-Python), Bucher loop closure (Bucher 1997, pure-Python), node-splitting (Dias 2010, via `netmeta::netsplit` shelled to R 4.5.2). Per-edge agreement with node-splitting was 45.4% â€” asymmetric: SheafNMA flags 12/506 = 2.4% of edges vs node-splitting's 250/436 = 57% at p<0.05 Bonferroni-uncorrected (the calibrated Youden cut is much more conservative than a per-edge Î±-test). Â§4.2 of the paper explicitly explains this rather than presenting the 45.4% bare.
+> - Corpus export: `corpus/export_netmeta.R` handles 7 distinct netmeta dataset formats (contrast-level TE/seTE, arm-based event/n, arm-based mean/sd/n, wide multi-arm OR/MD, three-arm smokingcessation, rate-based IRR/person-years) and exports all 13 to `corpus/data/*.csv` in the sheafnma standard schema (`study, treat1, treat2, effect, se`).
+> - GitHub: `https://github.com/mahmood726-cyber/sheaf-nma` (master `6c7db13`, tag `v0.2.0`). Pages LIVE: `https://mahmood726-cyber.github.io/sheaf-nma/` (Phase-1 dashboard unchanged in v0.2). 33 tests passing; Sentinel BLOCK=0 WARN=0 (2 INFO = pre-existing HTML a11y items in the v0.1 dashboard).
+> - Workbook entry: `[153/919] SheafNMA`. CURRENT BODY updated 2026-05-12 to the v0.2 156-word / 7-sentence body (replaces v0.1 synthetic-"smoking cessation" framing with the real netmeta corpus). SUBMITTED `[ ]`; YOUR REWRITE preserved untouched per workbook protection rules. Target: Research Synthesis Methods full methods paper (`paper/sheafnma_v2.md`, 1190 words drafted; [TODO] prose blocks in Â§1 Background / Â§4.3 case studies / Â§5 Discussion) + SynthÄ“sis Methods Note companion (`paper/methods_note.md`, 156-word).
+> - Known landmine: `Dong2013` netsplit fails inside netmeta's multi-arm validator ("wrong number of comparisons"); SheafNMA + DBT + Bucher still run on it, only `netsplit_p` column is blank for its 70 edges.
+> - v0.2 deferrals (spec Â§10): multi-arm covariance correction (single-D stalks only), higher-D stalks (Phase 1 Â§3.4 future work), Bayesian sheaf priors, OTS / Bitcoin anchor (broken on Py 3.13 Windows per `lessons.md`).
+
+### hksj-q-floor-atlas (2026-05-12; 8th Pairwise70 atlas; tags prereg-v0.0.1 + v0.1.0)
+> - `C:\Projects\hksj-q-floor-atlas\` â€” 8th calibration atlas in the Pairwise70 series. Sister to `cochrane-modern-re` (engine source), `repro-floor-atlas`, `responder-floor-atlas`, `trial-truthfulness-atlas`, `africa-tb-atlas`, `pactr-hiddenness-atlas`, `africa-hiv-prep-atlas`.
+> - Question: how often does omitting the `max(1, Q/(k-1))` floor on HKSJ variance, in the I^2=0 regime where un-floored HKSJ narrows below REML+Wald, overstate precision across the Cochrane CDSR? Pre-registered via `prereg-v0.0.1` tag + 4 Internet Archive snapshots (Bitcoin OTS deferred â€” Python 3.13 SSL libeay32 bug per lessons.md; web-stamper fallback documented).
+> - Headline: D_1 (I^2=0, k>=2, converged) = 3,677 MAs = 57.6% of corpus. On D_1a (Q>0, n=3,536): median CI-width ratio (floored / un-floored) = 3.64x (IQR 1.60-10.56; 95th pct 57.4x); significance lost in 17.08% of MAs. D_1b (Q=0, n=141 = 3.83% of D_1): sig_loss 24.8%, ratio unbounded â€” un-floored HKSJ SE is exactly zero (the floor effect is unbounded); see `docs/AMENDMENTS.md` entry 1 for split rationale.
+> - Per k-stratum medians: k=2: 4.26x (sig_loss 8.6%); k=3: 3.64x (12.9%); k=4-5: 3.10x (13.1%); k=6-9: 3.18x (17.3%); k>=10: 3.80x (25.1%). sig_loss increases with k because higher-k pooled effects sit closer to null, so floor widening crosses zero more often.
+> - Engine: independent metafor pass via fork of cochrane-modern-re's `run_metafor.R` minus the floor block. Input parquet SHA-256 pinned in `docs/spec.md` sec.1.5 (`31434fb118c6ec44a025eeb43a90e35ef9e050711fa45aa2cb5c1244b2d89751`). 3 hand-verified golden MAs match metafor reference within 1e-6.
+> - GitHub: `https://github.com/mahmood726-cyber/hksj-q-floor-atlas` (master + tags `prereg-v0.0.1` and `v0.1.0`). Pages LIVE: `https://mahmood726-cyber.github.io/hksj-q-floor-atlas/`.
+> - 64 tests; Sentinel BLOCK=0 WARN=0 INFO=0; 7 IA snapshots recorded in `docs/preregistration.md`.
+> - Workbook entry: `[920/920] hksj-q-floor-atlas`; target SynthÄ“sis Methods Note (340w draft, â‰¤400 cap).
+> - v0.2 candidates (NOT in v0.1.0): published-CI matching ("is THIS Cochrane review wrong?"), PM/SJ/Bayesian Ï„Â² robustness, DL re-pooling, Bitcoin OTS once Python 3.13 issue is resolved.
+
+### D-drive legacy smoke-contract continuation (2026-05-12)
+> - `D:\Projects\mahmood789\786-MIII-Mean-single-group\`: fixed the placeholder issue-tracker link in `README.md` and added a pytest-visible static contract for the Shiny app package surface, sample-data schema, metafor workflow, downloads, and absence of local paths/template links. Verification: `pytest -q -p no:cacheprovider` -> `2 passed`; `git diff --check` -> PASS.
+
+ succeeded in 1948ms:
+
+scripts\create_bosentan_four_2026_08_19.py:108:    mine = [t.get("nct") for t in o["inputs"]["trials"] if t.get("nct")]
+scripts\create_bosentan_four_2026_08_19.py:110:    for dd in sorted(os.listdir(ssot_dir)):
+scripts\create_bosentan_four_2026_08_19.py:122:        their = {t.get("nct") for t in ((o2.get("inputs") or 
+{}).get("trials") or [])}
+scripts\create_bosentan_four_2026_08_19.py:123:        for n in mine:
+scripts\create_bosentan_four_2026_08_19.py:124:            if n in their:
+scripts\create_bosentan_four_2026_08_19.py:128:        "computed_against": ("every other topic object under ssot/ -- 
+%d checked -- by reading "
+scripts\create_bosentan_four_2026_08_19.py:155:        with io.open(dest, encoding="utf-8") as fh:
+scripts\create_bosentan_four_2026_08_19.py:156:            if json.load(fh).get("build_stamp"):
+scripts\create_bosentan_four_2026_08_19.py:158:    with io.open(dest, "w", encoding="utf-8") as fh:
+scripts\create_bosentan_four_2026_08_19.py:186:        rows = est["by_reading"].get(key, [])
+scripts\create_bosentan_four_2026_08_19.py:201:                for r in rows},
+scripts\create_bosentan_four_2026_08_19.py:480:    return 0
+
+
+
+codex
+I have the relevant line numbers now. The only defects I can prove without inventing unavailable corpus state are in the intra-corpus sharing instrument; imported constants and the evidence JSON contents are not present in the packet, so defects depending on their actual values are not determinable from this record.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=0; Get-Content -Path scripts'"\\create_bosentan_four_2026_08_19.py | ForEach-Object { "'$i++; if ($i -ge 104 -and $i -le 135) { '"'{0,4}: {1}' -f "'$i, $_ } }' in F:\rapidmeta-ssot-shell
+ succeeded in 1692ms:
+ 104:     # EACH OTHER by construction, and the combination reading DOES share COMPASS-2 with the
+ 105:     # unretired parent `bosentan-pah`. P22 refused that object on the first build and was
+ 106:     # right: the sharing is legitimate and unrecorded sharing is not.
+ 107:     ssot_dir = os.path.join(REPO, "ssot")
+ 108:     mine = [t.get("nct") for t in o["inputs"]["trials"] if t.get("nct")]
+ 109:     found, checked = {}, 0
+ 110:     for dd in sorted(os.listdir(ssot_dir)):
+ 111:         if dd == topic:
+ 112:             continue
+ 113:         p2 = os.path.join(ssot_dir, dd, dd + ".json")
+ 114:         if not os.path.exists(p2):
+ 115:             continue
+ 116:         checked += 1
+ 117:         try:
+ 118:             with io.open(p2, encoding="utf-8") as fh:
+ 119:                 o2 = json.load(fh)
+ 120:         except (ValueError, OSError):
+ 121:             continue
+ 122:         their = {t.get("nct") for t in ((o2.get("inputs") or {}).get("trials") or [])}
+ 123:         for n in mine:
+ 124:             if n in their:
+ 125:                 found.setdefault(n, []).append(dd)
+ 126:     o["shared_with_other_topics"] = {
+ 127:         "computed": True,
+ 128:         "computed_against": ("every other topic object under ssot/ -- %d checked -- by reading "
+ 129:                              "each one's inputs.trials. Not asserted." % checked),
+ 130:         "shared": {n: {"also_in": ts,
+ 131:                        "why": ("The parent `bosentan-pah` has not been retired and still holds "
+ 132:                                "this trial. The sharing is a consequence of the split, not of "
+ 133:                                "two reviews independently including it."
+ 134:                                if ts == ["bosentan-pah"] else
+ 135:                                "held by another topic; recorded rather than left to a summed "
+
+codex
+One additional proven issue is the missing-reading path: both helper lookups convert an absent evidence key into an empty list, while the hardcoded result objects still claim nonzero `k`. That is demonstrable from the module alone because the helpers use `.get(key, [])` and no subsequent assertion reconciles `len(trials)` with `result["k"]`.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=0; Get-Content -Path scripts'"\\create_bosentan_four_2026_08_19.py | ForEach-Object { "'$i++; if ($i -ge 182 -and $i -le 209) { '"'{0,4}: {1}' -f "'$i, $_ } }' in F:\rapidmeta-ssot-shell
+ succeeded in 1515ms:
+ 182:         est = json.load(fh)
+ 183:     wrote = []
+ 184: 
+ 185:     def wq_for(key, answer):
+ 186:         rows = est["by_reading"].get(key, [])
+ 187:         return {
+ 188:             "asked_on": "2026-08-19",
+ 189:             "question": est["withholding_question"]["question"],
+ 190:             "detected_structurally_not_by_keyword":
+ 191:                 est["withholding_question"]["detected_structurally_not_by_keyword"],
+ 192:             "answer": answer,
+ 193:             "per_trial": {r["nct"]: {
+ 194:                 "name": r["name"],
+ 195:                 "two_component": "%d rank(s) read; %s" % (
+ 196:                     r["ranks_read"], "RESULTS POSTED" if r["has_results"] else "no results"),
+ 197:                 "three_component": "; ".join(
+ 198:                     "[%s] %s" % (h["rank"], h["measure"][:80])
+ 199:                     for h in (r["walk_change_at_ranks"] + r["worsening_at_ranks"]))
+ 200:                     or "NO walk-change and NO clinical-worsening outcome at any rank"}
+ 201:                 for r in rows},
+ 202:         }
+ 203: 
+ 204:     def trials_for(key):
+ 205:         return [{"id": r["nct"], "nct": r["nct"], "name": r["name"][:60],
+ 206:                  "enrolled": r["enrolment"], "arms": [],
+ 207:                  "design": r["status"], "comparator_type": "placebo",
+ 208:                  "comparator_type_basis": "read from the registration",
+ 209:                  "by_outcome": {},
+
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=0; Get-Content -Path scripts'"\\create_bosentan_four_2026_08_19.py | ForEach-Object { "'$i++; if ($i -ge 209 -and $i -le 218) { '"'{0,4}: {1}' -f "'$i, $_ } }' in F:\rapidmeta-ssot-shell
+ succeeded in 1494ms:
+ 209:                  "by_outcome": {},
+ 210:                  "registered_primaries": r["registered_primaries"],
+ 211:                  "has_posted_results": r["has_results"],
+ 212:                  "registration_read_utc": "2026-08-19",
+ 213:                  "all_ranks_read_utc": "2026-08-19"}
+ 214:                 for r in est["by_reading"].get(key, [])]
+ 215: 
+ 216:     # ---- A -------------------------------------------------------------------------
+ 217:     wrote.append(build(
+ 218:         "bosentan-pah-monotherapy",
+
+codex
+I’m not going to claim anything about the actual `D.*` constants or the live evidence rows because neither is in the pasted record. The findings below are about failure modes the pasted code itself permits for concrete inputs to the files it reads.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=0; Get-Content -Path scripts'"\\create_bosentan_four_2026_08_19.py | ForEach-Object { "'$i++; if ($i -ge 136 -and $i -le 148) { '"'{0,4}: {1}' -f "'$i, $_ } }' in F:\rapidmeta-ssot-shell
+ succeeded in 1582ms:
+ 136:                                "corpus k to hide.")}
+ 137:                    for n, ts in sorted(found.items())},
+ 138:         "summing_per_topic_k_double_counts": (
+ 139:             "A CORPUS-LEVEL k OBTAINED BY SUMMING PER-TOPIC k DOUBLE-COUNTS. %d of this "
+ 140:             "review's %d trials are also held elsewhere. Measured corpus-wide on 2026-08-19: "
+ 141:             "354 summed against 286 distinct registrations, 68 double-counted."
+ 142:             % (len(found), len(mine))),
+ 143:         "and_the_four_readings_share_NOTHING_with_each_other": (
+ 144:             "COMPUTED, not asserted: the precedence rule assigns every record to exactly one "
+ 145:             "reading, so the four intersect emptily by construction. Any sharing reported "
+ 146:             "above is with a topic OUTSIDE the split."),
+ 147:     }
+ 148: 
+
+codex
+Found defects:
+
+- **Check that cannot fail**: line 143.  
+  **Input**: `bosentan_readings_estimand.json` where `by_reading.A_monotherapy[0].nct == "NCT00000001"` and `by_reading.B_add_on[0].nct == "NCT00000001"`.  
+  **Consequence**: the output still unconditionally records that the four readings share nothing, because no sibling intersection is asserted before emitting that claim.
+
+- **Zero/absent conflated; selector miss becomes success**: lines 186 and 214.  
+  **Input**: `{"by_reading": {}, "withholding_question": {"question": "q", "detected_structurally_not_by_keyword": true}}`.  
+  **Consequence**: missing required reading keys become empty trial lists, while the hardcoded result objects still claim `k=4`, `k=7`, `k=8`, and `k=2`.
+
+- **Status code reports wrapper, not work**: line 120.  
+  **Input**: an existing `ssot/bad/bad.json` containing `{` before running the script.  
+  **Consequence**: the sharing pass silently skips an unreadable topic object, later marks `computed: True`, and `main()` can still return `0`.
+
+No proven defect in this packet for: probe keyed to string a fix removes; idempotency guard satisfied by own comment; worktree/HEAD/origin mismatch; CRLF/LF text comparison; merged-cell tabulation; negation dropped.
+tokens used
+33,410
+Found defects:
+
+- **Check that cannot fail**: line 143.  
+  **Input**: `bosentan_readings_estimand.json` where `by_reading.A_monotherapy[0].nct == "NCT00000001"` and `by_reading.B_add_on[0].nct == "NCT00000001"`.  
+  **Consequence**: the output still unconditionally records that the four readings share nothing, because no sibling intersection is asserted before emitting that claim.
+
+- **Zero/absent conflated; selector miss becomes success**: lines 186 and 214.  
+  **Input**: `{"by_reading": {}, "withholding_question": {"question": "q", "detected_structurally_not_by_keyword": true}}`.  
+  **Consequence**: missing required reading keys become empty trial lists, while the hardcoded result objects still claim `k=4`, `k=7`, `k=8`, and `k=2`.
+
+- **Status code reports wrapper, not work**: line 120.  
+  **Input**: an existing `ssot/bad/bad.json` containing `{` before running the script.  
+  **Consequence**: the sharing pass silently skips an unreadable topic object, later marks `computed: True`, and `main()` can still return `0`.
+
+No proven defect in this packet for: probe keyed to string a fix removes; idempotency guard satisfied by own comment; worktree/HEAD/origin mismatch; CRLF/LF text comparison; merged-cell tabulation; negation dropped.

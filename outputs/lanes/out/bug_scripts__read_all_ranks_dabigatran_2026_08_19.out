@@ -1,0 +1,555 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a0323f-fad5-7e21-a21f-00cc0d3e5d48
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/read_all_ranks_dabigatran_2026_08_19.py
+
+--- THE FILE, IN FULL ---
+#!/usr/bin/env python3
+"""ASK THE WITHHOLDING QUESTION AT EVERY REGISTERED RANK, for the four dabigatran readings.
+
+WHY. `scripts/lint_withholding_asked.py` refused the split: three successors declined to pool
+having read only `primaryOutcomes[0]`. That refusal is P17 -- a refusal to pool that never
+looked below the primary -- and it is not a formality. Twice tonight the harmonisable estimand
+WAS a secondary: `sglt2-hf`, and `apixaban-vte-prophylaxis` where a shared secondary across four
+trials replaced a k=1 figure that measured BLEEDING.
+
+WHAT THIS DOES. For every trial in every reading it reads PRIMARY, SECONDARY and OTHER outcome
+measures from the registration, records them verbatim, and then asks the question the primary
+screen could not:
+
+    IS THERE ANY ENDPOINT, AT ANY RANK, SHARED BY TWO OR MORE TRIALS THAT HAVE REPORTED
+    AND THAT RANDOMISED AGAINST THE SAME COMPARATOR FAMILY?
+
+Matching is on EXACT normalised title text -- case-folded and whitespace-collapsed, nothing
+more. Loosening it would be comparing endpoints by their names, which is the error P37 exists to
+name. An exact match is a LOWER BOUND and is reported as one.
+
+WHAT A HIT WOULD AND WOULD NOT MEAN. A shared title at a shared comparator is a CANDIDATE, not a
+pool. The components still have to be read, the analysis sets still have to line up, and no
+estimate is computed here. What it does foreclose is a refusal to pool that never asked.
+"""
+import io
+import json
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(REPO, "ssot"))
+import ctgov_transport as X                                             # noqa: E402
+
+EV = os.path.join(REPO, "evidence", "2026-08-19-batch1")
+OUT = os.path.join(EV, "dabigatran_vte_all_ranks.json")
+
+
+def norm(t):
+    return " ".join((t or "").lower().split())
+
+
+def read_ranks(nct):
+    st, s, detail = X.fetch_raw(nct, fields="protocolSection")
+    if st != X.OK:
+        return {"nct": nct, "state": "UNREACHABLE", "why": str(detail)[:160]}
+    om = ((s.get("protocolSection") or {}).get("outcomesModule") or {})
+    out = {"nct": nct, "state": "READ", "all_ranks_read_utc": "2026-08-19",
+           "source_field": "protocolSection.outcomesModule (all ranks)",
+           "source_url": "https://clinicaltrials.gov/study/%s" % nct}
+    for key, field in (("registered_primaries", "primaryOutcomes"),
+                       ("registered_secondaries", "secondaryOutcomes"),
+                       ("registered_other_outcomes", "otherOutcomes")):
+        out[key] = [o.get("measure") for o in (om.get(field) or [])]
+    out["ranks_read"] = 3
+    out["n_endpoints_at_all_ranks"] = sum(
+        len(out[k]) for k in ("registered_primaries", "registered_secondaries",
+                              "registered_other_outcomes"))
+    return out
+
+
+def shared_at_any_rank(members, ranks):
+    """Endpoint titles shared by >=2 of `members`, at ANY rank. Exact normalised match only."""
+    seen = {}
+    for nct in members:
+        r = ranks.get(nct) or {}
+        if r.get("state") != "READ":
+            continue
+        titles = set()
+        for k in ("registered_primaries", "registered_secondaries",
+                  "registered_other_outcomes"):
+            for t in r.get(k) or []:
+                if norm(t):
+                    titles.add((norm(t), k))
+        for t, rank in titles:
+            seen.setdefault(t, {})[nct] = rank
+    return {t: v for t, v in seen.items() if len(v) >= 2}
+
+
+def run():
+    screen = json.load(io.open(os.path.join(EV, "dabigatran_vte_screening.json"),
+                               encoding="utf-8"))
+    est = json.load(io.open(os.path.join(EV, "dabigatran_vte_estimand_screen.json"),
+                            encoding="utf-8"))
+
+    disp = {r["nct"]: r["disposition"] for r in screen["rows"]}
+    result = {"read_utc": "2026-08-19",
+              "question_this_answers": (
+                  "Is there any endpoint, at ANY registered rank, shared by two or more trials "
+                  "that have REPORTED and that randomised against the SAME comparator family? "
+                  "A refusal to pool that never asked this is a withholding (P17)."),
+              "matching": ("EXACT normalised title -- case-folded, whitespace-collapsed. "
+                           "Nothing looser, because comparing endpoints by name is the error "
+                           "P37 names. Therefore a LOWER BOUND."),
+              "readings": {}, "ranks": {}}
+
+    for name in ("TREATMENT", "EXTENDED", "SURGICAL", "CEREBRAL"):
+        v = est["readings"][name]
+        trials = [t for t in v.get("trials", []) if t.get("state") == "READ"]
+        fams = {}
+        for t in trials:
+            for f in t.get("comparator_families_present") or []:
+                fams.setdefault(f, []).append(t["nct"])
+
+        for t in trials:
+            if t["nct"] not in result["ranks"]:
+                result["ranks"][t["nct"]] = read_ranks(t["nct"])
+
+        rows = []
+        for fam, ncts in sorted(fams.items()):
+            reported = [n for n in ncts if disp.get(n) == "ELIGIBLE_WITH_RESULTS"]
+            if len(reported) < 2:
+                rows.append({"comparator_family": fam, "k_with_posted_results": len(reported),
+                             "state": "NOT_ASSESSABLE",
+                             "why": ("Fewer than two trials in this comparator family have "
+                                     "posted results, so no shared endpoint can be pooled "
+                                     "whatever the registrations declare.")})
+                continue
+            sh = shared_at_any_rank(reported, result["ranks"])
+            rows.append({
+                "comparator_family": fam,
+                "k_with_posted_results": len(reported),
+                "members_with_results": sorted(reported),
+                "n_endpoints_shared_at_any_rank": len(sh),
+                "shared": [{"title": t, "trials": v2} for t, v2 in sorted(sh.items())][:40],
+                "state": "CANDIDATES_FOUND" if sh else "NOTHING_SHARED_AT_ANY_RANK",
+                "what_a_candidate_is": (
+                    "A shared title at a shared comparator is a CANDIDATE, not a pool. The "
+                    "components still have to be read and no estimate is computed here."),
+            })
+        result["readings"][name] = {"by_comparator_family": rows}
+
+        print("\n== %s" % name)
+        for r in rows:
+            if r["state"] == "NOT_ASSESSABLE":
+                print("   %-18s k_reported=%d  NOT_ASSESSABLE"
+                      % (r["comparator_family"], r["k_with_posted_results"]))
+                continue
+            print("   %-18s k_reported=%d  shared_at_any_rank=%d  %s"
+                  % (r["comparator_family"], r["k_with_posted_results"],
+                     r["n_endpoints_shared_at_any_rank"], r["state"]))
+            for s in r["shared"][:6]:
+                ranks = sorted(set(s["trials"].values()))
+                print("        %-70s %s" % (s["title"][:70], ",".join(
+                    x.replace("registered_", "") for x in ranks)))
+
+    with io.open(OUT, "w", encoding="utf-8", newline="") as fh:
+        fh.write(json.dumps(result, indent=1, ensure_ascii=False))
+    print("\nwrote %s" % os.path.relpath(OUT, REPO))
+    return 0
+
+
+def selftest():
+    fails = []
+
+    def ck(n, got, want):
+        ok = got == want
+        print("  %-64s %s  %r" % (n, "ok" if ok else "FAIL", got))
+        if not ok:
+            fails.append(n)
+
+    ranks = {
+        "A": {"state": "READ", "registered_primaries": ["Recurrent VTE"],
+              "registered_secondaries": ["Major bleeding", "All-cause death"]},
+        "B": {"state": "READ", "registered_primaries": ["Something else entirely"],
+              "registered_secondaries": ["MAJOR   BLEEDING"]},
+        "C": {"state": "UNREACHABLE"},
+    }
+    print("1. A SHARED ENDPOINT IS FOUND BELOW THE PRIMARY, which is the whole point:")
+    sh = shared_at_any_rank(["A", "B"], ranks)
+    ck("one shared title", sorted(sh), ["major bleeding"])
+    ck("...and it is a SECONDARY in both",
+       sorted(set(sh["major bleeding"].values())), ["registered_secondaries"])
+
+    print("\n2. MATCHING IS EXACT AFTER NORMALISATION, and no looser:")
+    ck("case and whitespace fold", norm("MAJOR   BLEEDING"), "major bleeding")
+    ck("but 'Recurrent VTE' does not match 'Recurrent VTE at 6 months'",
+       norm("Recurrent VTE") == norm("Recurrent VTE at 6 months"), False)
+
+    print("\n3. AN UNREADABLE REGISTRATION CONTRIBUTES NOTHING, rather than a false match:")
+    ck("C is skipped", shared_at_any_rank(["A", "C"], ranks), {})
+
+    print("\n%s" % ("SELFTEST FAILED: %s" % fails if fails else "SELFTEST PASSED"))
+    return 1 if fails else 0
+
+
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    sys.exit(selftest() if "--selftest" in sys.argv else run())
+
+codex
+I’ll verify the pasted line numbers against the workspace copy so the findings cite exact locations.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=1; Get-Content -LiteralPath '"'scripts/read_all_ranks_dabigatran_2026_08_19.py' | ForEach-Object { '{0,4}: {1}' -f "'$i, $_; $i++ }' in F:\rapidmeta-ssot-shell
+ succeeded in 1280ms:
+   1: #!/usr/bin/env python3
+   2: """ASK THE WITHHOLDING QUESTION AT EVERY REGISTERED RANK, for the four dabigatran readings.
+   3: 
+   4: WHY. `scripts/lint_withholding_asked.py` refused the split: three successors declined to pool
+   5: having read only `primaryOutcomes[0]`. That refusal is P17 -- a refusal to pool that never
+   6: looked below the primary -- and it is not a formality. Twice tonight the harmonisable estimand
+   7: WAS a secondary: `sglt2-hf`, and `apixaban-vte-prophylaxis` where a shared secondary across four
+   8: trials replaced a k=1 figure that measured BLEEDING.
+   9: 
+  10: WHAT THIS DOES. For every trial in every reading it reads PRIMARY, SECONDARY and OTHER outcome
+  11: measures from the registration, records them verbatim, and then asks the question the primary
+  12: screen could not:
+  13: 
+  14:     IS THERE ANY ENDPOINT, AT ANY RANK, SHARED BY TWO OR MORE TRIALS THAT HAVE REPORTED
+  15:     AND THAT RANDOMISED AGAINST THE SAME COMPARATOR FAMILY?
+  16: 
+  17: Matching is on EXACT normalised title text -- case-folded and whitespace-collapsed, nothing
+  18: more. Loosening it would be comparing endpoints by their names, which is the error P37 exists to
+  19: name. An exact match is a LOWER BOUND and is reported as one.
+  20: 
+  21: WHAT A HIT WOULD AND WOULD NOT MEAN. A shared title at a shared comparator is a CANDIDATE, not a
+  22: pool. The components still have to be read, the analysis sets still have to line up, and no
+  23: estimate is computed here. What it does foreclose is a refusal to pool that never asked.
+  24: """
+  25: import io
+  26: import json
+  27: import os
+  28: import sys
+  29: 
+  30: REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+  31: sys.path.insert(0, os.path.join(REPO, "ssot"))
+  32: import ctgov_transport as X                                             # noqa: E402
+  33: 
+  34: EV = os.path.join(REPO, "evidence", "2026-08-19-batch1")
+  35: OUT = os.path.join(EV, "dabigatran_vte_all_ranks.json")
+  36: 
+  37: 
+  38: def norm(t):
+  39:     return " ".join((t or "").lower().split())
+  40: 
+  41: 
+  42: def read_ranks(nct):
+  43:     st, s, detail = X.fetch_raw(nct, fields="protocolSection")
+  44:     if st != X.OK:
+  45:         return {"nct": nct, "state": "UNREACHABLE", "why": str(detail)[:160]}
+  46:     om = ((s.get("protocolSection") or {}).get("outcomesModule") or {})
+  47:     out = {"nct": nct, "state": "READ", "all_ranks_read_utc": "2026-08-19",
+  48:            "source_field": "protocolSection.outcomesModule (all ranks)",
+  49:            "source_url": "https://clinicaltrials.gov/study/%s" % nct}
+  50:     for key, field in (("registered_primaries", "primaryOutcomes"),
+  51:                        ("registered_secondaries", "secondaryOutcomes"),
+  52:                        ("registered_other_outcomes", "otherOutcomes")):
+  53:         out[key] = [o.get("measure") for o in (om.get(field) or [])]
+  54:     out["ranks_read"] = 3
+  55:     out["n_endpoints_at_all_ranks"] = sum(
+  56:         len(out[k]) for k in ("registered_primaries", "registered_secondaries",
+  57:                               "registered_other_outcomes"))
+  58:     return out
+  59: 
+  60: 
+  61: def shared_at_any_rank(members, ranks):
+  62:     """Endpoint titles shared by >=2 of `members`, at ANY rank. Exact normalised match only."""
+  63:     seen = {}
+  64:     for nct in members:
+  65:         r = ranks.get(nct) or {}
+  66:         if r.get("state") != "READ":
+  67:             continue
+  68:         titles = set()
+  69:         for k in ("registered_primaries", "registered_secondaries",
+  70:                   "registered_other_outcomes"):
+  71:             for t in r.get(k) or []:
+  72:                 if norm(t):
+  73:                     titles.add((norm(t), k))
+  74:         for t, rank in titles:
+  75:             seen.setdefault(t, {})[nct] = rank
+  76:     return {t: v for t, v in seen.items() if len(v) >= 2}
+  77: 
+  78: 
+  79: def run():
+  80:     screen = json.load(io.open(os.path.join(EV, "dabigatran_vte_screening.json"),
+  81:                                encoding="utf-8"))
+  82:     est = json.load(io.open(os.path.join(EV, "dabigatran_vte_estimand_screen.json"),
+  83:                             encoding="utf-8"))
+  84: 
+  85:     disp = {r["nct"]: r["disposition"] for r in screen["rows"]}
+  86:     result = {"read_utc": "2026-08-19",
+  87:               "question_this_answers": (
+  88:                   "Is there any endpoint, at ANY registered rank, shared by two or more trials "
+  89:                   "that have REPORTED and that randomised against the SAME comparator family? "
+  90:                   "A refusal to pool that never asked this is a withholding (P17)."),
+  91:               "matching": ("EXACT normalised title -- case-folded, whitespace-collapsed. "
+  92:                            "Nothing looser, because comparing endpoints by name is the error "
+  93:                            "P37 names. Therefore a LOWER BOUND."),
+  94:               "readings": {}, "ranks": {}}
+  95: 
+  96:     for name in ("TREATMENT", "EXTENDED", "SURGICAL", "CEREBRAL"):
+  97:         v = est["readings"][name]
+  98:         trials = [t for t in v.get("trials", []) if t.get("state") == "READ"]
+  99:         fams = {}
+ 100:         for t in trials:
+ 101:             for f in t.get("comparator_families_present") or []:
+ 102:                 fams.setdefault(f, []).append(t["nct"])
+ 103: 
+ 104:         for t in trials:
+ 105:             if t["nct"] not in result["ranks"]:
+ 106:                 result["ranks"][t["nct"]] = read_ranks(t["nct"])
+ 107: 
+ 108:         rows = []
+ 109:         for fam, ncts in sorted(fams.items()):
+ 110:             reported = [n for n in ncts if disp.get(n) == "ELIGIBLE_WITH_RESULTS"]
+ 111:             if len(reported) < 2:
+ 112:                 rows.append({"comparator_family": fam, "k_with_posted_results": len(reported),
+ 113:                              "state": "NOT_ASSESSABLE",
+ 114:                              "why": ("Fewer than two trials in this comparator family have "
+ 115:                                      "posted results, so no shared endpoint can be pooled "
+ 116:                                      "whatever the registrations declare.")})
+ 117:                 continue
+ 118:             sh = shared_at_any_rank(reported, result["ranks"])
+ 119:             rows.append({
+ 120:                 "comparator_family": fam,
+ 121:                 "k_with_posted_results": len(reported),
+ 122:                 "members_with_results": sorted(reported),
+ 123:                 "n_endpoints_shared_at_any_rank": len(sh),
+ 124:                 "shared": [{"title": t, "trials": v2} for t, v2 in sorted(sh.items())][:40],
+ 125:                 "state": "CANDIDATES_FOUND" if sh else "NOTHING_SHARED_AT_ANY_RANK",
+ 126:                 "what_a_candidate_is": (
+ 127:                     "A shared title at a shared comparator is a CANDIDATE, not a pool. The "
+ 128:                     "components still have to be read and no estimate is computed here."),
+ 129:             })
+ 130:         result["readings"][name] = {"by_comparator_family": rows}
+ 131: 
+ 132:         print("\n== %s" % name)
+ 133:         for r in rows:
+ 134:             if r["state"] == "NOT_ASSESSABLE":
+ 135:                 print("   %-18s k_reported=%d  NOT_ASSESSABLE"
+ 136:                       % (r["comparator_family"], r["k_with_posted_results"]))
+ 137:                 continue
+ 138:             print("   %-18s k_reported=%d  shared_at_any_rank=%d  %s"
+ 139:                   % (r["comparator_family"], r["k_with_posted_results"],
+ 140:                      r["n_endpoints_shared_at_any_rank"], r["state"]))
+ 141:             for s in r["shared"][:6]:
+ 142:                 ranks = sorted(set(s["trials"].values()))
+ 143:                 print("        %-70s %s" % (s["title"][:70], ",".join(
+ 144:                     x.replace("registered_", "") for x in ranks)))
+ 145: 
+ 146:     with io.open(OUT, "w", encoding="utf-8", newline="") as fh:
+ 147:         fh.write(json.dumps(result, indent=1, ensure_ascii=False))
+ 148:     print("\nwrote %s" % os.path.relpath(OUT, REPO))
+ 149:     return 0
+ 150: 
+ 151: 
+ 152: def selftest():
+ 153:     fails = []
+ 154: 
+ 155:     def ck(n, got, want):
+ 156:         ok = got == want
+ 157:         print("  %-64s %s  %r" % (n, "ok" if ok else "FAIL", got))
+ 158:         if not ok:
+ 159:             fails.append(n)
+ 160: 
+ 161:     ranks = {
+ 162:         "A": {"state": "READ", "registered_primaries": ["Recurrent VTE"],
+ 163:               "registered_secondaries": ["Major bleeding", "All-cause death"]},
+ 164:         "B": {"state": "READ", "registered_primaries": ["Something else entirely"],
+ 165:               "registered_secondaries": ["MAJOR   BLEEDING"]},
+ 166:         "C": {"state": "UNREACHABLE"},
+ 167:     }
+ 168:     print("1. A SHARED ENDPOINT IS FOUND BELOW THE PRIMARY, which is the whole point:")
+ 169:     sh = shared_at_any_rank(["A", "B"], ranks)
+ 170:     ck("one shared title", sorted(sh), ["major bleeding"])
+ 171:     ck("...and it is a SECONDARY in both",
+ 172:        sorted(set(sh["major bleeding"].values())), ["registered_secondaries"])
+ 173: 
+ 174:     print("\n2. MATCHING IS EXACT AFTER NORMALISATION, and no looser:")
+ 175:     ck("case and whitespace fold", norm("MAJOR   BLEEDING"), "major bleeding")
+ 176:     ck("but 'Recurrent VTE' does not match 'Recurrent VTE at 6 months'",
+ 177:        norm("Recurrent VTE") == norm("Recurrent VTE at 6 months"), False)
+ 178: 
+ 179:     print("\n3. AN UNREADABLE REGISTRATION CONTRIBUTES NOTHING, rather than a false match:")
+ 180:     ck("C is skipped", shared_at_any_rank(["A", "C"], ranks), {})
+ 181: 
+ 182:     print("\n%s" % ("SELFTEST FAILED: %s" % fails if fails else "SELFTEST PASSED"))
+ 183:     return 1 if fails else 0
+ 184: 
+ 185: 
+ 186: if __name__ == "__main__":
+ 187:     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+ 188:     sys.exit(selftest() if "--selftest" in sys.argv else run())
+
+codex
+I found one execution-status defect and one selftest/control defect. I’m checking whether the duplicate-rank overwrite is actually reproducible before deciding whether to include it.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "@'
+import os, subprocess, sys, textwrap
+code = r'''
+import sys
+sys.path.insert(0, r\"F:\\rapidmeta-ssot-shell\\scripts\")
+# Avoid importing module because it imports ssot; reproduce function body exactly enough for seed check.
+def norm(t): return \" \".join((t or \"\").lower().split())
+def shared_at_any_rank(members, ranks):
+    seen = {}
+    for nct in members:
+        r = ranks.get(nct) or {}
+        if r.get(\"state\") "'!= "READ":
+            continue
+        titles = set()
+        for k in ("registered_primaries", "registered_secondaries", "registered_other_outcomes"):
+            for t in r.get(k) or []:
+                if norm(t): titles.add((norm(t), k))
+        for t, rank in titles:
+            seen.setdefault(t, {})[nct] = rank
+    print(shared_at_any_rank(["A","B"], {"A":{"state":"READ","registered_primaries":["X"],"registered_secondaries":["X"]}, "B":{"state":"READ","registered_primaries":["X"]}}))
+'"'''
+for seed in range(1,20):
+    env=os.environ.copy(); env['PYTHONHASHSEED']=str(seed)
+    out=subprocess.check_output([sys.executable,'-c',code], env=env, text=True).strip()
+    print(seed, out)
+'@ | python -" in F:\rapidmeta-ssot-shell
+ succeeded in 3673ms:
+1 
+2 
+3 
+4 
+5 
+6 
+7 
+8 
+9 
+10 
+11 
+12 
+13 
+14 
+15 
+16 
+17 
+18 
+19 
+
+codex
+The first quick seed check had the print indented into unreachable code, so I’m rerunning it with the call outside the reproduced function.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "@'
+import os, subprocess, sys
+code = r'''
+def norm(t): return \" \".join((t or \"\").lower().split())
+def shared_at_any_rank(members, ranks):
+    seen = {}
+    for nct in members:
+        r = ranks.get(nct) or {}
+        if r.get(\"state\") "'!= "READ":
+            continue
+        titles = set()
+        for k in ("registered_primaries", "registered_secondaries", "registered_other_outcomes"):
+            for t in r.get(k) or []:
+                if norm(t): titles.add((norm(t), k))
+        for t, rank in titles:
+            seen.setdefault(t, {})[nct] = rank
+    return {t: v for t, v in seen.items() if len(v) >= 2}
+print(shared_at_any_rank(["A","B"], {"A":{"state":"READ","registered_primaries":["X"],"registered_secondaries":["X"]}, "B":{"state":"READ","registered_primaries":["X"]}}))
+'"'''
+for seed in range(1,20):
+    env=os.environ.copy(); env['PYTHONHASHSEED']=str(seed)
+    out=subprocess.check_output([sys.executable,'-c',code], env=env, text=True).strip()
+    print(seed, out)
+'@ | python -" in F:\rapidmeta-ssot-shell
+ succeeded in 4352ms:
+1 {'x': {'A': 'registered_secondaries', 'B': 'registered_primaries'}}
+2 {'x': {'A': 'registered_primaries', 'B': 'registered_primaries'}}
+3 {'x': {'A': 'registered_secondaries', 'B': 'registered_primaries'}}
+4 {'x': {'A': 'registered_secondaries', 'B': 'registered_primaries'}}
+5 {'x': {'A': 'registered_secondaries', 'B': 'registered_primaries'}}
+6 {'x': {'A': 'registered_secondaries', 'B': 'registered_primaries'}}
+7 {'x': {'A': 'registered_primaries', 'B': 'registered_primaries'}}
+8 {'x': {'A': 'registered_primaries', 'B': 'registered_primaries'}}
+9 {'x': {'A': 'registered_primaries', 'B': 'registered_primaries'}}
+10 {'x': {'A': 'registered_primaries', 'B': 'registered_primaries'}}
+11 {'x': {'A': 'registered_primaries', 'B': 'registered_primaries'}}
+12 {'x': {'A': 'registered_primaries', 'B': 'registered_primaries'}}
+13 {'x': {'A': 'registered_secondaries', 'B': 'registered_primaries'}}
+14 {'x': {'A': 'registered_secondaries', 'B': 'registered_primaries'}}
+15 {'x': {'A': 'registered_primaries', 'B': 'registered_primaries'}}
+16 {'x': {'A': 'registered_secondaries', 'B': 'registered_primaries'}}
+17 {'x': {'A': 'registered_primaries', 'B': 'registered_primaries'}}
+18 {'x': {'A': 'registered_secondaries', 'B': 'registered_primaries'}}
+19 {'x': {'A': 'registered_secondaries', 'B': 'registered_primaries'}}
+
+codex
+- STATUS CODE REPORTING THE WRAPPER / check cannot fail: lines 125 and 149.  
+  Exact input: `screen["rows"]=[{"nct":"A","disposition":"ELIGIBLE_WITH_RESULTS"},{"nct":"B","disposition":"ELIGIBLE_WITH_RESULTS"}]`; `est["readings"]["TREATMENT"]["trials"]=[{"nct":"A","state":"READ","comparator_families_present":["placebo"]},{"nct":"B","state":"READ","comparator_families_present":["placebo"]}]` with the other three readings present but empty; `X.fetch_raw("A")->(X.OK, {"protocolSection":{"outcomesModule":{"primaryOutcomes":[{"measure":"Major bleeding"}]}}}, None)` and `X.fetch_raw("B")->("ERR", {}, "timeout")`.  
+  Consequence: the row reports `NOTHING_SHARED_AT_ANY_RANK` and exits `0` even though one reported trial’s ranks were never read.
+
+- Tabulation/rank overwrite defect: line 75.  
+  Exact input: `shared_at_any_rank(["A","B"], {"A":{"state":"READ","registered_primaries":["X"],"registered_secondaries":["X"]}, "B":{"state":"READ","registered_primaries":["X"]}})`.  
+  Consequence: trial `A`’s rank for `x` is whichever set entry is iterated last, so the same input can report `registered_primaries` or `registered_secondaries` across hash seeds and omit a real rank.
+
+COULD NOT DETERMINE selector-keyed-to-corpus defects: missing `evidence/2026-08-19-batch1/*.json` corpus and live `ctgov_transport.fetch_raw` payloads.
+
+No proven defect: probe keyed to string a fix removes; idempotency guard satisfied by its own marker; different-copy instrument; CRLF/LF text comparison; merged-cell/off-by-one count; zero conflated with absent; negation dropped.
+tokens used
+29,376
+- STATUS CODE REPORTING THE WRAPPER / check cannot fail: lines 125 and 149.  
+  Exact input: `screen["rows"]=[{"nct":"A","disposition":"ELIGIBLE_WITH_RESULTS"},{"nct":"B","disposition":"ELIGIBLE_WITH_RESULTS"}]`; `est["readings"]["TREATMENT"]["trials"]=[{"nct":"A","state":"READ","comparator_families_present":["placebo"]},{"nct":"B","state":"READ","comparator_families_present":["placebo"]}]` with the other three readings present but empty; `X.fetch_raw("A")->(X.OK, {"protocolSection":{"outcomesModule":{"primaryOutcomes":[{"measure":"Major bleeding"}]}}}, None)` and `X.fetch_raw("B")->("ERR", {}, "timeout")`.  
+  Consequence: the row reports `NOTHING_SHARED_AT_ANY_RANK` and exits `0` even though one reported trial’s ranks were never read.
+
+- Tabulation/rank overwrite defect: line 75.  
+  Exact input: `shared_at_any_rank(["A","B"], {"A":{"state":"READ","registered_primaries":["X"],"registered_secondaries":["X"]}, "B":{"state":"READ","registered_primaries":["X"]}})`.  
+  Consequence: trial `A`’s rank for `x` is whichever set entry is iterated last, so the same input can report `registered_primaries` or `registered_secondaries` across hash seeds and omit a real rank.
+
+COULD NOT DETERMINE selector-keyed-to-corpus defects: missing `evidence/2026-08-19-batch1/*.json` corpus and live `ctgov_transport.fetch_raw` payloads.
+
+No proven defect: probe keyed to string a fix removes; idempotency guard satisfied by its own marker; different-copy instrument; CRLF/LF text comparison; merged-cell/off-by-one count; zero conflated with absent; negation dropped.

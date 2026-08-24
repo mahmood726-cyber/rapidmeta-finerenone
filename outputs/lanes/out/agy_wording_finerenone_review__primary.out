@@ -1,0 +1,19 @@
+Here is the review of the withdrawal text against the provided canonical object.
+
+**1. OVERCLAIM.**
+*   **"ARTS-DN", "phase 2b biomarker trial", and "no cardiovascular outcome data"**: The packet never names the trial "ARTS-DN", records no phase, and contains no evidence verifying the absence of cardiovascular data. 
+*   **Registration read on 2026-08-18**: The text claims the primary for NCT01874431 was read from ClinicalTrials.gov on this date. The packet explicitly shows no registry data for it (its `nct` is null and it lacks the `registration_counts_read_utc` field present for the others).
+*   **"NO HARMONISED OUTCOME EXISTS at any rank"**: The packet contains no record of secondary ranks/outcomes being checked and failing.
+
+**2. UNDERCLAIM.**
+Yes. The text omits the severe pipeline failure detailed in the object: the fourth trial was explicitly flagged for exclusion (`NULLED:NCT01874431`), but the pooling script ignored the marker and mathematically included it in the pool anyway (`the_nulled_prefix_was_not_honoured`). 
+
+**3. FACT vs JUDGEMENT.**
+*   *"that is the honest position"* is an authorial defense or moral judgement owned by the writer, stated as a factual conclusion.
+*   *"per the SGLT2 lesson"* attributes motivation and external historical judgement rather than relying strictly on the data object.
+
+**4. IS THE STATED REASON THE ACTUAL REASON?**
+The stated reason (pooling incommensurable constructs) is true and supported; the packet explicitly confirms this is a "separate and sufficient ground" for withdrawal (`k_corrected_2026_08_18`). However, the packet strongly supports a DIFFERENT, unstated reason: a critical software defect where a `NULLED` exclusion marker was silently ignored by the calculator, which was what the external validator actually caught.
+
+**5. VERDICT: REJECT.**
+The text relies heavily on unrecorded external memory (the trial's acronym, phase, secondary outcomes, and registry checks) while entirely missing the critical technical defect (the ignored `NULLED` prefix) that corrupted the pool's execution. It asserts more than the evidence supports and omits a key ground the evidence *does* support.

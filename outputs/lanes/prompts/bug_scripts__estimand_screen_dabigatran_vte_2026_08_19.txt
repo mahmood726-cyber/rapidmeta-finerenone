@@ -1,0 +1,467 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/estimand_screen_dabigatran_vte_2026_08_19.py
+
+--- THE FILE, IN FULL ---
+#!/usr/bin/env python3
+"""THE ESTIMAND SCREEN FOR `dabigatran-vte-review`, on the four readings the P21 decision fixed.
+
+WHAT THIS DECIDES AND WHAT IT DOES NOT. It decides, for each reading, whether the trials that
+ACTUALLY REPORT share a quantity that could be pooled. It does NOT decide the pool -- no
+estimate is computed here and none is written.
+
+THE THREE TESTS, each a P-property, applied in order and all three of which must pass:
+
+  P37  COMPOSITE NAMES ARE NOT DEFINITIONS. Two endpoints both called a "composite of recurrent
+       VTE" are compared on their VERBATIM component list, never on their titles.
+
+  P38  A SHARED ESTIMAND IS NOT A SHARED COMPARATOR. Even if two trials measure the identical
+       quantity, `dabigatran versus warfarin` and `dabigatran versus placebo` are different
+       contrasts. The comparator is read from the registration's own arm labels.
+
+  P45  THE CONSTRUCT IS NOT THE MEASURABLE ENDPOINT. "Efficacy" is a construct; a registered
+       primary that fuses recurrent thrombosis WITH major bleeding measures neither efficacy nor
+       safety and cannot join either.
+
+AND ONE FACT ABOUT THE EXISTING OBJECT, which is why this screen was owed. The object's four
+trials land in THREE DIFFERENT READINGS and one that is in no reading at all. Its withdrawn
+estimate did not have an estimand problem that a better endpoint choice would fix; it pooled
+across three different questions.
+
+USAGE
+    python scripts/estimand_screen_dabigatran_vte_2026_08_19.py
+    python scripts/estimand_screen_dabigatran_vte_2026_08_19.py --selftest
+"""
+import io
+import json
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(REPO, "ssot"))
+import ctgov_transport as X                                             # noqa: E402
+
+EV = os.path.join(REPO, "evidence", "2026-08-19-batch1")
+SCREEN = os.path.join(EV, "dabigatran_vte_screening.json")
+OUT = os.path.join(EV, "dabigatran_vte_estimand_screen.json")
+
+# The object's own four trials, and which reading each falls in. Fixed here BEFORE the screen
+# runs so the claim "three different readings" is asserted, not observed after the fact.
+OBJECT_TRIALS = {
+    "NCT00329238": "EXTENDED",     # RE-MEDY
+    "NCT02913326": "CEREBRAL",     # RE-SPECT CVT
+    "NCT00168805": "SURGICAL",     # RE-MODEL -- and it was MISSED by the search
+    "NCT01505881": "NOT_A_VTE_TRIAL",   # RE-ALIGN follow-on, mechanical heart valve
+}
+
+# Comparator families. A label is classified by reading it, never by position in the arm list.
+PLACEBO = ("placebo",)
+VKA = ("warfarin", "vitamin k antagonist", "acenocoumarol", "coumarin", "vka")
+LMWH = ("enoxaparin", "dalteparin", "tinzaparin", "heparin", "fondaparinux")
+DOAC = ("rivaroxaban", "apixaban", "edoxaban")
+
+
+def comparator_family(label):
+    lo = (label or "").lower()
+    for fam, terms in (("PLACEBO", PLACEBO), ("VKA", VKA), ("LMWH_OR_HEPARIN", LMWH),
+                       ("OTHER_DOAC", DOAC)):
+        for t in terms:
+            if t in lo:
+                return fam
+    return "UNCLASSIFIED"
+
+
+def read_registration(nct):
+    """Registered primary VERBATIM, arm labels, enrolment. Never a title-only read (P35)."""
+    st, s, detail = X.fetch_raw(nct, fields="protocolSection")
+    if st != X.OK:
+        return {"nct": nct, "state": "UNREACHABLE", "why": str(detail)[:160]}
+    ps = s.get("protocolSection") or {}
+    idm = ps.get("identificationModule") or {}
+    prim = ((ps.get("outcomesModule") or {}).get("primaryOutcomes") or [])
+    arms = ((ps.get("armsInterventionsModule") or {}).get("armGroups") or [])
+    des = (ps.get("designModule") or {})
+    labels = [a.get("label") or "" for a in arms]
+    fams = sorted({comparator_family(l) for l in labels} - {"UNCLASSIFIED"})
+    return {
+        "nct": nct, "state": "READ",
+        "acronym": idm.get("acronym"),
+        "brief_title": (idm.get("briefTitle") or "")[:150],
+        "enrollment": ((des.get("enrollmentInfo") or {}).get("count")),
+        "arm_labels_as_the_registry_lists_them": labels,
+        "comparator_families_present": fams,
+        "registered_primary_title": (prim[0].get("measure") if prim else None),
+        "registered_primary_description_verbatim": (
+            (prim[0].get("description") or "")[:900] if prim else None),
+        "registered_primary_time_frame": (prim[0].get("timeFrame") if prim else None),
+        "n_registered_primaries": len(prim),
+        "all_registered_primary_titles": [p.get("measure") for p in prim],
+        "read_utc": "2026-08-19",
+        "source_field": "protocolSection.outcomesModule.primaryOutcomes[0]",
+        "source_url": "https://clinicaltrials.gov/study/%s" % nct,
+    }
+
+
+# --- the three tests -------------------------------------------------------------------------
+
+BLEED = ("bleed", "haemorrhag", "hemorrhag")
+# `vte` is here because leaving the bare abbreviation out is a recall gap in my OWN term set --
+# RE-COVER's description says "recurrent VTEs" and nothing else thrombotic, so without it the
+# description read as mentioning bleeding alone and the trial was passed silently instead of
+# flagged. Substring risk is nil: no English or medical word contains the sequence `vte`.
+THROMB = ("thromboem", "thrombosis", "thrombotic", "deep vein", "pulmonary embol", " dvt",
+          " pe ", "vte")
+
+
+def fuses_efficacy_and_safety(row):
+    """P45. A primary that names BOTH a thrombotic component and a bleeding component AS
+    COMPONENTS measures neither construct and can join neither.
+
+    THE FIRST VERSION OF THIS FUNCTION MANUFACTURED TWO FALSE FINDINGS, and the fix is the
+    lesson. It scanned title AND description as one bag of words. RE-COVER I and RE-COVER II
+    register the purely efficacy primary "Recurrent Symptomatic VTE and Deaths Related to VTE",
+    and the word `bleeding` appears in their description ONLY here:
+
+        "All suspected recurrent VTEs and all deaths and bleeding events were evaluated by an
+         independent central adjudication committee"
+
+    That sentence says what the COMMITTEE ADJUDICATED. It does not declare a component of the
+    endpoint. Two of the three P45 firings in the first live run were this sentence, and a check
+    that invents failures is worse than no check.
+
+    THE RULE NOW: THE TITLE ESTABLISHES, THE DESCRIPTION ONLY CONFIRMS. An endpoint that fuses
+    two constructs is NAMED that way by the registry -- NCT02913326 registers "Composite of
+    Venous Thrombotic Event (VTE) **or** Major Bleeding Event (MBE)". That is P35 one level
+    down: read the thing itself, do not infer it from adjacent text. Where the description
+    suggests fusion the title does not carry, the answer is NEEDS_HUMAN_READ -- which is neither
+    a pass nor a failure.
+    """
+    title = (row.get("registered_primary_title") or "").lower()
+    desc = (row.get("registered_primary_description_verbatim") or "").lower()
+    tb, tt = any(t in title for t in BLEED), any(t in title for t in THROMB)
+    db, dt = any(t in desc for t in BLEED), any(t in desc for t in THROMB)
+    detail = {"title_names_a_bleeding_component": tb,
+              "title_names_a_thrombotic_component": tt,
+              "description_mentions_bleeding": db,
+              "description_mentions_thrombosis": dt,
+              "established_by": None}
+    if tb and tt:
+        detail["established_by"] = "THE REGISTERED TITLE ITSELF"
+        return True, detail
+    if db and dt:
+        detail["established_by"] = "NOT_ESTABLISHED -- the description mentions both but the " \
+            "registered TITLE does not fuse them. A mention is not a component declaration " \
+            "(the RE-COVER adjudication sentence is the case this rule exists for). " \
+            "NEEDS_HUMAN_READ, which is neither a pass nor a failure."
+        detail["needs_human_read"] = True
+    return False, detail
+
+
+def assess_reading(name, rows):
+    """Returns a verdict for one reading. NEVER a pool -- only whether one is admissible."""
+    read = [r for r in rows if r["state"] == "READ"]
+    if len(read) < 2:
+        return {"reading": name, "verdict": "NOT_ASSESSABLE",
+                "why": ("Fewer than two registrations could be read (%d of %d). Absent is not "
+                        "zero and not a failure; it is unassessed." % (len(read), len(rows))),
+                "trials": rows}
+
+    judged = {r["nct"]: fuses_efficacy_and_safety(r) for r in read}
+    fused = [(n, d) for n, (ok, d) in judged.items() if ok]
+    needs_read = {n: d for n, (ok, d) in judged.items()
+                  if not ok and d.get("needs_human_read")}
+    fams = {}
+    for r in read:
+        for f in r["comparator_families_present"]:
+            fams.setdefault(f, []).append(r["nct"])
+    titles = {r["nct"]: r["registered_primary_title"] for r in read}
+    distinct_titles = len({(t or "").strip().lower() for t in titles.values()})
+
+    fails = []
+    if fused:
+        fails.append({
+            "property": "P45",
+            "finding": ("%d trial(s) register a primary that fuses a THROMBOTIC and a BLEEDING "
+                        "component in one endpoint. That measures neither efficacy nor safety, "
+                        "so it cannot join either." % len(fused)),
+            "trials": [n for n, _ in fused],
+            "detail": {n: d for n, d in fused},
+        })
+    if len(fams) > 1:
+        fails.append({
+            "property": "P38",
+            "finding": ("The reading holds %d DIFFERENT COMPARATOR FAMILIES: %s. A shared "
+                        "estimand would not make these poolable -- the contrast differs, not "
+                        "just the measurement." % (len(fams), ", ".join(sorted(fams)))),
+            "families": fams,
+        })
+    if distinct_titles > 1:
+        fails.append({
+            "property": "P37",
+            "finding": ("%d DISTINCT registered-primary titles across %d trials. Compared on "
+                        "their verbatim text, not on the word 'composite'."
+                        % (distinct_titles, len(read))),
+            "titles": titles,
+        })
+
+    # A READING THAT DOES NOT POOL WHOLE MAY STILL HOLD A POOLABLE SUBSET, and refusing the
+    # reading without naming that subset would hide it. Restriction is by ONE NAMED AXIS at a
+    # time -- the comparator family -- and the subset is reported, never pooled here.
+    subsets = []
+    for fam, ncts in sorted(fams.items()):
+        members = [r for r in read if fam in r["comparator_families_present"]
+                   and r["nct"] not in dict(fused)]
+        if len(members) < 2:
+            continue
+        tt = {}
+        for r in members:
+            tt.setdefault((r["registered_primary_title"] or "").strip().lower(), []).append(
+                r["nct"])
+        biggest = max(tt.values(), key=len)
+        by_nct = {r["nct"]: r for r in read}
+        reported = [n for n in biggest
+                    if by_nct.get(n, {}).get("disposition") == "ELIGIBLE_WITH_RESULTS"]
+        subsets.append({
+            "restricted_on": "comparator family = %s" % fam,
+            "k_sharing_the_comparator": len(members),
+            "members": sorted(r["nct"] for r in members),
+            "k_ALSO_sharing_one_registered_primary_title": len(biggest),
+            "those_members": sorted(biggest),
+            # THIS FIELD IS THE ONE THAT MATTERS. A subset of trials that have not reported is
+            # not a pool of k=2, it is a pool of k=0 -- and a subset line without it would read
+            # as though something were poolable when nothing has been published.
+            "k_of_those_WITH_POSTED_RESULTS": len(reported),
+            "the_ones_that_have_reported": sorted(reported),
+            "the_shared_title": [t for t, v in tt.items() if v is biggest][0][:160],
+            "status": ("A NAMED-AXIS SUBSET, reported not pooled. Sharing a comparator and a "
+                       "title is necessary, not sufficient -- the components still have to be "
+                       "read, and no estimate is computed here."),
+            "caveat_on_the_title_grouping": (
+                "Titles are grouped by EXACT text, so this count is a LOWER BOUND. NCT00168818 "
+                "registers 'Total Venous Thromboembolic Event and All-cause Mortality During "
+                "Treatment Period' while NCT00152971 and NCT00657150 register the same words "
+                "prefixed 'Number of Participants With'. Loosening the match would be comparing "
+                "endpoints on their titles, which is the exact error P37 names -- so the "
+                "grouping stays exact and the components are read by a human instead."),
+        })
+
+    return {
+        "reading": name,
+        "n_trials_read": len(read),
+        "verdict": "POOL_NOT_ADMISSIBLE" if fails else "NO_BARRIER_FOUND_BY_THESE_THREE_TESTS",
+        "failing_limbs": fails,
+        "endpoints_needing_a_human_read": needs_read,
+        "restricted_subsets_that_survive_the_named_axis": subsets,
+        "all_failing_limbs_reported": True,
+        "note_if_clean": (None if fails else
+                          "These three tests found no barrier. That is NOT a finding that the "
+                          "trials pool: other properties have not been applied and no estimate "
+                          "is computed here."),
+        "trials": read,
+    }
+
+
+def run():
+    with io.open(SCREEN, "r", encoding="utf-8") as fh:
+        scr = json.load(fh)
+
+    want = {}
+    for r in scr["rows"]:
+        if r["reading"] != "NONE" and str(r["disposition"]).startswith("ELIGIBLE"):
+            want.setdefault(r["reading"], []).append(r["nct"])
+
+    out = {"topic": "dabigatran-vte-review", "screened_utc": "2026-08-19",
+           "what_this_decides": ("Whether each reading holds a poolable quantity. It does NOT "
+                                 "compute a pool and does not write one."),
+           "tests": ["P37 composite names are not definitions",
+                     "P38 a shared estimand is not a shared comparator",
+                     "P45 the construct is not the measurable endpoint"],
+           "readings": {}}
+
+    disp = {r["nct"]: r["disposition"] for r in scr["rows"]}
+    for name in ("TREATMENT", "EXTENDED", "SURGICAL", "CEREBRAL"):
+        rows = []
+        for n in sorted(want.get(name, [])):
+            r = read_registration(n)
+            r["disposition"] = disp.get(n)
+            rows.append(r)
+        v = assess_reading(name, rows)
+        out["readings"][name] = v
+        print("\n== %-10s %d eligible read   ->  %s" % (name, v.get("n_trials_read", 0),
+                                                        v["verdict"]))
+        for r in [x for x in rows if x["state"] == "READ"]:
+            print("   %-12s %-14s n=%-7s %s"
+                  % (r["nct"], (r["acronym"] or "-")[:14], r["enrollment"],
+                     (r["registered_primary_title"] or "(none registered)")[:82]))
+            print("   %-12s %-14s comparators: %s"
+                  % ("", "", ", ".join(r["comparator_families_present"]) or "UNCLASSIFIED"))
+        for f in v.get("failing_limbs") or []:
+            print("     %s  %s" % (f["property"], f["finding"]))
+        for n in sorted(v.get("endpoints_needing_a_human_read") or {}):
+            print("     NEEDS_HUMAN_READ  %s -- description mentions both, title fuses neither"
+                  % n)
+        for sub in v.get("restricted_subsets_that_survive_the_named_axis") or []:
+            print("     SUBSET  %s -> k=%d, of which k=%d also share one registered primary: %s"
+                  % (sub["restricted_on"], sub["k_sharing_the_comparator"],
+                     sub["k_ALSO_sharing_one_registered_primary_title"],
+                     ", ".join(sub["those_members"])))
+            print("             of those, k=%d HAVE POSTED RESULTS: %s"
+                  % (sub["k_of_those_WITH_POSTED_RESULTS"],
+                     ", ".join(sub["the_ones_that_have_reported"]) or "NONE"))
+
+    # The object's own trials, asserted in advance.
+    landed = {}
+    for nct, declared in OBJECT_TRIALS.items():
+        found = [r["reading"] for r in scr["rows"] if r["nct"] == nct]
+        landed[nct] = {"declared": declared,
+                       "in_the_surfaced_set_as": (found[0] if found else "NOT_SURFACED")}
+    readings_spanned = sorted({v["declared"] for v in landed.values()
+                               if v["declared"] != "NOT_A_VTE_TRIAL"})
+    out["the_objects_own_four_trials"] = {
+        "landing": landed,
+        "distinct_readings_spanned": readings_spanned,
+        "finding": ("The object's four trials span %d DIFFERENT READINGS (%s) plus one that is "
+                    "not a venous thromboembolism trial at all. Its withdrawn estimate did not "
+                    "have an estimand problem a better endpoint choice would fix -- IT POOLED "
+                    "ACROSS THREE DIFFERENT QUESTIONS."
+                    % (len(readings_spanned), ", ".join(readings_spanned))),
+    }
+    print("\n== the object's own four trials span %d readings: %s"
+          % (len(readings_spanned), ", ".join(readings_spanned)))
+    for nct, v in sorted(landed.items()):
+        print("   %-12s declared %-16s surfaced as %s"
+              % (nct, v["declared"], v["in_the_surfaced_set_as"]))
+
+    with io.open(OUT, "w", encoding="utf-8") as fh:
+        fh.write(json.dumps(out, indent=1, ensure_ascii=False))
+    print("\nwrote %s" % os.path.relpath(OUT, REPO))
+    return 0
+
+
+def selftest():
+    fails = []
+
+    def ck(name, got, want):
+        ok = got == want
+        print("  %-70s %s  %r" % (name, "ok" if ok else "FAIL", got))
+        if not ok:
+            fails.append(name)
+
+    print("1. COMPARATOR FAMILY IS READ FROM THE LABEL, never from position:")
+    ck("'Warfarin (INR of 2.0-3.0)' -> VKA", comparator_family("Warfarin (INR of 2.0-3.0)"), "VKA")
+    ck("'Placebo' -> PLACEBO", comparator_family("Placebo"), "PLACEBO")
+    ck("'enoxaparin' -> LMWH_OR_HEPARIN", comparator_family("enoxaparin"), "LMWH_OR_HEPARIN")
+    ck("'Dabigatran etexilate' -> UNCLASSIFIED (it is not a comparator family)",
+       comparator_family("Dabigatran etexilate"), "UNCLASSIFIED")
+
+    print("\n2. P45 FIRES ON A FUSED EFFICACY-AND-SAFETY PRIMARY, and only on one:")
+    fused, d = fuses_efficacy_and_safety({
+        "registered_primary_title": "Composite of Venous Thrombotic Event or Major Bleeding",
+        "registered_primary_description_verbatim": "adjudicated"})
+    ck("fused endpoint detected", fused, True)
+    ck("...and both components are named IN THE TITLE",
+       (d["title_names_a_bleeding_component"], d["title_names_a_thrombotic_component"]),
+       (True, True))
+    ck("...and the title established it", d["established_by"], "THE REGISTERED TITLE ITSELF")
+    clean, d2 = fuses_efficacy_and_safety({
+        "registered_primary_title": "Composite of Recurrent VTE or VTE Death",
+        "registered_primary_description_verbatim": "symptomatic DVT of the leg and PE"})
+    ck("an efficacy-only composite does NOT fire", clean, False)
+
+    # THE REGRESSION TEST FOR THE FALSE POSITIVE THIS CHECK ACTUALLY PRODUCED. Verbatim from
+    # NCT00291330 and NCT00680186. The first version of the function failed BOTH of these,
+    # inventing two findings out of a sentence about who adjudicated the events.
+    recover, d3 = fuses_efficacy_and_safety({
+        "registered_primary_title": ("Number of Participants With Recurrent Symptomatic Venous "
+                                     "Thromboembolism (VTE) and Deaths Related to VTE"),
+        "registered_primary_description_verbatim": (
+            "All suspected recurrent VTEs and all deaths and bleeding events were evaluated by "
+            "an independent central adjudication committee, and all analyses are based on the "
+            "events that were centrally confirmed by this committee.")})
+    ck("RE-COVER's adjudication sentence does NOT make it a fused endpoint", recover, False)
+    ck("...and it is flagged for a human read rather than passed silently",
+       d3.get("needs_human_read"), True)
+    ck("...with the title correctly read as carrying no bleeding component",
+       d3["title_names_a_bleeding_component"], False)
+    bleed_only, _ = fuses_efficacy_and_safety({
+        "registered_primary_title": "Number of Participants With Major Bleeding",
+        "registered_primary_description_verbatim": "ISTH criteria"})
+    ck("a bleeding-only endpoint does NOT fire either", bleed_only, False)
+
+    print("\n3. THE GUARD CAN FIRE -- P38 on a mixed-comparator reading:")
+    v = assess_reading("FIXTURE", [
+        {"nct": "A", "state": "READ", "comparator_families_present": ["VKA"],
+         "registered_primary_title": "Recurrent VTE",
+         "registered_primary_description_verbatim": "symptomatic DVT and PE"},
+        {"nct": "B", "state": "READ", "comparator_families_present": ["PLACEBO"],
+         "registered_primary_title": "Recurrent VTE",
+         "registered_primary_description_verbatim": "symptomatic DVT and PE"},
+    ])
+    ck("verdict", v["verdict"], "POOL_NOT_ADMISSIBLE")
+    ck("and P38 is the limb that fires", [f["property"] for f in v["failing_limbs"]], ["P38"])
+    ck("...while P37 does NOT fire on identical titles",
+       "P37" in [f["property"] for f in v["failing_limbs"]], False)
+
+    print("\n4. AND A CLEAN READING IS NOT REPORTED AS A POOL:")
+    v = assess_reading("FIXTURE2", [
+        {"nct": "A", "state": "READ", "comparator_families_present": ["VKA"],
+         "registered_primary_title": "Recurrent VTE",
+         "registered_primary_description_verbatim": "symptomatic DVT and PE"},
+        {"nct": "B", "state": "READ", "comparator_families_present": ["VKA"],
+         "registered_primary_title": "Recurrent VTE",
+         "registered_primary_description_verbatim": "symptomatic DVT and PE"},
+    ])
+    ck("verdict is not a pass", v["verdict"], "NO_BARRIER_FOUND_BY_THESE_THREE_TESTS")
+    # CASE-FOLDED. This assertion read `"not a finding..." in note` against a string that says
+    # "That is NOT a finding..." -- class 25, FOURTH occurrence today, in a file written after
+    # the rule was registered. A comparison over free text folds case, always.
+    ck("and it says so in words",
+       "not a finding that the trials pool" in v["note_if_clean"].lower(), True)
+
+    print("\n5. ONE READABLE TRIAL IS NOT_ASSESSABLE, never a pass and never a failure:")
+    v = assess_reading("FIXTURE3", [
+        {"nct": "A", "state": "READ", "comparator_families_present": ["VKA"],
+         "registered_primary_title": "x", "registered_primary_description_verbatim": ""},
+        {"nct": "B", "state": "UNREACHABLE", "why": "network"},
+    ])
+    ck("verdict", v["verdict"], "NOT_ASSESSABLE")
+
+    print("\n%s" % ("SELFTEST FAILED: %s" % fails if fails else "SELFTEST PASSED"))
+    return 1 if fails else 0
+
+
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    sys.exit(selftest() if "--selftest" in sys.argv else run())

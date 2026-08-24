@@ -1,0 +1,286 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a0319d-f5c3-7c12-b258-9623505ef650
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/every_rank_read.py
+
+--- THE FILE, IN FULL ---
+"""EVERY-RANK READ -- does any contributing trial register a CLINICAL endpoint at all?
+
+Run across a whole specialty section, so the answer is a measurement rather than an
+anecdote. The prior screen read PRIMARY TITLES only; this reads primary, secondary AND
+other, on every seeded trial of every topic.
+
+TWO CLAIMS ARE REPORTED SEPARATELY BECAUSE THEY ARE DIFFERENT CLAIMS
+    ALL      every seeded trial registers no clinical endpoint at any rank
+    MIXED    some do and some do not
+Only ALL is unambiguous; MIXED means the topic contains at least one trial that
+pre-specified a clinical outcome.
+
+AND A DISTINCTION THAT MATTERS MORE THAN THE COUNT
+    "Registers no clinical endpoint" is a statement about the REGISTRATION, not about
+    the trial. Two very different situations produce it:
+
+      (a) the trial MEASURED clinical outcomes and reported them without pre-specifying
+          them -- the selective-reporting concern, Handbook 6.5 section 8.7;
+      (b) the trial was DESIGNED as an immunogenicity, safety or pharmacokinetic study,
+          and a synthesis has treated it as an efficacy trial.
+
+    (b) is the more serious finding, and the criticism belongs on the POOLING and not on
+    the registration: a phase-3 immunogenicity trial registering immunogenicity endpoints
+    is behaving correctly. Where the registration lets the two be told apart -- by its own
+    title, or by its primary purpose field -- this reports which. Where it does not, it
+    says so.
+
+WHAT THIS DOES NOT ESTABLISH -- written in advance
+    - NOT that the published efficacy figure is wrong. It establishes that the quantity
+      was not pre-specified in the registration the page keys to.
+    - NOT that no clinical endpoint exists in the publication. Registries are amended and
+      publications report more than they register; this reads the registration only.
+    - NOT a criticism of the trialists. See the distinction above.
+
+USAGE
+    python scripts/every_rank_read.py sp-infectious-disease sp-nephrology
+    python scripts/every_rank_read.py sp-cardiology sp-dermatology
+"""
+from __future__ import annotations
+import io
+import json
+import os
+import re
+import sys
+import time
+import urllib.request
+
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+API = "https://clinicaltrials.gov/api/v2/studies/{}?format=json"
+NCT = re.compile(r"NCT\d{8}")
+AUTO = re.compile(r"AUTO_INCLUDE_TRIAL_IDS\s*=\s*new Set\(\[(.*?)\]\)", re.S)
+CACHE = os.path.join(REPO, ".every-rank-cache.json")
+
+EFFICACY = re.compile(
+    r"incidence of|episode|infection|mortality|death|hospitali|cure|clearance|"
+    r"eradicat|relapse|recurren|treatment failure|viral load|suppress|acquisition|"
+    r"severe|symptomatic|confirmed case|parasit|culture conver|sputum|stroke|"
+    r"myocardial infarction|revasculari|amputation|dialysis|transplant|"
+    r"exacerbation|remission|progression", re.I)
+NONCLINICAL = re.compile(
+    r"antibody|antibodies|titer|titre|immunogenic|seroconver|seroprotect|"
+    r"geometric mean|reactogenic|solicited|adverse event|tolerabilit|safety|"
+    r"pharmacokinet|concentration|change from baseline in.*(?:level|score)", re.I)
+DESIGNED_NONCLINICAL = re.compile(
+    r"safety|immunogenic|tolerabilit|pharmacokinet|reactogenic|dose.finding|"
+    r"bioequivalence|dose.rang", re.I)
+
+cache = json.load(io.open(CACHE, encoding="utf-8")) if os.path.exists(CACHE) else {}
+
+
+def fetch(nct):
+    if nct in cache:
+        return cache[nct]
+    try:
+        req = urllib.request.Request(API.format(nct), headers={"User-Agent": "rm-er"})
+        with urllib.request.urlopen(req, timeout=45) as r:
+            d = json.loads(r.read().decode("utf-8"))
+        ps = d.get("protocolSection") or {}
+        om = ps.get("outcomesModule") or {}
+        des = ps.get("designModule") or {}
+        rec = {"title": (ps.get("identificationModule") or {}).get("briefTitle", ""),
+               "purpose": ((des.get("designInfo") or {}).get("primaryPurpose") or ""),
+               "primary": [o.get("measure", "") for o in (om.get("primaryOutcomes") or [])],
+               "secondary": [o.get("measure", "") for o in (om.get("secondaryOutcomes") or [])],
+               "other": [o.get("measure", "") for o in (om.get("otherOutcomes") or [])]}
+    except Exception as e:
+        rec = {"error": str(e)[:40]}
+    cache[nct] = rec
+    time.sleep(0.07)
+    return rec
+
+
+def has_clinical(rec):
+    for bucket in ("primary", "secondary", "other"):
+        for m in rec.get(bucket) or []:
+            if EFFICACY.search(m or "") and not NONCLINICAL.search(m or ""):
+                return True
+    return False
+
+
+def designed_nonclinical(rec):
+    """Does the registration itself say it is a safety/immunogenicity study?"""
+    t = rec.get("title", "")
+    return bool(DESIGNED_NONCLINICAL.search(t))
+
+
+def main() -> int:
+    if len(sys.argv) < 3:
+        print("usage: every_rank_read.py <section-id> <next-section-id>")
+        return 2
+    start, end = sys.argv[1], sys.argv[2]
+    idx = io.open(os.path.join(REPO, "index.html"), encoding="utf-8",
+                  errors="replace").read()
+    a, b = idx.find('id="%s"' % start), idx.find('id="%s"' % end)
+    seg = idx[a:b if b > a else len(idx)]
+    pages, seen = [], set()
+    for m in re.finditer(r'href="([A-Za-z0-9_]+\.html)"', seg):
+        p = m.group(1)
+        if p in seen:
+            continue
+        seen.add(p)
+        if os.path.exists(os.path.join(REPO, p)) and \
+           os.path.getsize(os.path.join(REPO, p)) > 10000:
+            pages.append(p)
+
+    print("%s -- topics: %d" % (start, len(pages)))
+    print()
+    ALL, MIXED, FINE, NOTRIAL = [], [], [], []
+    for p in pages:
+        html = io.open(os.path.join(REPO, p), encoding="utf-8", errors="replace").read()
+        m = AUTO.search(html)
+        ids = sorted(set(NCT.findall(m.group(1)))) if m else []
+        if not ids:
+            NOTRIAL.append(p)
+            continue
+        without, with_, designed = [], [], []
+        for n in ids:
+            r = fetch(n)
+            if r.get("error"):
+                continue
+            if has_clinical(r):
+                with_.append(n)
+            else:
+                without.append(n)
+                if designed_nonclinical(r):
+                    designed.append(n)
+        json.dump(cache, io.open(CACHE, "w", encoding="utf-8"), ensure_ascii=False)
+        if not without:
+            FINE.append(p)
+        elif not with_:
+            ALL.append((p, len(ids), len(designed)))
+            print("ALL    %-50s k=%-2d  of which the REGISTRATION ITSELF says "
+                  "safety/immunogenicity: %d" % (p[:49], len(ids), len(designed)))
+        else:
+            MIXED.append((p, len(with_), len(without), len(designed)))
+            print("MIXED  %-50s %d with / %d without  (designed non-clinical: %d)"
+                  % (p[:49], len(with_), len(without), len(designed)))
+
+    n = len(pages)
+    print()
+    print("=" * 96)
+    print("EVERY-RANK READ -- %s" % start)
+    print("=" * 96)
+    print("  topics read                                     : %d" % n)
+    print("  ALL seeded trials register NO clinical endpoint  : %d" % len(ALL))
+    print("  MIXED -- some do, some do not                    : %d" % len(MIXED))
+    print("  every trial registers one                        : %d" % len(FINE))
+    print("  no registration seeded                           : %d" % len(NOTRIAL))
+    des_all = sum(d for _, _, d in ALL)
+    tot_all = sum(k for _, k, _ in ALL)
+    print()
+    print("  Within the ALL group: %d of %d trials have a registration whose OWN TITLE"
+          % (des_all, tot_all))
+    print("  says safety / immunogenicity / pharmacokinetics -- i.e. the trial was")
+    print("  DESIGNED as such and a synthesis has treated it as an efficacy trial.")
+    print("  The remaining %d are the selective-reporting shape instead." % (tot_all - des_all))
+    print()
+    print("  ONLY 'ALL' IS AN UNAMBIGUOUS CLAIM. MIXED means the topic contains at least")
+    print("  one trial that did pre-specify a clinical outcome.")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+
+codex
+Findings:
+
+- **STATUS CODE REPORTING THE WRAPPER / ZERO CONFLATED WITH ABSENT**: lines 142-143 and 151.  
+  Exact input: page contains `AUTO_INCLUDE_TRIAL_IDS = new Set(["NCT00000001"])`; `.every-rank-cache.json` contains `{"NCT00000001":{"error":"timed out"}}`.  
+  Consequence: the only trial is unread, but `without` stays empty, so the topic is counted as `FINE` and the script exits 0.
+
+- **STATUS CODE REPORTING THE WRAPPER**: lines 142-154 and 173.  
+  Exact input: page contains `AUTO_INCLUDE_TRIAL_IDS = new Set(["NCT00000001","NCT00000002"])`; cache has `NCT00000001` as `{"title":"","primary":["Antibody titer"],"secondary":[],"other":[]}` and `NCT00000002` as `{"error":"timed out"}`.  
+  Consequence: the `ALL` denominator is reported as `k=2` even though only one trial was actually classified.
+
+- **A CHECK THAT CANNOT FAIL**: lines 117-118 and 183.  
+  Exact input: run `python scripts/every_rank_read.py missing sp-nephrology` with `index.html` containing `id="sp-nephrology"`.  
+  Consequence: `a == -1` yields an empty/invalid slice, but the script reports `topics: 0` and returns success instead of failing on a missing section.
+
+- **SELECTOR KEYED TO A FORM THE CORPUS MAY NOT USE**: line 120.  
+  Exact input: selected `index.html` segment contains `<a href="topic-one.html">x</a>` and `topic-one.html` exists and is over 10000 bytes.  
+  Consequence: the hyphenated HTML page is silently skipped because the regex only allows letters, digits, and `_`.
+
+- **INSTRUMENT READING A DIFFERENT FIELD THAN THE CLAIM**: lines 85 and 106-107.  
+  Exact input: `designed_nonclinical({"title":"Trial of X","purpose":"safety"})`.  
+  Consequence: returns `False` even though `purpose` says safety, so designed-nonclinical trials can be counted as selective-reporting cases.
+
+No defect found in the pasted file for: probe keyed to string a fix removes; idempotency guard satisfied by own comment; CRLF-vs-LF text comparison; merged-cell tabulation; negation dropped.
+tokens used
+26,611
+Findings:
+
+- **STATUS CODE REPORTING THE WRAPPER / ZERO CONFLATED WITH ABSENT**: lines 142-143 and 151.  
+  Exact input: page contains `AUTO_INCLUDE_TRIAL_IDS = new Set(["NCT00000001"])`; `.every-rank-cache.json` contains `{"NCT00000001":{"error":"timed out"}}`.  
+  Consequence: the only trial is unread, but `without` stays empty, so the topic is counted as `FINE` and the script exits 0.
+
+- **STATUS CODE REPORTING THE WRAPPER**: lines 142-154 and 173.  
+  Exact input: page contains `AUTO_INCLUDE_TRIAL_IDS = new Set(["NCT00000001","NCT00000002"])`; cache has `NCT00000001` as `{"title":"","primary":["Antibody titer"],"secondary":[],"other":[]}` and `NCT00000002` as `{"error":"timed out"}`.  
+  Consequence: the `ALL` denominator is reported as `k=2` even though only one trial was actually classified.
+
+- **A CHECK THAT CANNOT FAIL**: lines 117-118 and 183.  
+  Exact input: run `python scripts/every_rank_read.py missing sp-nephrology` with `index.html` containing `id="sp-nephrology"`.  
+  Consequence: `a == -1` yields an empty/invalid slice, but the script reports `topics: 0` and returns success instead of failing on a missing section.
+
+- **SELECTOR KEYED TO A FORM THE CORPUS MAY NOT USE**: line 120.  
+  Exact input: selected `index.html` segment contains `<a href="topic-one.html">x</a>` and `topic-one.html` exists and is over 10000 bytes.  
+  Consequence: the hyphenated HTML page is silently skipped because the regex only allows letters, digits, and `_`.
+
+- **INSTRUMENT READING A DIFFERENT FIELD THAN THE CLAIM**: lines 85 and 106-107.  
+  Exact input: `designed_nonclinical({"title":"Trial of X","purpose":"safety"})`.  
+  Consequence: returns `False` even though `purpose` says safety, so designed-nonclinical trials can be counted as selective-reporting cases.
+
+No defect found in the pasted file for: probe keyed to string a fix removes; idempotency guard satisfied by own comment; CRLF-vs-LF text comparison; merged-cell tabulation; negation dropped.

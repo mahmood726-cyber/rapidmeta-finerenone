@@ -1,0 +1,543 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a031eb-4a40-7f93-82d3-7980871cb3a0
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/lint_gate_can_fail.py
+
+--- THE FILE, IN FULL ---
+#!/usr/bin/env python3
+"""A FILE NAMED `*_gate.py` MUST BE ABLE TO FAIL. The name is a promise; this keeps it.
+
+FOUND BY A CORPUS SWEEP, 2026-08-19. Four files named `*_gate.py` --
+internal_consistency_gate, arm_role_gate, metric_consistency_gate, subject_role_gate -- had NO
+reachable non-zero exit. They could only ever pass.
+
+AND THEY WERE NOT BROKEN. Reading them settled it: each self-describes as advisory --
+"TRIAGE, NOT A VERDICT", "A flag means READ THE TRIAL". They were correctly-designed triage
+tools wearing the wrong name. The defect was the NAME, not the behaviour, and wiring them to
+block would have contradicted their own stated contract. All four are now `*_triage.py`.
+
+    A GATE THAT CANNOT FAIL IS NOT A DEFECT WHILE NOTHING RUNS IT. IT IS A TRAP FOR WHOEVER
+    WIRES IT IN NEXT, who will reasonably assume a thing called a gate can block.
+
+That is why this is a lint and not a one-off cleanup: the four files were fixed by renaming, but
+nothing stopped the fifth from being written tomorrow. The convention only holds if it is
+mechanical.
+
+THE RULE: a module whose filename ends `_gate.py` must contain a REACHABLE non-zero exit --
+`sys.exit(1)`, `sys.exit(2)`, `return 1` from main, `raise SystemExit(...)` with a message, or
+an explicit non-zero exit code. A module that merely PRINTS failures is a report, and reports
+are named `_triage.py`, `_check.py`, `_census.py` or anything else.
+
+WHAT IT DOES NOT CHECK, named rather than implied: reachability is judged SYNTACTICALLY -- the
+statement exists in the file. It does not prove any input can actually reach it. A gate with
+`if False: sys.exit(1)` passes this lint and cannot fail in practice. Proving reachability is
+the known-answer test (scripts/known_answer_gate.py), which is a different instrument; this one
+only enforces that the promise is present in the source at all.
+"""
+import ast
+import io
+import json
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+SKIP_DIRS = {".git", "__pycache__", "node_modules", "figs", "sources"}
+
+# A VERB PREFIX PUTS 'gate' IN THE OBJECT POSITION, NOT THE SUBJECT. `add_f1000_gate.py` and
+# `extend_alignment_gate.py` are one-off scripts that MODIFY a gate; `test_build_gate.py` is a
+# TEST OF a gate. None of them claims to be one, so none owes a failing exit.
+#
+# This is exactly the move that turns a guard into a formality, so the exclusions are COUNTED
+# AND NAMED on every run. If that list starts growing, it is being used as a hiding place --
+# and the fix then is to rename the file, not to extend this tuple.
+ACTS_ON_A_GATE = ("test_", "add_", "extend_", "fix_", "make_", "regenerate_")
+
+
+def _returns_nonzero(tree, fname):
+    """Does the module-level function `fname` ever return a non-zero constant?
+
+    THE IDIOM THAT DEFEATED THE FIRST VERSION OF THIS LINT. `sys.exit(main())` is the standard
+    gate shape, so a non-constant argument was treated as 'can fail'. But all four files that
+    motivated this lint end exactly that way with a `main()` whose only return is 0 -- so the
+    first version WOULD HAVE MISSED THE FOUR FILES IT WAS WRITTEN FOR. Caught by testing it
+    against them rather than against an invented probe, which is the whole standard here.
+
+    Resolved conservatively: if the named function cannot be found, or returns something this
+    cannot evaluate (a variable, a call), the answer is True -- unproven is not the same as
+    proven-safe, and a lint should not manufacture a failure it cannot demonstrate.
+    """
+    for node in ast.walk(tree):
+        if isinstance(node, ast.FunctionDef) and node.name == fname:
+            saw_unknown = False
+            for r in ast.walk(node):
+                if isinstance(r, ast.Return) and r.value is not None:
+                    if isinstance(r.value, ast.Constant) and isinstance(r.value.value, int):
+                        if r.value.value != 0:
+                            return True
+                    else:
+                        saw_unknown = True
+            return saw_unknown
+    return True                       # function not found: do not claim it cannot fail
+
+
+def has_failing_exit(tree):
+    """True if the module contains a non-zero exit / SystemExit / `return 1`."""
+    for node in ast.walk(tree):
+        # sys.exit(1) / exit(2) / sys.exit(main())  -- the last is a real gate idiom
+        if isinstance(node, ast.Call):
+            fn = node.func
+            name = getattr(fn, "attr", None) or getattr(fn, "id", None)
+            if name in ("exit", "_exit"):
+                if not node.args:
+                    continue                       # exit() with no code == exit(0)
+                a = node.args[0]
+                if isinstance(a, ast.Constant) and isinstance(a.value, int):
+                    if a.value != 0:
+                        return True
+                elif isinstance(a, ast.Call) and getattr(a.func, "id", None):
+                    # sys.exit(main()) -- resolve main() rather than assume it can fail
+                    if _returns_nonzero(tree, a.func.id):
+                        return True
+                else:
+                    return True                    # sys.exit(<expr>) we cannot resolve
+        if isinstance(node, ast.Raise):
+            exc = node.exc
+            nm = getattr(getattr(exc, "func", None), "id", None) or getattr(exc, "id", None)
+            if nm == "SystemExit":
+                return True
+        # `return 1` (or any non-zero int) from a function
+        if isinstance(node, ast.Return) and isinstance(node.value, ast.Constant):
+            if isinstance(node.value.value, int) and node.value.value != 0:
+                return True
+    return False
+
+
+# WIDENED 2026-08-20 FROM A FILENAME TO A ROLE, and the reason is that the filename
+# convention retired the rule as the codebase grew.
+#
+# This lint was written after four files named `*_gate.py` turned out to be triage tools
+# that could only pass. EVERY INSTRUMENT WRITTEN SINCE HAS BEEN NAMED `lint_*` OR `audit_*`,
+# so none of them was subject to it -- including eleven written last night. Nobody evaded
+# the rule; THE RULE WAS SCOPED TO A NAME AND THE NAMES MOVED. A rule that narrows silently
+# as the code grows is worse than no rule, because it keeps reporting a clean result over a
+# shrinking population.
+#
+# THE SCOPE IS NOW THE ROLE: a file that RETURNS A VERDICT. `lint_`, `audit_`, `check_`,
+# `verify_`, `prove_`, `*_gate.py`, `*_check.py`. Files that ACT on a gate keep their verb
+# exclusion.
+#
+# AND A FILE THAT CANNOT FAIL IS NOT AUTOMATICALLY A DEFECT UNDER THE WIDER SCOPE. Some are
+# TRIAGE by design -- `audit_path_resolvers.py` prints a reading list and says so in its own
+# last line. Those are named in KNOWN_TRIAGE rather than being counted as breaches, and each
+# entry states why, so "it is only a report" has to be written down rather than assumed.
+VERDICT_PREFIX = ("lint_", "audit_", "check_", "verify_", "prove_")
+VERDICT_SUFFIX = ("_gate.py", "_check.py")
+
+# Instruments that report rather than refuse, BY DESIGN, each with the reason.
+KNOWN_TRIAGE = {
+    "audit_path_resolvers.py":
+        "prints a reading list of resolver bodies -- 14 found, 12 unread. Its own closing "
+        "line: 'this is not a clean bill and it is not a defect count; it is a reading "
+        "list.' Blocking on a reading list would block every push until the list is read.",
+    "audit_exclusion_by_absence.py":
+        "the 1,300-guard population is a report; only the 125 inside a corpus-wide loop are "
+        "gated, and that limb DOES exit non-zero under --gate.",
+    "audit_class_mechanisation.py":
+        "reports the mechanisation table; its --gate limb refuses when a class names a "
+        "command that cannot fail.",
+    "audit_standing_instructions.py":
+        "reports which standing instructions are enforced, coincident or convention. There "
+        "is nothing to refuse -- a convention is not a violation.",
+}
+
+
+def returns_a_verdict(fn):
+    return (fn.startswith(VERDICT_PREFIX) or fn.endswith(VERDICT_SUFFIX)) \
+        and fn.endswith(".py")
+
+
+def _fails_through_controls(src):
+    """require_controls() raises ControlFailed, which subclasses SystemExit.
+
+    THE SAME BLINDNESS THE MECHANISATION AUDIT HAD. An AST search for sys.exit / raise
+    SystemExit / return non-zero cannot see a file that fails ONLY through its declared
+    controls, and it scored three such files as unable to fail -- two of which refuse a
+    degenerate input on every run. A checker that cannot recognise the project's own
+    failure idiom reports its own instruments as vacuous.
+    """
+    return "require_controls(" in src
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    bad, checked, unparsable, excluded, triage = [], 0, [], [], []
+    for root, dirs, files in os.walk(REPO):
+        dirs[:] = [d for d in dirs if d not in SKIP_DIRS and not d.startswith(".")]
+        for fn in files:
+            if not returns_a_verdict(fn):
+                continue
+            p = os.path.join(root, fn)
+            rel = os.path.relpath(p, REPO)
+            if fn.startswith(ACTS_ON_A_GATE):
+                excluded.append(rel)
+                continue
+            try:
+                tree = ast.parse(io.open(p, encoding="utf-8", errors="replace").read())
+            except (SyntaxError, OSError) as e:
+                unparsable.append((rel, str(e)[:60]))   # reported, never skipped
+                continue
+            checked += 1
+            if has_failing_exit(tree):
+                continue
+            if _fails_through_controls(io.open(p, encoding="utf-8",
+                                               errors="replace").read()):
+                continue
+            if fn in KNOWN_TRIAGE:
+                triage.append((rel, KNOWN_TRIAGE[fn]))
+                continue
+            bad.append(rel)
+
+    for rel in bad:
+        print("%s" % rel)
+        print("      named a GATE but contains no reachable non-zero exit: it can only pass.")
+    for rel, err in unparsable:
+        print("%s  UNPARSABLE (%s) -- reported, not skipped" % (rel, err))
+    print()
+    if excluded:
+        print("excluded -- a VERB prefix puts 'gate' in the object position, so the file acts")
+        print("ON a gate rather than being one. Counted and named every run:")
+        for rel in excluded:
+            print("   %s" % rel)
+        print()
+    if triage:
+        print("TRIAGE BY DESIGN -- reports rather than refuses, each with its reason:")
+        for rel, why in triage:
+            print("   %s" % rel)
+            print("      %s" % why)
+        print()
+    print("files that RETURN A VERDICT   %d checked, %d unparsable, %d excluded by verb "
+          "prefix, %d triage by design"
+          % (checked, len(unparsable), len(excluded), len(triage)))
+    print("cannot ever fail        %d" % len(bad))
+    print()
+    print("NOT CHECKED: reachability is syntactic. `if False: sys.exit(1)` passes this lint.")
+    print("Proving a gate CAN fire on a real input is the known-answer test, a different")
+    print("instrument (scripts/known_answer_gate.py).")
+    if unparsable:
+        print()
+        print("REFUSED: unparsable file(s) that return a verdict.")
+        return 1
+    # RATCHET, BECAUSE THE WIDENING FOUND 45 AT ONCE.
+    #
+    # Scoped to `*_gate.py` this lint saw about ten files and reported zero. Scoped to
+    # anything that RETURNS A VERDICT it sees 163 and finds 45 that cannot fail. THAT
+    # DIFFERENCE IS WHAT THE FILENAME SCOPING WAS HIDING -- the rule had been retiring
+    # itself for weeks, reporting clean over a population that kept shrinking as a share of
+    # the code.
+    #
+    # Blocking on 45 would block every commit until they are all read, which is how a gate
+    # gets bypassed rather than satisfied. They are baselined and THE COUNT MUST NOT RISE.
+    # This is not a clearance: a baselined file still cannot fail, and each one is a report
+    # wearing a verdict's name.
+    ratchet_path = os.path.join(REPO, "scripts", "baselines", "gate_can_fail_baseline.json")
+    present = sorted(r.replace("\\", "/") for r in bad)
+    if not os.path.exists(ratchet_path):
+        os.makedirs(os.path.dirname(ratchet_path), exist_ok=True)
+        json.dump({
+            "written": "2026-08-20",
+            "why": ("The rule 'a file that returns a verdict must be able to fail' was "
+                    "scoped to the filename *_gate.py and every instrument written since "
+                    "was named lint_ or audit_, so the rule narrowed silently as the "
+                    "codebase grew. Widening the scope surfaced 45 at once. NOT A "
+                    "CLEARANCE -- each of these still cannot fail. THE COUNT MUST NOT RISE."),
+            "cannot_fail": present,
+        }, io.open(ratchet_path, "w", encoding="utf-8", newline=chr(10)), indent=1,
+            ensure_ascii=False)
+        print("wrote baseline with %d files that cannot fail" % len(present))
+        return 0
+
+    known = set(json.load(io.open(ratchet_path, encoding="utf-8")).get("cannot_fail") or [])
+    new = sorted(set(present) - known)
+    healed = sorted(known - set(present))
+    if healed:
+        print("%d baselined file(s) can now fail, or are gone." % len(healed))
+    if new:
+        print("REFUSED: %d NEW file(s) that return a verdict and cannot fail:" % len(new))
+        for r in new:
+            print("   %s" % r)
+        return 1
+    print("NO NEW FILE THAT CANNOT FAIL. The baseline of %d has not risen." % len(known))
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+
+codex
+I’ll treat the pasted packet as the only evidence and line-number it from the first shebang line, so I’m not relying on a potentially different worktree copy.
+codex
+I’m focusing on falsifiable cases where this lint would return “can fail” while the demonstrated script exits zero or has no real failing path.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=0; Get-Content -LiteralPath '"'scripts/lint_gate_can_fail.py' | ForEach-Object { "'$i++; if ($i -in 68,72,83,84,88,96,100,101,103,104,105,161,188,236,249,251) { '"'{0}: {1}' -f "'$i, $_ } }' in F:\rapidmeta-ssot-shell
+ succeeded in 1244ms:
+68:                     if isinstance(r.value, ast.Constant) and isinstance(r.value.value, int):
+72:                         saw_unknown = True
+83:             name = getattr(fn, "attr", None) or getattr(fn, "id", None)
+84:             if name in ("exit", "_exit"):
+88:                 if isinstance(a, ast.Constant) and isinstance(a.value, int):
+96:                     return True                    # sys.exit(<expr>) we cannot resolve
+100:             if nm == "SystemExit":
+101:                 return True
+103:         if isinstance(node, ast.Return) and isinstance(node.value, ast.Constant):
+104:             if isinstance(node.value.value, int) and node.value.value != 0:
+105:                 return True
+161:     """
+188:                 continue
+236:     ratchet_path = os.path.join(REPO, "scripts", "baselines", "gate_can_fail_baseline.json")
+249:             ensure_ascii=False)
+251:         return 0
+
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=0; Get-Content -LiteralPath '"'scripts/lint_gate_can_fail.py' | ForEach-Object { "'$i++; if ($i -ge 152 -and $i -le 164) { '"'{0}: {1}' -f "'$i, $_ } }' in F:\rapidmeta-ssot-shell
+ succeeded in 1232ms:
+152: 
+153: def _fails_through_controls(src):
+154:     """require_controls() raises ControlFailed, which subclasses SystemExit.
+155: 
+156:     THE SAME BLINDNESS THE MECHANISATION AUDIT HAD. An AST search for sys.exit / raise
+157:     SystemExit / return non-zero cannot see a file that fails ONLY through its declared
+158:     controls, and it scored three such files as unable to fail -- two of which refuse a
+159:     degenerate input on every run. A checker that cannot recognise the project's own
+160:     failure idiom reports its own instruments as vacuous.
+161:     """
+162:     return "require_controls(" in src
+163: 
+164: 
+
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=0; Get-Content -LiteralPath '"'scripts/lint_gate_can_fail.py' | ForEach-Object { "'$i++; if (($i -ge 174 -and $i -le 194) -or ($i -ge 232 -and $i -le 254)) { '"'{0}: {1}' -f "'$i, $_ } }' in F:\rapidmeta-ssot-shell
+ succeeded in 1304ms:
+174:             rel = os.path.relpath(p, REPO)
+175:             if fn.startswith(ACTS_ON_A_GATE):
+176:                 excluded.append(rel)
+177:                 continue
+178:             try:
+179:                 tree = ast.parse(io.open(p, encoding="utf-8", errors="replace").read())
+180:             except (SyntaxError, OSError) as e:
+181:                 unparsable.append((rel, str(e)[:60]))   # reported, never skipped
+182:                 continue
+183:             checked += 1
+184:             if has_failing_exit(tree):
+185:                 continue
+186:             if _fails_through_controls(io.open(p, encoding="utf-8",
+187:                                                errors="replace").read()):
+188:                 continue
+189:             if fn in KNOWN_TRIAGE:
+190:                 triage.append((rel, KNOWN_TRIAGE[fn]))
+191:                 continue
+192:             bad.append(rel)
+193: 
+194:     for rel in bad:
+232:     # Blocking on 45 would block every commit until they are all read, which is how a gate
+233:     # gets bypassed rather than satisfied. They are baselined and THE COUNT MUST NOT RISE.
+234:     # This is not a clearance: a baselined file still cannot fail, and each one is a report
+235:     # wearing a verdict's name.
+236:     ratchet_path = os.path.join(REPO, "scripts", "baselines", "gate_can_fail_baseline.json")
+237:     present = sorted(r.replace("\\", "/") for r in bad)
+238:     if not os.path.exists(ratchet_path):
+239:         os.makedirs(os.path.dirname(ratchet_path), exist_ok=True)
+240:         json.dump({
+241:             "written": "2026-08-20",
+242:             "why": ("The rule 'a file that returns a verdict must be able to fail' was "
+243:                     "scoped to the filename *_gate.py and every instrument written since "
+244:                     "was named lint_ or audit_, so the rule narrowed silently as the "
+245:                     "codebase grew. Widening the scope surfaced 45 at once. NOT A "
+246:                     "CLEARANCE -- each of these still cannot fail. THE COUNT MUST NOT RISE."),
+247:             "cannot_fail": present,
+248:         }, io.open(ratchet_path, "w", encoding="utf-8", newline=chr(10)), indent=1,
+249:             ensure_ascii=False)
+250:         print("wrote baseline with %d files that cannot fail" % len(present))
+251:         return 0
+252: 
+253:     known = set(json.load(io.open(ratchet_path, encoding="utf-8")).get("cannot_fail") or [])
+254:     new = sorted(set(present) - known)
+
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=0; Get-Content -LiteralPath '"'scripts/lint_gate_can_fail.py' | ForEach-Object { "'$i++; if ($i -ge 63 -and $i -le 107) { '"'{0}: {1}' -f "'$i, $_ } }' in F:\rapidmeta-ssot-shell
+ succeeded in 1238ms:
+63:     for node in ast.walk(tree):
+64:         if isinstance(node, ast.FunctionDef) and node.name == fname:
+65:             saw_unknown = False
+66:             for r in ast.walk(node):
+67:                 if isinstance(r, ast.Return) and r.value is not None:
+68:                     if isinstance(r.value, ast.Constant) and isinstance(r.value.value, int):
+69:                         if r.value.value != 0:
+70:                             return True
+71:                     else:
+72:                         saw_unknown = True
+73:             return saw_unknown
+74:     return True                       # function not found: do not claim it cannot fail
+75: 
+76: 
+77: def has_failing_exit(tree):
+78:     """True if the module contains a non-zero exit / SystemExit / `return 1`."""
+79:     for node in ast.walk(tree):
+80:         # sys.exit(1) / exit(2) / sys.exit(main())  -- the last is a real gate idiom
+81:         if isinstance(node, ast.Call):
+82:             fn = node.func
+83:             name = getattr(fn, "attr", None) or getattr(fn, "id", None)
+84:             if name in ("exit", "_exit"):
+85:                 if not node.args:
+86:                     continue                       # exit() with no code == exit(0)
+87:                 a = node.args[0]
+88:                 if isinstance(a, ast.Constant) and isinstance(a.value, int):
+89:                     if a.value != 0:
+90:                         return True
+91:                 elif isinstance(a, ast.Call) and getattr(a.func, "id", None):
+92:                     # sys.exit(main()) -- resolve main() rather than assume it can fail
+93:                     if _returns_nonzero(tree, a.func.id):
+94:                         return True
+95:                 else:
+96:                     return True                    # sys.exit(<expr>) we cannot resolve
+97:         if isinstance(node, ast.Raise):
+98:             exc = node.exc
+99:             nm = getattr(getattr(exc, "func", None), "id", None) or getattr(exc, "id", None)
+100:             if nm == "SystemExit":
+101:                 return True
+102:         # `return 1` (or any non-zero int) from a function
+103:         if isinstance(node, ast.Return) and isinstance(node.value, ast.Constant):
+104:             if isinstance(node.value.value, int) and node.value.value != 0:
+105:                 return True
+106:     return False
+107: 
+
+codex
+Defects found:
+
+- Line 84: name checked, not binding. Input `scripts/lint_shadow_exit.py`:
+```python
+def exit(code): return None
+exit(1)
+```
+Consequence: the lint records a failing exit, but the script exits zero.
+
+- Line 96: `sys.exit(None)` is treated as unknown and therefore failing. Input `scripts/lint_none_exit.py`:
+```python
+import sys
+sys.exit(None)
+```
+Consequence: a zero-exit script is accepted as able to fail.
+
+- Lines 100-101: all `SystemExit` raises count, including zero. Input `scripts/lint_zero_system_exit.py`:
+```python
+raise SystemExit(0)
+```
+Consequence: an explicit successful exit satisfies the “can fail” test.
+
+- Lines 103-105: any nonzero `return` anywhere counts, even when not used as process status. Input `scripts/lint_ignored_return.py`:
+```python
+def helper():
+    return 1
+print("PASS")
+```
+Consequence: a helper’s ignored return masks a verdict file that exits zero.
+
+- Line 162: control failure is detected by raw substring. Input `scripts/lint_comment_control.py`:
+```python
+# require_controls(
+print("PASS")
+```
+Consequence: a comment satisfies the guard and exempts a file that cannot fail.
+
+- Lines 238-251: missing baseline bootstraps and returns success. Input: remove `scripts/baselines/gate_can_fail_baseline.json` and add `scripts/lint_bad.py` containing `print("PASS")`. Consequence: deleting the control file turns new failures into a passing baseline write.
+
+None found: CRLF/LF text comparison, merged-cell/off-by-one tabulation, negation-dropped parsing.
+
+COULD NOT DETERMINE: corpus-form selector undercoverage; missing full repository file list/baseline contents from the packet.
+tokens used
+30,846
+Defects found:
+
+- Line 84: name checked, not binding. Input `scripts/lint_shadow_exit.py`:
+```python
+def exit(code): return None
+exit(1)
+```
+Consequence: the lint records a failing exit, but the script exits zero.
+
+- Line 96: `sys.exit(None)` is treated as unknown and therefore failing. Input `scripts/lint_none_exit.py`:
+```python
+import sys
+sys.exit(None)
+```
+Consequence: a zero-exit script is accepted as able to fail.
+
+- Lines 100-101: all `SystemExit` raises count, including zero. Input `scripts/lint_zero_system_exit.py`:
+```python
+raise SystemExit(0)
+```
+Consequence: an explicit successful exit satisfies the “can fail” test.
+
+- Lines 103-105: any nonzero `return` anywhere counts, even when not used as process status. Input `scripts/lint_ignored_return.py`:
+```python
+def helper():
+    return 1
+print("PASS")
+```
+Consequence: a helper’s ignored return masks a verdict file that exits zero.
+
+- Line 162: control failure is detected by raw substring. Input `scripts/lint_comment_control.py`:
+```python
+# require_controls(
+print("PASS")
+```
+Consequence: a comment satisfies the guard and exempts a file that cannot fail.
+
+- Lines 238-251: missing baseline bootstraps and returns success. Input: remove `scripts/baselines/gate_can_fail_baseline.json` and add `scripts/lint_bad.py` containing `print("PASS")`. Consequence: deleting the control file turns new failures into a passing baseline write.
+
+None found: CRLF/LF text comparison, merged-cell/off-by-one tabulation, negation-dropped parsing.
+
+COULD NOT DETERMINE: corpus-form selector undercoverage; missing full repository file list/baseline contents from the packet.

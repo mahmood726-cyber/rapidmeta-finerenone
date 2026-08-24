@@ -1,0 +1,250 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a0325a-95fd-7cb3-b49c-4a2557456d83
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/restyle_index_nyt.py
+
+--- THE FILE, IN FULL ---
+#!/usr/bin/env python
+"""Give index.html a clean, NYT-style editorial look + a plain-language concept
+explainer + a sticky specialty jump-nav. Preserves all cards, the integrity
+banner, the section structure, and the footer/scripts.
+
+Changes:
+  1. Replace the <style> block with an editorial stylesheet (serif headlines,
+     sans UI, generous whitespace, hairline rules, restrained palette).
+  2. Replace the masthead top (badge/h1/meta) with a kicker + headline + byline.
+  3. Replace the jargon-wall summary + note with a short standfirst + a 3-point
+     "how it works" concept strip.
+  4. Add id="sp-<slug>" to each specialty <h2> and insert a sticky jump-nav.
+  5. Strip the inline border-left-color from cards so they look uniform.
+
+Asserts card count + div balance unchanged.
+"""
+from __future__ import annotations
+import os
+import re
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+PATH = os.path.join(REPO, "index.html")
+
+NEW_CSS = """
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:Georgia,'Times New Roman',serif;background:#fff;color:#121212;line-height:1.5;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+a{color:#326891}
+.page{max-width:1120px;margin:0 auto;padding:0 28px 64px}
+tbody tr td a{display:inline-block;padding:4px 0;min-height:24px;line-height:1.5}
+/* ---- masthead ---- */
+.masthead{text-align:center;padding:72px 0 30px;border-bottom:1px solid #121212}
+.kicker{font-family:system-ui,-apple-system,sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#9a6a00;margin-bottom:20px}
+h1.title{font-family:Georgia,serif;font-weight:700;font-size:clamp(2.1rem,5.2vw,3.5rem);line-height:1.07;letter-spacing:-.015em;max-width:18ch;margin:0 auto 20px}
+.standfirst{font-family:Georgia,serif;font-size:clamp(1.05rem,2vw,1.28rem);line-height:1.5;color:#333;max-width:64ch;margin:0 auto 24px}
+.byline{font-family:system-ui,sans-serif;font-size:.74rem;letter-spacing:.04em;color:#666;text-transform:uppercase}
+.byline a{color:#326891;text-decoration:none}
+.byline a:hover{text-decoration:underline}
+/* ---- concept strip ---- */
+.concept{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;max-width:1000px;margin:38px auto 8px;font-family:system-ui,sans-serif}
+.concept .c{padding-top:14px;border-top:3px solid #121212}
+.concept .c h3{font-family:Georgia,serif;font-size:1.05rem;font-weight:700;margin:0 0 6px}
+.concept .c p{font-size:.86rem;line-height:1.5;color:#555}
+@media(max-width:720px){.concept{grid-template-columns:1fr;gap:18px}}
+/* ---- integrity banner ---- */
+.integrity-banner{font-family:system-ui,sans-serif;font-size:.78rem;color:#444;display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;justify-content:center;margin:30px auto 0;max-width:1000px;padding:14px 18px;background:#FAFAF7;border:1px solid #ECECE4;border-radius:8px}
+.integrity-banner .stat{display:inline-flex;align-items:center;gap:6px}
+.integrity-banner .links{display:inline-flex;gap:14px;flex-wrap:wrap}
+.integrity-banner .links a{color:#326891;text-decoration:none}
+.integrity-banner .links a:hover{text-decoration:underline}
+.tier-dot{width:9px;height:9px;border-radius:50%;display:inline-block}
+.tier-OK{background:#1a8d4b}.tier-LOW_CONCERN{background:#caa300}.tier-MANUAL_REVIEW{background:#d97706}.tier-QUARANTINE{background:#c0392b}
+/* ---- sticky specialty nav ---- */
+.specnav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.96);backdrop-filter:saturate(160%) blur(6px);border-bottom:1px solid #e4e4e4;margin:34px -28px 0;padding:11px 28px;font-family:system-ui,sans-serif;font-size:.76rem;line-height:2}
+.specnav b{color:#9a6a00;text-transform:uppercase;letter-spacing:.12em;font-size:.66rem;margin-right:10px}
+.specnav a{color:#333;text-decoration:none;margin-right:15px;white-space:nowrap}
+.specnav a:hover{color:#9a6a00;text-decoration:underline}
+/* ---- sections ---- */
+h2{font-family:system-ui,sans-serif;font-size:.74rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#121212;margin:52px 0 0;padding-bottom:9px;border-bottom:2px solid #121212;scroll-margin-top:60px}
+.summary{font-size:1.05rem;margin:1.2rem 0;color:#444}
+.note{font-family:system-ui,sans-serif;font-size:.8rem;color:#555;background:#FAFAF7;border:1px solid #ECECE4;padding:.8rem 1rem;border-radius:8px;margin:1rem 0}
+/* ---- card grid ---- */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:0;border-top:1px solid #e6e6e6;margin:0 0 10px}
+.card{display:block;padding:15px 16px 16px;background:#fff;text-decoration:none;color:#121212;border-bottom:1px solid #ececec;border-right:1px solid #ececec;transition:background .12s}
+.card:hover{background:#FAFAF7}
+.card .name{font-family:Georgia,serif;font-weight:700;font-size:1rem;line-height:1.22;display:block;margin-bottom:6px;color:#121212}
+.card:hover .name{color:#9a6a00}
+.card .pub{font-family:system-ui,sans-serif;font-size:.72rem;color:#6a6a6a;line-height:1.4;display:block}
+.card.util{background:#FBFBF8}
+.links{display:grid;gap:.6rem}
+.footer{font-family:system-ui,sans-serif;font-size:.74rem;color:#999;padding-top:1.2rem;border-top:1px solid #e4e4e4;margin-top:2.5rem;line-height:1.7}
+.footer a{color:#326891}
+.badge{display:none}
+"""
+
+
+def slug(t):
+    return "sp-" + re.sub(r"[^a-z0-9]+", "-", t.lower()).strip("-")
+
+
+def main():
+    html = open(PATH, "rb").read().decode("utf-8", "replace")
+    cards_before = html.count('class="card')
+    div_before = html.count("<div") - html.count("</div>")
+
+    # 1) replace <style> inner
+    html = re.sub(r"(<style[^>]*>).*?(</style>)",
+                  lambda m: m.group(1) + NEW_CSS + m.group(2), html, count=1, flags=re.S)
+
+    # count review apps for the byline
+    n_reviews = len(re.findall(r'href="[A-Z0-9_][^"]*_REVIEW[^"]*\.html"[^>]*class="card', html))
+
+    # 2) masthead top: badge + h1 + meta  ->  kicker + title + byline
+    new_top = (
+        '<div class="masthead">\n'
+        '  <div class="kicker">RapidMeta &middot; Living Evidence Synthesis</div>\n'
+        '  <h1 class="title">Meta-analyses, generated from the trial record.</h1>\n'
+        '  <p class="standfirst">Each tile below is a self-contained, continuously updated '
+        'meta-analysis &mdash; built directly from clinical-trial registries '
+        '(ClinicalTrials.gov / AACT) and published primary reports, <em>not</em> from mining '
+        'PDFs. Every one runs a full Cochrane&nbsp;Handbook&nbsp;v6.5 statistics suite in the '
+        'browser and is cross-validated against R&nbsp;<code>metafor</code> and the published '
+        'meta-analytic literature.</p>\n'
+        f'  <div class="byline">Mahmood&nbsp;Ahmad &nbsp;&middot;&nbsp; {n_reviews}+ syntheses '
+        'across 18&nbsp;specialties &nbsp;&middot;&nbsp; '
+        '<a href="dashboard.html">Filterable dashboard &rarr;</a></div>\n'
+        '</div>\n\n  '
+    )
+    html, n1 = re.subn(r'<div class="badge">.*?(?=<!-- integrity-banner:begin -->)',
+                       lambda m: new_top, html, count=1, flags=re.S)
+    assert n1 == 1, "masthead-top anchor not found"
+
+    # 3) summary + note -> standfirst concept strip
+    concept = (
+        '\n  <div class="concept">\n'
+        '    <div class="c"><h3>Built from registries, not PDFs</h3>'
+        '<p>Trials, arms, and outcomes are read from structured registry data and published '
+        'primaries &mdash; so each review can be refreshed as the evidence base grows.</p></div>\n'
+        '    <div class="c"><h3>Cochrane-grade statistics, in the browser</h3>'
+        '<p>REML &amp; HKSJ pooling, prediction intervals, network meta-analysis, trial '
+        'sequential analysis, GRADE, and a 28-panel diagnostics suite &mdash; no install.</p></div>\n'
+        '    <div class="c"><h3>Audited &amp; reproducible</h3>'
+        '<p>Every pooled estimate is cross-checked against R&nbsp;<code>metafor</code> and the '
+        'published literature, with a transparent data-integrity audit.</p></div>\n'
+        '  </div>\n\n  '
+    )
+    html, n2 = re.subn(r'<p class="summary">.*?<div class="note">.*?</div>',
+                       lambda m: concept.rstrip() + "\n\n  ", html, count=1, flags=re.S)
+    assert n2 == 1, "summary/note anchor not found"
+
+    # 4) add ids to section <h2> and build a sticky nav (clinical specialties only)
+    titles = []
+    def add_id(m):
+        raw = m.group(1)
+        t = re.sub(r"<[^>]+>", "", raw).replace("&amp;", "&").strip()
+        titles.append(t)
+        return f'<h2 id="{slug(t)}">{raw}</h2>'
+    html = re.sub(r"<h2>(.*?)</h2>", add_id, html)
+
+    SKIP_NAV = ("Other / Cross", "Utilities", "E156", "All 77 pooled")
+    nav_items = [t for t in titles if not any(t.startswith(s) for s in SKIP_NAV)]
+    nav = ('<div class="specnav"><b>Browse</b>'
+           + "".join(f'<a href="#{slug(t)}">{t.replace("&","&amp;")}</a>' for t in nav_items)
+           + "</div>\n\n  ")
+    # insert nav right before the first section heading
+    html = re.sub(r'(\n\s*)(<h2 id="sp-)', r"\1" + nav + r"\2", html, count=1)
+
+    # 5) strip inline colored left-borders on cards (uniform look)
+    html = re.sub(r'(class="card[^"]*")\s+style="border-left-color:[^"]*"', r"\1", html)
+
+    cards_after = html.count('class="card')
+    div_after = html.count("<div") - html.count("</div>")
+    assert cards_after == cards_before, f"card count changed {cards_before}->{cards_after}"
+    assert div_after == div_before, f"div balance changed by {div_after-div_before}"
+
+    open(PATH, "wb").write(html.encode("utf-8"))
+    print(f"restyled: {n_reviews} review cards, {len(nav_items)} nav sections, "
+          f"cards preserved={cards_after}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+
+codex
+I’ll treat this as a targeted defect hunt against the pasted module only. I’m going to cite line numbers from the supplied file and use minimal `index.html` inputs where the failure is fully determined from this code.
+codex
+Defects found:
+
+- Line 87: input `index.html` with no `<style>` but otherwise valid anchors: `<div class="badge">x</div><!-- integrity-banner:begin --><p class="summary">s</p><div class="note">n</div><h2>Cardiology</h2><a href="A_REVIEW.html" class="card"></a>`; consequence: stylesheet replacement silently does nothing, yet line 159 returns success.
+
+- Lines 111, 129, 153, 154: same script run as `python -O scripts/restyle_index_nyt.py` with input missing the badge anchor, e.g. `<style></style><p class="summary">s</p><div class="note">n</div><h2>Cardiology</h2><a href="A_REVIEW.html" class="card"></a>`; consequence: all safety checks are stripped, so missing required transformations can still write the file and exit 0.
+
+- Line 91: input card `<a class="card" href="A_REVIEW.html"></a>` inside an otherwise valid `index.html`; consequence: review count becomes `0` because the regex only accepts `href` before `class`, so the byline reports a false synthesis count.
+
+- Line 138: input heading `<h2 class="specialty">Cardiology</h2>` inside an otherwise valid `index.html`; consequence: no section id is added, line 146 inserts no nav, and the script still exits 0.
+
+- Line 149: input card `<a href="A_REVIEW.html" style="border-left-color:#f00" class="card"></a>`; consequence: the colored border is not stripped because the selector only matches `class` immediately before `style`.
+
+- Line 78 / 137: input headings `<h2>GI &amp; Hepatology</h2><h2>GI Hepatology</h2>`; consequence: both become `id="sp-gi-hepatology"`, so nav links target only the first duplicate id.
+
+COULD NOT DETERMINE corpus-specific selector coverage; missing `index.html`.  
+No proven CRLF text-compare, merged-cell/off-by-one, negation-dropped, or different-copy defect in this file alone.
+tokens used
+16,608
+Defects found:
+
+- Line 87: input `index.html` with no `<style>` but otherwise valid anchors: `<div class="badge">x</div><!-- integrity-banner:begin --><p class="summary">s</p><div class="note">n</div><h2>Cardiology</h2><a href="A_REVIEW.html" class="card"></a>`; consequence: stylesheet replacement silently does nothing, yet line 159 returns success.
+
+- Lines 111, 129, 153, 154: same script run as `python -O scripts/restyle_index_nyt.py` with input missing the badge anchor, e.g. `<style></style><p class="summary">s</p><div class="note">n</div><h2>Cardiology</h2><a href="A_REVIEW.html" class="card"></a>`; consequence: all safety checks are stripped, so missing required transformations can still write the file and exit 0.
+
+- Line 91: input card `<a class="card" href="A_REVIEW.html"></a>` inside an otherwise valid `index.html`; consequence: review count becomes `0` because the regex only accepts `href` before `class`, so the byline reports a false synthesis count.
+
+- Line 138: input heading `<h2 class="specialty">Cardiology</h2>` inside an otherwise valid `index.html`; consequence: no section id is added, line 146 inserts no nav, and the script still exits 0.
+
+- Line 149: input card `<a href="A_REVIEW.html" style="border-left-color:#f00" class="card"></a>`; consequence: the colored border is not stripped because the selector only matches `class` immediately before `style`.
+
+- Line 78 / 137: input headings `<h2>GI &amp; Hepatology</h2><h2>GI Hepatology</h2>`; consequence: both become `id="sp-gi-hepatology"`, so nav links target only the first duplicate id.
+
+COULD NOT DETERMINE corpus-specific selector coverage; missing `index.html`.  
+No proven CRLF text-compare, merged-cell/off-by-one, negation-dropped, or different-copy defect in this file alone.

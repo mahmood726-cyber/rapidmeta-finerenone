@@ -1,0 +1,1474 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a031e8-3b18-7253-a809-0060648890c2
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/lint_container_repr_on_a_page.py
+
+--- THE FILE, IN FULL ---
+"""A Python dict or list repr rendered onto a delivered page. Grep with a known answer.
+
+THE INSTANCE. `paper_projector.py` built the GRADE table's "Rating steps" cell as
+`"; ".join(str(x) for x in blk["steps"])`, and the steps are dicts. A reader who opened
+`SGLT2_HF_REVIEW.html` and scrolled to Certainty of the evidence met, in a table cell:
+
+    {'domain': 'risk_of_bias', 'levels': -1, 'from': 'HIGH', 'to': 'MODERATE',
+     'reason': 'Rated down one level because unassessed is not low.'}
+
+THAT IS WHAT "READS LIKE COMPUTER CODE" MEANS IN ITS MOST LITERAL POSSIBLE FORM. It is not
+a register problem, a vocabulary problem or an ordering problem. It is a Python data
+structure printed onto a page a reader opened, and it is the single most reader-visible
+defect found on 2026-08-20.
+
+WHY A SEPARATE INSTRUMENT. `str()` on a container is silent, total and always succeeds --
+there is no failure to notice. `lint_paper_reads_as_prose.py` scored the cell as one
+machine sentence among twenty-five, which is true and badly understates it: a `{'domain':`
+is not the same order of defect as an unglossed I-squared, and a count that treats them
+alike cannot say so.
+
+TWO SEARCHES, and the second is why this file exists rather than a one-off grep:
+
+    SOURCE   `str(x)`-shaped calls in the projectors where the value can be a container.
+             Reported as CANDIDATES -- static analysis cannot know a value's type, and
+             saying it can would be the accusing-direction error.
+    DELIVERED The actual bytes. `{'` and `[{'` and `': '` in rendered text is not a
+             candidate, it is an instance. THIS IS THE SIDE THAT DECIDES.
+
+The delivered search is the finding; the source search only says where to look.
+"""
+import io
+import os
+import re
+import sys
+import glob
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from instrument_controls import require_controls
+
+# A dict or list repr as it lands in HTML. Deliberately narrow: a quoted key followed by a
+# colon inside braces is not something English produces.
+REPR_IN_TEXT = re.compile(
+    r"\{&#x27;|\{'|&#x27;: &#x27;|': '|\[\{|&quot;: &quot;|\{&quot;\w+&quot;: ")
+# ...but a JSON block inside <script>, <pre class="json"> or a code sample is legitimate.
+STRIP = (re.compile(r"(?is)<script.*?</script>"),
+         re.compile(r"(?is)<style.*?</style>"),
+         re.compile(r"(?is)<pre[^>]*>.*?</pre>"),
+         re.compile(r"(?is)<code[^>]*>.*?</code>"))
+
+SOURCE_CALL = re.compile(r"str\(\s*(?:x|v|val|value|blk\[|row\[|step|item)")
+
+
+def rendered_text(raw):
+    t = raw
+    for r in STRIP:
+        t = r.sub(" ", t)
+    t = re.sub(r"<[^>]+>", " ", t)
+    return t
+
+
+def scan_delivered(paths):
+    hits = []
+    for p in paths:
+        try:
+            raw = io.open(p, encoding="utf-8", errors="replace").read()
+        except Exception:
+            continue
+        t = rendered_text(raw)
+        found = [m.group(0) for m in REPR_IN_TEXT.finditer(t)]
+        if found:
+            i = REPR_IN_TEXT.search(t).start()
+            hits.append((os.path.basename(p), len(found),
+                         " ".join(t[max(0, i - 60):i + 160].split())))
+    return hits
+
+
+def scan_source():
+    out = []
+    for p in sorted(glob.glob(os.path.join(REPO, "ssot", "*.py"))
+                    + glob.glob(os.path.join(REPO, "scripts", "*.py"))):
+        src = io.open(p, encoding="utf-8", errors="replace").read()
+        for i, line in enumerate(src.split("\n")):
+            if SOURCE_CALL.search(line) and ("join(" in line or "append(" in line
+                                             or "add(" in line or "%" in line):
+                out.append((os.path.relpath(p, REPO).replace("\\", "/"), i + 1,
+                            line.strip()[:96]))
+    return out
+
+
+def main():
+    pages = sorted(glob.glob(os.path.join(REPO, "*_REVIEW.html")))
+    hits = scan_delivered(pages)
+
+    # CONTROLS. The positive is a constructed instance -- the exact cell the GRADE table
+    # produced before it was worded -- because once the defect is fixed no delivered page
+    # carries it, and a check whose positive control is "the corpus is dirty" stops working
+    # the moment the corpus is clean. The negative is a sentence with a colon and a quote
+    # in ordinary English, which must NOT match.
+    fixture = ("<p>Rating steps: {'domain': 'risk_of_bias', 'levels': -1, 'from': 'HIGH'}"
+               "</p>")
+    clean = ("<p>The trial's own registry description says: 'no statistical comparison was "
+             "planned', which is a fact about the protocol.</p>")
+    require_controls(
+        "lint_container_repr_on_a_page",
+        positive=("the GRADE cell as it was delivered on 2026-08-20",
+                  bool(REPR_IN_TEXT.search(rendered_text(fixture))), True),
+        negative=("an ordinary English sentence carrying a colon and a quotation",
+                  bool(REPR_IN_TEXT.search(rendered_text(clean))), True))
+
+    print("")
+    print("DELIVERED PAGES CARRYING A CONTAINER REPR: %d of %d" % (len(hits), len(pages)))
+    for name, n, ctx in hits[:25]:
+        print("    %-52s %d occurrence(s)" % (name, n))
+        print("        ...%s..." % ctx[:150])
+    if len(hits) > 25:
+        print("    ... +%d more" % (len(hits) - 25))
+
+    src = scan_source()
+    print("")
+    print("SOURCE CANDIDATES -- str() on a value that MAY be a container: %d" % len(src))
+    print("CANDIDATES, NOT FINDINGS. Static analysis cannot know a value's type; the")
+    print("delivered side above is what decides.")
+    for rel, ln, txt in src[:20]:
+        print("    %s:%d" % (rel, ln))
+        print("        %s" % txt)
+    if len(src) > 20:
+        print("    ... +%d more" % (len(src) - 20))
+
+    if hits:
+        print("")
+        print("REFUSED: a Python data structure is rendered onto a delivered page.")
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()
+
+codex
+I’ll use the pasted record as authoritative and only cite defects I can demonstrate directly from it.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Get-Content -Path 'F:\\E156\\rewrite-workbook.txt' -TotalCount 40" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Get-Content -Path 'F:\\ProjectIndex\\INDEX.md' -TotalCount 40" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=1; Get-Content -Path '"'scripts\\lint_container_repr_on_a_page.py' | ForEach-Object { '{0,4}: {1}' -f "'$i, $_; $i++ }' in F:\rapidmeta-ssot-shell
+ succeeded in 380ms:
+E156 REWRITE WORKBOOK
+sentinel:skip-file
+sentinel:claim-language-allow
+(Sentinel markers above:
+ - sentinel:skip-file: this workbook intentionally contains C:\Users\... PATH:
+   lines pointing to each project's local source directory â€” they're metadata,
+   not code. The marker keeps Sentinel from emitting ~16 P0 hardcoded-path
+   BLOCKs every push.
+ - sentinel:claim-language-allow: CURRENT BODY entries are the AI-drafted
+   summaries that students rewrite into hedged language â€” flagging overclaim
+   words IN those drafts is the whole pedagogical point, not a defect.
+   File-scope marker here suppresses the ~1293 claim-language WARNs on the
+   CURRENT BODY entries; the YOUR REWRITE entries are where the hedging
+   discipline matters and remains lintable in the rendered student board.)
+
+DENOMINATOR CONVENTION (added 2026-05-06 after review-findings P1-5):
+  Each entry header is `[N/total]` where N = ordinal insertion index and
+  `total` = current portfolio size as of the most recent reconcile sweep.
+  Older entries are back-rewritten on milestone boundaries (rather than
+  preserving their insertion-time denominator) to keep
+  reconcile_counts.py from flagging "WORKBOOK DRIFT". The pre-commit
+  guard (scripts/check_workbook_commit.py) blocks commits that bundle a
+  denominator sweep with substantive content edits to existing entries.
+
+======================================================================
+
+INSTRUCTIONS:
+- Replace text under YOUR REWRITE with your body (at most 156 words, 7 sentences)
+- S1=Question S2=Dataset S3=Method S4=Result(number+interval) S5=Robustness S6=Interpretation S7=Boundary(limitation)
+- Leave YOUR REWRITE blank to keep current version
+- Run: python C:/E156/scripts/apply_rewrites.py          (validate)
+- Run: python C:/E156/scripts/apply_rewrites.py --apply (apply)
+
+AUTHORSHIP RULE (mandatory for every submission):
+- Mahmood Ahmad (MA) must NEVER be listed as first author and NEVER as
+  last (senior) author. The student rewriter is first author. Last/senior
+  author must be a faculty supervisor or co-investigator distinct from MA.
+  MA's position is middle-author only (e.g. role: data curation, software,
+  methodology, supervision-of-tooling). This applies to every paper in
+  this workbook regardless of contribution depth.
+
+ succeeded in 401ms:
+<!-- sentinel:skip-file - portfolio registry; absolute paths ARE the data -->
+# C: Drive Project Index
+> **Last updated**: 2026-05-14 (C:\HTML apps focused repair batch continued: hub shell launch fix, static contracts across ten HTML app repos, NMA/living-meta/nma-dose-response landing and asset-link repairs, and NMA doc hardcoded-path cleanup. Prior SheafNMA v0.2.0, D-drive legacy smoke-contract continuation, CardioOracle lifecycle status freeze, C-drive model/project smoke-contract continuation, mahmood789 consolidation, Sentinel/Overmind JSONL and verification repair, C-drive reproducibility audit continuation, C-drive verification repair, D-drive repair batch, superapp, C-drive sweep, home-folder hardening, Trial Truthfulness Atlas, and portfolio notes retained below.)
+
+### C:\HTML apps focused repair batch (2026-05-14)
+> - `C:\HTML apps\hub\`: added a launchable `index.html` shell and static contract tests for required registry/runtime wiring; fixed `app.js` local `file://` launch resolution so the hub opened from `hub\index.html` links sibling apps from the parent HTML-apps directory instead of nesting paths under `hub`. Verification: `pytest -q -p no:cacheprovider` -> `3 passed`; `node --check app.js && node --check projects.js` -> PASS; headless Chrome smoke on `file:///mnt/c/HTML%20apps/hub/index.html` confirmed the page title and sibling app links. GitHub pushed: `mahmood726-cyber/hub` main `c1a6725`.
+> - `C:\HTML apps\evidence-board\`, `C:\HTML apps\focus-studio\`, `C:\HTML apps\kanban-lab\`: added pytest-visible static app shell contracts covering title/description, localStorage persistence hooks, key controls, and absence of unresolved templates or hardcoded local drive paths; added repo `.gitignore` entries for Python caches and `PROGRESS.md`. Verification: each `pytest -q -p no:cacheprovider` -> `2 passed` with the existing pytest `cache_dir` warning; scoped `git diff --check` -> PASS. GitHub pushed: `evidence-board` master `9a87c8b`, `focus-studio` master `0fa728b`, `kanban-lab` master `81cad38`.
+> - `C:\HTML apps\nma-pro-v2\`: fixed the landing page's broken app links from absent v6/v7 asset filenames to the current `e156-submission/assets/nma-pro-v8.0.html`, added static link-resolution contracts, and removed Sentinel P0 hardcoded local OneDrive paths from legacy docs. Verification: `pytest -q -p no:cacheprovider tests/test_smoke.py tests/test_static_links.py` -> `3 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=1 INFO=302` (pre-existing tracked autogen warning plus HTML a11y INFO). GitHub pushed: master `a2834e7` for the link fix and master `a74e385` for the P0 doc cleanup.
+> - `C:\HTML apps\IPD-Meta-Pro\` and `C:\HTML apps\Truthcert1\`: added static link-resolution contracts for landing-page local assets and canonical app entrypoints. Verification: `IPD-Meta-Pro` `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; `Truthcert1` same command -> `2 passed` with existing pytest `cache_dir` warning. GitHub pushed: `IPD-Meta-Pro` master `b26ee09`, `Truthcert1` master `81eddd3`.
+> - `C:\HTML apps\living-meta\`: repaired landing-page validation links that pointed to a missing HTML asset and an out-of-repo sibling path; linked the existing validation and limitations docs instead, and added a static link-resolution contract. Verification: `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=8` (pre-existing HTML a11y INFO). GitHub pushed: master `c3c8a9b`.
+> - `C:\HTML apps\Pairwiseai\`: added a static landing-page contract covering local link resolution, absence of unresolved templates/local drive paths, and the key app entrypoints under `e156-submission/assets`. Verification: `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=1731` (pre-existing HTML a11y INFO). GitHub pushed: master `2ade493`.
+> - `C:\HTML apps\nma-dose-response-app\`: pushed the existing smoke-blocker commit and added an E156 asset-bundle repair so `e156-submission\assets\index*.html` resolves its JS runtime dependencies from inside the assets folder; added a static link-resolution contract covering root and E156 app entrypoints. Verification: `pytest -q -p no:cacheprovider tests/test_smoke.py tests/test_static_links.py` -> `4 passed` with the existing pytest `cache_dir` warning; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=442` (pre-existing HTML a11y INFO). GitHub pushed: master `e95fae0` and `96594b6`.
+> - Push gate: Windows Git credential path succeeded after WSL Git lacked HTTPS credentials. Sentinel pre-push/manual scan verdicts were BLOCK=0; evidence-board INFO=18, focus-studio INFO=10, kanban-lab INFO=10, living-meta INFO=8, Pairwiseai INFO=1731, nma-dose-response-app INFO=442 (pre-existing P2 HTML accessibility notes); hub push emitted no Sentinel findings.
+> - Existing unrelated dirty files were left unstaged in these repos, mainly protocol/license/doc edits and untracked `paper\` outputs in the three app repos, plus pre-existing hub metadata/submission/style edits.
+
+### SheafNMA (2026-05-12; v0.2.0 real-NMA-corpus validation + 36-cell Ã— 1000-rep simulation + methods paper draft)
+> - `C:\Models\SheafNMA\` â€” cellular-sheaf inconsistency localization for network meta-analysis. v0.1.0 (2026-04-07) was math + single-file HTML dashboard + E156 #153 micro-paper on a synthetic 12-contrast network. v0.2.0 refactored the 457-LOC `generate_figures.py` into a `sheafnma/` package (`core`, `io`, `simulate`, `comparators`, `r_bridge`), validated on 13 R-netmeta built-in NMAs, and shipped a methods-paper draft for Research Synthesis Methods.
+> - Method: precision-weighted coboundary `F[e, treat1] = -1/SE_e, F[e, treat2] = +1/SE_e`; sheaf Laplacian `L = Fáµ€F` (symmetric PSD); WLS-solve node estimates with node 0 anchored; per-edge residuals `r_e = dÌƒ_e âˆ’ (F x*)_e` localize inconsistency; **Global Inconsistency Index** `GII = Î£ rÂ²` is the global statistic. One algebraic object yields both global + per-edge â€” complements (not replaces) node-splitting.
+> - Real-corpus headline: across **13 R-netmeta built-in NMAs** (Senn 2013 diabetes, Dias smokingcessation, Dong 2013 thrombolytics, Linde 2015/2016 acupuncture, Salanti antimanic, Baker, Dogliotti, Franchini, Gurusamy, Stowe, Woods, dietaryfat, parkinson) the global design-by-treatment Ï‡Â² (Higgins 2012) failed to reject in all 13. **SheafNMA flagged â‰¥1 localized inconsistency edge in 5 of those 13 (38.5%)** at the Youden-frozen threshold of **2.6912** â€” networks that look globally consistent harbor at least one inconsistent edge the global test misses.
+> - Simulation rigor: 36-cell grid (n_treatments âˆˆ {4,6,8} Ã— n_studies_per_edge âˆˆ {3,5,10} Ã— Ï„_inc âˆˆ {0,0.2,0.5,1.0}) Ã— **1000 replications per cell**, held-out training cell at (6,5,0.5) for Youden's-J threshold selection (frozen before evaluating remaining 35 cells). Type-I error at Ï„_inc=0 was **0.000 across all cells**. Mean per-edge sensitivity 0.981 / specificity 0.945 at Ï„_inc=0.5.
+> - Comparator suite: DBT-Ï‡Â² (Higgins 2012 Â§3.2, pure-Python), Bucher loop closure (Bucher 1997, pure-Python), node-splitting (Dias 2010, via `netmeta::netsplit` shelled to R 4.5.2). Per-edge agreement with node-splitting was 45.4% â€” asymmetric: SheafNMA flags 12/506 = 2.4% of edges vs node-splitting's 250/436 = 57% at p<0.05 Bonferroni-uncorrected (the calibrated Youden cut is much more conservative than a per-edge Î±-test). Â§4.2 of the paper explicitly explains this rather than presenting the 45.4% bare.
+> - Corpus export: `corpus/export_netmeta.R` handles 7 distinct netmeta dataset formats (contrast-level TE/seTE, arm-based event/n, arm-based mean/sd/n, wide multi-arm OR/MD, three-arm smokingcessation, rate-based IRR/person-years) and exports all 13 to `corpus/data/*.csv` in the sheafnma standard schema (`study, treat1, treat2, effect, se`).
+> - GitHub: `https://github.com/mahmood726-cyber/sheaf-nma` (master `6c7db13`, tag `v0.2.0`). Pages LIVE: `https://mahmood726-cyber.github.io/sheaf-nma/` (Phase-1 dashboard unchanged in v0.2). 33 tests passing; Sentinel BLOCK=0 WARN=0 (2 INFO = pre-existing HTML a11y items in the v0.1 dashboard).
+> - Workbook entry: `[153/919] SheafNMA`. CURRENT BODY updated 2026-05-12 to the v0.2 156-word / 7-sentence body (replaces v0.1 synthetic-"smoking cessation" framing with the real netmeta corpus). SUBMITTED `[ ]`; YOUR REWRITE preserved untouched per workbook protection rules. Target: Research Synthesis Methods full methods paper (`paper/sheafnma_v2.md`, 1190 words drafted; [TODO] prose blocks in Â§1 Background / Â§4.3 case studies / Â§5 Discussion) + SynthÄ“sis Methods Note companion (`paper/methods_note.md`, 156-word).
+> - Known landmine: `Dong2013` netsplit fails inside netmeta's multi-arm validator ("wrong number of comparisons"); SheafNMA + DBT + Bucher still run on it, only `netsplit_p` column is blank for its 70 edges.
+> - v0.2 deferrals (spec Â§10): multi-arm covariance correction (single-D stalks only), higher-D stalks (Phase 1 Â§3.4 future work), Bayesian sheaf priors, OTS / Bitcoin anchor (broken on Py 3.13 Windows per `lessons.md`).
+
+### hksj-q-floor-atlas (2026-05-12; 8th Pairwise70 atlas; tags prereg-v0.0.1 + v0.1.0)
+> - `C:\Projects\hksj-q-floor-atlas\` â€” 8th calibration atlas in the Pairwise70 series. Sister to `cochrane-modern-re` (engine source), `repro-floor-atlas`, `responder-floor-atlas`, `trial-truthfulness-atlas`, `africa-tb-atlas`, `pactr-hiddenness-atlas`, `africa-hiv-prep-atlas`.
+> - Question: how often does omitting the `max(1, Q/(k-1))` floor on HKSJ variance, in the I^2=0 regime where un-floored HKSJ narrows below REML+Wald, overstate precision across the Cochrane CDSR? Pre-registered via `prereg-v0.0.1` tag + 4 Internet Archive snapshots (Bitcoin OTS deferred â€” Python 3.13 SSL libeay32 bug per lessons.md; web-stamper fallback documented).
+> - Headline: D_1 (I^2=0, k>=2, converged) = 3,677 MAs = 57.6% of corpus. On D_1a (Q>0, n=3,536): median CI-width ratio (floored / un-floored) = 3.64x (IQR 1.60-10.56; 95th pct 57.4x); significance lost in 17.08% of MAs. D_1b (Q=0, n=141 = 3.83% of D_1): sig_loss 24.8%, ratio unbounded â€” un-floored HKSJ SE is exactly zero (the floor effect is unbounded); see `docs/AMENDMENTS.md` entry 1 for split rationale.
+> - Per k-stratum medians: k=2: 4.26x (sig_loss 8.6%); k=3: 3.64x (12.9%); k=4-5: 3.10x (13.1%); k=6-9: 3.18x (17.3%); k>=10: 3.80x (25.1%). sig_loss increases with k because higher-k pooled effects sit closer to null, so floor widening crosses zero more often.
+> - Engine: independent metafor pass via fork of cochrane-modern-re's `run_metafor.R` minus the floor block. Input parquet SHA-256 pinned in `docs/spec.md` sec.1.5 (`31434fb118c6ec44a025eeb43a90e35ef9e050711fa45aa2cb5c1244b2d89751`). 3 hand-verified golden MAs match metafor reference within 1e-6.
+> - GitHub: `https://github.com/mahmood726-cyber/hksj-q-floor-atlas` (master + tags `prereg-v0.0.1` and `v0.1.0`). Pages LIVE: `https://mahmood726-cyber.github.io/hksj-q-floor-atlas/`.
+> - 64 tests; Sentinel BLOCK=0 WARN=0 INFO=0; 7 IA snapshots recorded in `docs/preregistration.md`.
+> - Workbook entry: `[920/920] hksj-q-floor-atlas`; target SynthÄ“sis Methods Note (340w draft, â‰¤400 cap).
+> - v0.2 candidates (NOT in v0.1.0): published-CI matching ("is THIS Cochrane review wrong?"), PM/SJ/Bayesian Ï„Â² robustness, DL re-pooling, Bitcoin OTS once Python 3.13 issue is resolved.
+
+### D-drive legacy smoke-contract continuation (2026-05-12)
+> - `D:\Projects\mahmood789\786-MIII-Mean-single-group\`: fixed the placeholder issue-tracker link in `README.md` and added a pytest-visible static contract for the Shiny app package surface, sample-data schema, metafor workflow, downloads, and absence of local paths/template links. Verification: `pytest -q -p no:cacheprovider` -> `2 passed`; `git diff --check` -> PASS.
+
+ succeeded in 1341ms:
+   1: """A Python dict or list repr rendered onto a delivered page. Grep with a known answer.
+   2: 
+   3: THE INSTANCE. `paper_projector.py` built the GRADE table's "Rating steps" cell as
+   4: `"; ".join(str(x) for x in blk["steps"])`, and the steps are dicts. A reader who opened
+   5: `SGLT2_HF_REVIEW.html` and scrolled to Certainty of the evidence met, in a table cell:
+   6: 
+   7:     {'domain': 'risk_of_bias', 'levels': -1, 'from': 'HIGH', 'to': 'MODERATE',
+   8:      'reason': 'Rated down one level because unassessed is not low.'}
+   9: 
+  10: THAT IS WHAT "READS LIKE COMPUTER CODE" MEANS IN ITS MOST LITERAL POSSIBLE FORM. It is not
+  11: a register problem, a vocabulary problem or an ordering problem. It is a Python data
+  12: structure printed onto a page a reader opened, and it is the single most reader-visible
+  13: defect found on 2026-08-20.
+  14: 
+  15: WHY A SEPARATE INSTRUMENT. `str()` on a container is silent, total and always succeeds --
+  16: there is no failure to notice. `lint_paper_reads_as_prose.py` scored the cell as one
+  17: machine sentence among twenty-five, which is true and badly understates it: a `{'domain':`
+  18: is not the same order of defect as an unglossed I-squared, and a count that treats them
+  19: alike cannot say so.
+  20: 
+  21: TWO SEARCHES, and the second is why this file exists rather than a one-off grep:
+  22: 
+  23:     SOURCE   `str(x)`-shaped calls in the projectors where the value can be a container.
+  24:              Reported as CANDIDATES -- static analysis cannot know a value's type, and
+  25:              saying it can would be the accusing-direction error.
+  26:     DELIVERED The actual bytes. `{'` and `[{'` and `': '` in rendered text is not a
+  27:              candidate, it is an instance. THIS IS THE SIDE THAT DECIDES.
+  28: 
+  29: The delivered search is the finding; the source search only says where to look.
+  30: """
+  31: import io
+  32: import os
+  33: import re
+  34: import sys
+  35: import glob
+  36: 
+  37: REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+  38: sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+  39: from instrument_controls import require_controls
+  40: 
+  41: # A dict or list repr as it lands in HTML. Deliberately narrow: a quoted key followed by a
+  42: # colon inside braces is not something English produces.
+  43: REPR_IN_TEXT = re.compile(
+  44:     r"\{&#x27;|\{'|&#x27;: &#x27;|': '|\[\{|&quot;: &quot;|\{&quot;\w+&quot;: ")
+  45: # ...but a JSON block inside <script>, <pre class="json"> or a code sample is legitimate.
+  46: STRIP = (re.compile(r"(?is)<script.*?</script>"),
+  47:          re.compile(r"(?is)<style.*?</style>"),
+  48:          re.compile(r"(?is)<pre[^>]*>.*?</pre>"),
+  49:          re.compile(r"(?is)<code[^>]*>.*?</code>"))
+  50: 
+  51: SOURCE_CALL = re.compile(r"str\(\s*(?:x|v|val|value|blk\[|row\[|step|item)")
+  52: 
+  53: 
+  54: def rendered_text(raw):
+  55:     t = raw
+  56:     for r in STRIP:
+  57:         t = r.sub(" ", t)
+  58:     t = re.sub(r"<[^>]+>", " ", t)
+  59:     return t
+  60: 
+  61: 
+  62: def scan_delivered(paths):
+  63:     hits = []
+  64:     for p in paths:
+  65:         try:
+  66:             raw = io.open(p, encoding="utf-8", errors="replace").read()
+  67:         except Exception:
+  68:             continue
+  69:         t = rendered_text(raw)
+  70:         found = [m.group(0) for m in REPR_IN_TEXT.finditer(t)]
+  71:         if found:
+  72:             i = REPR_IN_TEXT.search(t).start()
+  73:             hits.append((os.path.basename(p), len(found),
+  74:                          " ".join(t[max(0, i - 60):i + 160].split())))
+  75:     return hits
+  76: 
+  77: 
+  78: def scan_source():
+  79:     out = []
+  80:     for p in sorted(glob.glob(os.path.join(REPO, "ssot", "*.py"))
+  81:                     + glob.glob(os.path.join(REPO, "scripts", "*.py"))):
+  82:         src = io.open(p, encoding="utf-8", errors="replace").read()
+  83:         for i, line in enumerate(src.split("\n")):
+  84:             if SOURCE_CALL.search(line) and ("join(" in line or "append(" in line
+  85:                                              or "add(" in line or "%" in line):
+  86:                 out.append((os.path.relpath(p, REPO).replace("\\", "/"), i + 1,
+  87:                             line.strip()[:96]))
+  88:     return out
+  89: 
+  90: 
+  91: def main():
+  92:     pages = sorted(glob.glob(os.path.join(REPO, "*_REVIEW.html")))
+  93:     hits = scan_delivered(pages)
+  94: 
+  95:     # CONTROLS. The positive is a constructed instance -- the exact cell the GRADE table
+  96:     # produced before it was worded -- because once the defect is fixed no delivered page
+  97:     # carries it, and a check whose positive control is "the corpus is dirty" stops working
+  98:     # the moment the corpus is clean. The negative is a sentence with a colon and a quote
+  99:     # in ordinary English, which must NOT match.
+ 100:     fixture = ("<p>Rating steps: {'domain': 'risk_of_bias', 'levels': -1, 'from': 'HIGH'}"
+ 101:                "</p>")
+ 102:     clean = ("<p>The trial's own registry description says: 'no statistical comparison was "
+ 103:              "planned', which is a fact about the protocol.</p>")
+ 104:     require_controls(
+ 105:         "lint_container_repr_on_a_page",
+ 106:         positive=("the GRADE cell as it was delivered on 2026-08-20",
+ 107:                   bool(REPR_IN_TEXT.search(rendered_text(fixture))), True),
+ 108:         negative=("an ordinary English sentence carrying a colon and a quotation",
+ 109:                   bool(REPR_IN_TEXT.search(rendered_text(clean))), True))
+ 110: 
+ 111:     print("")
+ 112:     print("DELIVERED PAGES CARRYING A CONTAINER REPR: %d of %d" % (len(hits), len(pages)))
+ 113:     for name, n, ctx in hits[:25]:
+ 114:         print("    %-52s %d occurrence(s)" % (name, n))
+ 115:         print("        ...%s..." % ctx[:150])
+ 116:     if len(hits) > 25:
+ 117:         print("    ... +%d more" % (len(hits) - 25))
+ 118: 
+ 119:     src = scan_source()
+ 120:     print("")
+ 121:     print("SOURCE CANDIDATES -- str() on a value that MAY be a container: %d" % len(src))
+ 122:     print("CANDIDATES, NOT FINDINGS. Static analysis cannot know a value's type; the")
+ 123:     print("delivered side above is what decides.")
+ 124:     for rel, ln, txt in src[:20]:
+ 125:         print("    %s:%d" % (rel, ln))
+ 126:         print("        %s" % txt)
+ 127:     if len(src) > 20:
+ 128:         print("    ... +%d more" % (len(src) - 20))
+ 129: 
+ 130:     if hits:
+ 131:         print("")
+ 132:         print("REFUSED: a Python data structure is rendered onto a delivered page.")
+ 133:         sys.exit(1)
+ 134: 
+ 135: 
+ 136: if __name__ == "__main__":
+ 137:     main()
+
+codex
+I’ve got enough line numbering now. I’m checking only defects that follow from this file’s own executable behavior, and I’ll call out any place where an imported contract would be needed.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Get-Content -Path 'scripts\\instrument_controls.py'" in F:\rapidmeta-ssot-shell
+ succeeded in 466ms:
+"""The shared assertions. An instrument routes through these instead of remembering to.
+
+WHY THIS FILE AND NOT ANOTHER REGISTRY ENTRY. The heredoc class was breached NINE TIMES by
+an author who had just read the rule, and the tenth attempt was stopped by a hook that does
+not care whether anyone understands it. Fifty-five documented classes is more than anyone
+holds. What refuses is what controls.
+
+TWO ASSERTIONS, BOTH DRAWN FROM DEFECTS THAT ACTUALLY RECURRED TONIGHT.
+
+`require_controls` -- THE ACCUSING DIRECTION.
+    Four wrong accusations in one night: 0.06 and 1.79 read out of a WITHDRAWAL NOTICE and
+    relayed to a reader; `pool_broken` reported against a pool that was withdrawn on
+    purpose; two unbacked-claim findings against the flagship that were not unbacked; a
+    count of 49 never-taken branches from an extraction that captured code spans. Every one
+    was caught by a person reading the instance. NONE was caught by the instrument.
+
+    So the reading becomes part of the instrument. An instrument that reports a corpus-wide
+    finding declares a POSITIVE control -- a real corpus item whose answer is already
+    established -- and, where the failure mode is over-flagging, a NEGATIVE control it must
+    NOT flag. If either disagrees, NOTHING IS PRINTED. A detector that can only say yes is
+    not a detector, and the malaria false positive is why the negative side is not optional.
+
+`zero_has_a_reading` -- CLASS 52.
+    A check reporting zero has two readings and only one is reassuring: "looked, found
+    none" and "the marker does not exist so nothing could ever match". Three instances in
+    one night, TWO OF THEM INSIDE `regression_check.py`, one of those in its BLOCKING set,
+    reporting 0 on every run this project has ever made -- where the zero meant the marker
+    was absent from the corpus entirely and was read as "no page has this defect".
+
+    A zero is only reportable if the thing being searched FOR is known to exist somewhere.
+    When it is not, the answer is NOT_ASSESSABLE, which is a different word on purpose.
+
+NEITHER FUNCTION PRINTS A REASSURANCE IT CANNOT SUPPORT. Both raise SystemExit, because a
+warning an operator can ignore is the control that has already failed.
+"""
+import sys
+
+
+class ControlFailed(SystemExit):
+    pass
+
+
+def require_controls(instrument, positive, negative=None, out=None):
+    """Refuse to proceed unless the known answers come back known.
+
+    positive -- (label, actual, expected). A real corpus item whose answer is established
+                independently of this instrument. Established means read from a
+                registration, a delivered page, or a prior recorded finding -- NOT inferred
+                by the same logic under test, which would only prove the code agrees with
+                itself.
+    negative -- (label, actual, must_not_be). The case the instrument must NOT flag. Supply
+                it whenever the instrument can over-flag, which is nearly always.
+
+    Returns None on success. Raises ControlFailed otherwise, before any count is printed.
+    """
+    say = out or (lambda s: sys.stdout.write(s + "\n"))
+    plab, pact, pexp = positive
+    say("CONTROL (positive) %s: %s -> %r, expected %r" % (instrument, plab, pact, pexp))
+    if pact != pexp:
+        raise ControlFailed(
+            "REFUSED: %s does not reproduce the one answer that is already established "
+            "(%s gave %r, not %r). It is not trusted for anything else and NO COUNT IS "
+            "PRINTED." % (instrument, plab, pact, pexp))
+    if negative is None:
+        say("CONTROL (negative) %s: NONE DECLARED -- this instrument can only say yes."
+            % instrument)
+        return
+    nlab, nact, nforbid = negative
+    say("CONTROL (negative) %s: %s -> %r, must not be %r" % (instrument, nlab, nact, nforbid))
+    if nact == nforbid:
+        raise ControlFailed(
+            "REFUSED: %s FLAGS THE CASE IT MUST NOT (%s came back %r). Accusing in the "
+            "wrong direction is the failure this control exists to catch. NO COUNT IS "
+            "PRINTED." % (instrument, nlab, nact))
+    say("    both controls held.")
+
+
+def zero_has_a_reading(count, marker_exists_somewhere, what, where):
+    """Return a reportable string for a count, or NOT_ASSESSABLE when a zero is ambiguous.
+
+    marker_exists_somewhere -- True only if the thing searched FOR has been observed at
+    least once, anywhere, in this run. Not "the vocabulary is non-empty"; the vocabulary
+    being non-empty is what `arni_hf_protocol` had.
+    """
+    if count > 0:
+        return "%d %s in %s" % (count, what, where)
+    if marker_exists_somewhere:
+        return "0 %s in %s -- LOOKED AND FOUND NONE (the marker occurs elsewhere, so the " \
+               "search is live)" % (what, where)
+    return "NOT_ASSESSABLE: 0 %s in %s, AND THE MARKER OCCURS NOWHERE AT ALL. This zero " \
+           "means the search cannot match, not that the defect is absent." % (what, where)
+
+
+def refuse_unless_marker_lives(marker, corpus_hits, fixture_hit, instrument):
+    """A marker-keyed check must be able to fire. Raise if it provably cannot.
+
+    `arni_hf_protocol` was in `regression_check.py`'s BLOCKING set and appears on 0 of 888
+    pages. It has reported clean on every run this project has ever made and could not have
+    reported anything else.
+    """
+    if corpus_hits or fixture_hit:
+        return
+    raise ControlFailed(
+        "REFUSED: %s keys on %r, which occurs on NO page in the corpus and in NO fixture. "
+        "The check cannot fire. A clean result from it is not evidence." % (instrument, marker))
+
+def same_bytes(a_bytes, b_bytes):
+    """Compare DELIVERED bytes to LOCAL bytes. Both arguments must already be `bytes`.
+
+    READ BYTES, COMPARE BYTES -- CLASS: THE INSTRUMENT NORMALISED WHAT IT WAS MEASURING.
+    ---------------------------------------------------------------------------------
+    A page was reported to Mahmood as a deploy gap, and the report had to be withdrawn. The
+    evidence was that local content differed from `origin/main` by 752 bytes on a file git
+    reported unmodified. The mechanism was the reader, not the repo:
+
+        io.open(name, encoding="utf-8").read()   -> TEXT mode, converts CRLF to LF
+        git show origin/main:name                -> raw bytes, CRLF preserved
+
+    752 was the line count. The two were identical. Worse, the same artefact was used to
+    argue the local tree was a MIXTURE OF BUILDS -- which is a frightening claim, because one
+    passing spot-check would then license trusting a corpus that could not be trusted -- and
+    it was false. Read in binary, local equalled origin on 156 of 157 pages.
+
+    THE CORPUS *WAS* A MIXTURE, JUST NOT IN THE WAY THE BROKEN READ SUGGESTED: 133 pages
+    carried generator `a3c7bb8b2` and 7 carried the current one. A real finding was nearly
+    buried under a fake one produced by the instrument.
+
+    So: open in "rb", or `git show` into bytes, and compare bytes. If a comparison must be
+    newline-insensitive, normalise BOTH sides explicitly and say so -- never let one side be
+    normalised by the mode the file happened to be opened in.
+    """
+    if not isinstance(a_bytes, bytes) or not isinstance(b_bytes, bytes):
+        raise ControlFailed(
+            "REFUSED: same_bytes was handed %s and %s, not bytes. A str argument means the "
+            "caller already read in text mode, which is the defect this function exists to "
+            "prevent -- the newline conversion has happened before the comparison."
+            % (type(a_bytes).__name__, type(b_bytes).__name__))
+    return a_bytes == b_bytes
+
+
+def plant_and_require(instrument, detector, clean_case, planted_case):
+    """THE HOUSE REQUIREMENT FOR GATES: plant the defect, require the gate to find it.
+
+    Three gates earned their result this way -- the bypass mutant that strips the render-point
+    transform, the dead link planted in a synthetic hub, the known-bad input handed to the
+    pass/fail audit. Each of the three was written after a gate had already shipped that could
+    only say yes. A pre-push hook once printed "Regression check PASS" at 0 of 1522 fully-ok,
+    because nothing in it could return non-zero.
+
+    A GATE THAT HAS NEVER BEEN SEEN TO FAIL IS NOT A GATE. It is a log line. `detector` is
+    called on both cases; it must be quiet on `clean_case` and must fire on `planted_case`,
+    and this refuses before the gate is allowed to report anything about real data.
+    """
+    if detector(planted_case) and not detector(clean_case):
+        return
+    raise ControlFailed(
+        "REFUSED: %s did not survive its planted control -- it %s on the planted defect and "
+        "%s on the clean case. A gate that cannot be seen to fail cannot be trusted when it "
+        "passes." % (instrument,
+                     "fired" if detector(planted_case) else "STAYED QUIET",
+                     "fired" if detector(clean_case) else "stayed quiet"))
+
+
+def scan_covers_what_it_emits(function_name, own_literals_matched, callee_renders, what):
+    """A LITERAL CAN LIVE ONE CALL AWAY, AND A SCAN OF A FUNCTION'S OWN BODY IS NOT A SCAN OF
+    WHAT IT EMITS. Same family as `composed_or_stored`, one level up.
+
+    THE INCIDENT, 2026-08-23. An audit was written to find procedural sentences asserted from
+    literals rather than projected from fields. It filtered to "functions that emit markup" by
+    looking for HTML tags among each function's OWN string constants -- and missed
+    `protocol_card`, THE FUNCTION IT WAS WRITTEN FOR. That function holds only the sentences;
+    it returns `kv_card(...)`, and the tags live in the callee.
+
+    The hand-classified control caught it, which is the only reason it was caught: a scan that
+    cannot see the known instance cannot be trusted to report an absence.
+
+    THE FAMILY THIS BELONGS TO, now six deep in one day: the fix, the probe, or the scan lands
+    where the author was looking rather than where the text is produced.
+
+        composed at render time, or stored          -- the value was baked into the object
+        one render point of two                     -- seven panels used a different callable
+        two surfaces of three de-indexed            -- audit_table.html was never touched
+        a probe keyed to what the fix removed       -- braces, not field names
+        a selector keyed to the defect              -- shrank as the work succeeded
+        a scan of a body, not of what it emits      -- THIS ONE
+
+    THE CHECK: when classifying functions by what they render, ask whether rendering happens
+    HERE or in something this calls. If a function's content is handed to a builder, the scan
+    must follow the call or key on the handoff, not on tags.
+    """
+    if own_literals_matched or callee_renders:
+        return
+    raise ControlFailed(
+        "REFUSED: %s classified `%s` as non-emitting on the strength of its own literals, but "
+        "it hands its content to a renderer. A scan of a function's body is not a scan of what "
+        "it emits." % (what, function_name))
+
+
+def method_before_impossibility(measurement, method_tried, work_the_question_needs):
+    """BEFORE ACCEPTING THAT A MEASUREMENT CANNOT BE MADE HERE, CHECK WHETHER THE METHOD IS
+    DOING WORK THE QUESTION DOES NOT REQUIRE.
+
+    THIRD TIME TODAY an "the environment cannot do this" verdict turned out to be an approach
+    problem rather than a limit.
+
+    THE CLEAREST INSTANCE. "Has either wrong PMID reached a delivered page?" was declared
+    unmeasurable after ripgrep timed out at 20 seconds twice and a Python pass timed out at
+    500. The Python pass opened every file with
+
+        io.open(path, encoding="utf-8", errors="replace")
+
+    which DECODES every byte of a 7 MB HTML page into a Python string -- 1,500 times -- to look
+    for an eight-digit number that is pure ASCII. The question needed a byte comparison. The
+    method was running a codec.
+
+        open(path, "rb").read()  ->  b"30201345" in data
+
+    4,625 files in 161 seconds, and the answer was zero delivered pages.
+
+    THE OTHER TWO TODAY: a rollout "stalled" that was building a 3.9 MB page; a liveness probe
+    that reported a dead process because it asked the wrong shell for a command line.
+
+    THE QUESTION TO ASK: what does this measurement actually need? Bytes or characters? One
+    field or a parsed document? The changed copy or all of them? An impossibility verdict is a
+    claim about the environment, and it should not be made until the method has been reduced to
+    the work the question requires.
+    """
+    return None
+
+
+def prior_defectiveness_is_a_prior_not_evidence(suspected, reason_for_suspicion, what_checked):
+    """A FILE THAT IS WRONG ABOUT ONE THING IS NOT THEREFORE WRONG ABOUT THE NEXT.
+
+    THE COUNTERWEIGHT TO EVERYTHING ELSE IN THIS FILE. Three days of work established that
+    defects cluster and that the known defect is never the population. The natural
+    over-correction is to treat a file that has failed once as failed everywhere -- and that
+    is a bias in the direction our own method pushes us.
+
+    THE INSTANCE, 2026-08-23. Two records named different publications for KRONOS:
+
+        PUBLISHED_META_BENCHMARKS.json   pmid_kronos = 30201345
+        regenerate_catastrophic_sidecars.R                30232048
+
+    I suspected the R SCRIPT, because it was the file already known to have written placeholder
+    hazard ratios and a false provenance label. THE R SCRIPT WAS RIGHT. `30232048` is
+    "Triple therapy with budesonide/glycopyrrolate/formoterol fumarate ... (KRONOS)", Lancet
+    Respir Med. `30201345` -- in the BENCHMARK, the file this project validates its pools
+    against -- is "Multiple Polypoid Lesions in the Ileum After Treatment for Primary Ileal
+    Follicular Lymphoma", Gastroenterology. A case report about a different disease.
+
+    PRIOR DEFECTIVENESS IS A PRIOR, NOT EVIDENCE. It tells you where to look first. It does not
+    tell you what you will find, and a file's reputation is not a measurement of the claim in
+    front of you.
+
+    AND THE CORRESPONDING TRAP ON THE OTHER SIDE: the file with the better reputation was the
+    one carrying the wrong citation, in the field everything downstream is checked against. A
+    wrong identifier that RESOLVES passes every mechanical check; only reading the title and
+    asking "is this the trial" catches it.
+    """
+    return None
+
+
+def never_bind_an_identity_by_position(returned, requested, what):
+    """ON AN IDENTITY QUESTION, NEVER INFER WHICH ANSWER BELONGS TO WHICH REQUEST.
+
+    A PubMed lookup of four PMIDs returned four records whose top-level `pmid` field was None.
+    The mapping was available under `identifiers.pmid`; the tempting shortcut was to assume the
+    responses came back in the order requested.
+
+    THAT ASSUMPTION IS EXACTLY THE ONE THAT PRODUCES A CONFLATION, and this project has already
+    conflated two heart-failure trials on a covering label -- PARACHUTE-HF read as ANSWER-HF --
+    which is why the standing rule is that the registration identifier is the identity key. An
+    ordering assumption is a covering label made of array indices.
+
+    It would have been RIGHT here, which is what makes it dangerous: the order did match. A
+    shortcut that works is a shortcut that gets reused on the day the API sorts by relevance,
+    de-duplicates, or drops a not-found record silently -- and then two trials swap identities
+    with nothing in the output to show it.
+
+    BIND BY THE KEY THE RECORD CARRIES. If the record does not carry one, the answer is that
+    the identity cannot be established from this response, not that the order will do.
+    """
+    if len(returned) != len(requested):
+        raise ControlFailed(
+            "REFUSED: %s asked for %d identifiers and got %d records back, so position cannot "
+            "bind them even if it looks like it would. Read the identifier the record carries."
+            % (what, len(requested), len(returned)))
+    return None
+
+
+def a_fingerprint_is_a_property_not_a_cause(signature, property_it_shows, causes, what):
+    """A FINGERPRINT IDENTIFIES A PROPERTY, NOT A CAUSE.
+
+    THE INSTANCE, 2026-08-23, and it produced a false accusation against this project's own
+    corpus. Four sidecars on `dashboard.html` carried a provenance label known to be false.
+    Three of them also carried `tau2 = 0.0` and `I2 = 0.0`, and I read that as the signature of
+    fabrication -- "hand-chosen numbers agree perfectly" -- and reported three topics as built
+    from invented inputs.
+
+    tau2 = 0 WITH I2 = 0 MEANS THE INPUTS AGREE PERFECTLY. THAT IS THE PROPERTY. The causes
+    that produce it include:
+
+        fabricated numbers          FGFR_INHIBITORS_SOLID -- and its own comment says so
+        DERIVED numbers             HPV_DOSE_REDUCTION -- RR = 1 - VE from two real trials
+        ROUNDED numbers             HEPATITIS_HCV_DAA -- approximated from "~1%", "~5-10%"
+        PARTLY ASSUMED numbers      MDRTB_BPAL -- one published RR, two assumed for single-arm
+
+    Only the first is fabrication. The other three are real work with real problems, and
+    calling them invented was an accusation in the same direction as the defect being reported,
+    pointed at our own corpus.
+
+    THE CAUSE WAS ONE FILE AWAY IN A COMMENT THE WHOLE TIME. Each call site says in prose what
+    its numbers are and where they came from. I inferred cause from a statistic instead of
+    reading the source.
+
+    SAME FAMILY AS THE DONOR HEURISTIC, which compared filename substrings against registry
+    text and reported 727 of 745 topics as citing the wrong trial: a computed signature
+    standing in for a judgement about meaning.
+
+    THE RULE: a signature is a SCREEN -- it tells you where to look. Where the conclusion is
+    about CAUSE -- was this invented, is this the right trial, did this procedure happen -- READ
+    THE SOURCE. A statistic can tell you two numbers agree; only the record can tell you why.
+    """
+    if len(causes) <= 1:
+        return
+    raise ControlFailed(
+        "REFUSED: %s treats %r as evidence of one cause, but that signature shows %r, which "
+        "has %d known causes (%s). Read the source rather than infer from the signature."
+        % (what, signature, property_it_shows, len(causes), ", ".join(sorted(causes))))
+
+
+def make_the_honest_path_the_only_path(callable_name, required_args, defaulted_args, what):
+    """THE ONE THAT OUTRANKS EVERYTHING ELSE HERE: A REQUIRED ARGUMENT BEATS A CHECK.
+
+    Every other lesson in this file describes how to DETECT a defect after it exists -- plant
+    the control, key the probe to the reader, read the copy being changed, abstain rather than
+    guess. All of them are downstream of somebody already having written the wrong thing.
+
+    A REQUIRED ARGUMENT MAKES THE WRONG THING UNCONSTRUCTABLE.
+
+    THE INSTANCE, 2026-08-23. `emit_sidecar()` in
+    `scripts/regenerate_catastrophic_sidecars.R` hardcoded
+
+        "regenerated_from": "curated_publishedHR_via_metafor_<version>"
+
+    on every sidecar it wrote -- including one whose own comment, fifty lines below, says its
+    hazard ratios are placeholders written by hand. Four topics reached `dashboard.html` under
+    "Pooled OR (95% CI)" carrying a provenance string asserting they came from publications.
+
+    A WRONG ESTIMATE CAN BE CAUGHT BY SOMEONE WHO LOOKS; A PROVENANCE STRING THAT LIES REMOVES
+    THE REASON TO LOOK. It answers the question a checker would ask.
+
+    The fix was not a lint that finds false provenance. It was deleting the default:
+
+        emit_sidecar(..., provenance = NULL)  ->  stop() if provenance is missing
+
+    Five call sites now refuse to run. NOT ONE OF THEM CAN EMIT A FLATTERING LABEL BY
+    INATTENTION, because there is no label to inherit. The five are a named list for a person
+    to answer rather than five silent lies, and supplying a string to unblock them would be the
+    original defect performed deliberately.
+
+    THE GENERAL FORM. Wherever a value carries a claim about ITSELF -- where it came from, what
+    verified it, which standard it was built to, whether it was checked -- that claim must be a
+    REQUIRED INPUT at the point of construction, never a default, never inferred, never
+    inherited from a sibling. A default on a self-describing field is a lie with a plausible
+    shape, and it will be believed precisely because it looks like the answer.
+
+    ASK OF ANY CONSTRUCTOR: can this produce an artefact that describes itself wrongly without
+    anyone deciding to? If yes, the field that describes it should be a required argument.
+    """
+    bad = sorted(set(defaulted_args) & set(required_args))
+    if not bad:
+        return
+    raise ControlFailed(
+        "REFUSED: %s lets %s default, and those fields describe the artefact itself (%s). A "
+        "default on a self-describing field is a lie with a plausible shape. Make it required "
+        "so the wrong value cannot be constructed by inattention."
+        % (callable_name, ", ".join(bad), what))
+
+
+def a_control_must_not_measure_what_the_work_moves(control_reads, work_changes, what):
+    """A CONTROL MUST NEVER MEASURE THE QUANTITY THE WORK IS DESIGNED TO MOVE.
+
+    The seventh instance of this in one project, and the clearest statement of it yet. An
+    audit of which qualifications reach a reader keyed its positive control to
+    "`what_this_verdict_does_not_establish` is held on 68 objects and rendered on ZERO" --
+    both numbers read by hand hours earlier. It refused on the next run, correctly: the
+    corpus holds it on 88, and the rendered count had already moved 0 -> 1 because the
+    rollout was rebuilding pages against the projector fix that renders it.
+
+        THE CONTROL WAS MEASURING THE FINDING. Every page rebuilt made the control more
+        likely to fail, so complete success would have looked exactly like a broken
+        instrument, and there is no reading of the output that distinguishes them.
+
+    The earlier form of this lesson -- a control keyed to the defect you are removing dies
+    when you succeed -- is the same thing seen from the defect's side. This is the general
+    form: whatever number the work is FOR, that number is the finding and cannot also be the
+    evidence the instrument is sound.
+
+    Key the control to something the work does not touch: a fixture built in the file, a
+    pinned revision, a property of the instrument, or -- as here -- a neighbouring fact that
+    stays true either way. This audit now asserts only that the field EXISTS and is held
+    widely, which no amount of rendering changes.
+    """
+    if control_reads == work_changes:
+        raise ControlFailed(
+            "REFUSED: the control reads %r and the work is designed to move %r. They are "
+            "the same quantity, so complete success and a broken instrument produce the "
+            "same output and nothing distinguishes them. -- %s"
+            % (control_reads, work_changes, what))
+
+
+def does_this_check_match_its_own_trigger(trigger_pattern, evidence_pattern, sample, what):
+    """A CHECK THAT MATCHES THE TRIGGER IT IS TESTING IS CIRCULAR AND ALWAYS AGREES.
+
+    A rule flags pages carrying `chip-robme` that have no RoB-ME IMPLEMENTATION. The check
+    written to test that rule searched for `robme` case-insensitively -- which matches
+    `chip-robme` itself. Every flagged page therefore looked like a false positive, the rule
+    looked 100% wrong, and it was one edit from being suppressed across 301 pages.
+
+        THE CHECK FOUND THE THING THAT CAUSED THE FLAG. That is not evidence about the rule;
+        it is the rule's input read back. And the consequence points the dangerous way: it
+        would have DELETED a true finding, which leaves nothing behind to notice.
+
+    Ask of any verifier: could this pattern match the very thing that caused the flag? If
+    yes, it cannot speak to whether the flag was right.
+    """
+    if trigger_pattern and evidence_pattern and sample:
+        import re as _re
+        if _re.search(evidence_pattern, sample, _re.I) and _re.search(trigger_pattern,
+                                                                     sample, _re.I):
+            if _re.search(evidence_pattern, trigger_pattern, _re.I):
+                raise ControlFailed(
+                    "REFUSED: the evidence pattern %r matches the TRIGGER %r itself, so it "
+                    "agrees with every flagged case by construction and says nothing about "
+                    "whether the flag was correct. -- %s"
+                    % (evidence_pattern, trigger_pattern, what))
+
+
+def completeness_is_earned_not_stated(packet_fields, artefact_fields, what):
+    """AN ASSERTION OF COMPLETENESS MUST BE EARNED. A FALSE ASSURANCE IS WORSE THAN NONE.
+
+    A blinded-review packet was built from a FIXED LIST of fields, and the prompt then told
+    the reviewer that nothing was withheld. Eleven agy lanes returned REJECT on reasoning of
+    the form "the provided evidence contains none of these registry strings" -- and the
+    strings were on the object, outside the field list.
+
+        THE REVIEWER WAS NOT WRONG. It reasoned correctly from a premise I had certified,
+        and reached a wrong verdict with full confidence because the certificate was false.
+        With NO guarantee it would have hedged and said COULD NOT DETERMINE. With a false
+        one it convicted sound work.
+
+    That is a failure class distinct from every other one in this file. The others are
+    checks that cannot fail, or that are accurate about the wrong subject. This is a check
+    MISLED BY A TRUE-SOUNDING GUARANTEE -- the instrument is fine and the input to it lies.
+
+    FREE PROSE QUOTES WHATEVER IT NEEDS, so no fixed field list can be provably sufficient
+    for a review of prose. The only honest completeness claim over an object is THE WHOLE
+    OBJECT, EVERY FIELD AT EVERY DEPTH -- and the prompt must say so, which turns "not in
+    the packet" from a trap into a strong statement a reviewer can rely on.
+
+    Raises when a packet claims completeness it cannot support.
+    """
+    missing = sorted(set(artefact_fields) - set(packet_fields))
+    if missing:
+        raise ControlFailed(
+            "REFUSED: this packet asserts completeness and omits %d field(s) the artefact "
+            "holds (%s%s). A reviewer told nothing is withheld will convict sound work by "
+            "reasoning correctly from your certificate. Ship the whole artefact, or state "
+            "exactly what the packet is NOT and instruct COULD NOT DETERMINE. -- %s"
+            % (len(missing), ", ".join(missing[:6]),
+               "" if len(missing) <= 6 else ", ...", what))
+
+
+def probe_the_layer_the_work_uses(layer_probed, layer_needed, what):
+    """A PROBE THAT TESTS A DIFFERENT LAYER THAN THE ONE YOU NEED WILL BE CONFIDENTLY WRONG.
+
+    Probing a third machine for offload, `ping` reported 100% packet loss and it was very
+    nearly recorded as unreachable. ICMP is blocked there. TCP 22 WAS OPEN. A status line
+    said "online", the ping said "dead", and neither was the answer -- only opening the
+    transport the work would actually use was.
+
+    REACHABLE AND USABLE ARE DIFFERENT QUESTIONS, and so is every layer between them. Probe
+    each separately and name which one fails, in three states that must never substitute
+    for one another:
+
+        network      open the PORT the work uses, never ICMP
+        shell        a command that RETURNS A VALUE, never an exit status
+        vendor CLI   a real completion that echoes its own model name
+
+    On that machine: network WORKS, shell FAILS on auth, vendor CLI NOT ASSESSABLE -- and
+    "not assessable" was reported as itself rather than as either neighbour, because a
+    layer you could not reach is not a layer that failed.
+
+    Same family as verifying a build by importing its module, and as a login-status line
+    claiming a seat is alive. Raises when the probed layer is not the layer needed.
+    """
+    if layer_probed != layer_needed:
+        raise ControlFailed(
+            "REFUSED: this probes the %s layer while the work runs on the %s layer. A pass "
+            "here is not evidence and a failure here is not a verdict. -- %s"
+            % (layer_probed, layer_needed, what))
+
+
+def a_claim_is_not_a_finding(claims, verified_against_artefact, what):
+    """NOTHING BECOMES A FINDING UNTIL IT HAS BEEN CHECKED AGAINST THE ARTEFACT.
+
+    Six of eight findings from one blinded cold read were PACKET ARTEFACTS: specific,
+    quotable accusations that named facts had been fabricated, when every one was on the
+    object and missing only from the packet. A harvester that promoted claims to findings
+    would have manufactured six defects that do not exist, in the most convincing form
+    available -- an accusation of fabrication, with a field name attached.
+
+    So a returned lane's claim is UNVERIFIED by construction, and the harvester says so in
+    its own output. THE HARVESTER MUST NEVER BE THE THING THAT VERIFIES, because then it
+    would be grading its own inputs.
+
+    NO_ANSWER IS NOT CLEAN. Four passes returned bytes with no verdict in them; counting
+    those as clean is the worst error available here.
+
+    AND THE TELL: a distribution with no CLEAN and no COULD_NOT_DETERMINE in it is a
+    symptom, not a result. One classifier matched a section heading its own prompt
+    guaranteed and read 100% defect. A classifier keyed to a string its own prompt supplies
+    measures the prompt, not the answer.
+    """
+    if verified_against_artefact and claims:
+        raise ControlFailed(
+            "REFUSED: %d claim(s) are being reported as verified by the same instrument "
+            "that collected them. Verification is a separate read of the artefact. -- %s"
+            % (len(claims), what))
+
+
+def accurate_about_the_wrong_thing(instrument, question_answered, question_asked, what):
+    """A CHECK CAN BE ACCURATE AND STILL WORTHLESS IF IT IS ACCURATE ABOUT THE WRONG THING --
+    and that failure is invisible precisely because NOTHING IS WRONG WITH THE CHECK.
+
+    THE PAIR THAT MAKES THE POINT, both from one recovery on 2026-08-23. Neither is a repeat of
+    the earlier lessons; both are new places for the same shape, and together they say it better
+    than either does alone.
+
+    (1) AN IDEMPOTENCY GUARD KEYED TO A TOKEN IS SATISFIED BY ANY OCCURRENCE OF THAT TOKEN,
+        INCLUDING YOUR OWN DOCUMENTATION OF THE THING YOU ARE ABOUT TO ADD.
+
+        A script added `import field_aliases as _aliases` to `build_app_v2.py`, guarded by
+
+            if "field_aliases" not in src:
+
+        The string WAS present -- in the comment written minutes earlier explaining what the
+        alias map is for. The guard concluded the import existed and skipped it. It was
+        perfectly accurate: `field_aliases` does appear in that file. It answered "does this
+        word occur" when the question was "does this symbol resolve".
+
+        AN IDEMPOTENCY CHECK MUST TEST FOR THE EFFECT, NOT FOR A STRING THAT WOULD ACCOMPANY
+        IT. Here: import the module and check the attribute binds, or parse the AST for an
+        Import node -- not grep for the name.
+
+    (2) VERIFYING A BUILD BY IMPORTING ITS MODULE IS NOT VERIFYING A BUILD.
+
+        `python -c "import build_app_v2"` returned success. It was TRUE: the module imports.
+        But a `NameError` on an undefined global fires at CALL time, so the defect was invisible
+        at import and the builder died on the first real page -- four failures, zero built.
+
+        This is the strongest instance of the family because the verification was CORRECT ABOUT
+        A DIFFERENT THING. There was no bug in the check.
+
+    THE FAMILY, AND IT IS THE LARGEST ONE HERE:
+
+        reads_the_copy_being_changed   worktree vs HEAD vs origin/main vs served bytes
+        THIS, EXTENDED                 the LEVEL as well as the copy: module vs call,
+                                       page vs object, name vs binding, token vs effect
+        composed_or_stored             render-time vs baked into the data
+        a probe keyed to what the fix removed rather than to what a reader meets
+
+    THE QUESTION TO ASK OF ANY GREEN CHECK: what exactly did this establish, and is that the
+    thing I needed established? A check that cannot answer the second half is decoration.
+    """
+    if question_answered == question_asked:
+        return
+    raise ControlFailed(
+        "REFUSED: %s established %r, but the question is %r. The result may be entirely "
+        "accurate and still worthless: nothing is wrong with the check, only with what it is "
+        "about." % (instrument, question_answered, question_asked))
+
+
+def reads_the_copy_being_changed(instrument, reads_surface, changed_surface, what):
+    """AN INSTRUMENT MUST READ THE COPY THAT IS BEING CHANGED -- and "which copy" is a question
+    with a wrong answer that looks identical.
+
+    THE INCIDENT, 2026-08-23. `gate_every_linked_target_resolves` read `origin/main` and was
+    wired into PRE-COMMIT. It therefore validated the PREVIOUS PUSH on every commit: a dead
+    link introduced in the change under test was invisible to it, and a dead link planted in
+    `index.html` produced exit 0. The gate was structurally incapable of catching the defect it
+    had been placed there to catch, while printing a clean, detailed, entirely accurate report
+    about a different copy of the corpus.
+
+    THAT IS WHAT MAKES THIS CLASS EXPENSIVE: the output is not wrong. Every number in it is
+    true of the thing it read. Only the thing it read is the wrong one, and nothing in the
+    report says so.
+
+    THE SURFACES THIS CORPUS HAS, AND THEY ARE NOT INTERCHANGEABLE:
+        the worktree      what is being committed
+        HEAD              what was last committed
+        origin/main       what is delivered -- the Pages deploy ref
+        the served bytes  what a reader actually receives
+
+    AND THE SAME MISTAKE HAS A LEVEL AXIS AS WELL AS A COPY AXIS. "Which copy" is only half of
+    it; "which level" is the other, and it produced the worse failure on the same day:
+
+        module vs call     `import build_app_v2` succeeded while the builder died on the first
+                           page, because a NameError on an undefined global fires at CALL time
+        name vs binding    `if "field_aliases" not in src` was satisfied by a COMMENT
+                           mentioning the module, so the import was never added
+        page vs object     a projector fix could not reach a value baked into the object
+        object vs render   a field present in the data that no surface renders
+
+    Both axes produce the same signature: a green check that is entirely accurate about
+    something adjacent. See `accurate_about_the_wrong_thing`.
+
+    Same family as `composed_or_stored`: there, a fix aimed at the renderer when the value was
+    baked into the object; here, a check aimed at the delivered copy when the change was in the
+    worktree. Both are "right instrument, wrong copy".
+
+    THE RESOLUTION IS NOT TO PICK ONE. It is to make the choice EXPLICIT at the call site --
+    the linked-target gate now reads the worktree by default and takes `--ref origin/main` for
+    delivery auditing. Same instrument, two surfaces, chosen rather than defaulted.
+    """
+    if reads_surface == changed_surface:
+        return
+    raise ControlFailed(
+        "REFUSED: %s reads %s while the change under test is in %s. Its report will be "
+        "accurate about the wrong copy, and nothing in the output will say so."
+        % (instrument, reads_surface, changed_surface))
+
+
+def control_is_keyed_to_something_stable(control_reads, work_changes, what):
+    """A CONTROL MUST BE KEYED TO SOMETHING THE WORK DOES NOT CHANGE -- a fixture, a frozen
+    copy, or a property of the instrument -- NEVER to the corpus state the work is altering.
+
+    THE STRONGEST OF THESE LESSONS, because it is the one that makes SUCCESS INDISTINGUISHABLE
+    FROM FAILURE. Every other class here produces a wrong answer; this one produces a refusal
+    that arrives precisely when the work has gone right, and the natural response to a control
+    failing is to assume the work broke.
+
+    FIVE INSTANCES IN ONE DAY, all the same shape:
+
+      1 `lint_field_name_in_reader_prose` -- positive control was MAVACAMTEN's `bar:` at
+        origin/main. That IS the defect the lint exists to remove: a successful rollout would
+        have made the control fail and the lint refuse every run thereafter. Pinned to
+        a2091846a.
+      2 the grammar-seam gate -- patterns proven against live corpus text that the repair was
+        about to clean. Moved to planted fixtures.
+      3 the procedural-constants scan -- required `protocol_card` to be FOUND carrying
+        procedural constants. Fixing the seven rows made its own control fail.
+      4 the Table 1 classifier -- required `Study selection process` to classify CONSTANT.
+        Same fix, same death.
+      5 the field-name lint again, at the ratchet: a zero-target would have blocked every
+        commit until the rollout landed. Made a ratchet on the baseline instead.
+
+    THE TEST, AND IT TAKES ONE QUESTION: if this work succeeds completely, does the control
+    still hold? If the answer is no, the control is keyed to the thing being removed. Key it to
+    a fixture that will never be cleaned, a pinned revision that will never be rewritten, or a
+    property of the instrument itself -- "the pattern fires on its own planted defect" is true
+    forever regardless of what the corpus does.
+    """
+    shared = set(control_reads) & set(work_changes)
+    if not shared:
+        return
+    raise ControlFailed(
+        "REFUSED: %s keys its control on %s, which is exactly what this work changes. If the "
+        "work succeeds the control fails, and a control that dies on success makes success "
+        "indistinguishable from failure. Key it to a fixture, a pinned revision, or a property "
+        "of the instrument." % (what, ", ".join(sorted(shared))))
+
+
+def match_on_the_meaning_bearing_part(matcher, known_differing_pair, what):
+    """WHEN MATCHING NAMES, MATCH ON THE PART THAT CARRIES THE MEANING -- and prove it against
+    a pair you already know differs.
+
+    THE INCIDENT, 2026-08-23. A sweep for "one concept stored under two key names" tested
+    lexical closeness by SHARED PREFIX. `dual_screening` and `duplicate_screening` share
+    exactly two leading characters, "du". The concept is in the SUFFIX: a synonym pair is
+    usually two different qualifiers on the same noun, and the noun comes last.
+
+    The sweep therefore missed the one pair that had already been established by hand, and the
+    control refused before any count was printed. Without that control it would have reported
+    a clean-looking list that omitted its own founding case.
+
+    SAME FAMILY AS `selection_is_population_not_defect`: a rule keyed to the convenient end of
+    the data rather than to the part that decides the answer. A prefix is where string
+    comparison starts, which is why it gets used; it is not where the meaning lives.
+
+    THE CHECK: any name-matching rule must be run against a pair whose answer is already known
+    -- ideally one that is SIMILAR in the dimension being tested and DIFFERENT in the one that
+    matters -- before it is allowed to report.
+    """
+    a, b = known_differing_pair
+    if matcher(a, b):
+        return
+    raise ControlFailed(
+        "REFUSED: %s does not match %r and %r, which are known to name one concept. The rule "
+        "is keyed to a part of the name that does not carry the meaning." % (what, a, b))
+
+
+def selection_is_population_not_defect(selected, population, defect_matched, what):
+    """A SELECTOR KEYED TO THE DEFECT IS A SELECTOR THAT SHRINKS AS THE WORK SUCCEEDS, AND ITS
+    SUCCESS SIGNAL IS COMPUTED OVER THE SURVIVORS.
+
+    THE INCIDENT, 2026-08-23. A repair pass selected objects by the defect -- stored prose
+    containing `what verifies this object:` and its siblings -- and rewrote 48 of them. A second
+    pass was then needed to correct a punctuation seam the first pass had introduced. It used
+    the SAME selector. By then the defect was gone from 46 of the 49, so the selector matched
+    only the 3 objects still carrying a refused key.
+
+    IT REPORTED SUCCESS. Every object it selected did change, so the occurrence predicate
+    passed, the counts closed, and 46 objects kept the seam. The success signal was computed
+    over the survivors of the very filter that was wrong.
+
+    THIS IS NOT ONLY ABOUT REPAIR SCRIPTS. Any run that finds its work by looking for the
+    problem has this shape: a linter fixing what it can still detect, a migration selecting
+    un-migrated rows, a retry queue holding only failures. The moment the operation partially
+    succeeds, the population and the selector diverge, and the run cannot see what it already
+    touched.
+
+    THE REMEDY: define the POPULATION independently of the defect -- "objects that hold this
+    writer's output", not "objects that hold its broken output" -- and read that definition
+    from THE SAME SOURCE the fix reads, so the two cannot drift. Then let the occurrence
+    predicate decide per item whether anything changed.
+    """
+    missed = len(population) - len(selected)
+    if missed <= 0:
+        return
+    raise ControlFailed(
+        "REFUSED: %s selected %d item(s) but the population is %d. %d were skipped, and %d of "
+        "the selected matched the defect -- which means the selector is keyed to the defect "
+        "and has shrunk as the work succeeded. Its success signal would be computed over the "
+        "survivors." % (what, len(selected), len(population), missed, defect_matched))
+
+
+def occurrence_predicate(first_application, changed, unchanged, defects_remaining, what):
+    """THE OCCURRENCE PREDICATE, AWARE OF WHICH RUN IT IS. Mahmood's correction, 2026-08-23.
+
+    The rule as originally imposed -- "assert per item that the operation actually changed
+    something, so 'ran and changed nothing' is distinguishable from 'never ran'" -- is TRUE OF A
+    FIRST PASS AND FALSE OF A REPEAT. On a verification re-run the correct outcome is that
+    nothing changes, and a predicate that demands change refuses a corpus that is already
+    right. That happened: the re-run reported 48 objects "expected to change and did not" while
+    every one of them was correct, and the only way through was to verify against the defect
+    directly.
+
+    SO THE DISCRIMINATOR DEPENDS ON THE RUN:
+
+        FIRST APPLICATION   assert CHANGED. An item that did not change was not reached, and
+                            "not reached" is indistinguishable from "nothing to do" without it.
+        VERIFICATION PASS   assert UNCHANGED **and** DEFECT-FREE. Unchanged alone proves
+                            nothing -- a run that never executed is also unchanged. The
+                            discriminator is the DEFECT COUNT, not the change count.
+
+    Both runs are still separating the same two states. Only the evidence differs.
+    """
+    if first_application:
+        if unchanged:
+            raise ControlFailed(
+                "REFUSED: %s is a FIRST APPLICATION and %d item(s) did not change. That is "
+                "'ran and changed nothing', which is indistinguishable from 'never ran'."
+                % (what, unchanged))
+        return
+    if defects_remaining:
+        raise ControlFailed(
+            "REFUSED: %s is a VERIFICATION PASS and %d defect(s) remain. Unchanged is only "
+            "reassuring when the defect count is zero -- a run that never executed is also "
+            "unchanged." % (what, defects_remaining))
+    if changed:
+        raise ControlFailed(
+            "REFUSED: %s is a VERIFICATION PASS and %d item(s) CHANGED. Either the previous "
+            "application was incomplete or this run is not idempotent; both need saying before "
+            "the result is trusted." % (what, changed))
+
+
+def composed_or_stored(rendered_string, render_time_sources, stored_sources, what):
+    """BEFORE FIXING A RENDERED STRING, ESTABLISH WHETHER IT IS COMPOSED AT RENDER TIME OR
+    STORED. A projector fix cannot reach a baked value, and both look identical on the page.
+
+    THE INCIDENT, AND IT IS THE FOURTH OF ITS FAMILY IN ONE NIGHT. The container-repr leak was
+    fixed in `paper_projector._flatten_container`, the fix was unit-tested and correct, and
+    MAVACAMTEN was rebuilt to prove it. The page came back with the SAME THREE HITS:
+
+        "... what verifies this object: ClinicalTrials.gov protocol records, read 2026-08-18.
+         what is not claimed: that any per-trial count was checked against a results record.
+         bar: not recorded on the page this object was built from."
+
+    The projector renders a STORED STRING. The `key: value` text is written into the object at
+    `bookkeeping_2026_08_21.the_search_its_date_and_its_databases` by a DIFFERENT function --
+    `scripts/build_paper_bookkeeping_2026_08_21.py::_flat` -- and had been sitting in the JSON
+    since 2026-08-21. I FIXED THE RENDERER AND THE DEFECT WAS IN THE WRITER.
+
+    THE FAMILY, ALL FOUR FOUND ON 2026-08-22/23, AND THE COMMON SHAPE IS THAT THE FIX LANDS
+    WHERE THE AUTHOR WAS LOOKING RATHER THAN WHERE THE TEXT IS PRODUCED:
+
+        * a probe searched for BRACES, which is what the fix removed, so it could only agree
+          with whoever wrote the fix
+        * the transform was placed on the PAPER panel's loop while seven other panels rendered
+          through a different callable
+        * a de-indexing updated `index.html` and `sitemap.xml` and not `audit_table.html`
+        * a renderer was fixed while the string was baked into the object by a writer
+
+    THE CHECK: for a rendered string you intend to change, enumerate BOTH the paths that
+    compose it at render time and the fields that may already hold it, and say which one you
+    are fixing. A rebuild that changes nothing is the signature of getting this wrong -- and it
+    is silent, because a page that was never going to change looks exactly like a page that had
+    nothing to fix.
+    """
+    if render_time_sources or stored_sources:
+        return
+    raise ControlFailed(
+        "REFUSED: %r is to be changed but neither a render-time path nor a stored field has "
+        "been identified for it (%s). A fix aimed at the wrong one produces a rebuild that "
+        "changes nothing, silently." % (rendered_string[:60], what))
+
+
+def every_referring_surface(target, surfaces_checked, surfaces_that_reference, what):
+    """A CHANGE IS APPLIED TO THE SURFACES ITS AUTHOR WAS THINKING ABOUT, AND NOT TO THE ONE
+    THEY WERE NOT. Enumerate the referring surfaces and ASSERT them; never remember them.
+
+    THREE INSTANCES OF ONE CLASS, ALL FOUND ON 2026-08-23:
+
+      1. A DELETION VALIDATED ON TWO SURFACES OUT OF THREE. Commit 2a011cdfe removed 519
+         single-trial AUTO apps on a correct and documented principle -- k=1 is not a
+         meta-analysis -- and its own message records updating `index.html` cards (47) and
+         `sitemap.xml` entries (520). It did not touch `audit_table.html`. Eleven weeks later
+         the index has ZERO dead links and the audit table has 569: two rows in five of the
+         surface a sceptical reader opens first point at nothing.
+
+      2. THE POOLING CLAIM fixed in Methods-synthesis and left standing in the Abstract.
+
+      3. GRADE LIVING IN TWO PLACES -- `results.*.grade` and `grade.by_outcome` -- with each
+         rendered surface reading a different one, so a reader met whichever location the
+         panel they were looking at happened to consult.
+
+    THE COMMON SHAPE: the author had a mental list of surfaces, acted on all of it, and the
+    list was incomplete. Nothing failed. Every check passed. The work was CORRECT and the
+    coverage was not, which is why review does not catch this class -- there is no error to
+    see, only an absence, and the absence is somewhere nobody was looking.
+
+    THE GENERAL FORM, AND IT IS A CHECK RATHER THAN A HABIT: when a record is removed or
+    changed, ENUMERATE every surface that references it -- by searching for references, not by
+    recalling them -- and assert that each was handled. A remembered list is the failure mode
+    itself.
+    """
+    missed = sorted(set(surfaces_that_reference) - set(surfaces_checked))
+    if not missed:
+        return
+    raise ControlFailed(
+        "REFUSED: %s was changed on %d surface(s) but %d surface(s) still reference it and "
+        "were not handled: %s. This is the class where the work is correct and the coverage "
+        "is not -- %s." % (target, len(surfaces_checked), len(missed), ", ".join(missed), what))
+
+
+NOT_ASSESSABLE = "NOT_ASSESSABLE"
+
+
+def abstain_or_answer(can_decide, verdict, what):
+    """A CHECK THAT REQUIRES JUDGEMENT SHOULD BE BUILT TO ABSTAIN, NOT TO GUESS.
+
+    THE ASYMMETRY THAT UNDERLIES EVERY WITHDRAWAL OF 2026-08-23, and it is the general rule:
+
+        THE ABSENCE LIMB NEEDS NO JUDGEMENT. "Does NCT01084557 exist" is answered by the
+        registry's own 404, re-queried live. There is nothing to interpret, so the number is
+        publishable: 57 pages cite identifiers that do not exist.
+
+        THE DONOR LIMB NEEDS A CONCEPT MATCH. "Is this the RIGHT trial for this page" requires
+        knowing that ALS is Amyotrophic Lateral Sclerosis, that NSCLC is Non-Small Cell Lung
+        Cancer, that MCI-186 is edaravone and VEGF Trap-Eye is aflibercept. That needs a real
+        ontology or a person. It was implemented as SUBSTRING OVERLAP and produced 727 of 745,
+        then 149 of 602. Both withdrawn.
+
+    THE PATTERN, NAMED SO IT IS RECOGNISABLE NEXT TIME: A HEURISTIC KEYED TO SOMETHING
+    CONVENIENT RATHER THAN TO THE THING BEING ASKED. Substring overlap against registry text
+    was never a test of "is this the right trial". It was a test of "do these strings happen to
+    share characters", which is a different question that happens to be easy to compute. The
+    convenience is what makes it seductive and the mismatch is invisible in the output, because
+    a wrong verdict looks exactly like a right one.
+
+    So when a check cannot decide, it returns NOT_ASSESSABLE and SAYS SO. That is not a
+    failure to deliver -- an abstention is information, and a guess dressed as a measurement
+    costs more than silence. Roughly a third of this run's value was in refusing to answer.
+
+    THE AUTHOR OF THIS LESSON BROKE IT AGAIN WITHIN THE HOUR, in a disposable one-line waiter,
+    where nobody would have looked: `ps -W | grep rollout_corpus` never matches because that
+    shell's `ps` does not print command lines, so the negation was true on the first pass and
+    the waiter announced "ROLLOUT FINISHED" while the rollout was still building pages. It
+    would have reported a rebuild complete at 90 of 157. WRITING A RULE DOWN DOES NOT
+    IMMUNISE YOU AGAINST IT -- which is the strongest available evidence that this class is
+    structural and not carelessness.
+
+    IT WAS CAUGHT BY A DIFFERENT RULE, NOT BY THIS ONE: a lock file is an artefact, a running
+    process is a fact -- so the process list was checked and the process was alive. THE RULES
+    COVER EACH OTHER AND NO SINGLE ONE IS SUFFICIENT. Do not expect to be saved by the rule
+    that names the mistake you are making; expect to be saved by a different one.
+    """
+    if can_decide:
+        return verdict
+    return NOT_ASSESSABLE
+
+
+def page_states_its_own_condition(page_says, instrument_says, what, page):
+    """WHEN A PAGE STATES ITS OWN CONDITION AND THE INSTRUMENT DISAGREES, THE PAGE IS THE
+    EVIDENCE AND THE INSTRUMENT IS THE HYPOTHESIS.
+
+    THE INCIDENT, AND IT REFUTED A CORRECT PIECE OF REASONING. Legacy pages carry a banner
+    reading, in plain English:
+
+        "47 number(s) on this page marked UNVERIFIED -- no resolvable trial id"
+
+    An extraction was run to test whether such pages ALSO name identifiers a reader could look
+    up. It found NCTs on 128 of 129 of them and reported that the bare-count distinction was
+    "weaker than claimed". The reasoning it refuted was correct. The NCTs it found were real
+    but belonged to other, verified content -- ZERO were among the numbers flagged unverified,
+    which is precisely what the banner had already said. Corrected overlap: 1 of 129.
+
+    THE CORPUS WAS TELLING THE INSTRUMENT THE ANSWER AND THE INSTRUMENT OVERRODE IT.
+
+    This is not the same as trusting page text blindly. A page's SELF-DESCRIPTION of its own
+    state -- "no resolvable trial id", "no pooled estimate was produced", "this review has been
+    retired" -- is a first-class observation, usually written by the code that knows. When a
+    probe contradicts one, the probability that the probe is asking a subtly different question
+    is far higher than the probability that the page is lying about itself. Check the probe
+    first. Every time this has come up tonight, the probe was wrong.
+
+    Call with the page's own claim and the instrument's, and it refuses when they diverge, so
+    the disagreement has to be resolved before a number is published rather than after.
+    """
+    if bool(page_says) == bool(instrument_says):
+        return
+    raise ControlFailed(
+        "REFUSED: %s says %r about %s and this instrument says %r. The page's statement about "
+        "its own condition is the evidence; this check is the hypothesis. Establish which "
+        "question the probe is actually asking before reporting a number."
+        % (page, page_says, what, instrument_says))
+
+
+def authored_not_constructed(path, text):
+    """A CHANNEL NOTHING VALIDATES IS WHERE SILENT CORRUPTION SURVIVES.
+
+    THE INCIDENT. A commit message was passed to `git commit -m "..."` with backticks in the
+    body. The shell COMMAND-SUBSTITUTED them: `` `_REVIEW` `` was executed, produced nothing,
+    and the sentence "whose filenames omit `_REVIEW`" was recorded as "whose filenames omit".
+    The commit succeeded. Every gate passed. The push would have gone out clean.
+
+    WHY THIS ONE IS WORTH A FUNCTION AND NOT JUST A NOTE. It is the same shape as a gate that
+    cannot fail, arriving from the opposite direction. A commit message is a channel NOTHING
+    DOWNSTREAM READS: no test parses it, no linter checks it, no reader diffs it against what
+    was meant. So a corruption there is not caught late -- IT IS NEVER CAUGHT. The record is
+    silently wrong forever, and the only reason this instance was found is that a person
+    happened to read the log within the minute.
+
+    The transport does not have to be malicious or exotic to do this. Backticks command-
+    substitute, `$` expands, `\\b` becomes a literal 0x08 byte, CRLF is rewritten. Every one is
+    a documented failure in this repo's history and every one produced output that looked fine.
+
+    THE RULE, GENERALISED: never construct content through a shell string. Write the bytes to a
+    file with a file tool and hand the FILE to the command -- `git commit -F <file>`. A file is
+    a channel you can read back and diff; a shell argument is not.
+
+    This helper is the assertion form: hand it the path you wrote and the text you meant, and
+    it refuses if what landed is not what was intended.
+    """
+    import io as _io
+    try:
+        got = _io.open(path, encoding="utf-8").read()
+    except OSError as e:
+        raise ControlFailed("REFUSED: cannot read back %s (%s). Content that cannot be read "
+                            "back has not been verified, only sent." % (path, e))
+    if got.strip() == text.strip():
+        return
+    raise ControlFailed(
+        "REFUSED: what landed in %s is not what was authored (%d chars written, %d read "
+        "back). Something in the transport rewrote it, and a commit message is a channel "
+        "nothing downstream validates -- so this would have been wrong permanently and "
+        "silently." % (path, len(text), len(got)))
+
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "@'
+import re
+REPR_IN_TEXT = re.compile(r\"\\{&#x27;|\\{'|&#x27;: &#x27;|': '|\\[\\{|&quot;: &quot;|\\{&quot;\\w+&quot;: \")
+STRIP = (re.compile(r\"(?is)<script.*?</script>\"), re.compile(r\"(?is)<style.*?</style>\"), re.compile(r\"(?is)<pre["'^>]*>.*?</pre>"), re.compile(r"(?is)<code[''^>]*>.*?</code>"))
+def rendered_text(raw):
+    t=raw
+    for r in STRIP:
+        t=r.sub('"' ', t)
+    t=re.sub(r\"<["'^>]+>", '"' ', t)
+    return t
+cases = [
+(\"scalar_list\", \"<p>Outcomes: ['mortality', 'hospitalization']</p>\"),
+(\"decimal_entities\", \"<p>{&#39;domain&#39;: &#39;risk_of_bias&#39;}</p>\"),
+(\"apos_entities\", \"<p>{&apos;domain&apos;: &apos;risk_of_bias&apos;}</p>\"),
+(\"false_positive\", \"<p>The glossary has 'dose': 'not recorded' as a phrase.</p>\"),
+]
+for name,s in cases:
+    print(name, bool(REPR_IN_TEXT.search(rendered_text(s))), REPR_IN_TEXT.search(rendered_text(s)).group(0) if REPR_IN_TEXT.search(rendered_text(s)) else None)
+'@ | python -" in F:\rapidmeta-ssot-shell
+ succeeded in 1305ms:
+scalar_list False None
+decimal_entities False None
+apos_entities False None
+false_positive True ': '
+
+codex
+- **Check that cannot fail / zero conflated with absent**: lines 92 and 130.  
+  Exact input: repo root has no `*_REVIEW.html` files.  
+  Consequence: `pages=[]`, `hits=[]`, controls pass, and the script exits 0 after checking no delivered pages.
+
+- **Status code reports wrapper, not work**: lines 65-68.  
+  Exact input: a directory named `BROKEN_REVIEW.html` matched by `glob`.  
+  Consequence: `io.open()` fails, the exception is swallowed, and the page is counted in the denominator but never scanned.
+
+- **Selector keyed to too narrow a form**: line 44.  
+  Exact input: `<p>Outcomes: ['mortality', 'hospitalization']</p>`  
+  Consequence: a Python list repr rendered as page text is missed because only list-of-dict starts (`[{`) are detected.
+
+- **Selector keyed to one entity spelling**: line 44.  
+  Exact input: `<p>{&#39;domain&#39;: &#39;risk_of_bias&#39;}</p>`  
+  Consequence: the same dict repr escapes detection when apostrophes are encoded as `&#39;` rather than `&#x27;`.
+
+- **Selector overmatches outside containers**: line 44.  
+  Exact input: `<p>The glossary has 'dose': 'not recorded' as a phrase.</p>`  
+  Consequence: ordinary rendered text with a quoted label/value pair is refused as a container repr even without `{}` or `[]`.
+
+COULD NOT DETERMINE for the “different copy” shape: the packet lacks the caller/deploy map that defines whether delivered pages are root files, nested assets, HEAD, origin/main, or served output.
+tokens used
+35,147
+- **Check that cannot fail / zero conflated with absent**: lines 92 and 130.  
+  Exact input: repo root has no `*_REVIEW.html` files.  
+  Consequence: `pages=[]`, `hits=[]`, controls pass, and the script exits 0 after checking no delivered pages.
+
+- **Status code reports wrapper, not work**: lines 65-68.  
+  Exact input: a directory named `BROKEN_REVIEW.html` matched by `glob`.  
+  Consequence: `io.open()` fails, the exception is swallowed, and the page is counted in the denominator but never scanned.
+
+- **Selector keyed to too narrow a form**: line 44.  
+  Exact input: `<p>Outcomes: ['mortality', 'hospitalization']</p>`  
+  Consequence: a Python list repr rendered as page text is missed because only list-of-dict starts (`[{`) are detected.
+
+- **Selector keyed to one entity spelling**: line 44.  
+  Exact input: `<p>{&#39;domain&#39;: &#39;risk_of_bias&#39;}</p>`  
+  Consequence: the same dict repr escapes detection when apostrophes are encoded as `&#39;` rather than `&#x27;`.
+
+- **Selector overmatches outside containers**: line 44.  
+  Exact input: `<p>The glossary has 'dose': 'not recorded' as a phrase.</p>`  
+  Consequence: ordinary rendered text with a quoted label/value pair is refused as a container repr even without `{}` or `[]`.
+
+COULD NOT DETERMINE for the “different copy” shape: the packet lacks the caller/deploy map that defines whether delivered pages are root files, nested assets, HEAD, origin/main, or served output.

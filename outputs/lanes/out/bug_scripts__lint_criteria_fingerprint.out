@@ -1,0 +1,244 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a031e9-4d0a-7d52-b523-6c286cf67f0c
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/lint_criteria_fingerprint.py
+
+--- THE FILE, IN FULL ---
+#!/usr/bin/env python3
+"""ROUTE 7: A SCREENER THAT ASKS THE NEIGHBOURING TOPIC'S QUESTION UNDER THIS TOPIC'S NAME.
+
+THE INSTANCE. The first version of `screen_rhythm_control_remainder_2026_08_19.py` was a
+`sed`-rename of the sibling's `screen_ablation_medical_remainder_2026_08_19.py`. It parsed
+cleanly, ran, and produced a complete set of 551 verdicts -- every one answering the SIBLING'S
+question, because those rules ask whether ABLATION is the contrast.
+
+    THE SIX EARLIER CONTAMINATION ROUTES CARRIED ONE TOPIC'S **DATA** INTO ANOTHER. THIS
+    CARRIES ONE TOPIC'S **CRITERIA**, and the output is not corrupt, empty or malformed -- it
+    is COMPLETE, PLAUSIBLE AND INVERTED.
+
+    An arm declaring `Drug: Amiodarone` is the INTERVENTION for the rhythm-control review and
+    the COMPARATOR for the ablation review. The same arm text means OPPOSITE things to the two
+    reviews, which is precisely why they are two reviews -- and it is what a rename leaves
+    untouched.
+
+WHY NO EXISTING GUARD SEES IT. The file is new, the filename is right, the topic key is right,
+the docstring is right after a rename, and every contamination check in this repository passes.
+Nothing is malformed, so nothing looks wrong.
+
+WHAT THIS CHECKS, AND WHY IT IS BEHAVIOURAL RATHER THAN STRUCTURAL.
+
+A fingerprint over source text would be defeated by the very edit it is meant to catch -- a
+rename changes names and leaves rules. So the fingerprint is over WHAT THE RULES DO: each
+screener is handed a fixed set of REAL arm structures and must classify them the way its own
+review's criteria require. The probe set is chosen to be DISCRIMINATING -- at least one arm
+whose role differs between the two reviews -- because a probe both screeners answer the same
+way cannot tell them apart.
+
+    `Drug: Amiodarone`  ->  ablation review: a MEDICAL/comparator arm
+                        ->  rhythm review:   a RHYTHM/intervention arm
+
+That single probe is the whole detector. The rest are there so a partial rename is caught too.
+
+THE PROBES ARE REAL ARM RECORDS FROM THIS CORPUS, not invented shapes -- detector 10's rule.
+Each carries the registration it was read from.
+"""
+import importlib.util
+import io
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+SCRIPTS = os.path.join(REPO, "scripts")
+
+# --- REAL arm records, each with the registration it came from ---------------------------
+PROBES = [
+    ("amiodarone",       {"type": "ACTIVE_COMPARATOR", "label": "Amiodarone",
+                          "interventionNames": ["Drug: Amiodarone"]},          "NCT00729911"),
+    ("rate control",     {"type": "ACTIVE_COMPARATOR", "label": "Rate Control",
+                          "interventionNames": ["Other: Rate Control"]},       "NCT01420393"),
+    ("catheter ablation", {"type": "EXPERIMENTAL", "label": "Catheter Ablation",
+                           "interventionNames": ["Procedure: Catheter ablation"]},
+     "NCT06560047"),
+    ("av nodal ablation", {"type": "EXPERIMENTAL", "label": "AV nodal ablation",
+                           "interventionNames": ["Procedure: AV nodal ablation"]},
+     "NCT01522898"),
+    ("conventional",     {"type": "ACTIVE_COMPARATOR", "label": "2",
+                          "interventionNames": ["Other: Conventional treatment"]},
+     "NCT00643188"),
+    ("no intervention",  {"type": "NO_INTERVENTION", "label": "Usual care",
+                          "interventionNames": None},                          "NCT01288352"),
+]
+
+# --- WHAT EACH REVIEW'S CRITERIA REQUIRE. Written from the criteria blocks, not from the
+# --- code, so a screener that drifts from its own review is caught as well as one that was
+# --- copied from another.
+EXPECTED = {
+    "screen_ablation_medical_remainder_2026_08_19": {
+        "topic": "ablation-af-medical-therapy",
+        "kinds": {"amiodarone": "MEDICAL", "rate control": "MEDICAL",
+                  "catheter ablation": "ABLATION", "av nodal ablation": "NODAL",
+                  "conventional": "MEDICAL", "no intervention": "NONE"},
+        "why": "the contrast is ABLATION against medical therapy, so every drug arm -- rate or "
+               "rhythm -- is on the COMPARATOR side.",
+    },
+    "screen_rhythm_control_remainder_2026_08_19": {
+        "topic": "early-rhythm-control-af",
+        "kinds": {"amiodarone": "RHYTHM", "rate control": "RATE",
+                  "catheter ablation": "RHYTHM", "av nodal ablation": "NODAL",
+                  "conventional": "USUAL", "no intervention": "NONE"},
+        "why": "the contrast is a RHYTHM-CONTROL STRATEGY against rate control or usual care, "
+               "so an antiarrhythmic arm is the INTERVENTION and a rate-control arm is the "
+               "comparator.",
+    },
+}
+
+DISCRIMINATING = "amiodarone"
+
+
+def load(mod_name):
+    path = os.path.join(SCRIPTS, mod_name + ".py")
+    if not os.path.exists(path):
+        return None
+    spec = importlib.util.spec_from_file_location(mod_name, path)
+    mod = importlib.util.module_from_spec(spec)
+    sys.modules[mod_name] = mod
+    spec.loader.exec_module(mod)
+    return mod
+
+
+def fingerprint(mod):
+    if not hasattr(mod, "arm_kind"):
+        return None
+    return {name: mod.arm_kind(arm) for name, arm, _nct in PROBES}
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    failures, checked = [], 0
+
+    # THE DISCRIMINATING PROBE MUST ACTUALLY DISCRIMINATE, or this detector is decorative.
+    want = {n: e["kinds"][DISCRIMINATING] for n, e in EXPECTED.items()}
+    if len(set(want.values())) < 2:
+        print("REFUSED: the probe %r is expected to give the SAME kind in every registered "
+              "screener, so it cannot tell them apart. A fingerprint over a non-discriminating "
+              "probe passes everything." % DISCRIMINATING)
+        return 2
+    print("discriminating probe %r expects: %s" % (DISCRIMINATING, want))
+    print()
+
+    for mod_name, exp in sorted(EXPECTED.items()):
+        mod = load(mod_name)
+        if mod is None:
+            print("%-52s NOT_ASSESSABLE -- file absent" % mod_name)
+            continue
+        got = fingerprint(mod)
+        if got is None:
+            print("%-52s NOT_ASSESSABLE -- no arm_kind() to probe" % mod_name)
+            continue
+        checked += 1
+        bad = {k: (got.get(k), v) for k, v in exp["kinds"].items() if got.get(k) != v}
+        print("%-52s %s" % (mod_name, "OK" if not bad else "MISMATCH"))
+        print("      declares topic %r -- %s" % (exp["topic"], exp["why"]))
+        if bad:
+            for probe, (g, w) in sorted(bad.items()):
+                nct = next(n for nm, _a, n in PROBES if nm == probe)
+                print("      probe %-20s from %s: got %-18s expected %s"
+                      % (probe, nct, g, w))
+            other = [n for n in EXPECTED
+                     if n != mod_name and all(
+                         got.get(k) == EXPECTED[n]["kinds"][k] for k in got)]
+            if other:
+                print("      AND IT MATCHES ANOTHER REVIEW'S FINGERPRINT EXACTLY: %s"
+                      % ", ".join(other))
+                print("      That is route 7: this screener asks %r's question under %r's name."
+                      % (EXPECTED[other[0]]["topic"], exp["topic"]))
+            failures.append(mod_name)
+        print()
+
+    print("screeners probed %d" % checked)
+    if failures:
+        print("\nREFUSED: %d screener(s) do not implement their own review's criteria."
+              % len(failures))
+        print("A screener that asks the neighbouring topic's question produces a COMPLETE,")
+        print("PLAUSIBLE, INVERTED answer set, and nothing about its output looks wrong.")
+        return 1
+    print("\nevery screener classifies the discriminating probes the way its own review's")
+    print("criteria require.")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+
+codex
+- **CHECK CANNOT FAIL / STATUS CODE REPORTING WRAPPER**: lines 125-131 and 161.  
+  Exact input: run with both expected files absent: `scripts/screen_ablation_medical_remainder_2026_08_19.py` absent and `scripts/screen_rhythm_control_remainder_2026_08_19.py` absent.  
+  Consequence: it prints two `NOT_ASSESSABLE` lines, probes `0` screeners, then returns success `0`.
+
+- **CHECK CANNOT FAIL / STATUS CODE REPORTING WRAPPER**: lines 128-131 and 161.  
+  Exact input: both expected files exist but contain no `arm_kind`, e.g. each file is just `TOPIC = "x"`.  
+  Consequence: it reports both as `NOT_ASSESSABLE -- no arm_kind() to probe` and still returns success `0`.
+
+- **instrument reading a DIFFERENT COPY / name vs binding**: line 135.  
+  Exact input: `screen_ablation_medical_remainder_2026_08_19.py` defines `topic = "wrong-topic"` or `TOPIC = "wrong-topic"` while `arm_kind` returns all expected values.  
+  Consequence: the lint prints `declares topic 'ablation-af-medical-therapy'` from `EXPECTED`, not from the module, so the diagnostic can assert a topic declaration it never read.
+
+No defect found for: probe keyed to string a fix removes; idempotency guard satisfied by own comment; selector keyed to unused corpus form; CRLF/LF text comparison; merged-cell/off-by-one tabulation; zero conflated with absent; negation dropped.
+tokens used
+10,913
+- **CHECK CANNOT FAIL / STATUS CODE REPORTING WRAPPER**: lines 125-131 and 161.  
+  Exact input: run with both expected files absent: `scripts/screen_ablation_medical_remainder_2026_08_19.py` absent and `scripts/screen_rhythm_control_remainder_2026_08_19.py` absent.  
+  Consequence: it prints two `NOT_ASSESSABLE` lines, probes `0` screeners, then returns success `0`.
+
+- **CHECK CANNOT FAIL / STATUS CODE REPORTING WRAPPER**: lines 128-131 and 161.  
+  Exact input: both expected files exist but contain no `arm_kind`, e.g. each file is just `TOPIC = "x"`.  
+  Consequence: it reports both as `NOT_ASSESSABLE -- no arm_kind() to probe` and still returns success `0`.
+
+- **instrument reading a DIFFERENT COPY / name vs binding**: line 135.  
+  Exact input: `screen_ablation_medical_remainder_2026_08_19.py` defines `topic = "wrong-topic"` or `TOPIC = "wrong-topic"` while `arm_kind` returns all expected values.  
+  Consequence: the lint prints `declares topic 'ablation-af-medical-therapy'` from `EXPECTED`, not from the module, so the diagnostic can assert a topic declaration it never read.
+
+No defect found for: probe keyed to string a fix removes; idempotency guard satisfied by own comment; selector keyed to unused corpus form; CRLF/LF text comparison; merged-cell/off-by-one tabulation; zero conflated with absent; negation dropped.

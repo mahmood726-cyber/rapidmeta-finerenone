@@ -1,0 +1,317 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a03163-d7a5-7783-a1f4-92fa48051cda
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/build_aact_counts_with_param_type.py
+
+--- THE FILE, IN FULL ---
+"""Build NCT -> primary-outcome event counts with proper AACT param_type +
+units discrimination.
+
+Why this exists:
+  bulk_clone_audit_first.py blindly cast every AACT outcome_measurements
+  param_value via `int(float(v))` and stored it as a binary event count.
+  AACT actually stores measurements with a `param_type` enum
+  (NUMBER, COUNT_OF_PARTICIPANTS, MEAN, MEDIAN, LEAST_SQUARES_MEAN, ...)
+  and a `units` column. Without checking those, percentages came through as
+  inflated counts and continuous outcomes (means, BP, weight) got stored as
+  if they were event counts. fix_event_counts_safe.py papered over the worst
+  cases (tE > tN -> null) but a ~100% event rate that happens to NOT exceed
+  N (e.g. tE=82 / tN=120 from a percentage param_value 82.4) slipped through.
+
+The right discrimination:
+
+  param_type=COUNT_OF_PARTICIPANTS or COUNT_OF_UNITS    -> raw count, use as-is
+  param_type=NUMBER + units~"participants|subjects|     -> raw count
+                              patients|events|cases"
+  param_type=NUMBER + units~"percent|proportion"        -> percentage,
+                                                           tE=round(v/100*N)
+  param_type=NUMBER + units other (mg/L, minutes, ...)  -> continuous, skip
+  param_type in MEAN/MEDIAN/etc                         -> continuous, skip
+  unknown                                               -> skip
+
+For each NCT we read the first measurement row per (outcome_id, group_id),
+group rows by outcome_id, then for the FIRST outcome that has >=2 numeric arms
+of compatible kind, emit:
+    {tE, tN, cE, cN, source: 'count'|'pct', primary_outcome_id}
+
+Pulls per-arm N from baseline_counts.txt (more reliable than result_groups
+size, and consistent with what bulk_clone already used).
+
+Output: outputs/pmid_resolver/nct_counts.json
+"""
+from __future__ import annotations
+import csv
+import json
+import re
+import sys
+import io
+from pathlib import Path
+from collections import defaultdict
+
+if "pytest" not in sys.modules and hasattr(sys.stdout, "buffer"):
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+csv.field_size_limit(50_000_000)
+
+HERE = Path(__file__).resolve().parent.parent
+AACT = Path(r"F:\AACT-storage\AACT\2026-04-12")
+OUT = HERE / "outputs" / "pmid_resolver"
+OUT.mkdir(parents=True, exist_ok=True)
+
+
+# Limit to portfolio NCTs to keep memory and runtime bounded.
+def portfolio_ncts() -> set[str]:
+    nct_re = re.compile(r"NCT\d{7,8}")
+    ncts: set[str] = set()
+    for p in HERE.glob("*.html"):
+        if not p.is_file():
+            continue
+        ncts |= set(nct_re.findall(p.read_text(encoding="utf-8", errors="replace")))
+    return ncts
+
+
+def classify(param_type: str, units: str) -> str:
+    pt = param_type.strip().upper()
+    u = units.strip().lower()
+    if pt in ("COUNT_OF_PARTICIPANTS", "COUNT_OF_UNITS"):
+        return "count"
+    if pt == "NUMBER":
+        if any(w in u for w in ("percent", "proportion")):
+            return "pct"
+        if any(w in u for w in ("participant", "subject", "patient", "event", "case", "responder", "resolution")):
+            return "count"
+        return "skip"
+    # All averages are continuous outcomes.
+    if pt in (
+        "MEAN", "MEDIAN", "GEOMETRIC_MEAN", "LEAST_SQUARES_MEAN",
+        "GEOMETRIC_LEAST_SQUARES_MEAN", "LOG_MEAN",
+    ):
+        return "continuous"
+    return "skip"
+
+
+def load_baseline_n(ncts: set[str]) -> dict[str, dict[str, int]]:
+    """Return {nct: {group_code: n}} from baseline_counts.txt."""
+    path = AACT / "baseline_counts.txt"
+    out: dict[str, dict[str, int]] = defaultdict(dict)
+    with path.open(encoding="utf-8", errors="replace") as f:
+        rd = csv.DictReader(f, delimiter="|")
+        for row in rd:
+            nct = (row.get("nct_id") or "").strip()
+            if nct not in ncts:
+                continue
+            scope = (row.get("scope") or "").strip().lower()
+            if scope and scope != "overall":
+                continue
+            group = (row.get("ctgov_group_code") or "").strip()
+            try:
+                n = int(float((row.get("count") or "").strip()))
+            except (TypeError, ValueError):
+                continue
+            if group and n > 0:
+                out[nct][group] = n
+    return out
+
+
+def load_outcome_rows(ncts: set[str]) -> dict[str, list[dict]]:
+    """Return {nct: [{outcome_id, group, value, kind}, ...]} for outcomes whose
+    rows can be classified as count or pct (skips MEAN/MEDIAN/etc)."""
+    path = AACT / "outcome_measurements.txt"
+    out: dict[str, list[dict]] = defaultdict(list)
+    with path.open(encoding="utf-8", errors="replace") as f:
+        rd = csv.DictReader(f, delimiter="|")
+        for row in rd:
+            nct = (row.get("nct_id") or "").strip()
+            if nct not in ncts:
+                continue
+            kind = classify(row.get("param_type", ""), row.get("units", ""))
+            if kind not in ("count", "pct"):
+                continue
+            try:
+                val = float((row.get("param_value") or "").strip())
+            except (TypeError, ValueError):
+                continue
+            out[nct].append({
+                "outcome_id": (row.get("outcome_id") or "").strip(),
+                "group": (row.get("ctgov_group_code") or "").strip(),
+                "value": val,
+                "kind": kind,
+            })
+    return out
+
+
+def build_per_nct(baseline: dict, outcomes: dict) -> dict[str, dict]:
+    result: dict[str, dict] = {}
+    for nct, rows in outcomes.items():
+        if not rows:
+            continue
+        # Group by outcome_id, preserving first-encounter order.
+        per_oc: dict[str, list[dict]] = {}
+        order: list[str] = []
+        for r in rows:
+            if r["outcome_id"] not in per_oc:
+                per_oc[r["outcome_id"]] = []
+                order.append(r["outcome_id"])
+            per_oc[r["outcome_id"]].append(r)
+
+        bn = baseline.get(nct, {})
+
+        # First outcome with >=2 distinct compatible-kind group rows wins.
+        for oc_id in order:
+            entries = per_oc[oc_id]
+            # Dedup by group: keep first per group_code.
+            seen: dict[str, dict] = {}
+            for e in entries:
+                if e["group"] and e["group"] not in seen:
+                    seen[e["group"]] = e
+            if len(seen) < 2:
+                continue
+            # Pick two arms sorted by group code (matches the bulk_clone
+            # sorted-ogs behavior so we stay aligned with what the page expects).
+            groups = sorted(seen.keys())
+            kinds = {seen[g]["kind"] for g in groups[:2]}
+            if len(kinds) > 1:
+                # Mixed count+pct in same outcome — refuse to interpret
+                continue
+            kind = next(iter(kinds))
+            tg, cg = groups[0], groups[1]
+            tval, cval = seen[tg]["value"], seen[cg]["value"]
+            tN = bn.get(tg) or bn.get(tg.replace("OG", "BG"))
+            cN = bn.get(cg) or bn.get(cg.replace("OG", "BG"))
+            # group codes from outcome_measurements are OG###; baseline_counts
+            # uses BG### for arms. Map by sorted position.
+            if tN is None or cN is None:
+                # Fallback: pick the first two BG counts in this nct, in code order
+                bg_groups = sorted(bn.keys())
+                if len(bg_groups) >= 2:
+                    tN = tN or bn[bg_groups[0]]
+                    cN = cN or bn[bg_groups[1]]
+            if tN is None or cN is None or tN <= 0 or cN <= 0:
+                continue
+            if kind == "count":
+                tE = int(round(tval))
+                cE = int(round(cval))
+            else:  # pct
+                tE = int(round(tval / 100 * tN))
+                cE = int(round(cval / 100 * cN))
+            # Sanity: tE/cE must not exceed N
+            if tE > tN or cE > cN or tE < 0 or cE < 0:
+                continue
+            result[nct] = {
+                "tE": tE, "tN": tN, "cE": cE, "cN": cN,
+                "source": kind,
+                "outcome_id": oc_id,
+            }
+            break
+    return result
+
+
+def main():
+    ncts = portfolio_ncts()
+    print(f"Portfolio NCTs: {len(ncts):,}")
+    print("Loading baseline_counts.txt...")
+    baseline = load_baseline_n(ncts)
+    print(f"  baseline N entries: {len(baseline):,}")
+    print("Loading outcome_measurements.txt (filter to portfolio NCTs)...")
+    outcomes = load_outcome_rows(ncts)
+    print(f"  outcomes loaded for: {len(outcomes):,} NCTs")
+    print("Building per-NCT primary counts...")
+    counts = build_per_nct(baseline, outcomes)
+    from collections import Counter
+    src = Counter(v["source"] for v in counts.values())
+    print(f"  NCTs with proper counts: {len(counts):,}")
+    print(f"  by source: {dict(src)}")
+
+    out_path = OUT / "nct_counts.json"
+    out_path.write_text(json.dumps(counts), encoding="utf-8")
+    print(f"wrote {out_path} ({out_path.stat().st_size:,} bytes)")
+
+
+if __name__ == "__main__":
+    main()
+
+codex
+**Findings**
+
+- Line 57, selector keyed to wrong ID form: input root HTML containing `NCT1234567` makes `portfolio_ncts()` include an invalid 7-digit NCT ID. Consequence: portfolio counts can include IDs that cannot be source-backed in AACT.
+
+- Line 74, selector too broad: `classify("NUMBER", "events per patient-year")` returns `"count"`. Consequence: a rate such as `2.4 events per patient-year` can be rounded and emitted as `2` binary events.
+
+- Lines 172-173, zero conflated with absent:  
+  `baseline={"NCT00000001":{"OG001":0,"BG001":10,"BG002":20}}`,  
+  `outcomes={"NCT00000001":[{"outcome_id":"O","group":"OG001","value":1,"kind":"count"},{"outcome_id":"O","group":"OG002","value":2,"kind":"count"}]}`.  
+  Consequence: `build_per_nct` uses `BG001=10` instead of rejecting the real zero denominator.
+
+- Lines 176-181, off-by-one / arm mapping defect:  
+  `baseline={"NCT00000002":{"BG001":10,"BG002":20}}`,  
+  `outcomes={"NCT00000002":[{"outcome_id":"O","group":"OG002","value":5,"kind":"count"},{"outcome_id":"O","group":"ZZ001","value":6,"kind":"count"}]}`.  
+  Consequence: the unknown `ZZ001` arm is assigned `BG002=20`, so the code emits a result instead of failing closed.
+
+- Lines 120-127, first-row rule is bypassed after filtering: input rows for the same `(nct_id,outcome_id,ctgov_group_code)` where the first row is `param_type=MEAN, units=mg/L, param_value=3.2` and a later row is `COUNT_OF_PARTICIPANTS, units=participants, param_value=4`. Consequence: the later row is used even though the file promises first measurement row per group.
+
+No proven finding in this pasted file for: probe keyed to string a fix removes; idempotency guard satisfied by its own comment; CRLF/LF text comparison; negation dropped; wrapper status-code reporting.  
+COULD NOT DETERMINE different-copy instrumentation: caller, served artifact, and actual AACT root are not in the packet.
+tokens used
+16,550
+**Findings**
+
+- Line 57, selector keyed to wrong ID form: input root HTML containing `NCT1234567` makes `portfolio_ncts()` include an invalid 7-digit NCT ID. Consequence: portfolio counts can include IDs that cannot be source-backed in AACT.
+
+- Line 74, selector too broad: `classify("NUMBER", "events per patient-year")` returns `"count"`. Consequence: a rate such as `2.4 events per patient-year` can be rounded and emitted as `2` binary events.
+
+- Lines 172-173, zero conflated with absent:  
+  `baseline={"NCT00000001":{"OG001":0,"BG001":10,"BG002":20}}`,  
+  `outcomes={"NCT00000001":[{"outcome_id":"O","group":"OG001","value":1,"kind":"count"},{"outcome_id":"O","group":"OG002","value":2,"kind":"count"}]}`.  
+  Consequence: `build_per_nct` uses `BG001=10` instead of rejecting the real zero denominator.
+
+- Lines 176-181, off-by-one / arm mapping defect:  
+  `baseline={"NCT00000002":{"BG001":10,"BG002":20}}`,  
+  `outcomes={"NCT00000002":[{"outcome_id":"O","group":"OG002","value":5,"kind":"count"},{"outcome_id":"O","group":"ZZ001","value":6,"kind":"count"}]}`.  
+  Consequence: the unknown `ZZ001` arm is assigned `BG002=20`, so the code emits a result instead of failing closed.
+
+- Lines 120-127, first-row rule is bypassed after filtering: input rows for the same `(nct_id,outcome_id,ctgov_group_code)` where the first row is `param_type=MEAN, units=mg/L, param_value=3.2` and a later row is `COUNT_OF_PARTICIPANTS, units=participants, param_value=4`. Consequence: the later row is used even though the file promises first measurement row per group.
+
+No proven finding in this pasted file for: probe keyed to string a fix removes; idempotency guard satisfied by its own comment; CRLF/LF text comparison; negation dropped; wrapper status-code reporting.  
+COULD NOT DETERMINE different-copy instrumentation: caller, served artifact, and actual AACT root are not in the packet.

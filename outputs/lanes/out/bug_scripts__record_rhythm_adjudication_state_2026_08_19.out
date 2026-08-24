@@ -1,0 +1,189 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a03247-a0e9-7053-a2ff-617281c3d0e5
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/record_rhythm_adjudication_state_2026_08_19.py
+
+--- THE FILE, IN FULL ---
+"""RECORD THE HONEST STATE of topic 2's cross-family adjudication: agy-complete, Codex partial.
+
+THE DECISION AND ITS RULE. Codex cleared chunk 1 (44 trials) in ~10 minutes and then spent
+~35 minutes on chunk 2 without clearing it, while agy completed all 8 chunks. That is
+DEGRADATION, NOT VARIANCE, and the standing instruction is to give it one more chunk and then
+report rather than block a topic indefinitely on a slowing seat.
+
+    A SECOND READING IS WORTH HAVING AND IT IS NOT WORTH BLOCKING A TOPIC ON INDEFINITELY.
+
+WHAT THIS RECORDS, AND WHAT IT REFUSES TO RECORD.
+
+    44 of 352   DUAL-READ    -- both families answered; agreement is computed and reported
+   308 of 352   SINGLE-READ  -- agy only. NOT ADJUDICATED, NOT SCORED, NOT DISPOSITIONED.
+
+The 308 are not given agy's answer as a verdict. A trial one seat read is not a trial that was
+decided, and an absent second reading is ABSENT rather than CONCURRING -- the same rule that
+would have let a dead seat read as a unanimous one earlier tonight. Holding it makes the
+visible progress look slower and is the only honest option.
+
+THE THROUGHPUT FACT IS RECORDED BECAUSE IT IS OPERATIONAL, NOT INCIDENTAL. Two seats on
+identical 44-trial packets: agy ~2 min/chunk, Codex ~10 min/chunk falling to >35. A 5x
+throughput difference that then degraded further changes how a cross-family pass should be
+planned:
+
+    CHUNKING IS WHAT MADE THIS SURVIVABLE. It converted an all-or-nothing wait into an
+    incremental read with per-chunk assertions, so chunk 1 gave a usable early result -- both
+    rates, and the RHYTHM_BOTH_ARMS finding -- instead of nothing at all. A single 352-trial
+    call to each seat would have produced one unusable timeout and no signal.
+
+Every chunk that DID return passed `rc == 0` AND the >=44-answer count assertion, so nothing is
+silently wrong with what was collected. The seat slowed; it did not corrupt.
+"""
+import io
+import json
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DEST = os.path.join(REPO, "evidence", "2026-08-19-batch1", "rhythm_adjudication_state.json")
+ADJ = os.path.join(REPO, "evidence", "2026-08-19-batch1", "rhythm_adjudication.json")
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    a = json.load(io.open(ADJ, encoding="utf-8"))
+    dual = a["n"]
+    single = len(a["not_answered_by_both"])
+    out = {
+        "recorded_utc": "2026-08-19",
+        "topic": "early-rhythm-control-af",
+        "state": "AGY-COMPLETE, CODEX PARTIAL -- reported rather than blocked",
+        "n_to_adjudicate": dual + single,
+        "dual_read": dual,
+        "single_read_NOT_adjudicated": single,
+        "why_the_single_read_are_not_scored": (
+            "A trial one seat read is not a trial that was decided. An absent second reading "
+            "is ABSENT, not CONCURRING. Scoring agy's 308 answers alone would convert a "
+            "missing check into apparent agreement -- the same substitution that would have "
+            "let a dead seat read as a unanimous one."),
+        "rates_over_the_dual_read_44_only": {
+            "code_agreement_pct": a["code_agreement_rate_pct"],
+            "disposition_agreement_pct": a["disposition_agreement_rate_pct"],
+            "caveat": ("these are over 44 trials, not 352, and P34 applies: the gap between "
+                       "the two rates measures THIS vocabulary's granularity and is not "
+                       "comparable with the sibling topic's gap."),
+        },
+        "seat_throughput": {
+            "packet": "44 trials per chunk, 8 chunks, identical to both seats",
+            "agy": "~2 min/chunk, 8/8 complete",
+            "codex": "~10 min for chunk 1, then >35 min on chunk 2 without clearing",
+            "verdict": "DEGRADATION, NOT VARIANCE",
+            "assertions_held": ("every chunk that returned passed rc == 0 AND the >=44-answer "
+                                "count assertion. The seat slowed; it did not corrupt."),
+            "what_made_it_survivable": (
+                "CHUNKING. It converted an all-or-nothing wait into an incremental read with "
+                "per-chunk assertions, so chunk 1 produced both rates and the "
+                "RHYTHM_BOTH_ARMS finding instead of nothing. A single 352-trial call to each "
+                "seat would have produced one unusable timeout and no signal."),
+        },
+        "consequence_for_the_topic": (
+            "early-rhythm-control-af CANNOT be completed on this pass. Its remainder is 352 "
+            "of which 44 are adjudicated and 308 are not, so k_unscreened_remainder is 308 "
+            "and NOT zero. The object must say so on its face rather than reporting a "
+            "remainder it has not screened."),
+    }
+    with io.open(DEST, "w", encoding="utf-8") as fh:
+        fh.write(json.dumps(out, indent=1))
+    print("dual-read (both seats)        %4d" % dual)
+    print("single-read, NOT adjudicated  %4d" % single)
+    print("code agreement over the 44    %.1f%%" % a["code_agreement_rate_pct"])
+    print("disposition agreement          %.1f%%" % a["disposition_agreement_rate_pct"])
+    print("\nearly-rhythm-control-af remainder is 308, NOT zero.")
+    print("wrote %s" % DEST)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+
+codex
+Line numbers count the pasted file.
+
+1. **STATUS CODE REPORTING THE WRAPPER / check that cannot fail**: lines 72-73 and 94.
+   Exact input for `rhythm_adjudication.json`:
+   ```json
+   {"n":43,"not_answered_by_both":[],"code_agreement_rate_pct":0.0,"disposition_agreement_rate_pct":0.0}
+   ```
+   Consequence: the script writes that the `>=44-answer count assertion` held and exits `0` even when the loaded count is `43`.
+
+2. **Instrument reading a different copy than the one being changed**: lines 60, 63, 81-82, 90, and 92.
+   Exact input:
+   ```json
+   {"n":45,"not_answered_by_both":[],"code_agreement_rate_pct":100.0,"disposition_agreement_rate_pct":100.0}
+   ```
+   Consequence: dynamic fields report `dual_read: 45` and `single_read_NOT_adjudicated: 0`, while keys/prose/stdout still say `44`, `308`, and `352`, creating a contradictory state record.
+
+No finding for: probe keyed to the string a fix removes; idempotency guard satisfied by its own comment; CRLF/LF text comparison; merged-cell/off-by-one tabulation; zero conflated with absent; negation dropped.
+
+COULD NOT DETERMINE selector-key corpus coverage: missing `evidence/2026-08-19-batch1/rhythm_adjudication.json`.
+tokens used
+9,706
+Line numbers count the pasted file.
+
+1. **STATUS CODE REPORTING THE WRAPPER / check that cannot fail**: lines 72-73 and 94.
+   Exact input for `rhythm_adjudication.json`:
+   ```json
+   {"n":43,"not_answered_by_both":[],"code_agreement_rate_pct":0.0,"disposition_agreement_rate_pct":0.0}
+   ```
+   Consequence: the script writes that the `>=44-answer count assertion` held and exits `0` even when the loaded count is `43`.
+
+2. **Instrument reading a different copy than the one being changed**: lines 60, 63, 81-82, 90, and 92.
+   Exact input:
+   ```json
+   {"n":45,"not_answered_by_both":[],"code_agreement_rate_pct":100.0,"disposition_agreement_rate_pct":100.0}
+   ```
+   Consequence: dynamic fields report `dual_read: 45` and `single_read_NOT_adjudicated: 0`, while keys/prose/stdout still say `44`, `308`, and `352`, creating a contradictory state record.
+
+No finding for: probe keyed to the string a fix removes; idempotency guard satisfied by its own comment; CRLF/LF text comparison; merged-cell/off-by-one tabulation; zero conflated with absent; negation dropped.
+
+COULD NOT DETERMINE selector-key corpus coverage: missing `evidence/2026-08-19-batch1/rhythm_adjudication.json`.

@@ -1,0 +1,527 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a03255-b1af-7712-a69c-0e468fad4b3c
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/rerun_bookkeeping_with_lead_ins_2026_08_23.py
+
+--- THE FILE, IN FULL ---
+"""Re-run the bookkeeping writer so the STORED prose carries English lead-ins. Guarded four ways.
+
+# no-control: an operation over objects, not a detector. Its controls are the four assertions
+# below, each of which stops the run rather than reporting afterwards: quarantine exists before
+# any write, no object loses a key, the stored text actually changed per object, and the known
+# positive (MAVACAMTEN's `bar:`) is gone from the object afterwards.
+
+WHY THE WRITER AND NOT THE RENDERER. `paper_projector._flatten_container` was fixed and
+MAVACAMTEN was rebuilt to prove it -- and came back with the same three hits, because the
+`key: value` text is BAKED INTO THE OBJECT at
+`bookkeeping_2026_08_21.the_search_its_date_and_its_databases` by
+`build_paper_bookkeeping_2026_08_21._flat`. A projector fix cannot reach a stored value and
+both look identical on the page. That writer now calls `paper_projector._lead_in`, so both
+paths read ONE map, `ssot/field_lead_ins.json`.
+
+THE FOUR CONDITIONS, IMPOSED BECAUSE THIS WRITES TO ssot/**/*.json:
+
+ 1 NET-ADDITIVE ONLY. Key counts are taken per object before and after. If any object loses a
+   key the run stops and reports; it does not continue and summarise.
+
+ 2 QUARANTINE FIRST, and to a FILE ON DISK rather than a git stash -- something that can be
+   pointed at while the rollout is verified on served bytes.
+
+ 3 ONE MAP. Asserted by construction: the writer imports the projector's `_lead_in`. If the
+   two could hold different maps they would drift, which is the two-locations problem that
+   produced GRADE disagreements on 23 of 34 pooled outcomes.
+
+ 4 THE OCCURRENCE PREDICATE. Per object, the stored text must actually differ afterwards.
+   "Ran and changed nothing" is indistinguishable from "never ran" without it, and that
+   silence is exactly what hid the writer for two days.
+"""
+from __future__ import annotations
+
+import glob
+import io
+import json
+import os
+import shutil
+import subprocess
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import instrument_controls as _ic  # noqa: E402
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+QUAR = os.path.join(REPO, "outputs", "quarantine_bookkeeping_2026_08_23")
+FIELD = "bookkeeping_2026_08_21"
+OUT = os.path.join(REPO, "outputs", "bookkeeping_lead_in_rerun_2026_08_23.json")
+
+# The shapes a bare field key leaves in stored prose.
+OLD_SHAPES = ("what verifies this object:", "what is not claimed:", "bar:",
+              "post hoc:", "families:")
+
+# THE SAME CONTENT AFTER THE LEAD-INS LANDED. Selecting on the DEFECT alone is self-erasing:
+# once a pass has fixed it, a later pass to correct the punctuation seam cannot find the
+# objects it needs to correct, and reports success because everything it did select changed.
+# The lead-in openers are read from the map so the two cannot drift apart.
+def _new_shapes():
+    import json as _j
+    p = os.path.join(REPO, "ssot", "field_lead_ins.json")
+    try:
+        m = _j.load(io.open(p, encoding="utf-8"))
+    except Exception:
+        return ()
+    out = []
+    for spec in (m.get("by_key") or {}).values():
+        for form in (spec.get("present"), spec.get("absent")):
+            if isinstance(form, str):
+                head = form.split("%s")[0].strip()
+                if len(head) > 12:
+                    out.append(head)
+    return tuple(sorted(set(out)))
+
+
+NEW_SHAPES = _new_shapes()
+
+
+def objects():
+    out = []
+    for p in sorted(glob.glob(os.path.join(REPO, "ssot", "*", "*.json"))):
+        t = os.path.basename(os.path.dirname(p))
+        if os.path.basename(p) == t + ".json":
+            out.append((t, p))
+    return out
+
+
+def keycount(x):
+    if isinstance(x, dict):
+        return 1 + sum(keycount(v) for v in x.values())
+    if isinstance(x, list):
+        return sum(keycount(v) for v in x)
+    return 0
+
+
+def stored_text(o):
+    bk = o.get(FIELD)
+    return json.dumps(bk, sort_keys=True) if isinstance(bk, dict) else ""
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    apply = "--apply" in sys.argv
+
+    before = {}
+    affected = []
+    for t, p in objects():
+        try:
+            o = json.load(io.open(p, encoding="utf-8"))
+        except ValueError:
+            continue
+        txt = stored_text(o)
+        before[t] = {"path": p, "keys": keycount(o), "text": txt}
+        # SELECTION BY DEFECT ALONE IS SELF-ERASING, AND IT BIT ON THE SECOND RUN.
+        #
+        # The first pass rewrote 48 objects, so their `key:` shapes were gone. A later pass to
+        # fix the punctuation SEAM then matched only the 3 objects still carrying `families:`
+        # and skipped the 46 it needed to correct -- and reported success, because every object
+        # it did select changed. A run that can only see work it has not yet done cannot
+        # correct its own output.
+        #
+        # So the set is "objects that hold this writer's output at all", and the occurrence
+        # predicate below decides whether each actually changed.
+        if any(s in txt for s in OLD_SHAPES) or any(s in txt for s in NEW_SHAPES):
+            affected.append(t)
+
+    print("objects read %d; carrying a bare field key in stored prose: %d"
+          % (len(before), len(affected)))
+    if not affected:
+        print("NOTHING TO DO -- no stored bookkeeping text carries a bare key.")
+        return
+    if not apply:
+        for t in affected[:12]:
+            print("   %s" % t)
+        print("")
+        print("DRY RUN. Pass --apply to quarantine and rewrite.")
+        return
+
+    # 2 QUARANTINE, BEFORE ANY WRITE.
+    if os.path.isdir(QUAR):
+        shutil.rmtree(QUAR)
+    os.makedirs(QUAR)
+    for t in affected:
+        shutil.copy2(before[t]["path"], os.path.join(QUAR, t + ".json"))
+    n_q = len(os.listdir(QUAR))
+    print("quarantined %d object(s) to %s" % (n_q, os.path.relpath(QUAR, REPO)))
+    if n_q != len(affected):
+        sys.exit("REFUSED: quarantine holds %d of %d objects. Nothing has been written."
+                 % (n_q, len(affected)))
+
+    # THE WRITER DOES NOT KNOW ABOUT `ssot/do_not_rebuild.py` AND OVERWRITES
+    # `manuscript.references` UNCONDITIONALLY (line 468: `man["references"] = refs`, with no
+    # guard, unlike `introduction` which checks for an existing value first).
+    #
+    # `arni-hfref` holds an AUTHORED manuscript -- abstract, discussion, conclusions,
+    # methods_prose -- and a 5-entry references dict. Running the writer over it would replace
+    # written argument with a projection, which is the exact thing the do-not-rebuild list
+    # exists to prevent, arriving through a path that list does not cover.
+    #
+    # So the topics are passed EXPLICITLY rather than with `--all`. That the writer needs this
+    # guard from outside is itself a finding and is reported, not silently worked around.
+    skip = {"arni-hfref"}
+    run_topics = [t for t in affected if t not in skip]
+    excluded = sorted(set(affected) & skip)
+    if excluded:
+        print("EXCLUDED, authored manuscript the writer would overwrite: %s"
+              % ", ".join(excluded))
+    r = subprocess.run([sys.executable,
+                        os.path.join(REPO, "scripts",
+                                     "build_paper_bookkeeping_2026_08_21.py"),
+                        "--all", "--apply"] + run_topics,
+                       cwd=REPO, capture_output=True)
+    tail = r.stdout.decode("utf-8", "replace").strip().splitlines()[-3:]
+    print("writer exit %d: %s" % (r.returncode, " | ".join(tail)))
+    if r.returncode != 0:
+        sys.exit("REFUSED: the writer failed. Objects are quarantined at %s." % QUAR)
+
+    # 1 NET-ADDITIVE, and 4 THE OCCURRENCE PREDICATE, per object.
+    lost, unchanged, changed, still = [], [], [], []
+    for t in run_topics:
+        o = json.load(io.open(before[t]["path"], encoding="utf-8"))
+        k2, txt2 = keycount(o), stored_text(o)
+        if k2 < before[t]["keys"]:
+            lost.append((t, before[t]["keys"], k2))
+        if txt2 == before[t]["text"]:
+            unchanged.append(t)
+        else:
+            changed.append(t)
+        if any(s in txt2 for s in OLD_SHAPES):
+            still.append(t)
+
+    print("")
+    print("   stored text CHANGED            %4d" % len(changed))
+    print("   stored text UNCHANGED          %4d   <- the writer did not reach these" % len(unchanged))
+    print("   objects that LOST a key        %4d" % len(lost))
+    print("   still carrying a bare key      %4d" % len(still))
+    json.dump({"affected": affected, "changed": changed, "unchanged": unchanged,
+               "lost_keys": lost, "still": still,
+               "quarantine": os.path.relpath(QUAR, REPO)},
+              io.open(OUT, "w", encoding="utf-8"), indent=1)
+    if lost:
+        for t, a, b in lost[:8]:
+            print("      %-34s %d -> %d keys" % (t[:34], a, b))
+        sys.exit("REFUSED AFTER WRITING: %d object(s) lost keys. Restore from %s before "
+                 "doing anything else." % (len(lost), QUAR))
+    # THE OCCURRENCE PREDICATE, AWARE OF WHICH RUN IT IS.
+    #
+    # "Assert that something changed" is true of a first pass and FALSE of a repeat: this run
+    # refused 48 objects as "expected to change and did not" while every one was already
+    # correct. On a verification pass the discriminator is the DEFECT COUNT, not the change
+    # count -- a run that never executed is also unchanged.
+    first = "--verify" not in sys.argv
+    _ic.occurrence_predicate(first, len(changed), len(unchanged),
+                             len([t for t in still if "families" not in
+                                  json.dumps(stored_text(json.load(io.open(
+                                      before[t]["path"], encoding="utf-8"))))]),
+                             "bookkeeping lead-in rewrite")
+    print("")
+    print("NET-ADDITIVE, EVERY AFFECTED OBJECT CHANGED, QUARANTINE HELD AT %s"
+          % os.path.relpath(QUAR, REPO))
+
+
+if __name__ == "__main__":
+    main()
+
+codex
+I’ll inspect only the pasted module for the named defect shapes and anchor any finding to the exact line and executable input path.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$p = '"'F:\\rapidmeta-ssot-shell\\scripts\\rerun_bookkeeping_with_lead_ins_2026_08_23.py'; if (Test-Path "'$p) { $i=1; Get-Content -LiteralPath $p | ForEach-Object { '"'{0,4}: {1}' -f "'$i, $_; $i++ } } else { '"'MISSING' }" in F:\rapidmeta-ssot-shell
+ succeeded in 1222ms:
+   1: """Re-run the bookkeeping writer so the STORED prose carries English lead-ins. Guarded four ways.
+   2: 
+   3: # no-control: an operation over objects, not a detector. Its controls are the four assertions
+   4: # below, each of which stops the run rather than reporting afterwards: quarantine exists before
+   5: # any write, no object loses a key, the stored text actually changed per object, and the known
+   6: # positive (MAVACAMTEN's `bar:`) is gone from the object afterwards.
+   7: 
+   8: WHY THE WRITER AND NOT THE RENDERER. `paper_projector._flatten_container` was fixed and
+   9: MAVACAMTEN was rebuilt to prove it -- and came back with the same three hits, because the
+  10: `key: value` text is BAKED INTO THE OBJECT at
+  11: `bookkeeping_2026_08_21.the_search_its_date_and_its_databases` by
+  12: `build_paper_bookkeeping_2026_08_21._flat`. A projector fix cannot reach a stored value and
+  13: both look identical on the page. That writer now calls `paper_projector._lead_in`, so both
+  14: paths read ONE map, `ssot/field_lead_ins.json`.
+  15: 
+  16: THE FOUR CONDITIONS, IMPOSED BECAUSE THIS WRITES TO ssot/**/*.json:
+  17: 
+  18:  1 NET-ADDITIVE ONLY. Key counts are taken per object before and after. If any object loses a
+  19:    key the run stops and reports; it does not continue and summarise.
+  20: 
+  21:  2 QUARANTINE FIRST, and to a FILE ON DISK rather than a git stash -- something that can be
+  22:    pointed at while the rollout is verified on served bytes.
+  23: 
+  24:  3 ONE MAP. Asserted by construction: the writer imports the projector's `_lead_in`. If the
+  25:    two could hold different maps they would drift, which is the two-locations problem that
+  26:    produced GRADE disagreements on 23 of 34 pooled outcomes.
+  27: 
+  28:  4 THE OCCURRENCE PREDICATE. Per object, the stored text must actually differ afterwards.
+  29:    "Ran and changed nothing" is indistinguishable from "never ran" without it, and that
+  30:    silence is exactly what hid the writer for two days.
+  31: """
+  32: from __future__ import annotations
+  33: 
+  34: import glob
+  35: import io
+  36: import json
+  37: import os
+  38: import shutil
+  39: import subprocess
+  40: import sys
+  41: 
+  42: sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+  43: import instrument_controls as _ic  # noqa: E402
+  44: 
+  45: REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+  46: QUAR = os.path.join(REPO, "outputs", "quarantine_bookkeeping_2026_08_23")
+  47: FIELD = "bookkeeping_2026_08_21"
+  48: OUT = os.path.join(REPO, "outputs", "bookkeeping_lead_in_rerun_2026_08_23.json")
+  49: 
+  50: # The shapes a bare field key leaves in stored prose.
+  51: OLD_SHAPES = ("what verifies this object:", "what is not claimed:", "bar:",
+  52:               "post hoc:", "families:")
+  53: 
+  54: # THE SAME CONTENT AFTER THE LEAD-INS LANDED. Selecting on the DEFECT alone is self-erasing:
+  55: # once a pass has fixed it, a later pass to correct the punctuation seam cannot find the
+  56: # objects it needs to correct, and reports success because everything it did select changed.
+  57: # The lead-in openers are read from the map so the two cannot drift apart.
+  58: def _new_shapes():
+  59:     import json as _j
+  60:     p = os.path.join(REPO, "ssot", "field_lead_ins.json")
+  61:     try:
+  62:         m = _j.load(io.open(p, encoding="utf-8"))
+  63:     except Exception:
+  64:         return ()
+  65:     out = []
+  66:     for spec in (m.get("by_key") or {}).values():
+  67:         for form in (spec.get("present"), spec.get("absent")):
+  68:             if isinstance(form, str):
+  69:                 head = form.split("%s")[0].strip()
+  70:                 if len(head) > 12:
+  71:                     out.append(head)
+  72:     return tuple(sorted(set(out)))
+  73: 
+  74: 
+  75: NEW_SHAPES = _new_shapes()
+  76: 
+  77: 
+  78: def objects():
+  79:     out = []
+  80:     for p in sorted(glob.glob(os.path.join(REPO, "ssot", "*", "*.json"))):
+  81:         t = os.path.basename(os.path.dirname(p))
+  82:         if os.path.basename(p) == t + ".json":
+  83:             out.append((t, p))
+  84:     return out
+  85: 
+  86: 
+  87: def keycount(x):
+  88:     if isinstance(x, dict):
+  89:         return 1 + sum(keycount(v) for v in x.values())
+  90:     if isinstance(x, list):
+  91:         return sum(keycount(v) for v in x)
+  92:     return 0
+  93: 
+  94: 
+  95: def stored_text(o):
+  96:     bk = o.get(FIELD)
+  97:     return json.dumps(bk, sort_keys=True) if isinstance(bk, dict) else ""
+  98: 
+  99: 
+ 100: def main():
+ 101:     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+ 102:     apply = "--apply" in sys.argv
+ 103: 
+ 104:     before = {}
+ 105:     affected = []
+ 106:     for t, p in objects():
+ 107:         try:
+ 108:             o = json.load(io.open(p, encoding="utf-8"))
+ 109:         except ValueError:
+ 110:             continue
+ 111:         txt = stored_text(o)
+ 112:         before[t] = {"path": p, "keys": keycount(o), "text": txt}
+ 113:         # SELECTION BY DEFECT ALONE IS SELF-ERASING, AND IT BIT ON THE SECOND RUN.
+ 114:         #
+ 115:         # The first pass rewrote 48 objects, so their `key:` shapes were gone. A later pass to
+ 116:         # fix the punctuation SEAM then matched only the 3 objects still carrying `families:`
+ 117:         # and skipped the 46 it needed to correct -- and reported success, because every object
+ 118:         # it did select changed. A run that can only see work it has not yet done cannot
+ 119:         # correct its own output.
+ 120:         #
+ 121:         # So the set is "objects that hold this writer's output at all", and the occurrence
+ 122:         # predicate below decides whether each actually changed.
+ 123:         if any(s in txt for s in OLD_SHAPES) or any(s in txt for s in NEW_SHAPES):
+ 124:             affected.append(t)
+ 125: 
+ 126:     print("objects read %d; carrying a bare field key in stored prose: %d"
+ 127:           % (len(before), len(affected)))
+ 128:     if not affected:
+ 129:         print("NOTHING TO DO -- no stored bookkeeping text carries a bare key.")
+ 130:         return
+ 131:     if not apply:
+ 132:         for t in affected[:12]:
+ 133:             print("   %s" % t)
+ 134:         print("")
+ 135:         print("DRY RUN. Pass --apply to quarantine and rewrite.")
+ 136:         return
+ 137: 
+ 138:     # 2 QUARANTINE, BEFORE ANY WRITE.
+ 139:     if os.path.isdir(QUAR):
+ 140:         shutil.rmtree(QUAR)
+ 141:     os.makedirs(QUAR)
+ 142:     for t in affected:
+ 143:         shutil.copy2(before[t]["path"], os.path.join(QUAR, t + ".json"))
+ 144:     n_q = len(os.listdir(QUAR))
+ 145:     print("quarantined %d object(s) to %s" % (n_q, os.path.relpath(QUAR, REPO)))
+ 146:     if n_q != len(affected):
+ 147:         sys.exit("REFUSED: quarantine holds %d of %d objects. Nothing has been written."
+ 148:                  % (n_q, len(affected)))
+ 149: 
+ 150:     # THE WRITER DOES NOT KNOW ABOUT `ssot/do_not_rebuild.py` AND OVERWRITES
+ 151:     # `manuscript.references` UNCONDITIONALLY (line 468: `man["references"] = refs`, with no
+ 152:     # guard, unlike `introduction` which checks for an existing value first).
+ 153:     #
+ 154:     # `arni-hfref` holds an AUTHORED manuscript -- abstract, discussion, conclusions,
+ 155:     # methods_prose -- and a 5-entry references dict. Running the writer over it would replace
+ 156:     # written argument with a projection, which is the exact thing the do-not-rebuild list
+ 157:     # exists to prevent, arriving through a path that list does not cover.
+ 158:     #
+ 159:     # So the topics are passed EXPLICITLY rather than with `--all`. That the writer needs this
+ 160:     # guard from outside is itself a finding and is reported, not silently worked around.
+ 161:     skip = {"arni-hfref"}
+ 162:     run_topics = [t for t in affected if t not in skip]
+ 163:     excluded = sorted(set(affected) & skip)
+ 164:     if excluded:
+ 165:         print("EXCLUDED, authored manuscript the writer would overwrite: %s"
+ 166:               % ", ".join(excluded))
+ 167:     r = subprocess.run([sys.executable,
+ 168:                         os.path.join(REPO, "scripts",
+ 169:                                      "build_paper_bookkeeping_2026_08_21.py"),
+ 170:                         "--all", "--apply"] + run_topics,
+ 171:                        cwd=REPO, capture_output=True)
+ 172:     tail = r.stdout.decode("utf-8", "replace").strip().splitlines()[-3:]
+ 173:     print("writer exit %d: %s" % (r.returncode, " | ".join(tail)))
+ 174:     if r.returncode != 0:
+ 175:         sys.exit("REFUSED: the writer failed. Objects are quarantined at %s." % QUAR)
+ 176: 
+ 177:     # 1 NET-ADDITIVE, and 4 THE OCCURRENCE PREDICATE, per object.
+ 178:     lost, unchanged, changed, still = [], [], [], []
+ 179:     for t in run_topics:
+ 180:         o = json.load(io.open(before[t]["path"], encoding="utf-8"))
+ 181:         k2, txt2 = keycount(o), stored_text(o)
+ 182:         if k2 < before[t]["keys"]:
+ 183:             lost.append((t, before[t]["keys"], k2))
+ 184:         if txt2 == before[t]["text"]:
+ 185:             unchanged.append(t)
+ 186:         else:
+ 187:             changed.append(t)
+ 188:         if any(s in txt2 for s in OLD_SHAPES):
+ 189:             still.append(t)
+ 190: 
+ 191:     print("")
+ 192:     print("   stored text CHANGED            %4d" % len(changed))
+ 193:     print("   stored text UNCHANGED          %4d   <- the writer did not reach these" % len(unchanged))
+ 194:     print("   objects that LOST a key        %4d" % len(lost))
+ 195:     print("   still carrying a bare key      %4d" % len(still))
+ 196:     json.dump({"affected": affected, "changed": changed, "unchanged": unchanged,
+ 197:                "lost_keys": lost, "still": still,
+ 198:                "quarantine": os.path.relpath(QUAR, REPO)},
+ 199:               io.open(OUT, "w", encoding="utf-8"), indent=1)
+ 200:     if lost:
+ 201:         for t, a, b in lost[:8]:
+ 202:             print("      %-34s %d -> %d keys" % (t[:34], a, b))
+ 203:         sys.exit("REFUSED AFTER WRITING: %d object(s) lost keys. Restore from %s before "
+ 204:                  "doing anything else." % (len(lost), QUAR))
+ 205:     # THE OCCURRENCE PREDICATE, AWARE OF WHICH RUN IT IS.
+ 206:     #
+ 207:     # "Assert that something changed" is true of a first pass and FALSE of a repeat: this run
+ 208:     # refused 48 objects as "expected to change and did not" while every one was already
+ 209:     # correct. On a verification pass the discriminator is the DEFECT COUNT, not the change
+ 210:     # count -- a run that never executed is also unchanged.
+ 211:     first = "--verify" not in sys.argv
+ 212:     _ic.occurrence_predicate(first, len(changed), len(unchanged),
+ 213:                              len([t for t in still if "families" not in
+ 214:                                   json.dumps(stored_text(json.load(io.open(
+ 215:                                       before[t]["path"], encoding="utf-8"))))]),
+ 216:                              "bookkeeping lead-in rewrite")
+ 217:     print("")
+ 218:     print("NET-ADDITIVE, EVERY AFFECTED OBJECT CHANGED, QUARANTINE HELD AT %s"
+ 219:           % os.path.relpath(QUAR, REPO))
+ 220: 
+ 221: 
+ 222: if __name__ == "__main__":
+ 223:     main()
+
+codex
+**Defects**
+
+- **CHECK THAT CANNOT FAIL**: line 102 plus lines 131-136. Exact input: run `python scripts/rerun_bookkeeping_with_lead_ins_2026_08_23.py --verify` with any object matching line 123. Consequence: verification exits as a dry run before quarantine, writer execution, key-loss checks, or `_ic.occurrence_predicate`, so it has no reachable non-zero verification failure.
+
+- **COUNT ERROR / LOST KEYS MISSED**: line 89. Exact input before reload: `{"bookkeeping_2026_08_21":{"x":"bar:"},"keep":1,"drop":2}`; after writer: `{"bookkeeping_2026_08_21":{"x":"lead"},"keep":1}`. Consequence: `keycount` returns `2` for both, so line 182 does not report the lost scalar key `drop`.
+
+- **WRAPPER DELEGATES DIFFERENT WORK THAN ITS GUARD**: line 170. Exact input: `affected == ["arni-hfref"]`, run with `--apply`; `run_topics == []`, but the subprocess command still includes `--all --apply`. Consequence: the skip guard is not represented in the delegated command; COULD NOT DETERMINE whether it overwrites `arni-hfref` because `scripts/build_paper_bookkeeping_2026_08_21.py` is missing from the packet.
+
+- **SELECTOR HIDES RESIDUAL DEFECTS**: lines 213-215. Exact input after writer for one still-bad topic: `{"bookkeeping_2026_08_21":{"a":"bar: x","b":"families: y"}}`, run with `--apply --verify`. Consequence: line 188 puts the topic in `still`, but line 213 excludes it because `"families"` is present, so a residual `bar:` is passed to the occurrence control as zero defects.
+
+No proven defect found for CRLF-vs-LF text comparison, merged-cell tabulation, zero-conflated-with-absent, or subprocess status-code-through-pipe shapes in the pasted module.
+tokens used
+17,588
+**Defects**
+
+- **CHECK THAT CANNOT FAIL**: line 102 plus lines 131-136. Exact input: run `python scripts/rerun_bookkeeping_with_lead_ins_2026_08_23.py --verify` with any object matching line 123. Consequence: verification exits as a dry run before quarantine, writer execution, key-loss checks, or `_ic.occurrence_predicate`, so it has no reachable non-zero verification failure.
+
+- **COUNT ERROR / LOST KEYS MISSED**: line 89. Exact input before reload: `{"bookkeeping_2026_08_21":{"x":"bar:"},"keep":1,"drop":2}`; after writer: `{"bookkeeping_2026_08_21":{"x":"lead"},"keep":1}`. Consequence: `keycount` returns `2` for both, so line 182 does not report the lost scalar key `drop`.
+
+- **WRAPPER DELEGATES DIFFERENT WORK THAN ITS GUARD**: line 170. Exact input: `affected == ["arni-hfref"]`, run with `--apply`; `run_topics == []`, but the subprocess command still includes `--all --apply`. Consequence: the skip guard is not represented in the delegated command; COULD NOT DETERMINE whether it overwrites `arni-hfref` because `scripts/build_paper_bookkeeping_2026_08_21.py` is missing from the packet.
+
+- **SELECTOR HIDES RESIDUAL DEFECTS**: lines 213-215. Exact input after writer for one still-bad topic: `{"bookkeeping_2026_08_21":{"a":"bar: x","b":"families: y"}}`, run with `--apply --verify`. Consequence: line 188 puts the topic in `still`, but line 213 excludes it because `"families"` is present, so a residual `bar:` is passed to the occurrence control as zero defects.
+
+No proven defect found for CRLF-vs-LF text comparison, merged-cell tabulation, zero-conflated-with-absent, or subprocess status-code-through-pipe shapes in the pasted module.

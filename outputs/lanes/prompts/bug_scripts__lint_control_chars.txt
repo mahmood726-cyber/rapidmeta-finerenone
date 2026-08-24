@@ -1,0 +1,140 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/lint_control_chars.py
+
+--- THE FILE, IN FULL ---
+#!/usr/bin/env python3
+"""HEREDOC MANGLING MADE IMPOSSIBLE TO COMMIT, because discouraging it failed seven times.
+
+THE CLASS. Generating regex-dense code through a shell heredoc destroys backslash escapes.
+`\\b` becomes a literal BACKSPACE byte (0x08). The file still parses. It still imports. It
+still runs. The build still prints success. And the pattern can never match anything.
+
+SEVEN INSTANCES IN ONE NIGHT, by an author who had read the rule, written the rule, and
+committed the rule. The worst was the foreign-registration-id guard: written against the
+cross-contamination class, destroyed by this class, reporting `HELD 7 / REFUSING 1` while
+incapable of matching a single id. Only a planted fake id exposed it.
+
+    A CONTROL THAT PEOPLE KNOW AND STILL BREACH SEVEN TIMES IS NOT A CONTROL.
+
+So this is not advice. A C0 control character in a tracked text file is refused at commit.
+The escape hatch is deliberate and narrow: tab, newline, carriage return.
+
+WHY THIS ONE IS LINTABLE. The corruption has a literal byte signature. It needs no semantic
+judgement, so a byte scan IS the enforcement -- the same argument that makes
+lint_subprocess_decode work and `substring-is-not-identity` unlintable.
+"""
+import io
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# Tab, newline, carriage return are legitimate. Everything else below 0x20, plus DEL, is not.
+ALLOWED = {0x09, 0x0A, 0x0D}
+SUSPECT = {i for i in range(0x00, 0x20) if i not in ALLOWED} | {0x7F}
+
+TEXT_EXT = (".py", ".md", ".json", ".txt", ".r", ".R", ".yml", ".yaml", ".sh", ".toml", ".cfg")
+SKIP_DIRS = {".git", "node_modules", "__pycache__", "figs", "build-artefacts"}
+
+# EXTRACTED SOURCE MATERIAL IS DATA, NOT AUTHORED TEXT. `ssot/<topic>/sources/*.extract.txt`
+# holds text pulled out of PDFs, and PDF extraction legitimately emits C0 controls -- the
+# HEART-FID protocol extract carries dozens. Linting them would flag the corpus's own evidence
+# as corruption.
+#
+# The exclusion is NARROW and COUNTED, never silent: this is exactly the move that turns a
+# guard into a formality, so the excluded files are reported every run. If that count starts
+# growing into places it should not, the exclusion is being used as a hiding place.
+EXTRACTED_SUFFIX = ".extract.txt"
+# Deliberate exception, on the line: # lint:allow-control-char
+SKIP_TOKEN = b"lint:allow-control-char"
+
+NAMES = {0x08: "BACKSPACE (the heredoc \\b signature)", 0x00: "NUL", 0x0C: "FORM FEED",
+         0x1B: "ESC", 0x07: "BELL", 0x7F: "DEL"}
+
+
+def scan(path):
+    """Return [(line_no, byte, excerpt)] for every suspect control character."""
+    try:
+        with io.open(path, "rb") as fh:
+            data = fh.read()
+    except OSError:
+        return []
+    if not any(b in SUSPECT for b in data):
+        return []                      # fast path: the overwhelming majority of files
+    hits = []
+    for i, line in enumerate(data.split(b"\n"), 1):
+        if SKIP_TOKEN in line:
+            continue
+        for b in set(line) & SUSPECT:
+            excerpt = line.replace(bytes([b]), b"<%d>" % b)[:70].decode("utf-8", "replace")
+            hits.append((i, b, excerpt))
+    return hits
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    total = 0
+    excluded = []
+    for root, dirs, files in os.walk(REPO):
+        dirs[:] = [d for d in dirs if d not in SKIP_DIRS]
+        for fn in files:
+            if not fn.endswith(TEXT_EXT):
+                continue
+            if fn.endswith(EXTRACTED_SUFFIX) and os.path.basename(root) == "sources":
+                excluded.append(os.path.relpath(os.path.join(root, fn), REPO))
+                continue
+            p = os.path.join(root, fn)
+            for line_no, b, excerpt in scan(p):
+                total += 1
+                rel = os.path.relpath(p, REPO)
+                print("%s:%d  0x%02X %s" % (rel, line_no, b, NAMES.get(b, "control char")))
+                print("      %s" % excerpt)
+    print()
+    print("excluded as EXTRACTED SOURCE DATA (not authored text): %d file(s) under "
+          "ssot/*/sources/*.extract.txt" % len(excluded))
+    if total:
+        print("REFUSED: %d control character(s) in tracked text. This is the heredoc-mangling "
+              "signature." % total)
+        print("FIX: rewrite the affected line with a file-writing tool, not through a shell.")
+        print("     For a pattern, hoist it to a module-level re.compile so it is written once.")
+        print("Deliberate exception: append  # lint:allow-control-char  on the line.")
+        return 1
+    print("no control characters in tracked text: the heredoc signature is absent.")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

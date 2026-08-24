@@ -1,0 +1,160 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/resolve_trial_citations_2026_08_19.py
+
+--- THE FILE, IN FULL ---
+#!/usr/bin/env python3
+"""RESOLVE THE PRIMARY PUBLICATION FOR EACH NAMED TRIAL -- BY LOOKUP, NEVER FROM RECALL.
+
+WHY THE RULE IS ABSOLUTE HERE. This produces a reference list for submission. Somebody will
+check it. `identifiers from recall` is the class this project has hit repeatedly -- most
+recently a PMID that named an atrial-fibrillation trial in a colchicine benchmark, and the
+corpus held the evidence to refute it the whole time (DEFECT-REGISTRY class 22).
+
+    EVERY FIELD BELOW COMES FROM A FETCH. Acronyms are read from the registration's own
+    `identificationModule`; candidate publications from its `referencesModule`; and author,
+    journal, volume, pages and DOI from PubMed. Nothing is typed from memory, and a trial whose
+    primary publication cannot be resolved is reported UNRESOLVED rather than approximated.
+
+WHAT COUNTS AS THE PRIMARY PUBLICATION, and the limit of the method
+    The registry types each reference `RESULT` (the sponsor's own results citation), `DERIVED`
+    (auto-linked from PubMed) or `BACKGROUND`. This prefers RESULT, then DERIVED, and reports
+    HOW MANY candidates it saw. IT DOES NOT READ THE PAPERS. A registration listing several
+    result publications -- a main paper and its substudies -- yields several candidates, and
+    choosing among them by position would be P35 one level down. Where there is more than one,
+    all are listed and the choice is left to a human.
+
+USAGE:  python scripts/resolve_trial_citations_2026_08_19.py
+"""
+import io
+import json
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(REPO, "ssot"))
+import ctgov_transport as X                                            # noqa: E402
+
+DEST = os.path.join(REPO, "evidence", "2026-08-19-batch1", "trial_citations_resolved.json")
+
+# The registration ids, each taken from an SSOT object or a registry search performed today.
+# THE ACRONYM IS NOT ASSUMED -- it is read back from the registration and compared below.
+TRIALS = [
+    ("AMPLIFY", "NCT00643201", "registry search, apixaban VTE phase 3, BMS"),
+    ("AMPLIFY-EXT", "NCT00633893", "registry search, apixaban VTE phase 3, BMS"),
+    ("ADOPT", "NCT00457002", "ssot/apixaban-vte-prophylaxis"),
+    ("ADVANCE-1", "NCT00371683", "ssot/apixaban-vte-prophylaxis"),
+    ("ADVANCE-2", "NCT00452530", "ssot/apixaban-vte-prophylaxis"),
+    ("ADVANCE-3", "NCT00423319", "ssot/apixaban-vte-prophylaxis"),
+    ("CASTLE-AF", "NCT00643188", "ssot/ablation-af-heart-failure"),
+    ("CABANA", "NCT00911508", "ssot/ablation-af-medical-therapy"),
+    ("RAFT-AF", "NCT01420393", "ssot/ablation-af-heart-failure"),
+    ("DAPA-HF", "NCT03036124", "ssot/sglt2-hf"),
+    ("EMPEROR-Reduced", "NCT03057977", "ssot/sglt2-hf"),
+    ("EMPEROR-Preserved", "NCT03057951", "ssot/sglt2-hf"),
+    ("DELIVER", "NCT03619213", "ssot/sglt2-hf"),
+    ("CLEAR Outcomes", "NCT02993406", "ssot/bempedoic-acid-review"),
+    ("SPIRE-1", None, "TO RESOLVE"),
+    ("SPIRE-2", None, "TO RESOLVE"),
+    ("EARLY (bosentan)", "NCT00091715", "ssot/bosentan-pah-monotherapy"),
+    ("COMPASS-2", "NCT00303459", "ssot/bosentan-pah-combination"),
+    ("CLEAR SYNERGY / OASIS-9", "NCT03048825", "ssot/colchicine-cvd-coronary"),
+    ("COLCOT", "NCT02551094", "ssot/colchicine-cvd-coronary"),
+    ("CONVINCE", "NCT02898610", "ssot/colchicine-cvd-review"),
+    ("LoDoCo2", None, "ANZCTR ACTRN12614000093684 -- NOT on ClinicalTrials.gov"),
+]
+
+
+def resolve(nct):
+    st, s, detail = X.fetch_raw(nct, fields="protocolSection,derivedSection")
+    if st != X.OK:
+        return {"state": "UNREACHABLE", "detail": str(detail)[:160]}
+    ps = s.get("protocolSection") or {}
+    idm = ps.get("identificationModule") or {}
+    refs = (ps.get("referencesModule") or {}).get("references") or []
+    cands = []
+    for r in refs:
+        t = str(r.get("type") or "").upper()
+        if t in ("RESULT", "DERIVED"):
+            cands.append({"pmid": r.get("pmid"), "type": t,
+                          "citation_as_the_registry_prints_it": (r.get("citation") or "")[:300]})
+    return {
+        "state": "OK",
+        "acronym_as_the_registration_declares_it": idm.get("acronym"),
+        "brief_title": (idm.get("briefTitle") or "")[:150],
+        "official_title": (idm.get("officialTitle") or "")[:220],
+        "org_study_id": (idm.get("orgStudyIdInfo") or {}).get("id"),
+        "overall_status": (ps.get("statusModule") or {}).get("overallStatus"),
+        "enrolment": ((ps.get("designModule") or {}).get("enrollmentInfo") or {}).get("count"),
+        "n_result_or_derived_references": len(cands),
+        "candidate_publications": cands,
+    }
+
+
+def main():
+    out = {"resolved_utc": "2026-08-19",
+           "rule": ("Every field from a lookup. Acronym read from the registration; candidate "
+                    "publications from its referencesModule; bibliographic detail from PubMed. "
+                    "An unresolvable citation is reported UNRESOLVED, never approximated."),
+           "trials": {}}
+    for name, nct, prov in TRIALS:
+        if not nct:
+            out["trials"][name] = {"registration": None, "provenance": prov,
+                                   "state": "NO REGISTRATION RESOLVED YET"}
+            print("%-26s %-14s %s" % (name, "-", prov))
+            continue
+        r = resolve(nct)
+        r["registration"] = nct
+        r["registration_provenance"] = prov
+        out["trials"][name] = r
+        ac = r.get("acronym_as_the_registration_declares_it")
+        flag = ""
+        if r["state"] == "OK":
+            base = name.split(" (")[0].split(" / ")[0].upper().replace("-", "")
+            if ac and base not in str(ac).upper().replace("-", ""):
+                flag = "  <-- ACRONYM MISMATCH, check"
+            elif not ac:
+                flag = "  <-- registration declares NO acronym"
+        print("%-26s %-14s acronym=%-18s refs=%s%s"
+              % (name, nct, str(ac), r.get("n_result_or_derived_references"), flag))
+    with io.open(DEST, "w", encoding="utf-8") as fh:
+        fh.write(json.dumps(out, indent=1, ensure_ascii=False))
+    print("\nwrote %s" % os.path.relpath(DEST, REPO))
+    return 0
+
+
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    sys.exit(main())

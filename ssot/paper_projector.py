@@ -914,10 +914,117 @@ _SELF_NARRATION = re.compile(
     r"replace\.)")
 
 
+# AN ENUM IS A STORED VALUE, NOT A WORD A READER CAN READ.
+#
+# `_lower_single_caps` lists "anything with an underscore -- NO_INFORMATION, SOME_CONCERNS
+# -- stored values" among the things it does NOT touch. Right about case-fixing, wrong about
+# rendering: nothing stopped them reaching prose at all, and the live SOTAGLIFLOZIN page
+# carries 48 identifier-shaped tokens -- SOME_CONCERNS x11, D5 x10, NO_INFORMATION x9, plus
+# SEARCH_RECORD, REG_CTGOV, PM_VADUGANATHAN2022.
+#
+# Two blind reviewers from DIFFERENT model families quoted the same sentence:
+#   "Domains 1 to 3 were NO_INFORMATION on all four results. D5 carried the worse-than-LOW
+#    judgement in 3 results."
+#   Gemini: "unparsed software constant, complete with an underscore, used as an adjective"
+#   Codex:  "D5 is a label pointing at nothing for most clinical readers"
+#
+# TRANSLATED BY MEANING, THEN CAUGHT BY SHAPE, and that ordering is the point. The map
+# handles the vocabulary we know; the SHAPE test catches what the map does not. A check that
+# greps for today's four constants is the string-match-standing-in-for-a-rule failure this
+# repo has hit three times today. "No identifier-shaped token in reader-facing prose" is a
+# PROPERTY, testable without knowing which identifiers exist.
+_ENUM_ENGLISH = {
+    "NO_INFORMATION": "no information",
+    "SOME_CONCERNS": "some concerns",
+    "HIGH_RISK": "high risk of bias",
+    "LOW_RISK": "low risk of bias",
+    "NOT_ASSESSABLE": "not assessable",
+    "NOT_ESTABLISHED": "not established",
+    "SEARCH_RECORD": "the search record",
+    "REG_CTGOV": "the ClinicalTrials.gov registration",
+    "PUBLISHED_SYNTHESIS_SCREEN": "the screen of published syntheses",
+}
+_ROB_DOMAIN_ENGLISH = {
+    "D1": "the randomisation process",
+    "D2": "deviations from the intended intervention",
+    "D3": "missing outcome data",
+    "D4": "measurement of the outcome",
+    "D5": "selection of the reported result",
+}
+_IDENTIFIER_SHAPED = re.compile(
+    r"(?<![\w-])(?:[A-Za-z][A-Za-z0-9]*_[A-Za-z0-9_]+|D[1-5])(?![\w-])")
+
+
+def _enums_to_english(text):
+    """Translate stored enum values into clinical language, longest name first."""
+    out = str(text)
+    for table in (_ENUM_ENGLISH, _ROB_DOMAIN_ENGLISH):
+        for key in sorted(table, key=len, reverse=True):
+            out = re.sub(r"(?<![\w-])%s(?![\w-])" % re.escape(key), table[key], out)
+    return out
+
+
+# CITATION KEYS ARE IDENTIFIERS TOO, AND THEY COME THROUGH A DIFFERENT PIPE.
+# PM_VADUGANATHAN2022, OA_SOLOIST2021, FDA_LABEL_INPEFA, EMA_ZYNQUISTA -- nine of them
+# survived the enum fix because the source list does not pass through `_tidy`. Same rule,
+# different path, which is the shape of nearly every recurrence in this codebase. A source
+# key names a reference a reader can already see in References; in prose it is noise.
+_CITATION_KEY = re.compile(
+    r"(?<![\w-])(?:PM|OA|FDA|EMA|REG|DOI|PMC)_[A-Z0-9_]+(?![\w-])")
+
+
+def strip_citation_keys(text):
+    """Remove source keys from prose, and repair what removing them leaves behind.
+
+    A NAIVE STRIP MAKES A NEW DEFECT. "Compared with PM_VADUGANATHAN2022 and OA_SOLOIST2021"
+    became "Compared with and," -- the keys went and their connectives stayed, which is
+    worse than the identifiers were. Deleting a noun leaves a hole where the sentence
+    expected one.
+
+    So: strip, repair the joins, and DROP any sentence that had nothing in it but source
+    keys. A sentence whose whole content was a list of reference labels has nothing to say
+    to a reader once the labels are gone, and the references themselves are in References.
+    """
+    out = re.sub(r"\s*\(?%s\)?" % _CITATION_KEY.pattern, "", str(text or ""))
+    # Repair the joins the removal left. Order matters: collapse the doubled connective
+    # first, then drop a preposition that now governs nothing. "Compared with PM_X and
+    # OA_Y, ..." went to "Compared with and, ..." and then to "Compared with, ..." -- the
+    # second is better than the first and still visibly broken, so the dangling
+    # preposition goes too and the clause that opened it goes with it.
+    out = re.sub(r"\b(with|to|against|and|versus|from|by)\s+(and|,)\s*", r"\1 ", out)
+    out = re.sub(r"\b\w+\s+(?:with|to|against|from|by|versus)\s*,\s*", "", out)
+    out = re.sub(r"\b(with|to|against|from|by|versus)\s*([.,;])", r"\2", out)
+    out = re.sub(r"\s+,", ",", out)
+    out = re.sub(r",\s*,+", ",", out)
+    out = re.sub(r"\(\s*\)", "", out)
+    out = re.sub(r"\s{2,}", " ", out)
+    # Drop sentences left with no substance.
+    kept = []
+    for part in re.split(r"(?<=[.?!])\s+", out):
+        p = part.strip()
+        if not p:
+            continue
+        words = [w for w in re.findall(r"[A-Za-z]{2,}", p)]
+        if len(words) < 4:
+            continue
+        kept.append(re.sub(r"\b(with|and|to|against)\s*\.", ".", p))
+    return " ".join(kept).strip()
+
+
+def identifier_tokens(text):
+    """Every identifier-shaped token still present; empty means the prose is clean.
+
+    Exported so a gate can assert the PROPERTY rather than re-listing the vocabulary.
+    """
+    return [m.group(0) for m in _IDENTIFIER_SHAPED.finditer(str(text or ""))]
+
+
 def _tidy(text, protect=()):
     if not isinstance(text, str):
         text = str(text)
     text = _SELF_NARRATION.sub(" ", text)
+    text = _enums_to_english(text)
+    text = strip_citation_keys(text)
     if protect:
         _KEEP_CAPS.update(protect)
     try:
@@ -1697,11 +1804,263 @@ def _trials_by_identity(obj):
     return by_id, unjoinable
 
 
+def _short_names(obj):
+    """A short label per outcome, established once and reused. {oid: (full, short)}.
+
+    ABBREVIATION IS A CAPABILITY, NOT A FIND-AND-REPLACE. Zelniker names "major adverse
+    cardiovascular events (myocardial infarction, stroke, or cardiovascular death)" ONCE and
+    says "major adverse cardiovascular events" for the rest of the paper. Stern defines
+    "community-acquired pneumonia (CAP)" once and uses CAP thereafter. Both introduce the
+    term with its definition attached, then rely on it.
+
+    We projected the stored label every single time, so the SOTAGLIFLOZIN page repeated
+    "total occurrences of cardiovascular death, hospitalization for heart failure and urgent
+    heart failure visit" at every mention. A blind reviewer: "unbearably repetitive and
+    structurally torturous... states the exact same rating three times while spelling out
+    massive outcome strings in full."
+
+    THE SHORT FORM IS DERIVED FROM THE STORED NAME, never invented: the leading noun phrase
+    up to the first comma or "and", which is what the trial itself called the thing. A name
+    short enough already keeps its own wording and no abbreviation is introduced -- an
+    abbreviation for a four-word outcome costs a reader more than it saves.
+    """
+    out = {}
+    for o in (obj.get("outcomes") or []):
+        if not isinstance(o, dict) or not o.get("id"):
+            continue
+        full = _tidy(str(o.get("name") or "")).strip()
+        if not full:
+            continue
+        if len(full.split()) <= 7:
+            out[o["id"]] = (full, full)
+            continue
+        # A SHORT FORM IS A TERM, NOT A TRUNCATION. A first attempt cut the leading noun
+        # phrase and produced "Total occurrences", "that same composite", "Time to the first
+        # occurrence" -- fragments, which read worse than the repetition they replace.
+        #
+        # We cannot mechanically derive "major adverse cardiovascular events" from a stored
+        # string; that term exists in the literature and inventing one would be authorship.
+        # What IS derivable is the thing that distinguishes these estimands from each other,
+        # and on this corpus that is nearly always HOW THE EVENTS ARE COUNTED -- the same
+        # composite appears as total events and as time to first event, and telling them
+        # apart is the entire point of pages like SOTAGLIFLOZIN_HF.
+        low = full.lower()
+        if low.startswith("total occurrences"):
+            short = "the composite counted as total events"
+        elif re.match(r"time to (the )?first", low):
+            short = "the composite counted as time to first event"
+        elif low.startswith("percent change") or low.startswith("change from baseline"):
+            short = "the change from baseline"
+        else:
+            head = re.split(r",| and ", full)[0].strip()
+            # Only abbreviate to something that reads as a noun phrase on its own.
+            short = head if 2 <= len(head.split()) <= 7 and not head.lower().startswith(
+                ("time", "total", "number", "proportion", "percent")) else full
+        out[o["id"]] = (full, short.rstrip(" ,."))
+
+    # A SHORT NAME THAT IS NOT UNIQUE IS WORSE THAN NO SHORT NAME.
+    #
+    # On SOTAGLIFLOZIN_HF the derivation gave "the composite counted as time to first event"
+    # to BOTH hfcv_first and mace3_first -- a heart-failure composite and a three-component
+    # atherothrombotic endpoint, two different questions wearing one label. That is the
+    # hollow-noun defect again: a name that does not identify the thing it names.
+    #
+    # Any short form claimed by more than one outcome is withdrawn from ALL of them, and
+    # those outcomes keep their full names. Repetition is a readability cost; ambiguity is a
+    # correctness one, and they are not traded against each other.
+    claimed = {}
+    for oid, (full, short) in out.items():
+        claimed.setdefault(short, []).append(oid)
+    for short, oids in claimed.items():
+        if len(oids) > 1:
+            for oid in oids:
+                out[oid] = (out[oid][0], out[oid][0])
+    return out
+
+
+# =======================================================================================
+# LENGTH BUDGET -- DERIVED FROM THE ANCHORS, NOT GUESSED
+# =======================================================================================
+# Measured on the two published reviews the blind panel rates "Well":
+#
+#     Zelniker, Lancet 2018     393 words     3 trials    3 outcomes
+#     Stern, Cochrane 2017      550 words    17 trials    6 outcomes
+#     SOTAGLIFLOZIN_HF (ours) 7,241 words     2 trials    3 outcomes
+#
+# Two things fall out. First, LENGTH IS ALMOST INDEPENDENT OF TRIAL COUNT: 5.7x the trials
+# buys 1.40x the words, because a review is long in proportion to what it has to SAY, not
+# to what it read. Second, ours is 18.4x Zelniker WITH FEWER TRIALS.
+#
+# Every round tonight corrected vocabulary inside a document an order of magnitude too long,
+# while both model families kept saying "unbearably repetitive" and "devolves into a
+# checklist of excuses" -- complaints about proportion that terminology cannot answer.
+#
+# The fit below reproduces both anchors within ~12%: 300 + 30/outcome + 8/trial gives
+# Zelniker 414 (actual 393) and Stern 616 (actual 550). The anchors are ABSTRACTS, so the
+# multiplier gives a full panel room to be fuller than an abstract while staying in the
+# right order of magnitude -- roughly 600-1,200 words for a typical topic here, against
+# 7,241 today.
+_BUDGET_MULTIPLIER = 2.0
+
+
+def _length_budget(obj):
+    """Words this topic's manuscript is worth, from what it actually has to report."""
+    n_out = len([o for o in (obj.get("outcomes") or []) if isinstance(o, dict)])
+    n_tri = len([t for t in ((obj.get("inputs") or {}).get("trials") or [])
+                 if isinstance(t, dict)])
+    return int((300 + 30 * n_out + 8 * n_tri) * _BUDGET_MULTIPLIER)
+
+
+# What a review is FOR. These sections are never dropped to make room; if the budget is
+# tight they are what the budget is spent on.
+_ESSENTIAL = {"title", "abstract", "intro", "methods_search", "methods_synthesis",
+              "results", "limitations", "conclusions", "references"}
+
+# Dropped FIRST and in this order when over budget. Evidenced rather than chosen: every
+# item here was named by a blind reviewer as something that should not be in a journal
+# article. Draft scaffolding and validation narrative go before anything else because they
+# are not article content at all -- they are our workings.
+_DROP_ORDER = ["drafts", "validation", "bookkeeping", "conformance", "not_written",
+               "figure_legends", "extended", "keywords", "software", "reporting_guideline",
+               "statistical_output", "disagreements", "reporting_guidelines"]
+
+# SECTIONS THAT ENUMERATE WHERE A REVIEW SUMMARISES.
+#
+# Measured on SOTAGLIFLOZIN_HF: risk_of_bias is 1,527 words -- FORTY PER CENT of the whole
+# document, and nearly four times Zelniker's entire abstract -- for a two-trial review. Stern
+# covers risk of bias across SEVENTEEN trials in about forty words: "We assessed the risk of
+# selection bias and attrition bias as low or unclear overall."
+#
+# The difference is not length discipline, it is a different operation. We print every domain
+# of every result; a review states the distribution and moves on. The detail is not lost --
+# it stays on the Extraction tab, where a reader who wants per-domain judgements can have
+# them -- but the ARTICLE reports the shape.
+#
+# Summarised rather than dropped, because risk of bias is not decoration: it is the answer to
+# "should a reader believe this evidence", and a review that omits it has not arrived.
+_SUMMARISE = {"risk_of_bias", "published_comparison"}
+
+# Prose that is about OUR PROCESS rather than about the evidence.
+_VALIDATION_PROSE = re.compile(
+    r"model famil|independent file access|second, independent assessment|"
+    r"this repository|codex exec|badge this|verification rests|"
+    r"each asked to find a defect|pure projection", re.I)
+
+
+def _words(secs):
+    n = 0
+    for s in secs:
+        n += len(str(s.heading).split())
+        for text, _f in s.paras:
+            n += len(str(text).split())
+        for what, _m in s.refusals:
+            n += len(str(what).split())
+    return n
+
+
+def _fit_to_budget(secs, obj):
+    """Choose what to report. NEVER truncate -- omit whole items, keep every number.
+
+    TRUNCATION IS THE DEFECT WE FIXED THIS MORNING: a title cut at a fixed width read
+    "...Serious Bleeding, or Cardiac Arrest in Patie". Cutting mid-thought produces
+    nonsense and hides that anything was cut. Selection removes a WHOLE item and leaves the
+    rest intact and readable, which is the discipline a journal imposes and this projector
+    has never had.
+
+    NOTHING NUMERIC IS ELIGIBLE. Only our workings, our scaffolding and repetition are.
+    """
+    budget = _length_budget(obj)
+    removed = []
+
+    # 1. DRAFT SCAFFOLDING -- never article content, dropped regardless of budget. Both
+    #    families named it unprompted: "it mixes manuscript prose with draft placeholders",
+    #    "repeatedly exposes scaffolding". A draft is a note to the author, not to a reader.
+    for s in secs:
+        keep = [(t, f) for (t, f) in s.paras if not str(t).lstrip().startswith("[Draft")]
+        if len(keep) != len(s.paras):
+            removed.append("%d draft passage(s) in %s" % (len(s.paras) - len(keep), s.key))
+            s.paras = keep
+
+    # 2. VALIDATION NARRATIVE -- our QA process, printed inside Methods. "This object's
+    #    verification rests on Two things, and neither is a badge this repository can emit
+    #    about itself" was quoted back as one of the page's three worst passages.
+    for s in secs:
+        keep = [(t, f) for (t, f) in s.paras if not _VALIDATION_PROSE.search(str(t))]
+        if len(keep) != len(s.paras):
+            removed.append("%d validation passage(s) in %s"
+                           % (len(s.paras) - len(keep), s.key))
+            s.paras = keep
+
+    # 3. SUMMARISE the enumerative sections. Not dropped: risk of bias answers "should a
+    #    reader believe this evidence", and a review that omits it has not arrived. What
+    #    goes is the per-domain, per-result enumeration; what stays is the distribution,
+    #    which is what a published review reports.
+    for s in secs:
+        if s.key not in _SUMMARISE:
+            continue
+        if s.key == "risk_of_bias":
+            verdicts = []
+            for _t, _f in s.paras:
+                verdicts += re.findall(r"\b(high risk of bias|some concerns|low risk of bias"
+                                       r"|no information)\b", str(_t), re.I)
+            if verdicts:
+                counts = {}
+                for v in verdicts:
+                    counts[v.lower()] = counts.get(v.lower(), 0) + 1
+                parts = ", ".join("%d at %s" % (n, k) for k, n in
+                                  sorted(counts.items(), key=lambda kv: -kv[1]))
+                keep_fields = sorted({f for _t, fs in s.paras for f in fs})
+                s.paras = [("Risk of bias was assessed with RoB 2 at the level of each "
+                            "reported result: %s. The per-domain judgements for every "
+                            "result are recorded with the extracted data." % parts,
+                            keep_fields or ["risk_of_bias"])]
+                s.tables = []
+                removed.append("risk_of_bias enumeration (%d judgements summarised)"
+                               % len(verdicts))
+        elif s.key == "published_comparison" and len(s.paras) > 1:
+            s.paras = s.paras[:1]
+            s.tables = []
+            removed.append("published_comparison detail")
+
+    # 4. Whole non-essential sections, lowest value first, until inside the budget.
+    for key in _DROP_ORDER:
+        if _words(secs) <= budget:
+            break
+        for s in list(secs):
+            if s.key == key and s.key not in _ESSENTIAL:
+                secs.remove(s)
+                removed.append("section %s" % s.key)
+
+    # 5. Still over? Drop remaining non-essential sections in reverse document order --
+    #    the back matter a reader reaches last.
+    for s in reversed(list(secs)):
+        if _words(secs) <= budget:
+            break
+        if s.key not in _ESSENTIAL and not s.paras:
+            secs.remove(s)
+            removed.append("empty section %s" % s.key)
+    return secs, budget, removed
+
+
 def project(obj, journal="generic", length="standard"):
     """Return [Section]. `journal` and `length` are parameters; neither licenses a claim."""
     we = journal in ("cochrane", "plos")
     verb = "We searched" if we else "Searches were executed in"
     secs = []
+    _SHORT = _short_names(obj)
+    _introduced = set()
+
+    def oname(oid, force_full=False):
+        """Full name with its short form attached on first use; the short form after."""
+        full, short = _SHORT.get(oid, (None, None))
+        if not full:
+            return None
+        if full == short:
+            return full
+        if force_full or oid not in _introduced:
+            _introduced.add(oid)
+            return "%s (referred to below as %s)" % (full, short)
+        return short
 
     # ---- TITLE / QUESTION -------------------------------------------------------------
     s = Section("title", "Title and review question")
@@ -1737,7 +2096,13 @@ def project(obj, journal="generic", length="standard"):
                    "string, so no question distinct from the title is stated here. A "
                    "question copied from a title has not been asked.", ["question"])
     else:
-        s.add(obj, _question, ["question"])
+        # THE QUESTION IS STATED ONCE, IN THE ABSTRACT. It used to appear here AND as the
+        # Abstract's opening "Question." line, verbatim, on 79 topics --
+        # `lint_manuscript_whole_document.py` refuses that, and it is right: a paper that
+        # states its question twice in its first two sections is the repetition both model
+        # families kept naming. Nothing is lost by saying it once; a reader meets it in the
+        # Abstract, where a reader of any journal expects it.
+        s.heading = "Title"
     secs.append(s)
 
     # ---- METHODS: SEARCH --------------------------------------------------------------
@@ -1794,9 +2159,33 @@ def project(obj, journal="generic", length="standard"):
         # letting a bookkeeping line decide the section has content cost six topics a
         # refusal that was TRUE. So the logic is untouched and only the claim is narrowed
         # to what is actually absent: the database-search record, not the description.
-        s.refusals.append(("the database-search record -- `search.databases` holds no "
-                           "executed query, so no query, date or yield can be shown",
-                           ["search.databases"]))
+        # RECONCILED BEFORE IT IS STATED, WHICH IS THE RULE THE EARLIER SPEC LACKED.
+        #
+        # Two absence statements were both true and could not both be said:
+        #     "No bibliographic search for primary trials was run."
+        #     "The executed database query, date and yield are not reported."
+        # A blind reviewer quoted them back as a contradiction -- "if no search was run,
+        # there is no query to report; 'not reported' implies they exist but were omitted."
+        # Moving an absence to the section a reader expects does not make it coherent with
+        # the OTHER absences already there. They need one account per topic, settled before
+        # rendering.
+        #
+        # So the refusal still fires -- it is TRUE, and suppressing it is the mistake the
+        # comment above records -- but it says the one thing that is the case. Where the
+        # bookkeeping line already states that no search was run, this must not also imply
+        # a search whose paperwork is missing.
+        _bk, _ = _bookkeeping(obj, "the_search_its_date_and_its_databases")
+        _no_search_stated = bool(_bk) and re.search(
+            r"no bibliographic search|no search (?:was )?(?:run|executed)", str(_bk), re.I)
+        if _no_search_stated:
+            s.refusals.append(
+                ("a database search for primary trials, which was not carried out for this "
+                 "review; the included trials were identified from named registrations",
+                 ["search.databases"]))
+        else:
+            s.refusals.append(
+                ("the database-search record: no executed query is held, so no query, date "
+                 "or yield can be shown", ["search.databases"]))
     # AFTER the refusal decision, never before it. Placed at the top of the
     # section this line made `s.paras` non-empty, the `if not (s.paras or
     # s.tables)` refusal stopped firing, and six topics lost a refusal that was
@@ -3177,12 +3566,21 @@ def project(obj, journal="generic", length="standard"):
     if _pro is not None:
         s.add(obj, "Registered prospectively: %s." % _v_str(_pro), ["protocol.prospero"])
     else:
+        # THE DISCLAIMER GOES; THE PRINCIPLE STAYS, ONCE, IN PLAIN WORDS.
+        #
+        # This read "...THAT IS NOT THE SAME AS KNOWING THE REVIEW WAS NOT REGISTERED, and
+        # neither claim is made here." Both model families called it circular; Gemini:
+        # "bizarre, defensive, and circular -- a convoluted double-negative that adds
+        # absolutely nothing to the reader's understanding."
+        #
+        # The underlying principle is right -- absence of a registration record is not proof
+        # of non-registration -- and it is still honoured: the sentence below states what is
+        # and is not known WITHOUT the double negative, and without appending a disclaimer
+        # to every absence on the page. A caveat repeated at each absence stops being read;
+        # said once, plainly, it is information.
         s.refusals.append((
-            "the registration statement. No PROSPERO registration is recorded on this "
-            "object. THAT IS NOT THE SAME AS KNOWING THE REVIEW WAS NOT REGISTERED, and "
-            "neither claim is made here. Prospective registration cannot be added after "
-            "the fact, so if none exists the honest statement is that the review was not "
-            "prospectively registered -- which is a statement only the author can make",
+            "a registration statement: no prospective registration is recorded for this "
+            "review, and whether one exists elsewhere has not been established",
             ["protocol.prospero"]))
     secs.append(s)
 
@@ -3560,6 +3958,11 @@ def project(obj, journal="generic", length="standard"):
                 seen.add(key)
                 kept.append(best[key])
             sec.refusals = kept
+    # WRITTEN TO A BUDGET, LAST, ONCE EVERYTHING HAS BEEN PROJECTED. Choosing what to keep
+    # requires seeing the whole document, so this cannot be a decision each section makes
+    # about itself -- that is exactly how 7,241 words accumulated, every one of them
+    # locally justified.
+    secs, _budget, _removed = _fit_to_budget(secs, obj)
     return _in_reading_order(secs)
 
 

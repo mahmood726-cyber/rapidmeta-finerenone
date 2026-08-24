@@ -1,0 +1,455 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a031af-15f9-78a2-b7b0-f388eed8cffb
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/fix_data_quality_issues.py
+
+--- THE FILE, IN FULL ---
+#!/usr/bin/env python3
+# sentinel:skip-file — developer tool; hardcoded ROOT is intentional (local Finrenone checkout only)
+"""Fix 3 confirmed data-quality issues surfaced by the portfolio audit:
+
+  1. ROMOSOZUMAB_OP_REVIEW: ARCH (NCT01631214) appears TWICE in realData
+     with different tE/cE counts. JS evaluates the second one last so the
+     wrong counts (81/148) silently override the correct ones (127/243
+     from Saag 2017 Table 2). Also has `pmid: '28892457', pmid: '28892457'`
+     duplicate key on the first ARCH line. Fix: remove the dead
+     second ARCH entry (lines ~2326-2336).
+
+  2. PBC_PPAR_REVIEW: Seladelpar RESPONSE trial stored as NCT04620240
+     which returns 404 from CT.gov. Verified correct NCT via CT.gov
+     search: NCT04620733. Typo (240 vs 733). Fix: change in 3 places —
+     AUTO_INCLUDE_TRIAL_IDS, nctAcronyms, realData key.
+
+  3. 29 apps with placeholder PUBLISHED_META_BENCHMARKS (clone-template
+     artifact: all copied the Finerenone FIDELITY 2022 benchmark entry,
+     irrelevant to their actual topic). Clear these to `{}` so the UI
+     honestly reports "No published benchmark available" instead of
+     falsely comparing unrelated drug pools to Finerenone FIDELITY.
+"""
+import argparse, pathlib, re, sys
+
+ROOT = pathlib.Path(__file__).resolve().parent.parent
+
+
+# -------- Fix 1: ROMOSOZUMAB_OP ARCH duplicate -------------------------------
+R_DUP_PATH = ROOT / "ROMOSOZUMAB_OP_REVIEW.html"
+
+R_DUP_OLD_DUPLICATE = (
+    "                'NCT01631214': {\n"
+    "                    name: 'ARCH', phase: 'III', year: 2017, tE: 81, tN: 2046, cE: 148, cN: 2047, group: 'High-risk postmenopausal osteoporosis, romosozumab 210 mg Q1M for 12 mo then alendronate vs alendronate alone (24-mo new vertebral fracture RR)', publishedHR: 0.52, hrLCI: 0.4, hrUCI: 0.66,\n"
+    "                    allOutcomes: [\n"
+    "                        { shortLabel: 'MACE', title: 'New vertebral fracture through month 24 (primary, romo-then-alendronate vs alendronate alone, RR; head-to-head, ARCH is the FDA-pivotal for the active-comparator path)', tE: 81, cE: 148, type: 'PRIMARY', matchScore: 95, effect: 0.52, lci: 0.4, uci: 0.66, estimandType: 'RR' }\n"
+    "                    ],\n"
+    "                    rob: ['low', 'some concerns', 'low', 'low', 'low'],\n"
+    "                    snippet: 'Source: Saag KG et al. NEJM 2017;377:1417-1427 (ARCH). Active-comparator head-to-head vs alendronate.',\n"
+    "                    sourceUrl: 'https://www.nejm.org/doi/full/10.1056/NEJMoa1708322',\n"
+    "                    ctgovUrl: 'https://clinicaltrials.gov/study/NCT01631214',\n"
+    "                    evidence: []\n"
+    "                }"
+)
+# We're removing this block plus the preceding comma-newline of the prior entry.
+# In context the preceding close is `                },\n` then blank then this block.
+# We replace the block and leave the closing of the object literal intact.
+R_DUP_REPLACEMENT = ""  # removed entirely
+
+# Also fix the duplicate pmid key on the surviving ARCH entry
+R_PMID_OLD = "name: 'ARCH', pmid: '28892457',  pmid: '28892457',"
+R_PMID_NEW = "name: 'ARCH', pmid: '28892457',"
+
+
+# -------- Fix 2: PBC_PPAR NCT typo -------------------------------------------
+P_PATH = ROOT / "PBC_PPAR_REVIEW.html"
+P_REPLACEMENTS = [
+    # 3 call sites: AUTO_INCLUDE_TRIAL_IDS, nctAcronyms, realData key
+    ("'NCT04526665', 'NCT04620240'", "'NCT04526665', 'NCT04620733'"),
+    ("'NCT04526665': 'ELATIVE', 'NCT04620240': 'RESPONSE'",
+     "'NCT04526665': 'ELATIVE', 'NCT04620733': 'RESPONSE'"),
+    ("'NCT04620240': {", "'NCT04620733': {"),
+    # And any ctgovUrl pointing at the bad NCT
+    ("https://clinicaltrials.gov/study/NCT04620240", "https://clinicaltrials.gov/study/NCT04620733"),
+]
+
+
+# -------- Fix 3: placeholder benchmark cleanup (exact-match safe) ------------
+# Remove only the exact Finerenone-FIDELITY placeholder content between the
+# { ... } of PUBLISHED_META_BENCHMARKS. The braces themselves stay intact so
+# the object remains syntactically `= {}`.
+BENCH_OLD_CONTENT = (
+    "\n            MACE: [\n"
+    "                { label: 'FIDELITY pooled analysis', citation: 'Agarwal 2022', year: 2022, measure: 'HR', estimate: 0.86, lci: 0.78, uci: 0.95, k: 2, n: 13026, scope: 'FIDELIO + FIGARO, CKD/T2D' }\n"
+    "            ]\n        "
+)
+
+
+def fix_romosozumab(dry_run: bool) -> str:
+    text = R_DUP_PATH.read_text(encoding="utf-8", newline="")
+    crlf = "\r\n" in text
+    work = text.replace("\r\n", "\n") if crlf else text
+    notes = []
+
+    # Duplicate ARCH removal
+    if R_DUP_OLD_DUPLICATE in work:
+        # Also remove the preceding comma + newline so we don't leave a dangling ,\n
+        # Find the preceding `                }` block and adjust
+        dup_pos = work.find(R_DUP_OLD_DUPLICATE)
+        # Walk backwards to find the `,\n                '` that separates from previous entry
+        pre = work[:dup_pos]
+        sep_m = re.search(r",\n\s*$", pre)
+        if sep_m:
+            work = pre[:sep_m.start()] + "\n" + work[dup_pos + len(R_DUP_OLD_DUPLICATE):]
+            notes.append("arch-dup:OK")
+        else:
+            work = work.replace(R_DUP_OLD_DUPLICATE, "", 1)
+            notes.append("arch-dup:OK(no-comma-cleanup)")
+    else:
+        notes.append("arch-dup:skip(not-present)")
+
+    # Duplicate pmid key
+    if R_PMID_OLD in work:
+        work = work.replace(R_PMID_OLD, R_PMID_NEW, 1)
+        notes.append("arch-pmid-dup:OK")
+    else:
+        notes.append("arch-pmid-dup:skip")
+
+    if not dry_run and (work != text.replace("\r\n", "\n") if crlf else work != text):
+        out = work.replace("\n", "\r\n") if crlf else work
+        R_DUP_PATH.write_text(out, encoding="utf-8", newline="")
+    return f"ROMOSOZUMAB_OP: {'; '.join(notes)}"
+
+
+def fix_pbc_ppar(dry_run: bool) -> str:
+    text = P_PATH.read_text(encoding="utf-8", newline="")
+    changes = 0
+    for old, new in P_REPLACEMENTS:
+        count = text.count(old)
+        if count > 0:
+            text = text.replace(old, new)
+            changes += count
+    if not dry_run and changes > 0:
+        P_PATH.write_text(text, encoding="utf-8", newline="")
+    return f"PBC_PPAR NCT04620240 -> NCT04620733: {changes} occurrence(s) {'would be' if dry_run else ''} replaced"
+
+
+def _find_balanced_close(text: str, open_pos: int) -> int:
+    """Given index of '{' in text, return index of matching '}' by brace counting."""
+    depth = 0
+    i = open_pos
+    while i < len(text):
+        ch = text[i]
+        if ch == '{':
+            depth += 1
+        elif ch == '}':
+            depth -= 1
+            if depth == 0:
+                return i
+        i += 1
+    return -1
+
+
+def fix_placeholder_benchmarks(dry_run: bool) -> str:
+    touched = []
+    for p in sorted(ROOT.glob("*_REVIEW.html")):
+        text = p.read_text(encoding="utf-8", newline="")
+        if "'FIDELITY pooled analysis'" not in text:
+            continue
+        if p.name == "FINERENONE_REVIEW.html":
+            continue  # legitimate use
+        marker = "const PUBLISHED_META_BENCHMARKS = {"
+        m_pos = text.find(marker)
+        if m_pos < 0:
+            continue
+        open_pos = m_pos + len(marker) - 1  # position of the '{'
+        close_pos = _find_balanced_close(text, open_pos)
+        if close_pos < 0:
+            continue
+        # Confirm the placeholder is inside this {...}
+        if "'FIDELITY pooled analysis'" not in text[open_pos:close_pos]:
+            continue
+        new_text = text[:open_pos] + "{}" + text[close_pos + 1:]
+        if not dry_run:
+            p.write_text(new_text, encoding="utf-8", newline="")
+        touched.append(p.name)
+    return f"Placeholder benchmarks cleared: {len(touched)} apps"
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument("--apply", action="store_true")
+    args = ap.parse_args()
+    if not (args.dry_run or args.apply): ap.error("pass --dry-run or --apply")
+    print(fix_romosozumab(dry_run=args.dry_run))
+    print(fix_pbc_ppar(dry_run=args.dry_run))
+    print(fix_placeholder_benchmarks(dry_run=args.dry_run))
+
+
+if __name__ == "__main__":
+    main()
+
+codex
+I’ll treat the pasted packet as authoritative and limit this to the named defect shapes, with line-level repros only where the defect follows from this file.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=1; Get-Content -LiteralPath scripts/fix_data_quality_issues.py | ForEach-Object { '"'{0,4}: {1}' -f "'$i, $_; $i++ }' in F:\rapidmeta-ssot-shell
+ succeeded in 2337ms:
+   1: #!/usr/bin/env python3
+   2: # sentinel:skip-file â€” developer tool; hardcoded ROOT is intentional (local Finrenone checkout only)
+   3: """Fix 3 confirmed data-quality issues surfaced by the portfolio audit:
+   4: 
+   5:   1. ROMOSOZUMAB_OP_REVIEW: ARCH (NCT01631214) appears TWICE in realData
+   6:      with different tE/cE counts. JS evaluates the second one last so the
+   7:      wrong counts (81/148) silently override the correct ones (127/243
+   8:      from Saag 2017 Table 2). Also has `pmid: '28892457', pmid: '28892457'`
+   9:      duplicate key on the first ARCH line. Fix: remove the dead
+  10:      second ARCH entry (lines ~2326-2336).
+  11: 
+  12:   2. PBC_PPAR_REVIEW: Seladelpar RESPONSE trial stored as NCT04620240
+  13:      which returns 404 from CT.gov. Verified correct NCT via CT.gov
+  14:      search: NCT04620733. Typo (240 vs 733). Fix: change in 3 places â€”
+  15:      AUTO_INCLUDE_TRIAL_IDS, nctAcronyms, realData key.
+  16: 
+  17:   3. 29 apps with placeholder PUBLISHED_META_BENCHMARKS (clone-template
+  18:      artifact: all copied the Finerenone FIDELITY 2022 benchmark entry,
+  19:      irrelevant to their actual topic). Clear these to `{}` so the UI
+  20:      honestly reports "No published benchmark available" instead of
+  21:      falsely comparing unrelated drug pools to Finerenone FIDELITY.
+  22: """
+  23: import argparse, pathlib, re, sys
+  24: 
+  25: ROOT = pathlib.Path(__file__).resolve().parent.parent
+  26: 
+  27: 
+  28: # -------- Fix 1: ROMOSOZUMAB_OP ARCH duplicate -------------------------------
+  29: R_DUP_PATH = ROOT / "ROMOSOZUMAB_OP_REVIEW.html"
+  30: 
+  31: R_DUP_OLD_DUPLICATE = (
+  32:     "                'NCT01631214': {\n"
+  33:     "                    name: 'ARCH', phase: 'III', year: 2017, tE: 81, tN: 2046, cE: 148, cN: 2047, group: 'High-risk postmenopausal osteoporosis, romosozumab 210 mg Q1M for 12 mo then alendronate vs alendronate alone (24-mo new vertebral fracture RR)', publishedHR: 0.52, hrLCI: 0.4, hrUCI: 0.66,\n"
+  34:     "                    allOutcomes: [\n"
+  35:     "                        { shortLabel: 'MACE', title: 'New vertebral fracture through month 24 (primary, romo-then-alendronate vs alendronate alone, RR; head-to-head, ARCH is the FDA-pivotal for the active-comparator path)', tE: 81, cE: 148, type: 'PRIMARY', matchScore: 95, effect: 0.52, lci: 0.4, uci: 0.66, estimandType: 'RR' }\n"
+  36:     "                    ],\n"
+  37:     "                    rob: ['low', 'some concerns', 'low', 'low', 'low'],\n"
+  38:     "                    snippet: 'Source: Saag KG et al. NEJM 2017;377:1417-1427 (ARCH). Active-comparator head-to-head vs alendronate.',\n"
+  39:     "                    sourceUrl: 'https://www.nejm.org/doi/full/10.1056/NEJMoa1708322',\n"
+  40:     "                    ctgovUrl: 'https://clinicaltrials.gov/study/NCT01631214',\n"
+  41:     "                    evidence: []\n"
+  42:     "                }"
+  43: )
+  44: # We're removing this block plus the preceding comma-newline of the prior entry.
+  45: # In context the preceding close is `                },\n` then blank then this block.
+  46: # We replace the block and leave the closing of the object literal intact.
+  47: R_DUP_REPLACEMENT = ""  # removed entirely
+  48: 
+  49: # Also fix the duplicate pmid key on the surviving ARCH entry
+  50: R_PMID_OLD = "name: 'ARCH', pmid: '28892457',  pmid: '28892457',"
+  51: R_PMID_NEW = "name: 'ARCH', pmid: '28892457',"
+  52: 
+  53: 
+  54: # -------- Fix 2: PBC_PPAR NCT typo -------------------------------------------
+  55: P_PATH = ROOT / "PBC_PPAR_REVIEW.html"
+  56: P_REPLACEMENTS = [
+  57:     # 3 call sites: AUTO_INCLUDE_TRIAL_IDS, nctAcronyms, realData key
+  58:     ("'NCT04526665', 'NCT04620240'", "'NCT04526665', 'NCT04620733'"),
+  59:     ("'NCT04526665': 'ELATIVE', 'NCT04620240': 'RESPONSE'",
+  60:      "'NCT04526665': 'ELATIVE', 'NCT04620733': 'RESPONSE'"),
+  61:     ("'NCT04620240': {", "'NCT04620733': {"),
+  62:     # And any ctgovUrl pointing at the bad NCT
+  63:     ("https://clinicaltrials.gov/study/NCT04620240", "https://clinicaltrials.gov/study/NCT04620733"),
+  64: ]
+  65: 
+  66: 
+  67: # -------- Fix 3: placeholder benchmark cleanup (exact-match safe) ------------
+  68: # Remove only the exact Finerenone-FIDELITY placeholder content between the
+  69: # { ... } of PUBLISHED_META_BENCHMARKS. The braces themselves stay intact so
+  70: # the object remains syntactically `= {}`.
+  71: BENCH_OLD_CONTENT = (
+  72:     "\n            MACE: [\n"
+  73:     "                { label: 'FIDELITY pooled analysis', citation: 'Agarwal 2022', year: 2022, measure: 'HR', estimate: 0.86, lci: 0.78, uci: 0.95, k: 2, n: 13026, scope: 'FIDELIO + FIGARO, CKD/T2D' }\n"
+  74:     "            ]\n        "
+  75: )
+  76: 
+  77: 
+  78: def fix_romosozumab(dry_run: bool) -> str:
+  79:     text = R_DUP_PATH.read_text(encoding="utf-8", newline="")
+  80:     crlf = "\r\n" in text
+  81:     work = text.replace("\r\n", "\n") if crlf else text
+  82:     notes = []
+  83: 
+  84:     # Duplicate ARCH removal
+  85:     if R_DUP_OLD_DUPLICATE in work:
+  86:         # Also remove the preceding comma + newline so we don't leave a dangling ,\n
+  87:         # Find the preceding `                }` block and adjust
+  88:         dup_pos = work.find(R_DUP_OLD_DUPLICATE)
+  89:         # Walk backwards to find the `,\n                '` that separates from previous entry
+  90:         pre = work[:dup_pos]
+  91:         sep_m = re.search(r",\n\s*$", pre)
+  92:         if sep_m:
+  93:             work = pre[:sep_m.start()] + "\n" + work[dup_pos + len(R_DUP_OLD_DUPLICATE):]
+  94:             notes.append("arch-dup:OK")
+  95:         else:
+  96:             work = work.replace(R_DUP_OLD_DUPLICATE, "", 1)
+  97:             notes.append("arch-dup:OK(no-comma-cleanup)")
+  98:     else:
+  99:         notes.append("arch-dup:skip(not-present)")
+ 100: 
+ 101:     # Duplicate pmid key
+ 102:     if R_PMID_OLD in work:
+ 103:         work = work.replace(R_PMID_OLD, R_PMID_NEW, 1)
+ 104:         notes.append("arch-pmid-dup:OK")
+ 105:     else:
+ 106:         notes.append("arch-pmid-dup:skip")
+ 107: 
+ 108:     if not dry_run and (work != text.replace("\r\n", "\n") if crlf else work != text):
+ 109:         out = work.replace("\n", "\r\n") if crlf else work
+ 110:         R_DUP_PATH.write_text(out, encoding="utf-8", newline="")
+ 111:     return f"ROMOSOZUMAB_OP: {'; '.join(notes)}"
+ 112: 
+ 113: 
+ 114: def fix_pbc_ppar(dry_run: bool) -> str:
+ 115:     text = P_PATH.read_text(encoding="utf-8", newline="")
+ 116:     changes = 0
+ 117:     for old, new in P_REPLACEMENTS:
+ 118:         count = text.count(old)
+ 119:         if count > 0:
+ 120:             text = text.replace(old, new)
+ 121:             changes += count
+ 122:     if not dry_run and changes > 0:
+ 123:         P_PATH.write_text(text, encoding="utf-8", newline="")
+ 124:     return f"PBC_PPAR NCT04620240 -> NCT04620733: {changes} occurrence(s) {'would be' if dry_run else ''} replaced"
+ 125: 
+ 126: 
+ 127: def _find_balanced_close(text: str, open_pos: int) -> int:
+ 128:     """Given index of '{' in text, return index of matching '}' by brace counting."""
+ 129:     depth = 0
+ 130:     i = open_pos
+ 131:     while i < len(text):
+ 132:         ch = text[i]
+ 133:         if ch == '{':
+ 134:             depth += 1
+ 135:         elif ch == '}':
+ 136:             depth -= 1
+ 137:             if depth == 0:
+ 138:                 return i
+ 139:         i += 1
+ 140:     return -1
+ 141: 
+ 142: 
+ 143: def fix_placeholder_benchmarks(dry_run: bool) -> str:
+ 144:     touched = []
+ 145:     for p in sorted(ROOT.glob("*_REVIEW.html")):
+ 146:         text = p.read_text(encoding="utf-8", newline="")
+ 147:         if "'FIDELITY pooled analysis'" not in text:
+ 148:             continue
+ 149:         if p.name == "FINERENONE_REVIEW.html":
+ 150:             continue  # legitimate use
+ 151:         marker = "const PUBLISHED_META_BENCHMARKS = {"
+ 152:         m_pos = text.find(marker)
+ 153:         if m_pos < 0:
+ 154:             continue
+ 155:         open_pos = m_pos + len(marker) - 1  # position of the '{'
+ 156:         close_pos = _find_balanced_close(text, open_pos)
+ 157:         if close_pos < 0:
+ 158:             continue
+ 159:         # Confirm the placeholder is inside this {...}
+ 160:         if "'FIDELITY pooled analysis'" not in text[open_pos:close_pos]:
+ 161:             continue
+ 162:         new_text = text[:open_pos] + "{}" + text[close_pos + 1:]
+ 163:         if not dry_run:
+ 164:             p.write_text(new_text, encoding="utf-8", newline="")
+ 165:         touched.append(p.name)
+ 166:     return f"Placeholder benchmarks cleared: {len(touched)} apps"
+ 167: 
+ 168: 
+ 169: def main():
+ 170:     ap = argparse.ArgumentParser()
+ 171:     ap.add_argument("--dry-run", action="store_true")
+ 172:     ap.add_argument("--apply", action="store_true")
+ 173:     args = ap.parse_args()
+ 174:     if not (args.dry_run or args.apply): ap.error("pass --dry-run or --apply")
+ 175:     print(fix_romosozumab(dry_run=args.dry_run))
+ 176:     print(fix_pbc_ppar(dry_run=args.dry_run))
+ 177:     print(fix_placeholder_benchmarks(dry_run=args.dry_run))
+ 178: 
+ 179: 
+ 180: if __name__ == "__main__":
+ 181:     main()
+
+codex
+Defect: STATUS CODE REPORTING THE WRAPPER rather than the work.  
+Line 175-177. Exact input: `ROMOSOZUMAB_OP_REVIEW.html = "x"`, `PBC_PPAR_REVIEW.html = "x"`, no `*_REVIEW.html` contains `'FIDELITY pooled analysis'`; run `python scripts/fix_data_quality_issues.py --apply`. Consequence: all three repairs can do zero work and the process still exits 0, so a gate would report the wrapper succeeded rather than that the defects were fixed.
+
+Defect: SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE / exact-form selector.  
+Line 151. Exact input in any non-FINERENONE `*_REVIEW.html`: `const PUBLISHED_META_BENCHMARKS={ MACE:[{ label:'FIDELITY pooled analysis' }] };`. Consequence: the placeholder remains because the marker requires exactly `const PUBLISHED_META_BENCHMARKS = {`.
+
+Defect: idempotency guard satisfied by comment/marker rather than work.  
+Line 160, destructive action line 162. Exact input: `const PUBLISHED_META_BENCHMARKS = { // 'FIDELITY pooled analysis'\n MACE:[{ label:'Valid benchmark' }] };`. Consequence: a comment containing the sentinel string causes the whole benchmark object to be erased.
+
+Defect: SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE / exact-form selector.  
+Line 58-61. Exact input in `PBC_PPAR_REVIEW.html`: `const AUTO_INCLUDE_TRIAL_IDS = ["NCT04526665", "NCT04620240"]; const realData = {"NCT04620240": {}};`. Consequence: the bad NCT survives because only single-quoted, exact-spacing forms are replaced.
+
+No proven line-ending text-compare defect: CRLF is normalized in the ROMOSOZUMAB path.  
+No proven merged-cell/off-by-one defect.  
+No proven zero-conflated-with-absent defect.  
+No proven negation-dropped defect.  
+COULD NOT DETERMINE instrument-reading-different-copy defects: missing caller/CI/deployment context.
+tokens used
+18,189
+Defect: STATUS CODE REPORTING THE WRAPPER rather than the work.  
+Line 175-177. Exact input: `ROMOSOZUMAB_OP_REVIEW.html = "x"`, `PBC_PPAR_REVIEW.html = "x"`, no `*_REVIEW.html` contains `'FIDELITY pooled analysis'`; run `python scripts/fix_data_quality_issues.py --apply`. Consequence: all three repairs can do zero work and the process still exits 0, so a gate would report the wrapper succeeded rather than that the defects were fixed.
+
+Defect: SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE / exact-form selector.  
+Line 151. Exact input in any non-FINERENONE `*_REVIEW.html`: `const PUBLISHED_META_BENCHMARKS={ MACE:[{ label:'FIDELITY pooled analysis' }] };`. Consequence: the placeholder remains because the marker requires exactly `const PUBLISHED_META_BENCHMARKS = {`.
+
+Defect: idempotency guard satisfied by comment/marker rather than work.  
+Line 160, destructive action line 162. Exact input: `const PUBLISHED_META_BENCHMARKS = { // 'FIDELITY pooled analysis'\n MACE:[{ label:'Valid benchmark' }] };`. Consequence: a comment containing the sentinel string causes the whole benchmark object to be erased.
+
+Defect: SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE / exact-form selector.  
+Line 58-61. Exact input in `PBC_PPAR_REVIEW.html`: `const AUTO_INCLUDE_TRIAL_IDS = ["NCT04526665", "NCT04620240"]; const realData = {"NCT04620240": {}};`. Consequence: the bad NCT survives because only single-quoted, exact-spacing forms are replaced.
+
+No proven line-ending text-compare defect: CRLF is normalized in the ROMOSOZUMAB path.  
+No proven merged-cell/off-by-one defect.  
+No proven zero-conflated-with-absent defect.  
+No proven negation-dropped defect.  
+COULD NOT DETERMINE instrument-reading-different-copy defects: missing caller/CI/deployment context.

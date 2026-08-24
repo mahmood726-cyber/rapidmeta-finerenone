@@ -1,0 +1,45 @@
+CONTROL (positive) registration_claims_by_family: BARIATRIC_RYGB_VS_SG carries a bare UNVERIFIED count with no identifier (reported by a census lane reading the page) -> True, expected True
+CONTROL (negative) registration_claims_by_family: an *_AUTO_FULL page answering 'No -- retrospective, not prospectively registered' is NOT counted as self-certifying (found ABALOPARATIDE_OSTEO_AUTO_FULL_REVIEW.html) -> False, must not be True
+    both controls held.
+
+REGISTRATION CLAIMS BY FAMILY, 781 non-SSOT reachable page(s) at origin/main
+
+   family distribution:
+      AUTO_FULL                  424
+      NMA/broad                  341
+      AUTO_2                      16
+
+   THE DEFECT -- AMSTAR item 2 answered YES, self-certified via the page's own
+   protocol tab, no external registration id:        159
+      ACUTE_HF_DIURESIS_NEW_REVIEW.html                    NMA/broad
+      ADJUVANT_IO_PAN_TUMOR_REVIEW.html                    NMA/broad
+      AD_PEDIATRIC_BIOLOGIC_NMA_REVIEW.html                NMA/broad
+      ALS_NEW_AGENTS_NMA_REVIEW.html                       NMA/broad
+      AML_TARGETED_NEW_REVIEW.html                         NMA/broad
+      AML_VEN_FLT3_NMA_REVIEW.html                         NMA/broad
+      ANCA_VASCULITIS_NMA_REVIEW.html                      NMA/broad
+      ANTI_PD1_GASTRIC_REVIEW.html                         NMA/broad
+      ANTI_PDL1_BLADDER_REVIEW.html                        NMA/broad
+      ANTI_TIGIT_TUMORS_REVIEW.html                        NMA/broad
+
+   NOT A DEFECT -- answered NO, reason given ('retrospective public protocol
+   pack, not prospectively registered'):             585
+      This family volunteered a correct answer where a false Yes would never
+      have been checked. It is left alone, and that is a finding, not a courtesy.
+
+   UNVERIFIED IDENTIFIERS, two shapes:
+      a NAMED unresolvable id a reader can look up         49
+      a BARE COUNT with no identifier exposed             149
+      pages carrying BOTH                                   0
+      largest bare counts:
+         DDIMER_PE_DTA_REVIEW.html                           188 numbers
+         MPMRI_PROSTATE_DTA_REVIEW.html                      161 numbers
+         COVID_ANTIGEN_DTA_REVIEW.html                       156 numbers
+         PTAU217_AD_DTA_REVIEW.html                          154 numbers
+         HSCTN_NSTEMI_DTA_REVIEW.html                        150 numbers
+         GENEXPERT_ULTRA_TB_DTA_REVIEW.html                  142 numbers
+         JAKI_RA_NMA_REVIEW.html                              69 numbers
+         BTKI_CLL_NMA_REVIEW.html                             67 numbers
+
+   THE DISTINCTION HOLDS: no page carries both, so a bare-count page exposes
+   nothing a reader can look up, which is the argument for separating them.

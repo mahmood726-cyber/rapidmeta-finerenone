@@ -1,0 +1,232 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: ssot/apply_azilsartan_grade.py
+
+--- THE FILE, IN FULL ---
+"""azilsartan-chlorthalidone-vs-olmesartan-hctz: GRADE per pooled outcome. The missing limb.
+
+READ FROM ClinicalTrials.gov API v2 ON 2026-08-21, and one thing read there is not on the
+object anywhere:
+
+    NCT00846365  n=1085  RANDOMIZED  QUADRUPLE  primary: change from baseline to WEEK 8 in
+                 trough, sitting, clinic systolic blood pressure
+    NCT01033071  n=1071  RANDOMIZED  QUADRUPLE  primary: change from baseline in trough,
+                 sitting, clinic systolic blood pressure -- TIME FRAME: BASELINE AND WEEK 12
+
+THE POOLED OUTCOME IS CALLED `sbp_change_wk8` AND ONE OF ITS TWO TRIALS REGISTERS ITS PRIMARY
+AT WEEK 12. The measurement is the same measurement -- trough sitting clinic systolic pressure,
+the same words on both registrations -- but it is not taken at the same time, and an
+antihypertensive effect at eight weeks and at twelve weeks are not the same quantity. Nothing
+on this object records the difference; the outcome's own id asserts week 8 for both.
+
+    P48 SAID `estimand_established` CERTIFIES MEASUREMENT, NOT CONTRAST, AND LATER NOT
+    ANALYSIS POPULATION. THIS IS THE SAME FAILURE ON A THIRD AXIS: NOT TIME.
+
+AND A SECOND FACT WORTH A READER, WHICH IS RECORDED AND NOT RATED. Both trials randomise TWO
+experimental dose arms -- azilsartan/chlorthalidone 20-40mg and 40-80mg -- against ONE
+olmesartan/HCTZ comparator. This object stores ONE effect per trial. WHICH DOSE CONTRAST THAT
+EFFECT REPRESENTS, OR WHETHER THE TWO WERE COMBINED, IS NOT ESTABLISHED from the registration,
+and a multi-arm trial contributing one row against a shared control is the setting where
+control-group double counting arises. Stated as unestablished rather than assumed either way.
+
+THE RISK-OF-BIAS LIMB IS REFUSED ON THIS OBJECT AND SAYS SO, and it names its own consequence:
+"GRADE rates down one level for risk of bias." That instruction is followed here rather than
+re-derived, because the object's refusal is the authority on what its own absence costs.
+
+ONE MORE RAW-VERSUS-HOUSE CASE, THE FOURTH:
+
+    unadjusted    MD -5.6912 (-7.2996 to -4.0828)   EXCLUDES no effect
+    house HK      MD -5.6912 (-16.1181 to  4.7357)  INCLUDES it, t = 12.7062 on 1 df
+    metafor raw   MD -5.6912 (-10.7725 to -0.6100)  excludes it -- NOT OURS
+
+A NOTE ON THE REPRODUCTION CHECK, because it reports NO and that is not a failure. The refit
+gives -5.6912 and the object stores -5.691, which it labels
+`stored_at_display_precision: "Four significant figures, matching what the page renders"`. The
+script's check is four DECIMALS. Agreement at the precision the object actually carries, and
+the mismatch is in the checker's assumption rather than in either number -- so no r_output is
+stored here on the strength of a check that is asking the wrong question.
+"""
+import io
+import json
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(REPO, "ssot"))
+import atomic_write
+
+TODAY = "2026-08-21"
+STAMP = TODAY.replace("-", "_")
+TOPIC = "azilsartan-chlorthalidone-vs-olmesartan-hctz"
+OUTCOME = "sbp_change_wk8"
+
+STEPS = [
+    {"domain": "risk_of_bias", "move": "HIGH to MODERATE, down 1 level(s)",
+     "reason": ("THE RISK-OF-BIAS LIMB IS REFUSED ON THIS OBJECT, and its refusal names its "
+                "own consequence: 'GRADE rates down one level for risk of bias.' No "
+                "result-level RoB 2 assessment has been performed for either contributing "
+                "result, and the refusal records that as UNASSESSED, never as absent of bias. "
+                "THE DOWNGRADE IS FOR WHAT WE HAVE NOT DONE, not for anything shown about "
+                "these trials -- both register QUADRUPLE masking including the outcomes "
+                "assessor, which is the strongest masking either could record.")},
+    {"domain": "inconsistency", "move": "no downgrade",
+     "reason": ("tau-squared is EXACTLY ZERO, Q 0.2375 on 1 df, p = 0.6260, I-squared 0.00%. "
+                "The two effects -- -6.1 (-8.4 to -3.8) and -5.3 (-7.6 to -3.1) mmHg -- agree "
+                "in size and in direction. Downgrading here would manufacture a caution the "
+                "numbers do not support.")},
+    {"domain": "indirectness", "move": "MODERATE to LOW, down 1 level(s)",
+     "reason": ("THE POOLED OUTCOME IS CALLED WEEK 8 AND ONE OF ITS TWO TRIALS REGISTERS ITS "
+                "PRIMARY AT WEEK 12. NCT00846365's registered time frame is 'Baseline and "
+                "Week 8'; NCT01033071's is 'Baseline and Week 12'. The measurement is "
+                "identical in words -- trough, sitting, clinic systolic blood pressure -- but "
+                "an antihypertensive effect at eight weeks and at twelve weeks are not the "
+                "same quantity, and the outcome's own identifier asserts week 8 for both. "
+                "RECORDED AND NOT SEPARATELY RATED: both trials randomise TWO experimental "
+                "dose arms against ONE comparator and this object stores one effect per "
+                "trial; which dose contrast that is, or whether the two were combined, is not "
+                "established from the registrations.")},
+    {"domain": "imprecision", "move": "LOW to VERY LOW -- WARRANTED AND NOT APPLIED, see "
+                                      "reason",
+     "reason": ("k = 2. This project's floored Hartung-Knapp interval is -16.1181 to 4.7357 "
+                "on t = 12.7062 with 1 degree of freedom AND IT INCLUDES NO EFFECT, where the "
+                "unadjusted interval -7.2996 to -4.0828 excludes it. A downgrade is warranted "
+                "on that alone. IT IS NOT APPLIED, and the reason is stated rather than "
+                "hidden: at k = 2 the t critical value is 12.7062 and almost nothing survives "
+                "the adjustment, so the crossing is weak evidence of imprecision in either "
+                "direction. NOTE ALSO WHAT IS NOT USED: metafor's RAW unfloored interval here "
+                "is -10.7725 to -0.6100 and DOES exclude no effect. That is not this "
+                "project's interval and it is not cited as one.")},
+    {"domain": "publication_bias", "move": "NOT ASSESSABLE -- no rating applied",
+     "reason": ("k = 2. A funnel plot and its asymmetry tests have essentially no power below "
+                "about ten trials (Handbook 13.3.5.4), so this is NOT ASSESSABLE rather than "
+                "'undetected'.")},
+]
+
+FINDINGS = {
+    "a_the_two_trials_do_not_measure_at_the_same_time": (
+        "READ THIS BESIDE THE ESTIMATE. This pooled outcome is identified as WEEK 8. "
+        "NCT00846365 registers its primary at week 8; NCT01033071 REGISTERS ITS PRIMARY AT "
+        "WEEK 12 -- 'Change From Baseline in Trough, Sitting, Clinic Systolic Blood Pressure', "
+        "time frame 'Baseline and Week 12'. The measurement is the same measurement in the "
+        "same words; it is not taken at the same time. GRADE indirectness is rated down for "
+        "it."),
+    "b_each_trial_has_two_dose_arms_and_this_pool_carries_one_effect_each": (
+        "Both trials randomise TWO experimental arms -- azilsartan/chlorthalidone 20-40mg and "
+        "40-80mg -- against ONE olmesartan/hydrochlorothiazide comparator. This object stores "
+        "ONE effect per trial. WHICH DOSE CONTRAST IT REPRESENTS, OR WHETHER THE TWO WERE "
+        "COMBINED, IS NOT ESTABLISHED from the registrations. Recorded as unestablished "
+        "rather than assumed, because a multi-arm trial contributing one row against a shared "
+        "control is where control-group double counting arises."),
+    "c_the_effect_does_not_survive_the_small_sample_adjustment": (
+        "The unadjusted interval is MD -5.6912 (-7.2996 to -4.0828) mmHg and EXCLUDES no "
+        "effect. This project's floored Hartung-Knapp interval at k = 2 is -16.1181 to 4.7357 "
+        "and INCLUDES it. THE HONEST READING IS NARROW: at k = 2 the t critical value is "
+        "12.7062 and almost nothing survives, so this is weaker evidence against the result "
+        "than the same crossing would be at larger k. Disclosed because a reader is entitled "
+        "to both intervals."),
+    "d_risk_of_bias_has_not_been_assessed_on_this_topic": (
+        "STATED PLAINLY. No result-level RoB 2 assessment has been performed for either "
+        "contributing result. That is recorded as UNASSESSED, never as absent of bias, and "
+        "GRADE is rated down one level for it. What would close it: RoB 2 per result on the "
+        "clinic systolic pressure outcome in both registrations."),
+}
+
+
+def main():
+    dry = "--apply" not in sys.argv
+    path = os.path.join(REPO, "ssot", TOPIC, TOPIC + ".json")
+    obj = json.load(io.open(path, encoding="utf-8"))
+    blk = ((obj.get("results") or {}).get("by_outcome") or {}).get(OUTCOME)
+    if not isinstance(blk, dict):
+        sys.exit("REFUSED: %s has no `%s`." % (TOPIC, OUTCOME))
+    if obj.get("grade"):
+        sys.exit("REFUSED: `grade` already exists on this object.")
+    rob = obj.get("risk_of_bias") or {}
+    carried = str(rob.get("consequence_carried_into_grade") or "")
+    if "down one level" not in carried:
+        sys.exit("REFUSED: the risk-of-bias refusal on this object does not state the "
+                 "consequence this GRADE entry follows (%r). Following an instruction the "
+                 "object does not give would be inventing one." % carried)
+
+    atomic_write.merge_not_overwrite(obj, "grade", {
+        "approach": ("GRADE, following the Cochrane Handbook chapter 14. Randomised evidence "
+                     "starts HIGH and is rated down with reasons."),
+        "assessed_utc": TODAY,
+        "by_outcome": {OUTCOME: {
+            "k": 2, "starting_certainty": "HIGH", "certainty": "LOW",
+            "steps": STEPS,
+            "summary": ("LOW certainty. The two trials agree closely and both are "
+                        "quadruple-masked, so the downgrades are NOT for inconsistency or for "
+                        "anything shown about how the trials were run. They are for a "
+                        "risk-of-bias assessment this review has not performed, and for the "
+                        "two trials measuring the same quantity AT DIFFERENT TIMES -- week 8 "
+                        "on one registration and WEEK 12 on the other, under an outcome this "
+                        "object identifies as week 8."),
+            "rating_up_not_applied": (
+                "No domain is rated UP. Rating up for a large effect, a dose-response "
+                "gradient or opposing plausible confounding applies to observational "
+                "evidence; these are randomised trials, which start HIGH."),
+            "risk_of_bias_downgrade_follows_the_object_s_own_refusal": (
+                "The risk-of-bias limb on this object is REFUSED and states its consequence: "
+                "'GRADE rates down one level for risk of bias.' That instruction is followed "
+                "rather than re-derived. The object's refusal is the authority on what its "
+                "own absence costs."),
+        }},
+        "sources_read": [
+            "ClinicalTrials.gov API v2 %s -- design module, arm groups, registered primary "
+            "outcome AND ITS TIME FRAME" % n for n in ("NCT00846365", "NCT01033071")],
+    }, STAMP)
+
+    prior = blk.get("POOL_FINDINGS_%s" % STAMP) or {}
+    prior.update(FINDINGS)
+    blk["POOL_FINDINGS_%s" % STAMP] = prior
+
+    obj.setdefault("display_change_announced", []).append({
+        "date": TODAY,
+        "change": "GRADE rated for the pooled outcome (P46 limb 2)",
+        "values_moved": "NONE",
+        "what_changed": ("certainty LOW; and the registrations show the two trials measure at "
+                         "WEEK 8 and WEEK 12 under an outcome identified as week 8"),
+        "why": "The limb was ABSENT, and reading the registrations for it found the timing.",
+    })
+    print("%-46s GRADE LOW; week-8 vs week-12 finding rendered" % TOPIC[:46])
+    if dry:
+        print("DRY RUN -- pass --apply to write")
+        return
+    atomic_write.write_json(path, obj, indent=1)
+
+
+if __name__ == "__main__":
+    main()

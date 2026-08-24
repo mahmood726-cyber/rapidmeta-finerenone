@@ -1,0 +1,277 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/estimand_bosentan_readings_2026_08_19.py
+
+--- THE FILE, IN FULL ---
+#!/usr/bin/env python3
+"""ADJUDICATE THE TWO FLAGGED ASSIGNMENTS, THEN ASK THE WITHHOLDING QUESTION PER READING.
+
+TWO THINGS, AND THE FIRST IS A DEFECT CLASS.
+
+(1) BOTH FLAGGED TRIALS ARE OUT, AND THE MECHANISM IS THE SAME IN BOTH.
+
+    NCT04273945  macitentan 75 mg vs macitentan 10 mg. Its ARM DESCRIPTION reads
+                 "...or a daily dose of bosentan <250 mg, will enter a 4-week open-label
+                 run-in period with macitentan 10 mg prior to randomization."
+                 Bosentan is named as a PRIOR EXPOSURE PARTICIPANTS MUST COME OFF.
+
+    NCT01824290  tadalafil vs placebo in children. Its ERA record's description reads
+                 "All participants were taking endothelin receptor antagonist (ERA)
+                 (such as bosentan, ambrisentan and macitentan)."
+                 Bosentan is named as AN EXAMPLE OF A DRUG CLASS given to EVERYONE.
+
+    `locate()` returned `experimental` for both. The reason is an ASYMMETRY THAT IS CORRECT
+    WHERE IT WAS BUILT AND WRONG HERE: its step-1 scan reads arm DESCRIPTIONS, while its
+    control-arm test `_drug_named_in_arm` reads intervention NAMES ONLY. That asymmetry exists
+    for DAPA-HF, whose control record is named `Drug: Placebo` and whose DESCRIPTION reads
+    "Placebo matching dapagliflozin" -- reading descriptions there would call the placebo arm a
+    dapagliflozin arm. So a drug named in an arm DESCRIPTION counts as present in that arm, and
+    THE SAME MENTION ON THE CONTROL SIDE CANNOT CANCEL IT.
+
+        A DRUG NAMED IN AN ARM DESCRIPTION AS PRIOR THERAPY, BACKGROUND THERAPY, OR AN EXAMPLE
+        OF A CLASS IS NOT THE RANDOMISED INTERVENTION -- and where the mention is IDENTICAL in
+        every arm it is by construction not the contrast, whichever field it sits in.
+
+    Both trials are adjudicated OUT of their readings, and the reason is recorded per trial
+    rather than the assignment being silently corrected.
+
+(2) THE WITHHOLDING QUESTION, PER READING, AT EVERY REGISTERED RANK.
+
+    Detected STRUCTURALLY (P33), never by a registered phrase: a six-minute-walk endpoint is
+    *a walk-distance term plus a change term*; a clinical-worsening endpoint is *a worsening or
+    event term applied to the disease*. Asked before any pooling decision for any reading.
+
+USAGE:  python scripts/estimand_bosentan_readings_2026_08_19.py
+        python scripts/estimand_bosentan_readings_2026_08_19.py --selftest
+"""
+import io
+import json
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(REPO, "ssot"))
+import ctgov_transport as X                                              # noqa: E402
+
+EV = os.path.join(REPO, "evidence", "2026-08-19-batch1")
+SRC = os.path.join(EV, "bosentan_split_screening.json")
+DEST = os.path.join(EV, "bosentan_readings_estimand.json")
+
+# ADJUDICATED OUT, with the sentence each was read from.
+ADJUDICATED_OUT = {
+    "NCT04273945": {
+        "was": "B_add_on", "now": "EXCLUDED",
+        "why": ("macitentan 75 mg against macitentan 10 mg. BOSENTAN IS NOT RANDOMISED. It is "
+                "named in the arm description as a PRIOR EXPOSURE participants must come off: "
+                "\"...or a daily dose of bosentan <250 mg, will enter a 4-week open-label "
+                "run-in period with macitentan 10 mg prior to randomization.\" The identical "
+                "sentence appears in BOTH arms."),
+    },
+    "NCT01824290": {
+        "was": "D_children", "now": "EXCLUDED",
+        "why": ("tadalafil against placebo in children. BOSENTAN IS NOT RANDOMISED. It is "
+                "named as an EXAMPLE OF A CLASS in a background-therapy record attached to "
+                "BOTH arms: \"All participants were taking endothelin receptor antagonist "
+                "(ERA) (such as bosentan, ambrisentan and macitentan).\""),
+    },
+}
+
+# ---- DECLARED TERM SETS for the estimand, enumerated and never inferred. --------------------
+WALK_TERMS = ("6-minute walk", "6 minute walk", "six-minute walk", "six minute walk",
+              "6mwd", "6-mwd", "walk distance", "walking distance")
+CHANGE_TERMS = ("change from baseline", "change in", "percent change", "improvement in")
+WORSENING_TERMS = ("clinical worsening", "worsening", "morbidity", "mortality",
+                   "time to first", "death", "hospitalization", "hospitalisation")
+PAH_CONTEXT = ("pulmonary", "pah", "ph", "clinical")
+
+
+def norm(s):
+    return " ".join((s or "").lower().replace("–", "-").split())
+
+
+def ranks(ps):
+    om = ps.get("outcomesModule") or {}
+    out = []
+    for rank, key in (("PRIMARY", "primaryOutcomes"), ("SECONDARY", "secondaryOutcomes"),
+                      ("OTHER", "otherOutcomes")):
+        for o in (om.get(key) or []):
+            out.append((rank, o.get("measure") or ""))
+    return out
+
+
+def is_walk_change(m):
+    """STRUCTURAL: a walk-distance term plus a change term."""
+    t = norm(m)
+    return any(w in t for w in WALK_TERMS) and any(c in t for c in CHANGE_TERMS)
+
+
+def names_walk_at_all(m):
+    """A walk-distance endpoint AT ALL, change term or not -- the WEAKER limb, kept separate.
+
+    NCT00377455 registers the bare string `6-minute Walk Distance` as a secondary: a
+    CONSTRUCT with no measure, no timepoint and no change term. In this disease that endpoint
+    is virtually always analysed as change from baseline, and saying so would be INFERRING THE
+    ANALYSIS FROM THE CONSTRUCT -- which is what this corpus does not do. So both limbs are
+    reported and the GAP BETWEEN THEM is the finding: registrations too thin to establish a
+    shared estimand look identical to registrations that establish one, until you count both.
+    """
+    return any(w in norm(m) for w in WALK_TERMS)
+
+
+def is_worsening(m):
+    """STRUCTURAL: a worsening/event term in a disease context. Not the phrase itself (P33)."""
+    t = norm(m)
+    return any(w in t for w in WORSENING_TERMS) and any(c in t for c in PAH_CONTEXT)
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    with io.open(SRC, encoding="utf-8") as fh:
+        screen = json.load(fh)
+
+    per_reading, adjudicated = {}, {}
+    for r in screen["rows"]:
+        nct = r["nct"]
+        if nct in ADJUDICATED_OUT:
+            adjudicated[nct] = ADJUDICATED_OUT[nct]
+            continue
+        if not r.get("eligible"):
+            continue
+        state, study, _d = X.fetch_raw(
+            nct, fields="protocolSection,hasResults,resultsSection")
+        if state != X.OK:
+            continue
+        ps = study.get("protocolSection") or {}
+        rk = ranks(ps)
+        walk = [(k, m) for k, m in rk if is_walk_change(m)]
+        walk_any = [(k, m) for k, m in rk if names_walk_at_all(m)]
+        wors = [(k, m) for k, m in rk if is_worsening(m)]
+        b = per_reading.setdefault(r["reading"], [])
+        b.append({
+            "nct": nct,
+            "name": r["evidence"]["brief_title"][:70],
+            "enrolment": r["evidence"]["enrolment"],
+            "status": r["evidence"]["status"],
+            "has_results": bool(study.get("hasResults")),
+            "ranks_read": len(rk),
+            "walk_change_at_ranks": [{"rank": k, "measure": m[:120]} for k, m in walk],
+            "walk_named_at_all_at_ranks": [{"rank": k, "measure": m[:120]}
+                                           for k, m in walk_any],
+            "registered_primaries": [m for k, m in rk if k == "PRIMARY"],
+            "worsening_at_ranks": [{"rank": k, "measure": m[:120]} for k, m in wors],
+        })
+
+    out = {
+        "topic": "bosentan-pah",
+        "asked_utc": "2026-08-19",
+        "adjudicated_out": adjudicated,
+        "the_mechanism_both_flagged_trials_share": (
+            "A DRUG NAMED IN AN ARM DESCRIPTION AS PRIOR THERAPY, BACKGROUND THERAPY OR AN "
+            "EXAMPLE OF A CLASS IS NOT THE RANDOMISED INTERVENTION. `locate()`'s step-1 scan "
+            "reads arm DESCRIPTIONS while its control-arm test reads intervention NAMES only -- "
+            "an asymmetry built deliberately for DAPA-HF, whose control record is named "
+            "`Drug: Placebo` with the description 'Placebo matching dapagliflozin'. The "
+            "consequence here is that a description-only mention counts as presence in an arm "
+            "and THE SAME MENTION ON THE CONTROL SIDE CANNOT CANCEL IT. Where the mention is "
+            "IDENTICAL IN EVERY ARM it is by construction not the contrast, whichever field it "
+            "sits in."),
+        "withholding_question": {
+            "question": ("does each eligible trial register, at ANY rank, a six-minute walk "
+                         "distance CHANGE, or a clinical-worsening / morbidity-mortality "
+                         "outcome, before any decision about which trials can be combined?"),
+            "detected_structurally_not_by_keyword": (
+                "a walk-distance term plus a change term; a worsening or event term in a "
+                "disease context. Never a registered phrase, which would find only the trials "
+                "that already agree."),
+        },
+        "by_reading": per_reading,
+    }
+    with io.open(DEST, "w", encoding="utf-8") as fh:
+        fh.write(json.dumps(out, indent=1))
+
+    print("ADJUDICATED OUT: %s" % ", ".join(sorted(adjudicated)))
+    for k in sorted(per_reading):
+        rows = per_reading[k]
+        nw = sum(1 for r in rows if r["walk_change_at_ranks"])
+        na = sum(1 for r in rows if r["walk_named_at_all_at_ranks"])
+        nx = sum(1 for r in rows if r["worsening_at_ranks"])
+        res = sum(1 for r in rows if r["has_results"])
+        print("\n  %-16s eligible %d   with results %d   6MWD-change at some rank %d   "
+              "worsening %d" % (k, len(rows), res, nw, nx))
+        for r in rows:
+            print("      %-12s n=%-5s %-9s walk=%d wors=%d  %s"
+                  % (r["nct"], r["enrolment"],
+                     "RESULTS" if r["has_results"] else "no results",
+                     len(r["walk_change_at_ranks"]), len(r["worsening_at_ranks"]),
+                     r["name"][:46]))
+    print("\nwrote %s" % DEST)
+    return 0
+
+
+def selftest():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    fails = []
+
+    def check(name, got, want):
+        ok = got == want
+        print("  %-60s %s  %r" % (name, "ok" if ok else "FAIL", got))
+        if not ok:
+            fails.append(name)
+
+    check("a 6MWD change endpoint is detected",
+          is_walk_change("Change From Baseline in 6-Minute Walk Distance at Week 16"), True)
+    check("a differently worded one is too",
+          is_walk_change("Improvement in six-minute walking distance"), True)
+    check("a bare walk distance with no change term is NOT",
+          is_walk_change("6-Minute Walk Distance at Week 16"), False)
+    check("a clinical-worsening endpoint is detected",
+          is_worsening("Time to First Morbidity or Mortality Event in Pulmonary Arterial "
+                       "Hypertension"), True)
+    check("a liver-enzyme safety count is NOT a worsening endpoint",
+          is_worsening("Number of Participants With Elevated Aminotransferases"), False)
+
+    # The two adjudications are stated with the sentence each was read from, and both must be
+    # OUT -- an adjudication table that keeps everything is not an adjudication.
+    check("both flagged trials are adjudicated OUT",
+          sorted(v["now"] for v in ADJUDICATED_OUT.values()), ["EXCLUDED", "EXCLUDED"])
+    check("and each carries the sentence it was read from",
+          all('"' in v["why"] for v in ADJUDICATED_OUT.values()), True)
+
+    print("\n%s" % ("ALL KNOWN ANSWERS HELD" if not fails else "FAILED: %s" % fails))
+    return 1 if fails else 0
+
+
+if __name__ == "__main__":
+    sys.exit(selftest() if "--selftest" in sys.argv else main())

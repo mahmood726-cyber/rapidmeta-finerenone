@@ -1,0 +1,615 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a031f7-5df4-7f70-a573-01e3c3667b74
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/lint_restraint.py
+
+--- THE FILE, IN FULL ---
+#!/usr/bin/env python3
+"""E4 -- THE DETECTOR FOR RESTRAINT. Every other guard in this repo catches overreach.
+
+    EVERY GUARD WE HAVE CATCHES OVERREACH; NOTHING CATCHES RESTRAINT.
+
+That sentence was written on 2026-08-19 as a limitation. This is the attempt to stop it being
+one. It is the class with the only DEMONSTRATED corpus-wide cost: the arm-role classifier read
+registry arm types literally and silently SHRANK evidence bases -- ten trials on `sglt2-hf`
+alone, two on `iv-iron-hf`, and it would have shrunk every topic built with that instrument.
+
+WHY RESTRAINT IS STRUCTURALLY HARD TO CATCH, stated plainly rather than glossed: a guard fires
+on something present and wrong. Withheld evidence is ABSENT. It leaves no trace in the object,
+so there is nothing for a single-instrument check to read. This is why the class survived every
+guard we had.
+
+THE WAY IN IS THE ONE THAT ACTUALLY WORKED. The arm-type defect was not found by a person
+noticing. It was found because TWO INDEPENDENT INSTRUMENTS DISAGREED: the executed search
+surfaced an object's OWN INCLUDED TRIALS, and the arm-role classifier then refused to recognise
+two of them as the intervention. Neither found it alone. That pattern generalises:
+
+    A REFUSAL BY ONE INSTRUMENT WHERE AN INDEPENDENT ONE RETURNS A DEFINITE ANSWER IS A
+    CANDIDATE FOR REVIEW, NOT A SAFE DEFAULT.
+
+NOT_ASSESSABLE is the correct third state and this file does not argue otherwise. What it
+argues is that a refusal is only safe when nothing else can decide. Where something else HAS
+decided, the refusal is a disagreement, and a disagreement that nobody looks at is
+indistinguishable from a silent loss.
+
+TWO LANES, both comparing instruments that do not share an input path:
+
+  LANE 1  INCLUSION vs ARM-ROLE. The object asserts a trial contributes a randomised contrast
+          (a definite answer, reached by a human screening decision recorded on the object).
+          ssot/topic_identity.locate() independently classifies the same registration from the
+          raw registry payload. locate() returning anything but `experimental` for a trial the
+          object INCLUDES is the AFFIRM-AHF/HEART-FID signature exactly.
+
+  LANE 2  PRECONDITION REFUSAL vs OBJECT CONTENT. A precondition returning NOT_ASSESSABLE for
+          "field absent" where the field is in fact present and non-empty. That is not the
+          third state, it is a read failure wearing the third state's clothes -- which is how
+          P7 came to be hardcoded to REFUSING while the object held 11 resolved checks.
+
+WHAT LANE 1 DOES NOT COVER, AND IT IS HALF THE ORIGINAL DEFECT. Lane 1 iterates a topic's
+INCLUDED trials. It reproduces the `iv-iron-hf` shape exactly -- verified, see below -- but it
+would NOT have caught the `sglt2-hf` ten. Those trials were withheld at the SURFACED stage:
+the classifier called them comparators, so they never reached the included set, and a check
+that reads the included set cannot see a trial that was kept out of it.
+
+    THE LARGER HALF OF A WITHHOLDING DEFECT IS INVISIBLE TO A CHECK THAT READS THE OBJECT,
+    BECAUSE WITHHOLDING IS PRECISELY WHAT KEEPS THINGS OUT OF THE OBJECT.
+
+Closing it needs the executed search payload per topic as instrument A -- surfaced set versus
+classifier verdict -- and that payload is currently stored for one topic. Named here rather
+than implied by a passing run: this detector covers the shape it was tested on and one lane of
+a two-lane problem.
+
+A RATCHET, NOT A ZERO-GATE, AND THE REASON IS STATED RATHER THAN ASSUMED. Restraint findings
+are CANDIDATES FOR REVIEW by construction -- some disagreements will be the classifier being
+right and the inclusion being wrong, which is a finding in the other direction and equally worth
+having. Blocking on a nonzero count would force every one of them to be adjudicated before any
+unrelated commit. So the baseline is recorded and the gate blocks on an INCREASE. A new
+disagreement is always worth a look; the standing set is worth a session, not a commit.
+"""
+import io
+import json
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+SSOT = os.path.join(REPO, "ssot")
+sys.path.insert(0, SSOT)
+
+BASELINE_PATH = os.path.join(REPO, "scripts", ".restraint-baseline.json")
+CACHE = os.environ.get(
+    "RM_CTGOV_CACHE",
+    "F:/claude-temp/claude/F--rapidmeta-ssot-shell/"
+    "eb4d84e5-8a24-4c3b-afe2-34bd91c20bc7/scratchpad/.ctgov-raw-cache")
+
+# Topic key -> the synonym-set key ssot/topic_identity uses. Declared, never guessed: an
+# unmapped topic is REPORTED AS UNCHECKED rather than silently skipped, because a topic that
+# falls out of the loop is exactly the silent loss this file exists to detect.
+TOPIC_SYNONYM_KEY = {
+    "iv-iron-hf": "intravenous iron",
+    "sglt2-hf": "sglt2 inhibitors",
+}
+
+
+def raw_record(nct):
+    """The raw v2 payload for one registration, from the local cache. None if not cached."""
+    if not os.path.isdir(CACHE):
+        return None
+    for fn in os.listdir(CACHE):
+        if fn.startswith(nct + "_") and fn.endswith(".json"):
+            try:
+                with io.open(os.path.join(CACHE, fn), encoding="utf-8") as fh:
+                    return json.load(fh)
+            except (ValueError, OSError):
+                return None
+    return None
+
+
+def lane1_inclusion_vs_armrole():
+    """The object INCLUDES a trial; the classifier declines to call it the intervention."""
+    from topic_identity import locate, synonyms_for
+    findings, unchecked = [], []
+    for topic in sorted(os.listdir(SSOT)):
+        p = os.path.join(SSOT, topic, topic + ".json")
+        if not os.path.exists(p):
+            continue
+        key = TOPIC_SYNONYM_KEY.get(topic)
+        if not key:
+            unchecked.append((topic, "no declared synonym key"))
+            continue
+        try:
+            with io.open(p, encoding="utf-8") as fh:
+                obj = json.load(fh)
+            syns = synonyms_for(key)
+        except (ValueError, OSError, KeyError) as e:
+            unchecked.append((topic, "unreadable: %s" % e))
+            continue
+        for t in ((obj.get("inputs") or {}).get("trials") or []):
+            nct = t.get("nct")
+            if not nct:
+                continue
+            rec = raw_record(nct)
+            if rec is None:
+                unchecked.append((topic, "%s not cached" % nct))
+                continue
+            role, ev = locate(rec, syns)
+            if role != "experimental":
+                findings.append({
+                    "lane": 1, "topic": topic, "nct": nct, "verdict_b": role,
+                    "why": ("the object INCLUDES this trial as a contributing randomised "
+                            "contrast; locate() independently returns %r" % role),
+                    "evidence_b": (ev or "")[:120]})
+    return findings, unchecked
+
+
+# Lane 2: precondition refusals that cite absence, paired with the object path that would
+# settle them. DECLARED, because a refusal reason is prose and guessing which field it means is
+# the substring-is-not-identity defect all over again.
+REFUSAL_CITES_ABSENCE = {
+    "criteria_stated": ["screening.eligibility"],
+    "criteria_predefined": ["screening.eligibility_provenance"],
+    "population_stated": ["question"],
+    "estimand_named": ["outcomes"],
+}
+
+
+def _dig(obj, path):
+    node = obj
+    for part in path.split("."):
+        node = node.get(part) if isinstance(node, dict) else None
+        if node is None:
+            return None
+    return node
+
+
+def lane2_refusal_vs_content():
+    """A precondition says 'cannot assess: absent' while the field is present and non-empty."""
+    findings = []
+    for topic in sorted(os.listdir(SSOT)):
+        p = os.path.join(SSOT, topic, topic + ".json")
+        if not os.path.exists(p):
+            continue
+        try:
+            with io.open(p, encoding="utf-8") as fh:
+                obj = json.load(fh)
+        except (ValueError, OSError):
+            continue
+        pv = obj.get("precondition_verdict") or {}
+        for name, paths in REFUSAL_CITES_ABSENCE.items():
+            entry = pv.get(name)
+            if not isinstance(entry, dict):
+                continue
+            verdict = str(entry.get("verdict") or "")
+            reason = str(entry.get("reason") or "")
+            if "NOT_ASSESSABLE" not in verdict.upper().replace("-", "_"):
+                continue
+            if not any(w in reason.lower() for w in
+                       ("absent", "neither", "no ", "not present", "cannot assess")):
+                continue
+            for path in paths:
+                val = _dig(obj, path)
+                if val:
+                    findings.append({
+                        "lane": 2, "topic": topic, "precondition": name,
+                        "verdict_b": "NOT_ASSESSABLE",
+                        "why": ("refusal cites absence, but %s is PRESENT and non-empty "
+                                "(%s)" % (path, type(val).__name__)),
+                        "evidence_b": reason[:120]})
+    return findings
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    f1, unchecked = lane1_inclusion_vs_armrole()
+    f2 = lane2_refusal_vs_content()
+    findings = f1 + f2
+
+    for f in findings:
+        who = f.get("nct") or f.get("precondition")
+        print("LANE %d  %s  %s" % (f["lane"], f["topic"], who))
+        print("        %s" % f["why"])
+        if f.get("evidence_b"):
+            print("        instrument B: %s" % f["evidence_b"])
+    if unchecked:
+        print()
+        print("UNCHECKED (reported, never silently skipped -- a topic that falls out of the")
+        print("loop is the silent loss this file exists to detect):")
+        for topic, why in unchecked[:12]:
+            print("   %-24s %s" % (topic, why))
+        if len(unchecked) > 12:
+            print("   ... and %d more" % (len(unchecked) - 12))
+
+    base = 0
+    if os.path.exists(BASELINE_PATH):
+        try:
+            with io.open(BASELINE_PATH, encoding="utf-8") as fh:
+                base = json.load(fh).get("count", 0)
+        except (ValueError, OSError):
+            base = 0
+    print()
+    print("lane 1 (inclusion vs arm-role)     %d" % len(f1))
+    print("lane 2 (refusal vs content)        %d" % len(f2))
+    print("restraint candidates               %d   (baseline %d)" % (len(findings), base))
+    print("unchecked                          %d" % len(unchecked))
+    if len(findings) > base:
+        print()
+        print("REFUSED: %d restraint candidate(s), above the baseline of %d."
+              % (len(findings), base))
+        print("Each is a DISAGREEMENT between two independent instruments, not a proven defect.")
+        print("Adjudicate it: either the classifier is withholding, or the inclusion is wrong.")
+        print("Both are findings. Neither is a safe default.")
+        return 1
+    print()
+    print("no NEW restraint candidates: no instrument refuses where an independent one decides.")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+
+codex
+I’ll keep this to the pasted packet only and treat missing runtime corpus/cache contents as unknown rather than guessing them.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=1; Get-Content -Path scripts/lint_restraint.py | ForEach-Object { '"'{0,4}: {1}' -f "'$i++, $_ }' in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Get-Content -Path F:\\E156\\rewrite-workbook.txt -TotalCount 20" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Get-Content -Path F:\\ProjectIndex\\INDEX.md -TotalCount 20" in F:\rapidmeta-ssot-shell
+ succeeded in 456ms:
+E156 REWRITE WORKBOOK
+sentinel:skip-file
+sentinel:claim-language-allow
+(Sentinel markers above:
+ - sentinel:skip-file: this workbook intentionally contains C:\Users\... PATH:
+   lines pointing to each project's local source directory â€” they're metadata,
+   not code. The marker keeps Sentinel from emitting ~16 P0 hardcoded-path
+   BLOCKs every push.
+ - sentinel:claim-language-allow: CURRENT BODY entries are the AI-drafted
+   summaries that students rewrite into hedged language â€” flagging overclaim
+   words IN those drafts is the whole pedagogical point, not a defect.
+   File-scope marker here suppresses the ~1293 claim-language WARNs on the
+   CURRENT BODY entries; the YOUR REWRITE entries are where the hedging
+   discipline matters and remains lintable in the rendered student board.)
+
+DENOMINATOR CONVENTION (added 2026-05-06 after review-findings P1-5):
+  Each entry header is `[N/total]` where N = ordinal insertion index and
+  `total` = current portfolio size as of the most recent reconcile sweep.
+  Older entries are back-rewritten on milestone boundaries (rather than
+  preserving their insertion-time denominator) to keep
+
+ succeeded in 456ms:
+<!-- sentinel:skip-file - portfolio registry; absolute paths ARE the data -->
+# C: Drive Project Index
+> **Last updated**: 2026-05-14 (C:\HTML apps focused repair batch continued: hub shell launch fix, static contracts across ten HTML app repos, NMA/living-meta/nma-dose-response landing and asset-link repairs, and NMA doc hardcoded-path cleanup. Prior SheafNMA v0.2.0, D-drive legacy smoke-contract continuation, CardioOracle lifecycle status freeze, C-drive model/project smoke-contract continuation, mahmood789 consolidation, Sentinel/Overmind JSONL and verification repair, C-drive reproducibility audit continuation, C-drive verification repair, D-drive repair batch, superapp, C-drive sweep, home-folder hardening, Trial Truthfulness Atlas, and portfolio notes retained below.)
+
+### C:\HTML apps focused repair batch (2026-05-14)
+> - `C:\HTML apps\hub\`: added a launchable `index.html` shell and static contract tests for required registry/runtime wiring; fixed `app.js` local `file://` launch resolution so the hub opened from `hub\index.html` links sibling apps from the parent HTML-apps directory instead of nesting paths under `hub`. Verification: `pytest -q -p no:cacheprovider` -> `3 passed`; `node --check app.js && node --check projects.js` -> PASS; headless Chrome smoke on `file:///mnt/c/HTML%20apps/hub/index.html` confirmed the page title and sibling app links. GitHub pushed: `mahmood726-cyber/hub` main `c1a6725`.
+> - `C:\HTML apps\evidence-board\`, `C:\HTML apps\focus-studio\`, `C:\HTML apps\kanban-lab\`: added pytest-visible static app shell contracts covering title/description, localStorage persistence hooks, key controls, and absence of unresolved templates or hardcoded local drive paths; added repo `.gitignore` entries for Python caches and `PROGRESS.md`. Verification: each `pytest -q -p no:cacheprovider` -> `2 passed` with the existing pytest `cache_dir` warning; scoped `git diff --check` -> PASS. GitHub pushed: `evidence-board` master `9a87c8b`, `focus-studio` master `0fa728b`, `kanban-lab` master `81cad38`.
+> - `C:\HTML apps\nma-pro-v2\`: fixed the landing page's broken app links from absent v6/v7 asset filenames to the current `e156-submission/assets/nma-pro-v8.0.html`, added static link-resolution contracts, and removed Sentinel P0 hardcoded local OneDrive paths from legacy docs. Verification: `pytest -q -p no:cacheprovider tests/test_smoke.py tests/test_static_links.py` -> `3 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=1 INFO=302` (pre-existing tracked autogen warning plus HTML a11y INFO). GitHub pushed: master `a2834e7` for the link fix and master `a74e385` for the P0 doc cleanup.
+> - `C:\HTML apps\IPD-Meta-Pro\` and `C:\HTML apps\Truthcert1\`: added static link-resolution contracts for landing-page local assets and canonical app entrypoints. Verification: `IPD-Meta-Pro` `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; `Truthcert1` same command -> `2 passed` with existing pytest `cache_dir` warning. GitHub pushed: `IPD-Meta-Pro` master `b26ee09`, `Truthcert1` master `81eddd3`.
+> - `C:\HTML apps\living-meta\`: repaired landing-page validation links that pointed to a missing HTML asset and an out-of-repo sibling path; linked the existing validation and limitations docs instead, and added a static link-resolution contract. Verification: `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=8` (pre-existing HTML a11y INFO). GitHub pushed: master `c3c8a9b`.
+> - `C:\HTML apps\Pairwiseai\`: added a static landing-page contract covering local link resolution, absence of unresolved templates/local drive paths, and the key app entrypoints under `e156-submission/assets`. Verification: `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=1731` (pre-existing HTML a11y INFO). GitHub pushed: master `2ade493`.
+> - `C:\HTML apps\nma-dose-response-app\`: pushed the existing smoke-blocker commit and added an E156 asset-bundle repair so `e156-submission\assets\index*.html` resolves its JS runtime dependencies from inside the assets folder; added a static link-resolution contract covering root and E156 app entrypoints. Verification: `pytest -q -p no:cacheprovider tests/test_smoke.py tests/test_static_links.py` -> `4 passed` with the existing pytest `cache_dir` warning; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=442` (pre-existing HTML a11y INFO). GitHub pushed: master `e95fae0` and `96594b6`.
+> - Push gate: Windows Git credential path succeeded after WSL Git lacked HTTPS credentials. Sentinel pre-push/manual scan verdicts were BLOCK=0; evidence-board INFO=18, focus-studio INFO=10, kanban-lab INFO=10, living-meta INFO=8, Pairwiseai INFO=1731, nma-dose-response-app INFO=442 (pre-existing P2 HTML accessibility notes); hub push emitted no Sentinel findings.
+> - Existing unrelated dirty files were left unstaged in these repos, mainly protocol/license/doc edits and untracked `paper\` outputs in the three app repos, plus pre-existing hub metadata/submission/style edits.
+
+### SheafNMA (2026-05-12; v0.2.0 real-NMA-corpus validation + 36-cell Ã— 1000-rep simulation + methods paper draft)
+> - `C:\Models\SheafNMA\` â€” cellular-sheaf inconsistency localization for network meta-analysis. v0.1.0 (2026-04-07) was math + single-file HTML dashboard + E156 #153 micro-paper on a synthetic 12-contrast network. v0.2.0 refactored the 457-LOC `generate_figures.py` into a `sheafnma/` package (`core`, `io`, `simulate`, `comparators`, `r_bridge`), validated on 13 R-netmeta built-in NMAs, and shipped a methods-paper draft for Research Synthesis Methods.
+> - Method: precision-weighted coboundary `F[e, treat1] = -1/SE_e, F[e, treat2] = +1/SE_e`; sheaf Laplacian `L = Fáµ€F` (symmetric PSD); WLS-solve node estimates with node 0 anchored; per-edge residuals `r_e = dÌƒ_e âˆ’ (F x*)_e` localize inconsistency; **Global Inconsistency Index** `GII = Î£ rÂ²` is the global statistic. One algebraic object yields both global + per-edge â€” complements (not replaces) node-splitting.
+> - Real-corpus headline: across **13 R-netmeta built-in NMAs** (Senn 2013 diabetes, Dias smokingcessation, Dong 2013 thrombolytics, Linde 2015/2016 acupuncture, Salanti antimanic, Baker, Dogliotti, Franchini, Gurusamy, Stowe, Woods, dietaryfat, parkinson) the global design-by-treatment Ï‡Â² (Higgins 2012) failed to reject in all 13. **SheafNMA flagged â‰¥1 localized inconsistency edge in 5 of those 13 (38.5%)** at the Youden-frozen threshold of **2.6912** â€” networks that look globally consistent harbor at least one inconsistent edge the global test misses.
+> - Simulation rigor: 36-cell grid (n_treatments âˆˆ {4,6,8} Ã— n_studies_per_edge âˆˆ {3,5,10} Ã— Ï„_inc âˆˆ {0,0.2,0.5,1.0}) Ã— **1000 replications per cell**, held-out training cell at (6,5,0.5) for Youden's-J threshold selection (frozen before evaluating remaining 35 cells). Type-I error at Ï„_inc=0 was **0.000 across all cells**. Mean per-edge sensitivity 0.981 / specificity 0.945 at Ï„_inc=0.5.
+
+ succeeded in 1965ms:
+   1: #!/usr/bin/env python3
+   2: """E4 -- THE DETECTOR FOR RESTRAINT. Every other guard in this repo catches overreach.
+   3: 
+   4:     EVERY GUARD WE HAVE CATCHES OVERREACH; NOTHING CATCHES RESTRAINT.
+   5: 
+   6: That sentence was written on 2026-08-19 as a limitation. This is the attempt to stop it being
+   7: one. It is the class with the only DEMONSTRATED corpus-wide cost: the arm-role classifier read
+   8: registry arm types literally and silently SHRANK evidence bases -- ten trials on `sglt2-hf`
+   9: alone, two on `iv-iron-hf`, and it would have shrunk every topic built with that instrument.
+  10: 
+  11: WHY RESTRAINT IS STRUCTURALLY HARD TO CATCH, stated plainly rather than glossed: a guard fires
+  12: on something present and wrong. Withheld evidence is ABSENT. It leaves no trace in the object,
+  13: so there is nothing for a single-instrument check to read. This is why the class survived every
+  14: guard we had.
+  15: 
+  16: THE WAY IN IS THE ONE THAT ACTUALLY WORKED. The arm-type defect was not found by a person
+  17: noticing. It was found because TWO INDEPENDENT INSTRUMENTS DISAGREED: the executed search
+  18: surfaced an object's OWN INCLUDED TRIALS, and the arm-role classifier then refused to recognise
+  19: two of them as the intervention. Neither found it alone. That pattern generalises:
+  20: 
+  21:     A REFUSAL BY ONE INSTRUMENT WHERE AN INDEPENDENT ONE RETURNS A DEFINITE ANSWER IS A
+  22:     CANDIDATE FOR REVIEW, NOT A SAFE DEFAULT.
+  23: 
+  24: NOT_ASSESSABLE is the correct third state and this file does not argue otherwise. What it
+  25: argues is that a refusal is only safe when nothing else can decide. Where something else HAS
+  26: decided, the refusal is a disagreement, and a disagreement that nobody looks at is
+  27: indistinguishable from a silent loss.
+  28: 
+  29: TWO LANES, both comparing instruments that do not share an input path:
+  30: 
+  31:   LANE 1  INCLUSION vs ARM-ROLE. The object asserts a trial contributes a randomised contrast
+  32:           (a definite answer, reached by a human screening decision recorded on the object).
+  33:           ssot/topic_identity.locate() independently classifies the same registration from the
+  34:           raw registry payload. locate() returning anything but `experimental` for a trial the
+  35:           object INCLUDES is the AFFIRM-AHF/HEART-FID signature exactly.
+  36: 
+  37:   LANE 2  PRECONDITION REFUSAL vs OBJECT CONTENT. A precondition returning NOT_ASSESSABLE for
+  38:           "field absent" where the field is in fact present and non-empty. That is not the
+  39:           third state, it is a read failure wearing the third state's clothes -- which is how
+  40:           P7 came to be hardcoded to REFUSING while the object held 11 resolved checks.
+  41: 
+  42: WHAT LANE 1 DOES NOT COVER, AND IT IS HALF THE ORIGINAL DEFECT. Lane 1 iterates a topic's
+  43: INCLUDED trials. It reproduces the `iv-iron-hf` shape exactly -- verified, see below -- but it
+  44: would NOT have caught the `sglt2-hf` ten. Those trials were withheld at the SURFACED stage:
+  45: the classifier called them comparators, so they never reached the included set, and a check
+  46: that reads the included set cannot see a trial that was kept out of it.
+  47: 
+  48:     THE LARGER HALF OF A WITHHOLDING DEFECT IS INVISIBLE TO A CHECK THAT READS THE OBJECT,
+  49:     BECAUSE WITHHOLDING IS PRECISELY WHAT KEEPS THINGS OUT OF THE OBJECT.
+  50: 
+  51: Closing it needs the executed search payload per topic as instrument A -- surfaced set versus
+  52: classifier verdict -- and that payload is currently stored for one topic. Named here rather
+  53: than implied by a passing run: this detector covers the shape it was tested on and one lane of
+  54: a two-lane problem.
+  55: 
+  56: A RATCHET, NOT A ZERO-GATE, AND THE REASON IS STATED RATHER THAN ASSUMED. Restraint findings
+  57: are CANDIDATES FOR REVIEW by construction -- some disagreements will be the classifier being
+  58: right and the inclusion being wrong, which is a finding in the other direction and equally worth
+  59: having. Blocking on a nonzero count would force every one of them to be adjudicated before any
+  60: unrelated commit. So the baseline is recorded and the gate blocks on an INCREASE. A new
+  61: disagreement is always worth a look; the standing set is worth a session, not a commit.
+  62: """
+  63: import io
+  64: import json
+  65: import os
+  66: import sys
+  67: 
+  68: REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+  69: SSOT = os.path.join(REPO, "ssot")
+  70: sys.path.insert(0, SSOT)
+  71: 
+  72: BASELINE_PATH = os.path.join(REPO, "scripts", ".restraint-baseline.json")
+  73: CACHE = os.environ.get(
+  74:     "RM_CTGOV_CACHE",
+  75:     "F:/claude-temp/claude/F--rapidmeta-ssot-shell/"
+  76:     "eb4d84e5-8a24-4c3b-afe2-34bd91c20bc7/scratchpad/.ctgov-raw-cache")
+  77: 
+  78: # Topic key -> the synonym-set key ssot/topic_identity uses. Declared, never guessed: an
+  79: # unmapped topic is REPORTED AS UNCHECKED rather than silently skipped, because a topic that
+  80: # falls out of the loop is exactly the silent loss this file exists to detect.
+  81: TOPIC_SYNONYM_KEY = {
+  82:     "iv-iron-hf": "intravenous iron",
+  83:     "sglt2-hf": "sglt2 inhibitors",
+  84: }
+  85: 
+  86: 
+  87: def raw_record(nct):
+  88:     """The raw v2 payload for one registration, from the local cache. None if not cached."""
+  89:     if not os.path.isdir(CACHE):
+  90:         return None
+  91:     for fn in os.listdir(CACHE):
+  92:         if fn.startswith(nct + "_") and fn.endswith(".json"):
+  93:             try:
+  94:                 with io.open(os.path.join(CACHE, fn), encoding="utf-8") as fh:
+  95:                     return json.load(fh)
+  96:             except (ValueError, OSError):
+  97:                 return None
+  98:     return None
+  99: 
+ 100: 
+ 101: def lane1_inclusion_vs_armrole():
+ 102:     """The object INCLUDES a trial; the classifier declines to call it the intervention."""
+ 103:     from topic_identity import locate, synonyms_for
+ 104:     findings, unchecked = [], []
+ 105:     for topic in sorted(os.listdir(SSOT)):
+ 106:         p = os.path.join(SSOT, topic, topic + ".json")
+ 107:         if not os.path.exists(p):
+ 108:             continue
+ 109:         key = TOPIC_SYNONYM_KEY.get(topic)
+ 110:         if not key:
+ 111:             unchecked.append((topic, "no declared synonym key"))
+ 112:             continue
+ 113:         try:
+ 114:             with io.open(p, encoding="utf-8") as fh:
+ 115:                 obj = json.load(fh)
+ 116:             syns = synonyms_for(key)
+ 117:         except (ValueError, OSError, KeyError) as e:
+ 118:             unchecked.append((topic, "unreadable: %s" % e))
+ 119:             continue
+ 120:         for t in ((obj.get("inputs") or {}).get("trials") or []):
+ 121:             nct = t.get("nct")
+ 122:             if not nct:
+ 123:                 continue
+ 124:             rec = raw_record(nct)
+ 125:             if rec is None:
+ 126:                 unchecked.append((topic, "%s not cached" % nct))
+ 127:                 continue
+ 128:             role, ev = locate(rec, syns)
+ 129:             if role != "experimental":
+ 130:                 findings.append({
+ 131:                     "lane": 1, "topic": topic, "nct": nct, "verdict_b": role,
+ 132:                     "why": ("the object INCLUDES this trial as a contributing randomised "
+ 133:                             "contrast; locate() independently returns %r" % role),
+ 134:                     "evidence_b": (ev or "")[:120]})
+ 135:     return findings, unchecked
+ 136: 
+ 137: 
+ 138: # Lane 2: precondition refusals that cite absence, paired with the object path that would
+ 139: # settle them. DECLARED, because a refusal reason is prose and guessing which field it means is
+ 140: # the substring-is-not-identity defect all over again.
+ 141: REFUSAL_CITES_ABSENCE = {
+ 142:     "criteria_stated": ["screening.eligibility"],
+ 143:     "criteria_predefined": ["screening.eligibility_provenance"],
+ 144:     "population_stated": ["question"],
+ 145:     "estimand_named": ["outcomes"],
+ 146: }
+ 147: 
+ 148: 
+ 149: def _dig(obj, path):
+ 150:     node = obj
+ 151:     for part in path.split("."):
+ 152:         node = node.get(part) if isinstance(node, dict) else None
+ 153:         if node is None:
+ 154:             return None
+ 155:     return node
+ 156: 
+ 157: 
+ 158: def lane2_refusal_vs_content():
+ 159:     """A precondition says 'cannot assess: absent' while the field is present and non-empty."""
+ 160:     findings = []
+ 161:     for topic in sorted(os.listdir(SSOT)):
+ 162:         p = os.path.join(SSOT, topic, topic + ".json")
+ 163:         if not os.path.exists(p):
+ 164:             continue
+ 165:         try:
+ 166:             with io.open(p, encoding="utf-8") as fh:
+ 167:                 obj = json.load(fh)
+ 168:         except (ValueError, OSError):
+ 169:             continue
+ 170:         pv = obj.get("precondition_verdict") or {}
+ 171:         for name, paths in REFUSAL_CITES_ABSENCE.items():
+ 172:             entry = pv.get(name)
+ 173:             if not isinstance(entry, dict):
+ 174:                 continue
+ 175:             verdict = str(entry.get("verdict") or "")
+ 176:             reason = str(entry.get("reason") or "")
+ 177:             if "NOT_ASSESSABLE" not in verdict.upper().replace("-", "_"):
+ 178:                 continue
+ 179:             if not any(w in reason.lower() for w in
+ 180:                        ("absent", "neither", "no ", "not present", "cannot assess")):
+ 181:                 continue
+ 182:             for path in paths:
+ 183:                 val = _dig(obj, path)
+ 184:                 if val:
+ 185:                     findings.append({
+ 186:                         "lane": 2, "topic": topic, "precondition": name,
+ 187:                         "verdict_b": "NOT_ASSESSABLE",
+ 188:                         "why": ("refusal cites absence, but %s is PRESENT and non-empty "
+ 189:                                 "(%s)" % (path, type(val).__name__)),
+ 190:                         "evidence_b": reason[:120]})
+ 191:     return findings
+ 192: 
+ 193: 
+ 194: def main():
+ 195:     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+ 196:     f1, unchecked = lane1_inclusion_vs_armrole()
+ 197:     f2 = lane2_refusal_vs_content()
+ 198:     findings = f1 + f2
+ 199: 
+ 200:     for f in findings:
+ 201:         who = f.get("nct") or f.get("precondition")
+ 202:         print("LANE %d  %s  %s" % (f["lane"], f["topic"], who))
+ 203:         print("        %s" % f["why"])
+ 204:         if f.get("evidence_b"):
+ 205:             print("        instrument B: %s" % f["evidence_b"])
+ 206:     if unchecked:
+ 207:         print()
+ 208:         print("UNCHECKED (reported, never silently skipped -- a topic that falls out of the")
+ 209:         print("loop is the silent loss this file exists to detect):")
+ 210:         for topic, why in unchecked[:12]:
+ 211:             print("   %-24s %s" % (topic, why))
+ 212:         if len(unchecked) > 12:
+ 213:             print("   ... and %d more" % (len(unchecked) - 12))
+ 214: 
+ 215:     base = 0
+ 216:     if os.path.exists(BASELINE_PATH):
+ 217:         try:
+ 218:             with io.open(BASELINE_PATH, encoding="utf-8") as fh:
+ 219:                 base = json.load(fh).get("count", 0)
+ 220:         except (ValueError, OSError):
+ 221:             base = 0
+ 222:     print()
+ 223:     print("lane 1 (inclusion vs arm-role)     %d" % len(f1))
+ 224:     print("lane 2 (refusal vs content)        %d" % len(f2))
+ 225:     print("restraint candidates               %d   (baseline %d)" % (len(findings), base))
+ 226:     print("unchecked                          %d" % len(unchecked))
+ 227:     if len(findings) > base:
+ 228:         print()
+ 229:         print("REFUSED: %d restraint candidate(s), above the baseline of %d."
+ 230:               % (len(findings), base))
+ 231:         print("Each is a DISAGREEMENT between two independent instruments, not a proven defect.")
+ 232:         print("Adjudicate it: either the classifier is withholding, or the inclusion is wrong.")
+ 233:         print("Both are findings. Neither is a safe default.")
+ 234:         return 1
+ 235:     print()
+ 236:     print("no NEW restraint candidates: no instrument refuses where an independent one decides.")
+ 237:     return 0
+ 238: 
+ 239: 
+ 240: if __name__ == "__main__":
+ 241:     sys.exit(main())
+
+codex
+Defects found:
+
+- **STATUS CODE REPORTING THE WRAPPER**: line 227. Exact input: `scripts/.restraint-baseline.json` = `{"count":1}` and current corpus has exactly one different lane-2 finding, e.g. `ssot/t/t.json` contains `{"question":"Adults","precondition_verdict":{"population_stated":{"verdict":"NOT_ASSESSABLE","reason":"question absent"}}}`. Consequence: exits 0 because `1 > 1` is false, so a new candidate passes when total count is unchanged.
+
+- **CHECK THAT CANNOT FAIL**: lines 125-127 plus 227/237. Exact input: set `RM_CTGOV_CACHE` to a missing directory and include any trial with `{"inputs":{"trials":[{"nct":"NCT00000000"}]}}` under a mapped topic. Consequence: lane 1 records `unchecked` but still exits 0 when findings are at or below baseline.
+
+- **NEGATION DROPPED / prose selector overmatch**: lines 179-180. Exact input: `{"question":"Adults","precondition_verdict":{"population_stated":{"verdict":"NOT_ASSESSABLE","reason":"no absent population field; cannot assess for another reason"}}}`. Consequence: `"no "` and `"cannot assess"` are treated as absence evidence even though the sentence denies absence.
+
+- **ZERO CONFLATED WITH ABSENT**: line 184. Exact input: `{"question":0.0,"precondition_verdict":{"population_stated":{"verdict":"NOT_ASSESSABLE","reason":"question absent"}}}`. Consequence: a present zero value is ignored as absent, so the lane-2 disagreement cannot fire.
+
+No proven CRLF text-compare defect.  
+No proven merged-cell/off-by-one defect.  
+COULD NOT DETERMINE corpus-form selector defects: missing actual `ssot/*.json`, cache filenames, and `topic_identity.locate()` behavior.
+tokens used
+21,404
+Defects found:
+
+- **STATUS CODE REPORTING THE WRAPPER**: line 227. Exact input: `scripts/.restraint-baseline.json` = `{"count":1}` and current corpus has exactly one different lane-2 finding, e.g. `ssot/t/t.json` contains `{"question":"Adults","precondition_verdict":{"population_stated":{"verdict":"NOT_ASSESSABLE","reason":"question absent"}}}`. Consequence: exits 0 because `1 > 1` is false, so a new candidate passes when total count is unchanged.
+
+- **CHECK THAT CANNOT FAIL**: lines 125-127 plus 227/237. Exact input: set `RM_CTGOV_CACHE` to a missing directory and include any trial with `{"inputs":{"trials":[{"nct":"NCT00000000"}]}}` under a mapped topic. Consequence: lane 1 records `unchecked` but still exits 0 when findings are at or below baseline.
+
+- **NEGATION DROPPED / prose selector overmatch**: lines 179-180. Exact input: `{"question":"Adults","precondition_verdict":{"population_stated":{"verdict":"NOT_ASSESSABLE","reason":"no absent population field; cannot assess for another reason"}}}`. Consequence: `"no "` and `"cannot assess"` are treated as absence evidence even though the sentence denies absence.
+
+- **ZERO CONFLATED WITH ABSENT**: line 184. Exact input: `{"question":0.0,"precondition_verdict":{"population_stated":{"verdict":"NOT_ASSESSABLE","reason":"question absent"}}}`. Consequence: a present zero value is ignored as absent, so the lane-2 disagreement cannot fire.
+
+No proven CRLF text-compare defect.  
+No proven merged-cell/off-by-one defect.  
+COULD NOT DETERMINE corpus-form selector defects: missing actual `ssot/*.json`, cache filenames, and `topic_identity.locate()` behavior.

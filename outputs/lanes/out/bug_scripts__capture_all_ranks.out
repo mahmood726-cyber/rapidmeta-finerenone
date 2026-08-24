@@ -1,0 +1,205 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a03175-b2cb-7463-9339-818c81f64973
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/capture_all_ranks.py
+
+--- THE FILE, IN FULL ---
+"""Capture registered outcomes at EVERY rank, not just primary.
+
+WHY THIS IS NEEDED AND WHY IT WAS NOT COLLECTED. 67 of 95 withdrawals in this corpus
+cannot be tested for proportionality because the objects record `registered_primaries` and
+nothing else. The SGLT2 failure lived ONE RANK DOWN -- a matched two-component endpoint
+sitting as DAPA-HF's secondary in a registration we had already opened -- and we
+systematically did not record one rank down.
+
+THAT IS NOT A GAP IN THE SWEEP. IT IS A GAP IN WHAT WE COLLECTED, and it was invisible
+until an outside reviewer asked a question our own reasoning never would. We read
+registrations to answer "do these trials share a primary outcome", so we captured primaries;
+the question "is there a shared outcome at ANY rank" was never asked, so its evidence was
+never kept.
+
+Writes, per trial: registered_primaries (unchanged), registered_secondaries, registered_other,
+and the read date FOR THIS READ. The registry is a live document and every verdict page
+here says so -- a value carried over from an earlier read would be an assumption of
+continuity, which is the quiet error this whole exercise exists to avoid.
+
+NOTHING IS OVERWRITTEN EXCEPT BY A RE-READ. Existing primaries are refreshed from the same
+fetch, so a divergence between what we recorded before and what the registry says now would
+show up as a changed field rather than being papered over.
+"""
+from __future__ import annotations
+import io
+import json
+import os
+import sys
+import time
+import urllib.request
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+from rebuild_guard import guard_write  # noqa: E402
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+API = "https://clinicaltrials.gov/api/v2/studies/{}?format=json"
+READ = "2026-08-18"
+CACHE = os.path.join(REPO, ".allranks-cache.json")
+cache = json.load(io.open(CACHE, encoding="utf-8")) if os.path.exists(CACHE) else {}
+
+
+def fetch(nct):
+    if nct in cache:
+        return cache[nct]
+    req = urllib.request.Request(API.format(nct), headers={"User-Agent": "rm-allranks"})
+    with urllib.request.urlopen(req, timeout=45) as r:
+        d = json.loads(r.read().decode("utf-8"))
+    om = ((d.get("protocolSection") or {}).get("outcomesModule") or {})
+    rec = {"primary": [o.get("measure", "") for o in (om.get("primaryOutcomes") or [])],
+           "secondary": [o.get("measure", "") for o in (om.get("secondaryOutcomes") or [])],
+           "other": [o.get("measure", "") for o in (om.get("otherOutcomes") or [])]}
+    cache[nct] = rec
+    time.sleep(0.07)
+    return rec
+
+
+def main() -> int:
+    targets = sys.argv[1:]
+    if not targets:
+        p = os.path.join(REPO, ".proportionality.json")
+        targets = json.load(io.open(p, encoding="utf-8"))["unassessable"]
+    done, trials_n, failed, changed = 0, 0, [], []
+    for t in targets:
+        f = os.path.join(REPO, "ssot", t, t + ".json")
+        if not os.path.exists(f):
+            failed.append((t, "no object"))
+            continue
+        o = json.load(io.open(f, encoding="utf-8"))
+        n = 0
+        for tr in ((o.get("inputs") or {}).get("trials") or []):
+            nct = (tr.get("nct") or tr.get("trial_id") or "")
+            if not nct.startswith("NCT"):
+                continue
+            try:
+                rec = fetch(nct)
+            except Exception as e:
+                failed.append((t, "%s %s" % (nct, str(e)[:30])))
+                continue
+            before = tr.get("registered_primaries")
+            if before and before != rec["primary"]:
+                changed.append((t, nct))
+                tr["registered_primaries_previous_read"] = before
+            tr["registered_primaries"] = rec["primary"]
+            tr["registered_secondaries"] = rec["secondary"]
+            tr["registered_other_outcomes"] = rec["other"]
+            tr["all_ranks_read_utc"] = READ
+            n += 1
+        if n:
+            o["all_ranks_captured_2026_08_18"] = (
+                "Registered outcomes captured at EVERY rank -- primary, secondary and other "
+                "-- by re-reading each registration on %s. Previously only primaries were "
+                "recorded, which made this topic's withdrawal UNTESTABLE for "
+                "proportionality: the SGLT2 failure lived one rank down and we had not kept "
+                "one rank down. The read date is stamped FOR THIS READ, not carried over." % READ)
+            guard_write(f, json.dumps(o, ensure_ascii=False, indent=1))
+            done += 1
+            trials_n += n
+            print("  %-46s %d trial(s), all ranks" % (t[:45], n))
+        json.dump(cache, io.open(CACHE, "w", encoding="utf-8", newline="\n"),
+                  ensure_ascii=False)
+    print()
+    print("objects updated: %d   trials re-read: %d   failures: %d" % (done, trials_n,
+                                                                       len(failed)))
+    if changed:
+        print()
+        print("PRIMARIES CHANGED SINCE THE EARLIER READ -- the registry is a live document:")
+        for t, n in changed[:12]:
+            print("   %s %s   (previous value kept as registered_primaries_previous_read)"
+                  % (t[:40], n))
+    for t, why in failed[:8]:
+        print("   FAILED %-38s %s" % (t[:37], why))
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+
+codex
+**Defect Found**
+
+- **instrument reading a DIFFERENT COPY than the one being changed**: line 39 returns `cache[nct]` before any live registry fetch.  
+  **Exact input:** `.allranks-cache.json` contains `{"NCT00000001":{"primary":["old"],"secondary":[],"other":[]}}`; `ssot/t/t.json` contains `{"inputs":{"trials":[{"nct":"NCT00000001"}]}}`; run `python scripts/capture_all_ranks.py t`.  
+  **Consequence:** the script stamps `all_ranks_read_utc = "2026-08-18"` and writes the “re-reading each registration” marker while using stale cache data, so the read-date evidence is false.
+
+**No Proven Defect From This Packet**
+
+- **check that CANNOT FAIL:** none proven.
+- **probe keyed to the STRING A FIX REMOVES:** none present.
+- **idempotency guard satisfied by its OWN comment or marker:** none proven; `guard_write` behavior is missing.
+- **SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE:** COULD NOT DETERMINE; missing corpus objects / CT.gov records.
+- **values compared AS TEXT where line endings differ:** none proven.
+- **merged-cell and OFF-BY-ONE errors:** none present.
+- **ZERO CONFLATED WITH ABSENT:** none affecting numeric zero here.
+- **NEGATION DROPPED:** none present.
+- **STATUS CODE REPORTING THE WRAPPER rather than the work:** line 112 always returns `0` even when `failed` is non-empty, but COULD NOT DETERMINE whether failures are intended to be non-fatal without caller/gate contract.
+tokens used
+6,620
+**Defect Found**
+
+- **instrument reading a DIFFERENT COPY than the one being changed**: line 39 returns `cache[nct]` before any live registry fetch.  
+  **Exact input:** `.allranks-cache.json` contains `{"NCT00000001":{"primary":["old"],"secondary":[],"other":[]}}`; `ssot/t/t.json` contains `{"inputs":{"trials":[{"nct":"NCT00000001"}]}}`; run `python scripts/capture_all_ranks.py t`.  
+  **Consequence:** the script stamps `all_ranks_read_utc = "2026-08-18"` and writes the “re-reading each registration” marker while using stale cache data, so the read-date evidence is false.
+
+**No Proven Defect From This Packet**
+
+- **check that CANNOT FAIL:** none proven.
+- **probe keyed to the STRING A FIX REMOVES:** none present.
+- **idempotency guard satisfied by its OWN comment or marker:** none proven; `guard_write` behavior is missing.
+- **SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE:** COULD NOT DETERMINE; missing corpus objects / CT.gov records.
+- **values compared AS TEXT where line endings differ:** none proven.
+- **merged-cell and OFF-BY-ONE errors:** none present.
+- **ZERO CONFLATED WITH ABSENT:** none affecting numeric zero here.
+- **NEGATION DROPPED:** none present.
+- **STATUS CODE REPORTING THE WRAPPER rather than the work:** line 112 always returns `0` even when `failed` is non-empty, but COULD NOT DETERMINE whether failures are intended to be non-fatal without caller/gate contract.

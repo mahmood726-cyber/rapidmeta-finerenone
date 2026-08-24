@@ -1,0 +1,207 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a0317c-c22b-7700-8df7-c4d6e36ed84f
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/cleanup_mdrtb_bpal_residue.py
+
+--- THE FILE, IN FULL ---
+"""Phase-2 cleanup of SGLT2/HF residue in MDRTB_BPAL_REVIEW.html.
+
+Surgical replacements for the high-impact user-visible strings only.
+Deeper scaffold residue (CSS class names containing 'sglt2-', deep-JS
+internal labels, tooltip overlays) is left as-is — those don't surface
+in the end-user UI of the BPaL app and would require deeper template
+re-engineering to remove cleanly.
+"""
+from __future__ import annotations
+import re
+import sys
+from pathlib import Path
+
+FILE = Path("MDRTB_BPAL_REVIEW.html")
+
+# Each entry: (description, old, new). Order matters (longer first to avoid
+# substring collision).
+REPLACEMENTS = [
+    # ---- 1. App header badge ----
+    ("Header v1.0 badge", 'SGLT2-HF v1.0', 'BPaL/BPaLM v0.1'),
+
+    # ---- 2. Review title ----
+    ("Review title row",
+     'SGLT2 Inhibitors for Heart Failure Outcomes: A Living Systematic Review and Meta-Analysis of Randomized Controlled Trials',
+     'Bedaquiline-Pretomanid-Linezolid (BPaL) and BPaL+Moxifloxacin (BPaLM) for Multidrug-Resistant Pulmonary Tuberculosis: A Pairwise Systematic Review and Meta-Analysis'),
+
+    # ---- 3. molMap dictionary ----
+    ("Trial-to-molecule dictionary",
+     "{ 'DAPA-HF': 'Dapagliflozin', 'DELIVER': 'Dapagliflozin', 'EMPEROR-Reduced': 'Empagliflozin', 'EMPEROR-Preserved': 'Empagliflozin', 'SOLOIST-WHF': 'Sotagliflozin' }",
+     "{ 'Nix-TB': 'BPaL', 'ZeNix': 'BPaL (LZD-dose comparison)', 'TB-PRACTECAL': 'BPaLM' }"),
+
+    # ---- 4. Population placeholder ----
+    ("Population placeholder", 'value="Adults with heart failure"',
+     'value="Adults with multidrug-resistant or pre-XDR/XDR pulmonary tuberculosis"'),
+
+    # ---- 5. PubMed query examples (2 occurrences) ----
+    ("PubMed query example 1",
+     '(dapagliflozin OR empagliflozin OR sotagliflozin OR "sglt2") AND "heart failure" AND (TITLE:randomized OR PUB_TYPE:"Randomized Controlled Trial")',
+     '(bedaquiline AND pretomanid AND linezolid) AND ("multidrug-resistant" OR "MDR" OR "XDR") AND tuberculosis AND (TITLE:randomized OR PUB_TYPE:"Randomized Controlled Trial")'),
+
+    # ---- 6. Subgroup analysis row ----
+    ("Subgroup HFrEF vs HFpEF",
+     'By HF phenotype (HFrEF vs HFpEF/HFmrEF); Q-between test for interaction',
+     'By baseline drug-resistance pattern (MDR vs pre-XDR vs XDR); HIV co-infection; Q-between test for interaction'),
+
+    # ---- 7. Subgroup dropdown option ----
+    ("Subgroup dropdown EF Phenotype",
+     '<option value="group">EF Phenotype (HFrEF vs HFpEF)</option>',
+     '<option value="group">Resistance pattern (MDR vs pre-XDR vs XDR)</option>'),
+
+    # ---- 8. Indication dropdown ----
+    ("Indication dropdown HF option",
+     '<option value="Heart Failure">Heart Failure</option>',
+     '<option value="MDR-TB">MDR-TB</option>'),
+
+    # ---- 9. CT.gov search URL example ----
+    ("CT.gov example URL query.term",
+     'query.term=heart%20failure%20sglt2',
+     'query.term=multidrug-resistant%20tuberculosis%20bedaquiline'),
+
+    # ---- 10. Protocol .md link path (file does not exist either way; just label) ----
+    ("Protocol filename reference",
+     'protocols/sglt2_hf_protocol_v1.0_2026-04-19.md',
+     'protocols/bpal_mdrtb_protocol_v0.1_2026-05-03.md'),
+]
+
+
+def main() -> int:
+    if not FILE.exists():
+        print(f"ERROR: {FILE} not found", file=sys.stderr)
+        return 1
+    text = FILE.read_text(encoding="utf-8")
+    original_size = len(text)
+
+    applied = []
+    skipped = []
+    for desc, old, new in REPLACEMENTS:
+        count = text.count(old)
+        if count == 0:
+            skipped.append(f"{desc}: no match")
+            continue
+        text = text.replace(old, new)
+        applied.append(f"{desc}: {count} occurrence(s) replaced")
+
+    FILE.write_text(text, encoding="utf-8")
+    print(f"Applied {len(applied)} replacement groups, skipped {len(skipped)}")
+    for a in applied:
+        print(f"  + {a}")
+    for s in skipped:
+        print(f"  - {s}")
+
+    new_size = len(text)
+    print(f"Size delta: {new_size - original_size:+d} bytes")
+
+    # Recount residue
+    residual = {
+        "SGLT2": text.count("SGLT2"),
+        "sglt2": text.count("sglt2"),
+        "dapagliflozin": text.count("dapagliflozin") + text.count("Dapagliflozin"),
+        "empagliflozin": text.count("empagliflozin") + text.count("Empagliflozin"),
+        "heart failure": text.count("heart failure") + text.count("Heart Failure"),
+    }
+    print("\nResidual counts (lower = better; deep-scaffold residue is unavoidable in non-UI code):")
+    for k, v in residual.items():
+        print(f"  {k}: {v}")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+
+codex
+Defects found:
+
+- **check that CANNOT FAIL / STATUS CODE REPORTING THE WRAPPER**: line 106.  
+  Exact input: `MDRTB_BPAL_REVIEW.html` containing exactly `SGLT2\n`.  
+  Consequence: the residue check reports `SGLT2: 1` but exits `0`, so a gate sees PASS while residue remains.
+
+- **probe keyed to the STRING A FIX REMOVES / selector too narrow**: lines 96-102.  
+  Exact input: `MDRTB_BPAL_REVIEW.html` containing exactly `Sotagliflozin\n`.  
+  Consequence: a source drug named in the replacement targets on lines 29 and 38 remains, but residual counts report zero for every key.
+
+- **instrument reading a DIFFERENT COPY**: line 14.  
+  Exact input: run from `F:\rapidmeta-ssot-shell\scripts` with only `..\MDRTB_BPAL_REVIEW.html` present, using `python cleanup_mdrtb_bpal_residue.py`.  
+  Consequence: the script reports `MDRTB_BPAL_REVIEW.html not found` or edits a same-named file in the current directory instead of the repo-root target.
+
+- **values compared/reported AS TEXT where line endings differ**: lines 72, 85, and 93.  
+  Exact input: LF-only `MDRTB_BPAL_REVIEW.html` containing exactly `alpha\nbeta\n` on Windows.  
+  Consequence: the run rewrites line endings to CRLF while reporting `Size delta: +0 bytes`, so a no-op can still dirty the file.
+
+No finding: idempotency guard satisfied by own comment/marker.  
+No finding: merged-cell or off-by-one tabulation/count.  
+No finding: zero conflated with absent.  
+No finding: negation dropped.
+tokens used
+11,783
+Defects found:
+
+- **check that CANNOT FAIL / STATUS CODE REPORTING THE WRAPPER**: line 106.  
+  Exact input: `MDRTB_BPAL_REVIEW.html` containing exactly `SGLT2\n`.  
+  Consequence: the residue check reports `SGLT2: 1` but exits `0`, so a gate sees PASS while residue remains.
+
+- **probe keyed to the STRING A FIX REMOVES / selector too narrow**: lines 96-102.  
+  Exact input: `MDRTB_BPAL_REVIEW.html` containing exactly `Sotagliflozin\n`.  
+  Consequence: a source drug named in the replacement targets on lines 29 and 38 remains, but residual counts report zero for every key.
+
+- **instrument reading a DIFFERENT COPY**: line 14.  
+  Exact input: run from `F:\rapidmeta-ssot-shell\scripts` with only `..\MDRTB_BPAL_REVIEW.html` present, using `python cleanup_mdrtb_bpal_residue.py`.  
+  Consequence: the script reports `MDRTB_BPAL_REVIEW.html not found` or edits a same-named file in the current directory instead of the repo-root target.
+
+- **values compared/reported AS TEXT where line endings differ**: lines 72, 85, and 93.  
+  Exact input: LF-only `MDRTB_BPAL_REVIEW.html` containing exactly `alpha\nbeta\n` on Windows.  
+  Consequence: the run rewrites line endings to CRLF while reporting `Size delta: +0 bytes`, so a no-op can still dirty the file.
+
+No finding: idempotency guard satisfied by own comment/marker.  
+No finding: merged-cell or off-by-one tabulation/count.  
+No finding: zero conflated with absent.  
+No finding: negation dropped.

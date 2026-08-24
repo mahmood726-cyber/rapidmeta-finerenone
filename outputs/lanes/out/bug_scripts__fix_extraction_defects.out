@@ -1,0 +1,785 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a031b3-855d-7902-886d-c4c67f4ce533
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/fix_extraction_defects.py
+
+--- THE FILE, IN FULL ---
+"""Master fixer for extraction-audit P0/P1 defects.
+
+Applies four fixes in one pass per affected review HTML:
+
+  Fix-1  QUARANTINE-SYNTHETIC: remove every trial matching the 4-of-4 LLM
+         synthetic fingerprint (NCT in NCT05000xxx/NCT06xxxxxxxx blocks +
+         empty/missing PMID + year ≥ 2024 + baseline.n == 2 × tN).
+
+  Fix-2  QUARANTINE-LIKELY-SYNTHETIC: remove every trial matching 3-of-4
+         (real-looking NCT but the other three smoking-gun fields). Agent 6
+         spot-check confirmed 0/8 are genuine.
+
+  Fix-3  NULL-FAKE-PMID: set `pmid: null` for trials whose pmid matches the
+         fabricated /^379377[67]\\d[a-zA-Z]+$/ family.
+
+  Fix-4  CAP-EVENTS: where tE > tN or cE > cN AND the trial is NOT in the
+         quarantine set (so it's a real-anchor trial with a numeric error),
+         cap events at the corresponding N and append an audit note.
+
+Quarantined trials are archived to
+  outputs/extraction_audit/quarantine/<REVIEW_STEM>.json
+so the action is reversible.
+
+Idempotent: re-running on already-fixed HTML yields zero further mutations.
+
+Usage:
+  python scripts/fix_extraction_defects.py --dry-run    # report only
+  python scripts/fix_extraction_defects.py              # apply
+"""
+from __future__ import annotations
+import argparse
+import csv
+import io
+import json
+import re
+import sys
+from pathlib import Path
+
+if sys.platform == "win32" and hasattr(sys.stdout, "buffer"):
+    try:
+        sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+
+# Re-use the extractor's JS-object → JSON converter
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from extract_realdata import find_balanced_object, js_object_to_json, extract_var  # noqa: E402
+
+REPO = Path(__file__).resolve().parent.parent
+DATA_DIR = REPO / "outputs" / "extraction_audit" / "data"
+QUARANTINE_DIR = REPO / "outputs" / "extraction_audit" / "quarantine"
+QUARANTINE_DIR.mkdir(parents=True, exist_ok=True)
+SWEEP_FILE = REPO / "outputs" / "synthetic_fixture_sweep.json"
+FINDINGS_CSV = REPO / "outputs" / "extraction_audit" / "findings.csv"
+FIX_REPORT = REPO / "outputs" / "extraction_audit" / "fix_report.json"
+
+FAKE_PMID_RE = re.compile(r"^\d+[a-zA-Z]+$")  # any digits-then-letters PMID is malformed
+                                                # (real PMIDs are pure integers; the
+                                                # 37937770[a-z]/37937775[a-z]/37937760[a-z]
+                                                # families all match this)
+SYNTH_NCT_5_RE = re.compile(r"^NCT05000\d{3}$")  # NCT05000xxx synthetic block
+SYNTH_NCT_6_RE = re.compile(r"^NCT06\d{7}$")     # NCT06xxxxxxx (only ~22 in corpus, all synth)
+
+
+def _is_finite(x) -> bool:
+    return isinstance(x, (int, float)) and not isinstance(x, bool)
+
+
+def trial_synthetic_fingerprint(nct: str, t: dict) -> int:
+    """Return how many of the 4 fingerprint criteria the trial hits.
+    >= 3 → quarantine.
+    """
+    score = 0
+    # C1: synthetic NCT range
+    if SYNTH_NCT_5_RE.match(nct) or SYNTH_NCT_6_RE.match(nct):
+        score += 1
+    # C2: empty/null/non-numeric PMID OR fake-PMID family
+    pmid = t.get("pmid")
+    if pmid in (None, ""):
+        score += 1
+    elif isinstance(pmid, str) and FAKE_PMID_RE.match(pmid):
+        score += 1
+    elif isinstance(pmid, str) and not pmid.strip().isdigit():
+        score += 1
+    # C3: year 2024+
+    yr = t.get("year")
+    if _is_finite(yr) and yr >= 2024:
+        score += 1
+    # C4: baseline.n exactly == 2 × tN (un-reconciled halving)
+    base = t.get("baseline") or {}
+    base_n = base.get("n") if isinstance(base, dict) else None
+    tN = t.get("tN")
+    if _is_finite(base_n) and _is_finite(tN) and tN > 0 and base_n == 2 * tN:
+        score += 1
+    return score
+
+
+def trial_has_fake_pmid(t: dict) -> bool:
+    pmid = t.get("pmid")
+    return isinstance(pmid, str) and bool(FAKE_PMID_RE.match(pmid))
+
+
+def trial_has_events_over_n(t: dict) -> tuple[bool, bool]:
+    """Returns (tE_bad, cE_bad). Bad means: tE > tN, tE < 0, or tN ≤ 0
+    (likewise for cE/cN). Negative events indicate field overload (MD
+    stored in the event slot)."""
+    tE, tN, cE, cN = (t.get(k) for k in ("tE", "tN", "cE", "cN"))
+    tE_bad = _is_finite(tE) and _is_finite(tN) and tN > 0 and (tE > tN or tE < 0)
+    cE_bad = _is_finite(cE) and _is_finite(cN) and cN > 0 and (cE > cN or cE < 0)
+    return tE_bad, cE_bad
+
+
+def serialize_realdata_js(rd: dict) -> str:
+    """Emit a clean JS object literal for the realData value.
+    Strategy: JSON is a subset of JS for object literals — JS engines parse
+    JSON-formatted text as a valid object literal. ensure_ascii=False keeps
+    non-ASCII characters readable in the source.
+    """
+    return json.dumps(rd, indent=2, ensure_ascii=False)
+
+
+def find_realdata_block(text: str) -> tuple[int, int] | None:
+    """Locate the value-side of `realData: { ... }` (object literal property)
+    or `var/const/let realData = { ... }` (declaration). Returns (start, end)
+    of the object literal (start at `{`, end after `}`).
+    """
+    pat_decl = re.compile(r"(?:const|var|let)\s+realData\s*=\s*(?=\{)")
+    m = pat_decl.search(text)
+    if m:
+        start = m.end()
+        end = find_balanced_object(text, start)
+        if end > 0:
+            return start, end
+    pat_prop = re.compile(r"(?<![\w.])realData\s*:\s*(?=\{)")
+    for m in pat_prop.finditer(text):
+        start = m.end()
+        end = find_balanced_object(text, start)
+        if end > 0:
+            block = text[start:end]
+            if "NCT" in block or "ISRCTN" in block or "LEGACY" in block or len(block) > 300:
+                return start, end
+    return None
+
+
+def fix_review(review_stem: str, dry_run: bool) -> dict:
+    """Apply all four fixes to one review HTML file. Returns a per-review report."""
+    html_path = REPO / f"{review_stem}.html"
+    data_path = DATA_DIR / f"{review_stem}.json"
+    report = {
+        "review": review_stem,
+        "quarantined_synthetic": [],   # NCTs hard-removed (synthetic fingerprint ≥ 3)
+        "nulled_pmids": [],             # NCTs with fake PMID nulled
+        "capped_events": [],            # NCTs with tE/cE capped at N
+        "skipped_reason": None,
+    }
+    if not html_path.exists():
+        report["skipped_reason"] = "html missing"
+        return report
+    if not data_path.exists():
+        report["skipped_reason"] = "data json missing"
+        return report
+
+    doc = json.loads(data_path.read_text(encoding="utf-8"))
+    rd = doc.get("realData")
+    if not isinstance(rd, dict):
+        report["skipped_reason"] = "realData not parsed"
+        return report
+
+    # Identify trials
+    quarantine_keys: list[str] = []
+    nulled_keys: list[str] = []
+    cap_actions: list[tuple[str, dict, str]] = []  # (nct, action, reason)
+
+    for nct, t in list(rd.items()):
+        if not isinstance(t, dict):
+            continue
+        score = trial_synthetic_fingerprint(nct, t)
+        if score >= 3:
+            quarantine_keys.append(nct)
+            continue
+        # Real-anchor trial path
+        if trial_has_fake_pmid(t):
+            nulled_keys.append(nct)
+        tE_bad, cE_bad = trial_has_events_over_n(t)
+        if tE_bad or cE_bad:
+            cap_actions.append((nct, t, f"tE_bad={tE_bad} cE_bad={cE_bad}"))
+
+    if not (quarantine_keys or nulled_keys or cap_actions):
+        return report  # nothing to do
+
+    # Build mutated realData
+    mutated = {}
+    quarantined_archive = {}
+    for nct, t in rd.items():
+        if nct in quarantine_keys:
+            quarantined_archive[nct] = t
+            continue
+        new_t = dict(t) if isinstance(t, dict) else t
+        if nct in nulled_keys:
+            new_t["pmid"] = None
+            note = f"(audit 2026-05-10: PMID was {t.get('pmid')!r} — fabricated 37937770/5 family; nulled)"
+            new_t.setdefault("_audit_notes", []).append(note)
+        # Caps
+        for cap_nct, cap_t, _reason in cap_actions:
+            if cap_nct != nct:
+                continue
+            tE, tN, cE, cN = (new_t.get(k) for k in ("tE", "tN", "cE", "cN"))
+            cap_note_parts = []
+            if _is_finite(tE) and _is_finite(tN) and tN > 0:
+                if tE < 0:
+                    cap_note_parts.append(f"tE {tE}→null (negative — field-overload MD)")
+                    new_t["tE"] = None
+                elif tE > tN:
+                    cap_note_parts.append(f"tE {tE}→{tN}")
+                    new_t["tE"] = tN
+            if _is_finite(cE) and _is_finite(cN) and cN > 0:
+                if cE < 0:
+                    cap_note_parts.append(f"cE {cE}→null (negative — field-overload MD)")
+                    new_t["cE"] = None
+                elif cE > cN:
+                    cap_note_parts.append(f"cE {cE}→{cN}")
+                    new_t["cE"] = cN
+            if cap_note_parts:
+                note = "(audit 2026-05-10: events>N capped — " + ", ".join(cap_note_parts) + ")"
+                new_t.setdefault("_audit_notes", []).append(note)
+        mutated[nct] = new_t
+
+    # Locate the realData block in HTML and replace
+    text = html_path.read_text(encoding="utf-8", errors="replace")
+    block = find_realdata_block(text)
+    if block is None:
+        report["skipped_reason"] = "realData block not found in HTML"
+        return report
+    start, end = block
+    new_block = serialize_realdata_js(mutated)
+    new_text = text[:start] + new_block + text[end:]
+
+    report["quarantined_synthetic"] = quarantine_keys
+    report["nulled_pmids"] = nulled_keys
+    report["capped_events"] = [n for n, _, _ in cap_actions]
+
+    if dry_run:
+        return report
+
+    # Archive quarantined trials
+    if quarantined_archive:
+        qpath = QUARANTINE_DIR / f"{review_stem}.json"
+        existing = {}
+        if qpath.exists():
+            try:
+                existing = json.loads(qpath.read_text(encoding="utf-8"))
+            except Exception:
+                existing = {}
+        existing.update(quarantined_archive)
+        qpath.write_text(json.dumps(existing, indent=2, ensure_ascii=False), encoding="utf-8")
+    # Write modified HTML
+    html_path.write_text(new_text, encoding="utf-8")
+    return report
+
+
+def main() -> None:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--dry-run", action="store_true", help="don't write any files")
+    ap.add_argument("--limit", type=int, default=0, help="only process N reviews (debug)")
+    args = ap.parse_args()
+
+    index = json.loads((DATA_DIR / "_index.json").read_text(encoding="utf-8"))
+    targets = [e for e in index if e.get("has_realData")]
+    if args.limit:
+        targets = targets[: args.limit]
+    print(f"Targets: {len(targets)} reviews{' (DRY RUN)' if args.dry_run else ''}")
+    reports: list[dict] = []
+    n_quarantined_trials = 0
+    n_nulled_pmids = 0
+    n_capped = 0
+    n_reviews_touched = 0
+    n_reviews_skipped = 0
+    for entry in targets:
+        try:
+            r = fix_review(entry["stem"], args.dry_run)
+        except Exception as e:
+            r = {"review": entry["stem"], "skipped_reason": f"exception: {type(e).__name__}: {e}"}
+        reports.append(r)
+        if r.get("skipped_reason"):
+            n_reviews_skipped += 1
+        elif r["quarantined_synthetic"] or r["nulled_pmids"] or r["capped_events"]:
+            n_reviews_touched += 1
+            n_quarantined_trials += len(r["quarantined_synthetic"])
+            n_nulled_pmids += len(r["nulled_pmids"])
+            n_capped += len(r["capped_events"])
+    summary = {
+        "dry_run": args.dry_run,
+        "reviews_targeted": len(targets),
+        "reviews_touched": n_reviews_touched,
+        "reviews_skipped": n_reviews_skipped,
+        "trials_quarantined": n_quarantined_trials,
+        "pmids_nulled": n_nulled_pmids,
+        "trials_events_capped": n_capped,
+    }
+    if not args.dry_run:
+        FIX_REPORT.write_text(
+            json.dumps({"summary": summary, "per_review": reports}, indent=2, ensure_ascii=False),
+            encoding="utf-8",
+        )
+    print(json.dumps(summary, indent=2))
+    # Top-15 reviews by changes for transparency
+    ranked = sorted(reports, key=lambda r: -(len(r.get("quarantined_synthetic", [])) +
+                                              len(r.get("nulled_pmids", [])) +
+                                              len(r.get("capped_events", []))))
+    print("\nTop 15 reviews by mutation count:")
+    for r in ranked[:15]:
+        n = (len(r.get("quarantined_synthetic", [])) +
+             len(r.get("nulled_pmids", [])) +
+             len(r.get("capped_events", [])))
+        if n == 0:
+            break
+        print(f"  {n:3d}  {r['review']}: "
+              f"quar={len(r['quarantined_synthetic'])} "
+              f"pmid={len(r['nulled_pmids'])} "
+              f"cap={len(r['capped_events'])}")
+
+
+if __name__ == "__main__":
+    main()
+
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Get-Content -Path F:\\ProjectIndex\\INDEX.md -TotalCount 20" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Get-Content -Path F:\\E156\\rewrite-workbook.txt -TotalCount 20" in F:\rapidmeta-ssot-shell
+ succeeded in 616ms:
+E156 REWRITE WORKBOOK
+sentinel:skip-file
+sentinel:claim-language-allow
+(Sentinel markers above:
+ - sentinel:skip-file: this workbook intentionally contains C:\Users\... PATH:
+   lines pointing to each project's local source directory â€” they're metadata,
+   not code. The marker keeps Sentinel from emitting ~16 P0 hardcoded-path
+   BLOCKs every push.
+ - sentinel:claim-language-allow: CURRENT BODY entries are the AI-drafted
+   summaries that students rewrite into hedged language â€” flagging overclaim
+   words IN those drafts is the whole pedagogical point, not a defect.
+   File-scope marker here suppresses the ~1293 claim-language WARNs on the
+   CURRENT BODY entries; the YOUR REWRITE entries are where the hedging
+   discipline matters and remains lintable in the rendered student board.)
+
+DENOMINATOR CONVENTION (added 2026-05-06 after review-findings P1-5):
+  Each entry header is `[N/total]` where N = ordinal insertion index and
+  `total` = current portfolio size as of the most recent reconcile sweep.
+  Older entries are back-rewritten on milestone boundaries (rather than
+  preserving their insertion-time denominator) to keep
+
+ succeeded in 678ms:
+<!-- sentinel:skip-file - portfolio registry; absolute paths ARE the data -->
+# C: Drive Project Index
+> **Last updated**: 2026-05-14 (C:\HTML apps focused repair batch continued: hub shell launch fix, static contracts across ten HTML app repos, NMA/living-meta/nma-dose-response landing and asset-link repairs, and NMA doc hardcoded-path cleanup. Prior SheafNMA v0.2.0, D-drive legacy smoke-contract continuation, CardioOracle lifecycle status freeze, C-drive model/project smoke-contract continuation, mahmood789 consolidation, Sentinel/Overmind JSONL and verification repair, C-drive reproducibility audit continuation, C-drive verification repair, D-drive repair batch, superapp, C-drive sweep, home-folder hardening, Trial Truthfulness Atlas, and portfolio notes retained below.)
+
+### C:\HTML apps focused repair batch (2026-05-14)
+> - `C:\HTML apps\hub\`: added a launchable `index.html` shell and static contract tests for required registry/runtime wiring; fixed `app.js` local `file://` launch resolution so the hub opened from `hub\index.html` links sibling apps from the parent HTML-apps directory instead of nesting paths under `hub`. Verification: `pytest -q -p no:cacheprovider` -> `3 passed`; `node --check app.js && node --check projects.js` -> PASS; headless Chrome smoke on `file:///mnt/c/HTML%20apps/hub/index.html` confirmed the page title and sibling app links. GitHub pushed: `mahmood726-cyber/hub` main `c1a6725`.
+> - `C:\HTML apps\evidence-board\`, `C:\HTML apps\focus-studio\`, `C:\HTML apps\kanban-lab\`: added pytest-visible static app shell contracts covering title/description, localStorage persistence hooks, key controls, and absence of unresolved templates or hardcoded local drive paths; added repo `.gitignore` entries for Python caches and `PROGRESS.md`. Verification: each `pytest -q -p no:cacheprovider` -> `2 passed` with the existing pytest `cache_dir` warning; scoped `git diff --check` -> PASS. GitHub pushed: `evidence-board` master `9a87c8b`, `focus-studio` master `0fa728b`, `kanban-lab` master `81cad38`.
+> - `C:\HTML apps\nma-pro-v2\`: fixed the landing page's broken app links from absent v6/v7 asset filenames to the current `e156-submission/assets/nma-pro-v8.0.html`, added static link-resolution contracts, and removed Sentinel P0 hardcoded local OneDrive paths from legacy docs. Verification: `pytest -q -p no:cacheprovider tests/test_smoke.py tests/test_static_links.py` -> `3 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=1 INFO=302` (pre-existing tracked autogen warning plus HTML a11y INFO). GitHub pushed: master `a2834e7` for the link fix and master `a74e385` for the P0 doc cleanup.
+> - `C:\HTML apps\IPD-Meta-Pro\` and `C:\HTML apps\Truthcert1\`: added static link-resolution contracts for landing-page local assets and canonical app entrypoints. Verification: `IPD-Meta-Pro` `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; `Truthcert1` same command -> `2 passed` with existing pytest `cache_dir` warning. GitHub pushed: `IPD-Meta-Pro` master `b26ee09`, `Truthcert1` master `81eddd3`.
+> - `C:\HTML apps\living-meta\`: repaired landing-page validation links that pointed to a missing HTML asset and an out-of-repo sibling path; linked the existing validation and limitations docs instead, and added a static link-resolution contract. Verification: `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=8` (pre-existing HTML a11y INFO). GitHub pushed: master `c3c8a9b`.
+> - `C:\HTML apps\Pairwiseai\`: added a static landing-page contract covering local link resolution, absence of unresolved templates/local drive paths, and the key app entrypoints under `e156-submission/assets`. Verification: `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=1731` (pre-existing HTML a11y INFO). GitHub pushed: master `2ade493`.
+> - `C:\HTML apps\nma-dose-response-app\`: pushed the existing smoke-blocker commit and added an E156 asset-bundle repair so `e156-submission\assets\index*.html` resolves its JS runtime dependencies from inside the assets folder; added a static link-resolution contract covering root and E156 app entrypoints. Verification: `pytest -q -p no:cacheprovider tests/test_smoke.py tests/test_static_links.py` -> `4 passed` with the existing pytest `cache_dir` warning; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=442` (pre-existing HTML a11y INFO). GitHub pushed: master `e95fae0` and `96594b6`.
+> - Push gate: Windows Git credential path succeeded after WSL Git lacked HTTPS credentials. Sentinel pre-push/manual scan verdicts were BLOCK=0; evidence-board INFO=18, focus-studio INFO=10, kanban-lab INFO=10, living-meta INFO=8, Pairwiseai INFO=1731, nma-dose-response-app INFO=442 (pre-existing P2 HTML accessibility notes); hub push emitted no Sentinel findings.
+> - Existing unrelated dirty files were left unstaged in these repos, mainly protocol/license/doc edits and untracked `paper\` outputs in the three app repos, plus pre-existing hub metadata/submission/style edits.
+
+### SheafNMA (2026-05-12; v0.2.0 real-NMA-corpus validation + 36-cell Ã— 1000-rep simulation + methods paper draft)
+> - `C:\Models\SheafNMA\` â€” cellular-sheaf inconsistency localization for network meta-analysis. v0.1.0 (2026-04-07) was math + single-file HTML dashboard + E156 #153 micro-paper on a synthetic 12-contrast network. v0.2.0 refactored the 457-LOC `generate_figures.py` into a `sheafnma/` package (`core`, `io`, `simulate`, `comparators`, `r_bridge`), validated on 13 R-netmeta built-in NMAs, and shipped a methods-paper draft for Research Synthesis Methods.
+> - Method: precision-weighted coboundary `F[e, treat1] = -1/SE_e, F[e, treat2] = +1/SE_e`; sheaf Laplacian `L = Fáµ€F` (symmetric PSD); WLS-solve node estimates with node 0 anchored; per-edge residuals `r_e = dÌƒ_e âˆ’ (F x*)_e` localize inconsistency; **Global Inconsistency Index** `GII = Î£ rÂ²` is the global statistic. One algebraic object yields both global + per-edge â€” complements (not replaces) node-splitting.
+> - Real-corpus headline: across **13 R-netmeta built-in NMAs** (Senn 2013 diabetes, Dias smokingcessation, Dong 2013 thrombolytics, Linde 2015/2016 acupuncture, Salanti antimanic, Baker, Dogliotti, Franchini, Gurusamy, Stowe, Woods, dietaryfat, parkinson) the global design-by-treatment Ï‡Â² (Higgins 2012) failed to reject in all 13. **SheafNMA flagged â‰¥1 localized inconsistency edge in 5 of those 13 (38.5%)** at the Youden-frozen threshold of **2.6912** â€” networks that look globally consistent harbor at least one inconsistent edge the global test misses.
+> - Simulation rigor: 36-cell grid (n_treatments âˆˆ {4,6,8} Ã— n_studies_per_edge âˆˆ {3,5,10} Ã— Ï„_inc âˆˆ {0,0.2,0.5,1.0}) Ã— **1000 replications per cell**, held-out training cell at (6,5,0.5) for Youden's-J threshold selection (frozen before evaluating remaining 35 cells). Type-I error at Ï„_inc=0 was **0.000 across all cells**. Mean per-edge sensitivity 0.981 / specificity 0.945 at Ï„_inc=0.5.
+
+codex
+I’m checking exact line numbers against the workspace copy so the findings can be tied to runnable inputs, but I’ll only use the pasted module’s contents for the defect claims.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=1; Get-Content -Path .'"\\scripts\\fix_extraction_defects.py | ForEach-Object { '{0,4}: {1}' -f "'$i, $_; $i++ }' in F:\rapidmeta-ssot-shell
+ succeeded in 2488ms:
+   1: """Master fixer for extraction-audit P0/P1 defects.
+   2: 
+   3: Applies four fixes in one pass per affected review HTML:
+   4: 
+   5:   Fix-1  QUARANTINE-SYNTHETIC: remove every trial matching the 4-of-4 LLM
+   6:          synthetic fingerprint (NCT in NCT05000xxx/NCT06xxxxxxxx blocks +
+   7:          empty/missing PMID + year â‰¥ 2024 + baseline.n == 2 Ã— tN).
+   8: 
+   9:   Fix-2  QUARANTINE-LIKELY-SYNTHETIC: remove every trial matching 3-of-4
+  10:          (real-looking NCT but the other three smoking-gun fields). Agent 6
+  11:          spot-check confirmed 0/8 are genuine.
+  12: 
+  13:   Fix-3  NULL-FAKE-PMID: set `pmid: null` for trials whose pmid matches the
+  14:          fabricated /^379377[67]\\d[a-zA-Z]+$/ family.
+  15: 
+  16:   Fix-4  CAP-EVENTS: where tE > tN or cE > cN AND the trial is NOT in the
+  17:          quarantine set (so it's a real-anchor trial with a numeric error),
+  18:          cap events at the corresponding N and append an audit note.
+  19: 
+  20: Quarantined trials are archived to
+  21:   outputs/extraction_audit/quarantine/<REVIEW_STEM>.json
+  22: so the action is reversible.
+  23: 
+  24: Idempotent: re-running on already-fixed HTML yields zero further mutations.
+  25: 
+  26: Usage:
+  27:   python scripts/fix_extraction_defects.py --dry-run    # report only
+  28:   python scripts/fix_extraction_defects.py              # apply
+  29: """
+  30: from __future__ import annotations
+  31: import argparse
+  32: import csv
+  33: import io
+  34: import json
+  35: import re
+  36: import sys
+  37: from pathlib import Path
+  38: 
+  39: if sys.platform == "win32" and hasattr(sys.stdout, "buffer"):
+  40:     try:
+  41:         sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+  42:     except Exception:
+  43:         pass
+  44: 
+  45: # Re-use the extractor's JS-object â†’ JSON converter
+  46: sys.path.insert(0, str(Path(__file__).resolve().parent))
+  47: from extract_realdata import find_balanced_object, js_object_to_json, extract_var  # noqa: E402
+  48: 
+  49: REPO = Path(__file__).resolve().parent.parent
+  50: DATA_DIR = REPO / "outputs" / "extraction_audit" / "data"
+  51: QUARANTINE_DIR = REPO / "outputs" / "extraction_audit" / "quarantine"
+  52: QUARANTINE_DIR.mkdir(parents=True, exist_ok=True)
+  53: SWEEP_FILE = REPO / "outputs" / "synthetic_fixture_sweep.json"
+  54: FINDINGS_CSV = REPO / "outputs" / "extraction_audit" / "findings.csv"
+  55: FIX_REPORT = REPO / "outputs" / "extraction_audit" / "fix_report.json"
+  56: 
+  57: FAKE_PMID_RE = re.compile(r"^\d+[a-zA-Z]+$")  # any digits-then-letters PMID is malformed
+  58:                                                 # (real PMIDs are pure integers; the
+  59:                                                 # 37937770[a-z]/37937775[a-z]/37937760[a-z]
+  60:                                                 # families all match this)
+  61: SYNTH_NCT_5_RE = re.compile(r"^NCT05000\d{3}$")  # NCT05000xxx synthetic block
+  62: SYNTH_NCT_6_RE = re.compile(r"^NCT06\d{7}$")     # NCT06xxxxxxx (only ~22 in corpus, all synth)
+  63: 
+  64: 
+  65: def _is_finite(x) -> bool:
+  66:     return isinstance(x, (int, float)) and not isinstance(x, bool)
+  67: 
+  68: 
+  69: def trial_synthetic_fingerprint(nct: str, t: dict) -> int:
+  70:     """Return how many of the 4 fingerprint criteria the trial hits.
+  71:     >= 3 â†’ quarantine.
+  72:     """
+  73:     score = 0
+  74:     # C1: synthetic NCT range
+  75:     if SYNTH_NCT_5_RE.match(nct) or SYNTH_NCT_6_RE.match(nct):
+  76:         score += 1
+  77:     # C2: empty/null/non-numeric PMID OR fake-PMID family
+  78:     pmid = t.get("pmid")
+  79:     if pmid in (None, ""):
+  80:         score += 1
+  81:     elif isinstance(pmid, str) and FAKE_PMID_RE.match(pmid):
+  82:         score += 1
+  83:     elif isinstance(pmid, str) and not pmid.strip().isdigit():
+  84:         score += 1
+  85:     # C3: year 2024+
+  86:     yr = t.get("year")
+  87:     if _is_finite(yr) and yr >= 2024:
+  88:         score += 1
+  89:     # C4: baseline.n exactly == 2 Ã— tN (un-reconciled halving)
+  90:     base = t.get("baseline") or {}
+  91:     base_n = base.get("n") if isinstance(base, dict) else None
+  92:     tN = t.get("tN")
+  93:     if _is_finite(base_n) and _is_finite(tN) and tN > 0 and base_n == 2 * tN:
+  94:         score += 1
+  95:     return score
+  96: 
+  97: 
+  98: def trial_has_fake_pmid(t: dict) -> bool:
+  99:     pmid = t.get("pmid")
+ 100:     return isinstance(pmid, str) and bool(FAKE_PMID_RE.match(pmid))
+ 101: 
+ 102: 
+ 103: def trial_has_events_over_n(t: dict) -> tuple[bool, bool]:
+ 104:     """Returns (tE_bad, cE_bad). Bad means: tE > tN, tE < 0, or tN â‰¤ 0
+ 105:     (likewise for cE/cN). Negative events indicate field overload (MD
+ 106:     stored in the event slot)."""
+ 107:     tE, tN, cE, cN = (t.get(k) for k in ("tE", "tN", "cE", "cN"))
+ 108:     tE_bad = _is_finite(tE) and _is_finite(tN) and tN > 0 and (tE > tN or tE < 0)
+ 109:     cE_bad = _is_finite(cE) and _is_finite(cN) and cN > 0 and (cE > cN or cE < 0)
+ 110:     return tE_bad, cE_bad
+ 111: 
+ 112: 
+ 113: def serialize_realdata_js(rd: dict) -> str:
+ 114:     """Emit a clean JS object literal for the realData value.
+ 115:     Strategy: JSON is a subset of JS for object literals â€” JS engines parse
+ 116:     JSON-formatted text as a valid object literal. ensure_ascii=False keeps
+ 117:     non-ASCII characters readable in the source.
+ 118:     """
+ 119:     return json.dumps(rd, indent=2, ensure_ascii=False)
+ 120: 
+ 121: 
+ 122: def find_realdata_block(text: str) -> tuple[int, int] | None:
+ 123:     """Locate the value-side of `realData: { ... }` (object literal property)
+ 124:     or `var/const/let realData = { ... }` (declaration). Returns (start, end)
+ 125:     of the object literal (start at `{`, end after `}`).
+ 126:     """
+ 127:     pat_decl = re.compile(r"(?:const|var|let)\s+realData\s*=\s*(?=\{)")
+ 128:     m = pat_decl.search(text)
+ 129:     if m:
+ 130:         start = m.end()
+ 131:         end = find_balanced_object(text, start)
+ 132:         if end > 0:
+ 133:             return start, end
+ 134:     pat_prop = re.compile(r"(?<![\w.])realData\s*:\s*(?=\{)")
+ 135:     for m in pat_prop.finditer(text):
+ 136:         start = m.end()
+ 137:         end = find_balanced_object(text, start)
+ 138:         if end > 0:
+ 139:             block = text[start:end]
+ 140:             if "NCT" in block or "ISRCTN" in block or "LEGACY" in block or len(block) > 300:
+ 141:                 return start, end
+ 142:     return None
+ 143: 
+ 144: 
+ 145: def fix_review(review_stem: str, dry_run: bool) -> dict:
+ 146:     """Apply all four fixes to one review HTML file. Returns a per-review report."""
+ 147:     html_path = REPO / f"{review_stem}.html"
+ 148:     data_path = DATA_DIR / f"{review_stem}.json"
+ 149:     report = {
+ 150:         "review": review_stem,
+ 151:         "quarantined_synthetic": [],   # NCTs hard-removed (synthetic fingerprint â‰¥ 3)
+ 152:         "nulled_pmids": [],             # NCTs with fake PMID nulled
+ 153:         "capped_events": [],            # NCTs with tE/cE capped at N
+ 154:         "skipped_reason": None,
+ 155:     }
+ 156:     if not html_path.exists():
+ 157:         report["skipped_reason"] = "html missing"
+ 158:         return report
+ 159:     if not data_path.exists():
+ 160:         report["skipped_reason"] = "data json missing"
+ 161:         return report
+ 162: 
+ 163:     doc = json.loads(data_path.read_text(encoding="utf-8"))
+ 164:     rd = doc.get("realData")
+ 165:     if not isinstance(rd, dict):
+ 166:         report["skipped_reason"] = "realData not parsed"
+ 167:         return report
+ 168: 
+ 169:     # Identify trials
+ 170:     quarantine_keys: list[str] = []
+ 171:     nulled_keys: list[str] = []
+ 172:     cap_actions: list[tuple[str, dict, str]] = []  # (nct, action, reason)
+ 173: 
+ 174:     for nct, t in list(rd.items()):
+ 175:         if not isinstance(t, dict):
+ 176:             continue
+ 177:         score = trial_synthetic_fingerprint(nct, t)
+ 178:         if score >= 3:
+ 179:             quarantine_keys.append(nct)
+ 180:             continue
+ 181:         # Real-anchor trial path
+ 182:         if trial_has_fake_pmid(t):
+ 183:             nulled_keys.append(nct)
+ 184:         tE_bad, cE_bad = trial_has_events_over_n(t)
+ 185:         if tE_bad or cE_bad:
+ 186:             cap_actions.append((nct, t, f"tE_bad={tE_bad} cE_bad={cE_bad}"))
+ 187: 
+ 188:     if not (quarantine_keys or nulled_keys or cap_actions):
+ 189:         return report  # nothing to do
+ 190: 
+ 191:     # Build mutated realData
+ 192:     mutated = {}
+ 193:     quarantined_archive = {}
+ 194:     for nct, t in rd.items():
+ 195:         if nct in quarantine_keys:
+ 196:             quarantined_archive[nct] = t
+ 197:             continue
+ 198:         new_t = dict(t) if isinstance(t, dict) else t
+ 199:         if nct in nulled_keys:
+ 200:             new_t["pmid"] = None
+ 201:             note = f"(audit 2026-05-10: PMID was {t.get('pmid')!r} â€” fabricated 37937770/5 family; nulled)"
+ 202:             new_t.setdefault("_audit_notes", []).append(note)
+ 203:         # Caps
+ 204:         for cap_nct, cap_t, _reason in cap_actions:
+ 205:             if cap_nct != nct:
+ 206:                 continue
+ 207:             tE, tN, cE, cN = (new_t.get(k) for k in ("tE", "tN", "cE", "cN"))
+ 208:             cap_note_parts = []
+ 209:             if _is_finite(tE) and _is_finite(tN) and tN > 0:
+ 210:                 if tE < 0:
+ 211:                     cap_note_parts.append(f"tE {tE}â†’null (negative â€” field-overload MD)")
+ 212:                     new_t["tE"] = None
+ 213:                 elif tE > tN:
+ 214:                     cap_note_parts.append(f"tE {tE}â†’{tN}")
+ 215:                     new_t["tE"] = tN
+ 216:             if _is_finite(cE) and _is_finite(cN) and cN > 0:
+ 217:                 if cE < 0:
+ 218:                     cap_note_parts.append(f"cE {cE}â†’null (negative â€” field-overload MD)")
+ 219:                     new_t["cE"] = None
+ 220:                 elif cE > cN:
+ 221:                     cap_note_parts.append(f"cE {cE}â†’{cN}")
+ 222:                     new_t["cE"] = cN
+ 223:             if cap_note_parts:
+ 224:                 note = "(audit 2026-05-10: events>N capped â€” " + ", ".join(cap_note_parts) + ")"
+ 225:                 new_t.setdefault("_audit_notes", []).append(note)
+ 226:         mutated[nct] = new_t
+ 227: 
+ 228:     # Locate the realData block in HTML and replace
+ 229:     text = html_path.read_text(encoding="utf-8", errors="replace")
+ 230:     block = find_realdata_block(text)
+ 231:     if block is None:
+ 232:         report["skipped_reason"] = "realData block not found in HTML"
+ 233:         return report
+ 234:     start, end = block
+ 235:     new_block = serialize_realdata_js(mutated)
+ 236:     new_text = text[:start] + new_block + text[end:]
+ 237: 
+ 238:     report["quarantined_synthetic"] = quarantine_keys
+ 239:     report["nulled_pmids"] = nulled_keys
+ 240:     report["capped_events"] = [n for n, _, _ in cap_actions]
+ 241: 
+ 242:     if dry_run:
+ 243:         return report
+ 244: 
+ 245:     # Archive quarantined trials
+ 246:     if quarantined_archive:
+ 247:         qpath = QUARANTINE_DIR / f"{review_stem}.json"
+ 248:         existing = {}
+ 249:         if qpath.exists():
+ 250:             try:
+ 251:                 existing = json.loads(qpath.read_text(encoding="utf-8"))
+ 252:             except Exception:
+ 253:                 existing = {}
+ 254:         existing.update(quarantined_archive)
+ 255:         qpath.write_text(json.dumps(existing, indent=2, ensure_ascii=False), encoding="utf-8")
+ 256:     # Write modified HTML
+ 257:     html_path.write_text(new_text, encoding="utf-8")
+ 258:     return report
+ 259: 
+ 260: 
+ 261: def main() -> None:
+ 262:     ap = argparse.ArgumentParser()
+ 263:     ap.add_argument("--dry-run", action="store_true", help="don't write any files")
+ 264:     ap.add_argument("--limit", type=int, default=0, help="only process N reviews (debug)")
+ 265:     args = ap.parse_args()
+ 266: 
+ 267:     index = json.loads((DATA_DIR / "_index.json").read_text(encoding="utf-8"))
+ 268:     targets = [e for e in index if e.get("has_realData")]
+ 269:     if args.limit:
+ 270:         targets = targets[: args.limit]
+ 271:     print(f"Targets: {len(targets)} reviews{' (DRY RUN)' if args.dry_run else ''}")
+ 272:     reports: list[dict] = []
+ 273:     n_quarantined_trials = 0
+ 274:     n_nulled_pmids = 0
+ 275:     n_capped = 0
+ 276:     n_reviews_touched = 0
+ 277:     n_reviews_skipped = 0
+ 278:     for entry in targets:
+ 279:         try:
+ 280:             r = fix_review(entry["stem"], args.dry_run)
+ 281:         except Exception as e:
+ 282:             r = {"review": entry["stem"], "skipped_reason": f"exception: {type(e).__name__}: {e}"}
+ 283:         reports.append(r)
+ 284:         if r.get("skipped_reason"):
+ 285:             n_reviews_skipped += 1
+ 286:         elif r["quarantined_synthetic"] or r["nulled_pmids"] or r["capped_events"]:
+ 287:             n_reviews_touched += 1
+ 288:             n_quarantined_trials += len(r["quarantined_synthetic"])
+ 289:             n_nulled_pmids += len(r["nulled_pmids"])
+ 290:             n_capped += len(r["capped_events"])
+ 291:     summary = {
+ 292:         "dry_run": args.dry_run,
+ 293:         "reviews_targeted": len(targets),
+ 294:         "reviews_touched": n_reviews_touched,
+ 295:         "reviews_skipped": n_reviews_skipped,
+ 296:         "trials_quarantined": n_quarantined_trials,
+ 297:         "pmids_nulled": n_nulled_pmids,
+ 298:         "trials_events_capped": n_capped,
+ 299:     }
+ 300:     if not args.dry_run:
+ 301:         FIX_REPORT.write_text(
+ 302:             json.dumps({"summary": summary, "per_review": reports}, indent=2, ensure_ascii=False),
+ 303:             encoding="utf-8",
+ 304:         )
+ 305:     print(json.dumps(summary, indent=2))
+ 306:     # Top-15 reviews by changes for transparency
+ 307:     ranked = sorted(reports, key=lambda r: -(len(r.get("quarantined_synthetic", [])) +
+ 308:                                               len(r.get("nulled_pmids", [])) +
+ 309:                                               len(r.get("capped_events", []))))
+ 310:     print("\nTop 15 reviews by mutation count:")
+ 311:     for r in ranked[:15]:
+ 312:         n = (len(r.get("quarantined_synthetic", [])) +
+ 313:              len(r.get("nulled_pmids", [])) +
+ 314:              len(r.get("capped_events", [])))
+ 315:         if n == 0:
+ 316:             break
+ 317:         print(f"  {n:3d}  {r['review']}: "
+ 318:               f"quar={len(r['quarantined_synthetic'])} "
+ 319:               f"pmid={len(r['nulled_pmids'])} "
+ 320:               f"cap={len(r['capped_events'])}")
+ 321: 
+ 322: 
+ 323: if __name__ == "__main__":
+ 324:     main()
+
+codex
+Defects found:
+
+- Line 163 — instrument reads a different copy than the one changed. Exact input: `data/r.json = {"realData":{"NCT00000001":{"pmid":"123abc","year":2020,"tE":0,"tN":10,"cE":0,"cN":10}}}` and `r.html = const realData = {"NCT00000001":{"pmid":"123abc","year":2020,"tE":0,"tN":10,"cE":0,"cN":10}};`, then call `fix_review("r", False)` twice. Consequence: the second run still reports `nulled_pmids=["NCT00000001"]` because JSON is reread but only HTML is written, so idempotency is false.
+
+- Line 281 — status code reports the wrapper, not the work. Exact input: `_index.json = [{"stem":"bad","has_realData":true}]`, `bad.html = const realData = {};`, `data/bad.json = {bad json`, then run `python scripts/fix_extraction_defects.py`. Consequence: `JSONDecodeError` is converted to `skipped_reason` and `main()` still exits zero.
+
+- Line 108 — check cannot fail for the stated `tN <= 0` bad case. Exact input: `trial_has_events_over_n({"tE":1,"tN":0,"cE":0,"cN":10})`. Consequence: returns `(False, False)`, so invalid treatment denominator is silently untreated despite the function contract.
+
+- Line 109 — check cannot fail for the stated `cN <= 0` bad case. Exact input: `trial_has_events_over_n({"tE":0,"tN":10,"cE":1,"cN":0})`. Consequence: returns `(False, False)`, so invalid control denominator is silently untreated despite the function contract.
+
+- Line 57 — selector is broader than the stated fake-PMID family. Exact input: `trial_has_fake_pmid({"pmid":"123abc"})`. Consequence: returns `True`, so line 200 can null a PMID outside `/^379377[67]\d[a-zA-Z]+$/` and line 201 labels it as the 37937770/5 family.
+
+- Line 62 — selector is keyed to a 9-digit `NCT06` form, not standard 8-digit NCT IDs. Exact input: `trial_synthetic_fingerprint("NCT06012345", {"pmid":"12345678","year":2024,"baseline":{"n":20},"tN":10})`. Consequence: returns `2`, so the synthetic-range criterion is missed and the 3-of-4 quarantine does not fire.
+
+No proven finding here for: string-a-fix-removes probe, comment-satisfied guard, CRLF/LF text comparison, merged-cell/off-by-one tabulation, or negation dropped.
+tokens used
+30,946
+Defects found:
+
+- Line 163 — instrument reads a different copy than the one changed. Exact input: `data/r.json = {"realData":{"NCT00000001":{"pmid":"123abc","year":2020,"tE":0,"tN":10,"cE":0,"cN":10}}}` and `r.html = const realData = {"NCT00000001":{"pmid":"123abc","year":2020,"tE":0,"tN":10,"cE":0,"cN":10}};`, then call `fix_review("r", False)` twice. Consequence: the second run still reports `nulled_pmids=["NCT00000001"]` because JSON is reread but only HTML is written, so idempotency is false.
+
+- Line 281 — status code reports the wrapper, not the work. Exact input: `_index.json = [{"stem":"bad","has_realData":true}]`, `bad.html = const realData = {};`, `data/bad.json = {bad json`, then run `python scripts/fix_extraction_defects.py`. Consequence: `JSONDecodeError` is converted to `skipped_reason` and `main()` still exits zero.
+
+- Line 108 — check cannot fail for the stated `tN <= 0` bad case. Exact input: `trial_has_events_over_n({"tE":1,"tN":0,"cE":0,"cN":10})`. Consequence: returns `(False, False)`, so invalid treatment denominator is silently untreated despite the function contract.
+
+- Line 109 — check cannot fail for the stated `cN <= 0` bad case. Exact input: `trial_has_events_over_n({"tE":0,"tN":10,"cE":1,"cN":0})`. Consequence: returns `(False, False)`, so invalid control denominator is silently untreated despite the function contract.
+
+- Line 57 — selector is broader than the stated fake-PMID family. Exact input: `trial_has_fake_pmid({"pmid":"123abc"})`. Consequence: returns `True`, so line 200 can null a PMID outside `/^379377[67]\d[a-zA-Z]+$/` and line 201 labels it as the 37937770/5 family.
+
+- Line 62 — selector is keyed to a 9-digit `NCT06` form, not standard 8-digit NCT IDs. Exact input: `trial_synthetic_fingerprint("NCT06012345", {"pmid":"12345678","year":2024,"baseline":{"n":20},"tN":10})`. Consequence: returns `2`, so the synthetic-range criterion is missed and the 3-of-4 quarantine does not fire.
+
+No proven finding here for: string-a-fix-removes probe, comment-satisfied guard, CRLF/LF text comparison, merged-cell/off-by-one tabulation, or negation dropped.

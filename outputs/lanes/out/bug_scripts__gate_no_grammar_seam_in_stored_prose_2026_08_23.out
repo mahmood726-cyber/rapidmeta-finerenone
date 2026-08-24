@@ -1,0 +1,224 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a031cd-bb79-7100-b527-a74f37c449e9
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/gate_no_grammar_seam_in_stored_prose_2026_08_23.py
+
+--- THE FILE, IN FULL ---
+"""Stored prose must not carry a punctuation seam. Five patterns, each proven on a planted defect.
+
+# no-control: a source-shaped gate whose control is the planted-defect proof below -- each of
+# the five patterns is run against a fixture that contains it and a fixture that does not, and
+# the gate refuses to report on real data unless every pattern fires on its own defect and
+# stays quiet on the clean text.
+
+WHY THIS EXISTS. English lead-ins replaced bare field keys in stored prose on 2026-08-23, and
+the join that had been correct for two days became wrong the moment the tail changed shape:
+
+    "... on the dates recorded on each entry; This object's verification rests on ..."
+
+A semicolon followed by a capital. 111 instances, none of which any check would have caught,
+because every check in the repository was looking at WHICH WORDS appeared rather than at how
+they were joined. Scanning for it also found 16 double full stops and a capitalised opener
+embedded mid-clause -- "this review does not claim That any event count was checked" -- neither
+of which anyone had reported.
+
+THE GENERAL POINT: a change that alters the SHAPE of generated text invalidates every join
+around it, and the joins are invisible in a diff of the generator. So the seams are asserted
+over the corpus rather than reasoned about.
+
+RUNS IN THE PRE-COMMIT CHAIN, over `ssot/**/*.json`, in about a second.
+"""
+from __future__ import annotations
+
+import glob
+import io
+import json
+import os
+import re
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# name -> (pattern, text that MUST match, text that MUST NOT)
+def _lead_in_openers():
+    """The first words of every lead-in, read from the map the fix itself uses.
+
+    A BARE `;\\s+[A-Z]` IS NOT THE DEFECT AND THE FIRST VERSION OF THIS GATE SAID IT WAS. It
+    flagged `antimalarial-act` on "... artemether-lumefantrine; Artesunate-amodiaquine against
+    ..." -- a legitimate list of capitalised DRUG NAMES. A semicolon before a proper noun is
+    ordinary English; a semicolon before a SENTENCE is the seam.
+
+    So the pattern is keyed to the sentences that actually caused it, and read from
+    `ssot/field_lead_ins.json` so the gate and the generator cannot drift -- the same rule that
+    fixed the selector: define the population from the source the fix reads.
+    """
+    p = os.path.join(REPO, "ssot", "field_lead_ins.json")
+    try:
+        m = json.load(io.open(p, encoding="utf-8"))
+    except Exception:
+        return ["This object", "This review", "The bar", "The basis", "What this object"]
+    out = []
+    for spec in (m.get("by_key") or {}).values():
+        for form in (spec.get("present"), spec.get("absent")):
+            if isinstance(form, str) and form[:1].isupper():
+                out.append(" ".join(form.split()[:2]).rstrip(":,"))
+    return sorted(set(out)) or ["This object"]
+
+
+_OPENERS = "|".join(re.escape(o) for o in _lead_in_openers())
+
+SEAMS = {
+    "semicolon then a lead-in sentence": (
+        re.compile(r";\s+(?:%s)" % _OPENERS),
+        "read on each entry; This object's verification rests on a record.",
+        "artemether-lumefantrine; Artesunate-amodiaquine against chloroquine."),
+    "double full stop": (
+        re.compile(r"\.\s*\."),
+        "at every registered rank.. This review does not claim anything.",
+        "at every registered rank. This review does not claim anything."),
+    "capitalised opener mid-clause": (
+        re.compile(r"does not claim [A-Z]"),
+        "This review does not claim That any event count was checked.",
+        "This review does not claim that any event count was checked."),
+    "stranded connective": (
+        re.compile(r"(?:;|,)\s*\."),
+        "the trials agreed; .",
+        "the trials agreed."),
+    "space before a full stop": (
+        re.compile(r"\S\s+\."),
+        "the estimate was pooled .",
+        "the estimate was pooled."),
+}
+
+FIELDS = ("bookkeeping_2026_08_21", "manuscript")
+
+
+def prove():
+    """Every pattern fires on its own defect and stays quiet on the clean form."""
+    bad = []
+    for name, (pat, planted, clean) in SEAMS.items():
+        if not pat.search(planted):
+            bad.append("%s does not fire on its own planted defect" % name)
+        if pat.search(clean):
+            bad.append("%s fires on text that is clean" % name)
+    if bad:
+        sys.exit("PROOF FAILED, nothing reported:\n   " + "\n   ".join(bad))
+
+
+def texts(o):
+    for f in FIELDS:
+        v = o.get(f)
+        if isinstance(v, dict):
+            for k, s in v.items():
+                if isinstance(s, str) and not str(k).startswith("_"):
+                    yield f + "." + str(k), s
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    prove()
+    hits, read = [], 0
+    for p in sorted(glob.glob(os.path.join(REPO, "ssot", "*", "*.json"))):
+        t = os.path.basename(os.path.dirname(p))
+        if os.path.basename(p) != t + ".json":
+            continue
+        try:
+            o = json.load(io.open(p, encoding="utf-8"))
+        except ValueError:
+            continue
+        read += 1
+        for where, s in texts(o):
+            for name, (pat, _pl, _cl) in SEAMS.items():
+                m = pat.search(s)
+                if m:
+                    hits.append((t, where, name,
+                                 re.sub(r"\s+", " ", s[max(0, m.start() - 50):m.start() + 40])))
+    print("GRAMMAR SEAMS in stored prose, %d object(s)   (proof passed: every pattern fires "
+          "on its planted defect)" % read)
+    if not hits:
+        print("   none.")
+        return
+    seen = set()
+    for t, where, name, ctx in hits[:20]:
+        print("   %-28s %-42s %s" % (t[:28], where[:42], name))
+        if name not in seen:
+            print("        ...%s..." % ctx.strip())
+            seen.add(name)
+    sys.exit("REFUSED: %d grammar seam(s) in stored prose. A change that alters the SHAPE of "
+             "generated text invalidates the joins around it, and the joins are invisible in "
+             "a diff of the generator." % len(hits))
+
+
+if __name__ == "__main__":
+    main()
+
+codex
+I’ll stay within the pasted packet and treat anything depending on the real `ssot` corpus as not determinable from this record. I’m numbering lines from the first line of the pasted file.
+codex
+Defects found:
+
+- **check that CANNOT FAIL / status code reports wrapper**: line 122, exact input: `ssot/a/a.json` containing malformed JSON such as `{"manuscript":{"x":"text; This object's verification rests on a record."}`. Consequence: the seam-bearing file is silently skipped, `read` can remain `0`, and lines 132-134 return success with `none.`
+
+- **check that CANNOT FAIL**: lines 115-134, exact input: no files matching `ssot/*/<dirname>.json`, for example only `ssot/a/not-a.json` exists with `{"manuscript":{"x":"text; This object's verification rests on a record."}}`. Consequence: the gate scans zero objects and exits 0, so “none” means the selector never reached the corpus.
+
+- **instrument reading a DIFFERENT COPY / fail-open source selector**: lines 50-53, exact input: malformed or missing `ssot/field_lead_ins.json`, plus `ssot/a/a.json` containing `{"manuscript":{"x":"text; Verified by registry data."}}`. Consequence: the gate stops reading the generator’s lead-in map and uses stale fallback openers, so new lead-in seams can pass.
+
+No proven defect from the pasted record for: probe keyed to string a fix removes; idempotency guard satisfied by own comment; CRLF/LF text comparison; merged-cell/off-by-one tabulation; zero conflated with absent; negation dropped.
+
+COULD NOT DETERMINE: whether line 105’s `dict`-only scan misses real stored prose requires the actual `ssot/*.json` schema/corpus.
+tokens used
+12,013
+Defects found:
+
+- **check that CANNOT FAIL / status code reports wrapper**: line 122, exact input: `ssot/a/a.json` containing malformed JSON such as `{"manuscript":{"x":"text; This object's verification rests on a record."}`. Consequence: the seam-bearing file is silently skipped, `read` can remain `0`, and lines 132-134 return success with `none.`
+
+- **check that CANNOT FAIL**: lines 115-134, exact input: no files matching `ssot/*/<dirname>.json`, for example only `ssot/a/not-a.json` exists with `{"manuscript":{"x":"text; This object's verification rests on a record."}}`. Consequence: the gate scans zero objects and exits 0, so “none” means the selector never reached the corpus.
+
+- **instrument reading a DIFFERENT COPY / fail-open source selector**: lines 50-53, exact input: malformed or missing `ssot/field_lead_ins.json`, plus `ssot/a/a.json` containing `{"manuscript":{"x":"text; Verified by registry data."}}`. Consequence: the gate stops reading the generator’s lead-in map and uses stale fallback openers, so new lead-in seams can pass.
+
+No proven defect from the pasted record for: probe keyed to string a fix removes; idempotency guard satisfied by own comment; CRLF/LF text comparison; merged-cell/off-by-one tabulation; zero conflated with absent; negation dropped.
+
+COULD NOT DETERMINE: whether line 105’s `dict`-only scan misses real stored prose requires the actual `ssot/*.json` schema/corpus.

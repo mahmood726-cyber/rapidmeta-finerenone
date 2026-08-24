@@ -1,0 +1,665 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a03161-2950-7191-977a-9f562bf7f95e
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/build_3more_yf_capit_schist.py
+
+--- THE FILE, IN FULL ---
+"""Build 3 more topics:
+
+Topic 20 - YELLOW_FEVER_FRACTIONAL_REVIEW.html: Casey 2019 NEJM Kinshasa fractional-dose 17DD
+  yellow fever vaccine (1/5 standard dose) seroconversion study during 2016 Angola/DRC outbreak.
+  Observational pre/post seroconversion (PRNT >=10), n=716 (1mo) / 684 (1yr). NOT CT.gov registered.
+  Synthetic LEGACY-NONNCT-CASEY-2019-YF key. WHO outbreak-control evidence base.
+
+Topic 21 - PNEUMONIA_AMOXICILLIN_DURATION_REVIEW.html: CAP-IT (Bielicki 2021 JAMA) 2x2 factorial
+  pediatric CAP amoxicillin lower vs higher dose AND 3-day vs 7-day. UK+Ireland (NOT Africa, but
+  informs WHO global pneumonia treatment recommendation). ISRCTN76888927 → synthetic
+  LEGACY-ISRCTN-76888927-CAP-IT key. n=824 randomized.
+
+Topic 22 - SCHISTOSOMIASIS_ARPRAZIQUANTEL_REVIEW.html: NCT03845140 — Merck KGaA L-PZQ ODT
+  (arpraziquantel) phase 3 in 3mo-6yr children at Cocody (Côte d'Ivoire) + KEMRI Kisumu (Kenya).
+  4 cohorts, n=288 total. Drove WHO 2024 prequalification of arpraziquantel for preschool-age
+  schistosomiasis treatment.
+"""
+from __future__ import annotations
+from pathlib import Path
+
+def replace_realdata(text, new_body):
+    start = text.find("realData: {")
+    body_start = text.find("{", start)
+    depth = 0; i = body_start; body_end = body_start
+    while i < len(text):
+        c = text[i]
+        if c == "{": depth += 1
+        elif c == "}": depth -= 1
+        if depth == 0 and i > body_start: body_end = i; break
+        i += 1
+    return text[:body_start] + "{" + new_body + text[body_end+1:]
+
+
+def replace_or_die(text, old, new):
+    if old not in text:
+        raise SystemExit(f"old string not found: {old[:80]!r}...")
+    return text.replace(old, new)
+
+
+# ==========================
+# TOPIC 20: Yellow Fever fractional dose Casey 2019
+# ==========================
+YF_BODY = """
+
+                'LEGACY-NONNCT-CASEY-2019-YF': {
+
+                    name: 'Casey 2019 Kinshasa (1/5 fractional 17DD)', pmid: '29443626', phase: 'NA', year: 2019, tE: 482, tN: 493, cE: 0, cN: 0, group: 'Casey RM, Harris JB, Ahuka-Mundeke S, et al. NEJM 2019;381:444-454 (PMID 29443626). CDC + Institut National de Recherche Biomedicale (DRC) + Programme Elargi de Vaccination + USAID. Pre/post seroconversion field study during the response to the 2016 Angola/DRC yellow fever outbreak which depleted global YF vaccine supply. Fractional dose (1/5 of standard 17DD vaccine, 0.1 mL intramuscular) was administered to 7.6 MILLION children >=2 years and non-pregnant adults in a preemptive Kinshasa campaign. Sub-study followed n=716 participants at 1 month and n=684 at 1 year, sampled across 4 age strata at 6 vaccination sites. Neutralizing antibody titres assayed by plaque reduction neutralization test PRNT50 (titre >=10 = seropositive; 4-fold rise from baseline = immune response). PRIMARY ENDPOINT: 1-month seroconversion in baseline-seronegative participants. RESULT: 482/493 baseline-seronegatives seroconverted (98%, 95% CI 96-99); 705/716 of all participants seropositive at 1mo (98%, 97-99); 666/684 seropositive at 1yr (97%, 96-98). Fractional 17DD induced robust seroconversion, sustained at 1-year follow-up — directly supports WHO Strategic Advisory Group of Experts (SAGE) recommendation for fractional-dose YF vaccine during outbreak response when supply is constrained. NOT registered on ClinicalTrials.gov (CDC field epidemiology study); uses synthetic LEGACY-NONNCT-CASEY-2019-YF key in this dashboard. Africa relevance: DIRECT — 2016 Angola/DRC outbreak that triggered the global YF vaccine shortage; Kinshasa preemptive campaign represents the largest fractional-dose YF deployment ever attempted; pivotal evidence base for current WHO outbreak-response strategy across the African yellow-fever belt.',
+
+                    estimandType: 'PROP', publishedHR: 0.98, hrLCI: 0.96, hrUCI: 0.99, pubHR: 0.98,
+
+                    allOutcomes: [
+                        { shortLabel: 'SEROCONV_1M', title: 'Seroconversion at 1 month in baseline-seronegative (PRNT>=10 + 4x rise)', tE: 482, cE: 0, type: 'PRIMARY', matchScore: 100, effect: 0.98, lci: 0.96, uci: 0.99, estimandType: 'PROP' },
+
+                        { shortLabel: 'SEROPOS_1Y', title: 'Seropositive at 1 year (PRNT>=10) — durability', tE: 666, cE: 0, type: 'SECONDARY', matchScore: 90, effect: 0.97, lci: 0.96, uci: 0.98, estimandType: 'PROP' },
+
+                        { shortLabel: 'IMMUNE_RESP', title: 'Immune response in baseline-seropositive participants (4x rise)', tE: 148, cE: 0, type: 'SECONDARY', matchScore: 80, effect: 0.66, lci: 0.60, uci: 0.72, estimandType: 'PROP' }
+                    ],
+
+                    rob: ['some', 'some', 'low', 'low', 'low'],
+
+                    snippet: 'Source: Casey RM, Harris JB, Ahuka-Mundeke S, et al. Immunogenicity of Fractional-Dose Vaccine during a Yellow Fever Outbreak — Final Report. NEJM 2019;381:444-454. PMID 29443626. DOI 10.1056/NEJMoa1710430.',
+
+                    sourceUrl: 'https://doi.org/10.1056/NEJMoa1710430',
+
+                    ctgovUrl: null,
+
+                    evidence: [
+                        { label: 'Enrollment', source: 'Casey 2019 NEJM, design', text: 'Pre/post seroconversion field study nested within the 2016 Kinshasa preemptive vaccination campaign (7.6 million children >=2y and non-pregnant adults received 1/5 fractional dose 17DD yellow fever vaccine, 0.1 mL IM, after global vaccine shortage triggered by the Angola/DRC 2016 outbreak). Sub-study recruited n=716 at 6 vaccination sites across 4 age strata (2-12y, 13-17y, 18-39y, 40+y). Pre-vaccination blood sample, 1-month follow-up sample (n=716 with data), 1-year follow-up sample (n=684 with data). PRNT50 used as primary serology; seropositive defined as PRNT >=10; immune response defined as 4-fold rise from baseline.', highlights: ['7.6 million', 'Kinshasa', 'DRC', '1/5 fractional', '17DD', '716', '684', '4 age strata', 'PRNT50'] },
+                        { label: 'Primary outcome — seroconversion at 1 month', source: 'Casey 2019 NEJM, primary endpoint', text: 'Among 493 baseline-seronegative participants (PRNT<10 pre-vaccination), 482 (98%, 95% CI 96-99) seroconverted at 1 month. Among ALL 716 participants who completed 1-month follow-up, 705 (98%, 97-99) were seropositive. Among 223 baseline-seropositive participants, 148 (66%, 60-72) had a 4-fold rise (immune response); lower baseline titres associated with higher probability of immune response (P<0.001). At 1 year: 666/684 (97%, 96-98) seropositive — durability essentially intact. Distribution of titres differed by age group at both 1mo and 1yr (P<0.001 for both) — youngest age stratum tended to have higher post-vaccination titres. Bottom line: 1/5 fractional dose induces seroconversion comparable to standard dose during outbreak response.', highlights: ['482', '493', '98%', '96', '99', '705', '716', '666', '684', '97%', '4-fold'] },
+                        { label: 'Risk of Bias (study type)', source: 'Casey 2019 design', text: 'NOT a randomised controlled trial — this is a single-arm prospective seroconversion field study during a declared yellow fever public-health emergency. Standard RoB 2.0 not applicable; relevant biases: (D1 some — convenience sampling at 6 vaccination sites, not population-randomized); (D2 some — single-arm; no placebo or full-dose comparator within the study itself, though external full-dose immunogenicity is well-documented); (D3 low — high follow-up retention 97% to 1mo, 95% to 1yr); (D4 low — PRNT50 standardized assay at CDC reference lab); (D5 low — pre-specified protocol).', highlights: ['NOT RCT', 'field study', 'single-arm', 'PRNT50', 'CDC reference lab'] }
+                    ]
+                }
+            }"""
+
+
+# ==========================
+# TOPIC 21: CAP-IT pediatric pneumonia amoxicillin duration
+# ==========================
+CAPIT_BODY = """
+
+                'LEGACY-ISRCTN-76888927-CAP-IT': {
+
+                    name: 'CAP-IT (Bielicki 2021)', pmid: '34726708', phase: 'IV', year: 2021, tE: 51, tN: 410, cE: 50, cN: 404, group: 'Bielicki JA, Stohr W, Barratt S, et al. JAMA 2021;326:1713-1724 (PMID 34726708). MRC Clinical Trials Unit at UCL + St Georges University of London + 28 UK + 1 Ireland hospitals. Multicenter open-label 2x2 factorial non-inferiority trial in n=824 children aged 6 months and older with clinically diagnosed community-acquired pneumonia, treated with amoxicillin on discharge from emergency departments and inpatient wards Feb 2017 - Apr 2019. Randomization 1:1 to lower-dose (35-50 mg/kg/d, n=410) vs higher-dose (70-90 mg/kg/d, n=404) AND 1:1 to 3-day (n=413) vs 7-day (n=401) duration. PRIMARY: clinically-indicated antibiotic re-treatment for respiratory infection within 28 days; non-inferiority margin 8 percentage points. RESULT: lower-dose 12.6% vs higher-dose 12.4% (diff +0.2pp, 1-sided 95% CI -inf to +4.0%) — NI met. 3-day 12.5% vs 7-day 12.5% (diff +0.1pp, -inf to +3.9%) — NI met. No significant interaction (P=0.63). Among children with severe CAP (subgroup): both NI margins held but with wider CI. Modest difference in cough duration (3-day 12d vs 7-day 10d, HR 1.2). NOT registered on ClinicalTrials.gov (UK CTU registration); ISRCTN76888927 only — uses synthetic LEGACY-ISRCTN-76888927-CAP-IT key. Africa relevance: indirect — UK+Ireland enrolment, but the lower-dose-shorter-course evidence directly informs the WHO 2023 update of pediatric pneumonia treatment recommendations (relevant for African primary-care antibiotic stewardship).',
+
+                    estimandType: 'RR', publishedHR: 1.02, hrLCI: 0.69, hrUCI: 1.49, pubHR: 1.02,
+
+                    allOutcomes: [
+                        { shortLabel: 'RETX_DOSE', title: 'Antibiotic re-treatment within 28d (lower vs higher dose, 2-margin NI)', tE: 51, cE: 50, type: 'PRIMARY', matchScore: 100, effect: 1.02, lci: 0.69, uci: 1.49, estimandType: 'RR' },
+
+                        { shortLabel: 'RETX_DUR', title: 'Antibiotic re-treatment within 28d (3-day vs 7-day, NI factor)', tE: 51, cE: 49, type: 'PRIMARY', matchScore: 100, effect: 1.04, lci: 0.71, uci: 1.52, estimandType: 'RR' },
+
+                        { shortLabel: 'COUGH_DUR', title: 'Cough duration (median days, 3-day vs 7-day)', tE: 12, cE: 10, type: 'SECONDARY', matchScore: 80, effect: 1.20, lci: 1.00, uci: 1.40, estimandType: 'HR' }
+                    ],
+
+                    rob: ['low', 'high', 'low', 'low', 'low'],
+
+                    snippet: 'Source: Bielicki JA, Stohr W, Barratt S, et al. Effect of Amoxicillin Dose and Treatment Duration on the Need for Antibiotic Re-treatment in Children With Community-Acquired Pneumonia: The CAP-IT Randomized Clinical Trial. JAMA 2021;326:1713-1724. PMID 34726708. DOI 10.1001/jama.2021.17843. ISRCTN76888927.',
+
+                    sourceUrl: 'https://doi.org/10.1001/jama.2021.17843',
+
+                    ctgovUrl: null,
+
+                    evidence: [
+                        { label: 'Enrollment', source: 'Bielicki 2021 JAMA, CONSORT', text: '824 children aged 6 months and older with clinically-diagnosed community-acquired pneumonia, treated with amoxicillin on discharge from emergency departments and inpatient wards (within 48 hours) of 28 UK hospitals + 1 Irish hospital, recruited Feb 2017 to Apr 2019. 2x2 factorial randomization 1:1 to lower (35-50 mg/kg/d) vs higher (70-90 mg/kg/d) amoxicillin dose AND independently 1:1 to 3-day vs 7-day duration. 814 received >=1 dose. Median age 2.5 years (IQR 1.6-2.7); 421 (52%) male; 393 (48%) female. Primary outcome data available for 789 (97%).', highlights: ['824', '6 months', 'community-acquired pneumonia', '28 UK', '1 Irish', '2x2 factorial', '35-50', '70-90', '3-day', '7-day', '789', '97%'] },
+                        { label: 'Primary outcome — antibiotic re-treatment at 28d', source: 'Bielicki 2021 JAMA, primary endpoint', text: 'Lower-dose vs higher-dose amoxicillin: clinical re-treatment for respiratory infection within 28d 12.6% (lower) vs 12.4% (higher); difference +0.2 percentage points (1-sided 95% CI -inf to +4.0%) — NI margin 8pp met. 3-day vs 7-day duration: 12.5% vs 12.5%; difference +0.1pp (1-sided 95% CI -inf to +3.9%) — NI margin 8pp also met. No significant interaction between dose and duration factors (P=0.63). Lower dose AND shorter duration BOTH non-inferior. Of 14 prespecified secondary endpoints, only cough duration significantly different (3-day 12d vs 7-day 10d, HR 1.2, 95% CI 1.0-1.4; P=0.04) and sleep disturbed by cough (HR 1.2, P=0.03). Severe CAP subgroup: similar pattern but wider CI.', highlights: ['12.6%', '12.4%', '+0.2', '4.0%', 'NI met', '12.5%', '+0.1', '3.9%', 'P=0.63', '1.2', '1.0', '1.4', 'P=0.04'] },
+                        { label: 'Risk of Bias (RoB 2.0)', source: 'CAP-IT design + RoB 2.0', text: 'D1 LOW (central computer-generated 2x2 factorial randomization). D2 HIGH (open-label by design — different pill-bottle quantities visible to families). D3 LOW (97% primary-outcome retention). D4 LOW (clinical re-treatment objectively recorded; standardised follow-up phone calls + EHR linkage). D5 LOW (SAP locked).', highlights: ['LOW', 'central', '2x2 factorial', 'open-label', 'HIGH', '97%', 'EHR'] }
+                    ]
+                }
+            }"""
+
+
+# ==========================
+# TOPIC 22: Schistosomiasis arpraziquantel L-PZQ ODT
+# ==========================
+SCHIST_BODY = """
+
+                'NCT03845140': {
+
+                    name: 'L-PZQ ODT (arpraziquantel) phase 3', pmid: '38678933', phase: 'III', year: 2024, tE: 73, tN: 96, cE: 38, cN: 49, group: 'Merck KGaA Darmstadt-sponsored phase 3 efficacy and safety study of L-praziquantel orodispersible tablet (L-PZQ ODT, also known as arpraziquantel) in Schistosoma-infected children 3 months to 6 years of age. Two African sites: Universite de Cocody (Abidjan, Cote dIvoire) + KEMRI Kisumu (Kenya). Open-label trial Sep 2019 - Oct 2021. n=288 children across 4 cohorts: Cohort 1a (4-6y S. mansoni-positive, L-PZQ ODT 50 mg/kg, n=96 randomized 2:1 vs Biltricide commercial PZQ comparator, n=49); Cohort 1b (4-6y, L-PZQ ODT 60 mg/kg single arm); Cohort 2 (2-3y, L-PZQ ODT single arm); Cohort 3 (3-23 months infants, L-PZQ ODT single arm); Cohort 4 (S. haematobium-positive). PRIMARY ENDPOINT: clinical cure (no parasite eggs in stool by Kato-Katz at Week 3) in Cohorts 1a + 1b. RESULT: Clinical cure 73/96 (76%) in L-PZQ 50 mg/kg arm vs 38/49 (77.5%) in Biltricide comparator — both arms achieved >=70% cure rates expected by WHO target product profile. Egg reduction rate >=95% across cohorts. Drove WHO 2024 prequalification of arpraziquantel as the FIRST praziquantel formulation suitable for children under 6 years of age — closes a major preventive-chemotherapy gap (preschool-age children were previously excluded from WHO mass-drug administration programs because no age-appropriate praziquantel formulation existed). Africa relevance: DIRECT — both trial sites in sub-Saharan Africa, addresses pre-school-age schistosomiasis (~50 million African children under 6 affected) which until 2024 had NO WHO-recommended treatment.',
+
+                    estimandType: 'RR', publishedHR: 0.98, hrLCI: 0.85, hrUCI: 1.14, pubHR: 0.98,
+
+                    allOutcomes: [
+                        { shortLabel: 'CURE_3W', title: 'Clinical cure at Week 3 (Kato-Katz, L-PZQ 50 mg/kg vs Biltricide)', tE: 73, cE: 38, type: 'PRIMARY', matchScore: 100, effect: 0.98, lci: 0.85, uci: 1.14, estimandType: 'RR' },
+
+                        { shortLabel: 'ERR_3W', title: 'Egg reduction rate at Week 3 (Cohort 1a 50 mg/kg vs Biltricide)', tE: 95, cE: 96, type: 'SECONDARY', matchScore: 90, effect: -1.0, lci: -3.0, uci: 1.0, estimandType: 'MD' },
+
+                        { shortLabel: 'TEAE', title: 'Treatment-emergent adverse events through Day 40', tE: 41, cE: 18, type: 'SAFETY', matchScore: 80, effect: 1.16, lci: 0.74, uci: 1.82, estimandType: 'RR' }
+                    ],
+
+                    rob: ['low', 'high', 'low', 'low', 'low'],
+
+                    snippet: 'Source: Merck KGaA L-PZQ ODT Phase 3 study in 3mo-6yr children with S. mansoni or S. haematobium infection. NCT03845140. Primary publication forthcoming; primary CSR results basis for WHO 2024 prequalification of arpraziquantel.',
+
+                    sourceUrl: 'https://clinicaltrials.gov/study/NCT03845140',
+
+                    ctgovUrl: 'https://clinicaltrials.gov/study/NCT03845140',
+
+                    evidence: [
+                        { label: 'Enrollment', source: 'NCT03845140 CT.gov record + WHO 2024 PQ rationale', text: '288 children aged 3 months to 6 years with Schistosoma mansoni-positive (Cohorts 1, 2, 3) or Schistosoma haematobium-positive (Cohort 4) infection, recruited at 2 African sites: Universite de Cocody, Abidjan, Cote dIvoire and KEMRI Kisumu, Kenya. Sep 2019 to Oct 2021. 4 cohorts stratified by age and species: 1a (4-6y mansoni, 50 mg/kg L-PZQ ODT vs Biltricide commercial PZQ, randomized 2:1, n=145); 1b (4-6y mansoni, 60 mg/kg L-PZQ ODT single-arm); 2 (2-3y mansoni single-arm); 3 (3-23 months infants/toddlers single-arm); 4 (haematobium 5/15 mg/kg). Open-label by design.', highlights: ['288', '3 months', '6 years', 'Cote dIvoire', 'Kenya', 'KEMRI', 'mansoni', 'haematobium', '2:1', '50 mg/kg', 'Biltricide', 'open-label'] },
+                        { label: 'Primary outcome — clinical cure at Week 3', source: 'NCT03845140 + WHO 2024 PQ basis', text: 'Cohort 1a (4-6y mansoni, 2:1 randomization L-PZQ 50 mg/kg vs Biltricide): clinical cure (no eggs by Kato-Katz at Week 3) achieved by 73/96 (76%) on L-PZQ ODT vs 38/49 (77.5%) on Biltricide — non-inferior. Both arms exceed the WHO target product profile threshold (>=70% cure rate). Egg reduction rate >=95% in both arms. POC-CCA cure also reported with similar pattern. Cohort 1b (60 mg/kg) similar cure rate. Cohorts 2 and 3 (younger children) confirmed efficacy + safety in age groups previously excluded from WHO MDA. Bottom line: L-PZQ ODT (arpraziquantel) is non-inferior to commercial racemic PZQ in 4-6y children AND extends praziquantel use into the 3mo-3y age band that previously had no WHO-recommended therapy. Drove WHO 2024 prequalification.', highlights: ['73', '96', '76%', '38', '49', '77.5%', '>=70%', 'WHO target', '>=95%', 'WHO 2024 PQ'] },
+                        { label: 'Risk of Bias (RoB 2.0)', source: 'NCT03845140 design + RoB 2.0', text: 'D1 LOW (central randomization 2:1 in Cohort 1a; sequential single-arm cohorts 1b/2/3 not randomized — separate non-inferiority comparison vs Cohort 1a). D2 HIGH (open-label by design — formulations visibly different: ODT vs commercial tablet). D3 LOW (>=95% follow-up at Week 3; structured protocol with 17-21 day window). D4 LOW (Kato-Katz egg counts read by trained microscopists per WHO standard; PK assays centrally analyzed). D5 LOW (SAP locked).', highlights: ['LOW', 'central', '2:1', 'open-label', 'HIGH', 'Kato-Katz', 'WHO standard'] }
+                    ]
+                }
+            }"""
+
+
+def build_yf():
+    FILE = Path("YELLOW_FEVER_FRACTIONAL_REVIEW.html")
+    text = FILE.read_text(encoding="utf-8")
+    text = replace_or_die(text,
+        "<title>RapidMeta Cardiology | SGLT2-HF Ultra-Precision v12.0</title>",
+        "<title>RapidMeta Vaccinology | Fractional-Dose 17DD Yellow Fever Vaccine v0.1 (Casey 2019 Kinshasa, post-2016)</title>")
+    text = replace_or_die(text,
+        "const AUTO_INCLUDE_TRIAL_IDS = new Set(['NCT03036124', 'NCT03057977', 'NCT03057951', 'NCT03619213', 'NCT03521934']);",
+        "const AUTO_INCLUDE_TRIAL_IDS = new Set(['LEGACY-NONNCT-CASEY-2019-YF']);")
+    text = replace_or_die(text,
+        "protocol: { pop: 'Adults with heart failure across ejection fraction spectrum', int: 'SGLT2 or dual SGLT1/2 inhibitor therapy (dapagliflozin, empagliflozin, or sotagliflozin)', comp: 'Placebo + guideline-directed therapy', out: 'CV Death or Worsening Heart Failure Composite', subgroup: 'EF phenotype (HFrEF vs HFpEF), drug class member, diabetes status', query: '', rctOnly: true, post2015: true },",
+        "protocol: { pop: 'Children >=2 years and non-pregnant adults receiving fractional-dose yellow fever vaccine during the 2016 Kinshasa preemptive campaign — declared response to the 2016 Angola/DRC outbreak that depleted global YF vaccine supply. Sub-study sampled across 4 age strata (2-12y, 13-17y, 18-39y, 40+y) at 6 vaccination sites', int: 'Fractional 1/5 dose 17DD yellow fever vaccine (0.1 mL intramuscular) — single dose', comp: 'Pre-vaccination baseline (within-participant, single-arm field study)', out: '1-month seroconversion in baseline-seronegatives (PRNT50 titre >=10 + 4-fold rise) — primary; 1-year seropositive durability; immune response in baseline-seropositives', subgroup: 'Age stratum, baseline PRNT titre, sex', query: '', rctOnly: false, post2015: true },")
+    text = replace_or_die(text,
+        "{ 'DAPA-HF': 'Dapagliflozin', 'DELIVER': 'Dapagliflozin', 'EMPEROR-Reduced': 'Empagliflozin', 'EMPEROR-Preserved': 'Empagliflozin', 'SOLOIST-WHF': 'Sotagliflozin' }",
+        "{ 'Casey 2019 Kinshasa (1/5 fractional 17DD)': 'Fractional 1/5 dose 17DD yellow fever vaccine' }")
+    text = replace_or_die(text,
+        "'NCT03036124': 'DAPA-HF',\n\n\n                'NCT03057977': 'EMPEROR-Reduced',\n\n\n                'NCT03057951': 'EMPEROR-Preserved',\n\n\n                'NCT03619213': 'DELIVER',\n\n\n                'NCT03521934': 'SOLOIST-WHF'",
+        "'LEGACY-NONNCT-CASEY-2019-YF': 'Casey 2019 Kinshasa Fractional 17DD'")
+    text = replace_realdata(text, YF_BODY)
+    text = text.replace("SGLT2-HF v1.0", "Yellow Fever Frac v0.1")
+    text = text.replace("SGLT2 Inhibitors for Heart Failure Outcomes: A Living Systematic Review and Meta-Analysis of Randomized Controlled Trials",
+                        "Fractional 17DD Yellow Fever Vaccine During Outbreak Response: Single-Study Pre/Post Seroconversion Review (Casey 2019 Kinshasa, post-2016)")
+    text = text.replace("SGLT2 Inhibitors in Heart Failure", "Fractional-Dose YF Vaccine for Outbreak Response")
+    text = text.replace('value="Adults with heart failure"', 'value="Children/adults during 2016 Angola-DRC YF outbreak (Kinshasa)"')
+    text = text.replace("value=\"Heart Failure\"", "value=\"Yellow Fever\"")
+    FILE.write_text(text, encoding="utf-8")
+    print(f"  Yellow Fever: {FILE.stat().st_size:,}")
+
+
+def build_capit():
+    FILE = Path("PNEUMONIA_AMOXICILLIN_DURATION_REVIEW.html")
+    text = FILE.read_text(encoding="utf-8")
+    text = replace_or_die(text,
+        "<title>RapidMeta Cardiology | SGLT2-HF Ultra-Precision v12.0</title>",
+        "<title>RapidMeta Pediatric ID | Amoxicillin Dose+Duration for Pediatric CAP v0.1 (CAP-IT, Bielicki 2021, post-2017)</title>")
+    text = replace_or_die(text,
+        "const AUTO_INCLUDE_TRIAL_IDS = new Set(['NCT03036124', 'NCT03057977', 'NCT03057951', 'NCT03619213', 'NCT03521934']);",
+        "const AUTO_INCLUDE_TRIAL_IDS = new Set(['LEGACY-ISRCTN-76888927-CAP-IT']);")
+    text = replace_or_die(text,
+        "protocol: { pop: 'Adults with heart failure across ejection fraction spectrum', int: 'SGLT2 or dual SGLT1/2 inhibitor therapy (dapagliflozin, empagliflozin, or sotagliflozin)', comp: 'Placebo + guideline-directed therapy', out: 'CV Death or Worsening Heart Failure Composite', subgroup: 'EF phenotype (HFrEF vs HFpEF), drug class member, diabetes status', query: '', rctOnly: true, post2015: true },",
+        "protocol: { pop: 'Children aged 6 months and older with clinically-diagnosed community-acquired pneumonia, treated with amoxicillin on discharge from emergency departments or inpatient wards (within 48 hours) of 28 UK + 1 Irish hospitals', int: 'Lower-dose amoxicillin 35-50 mg/kg/d AND/OR shorter 3-day course (2x2 factorial design)', comp: 'Higher-dose amoxicillin 70-90 mg/kg/d AND/OR longer 7-day course (other 2x2 factorial cells)', out: 'Antibiotic re-treatment for respiratory infection within 28 days (primary, NI margin 8pp); cough/symptom duration; antibiotic-related adverse events; phenotypic resistance in colonizing pneumococcus', subgroup: 'Disease severity, treatment setting (ED vs inpatient), prior antibiotic, age band', query: '', rctOnly: true, post2015: true },")
+    text = replace_or_die(text,
+        "{ 'DAPA-HF': 'Dapagliflozin', 'DELIVER': 'Dapagliflozin', 'EMPEROR-Reduced': 'Empagliflozin', 'EMPEROR-Preserved': 'Empagliflozin', 'SOLOIST-WHF': 'Sotagliflozin' }",
+        "{ 'CAP-IT (Bielicki 2021)': 'Lower-dose AND/OR 3-day amoxicillin (2x2 factorial)' }")
+    text = replace_or_die(text,
+        "'NCT03036124': 'DAPA-HF',\n\n\n                'NCT03057977': 'EMPEROR-Reduced',\n\n\n                'NCT03057951': 'EMPEROR-Preserved',\n\n\n                'NCT03619213': 'DELIVER',\n\n\n                'NCT03521934': 'SOLOIST-WHF'",
+        "'LEGACY-ISRCTN-76888927-CAP-IT': 'CAP-IT'")
+    text = replace_realdata(text, CAPIT_BODY)
+    text = text.replace("SGLT2-HF v1.0", "CAP-IT v0.1")
+    text = text.replace("SGLT2 Inhibitors for Heart Failure Outcomes: A Living Systematic Review and Meta-Analysis of Randomized Controlled Trials",
+                        "Lower-Dose, Shorter-Course Amoxicillin for Pediatric Community-Acquired Pneumonia: 2x2 Factorial NI Trial (CAP-IT, Bielicki 2021, post-2017)")
+    text = text.replace("SGLT2 Inhibitors in Heart Failure", "Amoxicillin Dose+Duration for Pediatric CAP")
+    text = text.replace('value="Adults with heart failure"', 'value="Children with community-acquired pneumonia (UK+Ireland)"')
+    text = text.replace("value=\"Heart Failure\"", "value=\"Pediatric CAP\"")
+    FILE.write_text(text, encoding="utf-8")
+    print(f"  CAP-IT: {FILE.stat().st_size:,}")
+
+
+def build_schist():
+    FILE = Path("SCHISTOSOMIASIS_ARPRAZIQUANTEL_REVIEW.html")
+    text = FILE.read_text(encoding="utf-8")
+    text = replace_or_die(text,
+        "<title>RapidMeta Cardiology | SGLT2-HF Ultra-Precision v12.0</title>",
+        "<title>RapidMeta NTD | L-PZQ ODT (Arpraziquantel) Phase 3 for Pediatric Schistosomiasis v0.1 (NCT03845140, post-2019)</title>")
+    text = replace_or_die(text,
+        "const AUTO_INCLUDE_TRIAL_IDS = new Set(['NCT03036124', 'NCT03057977', 'NCT03057951', 'NCT03619213', 'NCT03521934']);",
+        "const AUTO_INCLUDE_TRIAL_IDS = new Set(['NCT03845140']);")
+    text = replace_or_die(text,
+        "protocol: { pop: 'Adults with heart failure across ejection fraction spectrum', int: 'SGLT2 or dual SGLT1/2 inhibitor therapy (dapagliflozin, empagliflozin, or sotagliflozin)', comp: 'Placebo + guideline-directed therapy', out: 'CV Death or Worsening Heart Failure Composite', subgroup: 'EF phenotype (HFrEF vs HFpEF), drug class member, diabetes status', query: '', rctOnly: true, post2015: true },",
+        "protocol: { pop: 'Children aged 3 months to 6 years with Schistosoma mansoni- or S. haematobium-positive infection (Kato-Katz or urine filtration egg count >=1) at 2 African sites: Universite de Cocody Abidjan (Cote dIvoire) + KEMRI Kisumu (Kenya). 4 age/species cohorts stratified by formulation', int: 'L-praziquantel orodispersible tablet (L-PZQ ODT, arpraziquantel) at 50 or 60 mg/kg single oral dose. Now WHO-prequalified (2024) as the FIRST praziquantel formulation suitable for children under 6 years', comp: 'Commercial racemic PZQ tablets (Biltricide, Bayer 40 mg/kg) — 4-6 year cohort 1a only (2:1 randomization L-PZQ:Biltricide)', out: 'Clinical cure at Week 3 (Kato-Katz no parasite eggs in stool, primary in Cohorts 1a+1b); egg reduction rate; POC-CCA cure; safety/tolerability through Day 40; pharmacokinetics (R-PZQ + S-PZQ enantiomers)', subgroup: 'Age band (3-23mo, 2-3y, 4-6y), Schistosoma species, baseline egg count intensity (light/moderate/heavy)', query: '', rctOnly: true, post2015: true },")
+    text = replace_or_die(text,
+        "{ 'DAPA-HF': 'Dapagliflozin', 'DELIVER': 'Dapagliflozin', 'EMPEROR-Reduced': 'Empagliflozin', 'EMPEROR-Preserved': 'Empagliflozin', 'SOLOIST-WHF': 'Sotagliflozin' }",
+        "{ 'L-PZQ ODT (arpraziquantel) phase 3': 'L-praziquantel ODT (arpraziquantel)' }")
+    text = replace_or_die(text,
+        "'NCT03036124': 'DAPA-HF',\n\n\n                'NCT03057977': 'EMPEROR-Reduced',\n\n\n                'NCT03057951': 'EMPEROR-Preserved',\n\n\n                'NCT03619213': 'DELIVER',\n\n\n                'NCT03521934': 'SOLOIST-WHF'",
+        "'NCT03845140': 'L-PZQ ODT (arpraziquantel)'")
+    text = replace_realdata(text, SCHIST_BODY)
+    text = text.replace("SGLT2-HF v1.0", "Arpraziquantel v0.1")
+    text = text.replace("SGLT2 Inhibitors for Heart Failure Outcomes: A Living Systematic Review and Meta-Analysis of Randomized Controlled Trials",
+                        "L-Praziquantel Orodispersible Tablet (Arpraziquantel) Phase 3 for Pediatric Schistosomiasis: Single-Trial Pairwise Review (NCT03845140, Cote dIvoire + Kenya, post-2019)")
+    text = text.replace("SGLT2 Inhibitors in Heart Failure", "Arpraziquantel for Pediatric Schistosomiasis")
+    text = text.replace('value="Adults with heart failure"', 'value="Children 3mo-6y with Schistosoma infection (Cote dIvoire + Kenya)"')
+    text = text.replace("value=\"Heart Failure\"", "value=\"Schistosomiasis\"")
+    FILE.write_text(text, encoding="utf-8")
+    print(f"  Schistosomiasis: {FILE.stat().st_size:,}")
+
+
+if __name__ == "__main__":
+    build_yf()
+    build_capit()
+    build_schist()
+
+codex
+I’ll treat the pasted packet as the entire review surface and keep the answer to demonstrable failures only. I’m line-numbering against the pasted file as shown.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Get-Content -Path 'F:\\ProjectIndex\\INDEX.md' -TotalCount 40" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$p='"'scripts/build_3more_yf_capit_schist.py'; if (Test-Path "'$p) { $i=0; Get-Content $p | ForEach-Object { $i++; if ($i -le 260) { '"'{0,4}: {1}' -f "'$i, $_ } } } else { '"'MISSING scripts/build_3more_yf_capit_schist.py' }" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Get-Content -Path 'F:\\E156\\rewrite-workbook.txt' -TotalCount 40" in F:\rapidmeta-ssot-shell
+ succeeded in 3102ms:
+<!-- sentinel:skip-file - portfolio registry; absolute paths ARE the data -->
+# C: Drive Project Index
+> **Last updated**: 2026-05-14 (C:\HTML apps focused repair batch continued: hub shell launch fix, static contracts across ten HTML app repos, NMA/living-meta/nma-dose-response landing and asset-link repairs, and NMA doc hardcoded-path cleanup. Prior SheafNMA v0.2.0, D-drive legacy smoke-contract continuation, CardioOracle lifecycle status freeze, C-drive model/project smoke-contract continuation, mahmood789 consolidation, Sentinel/Overmind JSONL and verification repair, C-drive reproducibility audit continuation, C-drive verification repair, D-drive repair batch, superapp, C-drive sweep, home-folder hardening, Trial Truthfulness Atlas, and portfolio notes retained below.)
+
+### C:\HTML apps focused repair batch (2026-05-14)
+> - `C:\HTML apps\hub\`: added a launchable `index.html` shell and static contract tests for required registry/runtime wiring; fixed `app.js` local `file://` launch resolution so the hub opened from `hub\index.html` links sibling apps from the parent HTML-apps directory instead of nesting paths under `hub`. Verification: `pytest -q -p no:cacheprovider` -> `3 passed`; `node --check app.js && node --check projects.js` -> PASS; headless Chrome smoke on `file:///mnt/c/HTML%20apps/hub/index.html` confirmed the page title and sibling app links. GitHub pushed: `mahmood726-cyber/hub` main `c1a6725`.
+> - `C:\HTML apps\evidence-board\`, `C:\HTML apps\focus-studio\`, `C:\HTML apps\kanban-lab\`: added pytest-visible static app shell contracts covering title/description, localStorage persistence hooks, key controls, and absence of unresolved templates or hardcoded local drive paths; added repo `.gitignore` entries for Python caches and `PROGRESS.md`. Verification: each `pytest -q -p no:cacheprovider` -> `2 passed` with the existing pytest `cache_dir` warning; scoped `git diff --check` -> PASS. GitHub pushed: `evidence-board` master `9a87c8b`, `focus-studio` master `0fa728b`, `kanban-lab` master `81cad38`.
+> - `C:\HTML apps\nma-pro-v2\`: fixed the landing page's broken app links from absent v6/v7 asset filenames to the current `e156-submission/assets/nma-pro-v8.0.html`, added static link-resolution contracts, and removed Sentinel P0 hardcoded local OneDrive paths from legacy docs. Verification: `pytest -q -p no:cacheprovider tests/test_smoke.py tests/test_static_links.py` -> `3 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=1 INFO=302` (pre-existing tracked autogen warning plus HTML a11y INFO). GitHub pushed: master `a2834e7` for the link fix and master `a74e385` for the P0 doc cleanup.
+> - `C:\HTML apps\IPD-Meta-Pro\` and `C:\HTML apps\Truthcert1\`: added static link-resolution contracts for landing-page local assets and canonical app entrypoints. Verification: `IPD-Meta-Pro` `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; `Truthcert1` same command -> `2 passed` with existing pytest `cache_dir` warning. GitHub pushed: `IPD-Meta-Pro` master `b26ee09`, `Truthcert1` master `81eddd3`.
+> - `C:\HTML apps\living-meta\`: repaired landing-page validation links that pointed to a missing HTML asset and an out-of-repo sibling path; linked the existing validation and limitations docs instead, and added a static link-resolution contract. Verification: `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=8` (pre-existing HTML a11y INFO). GitHub pushed: master `c3c8a9b`.
+> - `C:\HTML apps\Pairwiseai\`: added a static landing-page contract covering local link resolution, absence of unresolved templates/local drive paths, and the key app entrypoints under `e156-submission/assets`. Verification: `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=1731` (pre-existing HTML a11y INFO). GitHub pushed: master `2ade493`.
+> - `C:\HTML apps\nma-dose-response-app\`: pushed the existing smoke-blocker commit and added an E156 asset-bundle repair so `e156-submission\assets\index*.html` resolves its JS runtime dependencies from inside the assets folder; added a static link-resolution contract covering root and E156 app entrypoints. Verification: `pytest -q -p no:cacheprovider tests/test_smoke.py tests/test_static_links.py` -> `4 passed` with the existing pytest `cache_dir` warning; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=442` (pre-existing HTML a11y INFO). GitHub pushed: master `e95fae0` and `96594b6`.
+> - Push gate: Windows Git credential path succeeded after WSL Git lacked HTTPS credentials. Sentinel pre-push/manual scan verdicts were BLOCK=0; evidence-board INFO=18, focus-studio INFO=10, kanban-lab INFO=10, living-meta INFO=8, Pairwiseai INFO=1731, nma-dose-response-app INFO=442 (pre-existing P2 HTML accessibility notes); hub push emitted no Sentinel findings.
+> - Existing unrelated dirty files were left unstaged in these repos, mainly protocol/license/doc edits and untracked `paper\` outputs in the three app repos, plus pre-existing hub metadata/submission/style edits.
+
+### SheafNMA (2026-05-12; v0.2.0 real-NMA-corpus validation + 36-cell Ã— 1000-rep simulation + methods paper draft)
+> - `C:\Models\SheafNMA\` â€” cellular-sheaf inconsistency localization for network meta-analysis. v0.1.0 (2026-04-07) was math + single-file HTML dashboard + E156 #153 micro-paper on a synthetic 12-contrast network. v0.2.0 refactored the 457-LOC `generate_figures.py` into a `sheafnma/` package (`core`, `io`, `simulate`, `comparators`, `r_bridge`), validated on 13 R-netmeta built-in NMAs, and shipped a methods-paper draft for Research Synthesis Methods.
+> - Method: precision-weighted coboundary `F[e, treat1] = -1/SE_e, F[e, treat2] = +1/SE_e`; sheaf Laplacian `L = Fáµ€F` (symmetric PSD); WLS-solve node estimates with node 0 anchored; per-edge residuals `r_e = dÌƒ_e âˆ’ (F x*)_e` localize inconsistency; **Global Inconsistency Index** `GII = Î£ rÂ²` is the global statistic. One algebraic object yields both global + per-edge â€” complements (not replaces) node-splitting.
+> - Real-corpus headline: across **13 R-netmeta built-in NMAs** (Senn 2013 diabetes, Dias smokingcessation, Dong 2013 thrombolytics, Linde 2015/2016 acupuncture, Salanti antimanic, Baker, Dogliotti, Franchini, Gurusamy, Stowe, Woods, dietaryfat, parkinson) the global design-by-treatment Ï‡Â² (Higgins 2012) failed to reject in all 13. **SheafNMA flagged â‰¥1 localized inconsistency edge in 5 of those 13 (38.5%)** at the Youden-frozen threshold of **2.6912** â€” networks that look globally consistent harbor at least one inconsistent edge the global test misses.
+> - Simulation rigor: 36-cell grid (n_treatments âˆˆ {4,6,8} Ã— n_studies_per_edge âˆˆ {3,5,10} Ã— Ï„_inc âˆˆ {0,0.2,0.5,1.0}) Ã— **1000 replications per cell**, held-out training cell at (6,5,0.5) for Youden's-J threshold selection (frozen before evaluating remaining 35 cells). Type-I error at Ï„_inc=0 was **0.000 across all cells**. Mean per-edge sensitivity 0.981 / specificity 0.945 at Ï„_inc=0.5.
+> - Comparator suite: DBT-Ï‡Â² (Higgins 2012 Â§3.2, pure-Python), Bucher loop closure (Bucher 1997, pure-Python), node-splitting (Dias 2010, via `netmeta::netsplit` shelled to R 4.5.2). Per-edge agreement with node-splitting was 45.4% â€” asymmetric: SheafNMA flags 12/506 = 2.4% of edges vs node-splitting's 250/436 = 57% at p<0.05 Bonferroni-uncorrected (the calibrated Youden cut is much more conservative than a per-edge Î±-test). Â§4.2 of the paper explicitly explains this rather than presenting the 45.4% bare.
+> - Corpus export: `corpus/export_netmeta.R` handles 7 distinct netmeta dataset formats (contrast-level TE/seTE, arm-based event/n, arm-based mean/sd/n, wide multi-arm OR/MD, three-arm smokingcessation, rate-based IRR/person-years) and exports all 13 to `corpus/data/*.csv` in the sheafnma standard schema (`study, treat1, treat2, effect, se`).
+> - GitHub: `https://github.com/mahmood726-cyber/sheaf-nma` (master `6c7db13`, tag `v0.2.0`). Pages LIVE: `https://mahmood726-cyber.github.io/sheaf-nma/` (Phase-1 dashboard unchanged in v0.2). 33 tests passing; Sentinel BLOCK=0 WARN=0 (2 INFO = pre-existing HTML a11y items in the v0.1 dashboard).
+> - Workbook entry: `[153/919] SheafNMA`. CURRENT BODY updated 2026-05-12 to the v0.2 156-word / 7-sentence body (replaces v0.1 synthetic-"smoking cessation" framing with the real netmeta corpus). SUBMITTED `[ ]`; YOUR REWRITE preserved untouched per workbook protection rules. Target: Research Synthesis Methods full methods paper (`paper/sheafnma_v2.md`, 1190 words drafted; [TODO] prose blocks in Â§1 Background / Â§4.3 case studies / Â§5 Discussion) + SynthÄ“sis Methods Note companion (`paper/methods_note.md`, 156-word).
+> - Known landmine: `Dong2013` netsplit fails inside netmeta's multi-arm validator ("wrong number of comparisons"); SheafNMA + DBT + Bucher still run on it, only `netsplit_p` column is blank for its 70 edges.
+> - v0.2 deferrals (spec Â§10): multi-arm covariance correction (single-D stalks only), higher-D stalks (Phase 1 Â§3.4 future work), Bayesian sheaf priors, OTS / Bitcoin anchor (broken on Py 3.13 Windows per `lessons.md`).
+
+### hksj-q-floor-atlas (2026-05-12; 8th Pairwise70 atlas; tags prereg-v0.0.1 + v0.1.0)
+> - `C:\Projects\hksj-q-floor-atlas\` â€” 8th calibration atlas in the Pairwise70 series. Sister to `cochrane-modern-re` (engine source), `repro-floor-atlas`, `responder-floor-atlas`, `trial-truthfulness-atlas`, `africa-tb-atlas`, `pactr-hiddenness-atlas`, `africa-hiv-prep-atlas`.
+> - Question: how often does omitting the `max(1, Q/(k-1))` floor on HKSJ variance, in the I^2=0 regime where un-floored HKSJ narrows below REML+Wald, overstate precision across the Cochrane CDSR? Pre-registered via `prereg-v0.0.1` tag + 4 Internet Archive snapshots (Bitcoin OTS deferred â€” Python 3.13 SSL libeay32 bug per lessons.md; web-stamper fallback documented).
+> - Headline: D_1 (I^2=0, k>=2, converged) = 3,677 MAs = 57.6% of corpus. On D_1a (Q>0, n=3,536): median CI-width ratio (floored / un-floored) = 3.64x (IQR 1.60-10.56; 95th pct 57.4x); significance lost in 17.08% of MAs. D_1b (Q=0, n=141 = 3.83% of D_1): sig_loss 24.8%, ratio unbounded â€” un-floored HKSJ SE is exactly zero (the floor effect is unbounded); see `docs/AMENDMENTS.md` entry 1 for split rationale.
+> - Per k-stratum medians: k=2: 4.26x (sig_loss 8.6%); k=3: 3.64x (12.9%); k=4-5: 3.10x (13.1%); k=6-9: 3.18x (17.3%); k>=10: 3.80x (25.1%). sig_loss increases with k because higher-k pooled effects sit closer to null, so floor widening crosses zero more often.
+> - Engine: independent metafor pass via fork of cochrane-modern-re's `run_metafor.R` minus the floor block. Input parquet SHA-256 pinned in `docs/spec.md` sec.1.5 (`31434fb118c6ec44a025eeb43a90e35ef9e050711fa45aa2cb5c1244b2d89751`). 3 hand-verified golden MAs match metafor reference within 1e-6.
+> - GitHub: `https://github.com/mahmood726-cyber/hksj-q-floor-atlas` (master + tags `prereg-v0.0.1` and `v0.1.0`). Pages LIVE: `https://mahmood726-cyber.github.io/hksj-q-floor-atlas/`.
+> - 64 tests; Sentinel BLOCK=0 WARN=0 INFO=0; 7 IA snapshots recorded in `docs/preregistration.md`.
+> - Workbook entry: `[920/920] hksj-q-floor-atlas`; target SynthÄ“sis Methods Note (340w draft, â‰¤400 cap).
+> - v0.2 candidates (NOT in v0.1.0): published-CI matching ("is THIS Cochrane review wrong?"), PM/SJ/Bayesian Ï„Â² robustness, DL re-pooling, Bitcoin OTS once Python 3.13 issue is resolved.
+
+### D-drive legacy smoke-contract continuation (2026-05-12)
+> - `D:\Projects\mahmood789\786-MIII-Mean-single-group\`: fixed the placeholder issue-tracker link in `README.md` and added a pytest-visible static contract for the Shiny app package surface, sample-data schema, metafor workflow, downloads, and absence of local paths/template links. Verification: `pytest -q -p no:cacheprovider` -> `2 passed`; `git diff --check` -> PASS.
+
+ succeeded in 3329ms:
+E156 REWRITE WORKBOOK
+sentinel:skip-file
+sentinel:claim-language-allow
+(Sentinel markers above:
+ - sentinel:skip-file: this workbook intentionally contains C:\Users\... PATH:
+   lines pointing to each project's local source directory â€” they're metadata,
+   not code. The marker keeps Sentinel from emitting ~16 P0 hardcoded-path
+   BLOCKs every push.
+ - sentinel:claim-language-allow: CURRENT BODY entries are the AI-drafted
+   summaries that students rewrite into hedged language â€” flagging overclaim
+   words IN those drafts is the whole pedagogical point, not a defect.
+   File-scope marker here suppresses the ~1293 claim-language WARNs on the
+   CURRENT BODY entries; the YOUR REWRITE entries are where the hedging
+   discipline matters and remains lintable in the rendered student board.)
+
+DENOMINATOR CONVENTION (added 2026-05-06 after review-findings P1-5):
+  Each entry header is `[N/total]` where N = ordinal insertion index and
+  `total` = current portfolio size as of the most recent reconcile sweep.
+  Older entries are back-rewritten on milestone boundaries (rather than
+  preserving their insertion-time denominator) to keep
+  reconcile_counts.py from flagging "WORKBOOK DRIFT". The pre-commit
+  guard (scripts/check_workbook_commit.py) blocks commits that bundle a
+  denominator sweep with substantive content edits to existing entries.
+
+======================================================================
+
+INSTRUCTIONS:
+- Replace text under YOUR REWRITE with your body (at most 156 words, 7 sentences)
+- S1=Question S2=Dataset S3=Method S4=Result(number+interval) S5=Robustness S6=Interpretation S7=Boundary(limitation)
+- Leave YOUR REWRITE blank to keep current version
+- Run: python C:/E156/scripts/apply_rewrites.py          (validate)
+- Run: python C:/E156/scripts/apply_rewrites.py --apply (apply)
+
+AUTHORSHIP RULE (mandatory for every submission):
+- Mahmood Ahmad (MA) must NEVER be listed as first author and NEVER as
+  last (senior) author. The student rewriter is first author. Last/senior
+  author must be a faculty supervisor or co-investigator distinct from MA.
+  MA's position is middle-author only (e.g. role: data curation, software,
+  methodology, supervision-of-tooling). This applies to every paper in
+  this workbook regardless of contribution depth.
+
+ succeeded in 4082ms:
+   1: """Build 3 more topics:
+   2: 
+   3: Topic 20 - YELLOW_FEVER_FRACTIONAL_REVIEW.html: Casey 2019 NEJM Kinshasa fractional-dose 17DD
+   4:   yellow fever vaccine (1/5 standard dose) seroconversion study during 2016 Angola/DRC outbreak.
+   5:   Observational pre/post seroconversion (PRNT >=10), n=716 (1mo) / 684 (1yr). NOT CT.gov registered.
+   6:   Synthetic LEGACY-NONNCT-CASEY-2019-YF key. WHO outbreak-control evidence base.
+   7: 
+   8: Topic 21 - PNEUMONIA_AMOXICILLIN_DURATION_REVIEW.html: CAP-IT (Bielicki 2021 JAMA) 2x2 factorial
+   9:   pediatric CAP amoxicillin lower vs higher dose AND 3-day vs 7-day. UK+Ireland (NOT Africa, but
+  10:   informs WHO global pneumonia treatment recommendation). ISRCTN76888927 â†’ synthetic
+  11:   LEGACY-ISRCTN-76888927-CAP-IT key. n=824 randomized.
+  12: 
+  13: Topic 22 - SCHISTOSOMIASIS_ARPRAZIQUANTEL_REVIEW.html: NCT03845140 â€” Merck KGaA L-PZQ ODT
+  14:   (arpraziquantel) phase 3 in 3mo-6yr children at Cocody (CÃ´te d'Ivoire) + KEMRI Kisumu (Kenya).
+  15:   4 cohorts, n=288 total. Drove WHO 2024 prequalification of arpraziquantel for preschool-age
+  16:   schistosomiasis treatment.
+  17: """
+  18: from __future__ import annotations
+  19: from pathlib import Path
+  20: 
+  21: def replace_realdata(text, new_body):
+  22:     start = text.find("realData: {")
+  23:     body_start = text.find("{", start)
+  24:     depth = 0; i = body_start; body_end = body_start
+  25:     while i < len(text):
+  26:         c = text[i]
+  27:         if c == "{": depth += 1
+  28:         elif c == "}": depth -= 1
+  29:         if depth == 0 and i > body_start: body_end = i; break
+  30:         i += 1
+  31:     return text[:body_start] + "{" + new_body + text[body_end+1:]
+  32: 
+  33: 
+  34: def replace_or_die(text, old, new):
+  35:     if old not in text:
+  36:         raise SystemExit(f"old string not found: {old[:80]!r}...")
+  37:     return text.replace(old, new)
+  38: 
+  39: 
+  40: # ==========================
+  41: # TOPIC 20: Yellow Fever fractional dose Casey 2019
+  42: # ==========================
+  43: YF_BODY = """
+  44: 
+  45:                 'LEGACY-NONNCT-CASEY-2019-YF': {
+  46: 
+  47:                     name: 'Casey 2019 Kinshasa (1/5 fractional 17DD)', pmid: '29443626', phase: 'NA', year: 2019, tE: 482, tN: 493, cE: 0, cN: 0, group: 'Casey RM, Harris JB, Ahuka-Mundeke S, et al. NEJM 2019;381:444-454 (PMID 29443626). CDC + Institut National de Recherche Biomedicale (DRC) + Programme Elargi de Vaccination + USAID. Pre/post seroconversion field study during the response to the 2016 Angola/DRC yellow fever outbreak which depleted global YF vaccine supply. Fractional dose (1/5 of standard 17DD vaccine, 0.1 mL intramuscular) was administered to 7.6 MILLION children >=2 years and non-pregnant adults in a preemptive Kinshasa campaign. Sub-study followed n=716 participants at 1 month and n=684 at 1 year, sampled across 4 age strata at 6 vaccination sites. Neutralizing antibody titres assayed by plaque reduction neutralization test PRNT50 (titre >=10 = seropositive; 4-fold rise from baseline = immune response). PRIMARY ENDPOINT: 1-month seroconversion in baseline-seronegative participants. RESULT: 482/493 baseline-seronegatives seroconverted (98%, 95% CI 96-99); 705/716 of all participants seropositive at 1mo (98%, 97-99); 666/684 seropositive at 1yr (97%, 96-98). Fractional 17DD induced robust seroconversion, sustained at 1-year follow-up â€” directly supports WHO Strategic Advisory Group of Experts (SAGE) recommendation for fractional-dose YF vaccine during outbreak response when supply is constrained. NOT registered on ClinicalTrials.gov (CDC field epidemiology study); uses synthetic LEGACY-NONNCT-CASEY-2019-YF key in this dashboard. Africa relevance: DIRECT â€” 2016 Angola/DRC outbreak that triggered the global YF vaccine shortage; Kinshasa preemptive campaign represents the largest fractional-dose YF deployment ever attempted; pivotal evidence base for current WHO outbreak-response strategy across the African yellow-fever belt.',
+  48: 
+  49:                     estimandType: 'PROP', publishedHR: 0.98, hrLCI: 0.96, hrUCI: 0.99, pubHR: 0.98,
+  50: 
+  51:                     allOutcomes: [
+  52:                         { shortLabel: 'SEROCONV_1M', title: 'Seroconversion at 1 month in baseline-seronegative (PRNT>=10 + 4x rise)', tE: 482, cE: 0, type: 'PRIMARY', matchScore: 100, effect: 0.98, lci: 0.96, uci: 0.99, estimandType: 'PROP' },
+  53: 
+  54:                         { shortLabel: 'SEROPOS_1Y', title: 'Seropositive at 1 year (PRNT>=10) â€” durability', tE: 666, cE: 0, type: 'SECONDARY', matchScore: 90, effect: 0.97, lci: 0.96, uci: 0.98, estimandType: 'PROP' },
+  55: 
+  56:                         { shortLabel: 'IMMUNE_RESP', title: 'Immune response in baseline-seropositive participants (4x rise)', tE: 148, cE: 0, type: 'SECONDARY', matchScore: 80, effect: 0.66, lci: 0.60, uci: 0.72, estimandType: 'PROP' }
+  57:                     ],
+  58: 
+  59:                     rob: ['some', 'some', 'low', 'low', 'low'],
+  60: 
+  61:                     snippet: 'Source: Casey RM, Harris JB, Ahuka-Mundeke S, et al. Immunogenicity of Fractional-Dose Vaccine during a Yellow Fever Outbreak â€” Final Report. NEJM 2019;381:444-454. PMID 29443626. DOI 10.1056/NEJMoa1710430.',
+  62: 
+  63:                     sourceUrl: 'https://doi.org/10.1056/NEJMoa1710430',
+  64: 
+  65:                     ctgovUrl: null,
+  66: 
+  67:                     evidence: [
+  68:                         { label: 'Enrollment', source: 'Casey 2019 NEJM, design', text: 'Pre/post seroconversion field study nested within the 2016 Kinshasa preemptive vaccination campaign (7.6 million children >=2y and non-pregnant adults received 1/5 fractional dose 17DD yellow fever vaccine, 0.1 mL IM, after global vaccine shortage triggered by the Angola/DRC 2016 outbreak). Sub-study recruited n=716 at 6 vaccination sites across 4 age strata (2-12y, 13-17y, 18-39y, 40+y). Pre-vaccination blood sample, 1-month follow-up sample (n=716 with data), 1-year follow-up sample (n=684 with data). PRNT50 used as primary serology; seropositive defined as PRNT >=10; immune response defined as 4-fold rise from baseline.', highlights: ['7.6 million', 'Kinshasa', 'DRC', '1/5 fractional', '17DD', '716', '684', '4 age strata', 'PRNT50'] },
+  69:                         { label: 'Primary outcome â€” seroconversion at 1 month', source: 'Casey 2019 NEJM, primary endpoint', text: 'Among 493 baseline-seronegative participants (PRNT<10 pre-vaccination), 482 (98%, 95% CI 96-99) seroconverted at 1 month. Among ALL 716 participants who completed 1-month follow-up, 705 (98%, 97-99) were seropositive. Among 223 baseline-seropositive participants, 148 (66%, 60-72) had a 4-fold rise (immune response); lower baseline titres associated with higher probability of immune response (P<0.001). At 1 year: 666/684 (97%, 96-98) seropositive â€” durability essentially intact. Distribution of titres differed by age group at both 1mo and 1yr (P<0.001 for both) â€” youngest age stratum tended to have higher post-vaccination titres. Bottom line: 1/5 fractional dose induces seroconversion comparable to standard dose during outbreak response.', highlights: ['482', '493', '98%', '96', '99', '705', '716', '666', '684', '97%', '4-fold'] },
+  70:                         { label: 'Risk of Bias (study type)', source: 'Casey 2019 design', text: 'NOT a randomised controlled trial â€” this is a single-arm prospective seroconversion field study during a declared yellow fever public-health emergency. Standard RoB 2.0 not applicable; relevant biases: (D1 some â€” convenience sampling at 6 vaccination sites, not population-randomized); (D2 some â€” single-arm; no placebo or full-dose comparator within the study itself, though external full-dose immunogenicity is well-documented); (D3 low â€” high follow-up retention 97% to 1mo, 95% to 1yr); (D4 low â€” PRNT50 standardized assay at CDC reference lab); (D5 low â€” pre-specified protocol).', highlights: ['NOT RCT', 'field study', 'single-arm', 'PRNT50', 'CDC reference lab'] }
+  71:                     ]
+  72:                 }
+  73:             }"""
+  74: 
+  75: 
+  76: # ==========================
+  77: # TOPIC 21: CAP-IT pediatric pneumonia amoxicillin duration
+  78: # ==========================
+  79: CAPIT_BODY = """
+  80: 
+  81:                 'LEGACY-ISRCTN-76888927-CAP-IT': {
+  82: 
+  83:                     name: 'CAP-IT (Bielicki 2021)', pmid: '34726708', phase: 'IV', year: 2021, tE: 51, tN: 410, cE: 50, cN: 404, group: 'Bielicki JA, Stohr W, Barratt S, et al. JAMA 2021;326:1713-1724 (PMID 34726708). MRC Clinical Trials Unit at UCL + St Georges University of London + 28 UK + 1 Ireland hospitals. Multicenter open-label 2x2 factorial non-inferiority trial in n=824 children aged 6 months and older with clinically diagnosed community-acquired pneumonia, treated with amoxicillin on discharge from emergency departments and inpatient wards Feb 2017 - Apr 2019. Randomization 1:1 to lower-dose (35-50 mg/kg/d, n=410) vs higher-dose (70-90 mg/kg/d, n=404) AND 1:1 to 3-day (n=413) vs 7-day (n=401) duration. PRIMARY: clinically-indicated antibiotic re-treatment for respiratory infection within 28 days; non-inferiority margin 8 percentage points. RESULT: lower-dose 12.6% vs higher-dose 12.4% (diff +0.2pp, 1-sided 95% CI -inf to +4.0%) â€” NI met. 3-day 12.5% vs 7-day 12.5% (diff +0.1pp, -inf to +3.9%) â€” NI met. No significant interaction (P=0.63). Among children with severe CAP (subgroup): both NI margins held but with wider CI. Modest difference in cough duration (3-day 12d vs 7-day 10d, HR 1.2). NOT registered on ClinicalTrials.gov (UK CTU registration); ISRCTN76888927 only â€” uses synthetic LEGACY-ISRCTN-76888927-CAP-IT key. Africa relevance: indirect â€” UK+Ireland enrolment, but the lower-dose-shorter-course evidence directly informs the WHO 2023 update of pediatric pneumonia treatment recommendations (relevant for African primary-care antibiotic stewardship).',
+  84: 
+  85:                     estimandType: 'RR', publishedHR: 1.02, hrLCI: 0.69, hrUCI: 1.49, pubHR: 1.02,
+  86: 
+  87:                     allOutcomes: [
+  88:                         { shortLabel: 'RETX_DOSE', title: 'Antibiotic re-treatment within 28d (lower vs higher dose, 2-margin NI)', tE: 51, cE: 50, type: 'PRIMARY', matchScore: 100, effect: 1.02, lci: 0.69, uci: 1.49, estimandType: 'RR' },
+  89: 
+  90:                         { shortLabel: 'RETX_DUR', title: 'Antibiotic re-treatment within 28d (3-day vs 7-day, NI factor)', tE: 51, cE: 49, type: 'PRIMARY', matchScore: 100, effect: 1.04, lci: 0.71, uci: 1.52, estimandType: 'RR' },
+  91: 
+  92:                         { shortLabel: 'COUGH_DUR', title: 'Cough duration (median days, 3-day vs 7-day)', tE: 12, cE: 10, type: 'SECONDARY', matchScore: 80, effect: 1.20, lci: 1.00, uci: 1.40, estimandType: 'HR' }
+  93:                     ],
+  94: 
+  95:                     rob: ['low', 'high', 'low', 'low', 'low'],
+  96: 
+  97:                     snippet: 'Source: Bielicki JA, Stohr W, Barratt S, et al. Effect of Amoxicillin Dose and Treatment Duration on the Need for Antibiotic Re-treatment in Children With Community-Acquired Pneumonia: The CAP-IT Randomized Clinical Trial. JAMA 2021;326:1713-1724. PMID 34726708. DOI 10.1001/jama.2021.17843. ISRCTN76888927.',
+  98: 
+  99:                     sourceUrl: 'https://doi.org/10.1001/jama.2021.17843',
+ 100: 
+ 101:                     ctgovUrl: null,
+ 102: 
+ 103:                     evidence: [
+ 104:                         { label: 'Enrollment', source: 'Bielicki 2021 JAMA, CONSORT', text: '824 children aged 6 months and older with clinically-diagnosed community-acquired pneumonia, treated with amoxicillin on discharge from emergency departments and inpatient wards (within 48 hours) of 28 UK hospitals + 1 Irish hospital, recruited Feb 2017 to Apr 2019. 2x2 factorial randomization 1:1 to lower (35-50 mg/kg/d) vs higher (70-90 mg/kg/d) amoxicillin dose AND independently 1:1 to 3-day vs 7-day duration. 814 received >=1 dose. Median age 2.5 years (IQR 1.6-2.7); 421 (52%) male; 393 (48%) female. Primary outcome data available for 789 (97%).', highlights: ['824', '6 months', 'community-acquired pneumonia', '28 UK', '1 Irish', '2x2 factorial', '35-50', '70-90', '3-day', '7-day', '789', '97%'] },
+ 105:                         { label: 'Primary outcome â€” antibiotic re-treatment at 28d', source: 'Bielicki 2021 JAMA, primary endpoint', text: 'Lower-dose vs higher-dose amoxicillin: clinical re-treatment for respiratory infection within 28d 12.6% (lower) vs 12.4% (higher); difference +0.2 percentage points (1-sided 95% CI -inf to +4.0%) â€” NI margin 8pp met. 3-day vs 7-day duration: 12.5% vs 12.5%; difference +0.1pp (1-sided 95% CI -inf to +3.9%) â€” NI margin 8pp also met. No significant interaction between dose and duration factors (P=0.63). Lower dose AND shorter duration BOTH non-inferior. Of 14 prespecified secondary endpoints, only cough duration significantly different (3-day 12d vs 7-day 10d, HR 1.2, 95% CI 1.0-1.4; P=0.04) and sleep disturbed by cough (HR 1.2, P=0.03). Severe CAP subgroup: similar pattern but wider CI.', highlights: ['12.6%', '12.4%', '+0.2', '4.0%', 'NI met', '12.5%', '+0.1', '3.9%', 'P=0.63', '1.2', '1.0', '1.4', 'P=0.04'] },
+ 106:                         { label: 'Risk of Bias (RoB 2.0)', source: 'CAP-IT design + RoB 2.0', text: 'D1 LOW (central computer-generated 2x2 factorial randomization). D2 HIGH (open-label by design â€” different pill-bottle quantities visible to families). D3 LOW (97% primary-outcome retention). D4 LOW (clinical re-treatment objectively recorded; standardised follow-up phone calls + EHR linkage). D5 LOW (SAP locked).', highlights: ['LOW', 'central', '2x2 factorial', 'open-label', 'HIGH', '97%', 'EHR'] }
+ 107:                     ]
+ 108:                 }
+ 109:             }"""
+ 110: 
+ 111: 
+ 112: # ==========================
+ 113: # TOPIC 22: Schistosomiasis arpraziquantel L-PZQ ODT
+ 114: # ==========================
+ 115: SCHIST_BODY = """
+ 116: 
+ 117:                 'NCT03845140': {
+ 118: 
+ 119:                     name: 'L-PZQ ODT (arpraziquantel) phase 3', pmid: '38678933', phase: 'III', year: 2024, tE: 73, tN: 96, cE: 38, cN: 49, group: 'Merck KGaA Darmstadt-sponsored phase 3 efficacy and safety study of L-praziquantel orodispersible tablet (L-PZQ ODT, also known as arpraziquantel) in Schistosoma-infected children 3 months to 6 years of age. Two African sites: Universite de Cocody (Abidjan, Cote dIvoire) + KEMRI Kisumu (Kenya). Open-label trial Sep 2019 - Oct 2021. n=288 children across 4 cohorts: Cohort 1a (4-6y S. mansoni-positive, L-PZQ ODT 50 mg/kg, n=96 randomized 2:1 vs Biltricide commercial PZQ comparator, n=49); Cohort 1b (4-6y, L-PZQ ODT 60 mg/kg single arm); Cohort 2 (2-3y, L-PZQ ODT single arm); Cohort 3 (3-23 months infants, L-PZQ ODT single arm); Cohort 4 (S. haematobium-positive). PRIMARY ENDPOINT: clinical cure (no parasite eggs in stool by Kato-Katz at Week 3) in Cohorts 1a + 1b. RESULT: Clinical cure 73/96 (76%) in L-PZQ 50 mg/kg arm vs 38/49 (77.5%) in Biltricide comparator â€” both arms achieved >=70% cure rates expected by WHO target product profile. Egg reduction rate >=95% across cohorts. Drove WHO 2024 prequalification of arpraziquantel as the FIRST praziquantel formulation suitable for children under 6 years of age â€” closes a major preventive-chemotherapy gap (preschool-age children were previously excluded from WHO mass-drug administration programs because no age-appropriate praziquantel formulation existed). Africa relevance: DIRECT â€” both trial sites in sub-Saharan Africa, addresses pre-school-age schistosomiasis (~50 million African children under 6 affected) which until 2024 had NO WHO-recommended treatment.',
+ 120: 
+ 121:                     estimandType: 'RR', publishedHR: 0.98, hrLCI: 0.85, hrUCI: 1.14, pubHR: 0.98,
+ 122: 
+ 123:                     allOutcomes: [
+ 124:                         { shortLabel: 'CURE_3W', title: 'Clinical cure at Week 3 (Kato-Katz, L-PZQ 50 mg/kg vs Biltricide)', tE: 73, cE: 38, type: 'PRIMARY', matchScore: 100, effect: 0.98, lci: 0.85, uci: 1.14, estimandType: 'RR' },
+ 125: 
+ 126:                         { shortLabel: 'ERR_3W', title: 'Egg reduction rate at Week 3 (Cohort 1a 50 mg/kg vs Biltricide)', tE: 95, cE: 96, type: 'SECONDARY', matchScore: 90, effect: -1.0, lci: -3.0, uci: 1.0, estimandType: 'MD' },
+ 127: 
+ 128:                         { shortLabel: 'TEAE', title: 'Treatment-emergent adverse events through Day 40', tE: 41, cE: 18, type: 'SAFETY', matchScore: 80, effect: 1.16, lci: 0.74, uci: 1.82, estimandType: 'RR' }
+ 129:                     ],
+ 130: 
+ 131:                     rob: ['low', 'high', 'low', 'low', 'low'],
+ 132: 
+ 133:                     snippet: 'Source: Merck KGaA L-PZQ ODT Phase 3 study in 3mo-6yr children with S. mansoni or S. haematobium infection. NCT03845140. Primary publication forthcoming; primary CSR results basis for WHO 2024 prequalification of arpraziquantel.',
+ 134: 
+ 135:                     sourceUrl: 'https://clinicaltrials.gov/study/NCT03845140',
+ 136: 
+ 137:                     ctgovUrl: 'https://clinicaltrials.gov/study/NCT03845140',
+ 138: 
+ 139:                     evidence: [
+ 140:                         { label: 'Enrollment', source: 'NCT03845140 CT.gov record + WHO 2024 PQ rationale', text: '288 children aged 3 months to 6 years with Schistosoma mansoni-positive (Cohorts 1, 2, 3) or Schistosoma haematobium-positive (Cohort 4) infection, recruited at 2 African sites: Universite de Cocody, Abidjan, Cote dIvoire and KEMRI Kisumu, Kenya. Sep 2019 to Oct 2021. 4 cohorts stratified by age and species: 1a (4-6y mansoni, 50 mg/kg L-PZQ ODT vs Biltricide commercial PZQ, randomized 2:1, n=145); 1b (4-6y mansoni, 60 mg/kg L-PZQ ODT single-arm); 2 (2-3y mansoni single-arm); 3 (3-23 months infants/toddlers single-arm); 4 (haematobium 5/15 mg/kg). Open-label by design.', highlights: ['288', '3 months', '6 years', 'Cote dIvoire', 'Kenya', 'KEMRI', 'mansoni', 'haematobium', '2:1', '50 mg/kg', 'Biltricide', 'open-label'] },
+ 141:                         { label: 'Primary outcome â€” clinical cure at Week 3', source: 'NCT03845140 + WHO 2024 PQ basis', text: 'Cohort 1a (4-6y mansoni, 2:1 randomization L-PZQ 50 mg/kg vs Biltricide): clinical cure (no eggs by Kato-Katz at Week 3) achieved by 73/96 (76%) on L-PZQ ODT vs 38/49 (77.5%) on Biltricide â€” non-inferior. Both arms exceed the WHO target product profile threshold (>=70% cure rate). Egg reduction rate >=95% in both arms. POC-CCA cure also reported with similar pattern. Cohort 1b (60 mg/kg) similar cure rate. Cohorts 2 and 3 (younger children) confirmed efficacy + safety in age groups previously excluded from WHO MDA. Bottom line: L-PZQ ODT (arpraziquantel) is non-inferior to commercial racemic PZQ in 4-6y children AND extends praziquantel use into the 3mo-3y age band that previously had no WHO-recommended therapy. Drove WHO 2024 prequalification.', highlights: ['73', '96', '76%', '38', '49', '77.5%', '>=70%', 'WHO target', '>=95%', 'WHO 2024 PQ'] },
+ 142:                         { label: 'Risk of Bias (RoB 2.0)', source: 'NCT03845140 design + RoB 2.0', text: 'D1 LOW (central randomization 2:1 in Cohort 1a; sequential single-arm cohorts 1b/2/3 not randomized â€” separate non-inferiority comparison vs Cohort 1a). D2 HIGH (open-label by design â€” formulations visibly different: ODT vs commercial tablet). D3 LOW (>=95% follow-up at Week 3; structured protocol with 17-21 day window). D4 LOW (Kato-Katz egg counts read by trained microscopists per WHO standard; PK assays centrally analyzed). D5 LOW (SAP locked).', highlights: ['LOW', 'central', '2:1', 'open-label', 'HIGH', 'Kato-Katz', 'WHO standard'] }
+ 143:                     ]
+ 144:                 }
+ 145:             }"""
+ 146: 
+ 147: 
+ 148: def build_yf():
+ 149:     FILE = Path("YELLOW_FEVER_FRACTIONAL_REVIEW.html")
+ 150:     text = FILE.read_text(encoding="utf-8")
+ 151:     text = replace_or_die(text,
+ 152:         "<title>RapidMeta Cardiology | SGLT2-HF Ultra-Precision v12.0</title>",
+ 153:         "<title>RapidMeta Vaccinology | Fractional-Dose 17DD Yellow Fever Vaccine v0.1 (Casey 2019 Kinshasa, post-2016)</title>")
+ 154:     text = replace_or_die(text,
+ 155:         "const AUTO_INCLUDE_TRIAL_IDS = new Set(['NCT03036124', 'NCT03057977', 'NCT03057951', 'NCT03619213', 'NCT03521934']);",
+ 156:         "const AUTO_INCLUDE_TRIAL_IDS = new Set(['LEGACY-NONNCT-CASEY-2019-YF']);")
+ 157:     text = replace_or_die(text,
+ 158:         "protocol: { pop: 'Adults with heart failure across ejection fraction spectrum', int: 'SGLT2 or dual SGLT1/2 inhibitor therapy (dapagliflozin, empagliflozin, or sotagliflozin)', comp: 'Placebo + guideline-directed therapy', out: 'CV Death or Worsening Heart Failure Composite', subgroup: 'EF phenotype (HFrEF vs HFpEF), drug class member, diabetes status', query: '', rctOnly: true, post2015: true },",
+ 159:         "protocol: { pop: 'Children >=2 years and non-pregnant adults receiving fractional-dose yellow fever vaccine during the 2016 Kinshasa preemptive campaign â€” declared response to the 2016 Angola/DRC outbreak that depleted global YF vaccine supply. Sub-study sampled across 4 age strata (2-12y, 13-17y, 18-39y, 40+y) at 6 vaccination sites', int: 'Fractional 1/5 dose 17DD yellow fever vaccine (0.1 mL intramuscular) â€” single dose', comp: 'Pre-vaccination baseline (within-participant, single-arm field study)', out: '1-month seroconversion in baseline-seronegatives (PRNT50 titre >=10 + 4-fold rise) â€” primary; 1-year seropositive durability; immune response in baseline-seropositives', subgroup: 'Age stratum, baseline PRNT titre, sex', query: '', rctOnly: false, post2015: true },")
+ 160:     text = replace_or_die(text,
+ 161:         "{ 'DAPA-HF': 'Dapagliflozin', 'DELIVER': 'Dapagliflozin', 'EMPEROR-Reduced': 'Empagliflozin', 'EMPEROR-Preserved': 'Empagliflozin', 'SOLOIST-WHF': 'Sotagliflozin' }",
+ 162:         "{ 'Casey 2019 Kinshasa (1/5 fractional 17DD)': 'Fractional 1/5 dose 17DD yellow fever vaccine' }")
+ 163:     text = replace_or_die(text,
+ 164:         "'NCT03036124': 'DAPA-HF',\n\n\n                'NCT03057977': 'EMPEROR-Reduced',\n\n\n                'NCT03057951': 'EMPEROR-Preserved',\n\n\n                'NCT03619213': 'DELIVER',\n\n\n                'NCT03521934': 'SOLOIST-WHF'",
+ 165:         "'LEGACY-NONNCT-CASEY-2019-YF': 'Casey 2019 Kinshasa Fractional 17DD'")
+ 166:     text = replace_realdata(text, YF_BODY)
+ 167:     text = text.replace("SGLT2-HF v1.0", "Yellow Fever Frac v0.1")
+ 168:     text = text.replace("SGLT2 Inhibitors for Heart Failure Outcomes: A Living Systematic Review and Meta-Analysis of Randomized Controlled Trials",
+ 169:                         "Fractional 17DD Yellow Fever Vaccine During Outbreak Response: Single-Study Pre/Post Seroconversion Review (Casey 2019 Kinshasa, post-2016)")
+ 170:     text = text.replace("SGLT2 Inhibitors in Heart Failure", "Fractional-Dose YF Vaccine for Outbreak Response")
+ 171:     text = text.replace('value="Adults with heart failure"', 'value="Children/adults during 2016 Angola-DRC YF outbreak (Kinshasa)"')
+ 172:     text = text.replace("value=\"Heart Failure\"", "value=\"Yellow Fever\"")
+ 173:     FILE.write_text(text, encoding="utf-8")
+ 174:     print(f"  Yellow Fever: {FILE.stat().st_size:,}")
+ 175: 
+ 176: 
+ 177: def build_capit():
+ 178:     FILE = Path("PNEUMONIA_AMOXICILLIN_DURATION_REVIEW.html")
+ 179:     text = FILE.read_text(encoding="utf-8")
+ 180:     text = replace_or_die(text,
+ 181:         "<title>RapidMeta Cardiology | SGLT2-HF Ultra-Precision v12.0</title>",
+ 182:         "<title>RapidMeta Pediatric ID | Amoxicillin Dose+Duration for Pediatric CAP v0.1 (CAP-IT, Bielicki 2021, post-2017)</title>")
+ 183:     text = replace_or_die(text,
+ 184:         "const AUTO_INCLUDE_TRIAL_IDS = new Set(['NCT03036124', 'NCT03057977', 'NCT03057951', 'NCT03619213', 'NCT03521934']);",
+ 185:         "const AUTO_INCLUDE_TRIAL_IDS = new Set(['LEGACY-ISRCTN-76888927-CAP-IT']);")
+ 186:     text = replace_or_die(text,
+ 187:         "protocol: { pop: 'Adults with heart failure across ejection fraction spectrum', int: 'SGLT2 or dual SGLT1/2 inhibitor therapy (dapagliflozin, empagliflozin, or sotagliflozin)', comp: 'Placebo + guideline-directed therapy', out: 'CV Death or Worsening Heart Failure Composite', subgroup: 'EF phenotype (HFrEF vs HFpEF), drug class member, diabetes status', query: '', rctOnly: true, post2015: true },",
+ 188:         "protocol: { pop: 'Children aged 6 months and older with clinically-diagnosed community-acquired pneumonia, treated with amoxicillin on discharge from emergency departments or inpatient wards (within 48 hours) of 28 UK + 1 Irish hospitals', int: 'Lower-dose amoxicillin 35-50 mg/kg/d AND/OR shorter 3-day course (2x2 factorial design)', comp: 'Higher-dose amoxicillin 70-90 mg/kg/d AND/OR longer 7-day course (other 2x2 factorial cells)', out: 'Antibiotic re-treatment for respiratory infection within 28 days (primary, NI margin 8pp); cough/symptom duration; antibiotic-related adverse events; phenotypic resistance in colonizing pneumococcus', subgroup: 'Disease severity, treatment setting (ED vs inpatient), prior antibiotic, age band', query: '', rctOnly: true, post2015: true },")
+ 189:     text = replace_or_die(text,
+ 190:         "{ 'DAPA-HF': 'Dapagliflozin', 'DELIVER': 'Dapagliflozin', 'EMPEROR-Reduced': 'Empagliflozin', 'EMPEROR-Preserved': 'Empagliflozin', 'SOLOIST-WHF': 'Sotagliflozin' }",
+ 191:         "{ 'CAP-IT (Bielicki 2021)': 'Lower-dose AND/OR 3-day amoxicillin (2x2 factorial)' }")
+ 192:     text = replace_or_die(text,
+ 193:         "'NCT03036124': 'DAPA-HF',\n\n\n                'NCT03057977': 'EMPEROR-Reduced',\n\n\n                'NCT03057951': 'EMPEROR-Preserved',\n\n\n                'NCT03619213': 'DELIVER',\n\n\n                'NCT03521934': 'SOLOIST-WHF'",
+ 194:         "'LEGACY-ISRCTN-76888927-CAP-IT': 'CAP-IT'")
+ 195:     text = replace_realdata(text, CAPIT_BODY)
+ 196:     text = text.replace("SGLT2-HF v1.0", "CAP-IT v0.1")
+ 197:     text = text.replace("SGLT2 Inhibitors for Heart Failure Outcomes: A Living Systematic Review and Meta-Analysis of Randomized Controlled Trials",
+ 198:                         "Lower-Dose, Shorter-Course Amoxicillin for Pediatric Community-Acquired Pneumonia: 2x2 Factorial NI Trial (CAP-IT, Bielicki 2021, post-2017)")
+ 199:     text = text.replace("SGLT2 Inhibitors in Heart Failure", "Amoxicillin Dose+Duration for Pediatric CAP")
+ 200:     text = text.replace('value="Adults with heart failure"', 'value="Children with community-acquired pneumonia (UK+Ireland)"')
+ 201:     text = text.replace("value=\"Heart Failure\"", "value=\"Pediatric CAP\"")
+ 202:     FILE.write_text(text, encoding="utf-8")
+ 203:     print(f"  CAP-IT: {FILE.stat().st_size:,}")
+ 204: 
+ 205: 
+ 206: def build_schist():
+ 207:     FILE = Path("SCHISTOSOMIASIS_ARPRAZIQUANTEL_REVIEW.html")
+ 208:     text = FILE.read_text(encoding="utf-8")
+ 209:     text = replace_or_die(text,
+ 210:         "<title>RapidMeta Cardiology | SGLT2-HF Ultra-Precision v12.0</title>",
+ 211:         "<title>RapidMeta NTD | L-PZQ ODT (Arpraziquantel) Phase 3 for Pediatric Schistosomiasis v0.1 (NCT03845140, post-2019)</title>")
+ 212:     text = replace_or_die(text,
+ 213:         "const AUTO_INCLUDE_TRIAL_IDS = new Set(['NCT03036124', 'NCT03057977', 'NCT03057951', 'NCT03619213', 'NCT03521934']);",
+ 214:         "const AUTO_INCLUDE_TRIAL_IDS = new Set(['NCT03845140']);")
+ 215:     text = replace_or_die(text,
+ 216:         "protocol: { pop: 'Adults with heart failure across ejection fraction spectrum', int: 'SGLT2 or dual SGLT1/2 inhibitor therapy (dapagliflozin, empagliflozin, or sotagliflozin)', comp: 'Placebo + guideline-directed therapy', out: 'CV Death or Worsening Heart Failure Composite', subgroup: 'EF phenotype (HFrEF vs HFpEF), drug class member, diabetes status', query: '', rctOnly: true, post2015: true },",
+ 217:         "protocol: { pop: 'Children aged 3 months to 6 years with Schistosoma mansoni- or S. haematobium-positive infection (Kato-Katz or urine filtration egg count >=1) at 2 African sites: Universite de Cocody Abidjan (Cote dIvoire) + KEMRI Kisumu (Kenya). 4 age/species cohorts stratified by formulation', int: 'L-praziquantel orodispersible tablet (L-PZQ ODT, arpraziquantel) at 50 or 60 mg/kg single oral dose. Now WHO-prequalified (2024) as the FIRST praziquantel formulation suitable for children under 6 years', comp: 'Commercial racemic PZQ tablets (Biltricide, Bayer 40 mg/kg) â€” 4-6 year cohort 1a only (2:1 randomization L-PZQ:Biltricide)', out: 'Clinical cure at Week 3 (Kato-Katz no parasite eggs in stool, primary in Cohorts 1a+1b); egg reduction rate; POC-CCA cure; safety/tolerability through Day 40; pharmacokinetics (R-PZQ + S-PZQ enantiomers)', subgroup: 'Age band (3-23mo, 2-3y, 4-6y), Schistosoma species, baseline egg count intensity (light/moderate/heavy)', query: '', rctOnly: true, post2015: true },")
+ 218:     text = replace_or_die(text,
+ 219:         "{ 'DAPA-HF': 'Dapagliflozin', 'DELIVER': 'Dapagliflozin', 'EMPEROR-Reduced': 'Empagliflozin', 'EMPEROR-Preserved': 'Empagliflozin', 'SOLOIST-WHF': 'Sotagliflozin' }",
+ 220:         "{ 'L-PZQ ODT (arpraziquantel) phase 3': 'L-praziquantel ODT (arpraziquantel)' }")
+ 221:     text = replace_or_die(text,
+ 222:         "'NCT03036124': 'DAPA-HF',\n\n\n                'NCT03057977': 'EMPEROR-Reduced',\n\n\n                'NCT03057951': 'EMPEROR-Preserved',\n\n\n                'NCT03619213': 'DELIVER',\n\n\n                'NCT03521934': 'SOLOIST-WHF'",
+ 223:         "'NCT03845140': 'L-PZQ ODT (arpraziquantel)'")
+ 224:     text = replace_realdata(text, SCHIST_BODY)
+ 225:     text = text.replace("SGLT2-HF v1.0", "Arpraziquantel v0.1")
+ 226:     text = text.replace("SGLT2 Inhibitors for Heart Failure Outcomes: A Living Systematic Review and Meta-Analysis of Randomized Controlled Trials",
+ 227:                         "L-Praziquantel Orodispersible Tablet (Arpraziquantel) Phase 3 for Pediatric Schistosomiasis: Single-Trial Pairwise Review (NCT03845140, Cote dIvoire + Kenya, post-2019)")
+ 228:     text = text.replace("SGLT2 Inhibitors in Heart Failure", "Arpraziquantel for Pediatric Schistosomiasis")
+ 229:     text = text.replace('value="Adults with heart failure"', 'value="Children 3mo-6y with Schistosoma infection (Cote dIvoire + Kenya)"')
+ 230:     text = text.replace("value=\"Heart Failure\"", "value=\"Schistosomiasis\"")
+ 231:     FILE.write_text(text, encoding="utf-8")
+ 232:     print(f"  Schistosomiasis: {FILE.stat().st_size:,}")
+ 233: 
+ 234: 
+ 235: if __name__ == "__main__":
+ 236:     build_yf()
+ 237:     build_capit()
+ 238:     build_schist()
+
+codex
+Line numbers are for the pasted file.
+
+- `instrument reading a DIFFERENT COPY`: lines `149`, `178`, `207`. Exact input: run `cd scripts; python build_3more_yf_capit_schist.py`. Consequence: the script reads/writes `scripts\YELLOW_FEVER...html` etc. or fails there, not necessarily the repo-root files it is meant to change.
+
+- `check that CANNOT FAIL`: lines `22-31`. Exact input: `replace_realdata("abc", "x: 1")` returns `ab{x: 1bc` instead of raising. Consequence: a missing `realData: {` marker silently corrupts output.
+
+- `SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE`: lines `25-29`. Exact input: `replace_realdata("realData: { a: '}'}; tail", "x: 1")`. Consequence: a `}` inside a JS string is treated as the end of `realData`, producing invalid mixed output.
+
+- `probe keyed to the STRING A FIX REMOVES`: lines `151-153`, `180-182`, `209-211`. Exact input: rerun after the title has already been changed to the new topic title. Consequence: the script exits before checking or refreshing the rest of the generated page.
+
+- `ZERO CONFLATED WITH ABSENT`: line `47`. Exact input: `tE: 482, tN: 493, cE: 0, cN: 0` for a single-arm proportion. Consequence: absent comparator is encoded as a real zero-sized comparator, inviting downstream divide-by-zero or false pairwise interpretation.
+
+- `NEGATION DROPPED`: lines `142` and `217`. Exact input: text says `single-arm cohorts 1b/2/3 not randomized`, while protocol sets `rctOnly: true`. Consequence: non-randomized cohort evidence is mislabeled or filtered as RCT-only.
+
+No `values compared AS TEXT where line endings differ`: Python universal newline read makes CRLF/LF alone not demonstrably defective here.
+
+No merged-cell/tabulation defect found in this file.
+
+No `STATUS CODE REPORTING THE WRAPPER` defect: no subprocess/pipe status is present.
+
+COULD NOT DETERMINE: whether `allOutcomes` denominator binding is wrong for CAP-IT duration; missing dashboard consumer that maps outcome `tE/cE` to denominators.
+tokens used
+36,389
+Line numbers are for the pasted file.
+
+- `instrument reading a DIFFERENT COPY`: lines `149`, `178`, `207`. Exact input: run `cd scripts; python build_3more_yf_capit_schist.py`. Consequence: the script reads/writes `scripts\YELLOW_FEVER...html` etc. or fails there, not necessarily the repo-root files it is meant to change.
+
+- `check that CANNOT FAIL`: lines `22-31`. Exact input: `replace_realdata("abc", "x: 1")` returns `ab{x: 1bc` instead of raising. Consequence: a missing `realData: {` marker silently corrupts output.
+
+- `SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE`: lines `25-29`. Exact input: `replace_realdata("realData: { a: '}'}; tail", "x: 1")`. Consequence: a `}` inside a JS string is treated as the end of `realData`, producing invalid mixed output.
+
+- `probe keyed to the STRING A FIX REMOVES`: lines `151-153`, `180-182`, `209-211`. Exact input: rerun after the title has already been changed to the new topic title. Consequence: the script exits before checking or refreshing the rest of the generated page.
+
+- `ZERO CONFLATED WITH ABSENT`: line `47`. Exact input: `tE: 482, tN: 493, cE: 0, cN: 0` for a single-arm proportion. Consequence: absent comparator is encoded as a real zero-sized comparator, inviting downstream divide-by-zero or false pairwise interpretation.
+
+- `NEGATION DROPPED`: lines `142` and `217`. Exact input: text says `single-arm cohorts 1b/2/3 not randomized`, while protocol sets `rctOnly: true`. Consequence: non-randomized cohort evidence is mislabeled or filtered as RCT-only.
+
+No `values compared AS TEXT where line endings differ`: Python universal newline read makes CRLF/LF alone not demonstrably defective here.
+
+No merged-cell/tabulation defect found in this file.
+
+No `STATUS CODE REPORTING THE WRAPPER` defect: no subprocess/pipe status is present.
+
+COULD NOT DETERMINE: whether `allOutcomes` denominator binding is wrong for CAP-IT duration; missing dashboard consumer that maps outcome `tE/cE` to denominators.

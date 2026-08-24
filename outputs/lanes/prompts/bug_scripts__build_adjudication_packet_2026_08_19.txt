@@ -1,0 +1,147 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/build_adjudication_packet_2026_08_19.py
+
+--- THE FILE, IN FULL ---
+"""BLIND ADJUDICATION PACKET for the 130 trials the mechanical screener could not settle.
+
+TWO INDEPENDENT INSTRUMENTS, ASKED THE SAME QUESTION, NEITHER TOLD WHAT THE OTHER OR I THINK.
+
+    They are asked to CLASSIFY THE ARMS, not to confirm a verdict. A reviewer handed a verdict
+    and asked whether it is right agrees far more often than one handed the raw material and
+    asked what it shows -- and the whole value of a second family is that it did not inherit
+    the first one's reading.
+
+The packet therefore contains ONLY the registry arm structures. It does not contain: the
+screener's verdict, the disposition vocabulary, the review's criteria, the word "excluded", or
+any hint that these 130 are the residue of anything. A reader of the packet cannot tell which
+answer would be convenient.
+
+FAMILIES, and why three rather than two: Claude (anthropic) wrote the screener, so Claude is
+the instrument under test and cannot also be its own check. Codex (openai) and agy (Gemini,
+google) are the two independent readings. Where they AGREE the answer is taken and spot-checked
+against a coded field; where they DIFFER the case is read by hand. That is the method that
+found the arm-role defect and it is the only one here that has ever caught a
+withholding-direction error.
+
+EVIDENCE IS INLINE. agy has no file tools in this configuration, so a packet that names a path
+is a packet it cannot read -- and a model that cannot read its evidence will answer anyway.
+"""
+import io
+import json
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(REPO, "ssot"))
+os.environ.setdefault(
+    "RM_CTGOV_CACHE",
+    "F:/claude-temp/claude/F--rapidmeta-ssot-shell/"
+    "eb4d84e5-8a24-4c3b-afe2-34bd91c20bc7/scratchpad/.ctgov-raw-cache")
+
+import ctgov_transport as X          # noqa: E402
+
+SCREEN = os.path.join(REPO, "evidence", "2026-08-19-batch1", "ablation_medical_screening.json")
+OUT_DIR = ("F:/claude-temp/claude/F--rapidmeta-ssot-shell/"
+           "6b629e1e-cc8c-4565-af03-e40341ee43f3/scratchpad")
+
+TASK = """You are reading registered clinical trial arm structures from ClinicalTrials.gov.
+
+For EACH trial below, decide two things FROM THE ARM DATA SHOWN AND NOTHING ELSE:
+
+  A) Does any arm deliver CATHETER-BASED ABLATION OF ATRIAL FIBRILLATION as that arm's
+     treatment? This means pulmonary vein isolation, radiofrequency, cryoballoon, pulsed-field
+     or laser ablation of atrial tissue.
+     IMPORTANT: ablation of the AV node / AV junction / His bundle is NOT this -- that ablates
+     the conduction system and requires a pacemaker. Surgical or thoracoscopic maze performed
+     during cardiac surgery is NOT this either.
+     Answer: YES / NO / UNCLEAR
+
+  B) Does any OTHER arm serve as a control that is NOT itself an atrial ablation -- that is,
+     drug therapy of any kind, usual/standard/conventional care, or no treatment?
+     Answer: YES / NO / UNCLEAR
+
+Output EXACTLY one line per trial, no commentary, in this format:
+NCTxxxxxxxx | A=YES|NO|UNCLEAR | B=YES|NO|UNCLEAR
+
+Use UNCLEAR whenever the arm names genuinely do not tell you. UNCLEAR is a correct and
+expected answer; do not guess to avoid it.
+"""
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    rows = json.load(io.open(SCREEN, encoding="utf-8"))["trials"]
+    todo = [r["nct"] for r in rows if r["verdict"] == "NEEDS_ADJUDICATION"]
+    print("trials to adjudicate: %d" % len(todo))
+
+    blocks = []
+    for nct in todo:
+        st, study, det = X.fetch_raw(nct, fields="protocolSection,hasResults")
+        if st != X.OK:
+            continue
+        p = X.require_raw_v2(study, nct)["protocolSection"]
+        arms = (p.get("armsInterventionsModule") or {}).get("armGroups") or []
+        lines = ["%s" % nct]
+        for a in arms:
+            names = "; ".join(str(n) for n in (a.get("interventionNames") or [])) or "(none)"
+            lines.append("    [%s] %s -- %s"
+                         % (a.get("type") or "?", a.get("label") or "?", names))
+        blocks.append("\n".join(lines))
+
+    os.makedirs(OUT_DIR, exist_ok=True)
+    # Chunked so no single prompt is so long that a model starts summarising instead of
+    # answering. Same chunks to both seats, so a disagreement is never an artefact of
+    # different batching.
+    CHUNK = 33
+    paths = []
+    for i in range(0, len(blocks), CHUNK):
+        part = blocks[i:i + CHUNK]
+        text = TASK + "\n" + ("\n\n".join(part)) + "\n"
+        path = os.path.join(OUT_DIR, "adjudication_packet_%02d.txt" % (i // CHUNK + 1))
+        with io.open(path, "w", encoding="utf-8") as fh:
+            fh.write(text)
+        paths.append(path)
+        print("   wrote %s  (%d trials, %d chars)" % (path, len(part), len(text)))
+
+    with io.open(os.path.join(OUT_DIR, "adjudication_ids.json"), "w", encoding="utf-8") as fh:
+        fh.write(json.dumps(todo, indent=1))
+    print("\nSAME CHUNKS TO BOTH SEATS. A disagreement must be about the trial, never about "
+          "how the\nquestion was cut up.")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

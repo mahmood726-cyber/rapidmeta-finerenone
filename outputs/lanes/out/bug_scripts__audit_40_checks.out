@@ -1,0 +1,1632 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a03133-2006-7012-9a13-c439e9aeedef
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/audit_40_checks.py
+
+--- THE FILE, IN FULL ---
+"""40-check portfolio audit. Each check returns (severity, count, samples).
+
+Runs across all *.html under the repo root. Output: outputs/audit40/report.json
+plus a human-readable summary on stdout.
+
+Severities:
+    P0  page-breaking JS/HTML — site never loads
+    P1  silently shows wrong data
+    P2  usability / visual defect
+    P3  housekeeping / cosmetic
+"""
+from __future__ import annotations
+import json
+import re
+import sys
+import io
+from pathlib import Path
+from collections import Counter, defaultdict
+
+# Only rewrap stdout when run as a script. Importing this module (e.g. to reuse
+# an individual check) must NOT reassign the caller's stdout -- doing so GC-closes
+# the inherited buffer and breaks the importer (lessons.md: module-level stdout
+# reassignment trap).
+if __name__ == "__main__" and "pytest" not in sys.modules and hasattr(sys.stdout, "buffer"):
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+HERE = Path(__file__).resolve().parent.parent
+OUT = HERE / "outputs" / "audit40"
+OUT.mkdir(parents=True, exist_ok=True)
+
+NCT_RE = re.compile(r"NCT\d{7,8}")
+PMID_RE = re.compile(r"pmid:\s*['\"](\d*)['\"]")
+PMID_LINK_RE = re.compile(r"https://pubmed\.ncbi\.nlm\.nih\.gov/(\d+)/")
+NCT_LINK_RE = re.compile(r"https://clinicaltrials\.gov/study/(NCT\d{7,8})")
+HREF_RE = re.compile(r'href="([^"#?]+\.(?:html|md|json|csv))"', re.IGNORECASE)
+ID_ATTR_RE = re.compile(r'\bid="([^"]+)"')
+TRIAL_BLOCK_RE = re.compile(
+    r"'(NCT\d{7,8})':\s*\{(?P<body>(?:[^{}]|\{[^{}]*\}){0,4000})\}",
+    re.DOTALL,
+)
+
+
+def load_text(p: Path) -> str:
+    return p.read_text(encoding="utf-8", errors="replace")
+
+
+# ---------------------------------------------------------------------------
+# Checks (each function appends rows to findings list and bumps counters).
+# A check is `check_NN(p: Path, txt: str, ctx: dict) -> list[dict]` returning
+# zero or more finding dicts. Each finding: {check, severity, file, detail}.
+# ---------------------------------------------------------------------------
+
+
+def check_01_python_none_in_js(p, txt, ctx):
+    """P0: bare `None` in JS object-value position."""
+    out = []
+    # Mask quoted strings so we don't false-positive on "None declared" or 'None'.
+    masked = mask_strings(txt)
+    for m in re.finditer(r":\s+None(?=[,}\s])", masked):
+        out.append({"check": "01_py_None_in_js", "severity": "P0", "file": p.name,
+                    "detail": txt[max(0, m.start()-20): m.end()+5]})
+        if len(out) >= 3: break
+    return out
+
+
+def check_02_python_True_False_in_js(p, txt, ctx):
+    out = []
+    masked = mask_strings(txt)
+    for m in re.finditer(r":\s+(True|False)(?=[,}\s])", masked):
+        out.append({"check": "02_py_TrueFalse_in_js", "severity": "P0", "file": p.name,
+                    "detail": txt[max(0, m.start()-20): m.end()+5]})
+        if len(out) >= 3: break
+    return out
+
+
+def check_03_unmatched_script_tag(p, txt, ctx):
+    """P0: a `<script>` element left unclosed at EOF (page never finishes parsing).
+
+    Uses browser-accurate <script> semantics rather than a naive open/close count:
+    once inside a script element the parser ignores further `<script` substrings
+    (they are JS/string content) and closes ONLY on a literal `</script>`. An
+    escaped `<\\/script>` (the deliberate safe pattern used by sanitization
+    regexes such as `new RegExp("<script...<\\/script>")`) is NOT a real close,
+    so it no longer produces a phantom imbalance. We flag only the unambiguous
+    page-breaking case: a script that is still open when the document ends.
+    """
+    out = []
+    open_re = re.compile(r"<script\b[^>]*>", re.IGNORECASE)
+    close_re = re.compile(r"</script\s*>", re.IGNORECASE)
+    i, n = 0, len(txt)
+    in_script = False
+    while i < n:
+        if not in_script:
+            m = open_re.search(txt, i)
+            if not m:
+                break
+            in_script = True
+            i = m.end()
+        else:
+            m = close_re.search(txt, i)
+            if not m:
+                # script opened but never closed before EOF -> genuinely broken
+                out.append({"check": "03_unbalanced_script", "severity": "P0",
+                            "file": p.name, "detail": "unclosed <script> at EOF"})
+                break
+            in_script = False
+            i = m.end()
+    return out
+
+
+def check_04_div_balance(p, txt, ctx):
+    """P2: div balance off by more than a small tolerance."""
+    masked = mask_strings(txt, keep_template_strings=False)
+    opens = len(re.findall(r"<div\b[\s>]", masked, re.IGNORECASE))
+    closes = len(re.findall(r"</div\s*>", masked, re.IGNORECASE))
+    if abs(opens - closes) > 0:
+        return [{"check": "04_div_balance", "severity": "P2", "file": p.name,
+                 "detail": f"open={opens} close={closes} diff={opens-closes}"}]
+    return []
+
+
+def check_05_broken_local_links(p, txt, ctx):
+    out = []
+    for m in HREF_RE.finditer(txt):
+        href = m.group(1).strip()
+        # Skip data:, anchors, mailto handled by regex already.
+        if href.startswith(("http://", "https://", "data:", "mailto:")):
+            continue
+        # Resolve relative to repo root.
+        tgt = (HERE / href).resolve()
+        if not tgt.exists():
+            out.append({"check": "05_broken_local_link", "severity": "P1", "file": p.name,
+                        "detail": href})
+            if len(out) >= 5: break
+    return out
+
+
+def check_06_unpopulated_placeholders(p, txt, ctx):
+    """P1: literal {{token}} / __PLACEHOLDER__ / REPLACE_ME / $$$ leaked through."""
+    out = []
+    patterns = [r"\{\{[A-Z_][A-Z0-9_]*\}\}", r"__[A-Z_]+__", r"\bREPLACE_ME\b",
+                r"<<<<+\s", r"\$\$\$+", r"\bTODO_FIXME\b"]
+    for pat in patterns:
+        for m in re.finditer(pat, txt):
+            # ignore inside <pre>/<code> samples
+            ctx_str = txt[max(0, m.start()-30): m.end()+30]
+            if "<pre" in ctx_str or "code" in ctx_str[:35]:
+                continue
+            out.append({"check": "06_unpopulated_placeholder", "severity": "P1",
+                        "file": p.name, "detail": m.group(0) + " ctx=" + ctx_str[:80]})
+            if len(out) >= 3:
+                return out
+    return out
+
+
+def check_07_empty_pmid_link(p, txt, ctx):
+    """P2: <a href="https://pubmed.ncbi.nlm.nih.gov//">PMID </a> with empty id."""
+    out = []
+    for m in re.finditer(r"pubmed\.ncbi\.nlm\.nih\.gov/(\d*)/", txt):
+        if not m.group(1):
+            out.append({"check": "07_empty_pmid_link", "severity": "P2", "file": p.name,
+                        "detail": "empty PMID in link"})
+            return out
+    return out
+
+
+def check_08_event_count_consistency(p, txt, ctx):
+    """P1: tE > tN or cE > cN within a realData trial block."""
+    out = []
+    for m in TRIAL_BLOCK_RE.finditer(txt):
+        nct = m.group(1)
+        body = m.group("body")
+        nums = {}
+        for fld in ("tE", "tN", "cE", "cN"):
+            mm = re.search(rf"\b{fld}:\s*(-?\d+|null|None)", body)
+            if mm:
+                v = mm.group(1)
+                if v in ("null", "None"):
+                    nums[fld] = None
+                else:
+                    nums[fld] = int(v)
+        # Both arms must have valid numeric counts to compare.
+        if all(nums.get(k) is not None for k in ("tE", "tN", "cE", "cN")):
+            tE, tN, cE, cN = nums["tE"], nums["tN"], nums["cE"], nums["cN"]
+            if tE > tN or cE > cN or tE < 0 or cE < 0 or tN <= 0 or cN <= 0:
+                out.append({"check": "08_event_count_inconsistency", "severity": "P1",
+                            "file": p.name,
+                            "detail": f"{nct} tE={tE} tN={tN} cE={cE} cN={cN}"})
+                if len(out) >= 5: break
+    return out
+
+
+def check_09_rob_array_length(p, txt, ctx):
+    """P2: rob: [...] not length 5 in a trial block (RoB 2.0 needs 5 domains)."""
+    out = []
+    for m in TRIAL_BLOCK_RE.finditer(txt):
+        nct = m.group(1)
+        body = m.group("body")
+        mm = re.search(r"rob:\s*\[([^\]]*)\]", body)
+        if mm:
+            items = [x for x in mm.group(1).split(",") if x.strip()]
+            if len(items) != 5 and len(items) != 0:
+                out.append({"check": "09_rob_length", "severity": "P2", "file": p.name,
+                            "detail": f"{nct} rob has {len(items)} items"})
+                if len(out) >= 3: break
+    return out
+
+
+def check_10_nct_in_auto_include_vs_realdata(p, txt, ctx):
+    """P1: AUTO_INCLUDE set must match keys in realData."""
+    out = []
+    inc_match = re.search(r"AUTO_INCLUDE_TRIAL_IDS\s*=\s*new\s+Set\(\[([^\]]*)\]\)", txt)
+    if not inc_match:
+        return out
+    inc_set = set(NCT_RE.findall(inc_match.group(1)))
+    real_set = set(NCT_RE.findall(re.search(r"realData:\s*\{[\s\S]*?async init", txt).group(0)
+                                  if re.search(r"realData:\s*\{[\s\S]*?async init", txt) else ""))
+    extra_inc = inc_set - real_set
+    extra_real = real_set - inc_set
+    if extra_inc or extra_real:
+        out.append({"check": "10_nct_set_mismatch", "severity": "P1", "file": p.name,
+                    "detail": f"auto_include-only={sorted(extra_inc)[:3]} realData-only={sorted(extra_real)[:3]}"})
+    return out
+
+
+def check_11_duplicate_html_ids(p, txt, ctx):
+    """P2: duplicate id="..." attributes (illegal HTML, breaks JS getElementById)."""
+    ids = [m.group(1) for m in ID_ATTR_RE.finditer(txt)]
+    cnt = Counter(ids)
+    dupes = {k: v for k, v in cnt.items() if v > 1 and k not in ("",)}
+    if dupes:
+        return [{"check": "11_dup_html_ids", "severity": "P2", "file": p.name,
+                 "detail": "; ".join(f"{k}×{v}" for k, v in list(dupes.items())[:3])}]
+    return []
+
+
+def check_12_truncated_outcome_titles(p, txt, ctx):
+    """P3: outcome titles cut off mid-word (end with a partial like "Rheumat")."""
+    out = []
+    for m in re.finditer(r"title:\s*'([^']{60,200}?)\s*\(primary\)'", txt):
+        title = m.group(1).rstrip()
+        # If it ends mid-word (alphanumeric, no punctuation), flag.
+        if title and re.search(r"[A-Za-z]{4,}$", title) and not re.search(r"[.\):]$", title):
+            # heuristic: <=200 char limit suggests truncation
+            if len(title) >= 110:
+                out.append({"check": "12_truncated_title", "severity": "P3",
+                            "file": p.name, "detail": title[-60:]})
+                if len(out) >= 3: break
+    return out
+
+
+def check_13_hardcoded_local_paths(p, txt, ctx):
+    """P1: Windows / Unix local paths leaked into shipped HTML."""
+    out = []
+    for m in re.finditer(r'[A-Z]:\\\\?Users\\\\?[A-Za-z]+|/home/[a-z]+/', txt):
+        out.append({"check": "13_local_path", "severity": "P1", "file": p.name,
+                    "detail": m.group(0)})
+        if len(out) >= 3: break
+    return out
+
+
+def check_14_invalid_pmid_format(p, txt, ctx):
+    """P2: pmid: 'NaN' / 'undefined' / 'null' literal as string / non-numeric."""
+    out = []
+    for m in PMID_RE.finditer(txt):
+        v = m.group(1)
+        # empty is OK (intentional wipe), non-digit non-empty is a bug.
+        if v and not v.isdigit():
+            out.append({"check": "14_pmid_non_digit", "severity": "P2", "file": p.name,
+                        "detail": repr(v)})
+            if len(out) >= 3: break
+    return out
+
+
+def check_15_outcome_special_chars(p, txt, ctx):
+    """P3: outcome titles with mojibake (â€, â€™, Ã©, etc.)."""
+    out = []
+    if re.search(r"â€[\W™]|Ã[©¨ª¢]|â”€|â˜…|â”|â€\"", txt):
+        out.append({"check": "15_mojibake", "severity": "P3", "file": p.name,
+                    "detail": "encoding-damaged unicode found"})
+    return out
+
+
+def check_16_external_cdn_inside_csp(p, txt, ctx):
+    """P2: <script src= or <link href= to a host not whitelisted in CSP connect-src."""
+    out = []
+    # Find CSP if any
+    csp = re.search(r'http-equiv="Content-Security-Policy"\s*content="([^"]+)"', txt)
+    if not csp:
+        return out
+    allowed_hosts = set(re.findall(r"https?://[^\s']+", csp.group(1)))
+    # Check external script/link
+    for m in re.finditer(r"(?:src|href)=\"(https?://[^/\"]+)/", txt):
+        host = m.group(1)
+        if host.endswith(("clinicaltrials.gov", "ebi.ac.uk", "openalex.org", "r-wasm.org", "ncbi.nlm.nih.gov", "cdn.plot.ly", "cdnjs.cloudflare.com", "fonts.googleapis.com", "fonts.gstatic.com")):
+            continue
+        if host not in allowed_hosts:
+            # Many will trigger; report once
+            out.append({"check": "16_csp_off_whitelist", "severity": "P2", "file": p.name,
+                        "detail": host})
+            return out
+    return out
+
+
+def check_17_year_plausibility(p, txt, ctx):
+    """P2: year in realData < 1990 or > 2030."""
+    out = []
+    for m in TRIAL_BLOCK_RE.finditer(txt):
+        body = m.group("body")
+        mm = re.search(r"\byear:\s*(-?\d+)", body)
+        if mm:
+            y = int(mm.group(1))
+            if y < 1990 or y > 2030:
+                out.append({"check": "17_year_implausible", "severity": "P2", "file": p.name,
+                            "detail": f"{m.group(1)} year={y}"})
+                if len(out) >= 3: break
+    return out
+
+
+def check_18_viewport_meta(p, txt, ctx):
+    """P2: missing mobile viewport meta tag."""
+    if 'name="viewport"' not in txt:
+        return [{"check": "18_no_viewport", "severity": "P2", "file": p.name, "detail": ""}]
+    return []
+
+
+def check_19_inline_script_size(p, txt, ctx):
+    """P3: any single inline <script> > 200 KB (perf — consider extracting)."""
+    out = []
+    for m in re.finditer(r"<script\b[^>]*>([\s\S]*?)</script>", txt):
+        body = m.group(1)
+        if len(body) > 200_000:
+            out.append({"check": "19_huge_inline_script", "severity": "P3", "file": p.name,
+                        "detail": f"{len(body):,} bytes"})
+            return out
+    return out
+
+
+def check_20_localStorage_key_collision(p, txt, ctx):
+    """P1: localStorage key looks like a stock template (e.g. 'rapid_meta_template')."""
+    out = []
+    for m in re.finditer(r"localStorage\.\w+\(['\"]([^'\"]{1,200})['\"]", txt):
+        k = m.group(1)
+        if "{{" in k or "STEM" in k or "TEMPLATE" in k or k.endswith("_undefined"):
+            out.append({"check": "20_localStorage_template_key", "severity": "P1",
+                        "file": p.name, "detail": k})
+            return out
+    return out
+
+
+def check_21_meta_description(p, txt, ctx):
+    """P3: missing OG/twitter description."""
+    if 'name="description"' not in txt and 'property="og:description"' not in txt:
+        return [{"check": "21_no_description", "severity": "P3", "file": p.name, "detail": ""}]
+    return []
+
+
+def check_22_outcome_title_dupe(p, txt, ctx):
+    """P3: every trial has identical outcome title (likely template not substituted)."""
+    titles = re.findall(r"title:\s*'([^']{20,})\s*\(primary\)'", txt)
+    if len(titles) >= 2 and len(set(titles)) == 1:
+        return [{"check": "22_outcome_titles_all_identical", "severity": "P3",
+                 "file": p.name, "detail": titles[0][:80]}]
+    return []
+
+
+def check_23_svg_invalid_coords(p, txt, ctx):
+    """P1: SVG forest-plot coordinates containing NaN, Infinity, or empty."""
+    out = []
+    for m in re.finditer(r"<svg[^>]*viewBox=\"([^\"]+)\"", txt):
+        vb = m.group(1).split()
+        for v in vb:
+            try:
+                fv = float(v)
+                if fv != fv or fv == float("inf") or fv == float("-inf"):
+                    out.append({"check": "23_svg_bad_viewbox", "severity": "P1",
+                                "file": p.name, "detail": vb})
+                    return out
+            except ValueError:
+                out.append({"check": "23_svg_bad_viewbox", "severity": "P1",
+                            "file": p.name, "detail": vb})
+                return out
+    # x="NaN" anywhere in <text>/<rect>/<line>
+    if re.search(r'\b(?:x|y|x1|x2|y1|y2|cx|cy)="(?:NaN|Infinity|-Infinity)"', txt):
+        out.append({"check": "23_svg_bad_coord", "severity": "P1", "file": p.name,
+                    "detail": "NaN/Infinity in svg attr"})
+    return out
+
+
+def check_24_orphan_close_tag(p, txt, ctx):
+    """P2: stray </body> or </html> appearing before the actual end."""
+    out = []
+    if txt.count("</body>") > 1:
+        out.append({"check": "24_dup_body_close", "severity": "P2", "file": p.name,
+                    "detail": f"</body> ×{txt.count('</body>')}"})
+    if txt.count("</html>") > 1:
+        out.append({"check": "24_dup_html_close", "severity": "P2", "file": p.name,
+                    "detail": f"</html> ×{txt.count('</html>')}"})
+    return out
+
+
+def check_25_orphan_anchor_with_no_text(p, txt, ctx):
+    """P3: empty anchor <a href="..."></a> visible to users as a dead spot."""
+    out = []
+    for m in re.finditer(r'<a\s+href="[^"]+"[^>]*>\s*</a>', txt):
+        out.append({"check": "25_empty_anchor", "severity": "P3", "file": p.name,
+                    "detail": m.group(0)[:120]})
+        if len(out) >= 2: break
+    return out
+
+
+def check_26_inconsistent_acronyms(p, txt, ctx):
+    """P3: trial name in realData differs between `name:` and `snippet:`."""
+    out = []
+    for m in TRIAL_BLOCK_RE.finditer(txt):
+        body = m.group("body")
+        name_m = re.search(r"name:\s*'([^']*)'", body)
+        snip_m = re.search(r"snippet:\s*'NCT[^:]*:\s*([^']{4,40})", body)
+        # Best-effort, may not always be set; only flag when both present and clearly inconsistent.
+        if name_m and snip_m:
+            name = name_m.group(1).strip()
+            if name and len(name) > 3 and name not in body[:600]:
+                pass  # too noisy; skip this check
+    return out
+
+
+def check_27_huge_file(p, txt, ctx):
+    """P3: file > 2 MB (perf concern)."""
+    if len(txt) > 2_000_000:
+        return [{"check": "27_huge_file", "severity": "P3", "file": p.name,
+                 "detail": f"{len(txt):,} bytes"}]
+    return []
+
+
+def check_28_tiny_file(p, txt, ctx):
+    """P3: shipped page < 4 KB (likely stub)."""
+    if len(txt) < 4_000 and p.name.endswith((".html",)):
+        return [{"check": "28_tiny_file", "severity": "P3", "file": p.name,
+                 "detail": f"{len(txt):,} bytes"}]
+    return []
+
+
+def check_29_dashboard_link_orphan(p, txt, ctx):
+    """P1 (only on dashboard.html / index.html / audit_table.html): href points to missing file."""
+    # already covered by 05; skip
+    return []
+
+
+def check_30_double_quoted_attr_with_unescaped_quote(p, txt, ctx):
+    """P2: attribute like value="abc"def" — broken HTML."""
+    out = []
+    for m in re.finditer(r'\b\w+="[^"]*"\w', txt):
+        out.append({"check": "30_attr_unescaped_quote", "severity": "P2",
+                    "file": p.name, "detail": m.group(0)[:80]})
+        if len(out) >= 2: break
+    return out
+
+
+def check_31_window_global_unset(p, txt, ctx):
+    """P1: file references RapidMeta but does NOT define it (broken extraction)."""
+    if 'RapidMeta' not in txt:
+        return []
+    if 'RapidMeta = {' in txt or 'const RapidMeta' in txt or 'window.RapidMeta=' in txt or 'window.RapidMeta =' in txt:
+        return []
+    # Else: RapidMeta is referenced but no definition exists.
+    if re.search(r"\bRapidMeta\.\w+", txt):
+        return [{"check": "31_undefined_RapidMeta", "severity": "P1", "file": p.name,
+                 "detail": "RapidMeta referenced without definition"}]
+    return []
+
+
+def check_32_no_h1(p, txt, ctx):
+    """P3: page has no <h1> (a11y/SEO)."""
+    if not re.search(r"<h1\b", txt, re.IGNORECASE):
+        return [{"check": "32_no_h1", "severity": "P3", "file": p.name, "detail": ""}]
+    return []
+
+
+def check_33_pmid_link_mismatch_with_realdata(p, txt, ctx):
+    """P1: hardcoded PMID anchor text differs from the realData pmid for the same NCT.
+
+    Only applies to lite/audit-first pages where both forms can coexist."""
+    out = []
+    # Build NCT -> realData pmid
+    real_pmid = {}
+    for m in TRIAL_BLOCK_RE.finditer(txt):
+        nct = m.group(1)
+        mm = PMID_RE.search(m.group("body"))
+        if mm:
+            real_pmid[nct] = mm.group(1)
+    # Check anchor pmid links near NCT mention.
+    pair_re = re.compile(r'(NCT\d{7,8})</a>[^<]*<a href="https://pubmed\.ncbi\.nlm\.nih\.gov/(\d+)/"')
+    for m in pair_re.finditer(txt):
+        nct, anchor_pmid = m.group(1), m.group(2)
+        rp = real_pmid.get(nct)
+        if rp and anchor_pmid != rp:
+            out.append({"check": "33_pmid_anchor_realdata_mismatch", "severity": "P1",
+                        "file": p.name,
+                        "detail": f"{nct} anchor={anchor_pmid} realData={rp}"})
+            if len(out) >= 3: break
+    return out
+
+
+def check_34_screening_template_old(p, txt, ctx):
+    """P2: pages still using the pre-v3 screening template (t.data?.ctgovUrl only)."""
+    if "${t.data?.ctgovUrl ? `<a href" in txt:
+        return [{"check": "34_old_screening_template", "severity": "P2", "file": p.name,
+                 "detail": "still uses pre-v3 ctgovUrl-only template"}]
+    return []
+
+
+def check_35_robots_no_robots(p, txt, ctx):
+    """P3: meta robots=noindex on a published page (probably unintentional)."""
+    if re.search(r'name="robots"\s+content="[^"]*noindex', txt, re.IGNORECASE):
+        return [{"check": "35_noindex_set", "severity": "P3", "file": p.name, "detail": ""}]
+    return []
+
+
+def check_36_target_blank_no_noopener(p, txt, ctx):
+    """P2: target="_blank" without rel="noopener" (tab-napping security)."""
+    out = []
+    for m in re.finditer(r'<a[^>]*target="_blank"[^>]*>', txt):
+        anchor = m.group(0)
+        if 'rel="noopener' not in anchor and "rel='noopener" not in anchor:
+            out.append({"check": "36_blank_no_noopener", "severity": "P2",
+                        "file": p.name, "detail": anchor[:120]})
+            if len(out) >= 2: break
+    return out
+
+
+def check_37_inconsistent_drug_name(p, txt, ctx):
+    """P3: title-case 'Drug' mentioned but stem says 'OTHER_DRUG' — review name drift."""
+    stem = re.split(r"_AUTO_FULL_REVIEW|_AUTO_REVIEW|_REVIEW", p.name, 1)[0]
+    if not stem or "_" not in stem:
+        return []
+    first = stem.split("_")[0].lower()
+    if len(first) < 4 or first in {"new", "trial", "study", "all"}:
+        return []
+    # If the first stem token does not appear at all in the page, flag.
+    if first.lower() not in txt.lower():
+        return [{"check": "37_stem_not_in_page", "severity": "P3", "file": p.name,
+                 "detail": f"stem token '{first}' not present"}]
+    return []
+
+
+def check_38_nesting_via_template_literal(p, txt, ctx):
+    """P0: backtick template literal containing `${` but missing closing brace."""
+    # Cheap heuristic: dollar-brace count balance in script content.
+    out = []
+    for m in re.finditer(r"<script\b[^>]*>([\s\S]*?)</script>", txt):
+        body = m.group(1)
+        n_open_db = body.count("${")
+        # Count closing braces that ARE in template-literal context — hard. Skip
+        # unless extremely lopsided (rough sanity).
+        if n_open_db == 0: continue
+        # Look for stray `${` followed by `}` mismatch is too noisy; just record gross outliers.
+    return out
+
+
+def check_39_aria_label_missing_on_button(p, txt, ctx):
+    """P3: <button> with no text and no aria-label."""
+    out = []
+    for m in re.finditer(r"<button\b[^>]*>(\s*)</button>", txt):
+        # Inspect the button tag for aria-label
+        start = max(0, m.start()-200)
+        anchor = txt[start: m.end()]
+        if "aria-label" not in anchor:
+            out.append({"check": "39_empty_button_no_aria", "severity": "P3",
+                        "file": p.name, "detail": anchor[-80:]})
+            if len(out) >= 2: break
+    return out
+
+
+def check_40_orphan_pubmed_link(p, txt, ctx):
+    """P2: a pubmed.ncbi.nlm.nih.gov/<n>/ link where <n> isn't a real PMID (< 100)."""
+    out = []
+    for m in PMID_LINK_RE.finditer(txt):
+        v = m.group(1)
+        if v and int(v) < 100:
+            out.append({"check": "40_implausible_pmid", "severity": "P2",
+                        "file": p.name, "detail": v})
+            if len(out) >= 2: break
+    return out
+
+
+# Helper -----------------------------------------------------------------------
+def mask_strings(t: str, keep_template_strings: bool = True) -> str:
+    """Replace contents of quoted strings with blanks.
+
+    keep_template_strings=False also blanks backtick template literals.
+    """
+    out = []
+    i = 0
+    n = len(t)
+    while i < n:
+        c = t[i]
+        if c in ("'", '"') or (not keep_template_strings and c == "`"):
+            quote = c
+            j = i + 1
+            while j < n and t[j] != quote:
+                if t[j] == "\\":
+                    j += 2
+                else:
+                    j += 1
+            out.append(" " * max(1, j - i + 1))
+            i = j + 1
+        else:
+            out.append(c)
+            i += 1
+    return "".join(out)
+
+
+CHECKS = [
+    check_01_python_none_in_js,
+    check_02_python_True_False_in_js,
+    check_03_unmatched_script_tag,
+    check_04_div_balance,
+    check_05_broken_local_links,
+    check_06_unpopulated_placeholders,
+    check_07_empty_pmid_link,
+    check_08_event_count_consistency,
+    check_09_rob_array_length,
+    check_10_nct_in_auto_include_vs_realdata,
+    check_11_duplicate_html_ids,
+    check_12_truncated_outcome_titles,
+    check_13_hardcoded_local_paths,
+    check_14_invalid_pmid_format,
+    check_15_outcome_special_chars,
+    check_16_external_cdn_inside_csp,
+    check_17_year_plausibility,
+    check_18_viewport_meta,
+    check_19_inline_script_size,
+    check_20_localStorage_key_collision,
+    check_21_meta_description,
+    check_22_outcome_title_dupe,
+    check_23_svg_invalid_coords,
+    check_24_orphan_close_tag,
+    check_25_orphan_anchor_with_no_text,
+    check_26_inconsistent_acronyms,
+    check_27_huge_file,
+    check_28_tiny_file,
+    check_29_dashboard_link_orphan,
+    check_30_double_quoted_attr_with_unescaped_quote,
+    check_31_window_global_unset,
+    check_32_no_h1,
+    check_33_pmid_link_mismatch_with_realdata,
+    check_34_screening_template_old,
+    check_35_robots_no_robots,
+    check_36_target_blank_no_noopener,
+    check_37_inconsistent_drug_name,
+    check_38_nesting_via_template_literal,
+    check_39_aria_label_missing_on_button,
+    check_40_orphan_pubmed_link,
+]
+
+
+def main():
+    files = sorted([p for p in HERE.glob("*.html") if p.is_file()])
+    print(f"Scanning {len(files):,} files with {len(CHECKS)} checks each")
+
+    all_findings = []
+    counter = Counter()
+    per_check_files = defaultdict(set)
+    ctx = {}
+    for i, p in enumerate(files, 1):
+        try:
+            txt = load_text(p)
+        except Exception as e:
+            all_findings.append({"check": "00_read_error", "severity": "P0",
+                                  "file": p.name, "detail": repr(e)})
+            counter["00_read_error"] += 1
+            continue
+        for fn in CHECKS:
+            try:
+                res = fn(p, txt, ctx) or []
+                for r in res:
+                    all_findings.append(r)
+                    counter[r["check"]] += 1
+                    per_check_files[r["check"]].add(p.name)
+            except Exception as e:
+                all_findings.append({"check": fn.__name__, "severity": "PX",
+                                      "file": p.name, "detail": f"AUDIT BUG: {e!r}"})
+                counter[fn.__name__ + "_AUDIT_BUG"] += 1
+        if i % 300 == 0:
+            print(f"  [{i}/{len(files)}] scanned")
+
+    # Sort by severity then count
+    sev_order = {"P0": 0, "P1": 1, "P2": 2, "P3": 3, "PX": 99}
+    summary = []
+    seen_checks = set(counter.keys())
+    for ck in sorted(seen_checks, key=lambda c: (sev_order.get(_severity_of(c, all_findings), 99), -counter[c])):
+        sev = _severity_of(ck, all_findings)
+        summary.append({
+            "check": ck,
+            "severity": sev,
+            "files_with_issue": len(per_check_files[ck]),
+            "total_findings": counter[ck],
+        })
+
+    (OUT / "report.json").write_text(json.dumps({
+        "files_scanned": len(files),
+        "summary": summary,
+        "findings": all_findings[:5000],  # cap raw findings
+    }, indent=2), encoding="utf-8")
+
+    print()
+    print(f"{'check':<40} {'sev':<4} {'files':<8} {'total':<8}")
+    print("-" * 72)
+    for row in summary:
+        print(f"{row['check']:<40} {row['severity']:<4} {row['files_with_issue']:<8} {row['total_findings']:<8}")
+
+
+def _severity_of(check_name, findings):
+    for f in findings:
+        if f["check"] == check_name:
+            return f["severity"]
+    return "P3"
+
+
+if __name__ == "__main__":
+    main()
+
+codex
+I’m going to verify the pasted module’s line numbers against the workspace copy, then I’ll keep the review to defect findings only.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Get-Content -LiteralPath F:\\E156\\rewrite-workbook.txt -TotalCount 20" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Get-Content -LiteralPath F:\\ProjectIndex\\INDEX.md -TotalCount 20" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=0; Get-Content -LiteralPath .'"\\scripts\\audit_40_checks.py | ForEach-Object { "'$i++; '"'{0,4}: {1}' -f "'$i, $_ }' in F:\rapidmeta-ssot-shell
+ succeeded in 1065ms:
+E156 REWRITE WORKBOOK
+sentinel:skip-file
+sentinel:claim-language-allow
+(Sentinel markers above:
+ - sentinel:skip-file: this workbook intentionally contains C:\Users\... PATH:
+   lines pointing to each project's local source directory â€” they're metadata,
+   not code. The marker keeps Sentinel from emitting ~16 P0 hardcoded-path
+   BLOCKs every push.
+ - sentinel:claim-language-allow: CURRENT BODY entries are the AI-drafted
+   summaries that students rewrite into hedged language â€” flagging overclaim
+   words IN those drafts is the whole pedagogical point, not a defect.
+   File-scope marker here suppresses the ~1293 claim-language WARNs on the
+   CURRENT BODY entries; the YOUR REWRITE entries are where the hedging
+   discipline matters and remains lintable in the rendered student board.)
+
+DENOMINATOR CONVENTION (added 2026-05-06 after review-findings P1-5):
+  Each entry header is `[N/total]` where N = ordinal insertion index and
+  `total` = current portfolio size as of the most recent reconcile sweep.
+  Older entries are back-rewritten on milestone boundaries (rather than
+  preserving their insertion-time denominator) to keep
+
+ succeeded in 1037ms:
+<!-- sentinel:skip-file - portfolio registry; absolute paths ARE the data -->
+# C: Drive Project Index
+> **Last updated**: 2026-05-14 (C:\HTML apps focused repair batch continued: hub shell launch fix, static contracts across ten HTML app repos, NMA/living-meta/nma-dose-response landing and asset-link repairs, and NMA doc hardcoded-path cleanup. Prior SheafNMA v0.2.0, D-drive legacy smoke-contract continuation, CardioOracle lifecycle status freeze, C-drive model/project smoke-contract continuation, mahmood789 consolidation, Sentinel/Overmind JSONL and verification repair, C-drive reproducibility audit continuation, C-drive verification repair, D-drive repair batch, superapp, C-drive sweep, home-folder hardening, Trial Truthfulness Atlas, and portfolio notes retained below.)
+
+### C:\HTML apps focused repair batch (2026-05-14)
+> - `C:\HTML apps\hub\`: added a launchable `index.html` shell and static contract tests for required registry/runtime wiring; fixed `app.js` local `file://` launch resolution so the hub opened from `hub\index.html` links sibling apps from the parent HTML-apps directory instead of nesting paths under `hub`. Verification: `pytest -q -p no:cacheprovider` -> `3 passed`; `node --check app.js && node --check projects.js` -> PASS; headless Chrome smoke on `file:///mnt/c/HTML%20apps/hub/index.html` confirmed the page title and sibling app links. GitHub pushed: `mahmood726-cyber/hub` main `c1a6725`.
+> - `C:\HTML apps\evidence-board\`, `C:\HTML apps\focus-studio\`, `C:\HTML apps\kanban-lab\`: added pytest-visible static app shell contracts covering title/description, localStorage persistence hooks, key controls, and absence of unresolved templates or hardcoded local drive paths; added repo `.gitignore` entries for Python caches and `PROGRESS.md`. Verification: each `pytest -q -p no:cacheprovider` -> `2 passed` with the existing pytest `cache_dir` warning; scoped `git diff --check` -> PASS. GitHub pushed: `evidence-board` master `9a87c8b`, `focus-studio` master `0fa728b`, `kanban-lab` master `81cad38`.
+> - `C:\HTML apps\nma-pro-v2\`: fixed the landing page's broken app links from absent v6/v7 asset filenames to the current `e156-submission/assets/nma-pro-v8.0.html`, added static link-resolution contracts, and removed Sentinel P0 hardcoded local OneDrive paths from legacy docs. Verification: `pytest -q -p no:cacheprovider tests/test_smoke.py tests/test_static_links.py` -> `3 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=1 INFO=302` (pre-existing tracked autogen warning plus HTML a11y INFO). GitHub pushed: master `a2834e7` for the link fix and master `a74e385` for the P0 doc cleanup.
+> - `C:\HTML apps\IPD-Meta-Pro\` and `C:\HTML apps\Truthcert1\`: added static link-resolution contracts for landing-page local assets and canonical app entrypoints. Verification: `IPD-Meta-Pro` `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; `Truthcert1` same command -> `2 passed` with existing pytest `cache_dir` warning. GitHub pushed: `IPD-Meta-Pro` master `b26ee09`, `Truthcert1` master `81eddd3`.
+> - `C:\HTML apps\living-meta\`: repaired landing-page validation links that pointed to a missing HTML asset and an out-of-repo sibling path; linked the existing validation and limitations docs instead, and added a static link-resolution contract. Verification: `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=8` (pre-existing HTML a11y INFO). GitHub pushed: master `c3c8a9b`.
+> - `C:\HTML apps\Pairwiseai\`: added a static landing-page contract covering local link resolution, absence of unresolved templates/local drive paths, and the key app entrypoints under `e156-submission/assets`. Verification: `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=1731` (pre-existing HTML a11y INFO). GitHub pushed: master `2ade493`.
+> - `C:\HTML apps\nma-dose-response-app\`: pushed the existing smoke-blocker commit and added an E156 asset-bundle repair so `e156-submission\assets\index*.html` resolves its JS runtime dependencies from inside the assets folder; added a static link-resolution contract covering root and E156 app entrypoints. Verification: `pytest -q -p no:cacheprovider tests/test_smoke.py tests/test_static_links.py` -> `4 passed` with the existing pytest `cache_dir` warning; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=442` (pre-existing HTML a11y INFO). GitHub pushed: master `e95fae0` and `96594b6`.
+> - Push gate: Windows Git credential path succeeded after WSL Git lacked HTTPS credentials. Sentinel pre-push/manual scan verdicts were BLOCK=0; evidence-board INFO=18, focus-studio INFO=10, kanban-lab INFO=10, living-meta INFO=8, Pairwiseai INFO=1731, nma-dose-response-app INFO=442 (pre-existing P2 HTML accessibility notes); hub push emitted no Sentinel findings.
+> - Existing unrelated dirty files were left unstaged in these repos, mainly protocol/license/doc edits and untracked `paper\` outputs in the three app repos, plus pre-existing hub metadata/submission/style edits.
+
+### SheafNMA (2026-05-12; v0.2.0 real-NMA-corpus validation + 36-cell Ã— 1000-rep simulation + methods paper draft)
+> - `C:\Models\SheafNMA\` â€” cellular-sheaf inconsistency localization for network meta-analysis. v0.1.0 (2026-04-07) was math + single-file HTML dashboard + E156 #153 micro-paper on a synthetic 12-contrast network. v0.2.0 refactored the 457-LOC `generate_figures.py` into a `sheafnma/` package (`core`, `io`, `simulate`, `comparators`, `r_bridge`), validated on 13 R-netmeta built-in NMAs, and shipped a methods-paper draft for Research Synthesis Methods.
+> - Method: precision-weighted coboundary `F[e, treat1] = -1/SE_e, F[e, treat2] = +1/SE_e`; sheaf Laplacian `L = Fáµ€F` (symmetric PSD); WLS-solve node estimates with node 0 anchored; per-edge residuals `r_e = dÌƒ_e âˆ’ (F x*)_e` localize inconsistency; **Global Inconsistency Index** `GII = Î£ rÂ²` is the global statistic. One algebraic object yields both global + per-edge â€” complements (not replaces) node-splitting.
+> - Real-corpus headline: across **13 R-netmeta built-in NMAs** (Senn 2013 diabetes, Dias smokingcessation, Dong 2013 thrombolytics, Linde 2015/2016 acupuncture, Salanti antimanic, Baker, Dogliotti, Franchini, Gurusamy, Stowe, Woods, dietaryfat, parkinson) the global design-by-treatment Ï‡Â² (Higgins 2012) failed to reject in all 13. **SheafNMA flagged â‰¥1 localized inconsistency edge in 5 of those 13 (38.5%)** at the Youden-frozen threshold of **2.6912** â€” networks that look globally consistent harbor at least one inconsistent edge the global test misses.
+> - Simulation rigor: 36-cell grid (n_treatments âˆˆ {4,6,8} Ã— n_studies_per_edge âˆˆ {3,5,10} Ã— Ï„_inc âˆˆ {0,0.2,0.5,1.0}) Ã— **1000 replications per cell**, held-out training cell at (6,5,0.5) for Youden's-J threshold selection (frozen before evaluating remaining 35 cells). Type-I error at Ï„_inc=0 was **0.000 across all cells**. Mean per-edge sensitivity 0.981 / specificity 0.945 at Ï„_inc=0.5.
+
+ succeeded in 6734ms:
+   1: """40-check portfolio audit. Each check returns (severity, count, samples).
+   2: 
+   3: Runs across all *.html under the repo root. Output: outputs/audit40/report.json
+   4: plus a human-readable summary on stdout.
+   5: 
+   6: Severities:
+   7:     P0  page-breaking JS/HTML â€” site never loads
+   8:     P1  silently shows wrong data
+   9:     P2  usability / visual defect
+  10:     P3  housekeeping / cosmetic
+  11: """
+  12: from __future__ import annotations
+  13: import json
+  14: import re
+  15: import sys
+  16: import io
+  17: from pathlib import Path
+  18: from collections import Counter, defaultdict
+  19: 
+  20: # Only rewrap stdout when run as a script. Importing this module (e.g. to reuse
+  21: # an individual check) must NOT reassign the caller's stdout -- doing so GC-closes
+  22: # the inherited buffer and breaks the importer (lessons.md: module-level stdout
+  23: # reassignment trap).
+  24: if __name__ == "__main__" and "pytest" not in sys.modules and hasattr(sys.stdout, "buffer"):
+  25:     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+  26: 
+  27: HERE = Path(__file__).resolve().parent.parent
+  28: OUT = HERE / "outputs" / "audit40"
+  29: OUT.mkdir(parents=True, exist_ok=True)
+  30: 
+  31: NCT_RE = re.compile(r"NCT\d{7,8}")
+  32: PMID_RE = re.compile(r"pmid:\s*['\"](\d*)['\"]")
+  33: PMID_LINK_RE = re.compile(r"https://pubmed\.ncbi\.nlm\.nih\.gov/(\d+)/")
+  34: NCT_LINK_RE = re.compile(r"https://clinicaltrials\.gov/study/(NCT\d{7,8})")
+  35: HREF_RE = re.compile(r'href="([^"#?]+\.(?:html|md|json|csv))"', re.IGNORECASE)
+  36: ID_ATTR_RE = re.compile(r'\bid="([^"]+)"')
+  37: TRIAL_BLOCK_RE = re.compile(
+  38:     r"'(NCT\d{7,8})':\s*\{(?P<body>(?:[^{}]|\{[^{}]*\}){0,4000})\}",
+  39:     re.DOTALL,
+  40: )
+  41: 
+  42: 
+  43: def load_text(p: Path) -> str:
+  44:     return p.read_text(encoding="utf-8", errors="replace")
+  45: 
+  46: 
+  47: # ---------------------------------------------------------------------------
+  48: # Checks (each function appends rows to findings list and bumps counters).
+  49: # A check is `check_NN(p: Path, txt: str, ctx: dict) -> list[dict]` returning
+  50: # zero or more finding dicts. Each finding: {check, severity, file, detail}.
+  51: # ---------------------------------------------------------------------------
+  52: 
+  53: 
+  54: def check_01_python_none_in_js(p, txt, ctx):
+  55:     """P0: bare `None` in JS object-value position."""
+  56:     out = []
+  57:     # Mask quoted strings so we don't false-positive on "None declared" or 'None'.
+  58:     masked = mask_strings(txt)
+  59:     for m in re.finditer(r":\s+None(?=[,}\s])", masked):
+  60:         out.append({"check": "01_py_None_in_js", "severity": "P0", "file": p.name,
+  61:                     "detail": txt[max(0, m.start()-20): m.end()+5]})
+  62:         if len(out) >= 3: break
+  63:     return out
+  64: 
+  65: 
+  66: def check_02_python_True_False_in_js(p, txt, ctx):
+  67:     out = []
+  68:     masked = mask_strings(txt)
+  69:     for m in re.finditer(r":\s+(True|False)(?=[,}\s])", masked):
+  70:         out.append({"check": "02_py_TrueFalse_in_js", "severity": "P0", "file": p.name,
+  71:                     "detail": txt[max(0, m.start()-20): m.end()+5]})
+  72:         if len(out) >= 3: break
+  73:     return out
+  74: 
+  75: 
+  76: def check_03_unmatched_script_tag(p, txt, ctx):
+  77:     """P0: a `<script>` element left unclosed at EOF (page never finishes parsing).
+  78: 
+  79:     Uses browser-accurate <script> semantics rather than a naive open/close count:
+  80:     once inside a script element the parser ignores further `<script` substrings
+  81:     (they are JS/string content) and closes ONLY on a literal `</script>`. An
+  82:     escaped `<\\/script>` (the deliberate safe pattern used by sanitization
+  83:     regexes such as `new RegExp("<script...<\\/script>")`) is NOT a real close,
+  84:     so it no longer produces a phantom imbalance. We flag only the unambiguous
+  85:     page-breaking case: a script that is still open when the document ends.
+  86:     """
+  87:     out = []
+  88:     open_re = re.compile(r"<script\b[^>]*>", re.IGNORECASE)
+  89:     close_re = re.compile(r"</script\s*>", re.IGNORECASE)
+  90:     i, n = 0, len(txt)
+  91:     in_script = False
+  92:     while i < n:
+  93:         if not in_script:
+  94:             m = open_re.search(txt, i)
+  95:             if not m:
+  96:                 break
+  97:             in_script = True
+  98:             i = m.end()
+  99:         else:
+ 100:             m = close_re.search(txt, i)
+ 101:             if not m:
+ 102:                 # script opened but never closed before EOF -> genuinely broken
+ 103:                 out.append({"check": "03_unbalanced_script", "severity": "P0",
+ 104:                             "file": p.name, "detail": "unclosed <script> at EOF"})
+ 105:                 break
+ 106:             in_script = False
+ 107:             i = m.end()
+ 108:     return out
+ 109: 
+ 110: 
+ 111: def check_04_div_balance(p, txt, ctx):
+ 112:     """P2: div balance off by more than a small tolerance."""
+ 113:     masked = mask_strings(txt, keep_template_strings=False)
+ 114:     opens = len(re.findall(r"<div\b[\s>]", masked, re.IGNORECASE))
+ 115:     closes = len(re.findall(r"</div\s*>", masked, re.IGNORECASE))
+ 116:     if abs(opens - closes) > 0:
+ 117:         return [{"check": "04_div_balance", "severity": "P2", "file": p.name,
+ 118:                  "detail": f"open={opens} close={closes} diff={opens-closes}"}]
+ 119:     return []
+ 120: 
+ 121: 
+ 122: def check_05_broken_local_links(p, txt, ctx):
+ 123:     out = []
+ 124:     for m in HREF_RE.finditer(txt):
+ 125:         href = m.group(1).strip()
+ 126:         # Skip data:, anchors, mailto handled by regex already.
+ 127:         if href.startswith(("http://", "https://", "data:", "mailto:")):
+ 128:             continue
+ 129:         # Resolve relative to repo root.
+ 130:         tgt = (HERE / href).resolve()
+ 131:         if not tgt.exists():
+ 132:             out.append({"check": "05_broken_local_link", "severity": "P1", "file": p.name,
+ 133:                         "detail": href})
+ 134:             if len(out) >= 5: break
+ 135:     return out
+ 136: 
+ 137: 
+ 138: def check_06_unpopulated_placeholders(p, txt, ctx):
+ 139:     """P1: literal {{token}} / __PLACEHOLDER__ / REPLACE_ME / $$$ leaked through."""
+ 140:     out = []
+ 141:     patterns = [r"\{\{[A-Z_][A-Z0-9_]*\}\}", r"__[A-Z_]+__", r"\bREPLACE_ME\b",
+ 142:                 r"<<<<+\s", r"\$\$\$+", r"\bTODO_FIXME\b"]
+ 143:     for pat in patterns:
+ 144:         for m in re.finditer(pat, txt):
+ 145:             # ignore inside <pre>/<code> samples
+ 146:             ctx_str = txt[max(0, m.start()-30): m.end()+30]
+ 147:             if "<pre" in ctx_str or "code" in ctx_str[:35]:
+ 148:                 continue
+ 149:             out.append({"check": "06_unpopulated_placeholder", "severity": "P1",
+ 150:                         "file": p.name, "detail": m.group(0) + " ctx=" + ctx_str[:80]})
+ 151:             if len(out) >= 3:
+ 152:                 return out
+ 153:     return out
+ 154: 
+ 155: 
+ 156: def check_07_empty_pmid_link(p, txt, ctx):
+ 157:     """P2: <a href="https://pubmed.ncbi.nlm.nih.gov//">PMID </a> with empty id."""
+ 158:     out = []
+ 159:     for m in re.finditer(r"pubmed\.ncbi\.nlm\.nih\.gov/(\d*)/", txt):
+ 160:         if not m.group(1):
+ 161:             out.append({"check": "07_empty_pmid_link", "severity": "P2", "file": p.name,
+ 162:                         "detail": "empty PMID in link"})
+ 163:             return out
+ 164:     return out
+ 165: 
+ 166: 
+ 167: def check_08_event_count_consistency(p, txt, ctx):
+ 168:     """P1: tE > tN or cE > cN within a realData trial block."""
+ 169:     out = []
+ 170:     for m in TRIAL_BLOCK_RE.finditer(txt):
+ 171:         nct = m.group(1)
+ 172:         body = m.group("body")
+ 173:         nums = {}
+ 174:         for fld in ("tE", "tN", "cE", "cN"):
+ 175:             mm = re.search(rf"\b{fld}:\s*(-?\d+|null|None)", body)
+ 176:             if mm:
+ 177:                 v = mm.group(1)
+ 178:                 if v in ("null", "None"):
+ 179:                     nums[fld] = None
+ 180:                 else:
+ 181:                     nums[fld] = int(v)
+ 182:         # Both arms must have valid numeric counts to compare.
+ 183:         if all(nums.get(k) is not None for k in ("tE", "tN", "cE", "cN")):
+ 184:             tE, tN, cE, cN = nums["tE"], nums["tN"], nums["cE"], nums["cN"]
+ 185:             if tE > tN or cE > cN or tE < 0 or cE < 0 or tN <= 0 or cN <= 0:
+ 186:                 out.append({"check": "08_event_count_inconsistency", "severity": "P1",
+ 187:                             "file": p.name,
+ 188:                             "detail": f"{nct} tE={tE} tN={tN} cE={cE} cN={cN}"})
+ 189:                 if len(out) >= 5: break
+ 190:     return out
+ 191: 
+ 192: 
+ 193: def check_09_rob_array_length(p, txt, ctx):
+ 194:     """P2: rob: [...] not length 5 in a trial block (RoB 2.0 needs 5 domains)."""
+ 195:     out = []
+ 196:     for m in TRIAL_BLOCK_RE.finditer(txt):
+ 197:         nct = m.group(1)
+ 198:         body = m.group("body")
+ 199:         mm = re.search(r"rob:\s*\[([^\]]*)\]", body)
+ 200:         if mm:
+ 201:             items = [x for x in mm.group(1).split(",") if x.strip()]
+ 202:             if len(items) != 5 and len(items) != 0:
+ 203:                 out.append({"check": "09_rob_length", "severity": "P2", "file": p.name,
+ 204:                             "detail": f"{nct} rob has {len(items)} items"})
+ 205:                 if len(out) >= 3: break
+ 206:     return out
+ 207: 
+ 208: 
+ 209: def check_10_nct_in_auto_include_vs_realdata(p, txt, ctx):
+ 210:     """P1: AUTO_INCLUDE set must match keys in realData."""
+ 211:     out = []
+ 212:     inc_match = re.search(r"AUTO_INCLUDE_TRIAL_IDS\s*=\s*new\s+Set\(\[([^\]]*)\]\)", txt)
+ 213:     if not inc_match:
+ 214:         return out
+ 215:     inc_set = set(NCT_RE.findall(inc_match.group(1)))
+ 216:     real_set = set(NCT_RE.findall(re.search(r"realData:\s*\{[\s\S]*?async init", txt).group(0)
+ 217:                                   if re.search(r"realData:\s*\{[\s\S]*?async init", txt) else ""))
+ 218:     extra_inc = inc_set - real_set
+ 219:     extra_real = real_set - inc_set
+ 220:     if extra_inc or extra_real:
+ 221:         out.append({"check": "10_nct_set_mismatch", "severity": "P1", "file": p.name,
+ 222:                     "detail": f"auto_include-only={sorted(extra_inc)[:3]} realData-only={sorted(extra_real)[:3]}"})
+ 223:     return out
+ 224: 
+ 225: 
+ 226: def check_11_duplicate_html_ids(p, txt, ctx):
+ 227:     """P2: duplicate id="..." attributes (illegal HTML, breaks JS getElementById)."""
+ 228:     ids = [m.group(1) for m in ID_ATTR_RE.finditer(txt)]
+ 229:     cnt = Counter(ids)
+ 230:     dupes = {k: v for k, v in cnt.items() if v > 1 and k not in ("",)}
+ 231:     if dupes:
+ 232:         return [{"check": "11_dup_html_ids", "severity": "P2", "file": p.name,
+ 233:                  "detail": "; ".join(f"{k}Ã—{v}" for k, v in list(dupes.items())[:3])}]
+ 234:     return []
+ 235: 
+ 236: 
+ 237: def check_12_truncated_outcome_titles(p, txt, ctx):
+ 238:     """P3: outcome titles cut off mid-word (end with a partial like "Rheumat")."""
+ 239:     out = []
+ 240:     for m in re.finditer(r"title:\s*'([^']{60,200}?)\s*\(primary\)'", txt):
+ 241:         title = m.group(1).rstrip()
+ 242:         # If it ends mid-word (alphanumeric, no punctuation), flag.
+ 243:         if title and re.search(r"[A-Za-z]{4,}$", title) and not re.search(r"[.\):]$", title):
+ 244:             # heuristic: <=200 char limit suggests truncation
+ 245:             if len(title) >= 110:
+ 246:                 out.append({"check": "12_truncated_title", "severity": "P3",
+ 247:                             "file": p.name, "detail": title[-60:]})
+ 248:                 if len(out) >= 3: break
+ 249:     return out
+ 250: 
+ 251: 
+ 252: def check_13_hardcoded_local_paths(p, txt, ctx):
+ 253:     """P1: Windows / Unix local paths leaked into shipped HTML."""
+ 254:     out = []
+ 255:     for m in re.finditer(r'[A-Z]:\\\\?Users\\\\?[A-Za-z]+|/home/[a-z]+/', txt):
+ 256:         out.append({"check": "13_local_path", "severity": "P1", "file": p.name,
+ 257:                     "detail": m.group(0)})
+ 258:         if len(out) >= 3: break
+ 259:     return out
+ 260: 
+ 261: 
+ 262: def check_14_invalid_pmid_format(p, txt, ctx):
+ 263:     """P2: pmid: 'NaN' / 'undefined' / 'null' literal as string / non-numeric."""
+ 264:     out = []
+ 265:     for m in PMID_RE.finditer(txt):
+ 266:         v = m.group(1)
+ 267:         # empty is OK (intentional wipe), non-digit non-empty is a bug.
+ 268:         if v and not v.isdigit():
+ 269:             out.append({"check": "14_pmid_non_digit", "severity": "P2", "file": p.name,
+ 270:                         "detail": repr(v)})
+ 271:             if len(out) >= 3: break
+ 272:     return out
+ 273: 
+ 274: 
+ 275: def check_15_outcome_special_chars(p, txt, ctx):
+ 276:     """P3: outcome titles with mojibake (Ã¢â‚¬, Ã¢â‚¬â„¢, ÃƒÂ©, etc.)."""
+ 277:     out = []
+ 278:     if re.search(r"Ã¢â‚¬[\Wâ„¢]|Ãƒ[Â©Â¨ÂªÂ¢]|Ã¢â€â‚¬|Ã¢Ëœâ€¦|Ã¢â€|Ã¢â‚¬\"", txt):
+ 279:         out.append({"check": "15_mojibake", "severity": "P3", "file": p.name,
+ 280:                     "detail": "encoding-damaged unicode found"})
+ 281:     return out
+ 282: 
+ 283: 
+ 284: def check_16_external_cdn_inside_csp(p, txt, ctx):
+ 285:     """P2: <script src= or <link href= to a host not whitelisted in CSP connect-src."""
+ 286:     out = []
+ 287:     # Find CSP if any
+ 288:     csp = re.search(r'http-equiv="Content-Security-Policy"\s*content="([^"]+)"', txt)
+ 289:     if not csp:
+ 290:         return out
+ 291:     allowed_hosts = set(re.findall(r"https?://[^\s']+", csp.group(1)))
+ 292:     # Check external script/link
+ 293:     for m in re.finditer(r"(?:src|href)=\"(https?://[^/\"]+)/", txt):
+ 294:         host = m.group(1)
+ 295:         if host.endswith(("clinicaltrials.gov", "ebi.ac.uk", "openalex.org", "r-wasm.org", "ncbi.nlm.nih.gov", "cdn.plot.ly", "cdnjs.cloudflare.com", "fonts.googleapis.com", "fonts.gstatic.com")):
+ 296:             continue
+ 297:         if host not in allowed_hosts:
+ 298:             # Many will trigger; report once
+ 299:             out.append({"check": "16_csp_off_whitelist", "severity": "P2", "file": p.name,
+ 300:                         "detail": host})
+ 301:             return out
+ 302:     return out
+ 303: 
+ 304: 
+ 305: def check_17_year_plausibility(p, txt, ctx):
+ 306:     """P2: year in realData < 1990 or > 2030."""
+ 307:     out = []
+ 308:     for m in TRIAL_BLOCK_RE.finditer(txt):
+ 309:         body = m.group("body")
+ 310:         mm = re.search(r"\byear:\s*(-?\d+)", body)
+ 311:         if mm:
+ 312:             y = int(mm.group(1))
+ 313:             if y < 1990 or y > 2030:
+ 314:                 out.append({"check": "17_year_implausible", "severity": "P2", "file": p.name,
+ 315:                             "detail": f"{m.group(1)} year={y}"})
+ 316:                 if len(out) >= 3: break
+ 317:     return out
+ 318: 
+ 319: 
+ 320: def check_18_viewport_meta(p, txt, ctx):
+ 321:     """P2: missing mobile viewport meta tag."""
+ 322:     if 'name="viewport"' not in txt:
+ 323:         return [{"check": "18_no_viewport", "severity": "P2", "file": p.name, "detail": ""}]
+ 324:     return []
+ 325: 
+ 326: 
+ 327: def check_19_inline_script_size(p, txt, ctx):
+ 328:     """P3: any single inline <script> > 200 KB (perf â€” consider extracting)."""
+ 329:     out = []
+ 330:     for m in re.finditer(r"<script\b[^>]*>([\s\S]*?)</script>", txt):
+ 331:         body = m.group(1)
+ 332:         if len(body) > 200_000:
+ 333:             out.append({"check": "19_huge_inline_script", "severity": "P3", "file": p.name,
+ 334:                         "detail": f"{len(body):,} bytes"})
+ 335:             return out
+ 336:     return out
+ 337: 
+ 338: 
+ 339: def check_20_localStorage_key_collision(p, txt, ctx):
+ 340:     """P1: localStorage key looks like a stock template (e.g. 'rapid_meta_template')."""
+ 341:     out = []
+ 342:     for m in re.finditer(r"localStorage\.\w+\(['\"]([^'\"]{1,200})['\"]", txt):
+ 343:         k = m.group(1)
+ 344:         if "{{" in k or "STEM" in k or "TEMPLATE" in k or k.endswith("_undefined"):
+ 345:             out.append({"check": "20_localStorage_template_key", "severity": "P1",
+ 346:                         "file": p.name, "detail": k})
+ 347:             return out
+ 348:     return out
+ 349: 
+ 350: 
+ 351: def check_21_meta_description(p, txt, ctx):
+ 352:     """P3: missing OG/twitter description."""
+ 353:     if 'name="description"' not in txt and 'property="og:description"' not in txt:
+ 354:         return [{"check": "21_no_description", "severity": "P3", "file": p.name, "detail": ""}]
+ 355:     return []
+ 356: 
+ 357: 
+ 358: def check_22_outcome_title_dupe(p, txt, ctx):
+ 359:     """P3: every trial has identical outcome title (likely template not substituted)."""
+ 360:     titles = re.findall(r"title:\s*'([^']{20,})\s*\(primary\)'", txt)
+ 361:     if len(titles) >= 2 and len(set(titles)) == 1:
+ 362:         return [{"check": "22_outcome_titles_all_identical", "severity": "P3",
+ 363:                  "file": p.name, "detail": titles[0][:80]}]
+ 364:     return []
+ 365: 
+ 366: 
+ 367: def check_23_svg_invalid_coords(p, txt, ctx):
+ 368:     """P1: SVG forest-plot coordinates containing NaN, Infinity, or empty."""
+ 369:     out = []
+ 370:     for m in re.finditer(r"<svg[^>]*viewBox=\"([^\"]+)\"", txt):
+ 371:         vb = m.group(1).split()
+ 372:         for v in vb:
+ 373:             try:
+ 374:                 fv = float(v)
+ 375:                 if fv != fv or fv == float("inf") or fv == float("-inf"):
+ 376:                     out.append({"check": "23_svg_bad_viewbox", "severity": "P1",
+ 377:                                 "file": p.name, "detail": vb})
+ 378:                     return out
+ 379:             except ValueError:
+ 380:                 out.append({"check": "23_svg_bad_viewbox", "severity": "P1",
+ 381:                             "file": p.name, "detail": vb})
+ 382:                 return out
+ 383:     # x="NaN" anywhere in <text>/<rect>/<line>
+ 384:     if re.search(r'\b(?:x|y|x1|x2|y1|y2|cx|cy)="(?:NaN|Infinity|-Infinity)"', txt):
+ 385:         out.append({"check": "23_svg_bad_coord", "severity": "P1", "file": p.name,
+ 386:                     "detail": "NaN/Infinity in svg attr"})
+ 387:     return out
+ 388: 
+ 389: 
+ 390: def check_24_orphan_close_tag(p, txt, ctx):
+ 391:     """P2: stray </body> or </html> appearing before the actual end."""
+ 392:     out = []
+ 393:     if txt.count("</body>") > 1:
+ 394:         out.append({"check": "24_dup_body_close", "severity": "P2", "file": p.name,
+ 395:                     "detail": f"</body> Ã—{txt.count('</body>')}"})
+ 396:     if txt.count("</html>") > 1:
+ 397:         out.append({"check": "24_dup_html_close", "severity": "P2", "file": p.name,
+ 398:                     "detail": f"</html> Ã—{txt.count('</html>')}"})
+ 399:     return out
+ 400: 
+ 401: 
+ 402: def check_25_orphan_anchor_with_no_text(p, txt, ctx):
+ 403:     """P3: empty anchor <a href="..."></a> visible to users as a dead spot."""
+ 404:     out = []
+ 405:     for m in re.finditer(r'<a\s+href="[^"]+"[^>]*>\s*</a>', txt):
+ 406:         out.append({"check": "25_empty_anchor", "severity": "P3", "file": p.name,
+ 407:                     "detail": m.group(0)[:120]})
+ 408:         if len(out) >= 2: break
+ 409:     return out
+ 410: 
+ 411: 
+ 412: def check_26_inconsistent_acronyms(p, txt, ctx):
+ 413:     """P3: trial name in realData differs between `name:` and `snippet:`."""
+ 414:     out = []
+ 415:     for m in TRIAL_BLOCK_RE.finditer(txt):
+ 416:         body = m.group("body")
+ 417:         name_m = re.search(r"name:\s*'([^']*)'", body)
+ 418:         snip_m = re.search(r"snippet:\s*'NCT[^:]*:\s*([^']{4,40})", body)
+ 419:         # Best-effort, may not always be set; only flag when both present and clearly inconsistent.
+ 420:         if name_m and snip_m:
+ 421:             name = name_m.group(1).strip()
+ 422:             if name and len(name) > 3 and name not in body[:600]:
+ 423:                 pass  # too noisy; skip this check
+ 424:     return out
+ 425: 
+ 426: 
+ 427: def check_27_huge_file(p, txt, ctx):
+ 428:     """P3: file > 2 MB (perf concern)."""
+ 429:     if len(txt) > 2_000_000:
+ 430:         return [{"check": "27_huge_file", "severity": "P3", "file": p.name,
+ 431:                  "detail": f"{len(txt):,} bytes"}]
+ 432:     return []
+ 433: 
+ 434: 
+ 435: def check_28_tiny_file(p, txt, ctx):
+ 436:     """P3: shipped page < 4 KB (likely stub)."""
+ 437:     if len(txt) < 4_000 and p.name.endswith((".html",)):
+ 438:         return [{"check": "28_tiny_file", "severity": "P3", "file": p.name,
+ 439:                  "detail": f"{len(txt):,} bytes"}]
+ 440:     return []
+ 441: 
+ 442: 
+ 443: def check_29_dashboard_link_orphan(p, txt, ctx):
+ 444:     """P1 (only on dashboard.html / index.html / audit_table.html): href points to missing file."""
+ 445:     # already covered by 05; skip
+ 446:     return []
+ 447: 
+ 448: 
+ 449: def check_30_double_quoted_attr_with_unescaped_quote(p, txt, ctx):
+ 450:     """P2: attribute like value="abc"def" â€” broken HTML."""
+ 451:     out = []
+ 452:     for m in re.finditer(r'\b\w+="[^"]*"\w', txt):
+ 453:         out.append({"check": "30_attr_unescaped_quote", "severity": "P2",
+ 454:                     "file": p.name, "detail": m.group(0)[:80]})
+ 455:         if len(out) >= 2: break
+ 456:     return out
+ 457: 
+ 458: 
+ 459: def check_31_window_global_unset(p, txt, ctx):
+ 460:     """P1: file references RapidMeta but does NOT define it (broken extraction)."""
+ 461:     if 'RapidMeta' not in txt:
+ 462:         return []
+ 463:     if 'RapidMeta = {' in txt or 'const RapidMeta' in txt or 'window.RapidMeta=' in txt or 'window.RapidMeta =' in txt:
+ 464:         return []
+ 465:     # Else: RapidMeta is referenced but no definition exists.
+ 466:     if re.search(r"\bRapidMeta\.\w+", txt):
+ 467:         return [{"check": "31_undefined_RapidMeta", "severity": "P1", "file": p.name,
+ 468:                  "detail": "RapidMeta referenced without definition"}]
+ 469:     return []
+ 470: 
+ 471: 
+ 472: def check_32_no_h1(p, txt, ctx):
+ 473:     """P3: page has no <h1> (a11y/SEO)."""
+ 474:     if not re.search(r"<h1\b", txt, re.IGNORECASE):
+ 475:         return [{"check": "32_no_h1", "severity": "P3", "file": p.name, "detail": ""}]
+ 476:     return []
+ 477: 
+ 478: 
+ 479: def check_33_pmid_link_mismatch_with_realdata(p, txt, ctx):
+ 480:     """P1: hardcoded PMID anchor text differs from the realData pmid for the same NCT.
+ 481: 
+ 482:     Only applies to lite/audit-first pages where both forms can coexist."""
+ 483:     out = []
+ 484:     # Build NCT -> realData pmid
+ 485:     real_pmid = {}
+ 486:     for m in TRIAL_BLOCK_RE.finditer(txt):
+ 487:         nct = m.group(1)
+ 488:         mm = PMID_RE.search(m.group("body"))
+ 489:         if mm:
+ 490:             real_pmid[nct] = mm.group(1)
+ 491:     # Check anchor pmid links near NCT mention.
+ 492:     pair_re = re.compile(r'(NCT\d{7,8})</a>[^<]*<a href="https://pubmed\.ncbi\.nlm\.nih\.gov/(\d+)/"')
+ 493:     for m in pair_re.finditer(txt):
+ 494:         nct, anchor_pmid = m.group(1), m.group(2)
+ 495:         rp = real_pmid.get(nct)
+ 496:         if rp and anchor_pmid != rp:
+ 497:             out.append({"check": "33_pmid_anchor_realdata_mismatch", "severity": "P1",
+ 498:                         "file": p.name,
+ 499:                         "detail": f"{nct} anchor={anchor_pmid} realData={rp}"})
+ 500:             if len(out) >= 3: break
+ 501:     return out
+ 502: 
+ 503: 
+ 504: def check_34_screening_template_old(p, txt, ctx):
+ 505:     """P2: pages still using the pre-v3 screening template (t.data?.ctgovUrl only)."""
+ 506:     if "${t.data?.ctgovUrl ? `<a href" in txt:
+ 507:         return [{"check": "34_old_screening_template", "severity": "P2", "file": p.name,
+ 508:                  "detail": "still uses pre-v3 ctgovUrl-only template"}]
+ 509:     return []
+ 510: 
+ 511: 
+ 512: def check_35_robots_no_robots(p, txt, ctx):
+ 513:     """P3: meta robots=noindex on a published page (probably unintentional)."""
+ 514:     if re.search(r'name="robots"\s+content="[^"]*noindex', txt, re.IGNORECASE):
+ 515:         return [{"check": "35_noindex_set", "severity": "P3", "file": p.name, "detail": ""}]
+ 516:     return []
+ 517: 
+ 518: 
+ 519: def check_36_target_blank_no_noopener(p, txt, ctx):
+ 520:     """P2: target="_blank" without rel="noopener" (tab-napping security)."""
+ 521:     out = []
+ 522:     for m in re.finditer(r'<a[^>]*target="_blank"[^>]*>', txt):
+ 523:         anchor = m.group(0)
+ 524:         if 'rel="noopener' not in anchor and "rel='noopener" not in anchor:
+ 525:             out.append({"check": "36_blank_no_noopener", "severity": "P2",
+ 526:                         "file": p.name, "detail": anchor[:120]})
+ 527:             if len(out) >= 2: break
+ 528:     return out
+ 529: 
+ 530: 
+ 531: def check_37_inconsistent_drug_name(p, txt, ctx):
+ 532:     """P3: title-case 'Drug' mentioned but stem says 'OTHER_DRUG' â€” review name drift."""
+ 533:     stem = re.split(r"_AUTO_FULL_REVIEW|_AUTO_REVIEW|_REVIEW", p.name, 1)[0]
+ 534:     if not stem or "_" not in stem:
+ 535:         return []
+ 536:     first = stem.split("_")[0].lower()
+ 537:     if len(first) < 4 or first in {"new", "trial", "study", "all"}:
+ 538:         return []
+ 539:     # If the first stem token does not appear at all in the page, flag.
+ 540:     if first.lower() not in txt.lower():
+ 541:         return [{"check": "37_stem_not_in_page", "severity": "P3", "file": p.name,
+ 542:                  "detail": f"stem token '{first}' not present"}]
+ 543:     return []
+ 544: 
+ 545: 
+ 546: def check_38_nesting_via_template_literal(p, txt, ctx):
+ 547:     """P0: backtick template literal containing `${` but missing closing brace."""
+ 548:     # Cheap heuristic: dollar-brace count balance in script content.
+ 549:     out = []
+ 550:     for m in re.finditer(r"<script\b[^>]*>([\s\S]*?)</script>", txt):
+ 551:         body = m.group(1)
+ 552:         n_open_db = body.count("${")
+ 553:         # Count closing braces that ARE in template-literal context â€” hard. Skip
+ 554:         # unless extremely lopsided (rough sanity).
+ 555:         if n_open_db == 0: continue
+ 556:         # Look for stray `${` followed by `}` mismatch is too noisy; just record gross outliers.
+ 557:     return out
+ 558: 
+ 559: 
+ 560: def check_39_aria_label_missing_on_button(p, txt, ctx):
+ 561:     """P3: <button> with no text and no aria-label."""
+ 562:     out = []
+ 563:     for m in re.finditer(r"<button\b[^>]*>(\s*)</button>", txt):
+ 564:         # Inspect the button tag for aria-label
+ 565:         start = max(0, m.start()-200)
+ 566:         anchor = txt[start: m.end()]
+ 567:         if "aria-label" not in anchor:
+ 568:             out.append({"check": "39_empty_button_no_aria", "severity": "P3",
+ 569:                         "file": p.name, "detail": anchor[-80:]})
+ 570:             if len(out) >= 2: break
+ 571:     return out
+ 572: 
+ 573: 
+ 574: def check_40_orphan_pubmed_link(p, txt, ctx):
+ 575:     """P2: a pubmed.ncbi.nlm.nih.gov/<n>/ link where <n> isn't a real PMID (< 100)."""
+ 576:     out = []
+ 577:     for m in PMID_LINK_RE.finditer(txt):
+ 578:         v = m.group(1)
+ 579:         if v and int(v) < 100:
+ 580:             out.append({"check": "40_implausible_pmid", "severity": "P2",
+ 581:                         "file": p.name, "detail": v})
+ 582:             if len(out) >= 2: break
+ 583:     return out
+ 584: 
+ 585: 
+ 586: # Helper -----------------------------------------------------------------------
+ 587: def mask_strings(t: str, keep_template_strings: bool = True) -> str:
+ 588:     """Replace contents of quoted strings with blanks.
+ 589: 
+ 590:     keep_template_strings=False also blanks backtick template literals.
+ 591:     """
+ 592:     out = []
+ 593:     i = 0
+ 594:     n = len(t)
+ 595:     while i < n:
+ 596:         c = t[i]
+ 597:         if c in ("'", '"') or (not keep_template_strings and c == "`"):
+ 598:             quote = c
+ 599:             j = i + 1
+ 600:             while j < n and t[j] != quote:
+ 601:                 if t[j] == "\\":
+ 602:                     j += 2
+ 603:                 else:
+ 604:                     j += 1
+ 605:             out.append(" " * max(1, j - i + 1))
+ 606:             i = j + 1
+ 607:         else:
+ 608:             out.append(c)
+ 609:             i += 1
+ 610:     return "".join(out)
+ 611: 
+ 612: 
+ 613: CHECKS = [
+ 614:     check_01_python_none_in_js,
+ 615:     check_02_python_True_False_in_js,
+ 616:     check_03_unmatched_script_tag,
+ 617:     check_04_div_balance,
+ 618:     check_05_broken_local_links,
+ 619:     check_06_unpopulated_placeholders,
+ 620:     check_07_empty_pmid_link,
+ 621:     check_08_event_count_consistency,
+ 622:     check_09_rob_array_length,
+ 623:     check_10_nct_in_auto_include_vs_realdata,
+ 624:     check_11_duplicate_html_ids,
+ 625:     check_12_truncated_outcome_titles,
+ 626:     check_13_hardcoded_local_paths,
+ 627:     check_14_invalid_pmid_format,
+ 628:     check_15_outcome_special_chars,
+ 629:     check_16_external_cdn_inside_csp,
+ 630:     check_17_year_plausibility,
+ 631:     check_18_viewport_meta,
+ 632:     check_19_inline_script_size,
+ 633:     check_20_localStorage_key_collision,
+ 634:     check_21_meta_description,
+ 635:     check_22_outcome_title_dupe,
+ 636:     check_23_svg_invalid_coords,
+ 637:     check_24_orphan_close_tag,
+ 638:     check_25_orphan_anchor_with_no_text,
+ 639:     check_26_inconsistent_acronyms,
+ 640:     check_27_huge_file,
+ 641:     check_28_tiny_file,
+ 642:     check_29_dashboard_link_orphan,
+ 643:     check_30_double_quoted_attr_with_unescaped_quote,
+ 644:     check_31_window_global_unset,
+ 645:     check_32_no_h1,
+ 646:     check_33_pmid_link_mismatch_with_realdata,
+ 647:     check_34_screening_template_old,
+ 648:     check_35_robots_no_robots,
+ 649:     check_36_target_blank_no_noopener,
+ 650:     check_37_inconsistent_drug_name,
+ 651:     check_38_nesting_via_template_literal,
+ 652:     check_39_aria_label_missing_on_button,
+ 653:     check_40_orphan_pubmed_link,
+ 654: ]
+ 655: 
+ 656: 
+ 657: def main():
+ 658:     files = sorted([p for p in HERE.glob("*.html") if p.is_file()])
+ 659:     print(f"Scanning {len(files):,} files with {len(CHECKS)} checks each")
+ 660: 
+ 661:     all_findings = []
+ 662:     counter = Counter()
+ 663:     per_check_files = defaultdict(set)
+ 664:     ctx = {}
+ 665:     for i, p in enumerate(files, 1):
+ 666:         try:
+ 667:             txt = load_text(p)
+ 668:         except Exception as e:
+ 669:             all_findings.append({"check": "00_read_error", "severity": "P0",
+ 670:                                   "file": p.name, "detail": repr(e)})
+ 671:             counter["00_read_error"] += 1
+ 672:             continue
+ 673:         for fn in CHECKS:
+ 674:             try:
+ 675:                 res = fn(p, txt, ctx) or []
+ 676:                 for r in res:
+ 677:                     all_findings.append(r)
+ 678:                     counter[r["check"]] += 1
+ 679:                     per_check_files[r["check"]].add(p.name)
+ 680:             except Exception as e:
+ 681:                 all_findings.append({"check": fn.__name__, "severity": "PX",
+ 682:                                       "file": p.name, "detail": f"AUDIT BUG: {e!r}"})
+ 683:                 counter[fn.__name__ + "_AUDIT_BUG"] += 1
+ 684:         if i % 300 == 0:
+ 685:             print(f"  [{i}/{len(files)}] scanned")
+ 686: 
+ 687:     # Sort by severity then count
+ 688:     sev_order = {"P0": 0, "P1": 1, "P2": 2, "P3": 3, "PX": 99}
+ 689:     summary = []
+ 690:     seen_checks = set(counter.keys())
+ 691:     for ck in sorted(seen_checks, key=lambda c: (sev_order.get(_severity_of(c, all_findings), 99), -counter[c])):
+ 692:         sev = _severity_of(ck, all_findings)
+ 693:         summary.append({
+ 694:             "check": ck,
+ 695:             "severity": sev,
+ 696:             "files_with_issue": len(per_check_files[ck]),
+ 697:             "total_findings": counter[ck],
+ 698:         })
+ 699: 
+ 700:     (OUT / "report.json").write_text(json.dumps({
+ 701:         "files_scanned": len(files),
+ 702:         "summary": summary,
+ 703:         "findings": all_findings[:5000],  # cap raw findings
+ 704:     }, indent=2), encoding="utf-8")
+ 705: 
+ 706:     print()
+ 707:     print(f"{'check':<40} {'sev':<4} {'files':<8} {'total':<8}")
+ 708:     print("-" * 72)
+ 709:     for row in summary:
+ 710:         print(f"{row['check']:<40} {row['severity']:<4} {row['files_with_issue']:<8} {row['total_findings']:<8}")
+ 711: 
+ 712: 
+ 713: def _severity_of(check_name, findings):
+ 714:     for f in findings:
+ 715:         if f["check"] == check_name:
+ 716:             return f["severity"]
+ 717:     return "P3"
+ 718: 
+ 719: 
+ 720: if __name__ == "__main__":
+ 721:     main()
+
+codex
+I have the line map now. I’m checking the proposed counterexamples against the actual functions so the final list stays to demonstrable misses rather than plausible complaints.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "@'
+from pathlib import Path
+import scripts.audit_40_checks as a
+p=Path('demo.html')
+TESTS={
+'01_no_space_None': (a.check_01_python_none_in_js, '<script>const x={a:None};</script>'),
+'02_no_space_True': (a.check_02_python_True_False_in_js, '<script>const x={a:True};</script>'),
+'05_fragment': (a.check_05_broken_local_links, '<a href=\"missing.html#top\">x</a>'),
+'06_lower_placeholder': (a.check_06_unpopulated_placeholders, '{{token}}'),
+'10_value_not_key': (a.check_10_nct_in_auto_include_vs_realdata, \"AUTO_INCLUDE_TRIAL_IDS = new Set(['NCT00000001','NCT00000002']); realData: { 'NCT00000002': { snippet: 'see NCT00000001' } }, async init\"),
+'13_forward_win_path': (a.check_13_hardcoded_local_paths, 'C:/Users/Bob/file.html'),
+'14_nan_pmid': (a.check_14_invalid_pmid_format, \"pmid: 'NaN'\"),
+'16_directive_wrong': (a.check_16_external_cdn_inside_csp, '<meta http-equiv=\"Content-Security-Policy\" content=\"default-src \\'self\\'; img-src https://cdn.bad.test\"><script src=\"https://cdn.bad.test/app.js\"></script>'),
+'26_inconsistent': (a.check_26_inconsistent_acronyms, \"'NCT12345678': { name: 'ALPHA', snippet: 'NCT12345678: BETA' }\"),
+'31_prefix_binding': (a.check_31_window_global_unset, '<script>const RapidMetadata = {}; RapidMeta.init();</script>'),
+'38_unclosed_template': (a.check_38_nesting_via_template_literal, '<script>const x = "'`${foo`;</script>'"'),
+'39_svg_button': (a.check_39_aria_label_missing_on_button, '<button><svg></svg></button>'),
+}
+for name,(fn,txt) in TESTS.items():
+    try:
+        print(name, fn(p,txt,{}) )
+    except Exception as e:
+        print(name, 'EXC', repr(e))
+'@ | python -" in F:\rapidmeta-ssot-shell
+ succeeded in 8206ms:
+01_no_space_None []
+02_no_space_True []
+05_fragment []
+06_lower_placeholder []
+10_value_not_key []
+13_forward_win_path []
+14_nan_pmid []
+16_directive_wrong []
+26_inconsistent []
+31_prefix_binding []
+38_unclosed_template []
+39_svg_button []
+
+codex
+**Findings**
+
+- Line 423: input `"'NCT12345678': { name: 'ALPHA', snippet: 'NCT12345678: BETA' }"`; consequence: `check_26` can only `pass` and return `[]`, so the acronym-drift check cannot fail.
+
+- Line 557: input `"<script>const x = `${foo`;</script>"`; consequence: `check_38` never appends a finding, so the claimed P0 template-literal check cannot fail.
+
+- Line 32: input `"pmid: 'NaN'"`; consequence: `PMID_RE` captures only digits, so `check_14` cannot report the documented non-numeric PMID strings.
+
+- Line 35: input `'<a href="missing.html#top">x</a>'`; consequence: `check_05` ignores broken local links with fragments or queries because the regex requires the extension immediately before the quote.
+
+- Line 141: input `"{{token}}"`; consequence: `check_06` misses the lowercase placeholder form named in its own docstring.
+
+- Line 216: input `"AUTO_INCLUDE_TRIAL_IDS = new Set(['NCT00000001','NCT00000002']); realData: { 'NCT00000002': { snippet: 'see NCT00000001' } }, async init"`; consequence: `check_10` accepts an AUTO_INCLUDE id merely mentioned inside a value, not present as a `realData` key.
+
+- Line 291: input `'<meta http-equiv="Content-Security-Policy" content="default-src \\'self\\'; img-src https://cdn.bad.test"><script src="https://cdn.bad.test/app.js"></script>'`; consequence: `check_16` treats a host allowed only for images as allowed for scripts.
+
+- Line 463: input `"<script>const RapidMetadata = {}; RapidMeta.init();</script>"`; consequence: `check_31` mistakes a prefix name for the actual `RapidMeta` binding and misses an undefined global.
+
+- Line 563: input `"<button><svg></svg></button>"`; consequence: `check_39` misses icon-only buttons with no text and no `aria-label`.
+
+No proven defect found here for: string-a-fix-removes probe, self-satisfied idempotency guard, CRLF/LF text comparison, merged-cell/off-by-one tabulation, zero conflated with absent, negation dropped, or wrapper-status reporting.
+tokens used
+37,683
+**Findings**
+
+- Line 423: input `"'NCT12345678': { name: 'ALPHA', snippet: 'NCT12345678: BETA' }"`; consequence: `check_26` can only `pass` and return `[]`, so the acronym-drift check cannot fail.
+
+- Line 557: input `"<script>const x = `${foo`;</script>"`; consequence: `check_38` never appends a finding, so the claimed P0 template-literal check cannot fail.
+
+- Line 32: input `"pmid: 'NaN'"`; consequence: `PMID_RE` captures only digits, so `check_14` cannot report the documented non-numeric PMID strings.
+
+- Line 35: input `'<a href="missing.html#top">x</a>'`; consequence: `check_05` ignores broken local links with fragments or queries because the regex requires the extension immediately before the quote.
+
+- Line 141: input `"{{token}}"`; consequence: `check_06` misses the lowercase placeholder form named in its own docstring.
+
+- Line 216: input `"AUTO_INCLUDE_TRIAL_IDS = new Set(['NCT00000001','NCT00000002']); realData: { 'NCT00000002': { snippet: 'see NCT00000001' } }, async init"`; consequence: `check_10` accepts an AUTO_INCLUDE id merely mentioned inside a value, not present as a `realData` key.
+
+- Line 291: input `'<meta http-equiv="Content-Security-Policy" content="default-src \\'self\\'; img-src https://cdn.bad.test"><script src="https://cdn.bad.test/app.js"></script>'`; consequence: `check_16` treats a host allowed only for images as allowed for scripts.
+
+- Line 463: input `"<script>const RapidMetadata = {}; RapidMeta.init();</script>"`; consequence: `check_31` mistakes a prefix name for the actual `RapidMeta` binding and misses an undefined global.
+
+- Line 563: input `"<button><svg></svg></button>"`; consequence: `check_39` misses icon-only buttons with no text and no `aria-label`.
+
+No proven defect found here for: string-a-fix-removes probe, self-satisfied idempotency guard, CRLF/LF text comparison, merged-cell/off-by-one tabulation, zero conflated with absent, negation dropped, or wrapper-status reporting.

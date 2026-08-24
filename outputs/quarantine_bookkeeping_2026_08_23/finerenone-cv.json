@@ -1,0 +1,1130 @@
+{
+ "app_id": "finerenone-cv",
+ "schema_version": "2-rebuilt-from-source",
+ "source_links_enforced": null,
+ "source_links_enforced_means": "not recorded on the page this object was extracted from",
+ "title": "Finerenone against placebo in chronic kidney disease with type 2 diabetes: the cardiovascular composite, pooled from the two pivotal trials",
+ "question": "In adults with chronic kidney disease and type 2 diabetes, does finerenone reduce the first occurrence of the composite of cardiovascular death, non-fatal myocardial infarction, non-fatal stroke, or hospitalisation for heart failure, against placebo?",
+ "built": "2026-08-17T16:40Z",
+ "_prose_rule": "not recorded on the page this object was extracted from",
+ "_sourcing_rule": "not recorded on the page this object was extracted from",
+ "_estimand_rule": "not recorded on the page this object was extracted from",
+ "build_mode": "REBUILT_FROM_SOURCE",
+ "single_tier_because": "not recorded on the page this object was extracted from",
+ "cited_total": null,
+ "completeness_statement": "not recorded on the page this object was extracted from",
+ "verification_basis": {
+  "what_verifies_this_object": "not recorded on the page this object was extracted from",
+  "what_is_not_claimed": "not recorded on the page this object was extracted from",
+  "families": [],
+  "bar": "not recorded on the page this object was extracted from"
+ },
+ "methodological_authority": {
+  "reference": "not recorded on the page this object was extracted from",
+  "version": "not recorded on the page this object was extracted from",
+  "version_checked_on": "not recorded on the page this object was extracted from",
+  "version_checked_how": "not recorded on the page this object was extracted from",
+  "chapters_as_dated_by_the_publisher": [],
+  "version_note": "not recorded on the page this object was extracted from",
+  "scope_of_this_rule": "not recorded on the page this object was extracted from",
+  "url": "not recorded on the page this object was extracted from",
+  "note": "not recorded on the page this object was extracted from",
+  "sections_relied_on": []
+ },
+ "config": {
+  "model": "random",
+  "method": "REML",
+  "scale": "log"
+ },
+ "screening": {
+  "search_note": "not recorded on the page this object was extracted from",
+  "eligibility": "not recorded on the page this object was extracted from",
+  "known_limitation": "not recorded on the page this object was extracted from",
+  "records": [],
+  "excluded": []
+ },
+ "screening_names_unresolved": [],
+ "eligible_but_not_contributing": {
+  "note": "not recorded on the page this object was extracted from",
+  "studies": []
+ },
+ "reconciliation": {
+  "why_this_step_exists": "not recorded on the page this object was extracted from",
+  "clean": null,
+  "clean_because": "not recorded on the page this object was extracted from",
+  "target_source_id": "not recorded on the page this object was extracted from",
+  "access_limitation": "not recorded on the page this object was extracted from",
+  "trial_list_diffs": [],
+  "matches": [],
+  "corrections": [],
+  "unresolved": []
+ },
+ "claims_corrected": [],
+ "scope_decisions": {
+  "SCOPE:three-estimands-never-merged": {
+   "decision": "not recorded on the page this object was extracted from",
+   "sections": [],
+   "conformance": "not recorded on the page this object was extracted from"
+  },
+  "SCOPE:the-label-on-the-quantity-is-not-the-quantity": {
+   "decision": "not recorded on the page this object was extracted from",
+   "sections": [],
+   "conformance": "not recorded on the page this object was extracted from"
+  },
+  "SCOPE:publication-two-component-first-event-composite": {
+   "decision": "not recorded on the page this object was extracted from",
+   "sections": [],
+   "conformance": "not recorded on the page this object was extracted from"
+  },
+  "SCOPE:drug-wide-pivotal-not-heart-failure": {
+   "decision": "not recorded on the page this object was extracted from",
+   "sections": [],
+   "conformance": "not recorded on the page this object was extracted from"
+  },
+  "SCOPE:no-number-needed-to-treat": {
+   "decision": "not recorded on the page this object was extracted from",
+   "sections": [],
+   "conformance": "not recorded on the page this object was extracted from"
+  }
+ },
+ "standard_version": 1,
+ "question_change_record": {
+  "previous_question": "Finerenone across kidney and cardiovascular outcomes, as previously published",
+  "why_not_answerable": "The previous page pooled FIDELIO-DKD's KIDNEY primary (kidney failure, sustained eGFR decline, renal death) with FIGARO-DKD's CARDIOVASCULAR primary, and added FINEARTS-HF, a heart-failure population rather than a CKD one, plus a record whose registry id had been nulled. Those are different questions in different populations and no single estimate answers them.",
+  "what_changed": "Restricted to FIDELIO-DKD and FIGARO-DKD on the CARDIOVASCULAR composite, which is FIGARO's primary outcome and FIDELIO's key secondary, and which both trials define with the same four components.",
+  "stated_before_any_number": true,
+  "supersedes": "the earlier FINERENONE_REVIEW page, archived and not deleted"
+ },
+ "sources": {
+  "REG_FIDELIO": {
+   "layer": "registry",
+   "name": "ClinicalTrials.gov NCT02540993 (FIDELIO-DKD)",
+   "url": "https://clinicaltrials.gov/study/NCT02540993"
+  },
+  "REG_FIGARO": {
+   "layer": "registry",
+   "name": "ClinicalTrials.gov NCT02545049 (FIGARO-DKD)",
+   "url": "https://clinicaltrials.gov/study/NCT02545049"
+  }
+ },
+ "outcomes": [
+  {
+   "id": "cv_composite_first",
+   "name": "First occurrence of the composite of cardiovascular death, non-fatal myocardial infarction, non-fatal stroke, or hospitalisation for heart failure",
+   "definition": "The First Occurrence of the Composite Endpoint of Cardiovascular Death, Non Fatal Myocardial Infarction, Non Fatal Stroke, or Hospitalization for Heart Failure.",
+   "definition_note": "Verified word for word against BOTH registry entries. FIDELIO writes 'Non-fatal' and FIGARO 'Non Fatal', and FIGARO's title carries a trailing full stop; the four components, their order and the first-occurrence construction are identical.",
+   "measure": "HR",
+   "effect_scale": "log",
+   "type": "primary",
+   "estimand": {
+    "id": "cv_composite_first",
+    "family": "time_to_first",
+    "model": "proportional hazards"
+   },
+   "comparator": "placebo",
+   "comparator_type": "placebo",
+   "direction_of_benefit": "lower",
+   "null_value": 1
+  }
+ ],
+ "inputs": {
+  "trials": [
+   {
+    "id": "NCT02540993",
+    "name": "FIDELIO-DKD",
+    "nct": "NCT02540993",
+    "pmid": "33034526",
+    "design": "phase 3, randomised, double-blind, placebo-controlled, event-driven",
+    "comparator_type": "placebo",
+    "comparator_type_basis": "The registry records the comparator arm as Placebo.",
+    "arms": [
+     {
+      "label": "Finerenone",
+      "role": "treatment",
+      "events": 367,
+      "participants": 2833
+     },
+     {
+      "label": "Placebo",
+      "role": "control",
+      "events": 420,
+      "participants": 2841
+     }
+    ],
+    "by_outcome": {
+     "cv_composite_first": {
+      "effect": {
+       "measure": "HR",
+       "scale": "log",
+       "point": 0.86,
+       "ci_low": 0.747,
+       "ci_high": 0.989,
+       "ci_level": 95,
+       "log_point": -0.15082288973458366,
+       "log_se": 0.07159038347221218,
+       "derived_from": "registry results section",
+       "derivation_note": "Point estimate and interval are READ from the ClinicalTrials.gov results section for this outcome measure. The log point and log standard error are DERIVED here from the printed interval and appear in no source."
+      },
+      "provenance": {
+       "tag": "MEASURED",
+       "source_id": "NCT02540993",
+       "source_quotes": [
+        "The First Occurrence of the Composite Endpoint of Cardiovascular Death, Non-fatal Myocardial Infarction, Non-fatal Stroke, or Hospitalization for Heart Failure"
+       ],
+       "quote_note": "The trial's own outcome-measure title, quoted in full. Read whole and compared whole: FIDELIO writes 'Non-fatal' and FIGARO 'Non Fatal', and a fragment test would have split two identical endpoints or merged two different ones."
+      },
+      "source_url": "https://clinicaltrials.gov/study/NCT02540993",
+      "analysed": {
+       "treatment": 2833,
+       "control": 2841
+      },
+      "analysed_scope": "All randomised participants, as posted by the registry.",
+      "role_of_outcome": "key secondary in this trial"
+     }
+    },
+    "registration_brief_title": "Efficacy and Safety of Finerenone in Subjects With Type 2 Diabetes Mellitus and Diabetic Kidney Disease",
+    "registration_org_study_id": "16244",
+    "registration_read_utc": "2026-08-18",
+    "registration_enrolment": 5734,
+    "registration_arm_count": 2,
+    "registration_declared_contrasts": [
+     [
+      "Finerenone",
+      "Placebo"
+     ]
+    ],
+    "registration_contrasts_read_utc": "2026-08-18",
+    "registration_primary_counts": {
+     "title": "The First Occurrence of the Composite Endpoint of Onset of Kidney Failure, a Sustained Decrease of eGFR ≥40% From Baseline Over at Least 4 Weeks, or Renal Death",
+     "treatment_events": 504.0,
+     "control_events": 600.0,
+     "treatment_n": 2833.0,
+     "control_n": 2841.0,
+     "note": "arm order as the registry lists it; a swapped pair would show as a mismatch rather than a silent pass"
+    },
+    "registration_other_outcome_counts": [
+     {
+      "title": "The First Occurrence of the Composite Endpoint of Onset of Kidney Failure, a Sustained Decrease of eGFR ≥40% From Baseline Over at Least 4 Weeks, or Renal Death",
+      "type": "PRIMARY",
+      "counts": [
+       504.0,
+       600.0
+      ]
+     },
+     {
+      "title": "The First Occurrence of the Composite Endpoint of Cardiovascular Death, Non-fatal Myocardial Infarction, Non-fatal Stroke, or Hospitalization for Heart Failure",
+      "type": "SECONDARY",
+      "counts": [
+       367.0,
+       420.0
+      ]
+     },
+     {
+      "title": "All-cause Mortality",
+      "type": "SECONDARY",
+      "counts": [
+       219.0,
+       244.0
+      ]
+     },
+     {
+      "title": "All-cause Hospitalization",
+      "type": "SECONDARY",
+      "counts": [
+       1263.0,
+       1321.0
+      ]
+     },
+     {
+      "title": "Change in Urinary Albumin-to-creatinine Ratio (UACR) From Baseline to Month 4",
+      "type": "SECONDARY",
+      "counts": [
+       0.655,
+       0.952
+      ]
+     },
+     {
+      "title": "The First Occurrence of the Composite Endpoint of Onset of Kidney Failure, a Sustained Decrease in eGFR of ≥57% From Baseline Over at Least 4 Weeks, or Renal Death",
+      "type": "SECONDARY",
+      "counts": [
+       252.0,
+       326.0
+      ]
+     }
+    ],
+    "registration_counts_read_utc": "2026-08-18",
+    "provenance": "REGISTRY -- ClinicalTrials.gov, NCT02540993, read 2026-08-18. Arm-level counts were COMPARED AGAINST the posted outcome measure 'The First Occurrence of the Composite Endpoint of Cardiovascular Death, Non-fata' and matched exactly. Derived from a comparison that was run, not asserted."
+   },
+   {
+    "id": "NCT02545049",
+    "name": "FIGARO-DKD",
+    "nct": "NCT02545049",
+    "pmid": "34449181",
+    "design": "phase 3, randomised, double-blind, placebo-controlled, event-driven",
+    "comparator_type": "placebo",
+    "comparator_type_basis": "The registry records the comparator arm as Placebo.",
+    "arms": [
+     {
+      "label": "Finerenone",
+      "role": "treatment",
+      "events": 458,
+      "participants": 3686
+     },
+     {
+      "label": "Placebo",
+      "role": "control",
+      "events": 519,
+      "participants": 3666
+     }
+    ],
+    "by_outcome": {
+     "cv_composite_first": {
+      "effect": {
+       "measure": "HR",
+       "scale": "log",
+       "point": 0.87,
+       "ci_low": 0.76,
+       "ci_high": 0.98,
+       "ci_level": 95,
+       "log_point": -0.13926206733350766,
+       "log_se": 0.0648568393066422,
+       "derived_from": "registry results section",
+       "derivation_note": "Point estimate and interval are READ from the ClinicalTrials.gov results section for this outcome measure. The log point and log standard error are DERIVED here from the printed interval and appear in no source."
+      },
+      "provenance": {
+       "tag": "MEASURED",
+       "source_id": "NCT02545049",
+       "source_quotes": [
+        "The First Occurrence of the Composite Endpoint of Cardiovascular Death, Non Fatal Myocardial Infarction, Non Fatal Stroke, or Hospitalization for Heart Failure."
+       ],
+       "quote_note": "The trial's own outcome-measure title, quoted in full. Read whole and compared whole: FIDELIO writes 'Non-fatal' and FIGARO 'Non Fatal', and a fragment test would have split two identical endpoints or merged two different ones."
+      },
+      "source_url": "https://clinicaltrials.gov/study/NCT02545049",
+      "analysed": {
+       "treatment": 3686,
+       "control": 3666
+      },
+      "analysed_scope": "All randomised participants, as posted by the registry.",
+      "role_of_outcome": "primary in this trial"
+     }
+    },
+    "registration_brief_title": "Efficacy and Safety of Finerenone in Subjects With Type 2 Diabetes Mellitus and the Clinical Diagnosis of Diabetic Kidney Disease",
+    "registration_org_study_id": "17530",
+    "registration_read_utc": "2026-08-18",
+    "registration_enrolment": 7352,
+    "registration_arm_count": 2,
+    "registration_declared_contrasts": [
+     [
+      "Finerenone",
+      "Placebo"
+     ]
+    ],
+    "registration_contrasts_read_utc": "2026-08-18",
+    "registration_primary_counts": {
+     "title": "The First Occurrence of the Composite Endpoint of Cardiovascular Death, Non-fatal Myocardial Infarction, Non Fatal Stroke, or Hospitalization for Heart Failure.",
+     "treatment_events": 458.0,
+     "control_events": 519.0,
+     "treatment_n": 3686.0,
+     "control_n": 3666.0,
+     "note": "arm order as the registry lists it; a swapped pair would show as a mismatch rather than a silent pass"
+    },
+    "registration_other_outcome_counts": [
+     {
+      "title": "The First Occurrence of the Composite Endpoint of Cardiovascular Death, Non-fatal Myocardial Infarction, Non Fatal Stroke, or Hospitalization for Heart Failure.",
+      "type": "PRIMARY",
+      "counts": [
+       458.0,
+       519.0
+      ]
+     },
+     {
+      "title": "The First Occurrence of the Composite Endpoint of Onset of Kidney Failure, a Sustained Decrease of eGFR ≥40% From Baseline Over at Least 4 Weeks, or Renal Death.",
+      "type": "SECONDARY",
+      "counts": [
+       350.0,
+       395.0
+      ]
+     },
+     {
+      "title": "All-cause Hospitalization",
+      "type": "SECONDARY",
+      "counts": [
+       1573.0,
+       1605.0
+      ]
+     },
+     {
+      "title": "All-cause Mortality",
+      "type": "SECONDARY",
+      "counts": [
+       333.0,
+       370.0
+      ]
+     },
+     {
+      "title": "Change in Urinary Albumin-to-creatine Ratio (UCAR) From Baseline to Month 4",
+      "type": "SECONDARY",
+      "counts": [
+       0.624,
+       0.922
+      ]
+     },
+     {
+      "title": "The First Occurrence of the Composite Endpoint of Onset of Kidney Failure, a Sustained Decrease in eGFR of ≥57% From Baseline Over at Least 4 Weeks, or Renal Death",
+      "type": "SECONDARY",
+      "counts": [
+       108.0,
+       139.0
+      ]
+     }
+    ],
+    "registration_counts_read_utc": "2026-08-18",
+    "provenance": "REGISTRY -- ClinicalTrials.gov, NCT02545049, read 2026-08-18. Arm-level counts were COMPARED AGAINST the posted outcome measure 'The First Occurrence of the Composite Endpoint of Cardiovascular Death, Non-fata' and matched exactly. Derived from a comparison that was run, not asserted."
+   }
+  ]
+ },
+ "results": {
+  "by_outcome": {
+   "cv_composite_first": {
+    "k": 2,
+    "estimand_id": "cv_composite_first",
+    "estimand_id_means": "the pooled first-occurrence CV composite across the two pivotal DKD trials",
+    "model": "random",
+    "estimator": "REML",
+    "estimator_used": "REML",
+    "handbook": {
+     "decision": "POOL: one common outcome, same four components, same population frame",
+     "sections": [
+      "10.3",
+      "10.10.1"
+     ],
+     "conformance": "Cochrane Handbook 6.5"
+    },
+    "comparator_type": "placebo",
+    "favours": "treatment",
+    "poolable": true,
+    "poolable_reason": "Both trials report the SAME composite with the same four components in the same order, in CKD with type 2 diabetes, against placebo. Q = 0.0143 on 1 df.",
+    "estimand_homogeneous_across_cohorts": true,
+    "pool_uniformity": {
+     "effect_measure": [
+      "identical",
+      "both report a hazard ratio"
+     ],
+     "estimand": [
+      "identical",
+      "verified word for word against both registries"
+     ]
+    },
+    "heterogeneity": {
+     "i2": 0.0,
+     "tau2": 0.0,
+     "q": 0.014323,
+     "df": 1,
+     "tau2_estimator": "REML -- copied from this block's declared `estimator`, which is the authoritative record of how the pool was computed. NOT inferred: an object that declared no estimator would be left undeclared here, because the absence is itself the finding.",
+     "i2_definition": "REML/metafor I-squared, as printed by rma(method='REML'). It is copied from this block's declared `estimator` and not inferred. Before 2026-08-20 this field read the Higgins form, or read UNDECIDABLE where both forms gave 0; the estimator change makes it determinate.",
+     "i2_definition_evidence": "The value beside it is metafor's own I-squared from the REML fit quoted verbatim in `r_output`, not a recomputation of it. Environment: R version 4.6.0 (2026-04-24 ucrt); metafor 5.0.1."
+    },
+    "heterogeneity_status": "Q = 0.0143 on 1 df: the two trials agree closely, which is what the same endpoint in one programme should look like.",
+    "grade": null,
+    "cross_engine": null,
+    "sensitivity": null,
+    "single_study_ref": null,
+    "per_trial": [
+     {
+      "trial_id": "NCT02540993",
+      "nct": "NCT02540993",
+      "measure": "HR",
+      "point": 0.86,
+      "ci_low": 0.747,
+      "ci_high": 0.989,
+      "ci_level": 95,
+      "log_point": -0.15082288973458366,
+      "log_se": 0.07159038347221218,
+      "estimand_id": "cv_composite_first",
+      "population": "CKD with type 2 diabetes, mostly higher albuminuria",
+      "derivation": "the hazard ratio as printed in the registry results section"
+     },
+     {
+      "trial_id": "NCT02545049",
+      "nct": "NCT02545049",
+      "measure": "HR",
+      "point": 0.87,
+      "ci_low": 0.76,
+      "ci_high": 0.98,
+      "ci_level": 95,
+      "log_point": -0.13926206733350766,
+      "log_se": 0.0648568393066422,
+      "estimand_id": "cv_composite_first",
+      "population": "CKD with type 2 diabetes, broader eGFR range",
+      "derivation": "the hazard ratio as printed in the registry results section"
+     }
+    ],
+    "pooled": {
+     "measure": "HR",
+     "point": 0.8655,
+     "ci_low": 0.7877,
+     "ci_high": 0.951,
+     "ci_level": 95
+    },
+    "source_page_pooled": true,
+    "poolable_DEPRECATED_note": "`poolable` MEANT ONLY 'the source page pooled these trials'. It was never a judgement that the pool was sound, and the renderer read it as permission to assert 'pooled on the X scale'. RENAMED to source_page_pooled, which is what it says. `poolable` is retained so nothing breaks, and it is DEPRECATED: read source_page_pooled for what the source did, and estimand_established for whether the pool is defensible. A PAGE SHOULD DISPLAY A POOLED ESTIMATE BECAUSE ITS ESTIMAND WAS ESTABLISHED, NOT BECAUSE SOMEONE ONCE POOLED IT.",
+    "estimand_established": null,
+    "estimand_established_means": "TRUE only where every contributing trial has been READ and shown to measure the same quantity, or the same construct with a variance stated. FALSE where that was checked and failed. NULL where it was never checked -- AN ABSENT ASSERTION AND A NEGATIVE ONE ARE DIFFERENT STATES and null is not a pass.",
+    "house_rule_interval_2026_08_18": {
+     "estimator": "REML with Hartung-Knapp, t on k-1 = 1 degree(s) of freedom (t = 12.7062)",
+     "point": 0.8655,
+     "ci_low": 0.4699,
+     "ci_high": 1.594,
+     "excludes_null": false,
+     "THE_POINT_ESTIMATE_IS_UNCHANGED": "The published point is 0.8655 and the house-rule point is 0.8655. THE NUMBER A READER REMEMBERS DOES NOT MOVE; what differs is the precision claim. That is why nothing downstream catches this -- every memorable quantity survives.",
+     "published_interval": {
+      "estimator": "REML",
+      "ci_low": 0.7877,
+      "ci_high": 0.951,
+      "excludes_null": true,
+      "restated_2026_08_20": "The published interval is now REML, so this block compares a REML point interval against a REML Hartung-Knapp one and the ESTIMATOR is no longer one of the things that differ between them. At k=2 the moment estimator and REML coincide exactly, so not one digit of this block's numbers moved -- only the label, which was wrong."
+     },
+     "variance_inflation_floor": "A FLOOR OF 1 IS APPLIED TO THE VARIANCE-INFLATION FACTOR so the adjustment can never NARROW an interval below the unadjusted one. That guard is the recognised modification for exactly this instability, and its existence is evidence the small-k behaviour is a KNOWN problem with KNOWN handling rather than a novel judgement.",
+     "no_rule_is_decided_here": "SUPERSEDED 2026-08-20. The rule WAS decided, in DECISIONS-COCHRANE-2026-08-18.md section 1, and applied on 2026-08-20: REML is the estimator corpus-wide, and Hartung-Knapp is a SENSITIVITY analysis at k<=3 rather than the primary interval (Handbook 6.5 s10.10.4.4-10.10.4.5). Both intervals still stand on this page and nothing is unpublished.",
+     "what_this_means_for_this_pool": "THE PUBLISHED INTERVAL EXCLUDES 1 AND THE HOUSE-RULE INTERVAL CROSSES IT. A SIGNIFICANCE VERDICT TURNS ON THE INTERVAL METHOD ALONE. A reader shown only the published interval has been told something firmer than the evidence supports; a reader shown only the wider one loses that the contributing trials agree. BOTH ARE HERE.",
+     "read_the_width_with_care": "AT k=2 HARTUNG-KNAPP USES t ON ONE DEGREE OF FREEDOM -- 12.7062 against the normal 1.9600 -- and the interval is enormously wider. That width is a property of the method at very few studies, not a measurement of this evidence. It is recorded so a reader can see it; it is NOT presented as the better interval."
+    },
+    "r_output": {
+     "state": "PRESENT",
+     "environment": "R 4.6.0 with metafor 5.0.1",
+     "script": "ssot/reml_corpus_refit.R",
+     "run_utc": "2026-08-21",
+     "call": "Rscript ssot/fit_from_per_trial.R finerenone-cv cv_composite_first",
+     "interval_method": "z",
+     "verbatim": "R version 4.6.0 (2026-04-24 ucrt) \nmetafor 5.0.1 \nrun_utc 2026-08-21\n\n================================================================\nTOPIC   finerenone-cv\nOUTCOME cv_composite_first\nSTORED  HR 0.8655 (0.7877 to 0.9510), k = 2, random / REML\nINPUTS READ FROM THE OBJECT (log scale, SE derived from the published interval):\n   NCT02540993      0.8600 (0.7470 to 0.9890)  yi=-0.150823  sei=0.071590\n   NCT02545049      0.8700 (0.7600 to 0.9800)  yi=-0.139262  sei=0.064857\n----------------------------------------------------------------\nCALL: rma(yi = yi, sei = sei, method = \"REML\", test = \"knha\")\n\n\nRandom-Effects Model (k = 2; tau^2 estimator: REML)\n\n  logLik  deviance       AIC       BIC      AICc   \n  1.7576   -3.5153    0.4847   -3.5153   12.4847   \n\ntau^2 (estimated amount of total heterogeneity): 0 (SE = 0.0066)\ntau (square root of estimated tau^2 value):      0\nI^2 (total heterogeneity / total variability):   0.00%\nH^2 (total variability / sampling variability):  1.00\n\nTest for Heterogeneity:\nQ(df = 1) = 0.0143, p-val = 0.9047\n\nModel Results:\n\nestimate      se     zval    pval    ci.lb    ci.ub     \n -0.1445  0.0481  -3.0058  0.0026  -0.2387  -0.0503  ** \n\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n\n--- SAME FIT WITH HARTUNG-KNAPP (test = \"knha\") ---\n\nRandom-Effects Model (k = 2; tau^2 estimator: REML)\n\n  logLik  deviance       AIC       BIC      AICc   \n  1.7576   -3.5153    0.4847   -3.5153   12.4847   \n\ntau^2 (estimated amount of total heterogeneity): 0 (SE = 0.0066)\ntau (square root of estimated tau^2 value):      0\nI^2 (total heterogeneity / total variability):   0.00%\nH^2 (total variability / sampling variability):  1.00\n\nTest for Heterogeneity:\nQ(df = 1) = 0.0143, p-val = 0.9047\n\nModel Results:\n\nestimate      se      tval  df    pval    ci.lb    ci.ub    \n -0.1445  0.0058  -25.1156   1  0.0253  -0.2176  -0.0714  * \n\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n\nBACK-TRANSFORMED:\n   unadjusted     0.8655 (0.7877 to 0.9510)\n   Hartung-Knapp  0.8655 (0.4699 to 1.5940)   [t crit 12.7062 on 1 df]  <- HOUSE INTERVAL, inflation factor floored at 1 (raw 0.1197)\n   metafor raw    0.8655 (0.8045 to 0.9311)   [test=knha, UNFLOORED]  *** NARROWER THAN UNADJUSTED -- NOT USED; this is what the floor prevents ***\n   tau^2 0.000000   Q 0.0143 on 1 df, p = 0.9047   I^2 0.00%\n\nAGREES WITH THE STORED POINT TO 4 dp: YES\n",
+     "what_it_is": "The fit that produces the numbers this block now publishes, printed by metafor and pasted unaltered. The previous fit, under the estimator this pool used before 2026-08-20, is kept beside it under r_output_superseded_2026_08_20 rather than discarded.",
+     "reproduction_of_the_previous_value": "Before this refit was applied, the OLD estimator was refitted on the same inputs and checked against the stored value: REPRODUCED. A pool whose old fit did not reproduce was not overwritten.",
+     "stored_at": "evidence/refits_2026_08_21/finerenone-cv__cv_composite_first.txt",
+     "why_this_was_re_run": "THE PREVIOUS STORED OUTPUT NAMED AN ESTIMATOR THIS OBJECT DOES NOT DECLARE: it printed 'tau^2 estimator: DL' where the object declares REML, at k = 2. This project's own statistics rule forbids DerSimonian-Laird below k = 10, so the quotation carried a wrong label AND a forbidden method, faithfully. P56. Ten stored outputs across the corpus did this; this is one of them."
+    },
+    "estimator_note_2026_08_18_superseded_2026_08_20": "Published as DerSimonian-Laird. The house-rule interval is recorded alongside rather than replacing it, so the difference is visible instead of silently resolved.",
+    "estimator_note_2026_08_20": "REML, applied 2026-08-20 under DECISIONS-COCHRANE-2026-08-18.md section 1, on Cochrane Handbook 6.5 section 10.10.4.4: \"Decision: REML, everywhere.\" The estimator this pool used before that date was DerSimonian-Laird; that fit was reproduced first and is quoted under r_output_superseded_2026_08_20, so the movement is attributable rather than asserted.",
+    "estimand_established_does_not_cover_the_contrast_2026_08_20": "READ THIS BESIDE `estimand_established`. That flag records that every contributing trial measures the SAME QUANTITY. It records NOTHING about what that quantity was measured AGAINST -- whether the comparators are of one kind, whether each comparison was randomised, whether it was concurrent. On attr-pn-review the flag is TRUE and correct while the pool combines patisiran against its own saline placebo, vutrisiran against PATISIRAN, and eplontersen against the placebo cohort of a DIFFERENT TRIAL. The two questions were never separated. Named as P48 in PAGE-STANDARD.md v1.21.0 and swept by scripts/audit_mixed_contrast_pools.py.",
+    "POOL_FINDINGS_2026_08_21": {
+     "a_the_pooled_result_is_one_trial_s_primary_and_the_other_s_secondary": "READ THIS BESIDE THE ESTIMATE. FIDELIO-DKD (NCT02540993) registers the KIDNEY composite as its primary outcome and the CARDIOVASCULAR composite -- the one pooled here -- as the FIRST OF FIVE SECONDARIES. FIGARO-DKD (NCT02545049) registers them the other way round. THE QUANTITY IS IDENTICAL ON BOTH, word for word, so this is a question about which rank was selected and not about what was measured.",
+     "b_the_effect_does_not_survive_the_small_sample_adjustment": "The unadjusted interval is HR 0.8655 (0.7877 to 0.9510) and EXCLUDES no effect. This project's floored Hartung-Knapp interval at k = 2 is 0.4699 to 1.5940 and INCLUDES it. At k = 2 the t critical value is 12.7062 and almost nothing survives, so this is weaker evidence against the result than the same crossing would be at larger k. NOTE THAT metafor's RAW interval here, 0.8045 to 0.9311, is NARROWER than the unadjusted one -- which is what the house floor exists to prevent, and it is not cited as ours."
+    }
+   }
+  }
+ },
+ "manuscript": {
+  "references": {
+   "_what": "A reference list, assembled from this object's own fields. Distinct from `sources`, which records the provenance LAYER each fact was read at; this is what a reader would look up.",
+   "included_studies": [
+    {
+     "registration": "NCT02540993",
+     "label": "",
+     "registry": "ClinicalTrials.gov",
+     "url": "https://clinicaltrials.gov/study/NCT02540993",
+     "read_utc": ""
+    },
+    {
+     "registration": "NCT02545049",
+     "label": "",
+     "registry": "ClinicalTrials.gov",
+     "url": "https://clinicaltrials.gov/study/NCT02545049",
+     "read_utc": ""
+    }
+   ],
+   "published_syntheses_compared_against": [
+    {
+     "citation": "Cardiovascular and kidney outcomes with finerenone in patients with type 2 diabetes and chronic kidney disease: the FIDELITY pooled analysis. European Heart Journal. 2022.",
+     "identifier": "PMID: 35023547",
+     "url": "https://pubmed.ncbi.nlm.nih.gov/35023547/"
+    }
+   ],
+   "_published_syntheses_note": "Appraised against this review; the comparison and its denominator are in `published_comparison`. ",
+   "methods_guidance_and_software": [
+    {
+     "cited_for": "risk of bias in the included results",
+     "citation": "Sterne JAC, Savovic J, Page MJ, et al. RoB 2: a revised tool for assessing risk of bias in randomised trials. BMJ. 2019;366:l4898. doi:10.1136/bmj.l4898"
+    },
+    {
+     "cited_for": "certainty of the evidence",
+     "citation": "Schunemann HJ, Higgins JPT, Vist GE, et al. Chapter 14: Completing 'Summary of findings' tables and grading the certainty of the evidence. In: Cochrane Handbook for Systematic Reviews of Interventions version 6.5. Cochrane; 2024."
+    },
+    {
+     "cited_for": "the model fitted, as R 4.6.0 with metafor 5.0.1",
+     "citation": "Viechtbauer W. Conducting meta-analyses in R with the metafor package. J Stat Softw. 2010;36(3):1-48. doi:10.18637/jss.v036.i03"
+    },
+    {
+     "cited_for": "the reporting guideline this manuscript is written against",
+     "citation": "Page MJ, McKenzie JE, Bossuyt PM, et al. The PRISMA 2020 statement: an updated guideline for reporting systematic reviews. BMJ. 2021;372:n71. doi:10.1136/bmj.n71"
+    }
+   ]
+  },
+  "introduction": "This review asks: In adults with chronic kidney disease and type 2 diabetes, does finerenone reduce the first occurrence of the composite of cardiovascular death, non-fatal myocardial infarction, non-fatal stroke, or hospitalisation for heart failure, against placebo?\n\nIt pools 2 randomised trials, against placebo.\n\nThe outcome pooled is First occurrence of the composite of cardiovascular death, non-fatal myocardial infarction, non-fatal stroke, or hospitalisation for heart failure.\n\nEverything in this paragraph is derived from stored fields and none of it is authored. The interpretive sentences that follow are marked as drafts and are the author's to replace."
+ },
+ "risk_of_bias_verdict": null,
+ "carried_contrasts": [],
+ "display_change_announced": [
+  {
+   "date": "2026-08-18",
+   "change": "definition declared on ambiguous fields",
+   "values_moved": "NONE",
+   "what_changed": "`heterogeneity.i2` and `heterogeneity.tau2` are field names that each map to more than one standard definition. Every number is unchanged; each now carries the definition it holds. tau2's definition was already recoverable from the declared `estimator` beside it and is copied, never inferred. i2's was not recoverable and is DECIDED BY RECOMPUTING BOTH FORMS from this object's own per-trial inputs, with the evidence recorded.",
+   "why": "A reader recomputing Higgins I-squared from the Q printed beside it would have concluded the object was wrong -- and would have been behaving exactly as we want readers to behave. An ambiguous label on an unambiguous number is a defect specifically against the only reader we claim to serve."
+  },
+  {
+   "date": "2026-08-20",
+   "change": "estimator changed to REML -- LABEL ONLY, no value moved",
+   "values_moved": "NONE",
+   "what_changed": "This pool was fitted with DerSimonian-Laird. It is refitted with REML under DECISIONS-COCHRANE-2026-08-18.md section 1, on Cochrane Handbook 6.5 section 10.10.4.4: \"Decision: REML, everywhere.\" The old fit was reproduced against the stored value FIRST (REPRODUCED) and only then replaced. Stored values are also rounded at storage -- effects to 4 decimals, tau-squared and Q to 6, I-squared to 4 -- because several of these pools carried sixteen significant figures on a two- or three-study pool.",
+   "why": "The corpus held two estimator conventions at once: 23 pools REML, 9 DerSimonian-Laird, 1 Paule-Mandel. Handbook 6.5 s10.10.4.4 records REML as RevMan's own current default and this project's statistics rules already refused DerSimonian-Laird below k=10, which every pool in this corpus is. The decision was taken on 2026-08-18 and not applied; applying it to some pools and not others would have been worse than either convention.",
+   "interval_method": "z"
+  },
+  {
+   "date": "2026-08-20",
+   "change": "published comparison added with a denominator (P46 limb 3)",
+   "values_moved": "NONE",
+   "what_changed": "252 matched / 252 retrieved / 252 read / 1 appraised / 0 lost to the tool. FIDELITY (PMID 35023547), a prespecified IPD pooled analysis of the same two trials, reports HR 0.86 (0.78-0.95) against this object's 0.8655 (0.7877-0.951). They agree.",
+   "why": "The limb was ABSENT: no denominator and no stated reason."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "the published-comparison table rendered blank cells; repaired",
+   "values_moved": "NONE",
+   "what_changed": "added citation, how_it_differs_from_ours, scope to the comparison record(s); nothing renamed, nothing removed",
+   "why": "The projector reads `citation`/`their_k`/`scope`/`how_it_differs_from_ours`; these records stored `title`/`journal`/`outcome_pooled`/`agreement`. A reader met a PMID and four empty cells. Registry class 83."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "risk of bias per result and GRADE both written (P46 limbs 1 and 2)",
+   "values_moved": "NONE",
+   "what_changed": "2 results assessed; GRADE MODERATE; the model output re-run under the declared estimator",
+   "why": "Both limbs were ABSENT, and the stored fit named DL where the object declares REML."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "a second, cross-family risk-of-bias assessment was obtained and reconciled",
+   "values_moved": "NONE -- no judgement was changed on the strength of the disagreement",
+   "what_changed": "disagreement rate 5 of 12 judgements (41.7%); the D1 disagreement implicates 51 LOW judgements across 15 topics",
+   "why": "Mahmood's specification requires two assessors from different model families. This is the first."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "the second assessor's per-domain breakdown is now a field, not only prose",
+   "values_moved": "NONE",
+   "what_changed": "PER_DOMAIN derived from the stored verbatim_reply",
+   "why": "Written into the object and never surfaced -- class 83, on the artefact the specification names."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "D1 moved from LOW to NO_INFORMATION on the RoB 2 guidance",
+   "values_moved": "NONE -- no overall rating, no GRADE certainty, no estimate and no interval changes",
+   "what_changed": "2 D1 judgement(s): cv_composite_first/NCT02540993, cv_composite_first/NCT02545049",
+   "why": "RoB 2 Box 4 question 1.1: 'Answer No information if the only information about randomization methods is a statement that the study is randomized.' RESOLVED BY GUIDANCE, NOT BY PREFERENCE."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "second-assessor disagreement rate recounted beside the stored one",
+   "values_moved": "NONE -- the stored rate and PER_DOMAIN are untouched. The recount is written as a separate, labelled field.",
+   "what_changed": "D1 2 of 2 disagree -> 0 of 2 disagree; overall 5 of 12 judgements -> 3 of 12",
+   "why": "Applying the D1 guidance moved this review's judgements to the position assessor 2 had taken, which left the stored rate describing a disagreement the object no longer holds. Both numbers now appear."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+   "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+   "what_changed": "references built, introduction written, bookkeeping claims 5",
+   "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+   "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+   "what_changed": "references built, introduction written, bookkeeping claims 5",
+   "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+   "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+   "what_changed": "references built, introduction written, bookkeeping claims 5",
+   "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+   "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+   "what_changed": "references built, introduction written, bookkeeping claims 5",
+   "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+   "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+   "what_changed": "references built, introduction written, bookkeeping claims 5",
+   "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+   "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+   "what_changed": "references built, introduction written, bookkeeping claims 5",
+   "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "transposed FIDELIO/FIGARO acronyms corrected",
+   "values_moved": "NONE -- no estimate, judgement or rating moves",
+   "what_changed": "2 trial-set label(s)",
+   "why": "The two trials register different primary outcomes, so the labels carry their designs. Verified against both registrations."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+   "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+   "what_changed": "references built, introduction written, bookkeeping claims 5",
+   "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+   "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+   "what_changed": "references built, introduction written, bookkeeping claims 5",
+   "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+   "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+   "what_changed": "references built, introduction written, bookkeeping claims 5",
+   "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+   "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+   "what_changed": "references built, introduction written, bookkeeping claims 5",
+   "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+   "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+   "what_changed": "references built, introduction written, bookkeeping claims 5",
+   "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+   "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+   "what_changed": "references built, introduction written, bookkeeping claims 5",
+   "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+   "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+   "what_changed": "references built, introduction written, bookkeeping claims 5",
+   "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+   "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+   "what_changed": "references built, introduction written, bookkeeping claims 5",
+   "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+  }
+ ],
+ "provenance_verified_2026_08_18": "Provenance written ONLY where the registry confirmed it. Every statement on this object names the outcome measure its counts were matched against and the date of the comparison. Trials whose registration posts no results carry an explicit NOT SUPPLIED BY THE REGISTRY note with the source question recorded as owed.",
+ "published_comparison": {
+  "_why": "P46 limb 3. A prespecified INDIVIDUAL PATIENT-LEVEL pooled analysis of exactly these two trials exists, and this object's aggregate-data pool reproduces it.",
+  "_how_identified": "PubMed E-utilities, executed 2026-08-20. Query, counts and per-record disposition in ssot/finerenone-cv/appraisal/PUBLISHED_SYNTHESIS_SCREEN.json.",
+  "denominator": {
+   "matched": 252,
+   "retrieved": 252,
+   "read": 252,
+   "appraised": 1,
+   "not_returned_by_the_tool": 0,
+   "_house_form": "matched / retrieved / read / appraised / not returned -- P53. The fifth is the instrument's own limit and is reported even when it is zero, because a denominator that hides its truncation is quoted as coverage. Here the query matched 252 and the request listed all 252, so nothing was lost to the tool. 48 records were flagged by title as FIDELITY-related; ONE was appraised against its abstract and the other 47 were NOT READ."
+  },
+  "identity_basis": "Both contributing trials are keyed to verified registrations -- NCT02540993 (FIGARO-DKD) and NCT02545049 (FIDELIO-DKD) -- and the appraised analysis names both trials in its author line ('FIDELIO-DKD and FIGARO-DKD investigators') and its abstract. The trial-set match is READ, not inferred from arithmetic.",
+  "reviews": [
+   {
+    "pmid": "35023547",
+    "year": 2022,
+    "journal": "European Heart Journal",
+    "title": "Cardiovascular and kidney outcomes with finerenone in patients with type 2 diabetes and chronic kidney disease: the FIDELITY pooled analysis",
+    "trial_set": [
+     "NCT02545049 (FIGARO-DKD)",
+     "NCT02540993 (FIDELIO-DKD)"
+    ],
+    "trial_set_basis": "NAMED in the abstract and the group authorship line.",
+    "design": "INDIVIDUAL PATIENT-LEVEL, PRESPECIFIED pooled analysis -- a stronger design than this object's aggregate-data pool",
+    "n_pooled": 13026,
+    "outcome_pooled": "composite of cardiovascular death, non-fatal myocardial infarction, non-fatal stroke or hospitalisation for heart failure -- THE SAME COMPOSITE THIS OBJECT POOLS",
+    "estimate_quoted": "hazard ratio 0.86, 95% CI 0.78 to 0.95, P = 0.0018",
+    "comparable_to_ours": true,
+    "agreement": "AGREES. Published 0.86 (0.78 to 0.95); this object 0.8655 (0.7877 to 0.951). The two agree to the precision either is reported at, from different data levels -- individual patient records against published aggregates.",
+    "citation": "Cardiovascular and kidney outcomes with finerenone in patients with type 2 diabetes and chronic kidney disease: the FIDELITY pooled analysis. European Heart Journal. 2022",
+    "scope": "composite of cardiovascular death, non-fatal myocardial infarction, non-fatal stroke or hospitalisation for heart failure -- THE SAME COMPOSITE THIS OBJECT POOLS",
+    "how_it_differs_from_ours": "AGREES. Published 0.86 (0.78 to 0.95); this object 0.8655 (0.7877 to 0.951). The two agree to the precision either is reported at, from different data levels -- individual patient records against published aggregates."
+   }
+  ],
+  "THE_FINDING_OF_THIS_COMPARISON_2026_08_20": "THIS IS THE CONTROL CASE FOR CLASS 76 AND IT WAS PREDICTED BEFORE THE SCREEN RAN. Four topics have now been found where the published synthesis chose a better-defined target than this corpus did. Here it did not: an aggregate-data pool of two trials REPRODUCES a prespecified individual-patient-data analysis of the same two trials to three significant figures. The pool was feasible -- one drug, one programme, complementary populations by design, pooling prespecified by the trialists -- and where the pool is feasible the method holds. THAT MAKES CLASS 76 A FINDING ABOUT FEASIBILITY RATHER THAN ABOUT ARITHMETIC, and it is the reason a pattern needs a case where it does not fire."
+ },
+ "risk_of_bias": {
+  "tool": "RoB 2 (Cochrane risk-of-bias tool for randomized trials)",
+  "assessed_utc": "2026-08-21",
+  "assessed_per": "RESULT, not trial -- Handbook 8.2",
+  "by_outcome": {
+   "cv_composite_first": {
+    "NCT02540993": {
+     "nct": "NCT02540993",
+     "trial": "FIDELIO-DKD",
+     "registered_masking": "QUADRUPLE",
+     "rank_of_the_result_this_review_pools": "SECONDARY -- the first of five",
+     "result_assessed": "the cardiovascular composite: CV death, non-fatal myocardial infarction, non-fatal stroke, or hospitalisation for heart failure",
+     "domains": {
+      "D1_randomisation_process": {
+       "judgement": "NO_INFORMATION",
+       "basis": "REGISTRATION DESIGN MODULE, READ",
+       "reason": "allocation is recorded as RANDOMIZED on the design module.",
+       "what_is_NOT_established": "The concealment MECHANISM is not on the registry and no publication was read.",
+       "resolved_2026_08_21": {
+        "resolved_by": "GUIDANCE, NOT PREFERENCE",
+        "what_this_judgement_was": "LOW",
+        "what_it_is_now": "NO_INFORMATION",
+        "the_text_that_decides_it": "RoB 2 guidance 2019, Box 4, signalling question 1.1: \"Answer 'No information' if the only information about randomization methods is a statement that the study is randomized.\" And section 4.4: \"A judgement of low risk of bias requires that the trial has an adequate method of concealing the allocation sequence from those involved in enrolling participants, and there are no concerns about generation of the allocation sequence.\" Cochrane Handbook 6.5 section 8.3 names the domain's three components.",
+        "why_this_is_not_an_adjudicated_dispute": "A blind second assessor from a different model family disagreed with this domain on 89% of judgements across 22 topics. THAT WOULD ORDINARILY BE A DISPUTE TO ADJUDICATE. It is not one: the tool's own text names this exact evidential situation -- a bare statement that a study was randomised -- and prescribes the answer. The second assessor is not being deferred to; the guidance is being applied.",
+        "what_the_registry_gives_and_does_not": "A ClinicalTrials.gov design module records `allocation: RANDOMIZED`. It carries no sequence-generation method and no allocation-concealment mechanism. The original judgement's own note said so before scoring LOW.",
+        "how_this_maps_to_the_tool_s_algorithm": "The tool maps 'No information' on 1.1 and 1.2 with no baseline concern to a DOMAIN judgement of SOME CONCERNS. This project writes NO_INFORMATION on the domain when it could not be judged from the sources read, and caps the OVERALL at SOME_CONCERNS. Same place, and it keeps 'we could not judge this' distinguishable from 'we judged it and had concerns'.",
+        "what_does_not_change": "NO OVERALL RATING AND NO GRADE CERTAINTY MOVES. All 51 judgements were already capped at SOME_CONCERNS or HIGH by another NO_INFORMATION domain.",
+        "what_would_close_it_properly": "The trial publications or protocols, which carry sequence generation and concealment. Neither was read. Until one is, LOW is not available on this domain for any result in this corpus."
+       }
+      },
+      "D2_deviations_from_intended_intervention": {
+       "judgement": "NO_INFORMATION",
+       "basis": "NOT ESTABLISHED -- THE REGISTRY DOES NOT CARRY THE FIELD",
+       "reason": "Deviations from the intended intervention and the analysis population used are not on the registration."
+      },
+      "D3_missing_outcome_data": {
+       "judgement": "NO_INFORMATION",
+       "basis": "NOT ESTABLISHED -- THE REGISTRY DOES NOT CARRY THE FIELD",
+       "reason": "No registration states how many participants were missing from the analysed population or how they were handled. Follow-up runs years on all five."
+      },
+      "D4_measurement_of_the_outcome": {
+       "judgement": "LOW",
+       "basis": "REGISTRATION DESIGN MODULE, READ",
+       "reason": "Masking is QUADRUPLE and the OUTCOMES ASSESSOR IS EXPLICITLY AMONG THE MASKED ROLES. The endpoint is an adjudicated composite, so it is the masked assessor that makes this LOW."
+      },
+      "D5_selection_of_the_reported_result": {
+       "judgement": "SOME_CONCERNS",
+       "basis": "REGISTERED PRIMARY OUTCOMES COMPARED WITH WHAT THIS OBJECT POOLS",
+       "reason": "THE REGISTERED PRIMARY IS THE KIDNEY COMPOSITE -- onset of kidney failure, a sustained eGFR decrease of at least 40%, or renal death. The result this review pools is the CARDIOVASCULAR composite, which is THE FIRST OF FIVE REGISTERED SECONDARIES on this trial. Selecting a secondary from among registered ranks is a D5 concern whatever the reason. NOT HIGH: the choice is transparent and the same quantity is FIGARO's registered primary, so nothing suggests the rank was picked after seeing the data."
+      }
+     },
+     "overall": "SOME_CONCERNS",
+     "overall_reason": "D2 and D3 are NO_INFORMATION, and under RoB 2 an unjudgeable domain cannot yield LOW overall. Where D4 or D5 is also SOME_CONCERNS the reason is named in that domain.",
+     "registered_enrolment": 5734
+    },
+    "NCT02545049": {
+     "nct": "NCT02545049",
+     "trial": "FIGARO-DKD",
+     "registered_masking": "QUADRUPLE",
+     "rank_of_the_result_this_review_pools": "PRIMARY",
+     "result_assessed": "the cardiovascular composite: CV death, non-fatal myocardial infarction, non-fatal stroke, or hospitalisation for heart failure",
+     "domains": {
+      "D1_randomisation_process": {
+       "judgement": "NO_INFORMATION",
+       "basis": "REGISTRATION DESIGN MODULE, READ",
+       "reason": "allocation is recorded as RANDOMIZED on the design module.",
+       "what_is_NOT_established": "The concealment MECHANISM is not on the registry and no publication was read.",
+       "resolved_2026_08_21": {
+        "resolved_by": "GUIDANCE, NOT PREFERENCE",
+        "what_this_judgement_was": "LOW",
+        "what_it_is_now": "NO_INFORMATION",
+        "the_text_that_decides_it": "RoB 2 guidance 2019, Box 4, signalling question 1.1: \"Answer 'No information' if the only information about randomization methods is a statement that the study is randomized.\" And section 4.4: \"A judgement of low risk of bias requires that the trial has an adequate method of concealing the allocation sequence from those involved in enrolling participants, and there are no concerns about generation of the allocation sequence.\" Cochrane Handbook 6.5 section 8.3 names the domain's three components.",
+        "why_this_is_not_an_adjudicated_dispute": "A blind second assessor from a different model family disagreed with this domain on 89% of judgements across 22 topics. THAT WOULD ORDINARILY BE A DISPUTE TO ADJUDICATE. It is not one: the tool's own text names this exact evidential situation -- a bare statement that a study was randomised -- and prescribes the answer. The second assessor is not being deferred to; the guidance is being applied.",
+        "what_the_registry_gives_and_does_not": "A ClinicalTrials.gov design module records `allocation: RANDOMIZED`. It carries no sequence-generation method and no allocation-concealment mechanism. The original judgement's own note said so before scoring LOW.",
+        "how_this_maps_to_the_tool_s_algorithm": "The tool maps 'No information' on 1.1 and 1.2 with no baseline concern to a DOMAIN judgement of SOME CONCERNS. This project writes NO_INFORMATION on the domain when it could not be judged from the sources read, and caps the OVERALL at SOME_CONCERNS. Same place, and it keeps 'we could not judge this' distinguishable from 'we judged it and had concerns'.",
+        "what_does_not_change": "NO OVERALL RATING AND NO GRADE CERTAINTY MOVES. All 51 judgements were already capped at SOME_CONCERNS or HIGH by another NO_INFORMATION domain.",
+        "what_would_close_it_properly": "The trial publications or protocols, which carry sequence generation and concealment. Neither was read. Until one is, LOW is not available on this domain for any result in this corpus."
+       }
+      },
+      "D2_deviations_from_intended_intervention": {
+       "judgement": "NO_INFORMATION",
+       "basis": "NOT ESTABLISHED -- THE REGISTRY DOES NOT CARRY THE FIELD",
+       "reason": "Deviations from the intended intervention and the analysis population used are not on the registration."
+      },
+      "D3_missing_outcome_data": {
+       "judgement": "NO_INFORMATION",
+       "basis": "NOT ESTABLISHED -- THE REGISTRY DOES NOT CARRY THE FIELD",
+       "reason": "No registration states how many participants were missing from the analysed population or how they were handled. Follow-up runs years on all five."
+      },
+      "D4_measurement_of_the_outcome": {
+       "judgement": "LOW",
+       "basis": "REGISTRATION DESIGN MODULE, READ",
+       "reason": "Masking is QUADRUPLE and the OUTCOMES ASSESSOR IS EXPLICITLY AMONG THE MASKED ROLES. The endpoint is an adjudicated composite, so it is the masked assessor that makes this LOW."
+      },
+      "D5_selection_of_the_reported_result": {
+       "judgement": "LOW",
+       "basis": "REGISTERED PRIMARY OUTCOMES COMPARED WITH WHAT THIS OBJECT POOLS",
+       "reason": "THE REGISTERED PRIMARY IS THE CARDIOVASCULAR COMPOSITE and it is exactly the result this review pools -- CV death, non-fatal myocardial infarction, non-fatal stroke, or hospitalisation for heart failure. There is no set of ranks to have chosen from. RECORDED BECAUSE THE CONTRAST WITH FIDELIO IS THE POINT: the two trials register the same two composites with the ranks swapped."
+      }
+     },
+     "overall": "SOME_CONCERNS",
+     "overall_reason": "D2 and D3 are NO_INFORMATION, and under RoB 2 an unjudgeable domain cannot yield LOW overall. Where D4 or D5 is also SOME_CONCERNS the reason is named in that domain.",
+     "registered_enrolment": 7352
+    }
+   }
+  },
+  "sources_read": [
+   "ClinicalTrials.gov API v2 NCT02540993 -- design module and the full registered primary and secondary outcome lists",
+   "ClinicalTrials.gov API v2 NCT02545049 -- design module and the full registered primary and secondary outcome lists"
+  ],
+  "sources_NOT_read": "The trial publications. D2 and D3 depend on them and are NO_INFORMATION for that reason.",
+  "ceiling": {
+   "statement": "A domain that cannot be judged from the sources read is NO_INFORMATION, never LOW. Low-by-default asserts a fact; high-by-default invents a defect. Overall is capped at SOME_CONCERNS wherever a domain is NO_INFORMATION.",
+   "shape_note": "A DICT, NOT A STRING -- paper_projector does ceil.get('statement') and a bare string collapses the manuscript to a projector-failed banner."
+  },
+  "THE_TWO_TRIALS_REGISTER_THE_SAME_TWO_COMPOSITES_WITH_THE_RANKS_SWAPPED": "FIDELIO-DKD registers the KIDNEY composite as its primary and the CARDIOVASCULAR composite as its first secondary. FIGARO-DKD registers the CARDIOVASCULAR composite as its primary and the KIDNEY composite as its first secondary. This review pools the cardiovascular composite, so it takes one trial's primary and the other's secondary -- and the quantity is identical, word for word, on both registrations.",
+  "ONE_ASSESSOR_ONLY": "ASSESSED BY ONE ASSESSOR. Under the standing specification that risk of bias 2 must be complete and done by TWO AIs from different model families, THIS ASSESSMENT IS INCOMPLETE. `rob2.assessors` is deliberately NOT written.",
+  "SECOND_ASSESSOR_2026_08_21": {
+   "_why": "Mahmood's standing specification is that RoB 2 must be complete and done by TWO AIs. Every assessment written in this run was one-assessor. This is the FIRST reconciliation.",
+   "assessor_2": "GPT-5 Codex (openai family), via `codex exec`, model self-named in the same session",
+   "assessor_1": "Claude Opus 5 (anthropic family) -- the assessment above",
+   "families_are_independent": "anthropic and openai. A second assessment from the same family would test wording, not judgement.",
+   "how_it_was_asked": "BLIND. The second assessor was given the registration facts and the house NO_INFORMATION-never-LOW rule INLINE, and asked to score the five domains and an overall for each result. IT WAS NOT SHOWN THIS ASSESSMENT AND WAS NOT ASKED WHETHER IT AGREED. Asking 'do you agree' measures deference, not judgement.",
+   "verbatim_reply": "NCT02540993 D1=NO_INFORMATION D2=NO_INFORMATION D3=NO_INFORMATION D4=LOW D5=LOW OVERALL=NO_INFORMATION\nNCT02545049 D1=NO_INFORMATION D2=NO_INFORMATION D3=NO_INFORMATION D4=LOW D5=LOW OVERALL=NO_INFORMATION",
+   "DISAGREEMENT_RATE": "5 of 12 judgements -- 41.7%. REPORTED AS DISAGREEMENT AND NOT AS AGREEMENT: agreement between two assessors given the same facts authenticates nothing, and the whole value of a second assessor is in what it does not confirm.",
+   "the_three_disagreements": {
+    "D1_on_both_results": "ASSESSOR 1 SAID LOW, ASSESSOR 2 SAID NO_INFORMATION -- and assessor 2 has the better of it against assessor 1's OWN STATED RULE. RoB 2 domain 1 asks about the randomisation PROCESS: sequence generation, allocation concealment, and baseline imbalance. The registry records only that the design was RANDOMIZED. Assessor 1's own D1 entry says in its own words that 'the concealment MECHANISM is not on the registry and no publication was read' -- AND THEN SCORES LOW, against this object's own ceiling, which says a domain that cannot be judged from the sources read is NO_INFORMATION, NEVER LOW. THAT IS THE LOW-BY-DEFAULT FAILURE THE CEILING EXISTS TO FORBID, committed systematically.",
+    "D5_on_NCT02540993": "ASSESSOR 1 SAID SOME_CONCERNS, ASSESSOR 2 SAID LOW. Genuinely contestable and NOT resolved here. Assessor 1 scored the pooled result being FIDELIO's registered SECONDARY rather than its primary. Assessor 2's implicit position is the defensible counter-argument: RoB 2 domain 5 concerns selection among multiple measurements or analyses OF THE OUTCOME BEING ASSESSED, and which outcome a REVIEW chooses to review is not a bias in the TRIAL. Left as a disagreement.",
+    "OVERALL_on_both": "A consequence of the D1 disagreement, not an independent one."
+   },
+   "CORPUS_EXPOSURE_IF_ASSESSOR_2_IS_RIGHT_ON_D1": "84 D1 judgements exist across this corpus and 51 ARE SCORED LOW, over 15 topics. Every one rests on the same evidence -- the registry recording an allocation of RANDOMIZED -- and every one sits beside a note saying the concealment mechanism was not read. IF THE SECOND ASSESSOR IS RIGHT, 51 JUDGEMENTS AND THE OVERALL RATING ABOVE EACH OF THEM ARE WRONG IN THE DIRECTION THAT FLATTERS THE TRIALS. Changing them is a methodological decision and it is NOT MADE HERE.",
+   "what_is_NOT_claimed": "That this reconciliation completes the limb. ONE topic of at least fifteen has a second assessment. `rob2.assessors` remains deliberately unwritten on every object including this one.",
+   "PER_DOMAIN": {
+    "D1": "2 of 2 disagree",
+    "D2": "0 of 2 disagree",
+    "D3": "0 of 2 disagree",
+    "D4": "0 of 2 disagree",
+    "D5": "1 of 2 disagree",
+    "OVERALL": "2 of 2 disagree"
+   },
+   "PER_DOMAIN_derived_2026_08_21": "DERIVED FROM THIS OBJECT'S OWN STORED `verbatim_reply` AND THE ASSESSMENT ABOVE. Nothing re-asked, no new judgement: arithmetic over two things this object already held. These three topics were reconciled BEFORE the reconciler existed, so the breakdown was written as prose and not as a field -- class 83's shape, in the one place the specification names.",
+   "RECOUNTED_AFTER_THE_D1_RESOLUTION_2026_08_21": {
+    "why_this_field_exists": "On 2026-08-21 this review's D1 judgements moved from LOW to NO_INFORMATION on the RoB 2 guidance -- the position assessor 2 had taken. The rate above was measured BEFORE that and is left exactly as measured: it is a published number, it is the record of what a blind second assessor said, and it is the reason the guidance was re-read. Editing it would delete the evidence that the change was warranted. This is the same computation re-run on the object as it now stands, so both are visible and neither is silently corrected.",
+    "as_measured_before": "5 of 12 judgements -- 41.7%. REPORTED AS DISAGREEMENT AND NOT AS AGREEMENT: agreement between two assessors given the same facts authenticates nothing, and the whole value of a second assessor is in what it does not confirm.",
+    "recounted_now": "3 of 12 judgements -- 25.0%",
+    "PER_DOMAIN_recounted_now": {
+     "D1": "0 of 2 disagree",
+     "D2": "0 of 2 disagree",
+     "D3": "0 of 2 disagree",
+     "D4": "0 of 2 disagree",
+     "D5": "1 of 2 disagree",
+     "OVERALL": "2 of 2 disagree"
+    },
+    "D1_before": "2 of 2 disagree",
+    "D1_now": "0 of 2 disagree",
+    "what_moved_and_what_did_not": "2 D1 judgement(s) on this topic moved. Any D1 disagreement that REMAINS is one where this assessment said SOME_CONCERNS rather than LOW -- assessor 2 said NO_INFORMATION there too, and the guidance applied here speaks to LOW, not to SOME_CONCERNS. So a claim that 'the D1 disagreement is resolved' would be false wherever those two numbers differ, which is why the count is re-run per topic instead of asserted once.",
+    "why_D1_still_disagrees_here": "D1 now agrees with assessor 2 on every compared result.",
+    "and_it_bounds_a_finding_of_ours": "Class 94 records assessor 2 saying NO_INFORMATION on D1/D2/D3 `100 of 100`. Measured across all 23 topics now stored that is 239 of 243, and ALL FOUR exceptions are D1=SOME_CONCERNS on `agyw-hiv-prep-review` and `cab-prep-hiv-review` -- two of the three topics asked under the EARLIER prompt build, the one whose reply ids are bare NCTs. Under that build it is 4 of 6; under the later build 0 of 75. The 100% was measured on the later build's topics. The two-defaults mechanism stands; its universality does not, and what varies with it is the PROMPT.",
+    "the_rate_is_still_conditional_on_the_same_allow_list": "Both numbers are conditional on the fact list in THE_ALLOW_LIST_THE_RATE_IS_CONDITIONAL_ON above. Neither is a rate of agreement between assessors in general."
+   }
+  }
+ },
+ "grade": {
+  "approach": "GRADE, following the Cochrane Handbook chapter 14. Randomised evidence starts HIGH and is rated down with reasons.",
+  "assessed_utc": "2026-08-21",
+  "by_outcome": {
+   "cv_composite_first": {
+    "k": 2,
+    "starting_certainty": "HIGH",
+    "certainty": "MODERATE",
+    "steps": [
+     {
+      "domain": "risk_of_bias",
+      "move": "HIGH to MODERATE, down 1 level(s)",
+      "reason": "Both contributing results are SOME_CONCERNS. D1 and D4 are LOW on read registrations -- randomised, QUADRUPLE masking including the outcomes assessor on both -- and D5 is LOW on FIGARO and SOME_CONCERNS on FIDELIO, where the pooled cardiovascular composite is the first of five registered SECONDARIES. D2 and D3 are NO_INFORMATION on both."
+     },
+     {
+      "domain": "inconsistency",
+      "move": "no downgrade",
+      "reason": "tau-squared is EXACTLY ZERO, Q 0.0143 on 1 df, p = 0.9047, I-squared 0.00%. The two estimates are 0.86 (0.747 to 0.989) and 0.87 (0.76 to 0.98) -- as close as two trials get. Downgrading would manufacture a caution the numbers contradict."
+     },
+     {
+      "domain": "indirectness",
+      "move": "no downgrade",
+      "reason": "THE QUANTITY IS THE SAME QUANTITY. Both registrations define the composite in the same words -- cardiovascular death, non-fatal myocardial infarction, non-fatal stroke, or hospitalisation for heart failure. RECORDED AND DELIBERATELY NOT CONVERTED INTO A RATING: it is FIGARO's registered PRIMARY and FIDELIO's registered first SECONDARY. That is a selection question, which D5 already carries; rating it again here would count one fact as two defects."
+     },
+     {
+      "domain": "imprecision",
+      "move": "MODERATE to LOW -- WARRANTED AND NOT APPLIED, see reason",
+      "reason": "k = 2. This project's floored Hartung-Knapp interval is 0.4699 to 1.5940 on t = 12.7062 with 1 degree of freedom AND IT INCLUDES NO EFFECT, where the unadjusted interval 0.7877 to 0.9510 excludes it. IT IS NOT APPLIED for the reason this project applies consistently at k = 2: the t critical value is 12.7062 and almost nothing survives, so the crossing is weak evidence in either direction. WHAT IS NOT USED: metafor's RAW unfloored interval here is 0.8045 to 0.9311 -- NARROWER THAN THE UNADJUSTED INTERVAL, which is exactly what the house floor exists to prevent, and it is not this project's interval."
+     },
+     {
+      "domain": "publication_bias",
+      "move": "NOT ASSESSABLE -- no rating applied",
+      "reason": "k = 2. Handbook 13.3.5.4."
+     }
+    ],
+    "summary": "MODERATE certainty. The two trials agree almost exactly, both are quadruple-masked, and the pooled composite is defined identically on both registrations -- so the single downgrade is for the unread deviation and missing-data domains and for the pooled result being FIDELIO's registered SECONDARY rather than its primary.",
+    "rating_up_not_applied": "No domain is rated UP. Rating up applies to observational evidence; these are randomised trials, which start HIGH."
+   }
+  }
+ },
+ "manuscript_draft_2026_08_21": {
+  "_what": "The twelve claims a PRISMA manuscript needs that NO FIELD CAN BACK, drafted as scaffolding for the author to dictate over. Each states the facts the judgement needs and then names the judgement as his.",
+  "_status": "DRAFT. Every sentence here was written by the projector's drafter, not read from a source. They are kept under this dated key, each marked `is_a_draft`, so a later pass can always tell what was written from what was read. A draft must never quietly become a fact.",
+  "_the_rule": "No drafted sentence asserts anything this object cannot back. Where the claim requires a judgement, the draft stops at the facts and says so. A plausible sentence is the one most likely to survive dictation unexamined, which is why none is written.",
+  "claims": {
+   "why_the_question_is_open": {
+    "section": "Introduction",
+    "the_claim": "Why the question is still open -- the specific uncertainty this review addresses",
+    "draft": "The evidence identified on this question is 2 randomised trials (NCT02540993, NCT02545049), pooled here at 0.866 (95% CI 0.788 to 0.951) for cv_composite_first. Certainty in that estimate is rated MODERATE, rated down for risk of bias, inconsistency and indirectness. WHICH OF THOSE UNRESOLVED POINTS MAKES THE QUESTION WORTH ASKING NOW IS THE AUTHOR'S JUDGEMENT.",
+    "facts_from": [
+     "results.by_outcome.cv_composite_first.pooled",
+     "results.by_outcome.cv_composite_first.k",
+     "results.by_outcome.cv_composite_first.what_this_does_not_establish",
+     "grade.by_outcome.cv_composite_first.certainty"
+    ],
+    "is_a_draft": true,
+    "the_judgement_that_is_the_authors": "This sentence is the author's judgement and is not derivable from any field here."
+   },
+   "why_a_new_synthesis": {
+    "section": "Introduction",
+    "the_claim": "Why a NEW synthesis is warranted rather than citing an existing one",
+    "draft": "A search for published syntheses matched 252 record(s); 252 were read and 1 appraised against this review. The appraised synthesis is Cardiovascular and kidney outcomes with finerenone in patients with type 2 diabetes and chronic kidney disease: the FIDELITY pooled analysis (European Heart Journal, 2022). WHETHER THOSE DIFFERENCES WARRANT A NEW SYNTHESIS RATHER THAN CITING THE EXISTING ONE IS THE AUTHOR'S JUDGEMENT.",
+    "facts_from": [
+     "published_comparison.denominator",
+     "published_comparison.reviews"
+    ],
+    "is_a_draft": true,
+    "the_judgement_that_is_the_authors": "This sentence is the author's judgement and is not derivable from any field here."
+   },
+   "why_this_differs_from_published": {
+    "section": "Discussion",
+    "the_claim": "WHY this result differs from the published ones, mechanically or methodologically",
+    "draft": "This review pools 0.866 (95% CI 0.788 to 0.951) over 2 trials. The appraised synthesis pooled composite of cardiovascular death, non-fatal myocardial infarction, non-fatal stroke or hospitalisation for heart failure -- THE SAME COMPOSITE THIS OBJECT POOLS over 13,026 participants. Which trials that synthesis carries: Both contributing trials are keyed to verified registrations -- NCT02540993 (FIGARO-DKD) and NCT02545049 (FIDELIO-DKD) -- and the appraised analysis names both trials in its author line ('FIDELIO-DKD and FIGARO-DKD investigators') and its abstract. The trial-set match is READ, not inferred from arithmetic. WHY THE TWO RESULTS DIFFER -- WHETHER BY POPULATION, OUTCOME DEFINITION, MODEL OR INCLUDED SET -- IS THE AUTHOR'S JUDGEMENT.",
+    "facts_from": [
+     "published_comparison.reviews",
+     "published_comparison.identity_basis"
+    ],
+    "is_a_draft": true,
+    "the_judgement_that_is_the_authors": "This sentence is the author's judgement and is not derivable from any field here."
+   },
+   "is_the_heterogeneity_clinically_important": {
+    "section": "Discussion",
+    "the_claim": "Whether the observed heterogeneity is clinically important",
+    "draft": "Across 2 trials, tau-squared 0; every trial interval excludes no effect. WHETHER THAT DEGREE OF DISAGREEMENT MATTERS CLINICALLY -- WHETHER THE TRIALS ARE ANSWERING THE SAME QUESTION IN THE SAME PATIENTS -- IS THE AUTHOR'S JUDGEMENT.",
+    "facts_from": [
+     "results.by_outcome.cv_composite_first.heterogeneity",
+     "results.by_outcome.cv_composite_first.per_trial"
+    ],
+    "is_a_draft": true,
+    "the_judgement_that_is_the_authors": "This sentence is the author's judgement and is not derivable from any field here."
+   },
+   "is_the_effect_size_clinically_meaningful": {
+    "section": "Discussion",
+    "the_claim": "Whether the effect size is clinically meaningful",
+    "draft": "The pooled HR is 0.866 (95% CI 0.788 to 0.951) over 2 trials. Certainty is rated MODERATE. Every contributing interval excludes no effect. WHETHER A CHANGE OF THAT MAGNITUDE IS CLINICALLY MEANINGFUL IN THIS POPULATION IS THE AUTHOR'S JUDGEMENT: NO FIELD ON THIS OBJECT RECORDS A THRESHOLD OF IMPORTANCE, AND NONE IS ASSUMED HERE.",
+    "facts_from": [
+     "results.by_outcome.cv_composite_first.pooled",
+     "results.by_outcome.cv_composite_first.k",
+     "results.by_outcome.cv_composite_first.comparator",
+     "grade.by_outcome.cv_composite_first.certainty"
+    ],
+    "is_a_draft": true,
+    "the_judgement_that_is_the_authors": "This sentence is the author's judgement and is not derivable from any field here."
+   },
+   "is_the_evidence_base_adequate": {
+    "section": "Discussion",
+    "the_claim": "Whether the evidence base is adequate to answer the question",
+    "draft": "The evidence base is 2 trials, assessed for risk of bias as SOME_CONCERNS on 2 result(s). GRADE certainty is MODERATE, rated down for risk of bias, inconsistency and indirectness. WHETHER THAT IS ENOUGH TO ANSWER THE QUESTION DEPENDS ON THE DECISION THE ANSWER IS FOR, WHICH IS NOT STATED ON THIS OBJECT, AND IS THE AUTHOR'S JUDGEMENT.",
+    "facts_from": [
+     "risk_of_bias.by_outcome",
+     "grade.by_outcome.cv_composite_first"
+    ],
+    "is_a_draft": true,
+    "the_judgement_that_is_the_authors": "This sentence is the author's judgement and is not derivable from any field here."
+   },
+   "what_further_evidence_would_change_it": {
+    "section": "Discussion",
+    "the_claim": "What further evidence would change the conclusion",
+    "draft": "Certainty was rated down for risk of bias, inconsistency and indirectness. WHAT FURTHER EVIDENCE WOULD CHANGE THE CONCLUSION IS A JUDGEMENT ABOUT A TRIAL NOBODY HAS RUN, AND IS THE AUTHOR'S.",
+    "facts_from": [
+     "grade.by_outcome.cv_composite_first.steps"
+    ],
+    "is_a_draft": true,
+    "the_judgement_that_is_the_authors": "This sentence is the author's judgement and is not derivable from any field here."
+   },
+   "was_the_search_broad_enough": {
+    "section": "Discussion",
+    "the_claim": "Whether the search was broad enough",
+    "draft": "PRIMARY TRIALS. NO BIBLIOGRAPHIC SEARCH FOR PRIMARY TRIALS WAS RUN. The 2 included trials were identified by reading named registrations on the dates recorded on each entry; {'what_verifies_this_object': 'not recorded on the page this object was extracted from', 'what_is_not_claimed': 'not recorded on the page this object was extracted from', 'families': [], 'bar': 'not recorded on the page this object was extracted from'}. PUBLISHED SYNTHESES. PubMed E-utilities esearch + esummary, executed 2026-08-20. Query as executed: (finerenone[tiab]) AND (FIDELIO[tiab] OR FIGARO[tiab] OR FIDELITY[tiab] OR meta-analysis[pt] OR \"systematic review\"[pt] OR meta-analysis[tiab] OR \"pooled analysis\"[tiab]). It matched 252 record(s), of which 252 were retrieved and 252 read; 1 appraised. WHETHER THAT IS BROAD ENOUGH FOR THE CLAIM THIS REVIEW MAKES IS THE AUTHOR'S JUDGEMENT.",
+    "facts_from": [
+     "bookkeeping_2026_08_21.the_search_its_date_and_its_databases"
+    ],
+    "is_a_draft": true,
+    "the_judgement_that_is_the_authors": "This sentence is the author's judgement and is not derivable from any field here."
+   },
+   "what_the_evidence_shows": {
+    "section": "Conclusions",
+    "the_claim": "A one-sentence statement of what the evidence shows",
+    "draft": "Across 2 randomised trials, HR was 0.866 (95% CI 0.788 to 0.951) for cv_composite_first. Certainty in that estimate is MODERATE. THAT IS THE ESTIMATE. WHAT THE EVIDENCE SHOWS -- STATED AS A FINDING RATHER THAN AS A NUMBER -- IS THE AUTHOR'S SENTENCE.",
+    "facts_from": [
+     "results.by_outcome.cv_composite_first.pooled",
+     "results.by_outcome.cv_composite_first.k",
+     "results.by_outcome.cv_composite_first.outcome",
+     "grade.by_outcome.cv_composite_first.certainty"
+    ],
+    "is_a_draft": true,
+    "the_judgement_that_is_the_authors": "This sentence is the author's judgement and is not derivable from any field here."
+   },
+   "implication_for_practice": {
+    "section": "Conclusions",
+    "the_claim": "The implication for clinical practice",
+    "draft": "What a clinician should do differently on this evidence -- the estimate and certainty stated above -- is a RECOMMENDATION, not a measurement. No field on this object can back one, and none is drafted. It is the author's sentence.",
+    "facts_from": [
+     "results.by_outcome.cv_composite_first.pooled",
+     "results.by_outcome.cv_composite_first.k",
+     "grade.by_outcome.cv_composite_first"
+    ],
+    "is_a_draft": true,
+    "the_judgement_that_is_the_authors": "This sentence is the author's judgement and is not derivable from any field here."
+   },
+   "implication_for_policy": {
+    "section": "Conclusions",
+    "the_claim": "The implication for policy",
+    "draft": "What a payer, guideline or programme should do on this evidence -- the estimate and certainty stated above -- is a RECOMMENDATION, not a measurement. No field on this object can back one, and none is drafted. It is the author's sentence.",
+    "facts_from": [
+     "results.by_outcome.cv_composite_first.pooled",
+     "results.by_outcome.cv_composite_first.k",
+     "grade.by_outcome.cv_composite_first"
+    ],
+    "is_a_draft": true,
+    "the_judgement_that_is_the_authors": "This sentence is the author's judgement and is not derivable from any field here."
+   },
+   "implication_for_research": {
+    "section": "Conclusions",
+    "the_claim": "The implication for future research",
+    "draft": "What should be studied next on this evidence -- the estimate and certainty stated above -- is a RECOMMENDATION, not a measurement. No field on this object can back one, and none is drafted. It is the author's sentence.",
+    "facts_from": [
+     "results.by_outcome.cv_composite_first.pooled",
+     "results.by_outcome.cv_composite_first.k",
+     "grade.by_outcome.cv_composite_first"
+    ],
+    "is_a_draft": true,
+    "the_judgement_that_is_the_authors": "This sentence is the author's judgement and is not derivable from any field here."
+   }
+  }
+ },
+ "ACRONYMS_CORRECTED_2026_08_21": "TWO TRIAL ACRONYMS WERE TRANSPOSED AND ARE CORRECTED. This object recorded NCT02545049 as FIDELIO-DKD. IT IS FIGARO-DKD. Read from ClinicalTrials.gov API v2 on 2026-08-21: NCT02540993 carries acronym FIDELIO-DKD, NCT02545049 carries acronym FIGARO-DKD. The two trials differ in their registered primary -- FIDELIO-DKD's is the kidney composite, FIGARO-DKD's the cardiovascular one -- so naming them the wrong way round is not a typographical matter: it attributes each trial's design to the other. NO ESTIMATE MOVES; the estimates were keyed to the registration numbers, which were right throughout. 2 label(s) corrected.",
+ "bookkeeping_2026_08_21": {
+  "_what": "The five reporting claims a PRISMA-2020 manuscript needs that are FETCHABLE rather than argued -- each derived from a field here, or stated as an honest absence.",
+  "which_limbs_this_review_refuses": "Of the four properties this project requires of a completed topic, 4 are held (comparison denominator, grade per pool, model output verbatim, rob per result).",
+  "the_search_its_date_and_its_databases": "PRIMARY TRIALS. NO BIBLIOGRAPHIC SEARCH FOR PRIMARY TRIALS WAS RUN. The 2 included trials were identified by reading named registrations on the dates recorded on each entry. The basis on which this object was verified is not recorded. What this object does not claim is not recorded. The bar this object had to clear is not recorded. PUBLISHED SYNTHESES. PubMed E-utilities esearch + esummary, executed 2026-08-20. Query as executed: (finerenone[tiab]) AND (FIDELIO[tiab] OR FIGARO[tiab] OR FIDELITY[tiab] OR meta-analysis[pt] OR \"systematic review\"[pt] OR meta-analysis[tiab] OR \"pooled analysis\"[tiab]). It matched 252 record(s), of which 252 were retrieved and 252 read; 1 appraised.",
+  "whether_this_review_was_prospectively_registered": "NO PROSPERO REGISTRATION OR PROTOCOL RECORD IS HELD ON THIS OBJECT. That is not the same as knowing this review was not registered, and neither claim is made. It is recorded here as an absence so that a reader does not have to infer it from silence.",
+  "that_two_assessors_disagreed_and_where": "Risk of bias was assessed independently a second time by GPT-5 Codex (openai family), via `codex exec`, model self-named in the same session, blind to this assessment and given the same registry facts. 5 of 12 judgements -- 41.7%. REPORTED AS DISAGREEMENT AND NOT AS AGREEMENT: agreement between two assessors given the same facts authenticates nothing, and the whole value of a second assessor is in what it does not confirm. By domain: D1 2 of 2 disagree, D2 0 of 2 disagree, D3 0 of 2 disagree, D4 0 of 2 disagree, D5 1 of 2 disagree, OVERALL 2 of 2 disagree. Recounted after this review's D1 judgements moved: 3 of 12 judgements -- 25.0%.",
+  "which_risk_of_bias_domains_drove_the_rating": "Where a result is rated worse than LOW overall, the domain carrying that judgement is: D5 on 1 result(s). The overall rating is the worst domain, so these are the domains that determine it."
+ }
+}

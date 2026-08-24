@@ -1,0 +1,254 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a031b7-a702-7961-b1e7-95f4a1d238c0
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/fix_med_severity_8agent.py
+
+--- THE FILE, IN FULL ---
+"""Push the 8-agent fixes to MED severity (was HIGH-only).
+
+MED findings indicate "likely defect, lower confidence" — applying the same
+normalized pattern-match fixer. Lower-confidence fixes ARE riskier (FP rate
+goes up), so this is a balanced choice: only auto-fix MED for the highest-
+specificity categories (PMID, NCT-mismatch, schema). Don't auto-fix MED for
+broader categories (effect-magnitude, copy-paste) — those benefit from
+human review.
+"""
+from __future__ import annotations
+import json, re, sys, io
+from pathlib import Path
+from collections import Counter
+
+if hasattr(sys.stdout, "buffer") and getattr(sys.stdout, "encoding", "").lower() != "utf-8":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+HERE = Path(__file__).resolve().parent.parent
+OUT = HERE / "outputs" / "extraction_audit"
+DRY = "--dry-run" in sys.argv
+
+
+# Categorizer (same as round-2 extended)
+def categorize(category, reason, issue="", evidence=""):
+    c = (category or "").lower(); r = (reason or "").lower()
+    i = (issue or "").lower(); e = (evidence or "").lower()
+    blob = " ".join([c, r, i, e])
+    if re.search(r'pmid|citation.?misatt|name.?collision', blob): return "PMID_NULL"
+    if re.search(r'fabricat.?trial|nct.?(acronym|mismatch)|fake.?nct|name.?is.?nct|consecutive.?nct|trial.?identity', blob):
+        return "NCT_NULL_KEY"
+    if re.search(r'rate.?in.?count|fractional.?event|estimand.?mismatch|schema|negative.?hr|estimandtype|estimand_type', blob):
+        return "SCHEMA_NULL"
+    return "SKIP_FOR_MED"  # don't auto-fix other MED categories
+
+
+def find_block(txt, nct):
+    key_pat = re.compile(r'(["\'])' + re.escape(nct) + r'\1\s*:\s*\{')
+    m = key_pat.search(txt)
+    if not m: return None
+    start = m.end(); depth = 1; i = start; in_str = None
+    while i < len(txt) and depth > 0:
+        ch = txt[i]
+        if in_str:
+            if ch == "\\": i += 2; continue
+            if ch == in_str: in_str = None
+        else:
+            if ch in ('"',"'"): in_str = ch
+            elif ch == "{": depth += 1
+            elif ch == "}":
+                depth -= 1
+                if depth == 0: return (m.start(), i+1, start, i)
+        i += 1
+    return None
+
+
+def null_field_in_block(txt, body_start, body_end, field):
+    body = txt[body_start:body_end]
+    new_body, n = re.subn(
+        r'((["\']?)' + re.escape(field) + r'\2\s*:\s*)(?:["\'][^"\']*["\']|[0-9.eE+-]+|true|false)(?=\s*[,}])',
+        r'\1null', body, flags=re.IGNORECASE)
+    if n == 0: return txt, False
+    return txt[:body_start] + new_body + txt[body_end:], True
+
+
+def null_key(txt, nct):
+    nulled = f"NULLED:{nct}"
+    if nulled in txt: return txt, 0
+    pat = re.compile(r'(["\'])(' + re.escape(nct) + r')(\1)(\s*:)')
+    new_txt, n = pat.subn(
+        lambda m: f'{m.group(1)}NULLED:{m.group(2)}{m.group(3)}{m.group(4)}', txt)
+    return new_txt, n
+
+
+agg = json.loads((OUT / "8agent_aggregate.json").read_text(encoding="utf-8"))
+n_pmid = n_nct = n_schema = n_skip = 0
+log = []
+
+for f in agg["findings"]:
+    if f.get("severity") != "MED": continue
+    rv = f.get("review", "")
+    nct = f.get("nct", "")
+    if not rv or not nct: continue
+    fix_type = categorize(f.get("category"), f.get("reason"),
+                          f.get("issue", ""), f.get("evidence", ""))
+    if fix_type == "SKIP_FOR_MED":
+        n_skip += 1
+        log.append({**f, "fix_type": fix_type, "status": "SKIPPED_MED_BROAD_CAT"})
+        continue
+    html_path = HERE / f"{rv}.html"
+    if not html_path.exists():
+        log.append({**f, "fix_type": fix_type, "status": "FILE_MISSING"})
+        continue
+    txt = html_path.read_text(encoding="utf-8")
+    if fix_type == "PMID_NULL":
+        block = find_block(txt, nct)
+        if not block:
+            log.append({**f, "fix_type": fix_type, "status": "BLOCK_NOT_FOUND"})
+            continue
+        _, _, bs, be = block
+        new_txt, ok = null_field_in_block(txt, bs, be, "pmid")
+        if ok:
+            if not DRY: html_path.write_text(new_txt, encoding="utf-8")
+            log.append({**f, "fix_type": fix_type, "status": "NULLED_PMID"})
+            n_pmid += 1
+        else:
+            log.append({**f, "fix_type": fix_type, "status": "PMID_ALREADY_NULL"})
+    elif fix_type == "NCT_NULL_KEY":
+        new_txt, n = null_key(txt, nct)
+        if n > 0:
+            if not DRY: html_path.write_text(new_txt, encoding="utf-8")
+            log.append({**f, "fix_type": fix_type, "status": "NULLED_KEY"})
+            n_nct += 1
+        elif f"NULLED:{nct}" in txt:
+            log.append({**f, "fix_type": fix_type, "status": "ALREADY_NULLED"})
+        else:
+            log.append({**f, "fix_type": fix_type, "status": "NCT_NOT_FOUND"})
+    elif fix_type == "SCHEMA_NULL":
+        block = find_block(txt, nct)
+        if not block: continue
+        _, _, bs, be = block
+        changes = 0
+        for fld in ("tE", "tN", "cE", "cN"):
+            new_txt, ok = null_field_in_block(txt, bs, be, fld)
+            if ok:
+                txt = new_txt
+                block = find_block(txt, nct)
+                if not block: break
+                _, _, bs, be = block
+                changes += 1
+        if changes:
+            if not DRY: html_path.write_text(txt, encoding="utf-8")
+            log.append({**f, "fix_type": fix_type, "status": "NULLED_EVENTS"})
+            n_schema += 1
+
+out_p = OUT / "med_severity_fixes.json"
+out_p.write_text(json.dumps(log, indent=2, ensure_ascii=False), encoding="utf-8")
+
+print(f"{'DRY-RUN ' if DRY else ''}MED-severity fixes:")
+print(f"  PMID nulls:    {n_pmid}")
+print(f"  NCT nulls:     {n_nct}")
+print(f"  Schema nulls:  {n_schema}")
+print(f"  Skipped (broad MED category, human review preferred): {n_skip}")
+print(f"\nLog → {out_p}")
+
+codex
+Defects found:
+
+- **CHECK CANNOT FAIL / STATUS CODE WRAPPER**: lines 90-92.  
+  Input: `8agent_aggregate.json = {"findings":[{"severity":"MED","review":"missing_review","nct":"NCT00000001","category":"pmid"}]}` and no `missing_review.html`.  
+  Consequence: it logs `FILE_MISSING`, prints counts, and exits 0, so a CI gate sees success while the finding was not fixed.
+
+- **STATUS CODE WRAPPER / SILENT DROP**: lines 117-119.  
+  Input: `{"findings":[{"severity":"MED","review":"r","nct":"NCT00000001","category":"schema"}]}` with `r.html` containing `{}`.  
+  Consequence: the schema finding is neither fixed nor logged, and the process still exits 0.
+
+- **IDEMPOTENCY GUARD SATISFIED BY OWN MARKER**: lines 66-68 and 113-114.  
+  Input: `txt='<!-- NULLED:NCT00000001 --><script>{"NCT00000001":{"pmid":"1"}}</script>'`, `nct='NCT00000001'`.  
+  Consequence: `null_key` skips the live key and reports `ALREADY_NULLED` because the marker appears anywhere in the file.
+
+- **SELECTOR OVERMATCHES WRONG FIELD FORM**: line 59.  
+  Input: schema MED finding for `NCT00000001`, with `r.html='{"NCT00000001":{late:5}}'`.  
+  Consequence: the `tE` pass rewrites `late:5` to `late:null` because the unquoted-field regex has no left boundary.
+
+- **NEGATION DROPPED**: line 29.  
+  Input: `{"severity":"MED","review":"r","nct":"NCT00000001","category":"","reason":"not fake nct; verified real"}` with `r.html='{"NCT00000001":{}}'`.  
+  Consequence: `categorize` returns `NCT_NULL_KEY` and nulls a key even though the reason text denies the condition.
+
+- **PROBE KEYED TO STRING A FIX REMOVES / ABSENT MISREPORTED**: lines 61 and 106.  
+  Input: PMID MED finding with `r.html='{"NCT00000001":{"title":"x"}}'`.  
+  Consequence: absence of a `pmid` field is logged as `PMID_ALREADY_NULL`, hiding a selector miss.
+
+No proven merged-cell/off-by-one defect in this file.  
+No proven CRLF-vs-LF text comparison defect in this file.  
+COULD NOT DETERMINE instrument-copy defects: missing caller/deploy contract.
+tokens used
+14,458
+Defects found:
+
+- **CHECK CANNOT FAIL / STATUS CODE WRAPPER**: lines 90-92.  
+  Input: `8agent_aggregate.json = {"findings":[{"severity":"MED","review":"missing_review","nct":"NCT00000001","category":"pmid"}]}` and no `missing_review.html`.  
+  Consequence: it logs `FILE_MISSING`, prints counts, and exits 0, so a CI gate sees success while the finding was not fixed.
+
+- **STATUS CODE WRAPPER / SILENT DROP**: lines 117-119.  
+  Input: `{"findings":[{"severity":"MED","review":"r","nct":"NCT00000001","category":"schema"}]}` with `r.html` containing `{}`.  
+  Consequence: the schema finding is neither fixed nor logged, and the process still exits 0.
+
+- **IDEMPOTENCY GUARD SATISFIED BY OWN MARKER**: lines 66-68 and 113-114.  
+  Input: `txt='<!-- NULLED:NCT00000001 --><script>{"NCT00000001":{"pmid":"1"}}</script>'`, `nct='NCT00000001'`.  
+  Consequence: `null_key` skips the live key and reports `ALREADY_NULLED` because the marker appears anywhere in the file.
+
+- **SELECTOR OVERMATCHES WRONG FIELD FORM**: line 59.  
+  Input: schema MED finding for `NCT00000001`, with `r.html='{"NCT00000001":{late:5}}'`.  
+  Consequence: the `tE` pass rewrites `late:5` to `late:null` because the unquoted-field regex has no left boundary.
+
+- **NEGATION DROPPED**: line 29.  
+  Input: `{"severity":"MED","review":"r","nct":"NCT00000001","category":"","reason":"not fake nct; verified real"}` with `r.html='{"NCT00000001":{}}'`.  
+  Consequence: `categorize` returns `NCT_NULL_KEY` and nulls a key even though the reason text denies the condition.
+
+- **PROBE KEYED TO STRING A FIX REMOVES / ABSENT MISREPORTED**: lines 61 and 106.  
+  Input: PMID MED finding with `r.html='{"NCT00000001":{"title":"x"}}'`.  
+  Consequence: absence of a `pmid` field is logged as `PMID_ALREADY_NULL`, hiding a selector miss.
+
+No proven merged-cell/off-by-one defect in this file.  
+No proven CRLF-vs-LF text comparison defect in this file.  
+COULD NOT DETERMINE instrument-copy defects: missing caller/deploy contract.

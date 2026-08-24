@@ -1,0 +1,549 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a0312d-0879-7f02-aa99-c36b014ea477
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/apply_cold_review_findings_2026_08_23.py
+
+--- THE FILE, IN FULL ---
+"""Three findings from a cold, blinded outside read, each verified against the object first.
+
+# no-control: an edit, not a detector. Its controls are asserted inline and the run REFUSES
+# rather than writes if any fails: each target field must currently hold the value being
+# corrected, the truncated text must be a literal PREFIX of the full text replacing it, and
+# no key may be lost.
+
+WHERE THESE CAME FROM. Two independent models were run over this lane's output, cold: a
+GPT-5 lane on the enumerations and a Gemini 3.1 Pro lane on the judgement-shaped questions.
+The Gemini lane was given evidence INLINE, with no file access. That produced both of the
+things a blinded read produces.
+
+FIRST, WHAT DID NOT SURVIVE, BECAUSE IT COST NOTHING AND IS THE MORE USEFUL HALF. The cold
+read returned six charges of fabrication against the attr-pn withdrawal text -- that the
+"77 patients" control count, `estimand_established`, the
+`estimand_established_does_not_cover_the_contrast_2026_08_20` field, NEURO-TTR as the origin
+of the borrowed group, and the Duarte network were all invented. Every one of those six is
+ON THE OBJECT and was checked there before being accepted or rejected. They were absent from
+the PACKET I built, not from the record.
+
+    AN INCOMPLETE EVIDENCE PACKET MANUFACTURES FALSE DEFECT CLASSES, and it manufactures
+    them in the most convincing possible form: a specific, quotable accusation of
+    fabrication. The blinding is what makes the read valuable and it is also what makes
+    this failure mode certain. The fix is not to stop blinding; it is to check every
+    finding against the artefact before acting on it, which is what this file records.
+
+NOW THE THREE THAT DID SURVIVE.
+
+1. THE WITHDRAWAL GIVES ONE GROUND WHERE THE OBJECT RECORDS TWO. The attr-pn withdrawal
+   rests entirely on borrowed controls. The object separately records, and has since
+   2026-08-20, that the pool combines three different drugs and that PATISIRAN IS THE
+   INTERVENTION IN ONE ROW AND THE COMPARATOR IN ANOTHER inside a single pooled number.
+   That is an independent ground, it does not depend on the comparator argument, and it is
+   arguably the more fundamental of the two. Omitting it understates the case in the
+   corpus's own favour, which is a failure in the same family as overstating it. Added --
+   and, as with the first ground, this is quoting a field rather than making a new finding.
+
+2. NEURO-TTRansform'S ARMS AND ITS DECLARED CONTRAST DESCRIBE DIFFERENT COMPARISONS, and
+   nothing said so. The object holds
+
+       arms                            [["Inotersen", "treatment"], ["Eplontersen", "control"]]
+       registration_declared_contrasts [["Eplontersen", "External Placebo"], ...]
+
+   Read cold that looks like corrupt data, and it was reported as such. It is not: the
+   trial randomises eplontersen against inotersen AND declares its primary comparison
+   against an external placebo group, so both records are true of it and they are true of
+   different things. That is exactly why the arm-role correction refused to touch this
+   trial. The two records are now stated side by side, so the next cold reader meets the
+   explanation rather than the apparent contradiction.
+
+3. A STORED JUSTIFICATION TRUNCATED AT EXACTLY 400 CHARACTERS, ON THE FLAGSHIP.
+   `arni-hfref`'s structured `grade.by_outcome.cvdeath_or_hfh_first.steps[risk_of_bias]
+   .reason` is 400 characters and ends mid-sentence: "...which is one of the two components.
+   In the same trial". The table's `basis_in_sources` for the same domain is 1,249
+   characters and the truncated value is a LITERAL PREFIX of it, so the repair is a lookup
+   with nothing to decide. Corpus-wide there is exactly one such value; the delivered ARNI
+   page renders the TABLE text and so never showed the broken sentence, which is why
+   nothing caught it.
+
+   ARNI IS ON `ssot/do_not_rebuild.py` AND IS NOT REBUILT HERE. The object is repaired; the
+   page is not touched. A reader sees no change today, and the next legitimate rebuild
+   carries a sentence that finishes.
+
+AND ONE DEFECT IN THIS SCRIPT, FOUND BY PLANTING AGAINST ITS OWN CONTROL. The prefix
+check was planted -- the full text altered so the truncated value was no longer its
+prefix -- and it refused correctly. But it refused AFTER attr-pn had already been
+written, because the writes were interleaved with the checks. A refusal that leaves
+half the work applied is worse than no refusal: the operator reads REFUSED and believes
+nothing happened. Every check for every object now runs first, and nothing is written
+until all of them have passed.
+"""
+from __future__ import annotations
+
+import io
+import json
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+TODAY = "2026-08-23"
+
+SECOND_GROUND = (
+    "AND A SECOND, INDEPENDENT GROUND THAT THIS OBJECT ALREADY RECORDED AND THIS "
+    "WITHDRAWAL DID NOT ORIGINALLY NAME. The pool also combines THREE DIFFERENT DRUGS -- "
+    "patisiran, vutrisiran and eplontersen -- and, in this object's own words from "
+    "2026-08-20, \"PATISIRAN IS THE INTERVENTION IN ONE ROW AND THE COMPARATOR IN ANOTHER "
+    "inside a single pooled number\". That does not depend on the comparator argument above "
+    "and would stand even if every contrast were randomised and concurrent. It is stated "
+    "here because a withdrawal that gives one ground where the record holds two understates "
+    "the case in the corpus's own favour, which is a failure of the same kind as "
+    "overstating it. Whether to pool ACROSS drugs is a method argument on which reasonable "
+    "people differ; whether one number may contain a drug as both intervention and "
+    "comparator is not.")
+
+NEURO_NOTE = (
+    "THESE TWO RECORDS DESCRIBE DIFFERENT COMPARISONS AND BOTH ARE TRUE OF THIS TRIAL. "
+    "`arms` records the randomised allocation -- inotersen against eplontersen. "
+    "`registration_declared_contrasts` records the comparison the registration declares for "
+    "its primary outcome -- eplontersen against an EXTERNAL placebo group, which is "
+    "NEURO-TTR's. A reader meeting only the two fields side by side reads them as a "
+    "contradiction or as corrupt data, and an outside model reading this object cold did "
+    "exactly that. Neither is corrupt. This is also precisely why the 2026-08-23 arm-role "
+    "correction, which corrected twelve arms in six other trials from their registrations, "
+    "REFUSED to touch this one: a correction driven by drug-name plausibility would have "
+    "inverted it, and a correction driven by the declared contrast would have overwritten a "
+    "true record of what was randomised.")
+
+
+def count_keys(x):
+    if isinstance(x, dict):
+        return len(x) + sum(count_keys(v) for v in x.values())
+    if isinstance(x, list):
+        return sum(count_keys(v) for v in x)
+    return 0
+
+
+def load(path):
+    raw = io.open(path, encoding="utf-8", newline="").read()
+    return raw, json.loads(raw)
+
+
+def save(path, raw, obj, before):
+    after = count_keys(obj)
+    if after < before:
+        sys.exit("REFUSED: %s lost keys (%d -> %d)." % (path, before, after))
+    nl = "\r\n" if "\r\n" in raw else "\n"
+    body = json.dumps(obj, indent=1, ensure_ascii=False) + "\n"
+    io.open(path, "w", encoding="utf-8", newline="").write(
+        body.replace("\n", nl) if nl != "\n" else body)
+    return after
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    apply = "--apply" in sys.argv
+
+    # ---- 1 and 2: attr-pn-review
+    p = os.path.join(REPO, "ssot", "attr-pn-review", "attr-pn-review.json")
+    raw, obj = load(p)
+    before = count_keys(obj)
+    pooled = ((obj["results"]["by_outcome"]).get("primary") or {}).get("pooled") or {}
+    if not pooled.get("withdrawn"):
+        sys.exit("REFUSED: attr-pn-review/primary is not withdrawn; the second ground "
+                 "would be attached to a live estimate.")
+    if "PATISIRAN IS THE INTERVENTION IN ONE ROW" not in json.dumps(obj, ensure_ascii=False):
+        sys.exit("REFUSED: the object does not record the mixed-drug finding this quotes. "
+                 "Adding it would be a NEW claim, not a quotation.")
+    if "three different drugs" in (pooled.get("withdrawn_reason") or "").lower():
+        sys.exit("REFUSED: the second ground is already recorded; re-running would stack it.")
+
+    neuro = None
+    for t in obj["inputs"]["trials"]:
+        if (t.get("nct") or t.get("id")) == "NCT04136184":
+            neuro = t
+    if neuro is None:
+        sys.exit("REFUSED: NEURO-TTRansform is not on this object.")
+    arms = [(a.get("label"), a.get("role")) for a in neuro.get("arms") or []]
+    if arms != [("Inotersen", "treatment"), ("Eplontersen", "control")]:
+        sys.exit("REFUSED: NEURO-TTRansform's arms are %r, not the pair this note explains."
+                 % (arms,))
+
+    print("")
+    print("1  attr-pn-review/primary -- second independent ground added to the withdrawal")
+    print("     the object records it at THE_POOL_IS_REFERRED_2026_08_20; this quotes it")
+    print("2  NEURO-TTRansform -- arms and declared contrast stated side by side")
+    print("     arms %r" % (arms,))
+    print("     declared %r" % (neuro.get("registration_declared_contrasts"),))
+    # NOTHING IS WRITTEN HERE. See the note above `main`: this run touches two objects
+    # and a refusal on the second used to leave the first already changed.
+    plan = [(p, raw, obj, before,
+             lambda: (pooled.__setitem__("and_a_second_independent_ground",
+                                         SECOND_GROUND),
+                      neuro.__setitem__("why_arms_and_declared_contrast_differ",
+                                        NEURO_NOTE)))]
+
+    # ---- 3: the arni truncation
+    p2 = os.path.join(REPO, "ssot", "arni-hfref", "arni-hfref.json")
+    raw2, obj2 = load(p2)
+    before2 = count_keys(obj2)
+    oid = "cvdeath_or_hfh_first"
+    steps = (((obj2.get("grade") or {}).get("by_outcome") or {}).get(oid) or {}).get("steps") or []
+    step = next((s for s in steps if s.get("domain") == "risk_of_bias"), None)
+    full = ((((obj2["results"]["by_outcome"][oid].get("grade") or {}).get("domains") or {})
+             .get("risk_of_bias") or {}).get("basis_in_sources") or "")
+    if step is None or not full:
+        sys.exit("REFUSED: arni-hfref does not hold both halves of this repair.")
+    cur = step.get("reason") or ""
+    if len(cur) != 400:
+        sys.exit("REFUSED: the structured reason is %d characters, not the 400 this repair "
+                 "is about. It has already been changed." % len(cur))
+    if not full.startswith(cur):
+        sys.exit("REFUSED: the truncated text is NOT a literal prefix of the full text, so "
+                 "this is not a truncation and restoring would be a rewrite, not a lookup.")
+
+    print("")
+    print("3  arni-hfref -- a structured justification truncated at exactly 400 characters")
+    print("     was  %d chars, ending %r" % (len(cur), cur[-42:]))
+    print("     full %d chars, and the truncated value is a literal prefix of it" % len(full))
+    print("     ARNI is on do_not_rebuild; the OBJECT is repaired and the PAGE is not touched")
+    def _write_arni():
+        step["reason"] = full
+        step["reason_restored_2026_08_23"] = (
+            "This reason was stored TRUNCATED AT EXACTLY 400 CHARACTERS and ended "
+            "mid-sentence, on the flagship. It is restored from "
+            "`results.by_outcome.%s.grade.domains.risk_of_bias.basis_in_sources`, of which "
+            "the truncated value was a literal prefix -- so the repair is a lookup and "
+            "nothing was decided. Found by an outside model reading the two GRADE locations "
+            "cold; no gate in this repository looks for a stored value that stops "
+            "mid-sentence. The delivered page renders the TABLE text and so never showed "
+            "the broken sentence, which is why it survived." % oid)
+    plan.append((p2, raw2, obj2, before2, _write_arni))
+
+    print("")
+    if not apply:
+        print("   dry run -- pass --apply to write")
+        return
+
+    # EVERY CHECK ABOVE HAS PASSED FOR EVERY OBJECT. Only now does anything change.
+    for path, r0, o0, b0, mutate in plan:
+        mutate()
+        n = save(path, r0, o0, b0)
+        print("   wrote %-46s keys %d -> %d"
+              % (os.path.relpath(path, REPO), b0, n))
+
+
+if __name__ == "__main__":
+    main()
+
+codex
+I’ll keep this to the requested defect-hunt format and only use what is in the packet. No external assumptions.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$path = '"'scripts/apply_cold_review_findings_2026_08_23.py'; if (Test-Path "'$path) { $i=0; Get-Content -LiteralPath $path | ForEach-Object { $i++; '"'{0,4}: {1}' -f "'$i, $_ } } else { '"'MISSING' }" in F:\rapidmeta-ssot-shell
+ succeeded in 2962ms:
+   1: """Three findings from a cold, blinded outside read, each verified against the object first.
+   2: 
+   3: # no-control: an edit, not a detector. Its controls are asserted inline and the run REFUSES
+   4: # rather than writes if any fails: each target field must currently hold the value being
+   5: # corrected, the truncated text must be a literal PREFIX of the full text replacing it, and
+   6: # no key may be lost.
+   7: 
+   8: WHERE THESE CAME FROM. Two independent models were run over this lane's output, cold: a
+   9: GPT-5 lane on the enumerations and a Gemini 3.1 Pro lane on the judgement-shaped questions.
+  10: The Gemini lane was given evidence INLINE, with no file access. That produced both of the
+  11: things a blinded read produces.
+  12: 
+  13: FIRST, WHAT DID NOT SURVIVE, BECAUSE IT COST NOTHING AND IS THE MORE USEFUL HALF. The cold
+  14: read returned six charges of fabrication against the attr-pn withdrawal text -- that the
+  15: "77 patients" control count, `estimand_established`, the
+  16: `estimand_established_does_not_cover_the_contrast_2026_08_20` field, NEURO-TTR as the origin
+  17: of the borrowed group, and the Duarte network were all invented. Every one of those six is
+  18: ON THE OBJECT and was checked there before being accepted or rejected. They were absent from
+  19: the PACKET I built, not from the record.
+  20: 
+  21:     AN INCOMPLETE EVIDENCE PACKET MANUFACTURES FALSE DEFECT CLASSES, and it manufactures
+  22:     them in the most convincing possible form: a specific, quotable accusation of
+  23:     fabrication. The blinding is what makes the read valuable and it is also what makes
+  24:     this failure mode certain. The fix is not to stop blinding; it is to check every
+  25:     finding against the artefact before acting on it, which is what this file records.
+  26: 
+  27: NOW THE THREE THAT DID SURVIVE.
+  28: 
+  29: 1. THE WITHDRAWAL GIVES ONE GROUND WHERE THE OBJECT RECORDS TWO. The attr-pn withdrawal
+  30:    rests entirely on borrowed controls. The object separately records, and has since
+  31:    2026-08-20, that the pool combines three different drugs and that PATISIRAN IS THE
+  32:    INTERVENTION IN ONE ROW AND THE COMPARATOR IN ANOTHER inside a single pooled number.
+  33:    That is an independent ground, it does not depend on the comparator argument, and it is
+  34:    arguably the more fundamental of the two. Omitting it understates the case in the
+  35:    corpus's own favour, which is a failure in the same family as overstating it. Added --
+  36:    and, as with the first ground, this is quoting a field rather than making a new finding.
+  37: 
+  38: 2. NEURO-TTRansform'S ARMS AND ITS DECLARED CONTRAST DESCRIBE DIFFERENT COMPARISONS, and
+  39:    nothing said so. The object holds
+  40: 
+  41:        arms                            [["Inotersen", "treatment"], ["Eplontersen", "control"]]
+  42:        registration_declared_contrasts [["Eplontersen", "External Placebo"], ...]
+  43: 
+  44:    Read cold that looks like corrupt data, and it was reported as such. It is not: the
+  45:    trial randomises eplontersen against inotersen AND declares its primary comparison
+  46:    against an external placebo group, so both records are true of it and they are true of
+  47:    different things. That is exactly why the arm-role correction refused to touch this
+  48:    trial. The two records are now stated side by side, so the next cold reader meets the
+  49:    explanation rather than the apparent contradiction.
+  50: 
+  51: 3. A STORED JUSTIFICATION TRUNCATED AT EXACTLY 400 CHARACTERS, ON THE FLAGSHIP.
+  52:    `arni-hfref`'s structured `grade.by_outcome.cvdeath_or_hfh_first.steps[risk_of_bias]
+  53:    .reason` is 400 characters and ends mid-sentence: "...which is one of the two components.
+  54:    In the same trial". The table's `basis_in_sources` for the same domain is 1,249
+  55:    characters and the truncated value is a LITERAL PREFIX of it, so the repair is a lookup
+  56:    with nothing to decide. Corpus-wide there is exactly one such value; the delivered ARNI
+  57:    page renders the TABLE text and so never showed the broken sentence, which is why
+  58:    nothing caught it.
+  59: 
+  60:    ARNI IS ON `ssot/do_not_rebuild.py` AND IS NOT REBUILT HERE. The object is repaired; the
+  61:    page is not touched. A reader sees no change today, and the next legitimate rebuild
+  62:    carries a sentence that finishes.
+  63: 
+  64: AND ONE DEFECT IN THIS SCRIPT, FOUND BY PLANTING AGAINST ITS OWN CONTROL. The prefix
+  65: check was planted -- the full text altered so the truncated value was no longer its
+  66: prefix -- and it refused correctly. But it refused AFTER attr-pn had already been
+  67: written, because the writes were interleaved with the checks. A refusal that leaves
+  68: half the work applied is worse than no refusal: the operator reads REFUSED and believes
+  69: nothing happened. Every check for every object now runs first, and nothing is written
+  70: until all of them have passed.
+  71: """
+  72: from __future__ import annotations
+  73: 
+  74: import io
+  75: import json
+  76: import os
+  77: import sys
+  78: 
+  79: REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+  80: TODAY = "2026-08-23"
+  81: 
+  82: SECOND_GROUND = (
+  83:     "AND A SECOND, INDEPENDENT GROUND THAT THIS OBJECT ALREADY RECORDED AND THIS "
+  84:     "WITHDRAWAL DID NOT ORIGINALLY NAME. The pool also combines THREE DIFFERENT DRUGS -- "
+  85:     "patisiran, vutrisiran and eplontersen -- and, in this object's own words from "
+  86:     "2026-08-20, \"PATISIRAN IS THE INTERVENTION IN ONE ROW AND THE COMPARATOR IN ANOTHER "
+  87:     "inside a single pooled number\". That does not depend on the comparator argument above "
+  88:     "and would stand even if every contrast were randomised and concurrent. It is stated "
+  89:     "here because a withdrawal that gives one ground where the record holds two understates "
+  90:     "the case in the corpus's own favour, which is a failure of the same kind as "
+  91:     "overstating it. Whether to pool ACROSS drugs is a method argument on which reasonable "
+  92:     "people differ; whether one number may contain a drug as both intervention and "
+  93:     "comparator is not.")
+  94: 
+  95: NEURO_NOTE = (
+  96:     "THESE TWO RECORDS DESCRIBE DIFFERENT COMPARISONS AND BOTH ARE TRUE OF THIS TRIAL. "
+  97:     "`arms` records the randomised allocation -- inotersen against eplontersen. "
+  98:     "`registration_declared_contrasts` records the comparison the registration declares for "
+  99:     "its primary outcome -- eplontersen against an EXTERNAL placebo group, which is "
+ 100:     "NEURO-TTR's. A reader meeting only the two fields side by side reads them as a "
+ 101:     "contradiction or as corrupt data, and an outside model reading this object cold did "
+ 102:     "exactly that. Neither is corrupt. This is also precisely why the 2026-08-23 arm-role "
+ 103:     "correction, which corrected twelve arms in six other trials from their registrations, "
+ 104:     "REFUSED to touch this one: a correction driven by drug-name plausibility would have "
+ 105:     "inverted it, and a correction driven by the declared contrast would have overwritten a "
+ 106:     "true record of what was randomised.")
+ 107: 
+ 108: 
+ 109: def count_keys(x):
+ 110:     if isinstance(x, dict):
+ 111:         return len(x) + sum(count_keys(v) for v in x.values())
+ 112:     if isinstance(x, list):
+ 113:         return sum(count_keys(v) for v in x)
+ 114:     return 0
+ 115: 
+ 116: 
+ 117: def load(path):
+ 118:     raw = io.open(path, encoding="utf-8", newline="").read()
+ 119:     return raw, json.loads(raw)
+ 120: 
+ 121: 
+ 122: def save(path, raw, obj, before):
+ 123:     after = count_keys(obj)
+ 124:     if after < before:
+ 125:         sys.exit("REFUSED: %s lost keys (%d -> %d)." % (path, before, after))
+ 126:     nl = "\r\n" if "\r\n" in raw else "\n"
+ 127:     body = json.dumps(obj, indent=1, ensure_ascii=False) + "\n"
+ 128:     io.open(path, "w", encoding="utf-8", newline="").write(
+ 129:         body.replace("\n", nl) if nl != "\n" else body)
+ 130:     return after
+ 131: 
+ 132: 
+ 133: def main():
+ 134:     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+ 135:     apply = "--apply" in sys.argv
+ 136: 
+ 137:     # ---- 1 and 2: attr-pn-review
+ 138:     p = os.path.join(REPO, "ssot", "attr-pn-review", "attr-pn-review.json")
+ 139:     raw, obj = load(p)
+ 140:     before = count_keys(obj)
+ 141:     pooled = ((obj["results"]["by_outcome"]).get("primary") or {}).get("pooled") or {}
+ 142:     if not pooled.get("withdrawn"):
+ 143:         sys.exit("REFUSED: attr-pn-review/primary is not withdrawn; the second ground "
+ 144:                  "would be attached to a live estimate.")
+ 145:     if "PATISIRAN IS THE INTERVENTION IN ONE ROW" not in json.dumps(obj, ensure_ascii=False):
+ 146:         sys.exit("REFUSED: the object does not record the mixed-drug finding this quotes. "
+ 147:                  "Adding it would be a NEW claim, not a quotation.")
+ 148:     if "three different drugs" in (pooled.get("withdrawn_reason") or "").lower():
+ 149:         sys.exit("REFUSED: the second ground is already recorded; re-running would stack it.")
+ 150: 
+ 151:     neuro = None
+ 152:     for t in obj["inputs"]["trials"]:
+ 153:         if (t.get("nct") or t.get("id")) == "NCT04136184":
+ 154:             neuro = t
+ 155:     if neuro is None:
+ 156:         sys.exit("REFUSED: NEURO-TTRansform is not on this object.")
+ 157:     arms = [(a.get("label"), a.get("role")) for a in neuro.get("arms") or []]
+ 158:     if arms != [("Inotersen", "treatment"), ("Eplontersen", "control")]:
+ 159:         sys.exit("REFUSED: NEURO-TTRansform's arms are %r, not the pair this note explains."
+ 160:                  % (arms,))
+ 161: 
+ 162:     print("")
+ 163:     print("1  attr-pn-review/primary -- second independent ground added to the withdrawal")
+ 164:     print("     the object records it at THE_POOL_IS_REFERRED_2026_08_20; this quotes it")
+ 165:     print("2  NEURO-TTRansform -- arms and declared contrast stated side by side")
+ 166:     print("     arms %r" % (arms,))
+ 167:     print("     declared %r" % (neuro.get("registration_declared_contrasts"),))
+ 168:     # NOTHING IS WRITTEN HERE. See the note above `main`: this run touches two objects
+ 169:     # and a refusal on the second used to leave the first already changed.
+ 170:     plan = [(p, raw, obj, before,
+ 171:              lambda: (pooled.__setitem__("and_a_second_independent_ground",
+ 172:                                          SECOND_GROUND),
+ 173:                       neuro.__setitem__("why_arms_and_declared_contrast_differ",
+ 174:                                         NEURO_NOTE)))]
+ 175: 
+ 176:     # ---- 3: the arni truncation
+ 177:     p2 = os.path.join(REPO, "ssot", "arni-hfref", "arni-hfref.json")
+ 178:     raw2, obj2 = load(p2)
+ 179:     before2 = count_keys(obj2)
+ 180:     oid = "cvdeath_or_hfh_first"
+ 181:     steps = (((obj2.get("grade") or {}).get("by_outcome") or {}).get(oid) or {}).get("steps") or []
+ 182:     step = next((s for s in steps if s.get("domain") == "risk_of_bias"), None)
+ 183:     full = ((((obj2["results"]["by_outcome"][oid].get("grade") or {}).get("domains") or {})
+ 184:              .get("risk_of_bias") or {}).get("basis_in_sources") or "")
+ 185:     if step is None or not full:
+ 186:         sys.exit("REFUSED: arni-hfref does not hold both halves of this repair.")
+ 187:     cur = step.get("reason") or ""
+ 188:     if len(cur) != 400:
+ 189:         sys.exit("REFUSED: the structured reason is %d characters, not the 400 this repair "
+ 190:                  "is about. It has already been changed." % len(cur))
+ 191:     if not full.startswith(cur):
+ 192:         sys.exit("REFUSED: the truncated text is NOT a literal prefix of the full text, so "
+ 193:                  "this is not a truncation and restoring would be a rewrite, not a lookup.")
+ 194: 
+ 195:     print("")
+ 196:     print("3  arni-hfref -- a structured justification truncated at exactly 400 characters")
+ 197:     print("     was  %d chars, ending %r" % (len(cur), cur[-42:]))
+ 198:     print("     full %d chars, and the truncated value is a literal prefix of it" % len(full))
+ 199:     print("     ARNI is on do_not_rebuild; the OBJECT is repaired and the PAGE is not touched")
+ 200:     def _write_arni():
+ 201:         step["reason"] = full
+ 202:         step["reason_restored_2026_08_23"] = (
+ 203:             "This reason was stored TRUNCATED AT EXACTLY 400 CHARACTERS and ended "
+ 204:             "mid-sentence, on the flagship. It is restored from "
+ 205:             "`results.by_outcome.%s.grade.domains.risk_of_bias.basis_in_sources`, of which "
+ 206:             "the truncated value was a literal prefix -- so the repair is a lookup and "
+ 207:             "nothing was decided. Found by an outside model reading the two GRADE locations "
+ 208:             "cold; no gate in this repository looks for a stored value that stops "
+ 209:             "mid-sentence. The delivered page renders the TABLE text and so never showed "
+ 210:             "the broken sentence, which is why it survived." % oid)
+ 211:     plan.append((p2, raw2, obj2, before2, _write_arni))
+ 212: 
+ 213:     print("")
+ 214:     if not apply:
+ 215:         print("   dry run -- pass --apply to write")
+ 216:         return
+ 217: 
+ 218:     # EVERY CHECK ABOVE HAS PASSED FOR EVERY OBJECT. Only now does anything change.
+ 219:     for path, r0, o0, b0, mutate in plan:
+ 220:         mutate()
+ 221:         n = save(path, r0, o0, b0)
+ 222:         print("   wrote %-46s keys %d -> %d"
+ 223:               % (os.path.relpath(path, REPO), b0, n))
+ 224: 
+ 225: 
+ 226: if __name__ == "__main__":
+ 227:     main()
+
+codex
+- **NEGATION DROPPED**, line 145.  
+  Exact `attr-pn-review.json` input: `{"results":{"by_outcome":{"primary":{"pooled":{"withdrawn":true,"withdrawn_reason":"borrowed controls only"}}}},"inputs":{"trials":[{"nct":"NCT04136184","arms":[{"label":"Inotersen","role":"treatment"},{"label":"Eplontersen","role":"control"}]}]},"THE_POOL_IS_REFERRED_2026_08_20":"It is false that PATISIRAN IS THE INTERVENTION IN ONE ROW AND THE COMPARATOR IN ANOTHER inside a single pooled number."}`  
+  Consequence: the quotation guard accepts a denial as evidence for the positive claim.
+
+- **Idempotency guard satisfied by its own marker**, lines 145 and 148.  
+  Exact input: same object shape as above, but omit `THE_POOL_IS_REFERRED_2026_08_20` and set `pooled.and_a_second_independent_ground` to the exact `SECOND_GROUND` string from lines 82-93 while leaving `withdrawn_reason` as `"borrowed controls only"`.  
+  Consequence: line 145 passes by reading the script’s own previously written field, while line 148 does not detect that the second ground is already recorded.
+
+- **Check does not prove the asserted no-key-loss control**, line 124.  
+  Exact function input: original key count `before=2` from `{"lost":1,"kept":2}`, then call `save(path, raw, {"kept":2,"added":3}, before=2)`.  
+  Consequence: one key is lost, but the check passes because only total key count is compared.
+
+- **Values changed by CRLF/LF handling**, line 126.  
+  Exact `raw` input to `save`: `"{\r\n \"a\": 1,\n \"b\": 2\r\n}\n"` with `obj={"a":1,"b":2}`.  
+  Consequence: the file is rewritten with all CRLF line endings, creating a change unrelated to JSON content.
+
+No proven merged-cell/off-by-one, zero-vs-absent numeric, wrapper-status-code, or different-copy instrument defect in this file alone.  
+COULD NOT DETERMINE selector-keyed-to-corpus-form defects without the actual `attr-pn-review.json` and `arni-hfref.json` files.
+tokens used
+22,518
+- **NEGATION DROPPED**, line 145.  
+  Exact `attr-pn-review.json` input: `{"results":{"by_outcome":{"primary":{"pooled":{"withdrawn":true,"withdrawn_reason":"borrowed controls only"}}}},"inputs":{"trials":[{"nct":"NCT04136184","arms":[{"label":"Inotersen","role":"treatment"},{"label":"Eplontersen","role":"control"}]}]},"THE_POOL_IS_REFERRED_2026_08_20":"It is false that PATISIRAN IS THE INTERVENTION IN ONE ROW AND THE COMPARATOR IN ANOTHER inside a single pooled number."}`  
+  Consequence: the quotation guard accepts a denial as evidence for the positive claim.
+
+- **Idempotency guard satisfied by its own marker**, lines 145 and 148.  
+  Exact input: same object shape as above, but omit `THE_POOL_IS_REFERRED_2026_08_20` and set `pooled.and_a_second_independent_ground` to the exact `SECOND_GROUND` string from lines 82-93 while leaving `withdrawn_reason` as `"borrowed controls only"`.  
+  Consequence: line 145 passes by reading the script’s own previously written field, while line 148 does not detect that the second ground is already recorded.
+
+- **Check does not prove the asserted no-key-loss control**, line 124.  
+  Exact function input: original key count `before=2` from `{"lost":1,"kept":2}`, then call `save(path, raw, {"kept":2,"added":3}, before=2)`.  
+  Consequence: one key is lost, but the check passes because only total key count is compared.
+
+- **Values changed by CRLF/LF handling**, line 126.  
+  Exact `raw` input to `save`: `"{\r\n \"a\": 1,\n \"b\": 2\r\n}\n"` with `obj={"a":1,"b":2}`.  
+  Consequence: the file is rewritten with all CRLF line endings, creating a change unrelated to JSON content.
+
+No proven merged-cell/off-by-one, zero-vs-absent numeric, wrapper-status-code, or different-copy instrument defect in this file alone.  
+COULD NOT DETERMINE selector-keyed-to-corpus-form defects without the actual `attr-pn-review.json` and `arni-hfref.json` files.

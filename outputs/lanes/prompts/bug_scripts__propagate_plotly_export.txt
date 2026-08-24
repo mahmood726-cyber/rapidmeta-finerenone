@@ -1,0 +1,139 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/propagate_plotly_export.py
+
+--- THE FILE, IN FULL ---
+#!/usr/bin/env python3
+# sentinel:skip-file — developer tool; hardcoded ROOT is intentional (local Finrenone checkout only)
+"""Inject the Plotly SVG + 300-DPI PNG export modebar buttons into every
+RapidMeta _REVIEW.html. Idempotent — skips if `__rmExportPatched` already
+present. Anchors on `const KNOWN_TRIAL_ALIASES = {` which is universal across
+all apps in the portfolio.
+
+Usage:
+    python scripts/propagate_plotly_export.py --dry-run
+    python scripts/propagate_plotly_export.py --apply
+"""
+import argparse, pathlib, sys
+
+ROOT = pathlib.Path(__file__).resolve().parent.parent
+
+ANCHOR = "        const KNOWN_TRIAL_ALIASES = {"
+
+PATCH = (
+    "        /* ── Plotly export hook: every chart gets SVG + 300-DPI PNG buttons in\n"
+    "           the modebar so reviewers can grab journal-ready figures. The apps\n"
+    "           historically passed `displayModeBar: false` to suppress the toolbar;\n"
+    "           we override that so our buttons are always visible. SVG is the\n"
+    "           lossless path for journals that demand TIFF/EPS — convert in\n"
+    "           Inkscape/Illustrator. ── */\n"
+    "        (function installPlotlyExportButtons() {\n"
+    "            if (typeof Plotly === 'undefined' || Plotly.__rmExportPatched) return;\n"
+    "            const _origNewPlot = Plotly.newPlot;\n"
+    "            const _origReact   = Plotly.react;\n"
+    "            const buildButtons = (gd) => ([\n"
+    "                {\n"
+    "                    name: 'Download SVG (lossless)',\n"
+    "                    title: 'Download SVG (lossless — best for journal submission)',\n"
+    "                    icon: Plotly.Icons.disk,\n"
+    "                    click: function (g) {\n"
+    "                        const fn = (g && g.id) ? g.id.replace(/[^a-z0-9_-]+/gi, '_') : 'figure';\n"
+    "                        Plotly.downloadImage(g, { format: 'svg', filename: fn, height: g.layout?.height || 600, width: g.layout?.width || 900 });\n"
+    "                    }\n"
+    "                },\n"
+    "                {\n"
+    "                    name: 'Download PNG @ 300 DPI',\n"
+    "                    title: 'Download PNG at ~300 DPI (4x scale) — journal-quality raster',\n"
+    "                    icon: Plotly.Icons.camera,\n"
+    "                    click: function (g) {\n"
+    "                        const fn = (g && g.id) ? g.id.replace(/[^a-z0-9_-]+/gi, '_') : 'figure';\n"
+    "                        Plotly.downloadImage(g, { format: 'png', scale: 4, filename: fn, height: g.layout?.height || 600, width: g.layout?.width || 900 });\n"
+    "                    }\n"
+    "                }\n"
+    "            ]);\n"
+    "            const enrich = (cfg) => Object.assign({}, cfg || {}, {\n"
+    "                displayModeBar: true,             /* override any displayModeBar:false in caller */\n"
+    "                displaylogo: false,\n"
+    "                modeBarButtonsToRemove: ['toImage'], /* drop Plotly's default low-res PNG; ours replace it */\n"
+    "                modeBarButtonsToAdd: buildButtons(),\n"
+    "                responsive: cfg?.responsive !== false\n"
+    "            });\n"
+    "            Plotly.newPlot = function (gd, data, layout, config) { return _origNewPlot.call(this, gd, data, layout, enrich(config)); };\n"
+    "            Plotly.react   = function (gd, data, layout, config) { return _origReact.call(this, gd, data, layout, enrich(config)); };\n"
+    "            Plotly.__rmExportPatched = true;\n"
+    "        })();\n"
+    "\n"
+)
+
+
+def apply_to_file(path: pathlib.Path, dry_run: bool) -> str:
+    text = path.read_text(encoding="utf-8", newline="")
+    if "__rmExportPatched" in text:
+        return f"SKIP {path.name}: already-migrated"
+    crlf = "\r\n" in text
+    work = text.replace("\r\n", "\n") if crlf else text
+    if work.count(ANCHOR) != 1:
+        return f"FAIL {path.name}: anchor matched {work.count(ANCHOR)} times (expected 1)"
+    work = work.replace(ANCHOR, PATCH + ANCHOR, 1)
+    if not dry_run:
+        out = work.replace("\n", "\r\n") if crlf else work
+        path.write_text(out, encoding="utf-8", newline="")
+    return f"OK   {path.name}: +{len(work) - len(text.replace(chr(13)+chr(10), chr(10)) if crlf else text)} chars"
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument("--apply", action="store_true")
+    args = ap.parse_args()
+    if not (args.dry_run or args.apply):
+        ap.error("pass --dry-run or --apply")
+
+    targets = sorted(ROOT.glob("*_REVIEW.html"))
+    ok = skip = fail = 0
+    for p in targets:
+        result = apply_to_file(p, dry_run=args.dry_run)
+        if result.startswith("OK"): ok += 1
+        elif result.startswith("SKIP"): skip += 1
+        else: fail += 1
+        if result.startswith(("FAIL", "SKIP")) or args.dry_run:
+            print(result)
+    print(f"\nSummary: {len(targets)} files | {ok} migrate | {skip} skip | {fail} fail | mode={'dry-run' if args.dry_run else 'apply'}")
+    if fail:
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()

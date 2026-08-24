@@ -1,0 +1,236 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a03205-e563-7b90-bf96-7528b2034e65
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/page_family_and_emptiness.py
+
+--- THE FILE, IN FULL ---
+"""Classify every page by FAMILY first, then by whether it is an empty template.
+
+WHY FAMILY FIRST. A first attempt counted decimal values in static markup and reported
+936 of 944 pages empty -- 99.2%. IT WAS NOT REPORTED, because two flagged pages had
+completely different shapes and the heuristic binned them identically. Checking them showed
+why: they are DIFFERENT PAGE FAMILIES, not the same family in different states.
+
+  V2 SHELL   `<tbody id="...">` slots, literal `>--<` value cells, and the marker
+             "No searches recorded yet. Run an acquisition from the Search tab".
+             GEPOTIDACIN_URINARY_TRACT_AUTO_FULL_REVIEW.html -- LIVE-VERIFIED EMPTY on
+             2026-08-18 by rendering, not by regex.
+  V1 SHELL   none of those; carries `id="extract-pooled-result"`.
+             ABLATION_AF_REVIEW.html -- the NEGATIVE CONTROL.
+
+FOUNDING FIXTURES, and they are live-verified rather than assumed: GEPOTIDACIN and
+CEFTAROLINE were both fetched from the published site and both render `--` in every value
+field. ABLATION_AF_REVIEW is the negative control for the other family.
+
+WHAT "EMPTY" MEANS HERE, stated because the word did the damage last time: a V2-shell page
+is empty when its value cells hold the literal placeholder and its table bodies hold no
+rows. THAT IS A STATEMENT ABOUT THE SHELL, NOT ABOUT WHETHER A READER SEES NUMBERS -- a
+page could in principle be filled by JavaScript at load. The two live checks are what rule
+that out for the V2 family, and they cover two pages, not the family.
+
+THIS IS A TRIAGE. A V1 page reporting "not empty" has NOT been shown to contain correct
+values, or any values -- only that it does not carry the V2 empty markers.
+"""
+from __future__ import annotations
+import io
+import json
+import os
+import re
+import sys
+
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+NO_SEARCH = re.compile(r"No searches recorded yet")
+PLACEHOLDER = re.compile(r">\s*--\s*<")
+TBODY_SLOT = re.compile(rb"<tbody[^>]*id=\"([^\"]+)\"")
+V1_MARK = re.compile(r'id="extract-pooled-result"')
+ROW_IN = re.compile(r"<tr[\s>]")
+# a single colspan row saying "No ..." is how the V2 shell RENDERS EMPTINESS
+EMPTY_STATE_ROW = re.compile(r"colspan=\"\d+\"[^>]*>\s*No\s", re.I)
+
+
+def classify(html: str):
+    v2 = bool(NO_SEARCH.search(html)) or len(PLACEHOLDER.findall(html)) >= 10
+    v1 = bool(V1_MARK.search(html))
+    if v2:
+        fam = "V2_SHELL"
+    elif v1:
+        fam = "V1_SHELL"
+    else:
+        fam = "OTHER"
+    ph = len(PLACEHOLDER.findall(html))
+    slots = TBODY_SLOT.findall(html.encode("utf-8", "replace"))
+    # rows inside the named tbody slots -- a filled V2 page would carry them
+    # COUNT ONLY DATA ROWS. The V2 shell fills an empty table with a single
+    # colspan row reading "No data ..." -- that is an EMPTINESS MARKER, and the
+    # first version counted it as content, which made the detector disagree with
+    # two live-verified empty fixtures. The fixture gate caught it.
+    rows = 0
+    for m in re.finditer(r"<tbody[^>]*id=\"[^\"]+\"[^>]*>(.*?)</tbody>", html, re.S):
+        for tr in re.finditer(r"<tr[\s>].*?</tr>", m.group(1), re.S):
+            if EMPTY_STATE_ROW.search(tr.group(0)):
+                continue
+            rows += 1
+    empty = None
+    if fam == "V2_SHELL":
+        empty = (ph >= 10 and rows == 0)
+    return fam, {"placeholder_cells": ph, "tbody_slots": len(slots),
+                 "rows_in_slots": rows, "empty": empty}
+
+
+def main() -> int:
+    pm = set(json.load(io.open(os.path.join(REPO, "ssot", "PAGE_MAP.json"),
+                               encoding="utf-8")))
+    fams, empties, mapped_empty = {}, [], 0
+    pages = [f for f in sorted(os.listdir(REPO))
+             if f.endswith(".html") and os.path.getsize(os.path.join(REPO, f)) > 10000]
+    for p in pages:
+        html = io.open(os.path.join(REPO, p), encoding="utf-8", errors="replace").read()
+        fam, d = classify(html)
+        fams[fam] = fams.get(fam, 0) + 1
+        if d["empty"]:
+            empties.append(p)
+            if p in pm:
+                mapped_empty += 1
+
+    print("pages over 10KB: %d" % len(pages))
+    print()
+    print("=== FAMILY")
+    for k, v in sorted(fams.items(), key=lambda x: -x[1]):
+        print("    %-12s %4d" % (k, v))
+    print()
+    print("=== EMPTY, within V2_SHELL only")
+    print("    V2 pages:            %d" % fams.get("V2_SHELL", 0))
+    print("    of those, EMPTY:     %d" % len(empties))
+    print("    empty AND mapped to an object: %d" % mapped_empty)
+    print()
+    print("    EMPTINESS IS NOT ASSESSED FOR V1_SHELL OR OTHER. Those families carry")
+    print("    neither the placeholder cells nor the slot tables this detects, so the")
+    print("    question is not answered for them and is NOT a pass.")
+    print()
+    # fixture check -- the detector must agree with what was verified live
+    fx = [("GEPOTIDACIN_URINARY_TRACT_AUTO_FULL_REVIEW.html", "V2_SHELL", True),
+          ("CEFTAROLINE_AUTO_FULL_REVIEW.html", "V2_SHELL", True),
+          ("ABLATION_AF_REVIEW.html", "V1_SHELL", None)]
+    print("=== FIXTURES (two live-verified empty, one negative control)")
+    ok = True
+    for name, want_fam, want_empty in fx:
+        fp = os.path.join(REPO, name)
+        if not os.path.exists(fp):
+            print("    MISSING %s" % name)
+            ok = False
+            continue
+        fam, d = classify(io.open(fp, encoding="utf-8", errors="replace").read())
+        good = (fam == want_fam and d["empty"] is want_empty)
+        ok &= good
+        print("    %-48s %-9s empty=%-5s %s"
+              % (name[:47], fam, d["empty"], "ok" if good else "MISMATCH"))
+    json.dump(empties, io.open(os.path.join(REPO, ".empty-v2-pages.json"), "w",
+                               encoding="utf-8"), indent=1)
+    print()
+    print("detector agrees with the live-verified fixtures." if ok else
+          "DETECTOR DISAGREES WITH A FIXTURE -- do not use its numbers.")
+    return 0 if ok else 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+
+codex
+Using pasted-file line numbers:
+
+- **Line 67: selector keyed to double-quoted `id` only.**  
+  Exact input: `classify("<td>--</td>"*10 + "<tbody id='a'><tr><td>42</td></tr></tbody>")`  
+  Consequence: `rows_in_slots` is `0` and `empty=True`, so valid HTML with a real row is classified empty.
+
+- **Line 67: selector matches `data-id` as if it were `id`.**  
+  Exact input: `classify("<td>--</td>"*10 + '<tbody data-id="a"><tr><td>42</td></tr></tbody>')`  
+  Consequence: a non-slot `<tbody>` is counted as a named slot, so unrelated table rows can make a V2 shell look non-empty.
+
+- **Lines 47 and 69: merged-cell empty-row check drops real rows beginning with `No `.**  
+  Exact input: `classify("<td>--</td>"*10 + '<tbody id="a"><tr><td colspan="2">No adverse events</td></tr></tbody>')`  
+  Consequence: the row is skipped and `empty=True`, conflating a real merged-cell row with the “No data” empty marker.
+
+- **Lines 42, 51, and 74: placeholder probe is not scoped to value cells.**  
+  Exact input: `classify('<script>const s=">--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<";</script>')`  
+  Consequence: inert script text alone produces `V2_SHELL` and `empty=True`.
+
+- **Lines 67-74: instrument reads static markup, not rendered DOM.**  
+  Exact input: `classify("<td>--</td>"*10 + '<tbody id="a"></tbody><script>document.getElementById("a").innerHTML="<tr><td>42</td></tr>"</script>')`  
+  Consequence: reports `empty=True` even though the page would render a row after JavaScript execution.
+
+No proven defect from the pasted file for: cannot-fail check, fix-string probe, own-comment idempotency guard, CRLF text comparison, zero-conflated-with-absent, negation-dropped count extraction, or wrapper-status reporting.
+
+COULD NOT DETERMINE repository-corpus frequency: missing actual `.html` corpus, `ssot/PAGE_MAP.json`, callers, and served/rendered pages.
+tokens used
+13,338
+Using pasted-file line numbers:
+
+- **Line 67: selector keyed to double-quoted `id` only.**  
+  Exact input: `classify("<td>--</td>"*10 + "<tbody id='a'><tr><td>42</td></tr></tbody>")`  
+  Consequence: `rows_in_slots` is `0` and `empty=True`, so valid HTML with a real row is classified empty.
+
+- **Line 67: selector matches `data-id` as if it were `id`.**  
+  Exact input: `classify("<td>--</td>"*10 + '<tbody data-id="a"><tr><td>42</td></tr></tbody>')`  
+  Consequence: a non-slot `<tbody>` is counted as a named slot, so unrelated table rows can make a V2 shell look non-empty.
+
+- **Lines 47 and 69: merged-cell empty-row check drops real rows beginning with `No `.**  
+  Exact input: `classify("<td>--</td>"*10 + '<tbody id="a"><tr><td colspan="2">No adverse events</td></tr></tbody>')`  
+  Consequence: the row is skipped and `empty=True`, conflating a real merged-cell row with the “No data” empty marker.
+
+- **Lines 42, 51, and 74: placeholder probe is not scoped to value cells.**  
+  Exact input: `classify('<script>const s=">--<>--<>--<>--<>--<>--<>--<>--<>--<>--<>--<";</script>')`  
+  Consequence: inert script text alone produces `V2_SHELL` and `empty=True`.
+
+- **Lines 67-74: instrument reads static markup, not rendered DOM.**  
+  Exact input: `classify("<td>--</td>"*10 + '<tbody id="a"></tbody><script>document.getElementById("a").innerHTML="<tr><td>42</td></tr>"</script>')`  
+  Consequence: reports `empty=True` even though the page would render a row after JavaScript execution.
+
+No proven defect from the pasted file for: cannot-fail check, fix-string probe, own-comment idempotency guard, CRLF text comparison, zero-conflated-with-absent, negation-dropped count extraction, or wrapper-status reporting.
+
+COULD NOT DETERMINE repository-corpus frequency: missing actual `.html` corpus, `ssot/PAGE_MAP.json`, callers, and served/rendered pages.

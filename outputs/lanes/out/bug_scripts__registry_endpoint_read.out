@@ -1,0 +1,175 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a0324d-6fdd-7aa1-ba90-b46d47c4e2bb
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/registry_endpoint_read.py
+
+--- THE FILE, IN FULL ---
+"""REGISTRY ENDPOINT READ -- fetch each trial's outcome DEFINITION, word for word.
+
+WHY THIS EXISTS
+    SGLT2_HF pooled four trials as one estimand because the object recorded
+    RESULT sentences as provenance and no endpoint definition at all. The fix is
+    not a better gate: it is reading what the registry says was COUNTED, from the
+    registry, before anything is pooled.
+
+WHAT THIS TOOL DOES NOT ESTABLISH -- written in advance
+    - NOT that the registry entry is correct, or that it matches the publication.
+      Registries are amended; a trial whose endpoint CHANGED shows the amended
+      text and this tool cannot see the history. Where a publication says the
+      endpoint was changed during the trial, both must be read.
+    - NOT that identical wording licenses a pool. Populations, follow-up and
+      analysis sets can still differ.
+    - NOT anything at all when the fetch fails. A failed fetch prints FETCH
+      FAILED and exits non-zero; it never prints an empty definition, because an
+      empty field beside a trial name reads as "no endpoint" rather than "not
+      asked", and this project has already shipped that confusion once.
+
+USAGE  python scripts/registry_endpoint_read.py NCT03521934 NCT03315143 ...
+"""
+from __future__ import annotations
+import io, json, sys, urllib.request, urllib.error
+
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+API = ("https://clinicaltrials.gov/api/v2/studies/%s"
+       "?fields=protocolSection.identificationModule,"
+       "protocolSection.outcomesModule,protocolSection.designModule,"
+       "protocolSection.armsInterventionsModule,protocolSection.statusModule")
+
+
+def fetch(nct):
+    req = urllib.request.Request(API % nct, headers={"User-Agent": "rapidmeta-registry-read"})
+    with urllib.request.urlopen(req, timeout=60) as r:
+        return json.loads(r.read().decode("utf-8"))
+
+
+def main():
+    ncts = [a for a in sys.argv[1:] if a.upper().startswith("NCT")]
+    if not ncts:
+        print("usage: registry_endpoint_read.py NCT........ [NCT........ ...]",
+              file=sys.stderr)
+        return 2
+    failed = []
+    for nct in ncts:
+        try:
+            d = fetch(nct)
+        except Exception as ex:                       # noqa: BLE001
+            print("=== %s  FETCH FAILED: %s" % (nct, ex))
+            failed.append(nct)
+            continue
+        ps = d.get("protocolSection") or {}
+        idm = ps.get("identificationModule") or {}
+        om = ps.get("outcomesModule") or {}
+        dm = ps.get("designModule") or {}
+        stm = ps.get("statusModule") or {}
+        print("=== %s  %s" % (nct, idm.get("acronym") or ""))
+        print("    officialTitle: %s" % (idm.get("officialTitle") or "")[:300])
+        enr = (dm.get("enrollmentInfo") or {})
+        print("    enrolment: %s (%s)   lastUpdate: %s"
+              % (enr.get("count"), enr.get("type"),
+                 (stm.get("lastUpdateSubmitDate") or "")))
+        for kind in ("primaryOutcomes", "secondaryOutcomes"):
+            for o in (om.get(kind) or []):
+                if kind == "secondaryOutcomes" and "--all" not in sys.argv:
+                    continue
+                print("    [%s] MEASURE: %s" % (kind[:-8].upper(), o.get("measure")))
+                if o.get("description"):
+                    print("        DESCRIPTION: %s" % o["description"])
+                if o.get("timeFrame"):
+                    print("        TIMEFRAME: %s" % o["timeFrame"])
+        print("")
+    if failed:
+        print("FETCH FAILED for %d: %s -- nothing is recorded for these."
+              % (len(failed), ", ".join(failed)))
+        return 1
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+
+codex
+Defects found:
+
+- Line 38: exact input `python scripts/registry_endpoint_read.py nct03521934`
+  
+  The lower-case NCT is silently discarded by `if a.upper().startswith("NCT")`, but the original `a` is kept only after the filter; here `ncts` becomes `["nct03521934"]`, producing a clinicaltrials.gov URL with lower-case ID, so a valid user-supplied trial ID can be fetched in the wrong form or fail unexpectedly.
+
+- Line 52: exact input where the registry JSON contains `"enrollmentInfo": {"count": 0, "type": "ACTUAL"}`
+
+  `dm.get("enrollmentInfo") or {}` conflates a present falsy value with absence; if the API ever returns a falsy structured value, the tool reports blanks rather than exposing the malformed or zero-valued source field.
+
+- Line 57: exact input `python scripts/registry_endpoint_read.py NCT03521934 --all NCT03315143`
+
+  `--all` is read globally from `sys.argv`, not from parsed options, so an argument intended as a trial/control token affects every NCT in the run; consequence: secondary outcomes are printed for all studies rather than a scoped target.
+
+- Line 62: exact input where `primaryOutcomes` is present as `[]`
+
+  `for o in (om.get(kind) or [])` makes present-empty and absent indistinguishable, so the promised “nothing at all when the fetch fails” discipline does not extend to missing outcome fields; consequence: a registry response missing `primaryOutcomes` exits 0 and prints no failure marker.
+
+Shapes not proven from this file alone: check that cannot fail; probe keyed to string a fix removes; idempotency guard satisfied by own comment; different-copy instrumentation; selector keyed to unused corpus form; CRLF/LF text comparison; merged-cell/off-by-one tabulation; negation dropped; wrapper status code reported instead of work.
+tokens used
+6,217
+Defects found:
+
+- Line 38: exact input `python scripts/registry_endpoint_read.py nct03521934`
+  
+  The lower-case NCT is silently discarded by `if a.upper().startswith("NCT")`, but the original `a` is kept only after the filter; here `ncts` becomes `["nct03521934"]`, producing a clinicaltrials.gov URL with lower-case ID, so a valid user-supplied trial ID can be fetched in the wrong form or fail unexpectedly.
+
+- Line 52: exact input where the registry JSON contains `"enrollmentInfo": {"count": 0, "type": "ACTUAL"}`
+
+  `dm.get("enrollmentInfo") or {}` conflates a present falsy value with absence; if the API ever returns a falsy structured value, the tool reports blanks rather than exposing the malformed or zero-valued source field.
+
+- Line 57: exact input `python scripts/registry_endpoint_read.py NCT03521934 --all NCT03315143`
+
+  `--all` is read globally from `sys.argv`, not from parsed options, so an argument intended as a trial/control token affects every NCT in the run; consequence: secondary outcomes are printed for all studies rather than a scoped target.
+
+- Line 62: exact input where `primaryOutcomes` is present as `[]`
+
+  `for o in (om.get(kind) or [])` makes present-empty and absent indistinguishable, so the promised “nothing at all when the fetch fails” discipline does not extend to missing outcome fields; consequence: a registry response missing `primaryOutcomes` exits 0 and prints no failure marker.
+
+Shapes not proven from this file alone: check that cannot fail; probe keyed to string a fix removes; idempotency guard satisfied by own comment; different-copy instrumentation; selector keyed to unused corpus form; CRLF/LF text comparison; merged-cell/off-by-one tabulation; negation dropped; wrapper status code reported instead of work.

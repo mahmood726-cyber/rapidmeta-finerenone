@@ -1,0 +1,200 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a031e9-c299-7be2-b111-c217c52270cc
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/lint_encoding_defaults.py
+
+--- THE FILE, IN FULL ---
+"""CLASS 3 RULE MADE MECHANICAL: a default that is reasonable on Windows and wrong here.
+
+THREE INSTANCES THIS WEEK, all the same shape -- a Python default doing something sensible
+for a human reader and wrong for a machine-read pipeline:
+
+  1. CRLF CONVERSION on two 900 KB pages. A text-mode round-trip rewrote 12,031 lines.
+     Five content checks passed because all five were the same check.
+  2. cp1252 DECODE in a verifier. `subprocess.run(..., text=True)` decoded git output with
+     the console codepage; every object holding an em-dash compared as CHANGED. It accused
+     six intact files and stopped a correct commit.
+  3. CRLF IN A GENERATED PAIRS FILE. A heredoc wrote Windows line endings, `read -r` kept
+     the trailing \\r in every field, and ALL 57 BUILDS FAILED with
+     `ssot/warfarin-af\\r/warfarin-af\\r.json`.
+
+THE RULE IS IN OUR OWN LESSONS FILE AND DID NOT FIRE ANY OF THE THREE TIMES. That is the
+same evidence that justified the pipeline-status lint, and that one earned itself on its
+first real use -- reporting 0 built and 57 failed where the old form said success.
+
+WHAT IT DETECTS:
+  DECODE   `text=True` / `universal_newlines=True` on subprocess -- covered by
+           lint_subprocess_decode.py, cross-referenced here rather than duplicated.
+  NEWLINE  `open(path, "w")` or `io.open(path, "w", encoding=...)` WITHOUT an explicit
+           `newline=` argument, in a script that writes a file another program reads.
+
+WHY THE NEWLINE CHECK IS SCOPED, NOT UNIVERSAL. A file written for a person to read is
+fine with platform line endings. The defect is a file written for a MACHINE -- a pairs
+list, a manifest, a generated script. Detecting "machine-read" is not decidable, so this
+flags writes to the extensions that have actually bitten: .txt, .json, .csv, .tsv, .sh and
+extensionless paths under /tmp. NARROW ON PURPOSE: a lint that flags every open() becomes
+noise, and noise is how this corpus ended up with gates nobody read.
+
+A RATCHET, NOT A ZERO-GATE. A guard that stops the work gets bypassed -- that is how
+guard_write failed. The count can fall and can never rise.
+"""
+from __future__ import annotations
+import io
+import os
+import re
+import sys
+
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASELINE = os.path.join(REPO, ".lint-encoding-baseline")
+SKIP = re.compile(r"#\s*lint:allow-default-newline")
+# a write-mode open whose target looks machine-read
+WRITE = re.compile(
+    r"""(?:io\.)?open\(\s*([^,)]*(?:\.txt|\.json|\.csv|\.tsv|\.sh|pairs|manifest)[^,)]*)\s*,\s*["']w""",
+    re.I)
+HAS_NEWLINE = re.compile(r"newline\s*=")
+
+
+def scan(path, rel):
+    hits = []
+    try:
+        lines = io.open(path, encoding="utf-8", errors="replace").read().split("\n")
+    except Exception:
+        return hits
+    for i, line in enumerate(lines):
+        if SKIP.search(line):
+            continue
+        m = WRITE.search(line)
+        if m and not HAS_NEWLINE.search(line):
+            hits.append((rel, i + 1, line.strip()[:76]))
+    return hits
+
+
+def main() -> int:
+    hits = []
+    d = os.path.join(REPO, "scripts")
+    for root, _, files in os.walk(d):
+        for fn in files:
+            if fn.endswith(".py") and fn != os.path.basename(__file__):
+                p = os.path.join(root, fn)
+                hits += scan(p, os.path.relpath(p, REPO).replace("\\", "/"))
+    for f, ln, ctx in hits:
+        print("%s:%d" % (f, ln))
+        print("      %s" % ctx)
+    print()
+    print("machine-read writes without explicit newline: %d" % len(hits))
+
+    base = 10 ** 9
+    if os.path.exists(BASELINE):
+        try:
+            base = int(io.open(BASELINE, encoding="utf-8").read().strip())
+        except Exception:
+            pass
+    if len(hits) > base:
+        print("REFUSED: %d sites against a baseline of %d." % (len(hits), base))
+        print("FIX: pass newline='\\n' explicitly. A file a machine reads must not carry")
+        print("platform line endings -- 57 builds failed on a trailing \\r this week.")
+        print("Deliberate exception: append  # lint:allow-default-newline")
+        return 1
+    if len(hits) < base:
+        io.open(BASELINE, "w", encoding="utf-8", newline="\n").write(str(len(hits)))
+        print("baseline lowered to %d -- the ratchet only turns one way." % len(hits))
+    print()
+    print("The DECODE half of this rule lives in scripts/lint_subprocess_decode.py")
+    print("(ratchet at 28). Cross-referenced rather than duplicated.")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+
+codex
+- **Check CANNOT FAIL**: lines 86-91. Exact input: no `.lint-encoding-baseline`, plus `scripts/t.py` containing `open("pairs.txt", "w")`. Consequence: `base` stays `10 ** 9`, the violation lowers the baseline at line 99, and the process exits 0.
+
+- **Probe keyed to STRING A FIX REMOVES**: none proven.
+
+- **Idempotency guard satisfied by OWN comment/marker**: lines 54 and 67. Exact input: `open("pairs.txt", "w")  # missing newline=`. Consequence: `HAS_NEWLINE` matches the comment, so the violating write is not counted.
+
+- **Instrument reading a DIFFERENT COPY**: COULD NOT DETERMINE; missing caller/invocation contract showing whether this is intended to scan cwd, HEAD, served files, or the script-relative repo.
+
+- **Selector keyed to a form the corpus does not use**: line 52. Exact input: `open("/tmp/build_ids", "w")`. Consequence: despite the docstring promising “extensionless paths under /tmp”, this regex does not match that path, so the default-newline write passes.
+
+- **Selector keyed to a form the corpus does not use**: line 52. Exact input: `open("pairs.txt", mode="w")`. Consequence: keyword `mode=` is a real `open` form, but the regex only accepts a positional `"w"`, so the violation is missed.
+
+- **Values compared AS TEXT where line endings differ**: none proven.
+
+- **Merged-cell / off-by-one tabulation errors**: none present in this file.
+
+- **ZERO CONFLATED WITH ABSENT**: none proven.
+
+- **NEGATION DROPPED**: none present in this file.
+
+- **STATUS CODE REPORTING THE WRAPPER rather than the work**: lines 89-91. Exact input: `.lint-encoding-baseline` contains `not-an-int`, plus `scripts/t.py` containing `open("pairs.txt", "w")`. Consequence: baseline parse failure is swallowed, `base` remains `10 ** 9`, and a real violation exits 0.
+tokens used
+10,718
+- **Check CANNOT FAIL**: lines 86-91. Exact input: no `.lint-encoding-baseline`, plus `scripts/t.py` containing `open("pairs.txt", "w")`. Consequence: `base` stays `10 ** 9`, the violation lowers the baseline at line 99, and the process exits 0.
+
+- **Probe keyed to STRING A FIX REMOVES**: none proven.
+
+- **Idempotency guard satisfied by OWN comment/marker**: lines 54 and 67. Exact input: `open("pairs.txt", "w")  # missing newline=`. Consequence: `HAS_NEWLINE` matches the comment, so the violating write is not counted.
+
+- **Instrument reading a DIFFERENT COPY**: COULD NOT DETERMINE; missing caller/invocation contract showing whether this is intended to scan cwd, HEAD, served files, or the script-relative repo.
+
+- **Selector keyed to a form the corpus does not use**: line 52. Exact input: `open("/tmp/build_ids", "w")`. Consequence: despite the docstring promising “extensionless paths under /tmp”, this regex does not match that path, so the default-newline write passes.
+
+- **Selector keyed to a form the corpus does not use**: line 52. Exact input: `open("pairs.txt", mode="w")`. Consequence: keyword `mode=` is a real `open` form, but the regex only accepts a positional `"w"`, so the violation is missed.
+
+- **Values compared AS TEXT where line endings differ**: none proven.
+
+- **Merged-cell / off-by-one tabulation errors**: none present in this file.
+
+- **ZERO CONFLATED WITH ABSENT**: none proven.
+
+- **NEGATION DROPPED**: none present in this file.
+
+- **STATUS CODE REPORTING THE WRAPPER rather than the work**: lines 89-91. Exact input: `.lint-encoding-baseline` contains `not-an-int`, plus `scripts/t.py` containing `open("pairs.txt", "w")`. Consequence: baseline parse failure is swallowed, `base` remains `10 ** 9`, and a real violation exits 0.

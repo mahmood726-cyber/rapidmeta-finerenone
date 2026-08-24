@@ -1,0 +1,727 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a03242-1ed5-7c33-b0f5-859b2eb66f9a
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/rebuild_paper_corpus_2026_08_20.py
+
+--- THE FILE, IN FULL ---
+"""Rebuild the pages that have a Paper panel, in batches, with the four predictions each.
+
+WHY BATCHES AND NOT ONE RUN. 112 pages at roughly two minutes each is about four hours. A
+four-hour run that fails at hour three with nothing pushed is the worst outcome available,
+so this writes a batch, verifies it, and hands back -- the caller pushes, then runs the next
+batch. Nothing waits for the end.
+
+THE FOUR PREDICTIONS, PER PAGE, STATED BEFORE THE BUILD AND CHECKED AFTER:
+
+    1  the machine-vocabulary share of the Paper panel's PROSE falls
+    2  field paths standing in the sentence flow fall to at most a handful
+    3  no estimate, registration id or registered outcome name is lost
+    4  the `quoted verbatim` R sections are byte-identical
+
+A page failing any of them is REPORTED AND ITS OLD BYTES ARE RESTORED, not pushed. The fix
+is a register change; a page whose numbers moved has been paraphrased, and that is the
+failure mode to watch.
+
+THE OCCURRENCE PREDICATE. `--verify-only` re-checks a batch WITHOUT building, and it is
+FALSE when the build did not run: it compares each page's `mtime` against the recorded
+batch start and refuses a page that was not written. A batch report that cannot tell "built
+and unchanged" from "never built" is the class-44 defect, and this file would be an easy
+place to reintroduce it.
+
+BASELINES ARE TAKEN BEFORE THE BUILD AND KEPT. `outputs/paper_register_rollout.json` holds
+the before-measurement of every page, so a later batch can be compared against the state
+this rollout started from rather than against whatever the page happened to be last time.
+"""
+import io
+import json
+import os
+import shutil
+import subprocess
+import sys
+import time
+import glob
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+SSOT = os.path.join(REPO, "ssot")
+LEDGER = os.path.join(REPO, "outputs", "paper_register_rollout.json")
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import lint_paper_reads_as_prose as L
+import prove_register_change_moved_no_content as PROVE
+
+
+# PAGES THIS ROLLOUT MUST NOT TOUCH, BY NAME.
+#
+# ARNI_HF_REVIEW.html is deliberately excluded from rebuilds: its manuscript is an AUTHORED
+# docmodel that the projector reproduces at about 11%, so a rebuild would replace 11,182
+# words of written argument with a projection of the object.
+#
+# THIS ROLLOUT ATTEMPTED TO BUILD IT. The standing instruction has been in force all night
+# and the batch runner had no exclusion for it -- what stopped the build was
+# ssot/manuscript_guard.py refusing on MANUSCRIPT_SHRINK, i.e. ANOTHER guard catching it.
+# ARNI is byte-identical to HEAD, verified by hash, so nothing was lost. But an instruction
+# enforced by a guard that happens to cover it is not enforced; it is lucky.
+#
+# The list is checked BEFORE the backup copy is taken, so an excluded page is never even
+# copied, let alone built.
+# THE LIST MOVED TO ssot/do_not_rebuild.py, AND THE CHECK MOVED INTO THE BUILDER.
+#
+# It lived here and in scripts/rebuild_paper_corpus_2026_08_20.py -- two copies, which
+# audit_standing_instructions.py had already flagged. Two copies means a THIRD caller
+# inherits neither, and build_tabbed.py invoked directly was exactly that: both pages
+# ever wrongly rebuilt went through it and it knew about no list at all.
+sys.path.insert(0, os.path.join(REPO, "ssot"))
+from do_not_rebuild import PAGES as DO_NOT_REBUILD          # noqa: E402
+
+
+LOCK = os.path.join(REPO, "outputs", ".paper_register_rollout.lock")
+RUN_ID = "%d@%s" % (os.getpid(), time.strftime("%H%M%S"))
+
+
+# AND THE LOCK DOES NOT PROTECT THE LEDGER FROM A PERSON.
+#
+# While run 26224 was mid-batch I cleared a failed row by hand, twice, and both edits were
+# silently overwritten: the running process holds the ledger in memory and rewrites it after
+# every page. THE SAME CLASS AS TWO CONCURRENT ROLLOUTS -- state written by two writers,
+# resolved by whichever wrote last -- with a person as the second writer instead of a second
+# process. The lock file holds the pid and I could have read it before editing.
+#
+# Nothing here can stop that; it is recorded because the fix is to READ THE LOCK, and the
+# lock now exists precisely so there is something to read.
+
+
+def acquire_lock():
+    """One rollout at a time. A ledger two processes can write is not a ledger.
+
+    THIS COST TWO CORRECTLY-BUILT PAGES. Two rollouts ran concurrently against the same
+    ledger with different `before` baselines. ABLATION_AF_HEART_FAILURE and
+    ABLATION_AF_MEDICAL_THERAPY were built, verified and recorded as done by one process,
+    then rebuilt by the other against a stale baseline of 0 field paths, judged a
+    regression, and ROLLED BACK TO THEIR OLD BYTES. Their good builds were recovered only
+    by re-checking the files on disk rather than trusting the ledger.
+
+    IT IS THE STALE-BASELINE CLASS AGAIN: a comparison against a snapshot that is no longer
+    what it describes. Concurrency makes it silent, because the ledger simply holds
+    whichever row was written last and nothing says the two disagreed.
+
+    O_EXCL on a lock file, holding the pid -- not a flag in the ledger, which is the thing
+    being contended for.
+    """
+    os.makedirs(os.path.dirname(LOCK), exist_ok=True)
+    try:
+        fd = os.open(LOCK, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+    except OSError:
+        try:
+            held = io.open(LOCK, encoding="utf-8").read().strip()
+        except Exception:
+            held = "unreadable"
+        sys.exit("REFUSED: a rollout is already running (%s). Two processes writing this "
+                 "ledger is how ABLATION_AF_HEART_FAILURE and ABLATION_AF_MEDICAL_THERAPY "
+                 "were rolled back after building correctly. If that run is dead, delete "
+                 "%s." % (held, os.path.relpath(LOCK, REPO)))
+    os.write(fd, RUN_ID.encode("utf-8"))
+    os.close(fd)
+
+
+def release_lock():
+    if os.path.exists(LOCK):
+        try:
+            if io.open(LOCK, encoding="utf-8").read().strip() == RUN_ID:
+                os.remove(LOCK)
+        except Exception:
+            pass
+
+
+def page_to_object():
+    """Delivered page -> object, from ssot/PAGE_MAP.json.
+
+    THE FIRST VERSION IMPORTED scripts/objects_for_pages.py LOOKING FOR A `PAGE_MAP` DICT.
+    That module holds a PATH to the map, not the map, so the import succeeded, the getattr
+    returned a string, `isinstance(m, dict)` was False, and the function returned an EMPTY
+    MAP -- silently. Every page then fell through to name-guessing, and the two whose names
+    do not match their object directory (ALIROCUMAB_LIPID_AUTO_FULL_REVIEW ->
+    alirocumab-lipid) were reported UNRESOLVED. A lookup that finds nothing looked exactly
+    like a corpus with no map, which is registry class 25.
+    """
+    path = os.path.join(SSOT, "PAGE_MAP.json")
+    if not os.path.exists(path):
+        sys.exit("REFUSED: ssot/PAGE_MAP.json is absent. Resolving 113 pages to objects by "
+                 "name-guessing is how one review's manuscript reaches another's page.")
+    m = json.load(io.open(path, encoding="utf-8"))
+    pairs = {}
+    for page, obj in m.items():
+        # values are "ssot/<topic>/<topic>.json"
+        parts = str(obj).replace("\\", "/").split("/")
+        if len(parts) >= 2:
+            pairs[os.path.basename(str(page))] = parts[-2]
+    if not pairs:
+        sys.exit("REFUSED: PAGE_MAP.json parsed to zero pairs.")
+    return pairs
+
+
+def object_for(page_name, mapped):
+    """Resolve a page to its object directory, or None.
+
+    NAMED, NOT GUESSED. A page whose object cannot be resolved is REPORTED as unresolved
+    and skipped -- building it against a guessed object is how one review's manuscript ends
+    up on another review's page, which is the contamination incident this repository's
+    projector docstring is written around.
+    """
+    obj = mapped.get(page_name)
+    if obj:
+        cand = os.path.join(SSOT, str(obj), "%s.json" % obj)
+        if os.path.exists(cand):
+            return str(obj)
+    stem = page_name[:-len("_REVIEW.html")].lower().replace("_", "-")
+    for suffix in ("", "-review", "-auto-full-review"):
+        cand = stem + suffix
+        if os.path.exists(os.path.join(SSOT, cand, "%s.json" % cand)):
+            return cand
+    for tail in ("-auto-full-review", "-auto-review", "-review"):
+        if stem.endswith(tail):
+            base = stem[:-len(tail)]
+            for suffix in ("", "-review", "-auto-full-review"):
+                cand = base + suffix
+                if os.path.exists(os.path.join(SSOT, cand, "%s.json" % cand)):
+                    return cand
+    return None
+
+
+def restore(backup, page, why):
+    """Put the old bytes back, and NEVER raise while doing it.
+
+    A ROLLBACK THAT ASSUMES ITS BACKUP EXISTS CRASHES THE WHOLE BATCH. This run died on
+    APIXABAN_VTE_TREATMENT with FileNotFoundError moving a .rollback that was not there,
+    and took the remaining pages of the batch with it. THE RESTORE PATH IS THE LAST THING
+    THAT SHOULD BE ABLE TO FAIL: it runs only when something has already gone wrong.
+
+    Returns True if the old bytes are back, False if the file on disk is the NEW build and
+    the caller must say so rather than implying a restore happened.
+    """
+    if not os.path.exists(backup):
+        why.append("AND ITS BACKUP WAS GONE -- the file on disk is the NEW build and was "
+                   "NOT restored. Check it by hand before pushing.")
+        return False
+    try:
+        if os.path.exists(page):
+            os.remove(page)
+        os.replace(backup, page)
+        return True
+    except OSError as exc:
+        why.append("AND THE RESTORE ITSELF FAILED (%s) -- the file on disk is not "
+                   "necessarily either version. Check it by hand." % exc)
+        return False
+
+
+def measure(path):
+    try:
+        return L.measure(path)
+    except Exception:
+        return None
+
+
+def load_ledger():
+    if os.path.exists(LEDGER):
+        return json.load(io.open(LEDGER, encoding="utf-8"))
+    return {"started": None, "before": {}, "done": {}, "failed": {}, "unresolved": []}
+
+
+def save_ledger(led):
+    os.makedirs(os.path.dirname(LEDGER), exist_ok=True)
+    json.dump(led, io.open(LEDGER, "w", encoding="utf-8", newline="\n"), indent=1,
+              ensure_ascii=False)
+
+
+def candidates():
+    out = []
+    for p in sorted(glob.glob(os.path.join(REPO, "*_REVIEW.html"))):
+        m = measure(p)
+        if m is not None:
+            out.append(os.path.basename(p))
+    return out
+
+
+def main():
+    args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    size = int(args[0]) if args else 8
+    acquire_lock()
+    led = load_ledger()
+    mapped = page_to_object()
+
+    if "--plan" in sys.argv or not led.get("started"):
+        pages = candidates()
+        led["started"] = time.strftime("%Y-%m-%dT%H:%M:%S")
+        for name in pages:
+            if name in led["before"]:
+                continue
+            m = measure(os.path.join(REPO, name))
+            led["before"][name] = {
+                "sentences": m["sentences"], "machine": m["machine"],
+                "flow_paths": PROVE.flow_paths(
+                    io.open(os.path.join(REPO, name), encoding="utf-8",
+                            errors="replace").read()),
+            }
+        save_ledger(led)
+        print("ROLLOUT PLANNED: %d pages with a Paper panel, baselines recorded in %s"
+              % (len(led["before"]), os.path.relpath(LEDGER, REPO)))
+        if "--plan" in sys.argv:
+            return
+
+    todo = [n for n in sorted(led["before"])
+            if n not in led["done"] and n not in led["failed"]]
+    print("REMAINING %d of %d; this batch %d" % (len(todo), len(led["before"]),
+                                                 min(size, len(todo))))
+    batch = todo[:size]
+    if not batch:
+        print("NOTHING LEFT. done %d, failed %d, unresolved %d"
+              % (len(led["done"]), len(led["failed"]), len(led["unresolved"])))
+        return
+
+    for name in batch:
+        page = os.path.join(REPO, name)
+        if name in DO_NOT_REBUILD:
+            led["failed"][name] = "[%s] EXCLUDED BY NAME: %s" % (RUN_ID,
+                                                                 DO_NOT_REBUILD[name])
+            print("  %-52s EXCLUDED -- not copied, not built" % name)
+            save_ledger(led)
+            continue
+        topic = object_for(name, mapped)
+        if not topic:
+            led["unresolved"].append(name)
+            led["failed"][name] = "[%s] object could not be resolved -- NOT built against a guess" % RUN_ID
+            print("  %-52s UNRESOLVED -- skipped, not guessed" % name)
+            save_ledger(led)
+            continue
+        backup = page + ".rollback"
+        shutil.copyfile(page, backup)
+        started = time.time()
+        obj = os.path.join(SSOT, topic, "%s.json" % topic)
+        r = subprocess.run([sys.executable, "build_tabbed.py", obj, page],
+                           cwd=SSOT, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        out = r.stdout.decode("utf-8", "replace")
+        # THE OCCURRENCE PREDICATE. False when the build did not run.
+        ran = os.path.getmtime(page) >= started and r.returncode == 0
+        if not ran:
+            _why = []
+            restore(backup, page, _why)
+            led["failed"][name] = "[%s] build did not produce a new file (exit %d): %s %s" % (
+                RUN_ID, r.returncode, out.strip()[-200:], " ".join(_why))
+            print("  %-52s BUILD FAILED -- old bytes restored" % name)
+            save_ledger(led)
+            continue
+
+        before_m = led["before"][name]
+        m = measure(page)
+        ok = True
+        why = []
+        if m is None:
+            ok, why = False, ["the rebuilt page has no readable Paper panel"]
+        else:
+            fp = PROVE.flow_paths(io.open(page, encoding="utf-8", errors="replace").read())
+            # A PAGE THAT HAD NO MANUSCRIPT CANNOT REGRESS INTO HAVING ONE.
+            #
+            # BOCOCIZUMAB_LIPID_AUTO_FULL_REVIEW served the honest absent-state banner --
+            # "No manuscript has been generated for bococizumab-lipid-review" -- so its
+            # baseline was 2 sentences and 0 machine. The rebuild produced a projected
+            # manuscript of 11 machine sentences, and this check called that a REGRESSION
+            # and rolled the page back to the empty banner.
+            #
+            # THE PREDICATE ASSUMED EVERY PAGE ALREADY HAD A MANUSCRIPT. Comparing absolute
+            # counts is only meaningful when both sides are manuscripts; a page GAINING one
+            # rises on every absolute measure by construction. The comparison is on the
+            # RATE, and a page with almost nothing before is reported as a gain rather than
+            # judged against a baseline that describes an empty tab.
+            NO_MANUSCRIPT_BEFORE = 6      # sentences; the absent-state banner is 2
+            gained = before_m["sentences"] < NO_MANUSCRIPT_BEFORE <= m["sentences"]
+            if gained:
+                why.append("GAINED A MANUSCRIPT: %d sentences where the page previously "
+                           "served the absent-state banner (%d). Not judged against the "
+                           "old counts -- there was nothing to compare."
+                           % (m["sentences"], before_m["sentences"]))
+            else:
+                rate_before = (float(before_m["machine"]) / before_m["sentences"]
+                               if before_m["sentences"] else 0.0)
+                rate_after = (float(m["machine"]) / m["sentences"]
+                              if m["sentences"] else 0.0)
+                if before_m["sentences"] and rate_after > rate_before + 0.01:
+                    ok = False
+                    why.append("machine-vocabulary RATE rose %.0f%% -> %.0f%% (%d/%d -> "
+                               "%d/%d)" % (100 * rate_before, 100 * rate_after,
+                                           before_m["machine"], before_m["sentences"],
+                                           m["machine"], m["sentences"]))
+                if fp > before_m["flow_paths"]:
+                    ok = False
+                    why.append("field paths in the flow rose %d -> %d"
+                               % (before_m["flow_paths"], fp))
+            pr = subprocess.run([sys.executable,
+                                 os.path.join(REPO, "scripts",
+                                              "prove_register_change_moved_no_content.py"),
+                                 backup, page, obj],
+                                stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            if pr.returncode != 0:
+                ok = False
+                why.append("content invariance REFUSED: %s"
+                           % pr.stdout.decode("utf-8", "replace").strip()[-300:])
+
+        if ok:
+            os.remove(backup)
+            led["done"][name] = {"run": RUN_ID, "machine": m["machine"], "was": before_m["machine"],
+                                 "sentences": m["sentences"],
+                                 "flow_paths": fp, "flow_was": before_m["flow_paths"]}
+            print("  %-52s OK  machine %d->%d  paths %d->%d"
+                  % (name, before_m["machine"], m["machine"], before_m["flow_paths"], fp))
+        else:
+            restore(backup, page, why)
+            led["failed"][name] = "[%s] %s" % (RUN_ID, "; ".join(why))
+            print("  %-52s REFUSED -- old bytes restored" % name)
+            for w in why:
+                print("        %s" % w)
+        save_ledger(led)
+
+    done = led["done"]
+    print("")
+    print("BATCH COMPLETE. done %d, failed %d, remaining %d"
+          % (len(done), len(led["failed"]),
+             len(led["before"]) - len(done) - len(led["failed"])))
+    if done:
+        mw = sum(v["was"] for v in done.values())
+        mn = sum(v["machine"] for v in done.values())
+        pw = sum(v["flow_was"] for v in done.values())
+        pn = sum(v["flow_paths"] for v in done.values())
+        print("ACROSS THE PAGES REBUILT SO FAR: machine sentences %d -> %d, field paths in "
+              "the flow %d -> %d" % (mw, mn, pw, pn))
+
+
+if __name__ == "__main__":
+    try:
+        main()
+    finally:
+        release_lock()
+
+codex
+I’m treating the pasted file as the complete record and checking only for the named recurring defect shapes. I’ll keep this to demonstrable defects with line-level inputs, not general commentary.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Select-String -Path scripts/rebuild_paper_corpus_2026_08_20.py -Pattern 'verify-only|args =|size =|started = time|r = subprocess|ran =|led\\[\"done\"\\]' | ForEach-Object { \"{0}: {1}\" -f "'$_.LineNumber, $_.Line }' in F:\rapidmeta-ssot-shell
+ succeeded in 1336ms:
+19: THE OCCURRENCE PREDICATE. `--verify-only` re-checks a batch WITHOUT building, and it is
+238:     args = [a for a in sys.argv[1:] if not a.startswith("--")]
+239:     size = int(args[0]) if args else 8
+264:             if n not in led["done"] and n not in led["failed"]]
+270:               % (len(led["done"]), len(led["failed"]), len(led["unresolved"])))
+290:         started = time.time()
+292:         r = subprocess.run([sys.executable, "build_tabbed.py", obj, page],
+296:         ran = os.path.getmtime(page) >= started and r.returncode == 0
+349:             pr = subprocess.run([sys.executable,
+361:             led["done"][name] = {"run": RUN_ID, "machine": m["machine"], "was": before_m["machine"],
+374:     done = led["done"]
+
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=0; Get-Content scripts/rebuild_paper_corpus_2026_08_20.py | ForEach-Object { $i++; if ($i -ge 236 -and $i -le 365) { "{0}: {1}" -f $i, $_ } }' in F:\rapidmeta-ssot-shell
+ succeeded in 1311ms:
+236: 
+237: def main():
+238:     args = [a for a in sys.argv[1:] if not a.startswith("--")]
+239:     size = int(args[0]) if args else 8
+240:     acquire_lock()
+241:     led = load_ledger()
+242:     mapped = page_to_object()
+243: 
+244:     if "--plan" in sys.argv or not led.get("started"):
+245:         pages = candidates()
+246:         led["started"] = time.strftime("%Y-%m-%dT%H:%M:%S")
+247:         for name in pages:
+248:             if name in led["before"]:
+249:                 continue
+250:             m = measure(os.path.join(REPO, name))
+251:             led["before"][name] = {
+252:                 "sentences": m["sentences"], "machine": m["machine"],
+253:                 "flow_paths": PROVE.flow_paths(
+254:                     io.open(os.path.join(REPO, name), encoding="utf-8",
+255:                             errors="replace").read()),
+256:             }
+257:         save_ledger(led)
+258:         print("ROLLOUT PLANNED: %d pages with a Paper panel, baselines recorded in %s"
+259:               % (len(led["before"]), os.path.relpath(LEDGER, REPO)))
+260:         if "--plan" in sys.argv:
+261:             return
+262: 
+263:     todo = [n for n in sorted(led["before"])
+264:             if n not in led["done"] and n not in led["failed"]]
+265:     print("REMAINING %d of %d; this batch %d" % (len(todo), len(led["before"]),
+266:                                                  min(size, len(todo))))
+267:     batch = todo[:size]
+268:     if not batch:
+269:         print("NOTHING LEFT. done %d, failed %d, unresolved %d"
+270:               % (len(led["done"]), len(led["failed"]), len(led["unresolved"])))
+271:         return
+272: 
+273:     for name in batch:
+274:         page = os.path.join(REPO, name)
+275:         if name in DO_NOT_REBUILD:
+276:             led["failed"][name] = "[%s] EXCLUDED BY NAME: %s" % (RUN_ID,
+277:                                                                  DO_NOT_REBUILD[name])
+278:             print("  %-52s EXCLUDED -- not copied, not built" % name)
+279:             save_ledger(led)
+280:             continue
+281:         topic = object_for(name, mapped)
+282:         if not topic:
+283:             led["unresolved"].append(name)
+284:             led["failed"][name] = "[%s] object could not be resolved -- NOT built against a guess" % RUN_ID
+285:             print("  %-52s UNRESOLVED -- skipped, not guessed" % name)
+286:             save_ledger(led)
+287:             continue
+288:         backup = page + ".rollback"
+289:         shutil.copyfile(page, backup)
+290:         started = time.time()
+291:         obj = os.path.join(SSOT, topic, "%s.json" % topic)
+292:         r = subprocess.run([sys.executable, "build_tabbed.py", obj, page],
+293:                            cwd=SSOT, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+294:         out = r.stdout.decode("utf-8", "replace")
+295:         # THE OCCURRENCE PREDICATE. False when the build did not run.
+296:         ran = os.path.getmtime(page) >= started and r.returncode == 0
+297:         if not ran:
+298:             _why = []
+299:             restore(backup, page, _why)
+300:             led["failed"][name] = "[%s] build did not produce a new file (exit %d): %s %s" % (
+301:                 RUN_ID, r.returncode, out.strip()[-200:], " ".join(_why))
+302:             print("  %-52s BUILD FAILED -- old bytes restored" % name)
+303:             save_ledger(led)
+304:             continue
+305: 
+306:         before_m = led["before"][name]
+307:         m = measure(page)
+308:         ok = True
+309:         why = []
+310:         if m is None:
+311:             ok, why = False, ["the rebuilt page has no readable Paper panel"]
+312:         else:
+313:             fp = PROVE.flow_paths(io.open(page, encoding="utf-8", errors="replace").read())
+314:             # A PAGE THAT HAD NO MANUSCRIPT CANNOT REGRESS INTO HAVING ONE.
+315:             #
+316:             # BOCOCIZUMAB_LIPID_AUTO_FULL_REVIEW served the honest absent-state banner --
+317:             # "No manuscript has been generated for bococizumab-lipid-review" -- so its
+318:             # baseline was 2 sentences and 0 machine. The rebuild produced a projected
+319:             # manuscript of 11 machine sentences, and this check called that a REGRESSION
+320:             # and rolled the page back to the empty banner.
+321:             #
+322:             # THE PREDICATE ASSUMED EVERY PAGE ALREADY HAD A MANUSCRIPT. Comparing absolute
+323:             # counts is only meaningful when both sides are manuscripts; a page GAINING one
+324:             # rises on every absolute measure by construction. The comparison is on the
+325:             # RATE, and a page with almost nothing before is reported as a gain rather than
+326:             # judged against a baseline that describes an empty tab.
+327:             NO_MANUSCRIPT_BEFORE = 6      # sentences; the absent-state banner is 2
+328:             gained = before_m["sentences"] < NO_MANUSCRIPT_BEFORE <= m["sentences"]
+329:             if gained:
+330:                 why.append("GAINED A MANUSCRIPT: %d sentences where the page previously "
+331:                            "served the absent-state banner (%d). Not judged against the "
+332:                            "old counts -- there was nothing to compare."
+333:                            % (m["sentences"], before_m["sentences"]))
+334:             else:
+335:                 rate_before = (float(before_m["machine"]) / before_m["sentences"]
+336:                                if before_m["sentences"] else 0.0)
+337:                 rate_after = (float(m["machine"]) / m["sentences"]
+338:                               if m["sentences"] else 0.0)
+339:                 if before_m["sentences"] and rate_after > rate_before + 0.01:
+340:                     ok = False
+341:                     why.append("machine-vocabulary RATE rose %.0f%% -> %.0f%% (%d/%d -> "
+342:                                "%d/%d)" % (100 * rate_before, 100 * rate_after,
+343:                                            before_m["machine"], before_m["sentences"],
+344:                                            m["machine"], m["sentences"]))
+345:                 if fp > before_m["flow_paths"]:
+346:                     ok = False
+347:                     why.append("field paths in the flow rose %d -> %d"
+348:                                % (before_m["flow_paths"], fp))
+349:             pr = subprocess.run([sys.executable,
+350:                                  os.path.join(REPO, "scripts",
+351:                                               "prove_register_change_moved_no_content.py"),
+352:                                  backup, page, obj],
+353:                                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+354:             if pr.returncode != 0:
+355:                 ok = False
+356:                 why.append("content invariance REFUSED: %s"
+357:                            % pr.stdout.decode("utf-8", "replace").strip()[-300:])
+358: 
+359:         if ok:
+360:             os.remove(backup)
+361:             led["done"][name] = {"run": RUN_ID, "machine": m["machine"], "was": before_m["machine"],
+362:                                  "sentences": m["sentences"],
+363:                                  "flow_paths": fp, "flow_was": before_m["flow_paths"]}
+364:             print("  %-52s OK  machine %d->%d  paths %d->%d"
+365:                   % (name, before_m["machine"], m["machine"], before_m["flow_paths"], fp))
+
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=0; Get-Content scripts/rebuild_paper_corpus_2026_08_20.py | ForEach-Object { $i++; if ($i -ge 180 -and $i -le 215) { "{0}: {1}" -f $i, $_ } }' in F:\rapidmeta-ssot-shell
+ succeeded in 1234ms:
+180:     return None
+181: 
+182: 
+183: def restore(backup, page, why):
+184:     """Put the old bytes back, and NEVER raise while doing it.
+185: 
+186:     A ROLLBACK THAT ASSUMES ITS BACKUP EXISTS CRASHES THE WHOLE BATCH. This run died on
+187:     APIXABAN_VTE_TREATMENT with FileNotFoundError moving a .rollback that was not there,
+188:     and took the remaining pages of the batch with it. THE RESTORE PATH IS THE LAST THING
+189:     THAT SHOULD BE ABLE TO FAIL: it runs only when something has already gone wrong.
+190: 
+191:     Returns True if the old bytes are back, False if the file on disk is the NEW build and
+192:     the caller must say so rather than implying a restore happened.
+193:     """
+194:     if not os.path.exists(backup):
+195:         why.append("AND ITS BACKUP WAS GONE -- the file on disk is the NEW build and was "
+196:                    "NOT restored. Check it by hand before pushing.")
+197:         return False
+198:     try:
+199:         if os.path.exists(page):
+200:             os.remove(page)
+201:         os.replace(backup, page)
+202:         return True
+203:     except OSError as exc:
+204:         why.append("AND THE RESTORE ITSELF FAILED (%s) -- the file on disk is not "
+205:                    "necessarily either version. Check it by hand." % exc)
+206:         return False
+207: 
+208: 
+209: def measure(path):
+210:     try:
+211:         return L.measure(path)
+212:     except Exception:
+213:         return None
+214: 
+215: 
+
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=0; Get-Content scripts/rebuild_paper_corpus_2026_08_20.py | ForEach-Object { $i++; if ($i -ge 140 -and $i -le 180) { "{0}: {1}" -f $i, $_ } }' in F:\rapidmeta-ssot-shell
+ succeeded in 2392ms:
+140:     if not os.path.exists(path):
+141:         sys.exit("REFUSED: ssot/PAGE_MAP.json is absent. Resolving 113 pages to objects by "
+142:                  "name-guessing is how one review's manuscript reaches another's page.")
+143:     m = json.load(io.open(path, encoding="utf-8"))
+144:     pairs = {}
+145:     for page, obj in m.items():
+146:         # values are "ssot/<topic>/<topic>.json"
+147:         parts = str(obj).replace("\\", "/").split("/")
+148:         if len(parts) >= 2:
+149:             pairs[os.path.basename(str(page))] = parts[-2]
+150:     if not pairs:
+151:         sys.exit("REFUSED: PAGE_MAP.json parsed to zero pairs.")
+152:     return pairs
+153: 
+154: 
+155: def object_for(page_name, mapped):
+156:     """Resolve a page to its object directory, or None.
+157: 
+158:     NAMED, NOT GUESSED. A page whose object cannot be resolved is REPORTED as unresolved
+159:     and skipped -- building it against a guessed object is how one review's manuscript ends
+160:     up on another review's page, which is the contamination incident this repository's
+161:     projector docstring is written around.
+162:     """
+163:     obj = mapped.get(page_name)
+164:     if obj:
+165:         cand = os.path.join(SSOT, str(obj), "%s.json" % obj)
+166:         if os.path.exists(cand):
+167:             return str(obj)
+168:     stem = page_name[:-len("_REVIEW.html")].lower().replace("_", "-")
+169:     for suffix in ("", "-review", "-auto-full-review"):
+170:         cand = stem + suffix
+171:         if os.path.exists(os.path.join(SSOT, cand, "%s.json" % cand)):
+172:             return cand
+173:     for tail in ("-auto-full-review", "-auto-review", "-review"):
+174:         if stem.endswith(tail):
+175:             base = stem[:-len(tail)]
+176:             for suffix in ("", "-review", "-auto-full-review"):
+177:                 cand = base + suffix
+178:                 if os.path.exists(os.path.join(SSOT, cand, "%s.json" % cand)):
+179:                     return cand
+180:     return None
+
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=0; Get-Content scripts/rebuild_paper_corpus_2026_08_20.py | ForEach-Object { $i++; if ($i -ge 365 -and $i -le 372) { "{0}: {1}" -f $i, $_ } }' in F:\rapidmeta-ssot-shell
+ succeeded in 1655ms:
+365:                   % (name, before_m["machine"], m["machine"], before_m["flow_paths"], fp))
+366:         else:
+367:             restore(backup, page, why)
+368:             led["failed"][name] = "[%s] %s" % (RUN_ID, "; ".join(why))
+369:             print("  %-52s REFUSED -- old bytes restored" % name)
+370:             for w in why:
+371:                 print("        %s" % w)
+372:         save_ledger(led)
+
+codex
+Defects found:
+
+- **Check that cannot fail:** line 244. Exact input: `python scripts/rebuild_paper_corpus_2026_08_20.py --verify-only 1` with an existing ledger `started` value and one todo page. Consequence: `--verify-only` has no branch, so line 292 rebuilds instead of re-checking without building.
+
+- **Name guess used instead of binding:** line 168. Exact input: `object_for("WARFARIN_REVIEW.html", {})` with `ssot/warfarin/warfarin.json` present. Consequence: a missing `PAGE_MAP` binding is silently replaced by a guessed object.
+
+- **Selector keyed to unused transformed form:** line 173. Exact input: `object_for("FOO_AUTO_FULL_REVIEW.html", {})` with only `ssot/foo/foo.json` present. Consequence: line 168 makes `stem == "foo-auto-full"`, so `endswith("-auto-full-review")` never fires and the base object is missed.
+
+- **Status reports restore, not restore result:** lines 299 and 302. Exact input: after line 288 creates `PAGE.rollback`, delete that backup before a nonzero `build_tabbed.py` exit. Consequence: `restore()` returns `False`, but the script still prints `BUILD FAILED -- old bytes restored`.
+
+- **Same restore-result defect on verification refusal:** lines 367 and 369. Exact input: delete `PAGE.rollback` before `prove_register_change_moved_no_content.py` returns nonzero. Consequence: the headline says old bytes were restored even when restore failed.
+
+- **Count duplication:** line 283. Exact input: ledger has `unresolved: ["X_REVIEW.html"]`, `failed: {}`, and `object_for("X_REVIEW.html", mapped)` returns `None`. Consequence: the same page is appended again, so unresolved counts overstate distinct pages.
+
+None proven from this packet: CRLF/LF text comparison, negation dropped, own-comment idempotency guard, merged-cell handling.
+
+COULD NOT DETERMINE corpus-wide selector coverage: missing `ssot/PAGE_MAP.json`, actual page corpus, and `lint_paper_reads_as_prose.py`.
+tokens used
+31,828
+Defects found:
+
+- **Check that cannot fail:** line 244. Exact input: `python scripts/rebuild_paper_corpus_2026_08_20.py --verify-only 1` with an existing ledger `started` value and one todo page. Consequence: `--verify-only` has no branch, so line 292 rebuilds instead of re-checking without building.
+
+- **Name guess used instead of binding:** line 168. Exact input: `object_for("WARFARIN_REVIEW.html", {})` with `ssot/warfarin/warfarin.json` present. Consequence: a missing `PAGE_MAP` binding is silently replaced by a guessed object.
+
+- **Selector keyed to unused transformed form:** line 173. Exact input: `object_for("FOO_AUTO_FULL_REVIEW.html", {})` with only `ssot/foo/foo.json` present. Consequence: line 168 makes `stem == "foo-auto-full"`, so `endswith("-auto-full-review")` never fires and the base object is missed.
+
+- **Status reports restore, not restore result:** lines 299 and 302. Exact input: after line 288 creates `PAGE.rollback`, delete that backup before a nonzero `build_tabbed.py` exit. Consequence: `restore()` returns `False`, but the script still prints `BUILD FAILED -- old bytes restored`.
+
+- **Same restore-result defect on verification refusal:** lines 367 and 369. Exact input: delete `PAGE.rollback` before `prove_register_change_moved_no_content.py` returns nonzero. Consequence: the headline says old bytes were restored even when restore failed.
+
+- **Count duplication:** line 283. Exact input: ledger has `unresolved: ["X_REVIEW.html"]`, `failed: {}`, and `object_for("X_REVIEW.html", mapped)` returns `None`. Consequence: the same page is appended again, so unresolved counts overstate distinct pages.
+
+None proven from this packet: CRLF/LF text comparison, negation dropped, own-comment idempotency guard, merged-cell handling.
+
+COULD NOT DETERMINE corpus-wide selector coverage: missing `ssot/PAGE_MAP.json`, actual page corpus, and `lint_paper_reads_as_prose.py`.

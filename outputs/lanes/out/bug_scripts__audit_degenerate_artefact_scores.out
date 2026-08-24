@@ -1,0 +1,1048 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a0313b-4abb-7012-99c9-7ed084eaa70a
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/audit_degenerate_artefact_scores.py
+
+--- THE FILE, IN FULL ---
+"""What does a DEGENERATE artefact score on each metric that guards something?
+
+THE QUESTION, AND IT IS THE WHOLE FILE: before a metric guards anything, ask what an EMPTY
+page scores on it. A page of boilerplate. A page of pure refusals. IF ANY OF THEM BEATS A
+GOOD PAGE, THE METRIC WILL BE ENFORCED AGAINST THE GOOD PAGE EVENTUALLY.
+
+THE INSTANCE THAT MADE THIS A FILE. `BOCOCIZUMAB_LIPID_AUTO_FULL_REVIEW.html` served the
+honest absent-state banner -- "No manuscript has been generated for
+bococizumab-lipid-review" -- two sentences, and ZERO machine-vocabulary sentences. A perfect
+score. The rebuild gave it an 81-sentence manuscript carrying 11 machine sentences, and the
+rollout's guard read that as a regression and RESTORED THE EMPTY TAB. Twice: once in the
+batch predicate and once, independently, in the invariance check.
+
+    A QUALITY METRIC THAT A BLANK PAGE MAXIMISES WILL, GIVEN A GUARD, ACTIVELY DEFEND
+    BLANKNESS.
+
+It is not the stale-baseline fault and it is not the concurrency fault. Those compared the
+WRONG VALUES. This one compared the right values correctly and reached the wrong verdict,
+because the metric assumed both sides were the same KIND of thing.
+
+WHAT THIS FILE DOES. It scores three degenerate artefacts on every metric the rollout uses
+as a predicate, and reports whether a guard on that metric would prefer the degenerate one
+to a real page. It does not guess: the artefacts are constructed and the real metric
+functions are called on them.
+
+    EMPTY       the absent-state banner: no manuscript, two sentences
+    BOILERPLATE a manuscript of section headings and nothing beneath them
+    REFUSALS    a manuscript whose every section is a correctly-worded refusal
+
+THE THIRD IS THE UNCOMFORTABLE ONE. A page of pure refusals is, by this project's own
+standard, HONEST -- refusing by name is the required behaviour. It also carries almost no
+machine vocabulary, no unglossed statistics and no field paths in prose, so it scores at or
+near the top of every readability measure written tonight. P47 exists because that page
+reads as complete on totals; this file is the same observation pointed at the metrics.
+"""
+import io
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from instrument_controls import require_controls
+import lint_paper_reads_as_prose as L
+import prove_register_change_moved_no_content as PROVE
+
+HEAD = '<span id="paper"></span><h2 id="paper-paper">Paper</h2>'
+TAIL = '<section class="panel" id="pn-analysis">'
+
+EMPTY = HEAD + (
+    "<h3>Paper Studio</h3><p>Not held in this object. No manuscript has been generated "
+    "for this review. A manuscript belongs to one review, so none from another review is "
+    "shown here.</p>") + TAIL
+
+BOILERPLATE = HEAD + "".join(
+    "<h3>%s</h3><p>This section is part of the standard structure of a systematic "
+    "review report and is included here for completeness of presentation.</p>" % h
+    for h in ("Abstract", "Introduction", "Methods", "Results", "Discussion",
+              "Conclusions", "Limitations", "References")) + TAIL
+
+REFUSALS = HEAD + "".join(
+    "<h3>%s</h3><div class='absent-state' role='note'><strong>Refused:</strong> the %s -- "
+    "no field on this object supports it, and none is generated here: a %s written by the "
+    "renderer would be an argument no field supports.</div>" % (h, h.lower(), h.lower())
+    for h in ("Abstract", "Introduction", "Methods", "Results", "Discussion",
+              "Conclusions", "Limitations", "Certainty of the evidence")) + TAIL
+
+# A real page, for the comparison. Sentences with the register we actually want.
+REAL = HEAD + (
+    "<h3>Results</h3><p>The pooled hazard ratio for cardiovascular death or "
+    "hospitalisation for heart failure was 0.76 (0.71 to 0.83) across three trials, "
+    "against placebo.<sup class='prov-ref'>1</sup></p>"
+    "<p>The trials' results were closely consistent with one another: I-squared, the share "
+    "of the variation between them that is more than chance alone would produce, was 0%; "
+    "the estimated variance of the true effects between trials (tau-squared) was 0.<sup "
+    "class='prov-ref'>2</sup></p>"
+    "<p>DELIVER does not post the first-event two-component outcome, so a pool of three "
+    "trials we can fully vouch for was preferred to a pool of four with one input we "
+    "cannot.<sup class='prov-ref'>3</sup></p>"
+    "<div class='prov-block'><p class='prov-title'>Where the statements in this section "
+    "come from, in order</p><ol class='prov-list'><li><code>results.by_outcome.x.pooled"
+    "</code></li></ol></div>") + TAIL
+
+
+def score(name, raw):
+    tmp = os.path.join(REPO, "outputs", "_degenerate_%s.html" % name)
+    os.makedirs(os.path.dirname(tmp), exist_ok=True)
+    io.open(tmp, "w", encoding="utf-8", newline=chr(10)).write(raw)
+    try:
+        m = L.measure(tmp)
+        fp = PROVE.flow_paths(raw)
+        if m is None:
+            return None
+        rate = (100.0 * m["machine"] / m["sentences"]) if m["sentences"] else 0.0
+        return {"sentences": m["sentences"], "machine": m["machine"], "rate": rate,
+                "flow_paths": fp}
+    finally:
+        if os.path.exists(tmp):
+            os.remove(tmp)
+
+
+def main():
+    cases = [("EMPTY", EMPTY), ("BOILERPLATE", BOILERPLATE), ("REFUSALS", REFUSALS),
+             ("REAL", REAL)]
+    scores = dict((n, score(n, raw)) for n, raw in cases)
+
+    # CONTROL. The whole file is worthless if the empty page does NOT beat the real one --
+    # that is the finding, and if it fails to reproduce, the metrics have changed and the
+    # rest of this output describes a repository that no longer exists.
+    e, r = scores["EMPTY"], scores["REAL"]
+    require_controls(
+        "audit_degenerate_artefact_scores",
+        positive=("the EMPTY page's machine-vocabulary rate is no worse than the REAL "
+                  "page's -- the finding this file exists to state",
+                  e is not None and r is not None and e["rate"] <= r["rate"], True),
+        negative=("the REAL page scores as a degenerate one on sentence count",
+                  r is not None and r["sentences"] < 3, True))
+
+    print("")
+    print("%-12s %10s %10s %10s %12s" % ("artefact", "sentences", "machine", "rate %",
+                                         "flow paths"))
+    print("-" * 60)
+    for n, _raw in cases:
+        s = scores[n]
+        if s is None:
+            print("%-12s   NO PAPER PANEL FOUND" % n)
+            continue
+        print("%-12s %10d %10d %9.0f%% %12d"
+              % (n, s["sentences"], s["machine"], s["rate"], s["flow_paths"]))
+
+    print("")
+    print("WOULD A GUARD ON EACH METRIC PREFER A DEGENERATE PAGE TO THE REAL ONE?")
+    print("")
+    verdicts = []
+    for metric, better in (("machine sentences (absolute)", lambda a, b: a["machine"] <= b["machine"]),
+                           ("machine-vocabulary RATE", lambda a, b: a["rate"] <= b["rate"]),
+                           ("field paths in the flow", lambda a, b: a["flow_paths"] <= b["flow_paths"]),
+                           ("sentence count", lambda a, b: a["sentences"] >= b["sentences"])):
+        losers = [n for n in ("EMPTY", "BOILERPLATE", "REFUSALS")
+                  if scores[n] and scores["REAL"] and better(scores[n], scores["REAL"])]
+        verdicts.append((metric, losers))
+        if losers:
+            print("    %-32s DEFENDS %s" % (metric, ", ".join(losers)))
+        else:
+            print("    %-32s prefers the real page" % metric)
+
+    print("")
+    print("READ THE `sentence count` ROW CAREFULLY. It is the only metric here that a blank")
+    print("page LOSES, which is why the rollout's gained-a-manuscript branch is keyed on it")
+    print("rather than on any of the quality measures. A COUNT OF THINGS PRESENT IS THE ONLY")
+    print("ONE OF THESE A DEGENERATE ARTEFACT CANNOT WIN, and it is the crudest of them.")
+    print("")
+    print("AND THE REFUSALS PAGE IS THE UNCOMFORTABLE CASE. Refusing by name is REQUIRED")
+    print("behaviour in this project. A page that does nothing else is honest, scores at or")
+    print("near the top of every readability measure written tonight, and is worthless to a")
+    print("reader. P47 exists for that reason; these metrics do not know it.")
+
+
+if __name__ == "__main__":
+    main()
+
+codex
+I’ll keep this to defect evidence only. I’m checking line numbering and the imported control contract because one suspected failure mode depends on what `require_controls` actually asserts.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Get-Content -Path 'F:\\ProjectIndex\\INDEX.md' -TotalCount 20" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "if (Test-Path 'scripts\\instrument_controls.py') { Select-String -Path 'scripts\\instrument_controls.py' -Pattern 'def require_controls' -Context 0,40 } else { Write-Output 'MISSING scripts\\instrument_controls.py' }" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "if (Test-Path 'scripts\\audit_degenerate_artefact_scores.py') { "'$i=1; Get-Content '"'scripts\\audit_degenerate_artefact_scores.py' | ForEach-Object { '{0,4}: {1}' -f "'$i, $_; $i++ } | Select-Object -First 180 } else { Write-Output '"'MISSING scripts\\audit_degenerate_artefact_scores.py' }" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Get-Content -Path 'F:\\E156\\rewrite-workbook.txt' -TotalCount 20" in F:\rapidmeta-ssot-shell
+ succeeded in 582ms:
+<!-- sentinel:skip-file - portfolio registry; absolute paths ARE the data -->
+# C: Drive Project Index
+> **Last updated**: 2026-05-14 (C:\HTML apps focused repair batch continued: hub shell launch fix, static contracts across ten HTML app repos, NMA/living-meta/nma-dose-response landing and asset-link repairs, and NMA doc hardcoded-path cleanup. Prior SheafNMA v0.2.0, D-drive legacy smoke-contract continuation, CardioOracle lifecycle status freeze, C-drive model/project smoke-contract continuation, mahmood789 consolidation, Sentinel/Overmind JSONL and verification repair, C-drive reproducibility audit continuation, C-drive verification repair, D-drive repair batch, superapp, C-drive sweep, home-folder hardening, Trial Truthfulness Atlas, and portfolio notes retained below.)
+
+### C:\HTML apps focused repair batch (2026-05-14)
+> - `C:\HTML apps\hub\`: added a launchable `index.html` shell and static contract tests for required registry/runtime wiring; fixed `app.js` local `file://` launch resolution so the hub opened from `hub\index.html` links sibling apps from the parent HTML-apps directory instead of nesting paths under `hub`. Verification: `pytest -q -p no:cacheprovider` -> `3 passed`; `node --check app.js && node --check projects.js` -> PASS; headless Chrome smoke on `file:///mnt/c/HTML%20apps/hub/index.html` confirmed the page title and sibling app links. GitHub pushed: `mahmood726-cyber/hub` main `c1a6725`.
+> - `C:\HTML apps\evidence-board\`, `C:\HTML apps\focus-studio\`, `C:\HTML apps\kanban-lab\`: added pytest-visible static app shell contracts covering title/description, localStorage persistence hooks, key controls, and absence of unresolved templates or hardcoded local drive paths; added repo `.gitignore` entries for Python caches and `PROGRESS.md`. Verification: each `pytest -q -p no:cacheprovider` -> `2 passed` with the existing pytest `cache_dir` warning; scoped `git diff --check` -> PASS. GitHub pushed: `evidence-board` master `9a87c8b`, `focus-studio` master `0fa728b`, `kanban-lab` master `81cad38`.
+> - `C:\HTML apps\nma-pro-v2\`: fixed the landing page's broken app links from absent v6/v7 asset filenames to the current `e156-submission/assets/nma-pro-v8.0.html`, added static link-resolution contracts, and removed Sentinel P0 hardcoded local OneDrive paths from legacy docs. Verification: `pytest -q -p no:cacheprovider tests/test_smoke.py tests/test_static_links.py` -> `3 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=1 INFO=302` (pre-existing tracked autogen warning plus HTML a11y INFO). GitHub pushed: master `a2834e7` for the link fix and master `a74e385` for the P0 doc cleanup.
+> - `C:\HTML apps\IPD-Meta-Pro\` and `C:\HTML apps\Truthcert1\`: added static link-resolution contracts for landing-page local assets and canonical app entrypoints. Verification: `IPD-Meta-Pro` `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; `Truthcert1` same command -> `2 passed` with existing pytest `cache_dir` warning. GitHub pushed: `IPD-Meta-Pro` master `b26ee09`, `Truthcert1` master `81eddd3`.
+> - `C:\HTML apps\living-meta\`: repaired landing-page validation links that pointed to a missing HTML asset and an out-of-repo sibling path; linked the existing validation and limitations docs instead, and added a static link-resolution contract. Verification: `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=8` (pre-existing HTML a11y INFO). GitHub pushed: master `c3c8a9b`.
+> - `C:\HTML apps\Pairwiseai\`: added a static landing-page contract covering local link resolution, absence of unresolved templates/local drive paths, and the key app entrypoints under `e156-submission/assets`. Verification: `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=1731` (pre-existing HTML a11y INFO). GitHub pushed: master `2ade493`.
+> - `C:\HTML apps\nma-dose-response-app\`: pushed the existing smoke-blocker commit and added an E156 asset-bundle repair so `e156-submission\assets\index*.html` resolves its JS runtime dependencies from inside the assets folder; added a static link-resolution contract covering root and E156 app entrypoints. Verification: `pytest -q -p no:cacheprovider tests/test_smoke.py tests/test_static_links.py` -> `4 passed` with the existing pytest `cache_dir` warning; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=442` (pre-existing HTML a11y INFO). GitHub pushed: master `e95fae0` and `96594b6`.
+> - Push gate: Windows Git credential path succeeded after WSL Git lacked HTTPS credentials. Sentinel pre-push/manual scan verdicts were BLOCK=0; evidence-board INFO=18, focus-studio INFO=10, kanban-lab INFO=10, living-meta INFO=8, Pairwiseai INFO=1731, nma-dose-response-app INFO=442 (pre-existing P2 HTML accessibility notes); hub push emitted no Sentinel findings.
+> - Existing unrelated dirty files were left unstaged in these repos, mainly protocol/license/doc edits and untracked `paper\` outputs in the three app repos, plus pre-existing hub metadata/submission/style edits.
+
+### SheafNMA (2026-05-12; v0.2.0 real-NMA-corpus validation + 36-cell Ã— 1000-rep simulation + methods paper draft)
+> - `C:\Models\SheafNMA\` â€” cellular-sheaf inconsistency localization for network meta-analysis. v0.1.0 (2026-04-07) was math + single-file HTML dashboard + E156 #153 micro-paper on a synthetic 12-contrast network. v0.2.0 refactored the 457-LOC `generate_figures.py` into a `sheafnma/` package (`core`, `io`, `simulate`, `comparators`, `r_bridge`), validated on 13 R-netmeta built-in NMAs, and shipped a methods-paper draft for Research Synthesis Methods.
+> - Method: precision-weighted coboundary `F[e, treat1] = -1/SE_e, F[e, treat2] = +1/SE_e`; sheaf Laplacian `L = Fáµ€F` (symmetric PSD); WLS-solve node estimates with node 0 anchored; per-edge residuals `r_e = dÌƒ_e âˆ’ (F x*)_e` localize inconsistency; **Global Inconsistency Index** `GII = Î£ rÂ²` is the global statistic. One algebraic object yields both global + per-edge â€” complements (not replaces) node-splitting.
+> - Real-corpus headline: across **13 R-netmeta built-in NMAs** (Senn 2013 diabetes, Dias smokingcessation, Dong 2013 thrombolytics, Linde 2015/2016 acupuncture, Salanti antimanic, Baker, Dogliotti, Franchini, Gurusamy, Stowe, Woods, dietaryfat, parkinson) the global design-by-treatment Ï‡Â² (Higgins 2012) failed to reject in all 13. **SheafNMA flagged â‰¥1 localized inconsistency edge in 5 of those 13 (38.5%)** at the Youden-frozen threshold of **2.6912** â€” networks that look globally consistent harbor at least one inconsistent edge the global test misses.
+> - Simulation rigor: 36-cell grid (n_treatments âˆˆ {4,6,8} Ã— n_studies_per_edge âˆˆ {3,5,10} Ã— Ï„_inc âˆˆ {0,0.2,0.5,1.0}) Ã— **1000 replications per cell**, held-out training cell at (6,5,0.5) for Youden's-J threshold selection (frozen before evaluating remaining 35 cells). Type-I error at Ï„_inc=0 was **0.000 across all cells**. Mean per-edge sensitivity 0.981 / specificity 0.945 at Ï„_inc=0.5.
+
+ succeeded in 623ms:
+E156 REWRITE WORKBOOK
+sentinel:skip-file
+sentinel:claim-language-allow
+(Sentinel markers above:
+ - sentinel:skip-file: this workbook intentionally contains C:\Users\... PATH:
+   lines pointing to each project's local source directory â€” they're metadata,
+   not code. The marker keeps Sentinel from emitting ~16 P0 hardcoded-path
+   BLOCKs every push.
+ - sentinel:claim-language-allow: CURRENT BODY entries are the AI-drafted
+   summaries that students rewrite into hedged language â€” flagging overclaim
+   words IN those drafts is the whole pedagogical point, not a defect.
+   File-scope marker here suppresses the ~1293 claim-language WARNs on the
+   CURRENT BODY entries; the YOUR REWRITE entries are where the hedging
+   discipline matters and remains lintable in the rendered student board.)
+
+DENOMINATOR CONVENTION (added 2026-05-06 after review-findings P1-5):
+  Each entry header is `[N/total]` where N = ordinal insertion index and
+  `total` = current portfolio size as of the most recent reconcile sweep.
+  Older entries are back-rewritten on milestone boundaries (rather than
+  preserving their insertion-time denominator) to keep
+
+ succeeded in 2043ms:
+
+> scripts\instrument_controls.py:43:def require_controls(instrument, positive, negative=None, out=None):
+  scripts\instrument_controls.py:44:    """Refuse to proceed unless the known answers come back known.
+  scripts\instrument_controls.py:45:
+  scripts\instrument_controls.py:46:    positive -- (label, actual, expected). A real corpus item whose answer is 
+established
+  scripts\instrument_controls.py:47:                independently of this instrument. Established means read from a
+  scripts\instrument_controls.py:48:                registration, a delivered page, or a prior recorded finding -- NOT 
+inferred
+  scripts\instrument_controls.py:49:                by the same logic under test, which would only prove the code 
+agrees with
+  scripts\instrument_controls.py:50:                itself.
+  scripts\instrument_controls.py:51:    negative -- (label, actual, must_not_be). The case the instrument must NOT 
+flag. Supply
+  scripts\instrument_controls.py:52:                it whenever the instrument can over-flag, which is nearly always.
+  scripts\instrument_controls.py:53:
+  scripts\instrument_controls.py:54:    Returns None on success. Raises ControlFailed otherwise, before any count is 
+printed.
+  scripts\instrument_controls.py:55:    """
+  scripts\instrument_controls.py:56:    say = out or (lambda s: sys.stdout.write(s + "\n"))
+  scripts\instrument_controls.py:57:    plab, pact, pexp = positive
+  scripts\instrument_controls.py:58:    say("CONTROL (positive) %s: %s -> %r, expected %r" % (instrument, plab, pact, 
+pexp))
+  scripts\instrument_controls.py:59:    if pact != pexp:
+  scripts\instrument_controls.py:60:        raise ControlFailed(
+  scripts\instrument_controls.py:61:            "REFUSED: %s does not reproduce the one answer that is already 
+established "
+  scripts\instrument_controls.py:62:            "(%s gave %r, not %r). It is not trusted for anything else and NO 
+COUNT IS "
+  scripts\instrument_controls.py:63:            "PRINTED." % (instrument, plab, pact, pexp))
+  scripts\instrument_controls.py:64:    if negative is None:
+  scripts\instrument_controls.py:65:        say("CONTROL (negative) %s: NONE DECLARED -- this instrument can only say 
+yes."
+  scripts\instrument_controls.py:66:            % instrument)
+  scripts\instrument_controls.py:67:        return
+  scripts\instrument_controls.py:68:    nlab, nact, nforbid = negative
+  scripts\instrument_controls.py:69:    say("CONTROL (negative) %s: %s -> %r, must not be %r" % (instrument, nlab, 
+nact, nforbid))
+  scripts\instrument_controls.py:70:    if nact == nforbid:
+  scripts\instrument_controls.py:71:        raise ControlFailed(
+  scripts\instrument_controls.py:72:            "REFUSED: %s FLAGS THE CASE IT MUST NOT (%s came back %r). Accusing in 
+the "
+  scripts\instrument_controls.py:73:            "wrong direction is the failure this control exists to catch. NO COUNT 
+IS "
+  scripts\instrument_controls.py:74:            "PRINTED." % (instrument, nlab, nact))
+  scripts\instrument_controls.py:75:    say("    both controls held.")
+  scripts\instrument_controls.py:76:
+  scripts\instrument_controls.py:77:
+  scripts\instrument_controls.py:78:def zero_has_a_reading(count, marker_exists_somewhere, what, where):
+  scripts\instrument_controls.py:79:    """Return a reportable string for a count, or NOT_ASSESSABLE when a zero is 
+ambiguous.
+  scripts\instrument_controls.py:80:
+  scripts\instrument_controls.py:81:    marker_exists_somewhere -- True only if the thing searched FOR has been 
+observed at
+  scripts\instrument_controls.py:82:    least once, anywhere, in this run. Not "the vocabulary is non-empty"; the 
+vocabulary
+  scripts\instrument_controls.py:83:    being non-empty is what `arni_hf_protocol` had.
+
+
+
+ succeeded in 2058ms:
+   1: """What does a DEGENERATE artefact score on each metric that guards something?
+   2: 
+   3: THE QUESTION, AND IT IS THE WHOLE FILE: before a metric guards anything, ask what an EMPTY
+   4: page scores on it. A page of boilerplate. A page of pure refusals. IF ANY OF THEM BEATS A
+   5: GOOD PAGE, THE METRIC WILL BE ENFORCED AGAINST THE GOOD PAGE EVENTUALLY.
+   6: 
+   7: THE INSTANCE THAT MADE THIS A FILE. `BOCOCIZUMAB_LIPID_AUTO_FULL_REVIEW.html` served the
+   8: honest absent-state banner -- "No manuscript has been generated for
+   9: bococizumab-lipid-review" -- two sentences, and ZERO machine-vocabulary sentences. A perfect
+  10: score. The rebuild gave it an 81-sentence manuscript carrying 11 machine sentences, and the
+  11: rollout's guard read that as a regression and RESTORED THE EMPTY TAB. Twice: once in the
+  12: batch predicate and once, independently, in the invariance check.
+  13: 
+  14:     A QUALITY METRIC THAT A BLANK PAGE MAXIMISES WILL, GIVEN A GUARD, ACTIVELY DEFEND
+  15:     BLANKNESS.
+  16: 
+  17: It is not the stale-baseline fault and it is not the concurrency fault. Those compared the
+  18: WRONG VALUES. This one compared the right values correctly and reached the wrong verdict,
+  19: because the metric assumed both sides were the same KIND of thing.
+  20: 
+  21: WHAT THIS FILE DOES. It scores three degenerate artefacts on every metric the rollout uses
+  22: as a predicate, and reports whether a guard on that metric would prefer the degenerate one
+  23: to a real page. It does not guess: the artefacts are constructed and the real metric
+  24: functions are called on them.
+  25: 
+  26:     EMPTY       the absent-state banner: no manuscript, two sentences
+  27:     BOILERPLATE a manuscript of section headings and nothing beneath them
+  28:     REFUSALS    a manuscript whose every section is a correctly-worded refusal
+  29: 
+  30: THE THIRD IS THE UNCOMFORTABLE ONE. A page of pure refusals is, by this project's own
+  31: standard, HONEST -- refusing by name is the required behaviour. It also carries almost no
+  32: machine vocabulary, no unglossed statistics and no field paths in prose, so it scores at or
+  33: near the top of every readability measure written tonight. P47 exists because that page
+  34: reads as complete on totals; this file is the same observation pointed at the metrics.
+  35: """
+  36: import io
+  37: import os
+  38: import sys
+  39: 
+  40: REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+  41: sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+  42: from instrument_controls import require_controls
+  43: import lint_paper_reads_as_prose as L
+  44: import prove_register_change_moved_no_content as PROVE
+  45: 
+  46: HEAD = '<span id="paper"></span><h2 id="paper-paper">Paper</h2>'
+  47: TAIL = '<section class="panel" id="pn-analysis">'
+  48: 
+  49: EMPTY = HEAD + (
+  50:     "<h3>Paper Studio</h3><p>Not held in this object. No manuscript has been generated "
+  51:     "for this review. A manuscript belongs to one review, so none from another review is "
+  52:     "shown here.</p>") + TAIL
+  53: 
+  54: BOILERPLATE = HEAD + "".join(
+  55:     "<h3>%s</h3><p>This section is part of the standard structure of a systematic "
+  56:     "review report and is included here for completeness of presentation.</p>" % h
+  57:     for h in ("Abstract", "Introduction", "Methods", "Results", "Discussion",
+  58:               "Conclusions", "Limitations", "References")) + TAIL
+  59: 
+  60: REFUSALS = HEAD + "".join(
+  61:     "<h3>%s</h3><div class='absent-state' role='note'><strong>Refused:</strong> the %s -- "
+  62:     "no field on this object supports it, and none is generated here: a %s written by the "
+  63:     "renderer would be an argument no field supports.</div>" % (h, h.lower(), h.lower())
+  64:     for h in ("Abstract", "Introduction", "Methods", "Results", "Discussion",
+  65:               "Conclusions", "Limitations", "Certainty of the evidence")) + TAIL
+  66: 
+  67: # A real page, for the comparison. Sentences with the register we actually want.
+  68: REAL = HEAD + (
+  69:     "<h3>Results</h3><p>The pooled hazard ratio for cardiovascular death or "
+  70:     "hospitalisation for heart failure was 0.76 (0.71 to 0.83) across three trials, "
+  71:     "against placebo.<sup class='prov-ref'>1</sup></p>"
+  72:     "<p>The trials' results were closely consistent with one another: I-squared, the share "
+  73:     "of the variation between them that is more than chance alone would produce, was 0%; "
+  74:     "the estimated variance of the true effects between trials (tau-squared) was 0.<sup "
+  75:     "class='prov-ref'>2</sup></p>"
+  76:     "<p>DELIVER does not post the first-event two-component outcome, so a pool of three "
+  77:     "trials we can fully vouch for was preferred to a pool of four with one input we "
+  78:     "cannot.<sup class='prov-ref'>3</sup></p>"
+  79:     "<div class='prov-block'><p class='prov-title'>Where the statements in this section "
+  80:     "come from, in order</p><ol class='prov-list'><li><code>results.by_outcome.x.pooled"
+  81:     "</code></li></ol></div>") + TAIL
+  82: 
+  83: 
+  84: def score(name, raw):
+  85:     tmp = os.path.join(REPO, "outputs", "_degenerate_%s.html" % name)
+  86:     os.makedirs(os.path.dirname(tmp), exist_ok=True)
+  87:     io.open(tmp, "w", encoding="utf-8", newline=chr(10)).write(raw)
+  88:     try:
+  89:         m = L.measure(tmp)
+  90:         fp = PROVE.flow_paths(raw)
+  91:         if m is None:
+  92:             return None
+  93:         rate = (100.0 * m["machine"] / m["sentences"]) if m["sentences"] else 0.0
+  94:         return {"sentences": m["sentences"], "machine": m["machine"], "rate": rate,
+  95:                 "flow_paths": fp}
+  96:     finally:
+  97:         if os.path.exists(tmp):
+  98:             os.remove(tmp)
+  99: 
+ 100: 
+ 101: def main():
+ 102:     cases = [("EMPTY", EMPTY), ("BOILERPLATE", BOILERPLATE), ("REFUSALS", REFUSALS),
+ 103:              ("REAL", REAL)]
+ 104:     scores = dict((n, score(n, raw)) for n, raw in cases)
+ 105: 
+ 106:     # CONTROL. The whole file is worthless if the empty page does NOT beat the real one --
+ 107:     # that is the finding, and if it fails to reproduce, the metrics have changed and the
+ 108:     # rest of this output describes a repository that no longer exists.
+ 109:     e, r = scores["EMPTY"], scores["REAL"]
+ 110:     require_controls(
+ 111:         "audit_degenerate_artefact_scores",
+ 112:         positive=("the EMPTY page's machine-vocabulary rate is no worse than the REAL "
+ 113:                   "page's -- the finding this file exists to state",
+ 114:                   e is not None and r is not None and e["rate"] <= r["rate"], True),
+ 115:         negative=("the REAL page scores as a degenerate one on sentence count",
+ 116:                   r is not None and r["sentences"] < 3, True))
+ 117: 
+ 118:     print("")
+ 119:     print("%-12s %10s %10s %10s %12s" % ("artefact", "sentences", "machine", "rate %",
+ 120:                                          "flow paths"))
+ 121:     print("-" * 60)
+ 122:     for n, _raw in cases:
+ 123:         s = scores[n]
+ 124:         if s is None:
+ 125:             print("%-12s   NO PAPER PANEL FOUND" % n)
+ 126:             continue
+ 127:         print("%-12s %10d %10d %9.0f%% %12d"
+ 128:               % (n, s["sentences"], s["machine"], s["rate"], s["flow_paths"]))
+ 129: 
+ 130:     print("")
+ 131:     print("WOULD A GUARD ON EACH METRIC PREFER A DEGENERATE PAGE TO THE REAL ONE?")
+ 132:     print("")
+ 133:     verdicts = []
+ 134:     for metric, better in (("machine sentences (absolute)", lambda a, b: a["machine"] <= b["machine"]),
+ 135:                            ("machine-vocabulary RATE", lambda a, b: a["rate"] <= b["rate"]),
+ 136:                            ("field paths in the flow", lambda a, b: a["flow_paths"] <= b["flow_paths"]),
+ 137:                            ("sentence count", lambda a, b: a["sentences"] >= b["sentences"])):
+ 138:         losers = [n for n in ("EMPTY", "BOILERPLATE", "REFUSALS")
+ 139:                   if scores[n] and scores["REAL"] and better(scores[n], scores["REAL"])]
+ 140:         verdicts.append((metric, losers))
+ 141:         if losers:
+ 142:             print("    %-32s DEFENDS %s" % (metric, ", ".join(losers)))
+ 143:         else:
+ 144:             print("    %-32s prefers the real page" % metric)
+ 145: 
+ 146:     print("")
+ 147:     print("READ THE `sentence count` ROW CAREFULLY. It is the only metric here that a blank")
+ 148:     print("page LOSES, which is why the rollout's gained-a-manuscript branch is keyed on it")
+ 149:     print("rather than on any of the quality measures. A COUNT OF THINGS PRESENT IS THE ONLY")
+ 150:     print("ONE OF THESE A DEGENERATE ARTEFACT CANNOT WIN, and it is the crudest of them.")
+ 151:     print("")
+ 152:     print("AND THE REFUSALS PAGE IS THE UNCOMFORTABLE CASE. Refusing by name is REQUIRED")
+ 153:     print("behaviour in this project. A page that does nothing else is honest, scores at or")
+ 154:     print("near the top of every readability measure written tonight, and is worthless to a")
+ 155:     print("reader. P47 exists for that reason; these metrics do not know it.")
+ 156: 
+ 157: 
+ 158: if __name__ == "__main__":
+ 159:     main()
+
+codex
+The control helper’s contract is now clear: positive must equal expected, negative must not equal the forbidden value. I’m checking the actual run once so I can separate demonstrated defects from cases that would require assumptions about the metric modules.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Select-String -Path 'scripts\\prove_register_change_moved_no_content.py' -Pattern 'def flow_paths|flow_paths' -Context 0,25" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "python scripts\\audit_degenerate_artefact_scores.py" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Select-String -Path 'scripts\\lint_paper_reads_as_prose.py' -Pattern 'def measure|sentences|machine' -Context 0,25" in F:\rapidmeta-ssot-shell
+ succeeded in 2216ms:
+
+> scripts\prove_register_change_moved_no_content.py:51:    all, and `flow_paths` reported 0 before AND 13 after, i.e. 
+the register change made
+  scripts\prove_register_change_moved_no_content.py:52:    things WORSE. It had not; the two halves of the same 
+measurement disagreed because the
+  scripts\prove_register_change_moved_no_content.py:53:    boundary was implemented twice and fixed once.
+  scripts\prove_register_change_moved_no_content.py:54:
+  scripts\prove_register_change_moved_no_content.py:55:    ONE IMPLEMENTATION NOW. A duplicated definition is a defect 
+waiting for one copy to be
+  scripts\prove_register_change_moved_no_content.py:56:    repaired.
+  scripts\prove_register_change_moved_no_content.py:57:    """
+  scripts\prove_register_change_moved_no_content.py:58:    i = raw.find('id="pn-paper"')
+  scripts\prove_register_change_moved_no_content.py:59:    if i < 0:
+  scripts\prove_register_change_moved_no_content.py:60:        i = raw.find('id="paper"')
+  scripts\prove_register_change_moved_no_content.py:61:    if i < 0:
+  scripts\prove_register_change_moved_no_content.py:62:        return ""
+  scripts\prove_register_change_moved_no_content.py:63:    h2 = raw.find("<h2", i)
+  scripts\prove_register_change_moved_no_content.py:64:    if h2 < 0:
+  scripts\prove_register_change_moved_no_content.py:65:        return ""
+  scripts\prove_register_change_moved_no_content.py:66:    end = raw.find('class="panel"', h2)
+  scripts\prove_register_change_moved_no_content.py:67:    return raw[h2:end if end > 0 else len(raw)]
+  scripts\prove_register_change_moved_no_content.py:68:
+  scripts\prove_register_change_moved_no_content.py:69:
+  scripts\prove_register_change_moved_no_content.py:70:def verbatim_blocks(raw):
+  scripts\prove_register_change_moved_no_content.py:71:    """Exact text of every `quoted verbatim` section, keyed by 
+heading.
+  scripts\prove_register_change_moved_no_content.py:72:
+  scripts\prove_register_change_moved_no_content.py:73:    THE PROVENANCE MARKER IS STRIPPED BEFORE COMPARING, and 
+that is only legitimate because
+  scripts\prove_register_change_moved_no_content.py:74:    the marker was also MOVED OUT of the block. The first build 
+appended it, so the R model
+  scripts\prove_register_change_moved_no_content.py:75:    results read "0.7636 0.7062 0.8258 0.7062 0.8258 2" -- A 
+SIXTH COLUMN A READER COULD
+  scripts\prove_register_change_moved_no_content.py:76:    TAKE FOR DATA, introduced by the fix for readability. This 
+check refused that build.
+> scripts\prove_register_change_moved_no_content.py:104:def flow_paths(raw):
+  scripts\prove_register_change_moved_no_content.py:105:    """Field paths standing INSIDE the sentence flow (not in a 
+provenance list)."""
+  scripts\prove_register_change_moved_no_content.py:106:    p = panel_raw(raw)
+  scripts\prove_register_change_moved_no_content.py:107:    # Remove the provenance block, which is where they are 
+supposed to be now.
+  scripts\prove_register_change_moved_no_content.py:108:    p = re.sub(r"(?is)<div class='prov-block'>.*?</div>", " ", 
+p)
+  scripts\prove_register_change_moved_no_content.py:109:    p = re.sub(r"(?is)<small[^>]*>\s*(?:&larr;|←).*?</small>", 
+"@@ARROW@@", p)
+  scripts\prove_register_change_moved_no_content.py:110:    txt = htmllib.unescape(re.sub(r"<[^>]+>", " ", p))
+  scripts\prove_register_change_moved_no_content.py:111:    return len(FIELD_PATH.findall(txt)) + 
+txt.count("@@ARROW@@")
+  scripts\prove_register_change_moved_no_content.py:112:
+  scripts\prove_register_change_moved_no_content.py:113:
+  scripts\prove_register_change_moved_no_content.py:114:def bag(pattern, text):
+  scripts\prove_register_change_moved_no_content.py:115:    from collections import Counter
+  scripts\prove_register_change_moved_no_content.py:116:    return Counter(pattern.findall(text))
+  scripts\prove_register_change_moved_no_content.py:117:
+  scripts\prove_register_change_moved_no_content.py:118:
+  scripts\prove_register_change_moved_no_content.py:119:def main():
+  scripts\prove_register_change_moved_no_content.py:120:    # TWO MODES, DECLARED BY THE CALLER, BECAUSE ONE PREDICATE 
+DOES NOT FIT BOTH.
+  scripts\prove_register_change_moved_no_content.py:121:    #
+  scripts\prove_register_change_moved_no_content.py:122:    # A REGISTER change must show field paths falling -- that 
+is what it is for, and a run
+  scripts\prove_register_change_moved_no_content.py:123:    # where they do not fall did nothing. A CONTENT change 
+adds assessments, ratings or
+  scripts\prove_register_change_moved_no_content.py:124:    # findings; its paths need not fall and its 
+verbatim-section count may rise from zero
+  scripts\prove_register_change_moved_no_content.py:125:    # because the object gained a model output it did not have.
+  scripts\prove_register_change_moved_no_content.py:126:    #
+  scripts\prove_register_change_moved_no_content.py:127:    # Applying the register predicate to a content change 
+produced two refusals with
+  scripts\prove_register_change_moved_no_content.py:128:    # nothing wrong behind them: "the number of verbatim 
+sections changed" on a page that
+  scripts\prove_register_change_moved_no_content.py:129:    # GAINED its first R output, and "the paths did not fall 
+(1 -> 1)" on a page whose
+> scripts\prove_register_change_moved_no_content.py:212:    fb, fa = flow_paths(before), flow_paths(after)
+  scripts\prove_register_change_moved_no_content.py:213:    print("")
+  scripts\prove_register_change_moved_no_content.py:214:    print("FIELD PATHS INSIDE THE SENTENCE FLOW  before %d, 
+after %d" % (fb, fa))
+  scripts\prove_register_change_moved_no_content.py:215:    # A PAGE THAT HAD NO MANUSCRIPT CANNOT SHOW A FALL, AND 
+MUST NOT BE ASKED FOR ONE.
+  scripts\prove_register_change_moved_no_content.py:216:    #
+  scripts\prove_register_change_moved_no_content.py:217:    # BOCOCIZUMAB_LIPID_AUTO_FULL_REVIEW served the 
+absent-state banner -- no manuscript at
+  scripts\prove_register_change_moved_no_content.py:218:    # all -- so its "before" carried ZERO field paths for the 
+trivial reason that it carried
+  scripts\prove_register_change_moved_no_content.py:219:    # no sentences. The rebuild produced an 81-sentence 
+manuscript with 2 paths, and this
+  scripts\prove_register_change_moved_no_content.py:220:    # check read 0 -> 2 as "the pass did nothing" and refused 
+a page that had just gained
+  scripts\prove_register_change_moved_no_content.py:221:    # its entire paper.
+  scripts\prove_register_change_moved_no_content.py:222:    #
+  scripts\prove_register_change_moved_no_content.py:223:    # THE SAME ASSUMPTION AS THE ROLLOUT'S OWN PREDICATE, IN A 
+SECOND PLACE: both were
+  scripts\prove_register_change_moved_no_content.py:224:    # written for pages that already had a manuscript, and 
+neither said so. A comparison
+  scripts\prove_register_change_moved_no_content.py:225:    # against an empty baseline is not a comparison.
+  scripts\prove_register_change_moved_no_content.py:226:    _bs = panel_text(before)[0] or []
+  scripts\prove_register_change_moved_no_content.py:227:    before_sentences = sum(len([s for s in SENT.split(t) if 
+len(s.strip()) > 25])
+  scripts\prove_register_change_moved_no_content.py:228:                           for _h, t in _bs)
+  scripts\prove_register_change_moved_no_content.py:229:    if before_sentences < 6:
+  scripts\prove_register_change_moved_no_content.py:230:        print("      the BEFORE page carried %d sentence(s) -- 
+it served the absent-state "
+  scripts\prove_register_change_moved_no_content.py:231:              "banner" % before_sentences)
+  scripts\prove_register_change_moved_no_content.py:232:        print("      and had no manuscript. NOT ASKED FOR A 
+FALL: there was nothing to fall "
+  scripts\prove_register_change_moved_no_content.py:233:              "from.")
+  scripts\prove_register_change_moved_no_content.py:234:    elif content_mode:
+  scripts\prove_register_change_moved_no_content.py:235:        print("      CONTENT MODE: paths are not required to 
+fall. This run added "
+  scripts\prove_register_change_moved_no_content.py:236:              "assessments or findings,")
+  scripts\prove_register_change_moved_no_content.py:237:        print("      not a change of register, and the 
+register predicate does not apply "
+
+
+
+ succeeded in 2202ms:
+
+> scripts\lint_paper_reads_as_prose.py:1:"""How much of the Paper panel is machine vocabulary a reader has no way to 
+parse?
+  scripts\lint_paper_reads_as_prose.py:2:
+  scripts\lint_paper_reads_as_prose.py:3:MAHMOOD READ `SGLT2_HF_REVIEW.html#paper` ON THE PUBLIC HOST AND CALLED IT 
+"COMPUTER CODE".
+  scripts\lint_paper_reads_as_prose.py:4:He is the second reader tonight to reach that manuscript and bounce off it, 
+AFTER the
+  scripts\lint_paper_reads_as_prose.py:5:`#paper` anchor was created and the section order was fixed. So the ordering 
+was necessary
+  scripts\lint_paper_reads_as_prose.py:6:and was not what either of them met.
+  scripts\lint_paper_reads_as_prose.py:7:
+> scripts\lint_paper_reads_as_prose.py:8:THIS COUNTS SENTENCES, NOT SECTIONS. A sentence reads as code if it contains 
+any of:
+  scripts\lint_paper_reads_as_prose.py:9:
+  scripts\lint_paper_reads_as_prose.py:10:    FIELD PATH      a dotted path into the object -- 
+`results.by_outcome.x.heterogeneity.i2`,
+  scripts\lint_paper_reads_as_prose.py:11:                    `screening.eligibility_provenance`, `protocol.rationale`
+  scripts\lint_paper_reads_as_prose.py:12:    SNAKE/CAMEL     an identifier in the prose -- `cvdeath_or_whf_first`,
+  scripts\lint_paper_reads_as_prose.py:13:                    `harmonised_cvdeath_or_hhf`, `k_unscreened_remainder`
+  scripts\lint_paper_reads_as_prose.py:14:    BARE NCT        a registration id inline in a sentence rather than in a 
+table or a
+  scripts\lint_paper_reads_as_prose.py:15:                    provenance line
+  scripts\lint_paper_reads_as_prose.py:16:    STORAGE DIGITS  a number carried at more decimal places than the 
+estimate supports --
+  scripts\lint_paper_reads_as_prose.py:17:                    `0.7576` where the page renders 0.76, `tau-squared 
+0.0012`
+> scripts\lint_paper_reads_as_prose.py:18:    RAW STATS       machine statistics with no gloss -- `tau^2`, `I^2`, 
+`zval`, `pval`,
+  scripts\lint_paper_reads_as_prose.py:19:                    `ci.lb`, `se`, `Q(df = 2)`
+  scripts\lint_paper_reads_as_prose.py:20:
+  scripts\lint_paper_reads_as_prose.py:21:AND SEPARATELY, THE PROVENANCE ARROW. Every projected paragraph on every 
+page ends with
+  scripts\lint_paper_reads_as_prose.py:22:`<small class='muted'>&larr; <field path></small>`. That is not one topic's 
+prose; it is
+  scripts\lint_paper_reads_as_prose.py:23:`ssot/paper_projector.py` appending the source field to each paragraph it 
+writes. IT IS
+  scripts\lint_paper_reads_as_prose.py:24:CORRECT AND IT IS THE SINGLE LARGEST SOURCE OF FIELD NAMES IN THE READER'S 
+EYE. Counted on
+  scripts\lint_paper_reads_as_prose.py:25:its own line here because the fix for it is a projector change that reaches 
+141 pages, not a
+  scripts\lint_paper_reads_as_prose.py:26:rewrite of one topic.
+  scripts\lint_paper_reads_as_prose.py:27:
+  scripts\lint_paper_reads_as_prose.py:28:WHAT THIS DOES NOT MEASURE, AND WILL NOT. The `Statistical output, quoted 
+verbatim` section
+  scripts\lint_paper_reads_as_prose.py:29:is R console output ON PURPOSE -- P46's fourth criterion requires the model 
+output quoted
+  scripts\lint_paper_reads_as_prose.py:30:verbatim, and a reader who wants to check the arithmetic needs exactly those 
+characters. It
+> scripts\lint_paper_reads_as_prose.py:31:is machine vocabulary that BELONGS. It is excluded by name, and excluding it 
+is the
+  scripts\lint_paper_reads_as_prose.py:32:difference between measuring a defect and measuring the standard.
+  scripts\lint_paper_reads_as_prose.py:33:
+  scripts\lint_paper_reads_as_prose.py:34:THREE STATES. A page with no Paper panel is NOT_ASSESSABLE, not clean.
+  scripts\lint_paper_reads_as_prose.py:35:"""
+  scripts\lint_paper_reads_as_prose.py:36:import io
+  scripts\lint_paper_reads_as_prose.py:37:import os
+  scripts\lint_paper_reads_as_prose.py:38:import re
+  scripts\lint_paper_reads_as_prose.py:39:import sys
+  scripts\lint_paper_reads_as_prose.py:40:import glob
+  scripts\lint_paper_reads_as_prose.py:41:import html as htmllib
+  scripts\lint_paper_reads_as_prose.py:42:
+  scripts\lint_paper_reads_as_prose.py:43:REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+  scripts\lint_paper_reads_as_prose.py:44:sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+  scripts\lint_paper_reads_as_prose.py:45:from instrument_controls import require_controls
+  scripts\lint_paper_reads_as_prose.py:46:
+> scripts\lint_paper_reads_as_prose.py:47:# Sections that are machine vocabulary BY DESIGN and are excluded from the 
+count.
+  scripts\lint_paper_reads_as_prose.py:48:# "quoted verbatim" as a substring, because the heading is not stable across 
+generators:
+  scripts\lint_paper_reads_as_prose.py:49:# the delivered SGLT2 page says "Statistical output, quoted verbatim" and an 
+older build
+  scripts\lint_paper_reads_as_prose.py:50:# says "Analysis output - <estimand> (quoted verbatim)". Matching the stable 
+phrase rather
+  scripts\lint_paper_reads_as_prose.py:51:# than one generator's wording is the difference between excluding the R 
+output and
+  scripts\lint_paper_reads_as_prose.py:52:# counting it as a defect.
+  scripts\lint_paper_reads_as_prose.py:53:BY_DESIGN = ("quoted verbatim", "software availability", "data availability",
+  scripts\lint_paper_reads_as_prose.py:54:             "references", "submission conformance")
+  scripts\lint_paper_reads_as_prose.py:55:
+  scripts\lint_paper_reads_as_prose.py:56:READER_FACING = ("abstract", "introduction", "discussion", "conclusions")
+  scripts\lint_paper_reads_as_prose.py:57:
+  scripts\lint_paper_reads_as_prose.py:58:FIELD_PATH = re.compile(
+  scripts\lint_paper_reads_as_prose.py:59:    
+r"\b(?:results|screening|protocol|search|config|outcomes|risk_of_bias|grade|inputs|"
+  scripts\lint_paper_reads_as_prose.py:60:    
+r"k_cascade|prisma_flow|manuscript|methodological_authority|withholding_question)"
+  scripts\lint_paper_reads_as_prose.py:61:    r"[\.\[][\w\.\[\]=\-]+")
+  scripts\lint_paper_reads_as_prose.py:62:SNAKE = re.compile(r"\b[a-z][a-z0-9]*(?:_[a-z0-9]+){1,}\b")
+  scripts\lint_paper_reads_as_prose.py:63:CAMEL = re.compile(r"\b[a-z]+[A-Z][a-zA-Z]*\b")
+  scripts\lint_paper_reads_as_prose.py:64:NCT = re.compile(r"\bNCT\d{8}\b")
+  scripts\lint_paper_reads_as_prose.py:65:RAW_STATS = re.compile(
+  scripts\lint_paper_reads_as_prose.py:66:    
+r"tau\^2|I\^2|H\^2|\bzval\b|\bpval\b|\bci\.(?:lb|ub)\b|\bpi\.(?:lb|ub)\b|"
+  scripts\lint_paper_reads_as_prose.py:67:    
+r"\bQ\(df\s*=|\byi\s*=|\bsei\s*=|\brma\(|\bqnorm\(|\bp-val\b|\btau-squared\b|"
+  scripts\lint_paper_reads_as_prose.py:68:    r"\bI-squared\b|degrees of freedom")
+  scripts\lint_paper_reads_as_prose.py:69:# Four or more decimal places is beyond what any effect estimate on these 
+pages supports.
+  scripts\lint_paper_reads_as_prose.py:70:STORAGE_DIGITS = re.compile(r"\d\.\d{4,}")
+  scripts\lint_paper_reads_as_prose.py:71:
+  scripts\lint_paper_reads_as_prose.py:72:SENT = re.compile(r"(?<=[.!?])\s+(?=[A-Z←])|\n+")
+> scripts\lint_paper_reads_as_prose.py:83:    <estimand> (quoted verbatim)` -- are exactly the 
+machine-vocabulary-heavy ones, so the
+  scripts\lint_paper_reads_as_prose.py:84:    error inflated the very number the instrument exists to report. Found by 
+reading the
+  scripts\lint_paper_reads_as_prose.py:85:    section list after a change that should have moved it and did not.
+  scripts\lint_paper_reads_as_prose.py:86:    """
+  scripts\lint_paper_reads_as_prose.py:87:    i = raw.find('id="pn-paper"')
+  scripts\lint_paper_reads_as_prose.py:88:    if i < 0:
+  scripts\lint_paper_reads_as_prose.py:89:        i = raw.find('id="paper"')
+  scripts\lint_paper_reads_as_prose.py:90:    if i < 0:
+  scripts\lint_paper_reads_as_prose.py:91:        return None, 0
+  scripts\lint_paper_reads_as_prose.py:92:    h2 = raw.find("<h2", i)
+  scripts\lint_paper_reads_as_prose.py:93:    if h2 < 0:
+  scripts\lint_paper_reads_as_prose.py:94:        return None, 0
+  scripts\lint_paper_reads_as_prose.py:95:    # END AT THE NEXT PANEL, not the next <h2>. The Paper card carries 
+exactly one <h2>
+  scripts\lint_paper_reads_as_prose.py:96:    # and the Extract and Analysis panels that follow use <h3> throughout, 
+so "to the next
+  scripts\lint_paper_reads_as_prose.py:97:    # <h2>" ran to the end of the file and swept both of them in.
+  scripts\lint_paper_reads_as_prose.py:98:    end = raw.find('class="panel"', h2)
+  scripts\lint_paper_reads_as_prose.py:99:    panel = raw[h2:end if end > 0 else len(raw)]
+  scripts\lint_paper_reads_as_prose.py:100:
+  scripts\lint_paper_reads_as_prose.py:101:    arrows = panel.count("&larr;") + panel.count("←")
+  scripts\lint_paper_reads_as_prose.py:102:    # THE PROVENANCE COLUMN IS NOT PROSE, for exactly the reason the arrow 
+was not: it is
+  scripts\lint_paper_reads_as_prose.py:103:    # the field paths, deliberately outside the sentence flow, counted on 
+their own line.
+  scripts\lint_paper_reads_as_prose.py:104:    # Counting it as prose would score the fix as a failure BECAUSE it 
+moved the paths
+  scripts\lint_paper_reads_as_prose.py:105:    # somewhere visible, which is the one thing the fix was for.
+  scripts\lint_paper_reads_as_prose.py:106:    prov = len(re.findall(r"(?is)<li>\s*<code>", panel))
+  scripts\lint_paper_reads_as_prose.py:107:    # TABLES ARE NOT PROSE, AND COUNTING THEM HERE MIS-SPECIFIED THE METRIC.
+> scripts\lint_paper_reads_as_prose.py:108:    # After the register change, ten of the twenty-five remaining "machine 
+sentences" were
+  scripts\lint_paper_reads_as_prose.py:109:    # NCT strings in the registration-identity and trial-characteristics 
+tables -- that is,
+  scripts\lint_paper_reads_as_prose.py:110:    # identifiers doing exactly what this project's own rule says they 
+should do: live in a
+  scripts\lint_paper_reads_as_prose.py:111:    # table rather than in a sentence. A metric that scores the design 
+working as a defect
+  scripts\lint_paper_reads_as_prose.py:112:    # is wrong, and it is wrong in the direction of a worse-looking number, 
+which is not a
+  scripts\lint_paper_reads_as_prose.py:113:    # safer kind of wrong.
+  scripts\lint_paper_reads_as_prose.py:114:    #
+> scripts\lint_paper_reads_as_prose.py:115:    # Machine vocabulary inside a table CELL is not unmeasured: it is the 
+subject of
+  scripts\lint_paper_reads_as_prose.py:116:    # scripts/lint_container_repr_on_a_page.py, which is a stronger check 
+for it -- a
+> scripts\lint_paper_reads_as_prose.py:117:    # Python dict repr in a cell is not one machine sentence among 
+twenty-five, it is a
+  scripts\lint_paper_reads_as_prose.py:118:    # different order of defect and gets counted as one.
+  scripts\lint_paper_reads_as_prose.py:119:    cells = len(re.findall(r"(?is)<t[dh][ >]", panel))
+  scripts\lint_paper_reads_as_prose.py:120:    panel = re.sub(r"(?is)<table.*?</table>", " ", panel)
+  scripts\lint_paper_reads_as_prose.py:121:    panel = re.sub(r"(?is)<div class=.prov-block.>.*?</ol>\s*</div>", " ", 
+panel)
+  scripts\lint_paper_reads_as_prose.py:122:
+  scripts\lint_paper_reads_as_prose.py:123:    t = re.sub(r"(?is)<script.*?</script>", " ", panel)
+  scripts\lint_paper_reads_as_prose.py:124:    t = re.sub(r"(?is)<style.*?</style>", " ", t)
+  scripts\lint_paper_reads_as_prose.py:125:    # The provenance arrow is its own element and is counted separately, 
+not as prose.
+  scripts\lint_paper_reads_as_prose.py:126:    t = re.sub(r"(?is)<small[^>]*>\s*(?:&larr;|←).*?</small>", " ", t)
+  scripts\lint_paper_reads_as_prose.py:127:    t = re.sub(r"(?i)<h[1-6][^>]*>", "\n@@@", t)
+  scripts\lint_paper_reads_as_prose.py:128:    t = re.sub(r"(?i)</h[1-6]>", "\n", t)
+  scripts\lint_paper_reads_as_prose.py:129:    t = re.sub(r"(?i)<(p|div|li|tr|br)[^>]*>", "\n", t)
+  scripts\lint_paper_reads_as_prose.py:130:    t = re.sub(r"<[^>]+>", " ", t)
+  scripts\lint_paper_reads_as_prose.py:131:    t = htmllib.unescape(t)
+  scripts\lint_paper_reads_as_prose.py:132:    t = re.sub(r"[ \t]+", " ", t)
+  scripts\lint_paper_reads_as_prose.py:133:
+  scripts\lint_paper_reads_as_prose.py:134:    sections, head, buf = [], "(preamble)", []
+  scripts\lint_paper_reads_as_prose.py:135:    for line in t.split("\n"):
+  scripts\lint_paper_reads_as_prose.py:136:        if line.startswith("@@@"):
+  scripts\lint_paper_reads_as_prose.py:137:            sections.append((head, "\n".join(buf)))
+  scripts\lint_paper_reads_as_prose.py:138:            head, buf = line[3:].strip(), []
+  scripts\lint_paper_reads_as_prose.py:139:        else:
+  scripts\lint_paper_reads_as_prose.py:140:            if line.strip():
+  scripts\lint_paper_reads_as_prose.py:141:                buf.append(line.strip())
+  scripts\lint_paper_reads_as_prose.py:142:    sections.append((head, "\n".join(buf)))
+> scripts\lint_paper_reads_as_prose.py:147:    """-> (sentences, machine_sentences, reasons Counter-ish dict)."""
+  scripts\lint_paper_reads_as_prose.py:148:    sents = [s.strip() for s in SENT.split(text) if len(s.strip()) > 25]
+  scripts\lint_paper_reads_as_prose.py:149:    bad, why = 0, {}
+  scripts\lint_paper_reads_as_prose.py:150:    for s in sents:
+  scripts\lint_paper_reads_as_prose.py:151:        hits = []
+  scripts\lint_paper_reads_as_prose.py:152:        if FIELD_PATH.search(s):
+  scripts\lint_paper_reads_as_prose.py:153:            hits.append("field path")
+  scripts\lint_paper_reads_as_prose.py:154:        if RAW_STATS.search(s):
+  scripts\lint_paper_reads_as_prose.py:155:            hits.append("raw stats")
+  scripts\lint_paper_reads_as_prose.py:156:        if NCT.search(s):
+  scripts\lint_paper_reads_as_prose.py:157:            hits.append("bare NCT")
+  scripts\lint_paper_reads_as_prose.py:158:        if STORAGE_DIGITS.search(s):
+  scripts\lint_paper_reads_as_prose.py:159:            hits.append("storage digits")
+  scripts\lint_paper_reads_as_prose.py:160:        # snake/camel, after field paths so a path is not double-counted
+  scripts\lint_paper_reads_as_prose.py:161:        if not hits or "field path" not in hits:
+  scripts\lint_paper_reads_as_prose.py:162:            if SNAKE.search(s) or CAMEL.search(s):
+  scripts\lint_paper_reads_as_prose.py:163:                hits.append("identifier")
+  scripts\lint_paper_reads_as_prose.py:164:        if hits:
+  scripts\lint_paper_reads_as_prose.py:165:            bad += 1
+  scripts\lint_paper_reads_as_prose.py:166:            for h in hits:
+  scripts\lint_paper_reads_as_prose.py:167:                why[h] = why.get(h, 0) + 1
+  scripts\lint_paper_reads_as_prose.py:168:    return len(sents), bad, why
+  scripts\lint_paper_reads_as_prose.py:169:
+  scripts\lint_paper_reads_as_prose.py:170:
+> scripts\lint_paper_reads_as_prose.py:171:def measure(path):
+  scripts\lint_paper_reads_as_prose.py:172:    raw = io.open(path, encoding="utf-8", errors="replace").read()
+  scripts\lint_paper_reads_as_prose.py:173:    sections, arrows = panel_text(raw)
+  scripts\lint_paper_reads_as_prose.py:174:    if sections is None:
+  scripts\lint_paper_reads_as_prose.py:175:        return None
+  scripts\lint_paper_reads_as_prose.py:176:    tot = mach = 0
+  scripts\lint_paper_reads_as_prose.py:177:    rf_tot = rf_mach = 0
+  scripts\lint_paper_reads_as_prose.py:178:    why = {}
+  scripts\lint_paper_reads_as_prose.py:179:    worst = []
+  scripts\lint_paper_reads_as_prose.py:180:    for head, text in sections:
+  scripts\lint_paper_reads_as_prose.py:181:        h = head.lower().strip()
+  scripts\lint_paper_reads_as_prose.py:182:        if any(b in h for b in BY_DESIGN):
+  scripts\lint_paper_reads_as_prose.py:183:            continue
+  scripts\lint_paper_reads_as_prose.py:184:        n, b, w = score(text)
+  scripts\lint_paper_reads_as_prose.py:185:        tot += n
+  scripts\lint_paper_reads_as_prose.py:186:        mach += b
+  scripts\lint_paper_reads_as_prose.py:187:        for k, v in w.items():
+  scripts\lint_paper_reads_as_prose.py:188:            why[k] = why.get(k, 0) + v
+  scripts\lint_paper_reads_as_prose.py:189:        if any(r in h for r in READER_FACING):
+  scripts\lint_paper_reads_as_prose.py:190:            rf_tot += n
+  scripts\lint_paper_reads_as_prose.py:191:            rf_mach += b
+  scripts\lint_paper_reads_as_prose.py:192:        if b:
+  scripts\lint_paper_reads_as_prose.py:193:            worst.append((b, n, head))
+  scripts\lint_paper_reads_as_prose.py:194:    worst.sort(reverse=True)
+> scripts\lint_paper_reads_as_prose.py:195:    return {"sentences": tot, "machine": mach, "arrows": arrows, "why": why,
+  scripts\lint_paper_reads_as_prose.py:196:            "reader_facing": (rf_mach, rf_tot), "worst": worst}
+  scripts\lint_paper_reads_as_prose.py:197:
+  scripts\lint_paper_reads_as_prose.py:198:
+  scripts\lint_paper_reads_as_prose.py:199:def main():
+  scripts\lint_paper_reads_as_prose.py:200:    target = None
+  scripts\lint_paper_reads_as_prose.py:201:    for a in sys.argv[1:]:
+  scripts\lint_paper_reads_as_prose.py:202:        if not a.startswith("--"):
+  scripts\lint_paper_reads_as_prose.py:203:            target = a
+  scripts\lint_paper_reads_as_prose.py:204:    figs = REPO   # delivered pages live at the repo root, not in figs/
+  scripts\lint_paper_reads_as_prose.py:205:    paths = ([target] if target
+  scripts\lint_paper_reads_as_prose.py:206:             else sorted(glob.glob(os.path.join(figs, "*_REVIEW.html"))))
+  scripts\lint_paper_reads_as_prose.py:207:
+  scripts\lint_paper_reads_as_prose.py:208:    # CONTROLS. The positive is the page Mahmood read; its Paper panel 
+demonstrably
+  scripts\lint_paper_reads_as_prose.py:209:    # contains field paths, because they are visible in the delivered 
+bytes. The negative
+> scripts\lint_paper_reads_as_prose.py:210:    # is the verbatim-R section, which is machine vocabulary BY DESIGN -- 
+if the check
+  scripts\lint_paper_reads_as_prose.py:211:    # counts that, it is measuring the standard rather than a defect.
+  scripts\lint_paper_reads_as_prose.py:212:    probe = os.path.join(figs, "SGLT2_HF_REVIEW.html")
+  scripts\lint_paper_reads_as_prose.py:213:    if os.path.exists(probe):
+  scripts\lint_paper_reads_as_prose.py:214:        m = measure(probe)
+  scripts\lint_paper_reads_as_prose.py:215:        raw = io.open(probe, encoding="utf-8", errors="replace").read()
+  scripts\lint_paper_reads_as_prose.py:216:        secs, _a = panel_text(raw)
+  scripts\lint_paper_reads_as_prose.py:217:        # Is any "quoted verbatim" section reaching the count? It must not: 
+that is R
+  scripts\lint_paper_reads_as_prose.py:218:        # console output P46 requires, and a check that scored it would be 
+measuring the
+  scripts\lint_paper_reads_as_prose.py:219:        # standard rather than a defect. Stated as the plain question 
+rather than the
+  scripts\lint_paper_reads_as_prose.py:220:        # double negative the first version used.
+  scripts\lint_paper_reads_as_prose.py:221:        secs, _a = panel_text(raw)
+  scripts\lint_paper_reads_as_prose.py:222:        verbatim_sections = [h for h, _t in (secs or []) if "quoted 
+verbatim" in h.lower()]
+  scripts\lint_paper_reads_as_prose.py:223:        verbatim_counted = any(
+  scripts\lint_paper_reads_as_prose.py:224:            not any(b in h.lower() for b in BY_DESIGN) for h in 
+verbatim_sections)
+  scripts\lint_paper_reads_as_prose.py:225:        require_controls(
+  scripts\lint_paper_reads_as_prose.py:226:            "lint_paper_reads_as_prose",
+  scripts\lint_paper_reads_as_prose.py:227:            positive=("SGLT2_HF_REVIEW's Paper panel, which a reader called 
+computer code",
+> scripts\lint_paper_reads_as_prose.py:228:                      m is not None and m["machine"] > 0, True),
+> scripts\lint_paper_reads_as_prose.py:229:            negative=("the %d verbatim-R section(s), machine vocabulary BY 
+DESIGN"
+  scripts\lint_paper_reads_as_prose.py:230:                      % len(verbatim_sections), verbatim_counted, True))
+  scripts\lint_paper_reads_as_prose.py:231:        # SECOND NEGATIVE CONTROL, declared for the same reason as the 
+first. A trial
+  scripts\lint_paper_reads_as_prose.py:232:        # characteristics row -- "NCT03036124 DAPA-HF dapagliflozin 10 mg 
+once daily
+  scripts\lint_paper_reads_as_prose.py:233:        # (treatment, n=2373) vs placebo (control, n=2371)" -- is an 
+identifier in a table,
+  scripts\lint_paper_reads_as_prose.py:234:        # which is where this project's own rule puts identifiers. It must 
+NOT be counted.
+  scripts\lint_paper_reads_as_prose.py:235:        _row = 
+("<table><tr><td>NCT03036124</td><td>DAPA-HF</td></tr></table>"
+> scripts\lint_paper_reads_as_prose.py:236:                "<p>An ordinary sentence with no machine vocabulary at 
+all.</p>")
+  scripts\lint_paper_reads_as_prose.py:237:        _secs2, _p2 = panel_text('<span 
+id="paper"></span><h2>Paper</h2><h3>T</h3>'
+  scripts\lint_paper_reads_as_prose.py:238:                                 + _row + '<div class="panel">')
+  scripts\lint_paper_reads_as_prose.py:239:        _n2, _b2, _w2 = score(chr(10).join(t for _h, t in (_secs2 or [])))
+  scripts\lint_paper_reads_as_prose.py:240:        require_controls(
+  scripts\lint_paper_reads_as_prose.py:241:            "lint_paper_reads_as_prose/tables",
+  scripts\lint_paper_reads_as_prose.py:242:            positive=("a paragraph of plain prose is still read as a 
+sentence", _n2 > 0,
+  scripts\lint_paper_reads_as_prose.py:243:                      True),
+  scripts\lint_paper_reads_as_prose.py:244:            negative=("a trial-characteristics table row carrying an NCT", 
+_b2 > 0, True))
+  scripts\lint_paper_reads_as_prose.py:245:
+  scripts\lint_paper_reads_as_prose.py:246:    print("")
+  scripts\lint_paper_reads_as_prose.py:247:    rows = []
+  scripts\lint_paper_reads_as_prose.py:248:    for p in paths:
+  scripts\lint_paper_reads_as_prose.py:249:        m = measure(p)
+  scripts\lint_paper_reads_as_prose.py:250:        name = os.path.basename(p)
+  scripts\lint_paper_reads_as_prose.py:251:        if m is None:
+  scripts\lint_paper_reads_as_prose.py:252:            rows.append((name, None))
+  scripts\lint_paper_reads_as_prose.py:253:            continue
+  scripts\lint_paper_reads_as_prose.py:254:        rows.append((name, m))
+  scripts\lint_paper_reads_as_prose.py:255:
+  scripts\lint_paper_reads_as_prose.py:256:    assessable = [(n, m) for n, m in rows if m]
+  scripts\lint_paper_reads_as_prose.py:257:    print("PAPER PANELS MEASURED: %d; NOT_ASSESSABLE (no Paper panel): %d"
+  scripts\lint_paper_reads_as_prose.py:258:          % (len(assessable), len(rows) - len(assessable)))
+  scripts\lint_paper_reads_as_prose.py:259:    print("NOT_ASSESSABLE MEANS NO PANEL WAS FOUND, NOT THAT THE PROSE IS 
+CLEAN.")
+  scripts\lint_paper_reads_as_prose.py:260:
+  scripts\lint_paper_reads_as_prose.py:261:    if target or len(assessable) == 1:
+> scripts\lint_paper_reads_as_prose.py:263:            pct = 100.0 * m["machine"] / m["sentences"] if m["sentences"] 
+else 0
+  scripts\lint_paper_reads_as_prose.py:264:            rf_m, rf_t = m["reader_facing"]
+  scripts\lint_paper_reads_as_prose.py:265:            print("")
+  scripts\lint_paper_reads_as_prose.py:266:            print("%s" % name)
+> scripts\lint_paper_reads_as_prose.py:267:            print("    sentences in the Paper panel (verbatim-R and 
+references excluded) %4d"
+> scripts\lint_paper_reads_as_prose.py:268:                  % m["sentences"])
+> scripts\lint_paper_reads_as_prose.py:269:            print("    sentences carrying machine vocabulary                
+            %4d"
+> scripts\lint_paper_reads_as_prose.py:270:                  " (%.0f%%)" % (m["machine"], pct))
+  scripts\lint_paper_reads_as_prose.py:271:            print("    of those, in the four READER-FACING sections         
+            %4d"
+  scripts\lint_paper_reads_as_prose.py:272:                  " of %d" % (rf_m, rf_t))
+  scripts\lint_paper_reads_as_prose.py:273:            print("    provenance arrows appended by the projector          
+            %4d"
+  scripts\lint_paper_reads_as_prose.py:274:                  % m["arrows"])
+  scripts\lint_paper_reads_as_prose.py:275:            for k in sorted(m["why"], key=lambda k: -m["why"][k]):
+  scripts\lint_paper_reads_as_prose.py:276:                print("        %-16s %4d" % (k, m["why"][k]))
+  scripts\lint_paper_reads_as_prose.py:277:            print("    heaviest sections:")
+  scripts\lint_paper_reads_as_prose.py:278:            for b, n, head in m["worst"][:8]:
+  scripts\lint_paper_reads_as_prose.py:279:                print("        %3d/%-3d  %s" % (b, n, head))
+  scripts\lint_paper_reads_as_prose.py:280:        return
+  scripts\lint_paper_reads_as_prose.py:281:
+> scripts\lint_paper_reads_as_prose.py:282:    tot_s = sum(m["sentences"] for _n, m in assessable)
+> scripts\lint_paper_reads_as_prose.py:283:    tot_m = sum(m["machine"] for _n, m in assessable)
+  scripts\lint_paper_reads_as_prose.py:284:    tot_a = sum(m["arrows"] for _n, m in assessable)
+  scripts\lint_paper_reads_as_prose.py:285:    print("")
+  scripts\lint_paper_reads_as_prose.py:286:    print("ACROSS THE CORPUS")
+> scripts\lint_paper_reads_as_prose.py:287:    print("    sentences                    %6d" % tot_s)
+> scripts\lint_paper_reads_as_prose.py:288:    print("    carrying machine vocabulary  %6d  (%.0f%%)"
+  scripts\lint_paper_reads_as_prose.py:289:          % (tot_m, 100.0 * tot_m / tot_s if tot_s else 0))
+  scripts\lint_paper_reads_as_prose.py:290:    print("    provenance arrows            %6d" % tot_a)
+  scripts\lint_paper_reads_as_prose.py:291:    print("")
+  scripts\lint_paper_reads_as_prose.py:292:    print("WORST PAGES BY PROPORTION:")
+> scripts\lint_paper_reads_as_prose.py:293:    ranked = sorted(((100.0 * m["machine"] / m["sentences"] if 
+m["sentences"] else 0,
+> scripts\lint_paper_reads_as_prose.py:294:                      m["machine"], m["sentences"], n) for n, m in 
+assessable),
+  scripts\lint_paper_reads_as_prose.py:295:                    reverse=True)
+  scripts\lint_paper_reads_as_prose.py:296:    for pct, b, n_, name in ranked[:12]:
+  scripts\lint_paper_reads_as_prose.py:297:        print("    %5.0f%%  %4d/%-4d  %s" % (pct, b, n_, name))
+  scripts\lint_paper_reads_as_prose.py:298:
+  scripts\lint_paper_reads_as_prose.py:299:
+  scripts\lint_paper_reads_as_prose.py:300:if __name__ == "__main__":
+  scripts\lint_paper_reads_as_prose.py:301:    main()
+
+
+
+ succeeded in 2483ms:
+CONTROL (positive) audit_degenerate_artefact_scores: the EMPTY page's machine-vocabulary rate is no worse than the REAL page's -- the finding this file exists to state -> True, expected True
+CONTROL (negative) audit_degenerate_artefact_scores: the REAL page scores as a degenerate one on sentence count -> False, must not be True
+    both controls held.
+
+artefact      sentences    machine     rate %   flow paths
+------------------------------------------------------------
+EMPTY                 2          0         0%            0
+BOILERPLATE           7          0         0%            0
+REFUSALS              8          0         0%            0
+REAL                  3          1        33%            0
+
+WOULD A GUARD ON EACH METRIC PREFER A DEGENERATE PAGE TO THE REAL ONE?
+
+    machine sentences (absolute)     DEFENDS EMPTY, BOILERPLATE, REFUSALS
+    machine-vocabulary RATE          DEFENDS EMPTY, BOILERPLATE, REFUSALS
+    field paths in the flow          DEFENDS EMPTY, BOILERPLATE, REFUSALS
+    sentence count                   DEFENDS BOILERPLATE, REFUSALS
+
+READ THE `sentence count` ROW CAREFULLY. It is the only metric here that a blank
+page LOSES, which is why the rollout's gained-a-manuscript branch is keyed on it
+rather than on any of the quality measures. A COUNT OF THINGS PRESENT IS THE ONLY
+ONE OF THESE A DEGENERATE ARTEFACT CANNOT WIN, and it is the crudest of them.
+
+AND THE REFUSALS PAGE IS THE UNCOMFORTABLE CASE. Refusing by name is REQUIRED
+behaviour in this project. A page that does nothing else is honest, scores at or
+near the top of every readability measure written tonight, and is worthless to a
+reader. P47 exists for that reason; these metrics do not know it.
+
+codex
+One defect is already demonstrated by the file’s own run: the computed sentence-count row says two degenerate pages win, while the hard-coded prose says degenerates cannot win that metric. I’m checking whether the zero-denominator branch is also reachable with an exact raw artefact.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "@'
+import scripts.audit_degenerate_artefact_scores as A
+raw = A.HEAD + '<h3>Results</h3><p>results.by_outcome.x.pooled</p>' + A.TAIL
+print(A.score('ZERO_SENT', raw))
+raw2 = A.HEAD + '<h3>Results</h3><p>results.by_outcome.x.pooled.</p>' + A.TAIL
+print(A.score('ONE_SENT', raw2))
+'@ | python -" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "@'
+import scripts.audit_degenerate_artefact_scores as A
+for raw in [A.HEAD + A.TAIL, A.HEAD + '<h3>Results</h3>' + A.TAIL, A.HEAD + '<h3>Results</h3><p>abc def ghi</p>' + A.TAIL]:
+    print(A.score('ZERO_SENT', raw))
+'@ | python -" in F:\rapidmeta-ssot-shell
+ succeeded in 1841ms:
+{'sentences': 1, 'machine': 1, 'rate': 100.0, 'flow_paths': 1}
+{'sentences': 1, 'machine': 1, 'rate': 100.0, 'flow_paths': 1}
+
+ succeeded in 1838ms:
+{'sentences': 0, 'machine': 0, 'rate': 0.0, 'flow_paths': 0}
+{'sentences': 0, 'machine': 0, 'rate': 0.0, 'flow_paths': 0}
+{'sentences': 0, 'machine': 0, 'rate': 0.0, 'flow_paths': 0}
+
+codex
+Defects found:
+
+- `line 150` — exact input: run the pasted file as-is; `BOILERPLATE` has 7 sentences and `REFUSALS` has 8 while `REAL` has 3, so line 137’s comparator makes the sentence-count row `DEFENDS BOILERPLATE, REFUSALS`. Consequence: the report still prints that a count of things present is the only metric “A DEGENERATE ARTEFACT CANNOT WIN,” asserting the opposite of its own measured verdict.
+
+- `line 93` — exact input: `score("ZERO_SENT", HEAD + TAIL)`. Consequence: a paper panel with zero measurable sentences returns `rate: 0.0`, so absent prose is treated as the best possible machine-vocabulary rate rather than unassessable/fail-closed.
+
+No proven defect in these shapes: probe keyed to removed string; idempotency guard satisfied by own comment; different-copy instrument; corpus-form selector mismatch; CRLF/LF text comparison; merged-cell/off-by-one tabulation; negation dropped.
+
+COULD NOT DETERMINE: caller-level status-code misuse beyond this script; missing caller/invocation contract.
+tokens used
+50,909
+Defects found:
+
+- `line 150` — exact input: run the pasted file as-is; `BOILERPLATE` has 7 sentences and `REFUSALS` has 8 while `REAL` has 3, so line 137’s comparator makes the sentence-count row `DEFENDS BOILERPLATE, REFUSALS`. Consequence: the report still prints that a count of things present is the only metric “A DEGENERATE ARTEFACT CANNOT WIN,” asserting the opposite of its own measured verdict.
+
+- `line 93` — exact input: `score("ZERO_SENT", HEAD + TAIL)`. Consequence: a paper panel with zero measurable sentences returns `rate: 0.0`, so absent prose is treated as the best possible machine-vocabulary rate rather than unassessable/fail-closed.
+
+No proven defect in these shapes: probe keyed to removed string; idempotency guard satisfied by own comment; different-copy instrument; corpus-form selector mismatch; CRLF/LF text comparison; merged-cell/off-by-one tabulation; negation dropped.
+
+COULD NOT DETERMINE: caller-level status-code misuse beyond this script; missing caller/invocation contract.

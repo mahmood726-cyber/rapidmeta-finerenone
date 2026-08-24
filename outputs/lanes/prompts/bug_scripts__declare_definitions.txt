@@ -1,0 +1,216 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/declare_definitions.py
+
+--- THE FILE, IN FULL ---
+"""Stamp each pooled block with the DEFINITION its ambiguous fields carry.
+
+WHERE THE FIX BELONGS, corrected after looking. `scripts/project_index_cards.py` does not
+reference i2 or tau2 at all -- the projector never carries heterogeneity, so there is no
+projector code to change. The ambiguity lives in the OBJECTS, and that is where the
+declaration has to go.
+
+THE FIX DIFFERS BY FIELD, because their ambiguity has different causes:
+
+  tau2   ITS DEFINITION IS ALREADY RECOVERABLE. `estimator` sits beside it and is declared
+         on all 35 pooled blocks -- 21 REML, 13 DerSimonian-Laird. The defect is that a
+         reader must know to look at the neighbour. The fix is to name the neighbour in
+         place: tau2_estimator, copied from the declared estimator, NEVER inferred.
+  i2     ITS DEFINITION IS NOT RECOVERABLE from anything stored. It is decided here by
+         RECOMPUTING BOTH from the object's own per-trial inputs and seeing which the
+         stored value matches -- so the declaration is DERIVED EVIDENCE, not an assertion.
+         Where I-squared is 0 and Q < df both definitions give 0 and the object CANNOT be
+         classified; those are stamped UNDECIDABLE rather than guessed.
+
+NO VALUE MOVES. Every number is left exactly as it stands. What changes is that a reader
+recomputing the quantity from the definition the NAME implies will no longer conclude we
+are wrong -- which was the whole defect, and it was a defect specifically against the only
+reader we claim to serve.
+
+Recorded under `display_change_announced` because the meaning is being made explicit while
+no value moves, which is precisely the case that property exists for.
+"""
+from __future__ import annotations
+import io
+import json
+import math
+import os
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+from rebuild_guard import guard_write  # noqa: E402
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+Z = 1.959963985
+RATIO = {"HR", "RR", "OR", "IRR", "RATE_RATIO", "RISK_RATIO", "ODDS_RATIO",
+         "HAZARD_RATIO"}
+
+HIGGINS = ("Higgins I-squared = (Q - df) / Q, clamped at 0. Cochrane Handbook 6.5 "
+           "section 10.10.2.")
+METAFOR = ("REML/metafor I-squared = tau-squared / (tau-squared + typical within-study "
+           "variance), where the typical variance is the Higgins-Thompson s-squared. This "
+           "is what metafor's rma() reports and it is NOT (Q - df) / Q.")
+UNDEC = ("UNDECIDABLE from this object. I-squared is 0 and Q is below the degrees of "
+         "freedom, where the Higgins form is negative-and-clamped and the REML/metafor "
+         "form is exactly zero -- BOTH DEFINITIONS GIVE 0 and nothing here distinguishes "
+         "them. Recorded as undecidable rather than guessed.")
+
+
+def both_i2(blk, measure):
+    log = (measure or "").upper() in RATIO
+    v = []
+    for t in blk.get("per_trial") or []:
+        p, lo, hi = t.get("point"), t.get("ci_low"), t.get("ci_high")
+        ls = t.get("log_se") or t.get("se") or t.get("se_log_rr")
+        if ls:
+            v.append(ls * ls)
+        elif None not in (p, lo, hi):
+            if log and min(p, lo, hi) > 0:
+                v.append(((math.log(hi) - math.log(lo)) / (2 * Z)) ** 2)
+            elif not log:
+                v.append(((hi - lo) / (2 * Z)) ** 2)
+            else:
+                return None
+        else:
+            return None
+    k = len(v)
+    het = blk.get("heterogeneity") or {}
+    q, t2 = het.get("q"), het.get("tau2")
+    if k < 2 or q in (None, 0) or t2 is None:
+        return None
+    W = [1 / x for x in v]
+    SW, SW2 = sum(W), sum(x * x for x in W)
+    if SW * SW - SW2 <= 0:
+        return None
+    s2 = (k - 1) * SW / (SW * SW - SW2)
+    return ((q - (k - 1)) / q * 100, (t2 / (t2 + s2) * 100) if (t2 + s2) else 0.0)
+
+
+def main() -> int:
+    ss = os.path.join(REPO, "ssot")
+    touched, counts = 0, {"higgins": 0, "metafor": 0, "undecidable": 0, "no_i2": 0}
+    for d in sorted(os.listdir(ss)):
+        f = os.path.join(ss, d, d + ".json")
+        if not os.path.exists(f):
+            continue
+        try:
+            o = json.load(io.open(f, encoding="utf-8"))
+        except Exception:
+            continue
+        changed = False
+        for name, blk in ((o.get("results") or {}).get("by_outcome") or {}).items():
+            if not isinstance(blk, dict) or (blk.get("pooled") or {}).get("point") is None:
+                continue
+            het = blk.get("heterogeneity")
+            if not isinstance(het, dict):
+                continue
+            est = blk.get("estimator") or blk.get("estimator_used")
+            if het.get("tau2") is not None and est:
+                het["tau2_estimator"] = (
+                    "%s -- copied from this block's declared `estimator`, which is the "
+                    "authoritative record of how the pool was computed. NOT inferred: an "
+                    "object that declared no estimator would be left undeclared here, "
+                    "because the absence is itself the finding." % est)
+                changed = True
+            stored = het.get("i2") if het.get("i2") is not None else het.get("i2_percent")
+            if stored is None:
+                counts["no_i2"] += 1
+                continue
+            got = both_i2(blk, (blk.get("pooled") or {}).get("measure") or blk.get("measure"))
+            if not got:
+                het["i2_definition"] = UNDEC.replace("I-squared is 0 and Q is below the "
+                                                    "degrees of freedom, where", "The "
+                                                    "per-trial inputs on this object do "
+                                                    "not permit the recomputation that "
+                                                    "would decide it. Where")
+                counts["undecidable"] += 1
+            else:
+                hg, mf = got
+                if abs(stored) < 0.05:
+                    het["i2_definition"] = UNDEC
+                    counts["undecidable"] += 1
+                elif abs(stored - hg) < 0.05:
+                    het["i2_definition"] = HIGGINS
+                    het["i2_definition_evidence"] = (
+                        "Decided by recomputing BOTH definitions from this object's own "
+                        "per-trial inputs: Higgins gives %.4f and REML/metafor gives "
+                        "%.4f against the stored %.4f." % (hg, mf, stored))
+                    counts["higgins"] += 1
+                elif abs(stored - mf) < 0.05:
+                    het["i2_definition"] = METAFOR
+                    het["i2_definition_evidence"] = (
+                        "Decided by recomputing BOTH definitions from this object's own "
+                        "per-trial inputs: REML/metafor gives %.4f and Higgins gives "
+                        "%.4f against the stored %.4f. THIS OBJECT CARRIES THE MINORITY "
+                        "DEFINITION IN THIS CORPUS -- 10 blocks carry Higgins and this is "
+                        "the only decidable block carrying the other." % (mf, hg, stored))
+                    counts["metafor"] += 1
+                else:
+                    het["i2_definition"] = (
+                        "NEITHER standard definition reproduces the stored value: Higgins "
+                        "gives %.4f, REML/metafor gives %.4f, stored is %.4f. THIS IS A "
+                        "FINDING AND NOT A DECLARATION." % (hg, mf, stored))
+            changed = True
+        if changed:
+            o.setdefault("display_change_announced", []).append({
+                "date": "2026-08-18", "change": "definition declared on ambiguous fields",
+                "values_moved": "NONE",
+                "what_changed": (
+                    "`heterogeneity.i2` and `heterogeneity.tau2` are field names that each "
+                    "map to more than one standard definition. Every number is unchanged; "
+                    "each now carries the definition it holds. tau2's definition was "
+                    "already recoverable from the declared `estimator` beside it and is "
+                    "copied, never inferred. i2's was not recoverable and is DECIDED BY "
+                    "RECOMPUTING BOTH FORMS from this object's own per-trial inputs, with "
+                    "the evidence recorded."),
+                "why": (
+                    "A reader recomputing Higgins I-squared from the Q printed beside it "
+                    "would have concluded the object was wrong -- and would have been "
+                    "behaving exactly as we want readers to behave. An ambiguous label on "
+                    "an unambiguous number is a defect specifically against the only "
+                    "reader we claim to serve."),
+            })
+            guard_write(f, json.dumps(o, ensure_ascii=False, indent=1))
+            touched += 1
+    print("objects stamped: %d" % touched)
+    for k, v in counts.items():
+        print("   i2 %-12s %d" % (k, v))
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

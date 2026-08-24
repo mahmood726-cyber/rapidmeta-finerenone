@@ -1,0 +1,781 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a0317d-d470-7d53-8dd1-1047b919e6ff
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/clone_dashboard.py
+
+--- THE FILE, IN FULL ---
+"""
+Clone an existing RapidMeta dashboard and retemplate it for a new drug/trial.
+
+Used to spin up Tier-1 post-2015 dashboards (ENSIFENTRINE_COPD, SPARSENTAN_IGAN,
+PELACARSEN_LPa, MIRVETUXIMAB_OVARIAN, CAPIVASERTIB_BC, ...) from the closest
+existing template without hand-editing 1.1MB of HTML.
+
+The config dict declares every replacement; the script applies them as
+ordered string-replaces (one occurrence each, fail-loud on missing anchors).
+
+Trial-data section needs careful handling because each trial entry's first
+line is unique. The script looks for the existing realData block opener and
+replaces it wholesale with the new entries.
+
+Usage:
+    python scripts/clone_dashboard.py --config scripts/configs/ensifentrine_copd.json
+    python scripts/clone_dashboard.py --config <path> --dry-run
+
+Config schema:
+    {
+      "base":        path to source dashboard,
+      "out":         path to write the new dashboard,
+      "title":       new <title> contents,
+      "hero_h2":     new hero header text,
+      "nyt_headline": new NYT headline,
+      "auto_include_ncts": [list of NCT strings],
+      "nct_acronyms": {"NCTxxx": "ACR", ...},
+      "localstorage_old": "rapid_meta_OLD_v1_0",
+      "localstorage_new": "rapid_meta_NEW_v1_0",
+      "selected_outcome_keep_mace": true,   # leave shortLabel='MACE' on primary
+      "pico":  {pop, int, comp, out, subgroup},
+      "real_data_entries": [
+          {nct, name, pmid, phase, year, tE, tN, cE, cN, group,
+           publishedHR, hrLCI, hrUCI, allOutcomes: [...], snippet,
+           sourceUrl, ctgovUrl}
+      ],
+      "extra_replaces": [["old", "new"], ...]   # any file-specific tweaks
+    }
+"""
+import argparse, os, json, os, re, sys, shutil
+
+ROOT = os.environ.get('RAPIDMETA_REPO_ROOT', os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+
+def js_escape(s):
+    return s.replace('\\', '\\\\').replace("'", "\\'")
+
+
+def render_outcome(o):
+    """Render one allOutcomes entry as a single-line JS object literal."""
+    parts = []
+    for k in ('shortLabel', 'title'):
+        if k in o:
+            parts.append(f"{k}: '{js_escape(o[k])}'")
+    if 'type' in o:
+        parts.append(f"type: '{o['type']}'")
+    for k in ('tE', 'cE', 'matchScore', 'effect', 'lci', 'uci', 'md', 'se',
+              'pubHR', 'pubHR_LCI', 'pubHR_UCI'):
+        if k in o and o[k] is not None:
+            parts.append(f"{k}: {o[k]}")
+    if 'estimandType' in o:
+        parts.append(f"estimandType: '{o['estimandType']}'")
+    return '{ ' + ', '.join(parts) + ' }'
+
+
+def render_evidence(e):
+    parts = [f"label: '{js_escape(e['label'])}'", f"source: '{js_escape(e['source'])}'", f"text: '{js_escape(e['text'])}'"]
+    hl = e.get('highlights') or []
+    if hl:
+        parts.append("highlights: [" + ', '.join(f"'{js_escape(h)}'" for h in hl) + "]")
+    return '{ ' + ', '.join(parts) + ' }'
+
+
+def render_trial_entry(t):
+    """Render one realData NCT-keyed entry."""
+    head = (
+        f"name: '{js_escape(t['name'])}', pmid: '{t.get('pmid','')}', "
+        f"phase: '{t.get('phase','III')}', year: {t.get('year',2024)}, "
+        f"tE: {t.get('tE','null')}, tN: {t['tN']}, cE: {t.get('cE','null')}, cN: {t['cN']}, "
+        f"group: '{js_escape(t.get('group',''))}', "
+        f"publishedHR: {t.get('publishedHR','null')}, "
+        f"hrLCI: {t.get('hrLCI','null')}, hrUCI: {t.get('hrUCI','null')}, "
+        f"pubHR: {t.get('pubHR', t.get('publishedHR','null'))}, "
+        f"pubHR_LCI: {t.get('pubHR_LCI', t.get('hrLCI','null'))}, "
+        f"pubHR_UCI: {t.get('pubHR_UCI', t.get('hrUCI','null'))}"
+    )
+    outcomes_str = ',\n                        '.join(render_outcome(o) for o in t.get('allOutcomes', []))
+    rob = t.get('rob', ['low', 'low', 'low', 'low', 'low'])
+    rob_str = '[' + ', '.join(f"'{r}'" for r in rob) + ']'
+    evidence = t.get('evidence', [])
+    if evidence:
+        ev_str = '[\n                        ' + ',\n                        '.join(render_evidence(e) for e in evidence) + '\n                    ]'
+    else:
+        ev_str = '[]'
+    return f"""'{t['nct']}': {{
+
+
+                    {head},
+
+
+                    allOutcomes: [
+                        {outcomes_str}
+                    ],
+
+
+                    rob: {rob_str},
+
+
+                    snippet: '{js_escape(t.get('snippet',''))}',
+
+
+                    sourceUrl: '{js_escape(t.get('sourceUrl',''))}',
+
+
+                    ctgovUrl: 'https://clinicaltrials.gov/study/{t['nct']}',
+
+
+                    evidence: {ev_str}
+
+
+                }}"""
+
+
+def replace_one(src, old, new, label, log):
+    """Apply a single replacement; log success/skip."""
+    n = src.count(old)
+    if n == 0:
+        log.append(f'  [SKIP_NOT_FOUND] {label}')
+        return src
+    if n > 1:
+        log.append(f'  [SKIP_AMBIGUOUS:{n}] {label}')
+        return src
+    log.append(f'  [APPLIED]          {label}')
+    return src.replace(old, new, 1)
+
+
+def clone(config, dry=False):
+    base = config['base']
+    out = config['out']
+    if not os.path.exists(base):
+        raise SystemExit(f'base file not found: {base}')
+
+    # Read base (no actual file copy yet — we'll write the modified version directly)
+    src = open(base, 'r', encoding='utf-8').read()
+    log = []
+
+    # Title
+    src = re.sub(r'<title>[^<]+</title>',
+                 f"<title>{config['title']}</title>", src, count=1)
+    log.append('  [APPLIED]          title')
+
+    # Hero h2
+    if 'hero_h2' in config:
+        src = re.sub(r'(<div class="va-header"><h2[^>]*>)[^<]+(</h2>)',
+                     lambda m: m.group(1) + config['hero_h2'] + m.group(2), src, count=1)
+        log.append('  [APPLIED]          hero_h2')
+
+    # NYT headline
+    if 'nyt_headline' in config:
+        src = re.sub(r'(<h3 class="nyt-headline[^>]*>)[^<]+(</h3>)',
+                     lambda m: m.group(1) + config['nyt_headline'] + m.group(2), src, count=1)
+        log.append('  [APPLIED]          nyt_headline')
+
+    # AUTO_INCLUDE
+    if 'auto_include_ncts' in config:
+        new_set = ', '.join(f"'{n}'" for n in config['auto_include_ncts'])
+        src = re.sub(r"AUTO_INCLUDE_TRIAL_IDS\s*=\s*new\s+Set\(\[[^\]]*\]\)",
+                     f"AUTO_INCLUDE_TRIAL_IDS = new Set([{new_set}])", src, count=1)
+        log.append('  [APPLIED]          AUTO_INCLUDE_TRIAL_IDS')
+
+    # nctAcronyms
+    if 'nct_acronyms' in config:
+        new_map = ', '.join(f"'{n}': '{js_escape(a)}'" for n, a in config['nct_acronyms'].items())
+        src = re.sub(r"nctAcronyms:\s*\{[^}]*\}",
+                     f"nctAcronyms: {{ {new_map} }}", src, count=1)
+        log.append('  [APPLIED]          nctAcronyms')
+
+    # localStorage keys
+    if 'localstorage_old' in config and 'localstorage_new' in config:
+        n = src.count(config['localstorage_old'])
+        src = src.replace(config['localstorage_old'], config['localstorage_new'])
+        log.append(f'  [APPLIED:{n}]        localStorage keys')
+
+    # PICO state.protocol. Tolerant of single- OR double-quoted values: the
+    # original base used single quotes (pop:'...'), the minified base uses
+    # double quotes (pop:"..."). Each field's quote char is captured and the
+    # replacement value is escaped for that exact delimiter.
+    if 'pico' in config:
+        p = config['pico']
+        # field-value: opening quote (group), then any escaped char or
+        # non-delimiter char, then the matching closing quote (backref).
+        def fld(key, qgrp):
+            return rf"(\s*,?\s*{key}:\s*)(['\"])(?:\\.|(?!\{qgrp}).)*\{qgrp}"
+        proto_re = re.compile(
+            r"(protocol:\s*\{\s*pop:\s*)(['\"])(?:\\.|(?!\2).)*\2"
+            + fld("int", 4) + fld("comp", 6) + fld("out", 8) + fld("subgroup", 10),
+            re.DOTALL,
+        )
+
+        def _esc(val, q):
+            return val.replace('\\', '\\\\').replace(q, '\\' + q)
+
+        def repl(m):
+            pre = [m.group(1), m.group(3), m.group(5), m.group(7), m.group(9)]
+            q = [m.group(2), m.group(4), m.group(6), m.group(8), m.group(10)]
+            vals = [p['pop'], p['int'], p['comp'], p['out'], p['subgroup']]
+            return ''.join(
+                pre[i] + q[i] + _esc(vals[i], q[i]) + q[i] for i in range(5)
+            )
+        src, n = proto_re.subn(repl, src, count=1)
+        log.append(f'  [APPLIED:{n}]        protocol.pico')
+
+    # realData entries — replace the entire `realData: { ... }` block.
+    # Tolerant of a minified base (`realData:{`) as well as the original
+    # pretty-printed form (`realData: {`).
+    if 'real_data_entries' in config:
+        m = re.search(r'realData\s*:\s*\{', src)
+        if not m:
+            raise SystemExit('realData block not found in base')
+        brace = src.index('{', m.start())
+        depth = 0
+        started = False
+        end = -1
+        for j in range(brace, len(src)):
+            c = src[j]
+            if c == '{': depth += 1; started = True
+            elif c == '}':
+                depth -= 1
+                if started and depth == 0: end = j; break
+        new_entries = ',\n\n\n                '.join(
+            render_trial_entry(t) for t in config['real_data_entries'])
+        new_block = '{\n\n\n                ' + new_entries + '\n            }'
+        src = src[:brace] + new_block + src[end+1:]
+        log.append(f'  [APPLIED:{len(config["real_data_entries"])}]        realData entries')
+
+    # Blank hardcoded external benchmarks (e.g. PUBLISHED_META_BENCHMARKS with
+    # 'BOREAS dupilumab vs placebo' estimate 0.7) — a false reference for any
+    # other topic. Per-topic benchmarks are not available for audit-first
+    # builds, so the honest value is an empty object.
+    if config.get('blank_benchmarks'):
+        # Tolerant of both the original (`const PUBLISHED_META_BENCHMARKS = {
+        # ...\n};`) and the minified (`,PUBLISHED_META_BENCHMARKS={...}`) forms:
+        # locate the identifier, then brace-scan its object literal and blank it.
+        bm = re.search(r"PUBLISHED_META_BENCHMARKS\s*[:=]\s*\{", src)
+        if bm:
+            obrace = src.index('{', bm.start())
+            depth, end = 0, -1
+            for j in range(obrace, len(src)):
+                if src[j] == '{':
+                    depth += 1
+                elif src[j] == '}':
+                    depth -= 1
+                    if depth == 0:
+                        end = j
+                        break
+            if end > 0:
+                src = src[:obrace] + '{}' + src[end + 1:]
+                log.append('  [APPLIED]          blank_benchmarks (PUBLISHED_META_BENCHMARKS={})')
+            else:
+                log.append('  [SKIP_NOT_FOUND]   blank_benchmarks (unbalanced braces)')
+        else:
+            log.append('  [SKIP_NOT_FOUND]   blank_benchmarks')
+
+    # Free-form replaces (precise, single-occurrence claim neutralizers).
+    # These run BEFORE global_replaces so claim-bearing strings (mechanism,
+    # phenotype) are neutralized to data-driven text rather than token-swapped
+    # into a false claim (e.g. "tezepelumab (IL-4Ralpha ...)").
+    for old, new in config.get('extra_replaces', []):
+        src = replace_one(src, old, new, f'extra_replace [{old[:40]}...]', log)
+
+    # Global replaces — unconditional replace-ALL. This is the fix for the
+    # n>1 SKIP_AMBIGUOUS bug: residual base tokens (dupilumab, COPD, base
+    # localStorage key, export filenames, base trial acronyms) appear many
+    # times in JS string literals and MUST all be swapped. Order matters:
+    # longest/compound tokens first so 'dupilumab' inside 'dupilumab_copd'
+    # or 'rapid_meta_dupilumab_copd' is not partially clobbered.
+    for old, new in config.get('global_replaces', []):
+        n = src.count(old)
+        if n == 0:
+            log.append(f'  [SKIP_NOT_FOUND]   global [{old[:40]}]')
+            continue
+        src = src.replace(old, new)
+        log.append(f'  [APPLIED:{n}]        global [{old[:40]} -> {new[:30]}]')
+
+    if not dry:
+        open(out, 'w', encoding='utf-8').write(src)
+        # Auto-minify the inline engine block. Without this, freshly cloned
+        # pages ship the ~1 MB unminified engine and accumulate Lighthouse
+        # debt until a follow-up minify pass runs. Soft-fail if Node/terser
+        # isn't available so the clone itself still succeeds.
+        _minify_engine_in_place(out, log)
+    return log
+
+
+def _minify_engine_in_place(path, log):
+    """Best-effort terser pass on the inline engine block of a cloned page.
+    Mirrors what scripts/minify_all_engines.mjs does for the bulk-portfolio
+    case. Logs success or skip; does not raise.
+    """
+    import subprocess
+    script = os.path.join(ROOT, 'scripts', 'minify_engine_block.mjs')
+    if not os.path.exists(script):
+        log.append('  [SKIP_MINIFY]      minify_engine_block.mjs not present')
+        return
+    node = 'node.exe' if os.name == 'nt' else 'node'
+    try:
+        proc = subprocess.run(
+            [node, script, path, path],  # read and write same file
+            capture_output=True, text=True, timeout=120,
+            encoding='utf-8', errors='replace',
+        )
+    except (FileNotFoundError, subprocess.TimeoutExpired) as e:
+        log.append(f'  [SKIP_MINIFY]      {type(e).__name__}')
+        return
+    if proc.returncode == 0:
+        # terser writes its stats to stderr (see minify_engine_block.mjs)
+        last = (proc.stderr or '').strip().splitlines()
+        savings = last[-2] if len(last) >= 2 else (last[0] if last else 'minified')
+        log.append(f'  [APPLIED]          terser: {savings[:80]}')
+    else:
+        log.append(f'  [SKIP_MINIFY]      terser rc={proc.returncode}: {(proc.stderr or "")[:100]}')
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument('--config', required=True)
+    ap.add_argument('--dry-run', action='store_true')
+    args = ap.parse_args()
+    cfg = json.loads(open(args.config, 'r', encoding='utf-8').read())
+    print(f'Mode: {"DRY-RUN" if args.dry_run else "APPLY"}  Config: {args.config}')
+    log = clone(cfg, dry=args.dry_run)
+    for line in log:
+        print(line)
+    print(f'Output: {cfg["out"]}')
+
+
+if __name__ == '__main__':
+    sys.exit(main())
+
+codex
+I’m treating this as a focused defect review of the pasted packet only. I’ll keep the answer to demonstrated failures with line-level inputs and avoid broader quality commentary.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=1; Get-Content -Path scripts/clone_dashboard.py | ForEach-Object { '"'{0,4}: {1}' -f "'$i, $_; $i++ }' in F:\rapidmeta-ssot-shell
+ succeeded in 3138ms:
+   1: """
+   2: Clone an existing RapidMeta dashboard and retemplate it for a new drug/trial.
+   3: 
+   4: Used to spin up Tier-1 post-2015 dashboards (ENSIFENTRINE_COPD, SPARSENTAN_IGAN,
+   5: PELACARSEN_LPa, MIRVETUXIMAB_OVARIAN, CAPIVASERTIB_BC, ...) from the closest
+   6: existing template without hand-editing 1.1MB of HTML.
+   7: 
+   8: The config dict declares every replacement; the script applies them as
+   9: ordered string-replaces (one occurrence each, fail-loud on missing anchors).
+  10: 
+  11: Trial-data section needs careful handling because each trial entry's first
+  12: line is unique. The script looks for the existing realData block opener and
+  13: replaces it wholesale with the new entries.
+  14: 
+  15: Usage:
+  16:     python scripts/clone_dashboard.py --config scripts/configs/ensifentrine_copd.json
+  17:     python scripts/clone_dashboard.py --config <path> --dry-run
+  18: 
+  19: Config schema:
+  20:     {
+  21:       "base":        path to source dashboard,
+  22:       "out":         path to write the new dashboard,
+  23:       "title":       new <title> contents,
+  24:       "hero_h2":     new hero header text,
+  25:       "nyt_headline": new NYT headline,
+  26:       "auto_include_ncts": [list of NCT strings],
+  27:       "nct_acronyms": {"NCTxxx": "ACR", ...},
+  28:       "localstorage_old": "rapid_meta_OLD_v1_0",
+  29:       "localstorage_new": "rapid_meta_NEW_v1_0",
+  30:       "selected_outcome_keep_mace": true,   # leave shortLabel='MACE' on primary
+  31:       "pico":  {pop, int, comp, out, subgroup},
+  32:       "real_data_entries": [
+  33:           {nct, name, pmid, phase, year, tE, tN, cE, cN, group,
+  34:            publishedHR, hrLCI, hrUCI, allOutcomes: [...], snippet,
+  35:            sourceUrl, ctgovUrl}
+  36:       ],
+  37:       "extra_replaces": [["old", "new"], ...]   # any file-specific tweaks
+  38:     }
+  39: """
+  40: import argparse, os, json, os, re, sys, shutil
+  41: 
+  42: ROOT = os.environ.get('RAPIDMETA_REPO_ROOT', os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+  43: 
+  44: 
+  45: def js_escape(s):
+  46:     return s.replace('\\', '\\\\').replace("'", "\\'")
+  47: 
+  48: 
+  49: def render_outcome(o):
+  50:     """Render one allOutcomes entry as a single-line JS object literal."""
+  51:     parts = []
+  52:     for k in ('shortLabel', 'title'):
+  53:         if k in o:
+  54:             parts.append(f"{k}: '{js_escape(o[k])}'")
+  55:     if 'type' in o:
+  56:         parts.append(f"type: '{o['type']}'")
+  57:     for k in ('tE', 'cE', 'matchScore', 'effect', 'lci', 'uci', 'md', 'se',
+  58:               'pubHR', 'pubHR_LCI', 'pubHR_UCI'):
+  59:         if k in o and o[k] is not None:
+  60:             parts.append(f"{k}: {o[k]}")
+  61:     if 'estimandType' in o:
+  62:         parts.append(f"estimandType: '{o['estimandType']}'")
+  63:     return '{ ' + ', '.join(parts) + ' }'
+  64: 
+  65: 
+  66: def render_evidence(e):
+  67:     parts = [f"label: '{js_escape(e['label'])}'", f"source: '{js_escape(e['source'])}'", f"text: '{js_escape(e['text'])}'"]
+  68:     hl = e.get('highlights') or []
+  69:     if hl:
+  70:         parts.append("highlights: [" + ', '.join(f"'{js_escape(h)}'" for h in hl) + "]")
+  71:     return '{ ' + ', '.join(parts) + ' }'
+  72: 
+  73: 
+  74: def render_trial_entry(t):
+  75:     """Render one realData NCT-keyed entry."""
+  76:     head = (
+  77:         f"name: '{js_escape(t['name'])}', pmid: '{t.get('pmid','')}', "
+  78:         f"phase: '{t.get('phase','III')}', year: {t.get('year',2024)}, "
+  79:         f"tE: {t.get('tE','null')}, tN: {t['tN']}, cE: {t.get('cE','null')}, cN: {t['cN']}, "
+  80:         f"group: '{js_escape(t.get('group',''))}', "
+  81:         f"publishedHR: {t.get('publishedHR','null')}, "
+  82:         f"hrLCI: {t.get('hrLCI','null')}, hrUCI: {t.get('hrUCI','null')}, "
+  83:         f"pubHR: {t.get('pubHR', t.get('publishedHR','null'))}, "
+  84:         f"pubHR_LCI: {t.get('pubHR_LCI', t.get('hrLCI','null'))}, "
+  85:         f"pubHR_UCI: {t.get('pubHR_UCI', t.get('hrUCI','null'))}"
+  86:     )
+  87:     outcomes_str = ',\n                        '.join(render_outcome(o) for o in t.get('allOutcomes', []))
+  88:     rob = t.get('rob', ['low', 'low', 'low', 'low', 'low'])
+  89:     rob_str = '[' + ', '.join(f"'{r}'" for r in rob) + ']'
+  90:     evidence = t.get('evidence', [])
+  91:     if evidence:
+  92:         ev_str = '[\n                        ' + ',\n                        '.join(render_evidence(e) for e in evidence) + '\n                    ]'
+  93:     else:
+  94:         ev_str = '[]'
+  95:     return f"""'{t['nct']}': {{
+  96: 
+  97: 
+  98:                     {head},
+  99: 
+ 100: 
+ 101:                     allOutcomes: [
+ 102:                         {outcomes_str}
+ 103:                     ],
+ 104: 
+ 105: 
+ 106:                     rob: {rob_str},
+ 107: 
+ 108: 
+ 109:                     snippet: '{js_escape(t.get('snippet',''))}',
+ 110: 
+ 111: 
+ 112:                     sourceUrl: '{js_escape(t.get('sourceUrl',''))}',
+ 113: 
+ 114: 
+ 115:                     ctgovUrl: 'https://clinicaltrials.gov/study/{t['nct']}',
+ 116: 
+ 117: 
+ 118:                     evidence: {ev_str}
+ 119: 
+ 120: 
+ 121:                 }}"""
+ 122: 
+ 123: 
+ 124: def replace_one(src, old, new, label, log):
+ 125:     """Apply a single replacement; log success/skip."""
+ 126:     n = src.count(old)
+ 127:     if n == 0:
+ 128:         log.append(f'  [SKIP_NOT_FOUND] {label}')
+ 129:         return src
+ 130:     if n > 1:
+ 131:         log.append(f'  [SKIP_AMBIGUOUS:{n}] {label}')
+ 132:         return src
+ 133:     log.append(f'  [APPLIED]          {label}')
+ 134:     return src.replace(old, new, 1)
+ 135: 
+ 136: 
+ 137: def clone(config, dry=False):
+ 138:     base = config['base']
+ 139:     out = config['out']
+ 140:     if not os.path.exists(base):
+ 141:         raise SystemExit(f'base file not found: {base}')
+ 142: 
+ 143:     # Read base (no actual file copy yet â€” we'll write the modified version directly)
+ 144:     src = open(base, 'r', encoding='utf-8').read()
+ 145:     log = []
+ 146: 
+ 147:     # Title
+ 148:     src = re.sub(r'<title>[^<]+</title>',
+ 149:                  f"<title>{config['title']}</title>", src, count=1)
+ 150:     log.append('  [APPLIED]          title')
+ 151: 
+ 152:     # Hero h2
+ 153:     if 'hero_h2' in config:
+ 154:         src = re.sub(r'(<div class="va-header"><h2[^>]*>)[^<]+(</h2>)',
+ 155:                      lambda m: m.group(1) + config['hero_h2'] + m.group(2), src, count=1)
+ 156:         log.append('  [APPLIED]          hero_h2')
+ 157: 
+ 158:     # NYT headline
+ 159:     if 'nyt_headline' in config:
+ 160:         src = re.sub(r'(<h3 class="nyt-headline[^>]*>)[^<]+(</h3>)',
+ 161:                      lambda m: m.group(1) + config['nyt_headline'] + m.group(2), src, count=1)
+ 162:         log.append('  [APPLIED]          nyt_headline')
+ 163: 
+ 164:     # AUTO_INCLUDE
+ 165:     if 'auto_include_ncts' in config:
+ 166:         new_set = ', '.join(f"'{n}'" for n in config['auto_include_ncts'])
+ 167:         src = re.sub(r"AUTO_INCLUDE_TRIAL_IDS\s*=\s*new\s+Set\(\[[^\]]*\]\)",
+ 168:                      f"AUTO_INCLUDE_TRIAL_IDS = new Set([{new_set}])", src, count=1)
+ 169:         log.append('  [APPLIED]          AUTO_INCLUDE_TRIAL_IDS')
+ 170: 
+ 171:     # nctAcronyms
+ 172:     if 'nct_acronyms' in config:
+ 173:         new_map = ', '.join(f"'{n}': '{js_escape(a)}'" for n, a in config['nct_acronyms'].items())
+ 174:         src = re.sub(r"nctAcronyms:\s*\{[^}]*\}",
+ 175:                      f"nctAcronyms: {{ {new_map} }}", src, count=1)
+ 176:         log.append('  [APPLIED]          nctAcronyms')
+ 177: 
+ 178:     # localStorage keys
+ 179:     if 'localstorage_old' in config and 'localstorage_new' in config:
+ 180:         n = src.count(config['localstorage_old'])
+ 181:         src = src.replace(config['localstorage_old'], config['localstorage_new'])
+ 182:         log.append(f'  [APPLIED:{n}]        localStorage keys')
+ 183: 
+ 184:     # PICO state.protocol. Tolerant of single- OR double-quoted values: the
+ 185:     # original base used single quotes (pop:'...'), the minified base uses
+ 186:     # double quotes (pop:"..."). Each field's quote char is captured and the
+ 187:     # replacement value is escaped for that exact delimiter.
+ 188:     if 'pico' in config:
+ 189:         p = config['pico']
+ 190:         # field-value: opening quote (group), then any escaped char or
+ 191:         # non-delimiter char, then the matching closing quote (backref).
+ 192:         def fld(key, qgrp):
+ 193:             return rf"(\s*,?\s*{key}:\s*)(['\"])(?:\\.|(?!\{qgrp}).)*\{qgrp}"
+ 194:         proto_re = re.compile(
+ 195:             r"(protocol:\s*\{\s*pop:\s*)(['\"])(?:\\.|(?!\2).)*\2"
+ 196:             + fld("int", 4) + fld("comp", 6) + fld("out", 8) + fld("subgroup", 10),
+ 197:             re.DOTALL,
+ 198:         )
+ 199: 
+ 200:         def _esc(val, q):
+ 201:             return val.replace('\\', '\\\\').replace(q, '\\' + q)
+ 202: 
+ 203:         def repl(m):
+ 204:             pre = [m.group(1), m.group(3), m.group(5), m.group(7), m.group(9)]
+ 205:             q = [m.group(2), m.group(4), m.group(6), m.group(8), m.group(10)]
+ 206:             vals = [p['pop'], p['int'], p['comp'], p['out'], p['subgroup']]
+ 207:             return ''.join(
+ 208:                 pre[i] + q[i] + _esc(vals[i], q[i]) + q[i] for i in range(5)
+ 209:             )
+ 210:         src, n = proto_re.subn(repl, src, count=1)
+ 211:         log.append(f'  [APPLIED:{n}]        protocol.pico')
+ 212: 
+ 213:     # realData entries â€” replace the entire `realData: { ... }` block.
+ 214:     # Tolerant of a minified base (`realData:{`) as well as the original
+ 215:     # pretty-printed form (`realData: {`).
+ 216:     if 'real_data_entries' in config:
+ 217:         m = re.search(r'realData\s*:\s*\{', src)
+ 218:         if not m:
+ 219:             raise SystemExit('realData block not found in base')
+ 220:         brace = src.index('{', m.start())
+ 221:         depth = 0
+ 222:         started = False
+ 223:         end = -1
+ 224:         for j in range(brace, len(src)):
+ 225:             c = src[j]
+ 226:             if c == '{': depth += 1; started = True
+ 227:             elif c == '}':
+ 228:                 depth -= 1
+ 229:                 if started and depth == 0: end = j; break
+ 230:         new_entries = ',\n\n\n                '.join(
+ 231:             render_trial_entry(t) for t in config['real_data_entries'])
+ 232:         new_block = '{\n\n\n                ' + new_entries + '\n            }'
+ 233:         src = src[:brace] + new_block + src[end+1:]
+ 234:         log.append(f'  [APPLIED:{len(config["real_data_entries"])}]        realData entries')
+ 235: 
+ 236:     # Blank hardcoded external benchmarks (e.g. PUBLISHED_META_BENCHMARKS with
+ 237:     # 'BOREAS dupilumab vs placebo' estimate 0.7) â€” a false reference for any
+ 238:     # other topic. Per-topic benchmarks are not available for audit-first
+ 239:     # builds, so the honest value is an empty object.
+ 240:     if config.get('blank_benchmarks'):
+ 241:         # Tolerant of both the original (`const PUBLISHED_META_BENCHMARKS = {
+ 242:         # ...\n};`) and the minified (`,PUBLISHED_META_BENCHMARKS={...}`) forms:
+ 243:         # locate the identifier, then brace-scan its object literal and blank it.
+ 244:         bm = re.search(r"PUBLISHED_META_BENCHMARKS\s*[:=]\s*\{", src)
+ 245:         if bm:
+ 246:             obrace = src.index('{', bm.start())
+ 247:             depth, end = 0, -1
+ 248:             for j in range(obrace, len(src)):
+ 249:                 if src[j] == '{':
+ 250:                     depth += 1
+ 251:                 elif src[j] == '}':
+ 252:                     depth -= 1
+ 253:                     if depth == 0:
+ 254:                         end = j
+ 255:                         break
+ 256:             if end > 0:
+ 257:                 src = src[:obrace] + '{}' + src[end + 1:]
+ 258:                 log.append('  [APPLIED]          blank_benchmarks (PUBLISHED_META_BENCHMARKS={})')
+ 259:             else:
+ 260:                 log.append('  [SKIP_NOT_FOUND]   blank_benchmarks (unbalanced braces)')
+ 261:         else:
+ 262:             log.append('  [SKIP_NOT_FOUND]   blank_benchmarks')
+ 263: 
+ 264:     # Free-form replaces (precise, single-occurrence claim neutralizers).
+ 265:     # These run BEFORE global_replaces so claim-bearing strings (mechanism,
+ 266:     # phenotype) are neutralized to data-driven text rather than token-swapped
+ 267:     # into a false claim (e.g. "tezepelumab (IL-4Ralpha ...)").
+ 268:     for old, new in config.get('extra_replaces', []):
+ 269:         src = replace_one(src, old, new, f'extra_replace [{old[:40]}...]', log)
+ 270: 
+ 271:     # Global replaces â€” unconditional replace-ALL. This is the fix for the
+ 272:     # n>1 SKIP_AMBIGUOUS bug: residual base tokens (dupilumab, COPD, base
+ 273:     # localStorage key, export filenames, base trial acronyms) appear many
+ 274:     # times in JS string literals and MUST all be swapped. Order matters:
+ 275:     # longest/compound tokens first so 'dupilumab' inside 'dupilumab_copd'
+ 276:     # or 'rapid_meta_dupilumab_copd' is not partially clobbered.
+ 277:     for old, new in config.get('global_replaces', []):
+ 278:         n = src.count(old)
+ 279:         if n == 0:
+ 280:             log.append(f'  [SKIP_NOT_FOUND]   global [{old[:40]}]')
+ 281:             continue
+ 282:         src = src.replace(old, new)
+ 283:         log.append(f'  [APPLIED:{n}]        global [{old[:40]} -> {new[:30]}]')
+ 284: 
+ 285:     if not dry:
+ 286:         open(out, 'w', encoding='utf-8').write(src)
+ 287:         # Auto-minify the inline engine block. Without this, freshly cloned
+ 288:         # pages ship the ~1 MB unminified engine and accumulate Lighthouse
+ 289:         # debt until a follow-up minify pass runs. Soft-fail if Node/terser
+ 290:         # isn't available so the clone itself still succeeds.
+ 291:         _minify_engine_in_place(out, log)
+ 292:     return log
+ 293: 
+ 294: 
+ 295: def _minify_engine_in_place(path, log):
+ 296:     """Best-effort terser pass on the inline engine block of a cloned page.
+ 297:     Mirrors what scripts/minify_all_engines.mjs does for the bulk-portfolio
+ 298:     case. Logs success or skip; does not raise.
+ 299:     """
+ 300:     import subprocess
+ 301:     script = os.path.join(ROOT, 'scripts', 'minify_engine_block.mjs')
+ 302:     if not os.path.exists(script):
+ 303:         log.append('  [SKIP_MINIFY]      minify_engine_block.mjs not present')
+ 304:         return
+ 305:     node = 'node.exe' if os.name == 'nt' else 'node'
+ 306:     try:
+ 307:         proc = subprocess.run(
+ 308:             [node, script, path, path],  # read and write same file
+ 309:             capture_output=True, text=True, timeout=120,
+ 310:             encoding='utf-8', errors='replace',
+ 311:         )
+ 312:     except (FileNotFoundError, subprocess.TimeoutExpired) as e:
+ 313:         log.append(f'  [SKIP_MINIFY]      {type(e).__name__}')
+ 314:         return
+ 315:     if proc.returncode == 0:
+ 316:         # terser writes its stats to stderr (see minify_engine_block.mjs)
+ 317:         last = (proc.stderr or '').strip().splitlines()
+ 318:         savings = last[-2] if len(last) >= 2 else (last[0] if last else 'minified')
+ 319:         log.append(f'  [APPLIED]          terser: {savings[:80]}')
+ 320:     else:
+ 321:         log.append(f'  [SKIP_MINIFY]      terser rc={proc.returncode}: {(proc.stderr or "")[:100]}')
+ 322: 
+ 323: 
+ 324: def main():
+ 325:     ap = argparse.ArgumentParser()
+ 326:     ap.add_argument('--config', required=True)
+ 327:     ap.add_argument('--dry-run', action='store_true')
+ 328:     args = ap.parse_args()
+ 329:     cfg = json.loads(open(args.config, 'r', encoding='utf-8').read())
+ 330:     print(f'Mode: {"DRY-RUN" if args.dry_run else "APPLY"}  Config: {args.config}')
+ 331:     log = clone(cfg, dry=args.dry_run)
+ 332:     for line in log:
+ 333:         print(line)
+ 334:     print(f'Output: {cfg["out"]}')
+ 335: 
+ 336: 
+ 337: if __name__ == '__main__':
+ 338:     sys.exit(main())
+
+codex
+**Defects Found**
+
+1. **STATUS CODE REPORTING THE WRAPPER**: lines 148-150, 154-156, 160-162, 167-169, 174-176.  
+Exact input: base file `<html></html>` with config `{"base":"b.html","out":"o.html","title":"T","hero_h2":"H","nyt_headline":"N","auto_include_ncts":["NCT1"],"nct_acronyms":{"NCT1":"A"}}`.  
+Consequence: every replacement logs `[APPLIED]` although zero substitutions occurred, so a gate can pass while the output is unchanged.
+
+2. **STATUS CODE REPORTING THE WRAPPER / CHECK THAT CANNOT FAIL**: lines 127-132, 268-269, 337-338.  
+Exact input: base file `<title>Old</title>` with config `{"base":"b.html","out":"o.html","title":"New","extra_replaces":[["MISSING CLAIM","replacement"]]}`.  
+Consequence: a missing required neutralizer logs `[SKIP_NOT_FOUND]` but the process exits 0 because `main()` returns `None`.
+
+3. **SELECTOR KEYED TO A FORM THE INPUT NEED NOT USE**: lines 194-211.  
+Exact input: base file `<title>X</title><script>state={protocol:{int:'oldI',pop:'oldP',comp:'oldC',out:'oldO',subgroup:'oldS'}};</script>` with config `{"base":"b.html","out":"o.html","title":"Y","pico":{"pop":"newP","int":"newI","comp":"newC","out":"newO","subgroup":"newS"}}`.  
+Consequence: valid JS with the same fields in a different order produces `[APPLIED:0] protocol.pico` and keeps the old PICO text.
+
+4. **BRACE COUNT READS TEXT AS STRUCTURE**: lines 224-233.  
+Exact input: base file `<title>X</title><script>const cfg={realData:{'NCT0':{name:'A',snippet:'}'},other:1},tail:2};</script>` with config `{"base":"b.html","out":"o.html","title":"Y","real_data_entries":[{"nct":"NCT1","name":"B","tN":1,"cN":1}]}`.  
+Consequence: the `}` inside the string is counted as a closing brace, so only part of `realData` is replaced and the generated JS is corrupted.
+
+5. **A NAME VS ITS BINDING**: line 115.  
+Exact input: `{"nct":"NCT1","name":"Trial","tN":1,"cN":1,"ctgovUrl":"https://example.test/custom"}` inside `real_data_entries`.  
+Consequence: the supplied `ctgovUrl` field is ignored and the output always emits `https://clinicaltrials.gov/study/NCT1`.
+
+No defect proven from this packet for: probe keyed to string a fix removes, idempotency guard satisfied by own comment, CRLF/LF text compare, merged-cell tabulation, zero conflated with absent, or negation dropped.
+tokens used
+22,450
+**Defects Found**
+
+1. **STATUS CODE REPORTING THE WRAPPER**: lines 148-150, 154-156, 160-162, 167-169, 174-176.  
+Exact input: base file `<html></html>` with config `{"base":"b.html","out":"o.html","title":"T","hero_h2":"H","nyt_headline":"N","auto_include_ncts":["NCT1"],"nct_acronyms":{"NCT1":"A"}}`.  
+Consequence: every replacement logs `[APPLIED]` although zero substitutions occurred, so a gate can pass while the output is unchanged.
+
+2. **STATUS CODE REPORTING THE WRAPPER / CHECK THAT CANNOT FAIL**: lines 127-132, 268-269, 337-338.  
+Exact input: base file `<title>Old</title>` with config `{"base":"b.html","out":"o.html","title":"New","extra_replaces":[["MISSING CLAIM","replacement"]]}`.  
+Consequence: a missing required neutralizer logs `[SKIP_NOT_FOUND]` but the process exits 0 because `main()` returns `None`.
+
+3. **SELECTOR KEYED TO A FORM THE INPUT NEED NOT USE**: lines 194-211.  
+Exact input: base file `<title>X</title><script>state={protocol:{int:'oldI',pop:'oldP',comp:'oldC',out:'oldO',subgroup:'oldS'}};</script>` with config `{"base":"b.html","out":"o.html","title":"Y","pico":{"pop":"newP","int":"newI","comp":"newC","out":"newO","subgroup":"newS"}}`.  
+Consequence: valid JS with the same fields in a different order produces `[APPLIED:0] protocol.pico` and keeps the old PICO text.
+
+4. **BRACE COUNT READS TEXT AS STRUCTURE**: lines 224-233.  
+Exact input: base file `<title>X</title><script>const cfg={realData:{'NCT0':{name:'A',snippet:'}'},other:1},tail:2};</script>` with config `{"base":"b.html","out":"o.html","title":"Y","real_data_entries":[{"nct":"NCT1","name":"B","tN":1,"cN":1}]}`.  
+Consequence: the `}` inside the string is counted as a closing brace, so only part of `realData` is replaced and the generated JS is corrupted.
+
+5. **A NAME VS ITS BINDING**: line 115.  
+Exact input: `{"nct":"NCT1","name":"Trial","tN":1,"cN":1,"ctgovUrl":"https://example.test/custom"}` inside `real_data_entries`.  
+Consequence: the supplied `ctgovUrl` field is ignored and the output always emits `https://clinicaltrials.gov/study/NCT1`.
+
+No defect proven from this packet for: probe keyed to string a fix removes, idempotency guard satisfied by own comment, CRLF/LF text compare, merged-cell tabulation, zero conflated with absent, or negation dropped.

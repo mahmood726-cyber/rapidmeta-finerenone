@@ -1,0 +1,365 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/estimand_colchicine_coronary_2026_08_19.py
+
+--- THE FILE, IN FULL ---
+#!/usr/bin/env python3
+"""THE CORONARY READING'S ESTIMAND, DECOMPOSED INTO COMPONENT SETS -- and the pools it permits.
+
+P37 SAYS TRIALS SHARING A COMPOSITE ENDPOINT'S *NAME* DO NOT SHARE ITS *DEFINITION*, and that a
+review must decompose every endpoint into components and compare the SETS. This does that for the
+three coronary trials that have published a primary result, using the endpoint text VERBATIM from
+each trial's own abstract as PubMed prints it -- never from recall, never from the registry's
+paraphrase, and never from the previous object, whose values carried the provenance tag
+`PAGE-EMBEDDED` and an explicit note that they had not been checked.
+
+WHY THE ABSTRACT IS AN ACCEPTABLE SOURCE HERE AND IS RECORDED AS ONE. Each of the three prints
+its primary endpoint definition and its hazard ratio in its own abstract, in a single sentence
+that can be quoted. That is the same standard `ABLATION_AF_REVIEW` applies to EAST-AFNET 4 --
+`READ from the source as printed`. It is NOT full-text extraction and does not pretend to be:
+component-level counts, analysis populations and subgroup results are NOT in these abstracts and
+are recorded as owed rather than guessed.
+
+USAGE:  python scripts/estimand_colchicine_coronary_2026_08_19.py
+        python scripts/estimand_colchicine_coronary_2026_08_19.py --selftest
+"""
+import io
+import json
+import math
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DEST = os.path.join(REPO, "evidence", "2026-08-19-batch1", "colchicine_coronary_estimand.json")
+Z95 = 1.959963984540054
+
+# Verbatim from each trial's own abstract, as PubMed prints it. According to PubMed.
+TRIALS = {
+    "COLCOT": {
+        "nct": "NCT02551094", "pmid": "31733140", "doi": "10.1056/NEJMoa1912388",
+        "journal": "N Engl J Med", "year": 2019,
+        "population_verbatim": "patients recruited within 30 days after a myocardial infarction",
+        "primary_verbatim": (
+            "a composite of death from cardiovascular causes, resuscitated cardiac arrest, "
+            "myocardial infarction, stroke, or urgent hospitalization for angina leading to "
+            "coronary revascularization"),
+        "effect_verbatim": (
+            "The primary end point occurred in 5.5% of the patients in the colchicine group, as "
+            "compared with 7.1% of those in the placebo group (hazard ratio, 0.77; 95% "
+            "confidence interval [CI], 0.61 to 0.96; P = 0.02)"),
+        "hr": 0.77, "lci": 0.61, "uci": 0.96,
+        "n_treatment": 2366, "n_control": 2379, "n_total": 4745,
+        "follow_up_verbatim": "a median of 22.6 months",
+        "components": ["cv_death", "resuscitated_cardiac_arrest", "myocardial_infarction",
+                       "stroke", "urgent_hospitalisation_for_angina_leading_to_revasc"],
+    },
+    "LoDoCo2": {
+        "nct": None, "registry_id": "ACTRN12614000093684",
+        "pmid": "32865380", "doi": "10.1056/NEJMoa2021372",
+        "journal": "N Engl J Med", "year": 2020,
+        "population_verbatim": "patients with chronic coronary disease",
+        "primary_verbatim": (
+            "a composite of cardiovascular death, spontaneous (nonprocedural) myocardial "
+            "infarction, ischemic stroke, or ischemia-driven coronary revascularization"),
+        "effect_verbatim": (
+            "A primary end-point event occurred in 187 patients (6.8%) in the colchicine group "
+            "and in 264 patients (9.6%) in the placebo group (incidence, 2.5 vs. 3.6 events per "
+            "100 person-years; hazard ratio, 0.69; 95% confidence interval [CI], 0.57 to 0.83; "
+            "P<0.001)"),
+        "hr": 0.69, "lci": 0.57, "uci": 0.83,
+        "n_treatment": 2762, "n_control": 2760, "n_total": 5522,
+        "follow_up_verbatim": "The median duration of follow-up was 28.6 months",
+        "components": ["cv_death", "spontaneous_nonprocedural_myocardial_infarction",
+                       "ischaemic_stroke", "ischaemia_driven_revascularisation"],
+        "key_secondary_verbatim": ("a composite of cardiovascular death, spontaneous myocardial "
+                                   "infarction, or ischemic stroke"),
+        "key_secondary_hr": 0.72, "key_secondary_lci": 0.57, "key_secondary_uci": 0.92,
+    },
+    "CLEAR SYNERGY": {
+        "nct": "NCT03048825", "pmid": "39555823", "doi": "10.1056/NEJMoa2405922",
+        "journal": "N Engl J Med", "year": 2024,
+        "population_verbatim": "patients who had myocardial infarction",
+        "primary_verbatim": (
+            "a composite of death from cardiovascular causes, recurrent myocardial infarction, "
+            "stroke, or unplanned ischemia-driven coronary revascularization, evaluated in a "
+            "time-to-event analysis"),
+        "effect_verbatim": (
+            "A primary-outcome event occurred in 322 of 3528 patients (9.1%) in the colchicine "
+            "group and 327 of 3534 patients (9.3%) in the placebo group over a median follow-up "
+            "period of 3 years (hazard ratio, 0.99; 95% confidence interval [CI], 0.85 to 1.16; "
+            "P = 0.93)"),
+        "hr": 0.99, "lci": 0.85, "uci": 1.16,
+        "n_treatment": 3528, "n_control": 3534, "n_total": 7062,
+        "follow_up_verbatim": "a median follow-up period of 3 years",
+        "components": ["cv_death", "recurrent_myocardial_infarction", "stroke",
+                       "unplanned_ischaemia_driven_revascularisation"],
+        "N_DISAGREES_WITH_ITS_OWN_REGISTRATION": (
+            "The publication randomised 7,062 (3,528 + 3,534). The ClinicalTrials.gov record "
+            "declares an enrolment of 7,264. THE DIFFERENCE IS 202 AND THIS FILE DOES NOT "
+            "RECONCILE IT: the registration's enrolment field counts the 2x2 factorial's full "
+            "randomised population and the colchicine report counts the colchicine comparison, "
+            "which is a PLAUSIBLE explanation and is not evidence. The published figure is used "
+            "because it is the denominator of the effect estimate beside it."),
+    },
+}
+
+# THE COMPARISON P37 DEMANDS: component SETS, not names.
+CANONICAL = {
+    "cv_death": "cardiovascular death",
+    "resuscitated_cardiac_arrest": "resuscitated cardiac arrest",
+    "myocardial_infarction": "myocardial infarction, ANY",
+    "spontaneous_nonprocedural_myocardial_infarction": "myocardial infarction, SPONTANEOUS ONLY",
+    "recurrent_myocardial_infarction": "myocardial infarction, RECURRENT",
+    "stroke": "stroke, ANY TYPE",
+    "ischaemic_stroke": "stroke, ISCHAEMIC ONLY",
+    "urgent_hospitalisation_for_angina_leading_to_revasc":
+        "revascularisation, REQUIRING URGENT HOSPITALISATION FOR ANGINA",
+    "ischaemia_driven_revascularisation": "revascularisation, ISCHAEMIA-DRIVEN",
+    "unplanned_ischaemia_driven_revascularisation":
+        "revascularisation, UNPLANNED AND ISCHAEMIA-DRIVEN",
+}
+
+
+def se_of(lo, hi):
+    return (math.log(hi) - math.log(lo)) / (2 * Z95)
+
+
+def pool(names, tau2_method="PM"):
+    """Inverse-variance pool with Paule-Mandel tau-squared and a floored Knapp-Hartung interval.
+
+    DL IS NOT USED AND THE REASON IS THE HOUSE RULE: DerSimonian-Laird is biased below k=10.
+    The Knapp-Hartung interval carries the standard floor -- when Q is below its degrees of
+    freedom the raw factor NARROWS the interval below the normal one, which is not what
+    Knapp-Hartung is for.
+    """
+    th = [math.log(TRIALS[n]["hr"]) for n in names]
+    se = [se_of(TRIALS[n]["lci"], TRIALS[n]["uci"]) for n in names]
+    k = len(th)
+    v = [s * s for s in se]
+    tau2 = 0.0
+    for _ in range(200):                       # Paule-Mandel, by fixed-point iteration
+        w = [1.0 / (vi + tau2) for vi in v]
+        mu = sum(wi * ti for wi, ti in zip(w, th)) / sum(w)
+        q = sum(wi * (ti - mu) ** 2 for wi, ti in zip(w, th))
+        if k <= 1:
+            break
+        new = tau2 + (q - (k - 1)) / sum(w)
+        new = max(0.0, new)
+        if abs(new - tau2) < 1e-12:
+            tau2 = new
+            break
+        tau2 = new
+    w = [1.0 / (vi + tau2) for vi in v]
+    tot = sum(w)
+    mu = sum(wi * ti for wi, ti in zip(w, th)) / tot
+    # Q and I-squared are reported at tau-squared = 0, which is what they mean.
+    w0 = [1.0 / vi for vi in v]
+    mu0 = sum(wi * ti for wi, ti in zip(w0, th)) / sum(w0)
+    Q = sum(wi * (ti - mu0) ** 2 for wi, ti in zip(w0, th))
+    df = k - 1
+    i2 = max(0.0, (Q - df) / Q) * 100 if Q > 0 else 0.0
+    hk = max(1.0, sum(wi * (ti - mu) ** 2 for wi, ti in zip(w, th)) / df) / tot if df else None
+    se_hk = math.sqrt(hk) if hk else math.sqrt(1.0 / tot)
+    tq = {1: 12.706205, 2: 4.302653, 3: 3.182446, 4: 2.776445}.get(df, Z95)
+    return {
+        "k": k, "trials": list(names),
+        "point": math.exp(mu),
+        "ci_low": math.exp(mu - tq * se_hk), "ci_high": math.exp(mu + tq * se_hk),
+        "tau2": tau2, "Q": Q, "df": df, "i2": i2,
+        "estimator": "Paule-Mandel tau-squared, Knapp-Hartung t interval on %d df with the "
+                     "variance-inflation floor at 1" % df,
+        "n_total": sum(TRIALS[n]["n_total"] for n in names),
+    }
+
+
+def component_analysis():
+    names = list(TRIALS)
+    sets = {n: set(TRIALS[n]["components"]) for n in names}
+    shared = set.intersection(*sets.values())
+    allc = set.union(*sets.values())
+    rows = []
+    for c in sorted(allc):
+        holders = sorted(n for n in names if c in sets[n])
+        rows.append({"component": c, "canonical": CANONICAL.get(c, c),
+                     "in_trials": holders, "in_all_three": len(holders) == len(names)})
+    return {"shared_by_all_three": sorted(shared), "union": sorted(allc), "by_component": rows}
+
+
+def main():
+    ca = component_analysis()
+    name_matched = pool(["COLCOT", "LoDoCo2", "CLEAR SYNERGY"])
+    mi_only = pool(["COLCOT", "CLEAR SYNERGY"])
+    out = {
+        "topic": "colchicine-cvd-coronary",
+        "computed_utc": "2026-08-19",
+        "source_standard": "Every endpoint definition and every effect estimate below is VERBATIM "
+                           "from the trial's own abstract as PubMed prints it. According to "
+                           "PubMed. Each carries its PMID and DOI.",
+        "trials": TRIALS,
+        "component_analysis": ca,
+
+        "THE_FINDING": (
+            "ALL THREE ARE CALLED A MAJOR ADVERSE CARDIOVASCULAR EVENT COMPOSITE AND NO TWO OF "
+            "THEM DEFINE IT THE SAME WAY. Only ONE component -- cardiovascular death -- appears "
+            "in all three with the same definition. Every other component differs by a "
+            "qualifier that changes which events count, and one whole component is present in "
+            "one trial and absent from the other two:\n"
+            "  RESUSCITATED CARDIAC ARREST is in COLCOT and in neither of the others.\n"
+            "  MYOCARDIAL INFARCTION is ANY in COLCOT, SPONTANEOUS (NONPROCEDURAL) ONLY in "
+            "LoDoCo2, and RECURRENT in CLEAR SYNERGY. LoDoCo2's qualifier is not cosmetic: it "
+            "EXCLUDES procedural infarction, and this is a literature in which a large fraction "
+            "of infarctions are periprocedural.\n"
+            "  STROKE is ANY TYPE in COLCOT and CLEAR SYNERGY and ISCHAEMIC ONLY in LoDoCo2. "
+            "THAT ONE MATTERS MORE THAN IT LOOKS: colchicine's effect in INTRACEREBRAL "
+            "HAEMORRHAGE is an open question with its own reading in this split, so a trial "
+            "that counts only ischaemic strokes and a trial that counts all strokes are "
+            "measuring the drug against different risks.\n"
+            "  REVASCULARISATION requires URGENT HOSPITALISATION FOR ANGINA in COLCOT, is "
+            "ISCHAEMIA-DRIVEN in LoDoCo2, and is UNPLANNED AND ISCHAEMIA-DRIVEN in CLEAR "
+            "SYNERGY."),
+
+        "pools": {
+            "name_matched_k3": dict(
+                name_matched,
+                what_it_is="WHAT A NAME-MATCHING REVIEWER PUBLISHES. Computed and reported so "
+                           "its cost is measured rather than asserted, exactly as the apixaban "
+                           "topics did. IT IS NOT THIS PAGE'S ANSWER.",
+                why_it_is_not_reported_as_the_result="The three primaries differ by a whole "
+                           "component and by three qualifiers. Averaging them produces a number "
+                           "for a quantity no trial measured."),
+            "mi_population_k2": dict(
+                mi_only,
+                what_it_is="COLCOT and CLEAR SYNERGY -- the two whose population is AFTER "
+                           "MYOCARDIAL INFARCTION, so the population axis is coherent.",
+                why_it_is_still_not_reported="THE POPULATION MATCHING DOES NOT FIX THE ESTIMAND. "
+                           "COLCOT counts resuscitated cardiac arrest and CLEAR SYNERGY does "
+                           "not; COLCOT's revascularisation limb requires an urgent "
+                           "hospitalisation for angina and CLEAR SYNERGY's requires only that "
+                           "the revascularisation be unplanned and ischaemia-driven. A shared "
+                           "population is NECESSARY and it is NOT SUFFICIENT -- the same shape "
+                           "as P38, one axis down."),
+        },
+
+        "THE_WITHHOLDING_QUESTION_ASKED_AND_ITS_ANSWER_RECORDED": (
+            "Before concluding that nothing pools, the question is put at every rank the sources "
+            "reach. LoDoCo2 publishes a KEY SECONDARY -- 'a composite of cardiovascular death, "
+            "spontaneous myocardial infarction, or ischemic stroke', HR 0.72 (0.57 to 0.92) -- "
+            "which drops revascularisation and is the closest thing to a common estimand in "
+            "these three papers. NEITHER COLCOT NOR CLEAR SYNERGY REPORTS THAT COMPOSITE IN ITS "
+            "ABSTRACT. COLCOT does publish every component of its own primary separately, and "
+            "CLEAR SYNERGY says only that 'the incidence of individual components of the primary "
+            "outcome appeared to be similar in the two groups' WITHOUT NUMBERS. "
+            "SO THE ANSWER IS NOT 'NOTHING POOLS'. It is that a component-level or "
+            "key-secondary-level pool WOULD REQUIRE THE FULL TEXTS, which this pass did not "
+            "read. That is OWED WORK, recorded as owed, and it is NOT a negative finding -- an "
+            "absence of a reading is not a reading of absence."),
+
+        "what_this_file_does_NOT_hold": [
+            "Component-level event counts for any trial. COLCOT's component hazard ratios are in "
+            "its abstract and are NOT transcribed here, because a component pool needs the same "
+            "component from every trial and two of the three do not print one.",
+            "Analysis populations, per-protocol sets, or any subgroup.",
+            "Any trial without a published primary result. The CORONARY reading holds 42 "
+            "ELIGIBLE registrations and THREE published primaries; the other 39 are named in "
+            "the screen and contribute nothing here.",
+            "LoDoCo2's registration record. It is on ANZCTR, which no search in this session "
+            "reached, so its arms and endpoints are read from the publication ALONE.",
+        ],
+    }
+    with io.open(DEST, "w", encoding="utf-8") as fh:
+        fh.write(json.dumps(out, indent=1, ensure_ascii=False))
+
+    print("COMPONENT SETS -- P37's comparison, made\n")
+    for r in ca["by_component"]:
+        mark = "ALL THREE" if r["in_all_three"] else " ".join(r["in_trials"])
+        print("  %-56s %s" % (r["canonical"], mark))
+    print("\n  shared by all three: %s" % ca["shared_by_all_three"])
+    print("\nPOOLS COMPUTED AND NOT REPORTED AS THE ANSWER")
+    for key in ("name_matched_k3", "mi_population_k2"):
+        p = out["pools"][key]
+        print("  %-18s k=%d  n=%-6d  HR %.4f (%.4f to %.4f)   tau2 %.4f  Q %.3f df %d  I2 %.1f%%"
+              % (key, p["k"], p["n_total"], p["point"], p["ci_low"], p["ci_high"],
+                 p["tau2"], p["Q"], p["df"], p["i2"]))
+    print("\nwrote %s" % os.path.relpath(DEST, REPO))
+    return 0
+
+
+def selftest():
+    fails = []
+
+    def ck(name, got, want):
+        ok = got == want
+        print("  %-68s %s  %r" % (name, "ok" if ok else "FAIL", got))
+        if not ok:
+            fails.append(name)
+
+    print("1. THE COMPONENT COMPARISON IS BY SET, NOT BY NAME (P37):")
+    ca = component_analysis()
+    ck("exactly ONE component is shared by all three", ca["shared_by_all_three"], ["cv_death"])
+    ck("and the union is larger than any one trial's set", len(ca["union"]), 10)
+    ck("resuscitated cardiac arrest is in COLCOT alone",
+       [r["in_trials"] for r in ca["by_component"]
+        if r["component"] == "resuscitated_cardiac_arrest"], [["COLCOT"]])
+
+    print("\n2. THE THREE MI DEFINITIONS ARE THREE DIFFERENT COMPONENTS, not one:")
+    mis = [r["component"] for r in ca["by_component"] if "myocardial_infarction" in r["component"]]
+    ck("three distinct myocardial-infarction components", len(mis), 3)
+
+    print("\n3. THE POOL REPRODUCES ITS OWN INPUTS -- a k=1 'pool' is the trial itself:")
+    p1 = pool(["COLCOT"])
+    ck("k=1 point is COLCOT's own hazard ratio", round(p1["point"], 4), 0.77)
+
+    print("\n4. AND A k=2 POOL LIES INSIDE THE HULL OF ITS TWO TRIALS:")
+    p2 = pool(["COLCOT", "CLEAR SYNERGY"])
+    ck("0.77 <= pooled <= 0.99", 0.77 <= p2["point"] <= 0.99, True)
+
+    print("\n5. EVERY EFFECT ESTIMATE IS ACCOMPANIED BY THE SENTENCE IT WAS READ FROM:")
+    for n, t in TRIALS.items():
+        ck("%s carries a verbatim effect sentence" % n,
+           str(t["hr"]) in t["effect_verbatim"], True)
+        ck("%s carries a PMID and a DOI" % n, bool(t["pmid"] and t["doi"]), True)
+
+    print("\n6. THE ARITHMETIC OF EACH TRIAL'S OWN ARMS RECONCILES WITH ITS TOTAL:")
+    for n, t in TRIALS.items():
+        ck("%s: %d + %d == %d" % (n, t["n_treatment"], t["n_control"], t["n_total"]),
+           t["n_treatment"] + t["n_control"], t["n_total"])
+
+    print("\n%s" % ("SELFTEST FAILED: %s" % fails if fails else "SELFTEST PASSED"))
+    return 1 if fails else 0
+
+
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    sys.exit(selftest() if "--selftest" in sys.argv else main())

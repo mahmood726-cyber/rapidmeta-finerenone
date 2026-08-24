@@ -1,0 +1,235 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a0312c-16f8-7980-81dc-b5a8e2ff0984
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/append_trial_to_nma_config.py
+
+--- THE FILE, IN FULL ---
+#!/usr/bin/env python
+"""Append trial(s) to an NMA config — extends realData_block AND treatments + comparisons.
+
+Usage: python append_trial_to_nma_config.py <config.json> <additions.json>
+
+additions.json format (NMA-specific):
+  [
+    {
+      "nct": "NCT...",
+      "name": "Trial name",
+      "t1": "Active treatment",    # adds to treatments if new
+      "t2": "Comparator treatment", # adds to treatments if new
+      "phase": "III", "year": 2023,
+      "tN": 100, "cN": 100, "tE": 0, "cE": 0,
+      "group": "description",
+      "publishedHR": 0.5, "hrLCI": 0.3, "hrUCI": 0.8,
+      "outcome_label": "MACE",
+      "outcome_title": "...",
+      "estimand": "HR",  # or OR, RR, MD
+      "snippet": "...", "sourceUrl": "...",
+      "rob": "['low',...]"
+    }
+  ]
+"""
+import json, sys, io
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+
+def build_trial_block(t):
+    hr = t.get('publishedHR'); lci = t.get('hrLCI'); uci = t.get('hrUCI')
+    est = t.get('estimand', 'RR')
+    tE = t.get('tE', 0); tN = t.get('tN', 0)
+    cE = t.get('cE', 0); cN = t.get('cN', 0)
+    out_label = t.get('outcome_label', 'MACE')
+    out_title = t.get('outcome_title', 'Primary outcome')
+    rob = t.get('rob', "['low', 'some concerns', 'low', 'low', 'low']")
+    snippet = t.get('snippet', '')
+    src = t.get('sourceUrl', '')
+    nct = t['nct']
+    ctgov = f'https://clinicaltrials.gov/study/{nct.split("_")[0]}' if nct.startswith('NCT') else ''
+    evidence = t.get('evidence_raw') or "[]"
+    return (
+        f"                '{nct}': {{\n"
+        f"                    name: '{t['name']}', phase: '{t.get('phase','III')}', year: {t.get('year',2024)}, "
+        f"tE: {tE}, tN: {tN}, cE: {cE}, cN: {cN}, "
+        f"group: '{t.get('group','')}', "
+        f"publishedHR: {hr}, hrLCI: {lci}, hrUCI: {uci},\n"
+        f"                    allOutcomes: [\n"
+        f"                        {{ shortLabel: '{out_label}', title: '{out_title}', tE: {tE}, cE: {cE}, type: 'PRIMARY', matchScore: 95, effect: {hr}, lci: {lci}, uci: {uci}, estimandType: '{est}' }}\n"
+        f"                    ],\n"
+        f"                    rob: {rob},\n"
+        f"                    snippet: '{snippet}',\n"
+        f"                    sourceUrl: '{src}',\n"
+        f"                    ctgovUrl: '{ctgov}',\n"
+        f"                    evidence: {evidence}\n"
+        f"                }}"
+    )
+
+def main(cfg_path, add_path):
+    cfg = json.load(open(cfg_path, encoding='utf-8'))
+    adds = json.load(open(add_path, encoding='utf-8'))
+
+    # Extend realData_block
+    current = cfg['realData_block']
+    for t in adds:
+        block = build_trial_block(t)
+        current = current.rstrip() + ',\n' + block
+    cfg['realData_block'] = current
+
+    # Extend auto_include + acronyms
+    if 'auto_include' not in cfg: cfg['auto_include'] = []
+    if 'acronyms' not in cfg: cfg['acronyms'] = {}
+    for t in adds:
+        if t['nct'] not in cfg['auto_include']:
+            cfg['auto_include'].append(t['nct'])
+        cfg['acronyms'][t['nct']] = t['name']
+
+    # NMA-specific: extend treatments + comparisons
+    for t in adds:
+        if 't1' in t and t['t1'] not in cfg.get('treatments', []):
+            cfg.setdefault('treatments', []).append(t['t1'])
+        if 't2' in t and t['t2'] not in cfg.get('treatments', []):
+            cfg.setdefault('treatments', []).append(t['t2'])
+        if 't1' in t and 't2' in t:
+            cfg.setdefault('comparisons', []).append({
+                't1': t['t1'], 't2': t['t2'], 'trials': [t['nct']]
+            })
+
+    with open(cfg_path, 'w', encoding='utf-8') as f:
+        json.dump(cfg, f, indent=2, ensure_ascii=False)
+    print(f'appended {len(adds)} trial(s) to {cfg_path}')
+
+if __name__ == '__main__':
+    if len(sys.argv) != 3:
+        print('usage: python append_trial_to_nma_config.py <config.json> <additions.json>', file=sys.stderr)
+        sys.exit(1)
+    main(sys.argv[1], sys.argv[2])
+
+codex
+**Defects Found**
+
+1. **Idempotency guard does not guard the work**  
+Lines 64-66 and 83-86.  
+Input config:
+```json
+{"realData_block":"                'NCT00000001': { name: 'Old' }","auto_include":["NCT00000001"],"acronyms":{"NCT00000001":"Old"},"treatments":["A","B"],"comparisons":[{"t1":"A","t2":"B","trials":["NCT00000001"]}]}
+```
+Input additions:
+```json
+[{"nct":"NCT00000001","name":"Old","t1":"A","t2":"B","publishedHR":1,"hrLCI":0.8,"hrUCI":1.2}]
+```
+Consequence: rerunning appends a duplicate `realData_block` entry and duplicate comparison while side-list guards make the trial appear already included.
+
+2. **ZERO CONFLATED WITH ABSENT**  
+Line 40.  
+Input addition:
+```json
+{"nct":"NCT00000002","name":"X","evidence_raw":0,"publishedHR":1,"hrLCI":0.8,"hrUCI":1.2}
+```
+Consequence: explicit `evidence_raw: 0` is discarded and emitted as `evidence: []`.
+
+3. **Unescaped generated string corrupts output**  
+Line 43; same defect also exists on lines 45, 48, 51, and 52.  
+Input addition:
+```json
+{"nct":"NCT00000003","name":"O'Brien","publishedHR":1,"hrLCI":0.8,"hrUCI":1.2}
+```
+Consequence: output contains `name: 'O'Brien'`, terminating the string early and making the generated block invalid.
+
+4. **Leading comma on empty block**  
+Line 66.  
+Input config:
+```json
+{"realData_block":"","auto_include":[],"acronyms":{}}
+```
+Input additions:
+```json
+[{"nct":"NCT00000004","name":"X","publishedHR":1,"hrLCI":0.8,"hrUCI":1.2}]
+```
+Consequence: `realData_block` begins with `,\n`, invalid if this field is object-body content.
+
+No finding from this file for: check that cannot fail; probe keyed to string a fix removes; instrument reading a different copy; selector keyed to unused corpus form; CRLF/LF text comparison; merged-cell/off-by-one tabulation/count; negation dropped; wrapper status code.
+tokens used
+11,363
+**Defects Found**
+
+1. **Idempotency guard does not guard the work**  
+Lines 64-66 and 83-86.  
+Input config:
+```json
+{"realData_block":"                'NCT00000001': { name: 'Old' }","auto_include":["NCT00000001"],"acronyms":{"NCT00000001":"Old"},"treatments":["A","B"],"comparisons":[{"t1":"A","t2":"B","trials":["NCT00000001"]}]}
+```
+Input additions:
+```json
+[{"nct":"NCT00000001","name":"Old","t1":"A","t2":"B","publishedHR":1,"hrLCI":0.8,"hrUCI":1.2}]
+```
+Consequence: rerunning appends a duplicate `realData_block` entry and duplicate comparison while side-list guards make the trial appear already included.
+
+2. **ZERO CONFLATED WITH ABSENT**  
+Line 40.  
+Input addition:
+```json
+{"nct":"NCT00000002","name":"X","evidence_raw":0,"publishedHR":1,"hrLCI":0.8,"hrUCI":1.2}
+```
+Consequence: explicit `evidence_raw: 0` is discarded and emitted as `evidence: []`.
+
+3. **Unescaped generated string corrupts output**  
+Line 43; same defect also exists on lines 45, 48, 51, and 52.  
+Input addition:
+```json
+{"nct":"NCT00000003","name":"O'Brien","publishedHR":1,"hrLCI":0.8,"hrUCI":1.2}
+```
+Consequence: output contains `name: 'O'Brien'`, terminating the string early and making the generated block invalid.
+
+4. **Leading comma on empty block**  
+Line 66.  
+Input config:
+```json
+{"realData_block":"","auto_include":[],"acronyms":{}}
+```
+Input additions:
+```json
+[{"nct":"NCT00000004","name":"X","publishedHR":1,"hrLCI":0.8,"hrUCI":1.2}]
+```
+Consequence: `realData_block` begins with `,\n`, invalid if this field is object-body content.
+
+No finding from this file for: check that cannot fail; probe keyed to string a fix removes; instrument reading a different copy; selector keyed to unused corpus form; CRLF/LF text comparison; merged-cell/off-by-one tabulation/count; negation dropped; wrapper status code.

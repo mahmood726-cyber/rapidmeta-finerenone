@@ -1,0 +1,549 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a03214-9254-7520-8e8f-9c1ef861f502
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/populate_nma_benchmarks_batch_F.py
+
+--- THE FILE, IN FULL ---
+#!/usr/bin/env python3
+# sentinel:skip-file - developer tool; hardcoded ROOT is intentional (local Finrenone checkout only)
+"""Populate benchmarks for Batch F (14 cardio pairwise apps).
+
+Each uses the drug's pivotal RCT as the anchor (with 'MACE' outcome key).
+BENCHMARK_OUTCOME_MAP routes all legacy keys (incl. MACE) to MACE so the
+benchmark shows regardless of selected outcome.
+"""
+import argparse, pathlib, re, sys
+
+ROOT = pathlib.Path(__file__).resolve().parent.parent
+
+BATCH = {
+    "ABLATION_AF_REVIEW.html": {
+        "outcomes": ["MACE"],
+        "benchmarks": {
+            "MACE": [
+                {"label": "CASTLE-AF ablation vs drug (AF + HF)", "citation": "Marrouche 2018", "year": 2018,
+                 "measure": "HR", "estimate": 0.62, "lci": 0.43, "uci": 0.87, "k": 1, "n": 363,
+                 "scope": "Catheter ablation vs medical therapy in AF + HFrEF; ACM or HF hospitalization. NEJM 2018;378:417-427."},
+            ]
+        }
+    },
+    "ARNI_HF_REVIEW.html": {
+        "outcomes": ["MACE"],
+        "benchmarks": {
+            "MACE": [
+                {"label": "PARADIGM-HF sacubitril/valsartan vs enalapril", "citation": "McMurray 2014", "year": 2014,
+                 "measure": "HR", "estimate": 0.80, "lci": 0.73, "uci": 0.87, "k": 1, "n": 8442,
+                 "scope": "Sacubitril/valsartan vs enalapril in HFrEF; CV death or first HHF. NEJM 2014;371:993-1004."},
+            ]
+        }
+    },
+    "BEMPEDOIC_ACID_REVIEW.html": {
+        "outcomes": ["MACE"],
+        "benchmarks": {
+            "MACE": [
+                {"label": "CLEAR Outcomes bempedoic acid vs placebo", "citation": "Nissen 2023", "year": 2023,
+                 "measure": "HR", "estimate": 0.87, "lci": 0.79, "uci": 0.96, "k": 1, "n": 13970,
+                 "scope": "Bempedoic acid vs placebo in statin-intolerant primary/secondary prevention; MACE-4 (CV death, MI, stroke, coronary revascularization). NEJM 2023;388:1353-1364."},
+            ]
+        }
+    },
+    "CANGRELOR_PCI_REVIEW.html": {
+        "outcomes": ["MACE"],
+        "benchmarks": {
+            "MACE": [
+                {"label": "CHAMPION PHOENIX cangrelor vs clopidogrel", "citation": "Bhatt 2013", "year": 2013,
+                 "measure": "OR", "estimate": 0.78, "lci": 0.66, "uci": 0.93, "k": 1, "n": 11145,
+                 "scope": "Cangrelor vs clopidogrel at PCI; death, MI, ischemia-driven revascularization, or stent thrombosis at 48 h. NEJM 2013;368:1303-1313."},
+            ]
+        }
+    },
+    "DOAC_AF_REVIEW.html": {
+        "outcomes": ["MACE"],
+        "benchmarks": {
+            "MACE": [
+                {"label": "Ruff pooled DOAC vs warfarin MA (stroke/SE)", "citation": "Ruff 2014", "year": 2014,
+                 "measure": "RR", "estimate": 0.81, "lci": 0.73, "uci": 0.91, "k": 4, "n": 71683,
+                 "scope": "DOACs pooled vs warfarin in AF; stroke or systemic embolism. Lancet 2014;383:955-962."},
+            ]
+        }
+    },
+    "INCLISIRAN_REVIEW.html": {
+        "outcomes": ["MACE"],
+        "benchmarks": {
+            "MACE": [
+                {"label": "ORION-10/-11 inclisiran vs placebo (LDL-C)", "citation": "Ray 2020", "year": 2020,
+                 "measure": "MD", "estimate": -52.0, "lci": -56.2, "uci": -47.8, "k": 2, "n": 3178,
+                 "scope": "Inclisiran vs placebo in ASCVD/FH; LDL-C percent change at day 510. MACE outcomes await ORION-4. NEJM 2020;382:1507-1519."},
+            ]
+        }
+    },
+    "INCRETIN_HFpEF_REVIEW.html": {
+        "outcomes": ["MACE"],
+        "benchmarks": {
+            "MACE": [
+                {"label": "STEP-HFpEF semaglutide 2.4 mg (KCCQ)", "citation": "Kosiborod 2023", "year": 2023,
+                 "measure": "MD", "estimate": 7.80, "lci": 4.80, "uci": 10.90, "k": 1, "n": 529,
+                 "scope": "Semaglutide 2.4 mg vs placebo in HFpEF + obesity; KCCQ-CSS change. NEJM 2023;389:1069-1084."},
+            ]
+        }
+    },
+    "IV_IRON_HF_REVIEW.html": {
+        "outcomes": ["MACE"],
+        "benchmarks": {
+            "MACE": [
+                {"label": "IV iron HF pooled MA (Graham 2023)", "citation": "Graham 2023", "year": 2023,
+                 "measure": "RR", "estimate": 0.84, "lci": 0.76, "uci": 0.93, "k": 3, "n": 4501,
+                 "scope": "IV ferric carboxymaltose vs placebo in iron-deficient HFrEF (AFFIRM-AHF + CONFIRM-HF + HEART-FID + IRONMAN); CV death + HHF. Eur Heart J 2023."},
+            ]
+        }
+    },
+    "INSULIN_ICODEC_REVIEW.html": {
+        "outcomes": ["MACE"],
+        "benchmarks": {
+            "MACE": [
+                {"label": "ONWARDS program icodec vs daily basal (HbA1c)", "citation": "Mathieu 2023", "year": 2023,
+                 "measure": "MD", "estimate": -0.05, "lci": -0.14, "uci": 0.04, "k": 6, "n": 4157,
+                 "scope": "Insulin icodec weekly vs daily basal insulin in T2D; HbA1c change (non-inferior). ONWARDS 1-6 pool."},
+            ]
+        }
+    },
+    "MITRAL_FUNCMR_REVIEW.html": {
+        "outcomes": ["MACE"],
+        "benchmarks": {
+            "MACE": [
+                {"label": "COAPT MitraClip vs GDMT (functional MR)", "citation": "Stone 2018", "year": 2018,
+                 "measure": "HR", "estimate": 0.53, "lci": 0.40, "uci": 0.70, "k": 1, "n": 614,
+                 "scope": "Transcatheter mitral leaflet edge-to-edge repair (MitraClip) + GDMT vs GDMT in severe secondary MR; HHF at 24 mo. NEJM 2018;379:2307-2318."},
+            ]
+        }
+    },
+    "PCSK9_REVIEW.html": {
+        "outcomes": ["MACE"],
+        "benchmarks": {
+            "MACE": [
+                {"label": "FOURIER evolocumab vs placebo", "citation": "Sabatine 2017", "year": 2017,
+                 "measure": "HR", "estimate": 0.85, "lci": 0.79, "uci": 0.92, "k": 1, "n": 27564,
+                 "scope": "Evolocumab + statin vs placebo + statin in ASCVD; CV death, MI, stroke, hospitalization for UA or coronary revascularization. NEJM 2017;376:1713-1722."},
+                {"label": "ODYSSEY OUTCOMES alirocumab vs placebo", "citation": "Schwartz 2018", "year": 2018,
+                 "measure": "HR", "estimate": 0.85, "lci": 0.78, "uci": 0.93, "k": 1, "n": 18924,
+                 "scope": "Alirocumab vs placebo post-ACS; CHD death, MI, ischemic stroke, or UA requiring hospitalization. NEJM 2018;379:2097-2107."},
+            ]
+        }
+    },
+    "RIVAROXABAN_VASC_REVIEW.html": {
+        "outcomes": ["MACE"],
+        "benchmarks": {
+            "MACE": [
+                {"label": "COMPASS rivaroxaban 2.5 mg + ASA vs ASA", "citation": "Eikelboom 2017", "year": 2017,
+                 "measure": "HR", "estimate": 0.76, "lci": 0.66, "uci": 0.86, "k": 1, "n": 27395,
+                 "scope": "Rivaroxaban 2.5 mg BID + aspirin 100 mg QD vs aspirin alone in stable ASCVD/PAD; CV death, stroke, or MI. NEJM 2017;377:1319-1330."},
+            ]
+        }
+    },
+    "SEMAGLUTIDE_OBESITY_REVIEW.html": {
+        "outcomes": ["MACE"],
+        "benchmarks": {
+            "MACE": [
+                {"label": "SELECT semaglutide 2.4 mg vs placebo", "citation": "Lincoff 2023", "year": 2023,
+                 "measure": "HR", "estimate": 0.80, "lci": 0.72, "uci": 0.90, "k": 1, "n": 17604,
+                 "scope": "Semaglutide 2.4 mg weekly vs placebo in overweight/obese CVD without diabetes; CV death, nonfatal MI, nonfatal stroke. NEJM 2023;389:2221-2232."},
+            ]
+        }
+    },
+    "SGLT2_MACE_CVOT_REVIEW.html": {
+        "outcomes": ["MACE"],
+        "benchmarks": {
+            "MACE": [
+                {"label": "Zelniker SGLT2i CVOT MA", "citation": "Zelniker 2019", "year": 2019,
+                 "measure": "HR", "estimate": 0.89, "lci": 0.83, "uci": 0.96, "k": 3, "n": 34322,
+                 "scope": "SGLT2i pooled (EMPA-REG OUTCOME + CANVAS + DECLARE-TIMI 58) vs placebo; 3-point MACE. Lancet 2019;393:31-39."},
+            ]
+        }
+    },
+}
+
+
+def find_balanced_close(text, open_pos):
+    depth = 0
+    i = open_pos
+    while i < len(text):
+        if text[i] == '{': depth += 1
+        elif text[i] == '}':
+            depth -= 1
+            if depth == 0: return i
+        i += 1
+    return -1
+
+
+def render_benchmark_block(benchmarks_by_key):
+    lines = ["{"]
+    for key, benchmarks in benchmarks_by_key.items():
+        lines.append(f"            '{key}': [")
+        for b in benchmarks:
+            lines.append(
+                "                { "
+                f"label: '{b['label'].replace(chr(39), chr(92)+chr(39))}', "
+                f"citation: '{b['citation']}', "
+                f"year: {b['year']}, "
+                f"measure: '{b['measure']}', "
+                f"estimate: {b['estimate']}, "
+                f"lci: {b['lci']}, "
+                f"uci: {b['uci']}, "
+                f"k: {b['k']}, "
+                f"n: {b['n']}, "
+                f"scope: '{b['scope'].replace(chr(39), chr(92)+chr(39))}' "
+                "},"
+            )
+        lines.append("            ],")
+    lines.append("        }")
+    return "\n".join(lines)
+
+
+def render_outcome_map(outcomes):
+    primary = outcomes[0]
+    legacy = ["default", "MACE", "ACH", "ACM", "Renal40", "Hyperkalemia",
+              "HF_CV_First", "KidneyComp", "Renal57"]
+    lines = ["{"]
+    for k in legacy:
+        lines.append(f"            {k}: '{primary}',")
+    seen = set(legacy)
+    for o in outcomes:
+        if o not in seen:
+            lines.append(f"            '{o}': '{o}',")
+    lines[-1] = lines[-1].rstrip(",")
+    lines.append("        }")
+    return "\n".join(lines)
+
+
+def replace_const_decl(text, const_name, new_rhs):
+    pat = re.compile(rf"const\s+{re.escape(const_name)}\s*=\s*\{{")
+    m = pat.search(text)
+    if not m: return text, False
+    open_pos = m.end() - 1
+    close_pos = find_balanced_close(text, open_pos)
+    if close_pos < 0: return text, False
+    after = close_pos + 1
+    while after < len(text) and text[after] in " \t": after += 1
+    if after < len(text) and text[after] == ';': after += 1
+    return text[:m.start()] + f"const {const_name} = {new_rhs};" + text[after:], True
+
+
+def apply_to_file(path, spec, dry_run):
+    text = path.read_text(encoding="utf-8", newline="")
+    crlf = "\r\n" in text
+    work = text.replace("\r\n", "\n") if crlf else text
+    work, c1 = replace_const_decl(work, "PUBLISHED_META_BENCHMARKS",
+                                   render_benchmark_block(spec["benchmarks"]))
+    work, c2 = replace_const_decl(work, "BENCHMARK_OUTCOME_MAP",
+                                   render_outcome_map(spec["outcomes"]))
+    if not (c1 and c2): return f"FAIL {path.name}: bench={c1} map={c2}"
+    if not dry_run:
+        out = work.replace("\n", "\r\n") if crlf else work
+        path.write_text(out, encoding="utf-8", newline="")
+    n_entries = sum(len(v) for v in spec["benchmarks"].values())
+    return f"OK   {path.name}: bench+{n_entries} map=fixed"
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument("--apply", action="store_true")
+    args = ap.parse_args()
+    if not (args.dry_run or args.apply): ap.error("pass --dry-run or --apply")
+    ok = fail = 0
+    for name, spec in BATCH.items():
+        p = ROOT / name
+        if not p.exists():
+            print(f"SKIP {name}"); continue
+        r = apply_to_file(p, spec, args.dry_run)
+        print(r)
+        if r.startswith("OK"): ok += 1
+        else: fail += 1
+    print(f"\nBatch F: {ok} OK / {fail} fail / {'dry-run' if args.dry_run else 'apply'}")
+    if fail: sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()
+
+codex
+I’m reviewing only the pasted packet as the record, and I’ll keep this to concrete, reproducible defects tied to the named shapes.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$p='"'scripts/populate_nma_benchmarks_batch_F.py'; if (Test-Path "'$p) { $i=0; Get-Content -LiteralPath $p | ForEach-Object { $i++; if ($i -ge 155) { '"'{0,4}: {1}' -f "'$i, $_ } } } else { '"'missing' }" in F:\rapidmeta-ssot-shell
+ succeeded in 1342ms:
+ 155:         }
+ 156:     },
+ 157: }
+ 158: 
+ 159: 
+ 160: def find_balanced_close(text, open_pos):
+ 161:     depth = 0
+ 162:     i = open_pos
+ 163:     while i < len(text):
+ 164:         if text[i] == '{': depth += 1
+ 165:         elif text[i] == '}':
+ 166:             depth -= 1
+ 167:             if depth == 0: return i
+ 168:         i += 1
+ 169:     return -1
+ 170: 
+ 171: 
+ 172: def render_benchmark_block(benchmarks_by_key):
+ 173:     lines = ["{"]
+ 174:     for key, benchmarks in benchmarks_by_key.items():
+ 175:         lines.append(f"            '{key}': [")
+ 176:         for b in benchmarks:
+ 177:             lines.append(
+ 178:                 "                { "
+ 179:                 f"label: '{b['label'].replace(chr(39), chr(92)+chr(39))}', "
+ 180:                 f"citation: '{b['citation']}', "
+ 181:                 f"year: {b['year']}, "
+ 182:                 f"measure: '{b['measure']}', "
+ 183:                 f"estimate: {b['estimate']}, "
+ 184:                 f"lci: {b['lci']}, "
+ 185:                 f"uci: {b['uci']}, "
+ 186:                 f"k: {b['k']}, "
+ 187:                 f"n: {b['n']}, "
+ 188:                 f"scope: '{b['scope'].replace(chr(39), chr(92)+chr(39))}' "
+ 189:                 "},"
+ 190:             )
+ 191:         lines.append("            ],")
+ 192:     lines.append("        }")
+ 193:     return "\n".join(lines)
+ 194: 
+ 195: 
+ 196: def render_outcome_map(outcomes):
+ 197:     primary = outcomes[0]
+ 198:     legacy = ["default", "MACE", "ACH", "ACM", "Renal40", "Hyperkalemia",
+ 199:               "HF_CV_First", "KidneyComp", "Renal57"]
+ 200:     lines = ["{"]
+ 201:     for k in legacy:
+ 202:         lines.append(f"            {k}: '{primary}',")
+ 203:     seen = set(legacy)
+ 204:     for o in outcomes:
+ 205:         if o not in seen:
+ 206:             lines.append(f"            '{o}': '{o}',")
+ 207:     lines[-1] = lines[-1].rstrip(",")
+ 208:     lines.append("        }")
+ 209:     return "\n".join(lines)
+ 210: 
+ 211: 
+ 212: def replace_const_decl(text, const_name, new_rhs):
+ 213:     pat = re.compile(rf"const\s+{re.escape(const_name)}\s*=\s*\{{")
+ 214:     m = pat.search(text)
+ 215:     if not m: return text, False
+ 216:     open_pos = m.end() - 1
+ 217:     close_pos = find_balanced_close(text, open_pos)
+ 218:     if close_pos < 0: return text, False
+ 219:     after = close_pos + 1
+ 220:     while after < len(text) and text[after] in " \t": after += 1
+ 221:     if after < len(text) and text[after] == ';': after += 1
+ 222:     return text[:m.start()] + f"const {const_name} = {new_rhs};" + text[after:], True
+ 223: 
+ 224: 
+ 225: def apply_to_file(path, spec, dry_run):
+ 226:     text = path.read_text(encoding="utf-8", newline="")
+ 227:     crlf = "\r\n" in text
+ 228:     work = text.replace("\r\n", "\n") if crlf else text
+ 229:     work, c1 = replace_const_decl(work, "PUBLISHED_META_BENCHMARKS",
+ 230:                                    render_benchmark_block(spec["benchmarks"]))
+ 231:     work, c2 = replace_const_decl(work, "BENCHMARK_OUTCOME_MAP",
+ 232:                                    render_outcome_map(spec["outcomes"]))
+ 233:     if not (c1 and c2): return f"FAIL {path.name}: bench={c1} map={c2}"
+ 234:     if not dry_run:
+ 235:         out = work.replace("\n", "\r\n") if crlf else work
+ 236:         path.write_text(out, encoding="utf-8", newline="")
+ 237:     n_entries = sum(len(v) for v in spec["benchmarks"].values())
+ 238:     return f"OK   {path.name}: bench+{n_entries} map=fixed"
+ 239: 
+ 240: 
+ 241: def main():
+ 242:     ap = argparse.ArgumentParser()
+ 243:     ap.add_argument("--dry-run", action="store_true")
+ 244:     ap.add_argument("--apply", action="store_true")
+ 245:     args = ap.parse_args()
+ 246:     if not (args.dry_run or args.apply): ap.error("pass --dry-run or --apply")
+ 247:     ok = fail = 0
+ 248:     for name, spec in BATCH.items():
+ 249:         p = ROOT / name
+ 250:         if not p.exists():
+ 251:             print(f"SKIP {name}"); continue
+ 252:         r = apply_to_file(p, spec, args.dry_run)
+ 253:         print(r)
+ 254:         if r.startswith("OK"): ok += 1
+ 255:         else: fail += 1
+ 256:     print(f"\nBatch F: {ok} OK / {fail} fail / {'dry-run' if args.dry_run else 'apply'}")
+ 257:     if fail: sys.exit(1)
+ 258: 
+ 259: 
+ 260: if __name__ == "__main__":
+ 261:     main()
+
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$p='"'scripts/populate_nma_benchmarks_batch_F.py'; "'$i=0; Get-Content -LiteralPath $p | ForEach-Object { $i++; if ($i -ge 85 -and $i -le 105) { '"'{0,4}: {1}' -f "'$i, $_ } }' in F:\rapidmeta-ssot-shell
+ succeeded in 1303ms:
+  85:         "outcomes": ["MACE"],
+  86:         "benchmarks": {
+  87:             "MACE": [
+  88:                 {"label": "IV iron HF pooled MA (Graham 2023)", "citation": "Graham 2023", "year": 2023,
+  89:                  "measure": "RR", "estimate": 0.84, "lci": 0.76, "uci": 0.93, "k": 3, "n": 4501,
+  90:                  "scope": "IV ferric carboxymaltose vs placebo in iron-deficient HFrEF (AFFIRM-AHF + CONFIRM-HF + HEART-FID + IRONMAN); CV death + HHF. Eur Heart J 2023."},
+  91:             ]
+  92:         }
+  93:     },
+  94:     "INSULIN_ICODEC_REVIEW.html": {
+  95:         "outcomes": ["MACE"],
+  96:         "benchmarks": {
+  97:             "MACE": [
+  98:                 {"label": "ONWARDS program icodec vs daily basal (HbA1c)", "citation": "Mathieu 2023", "year": 2023,
+  99:                  "measure": "MD", "estimate": -0.05, "lci": -0.14, "uci": 0.04, "k": 6, "n": 4157,
+ 100:                  "scope": "Insulin icodec weekly vs daily basal insulin in T2D; HbA1c change (non-inferior). ONWARDS 1-6 pool."},
+ 101:             ]
+ 102:         }
+ 103:     },
+ 104:     "MITRAL_FUNCMR_REVIEW.html": {
+ 105:         "outcomes": ["MACE"],
+
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$p='"'scripts/populate_nma_benchmarks_batch_F.py'; "'$i=0; Get-Content -LiteralPath $p | ForEach-Object { $i++; if ($i -ge 58 -and $i -le 74) { '"'{0,4}: {1}' -f "'$i, $_ } }' in F:\rapidmeta-ssot-shell
+ succeeded in 1306ms:
+  58:                 {"label": "Ruff pooled DOAC vs warfarin MA (stroke/SE)", "citation": "Ruff 2014", "year": 2014,
+  59:                  "measure": "RR", "estimate": 0.81, "lci": 0.73, "uci": 0.91, "k": 4, "n": 71683,
+  60:                  "scope": "DOACs pooled vs warfarin in AF; stroke or systemic embolism. Lancet 2014;383:955-962."},
+  61:             ]
+  62:         }
+  63:     },
+  64:     "INCLISIRAN_REVIEW.html": {
+  65:         "outcomes": ["MACE"],
+  66:         "benchmarks": {
+  67:             "MACE": [
+  68:                 {"label": "ORION-10/-11 inclisiran vs placebo (LDL-C)", "citation": "Ray 2020", "year": 2020,
+  69:                  "measure": "MD", "estimate": -52.0, "lci": -56.2, "uci": -47.8, "k": 2, "n": 3178,
+  70:                  "scope": "Inclisiran vs placebo in ASCVD/FH; LDL-C percent change at day 510. MACE outcomes await ORION-4. NEJM 2020;382:1507-1519."},
+  71:             ]
+  72:         }
+  73:     },
+  74:     "INCRETIN_HFpEF_REVIEW.html": {
+
+codex
+Defects found:
+
+- **Check cannot fail / status reports wrapper**: lines 250-251 and 257.  
+  Exact input: run `python scripts/populate_nma_benchmarks_batch_F.py --apply` in a repo root containing none of the 14 `BATCH` HTML filenames.  
+  Consequence: every file is `SKIP`, `fail` remains `0`, and the process exits success without updating anything.
+
+- **Idempotency guard satisfied by comment/marker**: line 213.  
+  Exact input target file:
+  ```html
+  <!-- const PUBLISHED_META_BENCHMARKS = {}; const BENCHMARK_OUTCOME_MAP = {}; -->
+  <script>
+  const PUBLISHED_META_BENCHMARKS = { old: [] };
+  const BENCHMARK_OUTCOME_MAP = { old: 'old' };
+  </script>
+  ```
+  Consequence: the regex rewrites the comment first, reports `OK`, and leaves the active declarations unchanged.
+
+- **Selector/parser keyed to wrong form**: lines 164-167.  
+  Exact input target file:
+  ```js
+  const PUBLISHED_META_BENCHMARKS = { note: '}' };
+  const BENCHMARK_OUTCOME_MAP = { default: 'MACE' };
+  ```
+  Consequence: the brace scanner treats `}` inside the string as structural, splices at the wrong byte, and can emit syntactically broken JavaScript while returning success.
+
+- **Line endings compared/rewritten as text**: lines 227-228 and 235.  
+  Exact input: a target file with mixed endings, e.g. `a\r\nconst PUBLISHED_META_BENCHMARKS = {};\nconst BENCHMARK_OUTCOME_MAP = {};\n`.  
+  Consequence: because any CRLF makes `crlf=True`, apply mode rewrites all `\n` to `\r\n`, creating unrelated file-wide churn.
+
+- **Merged-cell/count error**: line 89.  
+  Exact input: the pasted `IV_IRON_HF_REVIEW.html` entry: `"k": 3` on line 89 while line 90 names four studies: `AFFIRM-AHF + CONFIRM-HF + HEART-FID + IRONMAN`.  
+  Consequence: the generated benchmark reports a study count inconsistent with its own scope text.
+
+- **Negation dropped**: lines 65-70.  
+  Exact input: the pasted `INCLISIRAN_REVIEW.html` entry maps to `"MACE"` while line 70 says `MACE outcomes await ORION-4`.  
+  Consequence: selecting/displaying MACE can show an LDL-C surrogate benchmark as if it were a MACE benchmark.
+
+COULD NOT DETERMINE different-copy instrumentation or corpus-form selector coverage without the 14 target HTML files, caller, and served/deployed copy. No proven zero-conflated-with-absent or probe-keyed-to-string-a-fix-removes defect in this packet.
+tokens used
+22,660
+Defects found:
+
+- **Check cannot fail / status reports wrapper**: lines 250-251 and 257.  
+  Exact input: run `python scripts/populate_nma_benchmarks_batch_F.py --apply` in a repo root containing none of the 14 `BATCH` HTML filenames.  
+  Consequence: every file is `SKIP`, `fail` remains `0`, and the process exits success without updating anything.
+
+- **Idempotency guard satisfied by comment/marker**: line 213.  
+  Exact input target file:
+  ```html
+  <!-- const PUBLISHED_META_BENCHMARKS = {}; const BENCHMARK_OUTCOME_MAP = {}; -->
+  <script>
+  const PUBLISHED_META_BENCHMARKS = { old: [] };
+  const BENCHMARK_OUTCOME_MAP = { old: 'old' };
+  </script>
+  ```
+  Consequence: the regex rewrites the comment first, reports `OK`, and leaves the active declarations unchanged.
+
+- **Selector/parser keyed to wrong form**: lines 164-167.  
+  Exact input target file:
+  ```js
+  const PUBLISHED_META_BENCHMARKS = { note: '}' };
+  const BENCHMARK_OUTCOME_MAP = { default: 'MACE' };
+  ```
+  Consequence: the brace scanner treats `}` inside the string as structural, splices at the wrong byte, and can emit syntactically broken JavaScript while returning success.
+
+- **Line endings compared/rewritten as text**: lines 227-228 and 235.  
+  Exact input: a target file with mixed endings, e.g. `a\r\nconst PUBLISHED_META_BENCHMARKS = {};\nconst BENCHMARK_OUTCOME_MAP = {};\n`.  
+  Consequence: because any CRLF makes `crlf=True`, apply mode rewrites all `\n` to `\r\n`, creating unrelated file-wide churn.
+
+- **Merged-cell/count error**: line 89.  
+  Exact input: the pasted `IV_IRON_HF_REVIEW.html` entry: `"k": 3` on line 89 while line 90 names four studies: `AFFIRM-AHF + CONFIRM-HF + HEART-FID + IRONMAN`.  
+  Consequence: the generated benchmark reports a study count inconsistent with its own scope text.
+
+- **Negation dropped**: lines 65-70.  
+  Exact input: the pasted `INCLISIRAN_REVIEW.html` entry maps to `"MACE"` while line 70 says `MACE outcomes await ORION-4`.  
+  Consequence: selecting/displaying MACE can show an LDL-C surrogate benchmark as if it were a MACE benchmark.
+
+COULD NOT DETERMINE different-copy instrumentation or corpus-form selector coverage without the 14 target HTML files, caller, and served/deployed copy. No proven zero-conflated-with-absent or probe-keyed-to-string-a-fix-removes defect in this packet.

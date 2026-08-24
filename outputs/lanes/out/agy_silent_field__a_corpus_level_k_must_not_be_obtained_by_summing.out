@@ -1,0 +1,11 @@
+1. **IS A READER OWED THIS?**
+NOT OWED. This is an internal bookkeeping warning directed at developers and aggregation scripts to prevent statistical errors; a clinical reader only needs to know that the specific trials overlap with other reviews, which is already recorded elsewhere.
+
+2. **IF OWED: WHERE.**
+Not owed on a delivered review page. If exposed at all, this text belongs exclusively in a portfolio-wide methodology document or an aggregate index page, not on individual topic pages.
+
+3. **IS IT A DUPLICATE?**
+The underlying facts are duplicated: the `also_in` and `why` fields explicitly list the overlapping sibling reviews, and the `parent_object_note` field independently warns that summing counts will double-count against the unretired parent review. However, the specific mathematical demonstration (9 summed vs 4 distinct) and the 20.5% corpus-wide overlap statistic are unique to this field.
+
+4. **WHAT WOULD BE LOST if this were simply deleted rather than shown?**
+An explicit, human-readable guardrail that proves to maintainers exactly why naively summing `k` across objects is mathematically invalid, which protects the integrity of the project's corpus-level reporting.

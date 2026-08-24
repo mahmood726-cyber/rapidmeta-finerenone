@@ -1,0 +1,1299 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a03210-4aeb-7a31-83a5-e7c04a9199d1
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/pooled_point_in_achievable_range_gate.py
+
+--- THE FILE, IN FULL ---
+#!/usr/bin/env python3
+"""A CLAIMED POOLED POINT THAT NO WEIGHTING OF ITS OWN TRIALS CAN PRODUCE.
+
+WHY A BOUND AND NOT A SEARCH -- this is the whole point of the file.
+
+The prior treatment of `colchicine-cvd-review` enumerated THIRTY-THREE candidate pools -- every
+subset of two, three and four of the page's published hazard ratios, under fixed-effect,
+DerSimonian-Laird and REML -- found that none gives the card's `HR 0.75 (0.61-0.91)`, and
+recorded the search AS BOUNDED. That was honest and it could not close anything:
+
+    AN ENUMERATION THAT FINDS NOTHING PROVES NOTHING ABOUT THE ESTIMATOR IT DID NOT TRY.
+    "None of the 33" leaves Mantel-Haenszel, Peto, Hartung-Knapp, a Bayesian posterior and
+    every fixed weighting a reviewer might have used, and a reader cannot tell a fabricated
+    number from one produced by an estimator nobody thought to run.
+
+Two bounds close it, and both are arithmetic rather than search:
+
+  HULL      EVERY inverse-variance pool, every Mantel-Haenszel and Peto pool, and every fixed
+            weighting whatsoever is a CONVEX COMBINATION of the per-trial log-effects. A convex
+            combination lies between the smallest and the largest. So a claimed point OUTSIDE
+            [min, max] cannot be ANY weighted average of those trials, under any estimator that
+            has ever been written or ever will be. No enumeration is involved.
+
+  TAU-PATH  Inside the hull the hull says nothing, so the second bound is the random-effects
+            family itself. As tau-squared runs from 0 to infinity the inverse-variance weights
+            run continuously from the fixed-effect weights to EQUAL weights, and the pooled
+            point traces a path whose endpoints are the fixed-effect pool and the UNWEIGHTED
+            mean of the log-effects. A claimed point outside that path is not an
+            inverse-variance random-effects pool of these trials AT ANY heterogeneity.
+
+THE CASE THAT MADE IT NECESSARY, and the reason the hull alone was not enough.
+
+`PUBLISHED_META_BENCHMARKS.json` declares the card's number with its own method attached:
+
+    "pooled": 0.75, "lci": 0.61, "uci": 0.91, "k": 2, "N": 11816,
+    "source": "COLCOT (Tardif 2019) + LoDoCo2 (Nidorf 2020)",
+    "method": "DL random-effects pooling of 2 landmark RCTs"
+
+COLCOT is `HR 0.77 (0.61-0.96)` and LoDoCo2 is `HR 0.69 (0.57-0.83)`. The claimed 0.75 sits
+INSIDE the hull [0.69, 0.77], so the hull bound passes it. The tau-path does not:
+
+    COLCOT is the LESS precise of the two, so its weight can never exceed one half. It is
+    40.7% at tau-squared = 0 and rises monotonically to 50% as tau-squared grows without
+    limit. Reaching 0.745 would require COLCOT to carry SEVENTY PER CENT of the weight.
+
+The achievable interval is therefore `0.7215` to `0.7289`, and the claim is 0.745. **No
+between-study variance produces it, and this is proven rather than not-found.**
+
+WHAT THIS DOES NOT ESTABLISH -- written before it was run
+  - NOT that a passing point is CORRECT. It shows only that the arithmetic is achievable from
+    the recorded inputs. The inputs can still be the wrong trials, arms or endpoint, and every
+    withdrawal in this corpus was of a page whose arithmetic was internally fine.
+  - NOT that a failing point was FABRICATED. It can be a real number belonging to a different
+    set of trials, which is exactly what the colchicine case turned out to be. The verdict is
+    NOT_ACHIEVABLE and it is a finding about PROVENANCE, never about honesty.
+  - NOTHING where per-trial intervals are absent. That is NOT_ASSESSABLE and is never counted
+    as clean.
+
+USAGE:  python scripts/pooled_point_in_achievable_range_gate.py <object.json> [...]
+        python scripts/pooled_point_in_achievable_range_gate.py --selftest
+"""
+import io
+import json
+import math
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+OK = "ACHIEVABLE"
+FAIL_HULL = "NOT_ACHIEVABLE_BY_ANY_WEIGHTING"
+FAIL_TAU = "NOT_ACHIEVABLE_BY_ANY_BETWEEN_STUDY_VARIANCE"
+NA = "NOT_ASSESSABLE"
+
+Z95 = 1.959963984540054
+
+# Two-sided 97.5th percentile of Student's t, BY LOOKUP rather than from recall or from an
+# approximation written on the spot. Needed because Knapp-Hartung intervals are t intervals on
+# k-1 degrees of freedom and this corpus uses them at k = 3 and k = 4, where t is 4.303 and
+# 3.182 against a z of 1.960 -- a factor of more than two on the interval half-width.
+T975 = {1: 12.706205, 2: 4.302653, 3: 3.182446, 4: 2.776445, 5: 2.570582, 6: 2.446912,
+        7: 2.364624, 8: 2.306004, 9: 2.262157, 10: 2.228139, 11: 2.200985, 12: 2.178813,
+        13: 2.160369, 14: 2.144787, 15: 2.131450, 16: 2.119905, 17: 2.109816, 18: 2.100922,
+        19: 2.093024, 20: 2.085963, 21: 2.079614, 22: 2.073873, 23: 2.068658, 24: 2.063899,
+        25: 2.059539, 26: 2.055529, 27: 2.051831, 28: 2.048407, 29: 2.045230, 30: 2.042272}
+
+
+def se_from_ci(lo, hi, level=95):
+    """SE on the LOG scale from a ratio measure's interval. Refuses anything non-positive."""
+    if lo is None or hi is None:
+        return None
+    try:
+        lo, hi = float(lo), float(hi)
+    except (TypeError, ValueError):
+        return None
+    if lo <= 0 or hi <= 0 or hi <= lo:
+        return None
+    z = Z95 if int(level or 95) == 95 else Z95
+    return (math.log(hi) - math.log(lo)) / (2.0 * z)
+
+
+def _pool(thetas, ses, tau2):
+    ws = [1.0 / (s * s + tau2) for s in ses]
+    tot = sum(ws)
+    return sum(w * t for w, t in zip(ws, thetas)) / tot
+
+
+def achievable(thetas, ses):
+    """(hull_lo, hull_hi, tau_lo, tau_hi) on the LOG scale.
+
+    The tau-path endpoints are exactly the fixed-effect pool (tau2 = 0) and the UNWEIGHTED mean
+    (tau2 -> infinity). The path between them is continuous and MONOTONE in tau2 for k = 2, so
+    the endpoints bound it. For k > 2 monotonicity is NOT guaranteed -- a middling study can
+    gain share faster than an extreme one -- so the interior is sampled on a grid and the
+    envelope is taken from every sampled point, never from the endpoints alone.
+    """
+    hull_lo, hull_hi = min(thetas), max(thetas)
+    pts = [_pool(thetas, ses, 0.0), sum(thetas) / len(thetas)]
+    smax = max(ses)
+    # A grid spanning six orders of magnitude either side of the largest variance present.
+    # Beyond it the weights are equal to within floating point and the mean is the limit.
+    for i in range(0, 241):
+        tau2 = (smax * smax) * (10.0 ** (-6.0 + i / 20.0))
+        pts.append(_pool(thetas, ses, tau2))
+    return hull_lo, hull_hi, min(pts), max(pts)
+
+
+def _dp(x):
+    """How many decimals is this value SERVED to? A served number carries its own precision."""
+    s = ("%r" % float(x)).rstrip("0")
+    return len(s.split(".", 1)[1]) if "." in s else 0
+
+
+def assess_joint(claim_point, claim_lo, claim_hi, thetas, ses):
+    """Does ANY between-study variance give a pool that ROUNDS to the served triple?
+
+    NO TOLERANCE PARAMETER, ON PURPOSE, AND THE ABSENCE IS THE POINT.
+
+    This function had one, and the tolerance decided the verdict. With a point tolerance of
+    0.005 the nearest candidate FAILED; widened to the rounding half-width of 0.0066 -- which
+    is the more defensible number -- the same candidate PASSED. A gate whose answer moves when
+    you justify its threshold more carefully is measuring the threshold.
+
+        THE SERVED NUMBER ALREADY CARRIES ITS OWN PRECISION. `0.75 (0.61 to 0.91)` is two
+        decimals, so the question has an exact answer that needs no threshold at all: is there
+        a tau-squared at which the pooled point AND both interval bounds round to those three
+        values? Round the candidate the way the page rounded, and compare.
+
+    All three bounds must match. Matching the point alone is easy -- tau-squared can be chosen
+    to hit almost any point inside the achievable range -- and it is the interval that carries
+    the information, because point and interval are driven by the same single parameter in
+    opposite directions.
+    """
+
+    if claim_point is None or claim_point <= 0 or claim_lo is None or claim_hi is None:
+        return NA, "the claimed point or interval is absent or non-positive"
+    if len(thetas) < 2 or len(thetas) != len(ses) or any(s is None or s <= 0 for s in ses):
+        return NA, "fewer than two trials carry a usable interval"
+    # PRECISION IS CAPPED AT FOUR DECIMALS, AND THE CAP IS THE FIX FOR A DEFECT IN THIS FILE.
+    #
+    # Without it, `_dp` reads the precision of an OBJECT-STORED value -- `0.8440482145268958`,
+    # sixteen decimals -- and the rounding test then demands exact floating-point equality. On
+    # its first corpus run this gate reported `pcsk9-inhibitors-cv-review` as NOT_ACHIEVABLE
+    # WITH A TOTAL GAP OF 0.0000: the arithmetic reproduced the pool exactly and the verdict
+    # said it did not. The two inputs are different things and must be treated differently --
+    # a SERVED number carries its own precision because someone chose to round it; a STORED
+    # number carries the precision of a float, which is not a claim about anything. Four
+    # decimals is the house display convention (the precision ratchet), so it is the working
+    # precision here too.
+    d = min(4, max(_dp(claim_point), _dp(claim_lo), _dp(claim_hi)))
+    want = (round(float(claim_point), d), round(float(claim_lo), d), round(float(claim_hi), d))
+    smax = max(ses)
+
+    k = len(thetas)
+
+    def at(tau2, hksj=False):
+        ws = [1.0 / (s * s + tau2) for s in ses]
+        tot = sum(ws)
+        pt = sum(w * t for w, t in zip(ws, thetas)) / tot
+        if not hksj:
+            return math.exp(pt), math.exp(pt - Z95 * se_iv(tot)), math.exp(pt + Z95 * se_iv(tot))
+        # KNAPP-HARTUNG. Its interval is a t interval on k-1 df with a variance-inflation
+        # factor, and it is MUCH wider than the z interval at small k -- `apixaban-vte-treatment`
+        # serves 0.7763 (0.3437 to 1.7532) on k=3, where the z interval is 0.5356 to 1.1251.
+        # Modelling only the z interval reported that page as unreproducible, which was THIS
+        # FILE'S defect and not the page's: the object declares Knapp-Hartung on its face.
+        # The floor is the house rule -- when Q < k-1 the raw factor NARROWS the interval below
+        # the z one, which Knapp-Hartung is not for.
+        q = sum(w * (t - pt) ** 2 for w, t in zip(ws, thetas)) / max(1, k - 1)
+        se = math.sqrt(max(1.0, q) / tot)
+        tq = T975.get(k - 1, Z95)
+        return math.exp(pt), math.exp(pt - tq * se), math.exp(pt + tq * se)
+
+    def se_iv(tot):
+        return math.sqrt(1.0 / tot)
+
+    # HALF A UNIT IN THE LAST PLACE. THAT IS WHAT A NUMBER QUOTED TO d DECIMALS MEANS, and it
+    # is a definition rather than a tolerance -- `0.61` asserts the true value is in
+    # [0.605, 0.615) and asserts nothing finer.
+    #
+    # A strict `round(computed, d) == stored` test looked cleaner and was wrong, because
+    # ROUNDING TIES ARE NOT DECIDABLE FROM THE STORED VALUE. `iv-iron-hf` pools to exactly
+    # 0.795650; the object stores 0.7957 (half up) and Python's round() of the same float
+    # returns 0.7956 (the float is 0.79564999...). The gate reported a real, correct,
+    # exactly-reproducing pool as NOT_ACHIEVABLE on a tie in the fifth decimal -- an instrument
+    # defect reported as an object defect, which is this corpus's most familiar failure.
+    #
+    # ELEVEN of the corpus's outcomes were being failed this way, every one with a total gap of
+    # 0.0001 or less. The colchicine verdict does NOT rest on this: its nearest candidate misses
+    # the LOWER BOUND by 0.0163, which is more than three times the half-unit at two decimals.
+    # ONE unit in the last quoted place, not half. Half a unit is what a SINGLE rounding
+    # asserts; here TWO independently-rounded computations of the same quantity are being
+    # compared -- the object's, and this file's recomputation from the object's own per-trial
+    # intervals -- and two roundings of one quantity can differ by a full unit when their
+    # intermediate precision differs. Tightening to half a unit failed five corpus outcomes
+    # whose pools reproduce to one part in ten thousand, which is a reproduction, not a defect.
+    half_ulp = (10.0 ** -d) + 1e-12
+
+    def devs(tau2, hksj=False):
+        P, L, H = at(tau2, hksj)
+        return abs(P - want[0]), abs(L - want[1]), abs(H - want[2])
+
+    def gap_at(tau2):
+        """THE WORST deviation, not the sum -- and that distinction was a live defect here.
+
+        This minimised the SUM while `matches` tested the MAX, so the search could walk away
+        from a tau-squared that SATISFIED the acceptance test toward one with a smaller total.
+        On `iv-iron-hf` tau-squared = 0 reproduces all three values to within half a unit
+        (0.0000496, 0.0000413, 0.0000132 against a half-unit of 0.00005), and a slightly
+        positive tau-squared shaved the POINT deviation while pushing the LOWER BOUND out of
+        tolerance -- for a smaller total. The gate then reported the correct pool as
+        unreproducible.
+
+        ELEVEN corpus outcomes failed on this, every one of them with a real, exactly
+        reproducing pool. AN OBJECTIVE THAT DOES NOT MATCH ITS ACCEPTANCE TEST IS A SEARCH FOR
+        THE WRONG THING, and it fails in the direction that manufactures findings.
+        """
+        return min(max(devs(tau2, False)), max(devs(tau2, True)))
+
+    def total_at(tau2):
+        return min(sum(devs(tau2, False)), sum(devs(tau2, True)))
+
+    def matches(tau2):
+        return gap_at(tau2) <= half_ulp
+
+    grid = [0.0] + [(smax * smax) * (10.0 ** (-6.0 + i / 400.0)) for i in range(1, 4001)]
+    best_i = min(range(len(grid)), key=lambda i: gap_at(grid[i]))
+    # THEN REFINE, because a MISS ON A GRID IS NOT A MISS. The grid samples ten orders of
+    # magnitude, so its resolution near the answer is coarser than four decimals, and a
+    # legitimate pool whose tau-squared falls between two grid points would be reported as
+    # unreproducible. That is a defect of the instrument reported as a defect of the object --
+    # the exact failure this repository keeps finding.
+    lo_t = grid[max(0, best_i - 1)]
+    hi_t = grid[min(len(grid) - 1, best_i + 1)]
+    for _ in range(200):
+        a = lo_t + (hi_t - lo_t) / 3.0
+        b = hi_t - (hi_t - lo_t) / 3.0
+        if gap_at(a) <= gap_at(b):
+            hi_t = b
+        else:
+            lo_t = a
+    for tau2 in (0.0, grid[best_i], (lo_t + hi_t) / 2.0):
+        for hk in (False, True):
+            if max(devs(tau2, hk)) <= half_ulp:
+                P, L, H = at(tau2, hk)
+                return OK, ("tau-squared = %.6g with a %s interval gives %.6f (%.6f to %.6f), "
+                            "agreeing with the claimed %r to within one unit in the last "
+                            "quoted place."
+                            % (tau2, "Knapp-Hartung t" if hk else "normal z", P, L, H, want))
+    tau2 = (lo_t + hi_t) / 2.0
+    if gap_at(grid[best_i]) < gap_at(tau2):
+        tau2 = grid[best_i]
+    hk = sum(devs(tau2, True)) < sum(devs(tau2, False))
+    P, L, H = at(tau2, hk)
+    gap = total_at(tau2)
+    worst = max((abs(P - want[0]), "the POINT"), (abs(L - want[1]), "the LOWER bound"),
+                (abs(H - want[2]), "the UPPER bound"))
+    return FAIL_TAU, (
+        "NO between-study variance reproduces the claimed %r. The nearest is tau-squared = "
+        "%.5f -> %.4f (%.4f to %.4f). Total absolute gap %.4f, and the WORST-DISAGREEING "
+        "quantity is %s, off by %.4f against a half-unit of %.4f at %d decimals. The point "
+        "alone can always be hit by choosing tau-squared to hit it; the point AND both bounds "
+        "cannot." % (want, tau2, P, L, H, gap, worst[1], worst[0], half_ulp, d))
+
+
+def assess(claim_point, thetas, ses, tol=5e-4):
+    """Verdict for ONE claimed pooled point against ONE candidate trial set."""
+    if claim_point is None or claim_point <= 0:
+        return NA, "the claimed pooled point is absent or non-positive"
+    if len(thetas) < 2 or len(thetas) != len(ses) or any(s is None or s <= 0 for s in ses):
+        return NA, ("fewer than two trials carry a usable interval. ABSENT IS NOT ZERO AND IT "
+                    "IS NOT A PASS.")
+    c = math.log(claim_point)
+    hlo, hhi, tlo, thi = achievable(thetas, ses)
+    if c < hlo - tol or c > hhi + tol:
+        return FAIL_HULL, (
+            "the claimed point %.4f lies OUTSIDE the hull [%.4f, %.4f] of the per-trial "
+            "estimates. A weighted average cannot fall outside the values it averages, so NO "
+            "estimator and NO weighting of these trials produces it."
+            % (claim_point, math.exp(hlo), math.exp(hhi)))
+    if c < tlo - tol or c > thi + tol:
+        return FAIL_TAU, (
+            "the claimed point %.4f lies inside the hull [%.4f, %.4f] and OUTSIDE the "
+            "inverse-variance achievable range [%.4f, %.4f], whose endpoints are the "
+            "fixed-effect pool and the unweighted mean. No between-study variance produces it."
+            % (claim_point, math.exp(hlo), math.exp(hhi), math.exp(tlo), math.exp(thi)))
+    return OK, ("the claimed point %.4f is inside the inverse-variance achievable range "
+                "[%.4f, %.4f]. THAT IS NOT A CLAIM THAT IT IS CORRECT."
+                % (claim_point, math.exp(tlo), math.exp(thi)))
+
+
+def selftest():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    fails = []
+
+    def check(name, got, want):
+        ok = got == want
+        print("  %-72s %s  %r" % (name, "ok" if ok else "FAIL", got))
+        if not ok:
+            fails.append(name)
+
+    # THE TRIGGERING CONDITION ACTUALLY OCCURRED (P16's fourth clause). These are the real
+    # published hazard ratios of two real trials and the real number a real page served.
+    COLCOT = (0.77, 0.61, 0.96)
+    LODOCO2 = (0.69, 0.57, 0.83)
+    CLEAR = (0.99, 0.85, 1.16)
+    CONVINCE = (0.84, 0.68, 1.05)
+
+    def pack(*trials):
+        th = [math.log(t[0]) for t in trials]
+        se = [se_from_ci(t[1], t[2]) for t in trials]
+        return th, se
+
+    print("1. THE LIVE CASE. The card's own declared source and method, checked against it:")
+    th, se = pack(COLCOT, LODOCO2)
+    hlo, hhi, tlo, thi = achievable(th, se)
+    print("     COLCOT 0.77 (0.61-0.96)   se(log) = %.6f" % se[0])
+    print("     LoDoCo2 0.69 (0.57-0.83)  se(log) = %.6f" % se[1])
+    print("     hull of the two estimates        [%.4f, %.4f]" % (math.exp(hlo), math.exp(hhi)))
+    print("     achievable at ANY tau-squared    [%.4f, %.4f]" % (math.exp(tlo), math.exp(thi)))
+    print("     COLCOT's weight share  tau2=0 %.1f%%   tau2->inf %.1f%%"
+          % (100.0 / (1 + (se[0] ** 2) / (se[1] ** 2)), 50.0))
+    v, why = assess(0.75, th, se)
+    print("     verdict for the served 0.75: %s" % v)
+    check("the served headline is NOT achievable from its own declared source", v, FAIL_TAU)
+
+    print("\n2. THE GUARD DOES NOT FIRE ON THE CORRECT CASE. The true DL pool of the same two:")
+    true_pool = math.exp(_pool(th, se, 0.0))
+    print("     fixed-effect / DL pool (Q < df, so tau-squared is 0) = %.4f" % true_pool)
+    check("the true pool of the same two trials PASSES", assess(true_pool, th, se)[0], OK)
+
+    print("\n3. THE HULL BOUND FIRES -- a point no weighting can reach:")
+    v, why = assess(0.55, th, se)
+    check("0.55 against a hull of [0.69, 0.77]", v, FAIL_HULL)
+    print("     %s" % why)
+
+    print("\n4. NEITHER VERDICT IS ESTABLISHED BY THE RUN SUCCEEDING. Absent inputs REFUSE:")
+    check("one trial only is NOT_ASSESSABLE", assess(0.75, th[:1], se[:1])[0], NA)
+    check("a missing interval is NOT_ASSESSABLE",
+          assess(0.75, th, [se[0], None])[0], NA)
+    check("a zero claimed point is NOT_ASSESSABLE", assess(0.0, th, se)[0], NA)
+
+    print("\n5. AND THE OTHER PAIRS THIS PAGE COULD HAVE MEANT, so 'k=2' is closed and not")
+    print("   left as an open question about WHICH two:")
+    named = [("COLCOT+LoDoCo2", COLCOT, LODOCO2), ("COLCOT+CLEAR SYNERGY", COLCOT, CLEAR),
+             ("COLCOT+CONVINCE", COLCOT, CONVINCE), ("LoDoCo2+CLEAR SYNERGY", LODOCO2, CLEAR),
+             ("LoDoCo2+CONVINCE", LODOCO2, CONVINCE), ("CLEAR SYNERGY+CONVINCE", CLEAR, CONVINCE)]
+    any_ok = []
+    for name, a, b in named:
+        t2, s2 = pack(a, b)
+        hl, hh, tl, tt = achievable(t2, s2)
+        v, _ = assess(0.75, t2, s2)
+        margin = min(abs(math.exp(tl) - 0.75), abs(math.exp(tt) - 0.75))
+        print("     %-24s achievable [%.4f, %.4f]   margin %.4f  ->  %s"
+              % (name, math.exp(tl), math.exp(tt), margin, v))
+        if v == OK:
+            any_ok.append(name)
+    check("NO pair of this page's four published hazard ratios can produce 0.75", any_ok, [])
+    print("     THE NEAREST MISS IS NAMED RATHER THAN LEFT INSIDE THE VERDICT. LoDoCo2+CONVINCE")
+    print("     begins at 0.7506, which is 0.0006 away and ROUNDS TO 0.75 AT TWO DECIMALS. On")
+    print("     the point alone this file would be overclaiming, and it is proof number 6 --")
+    print("     the INTERVAL -- that rules the pair out: that pool's interval is 0.6511 to")
+    print("     0.8652 against a served 0.61 to 0.91. Two digits agreeing is a coincidence.")
+
+    print("\n6. THE POINT AND THE INTERVAL TOGETHER. This is the decisive test, and it replaces")
+    print("   an overclaim: an earlier draft asserted that a pool cannot be less precise than")
+    print("   its most precise trial. THAT IS FALSE above tau-squared = 0. What is true is that")
+    print("   both numbers must come from ONE tau-squared:")
+    joint_ok = []
+    for name, a, b in named:
+        t2, s2 = pack(a, b)
+        v, why = assess_joint(0.75, 0.61, 0.91, t2, s2)
+        print("     %-24s %s" % (name, v))
+        if v == OK:
+            joint_ok.append(name)
+    check("NO pair reproduces the served point AND interval at one tau-squared", joint_ok, [])
+    t2, s2 = pack(LODOCO2, CONVINCE)
+    print("     the nearest pair, in full: %s" % assess_joint(0.75, 0.61, 0.91, t2, s2)[1])
+    # AND THE SAME TEST OVER EVERY SUBSET OF SIZE 3 AND 4, so "k=2" is not load-bearing. The
+    # card says k=2; if it were wrong about its own k, a larger subset could still be the
+    # source, and that possibility is closed here rather than assumed away.
+    import itertools
+    all_four = {"COLCOT": COLCOT, "LoDoCo2": LODOCO2, "CLEAR SYNERGY": CLEAR,
+                "CONVINCE": CONVINCE}
+    survivors = []
+    for r in (2, 3, 4):
+        for combo in itertools.combinations(sorted(all_four), r):
+            tc, sc = pack(*[all_four[n] for n in combo])
+            if assess_joint(0.75, 0.61, 0.91, tc, sc)[0] == OK:
+                survivors.append("+".join(combo))
+    check("NO subset of ANY size at ANY tau-squared rounds to 0.75 (0.61 to 0.91)",
+          survivors, [])
+    print("""
+   WHICH OF THESE TWO RESULTS CLOSES THE DEFECT, AND WHICH DOES NOT -- because they do not
+   carry equal weight and reporting them as one number would overstate the case.
+
+     THE DECISIVE ONE is the card's OWN DECLARED SOURCE. `PUBLISHED_META_BENCHMARKS.json`
+     names COLCOT + LoDoCo2 by citation and PMID and declares DL random-effects. Those two
+     trials pool to 0.7215 (0.6243 to 0.8338) against a served 0.75 (0.61 to 0.91): the upper
+     bound is out by 0.0762, which is SEVEN AND A HALF UNITS in the last quoted place. Nothing
+     about that verdict is close.
+
+     THE WEAKER ONE is the sweep over every other subset. Its nearest miss -- LoDoCo2 with
+     CONVINCE -- is out by 0.0104 against a unit of 0.0100, A MARGIN OF FOUR PER CENT. That
+     result is real and it is not something to close a defect on, and it is reported with its
+     margin rather than folded into a verdict. It also could not be the source: the benchmark
+     names its two trials, and CONVINCE reported in 2024, years after this benchmark was
+     recorded.""")
+
+    print("\n7. AND THE JOINT TEST PASSES A REAL POOL, so it is not merely a refusing machine:")
+    t2, s2 = pack(COLCOT, LODOCO2)
+    tp = math.exp(_pool(t2, s2, 0.0))
+    tse = math.sqrt(1.0 / sum(1.0 / (s * s) for s in s2))
+    lo, hi = tp * math.exp(-Z95 * tse), tp * math.exp(Z95 * tse)
+    print("     the true fixed/DL pool of COLCOT+LoDoCo2 is %.4f (%.4f to %.4f)" % (tp, lo, hi))
+    check("the true pool passes the JOINT test", assess_joint(tp, lo, hi, t2, s2)[0], OK)
+
+    print("\n%s" % ("SELFTEST FAILED: %s" % fails if fails else "SELFTEST PASSED"))
+    return 1 if fails else 0
+
+
+def run_objects(paths):
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    bad = 0
+    for p in paths:
+        try:
+            with io.open(p, "r", encoding="utf-8") as fh:
+                obj = json.load(fh)
+        except (OSError, ValueError) as exc:
+            print("%-52s %s  %s" % (os.path.basename(p), NA, exc))
+            continue
+        outs = ((obj.get("results") or {}).get("by_outcome") or {})
+        for oid, blk in sorted(outs.items()):
+            if not isinstance(blk, dict):
+                continue
+            pooled = blk.get("pooled") or {}
+            if pooled.get("withdrawn"):
+                # A WITHDRAWN POOL HAS NO HEADLINE LEFT TO REPRODUCE. Skipped, and skipped is
+                # reported as its own state -- never folded into the clean count.
+                print("%-38s %-22s SKIPPED_WITHDRAWN" % (os.path.basename(p), oid[:22]))
+                continue
+            claim, lo, hi = pooled.get("point"), pooled.get("ci_low"), pooled.get("ci_high")
+            measure = str(pooled.get("measure") or "").upper()
+            if measure not in ("HR", "RR", "OR"):
+                # Differences pool on the natural scale; this file's arithmetic is log-scale.
+                continue
+            if claim is None:
+                print("%-38s %-22s %s  no pooled point" % (os.path.basename(p), oid[:22], NA))
+                continue
+            th, se = [], []
+            for t in (blk.get("per_trial") or []):
+                s = se_from_ci(t.get("ci_low"), t.get("ci_high"), t.get("ci_level"))
+                if s and t.get("point"):
+                    th.append(math.log(float(t["point"])))
+                    se.append(s)
+            v, why = (assess_joint(claim, lo, hi, th, se) if (lo and hi)
+                      else assess(claim, th, se))
+            print("%-38s %-22s %s" % (os.path.basename(p), oid[:22], v))
+            if v in (FAIL_HULL, FAIL_TAU):
+                print("     %s" % why)
+                bad += 1
+    print("\n%d outcome(s) NOT ACHIEVABLE from their own recorded per-trial estimates." % bad)
+    return 1 if bad else 0
+
+
+if __name__ == "__main__":
+    args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    sys.exit(selftest() if "--selftest" in sys.argv else run_objects(args))
+
+codex
+I’ll pin this to line numbers from the local file so the findings are checkable, then I’ll only report defects that can be demonstrated from the pasted module.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Test-Path F:\\ProjectIndex\\INDEX.md; if (Test-Path F:\\ProjectIndex\\INDEX.md) { Get-Content -Path F:\\ProjectIndex\\INDEX.md -TotalCount 3 }" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Test-Path F:\\E156\\rewrite-workbook.txt; if (Test-Path F:\\E156\\rewrite-workbook.txt) { Get-Content -Path F:\\E156\\rewrite-workbook.txt -TotalCount 3 }" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=0; Get-Content -Path scripts'"\\pooled_point_in_achievable_range_gate.py | ForEach-Object { "'$i++; if ($i -ge 120 -and $i -le 390) { '"'{0,4}: {1}' -f "'$i, $_ } }' in F:\rapidmeta-ssot-shell
+ succeeded in 1637ms:
+True
+<!-- sentinel:skip-file - portfolio registry; absolute paths ARE the data -->
+# C: Drive Project Index
+> **Last updated**: 2026-05-14 (C:\HTML apps focused repair batch continued: hub shell launch fix, static contracts across ten HTML app repos, NMA/living-meta/nma-dose-response landing and asset-link repairs, and NMA doc hardcoded-path cleanup. Prior SheafNMA v0.2.0, D-drive legacy smoke-contract continuation, CardioOracle lifecycle status freeze, C-drive model/project smoke-contract continuation, mahmood789 consolidation, Sentinel/Overmind JSONL and verification repair, C-drive reproducibility audit continuation, C-drive verification repair, D-drive repair batch, superapp, C-drive sweep, home-folder hardening, Trial Truthfulness Atlas, and portfolio notes retained below.)
+
+ succeeded in 1644ms:
+True
+E156 REWRITE WORKBOOK
+sentinel:skip-file
+sentinel:claim-language-allow
+
+ succeeded in 1714ms:
+ 120:     # A grid spanning six orders of magnitude either side of the largest variance present.
+ 121:     # Beyond it the weights are equal to within floating point and the mean is the limit.
+ 122:     for i in range(0, 241):
+ 123:         tau2 = (smax * smax) * (10.0 ** (-6.0 + i / 20.0))
+ 124:         pts.append(_pool(thetas, ses, tau2))
+ 125:     return hull_lo, hull_hi, min(pts), max(pts)
+ 126: 
+ 127: 
+ 128: def _dp(x):
+ 129:     """How many decimals is this value SERVED to? A served number carries its own precision."""
+ 130:     s = ("%r" % float(x)).rstrip("0")
+ 131:     return len(s.split(".", 1)[1]) if "." in s else 0
+ 132: 
+ 133: 
+ 134: def assess_joint(claim_point, claim_lo, claim_hi, thetas, ses):
+ 135:     """Does ANY between-study variance give a pool that ROUNDS to the served triple?
+ 136: 
+ 137:     NO TOLERANCE PARAMETER, ON PURPOSE, AND THE ABSENCE IS THE POINT.
+ 138: 
+ 139:     This function had one, and the tolerance decided the verdict. With a point tolerance of
+ 140:     0.005 the nearest candidate FAILED; widened to the rounding half-width of 0.0066 -- which
+ 141:     is the more defensible number -- the same candidate PASSED. A gate whose answer moves when
+ 142:     you justify its threshold more carefully is measuring the threshold.
+ 143: 
+ 144:         THE SERVED NUMBER ALREADY CARRIES ITS OWN PRECISION. `0.75 (0.61 to 0.91)` is two
+ 145:         decimals, so the question has an exact answer that needs no threshold at all: is there
+ 146:         a tau-squared at which the pooled point AND both interval bounds round to those three
+ 147:         values? Round the candidate the way the page rounded, and compare.
+ 148: 
+ 149:     All three bounds must match. Matching the point alone is easy -- tau-squared can be chosen
+ 150:     to hit almost any point inside the achievable range -- and it is the interval that carries
+ 151:     the information, because point and interval are driven by the same single parameter in
+ 152:     opposite directions.
+ 153:     """
+ 154: 
+ 155:     if claim_point is None or claim_point <= 0 or claim_lo is None or claim_hi is None:
+ 156:         return NA, "the claimed point or interval is absent or non-positive"
+ 157:     if len(thetas) < 2 or len(thetas) != len(ses) or any(s is None or s <= 0 for s in ses):
+ 158:         return NA, "fewer than two trials carry a usable interval"
+ 159:     # PRECISION IS CAPPED AT FOUR DECIMALS, AND THE CAP IS THE FIX FOR A DEFECT IN THIS FILE.
+ 160:     #
+ 161:     # Without it, `_dp` reads the precision of an OBJECT-STORED value -- `0.8440482145268958`,
+ 162:     # sixteen decimals -- and the rounding test then demands exact floating-point equality. On
+ 163:     # its first corpus run this gate reported `pcsk9-inhibitors-cv-review` as NOT_ACHIEVABLE
+ 164:     # WITH A TOTAL GAP OF 0.0000: the arithmetic reproduced the pool exactly and the verdict
+ 165:     # said it did not. The two inputs are different things and must be treated differently --
+ 166:     # a SERVED number carries its own precision because someone chose to round it; a STORED
+ 167:     # number carries the precision of a float, which is not a claim about anything. Four
+ 168:     # decimals is the house display convention (the precision ratchet), so it is the working
+ 169:     # precision here too.
+ 170:     d = min(4, max(_dp(claim_point), _dp(claim_lo), _dp(claim_hi)))
+ 171:     want = (round(float(claim_point), d), round(float(claim_lo), d), round(float(claim_hi), d))
+ 172:     smax = max(ses)
+ 173: 
+ 174:     k = len(thetas)
+ 175: 
+ 176:     def at(tau2, hksj=False):
+ 177:         ws = [1.0 / (s * s + tau2) for s in ses]
+ 178:         tot = sum(ws)
+ 179:         pt = sum(w * t for w, t in zip(ws, thetas)) / tot
+ 180:         if not hksj:
+ 181:             return math.exp(pt), math.exp(pt - Z95 * se_iv(tot)), math.exp(pt + Z95 * se_iv(tot))
+ 182:         # KNAPP-HARTUNG. Its interval is a t interval on k-1 df with a variance-inflation
+ 183:         # factor, and it is MUCH wider than the z interval at small k -- `apixaban-vte-treatment`
+ 184:         # serves 0.7763 (0.3437 to 1.7532) on k=3, where the z interval is 0.5356 to 1.1251.
+ 185:         # Modelling only the z interval reported that page as unreproducible, which was THIS
+ 186:         # FILE'S defect and not the page's: the object declares Knapp-Hartung on its face.
+ 187:         # The floor is the house rule -- when Q < k-1 the raw factor NARROWS the interval below
+ 188:         # the z one, which Knapp-Hartung is not for.
+ 189:         q = sum(w * (t - pt) ** 2 for w, t in zip(ws, thetas)) / max(1, k - 1)
+ 190:         se = math.sqrt(max(1.0, q) / tot)
+ 191:         tq = T975.get(k - 1, Z95)
+ 192:         return math.exp(pt), math.exp(pt - tq * se), math.exp(pt + tq * se)
+ 193: 
+ 194:     def se_iv(tot):
+ 195:         return math.sqrt(1.0 / tot)
+ 196: 
+ 197:     # HALF A UNIT IN THE LAST PLACE. THAT IS WHAT A NUMBER QUOTED TO d DECIMALS MEANS, and it
+ 198:     # is a definition rather than a tolerance -- `0.61` asserts the true value is in
+ 199:     # [0.605, 0.615) and asserts nothing finer.
+ 200:     #
+ 201:     # A strict `round(computed, d) == stored` test looked cleaner and was wrong, because
+ 202:     # ROUNDING TIES ARE NOT DECIDABLE FROM THE STORED VALUE. `iv-iron-hf` pools to exactly
+ 203:     # 0.795650; the object stores 0.7957 (half up) and Python's round() of the same float
+ 204:     # returns 0.7956 (the float is 0.79564999...). The gate reported a real, correct,
+ 205:     # exactly-reproducing pool as NOT_ACHIEVABLE on a tie in the fifth decimal -- an instrument
+ 206:     # defect reported as an object defect, which is this corpus's most familiar failure.
+ 207:     #
+ 208:     # ELEVEN of the corpus's outcomes were being failed this way, every one with a total gap of
+ 209:     # 0.0001 or less. The colchicine verdict does NOT rest on this: its nearest candidate misses
+ 210:     # the LOWER BOUND by 0.0163, which is more than three times the half-unit at two decimals.
+ 211:     # ONE unit in the last quoted place, not half. Half a unit is what a SINGLE rounding
+ 212:     # asserts; here TWO independently-rounded computations of the same quantity are being
+ 213:     # compared -- the object's, and this file's recomputation from the object's own per-trial
+ 214:     # intervals -- and two roundings of one quantity can differ by a full unit when their
+ 215:     # intermediate precision differs. Tightening to half a unit failed five corpus outcomes
+ 216:     # whose pools reproduce to one part in ten thousand, which is a reproduction, not a defect.
+ 217:     half_ulp = (10.0 ** -d) + 1e-12
+ 218: 
+ 219:     def devs(tau2, hksj=False):
+ 220:         P, L, H = at(tau2, hksj)
+ 221:         return abs(P - want[0]), abs(L - want[1]), abs(H - want[2])
+ 222: 
+ 223:     def gap_at(tau2):
+ 224:         """THE WORST deviation, not the sum -- and that distinction was a live defect here.
+ 225: 
+ 226:         This minimised the SUM while `matches` tested the MAX, so the search could walk away
+ 227:         from a tau-squared that SATISFIED the acceptance test toward one with a smaller total.
+ 228:         On `iv-iron-hf` tau-squared = 0 reproduces all three values to within half a unit
+ 229:         (0.0000496, 0.0000413, 0.0000132 against a half-unit of 0.00005), and a slightly
+ 230:         positive tau-squared shaved the POINT deviation while pushing the LOWER BOUND out of
+ 231:         tolerance -- for a smaller total. The gate then reported the correct pool as
+ 232:         unreproducible.
+ 233: 
+ 234:         ELEVEN corpus outcomes failed on this, every one of them with a real, exactly
+ 235:         reproducing pool. AN OBJECTIVE THAT DOES NOT MATCH ITS ACCEPTANCE TEST IS A SEARCH FOR
+ 236:         THE WRONG THING, and it fails in the direction that manufactures findings.
+ 237:         """
+ 238:         return min(max(devs(tau2, False)), max(devs(tau2, True)))
+ 239: 
+ 240:     def total_at(tau2):
+ 241:         return min(sum(devs(tau2, False)), sum(devs(tau2, True)))
+ 242: 
+ 243:     def matches(tau2):
+ 244:         return gap_at(tau2) <= half_ulp
+ 245: 
+ 246:     grid = [0.0] + [(smax * smax) * (10.0 ** (-6.0 + i / 400.0)) for i in range(1, 4001)]
+ 247:     best_i = min(range(len(grid)), key=lambda i: gap_at(grid[i]))
+ 248:     # THEN REFINE, because a MISS ON A GRID IS NOT A MISS. The grid samples ten orders of
+ 249:     # magnitude, so its resolution near the answer is coarser than four decimals, and a
+ 250:     # legitimate pool whose tau-squared falls between two grid points would be reported as
+ 251:     # unreproducible. That is a defect of the instrument reported as a defect of the object --
+ 252:     # the exact failure this repository keeps finding.
+ 253:     lo_t = grid[max(0, best_i - 1)]
+ 254:     hi_t = grid[min(len(grid) - 1, best_i + 1)]
+ 255:     for _ in range(200):
+ 256:         a = lo_t + (hi_t - lo_t) / 3.0
+ 257:         b = hi_t - (hi_t - lo_t) / 3.0
+ 258:         if gap_at(a) <= gap_at(b):
+ 259:             hi_t = b
+ 260:         else:
+ 261:             lo_t = a
+ 262:     for tau2 in (0.0, grid[best_i], (lo_t + hi_t) / 2.0):
+ 263:         for hk in (False, True):
+ 264:             if max(devs(tau2, hk)) <= half_ulp:
+ 265:                 P, L, H = at(tau2, hk)
+ 266:                 return OK, ("tau-squared = %.6g with a %s interval gives %.6f (%.6f to %.6f), "
+ 267:                             "agreeing with the claimed %r to within one unit in the last "
+ 268:                             "quoted place."
+ 269:                             % (tau2, "Knapp-Hartung t" if hk else "normal z", P, L, H, want))
+ 270:     tau2 = (lo_t + hi_t) / 2.0
+ 271:     if gap_at(grid[best_i]) < gap_at(tau2):
+ 272:         tau2 = grid[best_i]
+ 273:     hk = sum(devs(tau2, True)) < sum(devs(tau2, False))
+ 274:     P, L, H = at(tau2, hk)
+ 275:     gap = total_at(tau2)
+ 276:     worst = max((abs(P - want[0]), "the POINT"), (abs(L - want[1]), "the LOWER bound"),
+ 277:                 (abs(H - want[2]), "the UPPER bound"))
+ 278:     return FAIL_TAU, (
+ 279:         "NO between-study variance reproduces the claimed %r. The nearest is tau-squared = "
+ 280:         "%.5f -> %.4f (%.4f to %.4f). Total absolute gap %.4f, and the WORST-DISAGREEING "
+ 281:         "quantity is %s, off by %.4f against a half-unit of %.4f at %d decimals. The point "
+ 282:         "alone can always be hit by choosing tau-squared to hit it; the point AND both bounds "
+ 283:         "cannot." % (want, tau2, P, L, H, gap, worst[1], worst[0], half_ulp, d))
+ 284: 
+ 285: 
+ 286: def assess(claim_point, thetas, ses, tol=5e-4):
+ 287:     """Verdict for ONE claimed pooled point against ONE candidate trial set."""
+ 288:     if claim_point is None or claim_point <= 0:
+ 289:         return NA, "the claimed pooled point is absent or non-positive"
+ 290:     if len(thetas) < 2 or len(thetas) != len(ses) or any(s is None or s <= 0 for s in ses):
+ 291:         return NA, ("fewer than two trials carry a usable interval. ABSENT IS NOT ZERO AND IT "
+ 292:                     "IS NOT A PASS.")
+ 293:     c = math.log(claim_point)
+ 294:     hlo, hhi, tlo, thi = achievable(thetas, ses)
+ 295:     if c < hlo - tol or c > hhi + tol:
+ 296:         return FAIL_HULL, (
+ 297:             "the claimed point %.4f lies OUTSIDE the hull [%.4f, %.4f] of the per-trial "
+ 298:             "estimates. A weighted average cannot fall outside the values it averages, so NO "
+ 299:             "estimator and NO weighting of these trials produces it."
+ 300:             % (claim_point, math.exp(hlo), math.exp(hhi)))
+ 301:     if c < tlo - tol or c > thi + tol:
+ 302:         return FAIL_TAU, (
+ 303:             "the claimed point %.4f lies inside the hull [%.4f, %.4f] and OUTSIDE the "
+ 304:             "inverse-variance achievable range [%.4f, %.4f], whose endpoints are the "
+ 305:             "fixed-effect pool and the unweighted mean. No between-study variance produces it."
+ 306:             % (claim_point, math.exp(hlo), math.exp(hhi), math.exp(tlo), math.exp(thi)))
+ 307:     return OK, ("the claimed point %.4f is inside the inverse-variance achievable range "
+ 308:                 "[%.4f, %.4f]. THAT IS NOT A CLAIM THAT IT IS CORRECT."
+ 309:                 % (claim_point, math.exp(tlo), math.exp(thi)))
+ 310: 
+ 311: 
+ 312: def selftest():
+ 313:     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+ 314:     fails = []
+ 315: 
+ 316:     def check(name, got, want):
+ 317:         ok = got == want
+ 318:         print("  %-72s %s  %r" % (name, "ok" if ok else "FAIL", got))
+ 319:         if not ok:
+ 320:             fails.append(name)
+ 321: 
+ 322:     # THE TRIGGERING CONDITION ACTUALLY OCCURRED (P16's fourth clause). These are the real
+ 323:     # published hazard ratios of two real trials and the real number a real page served.
+ 324:     COLCOT = (0.77, 0.61, 0.96)
+ 325:     LODOCO2 = (0.69, 0.57, 0.83)
+ 326:     CLEAR = (0.99, 0.85, 1.16)
+ 327:     CONVINCE = (0.84, 0.68, 1.05)
+ 328: 
+ 329:     def pack(*trials):
+ 330:         th = [math.log(t[0]) for t in trials]
+ 331:         se = [se_from_ci(t[1], t[2]) for t in trials]
+ 332:         return th, se
+ 333: 
+ 334:     print("1. THE LIVE CASE. The card's own declared source and method, checked against it:")
+ 335:     th, se = pack(COLCOT, LODOCO2)
+ 336:     hlo, hhi, tlo, thi = achievable(th, se)
+ 337:     print("     COLCOT 0.77 (0.61-0.96)   se(log) = %.6f" % se[0])
+ 338:     print("     LoDoCo2 0.69 (0.57-0.83)  se(log) = %.6f" % se[1])
+ 339:     print("     hull of the two estimates        [%.4f, %.4f]" % (math.exp(hlo), math.exp(hhi)))
+ 340:     print("     achievable at ANY tau-squared    [%.4f, %.4f]" % (math.exp(tlo), math.exp(thi)))
+ 341:     print("     COLCOT's weight share  tau2=0 %.1f%%   tau2->inf %.1f%%"
+ 342:           % (100.0 / (1 + (se[0] ** 2) / (se[1] ** 2)), 50.0))
+ 343:     v, why = assess(0.75, th, se)
+ 344:     print("     verdict for the served 0.75: %s" % v)
+ 345:     check("the served headline is NOT achievable from its own declared source", v, FAIL_TAU)
+ 346: 
+ 347:     print("\n2. THE GUARD DOES NOT FIRE ON THE CORRECT CASE. The true DL pool of the same two:")
+ 348:     true_pool = math.exp(_pool(th, se, 0.0))
+ 349:     print("     fixed-effect / DL pool (Q < df, so tau-squared is 0) = %.4f" % true_pool)
+ 350:     check("the true pool of the same two trials PASSES", assess(true_pool, th, se)[0], OK)
+ 351: 
+ 352:     print("\n3. THE HULL BOUND FIRES -- a point no weighting can reach:")
+ 353:     v, why = assess(0.55, th, se)
+ 354:     check("0.55 against a hull of [0.69, 0.77]", v, FAIL_HULL)
+ 355:     print("     %s" % why)
+ 356: 
+ 357:     print("\n4. NEITHER VERDICT IS ESTABLISHED BY THE RUN SUCCEEDING. Absent inputs REFUSE:")
+ 358:     check("one trial only is NOT_ASSESSABLE", assess(0.75, th[:1], se[:1])[0], NA)
+ 359:     check("a missing interval is NOT_ASSESSABLE",
+ 360:           assess(0.75, th, [se[0], None])[0], NA)
+ 361:     check("a zero claimed point is NOT_ASSESSABLE", assess(0.0, th, se)[0], NA)
+ 362: 
+ 363:     print("\n5. AND THE OTHER PAIRS THIS PAGE COULD HAVE MEANT, so 'k=2' is closed and not")
+ 364:     print("   left as an open question about WHICH two:")
+ 365:     named = [("COLCOT+LoDoCo2", COLCOT, LODOCO2), ("COLCOT+CLEAR SYNERGY", COLCOT, CLEAR),
+ 366:              ("COLCOT+CONVINCE", COLCOT, CONVINCE), ("LoDoCo2+CLEAR SYNERGY", LODOCO2, CLEAR),
+ 367:              ("LoDoCo2+CONVINCE", LODOCO2, CONVINCE), ("CLEAR SYNERGY+CONVINCE", CLEAR, CONVINCE)]
+ 368:     any_ok = []
+ 369:     for name, a, b in named:
+ 370:         t2, s2 = pack(a, b)
+ 371:         hl, hh, tl, tt = achievable(t2, s2)
+ 372:         v, _ = assess(0.75, t2, s2)
+ 373:         margin = min(abs(math.exp(tl) - 0.75), abs(math.exp(tt) - 0.75))
+ 374:         print("     %-24s achievable [%.4f, %.4f]   margin %.4f  ->  %s"
+ 375:               % (name, math.exp(tl), math.exp(tt), margin, v))
+ 376:         if v == OK:
+ 377:             any_ok.append(name)
+ 378:     check("NO pair of this page's four published hazard ratios can produce 0.75", any_ok, [])
+ 379:     print("     THE NEAREST MISS IS NAMED RATHER THAN LEFT INSIDE THE VERDICT. LoDoCo2+CONVINCE")
+ 380:     print("     begins at 0.7506, which is 0.0006 away and ROUNDS TO 0.75 AT TWO DECIMALS. On")
+ 381:     print("     the point alone this file would be overclaiming, and it is proof number 6 --")
+ 382:     print("     the INTERVAL -- that rules the pair out: that pool's interval is 0.6511 to")
+ 383:     print("     0.8652 against a served 0.61 to 0.91. Two digits agreeing is a coincidence.")
+ 384: 
+ 385:     print("\n6. THE POINT AND THE INTERVAL TOGETHER. This is the decisive test, and it replaces")
+ 386:     print("   an overclaim: an earlier draft asserted that a pool cannot be less precise than")
+ 387:     print("   its most precise trial. THAT IS FALSE above tau-squared = 0. What is true is that")
+ 388:     print("   both numbers must come from ONE tau-squared:")
+ 389:     joint_ok = []
+ 390:     for name, a, b in named:
+
+codex
+I found the first concrete issue in the object ingestion path: a truthiness gate drops real zero or invalid-zero interval endpoints before the assessment function can classify them. I’m checking the remaining CLI exit path and selftest surface for a second demonstrable failure rather than filling the list with speculation.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=0; Get-Content -Path scripts'"\\pooled_point_in_achievable_range_gate.py | ForEach-Object { "'$i++; if (($i -ge 390 -and $i -le 470) -or ($i -ge 1 -and $i -le 90)) { '"'{0,4}: {1}' -f "'$i, $_ } }' in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "python scripts\\pooled_point_in_achievable_range_gate.py --selftest > "'$env:TEMP'"\\ppgate_selftest.txt; "'$LASTEXITCODE; Get-Content $env:TEMP'"\\ppgate_selftest.txt -Tail 5" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "@'
+import importlib.util, math
+p='scripts/pooled_point_in_achievable_range_gate.py'
+spec=importlib.util.spec_from_file_location('m',p)
+m=importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
+print('zero hi assess', m.assess_joint(1.0, 0.8, 0.0, [math.log(0.9), math.log(1.1)], [0.1,0.1])[0])
+print('none hi fallback', m.assess(1.0, [math.log(0.9), math.log(1.1)], [0.1,0.1])[0])
+print('se zero low', m.se_from_ci(0,1))
+'@ | python -" in F:\rapidmeta-ssot-shell
+ succeeded in 1696ms:
+   1: #!/usr/bin/env python3
+   2: """A CLAIMED POOLED POINT THAT NO WEIGHTING OF ITS OWN TRIALS CAN PRODUCE.
+   3: 
+   4: WHY A BOUND AND NOT A SEARCH -- this is the whole point of the file.
+   5: 
+   6: The prior treatment of `colchicine-cvd-review` enumerated THIRTY-THREE candidate pools -- every
+   7: subset of two, three and four of the page's published hazard ratios, under fixed-effect,
+   8: DerSimonian-Laird and REML -- found that none gives the card's `HR 0.75 (0.61-0.91)`, and
+   9: recorded the search AS BOUNDED. That was honest and it could not close anything:
+  10: 
+  11:     AN ENUMERATION THAT FINDS NOTHING PROVES NOTHING ABOUT THE ESTIMATOR IT DID NOT TRY.
+  12:     "None of the 33" leaves Mantel-Haenszel, Peto, Hartung-Knapp, a Bayesian posterior and
+  13:     every fixed weighting a reviewer might have used, and a reader cannot tell a fabricated
+  14:     number from one produced by an estimator nobody thought to run.
+  15: 
+  16: Two bounds close it, and both are arithmetic rather than search:
+  17: 
+  18:   HULL      EVERY inverse-variance pool, every Mantel-Haenszel and Peto pool, and every fixed
+  19:             weighting whatsoever is a CONVEX COMBINATION of the per-trial log-effects. A convex
+  20:             combination lies between the smallest and the largest. So a claimed point OUTSIDE
+  21:             [min, max] cannot be ANY weighted average of those trials, under any estimator that
+  22:             has ever been written or ever will be. No enumeration is involved.
+  23: 
+  24:   TAU-PATH  Inside the hull the hull says nothing, so the second bound is the random-effects
+  25:             family itself. As tau-squared runs from 0 to infinity the inverse-variance weights
+  26:             run continuously from the fixed-effect weights to EQUAL weights, and the pooled
+  27:             point traces a path whose endpoints are the fixed-effect pool and the UNWEIGHTED
+  28:             mean of the log-effects. A claimed point outside that path is not an
+  29:             inverse-variance random-effects pool of these trials AT ANY heterogeneity.
+  30: 
+  31: THE CASE THAT MADE IT NECESSARY, and the reason the hull alone was not enough.
+  32: 
+  33: `PUBLISHED_META_BENCHMARKS.json` declares the card's number with its own method attached:
+  34: 
+  35:     "pooled": 0.75, "lci": 0.61, "uci": 0.91, "k": 2, "N": 11816,
+  36:     "source": "COLCOT (Tardif 2019) + LoDoCo2 (Nidorf 2020)",
+  37:     "method": "DL random-effects pooling of 2 landmark RCTs"
+  38: 
+  39: COLCOT is `HR 0.77 (0.61-0.96)` and LoDoCo2 is `HR 0.69 (0.57-0.83)`. The claimed 0.75 sits
+  40: INSIDE the hull [0.69, 0.77], so the hull bound passes it. The tau-path does not:
+  41: 
+  42:     COLCOT is the LESS precise of the two, so its weight can never exceed one half. It is
+  43:     40.7% at tau-squared = 0 and rises monotonically to 50% as tau-squared grows without
+  44:     limit. Reaching 0.745 would require COLCOT to carry SEVENTY PER CENT of the weight.
+  45: 
+  46: The achievable interval is therefore `0.7215` to `0.7289`, and the claim is 0.745. **No
+  47: between-study variance produces it, and this is proven rather than not-found.**
+  48: 
+  49: WHAT THIS DOES NOT ESTABLISH -- written before it was run
+  50:   - NOT that a passing point is CORRECT. It shows only that the arithmetic is achievable from
+  51:     the recorded inputs. The inputs can still be the wrong trials, arms or endpoint, and every
+  52:     withdrawal in this corpus was of a page whose arithmetic was internally fine.
+  53:   - NOT that a failing point was FABRICATED. It can be a real number belonging to a different
+  54:     set of trials, which is exactly what the colchicine case turned out to be. The verdict is
+  55:     NOT_ACHIEVABLE and it is a finding about PROVENANCE, never about honesty.
+  56:   - NOTHING where per-trial intervals are absent. That is NOT_ASSESSABLE and is never counted
+  57:     as clean.
+  58: 
+  59: USAGE:  python scripts/pooled_point_in_achievable_range_gate.py <object.json> [...]
+  60:         python scripts/pooled_point_in_achievable_range_gate.py --selftest
+  61: """
+  62: import io
+  63: import json
+  64: import math
+  65: import os
+  66: import sys
+  67: 
+  68: REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+  69: 
+  70: OK = "ACHIEVABLE"
+  71: FAIL_HULL = "NOT_ACHIEVABLE_BY_ANY_WEIGHTING"
+  72: FAIL_TAU = "NOT_ACHIEVABLE_BY_ANY_BETWEEN_STUDY_VARIANCE"
+  73: NA = "NOT_ASSESSABLE"
+  74: 
+  75: Z95 = 1.959963984540054
+  76: 
+  77: # Two-sided 97.5th percentile of Student's t, BY LOOKUP rather than from recall or from an
+  78: # approximation written on the spot. Needed because Knapp-Hartung intervals are t intervals on
+  79: # k-1 degrees of freedom and this corpus uses them at k = 3 and k = 4, where t is 4.303 and
+  80: # 3.182 against a z of 1.960 -- a factor of more than two on the interval half-width.
+  81: T975 = {1: 12.706205, 2: 4.302653, 3: 3.182446, 4: 2.776445, 5: 2.570582, 6: 2.446912,
+  82:         7: 2.364624, 8: 2.306004, 9: 2.262157, 10: 2.228139, 11: 2.200985, 12: 2.178813,
+  83:         13: 2.160369, 14: 2.144787, 15: 2.131450, 16: 2.119905, 17: 2.109816, 18: 2.100922,
+  84:         19: 2.093024, 20: 2.085963, 21: 2.079614, 22: 2.073873, 23: 2.068658, 24: 2.063899,
+  85:         25: 2.059539, 26: 2.055529, 27: 2.051831, 28: 2.048407, 29: 2.045230, 30: 2.042272}
+  86: 
+  87: 
+  88: def se_from_ci(lo, hi, level=95):
+  89:     """SE on the LOG scale from a ratio measure's interval. Refuses anything non-positive."""
+  90:     if lo is None or hi is None:
+ 390:     for name, a, b in named:
+ 391:         t2, s2 = pack(a, b)
+ 392:         v, why = assess_joint(0.75, 0.61, 0.91, t2, s2)
+ 393:         print("     %-24s %s" % (name, v))
+ 394:         if v == OK:
+ 395:             joint_ok.append(name)
+ 396:     check("NO pair reproduces the served point AND interval at one tau-squared", joint_ok, [])
+ 397:     t2, s2 = pack(LODOCO2, CONVINCE)
+ 398:     print("     the nearest pair, in full: %s" % assess_joint(0.75, 0.61, 0.91, t2, s2)[1])
+ 399:     # AND THE SAME TEST OVER EVERY SUBSET OF SIZE 3 AND 4, so "k=2" is not load-bearing. The
+ 400:     # card says k=2; if it were wrong about its own k, a larger subset could still be the
+ 401:     # source, and that possibility is closed here rather than assumed away.
+ 402:     import itertools
+ 403:     all_four = {"COLCOT": COLCOT, "LoDoCo2": LODOCO2, "CLEAR SYNERGY": CLEAR,
+ 404:                 "CONVINCE": CONVINCE}
+ 405:     survivors = []
+ 406:     for r in (2, 3, 4):
+ 407:         for combo in itertools.combinations(sorted(all_four), r):
+ 408:             tc, sc = pack(*[all_four[n] for n in combo])
+ 409:             if assess_joint(0.75, 0.61, 0.91, tc, sc)[0] == OK:
+ 410:                 survivors.append("+".join(combo))
+ 411:     check("NO subset of ANY size at ANY tau-squared rounds to 0.75 (0.61 to 0.91)",
+ 412:           survivors, [])
+ 413:     print("""
+ 414:    WHICH OF THESE TWO RESULTS CLOSES THE DEFECT, AND WHICH DOES NOT -- because they do not
+ 415:    carry equal weight and reporting them as one number would overstate the case.
+ 416: 
+ 417:      THE DECISIVE ONE is the card's OWN DECLARED SOURCE. `PUBLISHED_META_BENCHMARKS.json`
+ 418:      names COLCOT + LoDoCo2 by citation and PMID and declares DL random-effects. Those two
+ 419:      trials pool to 0.7215 (0.6243 to 0.8338) against a served 0.75 (0.61 to 0.91): the upper
+ 420:      bound is out by 0.0762, which is SEVEN AND A HALF UNITS in the last quoted place. Nothing
+ 421:      about that verdict is close.
+ 422: 
+ 423:      THE WEAKER ONE is the sweep over every other subset. Its nearest miss -- LoDoCo2 with
+ 424:      CONVINCE -- is out by 0.0104 against a unit of 0.0100, A MARGIN OF FOUR PER CENT. That
+ 425:      result is real and it is not something to close a defect on, and it is reported with its
+ 426:      margin rather than folded into a verdict. It also could not be the source: the benchmark
+ 427:      names its two trials, and CONVINCE reported in 2024, years after this benchmark was
+ 428:      recorded.""")
+ 429: 
+ 430:     print("\n7. AND THE JOINT TEST PASSES A REAL POOL, so it is not merely a refusing machine:")
+ 431:     t2, s2 = pack(COLCOT, LODOCO2)
+ 432:     tp = math.exp(_pool(t2, s2, 0.0))
+ 433:     tse = math.sqrt(1.0 / sum(1.0 / (s * s) for s in s2))
+ 434:     lo, hi = tp * math.exp(-Z95 * tse), tp * math.exp(Z95 * tse)
+ 435:     print("     the true fixed/DL pool of COLCOT+LoDoCo2 is %.4f (%.4f to %.4f)" % (tp, lo, hi))
+ 436:     check("the true pool passes the JOINT test", assess_joint(tp, lo, hi, t2, s2)[0], OK)
+ 437: 
+ 438:     print("\n%s" % ("SELFTEST FAILED: %s" % fails if fails else "SELFTEST PASSED"))
+ 439:     return 1 if fails else 0
+ 440: 
+ 441: 
+ 442: def run_objects(paths):
+ 443:     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+ 444:     bad = 0
+ 445:     for p in paths:
+ 446:         try:
+ 447:             with io.open(p, "r", encoding="utf-8") as fh:
+ 448:                 obj = json.load(fh)
+ 449:         except (OSError, ValueError) as exc:
+ 450:             print("%-52s %s  %s" % (os.path.basename(p), NA, exc))
+ 451:             continue
+ 452:         outs = ((obj.get("results") or {}).get("by_outcome") or {})
+ 453:         for oid, blk in sorted(outs.items()):
+ 454:             if not isinstance(blk, dict):
+ 455:                 continue
+ 456:             pooled = blk.get("pooled") or {}
+ 457:             if pooled.get("withdrawn"):
+ 458:                 # A WITHDRAWN POOL HAS NO HEADLINE LEFT TO REPRODUCE. Skipped, and skipped is
+ 459:                 # reported as its own state -- never folded into the clean count.
+ 460:                 print("%-38s %-22s SKIPPED_WITHDRAWN" % (os.path.basename(p), oid[:22]))
+ 461:                 continue
+ 462:             claim, lo, hi = pooled.get("point"), pooled.get("ci_low"), pooled.get("ci_high")
+ 463:             measure = str(pooled.get("measure") or "").upper()
+ 464:             if measure not in ("HR", "RR", "OR"):
+ 465:                 # Differences pool on the natural scale; this file's arithmetic is log-scale.
+ 466:                 continue
+ 467:             if claim is None:
+ 468:                 print("%-38s %-22s %s  no pooled point" % (os.path.basename(p), oid[:22], NA))
+ 469:                 continue
+ 470:             th, se = [], []
+
+ succeeded in 1733ms:
+zero hi assess NOT_ACHIEVABLE_BY_ANY_BETWEEN_STUDY_VARIANCE
+none hi fallback NOT_ACHIEVABLE_BY_ANY_BETWEEN_STUDY_VARIANCE
+se zero low None
+
+ succeeded in 2388ms:
+0
+7. AND THE JOINT TEST PASSES A REAL POOL, so it is not merely a refusing machine:
+     the true fixed/DL pool of COLCOT+LoDoCo2 is 0.7215 (0.6243 to 0.8338)
+  the true pool passes the JOINT test                                      ok  'ACHIEVABLE'
+
+SELFTEST PASSED
+
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=0; Get-Content -Path scripts'"\\pooled_point_in_achievable_range_gate.py | ForEach-Object { "'$i++; if ($i -ge 470 -and $i -le 520) { '"'{0,4}: {1}' -f "'$i, $_ } }' in F:\rapidmeta-ssot-shell
+ succeeded in 1239ms:
+ 470:             th, se = [], []
+ 471:             for t in (blk.get("per_trial") or []):
+ 472:                 s = se_from_ci(t.get("ci_low"), t.get("ci_high"), t.get("ci_level"))
+ 473:                 if s and t.get("point"):
+ 474:                     th.append(math.log(float(t["point"])))
+ 475:                     se.append(s)
+ 476:             v, why = (assess_joint(claim, lo, hi, th, se) if (lo and hi)
+ 477:                       else assess(claim, th, se))
+ 478:             print("%-38s %-22s %s" % (os.path.basename(p), oid[:22], v))
+ 479:             if v in (FAIL_HULL, FAIL_TAU):
+ 480:                 print("     %s" % why)
+ 481:                 bad += 1
+ 482:     print("\n%d outcome(s) NOT ACHIEVABLE from their own recorded per-trial estimates." % bad)
+ 483:     return 1 if bad else 0
+ 484: 
+ 485: 
+ 486: if __name__ == "__main__":
+ 487:     args = [a for a in sys.argv[1:] if not a.startswith("--")]
+ 488:     sys.exit(selftest() if "--selftest" in sys.argv else run_objects(args))
+
+codex
+The remaining candidates that require external corpus facts, such as whether a selector matches too little of the real corpus, cannot be proven from the module alone. I’m keeping those as “could not determine” rather than treating synthetic corpus assumptions as evidence.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "@'
+import json, tempfile, subprocess, sys, os
+obj={\"results\":{\"by_outcome\":{\"o\":{\"pooled\":{\"point\":1.0,\"ci_low\":0.8,\"ci_high\":0.0,\"measure\":\"HR\"},\"per_trial\":[{\"point\":0.9,\"ci_low\":0.8,\"ci_high\":1.0},{\"point\":1.1,\"ci_low\":1.0,\"ci_high\":1.2}]}}}}
+path=os.path.join(tempfile.gettempdir(),'ppgate_zero_hi.json')
+open(path,'w',encoding='utf-8').write(json.dumps(obj))
+r=subprocess.run([sys.executable,'scripts/pooled_point_in_achievable_range_gate.py',path],text=True,capture_output=True)
+print(path)
+print('exit',r.returncode)
+print(r.stdout)
+'@ | python -" in F:\rapidmeta-ssot-shell
+ succeeded in 1500ms:
+F:\claude-temp\ppgate_zero_hi.json
+exit 0
+ppgate_zero_hi.json                    o                      ACHIEVABLE
+
+0 outcome(s) NOT ACHIEVABLE from their own recorded per-trial estimates.
+
+
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "@'
+import json, tempfile, subprocess, sys, os
+obj={\"results\":{\"by_outcome\":{\"o\":{\"pooled\":{\"point\":1.0,\"ci_low\":0.85,\"ci_high\":1.18,\"measure\":\"HR\"},\"per_trial\":[{\"point\":0.0,\"ci_low\":0.8,\"ci_high\":1.0},{\"point\":0.9,\"ci_low\":0.8,\"ci_high\":1.0},{\"point\":1.1,\"ci_low\":1.0,\"ci_high\":1.2}]}}}}
+path=os.path.join(tempfile.gettempdir(),'ppgate_zero_trial.json')
+open(path,'w',encoding='utf-8').write(json.dumps(obj))
+r=subprocess.run([sys.executable,'scripts/pooled_point_in_achievable_range_gate.py',path],text=True,capture_output=True)
+print('exit',r.returncode)
+print(r.stdout)
+'@ | python -" in F:\rapidmeta-ssot-shell
+ succeeded in 1545ms:
+exit 0
+ppgate_zero_trial.json                 o                      ACHIEVABLE
+
+0 outcome(s) NOT ACHIEVABLE from their own recorded per-trial estimates.
+
+
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=0; Get-Content -Path scripts'"\\pooled_point_in_achievable_range_gate.py | ForEach-Object { "'$i++; if ($i -ge 88 -and $i -le 105) { '"'{0,4}: {1}' -f "'$i, $_ } }' in F:\rapidmeta-ssot-shell
+ succeeded in 1276ms:
+  88: def se_from_ci(lo, hi, level=95):
+  89:     """SE on the LOG scale from a ratio measure's interval. Refuses anything non-positive."""
+  90:     if lo is None or hi is None:
+  91:         return None
+  92:     try:
+  93:         lo, hi = float(lo), float(hi)
+  94:     except (TypeError, ValueError):
+  95:         return None
+  96:     if lo <= 0 or hi <= 0 or hi <= lo:
+  97:         return None
+  98:     z = Z95 if int(level or 95) == 95 else Z95
+  99:     return (math.log(hi) - math.log(lo)) / (2.0 * z)
+ 100: 
+ 101: 
+ 102: def _pool(thetas, ses, tau2):
+ 103:     ws = [1.0 / (s * s + tau2) for s in ses]
+ 104:     tot = sum(ws)
+ 105:     return sum(w * t for w, t in zip(ws, thetas)) / tot
+
+codex
+One arithmetic defect is independent of the corpus: `ci_level` is passed in but non-95 levels use the 95% z value anyway. I’m checking whether that can flip a CLI verdict with a small JSON, so the reported input is stronger than a bare helper call.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "@'
+import math, random, importlib.util
+p='scripts/pooled_point_in_achievable_range_gate.py'
+spec=importlib.util.spec_from_file_location('m',p)
+m=importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
+Z90=1.6448536269514722
+
+def se90(lo,hi): return (math.log(hi)-math.log(lo))/(2*Z90)
+
+def pack90(trials):
+    return [math.log(x[0]) for x in trials], [se90(x[1],x[2]) for x in trials]
+def pack_bad(trials):
+    return [math.log(x[0]) for x in trials], [m.se_from_ci(x[1],x[2],90) for x in trials]
+vals=[0.5,0.6,0.7,0.8,0.9,1.0,1.1,1.2,1.3,1.5,1.8,2.0]
+widths=[1.05,1.1,1.2,1.4,1.8]
+trials=[]
+for pt in vals:
+  for w in widths:
+    lo=pt/math.sqrt(w); hi=pt*math.sqrt(w)
+    trials.append((pt,lo,hi))
+for a in trials:
+  for b in trials:
+    if a==b: continue
+    thB,seB=pack_bad([a,b]); thC,seC=pack90([a,b])
+    # try claims around actual correct/bad feasible bounds
+    for claim in [x/100 for x in range(50,201)]:
+      vb=m.assess(claim,thB,seB)[0]
+      vc=m.assess(claim,thC,seC)[0]
+      if vb"'!=vc:
+        print('"'FOUND',a,b,claim,vb,vc)
+        print('bad range', [math.exp(x) for x in m.achievable(thB,seB)[2:]])
+        print('cor range', [math.exp(x) for x in m.achievable(thC,seC)[2:]])
+        raise SystemExit
+print('none')
+'@ | python -" in F:\rapidmeta-ssot-shell
+2026-08-24T04:41:06.262007Z ERROR codex_core::tools::router: error=Exit code: 124
+Wall time: 11 seconds
+Output:
+command timed out after 10988 milliseconds
+
+ exited 124 in 10988ms:
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "@'
+import math, importlib.util
+p='scripts/pooled_point_in_achievable_range_gate.py'
+spec=importlib.util.spec_from_file_location('m',p)
+m=importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
+Z90=1.6448536269514722
+
+def se90(lo,hi): return (math.log(hi)-math.log(lo))/(2*Z90)
+
+def pack(trials, corr): return [math.log(x[0]) for x in trials], [(se90 if corr else (lambda lo,hi: m.se_from_ci(lo,hi,90)))(x[1],x[2]) for x in trials]
+vals=[0.5,0.7,0.9,1.1,1.3,1.6,2.0]
+widths=[1.05,1.2,1.8]
+trials=[(pt,pt/math.sqrt(w),pt*math.sqrt(w)) for pt in vals for w in widths]
+for a in trials:
+  for b in trials:
+    if a==b: continue
+    thB,seB=pack([a,b],False); thC,seC=pack([a,b],True)
+    rb=[math.exp(x) for x in m.achievable(thB,seB)[2:]]
+    rc=[math.exp(x) for x in m.achievable(thC,seC)[2:]]
+    candidates=set(round(x,2) for x in rb+rc)
+    for claim in candidates:
+      vb=m.assess(claim,thB,seB)[0]; vc=m.assess(claim,thC,seC)[0]
+      if vb"'!=vc:
+        print('"'FOUND',a,b,claim,vb,vc)
+        print('bad range',rb,'cor range',rc)
+        raise SystemExit
+print('none')
+'@ | python -" in F:\rapidmeta-ssot-shell
+ succeeded in 2163ms:
+none
+
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "@'
+import math, importlib.util, itertools
+p='scripts/pooled_point_in_achievable_range_gate.py'
+spec=importlib.util.spec_from_file_location('m',p)
+m=importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
+Z90=1.6448536269514722
+
+def se90(lo,hi): return (math.log(hi)-math.log(lo))/(2*Z90)
+
+def pack(trials,corr): return [math.log(x[0]) for x in trials], [(se90 if corr else (lambda lo,hi: m.se_from_ci(lo,hi,90)))(x[1],x[2]) for x in trials]
+# choose two trials; claim generated from correct se at tau=0, then see bad rejects
+vals=[0.6,0.8,1.0,1.2,1.5]
+widths=[1.1,1.4,2.0]
+trials=[(pt,pt/math.sqrt(w),pt*math.sqrt(w)) for pt in vals for w in widths]
+for a,b in itertools.permutations(trials,2):
+  thC,seC=pack([a,b],True); thB,seB=pack([a,b],False)
+  for tau2 in [0, max(seC)**2*0.1, max(seC)**2, max(seC)**2*10]:
+    # compute normal z candidate with correct se
+    ws=[1/(s*s+tau2) for s in seC]; tot=sum(ws); pt=sum(w*t for w,t in zip(ws,thC))/tot
+    P=math.exp(pt); L=math.exp(pt-m.Z95*math.sqrt(1/tot)); H=math.exp(pt+m.Z95*math.sqrt(1/tot))
+    claim=(round(P,2),round(L,2),round(H,2))
+    vc=m.assess_joint(*claim, thC, seC)[0]
+    vb=m.assess_joint(*claim, thB, seB)[0]
+    if vc=='ACHIEVABLE' and vb"'!=vc:
+      print('"'FOUND',a,b,'claim',claim,'bad',vb,'correct',vc)
+      raise SystemExit
+print('none')
+'@ | python -" in F:\rapidmeta-ssot-shell
+ succeeded in 2718ms:
+FOUND (0.6, 0.5720775535473553, 0.629285308902091) (1.0, 0.8451542547285166, 1.1832159566199232) claim (0.72, 0.61, 0.85) bad NOT_ACHIEVABLE_BY_ANY_BETWEEN_STUDY_VARIANCE correct ACHIEVABLE
+
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "@'
+import json, tempfile, subprocess, sys, os
+obj={\"results\":{\"by_outcome\":{\"o\":{\"pooled\":{\"point\":0.72,\"ci_low\":0.61,\"ci_high\":0.85,\"measure\":\"HR\"},\"per_trial\":[{\"point\":0.6,\"ci_low\":0.5720775535473553,\"ci_high\":0.629285308902091,\"ci_level\":90},{\"point\":1.0,\"ci_low\":0.8451542547285166,\"ci_high\":1.1832159566199232,\"ci_level\":90}]}}}}
+path=os.path.join(tempfile.gettempdir(),'ppgate_ci90.json')
+open(path,'w',encoding='utf-8').write(json.dumps(obj))
+r=subprocess.run([sys.executable,'scripts/pooled_point_in_achievable_range_gate.py',path],text=True,capture_output=True)
+print(path)
+print('exit',r.returncode)
+print(r.stdout)
+'@ | python -" in F:\rapidmeta-ssot-shell
+ succeeded in 1532ms:
+F:\claude-temp\ppgate_ci90.json
+exit 1
+ppgate_ci90.json                       o                      NOT_ACHIEVABLE_BY_ANY_BETWEEN_STUDY_VARIANCE
+     NO between-study variance reproduces the claimed (0.72, 0.61, 0.85). The nearest is tau-squared = 0.01068 -> 0.7302 (0.6202 to 0.8597). Total absolute gap 0.0301, and the WORST-DISAGREEING quantity is the LOWER bound, off by 0.0102 against a half-unit of 0.0100 at 2 decimals. The point alone can always be hit by choosing tau-squared to hit it; the point AND both bounds cannot.
+
+1 outcome(s) NOT ACHIEVABLE from their own recorded per-trial estimates.
+
+
+codex
+**Defects**
+
+- `STATUS CODE REPORTING THE WRAPPER`: line 451, with line 483.  
+  Input: `python scripts/pooled_point_in_achievable_range_gate.py F:\tmp\missing.json`  
+  Consequence: unreadable work is reported as `NOT_ASSESSABLE` but exits `0`, so a pipeline can pass without assessing the object.
+
+- `ZERO CONFLATED WITH ABSENT`: line 476.  
+  Input JSON:
+  ```json
+  {"results":{"by_outcome":{"o":{"pooled":{"point":1.0,"ci_low":0.8,"ci_high":0.0,"measure":"HR"},"per_trial":[{"point":0.9,"ci_low":0.8,"ci_high":1.0},{"point":1.1,"ci_low":1.0,"ci_high":1.2}]}}}}
+  ```
+  Consequence: `ci_high: 0.0` bypasses `assess_joint` and the invalid interval is reported `ACHIEVABLE`.
+
+- `INSTRUMENT READING A NAME VS ITS BINDING`: line 98.  
+  Input JSON:
+  ```json
+  {"results":{"by_outcome":{"o":{"pooled":{"point":0.72,"ci_low":0.61,"ci_high":0.85,"measure":"HR"},"per_trial":[{"point":0.6,"ci_low":0.5720775535473553,"ci_high":0.629285308902091,"ci_level":90},{"point":1.0,"ci_low":0.8451542547285166,"ci_high":1.1832159566199232,"ci_level":90}]}}}}
+  ```
+  Consequence: `ci_level: 90` is treated with `Z95`, producing `NOT_ACHIEVABLE` for a case that is achievable under the supplied 90% intervals.
+
+No proven defect: probe keyed to string a fix removes.  
+No proven defect: idempotency guard satisfied by own comment/marker.  
+COULD NOT DETERMINE: selector keyed to a corpus form; missing real corpus JSONs.  
+No proven defect: text comparison with CRLF/LF.  
+No proven defect: merged-cell/off-by-one tabulation.  
+No proven defect: negation dropped.
+tokens used
+45,027
+**Defects**
+
+- `STATUS CODE REPORTING THE WRAPPER`: line 451, with line 483.  
+  Input: `python scripts/pooled_point_in_achievable_range_gate.py F:\tmp\missing.json`  
+  Consequence: unreadable work is reported as `NOT_ASSESSABLE` but exits `0`, so a pipeline can pass without assessing the object.
+
+- `ZERO CONFLATED WITH ABSENT`: line 476.  
+  Input JSON:
+  ```json
+  {"results":{"by_outcome":{"o":{"pooled":{"point":1.0,"ci_low":0.8,"ci_high":0.0,"measure":"HR"},"per_trial":[{"point":0.9,"ci_low":0.8,"ci_high":1.0},{"point":1.1,"ci_low":1.0,"ci_high":1.2}]}}}}
+  ```
+  Consequence: `ci_high: 0.0` bypasses `assess_joint` and the invalid interval is reported `ACHIEVABLE`.
+
+- `INSTRUMENT READING A NAME VS ITS BINDING`: line 98.  
+  Input JSON:
+  ```json
+  {"results":{"by_outcome":{"o":{"pooled":{"point":0.72,"ci_low":0.61,"ci_high":0.85,"measure":"HR"},"per_trial":[{"point":0.6,"ci_low":0.5720775535473553,"ci_high":0.629285308902091,"ci_level":90},{"point":1.0,"ci_low":0.8451542547285166,"ci_high":1.1832159566199232,"ci_level":90}]}}}}
+  ```
+  Consequence: `ci_level: 90` is treated with `Z95`, producing `NOT_ACHIEVABLE` for a case that is achievable under the supplied 90% intervals.
+
+No proven defect: probe keyed to string a fix removes.  
+No proven defect: idempotency guard satisfied by own comment/marker.  
+COULD NOT DETERMINE: selector keyed to a corpus form; missing real corpus JSONs.  
+No proven defect: text comparison with CRLF/LF.  
+No proven defect: merged-cell/off-by-one tabulation.  
+No proven defect: negation dropped.

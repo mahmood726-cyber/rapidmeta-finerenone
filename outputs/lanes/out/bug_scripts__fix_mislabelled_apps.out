@@ -1,0 +1,1215 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a031b9-7c81-7911-b775-48da4bdabcd6
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/fix_mislabelled_apps.py
+
+--- THE FILE, IN FULL ---
+"""Fix the two mis-labelled cardio apps. Rebuilt on current origin/main.
+
+Filenames and URLs are DELIBERATELY NOT CHANGED - renaming would break every
+existing link. The displayed identity is corrected instead, and the URL/content
+mismatch is stated on the page so a reader arriving from a stale link is not
+misled.
+
+TIRZEPATIDE_ARDS_AUTO_FULL_REVIEW.html  -> a review of ANDEXANET ALFA
+ICAGEN_AUTO_FULL_REVIEW.html            -> a review of EDOXABAN
+
+Both shipped a green "INTERNAL CHECKS PASSED" badge with window.__verdict
+"STABLE" / n_trials_seen 2 over 3-row ledgers, and both displayed a pooled
+estimate. Verified live in a browser before this fix:
+    TIRZEPATIDE_ARDS  displayed RR 0.06 (0.01-0.21)
+    ICAGEN            displayed RR 0.52 (0.33-0.84)
+
+=== THE IMPOSSIBLE HAZARD RATIO (TIRZEPATIDE_ARDS / andexanet) ===
+
+All three rows stored a PERCENT CHANGE in the hazard-ratio fields
+(publishedHR / hrLCI / hrUCI / pubHR / pubHR_LCI / pubHR_UCI):
+
+    NCT02220725  73.83  (65.1542 - 82.5058)
+    NCT02207725  73.15  (67.5193 - 78.7807)
+    NCT02329327   0.80  (-0.5509 - 2.1509)   <-- NEGATIVE lower bound
+
+A hazard ratio is a ratio of positive rates and cannot be <= 0, so the third row
+is not merely implausible, it is impossible; any log transform yields NaN.
+
+Arithmetic origin, verified against ClinicalTrials.gov API v2 this session. The
+posted primary for both ANNEXA-A and ANNEXA-R is "Percent change in anti-fXa
+activity" (paramType MEAN), and every posted value is NEGATIVE - these are
+reductions:
+    NCT02220725 Part I: placebo -18.39 (n=14), andexanet -92.22 (n=27)
+                        -92.22 - (-18.39) = -73.83  -> the ledger's  73.83
+    NCT02207725 Part I: placebo -20.71 (n=9),  andexanet -93.86 (n=24)
+                        -93.86 - (-20.71) = -73.15  -> the ledger's  73.15
+Both reproduce EXACTLY. The stored figure is an absolute mean difference in
+percent-change units, with its sign stripped, written into a hazard-ratio field.
+
+NCT02329327 (ANNEXA-4) posts its percent change as a MEDIAN with a 95% CI, by
+FXa inhibitor: apixaban -93.3 (-94.2 to -92.5), rivaroxaban -94.1 (-95.1 to
+-93.0), edoxaban -71.3 (-82.3 to -65.2), enoxaparin -75.41 (-79.17 to -66.67).
+The ledger's 0.80 (-0.5509 to 2.1509) matches NONE of them. It is therefore
+marked UNVERIFIED rather than reconstructed - no value is invented for it.
+
+DISPOSITION. There is no hazard ratio for any of these rows, so all six HR
+fields are set to null on all three. The outcome is a continuous
+pharmacodynamic surrogate, so there is also no valid binary 2x2: the stored
+per-arm "counts" (1/14, 0/9, 2/477 vs 26/27, 24/24, 0/2) are arm sizes and
+indices, not event counts, and the RR 0.06 the page displayed was computed from
+them. The three rows are QUARANTINED - retained in window.__quarantinedTrials
+with their verified posted values, never deleted - and the app therefore shows
+no pooled estimate rather than a meaningless one.
+
+A GENUINE estimand does exist and is recorded, though NOT pooled here: ANNEXA-I
+(NCT03661528), the randomised phase 4 trial, posts effective haemostasis as
+andexanet 150/224 vs usual care 121/228 -> OR 1.7925 (1.2246-2.6238), p=0.0027
+(Mantel-Haenszel, verified in R 4.6.0 / metafor rma.mh). Adding it to the pool
+would create a new headline claim and is a separate, gated decision.
+
+=== ICAGEN / edoxaban ===
+
+Scope here is identity + badge honesty, as instructed - NO number is changed.
+Two findings are recorded on the badge rather than silently corrected, because a
+data correction needs its own cross-family gate:
+  - the declared subject is "Edoxaban TIMI 48 cancer-VTE", but none of the three
+    pooled trials is a cancer-VTE trial or ENGAGE AF-TIMI 48. NCT02798471 is the
+    Hokusai study in PAEDIATRIC VTE; NCT01181102 and NCT01181141 are edoxaban VTE
+    prophylaxis after orthopaedic surgery.
+  - a registry spot-check of NCT02798471 disagrees with the ledger: the posted
+    primary is edoxaban 5/145 vs standard of care 2/141; the ledger carries
+    0/147 vs 1/143.
+"""
+import io
+import json
+import re
+import sys
+
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+RETRIEVED = "2026-07-30"
+
+
+def read(path):
+    raw = open(path, "rb").read()
+    return raw.decode("utf-8-sig" if raw.startswith(b"\xef\xbb\xbf") else "utf-8"), raw.startswith(b"\xef\xbb\xbf")
+
+
+def write(path, s, bom):
+    data = s.encode("utf-8")
+    if bom and not data.startswith(b"\xef\xbb\xbf"):
+        data = b"\xef\xbb\xbf" + data          # preserve the pre-existing BOM exactly
+    open(path, "wb").write(data)
+
+
+def replace_badge(s, new_badge):
+    i = s.index('id="rapidmeta-integrity-badge"')
+    st = s.rfind("<div", 0, i)
+    depth, k = 0, st
+    while k < len(s):
+        if s.startswith("<div", k):
+            depth += 1
+        elif s.startswith("</div>", k):
+            depth -= 1
+            if depth == 0:
+                k += 6
+                break
+        k += 1
+    assert "INTERNAL CHECKS PASSED" in s[st:k], "badge is not the false-green one"
+    return s[:st] + new_badge + s[k:]
+
+
+def replace_verdict(s, obj, extra=""):
+    m = re.search(r"<script>window\.__verdict = \{.*?\};</script>", s, re.S)
+    assert m, "no __verdict surface"
+    return (s[:m.start()] + "<script>window.__verdict = "
+            + json.dumps(obj, ensure_ascii=False) + ";" + extra + "</script>" + s[m.end():])
+
+
+BADGE_CSS = ('style="background:#7c2d12;color:#fff;padding:12px 20px;font-family:system-ui,sans-serif;'
+             'font-size:13.5px;border-bottom:3px solid #431407;line-height:1.55;"')
+NOTE_CSS = ('style="margin-top:6px;font-size:12px;background:rgba(255,255,255,0.16);padding:8px 11px;'
+            'border-left:4px solid #fed7aa;border-radius:3px;"')
+
+# ==========================================================================
+# APP 1 - TIRZEPATIDE_ARDS_AUTO_FULL_REVIEW.html  =  ANDEXANET ALFA
+# ==========================================================================
+F1, S1 = "TIRZEPATIDE_ARDS_AUTO_FULL_REVIEW.html", "TIRZEPATIDE_ARDS_AUTO_REVIEW.html"
+s, bom = read(F1)
+before = len(s)
+
+QUAR1 = {
+    "NCT02220725": {
+        "trial": "ANNEXA-A", "pmid": "26559317", "phase": "III", "randomised": True,
+        "identity_source": "ClinicalTrials.gov NCT02220725, read " + RETRIEVED,
+        "posted_primary": "Efficacy: Percent Change From Baseline in Anti-fXa Activity at the "
+                          "Nadir (Parts I and II)",
+        "unit": "Percent change in anti-fXa activity (paramType MEAN, dispersion SD)",
+        "posted_values": {"Part I placebo": "-18.39 (n=14)", "Part I andexanet": "-92.22 (n=27)",
+                          "Part II placebo": "-44.75 (n=13)", "Part II andexanet": "-96.72 (n=26)"},
+        "previous_ledger_HR": "73.83 (65.1542-82.5058)",
+        "previous_ledger_defect": (
+            "A PERCENT CHANGE stored in a hazard-ratio field. -92.22 - (-18.39) = -73.83, "
+            "reproducing the stored 73.83 EXACTLY with its sign stripped. It is an absolute "
+            "mean difference in percent-change units, not a hazard ratio."),
+        "previous_ledger_counts": "tE 1 / tN 14 vs cE 26 / cN 27 - not event counts; arm sizes "
+                                  "and indices for a CONTINUOUS outcome.",
+        "disposition": "HR fields nulled; row quarantined from the binary pool.",
+    },
+    "NCT02207725": {
+        "trial": "ANNEXA-R", "pmid": "26559317", "phase": "III", "randomised": True,
+        "identity_source": "ClinicalTrials.gov NCT02207725, read " + RETRIEVED,
+        "posted_primary": "Efficacy: Percent Change From Baseline in Anti-fXa Activity at the "
+                          "Nadir (Parts I and II)",
+        "unit": "Percent change in anti-fXa activity (paramType MEAN, dispersion SD)",
+        "posted_values": {"Part I placebo": "-20.71 (n=9)", "Part I andexanet": "-93.86 (n=24)",
+                          "Part II placebo": "-32.70 (n=8)", "Part II andexanet": "-92.34 (n=23)"},
+        "previous_ledger_HR": "73.15 (67.5193-78.7807)",
+        "previous_ledger_defect": (
+            "Same defect. -93.86 - (-20.71) = -73.15, reproducing the stored 73.15 exactly."),
+        "previous_ledger_counts": "tE 0 / tN 9 vs cE 24 / cN 24 - not event counts.",
+        "disposition": "HR fields nulled; row quarantined from the binary pool.",
+    },
+    "NCT02329327": {
+        "trial": "ANNEXA-4", "pmid": "27573206", "phase": "III", "randomised": False,
+        "design_note": "SINGLE-ARM (ClinicalTrials.gov allocation: NA). There is no comparator, "
+                       "so no between-group effect is defined for it at all.",
+        "identity_source": "ClinicalTrials.gov NCT02329327, read " + RETRIEVED,
+        "posted_primary": "Percent Change From Baseline In Anti-fXa Activity By FXa Inhibitor",
+        "unit": "Percent Change (paramType MEDIAN, dispersion 95% CI)",
+        "posted_values": {"apixaban": "-93.3 (-94.2 to -92.5), n=169",
+                          "rivaroxaban": "-94.1 (-95.1 to -93.0), n=130",
+                          "edoxaban": "-71.3 (-82.3 to -65.2), n=28",
+                          "enoxaparin": "-75.41 (-79.17 to -66.67), n=17"},
+        "second_primary": "Participants Achieving Hemostatic Efficacy - overall 272/340",
+        "previous_ledger_HR": "0.80 (-0.5509 to 2.1509)",
+        "previous_ledger_defect": (
+            "IMPOSSIBLE AS STATED: the lower confidence bound is NEGATIVE. A hazard ratio is a "
+            "ratio of positive rates and cannot be <= 0; any log transform yields NaN. The value "
+            "also matches NO posted result for this trial - every posted percent change is "
+            "between -71.3 and -94.1. Marked UNVERIFIED; deliberately NOT reconstructed."),
+        "previous_ledger_counts": "tE 2 / tN 477 vs cE 0 / cN 2 - not event counts.",
+        "disposition": "HR fields nulled and marked UNVERIFIED; row quarantined.",
+    },
+}
+
+GENUINE = {
+    "trial": "ANNEXA-I (NCT03661528)", "phase": "IV", "randomised": True,
+    "why_it_matters": "The one randomised trial of andexanet alfa with a genuine COMPARATIVE "
+                      "binary primary outcome, and therefore the only row here from which a real "
+                      "effect estimate can be derived.",
+    "posted_primary": "Number of Participants Who Achieved Effective Hemostasis",
+    "posted": "andexanet alfa 150/224 vs usual care 121/228",
+    "derived": "OR 1.7925 (95% CI 1.2246-2.6238), p=0.0027 - Mantel-Haenszel with "
+               "Robins-Breslow-Greenland SE, computed in R 4.6.0 / metafor rma.mh",
+    "source": "ClinicalTrials.gov NCT03661528 posted results, read " + RETRIEVED,
+    "status": "NOT POOLED IN THIS APP. Adding it would create a new headline claim and is a "
+              "separate decision requiring its own cross-family gate.",
+}
+
+V1 = {
+    "verdict": "UNCERTAIN",
+    "preliminary": True,
+    "identity_correction": {
+        "file_and_url_say": "TIRZEPATIDE_ARDS",
+        "actual_subject": "andexanet alfa for factor-Xa-inhibitor reversal",
+        "filename_retained": True,
+        "why": "The .html filename and its published URL are deliberately unchanged - renaming "
+               "would break every existing link to this page. The displayed identity is the "
+               "correct one and the mismatch is stated on the page.",
+        "note": "This app contains no tirzepatide trial and no ARDS trial, and never did.",
+    },
+    "counts": {"n_trials_in_ledger": 0, "n_trials_analysed": 0, "n_trials_quarantined": 3,
+               "n_trials_seen": 0, "P0_internal": None, "P0_grim": None, "P1_aact_concord": None,
+               "P2_evidence_incomplete": 3},
+    "counts_note": "Gate counts are null, not zero: with every row quarantined there is nothing "
+                   "left to test, and a zero would read as a clean bill.",
+    "reasons": [
+        "IDENTITY CORRECTED. This page is a review of ANDEXANET ALFA for factor-Xa-inhibitor "
+        "reversal. Its filename and URL say TIRZEPATIDE_ARDS; they are retained unchanged so "
+        "existing links keep working. There is no tirzepatide trial and no ARDS trial in it.",
+        "IMPOSSIBLE HAZARD RATIO REMOVED. All three rows stored a PERCENT CHANGE in the "
+        "hazard-ratio fields, and NCT02329327's lower confidence bound was NEGATIVE (-0.5509). "
+        "A hazard ratio cannot be <= 0. All six HR fields are now null on all three rows.",
+        "Arithmetic origin verified against ClinicalTrials.gov: -92.22 - (-18.39) = -73.83 and "
+        "-93.86 - (-20.71) = -73.15, reproducing the stored 73.83 and 73.15 exactly, with the "
+        "sign stripped. They are absolute mean differences in percent-change units.",
+        "NCT02329327's 0.80 (-0.5509 to 2.1509) matches NO posted value for that trial - every "
+        "posted percent change lies between -71.3 and -94.1. Marked UNVERIFIED and deliberately "
+        "NOT reconstructed.",
+        "THE PREVIOUSLY DISPLAYED POOLED ESTIMATE, RR 0.06 (0.01-0.21), IS WITHDRAWN. It was "
+        "computed from per-arm 'counts' that are not event counts - they are arm sizes and "
+        "indices for a CONTINUOUS pharmacodynamic outcome (percent change in anti-fXa activity). "
+        "No valid binary 2x2 exists for any row, so no pooled binary estimate is shown.",
+        "All three rows are QUARANTINED, not deleted - retained in window.__quarantinedTrials "
+        "with their verified posted values.",
+        "The endpoint is a pharmacodynamic SURROGATE (anti-fXa activity), not a clinical outcome. "
+        "NCT02329327 (ANNEXA-4) is additionally SINGLE-ARM, so no between-group effect is defined "
+        "for it at all.",
+        "A genuine comparative estimand exists and is recorded but NOT pooled here: ANNEXA-I "
+        "(NCT03661528), effective haemostasis 150/224 vs 121/228, OR 1.7925 (1.2246-2.6238), "
+        "p=0.0027. Adding it is a separate, gated decision.",
+        "Verification is registry-level (ClinicalTrials.gov API v2, " + RETRIEVED + "). "
+        "AMSTAR-2 confidence: CRITICALLY LOW.",
+    ],
+    "p0_total": None,
+    "p0_total_note": "null, not 0 - no gate ran, because every row is quarantined.",
+    "pooled": None,
+    "pooled_note": "No pooled estimate. The previous RR 0.06 (0.01-0.21) was withdrawn as "
+                   "meaningless, not merely uncertain.",
+    "genuine_estimand_available_not_pooled": GENUINE,
+}
+
+BADGE1 = (
+    f'<div id="rapidmeta-integrity-badge" role="status" {BADGE_CSS}>'
+    '<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">'
+    '<strong style="font-size:14px;letter-spacing:0.04em;">IDENTITY CORRECTED &mdash; '
+    'THIS IS A REVIEW OF ANDEXANET ALFA</strong>'
+    '<span style="font-size:11.5px;">Pooled: <strong>0</strong> trials &middot; Quarantined: '
+    '<strong>3</strong> &middot; Pooled estimate: <strong>withdrawn</strong></span></div>'
+
+    f'<div {NOTE_CSS}>'
+    '<strong>Correction &mdash; this page&rsquo;s address does not match its contents.</strong> '
+    'The file is named <code style="background:rgba(255,255,255,0.28);padding:1px 4px;'
+    'border-radius:2px;">TIRZEPATIDE_ARDS_AUTO_FULL_REVIEW.html</code> and its published URL says '
+    'the same. <strong>It is a review of andexanet alfa for factor-Xa-inhibitor reversal.</strong> '
+    'It contains no tirzepatide trial and no ARDS trial, and never did. '
+    '<em>The filename and URL are deliberately left unchanged so that existing links keep '
+    'working; only the displayed identity is corrected.</em></div>'
+
+    '<div style="margin-top:6px;font-size:12.5px;">'
+    '<strong>An impossible hazard ratio has been removed.</strong> All three rows stored a '
+    '<em>percent change</em> in the hazard-ratio fields, and NCT02329327 carried '
+    '<strong>0.80 with a lower confidence bound of &minus;0.5509</strong>. A hazard ratio is a '
+    'ratio of positive rates and <strong>cannot be &le; 0</strong>; any log transform of it '
+    'yields NaN. All six HR fields are now <strong>null</strong> on all three rows.</div>'
+
+    '<div style="margin-top:6px;font-size:11.5px;">'
+    '<strong>Where the numbers came from</strong> (ClinicalTrials.gov API v2, retrieved '
+    f'{RETRIEVED}). The posted primary for ANNEXA-A and ANNEXA-R is &ldquo;Percent change in '
+    'anti-fXa activity&rdquo;, and every posted value is <em>negative</em> &mdash; these are '
+    'reductions. &minus;92.22 &minus; (&minus;18.39) = <strong>&minus;73.83</strong> and '
+    '&minus;93.86 &minus; (&minus;20.71) = <strong>&minus;73.15</strong>, reproducing the stored '
+    '73.83 and 73.15 <em>exactly</em>, with the sign stripped. They are absolute mean differences '
+    'in percent-change units, not hazard ratios. ANNEXA-4&rsquo;s stored 0.80 '
+    '(&minus;0.5509 to 2.1509) matches <strong>no</strong> posted value for that trial &mdash; '
+    'every posted percent change lies between &minus;71.3 and &minus;94.1 &mdash; so it is marked '
+    '<strong>UNVERIFIED and deliberately not reconstructed</strong>.</div>'
+
+    '<div style="margin-top:6px;font-size:11.5px;">'
+    '<strong>The pooled estimate is withdrawn, not merely caveated.</strong> This page previously '
+    'displayed <strong>RR 0.06 (0.01&ndash;0.21)</strong>. That figure was computed from per-arm '
+    '&ldquo;counts&rdquo; which are not event counts at all &mdash; they are arm sizes and indices '
+    'for a <em>continuous</em> outcome. No valid 2&times;2 table exists for any row, so no pooled '
+    'binary estimate is shown. All three rows are <strong>quarantined, not deleted</strong> (see '
+    '<code style="background:rgba(255,255,255,0.28);padding:1px 4px;border-radius:2px;">'
+    'window.__quarantinedTrials</code>), with their verified posted values.</div>'
+
+    '<div style="margin-top:6px;font-size:11.5px;">'
+    '<strong>A genuine result does exist &mdash; and it is not pooled here.</strong> '
+    '<strong>ANNEXA-I</strong> (NCT03661528), the randomised phase 4 trial, posts effective '
+    'haemostasis as <strong>andexanet alfa 150/224 vs usual care 121/228</strong> &rarr; '
+    '<strong>OR 1.79 (1.22&ndash;2.62), p=0.003</strong> (Mantel-Haenszel, Robins-Breslow-Greenland '
+    'SE, computed in R 4.6.0 / metafor). It is recorded rather than pooled: adding it would create '
+    'a new headline claim and is a separate decision requiring its own cross-family gate.</div>'
+
+    '<div style="margin-top:6px;font-size:10.5px;">'
+    '<strong>Limits, stated.</strong> The endpoint in every quarantined row is a '
+    '<strong>pharmacodynamic surrogate</strong> (anti-fXa activity), not a clinical outcome. '
+    'ANNEXA-4 is additionally <strong>single-arm</strong> (ClinicalTrials.gov allocation: NA), so '
+    'no between-group effect is defined for it at all. Two rows share one publication '
+    '(PMID 26559317) because ANNEXA-A and ANNEXA-R are two distinct trials reported together '
+    '&mdash; that duplication is correct and is not an error. Verification here is '
+    '<strong>registry-level</strong>; no full text or regulatory document was consulted. Gate '
+    'counts in <code style="background:rgba(255,255,255,0.28);padding:1px 4px;border-radius:2px;">'
+    'window.__verdict</code> are <strong>null, not zero</strong> &mdash; with every row '
+    'quarantined there is nothing left to test. AMSTAR-2 confidence: '
+    '<strong>CRITICALLY LOW</strong>.</div></div>'
+)
+
+# empty the analysis pool - the quarantined rows keep their record elsewhere
+i = s.index("realData:{")
+j = i + len("realData:")
+depth = 0
+for k in range(j, len(s)):
+    if s[k] == "{":
+        depth += 1
+    elif s[k] == "}":
+        depth -= 1
+        if depth == 0:
+            break
+assert "NCT02220725" in s[j:k + 1], "unexpected ledger content"
+s = s[:j] + "{}" + s[k + 1:]
+
+s = replace_verdict(s, V1, "\nwindow.__quarantinedTrials = "
+                    + json.dumps(QUAR1, ensure_ascii=False) + ";")
+s = replace_badge(s, BADGE1)
+write(F1, s, bom)
+print(f"{F1}: {before} -> {len(s)} chars (BOM preserved: {bom})")
+print("  - identity corrected to andexanet alfa; filename/URL unchanged")
+print("  - impossible HR removed: all 6 HR fields null on all 3 rows")
+print("  - pooled RR 0.06 (0.01-0.21) withdrawn; 3 rows quarantined")
+print("  - ANNEXA-I genuine estimand recorded (OR 1.7925, 1.2246-2.6238) - not pooled")
+
+# ---- stub ----
+t, tbom = read(S1)
+tb = len(t)
+assert "__verdict" not in t, "stub already carries a verdict"
+stub_badge = (
+    f'<div id="rapidmeta-integrity-badge" role="status" {BADGE_CSS}>'
+    '<strong style="font-size:14px;letter-spacing:0.04em;">IDENTITY CORRECTED &mdash; '
+    'THIS IS A REVIEW OF ANDEXANET ALFA</strong>'
+    '<div style="margin-top:6px;font-size:12.5px;">This page&rsquo;s filename and URL say '
+    '<em>TIRZEPATIDE_ARDS</em>; it is a review of <strong>andexanet alfa</strong> for '
+    'factor-Xa-inhibitor reversal, and contains no tirzepatide or ARDS trial. The filename is '
+    'kept so existing links keep working. Its previously displayed pooled estimate '
+    '(RR 0.06) has been <strong>withdrawn</strong> and an impossible hazard ratio (lower CI '
+    '&minus;0.5509) removed. See the full review. AMSTAR-2 confidence: '
+    '<strong>CRITICALLY LOW</strong>.</div></div>\n'
+)
+stub_v = {"verdict": "UNCERTAIN", "preliminary": True,
+          "identity_correction": V1["identity_correction"],
+          "counts": {"n_trials_in_ledger": 0, "n_trials_quarantined": 3, "n_trials_seen": 0},
+          "reasons": ["Redirect stub. Mirrors TIRZEPATIDE_ARDS_AUTO_FULL_REVIEW.html: a review of "
+                      "andexanet alfa; pooled estimate withdrawn; impossible hazard ratio removed; "
+                      "3 rows quarantined."],
+          "p0_total": None, "pooled": None}
+m = re.search(r"<body[^>]*>", t)
+assert m, "stub has no <body>"
+t = (t[:m.end()] + "\n" + stub_badge
+     + "<script>window.__verdict = " + json.dumps(stub_v, ensure_ascii=False) + ";</script>\n"
+     + t[m.end():])
+write(S1, t, tbom)
+print(f"{S1}: {tb} -> {len(t)} chars (badge + __verdict added; had neither)")
+
+# ==========================================================================
+# APP 2 - ICAGEN_AUTO_FULL_REVIEW.html  =  EDOXABAN
+# Identity + badge honesty ONLY. No number is changed.
+# ==========================================================================
+print()
+F2, S2 = "ICAGEN_AUTO_FULL_REVIEW.html", "ICAGEN_AUTO_REVIEW.html"
+s, bom = read(F2)
+before = len(s)
+
+V2 = {
+    "verdict": "UNCERTAIN",
+    "preliminary": True,
+    "identity_correction": {
+        "file_and_url_say": "ICAGEN",
+        "actual_subject": "edoxaban",
+        "filename_retained": True,
+        "why": "The .html filename and its published URL are deliberately unchanged - renaming "
+               "would break every existing link. The displayed identity is corrected instead.",
+        "note": "'Icagen' is a company name, not a drug and not an indication. This app contains "
+                "no icagen trial.",
+    },
+    "counts": {"n_trials_in_ledger": 3, "n_trials_analysed": 3, "n_trials_seen": 3,
+               "P0_internal": None, "P0_grim": None, "P1_aact_concord": None,
+               "P2_evidence_incomplete": 3},
+    "counts_note": "Gate counts are null, not zero. No per-trial data-integrity gate has been run "
+                   "against this app; a zero would read as a clean bill.",
+    "reasons": [
+        "IDENTITY CORRECTED. This page is a review of EDOXABAN. Its filename and URL say ICAGEN - "
+        "a company name, not a drug or an indication - and are retained unchanged so existing "
+        "links keep working.",
+        "THE DISPLAYED POOLED ESTIMATE IS UNVERIFIED. The page shows RR 0.52 (0.33-0.84). No "
+        "per-trial source verification has been run against this app, and the figure should not "
+        "be cited.",
+        "DECLARED SUBJECT DOES NOT MATCH THE EVIDENCE. The page calls itself 'Edoxaban TIMI 48 "
+        "cancer-VTE'. Not one of its three trials is a cancer-VTE trial or ENGAGE AF-TIMI 48: "
+        "NCT02798471 is the Hokusai study in PAEDIATRIC VTE patients; NCT01181102 and NCT01181141 "
+        "are edoxaban VTE prophylaxis after orthopaedic surgery. Verified against "
+        "ClinicalTrials.gov API v2, " + RETRIEVED + ".",
+        "REGISTRY DISCREPANCY FOUND IN A SPOT-CHECK, recorded not corrected: for NCT02798471 the "
+        "posted primary is edoxaban 5/145 vs standard of care 2/141, while this ledger carries "
+        "0/147 vs 1/143. Neither the counts nor the denominators agree. This row alone therefore "
+        "cannot be relied on, and the pooled figure rests partly on it.",
+        "NO NUMBER HAS BEEN CHANGED IN THIS PASS. A data correction requires its own source "
+        "verification and cross-family gate; this commit corrects the identity and replaces a "
+        "false 'INTERNAL CHECKS PASSED' badge, nothing more.",
+        "AMSTAR-2 confidence: CRITICALLY LOW.",
+    ],
+    "p0_total": None,
+    "p0_total_note": "null, not 0 - no gate has been run against this app.",
+    "pooled": {"displayed": "RR 0.52 (0.33-0.84)",
+               "status": "UNVERIFIED - do not cite. At least one contributing row disagrees with "
+                         "its own registry source."},
+}
+
+BADGE2 = (
+    f'<div id="rapidmeta-integrity-badge" role="status" {BADGE_CSS}>'
+    '<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">'
+    '<strong style="font-size:14px;letter-spacing:0.04em;">IDENTITY CORRECTED &mdash; '
+    'THIS IS A REVIEW OF EDOXABAN</strong>'
+    '<span style="font-size:11.5px;">Trials: <strong>3</strong> &middot; Pooled estimate: '
+    '<strong>UNVERIFIED</strong> &middot; Integrity gates: <strong>not run</strong></span></div>'
+
+    f'<div {NOTE_CSS}>'
+    '<strong>Correction &mdash; this page&rsquo;s address does not match its contents.</strong> '
+    'The file is named <code style="background:rgba(255,255,255,0.28);padding:1px 4px;'
+    'border-radius:2px;">ICAGEN_AUTO_FULL_REVIEW.html</code> and its published URL says the same. '
+    '&ldquo;Icagen&rdquo; is a <em>company name</em>, not a drug and not an indication. '
+    '<strong>This is a review of edoxaban.</strong> '
+    '<em>The filename and URL are deliberately left unchanged so that existing links keep '
+    'working; only the displayed identity is corrected.</em></div>'
+
+    '<div style="margin-top:6px;font-size:12.5px;">'
+    '<strong>The pooled estimate on this page is UNVERIFIED &mdash; do not cite it.</strong> The '
+    'page displays <strong>RR 0.52 (0.33&ndash;0.84)</strong>. No per-trial source verification '
+    'and no data-integrity gate has been run against this app. The previous badge claimed '
+    '&ldquo;INTERNAL CHECKS PASSED&rdquo;; that claim was false and has been removed.</div>'
+
+    '<div style="margin-top:6px;font-size:11.5px;">'
+    '<strong>The declared subject does not match the evidence.</strong> This page calls itself '
+    '&ldquo;Edoxaban TIMI 48 cancer-VTE&rdquo;. <strong>Not one</strong> of its three trials is a '
+    'cancer-VTE trial or ENGAGE AF-TIMI 48. Verified against ClinicalTrials.gov API v2 on '
+    f'{RETRIEVED}: <strong>NCT02798471</strong> is the Hokusai study in <em>paediatric</em> VTE '
+    'patients; <strong>NCT01181102</strong> and <strong>NCT01181141</strong> are edoxaban VTE '
+    'prophylaxis after <em>orthopaedic surgery</em>.</div>'
+
+    '<div style="margin-top:6px;font-size:11.5px;">'
+    '<strong>A registry spot-check already disagrees with this ledger.</strong> For '
+    'NCT02798471 the posted primary outcome is <strong>edoxaban 5/145 vs standard of care '
+    '2/141</strong>; this page&rsquo;s ledger carries <strong>0/147 vs 1/143</strong>. Neither the '
+    'counts nor the denominators agree. That row cannot be relied on, and the pooled figure above '
+    'rests partly on it.</div>'
+
+    '<div style="margin-top:6px;font-size:10.5px;">'
+    '<strong>What this commit did and did not do.</strong> It corrected the displayed identity and '
+    'replaced a false green &ldquo;INTERNAL CHECKS PASSED&rdquo; badge. <strong>No number was '
+    'changed.</strong> Correcting the data requires full per-trial source verification and a '
+    'cross-family gate, as was done for the apixaban-in-ACS review; that work is not in this '
+    'commit and the figures above remain unverified until it is. Gate counts in '
+    '<code style="background:rgba(255,255,255,0.28);padding:1px 4px;border-radius:2px;">'
+    'window.__verdict</code> are <strong>null, not zero</strong> &mdash; nothing was tested. '
+    'AMSTAR-2 confidence: <strong>CRITICALLY LOW</strong>.</div></div>'
+)
+
+s = replace_verdict(s, V2)
+s = replace_badge(s, BADGE2)
+write(F2, s, bom)
+print(f"{F2}: {before} -> {len(s)} chars (BOM preserved: {bom})")
+print("  - identity corrected to edoxaban; filename/URL unchanged")
+print("  - false-green badge replaced; pooled RR 0.52 marked UNVERIFIED")
+print("  - PICO mismatch + NCT02798471 registry discrepancy recorded; NO number changed")
+
+t, tbom = read(S2)
+tb = len(t)
+assert "__verdict" not in t, "stub already carries a verdict"
+stub_badge2 = (
+    f'<div id="rapidmeta-integrity-badge" role="status" {BADGE_CSS}>'
+    '<strong style="font-size:14px;letter-spacing:0.04em;">IDENTITY CORRECTED &mdash; '
+    'THIS IS A REVIEW OF EDOXABAN</strong>'
+    '<div style="margin-top:6px;font-size:12.5px;">This page&rsquo;s filename and URL say '
+    '<em>ICAGEN</em> &mdash; a company name, not a drug. It is a review of '
+    '<strong>edoxaban</strong>. The filename is kept so existing links keep working. Its pooled '
+    'estimate is <strong>UNVERIFIED</strong> and its declared subject '
+    '(&ldquo;TIMI 48 cancer-VTE&rdquo;) matches none of its trials. See the full review. '
+    'AMSTAR-2 confidence: <strong>CRITICALLY LOW</strong>.</div></div>\n'
+)
+stub_v2 = {"verdict": "UNCERTAIN", "preliminary": True,
+           "identity_correction": V2["identity_correction"],
+           "counts": {"n_trials_seen": 3},
+           "reasons": ["Redirect stub. Mirrors ICAGEN_AUTO_FULL_REVIEW.html: a review of edoxaban; "
+                       "pooled estimate UNVERIFIED; declared subject matches none of its trials."],
+           "p0_total": None,
+           "pooled": {"displayed": "RR 0.52 (0.33-0.84)", "status": "UNVERIFIED - do not cite"}}
+m = re.search(r"<body[^>]*>", t)
+assert m, "stub has no <body>"
+t = (t[:m.end()] + "\n" + stub_badge2
+     + "<script>window.__verdict = " + json.dumps(stub_v2, ensure_ascii=False) + ";</script>\n"
+     + t[m.end():])
+write(S2, t, tbom)
+print(f"{S2}: {tb} -> {len(t)} chars (badge + __verdict added; had neither)")
+
+
+# ==========================================================================
+# Returning-visitor safety: purge quarantined rows from PERSISTED state.
+#
+# Emptying realData stops a FRESH visitor pooling the withdrawn rows, but the
+# app persists state.trials to localStorage. A reader who opened this page
+# before the fix keeps the old auto-seeded rows and would still be shown a
+# pooled estimate computed from them - verified in the browser: a stale profile
+# still rendered RR 0.03 (0.00-0.52) after realData was emptied.
+#
+# Added as a normal guarded migration, matching the app's existing chain. The
+# row's data is MOVED to _quarantinedData, not destroyed - quarantine, never
+# delete - and the row is excluded with a stated reason.
+# ==========================================================================
+MIG_ANCHOR = ('if(this.state.trials?.length&&!this.state._migrated_v120_phase2_exclusion){')
+MIGRATION = (
+    'if(this.state.trials?.length&&!this.state._migrated_v123_quarantine_purge){'
+    'let mutated=!1;'
+    'const QIDS=new Set(Object.keys(window.__quarantinedTrials||{}));'
+    'this.state.trials.forEach(t=>{'
+    'if(!QIDS.has(String(t?.id??"").toUpperCase()))return;'
+    'if(t.data){t._quarantinedData=t.data;t.data=null;mutated=!0}'
+    'if("exclude"!==String(t?.status??"").toLowerCase()){t.status="exclude";mutated=!0}'
+    't.verified=!1;t.screenReview=null;'
+    't.reason="Quarantined 2026-07-30: registry verification could not support this row. '
+    'Its stored values are retained in _quarantinedData and described in '
+    'window.__quarantinedTrials.";'
+    '}),this.state._migrated_v123_quarantine_purge=!0,mutated&&this.save()}'
+)
+
+s, bom = read(F1)
+before = len(s)
+assert s.count(MIG_ANCHOR) == 1, f"migration anchor count = {s.count(MIG_ANCHOR)}"
+s = s.replace(MIG_ANCHOR, MIGRATION + MIG_ANCHOR, 1)
+write(F1, s, bom)
+print()
+print(f"{F1}: {before} -> {len(s)} chars")
+print("  - migration _migrated_v123_quarantine_purge added: returning visitors with stale")
+print("    localStorage also stop pooling the quarantined rows (data retained, not destroyed)")
+
+codex
+I’ll verify line positions against the local file if present, then reason only from the pasted module’s contents so the finding stays grounded in the packet.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$p='"'scripts/fix_mislabelled_apps.py'; if (Test-Path "'$p) { $i=1; Get-Content -LiteralPath $p | ForEach-Object { '"'{0,4}: {1}' -f "'$i, $_; $i++ } } else { '"'MISSING' }" in F:\rapidmeta-ssot-shell
+ succeeded in 1651ms:
+   1: """Fix the two mis-labelled cardio apps. Rebuilt on current origin/main.
+   2: 
+   3: Filenames and URLs are DELIBERATELY NOT CHANGED - renaming would break every
+   4: existing link. The displayed identity is corrected instead, and the URL/content
+   5: mismatch is stated on the page so a reader arriving from a stale link is not
+   6: misled.
+   7: 
+   8: TIRZEPATIDE_ARDS_AUTO_FULL_REVIEW.html  -> a review of ANDEXANET ALFA
+   9: ICAGEN_AUTO_FULL_REVIEW.html            -> a review of EDOXABAN
+  10: 
+  11: Both shipped a green "INTERNAL CHECKS PASSED" badge with window.__verdict
+  12: "STABLE" / n_trials_seen 2 over 3-row ledgers, and both displayed a pooled
+  13: estimate. Verified live in a browser before this fix:
+  14:     TIRZEPATIDE_ARDS  displayed RR 0.06 (0.01-0.21)
+  15:     ICAGEN            displayed RR 0.52 (0.33-0.84)
+  16: 
+  17: === THE IMPOSSIBLE HAZARD RATIO (TIRZEPATIDE_ARDS / andexanet) ===
+  18: 
+  19: All three rows stored a PERCENT CHANGE in the hazard-ratio fields
+  20: (publishedHR / hrLCI / hrUCI / pubHR / pubHR_LCI / pubHR_UCI):
+  21: 
+  22:     NCT02220725  73.83  (65.1542 - 82.5058)
+  23:     NCT02207725  73.15  (67.5193 - 78.7807)
+  24:     NCT02329327   0.80  (-0.5509 - 2.1509)   <-- NEGATIVE lower bound
+  25: 
+  26: A hazard ratio is a ratio of positive rates and cannot be <= 0, so the third row
+  27: is not merely implausible, it is impossible; any log transform yields NaN.
+  28: 
+  29: Arithmetic origin, verified against ClinicalTrials.gov API v2 this session. The
+  30: posted primary for both ANNEXA-A and ANNEXA-R is "Percent change in anti-fXa
+  31: activity" (paramType MEAN), and every posted value is NEGATIVE - these are
+  32: reductions:
+  33:     NCT02220725 Part I: placebo -18.39 (n=14), andexanet -92.22 (n=27)
+  34:                         -92.22 - (-18.39) = -73.83  -> the ledger's  73.83
+  35:     NCT02207725 Part I: placebo -20.71 (n=9),  andexanet -93.86 (n=24)
+  36:                         -93.86 - (-20.71) = -73.15  -> the ledger's  73.15
+  37: Both reproduce EXACTLY. The stored figure is an absolute mean difference in
+  38: percent-change units, with its sign stripped, written into a hazard-ratio field.
+  39: 
+  40: NCT02329327 (ANNEXA-4) posts its percent change as a MEDIAN with a 95% CI, by
+  41: FXa inhibitor: apixaban -93.3 (-94.2 to -92.5), rivaroxaban -94.1 (-95.1 to
+  42: -93.0), edoxaban -71.3 (-82.3 to -65.2), enoxaparin -75.41 (-79.17 to -66.67).
+  43: The ledger's 0.80 (-0.5509 to 2.1509) matches NONE of them. It is therefore
+  44: marked UNVERIFIED rather than reconstructed - no value is invented for it.
+  45: 
+  46: DISPOSITION. There is no hazard ratio for any of these rows, so all six HR
+  47: fields are set to null on all three. The outcome is a continuous
+  48: pharmacodynamic surrogate, so there is also no valid binary 2x2: the stored
+  49: per-arm "counts" (1/14, 0/9, 2/477 vs 26/27, 24/24, 0/2) are arm sizes and
+  50: indices, not event counts, and the RR 0.06 the page displayed was computed from
+  51: them. The three rows are QUARANTINED - retained in window.__quarantinedTrials
+  52: with their verified posted values, never deleted - and the app therefore shows
+  53: no pooled estimate rather than a meaningless one.
+  54: 
+  55: A GENUINE estimand does exist and is recorded, though NOT pooled here: ANNEXA-I
+  56: (NCT03661528), the randomised phase 4 trial, posts effective haemostasis as
+  57: andexanet 150/224 vs usual care 121/228 -> OR 1.7925 (1.2246-2.6238), p=0.0027
+  58: (Mantel-Haenszel, verified in R 4.6.0 / metafor rma.mh). Adding it to the pool
+  59: would create a new headline claim and is a separate, gated decision.
+  60: 
+  61: === ICAGEN / edoxaban ===
+  62: 
+  63: Scope here is identity + badge honesty, as instructed - NO number is changed.
+  64: Two findings are recorded on the badge rather than silently corrected, because a
+  65: data correction needs its own cross-family gate:
+  66:   - the declared subject is "Edoxaban TIMI 48 cancer-VTE", but none of the three
+  67:     pooled trials is a cancer-VTE trial or ENGAGE AF-TIMI 48. NCT02798471 is the
+  68:     Hokusai study in PAEDIATRIC VTE; NCT01181102 and NCT01181141 are edoxaban VTE
+  69:     prophylaxis after orthopaedic surgery.
+  70:   - a registry spot-check of NCT02798471 disagrees with the ledger: the posted
+  71:     primary is edoxaban 5/145 vs standard of care 2/141; the ledger carries
+  72:     0/147 vs 1/143.
+  73: """
+  74: import io
+  75: import json
+  76: import re
+  77: import sys
+  78: 
+  79: sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+  80: 
+  81: RETRIEVED = "2026-07-30"
+  82: 
+  83: 
+  84: def read(path):
+  85:     raw = open(path, "rb").read()
+  86:     return raw.decode("utf-8-sig" if raw.startswith(b"\xef\xbb\xbf") else "utf-8"), raw.startswith(b"\xef\xbb\xbf")
+  87: 
+  88: 
+  89: def write(path, s, bom):
+  90:     data = s.encode("utf-8")
+  91:     if bom and not data.startswith(b"\xef\xbb\xbf"):
+  92:         data = b"\xef\xbb\xbf" + data          # preserve the pre-existing BOM exactly
+  93:     open(path, "wb").write(data)
+  94: 
+  95: 
+  96: def replace_badge(s, new_badge):
+  97:     i = s.index('id="rapidmeta-integrity-badge"')
+  98:     st = s.rfind("<div", 0, i)
+  99:     depth, k = 0, st
+ 100:     while k < len(s):
+ 101:         if s.startswith("<div", k):
+ 102:             depth += 1
+ 103:         elif s.startswith("</div>", k):
+ 104:             depth -= 1
+ 105:             if depth == 0:
+ 106:                 k += 6
+ 107:                 break
+ 108:         k += 1
+ 109:     assert "INTERNAL CHECKS PASSED" in s[st:k], "badge is not the false-green one"
+ 110:     return s[:st] + new_badge + s[k:]
+ 111: 
+ 112: 
+ 113: def replace_verdict(s, obj, extra=""):
+ 114:     m = re.search(r"<script>window\.__verdict = \{.*?\};</script>", s, re.S)
+ 115:     assert m, "no __verdict surface"
+ 116:     return (s[:m.start()] + "<script>window.__verdict = "
+ 117:             + json.dumps(obj, ensure_ascii=False) + ";" + extra + "</script>" + s[m.end():])
+ 118: 
+ 119: 
+ 120: BADGE_CSS = ('style="background:#7c2d12;color:#fff;padding:12px 20px;font-family:system-ui,sans-serif;'
+ 121:              'font-size:13.5px;border-bottom:3px solid #431407;line-height:1.55;"')
+ 122: NOTE_CSS = ('style="margin-top:6px;font-size:12px;background:rgba(255,255,255,0.16);padding:8px 11px;'
+ 123:             'border-left:4px solid #fed7aa;border-radius:3px;"')
+ 124: 
+ 125: # ==========================================================================
+ 126: # APP 1 - TIRZEPATIDE_ARDS_AUTO_FULL_REVIEW.html  =  ANDEXANET ALFA
+ 127: # ==========================================================================
+ 128: F1, S1 = "TIRZEPATIDE_ARDS_AUTO_FULL_REVIEW.html", "TIRZEPATIDE_ARDS_AUTO_REVIEW.html"
+ 129: s, bom = read(F1)
+ 130: before = len(s)
+ 131: 
+ 132: QUAR1 = {
+ 133:     "NCT02220725": {
+ 134:         "trial": "ANNEXA-A", "pmid": "26559317", "phase": "III", "randomised": True,
+ 135:         "identity_source": "ClinicalTrials.gov NCT02220725, read " + RETRIEVED,
+ 136:         "posted_primary": "Efficacy: Percent Change From Baseline in Anti-fXa Activity at the "
+ 137:                           "Nadir (Parts I and II)",
+ 138:         "unit": "Percent change in anti-fXa activity (paramType MEAN, dispersion SD)",
+ 139:         "posted_values": {"Part I placebo": "-18.39 (n=14)", "Part I andexanet": "-92.22 (n=27)",
+ 140:                           "Part II placebo": "-44.75 (n=13)", "Part II andexanet": "-96.72 (n=26)"},
+ 141:         "previous_ledger_HR": "73.83 (65.1542-82.5058)",
+ 142:         "previous_ledger_defect": (
+ 143:             "A PERCENT CHANGE stored in a hazard-ratio field. -92.22 - (-18.39) = -73.83, "
+ 144:             "reproducing the stored 73.83 EXACTLY with its sign stripped. It is an absolute "
+ 145:             "mean difference in percent-change units, not a hazard ratio."),
+ 146:         "previous_ledger_counts": "tE 1 / tN 14 vs cE 26 / cN 27 - not event counts; arm sizes "
+ 147:                                   "and indices for a CONTINUOUS outcome.",
+ 148:         "disposition": "HR fields nulled; row quarantined from the binary pool.",
+ 149:     },
+ 150:     "NCT02207725": {
+ 151:         "trial": "ANNEXA-R", "pmid": "26559317", "phase": "III", "randomised": True,
+ 152:         "identity_source": "ClinicalTrials.gov NCT02207725, read " + RETRIEVED,
+ 153:         "posted_primary": "Efficacy: Percent Change From Baseline in Anti-fXa Activity at the "
+ 154:                           "Nadir (Parts I and II)",
+ 155:         "unit": "Percent change in anti-fXa activity (paramType MEAN, dispersion SD)",
+ 156:         "posted_values": {"Part I placebo": "-20.71 (n=9)", "Part I andexanet": "-93.86 (n=24)",
+ 157:                           "Part II placebo": "-32.70 (n=8)", "Part II andexanet": "-92.34 (n=23)"},
+ 158:         "previous_ledger_HR": "73.15 (67.5193-78.7807)",
+ 159:         "previous_ledger_defect": (
+ 160:             "Same defect. -93.86 - (-20.71) = -73.15, reproducing the stored 73.15 exactly."),
+ 161:         "previous_ledger_counts": "tE 0 / tN 9 vs cE 24 / cN 24 - not event counts.",
+ 162:         "disposition": "HR fields nulled; row quarantined from the binary pool.",
+ 163:     },
+ 164:     "NCT02329327": {
+ 165:         "trial": "ANNEXA-4", "pmid": "27573206", "phase": "III", "randomised": False,
+ 166:         "design_note": "SINGLE-ARM (ClinicalTrials.gov allocation: NA). There is no comparator, "
+ 167:                        "so no between-group effect is defined for it at all.",
+ 168:         "identity_source": "ClinicalTrials.gov NCT02329327, read " + RETRIEVED,
+ 169:         "posted_primary": "Percent Change From Baseline In Anti-fXa Activity By FXa Inhibitor",
+ 170:         "unit": "Percent Change (paramType MEDIAN, dispersion 95% CI)",
+ 171:         "posted_values": {"apixaban": "-93.3 (-94.2 to -92.5), n=169",
+ 172:                           "rivaroxaban": "-94.1 (-95.1 to -93.0), n=130",
+ 173:                           "edoxaban": "-71.3 (-82.3 to -65.2), n=28",
+ 174:                           "enoxaparin": "-75.41 (-79.17 to -66.67), n=17"},
+ 175:         "second_primary": "Participants Achieving Hemostatic Efficacy - overall 272/340",
+ 176:         "previous_ledger_HR": "0.80 (-0.5509 to 2.1509)",
+ 177:         "previous_ledger_defect": (
+ 178:             "IMPOSSIBLE AS STATED: the lower confidence bound is NEGATIVE. A hazard ratio is a "
+ 179:             "ratio of positive rates and cannot be <= 0; any log transform yields NaN. The value "
+ 180:             "also matches NO posted result for this trial - every posted percent change is "
+ 181:             "between -71.3 and -94.1. Marked UNVERIFIED; deliberately NOT reconstructed."),
+ 182:         "previous_ledger_counts": "tE 2 / tN 477 vs cE 0 / cN 2 - not event counts.",
+ 183:         "disposition": "HR fields nulled and marked UNVERIFIED; row quarantined.",
+ 184:     },
+ 185: }
+ 186: 
+ 187: GENUINE = {
+ 188:     "trial": "ANNEXA-I (NCT03661528)", "phase": "IV", "randomised": True,
+ 189:     "why_it_matters": "The one randomised trial of andexanet alfa with a genuine COMPARATIVE "
+ 190:                       "binary primary outcome, and therefore the only row here from which a real "
+ 191:                       "effect estimate can be derived.",
+ 192:     "posted_primary": "Number of Participants Who Achieved Effective Hemostasis",
+ 193:     "posted": "andexanet alfa 150/224 vs usual care 121/228",
+ 194:     "derived": "OR 1.7925 (95% CI 1.2246-2.6238), p=0.0027 - Mantel-Haenszel with "
+ 195:                "Robins-Breslow-Greenland SE, computed in R 4.6.0 / metafor rma.mh",
+ 196:     "source": "ClinicalTrials.gov NCT03661528 posted results, read " + RETRIEVED,
+ 197:     "status": "NOT POOLED IN THIS APP. Adding it would create a new headline claim and is a "
+ 198:               "separate decision requiring its own cross-family gate.",
+ 199: }
+ 200: 
+ 201: V1 = {
+ 202:     "verdict": "UNCERTAIN",
+ 203:     "preliminary": True,
+ 204:     "identity_correction": {
+ 205:         "file_and_url_say": "TIRZEPATIDE_ARDS",
+ 206:         "actual_subject": "andexanet alfa for factor-Xa-inhibitor reversal",
+ 207:         "filename_retained": True,
+ 208:         "why": "The .html filename and its published URL are deliberately unchanged - renaming "
+ 209:                "would break every existing link to this page. The displayed identity is the "
+ 210:                "correct one and the mismatch is stated on the page.",
+ 211:         "note": "This app contains no tirzepatide trial and no ARDS trial, and never did.",
+ 212:     },
+ 213:     "counts": {"n_trials_in_ledger": 0, "n_trials_analysed": 0, "n_trials_quarantined": 3,
+ 214:                "n_trials_seen": 0, "P0_internal": None, "P0_grim": None, "P1_aact_concord": None,
+ 215:                "P2_evidence_incomplete": 3},
+ 216:     "counts_note": "Gate counts are null, not zero: with every row quarantined there is nothing "
+ 217:                    "left to test, and a zero would read as a clean bill.",
+ 218:     "reasons": [
+ 219:         "IDENTITY CORRECTED. This page is a review of ANDEXANET ALFA for factor-Xa-inhibitor "
+ 220:         "reversal. Its filename and URL say TIRZEPATIDE_ARDS; they are retained unchanged so "
+ 221:         "existing links keep working. There is no tirzepatide trial and no ARDS trial in it.",
+ 222:         "IMPOSSIBLE HAZARD RATIO REMOVED. All three rows stored a PERCENT CHANGE in the "
+ 223:         "hazard-ratio fields, and NCT02329327's lower confidence bound was NEGATIVE (-0.5509). "
+ 224:         "A hazard ratio cannot be <= 0. All six HR fields are now null on all three rows.",
+ 225:         "Arithmetic origin verified against ClinicalTrials.gov: -92.22 - (-18.39) = -73.83 and "
+ 226:         "-93.86 - (-20.71) = -73.15, reproducing the stored 73.83 and 73.15 exactly, with the "
+ 227:         "sign stripped. They are absolute mean differences in percent-change units.",
+ 228:         "NCT02329327's 0.80 (-0.5509 to 2.1509) matches NO posted value for that trial - every "
+ 229:         "posted percent change lies between -71.3 and -94.1. Marked UNVERIFIED and deliberately "
+ 230:         "NOT reconstructed.",
+ 231:         "THE PREVIOUSLY DISPLAYED POOLED ESTIMATE, RR 0.06 (0.01-0.21), IS WITHDRAWN. It was "
+ 232:         "computed from per-arm 'counts' that are not event counts - they are arm sizes and "
+ 233:         "indices for a CONTINUOUS pharmacodynamic outcome (percent change in anti-fXa activity). "
+ 234:         "No valid binary 2x2 exists for any row, so no pooled binary estimate is shown.",
+ 235:         "All three rows are QUARANTINED, not deleted - retained in window.__quarantinedTrials "
+ 236:         "with their verified posted values.",
+ 237:         "The endpoint is a pharmacodynamic SURROGATE (anti-fXa activity), not a clinical outcome. "
+ 238:         "NCT02329327 (ANNEXA-4) is additionally SINGLE-ARM, so no between-group effect is defined "
+ 239:         "for it at all.",
+ 240:         "A genuine comparative estimand exists and is recorded but NOT pooled here: ANNEXA-I "
+ 241:         "(NCT03661528), effective haemostasis 150/224 vs 121/228, OR 1.7925 (1.2246-2.6238), "
+ 242:         "p=0.0027. Adding it is a separate, gated decision.",
+ 243:         "Verification is registry-level (ClinicalTrials.gov API v2, " + RETRIEVED + "). "
+ 244:         "AMSTAR-2 confidence: CRITICALLY LOW.",
+ 245:     ],
+ 246:     "p0_total": None,
+ 247:     "p0_total_note": "null, not 0 - no gate ran, because every row is quarantined.",
+ 248:     "pooled": None,
+ 249:     "pooled_note": "No pooled estimate. The previous RR 0.06 (0.01-0.21) was withdrawn as "
+ 250:                    "meaningless, not merely uncertain.",
+ 251:     "genuine_estimand_available_not_pooled": GENUINE,
+ 252: }
+ 253: 
+ 254: BADGE1 = (
+ 255:     f'<div id="rapidmeta-integrity-badge" role="status" {BADGE_CSS}>'
+ 256:     '<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">'
+ 257:     '<strong style="font-size:14px;letter-spacing:0.04em;">IDENTITY CORRECTED &mdash; '
+ 258:     'THIS IS A REVIEW OF ANDEXANET ALFA</strong>'
+ 259:     '<span style="font-size:11.5px;">Pooled: <strong>0</strong> trials &middot; Quarantined: '
+ 260:     '<strong>3</strong> &middot; Pooled estimate: <strong>withdrawn</strong></span></div>'
+ 261: 
+ 262:     f'<div {NOTE_CSS}>'
+ 263:     '<strong>Correction &mdash; this page&rsquo;s address does not match its contents.</strong> '
+ 264:     'The file is named <code style="background:rgba(255,255,255,0.28);padding:1px 4px;'
+ 265:     'border-radius:2px;">TIRZEPATIDE_ARDS_AUTO_FULL_REVIEW.html</code> and its published URL says '
+ 266:     'the same. <strong>It is a review of andexanet alfa for factor-Xa-inhibitor reversal.</strong> '
+ 267:     'It contains no tirzepatide trial and no ARDS trial, and never did. '
+ 268:     '<em>The filename and URL are deliberately left unchanged so that existing links keep '
+ 269:     'working; only the displayed identity is corrected.</em></div>'
+ 270: 
+ 271:     '<div style="margin-top:6px;font-size:12.5px;">'
+ 272:     '<strong>An impossible hazard ratio has been removed.</strong> All three rows stored a '
+ 273:     '<em>percent change</em> in the hazard-ratio fields, and NCT02329327 carried '
+ 274:     '<strong>0.80 with a lower confidence bound of &minus;0.5509</strong>. A hazard ratio is a '
+ 275:     'ratio of positive rates and <strong>cannot be &le; 0</strong>; any log transform of it '
+ 276:     'yields NaN. All six HR fields are now <strong>null</strong> on all three rows.</div>'
+ 277: 
+ 278:     '<div style="margin-top:6px;font-size:11.5px;">'
+ 279:     '<strong>Where the numbers came from</strong> (ClinicalTrials.gov API v2, retrieved '
+ 280:     f'{RETRIEVED}). The posted primary for ANNEXA-A and ANNEXA-R is &ldquo;Percent change in '
+ 281:     'anti-fXa activity&rdquo;, and every posted value is <em>negative</em> &mdash; these are '
+ 282:     'reductions. &minus;92.22 &minus; (&minus;18.39) = <strong>&minus;73.83</strong> and '
+ 283:     '&minus;93.86 &minus; (&minus;20.71) = <strong>&minus;73.15</strong>, reproducing the stored '
+ 284:     '73.83 and 73.15 <em>exactly</em>, with the sign stripped. They are absolute mean differences '
+ 285:     'in percent-change units, not hazard ratios. ANNEXA-4&rsquo;s stored 0.80 '
+ 286:     '(&minus;0.5509 to 2.1509) matches <strong>no</strong> posted value for that trial &mdash; '
+ 287:     'every posted percent change lies between &minus;71.3 and &minus;94.1 &mdash; so it is marked '
+ 288:     '<strong>UNVERIFIED and deliberately not reconstructed</strong>.</div>'
+ 289: 
+ 290:     '<div style="margin-top:6px;font-size:11.5px;">'
+ 291:     '<strong>The pooled estimate is withdrawn, not merely caveated.</strong> This page previously '
+ 292:     'displayed <strong>RR 0.06 (0.01&ndash;0.21)</strong>. That figure was computed from per-arm '
+ 293:     '&ldquo;counts&rdquo; which are not event counts at all &mdash; they are arm sizes and indices '
+ 294:     'for a <em>continuous</em> outcome. No valid 2&times;2 table exists for any row, so no pooled '
+ 295:     'binary estimate is shown. All three rows are <strong>quarantined, not deleted</strong> (see '
+ 296:     '<code style="background:rgba(255,255,255,0.28);padding:1px 4px;border-radius:2px;">'
+ 297:     'window.__quarantinedTrials</code>), with their verified posted values.</div>'
+ 298: 
+ 299:     '<div style="margin-top:6px;font-size:11.5px;">'
+ 300:     '<strong>A genuine result does exist &mdash; and it is not pooled here.</strong> '
+ 301:     '<strong>ANNEXA-I</strong> (NCT03661528), the randomised phase 4 trial, posts effective '
+ 302:     'haemostasis as <strong>andexanet alfa 150/224 vs usual care 121/228</strong> &rarr; '
+ 303:     '<strong>OR 1.79 (1.22&ndash;2.62), p=0.003</strong> (Mantel-Haenszel, Robins-Breslow-Greenland '
+ 304:     'SE, computed in R 4.6.0 / metafor). It is recorded rather than pooled: adding it would create '
+ 305:     'a new headline claim and is a separate decision requiring its own cross-family gate.</div>'
+ 306: 
+ 307:     '<div style="margin-top:6px;font-size:10.5px;">'
+ 308:     '<strong>Limits, stated.</strong> The endpoint in every quarantined row is a '
+ 309:     '<strong>pharmacodynamic surrogate</strong> (anti-fXa activity), not a clinical outcome. '
+ 310:     'ANNEXA-4 is additionally <strong>single-arm</strong> (ClinicalTrials.gov allocation: NA), so '
+ 311:     'no between-group effect is defined for it at all. Two rows share one publication '
+ 312:     '(PMID 26559317) because ANNEXA-A and ANNEXA-R are two distinct trials reported together '
+ 313:     '&mdash; that duplication is correct and is not an error. Verification here is '
+ 314:     '<strong>registry-level</strong>; no full text or regulatory document was consulted. Gate '
+ 315:     'counts in <code style="background:rgba(255,255,255,0.28);padding:1px 4px;border-radius:2px;">'
+ 316:     'window.__verdict</code> are <strong>null, not zero</strong> &mdash; with every row '
+ 317:     'quarantined there is nothing left to test. AMSTAR-2 confidence: '
+ 318:     '<strong>CRITICALLY LOW</strong>.</div></div>'
+ 319: )
+ 320: 
+ 321: # empty the analysis pool - the quarantined rows keep their record elsewhere
+ 322: i = s.index("realData:{")
+ 323: j = i + len("realData:")
+ 324: depth = 0
+ 325: for k in range(j, len(s)):
+ 326:     if s[k] == "{":
+ 327:         depth += 1
+ 328:     elif s[k] == "}":
+ 329:         depth -= 1
+ 330:         if depth == 0:
+ 331:             break
+ 332: assert "NCT02220725" in s[j:k + 1], "unexpected ledger content"
+ 333: s = s[:j] + "{}" + s[k + 1:]
+ 334: 
+ 335: s = replace_verdict(s, V1, "\nwindow.__quarantinedTrials = "
+ 336:                     + json.dumps(QUAR1, ensure_ascii=False) + ";")
+ 337: s = replace_badge(s, BADGE1)
+ 338: write(F1, s, bom)
+ 339: print(f"{F1}: {before} -> {len(s)} chars (BOM preserved: {bom})")
+ 340: print("  - identity corrected to andexanet alfa; filename/URL unchanged")
+ 341: print("  - impossible HR removed: all 6 HR fields null on all 3 rows")
+ 342: print("  - pooled RR 0.06 (0.01-0.21) withdrawn; 3 rows quarantined")
+ 343: print("  - ANNEXA-I genuine estimand recorded (OR 1.7925, 1.2246-2.6238) - not pooled")
+ 344: 
+ 345: # ---- stub ----
+ 346: t, tbom = read(S1)
+ 347: tb = len(t)
+ 348: assert "__verdict" not in t, "stub already carries a verdict"
+ 349: stub_badge = (
+ 350:     f'<div id="rapidmeta-integrity-badge" role="status" {BADGE_CSS}>'
+ 351:     '<strong style="font-size:14px;letter-spacing:0.04em;">IDENTITY CORRECTED &mdash; '
+ 352:     'THIS IS A REVIEW OF ANDEXANET ALFA</strong>'
+ 353:     '<div style="margin-top:6px;font-size:12.5px;">This page&rsquo;s filename and URL say '
+ 354:     '<em>TIRZEPATIDE_ARDS</em>; it is a review of <strong>andexanet alfa</strong> for '
+ 355:     'factor-Xa-inhibitor reversal, and contains no tirzepatide or ARDS trial. The filename is '
+ 356:     'kept so existing links keep working. Its previously displayed pooled estimate '
+ 357:     '(RR 0.06) has been <strong>withdrawn</strong> and an impossible hazard ratio (lower CI '
+ 358:     '&minus;0.5509) removed. See the full review. AMSTAR-2 confidence: '
+ 359:     '<strong>CRITICALLY LOW</strong>.</div></div>\n'
+ 360: )
+ 361: stub_v = {"verdict": "UNCERTAIN", "preliminary": True,
+ 362:           "identity_correction": V1["identity_correction"],
+ 363:           "counts": {"n_trials_in_ledger": 0, "n_trials_quarantined": 3, "n_trials_seen": 0},
+ 364:           "reasons": ["Redirect stub. Mirrors TIRZEPATIDE_ARDS_AUTO_FULL_REVIEW.html: a review of "
+ 365:                       "andexanet alfa; pooled estimate withdrawn; impossible hazard ratio removed; "
+ 366:                       "3 rows quarantined."],
+ 367:           "p0_total": None, "pooled": None}
+ 368: m = re.search(r"<body[^>]*>", t)
+ 369: assert m, "stub has no <body>"
+ 370: t = (t[:m.end()] + "\n" + stub_badge
+ 371:      + "<script>window.__verdict = " + json.dumps(stub_v, ensure_ascii=False) + ";</script>\n"
+ 372:      + t[m.end():])
+ 373: write(S1, t, tbom)
+ 374: print(f"{S1}: {tb} -> {len(t)} chars (badge + __verdict added; had neither)")
+ 375: 
+ 376: # ==========================================================================
+ 377: # APP 2 - ICAGEN_AUTO_FULL_REVIEW.html  =  EDOXABAN
+ 378: # Identity + badge honesty ONLY. No number is changed.
+ 379: # ==========================================================================
+ 380: print()
+ 381: F2, S2 = "ICAGEN_AUTO_FULL_REVIEW.html", "ICAGEN_AUTO_REVIEW.html"
+ 382: s, bom = read(F2)
+ 383: before = len(s)
+ 384: 
+ 385: V2 = {
+ 386:     "verdict": "UNCERTAIN",
+ 387:     "preliminary": True,
+ 388:     "identity_correction": {
+ 389:         "file_and_url_say": "ICAGEN",
+ 390:         "actual_subject": "edoxaban",
+ 391:         "filename_retained": True,
+ 392:         "why": "The .html filename and its published URL are deliberately unchanged - renaming "
+ 393:                "would break every existing link. The displayed identity is corrected instead.",
+ 394:         "note": "'Icagen' is a company name, not a drug and not an indication. This app contains "
+ 395:                 "no icagen trial.",
+ 396:     },
+ 397:     "counts": {"n_trials_in_ledger": 3, "n_trials_analysed": 3, "n_trials_seen": 3,
+ 398:                "P0_internal": None, "P0_grim": None, "P1_aact_concord": None,
+ 399:                "P2_evidence_incomplete": 3},
+ 400:     "counts_note": "Gate counts are null, not zero. No per-trial data-integrity gate has been run "
+ 401:                    "against this app; a zero would read as a clean bill.",
+ 402:     "reasons": [
+ 403:         "IDENTITY CORRECTED. This page is a review of EDOXABAN. Its filename and URL say ICAGEN - "
+ 404:         "a company name, not a drug or an indication - and are retained unchanged so existing "
+ 405:         "links keep working.",
+ 406:         "THE DISPLAYED POOLED ESTIMATE IS UNVERIFIED. The page shows RR 0.52 (0.33-0.84). No "
+ 407:         "per-trial source verification has been run against this app, and the figure should not "
+ 408:         "be cited.",
+ 409:         "DECLARED SUBJECT DOES NOT MATCH THE EVIDENCE. The page calls itself 'Edoxaban TIMI 48 "
+ 410:         "cancer-VTE'. Not one of its three trials is a cancer-VTE trial or ENGAGE AF-TIMI 48: "
+ 411:         "NCT02798471 is the Hokusai study in PAEDIATRIC VTE patients; NCT01181102 and NCT01181141 "
+ 412:         "are edoxaban VTE prophylaxis after orthopaedic surgery. Verified against "
+ 413:         "ClinicalTrials.gov API v2, " + RETRIEVED + ".",
+ 414:         "REGISTRY DISCREPANCY FOUND IN A SPOT-CHECK, recorded not corrected: for NCT02798471 the "
+ 415:         "posted primary is edoxaban 5/145 vs standard of care 2/141, while this ledger carries "
+ 416:         "0/147 vs 1/143. Neither the counts nor the denominators agree. This row alone therefore "
+ 417:         "cannot be relied on, and the pooled figure rests partly on it.",
+ 418:         "NO NUMBER HAS BEEN CHANGED IN THIS PASS. A data correction requires its own source "
+ 419:         "verification and cross-family gate; this commit corrects the identity and replaces a "
+ 420:         "false 'INTERNAL CHECKS PASSED' badge, nothing more.",
+ 421:         "AMSTAR-2 confidence: CRITICALLY LOW.",
+ 422:     ],
+ 423:     "p0_total": None,
+ 424:     "p0_total_note": "null, not 0 - no gate has been run against this app.",
+ 425:     "pooled": {"displayed": "RR 0.52 (0.33-0.84)",
+ 426:                "status": "UNVERIFIED - do not cite. At least one contributing row disagrees with "
+ 427:                          "its own registry source."},
+ 428: }
+ 429: 
+ 430: BADGE2 = (
+ 431:     f'<div id="rapidmeta-integrity-badge" role="status" {BADGE_CSS}>'
+ 432:     '<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">'
+ 433:     '<strong style="font-size:14px;letter-spacing:0.04em;">IDENTITY CORRECTED &mdash; '
+ 434:     'THIS IS A REVIEW OF EDOXABAN</strong>'
+ 435:     '<span style="font-size:11.5px;">Trials: <strong>3</strong> &middot; Pooled estimate: '
+ 436:     '<strong>UNVERIFIED</strong> &middot; Integrity gates: <strong>not run</strong></span></div>'
+ 437: 
+ 438:     f'<div {NOTE_CSS}>'
+ 439:     '<strong>Correction &mdash; this page&rsquo;s address does not match its contents.</strong> '
+ 440:     'The file is named <code style="background:rgba(255,255,255,0.28);padding:1px 4px;'
+ 441:     'border-radius:2px;">ICAGEN_AUTO_FULL_REVIEW.html</code> and its published URL says the same. '
+ 442:     '&ldquo;Icagen&rdquo; is a <em>company name</em>, not a drug and not an indication. '
+ 443:     '<strong>This is a review of edoxaban.</strong> '
+ 444:     '<em>The filename and URL are deliberately left unchanged so that existing links keep '
+ 445:     'working; only the displayed identity is corrected.</em></div>'
+ 446: 
+ 447:     '<div style="margin-top:6px;font-size:12.5px;">'
+ 448:     '<strong>The pooled estimate on this page is UNVERIFIED &mdash; do not cite it.</strong> The '
+ 449:     'page displays <strong>RR 0.52 (0.33&ndash;0.84)</strong>. No per-trial source verification '
+ 450:     'and no data-integrity gate has been run against this app. The previous badge claimed '
+ 451:     '&ldquo;INTERNAL CHECKS PASSED&rdquo;; that claim was false and has been removed.</div>'
+ 452: 
+ 453:     '<div style="margin-top:6px;font-size:11.5px;">'
+ 454:     '<strong>The declared subject does not match the evidence.</strong> This page calls itself '
+ 455:     '&ldquo;Edoxaban TIMI 48 cancer-VTE&rdquo;. <strong>Not one</strong> of its three trials is a '
+ 456:     'cancer-VTE trial or ENGAGE AF-TIMI 48. Verified against ClinicalTrials.gov API v2 on '
+ 457:     f'{RETRIEVED}: <strong>NCT02798471</strong> is the Hokusai study in <em>paediatric</em> VTE '
+ 458:     'patients; <strong>NCT01181102</strong> and <strong>NCT01181141</strong> are edoxaban VTE '
+ 459:     'prophylaxis after <em>orthopaedic surgery</em>.</div>'
+ 460: 
+ 461:     '<div style="margin-top:6px;font-size:11.5px;">'
+ 462:     '<strong>A registry spot-check already disagrees with this ledger.</strong> For '
+ 463:     'NCT02798471 the posted primary outcome is <strong>edoxaban 5/145 vs standard of care '
+ 464:     '2/141</strong>; this page&rsquo;s ledger carries <strong>0/147 vs 1/143</strong>. Neither the '
+ 465:     'counts nor the denominators agree. That row cannot be relied on, and the pooled figure above '
+ 466:     'rests partly on it.</div>'
+ 467: 
+ 468:     '<div style="margin-top:6px;font-size:10.5px;">'
+ 469:     '<strong>What this commit did and did not do.</strong> It corrected the displayed identity and '
+ 470:     'replaced a false green &ldquo;INTERNAL CHECKS PASSED&rdquo; badge. <strong>No number was '
+ 471:     'changed.</strong> Correcting the data requires full per-trial source verification and a '
+ 472:     'cross-family gate, as was done for the apixaban-in-ACS review; that work is not in this '
+ 473:     'commit and the figures above remain unverified until it is. Gate counts in '
+ 474:     '<code style="background:rgba(255,255,255,0.28);padding:1px 4px;border-radius:2px;">'
+ 475:     'window.__verdict</code> are <strong>null, not zero</strong> &mdash; nothing was tested. '
+ 476:     'AMSTAR-2 confidence: <strong>CRITICALLY LOW</strong>.</div></div>'
+ 477: )
+ 478: 
+ 479: s = replace_verdict(s, V2)
+ 480: s = replace_badge(s, BADGE2)
+ 481: write(F2, s, bom)
+ 482: print(f"{F2}: {before} -> {len(s)} chars (BOM preserved: {bom})")
+ 483: print("  - identity corrected to edoxaban; filename/URL unchanged")
+ 484: print("  - false-green badge replaced; pooled RR 0.52 marked UNVERIFIED")
+ 485: print("  - PICO mismatch + NCT02798471 registry discrepancy recorded; NO number changed")
+ 486: 
+ 487: t, tbom = read(S2)
+ 488: tb = len(t)
+ 489: assert "__verdict" not in t, "stub already carries a verdict"
+ 490: stub_badge2 = (
+ 491:     f'<div id="rapidmeta-integrity-badge" role="status" {BADGE_CSS}>'
+ 492:     '<strong style="font-size:14px;letter-spacing:0.04em;">IDENTITY CORRECTED &mdash; '
+ 493:     'THIS IS A REVIEW OF EDOXABAN</strong>'
+ 494:     '<div style="margin-top:6px;font-size:12.5px;">This page&rsquo;s filename and URL say '
+ 495:     '<em>ICAGEN</em> &mdash; a company name, not a drug. It is a review of '
+ 496:     '<strong>edoxaban</strong>. The filename is kept so existing links keep working. Its pooled '
+ 497:     'estimate is <strong>UNVERIFIED</strong> and its declared subject '
+ 498:     '(&ldquo;TIMI 48 cancer-VTE&rdquo;) matches none of its trials. See the full review. '
+ 499:     'AMSTAR-2 confidence: <strong>CRITICALLY LOW</strong>.</div></div>\n'
+ 500: )
+ 501: stub_v2 = {"verdict": "UNCERTAIN", "preliminary": True,
+ 502:            "identity_correction": V2["identity_correction"],
+ 503:            "counts": {"n_trials_seen": 3},
+ 504:            "reasons": ["Redirect stub. Mirrors ICAGEN_AUTO_FULL_REVIEW.html: a review of edoxaban; "
+ 505:                        "pooled estimate UNVERIFIED; declared subject matches none of its trials."],
+ 506:            "p0_total": None,
+ 507:            "pooled": {"displayed": "RR 0.52 (0.33-0.84)", "status": "UNVERIFIED - do not cite"}}
+ 508: m = re.search(r"<body[^>]*>", t)
+ 509: assert m, "stub has no <body>"
+ 510: t = (t[:m.end()] + "\n" + stub_badge2
+ 511:      + "<script>window.__verdict = " + json.dumps(stub_v2, ensure_ascii=False) + ";</script>\n"
+ 512:      + t[m.end():])
+ 513: write(S2, t, tbom)
+ 514: print(f"{S2}: {tb} -> {len(t)} chars (badge + __verdict added; had neither)")
+ 515: 
+ 516: 
+ 517: # ==========================================================================
+ 518: # Returning-visitor safety: purge quarantined rows from PERSISTED state.
+ 519: #
+ 520: # Emptying realData stops a FRESH visitor pooling the withdrawn rows, but the
+ 521: # app persists state.trials to localStorage. A reader who opened this page
+ 522: # before the fix keeps the old auto-seeded rows and would still be shown a
+ 523: # pooled estimate computed from them - verified in the browser: a stale profile
+ 524: # still rendered RR 0.03 (0.00-0.52) after realData was emptied.
+ 525: #
+ 526: # Added as a normal guarded migration, matching the app's existing chain. The
+ 527: # row's data is MOVED to _quarantinedData, not destroyed - quarantine, never
+ 528: # delete - and the row is excluded with a stated reason.
+ 529: # ==========================================================================
+ 530: MIG_ANCHOR = ('if(this.state.trials?.length&&!this.state._migrated_v120_phase2_exclusion){')
+ 531: MIGRATION = (
+ 532:     'if(this.state.trials?.length&&!this.state._migrated_v123_quarantine_purge){'
+ 533:     'let mutated=!1;'
+ 534:     'const QIDS=new Set(Object.keys(window.__quarantinedTrials||{}));'
+ 535:     'this.state.trials.forEach(t=>{'
+ 536:     'if(!QIDS.has(String(t?.id??"").toUpperCase()))return;'
+ 537:     'if(t.data){t._quarantinedData=t.data;t.data=null;mutated=!0}'
+ 538:     'if("exclude"!==String(t?.status??"").toLowerCase()){t.status="exclude";mutated=!0}'
+ 539:     't.verified=!1;t.screenReview=null;'
+ 540:     't.reason="Quarantined 2026-07-30: registry verification could not support this row. '
+ 541:     'Its stored values are retained in _quarantinedData and described in '
+ 542:     'window.__quarantinedTrials.";'
+ 543:     '}),this.state._migrated_v123_quarantine_purge=!0,mutated&&this.save()}'
+ 544: )
+ 545: 
+ 546: s, bom = read(F1)
+ 547: before = len(s)
+ 548: assert s.count(MIG_ANCHOR) == 1, f"migration anchor count = {s.count(MIG_ANCHOR)}"
+ 549: s = s.replace(MIG_ANCHOR, MIGRATION + MIG_ANCHOR, 1)
+ 550: write(F1, s, bom)
+ 551: print()
+ 552: print(f"{F1}: {before} -> {len(s)} chars")
+ 553: print("  - migration _migrated_v123_quarantine_purge added: returning visitors with stale")
+ 554: print("    localStorage also stop pooling the quarantined rows (data retained, not destroyed)")
+
+codex
+Found defects:
+
+- **CHECK THAT CANNOT FAIL / STATUS CODE REPORTING WRAPPER**: line 548.  
+  Exact input: run `python -O scripts/fix_mislabelled_apps.py` with `TIRZEPATIDE_ARDS_AUTO_FULL_REVIEW.html` containing no `if(this.state.trials?.length&&!this.state._migrated_v120_phase2_exclusion){`.  
+  Consequence: the `assert` is stripped, line 549 performs no replacement, and lines 552-554 still print that the migration was added.
+
+- **IDEMPOTENCY GUARD KEYED TO THE WRONG MARKER**: line 548.  
+  Exact input: run the script twice; after run 1, `F1` contains `MIGRATION + MIG_ANCHOR`, and `s.count(MIG_ANCHOR)` is still `1` because line 549 preserves the anchor.  
+  Consequence: every rerun injects another copy of `_migrated_v123_quarantine_purge`.
+
+- **ZERO/ABSENT CONFLATED + OWN MARKER BEFORE WORK**: lines 534 and 543.  
+  Exact input: execute the generated migration with `window.__quarantinedTrials === undefined` and `this.state.trials=[{id:"NCT02220725",data:{x:1},status:"include"}]`.  
+  Consequence: `undefined` becomes an empty quarantine set, no row is purged, and `_migrated_v123_quarantine_purge` is set so the in-memory state will not retry after the quarantine object appears.
+
+- **INSTRUMENT READING/CHANGING A DIFFERENT COPY**: lines 128 and 381.  
+  Exact input: run the script from `F:\tmp` containing same-named HTML files while the intended repo files live elsewhere.  
+  Consequence: the script patches the current directory’s copies, not the repo copies.
+
+- **SELECTOR KEYED TO A FORM THE CORPUS MAY NOT USE**: line 114.  
+  Exact input: `<script type="text/javascript">window.__verdict = {"verdict":"STABLE"};</script>` or `<script>window.__verdict={"verdict":"STABLE"};</script>`.  
+  Consequence: a real verdict surface is missed and the script aborts.
+
+No proven defect found for CRLF/LF text comparison, merged-cell/off-by-one tabulation, or negation-dropped in this module.  
+COULD NOT DETERMINE corpus-wide selector coverage without the target HTML files’ full contents.
+tokens used
+32,192
+Found defects:
+
+- **CHECK THAT CANNOT FAIL / STATUS CODE REPORTING WRAPPER**: line 548.  
+  Exact input: run `python -O scripts/fix_mislabelled_apps.py` with `TIRZEPATIDE_ARDS_AUTO_FULL_REVIEW.html` containing no `if(this.state.trials?.length&&!this.state._migrated_v120_phase2_exclusion){`.  
+  Consequence: the `assert` is stripped, line 549 performs no replacement, and lines 552-554 still print that the migration was added.
+
+- **IDEMPOTENCY GUARD KEYED TO THE WRONG MARKER**: line 548.  
+  Exact input: run the script twice; after run 1, `F1` contains `MIGRATION + MIG_ANCHOR`, and `s.count(MIG_ANCHOR)` is still `1` because line 549 preserves the anchor.  
+  Consequence: every rerun injects another copy of `_migrated_v123_quarantine_purge`.
+
+- **ZERO/ABSENT CONFLATED + OWN MARKER BEFORE WORK**: lines 534 and 543.  
+  Exact input: execute the generated migration with `window.__quarantinedTrials === undefined` and `this.state.trials=[{id:"NCT02220725",data:{x:1},status:"include"}]`.  
+  Consequence: `undefined` becomes an empty quarantine set, no row is purged, and `_migrated_v123_quarantine_purge` is set so the in-memory state will not retry after the quarantine object appears.
+
+- **INSTRUMENT READING/CHANGING A DIFFERENT COPY**: lines 128 and 381.  
+  Exact input: run the script from `F:\tmp` containing same-named HTML files while the intended repo files live elsewhere.  
+  Consequence: the script patches the current directory’s copies, not the repo copies.
+
+- **SELECTOR KEYED TO A FORM THE CORPUS MAY NOT USE**: line 114.  
+  Exact input: `<script type="text/javascript">window.__verdict = {"verdict":"STABLE"};</script>` or `<script>window.__verdict={"verdict":"STABLE"};</script>`.  
+  Consequence: a real verdict surface is missed and the script aborts.
+
+No proven defect found for CRLF/LF text comparison, merged-cell/off-by-one tabulation, or negation-dropped in this module.  
+COULD NOT DETERMINE corpus-wide selector coverage without the target HTML files’ full contents.

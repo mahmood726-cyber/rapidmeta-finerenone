@@ -1,0 +1,702 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a03246-dc53-7582-8c3a-1f0d7c164436
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/record_endpoint_definitions.py
+
+--- THE FILE, IN FULL ---
+"""RECORD ENDPOINT DEFINITIONS -- what each trial COUNTED, read from the registry.
+
+WHY THIS FILE EXISTS AT ALL, RATHER THAN A HAND EDIT
+    SGLT2_HF pooled two different endpoints as one and passed every check in this
+    repository, because the object stored RESULT sentences as provenance and no
+    endpoint definition anywhere. A quote that says what HAPPENED is not a quote
+    that says what was COUNTED.
+
+    So the definitions are recorded HERE, in a tracked file, beside the field they
+    were read from and the date they were read. A hand edit of a 300 KB object
+    leaves no record of WHERE the sentence came from, and a definition whose
+    source cannot be named is worth about as much as an assumed one.
+
+WHAT THIS RECORDS -- AND THE ONE DISTINCTION THAT MATTERS
+    `text`     the definition, verbatim, from the named field.
+    `source`   registry / publication / regulator, with the exact field or page.
+    `read_utc` when a human read it.
+
+    Where the registry posts no such outcome -- an analysis that exists only in a
+    regulator's review, or an endpoint that was CHANGED during the trial so the
+    current posting no longer contains it -- that is recorded as
+    `registry_does_not_post`, WITH the reason. It is never left blank: a blank
+    field beside a trial name reads as "no endpoint", which is a different and
+    much stronger claim than "the registry is not where this one lives".
+
+WHAT THIS DOES NOT ESTABLISH -- written in advance
+    - NOT that the definitions being identical licenses a pool. Populations,
+      follow-up, analysis sets and ascertainment can still differ, and on
+      SOTAGLIFLOZIN the populations differ more than anything else in the object.
+    - NOT that the registry text is the trial's true endpoint. Registries are
+      amended. Where a publication states the endpoint changed, both were read,
+      and that is recorded on the cell rather than resolved silently.
+    - NOT that a definition exists for every cell. Cells with no definition
+      remain without one and the gate keeps failing them; this script writes
+      only what was actually read.
+
+USAGE  python scripts/record_endpoint_definitions.py <app_id> [--dry-run]
+"""
+from __future__ import annotations
+import io, json, os, sys
+
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+_CTG = "protocolSection.outcomesModule.primaryOutcomes[0].measure"
+
+# ---------------------------------------------------------------------------
+# app_id -> nct -> outcome_id -> record
+# ---------------------------------------------------------------------------
+DEFINITIONS = {
+ "sotagliflozin-hf": {
+  "NCT03521934": {
+   "hfcv_total": {
+    "text": "Number of Total Occurrences of Cardiovascular (CV) Death, "
+            "Hospitalizations for Heart Failure (HHF) and Urgent Visits for "
+            "Heart Failure (HF)",
+    "description_verbatim": "Combined endpoint of the total number of occurrences "
+            "(first and potentially subsequent) of CV death, HHF, and urgent HF "
+            "visits after randomization. Events that occurred during the study "
+            "were calculated as the total number of events per 100 person-years "
+            "of follow-up.",
+    "time_frame": "Up to 21.9 months",
+    "source": "registry",
+    "source_field": _CTG,
+    "source_url": "https://clinicaltrials.gov/study/NCT03521934",
+    "read_utc": "2026-08-17",
+   },
+   "hfcv_first": {
+    "text": "Cardiovascular (CV) Death, Hospitalizations for Heart Failure (HHF) "
+            "and Urgent Visits for Heart Failure (HF) -- the same event class as "
+            "this trial's registered primary endpoint, analysed as time to FIRST "
+            "event instead of as total occurrences",
+    "source": "regulator_fda",
+    "source_field": "integrated review, statistical section, sensitivity analyses",
+    "source_url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2023/"
+                  "216203Orig1s000IntegratedR.pdf",
+    "registry_does_not_post": "The registry posts this trial's composite ONLY as "
+            "total occurrences. The time-to-first analysis of the same composite "
+            "exists in the regulator's review and nowhere in the registry, so the "
+            "EVENT CLASS is quoted from the registry field above and the ANALYSIS "
+            "is named from the review. Those are two different facts and they are "
+            "recorded separately on purpose.",
+    "read_utc": "2026-08-17",
+   },
+  },
+  "NCT03315143": {
+   "hfcv_total": {
+    "text": "Number of Total Occurrences of Cardiovascular (CV) Death, "
+            "Hospitalizations for Heart Failure (HHF) and Urgent Visits for "
+            "Heart Failure (HF)",
+    "description_verbatim": "Combined endpoint of the total number of occurrences "
+            "(first and potentially subsequent) of CV death, HHF, and urgent HF "
+            "visits after randomization. Events that occurred during the study "
+            "were calculated as the total number of events per 100 person-years "
+            "of follow-up.",
+    "time_frame": "Up to 30 months",
+    "source": "registry",
+    "source_field": _CTG,
+    "source_url": "https://clinicaltrials.gov/study/NCT03315143",
+    "endpoint_was_changed_during_the_trial": "The publication states the primary "
+            "end point was CHANGED during the trial. The registry record read "
+            "here is the AMENDED one, and it is the endpoint the reported hazard "
+            "ratio belongs to. The superseded original coprimary is carried "
+            "separately in this object as mace3_first, from a single trial, and "
+            "is not pooled.",
+    "read_utc": "2026-08-17",
+   },
+   "hfcv_first": {
+    "text": "Cardiovascular (CV) Death, Hospitalizations for Heart Failure (HHF) "
+            "and Urgent Visits for Heart Failure (HF) -- the same event class as "
+            "this trial's registered primary endpoint, analysed as time to FIRST "
+            "event instead of as total occurrences",
+    "source": "regulator_fda",
+    "source_field": "integrated review, statistical section, sensitivity analyses",
+    "source_url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2023/"
+                  "216203Orig1s000IntegratedR.pdf",
+    "registry_does_not_post": "As for SOLOIST-WHF: the registry posts the "
+            "composite only as total occurrences. NOTE the publication ALSO "
+            "reports a first-occurrence composite for this trial, but of CV death "
+            "OR hospitalisation for heart failure WITHOUT urgent visits -- a "
+            "different event class, which is why it is held out rather than used "
+            "here. That hold-out is recorded in this object's scope decisions.",
+    "read_utc": "2026-08-17",
+   },
+   "mace3_first": {
+    "text": "the first occurrence of death from cardiovascular causes, nonfatal "
+            "myocardial infarction, or nonfatal stroke",
+    "source": "publication",
+    "source_field": "NEJM report of SCORED, describing the ORIGINAL coprimary "
+                    "end point that was superseded during the trial",
+    "source_url": "https://pubmed.ncbi.nlm.nih.gov/33200892/",
+    "registry_does_not_post": "The current registry record does not post a "
+            "FIRST-occurrence version of this composite. It posts a TOTAL-"
+            "occurrence one ('Total Number of Occurrences of CV Death, Non-fatal "
+            "Myocardial Infarction and Non-fatal Stroke') as a secondary outcome, "
+            "which is a different quantity from the one stored here. The "
+            "first-occurrence composite is the superseded original coprimary and "
+            "survives only in the publication. This is exactly the case the "
+            "registry read cannot settle alone, and it is why this outcome is "
+            "reported from a single trial and pooled with nothing.",
+    "read_utc": "2026-08-17",
+   },
+  },
+ },
+
+ # ------------------------------------------------------------------ IV IRON
+ # Five trials, four pooled outcomes, and the interesting reads are the two
+ # where the registry does NOT hold the cell: CONFIRM-HF posts no results at all
+ # and IRONMAN's primary is worded a component apart from AFFIRM-AHF's.
+ "iv-iron-hf": {
+  "NCT02937454": {          # AFFIRM-AHF
+   "hfh_cvd_recurrent": {
+    "text": "HF Hospitalizations and CV Death",
+    "description_verbatim": "The composite of recurrent HF hospitalizations and "
+            "CV death up to 52 weeks after randomization. Total hospitalisations "
+            "included first and recurrent events. If a participant was "
+            "hospitalised for heart failure and died within 24 h from any "
+            "cardiovascular event, this was counted as one event.",
+    "time_frame": "up to 52 weeks after randomization",
+    "endpoint_rank": "PRIMARY",
+    "source": "registry",
+    "source_field": _CTG,
+    "source_url": "https://clinicaltrials.gov/study/NCT02937454",
+    "read_utc": "2026-08-17",
+   },
+   "hfh_cvd_first": {
+    "text": "Composite of HF Hospitalisations or CV Death",
+    "description_verbatim": "Analysed as time to first event at 52 weeks after "
+            "randomisation. The number of participants with at least one HF "
+            "Hospitalisation or CV Death is presented below.",
+    "time_frame": "at 52 weeks after randomisation",
+    "endpoint_rank": "SECONDARY",
+    "source": "registry",
+    "source_field": "protocolSection.outcomesModule.secondaryOutcomes[].measure",
+    "source_url": "https://clinicaltrials.gov/study/NCT02937454",
+    "read_utc": "2026-08-17",
+   },
+   "hfh_recurrent": {
+    "text": "HF Hospitalisations",
+    "description_verbatim": "HF hospitalisations up to 52 weeks after "
+            "randomisation analysed as recurrent event.",
+    "time_frame": "up to 52 weeks after randomisation",
+    "endpoint_rank": "SECONDARY",
+    "source": "registry",
+    "source_field": "protocolSection.outcomesModule.secondaryOutcomes[].measure",
+    "source_url": "https://clinicaltrials.gov/study/NCT02937454",
+    "read_utc": "2026-08-17",
+   },
+   "acm": {
+    "text": "All-cause Mortality",
+    "description_verbatim": "Number of participants who died up to 52 weeks "
+            "after randomisation",
+    "endpoint_rank": "OTHER PRE-SPECIFIED, as the registry's own record "
+                     "classifies it; this trial's publication does not report "
+                     "this outcome at all",
+    "source": "registry",
+    "source_field": "resultsSection.outcomeMeasuresModule, all-cause mortality",
+    "source_url": "https://clinicaltrials.gov/study/NCT02937454",
+    "read_utc": "2026-08-17",
+   },
+  },
+  "NCT02642562": {          # IRONMAN
+   "hfh_cvd_recurrent": {
+    "text": "CV mortality or hospitalisation for worsening heart failure "
+            "(analysis will include first and recurrent hospitalisations)",
+    "time_frame": "Minimum of 3 months follow-up from last patient recruited",
+    "endpoint_rank": "PRIMARY",
+    "source": "registry",
+    "source_field": _CTG,
+    "source_url": "https://clinicaltrials.gov/study/NCT02642562",
+    "same_events_different_words": "This counts the same two event classes as "
+            "AFFIRM-AHF's primary, written differently: 'CV mortality' for 'CV "
+            "Death', and 'hospitalisation for worsening heart failure' for 'HF "
+            "Hospitalizations'. Both readings were checked against the canon "
+            "rather than assumed -- an earlier version of the component reader "
+            "saw neither the CV-mortality component nor the hospitalisation as "
+            "one event, and would have reported two trials that count the same "
+            "thing as counting different things.",
+    "read_utc": "2026-08-17",
+   },
+  },
+  "NCT03036462": {          # FAIR-HF2
+   "hfh_cvd_first": {
+    "text": "Time-to-first event of CV death or HF hospitalisation",
+    "description_verbatim": "Show that treatment of patients with systolic heart "
+            "failure (HF) and iron deficiency (ID) with i.v. iron (Ferric "
+            "Carboxymaltose, FCM) versus placebo (i.v. NaCl) can extend the "
+            "time-to-first-event of heart failure hospitalisations and "
+            "cardiovascular (CV) death.",
+    "time_frame": "The whole follow-up period. We aim for a minimum average "
+                  "follow-up of >2 years.",
+    "endpoint_rank": "PRIMARY -- the first of three, under a Hochberg procedure",
+    "source": "registry",
+    "source_field": _CTG,
+    "source_url": "https://clinicaltrials.gov/study/NCT03036462",
+    "read_utc": "2026-08-17",
+   },
+   "hfh_recurrent": {
+    "text": "Rate of total (first and recurrent) events of hospitalisations for "
+            "heart failure (HF)",
+    "description_verbatim": "Show that treatment of patients with systolic heart "
+            "failure (HF) and iron deficiency (ID) with i.v. iron (Ferric "
+            "Carboxymaltose, FCM) versus placebo (i.v. NaCl) reduces the rate of "
+            "recurrent events of heart failure hospitalisations.",
+    "endpoint_rank": "PRIMARY -- the second of three, under a Hochberg procedure",
+    "source": "registry",
+    "source_field": "protocolSection.outcomesModule.primaryOutcomes[1].measure",
+    "source_url": "https://clinicaltrials.gov/study/NCT03036462",
+    "read_utc": "2026-08-17",
+   },
+  },
+  "NCT03037931": {          # HEART-FID
+   "hierarchical_primary": {
+    "text": "Number of Deaths; Number of Hospitalizations for Heart Failure; "
+            "Change in 6MWT (Six Minute Walk Test) Distance -- the registry "
+            "posts these as THREE separate primary outcome measures, and the "
+            "publication reports them combined as one hierarchical composite "
+            "analysed by unmatched win ratio",
+    "description_verbatim": "The number of participants who died out of the "
+            "total treated group. / The number of participants who were "
+            "hospitalized for heart failure out of the total treated group. / "
+            "The change in meters walked at baseline compared to 6 months later.",
+    "time_frame": "1 year for death and hospitalisation; 6 months for the walk "
+                  "distance",
+    "endpoint_rank": "PRIMARY, all three",
+    "source": "registry",
+    "source_field": "protocolSection.outcomesModule.primaryOutcomes[0..2]",
+    "source_url": "https://clinicaltrials.gov/study/NCT03037931",
+    "read_utc": "2026-08-17",
+   },
+  },
+  "NCT01453608": {          # CONFIRM-HF
+   "acm": {
+    "text": "all-cause death, analysed as time to first event",
+    "description_verbatim": "The incidence of all-cause death was similar in "
+            "both groups",
+    "measure_established_by": "The column header of the trial's own Table 2 "
+            "reads 'Time to first event hazard ratio  95% CI  P-value'. THIS IS "
+            "THE HALF THE STORED QUOTE WAS MISSING: the object held the row "
+            "('Death 12 12 (8.9) 14 14 (9.9) 0.89 (0.41-1.93) 0.77') and a row "
+            "of numbers does not say what the numbers are. The header does, and "
+            "it confirms the object's claim that this is a hazard ratio -- the "
+            "same class of question that is currently open on ARNI, asked here "
+            "and answered.",
+    "endpoint_rank": "a designated secondary outcome-related endpoint, "
+                     "adjudicated by the trial's independent endpoint committee",
+    "source": "publication",
+    "source_field": "Eur Heart J 2015, Table 2 'Hospitalizations and deaths "
+                    "(full-analysis set)', row 'Death'",
+    "source_url": "https://pubmed.ncbi.nlm.nih.gov/25176939/",
+    "add_source_quote": "Table 2 Hospitalizations and deaths (full-analysis "
+            "set) -- column header: End-point or event | FCM (n = 150) Total "
+            "number of events | Incidence/100 patient-years at risk | Placebo "
+            "(n = 151) Total number of events | Incidence/100 patient-years at "
+            "risk | TIME TO FIRST EVENT HAZARD RATIO | 95% CI | P-value",
+    "registry_does_not_post": "This trial's registry record posts ONE outcome "
+            "measure -- the six-minute walk test at week 24 -- and no results "
+            "section at all. There is no registry text for this endpoint to "
+            "read, and its absence was established by reading the record rather "
+            "than inferred from the trial being old.",
+    "read_utc": "2026-08-17",
+   },
+   "six_min_walk_24w": {
+    "text": "Change in six minute walk test from baseline to week 24",
+    "time_frame": "24 weeks",
+    "endpoint_rank": "PRIMARY",
+    "source": "registry",
+    "source_field": _CTG,
+    "source_url": "https://clinicaltrials.gov/study/NCT01453608",
+    "read_utc": "2026-08-17",
+   },
+  },
+ },
+
+ # --------------------------------------------------------------- ALIROCUMAB
+ # Six trials, one endpoint, and the registry states it in almost exactly the
+ # same words on all six records. The differences are orthographic -- one writes
+ # "Intent--to--Treat" with two double hyphens, one closes the bracket after
+ # "ITT Analysis" instead of before it -- which is the case a fragment test gets
+ # wrong in both directions. Recorded whole, compared whole.
+ "alirocumab-lipid": {
+  "NCT01507831": {"ldlc_pct_change_wk24": {
+    "text": "Percent Change From Baseline in Calculated LDL-C at Week 24 - "
+            "Intent-to-Treat (ITT) Analysis",
+    "time_frame": "From Baseline to Week 52",
+    "endpoint_rank": "SECONDARY -- this trial's only PRIMARY outcome is the "
+        "proportion of participants with adverse events, because it was "
+        "designed as a long-term safety study. An earlier build EXCLUDED this "
+        "trial for posting no LDL result, which came from reading primary "
+        "outcomes only; it is the largest trial in the set.",
+    "source": "registry", "source_field": _CTG,
+    "source_url": "https://clinicaltrials.gov/study/NCT01507831",
+    "read_utc": "2026-08-17"}},
+  "NCT01617655": {"ldlc_pct_change_wk24": {
+    "text": "Percent Change From Baseline in Calculated LDL-C at Week 24 - ITT "
+            "Analysis",
+    "time_frame": "From Baseline to Week 52", "endpoint_rank": "PRIMARY",
+    "source": "registry", "source_field": _CTG,
+    "source_url": "https://clinicaltrials.gov/study/NCT01617655",
+    "read_utc": "2026-08-17"}},
+  "NCT01623115": {"ldlc_pct_change_wk24": {
+    "text": "Percent Change From Baseline in Calculated LDL-C at Week 24 - "
+            "Intent-to-Treat (ITT) Analysis",
+    "time_frame": "From Baseline to Week 52", "endpoint_rank": "PRIMARY",
+    "source": "registry", "source_field": _CTG,
+    "source_url": "https://clinicaltrials.gov/study/NCT01623115",
+    "read_utc": "2026-08-17"}},
+  "NCT01644175": {"ldlc_pct_change_wk24": {
+    "text": "Percent Change From Baseline in Calculated LDL-C at Week 24 - "
+            "Intent-to-Treat (ITT) Analysis",
+    "time_frame": "From Baseline to Week 52", "endpoint_rank": "PRIMARY",
+    "source": "registry", "source_field": _CTG,
+    "source_url": "https://clinicaltrials.gov/study/NCT01644175",
+    "read_utc": "2026-08-17"}},
+  "NCT01709500": {"ldlc_pct_change_wk24": {
+    "text": "Percent Change From Baseline in Calculated LDL-C at Week 24 - "
+            "Intent--to--Treat (ITT) Analysis",
+    "time_frame": "From Baseline to Week 52", "endpoint_rank": "PRIMARY",
+    "source": "registry", "source_field": _CTG,
+    "source_url": "https://clinicaltrials.gov/study/NCT01709500",
+    "orthography_note": "The double hyphens in 'Intent--to--Treat' are the "
+        "registry's own. Quoted as posted rather than tidied: a definition "
+        "compared whole must be recorded whole.",
+    "read_utc": "2026-08-17"}},
+  "NCT02107898": {"ldlc_pct_change_wk24": {
+    "text": "Percent Change From Baseline in Calculated LDL-C at Week 24 - "
+            "Intent-to-Treat (ITT Analysis)",
+    "time_frame": "From Baseline to Week 52", "endpoint_rank": "PRIMARY",
+    "source": "registry", "source_field": _CTG,
+    "source_url": "https://clinicaltrials.gov/study/NCT02107898",
+    "read_utc": "2026-08-17"}},
+ },
+
+ # ------------------------------------------------------------------- ARNI
+ # One cell, and it is the last endpoint-definition FAIL in cardiology.
+ # PARALLEL-HF's provenance was two RESULT sentences -- "no significant
+ # between-group difference was observed ... (HR 1.09; 95% CI 0.65-1.82)" -- with
+ # no statement of what was counted. Its registry record states it plainly, and
+ # reading it needed nothing that is under a permission hold.
+ "arni-hfref": {
+  "NCT02468232": {"cvdeath_or_hfh_first": {
+    "text": "Number of Participants Who Had CEC (Clinical Endpoint Committee) "
+            "Confirmed Composite Endpoints",
+    "description_verbatim": "Composite endpoint is defined as either "
+        "cardiovascular (CV) death or heart failure (HF) hospitalization in "
+        "Japanese patients with chronic heart failure (CHF) and reduced ejection "
+        "fraction. The composite endpoint events occurred on and after "
+        "End-of-study (EOS) declaration were reported by investigators but those "
+        "events were not required to be adjudicated by Clinical Endpoint "
+        "Committee (CEC) and not included in the efficacy analysis.",
+    "time_frame": "up to 40 months",
+    "endpoint_rank": "PRIMARY",
+    "source": "registry",
+    "source_field": _CTG,
+    "source_url": "https://clinicaltrials.gov/study/NCT02468232",
+    "read_utc": "2026-08-17",
+    "agrees_with_the_others": "Cardiovascular death or heart-failure "
+        "hospitalisation -- the same two components the other three trials in "
+        "this pool record. This cell was the only one in the pool whose "
+        "provenance was a RESULT sentence, and reading the registry closes it "
+        "without changing any number.",
+  }},
+ },
+}
+
+
+def apply(app_id, dry=False):
+    path = os.path.join(REPO, "ssot", app_id, "%s.json" % app_id)
+    if not os.path.exists(path):
+        print("no object at %s -- NOT RUN" % path, file=sys.stderr)
+        return 2
+    spec = DEFINITIONS.get(app_id)
+    if not spec:
+        print("no definitions recorded for %s -- NOT RUN. This script writes only "
+              "what was actually read." % app_id, file=sys.stderr)
+        return 2
+    obj = json.loads(open(path, encoding="utf-8").read())
+    trials = ((obj.get("inputs") or {}).get("trials")) or []
+    by_nct = {}
+    for t in trials:
+        if t.get("nct"):
+            by_nct[t["nct"]] = t
+    written, missing = 0, []
+    for nct, outcomes in spec.items():
+        t = by_nct.get(nct)
+        if t is None:
+            missing.append("%s is not a trial in this object" % nct)
+            continue
+        for oid, rec in outcomes.items():
+            bo = (t.get("by_outcome") or {}).get(oid)
+            if bo is None:
+                missing.append("%s has no by_outcome[%r]" % (nct, oid))
+                continue
+            bo["outcome_definition"] = rec["text"]
+            bo["outcome_definition_source"] = {
+                k: v for k, v in rec.items()
+                if k not in ("text", "add_source_quote")}
+            # A QUOTE THAT ESTABLISHES THE MEASURE BELONGS IN THE AUDIT SURFACE,
+            # not only in this record. CONFIRM-HF's stored provenance was the
+            # TABLE ROW -- a line of numbers, which does not say what the numbers
+            # are. The column header does, and a reader checking us needs to see
+            # it on the extraction tab. Appended idempotently: re-running must
+            # not grow the list.
+            q = rec.get("add_source_quote")
+            if q:
+                prov = bo.setdefault("provenance", {})
+                quotes = prov.setdefault("source_quotes", [])
+                if q not in quotes:
+                    quotes.append(q)
+            written += 1
+            print("  %-14s %-12s <- %s" % (nct, oid, rec["source"]))
+    for m in missing:
+        print("  UNWRITTEN: %s" % m)
+    if missing:
+        print("\nRefusing to write: the spec names cells this object does not have, "
+              "so one of the two is wrong and guessing which is how a definition "
+              "lands on the wrong trial.")
+        return 1
+    if dry:
+        print("\n--dry-run: %d definition(s) would be written to %s" % (written, path))
+        return 0
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(obj, f, ensure_ascii=False, indent=1)
+        f.write("\n")
+    print("\nwrote %d definition(s) to %s" % (written, path))
+    return 0
+
+
+def main():
+    args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    if not args:
+        print("usage: record_endpoint_definitions.py <app_id> [--dry-run]\n"
+              "known: %s" % ", ".join(sorted(DEFINITIONS)), file=sys.stderr)
+        return 2
+    rc = 0
+    for a in args:
+        rc |= apply(a, dry="--dry-run" in sys.argv)
+    return rc
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+
+codex
+I’ll pin the findings to the pasted module only and use local line numbering only to avoid hand-counting errors.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Get-Content -Path 'F:\\ProjectIndex\\INDEX.md' -TotalCount 5" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Get-Content -Path 'F:\\E156\\rewrite-workbook.txt' -TotalCount 5" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Select-String -Path 'scripts\\record_endpoint_definitions.py' -Pattern 'bo\\[\"outcome_definition\"\\]|bo\\[\"outcome_definition_source\"\\]|rc \\|= apply|args = \\[a for a in sys\\.argv|dry=\"--dry-run\" in sys\\.argv|if not args|if q not in quotes|quotes = prov\\.setdefault|by_nct\\[t\\[\"nct\"\\]\\] = t|obj = json\\.loads|json\\.dump' | ForEach-Object { '{0}:{1}' -f "'$_.LineNumber,$_.Line.Trim() }' in F:\rapidmeta-ssot-shell
+ succeeded in 508ms:
+<!-- sentinel:skip-file - portfolio registry; absolute paths ARE the data -->
+# C: Drive Project Index
+> **Last updated**: 2026-05-14 (C:\HTML apps focused repair batch continued: hub shell launch fix, static contracts across ten HTML app repos, NMA/living-meta/nma-dose-response landing and asset-link repairs, and NMA doc hardcoded-path cleanup. Prior SheafNMA v0.2.0, D-drive legacy smoke-contract continuation, CardioOracle lifecycle status freeze, C-drive model/project smoke-contract continuation, mahmood789 consolidation, Sentinel/Overmind JSONL and verification repair, C-drive reproducibility audit continuation, C-drive verification repair, D-drive repair batch, superapp, C-drive sweep, home-folder hardening, Trial Truthfulness Atlas, and portfolio notes retained below.)
+
+### C:\HTML apps focused repair batch (2026-05-14)
+
+ succeeded in 509ms:
+E156 REWRITE WORKBOOK
+sentinel:skip-file
+sentinel:claim-language-allow
+(Sentinel markers above:
+ - sentinel:skip-file: this workbook intentionally contains C:\Users\... PATH:
+
+ succeeded in 1674ms:
+419:obj = json.loads(open(path, encoding="utf-8").read())
+424:by_nct[t["nct"]] = t
+436:bo["outcome_definition"] = rec["text"]
+437:bo["outcome_definition_source"] = {
+449:quotes = prov.setdefault("source_quotes", [])
+450:if q not in quotes:
+465:json.dump(obj, f, ensure_ascii=False, indent=1)
+472:args = [a for a in sys.argv[1:] if not a.startswith("--")]
+473:if not args:
+479:rc |= apply(a, dry="--dry-run" in sys.argv)
+
+codex
+I’ve found one implementation defect candidate and one record-level selector contradiction. I’m checking line anchors around the latter so the answer stays specific.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$start=285; $end=325; $i=0; Get-Content -Path '"'scripts\\record_endpoint_definitions.py' | ForEach-Object { "'$i++; if($i -ge $start -and $i -le $end){ '"'{0}:{1}' -f "'$i,$_ } }' in F:\rapidmeta-ssot-shell
+ succeeded in 1480ms:
+285:            "same class of question that is currently open on ARNI, asked here "
+286:            "and answered.",
+287:    "endpoint_rank": "a designated secondary outcome-related endpoint, "
+288:                     "adjudicated by the trial's independent endpoint committee",
+289:    "source": "publication",
+290:    "source_field": "Eur Heart J 2015, Table 2 'Hospitalizations and deaths "
+291:                    "(full-analysis set)', row 'Death'",
+292:    "source_url": "https://pubmed.ncbi.nlm.nih.gov/25176939/",
+293:    "add_source_quote": "Table 2 Hospitalizations and deaths (full-analysis "
+294:            "set) -- column header: End-point or event | FCM (n = 150) Total "
+295:            "number of events | Incidence/100 patient-years at risk | Placebo "
+296:            "(n = 151) Total number of events | Incidence/100 patient-years at "
+297:            "risk | TIME TO FIRST EVENT HAZARD RATIO | 95% CI | P-value",
+298:    "registry_does_not_post": "This trial's registry record posts ONE outcome "
+299:            "measure -- the six-minute walk test at week 24 -- and no results "
+300:            "section at all. There is no registry text for this endpoint to "
+301:            "read, and its absence was established by reading the record rather "
+302:            "than inferred from the trial being old.",
+303:    "read_utc": "2026-08-17",
+304:   },
+305:   "six_min_walk_24w": {
+306:    "text": "Change in six minute walk test from baseline to week 24",
+307:    "time_frame": "24 weeks",
+308:    "endpoint_rank": "PRIMARY",
+309:    "source": "registry",
+310:    "source_field": _CTG,
+311:    "source_url": "https://clinicaltrials.gov/study/NCT01453608",
+312:    "read_utc": "2026-08-17",
+313:   },
+314:  },
+315: },
+316:
+317: # --------------------------------------------------------------- ALIROCUMAB
+318: # Six trials, one endpoint, and the registry states it in almost exactly the
+319: # same words on all six records. The differences are orthographic -- one writes
+320: # "Intent--to--Treat" with two double hyphens, one closes the bracket after
+321: # "ITT Analysis" instead of before it -- which is the case a fragment test gets
+322: # wrong in both directions. Recorded whole, compared whole.
+323: "alirocumab-lipid": {
+324:  "NCT01507831": {"ldlc_pct_change_wk24": {
+325:    "text": "Percent Change From Baseline in Calculated LDL-C at Week 24 - "
+
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$start=323; $end=360; $i=0; Get-Content -Path '"'scripts\\record_endpoint_definitions.py' | ForEach-Object { "'$i++; if($i -ge $start -and $i -le $end){ '"'{0}:{1}' -f "'$i,$_ } }' in F:\rapidmeta-ssot-shell
+ succeeded in 1676ms:
+323: "alirocumab-lipid": {
+324:  "NCT01507831": {"ldlc_pct_change_wk24": {
+325:    "text": "Percent Change From Baseline in Calculated LDL-C at Week 24 - "
+326:            "Intent-to-Treat (ITT) Analysis",
+327:    "time_frame": "From Baseline to Week 52",
+328:    "endpoint_rank": "SECONDARY -- this trial's only PRIMARY outcome is the "
+329:        "proportion of participants with adverse events, because it was "
+330:        "designed as a long-term safety study. An earlier build EXCLUDED this "
+331:        "trial for posting no LDL result, which came from reading primary "
+332:        "outcomes only; it is the largest trial in the set.",
+333:    "source": "registry", "source_field": _CTG,
+334:    "source_url": "https://clinicaltrials.gov/study/NCT01507831",
+335:    "read_utc": "2026-08-17"}},
+336:  "NCT01617655": {"ldlc_pct_change_wk24": {
+337:    "text": "Percent Change From Baseline in Calculated LDL-C at Week 24 - ITT "
+338:            "Analysis",
+339:    "time_frame": "From Baseline to Week 52", "endpoint_rank": "PRIMARY",
+340:    "source": "registry", "source_field": _CTG,
+341:    "source_url": "https://clinicaltrials.gov/study/NCT01617655",
+342:    "read_utc": "2026-08-17"}},
+343:  "NCT01623115": {"ldlc_pct_change_wk24": {
+344:    "text": "Percent Change From Baseline in Calculated LDL-C at Week 24 - "
+345:            "Intent-to-Treat (ITT) Analysis",
+346:    "time_frame": "From Baseline to Week 52", "endpoint_rank": "PRIMARY",
+347:    "source": "registry", "source_field": _CTG,
+348:    "source_url": "https://clinicaltrials.gov/study/NCT01623115",
+349:    "read_utc": "2026-08-17"}},
+350:  "NCT01644175": {"ldlc_pct_change_wk24": {
+351:    "text": "Percent Change From Baseline in Calculated LDL-C at Week 24 - "
+352:            "Intent-to-Treat (ITT) Analysis",
+353:    "time_frame": "From Baseline to Week 52", "endpoint_rank": "PRIMARY",
+354:    "source": "registry", "source_field": _CTG,
+355:    "source_url": "https://clinicaltrials.gov/study/NCT01644175",
+356:    "read_utc": "2026-08-17"}},
+357:  "NCT01709500": {"ldlc_pct_change_wk24": {
+358:    "text": "Percent Change From Baseline in Calculated LDL-C at Week 24 - "
+359:            "Intent--to--Treat (ITT) Analysis",
+360:    "time_frame": "From Baseline to Week 52", "endpoint_rank": "PRIMARY",
+
+codex
+The duplicate-binding case is demonstrable from this module’s accepted JSON shape; I’m not relying on any unstated caller guarantee.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$start=411; $end=432; $i=0; Get-Content -Path '"'scripts\\record_endpoint_definitions.py' | ForEach-Object { "'$i++; if($i -ge $start -and $i -le $end){ '"'{0}:{1}' -f "'$i,$_ } }' in F:\rapidmeta-ssot-shell
+ succeeded in 1480ms:
+411:    if not os.path.exists(path):
+412:        print("no object at %s -- NOT RUN" % path, file=sys.stderr)
+413:        return 2
+414:    spec = DEFINITIONS.get(app_id)
+415:    if not spec:
+416:        print("no definitions recorded for %s -- NOT RUN. This script writes only "
+417:              "what was actually read." % app_id, file=sys.stderr)
+418:        return 2
+419:    obj = json.loads(open(path, encoding="utf-8").read())
+420:    trials = ((obj.get("inputs") or {}).get("trials")) or []
+421:    by_nct = {}
+422:    for t in trials:
+423:        if t.get("nct"):
+424:            by_nct[t["nct"]] = t
+425:    written, missing = 0, []
+426:    for nct, outcomes in spec.items():
+427:        t = by_nct.get(nct)
+428:        if t is None:
+429:            missing.append("%s is not a trial in this object" % nct)
+430:            continue
+431:        for oid, rec in outcomes.items():
+432:            bo = (t.get("by_outcome") or {}).get(oid)
+
+codex
+Found defects:
+
+- **Instrument reading a different copy than the one being changed: name vs binding.** Line 424. Exact input: `app_id="arni-hfref"` with `ssot/arni-hfref/arni-hfref.json` as `{"inputs":{"trials":[{"nct":"NCT02468232","by_outcome":{"cvdeath_or_hfh_first":{"slot":"first"}}},{"nct":"NCT02468232","by_outcome":{"cvdeath_or_hfh_first":{"slot":"second"}}}]}}`. Consequence: the second duplicate silently overwrites the first in `by_nct`, so only the last same-NCT trial is modified and the other real cell is left unchanged.
+
+- **Selector keyed to a form the corpus does not use.** Line 333. Exact input: `app_id="alirocumab-lipid"` with all six listed alirocumab NCTs present and each containing `by_outcome.ldlc_pct_change_wk24`. Consequence: for `NCT01507831`, the record says the LDL-C endpoint is `SECONDARY` on lines 328-332, but line 333 stores `_CTG`, i.e. `protocolSection.outcomesModule.primaryOutcomes[0].measure`, pointing audit provenance at the primary-outcome path that the record itself says is the wrong form.
+
+No proven defect found in the pasted file for: check that cannot fail; probe keyed to string a fix removes; idempotency guard satisfied by own comment/marker; CRLF-vs-LF text comparison; merged-cell/off-by-one tabulation/count; zero conflated with absent; negation dropped; wrapper status code reported instead of work.
+tokens used
+24,207
+Found defects:
+
+- **Instrument reading a different copy than the one being changed: name vs binding.** Line 424. Exact input: `app_id="arni-hfref"` with `ssot/arni-hfref/arni-hfref.json` as `{"inputs":{"trials":[{"nct":"NCT02468232","by_outcome":{"cvdeath_or_hfh_first":{"slot":"first"}}},{"nct":"NCT02468232","by_outcome":{"cvdeath_or_hfh_first":{"slot":"second"}}}]}}`. Consequence: the second duplicate silently overwrites the first in `by_nct`, so only the last same-NCT trial is modified and the other real cell is left unchanged.
+
+- **Selector keyed to a form the corpus does not use.** Line 333. Exact input: `app_id="alirocumab-lipid"` with all six listed alirocumab NCTs present and each containing `by_outcome.ldlc_pct_change_wk24`. Consequence: for `NCT01507831`, the record says the LDL-C endpoint is `SECONDARY` on lines 328-332, but line 333 stores `_CTG`, i.e. `protocolSection.outcomesModule.primaryOutcomes[0].measure`, pointing audit provenance at the primary-outcome path that the record itself says is the wrong form.
+
+No proven defect found in the pasted file for: check that cannot fail; probe keyed to string a fix removes; idempotency guard satisfied by own comment/marker; CRLF-vs-LF text comparison; merged-cell/off-by-one tabulation/count; zero conflated with absent; negation dropped; wrapper status code reported instead of work.

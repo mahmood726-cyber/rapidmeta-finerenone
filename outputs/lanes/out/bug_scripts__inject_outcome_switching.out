@@ -1,0 +1,185 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a031dd-a2bb-7a23-bae3-c71f1987012d
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/inject_outcome_switching.py
+
+--- THE FILE, IN FULL ---
+"""Inject outcome-switching audit panel into Extraction tab. Idempotent."""
+from __future__ import annotations
+import sys, io, argparse, re
+from pathlib import Path
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+REPO = Path(__file__).resolve().parent.parent
+
+PRISMA_INCLUDE_RE = re.compile(r'<script\s+src="vendor/prisma-flow\.js"\s*></script>')
+
+SCRIPT_TAG = (
+    '\n    <!-- Outcome-switching audit (Goldacre COMPare 2019) -->\n'
+    '    <script src="vendor/outcome-switching.js"></script>\n'
+)
+
+EXTRACT_TAB_END_RE = re.compile(
+    r'(<section id="tab-extract"[^>]*>[\s\S]*?</section>)'
+)
+
+PANEL = '''
+
+                <div class="bg-slate-900/50 mt-4 p-4 rounded-lg border border-slate-800">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                        <h4 class="text-xs font-bold uppercase text-blue-400 tracking-widest">Outcome-Switching Audit (registry vs paper)</h4>
+                        <button onclick="window.OutcomeSwitching && window.OutcomeSwitching.render('#osAudit')"
+                            style="padding:4px 10px;background:#0891b2;color:#fff;border:none;border-radius:4px;font-size:10px;font-weight:700;cursor:pointer;">
+                            Run audit
+                        </button>
+                    </div>
+                    <div id="osAudit"><span style="color:#64748b;font-size:11px;font-style:italic;">Click "Run audit" to compare each trial's reported endpoint against the AACT-registered primary outcome (COMPare-style; Goldacre 2019).</span></div>
+                </div>
+                '''
+
+
+def patch(text):
+    if 'vendor/outcome-switching.js' in text:
+        return text, "ALREADY"
+    pm = PRISMA_INCLUDE_RE.search(text)
+    if pm:
+        text = text[:pm.end()] + SCRIPT_TAG + text[pm.end():]
+    else:
+        head = text.find("</head>")
+        if head < 0:
+            return text, "NO_HEAD"
+        text = text[:head] + SCRIPT_TAG + text[head:]
+    sm = EXTRACT_TAB_END_RE.search(text)
+    if not sm:
+        return text, "NO_EXTRACT_SECTION"
+    section_text = sm.group(1)
+    insertion = section_text[:section_text.rfind('</section>')] + PANEL + '</section>'
+    text = text[:sm.start()] + insertion + text[sm.end():]
+    return text, "PATCHED"
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--dry-run", action="store_true")
+    args = ap.parse_args()
+
+    files = sorted(REPO.glob("*_REVIEW.html"))
+    print(f"Patching {len(files)} review HTMLs ...")
+    counts = {}
+    for hp in files:
+        text = hp.read_text(encoding="utf-8", errors="replace")
+        new_text, status = patch(text)
+        counts[status] = counts.get(status, 0) + 1
+        if status == "PATCHED" and not args.dry_run:
+            hp.write_text(new_text, encoding="utf-8")
+
+    print(f"\n=== Summary ===")
+    for k, v in sorted(counts.items(), key=lambda x: -x[1]):
+        print(f"  {k:25s} {v}")
+    if args.dry_run:
+        print("  DRY RUN — nothing written.")
+
+
+if __name__ == "__main__":
+    main()
+
+codex
+- **Idempotency guard satisfied by marker, not work**: line 36.  
+  Exact input: `<html><head><!-- vendor/outcome-switching.js --></head><body><section id="tab-extract"></section></body></html>`  
+  Consequence: `patch()` returns `ALREADY` and injects neither the script nor the panel.
+
+- **Partial-work idempotency guard**: line 36.  
+  Exact input: `<html><head><script src="vendor/outcome-switching.js"></script></head><body><section id="tab-extract"></section></body></html>`  
+  Consequence: the panel is missing forever because the script alone satisfies the guard.
+
+- **Selector keyed too narrowly**: line 17.  
+  Exact input: `<html><head></head><body><section class="x" id="tab-extract"></section></body></html>`  
+  Consequence: valid HTML with reordered attributes returns `NO_EXTRACT_SECTION` and is not patched.
+
+- **Nested-section off-by-one / wrong close target**: line 17.  
+  Exact input: `<html><head></head><body><section id="tab-extract"><section id="inner"></section><p>tail</p></section></body></html>`  
+  Consequence: the panel is inserted inside `#inner`, not at the end of `#tab-extract`.
+
+- **Status code reports wrapper, not work**: lines 48 and 70-74.  
+  Exact input: run the script with one `x_REVIEW.html` containing `<html><head></head><body></body></html>`.  
+  Consequence: the script reports `NO_EXTRACT_SECTION` but exits zero, so a CI gate can pass after doing no usable work.
+
+- **Check cannot fail on empty corpus**: lines 60-74.  
+  Exact input: run the script in a repo containing no `*_REVIEW.html` files.  
+  Consequence: it prints `Patching 0 review HTMLs ...` and exits zero although nothing was checked or patched.
+
+No proven defect found here for: probe keyed to string a fix removes; text comparison with CRLF/LF; merged-cell tabulation; zero conflated with absent; negation dropped.
+
+COULD NOT DETERMINE instrument-reading-different-copy: missing caller, served artifact path, and repository layout.
+tokens used
+9,301
+- **Idempotency guard satisfied by marker, not work**: line 36.  
+  Exact input: `<html><head><!-- vendor/outcome-switching.js --></head><body><section id="tab-extract"></section></body></html>`  
+  Consequence: `patch()` returns `ALREADY` and injects neither the script nor the panel.
+
+- **Partial-work idempotency guard**: line 36.  
+  Exact input: `<html><head><script src="vendor/outcome-switching.js"></script></head><body><section id="tab-extract"></section></body></html>`  
+  Consequence: the panel is missing forever because the script alone satisfies the guard.
+
+- **Selector keyed too narrowly**: line 17.  
+  Exact input: `<html><head></head><body><section class="x" id="tab-extract"></section></body></html>`  
+  Consequence: valid HTML with reordered attributes returns `NO_EXTRACT_SECTION` and is not patched.
+
+- **Nested-section off-by-one / wrong close target**: line 17.  
+  Exact input: `<html><head></head><body><section id="tab-extract"><section id="inner"></section><p>tail</p></section></body></html>`  
+  Consequence: the panel is inserted inside `#inner`, not at the end of `#tab-extract`.
+
+- **Status code reports wrapper, not work**: lines 48 and 70-74.  
+  Exact input: run the script with one `x_REVIEW.html` containing `<html><head></head><body></body></html>`.  
+  Consequence: the script reports `NO_EXTRACT_SECTION` but exits zero, so a CI gate can pass after doing no usable work.
+
+- **Check cannot fail on empty corpus**: lines 60-74.  
+  Exact input: run the script in a repo containing no `*_REVIEW.html` files.  
+  Consequence: it prints `Patching 0 review HTMLs ...` and exits zero although nothing was checked or patched.
+
+No proven defect found here for: probe keyed to string a fix removes; text comparison with CRLF/LF; merged-cell tabulation; zero conflated with absent; negation dropped.
+
+COULD NOT DETERMINE instrument-reading-different-copy: missing caller, served artifact path, and repository layout.

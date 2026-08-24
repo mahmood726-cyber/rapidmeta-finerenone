@@ -1,0 +1,252 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a03115-4d81-7bf1-9a6e-48750e5f52e1
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/absence_reason_gate.py
+
+--- THE FILE, IN FULL ---
+"""NO SYNTHESISED ABSENCE -- is the reason given for a gap TRUE for this page?
+
+WHY THIS EXISTS, AND WHY IT IS THE SUBTLEST PROPERTY ON THE LIST
+    An unexplained gap makes a reader look further. A gap with a stated reason
+    STOPS them looking. So a false reason is worse than no reason at all: it
+    spends the reader's trust to close an enquiry that should have stayed open.
+
+    THE REAL DEFECT, REPLAYED HERE: a CONVERTED page -- one extracted from an
+    already-published page -- carried the AUTHORED reason, "the included set was
+    reconciled against published syntheses rather than produced by a database
+    search." That sentence is true of a review someone assembled from named
+    sources. It is false of a page we scraped, where the honest sentence is "no
+    search strategy was recoverable from the published page this object was
+    extracted from." It would have shipped on 28 pages.
+
+    The two vocabularies are build-mode-specific and MUTUALLY EXCLUSIVE, which is
+    exactly what makes this checkable: an authored sentence on a converted page
+    is not a judgement call, it is a category error.
+
+WHAT A FULL PASS DOES NOT ESTABLISH -- written in advance
+    - NOT that the reason is true of THIS page's particular history. It
+      establishes the reason belongs to this page's BUILD MODE. A converted page
+      can still carry a converted-vocabulary reason that misdescribes it.
+    - NOT that a gap which states no reason is acceptable. Silence is outside
+      this property; it is the manifest gate's business.
+    - NOT anything about pages with no absence panels at all -- UNCHECKABLE.
+"""
+from __future__ import annotations
+import io, json, os, re, sys
+
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(
+    os.path.abspath(__file__))), "ssot"))
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+
+def _vocab():
+    import projectors as pj
+    return pj.ABSENT_STATE, pj.ABSENT_STATE_CONVERTED
+
+
+def _sig(s, n=60):
+    """A comparable signature: the first n characters of collapsed visible text.
+    Compared WHOLE, never as a fragment -- the two vocabularies share opening
+    words ('No search ...') and a fragment test would confuse them."""
+    return re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", s)).strip()[:n].lower()
+
+
+def check(html, build_mode):
+    authored, converted = _vocab()
+    mode = (build_mode or "").upper()
+    if mode not in ("CONVERTED", "FULL", "REBUILT_FROM_SOURCE", "AUTHOR"):
+        return "UNCHECKABLE", ["build_mode %r is not one this gate knows" % build_mode]
+    is_conv = mode == "CONVERTED"
+    wrong_vocab = authored if is_conv else converted
+    right_name = "converted" if is_conv else "authored"
+
+    vis = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", html))
+    if "absent-state" not in html:
+        return "UNCHECKABLE", ["no absence panels on this page"]
+
+    # ENTRIES IDENTICAL IN BOTH VOCABULARIES ARE BUILD-MODE-NEUTRAL AND MUST BE
+    # SKIPPED. `paper` and `analysis` read the same in both ("No manuscript has
+    # been generated for this review"), because they describe a state of the
+    # OBJECT, not of how the page was produced. Comparing against the whole
+    # opposite vocabulary flagged FINERENONE_CV -- an authored page carrying a
+    # sentence that is true of authored and converted pages alike.
+    #
+    # The property is "the reason is false for this build mode", and a sentence
+    # that belongs to both modes cannot be false for either. Flagging it would
+    # be a manufactured defect, which is the failure this whole gate exists to
+    # prevent, committed by the gate itself.
+    neutral = {k for k in authored
+               if _sig(authored.get(k, "")) == _sig(converted.get(k, ""))
+               and authored.get(k)}
+    bad = []
+    for tab, text in wrong_vocab.items():
+        if tab in neutral:
+            continue
+        s = _sig(text)
+        if s and s in vis.lower():
+            bad.append("the %s tab carries the %s-build reason on a %s page: %r"
+                       % (tab, "authored" if is_conv else "converted",
+                          right_name, s[:70]))
+    return ("FAIL" if bad else "PASS"), bad or ["absence reasons match the build mode"]
+
+
+def selftest():
+    """POSITIVE is the real defect: the authored search reason on a converted page."""
+    ok = True
+    authored, converted = _vocab()
+    page = ('<html><body><div class="absent-state">%s</div></body></html>'
+            % authored["search"])
+    v, why = check(page, "CONVERTED")
+    ok &= v == "FAIL"
+    print("  POSITIVE authored reason on a CONVERTED page -> %-5s %s"
+          % (v, "correct" if v == "FAIL" else "WRONG"))
+    print("        %s" % why[0][:104])
+
+    v2, _ = check(page, "FULL")
+    ok &= v2 == "PASS"
+    print("  NEGATIVE the same sentence on an AUTHORED page -> %-5s %s"
+          % (v2, "correct" if v2 == "PASS" else "WRONG"))
+
+    page2 = ('<html><body><div class="absent-state">%s</div></body></html>'
+             % converted["search"])
+    v3, _ = check(page2, "CONVERTED")
+    ok &= v3 == "PASS"
+    print("  NEGATIVE converted reason on a CONVERTED page  -> %-5s %s"
+          % (v3, "correct" if v3 == "PASS" else "WRONG"))
+
+    v4, _ = check(page2, "FULL")
+    ok &= v4 == "FAIL"
+    print("  POSITIVE converted reason on an AUTHORED page  -> %-5s %s"
+          % (v4, "correct" if v4 == "FAIL" else "WRONG"))
+
+    neutral_page = ('<html><body><div class="absent-state">%s</div></body></html>'
+                    % authored["paper"])
+    v6, _ = check(neutral_page, "CONVERTED")
+    ok &= v6 == "PASS"
+    print("  NEGATIVE a BUILD-MODE-NEUTRAL reason on either page -> %-5s %s"
+          % (v6, "correct" if v6 == "PASS" else "WRONG"))
+
+    v5, _ = check("<html><body>no panels</body></html>", "FULL")
+    ok &= v5 == "UNCHECKABLE"
+    print("  NEGATIVE a page with no absence panels        -> %-5s %s (not a pass)"
+          % (v5, "correct" if v5 == "UNCHECKABLE" else "WRONG"))
+
+    print("\nWHAT A FAILURE WOULD LOOK LIKE: the authored reason passing on a "
+          "converted page -- a stated reason that stops the reader looking, and "
+          "is false.")
+    print("-> SELFTEST PASS" if ok else "-> SELFTEST FAILED")
+    return 0 if ok else 1
+
+
+def main():
+    if len(sys.argv) < 3 or sys.argv[1] == "--selftest":
+        if len(sys.argv) < 3 and sys.argv[1:2] != ["--selftest"]:
+            print("absence_reason_gate: needs <page>.html <object>.json. NOT RUN.",
+                  file=sys.stderr)
+            return 2
+        return selftest()
+    page, obj = sys.argv[1], sys.argv[2]
+    for p in (page, obj):
+        if not os.path.exists(p):
+            print("absence_reason_gate: %s does not exist. NOT RUN." % p,
+                  file=sys.stderr)
+            return 2
+    o = json.loads(open(obj, encoding="utf-8", errors="replace").read())
+    v, why = check(open(page, encoding="utf-8", errors="replace").read(),
+                   o.get("build_mode"))
+    for w in why:
+        print("  %s" % w)
+    print("  -> %s" % v)
+    return 0 if v == "PASS" else (2 if v == "UNCHECKABLE" else 1)
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+
+codex
+Found defects, line numbers counted from the pasted file.
+
+- **idempotency guard satisfied by marker, not work**: line 59.  
+  Exact input: `check('<html><body><script>const x="absent-state";</script><p>no panels</p></body></html>', 'FULL')`  
+  Consequence: a page with no absence panel returns `PASS` instead of `UNCHECKABLE`.
+
+- **instrument reads non-visible script text as page text**: lines 58 and 81.  
+  Exact input: `check('<div class="absent-state">converted reason</div><script>const x="the included set was reconciled against published syntheses rather than produced by a database search."</script>', 'CONVERTED')`  
+  Consequence: a hidden/test string can produce `FAIL` even when the visible panel does not carry the wrong reason.
+
+- **NEGATION DROPPED**: line 81.  
+  Exact input: `check('<div class="absent-state">This page does not say: the included set was reconciled against published syntheses rather than produced by a database search.</div>', 'CONVERTED')`  
+  Consequence: a denial of the wrong reason is treated as asserting the wrong reason.
+
+- **selector keyed to one text form**: lines 58 and 81.  
+  Exact input: `check('<div class="absent-state">the&nbsp;included set was reconciled against published syntheses rather than produced by a database search.</div>', 'CONVERTED')`  
+  Consequence: the same wrong reason with an HTML entity can evade the gate and return `PASS`.
+
+COULD NOT DETERMINE: corpus-wide build-mode spelling, neutral-vocabulary collisions, and selector coverage need `ssot/projectors.py`, sample object JSON, and the HTML corpus/caller.  
+No proven CRLF, merged-cell/off-by-one, zero-vs-absent, or wrapper-status defect in this pasted file.
+tokens used
+27,802
+Found defects, line numbers counted from the pasted file.
+
+- **idempotency guard satisfied by marker, not work**: line 59.  
+  Exact input: `check('<html><body><script>const x="absent-state";</script><p>no panels</p></body></html>', 'FULL')`  
+  Consequence: a page with no absence panel returns `PASS` instead of `UNCHECKABLE`.
+
+- **instrument reads non-visible script text as page text**: lines 58 and 81.  
+  Exact input: `check('<div class="absent-state">converted reason</div><script>const x="the included set was reconciled against published syntheses rather than produced by a database search."</script>', 'CONVERTED')`  
+  Consequence: a hidden/test string can produce `FAIL` even when the visible panel does not carry the wrong reason.
+
+- **NEGATION DROPPED**: line 81.  
+  Exact input: `check('<div class="absent-state">This page does not say: the included set was reconciled against published syntheses rather than produced by a database search.</div>', 'CONVERTED')`  
+  Consequence: a denial of the wrong reason is treated as asserting the wrong reason.
+
+- **selector keyed to one text form**: lines 58 and 81.  
+  Exact input: `check('<div class="absent-state">the&nbsp;included set was reconciled against published syntheses rather than produced by a database search.</div>', 'CONVERTED')`  
+  Consequence: the same wrong reason with an HTML entity can evade the gate and return `PASS`.
+
+COULD NOT DETERMINE: corpus-wide build-mode spelling, neutral-vocabulary collisions, and selector coverage need `ssot/projectors.py`, sample object JSON, and the HTML corpus/caller.  
+No proven CRLF, merged-cell/off-by-one, zero-vs-absent, or wrapper-status defect in this pasted file.

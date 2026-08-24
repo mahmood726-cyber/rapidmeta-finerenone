@@ -1,0 +1,1634 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a03163-d699-71a0-b1d5-5999b3921d2b
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/build_aact_continuous.py
+
+--- THE FILE, IN FULL ---
+"""A2: build a per-NCT map of continuous-outcome effect sizes from AACT.
+
+For each portfolio NCT, find the primary outcome and extract either:
+
+  (a) A pre-computed effect from outcome_analyses.txt
+      (param_type in MEAN DIFFERENCE family, HAZARD RATIO, ODDS RATIO, RR,
+      RISK DIFFERENCE, SLOPE) + ci_lower_limit + ci_upper_limit. This is
+      the trial's own published headline number, which is the right value
+      to display.
+
+  (b) Falling back to per-arm Mean+SD from outcome_measurements.txt with
+      param_type in (MEAN, MEDIAN, LEAST_SQUARES_MEAN, GEOMETRIC_MEAN). When
+      both arms have a numeric Mean and a dispersion (StdDev/StdErr), we
+      compute MD = tMean - cMean and varMD = sdT^2/nT + sdC^2/nC.
+
+The output enables retroactive injection of `estimandType: 'MD'/'HR'/'OR'/
+'RR'/'RD'` with the published effect + CI, and per-arm Mean/SD for the
+trial cards. Trials that previously had `tE: null, cE: null` because the
+outcome was continuous (and got skipped by A1) become poolable as MD/SMD.
+
+Output: outputs/pmid_resolver/nct_continuous.json
+    {nct: {kind, effect, lci, uci, tMean?, tSD?, cMean?, cSD?, source}}
+"""
+from __future__ import annotations
+import csv
+import json
+import re
+import sys
+import io
+from pathlib import Path
+from collections import defaultdict
+
+if "pytest" not in sys.modules and hasattr(sys.stdout, "buffer"):
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+csv.field_size_limit(50_000_000)
+
+HERE = Path(__file__).resolve().parent.parent
+AACT = Path(r"F:\AACT-storage\AACT\2026-04-12")
+OUT = HERE / "outputs" / "pmid_resolver"
+OUT.mkdir(parents=True, exist_ok=True)
+
+NCT_RE = re.compile(r"NCT\d{7,8}")
+
+# Map AACT analysis param_type -> our estimandType, with the convention that
+# MD-family is on the absolute scale (model on raw effect) while ratio types
+# (HR/OR/RR) are on the log scale (the engine handles the back-transform).
+ANALYSIS_KIND_MAP = {
+    "MEAN DIFFERENCE (FINAL VALUES)": "MD",
+    "MEAN DIFFERENCE (NET)": "MD",
+    "LS MEAN DIFFERENCE": "MD",
+    "LEAST SQUARES MEAN DIFFERENCE": "MD",
+    "ADJUSTED MEAN DIFFERENCE": "MD",
+    "HAZARD RATIO (HR)": "HR",
+    "ODDS RATIO (OR)": "OR",
+    "RISK RATIO (RR)": "RR",
+    "RISK DIFFERENCE (RD)": "RD",
+    "DIFFERENCE IN PERCENTAGE": "MD",  # treat as absolute %-point difference
+    "SLOPE": "MD",
+}
+
+MEAN_PARAM_TYPES = {
+    "MEAN", "MEDIAN", "GEOMETRIC_MEAN", "LEAST_SQUARES_MEAN",
+    "GEOMETRIC_LEAST_SQUARES_MEAN", "LOG_MEAN",
+}
+
+
+def portfolio_ncts() -> set[str]:
+    ncts: set[str] = set()
+    for p in HERE.glob("*.html"):
+        if not p.is_file():
+            continue
+        ncts |= set(NCT_RE.findall(p.read_text(encoding="utf-8", errors="replace")))
+    return ncts
+
+
+def load_primary_outcome_ids(ncts: set[str]) -> dict[str, str]:
+    """Return {nct: outcome_id_of_first_primary} from outcomes.txt."""
+    path = AACT / "outcomes.txt"
+    out: dict[str, str] = {}
+    with path.open(encoding="utf-8", errors="replace") as f:
+        rd = csv.DictReader(f, delimiter="|")
+        for row in rd:
+            nct = (row.get("nct_id") or "").strip()
+            if nct not in ncts or nct in out:
+                continue
+            if (row.get("outcome_type") or "").strip().lower() != "primary":
+                continue
+            oid = (row.get("id") or "").strip()
+            if oid:
+                out[nct] = oid
+    return out
+
+
+def load_pre_computed_analyses(ncts: set[str], primary_outcome: dict[str, str]) -> dict[str, dict]:
+    """For each NCT primary outcome, pick the first analyses row whose
+    param_type is in ANALYSIS_KIND_MAP."""
+    path = AACT / "outcome_analyses.txt"
+    out: dict[str, dict] = {}
+    with path.open(encoding="utf-8", errors="replace") as f:
+        rd = csv.DictReader(f, delimiter="|")
+        for row in rd:
+            nct = (row.get("nct_id") or "").strip()
+            if nct not in ncts or nct in out:
+                continue
+            oid = (row.get("outcome_id") or "").strip()
+            # Restrict to the primary outcome when we have one.
+            if primary_outcome.get(nct) and oid != primary_outcome[nct]:
+                continue
+            kind = ANALYSIS_KIND_MAP.get((row.get("param_type") or "").strip().upper())
+            if not kind:
+                continue
+            try:
+                eff = float((row.get("param_value") or "").strip())
+            except (TypeError, ValueError):
+                continue
+            try:
+                lci = float((row.get("ci_lower_limit") or "").strip())
+                uci = float((row.get("ci_upper_limit") or "").strip())
+            except (TypeError, ValueError):
+                lci = uci = None
+            out[nct] = {
+                "kind": kind,
+                "effect": eff,
+                "lci": lci,
+                "uci": uci,
+                "source": "outcome_analyses",
+                "param_type": (row.get("param_type") or "").strip(),
+            }
+    return out
+
+
+def load_per_arm_means(ncts: set[str], primary_outcome: dict[str, str]) -> dict[str, list[dict]]:
+    """For each NCT, return the per-arm Mean+dispersion rows on the primary outcome.
+
+    Captures dispersion_type AND the dispersion_lower_limit/upper_limit columns
+    so we can convert CI-based dispersion into SD downstream.
+    """
+    path = AACT / "outcome_measurements.txt"
+    out: dict[str, list[dict]] = defaultdict(list)
+    with path.open(encoding="utf-8", errors="replace") as f:
+        rd = csv.DictReader(f, delimiter="|")
+        for row in rd:
+            nct = (row.get("nct_id") or "").strip()
+            if nct not in ncts:
+                continue
+            oid = (row.get("outcome_id") or "").strip()
+            if primary_outcome.get(nct) and oid != primary_outcome[nct]:
+                continue
+            pt = (row.get("param_type") or "").strip().upper()
+            if pt not in MEAN_PARAM_TYPES:
+                continue
+            try:
+                val = float((row.get("param_value") or "").strip())
+            except (TypeError, ValueError):
+                continue
+            dt = (row.get("dispersion_type") or "").strip().upper()
+            try:
+                disp = float((row.get("dispersion_value") or "").strip())
+            except (TypeError, ValueError):
+                disp = None
+            try:
+                lo = float((row.get("dispersion_lower_limit") or "").strip())
+            except (TypeError, ValueError):
+                lo = None
+            try:
+                hi = float((row.get("dispersion_upper_limit") or "").strip())
+            except (TypeError, ValueError):
+                hi = None
+            out[nct].append({
+                "group": (row.get("ctgov_group_code") or "").strip(),
+                "mean": val,
+                "disp": disp,
+                "disp_type": dt,
+                "disp_lo": lo,
+                "disp_hi": hi,
+                "outcome_id": oid,
+            })
+    return out
+
+
+def load_baseline_n(ncts: set[str]) -> dict[str, dict[str, int]]:
+    path = AACT / "baseline_counts.txt"
+    out: dict[str, dict[str, int]] = defaultdict(dict)
+    with path.open(encoding="utf-8", errors="replace") as f:
+        rd = csv.DictReader(f, delimiter="|")
+        for row in rd:
+            nct = (row.get("nct_id") or "").strip()
+            if nct not in ncts:
+                continue
+            scope = (row.get("scope") or "").strip().lower()
+            if scope and scope != "overall":
+                continue
+            group = (row.get("ctgov_group_code") or "").strip()
+            try:
+                n = int(float((row.get("count") or "").strip()))
+            except (TypeError, ValueError):
+                continue
+            if group and n > 0:
+                out[nct][group] = n
+    return out
+
+
+def compute_md_from_arms(
+    arms: list[dict], baseline: dict[str, int]
+) -> dict | None:
+    """Two-arm MD = tMean - cMean, var = sdT^2/nT + sdC^2/nC.
+
+    Handles every AACT dispersion_type that can be converted to a usable SD:
+      STANDARD DEVIATION                  -> use as-is
+      STANDARD ERROR                      -> SD = SE * sqrt(N)
+      95% / 90% / 99% / ... CONFIDENCE    -> SD = (upper-lower)*sqrt(N) / (2*z)
+      INTER-QUARTILE RANGE                -> SD ≈ IQR / 1.349 (Higgins+Green
+                                              JBI conversion for symmetric data)
+      anything else (FULL RANGE, GEOMETRIC
+        COEFFICIENT OF VARIATION)         -> None (refuse, too lossy)
+    Note: AACT stores the dispersion_type with SPACES (e.g. "STANDARD DEVIATION"),
+    NOT underscores. The original matcher used underscores and silently
+    returned 0 rows.
+    """
+    # First-occurrence per group, sorted by group code.
+    seen: dict[str, dict] = {}
+    for a in arms:
+        if a["group"] and a["group"] not in seen:
+            seen[a["group"]] = a
+    if len(seen) < 2:
+        return None
+    groups = sorted(seen.keys())
+    tg, cg = groups[0], groups[1]
+    tArm, cArm = seen[tg], seen[cg]
+
+    # z-score for common CI levels.
+    Z_FOR_CI = {
+        "50% CONFIDENCE INTERVAL": 0.6745,
+        "60% CONFIDENCE INTERVAL": 0.8416,
+        "70% CONFIDENCE INTERVAL": 1.0364,
+        "80% CONFIDENCE INTERVAL": 1.2816,
+        "90% CONFIDENCE INTERVAL": 1.6449,
+        "95% CONFIDENCE INTERVAL": 1.96,
+        "96% CONFIDENCE INTERVAL": 2.0537,
+        "97.5% CONFIDENCE INTERVAL": 2.2414,
+        "98% CONFIDENCE INTERVAL": 2.3263,
+        "99% CONFIDENCE INTERVAL": 2.5758,
+        "99.5% CONFIDENCE INTERVAL": 2.8070,
+        "99.9% CONFIDENCE INTERVAL": 3.2905,
+    }
+
+    def to_sd(arm, n):
+        disp = arm["disp"]
+        dtype = (arm["disp_type"] or "").upper()
+        lo = arm.get("disp_lo")
+        hi = arm.get("disp_hi")
+        if n is None or n <= 0:
+            return None
+        if dtype == "STANDARD DEVIATION":
+            return disp
+        if dtype == "STANDARD ERROR" and disp is not None and disp > 0:
+            return disp * (n ** 0.5)
+        if dtype in Z_FOR_CI and lo is not None and hi is not None and hi > lo:
+            z = Z_FOR_CI[dtype]
+            # SE = (hi - lo) / (2*z); SD = SE * sqrt(N)
+            return ((hi - lo) / (2 * z)) * (n ** 0.5)
+        if dtype == "INTER-QUARTILE RANGE" and disp is not None and disp > 0:
+            return disp / 1.349
+        return None
+
+    # Match baseline N to the corresponding BG group (sorted alignment).
+    bg_groups = sorted(baseline.keys())
+    tN = baseline.get(bg_groups[0]) if bg_groups else None
+    cN = baseline.get(bg_groups[1]) if len(bg_groups) > 1 else None
+    if tN is None or cN is None:
+        return None
+
+    tSD = to_sd(tArm, tN)
+    cSD = to_sd(cArm, cN)
+    if tSD is None or cSD is None or tSD <= 0 or cSD <= 0:
+        return None
+
+    md = tArm["mean"] - cArm["mean"]
+    var_md = (tSD ** 2) / tN + (cSD ** 2) / cN
+    se_md = var_md ** 0.5
+    lci = md - 1.96 * se_md
+    uci = md + 1.96 * se_md
+    return {
+        "kind": "MD",
+        "effect": round(md, 4),
+        "lci": round(lci, 4),
+        "uci": round(uci, 4),
+        "tMean": round(tArm["mean"], 4),
+        "tSD": round(tSD, 4),
+        "tN": tN,
+        "cMean": round(cArm["mean"], 4),
+        "cSD": round(cSD, 4),
+        "cN": cN,
+        "source": "outcome_measurements_mean_arms",
+    }
+
+
+def main():
+    ncts = portfolio_ncts()
+    print(f"Portfolio NCTs: {len(ncts):,}")
+    print("Loading outcomes.txt for primary-outcome ids...")
+    primary = load_primary_outcome_ids(ncts)
+    print(f"  primary outcome_id known for: {len(primary):,} NCTs")
+    print("Loading outcome_analyses.txt (pre-computed effects)...")
+    pre = load_pre_computed_analyses(ncts, primary)
+    print(f"  pre-computed analyses: {len(pre):,}")
+    print("Loading outcome_measurements.txt (per-arm means)...")
+    arms = load_per_arm_means(ncts, primary)
+    print(f"  per-arm Mean rows for: {len(arms):,} NCTs")
+    print("Loading baseline_counts.txt...")
+    bn = load_baseline_n(ncts)
+    print(f"  baseline N for: {len(bn):,} NCTs")
+
+    final: dict[str, dict] = {}
+    # 1. Use pre-computed analyses where available.
+    final.update(pre)
+    # 2. Fall back to per-arm Mean+SD compute.
+    n_md_from_arms = 0
+    for nct, rows in arms.items():
+        if nct in final:
+            continue
+        md = compute_md_from_arms(rows, bn.get(nct, {}))
+        if md:
+            final[nct] = md
+            n_md_from_arms += 1
+
+    print(f"\nFinal continuous-outcome NCTs: {len(final):,}")
+    print(f"  from outcome_analyses : {sum(1 for v in final.values() if v['source']=='outcome_analyses'):,}")
+    print(f"  from arm Mean+SD      : {n_md_from_arms:,}")
+    from collections import Counter
+    print(f"  estimandType breakdown: {Counter(v['kind'] for v in final.values())}")
+
+    out_path = OUT / "nct_continuous.json"
+    out_path.write_text(json.dumps(final), encoding="utf-8")
+    print(f"wrote {out_path} ({out_path.stat().st_size:,} bytes)")
+
+
+if __name__ == "__main__":
+    main()
+
+codex
+I’ll stick to the pasted module as the record and check only the named defect shapes, with concrete inputs that can exercise each suspected failure.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=1; Get-Content -Path scripts'"\\build_aact_continuous.py | ForEach-Object { '{0,4}: {1}' -f "'$i, $_; $i++ }' in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Get-Content -Path F:\\ProjectIndex\\INDEX.md -TotalCount 20" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Get-Content -Path F:\\E156\\rewrite-workbook.txt -TotalCount 20" in F:\rapidmeta-ssot-shell
+ succeeded in 446ms:
+<!-- sentinel:skip-file - portfolio registry; absolute paths ARE the data -->
+# C: Drive Project Index
+> **Last updated**: 2026-05-14 (C:\HTML apps focused repair batch continued: hub shell launch fix, static contracts across ten HTML app repos, NMA/living-meta/nma-dose-response landing and asset-link repairs, and NMA doc hardcoded-path cleanup. Prior SheafNMA v0.2.0, D-drive legacy smoke-contract continuation, CardioOracle lifecycle status freeze, C-drive model/project smoke-contract continuation, mahmood789 consolidation, Sentinel/Overmind JSONL and verification repair, C-drive reproducibility audit continuation, C-drive verification repair, D-drive repair batch, superapp, C-drive sweep, home-folder hardening, Trial Truthfulness Atlas, and portfolio notes retained below.)
+
+### C:\HTML apps focused repair batch (2026-05-14)
+> - `C:\HTML apps\hub\`: added a launchable `index.html` shell and static contract tests for required registry/runtime wiring; fixed `app.js` local `file://` launch resolution so the hub opened from `hub\index.html` links sibling apps from the parent HTML-apps directory instead of nesting paths under `hub`. Verification: `pytest -q -p no:cacheprovider` -> `3 passed`; `node --check app.js && node --check projects.js` -> PASS; headless Chrome smoke on `file:///mnt/c/HTML%20apps/hub/index.html` confirmed the page title and sibling app links. GitHub pushed: `mahmood726-cyber/hub` main `c1a6725`.
+> - `C:\HTML apps\evidence-board\`, `C:\HTML apps\focus-studio\`, `C:\HTML apps\kanban-lab\`: added pytest-visible static app shell contracts covering title/description, localStorage persistence hooks, key controls, and absence of unresolved templates or hardcoded local drive paths; added repo `.gitignore` entries for Python caches and `PROGRESS.md`. Verification: each `pytest -q -p no:cacheprovider` -> `2 passed` with the existing pytest `cache_dir` warning; scoped `git diff --check` -> PASS. GitHub pushed: `evidence-board` master `9a87c8b`, `focus-studio` master `0fa728b`, `kanban-lab` master `81cad38`.
+> - `C:\HTML apps\nma-pro-v2\`: fixed the landing page's broken app links from absent v6/v7 asset filenames to the current `e156-submission/assets/nma-pro-v8.0.html`, added static link-resolution contracts, and removed Sentinel P0 hardcoded local OneDrive paths from legacy docs. Verification: `pytest -q -p no:cacheprovider tests/test_smoke.py tests/test_static_links.py` -> `3 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=1 INFO=302` (pre-existing tracked autogen warning plus HTML a11y INFO). GitHub pushed: master `a2834e7` for the link fix and master `a74e385` for the P0 doc cleanup.
+> - `C:\HTML apps\IPD-Meta-Pro\` and `C:\HTML apps\Truthcert1\`: added static link-resolution contracts for landing-page local assets and canonical app entrypoints. Verification: `IPD-Meta-Pro` `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; `Truthcert1` same command -> `2 passed` with existing pytest `cache_dir` warning. GitHub pushed: `IPD-Meta-Pro` master `b26ee09`, `Truthcert1` master `81eddd3`.
+> - `C:\HTML apps\living-meta\`: repaired landing-page validation links that pointed to a missing HTML asset and an out-of-repo sibling path; linked the existing validation and limitations docs instead, and added a static link-resolution contract. Verification: `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=8` (pre-existing HTML a11y INFO). GitHub pushed: master `c3c8a9b`.
+> - `C:\HTML apps\Pairwiseai\`: added a static landing-page contract covering local link resolution, absence of unresolved templates/local drive paths, and the key app entrypoints under `e156-submission/assets`. Verification: `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=1731` (pre-existing HTML a11y INFO). GitHub pushed: master `2ade493`.
+> - `C:\HTML apps\nma-dose-response-app\`: pushed the existing smoke-blocker commit and added an E156 asset-bundle repair so `e156-submission\assets\index*.html` resolves its JS runtime dependencies from inside the assets folder; added a static link-resolution contract covering root and E156 app entrypoints. Verification: `pytest -q -p no:cacheprovider tests/test_smoke.py tests/test_static_links.py` -> `4 passed` with the existing pytest `cache_dir` warning; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=442` (pre-existing HTML a11y INFO). GitHub pushed: master `e95fae0` and `96594b6`.
+> - Push gate: Windows Git credential path succeeded after WSL Git lacked HTTPS credentials. Sentinel pre-push/manual scan verdicts were BLOCK=0; evidence-board INFO=18, focus-studio INFO=10, kanban-lab INFO=10, living-meta INFO=8, Pairwiseai INFO=1731, nma-dose-response-app INFO=442 (pre-existing P2 HTML accessibility notes); hub push emitted no Sentinel findings.
+> - Existing unrelated dirty files were left unstaged in these repos, mainly protocol/license/doc edits and untracked `paper\` outputs in the three app repos, plus pre-existing hub metadata/submission/style edits.
+
+### SheafNMA (2026-05-12; v0.2.0 real-NMA-corpus validation + 36-cell Ã— 1000-rep simulation + methods paper draft)
+> - `C:\Models\SheafNMA\` â€” cellular-sheaf inconsistency localization for network meta-analysis. v0.1.0 (2026-04-07) was math + single-file HTML dashboard + E156 #153 micro-paper on a synthetic 12-contrast network. v0.2.0 refactored the 457-LOC `generate_figures.py` into a `sheafnma/` package (`core`, `io`, `simulate`, `comparators`, `r_bridge`), validated on 13 R-netmeta built-in NMAs, and shipped a methods-paper draft for Research Synthesis Methods.
+> - Method: precision-weighted coboundary `F[e, treat1] = -1/SE_e, F[e, treat2] = +1/SE_e`; sheaf Laplacian `L = Fáµ€F` (symmetric PSD); WLS-solve node estimates with node 0 anchored; per-edge residuals `r_e = dÌƒ_e âˆ’ (F x*)_e` localize inconsistency; **Global Inconsistency Index** `GII = Î£ rÂ²` is the global statistic. One algebraic object yields both global + per-edge â€” complements (not replaces) node-splitting.
+> - Real-corpus headline: across **13 R-netmeta built-in NMAs** (Senn 2013 diabetes, Dias smokingcessation, Dong 2013 thrombolytics, Linde 2015/2016 acupuncture, Salanti antimanic, Baker, Dogliotti, Franchini, Gurusamy, Stowe, Woods, dietaryfat, parkinson) the global design-by-treatment Ï‡Â² (Higgins 2012) failed to reject in all 13. **SheafNMA flagged â‰¥1 localized inconsistency edge in 5 of those 13 (38.5%)** at the Youden-frozen threshold of **2.6912** â€” networks that look globally consistent harbor at least one inconsistent edge the global test misses.
+> - Simulation rigor: 36-cell grid (n_treatments âˆˆ {4,6,8} Ã— n_studies_per_edge âˆˆ {3,5,10} Ã— Ï„_inc âˆˆ {0,0.2,0.5,1.0}) Ã— **1000 replications per cell**, held-out training cell at (6,5,0.5) for Youden's-J threshold selection (frozen before evaluating remaining 35 cells). Type-I error at Ï„_inc=0 was **0.000 across all cells**. Mean per-edge sensitivity 0.981 / specificity 0.945 at Ï„_inc=0.5.
+
+ succeeded in 474ms:
+E156 REWRITE WORKBOOK
+sentinel:skip-file
+sentinel:claim-language-allow
+(Sentinel markers above:
+ - sentinel:skip-file: this workbook intentionally contains C:\Users\... PATH:
+   lines pointing to each project's local source directory â€” they're metadata,
+   not code. The marker keeps Sentinel from emitting ~16 P0 hardcoded-path
+   BLOCKs every push.
+ - sentinel:claim-language-allow: CURRENT BODY entries are the AI-drafted
+   summaries that students rewrite into hedged language â€” flagging overclaim
+   words IN those drafts is the whole pedagogical point, not a defect.
+   File-scope marker here suppresses the ~1293 claim-language WARNs on the
+   CURRENT BODY entries; the YOUR REWRITE entries are where the hedging
+   discipline matters and remains lintable in the rendered student board.)
+
+DENOMINATOR CONVENTION (added 2026-05-06 after review-findings P1-5):
+  Each entry header is `[N/total]` where N = ordinal insertion index and
+  `total` = current portfolio size as of the most recent reconcile sweep.
+  Older entries are back-rewritten on milestone boundaries (rather than
+  preserving their insertion-time denominator) to keep
+
+ succeeded in 1589ms:
+   1: """A2: build a per-NCT map of continuous-outcome effect sizes from AACT.
+   2: 
+   3: For each portfolio NCT, find the primary outcome and extract either:
+   4: 
+   5:   (a) A pre-computed effect from outcome_analyses.txt
+   6:       (param_type in MEAN DIFFERENCE family, HAZARD RATIO, ODDS RATIO, RR,
+   7:       RISK DIFFERENCE, SLOPE) + ci_lower_limit + ci_upper_limit. This is
+   8:       the trial's own published headline number, which is the right value
+   9:       to display.
+  10: 
+  11:   (b) Falling back to per-arm Mean+SD from outcome_measurements.txt with
+  12:       param_type in (MEAN, MEDIAN, LEAST_SQUARES_MEAN, GEOMETRIC_MEAN). When
+  13:       both arms have a numeric Mean and a dispersion (StdDev/StdErr), we
+  14:       compute MD = tMean - cMean and varMD = sdT^2/nT + sdC^2/nC.
+  15: 
+  16: The output enables retroactive injection of `estimandType: 'MD'/'HR'/'OR'/
+  17: 'RR'/'RD'` with the published effect + CI, and per-arm Mean/SD for the
+  18: trial cards. Trials that previously had `tE: null, cE: null` because the
+  19: outcome was continuous (and got skipped by A1) become poolable as MD/SMD.
+  20: 
+  21: Output: outputs/pmid_resolver/nct_continuous.json
+  22:     {nct: {kind, effect, lci, uci, tMean?, tSD?, cMean?, cSD?, source}}
+  23: """
+  24: from __future__ import annotations
+  25: import csv
+  26: import json
+  27: import re
+  28: import sys
+  29: import io
+  30: from pathlib import Path
+  31: from collections import defaultdict
+  32: 
+  33: if "pytest" not in sys.modules and hasattr(sys.stdout, "buffer"):
+  34:     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+  35: csv.field_size_limit(50_000_000)
+  36: 
+  37: HERE = Path(__file__).resolve().parent.parent
+  38: AACT = Path(r"F:\AACT-storage\AACT\2026-04-12")
+  39: OUT = HERE / "outputs" / "pmid_resolver"
+  40: OUT.mkdir(parents=True, exist_ok=True)
+  41: 
+  42: NCT_RE = re.compile(r"NCT\d{7,8}")
+  43: 
+  44: # Map AACT analysis param_type -> our estimandType, with the convention that
+  45: # MD-family is on the absolute scale (model on raw effect) while ratio types
+  46: # (HR/OR/RR) are on the log scale (the engine handles the back-transform).
+  47: ANALYSIS_KIND_MAP = {
+  48:     "MEAN DIFFERENCE (FINAL VALUES)": "MD",
+  49:     "MEAN DIFFERENCE (NET)": "MD",
+  50:     "LS MEAN DIFFERENCE": "MD",
+  51:     "LEAST SQUARES MEAN DIFFERENCE": "MD",
+  52:     "ADJUSTED MEAN DIFFERENCE": "MD",
+  53:     "HAZARD RATIO (HR)": "HR",
+  54:     "ODDS RATIO (OR)": "OR",
+  55:     "RISK RATIO (RR)": "RR",
+  56:     "RISK DIFFERENCE (RD)": "RD",
+  57:     "DIFFERENCE IN PERCENTAGE": "MD",  # treat as absolute %-point difference
+  58:     "SLOPE": "MD",
+  59: }
+  60: 
+  61: MEAN_PARAM_TYPES = {
+  62:     "MEAN", "MEDIAN", "GEOMETRIC_MEAN", "LEAST_SQUARES_MEAN",
+  63:     "GEOMETRIC_LEAST_SQUARES_MEAN", "LOG_MEAN",
+  64: }
+  65: 
+  66: 
+  67: def portfolio_ncts() -> set[str]:
+  68:     ncts: set[str] = set()
+  69:     for p in HERE.glob("*.html"):
+  70:         if not p.is_file():
+  71:             continue
+  72:         ncts |= set(NCT_RE.findall(p.read_text(encoding="utf-8", errors="replace")))
+  73:     return ncts
+  74: 
+  75: 
+  76: def load_primary_outcome_ids(ncts: set[str]) -> dict[str, str]:
+  77:     """Return {nct: outcome_id_of_first_primary} from outcomes.txt."""
+  78:     path = AACT / "outcomes.txt"
+  79:     out: dict[str, str] = {}
+  80:     with path.open(encoding="utf-8", errors="replace") as f:
+  81:         rd = csv.DictReader(f, delimiter="|")
+  82:         for row in rd:
+  83:             nct = (row.get("nct_id") or "").strip()
+  84:             if nct not in ncts or nct in out:
+  85:                 continue
+  86:             if (row.get("outcome_type") or "").strip().lower() != "primary":
+  87:                 continue
+  88:             oid = (row.get("id") or "").strip()
+  89:             if oid:
+  90:                 out[nct] = oid
+  91:     return out
+  92: 
+  93: 
+  94: def load_pre_computed_analyses(ncts: set[str], primary_outcome: dict[str, str]) -> dict[str, dict]:
+  95:     """For each NCT primary outcome, pick the first analyses row whose
+  96:     param_type is in ANALYSIS_KIND_MAP."""
+  97:     path = AACT / "outcome_analyses.txt"
+  98:     out: dict[str, dict] = {}
+  99:     with path.open(encoding="utf-8", errors="replace") as f:
+ 100:         rd = csv.DictReader(f, delimiter="|")
+ 101:         for row in rd:
+ 102:             nct = (row.get("nct_id") or "").strip()
+ 103:             if nct not in ncts or nct in out:
+ 104:                 continue
+ 105:             oid = (row.get("outcome_id") or "").strip()
+ 106:             # Restrict to the primary outcome when we have one.
+ 107:             if primary_outcome.get(nct) and oid != primary_outcome[nct]:
+ 108:                 continue
+ 109:             kind = ANALYSIS_KIND_MAP.get((row.get("param_type") or "").strip().upper())
+ 110:             if not kind:
+ 111:                 continue
+ 112:             try:
+ 113:                 eff = float((row.get("param_value") or "").strip())
+ 114:             except (TypeError, ValueError):
+ 115:                 continue
+ 116:             try:
+ 117:                 lci = float((row.get("ci_lower_limit") or "").strip())
+ 118:                 uci = float((row.get("ci_upper_limit") or "").strip())
+ 119:             except (TypeError, ValueError):
+ 120:                 lci = uci = None
+ 121:             out[nct] = {
+ 122:                 "kind": kind,
+ 123:                 "effect": eff,
+ 124:                 "lci": lci,
+ 125:                 "uci": uci,
+ 126:                 "source": "outcome_analyses",
+ 127:                 "param_type": (row.get("param_type") or "").strip(),
+ 128:             }
+ 129:     return out
+ 130: 
+ 131: 
+ 132: def load_per_arm_means(ncts: set[str], primary_outcome: dict[str, str]) -> dict[str, list[dict]]:
+ 133:     """For each NCT, return the per-arm Mean+dispersion rows on the primary outcome.
+ 134: 
+ 135:     Captures dispersion_type AND the dispersion_lower_limit/upper_limit columns
+ 136:     so we can convert CI-based dispersion into SD downstream.
+ 137:     """
+ 138:     path = AACT / "outcome_measurements.txt"
+ 139:     out: dict[str, list[dict]] = defaultdict(list)
+ 140:     with path.open(encoding="utf-8", errors="replace") as f:
+ 141:         rd = csv.DictReader(f, delimiter="|")
+ 142:         for row in rd:
+ 143:             nct = (row.get("nct_id") or "").strip()
+ 144:             if nct not in ncts:
+ 145:                 continue
+ 146:             oid = (row.get("outcome_id") or "").strip()
+ 147:             if primary_outcome.get(nct) and oid != primary_outcome[nct]:
+ 148:                 continue
+ 149:             pt = (row.get("param_type") or "").strip().upper()
+ 150:             if pt not in MEAN_PARAM_TYPES:
+ 151:                 continue
+ 152:             try:
+ 153:                 val = float((row.get("param_value") or "").strip())
+ 154:             except (TypeError, ValueError):
+ 155:                 continue
+ 156:             dt = (row.get("dispersion_type") or "").strip().upper()
+ 157:             try:
+ 158:                 disp = float((row.get("dispersion_value") or "").strip())
+ 159:             except (TypeError, ValueError):
+ 160:                 disp = None
+ 161:             try:
+ 162:                 lo = float((row.get("dispersion_lower_limit") or "").strip())
+ 163:             except (TypeError, ValueError):
+ 164:                 lo = None
+ 165:             try:
+ 166:                 hi = float((row.get("dispersion_upper_limit") or "").strip())
+ 167:             except (TypeError, ValueError):
+ 168:                 hi = None
+ 169:             out[nct].append({
+ 170:                 "group": (row.get("ctgov_group_code") or "").strip(),
+ 171:                 "mean": val,
+ 172:                 "disp": disp,
+ 173:                 "disp_type": dt,
+ 174:                 "disp_lo": lo,
+ 175:                 "disp_hi": hi,
+ 176:                 "outcome_id": oid,
+ 177:             })
+ 178:     return out
+ 179: 
+ 180: 
+ 181: def load_baseline_n(ncts: set[str]) -> dict[str, dict[str, int]]:
+ 182:     path = AACT / "baseline_counts.txt"
+ 183:     out: dict[str, dict[str, int]] = defaultdict(dict)
+ 184:     with path.open(encoding="utf-8", errors="replace") as f:
+ 185:         rd = csv.DictReader(f, delimiter="|")
+ 186:         for row in rd:
+ 187:             nct = (row.get("nct_id") or "").strip()
+ 188:             if nct not in ncts:
+ 189:                 continue
+ 190:             scope = (row.get("scope") or "").strip().lower()
+ 191:             if scope and scope != "overall":
+ 192:                 continue
+ 193:             group = (row.get("ctgov_group_code") or "").strip()
+ 194:             try:
+ 195:                 n = int(float((row.get("count") or "").strip()))
+ 196:             except (TypeError, ValueError):
+ 197:                 continue
+ 198:             if group and n > 0:
+ 199:                 out[nct][group] = n
+ 200:     return out
+ 201: 
+ 202: 
+ 203: def compute_md_from_arms(
+ 204:     arms: list[dict], baseline: dict[str, int]
+ 205: ) -> dict | None:
+ 206:     """Two-arm MD = tMean - cMean, var = sdT^2/nT + sdC^2/nC.
+ 207: 
+ 208:     Handles every AACT dispersion_type that can be converted to a usable SD:
+ 209:       STANDARD DEVIATION                  -> use as-is
+ 210:       STANDARD ERROR                      -> SD = SE * sqrt(N)
+ 211:       95% / 90% / 99% / ... CONFIDENCE    -> SD = (upper-lower)*sqrt(N) / (2*z)
+ 212:       INTER-QUARTILE RANGE                -> SD â‰ˆ IQR / 1.349 (Higgins+Green
+ 213:                                               JBI conversion for symmetric data)
+ 214:       anything else (FULL RANGE, GEOMETRIC
+ 215:         COEFFICIENT OF VARIATION)         -> None (refuse, too lossy)
+ 216:     Note: AACT stores the dispersion_type with SPACES (e.g. "STANDARD DEVIATION"),
+ 217:     NOT underscores. The original matcher used underscores and silently
+ 218:     returned 0 rows.
+ 219:     """
+ 220:     # First-occurrence per group, sorted by group code.
+ 221:     seen: dict[str, dict] = {}
+ 222:     for a in arms:
+ 223:         if a["group"] and a["group"] not in seen:
+ 224:             seen[a["group"]] = a
+ 225:     if len(seen) < 2:
+ 226:         return None
+ 227:     groups = sorted(seen.keys())
+ 228:     tg, cg = groups[0], groups[1]
+ 229:     tArm, cArm = seen[tg], seen[cg]
+ 230: 
+ 231:     # z-score for common CI levels.
+ 232:     Z_FOR_CI = {
+ 233:         "50% CONFIDENCE INTERVAL": 0.6745,
+ 234:         "60% CONFIDENCE INTERVAL": 0.8416,
+ 235:         "70% CONFIDENCE INTERVAL": 1.0364,
+ 236:         "80% CONFIDENCE INTERVAL": 1.2816,
+ 237:         "90% CONFIDENCE INTERVAL": 1.6449,
+ 238:         "95% CONFIDENCE INTERVAL": 1.96,
+ 239:         "96% CONFIDENCE INTERVAL": 2.0537,
+ 240:         "97.5% CONFIDENCE INTERVAL": 2.2414,
+ 241:         "98% CONFIDENCE INTERVAL": 2.3263,
+ 242:         "99% CONFIDENCE INTERVAL": 2.5758,
+ 243:         "99.5% CONFIDENCE INTERVAL": 2.8070,
+ 244:         "99.9% CONFIDENCE INTERVAL": 3.2905,
+ 245:     }
+ 246: 
+ 247:     def to_sd(arm, n):
+ 248:         disp = arm["disp"]
+ 249:         dtype = (arm["disp_type"] or "").upper()
+ 250:         lo = arm.get("disp_lo")
+ 251:         hi = arm.get("disp_hi")
+ 252:         if n is None or n <= 0:
+ 253:             return None
+ 254:         if dtype == "STANDARD DEVIATION":
+ 255:             return disp
+ 256:         if dtype == "STANDARD ERROR" and disp is not None and disp > 0:
+ 257:             return disp * (n ** 0.5)
+ 258:         if dtype in Z_FOR_CI and lo is not None and hi is not None and hi > lo:
+ 259:             z = Z_FOR_CI[dtype]
+ 260:             # SE = (hi - lo) / (2*z); SD = SE * sqrt(N)
+ 261:             return ((hi - lo) / (2 * z)) * (n ** 0.5)
+ 262:         if dtype == "INTER-QUARTILE RANGE" and disp is not None and disp > 0:
+ 263:             return disp / 1.349
+ 264:         return None
+ 265: 
+ 266:     # Match baseline N to the corresponding BG group (sorted alignment).
+ 267:     bg_groups = sorted(baseline.keys())
+ 268:     tN = baseline.get(bg_groups[0]) if bg_groups else None
+ 269:     cN = baseline.get(bg_groups[1]) if len(bg_groups) > 1 else None
+ 270:     if tN is None or cN is None:
+ 271:         return None
+ 272: 
+ 273:     tSD = to_sd(tArm, tN)
+ 274:     cSD = to_sd(cArm, cN)
+ 275:     if tSD is None or cSD is None or tSD <= 0 or cSD <= 0:
+ 276:         return None
+ 277: 
+ 278:     md = tArm["mean"] - cArm["mean"]
+ 279:     var_md = (tSD ** 2) / tN + (cSD ** 2) / cN
+ 280:     se_md = var_md ** 0.5
+ 281:     lci = md - 1.96 * se_md
+ 282:     uci = md + 1.96 * se_md
+ 283:     return {
+ 284:         "kind": "MD",
+ 285:         "effect": round(md, 4),
+ 286:         "lci": round(lci, 4),
+ 287:         "uci": round(uci, 4),
+ 288:         "tMean": round(tArm["mean"], 4),
+ 289:         "tSD": round(tSD, 4),
+ 290:         "tN": tN,
+ 291:         "cMean": round(cArm["mean"], 4),
+ 292:         "cSD": round(cSD, 4),
+ 293:         "cN": cN,
+ 294:         "source": "outcome_measurements_mean_arms",
+ 295:     }
+ 296: 
+ 297: 
+ 298: def main():
+ 299:     ncts = portfolio_ncts()
+ 300:     print(f"Portfolio NCTs: {len(ncts):,}")
+ 301:     print("Loading outcomes.txt for primary-outcome ids...")
+ 302:     primary = load_primary_outcome_ids(ncts)
+ 303:     print(f"  primary outcome_id known for: {len(primary):,} NCTs")
+ 304:     print("Loading outcome_analyses.txt (pre-computed effects)...")
+ 305:     pre = load_pre_computed_analyses(ncts, primary)
+ 306:     print(f"  pre-computed analyses: {len(pre):,}")
+ 307:     print("Loading outcome_measurements.txt (per-arm means)...")
+ 308:     arms = load_per_arm_means(ncts, primary)
+ 309:     print(f"  per-arm Mean rows for: {len(arms):,} NCTs")
+ 310:     print("Loading baseline_counts.txt...")
+ 311:     bn = load_baseline_n(ncts)
+ 312:     print(f"  baseline N for: {len(bn):,} NCTs")
+ 313: 
+ 314:     final: dict[str, dict] = {}
+ 315:     # 1. Use pre-computed analyses where available.
+ 316:     final.update(pre)
+ 317:     # 2. Fall back to per-arm Mean+SD compute.
+ 318:     n_md_from_arms = 0
+ 319:     for nct, rows in arms.items():
+ 320:         if nct in final:
+ 321:             continue
+ 322:         md = compute_md_from_arms(rows, bn.get(nct, {}))
+ 323:         if md:
+ 324:             final[nct] = md
+ 325:             n_md_from_arms += 1
+ 326: 
+ 327:     print(f"\nFinal continuous-outcome NCTs: {len(final):,}")
+ 328:     print(f"  from outcome_analyses : {sum(1 for v in final.values() if v['source']=='outcome_analyses'):,}")
+ 329:     print(f"  from arm Mean+SD      : {n_md_from_arms:,}")
+ 330:     from collections import Counter
+ 331:     print(f"  estimandType breakdown: {Counter(v['kind'] for v in final.values())}")
+ 332: 
+ 333:     out_path = OUT / "nct_continuous.json"
+ 334:     out_path.write_text(json.dumps(final), encoding="utf-8")
+ 335:     print(f"wrote {out_path} ({out_path.stat().st_size:,} bytes)")
+ 336: 
+ 337: 
+ 338: if __name__ == "__main__":
+ 339:     main()
+
+codex
+I have line numbers now. I’m checking only whether the pasted selectors and scale assumptions are directly falsifiable from their own accepted input shapes, not making claims about unseen callers unless the data file or caller is necessary.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "if (Test-Path 'F:\\AACT-storage\\AACT\\2026-04-12\\outcome_measurements.txt') { Import-Csv -Path 'F:\\AACT-storage\\AACT\\2026-04-12\\outcome_measurements.txt' -Delimiter '|' | Select-Object -First 20000 -ExpandProperty param_type | Sort-Object -Unique } else { 'MISSING outcome_measurements.txt' }" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "if (Test-Path 'F:\\AACT-storage\\AACT\\2026-04-12\\outcome_analyses.txt') { Import-Csv -Path 'F:\\AACT-storage\\AACT\\2026-04-12\\outcome_analyses.txt' -Delimiter '|' | Select-Object -First 20000 -ExpandProperty param_type | Sort-Object -Unique } else { 'MISSING outcome_analyses.txt' }" in F:\rapidmeta-ssot-shell
+ succeeded in 6081ms:
+
+% change in mean rate (vs placebo)
+% Difference
+% Difference (Avacopan - Placebo)
+% of participants who were responders
+% of participants with at least 1 event
+% Ratio of Geometric least square means
+% Ratio of Geometric least squares means
+% Ratio of LS Means
+[Stratified Hazard Ratio]
+1 - (HR1/HR2)
+1 - (R1/R2)
+1 year survival rate
+100 * (placebo - navarixin) / placebo
+25% Quartile (months)
+50% Quartile (months)
+6-month survival rate
+75% Quartile (months)
+95% Confidence Interval
+95% confidence interval using an exact b
+95% upper bound of the linearized criter
+Absolute difference
+absolute difference between percentage
+accuracy
+Additive difference
+Adjusted % mean change from baseline
+adjusted arithmetic mean difference
+adjusted cause-specific hazard ratio
+Adjusted Difference
+Adjusted difference in %
+Adjusted difference in ACM
+Adjusted difference in FCR
+Adjusted difference in FMR
+Adjusted event rate ratio
+adjusted geometric mean (gMean) ratio(%)
+Adjusted geometric mean ratio (%)
+Adjusted geometric means ratio
+Adjusted GMCs ratio
+Adjusted GMR
+Adjusted Hazard Ratio
+Adjusted Mean Difference
+Adjusted mean difference,
+Adjusted median
+Adjusted Odds Ratio
+Adjusted percentage difference
+Adjusted rate difference
+Adjusted ratio of geometric means
+Adjusted Risk Difference
+Adjusted Risk Ratio
+Agreement rate
+Agresti-Caffo
+alpha estimate
+Annualized Rate
+Annualized rate ratio
+Attributable risk
+AUC ratio (geometric mean)
+AUC0-inf
+AUC0-t
+average marginal effect
+Avg. Intervention Effect (CON--INT)
+B
+Baseline to month 6
+beta
+beta estimate
+beta parameter
+Between-group diff in change per 8 weeks
+Between-group effect size (Hedge's g)
+Between-groups effect size (Hedge's g)
+binomial proportion
+binomial proportions
+BITS, HRI Cohen's d
+BITS, VVA Cohen's d
+Calibrated VE
+CBR Rate (percentage)
+Change from baseline
+Change in log copies
+Chi-Square
+Chi-square test statistic value
+Chronic effectiveness prob at 6 months
+Clinical Sensitivity
+Clinical Specificity
+Clopper-Pearson exact method
+Cmax
+Cmax ratio (geometric mean)
+Cochran-Mantel-Haenszel Statistics
+coefficient beta for change trajectory
+Coefficient for an indicator
+Cohen's d
+Cohen's d (effect size)
+Cohen's d effect size
+Cohen's R
+Common Odds Raatio
+Common Odds Ratio
+comparison of odds ratios
+comparison of ranks in Wilcoxon
+Completion rate
+compliance rate
+Complication-free rate
+Count/Rate Ratio
+Cox Proportional Hazard
+Cramer's V
+Credibility interval
+Crude incidence ratio
+C-statistcs
+C-statistics
+Cumulative probability difference
+Cumulative Probability of no-CIE
+data survey
+delta bpnd
+Descriptive statistic
+descritive variables
+Device deficiency rate
+Difference
+Difference (percents)
+Difference (rates)
+Difference between 2 proportions
+Difference between event rates
+Difference between means (s)
+Difference between percentage
+Difference between proportions
+Difference between proportions (%)
+Difference between TLF rates
+Difference Estimate
+Difference in % discontinuing
+Difference in % with AE
+Difference in Adjusted Mean
+Difference in Adjusted Means
+Difference in Change
+Difference in CRR
+Difference in DCR
+Difference in Estimated Means
+Difference in Event Free Rate
+Difference in Kaplan-Meier DC rates
+Difference in least sqaures means
+Difference in Least Square (LS) Means
+Difference in Least square mean
+Difference in Least Square Means
+Difference in Least Squares (LC) Means
+Difference in Least Squares Mean
+Difference in least squares mean (LSM)
+Difference in Least Squares Mean Change
+Difference in Least Squares Mean Improve
+Difference in least squares means
+Difference in LS Mean
+Difference in LS Means
+Difference in LSM
+Difference in LSM(Romosozumab - Placebo)
+Difference in lung density(adjusted P15)
+difference in mean change
+Difference in model estimate time unwell
+Difference in model estimated means
+Difference in ORR
+Difference in Parentages
+Difference in Percent
+Difference in percent of courses
+Difference in Percentage
+Difference in Percentage of Participants
+Difference in Percentages
+Difference in proportion
+Difference in proportion of responders
+Difference in proportions
+Difference in proportions of SVR12
+Difference in proportions of SVR24
+Difference in proportions of SVR4
+Difference in proportions of SVRW72
+Difference in Rates
+Difference in response rate
+DIFFERENCE IN RESPONSE RATE AFTER MI (%)
+DIFFERENCE IN RESPONSE RATE AFTER MI(%)
+Difference in response rate between arms
+Difference in Response Rates
+Difference in seroprotection rate
+Difference in Seroresponse
+Difference in the log odds ratios
+difference in the percentage
+Difference of least square means
+Difference of least squares mean
+Difference of LS Mean
+Difference of LS Means
+Difference of ORRs
+Difference of proportion of participants
+difference of proportion of subjects
+Difference to Placebo
+Differences in percent of courses
+Differences in Percentages
+Differences in slopes
+Diffference in least squares means
+Effect Size
+effect size (Cohen's d)
+Effect size (r)
+effect size for mixed effects model
+Efficacy
+Efron approximation of hazard ratio
+equivalence difference
+equivalence ratio
+Estimate
+Estimate difference
+Estimate of LS Mean Difference
+Estimated Difference
+Estimated Difference in Percentage
+Estimated mean difference
+Estimated Proportions
+Estimated rate difference
+exact count
+Excess rate (ER)
+F
+F test
+F value
+Failure rate
+Fatality rate
+F-Distribution
+Fixed Effect for Treatment
+Fixed effects parameter
+FSFI Desire, HRI Cohen's d
+FSFI Desire, VVA Cohen's d
+FSFI Lubrication, HRI Cohen's d
+FSFI Lubrication, VVA Cohen's d
+FSFI Pain, HRI Cohen's d
+FSFI Pain, VVA Cohen's d
+FSFI Total, HRI Cohen's d
+FSFI Total, VVA Cohen's d
+F-test
+F-value for main effect of Coc dose
+F-value for main effect of Coc x Zon
+F-value for main effect of Zon dose
+F-value for the main effect of Zon x Coc
+GEE
+GEE(Generalyzed Estimation Equation)
+Gemetric Mean Ratio (GMR)
+Generalized Estimating Equation
+Geo-mean ratio
+Geometric Least-Square Mean Ratio
+Geometric LS mean ratio
+Geometric LS mean ratio estimate
+Geometric LS Means
+Geometric Mean (T/R) ratio (%)
+Geometric Mean Concentration (GMC) Ratio
+Geometric mean ratio
+Geometric Mean Ratio (GMR)
+Geometric Mean Ratio (GMR) (%)
+Geometric Mean Ratio (Test/Reference, %)
+Geometric Mean Ratio T/R (%)
+Geometric Mean Ration
+Geometric of Ratio Least Square Means
+Geometric Ratio of Least Square Means
+Geometric Ratio of Least Squares Mean
+Geometric Test/Ref Ratio x 100
+Geomteric mean ratio
+GLS mean ratio
+GLSM ratio
+GMC Ratio
+gMean ratio at Day 82
+gMean ratio at Week 4
+gMean ratio at Week 8
+GMR
+GMR (%)
+GMR corresponds to the ratio of the Geom
+GMT Ratio
+GMT ratio (B strain)
+GMT ratio (H1N1 strain)
+GMT ratio (H3N2 strain)
+GMT ratios (H1N1 strain)
+grade 3+ treatment related AE rate
+Greenwood variance
+Group difference (B strain)
+Group difference (H1N1 strain)
+Group difference (H3N2 strain)
+Group difference (H3N2 subjects)
+Group differences (B strain)
+Group mean difference
+Group ratio (H1N1 strain)
+Half-life ratio (geometric mean)
+Hazard ratio
+Hazard Ratio (HR)
+Hazard Ratio, log
+Hedge's g
+Hodges Lehmann Estimate of Difference
+Hodges-Lehmann Estimation
+Hodges-Lehmann estimator
+Hodges-Lehmann Location Shift Estimate
+IC HAE attack rate ratio
+Incidence
+Incidence difference
+Incidence Rate Ratio
+incident rate ratio
+Incremental cost-effectiveness ratio
+interaction of group and visit
+Intercept
+IRR
+Kaplan Meier Estimate
+Kaplan-Meier (product-limit) estimator
+Kaplan-Meier estimates
+Kaplan-Meier Survival
+KM event-free survival estimate
+Least sqaure (LS) mean difference
+Least square (LS) mean
+Least Square (LS) mean CFB
+Least square (LS) Mean Difference
+Least square difference
+Least Square Mean
+Least Square mean (LS Mean)
+Least square mean (LSM) estimate
+Least Square Mean Difference
+least square means difference
+least squares
+Least Squares (LS) Mean Difference
+Least Squares (LS) Mean of Difference
+Least Squares (LS) Means Difference
+Least Squares Mean
+Least Squares Mean (LS Mean)
+Least Squares Mean Difference
+Least Squares Means Difference
+Least Squre Means difference
+Least-square (LS) mean difference
+Least-squares mean
+Least-squares mean difference
+Leat Square Mean of Treatment Difference
+Leat Square Means difference
+Log Rank
+LS Geometric Mean Ratio
+LS Mean
+LS mean CFB
+LS mean change
+LS mean difference
+LS Mean Difference (Final Values)
+LS Mean difference (Net)
+LS Mean Difference Estimate
+LS Mean logarithmic difference
+LS Mean of Difference
+LS Mean of Treatment Difference
+LS Mean Ratio
+LS Mean Treatment Difference
+LS Means Difference
+LSM difference
+LSM Difference from Placebo
+LSM estimate
+LSM mean
+LSM Ratio
+LSMean diferrence
+LSMean Difference
+LS-means difference
+Major complication rate
+Mann-Whitney U statistic
+marginal interaction effect
+Maximum Tolerated Dose
+Maximum Tolerated Dose (x 10^7 TCID50)
+Mean change
+Mean difference
+Mean Difference (Final Values)
+Mean Difference (Net)
+Mean differences
+mean geometric ratio
+Mean group difference
+Mean Percent Difference
+Mean Percentage of Acceptable Fitting
+mean rank (Z)
+Mean Rate Ratio
+Mean Ratio
+median
+Median Baseline to Month 6
+Median Change Baseline to month 6
+Median Difference
+Median Difference (Final Values)
+Median Difference (Net)
+Median ratio of final values
+Median survival ratio
+Miettinen & Nurminen
+Miettinen & Nurminen method
+mixed effects regression models
+multivariate analyses
+Multivariate Cox models
+NB-2 estimate of new DUs per patient
+negative prediction
+Newcombe confidence interval
+NNT at 12 hours
+NNT at 6 hours
+number of total events per patient
+Observed odds ratio
+Odds Ratio (OR)
+Odds Ratio, log
+ORR rate (percentage)
+Overall aquisition rate
+Overall aquistion rate
+Overall Complication Rate
+P value of the interaction
+Partial Eta Squared
+Partial Eta-Squared
+Pearson chi square (1)
+Pearson correlation co-efficient
+Pearson-Copper
+Pearson's correlation coefficient
+Percent cleared subjects
+Percent Difference
+Percent Difference from Placebo
+Percent difference in SVR
+Percent difference in SVR rates
+Percent Error Rate
+Percent Mean Ratio
+Percent ratio
+percent reduction
+Percent Specificity
+Percentage
+Percentage (%) Difference
+Percentage Adjusted Difference
+Percentage change
+Percentage difference
+percentage of participants
+Percentage of participants with events
+Percentage of patient with acute success
+Percentage reduction
+Percentage Sensitivity
+Percentage with immunogenicity
+Performance Goal
+Placebo-corrected change from baseline
+pNBS
+Point Estimate
+Poisson model for rate difference
+positive prediction
+Posterior Mean Difference
+Posterior Mean Hazard Ratio
+Post-hoc power analysis
+Pr (Higher DOOR in Short-Course)
+Prediction @ mean max concentration
+probability
+Probability of Event-Free Survival ，pEFS
+Probability of response
+PROMIS Interest, HRI Cohen's d
+PROMIS Interest, VVA Cohen's d
+PROMIS Lubrication, HRI Cohen's d
+PROMIS Lubrication, VVA Cohen's d
+PROMIS Satisfaction, HRI Cohen's d
+PROMIS Satisfaction, VVA Cohen's d
+Proportion
+Proportion Difference
+proportion of CR+PR in 24 weeks arm
+Proportion of DLQI 0 or 1 @ WK 16
+Proportion of DLQI 0 or 1 @ WK 52
+Proportion of participants
+proportion of patients with AE
+proportion of pCR
+Proportion of PSS 0 @ WK 16
+Proportion of PSS 0 @ WK 52
+Proportion of sPGA 0 @ WK 16
+Proportion of sPGA 0 @ WK 52
+Proportion of sPGA 0/1 @ WK 16
+Proportion of sPGA 0/1 @ WK 52
+proportion of tpCR in 24 weeks arm
+p-value
+R²
+Rate Difference
+Rate Diffrence
+rate of occurance
+Rate ratio
+Rate-Difference
+Ratio
+ratio (%)
+Ratio (%) of Adjusted Geometric Means
+Ratio (Final Values)
+Ratio (Treatment/Placebo)
+Ratio of adjusted geometric mean
+Ratio of adjusted geometric means
+Ratio of adjusted geometric means [%]
+Ratio of AUC
+Ratio of clearance
+Ratio of clearance rates
+Ratio of Cmax
+Ratio of Expected (DoR)
+Ratio of Geometric Least Square Mean
+Ratio of Geometric Least Square Mean (%)
+Ratio of Geometric Least Square Means
+Ratio of Geometric least squares mean
+Ratio of Geometric Least Squares Means
+Ratio of Geometric LS Mean
+Ratio of Geometric LS Means
+Ratio of Geometric LSMs
+Ratio of geometric mean
+Ratio of Geometric Means
+Ratio of GLSM
+Ratio of GMCs
+Ratio of gmeans Day 17 vs. Day 9 (%)
+Ratio of gmeans Day 66 vs. Day 9 (%)
+Ratio of GMT (Group 1/Group 3)
+Ratio of GMT (Group 2/Group 3)
+Ratio of GMTs (20vPnC/13vPnC)
+Ratio of GMTs (20vPnC/PPSV23)
+Ratio of Least Squares Means
+Ratio of Least Squares Means (T/R)
+Ratio of mean effects
+Ratio of Probability
+Ratio of Response Rate
+ratio of the change
+ratio of the geometric least square mean
+ratio of the geometric LS means
+ratio of the Geometric LSmeans
+Ratio of the geometric means (T/R) %
+Ratio of the T/R geometric mean x 100
+Ratio T/R
+Ratio T/R (%)
+Ratio to placebo
+Readmission rate
+receiver operating characteristic
+regression coefficient
+Regression model parameter (α1)
+Relative rate
+Relative Ratio of Probability
+Relative risk
+Relative risk (RR)
+Relative risk ratio
+Relative Risk Reduction
+Relative vaccine efficacy (rVE)
+Renal clearance ratio (geometric mean)
+Reoperation rate
+Response rate
+Response rate difference
+Risk difference
+Risk Difference (RD)
+Risk Ratio (RR)
+Risk Ratio, log
+R-squared
+Safety failure probability at 6 months
+Score (logrank) test
+see above
+sensitivity
+Slope
+slope estimate
+S-means difference
+Spearman Correlation Coefficients
+Spearman rank correlation
+Spearman's correlation
+specificity
+SRR Difference
+Standardized Response Mean
+Standardized β Coefficient
+Strata adjusted percentage difference
+Stratified Cox proportional hazard
+Stratified cox proportional hazard model
+Stratified Hazard Ratio
+Stratified Odds Ratio
+Stratified Treatment Difference
+t value for Group x Day interaction
+Test/Ref Ratio of LS Means x 100
+Total Count - Cramer's V
+Treatment Difference
+Treatment Difference (vs Placebo)
+Treatment estimate
+Treatment Rate Ratio
+Treatment ratio
+t-statistic
+t-value
+t-value for main effect of Day
+t-value for main effect of Group
+Unadjusted GMR
+Vaccine Efficacy
+Vaccine efficacy (%)
+Vaccine Efficacy (1-Relative Risk [RR])
+Vaccine Efficacy (VE)
+Vaccine Group differences (%)
+Vaccine Group Ratio
+VE (1-RR)
+Wald's CI
+Week 8 AK count ratio
+Wilks' Lambda (group*visit effect)
+Wilson's exact test
+Win Ratio
+Win Ratio (WR)
+Z score
+Z-transformed Pearson's r values
+β
+β-coefficient
+
+ succeeded in 6834ms:
+
+COUNT_OF_PARTICIPANTS
+COUNT_OF_UNITS
+GEOMETRIC_LEAST_SQUARES_MEAN
+GEOMETRIC_MEAN
+LEAST_SQUARES_MEAN
+MEAN
+MEDIAN
+NUMBER
+
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "@'
+import csv,re
+from pathlib import Path
+HERE=Path('.').resolve()
+ncts=set()
+for p in HERE.glob('*.html'):
+    ncts.update(re.findall(r'NCT\\d{7,8}', p.read_text(encoding='utf-8', errors='replace')))
+print('ncts',len(ncts))
+path=Path(r'F:\\AACT-storage\\AACT\\2026-04-12\\outcome_analyses.txt')
+miss={'HAZARD RATIO','ADJUSTED HAZARD RATIO','MEAN DIFFERENCE','RISK RATIO, LOG','ODDS RATIO, LOG','RISK RATIO','RISK DIFFERENCE','ADJUSTED MEAN DIFFERENCE'}
+for row in csv.DictReader(path.open(encoding='utf-8', errors='replace'), delimiter='|'):
+    if row.get('nct_id') in ncts and (row.get('param_type') or '').strip().upper() in miss:
+        print({k:row.get(k) for k in ['nct_id','outcome_id','param_type','param_value','ci_lower_limit','ci_upper_limit']})
+        break
+else:
+    print('no portfolio match in miss set')
+'@ | python -" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "@'
+import csv,re
+from pathlib import Path
+path=Path(r'F:\\AACT-storage\\AACT\\2026-04-12\\outcome_analyses.txt')
+miss={'HAZARD RATIO','ADJUSTED HAZARD RATIO','MEAN DIFFERENCE','RISK RATIO, LOG','ODDS RATIO, LOG','RISK RATIO','RISK DIFFERENCE','ADJUSTED MEAN DIFFERENCE'}
+for row in csv.DictReader(path.open(encoding='utf-8', errors='replace'), delimiter='|'):
+    if (row.get('param_type') or '').strip().upper() in miss:
+        print({k:row.get(k) for k in ['nct_id','outcome_id','param_type','param_value','ci_lower_limit','ci_upper_limit']})
+        break
+'@ | python -" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "@'
+import csv,re
+from pathlib import Path
+HERE=Path('.').resolve()
+ncts=set()
+for p in HERE.glob('*.html'):
+    ncts.update(re.findall(r'NCT\\d{7,8}', p.read_text(encoding='utf-8', errors='replace')))
+path=Path(r'F:\\AACT-storage\\AACT\\2026-04-12\\outcome_measurements.txt')
+for row in csv.DictReader(path.open(encoding='utf-8', errors='replace'), delimiter='|'):
+    if row.get('nct_id') in ncts and (row.get('param_type') or '').strip() in {'LEAST_SQUARES_MEAN','GEOMETRIC_MEAN','GEOMETRIC_LEAST_SQUARES_MEAN'}:
+        print({k:row.get(k) for k in ['nct_id','outcome_id','ctgov_group_code','param_type','param_value','dispersion_type','dispersion_value']})
+        break
+else:
+    print('no portfolio LS/geometric match')
+'@ | python -" in F:\rapidmeta-ssot-shell
+ succeeded in 2403ms:
+{'nct_id': 'NCT04153149', 'outcome_id': '211411111', 'param_type': 'Mean Difference', 'param_value': '8.7', 'ci_lower_limit': '1.3', 'ci_upper_limit': '16.1'}
+
+ succeeded in 15824ms:
+ncts 3511
+{'nct_id': 'NCT04153149', 'outcome_id': '211411111', 'param_type': 'Mean Difference', 'param_value': '8.7', 'ci_lower_limit': '1.3', 'ci_upper_limit': '16.1'}
+
+ succeeded in 15914ms:
+{'nct_id': 'NCT01617655', 'outcome_id': '211178108', 'ctgov_group_code': 'OG001', 'param_type': 'LEAST_SQUARES_MEAN', 'param_value': '5.6', 'dispersion_type': 'Standard Error', 'dispersion_value': '1.5'}
+
+codex
+The corpus check found a portfolio-matching `outcome_analyses` row that the hard-coded analysis selector misses. I’m checking whether it is on that trial’s primary outcome before treating it as a demonstrated miss rather than only a possible one.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "@'
+import csv
+from pathlib import Path
+for row in csv.DictReader(Path(r'F:\\AACT-storage\\AACT\\2026-04-12\\outcomes.txt').open(encoding='utf-8', errors='replace'), delimiter='|'):
+    if row.get('nct_id')=='NCT04153149':
+        print({k:row.get(k) for k in ['nct_id','id','outcome_type','title']})
+'@ | python -" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "@'
+import csv,re,collections
+from pathlib import Path
+HERE=Path('.').resolve(); ncts=set()
+for p in HERE.glob('*.html'):
+    ncts.update(re.findall(r'NCT\\d{7,8}', p.read_text(encoding='utf-8', errors='replace')))
+primary={}
+for row in csv.DictReader(Path(r'F:\\AACT-storage\\AACT\\2026-04-12\\outcomes.txt').open(encoding='utf-8', errors='replace'), delimiter='|'):
+    nct=(row.get('nct_id') or '').strip()
+    if nct in ncts and nct not in primary and (row.get('outcome_type') or '').strip().lower()=='primary':
+        oid=(row.get('id') or '').strip()
+        if oid: primary[nct]=oid
+mapkeys={
+    'MEAN DIFFERENCE (FINAL VALUES)','MEAN DIFFERENCE (NET)','LS MEAN DIFFERENCE','LEAST SQUARES MEAN DIFFERENCE','ADJUSTED MEAN DIFFERENCE','HAZARD RATIO (HR)','ODDS RATIO (OR)','RISK RATIO (RR)','RISK DIFFERENCE (RD)','DIFFERENCE IN PERCENTAGE','SLOPE'
+}
+misses=[]
+for row in csv.DictReader(Path(r'F:\\AACT-storage\\AACT\\2026-04-12\\outcome_analyses.txt').open(encoding='utf-8', errors='replace'), delimiter='|'):
+    nct=(row.get('nct_id') or '').strip(); oid=(row.get('outcome_id') or '').strip(); pt=(row.get('param_type') or '').strip(); ptu=pt.upper()
+    if nct in ncts and primary.get(nct)==oid and ptu not in mapkeys:
+        # numeric effect + CI, common effect-ish labels
+        try: float((row.get('param_value') or '').strip())
+        except: continue
+        if any(s in ptu for s in ['MEAN DIFFERENCE','HAZARD RATIO','ODDS RATIO','RISK RATIO','RISK DIFFERENCE']):
+            misses.append({k:row.get(k) for k in ['nct_id','outcome_id','param_type','param_value','ci_lower_limit','ci_upper_limit']})
+            if len(misses)>=10: break
+print(len(misses))
+for m in misses: print(m)
+'@ | python -" in F:\rapidmeta-ssot-shell
+2026-08-24T01:33:25.662410Z ERROR codex_core::tools::router: error=Exit code: 124
+Wall time: 32 seconds
+Output:
+command timed out after 31960 milliseconds
+
+ exited 124 in 31960ms:
+2026-08-24T01:33:25.669862Z ERROR codex_core::tools::router: error=Exit code: 124
+Wall time: 32 seconds
+Output:
+command timed out after 31964 milliseconds
+
+ exited 124 in 31964ms:
+codex
+The primary-outcome cross-check timed out over the full AACT files, so I’m switching to targeted text lookup for the specific NCT instead of scanning the corpus again.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "rg \"NCT04153149\" F:\\AACT-storage\\AACT\\2026-04-12\\outcomes.txt" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command 'rg -n "NCT04153149" *.html' in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "rg \"NCT04153149\" F:\\AACT-storage\\AACT\\2026-04-12\\outcome_analyses.txt" in F:\rapidmeta-ssot-shell
+2026-08-24T01:33:35.822300Z ERROR codex_core::tools::router: error=Exit code: 1
+Wall time: 3.5 seconds
+Output:
+rg: *.html: IO error for operation on *.html: The filename, directory name, or volume label syntax is incorrect. (os error 123)
+
+ exited 1 in 3509ms:
+rg: *.html: IO error for operation on *.html: The filename, directory name, or volume label syntax is incorrect. (os error 123)
+
+2026-08-24T01:33:44.003636Z ERROR codex_core::tools::router: error=Exit code: 124
+Wall time: 11.7 seconds
+Output:
+command timed out after 11718 milliseconds
+211411104|NCT04153149|PRIMARY|Composite Endpoint of All-Cause Mortality and Recurrent Cardiovascular (CV) Events (CV Hospitalizations and Urgent Heart Failure [HF] Visits) in the Overall Population|All-cause mortality and recurrent CV events (CV hospitalizations and urgent HF visits) were compared between treatment groups using a modified Andersen-Gill model with a robust variance. All-cause mortality included heart transplantation and LVAD placement events along with deaths; recurrent CV events included CV hospitalizations and urgent HF visits. The number of participants with at least one CV event or all-cause mortality event have been reported here. No imputation was done for participants who dropped out early for the primary analysis of this composite outcome endpoint.|Up to Month 36|FAS included all participants who were randomized and received any amount of study drug (vutrisiran or placebo).|||Participants|||COUNT_OF_PARTICIPANTS
+211411105|NCT04153149|PRIMARY|Composite Endpoint of All-Cause Mortality and Recurrent CV Events (CV Hospitalizations and Urgent HF Visits) in the Vutrisiran Monotherapy Subgroup|All-cause mortality and recurrent CV events (CV hospitalizations and urgent HF visits) were compared between treatment groups using a modified Andersen-Gill model with a robust variance. All-cause mortality included heart transplantation and LVAD placement events along with deaths; recurrent CV events included CV hospitalizations and urgent HF visits. The number of participants with at least one CV event or all-cause mortality event have been reported here. No imputation was done for participants who dropped out early for the primary analysis of this composite outcome endpoint.|Up to Month 36|Vutrisiran Monotherapy Subgroup FAS included all participants who were not on tafamidis at the study baseline in the FAS. FAS included all participants who were randomized and received any amount of study drug (vutrisiran or placebo).|||Participants|||COUNT_OF_PARTICIPANTS
+211411106|NCT04153149|SECONDARY|Change From Baseline in 6-Minute Walk Test (6-MWT) in the Overall Population|The 6-MWT is an assessment of functional exercise capacity. Participants are instructed to walk back and forth along a flat, straight path, typically 30 meters in length, for a duration of 6 minutes. The total distance covered in meters is recorded at the end of 6 minutes. A longer distance reflects a better outcome. Analysis was based on the mixed-effect model of repeated measures (MMRM). Missing change values due to amyloidosis disease progression and death were imputed using sampling with replacement from the worst 10% of observed values, as specified in the statistical analysis plan (SAP).|Baseline to Month 30|FAS included all participants who were randomized and received any amount of study drug (vutrisiran or placebo). Overall number analyzed is the number of participants with data available for analysis.|||meters||Standard Error|LEAST_SQUARES_MEAN
+211411107|NCT04153149|SECONDARY|Change From Baseline in 6-MWT in the Vutrisiran Monotherapy Subgroup|The 6-MWT is an assessment of functional exercise capacity. Participants are instructed to walk back and forth along a flat, straight path, typically 30 meters in length, for a duration of 6 minutes. The total distance covered in meters is recorded at the end of 6 minutes. A longer distance reflects a better outcome. Analysis was based on the MMRM. Missing change values due to amyloidosis disease progression and death were imputed using sampling with replacement from the worst 10% of observed values, as specified in the SAP.|Baseline to Month 30|Vutrisiran Monotherapy Subgroup FAS included all participants who were not on tafamidis at the study baseline in the FAS. FAS included all participants who were randomized and received any amount of study drug (vutrisiran or placebo).|||meters||Standard Error|LEAST_SQUARES_MEAN
+211411108|NCT04153149|SECONDARY|Change From Baseline in the Kansas City Cardiomyopathy Questionnaire Overall Summary (KCCQ-OS) Score in the Overall Population|The KCCQ is a 23-item self-administered questionnaire quantifying 6 domains (symptoms \[frequency and burden\], physical function, quality of life (QoL), social limitation, self-efficacy, and symptom stability) and 2 summary scores (clinical and overall summary \[OS\]). Scores were generated for each domain and transformed to a range of 0-100, in which higher scores reflect better health status. KCCQ- overall summary score was average of domains- physical function, total symptoms (average of symptom frequency and burden), QoL, and social limitation, and transformed to a single score which ranged from 0 (worst) - 100 (the best possible status), where the higher score reflected better health status. Analysis was based on the MMRM.|Baseline to Month 30|FAS included all participants who were randomized and received any amount of study drug (vutrisiran or placebo). Overall number analyzed is the number of participants with data available for analysis.|||score on a scale||Standard Error|LEAST_SQUARES_MEAN
+211411109|NCT04153149|SECONDARY|Change From Baseline in the KCCQ-OS Score in the Vutrisiran Monotherapy Subgroup|The KCCQ is a 23-item self-administered questionnaire quantifying 6 domains (symptoms \[frequency and burden\], physical function, QoL, social limitation, self-efficacy, and symptom stability) and 2 summary scores (clinical and OS). Scores were generated for each domain and transformed to a range of 0-100, in which higher scores reflect better health status. KCCQ- overall summary score was average of domains- physical function, total symptoms (average of symptom frequency and burden), QoL, and social limitation, and transformed to a single score which ranged from 0 (worst) - 100 (the best possible status), where the higher score reflected better health status. Analysis was based on the MMRM.|Baseline to Month 30|Vutrisiran Monotherapy Subgroup FAS included all participants who were not on tafamidis at the study baseline in the FAS. Overall number analyzed is the number of participants with data available for analysis.|||score on a scale||Standard Error|LEAST_SQUARES_MEAN
+211411110|NCT04153149|SECONDARY|All-cause Mortality in the Overall Population and Vutrisiran Monotherapy Subgroup|All-cause mortality also included heart transplantation and LVAD placement events along with deaths; recurrent CV events included CV hospitalizations and urgent HF visits.|Up to 42 months||2027-12-01|2027-12||||
+211411111|NCT04153149|SECONDARY|Percentage of Participants With Change in NYHA Class at Month 30 in the Overall Population|"NYHA class is a clinical assessment of symptoms resulting from heart failure. In NYHA functional classification system places participants in 1 of 4 categories based on limitations of physical activity. Class I denotes no symptoms and no limitation of physical activity; II, slight limitation, resulting in symptoms with ordinary physical activity; III, marked limitation, resulting in symptoms with less than ordinary physical activity; and IV, symptoms at rest. Here, the participants with a change in NYHA class have been reported in two categories:~1\) participants who had no change or had improvement in the NYHA class (lower class) from baseline and 2) participants who had a worsened NYHA class from baseline (higher class).~Values have been rounded off to a single decimal."|Baseline to Month 30|FAS included all participants who were randomized and received any amount of study drug (vutrisiran or placebo).|||percentage of participants|||NUMBER
+
+ exited 124 in 11718ms:
+211411104|NCT04153149|PRIMARY|Composite Endpoint of All-Cause Mortality and Recurrent Cardiovascular (CV) Events (CV Hospitalizations and Urgent Heart Failure [HF] Visits) in the Overall Population|All-cause mortality and recurrent CV events (CV hospitalizations and urgent HF visits) were compared between treatment groups using a modified Andersen-Gill model with a robust variance. All-cause mortality included heart transplantation and LVAD placement events along with deaths; recurrent CV events included CV hospitalizations and urgent HF visits. The number of participants with at least one CV event or all-cause mortality event have been reported here. No imputation was done for participants who dropped out early for the primary analysis of this composite outcome endpoint.|Up to Month 36|FAS included all participants who were randomized and received any amount of study drug (vutrisiran or placebo).|||Participants|||COUNT_OF_PARTICIPANTS
+211411105|NCT04153149|PRIMARY|Composite Endpoint of All-Cause Mortality and Recurrent CV Events (CV Hospitalizations and Urgent HF Visits) in the Vutrisiran Monotherapy Subgroup|All-cause mortality and recurrent CV events (CV hospitalizations and urgent HF visits) were compared between treatment groups using a modified Andersen-Gill model with a robust variance. All-cause mortality included heart transplantation and LVAD placement events along with deaths; recurrent CV events included CV hospitalizations and urgent HF visits. The number of participants with at least one CV event or all-cause mortality event have been reported here. No imputation was done for participants who dropped out early for the primary analysis of this composite outcome endpoint.|Up to Month 36|Vutrisiran Monotherapy Subgroup FAS included all participants who were not on tafamidis at the study baseline in the FAS. FAS included all participants who were randomized and received any amount of study drug (vutrisiran or placebo).|||Participants|||COUNT_OF_PARTICIPANTS
+211411106|NCT04153149|SECONDARY|Change From Baseline in 6-Minute Walk Test (6-MWT) in the Overall Population|The 6-MWT is an assessment of functional exercise capacity. Participants are instructed to walk back and forth along a flat, straight path, typically 30 meters in length, for a duration of 6 minutes. The total distance covered in meters is recorded at the end of 6 minutes. A longer distance reflects a better outcome. Analysis was based on the mixed-effect model of repeated measures (MMRM). Missing change values due to amyloidosis disease progression and death were imputed using sampling with replacement from the worst 10% of observed values, as specified in the statistical analysis plan (SAP).|Baseline to Month 30|FAS included all participants who were randomized and received any amount of study drug (vutrisiran or placebo). Overall number analyzed is the number of participants with data available for analysis.|||meters||Standard Error|LEAST_SQUARES_MEAN
+211411107|NCT04153149|SECONDARY|Change From Baseline in 6-MWT in the Vutrisiran Monotherapy Subgroup|The 6-MWT is an assessment of functional exercise capacity. Participants are instructed to walk back and forth along a flat, straight path, typically 30 meters in length, for a duration of 6 minutes. The total distance covered in meters is recorded at the end of 6 minutes. A longer distance reflects a better outcome. Analysis was based on the MMRM. Missing change values due to amyloidosis disease progression and death were imputed using sampling with replacement from the worst 10% of observed values, as specified in the SAP.|Baseline to Month 30|Vutrisiran Monotherapy Subgroup FAS included all participants who were not on tafamidis at the study baseline in the FAS. FAS included all participants who were randomized and received any amount of study drug (vutrisiran or placebo).|||meters||Standard Error|LEAST_SQUARES_MEAN
+211411108|NCT04153149|SECONDARY|Change From Baseline in the Kansas City Cardiomyopathy Questionnaire Overall Summary (KCCQ-OS) Score in the Overall Population|The KCCQ is a 23-item self-administered questionnaire quantifying 6 domains (symptoms \[frequency and burden\], physical function, quality of life (QoL), social limitation, self-efficacy, and symptom stability) and 2 summary scores (clinical and overall summary \[OS\]). Scores were generated for each domain and transformed to a range of 0-100, in which higher scores reflect better health status. KCCQ- overall summary score was average of domains- physical function, total symptoms (average of symptom frequency and burden), QoL, and social limitation, and transformed to a single score which ranged from 0 (worst) - 100 (the best possible status), where the higher score reflected better health status. Analysis was based on the MMRM.|Baseline to Month 30|FAS included all participants who were randomized and received any amount of study drug (vutrisiran or placebo). Overall number analyzed is the number of participants with data available for analysis.|||score on a scale||Standard Error|LEAST_SQUARES_MEAN
+211411109|NCT04153149|SECONDARY|Change From Baseline in the KCCQ-OS Score in the Vutrisiran Monotherapy Subgroup|The KCCQ is a 23-item self-administered questionnaire quantifying 6 domains (symptoms \[frequency and burden\], physical function, QoL, social limitation, self-efficacy, and symptom stability) and 2 summary scores (clinical and OS). Scores were generated for each domain and transformed to a range of 0-100, in which higher scores reflect better health status. KCCQ- overall summary score was average of domains- physical function, total symptoms (average of symptom frequency and burden), QoL, and social limitation, and transformed to a single score which ranged from 0 (worst) - 100 (the best possible status), where the higher score reflected better health status. Analysis was based on the MMRM.|Baseline to Month 30|Vutrisiran Monotherapy Subgroup FAS included all participants who were not on tafamidis at the study baseline in the FAS. Overall number analyzed is the number of participants with data available for analysis.|||score on a scale||Standard Error|LEAST_SQUARES_MEAN
+211411110|NCT04153149|SECONDARY|All-cause Mortality in the Overall Population and Vutrisiran Monotherapy Subgroup|All-cause mortality also included heart transplantation and LVAD placement events along with deaths; recurrent CV events included CV hospitalizations and urgent HF visits.|Up to 42 months||2027-12-01|2027-12||||
+211411111|NCT04153149|SECONDARY|Percentage of Participants With Change in NYHA Class at Month 30 in the Overall Population|"NYHA class is a clinical assessment of symptoms resulting from heart failure. In NYHA functional classification system places participants in 1 of 4 categories based on limitations of physical activity. Class I denotes no symptoms and no limitation of physical activity; II, slight limitation, resulting in symptoms with ordinary physical activity; III, marked limitation, resulting in symptoms with less than ordinary physical activity; and IV, symptoms at rest. Here, the participants with a change in NYHA class have been reported in two categories:~1\) participants who had no change or had improvement in the NYHA class (lower class) from baseline and 2) participants who had a worsened NYHA class from baseline (higher class).~Values have been rounded off to a single decimal."|Baseline to Month 30|FAS included all participants who were randomized and received any amount of study drug (vutrisiran or placebo).|||percentage of participants|||NUMBER
+
+2026-08-24T01:33:44.037896Z ERROR codex_core::tools::router: error=Exit code: 124
+Wall time: 11.7 seconds
+Output:
+command timed out after 11716 milliseconds
+
+ exited 124 in 11716ms:
+codex
+That example analysis row is secondary, so it does not prove a final miss through this module’s primary-outcome filter. I’m narrowing to primary-outcome rows now.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "rg -m 20 \"NCT04153149\" F:\\AACT-storage\\AACT\\2026-04-12\\outcome_analyses.txt" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Get-ChildItem -Path . -Filter *.html | Select-String -Pattern 'NCT04153149' -List | Select-Object -First 5 -ExpandProperty Path" in F:\rapidmeta-ssot-shell
+ succeeded in 4157ms:
+105596588|NCT04153149|211411104|SUPERIORITY||Hazard Ratio (HR)|0.718|||=|0.0118|TWO_SIDED|95.0|0.555|0.929|||Modified Andersen-Gill Model|||Analysis done using a modified Andersen-Gill model with a robust variance. The model included treatment group, ATTR amyloidosis disease type, New York Heart Association (NYHA) class, age group, and log-transformed baseline N-terminal pro-B-type natriuretic peptide (NT-proBNP) as covariates.||0.929|0.555|=0.0118
+105596589|NCT04153149|211411105|SUPERIORITY||Hazard Ratio (HR)|0.672|||=|0.0162|TWO_SIDED|95.0|0.487|0.929|||Modified Andersen-Gill Model|||Analysis done using a modified Andersen-Gill model with a robust variance. The model included treatment group, ATTR amyloidosis disease type, NYHA class, age group, and log-transformed baseline NT-proBNP as covariates.||0.929|0.487|=0.0162
+105596590|NCT04153149|211411106|SUPERIORITY||Least Square (LS) Mean Difference|26.46|STANDARD_ERROR_OF_MEAN|6.66|=|7.97e-05|TWO_SIDED|95.0|13.38|39.55|||MMRM|||Analysis done using MMRM with baseline 6-MWT as a covariate and fixed effect terms including treatment group, visit, treatment-by-visit interaction, baseline tafamidis use, treatment-by-baseline tafamidis use interaction, type of ATTR amyloidosis, and age group. Missing change values due to amyloidosis disease progression and death were imputed using sampling with replacement from the worst 10% of observed values, as specified in the SAP.||39.55|13.38|=0.0000797
+105596591|NCT04153149|211411107|SUPERIORITY||LS Mean Difference|32.09|STANDARD_ERROR_OF_MEAN|9.19|=|0.0005|TWO_SIDED|95.0|14.03|50.15|||MMRM|||Analysis done using MMRM with baseline 6-MWT as a covariate and fixed effect terms including treatment group, visit, treatment-by-visit interaction, type of ATTR amyloidosis, and age group. Missing change values due to amyloidosis disease progression and death were imputed using sampling with replacement from the worst 10% of observed values, as specified in the SAP.||50.15|14.03|=0.0005
+105596592|NCT04153149|211411108|SUPERIORITY||LS Mean Difference|5.8|STANDARD_ERROR_OF_MEAN|1.73|=|0.0008|TWO_SIDED|95.0|2.4|9.2|||MMRM|||Analysis done using MMRM with baseline KCCQ-OS as a covariate and fixed effect terms including treatment group, visit, treatment-by-visit interaction, baseline tafamidis use, treatment-by-baseline tafamidis use interaction, type of ATTR amyloidosis, and age group. Missing change values due to death were imputed using sampling with replacement from the worst 10% of observed values, as specified in the SAP.||9.20|2.40|=0.0008
+105596593|NCT04153149|211411109|SUPERIORITY||LS Mean Difference|8.69|STANDARD_ERROR_OF_MEAN|2.4|=|0.0003|TWO_SIDED|95.0|3.98|13.4|||MMRM|||Analysis done using MMRM with baseline KCCQ-OS as a covariate and fixed effect terms including treatment group, visit, treatment-by-visit interaction, type of ATTR amyloidosis, and age group. Missing change values due to death were imputed using sampling with replacement from the worst 10% of observed values, as specified in the SAP.||13.40|3.98|=0.0003
+105596594|NCT04153149|211411111|SUPERIORITY||Mean Difference|8.7|||=|0.0217|TWO_SIDED|95.0|1.3|16.1|||Cochran-Mantel-Haenszel|Missing change value in NYHA Class due to death were imputed as worsened. All other missing were imputed using multiple imputation approach.|Adjusted difference in percentage of stable or improved (vutrisiran - placebo) participants was estimated. Adjusted difference, 95% CI, and p-value were derived from multiple imputation procedure by combining estimates per Rubin's rules.|||16.1|1.3|=0.0217
+105596595|NCT04153149|211411112|SUPERIORITY||Mean Difference|12.5|||=|0.0121|TWO_SIDED|95.0|2.7|22.2|||Cochran-Mantel-Haenszel|Missing change value in NYHA Class due to death were imputed as worsened. All other missing were imputed using multiple imputation approach.|Adjusted difference in percentage of stable or improved (vutrisiran - placebo) participants was estimated. Adjusted difference, 95% CI, and p-value were derived from multiple imputation procedure by combining estimates per Rubin's rules.|||22.2|2.7|=0.0121
+
+2026-08-24T01:34:04.496594Z ERROR codex_core::tools::router: error=Exit code: 124
+Wall time: 11.4 seconds
+Output:
+command timed out after 11409 milliseconds
+F:\rapidmeta-ssot-shell\LivingMeta.html
+
+ exited 124 in 11409ms:
+F:\rapidmeta-ssot-shell\LivingMeta.html
+
+codex
+The primary example for `NCT04153149` is covered by the map, so I’m not using it as a selector defect. I’m doing one bounded full pass for primary rows that the selector drops; if it doesn’t finish cleanly, I’ll mark corpus-wide selector coverage as undetermined.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "@'
+import csv,re,sys
+from pathlib import Path
+HERE=Path('.').resolve()
+ncts=set()
+for p in HERE.glob('*.html'):
+    ncts.update(re.findall(r'NCT\\d{7,8}', p.read_text(encoding='utf-8', errors='replace')))
+primary={}
+with Path(r'F:\\AACT-storage\\AACT\\2026-04-12\\outcomes.txt').open(encoding='utf-8', errors='replace', newline='') as f:
+    for row in csv.DictReader(f, delimiter='|'):
+        nct=(row.get('nct_id') or '').strip()
+        if nct in ncts and nct not in primary and (row.get('outcome_type') or '').strip().lower()=='primary':
+            oid=(row.get('id') or '').strip()
+            if oid: primary[nct]=oid
+mapkeys={k.upper() for k in [
+    'MEAN DIFFERENCE (FINAL VALUES)','MEAN DIFFERENCE (NET)','LS MEAN DIFFERENCE','LEAST SQUARES MEAN DIFFERENCE','ADJUSTED MEAN DIFFERENCE','HAZARD RATIO (HR)','ODDS RATIO (OR)','RISK RATIO (RR)','RISK DIFFERENCE (RD)','DIFFERENCE IN PERCENTAGE','SLOPE'
+]}
+effect_words=['MEAN DIFFERENCE','HAZARD RATIO','ODDS RATIO','RISK RATIO','RISK DIFFERENCE','LS MEAN DIFFERENCE','LEAST SQUARE']
+found=[]
+with Path(r'F:\\AACT-storage\\AACT\\2026-04-12\\outcome_analyses.txt').open(encoding='utf-8', errors='replace', newline='') as f:
+    for row in csv.DictReader(f, delimiter='|'):
+        nct=(row.get('nct_id') or '').strip(); oid=(row.get('outcome_id') or '').strip()
+        if nct not in ncts or primary.get(nct)"'!=oid: continue
+        pt=(row.get('"'param_type') or '').strip(); ptu=pt.upper()
+        if ptu in mapkeys: continue
+        if not any(w in ptu for w in effect_words): continue
+        try: float((row.get('param_value') or '').strip())
+        except Exception: continue
+        found.append({k:row.get(k) for k in ['id','nct_id','outcome_id','param_type','param_value','ci_lower_limit','ci_upper_limit']})
+        if len(found)>=20: break
+print('found',len(found))
+for r in found: print(r)
+'@ | python -" in F:\rapidmeta-ssot-shell
+ succeeded in 39964ms:
+found 20
+{'id': '105532415', 'nct_id': 'NCT00683592', 'outcome_id': '211282121', 'param_type': 'Difference in Least Squares Mean Change', 'param_value': '-2.5', 'ci_lower_limit': '-4.4', 'ci_upper_limit': '-0.6'}
+{'id': '105596671', 'nct_id': 'NCT01272219', 'outcome_id': '211411356', 'param_type': 'Estimated mean difference', 'param_value': '-5.39', 'ci_lower_limit': '-5.82', 'ci_upper_limit': '-4.95'}
+{'id': '105596695', 'nct_id': 'NCT04003142', 'outcome_id': '211411438', 'param_type': 'Least squares (LS) Mean difference', 'param_value': '-1.82', 'ci_lower_limit': '-2.73', 'ci_upper_limit': '-0.91'}
+{'id': '105596696', 'nct_id': 'NCT04003142', 'outcome_id': '211411438', 'param_type': 'LSMean difference', 'param_value': '-2.55', 'ci_lower_limit': '-3.45', 'ci_upper_limit': '-1.64'}
+{'id': '105599799', 'nct_id': 'NCT03620981', 'outcome_id': '211417035', 'param_type': 'LS Mean Difference (Final Values)', 'param_value': '-7.2', 'ci_lower_limit': '-10.0', 'ci_upper_limit': '-4.3'}
+{'id': '105599800', 'nct_id': 'NCT03620981', 'outcome_id': '211417035', 'param_type': 'LS Mean Difference (Final Values)', 'param_value': '-3.7', 'ci_lower_limit': '-6.8', 'ci_upper_limit': '-0.7'}
+{'id': '105667427', 'nct_id': 'NCT02925117', 'outcome_id': '211536295', 'param_type': 'Least Squares (LS) Mean Difference', 'param_value': '-51.4', 'ci_lower_limit': '-66.5', 'ci_upper_limit': '-36.3'}
+{'id': '105406662', 'nct_id': 'NCT05028582', 'outcome_id': '211013725', 'param_type': 'Odds Ratio, log', 'param_value': '5.19', 'ci_lower_limit': '2.9', 'ci_upper_limit': '9.31'}
+{'id': '105601399', 'nct_id': 'NCT01968980', 'outcome_id': '211419400', 'param_type': 'Least square (LS) mean difference', 'param_value': '-54.5', 'ci_lower_limit': '-59.5', 'ci_upper_limit': '-49.5'}
+{'id': '105532706', 'nct_id': 'NCT02614196', 'outcome_id': '211283047', 'param_type': 'LSMean Difference', 'param_value': '-2.02', 'ci_lower_limit': '-2.55', 'ci_upper_limit': '-1.48'}
+{'id': '105532707', 'nct_id': 'NCT02614196', 'outcome_id': '211283047', 'param_type': 'LSMean Difference', 'param_value': '-1.9', 'ci_lower_limit': '-2.44', 'ci_upper_limit': '-1.36'}
+{'id': '105411756', 'nct_id': 'NCT06424236', 'outcome_id': '211026611', 'param_type': 'Least square (LS) mean', 'param_value': '-0.1166', 'ci_lower_limit': '-0.206', 'ci_upper_limit': '-0.0272'}
+{'id': '105412464', 'nct_id': 'NCT04753697', 'outcome_id': '211028977', 'param_type': 'Difference in Least Square Mean', 'param_value': '-1.91', 'ci_lower_limit': '-2.97', 'ci_upper_limit': '-0.84'}
+{'id': '105602438', 'nct_id': 'NCT02797821', 'outcome_id': '211421451', 'param_type': 'Least Squares (LS) Means Difference', 'param_value': '-1.88', 'ci_lower_limit': '-2.544', 'ci_upper_limit': '-1.216'}
+{'id': '105414064', 'nct_id': 'NCT04778397', 'outcome_id': '211033896', 'param_type': 'Stratified Hazard Ratio', 'param_value': '1.132', 'ci_lower_limit': '0.783', 'ci_upper_limit': '1.637'}
+{'id': '105602681', 'nct_id': 'NCT04881760', 'outcome_id': '211421939', 'param_type': 'LS Mean difference (Final Values)', 'param_value': '-5.64', 'ci_lower_limit': '-7.34', 'ci_upper_limit': '-3.94'}
+{'id': '105602682', 'nct_id': 'NCT04881760', 'outcome_id': '211421939', 'param_type': 'LS Mean difference (Final Values)', 'param_value': '-10.45', 'ci_lower_limit': '-12.21', 'ci_upper_limit': '-8.7'}
+{'id': '105602683', 'nct_id': 'NCT04881760', 'outcome_id': '211421939', 'param_type': 'LS Mean difference (Final Values)', 'param_value': '-12.25', 'ci_lower_limit': '-14.42', 'ci_upper_limit': '-10.08'}
+{'id': '105602684', 'nct_id': 'NCT04881760', 'outcome_id': '211421939', 'param_type': 'LS Mean difference (Final Values)', 'param_value': '-15.1', 'ci_lower_limit': '-16.9', 'ci_upper_limit': '-13.3'}
+{'id': '105602685', 'nct_id': 'NCT04881760', 'outcome_id': '211421939', 'param_type': 'LS Mean difference (Final Values)', 'param_value': '-16.72', 'ci_lower_limit': '-18.86', 'ci_upper_limit': '-14.58'}
+
+codex
+- **SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE**: line 109.  
+  Input: `outcome_analyses.txt` row `id=105599799, nct_id=NCT03620981, outcome_id=211417035, param_type="LS Mean Difference (Final Values)", param_value=-7.2, ci_lower_limit=-10.0, ci_upper_limit=-4.3`.  
+  Consequence: `kind` is `None` because the map lacks this actual primary-effect spelling, so a valid computed effect is silently skipped.
+
+- **Instrument reads a DIFFERENT FORM than the one promised to the caller**: lines 113 and 117-118.  
+  Input: `id=105596588, nct_id=NCT04153149, outcome_id=211411104, param_type="Hazard Ratio (HR)", param_value=0.718, ci_lower_limit=0.555, ci_upper_limit=0.929`.  
+  Consequence: the module emits raw HR/CI even though line 46 says ratio types are on log scale; a downstream back-transform would turn `0.718` into `exp(0.718)=2.05`.
+
+- **MERGED-CELL / OFF-BY-ONE count**: line 225.  
+  Input to `compute_md_from_arms`: three valid groups `OG000 mean=0 sd=1`, `OG001 mean=10 sd=1`, `OG002 mean=20 sd=1`, with baseline Ns for all three.  
+  Consequence: `len(seen) < 2` accepts 3-arm data, then lines 227-229 choose only the first two sorted arms and silently compute an arbitrary comparison.
+
+No proven finding here for: check that cannot fail; probe keyed to string a fix removes; idempotency guard satisfied by own comment; CRLF/LF text comparison; zero conflated with absent; negation dropped; wrapper status code reporting.
+tokens used
+44,332
+- **SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE**: line 109.  
+  Input: `outcome_analyses.txt` row `id=105599799, nct_id=NCT03620981, outcome_id=211417035, param_type="LS Mean Difference (Final Values)", param_value=-7.2, ci_lower_limit=-10.0, ci_upper_limit=-4.3`.  
+  Consequence: `kind` is `None` because the map lacks this actual primary-effect spelling, so a valid computed effect is silently skipped.
+
+- **Instrument reads a DIFFERENT FORM than the one promised to the caller**: lines 113 and 117-118.  
+  Input: `id=105596588, nct_id=NCT04153149, outcome_id=211411104, param_type="Hazard Ratio (HR)", param_value=0.718, ci_lower_limit=0.555, ci_upper_limit=0.929`.  
+  Consequence: the module emits raw HR/CI even though line 46 says ratio types are on log scale; a downstream back-transform would turn `0.718` into `exp(0.718)=2.05`.
+
+- **MERGED-CELL / OFF-BY-ONE count**: line 225.  
+  Input to `compute_md_from_arms`: three valid groups `OG000 mean=0 sd=1`, `OG001 mean=10 sd=1`, `OG002 mean=20 sd=1`, with baseline Ns for all three.  
+  Consequence: `len(seen) < 2` accepts 3-arm data, then lines 227-229 choose only the first two sorted arms and silently compute an arbitrary comparison.
+
+No proven finding here for: check that cannot fail; probe keyed to string a fix removes; idempotency guard satisfied by own comment; CRLF/LF text comparison; zero conflated with absent; negation dropped; wrapper status code reporting.

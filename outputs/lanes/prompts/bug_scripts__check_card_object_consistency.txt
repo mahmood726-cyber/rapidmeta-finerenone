@@ -1,0 +1,262 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/check_card_object_consistency.py
+
+--- THE FILE, IN FULL ---
+#!/usr/bin/env python
+"""
+check_card_object_consistency.py  --  RapidMeta card<->object consistency guard.
+
+Every RapidMeta app carries, per trial, BOTH:
+  * a structured `allOutcomes:[{shortLabel,title,tE,cE,effect,lci,uci,...}]` array
+    (this feeds the forest plots and the pooled meta-analysis), and
+  * human-readable evidence-card `text:"..."` prose that restates the same outcomes.
+
+Nothing checks that the two AGREE. On 2026-07-17 three semantic contradictions were
+found by eye in a single app (GLP1_CVOT_REVIEW.html): a card said "105 vs 140" while
+its object said "135 vs 175"; another said a stroke HR that its object matched but with
+different counts; and a third said an outcome was "not reported" while the object
+carried real counts. Every arithmetic/identity checksum passed -- only a human reading
+both noticed. This guard closes that blind spot.
+
+It reports THREE violation classes, per trial, matching prose to object by outcome name
+(canonicalised) and/or by an exact HR match:
+  COUNT_MISMATCH  prose "N (n%) vs N (n%)" event counts != object tE/cE (object non-null)
+  HR_MISMATCH     prose "(HR x)" != object effect for the same-named outcome
+  OMISSION        prose asserts absence ("not reported", "not a standalone endpoint",
+                  "not available", "no ... reported") for an outcome whose object
+                  carries NON-NULL counts (i.e. the trial DID report it)
+
+The OMISSION check is the important one: it is exactly the SELECT "Non-fatal MI was not
+reported" defect, which a pure count-vs-count comparison cannot see (there is no prose
+count-pair to compare).
+
+Usage:
+  python scripts/check_card_object_consistency.py                 # advisory, scan CWD tree
+  python scripts/check_card_object_consistency.py --dir PATH      # scan a specific dir
+  python scripts/check_card_object_consistency.py --json          # machine-readable
+  python scripts/check_card_object_consistency.py --block         # exit 1 if any finding
+
+Advisory by default (always exit 0). Wire --block into a hook only after the advisory
+count across the corpus is understood and accepted.
+"""
+import re, glob, os, sys, json, argparse
+
+# --- outcome canonicalisation (most specific first; MACE before its components) ---
+CANON = [
+    ("mace",   r"\bmace\b|major adverse cardiovascular|major adverse cardiac|\d[\s-]*point mace|\d[\s-]*pt mace|mace"),
+    ("cvd",    r"cardiovascular death|cardiovascular mortality|\bcv death\b|\bcvd\b"),
+    ("acm",    r"all[\s-]*cause mortality|all[\s-]*cause death|total mortality|\bacm\b"),
+    ("hhf",    r"heart failure hospitali|hospitali\w+ for heart failure|\bhf hospitali|\bhhf\b|worsening heart failure"),
+    ("mi",     r"myocardial infarction|nonfatal mi|non[\s-]*fatal mi|\bmi\b|heart attack"),
+    ("stroke", r"\bstroke\b|cerebrovascular|\bcva\b"),
+    ("revasc", r"revasculari|\brevasc\b"),
+]
+CANON = [(k, re.compile(p, re.I)) for k, p in CANON]
+
+def canon(label):
+    for k, pat in CANON:
+        if pat.search(label):
+            return k
+    return None
+
+NEG = re.compile(r"not reported|was not reported|not a standalone|not available|no data|not assessed|not evaluated|not captured|no .{0,20}reported", re.I)
+
+TEXT_FIELD = re.compile(r'text:"((?:[^"\\]|\\.)*)"')
+OBJ = re.compile(r'\{[^{}]*\}')
+# prose triple: "<label>: <tE> (pct%) ... vs ... <cE> (pct%) [ ... (HR x) ]"
+PROSE = re.compile(
+    r'([A-Za-z][A-Za-z0-9 /\-]{2,45}?):\s*(\d[\d,]*)\s*\(\s*[\d.]+\s*%\)[^.]{0,70}?vs[^.]{0,70}?(\d[\d,]*)\s*\(\s*[\d.]+\s*%\)([^.]{0,70}?HR\s*(\d?\.\d+))?',
+    re.I)
+# sentence-level segments so OMISSION can bind a negation to a nearby outcome name
+SENT = re.compile(r'[^.]*\.')
+
+def trial_spans(d):
+    idx = [m.start() for m in re.finditer(r'allOutcomes:\[', d)]
+    return [(idx[i], idx[i+1] if i+1 < len(idx) else len(d)) for i in range(len(idx))]
+
+def parse_objects(seg):
+    """list of {canon,shortLabel,tE,cE,effect} for every canonicalisable object."""
+    out = []
+    for m in OBJ.finditer(seg):
+        o = m.group(0)
+        if "tE:" not in o:
+            continue
+        lbl = re.search(r'shortLabel:"([^"]*)"', o)
+        ttl = re.search(r'title:"([^"]*)"', o)
+        name = (lbl.group(1) if lbl else "") + " " + (ttl.group(1) if ttl else "")
+        c = canon(name)
+        if not c:
+            continue
+        te = re.search(r'tE:\s*(\d+)\b', o)   # numeric only; null -> no match
+        ce = re.search(r'cE:\s*(\d+)\b', o)
+        ef = re.search(r'effect:\s*(\.?\d+(?:\.\d+)?)', o)
+        out.append({
+            "canon": c,
+            "shortLabel": lbl.group(1) if lbl else (ttl.group(1) if ttl else c),
+            "tE": int(te.group(1)) if te else None,
+            "cE": int(ce.group(1)) if ce else None,
+            "effect": round(float(ef.group(1)), 2) if ef else None,
+        })
+    return out
+
+def scan_file(path):
+    d = open(path, encoding="utf-8", errors="replace").read()
+    if "allOutcomes" not in d:
+        return []
+    findings = []
+    canon_syn = dict(CANON)
+    for s, e in trial_spans(d):
+        seg = d[s:e]
+        objs = parse_objects(seg)
+        if not objs:
+            continue
+        by_canon = {}
+        for r in objs:
+            by_canon.setdefault(r["canon"], []).append(r)
+        # gather this trial's card prose
+        texts = [t.group(1) for t in TEXT_FIELD.finditer(seg)]
+        blob = " ".join(texts)
+        # --- COUNT_MISMATCH + HR_MISMATCH (precision-first: bind prose<->object) ---
+        for pm in PROSE.finditer(blob):
+            label = pm.group(1).strip()
+            c = canon(label)
+            pte = int(pm.group(2).replace(",", ""))
+            pce = int(pm.group(3).replace(",", ""))
+            phr = round(float(pm.group(5)), 2) if pm.group(5) else None
+
+            # (1) HR-binding: an object whose effect == prose HR is the SAME outcome
+            #     instance. Highest confidence -- this is the "checksums pass, counts
+            #     wrong" signature (HARMONY, REWIND). Prefer a same-canon HR match.
+            target = None
+            if phr is not None:
+                hrmatch = [r for r in objs if r["effect"] == phr and r["tE"] is not None]
+                same = [r for r in hrmatch if r["canon"] == c]
+                # If the prose label is canonicalisable, ONLY accept a same-outcome
+                # object (avoid HR collisions across different outcomes, e.g. an MI
+                # prose HR matching a MACE object's effect). Fall back to any-HR match
+                # only when the prose label cannot be canonicalised.
+                cand = same if c else hrmatch
+                if any((r["tE"], r["cE"]) == (pte, pce) for r in cand):
+                    continue  # a bound object matches counts exactly -> consistent
+                if cand:
+                    target = cand[0]
+                    findings.append({
+                        "class": "COUNT_MISMATCH", "outcome": target["canon"],
+                        "card": f"{label}: {pte} vs {pce} (HR {phr})",
+                        "object": f'{target["shortLabel"]}: tE {target["tE"]} vs cE {target["cE"]} (effect {target["effect"]})',
+                    })
+                    continue
+
+            # (2) Name-binding, only when UNAMBIGUOUS: exactly one non-null-count
+            #     object of this canon in the trial. Skip if prose HR and object
+            #     effect BOTH differ (that means a different outcome/definition, e.g.
+            #     3-pt vs 5-pt MACE) -- avoids the composite false positive.
+            if c and c in by_canon:
+                cnt = [r for r in by_canon[c] if r["tE"] is not None]
+                if len(cnt) == 1:
+                    r = cnt[0]
+                    if (pte, pce) == (r["tE"], r["cE"]):
+                        if phr is not None and r["effect"] is not None and phr != r["effect"]:
+                            findings.append({
+                                "class": "HR_MISMATCH", "outcome": c,
+                                "card": f"{label}: {pte} vs {pce} (HR {phr})",
+                                "object": f'{r["shortLabel"]}: tE {r["tE"]} vs cE {r["cE"]} (effect {r["effect"]})',
+                            })
+                    else:
+                        # counts differ. If HRs also differ, it's a different outcome
+                        # instance -> not a contradiction. Only flag when HR agrees or
+                        # prose gives no HR to bind with.
+                        if phr is None or r["effect"] is None or phr == r["effect"]:
+                            findings.append({
+                                "class": "COUNT_MISMATCH", "outcome": c,
+                                "card": f"{label}: {pte} vs {pce}" + (f" (HR {phr})" if phr else ""),
+                                "object": f'{r["shortLabel"]}: tE {r["tE"]} vs cE {r["cE"]} (effect {r["effect"]})',
+                            })
+        # --- OMISSION: object has real counts, prose says it was not reported ---
+        for c, recs in by_canon.items():
+            reported = [r for r in recs if r["tE"] is not None]
+            if not reported:
+                continue  # object carries no counts -> "not reported" is consistent
+            rec = reported[0]
+            syn = canon_syn[c]
+            for sent in SENT.finditer(blob):
+                stext = sent.group(0)
+                if syn.search(stext) and NEG.search(stext):
+                    if not re.search(r'\d[\d,]*\s*\(\s*[\d.]+\s*%\)', stext):
+                        findings.append({
+                            "class": "OMISSION", "outcome": c,
+                            "card": stext.strip()[:120],
+                            "object": f'{rec["shortLabel"]}: tE {rec["tE"]} vs cE {rec["cE"]} (effect {rec["effect"]})',
+                        })
+                    break
+    return findings
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--dir", default=".")
+    ap.add_argument("--json", action="store_true")
+    ap.add_argument("--block", action="store_true")
+    args = ap.parse_args()
+    files = sorted(glob.glob(os.path.join(args.dir, "*_REVIEW.html")))
+    per_app = {}
+    for f in files:
+        fnd = scan_file(f)
+        if fnd:
+            per_app[os.path.basename(f)] = fnd
+    n_find = sum(len(v) for v in per_app.values())
+    by_class = {}
+    for v in per_app.values():
+        for x in v:
+            by_class[x["class"]] = by_class.get(x["class"], 0) + 1
+    if args.json:
+        print(json.dumps({"apps_scanned": len(files), "apps_flagged": len(per_app),
+                          "findings": n_find, "by_class": by_class, "detail": per_app}, indent=1))
+    else:
+        print(f"card<->object consistency: scanned {len(files)} apps")
+        print(f"  apps flagged : {len(per_app)}")
+        print(f"  findings     : {n_find}  by class: {by_class}")
+        for app, fnd in per_app.items():
+            print(f"\n### {app}  ({len(fnd)})")
+            for x in fnd:
+                print(f"   [{x['class']}] {x['outcome']}")
+                print(f"        card  : {x['card']}")
+                print(f"        object: {x['object']}")
+    if args.block and n_find:
+        sys.exit(1)
+    sys.exit(0)
+
+if __name__ == "__main__":
+    main()

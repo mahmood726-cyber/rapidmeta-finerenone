@@ -1,0 +1,173 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/double_escape_gate.py
+
+--- THE FILE, IN FULL ---
+"""DOUBLE ESCAPE -- an entity that reached the reader as literal characters.
+
+WHY THIS EXISTS
+    TOOLING-QUEUE item 2 has recorded this as an UNSWEPT CLASS since the jump-list
+    fix: "every other place that extracts text from generated markup and re-emits
+    it has the same hazard." It has now produced a defect on three separate
+    occasions, the third of them written by someone who had just read the queue
+    item:
+
+      1. _anchor_headings returned ESCAPED text and the caller escaped again, so
+         readers saw the literal characters &middot; and &#x27; -- live on four of
+         the seven v1 pages, and it had polluted the generated anchor ids.
+      2. An em-dash FALLBACK escaped when it should not have been.
+      3. Two cards added 2026-08-18 used the HTML entity "&mdash;" as a fallback
+         string and passed it through p(), which escapes. A reader saw &amp;mdash;.
+
+    The queue's own prescription is this check, and it is written here rather than
+    argued about: NO BUILT PAGE MAY CONTAIN "&amp;" FOLLOWED BY A KNOWN ENTITY
+    NAME. It fails toward ALARM -- the worst it can do is complain about a page
+    that legitimately discusses HTML entities in prose, which is rare and visible.
+
+    THE POINT IS NOT THE THREE DEFECTS. It is that "knowing a rule does not apply
+    it; only a check does" has now been demonstrated five times in one session,
+    twice by the author of the rule. A class that keeps recurring after being
+    written down is a class that needs a checker, not another paragraph.
+
+WHAT THIS DOES NOT ESTABLISH -- written in advance
+    - NOT that escaping is correct everywhere. It catches DOUBLE encoding of named
+      and numeric entities. Text escaped zero times -- raw "<" reaching the
+      markup -- is a different defect and this does not look for it.
+    - NOT that a clean page has no entity problems. An entity mangled some other
+      way (&mdash written without its semicolon, say) is invisible here.
+    - NOTHING about pages it was not run on. The corpus figure it prints carries
+      its denominator for that reason.
+
+USAGE
+    python scripts/double_escape_gate.py <page.html> [...]
+    python scripts/double_escape_gate.py --selftest
+    python scripts/double_escape_gate.py --corpus        # every *_REVIEW.html here
+"""
+from __future__ import annotations
+import glob
+import io
+import os
+import re
+import sys
+
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+# Named entities this corpus actually emits, plus the numeric form. Deliberately a
+# LIST rather than "&amp;\w+;" -- the broad pattern matches ordinary prose such as
+# "AT&amp;T; and then" and a checker that cries wolf gets switched off.
+ENTITIES = ("middot", "mdash", "ndash", "nbsp", "amp", "lt", "gt", "quot", "apos",
+            "times", "minus", "sup2", "deg", "hellip", "rsquo", "lsquo", "ldquo",
+            "rdquo", "eacute", "uuml", "sect", "para", "dagger", "permil")
+PATTERN = re.compile(r"&amp;(?:#x?[0-9a-fA-F]+|(?:%s));" % "|".join(ENTITIES))
+
+
+def check(html):
+    hits = [m.group(0) for m in PATTERN.finditer(html or "")]
+    if not hits:
+        return "PASS", "no doubly-encoded entity", []
+    seen = {}
+    for h in hits:
+        seen[h] = seen.get(h, 0) + 1
+    return ("FAIL",
+            "%d doubly-encoded entit%s: %s" % (
+                len(hits), "y" if len(hits) == 1 else "ies",
+                ", ".join("%s x%d" % (k, v) for k, v in sorted(seen.items()))),
+            hits)
+
+
+def selftest() -> int:
+    ok = True
+    cases = [
+        # The three real defects, as bytes.
+        ("REPLAY 1 jump list: heading escaped twice",
+         "<p class='toc'><a href='#x'>PARAGON-HF &amp;middot; PMID 314757</a></p>", "FAIL"),
+        ("REPLAY 2 an apostrophe in a registry title",
+         "<td>named in the page&amp;#x27;s include list</td>", "FAIL"),
+        ("REPLAY 3 the em-dash fallback I wrote today",
+         "<td>&amp;mdash;</td>", "FAIL"),
+        # The same content, correct.
+        ("correct: a real entity, encoded once",
+         "<p>PARAGON-HF &middot; PMID 314757</p>", "PASS"),
+        ("correct: a literal em dash character needs no entity",
+         "<td>" + chr(8212) + "</td>", "PASS"),
+        ("correct: an escaped ampersand in ordinary prose",
+         "<p>AT&amp;T and Johnson &amp; Johnson</p>", "PASS"),
+        # The false-alarm shape this pattern is deliberately narrowed against.
+        ("NOT a hit: an escaped ampersand followed by a word and a semicolon",
+         "<p>Smith &amp; Jones; then the others</p>", "PASS"),
+    ]
+    for label, html, want in cases:
+        v, why, _ = check(html)
+        good = v == want
+        ok &= good
+        print("  %-56s -> %-5s (want %-5s) %s"
+              % (label[:56], v, want, "correct" if good else "WRONG"))
+        if not good:
+            print("        " + why)
+    print("\nWHAT A FAILURE WOULD LOOK LIKE: any of the first three replays passing. Each "
+          "is bytes taken from a page this project actually served.")
+    print("-> SELFTEST PASS" if ok else "-> SELFTEST FAILED")
+    return 0 if ok else 1
+
+
+def main() -> int:
+    if len(sys.argv) < 2 or sys.argv[1] == "--selftest":
+        return selftest()
+    repo = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    if sys.argv[1] == "--corpus":
+        paths = sorted(glob.glob(os.path.join(repo, "*_REVIEW*.html")))
+    else:
+        paths = sys.argv[1:]
+    bad, scanned = [], 0
+    for p in paths:
+        try:
+            html = open(p, encoding="utf-8", errors="replace").read()
+        except OSError:
+            continue
+        scanned += 1
+        v, why, _ = check(html)
+        if v == "FAIL":
+            bad.append((os.path.basename(p), why))
+    for name, why in bad:
+        print("  FAIL  %-52s %s" % (name[:52], why[:110]))
+    print("\nscanned %d page(s); %d carry a doubly-encoded entity" % (scanned, len(bad)))
+    if scanned and not bad:
+        print("-> PASS over %d pages. This says nothing about pages not scanned." % scanned)
+    return 1 if bad else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

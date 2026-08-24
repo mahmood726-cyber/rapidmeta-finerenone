@@ -1,0 +1,398 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/execute_merges_2026_08_19.py
+
+--- THE FILE, IN FULL ---
+#!/usr/bin/env python3
+"""EXECUTE THE AUTHORISED MERGES -- and prove the survivor holds the union.
+
+Mahmood authorised the merges. A merge DISCARDS AN OBJECT, and that is the one direction this
+project's guards do not cover: every other gate here defends against a wrong number, and this
+one has to defend against a MISSING one. So the rules are mechanical and each is asserted:
+
+  NOTHING IS DELETED. A merged-away topic is RETIRED, not removed. Its object stays on disk,
+  rewritten as a TOMBSTONE that records what it was, which topic absorbed it, when and why, and
+  its full former content is carried into the survivor verbatim.
+
+  THE SURVIVOR HOLDS THE UNION, AND IT IS PROVEN. Every LEAF of the retired object must be
+  findable in the survivor afterwards. Not eyeballed -- counted, with the missing paths named
+  and the merge REFUSED if any is absent.
+
+  A READER WITH A LINK MUST NOT HIT A 404. The retired page is replaced by a tombstone page
+  that states plainly that the question is answered at the surviving URL, and links to it.
+
+  AND A MERGE IS REFUSED IF THE SURVIVOR HAS NO PAGE. Three of the twelve clusters have a
+  page-bearing topic being retired in favour of a richer object that has never been built. A
+  tombstone pointing at a URL that does not exist is worse than the duplicate it replaces, so
+  those merges are DEFERRED and reported, not executed with a broken target.
+
+USAGE:  python scripts/execute_merges_2026_08_19.py            # dry run, changes nothing
+        python scripts/execute_merges_2026_08_19.py --apply
+        python scripts/execute_merges_2026_08_19.py --selftest
+"""
+import io
+import json
+import os
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import retirement as R                                       # noqa: E402
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+EV = os.path.join(REPO, "evidence", "2026-08-19-batch1")
+ADJ = os.path.join(EV, "merge_adjudication.json")
+DEST = os.path.join(EV, "merge_execution.json")
+PAGE_MAP = os.path.join(REPO, "ssot", "PAGE_MAP.json")
+HOST = "https://mahmood726-cyber.github.io/rapidmeta-finerenone/"
+
+
+def leaves(o, p=""):
+    if isinstance(o, dict):
+        for k, v in o.items():
+            for x in leaves(v, p + "/" + str(k)):
+                yield x
+    elif isinstance(o, list):
+        for i, v in enumerate(o):
+            for x in leaves(v, "%s[%d]" % (p, i)):
+                yield x
+    else:
+        yield (p, o)
+
+
+def obj_path(topic):
+    return os.path.join(REPO, "ssot", topic, topic + ".json")
+
+
+def load(topic):
+    with io.open(obj_path(topic), "r", encoding="utf-8") as fh:
+        return json.load(fh)
+
+
+def page_for(topic, pmap):
+    for page, rel in pmap.items():
+        if rel.rsplit("/", 1)[-1] == topic + ".json":
+            return page
+    return None
+
+
+def prove_union(survivor_after, retired_obj, retired_topic):
+    """Every leaf of the retired object must be findable in the survivor. Names what is not.
+
+    THE COMPARISON IS ON (path-suffix, value) PAIRS, not on absolute paths, because the retired
+    content is carried under `absorbed_topics/<topic>/...` and its paths therefore change. What
+    must not change is the CONTENT: every (leaf name, value) the retired object held has to be
+    somewhere in the survivor.
+    """
+    want = list(leaves(retired_obj))
+    have = set()
+    for p, v in leaves(survivor_after):
+        have.add((p.rsplit("/", 1)[-1], json.dumps(v, sort_keys=True)))
+    missing = []
+    for p, v in want:
+        key = (p.rsplit("/", 1)[-1], json.dumps(v, sort_keys=True))
+        if key not in have:
+            missing.append(p)
+    return missing, len(want)
+
+
+TOMBSTONE_PAGE = """<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{old_title} &mdash; retired, answered at {survivor}</title>
+<meta name="robots" content="noindex">
+<!-- A MACHINE-READABLE RETIREMENT MARKER. Every gate in this repository assumes a changed
+     *_REVIEW.html is a REVIEW: the export gate, the harness gate and the browser regression
+     check each refused this merge in turn, all three for the same missing concept. A retired
+     page must be able to SAY it is retired, in a form a checker can read without guessing. -->
+<meta name="rapidmeta:page-state" content="RETIRED">
+<meta name="rapidmeta:absorbed-by" content="{survivor}">
+<link rel="canonical" href="{host}{survivor_page}">
+<style>
+ :root{{color-scheme:light dark}}
+ body{{font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;max-width:44rem;
+      margin:0 auto;padding:3rem 1.25rem;background:#fff;color:#111}}
+ @media (prefers-color-scheme:dark){{body{{background:#111;color:#eee}}}}
+ h1{{font-size:1.35rem;line-height:1.3}}
+ .tag{{display:inline-block;font:600 .72rem/1 system-ui;letter-spacing:.08em;
+      text-transform:uppercase;padding:.4rem .6rem;border:1px solid currentColor;
+      border-radius:.25rem;opacity:.75}}
+ a.go{{display:inline-block;margin:1.5rem 0;padding:.7rem 1.1rem;border:1px solid currentColor;
+      border-radius:.3rem;text-decoration:none;font-weight:600}}
+ dl{{margin:2rem 0}} dt{{font-weight:600;margin-top:1rem}} dd{{margin:.2rem 0 0}}
+ small{{opacity:.75}}
+</style>
+<span class="tag">Retired review</span>
+<h1>{old_title}</h1>
+<p>This review has been <strong>retired</strong>. It held the same trials as
+<strong>{survivor}</strong>, and that review now answers this question.</p>
+<p><a class="go" href="{survivor_page}">Go to {survivor} &rarr;</a></p>
+<dl>
+ <dt>Why it was retired</dt>
+ <dd>{why}</dd>
+ <dt>Trials it held</dt>
+ <dd>{trials}</dd>
+ <dt>Retired on</dt>
+ <dd>2026-08-19</dd>
+ <dt>Was anything discarded?</dt>
+ <dd>No. This review&rsquo;s entire object was carried into <strong>{survivor}</strong>
+     verbatim, under <code>absorbed_topics</code>, and the merge was refused unless every
+     recorded value could be found in the surviving object afterwards. The retired object
+     remains on disk as a tombstone recording what it was.</dd>
+</dl>
+<p><small>This page exists so that a link to the retired review does not break. It is not a
+redirect: a reader who arrives here is told what happened rather than moved silently.</small></p>
+"""
+
+
+def run(apply_changes=False):
+    with io.open(ADJ, "r", encoding="utf-8") as fh:
+        adj = json.load(fh)
+    with io.open(PAGE_MAP, "r", encoding="utf-8") as fh:
+        pmap = json.load(fh)
+
+    executed, deferred, skipped = [], [], []
+    for r in adj["rows"]:
+        if not r["verdict"].startswith("MERGE"):
+            skipped.append({"cluster": r["cluster"], "verdict": r["verdict"],
+                            "note": r["note"]})
+            continue
+        survivor, retire = r["survivor"], r["retire"]
+        spage = page_for(survivor, pmap)
+        if not spage or not os.path.exists(os.path.join(REPO, spage)):
+            deferred.append({
+                "cluster": r["cluster"], "survivor": survivor, "retire": retire,
+                "reason": ("THE SURVIVOR HAS NO PAGE. %s is the richer object and is correct as "
+                           "the survivor, and %s carr%s the live URL. Retiring a page-bearing "
+                           "topic in favour of an object that has never been built would leave "
+                           "the tombstone pointing at a URL that does not exist -- worse than "
+                           "the duplicate it replaces. THE MERGE DIRECTION IS NOT IN DOUBT; "
+                           "the survivor needs a page first."
+                           % (survivor, ", ".join(retire), "y" if len(retire) == 1 else "y")),
+                "what_would_unblock_it": ("build and deliver a page for %s, then re-run this "
+                                          "script" % survivor)})
+            continue
+
+        # THIS SCRIPT IS NOT IDEMPOTENT, AND THAT COST REAL DAMAGE. A second run against a
+        # cluster already merged re-absorbs an ALREADY-TOMBSTONED object into the survivor and
+        # wraps the tombstone in a further retirement layer, whose own `state` then reads
+        # RETIRED -- so `THE_OBJECT_AS_IT_STOOD_AT_RETIREMENT` holds a copy of the retirement
+        # record rather than the object. Exactly that happened on 2026-08-19: nineteen files
+        # rewritten at 16:36:01, eight minutes after the merge commit, left uncommitted in the
+        # working tree. It was then MISREAD AS CORPUS DAMAGE and nearly triggered a destructive
+        # revert (DEFECT-REGISTRY class 26).
+        #
+        # A cluster whose retirees are all already retired is DONE, not pending. Skip it.
+        _already = [rt for rt in retire if R.is_retired(load(rt))]
+        if _already and len(_already) == len(retire):
+            print("already merged %-32s <- %s  (retirees are tombstones; skipping)"
+                  % (survivor, ", ".join(retire)))
+            skipped.append({"cluster": r["cluster"], "verdict": "ALREADY_MERGED",
+                            "note": ("every topic in `retire` is already RETIRED. Re-running "
+                                     "would re-absorb tombstones into the survivor and nest "
+                                     "the retirement record inside itself.")})
+            continue
+        if _already:
+            print("REFUSED %-34s <- PARTIALLY merged already: %s"
+                  % (survivor, ", ".join(_already)))
+            skipped.append({"cluster": r["cluster"], "verdict": "PARTIALLY_MERGED",
+                            "note": ("%s already retired while others are not. A partial "
+                                     "re-run is not safe either way; resolve by hand."
+                                     % ", ".join(_already))})
+            continue
+
+        surv = load(survivor)
+        surv_trials = {t.get("nct") or t.get("id") for t in
+                       ((surv.get("inputs") or {}).get("trials") or [])}
+        absorbed = surv.setdefault("absorbed_topics", {})
+        proofs = []
+        ok = True
+        for rt in retire:
+            robj = load(rt)
+            rtrials = {t.get("nct") or t.get("id") for t in
+                       ((robj.get("inputs") or {}).get("trials") or [])}
+            missing_trials = sorted(x for x in rtrials - surv_trials if x)
+            absorbed[rt] = {
+                "retired_utc": "2026-08-19",
+                "why": ("identical trial set; the surviving object holds more structure "
+                        "(search, cascade, PRISMA, screening, outcomes, corrections, "
+                        "provenance) or, where neither did, the better-stated question"),
+                "authorised_by": "Mahmood, 2026-08-19",
+                "its_question_as_an_alternative_reading": robj.get("question"),
+                "its_title": robj.get("title"),
+                "THE_WHOLE_OBJECT_VERBATIM": robj,
+            }
+            missing, n_leaves = prove_union(surv, robj, rt)
+            proofs.append({"retired": rt, "leaves_in_retired_object": n_leaves,
+                           "leaves_not_found_in_survivor": missing,
+                           "trials_not_in_survivor": missing_trials,
+                           "union_proven": not missing and not missing_trials})
+            if missing or missing_trials:
+                ok = False
+
+        row = {"cluster": r["cluster"], "survivor": survivor, "survivor_page": spage,
+               "retire": retire, "proofs": proofs, "applied": False}
+        if not ok:
+            row["REFUSED"] = ("the survivor does not hold the union after absorption. A merge "
+                              "that loses a recorded value is not a merge.")
+            executed.append(row)
+            continue
+
+        if apply_changes:
+            with io.open(obj_path(survivor), "w", encoding="utf-8") as fh:
+                fh.write(json.dumps(surv, indent=1, ensure_ascii=False))
+            for rt in retire:
+                robj = load(rt)
+                tomb = {
+                    "app_id": rt,
+                    "state": "RETIRED",
+                    "retired_utc": "2026-08-19",
+                    "absorbed_by": survivor,
+                    "absorbed_by_page": spage,
+                    "absorbed_by_url": HOST + spage,
+                    "authorised_by": "Mahmood, 2026-08-19",
+                    "why": ("This topic held the same trials as %s. It was retired rather than "
+                            "deleted: its entire former object is preserved below AND carried "
+                            "into the survivor under `absorbed_topics`, and the merge was "
+                            "refused unless every leaf of it could be found in the survivor "
+                            "afterwards." % survivor),
+                    "a_tombstone_is_not_an_absence": (
+                        "A later auditor must be able to SEE that a merge happened rather than "
+                        "infer it from a gap. Deleting this file would have made the corpus "
+                        "tidier and the history unreadable."),
+                    "trials_it_held": sorted(
+                        x for x in ({t.get("nct") or t.get("id") for t in
+                                     ((robj.get("inputs") or {}).get("trials") or [])}) if x),
+                    "THE_OBJECT_AS_IT_STOOD_AT_RETIREMENT": robj,
+                }
+                with io.open(obj_path(rt), "w", encoding="utf-8") as fh:
+                    fh.write(json.dumps(tomb, indent=1, ensure_ascii=False))
+                rpage = page_for(rt, pmap)
+                if rpage:
+                    html = TOMBSTONE_PAGE.format(
+                        old_title=(robj.get("title") or rt)[:180].replace("<", "&lt;"),
+                        survivor=survivor, survivor_page=spage, host=HOST,
+                        why=("It held the same trials as %s, which records more of how the "
+                             "review was built." % survivor),
+                        trials=", ".join(tomb["trials_it_held"]) or "none recorded")
+                    with io.open(os.path.join(REPO, rpage), "w", encoding="utf-8") as fh:
+                        fh.write(html)
+                    row.setdefault("tombstone_pages", []).append(rpage)
+            row["applied"] = True
+        executed.append(row)
+
+    out = {
+        "executed_utc": "2026-08-19",
+        "mode": "APPLIED" if apply_changes else "DRY RUN -- nothing written",
+        "authority": "Mahmood, 2026-08-19: the merges are authorised.",
+        "merged": [r for r in executed if r.get("applied")],
+        "refused": [r for r in executed if r.get("REFUSED")],
+        "deferred_because_the_survivor_has_no_page": deferred,
+        "not_merged": skipped,
+        "counts": {
+            "clusters_merged": len([r for r in executed if r.get("applied")]),
+            "clusters_refused": len([r for r in executed if r.get("REFUSED")]),
+            "clusters_deferred": len(deferred),
+            "clusters_not_a_merge": len(skipped),
+            "topics_retired": sum(len(r["retire"]) for r in executed if r.get("applied")),
+        },
+    }
+    if apply_changes:
+        with io.open(DEST, "w", encoding="utf-8") as fh:
+            fh.write(json.dumps(out, indent=1, ensure_ascii=False))
+
+    print("MODE: %s\n" % out["mode"])
+    for r in executed:
+        tag = "REFUSED" if r.get("REFUSED") else ("MERGED" if r.get("applied") else "would merge")
+        print("%-11s %-38s <- %s" % (tag, r["survivor"], ", ".join(r["retire"])))
+        for p in r["proofs"]:
+            print("              union proof: %d leaves of %s, %d not found, %d trials missing"
+                  % (p["leaves_in_retired_object"], p["retired"],
+                     len(p["leaves_not_found_in_survivor"]), len(p["trials_not_in_survivor"])))
+            for m in p["leaves_not_found_in_survivor"][:5]:
+                print("                 MISSING %s" % m)
+    print("")
+    for d in deferred:
+        print("DEFERRED    %-38s <- %s" % (d["survivor"], ", ".join(d["retire"])))
+        print("              %s" % d["reason"][:150])
+    for s in skipped:
+        print("NOT A MERGE %s" % " + ".join(s["cluster"]))
+        print("              %s" % s["note"][:150])
+    print("\n%s" % json.dumps(out["counts"]))
+    return 0
+
+
+def selftest():
+    fails = []
+
+    def ck(name, got, want):
+        ok = got == want
+        print("  %-70s %s  %r" % (name, "ok" if ok else "FAIL", got))
+        if not ok:
+            fails.append(name)
+
+    print("1. THE UNION PROOF FINDS A MISSING VALUE, which is the whole point:")
+    retired = {"a": 1, "b": {"c": "kept"}, "d": "LOST"}
+    surv_ok = {"absorbed_topics": {"x": {"THE_WHOLE_OBJECT_VERBATIM": retired}}}
+    surv_bad = {"absorbed_topics": {"x": {"THE_WHOLE_OBJECT_VERBATIM": {"a": 1, "b": {"c": "kept"}}}}}
+    ck("a survivor carrying the object verbatim proves the union",
+       prove_union(surv_ok, retired, "x")[0], [])
+    ck("a survivor missing one value NAMES it", prove_union(surv_bad, retired, "x")[0], ["/d"])
+
+    print("\n2. AND IT COMPARES CONTENT, NOT ABSOLUTE PATHS -- the retired content moves:")
+    ck("the path changed and the proof still holds",
+       prove_union({"anywhere": {"else": {"d": "LOST"}}}, {"d": "LOST"}, "x")[0], [])
+
+    print("\n3. A VALUE THAT MERELY LOOKS SIMILAR IS NOT A MATCH:")
+    ck("same leaf name, different value -> missing",
+       prove_union({"q": {"d": "different"}}, {"d": "LOST"}, "x")[0], ["/d"])
+
+    print("\n4. THE DRY RUN CHANGES NOTHING -- run it and confirm the objects are untouched:")
+    import hashlib
+    with io.open(ADJ, "r", encoding="utf-8") as fh:
+        adj = json.load(fh)
+    tops = [m for r in adj["rows"] for m in r["cluster"] if os.path.exists(obj_path(m))]
+    before = {t: hashlib.md5(io.open(obj_path(t), "rb").read()).hexdigest() for t in tops}
+    run(apply_changes=False)
+    after = {t: hashlib.md5(io.open(obj_path(t), "rb").read()).hexdigest() for t in tops}
+    ck("no object changed during the dry run", before == after, True)
+
+    print("\n%s" % ("SELFTEST FAILED: %s" % fails if fails else "SELFTEST PASSED"))
+    return 1 if fails else 0
+
+
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    sys.exit(selftest() if "--selftest" in sys.argv
+             else run("--apply" in sys.argv))

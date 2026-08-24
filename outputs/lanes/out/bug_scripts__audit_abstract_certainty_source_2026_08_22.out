@@ -1,0 +1,343 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a03133-860c-7da3-abaf-6cce2404786c
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/audit_abstract_certainty_source_2026_08_22.py
+
+--- THE FILE, IN FULL ---
+"""Where does the abstract's certainty claim come from, and does it match the GRADE record?
+
+A WRONG NUMBER IN FRONT OF A READER, FOUND BY READING THE PAGE. The SGLT2 abstract states
+"certainty of the evidence was high". Its GRADE record says LOW on both live outcomes.
+
+THE MECHANISM, AND IT IS NOT A ROUNDING SLIP:
+
+    the abstract reads    results.by_outcome.<first key>.grade.certainty
+    the GRADE record is   grade.by_outcome.<oid>.certainty
+
+Those are different fields. On sglt2-hf the first key is `cvdeath_or_whf_first` -- THE
+WITHDRAWN OUTCOME -- and it carries a stale grade block reading "start high; no downgrades".
+So the abstract publishes a certainty rating taken from an outcome the review does not publish,
+computed before the downgrades that produced the real rating.
+
+TWO DEFECTS AT ONCE. Reading the wrong field, and selecting the first outcome in KEY ORDER
+without asking whether that outcome is live. Either alone would be enough.
+
+This audit reports, per topic: what the abstract would say, what GRADE holds, and whether the
+outcome the abstract read from is one the review publishes.
+"""
+import glob
+import io
+import json
+import os
+import sys
+
+# no-control: the known answer IS the corpus. This compares two fields that must agree --
+# what the abstract composes and what the GRADE record holds -- so a synthetic positive case
+# would only restate the comparison, and the real positive case is recorded on the object it
+# was found on: sglt2-hf's superseded grade block, kept precisely so this defect stays
+# demonstrable rather than becoming a claim about a page nobody can re-examine.
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+
+def first_by_outcome(obj, leaf):
+    for oid, blk in sorted(((obj.get("results") or {}).get("by_outcome") or {}).items()):
+        cur = blk
+        for part in leaf:
+            cur = cur.get(part) if isinstance(cur, dict) else None
+        if cur is not None:
+            return oid, cur
+    return None, None
+
+
+def is_live(blk):
+    p = (blk or {}).get("pooled")
+    return isinstance(p, dict) and p.get("point") is not None and not p.get("withdrawn")
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    rows = []
+    for p in sorted(glob.glob(os.path.join(REPO, "ssot", "*", "*.json"))):
+        t = os.path.basename(os.path.dirname(p))
+        if os.path.basename(p) != t + ".json":
+            continue
+        try:
+            obj = json.load(io.open(p, encoding="utf-8"))
+        except ValueError:
+            continue
+        by = (obj.get("results") or {}).get("by_outcome") or {}
+        if not by:
+            continue
+        oid, said = first_by_outcome(obj, ("grade", "certainty"))
+        if said is None:
+            continue
+        # A BLOCK MARKED SUPERSEDED IS NOT A LIVE CLAIM. The stale grade block that caused
+        # this defect is kept on the object as evidence of how the wrong number reached the
+        # page; counting it forever would make the audit unable to report success.
+        _g = ((by.get(oid) or {}).get("grade") or {})
+        if any(str(k).startswith("superseded") for k in _g):
+            continue
+        grade = {k: (v or {}).get("certainty")
+                 for k, v in ((obj.get("grade") or {}).get("by_outcome") or {}).items()
+                 if isinstance(v, dict)}
+        live = {k: v for k, v in grade.items() if is_live(by.get(k))}
+        said_n = str(said).upper().replace(" ", "_")
+        authoritative = sorted({str(v).upper() for v in live.values() if v})
+        rows.append({
+            "topic": t, "abstract_says": said_n, "read_from": oid,
+            "read_from_is_live": is_live(by.get(oid)),
+            "grade_on_live_outcomes": authoritative,
+            "mismatch": bool(authoritative) and said_n not in authoritative,
+        })
+
+    bad = [r for r in rows if r["mismatch"] or not r["read_from_is_live"]]
+    print("")
+    print("TOPICS WHOSE ABSTRACT COMPOSES A CERTAINTY CLAIM: %d" % len(rows))
+    print("OF THOSE, WRONG OR READ FROM AN OUTCOME THE REVIEW DOES NOT PUBLISH: %d" % len(bad))
+    print("")
+    print("%-42s %-14s %-10s %-32s %s" % ("topic", "abstract says", "live?", "GRADE on live outcomes", "read from"))
+    for r in sorted(bad, key=lambda x: x["topic"]):
+        print("%-42s %-14s %-10s %-32s %s"
+              % (r["topic"][:42], r["abstract_says"],
+                 "LIVE" if r["read_from_is_live"] else "WITHDRAWN",
+                 ", ".join(r["grade_on_live_outcomes"]) or "(none)", r["read_from"][:30]))
+    if not bad:
+        print("   none")
+    print("")
+    print("A CERTAINTY RATING TAKEN FROM AN OUTCOME THE REVIEW DOES NOT PUBLISH IS NOT THIS")
+    print("REVIEW'S CERTAINTY, whether or not it happens to agree.")
+    # AN AUDIT THAT FINDS A WRONG PUBLISHED RATING AND EXITS 0 IS A REPORT, NOT A CHECK.
+    # `lint_gate_can_fail` refused this file for exactly that and was right: it returns a
+    # verdict about a number a reader meets, so it has to be able to stop a push.
+    if bad:
+        json.dump(rows, io.open(os.path.join(REPO, "outputs",
+                                             "abstract_certainty_source_2026_08_22.json"),
+                                "w", encoding="utf-8"), indent=1)
+        sys.exit("REFUSED: %d abstract(s) state a certainty that its own GRADE record does "
+                 "not hold, or read it from an outcome the review does not publish." % len(bad))
+    json.dump(rows, io.open(os.path.join(REPO, "outputs",
+                                         "abstract_certainty_source_2026_08_22.json"),
+                            "w", encoding="utf-8"), indent=1)
+
+
+if __name__ == "__main__":
+    main()
+
+codex
+I’ll keep this to the pasted module and treat outside corpus/call-site questions as unknowable unless the defect is demonstrable from a concrete input.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=0; Get-Content -LiteralPath '"'F:\\rapidmeta-ssot-shell\\scripts\\audit_abstract_certainty_source_2026_08_22.py' | ForEach-Object { "'$i++; '"'{0,4}: {1}' -f "'$i, $_ }' in F:\rapidmeta-ssot-shell
+ succeeded in 13773ms:
+   1: """Where does the abstract's certainty claim come from, and does it match the GRADE record?
+   2: 
+   3: A WRONG NUMBER IN FRONT OF A READER, FOUND BY READING THE PAGE. The SGLT2 abstract states
+   4: "certainty of the evidence was high". Its GRADE record says LOW on both live outcomes.
+   5: 
+   6: THE MECHANISM, AND IT IS NOT A ROUNDING SLIP:
+   7: 
+   8:     the abstract reads    results.by_outcome.<first key>.grade.certainty
+   9:     the GRADE record is   grade.by_outcome.<oid>.certainty
+  10: 
+  11: Those are different fields. On sglt2-hf the first key is `cvdeath_or_whf_first` -- THE
+  12: WITHDRAWN OUTCOME -- and it carries a stale grade block reading "start high; no downgrades".
+  13: So the abstract publishes a certainty rating taken from an outcome the review does not publish,
+  14: computed before the downgrades that produced the real rating.
+  15: 
+  16: TWO DEFECTS AT ONCE. Reading the wrong field, and selecting the first outcome in KEY ORDER
+  17: without asking whether that outcome is live. Either alone would be enough.
+  18: 
+  19: This audit reports, per topic: what the abstract would say, what GRADE holds, and whether the
+  20: outcome the abstract read from is one the review publishes.
+  21: """
+  22: import glob
+  23: import io
+  24: import json
+  25: import os
+  26: import sys
+  27: 
+  28: # no-control: the known answer IS the corpus. This compares two fields that must agree --
+  29: # what the abstract composes and what the GRADE record holds -- so a synthetic positive case
+  30: # would only restate the comparison, and the real positive case is recorded on the object it
+  31: # was found on: sglt2-hf's superseded grade block, kept precisely so this defect stays
+  32: # demonstrable rather than becoming a claim about a page nobody can re-examine.
+  33: 
+  34: REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+  35: 
+  36: 
+  37: def first_by_outcome(obj, leaf):
+  38:     for oid, blk in sorted(((obj.get("results") or {}).get("by_outcome") or {}).items()):
+  39:         cur = blk
+  40:         for part in leaf:
+  41:             cur = cur.get(part) if isinstance(cur, dict) else None
+  42:         if cur is not None:
+  43:             return oid, cur
+  44:     return None, None
+  45: 
+  46: 
+  47: def is_live(blk):
+  48:     p = (blk or {}).get("pooled")
+  49:     return isinstance(p, dict) and p.get("point") is not None and not p.get("withdrawn")
+  50: 
+  51: 
+  52: def main():
+  53:     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+  54:     rows = []
+  55:     for p in sorted(glob.glob(os.path.join(REPO, "ssot", "*", "*.json"))):
+  56:         t = os.path.basename(os.path.dirname(p))
+  57:         if os.path.basename(p) != t + ".json":
+  58:             continue
+  59:         try:
+  60:             obj = json.load(io.open(p, encoding="utf-8"))
+  61:         except ValueError:
+  62:             continue
+  63:         by = (obj.get("results") or {}).get("by_outcome") or {}
+  64:         if not by:
+  65:             continue
+  66:         oid, said = first_by_outcome(obj, ("grade", "certainty"))
+  67:         if said is None:
+  68:             continue
+  69:         # A BLOCK MARKED SUPERSEDED IS NOT A LIVE CLAIM. The stale grade block that caused
+  70:         # this defect is kept on the object as evidence of how the wrong number reached the
+  71:         # page; counting it forever would make the audit unable to report success.
+  72:         _g = ((by.get(oid) or {}).get("grade") or {})
+  73:         if any(str(k).startswith("superseded") for k in _g):
+  74:             continue
+  75:         grade = {k: (v or {}).get("certainty")
+  76:                  for k, v in ((obj.get("grade") or {}).get("by_outcome") or {}).items()
+  77:                  if isinstance(v, dict)}
+  78:         live = {k: v for k, v in grade.items() if is_live(by.get(k))}
+  79:         said_n = str(said).upper().replace(" ", "_")
+  80:         authoritative = sorted({str(v).upper() for v in live.values() if v})
+  81:         rows.append({
+  82:             "topic": t, "abstract_says": said_n, "read_from": oid,
+  83:             "read_from_is_live": is_live(by.get(oid)),
+  84:             "grade_on_live_outcomes": authoritative,
+  85:             "mismatch": bool(authoritative) and said_n not in authoritative,
+  86:         })
+  87: 
+  88:     bad = [r for r in rows if r["mismatch"] or not r["read_from_is_live"]]
+  89:     print("")
+  90:     print("TOPICS WHOSE ABSTRACT COMPOSES A CERTAINTY CLAIM: %d" % len(rows))
+  91:     print("OF THOSE, WRONG OR READ FROM AN OUTCOME THE REVIEW DOES NOT PUBLISH: %d" % len(bad))
+  92:     print("")
+  93:     print("%-42s %-14s %-10s %-32s %s" % ("topic", "abstract says", "live?", "GRADE on live outcomes", "read from"))
+  94:     for r in sorted(bad, key=lambda x: x["topic"]):
+  95:         print("%-42s %-14s %-10s %-32s %s"
+  96:               % (r["topic"][:42], r["abstract_says"],
+  97:                  "LIVE" if r["read_from_is_live"] else "WITHDRAWN",
+  98:                  ", ".join(r["grade_on_live_outcomes"]) or "(none)", r["read_from"][:30]))
+  99:     if not bad:
+ 100:         print("   none")
+ 101:     print("")
+ 102:     print("A CERTAINTY RATING TAKEN FROM AN OUTCOME THE REVIEW DOES NOT PUBLISH IS NOT THIS")
+ 103:     print("REVIEW'S CERTAINTY, whether or not it happens to agree.")
+ 104:     # AN AUDIT THAT FINDS A WRONG PUBLISHED RATING AND EXITS 0 IS A REPORT, NOT A CHECK.
+ 105:     # `lint_gate_can_fail` refused this file for exactly that and was right: it returns a
+ 106:     # verdict about a number a reader meets, so it has to be able to stop a push.
+ 107:     if bad:
+ 108:         json.dump(rows, io.open(os.path.join(REPO, "outputs",
+ 109:                                              "abstract_certainty_source_2026_08_22.json"),
+ 110:                                 "w", encoding="utf-8"), indent=1)
+ 111:         sys.exit("REFUSED: %d abstract(s) state a certainty that its own GRADE record does "
+ 112:                  "not hold, or read it from an outcome the review does not publish." % len(bad))
+ 113:     json.dump(rows, io.open(os.path.join(REPO, "outputs",
+ 114:                                          "abstract_certainty_source_2026_08_22.json"),
+ 115:                             "w", encoding="utf-8"), indent=1)
+ 116: 
+ 117: 
+ 118: if __name__ == "__main__":
+ 119:     main()
+
+codex
+Defects found:
+
+- **Line 73: idempotency guard satisfied by its own marker.** Exact input, as only matching file `ssot/demo/demo.json`:
+```json
+{"results":{"by_outcome":{"a":{"pooled":{"point":1,"withdrawn":true},"grade":{"certainty":"HIGH","superseded":false}},"b":{"pooled":{"point":1,"withdrawn":false}}}},"grade":{"by_outcome":{"b":{"certainty":"LOW"}}}}
+```
+Consequence: the topic is skipped before `bad` is computed, so even `superseded:false` disables the audit while the abstract still reads `HIGH` from withdrawn `a`.
+
+- **Lines 75-85 and 88: absent GRADE is treated as no mismatch.** Exact input, as only matching file `ssot/demo/demo.json`:
+```json
+{"results":{"by_outcome":{"a":{"pooled":{"point":1,"withdrawn":false},"grade":{"certainty":"HIGH"}}}},"grade":{"by_outcome":{}}}
+```
+Consequence: `authoritative=[]`, `mismatch=False`, `bad=[]`, so a certainty claim with no live GRADE record exits 0.
+
+- **Lines 59-62: check can pass over unreadable source data.** Exact input, as only matching file `ssot/demo/demo.json`:
+```json
+{
+```
+Consequence: malformed SSOT is silently skipped, producing zero rows and exit 0 instead of failing closed.
+
+Not found: CRLF/LF text comparison, merged-cell/off-by-one tabulation, numeric zero dropped as absent, negation dropped, or wrapper status code masking a subprocess.
+
+COULD NOT DETERMINE: different-copy instrumentation and corpus-form selector coverage; missing the abstract composer/caller and actual `ssot` corpus layout.
+tokens used
+21,852
+Defects found:
+
+- **Line 73: idempotency guard satisfied by its own marker.** Exact input, as only matching file `ssot/demo/demo.json`:
+```json
+{"results":{"by_outcome":{"a":{"pooled":{"point":1,"withdrawn":true},"grade":{"certainty":"HIGH","superseded":false}},"b":{"pooled":{"point":1,"withdrawn":false}}}},"grade":{"by_outcome":{"b":{"certainty":"LOW"}}}}
+```
+Consequence: the topic is skipped before `bad` is computed, so even `superseded:false` disables the audit while the abstract still reads `HIGH` from withdrawn `a`.
+
+- **Lines 75-85 and 88: absent GRADE is treated as no mismatch.** Exact input, as only matching file `ssot/demo/demo.json`:
+```json
+{"results":{"by_outcome":{"a":{"pooled":{"point":1,"withdrawn":false},"grade":{"certainty":"HIGH"}}}},"grade":{"by_outcome":{}}}
+```
+Consequence: `authoritative=[]`, `mismatch=False`, `bad=[]`, so a certainty claim with no live GRADE record exits 0.
+
+- **Lines 59-62: check can pass over unreadable source data.** Exact input, as only matching file `ssot/demo/demo.json`:
+```json
+{
+```
+Consequence: malformed SSOT is silently skipped, producing zero rows and exit 0 instead of failing closed.
+
+Not found: CRLF/LF text comparison, merged-cell/off-by-one tabulation, numeric zero dropped as absent, negation dropped, or wrapper status code masking a subprocess.
+
+COULD NOT DETERMINE: different-copy instrumentation and corpus-form selector coverage; missing the abstract composer/caller and actual `ssot` corpus layout.

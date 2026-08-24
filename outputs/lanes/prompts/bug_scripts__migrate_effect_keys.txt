@@ -1,0 +1,122 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/migrate_effect_keys.py
+
+--- THE FILE, IN FULL ---
+"""One-time ledger migration: `::effect` -> `::effect_point`.
+
+Cause, recorded because it is the kind that repeats: when state_of was extended
+to capture the whole interval, the point estimate's key was RENAMED from
+`::effect` to `::effect_point`. The ledger is monotonic by design -- it never
+subtracts -- so 47 old-format keys stayed in it, the guard stopped emitting
+them, and the pointer-set difference read every one as a vanished cell. Eight
+apps went red, including arni-hfref. The gate was not wrong; it was reporting a
+schema change nobody had told it about.
+
+The migration is deliberately narrow. A key is renamed ONLY when the value it
+holds still equals what the object emits today for the new key. Where they
+differ, the rename would bury a real change underneath a schema fix -- which is
+exactly the laundering the ledger exists to prevent -- so those are reported and
+left alone for adjudication.
+
+Run with --apply to write. Default is a dry run.
+"""
+import io
+import json
+import os
+import sys
+
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+sys.path.insert(0, "scripts")
+import regression_guard as R  # noqa: E402
+
+LEDGER = "evidence/LEDGER.json"
+APPLY = "--apply" in sys.argv
+
+led = json.load(open(LEDGER, encoding="utf-8"))
+renamed, mismatched, orphaned, collided = [], [], [], []
+
+for app, a in led["apps"].items():
+    vals = a.get("values") or {}
+    cells = a.get("cells") or []
+    old_keys = [k for k in vals if k.endswith("::effect")]
+    if not old_keys:
+        continue
+
+    path = os.path.join("ssot", app, "%s.json" % app)
+    if not os.path.exists(path):
+        orphaned.extend((app, k) for k in old_keys)
+        continue
+    st = R.state_of(json.load(open(path, encoding="utf-8")))
+
+    for k in old_keys:
+        new = k + "_point"
+        was = vals[k]
+        now = st["values"].get(new)
+        if new in vals:
+            collided.append((k, vals[k], vals[new]))
+            continue
+        if now is None:
+            orphaned.append((app, k))
+            continue
+        if now != was:
+            mismatched.append((k, was, now))
+            continue
+        if APPLY:
+            vals[new] = was
+            del vals[k]
+            a["cells"] = sorted(set(c for c in cells if c != k) | {new})
+            cells = a["cells"]
+        renamed.append((k, was))
+
+print("renamed   : %d" % len(renamed))
+print("mismatched: %d  (value moved -- NOT migrated, needs adjudication)" % len(mismatched))
+print("orphaned  : %d  (no current counterpart -- left in place)" % len(orphaned))
+print("collided  : %d  (both keys present -- left in place)" % len(collided))
+for k, was, now in mismatched:
+    print("  MISMATCH %s  ledger=%s  object=%s" % (k, was, now))
+for app, k in orphaned[:8]:
+    print("  ORPHAN   %s" % k)
+for k, a_, b_ in collided[:8]:
+    print("  COLLIDE  %s  old=%s new=%s" % (k, a_, b_))
+
+if APPLY:
+    if mismatched or collided:
+        print("\nREFUSING to write: a mismatch or collision must be adjudicated first.")
+        sys.exit(2)
+    json.dump(led, open(LEDGER, "w", encoding="utf-8"), indent=2, ensure_ascii=False)
+    print("\nwrote %s" % LEDGER)
+else:
+    print("\ndry run; pass --apply to write")

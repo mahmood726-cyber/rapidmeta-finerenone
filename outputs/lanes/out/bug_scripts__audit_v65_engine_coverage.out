@@ -1,0 +1,271 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a03154-f6e8-72f3-a802-62a0342565e9
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/audit_v65_engine_coverage.py
+
+--- THE FILE, IN FULL ---
+"""
+Portfolio reverification: Cochrane v6.5 / RevMan-2025 engine coverage.
+
+Mirrors the Sentinel `cochrane_v65_invariants.py` rule but emits a
+per-dashboard coverage matrix CSV instead of WARN findings. Lets you see
+at a glance which of the 170 dashboards already carry the v6.5
+invariants and which still need backfill -- so we can finish hardening
+the existing portfolio before adding new topics.
+
+Eight invariants checked (same set as Sentinel rule):
+  V1. REML iteration   (`tau2_reml`)
+  V2. REML primary     (`const tau2_dl =` + `tau2 = (k >= 2) ? tau2_reml`)
+  V3. Q-profile tau2   (`qProfileTau2CI(`)
+  V4. qchisq low-df    (`qchisq` + `df === 1`)
+  V5. HKSJ floor       (`Math.max(1, qStar)`)
+  V6. PI df=k-1        (`// PI df = k-1 per Cochrane Handbook v6.5`)
+  V7. ROB-ME           (`_assessROBME(`)
+  V8. MH pool          (`_mhPool(`)
+
+Pairwise *_REVIEW.html dashboards expected to satisfy all eight.
+DTA *_DTA_REVIEW.html dashboards loaded from rapidmeta-dta-engine-v1.js
+are skipped (different engine; separate Sentinel rule).
+"""
+from __future__ import annotations
+
+import argparse
+import csv
+import io
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+DEFAULT_CSV = ROOT / "outputs" / "v65_engine_coverage.csv"
+
+CHECKS = [
+    # Mirrors C:\Sentinel\sentinel\rules\plugins\cochrane_v65_invariants.py.
+    # See that rule for the full rationale of each needle pair. Both audits
+    # now require call-site / push-site presence, not just helper-function
+    # definition (closes the 2026-04-30 silent-no-render gap).
+    ("V1_REML_iter",     ["tau2_reml"]),
+    ("V2_REML_primary",  ["const tau2_dl =", "const tau2 = (k >= 2) ? tau2_reml"]),
+    ("V3_Qprofile_tau2", ["qProfileTau2CI =", "qProfileTau2CI("]),
+    ("V4_qchisq_lowdf",  ["qchisq", "df === 1"]),
+    ("V5_HKSJ_floor",    ["Math.max(1, qStar)"]),
+    ("V6_PI_df_kminus1", ["// PI df = k-1 per Cochrane Handbook v6.5"]),
+    ("V7_ROBME",         ["_assessROBME(", "this._assessROBME("]),
+    # V8 accepts both engine families: IL23-style `_mhPool(plotData...)` and
+    # older `mhPoolOR(...)`/`mhPoolRR(...)` pair. The substring `mhPool`
+    # matches all four; the second needle confirms the method actually
+    # gets pushed into the methods/sensitivity-scenarios array.
+    ("V8_MH_pool",       ["mhPool", "Mantel-Haenszel"]),
+]
+
+
+def is_pairwise_dashboard(text: str, name: str) -> bool:
+    if name.endswith("_DTA_REVIEW.html"):
+        return False
+    return ("realData:" in text) or ("realData =" in text)
+
+
+def check_file(path: Path) -> dict:
+    try:
+        text = path.read_text(encoding="utf-8", errors="replace")
+    except Exception:
+        return {"dashboard": path.name, "skipped": "read_error"}
+
+    if not is_pairwise_dashboard(text, path.name):
+        return {"dashboard": path.name, "skipped": "not_pairwise_engine"}
+
+    row = {"dashboard": path.name}
+    failed: list[str] = []
+    for label, needles in CHECKS:
+        ok = all(n in text for n in needles)
+        row[label] = "ok" if ok else "FAIL"
+        if not ok:
+            failed.append(label)
+    row["fail_count"] = len(failed)
+    row["failed"] = ";".join(failed)
+    return row
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--csv", type=Path, default=DEFAULT_CSV)
+    ap.add_argument("--root", type=Path, default=ROOT)
+    args = ap.parse_args()
+
+    if hasattr(sys.stdout, "buffer"):
+        sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace", line_buffering=True)
+
+    dashboards = sorted(p for p in args.root.glob("*_REVIEW.html") if p.is_file())
+
+    rows: list[dict] = []
+    skipped_dta = 0
+    for p in dashboards:
+        r = check_file(p)
+        if r.get("skipped") == "not_pairwise_engine":
+            skipped_dta += 1
+            continue
+        if "skipped" in r:
+            continue
+        rows.append(r)
+
+    args.csv.parent.mkdir(parents=True, exist_ok=True)
+    fields = ["dashboard"] + [c[0] for c in CHECKS] + ["fail_count", "failed"]
+    with args.csv.open("w", encoding="utf-8", newline="") as fh:
+        w = csv.DictWriter(fh, fieldnames=fields)
+        w.writeheader()
+        w.writerows(rows)
+
+    total = len(rows)
+    fully_compliant = sum(1 for r in rows if r["fail_count"] == 0)
+    partial = sum(1 for r in rows if 0 < r["fail_count"] < len(CHECKS))
+    none = sum(1 for r in rows if r["fail_count"] == len(CHECKS))
+
+    print(f"{len(dashboards)} dashboards on disk")
+    print(f"  pairwise engine (audited): {total}")
+    print(f"  DTA / non-pairwise (skipped): {skipped_dta}")
+    print(f"")
+    print(f"v6.5 invariant compliance:")
+    print(f"  fully compliant (8/8):     {fully_compliant}")
+    print(f"  partial (1-7 missing):     {partial}")
+    print(f"  none (all 8 missing):      {none}")
+    print(f"")
+    print(f"Per-check failure counts:")
+    for label, _ in CHECKS:
+        n_fail = sum(1 for r in rows if r.get(label) == "FAIL")
+        print(f"  {label:24} FAIL: {n_fail}")
+
+    print(f"")
+    print(f"CSV written: {args.csv}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+
+codex
+Line numbers count from the opening `"""`.
+
+- **Line 73: idempotency guard satisfied by comment/marker.**  
+  Exact input file `A_REVIEW.html`:
+  ```html
+  <!-- realData: tau2_reml const tau2_dl = const tau2 = (k >= 2) ? tau2_reml qProfileTau2CI = qProfileTau2CI( qchisq df === 1 Math.max(1, qStar) // PI df = k-1 per Cochrane Handbook v6.5 _assessROBME( this._assessROBME( mhPool Mantel-Haenszel -->
+  ```
+  Consequence: a dashboard with no executable engine code is reported fully compliant because every invariant is only a raw substring match.
+
+- **Line 45: check keyed to its own prose marker.**  
+  Exact input file `B_REVIEW.html`:
+  ```html
+  <script>realData: []; // PI df = k-1 per Cochrane Handbook v6.5</script>
+  ```
+  Consequence: `V6_PI_df_kminus1` reports `ok` even when no prediction-interval df calculation exists.
+
+- **Line 46: selector collapses to only the call spelling, not the binding.**  
+  Exact input file `C_REVIEW.html`:
+  ```html
+  <script>realData: []; this._assessROBME();</script>
+  ```
+  Consequence: `V7_ROBME` reports `ok` because `_assessROBME(` is a substring of `this._assessROBME(`, so the supposed second check does not prove the method exists.
+
+- **Line 58: selector keyed to a narrow form.**  
+  Exact input file `D_REVIEW.html`:
+  ```html
+  <script>const realData=[];</script>
+  ```
+  Consequence: this `_REVIEW.html` file is skipped as `not_pairwise_engine` solely because the selector requires `realData:` or `realData =` with that exact spacing.
+
+- **Line 132: check cannot fail on invariant failure.**  
+  Exact input directory containing only `E_REVIEW.html`:
+  ```html
+  <script>realData: [];</script>
+  ```
+  Consequence: all eight checks fail in the CSV, but `main()` still exits `0`, so a caller cannot use process status as a gate.
+
+No proven CRLF/LF text-compare defect.  
+No proven merged-cell/off-by-one defect.  
+No proven zero-conflated-with-absent defect.  
+COULD NOT DETERMINE different-copy defects: caller/deploy workflow is missing.
+tokens used
+13,158
+Line numbers count from the opening `"""`.
+
+- **Line 73: idempotency guard satisfied by comment/marker.**  
+  Exact input file `A_REVIEW.html`:
+  ```html
+  <!-- realData: tau2_reml const tau2_dl = const tau2 = (k >= 2) ? tau2_reml qProfileTau2CI = qProfileTau2CI( qchisq df === 1 Math.max(1, qStar) // PI df = k-1 per Cochrane Handbook v6.5 _assessROBME( this._assessROBME( mhPool Mantel-Haenszel -->
+  ```
+  Consequence: a dashboard with no executable engine code is reported fully compliant because every invariant is only a raw substring match.
+
+- **Line 45: check keyed to its own prose marker.**  
+  Exact input file `B_REVIEW.html`:
+  ```html
+  <script>realData: []; // PI df = k-1 per Cochrane Handbook v6.5</script>
+  ```
+  Consequence: `V6_PI_df_kminus1` reports `ok` even when no prediction-interval df calculation exists.
+
+- **Line 46: selector collapses to only the call spelling, not the binding.**  
+  Exact input file `C_REVIEW.html`:
+  ```html
+  <script>realData: []; this._assessROBME();</script>
+  ```
+  Consequence: `V7_ROBME` reports `ok` because `_assessROBME(` is a substring of `this._assessROBME(`, so the supposed second check does not prove the method exists.
+
+- **Line 58: selector keyed to a narrow form.**  
+  Exact input file `D_REVIEW.html`:
+  ```html
+  <script>const realData=[];</script>
+  ```
+  Consequence: this `_REVIEW.html` file is skipped as `not_pairwise_engine` solely because the selector requires `realData:` or `realData =` with that exact spacing.
+
+- **Line 132: check cannot fail on invariant failure.**  
+  Exact input directory containing only `E_REVIEW.html`:
+  ```html
+  <script>realData: [];</script>
+  ```
+  Consequence: all eight checks fail in the CSV, but `main()` still exits `0`, so a caller cannot use process status as a gate.
+
+No proven CRLF/LF text-compare defect.  
+No proven merged-cell/off-by-one defect.  
+No proven zero-conflated-with-absent defect.  
+COULD NOT DETERMINE different-copy defects: caller/deploy workflow is missing.

@@ -1,0 +1,193 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a03250-7f6a-7852-a508-53af76bcbd5d
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/reml_primary_outlier_pools.py
+
+--- THE FILE, IN FULL ---
+"""
+Add REML iteration + REML primary tau2 to the 3 outlier binary pools that
+use a simpler `(Q > df && sW > 0)` guard format.
+
+Currently these 3 dashboards (COLCHICINE_CVD, GLP1_CVOT, SGLT2_HF) use a
+DL-only pool. After this script, primary tau2 = REML when k>=2.
+
+Anchors are line-by-line, idempotent.
+
+Usage: python scripts/reml_primary_outlier_pools.py [--dry-run]
+"""
+import argparse
+import io
+import os
+import sys
+
+if sys.platform == 'win32':
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+
+ROOT = os.environ.get(
+    'RAPIDMETA_REPO_ROOT',
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+)
+
+OLD = (
+    "                const tau2 = (Q > df && sW > 0) ? (Q - df) / (sW - (sW2 / sW)) : 0;\n"
+)
+NEW = (
+    "                // DL tau2 (kept as sensitivity sidecar, exposed via tau2_dl)\n"
+    "                const tau2_dl = (Q > df && sW > 0) ? (Q - df) / (sW - (sW2 / sW)) : 0;\n"
+    "\n"
+    "                // REML iteration starting from DL (Cochrane v6.5 / RevMan-2025: REML primary).\n"
+    "                let tau2_reml = tau2_dl;\n"
+    "                if (k >= 2) {\n"
+    "                    const _yi = plotData.map(d => d.logOR);\n"
+    "                    const _vi = plotData.map(d => d.vi);\n"
+    "                    for (let _it = 0; _it < 100; _it++) {\n"
+    "                        const _w = _vi.map(v => 1 / (v + tau2_reml));\n"
+    "                        const _sW = _w.reduce((a, b) => a + b, 0);\n"
+    "                        const _mu = _w.reduce((a, wi, i) => a + wi * _yi[i], 0) / _sW;\n"
+    "                        const _sW2 = _w.reduce((a, wi) => a + wi * wi, 0);\n"
+    "                        const _sW3 = _w.reduce((a, wi) => a + wi * wi * wi, 0);\n"
+    "                        const _trP = _sW - _sW2 / _sW;\n"
+    "                        const _yP2y = _w.reduce((a, wi, i) => a + wi * wi * Math.pow(_yi[i] - _mu, 2), 0);\n"
+    "                        const _trP2 = _sW2 - 2 * _sW3 / _sW + _sW2 * _sW2 / (_sW * _sW);\n"
+    "                        if (_trP2 < 1e-15) break;\n"
+    "                        const _delta = (_yP2y - _trP) / _trP2;\n"
+    "                        const _new = Math.max(0, tau2_reml + _delta);\n"
+    "                        if (Math.abs(_new - tau2_reml) < 1e-10) { tau2_reml = _new; break; }\n"
+    "                        tau2_reml = _new;\n"
+    "                    }\n"
+    "                }\n"
+    "                // Primary tau2 = REML when k>=2 (Cochrane v6.5 default), else DL.\n"
+    "                const tau2 = (k >= 2) ? tau2_reml : tau2_dl;\n"
+)
+
+FIXED_MARKER = "                const tau2_dl = (Q > df && sW > 0)"
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument('--dry-run', action='store_true')
+    args = ap.parse_args()
+    print(f'Mode: {"DRY-RUN" if args.dry_run else "APPLY"}')
+    files = sorted(
+        f for f in os.listdir(ROOT)
+        if f.endswith('_REVIEW.html') and not f.endswith('.bak.html')
+    )
+    summary = {'changed': 0, 'unchanged': 0}
+    for fname in files:
+        path = os.path.join(ROOT, fname)
+        src = open(path, 'r', encoding='utf-8').read()
+        if FIXED_MARKER in src:
+            summary['unchanged'] += 1
+            continue
+        if OLD not in src:
+            summary['unchanged'] += 1
+            continue
+        out = src.replace(OLD, NEW, 1)
+        if not args.dry_run:
+            open(path, 'w', encoding='utf-8').write(out)
+        summary['changed'] += 1
+    print(f'Summary: {summary}')
+    return 0
+
+
+if __name__ == '__main__':
+    sys.exit(main())
+
+codex
+Defects found:
+
+1. **Line 69: idempotency guard satisfied by marker, not work.**  
+Exact input: any `X_REVIEW.html` containing both  
+`<!--                 const tau2_dl = (Q > df && sW > 0) -->`  
+and  
+`                const tau2 = (Q > df && sW > 0) ? (Q - df) / (sW - (sW2 / sW)) : 0;`  
+Consequence: the script counts the file as unchanged and leaves the DL-only `tau2` line unfixed.
+
+2. **Lines 35 and 73: probe keyed to the string the fix removes.**  
+Exact input: an `X_REVIEW.html` where the target code is semantically the same but already formatted differently, e.g.  
+`const tau2 = (Q > df && sW > 0) ? (Q - df) / (sW - (sW2 / sW)) : 0;`  
+without the 16 leading spaces.  
+Consequence: `OLD not in src` fires, the file is reported unchanged, and the intended fix is not applied.
+
+3. **Line 77: values compared/written as text where line endings differ.**  
+Exact input: on Windows, an LF-only `X_REVIEW.html` containing the exact `OLD` string.  
+Consequence: `open(..., 'w', encoding='utf-8')` rewrites the whole file using platform newline translation, so unrelated LF lines become CRLF and the patch appears much larger than the real change.
+
+4. **Line 78: status code reports wrapper success, not work success.**  
+Exact input: a repo containing the three intended files, but all use `const tau2=(Q > df && sW > 0)?...` spacing rather than exact `OLD`.  
+Consequence: the script prints `Summary: {'changed': 0, 'unchanged': 3}` and exits `0`, so automation can pass although no target was fixed.
+
+No proven merged-cell/off-by-one defect in this file.  
+No proven zero-conflated-with-absent defect in this file.  
+No proven negation-dropped defect in this file.
+tokens used
+6,523
+Defects found:
+
+1. **Line 69: idempotency guard satisfied by marker, not work.**  
+Exact input: any `X_REVIEW.html` containing both  
+`<!--                 const tau2_dl = (Q > df && sW > 0) -->`  
+and  
+`                const tau2 = (Q > df && sW > 0) ? (Q - df) / (sW - (sW2 / sW)) : 0;`  
+Consequence: the script counts the file as unchanged and leaves the DL-only `tau2` line unfixed.
+
+2. **Lines 35 and 73: probe keyed to the string the fix removes.**  
+Exact input: an `X_REVIEW.html` where the target code is semantically the same but already formatted differently, e.g.  
+`const tau2 = (Q > df && sW > 0) ? (Q - df) / (sW - (sW2 / sW)) : 0;`  
+without the 16 leading spaces.  
+Consequence: `OLD not in src` fires, the file is reported unchanged, and the intended fix is not applied.
+
+3. **Line 77: values compared/written as text where line endings differ.**  
+Exact input: on Windows, an LF-only `X_REVIEW.html` containing the exact `OLD` string.  
+Consequence: `open(..., 'w', encoding='utf-8')` rewrites the whole file using platform newline translation, so unrelated LF lines become CRLF and the patch appears much larger than the real change.
+
+4. **Line 78: status code reports wrapper success, not work success.**  
+Exact input: a repo containing the three intended files, but all use `const tau2=(Q > df && sW > 0)?...` spacing rather than exact `OLD`.  
+Consequence: the script prints `Summary: {'changed': 0, 'unchanged': 3}` and exits `0`, so automation can pass although no target was fixed.
+
+No proven merged-cell/off-by-one defect in this file.  
+No proven zero-conflated-with-absent defect in this file.  
+No proven negation-dropped defect in this file.

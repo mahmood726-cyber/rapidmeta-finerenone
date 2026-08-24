@@ -1,0 +1,683 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a031db-f439-7d32-8c30-fbf8948f99c4
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/inject_jsonld_and_a11y.py
+
+--- THE FILE, IN FULL ---
+"""D3 + C6: Schema.org JSON-LD + lightweight accessibility patches.
+
+D3. For every *.html page, inject a Schema.org `MedicalScholarlyArticle`
+    JSON-LD block in <head>:
+      - headline      = page <title>
+      - description   = existing meta description (D1) or PICO digest
+      - datePublished = file mtime (best-available signal)
+      - dateModified  = same
+      - author        = Mahmood Ahmad
+      - publisher     = RapidMeta (Organization)
+      - url           = canonical https://...github.io/.../<file>
+      - about         = first PICO `cond` or `condition`
+      - keywords      = drug + condition + 'meta-analysis, living review'
+    Skip if a JSON-LD block already exists.
+
+C6. Three low-risk a11y improvements:
+      - Ensure <html lang="en"> is set (some pages don't have it).
+      - Inject a "skip to main content" link as the first <body> child for
+        keyboard users (visually hidden, focus-visible).
+      - Add aria-label to icon-only <button>/<a> elements that have no
+        text content but do have an onclick/href. Uses the `title=` attr
+        when present, else falls back to the icon class name or a sensible
+        default ("Action button").
+
+Both passes are idempotent — they each leave a marker comment so re-runs
+detect previous injections and no-op.
+"""
+from __future__ import annotations
+import json
+import re
+import sys
+import io
+from datetime import date
+from pathlib import Path
+
+if "pytest" not in sys.modules and hasattr(sys.stdout, "buffer"):
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+HERE = Path(__file__).resolve().parent.parent
+PAGES_BASE = "https://mahmood726-cyber.github.io/rapidmeta-finerenone/"
+
+TITLE_RE = re.compile(r"<title>(.*?)</title>", re.DOTALL | re.IGNORECASE)
+DESC_RE = re.compile(r'<meta\s+name="description"\s+content="([^"]*)"', re.IGNORECASE)
+HEAD_END_RE = re.compile(r"</head>", re.IGNORECASE)
+PICO_FIELD_RE = re.compile(r"\b(pop|int|comp|out|drug|cond|condition):\s*'((?:[^'\\]|\\.)*)'")
+HTML_OPEN_RE = re.compile(r"<html(\s[^>]*)?>", re.IGNORECASE)
+BODY_OPEN_RE = re.compile(r"<body(\s[^>]*)?>", re.IGNORECASE)
+
+JSONLD_MARK = "<!-- jsonld:begin -->"
+JSONLD_END = "<!-- jsonld:end -->"
+SKIPLINK_MARK = "<!-- a11y-skiplink:begin -->"
+SKIPLINK_END = "<!-- a11y-skiplink:end -->"
+
+SKIPLINK_BLOCK = (
+    f"{SKIPLINK_MARK}\n"
+    '<a href="#main" class="rm-a11y-skiplink" '
+    'style="position:absolute;left:-999px;top:auto;width:1px;height:1px;'
+    'overflow:hidden;z-index:9999;background:#0b1220;color:#fff;'
+    'padding:8px 12px;border-radius:0 0 6px 0;text-decoration:none;'
+    'font-family:system-ui,-apple-system,sans-serif;font-size:14px;" '
+    'onfocus="this.style.left=\'0\';this.style.top=\'0\';this.style.width=\'auto\';'
+    'this.style.height=\'auto\';" '
+    'onblur="this.style.left=\'-999px\';">Skip to main content</a>\n'
+    f"{SKIPLINK_END}"
+)
+
+
+def extract_first_pico(txt: str, key: str) -> str | None:
+    for m in PICO_FIELD_RE.finditer(txt):
+        if m.group(1) == key:
+            return m.group(2).replace("\\'", "'")
+    return None
+
+
+def jsonld_for(p: Path, txt: str) -> str | None:
+    if JSONLD_MARK in txt:
+        return None  # already injected
+    title_m = TITLE_RE.search(txt)
+    headline = title_m.group(1).strip() if title_m else p.stem.replace("_", " ").title()
+    desc_m = DESC_RE.search(txt)
+    description = desc_m.group(1).strip() if desc_m else None
+
+    drug = extract_first_pico(txt, "drug") or extract_first_pico(txt, "int")
+    cond = extract_first_pico(txt, "cond") or extract_first_pico(txt, "condition")
+    if drug:
+        drug = drug.split("(")[0].strip()
+    if cond:
+        cond = cond.split("(")[0].strip()
+    keywords = ["meta-analysis", "living review", "RapidMeta"]
+    if drug:
+        keywords.append(drug)
+    if cond:
+        keywords.append(cond)
+
+    mtime = date.fromtimestamp(p.stat().st_mtime).isoformat()
+    url = PAGES_BASE if p.name == "index.html" else PAGES_BASE + p.name
+
+    payload = {
+        "@context": "https://schema.org",
+        "@type": "MedicalScholarlyArticle",
+        "headline": _clean(headline),
+        "name": _clean(headline),
+        "url": url,
+        "datePublished": mtime,
+        "dateModified": mtime,
+        "inLanguage": "en",
+        "author": {
+            "@type": "Person",
+            "name": "Mahmood Ahmad",
+            "identifier": "https://orcid.org/",
+        },
+        "publisher": {
+            "@type": "Organization",
+            "name": "RapidMeta",
+            "url": PAGES_BASE,
+        },
+        "isAccessibleForFree": True,
+        "keywords": ", ".join(keywords),
+    }
+    if description:
+        payload["description"] = description[:5000]
+    if cond:
+        payload["about"] = {"@type": "MedicalCondition", "name": cond}
+    if drug:
+        payload["mentions"] = {"@type": "Drug", "name": drug}
+
+    json_str = json.dumps(payload, separators=(",", ":"), ensure_ascii=False)
+    return (
+        f"{JSONLD_MARK}\n"
+        f'<script type="application/ld+json">{json_str}</script>\n'
+        f"{JSONLD_END}"
+    )
+
+
+def _clean(s: str) -> str:
+    s = re.sub(r"\s+", " ", s).strip()
+    return s[:300]
+
+
+def patch_html(p: Path) -> dict:
+    txt = p.read_text(encoding="utf-8", errors="replace")
+    orig = txt
+    stats = {"jsonld": False, "lang": False, "skiplink": False, "aria": 0}
+
+    # D3 JSON-LD
+    block = jsonld_for(p, txt)
+    if block and "</head>" in txt:
+        txt = txt.replace("</head>", block + "\n</head>", 1)
+        stats["jsonld"] = True
+
+    # C6.1 <html lang="en">
+    html_m = HTML_OPEN_RE.search(txt)
+    if html_m and "lang=" not in html_m.group(0):
+        new_open = html_m.group(0).replace("<html", '<html lang="en"', 1)
+        txt = txt[: html_m.start()] + new_open + txt[html_m.end():]
+        stats["lang"] = True
+
+    # C6.2 skip-link
+    if SKIPLINK_MARK not in txt and "<body" in txt:
+        # Insert right after the opening <body ...>
+        body_m = BODY_OPEN_RE.search(txt)
+        if body_m:
+            insert_at = body_m.end()
+            txt = txt[:insert_at] + "\n" + SKIPLINK_BLOCK + txt[insert_at:]
+            stats["skiplink"] = True
+            # Add id="main" to the first content container if it doesn't already have one.
+            main_m = re.search(r'<main(\s[^>]*)?>', txt[insert_at + len(SKIPLINK_BLOCK):], re.IGNORECASE)
+            if main_m:
+                seg_start = insert_at + len(SKIPLINK_BLOCK)
+                mm = re.search(r'<main(\s[^>]*)?>', txt[seg_start:], re.IGNORECASE)
+                attrs = mm.group(1) or ""
+                if 'id=' not in attrs:
+                    repl = f'<main id="main"{attrs}>'
+                    txt = txt[: seg_start + mm.start()] + repl + txt[seg_start + mm.end():]
+
+    # C6.3 aria-label on empty button/anchor with onclick/href but no text
+    # Only target buttons/anchors that contain a single <i class="..."> icon and no text node.
+    def add_aria(match):
+        tag = match.group(0)
+        if "aria-label" in tag:
+            return tag
+        title_m = re.search(r'\btitle="([^"]+)"', tag)
+        label = title_m.group(1) if title_m else None
+        if not label:
+            # Try data-tooltip / data-action.
+            for attr in ("data-tooltip", "data-action", "aria-labelledby"):
+                m2 = re.search(rf'\b{attr}="([^"]+)"', tag)
+                if m2:
+                    label = m2.group(1); break
+        if not label:
+            label = "Toolbar action"
+        stats["aria"] += 1
+        # Insert aria-label right after the tag name.
+        return re.sub(r"^<(\w+)", rf'<\1 aria-label="{label}"', tag, count=1)
+
+    txt = re.sub(
+        r'<button(?![^>]*aria-label)[^>]*>\s*<i\s+class="[^"]*"\s*></i>\s*</button>',
+        add_aria, txt,
+    )
+
+    if txt != orig:
+        p.write_text(txt, encoding="utf-8")
+    return stats
+
+
+def main():
+    targets = sorted(p for p in HERE.glob("*.html") if p.is_file())
+    print(f"Scanning {len(targets):,} pages...")
+    n_jsonld = n_lang = n_skip = n_aria = 0
+    files_touched = 0
+    for i, p in enumerate(targets, 1):
+        s = patch_html(p)
+        if any([s["jsonld"], s["lang"], s["skiplink"], s["aria"]]):
+            files_touched += 1
+        n_jsonld += int(s["jsonld"])
+        n_lang += int(s["lang"])
+        n_skip += int(s["skiplink"])
+        n_aria += s["aria"]
+        if i % 300 == 0:
+            print(f"  [{i}/{len(targets)}] {p.name}")
+    print(f"\nFiles touched          : {files_touched:,}")
+    print(f"  JSON-LD injected     : {n_jsonld:,}")
+    print(f"  <html lang> added    : {n_lang:,}")
+    print(f"  skip-link added      : {n_skip:,}")
+    print(f"  aria-label added     : {n_aria:,} buttons")
+
+
+if __name__ == "__main__":
+    main()
+
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Get-Content -Path F:\\ProjectIndex\\INDEX.md -TotalCount 40" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Get-Content -Path F:\\E156\\rewrite-workbook.txt -TotalCount 40" in F:\rapidmeta-ssot-shell
+ succeeded in 392ms:
+<!-- sentinel:skip-file - portfolio registry; absolute paths ARE the data -->
+# C: Drive Project Index
+> **Last updated**: 2026-05-14 (C:\HTML apps focused repair batch continued: hub shell launch fix, static contracts across ten HTML app repos, NMA/living-meta/nma-dose-response landing and asset-link repairs, and NMA doc hardcoded-path cleanup. Prior SheafNMA v0.2.0, D-drive legacy smoke-contract continuation, CardioOracle lifecycle status freeze, C-drive model/project smoke-contract continuation, mahmood789 consolidation, Sentinel/Overmind JSONL and verification repair, C-drive reproducibility audit continuation, C-drive verification repair, D-drive repair batch, superapp, C-drive sweep, home-folder hardening, Trial Truthfulness Atlas, and portfolio notes retained below.)
+
+### C:\HTML apps focused repair batch (2026-05-14)
+> - `C:\HTML apps\hub\`: added a launchable `index.html` shell and static contract tests for required registry/runtime wiring; fixed `app.js` local `file://` launch resolution so the hub opened from `hub\index.html` links sibling apps from the parent HTML-apps directory instead of nesting paths under `hub`. Verification: `pytest -q -p no:cacheprovider` -> `3 passed`; `node --check app.js && node --check projects.js` -> PASS; headless Chrome smoke on `file:///mnt/c/HTML%20apps/hub/index.html` confirmed the page title and sibling app links. GitHub pushed: `mahmood726-cyber/hub` main `c1a6725`.
+> - `C:\HTML apps\evidence-board\`, `C:\HTML apps\focus-studio\`, `C:\HTML apps\kanban-lab\`: added pytest-visible static app shell contracts covering title/description, localStorage persistence hooks, key controls, and absence of unresolved templates or hardcoded local drive paths; added repo `.gitignore` entries for Python caches and `PROGRESS.md`. Verification: each `pytest -q -p no:cacheprovider` -> `2 passed` with the existing pytest `cache_dir` warning; scoped `git diff --check` -> PASS. GitHub pushed: `evidence-board` master `9a87c8b`, `focus-studio` master `0fa728b`, `kanban-lab` master `81cad38`.
+> - `C:\HTML apps\nma-pro-v2\`: fixed the landing page's broken app links from absent v6/v7 asset filenames to the current `e156-submission/assets/nma-pro-v8.0.html`, added static link-resolution contracts, and removed Sentinel P0 hardcoded local OneDrive paths from legacy docs. Verification: `pytest -q -p no:cacheprovider tests/test_smoke.py tests/test_static_links.py` -> `3 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=1 INFO=302` (pre-existing tracked autogen warning plus HTML a11y INFO). GitHub pushed: master `a2834e7` for the link fix and master `a74e385` for the P0 doc cleanup.
+> - `C:\HTML apps\IPD-Meta-Pro\` and `C:\HTML apps\Truthcert1\`: added static link-resolution contracts for landing-page local assets and canonical app entrypoints. Verification: `IPD-Meta-Pro` `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; `Truthcert1` same command -> `2 passed` with existing pytest `cache_dir` warning. GitHub pushed: `IPD-Meta-Pro` master `b26ee09`, `Truthcert1` master `81eddd3`.
+> - `C:\HTML apps\living-meta\`: repaired landing-page validation links that pointed to a missing HTML asset and an out-of-repo sibling path; linked the existing validation and limitations docs instead, and added a static link-resolution contract. Verification: `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=8` (pre-existing HTML a11y INFO). GitHub pushed: master `c3c8a9b`.
+> - `C:\HTML apps\Pairwiseai\`: added a static landing-page contract covering local link resolution, absence of unresolved templates/local drive paths, and the key app entrypoints under `e156-submission/assets`. Verification: `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=1731` (pre-existing HTML a11y INFO). GitHub pushed: master `2ade493`.
+> - `C:\HTML apps\nma-dose-response-app\`: pushed the existing smoke-blocker commit and added an E156 asset-bundle repair so `e156-submission\assets\index*.html` resolves its JS runtime dependencies from inside the assets folder; added a static link-resolution contract covering root and E156 app entrypoints. Verification: `pytest -q -p no:cacheprovider tests/test_smoke.py tests/test_static_links.py` -> `4 passed` with the existing pytest `cache_dir` warning; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=442` (pre-existing HTML a11y INFO). GitHub pushed: master `e95fae0` and `96594b6`.
+> - Push gate: Windows Git credential path succeeded after WSL Git lacked HTTPS credentials. Sentinel pre-push/manual scan verdicts were BLOCK=0; evidence-board INFO=18, focus-studio INFO=10, kanban-lab INFO=10, living-meta INFO=8, Pairwiseai INFO=1731, nma-dose-response-app INFO=442 (pre-existing P2 HTML accessibility notes); hub push emitted no Sentinel findings.
+> - Existing unrelated dirty files were left unstaged in these repos, mainly protocol/license/doc edits and untracked `paper\` outputs in the three app repos, plus pre-existing hub metadata/submission/style edits.
+
+### SheafNMA (2026-05-12; v0.2.0 real-NMA-corpus validation + 36-cell Ã— 1000-rep simulation + methods paper draft)
+> - `C:\Models\SheafNMA\` â€” cellular-sheaf inconsistency localization for network meta-analysis. v0.1.0 (2026-04-07) was math + single-file HTML dashboard + E156 #153 micro-paper on a synthetic 12-contrast network. v0.2.0 refactored the 457-LOC `generate_figures.py` into a `sheafnma/` package (`core`, `io`, `simulate`, `comparators`, `r_bridge`), validated on 13 R-netmeta built-in NMAs, and shipped a methods-paper draft for Research Synthesis Methods.
+> - Method: precision-weighted coboundary `F[e, treat1] = -1/SE_e, F[e, treat2] = +1/SE_e`; sheaf Laplacian `L = Fáµ€F` (symmetric PSD); WLS-solve node estimates with node 0 anchored; per-edge residuals `r_e = dÌƒ_e âˆ’ (F x*)_e` localize inconsistency; **Global Inconsistency Index** `GII = Î£ rÂ²` is the global statistic. One algebraic object yields both global + per-edge â€” complements (not replaces) node-splitting.
+> - Real-corpus headline: across **13 R-netmeta built-in NMAs** (Senn 2013 diabetes, Dias smokingcessation, Dong 2013 thrombolytics, Linde 2015/2016 acupuncture, Salanti antimanic, Baker, Dogliotti, Franchini, Gurusamy, Stowe, Woods, dietaryfat, parkinson) the global design-by-treatment Ï‡Â² (Higgins 2012) failed to reject in all 13. **SheafNMA flagged â‰¥1 localized inconsistency edge in 5 of those 13 (38.5%)** at the Youden-frozen threshold of **2.6912** â€” networks that look globally consistent harbor at least one inconsistent edge the global test misses.
+> - Simulation rigor: 36-cell grid (n_treatments âˆˆ {4,6,8} Ã— n_studies_per_edge âˆˆ {3,5,10} Ã— Ï„_inc âˆˆ {0,0.2,0.5,1.0}) Ã— **1000 replications per cell**, held-out training cell at (6,5,0.5) for Youden's-J threshold selection (frozen before evaluating remaining 35 cells). Type-I error at Ï„_inc=0 was **0.000 across all cells**. Mean per-edge sensitivity 0.981 / specificity 0.945 at Ï„_inc=0.5.
+> - Comparator suite: DBT-Ï‡Â² (Higgins 2012 Â§3.2, pure-Python), Bucher loop closure (Bucher 1997, pure-Python), node-splitting (Dias 2010, via `netmeta::netsplit` shelled to R 4.5.2). Per-edge agreement with node-splitting was 45.4% â€” asymmetric: SheafNMA flags 12/506 = 2.4% of edges vs node-splitting's 250/436 = 57% at p<0.05 Bonferroni-uncorrected (the calibrated Youden cut is much more conservative than a per-edge Î±-test). Â§4.2 of the paper explicitly explains this rather than presenting the 45.4% bare.
+> - Corpus export: `corpus/export_netmeta.R` handles 7 distinct netmeta dataset formats (contrast-level TE/seTE, arm-based event/n, arm-based mean/sd/n, wide multi-arm OR/MD, three-arm smokingcessation, rate-based IRR/person-years) and exports all 13 to `corpus/data/*.csv` in the sheafnma standard schema (`study, treat1, treat2, effect, se`).
+> - GitHub: `https://github.com/mahmood726-cyber/sheaf-nma` (master `6c7db13`, tag `v0.2.0`). Pages LIVE: `https://mahmood726-cyber.github.io/sheaf-nma/` (Phase-1 dashboard unchanged in v0.2). 33 tests passing; Sentinel BLOCK=0 WARN=0 (2 INFO = pre-existing HTML a11y items in the v0.1 dashboard).
+> - Workbook entry: `[153/919] SheafNMA`. CURRENT BODY updated 2026-05-12 to the v0.2 156-word / 7-sentence body (replaces v0.1 synthetic-"smoking cessation" framing with the real netmeta corpus). SUBMITTED `[ ]`; YOUR REWRITE preserved untouched per workbook protection rules. Target: Research Synthesis Methods full methods paper (`paper/sheafnma_v2.md`, 1190 words drafted; [TODO] prose blocks in Â§1 Background / Â§4.3 case studies / Â§5 Discussion) + SynthÄ“sis Methods Note companion (`paper/methods_note.md`, 156-word).
+> - Known landmine: `Dong2013` netsplit fails inside netmeta's multi-arm validator ("wrong number of comparisons"); SheafNMA + DBT + Bucher still run on it, only `netsplit_p` column is blank for its 70 edges.
+> - v0.2 deferrals (spec Â§10): multi-arm covariance correction (single-D stalks only), higher-D stalks (Phase 1 Â§3.4 future work), Bayesian sheaf priors, OTS / Bitcoin anchor (broken on Py 3.13 Windows per `lessons.md`).
+
+### hksj-q-floor-atlas (2026-05-12; 8th Pairwise70 atlas; tags prereg-v0.0.1 + v0.1.0)
+> - `C:\Projects\hksj-q-floor-atlas\` â€” 8th calibration atlas in the Pairwise70 series. Sister to `cochrane-modern-re` (engine source), `repro-floor-atlas`, `responder-floor-atlas`, `trial-truthfulness-atlas`, `africa-tb-atlas`, `pactr-hiddenness-atlas`, `africa-hiv-prep-atlas`.
+> - Question: how often does omitting the `max(1, Q/(k-1))` floor on HKSJ variance, in the I^2=0 regime where un-floored HKSJ narrows below REML+Wald, overstate precision across the Cochrane CDSR? Pre-registered via `prereg-v0.0.1` tag + 4 Internet Archive snapshots (Bitcoin OTS deferred â€” Python 3.13 SSL libeay32 bug per lessons.md; web-stamper fallback documented).
+> - Headline: D_1 (I^2=0, k>=2, converged) = 3,677 MAs = 57.6% of corpus. On D_1a (Q>0, n=3,536): median CI-width ratio (floored / un-floored) = 3.64x (IQR 1.60-10.56; 95th pct 57.4x); significance lost in 17.08% of MAs. D_1b (Q=0, n=141 = 3.83% of D_1): sig_loss 24.8%, ratio unbounded â€” un-floored HKSJ SE is exactly zero (the floor effect is unbounded); see `docs/AMENDMENTS.md` entry 1 for split rationale.
+> - Per k-stratum medians: k=2: 4.26x (sig_loss 8.6%); k=3: 3.64x (12.9%); k=4-5: 3.10x (13.1%); k=6-9: 3.18x (17.3%); k>=10: 3.80x (25.1%). sig_loss increases with k because higher-k pooled effects sit closer to null, so floor widening crosses zero more often.
+> - Engine: independent metafor pass via fork of cochrane-modern-re's `run_metafor.R` minus the floor block. Input parquet SHA-256 pinned in `docs/spec.md` sec.1.5 (`31434fb118c6ec44a025eeb43a90e35ef9e050711fa45aa2cb5c1244b2d89751`). 3 hand-verified golden MAs match metafor reference within 1e-6.
+> - GitHub: `https://github.com/mahmood726-cyber/hksj-q-floor-atlas` (master + tags `prereg-v0.0.1` and `v0.1.0`). Pages LIVE: `https://mahmood726-cyber.github.io/hksj-q-floor-atlas/`.
+> - 64 tests; Sentinel BLOCK=0 WARN=0 INFO=0; 7 IA snapshots recorded in `docs/preregistration.md`.
+> - Workbook entry: `[920/920] hksj-q-floor-atlas`; target SynthÄ“sis Methods Note (340w draft, â‰¤400 cap).
+> - v0.2 candidates (NOT in v0.1.0): published-CI matching ("is THIS Cochrane review wrong?"), PM/SJ/Bayesian Ï„Â² robustness, DL re-pooling, Bitcoin OTS once Python 3.13 issue is resolved.
+
+### D-drive legacy smoke-contract continuation (2026-05-12)
+> - `D:\Projects\mahmood789\786-MIII-Mean-single-group\`: fixed the placeholder issue-tracker link in `README.md` and added a pytest-visible static contract for the Shiny app package surface, sample-data schema, metafor workflow, downloads, and absence of local paths/template links. Verification: `pytest -q -p no:cacheprovider` -> `2 passed`; `git diff --check` -> PASS.
+
+ succeeded in 421ms:
+E156 REWRITE WORKBOOK
+sentinel:skip-file
+sentinel:claim-language-allow
+(Sentinel markers above:
+ - sentinel:skip-file: this workbook intentionally contains C:\Users\... PATH:
+   lines pointing to each project's local source directory â€” they're metadata,
+   not code. The marker keeps Sentinel from emitting ~16 P0 hardcoded-path
+   BLOCKs every push.
+ - sentinel:claim-language-allow: CURRENT BODY entries are the AI-drafted
+   summaries that students rewrite into hedged language â€” flagging overclaim
+   words IN those drafts is the whole pedagogical point, not a defect.
+   File-scope marker here suppresses the ~1293 claim-language WARNs on the
+   CURRENT BODY entries; the YOUR REWRITE entries are where the hedging
+   discipline matters and remains lintable in the rendered student board.)
+
+DENOMINATOR CONVENTION (added 2026-05-06 after review-findings P1-5):
+  Each entry header is `[N/total]` where N = ordinal insertion index and
+  `total` = current portfolio size as of the most recent reconcile sweep.
+  Older entries are back-rewritten on milestone boundaries (rather than
+  preserving their insertion-time denominator) to keep
+  reconcile_counts.py from flagging "WORKBOOK DRIFT". The pre-commit
+  guard (scripts/check_workbook_commit.py) blocks commits that bundle a
+  denominator sweep with substantive content edits to existing entries.
+
+======================================================================
+
+INSTRUCTIONS:
+- Replace text under YOUR REWRITE with your body (at most 156 words, 7 sentences)
+- S1=Question S2=Dataset S3=Method S4=Result(number+interval) S5=Robustness S6=Interpretation S7=Boundary(limitation)
+- Leave YOUR REWRITE blank to keep current version
+- Run: python C:/E156/scripts/apply_rewrites.py          (validate)
+- Run: python C:/E156/scripts/apply_rewrites.py --apply (apply)
+
+AUTHORSHIP RULE (mandatory for every submission):
+- Mahmood Ahmad (MA) must NEVER be listed as first author and NEVER as
+  last (senior) author. The student rewriter is first author. Last/senior
+  author must be a faculty supervisor or co-investigator distinct from MA.
+  MA's position is middle-author only (e.g. role: data curation, software,
+  methodology, supervision-of-tooling). This applies to every paper in
+  this workbook regardless of contribution depth.
+
+codex
+I checked the required project index and workbook context. I’m using the pasted packet as the review record and only using the local file to pin line numbers against the same module path.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=1; Get-Content -Path scripts'"\\inject_jsonld_and_a11y.py | ForEach-Object { '{0,4}: {1}' -f "'$i, $_; $i++ }' in F:\rapidmeta-ssot-shell
+ succeeded in 1445ms:
+   1: """D3 + C6: Schema.org JSON-LD + lightweight accessibility patches.
+   2: 
+   3: D3. For every *.html page, inject a Schema.org `MedicalScholarlyArticle`
+   4:     JSON-LD block in <head>:
+   5:       - headline      = page <title>
+   6:       - description   = existing meta description (D1) or PICO digest
+   7:       - datePublished = file mtime (best-available signal)
+   8:       - dateModified  = same
+   9:       - author        = Mahmood Ahmad
+  10:       - publisher     = RapidMeta (Organization)
+  11:       - url           = canonical https://...github.io/.../<file>
+  12:       - about         = first PICO `cond` or `condition`
+  13:       - keywords      = drug + condition + 'meta-analysis, living review'
+  14:     Skip if a JSON-LD block already exists.
+  15: 
+  16: C6. Three low-risk a11y improvements:
+  17:       - Ensure <html lang="en"> is set (some pages don't have it).
+  18:       - Inject a "skip to main content" link as the first <body> child for
+  19:         keyboard users (visually hidden, focus-visible).
+  20:       - Add aria-label to icon-only <button>/<a> elements that have no
+  21:         text content but do have an onclick/href. Uses the `title=` attr
+  22:         when present, else falls back to the icon class name or a sensible
+  23:         default ("Action button").
+  24: 
+  25: Both passes are idempotent â€” they each leave a marker comment so re-runs
+  26: detect previous injections and no-op.
+  27: """
+  28: from __future__ import annotations
+  29: import json
+  30: import re
+  31: import sys
+  32: import io
+  33: from datetime import date
+  34: from pathlib import Path
+  35: 
+  36: if "pytest" not in sys.modules and hasattr(sys.stdout, "buffer"):
+  37:     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+  38: 
+  39: HERE = Path(__file__).resolve().parent.parent
+  40: PAGES_BASE = "https://mahmood726-cyber.github.io/rapidmeta-finerenone/"
+  41: 
+  42: TITLE_RE = re.compile(r"<title>(.*?)</title>", re.DOTALL | re.IGNORECASE)
+  43: DESC_RE = re.compile(r'<meta\s+name="description"\s+content="([^"]*)"', re.IGNORECASE)
+  44: HEAD_END_RE = re.compile(r"</head>", re.IGNORECASE)
+  45: PICO_FIELD_RE = re.compile(r"\b(pop|int|comp|out|drug|cond|condition):\s*'((?:[^'\\]|\\.)*)'")
+  46: HTML_OPEN_RE = re.compile(r"<html(\s[^>]*)?>", re.IGNORECASE)
+  47: BODY_OPEN_RE = re.compile(r"<body(\s[^>]*)?>", re.IGNORECASE)
+  48: 
+  49: JSONLD_MARK = "<!-- jsonld:begin -->"
+  50: JSONLD_END = "<!-- jsonld:end -->"
+  51: SKIPLINK_MARK = "<!-- a11y-skiplink:begin -->"
+  52: SKIPLINK_END = "<!-- a11y-skiplink:end -->"
+  53: 
+  54: SKIPLINK_BLOCK = (
+  55:     f"{SKIPLINK_MARK}\n"
+  56:     '<a href="#main" class="rm-a11y-skiplink" '
+  57:     'style="position:absolute;left:-999px;top:auto;width:1px;height:1px;'
+  58:     'overflow:hidden;z-index:9999;background:#0b1220;color:#fff;'
+  59:     'padding:8px 12px;border-radius:0 0 6px 0;text-decoration:none;'
+  60:     'font-family:system-ui,-apple-system,sans-serif;font-size:14px;" '
+  61:     'onfocus="this.style.left=\'0\';this.style.top=\'0\';this.style.width=\'auto\';'
+  62:     'this.style.height=\'auto\';" '
+  63:     'onblur="this.style.left=\'-999px\';">Skip to main content</a>\n'
+  64:     f"{SKIPLINK_END}"
+  65: )
+  66: 
+  67: 
+  68: def extract_first_pico(txt: str, key: str) -> str | None:
+  69:     for m in PICO_FIELD_RE.finditer(txt):
+  70:         if m.group(1) == key:
+  71:             return m.group(2).replace("\\'", "'")
+  72:     return None
+  73: 
+  74: 
+  75: def jsonld_for(p: Path, txt: str) -> str | None:
+  76:     if JSONLD_MARK in txt:
+  77:         return None  # already injected
+  78:     title_m = TITLE_RE.search(txt)
+  79:     headline = title_m.group(1).strip() if title_m else p.stem.replace("_", " ").title()
+  80:     desc_m = DESC_RE.search(txt)
+  81:     description = desc_m.group(1).strip() if desc_m else None
+  82: 
+  83:     drug = extract_first_pico(txt, "drug") or extract_first_pico(txt, "int")
+  84:     cond = extract_first_pico(txt, "cond") or extract_first_pico(txt, "condition")
+  85:     if drug:
+  86:         drug = drug.split("(")[0].strip()
+  87:     if cond:
+  88:         cond = cond.split("(")[0].strip()
+  89:     keywords = ["meta-analysis", "living review", "RapidMeta"]
+  90:     if drug:
+  91:         keywords.append(drug)
+  92:     if cond:
+  93:         keywords.append(cond)
+  94: 
+  95:     mtime = date.fromtimestamp(p.stat().st_mtime).isoformat()
+  96:     url = PAGES_BASE if p.name == "index.html" else PAGES_BASE + p.name
+  97: 
+  98:     payload = {
+  99:         "@context": "https://schema.org",
+ 100:         "@type": "MedicalScholarlyArticle",
+ 101:         "headline": _clean(headline),
+ 102:         "name": _clean(headline),
+ 103:         "url": url,
+ 104:         "datePublished": mtime,
+ 105:         "dateModified": mtime,
+ 106:         "inLanguage": "en",
+ 107:         "author": {
+ 108:             "@type": "Person",
+ 109:             "name": "Mahmood Ahmad",
+ 110:             "identifier": "https://orcid.org/",
+ 111:         },
+ 112:         "publisher": {
+ 113:             "@type": "Organization",
+ 114:             "name": "RapidMeta",
+ 115:             "url": PAGES_BASE,
+ 116:         },
+ 117:         "isAccessibleForFree": True,
+ 118:         "keywords": ", ".join(keywords),
+ 119:     }
+ 120:     if description:
+ 121:         payload["description"] = description[:5000]
+ 122:     if cond:
+ 123:         payload["about"] = {"@type": "MedicalCondition", "name": cond}
+ 124:     if drug:
+ 125:         payload["mentions"] = {"@type": "Drug", "name": drug}
+ 126: 
+ 127:     json_str = json.dumps(payload, separators=(",", ":"), ensure_ascii=False)
+ 128:     return (
+ 129:         f"{JSONLD_MARK}\n"
+ 130:         f'<script type="application/ld+json">{json_str}</script>\n'
+ 131:         f"{JSONLD_END}"
+ 132:     )
+ 133: 
+ 134: 
+ 135: def _clean(s: str) -> str:
+ 136:     s = re.sub(r"\s+", " ", s).strip()
+ 137:     return s[:300]
+ 138: 
+ 139: 
+ 140: def patch_html(p: Path) -> dict:
+ 141:     txt = p.read_text(encoding="utf-8", errors="replace")
+ 142:     orig = txt
+ 143:     stats = {"jsonld": False, "lang": False, "skiplink": False, "aria": 0}
+ 144: 
+ 145:     # D3 JSON-LD
+ 146:     block = jsonld_for(p, txt)
+ 147:     if block and "</head>" in txt:
+ 148:         txt = txt.replace("</head>", block + "\n</head>", 1)
+ 149:         stats["jsonld"] = True
+ 150: 
+ 151:     # C6.1 <html lang="en">
+ 152:     html_m = HTML_OPEN_RE.search(txt)
+ 153:     if html_m and "lang=" not in html_m.group(0):
+ 154:         new_open = html_m.group(0).replace("<html", '<html lang="en"', 1)
+ 155:         txt = txt[: html_m.start()] + new_open + txt[html_m.end():]
+ 156:         stats["lang"] = True
+ 157: 
+ 158:     # C6.2 skip-link
+ 159:     if SKIPLINK_MARK not in txt and "<body" in txt:
+ 160:         # Insert right after the opening <body ...>
+ 161:         body_m = BODY_OPEN_RE.search(txt)
+ 162:         if body_m:
+ 163:             insert_at = body_m.end()
+ 164:             txt = txt[:insert_at] + "\n" + SKIPLINK_BLOCK + txt[insert_at:]
+ 165:             stats["skiplink"] = True
+ 166:             # Add id="main" to the first content container if it doesn't already have one.
+ 167:             main_m = re.search(r'<main(\s[^>]*)?>', txt[insert_at + len(SKIPLINK_BLOCK):], re.IGNORECASE)
+ 168:             if main_m:
+ 169:                 seg_start = insert_at + len(SKIPLINK_BLOCK)
+ 170:                 mm = re.search(r'<main(\s[^>]*)?>', txt[seg_start:], re.IGNORECASE)
+ 171:                 attrs = mm.group(1) or ""
+ 172:                 if 'id=' not in attrs:
+ 173:                     repl = f'<main id="main"{attrs}>'
+ 174:                     txt = txt[: seg_start + mm.start()] + repl + txt[seg_start + mm.end():]
+ 175: 
+ 176:     # C6.3 aria-label on empty button/anchor with onclick/href but no text
+ 177:     # Only target buttons/anchors that contain a single <i class="..."> icon and no text node.
+ 178:     def add_aria(match):
+ 179:         tag = match.group(0)
+ 180:         if "aria-label" in tag:
+ 181:             return tag
+ 182:         title_m = re.search(r'\btitle="([^"]+)"', tag)
+ 183:         label = title_m.group(1) if title_m else None
+ 184:         if not label:
+ 185:             # Try data-tooltip / data-action.
+ 186:             for attr in ("data-tooltip", "data-action", "aria-labelledby"):
+ 187:                 m2 = re.search(rf'\b{attr}="([^"]+)"', tag)
+ 188:                 if m2:
+ 189:                     label = m2.group(1); break
+ 190:         if not label:
+ 191:             label = "Toolbar action"
+ 192:         stats["aria"] += 1
+ 193:         # Insert aria-label right after the tag name.
+ 194:         return re.sub(r"^<(\w+)", rf'<\1 aria-label="{label}"', tag, count=1)
+ 195: 
+ 196:     txt = re.sub(
+ 197:         r'<button(?![^>]*aria-label)[^>]*>\s*<i\s+class="[^"]*"\s*></i>\s*</button>',
+ 198:         add_aria, txt,
+ 199:     )
+ 200: 
+ 201:     if txt != orig:
+ 202:         p.write_text(txt, encoding="utf-8")
+ 203:     return stats
+ 204: 
+ 205: 
+ 206: def main():
+ 207:     targets = sorted(p for p in HERE.glob("*.html") if p.is_file())
+ 208:     print(f"Scanning {len(targets):,} pages...")
+ 209:     n_jsonld = n_lang = n_skip = n_aria = 0
+ 210:     files_touched = 0
+ 211:     for i, p in enumerate(targets, 1):
+ 212:         s = patch_html(p)
+ 213:         if any([s["jsonld"], s["lang"], s["skiplink"], s["aria"]]):
+ 214:             files_touched += 1
+ 215:         n_jsonld += int(s["jsonld"])
+ 216:         n_lang += int(s["lang"])
+ 217:         n_skip += int(s["skiplink"])
+ 218:         n_aria += s["aria"]
+ 219:         if i % 300 == 0:
+ 220:             print(f"  [{i}/{len(targets)}] {p.name}")
+ 221:     print(f"\nFiles touched          : {files_touched:,}")
+ 222:     print(f"  JSON-LD injected     : {n_jsonld:,}")
+ 223:     print(f"  <html lang> added    : {n_lang:,}")
+ 224:     print(f"  skip-link added      : {n_skip:,}")
+ 225:     print(f"  aria-label added     : {n_aria:,} buttons")
+ 226: 
+ 227: 
+ 228: if __name__ == "__main__":
+ 229:     main()
+
+codex
+Defects found:
+
+- `idempotency guard satisfied by its OWN comment/marker` — line 76.  
+  Input: `<html><head><title>T</title></head><body><!-- jsonld:begin --></body></html>`  
+  Consequence: JSON-LD is skipped even though no JSON-LD block exists.
+
+- `idempotency guard satisfied by its OWN comment/marker` — line 76.  
+  Input: `<html><head><title>T</title><script type="application/ld+json">{}</script></head><body></body></html>`  
+  Consequence: an existing unmarked JSON-LD block is not detected, so a duplicate block is injected.
+
+- `idempotency guard satisfied by its OWN comment/marker` — line 159.  
+  Input: `<html><body><!-- a11y-skiplink:begin --><main></main></body></html>`  
+  Consequence: the skip link is skipped because the marker exists, not because the skip link exists.
+
+- `selector keyed to a form the corpus may not use` — lines 147-148.  
+  Input: `<html><HEAD><title>T</title></HEAD><body></body></html>`  
+  Consequence: JSON-LD is not injected because the code defines a case-insensitive `HEAD_END_RE` but uses literal lowercase `"</head>"`.
+
+- `selector keyed to a form the corpus may not use` — line 159.  
+  Input: `<html><head></head><BODY><main></main></BODY></html>`  
+  Consequence: the skip link is not injected because the precheck looks for literal lowercase `"<body"` before using the case-insensitive regex.
+
+- `idempotency/selector guard satisfied by the wrong attribute` — line 153.  
+  Input: `<html data-lang="fr"><head></head><body></body></html>`  
+  Consequence: `<html lang="en">` is not added because `data-lang=` satisfies the substring test.
+
+- `idempotency/selector guard satisfied by the wrong attribute` — line 172.  
+  Input: `<html><body><main data-id="x"></main></body></html>`  
+  Consequence: `id="main"` is not added, so the injected skip link points to a missing target.
+
+- `selector keyed to a form the stated target includes but the regex excludes` — lines 176-198.  
+  Input: `<a href="/next"><i class="fa fa-arrow-right"></i></a>`  
+  Consequence: icon-only anchors never receive `aria-label`, despite the comment saying buttons/anchors are targeted.
+
+No proven CRLF/LF text-comparison defect.  
+No proven merged-cell/off-by-one tabulation defect.  
+No proven zero-conflated-with-absent defect.  
+No proven negation-dropped defect.  
+No proven different-copy instrumentation defect from this file alone.
+tokens used
+20,451
+Defects found:
+
+- `idempotency guard satisfied by its OWN comment/marker` — line 76.  
+  Input: `<html><head><title>T</title></head><body><!-- jsonld:begin --></body></html>`  
+  Consequence: JSON-LD is skipped even though no JSON-LD block exists.
+
+- `idempotency guard satisfied by its OWN comment/marker` — line 76.  
+  Input: `<html><head><title>T</title><script type="application/ld+json">{}</script></head><body></body></html>`  
+  Consequence: an existing unmarked JSON-LD block is not detected, so a duplicate block is injected.
+
+- `idempotency guard satisfied by its OWN comment/marker` — line 159.  
+  Input: `<html><body><!-- a11y-skiplink:begin --><main></main></body></html>`  
+  Consequence: the skip link is skipped because the marker exists, not because the skip link exists.
+
+- `selector keyed to a form the corpus may not use` — lines 147-148.  
+  Input: `<html><HEAD><title>T</title></HEAD><body></body></html>`  
+  Consequence: JSON-LD is not injected because the code defines a case-insensitive `HEAD_END_RE` but uses literal lowercase `"</head>"`.
+
+- `selector keyed to a form the corpus may not use` — line 159.  
+  Input: `<html><head></head><BODY><main></main></BODY></html>`  
+  Consequence: the skip link is not injected because the precheck looks for literal lowercase `"<body"` before using the case-insensitive regex.
+
+- `idempotency/selector guard satisfied by the wrong attribute` — line 153.  
+  Input: `<html data-lang="fr"><head></head><body></body></html>`  
+  Consequence: `<html lang="en">` is not added because `data-lang=` satisfies the substring test.
+
+- `idempotency/selector guard satisfied by the wrong attribute` — line 172.  
+  Input: `<html><body><main data-id="x"></main></body></html>`  
+  Consequence: `id="main"` is not added, so the injected skip link points to a missing target.
+
+- `selector keyed to a form the stated target includes but the regex excludes` — lines 176-198.  
+  Input: `<a href="/next"><i class="fa fa-arrow-right"></i></a>`  
+  Consequence: icon-only anchors never receive `aria-label`, despite the comment saying buttons/anchors are targeted.
+
+No proven CRLF/LF text-comparison defect.  
+No proven merged-cell/off-by-one tabulation defect.  
+No proven zero-conflated-with-absent defect.  
+No proven negation-dropped defect.  
+No proven different-copy instrumentation defect from this file alone.

@@ -1,0 +1,734 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/repool_apixaban_treatment_2026_08_19.py
+
+--- THE FILE, IN FULL ---
+#!/usr/bin/env python3
+"""RE-POOL `apixaban-vte-treatment`: read the DEFINITIONS, and watch the poolable set FALL.
+
+THE PROPHYLAXIS HALF RAN THIS SAME DISCIPLINE AND THE POOLABLE SET WENT 3 -> 8. HERE IT GOES
+8 -> 3, AND THAT IS THE SAME METHOD PRODUCING THE OPPOSITE ANSWER.
+
+The withholding question -- does each trial report a recurrent-VTE outcome at ANY registered
+rank -- was asked and recorded in `apixaban_treatment_estimand.json`. It found NINE trials with
+such an outcome, EIGHT of them with posted results, including three whose registered PRIMARY is
+a bleeding endpoint. That is a count of trials reporting SOMETHING NAMED recurrent VTE.
+
+This script asks the next question, which the name cannot answer: WHAT DOES EACH ONE COUNT?
+
+    AMPLIFY posts, at every rank, only composites carrying a DEATH term. There is no
+    recurrent-VTE-alone measure anywhere in its twenty-one posted outcomes.
+    AMPLIFY-EXT is the same. The six others post recurrent symptomatic VTE with NO death term
+    and post nothing else.
+
+    SO THE ESTIMAND THAT EIGHT TRIALS APPEARED TO SHARE IS SHARED BY SIX, AND THE TWO THAT DO
+    NOT SHARE IT ARE THE TWO LARGEST -- 5,244 and 2,482 analysed participants.
+
+THREE FURTHER THINGS THIS SCRIPT REFUSES, EACH FOR A STATED REASON RATHER THAN A STYLISTIC ONE.
+
+(1) DERIVING THE MISSING ESTIMAND FROM ITS COMPONENTS. AMPLIFY posts nonfatal DVT (22/2608 vs
+    35/2633), nonfatal PE (27/2606 vs 25/2632) and VTE-related death (12/2608 vs 16/2630)
+    separately. Their sums are 61 and 76 against a POSTED COMPOSITE OF 59 AND 71. A derived
+    estimand would have manufactured 2 and 5 events the trial's own adjudication does not
+    record. The refusal is arithmetic, and it is checkable in this file.
+
+(2) CANVAS, ON "WHAT EXACTLY WAS RANDOMISED?". Its randomised arm is a CLASS: "There are four
+    FDA-approved DOAC drugs that may be used for this study: Rivaroxaban, Apixaban, Edoxaban,
+    or Dabigatran", against LMWH with or without warfarin. Apixaban APPEARS in the intervention
+    list and is not what was randomised, so its posted 6.1% vs 8.8% is a DOAC-class effect.
+    OUR OWN MECHANICAL SCREEN PASSED IT ON THE INTERVENTION LIMB. That screen asked where the
+    drug appears. This one asks what was randomised, and they disagree on a real trial.
+
+(3) POOLING ACROSS THE COMPARATOR. AMPLIFY and AMPLIFY-EXT DO share an estimand with each other
+    -- recurrent VTE or VTE-related death, primary in one and secondary in the other. They are
+    still not pooled, because one randomises apixaban against enoxaparin/warfarin and the other
+    against PLACEBO. That pool is computed below and declined, and it is the sharpest thing in
+    this file: ESTIMAND COHERENCE IS NECESSARY AND IT IS NOT SUFFICIENT.
+
+AND A DUPLICATE THE TEXT MATCH CANNOT SETTLE BY ITSELF -- P35 ONE LEVEL DOWN. AMPLIFY-EXT posts
+its primary composite TWICE, under the same registered name, typed PRIMARY both times,
+differing only in the trailing words "Randomized Population With Imputation" / "Without
+Imputation" -- and the values differ by more than half again:
+
+    With imputation      32 / 34 / 96   apixaban 2.5 mg, 5 mg, placebo
+    Without imputation   19 / 14 / 77
+
+P35 says match the registered text and never the position. When the text matches MORE THAN ONE
+posted measure, choosing among the matches by position is the same defect one level down. The
+choice here is an ANALYSIS-POPULATION choice, it is made once and applied to every trial, and
+it is stated: the WITH-IMPUTATION analysis, because the trial's own description marks the other
+as the one where "no imputation was done". Both are carried in this file and the pool is
+recomputed under each.
+
+USAGE:  python scripts/repool_apixaban_treatment_2026_08_19.py
+        python scripts/repool_apixaban_treatment_2026_08_19.py --selftest
+"""
+import io
+import json
+import math
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(REPO, "scripts"))
+# The SAME tau-squared code the corpus headline gate uses to CHECK a pool now COMPUTES this
+# one. If the two ever disagree it will be because the inputs differ, not the arithmetic.
+import headline_reproducible_gate as HG                                    # noqa: E402
+
+DEST = os.path.join(REPO, "evidence", "2026-08-19-batch1",
+                    "apixaban_treatment_repool.json")
+Z = 1.959963984540054
+# t critical values by k-1 df, for the HKSJ interval. Taken from the same table the corpus gate
+# carries rather than retyped, so a divergence is impossible.
+T = HG._T
+
+
+# ==========================================================================================
+# THE READ VALUES. Every arm-level count below is READ from the trial's own posted results --
+# either the measurement itself where the registry posts COUNT_OF_PARTICIPANTS, or the exact
+# `n/N` the trial states in its own `populationDescription` where it posts a proportion. Each
+# row carries the string it was read from. Nothing here is derived from a percentage unless the
+# row says DERIVED, and no row that is DERIVED enters the reported pool.
+# ==========================================================================================
+READS = {
+    "NCT00643201": {
+        "acronym": "AMPLIFY", "phase": "ACUTE", "n_registered": 5614,
+        "randomised": "apixaban vs enoxaparin followed by warfarin",
+        "comparator_class": "ACTIVE -- LMWH/vitamin-K antagonist",
+        "arm_typing_note": ("The registry types `Apixaban` as ACTIVE_COMPARATOR and "
+                            "`Enoxaparin + Warfarin` as EXPERIMENTAL. In the pivotal apixaban "
+                            "trial, the registry's arm types are INVERTED with respect to the "
+                            "drug the trial is named for. Arms are read here by their TITLE, "
+                            "which is why this changes nothing -- and it is recorded because "
+                            "a screen that reads arm TYPE would have got it backwards."),
+        "measures": {
+            "vte_or_vte_related_death": {
+                "rank": "PRIMARY", "read": "READ",
+                "title": ("Incidence of Adjudicated Composite of Symptomatic, Recurrent Venous "
+                          "Thromboembolism (VTE) or VTE-Related Death During 6 Months of "
+                          "Treatment"),
+                "source": ("populationDescription: \"All randomized participants with a "
+                           "non-missing primary endpoint (n/N: 59/2609; 71/2635, in apixaban, "
+                           "enoxaparin/warfarin, respectively).\""),
+                "e_apx": 59, "n_apx": 2609, "e_ctl": 71, "n_ctl": 2635},
+            "vte_or_all_cause_death": {
+                "rank": "SECONDARY", "read": "READ",
+                "title": ("Incidence of Adjudicated Composite of Recurrent Symptomatic Venous "
+                          "Thromboembolism (VTE) or All-Cause Death"),
+                "source": ("populationDescription: \"(n/N: 84/2609; 104/2635, in apixaban, "
+                           "enoxaparin/warfarin arms, respectively)\""),
+                "e_apx": 84, "n_apx": 2609, "e_ctl": 104, "n_ctl": 2635},
+        },
+        "vte_alone_available": False,
+        "components_posted_separately": {
+            "nonfatal_DVT": [22, 2608, 35, 2633],
+            "nonfatal_PE": [27, 2606, 25, 2632],
+            "VTE_related_death": [12, 2608, 16, 2630]},
+    },
+    "NCT00633893": {
+        "acronym": "AMPLIFY-EXT", "phase": "EXTENDED", "n_registered": 2711,
+        "randomised": "apixaban 2.5 mg or 5 mg vs PLACEBO, after completed treatment",
+        "comparator_class": "PLACEBO",
+        "arm_typing_note": ("Three arms sharing one control. The two apixaban doses are "
+                            "COMBINED against placebo -- the standard handling of a shared "
+                            "control -- and the combination is stated rather than a single "
+                            "dose being chosen silently."),
+        "measures": {
+            "vte_or_all_cause_death": {
+                "rank": "PRIMARY", "read": "READ",
+                "title": ("Adjudicated Composite of Symptomatic, Recurrent Venous "
+                          "Thromboembolism (VTE) or All-Cause Death During the Intended "
+                          "Treatment Period - Randomized Population With Imputation"),
+                "source": ("populationDescription: \"(n) number of events=32, 34, 96 in "
+                           "apixaban 2.5 mg, 5 mg, and placebo arms, respectively\""),
+                "e_apx": 66, "n_apx": 1653, "e_ctl": 96, "n_ctl": 829},
+            "vte_or_vte_related_death": {
+                "rank": "SECONDARY", "read": "READ",
+                "title": ("Adjudicated Composite of Recurrent, Symptomatic Venous "
+                          "Thromboembolism (VTE) or VTE-related Death During the Intended "
+                          "Treatment Period - Randomized Population With Imputation"),
+                "source": ("populationDescription: \"(n) number of events=27, 34, 92 in "
+                           "apixaban 2.5 mg, 5 mg, placebo arms, respectively\""),
+                "e_apx": 61, "n_apx": 1653, "e_ctl": 92, "n_ctl": 829},
+        },
+        "without_imputation_alternative": {
+            "vte_or_all_cause_death": {"e_apx": 33, "n_apx": 1653, "e_ctl": 77, "n_ctl": 829,
+                                       "source": "(n) number of events = 19, 14, 77"},
+            "vte_or_vte_related_death": {"e_apx": 28, "n_apx": 1653, "e_ctl": 73, "n_ctl": 829,
+                                         "source": "(n) number of events = 14, 14, 73"},
+        },
+        "vte_alone_available": False,
+        "components_posted_separately": {
+            "nonfatal_DVT": "19, 28, 72 (2.5 mg, 5 mg, placebo)",
+            "nonfatal_PE": "23, 25, 37",
+            "VTE_related_death": "17, 24, 26"},
+    },
+    "NCT03045406": {
+        "acronym": "CARAVAGGIO", "phase": "ACUTE", "n_registered": 1170,
+        "randomised": "apixaban vs dalteparin, cancer-associated VTE",
+        "comparator_class": "ACTIVE -- LMWH",
+        "measures": {
+            "vte_alone": {
+                "rank": "PRIMARY", "read": "READ",
+                "title": "Recurrent Venous Thromboembolism",
+                "source": ("posted COUNT_OF_PARTICIPANTS, OG000 Apixaban = 32 of 576, "
+                           "OG001 Dalteparin = 46 of 579"),
+                "e_apx": 32, "n_apx": 576, "e_ctl": 46, "n_ctl": 579},
+        },
+        "vte_alone_available": True,
+    },
+    "NCT03266783": {
+        "acronym": "COBRRA", "phase": "ACUTE", "n_registered": 2760,
+        "randomised": "apixaban vs rivaroxaban, acute VTE",
+        "comparator_class": "ACTIVE -- another direct oral anticoagulant",
+        "measures": {
+            "vte_alone": {
+                "rank": "SECONDARY", "read": "READ",
+                "title": ("Number of Participants With Adjudicated Recurrent Venous "
+                          "Thromboembolism (VTE) Events"),
+                "source": ("posted COUNT_OF_PARTICIPANTS, OG000 Apixaban Group = 15 of 1345, "
+                           "OG001 Rivaroxaban Group = 14 of 1355"),
+                "e_apx": 15, "n_apx": 1345, "e_ctl": 14, "n_ctl": 1355},
+        },
+        "vte_alone_available": True,
+        "note": ("Its registered PRIMARY is clinically relevant bleeding. The recurrent-VTE "
+                 "outcome is at SECONDARY rank and would have been invisible to a review that "
+                 "read primaries only -- which is the whole reason the withholding question "
+                 "is asked at every rank."),
+    },
+    "NCT01780987": {
+        "acronym": "Japanese acute DVT/PE study", "phase": "ACUTE", "n_registered": 80,
+        "randomised": "apixaban vs unfractionated heparin followed by warfarin",
+        "comparator_class": "ACTIVE -- heparin/vitamin-K antagonist",
+        "measures": {
+            "vte_alone": {
+                "rank": "SECONDARY", "read": "READ",
+                "title": ("Number of Participants With Adjudicated Recurrent Symptomatic "
+                          "Venous Thromboembolism (VTE) [Nonfatal Deep Venous Thrombosis (DVT) "
+                          "or Nonfatal Pulmonary Embolism (PE)]"),
+                "source": ("posted measurement, OG000 Apixaban = 0 of 38, OG001 UFH/Warfarin "
+                           "= 1 of 40"),
+                "e_apx": 0, "n_apx": 38, "e_ctl": 1, "n_ctl": 40},
+        },
+        "vte_alone_available": True,
+        "note": "Registered PRIMARY is a bleeding endpoint. Recovered at SECONDARY rank.",
+    },
+    "NCT04168203": {
+        "acronym": "HI-PRO", "phase": "EXTENDED", "n_registered": 600,
+        "randomised": "low-intensity apixaban 2.5 mg vs PLACEBO, after >=3 months of treatment",
+        "comparator_class": "PLACEBO",
+        "measures": {
+            "vte_alone": {
+                "rank": "PRIMARY", "read": "READ",
+                "title": ("Frequency of Symptomatic, Recurrent VTE Defined as the Composite of "
+                          "Deep Vein Thrombosis and/or Pulmonary Embolism"),
+                "source": ("posted COUNT_OF_PARTICIPANTS, OG000 Extended Duration "
+                           "Thromboprophylaxis = 4 of 300, OG001 Control = 30 of 300"),
+                "e_apx": 4, "n_apx": 300, "e_ctl": 30, "n_ctl": 300},
+        },
+        "vte_alone_available": True,
+    },
+    "NCT03196349": {
+        "acronym": "COVET", "phase": "EXTENDED", "n_registered": 44,
+        "randomised": "warfarin vs apixaban vs rivaroxaban, extended anticoagulation",
+        "comparator_class": "ACTIVE -- vitamin-K antagonist (warfarin arm taken as comparator)",
+        "measures": {
+            "vte_alone": {
+                "rank": "PRIMARY", "read": "READ",
+                "title": "Number of Subjects With Recurrent Venous Thromboembolism (VTE)",
+                "source": ("posted COUNT_OF_PARTICIPANTS, OG001 Apixaban = 1 of 14, "
+                           "OG000 Warfarin = 0 of 17 (OG002 Rivaroxaban = 0 of 13, unused)"),
+                "e_apx": 1, "n_apx": 14, "e_ctl": 0, "n_ctl": 17},
+        },
+        "vte_alone_available": True,
+        "note": ("TERMINATED at 44 of a planned larger enrolment. One event in the whole "
+                 "trial. Registered primaries are TWO: clinically relevant bleeding AND "
+                 "recurrent VTE."),
+    },
+    "NCT02744092": {
+        "acronym": "CANVAS", "phase": "ACUTE", "n_registered": 811,
+        "randomised": ("a CLASS against a CLASS: any of rivaroxaban, apixaban, edoxaban or "
+                       "dabigatran, versus LMWH (dalteparin, enoxaparin or fondaparinux) with "
+                       "or without warfarin"),
+        "comparator_class": "ACTIVE -- LMWH class",
+        "measures": {
+            "vte_alone": {
+                "rank": "PRIMARY", "read": "DERIVED",
+                "title": "Cumulative Non-Fatal VTE Recurrence at 6 Months (%)",
+                "source": ("posted as a PERCENTAGE, OG000 Randomized Arm 1 (DOACs) = 6.1 of "
+                           "330, OG001 Randomized Arm 2 (LMWH) = 8.8 of 308. Events below are "
+                           "6.1% x 330 and 8.8% x 308, rounded -- DERIVED, and this row does "
+                           "not enter any reported pool."),
+                "e_apx": 20, "n_apx": 330, "e_ctl": 27, "n_ctl": 308},
+        },
+        "vte_alone_available": True,
+    },
+}
+
+# The two trials with results that report NO recurrent-VTE outcome at any rank, carried so the
+# eight is visible as eight rather than as the six that happened to be poolable.
+NO_SUCH_OUTCOME = {
+    "NCT02585713": "acute cancer-associated VTE, apixaban vs dalteparin, n=300",
+    "NCT03590743": "isolated calf DVT, apixaban vs placebo, TERMINATED at n=5",
+}
+
+
+# ==========================================================================================
+# THE COHERENCE SCREEN. Three axes, each with its own verdict, so a trial that leaves the pool
+# leaves it for a NAMED reason and the reason is not "heterogeneity".
+# ==========================================================================================
+def coherence(nct, row):
+    """(verdict, [reasons]) -- EVERY failing axis, not the first. P15."""
+    fails = []
+    if not row.get("vte_alone_available"):
+        fails.append(
+            "ESTIMAND: posts no recurrent-VTE measure without a death term at ANY of its "
+            "registered ranks. Its every recurrence outcome carries a mortality component.")
+    if row["measures"].get("vte_alone", {}).get("read") == "DERIVED":
+        fails.append(
+            "READ: its recurrent-VTE result is posted as a PERCENTAGE and the arm-level counts "
+            "would have to be derived from it. A derived count does not enter a reported pool.")
+    if "CLASS against a CLASS" in row["randomised"]:
+        fails.append(
+            "INTERVENTION: what was randomised is a DRUG CLASS, not apixaban. Apixaban is one "
+            "of four permitted drugs in the intervention arm, so the posted contrast is a "
+            "class effect and attributing it to apixaban would be a claim the trial cannot "
+            "support.")
+    if row["phase"] != "ACUTE":
+        fails.append(
+            "CLINICAL PHASE: extended anticoagulation after completed treatment, not treatment "
+            "of the acute event. Eligible under this review's boundary rule and a different "
+            "clinical question, with a different event horizon.")
+    if row["comparator_class"] == "PLACEBO":
+        fails.append(
+            "COMPARATOR: randomised against PLACEBO, not against another anticoagulant. The "
+            "quantity estimated is not the same quantity.")
+    return ("IN_POOL" if not fails else "NOT_POOLED"), fails
+
+
+# ==========================================================================================
+# ARITHMETIC. Log risk ratio; Paule-Mandel between-study variance (the house rule refuses
+# DerSimonian-Laird below k=10); Knapp-Hartung interval with the Q/(k-1) floor and t on k-1 df.
+# DL + Wald is computed alongside as the sensitivity and because it is what the PROPHYLAXIS
+# half of this pair reported -- so the two halves can be compared on a common estimator.
+# ==========================================================================================
+def logrr(e_a, n_a, e_c, n_c):
+    """(y, v, corrected) -- 0.5 continuity ONLY if a cell is zero (rules/advanced-stats)."""
+    corrected = (e_a == 0 or e_c == 0)
+    a, c = (e_a + 0.5, e_c + 0.5) if corrected else (e_a, e_c)
+    na, nc = (n_a + 1, n_c + 1) if corrected else (n_a, n_c)
+    y = math.log((a / na) / (c / nc))
+    v = 1.0 / a - 1.0 / na + 1.0 / c - 1.0 / nc
+    return y, v, corrected
+
+
+def pool(rows, label):
+    """rows: [(name, e_a, n_a, e_c, n_c)]. Returns the full pooled record."""
+    ys, vs, per = [], [], []
+    for name, ea, na, ec, nc in rows:
+        y, v, corr = logrr(ea, na, ec, nc)
+        ys.append(y)
+        vs.append(v)
+        se = math.sqrt(v)
+        per.append({"trial": name, "events_apixaban": ea, "n_apixaban": na,
+                    "events_comparator": ec, "n_comparator": nc,
+                    "continuity_corrected": corr,
+                    "rr": round(math.exp(y), 4),
+                    "ci_low": round(math.exp(y - Z * se), 4),
+                    "ci_high": round(math.exp(y + Z * se), 4)})
+    k = len(ys)
+    wf = [1.0 / v for v in vs]
+    mf = sum(w * y for w, y in zip(wf, ys)) / sum(wf)
+    q = sum(w * (y - mf) ** 2 for w, y in zip(wf, ys))
+    i2 = max(0.0, (q - (k - 1)) / q) * 100.0 if q > 0 else 0.0
+    out = {"label": label, "k": k, "q": round(q, 4), "df": k - 1, "i2_pct": round(i2, 1),
+           "per_trial": per,
+           "n_participants": sum(r[2] + r[4] for r in rows)}
+    for how in ("PM", "DL"):
+        t2 = HG._tau2(ys, vs, how)
+        w = [1.0 / (v + t2) for v in vs]
+        sw = sum(w)
+        mu = sum(a * b for a, b in zip(w, ys)) / sw
+        se = math.sqrt(1.0 / sw)
+        rec = {"tau2": round(t2, 5), "rr": round(math.exp(mu), 4),
+               "ci_low": round(math.exp(mu - Z * se), 4),
+               "ci_high": round(math.exp(mu + Z * se), 4),
+               "interval": "Wald, normal"}
+        if how == "PM":
+            # HKSJ, with the floor the house rule requires: when Q < k-1 the uncorrected
+            # Knapp-Hartung variance NARROWS the interval below the random-effects one, which
+            # is the wrong direction for a small-k correction.
+            qh = sum(wi * (y - mu) ** 2 for wi, y in zip(w, ys)) / (k - 1) if k > 1 else None
+            if qh is not None:
+                qf = max(1.0, qh)
+                seh = math.sqrt(qf / sw)
+                tc = T.get(k - 1)
+                rec["hksj"] = {
+                    "q_hksj": round(qh, 4), "floored_to": round(qf, 4),
+                    "floor_applied": qf > qh + 1e-12,
+                    "t_df": k - 1, "t_crit": tc,
+                    "rr": round(math.exp(mu), 4),
+                    "ci_low": round(math.exp(mu - tc * seh), 4),
+                    "ci_high": round(math.exp(mu + tc * seh), 4),
+                    "interval": "Knapp-Hartung-Sidik-Jonkman, t on k-1 df, floor max(1, Q/(k-1))",
+                }
+        out[how] = rec
+    return out
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+    # ---- the coherence screen, every axis reported -----------------------------------
+    screen = {}
+    for nct, row in READS.items():
+        v, why = coherence(nct, row)
+        screen[nct] = {"acronym": row["acronym"], "verdict": v, "failing_axes": why,
+                       "phase": row["phase"], "comparator_class": row["comparator_class"],
+                       "randomised": row["randomised"]}
+    in_pool = [n for n, s in screen.items() if s["verdict"] == "IN_POOL"]
+
+    print("THE COHERENCE SCREEN -- eight trials with posted results, every failing axis named")
+    for nct, s in screen.items():
+        print("  %-12s %-26s %s" % (nct, s["acronym"], s["verdict"]))
+        for w in s["failing_axes"]:
+            print("        - %s" % w.split(":")[0])
+    print("  IN POOL: %d of %d" % (len(in_pool), len(READS)))
+
+    # ---- the pool this review reports ------------------------------------------------
+    rows = [(READS[n]["acronym"],
+             READS[n]["measures"]["vte_alone"]["e_apx"],
+             READS[n]["measures"]["vte_alone"]["n_apx"],
+             READS[n]["measures"]["vte_alone"]["e_ctl"],
+             READS[n]["measures"]["vte_alone"]["n_ctl"]) for n in in_pool]
+    reported = pool(rows, "recurrent symptomatic VTE, no death term -- acute treatment, "
+                          "apixaban randomised individually, active anticoagulant comparator")
+
+    print("\nTHE POOL THIS REVIEW REPORTS")
+    for p in reported["per_trial"]:
+        print("   %-28s %3d/%-5d vs %3d/%-5d  RR %.3f (%.3f-%.3f)%s"
+              % (p["trial"], p["events_apixaban"], p["n_apixaban"], p["events_comparator"],
+                 p["n_comparator"], p["rr"], p["ci_low"], p["ci_high"],
+                 "  [0.5 continuity]" if p["continuity_corrected"] else ""))
+    h = reported["PM"]["hksj"]
+    print("   POOLED k=%d  n=%d  RR %.4f (%.4f to %.4f)  PM tau2 %.5f  Q %.2f df %d  I2 %.1f%%"
+          % (reported["k"], reported["n_participants"], h["rr"], h["ci_low"], h["ci_high"],
+             reported["PM"]["tau2"], reported["q"], reported["df"], reported["i2_pct"]))
+    print("   (HKSJ t interval on %d df; DL+Wald sensitivity %.4f (%.4f to %.4f))"
+          % (h["t_df"], reported["DL"]["rr"], reported["DL"]["ci_low"],
+             reported["DL"]["ci_high"]))
+
+    # ---- leave-one-out, because at k=3 one trial can be the whole answer -------------
+    loo = []
+    for i in range(len(rows)):
+        sub = [r for j, r in enumerate(rows) if j != i]
+        s = pool(sub, "leave out %s" % rows[i][0])
+        h2 = s["PM"]["hksj"]
+        loo.append({"omitted": rows[i][0], "k": s["k"], "point": h2["rr"],
+                    "ci_low": h2["ci_low"], "ci_high": h2["ci_high"],
+                    "i2_pct": s["i2_pct"]})
+    loo_span = (min(a["point"] for a in loo), max(a["point"] for a in loo))
+
+    # ---- declined pool 1: the name match, which is what eight trials looked like ------
+    name_rows = []
+    for nct, row in READS.items():
+        m = row["measures"].get("vte_alone") or row["measures"].get(
+            "vte_or_vte_related_death") or row["measures"].get("vte_or_all_cause_death")
+        name_rows.append((row["acronym"], m["e_apx"], m["n_apx"], m["e_ctl"], m["n_ctl"]))
+    declined_name = pool(name_rows, "whatever each trial posts under a recurrent-VTE NAME -- "
+                                    "the pool a reviewer matching endpoints by name computes")
+
+    # ---- declined pool 2: estimand SHARED, comparator NOT ----------------------------
+    prog_rows = [
+        ("AMPLIFY", 59, 2609, 71, 2635),
+        ("AMPLIFY-EXT", 61, 1653, 92, 829),
+    ]
+    declined_prog = pool(prog_rows, "recurrent VTE or VTE-related death -- AMPLIFY and "
+                                    "AMPLIFY-EXT, an estimand they DO share")
+    prog_noimp = pool([("AMPLIFY", 59, 2609, 71, 2635), ("AMPLIFY-EXT", 28, 1653, 73, 829)],
+                      "the same pool with AMPLIFY-EXT's WITHOUT-IMPUTATION analysis")
+
+    print("\nTHE POOLS THIS REVIEW DECLINES")
+    print("   name-matched, k=%d      RR %.4f (%.4f to %.4f)  Q %.2f  I2 %.1f%%"
+          % (declined_name["k"], declined_name["DL"]["rr"], declined_name["DL"]["ci_low"],
+             declined_name["DL"]["ci_high"], declined_name["q"], declined_name["i2_pct"]))
+    print("   AMPLIFY + AMPLIFY-EXT  RR %.4f (%.4f to %.4f)  Q %.2f  I2 %.1f%%   <- estimand "
+          "SHARED, comparator NOT"
+          % (declined_prog["DL"]["rr"], declined_prog["DL"]["ci_low"],
+             declined_prog["DL"]["ci_high"], declined_prog["q"], declined_prog["i2_pct"]))
+    print("   the same, no imputation  I2 %.1f%%" % prog_noimp["i2_pct"])
+
+    prediction = {
+        "stated_before_the_run": True,
+        "prediction": (
+            "The estimand-COHERENT, comparator-INCOHERENT pool (AMPLIFY + AMPLIFY-EXT) will "
+            "show heterogeneity AT LEAST AS HIGH as the name-matched eight-trial pool, whose "
+            "estimands do not agree at all."),
+        "why_this_indicator_and_not_another": (
+            "P32: name a quantity that could not move for another reason. A high I2 on the "
+            "name-matched pool would be consistent with the estimands disagreeing AND with "
+            "ordinary clinical variation, so it tests nothing on its own. The COMPARISON is "
+            "the test: if the pool where the estimand IS shared is the more heterogeneous, "
+            "then I2 is not tracking estimand coherence, and it cannot be doing so by "
+            "coincidence in the direction that favours us."),
+        "i2_name_matched_pct": declined_name["i2_pct"],
+        "i2_estimand_coherent_pct": declined_prog["i2_pct"],
+        "outcome": ("HELD" if declined_prog["i2_pct"] >= declined_name["i2_pct"]
+                    else "REFUTED"),
+        "what_it_does_NOT_establish": (
+            "Nothing about whether either pool is coherent. P36 stands unchanged: the "
+            "coherence judgements in this file were made by reading definitions and would be "
+            "identical if every I2 came out zero."),
+    }
+    print("\nPREDICTION stated before the run: %s" % prediction["outcome"])
+    print("   name-matched I2 %.1f%%   vs   estimand-coherent I2 %.1f%%"
+          % (declined_name["i2_pct"], declined_prog["i2_pct"]))
+
+    out = {
+        "topic": "apixaban-vte-treatment",
+        "repooled_utc": "2026-08-19",
+        "what_the_withholding_question_found_and_what_it_did_not": (
+            "The withholding question found EIGHT trials with posted results reporting an "
+            "outcome named for recurrent VTE. Reading what each one COUNTS takes the poolable "
+            "set to THREE. The prophylaxis half of this pair ran the identical discipline and "
+            "its poolable set went 3 -> 8. THE METHOD DOES NOT HAVE A DIRECTION; asking is not "
+            "a way of finding more trials, it is a way of finding out."),
+        "coherence_screen": screen,
+        "trials_with_results_and_no_such_outcome_at_any_rank": NO_SUCH_OUTCOME,
+        "estimand_reported": {
+            "definition": ("recurrent symptomatic venous thromboembolism -- nonfatal deep vein "
+                           "thrombosis or nonfatal pulmonary embolism -- with NO death term"),
+            "restriction": ("acute treatment of the index event, apixaban randomised as a drug "
+                            "rather than as a member of a class, against another anticoagulant"),
+            "rank_in_each_trial": "PRIMARY in one, SECONDARY in two",
+            "titles_read": {n: READS[n]["measures"]["vte_alone"]["title"] for n in in_pool},
+            "sources_read": {n: READS[n]["measures"]["vte_alone"]["source"] for n in in_pool},
+            "leave_one_out": {
+                "analyses": loo,
+                "decision_under_test": (
+                    "Does the reported estimate depend on any one of the three trials? At k=3 "
+                    "that is not a formality: the largest contributor is more than seven times "
+                    "the size of the other two together."),
+                "authority": (
+                    "Cochrane Handbook 10.14: sensitivity analyses ask whether the conclusions "
+                    "are robust to decisions made during the review. Here the decision under "
+                    "test is the inclusion of each individual trial, not the estimator -- the "
+                    "estimator comparison is reported separately at "
+                    "`estimator_sensitivity`, because they are different questions and "
+                    "presenting them in one table would let a stable point estimate under one "
+                    "read as stability under the other."),
+                "conclusion": (
+                    "AT k=3 THE POOL IS LARGELY ONE TRIAL. CARAVAGGIO contributes %d of the "
+                    "%d events in this pool; its two companions contribute %d between them. "
+                    "Omitting it moves the point estimate from %.3f to %.3f, and the span "
+                    "across all three leave-one-out fits is %.3f to %.3f. All three intervals "
+                    "span the null, so no single trial is holding the conclusion up -- and "
+                    "none is holding it down either. The honest reading is that this estimate "
+                    "is a description of CARAVAGGIO with two small trials attached."
+                    % (sum(rows[i][1] + rows[i][3] for i in range(len(rows))
+                           if rows[i][0] == "CARAVAGGIO"),
+                       sum(r[1] + r[3] for r in rows),
+                       sum(r[1] + r[3] for r in rows if r[0] != "CARAVAGGIO"),
+                       reported["PM"]["hksj"]["rr"],
+                       next(a["point"] for a in loo if a["omitted"] == "CARAVAGGIO"),
+                       loo_span[0], loo_span[1])),
+                "interval_method": ("Paule-Mandel with a floored Knapp-Hartung interval on k-1 "
+                                    "df, the same as the pool itself. At k=2 that is t on ONE "
+                                    "degree of freedom, whose critical value is 12.7 -- which "
+                                    "is why these intervals are enormous and why they should "
+                                    "be."),
+            },
+            **reported},
+        "estimand_declined_name_matched": {
+            "why": ("This is the pool obtained by matching endpoints on the NAME 'recurrent "
+                    "VTE'. Two of its eight rows count a death; six do not; one is a class "
+                    "effect and one is derived from a percentage. It is computed so that the "
+                    "number a name-matching reviewer would have published is visible beside "
+                    "the one this review reports."),
+            **declined_name},
+        "estimand_declined_shared_but_comparator_not": {
+            "why": ("AMPLIFY and AMPLIFY-EXT DO share this estimand -- primary in one, "
+                    "secondary in the other, same sponsor, same programme. They are still not "
+                    "pooled: one randomises apixaban against enoxaparin followed by warfarin "
+                    "and the other against PLACEBO. ESTIMAND COHERENCE IS NECESSARY AND NOT "
+                    "SUFFICIENT, and this is the pool that shows it -- the estimand agrees "
+                    "and the quantity still is not the same quantity."),
+            **declined_prog},
+        "the_same_pool_under_the_other_analysis_population": prog_noimp,
+        "estimand_declined_each_trials_own_primary": {
+            "computed": False,
+            "refused_because": (
+                "THREE OF THE EIGHT REGISTER A BLEEDING ENDPOINT AS THEIR PRIMARY -- COBRRA, "
+                "COVET and the Japanese study. Pooling 'each trial's own primary' would "
+                "average a HARM against a BENEFIT, and the pooled quantity would have no "
+                "direction: a risk ratio below one would mean fewer thromboses in five trials "
+                "and fewer bleeds in three. This is the only declined pool in this file that "
+                "is refused as INCOMPUTABLE rather than computed and set aside, and the "
+                "reason is stated so a reader can check that it is a reason and not a "
+                "preference."),
+            "which_three": {"NCT03266783": "The Rate of Adjudicated Clinically Relevant "
+                                           "Bleeding (CRB) Events",
+                            "NCT03196349": "Number of Subjects With Clinically Relevant "
+                                           "Bleeding Events (one of two co-primaries)",
+                            "NCT01780987": "Number of Participants With Major Bleeding Events "
+                                           "[ISTH] or Clinically Relevant Non-major Bleeding"},
+        },
+        "derivation_refused_with_its_arithmetic": {
+            "what_was_refused": ("reconstructing a recurrent-VTE-alone estimand for AMPLIFY "
+                                 "and AMPLIFY-EXT by summing the components they post "
+                                 "separately"),
+            "amplify_components": READS["NCT00643201"]["components_posted_separately"],
+            "amplify_sums": {"apixaban": 22 + 27 + 12, "comparator": 35 + 25 + 16},
+            "amplify_posted_composite": {"apixaban": 59, "comparator": 71},
+            "why_refused": (
+                "The components sum to 61 and 76 against a posted composite of 59 and 71. A "
+                "composite counts a participant's FIRST event; its components count "
+                "participants. Summing them would have manufactured 2 and 5 events that the "
+                "trial's own adjudication does not record, and the manufactured events fall "
+                "in the comparator arm at more than twice the rate they fall in the apixaban "
+                "arm -- so the derivation is not merely imprecise, it is biased in the "
+                "direction that flatters the drug."),
+            "amplify_ext_components": READS["NCT00633893"]["components_posted_separately"],
+            "amplify_ext_note": (
+                "The same check on AMPLIFY-EXT gives a much larger discrepancy -- placebo "
+                "components 72 + 37 + 26 = 135 against a posted composite of 92 -- which "
+                "first-event counting alone does not explain. No explanation is offered here "
+                "because none was read; the refusal does not depend on having one."),
+        },
+        "the_duplicate_a_text_match_cannot_settle": {
+            "trial": "NCT00633893 AMPLIFY-EXT",
+            "what": ("Its primary composite is posted TWICE, typed PRIMARY both times, under "
+                     "the same registered name, differing only in the trailing 'Randomized "
+                     "Population With Imputation' / 'Without Imputation'."),
+            "with_imputation": "32, 34, 96 events (apixaban 2.5 mg, 5 mg, placebo)",
+            "without_imputation": "19, 14, 77 events",
+            "why_it_matters": (
+                "P35 says match the registered text and never the position. Here the text "
+                "matches TWO posted measures and the values differ by more than half again on "
+                "the treatment arms. CHOOSING AMONG MATCHES BY POSITION IS P35's OWN DEFECT "
+                "ONE LEVEL DOWN, and nothing in the payload is malformed."),
+            "how_it_was_settled": (
+                "By reading the descriptions, not the order: the WITHOUT-imputation record "
+                "states 'No imputation was done for these endpoints', marking it as the "
+                "sensitivity analysis, and the WITH-imputation record names the imputed counts "
+                "in its own population description. The with-imputation analysis is used, the "
+                "choice is applied to every measure taken from this trial, and both pools are "
+                "computed so the choice's cost is visible rather than asserted to be small."),
+        },
+        "prediction": prediction,
+        "estimator_note": (
+            "Paule-Mandel between-study variance with a Knapp-Hartung interval on k-1 degrees "
+            "of freedom, floored at max(1, Q/(k-1)). The house rule refuses DerSimonian-Laird "
+            "below k=10 and this pool is k=3. DL+Wald is carried alongside because it is what "
+            "the PROPHYLAXIS half of this pair reported at k=4 -- SO THAT HALF IS NOW OWED THE "
+            "SAME CORRECTION, and this note is the record of the debt rather than a silent "
+            "divergence between two pages built the same night."),
+        "what_this_replaces": (
+            "NOTHING. This review did not previously exist as an object: `apixaban-vte` was "
+            "split in two and the treatment half was registered with k=1 -- RAMBLE, n=19, "
+            "whose registered primary is a pictorial menstrual blood-loss chart and which "
+            "cannot contribute to this estimand. There is no previous pooled estimate to "
+            "compare against and none is manufactured for the sake of a delta."),
+    }
+    with io.open(DEST, "w", encoding="utf-8") as fh:
+        fh.write(json.dumps(out, indent=1))
+    print("\nwrote %s" % DEST)
+    return 0
+
+
+def selftest():
+    """Known answers, on REAL registry instances from this corpus -- never a synthetic fixture.
+
+    Each case is a fact about a trial in this review, and each would have failed under a
+    specific defect this file exists to refuse.
+    """
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    fails = []
+
+    def check(name, got, want, tol=1e-4):
+        ok = abs(got - want) <= tol
+        print("  %-58s %s  (%.6f vs %.6f)" % (name, "ok" if ok else "FAIL", got, want))
+        if not ok:
+            fails.append(name)
+
+    # CARAVAGGIO's posted counts give a risk ratio computable by hand: (32/576)/(46/579).
+    y, v, corr = logrr(32, 576, 46, 579)
+    check("CARAVAGGIO log RR", math.exp(y), (32.0 / 576) / (46.0 / 579))
+    assert not corr, "CARAVAGGIO has no zero cell and must not be continuity-corrected"
+
+    # The Japanese study HAS a zero cell and MUST be corrected -- and the correction must not
+    # fire on the trial above. A correction applied unconditionally biases the ratio toward 1.
+    y0, v0, corr0 = logrr(0, 38, 1, 40)
+    if not corr0:
+        fails.append("zero-cell correction did not fire on NCT01780987")
+    print("  %-58s %s" % ("zero-cell continuity fires on NCT01780987, not CARAVAGGIO",
+                          "ok" if corr0 and not corr else "FAIL"))
+
+    # The coherence screen must EXCLUDE CANVAS on the intervention axis and must NOT exclude
+    # CARAVAGGIO on anything. A guard that only ever passes is not a guard.
+    vc, whyc = coherence("NCT02744092", READS["NCT02744092"])
+    vg, whyg = coherence("NCT03045406", READS["NCT03045406"])
+    ok = (vc == "NOT_POOLED" and any("INTERVENTION" in w for w in whyc) and vg == "IN_POOL")
+    print("  %-58s %s" % ("screen refuses CANVAS on INTERVENTION, admits CARAVAGGIO",
+                          "ok" if ok else "FAIL"))
+    if not ok:
+        fails.append("coherence screen polarity")
+
+    # And it must report EVERY failing axis, not the first: AMPLIFY-EXT fails three.
+    va, whya = coherence("NCT00633893", READS["NCT00633893"])
+    ok = va == "NOT_POOLED" and len(whya) == 3
+    print("  %-58s %s (%d axes)" % ("AMPLIFY-EXT fails THREE axes and all three are reported",
+                                    "ok" if ok else "FAIL", len(whya)))
+    if not ok:
+        fails.append("short-circuiting screen")
+
+    # AMPLIFY's components must not sum to its posted composite. If they ever did, the
+    # derivation this file refuses would be legitimate and the refusal would need rewriting.
+    c = READS["NCT00643201"]["components_posted_separately"]
+    s_a = sum(v[0] for v in c.values())
+    s_c = sum(v[2] for v in c.values())
+    ok = (s_a, s_c) != (59, 71)
+    print("  %-58s %s (%d vs 59, %d vs 71)"
+          % ("AMPLIFY components do NOT sum to its posted composite",
+             "ok" if ok else "FAIL", s_a, s_c))
+    if not ok:
+        fails.append("component sum")
+
+    print("\n%s" % ("ALL KNOWN ANSWERS HELD" if not fails else "FAILED: %s" % fails))
+    return 1 if fails else 0
+
+
+if __name__ == "__main__":
+    sys.exit(selftest() if "--selftest" in sys.argv else main())

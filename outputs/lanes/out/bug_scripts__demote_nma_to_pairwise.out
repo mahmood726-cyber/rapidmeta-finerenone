@@ -1,0 +1,569 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a03194-05da-7013-9c92-3431e5427319
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/demote_nma_to_pairwise.py
+
+--- THE FILE, IN FULL ---
+"""Phase 1 demotion: rename _NMA_REVIEW.html files that aren't actually NMAs
+and strip their NMA tab.
+
+Two passes via --target flag:
+  --target degenerate   3 files where NMA_CONFIG declares only 2 treatments
+                        (pairwise MA mislabelled as NMA)
+  --target no-config    21 files named *_NMA_REVIEW.html that have no
+                        NMA_CONFIG declaration at all (engine has nothing
+                        to render, NMA tab probably empty)
+
+For each affected file:
+  A. Remove the NMA tab button:
+     `<button onclick="RapidMeta.switchTab('nma')" ...>5. Network Meta-Analysis</button>`
+  B. Remove the NMA tab content section:
+     `<section id="tab-nma" ...>...</section>` (balanced, ~12KB on average)
+  C. git mv FOO_NMA_REVIEW.html → FOO_REVIEW.html (drop the _NMA_)
+
+Idempotent. Refuses to touch files where the NMA tab landmarks are already
+absent, or where renaming would collide with an existing FOO_REVIEW.html.
+
+Use --dry-run to preview. Then run without --dry-run to apply.
+
+After renaming, you'll want to re-run scripts/compute_verdict_badges.py
+because it indexes by filename.
+"""
+from __future__ import annotations
+import sys, io, re, argparse, subprocess
+from pathlib import Path
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+REPO = Path(__file__).resolve().parent.parent
+
+# 3 degenerate files (NMA_CONFIG.treatments.length < 3 per audit)
+DEGENERATE = [
+    "ADC_HER2_ADJUVANT_NMA_REVIEW.html",
+    "ADC_HER2_LOW_NMA_REVIEW.html",
+    "HER2_LOW_ADC_NMA_REVIEW.html",
+]
+
+# 21 files named *_NMA_REVIEW.html with no NMA_CONFIG
+NO_CONFIG = [
+    "AGYW_HIV_PREP_NMA_REVIEW.html",
+    "ALDO_SYNTHASE_NMA_REVIEW.html",
+    "ALK_NSCLC_NMA_REVIEW.html",
+    "ALOPECIA_JAKI_NMA_REVIEW.html",
+    "ATTR_CM_NMA_REVIEW.html",
+    "ATTR_PN_NMA_REVIEW.html",
+    "FRAGILITY_FRACTURE_NMA_REVIEW.html",
+    "HCC_1L_NMA_REVIEW.html",
+    "HEPATITIS_HCV_DAA_NMA_REVIEW.html",
+    "HIV_ART_FIRSTLINE_NMA_REVIEW.html",
+    "HIV_LA_PREP_NMA_REVIEW.html",
+    "HPV_DOSE_REDUCTION_NMA_REVIEW.html",
+    "IL23_PSA_NMA_REVIEW.html",
+    "JAKI_AD_NMA_REVIEW.html",
+    "KRAS_G12C_NMA_REVIEW.html",
+    "MALARIA_ACT_NMA_REVIEW.html",
+    "MALARIA_VACCINES_NMA_REVIEW.html",
+    "MM_1L_NMA_REVIEW.html",
+    "PPH_BUNDLE_NMA_REVIEW.html",
+    "RCC_1L_NMA_REVIEW.html",
+    "SCD_DISEASE_MOD_NMA_REVIEW.html",
+]
+
+NMA_BUTTON_RE = re.compile(
+    r'\s*<button[^>]*onclick="RapidMeta\.switchTab\(\'nma\'\)"[^>]*>'
+    r'[^<]*</button>\s*'
+)
+
+
+def find_nma_section(text: str):
+    """Return (start, end) indices of <section id="tab-nma" ...>...</section>
+    with balanced section nesting. Returns None if not found."""
+    m = re.search(r'<section id="tab-nma"', text)
+    if not m:
+        return None
+    s = m.start()
+    i = s
+    depth = 0
+    while i < len(text):
+        op = text.find("<section", i)
+        cl = text.find("</section>", i)
+        if cl == -1:
+            return None
+        if op != -1 and op < cl:
+            depth += 1
+            i = op + 8
+        else:
+            depth -= 1
+            i = cl + 10
+            if depth == 0:
+                return (s, i)
+    return None
+
+
+def strip_nma_from_file(path: Path, dry_run: bool) -> dict:
+    text = path.read_text(encoding="utf-8", errors="replace")
+    btn_match = NMA_BUTTON_RE.search(text)
+    sec = find_nma_section(text)
+
+    actions = []
+    new_text = text
+    # Remove section first (later position) so button offset stays valid.
+    if sec:
+        new_text = new_text[:sec[0]] + new_text[sec[1]:]
+        actions.append(f"section -{sec[1]-sec[0]}c")
+    if btn_match:
+        # Re-find button after section removal
+        m2 = NMA_BUTTON_RE.search(new_text)
+        if m2:
+            new_text = new_text[:m2.start()] + new_text[m2.end():]
+            actions.append(f"button -{m2.end()-m2.start()}c")
+
+    if not actions:
+        return {"changed": False, "actions": []}
+    if not dry_run:
+        path.write_text(new_text, encoding="utf-8")
+    return {"changed": True, "actions": actions}
+
+
+def rename_file(path: Path, dry_run: bool) -> Path | None:
+    new_name = path.name.replace("_NMA_REVIEW.html", "_REVIEW.html")
+    new_path = path.parent / new_name
+    if new_path.exists():
+        print(f"  COLLISION  {path.name} → {new_name} (target already exists)")
+        return None
+    if dry_run:
+        return new_path
+    # Critical: stage the in-place modification BEFORE git mv. Plain `git mv`
+    # of a modified file silently drops the modification in some git versions
+    # — only the rename gets committed. This bit us in c5bb8c42 (had to fix
+    # up in a follow-up commit). Always: git add OLD -> git mv OLD NEW -> git
+    # add NEW (belt-and-braces).
+    try:
+        subprocess.check_call(["git", "-C", str(REPO), "add", path.name],
+                              stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+        subprocess.check_call(["git", "-C", str(REPO), "mv", path.name, new_name],
+                              stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+        subprocess.check_call(["git", "-C", str(REPO), "add", new_name],
+                              stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+    except subprocess.CalledProcessError:
+        # Fallback: not in a git repo or file untracked
+        path.rename(new_path)
+    return new_path
+
+
+# Phase 2: 33 files where NMA_CONFIG NCTs and realData NCTs do NOT overlap
+# (intersection=0). The engine has nothing to compute on. Demote.
+NO_OVERLAP = [
+    "ACS_ANTIPLATELET_NMA_REVIEW.html",
+    "ANTI_CD20_MS_NMA_REVIEW.html",
+    "ANTIPSYCHOTICS_SCHIZO_NMA_REVIEW.html",
+    "CRYPTOCOCCAL_MENINGITIS_AFRICA_NMA_REVIEW.html",
+    "DIABETIC_MACULAR_EDEMA_NMA_REVIEW.html",
+    "DIABETIC_RETINOPATHY_NMA_REVIEW.html",
+    "GLP1_MASH_NMA_REVIEW.html",
+    "HEMOPHILIA_GENE_THERAPY_NMA_REVIEW.html",
+    "HIDRADENITIS_SUPPURATIVA_NMA_REVIEW.html",
+    "HIV_ART_TIMING_NMA_REVIEW.html",
+    "HIV_PREP_INJECTABLE_NMA_REVIEW.html",
+    "HIV_TB_COINFECTION_ART_TIMING_NMA_REVIEW.html",
+    "HPV_VACCINE_SCHEDULES_NMA_REVIEW.html",
+    "HYDROCORTISONE_SEPTIC_SHOCK_NMA_REVIEW.html",
+    "ICU_SEDATION_NMA_REVIEW.html",
+    "MALARIA_VACCINE_NMA_REVIEW.html",
+    "MDR_TB_SHORTENED_NMA_REVIEW.html",
+    "MEDITERRANEAN_DIET_CV_NMA_REVIEW.html",
+    "MIGRAINE_ACUTE_NMA_REVIEW.html",
+    "OBESITY_DRUGS_NMA_REVIEW.html",
+    "PAH_THERAPY_NMA_REVIEW.html",
+    "PEDIATRIC_HIV_ART_NMA_REVIEW.html",
+    "PHYSICAL_REHAB_OLDER_NMA_REVIEW.html",
+    "POLYCYTHEMIA_VERA_NMA_REVIEW.html",
+    "POSTPARTUM_HEMORRHAGE_NMA_REVIEW.html",
+    "PSA_BIOLOGICS_NMA_REVIEW.html",
+    "ROTAVIRUS_VACCINE_AFRICA_NMA_REVIEW.html",
+    "SEPSIS_RESUSCITATION_NMA_REVIEW.html",
+    "SEVERE_PEDIATRIC_FEBRILE_AFRICA_NMA_REVIEW.html",
+    "SPONDYLOARTHRITIS_NMA_REVIEW.html",
+    "TB_PREVENTION_NMA_REVIEW.html",
+    "VITAMIN_D_FRACTURE_FALL_NMA_REVIEW.html",
+    "VITILIGO_NMA_REVIEW.html",
+]
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--target", choices=["degenerate", "no-config", "no-overlap", "all"], required=True)
+    ap.add_argument("--dry-run", action="store_true")
+    args = ap.parse_args()
+
+    queue: list[str] = []
+    if args.target in ("degenerate", "all"):
+        queue.extend(DEGENERATE)
+    if args.target in ("no-config", "all"):
+        queue.extend(NO_CONFIG)
+    if args.target in ("no-overlap", "all"):
+        queue.extend(NO_OVERLAP)
+
+    print(f"Phase 1 demote — {len(queue)} files (--target {args.target})")
+    if args.dry_run:
+        print("  DRY RUN — no changes written.")
+
+    stripped, renamed, skipped = 0, 0, 0
+    for fname in queue:
+        path = REPO / fname
+        if not path.exists():
+            print(f"  MISSING  {fname}")
+            skipped += 1
+            continue
+
+        # Strip NMA tab from contents (only if landmarks present)
+        result = strip_nma_from_file(path, dry_run=args.dry_run)
+        if result["changed"]:
+            stripped += 1
+            print(f"  STRIP    {fname}  [{', '.join(result['actions'])}]")
+        else:
+            print(f"  CLEAN    {fname}  (no NMA tab landmarks)")
+
+        # Rename
+        new_path = rename_file(path, dry_run=args.dry_run)
+        if new_path:
+            renamed += 1
+            print(f"  RENAME   → {new_path.name}")
+
+    print(f"\n=== Summary ===")
+    print(f"  Tab content stripped: {stripped}")
+    print(f"  Renamed:              {renamed}")
+    print(f"  Skipped/missing:      {skipped}")
+    if args.dry_run:
+        print("  (DRY RUN — nothing written)")
+
+
+if __name__ == "__main__":
+    main()
+
+codex
+I’m going to anchor this to the pasted module only and keep it in the requested defect format. The main risk here is not broad style commentary, it is whether the script’s own gates can let a bad migration report success.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=1; Get-Content -Path scripts/demote_nma_to_pairwise.py | ForEach-Object { '"'{0,4}: {1}' -f "'$i, $_; $i++ }' in F:\rapidmeta-ssot-shell
+ succeeded in 1453ms:
+   1: """Phase 1 demotion: rename _NMA_REVIEW.html files that aren't actually NMAs
+   2: and strip their NMA tab.
+   3: 
+   4: Two passes via --target flag:
+   5:   --target degenerate   3 files where NMA_CONFIG declares only 2 treatments
+   6:                         (pairwise MA mislabelled as NMA)
+   7:   --target no-config    21 files named *_NMA_REVIEW.html that have no
+   8:                         NMA_CONFIG declaration at all (engine has nothing
+   9:                         to render, NMA tab probably empty)
+  10: 
+  11: For each affected file:
+  12:   A. Remove the NMA tab button:
+  13:      `<button onclick="RapidMeta.switchTab('nma')" ...>5. Network Meta-Analysis</button>`
+  14:   B. Remove the NMA tab content section:
+  15:      `<section id="tab-nma" ...>...</section>` (balanced, ~12KB on average)
+  16:   C. git mv FOO_NMA_REVIEW.html â†’ FOO_REVIEW.html (drop the _NMA_)
+  17: 
+  18: Idempotent. Refuses to touch files where the NMA tab landmarks are already
+  19: absent, or where renaming would collide with an existing FOO_REVIEW.html.
+  20: 
+  21: Use --dry-run to preview. Then run without --dry-run to apply.
+  22: 
+  23: After renaming, you'll want to re-run scripts/compute_verdict_badges.py
+  24: because it indexes by filename.
+  25: """
+  26: from __future__ import annotations
+  27: import sys, io, re, argparse, subprocess
+  28: from pathlib import Path
+  29: sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+  30: 
+  31: REPO = Path(__file__).resolve().parent.parent
+  32: 
+  33: # 3 degenerate files (NMA_CONFIG.treatments.length < 3 per audit)
+  34: DEGENERATE = [
+  35:     "ADC_HER2_ADJUVANT_NMA_REVIEW.html",
+  36:     "ADC_HER2_LOW_NMA_REVIEW.html",
+  37:     "HER2_LOW_ADC_NMA_REVIEW.html",
+  38: ]
+  39: 
+  40: # 21 files named *_NMA_REVIEW.html with no NMA_CONFIG
+  41: NO_CONFIG = [
+  42:     "AGYW_HIV_PREP_NMA_REVIEW.html",
+  43:     "ALDO_SYNTHASE_NMA_REVIEW.html",
+  44:     "ALK_NSCLC_NMA_REVIEW.html",
+  45:     "ALOPECIA_JAKI_NMA_REVIEW.html",
+  46:     "ATTR_CM_NMA_REVIEW.html",
+  47:     "ATTR_PN_NMA_REVIEW.html",
+  48:     "FRAGILITY_FRACTURE_NMA_REVIEW.html",
+  49:     "HCC_1L_NMA_REVIEW.html",
+  50:     "HEPATITIS_HCV_DAA_NMA_REVIEW.html",
+  51:     "HIV_ART_FIRSTLINE_NMA_REVIEW.html",
+  52:     "HIV_LA_PREP_NMA_REVIEW.html",
+  53:     "HPV_DOSE_REDUCTION_NMA_REVIEW.html",
+  54:     "IL23_PSA_NMA_REVIEW.html",
+  55:     "JAKI_AD_NMA_REVIEW.html",
+  56:     "KRAS_G12C_NMA_REVIEW.html",
+  57:     "MALARIA_ACT_NMA_REVIEW.html",
+  58:     "MALARIA_VACCINES_NMA_REVIEW.html",
+  59:     "MM_1L_NMA_REVIEW.html",
+  60:     "PPH_BUNDLE_NMA_REVIEW.html",
+  61:     "RCC_1L_NMA_REVIEW.html",
+  62:     "SCD_DISEASE_MOD_NMA_REVIEW.html",
+  63: ]
+  64: 
+  65: NMA_BUTTON_RE = re.compile(
+  66:     r'\s*<button[^>]*onclick="RapidMeta\.switchTab\(\'nma\'\)"[^>]*>'
+  67:     r'[^<]*</button>\s*'
+  68: )
+  69: 
+  70: 
+  71: def find_nma_section(text: str):
+  72:     """Return (start, end) indices of <section id="tab-nma" ...>...</section>
+  73:     with balanced section nesting. Returns None if not found."""
+  74:     m = re.search(r'<section id="tab-nma"', text)
+  75:     if not m:
+  76:         return None
+  77:     s = m.start()
+  78:     i = s
+  79:     depth = 0
+  80:     while i < len(text):
+  81:         op = text.find("<section", i)
+  82:         cl = text.find("</section>", i)
+  83:         if cl == -1:
+  84:             return None
+  85:         if op != -1 and op < cl:
+  86:             depth += 1
+  87:             i = op + 8
+  88:         else:
+  89:             depth -= 1
+  90:             i = cl + 10
+  91:             if depth == 0:
+  92:                 return (s, i)
+  93:     return None
+  94: 
+  95: 
+  96: def strip_nma_from_file(path: Path, dry_run: bool) -> dict:
+  97:     text = path.read_text(encoding="utf-8", errors="replace")
+  98:     btn_match = NMA_BUTTON_RE.search(text)
+  99:     sec = find_nma_section(text)
+ 100: 
+ 101:     actions = []
+ 102:     new_text = text
+ 103:     # Remove section first (later position) so button offset stays valid.
+ 104:     if sec:
+ 105:         new_text = new_text[:sec[0]] + new_text[sec[1]:]
+ 106:         actions.append(f"section -{sec[1]-sec[0]}c")
+ 107:     if btn_match:
+ 108:         # Re-find button after section removal
+ 109:         m2 = NMA_BUTTON_RE.search(new_text)
+ 110:         if m2:
+ 111:             new_text = new_text[:m2.start()] + new_text[m2.end():]
+ 112:             actions.append(f"button -{m2.end()-m2.start()}c")
+ 113: 
+ 114:     if not actions:
+ 115:         return {"changed": False, "actions": []}
+ 116:     if not dry_run:
+ 117:         path.write_text(new_text, encoding="utf-8")
+ 118:     return {"changed": True, "actions": actions}
+ 119: 
+ 120: 
+ 121: def rename_file(path: Path, dry_run: bool) -> Path | None:
+ 122:     new_name = path.name.replace("_NMA_REVIEW.html", "_REVIEW.html")
+ 123:     new_path = path.parent / new_name
+ 124:     if new_path.exists():
+ 125:         print(f"  COLLISION  {path.name} â†’ {new_name} (target already exists)")
+ 126:         return None
+ 127:     if dry_run:
+ 128:         return new_path
+ 129:     # Critical: stage the in-place modification BEFORE git mv. Plain `git mv`
+ 130:     # of a modified file silently drops the modification in some git versions
+ 131:     # â€” only the rename gets committed. This bit us in c5bb8c42 (had to fix
+ 132:     # up in a follow-up commit). Always: git add OLD -> git mv OLD NEW -> git
+ 133:     # add NEW (belt-and-braces).
+ 134:     try:
+ 135:         subprocess.check_call(["git", "-C", str(REPO), "add", path.name],
+ 136:                               stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+ 137:         subprocess.check_call(["git", "-C", str(REPO), "mv", path.name, new_name],
+ 138:                               stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+ 139:         subprocess.check_call(["git", "-C", str(REPO), "add", new_name],
+ 140:                               stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+ 141:     except subprocess.CalledProcessError:
+ 142:         # Fallback: not in a git repo or file untracked
+ 143:         path.rename(new_path)
+ 144:     return new_path
+ 145: 
+ 146: 
+ 147: # Phase 2: 33 files where NMA_CONFIG NCTs and realData NCTs do NOT overlap
+ 148: # (intersection=0). The engine has nothing to compute on. Demote.
+ 149: NO_OVERLAP = [
+ 150:     "ACS_ANTIPLATELET_NMA_REVIEW.html",
+ 151:     "ANTI_CD20_MS_NMA_REVIEW.html",
+ 152:     "ANTIPSYCHOTICS_SCHIZO_NMA_REVIEW.html",
+ 153:     "CRYPTOCOCCAL_MENINGITIS_AFRICA_NMA_REVIEW.html",
+ 154:     "DIABETIC_MACULAR_EDEMA_NMA_REVIEW.html",
+ 155:     "DIABETIC_RETINOPATHY_NMA_REVIEW.html",
+ 156:     "GLP1_MASH_NMA_REVIEW.html",
+ 157:     "HEMOPHILIA_GENE_THERAPY_NMA_REVIEW.html",
+ 158:     "HIDRADENITIS_SUPPURATIVA_NMA_REVIEW.html",
+ 159:     "HIV_ART_TIMING_NMA_REVIEW.html",
+ 160:     "HIV_PREP_INJECTABLE_NMA_REVIEW.html",
+ 161:     "HIV_TB_COINFECTION_ART_TIMING_NMA_REVIEW.html",
+ 162:     "HPV_VACCINE_SCHEDULES_NMA_REVIEW.html",
+ 163:     "HYDROCORTISONE_SEPTIC_SHOCK_NMA_REVIEW.html",
+ 164:     "ICU_SEDATION_NMA_REVIEW.html",
+ 165:     "MALARIA_VACCINE_NMA_REVIEW.html",
+ 166:     "MDR_TB_SHORTENED_NMA_REVIEW.html",
+ 167:     "MEDITERRANEAN_DIET_CV_NMA_REVIEW.html",
+ 168:     "MIGRAINE_ACUTE_NMA_REVIEW.html",
+ 169:     "OBESITY_DRUGS_NMA_REVIEW.html",
+ 170:     "PAH_THERAPY_NMA_REVIEW.html",
+ 171:     "PEDIATRIC_HIV_ART_NMA_REVIEW.html",
+ 172:     "PHYSICAL_REHAB_OLDER_NMA_REVIEW.html",
+ 173:     "POLYCYTHEMIA_VERA_NMA_REVIEW.html",
+ 174:     "POSTPARTUM_HEMORRHAGE_NMA_REVIEW.html",
+ 175:     "PSA_BIOLOGICS_NMA_REVIEW.html",
+ 176:     "ROTAVIRUS_VACCINE_AFRICA_NMA_REVIEW.html",
+ 177:     "SEPSIS_RESUSCITATION_NMA_REVIEW.html",
+ 178:     "SEVERE_PEDIATRIC_FEBRILE_AFRICA_NMA_REVIEW.html",
+ 179:     "SPONDYLOARTHRITIS_NMA_REVIEW.html",
+ 180:     "TB_PREVENTION_NMA_REVIEW.html",
+ 181:     "VITAMIN_D_FRACTURE_FALL_NMA_REVIEW.html",
+ 182:     "VITILIGO_NMA_REVIEW.html",
+ 183: ]
+ 184: 
+ 185: 
+ 186: def main():
+ 187:     ap = argparse.ArgumentParser()
+ 188:     ap.add_argument("--target", choices=["degenerate", "no-config", "no-overlap", "all"], required=True)
+ 189:     ap.add_argument("--dry-run", action="store_true")
+ 190:     args = ap.parse_args()
+ 191: 
+ 192:     queue: list[str] = []
+ 193:     if args.target in ("degenerate", "all"):
+ 194:         queue.extend(DEGENERATE)
+ 195:     if args.target in ("no-config", "all"):
+ 196:         queue.extend(NO_CONFIG)
+ 197:     if args.target in ("no-overlap", "all"):
+ 198:         queue.extend(NO_OVERLAP)
+ 199: 
+ 200:     print(f"Phase 1 demote â€” {len(queue)} files (--target {args.target})")
+ 201:     if args.dry_run:
+ 202:         print("  DRY RUN â€” no changes written.")
+ 203: 
+ 204:     stripped, renamed, skipped = 0, 0, 0
+ 205:     for fname in queue:
+ 206:         path = REPO / fname
+ 207:         if not path.exists():
+ 208:             print(f"  MISSING  {fname}")
+ 209:             skipped += 1
+ 210:             continue
+ 211: 
+ 212:         # Strip NMA tab from contents (only if landmarks present)
+ 213:         result = strip_nma_from_file(path, dry_run=args.dry_run)
+ 214:         if result["changed"]:
+ 215:             stripped += 1
+ 216:             print(f"  STRIP    {fname}  [{', '.join(result['actions'])}]")
+ 217:         else:
+ 218:             print(f"  CLEAN    {fname}  (no NMA tab landmarks)")
+ 219: 
+ 220:         # Rename
+ 221:         new_path = rename_file(path, dry_run=args.dry_run)
+ 222:         if new_path:
+ 223:             renamed += 1
+ 224:             print(f"  RENAME   â†’ {new_path.name}")
+ 225: 
+ 226:     print(f"\n=== Summary ===")
+ 227:     print(f"  Tab content stripped: {stripped}")
+ 228:     print(f"  Renamed:              {renamed}")
+ 229:     print(f"  Skipped/missing:      {skipped}")
+ 230:     if args.dry_run:
+ 231:         print("  (DRY RUN â€” nothing written)")
+ 232: 
+ 233: 
+ 234: if __name__ == "__main__":
+ 235:     main()
+
+codex
+**Defects found**
+
+- **Idempotency guard absent:** line 221.  
+  Exact input: `AGYW_HIV_PREP_NMA_REVIEW.html` exists as `<html></html>`, `AGYW_HIV_PREP_REVIEW.html` does not exist, run `python scripts/demote_nma_to_pairwise.py --target no-config`.  
+  Consequence: line 218 reports `CLEAN`, but line 221 still renames the file, contradicting lines 18-19’s “refuses to touch” claim.
+
+- **Collision check runs after destructive work:** lines 213 then 221/124.  
+  Exact input: `AGYW_HIV_PREP_NMA_REVIEW.html` contains `<button onclick="RapidMeta.switchTab('nma')">5. Network Meta-Analysis</button><section id="tab-nma"></section>`, and `AGYW_HIV_PREP_REVIEW.html` already exists.  
+  Consequence: line 117 writes the stripped source before line 124 detects collision, leaving a modified `_NMA_REVIEW.html` unrenamed.
+
+- **STATUS CODE REPORTING THE WRAPPER rather than the work:** lines 207-210 and 235.  
+  Exact input: none of the three `DEGENERATE` files exists, run `python scripts/demote_nma_to_pairwise.py --target degenerate`.  
+  Consequence: all work items are `MISSING`, but `main()` returns normally, so automation gets exit code 0.
+
+- **Status summary drops collisions:** lines 221-229.  
+  Exact input: `AGYW_HIV_PREP_NMA_REVIEW.html` exists and `AGYW_HIV_PREP_REVIEW.html` also exists, run `--target no-config`.  
+  Consequence: `rename_file()` returns `None`, but `skipped` is not incremented, so the summary underreports skipped/failed work.
+
+**No finding from pasted module alone:** probe keyed to string a fix removes; instrument reading a different copy; CRLF/LF text comparison; merged-cell/off-by-one tabulation; zero conflated with absent; negation dropped.  
+**COULD NOT DETERMINE:** selector coverage against the actual HTML corpus; missing queued HTML file contents.
+tokens used
+20,569
+**Defects found**
+
+- **Idempotency guard absent:** line 221.  
+  Exact input: `AGYW_HIV_PREP_NMA_REVIEW.html` exists as `<html></html>`, `AGYW_HIV_PREP_REVIEW.html` does not exist, run `python scripts/demote_nma_to_pairwise.py --target no-config`.  
+  Consequence: line 218 reports `CLEAN`, but line 221 still renames the file, contradicting lines 18-19’s “refuses to touch” claim.
+
+- **Collision check runs after destructive work:** lines 213 then 221/124.  
+  Exact input: `AGYW_HIV_PREP_NMA_REVIEW.html` contains `<button onclick="RapidMeta.switchTab('nma')">5. Network Meta-Analysis</button><section id="tab-nma"></section>`, and `AGYW_HIV_PREP_REVIEW.html` already exists.  
+  Consequence: line 117 writes the stripped source before line 124 detects collision, leaving a modified `_NMA_REVIEW.html` unrenamed.
+
+- **STATUS CODE REPORTING THE WRAPPER rather than the work:** lines 207-210 and 235.  
+  Exact input: none of the three `DEGENERATE` files exists, run `python scripts/demote_nma_to_pairwise.py --target degenerate`.  
+  Consequence: all work items are `MISSING`, but `main()` returns normally, so automation gets exit code 0.
+
+- **Status summary drops collisions:** lines 221-229.  
+  Exact input: `AGYW_HIV_PREP_NMA_REVIEW.html` exists and `AGYW_HIV_PREP_REVIEW.html` also exists, run `--target no-config`.  
+  Consequence: `rename_file()` returns `None`, but `skipped` is not incremented, so the summary underreports skipped/failed work.
+
+**No finding from pasted module alone:** probe keyed to string a fix removes; instrument reading a different copy; CRLF/LF text comparison; merged-cell/off-by-one tabulation; zero conflated with absent; negation dropped.  
+**COULD NOT DETERMINE:** selector coverage against the actual HTML corpus; missing queued HTML file contents.

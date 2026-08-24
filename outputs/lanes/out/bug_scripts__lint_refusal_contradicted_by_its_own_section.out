@@ -1,0 +1,284 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a031f6-4c02-7040-8bce-1f8d075e3841
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/lint_refusal_contradicted_by_its_own_section.py
+
+--- THE FILE, IN FULL ---
+#!/usr/bin/env python3
+"""A REFUSAL CONTRADICTED BY THE CONTENT BENEATH IT -- the detector, and the repair.
+
+THE DEFECT. Three delivered pages open their search tab with:
+
+    "Not held in this object. No search record is held in this object. The included set was
+     reconciled against published syntheses rather than produced by a database search, so no
+     query, date or yield can be shown. Treat the included set as a convenience sample, not a
+     systematic one."
+
+and then, in the same section, print the executed query, its date and its yield. The denial came
+first, so a reader who stops at the first paragraph is told the review is a convenience sample
+when its object holds a two-database executed search screened to zero.
+
+  `colchicine-cvd-coronary` IS ONE OF THEM AND IT WAS BUILT TODAY, from a search I ran across
+  137 registrations. The stale refusal was never removed when the search was added.
+
+THE DISTINCTION THE CORPUS DID NOT HAVE. "Not held in this object" is a REFUSAL when true and a
+GAP when false, and it reads identically either way. A third state was missing: HELD ELSEWHERE
+AND NOT PROJECTED. This lint does not try to detect that third state from outside -- it detects
+the sharpest and least arguable case, where THE SECTION'S OWN BYTES REFUTE ITS OWN OPENING
+SENTENCE.
+
+  DELIBERATELY NARROW. A wider rule would flag `pn-report`, whose denial ("no GRADE assessment
+  is held, so certainty has not been rated") is followed by a summary-of-findings table with the
+  certainty column rendered as an em dash. THAT IS HONEST: the refusal is about GRADE and the
+  table says so in the cell. 38 sections have a denial followed by substantial content and only
+  3 are contradictions. A rule that flagged all 38 would be the arbitrary-selection class again,
+  and would train a reader to ignore it.
+
+THE REPAIR removes ONLY the denial paragraph, byte for byte, and leaves everything else
+untouched. The file must shrink by exactly the length of the removed text and by nothing else.
+
+USAGE
+    python scripts/lint_refusal_contradicted_by_its_own_section.py          # detect, exit 1 if any
+    python scripts/lint_refusal_contradicted_by_its_own_section.py --repair
+"""
+import glob
+import io
+import json
+import os
+import re
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# (the denial's claim, the proof it is false)
+CONTRADICTIONS = [
+    {"section": "pn-search",
+     "denial_claims": "no query, date or yield can be shown",
+     "refuted_by": "query as executed",
+     "why": "the section prints the executed query immediately below the sentence denying it"},
+]
+
+# THE EXACT MARKUP, read from a page rather than guessed. The first version looked for a <p>
+# wrapper and matched nothing, so the repair REFUSED on every page -- which is the correct
+# behaviour for a locator that cannot locate, and is why nothing was removed by approximation.
+DENIAL = re.compile(
+    r'<div class="absent-state" role="note"><strong>Not held in this object\.</strong>'
+    r'[^<]{0,600}?not a systematic one\.</div>\s*', re.S)
+
+
+def sec(html, sid):
+    m = re.search(r'<section[^>]*id="%s".*?</section>' % sid, html, re.S)
+    return m
+
+
+def _yield_table_is_empty(block):
+    """True when the panel prints a query but its results table has no rows."""
+    for m in re.finditer(r"<table>(.*?)</table>", block, re.S):
+        body = re.sub(r"<caption>.*?</caption>", "", m.group(1), flags=re.S)
+        if re.search(r"<t[rdh][\s>]", body):
+            return False
+    return True
+
+
+def scan():
+    out = []
+    for p in sorted(glob.glob(os.path.join(REPO, "*_REVIEW.html"))):
+        try:
+            with io.open(p, "rb") as fh:
+                html = fh.read().decode("utf-8", "replace")
+        except Exception:
+            continue
+        for c in CONTRADICTIONS:
+            m = sec(html, c["section"])
+            if not m:
+                continue
+            block = m.group(0)
+            txt = re.sub(r"\s+", " ", re.sub("<[^>]+>", " ", block)).lower()
+            # AND THE YIELD MUST ACTUALLY BE SHOWN. Firing on a panel that prints a query above
+            # an EMPTY yield table demands a removal that leaves the panel unexplained -- the
+            # regression check catches that instantly as `ssot_empty_panel`, so this lint and
+            # that gate would contradict each other on seven pages. THE DENIAL'S CLAIM ABOUT THE
+            # YIELD IS TRUE THERE; only its claim about the query is false, and a wording fix
+            # belongs in the builder, not in a page patch. Those panels are PARTIALLY HELD and
+            # are recorded as owed rather than forced through by a lint that cannot see the
+            # difference.
+            if _yield_table_is_empty(block):
+                continue
+            if c["denial_claims"] in txt and c["refuted_by"] in txt:
+                out.append({"page": os.path.basename(p), "section": c["section"],
+                            "why": c["why"]})
+    return out
+
+
+def repair(hits):
+    fixed, refused = [], []
+    for h in hits:
+        p = os.path.join(REPO, h["page"])
+        with io.open(p, "rb") as fh:
+            raw = fh.read()
+        html = raw.decode("utf-8", "replace")
+        m = sec(html, h["section"])
+        block = m.group(0)
+        d = DENIAL.search(block)
+        if not d:
+            refused.append(dict(h, why="the denial paragraph could not be located exactly; "
+                                       "NOT removed by approximation"))
+            continue
+        removed = d.group(0)
+        # BYTE-LEVEL. Never decode-and-rewrite a page; the banner pass destroyed 466KB that way.
+        rb = removed.encode("utf-8")
+        if raw.count(rb) != 1:
+            refused.append(dict(h, why="the denial paragraph appears %d times in the file; "
+                                       "refusing an ambiguous removal" % raw.count(rb)))
+            continue
+        new = raw.replace(rb, b"")
+        if len(raw) - len(new) != len(rb):
+            refused.append(dict(h, why="removal changed the file by an unexpected amount"))
+            continue
+        with io.open(p, "wb") as fh:
+            fh.write(new)
+        with io.open(p, "rb") as fh:
+            back = fh.read()
+        if back != new:
+            with io.open(p, "wb") as fh:
+                fh.write(raw)
+            refused.append(dict(h, why="post-write byte check failed; REVERTED"))
+            continue
+        fixed.append(dict(h, bytes_removed=len(rb),
+                          removed_text=re.sub(r"\s+", " ",
+                                              re.sub("<[^>]+>", " ", removed)).strip()[:200]))
+    return fixed, refused
+
+
+def run(do_repair):
+    hits = scan()
+    print("sections whose own content refutes their opening refusal: %d" % len(hits))
+    for h in hits:
+        print("   %-40s %-12s %s" % (h["page"][:40], h["section"], h["why"]))
+    if not hits:
+        print("OK -- no page denies something it then prints.")
+        return 0
+    if not do_repair:
+        print("\nNot a pass. Re-run with --repair to remove the contradicted denial only.")
+        return 1
+    fixed, refused = repair(hits)
+    print("\n  repaired %d, refused %d" % (len(fixed), len(refused)))
+    for f in fixed:
+        print("     %-40s -%d bytes" % (f["page"][:40], f["bytes_removed"]))
+    for r in refused:
+        print("     REFUSED %-34s %s" % (r["page"][:34], r["why"]))
+    with io.open(os.path.join(REPO, "evidence", "2026-08-19-batch1",
+                              "contradicted_refusals.json"), "w",
+                 encoding="utf-8", newline="") as fh:
+        fh.write(json.dumps({"run_utc": "2026-08-19", "fixed": fixed, "refused": refused,
+                             "rule": CONTRADICTIONS,
+                             "deliberately_narrow": (
+                                 "38 sections carry a denial followed by substantial content; "
+                                 "only 3 are contradictions. pn-report denies a GRADE rating and "
+                                 "then shows a summary-of-findings table whose certainty column "
+                                 "is an em dash -- that is honest. A rule flagging all 38 would "
+                                 "train a reader to ignore it.")},
+                            indent=1, ensure_ascii=False))
+    return 1 if refused else 0
+
+
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    sys.exit(run("--repair" in sys.argv))
+
+codex
+I’m going to treat the pasted packet as the record and line-number it from the text you provided. I’ll only call a defect where the exact demonstrated input follows from this module’s own matching behavior.
+codex
+**Defects**
+
+- Line 70, selector keyed to unused form: exact input in `x_REVIEW.html`:
+  ```html
+  <section id="pn-search"><p>no query, date or yield can be shown</p><p>query as executed</p><table class="yield"><tbody><tr><td>PubMed</td><td>1</td></tr></tbody></table></section>
+  ```
+  Consequence: `_yield_table_is_empty()` sees no naked `<table>` tag, returns `True`, and `run()` reports OK despite a contradicted refusal with a shown yield.
+
+- Line 72, merged-cell/off-by-one tabulation count: exact input in `x_REVIEW.html`:
+  ```html
+  <section id="pn-search"><div class="absent-state" role="note"><strong>Not held in this object.</strong> No search record is held in this object. The included set was reconciled against published syntheses rather than produced by a database search, so no query, date or yield can be shown. Treat the included set as a convenience sample, not a systematic one.</div><p>query as executed</p><table><thead><tr><th>Database</th><th>Yield</th></tr></thead><tbody></tbody></table></section>
+  ```
+  Consequence: header cells make an empty yield table look non-empty, so `--repair` removes a denial whose yield-denial is still true.
+
+- Line 128, check that cannot fail: exact input is the previous `x_REVIEW.html` with exactly one matching denial paragraph. Consequence: after line 123 proves `raw.count(rb) == 1` and line 127 does `raw.replace(rb, b"")`, `len(raw) - len(new) != len(rb)` is unreachable and cannot protect anything.
+
+- Lines 83-84, status code reports wrapper rather than work: exact input is a directory named `x_REVIEW.html` under `REPO`. Consequence: opening it raises, the exception is swallowed, and with no other hits `run(False)` exits 0 with “OK” although a matched target was never scanned.
+
+No finding for probe keyed to string a fix removes.  
+No finding for idempotency guard satisfied by its own comment/marker.  
+No finding for instrument reading a different copy: COULD NOT DETERMINE without caller/deploy wiring.  
+No finding for CRLF/LF text comparison.  
+No finding for zero conflated with absent.  
+No finding for negation dropped.
+tokens used
+13,235
+**Defects**
+
+- Line 70, selector keyed to unused form: exact input in `x_REVIEW.html`:
+  ```html
+  <section id="pn-search"><p>no query, date or yield can be shown</p><p>query as executed</p><table class="yield"><tbody><tr><td>PubMed</td><td>1</td></tr></tbody></table></section>
+  ```
+  Consequence: `_yield_table_is_empty()` sees no naked `<table>` tag, returns `True`, and `run()` reports OK despite a contradicted refusal with a shown yield.
+
+- Line 72, merged-cell/off-by-one tabulation count: exact input in `x_REVIEW.html`:
+  ```html
+  <section id="pn-search"><div class="absent-state" role="note"><strong>Not held in this object.</strong> No search record is held in this object. The included set was reconciled against published syntheses rather than produced by a database search, so no query, date or yield can be shown. Treat the included set as a convenience sample, not a systematic one.</div><p>query as executed</p><table><thead><tr><th>Database</th><th>Yield</th></tr></thead><tbody></tbody></table></section>
+  ```
+  Consequence: header cells make an empty yield table look non-empty, so `--repair` removes a denial whose yield-denial is still true.
+
+- Line 128, check that cannot fail: exact input is the previous `x_REVIEW.html` with exactly one matching denial paragraph. Consequence: after line 123 proves `raw.count(rb) == 1` and line 127 does `raw.replace(rb, b"")`, `len(raw) - len(new) != len(rb)` is unreachable and cannot protect anything.
+
+- Lines 83-84, status code reports wrapper rather than work: exact input is a directory named `x_REVIEW.html` under `REPO`. Consequence: opening it raises, the exception is swallowed, and with no other hits `run(False)` exits 0 with “OK” although a matched target was never scanned.
+
+No finding for probe keyed to string a fix removes.  
+No finding for idempotency guard satisfied by its own comment/marker.  
+No finding for instrument reading a different copy: COULD NOT DETERMINE without caller/deploy wiring.  
+No finding for CRLF/LF text comparison.  
+No finding for zero conflated with absent.  
+No finding for negation dropped.

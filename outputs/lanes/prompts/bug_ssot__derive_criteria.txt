@@ -1,0 +1,338 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: ssot/derive_criteria.py
+
+--- THE FILE, IN FULL ---
+"""Project an eligibility-criteria block from what the object ALREADY HOLDS. Never invent.
+
+=============================================================================
+THE LINE, AND WHY THIS MODULE IS ALLOWED TO EXIST AT ALL
+=============================================================================
+
+Inclusion criteria are the REVIEW'S OWN statement of what it would and would not admit. They
+are not a property of the trials, so they cannot be looked up -- they can only be recorded.
+Most of these objects already hold the material: the research question names the population,
+intervention, comparator and outcome, and the outcome record names the estimand and the
+contrast.
+
+  DERIVED, with every element traceable to the field it came from  = legitimate projection
+  WRITTEN so that a check will pass                                 = fabrication
+
+If a topic's question is too thin to support the derivation, IT KEEPS FAILING, and that is a
+correct outcome. `ablation-af-review` is exactly that case: its `question` is a bare outcome
+string and its `comparator` is literally "not recorded on the page this object was extracted
+from". A derivation that cannot find its source fails.
+
+=============================================================================
+COCHRANE AUTHORISES THIS, AND ATTACHES THE CONDITION THIS MODULE ENFORCES
+=============================================================================
+
+MECIR R107 "Changes from the protocol" (Mandatory, read 2026-08-19):
+
+    "Explain and justify any changes from the protocol (including any POST HOC DECISIONS
+     ABOUT ELIGIBILITY CRITERIA or the addition of subgroup analyses). ... post hoc decisions
+     about inclusion or exclusion of studies should keep faith with the objectives of the
+     review rather than being driven by the findings."
+
+So post hoc criteria are permitted, and the conditions are: labelled, explained, justified,
+and driven by OBJECTIVES rather than FINDINGS. A derivation that hides its post hoc status
+fails the very standard that authorises it -- hence `predefined: false` on the face of every
+block this module writes, non-negotiable.
+
+WHAT IS DERIVED, AND WHAT DELIBERATELY IS NOT
+---------------------------------------------
+DERIVED: the P/I/C/O elements, from `question` and the outcome record. `question` is the
+review's statement of its OWN OBJECTIVE, which is the side of R107's line that is allowed.
+
+NOT DERIVED: exclusion RULES induced from the trials the object happened to drop. A
+cross-family review (Gemini 3.1 Pro, 2026-08-19) argued the whole derivation is circular --
+reconstructing rules from the sample they supposedly selected. That charge is WRONG for the
+question-derived elements and RIGHT for induced exclusion rules: generalising "exclude
+non-cardiovascular primaries" from the two trials dropped for that reason is reasoning from
+the FINDINGS, which is the half R107 forbids. The recorded exclusions already live in
+`eligible_but_not_contributing` with their own reasons. They are REFERENCED here as
+supporting evidence and are NOT promoted to rules.
+
+CORROBORATION IS RECORDED WHERE IT EXISTS. Where a derived element can be confirmed from a
+second field that was never involved in producing the first -- e.g. the outcome definition
+matching `inputs.trials[].registered_primaries[]`, which came from the registry -- the block
+says so. That is what turns a derived element from plausible into checkable.
+"""
+
+from assessment import read
+
+DERIVED_ON = "2026-08-19"
+
+# ---------------------------------------------------------------------------
+# TWO GUARDS, BOTH ADDED AFTER THE FIRST DRY RUN DERIVED BLOCKS IT SHOULD HAVE REFUSED.
+# ---------------------------------------------------------------------------
+#
+# GUARD 1 -- A DECLARED ABSENCE IS NOT A VALUE.
+# The first version read element values with `read_scalar`, which sets
+# treat_declared_absent=False. So `ablation-af-review`, whose comparator is literally
+# "not recorded on the page this object was extracted from", produced an element:
+#
+#     comparator <- outcomes[0].comparator = "not recorded on the page this object was..."
+#
+# and the rendered prose would have read "Comparator: not recorded on the page...". The topic
+# would then have PASSED `criteria_stated` while stating nothing. That is manufacturing a
+# pass, which is the exact line this module is not allowed to cross. Every element now goes
+# through `read` with declared-absence detection ON, and a declared-absent source makes the
+# whole derivation unsupported.
+#
+# GUARD 2 -- AN OBJECTIVE MUST NAME THE INTERVENTION IT ADMITS STUDIES FOR.
+# The first version accepted ANY readable `question` as the stated objective. But three of the
+# four candidate topics carry a question that is a FINDING ABOUT THE PAGE, not an admission
+# rule:
+#
+#   bococizumab: "Every trial here registers a CONTINUOUS percent change in LDL-C, and this
+#                 page derived an odds ratio from counts."
+#   attr-cm:     "Both trials register HIERARCHICAL endpoints analysed by win ratio, and the
+#                 two hierarchies are not the same hierarchy."
+#   ablation:    a bare registered-outcome string.
+#
+# Rendering "Eligible studies are those addressing the review's stated question: <a complaint
+# about the page's arithmetic>" is not a criteria statement. The mechanical discriminator: a
+# criteria statement that NEVER NAMES THE INTERVENTION is not an admission rule for that
+# intervention. The intervention name comes from the topic's DECLARED synonym set in
+# topic_identity.py -- enumerated and inspectable, never a fuzzy match.
+
+
+def objective_names_intervention(question, synonyms):
+    """Does the stated objective actually name the intervention it admits studies for?"""
+    q = str(question or "").lower()
+    return any(s in q for s in synonyms)
+
+# A derived block never claims predefinition. This constant exists so the claim cannot be
+# made by editing a literal somewhere far from this docstring.
+PREDEFINED = False
+
+
+class Element:
+    """One derived criterion element and the field it came from. Nothing is inferred here."""
+
+    __slots__ = ("limb", "value", "source_path", "source_text", "corroboration")
+
+    def __init__(self, limb, value, source_path, source_text, corroboration=None):
+        self.limb = limb
+        self.value = value
+        self.source_path = source_path
+        self.source_text = source_text
+        self.corroboration = corroboration
+
+    def as_dict(self):
+        d = {"limb": self.limb, "value": self.value, "derived_from": self.source_path,
+             "source_text": self.source_text}
+        if self.corroboration:
+            d["corroborated_by"] = self.corroboration
+        return d
+
+
+def _first_readable(obj, paths):
+    """First path that is PRESENT and readable. A declared absence is not readable here."""
+    for p in paths:
+        r = read(obj, p)          # treat_declared_absent=True: 'not recorded' is NOT a value
+        if r.readable:
+            return p, r.value
+    return None, None
+
+
+def _elem(container, key, path):
+    """Read ONE element value. Declared absence -> None, so it can never become a criterion."""
+    r = read(container, key, treat_declared_absent=True)
+    return (r.value, None) if r.readable else (None, f"{path}: {r.detail}")
+
+
+def derive(obj, synonyms=None):
+    """Return (elements, unsupported, notes). Derives nothing it cannot source.
+
+    `unsupported` names the limbs that could NOT be derived. A topic with any unsupported
+    limb does NOT get a block -- a partial criteria statement presented as a criteria
+    statement is the same substitution in miniature.
+    """
+    elements, unsupported, notes = [], [], []
+
+    # --- POPULATION and INTERVENTION: from the review's own stated objective --------------
+    qpath, question = _first_readable(obj, ["question", "title"])
+    if question is None:
+        unsupported.append("population/intervention: no readable question or title")
+    elif synonyms and not objective_names_intervention(question, synonyms):
+        # GUARD 2. The question is readable but never names the intervention, so it is not an
+        # admission rule for it -- it is a note about the page. Refuse rather than render it.
+        unsupported.append(
+            f"objective: {qpath} never names the topic intervention "
+            f"(declared synonyms: {list(synonyms)[:4]}...). It reads {str(question)[:90]!r}, "
+            f"which is a statement ABOUT the page, not a rule for admitting studies to it.")
+    else:
+        elements.append(Element(
+            "objective", question, qpath, question,
+            corroboration=None))
+        notes.append(f"population and intervention are read from {qpath}, which is the "
+                     f"review's statement of its OWN OBJECTIVE -- the side of R107's line "
+                     f"that post hoc derivation is permitted to use")
+
+    # --- COMPARATOR: from the outcome record, never from an arm label --------------------
+    outcomes = read(obj, "outcomes")
+    comparator = None
+    if outcomes.readable:
+        cval, cerr = _elem(outcomes.value[0], "comparator", "outcomes[0].comparator")
+        ctval, _ = _elem(outcomes.value[0], "comparator_type", "outcomes[0].comparator_type")
+        if cval is not None:
+            comparator = cval
+            corr = None
+            trials = read(obj, "inputs.trials")
+            if trials.readable:
+                arms = read(trials.value[0], "arms")
+                if arms.readable:
+                    controls = [a.get("label") for a in arms.value
+                                if str(a.get("role", "")).lower() in ("control", "comparator")]
+                    if controls:
+                        corr = (f"inputs.trials[0].arms[] carries a control arm labelled "
+                                f"{controls[0]!r}")
+            elements.append(Element("comparator", comparator,
+                                    "outcomes[0].comparator", cval, corr))
+            if ctval is not None:
+                elements.append(Element("comparator_type", ctval,
+                                        "outcomes[0].comparator_type", ctval))
+        else:
+            unsupported.append(cerr or "comparator: outcomes[0].comparator is not readable")
+    else:
+        unsupported.append("comparator: no readable outcomes")
+
+    # --- OUTCOME: definition, corroborated against the REGISTRY record where possible -----
+    if outcomes.readable:
+        dval, derr = _elem(outcomes.value[0], "definition", "outcomes[0].definition")
+        if dval is not None:
+            corr = None
+            trials = read(obj, "inputs.trials")
+            if trials.readable:
+                rp = read(trials.value[0], "registered_primaries")
+                if rp.readable and any(str(x).strip() == str(dval).strip() for x in rp.value):
+                    corr = ("inputs.trials[0].registered_primaries[] carries this string "
+                            "IDENTICALLY, and that field came from the registry record rather "
+                            "than from the object's own prose -- an independent confirmation")
+            elements.append(Element("outcome", dval, "outcomes[0].definition",
+                                    dval, corr))
+        else:
+            unsupported.append(derr or "outcome: outcomes[0].definition is not readable")
+
+        # --- EFFECT MEASURE ---------------------------------------------------------------
+        for field, limb in (("measure", "effect_measure"),
+                            ("effect_scale", "effect_scale"),
+                            ("direction_of_benefit", "direction_of_benefit")):
+            vval, verr = _elem(outcomes.value[0], field, f"outcomes[0].{field}")
+            if vval is not None:
+                elements.append(Element(limb, vval, f"outcomes[0].{field}", str(vval)))
+            else:
+                unsupported.append(verr)
+
+    # --- DESIGN: only what a field asserts. NEVER "randomised" unless a field says so. ----
+    trials = read(obj, "inputs.trials")
+    if trials.readable:
+        ac = read(trials.value[0], "registration_arm_count")
+        dc = read(trials.value[0], "registration_declared_contrasts")
+        if ac.readable and dc.readable:
+            elements.append(Element(
+                "design", f"{ac.value} arms; declared contrast {dc.value[0]}",
+                "inputs.trials[0].registration_arm_count + .registration_declared_contrasts",
+                f"{ac.value} / {dc.value}"))
+        notes.append("DESIGN records ONLY arm count and the declared contrast. The word "
+                     "'randomised' is NOT written, because no field in this object asserts "
+                     "randomisation -- regardless of what is known about the trial elsewhere.")
+
+    return elements, unsupported, notes
+
+
+def build_block(obj, topic, synonyms=None):
+    """The block to be written at `screening.eligibility_provenance`, or None if unsupported."""
+    elements, unsupported, notes = derive(obj, synonyms)
+    if unsupported:
+        return None, unsupported
+    return {
+        "state": "DERIVED_FROM_THIS_OBJECT",
+        "predefined": PREDEFINED,
+        "post_hoc": True,
+        "derived_on": DERIVED_ON,
+        "topic": topic,
+        "authority_permitting_this": (
+            "MECIR R107 'Changes from the protocol' (Mandatory): post hoc decisions about "
+            "eligibility criteria are permitted where explained, justified, and keeping faith "
+            "with the objectives of the review rather than being driven by the findings."),
+        "authority_it_satisfies": (
+            "MECIR R29/R30/R31 (Mandatory REPORTING standards) -- the review STATES its "
+            "eligibility criteria. Satisfies precondition `criteria_stated`."),
+        "authority_it_does_NOT_satisfy": (
+            "MECIR C5/C7 (Mandatory CONDUCT standards) -- criteria DEFINED IN ADVANCE. A post "
+            "hoc derivation cannot discharge pre-specification, and precondition "
+            "`criteria_predefined` therefore FAILS for this topic, permanently and correctly."),
+        "method": (
+            "Projected from this object's own recorded fields. Population and intervention "
+            "from the review's stated objective; comparator, outcome and effect measure from "
+            "the outcome record; design from registry-derived count fields. Every element "
+            "names the path it came from."),
+        "what_was_deliberately_not_written": [
+            "'randomised' -- no field in this object asserts randomisation",
+            "any demographic qualifier the question does not state",
+            "any property of an included TRIAL that is not the REVIEW's admission rule",
+        ],
+        "exclusions_not_promoted_to_rules": (
+            "Recorded exclusions remain in `eligible_but_not_contributing` with their own "
+            "reasons. They are NOT generalised into exclusion rules here: inducing a rule "
+            "from the trials that were dropped is reasoning from the FINDINGS, which is the "
+            "half R107 forbids."),
+        "elements": [e.as_dict() for e in elements],
+        "notes": notes,
+    }, []
+
+
+def render_prose(block):
+    """The human-readable criteria statement written to `screening.eligibility`."""
+    by = {e["limb"]: e for e in block["elements"]}
+    parts = []
+    if "objective" in by:
+        parts.append(f"Eligible studies are those addressing the review's stated question: "
+                     f"{by['objective']['value']}")
+    if "comparator" in by:
+        parts.append(f"Comparator: {by['comparator']['value']}.")
+    if "outcome" in by:
+        parts.append(f"Outcome: {by['outcome']['value']}.")
+    if "effect_measure" in by:
+        parts.append(f"Effect measure: {by['effect_measure']['value']}.")
+    if "design" in by:
+        parts.append(f"Design as recorded: {by['design']['value']}.")
+    parts.append("DERIVED POST HOC on " + block["derived_on"] +
+                 " from this object's own recorded fields; NOT pre-specified. See "
+                 "screening.eligibility_provenance for the per-element source paths.")
+    return " ".join(parts)

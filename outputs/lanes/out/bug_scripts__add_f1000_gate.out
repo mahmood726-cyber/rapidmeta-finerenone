@@ -1,0 +1,185 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a03119-e71f-7023-a4d9-f1eefee9ff15
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/add_f1000_gate.py
+
+--- THE FILE, IN FULL ---
+import io, sys
+
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+P = r"F:\rapidmeta-ssot-shell\ssot\make_docx.py"
+s = open(P, encoding="utf-8").read()
+
+ANCHOR = 'doc.save(OUT)\nprint("wrote", OUT, os.path.getsize(OUT), "bytes")'
+assert s.count(ANCHOR) == 1
+
+NEW = r'''# --- F1000Research submission checklist -------------------------------------
+# Requirements taken from F1000Research's own author guidance for Systematic
+# Reviews, looked up rather than remembered (their site 403s direct fetch, so
+# these come from the indexed guideline pages):
+#   * a Data Availability Statement is mandatory EVEN WHERE THERE IS NO DATA;
+#   * PRISMA checklist AND flow diagram are required, and the completed
+#     checklist and flow chart must be DEPOSITED in an approved repository,
+#     with the guideline type, repository, DOI and licence in the statement;
+#   * extended data needs title, repository, DOI/accession and licence, under
+#     an "Extended data" subheading, cited in the main text;
+#   * the repository must supply a persistent identifier and allow CC0 /
+#     CC-BY 4.0 or equivalent;
+#   * archived source code needs a DOI and citation in Zenodo under an open,
+#     preferably OSI-approved, licence.
+#
+# These are MANDATORY FIELDS at this venue, not nice-to-haves, so an unmet one
+# blocks rather than prints. The missing identifiers are recorded as null with a
+# stated reason and are never filled with a plausible string: a wrong DOI in a
+# Data Availability Statement points a reader at someone else's data, which is
+# worse than no DOI at all. Minting them is an author action, not a build step.
+_F1000 = []
+_das = MS.get("data_availability_statement") or {}
+_ed = _das.get("extended_data") or {}
+_swx = MS.get("software_availability") or {}
+for _label, _ok in (
+    ("Data Availability Statement present", bool(_das)),
+    ("Extended data: repository named", bool(_ed.get("repository"))),
+    ("Extended data: persistent identifier (DOI) minted",
+     bool(_ed.get("persistent_identifier"))),
+    ("Extended data: open licence (CC0 or CC-BY 4.0)",
+     str(_ed.get("licence", "")).upper().startswith(("CC0", "CC-BY", "CC BY"))),
+    ("Software: source code location", bool(_swx.get("source_code_available_from"))),
+    ("Software: archived Zenodo DOI at publication",
+     bool(_swx.get("archived_source_code_at_time_of_publication"))),
+    ("Software: OSI-approved licence", bool(_swx.get("licence"))),
+    ("PRISMA flow diagram present", FIG > 0),
+    ("PRISMA checklist deposited with a DOI",
+     bool((MS.get("prisma") or {}).get("checklist_doi"))),
+    ("Structured abstract", isinstance(MS.get("abstract"), dict)
+     and len(MS.get("abstract") or {}) >= 4),
+    ("Registration statement", bool(MS.get("registration_note_for_editor"))),
+):
+    if not _ok:
+        _F1000.append(_label)
+if _F1000:
+    _probs.append("F1000 mandatory requirements unmet: " + "; ".join(_F1000))
+
+doc.save(OUT)
+print("wrote", OUT, os.path.getsize(OUT), "bytes")
+if _F1000:
+    print("")
+    print("#" * 72)
+    print("SUBMISSION BLOCKED -- %d mandatory F1000Research requirement(s) unmet:"
+          % len(_F1000))
+    for _x in _F1000:
+        print("   - %s" % _x)
+    print("These are author actions (Zenodo deposits), not build steps. No "
+          "identifier will be invented to clear them.")
+    print("#" * 72)'''
+
+s = s.replace(ANCHOR, NEW, 1)
+open(P, "w", encoding="utf-8").write(s)
+print("make_docx: F1000 submission checklist wired into the conformance gate")
+
+codex
+I’m treating the pasted file as the whole review record and only making claims that follow from those lines. I’m checking the recurring failure shapes against both the patcher logic and the code it injects.
+codex
+Defects found:
+
+- Line 8: `assert s.count(ANCHOR) == 1` can be removed by optimized Python.
+  Exact input: run `python -O scripts/add_f1000_gate.py` when `ssot\make_docx.py` contains zero copies of line 7’s anchor.
+  Consequence: line 70 becomes a no-op and line 72 still reports the gate was wired.
+
+- Lines 7, 57-58, 70: the idempotency guard is satisfied by the patch’s own payload because `NEW` still contains the exact `ANCHOR`.
+  Exact input: run this script twice against the same `ssot\make_docx.py`.
+  Consequence: the F1000 block is inserted repeatedly instead of being a one-time migration.
+
+- Line 4: the script edits a hardcoded `F:` checkout, not necessarily the checkout being run or tested.
+  Exact input: run from a `C:\rapidmeta-ssot-shell` mirror while `F:\rapidmeta-ssot-shell\ssot\make_docx.py` also exists.
+  Consequence: the instrument can report success while changing a different copy than the caller intended.
+
+- Line 40: the licence predicate accepts non-equivalent licences by prefix only.
+  Exact input: `_ed = {"repository": "Zenodo", "persistent_identifier": "10.x/y", "licence": "CC BY-NC 4.0"}`.
+  Consequence: a non-commercial extended-data licence passes a check labelled “CC0 or CC-BY 4.0”.
+
+- Line 44: “OSI-approved licence” is checked as mere truthiness.
+  Exact input: `_swx = {"source_code_available_from": "https://x", "archived_source_code_at_time_of_publication": "10.x/y", "licence": "proprietary"}`.
+  Consequence: proprietary software passes the OSI-approved licence gate.
+
+- Lines 5 and 71: text-mode read/write does not preserve existing line endings.
+  Exact input: `ssot\make_docx.py` stored LF-only on Windows and containing the anchor once.
+  Consequence: the script can create an unrelated whole-file CRLF churn diff.
+
+COULD NOT DETERMINE: whether line 45’s `FIG > 0` is PRISMA-flow-specific; missing `ssot\make_docx.py` binding for `FIG`.
+
+No proven merged-cell/off-by-one or negation-dropped defect in this file.
+tokens used
+11,577
+Defects found:
+
+- Line 8: `assert s.count(ANCHOR) == 1` can be removed by optimized Python.
+  Exact input: run `python -O scripts/add_f1000_gate.py` when `ssot\make_docx.py` contains zero copies of line 7’s anchor.
+  Consequence: line 70 becomes a no-op and line 72 still reports the gate was wired.
+
+- Lines 7, 57-58, 70: the idempotency guard is satisfied by the patch’s own payload because `NEW` still contains the exact `ANCHOR`.
+  Exact input: run this script twice against the same `ssot\make_docx.py`.
+  Consequence: the F1000 block is inserted repeatedly instead of being a one-time migration.
+
+- Line 4: the script edits a hardcoded `F:` checkout, not necessarily the checkout being run or tested.
+  Exact input: run from a `C:\rapidmeta-ssot-shell` mirror while `F:\rapidmeta-ssot-shell\ssot\make_docx.py` also exists.
+  Consequence: the instrument can report success while changing a different copy than the caller intended.
+
+- Line 40: the licence predicate accepts non-equivalent licences by prefix only.
+  Exact input: `_ed = {"repository": "Zenodo", "persistent_identifier": "10.x/y", "licence": "CC BY-NC 4.0"}`.
+  Consequence: a non-commercial extended-data licence passes a check labelled “CC0 or CC-BY 4.0”.
+
+- Line 44: “OSI-approved licence” is checked as mere truthiness.
+  Exact input: `_swx = {"source_code_available_from": "https://x", "archived_source_code_at_time_of_publication": "10.x/y", "licence": "proprietary"}`.
+  Consequence: proprietary software passes the OSI-approved licence gate.
+
+- Lines 5 and 71: text-mode read/write does not preserve existing line endings.
+  Exact input: `ssot\make_docx.py` stored LF-only on Windows and containing the anchor once.
+  Consequence: the script can create an unrelated whole-file CRLF churn diff.
+
+COULD NOT DETERMINE: whether line 45’s `FIG > 0` is PRISMA-flow-specific; missing `ssot\make_docx.py` binding for `FIG`.
+
+No proven merged-cell/off-by-one or negation-dropped defect in this file.

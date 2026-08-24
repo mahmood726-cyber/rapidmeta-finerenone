@@ -1,0 +1,439 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: ssot/corpus_assess.py
+
+--- THE FILE, IN FULL ---
+"""Run the seven preconditions over every corpus object directory.
+
+This is the whole-corpus counterpart to batch1_assess.py. It is deliberately
+object-side only: no network, no cascade replay, and no edits to ssot/**/*.json.
+"""
+import collections
+import json
+import os
+import sys
+import traceback
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+import preconditions as P
+from assessment import FAIL, NOT_ASSESSABLE, PASS, read
+
+ROOT = os.path.dirname(os.path.abspath(__file__))
+REPO_ROOT = os.path.dirname(ROOT)
+OUT_DIR = os.path.join(REPO_ROOT, "evidence", "2026-08-19-corpus")
+OUT = os.path.join(OUT_DIR, "corpus_assess.json")
+BATCH1_ASSESS = os.path.join(REPO_ROOT, "evidence", "2026-08-19-batch1", "assess.json")
+
+ASSESSOR_BUG = "ASSESSOR BUG"
+
+BATCH1 = [
+    "ablation-af-review",
+    "alirocumab-lipid",
+    "apixaban-vte",
+    "attr-cm-review",
+    "azilsartan-chlorthalidone-vs-olmesartan-hctz",
+    "bempedoic-acid-review",
+    "bococizumab-lipid-review",
+    "bosentan-pah",
+]
+
+# Topic-level declarations only. Do not use nested RoB2 "domains": those are bias domains,
+# not a clinical/specialty label for the topic.
+DOMAIN_PATHS = (
+    "domain",
+    "specialty",
+    "clinical_domain",
+    "clinical_specialty",
+    "metadata.domain",
+    "metadata.specialty",
+    "metadata.clinical_domain",
+    "metadata.clinical_specialty",
+)
+
+COMPARE_FIELDS = (
+    "object_state",
+    "verdicts",
+    "n_pass",
+    "n_fail",
+    "n_not_assessable",
+    "failed_preconditions",
+    "unassessable_preconditions",
+    "builds",
+)
+
+
+def corpus_dirs():
+    return sorted(
+        entry.name for entry in os.scandir(ROOT)
+        if entry.is_dir() and not entry.name.startswith(".")
+    )
+
+
+def object_path(topic):
+    return os.path.join(ROOT, topic, f"{topic}.json")
+
+
+def load_object(topic):
+    path = object_path(topic)
+    if not os.path.exists(path):
+        return "ABSENT", None, f"object absent at {path}"
+    try:
+        with open(path, "r", encoding="utf-8") as fh:
+            text = fh.read()
+    except OSError as exc:
+        return "UNREADABLE", None, f"{type(exc).__name__}: {exc}"
+    if not text.strip():
+        return "UNREADABLE", None, f"empty object at {path}"
+    try:
+        return "READ", json.loads(text), None
+    except ValueError as exc:
+        return "UNREADABLE", None, f"{type(exc).__name__}: {exc}"
+
+
+def not_assessable_verdicts(detail):
+    return {
+        name: [NOT_ASSESSABLE, f"cannot assess: {detail}"]
+        for name in P.SEVEN
+    }
+
+
+def run_precondition(name, obj):
+    fn, _reads, _accepts, _unit = P.REGISTRY._by_name[name]
+    guarded = P.REGISTRY.type_guard(name, obj)
+    if guarded:
+        return list(guarded)
+    state, reason = fn(obj)
+    return [state, reason]
+
+
+def run_preconditions(topic, obj):
+    verdicts = {}
+    bugs = {}
+    for name in P.SEVEN:
+        try:
+            verdicts[name] = run_precondition(name, obj)
+        except Exception as exc:
+            tb = traceback.format_exc()
+            verdicts[name] = [
+                ASSESSOR_BUG,
+                f"ASSESSOR BUG (not a data gap): {type(exc).__name__}: {exc}",
+            ]
+            bugs[name] = {"type": type(exc).__name__, "message": str(exc), "traceback": tb}
+    return verdicts, bugs
+
+
+def declared_domain(obj):
+    for path in DOMAIN_PATHS:
+        r = read(obj, path)
+        if r.readable:
+            value = r.value
+            if isinstance(value, str):
+                label = value.strip()
+                if label:
+                    return {"declared_domain": label, "declared_domain_field": path}
+            elif value is not None:
+                return {"declared_domain": str(value), "declared_domain_field": path}
+    return {"declared_domain": "undeclared", "declared_domain_field": None}
+
+
+def enrich_entry(topic, object_state, detail, obj, verdicts, assessor_bugs):
+    states = [verdicts[name][0] for name in P.SEVEN]
+    entry = {
+        "topic": topic,
+        "object_path": object_path(topic),
+        "object_state": object_state,
+        "verdicts": verdicts,
+        "n_pass": states.count(PASS),
+        "n_fail": states.count(FAIL),
+        "n_not_assessable": states.count(NOT_ASSESSABLE),
+        "n_assessor_bug": states.count(ASSESSOR_BUG),
+        "failed_preconditions": [
+            name for name in P.SEVEN if verdicts[name][0] == FAIL
+        ],
+        "unassessable_preconditions": [
+            name for name in P.SEVEN if verdicts[name][0] == NOT_ASSESSABLE
+        ],
+        "assessor_bug_preconditions": [
+            name for name in P.SEVEN if verdicts[name][0] == ASSESSOR_BUG
+        ],
+        "assessor_bugs": assessor_bugs,
+    }
+    if detail:
+        entry["detail"] = detail
+    if obj is not None:
+        entry.update(declared_domain(obj))
+    else:
+        entry["declared_domain"] = "undeclared"
+        entry["declared_domain_field"] = None
+
+    first_fail = next((name for name in P.SEVEN if verdicts[name][0] == FAIL), None)
+    first_nonpass = next((name for name in P.SEVEN if verdicts[name][0] != PASS), None)
+    entry["first_failed_precondition"] = first_fail
+    entry["first_nonpass_precondition"] = first_nonpass
+    entry["first_nonpass_state"] = verdicts[first_nonpass][0] if first_nonpass else None
+    entry["builds"] = (
+        entry["n_fail"] == 0
+        and entry["n_not_assessable"] == 0
+        and entry["n_assessor_bug"] == 0
+    )
+    return entry
+
+
+def tally_preconditions(topics):
+    out = {}
+    for name in P.SEVEN:
+        counts = collections.Counter(entry["verdicts"][name][0] for entry in topics.values())
+        out[name] = {
+            PASS: counts.get(PASS, 0),
+            FAIL: counts.get(FAIL, 0),
+            NOT_ASSESSABLE: counts.get(NOT_ASSESSABLE, 0),
+            ASSESSOR_BUG: counts.get(ASSESSOR_BUG, 0),
+        }
+    return out
+
+
+def batch1_known_answer_check(report):
+    with open(BATCH1_ASSESS, "r", encoding="utf-8") as fh:
+        expected = json.load(fh)["topics"]
+    mismatches = []
+    for topic in BATCH1:
+        got = report["topics"].get(topic)
+        want = expected.get(topic)
+        if got is None or want is None:
+            mismatches.append({"topic": topic, "reason": "missing from corpus or batch1"})
+            continue
+        for field in COMPARE_FIELDS:
+            if got.get(field) != want.get(field):
+                mismatches.append({
+                    "topic": topic,
+                    "field": field,
+                    "expected": want.get(field),
+                    "got": got.get(field),
+                })
+    return {
+        "matched": not mismatches,
+        "topics_checked": BATCH1,
+        "compared_fields": list(COMPARE_FIELDS),
+        "mismatches": mismatches,
+    }
+
+
+def build_report():
+    topics = {}
+    assessor_results = collections.defaultdict(dict)
+    dirs = corpus_dirs()
+
+    for topic in dirs:
+        state, obj, detail = load_object(topic)
+        if state == "READ":
+            verdicts, bugs = run_preconditions(topic, obj)
+            for name in P.SEVEN:
+                assessor_results[name][topic] = tuple(verdicts[name])
+        else:
+            verdicts = not_assessable_verdicts(detail)
+            bugs = {}
+        topics[topic] = enrich_entry(topic, state, detail, obj, verdicts, bugs)
+
+    domain_counts = collections.Counter(entry["declared_domain"] for entry in topics.values())
+    domain_field_counts = collections.Counter(
+        entry["declared_domain_field"] or "undeclared"
+        for entry in topics.values()
+    )
+    object_state_counts = collections.Counter(entry["object_state"] for entry in topics.values())
+    first_fail = collections.Counter(
+        entry["first_failed_precondition"] or "no_fail"
+        for entry in topics.values()
+    )
+    first_nonpass = collections.Counter(
+        entry["first_nonpass_precondition"] or "all_pass"
+        for entry in topics.values()
+    )
+    first_nonpass_state = collections.Counter(
+        "all_pass" if entry["first_nonpass_precondition"] is None
+        else f"{entry['first_nonpass_precondition']}:{entry['first_nonpass_state']}"
+        for entry in topics.values()
+    )
+
+    report = {
+        "authority_publishable": P.verdict_is_publishable(),
+        "coverage": {
+            "candidate_rule": "all immediate directories under ssot; object is ssot/<dir>/<dir>.json",
+            "candidate_directories": len(dirs),
+            "read": object_state_counts.get("READ", 0),
+            "unreadable": object_state_counts.get("UNREADABLE", 0),
+            "absent": object_state_counts.get("ABSENT", 0),
+            "absent_topics": sorted(
+                topic for topic, entry in topics.items()
+                if entry["object_state"] == "ABSENT"
+            ),
+            "unreadable_topics": sorted(
+                topic for topic, entry in topics.items()
+                if entry["object_state"] == "UNREADABLE"
+            ),
+        },
+        "domain_policy": {
+            "candidate_fields": list(DOMAIN_PATHS),
+            "note": (
+                "Only topic-level domain/specialty fields are counted. Nested RoB2 "
+                "domains are bias domains and are not clinical topic declarations."
+            ),
+            "counts_by_declared_domain": dict(sorted(domain_counts.items())),
+            "counts_by_source_field": dict(sorted(domain_field_counts.items())),
+            "undeclared": domain_counts.get("undeclared", 0),
+        },
+        "precondition_tally": tally_preconditions(topics),
+        "first_failed_precondition_distribution": dict(sorted(first_fail.items())),
+        "first_nonpass_precondition_distribution": dict(sorted(first_nonpass.items())),
+        "first_nonpass_state_distribution": dict(sorted(first_nonpass_state.items())),
+        "detector4_alarms": P.REGISTRY.identical_tally_alarm(dict(assessor_results)),
+        "topics": topics,
+        "not_covered": [
+            {
+                "scope": "network, registry, or cascade replay",
+                "reason": "Task A is object-side only and the environment has no network.",
+            },
+            {
+                "scope": "files directly under ssot/",
+                "reason": "The corpus unit requested here is ssot/<dir>/<dir>.json.",
+            },
+        ],
+    }
+    report["batch1_known_answer_check"] = batch1_known_answer_check(report)
+    return report
+
+
+def print_counter(title, counter):
+    print(title)
+    for key, value in sorted(counter.items(), key=lambda kv: (-kv[1], kv[0])):
+        print(f"  {key:<45} {value}")
+
+
+def print_summary(report):
+    topics = report["topics"]
+    print("CORPUS PRECONDITION ASSESSMENT")
+    print(f"  candidate directories: {report['coverage']['candidate_directories']}")
+    print(
+        f"  READ {report['coverage']['read']}  "
+        f"UNREADABLE {report['coverage']['unreadable']}  "
+        f"ABSENT {report['coverage']['absent']}"
+    )
+    print(
+        "  batch1 known-answer check: "
+        f"{'PASS' if report['batch1_known_answer_check']['matched'] else 'FAIL'} "
+        f"({len(BATCH1)} topics checked)"
+    )
+
+    builds = sorted(topic for topic, entry in topics.items() if entry["builds"])
+    fail_topics = sorted(
+        topic for topic, entry in topics.items()
+        if entry["n_fail"] > 0
+    )
+    bug_topics = sorted(
+        topic for topic, entry in topics.items()
+        if entry["n_assessor_bug"] > 0
+    )
+    blocked_na = sorted(
+        topic for topic, entry in topics.items()
+        if entry["n_fail"] == 0
+        and entry["n_assessor_bug"] == 0
+        and entry["n_not_assessable"] > 0
+    )
+
+    print()
+    print("BUILD DECISION")
+    print(f"  BUILD                         {len(builds)}")
+    print(f"  REFUSED (a real FAIL)         {len(fail_topics)}")
+    print(f"  BLOCKED (NOT-ASSESSABLE)      {len(blocked_na)}")
+    print(f"  ASSESSOR BUG                  {len(bug_topics)}")
+
+    print()
+    print("PER-PRECONDITION TALLY across the corpus")
+    for name in P.SEVEN:
+        counts = report["precondition_tally"][name]
+        print(
+            f"  {name:<36} PASS {counts[PASS]:>3}  "
+            f"FAIL {counts[FAIL]:>3}  N/A {counts[NOT_ASSESSABLE]:>3}  "
+            f"BUG {counts[ASSESSOR_BUG]:>3}"
+        )
+
+    print()
+    print_counter(
+        "FIRST NON-PASS PRECONDITION, in seven-precondition order",
+        report["first_nonpass_precondition_distribution"],
+    )
+    print()
+    print_counter(
+        "FIRST FAILING PRECONDITION, in seven-precondition order",
+        report["first_failed_precondition_distribution"],
+    )
+
+    print()
+    print("DECLARED DOMAIN / SPECIALTY")
+    for key, value in sorted(report["domain_policy"]["counts_by_declared_domain"].items()):
+        print(f"  {key:<45} {value}")
+    print(f"  undeclared total: {report['domain_policy']['undeclared']}")
+
+    print()
+    if report["detector4_alarms"]:
+        print(f"detector-4 alarms: {report['detector4_alarms']}")
+    else:
+        print("detector-4 alarms: none")
+    print(f"AUTHORITY PUBLISHABLE: {report['authority_publishable']}")
+    print("NOT COVERED:")
+    for item in report["not_covered"]:
+        print(f"  {item['scope']}: {item['reason']}")
+    print(f"\nwrote {OUT}")
+
+
+def main():
+    report = build_report()
+    check = report["batch1_known_answer_check"]
+    if not check["matched"]:
+        print("BATCH1 KNOWN-ANSWER CHECK FAILED; corpus numbers are not reported.")
+        for mismatch in check["mismatches"][:20]:
+            print(json.dumps(mismatch, indent=1, sort_keys=True))
+        return 1
+
+    os.makedirs(OUT_DIR, exist_ok=True)
+    with open(OUT, "w", encoding="utf-8") as fh:
+        json.dump(report, fh, indent=1, sort_keys=True)
+        fh.write("\n")
+    print_summary(report)
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

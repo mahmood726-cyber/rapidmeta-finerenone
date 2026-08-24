@@ -1,0 +1,285 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/handbook_citations.py
+
+--- THE FILE, IN FULL ---
+"""CANONICAL HANDBOOK CITATIONS -- written once, quoted everywhere.
+
+WHY THIS FILE EXISTS
+    The unregistered-endpoint finding now has THREE instances and will have more:
+    ANSWER-HF on the ARNI flagship, all seven V114 trials on prevnar15, and
+    NCT00436007 on malaria-vaccines, where eighteen outcome measures never mention
+    malaria at all. Each needs the same authority. A citation retyped three times is
+    a citation that will differ in three places, and this project has already had to
+    reconcile two numbers that drifted exactly that way.
+
+    So the citation is defined ONCE, here, with the verbatim text, and objects quote
+    this module rather than each other.
+
+VERSION IS VERIFIED AT APPLY-TIME, NEVER RECALLED
+    Every string below was read from the live Handbook on the date in
+    VERIFIED_ON, at the URL in HANDBOOK_URL. The Handbook MOVED HOST during that
+    check -- training.cochrane.org/handbook/current now 301-redirects to
+    cochrane.org/authors/handbooks-and-manuals/handbook/current -- which is the
+    argument against remembered section numbers in one line.
+
+    Re-verify before reuse in a later session. `python scripts/handbook_citations.py
+    --check` prints what must be re-read.
+"""
+from __future__ import annotations
+import io
+import json
+import sys
+
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+HANDBOOK = "Cochrane Handbook for Systematic Reviews of Interventions"
+VERSION = "Version 6.5, 2024"
+HANDBOOK_URL = "https://www.cochrane.org/authors/handbooks-and-manuals/handbook/current"
+VERIFIED_ON = "2026-08-18"
+
+# ---------------------------------------------------------------------------
+# THE UNREGISTERED-ENDPOINT CITATION
+#
+# The question in every instance: a trial contributes an endpoint that its own
+# registration does not declare. Is that an ELIGIBILITY problem or a RISK OF BIAS
+# problem, and must such a result be excluded from the primary synthesis?
+#
+# BOTH FALSIFYING PROPOSITIONS WERE TESTED BEFORE THE ANSWER WAS ADOPTED, because
+# the ruling to adopt it came from the author and an author's agreement is not a
+# source. Both fail, and the Handbook is MORE emphatic than the ruling was.
+# ---------------------------------------------------------------------------
+UNREGISTERED_ENDPOINT = {
+    "handbook": HANDBOOK,
+    "version": VERSION,
+    "version_verified_on": VERIFIED_ON,
+    "version_verified_at": HANDBOOK_URL,
+    "sections": ("8.7 (it is risk of bias); 3.1, 3.2.4.1 and MECIR 3.2.d (it is NOT "
+                 "eligibility); chapter 13 (exclusion is not required); 10.14 "
+                 "(sensitivity analysis)"),
+    "question": (
+        "A contributing trial's registration does not declare the endpoint this "
+        "synthesis takes from it. Is that an ELIGIBILITY question or a RISK OF BIAS "
+        "question, and must the result be excluded from the primary synthesis?"),
+    "answer": (
+        "RISK OF BIAS, not eligibility. The result STAYS in the primary synthesis, "
+        "the trial is graded at high risk of bias in the domain covering selection of "
+        "the reported result, and any analysis excluding it is reported as a "
+        "SENSITIVITY analysis."),
+
+    "it_is_a_risk_of_bias_question": {
+        "section": "8.7",
+        "what": ("RoB 2 domain 5, 'bias in selection of the reported result'."),
+        "verbatim_scope": (
+            "Covers bias arising when 'the reported result is selected (based on its "
+            "direction, magnitude or statistical significance) from among multiple "
+            "intervention effect estimates that were calculated by the trial authors'."),
+        "verbatim_method": (
+            "'attempt to retrieve the pre-specified analysis intentions for each trial "
+            "... allows for the identification of any outcome measures or analyses that "
+            "have been omitted from, or added to, the results report, post hoc'."),
+        "why_it_fits": (
+            "An outcome ADDED post hoc is precisely what this domain exists to grade. "
+            "Our three instances are all of that kind -- the quantity exists in the "
+            "publication and not in the registration."),
+    },
+
+    "it_is_NOT_an_eligibility_question": {
+        "sections": "3.1, 3.2.4.1, and MECIR Box 3.2.d",
+        "verbatim_3_1": (
+            "'Outcomes usually are not part of the criteria for including studies, and "
+            "a Cochrane review would typically seek all sufficiently rigorous studies "
+            "(most commonly randomized trials) of a particular comparison of "
+            "interventions in a particular population of participants, irrespective of "
+            "the outcomes measured or reported.'"),
+        "verbatim_3_2_4_1": (
+            "'Reporting of outcomes should rarely determine study eligibility for a "
+            "review. In particular, studies should not be excluded because they do not "
+            "report results of an outcome they may have measured, or provide \"no "
+            "usable data\".'"),
+        "verbatim_mecir_3_2_d": (
+            "'Outcome measures should not always form part of the criteria for "
+            "including studies in a review.'"),
+        "so": (
+            "The Handbook does not merely permit inclusion -- it DISCOURAGES using "
+            "outcome reporting as an eligibility criterion at all. Eligibility rests on "
+            "the PICO elements and study design. Registration status is not among them."),
+    },
+
+    "the_handbook_does_not_require_exclusion": {
+        "chapter": "13 (bias due to missing results in a synthesis)",
+        "sections": "13.3.1.3, 13.3.4.6, 13.3.5",
+        "finding": (
+            "Chapter 13 nowhere recommends excluding a non-pre-specified result from "
+            "the primary synthesis. Its recommended handling is DETECTION (13.3.1.3, "
+            "comparing study plans against available results), a RISK OF BIAS "
+            "JUDGEMENT using the ROB-ME tool (13.3.5), and SENSITIVITY ANALYSIS "
+            "(13.3.4.6) -- not exclusion."),
+        "and_a_distinction_that_matters": (
+            "Chapter 13 and ROB-ME address results MISSING from a synthesis. Our case "
+            "is the opposite direction -- a result PRESENT that was never pre-specified "
+            "-- which is why section 8.7 is the correct instrument and Chapter 13 is "
+            "the adjacent one. Section 8.7 says so itself: it 'does not address bias "
+            "due to selective non-reporting (or incomplete reporting) of outcome "
+            "domains that were measured and analysed by the trial authors'."),
+    },
+
+    "sensitivity_analysis_authority": {
+        "section": "10.14",
+        "verbatim": (
+            "'Sensitivity analyses should be used to examine whether overall findings "
+            "are robust to potentially influential decisions.'"),
+    },
+
+    "the_conservative_principle": (
+        "WHERE THE HANDBOOK LEAVES A CHOICE, TAKE THE OPTION THAT DOES NOT MOVE A "
+        "RESULT TOWARD SIGNIFICANCE BY OUR OWN DECISION. An analytic choice of ours "
+        "that STRENGTHENS our own conclusion needs a stronger justification than one "
+        "that weakens it. Here the direction decides on its own: a wrong inclusion "
+        "leaves a null intact, while a wrong exclusion publishes a positive result we "
+        "created."),
+
+    "how_this_was_verified": (
+        "The ruling to adopt this reading came from the author. An author's agreement "
+        "is not a source, so both propositions that would OVERTURN it were tested "
+        "before it was applied: (1) does the Handbook place a non-pre-specified "
+        "outcome under ELIGIBILITY? Chapter 3 says the opposite and discourages "
+        "outcome-based exclusion. (2) is it explicit that such results should be "
+        "EXCLUDED from primary synthesis? Chapter 13 recommends detection, a risk-of-"
+        "bias judgement and sensitivity analysis instead. Both fail; the Handbook is "
+        "more emphatic than the ruling."),
+}
+
+ESTIMATOR = {
+    "handbook": HANDBOOK, "version": VERSION, "version_verified_on": VERIFIED_ON,
+    "section": "10.10.4.4",
+    "verbatim_default": (
+        "'In RevMan, the default option for estimating the between-study variance is "
+        "REML, while the DerSimonian and Laird moment-based method remains an "
+        "available option.'"),
+    "verbatim_no_winner": (
+        "'Several simulation studies have concluded that an approach proposed by Paule "
+        "and Mandel should be recommended; whereas a comprehensive recent simulation "
+        "study recommended the REML approach, although noted that no single approach "
+        "is universally preferable.'"),
+    "decision": "REML corpus-wide.",
+}
+
+SMALL_K_INTERVAL = {
+    "handbook": HANDBOOK, "version": VERSION, "version_verified_on": VERIFIED_ON,
+    "sections": "10.10.4.4-10.10.4.5",
+    "verbatim": (
+        "'When there are only two or three studies, we advise review authors to "
+        "undertake a sensitivity analysis to compare results from the different "
+        "methods.'"),
+    "decision": (
+        "Hartung-Knapp is reported as a SENSITIVITY analysis at k<=3, not adopted as "
+        "the primary interval. The Handbook's remedy for the small-k case is to show "
+        "both rather than to pick one."),
+}
+
+NOT_POOLABLE = {
+    "handbook": HANDBOOK, "version": VERSION, "version_verified_on": VERIFIED_ON,
+    "sections": "10.10.3 and MECIR Box 10.10.a (C62)",
+    "verbatim_10_10_3": (
+        "'Meta-analysis should only be considered when a group of studies is "
+        "sufficiently homogeneous in terms of participants, interventions and outcomes "
+        "to provide a meaningful summary.'"),
+    "verbatim_inconsistent_direction": (
+        "'If there is considerable variation in results, and particularly if there is "
+        "inconsistency in the direction of effect, it may be misleading to quote an "
+        "average value for the intervention effect.'"),
+    "verbatim_mecir_c62": (
+        "'Undertake (or display) a meta-analysis only if participants, interventions, "
+        "comparisons and outcomes are judged to be sufficiently similar to ensure an "
+        "answer that is clinically meaningful.'"),
+    "verbatim_no_meta_needed": "'A systematic review need not contain any meta-analyses.'",
+    "why_or_display_matters": (
+        "MECIR does not merely discourage COMPUTING such a pool; 'or display' forbids "
+        "SHOWING one. A topic that ends in a sourced non-poolable verdict is therefore "
+        "a complete review, not a failed one."),
+}
+
+NMA_GRAIN = {
+    "handbook": HANDBOOK, "version": VERSION, "version_verified_on": VERIFIED_ON,
+    "section": "11.5",
+    "verbatim": (
+        "'Since network meta-analysis produces estimates for several intervention "
+        "effects, the confidence in the evidence should be assessed for each "
+        "intervention effect that is reported in the results.'"),
+    "supporting": {
+        "11.2.2.1_transitivity": (
+            "'different sets of randomized trials are similar, on average, in all "
+            "important factors other than the intervention comparison being made'"),
+        "11.4.4.4_incoherence_power": (
+            "'tests for detecting incoherence often lack power to detect incoherence "
+            "when it is present' -- so an unfitted or non-significant incoherence test "
+            "is not evidence of coherence."),
+    },
+    "decision": (
+        "A network needs no single network-wide verdict. Each contrast carries its "
+        "own; a withdrawal is per contrast."),
+}
+
+ALL = {
+    "unregistered_endpoint": UNREGISTERED_ENDPOINT,
+    "estimator": ESTIMATOR,
+    "small_k_interval": SMALL_K_INTERVAL,
+    "not_poolable": NOT_POOLABLE,
+    "nma_grain": NMA_GRAIN,
+}
+
+
+def main() -> int:
+    if "--json" in sys.argv:
+        print(json.dumps(ALL, ensure_ascii=False, indent=1))
+        return 0
+    print("%s -- %s" % (HANDBOOK, VERSION))
+    print("verified %s at %s" % (VERIFIED_ON, HANDBOOK_URL))
+    print()
+    for k, v in ALL.items():
+        secs = v.get("section") or v.get("sections") or v.get("chapter")
+        print("  %-24s sections %s" % (k, secs))
+    print()
+    print("RE-VERIFY BEFORE REUSE IN A LATER SESSION. Section numbering is not stable")
+    print("across Handbook releases, and the Handbook changed HOST during the check")
+    print("that produced these strings. Re-read %s and confirm the version line before" % HANDBOOK_URL)
+    print("quoting any of this in a new object.")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

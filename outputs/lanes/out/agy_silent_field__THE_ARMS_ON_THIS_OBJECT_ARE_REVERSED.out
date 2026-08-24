@@ -1,0 +1,11 @@
+**1. IS A READER OWED THIS?** 
+OWED. A reader examining the trial's inputs needs to know the counterintuitive arm labels are a recognized, documented state rather than an undetected extraction error.
+
+**2. IF OWED: WHERE.** 
+Immediately beside the arm list for NCT04136184, right when a reader or downstream model might otherwise conclude the data is corrupted and attempt a naive correction.
+
+**3. IS IT A DUPLICATE?** 
+Yes. The core fact that the recorded arms contradict the registration is explicitly stated in `results.by_outcome.primary.THE_POOL_IS_REFERRED_2026_08_20.what_is_wrong` and in the 2026-08-20 entry of `display_change_announced`. Furthermore, the methodological rationale for refusing to "fix" these labels is thoroughly covered by `inputs.trials[2].why_arms_and_declared_contrast_differ`.
+
+**4. WHAT WOULD BE LOST** 
+Nothing of substance. Because the contradiction itself and the explicit decision not to overwrite the extracted data are both defended in the fields named above, deleting this specific field would lose only the verbatim quote from the registry's detailed description.

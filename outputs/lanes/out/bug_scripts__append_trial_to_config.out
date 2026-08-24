@@ -1,0 +1,195 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a0312b-d3ec-7d62-9793-d2e02a724f35
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/append_trial_to_config.py
+
+--- THE FILE, IN FULL ---
+#!/usr/bin/env python
+"""Append trial(s) to a config file's realData_block.
+
+Usage:
+  python append_trial_to_config.py <config.json> <additions.json>
+
+additions.json format:
+  [
+    {
+      "nct": "NCT03094715",
+      "name": "TENSION",
+      "phase": "III",
+      "year": 2024,
+      "tE": 91, "tN": 124, "cE": 31, "cN": 129,
+      "group": "Large-core AIS 6-12h (ASPECTS 3-5), EVT vs medical",
+      "publishedHR": 2.57, "hrLCI": 1.79, "uci": 3.69,
+      "snippet": "Source: Bendszus M et al. Lancet 2023;402:1753-1763 (TENSION).",
+      "sourceUrl": "...",
+      "outcome_label": "MACE",
+      "outcome_title": "Functional independence 90-d mRS 0-2",
+      "estimand": "RR"
+    },
+    ...
+  ]
+"""
+import json, sys, io
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+
+def build_trial_block(t):
+    hr = t.get('publishedHR'); lci = t.get('hrLCI'); uci = t.get('hrUCI')
+    est = t.get('estimand', 'RR')
+    tE = t.get('tE', 0); tN = t.get('tN', 0)
+    cE = t.get('cE', 0); cN = t.get('cN', 0)
+    out_label = t.get('outcome_label', 'MACE')
+    out_title = t.get('outcome_title', 'Primary outcome')
+    rob = t.get('rob', "['low', 'some concerns', 'low', 'low', 'low']")
+    snippet = t.get('snippet', '')
+    src = t.get('sourceUrl', '')
+    nct = t['nct']
+    ctgov = f'https://clinicaltrials.gov/study/{nct}'
+    evidence = t.get('evidence_raw') or "[]"
+    # Return the realData entry as a JSON-escapable JS literal string
+    block = (
+        f"                '{nct}': {{\n"
+        f"                    name: '{t['name']}', phase: '{t.get('phase','III')}', year: {t.get('year',2024)}, "
+        f"tE: {tE}, tN: {tN}, cE: {cE}, cN: {cN}, "
+        f"group: '{t.get('group','')}', "
+        f"publishedHR: {hr}, hrLCI: {lci}, hrUCI: {uci},\n"
+        f"                    allOutcomes: [\n"
+        f"                        {{ shortLabel: '{out_label}', title: '{out_title}', tE: {tE}, cE: {cE}, type: 'PRIMARY', matchScore: 95, effect: {hr}, lci: {lci}, uci: {uci}, estimandType: '{est}' }}\n"
+        f"                    ],\n"
+        f"                    rob: {rob},\n"
+        f"                    snippet: '{snippet}',\n"
+        f"                    sourceUrl: '{src}',\n"
+        f"                    ctgovUrl: '{ctgov}',\n"
+        f"                    evidence: {evidence}\n"
+        f"                }}"
+    )
+    # The realData_block value in config JSON is a JSON-escaped string. Escape \n → \\n and ' keep, { → {
+    # Since it will be re-encoded when saved, just return the literal; escaping happens on json.dump
+    return block
+
+
+def main(cfg_path, add_path):
+    cfg = json.load(open(cfg_path, encoding='utf-8'))
+    adds = json.load(open(add_path, encoding='utf-8'))
+
+    # Current realData_block is a string of JS; it ends with `}` (closing the last trial) without trailing comma
+    current = cfg['realData_block']
+
+    for t in adds:
+        block = build_trial_block(t)
+        # Insert a comma after the current last `}`, then add new block
+        current = current.rstrip() + ',\n' + block
+
+    cfg['realData_block'] = current
+
+    # Extend auto_include + acronyms
+    if 'auto_include' not in cfg: cfg['auto_include'] = []
+    if 'acronyms' not in cfg: cfg['acronyms'] = {}
+    for t in adds:
+        if t['nct'] not in cfg['auto_include']:
+            cfg['auto_include'].append(t['nct'])
+        cfg['acronyms'][t['nct']] = t['name']
+
+    with open(cfg_path, 'w', encoding='utf-8') as f:
+        json.dump(cfg, f, indent=2, ensure_ascii=False)
+
+    print(f'appended {len(adds)} trial(s) to {cfg_path}')
+
+
+if __name__ == '__main__':
+    if len(sys.argv) != 3:
+        print('usage: python append_trial_to_config.py <config.json> <additions.json>', file=sys.stderr)
+        sys.exit(1)
+    main(sys.argv[1], sys.argv[2])
+
+codex
+- **SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE**: line 36 reads `t.get('hrUCI')`, but the documented input key is `uci`.
+  Exact input: the usage example’s trial object with `"publishedHR": 2.57, "hrLCI": 1.79, "uci": 3.69`.
+  Consequence: the appended block emits `hrUCI: None` and `uci: None`, losing the upper confidence interval and likely producing invalid JS semantics.
+
+- **ZERO CONFLATED WITH ABSENT**: line 41 uses `t.get('evidence_raw') or "[]"`.
+  Exact input: `{"nct":"NCT1","name":"X","evidence_raw":0}`.
+  Consequence: a provided value `0` is silently replaced with `[]`, so the output no longer represents the input.
+
+- **STATUS CODE REPORTING THE WRAPPER rather than the work**: none found in this file; no subprocess, pipe, or ignored child return is present.
+
+- **check that CANNOT FAIL**: none found in this file.
+
+- **probe keyed to STRING A FIX REMOVES**: none found in this file.
+
+- **idempotency guard satisfied by its OWN comment or marker**: none found in this file.
+
+- **instrument reading a DIFFERENT COPY than the one being changed**: none found in this file.
+
+- **values compared AS TEXT where line endings differ**: none found in this file.
+
+- **merged-cell and OFF-BY-ONE errors**: none found in this file.
+
+- **NEGATION DROPPED**: none found in this file.
+tokens used
+6,435
+- **SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE**: line 36 reads `t.get('hrUCI')`, but the documented input key is `uci`.
+  Exact input: the usage example’s trial object with `"publishedHR": 2.57, "hrLCI": 1.79, "uci": 3.69`.
+  Consequence: the appended block emits `hrUCI: None` and `uci: None`, losing the upper confidence interval and likely producing invalid JS semantics.
+
+- **ZERO CONFLATED WITH ABSENT**: line 41 uses `t.get('evidence_raw') or "[]"`.
+  Exact input: `{"nct":"NCT1","name":"X","evidence_raw":0}`.
+  Consequence: a provided value `0` is silently replaced with `[]`, so the output no longer represents the input.
+
+- **STATUS CODE REPORTING THE WRAPPER rather than the work**: none found in this file; no subprocess, pipe, or ignored child return is present.
+
+- **check that CANNOT FAIL**: none found in this file.
+
+- **probe keyed to STRING A FIX REMOVES**: none found in this file.
+
+- **idempotency guard satisfied by its OWN comment or marker**: none found in this file.
+
+- **instrument reading a DIFFERENT COPY than the one being changed**: none found in this file.
+
+- **values compared AS TEXT where line endings differ**: none found in this file.
+
+- **merged-cell and OFF-BY-ONE errors**: none found in this file.
+
+- **NEGATION DROPPED**: none found in this file.

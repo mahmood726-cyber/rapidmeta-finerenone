@@ -1,0 +1,277 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/lint_question_is_a_question.py
+
+--- THE FILE, IN FULL ---
+#!/usr/bin/env python3
+"""A REVIEW'S QUESTION MUST NOT BE ONE OF ITS TRIALS' REGISTRY FIELDS.
+
+FOUND ON `ablation-af-review`, 2026-08-19, before a single build step ran. Its `question` was:
+
+    "Number of Participants With Composite of Total Mortality, Disabling Stroke, Serious
+     Bleeding, or Cardiac Arrest in Patie"
+
+That is CABANA's (NCT00911508) registered PRIMARY OUTCOME MEASURE, **truncated at exactly 120
+characters**, mid-word. So the review's stated question was one of its four trials' endpoints,
+cut short -- and `population_stated` returned PASS on it.
+
+TWO DEFECTS AT ONCE, and they compound:
+
+  1. A REGISTRY FIELD MASQUERADING AS A REVIEW QUESTION. A question about participants was
+     answered with a sentence about an outcome, belonging to ONE of four trials.
+  2. SILENT TRUNCATION AT A FIXED WIDTH. Named as a missing class by an outside critic (agy,
+     Gemini 3.1 Pro) minutes before it was found here -- which is the argument for asking a
+     different model family what you are not looking for.
+
+WHY THE PRECONDITION PASSED IT, which is the part worth fixing rather than deploring:
+`population_stated` reads `question` and judges PRESENCE. It cannot tell a review question from
+any other non-empty string.
+
+    THE PROPERTY CLAIMED IS "POPULATION STATED". THE PROPERTY VERIFIED IS "FIELD NON-EMPTY".
+    Every check in this repo should be read against that gap.
+
+This does not make `population_stated` wrong to exist -- its own docstring already says a PASS
+is not a claim the population is homogeneous. It makes it INSUFFICIENT ALONE, and this is the
+companion check.
+
+WHAT THIS CHECKS. For every topic, compare `question` against the registry text of its OWN
+included trials -- primary and secondary outcome measures, brief and official titles. A match,
+or a prefix match of >= 60 characters (which is how truncation presents), means the question is
+a COPIED FIELD rather than a stated question.
+
+Closed vocabulary again: it compares only against text the registry published for THIS object's
+OWN trials. It does not attempt to judge whether a genuine question is a GOOD question -- that
+is human judgement and is not claimed here.
+"""
+import io
+import json
+import os
+import re
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+SSOT = os.path.join(REPO, "ssot")
+CACHE = os.environ.get(
+    "RM_CTGOV_CACHE",
+    "F:/claude-temp/claude/F--rapidmeta-ssot-shell/"
+    "eb4d84e5-8a24-4c3b-afe2-34bd91c20bc7/scratchpad/.ctgov-raw-cache")
+
+# A RATCHET, NOT A ZERO-GATE, AND THE REASON IS STATED. Two topics currently fail, and fixing
+# either needs a JUDGEMENT about what the review asks -- see BLOCKED-ablation-af-review. A
+# zero-gate would block every unrelated commit until a human answers that, which is how a check
+# gets switched off. A permanent non-blocking NOTE is the other failure mode: it can only warn,
+# never block, which is verification theatre. So: the known set is baselined and ANY INCREASE
+# REFUSES.
+BASELINE = 2
+
+# THE BASELINE IS NAMED, NOT COUNTED, AND IT DOUBLES AS A PERMANENT POSITIVE CONTROL.
+#
+# Found 2026-08-19 by pointing RM_CTGOV_CACHE at a directory that does not exist. The cache
+# default above lives in a DEAD SESSION'S SCRATCHPAD -- outside the repo, deletable by anything
+# that tidies temp files -- and with it gone this check reported:
+#
+#     topics compared ... 0 | COPIED REGISTRY FIELD 0 | not compared 135
+#     "no topic's question is a copy of its own trials' registry text."   exit 0
+#
+# Its own two KNOWN-BAD topics vanished from its own report and it asserted the negative anyway.
+# That is worse than the empty-vocabulary case detector 3 guards with exit 2: there the check
+# merely passes everything; here it also DELETES the evidence that it ever found anything, so
+# the ratchet silently re-baselines to zero and the next real instance reads as the first.
+#
+# A count cannot notice that. A NAMED set can: if a topic known to fail does not fail, the
+# instrument -- not the corpus -- is what changed. This is P16's third clause made structural:
+# a check that cannot be observed to fire is not known to be able to.
+BASELINE_TOPICS = ("ablation-af-review", "bococizumab-lipid-review")
+assert len(BASELINE_TOPICS) == BASELINE, "the named baseline and the count must agree"
+
+PREFIX_MIN = 60           # a shared opening this long is a copy, not a coincidence
+WS = re.compile(r"\s+")
+
+
+def norm(s):
+    return WS.sub(" ", str(s or "")).strip().lower()
+
+
+def registry_texts(nct):
+    """Every string from a registration that a question could have been copied from."""
+    if not os.path.isdir(CACHE):
+        return []
+    for fn in os.listdir(CACHE):
+        if fn.startswith(nct + "_") and fn.endswith(".json"):
+            try:
+                with io.open(os.path.join(CACHE, fn), encoding="utf-8") as fh:
+                    rec = json.load(fh)
+            except (ValueError, OSError):
+                return []
+            ps = rec.get("protocolSection") or {}
+            out = []
+            om = ps.get("outcomesModule") or {}
+            for key in ("primaryOutcomes", "secondaryOutcomes"):
+                for o in (om.get(key) or []):
+                    if o.get("measure"):
+                        out.append(("%s.%s.measure" % ("outcomesModule", key), o["measure"]))
+            idm = ps.get("identificationModule") or {}
+            for k in ("briefTitle", "officialTitle"):
+                if idm.get(k):
+                    out.append(("identificationModule." + k, idm[k]))
+            return out
+    return []
+
+
+def check_topic(topic):
+    p = os.path.join(SSOT, topic, topic + ".json")
+    try:
+        with io.open(p, encoding="utf-8") as fh:
+            obj = json.load(fh)
+    except (ValueError, OSError):
+        return None, "unreadable"
+    # FOUR FIELDS, NOT ONE. On ablation-af-review the same truncated registry string sat in
+    # question, title, outcomes[0].name AND outcomes[0].definition -- the object's whole
+    # identity was one trial's outcome measure. Checking only `question` would have found a
+    # quarter of the defect and reported it fixed.
+    fields = [("question", obj.get("question")), ("title", obj.get("title"))]
+    for i, o_ in enumerate((obj.get("outcomes") or [])[:6]):
+        if isinstance(o_, dict):
+            fields.append(("outcomes[%d].name" % i, o_.get("name")))
+            fields.append(("outcomes[%d].definition" % i, o_.get("definition")))
+    fields = [(k, v) for k, v in fields if norm(v)]
+    if not fields:
+        return None, "no question/title/outcome text"
+    trials = [t.get("nct") for t in ((obj.get("inputs") or {}).get("trials") or [])
+              if t.get("nct")]
+    if not trials:
+        return None, "no trials with registration ids"
+    looked = 0
+    for nct in trials:
+        texts = registry_texts(nct)
+        if not texts:
+            continue
+        looked += 1
+        for path, raw in texts:
+            r = norm(raw)
+            if not r:
+                continue
+            for fname, fval in fields:
+                q = norm(fval)
+                if q == r:
+                    # AN OUTCOME DEFINITION QUOTING THE REGISTRY EXACTLY IS CORRECT -- that is
+                    # where a definition SHOULD come from, and bempedoic-acid-review does it
+                    # properly. Only a QUESTION or TITLE is wrong to be a trial's field: a
+                    # review question is not one trial's endpoint. Flagging the exact quote
+                    # would have accused a correct object, which is the defect this repo keeps
+                    # catching in its own instruments.
+                    if fname in ("question", "title"):
+                        return (nct, path, "EXACT", raw, fname), None
+                    continue
+                if (min(len(q), len(r)) >= PREFIX_MIN
+                        and q[:PREFIX_MIN] == r[:PREFIX_MIN]):
+                    return (nct, path, "TRUNCATED at %d chars" % len(str(fval)),
+                            raw, fname), None
+    if looked == 0:
+        return None, "no registration records cached for this topic's trials"
+    return None, None
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    hits, checked, unchecked = [], 0, []
+    for topic in sorted(os.listdir(SSOT)):
+        if not os.path.exists(os.path.join(SSOT, topic, topic + ".json")):
+            continue
+        hit, why = check_topic(topic)
+        if hit:
+            hits.append((topic,) + hit)
+            checked += 1
+        elif why:
+            unchecked.append((topic, why))
+        else:
+            checked += 1
+
+    for topic, nct, path, kind, raw, fname in hits:
+        print("%s" % topic)
+        print("   `%s` is %s's own registry text -- %s" % (fname, nct, kind))
+        print("   source field : %s" % path)
+        print("   registry says: %s" % (" ".join(str(raw).split())[:110]))
+        print()
+    print("topics compared against their own trials' registry text   %d" % checked)
+    print("questions that are a COPIED REGISTRY FIELD                %d" % len(hits))
+    print("not compared (reported, never silently skipped)           %d" % len(unchecked))
+    print("baseline (known, awaiting a human decision)              %d" % BASELINE)
+
+    # POSITIVE CONTROL, RUN EVERY TIME. The named baseline topics are the only known-bad
+    # instances this check has, so they are also the only evidence it can still fire.
+    hit_names = {h[0] for h in hits}
+    blind = [t for t in BASELINE_TOPICS if t in dict(unchecked)]
+    fixed = [t for t in BASELINE_TOPICS if t not in hit_names and t not in blind]
+    if blind:
+        print()
+        print("REFUSED (exit 2 -- BROKEN INSTRUMENT, NOT A CLEAN CORPUS): the known-bad "
+              "topic(s) %s could not be compared at all." % blind)
+        print("   reason given : %s" % [dict(unchecked)[t] for t in blind])
+        print("   cache read   : %s" % CACHE)
+        print("A check that cannot see its own known answer cannot report an all-clear about")
+        print("anything else. This fires when the registry cache is absent -- and that cache")
+        print("default lives OUTSIDE the repo, so it can disappear without a commit.")
+        return 2
+    if fixed:
+        print()
+        print("REFUSED: %s no longer answers its question with a registry field -- it was "
+              "COMPARED and it is CLEAN." % fixed)
+        print("FIX: remove it from BASELINE_TOPICS and lower BASELINE. A ratchet left at its")
+        print("     old notch permits one NEW instance silently, which is a ceiling, not a")
+        print("     ratchet. This refusal is the tightening step, and it is one line.")
+        return 1
+    if len(hits) > BASELINE:
+        print()
+        print("REFUSED: %d topic(s) answer 'what is the question' with a registry field, "
+              "above the baseline of %d." % (len(hits), BASELINE))
+        print("FIX: state the review's own question. If it is derived from the object's recorded")
+        print("     fields rather than pre-specified, say so on its face -- see")
+        print("     bempedoic-acid-review, whose criteria block carries `predefined: false`.")
+        return 1
+    if hits:
+        print()
+        print("HELD at baseline: %d known topic(s), each blocked on a human decision about what "
+              "the review asks. Listed above, not hidden. Any NEW one refuses." % len(hits))
+        return 0
+    print()
+    print("no topic's question is a copy of its own trials' registry text.")
+    print("NOT CHECKED, and named: whether a genuine question is a GOOD question. That is human")
+    print("judgement and is not claimed here.")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

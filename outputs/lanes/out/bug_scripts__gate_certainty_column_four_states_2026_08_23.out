@@ -1,0 +1,234 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a031cb-495a-7242-b2a5-cbea345cd9ed
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/gate_certainty_column_four_states_2026_08_23.py
+
+--- THE FILE, IN FULL ---
+"""The certainty column has four states. This refuses any page that shows a fifth.
+
+# control: the POSITIVE is `sglt2-hf`, whose three outcomes were read by hand off the object
+# and whose required rendering was specified before this gate existed: Low, Low, See comment.
+# It is keyed to the OBJECT's arrangement, which this work does not change -- the withdrawal,
+# the two pooled estimates and the stranded "high" are all still there. The NEGATIVE is a
+# SYNTHETIC OBJECT built in this file, so it cannot expire when the corpus is repaired.
+
+THE FIFTH STATE WAS AN EM DASH AND IT MEANT NOTHING. `results.*.grade.certainty` holds 7
+ratings across 34 pooled outcomes; `grade.by_outcome` holds 26. The column read the first
+and printed `&mdash;` when it was empty, so 21 assessed outcomes showed a dash. An em dash
+is not a value in Cochrane's certainty scheme and zero of nine published reviews checked
+use one. A dash says nothing, and "nothing" reads as "nothing to report" rather than "not
+assessed" -- the one confusion this column must not permit.
+
+THE FOUR, AND WHAT EACH MUST CARRY:
+
+    RATED, HIGH        the level. No footnote is required; nothing was downgraded.
+    RATED, BELOW HIGH  the level AND a footnote. A downgrade whose reason is not shown is a
+                       grade with its reason removed.
+    NOT ASSESSED       "See comment", the project's own absent-state string, AND the
+                       declared-departure sentence. Never a level, never a dash.
+    WITHDRAWN POOL     "See comment". Never a level, EVEN WHERE A LOCATION HOLDS ONE.
+
+THE ONE ARRANGEMENT THAT IS INDEFENSIBLE UNDER EITHER ANSWER, and the reason the withdrawn
+state outranks a held rating: `sglt2-hf` rates its WITHDRAWN outcome "high" in the table
+and rates neither of its two published estimates there. Before this, the page showed High
+beside "not pooled" and a dash beside both real estimates -- the exact opposite of the
+truth on all three rows, and the abstract then quoted the rating beside the estimates it
+was not about.
+
+A FIFTH STATE THIS GATE ALSO REFUSES: a superscript with no note under it. "See comment"
+with no comment is worse than the dash it replaced, because it promises one.
+"""
+from __future__ import annotations
+
+import glob
+import io
+import json
+import os
+import re
+import sys
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+REPO = os.path.dirname(HERE)
+sys.path.insert(0, os.path.join(REPO, "ssot"))
+sys.path.insert(0, HERE)
+
+import grade_authority as ga  # noqa: E402
+from instrument_controls import require_controls  # noqa: E402
+
+STATES = {"RATED", "NOT_ASSESSED", "WITHDRAWN_POOL", "DISAGREEMENT"}
+CELLS = set(ga.LEVELS.values()) | {ga.CELL_SEE_COMMENT}
+
+# sglt2-hf, read by hand off the object before this gate existed.
+ACCEPTANCE = ("sglt2-hf", {
+    "cvdeath_or_whf_first": ("WITHDRAWN_POOL", ga.CELL_SEE_COMMENT),
+    "harmonised_cvdeath_or_hhf": ("RATED", "Low"),
+    "threecomp_cvdeath_hhf_urgent": ("RATED", "Low"),
+})
+
+# The synthetic negative: an object where nothing is rated anywhere. It must come back
+# NOT_ASSESSED with a comment -- never RATED, and never with an empty comment.
+FIXTURE_UNRATED = {
+    "results": {"by_outcome": {"x": {"pooled": {"point": 0.8}}}},
+    "grade": {"by_outcome": {}},
+}
+
+
+def acceptance():
+    p = os.path.join(REPO, "ssot", ACCEPTANCE[0], ACCEPTANCE[0] + ".json")
+    if not os.path.isfile(p):
+        return None, "object not on disk"
+    obj = json.load(io.open(p, encoding="utf-8"))
+    got = {}
+    for oid in ACCEPTANCE[1]:
+        r = ga.resolve(obj, oid)
+        got[oid] = (r["state"], r["cell"])
+    return got, None
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    got, err = acceptance()
+    if err:
+        sys.exit("REFUSED: the positive control is unavailable (%s). A gate with no "
+                 "established answer to reproduce passes everything." % err)
+    fx = ga.resolve(FIXTURE_UNRATED, "x")
+    require_controls(
+        "certainty_column_four_states",
+        ("sglt2-hf renders See comment / Low / Low -- read by hand off the object; got %r"
+         % (got,), got, ACCEPTANCE[1]),
+        ("the synthetic all-unrated fixture must not come back RATED; it came back %r"
+         % fx["state"], fx["state"], "RATED"))
+
+    bad, pools, by_state = [], 0, {}
+    for p in sorted(glob.glob(os.path.join(REPO, "ssot", "*", "*.json"))):
+        t = os.path.basename(os.path.dirname(p))
+        if os.path.basename(p) != t + ".json":
+            continue
+        try:
+            obj = json.load(io.open(p, encoding="utf-8"))
+        except ValueError:
+            continue
+        for oid, blk in ((obj.get("results") or {}).get("by_outcome") or {}).items():
+            if not isinstance(blk, dict):
+                continue
+            pooled = blk.get("pooled") or {}
+            if pooled.get("point") is None and not pooled.get("withdrawn"):
+                continue
+            pools += 1
+            r = ga.resolve(obj, oid)
+            by_state[r["state"]] = by_state.get(r["state"], 0) + 1
+            if r["state"] not in STATES:
+                bad.append((t, oid, "state %r is not one of the four" % r["state"]))
+            if r["cell"] not in CELLS:
+                bad.append((t, oid, "cell %r is not a certainty value" % r["cell"]))
+            if "—" in r["cell"] or "&mdash;" in r["cell"]:
+                bad.append((t, oid, "the cell is an em dash, which means nothing"))
+            if r["state"] == "RATED" and r["level"] != "HIGH" and not r["comment"]:
+                bad.append((t, oid, "rated %s with no footnote -- a downgrade with its "
+                                    "reason removed" % r["level"]))
+            if r["state"] == "WITHDRAWN_POOL" and r["level"] is not None:
+                bad.append((t, oid, "a withdrawn pool carries a level in the cell"))
+            if r["state"] != "RATED" and not r["comment"]:
+                bad.append((t, oid, "\"See comment\" with no comment"))
+            if r["state"] == "NOT_ASSESSED":
+                if ga.DEPARTURE_SECTION not in r["comment"]:
+                    bad.append((t, oid, "not assessed without the declared-departure "
+                                        "reference"))
+                if "not been rated" not in r["comment"]:
+                    bad.append((t, oid, "not assessed without the absent-state string"))
+
+    print("")
+    print("THE CERTAINTY COLUMN, over %d outcome(s) that publish or withdraw an estimate"
+          % pools)
+    print("")
+    for s in sorted(by_state):
+        print("   %-18s %4d" % (s, by_state[s]))
+    print("   %-18s %4d   == the population" % ("sum", sum(by_state.values())))
+    print("")
+    if bad:
+        for t, oid, why in bad[:20]:
+            print("   %-34s %-30s %s" % (t[:34], oid[:30], why))
+        sys.exit("REFUSED: %d certainty cell(s) are outside the four-state spec." % len(bad))
+    print("Every cell is one of the four. No em dash, no rated-without-reason, no withdrawn")
+    print("pool carrying a level, and no \"See comment\" without a comment.")
+
+
+if __name__ == "__main__":
+    main()
+
+codex
+Defects found:
+
+- Line 104 -- **check that cannot fail** for unreadable corpus objects. Exact input: keep the valid `ssot/sglt2-hf/sglt2-hf.json` positive control, and add `ssot/bad/bad.json` containing just `{`. Consequence: the object is silently skipped, so an unchecked page can coexist with a PASS.
+
+- Line 116 -- **state/cell cross-product not checked**. Exact direct input after line 112: `r = {"state": "NOT_ASSESSED", "cell": "High", "level": "HIGH", "comment": ga.DEPARTURE_SECTION + " not been rated"}`. Consequence: a not-assessed outcome can render a certainty level, despite the spec saying “Never a level.”
+
+- Line 123 -- **withdrawn pool check reads `level`, not the rendered cell**. Exact direct input after line 112: `r = {"state": "WITHDRAWN_POOL", "cell": "High", "level": None, "comment": "withdrawn"}`. Consequence: a withdrawn pool can still display `High` and pass.
+
+- Lines 93-94 -- **control cannot verify its promised empty-comment condition**. Exact input: `ga.resolve(FIXTURE_UNRATED, "x")` returns `{"state": "NOT_ASSESSED", "comment": ""}`. Consequence: `fx["comment"]` is never passed to `require_controls`, so the synthetic negative cannot prove “never with an empty comment.”
+
+COULD NOT DETERMINE the exact raw JSON needed to produce those `ga.resolve` outputs: missing `grade_authority.py`.
+
+COULD NOT DETERMINE line 94 pass/fail polarity: missing `instrument_controls.py`.
+
+No proven defect found for: string-a-fix-removes probe, own-comment idempotency guard, different-copy instrument, CRLF text comparison, merged-cell/off-by-one count, zero-conflated-with-absent, negation dropped, or wrapper status-code reporting.
+tokens used
+17,527
+Defects found:
+
+- Line 104 -- **check that cannot fail** for unreadable corpus objects. Exact input: keep the valid `ssot/sglt2-hf/sglt2-hf.json` positive control, and add `ssot/bad/bad.json` containing just `{`. Consequence: the object is silently skipped, so an unchecked page can coexist with a PASS.
+
+- Line 116 -- **state/cell cross-product not checked**. Exact direct input after line 112: `r = {"state": "NOT_ASSESSED", "cell": "High", "level": "HIGH", "comment": ga.DEPARTURE_SECTION + " not been rated"}`. Consequence: a not-assessed outcome can render a certainty level, despite the spec saying “Never a level.”
+
+- Line 123 -- **withdrawn pool check reads `level`, not the rendered cell**. Exact direct input after line 112: `r = {"state": "WITHDRAWN_POOL", "cell": "High", "level": None, "comment": "withdrawn"}`. Consequence: a withdrawn pool can still display `High` and pass.
+
+- Lines 93-94 -- **control cannot verify its promised empty-comment condition**. Exact input: `ga.resolve(FIXTURE_UNRATED, "x")` returns `{"state": "NOT_ASSESSED", "comment": ""}`. Consequence: `fx["comment"]` is never passed to `require_controls`, so the synthetic negative cannot prove “never with an empty comment.”
+
+COULD NOT DETERMINE the exact raw JSON needed to produce those `ga.resolve` outputs: missing `grade_authority.py`.
+
+COULD NOT DETERMINE line 94 pass/fail polarity: missing `instrument_controls.py`.
+
+No proven defect found for: string-a-fix-removes probe, own-comment idempotency guard, different-copy instrument, CRLF text comparison, merged-cell/off-by-one count, zero-conflated-with-absent, negation dropped, or wrapper status-code reporting.

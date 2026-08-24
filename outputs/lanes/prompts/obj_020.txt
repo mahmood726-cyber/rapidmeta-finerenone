@@ -1,0 +1,44 @@
+You are auditing SSOT objects for FOUR specific defect classes, each of
+which was found on a real object tonight. Use the repository directly: the objects are at
+ssot/<topic>/<topic>.json. Answer about these 20 topics ONLY:
+
+  bamlanivimab-outp
+  bempedoic-acid-review
+  bezlotoxumab-cdi
+  bezlotoxumab-cdiff
+  bococizumab-lipid-review
+  bosentan-pah-children
+  bosentan-pah-combination
+  bosentan-pah-monotherapy
+  bosentan-pah
+  bosentan-ph-not-group1
+  cab-prep-hiv-review
+  cangrelor-pci-review
+  casirivimab-covid
+  caspofungin-fungal-auto-full-review
+  cefepime-taz-auto-full-review
+  ceftaroline-auto-full-review
+  ceftazidime-avibactam-auto-full-review
+  ceftolozane-infection-auto-full-review
+  ceftolozane-taz-auto-full-review
+  colchicine-cvd-coronary
+
+THE FOUR CLASSES, with the known positive for each:
+
+  1  A STORED VALUE TRUNCATED MID-SENTENCE. Known positive: arni-hfref's
+     grade.by_outcome.cvdeath_or_hfh_first.steps[risk_of_bias].reason was EXACTLY 400
+     characters and ended "...In the same trial", a literal prefix of the 1,249-character
+     table text. Look for any string value that stops mid-sentence, and for suspiciously
+     round lengths (200, 300, 400, 500, 1000).
+  2  A CAVEAT HELD AND NOT PROJECTED. A field whose value is a substantive statement to a
+     reader, which no delivered page renders. Check the object's page via ssot/PAGE_MAP.json
+     and say whether the text appears in it.
+  3  A FIELD NAME THAT IS A FINDING. A key that is an English clause rather than a name.
+     Say what it asserts and whether anything in the object acts on it.
+  4  A PROVENANCE STRING THAT DOES NOT MATCH WHAT PRODUCED THE VALUE. A `source`,
+     `read_utc`, `_source` or `basis` that names something the neighbouring value cannot
+     have come from.
+
+For each topic report only what you FIND, with the exact JSON path and the value quoted.
+If a topic is clean on all four, one line: "<topic>: clean". Be exhaustive within these 20
+and do not stray outside them. Do not modify any file. Under 700 words.

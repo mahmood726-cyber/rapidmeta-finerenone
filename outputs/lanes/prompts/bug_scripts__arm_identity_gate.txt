@@ -1,0 +1,364 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/arm_identity_gate.py
+
+--- THE FILE, IN FULL ---
+"""ARM IDENTITY -- do the two arms differ, and are they the comparison the page claims?
+
+WHY THIS EXISTS
+    Five cardiology pages were assessed for whether their question was answerable.
+    FOUR failed on ARM IDENTITY OR OUTCOME IDENTITY, not on arithmetic. Every
+    pooled number was computed correctly from what it was given; what it was given
+    did not answer the stated question.
+
+    DOAC_AF_REVIEW is the starkest instance in the corpus. A review titled
+    DOAC-versus-warfarin, containing no DOAC-versus-warfarin comparison in any of
+    its three trials:
+        RE-LY              intervention "Dabigatran dose 2" vs control "Dabigatran dose 1"
+        ENGAGE AF-TIMI 48  intervention "Warfarin/placebo edoxaban" vs control "low dose edoxaban"
+        ARISTOTLE          intervention "1" vs control "2"
+    One is a dose comparison of the same drug, one has warfarin as the
+    intervention, one has arms with no labels at all.
+
+    HEPATITIS_B_TAF_TDF is the cleanest: both trials enter as
+        intervention "TAF 25 mg" vs control "Open-label TAF"
+    on a page titled TAF versus TDF. The comparator in the question does not exist
+    anywhere in the data.
+
+    This is the mavacamten shape at scale -- legitimate arithmetic on the wrong
+    population -- and it is mechanically detectable from the object alone. It would
+    have caught four of the five without reading a single trial report.
+
+WHAT A FULL PASS DOES NOT ESTABLISH -- written in advance
+    - NOT that the arms are the RIGHT ones for the question. It checks that the two
+      arms are distinguishable and that neither obviously names the other's drug. A
+      page comparing the wrong two distinct drugs passes here.
+    - NOT that the arm ORIENTATION is correct. Intervention and control can be
+      swapped and still be distinct; only the sign of the effect reveals that, and
+      this check does not look at effects.
+    - NOT that unlabelled arms ("1" vs "2") are wrong -- only that they cannot be
+      checked. They are reported UNCHECKABLE, never PASS.
+    - NOTHING about outcomes. Outcome identity is the other half of this defect
+      class and is a separate check.
+"""
+from __future__ import annotations
+import json, os, re, sys, io, glob
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+OBJ = r"F:\E156\outputs\codex-corpus-scan\extract\full_run"
+# an arm label that identifies nothing
+OPAQUE = re.compile(r"^\s*(\d+|arm\s*\d+|group\s*\d+|[ab]|intervention|control|treatment)\s*$", re.I)
+DOSE = re.compile(r"\bdose\s*\d|\b\d+\s*mg\b|\bhigh[- ]dose\b|\blow[- ]dose\b", re.I)
+
+
+def core_tokens(label):
+    """Drug-ish tokens: words that are not dose, route, or packaging noise."""
+    # "placebo" is NOT noise -- it is the most informative token here. Stop-listing
+    # it made every drug-versus-placebo trial look like drug-versus-drug:
+    # 'colchicine' vs 'colchicine placebo' and 'MK-3415 + SOC' vs 'Placebo + SOC'
+    # both FAILED as same-agent comparisons when both are exactly the comparison a
+    # reader wants. A stop-list that removes the discriminating word inverts the
+    # test. Backgrounds shared by both arms (SOC, methotrexate, letrozole) are the
+    # ones that must not decide identity.
+    STOP = {"mg", "dose", "daily", "twice", "once", "open", "label", "openlabel",
+            "group", "arm", "matching", "oral", "iv", "sc", "qd", "bid",
+            "the", "and", "of", "in", "to", "per", "day", "week", "phase", "part",
+            "soc", "standard", "care", "background", "therapy", "plus"}
+    # Split hyphens BEFORE matching. "Open-label TAF" tokenised as one hyphenated
+    # word that no stop-list entry covered, so {taf} vs {open-label, taf} looked
+    # like two different agents and the TAF-versus-TAF page PASSED. The tokeniser
+    # was deciding drug identity on punctuation.
+    txt = re.sub(r"[-/,()]", " ", (label or "").lower())
+    return {w for w in re.findall(r"[a-z][a-z]{2,}", txt) if w not in STOP}
+
+
+# A DOUBLE-DUMMY ARM LABEL NAMES A DRUG THE ARM DID NOT RECEIVE.
+# 'Warfarin/placebo edoxaban' is the WARFARIN arm; 'edoxaban' in it is the dummy.
+# Any test reading the raw label sees both drugs on both sides and can no longer
+# tell the arms apart -- which is how the inverted-roles check was defeated on
+# ENGAGE AF-TIMI 48. This strips every drug the label names ONLY as a placebo, so
+# what remains is what the arm ACTUALLY RECEIVED.
+#
+# WHAT IT DOES NOT ESTABLISH, written in advance: not that the label was right in
+# the first place, and not that the arm sizes agree with it. It rewrites nothing
+# and decides nothing about the object; it only stops a dummy drug name from
+# being read as a received one. A label naming NO placebo is returned untouched,
+# so every single-dummy trial in the corpus takes the identical path it did
+# before -- which is why the four existing selftest cases are unmoved.
+PLACEBOED = re.compile(r"\bplacebo[\s-]+(?:for[\s-]+)?([a-z][a-z0-9-]{2,})|"
+                       r"\b([a-z][a-z0-9-]{2,})[\s-]+placebo\b", re.I)
+
+
+def received_label(label):
+    """The label minus every drug it names only as a placebo/dummy."""
+    txt = label or ""
+    dummies = set()
+    for m in PLACEBOED.finditer(txt):
+        for g in m.groups():
+            if g:
+                dummies.add(g.lower())
+    if not dummies:
+        return txt
+    out = PLACEBOED.sub(" ", txt)
+    # a drug named ONLY as a dummy must not survive elsewhere in the label
+    for d in dummies:
+        out = re.sub(r"\b%s\b" % re.escape(d), " ", out, flags=re.I)
+    out = re.sub(r"[\s/,-]+", " ", out).strip()
+    # A PURE PLACEBO ARM MUST COME BACK UNTOUCHED.
+    # 'Colchicine placebo' and 'Matching placebo' resolve to nothing at all --
+    # they name no received drug because there is none. The first cut of this
+    # helper returned that empty string, which deleted the control word, and the
+    # INVERTED arrangement of the commonest control label in this corpus went
+    # from a correct FAIL to a bare PASS. A fix that fails toward comfort while
+    # repairing a defect that fails toward comfort. Replayed against the two
+    # labels core_tokens' own docstring names.
+    if not re.search(r"[a-z]", out, re.I):
+        return txt
+    return out
+
+
+def assess(trial):
+    arms = {a.get("role"): a for a in (trial.get("arms") or [])}
+    i, c = arms.get("intervention"), arms.get("control")
+    if not i or not c:
+        return "UNCHECKABLE", "fewer than two labelled arms"
+    li, lc = (i.get("label") or "").strip(), (c.get("label") or "").strip()
+    if not li or not lc:
+        return "UNCHECKABLE", "an arm carries no label"
+    if OPAQUE.match(li) or OPAQUE.match(lc):
+        return "UNCHECKABLE", "arm labels identify nothing: %r vs %r" % (li, lc)
+    if li.lower() == lc.lower():
+        return "FAIL", "both arms carry the SAME label: %r" % li
+    # A placebo/control word on exactly one side settles that this IS a real
+    # comparison. IT DOES NOT SETTLE WHICH SIDE IS WHICH, and this branch used to
+    # stop there.
+    #
+    # DEFECT ONE, FOUND 2026-08-18: THIS REGEX COULD NEVER MATCH ANYTHING.
+    # The file carried literal BACKSPACE bytes (0x08) where the word-boundary
+    # escapes belong, so the pattern required a control character no arm label
+    # has ever contained. It had been so since the gate was written at bc82518d7,
+    # which means the "control arm identified" branch HAD NEVER ONCE EXECUTED.
+    # The gate still returned PASS on those objects, through the token comparison
+    # below, so nothing ever looked wrong: a dead branch inside a live gate is
+    # invisible precisely because the gate keeps answering.
+    # scripts/ssot_signals.py carried the same corruption on three lines.
+    # Cause: the file was written by a program through a non-raw string, so the
+    # escape became 0x08 on the way to disk -- and no reader of the source can
+    # see it, because a backspace renders as nothing.
+    #
+    # DEFECT TWO, in the logic the repair exposed: PCSK9_REVIEW records, for BOTH
+    # of its trials, an arm labelled "Placebo" carrying role TREATMENT and an arm
+    # labelled "Evolocumab" (and "Alirocumab 75 mg Q2W") carrying role CONTROL.
+    # Even with the regex working, the old test was "the control word is on
+    # exactly one side" -- which is TRUE when the word is on the WRONG side. The
+    # evidence that could have settled the DIRECTION was used only to confirm
+    # that a DIFFERENCE existed, and the branch then reported "(control arm
+    # identified)" about a page whose intervention arm is the placebo.
+    #
+    # It matters because the arithmetic can be right while every label is wrong,
+    # which is how EAST-AFNET 4's swapped arms survived on ABLATION_AF: "the
+    # derived odds ratio was unaffected in MAGNITUDE, which is exactly why
+    # nothing caught it -- the numbers were internally consistent and the labels
+    # were not."
+    CTRL = re.compile(r"\bplacebo\b|\bsham\b|\bvehicle\b|\busual care\b|"
+                      r"\bstandard care\b|\bwarfarin\b", re.I)
+    #
+    # DEFECT THREE, FOUND 2026-08-18 WHILE READING ENGAGE AF-TIMI 48's REGISTRY
+    # ARM TITLES. In a DOUBLE-DUMMY trial every arm label names BOTH drugs:
+    # 'High Dose Edoxaban/Placebo Warfarin' against 'Warfarin/Placebo Edoxaban'.
+    # The control words then sit on BOTH sides, so ci and cc are both true, BOTH
+    # direction branches below are skipped, and the token fallback returns a bare
+    # PASS having established NOTHING about which arm is which.
+    #
+    # Verified by construction rather than by reading: with the two labels
+    # SWAPPED -- roles inverted, the exact defect DEFECT TWO was repaired for --
+    # this gate returned PASS. It is the sixth instrument defect logged this week
+    # and the sixth to fail toward COMFORT.
+    #
+    # The fix is semantic, not a wider word list: in a double-dummy label
+    # 'placebo X' means THIS ARM DID NOT RECEIVE X. Resolve the label to what the
+    # arm actually received, THEN ask which side the control word is on.
+    # SYMMETRY GATE ON THE RESOLUTION ITSELF. Resolve only when BOTH labels name
+    # a placebo -- that is what a double dummy IS. When only one does, that arm is
+    # the placebo arm and the word is the most informative token present; deleting
+    # it is how the second cut of this fix turned eight correct FAILs green.
+    PBO = re.compile(r"\bplacebo\b", re.I)
+    if PBO.search(li) and PBO.search(lc):
+        li_r, lc_r = received_label(li), received_label(lc)
+    else:
+        li_r, lc_r = li, lc
+    ci, cc = bool(CTRL.search(li_r)), bool(CTRL.search(lc_r))
+    if ci and not cc:
+        return ("FAIL",
+                "THE ROLES ARE INVERTED: the arm carrying role INTERVENTION is "
+                "labelled %r and the arm carrying role CONTROL is labelled %r. "
+                "A placebo is not an intervention. The pooled estimate may still "
+                "be right in MAGNITUDE -- that is what lets this survive -- but "
+                "every label a reader sees is on the wrong arm" % (li, lc))
+    if cc and not ci:
+        return ("PASS", "%r vs %r (control arm named, and on the control side)"
+                % (li, lc))
+    ti, tc = core_tokens(li), core_tokens(lc)
+    if ti and tc and ti == tc:
+        kind = "the same drug at two doses" if (DOSE.search(li) or DOSE.search(lc)) \
+            else "the same agent in both arms"
+        return "FAIL", "both arms name %s: %r vs %r" % (kind, li, lc)
+    if ti and tc and (ti & tc) and not (ti - tc) and not (tc - ti):
+        return "FAIL", "arms share every drug token: %r vs %r" % (li, lc)
+    return "PASS", "%r vs %r" % (li, lc)
+
+
+def _as_legacy(t):
+    """Normalised trial -> the shape assess() already understands."""
+    arms = t.get("arms") or []
+    tre = next((a for a in arms if a.get("role") == "treatment"), None)
+    con = next((a for a in arms if a.get("role") == "control"), None)
+    # assess() keys arms by ROLE and expects "intervention"/"control". The v1
+    # objects say "treatment"/"control". The first cut of this shim emitted
+    # top-level intervention/comparator keys, which assess() does not read, so
+    # the gate went on reporting UNCHECKABLE -- a fix that looked applied and
+    # changed nothing. Verified by running it, not by reading it.
+    return {"arms": [{"role": "intervention", "label": (tre or {}).get("label", "")},
+                     {"role": "control", "label": (con or {}).get("label", "")}],
+            "nct": t.get("nct"), "name": t.get("name")}
+
+
+def page_verdict(path):
+    d = json.loads(open(path, encoding="utf-8", errors="replace").read())
+    # BOTH SCHEMAS. This read canonical.trials only, so it returned UNCHECKABLE
+    # on 100% of the v1 objects -- the architecture the standard describes. It
+    # was not broken; it was pointed at the other artefact family, and it said
+    # so honestly rather than passing, which is the only reason this was visible.
+    import object_shapes as _os
+    rows = [assess(t["_raw"] if t["_schema"] == "canonical" else _as_legacy(t))
+            for t in _os.trials_of(d)]
+    if not rows:
+        return "UNCHECKABLE", []
+    if any(v == "FAIL" for v, _ in rows):
+        return "FAIL", rows
+    if all(v == "UNCHECKABLE" for v, _ in rows):
+        return "UNCHECKABLE", rows
+    return "PASS", rows
+
+
+def selftest() -> int:
+    ok = True
+    # LABEL-LEVEL CASES -- these need no fixture on disk, so they run everywhere,
+    # including in a clone that does not carry the corpus extract the four
+    # object-level cases below depend on. Every INVERTED row is the constructible
+    # failing input for the row above it: if the gate cannot tell the two apart it
+    # is not establishing direction, whatever it prints.
+    LABELS = [
+        ("double-dummy, correct",  "High Dose Edoxaban/Placebo Warfarin",
+                                    "Warfarin/Placebo Edoxaban", "PASS"),
+        ("double-dummy, INVERTED", "Warfarin/Placebo Edoxaban",
+                                    "High Dose Edoxaban/Placebo Warfarin", "FAIL"),
+        ("registry casing, correct", "high dose edoxaban/placebo warfarin",
+                                      "Warfarin/placebo edoxaban", "PASS"),
+        ("registry casing, INVERTED", "Warfarin/placebo edoxaban",
+                                       "high dose edoxaban/placebo warfarin", "FAIL"),
+        ("drug vs warfarin",        "Dabigatran 150 mg", "Warfarin", "PASS"),
+        ("drug vs warfarin, INVERTED", "Warfarin", "Dabigatran 150 mg", "FAIL"),
+        ("pure placebo arm",        "Colchicine", "Colchicine placebo", "PASS"),
+        ("pure placebo, INVERTED",  "Colchicine placebo", "Colchicine", "FAIL"),
+        ("matching placebo + SOC",  "MK-3415 + SOC", "Placebo + SOC", "PASS"),
+        ("matching placebo, INVERTED", "Placebo + SOC", "MK-3415 + SOC", "FAIL"),
+        ("same drug, two doses",    "Dabigatran dose 2", "Dabigatran dose 1", "FAIL"),
+    ]
+    for name, li, lc, want in LABELS:
+        v, why = assess({"arms": [{"role": "intervention", "label": li},
+                                  {"role": "control", "label": lc}]})
+        good = v == want
+        ok &= good
+        print("  %-48s -> %-11s (want %s) %s"
+              % (name, v, want, "correct" if good else "WRONG"))
+    print("")
+    cases = [("POSITIVE DOAC_AF (RE-LY dabigatran vs dabigatran)", "DOAC_AF_REVIEW", "FAIL"),
+             ("POSITIVE HEPATITIS_B (TAF vs TAF, no TDF arm)", "HEPATITIS_B_TAF_TDF_REVIEW", "FAIL"),
+             ("NEGATIVE sotagliflozin trials (drug vs placebo)", "SOTAGLIFLOZIN_HF_REVIEW", "PASS"),
+             ("NEGATIVE FINERENONE (finerenone vs placebo)", "FINERENONE_REVIEW", "PASS")]
+    for name, stem, want in cases:
+        p = os.path.join(OBJ, stem + ".html.canonical.json")
+        if not os.path.exists(p):
+            print("  %-48s object absent -- NOT PROVEN" % name); ok = False; continue
+        v, rows = page_verdict(p)
+        good = v == want
+        ok &= good
+        print("  %-48s -> %-11s (want %s) %s" % (name, v, want, "correct" if good else "WRONG"))
+        for rv, why in rows:
+            if rv != "PASS":
+                print("        %s: %s" % (rv, why[:96]))
+    print("\nWHAT A FAILURE WOULD LOOK LIKE: DOAC_AF passing, which would leave a review "
+          "titled DOAC-versus-warfarin containing no such comparison in any trial.")
+    print("AND, since 2026-08-18: any INVERTED row above passing. A double-dummy trial "
+          "names both drugs in both arm labels, so a reader of the raw label cannot "
+          "tell the arms apart -- and neither could this gate until it was asked to "
+          "resolve what each arm actually RECEIVED.")
+    print("-> SELFTEST PASS" if ok else "-> SELFTEST FAILED")
+    return 0 if ok else 1
+
+
+def main() -> int:
+    if "--selftest" in sys.argv:
+        return selftest()
+    paths = sorted(glob.glob(sys.argv[1]))
+    tot = {"PASS": 0, "FAIL": 0, "UNCHECKABLE": 0}
+    hits = []
+    for p in paths:
+        try:
+            v, rows = page_verdict(p)
+        except Exception:
+            continue
+        tot[v] += 1
+        if v == "FAIL":
+            hits.append((os.path.basename(p).replace(".html.canonical.json", ""),
+                         [w for rv, w in rows if rv == "FAIL"][:2]))
+    n = sum(tot.values())
+    print("objects swept: %d" % n)
+    for k in ("PASS", "FAIL", "UNCHECKABLE"):
+        print("  %-12s %d" % (k, tot[k]))
+    d = tot["PASS"] + tot["FAIL"]
+    print("  rate among CHECKABLE pages: %d/%d = %.1f%%"
+          % (tot["FAIL"], d, 100 * tot["FAIL"] / d) if d else "  no checkable pages")
+    for pg, why in sorted(hits)[:25]:
+        print("    %-46s %s" % (pg[:46], why[0][:80] if why else ""))
+    return 1 if tot["FAIL"] else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

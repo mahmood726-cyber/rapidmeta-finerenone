@@ -1,0 +1,229 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/harness_gate.py
+
+--- THE FILE, IN FULL ---
+#!/usr/bin/env python
+"""HARNESS GATE -- runs the artefact-decidable detectors and blocks the push.
+
+Install as `scripts/harness_gate.py` in the corpus repo and add the block in
+HANDOFF_CORPUS_LANE.md Sec 3a to `.githooks/pre-push`. This file does not edit
+the hook; the corpus lane holds it.
+
+  exit 0   every artefact-decidable check PASSed or was NOT APPLICABLE
+  exit 1   at least one FAIL -- a real defect, push blocked
+  exit 2   the registry is unfit, or the INVALID share is above the ceiling.
+           NOT a pass. A gate that cannot see must not wave things through.
+
+WHY THIS EXITS 2 RATHER THAN 0 ON AN UNFIT REGISTRY
+    Because `regression_check.py` "contained no sys.exit at all... it exited 0
+    whatever it found", and the hook it lived under read `$?` from a pipe. Both
+    layers had to be repaired. This file is the second layer for the harness, and
+    the first thing it does is prove it can return non-zero.
+
+WHAT A FULL PASS DOES NOT ESTABLISH -- written in advance, per gate_integrity.py
+    - NOT that the page is correct. Twenty of thirty detectors run here; ten are
+      RETRIEVAL_SCOPED and cannot run against a static artefact. They are listed
+      by name in the output every run, so silence is never mistaken for coverage.
+    - NOT that the artefact adapter extracted everything. A field absent from the
+      artefact yields NOT APPLICABLE, which is not a clean result.
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+from nafis_harness import Verdict, build_registry            # noqa: E402
+from nafis_harness.artefact import (ARTEFACT_DECIDABLE,      # noqa: E402
+                                    RETRIEVAL_SCOPED, payloads_for)
+
+
+def run_artefact(reg, artefact: dict) -> list:
+    results = []
+    for check_id, payload in payloads_for(artefact):
+        if check_id not in ARTEFACT_DECIDABLE:
+            continue
+        results.append((check_id, payload, reg.run(check_id, payload)))
+    return results
+
+
+def main(argv=None) -> int:
+    ap = argparse.ArgumentParser(prog="harness_gate")
+    ap.add_argument("artefacts", nargs="*",
+                    help="JSON files, each one build artefact")
+    ap.add_argument("--invalid-ceiling", type=float, default=0.5)
+    ap.add_argument("--quiet", action="store_true")
+    args = ap.parse_args(argv)
+
+    reg = build_registry()
+    fitness = reg.self_test()
+    if not fitness["ok"]:
+        print("[harness-gate] REGISTRY UNFIT: " + ", ".join(fitness["unfit"]),
+              file=sys.stderr)
+        print("[harness-gate] Refusing to report a result from a registry whose "
+              "own controls misbehave.", file=sys.stderr)
+        return 2
+
+    if not args.artefacts:
+        print("[harness-gate] No artefacts given; nothing to check. This is a "
+              "scoped pass, not a clean bill.")
+        return 0
+
+    fails, invalids, passes, n_files = [], [], 0, 0
+    for path in args.artefacts:
+        if not os.path.exists(path):
+            print(f"[harness-gate] artefact not found: {path}", file=sys.stderr)
+            return 2
+        with open(path, encoding="utf-8") as fh:
+            art = json.load(fh)
+        n_files += 1
+        for check_id, payload, r in run_artefact(reg, art):
+            if r.verdict is Verdict.FAIL:
+                fails.append((path, check_id, r))
+            elif r.verdict is Verdict.INVALID:
+                invalids.append((path, check_id, r))
+            else:
+                passes += 1
+
+    total = passes + len(fails) + len(invalids)
+
+    # ZERO EXECUTIONS IS NOT A PASS (corpus lane, 2026-08-17).
+    #
+    # Before the exporter existed this gate was handed real SSOT objects, matched
+    # NOTHING in them, and printed PASS on 0 check executions. Installed, green,
+    # seeing nothing -- and `wiring.detect()` would have flipped the ledger
+    # headline to ~50% while no detector ran on anything we build.
+    #
+    # A silently non-recognising exporter is otherwise INDISTINGUISHABLE FROM A
+    # CLEAN CORPUS, which is the most dangerous state available here. The harness
+    # already argues this for INVALID; "the adapter recognised nothing" is the
+    # same statement one layer earlier, so it takes the same exit code.
+    if n_files and total == 0:
+        # THE FOURTH INSTRUMENT TO ASSUME EVERY REVIEW POOLS. The tombstone case was encoded in
+        # the export gate; the no-pool review was encoded in the regression check and then in
+        # the exporter. This is the same missing concept one layer further on: an artefact
+        # exported from a topic that PUBLISHES NO ESTIMATE contains no pool, no per-trial rows
+        # and no poolable verdict, so zero check executions is the CORRECT result rather than
+        # an adapter that recognised nothing.
+        #
+        # ENCODED, NOT EXEMPTED. The artefact must SAY it publishes nothing. An artefact that
+        # claims a pool and yields no checks still returns 2 -- that is the state this gate
+        # exists for, and it stays reachable.
+        declares, silent = [], []
+        for f in args.artefacts:
+            try:
+                with open(f, "r", encoding="utf-8") as fh:
+                    a = json.load(fh)
+            except Exception:
+                silent.append(os.path.basename(f))
+                continue
+            # READ THE ARTEFACT'S OWN STAMP. The gate never sees the SSOT object, so it cannot
+            # re-derive this -- the exporter, which does see the object, writes
+            # `publishes_no_estimate` onto the artefact. An artefact with no stamp that yields
+            # nothing is still a failure, which keeps this branch reachable.
+            pne = a.get("publishes_no_estimate")
+            if pne:
+                declares.append("%s (k=%s, %s)"
+                                % (a.get("page_id") or os.path.basename(f),
+                                   pne.get("k"), pne.get("because")))
+            else:
+                silent.append(a.get("page_id") or os.path.basename(f))
+        if declares and not silent:
+            if not args.quiet:
+                print("[harness-gate] %d artefact(s) yielded zero checks BY DESIGN: %s. "
+                      "PUBLISHES-NOTHING and UNRECOGNISED are different states and are never "
+                      "summed." % (len(declares), ", ".join(declares)))
+            return 0
+        print("[harness-gate] %d artefact(s) yielded ZERO check executions. The "
+              "adapter recognised nothing in them." % n_files, file=sys.stderr)
+        if silent:
+            print("[harness-gate] These do NOT declare that they publish nothing, so zero "
+                  "checks is a failure rather than a design: %s" % ", ".join(silent),
+                  file=sys.stderr)
+        print("[harness-gate] That is not a pass. Nothing was checked.",
+              file=sys.stderr)
+        return 2
+    if not args.quiet:
+        print(f"[harness-gate] {n_files} artefact(s), {total} check execution(s): "
+              f"{passes} PASS, {len(fails)} FAIL, {len(invalids)} INVALID")
+        print(f"[harness-gate] artefact-decidable detectors: "
+              f"{len(ARTEFACT_DECIDABLE)}")
+        print(f"[harness-gate] NOT RUN HERE (retrieval-scoped, {len(RETRIEVAL_SCOPED)}): "
+              + ", ".join(c.split('_')[0] for c in RETRIEVAL_SCOPED))
+        print("[harness-gate] Those are not covered by this gate. Silence from "
+              "them is not evidence.")
+
+    for path, check_id, r in fails:
+        print(f"\n[harness-gate] FAIL {check_id}\n  artefact: {path}\n"
+              f"  {r.reason}")
+        if r.witness:
+            print(f"  observed : {r.witness.observed}")
+            print(f"  at       : {r.witness.locator}")
+
+    # AN INVALID IS A CHECK THAT RAN AND COULD NOT SEE, AND IT WAS NAMED ONLY
+    # WHEN THE CEILING WAS BREACHED. Below the ceiling the count went into the
+    # summary line and nothing said WHICH detector went blind or why -- this
+    # repository's own rule broken inside its own gate, since silence from a
+    # detector is not evidence and a bare "2 INVALID" is silence with a number
+    # on it.
+    if invalids and not args.quiet:
+        print("\n[harness-gate] INVALID -- ran but could not see. Not a pass:")
+        for path, check_id, r in invalids:
+            print(f"  {check_id} on {os.path.basename(path)}: {r.reason[:130]}")
+
+    if total and len(invalids) / total > args.invalid_ceiling:
+        print(f"\n[harness-gate] INSTRUMENT DEGRADED: {len(invalids)}/{total} "
+              f"checks returned INVALID, above the "
+              f"{args.invalid_ceiling:.0%} ceiling.", file=sys.stderr)
+        for path, check_id, r in invalids[:5]:
+            print(f"  INVALID {check_id} on {path}: {r.reason[:140]}",
+                  file=sys.stderr)
+        return 2
+
+    if fails:
+        print(f"\n[harness-gate] {len(fails)} defect(s). This gate has no override.")
+        return 1
+
+    print("[harness-gate] PASS.")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

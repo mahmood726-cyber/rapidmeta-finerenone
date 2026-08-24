@@ -1,0 +1,941 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a03222-2dda-7dc3-b87b-57058391b69c
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/prose_claim_gate.py
+
+--- THE FILE, IN FULL ---
+"""Validate the SENTENCES against the object, the way the values already are.
+
+The specification is a line from an independent review of this paper:
+
+    "Your guard rails are checking the numbers; nothing is checking the
+     sentences."
+
+Every projected number reconciled against its quoted metafor output. No
+arithmetic error was found. And in the same document the Discussion opened
+"sacubitril/valsartan reduced the hazard" and the Conclusions ended "One trial
+establishes this benefit" -- against a pooled interval containing the null; the
+Methods said the search was not reproducible while the executed query strings sat
+in the object; and three sections said no comparison with published syntheses was
+attempted while that comparison was a major section with three tables.
+
+Not one of those is a wrong number. Every one is a wrong sentence, and a numeric
+gate cannot see any of them.
+
+THREE CLASSES, because these are the three ways a sentence goes wrong here:
+
+  DIRECTION   a claim of benefit, reduction or superiority made against an
+              interval that includes the null.
+  EXISTENCE   a claim that something was not done, or is not recorded, when the
+              object contains it.
+  COUNT       a claim about how many studies, checked by k_consistency_gate.
+
+Usage:
+  python prose_claim_gate.py <object.json>
+  python prose_claim_gate.py --selftest
+"""
+import io
+import json
+import os
+import re
+import sys
+
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, HERE)
+from verdict import Verdict, PASS, FAIL, INVALID, summarise  # noqa: E402
+
+# Wording that asserts the intervention worked. Hedged forms are deliberately
+# NOT here: "may reduce", "is compatible with a reduction" and "favours" state
+# a direction without asserting it was established.
+DIRECTION = [
+    r"\breduced the (?:hazard|risk|rate)\b",
+    r"\bestablishes? (?:this|the) benefit\b",
+    r"\bwas (?:effective|superior)\b",
+    r"\bdemonstrat\w+ (?:a )?(?:benefit|reduction|superiority)\b",
+    r"\bconfers? a benefit\b",
+    r"\bimproves? (?:survival|outcomes)\b",
+    r"\bsignificantly (?:reduced|lowered|improved)\b",
+]
+
+# Claims that something is absent. Each carries a probe into the object; if the
+# probe finds the thing, the sentence is false.
+EXISTENCE = [
+    (r"no executed query string is recorded",
+     lambda d: any((db.get("query_as_executed") or "").strip()
+                   for db in (d.get("search") or {}).get("databases") or []),
+     "search.databases[].query_as_executed"),
+    (r"not reproducible from this document",
+     lambda d: any((db.get("query_as_executed") or "").strip()
+                   for db in (d.get("search") or {}).get("databases") or []),
+     "search.databases[].query_as_executed"),
+    (r"does not attempt a formal comparison with previous syntheses",
+     lambda d: bool((d.get("published_comparison") or {}).get("checks")),
+     "published_comparison.checks"),
+    (r"no per-domain RoB-2 assessment exists",
+     lambda d: bool((d.get("rob2") or {}).get("trials")),
+     "rob2.trials"),
+    (r"no risk-of-bias assessment (?:was|has been) (?:performed|done)",
+     lambda d: bool((d.get("rob2") or {}).get("trials")),
+     "rob2.trials"),
+    (r"identification counts .{0,40}(?:unrecoverable|not recorded)",
+     lambda d: any(re.search(r"\d", str(db.get("records_retrieved") or ""))
+                   for db in (d.get("search") or {}).get("databases") or []),
+     "search.databases[].records_retrieved"),
+]
+
+
+def walk(o, p=""):
+    if isinstance(o, dict):
+        for k, v in o.items():
+            yield from walk(v, p + "." + str(k))
+    elif isinstance(o, list):
+        for i, v in enumerate(o):
+            yield from walk(v, p + "[%d]" % i)
+    elif isinstance(o, str):
+        yield p, o
+
+
+# Only this review's own voice. Quoted sources, screening records and the
+# correction log all legitimately contain sentences we do not assert.
+SKIP = (".screening", ".sources", ".rob2", ".citations", ".claims_corrected",
+        ".published_comparison.checks", ".reconciliation", "_corrected",
+        ".methodological_authority", "decision_corrected", "quote")
+
+
+# ANY `by_outcome.<oid>.` segment, not only the one under `results`.
+#
+# The first version matched `^results.by_outcome.<oid>.` alone and therefore could not
+# attribute a string living at `inputs.trials[0].by_outcome.hfh_cvd_recurrent.
+# trial_level_significance` -- which names its outcome perfectly well. It reported that
+# claim as unattributable on iv-iron-hf and returned INVALID.
+#
+# THAT IS THE SAME DEFECT THIS FIX EXISTS TO REMOVE, COMMITTED INSIDE THE FIX: looking in
+# ONE place and reporting what is not there as absent. The claim was attributable, to an
+# outcome whose interval EXCLUDES the null, so the correct verdict was PASS.
+OUTCOME_PATH = re.compile(r"(?:^|\.)by_outcome\.([^.\[]+)\.")
+
+
+def _pooled_outcomes(d):
+    """Every outcome publishing an interval, keyed by id. Never 'the first one'."""
+    out = {}
+    for oid, blk in ((d.get("results") or {}).get("by_outcome") or {}).items():
+        p = (blk or {}).get("pooled") or {}
+        if p.get("ci_low") is not None and p.get("ci_high") is not None:
+            out[oid] = p
+    return out
+
+
+def check(d):
+    """Direction claims are matched to THE OUTCOME THEY ARE ABOUT, or refused.
+
+    THIS GATE PREVIOUSLY TOOK THE FIRST OUTCOME'S INTERVAL AND JUDGED EVERY SENTENCE ON
+    THE OBJECT AGAINST IT:
+
+        for res in (...).values():
+            pooled = res.get("pooled") or {}
+            break
+
+    `sglt2-hf` publishes THREE pooled outcomes. A benefit claim about the three-component
+    composite was tested against whichever interval dict ordering put first, and passing
+    that is a coincidence rather than a check. EVERY PASS THIS GATE EVER ISSUED ON A
+    MULTI-OUTCOME OBJECT IS UNEARNED, and its history over that population is UNMEASURED
+    rather than clean.
+
+    Same family as reading `outcomeMeasures[0]` as the primary: the object declares which
+    outcome a sentence is about, in the sentence's own path, and a consumer that cannot
+    attribute must REFUSE rather than pick one.
+
+    AND IT DOES NOT FALL BACK TO "the only one" WITHOUT VERIFYING THERE IS ONLY ONE. Where
+    exactly one outcome publishes an interval, an unattributable claim is judged against it
+    and the witness SAYS that the singleness was checked. Where several do, the claim is
+    INVALID -- not passed, not failed.
+    """
+    out = []
+    pooled_by_oid = _pooled_outcomes(d)
+    if not pooled_by_oid:
+        return [Verdict("pooled interval available", INVALID,
+                        detail="no pooled interval, so a direction claim cannot "
+                               "be judged either way")]
+
+    strings = [(p, t) for p, t in walk(d)
+               if not any(s in p for s in SKIP)]
+
+    # Attribute every direction hit to an outcome, by the PATH it was found at.
+    attributed = {}          # oid -> [(path, matched text)]
+    unattributed = []
+    for p, t in strings:
+        for pat in DIRECTION:
+            m = re.search(pat, t, re.I)
+            if not m:
+                continue
+            mo = OUTCOME_PATH.search(p)
+            oid = mo.group(1) if mo else None
+            if oid in pooled_by_oid:
+                attributed.setdefault(oid, []).append((p, m.group(0)))
+            else:
+                unattributed.append((p, m.group(0)))
+            break
+
+    # A claim that names no outcome is judged only where there is exactly one to name.
+    if unattributed:
+        if len(pooled_by_oid) == 1:
+            only = list(pooled_by_oid)[0]
+            attributed.setdefault(only, []).extend(unattributed)
+            unattributed = []
+            singleton_note = ("attributed to %r because this object publishes exactly one "
+                              "pooled interval, which was CHECKED and not assumed" % only)
+        else:
+            singleton_note = None
+            out.append(Verdict(
+                "direction claims are attributable to an outcome", INVALID,
+                detail="%d benefit claim(s) name no outcome, and this object publishes %d "
+                       "pooled intervals (%s). A claim that cannot be attributed is NOT "
+                       "judged against whichever interval comes first: %s"
+                       % (len(unattributed), len(pooled_by_oid),
+                          ", ".join(sorted(pooled_by_oid)),
+                          "; ".join("%s: %r" % (a.split(".")[-1], b)
+                                    for a, b in unattributed[:4]))))
+    else:
+        singleton_note = None
+
+    # Now judge each outcome against ITS OWN interval.
+    for oid in sorted(pooled_by_oid):
+        p = pooled_by_oid[oid]
+        lo, hi = p["ci_low"], p["ci_high"]
+        crosses = lo <= 1.0 <= hi
+        hits = attributed.get(oid, [])
+        label = "direction claims for %s" % oid
+        if crosses and hits:
+            out.append(Verdict(
+                label, FAIL,
+                detail="pooled %.3f (%.3f to %.3f) INCLUDES 1, but %d claim(s) assert "
+                       "benefit: %s%s"
+                       % (p.get("point", float("nan")), lo, hi, len(hits),
+                          "; ".join("%s: %r" % (a.split(".")[-1], b) for a, b in hits[:4]),
+                          "  [%s]" % singleton_note if singleton_note else "")))
+        elif crosses:
+            out.append(Verdict(
+                label, PASS,
+                witness="pooled %.3f (%.3f to %.3f) includes 1; scanned %d review-voice "
+                        "strings against %d benefit patterns and none attributed to this "
+                        "outcome matched"
+                        % (p.get("point", float("nan")), lo, hi, len(strings),
+                           len(DIRECTION)),
+                failure_would_be="a sentence asserting benefit for THIS outcome while its "
+                                 "own interval contains no effect"))
+        else:
+            out.append(Verdict(
+                label, PASS,
+                witness="pooled %.3f (%.3f to %.3f) excludes 1, so a benefit claim about "
+                        "this outcome is supported; %d present"
+                        % (p.get("point", float("nan")), lo, hi, len(hits)),
+                failure_would_be="n/a while this outcome's interval excludes the null"))
+    # EXISTENCE
+    for pat, probe, where in EXISTENCE:
+        said = [(p, t) for p, t in strings if re.search(pat, t, re.I)]
+        if not said:
+            continue
+        try:
+            exists = bool(probe(d))
+        except Exception:                                 # noqa: BLE001
+            out.append(Verdict("existence claim %r" % pat[:38], INVALID,
+                               detail="probe into %s raised" % where))
+            continue
+        if exists:
+            out.append(Verdict("existence claim %r" % pat[:38], FAIL,
+                               detail="the paper says this is absent, but %s is "
+                                      "populated. Stated at %s"
+                                      % (where, said[0][0])))
+        else:
+            out.append(Verdict("existence claim %r" % pat[:38], PASS,
+                               witness="claim made at %s and %s is indeed empty"
+                                       % (said[0][0], where),
+                               failure_would_be="the object containing what the "
+                                                "sentence says it does not"))
+    return out
+
+
+def _corpus_cases():
+    """Failing inputs BUILT FROM REAL OBJECTS, not from fixtures.
+
+    WHY THIS EXISTS, and it is about this gate's own result rather than the corpus.
+
+    After the attribution rewrite this gate returned 28 judged, 28 PASS, 0 FAIL, 0 INVALID
+    across the corpus. THAT IS THE LEAST TRUSTWORTHY RESULT IT COULD HAVE PRODUCED: a gate
+    that was broken and now passes everything is indistinguishable, FROM ITS OWN OUTPUT,
+    from a gate broken in a new direction. It is hours old, has been rewritten twice, and
+    its first finding after the rewrite was a FALSE INVALID.
+
+    A clean bill from a young instrument is a claim about the instrument. So the same
+    treatment the method-claim detector got: take real objects and construct inputs that
+    MUST fail, from the corpus rather than from a fixture, and confirm both verdicts.
+
+    Skipped -- never silently passed -- if the objects are unavailable.
+    """
+    ssot = os.path.join(os.path.dirname(HERE), "ssot")
+    cases = []
+
+    # FAIL: a real object, a real null-crossing interval, and a real DIRECTION phrase
+    # placed at THAT outcome's own path. iv-iron-hf's `acm` is 0.978 (0.752 to 1.271).
+    fp = os.path.join(ssot, "iv-iron-hf", "iv-iron-hf.json")
+    if os.path.exists(fp):
+        d = json.load(io.open(fp, encoding="utf-8"))
+        blk = ((d.get("results") or {}).get("by_outcome") or {}).get("acm")
+        p = (blk or {}).get("pooled") or {}
+        if blk is not None and p.get("ci_low", 9) <= 1.0 <= p.get("ci_high", 0):
+            blk["injected_for_selftest"] = ("Iron repletion reduced the risk of death "
+                                            "from any cause in this population.")
+            cases.append(("CORPUS: benefit claim at an outcome whose OWN interval "
+                          "crosses the null (iv-iron-hf.acm)", d, FAIL))
+
+    # INVALID: a real multi-outcome object, and a claim at a path naming NO outcome.
+    fp = os.path.join(ssot, "sglt2-hf", "sglt2-hf.json")
+    if os.path.exists(fp):
+        d = json.load(io.open(fp, encoding="utf-8"))
+        if len(_pooled_outcomes(d)) > 1:
+            d["injected_for_selftest"] = ("The treatment significantly reduced events "
+                                          "across the programme.")
+            cases.append(("CORPUS: unattributable claim against %d intervals must be "
+                          "INVALID, not judged against the first (sglt2-hf)"
+                          % len(_pooled_outcomes(d)), d, INVALID))
+    return cases
+
+
+def selftest():
+    base = {"results": {"by_outcome": {"o": {
+        "pooled": {"point": 0.872, "ci_low": 0.746, "ci_high": 1.018}}}}}
+    cases = []
+    d1 = json.loads(json.dumps(base))
+    d1["manuscript"] = {"d": "sacubitril/valsartan reduced the hazard of a first "
+                             "cardiovascular death"}
+    cases.append(("benefit claim against a null-containing interval", d1, FAIL))
+    d2 = json.loads(json.dumps(base))
+    d2["manuscript"] = {"d": "One trial establishes this benefit"}
+    cases.append(("'establishes this benefit' against the same interval", d2,
+                  FAIL))
+    d3 = json.loads(json.dumps(base))
+    d3["manuscript"] = {"d": "the pooled interval includes no difference and is "
+                             "compatible with no effect"}
+    cases.append(("NEGATIVE: an honest statement of a null result", d3, PASS))
+    d4 = json.loads(json.dumps(base))
+    d4["manuscript"] = {"d": "No executed query string is recorded for any "
+                             "database."}
+    d4["search"] = {"databases": [{"query_as_executed": "(sacubitril[tiab])"}]}
+    cases.append(("says no query recorded while the object holds one", d4, FAIL))
+    d5 = json.loads(json.dumps(base))
+    d5["manuscript"] = {"d": "No executed query string is recorded for any "
+                             "database."}
+    d5["search"] = {"databases": [{"query_as_executed": ""}]}
+    cases.append(("NEGATIVE: the same sentence when it is true", d5, PASS))
+    d6 = {"results": {"by_outcome": {}}}
+    cases.append(("no pooled interval -> INVALID, not PASS", d6, INVALID))
+    # a benefit claim is legitimate when the interval supports it
+    d7 = json.loads(json.dumps(base))
+    d7["results"]["by_outcome"]["o"]["pooled"] = {"point": 0.839,
+                                                  "ci_low": 0.743,
+                                                  "ci_high": 0.948}
+    d7["manuscript"] = {"d": "sacubitril/valsartan reduced the hazard"}
+    cases.append(("NEGATIVE: benefit claim when the interval excludes the null",
+                  d7, PASS))
+    corpus = _corpus_cases()
+    cases.extend(corpus)
+    ok = True
+    print("=== the prose-claim gate ===")
+    for name, dd, want in cases:
+        vs = check(dd)
+        got = (FAIL if any(v.state == FAIL for v in vs)
+               else INVALID if any(v.state == INVALID for v in vs) else PASS)
+        good = got == want
+        ok &= good
+        print("  %-58s %-8s expected=%-8s %s"
+              % (name[:58], got, want, "correct" if good else "WRONG"))
+    print("\nprose-claim gate correct on every case:", ok)
+    return 0 if ok else 1
+
+
+if __name__ == "__main__":
+    if "--selftest" in sys.argv:
+        raise SystemExit(selftest())
+    d = json.load(open(sys.argv[1], encoding="utf-8"))
+    raise SystemExit(summarise(check(d), "prose:"))
+
+codex
+I’ll treat this as a defect hunt on the pasted packet only and will report only concrete failures with reproducing inputs.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=0; Get-Content -LiteralPath '"'scripts/prose_claim_gate.py' | ForEach-Object { "'$i++; '"'{0,4}: {1}' -f "'$i, $_ }' in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Get-Content -LiteralPath 'F:\\ProjectIndex\\INDEX.md' -TotalCount 40" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Get-Content -LiteralPath 'F:\\E156\\rewrite-workbook.txt' -TotalCount 40" in F:\rapidmeta-ssot-shell
+ succeeded in 375ms:
+<!-- sentinel:skip-file - portfolio registry; absolute paths ARE the data -->
+# C: Drive Project Index
+> **Last updated**: 2026-05-14 (C:\HTML apps focused repair batch continued: hub shell launch fix, static contracts across ten HTML app repos, NMA/living-meta/nma-dose-response landing and asset-link repairs, and NMA doc hardcoded-path cleanup. Prior SheafNMA v0.2.0, D-drive legacy smoke-contract continuation, CardioOracle lifecycle status freeze, C-drive model/project smoke-contract continuation, mahmood789 consolidation, Sentinel/Overmind JSONL and verification repair, C-drive reproducibility audit continuation, C-drive verification repair, D-drive repair batch, superapp, C-drive sweep, home-folder hardening, Trial Truthfulness Atlas, and portfolio notes retained below.)
+
+### C:\HTML apps focused repair batch (2026-05-14)
+> - `C:\HTML apps\hub\`: added a launchable `index.html` shell and static contract tests for required registry/runtime wiring; fixed `app.js` local `file://` launch resolution so the hub opened from `hub\index.html` links sibling apps from the parent HTML-apps directory instead of nesting paths under `hub`. Verification: `pytest -q -p no:cacheprovider` -> `3 passed`; `node --check app.js && node --check projects.js` -> PASS; headless Chrome smoke on `file:///mnt/c/HTML%20apps/hub/index.html` confirmed the page title and sibling app links. GitHub pushed: `mahmood726-cyber/hub` main `c1a6725`.
+> - `C:\HTML apps\evidence-board\`, `C:\HTML apps\focus-studio\`, `C:\HTML apps\kanban-lab\`: added pytest-visible static app shell contracts covering title/description, localStorage persistence hooks, key controls, and absence of unresolved templates or hardcoded local drive paths; added repo `.gitignore` entries for Python caches and `PROGRESS.md`. Verification: each `pytest -q -p no:cacheprovider` -> `2 passed` with the existing pytest `cache_dir` warning; scoped `git diff --check` -> PASS. GitHub pushed: `evidence-board` master `9a87c8b`, `focus-studio` master `0fa728b`, `kanban-lab` master `81cad38`.
+> - `C:\HTML apps\nma-pro-v2\`: fixed the landing page's broken app links from absent v6/v7 asset filenames to the current `e156-submission/assets/nma-pro-v8.0.html`, added static link-resolution contracts, and removed Sentinel P0 hardcoded local OneDrive paths from legacy docs. Verification: `pytest -q -p no:cacheprovider tests/test_smoke.py tests/test_static_links.py` -> `3 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=1 INFO=302` (pre-existing tracked autogen warning plus HTML a11y INFO). GitHub pushed: master `a2834e7` for the link fix and master `a74e385` for the P0 doc cleanup.
+> - `C:\HTML apps\IPD-Meta-Pro\` and `C:\HTML apps\Truthcert1\`: added static link-resolution contracts for landing-page local assets and canonical app entrypoints. Verification: `IPD-Meta-Pro` `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; `Truthcert1` same command -> `2 passed` with existing pytest `cache_dir` warning. GitHub pushed: `IPD-Meta-Pro` master `b26ee09`, `Truthcert1` master `81eddd3`.
+> - `C:\HTML apps\living-meta\`: repaired landing-page validation links that pointed to a missing HTML asset and an out-of-repo sibling path; linked the existing validation and limitations docs instead, and added a static link-resolution contract. Verification: `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=8` (pre-existing HTML a11y INFO). GitHub pushed: master `c3c8a9b`.
+> - `C:\HTML apps\Pairwiseai\`: added a static landing-page contract covering local link resolution, absence of unresolved templates/local drive paths, and the key app entrypoints under `e156-submission/assets`. Verification: `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=1731` (pre-existing HTML a11y INFO). GitHub pushed: master `2ade493`.
+> - `C:\HTML apps\nma-dose-response-app\`: pushed the existing smoke-blocker commit and added an E156 asset-bundle repair so `e156-submission\assets\index*.html` resolves its JS runtime dependencies from inside the assets folder; added a static link-resolution contract covering root and E156 app entrypoints. Verification: `pytest -q -p no:cacheprovider tests/test_smoke.py tests/test_static_links.py` -> `4 passed` with the existing pytest `cache_dir` warning; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=442` (pre-existing HTML a11y INFO). GitHub pushed: master `e95fae0` and `96594b6`.
+> - Push gate: Windows Git credential path succeeded after WSL Git lacked HTTPS credentials. Sentinel pre-push/manual scan verdicts were BLOCK=0; evidence-board INFO=18, focus-studio INFO=10, kanban-lab INFO=10, living-meta INFO=8, Pairwiseai INFO=1731, nma-dose-response-app INFO=442 (pre-existing P2 HTML accessibility notes); hub push emitted no Sentinel findings.
+> - Existing unrelated dirty files were left unstaged in these repos, mainly protocol/license/doc edits and untracked `paper\` outputs in the three app repos, plus pre-existing hub metadata/submission/style edits.
+
+### SheafNMA (2026-05-12; v0.2.0 real-NMA-corpus validation + 36-cell Ã— 1000-rep simulation + methods paper draft)
+> - `C:\Models\SheafNMA\` â€” cellular-sheaf inconsistency localization for network meta-analysis. v0.1.0 (2026-04-07) was math + single-file HTML dashboard + E156 #153 micro-paper on a synthetic 12-contrast network. v0.2.0 refactored the 457-LOC `generate_figures.py` into a `sheafnma/` package (`core`, `io`, `simulate`, `comparators`, `r_bridge`), validated on 13 R-netmeta built-in NMAs, and shipped a methods-paper draft for Research Synthesis Methods.
+> - Method: precision-weighted coboundary `F[e, treat1] = -1/SE_e, F[e, treat2] = +1/SE_e`; sheaf Laplacian `L = Fáµ€F` (symmetric PSD); WLS-solve node estimates with node 0 anchored; per-edge residuals `r_e = dÌƒ_e âˆ’ (F x*)_e` localize inconsistency; **Global Inconsistency Index** `GII = Î£ rÂ²` is the global statistic. One algebraic object yields both global + per-edge â€” complements (not replaces) node-splitting.
+> - Real-corpus headline: across **13 R-netmeta built-in NMAs** (Senn 2013 diabetes, Dias smokingcessation, Dong 2013 thrombolytics, Linde 2015/2016 acupuncture, Salanti antimanic, Baker, Dogliotti, Franchini, Gurusamy, Stowe, Woods, dietaryfat, parkinson) the global design-by-treatment Ï‡Â² (Higgins 2012) failed to reject in all 13. **SheafNMA flagged â‰¥1 localized inconsistency edge in 5 of those 13 (38.5%)** at the Youden-frozen threshold of **2.6912** â€” networks that look globally consistent harbor at least one inconsistent edge the global test misses.
+> - Simulation rigor: 36-cell grid (n_treatments âˆˆ {4,6,8} Ã— n_studies_per_edge âˆˆ {3,5,10} Ã— Ï„_inc âˆˆ {0,0.2,0.5,1.0}) Ã— **1000 replications per cell**, held-out training cell at (6,5,0.5) for Youden's-J threshold selection (frozen before evaluating remaining 35 cells). Type-I error at Ï„_inc=0 was **0.000 across all cells**. Mean per-edge sensitivity 0.981 / specificity 0.945 at Ï„_inc=0.5.
+> - Comparator suite: DBT-Ï‡Â² (Higgins 2012 Â§3.2, pure-Python), Bucher loop closure (Bucher 1997, pure-Python), node-splitting (Dias 2010, via `netmeta::netsplit` shelled to R 4.5.2). Per-edge agreement with node-splitting was 45.4% â€” asymmetric: SheafNMA flags 12/506 = 2.4% of edges vs node-splitting's 250/436 = 57% at p<0.05 Bonferroni-uncorrected (the calibrated Youden cut is much more conservative than a per-edge Î±-test). Â§4.2 of the paper explicitly explains this rather than presenting the 45.4% bare.
+> - Corpus export: `corpus/export_netmeta.R` handles 7 distinct netmeta dataset formats (contrast-level TE/seTE, arm-based event/n, arm-based mean/sd/n, wide multi-arm OR/MD, three-arm smokingcessation, rate-based IRR/person-years) and exports all 13 to `corpus/data/*.csv` in the sheafnma standard schema (`study, treat1, treat2, effect, se`).
+> - GitHub: `https://github.com/mahmood726-cyber/sheaf-nma` (master `6c7db13`, tag `v0.2.0`). Pages LIVE: `https://mahmood726-cyber.github.io/sheaf-nma/` (Phase-1 dashboard unchanged in v0.2). 33 tests passing; Sentinel BLOCK=0 WARN=0 (2 INFO = pre-existing HTML a11y items in the v0.1 dashboard).
+> - Workbook entry: `[153/919] SheafNMA`. CURRENT BODY updated 2026-05-12 to the v0.2 156-word / 7-sentence body (replaces v0.1 synthetic-"smoking cessation" framing with the real netmeta corpus). SUBMITTED `[ ]`; YOUR REWRITE preserved untouched per workbook protection rules. Target: Research Synthesis Methods full methods paper (`paper/sheafnma_v2.md`, 1190 words drafted; [TODO] prose blocks in Â§1 Background / Â§4.3 case studies / Â§5 Discussion) + SynthÄ“sis Methods Note companion (`paper/methods_note.md`, 156-word).
+> - Known landmine: `Dong2013` netsplit fails inside netmeta's multi-arm validator ("wrong number of comparisons"); SheafNMA + DBT + Bucher still run on it, only `netsplit_p` column is blank for its 70 edges.
+> - v0.2 deferrals (spec Â§10): multi-arm covariance correction (single-D stalks only), higher-D stalks (Phase 1 Â§3.4 future work), Bayesian sheaf priors, OTS / Bitcoin anchor (broken on Py 3.13 Windows per `lessons.md`).
+
+### hksj-q-floor-atlas (2026-05-12; 8th Pairwise70 atlas; tags prereg-v0.0.1 + v0.1.0)
+> - `C:\Projects\hksj-q-floor-atlas\` â€” 8th calibration atlas in the Pairwise70 series. Sister to `cochrane-modern-re` (engine source), `repro-floor-atlas`, `responder-floor-atlas`, `trial-truthfulness-atlas`, `africa-tb-atlas`, `pactr-hiddenness-atlas`, `africa-hiv-prep-atlas`.
+> - Question: how often does omitting the `max(1, Q/(k-1))` floor on HKSJ variance, in the I^2=0 regime where un-floored HKSJ narrows below REML+Wald, overstate precision across the Cochrane CDSR? Pre-registered via `prereg-v0.0.1` tag + 4 Internet Archive snapshots (Bitcoin OTS deferred â€” Python 3.13 SSL libeay32 bug per lessons.md; web-stamper fallback documented).
+> - Headline: D_1 (I^2=0, k>=2, converged) = 3,677 MAs = 57.6% of corpus. On D_1a (Q>0, n=3,536): median CI-width ratio (floored / un-floored) = 3.64x (IQR 1.60-10.56; 95th pct 57.4x); significance lost in 17.08% of MAs. D_1b (Q=0, n=141 = 3.83% of D_1): sig_loss 24.8%, ratio unbounded â€” un-floored HKSJ SE is exactly zero (the floor effect is unbounded); see `docs/AMENDMENTS.md` entry 1 for split rationale.
+> - Per k-stratum medians: k=2: 4.26x (sig_loss 8.6%); k=3: 3.64x (12.9%); k=4-5: 3.10x (13.1%); k=6-9: 3.18x (17.3%); k>=10: 3.80x (25.1%). sig_loss increases with k because higher-k pooled effects sit closer to null, so floor widening crosses zero more often.
+> - Engine: independent metafor pass via fork of cochrane-modern-re's `run_metafor.R` minus the floor block. Input parquet SHA-256 pinned in `docs/spec.md` sec.1.5 (`31434fb118c6ec44a025eeb43a90e35ef9e050711fa45aa2cb5c1244b2d89751`). 3 hand-verified golden MAs match metafor reference within 1e-6.
+> - GitHub: `https://github.com/mahmood726-cyber/hksj-q-floor-atlas` (master + tags `prereg-v0.0.1` and `v0.1.0`). Pages LIVE: `https://mahmood726-cyber.github.io/hksj-q-floor-atlas/`.
+> - 64 tests; Sentinel BLOCK=0 WARN=0 INFO=0; 7 IA snapshots recorded in `docs/preregistration.md`.
+> - Workbook entry: `[920/920] hksj-q-floor-atlas`; target SynthÄ“sis Methods Note (340w draft, â‰¤400 cap).
+> - v0.2 candidates (NOT in v0.1.0): published-CI matching ("is THIS Cochrane review wrong?"), PM/SJ/Bayesian Ï„Â² robustness, DL re-pooling, Bitcoin OTS once Python 3.13 issue is resolved.
+
+### D-drive legacy smoke-contract continuation (2026-05-12)
+> - `D:\Projects\mahmood789\786-MIII-Mean-single-group\`: fixed the placeholder issue-tracker link in `README.md` and added a pytest-visible static contract for the Shiny app package surface, sample-data schema, metafor workflow, downloads, and absence of local paths/template links. Verification: `pytest -q -p no:cacheprovider` -> `2 passed`; `git diff --check` -> PASS.
+
+ succeeded in 407ms:
+E156 REWRITE WORKBOOK
+sentinel:skip-file
+sentinel:claim-language-allow
+(Sentinel markers above:
+ - sentinel:skip-file: this workbook intentionally contains C:\Users\... PATH:
+   lines pointing to each project's local source directory â€” they're metadata,
+   not code. The marker keeps Sentinel from emitting ~16 P0 hardcoded-path
+   BLOCKs every push.
+ - sentinel:claim-language-allow: CURRENT BODY entries are the AI-drafted
+   summaries that students rewrite into hedged language â€” flagging overclaim
+   words IN those drafts is the whole pedagogical point, not a defect.
+   File-scope marker here suppresses the ~1293 claim-language WARNs on the
+   CURRENT BODY entries; the YOUR REWRITE entries are where the hedging
+   discipline matters and remains lintable in the rendered student board.)
+
+DENOMINATOR CONVENTION (added 2026-05-06 after review-findings P1-5):
+  Each entry header is `[N/total]` where N = ordinal insertion index and
+  `total` = current portfolio size as of the most recent reconcile sweep.
+  Older entries are back-rewritten on milestone boundaries (rather than
+  preserving their insertion-time denominator) to keep
+  reconcile_counts.py from flagging "WORKBOOK DRIFT". The pre-commit
+  guard (scripts/check_workbook_commit.py) blocks commits that bundle a
+  denominator sweep with substantive content edits to existing entries.
+
+======================================================================
+
+INSTRUCTIONS:
+- Replace text under YOUR REWRITE with your body (at most 156 words, 7 sentences)
+- S1=Question S2=Dataset S3=Method S4=Result(number+interval) S5=Robustness S6=Interpretation S7=Boundary(limitation)
+- Leave YOUR REWRITE blank to keep current version
+- Run: python C:/E156/scripts/apply_rewrites.py          (validate)
+- Run: python C:/E156/scripts/apply_rewrites.py --apply (apply)
+
+AUTHORSHIP RULE (mandatory for every submission):
+- Mahmood Ahmad (MA) must NEVER be listed as first author and NEVER as
+  last (senior) author. The student rewriter is first author. Last/senior
+  author must be a faculty supervisor or co-investigator distinct from MA.
+  MA's position is middle-author only (e.g. role: data curation, software,
+  methodology, supervision-of-tooling). This applies to every paper in
+  this workbook regardless of contribution depth.
+
+ succeeded in 1895ms:
+   1: """Validate the SENTENCES against the object, the way the values already are.
+   2: 
+   3: The specification is a line from an independent review of this paper:
+   4: 
+   5:     "Your guard rails are checking the numbers; nothing is checking the
+   6:      sentences."
+   7: 
+   8: Every projected number reconciled against its quoted metafor output. No
+   9: arithmetic error was found. And in the same document the Discussion opened
+  10: "sacubitril/valsartan reduced the hazard" and the Conclusions ended "One trial
+  11: establishes this benefit" -- against a pooled interval containing the null; the
+  12: Methods said the search was not reproducible while the executed query strings sat
+  13: in the object; and three sections said no comparison with published syntheses was
+  14: attempted while that comparison was a major section with three tables.
+  15: 
+  16: Not one of those is a wrong number. Every one is a wrong sentence, and a numeric
+  17: gate cannot see any of them.
+  18: 
+  19: THREE CLASSES, because these are the three ways a sentence goes wrong here:
+  20: 
+  21:   DIRECTION   a claim of benefit, reduction or superiority made against an
+  22:               interval that includes the null.
+  23:   EXISTENCE   a claim that something was not done, or is not recorded, when the
+  24:               object contains it.
+  25:   COUNT       a claim about how many studies, checked by k_consistency_gate.
+  26: 
+  27: Usage:
+  28:   python prose_claim_gate.py <object.json>
+  29:   python prose_claim_gate.py --selftest
+  30: """
+  31: import io
+  32: import json
+  33: import os
+  34: import re
+  35: import sys
+  36: 
+  37: sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+  38: HERE = os.path.dirname(os.path.abspath(__file__))
+  39: sys.path.insert(0, HERE)
+  40: from verdict import Verdict, PASS, FAIL, INVALID, summarise  # noqa: E402
+  41: 
+  42: # Wording that asserts the intervention worked. Hedged forms are deliberately
+  43: # NOT here: "may reduce", "is compatible with a reduction" and "favours" state
+  44: # a direction without asserting it was established.
+  45: DIRECTION = [
+  46:     r"\breduced the (?:hazard|risk|rate)\b",
+  47:     r"\bestablishes? (?:this|the) benefit\b",
+  48:     r"\bwas (?:effective|superior)\b",
+  49:     r"\bdemonstrat\w+ (?:a )?(?:benefit|reduction|superiority)\b",
+  50:     r"\bconfers? a benefit\b",
+  51:     r"\bimproves? (?:survival|outcomes)\b",
+  52:     r"\bsignificantly (?:reduced|lowered|improved)\b",
+  53: ]
+  54: 
+  55: # Claims that something is absent. Each carries a probe into the object; if the
+  56: # probe finds the thing, the sentence is false.
+  57: EXISTENCE = [
+  58:     (r"no executed query string is recorded",
+  59:      lambda d: any((db.get("query_as_executed") or "").strip()
+  60:                    for db in (d.get("search") or {}).get("databases") or []),
+  61:      "search.databases[].query_as_executed"),
+  62:     (r"not reproducible from this document",
+  63:      lambda d: any((db.get("query_as_executed") or "").strip()
+  64:                    for db in (d.get("search") or {}).get("databases") or []),
+  65:      "search.databases[].query_as_executed"),
+  66:     (r"does not attempt a formal comparison with previous syntheses",
+  67:      lambda d: bool((d.get("published_comparison") or {}).get("checks")),
+  68:      "published_comparison.checks"),
+  69:     (r"no per-domain RoB-2 assessment exists",
+  70:      lambda d: bool((d.get("rob2") or {}).get("trials")),
+  71:      "rob2.trials"),
+  72:     (r"no risk-of-bias assessment (?:was|has been) (?:performed|done)",
+  73:      lambda d: bool((d.get("rob2") or {}).get("trials")),
+  74:      "rob2.trials"),
+  75:     (r"identification counts .{0,40}(?:unrecoverable|not recorded)",
+  76:      lambda d: any(re.search(r"\d", str(db.get("records_retrieved") or ""))
+  77:                    for db in (d.get("search") or {}).get("databases") or []),
+  78:      "search.databases[].records_retrieved"),
+  79: ]
+  80: 
+  81: 
+  82: def walk(o, p=""):
+  83:     if isinstance(o, dict):
+  84:         for k, v in o.items():
+  85:             yield from walk(v, p + "." + str(k))
+  86:     elif isinstance(o, list):
+  87:         for i, v in enumerate(o):
+  88:             yield from walk(v, p + "[%d]" % i)
+  89:     elif isinstance(o, str):
+  90:         yield p, o
+  91: 
+  92: 
+  93: # Only this review's own voice. Quoted sources, screening records and the
+  94: # correction log all legitimately contain sentences we do not assert.
+  95: SKIP = (".screening", ".sources", ".rob2", ".citations", ".claims_corrected",
+  96:         ".published_comparison.checks", ".reconciliation", "_corrected",
+  97:         ".methodological_authority", "decision_corrected", "quote")
+  98: 
+  99: 
+ 100: # ANY `by_outcome.<oid>.` segment, not only the one under `results`.
+ 101: #
+ 102: # The first version matched `^results.by_outcome.<oid>.` alone and therefore could not
+ 103: # attribute a string living at `inputs.trials[0].by_outcome.hfh_cvd_recurrent.
+ 104: # trial_level_significance` -- which names its outcome perfectly well. It reported that
+ 105: # claim as unattributable on iv-iron-hf and returned INVALID.
+ 106: #
+ 107: # THAT IS THE SAME DEFECT THIS FIX EXISTS TO REMOVE, COMMITTED INSIDE THE FIX: looking in
+ 108: # ONE place and reporting what is not there as absent. The claim was attributable, to an
+ 109: # outcome whose interval EXCLUDES the null, so the correct verdict was PASS.
+ 110: OUTCOME_PATH = re.compile(r"(?:^|\.)by_outcome\.([^.\[]+)\.")
+ 111: 
+ 112: 
+ 113: def _pooled_outcomes(d):
+ 114:     """Every outcome publishing an interval, keyed by id. Never 'the first one'."""
+ 115:     out = {}
+ 116:     for oid, blk in ((d.get("results") or {}).get("by_outcome") or {}).items():
+ 117:         p = (blk or {}).get("pooled") or {}
+ 118:         if p.get("ci_low") is not None and p.get("ci_high") is not None:
+ 119:             out[oid] = p
+ 120:     return out
+ 121: 
+ 122: 
+ 123: def check(d):
+ 124:     """Direction claims are matched to THE OUTCOME THEY ARE ABOUT, or refused.
+ 125: 
+ 126:     THIS GATE PREVIOUSLY TOOK THE FIRST OUTCOME'S INTERVAL AND JUDGED EVERY SENTENCE ON
+ 127:     THE OBJECT AGAINST IT:
+ 128: 
+ 129:         for res in (...).values():
+ 130:             pooled = res.get("pooled") or {}
+ 131:             break
+ 132: 
+ 133:     `sglt2-hf` publishes THREE pooled outcomes. A benefit claim about the three-component
+ 134:     composite was tested against whichever interval dict ordering put first, and passing
+ 135:     that is a coincidence rather than a check. EVERY PASS THIS GATE EVER ISSUED ON A
+ 136:     MULTI-OUTCOME OBJECT IS UNEARNED, and its history over that population is UNMEASURED
+ 137:     rather than clean.
+ 138: 
+ 139:     Same family as reading `outcomeMeasures[0]` as the primary: the object declares which
+ 140:     outcome a sentence is about, in the sentence's own path, and a consumer that cannot
+ 141:     attribute must REFUSE rather than pick one.
+ 142: 
+ 143:     AND IT DOES NOT FALL BACK TO "the only one" WITHOUT VERIFYING THERE IS ONLY ONE. Where
+ 144:     exactly one outcome publishes an interval, an unattributable claim is judged against it
+ 145:     and the witness SAYS that the singleness was checked. Where several do, the claim is
+ 146:     INVALID -- not passed, not failed.
+ 147:     """
+ 148:     out = []
+ 149:     pooled_by_oid = _pooled_outcomes(d)
+ 150:     if not pooled_by_oid:
+ 151:         return [Verdict("pooled interval available", INVALID,
+ 152:                         detail="no pooled interval, so a direction claim cannot "
+ 153:                                "be judged either way")]
+ 154: 
+ 155:     strings = [(p, t) for p, t in walk(d)
+ 156:                if not any(s in p for s in SKIP)]
+ 157: 
+ 158:     # Attribute every direction hit to an outcome, by the PATH it was found at.
+ 159:     attributed = {}          # oid -> [(path, matched text)]
+ 160:     unattributed = []
+ 161:     for p, t in strings:
+ 162:         for pat in DIRECTION:
+ 163:             m = re.search(pat, t, re.I)
+ 164:             if not m:
+ 165:                 continue
+ 166:             mo = OUTCOME_PATH.search(p)
+ 167:             oid = mo.group(1) if mo else None
+ 168:             if oid in pooled_by_oid:
+ 169:                 attributed.setdefault(oid, []).append((p, m.group(0)))
+ 170:             else:
+ 171:                 unattributed.append((p, m.group(0)))
+ 172:             break
+ 173: 
+ 174:     # A claim that names no outcome is judged only where there is exactly one to name.
+ 175:     if unattributed:
+ 176:         if len(pooled_by_oid) == 1:
+ 177:             only = list(pooled_by_oid)[0]
+ 178:             attributed.setdefault(only, []).extend(unattributed)
+ 179:             unattributed = []
+ 180:             singleton_note = ("attributed to %r because this object publishes exactly one "
+ 181:                               "pooled interval, which was CHECKED and not assumed" % only)
+ 182:         else:
+ 183:             singleton_note = None
+ 184:             out.append(Verdict(
+ 185:                 "direction claims are attributable to an outcome", INVALID,
+ 186:                 detail="%d benefit claim(s) name no outcome, and this object publishes %d "
+ 187:                        "pooled intervals (%s). A claim that cannot be attributed is NOT "
+ 188:                        "judged against whichever interval comes first: %s"
+ 189:                        % (len(unattributed), len(pooled_by_oid),
+ 190:                           ", ".join(sorted(pooled_by_oid)),
+ 191:                           "; ".join("%s: %r" % (a.split(".")[-1], b)
+ 192:                                     for a, b in unattributed[:4]))))
+ 193:     else:
+ 194:         singleton_note = None
+ 195: 
+ 196:     # Now judge each outcome against ITS OWN interval.
+ 197:     for oid in sorted(pooled_by_oid):
+ 198:         p = pooled_by_oid[oid]
+ 199:         lo, hi = p["ci_low"], p["ci_high"]
+ 200:         crosses = lo <= 1.0 <= hi
+ 201:         hits = attributed.get(oid, [])
+ 202:         label = "direction claims for %s" % oid
+ 203:         if crosses and hits:
+ 204:             out.append(Verdict(
+ 205:                 label, FAIL,
+ 206:                 detail="pooled %.3f (%.3f to %.3f) INCLUDES 1, but %d claim(s) assert "
+ 207:                        "benefit: %s%s"
+ 208:                        % (p.get("point", float("nan")), lo, hi, len(hits),
+ 209:                           "; ".join("%s: %r" % (a.split(".")[-1], b) for a, b in hits[:4]),
+ 210:                           "  [%s]" % singleton_note if singleton_note else "")))
+ 211:         elif crosses:
+ 212:             out.append(Verdict(
+ 213:                 label, PASS,
+ 214:                 witness="pooled %.3f (%.3f to %.3f) includes 1; scanned %d review-voice "
+ 215:                         "strings against %d benefit patterns and none attributed to this "
+ 216:                         "outcome matched"
+ 217:                         % (p.get("point", float("nan")), lo, hi, len(strings),
+ 218:                            len(DIRECTION)),
+ 219:                 failure_would_be="a sentence asserting benefit for THIS outcome while its "
+ 220:                                  "own interval contains no effect"))
+ 221:         else:
+ 222:             out.append(Verdict(
+ 223:                 label, PASS,
+ 224:                 witness="pooled %.3f (%.3f to %.3f) excludes 1, so a benefit claim about "
+ 225:                         "this outcome is supported; %d present"
+ 226:                         % (p.get("point", float("nan")), lo, hi, len(hits)),
+ 227:                 failure_would_be="n/a while this outcome's interval excludes the null"))
+ 228:     # EXISTENCE
+ 229:     for pat, probe, where in EXISTENCE:
+ 230:         said = [(p, t) for p, t in strings if re.search(pat, t, re.I)]
+ 231:         if not said:
+ 232:             continue
+ 233:         try:
+ 234:             exists = bool(probe(d))
+ 235:         except Exception:                                 # noqa: BLE001
+ 236:             out.append(Verdict("existence claim %r" % pat[:38], INVALID,
+ 237:                                detail="probe into %s raised" % where))
+ 238:             continue
+ 239:         if exists:
+ 240:             out.append(Verdict("existence claim %r" % pat[:38], FAIL,
+ 241:                                detail="the paper says this is absent, but %s is "
+ 242:                                       "populated. Stated at %s"
+ 243:                                       % (where, said[0][0])))
+ 244:         else:
+ 245:             out.append(Verdict("existence claim %r" % pat[:38], PASS,
+ 246:                                witness="claim made at %s and %s is indeed empty"
+ 247:                                        % (said[0][0], where),
+ 248:                                failure_would_be="the object containing what the "
+ 249:                                                 "sentence says it does not"))
+ 250:     return out
+ 251: 
+ 252: 
+ 253: def _corpus_cases():
+ 254:     """Failing inputs BUILT FROM REAL OBJECTS, not from fixtures.
+ 255: 
+ 256:     WHY THIS EXISTS, and it is about this gate's own result rather than the corpus.
+ 257: 
+ 258:     After the attribution rewrite this gate returned 28 judged, 28 PASS, 0 FAIL, 0 INVALID
+ 259:     across the corpus. THAT IS THE LEAST TRUSTWORTHY RESULT IT COULD HAVE PRODUCED: a gate
+ 260:     that was broken and now passes everything is indistinguishable, FROM ITS OWN OUTPUT,
+ 261:     from a gate broken in a new direction. It is hours old, has been rewritten twice, and
+ 262:     its first finding after the rewrite was a FALSE INVALID.
+ 263: 
+ 264:     A clean bill from a young instrument is a claim about the instrument. So the same
+ 265:     treatment the method-claim detector got: take real objects and construct inputs that
+ 266:     MUST fail, from the corpus rather than from a fixture, and confirm both verdicts.
+ 267: 
+ 268:     Skipped -- never silently passed -- if the objects are unavailable.
+ 269:     """
+ 270:     ssot = os.path.join(os.path.dirname(HERE), "ssot")
+ 271:     cases = []
+ 272: 
+ 273:     # FAIL: a real object, a real null-crossing interval, and a real DIRECTION phrase
+ 274:     # placed at THAT outcome's own path. iv-iron-hf's `acm` is 0.978 (0.752 to 1.271).
+ 275:     fp = os.path.join(ssot, "iv-iron-hf", "iv-iron-hf.json")
+ 276:     if os.path.exists(fp):
+ 277:         d = json.load(io.open(fp, encoding="utf-8"))
+ 278:         blk = ((d.get("results") or {}).get("by_outcome") or {}).get("acm")
+ 279:         p = (blk or {}).get("pooled") or {}
+ 280:         if blk is not None and p.get("ci_low", 9) <= 1.0 <= p.get("ci_high", 0):
+ 281:             blk["injected_for_selftest"] = ("Iron repletion reduced the risk of death "
+ 282:                                             "from any cause in this population.")
+ 283:             cases.append(("CORPUS: benefit claim at an outcome whose OWN interval "
+ 284:                           "crosses the null (iv-iron-hf.acm)", d, FAIL))
+ 285: 
+ 286:     # INVALID: a real multi-outcome object, and a claim at a path naming NO outcome.
+ 287:     fp = os.path.join(ssot, "sglt2-hf", "sglt2-hf.json")
+ 288:     if os.path.exists(fp):
+ 289:         d = json.load(io.open(fp, encoding="utf-8"))
+ 290:         if len(_pooled_outcomes(d)) > 1:
+ 291:             d["injected_for_selftest"] = ("The treatment significantly reduced events "
+ 292:                                           "across the programme.")
+ 293:             cases.append(("CORPUS: unattributable claim against %d intervals must be "
+ 294:                           "INVALID, not judged against the first (sglt2-hf)"
+ 295:                           % len(_pooled_outcomes(d)), d, INVALID))
+ 296:     return cases
+ 297: 
+ 298: 
+ 299: def selftest():
+ 300:     base = {"results": {"by_outcome": {"o": {
+ 301:         "pooled": {"point": 0.872, "ci_low": 0.746, "ci_high": 1.018}}}}}
+ 302:     cases = []
+ 303:     d1 = json.loads(json.dumps(base))
+ 304:     d1["manuscript"] = {"d": "sacubitril/valsartan reduced the hazard of a first "
+ 305:                              "cardiovascular death"}
+ 306:     cases.append(("benefit claim against a null-containing interval", d1, FAIL))
+ 307:     d2 = json.loads(json.dumps(base))
+ 308:     d2["manuscript"] = {"d": "One trial establishes this benefit"}
+ 309:     cases.append(("'establishes this benefit' against the same interval", d2,
+ 310:                   FAIL))
+ 311:     d3 = json.loads(json.dumps(base))
+ 312:     d3["manuscript"] = {"d": "the pooled interval includes no difference and is "
+ 313:                              "compatible with no effect"}
+ 314:     cases.append(("NEGATIVE: an honest statement of a null result", d3, PASS))
+ 315:     d4 = json.loads(json.dumps(base))
+ 316:     d4["manuscript"] = {"d": "No executed query string is recorded for any "
+ 317:                              "database."}
+ 318:     d4["search"] = {"databases": [{"query_as_executed": "(sacubitril[tiab])"}]}
+ 319:     cases.append(("says no query recorded while the object holds one", d4, FAIL))
+ 320:     d5 = json.loads(json.dumps(base))
+ 321:     d5["manuscript"] = {"d": "No executed query string is recorded for any "
+ 322:                              "database."}
+ 323:     d5["search"] = {"databases": [{"query_as_executed": ""}]}
+ 324:     cases.append(("NEGATIVE: the same sentence when it is true", d5, PASS))
+ 325:     d6 = {"results": {"by_outcome": {}}}
+ 326:     cases.append(("no pooled interval -> INVALID, not PASS", d6, INVALID))
+ 327:     # a benefit claim is legitimate when the interval supports it
+ 328:     d7 = json.loads(json.dumps(base))
+ 329:     d7["results"]["by_outcome"]["o"]["pooled"] = {"point": 0.839,
+ 330:                                                   "ci_low": 0.743,
+ 331:                                                   "ci_high": 0.948}
+ 332:     d7["manuscript"] = {"d": "sacubitril/valsartan reduced the hazard"}
+ 333:     cases.append(("NEGATIVE: benefit claim when the interval excludes the null",
+ 334:                   d7, PASS))
+ 335:     corpus = _corpus_cases()
+ 336:     cases.extend(corpus)
+ 337:     ok = True
+ 338:     print("=== the prose-claim gate ===")
+ 339:     for name, dd, want in cases:
+ 340:         vs = check(dd)
+ 341:         got = (FAIL if any(v.state == FAIL for v in vs)
+ 342:                else INVALID if any(v.state == INVALID for v in vs) else PASS)
+ 343:         good = got == want
+ 344:         ok &= good
+ 345:         print("  %-58s %-8s expected=%-8s %s"
+ 346:               % (name[:58], got, want, "correct" if good else "WRONG"))
+ 347:     print("\nprose-claim gate correct on every case:", ok)
+ 348:     return 0 if ok else 1
+ 349: 
+ 350: 
+ 351: if __name__ == "__main__":
+ 352:     if "--selftest" in sys.argv:
+ 353:         raise SystemExit(selftest())
+ 354:     d = json.load(open(sys.argv[1], encoding="utf-8"))
+ 355:     raise SystemExit(summarise(check(d), "prose:"))
+
+codex
+I’ve got line numbers now. I’m checking candidate failures with minimal JSON-shaped inputs so the final answer can stay to exact repros.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "@'
+import sys, json
+sys.path.insert(0, 'scripts')
+from prose_claim_gate import check
+from verdict import FAIL, INVALID, PASS
+
+def state(vs):
+    return FAIL if any(v.state == FAIL for v in vs) else INVALID if any(v.state == INVALID for v in vs) else PASS
+
+base = {\"results\":{\"by_outcome\":{\"o\":{\"pooled\":{\"point\":1.0,\"ci_low\":0.8,\"ci_high\":1.2}}}}}
+inputs = []
+d=json.loads(json.dumps(base)); d['manuscript']={'d':'The trial did not demonstrate a benefit.'}; inputs.append(('neg',d))
+d=json.loads(json.dumps(base)); d['manuscript']={'d':'The identification counts were not recorded.'}; d['search']={'databases':[{'records_retrieved':0}]}; inputs.append(('zero',d))
+d=json.loads(json.dumps(base)); d['manuscript']={'d':'No comparison with published syntheses was attempted.'}; d['published_comparison']={'checks':[{'x':1}]}; inputs.append(('selector',d))
+d=json.loads(json.dumps(base)); d['manuscript']={'not_a_quote':'The intervention reduced the risk of death.'}; inputs.append(('skipquote',d))
+for name,d in inputs:
+    vs=check(d)
+    print(name, state(vs))
+    for v in vs: print(' ', v.name, v.state, getattr(v,'detail',None), getattr(v,'witness',None))
+'@ | python -" in F:\rapidmeta-ssot-shell
+ succeeded in 1425ms:
+neg FAIL
+  direction claims for o FAIL pooled 1.000 (0.800 to 1.200) INCLUDES 1, but 1 claim(s) assert benefit: d: 'demonstrate a benefit'  [attributed to 'o' because this object publishes exactly one pooled interval, which was CHECKED and not assumed] None
+zero PASS
+  direction claims for o PASS  pooled 1.000 (0.800 to 1.200) includes 1; scanned 1 review-voice strings against 7 benefit patterns and none attributed to this outcome matched
+  existence claim 'identification counts .{0,40}(?:unreco' PASS  claim made at .manuscript.d and search.databases[].records_retrieved is indeed empty
+selector PASS
+  direction claims for o PASS  pooled 1.000 (0.800 to 1.200) includes 1; scanned 1 review-voice strings against 7 benefit patterns and none attributed to this outcome matched
+skipquote PASS
+  direction claims for o PASS  pooled 1.000 (0.800 to 1.200) includes 1; scanned 0 review-voice strings against 7 benefit patterns and none attributed to this outcome matched
+
+codex
+Defects found:
+
+1. Line 49 — NEGATION DROPPED.  
+Input: `{"results":{"by_outcome":{"o":{"pooled":{"point":1.0,"ci_low":0.8,"ci_high":1.2}}}},"manuscript":{"d":"The trial did not demonstrate a benefit."}}`  
+Consequence: returns `FAIL` because `demonstrate a benefit` is matched as an asserted benefit although the sentence denies it.
+
+2. Line 76 — ZERO CONFLATED WITH ABSENT.  
+Input: `{"results":{"by_outcome":{"o":{"pooled":{"point":1.0,"ci_low":0.8,"ci_high":1.2}}}},"manuscript":{"d":"The identification counts were not recorded."},"search":{"databases":[{"records_retrieved":0}]}}`  
+Consequence: returns `PASS` because `0 or ""` erases a real recorded count.
+
+3. Line 66 — SELECTOR KEYED TO TOO-NARROW FORM.  
+Input: `{"results":{"by_outcome":{"o":{"pooled":{"point":1.0,"ci_low":0.8,"ci_high":1.2}}}},"manuscript":{"d":"No comparison with published syntheses was attempted."},"published_comparison":{"checks":[{"x":1}]}}`  
+Consequence: the absence claim is not matched, so populated `published_comparison.checks` does not trigger `FAIL`.
+
+4. Lines 97 and 156 — guard satisfied by marker substring.  
+Input: `{"results":{"by_outcome":{"o":{"pooled":{"point":1.0,"ci_low":0.8,"ci_high":1.2}}}},"manuscript":{"not_a_quote":"The intervention reduced the risk of death."}}`  
+Consequence: `.manuscript.not_a_quote` is skipped because it contains `quote`, so the false benefit claim is unscanned.
+
+5. Lines 276 and 288 — check can go vacuous.  
+Input: `python scripts/prose_claim_gate.py --selftest` in a tree missing `../ssot/iv-iron-hf/iv-iron-hf.json` and `../ssot/sglt2-hf/sglt2-hf.json`.  
+Consequence: corpus regression cases are silently omitted and selftest can still exit `0`.
+
+No proven defect from packet for: probe keyed to string a fix removes; different-copy instrument; CRLF/LF text comparison; merged-cell/off-by-one.
+
+COULD NOT DETERMINE status-code wrapper behavior at line 355: missing `scripts/verdict.py` (`summarise`, `Verdict`, state constants).
+tokens used
+29,503
+Defects found:
+
+1. Line 49 — NEGATION DROPPED.  
+Input: `{"results":{"by_outcome":{"o":{"pooled":{"point":1.0,"ci_low":0.8,"ci_high":1.2}}}},"manuscript":{"d":"The trial did not demonstrate a benefit."}}`  
+Consequence: returns `FAIL` because `demonstrate a benefit` is matched as an asserted benefit although the sentence denies it.
+
+2. Line 76 — ZERO CONFLATED WITH ABSENT.  
+Input: `{"results":{"by_outcome":{"o":{"pooled":{"point":1.0,"ci_low":0.8,"ci_high":1.2}}}},"manuscript":{"d":"The identification counts were not recorded."},"search":{"databases":[{"records_retrieved":0}]}}`  
+Consequence: returns `PASS` because `0 or ""` erases a real recorded count.
+
+3. Line 66 — SELECTOR KEYED TO TOO-NARROW FORM.  
+Input: `{"results":{"by_outcome":{"o":{"pooled":{"point":1.0,"ci_low":0.8,"ci_high":1.2}}}},"manuscript":{"d":"No comparison with published syntheses was attempted."},"published_comparison":{"checks":[{"x":1}]}}`  
+Consequence: the absence claim is not matched, so populated `published_comparison.checks` does not trigger `FAIL`.
+
+4. Lines 97 and 156 — guard satisfied by marker substring.  
+Input: `{"results":{"by_outcome":{"o":{"pooled":{"point":1.0,"ci_low":0.8,"ci_high":1.2}}}},"manuscript":{"not_a_quote":"The intervention reduced the risk of death."}}`  
+Consequence: `.manuscript.not_a_quote` is skipped because it contains `quote`, so the false benefit claim is unscanned.
+
+5. Lines 276 and 288 — check can go vacuous.  
+Input: `python scripts/prose_claim_gate.py --selftest` in a tree missing `../ssot/iv-iron-hf/iv-iron-hf.json` and `../ssot/sglt2-hf/sglt2-hf.json`.  
+Consequence: corpus regression cases are silently omitted and selftest can still exit `0`.
+
+No proven defect from packet for: probe keyed to string a fix removes; different-copy instrument; CRLF/LF text comparison; merged-cell/off-by-one.
+
+COULD NOT DETERMINE status-code wrapper behavior at line 355: missing `scripts/verdict.py` (`summarise`, `Verdict`, state constants).

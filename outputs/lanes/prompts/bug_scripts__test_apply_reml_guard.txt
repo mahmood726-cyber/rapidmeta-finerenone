@@ -1,0 +1,285 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/test_apply_reml_guard.py
+
+--- THE FILE, IN FULL ---
+"""Proofs for the stale-estimator guard in ssot/apply_reml_corpus.py.
+
+A GUARD NEEDS FOUR PROOFS and three of them are cheap while the fourth is the one
+people skip:
+
+  1. IT CAN FIRE.                      test_fires_on_a_live_declaration
+  2. IT DOES NOT FIRE ON THE CORRECT CASE.
+                                       test_silent_on_history_paths
+                                       test_silent_on_a_dated_past_tense_sentence
+                                       test_silent_on_a_comparison_table_row
+  3. NEITHER IS ESTABLISHED BY THE BUILD REPORTING SUCCESS.
+                                       -- which is why these are assertions on the
+                                          guard's RETURN VALUE and not a run of the
+                                          applier that prints "APPLIED".
+  4. ITS TRIGGERING CONDITION ACTUALLY OCCURRED IN THE DATA IT RAN ON.
+                                       test_it_actually_fired_on_the_real_corpus
+
+Proof 4 is recorded rather than re-simulated: on 2026-08-20 this guard refused four
+times against the live objects, and each refusal was a real defect that the plan for
+this unit had not listed --
+
+    alirocumab-lipid   published_comparison.divergence_decomposed.ours
+                       carried the pre-refit estimate and estimator in the table a
+                       reader uses to compare this review against the literature, on a
+                       topic ALREADY COUNTED COMPLETE BY P46
+    alirocumab-lipid   published_comparison.checks[8] was a live verdict of
+                       "ERROR / material / ours" about the estimator, discharged by
+                       this very pass
+    apixaban-vte-prophylaxis
+                       grade.by_outcome.major_vte -- a GRADE block at the OBJECT ROOT,
+                       which the unit's own inventory had reported as absent because it
+                       looked only at results.by_outcome.<oid>.grade
+    inclisiran-lipid-kidney
+                       sensitivity.between_study_variance_method_comparison.estimator_kept,
+                       which PARKED THIS EXACT DECISION and is discharged by taking it
+
+A guard whose firing has never been observed on real data is a comment.
+"""
+import copy
+import json
+import os
+import sys
+import unittest
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(REPO, "ssot"))
+
+import apply_reml_corpus as A  # noqa: E402
+
+
+def obj_with(path_parts, value):
+    """Build a minimal object placing `value` at the given nested path."""
+    node = value
+    for p in reversed(path_parts):
+        node = {p: node}
+    return node
+
+
+class GuardProofs(unittest.TestCase):
+
+    def test_fires_on_a_live_declaration(self):
+        """PROOF 1 -- it can fire."""
+        o = obj_with(["results", "by_outcome", "primary", "estimator"], "DerSimonian-Laird")
+        bad = A.guard_no_stale_estimator(o, "synthetic")
+        self.assertEqual(len(bad), 1, "the guard did not fire on a live declaration")
+        self.assertIn("estimator", bad[0][0])
+
+    def test_fires_on_prose_not_only_on_the_declaring_field(self):
+        """A stale sentence is as wrong as a stale field, and harder to find."""
+        o = obj_with(["results", "by_outcome", "primary", "poolable_reason"],
+                     "The pool is Paule-Mandel at k=3 and that is what is served.")
+        self.assertEqual(len(A.guard_no_stale_estimator(o, "synthetic")), 1)
+
+    def test_silent_on_history_paths(self):
+        """PROOF 2a -- a record of what WAS true must not be rewritten."""
+        for path in (["results", "by_outcome", "primary", "superseded", "estimator"],
+                     ["results", "by_outcome", "primary", "supersede_chain", "estimator"],
+                     ["display_change_announced", "what_changed"],
+                     ["recovery_2026_08_19", "old", "estimator"],
+                     ["results", "by_outcome", "primary", "estimator_sensitivity", "label"]):
+            o = obj_with(path, "DerSimonian-Laird")
+            self.assertEqual(
+                A.guard_no_stale_estimator(o, "synthetic"), [],
+                "the guard fired on the history path %s, where the old estimator name is "
+                "the single most correct string that can appear" % ".".join(path))
+
+    def test_silent_on_a_dated_past_tense_sentence(self):
+        """PROOF 2b -- a live field may name it while saying WHEN it stopped being true."""
+        o = obj_with(["results", "by_outcome", "primary", "estimator_note_x"],
+                     "Before 2026-08-20 this pool was fitted with DerSimonian-Laird.")
+        self.assertEqual(A.guard_no_stale_estimator(o, "synthetic"), [])
+
+    def test_fires_on_the_same_sentence_without_its_date(self):
+        """The date is doing real work, so removing it must change the verdict.
+
+        Otherwise the exemption would be a hole rather than a rule: a claim about the
+        past that does not say when is not a claim about the past.
+        """
+        o = obj_with(["results", "by_outcome", "primary", "estimator_note_x"],
+                     "This pool was fitted with DerSimonian-Laird.")
+        self.assertEqual(len(A.guard_no_stale_estimator(o, "synthetic")), 1)
+
+    def test_dated_segment_and_dated_text_are_different_exemptions(self):
+        """A dated PATH and a dated STRING are separately sufficient, and both are needed."""
+        self.assertTrue(A.is_history(".recovery_2026_08_19.old.estimator"))
+        self.assertFalse(A.is_history(".results.by_outcome.primary.estimator"))
+        self.assertIsNotNone(A.DATED_TEXT.search("restated 2026-08-20 because"))
+        self.assertIsNone(A.DATED_TEXT.search("restated recently because"))
+
+    def test_silent_on_a_real_object_after_the_pass(self):
+        """PROOF 2c -- the ten real objects pass the guard once the pass has run.
+
+        Read from disk, so this is a statement about the corpus and not about a fixture.
+        If the pass has not been applied yet this test is skipped rather than failed --
+        a test that cannot tell "not yet applied" from "applied and clean" would report
+        the first as the second, which is the failure mode this file exists to refuse.
+        """
+        checked = 0
+        for topic, oid in A.POOLS:
+            fp = os.path.join(REPO, "ssot", topic, topic + ".json")
+            if not os.path.exists(fp):
+                continue
+            o = json.load(open(fp, encoding="utf-8"))
+            blk = ((o.get("results") or {}).get("by_outcome") or {}).get(oid) or {}
+            if blk.get("estimator") != "REML":
+                self.skipTest("apply_reml_corpus.py has not been applied to %s yet; this "
+                              "test asserts the state AFTER the pass and must not report "
+                              "an unrun pass as a clean one" % topic)
+            self.assertEqual(A.guard_no_stale_estimator(o, topic), [],
+                             "%s still names a superseded estimator on a live path" % topic)
+            checked += 1
+        self.assertEqual(checked, len(A.POOLS),
+                         "checked %d of %d objects" % (checked, len(A.POOLS)))
+
+    # ---- the NUMBER guard, which exists because the estimator guard was not enough --
+
+    def test_number_guard_fires_on_a_superseded_estimate(self):
+        """PROOF 1 for the second guard."""
+        o = obj_with(["published_comparison", "checks", "detail"],
+                     "Both overlap our -54.82% and neither answers the same question.")
+        bad = A.guard_no_stale_number(o, [-54.82])
+        self.assertEqual(len(bad), 1, "the number guard did not fire on a superseded estimate")
+
+    def test_number_guard_is_silent_when_the_value_did_not_move(self):
+        """The superseded set is what MOVED, not what was there before the pass.
+
+        apixaban-vte-treatment's point and lower bound are identical before and after --
+        only its upper bound moved, in the fourth decimal. Keyed on "the value before the
+        pass", the guard reported four CORRECT fields as stale. Keyed on what changed, it
+        is silent. This test is the difference between those two keys.
+        """
+        o = obj_with(["results", "by_outcome", "primary", "pooled", "point"], 0.7763)
+        self.assertEqual(A.guard_no_stale_number(o, []), [])
+
+    def test_number_guard_does_not_fire_inside_a_longer_number(self):
+        """-54.82 must not match inside -54.8204 or 1-54.821."""
+        for text in ("the refit gave -54.8204 on those SEs",
+                     "identifier 3-54.8299 is unrelated"):
+            o = obj_with(["results", "by_outcome", "primary", "note"], text)
+            self.assertEqual(A.guard_no_stale_number(o, [-54.82]), [],
+                             "fired inside a longer number: %r" % text)
+
+    def test_number_guard_silent_on_history_and_on_dated_sentences(self):
+        """PROOF 2 for the second guard -- same two exemptions, separately proven."""
+        o = obj_with(["results", "by_outcome", "primary", "restated_2026_08_19", "to", "point"],
+                     -54.82)
+        self.assertEqual(A.guard_no_stale_number(o, [-54.82]), [])
+        o = obj_with(["results", "by_outcome", "primary", "note"],
+                     "Until 2026-08-20 this review reported -54.82 percent.")
+        self.assertEqual(A.guard_no_stale_number(o, [-54.82]), [])
+
+    def test_the_two_guards_catch_different_things(self):
+        """Neither guard subsumes the other, which is the whole reason there are two.
+
+        A sentence naming a superseded estimator with no number is invisible to the
+        number guard; a sentence carrying a superseded estimate with no estimator name is
+        invisible to the estimator guard. Both shapes occurred in the real corpus.
+        """
+        est_only = obj_with(["results", "by_outcome", "primary", "note"],
+                            "Fitted with DerSimonian-Laird.")
+        num_only = obj_with(["results", "by_outcome", "primary", "note"],
+                            "Both overlap our -54.82% and neither answers the question.")
+        self.assertEqual(len(A.guard_no_stale_estimator(est_only, "x")), 1)
+        self.assertEqual(A.guard_no_stale_number(est_only, [-54.82]), [])
+        self.assertEqual(A.guard_no_stale_estimator(num_only, "x"), [])
+        self.assertEqual(len(A.guard_no_stale_number(num_only, [-54.82])), 1)
+
+    def test_number_guard_actually_fired_on_the_real_corpus(self):
+        """PROOF 4 for the second guard, asserted against the object.
+
+        checks[9] and checks[10] of alirocumab-lipid's published_comparison each carried
+        the pre-refit estimate in prose, with no estimator named. Both were missed by the
+        estimator guard after it had already fired four times and looked like it worked.
+        """
+        fp = os.path.join(REPO, "ssot", "alirocumab-lipid", "alirocumab-lipid.json")
+        o = json.load(open(fp, encoding="utf-8"))
+        checks = (o.get("published_comparison") or {}).get("checks") or []
+        marked = [c for c in checks
+                  if isinstance(c, dict) and "detail_superseded_2026_08_20" in c]
+        if len(marked) < 3:
+            self.skipTest("the pass has not run: only %d superseded check details on "
+                          "alirocumab-lipid" % len(marked))
+        num_found = [c for c in marked
+                     if "-54.82" in str(c.get("detail_superseded_2026_08_20"))
+                     and "DerSimonian" not in str(c.get("detail_superseded_2026_08_20"))]
+        self.assertGreaterEqual(
+            len(num_found), 2,
+            "the number guard's real firings are not evidenced by the object: expected at "
+            "least two check details that carried -54.82 WITHOUT naming an estimator")
+
+    def test_it_actually_fired_on_the_real_corpus(self):
+        """PROOF 4 -- the triggering condition occurred in the data the guard ran on.
+
+        Asserted against the objects themselves: each of the four refusals recorded in
+        this file's docstring left a `*_superseded_2026_08_20` sibling behind, and those
+        siblings are the evidence that the guard found something real rather than that
+        somebody wrote a docstring. Skipped, never silently passed, before the pass runs.
+        """
+        want = [
+            ("alirocumab-lipid", ["published_comparison", "divergence_decomposed",
+                                  "ours_superseded_2026_08_20"]),
+            ("apixaban-vte-prophylaxis", ["grade", "by_outcome", "major_vte",
+                                          "estimate_superseded_2026_08_20"]),
+            ("inclisiran-lipid-kidney-auto-full-review",
+             ["results", "by_outcome", "primary", "sensitivity",
+              "between_study_variance_method_comparison",
+              "estimator_kept_superseded_2026_08_20"]),
+        ]
+        found = 0
+        for topic, path in want:
+            fp = os.path.join(REPO, "ssot", topic, topic + ".json")
+            o = json.load(open(fp, encoding="utf-8"))
+            node = o
+            for p in path:
+                if not isinstance(node, dict) or p not in node:
+                    node = None
+                    break
+                node = node[p]
+            if node is None:
+                self.skipTest("the pass has not run: %s lacks %s" % (topic, ".".join(path)))
+            found += 1
+        self.assertEqual(found, len(want),
+                         "found %d of %d superseded siblings; the guard's real firings are "
+                         "not evidenced by the objects" % (found, len(want)))
+
+
+if __name__ == "__main__":
+    unittest.main(verbosity=2)

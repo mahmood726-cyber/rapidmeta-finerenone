@@ -1,0 +1,238 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a031b3-d56e-7f30-ae5a-c0cc0f70377f
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/fix_full_review_python_isms_and_inject_pmids.py
+
+--- THE FILE, IN FULL ---
+"""Fix two bugs in every *_FULL_REVIEW.html shipped by bulk_clone_audit_first.py.
+
+Bug 1 (P0 — kills the entire app):
+  The clone emitted Python `None` literals (e.g. `publishedHR: None,`) inside JS
+  object literals.  JavaScript treats `None` as an undefined identifier, throws
+  ReferenceError mid-evaluation, and the whole `RapidMeta` object is never
+  constructed. Visible effect: no trials, no abstracts, no analysis — the page
+  loads as a static shell. Fix: replace JS-value-position `None` with `null`.
+
+Bug 2 (P1 — abstracts never appear):
+  Every trial entry has `pmid: ''` because the upstream topic-JSON PMID was
+  unverifiable. AbstractHydrator is PMID-only, so it no-ops, and trials show
+  only their AACT "snippet" — not the published abstract. Fix: resolve a
+  verified PMID per NCT from AACT's `study_references` table (RESULT >
+  DERIVED > BACKGROUND) and inject it into `pmid: '<pmid>'`.
+
+Touches both *_AUTO_FULL_REVIEW.html and the 13 oddly-named *_REVIEW_FULL_REVIEW.html
+clones. Leaves curated *_REVIEW.html (no AUTO suffix) untouched — those are
+hand-authored flagships and should not be re-patched.
+
+Idempotent: re-running on already-fixed files is a no-op.
+"""
+from __future__ import annotations
+import json
+import re
+import sys
+import io
+from pathlib import Path
+
+if "pytest" not in sys.modules and hasattr(sys.stdout, "buffer"):
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+HERE = Path(__file__).resolve().parent.parent
+NCT_PMID = json.loads((HERE / "outputs" / "pmid_resolver" / "nct_to_pmid.json").read_text(encoding="utf-8"))
+
+# JS-value-position `None`: preceded by ': ' (object value) and followed by ',' '}' ']' or whitespace.
+# Will NOT match "None declared" in HTML text (preceded by '>') or "'None declared'" in JS strings.
+NONE_VALUE_RE = re.compile(r":(\s+)None(?=[,}\]\s])")
+
+# realData trial entry: 'NCT12345678': { ... pmid: '', ... }
+# We replace the literal `pmid: ''` (or `pmid: ""`) immediately following the NCT key,
+# scoped to the next ~600 chars (single entry block) so we never cross trial boundaries.
+TRIAL_BLOCK_RE = re.compile(
+    r"'(NCT\d{7,8})':\s*\{(?P<body>(?:[^{}]|\{[^{}]*\}){0,4000})\}",
+    re.DOTALL,
+)
+
+EMPTY_PMID_RE = re.compile(r"pmid:\s*(?P<q>['\"])(?P=q)")
+
+
+def fix_file(p: Path) -> tuple[int, int, int]:
+    """Return (none_replacements, pmid_injections, trials_seen)."""
+    txt = p.read_text(encoding="utf-8", errors="replace")
+    orig = txt
+
+    # --- Pass 1: None -> null in JS value position ---
+    n_count = 0
+
+    def _sub_none(m: re.Match) -> str:
+        nonlocal n_count
+        n_count += 1
+        return ":" + m.group(1) + "null"
+
+    txt = NONE_VALUE_RE.sub(_sub_none, txt)
+
+    # --- Pass 2: inject verified PMID into each trial block whose pmid:'' is empty ---
+    p_count = 0
+    trials = 0
+
+    def _sub_trial(m: re.Match) -> str:
+        nonlocal p_count, trials
+        nct = m.group(1)
+        body = m.group("body")
+        trials += 1
+        info = NCT_PMID.get(nct)
+        if not info:
+            return m.group(0)
+        pmid = info["pmid"]
+
+        def _replace_pmid(mm: re.Match) -> str:
+            return f"pmid: '{pmid}'"
+
+        new_body, n = EMPTY_PMID_RE.subn(_replace_pmid, body, count=1)
+        if n == 0:
+            return m.group(0)
+        p_count += 1
+        return f"'{nct}': {{{new_body}}}"
+
+    txt = TRIAL_BLOCK_RE.sub(_sub_trial, txt)
+
+    if txt != orig:
+        p.write_text(txt, encoding="utf-8")
+    return n_count, p_count, trials
+
+
+def main():
+    # Glob `*_FULL_REVIEW.html` catches *_AUTO_FULL_REVIEW (1093), the 13
+    # *_REVIEW_FULL_REVIEW double-suffix clones, and 17 *_AUTO_2_FULL_REVIEW
+    # v2 variants. Filter out cardiology_mortality_atlas / dashboard / etc.
+    targets = sorted(
+        p for p in HERE.glob("*_FULL_REVIEW.html") if p.is_file()
+    )
+    print(f"Targets: {len(targets)} FULL_REVIEW files")
+
+    tot_none = tot_pmid = tot_trials = files_touched = 0
+    for i, p in enumerate(targets, 1):
+        n, pm, tr = fix_file(p)
+        if n or pm:
+            files_touched += 1
+        tot_none += n
+        tot_pmid += pm
+        tot_trials += tr
+        if i <= 5 or i % 200 == 0:
+            print(f"  [{i}/{len(targets)}] {p.name}: None={n} pmidInjected={pm} trials={tr}")
+    print()
+    print(f"Files touched          : {files_touched:,}")
+    print(f"`None` -> `null`       : {tot_none:,}")
+    print(f"PMIDs injected         : {tot_pmid:,}")
+    print(f"Trial blocks seen      : {tot_trials:,}")
+
+
+if __name__ == "__main__":
+    main()
+
+codex
+COULD NOT DETERMINE actual corpus frequency: missing target `*_FULL_REVIEW.html` files and `outputs/pmid_resolver/nct_to_pmid.json`.
+
+- **Line 38, selector keyed too narrowly.**  
+  Input: `const x = {publishedHR:None, pmid: ''};`  
+  Consequence: `None` is left in JS value position, so the page can still throw `ReferenceError`.
+
+- **Line 38, selector matches inside strings.**  
+  Input: `const msg = "publishedHR: None,";`  
+  Consequence: the script rewrites string content to `"publishedHR: null,"`, corrupting non-code text.
+
+- **Line 83 via line 48, selector is not property-bound.**  
+  With `NCT_PMID = {"NCT12345678":{"pmid":"999999"}}`, input: `{'NCT12345678': {source_pmid: '', pmid: ''}}`  
+  Consequence: first run changes `source_pmid` and leaves the real `pmid` empty while reporting one injection.
+
+- **Line 83 via line 48, selector can satisfy its own idempotency claim falsely.**  
+  Same input: `{'NCT12345678': {source_pmid: '', pmid: ''}}`  
+  Consequence: the second run changes the file again, proving the “already-fixed no-op” claim is false for reachable input.
+
+- **Line 44, selector keyed to one object-key form.**  
+  With `NCT_PMID = {"NCT12345678":{"pmid":"999999"}}`, input: `{"NCT12345678": {pmid: ''}}`  
+  Consequence: valid JS/JSON-style trial blocks are not seen, so PMIDs are silently skipped.
+
+- **Lines 100-102, target selector contradicts its own filter claim.**  
+  Input path: `HERE/dashboard_FULL_REVIEW.html`, content: `const x={publishedHR: None,};`  
+  Consequence: the file is included and rewritten although line 99 says dashboard/atlas/etc. are filtered out.
+
+- **Lines 100-103/122, status code reports the wrapper, not the work.**  
+  Input: resolver JSON exists, but `HERE` contains zero `*_FULL_REVIEW.html` files.  
+  Consequence: it prints `Targets: 0 FULL_REVIEW files` and exits 0, so automation can treat “nothing ran” as success.
+
+No proven finding from this packet for merged-cell/off-by-one, negation dropped, or CRLF/LF text comparison.
+tokens used
+12,479
+COULD NOT DETERMINE actual corpus frequency: missing target `*_FULL_REVIEW.html` files and `outputs/pmid_resolver/nct_to_pmid.json`.
+
+- **Line 38, selector keyed too narrowly.**  
+  Input: `const x = {publishedHR:None, pmid: ''};`  
+  Consequence: `None` is left in JS value position, so the page can still throw `ReferenceError`.
+
+- **Line 38, selector matches inside strings.**  
+  Input: `const msg = "publishedHR: None,";`  
+  Consequence: the script rewrites string content to `"publishedHR: null,"`, corrupting non-code text.
+
+- **Line 83 via line 48, selector is not property-bound.**  
+  With `NCT_PMID = {"NCT12345678":{"pmid":"999999"}}`, input: `{'NCT12345678': {source_pmid: '', pmid: ''}}`  
+  Consequence: first run changes `source_pmid` and leaves the real `pmid` empty while reporting one injection.
+
+- **Line 83 via line 48, selector can satisfy its own idempotency claim falsely.**  
+  Same input: `{'NCT12345678': {source_pmid: '', pmid: ''}}`  
+  Consequence: the second run changes the file again, proving the “already-fixed no-op” claim is false for reachable input.
+
+- **Line 44, selector keyed to one object-key form.**  
+  With `NCT_PMID = {"NCT12345678":{"pmid":"999999"}}`, input: `{"NCT12345678": {pmid: ''}}`  
+  Consequence: valid JS/JSON-style trial blocks are not seen, so PMIDs are silently skipped.
+
+- **Lines 100-102, target selector contradicts its own filter claim.**  
+  Input path: `HERE/dashboard_FULL_REVIEW.html`, content: `const x={publishedHR: None,};`  
+  Consequence: the file is included and rewritten although line 99 says dashboard/atlas/etc. are filtered out.
+
+- **Lines 100-103/122, status code reports the wrapper, not the work.**  
+  Input: resolver JSON exists, but `HERE` contains zero `*_FULL_REVIEW.html` files.  
+  Consequence: it prints `Targets: 0 FULL_REVIEW files` and exits 0, so automation can treat “nothing ran” as success.
+
+No proven finding from this packet for merged-cell/off-by-one, negation dropped, or CRLF/LF text comparison.

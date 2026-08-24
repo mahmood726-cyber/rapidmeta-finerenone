@@ -1,0 +1,232 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a03261-289d-7612-ac3e-77919fda97cf
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/run_all_checks.py
+
+--- THE FILE, IN FULL ---
+"""One entry point for every validated check, so another lane can run them at scale.
+
+  python scripts/run_all_checks.py --object <obj.json> [--page <page.html>]
+                                   [--docx <f.docx> --docmodel <m.json>]
+  python scripts/run_all_checks.py --selftest        # every gate's own self-test
+
+Exit code is the number of checks that FAILED, so a batch runner can sum it.
+Each check prints its own verdict; nothing is summarised away.
+
+APPLICABILITY IS ENFORCED, not assumed. A check that cannot run against a given
+artefact reports SKIPPED with the reason. It never reports a pass it did not
+earn -- the failure mode this whole suite exists to prevent is a green result
+produced by measuring the wrong thing, or nothing.
+
+See DEFECT_CLASSES.md for what each check is looking for and why.
+"""
+import io
+import os
+import subprocess
+import sys
+
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+HERE = os.path.dirname(os.path.abspath(__file__))
+
+
+def run(label, argv, ok_codes=(0,), skip_codes=()):
+    print("\n" + "=" * 74)
+    print(label)
+    print("=" * 74)
+    try:
+        r = subprocess.run([sys.executable] + argv, capture_output=True,
+                           text=True, encoding="utf-8", errors="replace",
+                           timeout=1800)
+    except subprocess.TimeoutExpired:
+        print("TIMEOUT")
+        return 1
+    out = (r.stdout or "") + (r.stderr or "")
+    print(out.strip()[-3000:])
+    if r.returncode in skip_codes:
+        print("-> SKIPPED (not applicable to this artefact)")
+        return 0
+    verdict = "PASS" if r.returncode in ok_codes else "FAIL"
+    print("-> %s (exit %d)" % (verdict, r.returncode))
+    return 0 if verdict == "PASS" else 1
+
+
+def main(argv):
+    a = dict()
+    k = None
+    for tok in argv:
+        if tok.startswith("--"):
+            k = tok[2:]
+            a[k] = True
+        elif k:
+            a[k] = tok
+            k = None
+    fails = 0
+
+    if a.get("selftest"):
+        fails += run("k-consistency gate -- self-test",
+                     [os.path.join(HERE, "k_consistency_gate.py"), "--selftest"])
+        fails += run("alignment gate -- self-test",
+                     [os.path.join(HERE, "alignment_gate.py"), "--selftest"])
+        fails += run("verdict type -- self-test",
+                     [os.path.join(HERE, "verdict.py")])
+        fails += run("identity gate -- self-test",
+                     [os.path.join(HERE, "identity_gate.py"), "--selftest"])
+        fails += run("prose-claim gate -- self-test",
+                     [os.path.join(HERE, "prose_claim_gate.py"), "--selftest"])
+        fails += run("citation-year gate -- self-test",
+                     [os.path.join(HERE, "citation_year_gate.py"), "--selftest"])
+        print("\n%d self-test(s) FAILED" % fails)
+        return fails
+
+    if a.get("selftest") is None and a.get("object"):
+        pass
+    obj = a.get("object")
+    if obj and obj is not True:
+        fails += run("k-consistency gate (numeric + textual k)",
+                     [os.path.join(HERE, "k_consistency_gate.py"), obj])
+        # exit 2 = INVALID present, which is NOT a pass: see verdict.py.
+        fails += run("identity gate (registration verified in the source doc)",
+                     [os.path.join(HERE, "identity_gate.py"), obj,
+                      "--sources", os.path.join(os.path.dirname(obj), "sources")])
+        fails += run("prose-claim gate (direction / existence claims)",
+                     [os.path.join(HERE, "prose_claim_gate.py"), obj])
+        fails += run("citation-year gate (issue year, not the epub date)",
+                     [os.path.join(HERE, "citation_year_gate.py"), obj])
+
+    page = a.get("page")
+    if page and page is not True:
+        # exit 2 = unrecognised/unauditable structure, which is a legitimate
+        # SKIP rather than a failure: see the Plotly note in DEFECT_CLASSES.md.
+        fails += run("figure audit (series / axes / caption promises)",
+                     [os.path.join(HERE, "figure_audit.py"), page],
+                     skip_codes=(2,))
+
+    dm, dx = a.get("docmodel"), a.get("docx")
+    if dm and dx and page and dm is not True and dx is not True:
+        fails += run("alignment gate (docmodel <-> .docx <-> page)",
+                     [os.path.join(HERE, "alignment_gate.py"), dm, dx, page])
+
+    print("\n" + "#" * 74)
+    print("TOTAL CHECKS FAILED: %d" % fails)
+    return fails
+
+
+if __name__ == "__main__":
+    raise SystemExit(main(sys.argv[1:]))
+
+codex
+Defects found:
+
+- **Line 78 - check that CANNOT FAIL.**  
+  Input: `python scripts/run_all_checks.py --object`  
+  Consequence: `--object` without a value is treated as `True`, all object gates are skipped, and the wrapper exits `0` with `TOTAL CHECKS FAILED: 0`.
+
+- **Line 91 - check that CANNOT FAIL.**  
+  Input: `python scripts/run_all_checks.py --page`  
+  Consequence: `--page` without a value is treated as `True`, the figure audit is skipped, and the wrapper exits `0` without auditing the requested page.
+
+- **Line 99 - absent value accepted by truthiness guard.**  
+  Input: `python scripts/run_all_checks.py --docmodel m.json --docx f.docx --page`  
+  Consequence: bare `--page` is `True`, passes the alignment guard, and line 101 sends a boolean into `subprocess.run`, crashing the wrapper instead of reporting a controlled failure.
+
+- **Line 75 - no reachable failure for missing required mode/input.**  
+  Input: `python scripts/run_all_checks.py`  
+  Consequence: no check runs and the wrapper exits `0`, so an empty invocation is reported as a successful check run.
+
+No probe keyed to the string a fix removes found in this file.
+
+No idempotency guard satisfied by its own comment or marker found in this file.
+
+No different-copy instrument proven from this file; COULD NOT DETERMINE caller/source layout without the object schema and caller contract.
+
+No selector keyed to unused corpus form found in this file.
+
+No CRLF/LF text comparison found in this file.
+
+No merged-cell or off-by-one tabulation/count logic found in this file.
+
+No zero-as-absent numeric defect found in this file.
+
+No dropped negation parser found in this file.
+
+No wrapper-status-vs-work-status defect found in the child return handling in this file.
+tokens used
+11,600
+Defects found:
+
+- **Line 78 - check that CANNOT FAIL.**  
+  Input: `python scripts/run_all_checks.py --object`  
+  Consequence: `--object` without a value is treated as `True`, all object gates are skipped, and the wrapper exits `0` with `TOTAL CHECKS FAILED: 0`.
+
+- **Line 91 - check that CANNOT FAIL.**  
+  Input: `python scripts/run_all_checks.py --page`  
+  Consequence: `--page` without a value is treated as `True`, the figure audit is skipped, and the wrapper exits `0` without auditing the requested page.
+
+- **Line 99 - absent value accepted by truthiness guard.**  
+  Input: `python scripts/run_all_checks.py --docmodel m.json --docx f.docx --page`  
+  Consequence: bare `--page` is `True`, passes the alignment guard, and line 101 sends a boolean into `subprocess.run`, crashing the wrapper instead of reporting a controlled failure.
+
+- **Line 75 - no reachable failure for missing required mode/input.**  
+  Input: `python scripts/run_all_checks.py`  
+  Consequence: no check runs and the wrapper exits `0`, so an empty invocation is reported as a successful check run.
+
+No probe keyed to the string a fix removes found in this file.
+
+No idempotency guard satisfied by its own comment or marker found in this file.
+
+No different-copy instrument proven from this file; COULD NOT DETERMINE caller/source layout without the object schema and caller contract.
+
+No selector keyed to unused corpus form found in this file.
+
+No CRLF/LF text comparison found in this file.
+
+No merged-cell or off-by-one tabulation/count logic found in this file.
+
+No zero-as-absent numeric defect found in this file.
+
+No dropped negation parser found in this file.
+
+No wrapper-status-vs-work-status defect found in the child return handling in this file.

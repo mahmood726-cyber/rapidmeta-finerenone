@@ -1,0 +1,763 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a03238-a495-7200-b10b-1593095b45cc
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/r7b_strict_aact_verify.py
+
+--- THE FILE, IN FULL ---
+"""R7b — Strict, consistent AACT cross-verification.
+
+Three rules — each fires only on UNAMBIGUOUS contradictions where no
+acronym-expansion is needed:
+
+R-S1: NCT_NOT_IN_AACT_SNAPSHOT
+  The NCT doesn't exist at all in AACT 2026-04-12. Single signal but
+  deterministic — null PMID (preserve trial row; flag for re-extract).
+
+R-S2: AACT_INTERVENTION_HARD_MISMATCH
+  The drug name from extracted `group` field doesn't appear in ANY AACT
+  intervention name (case-insensitive substring), AND AACT lists at least
+  3 interventions (so it's not an underspecified registration).
+  Action: null PMID + group (preserve NCT but mark provenance broken).
+
+R-S3: TRIPLE_SIGNAL_WRONG_NCT
+  All three must fire:
+    a) Drug from group not in any AACT intervention (R-S2)
+    b) Enrollment is >2× off between AACT and (tN+cN)
+    c) No drug-name word (≥6 chars) from group appears in AACT brief_title
+  Action: NULL_KEY — the NCT genuinely belongs to a different trial.
+
+R-S4: PMID_AACT_TOPIC_MISMATCH
+  Both:
+    a) PMID title+abstract contains no drug-name word from AACT interventions
+    b) PMID title+abstract contains none of AACT's condition tokens
+  Action: NULL_PMID.
+
+This is intentionally more conservative than R7a — fewer false positives.
+"""
+from __future__ import annotations
+import json, csv, re, sys, io
+from pathlib import Path
+from collections import defaultdict, Counter
+
+if hasattr(sys.stdout, "buffer") and getattr(sys.stdout, "encoding", "").lower() != "utf-8":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+HERE = Path(__file__).resolve().parent.parent
+OUT = HERE / "outputs" / "extraction_audit"
+DATA = OUT / "data"
+PUBMED_CACHE = OUT / "pubmed_cache"
+AACT = Path("D:/AACT-storage/AACT/2026-04-12")
+DRY = "--dry-run" in sys.argv
+
+scores = json.loads((OUT / "fabrication_risk_scores.json").read_text(encoding="utf-8"))
+target_reviews = {r["review"] for r in scores
+                   if 0.30 <= r["score"] < 0.70 and not r["already_quarantined"]}
+print(f"Target reviews: {len(target_reviews)}")
+
+target_trials = []
+for json_p in sorted(DATA.glob("*.json")):
+    if json_p.name.startswith("_"): continue
+    rv = json_p.stem
+    if rv not in target_reviews: continue
+    try: d = json.loads(json_p.read_text(encoding="utf-8"))
+    except: continue
+    rd = d.get("realData") or {}
+    if not isinstance(rd, dict): continue
+    for nct, t in rd.items():
+        if not isinstance(t, dict): continue
+        if nct.startswith("NULLED:"): continue
+        if not re.match(r"^NCT\d{8}$", nct): continue
+        target_trials.append({"review": rv, "nct": nct, **t})
+
+target_ncts = sorted({t["nct"] for t in target_trials})
+print(f"Target trials: {len(target_trials)}  unique NCTs: {len(target_ncts)}")
+
+
+def load_aact(filename, key_col, want_cols, filter_set):
+    out = defaultdict(list)
+    with open(AACT / filename, "r", encoding="utf-8", errors="replace") as f:
+        reader = csv.DictReader(f, delimiter="|")
+        for row in reader:
+            k = (row.get(key_col) or "").strip().upper()
+            if k in filter_set:
+                out[k].append({c: (row.get(c) or "").strip() for c in want_cols})
+    return out
+
+
+target_set = set(target_ncts)
+print("Loading AACT…")
+studies = load_aact("studies.txt", "nct_id",
+                     ["brief_title", "official_title", "enrollment"], target_set)
+conds = load_aact("conditions.txt", "nct_id", ["downcase_name"], target_set)
+intvs = load_aact("interventions.txt", "nct_id", ["name"], target_set)
+print(f"  AACT resolved: {len(studies)}/{len(target_ncts)}")
+
+STOPWORDS = {"a","an","the","of","for","in","to","with","and","or","vs","vs.",
+              "versus","study","trial","randomized","randomised","double-blind",
+              "placebo","controlled","open-label","phase","evaluation","efficacy",
+              "safety","treatment","patients","adult","adults","subjects",
+              "evaluate","effect","effects","drug","new","placebo-controlled",
+              "extension","monthly","daily","weekly","oral","intravenous","subcutaneous",
+              # Geographic / cohort descriptors
+              "french","brazilian","italian","spanish","european","asian","american",
+              "japanese","chinese","african","british","canadian","german",
+              "cohort","registry","real-world","singapore","argentine","russian",
+              "nordic","scandinavian","atlantic","pacific","mediterranean",
+              # Study-design descriptors
+              "frontline","resistant","refractory","recurrent","relapsed","advanced",
+              "metastatic","localized","early","late","newly","established",
+              "proceed","followup","follow","baseline","week","year","month",
+              "primary","secondary","tertiary","cluster","crossover",
+              # Method words
+              "analysis","analyses","results","outcome","outcomes",
+              "sensitivity","subgroup","exploratory","posthoc"}
+
+
+def drug_words(group: str) -> list[str]:
+    """Words ≥6 chars from group field, excluding common dose/route terms."""
+    if not group: return []
+    out = []
+    for w in re.findall(r"[a-z]+", group.lower()):
+        if len(w) >= 6 and w not in STOPWORDS:
+            out.append(w)
+    return out
+
+
+def load_pubmed(pmid):
+    p = PUBMED_CACHE / f"{pmid}.json"
+    if not p.exists(): return None
+    try: return json.loads(p.read_text(encoding="utf-8"))
+    except: return None
+
+
+# Per-trial verdicts
+fixes = []
+issue_counts = Counter()
+for t in target_trials:
+    nct = t["nct"]; rv = t["review"]
+    s = studies.get(nct, [])
+    if not s:
+        issue_counts["NCT_NOT_IN_AACT_SNAPSHOT"] += 1
+        fixes.append({"rule": "R-S1", "op": "NULL_PMID", "review": rv, "nct": nct,
+                       "reason": "NCT not in AACT 2026-04-12 snapshot"})
+        continue
+    aact = s[0]
+    aact_title = (aact.get("brief_title", "") + " " + aact.get("official_title", "")).lower()
+    aact_intvs = [i["name"] for i in intvs.get(nct, [])]
+    aact_intvs_text = " ".join(aact_intvs).lower()
+    aact_conditions = {c["downcase_name"] for c in conds.get(nct, [])}
+    try: aact_n = int(aact.get("enrollment", "") or 0)
+    except: aact_n = 0
+
+    # R-S2 check
+    gws = drug_words(t.get("group") or "")
+    intv_hard_mismatch = False
+    if gws and len(aact_intvs) >= 3:
+        # Hard mismatch = NONE of top-3 drug words appear in AACT intvs
+        if not any(d in aact_intvs_text for d in gws[:3]):
+            intv_hard_mismatch = True
+            issue_counts["AACT_INTV_HARD_MISMATCH"] += 1
+
+    # R-S3 check (triple)
+    enroll_2x_off = False
+    if aact_n > 0:
+        try:
+            arm_sum = int(t.get("tN") or 0) + int(t.get("cN") or 0)
+            if arm_sum > 0 and (arm_sum / aact_n > 2 or aact_n / max(arm_sum, 1) > 2):
+                enroll_2x_off = True
+        except: pass
+
+    drug_in_title = any(d in aact_title for d in gws[:3]) if gws else False
+
+    if intv_hard_mismatch and enroll_2x_off and not drug_in_title:
+        issue_counts["TRIPLE_SIGNAL_WRONG_NCT"] += 1
+        fixes.append({"rule": "R-S3", "op": "NULL_KEY", "review": rv, "nct": nct,
+                       "reason": f"intv+enroll(2x)+title mismatch — drug {gws[:3]} not in AACT title nor any of {len(aact_intvs)} interventions; AACT N={aact_n} vs arm-sum={t.get('tN')}+{t.get('cN')}"})
+        continue  # NULL_KEY supersedes lesser actions
+
+    if intv_hard_mismatch:
+        fixes.append({"rule": "R-S2", "op": "NULL_PMID", "review": rv, "nct": nct,
+                       "reason": f"drug {gws[:3]} not in AACT interventions {aact_intvs[:3]}"})
+
+    # R-S4: PMID topic vs AACT (drug-name + condition overlap)
+    pmid = (t.get("pmid") or "").strip()
+    if pmid:
+        pub = load_pubmed(pmid)
+        if pub and pub.get("abstract"):
+            text = (pub.get("title", "") + " " + pub.get("abstract", "")).lower()
+            # AACT-derived "anchors"
+            aact_drugs = [re.sub(r"\W+", " ", n.lower()).strip() for n in aact_intvs]
+            aact_drug_words = set()
+            for x in aact_drugs:
+                for w in x.split():
+                    if len(w) >= 6 and w not in STOPWORDS:
+                        aact_drug_words.add(w)
+            cond_words = set()
+            for c in aact_conditions:
+                for w in re.findall(r"[a-z]+", c.lower()):
+                    if len(w) >= 5 and w not in STOPWORDS:
+                        cond_words.add(w)
+            drug_overlap = any(d in text for d in aact_drug_words)
+            cond_overlap = any(c in text for c in cond_words)
+            if not drug_overlap and not cond_overlap:
+                issue_counts["PMID_AACT_TOPIC_MISMATCH"] += 1
+                fixes.append({"rule": "R-S4", "op": "NULL_PMID", "review": rv, "nct": nct,
+                               "reason": f"PMID {pmid} contains no AACT drug-word ({sorted(aact_drug_words)[:3]}) or condition-word ({sorted(cond_words)[:3]})"})
+
+
+# Apply
+def find_block(txt, nct):
+    key_pat = re.compile(r'(["\'])' + re.escape(nct) + r'\1\s*:\s*\{')
+    m = key_pat.search(txt)
+    if not m: return None
+    start = m.end(); depth = 1; i = start; in_str = None
+    while i < len(txt) and depth > 0:
+        ch = txt[i]
+        if in_str:
+            if ch == "\\": i += 2; continue
+            if ch == in_str: in_str = None
+        else:
+            if ch in ('"', "'"): in_str = ch
+            elif ch == "{": depth += 1
+            elif ch == "}":
+                depth -= 1
+                if depth == 0: return (m.start(), i+1, start, i)
+        i += 1
+    return None
+
+
+def null_field_in_block(txt, body_start, body_end, field):
+    body = txt[body_start:body_end]
+    new_body, n = re.subn(
+        r'((["\']?)' + re.escape(field) + r'\2\s*:\s*)(?:["\'][^"\']*["\']|[0-9.eE+-]+|true|false)(?=\s*[,}])',
+        r'\1null', body, flags=re.IGNORECASE)
+    if n == 0: return txt, False
+    return txt[:body_start] + new_body + txt[body_end:], True
+
+
+def null_key(txt, nct):
+    nulled = f"NULLED:{nct}"
+    if nulled in txt: return txt, 0
+    pat = re.compile(r'(["\'])(' + re.escape(nct) + r')(\1)(\s*:)')
+    new_txt, n = pat.subn(
+        lambda m: f'{m.group(1)}NULLED:{m.group(2)}{m.group(3)}{m.group(4)}', txt)
+    return new_txt, n
+
+
+applied = []
+n_pmid = n_key = 0
+seen = set()
+for f in fixes:
+    key = (f["op"], f["review"], f["nct"])
+    if key in seen: continue
+    seen.add(key)
+    rv, nct, op = f["review"], f["nct"], f["op"]
+    html_path = HERE / f"{rv}.html"
+    if not html_path.exists():
+        applied.append({**f, "status": "FILE_MISSING"})
+        continue
+    txt = html_path.read_text(encoding="utf-8")
+    if op == "NULL_PMID":
+        block = find_block(txt, nct)
+        if not block:
+            applied.append({**f, "status": "BLOCK_NOT_FOUND"})
+            continue
+        _, _, bs, be = block
+        new_txt, ok = null_field_in_block(txt, bs, be, "pmid")
+        if ok:
+            if not DRY: html_path.write_text(new_txt, encoding="utf-8")
+            applied.append({**f, "status": "NULLED_PMID"})
+            n_pmid += 1
+        else:
+            applied.append({**f, "status": "PMID_ALREADY_NULL"})
+    elif op == "NULL_KEY":
+        new_txt, n = null_key(txt, nct)
+        if n > 0:
+            if not DRY: html_path.write_text(new_txt, encoding="utf-8")
+            applied.append({**f, "status": "NULLED_KEY"})
+            n_key += 1
+        elif f"NULLED:{nct}" in txt:
+            applied.append({**f, "status": "ALREADY_NULLED"})
+
+out_p = OUT / "r7b_verification.json"
+out_p.write_text(json.dumps({
+    "issue_counts": dict(issue_counts),
+    "fixes_proposed": len(fixes),
+    "applied": applied,
+    "summary": {"PMID_nulls": n_pmid, "NCT_key_nulls": n_key},
+}, indent=2, ensure_ascii=False), encoding="utf-8")
+
+print(f"\nIssue counts:")
+for k, v in issue_counts.most_common():
+    print(f"  {k}: {v}")
+print(f"\n{'DRY-RUN ' if DRY else ''}Fixes applied:")
+print(f"  PMID nulls (R-S1+S2+S4):  {n_pmid}")
+print(f"  NCT key nulls (R-S3):     {n_key}")
+print(f"\nLog → {out_p}")
+
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Get-Content -Path F:\\E156\\rewrite-workbook.txt -TotalCount 40" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Get-Content -Path F:\\ProjectIndex\\INDEX.md -TotalCount 40" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=1; Get-Content -Path scripts'"\\r7b_strict_aact_verify.py | ForEach-Object { '{0,4}: {1}' -f "'$i, $_; $i++ }' in F:\rapidmeta-ssot-shell
+ succeeded in 364ms:
+<!-- sentinel:skip-file - portfolio registry; absolute paths ARE the data -->
+# C: Drive Project Index
+> **Last updated**: 2026-05-14 (C:\HTML apps focused repair batch continued: hub shell launch fix, static contracts across ten HTML app repos, NMA/living-meta/nma-dose-response landing and asset-link repairs, and NMA doc hardcoded-path cleanup. Prior SheafNMA v0.2.0, D-drive legacy smoke-contract continuation, CardioOracle lifecycle status freeze, C-drive model/project smoke-contract continuation, mahmood789 consolidation, Sentinel/Overmind JSONL and verification repair, C-drive reproducibility audit continuation, C-drive verification repair, D-drive repair batch, superapp, C-drive sweep, home-folder hardening, Trial Truthfulness Atlas, and portfolio notes retained below.)
+
+### C:\HTML apps focused repair batch (2026-05-14)
+> - `C:\HTML apps\hub\`: added a launchable `index.html` shell and static contract tests for required registry/runtime wiring; fixed `app.js` local `file://` launch resolution so the hub opened from `hub\index.html` links sibling apps from the parent HTML-apps directory instead of nesting paths under `hub`. Verification: `pytest -q -p no:cacheprovider` -> `3 passed`; `node --check app.js && node --check projects.js` -> PASS; headless Chrome smoke on `file:///mnt/c/HTML%20apps/hub/index.html` confirmed the page title and sibling app links. GitHub pushed: `mahmood726-cyber/hub` main `c1a6725`.
+> - `C:\HTML apps\evidence-board\`, `C:\HTML apps\focus-studio\`, `C:\HTML apps\kanban-lab\`: added pytest-visible static app shell contracts covering title/description, localStorage persistence hooks, key controls, and absence of unresolved templates or hardcoded local drive paths; added repo `.gitignore` entries for Python caches and `PROGRESS.md`. Verification: each `pytest -q -p no:cacheprovider` -> `2 passed` with the existing pytest `cache_dir` warning; scoped `git diff --check` -> PASS. GitHub pushed: `evidence-board` master `9a87c8b`, `focus-studio` master `0fa728b`, `kanban-lab` master `81cad38`.
+> - `C:\HTML apps\nma-pro-v2\`: fixed the landing page's broken app links from absent v6/v7 asset filenames to the current `e156-submission/assets/nma-pro-v8.0.html`, added static link-resolution contracts, and removed Sentinel P0 hardcoded local OneDrive paths from legacy docs. Verification: `pytest -q -p no:cacheprovider tests/test_smoke.py tests/test_static_links.py` -> `3 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=1 INFO=302` (pre-existing tracked autogen warning plus HTML a11y INFO). GitHub pushed: master `a2834e7` for the link fix and master `a74e385` for the P0 doc cleanup.
+> - `C:\HTML apps\IPD-Meta-Pro\` and `C:\HTML apps\Truthcert1\`: added static link-resolution contracts for landing-page local assets and canonical app entrypoints. Verification: `IPD-Meta-Pro` `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; `Truthcert1` same command -> `2 passed` with existing pytest `cache_dir` warning. GitHub pushed: `IPD-Meta-Pro` master `b26ee09`, `Truthcert1` master `81eddd3`.
+> - `C:\HTML apps\living-meta\`: repaired landing-page validation links that pointed to a missing HTML asset and an out-of-repo sibling path; linked the existing validation and limitations docs instead, and added a static link-resolution contract. Verification: `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=8` (pre-existing HTML a11y INFO). GitHub pushed: master `c3c8a9b`.
+> - `C:\HTML apps\Pairwiseai\`: added a static landing-page contract covering local link resolution, absence of unresolved templates/local drive paths, and the key app entrypoints under `e156-submission/assets`. Verification: `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=1731` (pre-existing HTML a11y INFO). GitHub pushed: master `2ade493`.
+> - `C:\HTML apps\nma-dose-response-app\`: pushed the existing smoke-blocker commit and added an E156 asset-bundle repair so `e156-submission\assets\index*.html` resolves its JS runtime dependencies from inside the assets folder; added a static link-resolution contract covering root and E156 app entrypoints. Verification: `pytest -q -p no:cacheprovider tests/test_smoke.py tests/test_static_links.py` -> `4 passed` with the existing pytest `cache_dir` warning; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=442` (pre-existing HTML a11y INFO). GitHub pushed: master `e95fae0` and `96594b6`.
+> - Push gate: Windows Git credential path succeeded after WSL Git lacked HTTPS credentials. Sentinel pre-push/manual scan verdicts were BLOCK=0; evidence-board INFO=18, focus-studio INFO=10, kanban-lab INFO=10, living-meta INFO=8, Pairwiseai INFO=1731, nma-dose-response-app INFO=442 (pre-existing P2 HTML accessibility notes); hub push emitted no Sentinel findings.
+> - Existing unrelated dirty files were left unstaged in these repos, mainly protocol/license/doc edits and untracked `paper\` outputs in the three app repos, plus pre-existing hub metadata/submission/style edits.
+
+### SheafNMA (2026-05-12; v0.2.0 real-NMA-corpus validation + 36-cell Ã— 1000-rep simulation + methods paper draft)
+> - `C:\Models\SheafNMA\` â€” cellular-sheaf inconsistency localization for network meta-analysis. v0.1.0 (2026-04-07) was math + single-file HTML dashboard + E156 #153 micro-paper on a synthetic 12-contrast network. v0.2.0 refactored the 457-LOC `generate_figures.py` into a `sheafnma/` package (`core`, `io`, `simulate`, `comparators`, `r_bridge`), validated on 13 R-netmeta built-in NMAs, and shipped a methods-paper draft for Research Synthesis Methods.
+> - Method: precision-weighted coboundary `F[e, treat1] = -1/SE_e, F[e, treat2] = +1/SE_e`; sheaf Laplacian `L = Fáµ€F` (symmetric PSD); WLS-solve node estimates with node 0 anchored; per-edge residuals `r_e = dÌƒ_e âˆ’ (F x*)_e` localize inconsistency; **Global Inconsistency Index** `GII = Î£ rÂ²` is the global statistic. One algebraic object yields both global + per-edge â€” complements (not replaces) node-splitting.
+> - Real-corpus headline: across **13 R-netmeta built-in NMAs** (Senn 2013 diabetes, Dias smokingcessation, Dong 2013 thrombolytics, Linde 2015/2016 acupuncture, Salanti antimanic, Baker, Dogliotti, Franchini, Gurusamy, Stowe, Woods, dietaryfat, parkinson) the global design-by-treatment Ï‡Â² (Higgins 2012) failed to reject in all 13. **SheafNMA flagged â‰¥1 localized inconsistency edge in 5 of those 13 (38.5%)** at the Youden-frozen threshold of **2.6912** â€” networks that look globally consistent harbor at least one inconsistent edge the global test misses.
+> - Simulation rigor: 36-cell grid (n_treatments âˆˆ {4,6,8} Ã— n_studies_per_edge âˆˆ {3,5,10} Ã— Ï„_inc âˆˆ {0,0.2,0.5,1.0}) Ã— **1000 replications per cell**, held-out training cell at (6,5,0.5) for Youden's-J threshold selection (frozen before evaluating remaining 35 cells). Type-I error at Ï„_inc=0 was **0.000 across all cells**. Mean per-edge sensitivity 0.981 / specificity 0.945 at Ï„_inc=0.5.
+> - Comparator suite: DBT-Ï‡Â² (Higgins 2012 Â§3.2, pure-Python), Bucher loop closure (Bucher 1997, pure-Python), node-splitting (Dias 2010, via `netmeta::netsplit` shelled to R 4.5.2). Per-edge agreement with node-splitting was 45.4% â€” asymmetric: SheafNMA flags 12/506 = 2.4% of edges vs node-splitting's 250/436 = 57% at p<0.05 Bonferroni-uncorrected (the calibrated Youden cut is much more conservative than a per-edge Î±-test). Â§4.2 of the paper explicitly explains this rather than presenting the 45.4% bare.
+> - Corpus export: `corpus/export_netmeta.R` handles 7 distinct netmeta dataset formats (contrast-level TE/seTE, arm-based event/n, arm-based mean/sd/n, wide multi-arm OR/MD, three-arm smokingcessation, rate-based IRR/person-years) and exports all 13 to `corpus/data/*.csv` in the sheafnma standard schema (`study, treat1, treat2, effect, se`).
+> - GitHub: `https://github.com/mahmood726-cyber/sheaf-nma` (master `6c7db13`, tag `v0.2.0`). Pages LIVE: `https://mahmood726-cyber.github.io/sheaf-nma/` (Phase-1 dashboard unchanged in v0.2). 33 tests passing; Sentinel BLOCK=0 WARN=0 (2 INFO = pre-existing HTML a11y items in the v0.1 dashboard).
+> - Workbook entry: `[153/919] SheafNMA`. CURRENT BODY updated 2026-05-12 to the v0.2 156-word / 7-sentence body (replaces v0.1 synthetic-"smoking cessation" framing with the real netmeta corpus). SUBMITTED `[ ]`; YOUR REWRITE preserved untouched per workbook protection rules. Target: Research Synthesis Methods full methods paper (`paper/sheafnma_v2.md`, 1190 words drafted; [TODO] prose blocks in Â§1 Background / Â§4.3 case studies / Â§5 Discussion) + SynthÄ“sis Methods Note companion (`paper/methods_note.md`, 156-word).
+> - Known landmine: `Dong2013` netsplit fails inside netmeta's multi-arm validator ("wrong number of comparisons"); SheafNMA + DBT + Bucher still run on it, only `netsplit_p` column is blank for its 70 edges.
+> - v0.2 deferrals (spec Â§10): multi-arm covariance correction (single-D stalks only), higher-D stalks (Phase 1 Â§3.4 future work), Bayesian sheaf priors, OTS / Bitcoin anchor (broken on Py 3.13 Windows per `lessons.md`).
+
+### hksj-q-floor-atlas (2026-05-12; 8th Pairwise70 atlas; tags prereg-v0.0.1 + v0.1.0)
+> - `C:\Projects\hksj-q-floor-atlas\` â€” 8th calibration atlas in the Pairwise70 series. Sister to `cochrane-modern-re` (engine source), `repro-floor-atlas`, `responder-floor-atlas`, `trial-truthfulness-atlas`, `africa-tb-atlas`, `pactr-hiddenness-atlas`, `africa-hiv-prep-atlas`.
+> - Question: how often does omitting the `max(1, Q/(k-1))` floor on HKSJ variance, in the I^2=0 regime where un-floored HKSJ narrows below REML+Wald, overstate precision across the Cochrane CDSR? Pre-registered via `prereg-v0.0.1` tag + 4 Internet Archive snapshots (Bitcoin OTS deferred â€” Python 3.13 SSL libeay32 bug per lessons.md; web-stamper fallback documented).
+> - Headline: D_1 (I^2=0, k>=2, converged) = 3,677 MAs = 57.6% of corpus. On D_1a (Q>0, n=3,536): median CI-width ratio (floored / un-floored) = 3.64x (IQR 1.60-10.56; 95th pct 57.4x); significance lost in 17.08% of MAs. D_1b (Q=0, n=141 = 3.83% of D_1): sig_loss 24.8%, ratio unbounded â€” un-floored HKSJ SE is exactly zero (the floor effect is unbounded); see `docs/AMENDMENTS.md` entry 1 for split rationale.
+> - Per k-stratum medians: k=2: 4.26x (sig_loss 8.6%); k=3: 3.64x (12.9%); k=4-5: 3.10x (13.1%); k=6-9: 3.18x (17.3%); k>=10: 3.80x (25.1%). sig_loss increases with k because higher-k pooled effects sit closer to null, so floor widening crosses zero more often.
+> - Engine: independent metafor pass via fork of cochrane-modern-re's `run_metafor.R` minus the floor block. Input parquet SHA-256 pinned in `docs/spec.md` sec.1.5 (`31434fb118c6ec44a025eeb43a90e35ef9e050711fa45aa2cb5c1244b2d89751`). 3 hand-verified golden MAs match metafor reference within 1e-6.
+> - GitHub: `https://github.com/mahmood726-cyber/hksj-q-floor-atlas` (master + tags `prereg-v0.0.1` and `v0.1.0`). Pages LIVE: `https://mahmood726-cyber.github.io/hksj-q-floor-atlas/`.
+> - 64 tests; Sentinel BLOCK=0 WARN=0 INFO=0; 7 IA snapshots recorded in `docs/preregistration.md`.
+> - Workbook entry: `[920/920] hksj-q-floor-atlas`; target SynthÄ“sis Methods Note (340w draft, â‰¤400 cap).
+> - v0.2 candidates (NOT in v0.1.0): published-CI matching ("is THIS Cochrane review wrong?"), PM/SJ/Bayesian Ï„Â² robustness, DL re-pooling, Bitcoin OTS once Python 3.13 issue is resolved.
+
+### D-drive legacy smoke-contract continuation (2026-05-12)
+> - `D:\Projects\mahmood789\786-MIII-Mean-single-group\`: fixed the placeholder issue-tracker link in `README.md` and added a pytest-visible static contract for the Shiny app package surface, sample-data schema, metafor workflow, downloads, and absence of local paths/template links. Verification: `pytest -q -p no:cacheprovider` -> `2 passed`; `git diff --check` -> PASS.
+
+ succeeded in 420ms:
+E156 REWRITE WORKBOOK
+sentinel:skip-file
+sentinel:claim-language-allow
+(Sentinel markers above:
+ - sentinel:skip-file: this workbook intentionally contains C:\Users\... PATH:
+   lines pointing to each project's local source directory â€” they're metadata,
+   not code. The marker keeps Sentinel from emitting ~16 P0 hardcoded-path
+   BLOCKs every push.
+ - sentinel:claim-language-allow: CURRENT BODY entries are the AI-drafted
+   summaries that students rewrite into hedged language â€” flagging overclaim
+   words IN those drafts is the whole pedagogical point, not a defect.
+   File-scope marker here suppresses the ~1293 claim-language WARNs on the
+   CURRENT BODY entries; the YOUR REWRITE entries are where the hedging
+   discipline matters and remains lintable in the rendered student board.)
+
+DENOMINATOR CONVENTION (added 2026-05-06 after review-findings P1-5):
+  Each entry header is `[N/total]` where N = ordinal insertion index and
+  `total` = current portfolio size as of the most recent reconcile sweep.
+  Older entries are back-rewritten on milestone boundaries (rather than
+  preserving their insertion-time denominator) to keep
+  reconcile_counts.py from flagging "WORKBOOK DRIFT". The pre-commit
+  guard (scripts/check_workbook_commit.py) blocks commits that bundle a
+  denominator sweep with substantive content edits to existing entries.
+
+======================================================================
+
+INSTRUCTIONS:
+- Replace text under YOUR REWRITE with your body (at most 156 words, 7 sentences)
+- S1=Question S2=Dataset S3=Method S4=Result(number+interval) S5=Robustness S6=Interpretation S7=Boundary(limitation)
+- Leave YOUR REWRITE blank to keep current version
+- Run: python C:/E156/scripts/apply_rewrites.py          (validate)
+- Run: python C:/E156/scripts/apply_rewrites.py --apply (apply)
+
+AUTHORSHIP RULE (mandatory for every submission):
+- Mahmood Ahmad (MA) must NEVER be listed as first author and NEVER as
+  last (senior) author. The student rewriter is first author. Last/senior
+  author must be a faculty supervisor or co-investigator distinct from MA.
+  MA's position is middle-author only (e.g. role: data curation, software,
+  methodology, supervision-of-tooling). This applies to every paper in
+  this workbook regardless of contribution depth.
+
+ succeeded in 1359ms:
+   1: """R7b â€” Strict, consistent AACT cross-verification.
+   2: 
+   3: Three rules â€” each fires only on UNAMBIGUOUS contradictions where no
+   4: acronym-expansion is needed:
+   5: 
+   6: R-S1: NCT_NOT_IN_AACT_SNAPSHOT
+   7:   The NCT doesn't exist at all in AACT 2026-04-12. Single signal but
+   8:   deterministic â€” null PMID (preserve trial row; flag for re-extract).
+   9: 
+  10: R-S2: AACT_INTERVENTION_HARD_MISMATCH
+  11:   The drug name from extracted `group` field doesn't appear in ANY AACT
+  12:   intervention name (case-insensitive substring), AND AACT lists at least
+  13:   3 interventions (so it's not an underspecified registration).
+  14:   Action: null PMID + group (preserve NCT but mark provenance broken).
+  15: 
+  16: R-S3: TRIPLE_SIGNAL_WRONG_NCT
+  17:   All three must fire:
+  18:     a) Drug from group not in any AACT intervention (R-S2)
+  19:     b) Enrollment is >2Ã— off between AACT and (tN+cN)
+  20:     c) No drug-name word (â‰¥6 chars) from group appears in AACT brief_title
+  21:   Action: NULL_KEY â€” the NCT genuinely belongs to a different trial.
+  22: 
+  23: R-S4: PMID_AACT_TOPIC_MISMATCH
+  24:   Both:
+  25:     a) PMID title+abstract contains no drug-name word from AACT interventions
+  26:     b) PMID title+abstract contains none of AACT's condition tokens
+  27:   Action: NULL_PMID.
+  28: 
+  29: This is intentionally more conservative than R7a â€” fewer false positives.
+  30: """
+  31: from __future__ import annotations
+  32: import json, csv, re, sys, io
+  33: from pathlib import Path
+  34: from collections import defaultdict, Counter
+  35: 
+  36: if hasattr(sys.stdout, "buffer") and getattr(sys.stdout, "encoding", "").lower() != "utf-8":
+  37:     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+  38: 
+  39: HERE = Path(__file__).resolve().parent.parent
+  40: OUT = HERE / "outputs" / "extraction_audit"
+  41: DATA = OUT / "data"
+  42: PUBMED_CACHE = OUT / "pubmed_cache"
+  43: AACT = Path("D:/AACT-storage/AACT/2026-04-12")
+  44: DRY = "--dry-run" in sys.argv
+  45: 
+  46: scores = json.loads((OUT / "fabrication_risk_scores.json").read_text(encoding="utf-8"))
+  47: target_reviews = {r["review"] for r in scores
+  48:                    if 0.30 <= r["score"] < 0.70 and not r["already_quarantined"]}
+  49: print(f"Target reviews: {len(target_reviews)}")
+  50: 
+  51: target_trials = []
+  52: for json_p in sorted(DATA.glob("*.json")):
+  53:     if json_p.name.startswith("_"): continue
+  54:     rv = json_p.stem
+  55:     if rv not in target_reviews: continue
+  56:     try: d = json.loads(json_p.read_text(encoding="utf-8"))
+  57:     except: continue
+  58:     rd = d.get("realData") or {}
+  59:     if not isinstance(rd, dict): continue
+  60:     for nct, t in rd.items():
+  61:         if not isinstance(t, dict): continue
+  62:         if nct.startswith("NULLED:"): continue
+  63:         if not re.match(r"^NCT\d{8}$", nct): continue
+  64:         target_trials.append({"review": rv, "nct": nct, **t})
+  65: 
+  66: target_ncts = sorted({t["nct"] for t in target_trials})
+  67: print(f"Target trials: {len(target_trials)}  unique NCTs: {len(target_ncts)}")
+  68: 
+  69: 
+  70: def load_aact(filename, key_col, want_cols, filter_set):
+  71:     out = defaultdict(list)
+  72:     with open(AACT / filename, "r", encoding="utf-8", errors="replace") as f:
+  73:         reader = csv.DictReader(f, delimiter="|")
+  74:         for row in reader:
+  75:             k = (row.get(key_col) or "").strip().upper()
+  76:             if k in filter_set:
+  77:                 out[k].append({c: (row.get(c) or "").strip() for c in want_cols})
+  78:     return out
+  79: 
+  80: 
+  81: target_set = set(target_ncts)
+  82: print("Loading AACTâ€¦")
+  83: studies = load_aact("studies.txt", "nct_id",
+  84:                      ["brief_title", "official_title", "enrollment"], target_set)
+  85: conds = load_aact("conditions.txt", "nct_id", ["downcase_name"], target_set)
+  86: intvs = load_aact("interventions.txt", "nct_id", ["name"], target_set)
+  87: print(f"  AACT resolved: {len(studies)}/{len(target_ncts)}")
+  88: 
+  89: STOPWORDS = {"a","an","the","of","for","in","to","with","and","or","vs","vs.",
+  90:               "versus","study","trial","randomized","randomised","double-blind",
+  91:               "placebo","controlled","open-label","phase","evaluation","efficacy",
+  92:               "safety","treatment","patients","adult","adults","subjects",
+  93:               "evaluate","effect","effects","drug","new","placebo-controlled",
+  94:               "extension","monthly","daily","weekly","oral","intravenous","subcutaneous",
+  95:               # Geographic / cohort descriptors
+  96:               "french","brazilian","italian","spanish","european","asian","american",
+  97:               "japanese","chinese","african","british","canadian","german",
+  98:               "cohort","registry","real-world","singapore","argentine","russian",
+  99:               "nordic","scandinavian","atlantic","pacific","mediterranean",
+ 100:               # Study-design descriptors
+ 101:               "frontline","resistant","refractory","recurrent","relapsed","advanced",
+ 102:               "metastatic","localized","early","late","newly","established",
+ 103:               "proceed","followup","follow","baseline","week","year","month",
+ 104:               "primary","secondary","tertiary","cluster","crossover",
+ 105:               # Method words
+ 106:               "analysis","analyses","results","outcome","outcomes",
+ 107:               "sensitivity","subgroup","exploratory","posthoc"}
+ 108: 
+ 109: 
+ 110: def drug_words(group: str) -> list[str]:
+ 111:     """Words â‰¥6 chars from group field, excluding common dose/route terms."""
+ 112:     if not group: return []
+ 113:     out = []
+ 114:     for w in re.findall(r"[a-z]+", group.lower()):
+ 115:         if len(w) >= 6 and w not in STOPWORDS:
+ 116:             out.append(w)
+ 117:     return out
+ 118: 
+ 119: 
+ 120: def load_pubmed(pmid):
+ 121:     p = PUBMED_CACHE / f"{pmid}.json"
+ 122:     if not p.exists(): return None
+ 123:     try: return json.loads(p.read_text(encoding="utf-8"))
+ 124:     except: return None
+ 125: 
+ 126: 
+ 127: # Per-trial verdicts
+ 128: fixes = []
+ 129: issue_counts = Counter()
+ 130: for t in target_trials:
+ 131:     nct = t["nct"]; rv = t["review"]
+ 132:     s = studies.get(nct, [])
+ 133:     if not s:
+ 134:         issue_counts["NCT_NOT_IN_AACT_SNAPSHOT"] += 1
+ 135:         fixes.append({"rule": "R-S1", "op": "NULL_PMID", "review": rv, "nct": nct,
+ 136:                        "reason": "NCT not in AACT 2026-04-12 snapshot"})
+ 137:         continue
+ 138:     aact = s[0]
+ 139:     aact_title = (aact.get("brief_title", "") + " " + aact.get("official_title", "")).lower()
+ 140:     aact_intvs = [i["name"] for i in intvs.get(nct, [])]
+ 141:     aact_intvs_text = " ".join(aact_intvs).lower()
+ 142:     aact_conditions = {c["downcase_name"] for c in conds.get(nct, [])}
+ 143:     try: aact_n = int(aact.get("enrollment", "") or 0)
+ 144:     except: aact_n = 0
+ 145: 
+ 146:     # R-S2 check
+ 147:     gws = drug_words(t.get("group") or "")
+ 148:     intv_hard_mismatch = False
+ 149:     if gws and len(aact_intvs) >= 3:
+ 150:         # Hard mismatch = NONE of top-3 drug words appear in AACT intvs
+ 151:         if not any(d in aact_intvs_text for d in gws[:3]):
+ 152:             intv_hard_mismatch = True
+ 153:             issue_counts["AACT_INTV_HARD_MISMATCH"] += 1
+ 154: 
+ 155:     # R-S3 check (triple)
+ 156:     enroll_2x_off = False
+ 157:     if aact_n > 0:
+ 158:         try:
+ 159:             arm_sum = int(t.get("tN") or 0) + int(t.get("cN") or 0)
+ 160:             if arm_sum > 0 and (arm_sum / aact_n > 2 or aact_n / max(arm_sum, 1) > 2):
+ 161:                 enroll_2x_off = True
+ 162:         except: pass
+ 163: 
+ 164:     drug_in_title = any(d in aact_title for d in gws[:3]) if gws else False
+ 165: 
+ 166:     if intv_hard_mismatch and enroll_2x_off and not drug_in_title:
+ 167:         issue_counts["TRIPLE_SIGNAL_WRONG_NCT"] += 1
+ 168:         fixes.append({"rule": "R-S3", "op": "NULL_KEY", "review": rv, "nct": nct,
+ 169:                        "reason": f"intv+enroll(2x)+title mismatch â€” drug {gws[:3]} not in AACT title nor any of {len(aact_intvs)} interventions; AACT N={aact_n} vs arm-sum={t.get('tN')}+{t.get('cN')}"})
+ 170:         continue  # NULL_KEY supersedes lesser actions
+ 171: 
+ 172:     if intv_hard_mismatch:
+ 173:         fixes.append({"rule": "R-S2", "op": "NULL_PMID", "review": rv, "nct": nct,
+ 174:                        "reason": f"drug {gws[:3]} not in AACT interventions {aact_intvs[:3]}"})
+ 175: 
+ 176:     # R-S4: PMID topic vs AACT (drug-name + condition overlap)
+ 177:     pmid = (t.get("pmid") or "").strip()
+ 178:     if pmid:
+ 179:         pub = load_pubmed(pmid)
+ 180:         if pub and pub.get("abstract"):
+ 181:             text = (pub.get("title", "") + " " + pub.get("abstract", "")).lower()
+ 182:             # AACT-derived "anchors"
+ 183:             aact_drugs = [re.sub(r"\W+", " ", n.lower()).strip() for n in aact_intvs]
+ 184:             aact_drug_words = set()
+ 185:             for x in aact_drugs:
+ 186:                 for w in x.split():
+ 187:                     if len(w) >= 6 and w not in STOPWORDS:
+ 188:                         aact_drug_words.add(w)
+ 189:             cond_words = set()
+ 190:             for c in aact_conditions:
+ 191:                 for w in re.findall(r"[a-z]+", c.lower()):
+ 192:                     if len(w) >= 5 and w not in STOPWORDS:
+ 193:                         cond_words.add(w)
+ 194:             drug_overlap = any(d in text for d in aact_drug_words)
+ 195:             cond_overlap = any(c in text for c in cond_words)
+ 196:             if not drug_overlap and not cond_overlap:
+ 197:                 issue_counts["PMID_AACT_TOPIC_MISMATCH"] += 1
+ 198:                 fixes.append({"rule": "R-S4", "op": "NULL_PMID", "review": rv, "nct": nct,
+ 199:                                "reason": f"PMID {pmid} contains no AACT drug-word ({sorted(aact_drug_words)[:3]}) or condition-word ({sorted(cond_words)[:3]})"})
+ 200: 
+ 201: 
+ 202: # Apply
+ 203: def find_block(txt, nct):
+ 204:     key_pat = re.compile(r'(["\'])' + re.escape(nct) + r'\1\s*:\s*\{')
+ 205:     m = key_pat.search(txt)
+ 206:     if not m: return None
+ 207:     start = m.end(); depth = 1; i = start; in_str = None
+ 208:     while i < len(txt) and depth > 0:
+ 209:         ch = txt[i]
+ 210:         if in_str:
+ 211:             if ch == "\\": i += 2; continue
+ 212:             if ch == in_str: in_str = None
+ 213:         else:
+ 214:             if ch in ('"', "'"): in_str = ch
+ 215:             elif ch == "{": depth += 1
+ 216:             elif ch == "}":
+ 217:                 depth -= 1
+ 218:                 if depth == 0: return (m.start(), i+1, start, i)
+ 219:         i += 1
+ 220:     return None
+ 221: 
+ 222: 
+ 223: def null_field_in_block(txt, body_start, body_end, field):
+ 224:     body = txt[body_start:body_end]
+ 225:     new_body, n = re.subn(
+ 226:         r'((["\']?)' + re.escape(field) + r'\2\s*:\s*)(?:["\'][^"\']*["\']|[0-9.eE+-]+|true|false)(?=\s*[,}])',
+ 227:         r'\1null', body, flags=re.IGNORECASE)
+ 228:     if n == 0: return txt, False
+ 229:     return txt[:body_start] + new_body + txt[body_end:], True
+ 230: 
+ 231: 
+ 232: def null_key(txt, nct):
+ 233:     nulled = f"NULLED:{nct}"
+ 234:     if nulled in txt: return txt, 0
+ 235:     pat = re.compile(r'(["\'])(' + re.escape(nct) + r')(\1)(\s*:)')
+ 236:     new_txt, n = pat.subn(
+ 237:         lambda m: f'{m.group(1)}NULLED:{m.group(2)}{m.group(3)}{m.group(4)}', txt)
+ 238:     return new_txt, n
+ 239: 
+ 240: 
+ 241: applied = []
+ 242: n_pmid = n_key = 0
+ 243: seen = set()
+ 244: for f in fixes:
+ 245:     key = (f["op"], f["review"], f["nct"])
+ 246:     if key in seen: continue
+ 247:     seen.add(key)
+ 248:     rv, nct, op = f["review"], f["nct"], f["op"]
+ 249:     html_path = HERE / f"{rv}.html"
+ 250:     if not html_path.exists():
+ 251:         applied.append({**f, "status": "FILE_MISSING"})
+ 252:         continue
+ 253:     txt = html_path.read_text(encoding="utf-8")
+ 254:     if op == "NULL_PMID":
+ 255:         block = find_block(txt, nct)
+ 256:         if not block:
+ 257:             applied.append({**f, "status": "BLOCK_NOT_FOUND"})
+ 258:             continue
+ 259:         _, _, bs, be = block
+ 260:         new_txt, ok = null_field_in_block(txt, bs, be, "pmid")
+ 261:         if ok:
+ 262:             if not DRY: html_path.write_text(new_txt, encoding="utf-8")
+ 263:             applied.append({**f, "status": "NULLED_PMID"})
+ 264:             n_pmid += 1
+ 265:         else:
+ 266:             applied.append({**f, "status": "PMID_ALREADY_NULL"})
+ 267:     elif op == "NULL_KEY":
+ 268:         new_txt, n = null_key(txt, nct)
+ 269:         if n > 0:
+ 270:             if not DRY: html_path.write_text(new_txt, encoding="utf-8")
+ 271:             applied.append({**f, "status": "NULLED_KEY"})
+ 272:             n_key += 1
+ 273:         elif f"NULLED:{nct}" in txt:
+ 274:             applied.append({**f, "status": "ALREADY_NULLED"})
+ 275: 
+ 276: out_p = OUT / "r7b_verification.json"
+ 277: out_p.write_text(json.dumps({
+ 278:     "issue_counts": dict(issue_counts),
+ 279:     "fixes_proposed": len(fixes),
+ 280:     "applied": applied,
+ 281:     "summary": {"PMID_nulls": n_pmid, "NCT_key_nulls": n_key},
+ 282: }, indent=2, ensure_ascii=False), encoding="utf-8")
+ 283: 
+ 284: print(f"\nIssue counts:")
+ 285: for k, v in issue_counts.most_common():
+ 286:     print(f"  {k}: {v}")
+ 287: print(f"\n{'DRY-RUN ' if DRY else ''}Fixes applied:")
+ 288: print(f"  PMID nulls (R-S1+S2+S4):  {n_pmid}")
+ 289: print(f"  NCT key nulls (R-S3):     {n_key}")
+ 290: print(f"\nLog â†’ {out_p}")
+
+codex
+**Defects**
+
+- Line 64 — input: `{"realData":{"NCT00000001":{"nct":"NCT99999999","group":"drugalpha","tN":1,"cN":1,"pmid":"1"}}}` with `rv` selected in `fabrication_risk_scores.json`. Consequence: the validated key `NCT00000001` is overwritten by `t["nct"]`, so the instrument reads a name instead of its binding.
+
+- Lines 52-64 and 249-263 — input: audit JSON has `"NCT00000001":{"group":"wrongdrug","pmid":"1"}` producing a NULL_PMID fix, while `rv.html` has `"NCT00000001":{"group":"rightdrug","pmid":"2"}`. Consequence: a verdict from the audit JSON copy is applied to a different HTML copy without checking the block still matches.
+
+- Line 160 — input: AACT `enrollment="100"`, `t={"tN":0,"cN":0,"group":"drugalpha"}`, with `intv_hard_mismatch=True` and `drug_in_title=False`. Consequence: a real zero arm total is treated like absent/unusable, so a 100-vs-0 enrollment contradiction cannot trigger R-S3.
+
+- Lines 194-195 — input: `aact_drug_words={"pembrolizumab"}`, `cond_words={"melanoma"}`, PubMed text `"This report is not about pembrolizumab and excludes melanoma."`. Consequence: negated mentions count as overlap, so R-S4 misses a wrong PMID.
+
+- Lines 234 and 273 — input: `txt='<!-- NULLED:NCT12345678 -->\nconst realData={"NCT12345678":{"pmid":"1"}};'`, `nct="NCT12345678"`. Consequence: the idempotency guard is satisfied by its own marker/comment, leaves the live key unchanged, and reports `ALREADY_NULLED`.
+
+- Lines 250-252 — input: selected `rv` produces an R-S1 fix for `NCT12345678`, but `rv.html` is absent. Consequence: `FILE_MISSING` is logged, no non-zero exit is reachable, and a wrapper checking process status sees success.
+
+No proven CRLF/LF text-compare defect in this file.
+
+No merged-cell/off-by-one tabulation defect in this file.
+
+COULD NOT DETERMINE selector-keyed-to-unused-corpus-form: missing actual `*.html` corpus shape.
+tokens used
+23,858
+**Defects**
+
+- Line 64 — input: `{"realData":{"NCT00000001":{"nct":"NCT99999999","group":"drugalpha","tN":1,"cN":1,"pmid":"1"}}}` with `rv` selected in `fabrication_risk_scores.json`. Consequence: the validated key `NCT00000001` is overwritten by `t["nct"]`, so the instrument reads a name instead of its binding.
+
+- Lines 52-64 and 249-263 — input: audit JSON has `"NCT00000001":{"group":"wrongdrug","pmid":"1"}` producing a NULL_PMID fix, while `rv.html` has `"NCT00000001":{"group":"rightdrug","pmid":"2"}`. Consequence: a verdict from the audit JSON copy is applied to a different HTML copy without checking the block still matches.
+
+- Line 160 — input: AACT `enrollment="100"`, `t={"tN":0,"cN":0,"group":"drugalpha"}`, with `intv_hard_mismatch=True` and `drug_in_title=False`. Consequence: a real zero arm total is treated like absent/unusable, so a 100-vs-0 enrollment contradiction cannot trigger R-S3.
+
+- Lines 194-195 — input: `aact_drug_words={"pembrolizumab"}`, `cond_words={"melanoma"}`, PubMed text `"This report is not about pembrolizumab and excludes melanoma."`. Consequence: negated mentions count as overlap, so R-S4 misses a wrong PMID.
+
+- Lines 234 and 273 — input: `txt='<!-- NULLED:NCT12345678 -->\nconst realData={"NCT12345678":{"pmid":"1"}};'`, `nct="NCT12345678"`. Consequence: the idempotency guard is satisfied by its own marker/comment, leaves the live key unchanged, and reports `ALREADY_NULLED`.
+
+- Lines 250-252 — input: selected `rv` produces an R-S1 fix for `NCT12345678`, but `rv.html` is absent. Consequence: `FILE_MISSING` is logged, no non-zero exit is reachable, and a wrapper checking process status sees success.
+
+No proven CRLF/LF text-compare defect in this file.
+
+No merged-cell/off-by-one tabulation defect in this file.
+
+COULD NOT DETERMINE selector-keyed-to-unused-corpus-form: missing actual `*.html` corpus shape.

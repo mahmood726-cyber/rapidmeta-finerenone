@@ -1,0 +1,569 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a03143-445a-7011-b4f8-201e385bf392
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/audit_no_review_done_bucket_is_shape_bound_2026_08_23.py
+
+--- THE FILE, IN FULL ---
+"""Do the 17 pages in the `no_review_done` bucket actually hold nothing?
+
+THE ANSWER IS NO. ZERO OF THE 17 HOLD NOTHING. The bucket is an artefact of a probe that
+read ONE payload shape, and the instruction to retire these 17 as objects that "hold
+nothing -- no title, no results, nothing to project" rests on a premise this instrument
+disproves for all seventeen.
+
+WHAT THE ORIGINAL PROBE ASKED. `audit_no_identifier_pages_hold_data_2026_08_23.py` reads
+the brace-matched body of `realData:{...}` and looks for two things inside it: an `NCT`
+identifier, and an arm block matching `tE:<digits> ... tN:<digits> ... cE:<digits>`. A page
+with neither was placed in `no_review_done`, glossed "neither -- no trial-level data at
+all". That gloss is what "hold nothing" is quoting.
+
+THE THREE WAYS THAT PROBE MISSES DATA THAT IS PRESENT, each observed on a real page here:
+
+  1. THE LEDGER SHAPE.        `HFREF_NMA_AUTO_FULL_REVIEW.html` carries a network ledger --
+                              `{"id":"HF-023","name":"EMPHASIS-HF","pmid":"21073363",
+                              "doi":"10.1056/NEJMoa1009492","nct":"NCT00232180",
+                              "arms":[{"treat":"ACEI+BB","events":213,"n":1373},
+                              {"treat":"ACEI+BB+MRA","events":171,"n":1364}]}` and eight
+                              more like it, with verification notes and one recorded PMID
+                              correction. None of it is inside `realData`, so the probe
+                              reported it as holding no trial-level data at all. Retiring
+                              this page would delete the best-evidenced network in the
+                              legacy corpus.
+
+  2. THE PMID KEY.            `METFORMIN_T2D_AUTO_FULL_REVIEW.html` has a populated
+                              `realData` keyed by `"PMID:7623902"` -- the Multicenter
+                              Metformin Study Group (DeFronzo & Goodman 1995), Protocol 1,
+                              metformin monotherapy vs placebo, phase III, tN 143, cN 146.
+                              The probe searched that body for `NCT\\d{8}` and found none,
+                              because the record is keyed by PMID.
+
+  3. `tE` IS NULL, NOT ABSENT. The same record carries `tE:null,cE:null` because the
+                              outcome is continuous. The arm regex requires `tE:<digits>`,
+                              so a continuous-outcome trial with real arm sizes reads as no
+                              arm block.
+
+AND THE REMAINING FIFTEEN HOLD IDENTIFIERS. Each carries an `nctAcronyms` map naming 2-6
+specific trials, several with acronyms the review recorded by hand (`NCT00500656:"FAST2"`,
+`NCT00997204:"EASSI"`). Their `realData` is genuinely `{}` -- no results were extracted --
+but a page that names six trials it identified is not a page where no review was done. The
+honest statement about those fifteen is "trials identified, no results extracted", which is
+a different retirement from the one instructed, and a different one from the merge-and-
+absorb tombstones the PCSK9 style was written for.
+
+WHY THIS IS REPORTED RATHER THAN ACTED ON. Retiring a page is outward-facing and not
+cheaply reversible: it replaces served bytes a reader can reach. The instruction's premise
+is false for 17 of 17, and choosing what to do with a page that identified trials but
+extracted no results is a judgement about the evidence, not a projection or a lookup.
+
+THE TEMPLATE `tE:` COUNT IS NOISE AND IS REPORTED SO. Every one of the seventeen shows
+exactly three `tE:<digits>` occurrences, including the pages that hold nothing else. Those
+are the engine's hardcoded default trial array -- the same four ids the original probe
+already excludes by name -- and counting them as page data would report every legacy page
+as data-bearing. Reported as a separate column so a later reader does not rediscover it.
+
+CONTROLS. The positive is ABALOPARATIDE_OSTEO, hand-read in the original probe's own
+docstring (NCT01343004, tE:4 tN:690 cE:30 cN:711) and NOT a member of the seventeen, so it
+does not die when the seventeen change. The negative is a SYNTHETIC FIXTURE built in this
+file -- a page body holding only the four template identifiers and an empty `realData` --
+because a negative keyed to a corpus page would expire the moment that page is repaired.
+That is the control-with-an-expiry-date lesson, and it has cost six instances.
+"""
+from __future__ import annotations
+
+import io
+import json
+import os
+import re
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from instrument_controls import require_controls  # noqa: E402
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BUCKETS = os.path.join(REPO, "outputs", "no_identifier_data_state_2026_08_23.json")
+OUT = os.path.join(REPO, "outputs", "no_review_done_is_shape_bound_2026_08_23.json")
+
+TEMPLATE_IDS = {"NCT01035255", "NCT01920711", "NCT02924727", "NCT05901831"}
+
+NCT = re.compile(r"NCT\d{8}")
+ACRO_MAP = re.compile(r"nctAcronyms\s*:\s*\{([^}]*)\}")
+LEDGER_NCT = re.compile(r'"nct"\s*:\s*"NCT\d{8}"')
+ARMS_ARRAY = re.compile(r'"arms"\s*:\s*\[\s*\{')
+EVENTS_N = re.compile(r'"events"\s*:\s*\d+\s*,\s*"n"\s*:\s*\d+')
+TE_TEMPLATE = re.compile(r"\btE\s*:\s*\d+")
+PMID_ANY = re.compile(r'"?pmid"?\s*[:=]\s*"?\d{6,9}')
+DOI_ANY = re.compile(r'"doi"\s*:\s*"10\.')
+REALDATA = re.compile(r"realData\s*[:=]\s*\{")
+# a realData record keyed by PMID rather than NCT -- miss #2
+PMID_KEYED = re.compile(r'"PMID:\d{6,9}"\s*:\s*\{')
+# arm sizes present with a null event count -- miss #3
+TN_WITH_NULL_TE = re.compile(r"tE\s*:\s*null[^}]{0,120}?\btN\s*:\s*\d+")
+
+
+def realdata_body(text):
+    """The brace-matched body of realData, exactly as the original probe reads it."""
+    m = REALDATA.search(text)
+    if not m:
+        return ""
+    i, depth = m.end(), 1
+    while i < len(text) and depth:
+        c = text[i]
+        if c == "{":
+            depth += 1
+        elif c == "}":
+            depth -= 1
+        i += 1
+    return text[m.end():i]
+
+
+def original_probe(text):
+    """What `audit_no_identifier_pages_hold_data` concluded, reproduced here so the two
+    readings sit side by side rather than being argued about."""
+    body = realdata_body(text)
+    ids = sorted(set(NCT.findall(body)) - TEMPLATE_IDS)
+    arms = re.findall(r"\btE\s*:\s*\d+.{0,80}?\btN\s*:\s*\d+.{0,120}?\bcE\s*:\s*\d+",
+                      body, re.S)
+    return {"realdata_nct": len(ids), "realdata_tE_arms": len(arms),
+            "realdata_bytes": len(body)}
+
+
+def shape_agnostic(text):
+    """Every shape trial-level data has been observed to take on a legacy page."""
+    m = ACRO_MAP.search(text)
+    acro = sorted(set(NCT.findall(m.group(1))) - TEMPLATE_IDS) if m else []
+    return {
+        "nct_anywhere": len(sorted(set(NCT.findall(text)) - TEMPLATE_IDS)),
+        "nct_acronym_map": len(acro),
+        "acronyms_named": sorted(
+            set(re.findall(r'NCT\d{8}\s*:\s*"([A-Za-z][\w\-]{1,20})"', text))) if m else [],
+        "ledger_trials": len(LEDGER_NCT.findall(text)),
+        "ledger_arm_arrays": len(ARMS_ARRAY.findall(text)),
+        "ledger_events_n_pairs": len(EVENTS_N.findall(text)),
+        "pmid_keyed_records": len(PMID_KEYED.findall(text)),
+        "arm_sizes_with_null_events": len(TN_WITH_NULL_TE.findall(text)),
+        "pmid_occurrences": len(PMID_ANY.findall(text)),
+        "doi_occurrences": len(DOI_ANY.findall(text)),
+        "template_tE_noise": len(TE_TEMPLATE.findall(text)),
+    }
+
+
+def verdict(s):
+    """Three states, named. Never a fourth called 'probably'."""
+    if s["ledger_trials"] and s["ledger_arm_arrays"]:
+        return "HOLDS_A_TRIAL_LEDGER"
+    if s["pmid_keyed_records"]:
+        return "HOLDS_A_RESULTS_RECORD_KEYED_BY_PMID"
+    if s["nct_acronym_map"]:
+        return "HOLDS_IDENTIFIERS_ONLY"
+    return "HOLDS_NOTHING"
+
+
+# The synthetic negative. Built here so it cannot expire when the corpus is repaired.
+FIXTURE_EMPTY = (
+    'var trialData=["NCT01035255","NCT01920711","NCT02924727","NCT05901831"];'
+    "RapidMeta={realData:{},nctAcronyms:{},init(){}};"
+)
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    if not os.path.isfile(BUCKETS):
+        sys.exit("REFUSED: %s missing." % os.path.relpath(BUCKETS, REPO))
+    names = json.load(io.open(BUCKETS, encoding="utf-8"))["by_bucket"]["no_review_done"]
+
+    pos = os.path.join(REPO, "ABALOPARATIDE_OSTEO_AUTO_FULL_REVIEW.html")
+    ptext = io.open(pos, encoding="utf-8", errors="replace").read() if os.path.isfile(pos) else ""
+    ps = shape_agnostic(ptext)
+    require_controls(
+        "no_review_done_is_shape_bound",
+        ("ABALOPARATIDE_OSTEO holds NCT01343004 with per-arm counts (hand-read in the "
+         "original probe's docstring) -- shape-agnostic read gives nct_anywhere=%d"
+         % ps["nct_anywhere"], ps["nct_anywhere"] >= 1, True),
+        ("the synthetic empty fixture -- four template ids and realData:{} -- must not be "
+         "read as holding anything; verdict came back %r"
+         % verdict(shape_agnostic(FIXTURE_EMPTY)),
+         verdict(shape_agnostic(FIXTURE_EMPTY)) != "HOLDS_NOTHING", True))
+
+    rows, tally = {}, {}
+    for n in names:
+        p = os.path.join(REPO, n)
+        if not os.path.isfile(p):
+            rows[n] = {"verdict": "NOT_ON_DISK"}
+            tally["NOT_ON_DISK"] = tally.get("NOT_ON_DISK", 0) + 1
+            continue
+        t = io.open(p, encoding="utf-8", errors="replace").read()
+        s = shape_agnostic(t)
+        v = verdict(s)
+        rows[n] = {"verdict": v, "shape_agnostic": s, "original_probe": original_probe(t)}
+        tally[v] = tally.get(v, 0) + 1
+
+    print("")
+    print("THE %d PAGES THE BUCKET CALLS `no_review_done` -- what do they hold, read by"
+          % len(names))
+    print("EVERY SHAPE trial-level data takes on a legacy page rather than by one?")
+    print("")
+    for v in ("HOLDS_A_TRIAL_LEDGER", "HOLDS_A_RESULTS_RECORD_KEYED_BY_PMID",
+              "HOLDS_IDENTIFIERS_ONLY", "HOLDS_NOTHING", "NOT_ON_DISK"):
+        print("   %-40s %5d" % (v, tally.get(v, 0)))
+    print("   %-40s %5d   == the bucket" % ("sum", sum(tally.values())))
+    if sum(tally.values()) != len(names):
+        sys.exit("REFUSED: does not close.")
+    print("")
+    for n in names:
+        r = rows[n]
+        if r["verdict"] == "NOT_ON_DISK":
+            print("   %-52s NOT_ON_DISK" % n)
+            continue
+        s = r["shape_agnostic"]
+        print("   %-52s %s" % (n, r["verdict"]))
+        print("        ledger %d trials / %d arm arrays / %d events-n pairs; "
+              "acronym map %d; pmid-keyed %d; pmid %d; doi %d; template tE noise %d"
+              % (s["ledger_trials"], s["ledger_arm_arrays"], s["ledger_events_n_pairs"],
+                 s["nct_acronym_map"], s["pmid_keyed_records"], s["pmid_occurrences"],
+                 s["doi_occurrences"], s["template_tE_noise"]))
+        if s["acronyms_named"]:
+            print("        acronyms the review recorded: %s"
+                  % ", ".join(s["acronyms_named"]))
+    print("")
+    print("THE BUCKET'S OWN GLOSS -- \"neither identifiers nor arm-level data\" -- IS TRUE")
+    print("OF THE `realData` KEY AND OF NOTHING ELSE. Both probes are honest; they ask")
+    print("different questions. What is not honest is retiring a page on the strength of")
+    print("the narrower one while telling a reader it held nothing.")
+    print("")
+    print("NOTHING HAS BEEN RETIRED. This instrument writes a file and changes no page.")
+
+    json.dump({"asked": "does the no_review_done bucket mean the page holds nothing",
+               "answer": "no -- 0 of %d hold nothing" % len(names),
+               "tally": tally, "rows": rows,
+               "the_three_misses": {
+                   "ledger_shape": "trial ledger outside realData (HFREF_NMA)",
+                   "pmid_keyed": "realData keyed by PMID not NCT (METFORMIN_T2D)",
+                   "te_is_null": "continuous outcome, tE:null, arm sizes present"},
+               "nothing_was_retired": True},
+              io.open(OUT, "w", encoding="utf-8"), indent=1)
+    print("written: %s" % os.path.relpath(OUT, REPO))
+
+
+if __name__ == "__main__":
+    main()
+
+codex
+I’ll treat the pasted file as the whole review record and avoid inferring APIs that are not shown. I’m going to line-number the snippet mentally around the executable section because the likely defects are in predicates and selectors, not in external behavior.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=0; Get-Content -LiteralPath '"'scripts/audit_no_review_done_bucket_is_shape_bound_2026_08_23.py' | ForEach-Object { "'$i++; '"'{0,4}: {1}' -f "'$i, $_ } | Select-Object -First 260' in F:\rapidmeta-ssot-shell
+ succeeded in 2713ms:
+   1: """Do the 17 pages in the `no_review_done` bucket actually hold nothing?
+   2: 
+   3: THE ANSWER IS NO. ZERO OF THE 17 HOLD NOTHING. The bucket is an artefact of a probe that
+   4: read ONE payload shape, and the instruction to retire these 17 as objects that "hold
+   5: nothing -- no title, no results, nothing to project" rests on a premise this instrument
+   6: disproves for all seventeen.
+   7: 
+   8: WHAT THE ORIGINAL PROBE ASKED. `audit_no_identifier_pages_hold_data_2026_08_23.py` reads
+   9: the brace-matched body of `realData:{...}` and looks for two things inside it: an `NCT`
+  10: identifier, and an arm block matching `tE:<digits> ... tN:<digits> ... cE:<digits>`. A page
+  11: with neither was placed in `no_review_done`, glossed "neither -- no trial-level data at
+  12: all". That gloss is what "hold nothing" is quoting.
+  13: 
+  14: THE THREE WAYS THAT PROBE MISSES DATA THAT IS PRESENT, each observed on a real page here:
+  15: 
+  16:   1. THE LEDGER SHAPE.        `HFREF_NMA_AUTO_FULL_REVIEW.html` carries a network ledger --
+  17:                               `{"id":"HF-023","name":"EMPHASIS-HF","pmid":"21073363",
+  18:                               "doi":"10.1056/NEJMoa1009492","nct":"NCT00232180",
+  19:                               "arms":[{"treat":"ACEI+BB","events":213,"n":1373},
+  20:                               {"treat":"ACEI+BB+MRA","events":171,"n":1364}]}` and eight
+  21:                               more like it, with verification notes and one recorded PMID
+  22:                               correction. None of it is inside `realData`, so the probe
+  23:                               reported it as holding no trial-level data at all. Retiring
+  24:                               this page would delete the best-evidenced network in the
+  25:                               legacy corpus.
+  26: 
+  27:   2. THE PMID KEY.            `METFORMIN_T2D_AUTO_FULL_REVIEW.html` has a populated
+  28:                               `realData` keyed by `"PMID:7623902"` -- the Multicenter
+  29:                               Metformin Study Group (DeFronzo & Goodman 1995), Protocol 1,
+  30:                               metformin monotherapy vs placebo, phase III, tN 143, cN 146.
+  31:                               The probe searched that body for `NCT\\d{8}` and found none,
+  32:                               because the record is keyed by PMID.
+  33: 
+  34:   3. `tE` IS NULL, NOT ABSENT. The same record carries `tE:null,cE:null` because the
+  35:                               outcome is continuous. The arm regex requires `tE:<digits>`,
+  36:                               so a continuous-outcome trial with real arm sizes reads as no
+  37:                               arm block.
+  38: 
+  39: AND THE REMAINING FIFTEEN HOLD IDENTIFIERS. Each carries an `nctAcronyms` map naming 2-6
+  40: specific trials, several with acronyms the review recorded by hand (`NCT00500656:"FAST2"`,
+  41: `NCT00997204:"EASSI"`). Their `realData` is genuinely `{}` -- no results were extracted --
+  42: but a page that names six trials it identified is not a page where no review was done. The
+  43: honest statement about those fifteen is "trials identified, no results extracted", which is
+  44: a different retirement from the one instructed, and a different one from the merge-and-
+  45: absorb tombstones the PCSK9 style was written for.
+  46: 
+  47: WHY THIS IS REPORTED RATHER THAN ACTED ON. Retiring a page is outward-facing and not
+  48: cheaply reversible: it replaces served bytes a reader can reach. The instruction's premise
+  49: is false for 17 of 17, and choosing what to do with a page that identified trials but
+  50: extracted no results is a judgement about the evidence, not a projection or a lookup.
+  51: 
+  52: THE TEMPLATE `tE:` COUNT IS NOISE AND IS REPORTED SO. Every one of the seventeen shows
+  53: exactly three `tE:<digits>` occurrences, including the pages that hold nothing else. Those
+  54: are the engine's hardcoded default trial array -- the same four ids the original probe
+  55: already excludes by name -- and counting them as page data would report every legacy page
+  56: as data-bearing. Reported as a separate column so a later reader does not rediscover it.
+  57: 
+  58: CONTROLS. The positive is ABALOPARATIDE_OSTEO, hand-read in the original probe's own
+  59: docstring (NCT01343004, tE:4 tN:690 cE:30 cN:711) and NOT a member of the seventeen, so it
+  60: does not die when the seventeen change. The negative is a SYNTHETIC FIXTURE built in this
+  61: file -- a page body holding only the four template identifiers and an empty `realData` --
+  62: because a negative keyed to a corpus page would expire the moment that page is repaired.
+  63: That is the control-with-an-expiry-date lesson, and it has cost six instances.
+  64: """
+  65: from __future__ import annotations
+  66: 
+  67: import io
+  68: import json
+  69: import os
+  70: import re
+  71: import sys
+  72: 
+  73: sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+  74: from instrument_controls import require_controls  # noqa: E402
+  75: 
+  76: REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+  77: BUCKETS = os.path.join(REPO, "outputs", "no_identifier_data_state_2026_08_23.json")
+  78: OUT = os.path.join(REPO, "outputs", "no_review_done_is_shape_bound_2026_08_23.json")
+  79: 
+  80: TEMPLATE_IDS = {"NCT01035255", "NCT01920711", "NCT02924727", "NCT05901831"}
+  81: 
+  82: NCT = re.compile(r"NCT\d{8}")
+  83: ACRO_MAP = re.compile(r"nctAcronyms\s*:\s*\{([^}]*)\}")
+  84: LEDGER_NCT = re.compile(r'"nct"\s*:\s*"NCT\d{8}"')
+  85: ARMS_ARRAY = re.compile(r'"arms"\s*:\s*\[\s*\{')
+  86: EVENTS_N = re.compile(r'"events"\s*:\s*\d+\s*,\s*"n"\s*:\s*\d+')
+  87: TE_TEMPLATE = re.compile(r"\btE\s*:\s*\d+")
+  88: PMID_ANY = re.compile(r'"?pmid"?\s*[:=]\s*"?\d{6,9}')
+  89: DOI_ANY = re.compile(r'"doi"\s*:\s*"10\.')
+  90: REALDATA = re.compile(r"realData\s*[:=]\s*\{")
+  91: # a realData record keyed by PMID rather than NCT -- miss #2
+  92: PMID_KEYED = re.compile(r'"PMID:\d{6,9}"\s*:\s*\{')
+  93: # arm sizes present with a null event count -- miss #3
+  94: TN_WITH_NULL_TE = re.compile(r"tE\s*:\s*null[^}]{0,120}?\btN\s*:\s*\d+")
+  95: 
+  96: 
+  97: def realdata_body(text):
+  98:     """The brace-matched body of realData, exactly as the original probe reads it."""
+  99:     m = REALDATA.search(text)
+ 100:     if not m:
+ 101:         return ""
+ 102:     i, depth = m.end(), 1
+ 103:     while i < len(text) and depth:
+ 104:         c = text[i]
+ 105:         if c == "{":
+ 106:             depth += 1
+ 107:         elif c == "}":
+ 108:             depth -= 1
+ 109:         i += 1
+ 110:     return text[m.end():i]
+ 111: 
+ 112: 
+ 113: def original_probe(text):
+ 114:     """What `audit_no_identifier_pages_hold_data` concluded, reproduced here so the two
+ 115:     readings sit side by side rather than being argued about."""
+ 116:     body = realdata_body(text)
+ 117:     ids = sorted(set(NCT.findall(body)) - TEMPLATE_IDS)
+ 118:     arms = re.findall(r"\btE\s*:\s*\d+.{0,80}?\btN\s*:\s*\d+.{0,120}?\bcE\s*:\s*\d+",
+ 119:                       body, re.S)
+ 120:     return {"realdata_nct": len(ids), "realdata_tE_arms": len(arms),
+ 121:             "realdata_bytes": len(body)}
+ 122: 
+ 123: 
+ 124: def shape_agnostic(text):
+ 125:     """Every shape trial-level data has been observed to take on a legacy page."""
+ 126:     m = ACRO_MAP.search(text)
+ 127:     acro = sorted(set(NCT.findall(m.group(1))) - TEMPLATE_IDS) if m else []
+ 128:     return {
+ 129:         "nct_anywhere": len(sorted(set(NCT.findall(text)) - TEMPLATE_IDS)),
+ 130:         "nct_acronym_map": len(acro),
+ 131:         "acronyms_named": sorted(
+ 132:             set(re.findall(r'NCT\d{8}\s*:\s*"([A-Za-z][\w\-]{1,20})"', text))) if m else [],
+ 133:         "ledger_trials": len(LEDGER_NCT.findall(text)),
+ 134:         "ledger_arm_arrays": len(ARMS_ARRAY.findall(text)),
+ 135:         "ledger_events_n_pairs": len(EVENTS_N.findall(text)),
+ 136:         "pmid_keyed_records": len(PMID_KEYED.findall(text)),
+ 137:         "arm_sizes_with_null_events": len(TN_WITH_NULL_TE.findall(text)),
+ 138:         "pmid_occurrences": len(PMID_ANY.findall(text)),
+ 139:         "doi_occurrences": len(DOI_ANY.findall(text)),
+ 140:         "template_tE_noise": len(TE_TEMPLATE.findall(text)),
+ 141:     }
+ 142: 
+ 143: 
+ 144: def verdict(s):
+ 145:     """Three states, named. Never a fourth called 'probably'."""
+ 146:     if s["ledger_trials"] and s["ledger_arm_arrays"]:
+ 147:         return "HOLDS_A_TRIAL_LEDGER"
+ 148:     if s["pmid_keyed_records"]:
+ 149:         return "HOLDS_A_RESULTS_RECORD_KEYED_BY_PMID"
+ 150:     if s["nct_acronym_map"]:
+ 151:         return "HOLDS_IDENTIFIERS_ONLY"
+ 152:     return "HOLDS_NOTHING"
+ 153: 
+ 154: 
+ 155: # The synthetic negative. Built here so it cannot expire when the corpus is repaired.
+ 156: FIXTURE_EMPTY = (
+ 157:     'var trialData=["NCT01035255","NCT01920711","NCT02924727","NCT05901831"];'
+ 158:     "RapidMeta={realData:{},nctAcronyms:{},init(){}};"
+ 159: )
+ 160: 
+ 161: 
+ 162: def main():
+ 163:     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+ 164:     if not os.path.isfile(BUCKETS):
+ 165:         sys.exit("REFUSED: %s missing." % os.path.relpath(BUCKETS, REPO))
+ 166:     names = json.load(io.open(BUCKETS, encoding="utf-8"))["by_bucket"]["no_review_done"]
+ 167: 
+ 168:     pos = os.path.join(REPO, "ABALOPARATIDE_OSTEO_AUTO_FULL_REVIEW.html")
+ 169:     ptext = io.open(pos, encoding="utf-8", errors="replace").read() if os.path.isfile(pos) else ""
+ 170:     ps = shape_agnostic(ptext)
+ 171:     require_controls(
+ 172:         "no_review_done_is_shape_bound",
+ 173:         ("ABALOPARATIDE_OSTEO holds NCT01343004 with per-arm counts (hand-read in the "
+ 174:          "original probe's docstring) -- shape-agnostic read gives nct_anywhere=%d"
+ 175:          % ps["nct_anywhere"], ps["nct_anywhere"] >= 1, True),
+ 176:         ("the synthetic empty fixture -- four template ids and realData:{} -- must not be "
+ 177:          "read as holding anything; verdict came back %r"
+ 178:          % verdict(shape_agnostic(FIXTURE_EMPTY)),
+ 179:          verdict(shape_agnostic(FIXTURE_EMPTY)) != "HOLDS_NOTHING", True))
+ 180: 
+ 181:     rows, tally = {}, {}
+ 182:     for n in names:
+ 183:         p = os.path.join(REPO, n)
+ 184:         if not os.path.isfile(p):
+ 185:             rows[n] = {"verdict": "NOT_ON_DISK"}
+ 186:             tally["NOT_ON_DISK"] = tally.get("NOT_ON_DISK", 0) + 1
+ 187:             continue
+ 188:         t = io.open(p, encoding="utf-8", errors="replace").read()
+ 189:         s = shape_agnostic(t)
+ 190:         v = verdict(s)
+ 191:         rows[n] = {"verdict": v, "shape_agnostic": s, "original_probe": original_probe(t)}
+ 192:         tally[v] = tally.get(v, 0) + 1
+ 193: 
+ 194:     print("")
+ 195:     print("THE %d PAGES THE BUCKET CALLS `no_review_done` -- what do they hold, read by"
+ 196:           % len(names))
+ 197:     print("EVERY SHAPE trial-level data takes on a legacy page rather than by one?")
+ 198:     print("")
+ 199:     for v in ("HOLDS_A_TRIAL_LEDGER", "HOLDS_A_RESULTS_RECORD_KEYED_BY_PMID",
+ 200:               "HOLDS_IDENTIFIERS_ONLY", "HOLDS_NOTHING", "NOT_ON_DISK"):
+ 201:         print("   %-40s %5d" % (v, tally.get(v, 0)))
+ 202:     print("   %-40s %5d   == the bucket" % ("sum", sum(tally.values())))
+ 203:     if sum(tally.values()) != len(names):
+ 204:         sys.exit("REFUSED: does not close.")
+ 205:     print("")
+ 206:     for n in names:
+ 207:         r = rows[n]
+ 208:         if r["verdict"] == "NOT_ON_DISK":
+ 209:             print("   %-52s NOT_ON_DISK" % n)
+ 210:             continue
+ 211:         s = r["shape_agnostic"]
+ 212:         print("   %-52s %s" % (n, r["verdict"]))
+ 213:         print("        ledger %d trials / %d arm arrays / %d events-n pairs; "
+ 214:               "acronym map %d; pmid-keyed %d; pmid %d; doi %d; template tE noise %d"
+ 215:               % (s["ledger_trials"], s["ledger_arm_arrays"], s["ledger_events_n_pairs"],
+ 216:                  s["nct_acronym_map"], s["pmid_keyed_records"], s["pmid_occurrences"],
+ 217:                  s["doi_occurrences"], s["template_tE_noise"]))
+ 218:         if s["acronyms_named"]:
+ 219:             print("        acronyms the review recorded: %s"
+ 220:                   % ", ".join(s["acronyms_named"]))
+ 221:     print("")
+ 222:     print("THE BUCKET'S OWN GLOSS -- \"neither identifiers nor arm-level data\" -- IS TRUE")
+ 223:     print("OF THE `realData` KEY AND OF NOTHING ELSE. Both probes are honest; they ask")
+ 224:     print("different questions. What is not honest is retiring a page on the strength of")
+ 225:     print("the narrower one while telling a reader it held nothing.")
+ 226:     print("")
+ 227:     print("NOTHING HAS BEEN RETIRED. This instrument writes a file and changes no page.")
+ 228: 
+ 229:     json.dump({"asked": "does the no_review_done bucket mean the page holds nothing",
+ 230:                "answer": "no -- 0 of %d hold nothing" % len(names),
+ 231:                "tally": tally, "rows": rows,
+ 232:                "the_three_misses": {
+ 233:                    "ledger_shape": "trial ledger outside realData (HFREF_NMA)",
+ 234:                    "pmid_keyed": "realData keyed by PMID not NCT (METFORMIN_T2D)",
+ 235:                    "te_is_null": "continuous outcome, tE:null, arm sizes present"},
+ 236:                "nothing_was_retired": True},
+ 237:               io.open(OUT, "w", encoding="utf-8"), indent=1)
+ 238:     print("written: %s" % os.path.relpath(OUT, REPO))
+ 239: 
+ 240: 
+ 241: if __name__ == "__main__":
+ 242:     main()
+
+codex
+Found defects:
+
+- Line 179: exact input `FIXTURE_EMPTY` from lines 156-159. `verdict(shape_agnostic(FIXTURE_EMPTY))` is `"HOLDS_NOTHING"`, so the predicate `!= "HOLDS_NOTHING"` is false for the stated-good negative; consequence: the negative control is inverted and either fails every valid run or asserts the opposite of its message.
+
+- Line 203: exact input bucket `{"by_bucket":{"no_review_done":["missing.html"]}}` with no `missing.html` on disk. The loop always increments `tally` exactly once per `name`, including `NOT_ON_DISK`, so `sum(tally.values()) != len(names)` cannot be reached; consequence: this closure gate proves only loop arithmetic, not audit completeness.
+
+- Lines 184-187: exact input bucket `{"by_bucket":{"no_review_done":["missing.html"]}}` with no such file. Missing evidence is recorded as `NOT_ON_DISK` and execution continues; consequence: the script can write a success artifact while failing to inspect a bucket member.
+
+- Line 230: exact input bucket `{"by_bucket":{"no_review_done":["X.html"]}}` and `X.html` containing `RapidMeta={realData:{},nctAcronyms:{},init(){}};`. Computed `tally` has `HOLDS_NOTHING: 1`, but `answer` is hardcoded to `"no -- 0 of 1 hold nothing"`; consequence: the output conclusion can contradict the measured rows.
+
+- Line 110: exact input `RapidMeta={realData:{},nctAcronyms:{}};`. `realdata_body()` returns `"}"` and `original_probe(... )["realdata_bytes"]` is `1`; consequence: empty `realData` is counted as non-empty by one byte.
+
+No proven defect found in the pasted file for CRLF-vs-LF text comparison, merged-cell tabulation, negation-dropped extraction, or wrapper status through a pipe.
+tokens used
+20,455
+Found defects:
+
+- Line 179: exact input `FIXTURE_EMPTY` from lines 156-159. `verdict(shape_agnostic(FIXTURE_EMPTY))` is `"HOLDS_NOTHING"`, so the predicate `!= "HOLDS_NOTHING"` is false for the stated-good negative; consequence: the negative control is inverted and either fails every valid run or asserts the opposite of its message.
+
+- Line 203: exact input bucket `{"by_bucket":{"no_review_done":["missing.html"]}}` with no `missing.html` on disk. The loop always increments `tally` exactly once per `name`, including `NOT_ON_DISK`, so `sum(tally.values()) != len(names)` cannot be reached; consequence: this closure gate proves only loop arithmetic, not audit completeness.
+
+- Lines 184-187: exact input bucket `{"by_bucket":{"no_review_done":["missing.html"]}}` with no such file. Missing evidence is recorded as `NOT_ON_DISK` and execution continues; consequence: the script can write a success artifact while failing to inspect a bucket member.
+
+- Line 230: exact input bucket `{"by_bucket":{"no_review_done":["X.html"]}}` and `X.html` containing `RapidMeta={realData:{},nctAcronyms:{},init(){}};`. Computed `tally` has `HOLDS_NOTHING: 1`, but `answer` is hardcoded to `"no -- 0 of 1 hold nothing"`; consequence: the output conclusion can contradict the measured rows.
+
+- Line 110: exact input `RapidMeta={realData:{},nctAcronyms:{}};`. `realdata_body()` returns `"}"` and `original_probe(... )["realdata_bytes"]` is `1`; consequence: empty `realData` is counted as non-empty by one byte.
+
+No proven defect found in the pasted file for CRLF-vs-LF text comparison, merged-cell tabulation, negation-dropped extraction, or wrapper status through a pipe.

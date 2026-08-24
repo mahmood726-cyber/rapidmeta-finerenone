@@ -1,0 +1,228 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a03206-0cdf-7ec1-bd8d-f7918fb96fe6
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/partition_corpus.py
+
+--- THE FILE, IN FULL ---
+"""Read-only partition of the 1,521-app corpus into:
+  TIER-1 BENCHMARK  : app is externally benchmarked AND matches (k>=2 + within-CI).
+  TIER-2 PROVENANCE : pools k>=2 contributing trials AND every contributing trial
+                      has a real PMID AND a resolvable registry ID (NCT/ISRCTN/
+                      ACTRN) or an explicit sourceUrl.
+  QUARANTINE        : everything else (with a sub-reason).
+
+"Contributing trial" = one the engine actually pools: a non-null publishedHR
+(generic-IV path) OR a valid 2x2 with >=1 event (counts path). Trials that don't
+contribute (null effect + null/zero counts) are ignored for provenance.
+
+Writes nothing except a report file under outputs/. Nothing is moved or deleted.
+"""
+import re, glob, io, sys, os, json, subprocess
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import importlib.util
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+spec = importlib.util.spec_from_file_location("dia", os.path.join(os.path.dirname(__file__), "data_integrity_audit.py"))
+dia = importlib.util.module_from_spec(spec); spec.loader.exec_module(dia)
+val = importlib.util.module_from_spec(
+    importlib.util.spec_from_file_location("val", os.path.join(REPO, "validate_living_ma_portfolio.py")))
+
+
+def _num(v):
+    if v is None: return None
+    s = str(v).strip().lower()
+    if s in ("null", "none", "nan", ""): return None
+    try: return float(v)
+    except Exception: return None
+
+
+def sfield(obj, name):
+    """Extract a quoted-string field value (pmid, sourceUrl) or None."""
+    m = re.search(rf'{name}\s*:\s*["\']([^"\']*)["\']', obj)
+    return m.group(1) if m and m.group(1) else None
+
+
+REG_RE = re.compile(r"^(NCT\d{8}|ISRCTN\d{8}|ACTRN\d{14}|EUCTR[\d-]+|ChiCTR[-\w]+|KCT\d+|DRKS\d+|PACTR\d+|jRCT\w+)$")
+
+
+def contributing(obj):
+    hr = _num(dia.field(obj, "publishedHR"))
+    if hr is not None and hr > 0:
+        return True
+    tE, tN, cE, cN = (_num(dia.field(obj, k)) for k in ("tE", "tN", "cE", "cN"))
+    if None not in (tE, tN, cE, cN) and tN > 0 and cN > 0 and 0 <= tE <= tN and 0 <= cE <= cN and (tE > 0 or cE > 0):
+        return True
+    return False
+
+
+def trial_has_provenance(key, obj):
+    pmid = sfield(obj, "pmid")
+    has_pmid = bool(pmid) and re.fullmatch(r"\d{6,8}", pmid) is not None
+    src = sfield(obj, "sourceUrl")
+    reg_ok = bool(REG_RE.match(str(key))) or bool(src and src.startswith("http"))
+    return has_pmid and reg_ok, has_pmid, reg_ok
+
+
+def main():
+    # Tier-1: benchmark tier from the validator's own JSON (k>=2 + within-CI).
+    bench_ok = set()
+    try:
+        out = subprocess.run([sys.executable, os.path.join(REPO, "validate_living_ma_portfolio.py"),
+                              "--local", "--json"], capture_output=True, text=True, cwd=REPO)
+        data = json.loads(out.stdout)
+        for r in data:
+            if r.get("benchmark") is not None and r.get("match"):
+                bench_ok.add(r["name"])
+    except Exception as e:
+        print("WARN: could not load validator JSON:", e)
+
+    def app_name(fn):
+        return os.path.basename(fn)[:-len("_REVIEW.html")] if fn.endswith("_REVIEW.html") else os.path.basename(fn)
+
+    tiers = {"BENCHMARK": [], "PROVENANCE": []}
+    quarantine = {"no_contributing_trials": [], "k<2": [], "missing_pmid": [],
+                  "missing_registry": []}
+    for fn in sorted(glob.glob(os.path.join(REPO, "*_REVIEW.html"))):
+        nm = app_name(fn)
+        html = open(fn, encoding="utf-8", errors="replace").read()
+        if nm in bench_ok:
+            tiers["BENCHMARK"].append(nm); continue
+        contrib = []
+        miss_pmid = miss_reg = False
+        for key, obj in dia.find_trial_objects(html):
+            if not contributing(obj):
+                continue
+            ok, hp, rg = trial_has_provenance(key, obj)
+            contrib.append(ok)
+            if not hp: miss_pmid = True
+            if not rg: miss_reg = True
+        k = len(contrib)
+        if k == 0:
+            quarantine["no_contributing_trials"].append(nm)
+        elif k < 2:
+            quarantine["k<2"].append(nm)
+        elif not all(contrib):
+            (quarantine["missing_pmid"] if miss_pmid else quarantine["missing_registry"]).append(nm)
+        else:
+            tiers["PROVENANCE"].append(nm)
+
+    total = sum(len(v) for v in tiers.values()) + sum(len(v) for v in quarantine.values())
+    keep = len(tiers["BENCHMARK"]) + len(tiers["PROVENANCE"])
+    quar = sum(len(v) for v in quarantine.values())
+    print(f"=== CORPUS PARTITION ({total} apps) ===\n")
+    print(f"KEEP (portfolio):            {keep}  ({keep*100//total}%)")
+    print(f"  Tier-1 BENCHMARK-backed:   {len(tiers['BENCHMARK'])}")
+    print(f"  Tier-2 PROVENANCE-backed:  {len(tiers['PROVENANCE'])}  (k>=2, every trial PMID + registry)")
+    print(f"\nQUARANTINE (auto/unreviewed): {quar}  ({quar*100//total}%)")
+    for r, lst in sorted(quarantine.items(), key=lambda x: -len(x[1])):
+        print(f"  {r:28} {len(lst)}")
+
+    rep = os.path.join(REPO, "outputs", "corpus_partition.json")
+    os.makedirs(os.path.dirname(rep), exist_ok=True)
+    json.dump({"keep": keep, "quarantine": quar, "tiers": tiers, "quarantine_reasons": quarantine},
+              open(rep, "w", encoding="utf-8"), indent=1)
+    print(f"\nFull lists -> outputs/corpus_partition.json")
+    print("\nsample PROVENANCE-backed:", tiers["PROVENANCE"][:8])
+    print("sample missing_pmid:", quarantine["missing_pmid"][:8])
+
+
+if __name__ == "__main__":
+    main()
+
+codex
+COULD NOT DETERMINE raw `_REVIEW.html` repros for main-loop paths: missing `scripts/data_integrity_audit.py` (`dia.field`, `dia.find_trial_objects`) and corpus files.
+
+Defects found:
+
+- STATUS CODE REPORTING THE WRAPPER: line 68. Exact input at subprocess boundary: `returncode=2, stdout="[]"`. Consequence: a failed validator is treated as valid empty JSON, silently removing all Tier-1 benchmark apps.
+
+- a check that CANNOT FAIL: line 72. Exact input: validator stdout `not-json` or empty stdout with any nonempty corpus. Consequence: the benchmark check degrades to a warning and still writes a partition report instead of failing closed.
+
+- SELECTOR KEYED TO A FORM THE CORPUS MAY USE LESS/MORE THAN INTENDED: line 37. Exact input: `trial_has_provenance("NCT12345678", '{"pmid":"12345678","sourceUrl":"https://e.test"}')`. Consequence: quoted JSON keys are not matched, so a valid PMID is reported missing.
+
+- a check that CANNOT FAIL as provenance validation: line 58. Exact input: `trial_has_provenance("BADID", "pmid: '12345678', sourceUrl: 'http'")`. Consequence: non-resolvable/non-URL text beginning with `http` satisfies registry/source provenance.
+
+- tabulation/count defect: line 101. Exact reachable state: `k=2`, `contrib=[False, False]`, `miss_pmid=True`, `miss_reg=True`. Consequence: apps missing both PMID and registry are counted only under `missing_pmid`, underreporting `missing_registry`.
+
+No finding: probe keyed to string a fix removes.
+
+No finding: idempotency guard satisfied by own comment/marker.
+
+No finding: instrument reading a different copy.
+
+No finding: CRLF/LF text comparison.
+
+No finding: zero conflated with absent.
+
+No finding: negation dropped.
+tokens used
+14,658
+COULD NOT DETERMINE raw `_REVIEW.html` repros for main-loop paths: missing `scripts/data_integrity_audit.py` (`dia.field`, `dia.find_trial_objects`) and corpus files.
+
+Defects found:
+
+- STATUS CODE REPORTING THE WRAPPER: line 68. Exact input at subprocess boundary: `returncode=2, stdout="[]"`. Consequence: a failed validator is treated as valid empty JSON, silently removing all Tier-1 benchmark apps.
+
+- a check that CANNOT FAIL: line 72. Exact input: validator stdout `not-json` or empty stdout with any nonempty corpus. Consequence: the benchmark check degrades to a warning and still writes a partition report instead of failing closed.
+
+- SELECTOR KEYED TO A FORM THE CORPUS MAY USE LESS/MORE THAN INTENDED: line 37. Exact input: `trial_has_provenance("NCT12345678", '{"pmid":"12345678","sourceUrl":"https://e.test"}')`. Consequence: quoted JSON keys are not matched, so a valid PMID is reported missing.
+
+- a check that CANNOT FAIL as provenance validation: line 58. Exact input: `trial_has_provenance("BADID", "pmid: '12345678', sourceUrl: 'http'")`. Consequence: non-resolvable/non-URL text beginning with `http` satisfies registry/source provenance.
+
+- tabulation/count defect: line 101. Exact reachable state: `k=2`, `contrib=[False, False]`, `miss_pmid=True`, `miss_reg=True`. Consequence: apps missing both PMID and registry are counted only under `missing_pmid`, underreporting `missing_registry`.
+
+No finding: probe keyed to string a fix removes.
+
+No finding: idempotency guard satisfied by own comment/marker.
+
+No finding: instrument reading a different copy.
+
+No finding: CRLF/LF text comparison.
+
+No finding: zero conflated with absent.
+
+No finding: negation dropped.

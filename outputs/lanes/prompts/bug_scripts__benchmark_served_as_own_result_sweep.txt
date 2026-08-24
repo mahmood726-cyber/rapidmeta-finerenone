@@ -1,0 +1,478 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/benchmark_served_as_own_result_sweep.py
+
+--- THE FILE, IN FULL ---
+#!/usr/bin/env python3
+"""A PAGE SERVING AN EXTERNAL BENCHMARK WHERE ITS OWN RESULT BELONGS.
+
+    "The number was real and belonged to somebody else."
+
+THE CLASS, and why it is worse than a wrong number. A wrong number is at least OURS -- it was
+computed from trials this review holds, by a method this review can name, and it is refutable by
+recomputing it. A published benchmark rendered in the slot a result belongs in is refutable by
+nothing on the page, because the page contains no trace of where it came from. The reader sees a
+value under this project's name, on this project's index, beside this project's trial count, and
+there is no arithmetic anywhere in the object that produces it.
+
+THE TWO CONFIRMED INSTANCES, both found by hand and both now corrected on their cards:
+
+    COLCHICINE_CVD   card `HR 0.75 (0.61-0.91), k=2`. Declared in PUBLISHED_META_BENCHMARKS.json
+                     as `benchmark_type: self_reference`, source COLCOT + LoDoCo2, method DL
+                     random-effects. The object's own pool was 0.7940 (0.6750-0.9339) at k=5.
+    DOAC_AF          card `HR 0.81 (0.73-0.91), k=4`. It was Ruff 2014's published risk ratio,
+                     which that page carries as its COMPARATOR. The object's pool was 0.7817.
+
+AND THE COLCHICINE BENCHMARK DOES NOT RECONCILE WITH ITS OWN DECLARED SOURCE EITHER, which is a
+second and independent failure: it states `N: 11816` where COLCOT (4,745) plus LoDoCo2 (5,522) is
+**10,267**, out by 1,549; and its two named trials pool to 0.7215 (0.6243-0.8338) against a served
+upper bound of 0.91, out by **seven and a half units in the last quoted place**.
+
+WHY A SWEEP AND WHY NOW. Two instances found by hand is not a measurement. The shape is entirely
+mechanical -- a served headline that equals the BENCHMARK and not the object's own pool -- so the
+question "how many others?" has an answer that a command can produce, and until it does, every
+other page's headline is unexamined rather than clean.
+
+THE THREE LIMBS
+
+  1. CARD IDENTITY. For every index card carrying an estimate, is the served triple the object's
+     own pooled value, or the benchmark's? `CARD_IS_THE_BENCHMARK` is the defect.
+  2. THE VOCABULARY ITSELF. Cards are authored in two registers -- `Pooled:` and `Published:`.
+     A `Published:` card on this project's own index is ALREADY the class in prose, whatever its
+     arithmetic, because the index is a list of THIS PROJECT'S REVIEWS and a reader has no way to
+     know that one row means "somebody else computed this".
+  3. BENCHMARK RECONCILIATION. Independently of any card: does the benchmark triple reconcile
+     with the object's OWN per-trial estimates under any weighting and any between-study
+     variance? This uses the bound from `pooled_point_in_achievable_range_gate.py` -- a BOUND,
+     not an enumeration, so a NOT_ACHIEVABLE verdict forecloses the "maybe some other subset
+     reproduces it" reply rather than inviting it.
+
+WHAT THIS DOES NOT ESTABLISH -- written before it was run
+  - A benchmark that DOES reconcile is not thereby correct, and a page serving it is not thereby
+    innocent. Reconciling means the arithmetic is achievable from the recorded trials; it says
+    nothing about whether the page told the reader whose number it is.
+  - `benchmark_type: external_IPD` and `external_aggregate` are HONEST DECLARATIONS that the
+    value comes from elsewhere. They are counted separately and are not defects. It is
+    `self_reference` -- 66 of the 77 -- that asserts the benchmark IS this review's own trials
+    pooled, and it is there that a mismatch means something.
+  - A page with no card and no benchmark is NOT_ASSESSABLE, never clean.
+
+USAGE:  python scripts/benchmark_served_as_own_result_sweep.py
+        python scripts/benchmark_served_as_own_result_sweep.py --selftest
+"""
+import io
+import json
+import math
+import os
+import re
+import sys
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+REPO = os.path.dirname(HERE)
+sys.path.insert(0, HERE)
+import pooled_point_in_achievable_range_gate as G                      # noqa: E402
+
+CARD_RE = re.compile(
+    r'<a href="(?P<page>[A-Za-z0-9_]+\.html)" class="card [^"]*">'
+    r'<span class="name">[^<]*</span><span class="pub">(?P<pub>.*?)</span></a>')
+
+# A served triple, in either register the cards are authored in. `Pooled:` writes
+# `0.8715 (0.7461 to 1.018)`; `Published:` writes `0.25 (0.19&ndash;0.33)`.
+NUM = r"(-?\d+(?:\.\d+)?)"
+TRIPLE_RE = re.compile(
+    NUM + r"\s*\(\s*(?:95%\s*(?:CI|CrI)\s*)?" + NUM + r"\s*(?:to|&ndash;|&#8211;|–|-)\s*"
+    + NUM + r"\s*\)")
+K_RE = re.compile(r"\bk\s*=\s*(\d+)")
+
+VERDICTS = ("CARD_IS_THE_BENCHMARK", "CARD_IS_THE_OBJECT", "CARD_IS_NEITHER",
+            "CARD_WITHDRAWN", "CARD_CARRIES_NO_ESTIMATE", "NO_CARD", "NO_OBJECT",
+            "NO_BENCHMARK", "OBJECT_HAS_NO_POOL")
+
+
+def _f(x):
+    try:
+        return float(x)
+    except (TypeError, ValueError):
+        return None
+
+
+def parse_card(pub):
+    """(register, point, lo, hi, k) from a card's published text."""
+    txt = pub or ""
+    reg = ("withdrawn" if "withdrawn" in txt.lower()
+           else "published" if txt.strip().lower().startswith("published")
+           else "pooled" if txt.strip().lower().startswith("pooled")
+           else "other")
+    m = TRIPLE_RE.search(txt)
+    kk = K_RE.search(txt)
+    if not m:
+        return reg, None, None, None, (int(kk.group(1)) if kk else None)
+    return (reg, _f(m.group(1)), _f(m.group(2)), _f(m.group(3)),
+            int(kk.group(1)) if kk else None)
+
+
+def object_pool(obj):
+    """(point, lo, hi, k, outcome_id, per_trial) for the object's OWN headline, or Nones.
+
+    THE HEADLINE OUTCOME IS READ FROM A DECLARATION, NEVER GUESSED. `project_index_cards.py`
+    records why: on IV_IRON_HF, `sorted(results)[0]` is all-cause mortality, and taking it would
+    silently compare a card against a different outcome's value. A multi-outcome object with no
+    declared headline is REFUSED here for the same reason.
+    """
+    results = ((obj.get("results") or {}).get("by_outcome")) or {}
+    if not results:
+        return (None,) * 5 + (None,)
+    declared = ((obj.get("results") or {}).get("headline_outcome")
+                or obj.get("headline_outcome"))
+    if declared and declared in results:
+        oid = declared
+    elif len(results) == 1:
+        oid = next(iter(results))
+    else:
+        return (None,) * 5 + (None,)
+    res = results[oid] if isinstance(results[oid], dict) else {}
+    pooled = res.get("pooled") or {}
+    if pooled.get("withdrawn"):
+        return (None, None, None, res.get("k"), oid, res.get("per_trial"))
+    return (pooled.get("point"), pooled.get("ci_low"), pooled.get("ci_high"),
+            res.get("k"), oid, res.get("per_trial"))
+
+
+def close(a, b, d=2):
+    """Does a agree with b AT THE PRECISION b IS SERVED TO? One unit in the last place.
+
+    The card serves two decimals; the object stores sixteen. Comparing them at full precision
+    asks whether two different roundings of one quantity are bit-identical, which is the defect
+    this project just spent an hour removing from another gate.
+    """
+    if a is None or b is None:
+        return False
+    return abs(float(a) - float(b)) <= (10.0 ** -d) + 1e-12
+
+
+def classify(card, obj_pool, bench):
+    reg, cp, clo, chi, ck = card
+    op, olo, ohi, ok, _oid, _pt = obj_pool
+    if reg == "withdrawn":
+        return "CARD_WITHDRAWN"
+    if cp is None:
+        return "CARD_CARRIES_NO_ESTIMATE"
+    is_obj = close(cp, op) and close(clo, olo) and close(chi, ohi)
+    is_ben = (bench is not None and close(cp, bench.get("pooled"))
+              and close(clo, bench.get("lci")) and close(chi, bench.get("uci")))
+    if is_ben and not is_obj:
+        return "CARD_IS_THE_BENCHMARK"
+    if is_obj:
+        return "CARD_IS_THE_OBJECT"
+    if op is None:
+        return "OBJECT_HAS_NO_POOL"
+    return "CARD_IS_NEITHER"
+
+
+def benchmark_reconciles(bench, obj):
+    """Does the BENCHMARK triple follow from the OBJECT'S OWN trials? Bound, not enumeration.
+
+    THE FIRST VERSION OF THIS LIMB WAS WRONG IN THE FAMILY THIS PROJECT KEEPS FINDING, and its
+    eight "findings" were mostly its own. It took whichever outcome the object declared as its
+    headline and compared the benchmark against THAT, without ever asking whether the two were
+    measuring the same thing:
+
+        INCRETIN_HFpEF  benchmark is an HR for a worsening-HF / CV-death composite. The object's
+                        declared headline is `kccq_css_change` -- a MEAN DIFFERENCE in a symptom
+                        score, per-trial 7.8 and 6.9. Exponentiating those against a hazard ratio
+                        produced a "pool" of 7.4901 and a gap of 21.9, and it was reported as a
+                        benchmark that does not reconcile.
+        IV_IRON_HF      benchmark is an HR. The object's declared headline is a RATE_RATIO over
+                        RECURRENT events. The object DOES hold a matching HR outcome
+                        (`hfh_cvd_first`, 0.7957) and this limb never looked for it.
+
+    That is P36 and P37 one level up: TWO QUANTITIES WERE COMPARED BY THEIR SLOT RATHER THAN BY
+    THEIR DEFINITION, and the arithmetic completed without complaint. So the limb now refuses
+    unless the comparison is a comparison:
+
+      MEASURE   the benchmark's estimand must equal an object outcome's measure, and exactly one
+                outcome must carry it. Zero or several -> NOT_ASSESSABLE, named.
+      SCOPE     the benchmark's k must equal that outcome's k. A benchmark synthesising a
+                DIFFERENT SET OF TRIALS is not supposed to reproduce from this one, and asking
+                whether it does is not a question about the corpus. ARNI's benchmark is
+                PARADIGM-HF's own published hazard ratio against an object pooling four trials.
+
+    AND THE COST OF THAT HONESTY IS NAMED: this limb can no longer convict COLCHICINE_CVD, whose
+    benchmark is k=2 against an object holding three trials. That conviction came from testing
+    the benchmark against ITS OWN DECLARED SOURCE -- COLCOT and LoDoCo2, named in the record with
+    their PMIDs -- which is a different test and one this limb cannot perform, because a
+    benchmark record generally does not say which trials it pooled.
+    """
+    if not bench or bench.get("estimand") not in ("HR", "RR", "OR"):
+        return "NOT_ASSESSABLE", "the benchmark is not a ratio measure"
+    results = ((obj or {}).get("results") or {}).get("by_outcome") or {}
+    want = bench.get("estimand")
+    cands = []
+    for oid, blk in results.items():
+        if not isinstance(blk, dict):
+            continue
+        pooled = blk.get("pooled") or {}
+        if str(pooled.get("measure") or "").upper() == want and not pooled.get("withdrawn"):
+            cands.append((oid, blk))
+    if not cands:
+        return ("NOT_ASSESSABLE",
+                "MEASURE MISMATCH: the benchmark is a %s and no live outcome on this object "
+                "carries that measure. Comparing them would compare two different quantities."
+                % want)
+    if len(cands) > 1:
+        return ("NOT_ASSESSABLE",
+                "%d outcomes carry the measure %s and the benchmark names no outcome id, so "
+                "WHICH ONE it should be compared against is a guess. Refused."
+                % (len(cands), want))
+    oid, blk = cands[0]
+    bk, ok = bench.get("k"), blk.get("k")
+    if bk is not None and ok is not None and int(bk) != int(ok):
+        return ("NOT_ASSESSABLE",
+                "SCOPE DIFFERS: the benchmark synthesises k=%s and this object's `%s` pools "
+                "k=%s. A synthesis of a different trial set is not expected to reproduce from "
+                "this one, and a mismatch here would be a fact about the two scopes."
+                % (bk, oid, ok))
+    th, se = [], []
+    for t in (blk.get("per_trial") or []):
+        if not isinstance(t, dict):
+            continue
+        s = G.se_from_ci(t.get("ci_low"), t.get("ci_high"), t.get("ci_level"))
+        if s and t.get("point"):
+            th.append(math.log(float(t["point"])))
+            se.append(s)
+    if len(th) < 2:
+        return "NOT_ASSESSABLE", "fewer than two per-trial estimates carry a usable interval"
+    v, why = G.assess_joint(bench.get("pooled"), bench.get("lci"), bench.get("uci"), th, se)
+    return v, "outcome `%s`, measure %s, k=%s. %s" % (oid, want, ok, why)
+
+
+def run():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    with io.open(os.path.join(REPO, "index.html"), "r", encoding="utf-8") as fh:
+        html = fh.read()
+    cards = {m.group("page"): m.group("pub") for m in CARD_RE.finditer(html)}
+    with io.open(os.path.join(REPO, "PUBLISHED_META_BENCHMARKS.json"), "r",
+                 encoding="utf-8") as fh:
+        bms = json.load(fh)["benchmarks"]
+    with io.open(os.path.join(REPO, "ssot", "PAGE_MAP.json"), "r", encoding="utf-8") as fh:
+        pmap = json.load(fh)
+
+    rows, tally, recon = [], {}, {}
+    for page in sorted(set(list(bms) + list(pmap))):
+        bench = bms.get(page)
+        rel = pmap.get(page)
+        obj = None
+        if rel:
+            op = os.path.join(REPO, rel.replace("/", os.sep))
+            if os.path.exists(op):
+                try:
+                    with io.open(op, "r", encoding="utf-8") as fh:
+                        obj = json.load(fh)
+                except ValueError:
+                    obj = None
+        if page not in cards:
+            v = "NO_CARD"
+        elif obj is None:
+            v = "NO_OBJECT"
+        elif bench is None:
+            v = "NO_BENCHMARK"
+        else:
+            v = classify(parse_card(cards[page]), object_pool(obj), bench)
+        tally[v] = tally.get(v, 0) + 1
+        reg = parse_card(cards[page])[0] if page in cards else None
+        rv, rwhy = ("NOT_ASSESSABLE", "no benchmark or no object")
+        if bench and obj is not None:
+            rv, rwhy = benchmark_reconciles(bench, obj)
+        recon[rv] = recon.get(rv, 0) + 1
+        rows.append({"page": page, "verdict": v, "card_register": reg,
+                     "benchmark_type": (bench or {}).get("benchmark_type"),
+                     "benchmark_reconciles": rv, "benchmark_reconciles_why": rwhy,
+                     "card": cards.get(page, "")[:180]})
+
+    print("SWEEP -- a page serving an external benchmark where its own result belongs\n")
+    print("index cards %d   benchmark records %d   page-map entries %d\n"
+          % (len(cards), len(bms), len(pmap)))
+    print("CARD IDENTITY")
+    for k in sorted(tally, key=lambda x: -tally[x]):
+        print("    %-28s %4d" % (k, tally[k]))
+    print("\nDOES THE BENCHMARK RECONCILE WITH THE OBJECT'S OWN TRIALS")
+    for k in sorted(recon, key=lambda x: -recon[x]):
+        print("    %-44s %4d" % (k, recon[k]))
+    # A LARGE NOT_ASSESSABLE COUNT IS NOT A RESULT UNTIL IT IS BROKEN OUT. Folded into one
+    # number it reads as "nothing to see here"; split, it says WHY the corpus cannot answer
+    # the question, and that is the finding. Same law as `remainder: 0` at the top of the
+    # defect registry -- three distinct states must never be summed.
+    out_reasons = {}
+    for r in rows:
+        if r["benchmark_reconciles"] != "NOT_ASSESSABLE":
+            continue
+        w = r["benchmark_reconciles_why"] or ""
+        tag = ("no benchmark record and/or no SSOT object for this page"
+               if w.startswith("no benchmark") else
+               "MEASURE MISMATCH -- the benchmark measures what the object does not"
+               if "MEASURE MISMATCH" in w else
+               "SCOPE DIFFERS -- the benchmark synthesises a different trial set"
+               if "SCOPE DIFFERS" in w else
+               "several outcomes carry that measure and the benchmark names none"
+               if "outcomes carry the measure" in w else
+               "the benchmark is not a ratio measure" if "not a ratio" in w else
+               "fewer than two per-trial estimates carry an interval"
+               if "fewer than two" in w else "other")
+        out_reasons[tag] = out_reasons.get(tag, 0) + 1
+    print("      why NOT_ASSESSABLE -- the count above says nothing until it is split:")
+    for k in sorted(out_reasons, key=lambda x: -out_reasons[x]):
+        print("        %-64s %4d" % (k, out_reasons[k]))
+
+    hits = [r for r in rows if r["verdict"] == "CARD_IS_THE_BENCHMARK"]
+    print("\nCARD_IS_THE_BENCHMARK -- the class, %d instance(s):" % len(hits))
+    for r in hits:
+        print("    %-42s %s" % (r["page"], r["card"][:100]))
+
+    pub = [r for r in rows if r["card_register"] == "published"]
+    print("\nCARDS AUTHORED IN THE `Published:` REGISTER: %d" % len(pub))
+    print("    A `Published:` row on THIS PROJECT'S OWN INDEX is the class stated in prose,")
+    print("    whatever its arithmetic. The index lists this project's reviews; a reader has no")
+    print("    way to know that one row means somebody else computed it.")
+    for r in pub[:25]:
+        print("      %-42s %-18s %s"
+              % (r["page"], r["benchmark_type"], r["card"][:62]))
+    if len(pub) > 25:
+        print("      ... and %d more, listed in full in the JSON below" % (len(pub) - 25))
+
+    nr = [r for r in rows if r["benchmark_reconciles"].startswith("NOT_ACHIEVABLE")]
+    print("\nBENCHMARKS THAT DO NOT RECONCILE WITH THE OBJECT'S OWN TRIALS: %d" % len(nr))
+    for r in nr:
+        print("    %-42s %s" % (r["page"], r["benchmark_type"]))
+        print("        %s" % r["benchmark_reconciles_why"][:190])
+
+    dest = os.path.join(REPO, "evidence", "2026-08-19-batch1",
+                        "benchmark_served_as_own_result_sweep.json")
+    out = {
+        "swept_utc": "2026-08-19",
+        "what_this_is": "Every page carrying a published benchmark and/or an index card, "
+                        "classified by WHOSE NUMBER THE CARD SERVES.",
+        "index_cards": len(cards), "benchmark_records": len(bms), "page_map": len(pmap),
+        "card_identity": tally,
+        "benchmark_reconciliation": recon,
+        "benchmark_reconciliation_not_assessable_reasons": out_reasons,
+        "WHY_THIS_LIMB_CONVICTS_NOBODY_INCLUDING_COLCHICINE": (
+            "Done correctly it returns zero, and that is the honest answer rather than a "
+            "disappointing one. It first returned EIGHT, and two of those eight were this "
+            "instrument comparing a hazard-ratio benchmark against a MEAN DIFFERENCE in a "
+            "symptom score and against a RATE RATIO over recurrent events -- P36/P37 one level "
+            "up, two quantities compared by their SLOT rather than by their DEFINITION. With "
+            "measure-match and scope-match enforced, nothing survives. "
+            "AND IT CANNOT CONVICT COLCHICINE EITHER: that benchmark is k=2 against an object "
+            "holding three trials, so this limb refuses it as SCOPE DIFFERS. The colchicine "
+            "conviction came from testing the benchmark against ITS OWN DECLARED SOURCE -- "
+            "COLCOT and LoDoCo2, named in the record with their PMIDs -- which this limb "
+            "structurally cannot do, because a benchmark record generally does not name the "
+            "trials it pooled. THAT IS THE GAP THIS SWEEP MEASURES AND DOES NOT CLOSE."),
+        "published_register_cards": len(pub),
+        "what_a_clean_count_here_does_NOT_mean": (
+            "A benchmark that reconciles is not thereby correct, and a page serving it is not "
+            "thereby innocent -- reconciling is a fact about arithmetic, not about attribution. "
+            "`external_IPD` and `external_aggregate` are HONEST declarations that a value comes "
+            "from elsewhere and are not defects. `self_reference` asserts the benchmark IS this "
+            "review's own trials pooled, and that is where a mismatch means something."),
+        "rows": rows,
+    }
+    with io.open(dest, "w", encoding="utf-8") as fh:
+        fh.write(json.dumps(out, indent=1, ensure_ascii=False))
+    print("\nwrote %s" % os.path.relpath(dest, REPO))
+    return 0
+
+
+def selftest():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    fails = []
+
+    def check(name, got, want):
+        ok = got == want
+        print("  %-70s %s  %r" % (name, "ok" if ok else "FAIL", got))
+        if not ok:
+            fails.append(name)
+
+    print("1. THE PARSER READS BOTH REGISTERS THE CARDS ARE ACTUALLY AUTHORED IN:")
+    check("`Pooled: HR 0.8715 (0.7461 to 1.018), k=4`",
+          parse_card("Pooled: HR 0.8715 (0.7461 to 1.018), k=4"),
+          ("pooled", 0.8715, 0.7461, 1.018, 4))
+    check("`Published: PFS HR 0.25 (0.19&ndash;0.33), k=2`",
+          parse_card("Published: PFS HR 0.25 (0.19&ndash;0.33), k=2"),
+          ("published", 0.25, 0.19, 0.33, 2))
+    check("a withdrawal is its own state, never an estimate",
+          parse_card("Estimate withdrawn &mdash; the four trials measure four DIFFERENT")[0],
+          "withdrawn")
+
+    print("\n2. THE GUARD CAN FIRE, ON THE REAL CASE THAT SHIPPED (P16's fourth clause).")
+    print("   COLCHICINE_CVD's card as served before it was withdrawn:")
+    card = parse_card("Published: HR 0.75 (0.61&ndash;0.91), k=2")
+    pool = (0.7940, 0.6750, 0.9339, 5, "primary", None)
+    bench = {"pooled": 0.75, "lci": 0.61, "uci": 0.91, "estimand": "HR"}
+    check("card is the BENCHMARK, not the object", classify(card, pool, bench),
+          "CARD_IS_THE_BENCHMARK")
+
+    print("\n3. AND DOES NOT FIRE WHEN THE CARD IS THE OBJECT'S OWN POOL:")
+    own = parse_card("Pooled: HR 0.7940 (0.6750 to 0.9339), k=5")
+    check("card is the OBJECT", classify(own, pool, bench), "CARD_IS_THE_OBJECT")
+
+    print("\n4. AND WHEN THE CARD IS NEITHER, IT SAYS SO rather than picking one:")
+    other = parse_card("Published: HR 0.55 (0.30&ndash;1.00), k=4")
+    check("card matches neither", classify(other, pool, bench), "CARD_IS_NEITHER")
+
+    print("\n5. COMPARISON IS AT THE PRECISION THE CARD IS SERVED TO, not at float precision:")
+    check("0.75 against a stored 0.7500000001", close(0.75, 0.7500000001), True)
+    check("0.75 against 0.7940 is NOT close", close(0.75, 0.7940), False)
+    check("a missing side is never 'close'", close(None, 0.75), False)
+
+    print("\n6. A MULTI-OUTCOME OBJECT WITH NO DECLARED HEADLINE IS REFUSED, never guessed:")
+    two = {"results": {"by_outcome": {"acm": {"pooled": {"point": 0.978}},
+                                      "hhf": {"pooled": {"point": 0.8066}}}}}
+    check("two outcomes and no headline_outcome -> no pool read", object_pool(two)[0], None)
+    one = {"results": {"by_outcome": {"acm": {"pooled": {"point": 0.978}}}}}
+    check("one outcome is unambiguous and IS read", object_pool(one)[0], 0.978)
+
+    print("\n7. THE LIVE CORPUS -- and a zero here would make this file meaningless:")
+    with io.open(os.path.join(REPO, "index.html"), "r", encoding="utf-8") as fh:
+        n = len(CARD_RE.findall(fh.read()))
+    check("the card regex matches real cards in index.html", n > 400, True)
+    print("     %d cards matched" % n)
+
+    print("\n%s" % ("SELFTEST FAILED: %s" % fails if fails else "SELFTEST PASSED"))
+    return 1 if fails else 0
+
+
+if __name__ == "__main__":
+    sys.exit(selftest() if "--selftest" in sys.argv else run())

@@ -1,0 +1,189 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/consolidate_ablation_medical_screen_2026_08_19.py
+
+--- THE FILE, IN FULL ---
+"""CONSOLIDATE every disposition for ablation-af-medical-therapy's 621-trial remainder.
+
+THE TOTAL IS COMPUTED FROM THE FIVE EVIDENCE FILES, NEVER ADDED UP BY HAND, and the script
+REFUSES if the parts do not sum to 621 or if any trial carries two verdicts. A screening total
+assembled by hand across five files is the kind of number that reconciles in prose and not in
+arithmetic.
+
+THE FORTY-FOUR THAT ARE INHERITED, AND WHY THEY ARE MARKED. 44 of the 130 were agreed as
+EXCLUSIONS under the OLD, defective question and were NOT re-asked. Under that question an
+adjunct design produces the RIGHT disposition for the WRONG reason -- the ablation is present
+in an arm, no non-ablation control is declared, so it reads EXCLUDED/COMPARATOR when the true
+ground is that the ablation is background. THE VERDICT SURVIVES AND THE REASON DOES NOT.
+
+    P28 says a defective question invalidates every answer it produced, AGREEMENTS FIRST -- and
+    it was applied to the 16 that could ADMIT a trial, because those fail in the direction that
+    changes the review. The 44 exclusions are marked `reason_inherited_from_defective_question`
+    rather than re-run, and that is a STATED COMPROMISE, not a clean result: their dispositions
+    are sound and their attributed limbs are not reliable.
+
+That is P15 at the level of a whole cell: sixteen right answers with an unreliable reason is
+exactly the bempedoic short-circuit finding, arriving through a question instead of through
+check order.
+"""
+import io
+import json
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+EV = os.path.join(REPO, "evidence", "2026-08-19-batch1")
+DEST = os.path.join(EV, "ablation_medical_screen_final.json")
+
+E, ENP, ENR, EPNI = ("EXCLUDED", "ELIGIBLE_NOT_POOLABLE", "ELIGIBLE_NO_RESULTS_YET",
+                     "ELIGIBLE_POOLABLE_NOT_INCLUDED")
+
+
+def load(name):
+    with io.open(os.path.join(EV, name), encoding="utf-8") as fh:
+        return json.load(fh)
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    mech = load("ablation_medical_screening.json")
+    adj = load("ablation_adjudication.json")
+    hard = load("ablation_hard_adjudication.json")
+    reask = load("ablation_reask.json")
+    rhand = load("ablation_reask_hand.json")
+    ctrl = load("ablation_control_types.json")
+
+    verdict, source = {}, {}
+
+    def put(nct, v, src):
+        if nct in verdict and verdict[nct] != v:
+            print("REFUSED: %s has two verdicts -- %s (%s) and %s (%s)"
+                  % (nct, verdict[nct], source[nct], v, src))
+            raise SystemExit(1)
+        verdict[nct] = v
+        source[nct] = src
+
+    # 1. the mechanical pass, everything it settled
+    for r in mech["trials"]:
+        if r["verdict"] != "NEEDS_ADJUDICATION":
+            put(r["nct"], r["verdict"], "mechanical")
+
+    # 2. the 44 old-question agreements that were EXCLUSIONS -- disposition kept, reason marked
+    inherited = []
+    for r in adj["agreed"]:
+        if r["implies"] == "EXCLUDED":
+            put(r["nct"], E, "old_question_agreement_REASON_UNRELIABLE")
+            inherited.append(r["nct"])
+
+    # 3. the 25 hard contradictions, hand-read
+    for r in hard["trials"]:
+        put(r["nct"], r["verdict"], "hand_hard_contradiction")
+
+    # 4. the re-ask: disposition-agreed
+    for r in reask["resolved"]:
+        d = reask["code_meanings"][r["code"]]["disposition"]
+        if d != "HAND":
+            put(r["nct"], E if d == "EXCLUDED" else d, "reask_agreed")
+    for r in reask["same_verdict_different_reason"]:
+        put(r["nct"], E, "reask_same_verdict_different_reason")
+
+    # 5. the re-ask hand readings
+    for r in rhand["trials"]:
+        put(r["nct"], r["verdict"], "hand_reask")
+
+    # 6. the final 11 -- disputed control types and inherited-eligible
+    for r in ctrl["trials"]:
+        put(r["nct"], r["verdict"], "hand_control_type")
+
+    remainder = [r["nct"] for r in mech["trials"]]
+    missing = [n for n in remainder if n not in verdict]
+    extra = [n for n in verdict if n not in remainder]
+    from collections import Counter
+    tally = Counter(verdict.values())
+
+    print("remainder                    %4d" % len(remainder))
+    print("with a final verdict         %4d" % len([n for n in remainder if n in verdict]))
+    if missing:
+        print("\nREFUSED: %d trial(s) have NO final verdict: %s" % (len(missing), missing[:20]))
+        return 1
+    if extra:
+        print("\nREFUSED: %d verdict(s) name a trial outside the remainder: %s"
+              % (len(extra), extra[:20]))
+        return 1
+
+    print("\nFINAL DISPOSITIONS")
+    for k in (E, ENP, ENR, EPNI):
+        print("   %-32s %4d" % (k, tally.get(k, 0)))
+    print("   %-32s %4d" % ("total", sum(tally.values())))
+    if sum(tally.values()) != len(remainder):
+        print("\nREFUSED: the parts do not sum to the remainder.")
+        return 1
+
+    print("\nBY SOURCE")
+    for k, v in Counter(source.values()).most_common():
+        print("   %-42s %4d" % (k, v))
+
+    print("\n%d verdicts carry a REASON INHERITED FROM THE DEFECTIVE QUESTION." % len(inherited))
+    print("Their dispositions are sound; their attributed limbs are not reliable. Stated as a")
+    print("compromise rather than presented as a clean result.")
+
+    out = {"topic": "ablation-af-medical-therapy", "consolidated_utc": "2026-08-19",
+           "remainder": len(remainder),
+           "tally": {k: tally.get(k, 0) for k in (E, ENP, ENR, EPNI)},
+           "by_source": dict(Counter(source.values())),
+           "reason_inherited_from_defective_question": {
+               "n": len(inherited), "ncts": inherited,
+               "what_it_means": (
+                   "agreed as EXCLUSIONS under the old question and not re-asked. Under that "
+                   "question an adjunct design gives the RIGHT disposition for the WRONG "
+                   "reason. The verdict survives; the attributed limb does not. P28 was "
+                   "applied to the 16 that could ADMIT a trial, because those fail in the "
+                   "direction that changes the review.")},
+           "eligible_poolable_not_included": {
+               "n": tally.get(EPNI, 0),
+               "computed_because": (
+                   "every eligible trial in this remainder either reports no all-cause-"
+                   "mortality composite at any registered rank, or has posted no results at "
+                   "all. Checked per trial, not assumed.")},
+           "verdicts": {n: {"verdict": verdict[n], "source": source[n]} for n in remainder}}
+    with io.open(DEST, "w", encoding="utf-8") as fh:
+        fh.write(json.dumps(out, indent=1))
+    print("\nwrote %s" % DEST)
+    print("\nREMAINDER AFTER SCREENING: 0")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

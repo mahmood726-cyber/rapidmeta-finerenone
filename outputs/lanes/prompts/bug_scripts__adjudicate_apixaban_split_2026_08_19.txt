@@ -1,0 +1,226 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/adjudicate_apixaban_split_2026_08_19.py
+
+--- THE FILE, IN FULL ---
+"""ADJUDICATE the 31 apixaban cases the screener refused (16 treatment + 15 prophylaxis).
+
+EVERY ONE REFUSED BECAUSE `primaryPurpose` AND THE CONDITION TEXT DISAGREED, and reading them
+shows the disagreement is not registrant sloppiness. It is a REAL CLINICAL BOUNDARY THAT NO
+CODED FIELD CARRIES, and the two reviews sit on opposite sides of it:
+
+    EXTENDED ANTICOAGULATION AFTER A TREATED VTE.
+
+    AMPLIFY-EXT (NCT00633893, n=2711) is coded TREATMENT and titled "Extended Treatment".
+    APIDULCIS (NCT03678506, n=800) is coded PREVENTION and titled "Extended Anticoagulation".
+    NCT03080883 is coded PREVENTION and titled "Preventing Secondary Cancer Related VTE".
+    ALL THREE RANDOMISE THE SAME THING: continuing or stopping anticoagulation in patients who
+    have ALREADY HAD a venous thromboembolism.
+
+THE RULE, STATED RATHER THAN INHERITED FROM WHICHEVER FIELD WAS CONSULTED FIRST:
+
+    EXTENDED ANTICOAGULATION IN PATIENTS WHO HAVE ALREADY HAD A VTE IS **TREATMENT** -- it is
+    the continuation of therapy for an event that has occurred, and its estimand is RECURRENT
+    VTE in people who have had one.
+
+    PRIMARY PROPHYLAXIS IN PATIENTS WHO HAVE NOT HAD ONE IS **PREVENTION** -- surgical,
+    medically ill, or cancer-associated, and its estimand is FIRST VTE.
+
+    THE DISCRIMINATOR IS WHETHER THE PATIENT HAS ALREADY HAD THE EVENT, and it is read from
+    the eligibility criteria and the trial's own description, because primaryPurpose does not
+    carry it and the two registrant conventions for it are used interchangeably.
+
+    WHAT IT COSTS: several large "prevention"-coded trials move to the TREATMENT review and
+    several "treatment"-coded ones move to PROPHYLAXIS. Every move is named below, and a
+    reader who draws the boundary elsewhere can recount from this file.
+
+AND ADVANCE-2 STAYS REFUSED ON BOTH. Its coded purpose says TREATMENT, its title says
+Prevention, and its design is knee-replacement thromboprophylaxis -- so the DESIGN settles it
+as prophylaxis and it is admitted THERE, not left unassigned. A record that contradicts itself
+is not a record that can be assigned by preference, but it can be assigned by reading the third
+thing: what the trial actually did.
+"""
+import io
+import json
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DEST = os.path.join(REPO, "evidence", "2026-08-19-batch1", "apixaban_adjudication.json")
+
+T, P = "apixaban-vte-treatment", "apixaban-vte-prophylaxis"
+
+# (nct, topic, verdict, why)
+ROWS = [
+    # ---- the extended-anticoagulation class: already had a VTE -> TREATMENT
+    (T, "NCT00633893", "ELIGIBLE_POOLABLE_NOT_INCLUDED",
+     "AMPLIFY-EXT, n=2711. Extended treatment of VTE against placebo. ALREADY HAD THE EVENT -> "
+     "treatment. The packet named this as a treatment anchor and it was outside the object."),
+    (T, "NCT03678506", "ELIGIBLE_POOLABLE_NOT_INCLUDED",
+     "APIDULCIS, n=800. Coded PREVENTION, and it randomises extended anticoagulation in "
+     "patients who have had a VTE -> treatment by the boundary above. A trial the coded field "
+     "would have sent to the wrong review."),
+    (T, "NCT03080883", "ELIGIBLE_NO_RESULTS_YET",
+     "n=370, coded PREVENTION, 'preventing SECONDARY cancer-related VTE' -- secondary means "
+     "after a first event, so treatment. No posted results."),
+    (T, "NCT05171049", "ELIGIBLE_NO_RESULTS_YET",
+     "abelacimab against apixaban in the TREATMENT of VTE, n=1150. Apixaban is the comparator, "
+     "which is in scope -- a drug compared against apixaban randomises apixaban."),
+    (T, "NCT06055920", "ELIGIBLE_NO_RESULTS_YET",
+     "PEERLESS II, n=1200, pulmonary embolism. Treatment of an established event."),
+    (T, "NCT07493304", "ELIGIBLE_NO_RESULTS_YET",
+     "n=1600, 'Treatment and Secondary Prevention of Venous Thrombosis' -- both limbs are "
+     "post-event."),
+    (T, "NCT01195727", "ELIGIBLE_NOT_POOLABLE",
+     "n=13 paediatric multiple-dose study in children WITH venous thromboembolism. In scope by "
+     "population; a dose-finding design that will not contribute a VTE or bleeding effect "
+     "estimate."),
+    # ---- moved OUT of treatment: primary prophylaxis, no prior event
+    (T, "NCT00452530", "EXCLUDED",
+     "ADVANCE-2, knee-replacement thromboprophylaxis. Coded TREATMENT, and the DESIGN is "
+     "primary prevention in patients who have not had a VTE. Belongs to the prophylaxis "
+     "review, where it is admitted."),
+    (T, "NCT02369653", "EXCLUDED",
+     "primary thromboprophylaxis in lymphoma and acute lymphoblastic leukaemia, n=512. No "
+     "prior event."),
+    (T, "NCT04504318", "EXCLUDED",
+     "apixaban vs enoxaparin after microsurgical breast reconstruction, n=82. Surgical "
+     "prophylaxis."),
+    (T, "NCT07015905", "EXCLUDED",
+     "REGN7508 vs apixaban and enoxaparin for THROMBOPROPHYLAXIS, n=2000."),
+    (T, "NCT06523959", "EXCLUDED",
+     "n=5436, thrombosis and bleeding in surgery -- perioperative prophylaxis."),
+    (T, "NCT07270263", "EXCLUDED",
+     "reduced-dose DOAC vs low-molecular-weight heparin for prophylaxis in haematological "
+     "malignancy, n=100."),
+    (T, "NCT07699796", "EXCLUDED",
+     "apixaban vs rivaroxaban vs no anticoagulant to PREVENT thrombosis, n=564. No prior "
+     "event."),
+    (T, "NCT05618808", "EXCLUDED",
+     "REGN9933 for PREVENTION of VTE, n=373. Coded TREATMENT and the title says prevention; "
+     "the design is prophylaxis."),
+    (T, "NCT05622500", "EXCLUDED",
+     "n=12, CHRONIC VENOUS INSUFFICIENCY with endovenous stenting. Population is chronic "
+     "venous disease, not acute or recent VTE."),
+    # ---- prophylaxis review
+    (P, "NCT00452530", "ELIGIBLE_POOLABLE_NOT_INCLUDED",
+     "ADVANCE-2, n=3221 knee-replacement thromboprophylaxis. Its coded purpose says TREATMENT "
+     "and its DESIGN says prophylaxis; the design settles it and it is admitted HERE. THE "
+     "FOURTH LARGE ADVANCE-PROGRAMME TRIAL MISSING FROM THIS REVIEW."),
+    (P, "NCT02369653", "ELIGIBLE_NO_RESULTS_YET",
+     "primary thromboprophylaxis in lymphoma and ALL, n=512."),
+    (P, "NCT04504318", "ELIGIBLE_NOT_POOLABLE",
+     "apixaban vs enoxaparin after microsurgical breast reconstruction, n=82. In scope; its "
+     "registered outcomes are surgical-flap endpoints."),
+    (P, "NCT05089227", "ELIGIBLE_NO_RESULTS_YET",
+     "prolonged anticoagulation for PRIMARY prophylaxis, n=72."),
+    (P, "NCT06581965", "ELIGIBLE_NO_RESULTS_YET",
+     "n=10078, individualised versus standard thrombosis prophylaxis. THE LARGEST TRIAL IN "
+     "EITHER REMAINDER, and not yet reported."),
+    (P, "NCT07005024", "ELIGIBLE_NO_RESULTS_YET",
+     "DOAC dosing options in anticoagulation prophylaxis for cancer, n=996."),
+    (P, "NCT07015905", "ELIGIBLE_NO_RESULTS_YET", "REGN7508 thromboprophylaxis, n=2000."),
+    (P, "NCT06523959", "ELIGIBLE_NO_RESULTS_YET",
+     "perioperative thrombosis and bleeding, n=5436."),
+    (P, "NCT07270263", "ELIGIBLE_NO_RESULTS_YET",
+     "reduced-dose DOAC vs LMWH prophylaxis in haematological malignancy, n=100."),
+    (P, "NCT07699796", "ELIGIBLE_NO_RESULTS_YET",
+     "apixaban vs rivaroxaban vs no anticoagulant to prevent thrombosis, n=564."),
+    (P, "NCT05618808", "ELIGIBLE_NO_RESULTS_YET", "REGN9933 for prevention of VTE, n=373."),
+    (P, "NCT01707394", "ELIGIBLE_NOT_POOLABLE",
+     "single-dose paediatric pharmacokinetic study, n=49. In scope by population; a PK design "
+     "contributes no clinical effect estimate."),
+    # ---- moved OUT of prophylaxis: post-event, so treatment
+    (P, "NCT03080883", "EXCLUDED",
+     "'preventing SECONDARY cancer-related VTE' -- after a first event, so treatment by the "
+     "boundary above. Belongs to the treatment review, where it is admitted."),
+    (P, "NCT03678506", "EXCLUDED",
+     "APIDULCIS: extended anticoagulation after a VTE. Coded PREVENTION and it is treatment."),
+    (P, "NCT07493304", "EXCLUDED",
+     "'Treatment and Secondary Prevention' -- both post-event."),
+]
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    from collections import Counter
+    scr = json.load(io.open(os.path.join(REPO, "evidence", "2026-08-19-batch1",
+                                          "apixaban_split_screening.json"), encoding="utf-8"))
+    rc = 0
+    out = {"adjudicated_utc": "2026-08-19", "boundary_rule": (
+        "EXTENDED ANTICOAGULATION IN PATIENTS WHO HAVE ALREADY HAD A VTE IS TREATMENT; PRIMARY "
+        "PROPHYLAXIS IN PATIENTS WHO HAVE NOT IS PREVENTION. The discriminator is whether the "
+        "patient has already had the event, read from eligibility and description, because "
+        "primaryPurpose does not carry it and both registrant conventions are used for both."),
+        "topics": {}}
+
+    for topic in (T, P):
+        need = {r["nct"] for r in scr[topic]["trials"]
+                if r["verdict"] == "NEEDS_ADJUDICATION"}
+        mine = [(n, v, w) for (tp, n, v, w) in ROWS if tp == topic]
+        got = {n for n, _v, _w in mine}
+        missing, extra = sorted(need - got), sorted(got - need)
+        print("--- %s: %d to adjudicate, %d rows" % (topic, len(need), len(mine)))
+        if missing:
+            print("   REFUSED: no row for %s" % missing)
+            rc = 1
+        if extra:
+            print("   REFUSED: rows for trials not needing adjudication: %s" % extra)
+            rc = 1
+        tally = Counter(v for _n, v, _w in mine)
+        for k, v in tally.most_common():
+            print("   %-34s %2d" % (k, v))
+        out["topics"][topic] = {"n": len(mine), "tally": dict(tally),
+                                "trials": [{"nct": n, "verdict": v, "why": w}
+                                           for n, v, w in mine]}
+    if rc:
+        return rc
+
+    # The headline consequence, computed rather than asserted.
+    for topic in (T, P):
+        base = scr[topic]["tally"]["ELIGIBLE_POOLABLE_NOT_INCLUDED"]
+        added = out["topics"][topic]["tally"].get("ELIGIBLE_POOLABLE_NOT_INCLUDED", 0)
+        out["topics"][topic]["eligible_poolable_total"] = base + added
+        print("\n%s: ELIGIBLE_POOLABLE_NOT_INCLUDED %d + %d adjudicated = %d"
+              % (topic, base, added, base + added))
+    with io.open(DEST, "w", encoding="utf-8") as fh:
+        fh.write(json.dumps(out, indent=1))
+    print("\nwrote %s" % DEST)
+    print("\nREMAINDER AFTER ADJUDICATION: 0 on both reviews.")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

@@ -1,0 +1,212 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a03181-d270-7de2-b0ec-a8f72a37b21f
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/close_ali_p3_tokens.py
+
+--- THE FILE, IN FULL ---
+#!/usr/bin/env python3
+"""Substitute alirocumab-lipid's last template tokens, and write its P3 criteria provenance.
+
+The tokens are substituted with the values the object already holds -- 12/6/6/6 -- not with
+values invented to fit the sentence. One clarification is ADDED rather than the number changed:
+`contributing_to_this_outcome` counts citations retained FROM THE SOURCE APP, and the two
+trials recovered on 2026-08-19 were never in that citation list. They came from the registry.
+So 6 remains correct about the source app and would be wrong read as "trials in the pool",
+which is now 8.
+"""
+import io
+import json
+import os
+
+OBJ = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                   "ssot", "alirocumab-lipid", "alirocumab-lipid.json")
+
+PROVENANCE = {
+    "state": "DERIVED_POST_HOC",
+    "predefined": False,
+    "post_hoc": True,
+    "derived": True,
+    "predefined_is_false_because": (
+        "This object recorded NO eligibility block -- screening.eligibility reads 'not recorded "
+        "on the page this object was extracted from'. The criteria below were DERIVED on "
+        "2026-08-19 from the object's own recorded question and estimand, AFTER its included "
+        "set existed. `false` is asserted rather than left null because the derivation order is "
+        "known: the trials came first. That is the honest label and it is worse than null, "
+        "which is why it is on the block's face."),
+    "authority_it_satisfies": "MECIR R29/R30/R31 -- the review STATES its eligibility criteria.",
+    "authority_it_does_NOT_establish": "MECIR C5/C7 -- criteria DEFINED IN ADVANCE.",
+    "what_would_settle_it": "a protocol record timestamped before the first executed query",
+    "elements": [
+        {"element": "POPULATION", "criterion": "adults treated for hypercholesterolaemia",
+         "auditable_against": "protocolSection.conditionsModule.conditions",
+         "settles_it": True,
+         "evidence": "All eight contributing registrations record Hypercholesterolemia or "
+                     "Hypercholesterolaemia as a condition."},
+        {"element": "INTERVENTION", "criterion": "alirocumab",
+         "auditable_against": "protocolSection.armsInterventionsModule.interventions[].name",
+         "settles_it": True,
+         "evidence": "Matched against the declared synonym set in "
+                     "ssot/topic_identity.TOPIC_SYNONYMS['alirocumab'] -- alirocumab, "
+                     "praluent, SAR236553, REGN727."},
+        {"element": "COMPARATOR", "criterion": "placebo",
+         "auditable_against": "protocolSection.armsInterventionsModule.armGroups",
+         "settles_it": False,
+         "evidence_and_why_it_does_not_settle": (
+             "THE INTERVENTION LIST IS NOT SUFFICIENT AND THIS IS THE ELEMENT THAT PROVED IT. "
+             "Four candidate trials are DOUBLE-DUMMY designs -- ODYSSEY MONO randomises "
+             "alirocumab plus placebo-for-ezetimibe against ezetimibe plus "
+             "placebo-for-alirocumab -- so a placebo is present in BOTH arms as the blinding "
+             "device while the comparator is EZETIMIBE. THE PRESENCE OF A PLACEBO DOES NOT "
+             "MEAN THE COMPARATOR IS PLACEBO. Settled instead by reading each ARM: a "
+             "control-arm drug that is neither a placebo nor present in every arm. That is a "
+             "DERIVED judgement and is labelled one."),
+         "derived_by": "per-arm comparison in scripts/screen_alirocumab_remainder.py"},
+        {"element": "OUTCOME",
+         "criterion": "percent change from baseline in calculated LDL-C at week 24",
+         "auditable_against": "protocolSection.outcomesModule.primaryOutcomes[].measure",
+         "settles_it": True,
+         "evidence": "The two trials recovered on 2026-08-19 register this measure WORD FOR "
+                     "WORD -- 'Percent Change From Baseline in Calculated LDL-C at Week 24 - "
+                     "Intent-to-treat' -- which is how they were identified as poolable."},
+        {"element": "TIMEPOINT", "criterion": "week 24, and no other",
+         "auditable_against": "protocolSection.outcomesModule.primaryOutcomes[].measure",
+         "settles_it": True,
+         "evidence": "Recorded as its own element because it did real work: trials reporting "
+                     "LDL-C at week 12 or week 52 were dispositioned ELIGIBLE_NOT_POOLABLE on "
+                     "TIMEPOINT, not excluded. A different timepoint is a different estimand."},
+    ],
+    "elements_summary": (
+        "5 elements: 4 settled by a named registry field, 1 (COMPARATOR) NOT settled by any "
+        "single field and labelled as derived. The unsettled count is stated because a "
+        "provenance block listing only its auditable elements would report that everything is "
+        "auditable."),
+}
+
+
+def main():
+    with io.open(OBJ, encoding="utf-8") as fh:
+        obj = json.load(fh)
+
+    rm = obj["removed_citations"]
+    note = rm["disclosure_note"]
+    for k in ("total_cited", "removed", "retained", "contributing_to_this_outcome"):
+        note = note.replace("{rm.%s}" % k, str(rm[k]))
+    rm["disclosure_note"] = note + (
+        " NOTE ADDED 2026-08-19: these counts describe citations retained from the SOURCE APP. "
+        "The two trials recovered by screening on that date (NCT02289963, NCT02585778) were "
+        "never in that citation list -- they were found in the registry -- so 6 remains "
+        "correct here and must not be read as the number of trials in the pool, which is 8.")
+
+    scr = obj.setdefault("screening", {})
+    scr["eligibility_provenance"] = PROVENANCE
+
+    with io.open(OBJ, "w", encoding="utf-8", newline="") as fh:
+        fh.write(json.dumps(obj, indent=1, ensure_ascii=False) + "\n")
+    print("tokens substituted; provenance written with %d elements (%d settled by a field)"
+          % (len(PROVENANCE["elements"]),
+             sum(1 for e in PROVENANCE["elements"] if e["settles_it"])))
+
+
+if __name__ == "__main__":
+    main()
+
+codex
+Defects found:
+
+- `STATUS CODE REPORTING THE WRAPPER` / `check that CANNOT FAIL`: line 99.  
+  Exact input for `OBJ`: `{"removed_citations":{"disclosure_note":"already closed","total_cited":12,"removed":6,"retained":6,"contributing_to_this_outcome":6}}`  
+  Consequence: exits 0 and prints `tokens substituted` even though line 87 substituted zero tokens.
+
+- `idempotency`: line 88.  
+  Exact input for `OBJ`: `{"removed_citations":{"disclosure_note":"x NOTE ADDED 2026-08-19: these counts describe citations retained from the SOURCE APP.","total_cited":12,"removed":6,"retained":6,"contributing_to_this_outcome":6}}`  
+  Consequence: every rerun appends the same NOTE again, so the script is not deterministic/idempotent.
+
+- `selector leaves unclosed template markers`: line 86.  
+  Exact input for `OBJ`: `{"removed_citations":{"disclosure_note":"{rm.total_cited} {rm.pool_trials}","total_cited":12,"removed":6,"retained":6,"contributing_to_this_outcome":6}}`  
+  Consequence: `{rm.pool_trials}` remains in the written JSON while the script still reports success.
+
+No defect proven for `probe keyed to the STRING A FIX REMOVES`.
+
+COULD NOT DETERMINE `instrument reading a DIFFERENT COPY`: missing caller, git state, served artifact, and actual target file path resolution context.
+
+COULD NOT DETERMINE `SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE`: missing `ssot/alirocumab-lipid/alirocumab-lipid.json`.
+
+No defect proven for `values compared AS TEXT where line endings differ`.
+
+No defect proven for `merged-cell and OFF-BY-ONE errors`.
+
+No defect proven for `ZERO CONFLATED WITH ABSENT`.
+
+No defect proven for `NEGATION DROPPED`.
+tokens used
+9,892
+Defects found:
+
+- `STATUS CODE REPORTING THE WRAPPER` / `check that CANNOT FAIL`: line 99.  
+  Exact input for `OBJ`: `{"removed_citations":{"disclosure_note":"already closed","total_cited":12,"removed":6,"retained":6,"contributing_to_this_outcome":6}}`  
+  Consequence: exits 0 and prints `tokens substituted` even though line 87 substituted zero tokens.
+
+- `idempotency`: line 88.  
+  Exact input for `OBJ`: `{"removed_citations":{"disclosure_note":"x NOTE ADDED 2026-08-19: these counts describe citations retained from the SOURCE APP.","total_cited":12,"removed":6,"retained":6,"contributing_to_this_outcome":6}}`  
+  Consequence: every rerun appends the same NOTE again, so the script is not deterministic/idempotent.
+
+- `selector leaves unclosed template markers`: line 86.  
+  Exact input for `OBJ`: `{"removed_citations":{"disclosure_note":"{rm.total_cited} {rm.pool_trials}","total_cited":12,"removed":6,"retained":6,"contributing_to_this_outcome":6}}`  
+  Consequence: `{rm.pool_trials}` remains in the written JSON while the script still reports success.
+
+No defect proven for `probe keyed to the STRING A FIX REMOVES`.
+
+COULD NOT DETERMINE `instrument reading a DIFFERENT COPY`: missing caller, git state, served artifact, and actual target file path resolution context.
+
+COULD NOT DETERMINE `SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE`: missing `ssot/alirocumab-lipid/alirocumab-lipid.json`.
+
+No defect proven for `values compared AS TEXT where line endings differ`.
+
+No defect proven for `merged-cell and OFF-BY-ONE errors`.
+
+No defect proven for `ZERO CONFLATED WITH ABSENT`.
+
+No defect proven for `NEGATION DROPPED`.

@@ -1,0 +1,374 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a03198-74e4-7e81-8652-c3f612376209
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/enhance_journal_text.py
+
+--- THE FILE, IN FULL ---
+#!/usr/bin/env python3
+# sentinel:skip-file — developer tool; hardcoded ROOT is intentional (local Finrenone checkout only)
+"""Replace generateManuscriptText() body with the fuller journal-style version.
+Operates on byte-exact text to avoid Edit-tool unicode-escape mismatches."""
+import sys, pathlib, re
+
+ROOT = pathlib.Path(__file__).resolve().parent.parent
+
+# OLD body — exactly as it appears on disk (with literal ² escape sequences).
+OLD = (
+    "            // Methods paragraph\n"
+    "            const methods = 'We conducted a systematic review and meta-analysis following PRISMA 2020 guidelines. ' +\n"
+    "                'We searched ClinicalTrials.gov, PubMed, and OpenAlex for randomized controlled trials of ' +\n"
+    "                drugName + ' versus ' + comparator + ' in ' + population + '. ' +\n"
+    "                'Eligible studies were ' + (phases.length > 0 ? 'Phase ' + phases.join('/') + ' ' : '') + 'RCT' + (k !== 1 ? 's' : '') + ' reporting the primary cardiovascular composite endpoint. ' +\n"
+    "                'We pooled ' + emLong.toLowerCase() + 's using the DerSimonian-Laird random-effects model with ' + confLevel + '% confidence intervals. ' +\n"
+    "                'Heterogeneity was assessed using I\\u00B2 and Cochran Q statistics. ' +\n"
+    "                'Publication bias was evaluated using Egger regression, funnel plot asymmetry, trim-and-fill, and the Copas selection model. ' +\n"
+    "                'Certainty of evidence was assessed using the GRADE framework. ' +\n"
+    "                'Two-reviewer screening with cryptographic sign-off was used for study selection.';\n"
+    "\n"
+    "            // Results paragraph (GRADE-informed language)\n"
+    "            const gradeHedge = grade === 'HIGH' ? '' : grade === 'MODERATE' ? 'probably ' : grade === 'LOW' ? 'may be ' : 'is very uncertain about ';\n"
+    "            const nullVal = (emShort === 'MD' || emShort === 'SMD') ? 0 : 1.0;\n"
+    "            const sigText = (grade === 'VERY LOW')\n"
+    "                ? 'very uncertain evidence regarding'\n"
+    "                : grade === 'NOT ASSESSED'\n"
+    "                    ? 'associated with'\n"
+    "                : parseFloat(uci) < nullVal\n"
+    "                    ? gradeHedge + 'associated with a reduction in'\n"
+    "                    : parseFloat(lci) > nullVal\n"
+    "                        ? gradeHedge + 'associated with an increase in'\n"
+    "                        : gradeHedge + 'associated with little to no difference in';\n"
+    "\n"
+    "            const results = 'We included ' + k + ' randomized controlled trial' + (k !== 1 ? 's' : '') + ' (' + trialNames.join(', ') +\n"
+    "                ') enrolling ' + totalN.toLocaleString() + ' patients. ' +\n"
+    "                drugName + ' was ' + sigText + ' the primary endpoint ' +\n"
+    "                '(' + emShort + ' ' + or + ', ' + confLevel + '% CI ' + lci + ' to ' + uci + '; ' +\n"
+    "                'I\\u00B2 = ' + i2 + '%; k = ' + k + '). ' +\n"
+    "                (r.hksjLCI && r.hksjLCI !== '--' ? 'The Hartung-Knapp-Sidik-Jonkman adjusted CI was ' + r.hksjLCI + ' to ' + r.hksjUCI + '. ' : '') +\n"
+    "                (r.piLCI && r.piLCI !== '--' ? 'The ' + confLevel + '% prediction interval was ' + r.piLCI + ' to ' + r.piUCI + '. ' : '') +\n"
+    "                'The certainty of evidence was rated ' + grade + ' according to GRADE. ' +\n"
+    "                (r.eggerP && r.eggerP !== '--' ? 'Egger regression test for publication bias yielded p = ' + r.eggerP + '. ' : '') +\n"
+    "                (r.fragIdx > 0 ? 'The fragility index was ' + r.fragIdx + '. ' : '');\n"
+    "\n"
+    "            container.innerHTML =\n"
+    "                '<div><div class=\"text-[10px] font-bold text-indigo-400 uppercase tracking-widest mb-2\">Methods</div>' +\n"
+    "                '<p>' + escapeHtml(methods) + '</p></div>' +\n"
+    "                '<div><div class=\"text-[10px] font-bold text-indigo-400 uppercase tracking-widest mb-2\">Results</div>' +\n"
+    "                '<p>' + escapeHtml(results) + '</p></div>' +\n"
+    "                '<div class=\"text-[9px] text-slate-600 italic mt-2\">Generated by RapidMeta v15.0. Verify all numbers against the analysis output before submission.</div>';\n"
+    "        }"
+)
+
+NEW = (
+    "            // Outcome metadata for journal-style language.\n"
+    "            const df = Math.max(0, k - 1);\n"
+    "            const tau2num = (r.tau2 != null && r.tau2 !== '--') ? Number(r.tau2) : null;\n"
+    "            const outcomeKey = String(RapidMeta.state.selectedOutcome ?? 'default');\n"
+    "            const outcomeLabel = (typeof RapidMeta.outcomeLabel === 'function' && outcomeKey !== 'default')\n"
+    "                ? RapidMeta.outcomeLabel(outcomeKey)\n"
+    "                : (protocol.out || 'the primary outcome');\n"
+    "\n"
+    "            // I-squared qualitative classification (Cochrane Handbook 10.10.2)\n"
+    "            const i2num = parseFloat(i2);\n"
+    "            const i2Class = !Number.isFinite(i2num) ? 'unquantified'\n"
+    "                : i2num < 30 ? 'low to negligible'\n"
+    "                : i2num < 50 ? 'moderate'\n"
+    "                : i2num < 75 ? 'substantial'\n"
+    "                : 'considerable';\n"
+    "\n"
+    "            // Methods paragraph - fuller, with explicit estimator and CI adjustments.\n"
+    "            const methods = 'We pre-registered the review protocol with PRISMA 2020 reporting and conducted study selection through two-reviewer screening with cryptographic sign-off. ' +\n"
+    "                'Eligible studies were ' + (phases.length > 0 ? 'Phase ' + phases.join('/') + ' ' : '') + 'randomized controlled trials of ' +\n"
+    "                drugName + ' versus ' + comparator + ' in ' + population + ', identified by structured search of ClinicalTrials.gov, PubMed, and OpenAlex. ' +\n"
+    "                'For the present analysis the registered estimand is ' + outcomeLabel + '. ' +\n"
+    "                'Trial-level effects were pooled on the log scale by inverse-variance random-effects meta-analysis using the DerSimonian-Laird \\u03C4\\u00B2 estimator, ' +\n"
+    "                'with the Hartung-Knapp-Sidik-Jonkman adjustment of the ' + confLevel + '% confidence interval and a Q/(k\\u22121) variance-inflation floor to prevent CI under-coverage when Q < k\\u22121. ' +\n"
+    "                'Between-study heterogeneity was reported as Cochran Q (with df = k\\u22121 and a \\u03C7\\u00B2 p-value), \\u03C4\\u00B2 (DerSimonian-Laird), and I\\u00B2 interpreted against Cochrane Handbook thresholds; ' +\n"
+    "                (k >= 3\n"
+    "                    ? 'a ' + confLevel + '% prediction interval (Higgins 2009 t-distribution with df = k\\u22122) was reported alongside the pooled CI. '\n"
+    "                    : 'a prediction interval is not defined for k < 3 and was therefore not reported. ') +\n"
+    "                'Small-study effects and publication bias were evaluated by contour-enhanced funnel plot, Egger regression, Duval-Tweedie trim-and-fill, and the Copas selection model. ' +\n"
+    "                'Sensitivity analyses included leave-one-out re-pooling and a Bayesian random-effects model with a half-normal prior on \\u03C4. ' +\n"
+    "                'Certainty of evidence was rated under the GRADE framework.';\n"
+    "\n"
+    "            // Results paragraph - GRADE-informed language\n"
+    "            const gradeHedge = grade === 'HIGH' ? '' : grade === 'MODERATE' ? 'probably ' : grade === 'LOW' ? 'may be ' : 'is very uncertain about ';\n"
+    "            const nullVal = (emShort === 'MD' || emShort === 'SMD') ? 0 : 1.0;\n"
+    "            const sigText = (grade === 'VERY LOW')\n"
+    "                ? 'very uncertain evidence regarding'\n"
+    "                : grade === 'NOT ASSESSED'\n"
+    "                    ? 'associated with'\n"
+    "                : parseFloat(uci) < nullVal\n"
+    "                    ? gradeHedge + 'associated with a reduction in'\n"
+    "                    : parseFloat(lci) > nullVal\n"
+    "                        ? gradeHedge + 'associated with an increase in'\n"
+    "                        : gradeHedge + 'associated with little to no difference in';\n"
+    "\n"
+    "            const tau2Text = (tau2num != null && Number.isFinite(tau2num)) ? '\\u03C4\\u00B2 = ' + tau2num.toFixed(4) : '\\u03C4\\u00B2 not estimable';\n"
+    "            const qText = (r.qPvalue != null && r.qPvalue !== '--')\n"
+    "                ? 'Cochran Q on ' + df + ' df, p = ' + r.qPvalue\n"
+    "                : 'Cochran Q not reported';\n"
+    "\n"
+    "            // Build sentences as discrete units so the final string composes cleanly even when fields are missing.\n"
+    "            const sentences = [];\n"
+    "            sentences.push('We included ' + k + ' randomized controlled trial' + (k !== 1 ? 's' : '') +\n"
+    "                ' (' + trialNames.join(', ') + ') enrolling ' + totalN.toLocaleString() + ' randomized participants in total.');\n"
+    "            sentences.push('Under DerSimonian-Laird random-effects pooling, ' + drugName + ' was ' + sigText +\n"
+    "                ' ' + outcomeLabel + ' (' + emShort + ' ' + or + ', ' + confLevel + '% CI ' + lci + ' to ' + uci + ').');\n"
+    "            if (r.hksjLCI && r.hksjLCI !== '--') {\n"
+    "                sentences.push('The Hartung-Knapp-Sidik-Jonkman-adjusted ' + confLevel + '% CI was ' + r.hksjLCI + ' to ' + r.hksjUCI +\n"
+    "                    ', accounting for uncertainty in the \\u03C4\\u00B2 estimator.');\n"
+    "            }\n"
+    "            sentences.push('Between-study heterogeneity was ' + i2Class +\n"
+    "                ' (I\\u00B2 = ' + i2 + '%, ' + tau2Text + '; ' + qText + ').');\n"
+    "            if (r.piLCI && r.piLCI !== '--') {\n"
+    "                sentences.push('The ' + confLevel + '% prediction interval for the true effect in a future similar trial was ' +\n"
+    "                    r.piLCI + ' to ' + r.piUCI + '.');\n"
+    "            }\n"
+    "            if (r.eggerP && r.eggerP !== '--') {\n"
+    "                const eggerSig = parseFloat(r.eggerP) < 0.10;\n"
+    "                sentences.push('Egger regression test for small-study effects yielded p = ' + r.eggerP +\n"
+    "                    (eggerSig ? ', raising concern for publication bias.' : ', with no statistical evidence of small-study effects.'));\n"
+    "            }\n"
+    "            if (r.trimK0 != null && r.trimK0 > 0 && r.trimAdjOR && r.trimAdjOR !== '--') {\n"
+    "                sentences.push('Duval-Tweedie trim-and-fill imputed ' + r.trimK0 + ' missing studies; the bias-adjusted estimate was ' +\n"
+    "                    emShort + ' ' + r.trimAdjOR + '.');\n"
+    "            }\n"
+    "            if (r.fragIdx != null && r.fragIdx !== '--') {\n"
+    "                sentences.push(parseInt(r.fragIdx) === 0\n"
+    "                    ? 'The fragility index was 0, indicating the result is robust to single-event modifications.'\n"
+    "                    : 'The fragility index was ' + r.fragIdx + ', meaning ' + r.fragIdx + ' event modification' +\n"
+    "                        (parseInt(r.fragIdx) !== 1 ? 's' : '') + ' across trials would reverse statistical significance.');\n"
+    "            }\n"
+    "            if (r.bayesCriLo && r.bayesCriLo !== '--') {\n"
+    "                sentences.push('A Bayesian random-effects model with a half-normal prior on \\u03C4 produced a ' + confLevel +\n"
+    "                    '% credible interval of ' + r.bayesCriLo + ' to ' + r.bayesCriHi +\n"
+    "                    (r.pORlt1 && r.pORlt1 !== '--'\n"
+    "                        ? '; the posterior probability of effect direction (P[' + emShort + ' < ' + nullVal + ']) was ' + r.pORlt1 + '%.'\n"
+    "                        : '.'));\n"
+    "            }\n"
+    "            sentences.push('The certainty of evidence for this outcome was rated ' + grade + ' under GRADE.');\n"
+    "\n"
+    "            const results = sentences.join(' ');\n"
+    "\n"
+    "            container.innerHTML =\n"
+    "                '<div><div class=\"text-[10px] font-bold text-indigo-400 uppercase tracking-widest mb-2\">Methods (estimand: ' + escapeHtml(outcomeLabel) + ')</div>' +\n"
+    "                '<p>' + escapeHtml(methods) + '</p></div>' +\n"
+    "                '<div><div class=\"text-[10px] font-bold text-indigo-400 uppercase tracking-widest mb-2\">Results</div>' +\n"
+    "                '<p>' + escapeHtml(results) + '</p></div>' +\n"
+    "                '<div class=\"text-[9px] text-slate-600 italic mt-2\">Generated by RapidMeta. To regenerate for another endpoint, change the Outcome selector at the top of the page (the analysis re-runs and this text re-renders). Verify all numbers against the analysis panel before submission.</div>';\n"
+    "        }"
+)
+
+
+# Variant B — pairwise apps wrap `emLong.toLowerCase()` in `String(emLong ?? "")`.
+# Build OLD_VARIANT_B by patching the one-line diff into OLD (and matching new
+# template adapts the same way).
+OLD_VARIANT_B = OLD.replace(
+    "'We pooled ' + emLong.toLowerCase() + 's using the DerSimonian-Laird random-effects model with ' + confLevel + '% confidence intervals. ' +",
+    "'We pooled ' + String(emLong ?? \"\").toLowerCase() + 's using the DerSimonian-Laird random-effects model with ' + confLevel + '% confidence intervals. ' +"
+)
+
+
+# Regex variant — matches the WHOLE existing generateManuscriptText() function
+# (any version-string footer drift) and substitutes a full replacement.
+# Function-close brace must be at column 8 (function definition indent).
+FN_REGEX = re.compile(
+    r'function generateManuscriptText\(\) \{\n.*?\n        \}',
+    re.DOTALL
+)
+
+# Full replacement function — prologue (constant across variants) + new body.
+# Uses defensive `String(emLong ?? '').toLowerCase()` so it's safe for both NMA
+# and pairwise variants regardless of whether the original wrapped emLong.
+NEW_FULL_FUNCTION = (
+    "function generateManuscriptText() {\n"
+    "            const r = RapidMeta.state.results;\n"
+    "            if (!r) return;\n"
+    "            const container = document.getElementById('manuscript-text');\n"
+    "            if (!container) return;\n"
+    "\n"
+    "            const included = RapidMeta.getAnalysisScopeDetails().analyzed;\n"
+    "            const k = parseInt(r.k) || 0;\n"
+    "            const or = r.or ?? '--';\n"
+    "            const lci = r.lci ?? '--';\n"
+    "            const uci = r.uci ?? '--';\n"
+    "            const i2 = r.i2 ?? '--';\n"
+    "            const confLevel = Math.round((RapidMeta.state.confLevel ?? 0.95) * 100);\n"
+    "            const effectSpec = RapidMeta.resolveEffectMeasure({ trials: included });\n"
+    "            const emLong = effectSpec.long || 'effect estimate';\n"
+    "            const emShort = effectSpec.short || 'ES';\n"
+    "            const totalN = included.reduce((a, t) => a + (t.data?.tN ?? 0) + (t.data?.cN ?? 0), 0);\n"
+    "            const protocol = RapidMeta.state.protocol ?? {};\n"
+    "            const drugName = protocol.int || 'the intervention';\n"
+    "            const comparator = protocol.comp || 'control';\n"
+    "            const population = protocol.pop || 'the study population';\n"
+    "            const trialNames = included.map(t => RapidMeta.nctAcronyms[t.id] ?? t.data?.name ?? t.id);\n"
+    "            const phases = [...new Set(included.map(t => t.data?.phase).filter(Boolean))];\n"
+    "\n"
+    "            const grade = r.gradeCertainty ?? 'NOT ASSESSED';\n"
+    "\n"
+    + NEW
+)
+
+
+def apply_to_file(path: pathlib.Path) -> str:
+    text = path.read_text(encoding="utf-8", newline="")
+    if "// Outcome metadata for journal-style language." in text:
+        return f"SKIP {path.name}: already-migrated (sentinel comment present)"
+    # Normalise CRLF -> LF for the match, then restore.
+    crlf = "\r\n" in text
+    work = text.replace("\r\n", "\n") if crlf else text
+
+    # Try variant A (NMA-style byte-exact), then variant B (pairwise-style byte-exact),
+    # then regex whole-function replacement (tolerant to footer version drift).
+    if work.count(OLD) == 1:
+        variant, work = "A", work.replace(OLD, NEW, 1)
+    elif work.count(OLD_VARIANT_B) == 1:
+        variant, work = "B", work.replace(OLD_VARIANT_B, NEW, 1)
+    else:
+        matches = FN_REGEX.findall(work)
+        if len(matches) != 1:
+            return f"FAIL {path.name}: regex matched {len(matches)} times (expected 1); also A={work.count(OLD)}, B={work.count(OLD_VARIANT_B)}"
+        variant, work = "C-regex", FN_REGEX.sub(lambda m: NEW_FULL_FUNCTION, work, count=1)
+
+    out = work.replace("\n", "\r\n") if crlf else work
+    path.write_text(out, encoding="utf-8", newline="")
+    return f"OK   {path.name}: variant={variant}, +{len(out) - len(text)} chars"
+
+
+if __name__ == "__main__":
+    if "--all" in sys.argv:
+        targets = sorted(p.name for p in ROOT.glob("*_REVIEW.html"))
+    else:
+        targets = [a for a in sys.argv[1:] if not a.startswith("--")] or ["CFTR_MODULATORS_NMA_REVIEW.html"]
+    ok = skip = fail = 0
+    for name in targets:
+        result = apply_to_file(ROOT / name)
+        print(result)
+        if result.startswith("OK"): ok += 1
+        elif result.startswith("SKIP"): skip += 1
+        else: fail += 1
+    print(f"\nSummary: {len(targets)} files | {ok} migrate | {skip} skip | {fail} fail")
+
+codex
+I’ll treat the pasted module as the full evidence packet and focus only on the named defect shapes, with line-specific findings and concrete demonstrating inputs.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$p = '"'F:\\rapidmeta-ssot-shell\\scripts\\enhance_journal_text.py'; if (Test-Path "'$p) { $i=0; Get-Content -LiteralPath $p | ForEach-Object { $i++; if ($i -ge 220 -or $_ -match '"'Outcome metadata|if \\(r\\.hksjLCI|if \\(r\\.piLCI|if \\(r\\.eggerP|if \\(r\\.trimK0|if \\(r\\.bayesCriLo|pORlt1|fragility index was 0|Summary|startswith\\(\"OK\"|sentinel comment present|parseInt\\(r\\.k\\)|effectSpec.long|FN_REGEX|glob') { '{0,4}: {1}' -f "'$i, $_ } } } else { '"'missing' }" in F:\rapidmeta-ssot-shell
+ succeeded in 1553ms:
+  56:     "            // Outcome metadata for journal-style language.\n"
+ 111:     "            if (r.hksjLCI && r.hksjLCI !== '--') {\n"
+ 117:     "            if (r.piLCI && r.piLCI !== '--') {\n"
+ 121:     "            if (r.eggerP && r.eggerP !== '--') {\n"
+ 126:     "            if (r.trimK0 != null && r.trimK0 > 0 && r.trimAdjOR && r.trimAdjOR !== '--') {\n"
+ 132:     "                    ? 'The fragility index was 0, indicating the result is robust to single-event modifications.'\n"
+ 136:     "            if (r.bayesCriLo && r.bayesCriLo !== '--') {\n"
+ 139:     "                    (r.pORlt1 && r.pORlt1 !== '--'\n"
+ 140:     "                        ? '; the posterior probability of effect direction (P[' + emShort + ' < ' + nullVal + ']) was ' + r.pORlt1 + '%.'\n"
+ 169: FN_REGEX = re.compile(
+ 185:     "            const k = parseInt(r.k) || 0;\n"
+ 192:     "            const emLong = effectSpec.long || 'effect estimate';\n"
+ 210:     if "// Outcome metadata for journal-style language." in text:
+ 211:         return f"SKIP {path.name}: already-migrated (sentinel comment present)"
+ 220:     elif work.count(OLD_VARIANT_B) == 1:
+ 221:         variant, work = "B", work.replace(OLD_VARIANT_B, NEW, 1)
+ 222:     else:
+ 223:         matches = FN_REGEX.findall(work)
+ 224:         if len(matches) != 1:
+ 225:             return f"FAIL {path.name}: regex matched {len(matches)} times (expected 1); also A={work.count(OLD)}, B={work.count(OLD_VARIANT_B)}"
+ 226:         variant, work = "C-regex", FN_REGEX.sub(lambda m: NEW_FULL_FUNCTION, work, count=1)
+ 227: 
+ 228:     out = work.replace("\n", "\r\n") if crlf else work
+ 229:     path.write_text(out, encoding="utf-8", newline="")
+ 230:     return f"OK   {path.name}: variant={variant}, +{len(out) - len(text)} chars"
+ 231: 
+ 232: 
+ 233: if __name__ == "__main__":
+ 234:     if "--all" in sys.argv:
+ 235:         targets = sorted(p.name for p in ROOT.glob("*_REVIEW.html"))
+ 236:     else:
+ 237:         targets = [a for a in sys.argv[1:] if not a.startswith("--")] or ["CFTR_MODULATORS_NMA_REVIEW.html"]
+ 238:     ok = skip = fail = 0
+ 239:     for name in targets:
+ 240:         result = apply_to_file(ROOT / name)
+ 241:         print(result)
+ 242:         if result.startswith("OK"): ok += 1
+ 243:         elif result.startswith("SKIP"): skip += 1
+ 244:         else: fail += 1
+ 245:     print(f"\nSummary: {len(targets)} files | {ok} migrate | {skip} skip | {fail} fail")
+
+codex
+- Line 210, idempotency guard satisfied by its own marker: input target text `<!-- // Outcome metadata for journal-style language. -->\n` + the unmigrated OLD body. Consequence: returns `SKIP ... already-migrated` while doing none of the migration.
+
+- Line 245, status code reports wrapper not work: file `bad.html` containing exactly `x\n`, run `python scripts/enhance_journal_text.py bad.html`. Consequence: prints `1 fail` but exits 0 because `fail` is never asserted with `sys.exit`.
+
+- Line 185, zero conflated with absent: generated JS with `r.k = undefined` and one analyzed trial. Consequence: missing result count becomes `0`, so output can claim zero included trials instead of failing closed.
+
+- Line 121, real zero dropped by truthiness: `r.eggerP = 0`. Consequence: the Egger p-value sentence is omitted even though `p = 0` is a valid, highly significant value.
+
+- Lines 111, 117, 136, real zero CI bounds dropped by truthiness: `r.hksjLCI = 0`, or `r.piLCI = 0`, or `r.bayesCriLo = 0`. Consequence: valid intervals with a zero lower bound are suppressed.
+
+- Line 132, zero fragility misread: `r.fragIdx = 0`. Consequence: emits “robust to single-event modifications,” but fragility index 0 means no event changes are needed to lose significance.
+
+None found in packet for: string-a-fix-removes probe, CRLF/LF text comparison defect, merged-cell/tabulation off-by-one, or negation-dropped parsing.
+
+COULD NOT DETERMINE selector-keyed-to-unused-corpus-form or different-copy instrumentation: missing target HTML corpus and caller/CI invocation.
+tokens used
+20,282
+- Line 210, idempotency guard satisfied by its own marker: input target text `<!-- // Outcome metadata for journal-style language. -->\n` + the unmigrated OLD body. Consequence: returns `SKIP ... already-migrated` while doing none of the migration.
+
+- Line 245, status code reports wrapper not work: file `bad.html` containing exactly `x\n`, run `python scripts/enhance_journal_text.py bad.html`. Consequence: prints `1 fail` but exits 0 because `fail` is never asserted with `sys.exit`.
+
+- Line 185, zero conflated with absent: generated JS with `r.k = undefined` and one analyzed trial. Consequence: missing result count becomes `0`, so output can claim zero included trials instead of failing closed.
+
+- Line 121, real zero dropped by truthiness: `r.eggerP = 0`. Consequence: the Egger p-value sentence is omitted even though `p = 0` is a valid, highly significant value.
+
+- Lines 111, 117, 136, real zero CI bounds dropped by truthiness: `r.hksjLCI = 0`, or `r.piLCI = 0`, or `r.bayesCriLo = 0`. Consequence: valid intervals with a zero lower bound are suppressed.
+
+- Line 132, zero fragility misread: `r.fragIdx = 0`. Consequence: emits “robust to single-event modifications,” but fragility index 0 means no event changes are needed to lose significance.
+
+None found in packet for: string-a-fix-removes probe, CRLF/LF text comparison defect, merged-cell/tabulation off-by-one, or negation-dropped parsing.
+
+COULD NOT DETERMINE selector-keyed-to-unused-corpus-form or different-copy instrumentation: missing target HTML corpus and caller/CI invocation.

@@ -1,0 +1,241 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a03227-ae95-7663-b854-e9230dd4d69b
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/prove_our_gates_can_fail_2026_08_23.py
+
+--- THE FILE, IN FULL ---
+"""Plant each gate's defect and require it to fail. Gates CLAIMED against gates PROVEN.
+
+# no-control: this IS the control layer. Every gate below is run twice -- once against the real
+# repository, where it must pass, and once against a copy carrying its own defect, where it must
+# fail. A gate that passes both is reported as UNPROVEN and does not count.
+
+MAHMOOD'S STANDARD, 2026-08-23: "A gate is enforced when it has refused something real, or when
+you have planted its defect and watched the build fail. Nothing else counts as proven, and I
+would rather have three proven than fifteen claimed."
+
+WHY THIS IS NOT PARANOIA. An audit of our own controls returned ENFORCED 1 of 15, and every
+gate written that day sat in the DOCUMENTED-ONLY column -- including the one guarding a
+rendering surface closed the same morning. The fix was written, its gate was written, and
+nothing called the gate.
+
+TWO OF THESE ARE PROVEN BY INCIDENT RATHER THAN BY PLANTING, which is the stronger evidence and
+is recorded as such: `lint_control_chars` blocked a real commit when a heredoc turned `\\b` into
+0x08, and `lint_instrument_declares_a_control` refused a real instrument that reported a
+corpus-wide count with no positive control. Both happened to this author, on this day.
+"""
+from __future__ import annotations
+
+import io
+import json
+import os
+import re
+import shutil
+import subprocess
+import sys
+import tempfile
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+OUT = os.path.join(REPO, "outputs", "gates_proven_2026_08_23.json")
+
+# gate -> (file it reads, a function that plants the defect in that file's text)
+PLANTED = [
+    ("scripts/gate_no_prose_bypasses_the_tidy_2026_08_23.py",
+     "ssot/build_tabbed.py",
+     lambda s: s.replace("for text, fields in [(_pp._tidy(t), f) for t, f in s.paras]:",
+                         "for text, fields in s.paras:", 1),
+     "the transform stripped from the paragraph render loop"),
+    # PLANTED FOR REAL. "Self-proving" was accepted for these on the strength of their
+    # internal prove(), which shows the PATTERN can fire -- not that the BUILD refuses. Two
+    # instruments today printed a full report of real defects and exited 0 while wired behind
+    # `|| exit 1`. So every one is planted.
+    ("scripts/gate_no_grammar_seam_in_stored_prose_2026_08_23.py",
+     "ssot/arni-hfref/arni-hfref.json",
+     lambda s: s.replace('"introduction":', '"introduction": "A seam.. here.",'
+                         '"_planted_introduction":', 1),
+     "a double full stop planted in a stored introduction"),
+    ("scripts/gate_every_linked_target_resolves_2026_08_23.py",
+     "index.html",
+     lambda s: s.replace('</body>', '<a href="NO_SUCH_PAGE_zz9.html">x</a></body>', 1)
+     if "</body>" in s else s + '<a href="NO_SUCH_PAGE_zz9.html">x</a>',
+     "a dead link planted in index.html itself"),
+    ("scripts/audit_procedural_constants_all_surfaces_2026_08_23.py",
+     "ssot/projectors2.py",
+     lambda s: s.replace('("Study selection process", _selection_process(canon, p, na)),',
+                         '("Study selection process", "Two independent screeners of '
+                         'different model families, title/abstract then full text, with '
+                         'named human adjudication"),', 1),
+     "the original hardcoded screener sentence put back into Table 1"),
+    ("scripts/gate_no_new_schema_synonym_2026_08_23.py",
+     "ssot/sglt2-hf/sglt2-hf.json",
+     lambda s: s.replace('"duplicate_screening"', '"triplicate_screening"', 1),
+     "an eighth spelling of a frozen concept"),
+    # PLANTED FOR REAL, BECAUSE ACCEPTING ITS CONTROL WOULD HAVE MISSED THAT IT COULD NOT FAIL.
+    # This file printed 231 occurrences and EXITED 0, and had just been wired into pre-push
+    # behind `|| exit 1`. It was marked PROVEN on the strength of its positive control holding
+    # -- which proves the probe can SEE the defect, not that the build refuses it. Those are
+    # different claims and only the second one is enforcement. The planted defect is a lowered
+    # baseline, i.e. the corpus having got worse.
+    ("scripts/lint_field_name_in_reader_prose_2026_08_23.py",
+     "scripts/baselines/field_name_in_prose_baseline.json",
+     lambda s: re.sub(r'"occurrences":\s*(\d+)',
+                      lambda m: '"occurrences": %d' % (int(m.group(1)) - 5), s, count=1),
+     "baseline lowered by 5, i.e. field names in prose rose"),
+]
+
+BY_INCIDENT = [
+    ("scripts/lint_control_chars.py",
+     "blocked a real commit 2026-08-23: a heredoc turned `\\b` into 0x08 in a regex literal"),
+    ("scripts/lint_instrument_declares_a_control.py",
+     "refused a real instrument 2026-08-23: audit_delivered_constructions reported a "
+     "corpus-wide count with no declared control"),
+    ("scripts/ssot_net_deletion_check.py",
+     "the staging guard refused audit_table.html and 142 rebuilt pages until STAGING_WIDE=1 "
+     "was set deliberately, twice on 2026-08-23"),
+]
+
+
+def run(script, cwd=REPO):
+    r = subprocess.run([sys.executable, os.path.join(cwd, script)],
+                       cwd=cwd, capture_output=True)
+    return r.returncode
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    rows = []
+
+    for gate, target, plant, note in PLANTED:
+        clean = run(gate)
+        if plant is None:
+            # The gate carries its own planted control and asserts it on every run: if the
+            # proof fails the gate exits non-zero before reporting anything, so a clean pass
+            # IS the proof.
+            rows.append({"gate": gate, "clean_exit": clean,
+                         "proven": clean == 0, "how": note})
+            continue
+        src = os.path.join(REPO, target)
+        original = io.open(src, encoding="utf-8", newline="").read()
+        mutated = plant(original)
+        if mutated == original:
+            rows.append({"gate": gate, "clean_exit": clean, "proven": False,
+                         "how": "COULD NOT PLANT -- the anchor text was not found in %s"
+                                % target})
+            continue
+        try:
+            io.open(src, "w", encoding="utf-8", newline="").write(mutated)
+            planted_exit = run(gate)
+        finally:
+            io.open(src, "w", encoding="utf-8", newline="").write(original)
+        restored = io.open(src, encoding="utf-8", newline="").read() == original
+        rows.append({"gate": gate, "clean_exit": clean, "planted_exit": planted_exit,
+                     "restored": restored,
+                     "proven": clean == 0 and planted_exit != 0 and restored,
+                     "how": note})
+
+    print("")
+    print("GATES PROVEN BY PLANTING")
+    print("")
+    for r in rows:
+        mark = "PROVEN " if r["proven"] else "UNPROVEN"
+        pe = r.get("planted_exit")
+        print("  %s  %-56s clean=%s planted=%s"
+              % (mark, os.path.basename(r["gate"])[:56], r["clean_exit"],
+                 "-" if pe is None else pe))
+        print("            %s" % r["how"])
+    print("")
+    print("PROVEN BY INCIDENT -- refused something real, which is the stronger evidence")
+    print("")
+    for g, why in BY_INCIDENT:
+        print("  PROVEN   %-56s" % os.path.basename(g))
+        print("            %s" % why)
+
+    claimed = len(rows) + len(BY_INCIDENT)
+    proven = sum(1 for r in rows if r["proven"]) + len(BY_INCIDENT)
+    print("")
+    print("GATES CLAIMED %d    GATES PROVEN %d" % (claimed, proven))
+    json.dump({"planted": rows, "by_incident": BY_INCIDENT,
+               "claimed": claimed, "proven": proven},
+              io.open(OUT, "w", encoding="utf-8"), indent=1)
+    if proven < claimed:
+        sys.exit("REFUSED: %d gate(s) could not be proven. An unproven gate belongs in the "
+                 "AVAILABLE column, not the ENFORCED one." % (claimed - proven))
+
+
+if __name__ == "__main__":
+    main()
+
+codex
+I’ll stay inside the pasted packet and only name defects that are demonstrable from these lines. I’m using the line numbers from the module as pasted.
+codex
+Defect found: **check that CANNOT FAIL / status code reporting the wrapper rather than the work**.
+
+Line 147: `proven = sum(1 for r in rows if r["proven"]) + len(BY_INCIDENT)`
+
+Exact input: the as-pasted `BY_INCIDENT` list at lines 79-88, e.g. `("scripts/ssot_net_deletion_check.py", "...")`.
+
+Consequence: every incident-listed gate is counted as proven without running the script, checking that it exists, or checking any current failing control, so stale/deleted/regressed gates still inflate `proven` and can let the wrapper exit successfully.
+
+Related reporting line: line 143 prints `PROVEN` for each `BY_INCIDENT` entry unconditionally.
+
+COULD NOT DETERMINE for planted-gate read/copy defects: missing the gate implementations and target files named in `PLANTED`.
+
+No proven defect from this packet alone for: CRLF/LF text comparison, zero conflated with absent, negation dropped, merged-cell/off-by-one tabulation, or an idempotency guard satisfied by its own comment.
+tokens used
+12,906
+Defect found: **check that CANNOT FAIL / status code reporting the wrapper rather than the work**.
+
+Line 147: `proven = sum(1 for r in rows if r["proven"]) + len(BY_INCIDENT)`
+
+Exact input: the as-pasted `BY_INCIDENT` list at lines 79-88, e.g. `("scripts/ssot_net_deletion_check.py", "...")`.
+
+Consequence: every incident-listed gate is counted as proven without running the script, checking that it exists, or checking any current failing control, so stale/deleted/regressed gates still inflate `proven` and can let the wrapper exit successfully.
+
+Related reporting line: line 143 prints `PROVEN` for each `BY_INCIDENT` entry unconditionally.
+
+COULD NOT DETERMINE for planted-gate read/copy defects: missing the gate implementations and target files named in `PLANTED`.
+
+No proven defect from this packet alone for: CRLF/LF text comparison, zero conflated with absent, negation dropped, merged-cell/off-by-one tabulation, or an idempotency guard satisfied by its own comment.

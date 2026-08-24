@@ -1,0 +1,772 @@
+{
+ "app_id": "agyw-hiv-prep-review",
+ "schema_version": 2,
+ "title": "Dapivirine vaginal ring versus placebo ring for HIV prevention in women",
+ "built": "2026-08-18",
+ "build_mode": "full",
+ "topic_state": "POOLED -- risk ratio, k=2 (dapivirine ring subset); 3 seeded trials excluded and stated",
+ "provenance": "REGISTRY THROUGHOUT. Counts and denominators read from ClinicalTrials.gov posted results.",
+ "verification_basis": "All FIVE seeded registrations read on 2026-08-18; two pooled, three excluded on the grounds stated.",
+ "inputs": {
+  "trials": [
+   {
+    "trial_id": "NCT01539226",
+    "nct": "NCT01539226",
+    "label": "ASPIRE / MTN-020",
+    "registry": "ClinicalTrials.gov",
+    "source_url": "https://clinicaltrials.gov/study/NCT01539226",
+    "read_utc": "2026-08-18"
+   },
+   {
+    "trial_id": "NCT01617096",
+    "nct": "NCT01617096",
+    "label": "The Ring Study",
+    "registry": "ClinicalTrials.gov",
+    "source_url": "https://clinicaltrials.gov/study/NCT01617096",
+    "read_utc": "2026-08-18"
+   }
+  ]
+ },
+ "results": {
+  "by_outcome": {
+   "primary": {
+    "measure": "RR",
+    "k": 2,
+    "model": "random-effects",
+    "estimator": "REML",
+    "pooled": {
+     "point": 0.703,
+     "ci_low": 0.566,
+     "ci_high": 0.8731,
+     "ci_level": 95,
+     "measure": "RR"
+    },
+    "pooled_hartung_knapp": {
+     "point": 0.703,
+     "ci_low": 0.1725,
+     "ci_high": 2.8653,
+     "df": 1,
+     "t_critical": 12.7062047,
+     "variance_inflation_applied": 1.0,
+     "why_it_is_shown": "Handbook 6.5 section 10.10.4.5 recommends Hartung-Knapp where k is small. Shown ALONGSIDE the unadjusted interval, not instead of it. A FLOOR OF 1 is applied to the variance-inflation factor so the adjustment can never NARROW the interval below the unadjusted one."
+    },
+    "heterogeneity": {
+     "tau2": 0.0,
+     "q": [],
+     "df": 1,
+     "i2_percent": 0.0,
+     "DIRECTION_TEST": "NOT APPLICABLE -- I-squared is 0.0%, below the threshold at which the direction test is informative. The trials are consistent with a common effect and no heterogeneity caution is warranted. Applying one here would manufacture doubt the data do not support, which is the mirror failure of ignoring heterogeneity that matters.",
+     "how_to_read_this_at_low_k": "At k=2 or k=3 these statistics are weak evidence about consistency in EITHER direction. A low value means the estimates are CONSISTENT WITH a common effect, not that one is demonstrated.",
+     "tau2_estimator": "REML -- copied from this block's declared `estimator`, which is the authoritative record of how the pool was computed. NOT inferred: an object that declared no estimator would be left undeclared here, because the absence is itself the finding.",
+     "i2_definition": "UNDECIDABLE from this object. I-squared is 0 and Q is below the degrees of freedom, where the Higgins form is negative-and-clamped and the REML/metafor form is exactly zero -- BOTH DEFINITIONS GIVE 0 and nothing here distinguishes them. Recorded as undecidable rather than guessed.",
+     "i2": 0.0,
+     "i2_pct": 0.0
+    },
+    "per_trial": [
+     {
+      "trial_id": "NCT01539226",
+      "nct": "NCT01539226",
+      "label": "ASPIRE / MTN-020",
+      "registry": "ClinicalTrials.gov",
+      "source_url": "https://clinicaltrials.gov/study/NCT01539226",
+      "read_utc": "2026-08-18",
+      "provenance": "REGISTRY -- ClinicalTrials.gov posted results",
+      "as_posted": {
+       "dapivirine_ring_events": 82,
+       "dapivirine_ring_n": 1302,
+       "placebo_ring_events": 61,
+       "placebo_ring_n": 650
+      },
+      "measure": "RR",
+      "point": 0.6711,
+      "ci_low": 0.4884,
+      "ci_high": 0.9221,
+      "se_log_rr": 0.162117,
+      "derived_here": true,
+      "how": "RR = (e1/n1)/(e2/n2); SE(log RR) = sqrt(1/e1 - 1/n1 + 1/e2 - 1/n2), Handbook 6.5 section 6.4.1. Counts read from the registry; only the arithmetic is ours and the formula is shown."
+     },
+     {
+      "trial_id": "NCT01617096",
+      "nct": "NCT01617096",
+      "label": "The Ring Study",
+      "registry": "ClinicalTrials.gov",
+      "source_url": "https://clinicaltrials.gov/study/NCT01617096",
+      "read_utc": "2026-08-18",
+      "provenance": "REGISTRY -- ClinicalTrials.gov posted results",
+      "as_posted": {
+       "dapivirine_ring_events": 71,
+       "dapivirine_ring_n": 1313,
+       "placebo_ring_events": 97,
+       "placebo_ring_n": 1313
+      },
+      "measure": "RR",
+      "point": 0.732,
+      "ci_low": 0.5442,
+      "ci_high": 0.9845,
+      "se_log_rr": 0.15123,
+      "derived_here": true,
+      "how": "RR = (e1/n1)/(e2/n2); SE(log RR) = sqrt(1/e1 - 1/n1 + 1/e2 - 1/n2), Handbook 6.5 section 6.4.1. Counts read from the registry; only the arithmetic is ours and the formula is shown."
+     }
+    ],
+    "comparator": "placebo vaginal ring",
+    "outcome": "HIV-1 seroconversion",
+    "WHAT_THIS_POOL_IS_AND_IS_NOT": "THIS IS NOT A POOL OF THE FIVE TRIALS THIS PAGE SEEDS. It is the DAPIVIRINE VAGINAL RING pair, which is the only subset sharing an intervention and a comparator. The page seeds five trials testing FOUR DIFFERENT THINGS: oral Truvada against placebo (NCT00625404, 33/1024 vs 35/1032), tenofovir 1% VAGINAL GEL against placebo gel (NCT00705679, 61/996 vs 70/996), the dapivirine ring against a placebo ring (the two pooled here), and NCT01386294 which posts NO RESULTS. Oral tablet, microbicide gel and vaginal ring are different interventions with different delivery, adherence and mechanism. POOLING ALL FIVE WOULD BE A CLASS CLAIM THE PAGE'S DATA CANNOT SUPPORT.",
+    "the_person_years_primary_CHECKED": "NCT00705679's registered primary 'Person-years of Follow-up' is NOT an effect measure, and that was flagged before reading. IT IS ONE OF TWO PRIMARIES: the same trial also registers 'Number of HIV-1 Infections' and posts 61/996 against 70/996. So the concern was real but not disqualifying -- the trial does register a usable endpoint. IT IS STILL NOT IN THIS POOL, because its INTERVENTION is a vaginal gel and not the ring.",
+    "published_synthesis_comparison": {
+     "status": "NOT DONE -- owed, not claimed",
+     "what_is_owed": "No published synthesis of the two dapivirine ring trials has been read."
+    },
+    "what_this_does_not_establish": "NOT that dapivirine ring PrEP works or does not work in this population -- NO RISK-OF-BIAS ASSESSMENT IS RECORDED and adherence, which dominates ring effectiveness, is not an outcome here. NOT anything about oral or gel PrEP, which are excluded above. NOT that the three excluded trials are poor: they answer different questions. NOT reliability at k=2 -- see Hartung-Knapp.",
+    "handbook_authority": {
+     "handbook": "Cochrane Handbook for Systematic Reviews of Interventions",
+     "version": "Version 6.5, 2024",
+     "verified_on": "2026-08-18",
+     "sections": "6.4.1; 10.10.3; 10.10.4.4-5; MECIR Box 10.10.a (C62)",
+     "c62": "'Undertake (or display) a meta-analysis only if participants, interventions, comparisons and outcomes are judged to be sufficiently similar to ensure an answer that is clinically meaningful.'"
+    },
+    "analysis_code": "scripts/ctg_binary_pool.py::pool_rr -- shared, so the arithmetic is one implementation checked once rather than N hand copies.",
+    "estimator_used": "REML",
+    "house_rule_interval_2026_08_18": {
+     "estimator": "REML with Hartung-Knapp, t on k-1 = 1 degree(s) of freedom (t = 12.7062)",
+     "point": 0.703,
+     "ci_low": 0.1725,
+     "ci_high": 2.8655,
+     "excludes_null": false,
+     "THE_POINT_ESTIMATE_IS_UNCHANGED": "The published point is 0.7030 and the house-rule point is 0.7030. THE NUMBER A READER REMEMBERS DOES NOT MOVE; what differs is the precision claim. That is why nothing downstream catches this -- every memorable quantity survives.",
+     "published_interval": {
+      "estimator": "REML",
+      "ci_low": 0.566,
+      "ci_high": 0.8731,
+      "excludes_null": true
+     },
+     "variance_inflation_floor": "A FLOOR OF 1 IS APPLIED TO THE VARIANCE-INFLATION FACTOR so the adjustment can never NARROW an interval below the unadjusted one. That guard is the recognised modification for exactly this instability, and its existence is evidence the small-k behaviour is a KNOWN problem with KNOWN handling rather than a novel judgement.",
+     "no_rule_is_decided_here": "The house rule is REML with Hartung-Knapp below k=10, settled days ago. Whether it means ALWAYS or WITH A FLOOR AT k=3 is a decision about this corpus, not a computation, and it has been referred rather than taken. BOTH INTERVALS STAND ON THIS PAGE UNTIL IT IS MADE. Nothing is unpublished and no reader is left with only the narrower one.",
+     "what_this_means_for_this_pool": "THE PUBLISHED INTERVAL EXCLUDES 1 AND THE HOUSE-RULE INTERVAL CROSSES IT. A SIGNIFICANCE VERDICT TURNS ON THE INTERVAL METHOD ALONE. A reader shown only the published interval has been told something firmer than the evidence supports; a reader shown only the wider one loses that the contributing trials agree. BOTH ARE HERE.",
+     "read_the_width_with_care": "AT k=2 HARTUNG-KNAPP USES t ON ONE DEGREE OF FREEDOM -- 12.7062 against the normal 1.9600 -- and the interval is enormously wider. That width is a property of the method at very few studies, not a measurement of this evidence. It is recorded so a reader can see it; it is NOT presented as the better interval."
+    },
+    "POOL_FINDINGS_2026_08_21": {
+     "a_neither_trial_enrolled_an_adolescent": "READ THIS BESIDE THE ESTIMATE. This review is named for ADOLESCENT GIRLS AND YOUNG WOMEN. BOTH CONTRIBUTING TRIALS SET A MINIMUM AGE OF 18 YEARS on their registrations -- NCT01539226 and NCT01617096, both FEMALE, both 18 to 45 years. NO PARTICIPANT UNDER 18 WAS ELIGIBLE FOR EITHER TRIAL. The estimate does not speak to adolescent girls, and GRADE indirectness is rated down for it.",
+     "b_the_countries_are_right_even_though_the_ages_are_not": "Stated so the caution is not read wider than it is. ASPIRE ran in South Africa and Uganda; The Ring Study ran in Malawi, South Africa, Uganda and Zimbabwe. BY REGION THIS IS DIRECTLY THE POPULATION OF INTEREST. The indirectness is about AGE ALONE.",
+     "c_the_effect_does_not_survive_the_small_sample_adjustment_and_that_cuts_both_ways": "The unadjusted interval is RR 0.7030 (0.5660 to 0.8731) and EXCLUDES no difference. This project's Hartung-Knapp interval at k = 2 is 0.1725 to 2.8655 -- and NOT 0.4054 to 1.2191, which is metafor's RAW unfloored knha interval and was misattributed to this project in the first version of this note and INCLUDES it. THE HONEST READING OF THAT IS NARROW: at k = 2 the t critical value is 12.7062 and almost nothing survives the adjustment, so this is much weaker evidence against the result than the same disagreement would be at larger k. It is disclosed because a reader is entitled to both intervals, not because it overturns the estimate.",
+     "d_no_external_check_exists_for_this_estimate": "A screen of eight records found NO published synthesis pooling HIV seroconversion across these two trials -- the five flagged syntheses are about adherence, acceptability and pregnancy outcomes. THIS ESTIMATE IS UNREPLICATED so far as this project has looked.",
+     "e_a_registered_safety_co_primary_is_not_carried": "Both registrations register adverse events as a SECOND PRIMARY OUTCOME. This review carries only the efficacy primary. That is a scope fact, not a defect in the estimate, and it is recorded so a reader does not read this page as a benefit-and-harm summary."
+    },
+    "r_output": {
+     "state": "PRESENT",
+     "what_it_is": "The random-effects fit of THIS OBJECT'S OWN per-trial estimates, quoted as the software printed it.",
+     "script": "ssot/fit_from_per_trial.R",
+     "call": "Rscript ssot/fit_from_per_trial.R agyw-hiv-prep-review primary",
+     "environment": "R 4.6.0 with metafor 5.0.1",
+     "run_utc": "2026-08-21",
+     "interval_method": "REML with the unadjusted Wald interval, and the same fit under Hartung-Knapp beside it. THE HOUSE INTERVAL FLOORS THE VARIANCE-INFLATION FACTOR AT max(1, SE_knha/SE_unadjusted); metafor's raw unfloored knha value is printed separately and flagged where it is narrower than the unadjusted interval.",
+     "reproduction_of_the_previous_value": "REPRODUCES THE POINT ESTIMATE THIS PAGE DELIVERS TO FOUR DECIMAL PLACES. The fit was run against the per-trial intervals the object already carried; no new extraction was made.",
+     "inputs_note": "yi = log(point) and sei = (log(hi) - log(lo)) / (2 * 1.959964), derived from the per-trial intervals stored on this block.",
+     "verbatim": "R version 4.6.0 (2026-04-24 ucrt) \nmetafor 5.0.1 \nrun_utc 2026-08-21\n\n================================================================\nTOPIC   agyw-hiv-prep-review\nOUTCOME primary\nSTORED  RR 0.7030 (0.5660 to 0.8731), k = 2, random-effects / REML\nINPUTS READ FROM THE OBJECT (log scale, SE derived from the published interval):\n   NCT01539226      0.6711 (0.4884 to 0.9221)  yi=-0.398837  sei=0.162125\n   NCT01617096      0.7320 (0.5442 to 0.9845)  yi=-0.311975  sei=0.151232\n----------------------------------------------------------------\nCALL: rma(yi = yi, sei = sei, method = \"REML\", test = \"knha\")\n\n\nRandom-Effects Model (k = 2; tau^2 estimator: REML)\n\n  logLik  deviance       AIC       BIC      AICc   \n  0.8573   -1.7145    2.2855   -1.7145   14.2855   \n\ntau^2 (estimated amount of total heterogeneity): 0 (SE = 0.0348)\ntau (square root of estimated tau^2 value):      0\nI^2 (total heterogeneity / total variability):   0.00%\nH^2 (total variability / sampling variability):  1.00\n\nTest for Heterogeneity:\nQ(df = 1) = 0.1535, p-val = 0.6952\n\nModel Results:\n\nestimate      se     zval    pval    ci.lb    ci.ub     \n -0.3524  0.1106  -3.1865  0.0014  -0.5691  -0.1356  ** \n\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n\n--- SAME FIT WITH HARTUNG-KNAPP (test = \"knha\") ---\n\nRandom-Effects Model (k = 2; tau^2 estimator: REML)\n\n  logLik  deviance       AIC       BIC      AICc   \n  0.8573   -1.7145    2.2855   -1.7145   14.2855   \n\ntau^2 (estimated amount of total heterogeneity): 0 (SE = 0.0348)\ntau (square root of estimated tau^2 value):      0\nI^2 (total heterogeneity / total variability):   0.00%\nH^2 (total variability / sampling variability):  1.00\n\nTest for Heterogeneity:\nQ(df = 1) = 0.1535, p-val = 0.6952\n\nModel Results:\n\nestimate      se     tval  df    pval    ci.lb   ci.ub    \n -0.3524  0.0433  -8.1334   1  0.0779  -0.9029  0.1981  . \n\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n\nBACK-TRANSFORMED:\n   unadjusted     0.7030 (0.5660 to 0.8732)\n   Hartung-Knapp  0.7030 (0.1725 to 2.8655)   [t crit 12.7062 on 1 df]  <- HOUSE INTERVAL, inflation factor floored at 1 (raw 0.3918)\n   metafor raw    0.7030 (0.4054 to 1.2191)   [test=knha, UNFLOORED]\n   tau^2 0.000000   Q 0.1535 on 1 df, p = 0.6952   I^2 0.00%\n\nAGREES WITH THE STORED POINT TO 4 dp: YES\n",
+     "stored_at": "evidence/africa_prep_fits_2026_08_21/agyw-hiv-prep-review.txt"
+    }
+   }
+  }
+ },
+ "display_change_announced": [
+  {
+   "date": "2026-08-18",
+   "change": "definition declared on ambiguous fields",
+   "values_moved": "NONE",
+   "what_changed": "`heterogeneity.i2` and `heterogeneity.tau2` are field names that each map to more than one standard definition. Every number is unchanged; each now carries the definition it holds. tau2's definition was already recoverable from the declared `estimator` beside it and is copied, never inferred. i2's was not recoverable and is DECIDED BY RECOMPUTING BOTH FORMS from this object's own per-trial inputs, with the evidence recorded.",
+   "why": "A reader recomputing Higgins I-squared from the Q printed beside it would have concluded the object was wrong -- and would have been behaving exactly as we want readers to behave. An ambiguous label on an unambiguous number is a defect specifically against the only reader we claim to serve."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "the displayed question named its comparator twice; repaired",
+   "values_moved": "NONE",
+   "what_changed": "was 'Dapivirine vaginal ring versus placebo ring for HIV prevention in women versus placebo vaginal ring on HIV-1 seroconversion?'; now 'Does a dapivirine vaginal ring reduce HIV-1 seroconversion compared with a placebo vaginal ring in women?'",
+   "why": "The delivered question named the comparator TWICE in one sentence -- 'versus placebo ring ... versus placebo vaginal ring' -- which reads as a three-way contrast that this object does not carry. A malformed sentence, not a changed number: the contrast, the trials and every value are untouched."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "all four P46 limbs written; this topic was at 0 of 4",
+   "values_moved": "NONE",
+   "what_changed": "risk of bias on 2 results; GRADE LOW on the pooled outcome; a published comparison over 8 matched records; the R output stored verbatim and reproducing the stored point to 4 dp",
+   "why": "Every limb was ABSENT."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "the stored model output moved to the key the scorer and the projector actually read",
+   "values_moved": "NONE",
+   "what_changed": "limb 4 was written to `model_output` and read from `results.by_outcome.primary.r_output`; the run is now at both, and the top-level copy is marked superseded",
+   "why": "The scorer returned ABSENT for a limb the object held, and the topic was reported as complete on that basis. Class 83, third instance."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "the Hartung-Knapp interval quoted beside this estimate was metafor's RAW value, not this project's",
+   "values_moved": "NONE -- the stored pooled_hartung_knapp already held 0.1725 to 2.8653 and is unchanged",
+   "what_changed": "the finding and the GRADE imprecision step cited 0.4054 to 1.2191 as 'this project's Hartung-Knapp interval'. That is metafor's UNFLOORED knha output. This project floors the variance-inflation factor at max(1, SE_knha/SE_unadjusted), which here is 0.3918 floored to 1, giving 0.1725 to 2.8655",
+   "why": "A number attributed to our own method that our own method does not produce. The CONCLUSION is unchanged -- both intervals include no difference -- but the interval a reader was told was ours was three times narrower than ours actually is."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "the stored model output was re-run after the Hartung-Knapp reporting fix",
+   "values_moved": "NONE -- the fit reproduces the same point to 4 dp",
+   "what_changed": "the quoted output now prints the HOUSE interval and metafor's raw unfloored interval separately",
+   "why": "The script printed only metafor's raw knha value, which NARROWS below the unadjusted interval whenever the knha standard error is smaller. That output is stored verbatim as P46 limb 4."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "a second, cross-family risk-of-bias assessment was obtained and reconciled",
+   "values_moved": "NONE",
+   "what_changed": "disagreement 2 of 12 judgements, both D1",
+   "why": "Mahmood's specification requires two assessors from different model families."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "the second assessor's per-domain breakdown is now a field, not only prose",
+   "values_moved": "NONE",
+   "what_changed": "PER_DOMAIN derived from the stored verbatim_reply",
+   "why": "Written into the object and never surfaced -- class 83, on the artefact the specification names."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "D1 moved from LOW to NO_INFORMATION on the RoB 2 guidance",
+   "values_moved": "NONE -- no overall rating, no GRADE certainty, no estimate and no interval changes",
+   "what_changed": "2 D1 judgement(s): primary/NCT01539226, primary/NCT01617096",
+   "why": "RoB 2 Box 4 question 1.1: 'Answer No information if the only information about randomization methods is a statement that the study is randomized.' RESOLVED BY GUIDANCE, NOT BY PREFERENCE."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "second-assessor disagreement rate recounted beside the stored one",
+   "values_moved": "NONE -- the stored rate and PER_DOMAIN are untouched. The recount is written as a separate, labelled field.",
+   "what_changed": "D1 2 of 2 disagree -> 2 of 2 disagree; overall 2 of 12 judgements on this topic -> 2 of 12",
+   "why": "Applying the D1 guidance moved this review's judgements to the position assessor 2 had taken, which left the stored rate describing a disagreement the object no longer holds. Both numbers now appear."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+   "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+   "what_changed": "references built, introduction written, bookkeeping claims 4",
+   "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+   "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+   "what_changed": "references built, introduction written, bookkeeping claims 4",
+   "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+   "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+   "what_changed": "references built, introduction written, bookkeeping claims 4",
+   "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+   "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+   "what_changed": "references built, introduction written, bookkeeping claims 4",
+   "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+   "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+   "what_changed": "references built, introduction written, bookkeeping claims 4",
+   "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+   "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+   "what_changed": "references built, introduction written, bookkeeping claims 4",
+   "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+   "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+   "what_changed": "references built, introduction written, bookkeeping claims 4",
+   "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+   "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+   "what_changed": "references built, introduction written, bookkeeping claims 4",
+   "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+   "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+   "what_changed": "references built, introduction written, bookkeeping claims 4",
+   "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+   "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+   "what_changed": "references built, introduction written, bookkeeping claims 4",
+   "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+   "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+   "what_changed": "references built, introduction written, bookkeeping claims 4",
+   "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+  }
+ ],
+ "renamed_2026_08_18": "Renamed from agyw-hiv-prep-auto-full-review. THE READER LANDS ON agyw-hiv-prep_REVIEW.html and the object now says so. Leaving the mismatch would have made PAGE_MAP the only place that truth lived -- one more route, and every multi-route value in this corpus has diverged. Done as a git mv, not a delete-and-write.",
+ "carried_contrasts": [],
+ "sources": {},
+ "outcomes": [
+  {
+   "id": "primary",
+   "type": "primary",
+   "name": "HIV-1 seroconversion",
+   "definition": "HIV-1 seroconversion",
+   "derived_note": "Assembled from this object's own recorded outcome text. Nothing authored fresh.",
+   "measure": "RR",
+   "comparator": "placebo vaginal ring",
+   "comparator_type": "active",
+   "definition_note": "Registered endpoint definitions were read from every contributing registration on 2026-08-18; this text is the object's own record of them."
+  }
+ ],
+ "question": "Does a dapivirine vaginal ring reduce HIV-1 seroconversion compared with a placebo vaginal ring in women?",
+ "generator_schema_patch_2026_08_18": {
+  "relocations": "SAME VALUE, PLACED WHERE THE CONSUMER LOOKS. The generator reads this key; our schema wrote it elsewhere on the same object. A relocation, not a new claim.",
+  "genuinely_empty": "GENUINELY EMPTY for this topic, not emptied to pass a check. The same field is empty on acs-antiplatelet-review, which builds.",
+  "rule": "Every field added falls into RELOCATION, GENUINELY EMPTY, or DERIVED FROM RECORDED CONTENT. A field falling into none was REFUSED. Adding a key to satisfy a generator is not the same as adding the content that key should hold.",
+  "fields": [
+   "carried_contrasts=[] (empty)",
+   "sources={} (empty)",
+   "pooled.measure (reloc)",
+   "estimator_used (reloc)",
+   "het.i2 (reloc)",
+   "het.i2_pct (reloc)",
+   "outcomes (derived)",
+   "question (derived)"
+  ]
+ },
+ "risk_of_bias": {
+  "tool": "RoB 2 (Cochrane risk-of-bias tool for randomized trials)",
+  "assessed_utc": "2026-08-21",
+  "assessed_per": "RESULT, not trial -- Handbook 8.2",
+  "by_outcome": {
+   "primary": {
+    "NCT01539226": {
+     "nct": "NCT01539226",
+     "trial": "ASPIRE / MTN-020",
+     "registered_enrolment": 1959,
+     "participants_this_object_pools": 1952,
+     "enrolment_minus_pooled": 7,
+     "registered_masking": "DOUBLE -- participant and investigator; THE OUTCOMES ASSESSOR IS NOT AMONG THE MASKED ROLES",
+     "result_assessed": "HIV-1 seroconversion determined by a comprehensive HIV testing algorithm -- the EFFICACY primary of two registered primaries",
+     "domains": {
+      "D1_randomisation_process": {
+       "judgement": "NO_INFORMATION",
+       "basis": "REGISTRATION DESIGN MODULE, READ",
+       "reason": "allocation is recorded as RANDOMIZED on the design module.",
+       "what_is_NOT_established": "The concealment MECHANISM is not on the registry and no publication was read. LOW is scored on the recorded allocation, not on a mechanism nobody here has seen.",
+       "resolved_2026_08_21": {
+        "resolved_by": "GUIDANCE, NOT PREFERENCE",
+        "what_this_judgement_was": "LOW",
+        "what_it_is_now": "NO_INFORMATION",
+        "the_text_that_decides_it": "RoB 2 guidance 2019, Box 4, signalling question 1.1: \"Answer 'No information' if the only information about randomization methods is a statement that the study is randomized.\" And section 4.4: \"A judgement of low risk of bias requires that the trial has an adequate method of concealing the allocation sequence from those involved in enrolling participants, and there are no concerns about generation of the allocation sequence.\" Cochrane Handbook 6.5 section 8.3 names the domain's three components.",
+        "why_this_is_not_an_adjudicated_dispute": "A blind second assessor from a different model family disagreed with this domain on 89% of judgements across 22 topics. THAT WOULD ORDINARILY BE A DISPUTE TO ADJUDICATE. It is not one: the tool's own text names this exact evidential situation -- a bare statement that a study was randomised -- and prescribes the answer. The second assessor is not being deferred to; the guidance is being applied.",
+        "what_the_registry_gives_and_does_not": "A ClinicalTrials.gov design module records `allocation: RANDOMIZED`. It carries no sequence-generation method and no allocation-concealment mechanism. The original judgement's own note said so before scoring LOW.",
+        "how_this_maps_to_the_tool_s_algorithm": "The tool maps 'No information' on 1.1 and 1.2 with no baseline concern to a DOMAIN judgement of SOME CONCERNS. This project writes NO_INFORMATION on the domain when it could not be judged from the sources read, and caps the OVERALL at SOME_CONCERNS. Same place, and it keeps 'we could not judge this' distinguishable from 'we judged it and had concerns'.",
+        "what_does_not_change": "NO OVERALL RATING AND NO GRADE CERTAINTY MOVES. All 51 judgements were already capped at SOME_CONCERNS or HIGH by another NO_INFORMATION domain.",
+        "what_would_close_it_properly": "The trial publications or protocols, which carry sequence generation and concealment. Neither was read. Until one is, LOW is not available on this domain for any result in this corpus."
+       }
+      },
+      "D2_deviations_from_intended_intervention": {
+       "judgement": "NO_INFORMATION",
+       "basis": "NOT ESTABLISHED -- THE REGISTRY DOES NOT CARRY THE FIELD",
+       "reason": "Deviations from the intended intervention, and the analysis population actually used, are not on the registration. ADHERENCE IS THE WHOLE STORY IN PrEP TRIALS and it is exactly what this domain would test, so the absence matters more here than on most topics."
+      },
+      "D3_missing_outcome_data": {
+       "judgement": "NO_INFORMATION",
+       "basis": "NOT ESTABLISHED -- THE REGISTRY DOES NOT CARRY THE FIELD",
+       "reason": "Neither registration states how many participants were missing from the analysed population or how they were handled. The posted-results counts this object pools are 3 to 9 lower than registered enrolment on three of the four trials, and nothing read explains the difference."
+      },
+      "D4_measurement_of_the_outcome": {
+       "judgement": "LOW",
+       "basis": "THE REGISTERED ENDPOINT DEFINITION AND THE MASKED ROLES TOGETHER",
+       "reason": "The outcome is HIV-1 seroconversion determined by a LABORATORY TESTING ALGORITHM, not by a rater's judgement, so an unmasked assessor has essentially nothing to decide. STATED PLAINLY BECAUSE IT CUTS THE OTHER WAY ON A SISTER TOPIC: the outcomes assessor is NOT among the masked roles here -- masking is DOUBLE -- and LOW rests on the endpoint being an algorithmic determination, NOT on masking. Where the endpoint carries a judgement and the assessor is unmasked, this project scores SOME_CONCERNS."
+      },
+      "D5_selection_of_the_reported_result": {
+       "judgement": "LOW",
+       "basis": "REGISTERED PRIMARY OUTCOMES COMPARED WITH WHAT THIS OBJECT POOLS",
+       "reason": "TWO primary outcomes are registered, but the second is SAFETY -- adverse events -- not a competing measure of efficacy. There is no set of efficacy endpoints to choose between, so the selection concern found on gepotidacin and inclisiran cannot arise here. RECORDED SEPARATELY AND NOT SCORED: this review does not carry the registered safety co-primary at all."
+      }
+     },
+     "overall": "SOME_CONCERNS",
+     "overall_reason": "D1, D4 and D5 LOW on read registrations; D2 and D3 NO_INFORMATION. Under RoB 2 an unjudgeable domain cannot yield LOW overall. On a PrEP trial the unjudgeable domain is adherence, which is the mechanism the effect depends on."
+    },
+    "NCT01617096": {
+     "nct": "NCT01617096",
+     "trial": "The Ring Study",
+     "registered_enrolment": 2629,
+     "participants_this_object_pools": 2626,
+     "enrolment_minus_pooled": 3,
+     "registered_masking": "DOUBLE -- participant and investigator; THE OUTCOMES ASSESSOR IS NOT AMONG THE MASKED ROLES",
+     "result_assessed": "HIV-1 seroconversion determined by a comprehensive HIV testing algorithm -- the EFFICACY primary of two registered primaries",
+     "domains": {
+      "D1_randomisation_process": {
+       "judgement": "NO_INFORMATION",
+       "basis": "REGISTRATION DESIGN MODULE, READ",
+       "reason": "allocation is recorded as RANDOMIZED on the design module.",
+       "what_is_NOT_established": "The concealment MECHANISM is not on the registry and no publication was read. LOW is scored on the recorded allocation, not on a mechanism nobody here has seen.",
+       "resolved_2026_08_21": {
+        "resolved_by": "GUIDANCE, NOT PREFERENCE",
+        "what_this_judgement_was": "LOW",
+        "what_it_is_now": "NO_INFORMATION",
+        "the_text_that_decides_it": "RoB 2 guidance 2019, Box 4, signalling question 1.1: \"Answer 'No information' if the only information about randomization methods is a statement that the study is randomized.\" And section 4.4: \"A judgement of low risk of bias requires that the trial has an adequate method of concealing the allocation sequence from those involved in enrolling participants, and there are no concerns about generation of the allocation sequence.\" Cochrane Handbook 6.5 section 8.3 names the domain's three components.",
+        "why_this_is_not_an_adjudicated_dispute": "A blind second assessor from a different model family disagreed with this domain on 89% of judgements across 22 topics. THAT WOULD ORDINARILY BE A DISPUTE TO ADJUDICATE. It is not one: the tool's own text names this exact evidential situation -- a bare statement that a study was randomised -- and prescribes the answer. The second assessor is not being deferred to; the guidance is being applied.",
+        "what_the_registry_gives_and_does_not": "A ClinicalTrials.gov design module records `allocation: RANDOMIZED`. It carries no sequence-generation method and no allocation-concealment mechanism. The original judgement's own note said so before scoring LOW.",
+        "how_this_maps_to_the_tool_s_algorithm": "The tool maps 'No information' on 1.1 and 1.2 with no baseline concern to a DOMAIN judgement of SOME CONCERNS. This project writes NO_INFORMATION on the domain when it could not be judged from the sources read, and caps the OVERALL at SOME_CONCERNS. Same place, and it keeps 'we could not judge this' distinguishable from 'we judged it and had concerns'.",
+        "what_does_not_change": "NO OVERALL RATING AND NO GRADE CERTAINTY MOVES. All 51 judgements were already capped at SOME_CONCERNS or HIGH by another NO_INFORMATION domain.",
+        "what_would_close_it_properly": "The trial publications or protocols, which carry sequence generation and concealment. Neither was read. Until one is, LOW is not available on this domain for any result in this corpus."
+       }
+      },
+      "D2_deviations_from_intended_intervention": {
+       "judgement": "NO_INFORMATION",
+       "basis": "NOT ESTABLISHED -- THE REGISTRY DOES NOT CARRY THE FIELD",
+       "reason": "Deviations from the intended intervention, and the analysis population actually used, are not on the registration. ADHERENCE IS THE WHOLE STORY IN PrEP TRIALS and it is exactly what this domain would test, so the absence matters more here than on most topics."
+      },
+      "D3_missing_outcome_data": {
+       "judgement": "NO_INFORMATION",
+       "basis": "NOT ESTABLISHED -- THE REGISTRY DOES NOT CARRY THE FIELD",
+       "reason": "Neither registration states how many participants were missing from the analysed population or how they were handled. The posted-results counts this object pools are 3 to 9 lower than registered enrolment on three of the four trials, and nothing read explains the difference."
+      },
+      "D4_measurement_of_the_outcome": {
+       "judgement": "LOW",
+       "basis": "THE REGISTERED ENDPOINT DEFINITION AND THE MASKED ROLES TOGETHER",
+       "reason": "The outcome is HIV-1 seroconversion determined by a LABORATORY TESTING ALGORITHM, not by a rater's judgement, so an unmasked assessor has essentially nothing to decide. STATED PLAINLY BECAUSE IT CUTS THE OTHER WAY ON A SISTER TOPIC: the outcomes assessor is NOT among the masked roles here -- masking is DOUBLE -- and LOW rests on the endpoint being an algorithmic determination, NOT on masking. Where the endpoint carries a judgement and the assessor is unmasked, this project scores SOME_CONCERNS."
+      },
+      "D5_selection_of_the_reported_result": {
+       "judgement": "LOW",
+       "basis": "REGISTERED PRIMARY OUTCOMES COMPARED WITH WHAT THIS OBJECT POOLS",
+       "reason": "TWO primary outcomes are registered, but the second is SAFETY -- adverse events -- not a competing measure of efficacy. There is no set of efficacy endpoints to choose between, so the selection concern found on gepotidacin and inclisiran cannot arise here. RECORDED SEPARATELY AND NOT SCORED: this review does not carry the registered safety co-primary at all."
+      }
+     },
+     "overall": "SOME_CONCERNS",
+     "overall_reason": "D1, D4 and D5 LOW on read registrations; D2 and D3 NO_INFORMATION. Under RoB 2 an unjudgeable domain cannot yield LOW overall. On a PrEP trial the unjudgeable domain is adherence, which is the mechanism the effect depends on."
+    }
+   }
+  },
+  "sources_read": [
+   "ClinicalTrials.gov API v2 NCT01539226 -- design module, eligibility module, arm groups and registered primary outcomes",
+   "ClinicalTrials.gov API v2 NCT01617096 -- design module, eligibility module, arm groups and registered primary outcomes"
+  ],
+  "sources_NOT_read": "The trial publications. D2 and D3 are the domains that depend on them, and both are NO_INFORMATION for that reason.",
+  "ceiling": {
+   "statement": "A domain that cannot be judged from the sources read is NO_INFORMATION, never LOW. Low-by-default asserts a fact; high-by-default invents a defect. Overall is capped at SOME_CONCERNS wherever a domain is NO_INFORMATION.",
+   "shape_note": "A DICT, NOT A STRING -- paper_projector does ceil.get('statement'), and a bare string collapses the manuscript to a projector-failed banner (registry class 70)."
+  },
+  "analysis_population_NOT_stated": "NEITHER REGISTRATION NAMES THE ANALYSIS POPULATION FOR THE POOLED RESULT. Registered enrolment against participants pooled: ASPIRE / MTN-020 1959 v 1952; The Ring Study 2629 v 2626. P48 -- estimand_established certifies MEASUREMENT, not the population the measurement was taken in.",
+  "registered_co_primary_not_carried": "BOTH registrations register TWO primary outcomes and on both the second is SAFETY. This review carries only the efficacy primary. Recorded as scope, not scored as D5 selection, because there is no competing EFFICACY endpoint to have chosen between.",
+  "ONE_ASSESSOR_ONLY": "ASSESSED BY ONE ASSESSOR. Under the standing specification that risk of bias 2 must be complete and done by TWO AIs from different model families, THIS ASSESSMENT IS INCOMPLETE. It is recorded as such rather than presented as finished, and `rob2.assessors` is deliberately NOT written.",
+  "SECOND_ASSESSOR_2026_08_21": {
+   "assessor_2": "GPT-5 Codex (openai family), via `codex exec`",
+   "assessor_1": "Claude Opus 5 (anthropic family)",
+   "how_it_was_asked": "BLIND. Given the registration facts and the house NO_INFORMATION-never-LOW rule inline, asked to score five domains and an overall per result. NOT shown this assessment and NOT asked whether it agreed. Asking 'do you agree' measures deference, not judgement.",
+   "verbatim_reply": "NCT01539226 D1=SOME_CONCERNS D2=NO_INFORMATION D3=NO_INFORMATION D4=LOW D5=LOW OVERALL=SOME_CONCERNS\nNCT01617096 D1=SOME_CONCERNS D2=NO_INFORMATION D3=NO_INFORMATION D4=LOW D5=LOW OVERALL=SOME_CONCERNS",
+   "DISAGREEMENT_RATE": "2 of 12 judgements on this topic -- 16.7%. BOTH ARE D1 AND NOTHING ELSE. D2, D3, D4, D5 and the overall all agree.",
+   "the_disagreement": "ASSESSOR 1 SCORED D1 = LOW ON THE STRENGTH OF THE REGISTRY RECORDING `allocation: RANDOMIZED`. ASSESSOR 2 SCORED SOME_CONCERNS. THE ROB 2 GUIDANCE SETTLES IT AND AGAINST ASSESSOR 1: Box 4, signalling question 1.1, says verbatim 'Answer No information if the only information about randomization methods is a statement that the study is randomized', and section 4.4 says 'A judgement of low risk of bias requires that the trial has an adequate method of concealing the allocation sequence'. No concealment method was read on any trial here. ASSESSOR 2 IS ALSO RIGHT ABOUT THE LEVEL: No-information on 1.1 and 1.2 with no baseline concern maps to SOME CONCERNS, which is what it returned.",
+   "not_changed_here": "The 51 D1 = LOW judgements across 15 topics are with Mahmood as a methodological decision. Measured consequence if they all move: ZERO overall ratings change and ZERO GRADE ratings move, because all 51 already sit under SOME_CONCERNS or HIGH on another NO_INFORMATION domain.",
+   "PER_DOMAIN": {
+    "D1": "2 of 2 disagree",
+    "D2": "0 of 2 disagree",
+    "D3": "0 of 2 disagree",
+    "D4": "0 of 2 disagree",
+    "D5": "0 of 2 disagree",
+    "OVERALL": "0 of 2 disagree"
+   },
+   "PER_DOMAIN_derived_2026_08_21": "DERIVED FROM THIS OBJECT'S OWN STORED `verbatim_reply` AND THE ASSESSMENT ABOVE. Nothing re-asked, no new judgement: arithmetic over two things this object already held. These three topics were reconciled BEFORE the reconciler existed, so the breakdown was written as prose and not as a field -- class 83's shape, in the one place the specification names.",
+   "RECOUNTED_AFTER_THE_D1_RESOLUTION_2026_08_21": {
+    "why_this_field_exists": "On 2026-08-21 this review's D1 judgements moved from LOW to NO_INFORMATION on the RoB 2 guidance -- the position assessor 2 had taken. The rate above was measured BEFORE that and is left exactly as measured: it is a published number, it is the record of what a blind second assessor said, and it is the reason the guidance was re-read. Editing it would delete the evidence that the change was warranted. This is the same computation re-run on the object as it now stands, so both are visible and neither is silently corrected.",
+    "as_measured_before": "2 of 12 judgements on this topic -- 16.7%. BOTH ARE D1 AND NOTHING ELSE. D2, D3, D4, D5 and the overall all agree.",
+    "recounted_now": "2 of 12 judgements -- 16.7%",
+    "PER_DOMAIN_recounted_now": {
+     "D1": "2 of 2 disagree",
+     "D2": "0 of 2 disagree",
+     "D3": "0 of 2 disagree",
+     "D4": "0 of 2 disagree",
+     "D5": "0 of 2 disagree",
+     "OVERALL": "0 of 2 disagree"
+    },
+    "D1_before": "2 of 2 disagree",
+    "D1_now": "2 of 2 disagree",
+    "what_moved_and_what_did_not": "2 D1 judgement(s) on this topic moved. Any D1 disagreement that REMAINS is one where this assessment said SOME_CONCERNS rather than LOW -- assessor 2 said NO_INFORMATION there too, and the guidance applied here speaks to LOW, not to SOME_CONCERNS. So a claim that 'the D1 disagreement is resolved' would be false wherever those two numbers differ, which is why the count is re-run per topic instead of asserted once.",
+    "why_D1_still_disagrees_here": "2 D1 disagreement(s) remain -- 2 where this assessment says NO_INFORMATION and assessor 2 says SOME_CONCERNS. BOTH ASSESSORS READ THE SAME ABSENCE OF A CONCEALMENT METHOD, so this is a house-rule divergence and not an evidential one. RoB 2's algorithm answers SOME CONCERNS when 1.2 is `No information` and there is no baseline concern; this project writes NO_INFORMATION on the domain instead, so a reader can tell a domain nobody could evaluate from a domain evaluated and found wanting. Both cap OVERALL at the same place. The disagreement is real and it is about vocabulary.",
+    "and_it_bounds_a_finding_of_ours": "Class 94 records assessor 2 saying NO_INFORMATION on D1/D2/D3 `100 of 100`. Measured across all 23 topics now stored that is 239 of 243, and ALL FOUR exceptions are D1=SOME_CONCERNS on `agyw-hiv-prep-review` and `cab-prep-hiv-review` -- two of the three topics asked under the EARLIER prompt build, the one whose reply ids are bare NCTs. Under that build it is 4 of 6; under the later build 0 of 75. The 100% was measured on the later build's topics. The two-defaults mechanism stands; its universality does not, and what varies with it is the PROMPT.",
+    "the_rate_is_still_conditional_on_the_same_allow_list": "Both numbers are conditional on the fact list in THE_ALLOW_LIST_THE_RATE_IS_CONDITIONAL_ON above. Neither is a rate of agreement between assessors in general."
+   }
+  }
+ },
+ "grade": {
+  "approach": "GRADE, following the Cochrane Handbook chapter 14. Randomised evidence starts HIGH and is rated down with reasons.",
+  "assessed_utc": "2026-08-21",
+  "by_outcome": {
+   "primary": {
+    "k": 2,
+    "starting_certainty": "HIGH",
+    "certainty": "LOW",
+    "steps": [
+     {
+      "domain": "risk_of_bias",
+      "move": "HIGH to MODERATE, down 1 level(s)",
+      "reason": "Both results are SOME_CONCERNS. D1, D4 and D5 are LOW on read registrations, but D2 and D3 are NO_INFORMATION and on a PrEP trial those are the adherence and attrition domains -- the ones that decide whether an intention-to-treat ring effect reflects the drug or its use."
+     },
+     {
+      "domain": "inconsistency",
+      "move": "no downgrade",
+      "reason": "tau-squared is EXACTLY ZERO, Q 0.1535 on 1 df, p = 0.6952, I-squared 0.00%. The two intervals -- 0.6711 (0.4884 to 0.9221) and 0.7320 (0.5442 to 0.9845) -- agree in size and in conclusion. Downgrading here would manufacture a caution the numbers do not support."
+     },
+     {
+      "domain": "indirectness",
+      "move": "MODERATE to LOW, down 1 level(s)",
+      "reason": "THIS TOPIC IS NAMED FOR ADOLESCENT GIRLS AND YOUNG WOMEN AND NEITHER TRIAL ENROLLED AN ADOLESCENT. Both registrations set a MINIMUM AGE OF 18 YEARS (NCT01539226 and NCT01617096, eligibility module, both 18 to 45 years, FEMALE). The estimate is therefore indirect for the younger half of the named population, in whom adherence to a vaginal ring is the very thing in question. THE SETTING IS NOT THE PROBLEM: the trials ran in South Africa, Uganda, Malawi and Zimbabwe, which is directly the population of interest by region."
+     },
+     {
+      "domain": "imprecision",
+      "move": "LOW to VERY LOW -- WARRANTED AND NOT APPLIED, see reason",
+      "reason": "k = 2. The Hartung-Knapp interval is RR 0.7030 (0.1725 to 2.8655) on t = 12.7062 with 1 df AND IT INCLUDES NO DIFFERENCE, where the unadjusted interval excludes it. A downgrade is warranted on that alone. IT IS NOT APPLIED, and the reason is stated rather than hidden: at k = 2 the t critical value is 12.7062 and ONLY A VERY LARGE EFFECT SURVIVES HARTUNG-KNAPP AT ALL, so the adjusted interval at this k is weak evidence of imprecision in either direction. The rating is left at LOW and the disagreement is disclosed to the reader instead."
+     },
+     {
+      "domain": "publication_bias",
+      "move": "NOT ASSESSABLE -- no rating applied",
+      "reason": "k = 2. A funnel plot and its asymmetry tests have essentially no power below about ten trials (Handbook 13.3.5.4), so this is NOT ASSESSABLE rather than 'undetected'."
+     }
+    ],
+    "summary": "LOW certainty. The two trials agree closely and ran in the right countries, so the downgrades are for the unread adherence and attrition domains and for a population mismatch the topic's own name conceals: NEITHER TRIAL ENROLLED ANYONE UNDER 18.",
+    "rating_up_not_applied": "No domain is rated UP. Rating up for a large effect, a dose-response gradient or opposing plausible confounding applies to observational evidence; these are randomised trials, which start HIGH."
+   }
+  }
+ },
+ "published_comparison": {
+  "_why": "P46 limb 3.",
+  "_how_identified": "PubMed E-utilities esearch + esummary, executed 2026-08-21. Query, counts and per-record disposition in ssot/agyw-hiv-prep-review/appraisal/PUBLISHED_SYNTHESIS_SCREEN.json.",
+  "denominator": {
+   "matched": 8,
+   "retrieved": 8,
+   "read": 8,
+   "appraised": 0,
+   "flagged_by_title": 5,
+   "not_returned_by_the_tool": 0,
+   "_house_form": "matched / retrieved / read / appraised / not returned -- P53. 5 flagged by title; 0 appraised against the abstract and every other record NOT READ beyond its title and summary."
+  },
+  "identity_basis": "NOT APPLICABLE -- no comparable synthesis was found, so there is no trial set to have identified.",
+  "reviews": [],
+  "THE_FINDING_OF_THIS_COMPARISON_2026_08_21": "NO PUBLISHED SYNTHESIS POOLING THE EFFICACY OF THESE TWO TRIALS WAS FOUND. Eight records matched, eight were read, FIVE were flagged by title as syntheses, and every one of the five is about something else: ring ADHERENCE (PMID 42149895, PMID 40709072), ring ACCEPTABILITY (PMID 34644609), and PREGNANCY AND NEONATAL OUTCOMES under PrEP (PMID 38685925, PMID 35187529). NONE POOLS HIV SEROCONVERSION ACROSS ASPIRE AND THE RING STUDY. Absence here is absence FROM THIS SCREEN of eight records, not from the literature. It does NOT license calling this pool novel. One query on one database was run and no included-study table was opened anywhere. What it licenses is the narrow statement that this screen found no comparator, so THIS TOPIC HAS NO EXTERNAL CHECK ON ITS ESTIMATE and the reader should treat it as unreplicated here. Class 82 compares our trial count with a published one. WITH NO PUBLISHED COUNT THERE IS NOTHING TO COMPARE, so this topic joins the nine of eighteen whose appraised comparison states no trial count -- not the four where ours is lower. It is neither evidence for nor against the breadth deficit."
+ },
+ "model_output": {
+  "_why": "P46 limb 4 -- the model output as the software printed it.",
+  "engine": "R 4.6.0 with metafor 5.0.1",
+  "script": "ssot/fit_from_per_trial.R",
+  "invocation": "Rscript ssot/fit_from_per_trial.R agyw-hiv-prep-review primary",
+  "run_utc": "2026-08-21",
+  "inputs_note": "yi = log(point) and sei = (log(hi) - log(lo)) / (2 * 1.959964), derived from the per-trial intervals THIS OBJECT ALREADY CARRIES. No new extraction.",
+  "reproduces_the_stored_point_to_4dp": true,
+  "stored_at": "evidence/africa_prep_fits_2026_08_21/agyw-hiv-prep-review.txt",
+  "verbatim": "R version 4.6.0 (2026-04-24 ucrt) \nmetafor 5.0.1 \nrun_utc 2026-08-21\n\n================================================================\nTOPIC   agyw-hiv-prep-review\nOUTCOME primary\nSTORED  RR 0.7030 (0.5660 to 0.8731), k = 2, random-effects / REML\nINPUTS READ FROM THE OBJECT (log scale, SE derived from the published interval):\n   NCT01539226      0.6711 (0.4884 to 0.9221)  yi=-0.398837  sei=0.162125\n   NCT01617096      0.7320 (0.5442 to 0.9845)  yi=-0.311975  sei=0.151232\n----------------------------------------------------------------\nCALL: rma(yi = yi, sei = sei, method = \"REML\", test = \"knha\")\n\n\nRandom-Effects Model (k = 2; tau^2 estimator: REML)\n\n  logLik  deviance       AIC       BIC      AICc   \n  0.8573   -1.7145    2.2855   -1.7145   14.2855   \n\ntau^2 (estimated amount of total heterogeneity): 0 (SE = 0.0348)\ntau (square root of estimated tau^2 value):      0\nI^2 (total heterogeneity / total variability):   0.00%\nH^2 (total variability / sampling variability):  1.00\n\nTest for Heterogeneity:\nQ(df = 1) = 0.1535, p-val = 0.6952\n\nModel Results:\n\nestimate      se     zval    pval    ci.lb    ci.ub     \n -0.3524  0.1106  -3.1865  0.0014  -0.5691  -0.1356  ** \n\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n\n--- SAME FIT WITH HARTUNG-KNAPP (test = \"knha\") ---\n\nRandom-Effects Model (k = 2; tau^2 estimator: REML)\n\n  logLik  deviance       AIC       BIC      AICc   \n  0.8573   -1.7145    2.2855   -1.7145   14.2855   \n\ntau^2 (estimated amount of total heterogeneity): 0 (SE = 0.0348)\ntau (square root of estimated tau^2 value):      0\nI^2 (total heterogeneity / total variability):   0.00%\nH^2 (total variability / sampling variability):  1.00\n\nTest for Heterogeneity:\nQ(df = 1) = 0.1535, p-val = 0.6952\n\nModel Results:\n\nestimate      se     tval  df    pval    ci.lb   ci.ub    \n -0.3524  0.0433  -8.1334   1  0.0779  -0.9029  0.1981  . \n\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n\nBACK-TRANSFORMED:\n   unadjusted     0.7030 (0.5660 to 0.8732)\n   Hartung-Knapp  0.7030 (0.1725 to 2.8655)   [t crit 12.7062 on 1 df]  <- HOUSE INTERVAL, inflation factor floored at 1 (raw 0.3918)\n   metafor raw    0.7030 (0.4054 to 1.2191)   [test=knha, UNFLOORED]\n   tau^2 0.000000   Q 0.1535 on 1 df, p = 0.6952   I^2 0.00%\n\nAGREES WITH THE STORED POINT TO 4 dp: YES\n",
+  "SUPERSEDED_LOCATION_2026_08_21": "THIS TOP-LEVEL COPY IS NOT THE ONE ANYTHING READS. The scorer (scripts/p46_queue.py) and the manuscript projector both look for `results.by_outcome.<outcome>.r_output.verbatim`, and this key was invented by the applier that wrote it. While it sat here, p46_queue scored limb 4 ABSENT on this topic -- 'no quoted output and no stated reason' -- and the topic was REPORTED AS 4 of 4 WHEN IT WAS 3 of 4. Kept rather than deleted because a net deletion from an SSOT object breaks a standing rule; read the house key."
+ },
+ "manuscript": {
+  "references": {
+   "_what": "A reference list, assembled from this object's own fields. Distinct from `sources`, which records the provenance LAYER each fact was read at; this is what a reader would look up.",
+   "included_studies": [
+    {
+     "registration": "NCT01539226",
+     "label": "ASPIRE / MTN-020",
+     "registry": "ClinicalTrials.gov",
+     "url": "https://clinicaltrials.gov/study/NCT01539226",
+     "read_utc": "2026-08-18"
+    },
+    {
+     "registration": "NCT01617096",
+     "label": "The Ring Study",
+     "registry": "ClinicalTrials.gov",
+     "url": "https://clinicaltrials.gov/study/NCT01617096",
+     "read_utc": "2026-08-18"
+    }
+   ],
+   "published_syntheses_compared_against": [],
+   "_published_syntheses_note": "No published synthesis is listed here. The comparison section states its own denominator and why nothing citable was appraised. ",
+   "methods_guidance_and_software": [
+    {
+     "cited_for": "risk of bias in the included results",
+     "citation": "Sterne JAC, Savovic J, Page MJ, et al. RoB 2: a revised tool for assessing risk of bias in randomised trials. BMJ. 2019;366:l4898. doi:10.1136/bmj.l4898"
+    },
+    {
+     "cited_for": "certainty of the evidence",
+     "citation": "Schunemann HJ, Higgins JPT, Vist GE, et al. Chapter 14: Completing 'Summary of findings' tables and grading the certainty of the evidence. In: Cochrane Handbook for Systematic Reviews of Interventions version 6.5. Cochrane; 2024."
+    },
+    {
+     "cited_for": "the model fitted, as R 4.6.0 with metafor 5.0.1",
+     "citation": "Viechtbauer W. Conducting meta-analyses in R with the metafor package. J Stat Softw. 2010;36(3):1-48. doi:10.18637/jss.v036.i03"
+    },
+    {
+     "cited_for": "the reporting guideline this manuscript is written against",
+     "citation": "Page MJ, McKenzie JE, Bossuyt PM, et al. The PRISMA 2020 statement: an updated guideline for reporting systematic reviews. BMJ. 2021;372:n71. doi:10.1136/bmj.n71"
+    }
+   ]
+  },
+  "introduction": "This review asks: Does a dapivirine vaginal ring reduce HIV-1 seroconversion compared with a placebo vaginal ring in women?\n\nIt pools 2 randomised trials, against placebo vaginal ring.\n\nThe outcome pooled is HIV-1 seroconversion.\n\nEvery count and denominator behind those estimates is read as follows. REGISTRY THROUGHOUT. Counts and denominators read from ClinicalTrials.gov posted results.\n\nEverything in this paragraph is derived from stored fields and none of it is authored. The interpretive sentences that follow are marked as drafts and are the author's to replace."
+ },
+ "bookkeeping_2026_08_21": {
+  "_what": "The five reporting claims a PRISMA-2020 manuscript needs that are FETCHABLE rather than argued -- each derived from a field here, or stated as an honest absence.",
+  "which_limbs_this_review_refuses": "Of the four properties this project requires of a completed topic, 4 are held (comparison denominator, grade per pool, model output verbatim, rob per result).",
+  "the_search_its_date_and_its_databases": "PRIMARY TRIALS. NO BIBLIOGRAPHIC SEARCH FOR PRIMARY TRIALS WAS RUN. The 2 included trials were identified by reading named registrations on 2026-08-18. All FIVE seeded registrations read on 2026-08-18; two pooled, three excluded on the grounds stated. PUBLISHED SYNTHESES. PubMed E-utilities esearch + esummary, executed 2026-08-21. Query as executed: (dapivirine[tiab] OR \"vaginal ring\"[tiab]) AND (HIV[tiab]) AND (meta-analysis[pt] OR \"systematic review\"[pt] OR meta-analysis[tiab] OR pooled[tiab]). It matched 8 record(s), of which 8 were retrieved and 8 read; 0 appraised.",
+  "whether_this_review_was_prospectively_registered": "NO PROSPERO REGISTRATION OR PROTOCOL RECORD IS HELD ON THIS OBJECT. That is not the same as knowing this review was not registered, and neither claim is made. It is recorded here as an absence so that a reader does not have to infer it from silence.",
+  "that_two_assessors_disagreed_and_where": "Risk of bias was assessed independently a second time by GPT-5 Codex (openai family), via `codex exec`, blind to this assessment and given the same registry facts. 2 of 12 judgements on this topic -- 16.7%. BOTH ARE D1 AND NOTHING ELSE. D2, D3, D4, D5 and the overall all agree. By domain: D1 2 of 2 disagree, D2 0 of 2 disagree, D3 0 of 2 disagree, D4 0 of 2 disagree, D5 0 of 2 disagree, OVERALL 0 of 2 disagree. Recounted after this review's D1 judgements moved: 2 of 12 judgements -- 16.7%."
+ },
+ "manuscript_draft_2026_08_21": {
+  "_what": "The twelve claims a PRISMA manuscript needs that NO FIELD CAN BACK, drafted as scaffolding for the author to dictate over. Each states the facts the judgement needs and then names the judgement as his.",
+  "_status": "DRAFT. Every sentence here was written by the projector's drafter, not read from a source. They are kept under this dated key, each marked `is_a_draft`, so a later pass can always tell what was written from what was read. A draft must never quietly become a fact.",
+  "_the_rule": "No drafted sentence asserts anything this object cannot back. Where the claim requires a judgement, the draft stops at the facts and says so. A plausible sentence is the one most likely to survive dictation unexamined, which is why none is written.",
+  "claims": {
+   "why_the_question_is_open": {
+    "section": "Introduction",
+    "the_claim": "Why the question is still open -- the specific uncertainty this review addresses",
+    "draft": "The evidence identified on this question is 2 randomised trials (NCT01539226, NCT01617096), pooled here at 0.703 (95% CI 0.566 to 0.873) for HIV-1 seroconversion. Certainty in that estimate is rated LOW, rated down for risk of bias, inconsistency and indirectness. What this estimate does not establish is recorded in full with the result in Results, and is not restated here. WHICH OF THOSE UNRESOLVED POINTS MAKES THE QUESTION WORTH ASKING NOW IS THE AUTHOR'S JUDGEMENT.",
+    "facts_from": [
+     "results.by_outcome.primary.pooled",
+     "results.by_outcome.primary.k",
+     "results.by_outcome.primary.what_this_does_not_establish",
+     "grade.by_outcome.primary.certainty"
+    ],
+    "is_a_draft": true,
+    "the_judgement_that_is_the_authors": "This sentence is the author's judgement and is not derivable from any field here."
+   },
+   "why_a_new_synthesis": {
+    "section": "Introduction",
+    "the_claim": "Why a NEW synthesis is warranted rather than citing an existing one",
+    "draft": "A search for published syntheses matched 8 record(s); 8 were read and 0 appraised against this review. WHETHER THOSE DIFFERENCES WARRANT A NEW SYNTHESIS RATHER THAN CITING THE EXISTING ONE IS THE AUTHOR'S JUDGEMENT.",
+    "facts_from": [
+     "published_comparison.denominator",
+     "published_comparison.reviews"
+    ],
+    "is_a_draft": true,
+    "the_judgement_that_is_the_authors": "This sentence is the author's judgement and is not derivable from any field here."
+   },
+   "why_this_differs_from_published": {
+    "section": "Discussion",
+    "the_claim": "WHY this result differs from the published ones, mechanically or methodologically",
+    "draft": "No published synthesis was appraised against this review, so no difference between this result and a published one is recorded. There is nothing here for this sentence to explain, and stating a reason for a difference that has not been established would be inventing one.",
+    "facts_from": [
+     "published_comparison.reviews",
+     "published_comparison.identity_basis"
+    ],
+    "is_a_draft": true,
+    "the_judgement_that_is_the_authors": "This sentence is the author's judgement and is not derivable from any field here."
+   },
+   "is_the_heterogeneity_clinically_important": {
+    "section": "Discussion",
+    "the_claim": "Whether the observed heterogeneity is clinically important",
+    "draft": "Across 2 trials, I-squared is 0%; tau-squared 0; every trial interval excludes no effect. WHETHER THAT DEGREE OF DISAGREEMENT MATTERS CLINICALLY -- WHETHER THE TRIALS ARE ANSWERING THE SAME QUESTION IN THE SAME PATIENTS -- IS THE AUTHOR'S JUDGEMENT.",
+    "facts_from": [
+     "results.by_outcome.primary.heterogeneity",
+     "results.by_outcome.primary.per_trial"
+    ],
+    "is_a_draft": true,
+    "the_judgement_that_is_the_authors": "This sentence is the author's judgement and is not derivable from any field here."
+   },
+   "is_the_effect_size_clinically_meaningful": {
+    "section": "Discussion",
+    "the_claim": "Whether the effect size is clinically meaningful",
+    "draft": "The pooled RR is 0.703 (95% CI 0.566 to 0.873) over 2 trials, against placebo vaginal ring. Certainty is rated LOW. Every contributing interval excludes no effect. WHETHER A CHANGE OF THAT MAGNITUDE IS CLINICALLY MEANINGFUL IN THIS POPULATION IS THE AUTHOR'S JUDGEMENT: NO FIELD ON THIS OBJECT RECORDS A THRESHOLD OF IMPORTANCE, AND NONE IS ASSUMED HERE.",
+    "facts_from": [
+     "results.by_outcome.primary.pooled",
+     "results.by_outcome.primary.k",
+     "results.by_outcome.primary.comparator",
+     "grade.by_outcome.primary.certainty"
+    ],
+    "is_a_draft": true,
+    "the_judgement_that_is_the_authors": "This sentence is the author's judgement and is not derivable from any field here."
+   },
+   "is_the_evidence_base_adequate": {
+    "section": "Discussion",
+    "the_claim": "Whether the evidence base is adequate to answer the question",
+    "draft": "The evidence base is 2 trials, assessed for risk of bias as SOME_CONCERNS on 2 result(s). GRADE certainty is LOW, rated down for risk of bias, inconsistency and indirectness. WHETHER THAT IS ENOUGH TO ANSWER THE QUESTION DEPENDS ON THE DECISION THE ANSWER IS FOR, WHICH IS NOT STATED ON THIS OBJECT, AND IS THE AUTHOR'S JUDGEMENT.",
+    "facts_from": [
+     "risk_of_bias.by_outcome",
+     "grade.by_outcome.primary"
+    ],
+    "is_a_draft": true,
+    "the_judgement_that_is_the_authors": "This sentence is the author's judgement and is not derivable from any field here."
+   },
+   "what_further_evidence_would_change_it": {
+    "section": "Discussion",
+    "the_claim": "What further evidence would change the conclusion",
+    "draft": "Certainty was rated down for risk of bias, inconsistency and indirectness. WHAT FURTHER EVIDENCE WOULD CHANGE THE CONCLUSION IS A JUDGEMENT ABOUT A TRIAL NOBODY HAS RUN, AND IS THE AUTHOR'S.",
+    "facts_from": [
+     "grade.by_outcome.primary.steps"
+    ],
+    "is_a_draft": true,
+    "the_judgement_that_is_the_authors": "This sentence is the author's judgement and is not derivable from any field here."
+   },
+   "was_the_search_broad_enough": {
+    "section": "Discussion",
+    "the_claim": "Whether the search was broad enough",
+    "draft": "PRIMARY TRIALS. NO BIBLIOGRAPHIC SEARCH FOR PRIMARY TRIALS WAS RUN. The 2 included trials were identified by reading named registrations on 2026-08-18; All FIVE seeded registrations read on 2026-08-18; two pooled, three excluded on the grounds stated. PUBLISHED SYNTHESES. PubMed E-utilities esearch + esummary, executed 2026-08-21. Query as executed: (dapivirine[tiab] OR \"vaginal ring\"[tiab]) AND (HIV[tiab]) AND (meta-analysis[pt] OR \"systematic review\"[pt] OR meta-analysis[tiab] OR pooled[tiab]). It matched 8 record(s), of which 8 were retrieved and 8 read; 0 appraised. WHETHER THAT IS BROAD ENOUGH FOR THE CLAIM THIS REVIEW MAKES IS THE AUTHOR'S JUDGEMENT.",
+    "facts_from": [
+     "bookkeeping_2026_08_21.the_search_its_date_and_its_databases"
+    ],
+    "is_a_draft": true,
+    "the_judgement_that_is_the_authors": "This sentence is the author's judgement and is not derivable from any field here."
+   },
+   "what_the_evidence_shows": {
+    "section": "Conclusions",
+    "the_claim": "A one-sentence statement of what the evidence shows",
+    "draft": "Across 2 randomised trials, RR was 0.703 (95% CI 0.566 to 0.873) for HIV-1 seroconversion against placebo vaginal ring. Certainty in that estimate is LOW. THAT IS THE ESTIMATE. WHAT THE EVIDENCE SHOWS -- STATED AS A FINDING RATHER THAN AS A NUMBER -- IS THE AUTHOR'S SENTENCE.",
+    "facts_from": [
+     "results.by_outcome.primary.pooled",
+     "results.by_outcome.primary.k",
+     "results.by_outcome.primary.outcome",
+     "grade.by_outcome.primary.certainty"
+    ],
+    "is_a_draft": true,
+    "the_judgement_that_is_the_authors": "This sentence is the author's judgement and is not derivable from any field here."
+   },
+   "implication_for_practice": {
+    "section": "Conclusions",
+    "the_claim": "The implication for clinical practice",
+    "draft": "What a clinician should do differently on this evidence -- the estimate and certainty stated above -- is a RECOMMENDATION, not a measurement. No field on this object can back one, and none is drafted. It is the author's sentence.",
+    "facts_from": [
+     "results.by_outcome.primary.pooled",
+     "results.by_outcome.primary.k",
+     "grade.by_outcome.primary"
+    ],
+    "is_a_draft": true,
+    "the_judgement_that_is_the_authors": "This sentence is the author's judgement and is not derivable from any field here."
+   },
+   "implication_for_policy": {
+    "section": "Conclusions",
+    "the_claim": "The implication for policy",
+    "draft": "What a payer, guideline or programme should do on this evidence -- the estimate and certainty stated above -- is a RECOMMENDATION, not a measurement. No field on this object can back one, and none is drafted. It is the author's sentence.",
+    "facts_from": [
+     "results.by_outcome.primary.pooled",
+     "results.by_outcome.primary.k",
+     "grade.by_outcome.primary"
+    ],
+    "is_a_draft": true,
+    "the_judgement_that_is_the_authors": "This sentence is the author's judgement and is not derivable from any field here."
+   },
+   "implication_for_research": {
+    "section": "Conclusions",
+    "the_claim": "The implication for future research",
+    "draft": "What should be studied next on this evidence -- the estimate and certainty stated above -- is a RECOMMENDATION, not a measurement. No field on this object can back one, and none is drafted. It is the author's sentence.",
+    "facts_from": [
+     "results.by_outcome.primary.pooled",
+     "results.by_outcome.primary.k",
+     "grade.by_outcome.primary"
+    ],
+    "is_a_draft": true,
+    "the_judgement_that_is_the_authors": "This sentence is the author's judgement and is not derivable from any field here."
+   }
+  }
+ }
+}

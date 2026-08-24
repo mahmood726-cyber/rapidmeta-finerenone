@@ -1,0 +1,261 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a0313f-3341-7de3-9ab7-a0fb83006703
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/audit_grade_per_pool_2026_08_23.py
+
+--- THE FILE, IN FULL ---
+"""GRADE per POOLED OUTCOME, not per page -- and the two grade locations that disagree.
+
+# no-control: the known answer is the corpus itself. This counts a ratio whose numerator and
+# denominator are both read from the same objects, so a synthetic case would only restate the
+# arithmetic; the real controls are the two named topics below, whose disagreement was found by
+# a person reading pages and is reproduced by this script every run.
+
+P46'S GRADE LIMB ASKED "DOES THIS OBJECT HOLD A GRADE RATING" AND ANSWERED PER PAGE. On
+sglt2-hf that answered yes on the strength of a rating attached to an outcome that was never
+pooled, so the 28-of-28 possession figure counted a page whose two published estimates carry no
+assessment at all. The question a reader's estimate depends on is per POOL.
+
+AND THERE ARE TWO PLACES A RATING CAN LIVE, which is why the surfaces disagreed:
+
+    results.by_outcome.<oid>.grade.certainty     what the Summary of findings table renders
+    grade.by_outcome.<oid>.certainty             the structured record, with domains and steps
+
+    sglt2-hf          results.*.grade  rates ONLY the withdrawn outcome, "high"
+                      grade.by_outcome rates BOTH pooled outcomes, "LOW"
+    sotagliflozin-hf  results.*.grade  rates all three "low"
+                      grade.by_outcome is EMPTY
+
+So on one topic the table under-reports and on the other the structured record does. Neither
+location is consistently authoritative, and a reader met whichever one the surface they were
+looking at happened to read.
+
+THIS COUNTS BOTH, SEPARATELY, AND NAMES THE DISAGREEMENTS. It does not pick a winner: which
+location is authoritative is a decision about the evidence, and back-filling either from the
+other is exactly the silent synthesis this project refuses.
+"""
+import glob
+import io
+import json
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+
+def is_pooled(blk):
+    p = (blk or {}).get("pooled")
+    return (isinstance(p, dict) and p.get("point") is not None
+            and not p.get("withdrawn"))
+
+
+def norm(v):
+    if v is None:
+        return None
+    t = str(v).strip().upper().replace(" ", "_")
+    return t or None
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    pools = rated_struct = rated_table = rated_either = 0
+    topics = 0
+    disagree, unrated_topics, stranded = [], [], []
+    for p in sorted(glob.glob(os.path.join(REPO, "ssot", "*", "*.json"))):
+        t = os.path.basename(os.path.dirname(p))
+        if os.path.basename(p) != t + ".json":
+            continue
+        try:
+            obj = json.load(io.open(p, encoding="utf-8"))
+        except ValueError:
+            continue
+        res = (obj.get("results") or {}).get("by_outcome") or {}
+        gbo = (obj.get("grade") or {}).get("by_outcome") or {}
+        mine = [(oid, b) for oid, b in res.items() if is_pooled(b)]
+        if not mine:
+            continue
+        topics += 1
+        t_rated = 0
+        for oid, blk in mine:
+            pools += 1
+            struct = norm((gbo.get(oid) or {}).get("certainty")
+                          if isinstance(gbo.get(oid), dict) else None)
+            table = norm((blk.get("grade") or {}).get("certainty")
+                         if isinstance(blk.get("grade"), dict) else None)
+            rated_struct += bool(struct)
+            rated_table += bool(table)
+            if struct or table:
+                rated_either += 1
+                t_rated += 1
+            if struct and table and struct != table:
+                disagree.append((t, oid, "values differ", struct, table))
+            elif bool(struct) != bool(table):
+                disagree.append((t, oid, "one location only", struct, table))
+        if t_rated == 0:
+            unrated_topics.append((t, len(mine)))
+        # the stranded-rating shape, checked per location
+        pooled_ids = {oid for oid, _b in mine}
+        for oid, blk in res.items():
+            if oid in pooled_ids:
+                continue
+            for loc, val in (("results.*.grade",
+                              norm((blk.get("grade") or {}).get("certainty")
+                                   if isinstance(blk.get("grade"), dict) else None)),
+                             ("grade.by_outcome",
+                              norm((gbo.get(oid) or {}).get("certainty")
+                                   if isinstance(gbo.get(oid), dict) else None))):
+                if not val:
+                    continue
+                same_loc_pooled = [
+                    norm((b.get("grade") or {}).get("certainty")
+                         if loc == "results.*.grade" and isinstance(b.get("grade"), dict)
+                         else (gbo.get(o) or {}).get("certainty")
+                         if loc == "grade.by_outcome" and isinstance(gbo.get(o), dict)
+                         else None)
+                    for o, b in mine]
+                if not any(same_loc_pooled):
+                    stranded.append((t, oid, loc, val))
+
+    print("")
+    print("GRADE PER POOLED OUTCOME, across %d topic(s) that publish at least one pool"
+          % topics)
+    print("")
+    print("   pooled outcomes                       %4d" % pools)
+    print("   rated in grade.by_outcome (structured) %3d   %5.1f%%"
+          % (rated_struct, 100.0 * rated_struct / max(1, pools)))
+    print("   rated in results.*.grade (the table)   %3d   %5.1f%%"
+          % (rated_table, 100.0 * rated_table / max(1, pools)))
+    print("   rated in EITHER location               %3d   %5.1f%%"
+          % (rated_either, 100.0 * rated_either / max(1, pools)))
+    print("")
+    print("TOPICS WHOSE PUBLISHED POOLS CARRY NO RATING IN EITHER PLACE: %d"
+          % len(unrated_topics))
+    for t, n in unrated_topics[:14]:
+        print("   %-46s %d pooled outcome(s), 0 rated" % (t[:46], n))
+    print("")
+    print("POOLS WHERE THE TWO LOCATIONS DISAGREE: %d" % len(disagree))
+    for t, oid, kind, a, b in disagree[:16]:
+        print("   %-30s %-30s %-18s structured=%-6s table=%s"
+              % (t[:30], oid[:30], kind, a, b))
+    print("")
+    print("A RATING IN ONE LOCATION AND NOT THE OTHER IS NOT A RATING A READER RELIABLY MEETS.")
+    print("Which location is authoritative is a decision about the evidence; nothing here")
+    print("back-fills one from the other.")
+    # A RATING ON AN OUTCOME THAT WAS NOT POOLED, BESIDE POOLED OUTCOMES WITH NONE, IS WRONG
+    # WHICHEVER LOCATION IS AUTHORITATIVE. That is the sglt2 shape: the Summary of findings
+    # rated only the row marked "not pooled" and both published estimates showed a dash, and
+    # the abstract then reported the two estimates and quoted the rating. This does not take a
+    # side on which location wins -- that decision is not this script's -- it refuses the one
+    # arrangement that is indefensible under either answer.
+    if stranded:
+        print("")
+        print("A RATING ON A NOT-POOLED OUTCOME WHILE THIS TOPIC'S POOLED OUTCOMES CARRY NONE,")
+        print("IN THE SAME LOCATION: %d" % len(stranded))
+        for t, oid, loc, val in stranded:
+            print("   %-40s %-28s %s=%s" % (t[:40], oid[:28], loc, val))
+        sys.exit("REFUSED: %d topic(s) rate an outcome they did not pool while the outcomes "
+                 "they did pool carry no rating in that same location. A reader meets the "
+                 "rating beside the estimates it does not belong to." % len(stranded))
+    json.dump({"pools": pools, "rated_structured": rated_struct,
+               "rated_table": rated_table, "rated_either": rated_either,
+               "disagreements": [list(d) for d in disagree],
+               "unrated_topics": [list(u) for u in unrated_topics]},
+              io.open(os.path.join(REPO, "outputs", "grade_per_pool_2026_08_23.json"),
+                      "w", encoding="utf-8"), indent=1)
+
+
+if __name__ == "__main__":
+    main()
+
+codex
+Defects found:
+
+- Line 64: invalid JSON is silently skipped.
+  Exact input: `REPO\ssot\bad\bad.json` containing `{` with `REPO\outputs\` present.
+  Consequence: the audit exits 0 and writes a partial/zero report, so a broken source file is treated as absent data.
+
+- Line 91: the stranded `grade.by_outcome` probe iterates `res.items()`, so it cannot see structured ratings whose outcome id is absent from `results.by_outcome`.
+  Exact input at `REPO\ssot\t\t.json`:
+  ```json
+  {"results":{"by_outcome":{"pool":{"pooled":{"point":1.0}}}},"grade":{"by_outcome":{"not_pooled_x":{"certainty":"high"}}}}
+  ```
+  Consequence: a structured stranded rating is missed and the script exits successfully.
+
+- Line 149 / line 151: the refusal message says `topic(s)` but uses `len(stranded)`, counting stranded ratings, not unique topics.
+  Exact input:
+  ```json
+  {"results":{"by_outcome":{"pool":{"pooled":{"point":1.0}},"np1":{"grade":{"certainty":"high"}},"np2":{"grade":{"certainty":"low"}}}},"grade":{"by_outcome":{}}}
+  ```
+  Consequence: one topic with two bad rows is reported as `2 topic(s)`.
+
+No proven defect found here for: string-a-fix-removes probe, own-comment idempotency guard, CRLF/LF text comparison, negation-dropped text parsing, or zero-conflated-with-absent.
+
+COULD NOT DETERMINE corpus-specific selector coverage; missing `ssot/**/*.json`.
+tokens used
+16,938
+Defects found:
+
+- Line 64: invalid JSON is silently skipped.
+  Exact input: `REPO\ssot\bad\bad.json` containing `{` with `REPO\outputs\` present.
+  Consequence: the audit exits 0 and writes a partial/zero report, so a broken source file is treated as absent data.
+
+- Line 91: the stranded `grade.by_outcome` probe iterates `res.items()`, so it cannot see structured ratings whose outcome id is absent from `results.by_outcome`.
+  Exact input at `REPO\ssot\t\t.json`:
+  ```json
+  {"results":{"by_outcome":{"pool":{"pooled":{"point":1.0}}}},"grade":{"by_outcome":{"not_pooled_x":{"certainty":"high"}}}}
+  ```
+  Consequence: a structured stranded rating is missed and the script exits successfully.
+
+- Line 149 / line 151: the refusal message says `topic(s)` but uses `len(stranded)`, counting stranded ratings, not unique topics.
+  Exact input:
+  ```json
+  {"results":{"by_outcome":{"pool":{"pooled":{"point":1.0}},"np1":{"grade":{"certainty":"high"}},"np2":{"grade":{"certainty":"low"}}}},"grade":{"by_outcome":{}}}
+  ```
+  Consequence: one topic with two bad rows is reported as `2 topic(s)`.
+
+No proven defect found here for: string-a-fix-removes probe, own-comment idempotency guard, CRLF/LF text comparison, negation-dropped text parsing, or zero-conflated-with-absent.
+
+COULD NOT DETERMINE corpus-specific selector coverage; missing `ssot/**/*.json`.

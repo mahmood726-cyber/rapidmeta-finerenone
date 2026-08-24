@@ -1,0 +1,711 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a031f9-5ae5-7271-9c9d-1c0352776112
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/lint_string_where_collection_expected.py
+
+--- THE FILE, IN FULL ---
+#!/usr/bin/env python3
+"""A BARE STRING PASSED WHERE A COLLECTION OF TERMS IS EXPECTED. Complete, plausible, all wrong.
+
+THE INSTANCE. 2026-08-19, `bococizumab-lipid-review`:
+
+    role = TI.locate(study, "bococizumab")          # <- a STRING
+
+`locate` tests `any(s in blob for s in syns)`. A string is a sequence of CHARACTERS, so this
+asked whether each arm's text contains the letter "b", or "o", or "c". Every arm of every trial
+matched. It raised nothing, returned no null, produced no malformed field, and emitted:
+
+    17 experimental / 0 comparator / 0 background / 5 not-assessable
+
+-- an entirely ordinary-looking cascade -- with SPIRE-SI (NCT02135029), one of the review's own
+five included trials, EXCLUDED because its ATORVASTATIN arm "contained bococizumab" on the
+strength of its letters.
+
+    THERE WAS NO SYMPTOM AND THERE COULD NOT HAVE BEEN. The wrong answer has exactly the shape
+    of the right one. It was caught because a KNOWN INCLUDED TRIAL FELL OUT -- the known-answer
+    rule doing the only thing that could have worked -- and by nothing else.
+
+WHY THIS IS ITS OWN CLASS AND NOT AN INSTANCE OF E1. E1 is "substring is not identity": a
+placebo record named `Placebo (for alirocumab)` really does contain the drug's name, and the
+question is what that containment MEANS. Here the containment is of a single LETTER and means
+nothing at all. E1 is a wrong reading of real evidence; this is a reading of no evidence that
+cannot fail.
+
+TWO DEFENCES, AND THE FIRST IS THE ONE THAT CANNOT BE FORGOTTEN.
+
+  RUNTIME   `topic_identity.require_terms()` raises `TermsMustBeACollection` at the entry point
+            of every function whose parameter is membership-tested. A caller cannot skip it,
+            cannot mean well past it, and gets a message naming the fix.
+  STATIC    this file, which scans the repository for the shape rather than for the one call
+            that was found. It reports both halves:
+              (a) functions whose parameter is membership-tested or iterated and which do NOT
+                  guard it -- the sites where the defect is POSSIBLE;
+              (b) call sites passing a string literal into such a parameter -- the defect
+                  ACTUALLY PRESENT.
+
+WHAT THIS CANNOT DO, stated so a clean run is not read as more than it is:
+  - Resolution is BY FUNCTION NAME. Two functions sharing a name are conflated, and a call
+    through an alias, an attribute chain this cannot follow, or a variable that happens to hold
+    a string is invisible. A string reaching the parameter at RUNTIME from a variable is
+    exactly the case the static half misses and the runtime guard catches, which is why there
+    are two.
+  - It does not check that the collection contains the RIGHT terms. `locate(study, ["x"])`
+    passes here and finds nothing.
+
+USAGE:  python scripts/lint_string_where_collection_expected.py
+        python scripts/lint_string_where_collection_expected.py --selftest
+"""
+import ast
+import io
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+SCAN_DIRS = ("ssot", "scripts")
+
+# The guard call that discharges the obligation, by name.
+GUARD_NAMES = {"require_terms"}
+
+
+def py_files():
+    for d in SCAN_DIRS:
+        root = os.path.join(REPO, d)
+        if not os.path.isdir(root):
+            continue
+        for name in sorted(os.listdir(root)):
+            if name.endswith(".py"):
+                yield os.path.join(root, name)
+
+
+def _params_membership_tested(fn):
+    """{param_name: how} for parameters used as `x in param` or `for x in param`.
+
+    A parameter that is ONLY indexed, or only passed on, is not in scope -- the defect needs a
+    membership or iteration test, because that is what a string silently satisfies.
+    """
+    names = [a.arg for a in list(fn.args.args) + list(fn.args.kwonlyargs)]
+    found = {}
+    for node in ast.walk(fn):
+        if isinstance(node, ast.Compare):
+            for op, comp in zip(node.ops, node.comparators):
+                if isinstance(op, ast.In) and isinstance(comp, ast.Name) \
+                        and comp.id in names:
+                    found.setdefault(comp.id, "membership test `x in %s`" % comp.id)
+        if isinstance(node, ast.comprehension) and isinstance(node.iter, ast.Name) \
+                and node.iter.id in names:
+            found.setdefault(node.iter.id, "iterated in a comprehension")
+        if isinstance(node, ast.For) and isinstance(node.iter, ast.Name) \
+                and node.iter.id in names:
+            found.setdefault(node.iter.id, "iterated in a for-loop")
+    return names, found
+
+
+def _guards(fn):
+    """Parameter names passed to a guard call anywhere in the function body."""
+    out = set()
+    for node in ast.walk(fn):
+        if not isinstance(node, ast.Call):
+            continue
+        f = node.func
+        nm = f.attr if isinstance(f, ast.Attribute) else getattr(f, "id", None)
+        if nm not in GUARD_NAMES:
+            continue
+        for a in node.args:
+            if isinstance(a, ast.Name):
+                out.add(a.id)
+    return out
+
+
+def scan():
+    """(at_risk, actual) -- functions where the defect is possible, and calls where it is real.
+
+    DEFINITIONS ARE KEYED BY (FILE, NAME), NEVER BY NAME ALONE. A single global table was the
+    first version and it produced SIXTY-THREE findings of which ONE was real: `def check(rows,
+    ...)` in one script overwrote `def check(name, got, want)` in fifteen others, so every
+    known-answer assertion in the corpus was reported as passing a string into a
+    membership-tested `rows`. Two of the loudest -- `validate_v2.block` and
+    `regression_guard.run` -- were methods with entirely different signatures.
+
+        A CHECK THAT FIRES ON MOSTLY NOISE IS MORE LIKELY BROKEN THAN THE CORPUS IS, and the
+        noise here was manufactured by the check's own name-resolution.
+    """
+    at_risk, by_file, by_name = [], {}, {}
+    # EVERY definition, membership-testing or not. The ambiguity that matters is whether the
+    # NAME is unique in the repository -- and the first version counted only the definitions it
+    # had registered, so `validate_v2.block(self, rule, msg)` was invisible and six calls to it
+    # resolved against `build_app_v2.block(title, items, keys)`, reporting a string passed into
+    # an `items` parameter that call has never had. AN AMBIGUITY YOU CANNOT SEE IS STILL AN
+    # AMBIGUITY; counting only the interesting half made it look unique.
+    all_defs = {}
+    for path in py_files():
+        try:
+            with io.open(path, encoding="utf-8") as fh:
+                t = ast.parse(fh.read(), filename=path)
+        except (SyntaxError, OSError, UnicodeDecodeError):
+            continue
+        for n in ast.walk(t):
+            if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                all_defs.setdefault(n.name, set()).add(path)
+    for path in py_files():
+        try:
+            with io.open(path, encoding="utf-8") as fh:
+                tree = ast.parse(fh.read(), filename=path)
+        except (SyntaxError, OSError, UnicodeDecodeError):
+            continue
+        for node in ast.walk(tree):
+            if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                continue
+            names, tested = _params_membership_tested(node)
+            if not tested:
+                continue
+            guarded = _guards(node)
+            by_file.setdefault(path, {})[node.name] = (names, tested, guarded)
+            by_name.setdefault(node.name, []).append(path)
+            for p, how in sorted(tested.items()):
+                if p not in guarded:
+                    at_risk.append((os.path.relpath(path, REPO), node.lineno, node.name,
+                                    p, how))
+
+    # RESOLUTION, AND WHY IT IS NARROWED. The first version matched a call to ANY function of
+    # the same name anywhere in the repository, and reported SEVENTEEN false positives in one
+    # run: a local `def check(name, got, want)` in one script collided with a `check(rows=...)`
+    # in another, and every known-answer assertion in the corpus was flagged.
+    #
+    #     A CHECK THAT FIRES ON MOSTLY NOISE IS MORE LIKELY BROKEN THAN THE CORPUS IS -- this
+    #     project's own rule, and it applies to a check written by the person applying it.
+    #
+    # So a call resolves only when it is MODULE-QUALIFIED (`TI.locate(...)`, where the callee's
+    # attribute name is a function this scan found) or defined in the SAME FILE. A bare
+    # same-name call across files is exactly the ambiguity that produced the noise, and it is
+    # dropped rather than reported at low confidence.
+    actual = []
+    for path in py_files():
+        try:
+            with io.open(path, encoding="utf-8") as fh:
+                src = fh.read()
+                tree = ast.parse(src, filename=path)
+        except (SyntaxError, OSError, UnicodeDecodeError):
+            continue
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.Call):
+                continue
+            f = node.func
+            qualified = isinstance(f, ast.Attribute)
+            nm = f.attr if qualified else getattr(f, "id", None)
+            if nm is None:
+                continue
+            if qualified:
+                # Module-qualified: resolve only when the name is defined ONCE in the whole
+                # repository. Ambiguity is dropped, not reported at low confidence.
+                if len(all_defs.get(nm) or ()) != 1:
+                    continue
+                where = by_name.get(nm) or []
+                if len(set(where)) != 1:
+                    continue
+                sig = by_file[where[0]].get(nm)
+            else:
+                # Bare name: the definition in THIS file, and nowhere else.
+                sig = by_file.get(path, {}).get(nm)
+            if sig is None:
+                continue
+            names, tested, _g = sig
+            for i, arg in enumerate(node.args):
+                if i >= len(names):
+                    break
+                if names[i] in tested and isinstance(arg, ast.Constant) \
+                        and isinstance(arg.value, (str, bytes)):
+                    actual.append((os.path.relpath(path, REPO), node.lineno, nm,
+                                   names[i], arg.value))
+            for kw in node.keywords:
+                if kw.arg in tested and isinstance(kw.value, ast.Constant) \
+                        and isinstance(kw.value.value, (str, bytes)):
+                    actual.append((os.path.relpath(path, REPO), node.lineno, nm,
+                                   kw.arg, kw.value.value))
+    return at_risk, actual
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    at_risk, actual = scan()
+    print("functions membership-testing an UNGUARDED parameter   %d" % len(at_risk))
+    for path, line, fn, p, how in at_risk[:40]:
+        print("   %-58s %s(%s)  %s" % ("%s:%d" % (path, line), fn, p, how))
+    if len(at_risk) > 40:
+        print("   ... and %d more, not truncated silently" % (len(at_risk) - 40))
+    print("\ncall sites passing a STRING LITERAL into such a parameter  %d" % len(actual))
+    for path, line, fn, p, val in actual:
+        print("   %-58s %s(%s=%r)" % ("%s:%d" % (path, line), fn, p, val))
+    if actual:
+        print("\nREFUSED: a bare string reaches a parameter that is membership-tested. It will "
+              "match single CHARACTERS and return complete, plausible, wrong output.")
+        return 1
+    print("\nno call site passes a string literal where a collection is membership-tested.")
+    print("NOT CHECKED: a string reaching such a parameter through a VARIABLE. That is what "
+          "topic_identity.require_terms() catches at runtime, and it is why there are two "
+          "defences rather than one.")
+    return 0
+
+
+def selftest():
+    """P16 four ways, and the fourth uses the call that really shipped."""
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    sys.path.insert(0, os.path.join(REPO, "ssot"))
+    import topic_identity as TI
+    fails = []
+
+    def check(name, got, want):
+        ok = got == want
+        print("  %-60s %s  %r" % (name, "ok" if ok else "FAIL", got))
+        if not ok:
+            fails.append(name)
+
+    # 1. THE RUNTIME GUARD FIRES ON THE CALL THAT REALLY SHIPPED.
+    bare = "bococizumab"          # through a VARIABLE: the path only the runtime guard sees
+    try:
+        TI.locate({"protocolSection": {}}, bare)
+        check("locate(study, 'bococizumab') raises", False, True)
+    except TI.TermsMustBeACollection:
+        check("locate(study, 'bococizumab') raises", True, True)
+
+    # 2. AND DOES NOT FIRE ON THE CORRECT CALL. A guard that always fires is not a guard.
+    try:
+        TI.locate({"protocolSection": {}}, TI.TOPIC_SYNONYMS["bococizumab"])
+        check("locate(study, TOPIC_SYNONYMS[...]) does NOT raise", True, True)
+    except TI.TermsMustBeACollection:
+        check("locate(study, TOPIC_SYNONYMS[...]) does NOT raise", False, True)
+
+    # 3. Every non-string collection is accepted -- the defect is specific to str/bytes.
+    for coll in (["a"], ("a",), {"a"}, frozenset(["a"])):
+        try:
+            TI.require_terms(coll, "syns", "t")
+            ok = True
+        except TI.TermsMustBeACollection:
+            ok = False
+        check("require_terms accepts a %s" % type(coll).__name__, ok, True)
+    for bad in ("a", b"a"):
+        try:
+            TI.require_terms(bad, "syns", "t")
+            ok = False
+        except TI.TermsMustBeACollection:
+            ok = True
+        check("require_terms refuses a %s" % type(bad).__name__, ok, True)
+
+    # 4. THE STATIC HALF FINDS THE SHAPE, not just the one call. It must report at least one
+    #    at-risk function -- if it reports none, its own AST matching has stopped working and
+    #    a clean run would mean nothing.
+    at_risk, actual = scan()
+    check("the static scan finds at-risk functions to report", len(at_risk) > 0, True)
+    check("and the live repository has NO string-literal call site", actual, [])
+
+    print("\n%s" % ("ALL FOUR PROOFS HELD" if not fails else "FAILED: %s" % fails))
+    return 1 if fails else 0
+
+
+if __name__ == "__main__":
+    sys.exit(selftest() if "--selftest" in sys.argv else main())
+
+codex
+I’m going to anchor this on the pasted file and only flag defects I can demonstrate from that record. I’ll keep the output in the requested finding format.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command 'if (Test-Path scripts/lint_string_where_collection_expected.py) { $i=1; Get-Content scripts/lint_string_where_collection_expected.py | ForEach-Object { '"'{0,4}: {1}' -f "'$i, $_; $i++ } } else { '"'MISSING' }" in F:\rapidmeta-ssot-shell
+ succeeded in 1330ms:
+   1: #!/usr/bin/env python3
+   2: """A BARE STRING PASSED WHERE A COLLECTION OF TERMS IS EXPECTED. Complete, plausible, all wrong.
+   3: 
+   4: THE INSTANCE. 2026-08-19, `bococizumab-lipid-review`:
+   5: 
+   6:     role = TI.locate(study, "bococizumab")          # <- a STRING
+   7: 
+   8: `locate` tests `any(s in blob for s in syns)`. A string is a sequence of CHARACTERS, so this
+   9: asked whether each arm's text contains the letter "b", or "o", or "c". Every arm of every trial
+  10: matched. It raised nothing, returned no null, produced no malformed field, and emitted:
+  11: 
+  12:     17 experimental / 0 comparator / 0 background / 5 not-assessable
+  13: 
+  14: -- an entirely ordinary-looking cascade -- with SPIRE-SI (NCT02135029), one of the review's own
+  15: five included trials, EXCLUDED because its ATORVASTATIN arm "contained bococizumab" on the
+  16: strength of its letters.
+  17: 
+  18:     THERE WAS NO SYMPTOM AND THERE COULD NOT HAVE BEEN. The wrong answer has exactly the shape
+  19:     of the right one. It was caught because a KNOWN INCLUDED TRIAL FELL OUT -- the known-answer
+  20:     rule doing the only thing that could have worked -- and by nothing else.
+  21: 
+  22: WHY THIS IS ITS OWN CLASS AND NOT AN INSTANCE OF E1. E1 is "substring is not identity": a
+  23: placebo record named `Placebo (for alirocumab)` really does contain the drug's name, and the
+  24: question is what that containment MEANS. Here the containment is of a single LETTER and means
+  25: nothing at all. E1 is a wrong reading of real evidence; this is a reading of no evidence that
+  26: cannot fail.
+  27: 
+  28: TWO DEFENCES, AND THE FIRST IS THE ONE THAT CANNOT BE FORGOTTEN.
+  29: 
+  30:   RUNTIME   `topic_identity.require_terms()` raises `TermsMustBeACollection` at the entry point
+  31:             of every function whose parameter is membership-tested. A caller cannot skip it,
+  32:             cannot mean well past it, and gets a message naming the fix.
+  33:   STATIC    this file, which scans the repository for the shape rather than for the one call
+  34:             that was found. It reports both halves:
+  35:               (a) functions whose parameter is membership-tested or iterated and which do NOT
+  36:                   guard it -- the sites where the defect is POSSIBLE;
+  37:               (b) call sites passing a string literal into such a parameter -- the defect
+  38:                   ACTUALLY PRESENT.
+  39: 
+  40: WHAT THIS CANNOT DO, stated so a clean run is not read as more than it is:
+  41:   - Resolution is BY FUNCTION NAME. Two functions sharing a name are conflated, and a call
+  42:     through an alias, an attribute chain this cannot follow, or a variable that happens to hold
+  43:     a string is invisible. A string reaching the parameter at RUNTIME from a variable is
+  44:     exactly the case the static half misses and the runtime guard catches, which is why there
+  45:     are two.
+  46:   - It does not check that the collection contains the RIGHT terms. `locate(study, ["x"])`
+  47:     passes here and finds nothing.
+  48: 
+  49: USAGE:  python scripts/lint_string_where_collection_expected.py
+  50:         python scripts/lint_string_where_collection_expected.py --selftest
+  51: """
+  52: import ast
+  53: import io
+  54: import os
+  55: import sys
+  56: 
+  57: REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+  58: SCAN_DIRS = ("ssot", "scripts")
+  59: 
+  60: # The guard call that discharges the obligation, by name.
+  61: GUARD_NAMES = {"require_terms"}
+  62: 
+  63: 
+  64: def py_files():
+  65:     for d in SCAN_DIRS:
+  66:         root = os.path.join(REPO, d)
+  67:         if not os.path.isdir(root):
+  68:             continue
+  69:         for name in sorted(os.listdir(root)):
+  70:             if name.endswith(".py"):
+  71:                 yield os.path.join(root, name)
+  72: 
+  73: 
+  74: def _params_membership_tested(fn):
+  75:     """{param_name: how} for parameters used as `x in param` or `for x in param`.
+  76: 
+  77:     A parameter that is ONLY indexed, or only passed on, is not in scope -- the defect needs a
+  78:     membership or iteration test, because that is what a string silently satisfies.
+  79:     """
+  80:     names = [a.arg for a in list(fn.args.args) + list(fn.args.kwonlyargs)]
+  81:     found = {}
+  82:     for node in ast.walk(fn):
+  83:         if isinstance(node, ast.Compare):
+  84:             for op, comp in zip(node.ops, node.comparators):
+  85:                 if isinstance(op, ast.In) and isinstance(comp, ast.Name) \
+  86:                         and comp.id in names:
+  87:                     found.setdefault(comp.id, "membership test `x in %s`" % comp.id)
+  88:         if isinstance(node, ast.comprehension) and isinstance(node.iter, ast.Name) \
+  89:                 and node.iter.id in names:
+  90:             found.setdefault(node.iter.id, "iterated in a comprehension")
+  91:         if isinstance(node, ast.For) and isinstance(node.iter, ast.Name) \
+  92:                 and node.iter.id in names:
+  93:             found.setdefault(node.iter.id, "iterated in a for-loop")
+  94:     return names, found
+  95: 
+  96: 
+  97: def _guards(fn):
+  98:     """Parameter names passed to a guard call anywhere in the function body."""
+  99:     out = set()
+ 100:     for node in ast.walk(fn):
+ 101:         if not isinstance(node, ast.Call):
+ 102:             continue
+ 103:         f = node.func
+ 104:         nm = f.attr if isinstance(f, ast.Attribute) else getattr(f, "id", None)
+ 105:         if nm not in GUARD_NAMES:
+ 106:             continue
+ 107:         for a in node.args:
+ 108:             if isinstance(a, ast.Name):
+ 109:                 out.add(a.id)
+ 110:     return out
+ 111: 
+ 112: 
+ 113: def scan():
+ 114:     """(at_risk, actual) -- functions where the defect is possible, and calls where it is real.
+ 115: 
+ 116:     DEFINITIONS ARE KEYED BY (FILE, NAME), NEVER BY NAME ALONE. A single global table was the
+ 117:     first version and it produced SIXTY-THREE findings of which ONE was real: `def check(rows,
+ 118:     ...)` in one script overwrote `def check(name, got, want)` in fifteen others, so every
+ 119:     known-answer assertion in the corpus was reported as passing a string into a
+ 120:     membership-tested `rows`. Two of the loudest -- `validate_v2.block` and
+ 121:     `regression_guard.run` -- were methods with entirely different signatures.
+ 122: 
+ 123:         A CHECK THAT FIRES ON MOSTLY NOISE IS MORE LIKELY BROKEN THAN THE CORPUS IS, and the
+ 124:         noise here was manufactured by the check's own name-resolution.
+ 125:     """
+ 126:     at_risk, by_file, by_name = [], {}, {}
+ 127:     # EVERY definition, membership-testing or not. The ambiguity that matters is whether the
+ 128:     # NAME is unique in the repository -- and the first version counted only the definitions it
+ 129:     # had registered, so `validate_v2.block(self, rule, msg)` was invisible and six calls to it
+ 130:     # resolved against `build_app_v2.block(title, items, keys)`, reporting a string passed into
+ 131:     # an `items` parameter that call has never had. AN AMBIGUITY YOU CANNOT SEE IS STILL AN
+ 132:     # AMBIGUITY; counting only the interesting half made it look unique.
+ 133:     all_defs = {}
+ 134:     for path in py_files():
+ 135:         try:
+ 136:             with io.open(path, encoding="utf-8") as fh:
+ 137:                 t = ast.parse(fh.read(), filename=path)
+ 138:         except (SyntaxError, OSError, UnicodeDecodeError):
+ 139:             continue
+ 140:         for n in ast.walk(t):
+ 141:             if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef)):
+ 142:                 all_defs.setdefault(n.name, set()).add(path)
+ 143:     for path in py_files():
+ 144:         try:
+ 145:             with io.open(path, encoding="utf-8") as fh:
+ 146:                 tree = ast.parse(fh.read(), filename=path)
+ 147:         except (SyntaxError, OSError, UnicodeDecodeError):
+ 148:             continue
+ 149:         for node in ast.walk(tree):
+ 150:             if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+ 151:                 continue
+ 152:             names, tested = _params_membership_tested(node)
+ 153:             if not tested:
+ 154:                 continue
+ 155:             guarded = _guards(node)
+ 156:             by_file.setdefault(path, {})[node.name] = (names, tested, guarded)
+ 157:             by_name.setdefault(node.name, []).append(path)
+ 158:             for p, how in sorted(tested.items()):
+ 159:                 if p not in guarded:
+ 160:                     at_risk.append((os.path.relpath(path, REPO), node.lineno, node.name,
+ 161:                                     p, how))
+ 162: 
+ 163:     # RESOLUTION, AND WHY IT IS NARROWED. The first version matched a call to ANY function of
+ 164:     # the same name anywhere in the repository, and reported SEVENTEEN false positives in one
+ 165:     # run: a local `def check(name, got, want)` in one script collided with a `check(rows=...)`
+ 166:     # in another, and every known-answer assertion in the corpus was flagged.
+ 167:     #
+ 168:     #     A CHECK THAT FIRES ON MOSTLY NOISE IS MORE LIKELY BROKEN THAN THE CORPUS IS -- this
+ 169:     #     project's own rule, and it applies to a check written by the person applying it.
+ 170:     #
+ 171:     # So a call resolves only when it is MODULE-QUALIFIED (`TI.locate(...)`, where the callee's
+ 172:     # attribute name is a function this scan found) or defined in the SAME FILE. A bare
+ 173:     # same-name call across files is exactly the ambiguity that produced the noise, and it is
+ 174:     # dropped rather than reported at low confidence.
+ 175:     actual = []
+ 176:     for path in py_files():
+ 177:         try:
+ 178:             with io.open(path, encoding="utf-8") as fh:
+ 179:                 src = fh.read()
+ 180:                 tree = ast.parse(src, filename=path)
+ 181:         except (SyntaxError, OSError, UnicodeDecodeError):
+ 182:             continue
+ 183:         for node in ast.walk(tree):
+ 184:             if not isinstance(node, ast.Call):
+ 185:                 continue
+ 186:             f = node.func
+ 187:             qualified = isinstance(f, ast.Attribute)
+ 188:             nm = f.attr if qualified else getattr(f, "id", None)
+ 189:             if nm is None:
+ 190:                 continue
+ 191:             if qualified:
+ 192:                 # Module-qualified: resolve only when the name is defined ONCE in the whole
+ 193:                 # repository. Ambiguity is dropped, not reported at low confidence.
+ 194:                 if len(all_defs.get(nm) or ()) != 1:
+ 195:                     continue
+ 196:                 where = by_name.get(nm) or []
+ 197:                 if len(set(where)) != 1:
+ 198:                     continue
+ 199:                 sig = by_file[where[0]].get(nm)
+ 200:             else:
+ 201:                 # Bare name: the definition in THIS file, and nowhere else.
+ 202:                 sig = by_file.get(path, {}).get(nm)
+ 203:             if sig is None:
+ 204:                 continue
+ 205:             names, tested, _g = sig
+ 206:             for i, arg in enumerate(node.args):
+ 207:                 if i >= len(names):
+ 208:                     break
+ 209:                 if names[i] in tested and isinstance(arg, ast.Constant) \
+ 210:                         and isinstance(arg.value, (str, bytes)):
+ 211:                     actual.append((os.path.relpath(path, REPO), node.lineno, nm,
+ 212:                                    names[i], arg.value))
+ 213:             for kw in node.keywords:
+ 214:                 if kw.arg in tested and isinstance(kw.value, ast.Constant) \
+ 215:                         and isinstance(kw.value.value, (str, bytes)):
+ 216:                     actual.append((os.path.relpath(path, REPO), node.lineno, nm,
+ 217:                                    kw.arg, kw.value.value))
+ 218:     return at_risk, actual
+ 219: 
+ 220: 
+ 221: def main():
+ 222:     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+ 223:     at_risk, actual = scan()
+ 224:     print("functions membership-testing an UNGUARDED parameter   %d" % len(at_risk))
+ 225:     for path, line, fn, p, how in at_risk[:40]:
+ 226:         print("   %-58s %s(%s)  %s" % ("%s:%d" % (path, line), fn, p, how))
+ 227:     if len(at_risk) > 40:
+ 228:         print("   ... and %d more, not truncated silently" % (len(at_risk) - 40))
+ 229:     print("\ncall sites passing a STRING LITERAL into such a parameter  %d" % len(actual))
+ 230:     for path, line, fn, p, val in actual:
+ 231:         print("   %-58s %s(%s=%r)" % ("%s:%d" % (path, line), fn, p, val))
+ 232:     if actual:
+ 233:         print("\nREFUSED: a bare string reaches a parameter that is membership-tested. It will "
+ 234:               "match single CHARACTERS and return complete, plausible, wrong output.")
+ 235:         return 1
+ 236:     print("\nno call site passes a string literal where a collection is membership-tested.")
+ 237:     print("NOT CHECKED: a string reaching such a parameter through a VARIABLE. That is what "
+ 238:           "topic_identity.require_terms() catches at runtime, and it is why there are two "
+ 239:           "defences rather than one.")
+ 240:     return 0
+ 241: 
+ 242: 
+ 243: def selftest():
+ 244:     """P16 four ways, and the fourth uses the call that really shipped."""
+ 245:     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+ 246:     sys.path.insert(0, os.path.join(REPO, "ssot"))
+ 247:     import topic_identity as TI
+ 248:     fails = []
+ 249: 
+ 250:     def check(name, got, want):
+ 251:         ok = got == want
+ 252:         print("  %-60s %s  %r" % (name, "ok" if ok else "FAIL", got))
+ 253:         if not ok:
+ 254:             fails.append(name)
+ 255: 
+ 256:     # 1. THE RUNTIME GUARD FIRES ON THE CALL THAT REALLY SHIPPED.
+ 257:     bare = "bococizumab"          # through a VARIABLE: the path only the runtime guard sees
+ 258:     try:
+ 259:         TI.locate({"protocolSection": {}}, bare)
+ 260:         check("locate(study, 'bococizumab') raises", False, True)
+ 261:     except TI.TermsMustBeACollection:
+ 262:         check("locate(study, 'bococizumab') raises", True, True)
+ 263: 
+ 264:     # 2. AND DOES NOT FIRE ON THE CORRECT CALL. A guard that always fires is not a guard.
+ 265:     try:
+ 266:         TI.locate({"protocolSection": {}}, TI.TOPIC_SYNONYMS["bococizumab"])
+ 267:         check("locate(study, TOPIC_SYNONYMS[...]) does NOT raise", True, True)
+ 268:     except TI.TermsMustBeACollection:
+ 269:         check("locate(study, TOPIC_SYNONYMS[...]) does NOT raise", False, True)
+ 270: 
+ 271:     # 3. Every non-string collection is accepted -- the defect is specific to str/bytes.
+ 272:     for coll in (["a"], ("a",), {"a"}, frozenset(["a"])):
+ 273:         try:
+ 274:             TI.require_terms(coll, "syns", "t")
+ 275:             ok = True
+ 276:         except TI.TermsMustBeACollection:
+ 277:             ok = False
+ 278:         check("require_terms accepts a %s" % type(coll).__name__, ok, True)
+ 279:     for bad in ("a", b"a"):
+ 280:         try:
+ 281:             TI.require_terms(bad, "syns", "t")
+ 282:             ok = False
+ 283:         except TI.TermsMustBeACollection:
+ 284:             ok = True
+ 285:         check("require_terms refuses a %s" % type(bad).__name__, ok, True)
+ 286: 
+ 287:     # 4. THE STATIC HALF FINDS THE SHAPE, not just the one call. It must report at least one
+ 288:     #    at-risk function -- if it reports none, its own AST matching has stopped working and
+ 289:     #    a clean run would mean nothing.
+ 290:     at_risk, actual = scan()
+ 291:     check("the static scan finds at-risk functions to report", len(at_risk) > 0, True)
+ 292:     check("and the live repository has NO string-literal call site", actual, [])
+ 293: 
+ 294:     print("\n%s" % ("ALL FOUR PROOFS HELD" if not fails else "FAILED: %s" % fails))
+ 295:     return 1 if fails else 0
+ 296: 
+ 297: 
+ 298: if __name__ == "__main__":
+ 299:     sys.exit(selftest() if "--selftest" in sys.argv else main())
+
+codex
+Defects found:
+
+- **Check that cannot fail**: lines 232-240.  
+  Exact input: `scripts/demo.py` containing `def f(syns): return any(s in "" for s in syns)`, then run `python scripts/lint_string_where_collection_expected.py`.  
+  Consequence: the unguarded membership-tested parameter is reported, but the process exits `0`.
+
+- **Probe keyed to a fix-removes condition**: line 291.  
+  Exact input: a scanned repo where every membership-tested parameter is guarded, then run `python scripts/lint_string_where_collection_expected.py --selftest`.  
+  Consequence: remediation makes `len(at_risk) > 0` false, so the selftest fails because the old hazard disappeared.
+
+- **Idempotency guard satisfied by marker, not work**: lines 107-109.  
+  Exact input: `def f(syns):\n    if False: require_terms(syns, "syns", "t")\n    return any(s in "" for s in syns)`.  
+  Consequence: an unreachable guard suppresses the at-risk finding.
+
+- **Name vs binding / different target read**: line 194.  
+  Exact input: `ssot/topic_identity.py` has guarded/at-risk `locate(study, syns)`, `scripts/other.py` also defines unrelated `locate(x)`, and `scripts/call.py` calls `TI.locate({}, "bococizumab")`.  
+  Consequence: the real module-qualified string call is dropped because an unrelated same-named function exists.
+
+- **Selector misses a membership form**: line 85.  
+  Exact input: `def f(syns): return "x" not in syns` plus `f("abc")`.  
+  Consequence: `not in` is still string membership, but this detector never registers the parameter.
+
+- **Selector misses string-literal form**: lines 209-215.  
+  Exact input: `def f(syns): return any(s in "" for s in syns)` plus `f(f"abc")`.  
+  Consequence: a constant f-string reaches the same dangerous parameter without being reported.
+
+None found: CRLF/LF text comparison, merged-cell/off-by-one tabulation, zero conflated with absent.
+tokens used
+20,539
+Defects found:
+
+- **Check that cannot fail**: lines 232-240.  
+  Exact input: `scripts/demo.py` containing `def f(syns): return any(s in "" for s in syns)`, then run `python scripts/lint_string_where_collection_expected.py`.  
+  Consequence: the unguarded membership-tested parameter is reported, but the process exits `0`.
+
+- **Probe keyed to a fix-removes condition**: line 291.  
+  Exact input: a scanned repo where every membership-tested parameter is guarded, then run `python scripts/lint_string_where_collection_expected.py --selftest`.  
+  Consequence: remediation makes `len(at_risk) > 0` false, so the selftest fails because the old hazard disappeared.
+
+- **Idempotency guard satisfied by marker, not work**: lines 107-109.  
+  Exact input: `def f(syns):\n    if False: require_terms(syns, "syns", "t")\n    return any(s in "" for s in syns)`.  
+  Consequence: an unreachable guard suppresses the at-risk finding.
+
+- **Name vs binding / different target read**: line 194.  
+  Exact input: `ssot/topic_identity.py` has guarded/at-risk `locate(study, syns)`, `scripts/other.py` also defines unrelated `locate(x)`, and `scripts/call.py` calls `TI.locate({}, "bococizumab")`.  
+  Consequence: the real module-qualified string call is dropped because an unrelated same-named function exists.
+
+- **Selector misses a membership form**: line 85.  
+  Exact input: `def f(syns): return "x" not in syns` plus `f("abc")`.  
+  Consequence: `not in` is still string membership, but this detector never registers the parameter.
+
+- **Selector misses string-literal form**: lines 209-215.  
+  Exact input: `def f(syns): return any(s in "" for s in syns)` plus `f(f"abc")`.  
+  Consequence: a constant f-string reaches the same dangerous parameter without being reported.
+
+None found: CRLF/LF text comparison, merged-cell/off-by-one tabulation, zero conflated with absent.

@@ -1,0 +1,159 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a03253-3f1d-7770-96a3-c38d72fa91e2
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/repair_double_stop_in_introductions_2026_08_23.py
+
+--- THE FILE, IN FULL ---
+"""Remove the double full stop from stored introductions. Non-authored manuscripts only.
+
+# no-control: a targeted text repair, not a detector. Its controls are asserted inline: the
+# authored guard is consulted per object before any write, the change must be exactly the
+# removal of a duplicated terminator (byte length falls by exactly the number of seams fixed),
+# and the grammar-seam gate must report zero afterwards.
+
+WHY A REPAIR AND NOT JUST A GENERATOR FIX. `build_paper_bookkeeping.introduction()` appended a
+full stop unless the text ended in "?", so a question already ending in "." received a second
+one -- "... not what the withdrawal on this page said.. It examines 2 randomised trials ...".
+The generator is fixed. But the writer GUARDS `manuscript.introduction` against overwriting an
+existing value, correctly, so the fix cannot reach the ~20 objects that already hold one. The
+guard is right and the stored text is wrong, so the stored text is repaired in place.
+
+FOUND BY THE GRAMMAR-SEAM GATE ON ITS FIRST REAL RUN, and it predates today's lead-in work
+entirely. Nothing had ever looked at the joins between assembled sentences.
+"""
+from __future__ import annotations
+
+import glob
+import io
+import json
+import os
+import re
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(REPO, "ssot"))
+import atomic_write                                            # noqa: E402
+import authored_guard as _ag                                   # noqa: E402
+import do_not_rebuild as _dnr                                  # noqa: E402
+
+DOUBLE = re.compile(r"\.\s*\.")
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    apply = "--apply" in sys.argv
+    fixed, skipped_authored, seams = [], [], 0
+    for p in sorted(glob.glob(os.path.join(REPO, "ssot", "*", "*.json"))):
+        t = os.path.basename(os.path.dirname(p))
+        if os.path.basename(p) != t + ".json":
+            continue
+        try:
+            o = json.load(io.open(p, encoding="utf-8"))
+        except ValueError:
+            continue
+        man = o.get("manuscript")
+        if not isinstance(man, dict):
+            continue
+        intro = man.get("introduction")
+        if not isinstance(intro, str) or not DOUBLE.search(intro):
+            continue
+        if _ag.is_authored(man):
+            skipped_authored.append(t)
+            continue
+        _dnr.check_object(p)
+        n = len(DOUBLE.findall(intro))
+        new = DOUBLE.sub(".", intro)
+        # THE CHANGE MUST BE EXACTLY THE REMOVAL OF DUPLICATED TERMINATORS. Any other delta
+        # means the substitution reached something it should not have.
+        if len(intro) - len(new) != n:
+            sys.exit("REFUSED on %s: the edit changed %d characters where %d duplicated "
+                     "terminators were found. Nothing written."
+                     % (t, len(intro) - len(new), n))
+        seams += n
+        fixed.append(t)
+        if apply:
+            man["introduction"] = new
+            atomic_write.write_json(p, o, indent=1)
+
+    print("objects with a double full stop in manuscript.introduction: %d (%d seam(s))"
+          % (len(fixed), seams))
+    if skipped_authored:
+        print("skipped, AUTHORED manuscript: %s" % ", ".join(skipped_authored))
+    for t in fixed[:12]:
+        print("   %s" % t)
+    if not apply:
+        print("")
+        print("DRY RUN. Pass --apply to write.")
+
+
+if __name__ == "__main__":
+    main()
+
+codex
+COULD NOT DETERMINE helper reachability: missing `ssot/authored_guard.py` and `ssot/do_not_rebuild.py`. Findings below are for any reached object where `_ag.is_authored(man)` is false and `_dnr.check_object(p)` returns normally.
+
+- **SELECTOR KEYED TO WRONG FORM / OVERBROAD**: line 32, exact input `{"manuscript":{"introduction":"Wait... It continues."}}` with `--apply`. `DOUBLE` matches an ellipsis as a double full stop, so the repair mutates punctuation that is not the asserted generator defect.
+
+- **MERGED-CELL / OFF-BY-ONE COUNT**: line 57, exact input `{"manuscript":{"introduction":"A.... B"}}` with `--apply`. `findall` counts two non-overlapping matches in a four-dot run, but collapsing the run to one terminator requires removing three characters; consequence: the script reports and applies an incomplete repair, leaving `A.. B`.
+
+- **STATUS CODE REPORTING WRAPPER RATHER THAN WORK**: lines 58 and normal fallthrough after line 79, exact input `{"manuscript":{"introduction":"A... B"}}` with `--apply`. The script exits zero after writing `A.. B`, so automation can treat the repair as successful while the target marker still remains.
+
+- **A CHECK THAT DOES NOT PROVE ITS CLAIM**: line 61, exact input `{"manuscript":{"introduction":"A... B"}}`. The byte-delta check passes because one character was removed from one non-overlapping match, but the postcondition “grammar-seam gate must report zero afterwards” is false.
+
+No proven defect found for: probe keyed to string a fix removes; idempotency guard satisfied by own comment; different-copy instrumentation; CRLF/LF text comparison; zero conflated with absent; negation dropped.
+tokens used
+10,792
+COULD NOT DETERMINE helper reachability: missing `ssot/authored_guard.py` and `ssot/do_not_rebuild.py`. Findings below are for any reached object where `_ag.is_authored(man)` is false and `_dnr.check_object(p)` returns normally.
+
+- **SELECTOR KEYED TO WRONG FORM / OVERBROAD**: line 32, exact input `{"manuscript":{"introduction":"Wait... It continues."}}` with `--apply`. `DOUBLE` matches an ellipsis as a double full stop, so the repair mutates punctuation that is not the asserted generator defect.
+
+- **MERGED-CELL / OFF-BY-ONE COUNT**: line 57, exact input `{"manuscript":{"introduction":"A.... B"}}` with `--apply`. `findall` counts two non-overlapping matches in a four-dot run, but collapsing the run to one terminator requires removing three characters; consequence: the script reports and applies an incomplete repair, leaving `A.. B`.
+
+- **STATUS CODE REPORTING WRAPPER RATHER THAN WORK**: lines 58 and normal fallthrough after line 79, exact input `{"manuscript":{"introduction":"A... B"}}` with `--apply`. The script exits zero after writing `A.. B`, so automation can treat the repair as successful while the target marker still remains.
+
+- **A CHECK THAT DOES NOT PROVE ITS CLAIM**: line 61, exact input `{"manuscript":{"introduction":"A... B"}}`. The byte-delta check passes because one character was removed from one non-overlapping match, but the postcondition “grammar-seam gate must report zero afterwards” is false.
+
+No proven defect found for: probe keyed to string a fix removes; idempotency guard satisfied by own comment; different-copy instrumentation; CRLF/LF text comparison; zero conflated with absent; negation dropped.

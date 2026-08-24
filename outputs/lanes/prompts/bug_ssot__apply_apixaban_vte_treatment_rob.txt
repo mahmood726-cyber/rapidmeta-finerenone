@@ -1,0 +1,301 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: ssot/apply_apixaban_vte_treatment_rob.py
+
+--- THE FILE, IN FULL ---
+"""apixaban-vte-treatment: risk of bias PER RESULT. The one limb this topic was missing.
+
+THE OBJECT ALREADY HELD THE FRAMING AND NOT THE JUDGEMENTS. `risk_of_bias` carried the tool,
+the version, the unit of assessment, the ceiling and the default rule -- everything except
+`by_outcome`, so nothing was ever assessed. A header without judgements reads as an assessment
+to anyone who does not look for the rows.
+
+READ FROM ClinicalTrials.gov API v2 ON 2026-08-21, and it CORROBORATES the GRADE this object
+already carries rather than revealing anything new. Stated that way deliberately: the GRADE
+entry names the three comparators and the two secondary outcomes, and an independent reading
+of the registrations found the same three facts. A corroboration is worth less than a
+discovery and worth more than an assumption.
+
+    NCT03045406  Caravaggio        n=1170  RANDOMIZED  MASKING NONE -- OPEN LABEL
+                 apixaban EXPERIMENTAL vs DALTEPARIN (active comparator)
+                 ONE primary: "Recurrent Venous Thromboembolism"  <- THE POOLED OUTCOME
+    NCT03266783                    n=2760  RANDOMIZED  MASKING NONE -- OPEN LABEL
+                 apixaban vs RIVAROXABAN -- BOTH ARMS TYPED ACTIVE_COMPARATOR
+                 ONE primary: "The Rate of Adjudicated Clinically Relevant Bleeding (CRB)
+                 Events". Recurrent VTE is its THIRD SECONDARY.
+    NCT01780987                    n=80    RANDOMIZED  MASKING NONE -- OPEN LABEL
+                 apixaban EXPERIMENTAL vs UNFRACTIONATED HEPARIN then WARFARIN
+                 ONE primary: "Number of Participants With Major Bleeding Events".
+                 Recurrent VTE is its FIRST SECONDARY.
+
+THREE FACTS, AND EACH ONE ALONE WOULD BE WORTH A READER'S ATTENTION.
+
+ALL THREE ARE OPEN LABEL. Not one registration masks anybody. The endpoint is ADJUDICATED on
+all three -- their own outcome titles say so -- and adjudication by a committee blinded to
+allocation is the standard mitigation for exactly this. BUT NO REGISTRATION STATES THAT THE
+ADJUDICATORS WERE BLINDED, so the mitigation is PLAUSIBLE AND NOT ESTABLISHED, and D4 is
+SOME_CONCERNS rather than LOW on all three. Not HIGH: nothing read shows adjudication differed
+by arm.
+
+TWO OF THE THREE CONTRIBUTE A SECONDARY OUTCOME. On NCT03266783 and NCT01780987 the registered
+primary is BLEEDING and recurrent VTE sits among the secondaries. This review pools recurrent
+VTE. That is a selection from among registered ranks and D5 is SOME_CONCERNS on both; on
+Caravaggio recurrent VTE IS the registered primary and D5 is LOW. THE CONTRAST BETWEEN THE
+THREE IS THE FINDING, which is why every judged domain is rendered and not only the adverse
+ones.
+
+AND THE THREE COMPARATORS ARE THREE DIFFERENT DRUGS -- dalteparin, rivaroxaban, and
+unfractionated heparin followed by warfarin. That is recorded here as a fact of the
+registrations and NOT scored as a RoB domain, because it is not one: RoB 2 asks whether a
+trial's own result is biased, not whether three trials answer the same question. The object's
+GRADE already rates indirectness down for it, and this file corroborates the reading rather
+than double-counting it.
+
+NO STORED NUMBER IS CHANGED.
+"""
+import io
+import json
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(REPO, "ssot"))
+import atomic_write
+
+TODAY = "2026-08-21"
+STAMP = TODAY.replace("-", "_")
+TOPIC = "apixaban-vte-treatment"
+OUTCOME = "recurrent_vte"
+
+D1 = {"judgement": "LOW", "basis": "REGISTRATION DESIGN MODULE, READ",
+      "reason": "allocation is recorded as RANDOMIZED on the design module.",
+      "what_is_NOT_established": (
+          "The concealment MECHANISM is not on the registry and no publication was read.")}
+D2 = {"judgement": "NO_INFORMATION",
+      "basis": "NOT ESTABLISHED -- THE REGISTRY DOES NOT CARRY THE FIELD",
+      "reason": ("Deviations from the intended intervention and the analysis population used "
+                 "are not on the registration. IN AN OPEN-LABEL ANTICOAGULATION TRIAL this is "
+                 "the domain that would describe whether knowledge of allocation changed "
+                 "management, which is precisely what open label puts in question.")}
+D3 = {"judgement": "NO_INFORMATION",
+      "basis": "NOT ESTABLISHED -- THE REGISTRY DOES NOT CARRY THE FIELD",
+      "reason": ("No registration states how many participants were missing from the analysed "
+                 "population or how they were handled.")}
+
+D4_OPEN_ADJUDICATED = {
+    "judgement": "SOME_CONCERNS",
+    "basis": "REGISTRATION DESIGN MODULE AND THE REGISTERED OUTCOME TITLE, TOGETHER",
+    "reason": ("MASKING IS RECORDED AS NONE -- this trial is OPEN LABEL. The endpoint is "
+               "ADJUDICATED, which the registered outcome title states, and adjudication by a "
+               "committee blinded to allocation is the standard mitigation for exactly this "
+               "design. BUT NO REGISTRATION STATES THAT THE ADJUDICATORS WERE BLINDED, so the "
+               "mitigation is PLAUSIBLE AND NOT ESTABLISHED. NOT LOW, because that would "
+               "assert a blinding nobody here has seen; NOT HIGH, because nothing read shows "
+               "adjudication differed by arm."),
+}
+
+TRIALS = {
+    "NCT03045406": {
+        "name": "Caravaggio", "n": 1170,
+        "comparator": "DALTEPARIN (arm typed ACTIVE_COMPARATOR; apixaban EXPERIMENTAL)",
+        "primary": "Recurrent Venous Thromboembolism",
+        "rank_of_the_pooled_result": "PRIMARY",
+        "d5": {"judgement": "LOW",
+               "basis": "REGISTERED PRIMARY OUTCOMES COMPARED WITH WHAT THIS OBJECT POOLS",
+               "reason": ("ONE primary outcome is registered -- Recurrent Venous "
+                          "Thromboembolism -- and IT IS THE RESULT THIS REVIEW POOLS. There "
+                          "is no set of ranks to have chosen from, so the selection concern "
+                          "that applies to the other two contributing results cannot arise "
+                          "here. RECORDED BECAUSE THE CONTRAST IS THE POINT.")},
+    },
+    "NCT03266783": {
+        "name": "(apixaban versus rivaroxaban)", "n": 2760,
+        "comparator": ("RIVAROXABAN -- and BOTH arms are typed ACTIVE_COMPARATOR on the "
+                       "registration, so the registry itself does not mark one as the "
+                       "intervention under test"),
+        "primary": "The Rate of Adjudicated Clinically Relevant Bleeding (CRB) Events",
+        "rank_of_the_pooled_result": "SECONDARY -- the third of nine",
+        "d5": {"judgement": "SOME_CONCERNS",
+               "basis": "REGISTERED PRIMARY OUTCOMES COMPARED WITH WHAT THIS OBJECT POOLS",
+               "reason": ("THE REGISTERED PRIMARY IS BLEEDING, NOT RECURRENT VTE. Recurrent "
+                          "VTE is the THIRD OF NINE registered secondaries, and it is what "
+                          "this review pools. Selecting a secondary from among registered "
+                          "ranks is a D5 concern whatever the reason for it. NOT HIGH: "
+                          "nothing read shows the rank was chosen after seeing the data, and "
+                          "the choice is transparent -- this review is about recurrent VTE "
+                          "and took the result that answers it.")},
+    },
+    "NCT01780987": {
+        "name": "(Japanese acute DVT/PE study)", "n": 80,
+        "comparator": ("UNFRACTIONATED HEPARIN followed by WARFARIN (arm typed "
+                       "ACTIVE_COMPARATOR; apixaban EXPERIMENTAL)"),
+        "primary": ("Number of Participants With Major Bleeding Events, per the International "
+                    "Society on Thrombosis and Haemostasis definition"),
+        "rank_of_the_pooled_result": "SECONDARY -- the first of five",
+        "d5": {"judgement": "SOME_CONCERNS",
+               "basis": "REGISTERED PRIMARY OUTCOMES COMPARED WITH WHAT THIS OBJECT POOLS",
+               "reason": ("THE REGISTERED PRIMARY IS MAJOR BLEEDING, NOT RECURRENT VTE. "
+                          "Recurrent VTE is the FIRST OF FIVE registered secondaries. Same "
+                          "shape as NCT03266783 and the same judgement, for the same reason "
+                          "and not by analogy -- both registrations were read.")},
+        "extra": ("THIS TRIAL RANDOMISED EIGHTY PARTICIPANTS. It contributes to a three-trial "
+                  "pool alongside trials of 1,170 and 2,760, so its weight is small, but its "
+                  "presence is what makes the comparator set three drugs rather than two."),
+    },
+}
+
+
+def main():
+    dry = "--apply" not in sys.argv
+    path = os.path.join(REPO, "ssot", TOPIC, TOPIC + ".json")
+    obj = json.load(io.open(path, encoding="utf-8"))
+    blk = ((obj.get("results") or {}).get("by_outcome") or {}).get(OUTCOME)
+    if not isinstance(blk, dict):
+        sys.exit("REFUSED: %s has no `%s`." % (TOPIC, OUTCOME))
+    rob = obj.get("risk_of_bias")
+    if not isinstance(rob, dict) or not rob.get("tool"):
+        sys.exit("REFUSED: this object does not carry the risk-of-bias framing this file "
+                 "expects to extend. Writing a fresh block would discard it.")
+    if rob.get("by_outcome"):
+        sys.exit("REFUSED: `risk_of_bias.by_outcome` already exists. This file adds the "
+                 "judgements a header was standing in for; it does not overwrite them.")
+
+    carried = set(t.get("nct") for t in (blk.get("per_trial") or []) if isinstance(t, dict))
+    for n in TRIALS:
+        if n not in carried:
+            sys.exit("REFUSED: %s is not carried by %s (%r)" % (n, TOPIC, sorted(carried)))
+
+    per = {}
+    for nct, spec in sorted(TRIALS.items()):
+        entry = {
+            "nct": nct, "trial": spec["name"], "registered_enrolment": spec["n"],
+            "registered_masking": "NONE -- OPEN LABEL",
+            "registered_comparator": spec["comparator"],
+            "registered_primary_outcome": spec["primary"],
+            "rank_of_the_result_this_review_pools": spec["rank_of_the_pooled_result"],
+            "result_assessed": "adjudicated recurrent venous thromboembolism",
+            "domains": {
+                "D1_randomisation_process": D1,
+                "D2_deviations_from_intended_intervention": D2,
+                "D3_missing_outcome_data": D3,
+                "D4_measurement_of_the_outcome": D4_OPEN_ADJUDICATED,
+                "D5_selection_of_the_reported_result": spec["d5"],
+            },
+            "overall": "SOME_CONCERNS",
+            "overall_reason": (
+                "D4 is SOME_CONCERNS on an open-label trial whose adjudication is not shown "
+                "to have been blinded; D2 and D3 are NO_INFORMATION. Under RoB 2 an "
+                "unjudgeable domain cannot yield LOW overall, and in an open-label "
+                "anticoagulation trial D2 is the domain that would describe whether knowing "
+                "the allocation changed management."),
+        }
+        if spec.get("extra"):
+            entry["also_recorded"] = spec["extra"]
+        per[nct] = entry
+
+    rob["by_outcome"] = {OUTCOME: per}
+    rob["assessed_utc"] = TODAY
+    rob["assessed_per"] = "RESULT, not trial -- Handbook 8.2"
+    rob["sources_read"] = [
+        "ClinicalTrials.gov API v2 %s -- design module, arm groups, and the full registered "
+        "primary and secondary outcome lists" % n for n in sorted(TRIALS)]
+    rob["sources_NOT_read"] = (
+        "The trial publications. D2 and D3 depend on them and are NO_INFORMATION for that "
+        "reason.")
+    rob["ALL_THREE_ARE_OPEN_LABEL"] = (
+        "NOT ONE of the three registrations masks anybody -- all record MASKING: NONE. The "
+        "endpoint is adjudicated on all three, which is the standard mitigation, but NO "
+        "REGISTRATION STATES THAT THE ADJUDICATORS WERE BLINDED. The mitigation is plausible "
+        "and not established.")
+    rob["TWO_OF_THREE_CONTRIBUTE_A_SECONDARY"] = (
+        "On NCT03266783 and NCT01780987 the REGISTERED PRIMARY IS BLEEDING and recurrent VTE "
+        "is a secondary. This review pools recurrent VTE. Only Caravaggio contributes its own "
+        "registered primary.")
+    rob["THE_COMPARATORS_ARE_THREE_DIFFERENT_DRUGS"] = (
+        "Dalteparin, rivaroxaban, and unfractionated heparin followed by warfarin. RECORDED "
+        "HERE AND NOT SCORED AS A DOMAIN: RoB 2 asks whether a trial's own result is biased, "
+        "not whether three trials answer the same question. This object's GRADE already rates "
+        "INDIRECTNESS down for it, in those words, and scoring it again here would "
+        "double-count one fact as two defects.")
+    rob["ONE_ASSESSOR_ONLY"] = (
+        "ASSESSED BY ONE ASSESSOR. Under the standing specification that risk of bias 2 must "
+        "be complete and done by TWO AIs from different model families, THIS ASSESSMENT IS "
+        "INCOMPLETE. Recorded as such, and `rob2.assessors` is deliberately NOT written.")
+    rob["CORROBORATES_RATHER_THAN_REVEALS"] = (
+        "The three facts above were already named in this object's GRADE entry before any "
+        "registration was read for this assessment. An independent reading of all three "
+        "registrations found the same three. THAT IS A CORROBORATION, worth less than a "
+        "discovery and more than an assumption, and it is recorded as one.")
+
+    prior = blk.get("POOL_FINDINGS_%s" % STAMP) or {}
+    prior.update({
+        "a_all_three_trials_are_open_label": (
+            "READ THIS BESIDE THE ESTIMATE. NOT ONE of the three contributing trials masks "
+            "anybody: NCT03045406, NCT03266783 and NCT01780987 all register MASKING: NONE. "
+            "The endpoint is adjudicated on all three, which is the standard mitigation for "
+            "an open-label anticoagulation trial, but NO REGISTRATION STATES THAT THE "
+            "ADJUDICATORS WERE BLINDED."),
+        "b_two_of_the_three_are_contributing_a_secondary_outcome": (
+            "On NCT03266783 the registered primary is CLINICALLY RELEVANT BLEEDING and "
+            "recurrent VTE is the third of nine secondaries. On NCT01780987 the registered "
+            "primary is MAJOR BLEEDING and recurrent VTE is the first of five. ONLY "
+            "CARAVAGGIO CONTRIBUTES ITS OWN REGISTERED PRIMARY."),
+        "c_and_the_three_comparators_are_three_different_drugs": (
+            "Dalteparin, rivaroxaban, and unfractionated heparin followed by warfarin. The "
+            "pooled quantity is therefore apixaban against WHATEVER ELSE WAS GIVEN, which is "
+            "one step from any question a reader has. This object's GRADE rates indirectness "
+            "down for it and the certainty here is VERY LOW."),
+    })
+    blk["POOL_FINDINGS_%s" % STAMP] = prior
+
+    obj.setdefault("display_change_announced", []).append({
+        "date": TODAY,
+        "change": "risk of bias assessed per result (P46 limb 1); this topic held the framing "
+                  "and none of the judgements",
+        "values_moved": "NONE",
+        "what_changed": "%d result-level assessments, all overall SOME_CONCERNS" % len(TRIALS),
+        "why": ("`risk_of_bias` carried the tool, the ceiling and the default rule and had NO "
+                "`by_outcome`. A header without judgements reads as an assessment to anyone "
+                "who does not look for the rows."),
+    })
+    print("%-24s %d results assessed, all SOME_CONCERNS" % (TOPIC, len(TRIALS)))
+    if dry:
+        print("DRY RUN -- pass --apply to write")
+        return
+    atomic_write.write_json(path, obj, indent=1)
+
+
+if __name__ == "__main__":
+    main()

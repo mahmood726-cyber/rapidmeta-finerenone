@@ -1,0 +1,443 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a03199-1173-7383-be32-dcffa3a2d17c
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/enrich_trials_with_aact_design.py
+
+--- THE FILE, IN FULL ---
+"""Apply AACT design metadata as an RoB-2 heuristic across the portfolio.
+
+For each `'NCT...': { ... }` trial block in every *_FULL_REVIEW.html (and the
+fewer *_REVIEW.html / *_AUTO_REVIEW.html that use the same shape):
+
+  rob: ['low','low','low','low','low']   <-- stubbed, every trial. unscientific.
+
+We replace it with a heuristic derived from AACT designs.txt:
+
+  D1 Randomization process
+    allocation == 'RANDOMIZED'     -> 'low'
+    allocation == 'NON_RANDOMIZED' -> 'high'
+    else (NA / blank)              -> 'some-concerns'
+
+  D2 Deviations from intended interventions
+    masking in (QUADRUPLE, TRIPLE) -> 'low'
+    masking == DOUBLE              -> 'low'
+    masking == SINGLE              -> 'some-concerns'
+    masking == NONE                -> 'high'
+    else                           -> 'some-concerns'
+
+  D3 Missing outcome data
+    Cannot infer from AACT alone   -> 'some-concerns' (conservative default)
+
+  D4 Outcome measurement
+    outcomes_assessor_masked == 'true'             -> 'low'
+    masking in (QUADRUPLE,TRIPLE,DOUBLE)           -> 'low'
+    masking == SINGLE                              -> 'some-concerns'
+    masking == NONE                                -> 'high'
+    else                                           -> 'some-concerns'
+
+  D5 Selection of reported result
+    Always 'some-concerns' (cannot judge from registry alone — needs
+    cross-check with published primary outcome).
+
+This is honestly labelled in a new comment field added to each trial:
+  robSource: 'AACT 2026-04-12 designs.txt heuristic (registry-derived, not
+              a full RoB-2 reading of trial reports)'
+
+Sentinel-style note: the JS object literal can carry hyphens like 'some-concerns'
+in a single-quoted string, which the analysis engine's RoB chip renderer
+already handles (it maps low/some-concerns/high -> green/amber/red).
+
+Idempotent: existing rob arrays of length 5 are replaced; the field
+`robSource` is upserted.
+"""
+from __future__ import annotations
+import json
+import re
+import sys
+import io
+from pathlib import Path
+
+if "pytest" not in sys.modules and hasattr(sys.stdout, "buffer"):
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+HERE = Path(__file__).resolve().parent.parent
+DESIGN = json.loads((HERE / "outputs" / "pmid_resolver" / "nct_design.json").read_text(encoding="utf-8"))
+
+TRIAL_BLOCK_RE = re.compile(
+    r"'(NCT\d{7,8})':\s*\{(?P<body>(?:[^{}]|\{[^{}]*\}){0,4000})\}",
+    re.DOTALL,
+)
+
+
+def rob_for(nct: str) -> tuple[list[str], str]:
+    """Return (rob5, source_label)."""
+    d = DESIGN.get(nct)
+    if not d:
+        return ["some-concerns"] * 5, "no AACT design record"
+
+    alloc = d.get("allocation") or ""
+    masking = d.get("masking") or ""
+    assess = (d.get("outcomes_assessor_masked") or "").lower()
+
+    # D1
+    if alloc == "RANDOMIZED":
+        d1 = "low"
+    elif alloc == "NON_RANDOMIZED":
+        d1 = "high"
+    else:
+        d1 = "some-concerns"
+
+    # D2
+    if masking in ("QUADRUPLE", "TRIPLE", "DOUBLE"):
+        d2 = "low"
+    elif masking == "SINGLE":
+        d2 = "some-concerns"
+    elif masking == "NONE":
+        d2 = "high"
+    else:
+        d2 = "some-concerns"
+
+    d3 = "some-concerns"  # can't infer from registry
+
+    # D4
+    if assess == "true":
+        d4 = "low"
+    elif masking in ("QUADRUPLE", "TRIPLE", "DOUBLE"):
+        d4 = "low"
+    elif masking == "SINGLE":
+        d4 = "some-concerns"
+    elif masking == "NONE":
+        d4 = "high"
+    else:
+        d4 = "some-concerns"
+
+    d5 = "some-concerns"
+
+    src = f"AACT designs: alloc={alloc or '∅'}, masking={masking or '∅'}, assessor_masked={assess or '∅'}"
+    return [d1, d2, d3, d4, d5], src
+
+
+ROB_RE = re.compile(r"rob:\s*\[(?P<inner>[^\]]*)\]")
+ROBSRC_RE = re.compile(r"robSource:\s*'[^']*'\s*,?")
+
+
+def patch_trial(nct: str, body: str) -> tuple[str, bool]:
+    rob5, src = rob_for(nct)
+    rob_lit = "rob: [" + ", ".join(f"'{r}'" for r in rob5) + "]"
+    new_body = ROB_RE.sub(rob_lit, body, count=1)
+    if new_body == body:
+        # No rob field at all — don't insert (it's not in this block schema).
+        return body, False
+    # Upsert robSource. Place it right after rob: [...] when present.
+    src_lit = f"robSource: '{src.replace(chr(39), chr(8217))}'"
+    if "robSource:" in new_body:
+        new_body = ROBSRC_RE.sub(src_lit + ", ", new_body, count=1)
+    else:
+        # Insert after the closing ] of rob: [...]
+        new_body = re.sub(
+            r"(rob:\s*\[[^\]]*\]\s*,?)",
+            lambda m: m.group(1) + " " + src_lit + ",",
+            new_body,
+            count=1,
+        )
+    return new_body, new_body != body
+
+
+def patch_file(p: Path) -> tuple[int, int]:
+    txt = p.read_text(encoding="utf-8", errors="replace")
+    orig = txt
+    n_changed = n_trials = 0
+    out = []
+    last = 0
+    for m in TRIAL_BLOCK_RE.finditer(txt):
+        n_trials += 1
+        new_body, changed = patch_trial(m.group(1), m.group("body"))
+        if changed:
+            out.append(txt[last:m.start()])
+            out.append(f"'{m.group(1)}': {{{new_body}}}")
+            last = m.end()
+            n_changed += 1
+    out.append(txt[last:])
+    new_txt = "".join(out)
+    if new_txt != orig:
+        p.write_text(new_txt, encoding="utf-8")
+    return n_changed, n_trials
+
+
+def main():
+    targets = sorted(p for p in HERE.glob("*.html") if p.is_file())
+    print(f"Targets: {len(targets):,} HTML files")
+    tot_changed = tot_trials = files_changed = 0
+    for i, p in enumerate(targets, 1):
+        n_c, n_t = patch_file(p)
+        if n_c:
+            files_changed += 1
+        tot_changed += n_c
+        tot_trials += n_t
+        if i % 300 == 0:
+            print(f"  [{i}/{len(targets)}] {p.name}: trials_with_rob_updated={n_c} trial_blocks={n_t}")
+    print(f"\nFiles changed: {files_changed:,}")
+    print(f"Trial blocks scanned: {tot_trials:,}")
+    print(f"Trial RoB arrays updated: {tot_changed:,}")
+
+
+if __name__ == "__main__":
+    main()
+
+codex
+I’ll ground this on the pasted module and only use the local file to confirm line numbers, not to infer missing context.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=1; Get-Content -Path .'"\\scripts\\enrich_trials_with_aact_design.py | ForEach-Object { '{0,4}: {1}' -f "'$i, $_; $i++ }' in F:\rapidmeta-ssot-shell
+ succeeded in 1538ms:
+   1: """Apply AACT design metadata as an RoB-2 heuristic across the portfolio.
+   2: 
+   3: For each `'NCT...': { ... }` trial block in every *_FULL_REVIEW.html (and the
+   4: fewer *_REVIEW.html / *_AUTO_REVIEW.html that use the same shape):
+   5: 
+   6:   rob: ['low','low','low','low','low']   <-- stubbed, every trial. unscientific.
+   7: 
+   8: We replace it with a heuristic derived from AACT designs.txt:
+   9: 
+  10:   D1 Randomization process
+  11:     allocation == 'RANDOMIZED'     -> 'low'
+  12:     allocation == 'NON_RANDOMIZED' -> 'high'
+  13:     else (NA / blank)              -> 'some-concerns'
+  14: 
+  15:   D2 Deviations from intended interventions
+  16:     masking in (QUADRUPLE, TRIPLE) -> 'low'
+  17:     masking == DOUBLE              -> 'low'
+  18:     masking == SINGLE              -> 'some-concerns'
+  19:     masking == NONE                -> 'high'
+  20:     else                           -> 'some-concerns'
+  21: 
+  22:   D3 Missing outcome data
+  23:     Cannot infer from AACT alone   -> 'some-concerns' (conservative default)
+  24: 
+  25:   D4 Outcome measurement
+  26:     outcomes_assessor_masked == 'true'             -> 'low'
+  27:     masking in (QUADRUPLE,TRIPLE,DOUBLE)           -> 'low'
+  28:     masking == SINGLE                              -> 'some-concerns'
+  29:     masking == NONE                                -> 'high'
+  30:     else                                           -> 'some-concerns'
+  31: 
+  32:   D5 Selection of reported result
+  33:     Always 'some-concerns' (cannot judge from registry alone â€” needs
+  34:     cross-check with published primary outcome).
+  35: 
+  36: This is honestly labelled in a new comment field added to each trial:
+  37:   robSource: 'AACT 2026-04-12 designs.txt heuristic (registry-derived, not
+  38:               a full RoB-2 reading of trial reports)'
+  39: 
+  40: Sentinel-style note: the JS object literal can carry hyphens like 'some-concerns'
+  41: in a single-quoted string, which the analysis engine's RoB chip renderer
+  42: already handles (it maps low/some-concerns/high -> green/amber/red).
+  43: 
+  44: Idempotent: existing rob arrays of length 5 are replaced; the field
+  45: `robSource` is upserted.
+  46: """
+  47: from __future__ import annotations
+  48: import json
+  49: import re
+  50: import sys
+  51: import io
+  52: from pathlib import Path
+  53: 
+  54: if "pytest" not in sys.modules and hasattr(sys.stdout, "buffer"):
+  55:     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+  56: 
+  57: HERE = Path(__file__).resolve().parent.parent
+  58: DESIGN = json.loads((HERE / "outputs" / "pmid_resolver" / "nct_design.json").read_text(encoding="utf-8"))
+  59: 
+  60: TRIAL_BLOCK_RE = re.compile(
+  61:     r"'(NCT\d{7,8})':\s*\{(?P<body>(?:[^{}]|\{[^{}]*\}){0,4000})\}",
+  62:     re.DOTALL,
+  63: )
+  64: 
+  65: 
+  66: def rob_for(nct: str) -> tuple[list[str], str]:
+  67:     """Return (rob5, source_label)."""
+  68:     d = DESIGN.get(nct)
+  69:     if not d:
+  70:         return ["some-concerns"] * 5, "no AACT design record"
+  71: 
+  72:     alloc = d.get("allocation") or ""
+  73:     masking = d.get("masking") or ""
+  74:     assess = (d.get("outcomes_assessor_masked") or "").lower()
+  75: 
+  76:     # D1
+  77:     if alloc == "RANDOMIZED":
+  78:         d1 = "low"
+  79:     elif alloc == "NON_RANDOMIZED":
+  80:         d1 = "high"
+  81:     else:
+  82:         d1 = "some-concerns"
+  83: 
+  84:     # D2
+  85:     if masking in ("QUADRUPLE", "TRIPLE", "DOUBLE"):
+  86:         d2 = "low"
+  87:     elif masking == "SINGLE":
+  88:         d2 = "some-concerns"
+  89:     elif masking == "NONE":
+  90:         d2 = "high"
+  91:     else:
+  92:         d2 = "some-concerns"
+  93: 
+  94:     d3 = "some-concerns"  # can't infer from registry
+  95: 
+  96:     # D4
+  97:     if assess == "true":
+  98:         d4 = "low"
+  99:     elif masking in ("QUADRUPLE", "TRIPLE", "DOUBLE"):
+ 100:         d4 = "low"
+ 101:     elif masking == "SINGLE":
+ 102:         d4 = "some-concerns"
+ 103:     elif masking == "NONE":
+ 104:         d4 = "high"
+ 105:     else:
+ 106:         d4 = "some-concerns"
+ 107: 
+ 108:     d5 = "some-concerns"
+ 109: 
+ 110:     src = f"AACT designs: alloc={alloc or 'âˆ…'}, masking={masking or 'âˆ…'}, assessor_masked={assess or 'âˆ…'}"
+ 111:     return [d1, d2, d3, d4, d5], src
+ 112: 
+ 113: 
+ 114: ROB_RE = re.compile(r"rob:\s*\[(?P<inner>[^\]]*)\]")
+ 115: ROBSRC_RE = re.compile(r"robSource:\s*'[^']*'\s*,?")
+ 116: 
+ 117: 
+ 118: def patch_trial(nct: str, body: str) -> tuple[str, bool]:
+ 119:     rob5, src = rob_for(nct)
+ 120:     rob_lit = "rob: [" + ", ".join(f"'{r}'" for r in rob5) + "]"
+ 121:     new_body = ROB_RE.sub(rob_lit, body, count=1)
+ 122:     if new_body == body:
+ 123:         # No rob field at all â€” don't insert (it's not in this block schema).
+ 124:         return body, False
+ 125:     # Upsert robSource. Place it right after rob: [...] when present.
+ 126:     src_lit = f"robSource: '{src.replace(chr(39), chr(8217))}'"
+ 127:     if "robSource:" in new_body:
+ 128:         new_body = ROBSRC_RE.sub(src_lit + ", ", new_body, count=1)
+ 129:     else:
+ 130:         # Insert after the closing ] of rob: [...]
+ 131:         new_body = re.sub(
+ 132:             r"(rob:\s*\[[^\]]*\]\s*,?)",
+ 133:             lambda m: m.group(1) + " " + src_lit + ",",
+ 134:             new_body,
+ 135:             count=1,
+ 136:         )
+ 137:     return new_body, new_body != body
+ 138: 
+ 139: 
+ 140: def patch_file(p: Path) -> tuple[int, int]:
+ 141:     txt = p.read_text(encoding="utf-8", errors="replace")
+ 142:     orig = txt
+ 143:     n_changed = n_trials = 0
+ 144:     out = []
+ 145:     last = 0
+ 146:     for m in TRIAL_BLOCK_RE.finditer(txt):
+ 147:         n_trials += 1
+ 148:         new_body, changed = patch_trial(m.group(1), m.group("body"))
+ 149:         if changed:
+ 150:             out.append(txt[last:m.start()])
+ 151:             out.append(f"'{m.group(1)}': {{{new_body}}}")
+ 152:             last = m.end()
+ 153:             n_changed += 1
+ 154:     out.append(txt[last:])
+ 155:     new_txt = "".join(out)
+ 156:     if new_txt != orig:
+ 157:         p.write_text(new_txt, encoding="utf-8")
+ 158:     return n_changed, n_trials
+ 159: 
+ 160: 
+ 161: def main():
+ 162:     targets = sorted(p for p in HERE.glob("*.html") if p.is_file())
+ 163:     print(f"Targets: {len(targets):,} HTML files")
+ 164:     tot_changed = tot_trials = files_changed = 0
+ 165:     for i, p in enumerate(targets, 1):
+ 166:         n_c, n_t = patch_file(p)
+ 167:         if n_c:
+ 168:             files_changed += 1
+ 169:         tot_changed += n_c
+ 170:         tot_trials += n_t
+ 171:         if i % 300 == 0:
+ 172:             print(f"  [{i}/{len(targets)}] {p.name}: trials_with_rob_updated={n_c} trial_blocks={n_t}")
+ 173:     print(f"\nFiles changed: {files_changed:,}")
+ 174:     print(f"Trial blocks scanned: {tot_trials:,}")
+ 175:     print(f"Trial RoB arrays updated: {tot_changed:,}")
+ 176: 
+ 177: 
+ 178: if __name__ == "__main__":
+ 179:     main()
+
+codex
+- **Idempotency guard satisfied by result text**: line 122.  
+  Exact input: `DESIGN={"NCT12345678":{"allocation":"","masking":"","outcomes_assessor_masked":""}}`; call `patch_trial("NCT12345678", "rob: ['some-concerns', 'some-concerns', 'some-concerns', 'some-concerns', 'some-concerns'], title: 'x'")`.  
+  Consequence: it returns `(body, False)` and never inserts `robSource`, despite the stated upsert contract.
+
+- **Idempotency guard satisfied by comment/marker**: line 127.  
+  Exact input: `DESIGN={"NCT12345678":{"allocation":"NON_RANDOMIZED","masking":"NONE","outcomes_assessor_masked":""}}`; call `patch_trial("NCT12345678", "rob: ['low','low','low','low','low'], // robSource: todo\nlabel: 'x'")`.  
+  Consequence: the comment makes `"robSource:" in new_body` true, but `ROBSRC_RE` does not replace it, so no real `robSource` field is inserted.
+
+- **Selector keyed too loosely**: line 114.  
+  Exact input: `DESIGN={}`; call `patch_trial("NCT99999999", "prob: [0.91], title: 'x'")`.  
+  Consequence: `ROB_RE` matches the `rob:` substring inside `prob:`, corrupting `prob` and inserting `robSource` even though no `rob` field exists.
+
+COULD NOT DETERMINE actual corpus-form selector misses, different-copy reads, CRLF/LF comparison defects, merged-cell/off-by-one defects, zero-vs-absent data loss, negation drops, or wrapper status-code defects without the HTML corpus, `outputs/pmid_resolver/nct_design.json`, and the caller/CI command.
+tokens used
+18,087
+- **Idempotency guard satisfied by result text**: line 122.  
+  Exact input: `DESIGN={"NCT12345678":{"allocation":"","masking":"","outcomes_assessor_masked":""}}`; call `patch_trial("NCT12345678", "rob: ['some-concerns', 'some-concerns', 'some-concerns', 'some-concerns', 'some-concerns'], title: 'x'")`.  
+  Consequence: it returns `(body, False)` and never inserts `robSource`, despite the stated upsert contract.
+
+- **Idempotency guard satisfied by comment/marker**: line 127.  
+  Exact input: `DESIGN={"NCT12345678":{"allocation":"NON_RANDOMIZED","masking":"NONE","outcomes_assessor_masked":""}}`; call `patch_trial("NCT12345678", "rob: ['low','low','low','low','low'], // robSource: todo\nlabel: 'x'")`.  
+  Consequence: the comment makes `"robSource:" in new_body` true, but `ROBSRC_RE` does not replace it, so no real `robSource` field is inserted.
+
+- **Selector keyed too loosely**: line 114.  
+  Exact input: `DESIGN={}`; call `patch_trial("NCT99999999", "prob: [0.91], title: 'x'")`.  
+  Consequence: `ROB_RE` matches the `rob:` substring inside `prob:`, corrupting `prob` and inserting `robSource` even though no `rob` field exists.
+
+COULD NOT DETERMINE actual corpus-form selector misses, different-copy reads, CRLF/LF comparison defects, merged-cell/off-by-one defects, zero-vs-absent data loss, negation drops, or wrapper status-code defects without the HTML corpus, `outputs/pmid_resolver/nct_design.json`, and the caller/CI command.

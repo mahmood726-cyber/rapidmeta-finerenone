@@ -1,0 +1,671 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a0316a-0002-7eb0-a9b1-20f1cc5f02a6
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/build_mdrtb_bpal_app.py
+
+--- THE FILE, IN FULL ---
+"""Customize the SGLT2_HF clone (MDRTB_BPAL_REVIEW.html) for MDR-TB BPaL/BPaLM topic.
+
+Replaces in stages:
+  1. <title> tag
+  2. AUTO_INCLUDE_TRIAL_IDS
+  3. nctAcronyms map
+  4. protocol PICO declaration
+  5. realData (3 trials: Nix-TB, ZeNix, TB-PRACTECAL)
+  6. Headline drug-name and disease-name swaps in the most user-visible places
+
+Leftover SGLT2/heart-failure references in the dashboard scaffold (legend
+text, RoB justifications, NMA endpoint definitions) are documented as known
+limitations needing follow-up polish — this is the "first-pass exemplar"
+build per the topic spec, not the final polished app.
+"""
+from __future__ import annotations
+import re
+import sys
+from pathlib import Path
+
+FILE = Path("MDRTB_BPAL_REVIEW.html")
+
+# ---- 1. <title> ----
+OLD_TITLE = "<title>RapidMeta Cardiology | SGLT2-HF Ultra-Precision v12.0</title>"
+NEW_TITLE = "<title>RapidMeta TB | MDR-TB BPaL / BPaLM Review v0.1</title>"
+
+# ---- 2. AUTO_INCLUDE_TRIAL_IDS ----
+OLD_AUTO = "const AUTO_INCLUDE_TRIAL_IDS = new Set(['NCT03036124', 'NCT03057977', 'NCT03057951', 'NCT03619213', 'NCT03521934']);"
+NEW_AUTO = "const AUTO_INCLUDE_TRIAL_IDS = new Set(['NCT02333799', 'NCT03086486', 'NCT02589782']);"
+
+# ---- 3. protocol ----
+OLD_PROTO = "protocol: { pop: 'Adults with heart failure across ejection fraction spectrum', int: 'SGLT2 or dual SGLT1/2 inhibitor therapy (dapagliflozin, empagliflozin, or sotagliflozin)', comp: 'Placebo + guideline-directed therapy', out: 'CV Death or Worsening Heart Failure Composite', subgroup: 'EF phenotype (HFrEF vs HFpEF), drug class member, diabetes status', query: '', rctOnly: true, post2015: true },"
+NEW_PROTO = "protocol: { pop: 'Adults aged 14+ with multidrug-resistant or pre-XDR/XDR pulmonary tuberculosis (sub-Saharan African enrolment dominant; Nix-TB and ZeNix were South Africa-only, TB-PRACTECAL added Belarus and Uzbekistan)', int: 'Bedaquiline + pretomanid + linezolid (BPaL) or BPaL + moxifloxacin (BPaLM), 24-26 weeks oral', comp: 'WHO-recommended longer regimens (typically 9-24 months including injectable agents) for TB-PRACTECAL; no comparator for Nix-TB or ZeNix (single-arm efficacy + LZD dose comparison)', out: 'Favorable / unfavorable treatment outcome at end-of-treatment + 6 to 24-month follow-up; primary published as proportion with unfavorable outcome (composite of bacteriologic failure, relapse, clinical failure, treatment-limiting toxicity, death, or loss to follow-up)', subgroup: 'HIV co-infection, baseline drug-resistance pattern (MDR vs pre-XDR vs XDR), linezolid dose/duration', query: '', rctOnly: true, post2015: true },"
+
+# ---- 4. nctAcronyms ----
+OLD_ACRO = """nctAcronyms: {
+
+
+                'NCT03036124': 'DAPA-HF',
+
+
+                'NCT03057977': 'EMPEROR-Reduced',
+
+
+                'NCT03057951': 'EMPEROR-Preserved',
+
+
+                'NCT03619213': 'DELIVER',
+
+
+                'NCT03521934': 'SOLOIST-WHF'
+
+
+            }"""
+NEW_ACRO = """nctAcronyms: {
+
+
+                'NCT02333799': 'Nix-TB',
+
+
+                'NCT03086486': 'ZeNix',
+
+
+                'NCT02589782': 'TB-PRACTECAL'
+
+
+            }"""
+
+
+# ---- 5. realData — surgical replace via marker fenceposts ----
+# We replace the entire realData object literal contents. Find the start
+# `realData: {` and end `},\n\n\n            // Auto-include` or similar.
+# Safer: identify the `realData: {` and the closing brace before the next
+# top-level RapidMeta property. We'll do a regex.
+
+NEW_REAL_DATA_BODY = """
+
+                // ============================================================
+                // Nix-TB — Phase 3 single-arm BPaL (XDR-TB / MDR-TB
+                // intolerant or non-responsive). Conradie JS et al.
+                // NEJM 2020;382:893-902 (PMID 32130813). South Africa
+                // sites only (Brooklyn Chest, King DinuZulu, Sizwe).
+                // ============================================================
+
+                'NCT02333799': {
+
+
+                    name: 'Nix-TB', pmid: '32130813', phase: 'III', year: 2020, tE: 11, tN: 109, cE: null, cN: null, group: 'BPaL (bedaquiline + pretomanid + linezolid) — single-arm cohort. tE=11 unfavorable outcomes / tN=109 mITT at 6-month post-treatment follow-up; 98/109 (90%) favorable outcome. NO comparator arm — descriptive only. Conradie JS et al. NEJM 2020 (DOI 10.1056/NEJMoa1901814). Linezolid 1200 mg×6 mo with frequent peripheral neuropathy and myelosuppression motivating ZeNix dose-finding follow-up.',
+
+
+                    allOutcomes: [
+
+
+                        { shortLabel: 'UNFAV', title: 'Unfavorable outcome at 6 mo post-EOT (failure, relapse, clinical failure, death, LTFU)', tE: 11, cE: null, type: 'PRIMARY', matchScore: 100, effect: null, lci: null, uci: null, estimandType: 'PROPORTION' }
+
+
+                    ],
+
+
+                    rob: ['some', 'some', 'low', 'low', 'low'],
+
+
+                    snippet: 'Source: Conradie JS et al. Treatment of highly drug-resistant pulmonary tuberculosis. NEJM 2020;382:893-902. PMID 32130813. DOI 10.1056/NEJMoa1901814.',
+
+
+                    sourceUrl: 'https://www.nejm.org/doi/full/10.1056/NEJMoa1901814',
+
+
+                    ctgovUrl: 'https://clinicaltrials.gov/study/NCT02333799',
+
+
+                    evidence: [
+
+
+                        { label: 'Enrollment', source: 'Conradie 2020 NEJM, CONSORT', text: '109 adults aged 14+ with pulmonary XDR-TB (n=71) or MDR-TB intolerant/non-responsive (n=38) enrolled at 3 South African sites (Brooklyn Chest Hospital, King DinuZulu, Sizwe Tropical Disease Hospital) between 2015-2017. Open-label single-arm BPaL: bedaquiline 400 mg daily ×2 wk then 200 mg 3×/wk, pretomanid 200 mg daily, linezolid 1200 mg daily (with mandatory dose reduction to 600 mg or interruption for AEs), all for 26 weeks (option to extend to 39 weeks if culture-positive at week 16).', highlights: ['109', 'XDR-TB', '71', 'MDR-TB', '38', 'open-label', 'single-arm', 'BPaL', 'South Africa'] },
+
+
+                        { label: 'Primary outcome', source: 'Conradie 2020 NEJM, primary endpoint', text: '98/109 (90%, 95% CI 83-95%) had a favorable outcome (cure, defined as bacteriologic cure plus 6 months of follow-up without relapse) by 6 months after end of treatment. Unfavorable n=11: 7 deaths during treatment, 1 withdrawn, 2 bacteriologic failures (relapse), 1 protocol-deviation. By 24-month follow-up, an additional 2 relapses observed; durable favorable outcome 96/109 (88%).', highlights: ['98', '90%', '83', '95%', '11', '7 deaths', '88%'] },
+
+
+                        { label: 'Safety — peripheral neuropathy + myelosuppression', source: 'Conradie 2020 NEJM, safety table', text: 'Peripheral neuropathy 81% (88/109) — Grade 3+ in 11 patients; led to linezolid dose modification or interruption in 87 patients. Myelosuppression 48% (anemia, thrombocytopenia, neutropenia). Optic neuropathy 13% — 9 patients had vision impairment leading to LZD discontinuation. Hepatic AEs 19%. QTcF prolongation modest (mean +12 ms at week 16) — no episodes >500 ms. AE-driven LZD modification motivated ZeNix dose-finding successor.', highlights: ['81%', '88', 'peripheral neuropathy', '48%', 'myelosuppression', '13%', 'optic neuropathy', '+12 ms'] },
+
+
+                        { label: 'Risk of Bias (RoB 2.0)', source: 'Conradie 2020 design + RoB 2.0', text: 'D1 SOME concerns - single-arm cohort, no randomization (efficacy inference depends on historical comparator). D2 SOME concerns - open-label by necessity. D3 LOW - 100% follow-up at 6-mo primary, 96% at 24-mo. D4 LOW - bacteriologic outcome via standardized culture. D5 LOW - SAP locked, all pre-specified outcomes reported. Single-arm design is the dominant bias source.', highlights: ['SOME', 'single-arm', 'open-label', '100%', 'LOW', 'standardized culture'] }
+
+
+                    ]
+
+
+                },
+
+
+                // ============================================================
+                // ZeNix — Phase 3 partially-blinded RCT, 4 BPaL arms with
+                // varying linezolid dose (1200 mg vs 600 mg) × duration
+                // (26 wk vs 9 wk). Conradie 2022 NEJM (PMID 36099496).
+                // South Africa + Russia + Moldova + Georgia sites.
+                // For this app: contrast LZD-1200×26 vs LZD-600×26 as
+                // the headline pairwise (the dose-finding question).
+                // ============================================================
+
+                'NCT03086486': {
+
+
+                    name: 'ZeNix', pmid: '36099496', phase: 'III', year: 2022, tE: 8, tN: 45, cE: 5, cN: 46, group: 'ZeNix LZD dose comparison. tE=8 unfavorable (LZD 1200 mg ×26 wk, n=45). cE=5 unfavorable (LZD 600 mg ×26 wk, n=46) — selected as the pairwise comparator (best efficacy at lowest LZD-AE burden). Two other arms (1200×9 wk and 600×9 wk) excluded from this contrast for clarity. mITT 6-month post-EOT. Conradie F et al. NEJM 2022;387:810-823 (DOI 10.1056/NEJMoa2119430).',
+
+
+                    allOutcomes: [
+
+
+                        { shortLabel: 'UNFAV', title: 'Unfavorable outcome at 6 mo post-EOT, LZD 1200×26 vs LZD 600×26', tE: 8, cE: 5, type: 'PRIMARY', matchScore: 95, effect: 1.64, lci: 0.58, uci: 4.69, estimandType: 'RR' },
+
+
+                        { shortLabel: 'NEURO', title: 'Treatment-emergent peripheral neuropathy event rate', tE: 17, cE: 11, type: 'SAFETY', matchScore: 75, effect: 1.59, lci: 0.84, uci: 3.01, estimandType: 'RR' }
+
+
+                    ],
+
+
+                    rob: ['low', 'low', 'low', 'low', 'low'],
+
+
+                    snippet: 'Source: Conradie F et al. Bedaquiline-pretomanid-linezolid regimens for drug-resistant tuberculosis. NEJM 2022;387:810-823. PMID 36099496. DOI 10.1056/NEJMoa2119430.',
+
+
+                    sourceUrl: 'https://www.nejm.org/doi/full/10.1056/NEJMoa2119430',
+
+
+                    ctgovUrl: 'https://clinicaltrials.gov/study/NCT03086486',
+
+
+                    evidence: [
+
+
+                        { label: 'Enrollment', source: 'Conradie 2022 NEJM, CONSORT', text: '181 adults with pulmonary XDR-TB, pre-XDR-TB, or treatment-intolerant/non-responsive MDR-TB enrolled at 11 sites in South Africa, Russia, Moldova, Georgia. Randomized 1:1:1:1 to 4 BPaL arms differing in linezolid: 1200 mg ×26 wk (n=45), 1200 mg ×9 wk (n=45), 600 mg ×26 wk (n=46), 600 mg ×9 wk (n=45). Bedaquiline + pretomanid identical across arms. mITT 6-month post-EOT.', highlights: ['181', '4 BPaL arms', '1200 mg', '600 mg', '26 wk', '9 wk', 'XDR-TB', 'pre-XDR-TB'] },
+
+
+                        { label: 'Primary outcome (LZD 600×26 vs 1200×26)', source: 'Conradie 2022 NEJM, primary contrast', text: 'Favorable outcome at 6-mo post-EOT: LZD 1200×26 84% (37/45), LZD 600×26 91% (41/46), LZD 1200×9 84% (38/45), LZD 600×9 84% (38/45). All four BPaL arms met the pre-specified favorable threshold. LZD 600×26 had the highest favorable rate AND the lowest peripheral neuropathy rate (24% vs 38% at 1200 mg) — established as the recommended dose. RR for unfavorable LZD 600×26 vs 1200×26 = 0.61 (95% CI 0.21-1.71); difference not significant but trend favorable for lower dose.', highlights: ['84%', '91%', '37', '41', 'LZD 600×26', '24%', '38%', 'peripheral neuropathy'] },
+
+
+                        { label: 'Safety — LZD dose-driven neuropathy/myelosuppression', source: 'Conradie 2022 NEJM, safety table', text: 'Peripheral neuropathy 38% at LZD 1200 vs 24% at LZD 600 (RR 0.63, 95% CI 0.36-1.10). Myelosuppression 22% at 1200 vs 2% at 600. Optic neuropathy 9% at 1200 vs 2% at 600. Establishing 600 mg LZD ×26 wk as the preferred BPaL backbone. No deaths attributable to study drug; QTc-prolongation rare across arms.', highlights: ['38%', '24%', '22%', '2%', '9%', 'optic neuropathy'] },
+
+
+                        { label: 'Risk of Bias (RoB 2.0)', source: 'Conradie 2022 design + RoB 2.0', text: 'D1 LOW - central IXRS randomization 1:1:1:1, stratified by HIV status and TB type. D2 LOW - linezolid dose+duration double-blind; bedaquiline+pretomanid open-label per protocol design. D3 LOW - 95%+ primary follow-up. D4 LOW - bacteriologic outcomes via central reading. D5 LOW - SAP locked.', highlights: ['LOW', 'central IXRS', 'double-blind', '95%', 'central reading'] }
+
+
+                    ]
+
+
+                },
+
+
+                // ============================================================
+                // TB-PRACTECAL — Phase 2/3 RCT, BPaLM vs WHO standard
+                // of care. Nyang'wa BT et al. NEJM 2022;387:2331-2343
+                // (PMID 36342063). South Africa + Belarus + Uzbekistan.
+                // Stage 2 mITT BPaLM (24 wk) vs SOC (9-24 mo) is the
+                // primary head-to-head head-line of this app.
+                // ============================================================
+
+                'NCT02589782': {
+
+
+                    name: 'TB-PRACTECAL', pmid: '36342063', phase: 'III', year: 2022, tE: 15, tN: 138, cE: 66, cN: 137, group: 'TB-PRACTECAL stage 2 mITT contrast — BPaLM (bedaquiline + pretomanid + linezolid + moxifloxacin, 24 weeks) vs locally accepted WHO-recommended longer regimen (typically 9-24 months including a fluoroquinolone and historically an injectable). tE=15 unfavorable BPaLM, cE=66 unfavorable SOC. mITT denominators per Nyang\\u2019wa BT et al. NEJM 2022 primary analysis. RR 0.23 (95% CI 0.15-0.36) for unfavorable; non-inferiority and superiority both met. WHO-conditional preferred regimen 2022.',
+
+
+                    allOutcomes: [
+
+
+                        { shortLabel: 'UNFAV', title: 'Unfavorable outcome at 72 weeks post-randomization, BPaLM vs SOC', tE: 15, cE: 66, type: 'PRIMARY', matchScore: 100, effect: 0.23, lci: 0.15, uci: 0.36, estimandType: 'RR' },
+
+
+                        { shortLabel: 'CULT_CONV', title: 'Culture conversion at 8 weeks (stage-1 efficacy proxy)', tE: 109, cE: 70, type: 'SECONDARY', matchScore: 80, effect: 1.58, lci: 1.32, uci: 1.89, estimandType: 'RR' },
+
+
+                        { shortLabel: 'GRADE3+', title: 'Grade \\u22653 adverse events through end of treatment', tE: 26, cE: 78, type: 'SAFETY', matchScore: 70, effect: 0.34, lci: 0.23, uci: 0.51, estimandType: 'RR' }
+
+
+                    ],
+
+
+                    rob: ['low', 'low', 'low', 'low', 'low'],
+
+
+                    snippet: 'Source: Nyang\\u2019wa BT et al. A 24-week, all-oral regimen for rifampin-resistant tuberculosis. NEJM 2022;387:2331-2343. PMID 36342063. DOI 10.1056/NEJMoa2117166.',
+
+
+                    sourceUrl: 'https://www.nejm.org/doi/full/10.1056/NEJMoa2117166',
+
+
+                    ctgovUrl: 'https://clinicaltrials.gov/study/NCT02589782',
+
+
+                    evidence: [
+
+
+                        { label: 'Enrollment', source: 'Nyang\\u2019wa 2022 NEJM, CONSORT', text: '552 adults aged 15+ with pulmonary rifampin-resistant TB enrolled at 7 sites (South Africa, Belarus, Uzbekistan). Open-label multi-arm RCT in two stages: stage 1 (n=240) selected BPaLM (bedaquiline + pretomanid + linezolid + moxifloxacin, 24 wk) for stage 2; stage 2 randomized 275 to BPaLM (n=138) or locally-accepted WHO-recommended longer regimen SOC (n=137). mITT for the stage 2 primary. HIV-positive 17%, baseline cavitary disease 81%.', highlights: ['552', 'stage 1', 'stage 2', '275', 'BPaLM', '138', 'SOC', '137', '24 weeks', 'HIV', 'rifampin-resistant'] },
+
+
+                        { label: 'Primary outcome — favorable vs unfavorable at week 72', source: 'Nyang\\u2019wa 2022 NEJM, primary endpoint', text: 'Stage-2 mITT: BPaLM unfavorable 15/138 (11%) vs SOC 66/137 (48%). Risk difference -37 percentage points (95% CI -47 to -25). RR 0.23 (95% CI 0.15-0.36; P<0.001 for non-inferiority and superiority). Per-protocol consistent. Pre-specified composite of: bacteriologic failure, relapse, treatment-discontinuation, loss-to-follow-up, or death. BPaLM drove the WHO-conditional preferred-regimen recommendation in 2022 for adults with pulmonary MDR/RR-TB.', highlights: ['11%', '15', '138', '48%', '66', '137', '-37', 'RR 0.23', '0.15', '0.36', 'P<0.001', 'WHO'] },
+
+
+                        { label: 'Safety — Grade 3+ AEs and treatment discontinuation', source: 'Nyang\\u2019wa 2022 NEJM, safety table', text: 'Grade-3+ AEs through end of treatment: BPaLM 19% (26/138) vs SOC 57% (78/137); RR 0.34 (95% CI 0.23-0.51). Treatment-emergent SAEs: BPaLM 24%, SOC 53%. Discontinuation due to AEs: BPaLM 8%, SOC 32%. QTcF >500 ms: BPaLM 1.4%, SOC 0% (small absolute excess offset by overall safety advantage). Hearing loss (injectable-driven in SOC): BPaLM 0%, SOC 19%.', highlights: ['19%', '57%', 'RR 0.34', '24%', '53%', '8%', '32%', 'hearing loss', '19%', 'QTcF'] },
+
+
+                        { label: 'Risk of Bias (RoB 2.0)', source: 'Nyang\\u2019wa 2022 design + RoB 2.0', text: 'D1 LOW - central randomization, stratified by HIV status and country. D2 LOW - open-label by necessity (regimens visibly different) but objective outcomes. D3 LOW - 96% primary follow-up at 72 weeks. D4 LOW - independent endpoint adjudication, central bacteriology. D5 LOW - SAP locked, all pre-specified endpoints reported. Open-label-but-objective-outcome dominant residual bias.', highlights: ['LOW', 'central randomization', 'open-label', '96%', 'central bacteriology'] }
+
+
+                    ]
+
+
+                }
+
+            }"""
+
+
+def main() -> int:
+    if not FILE.exists():
+        print(f"ERROR: {FILE} not found. Did you `cp SGLT2_HF_REVIEW.html MDRTB_BPAL_REVIEW.html` first?", file=sys.stderr)
+        return 1
+    text = FILE.read_text(encoding="utf-8")
+
+    edits = []
+
+    # 1. title
+    if OLD_TITLE in text:
+        text = text.replace(OLD_TITLE, NEW_TITLE, 1)
+        edits.append("title")
+
+    # 2. AUTO_INCLUDE_TRIAL_IDS
+    if OLD_AUTO in text:
+        text = text.replace(OLD_AUTO, NEW_AUTO, 1)
+        edits.append("AUTO_INCLUDE_TRIAL_IDS")
+
+    # 3. protocol
+    if OLD_PROTO in text:
+        text = text.replace(OLD_PROTO, NEW_PROTO, 1)
+        edits.append("protocol")
+
+    # 4. nctAcronyms
+    if OLD_ACRO in text:
+        text = text.replace(OLD_ACRO, NEW_ACRO, 1)
+        edits.append("nctAcronyms")
+
+    # 5. realData — surgical: replace contents of `realData: { ... }` with our new entries.
+    # Use a regex to find the realData object body and replace with new content.
+    # Find the body between `realData: {` and the outer closing `},`
+    # before `// Trials we want to auto-include` or similar marker.
+    # The realData block is large, we need to find its end carefully.
+
+    real_data_marker = "realData: {"
+    start = text.find(real_data_marker)
+    if start < 0:
+        print("ERROR: realData not found", file=sys.stderr)
+        return 1
+    # Walk braces from `realData: {` to find the matching close brace.
+    body_start = text.find("{", start)
+    depth = 0
+    i = body_start
+    while i < len(text):
+        c = text[i]
+        if c == "{":
+            depth += 1
+        elif c == "}":
+            depth -= 1
+            if depth == 0:
+                body_end = i
+                break
+        i += 1
+    else:
+        print("ERROR: could not find realData closing brace", file=sys.stderr)
+        return 1
+
+    # Replace [body_start..body_end] with `{` + NEW_REAL_DATA_BODY + closing already in NEW
+    # NEW_REAL_DATA_BODY ends with closing }, so we need to overwrite [body_start..body_end+1]
+    text = text[: body_start] + NEW_REAL_DATA_BODY + text[body_end + 1 :]
+    edits.append("realData")
+
+    FILE.write_text(text, encoding="utf-8")
+    print(f"Edits applied: {', '.join(edits) if edits else '(none — already done?)'}")
+    print(f"File size: {FILE.stat().st_size:,} bytes")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+
+codex
+I’ll stay inside the pasted packet and only call out defects that can be demonstrated from it. I’m using the local file only to verify line numbers against the provided module name.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$p='"'F:\\ProjectIndex\\INDEX.md'; if (Test-Path -LiteralPath "'$p) { Get-Content -LiteralPath $p -TotalCount 20 } else { '"'MISSING F:\\ProjectIndex\\INDEX.md' }" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$p='"'F:\\E156\\rewrite-workbook.txt'; if (Test-Path -LiteralPath "'$p) { Get-Content -LiteralPath $p -TotalCount 20 } else { '"'MISSING F:\\E156\\rewrite-workbook.txt' }" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$p='"'scripts/build_mdrtb_bpal_app.py'; if (Test-Path -LiteralPath "'$p) { $i=1; Get-Content -LiteralPath $p | ForEach-Object { '"'{0,4}: {1}' -f "'$i,$_ ; $i++ } | Select-Object -Index 20..35,265..320 } else { '"'MISSING scripts/build_mdrtb_bpal_app.py' }" in F:\rapidmeta-ssot-shell
+ succeeded in 1925ms:
+E156 REWRITE WORKBOOK
+sentinel:skip-file
+sentinel:claim-language-allow
+(Sentinel markers above:
+ - sentinel:skip-file: this workbook intentionally contains C:\Users\... PATH:
+   lines pointing to each project's local source directory â€” they're metadata,
+   not code. The marker keeps Sentinel from emitting ~16 P0 hardcoded-path
+   BLOCKs every push.
+ - sentinel:claim-language-allow: CURRENT BODY entries are the AI-drafted
+   summaries that students rewrite into hedged language â€” flagging overclaim
+   words IN those drafts is the whole pedagogical point, not a defect.
+   File-scope marker here suppresses the ~1293 claim-language WARNs on the
+   CURRENT BODY entries; the YOUR REWRITE entries are where the hedging
+   discipline matters and remains lintable in the rendered student board.)
+
+DENOMINATOR CONVENTION (added 2026-05-06 after review-findings P1-5):
+  Each entry header is `[N/total]` where N = ordinal insertion index and
+  `total` = current portfolio size as of the most recent reconcile sweep.
+  Older entries are back-rewritten on milestone boundaries (rather than
+  preserving their insertion-time denominator) to keep
+
+ succeeded in 1977ms:
+<!-- sentinel:skip-file - portfolio registry; absolute paths ARE the data -->
+# C: Drive Project Index
+> **Last updated**: 2026-05-14 (C:\HTML apps focused repair batch continued: hub shell launch fix, static contracts across ten HTML app repos, NMA/living-meta/nma-dose-response landing and asset-link repairs, and NMA doc hardcoded-path cleanup. Prior SheafNMA v0.2.0, D-drive legacy smoke-contract continuation, CardioOracle lifecycle status freeze, C-drive model/project smoke-contract continuation, mahmood789 consolidation, Sentinel/Overmind JSONL and verification repair, C-drive reproducibility audit continuation, C-drive verification repair, D-drive repair batch, superapp, C-drive sweep, home-folder hardening, Trial Truthfulness Atlas, and portfolio notes retained below.)
+
+### C:\HTML apps focused repair batch (2026-05-14)
+> - `C:\HTML apps\hub\`: added a launchable `index.html` shell and static contract tests for required registry/runtime wiring; fixed `app.js` local `file://` launch resolution so the hub opened from `hub\index.html` links sibling apps from the parent HTML-apps directory instead of nesting paths under `hub`. Verification: `pytest -q -p no:cacheprovider` -> `3 passed`; `node --check app.js && node --check projects.js` -> PASS; headless Chrome smoke on `file:///mnt/c/HTML%20apps/hub/index.html` confirmed the page title and sibling app links. GitHub pushed: `mahmood726-cyber/hub` main `c1a6725`.
+> - `C:\HTML apps\evidence-board\`, `C:\HTML apps\focus-studio\`, `C:\HTML apps\kanban-lab\`: added pytest-visible static app shell contracts covering title/description, localStorage persistence hooks, key controls, and absence of unresolved templates or hardcoded local drive paths; added repo `.gitignore` entries for Python caches and `PROGRESS.md`. Verification: each `pytest -q -p no:cacheprovider` -> `2 passed` with the existing pytest `cache_dir` warning; scoped `git diff --check` -> PASS. GitHub pushed: `evidence-board` master `9a87c8b`, `focus-studio` master `0fa728b`, `kanban-lab` master `81cad38`.
+> - `C:\HTML apps\nma-pro-v2\`: fixed the landing page's broken app links from absent v6/v7 asset filenames to the current `e156-submission/assets/nma-pro-v8.0.html`, added static link-resolution contracts, and removed Sentinel P0 hardcoded local OneDrive paths from legacy docs. Verification: `pytest -q -p no:cacheprovider tests/test_smoke.py tests/test_static_links.py` -> `3 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=1 INFO=302` (pre-existing tracked autogen warning plus HTML a11y INFO). GitHub pushed: master `a2834e7` for the link fix and master `a74e385` for the P0 doc cleanup.
+> - `C:\HTML apps\IPD-Meta-Pro\` and `C:\HTML apps\Truthcert1\`: added static link-resolution contracts for landing-page local assets and canonical app entrypoints. Verification: `IPD-Meta-Pro` `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; `Truthcert1` same command -> `2 passed` with existing pytest `cache_dir` warning. GitHub pushed: `IPD-Meta-Pro` master `b26ee09`, `Truthcert1` master `81eddd3`.
+> - `C:\HTML apps\living-meta\`: repaired landing-page validation links that pointed to a missing HTML asset and an out-of-repo sibling path; linked the existing validation and limitations docs instead, and added a static link-resolution contract. Verification: `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=8` (pre-existing HTML a11y INFO). GitHub pushed: master `c3c8a9b`.
+> - `C:\HTML apps\Pairwiseai\`: added a static landing-page contract covering local link resolution, absence of unresolved templates/local drive paths, and the key app entrypoints under `e156-submission/assets`. Verification: `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=1731` (pre-existing HTML a11y INFO). GitHub pushed: master `2ade493`.
+> - `C:\HTML apps\nma-dose-response-app\`: pushed the existing smoke-blocker commit and added an E156 asset-bundle repair so `e156-submission\assets\index*.html` resolves its JS runtime dependencies from inside the assets folder; added a static link-resolution contract covering root and E156 app entrypoints. Verification: `pytest -q -p no:cacheprovider tests/test_smoke.py tests/test_static_links.py` -> `4 passed` with the existing pytest `cache_dir` warning; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=442` (pre-existing HTML a11y INFO). GitHub pushed: master `e95fae0` and `96594b6`.
+> - Push gate: Windows Git credential path succeeded after WSL Git lacked HTTPS credentials. Sentinel pre-push/manual scan verdicts were BLOCK=0; evidence-board INFO=18, focus-studio INFO=10, kanban-lab INFO=10, living-meta INFO=8, Pairwiseai INFO=1731, nma-dose-response-app INFO=442 (pre-existing P2 HTML accessibility notes); hub push emitted no Sentinel findings.
+> - Existing unrelated dirty files were left unstaged in these repos, mainly protocol/license/doc edits and untracked `paper\` outputs in the three app repos, plus pre-existing hub metadata/submission/style edits.
+
+### SheafNMA (2026-05-12; v0.2.0 real-NMA-corpus validation + 36-cell Ã— 1000-rep simulation + methods paper draft)
+> - `C:\Models\SheafNMA\` â€” cellular-sheaf inconsistency localization for network meta-analysis. v0.1.0 (2026-04-07) was math + single-file HTML dashboard + E156 #153 micro-paper on a synthetic 12-contrast network. v0.2.0 refactored the 457-LOC `generate_figures.py` into a `sheafnma/` package (`core`, `io`, `simulate`, `comparators`, `r_bridge`), validated on 13 R-netmeta built-in NMAs, and shipped a methods-paper draft for Research Synthesis Methods.
+> - Method: precision-weighted coboundary `F[e, treat1] = -1/SE_e, F[e, treat2] = +1/SE_e`; sheaf Laplacian `L = Fáµ€F` (symmetric PSD); WLS-solve node estimates with node 0 anchored; per-edge residuals `r_e = dÌƒ_e âˆ’ (F x*)_e` localize inconsistency; **Global Inconsistency Index** `GII = Î£ rÂ²` is the global statistic. One algebraic object yields both global + per-edge â€” complements (not replaces) node-splitting.
+> - Real-corpus headline: across **13 R-netmeta built-in NMAs** (Senn 2013 diabetes, Dias smokingcessation, Dong 2013 thrombolytics, Linde 2015/2016 acupuncture, Salanti antimanic, Baker, Dogliotti, Franchini, Gurusamy, Stowe, Woods, dietaryfat, parkinson) the global design-by-treatment Ï‡Â² (Higgins 2012) failed to reject in all 13. **SheafNMA flagged â‰¥1 localized inconsistency edge in 5 of those 13 (38.5%)** at the Youden-frozen threshold of **2.6912** â€” networks that look globally consistent harbor at least one inconsistent edge the global test misses.
+> - Simulation rigor: 36-cell grid (n_treatments âˆˆ {4,6,8} Ã— n_studies_per_edge âˆˆ {3,5,10} Ã— Ï„_inc âˆˆ {0,0.2,0.5,1.0}) Ã— **1000 replications per cell**, held-out training cell at (6,5,0.5) for Youden's-J threshold selection (frozen before evaluating remaining 35 cells). Type-I error at Ï„_inc=0 was **0.000 across all cells**. Mean per-edge sensitivity 0.981 / specificity 0.945 at Ï„_inc=0.5.
+
+2026-08-24T01:38:01.859746Z ERROR codex_core::tools::router: error=Exit code: 1
+Wall time: 2.2 seconds
+Output:
+Select-Object : Cannot bind parameter 'Index'. Cannot convert value "20..35" to type "System.Int32". Error: "Input 
+string was not in a correct format."
+At line:2 char:179
++ ... {1}' -f $i,$_ ; $i++ } | Select-Object -Index 20..35,265..320 } else  ...
++                                                   ~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidArgument: (:) [Select-Object], ParameterBindingException
+    + FullyQualifiedErrorId : CannotConvertArgumentNoMessage,Microsoft.PowerShell.Commands.SelectObjectCommand
+ 
+
+ exited 1 in 2152ms:
+Select-Object : Cannot bind parameter 'Index'. Cannot convert value "20..35" to type "System.Int32". Error: "Input 
+string was not in a correct format."
+At line:2 char:179
++ ... {1}' -f $i,$_ ; $i++ } | Select-Object -Index 20..35,265..320 } else  ...
++                                                   ~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidArgument: (:) [Select-Object], ParameterBindingException
+    + FullyQualifiedErrorId : CannotConvertArgumentNoMessage,Microsoft.PowerShell.Commands.SelectObjectCommand
+ 
+
+codex
+The registry/workbook checks are complete. I hit a PowerShell range syntax issue while extracting numbered lines, so I’m rerunning just that line-number check.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$p='"'scripts/build_mdrtb_bpal_app.py'; if (Test-Path -LiteralPath "'$p) { $lines=Get-Content -LiteralPath $p; for($i=0;$i -lt $lines.Count;$i++){ if((21..36 + 266..321) -contains ($i+1)){ '"'{0,4}: {1}' -f ("'$i+1), $lines[$i] } } } else { '"'MISSING scripts/build_mdrtb_bpal_app.py' }" in F:\rapidmeta-ssot-shell
+ succeeded in 1421ms:
+  21: FILE = Path("MDRTB_BPAL_REVIEW.html")
+  22: 
+  23: # ---- 1. <title> ----
+  24: OLD_TITLE = "<title>RapidMeta Cardiology | SGLT2-HF Ultra-Precision v12.0</title>"
+  25: NEW_TITLE = "<title>RapidMeta TB | MDR-TB BPaL / BPaLM Review v0.1</title>"
+  26: 
+  27: # ---- 2. AUTO_INCLUDE_TRIAL_IDS ----
+  28: OLD_AUTO = "const AUTO_INCLUDE_TRIAL_IDS = new Set(['NCT03036124', 'NCT03057977', 'NCT03057951', 'NCT03619213', 'NCT03521934']);"
+  29: NEW_AUTO = "const AUTO_INCLUDE_TRIAL_IDS = new Set(['NCT02333799', 'NCT03086486', 'NCT02589782']);"
+  30: 
+  31: # ---- 3. protocol ----
+  32: OLD_PROTO = "protocol: { pop: 'Adults with heart failure across ejection fraction spectrum', int: 'SGLT2 or dual SGLT1/2 inhibitor therapy (dapagliflozin, empagliflozin, or sotagliflozin)', comp: 'Placebo + guideline-directed therapy', out: 'CV Death or Worsening Heart Failure Composite', subgroup: 'EF phenotype (HFrEF vs HFpEF), drug class member, diabetes status', query: '', rctOnly: true, post2015: true },"
+  33: NEW_PROTO = "protocol: { pop: 'Adults aged 14+ with multidrug-resistant or pre-XDR/XDR pulmonary tuberculosis (sub-Saharan African enrolment dominant; Nix-TB and ZeNix were South Africa-only, TB-PRACTECAL added Belarus and Uzbekistan)', int: 'Bedaquiline + pretomanid + linezolid (BPaL) or BPaL + moxifloxacin (BPaLM), 24-26 weeks oral', comp: 'WHO-recommended longer regimens (typically 9-24 months including injectable agents) for TB-PRACTECAL; no comparator for Nix-TB or ZeNix (single-arm efficacy + LZD dose comparison)', out: 'Favorable / unfavorable treatment outcome at end-of-treatment + 6 to 24-month follow-up; primary published as proportion with unfavorable outcome (composite of bacteriologic failure, relapse, clinical failure, treatment-limiting toxicity, death, or loss to follow-up)', subgroup: 'HIV co-infection, baseline drug-resistance pattern (MDR vs pre-XDR vs XDR), linezolid dose/duration', query: '', rctOnly: true, post2015: true },"
+  34: 
+  35: # ---- 4. nctAcronyms ----
+  36: OLD_ACRO = """nctAcronyms: {
+ 266:     if OLD_TITLE in text:
+ 267:         text = text.replace(OLD_TITLE, NEW_TITLE, 1)
+ 268:         edits.append("title")
+ 269: 
+ 270:     # 2. AUTO_INCLUDE_TRIAL_IDS
+ 271:     if OLD_AUTO in text:
+ 272:         text = text.replace(OLD_AUTO, NEW_AUTO, 1)
+ 273:         edits.append("AUTO_INCLUDE_TRIAL_IDS")
+ 274: 
+ 275:     # 3. protocol
+ 276:     if OLD_PROTO in text:
+ 277:         text = text.replace(OLD_PROTO, NEW_PROTO, 1)
+ 278:         edits.append("protocol")
+ 279: 
+ 280:     # 4. nctAcronyms
+ 281:     if OLD_ACRO in text:
+ 282:         text = text.replace(OLD_ACRO, NEW_ACRO, 1)
+ 283:         edits.append("nctAcronyms")
+ 284: 
+ 285:     # 5. realData â€” surgical: replace contents of `realData: { ... }` with our new entries.
+ 286:     # Use a regex to find the realData object body and replace with new content.
+ 287:     # Find the body between `realData: {` and the outer closing `},`
+ 288:     # before `// Trials we want to auto-include` or similar marker.
+ 289:     # The realData block is large, we need to find its end carefully.
+ 290: 
+ 291:     real_data_marker = "realData: {"
+ 292:     start = text.find(real_data_marker)
+ 293:     if start < 0:
+ 294:         print("ERROR: realData not found", file=sys.stderr)
+ 295:         return 1
+ 296:     # Walk braces from `realData: {` to find the matching close brace.
+ 297:     body_start = text.find("{", start)
+ 298:     depth = 0
+ 299:     i = body_start
+ 300:     while i < len(text):
+ 301:         c = text[i]
+ 302:         if c == "{":
+ 303:             depth += 1
+ 304:         elif c == "}":
+ 305:             depth -= 1
+ 306:             if depth == 0:
+ 307:                 body_end = i
+ 308:                 break
+ 309:         i += 1
+ 310:     else:
+ 311:         print("ERROR: could not find realData closing brace", file=sys.stderr)
+ 312:         return 1
+ 313: 
+ 314:     # Replace [body_start..body_end] with `{` + NEW_REAL_DATA_BODY + closing already in NEW
+ 315:     # NEW_REAL_DATA_BODY ends with closing }, so we need to overwrite [body_start..body_end+1]
+ 316:     text = text[: body_start] + NEW_REAL_DATA_BODY + text[body_end + 1 :]
+ 317:     edits.append("realData")
+ 318: 
+ 319:     FILE.write_text(text, encoding="utf-8")
+ 320:     print(f"Edits applied: {', '.join(edits) if edits else '(none â€” already done?)'}")
+ 321:     print(f"File size: {FILE.stat().st_size:,} bytes")
+
+codex
+I have enough to answer. The live file’s line numbering matches the pasted module around the actionable defects.
+codex
+- **NEGATION DROPPED**: line 33, exact input: any clone containing `OLD_PROTO`, because output protocol says `rctOnly: true` while the same replacement text says `no comparator for Nix-TB` / `single-arm`. Consequence: the generated app labels a review including non-randomized single-arm evidence as RCT-only.
+
+- **PROBE KEYED TO THE STRING A FIX REMOVES / CHECK THAT CANNOT FAIL**: line 266, exact input: `MDRTB_BPAL_REVIEW.html` containing `realData: {}` but no `OLD_TITLE` and no `NEW_TITLE`. Consequence: the script exits 0 after replacing `realData` while leaving the title absent/wrong.
+
+- **PROBE KEYED TO THE STRING A FIX REMOVES / CHECK THAT CANNOT FAIL**: line 271, exact input: `MDRTB_BPAL_REVIEW.html` containing `realData: {}` but no exact `OLD_AUTO` and no `NEW_AUTO`. Consequence: the script exits 0 with stale or missing auto-include trial IDs.
+
+- **PROBE KEYED TO THE STRING A FIX REMOVES / CHECK THAT CANNOT FAIL**: line 276, exact input: `MDRTB_BPAL_REVIEW.html` containing `realData: {}` but no exact `OLD_PROTO` and no `NEW_PROTO`. Consequence: the script exits 0 with stale or missing protocol metadata.
+
+- **PROBE KEYED TO THE STRING A FIX REMOVES / SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE**: line 281, exact input: a target with semantically same acronyms but compact formatting, e.g. `nctAcronyms: {'NCT03036124':'DAPA-HF'}` plus `realData: {}`. Consequence: acronym replacement silently skips because it requires one exact whitespace layout.
+
+- **SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE**: line 304, exact input: `realData: { 'NCT': { name: 'brace } in string' } }, other: 1`. Consequence: brace matching treats `}` inside a JavaScript string as structure and corrupts the replacement boundary.
+
+- **No finding for these shapes in the pasted module**: text CRLF/LF comparison, merged-cell/off-by-one tabulation, zero conflated with absent, wrapper status-code reporting.
+tokens used
+26,562
+- **NEGATION DROPPED**: line 33, exact input: any clone containing `OLD_PROTO`, because output protocol says `rctOnly: true` while the same replacement text says `no comparator for Nix-TB` / `single-arm`. Consequence: the generated app labels a review including non-randomized single-arm evidence as RCT-only.
+
+- **PROBE KEYED TO THE STRING A FIX REMOVES / CHECK THAT CANNOT FAIL**: line 266, exact input: `MDRTB_BPAL_REVIEW.html` containing `realData: {}` but no `OLD_TITLE` and no `NEW_TITLE`. Consequence: the script exits 0 after replacing `realData` while leaving the title absent/wrong.
+
+- **PROBE KEYED TO THE STRING A FIX REMOVES / CHECK THAT CANNOT FAIL**: line 271, exact input: `MDRTB_BPAL_REVIEW.html` containing `realData: {}` but no exact `OLD_AUTO` and no `NEW_AUTO`. Consequence: the script exits 0 with stale or missing auto-include trial IDs.
+
+- **PROBE KEYED TO THE STRING A FIX REMOVES / CHECK THAT CANNOT FAIL**: line 276, exact input: `MDRTB_BPAL_REVIEW.html` containing `realData: {}` but no exact `OLD_PROTO` and no `NEW_PROTO`. Consequence: the script exits 0 with stale or missing protocol metadata.
+
+- **PROBE KEYED TO THE STRING A FIX REMOVES / SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE**: line 281, exact input: a target with semantically same acronyms but compact formatting, e.g. `nctAcronyms: {'NCT03036124':'DAPA-HF'}` plus `realData: {}`. Consequence: acronym replacement silently skips because it requires one exact whitespace layout.
+
+- **SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE**: line 304, exact input: `realData: { 'NCT': { name: 'brace } in string' } }, other: 1`. Consequence: brace matching treats `}` inside a JavaScript string as structure and corrupts the replacement boundary.
+
+- **No finding for these shapes in the pasted module**: text CRLF/LF comparison, merged-cell/off-by-one tabulation, zero conflated with absent, wrapper status-code reporting.
+t?", file=sys.stderr)
+ 260:         return 1
+ 261:     text = FILE.read_text(encoding="utf-8")
+ 262: 
+ 263:     edits = []
+ 264: 
+ 265:     # 1. title
+ 266:     if OLD_TITLE in text:
+ 267:         text = text.replace(OLD_TITLE, NEW_TITLE, 1)
+ 268:         edits.append("title")
+ 269: 
+ 270:     # 2. AUTO_INCLUDE_TRIAL_IDS
+ 271:     if OLD_AUTO in text:
+ 272:         text = text.replace(OLD_AUTO, NEW_AUTO, 1)
+ 273:         edits.append("AUTO_INCLUDE_TRIAL_IDS")
+ 274: 
+ 275:     # 3. protocol
+ 276:     if OLD_PROTO in text:
+ 277:         text = text.replace(OLD_PROTO, NEW_PROTO, 1)
+ 278:         edits.append("protocol")
+ 279: 
+ 280:     # 4. nctAcronyms
+ 281:     if OLD_ACRO in text:
+ 282:         text = text.replace(OLD_ACRO, NEW_ACRO, 1)
+ 283:         edits.append("nctAcronyms")
+ 284: 
+ 285:     # 5. realData â€” surgical: replace contents of `realData: { ... }` with our new entries.
+ 286:     # Use a regex to find the realData object body and replace with new content.
+ 287:     # Find the body between `realData: {` and the outer closing `},`
+ 288:     # before `// Trials we want to auto-include` or similar marker.
+ 289:     # The realData block is large, we need to find its end carefully.
+ 290: 
+ 291:     real_data_marker = "realData: {"
+ 292:     start = text.find(real_data_marker)
+ 293:     if start < 0:
+ 294:         print("ERROR: realData not found", file=sys.stderr)
+ 295:         return 1
+ 296:     # Walk braces from `realData: {` to find the matching close brace.
+ 297:     body_start = text.find("{", start)
+ 298:     depth = 0
+ 299:     i = body_start
+ 300:     while i < len(text):
+ 301:         c = text[i]
+ 302:         if c == "{":
+ 303:             depth += 1
+ 304:         elif c == "}":
+ 305:             depth -= 1
+ 306:             if depth == 0:
+ 307:                 body_end = i
+ 308:                 break
+ 309:         i += 1
+ 310:     else:
+ 311:         print("ERROR: could not find realData closing brace", file=sys.stderr)
+ 312:         return 1
+ 313: 
+ 314:     # Replace [body_start..body_end] with `{` + NEW_REAL_DATA_BODY + closing already in NEW
+ 315:     # NEW_REAL_DATA_BODY ends with closing }, so we need to overwrite [body_start..body_end+1]
+ 316:     text = text[: body_start] + NEW_REAL_DATA_BODY + text[body_end + 1 :]
+ 317:     edits.append("realData")
+ 318: 
+ 319:     FILE.write_text(text, encoding="utf-8")
+ 320:     print(f"Edits applied: {', '.join(edits) if edits else '(none â€” already done?)'}")
+ 321:     print(f"File size: {FILE.stat().st_size:,} bytes")
+ 322:     return 0
+ 323: 
+ 324: 
+ 325: if __name__ == "__main__":
+ 326:     sys.exit(main())
+
+codex
+- **Line 304, brace walker counts braces inside strings.**  
+  Exact `MDRTB_BPAL_REVIEW.html` input: `<script>const app={ realData: { a: { text: '}' }, b: { text: 'kept' } }, next: 1 };</script>`  
+  Consequence: the `}` inside `'}` decrements `depth`, line 306 stops at the end of `a`, and line 316 leaves `, b: ...` after the replacement, corrupting the JS.
+
+- **Line 292, marker can be satisfied by a comment before the real binding.**  
+  Exact input: `<!-- realData: { stale: true } --><script>const app={ realData: { old: {x: 1} } };</script>`  
+  Consequence: the script rewrites the comment block, leaves the real `app.realData` unchanged, writes the file, and returns success.
+
+- **Lines 266, 271, 276, 281 plus 322, success is keyed to strings the fix removes and missing edits are not fatal.**  
+  Exact input: `<title>Wrong</title><script>const AUTO_INCLUDE_TRIAL_IDS = new Set(['NCT999']); const cfg={ protocol:{pop:'wrong'}, nctAcronyms:{'NCT999':'Wrong'}, realData:{} };</script>`  
+  Consequence: stages 1-4 silently do nothing, `realData` is still replaced, and the wrapper exits `0` although the title, auto-include IDs, protocol, and acronyms remain wrong.
+
+- **Line 21, relative path can edit a different copy than the one intended.**  
+  Exact input/invocation: root has `F:\rapidmeta-ssot-shell\MDRTB_BPAL_REVIEW.html`, scripts dir also has `F:\rapidmeta-ssot-shell\scripts\MDRTB_BPAL_REVIEW.html`, run `cd scripts; python build_mdrtb_bpal_app.py`.  
+  Consequence: the script edits `scripts\MDRTB_BPAL_REVIEW.html`, while any root-served dashboard remains unchanged.
+
+No proven CRLF-vs-LF comparison defect in this packet.  
+No proven merged-cell/off-by-one defect in this packet.  
+No proven zero-conflated-with-absent defect in this packet.  
+No proven negation-dropped parser defect in this packet.
+tokens used
+25,022
+- **Line 304, brace walker counts braces inside strings.**  
+  Exact `MDRTB_BPAL_REVIEW.html` input: `<script>const app={ realData: { a: { text: '}' }, b: { text: 'kept' } }, next: 1 };</script>`  
+  Consequence: the `}` inside `'}` decrements `depth`, line 306 stops at the end of `a`, and line 316 leaves `, b: ...` after the replacement, corrupting the JS.
+
+- **Line 292, marker can be satisfied by a comment before the real binding.**  
+  Exact input: `<!-- realData: { stale: true } --><script>const app={ realData: { old: {x: 1} } };</script>`  
+  Consequence: the script rewrites the comment block, leaves the real `app.realData` unchanged, writes the file, and returns success.
+
+- **Lines 266, 271, 276, 281 plus 322, success is keyed to strings the fix removes and missing edits are not fatal.**  
+  Exact input: `<title>Wrong</title><script>const AUTO_INCLUDE_TRIAL_IDS = new Set(['NCT999']); const cfg={ protocol:{pop:'wrong'}, nctAcronyms:{'NCT999':'Wrong'}, realData:{} };</script>`  
+  Consequence: stages 1-4 silently do nothing, `realData` is still replaced, and the wrapper exits `0` although the title, auto-include IDs, protocol, and acronyms remain wrong.
+
+- **Line 21, relative path can edit a different copy than the one intended.**  
+  Exact input/invocation: root has `F:\rapidmeta-ssot-shell\MDRTB_BPAL_REVIEW.html`, scripts dir also has `F:\rapidmeta-ssot-shell\scripts\MDRTB_BPAL_REVIEW.html`, run `cd scripts; python build_mdrtb_bpal_app.py`.  
+  Consequence: the script edits `scripts\MDRTB_BPAL_REVIEW.html`, while any root-served dashboard remains unchanged.
+
+No proven CRLF-vs-LF comparison defect in this packet.  
+No proven merged-cell/off-by-one defect in this packet.  
+No proven zero-conflated-with-absent defect in this packet.  
+No proven negation-dropped parser defect in this packet.

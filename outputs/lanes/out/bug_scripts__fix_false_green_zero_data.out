@@ -1,0 +1,681 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a031b3-d500-7ff1-ad74-3ab5ef860006
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/fix_false_green_zero_data.py
+
+--- THE FILE, IN FULL ---
+"""Kill the false green badge on the two cardio apps that ship ZERO trials.
+
+EZETIMIBE_LIPID_AUTO_FULL_REVIEW.html and LISINOPRIL_HTN_AUTO_FULL_REVIEW.html
+both render a green "INTERNAL CHECKS PASSED - Fabrication-risk 0.275 - Trials: 2"
+badge, and both carry window.__verdict = {"verdict":"STABLE","n_trials_seen":2}.
+
+Verified in a live browser render, not inferred from the file:
+    realData                = {}          (0 trials)
+    trials with status include = 0
+    getAnalysisScopeDetails().analyzed = 0
+    state.results           = null
+    the displayed pooled estimate = "--"
+
+So BOTH verdict surfaces are false, in the same direction, and they agree with
+each other only because both are app-shell boilerplate inherited from a 2-trial
+clone. Neither describes the page it sits on. A green pass over an empty ledger
+is the most load-bearing false claim a page can make: it certifies nothing as
+something.
+
+Both surfaces are replaced together with the same truth - no data, therefore no
+pass. The counts are not zeroed and left otherwise intact, because "0 findings"
+on an empty ledger reads as a clean bill; the verdict says NO_DATA and every
+gate is reported as NOT APPLICABLE rather than as a zero.
+"""
+import io
+import json
+import re
+import sys
+
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+APPS = [
+    {
+        "file": "EZETIMIBE_LIPID_AUTO_FULL_REVIEW.html",
+        "subject": "ezetimibe in hyperlipidaemia",
+        "storage": "rapid_meta_ezetimibe_lipid_auto_v1_0",
+    },
+    {
+        "file": "LISINOPRIL_HTN_AUTO_FULL_REVIEW.html",
+        "subject": "lisinopril in hypertension",
+        "storage": "rapid_meta_lisinopril_htn_auto_v1_0",
+    },
+]
+
+
+def build_verdict(subject):
+    return {
+        "verdict": "NO_DATA",
+        "counts": {
+            "n_trials_in_ledger": 0,
+            "n_trials_analysed": 0,
+            "P0_internal": None,
+            "P0_aact_nct_missing": None,
+            "P0_grim": None,
+            "P1_aact_concord": None,
+            "P1_fi_critical": None,
+            "P1_fi_warn": None,
+            "P1_pi_gap": None,
+            "P2_evidence_incomplete": None,
+            "P2_aact_advisory": None,
+            "n_trials_seen": 0,
+        },
+        "counts_note": (
+            "Every gate count is null, not zero. There is no evidence in this app to "
+            "test, so no gate ran. A zero here would read as a clean bill."
+        ),
+        "reasons": [
+            "This app contains NO trial data. realData is empty, no trial is marked for "
+            "inclusion, no analysis is produced, and the pooled estimate renders as '--'.",
+            "The previous visible badge read 'INTERNAL CHECKS PASSED - Fabrication-risk "
+            "score 0.275 - Trials: 2' in green, and this same window.__verdict object read "
+            "'STABLE' with n_trials_seen 2. Both were app-shell boilerplate inherited from "
+            "a 2-trial clone. Neither described this page. There were never 2 trials here.",
+            "No integrity gate has run or could run: GRIM/GRIMMER, Benford, registry "
+            "concordance, fragility index and arm-orientation checks all require per-arm "
+            "data that does not exist in this file.",
+            f"Nothing on this page may be cited as evidence about {subject}.",
+            "AMSTAR-2 confidence: not assessable - there is no review to appraise.",
+        ],
+        "p0_total": None,
+        "p0_total_note": (
+            "null, not 0. No P0 check executed, because there is nothing to check."
+        ),
+        "pooled": None,
+        "pooled_note": "No pooled estimate exists. The app displays '--'.",
+    }
+
+
+def build_badge(subject):
+    return (
+        '<div id="rapidmeta-integrity-badge" role="status" '
+        'style="background:#7c2d12;color:#fff;padding:12px 20px;font-family:system-ui,sans-serif;'
+        'font-size:13.5px;border-bottom:3px solid #431407;line-height:1.55;">'
+        '<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">'
+        '<strong style="font-size:14px;letter-spacing:0.04em;">NO DATA '
+        '&mdash; THIS IS NOT AN INTEGRITY PASS</strong>'
+        '<span style="font-size:11.5px;">Trials in ledger: <strong>0</strong> &middot; '
+        'Trials analysed: <strong>0</strong> &middot; Pooled estimate: '
+        '<strong>none</strong></span></div>'
+        '<div style="margin-top:6px;font-size:12.5px;">'
+        'This app contains <strong>no trial data</strong>. Its evidence ledger is empty, no '
+        'trial is marked for inclusion, and the pooled estimate renders as &ldquo;--&rdquo;. '
+        f'<strong>Nothing on this page may be cited as evidence about {subject}.</strong>'
+        '</div>'
+        '<div style="margin-top:6px;font-size:11.5px;">'
+        '<strong>What this badge used to say, and why it was wrong.</strong> It read '
+        '&ldquo;INTERNAL CHECKS PASSED &middot; Fabrication-risk score 0.275 &middot; '
+        'Trials: 2&rdquo; on a green background, and the page&rsquo;s '
+        '<code style="background:rgba(255,255,255,0.28);padding:1px 4px;border-radius:2px;">'
+        'window.__verdict</code> agreed with it &mdash; &ldquo;STABLE&rdquo;, '
+        '<em>n_trials_seen: 2</em>. Both were app-shell boilerplate inherited from a '
+        'two-trial clone. <strong>There were never two trials in this app.</strong> The two '
+        'surfaces agreed with each other and both were false; that is why agreement between '
+        'them is checked against the ledger, not against each other.</div>'
+        '<div style="margin-top:6px;font-size:10.5px;">'
+        '<strong>No gate has run, and none could.</strong> GRIM/GRIMMER, Benford, '
+        'ClinicalTrials.gov registry concordance, fragility index and arm-orientation checks '
+        'all require per-arm counts that do not exist in this file. Every gate count in '
+        '<code style="background:rgba(255,255,255,0.28);padding:1px 4px;border-radius:2px;">'
+        'window.__verdict</code> is <strong>null, not zero</strong> &mdash; a zero would read '
+        'as a clean bill, and absence of testing is not absence of defects. AMSTAR-2 '
+        'confidence: <strong>not assessable</strong>; there is no review here to appraise.'
+        '</div></div>'
+    )
+
+
+for app in APPS:
+    path, subject = app["file"], app["subject"]
+    s = open(path, encoding="utf-8").read()
+    before = len(s)
+
+    # Fail closed if the app is not actually empty.
+    m = re.search(r"realData:\{\}", s)
+    assert m, f"{path}: realData is NOT empty - refusing to write a NO_DATA badge"
+    assert "AUTO_INCLUDE_TRIAL_IDS=new Set([])" in s, f"{path}: AUTO_INCLUDE is not empty"
+    assert '"data/realData.json"' not in s, f"{path}: carries an embedded data blob"
+
+    # ---- surface 1: window.__verdict ----
+    old_v = re.search(r"<script>window\.__verdict = \{.*?\};</script>", s)
+    assert old_v, f"{path}: no __verdict surface found"
+    s = s.replace(
+        old_v.group(0),
+        "<script>window.__verdict = "
+        + json.dumps(build_verdict(subject), ensure_ascii=False)
+        + ";</script>",
+        1,
+    )
+
+    # ---- surface 2: the visible badge ----
+    i = s.index('id="rapidmeta-integrity-badge"')
+    st = s.rfind("<div", 0, i)
+    depth, k = 0, st
+    while k < len(s):
+        if s.startswith("<div", k):
+            depth += 1
+        elif s.startswith("</div>", k):
+            depth -= 1
+            if depth == 0:
+                k += 6
+                break
+        k += 1
+    old_badge = s[st:k]
+    assert "INTERNAL CHECKS PASSED" in old_badge, f"{path}: badge is not the false-green one"
+    s = s[:st] + build_badge(subject) + s[k:]
+
+    open(path, "w", encoding="utf-8", newline="").write(s)
+    print(f"{path}: {before} -> {len(s)} bytes")
+    print("  - window.__verdict  STABLE / n_trials_seen 2  ->  NO_DATA / 0, gate counts null")
+    print("  - visible badge     green INTERNAL CHECKS PASSED / Trials: 2  ->  NO DATA (not a pass)")
+
+
+# ---------------------------------------------------------------------------
+# Pre-existing base-engine contamination, identical in both apps.
+# The contamination gate returns the SAME 4 HARD findings against the
+# unmodified files at HEAD, so none of this was introduced by the badge fix.
+# These apps hold no trials at all, so the honest alias table is the empty one.
+# ---------------------------------------------------------------------------
+OLD_ALIASES = (
+    'const KNOWN_TRIAL_ALIASES={NCT01035255:["paradigm-hf","paradigm"],'
+    'NCT01920711:["paragon-hf","paragon"],NCT02924727:["paradise-mi","paradise"],'
+    'NCT03988634:["paraglide-hf","paraglide"]}'
+)
+OLD_NMA = (
+    'trialData=["NCT01035255","NCT01920711","NCT02924727"]'
+    ".filter(id=>!RapidMeta.state.excludedTrials?.[id])"
+)
+NEW_NMA = (
+    "trialData=Object.keys(RapidMeta.realData??{})"
+    ".filter(id=>!RapidMeta.state.excludedTrials?.[id])"
+)
+
+for app in APPS:
+    path = app["file"]
+    s = open(path, encoding="utf-8").read()
+    before = len(s)
+    notes = []
+    if s.count(OLD_ALIASES) == 1:
+        # Older lineage: table still holds the sacubitril/valsartan HF trials.
+        s = s.replace(OLD_ALIASES, "const KNOWN_TRIAL_ALIASES={}", 1)
+        notes.append("KNOWN_TRIAL_ALIASES: PARADIGM/PARAGON/PARADISE/PARAGLIDE -> {} (this app has no trials)")
+    elif "const KNOWN_TRIAL_ALIASES={}" in s:
+        # main already purged it (5e63960c9). Leave it empty - that purge IS the
+        # anti-contamination fix, and an app holding zero trials has no aliases
+        # of its own to resolve, so there is nothing that could need re-adding.
+        notes.append("KNOWN_TRIAL_ALIASES: already EMPTY on main (5e63960c9) - left empty, main's fix preserved")
+    else:
+        raise AssertionError(f"{path}: KNOWN_TRIAL_ALIASES in an unrecognised state")
+
+    if s.count(OLD_NMA) == 1:
+        s = s.replace(OLD_NMA, NEW_NMA, 1)
+        notes.append("NMAEngine.run: hardcoded HF trial list -> derived from this app's realData")
+    elif NEW_NMA in s:
+        notes.append("NMAEngine.run: already derived from realData - no change")
+    else:
+        raise AssertionError(f"{path}: NMAEngine trialData in an unrecognised state")
+
+    open(path, "w", encoding="utf-8", newline="").write(s)
+    print(f"{path}: {before} -> {len(s)} bytes")
+    for n in notes:
+        print("  - " + n)
+
+
+# ---------------------------------------------------------------------------
+# The LISINOPRIL redirect stub carries NEITHER verdict surface - the same defect
+# as the APIXABAN stub. Same app, two files, one previously asserting PASSED and
+# one asserting nothing. Give it both, agreeing with the full app.
+# (EZETIMIBE_LIPID has no stub variant.)
+# ---------------------------------------------------------------------------
+STUB = "LISINOPRIL_HTN_AUTO_REVIEW.html"
+s = open(STUB, encoding="utf-8").read()
+if "__verdict" in s:
+    print(f"{STUB}: already carries a verdict surface - skipped")
+else:
+    before = len(s)
+    banner = (
+        '<div id="rapidmeta-integrity-badge" role="status" '
+        'style="background:#7c2d12;color:#fff;padding:12px 20px;font-family:system-ui,sans-serif;'
+        'font-size:13.5px;border-bottom:3px solid #431407;line-height:1.55;">'
+        '<strong style="font-size:14px;letter-spacing:0.04em;">NO DATA '
+        '&mdash; THIS IS NOT AN INTEGRITY PASS</strong>'
+        '<div style="margin-top:6px;font-size:12.5px;">This app contains '
+        '<strong>no trial data</strong> &mdash; 0 trials in the ledger, 0 analysed, no '
+        'pooled estimate. Nothing on it may be cited as evidence about lisinopril in '
+        'hypertension. The full review previously showed a green &ldquo;INTERNAL CHECKS '
+        'PASSED &middot; Trials: 2&rdquo; badge over an empty ledger; that claim has been '
+        'removed.</div></div>\n'
+    )
+    verdict_js = (
+        '<script>window.__verdict = {"verdict":"NO_DATA","counts":{"n_trials_in_ledger":0,'
+        '"n_trials_analysed":0,"n_trials_seen":0},"reasons":["Redirect stub. Verdict mirrors '
+        'LISINOPRIL_HTN_AUTO_FULL_REVIEW.html: this app holds no trial data, so no gate ran '
+        'and no pooled estimate exists. The previous green pass badge was app-shell '
+        'boilerplate from a 2-trial clone."],"p0_total":null,"p0_total_note":"null, not 0. '
+        'Nothing was checked because there is nothing to check.","pooled":null};</script>\n'
+    )
+    m = re.search(r"<body[^>]*>", s)
+    assert m, f"{STUB}: no <body> tag"
+    s = s[:m.end()] + "\n" + banner + verdict_js + s[m.end():]
+    open(STUB, "w", encoding="utf-8", newline="").write(s)
+    print(f"{STUB}: {before} -> {len(s)} bytes  (badge + __verdict added; had neither)")
+
+codex
+I’ll treat this as a targeted defect review of the pasted packet only and keep the close-out to the requested format.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Get-Content -Path F:\\ProjectIndex\\INDEX.md -TotalCount 20" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Get-Content -Path F:\\E156\\rewrite-workbook.txt -TotalCount 20" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=1; Get-Content -Path scripts'"\\fix_false_green_zero_data.py | ForEach-Object { '{0,4}: {1}' -f "'$i, $_; $i++ }' in F:\rapidmeta-ssot-shell
+ succeeded in 566ms:
+E156 REWRITE WORKBOOK
+sentinel:skip-file
+sentinel:claim-language-allow
+(Sentinel markers above:
+ - sentinel:skip-file: this workbook intentionally contains C:\Users\... PATH:
+   lines pointing to each project's local source directory â€” they're metadata,
+   not code. The marker keeps Sentinel from emitting ~16 P0 hardcoded-path
+   BLOCKs every push.
+ - sentinel:claim-language-allow: CURRENT BODY entries are the AI-drafted
+   summaries that students rewrite into hedged language â€” flagging overclaim
+   words IN those drafts is the whole pedagogical point, not a defect.
+   File-scope marker here suppresses the ~1293 claim-language WARNs on the
+   CURRENT BODY entries; the YOUR REWRITE entries are where the hedging
+   discipline matters and remains lintable in the rendered student board.)
+
+DENOMINATOR CONVENTION (added 2026-05-06 after review-findings P1-5):
+  Each entry header is `[N/total]` where N = ordinal insertion index and
+  `total` = current portfolio size as of the most recent reconcile sweep.
+  Older entries are back-rewritten on milestone boundaries (rather than
+  preserving their insertion-time denominator) to keep
+
+ succeeded in 582ms:
+<!-- sentinel:skip-file - portfolio registry; absolute paths ARE the data -->
+# C: Drive Project Index
+> **Last updated**: 2026-05-14 (C:\HTML apps focused repair batch continued: hub shell launch fix, static contracts across ten HTML app repos, NMA/living-meta/nma-dose-response landing and asset-link repairs, and NMA doc hardcoded-path cleanup. Prior SheafNMA v0.2.0, D-drive legacy smoke-contract continuation, CardioOracle lifecycle status freeze, C-drive model/project smoke-contract continuation, mahmood789 consolidation, Sentinel/Overmind JSONL and verification repair, C-drive reproducibility audit continuation, C-drive verification repair, D-drive repair batch, superapp, C-drive sweep, home-folder hardening, Trial Truthfulness Atlas, and portfolio notes retained below.)
+
+### C:\HTML apps focused repair batch (2026-05-14)
+> - `C:\HTML apps\hub\`: added a launchable `index.html` shell and static contract tests for required registry/runtime wiring; fixed `app.js` local `file://` launch resolution so the hub opened from `hub\index.html` links sibling apps from the parent HTML-apps directory instead of nesting paths under `hub`. Verification: `pytest -q -p no:cacheprovider` -> `3 passed`; `node --check app.js && node --check projects.js` -> PASS; headless Chrome smoke on `file:///mnt/c/HTML%20apps/hub/index.html` confirmed the page title and sibling app links. GitHub pushed: `mahmood726-cyber/hub` main `c1a6725`.
+> - `C:\HTML apps\evidence-board\`, `C:\HTML apps\focus-studio\`, `C:\HTML apps\kanban-lab\`: added pytest-visible static app shell contracts covering title/description, localStorage persistence hooks, key controls, and absence of unresolved templates or hardcoded local drive paths; added repo `.gitignore` entries for Python caches and `PROGRESS.md`. Verification: each `pytest -q -p no:cacheprovider` -> `2 passed` with the existing pytest `cache_dir` warning; scoped `git diff --check` -> PASS. GitHub pushed: `evidence-board` master `9a87c8b`, `focus-studio` master `0fa728b`, `kanban-lab` master `81cad38`.
+> - `C:\HTML apps\nma-pro-v2\`: fixed the landing page's broken app links from absent v6/v7 asset filenames to the current `e156-submission/assets/nma-pro-v8.0.html`, added static link-resolution contracts, and removed Sentinel P0 hardcoded local OneDrive paths from legacy docs. Verification: `pytest -q -p no:cacheprovider tests/test_smoke.py tests/test_static_links.py` -> `3 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=1 INFO=302` (pre-existing tracked autogen warning plus HTML a11y INFO). GitHub pushed: master `a2834e7` for the link fix and master `a74e385` for the P0 doc cleanup.
+> - `C:\HTML apps\IPD-Meta-Pro\` and `C:\HTML apps\Truthcert1\`: added static link-resolution contracts for landing-page local assets and canonical app entrypoints. Verification: `IPD-Meta-Pro` `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; `Truthcert1` same command -> `2 passed` with existing pytest `cache_dir` warning. GitHub pushed: `IPD-Meta-Pro` master `b26ee09`, `Truthcert1` master `81eddd3`.
+> - `C:\HTML apps\living-meta\`: repaired landing-page validation links that pointed to a missing HTML asset and an out-of-repo sibling path; linked the existing validation and limitations docs instead, and added a static link-resolution contract. Verification: `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=8` (pre-existing HTML a11y INFO). GitHub pushed: master `c3c8a9b`.
+> - `C:\HTML apps\Pairwiseai\`: added a static landing-page contract covering local link resolution, absence of unresolved templates/local drive paths, and the key app entrypoints under `e156-submission/assets`. Verification: `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=1731` (pre-existing HTML a11y INFO). GitHub pushed: master `2ade493`.
+> - `C:\HTML apps\nma-dose-response-app\`: pushed the existing smoke-blocker commit and added an E156 asset-bundle repair so `e156-submission\assets\index*.html` resolves its JS runtime dependencies from inside the assets folder; added a static link-resolution contract covering root and E156 app entrypoints. Verification: `pytest -q -p no:cacheprovider tests/test_smoke.py tests/test_static_links.py` -> `4 passed` with the existing pytest `cache_dir` warning; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=442` (pre-existing HTML a11y INFO). GitHub pushed: master `e95fae0` and `96594b6`.
+> - Push gate: Windows Git credential path succeeded after WSL Git lacked HTTPS credentials. Sentinel pre-push/manual scan verdicts were BLOCK=0; evidence-board INFO=18, focus-studio INFO=10, kanban-lab INFO=10, living-meta INFO=8, Pairwiseai INFO=1731, nma-dose-response-app INFO=442 (pre-existing P2 HTML accessibility notes); hub push emitted no Sentinel findings.
+> - Existing unrelated dirty files were left unstaged in these repos, mainly protocol/license/doc edits and untracked `paper\` outputs in the three app repos, plus pre-existing hub metadata/submission/style edits.
+
+### SheafNMA (2026-05-12; v0.2.0 real-NMA-corpus validation + 36-cell Ã— 1000-rep simulation + methods paper draft)
+> - `C:\Models\SheafNMA\` â€” cellular-sheaf inconsistency localization for network meta-analysis. v0.1.0 (2026-04-07) was math + single-file HTML dashboard + E156 #153 micro-paper on a synthetic 12-contrast network. v0.2.0 refactored the 457-LOC `generate_figures.py` into a `sheafnma/` package (`core`, `io`, `simulate`, `comparators`, `r_bridge`), validated on 13 R-netmeta built-in NMAs, and shipped a methods-paper draft for Research Synthesis Methods.
+> - Method: precision-weighted coboundary `F[e, treat1] = -1/SE_e, F[e, treat2] = +1/SE_e`; sheaf Laplacian `L = Fáµ€F` (symmetric PSD); WLS-solve node estimates with node 0 anchored; per-edge residuals `r_e = dÌƒ_e âˆ’ (F x*)_e` localize inconsistency; **Global Inconsistency Index** `GII = Î£ rÂ²` is the global statistic. One algebraic object yields both global + per-edge â€” complements (not replaces) node-splitting.
+> - Real-corpus headline: across **13 R-netmeta built-in NMAs** (Senn 2013 diabetes, Dias smokingcessation, Dong 2013 thrombolytics, Linde 2015/2016 acupuncture, Salanti antimanic, Baker, Dogliotti, Franchini, Gurusamy, Stowe, Woods, dietaryfat, parkinson) the global design-by-treatment Ï‡Â² (Higgins 2012) failed to reject in all 13. **SheafNMA flagged â‰¥1 localized inconsistency edge in 5 of those 13 (38.5%)** at the Youden-frozen threshold of **2.6912** â€” networks that look globally consistent harbor at least one inconsistent edge the global test misses.
+> - Simulation rigor: 36-cell grid (n_treatments âˆˆ {4,6,8} Ã— n_studies_per_edge âˆˆ {3,5,10} Ã— Ï„_inc âˆˆ {0,0.2,0.5,1.0}) Ã— **1000 replications per cell**, held-out training cell at (6,5,0.5) for Youden's-J threshold selection (frozen before evaluating remaining 35 cells). Type-I error at Ï„_inc=0 was **0.000 across all cells**. Mean per-edge sensitivity 0.981 / specificity 0.945 at Ï„_inc=0.5.
+
+ succeeded in 1625ms:
+   1: """Kill the false green badge on the two cardio apps that ship ZERO trials.
+   2: 
+   3: EZETIMIBE_LIPID_AUTO_FULL_REVIEW.html and LISINOPRIL_HTN_AUTO_FULL_REVIEW.html
+   4: both render a green "INTERNAL CHECKS PASSED - Fabrication-risk 0.275 - Trials: 2"
+   5: badge, and both carry window.__verdict = {"verdict":"STABLE","n_trials_seen":2}.
+   6: 
+   7: Verified in a live browser render, not inferred from the file:
+   8:     realData                = {}          (0 trials)
+   9:     trials with status include = 0
+  10:     getAnalysisScopeDetails().analyzed = 0
+  11:     state.results           = null
+  12:     the displayed pooled estimate = "--"
+  13: 
+  14: So BOTH verdict surfaces are false, in the same direction, and they agree with
+  15: each other only because both are app-shell boilerplate inherited from a 2-trial
+  16: clone. Neither describes the page it sits on. A green pass over an empty ledger
+  17: is the most load-bearing false claim a page can make: it certifies nothing as
+  18: something.
+  19: 
+  20: Both surfaces are replaced together with the same truth - no data, therefore no
+  21: pass. The counts are not zeroed and left otherwise intact, because "0 findings"
+  22: on an empty ledger reads as a clean bill; the verdict says NO_DATA and every
+  23: gate is reported as NOT APPLICABLE rather than as a zero.
+  24: """
+  25: import io
+  26: import json
+  27: import re
+  28: import sys
+  29: 
+  30: sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+  31: 
+  32: APPS = [
+  33:     {
+  34:         "file": "EZETIMIBE_LIPID_AUTO_FULL_REVIEW.html",
+  35:         "subject": "ezetimibe in hyperlipidaemia",
+  36:         "storage": "rapid_meta_ezetimibe_lipid_auto_v1_0",
+  37:     },
+  38:     {
+  39:         "file": "LISINOPRIL_HTN_AUTO_FULL_REVIEW.html",
+  40:         "subject": "lisinopril in hypertension",
+  41:         "storage": "rapid_meta_lisinopril_htn_auto_v1_0",
+  42:     },
+  43: ]
+  44: 
+  45: 
+  46: def build_verdict(subject):
+  47:     return {
+  48:         "verdict": "NO_DATA",
+  49:         "counts": {
+  50:             "n_trials_in_ledger": 0,
+  51:             "n_trials_analysed": 0,
+  52:             "P0_internal": None,
+  53:             "P0_aact_nct_missing": None,
+  54:             "P0_grim": None,
+  55:             "P1_aact_concord": None,
+  56:             "P1_fi_critical": None,
+  57:             "P1_fi_warn": None,
+  58:             "P1_pi_gap": None,
+  59:             "P2_evidence_incomplete": None,
+  60:             "P2_aact_advisory": None,
+  61:             "n_trials_seen": 0,
+  62:         },
+  63:         "counts_note": (
+  64:             "Every gate count is null, not zero. There is no evidence in this app to "
+  65:             "test, so no gate ran. A zero here would read as a clean bill."
+  66:         ),
+  67:         "reasons": [
+  68:             "This app contains NO trial data. realData is empty, no trial is marked for "
+  69:             "inclusion, no analysis is produced, and the pooled estimate renders as '--'.",
+  70:             "The previous visible badge read 'INTERNAL CHECKS PASSED - Fabrication-risk "
+  71:             "score 0.275 - Trials: 2' in green, and this same window.__verdict object read "
+  72:             "'STABLE' with n_trials_seen 2. Both were app-shell boilerplate inherited from "
+  73:             "a 2-trial clone. Neither described this page. There were never 2 trials here.",
+  74:             "No integrity gate has run or could run: GRIM/GRIMMER, Benford, registry "
+  75:             "concordance, fragility index and arm-orientation checks all require per-arm "
+  76:             "data that does not exist in this file.",
+  77:             f"Nothing on this page may be cited as evidence about {subject}.",
+  78:             "AMSTAR-2 confidence: not assessable - there is no review to appraise.",
+  79:         ],
+  80:         "p0_total": None,
+  81:         "p0_total_note": (
+  82:             "null, not 0. No P0 check executed, because there is nothing to check."
+  83:         ),
+  84:         "pooled": None,
+  85:         "pooled_note": "No pooled estimate exists. The app displays '--'.",
+  86:     }
+  87: 
+  88: 
+  89: def build_badge(subject):
+  90:     return (
+  91:         '<div id="rapidmeta-integrity-badge" role="status" '
+  92:         'style="background:#7c2d12;color:#fff;padding:12px 20px;font-family:system-ui,sans-serif;'
+  93:         'font-size:13.5px;border-bottom:3px solid #431407;line-height:1.55;">'
+  94:         '<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">'
+  95:         '<strong style="font-size:14px;letter-spacing:0.04em;">NO DATA '
+  96:         '&mdash; THIS IS NOT AN INTEGRITY PASS</strong>'
+  97:         '<span style="font-size:11.5px;">Trials in ledger: <strong>0</strong> &middot; '
+  98:         'Trials analysed: <strong>0</strong> &middot; Pooled estimate: '
+  99:         '<strong>none</strong></span></div>'
+ 100:         '<div style="margin-top:6px;font-size:12.5px;">'
+ 101:         'This app contains <strong>no trial data</strong>. Its evidence ledger is empty, no '
+ 102:         'trial is marked for inclusion, and the pooled estimate renders as &ldquo;--&rdquo;. '
+ 103:         f'<strong>Nothing on this page may be cited as evidence about {subject}.</strong>'
+ 104:         '</div>'
+ 105:         '<div style="margin-top:6px;font-size:11.5px;">'
+ 106:         '<strong>What this badge used to say, and why it was wrong.</strong> It read '
+ 107:         '&ldquo;INTERNAL CHECKS PASSED &middot; Fabrication-risk score 0.275 &middot; '
+ 108:         'Trials: 2&rdquo; on a green background, and the page&rsquo;s '
+ 109:         '<code style="background:rgba(255,255,255,0.28);padding:1px 4px;border-radius:2px;">'
+ 110:         'window.__verdict</code> agreed with it &mdash; &ldquo;STABLE&rdquo;, '
+ 111:         '<em>n_trials_seen: 2</em>. Both were app-shell boilerplate inherited from a '
+ 112:         'two-trial clone. <strong>There were never two trials in this app.</strong> The two '
+ 113:         'surfaces agreed with each other and both were false; that is why agreement between '
+ 114:         'them is checked against the ledger, not against each other.</div>'
+ 115:         '<div style="margin-top:6px;font-size:10.5px;">'
+ 116:         '<strong>No gate has run, and none could.</strong> GRIM/GRIMMER, Benford, '
+ 117:         'ClinicalTrials.gov registry concordance, fragility index and arm-orientation checks '
+ 118:         'all require per-arm counts that do not exist in this file. Every gate count in '
+ 119:         '<code style="background:rgba(255,255,255,0.28);padding:1px 4px;border-radius:2px;">'
+ 120:         'window.__verdict</code> is <strong>null, not zero</strong> &mdash; a zero would read '
+ 121:         'as a clean bill, and absence of testing is not absence of defects. AMSTAR-2 '
+ 122:         'confidence: <strong>not assessable</strong>; there is no review here to appraise.'
+ 123:         '</div></div>'
+ 124:     )
+ 125: 
+ 126: 
+ 127: for app in APPS:
+ 128:     path, subject = app["file"], app["subject"]
+ 129:     s = open(path, encoding="utf-8").read()
+ 130:     before = len(s)
+ 131: 
+ 132:     # Fail closed if the app is not actually empty.
+ 133:     m = re.search(r"realData:\{\}", s)
+ 134:     assert m, f"{path}: realData is NOT empty - refusing to write a NO_DATA badge"
+ 135:     assert "AUTO_INCLUDE_TRIAL_IDS=new Set([])" in s, f"{path}: AUTO_INCLUDE is not empty"
+ 136:     assert '"data/realData.json"' not in s, f"{path}: carries an embedded data blob"
+ 137: 
+ 138:     # ---- surface 1: window.__verdict ----
+ 139:     old_v = re.search(r"<script>window\.__verdict = \{.*?\};</script>", s)
+ 140:     assert old_v, f"{path}: no __verdict surface found"
+ 141:     s = s.replace(
+ 142:         old_v.group(0),
+ 143:         "<script>window.__verdict = "
+ 144:         + json.dumps(build_verdict(subject), ensure_ascii=False)
+ 145:         + ";</script>",
+ 146:         1,
+ 147:     )
+ 148: 
+ 149:     # ---- surface 2: the visible badge ----
+ 150:     i = s.index('id="rapidmeta-integrity-badge"')
+ 151:     st = s.rfind("<div", 0, i)
+ 152:     depth, k = 0, st
+ 153:     while k < len(s):
+ 154:         if s.startswith("<div", k):
+ 155:             depth += 1
+ 156:         elif s.startswith("</div>", k):
+ 157:             depth -= 1
+ 158:             if depth == 0:
+ 159:                 k += 6
+ 160:                 break
+ 161:         k += 1
+ 162:     old_badge = s[st:k]
+ 163:     assert "INTERNAL CHECKS PASSED" in old_badge, f"{path}: badge is not the false-green one"
+ 164:     s = s[:st] + build_badge(subject) + s[k:]
+ 165: 
+ 166:     open(path, "w", encoding="utf-8", newline="").write(s)
+ 167:     print(f"{path}: {before} -> {len(s)} bytes")
+ 168:     print("  - window.__verdict  STABLE / n_trials_seen 2  ->  NO_DATA / 0, gate counts null")
+ 169:     print("  - visible badge     green INTERNAL CHECKS PASSED / Trials: 2  ->  NO DATA (not a pass)")
+ 170: 
+ 171: 
+ 172: # ---------------------------------------------------------------------------
+ 173: # Pre-existing base-engine contamination, identical in both apps.
+ 174: # The contamination gate returns the SAME 4 HARD findings against the
+ 175: # unmodified files at HEAD, so none of this was introduced by the badge fix.
+ 176: # These apps hold no trials at all, so the honest alias table is the empty one.
+ 177: # ---------------------------------------------------------------------------
+ 178: OLD_ALIASES = (
+ 179:     'const KNOWN_TRIAL_ALIASES={NCT01035255:["paradigm-hf","paradigm"],'
+ 180:     'NCT01920711:["paragon-hf","paragon"],NCT02924727:["paradise-mi","paradise"],'
+ 181:     'NCT03988634:["paraglide-hf","paraglide"]}'
+ 182: )
+ 183: OLD_NMA = (
+ 184:     'trialData=["NCT01035255","NCT01920711","NCT02924727"]'
+ 185:     ".filter(id=>!RapidMeta.state.excludedTrials?.[id])"
+ 186: )
+ 187: NEW_NMA = (
+ 188:     "trialData=Object.keys(RapidMeta.realData??{})"
+ 189:     ".filter(id=>!RapidMeta.state.excludedTrials?.[id])"
+ 190: )
+ 191: 
+ 192: for app in APPS:
+ 193:     path = app["file"]
+ 194:     s = open(path, encoding="utf-8").read()
+ 195:     before = len(s)
+ 196:     notes = []
+ 197:     if s.count(OLD_ALIASES) == 1:
+ 198:         # Older lineage: table still holds the sacubitril/valsartan HF trials.
+ 199:         s = s.replace(OLD_ALIASES, "const KNOWN_TRIAL_ALIASES={}", 1)
+ 200:         notes.append("KNOWN_TRIAL_ALIASES: PARADIGM/PARAGON/PARADISE/PARAGLIDE -> {} (this app has no trials)")
+ 201:     elif "const KNOWN_TRIAL_ALIASES={}" in s:
+ 202:         # main already purged it (5e63960c9). Leave it empty - that purge IS the
+ 203:         # anti-contamination fix, and an app holding zero trials has no aliases
+ 204:         # of its own to resolve, so there is nothing that could need re-adding.
+ 205:         notes.append("KNOWN_TRIAL_ALIASES: already EMPTY on main (5e63960c9) - left empty, main's fix preserved")
+ 206:     else:
+ 207:         raise AssertionError(f"{path}: KNOWN_TRIAL_ALIASES in an unrecognised state")
+ 208: 
+ 209:     if s.count(OLD_NMA) == 1:
+ 210:         s = s.replace(OLD_NMA, NEW_NMA, 1)
+ 211:         notes.append("NMAEngine.run: hardcoded HF trial list -> derived from this app's realData")
+ 212:     elif NEW_NMA in s:
+ 213:         notes.append("NMAEngine.run: already derived from realData - no change")
+ 214:     else:
+ 215:         raise AssertionError(f"{path}: NMAEngine trialData in an unrecognised state")
+ 216: 
+ 217:     open(path, "w", encoding="utf-8", newline="").write(s)
+ 218:     print(f"{path}: {before} -> {len(s)} bytes")
+ 219:     for n in notes:
+ 220:         print("  - " + n)
+ 221: 
+ 222: 
+ 223: # ---------------------------------------------------------------------------
+ 224: # The LISINOPRIL redirect stub carries NEITHER verdict surface - the same defect
+ 225: # as the APIXABAN stub. Same app, two files, one previously asserting PASSED and
+ 226: # one asserting nothing. Give it both, agreeing with the full app.
+ 227: # (EZETIMIBE_LIPID has no stub variant.)
+ 228: # ---------------------------------------------------------------------------
+ 229: STUB = "LISINOPRIL_HTN_AUTO_REVIEW.html"
+ 230: s = open(STUB, encoding="utf-8").read()
+ 231: if "__verdict" in s:
+ 232:     print(f"{STUB}: already carries a verdict surface - skipped")
+ 233: else:
+ 234:     before = len(s)
+ 235:     banner = (
+ 236:         '<div id="rapidmeta-integrity-badge" role="status" '
+ 237:         'style="background:#7c2d12;color:#fff;padding:12px 20px;font-family:system-ui,sans-serif;'
+ 238:         'font-size:13.5px;border-bottom:3px solid #431407;line-height:1.55;">'
+ 239:         '<strong style="font-size:14px;letter-spacing:0.04em;">NO DATA '
+ 240:         '&mdash; THIS IS NOT AN INTEGRITY PASS</strong>'
+ 241:         '<div style="margin-top:6px;font-size:12.5px;">This app contains '
+ 242:         '<strong>no trial data</strong> &mdash; 0 trials in the ledger, 0 analysed, no '
+ 243:         'pooled estimate. Nothing on it may be cited as evidence about lisinopril in '
+ 244:         'hypertension. The full review previously showed a green &ldquo;INTERNAL CHECKS '
+ 245:         'PASSED &middot; Trials: 2&rdquo; badge over an empty ledger; that claim has been '
+ 246:         'removed.</div></div>\n'
+ 247:     )
+ 248:     verdict_js = (
+ 249:         '<script>window.__verdict = {"verdict":"NO_DATA","counts":{"n_trials_in_ledger":0,'
+ 250:         '"n_trials_analysed":0,"n_trials_seen":0},"reasons":["Redirect stub. Verdict mirrors '
+ 251:         'LISINOPRIL_HTN_AUTO_FULL_REVIEW.html: this app holds no trial data, so no gate ran '
+ 252:         'and no pooled estimate exists. The previous green pass badge was app-shell '
+ 253:         'boilerplate from a 2-trial clone."],"p0_total":null,"p0_total_note":"null, not 0. '
+ 254:         'Nothing was checked because there is nothing to check.","pooled":null};</script>\n'
+ 255:     )
+ 256:     m = re.search(r"<body[^>]*>", s)
+ 257:     assert m, f"{STUB}: no <body> tag"
+ 258:     s = s[:m.end()] + "\n" + banner + verdict_js + s[m.end():]
+ 259:     open(STUB, "w", encoding="utf-8", newline="").write(s)
+ 260:     print(f"{STUB}: {before} -> {len(s)} bytes  (badge + __verdict added; had neither)")
+
+codex
+Found defects:
+
+- **Instrument reads a name, not its binding**: line 133.  
+  Exact input in either full app: `<script>/* realData:{} */ const RapidMeta={realData:{NCT1:{}}}; const AUTO_INCLUDE_TRIAL_IDS=new Set([]);</script><script>window.__verdict = {"verdict":"STABLE","n_trials_seen":2};</script><div id="rapidmeta-integrity-badge">INTERNAL CHECKS PASSED</div>`  
+  Consequence: the guard passes on a comment and writes a NO_DATA verdict over a non-empty `realData`.
+
+- **Probe keyed to one removable string form**: line 136.  
+  Exact input: `<script>const RapidMeta={realData:{}}; const AUTO_INCLUDE_TRIAL_IDS=new Set([]); fetch('data/realData.json');</script><script>window.__verdict = {"verdict":"STABLE","n_trials_seen":2};</script><div id="rapidmeta-integrity-badge">INTERNAL CHECKS PASSED</div>`  
+  Consequence: a single-quoted real-data load survives the guard and the script stamps the page NO_DATA anyway.
+
+- **Idempotency guard satisfied by a comment/marker**: line 201.  
+  Exact input in a full app after the first loop: `<!-- const KNOWN_TRIAL_ALIASES={} --><script>const KNOWN_TRIAL_ALIASES = {NCT01035255:["paradigm-hf","paradigm"]}</script>`  
+  Consequence: the script reports the aliases already empty while leaving the live hardcoded alias table in place.
+
+- **Idempotency guard satisfied by a comment/marker**: line 212.  
+  Exact input: `// trialData=Object.keys(RapidMeta.realData??{}).filter(id=>!RapidMeta.state.excludedTrials?.[id])\ntrialData = ["NCT01035255","NCT01920711","NCT02924727"].filter(id=>!RapidMeta.state.excludedTrials?.[id])`  
+  Consequence: the script reports NMA already derived from `realData` while leaving the live hardcoded HF trial list.
+
+- **Idempotency guard satisfied by its own marker**: line 231.  
+  Exact input for `LISINOPRIL_HTN_AUTO_REVIEW.html`: `<html><body><!-- TODO: add __verdict --></body></html>`  
+  Consequence: the stub is skipped and receives neither the badge nor the verdict surface.
+
+- **Check that cannot fail when optimized**: lines 134-136, 140, 163, 257.  
+  Exact input: run `python -O scripts/fix_false_green_zero_data.py`.  
+  Consequence: Python removes every `assert`, including the fail-closed data guards.
+
+No proven merged-cell/off-by-one, zero-conflated-with-absent, negation-dropped, or wrapper-status-code defect in this file.
+tokens used
+21,883
+Found defects:
+
+- **Instrument reads a name, not its binding**: line 133.  
+  Exact input in either full app: `<script>/* realData:{} */ const RapidMeta={realData:{NCT1:{}}}; const AUTO_INCLUDE_TRIAL_IDS=new Set([]);</script><script>window.__verdict = {"verdict":"STABLE","n_trials_seen":2};</script><div id="rapidmeta-integrity-badge">INTERNAL CHECKS PASSED</div>`  
+  Consequence: the guard passes on a comment and writes a NO_DATA verdict over a non-empty `realData`.
+
+- **Probe keyed to one removable string form**: line 136.  
+  Exact input: `<script>const RapidMeta={realData:{}}; const AUTO_INCLUDE_TRIAL_IDS=new Set([]); fetch('data/realData.json');</script><script>window.__verdict = {"verdict":"STABLE","n_trials_seen":2};</script><div id="rapidmeta-integrity-badge">INTERNAL CHECKS PASSED</div>`  
+  Consequence: a single-quoted real-data load survives the guard and the script stamps the page NO_DATA anyway.
+
+- **Idempotency guard satisfied by a comment/marker**: line 201.  
+  Exact input in a full app after the first loop: `<!-- const KNOWN_TRIAL_ALIASES={} --><script>const KNOWN_TRIAL_ALIASES = {NCT01035255:["paradigm-hf","paradigm"]}</script>`  
+  Consequence: the script reports the aliases already empty while leaving the live hardcoded alias table in place.
+
+- **Idempotency guard satisfied by a comment/marker**: line 212.  
+  Exact input: `// trialData=Object.keys(RapidMeta.realData??{}).filter(id=>!RapidMeta.state.excludedTrials?.[id])\ntrialData = ["NCT01035255","NCT01920711","NCT02924727"].filter(id=>!RapidMeta.state.excludedTrials?.[id])`  
+  Consequence: the script reports NMA already derived from `realData` while leaving the live hardcoded HF trial list.
+
+- **Idempotency guard satisfied by its own marker**: line 231.  
+  Exact input for `LISINOPRIL_HTN_AUTO_REVIEW.html`: `<html><body><!-- TODO: add __verdict --></body></html>`  
+  Consequence: the stub is skipped and receives neither the badge nor the verdict surface.
+
+- **Check that cannot fail when optimized**: lines 134-136, 140, 163, 257.  
+  Exact input: run `python -O scripts/fix_false_green_zero_data.py`.  
+  Consequence: Python removes every `assert`, including the fail-closed data guards.
+
+No proven merged-cell/off-by-one, zero-conflated-with-absent, negation-dropped, or wrapper-status-code defect in this file.

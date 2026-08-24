@@ -1,0 +1,1060 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a03175-8c6d-7a32-a25b-0fd259a9c31f
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/bulk_clone_audit_first.py
+
+--- THE FILE, IN FULL ---
+"""Bulk-clone audit-first VIABLE topics into full-flagship RapidMeta dashboards.
+
+For each VIABLE outputs/new_topics/<STEM>.json:
+  - pick a sensible base template (small, simple, similar effect type)
+  - auto-generate a clone_dashboard config from the audit data
+  - run scripts/clone_dashboard.py to produce <STEM>_FULL_REVIEW.html
+
+This gives audit-first builds the same interactive engine as the flagships:
+editable extraction, live re-pool, RoB coding, GRADE SoF, WebR validation,
+all 28 statistics panels.
+"""
+from __future__ import annotations
+import json, sys, io, subprocess, re
+from pathlib import Path
+
+if hasattr(sys.stdout, "buffer") and getattr(sys.stdout, "encoding", "").lower() != "utf-8":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+HERE = Path(__file__).resolve().parent.parent
+TOPICS = HERE / "outputs" / "new_topics"
+CONFIGS = HERE / "scripts" / "configs"
+CONFIGS.mkdir(parents=True, exist_ok=True)
+
+# ----------------------------------------------------------------------------
+# AACT-derived enrichment maps. Built upstream by
+# `scripts/audit_40_checks.py` workflow (or any equivalent NCT loader). Used to
+# (a) inject a verified primary PMID per NCT (prevents the "wrong abstract"
+#     defect produced by the topic_doc.pmid field, which was historically
+#     unverifiable -- see commit 4917069b8); and
+# (b) produce a defensible RoB-2 heuristic from registry design metadata,
+#     replacing the all-'low' stub that previously shipped on every trial.
+# Files may be missing on a fresh clone; we degrade gracefully.
+# ----------------------------------------------------------------------------
+_PMID_PATH = HERE / "outputs" / "pmid_resolver" / "nct_to_pmid.json"
+_DESIGN_PATH = HERE / "outputs" / "pmid_resolver" / "nct_design.json"
+NCT_PMID = json.loads(_PMID_PATH.read_text(encoding="utf-8")) if _PMID_PATH.exists() else {}
+NCT_DESIGN = json.loads(_DESIGN_PATH.read_text(encoding="utf-8")) if _DESIGN_PATH.exists() else {}
+
+
+
+def _arm_order(per_arm):
+    """Group labels ordered TREATMENT FIRST by what the label says, not by the alphabet.
+
+    AACT's per-arm map carries no role, so the label is all there is. A label naming a control
+    is put SECOND explicitly; where neither label says, the order is left as given and the
+    written object must carry `role` for anything downstream to trust it. Sorting was the bug:
+    `BG_CONTROL` < `BG_EXPERIMENTAL`, and the effect inverts silently.
+    """
+    import sys as _s, os as _o
+    _s.path.insert(0, _o.path.join(_o.path.dirname(_o.path.dirname(_o.path.abspath(__file__))),
+                                   "ssot"))
+    from arm_roles import CONTROL as _CTRL
+    keys = list(per_arm.keys())
+    ctrl = [k for k in keys if any(w in str(k).lower() for w in _CTRL)]
+    rest = [k for k in keys if k not in ctrl]
+    return rest + ctrl if ctrl else keys
+
+
+def _rob_from_aact(nct: str) -> tuple[list[str], str]:
+    """Return (5-domain RoB-2 list, source-attribution string).
+
+    See scripts/enrich_trials_with_aact_design.py for the same logic; we
+    inline it here so a fresh portfolio regeneration produces correctly-coded
+    RoB from the start.
+    """
+    d = NCT_DESIGN.get(nct)
+    if not d:
+        return ["some-concerns"] * 5, "no AACT design record"
+    alloc = d.get("allocation") or ""
+    masking = d.get("masking") or ""
+    assess = (d.get("outcomes_assessor_masked") or "").lower()
+    d1 = "low" if alloc == "RANDOMIZED" else ("high" if alloc == "NON_RANDOMIZED" else "some-concerns")
+    if masking in ("QUADRUPLE", "TRIPLE", "DOUBLE"):
+        d2 = "low"
+    elif masking == "SINGLE":
+        d2 = "some-concerns"
+    elif masking == "NONE":
+        d2 = "high"
+    else:
+        d2 = "some-concerns"
+    d3 = "some-concerns"  # missing data can't be judged from the registry alone
+    if assess == "true" or masking in ("QUADRUPLE", "TRIPLE", "DOUBLE"):
+        d4 = "low"
+    elif masking == "SINGLE":
+        d4 = "some-concerns"
+    elif masking == "NONE":
+        d4 = "high"
+    else:
+        d4 = "some-concerns"
+    d5 = "some-concerns"  # selective-reporting needs cross-check against the publication
+    src = f"AACT designs: alloc={alloc or '∅'}, masking={masking or '∅'}, assessor_masked={assess or '∅'}"
+    return [d1, d2, d3, d4, d5], src
+
+
+def _safe_event_count(raw: int | None, N: int | None) -> int | None:
+    """Sanity-check an AACT-derived event count.
+
+    The upstream `outputs/new_topics/<STEM>.json` files store the AACT
+    outcome_measurements `param_value` cast via `int(float(v))`. That's fine
+    when the value is genuinely a count, but AACT also stores percentages and
+    continuous-outcome values in the same column. We have no `param_type` to
+    discriminate at this layer, so we use a value-vs-N sanity check:
+        raw <= N           -> keep (real count)
+        N < raw <= 100     -> AACT stored a percentage; recover round(raw/100*N)
+        raw > 100          -> not a percentage either; null and the analysis
+                              engine will drop the trial from pooling
+    """
+    if raw is None or N is None or N <= 0:
+        return raw
+    if raw <= N:
+        return raw
+    if 0 < raw <= 100:
+        return round(raw / 100 * N)
+    return None
+
+# A small, stable, simple base — DUPILUMAB_COPD is 1.2 MB with 2-trial pairwise
+# structure. Re-used as the base for audit-first clones; per-topic data
+# replaces all per-trial content via clone_dashboard.py's existing logic.
+BASE_TEMPLATE = HERE / "DUPILUMAB_COPD_REVIEW.html"
+
+# Don't re-clone if output already exists and is recent
+SKIP_IF_EXISTS = True
+
+
+# Chars that are JS string delimiters or HTML-breaking. Injected drug/
+# condition names land in BOTH HTML text nodes and single/double-quoted JS
+# string literals, so the only universally safe form swaps the delimiter
+# characters for typographic look-alikes (render fine in HTML, inert in JS).
+# Without this, a condition like "Crohn's Disease" -> '...CROHN'S...' is a
+# JS SyntaxError that the leftover scanner would still pass (lessons.md
+# apostrophe-in-single-quoted-JS-string, 2026-04-30).
+_SAFE_MAP = {
+    "'": "’",   # ' -> right single quote
+    '"': "”",   # " -> right double quote
+    "`": "ʼ",   # backtick -> modifier letter apostrophe
+    "\\": "/",
+    "<": "‹",   # < -> single left-pointing angle quote
+    ">": "›",
+    "\r": " ", "\n": " ", "\t": " ",
+}
+
+
+def safe(s: str) -> str:
+    """Make a string safe to inject into HTML text AND quoted JS literals."""
+    return "".join(_SAFE_MAP.get(ch, ch) for ch in str(s))
+
+
+def build_config(topic_doc):
+    topic = topic_doc["topic"]
+    stem = safe(topic["stem"])
+    name = safe(topic["name"])
+    drug = safe((topic["drug_patterns"] or ["intervention"])[0].title())
+    cond = safe((topic["condition_patterns"] or ["condition"])[0].title())
+
+    trials = []
+    ncts = []
+    acrs = {}
+    for t in topic_doc["trials"]:
+        if not all(t["gates"].values()):
+            continue
+        ex = t["extracted"]
+        nct = ex["nct"]
+        acr = ex.get("aact_acronym") or nct
+        # ARM ROLE IS READ, NEVER SORTED. `sorted(per_arm.keys())[0]` took the
+        # lexicographically first label as the treatment arm, and `BG_CONTROL` sorts
+        # before `BG_EXPERIMENTAL` -- every effect built that way inverts. AACT's
+        # per-arm map is keyed by group label with no role, so this source cannot
+        # answer the question and the order is recorded rather than trusted: the
+        # written object must carry `role` on each arm, and `ssot/arm_roles.py`
+        # refuses any caller that tries to infer it from position.
+        per_arm = ex.get("aact_per_arm_counts") or {}
+        arms = _arm_order(per_arm)
+        tN = per_arm.get(arms[0]) if arms else 0
+        cN = per_arm.get(arms[1]) if len(arms) > 1 else 0
+        _arm_labels = list(arms[:2])
+        outcome_rows = ex.get("aact_outcome_count_rows") or []
+        og_vals = {}
+        for og, v in outcome_rows:
+            if og not in og_vals:
+                try: og_vals[og] = int(float(v))
+                except: pass
+            if len(og_vals) >= 2: break
+        # SAME SHAPE, SAME DEFECT: the outcome-group order decides which count is the
+        # treatment arm, and sorting it alphabetically is the identical coin-flip.
+        ogs = _arm_order(og_vals)
+        tE_raw = og_vals.get(ogs[0]) if ogs else None
+        cE_raw = og_vals.get(ogs[1]) if len(ogs) > 1 else None
+        # Apply the percentage-vs-count sanity check at GENERATION time so the
+        # shipped page never carries impossible counts (tE > tN). This is the
+        # root-cause fix for the bug repaired downstream by
+        # `scripts/fix_event_counts_safe.py` -- see commit 4d8476d5d.
+        tE = _safe_event_count(tE_raw, tN)
+        cE = _safe_event_count(cE_raw, cN)
+
+        pub_es = ex.get("published_effect_size")
+        pub_t = ex.get("published_effect_type")
+        pub_lci = ex.get("published_ci_lower")
+        pub_uci = ex.get("published_ci_upper")
+
+        outcome_label = (ex.get("aact_primary_outcome_measure") or "Primary outcome")[:120]
+        outcome_obj = {
+            "shortLabel": "MACE",
+            "title": outcome_label + " (primary)",
+            "type": "PRIMARY",
+            "matchScore": 90,
+        }
+        if pub_es is not None:
+            outcome_obj["estimandType"] = pub_t or "OR"
+            if pub_t == "MD":
+                outcome_obj["md"] = pub_es
+            else:
+                outcome_obj["effect"] = pub_es
+                if pub_lci is not None: outcome_obj["lci"] = pub_lci
+                if pub_uci is not None: outcome_obj["uci"] = pub_uci
+        else:
+            outcome_obj["estimandType"] = "OR"
+            if tE is not None: outcome_obj["tE"] = tE
+            if cE is not None: outcome_obj["cE"] = cE
+
+        # Resolve a verified primary PMID from the AACT study_references map.
+        # Picking the smallest RESULT/DERIVED PMID per NCT yields the trial's
+        # original primary publication (oldest = first to be PubMed-indexed).
+        # The topic_doc.pmid field is corpus-wide unreliable and is NOT used.
+        pmid_info = NCT_PMID.get(nct) or {}
+        pmid_val = pmid_info.get("pmid", "")
+
+        rob5, rob_src = _rob_from_aact(nct)
+
+        trial_entry = {
+            "nct": nct,
+            "name": acr,
+            "pmid": pmid_val,
+            "phase": "III",
+            "year": ex.get("pubmed_year") or 2024,
+            "tE": tE, "tN": tN or 0, "cE": cE, "cN": cN or 0,
+            "group": f"{drug} vs comparator in {cond} (AACT-verified primary)",
+            "publishedHR": pub_es if pub_t in ("HR","OR","RR","IRR") else None,
+            "hrLCI": pub_lci if pub_t in ("HR","OR","RR","IRR") else None,
+            "hrUCI": pub_uci if pub_t in ("HR","OR","RR","IRR") else None,
+            "allOutcomes": [outcome_obj],
+            "rob": rob5,
+            "robSource": rob_src,
+            "snippet": f"NCT {nct}: {outcome_label}. Source: ClinicalTrials.gov registry (AACT-verified); publication resolved live via NCT.",
+            "sourceUrl": f"https://clinicaltrials.gov/study/{nct}",
+            "evidence": [],
+        }
+        trials.append(trial_entry)
+        ncts.append(nct)
+        acrs[nct] = acr
+
+    if not trials:
+        return None
+
+    drug_l = drug.lower()
+    cond_u = cond.upper()
+    stem_l = stem.lower()
+    pop_txt = f"Adults randomised in trials registered on ClinicalTrials.gov for {cond}"
+    # PICO outcome shown in the editable `#p-out` field + meta strings. Derive
+    # from the first included trial's primary-outcome title (strip the
+    # " (primary)" suffix) so a clone never displays the base's COPD outcome
+    # ("Annual moderate-severe exacerbation rate"). This reproduces the P0-2
+    # codemod at source so a future regeneration ships clean.
+    pico_out = trials[0]["allOutcomes"][0]["title"]
+    if pico_out.endswith(" (primary)"):
+        pico_out = pico_out[:-len(" (primary)")]
+    pico_out = safe(pico_out) or "Trial-declared primary outcome"
+
+    def attr(s):  # safe inside an HTML value="..." attribute
+        return s.replace('"', "&quot;").replace("<", "&lt;").replace(">", "&gt;")
+
+    cfg = {
+        "base": str(BASE_TEMPLATE),
+        "out":  str(HERE / f"{stem}_FULL_REVIEW.html"),
+        "title": f"RapidMeta | {name} (audit-first, full-functionality)",
+        "hero_h2": name,
+        "nyt_headline": f"The {drug} Evidence",
+        "auto_include_ncts": ncts,
+        "nct_acronyms": acrs,
+        "blank_benchmarks": True,
+        "pico": {
+            "pop":      pop_txt,
+            "int":      f"{drug} (AACT-verified intervention name)",
+            "comp":     "Active comparator or placebo as registered on AACT",
+            "out":      "Trial-declared primary outcome (AACT design_outcomes); event counts from AACT outcome_measurements",
+            "subgroup": "Subgroup analyses per parent trial protocol",
+        },
+        "real_data_entries": trials,
+        # --- Precise, single-occurrence claim neutralizers (run first) ---
+        # Replace claim-bearing prose with data-only text so the swap can
+        # never produce a false mechanism/phenotype claim.
+        "extra_replaces": [
+            ["Dupilumab (IL-4Ralpha Monoclonal Antibody) for Moderate-to-Severe "
+             "COPD with Type 2 Inflammation (Blood Eosinophils >=300/uL): A Living "
+             "Systematic Review and Meta-Analysis of Phase 3 RCTs",
+             f"{drug} for {cond}: A Living Systematic Review and Meta-Analysis of "
+             f"Registered RCTs (audit-first; trial data verified against "
+             f"ClinicalTrials.gov / AACT)"],
+            ['value="Adults with COPD and type-2 inflammation"',
+             f'value="{attr(pop_txt)}"'],
+            ['value="Dupilumab"', f'value="{attr(drug)}"'],
+            ["COPD + T2 inflammation", cond],
+        ],
+        # --- Global replace-ALL (fixes the n>1 SKIP bug). Longest/compound
+        # tokens FIRST so substrings are not partially clobbered. ---
+        "global_replaces": [
+            # Retarget the base's self-referential canonical URL / OG filename
+            # to this clone's real output name BEFORE the COPD->cond and
+            # DUPILUMAB->drug swaps mangle it into a non-existent path. Must be
+            # first: longest compound token wins.
+            ["DUPILUMAB_COPD_REVIEW.html", f"{stem}_FULL_REVIEW.html"],
+            ["rapid_meta_dupilumab_copd", f"rapid_meta_{stem_l}"],
+            ["dupilumab_copd", stem_l],
+            ["IL-4Ralpha Monoclonal Antibody",
+             "intervention as registered on ClinicalTrials.gov"],
+            ["Type 2 Inflammation", "the registered population"],
+            ["type-2 inflammation", "the registered population"],
+            ["T2 inflammation", "the registered population"],
+            ["Blood Eosinophils >=300/uL", "per the registered eligibility"],
+            ["Dupilumab", drug],
+            ["dupilumab", drug_l],
+            ["DUPILUMAB", drug.upper()],
+            ["BOREAS", "the registered pivotal trial"],
+            ["NOTUS", "the registered confirmatory trial"],
+            # PICO outcome leftover: the COPD primary outcome appears in the
+            # editable `#p-out` value plus 2 hardcoded meta/description strings.
+            # protocol.out is already swapped upstream by clone_dashboard.
+            ["Annual moderate-severe exacerbation rate", pico_out],
+            # NMA indirect-comparison label is hardcoded HF-specific in the
+            # base ("ARNI vs Other HF Therapies"); neutralize to a generic one.
+            ["ARNI vs Other HF Therapies (Indirect)",
+             "Intervention vs comparators (Indirect)"],
+        ],
+    }
+    # COPD is a base-template leftover ONLY when this topic is not itself a
+    # COPD topic. If the topic IS about COPD, leave 'COPD' untouched.
+    if "copd" not in (cond.lower() + " " + name.lower() + " " + stem_l):
+        cfg["global_replaces"].append(["COPD", cond_u])
+    return cfg
+
+
+def _load(mod):
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(mod, str(HERE / "scripts" / f"{mod}.py"))
+    m = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(m)
+    return m
+
+
+QUARANTINE = HERE / "outputs" / "quarantine_full_review"
+
+
+def main():
+    import argparse, time
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--limit", type=int, default=0, help="cap topics (0=all)")
+    ap.add_argument("--no-gate", action="store_true",
+                    help="DEBUG ONLY: skip scanner/jscheck gates")
+    ap.add_argument("--all-topics", action="store_true",
+                    help="also build NON_VIABLE topics that have >=1 "
+                         "gate-passing trial (build_config filters no-data ones)")
+    args = ap.parse_args()
+
+    clone = _load("clone_dashboard")
+    scanner = _load("scan_narrative_leftover")
+    jscheck = _load("jscheck")
+    QUARANTINE.mkdir(parents=True, exist_ok=True)
+
+    # Force-regenerate: a stale broken *_FULL_REVIEW.html must never survive
+    # via SKIP_IF_EXISTS. Every shipped file must come from this fixed run.
+    for stale in HERE.glob("*_FULL_REVIEW.html"):
+        stale.unlink()
+    for stale in QUARANTINE.glob("*.html"):
+        stale.unlink()
+
+    topics = [p for p in sorted(TOPICS.glob("*.json"))]
+    ok = qfail = build_none = err = 0
+    quarantined = []
+    t0 = time.time()
+    processed = 0
+
+    for json_p in topics:
+        try:
+            doc = json.loads(json_p.read_text(encoding="utf-8", errors="replace"))
+        except Exception:
+            continue
+        # Default: VIABLE (k>=3) only. With --all-topics: also build
+        # NON_VIABLE topics that still have >=1 gate-passing trial — build_config
+        # returns None when there is no usable trial data, so it is the natural
+        # filter (no-data topics are skipped as build_none, not stubbed).
+        if not args.all_topics and doc.get("verdict") != "VIABLE":
+            continue
+        if args.limit and processed >= args.limit:
+            break
+        processed += 1
+        stem = doc["topic"]["stem"]
+        out_html = HERE / f"{stem}_FULL_REVIEW.html"
+
+        cfg = build_config(doc)
+        if not cfg:
+            build_none += 1
+            continue
+        cfg_p = CONFIGS / f"_audit_{stem.lower()}.json"
+        cfg_p.write_text(json.dumps(cfg, indent=2, ensure_ascii=False),
+                          encoding="utf-8")
+
+        try:
+            clone.clone(cfg, dry=False)
+        except Exception as e:
+            err += 1
+            print(f"  ERR  {stem}: clone raised {e}")
+            continue
+        if not out_html.exists() or out_html.stat().st_size < 200_000:
+            err += 1
+            print(f"  ERR  {stem}: clone produced no/short output")
+            continue
+
+        if args.no_gate:
+            ok += 1
+            continue
+
+        # --- Triple ship-gate ---
+        reason = None
+        v = scanner.scan(str(out_html), str(json_p))
+        if v:
+            seen = {}
+            for tok, _o, _c in v:
+                seen[tok] = seen.get(tok, 0) + 1
+            reason = "leftover " + ",".join(f"{k}x{n}" for k, n in sorted(seen.items()))
+        else:
+            jp = jscheck.check(str(out_html))
+            if jp:
+                reason = f"js-broken block#{jp[0][0]} {jp[0][1][:80]}"
+            else:
+                # Build-time JS parse gate (E2). Catches None-in-JS,
+                # apostrophe-in-string, Plotly title-injection, etc. at the
+                # point of file creation so a regression can never persist to
+                # the shipped portfolio.
+                try:
+                    from _js_parse_gate import js_parse_ok
+                except ImportError:
+                    js_parse_ok = lambda _p: True
+                if not js_parse_ok(out_html):
+                    reason = "js-parse-gate: realData literal failed V8 parse"
+
+        if reason:
+            qfail += 1
+            dest = QUARANTINE / out_html.name
+            out_html.replace(dest)
+            quarantined.append((stem, reason))
+            print(f"  QUARANTINE {stem}: {reason}")
+        else:
+            ok += 1
+            if ok <= 5 or ok % 50 == 0:
+                dt = time.time() - t0
+                print(f"  [{ok}] {stem}: {out_html.stat().st_size:,}B  ({dt:.0f}s)")
+
+    print(f"\n=== Bulk-clone Summary ===")
+    print(f"Shipped (both gates green): {ok}")
+    print(f"Quarantined (gate fail)   : {qfail}")
+    print(f"Build returned None       : {build_none}")
+    print(f"Clone errors              : {err}")
+    print(f"Elapsed                   : {time.time()-t0:.0f}s")
+    if quarantined:
+        qlog = HERE / "outputs" / "bulk_clone_quarantine.log"
+        qlog.write_text("\n".join(f"{s}\t{r}" for s, r in quarantined),
+                         encoding="utf-8")
+        print(f"Quarantine reasons logged -> {qlog}")
+        for s, r in quarantined[:20]:
+            print(f"   - {s}: {r}")
+
+
+if __name__ == "__main__":
+    main()
+
+codex
+I’ll pin this to the pasted record and only call defects that are directly demonstrable from that text. I’m checking line numbers against the local file layout so the references are concrete.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=0; Get-Content -Path scripts/bulk_clone_audit_first.py | ForEach-Object { $i++; if($i -ge 1 -and $i -le 460){ '"'{0,4}: {1}' -f "'$i, $_ } }' in F:\rapidmeta-ssot-shell
+ succeeded in 1849ms:
+   1: """Bulk-clone audit-first VIABLE topics into full-flagship RapidMeta dashboards.
+   2: 
+   3: For each VIABLE outputs/new_topics/<STEM>.json:
+   4:   - pick a sensible base template (small, simple, similar effect type)
+   5:   - auto-generate a clone_dashboard config from the audit data
+   6:   - run scripts/clone_dashboard.py to produce <STEM>_FULL_REVIEW.html
+   7: 
+   8: This gives audit-first builds the same interactive engine as the flagships:
+   9: editable extraction, live re-pool, RoB coding, GRADE SoF, WebR validation,
+  10: all 28 statistics panels.
+  11: """
+  12: from __future__ import annotations
+  13: import json, sys, io, subprocess, re
+  14: from pathlib import Path
+  15: 
+  16: if hasattr(sys.stdout, "buffer") and getattr(sys.stdout, "encoding", "").lower() != "utf-8":
+  17:     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+  18: 
+  19: HERE = Path(__file__).resolve().parent.parent
+  20: TOPICS = HERE / "outputs" / "new_topics"
+  21: CONFIGS = HERE / "scripts" / "configs"
+  22: CONFIGS.mkdir(parents=True, exist_ok=True)
+  23: 
+  24: # ----------------------------------------------------------------------------
+  25: # AACT-derived enrichment maps. Built upstream by
+  26: # `scripts/audit_40_checks.py` workflow (or any equivalent NCT loader). Used to
+  27: # (a) inject a verified primary PMID per NCT (prevents the "wrong abstract"
+  28: #     defect produced by the topic_doc.pmid field, which was historically
+  29: #     unverifiable -- see commit 4917069b8); and
+  30: # (b) produce a defensible RoB-2 heuristic from registry design metadata,
+  31: #     replacing the all-'low' stub that previously shipped on every trial.
+  32: # Files may be missing on a fresh clone; we degrade gracefully.
+  33: # ----------------------------------------------------------------------------
+  34: _PMID_PATH = HERE / "outputs" / "pmid_resolver" / "nct_to_pmid.json"
+  35: _DESIGN_PATH = HERE / "outputs" / "pmid_resolver" / "nct_design.json"
+  36: NCT_PMID = json.loads(_PMID_PATH.read_text(encoding="utf-8")) if _PMID_PATH.exists() else {}
+  37: NCT_DESIGN = json.loads(_DESIGN_PATH.read_text(encoding="utf-8")) if _DESIGN_PATH.exists() else {}
+  38: 
+  39: 
+  40: 
+  41: def _arm_order(per_arm):
+  42:     """Group labels ordered TREATMENT FIRST by what the label says, not by the alphabet.
+  43: 
+  44:     AACT's per-arm map carries no role, so the label is all there is. A label naming a control
+  45:     is put SECOND explicitly; where neither label says, the order is left as given and the
+  46:     written object must carry `role` for anything downstream to trust it. Sorting was the bug:
+  47:     `BG_CONTROL` < `BG_EXPERIMENTAL`, and the effect inverts silently.
+  48:     """
+  49:     import sys as _s, os as _o
+  50:     _s.path.insert(0, _o.path.join(_o.path.dirname(_o.path.dirname(_o.path.abspath(__file__))),
+  51:                                    "ssot"))
+  52:     from arm_roles import CONTROL as _CTRL
+  53:     keys = list(per_arm.keys())
+  54:     ctrl = [k for k in keys if any(w in str(k).lower() for w in _CTRL)]
+  55:     rest = [k for k in keys if k not in ctrl]
+  56:     return rest + ctrl if ctrl else keys
+  57: 
+  58: 
+  59: def _rob_from_aact(nct: str) -> tuple[list[str], str]:
+  60:     """Return (5-domain RoB-2 list, source-attribution string).
+  61: 
+  62:     See scripts/enrich_trials_with_aact_design.py for the same logic; we
+  63:     inline it here so a fresh portfolio regeneration produces correctly-coded
+  64:     RoB from the start.
+  65:     """
+  66:     d = NCT_DESIGN.get(nct)
+  67:     if not d:
+  68:         return ["some-concerns"] * 5, "no AACT design record"
+  69:     alloc = d.get("allocation") or ""
+  70:     masking = d.get("masking") or ""
+  71:     assess = (d.get("outcomes_assessor_masked") or "").lower()
+  72:     d1 = "low" if alloc == "RANDOMIZED" else ("high" if alloc == "NON_RANDOMIZED" else "some-concerns")
+  73:     if masking in ("QUADRUPLE", "TRIPLE", "DOUBLE"):
+  74:         d2 = "low"
+  75:     elif masking == "SINGLE":
+  76:         d2 = "some-concerns"
+  77:     elif masking == "NONE":
+  78:         d2 = "high"
+  79:     else:
+  80:         d2 = "some-concerns"
+  81:     d3 = "some-concerns"  # missing data can't be judged from the registry alone
+  82:     if assess == "true" or masking in ("QUADRUPLE", "TRIPLE", "DOUBLE"):
+  83:         d4 = "low"
+  84:     elif masking == "SINGLE":
+  85:         d4 = "some-concerns"
+  86:     elif masking == "NONE":
+  87:         d4 = "high"
+  88:     else:
+  89:         d4 = "some-concerns"
+  90:     d5 = "some-concerns"  # selective-reporting needs cross-check against the publication
+  91:     src = f"AACT designs: alloc={alloc or 'âˆ…'}, masking={masking or 'âˆ…'}, assessor_masked={assess or 'âˆ…'}"
+  92:     return [d1, d2, d3, d4, d5], src
+  93: 
+  94: 
+  95: def _safe_event_count(raw: int | None, N: int | None) -> int | None:
+  96:     """Sanity-check an AACT-derived event count.
+  97: 
+  98:     The upstream `outputs/new_topics/<STEM>.json` files store the AACT
+  99:     outcome_measurements `param_value` cast via `int(float(v))`. That's fine
+ 100:     when the value is genuinely a count, but AACT also stores percentages and
+ 101:     continuous-outcome values in the same column. We have no `param_type` to
+ 102:     discriminate at this layer, so we use a value-vs-N sanity check:
+ 103:         raw <= N           -> keep (real count)
+ 104:         N < raw <= 100     -> AACT stored a percentage; recover round(raw/100*N)
+ 105:         raw > 100          -> not a percentage either; null and the analysis
+ 106:                               engine will drop the trial from pooling
+ 107:     """
+ 108:     if raw is None or N is None or N <= 0:
+ 109:         return raw
+ 110:     if raw <= N:
+ 111:         return raw
+ 112:     if 0 < raw <= 100:
+ 113:         return round(raw / 100 * N)
+ 114:     return None
+ 115: 
+ 116: # A small, stable, simple base â€” DUPILUMAB_COPD is 1.2 MB with 2-trial pairwise
+ 117: # structure. Re-used as the base for audit-first clones; per-topic data
+ 118: # replaces all per-trial content via clone_dashboard.py's existing logic.
+ 119: BASE_TEMPLATE = HERE / "DUPILUMAB_COPD_REVIEW.html"
+ 120: 
+ 121: # Don't re-clone if output already exists and is recent
+ 122: SKIP_IF_EXISTS = True
+ 123: 
+ 124: 
+ 125: # Chars that are JS string delimiters or HTML-breaking. Injected drug/
+ 126: # condition names land in BOTH HTML text nodes and single/double-quoted JS
+ 127: # string literals, so the only universally safe form swaps the delimiter
+ 128: # characters for typographic look-alikes (render fine in HTML, inert in JS).
+ 129: # Without this, a condition like "Crohn's Disease" -> '...CROHN'S...' is a
+ 130: # JS SyntaxError that the leftover scanner would still pass (lessons.md
+ 131: # apostrophe-in-single-quoted-JS-string, 2026-04-30).
+ 132: _SAFE_MAP = {
+ 133:     "'": "â€™",   # ' -> right single quote
+ 134:     '"': "â€",   # " -> right double quote
+ 135:     "`": "Ê¼",   # backtick -> modifier letter apostrophe
+ 136:     "\\": "/",
+ 137:     "<": "â€¹",   # < -> single left-pointing angle quote
+ 138:     ">": "â€º",
+ 139:     "\r": " ", "\n": " ", "\t": " ",
+ 140: }
+ 141: 
+ 142: 
+ 143: def safe(s: str) -> str:
+ 144:     """Make a string safe to inject into HTML text AND quoted JS literals."""
+ 145:     return "".join(_SAFE_MAP.get(ch, ch) for ch in str(s))
+ 146: 
+ 147: 
+ 148: def build_config(topic_doc):
+ 149:     topic = topic_doc["topic"]
+ 150:     stem = safe(topic["stem"])
+ 151:     name = safe(topic["name"])
+ 152:     drug = safe((topic["drug_patterns"] or ["intervention"])[0].title())
+ 153:     cond = safe((topic["condition_patterns"] or ["condition"])[0].title())
+ 154: 
+ 155:     trials = []
+ 156:     ncts = []
+ 157:     acrs = {}
+ 158:     for t in topic_doc["trials"]:
+ 159:         if not all(t["gates"].values()):
+ 160:             continue
+ 161:         ex = t["extracted"]
+ 162:         nct = ex["nct"]
+ 163:         acr = ex.get("aact_acronym") or nct
+ 164:         # ARM ROLE IS READ, NEVER SORTED. `sorted(per_arm.keys())[0]` took the
+ 165:         # lexicographically first label as the treatment arm, and `BG_CONTROL` sorts
+ 166:         # before `BG_EXPERIMENTAL` -- every effect built that way inverts. AACT's
+ 167:         # per-arm map is keyed by group label with no role, so this source cannot
+ 168:         # answer the question and the order is recorded rather than trusted: the
+ 169:         # written object must carry `role` on each arm, and `ssot/arm_roles.py`
+ 170:         # refuses any caller that tries to infer it from position.
+ 171:         per_arm = ex.get("aact_per_arm_counts") or {}
+ 172:         arms = _arm_order(per_arm)
+ 173:         tN = per_arm.get(arms[0]) if arms else 0
+ 174:         cN = per_arm.get(arms[1]) if len(arms) > 1 else 0
+ 175:         _arm_labels = list(arms[:2])
+ 176:         outcome_rows = ex.get("aact_outcome_count_rows") or []
+ 177:         og_vals = {}
+ 178:         for og, v in outcome_rows:
+ 179:             if og not in og_vals:
+ 180:                 try: og_vals[og] = int(float(v))
+ 181:                 except: pass
+ 182:             if len(og_vals) >= 2: break
+ 183:         # SAME SHAPE, SAME DEFECT: the outcome-group order decides which count is the
+ 184:         # treatment arm, and sorting it alphabetically is the identical coin-flip.
+ 185:         ogs = _arm_order(og_vals)
+ 186:         tE_raw = og_vals.get(ogs[0]) if ogs else None
+ 187:         cE_raw = og_vals.get(ogs[1]) if len(ogs) > 1 else None
+ 188:         # Apply the percentage-vs-count sanity check at GENERATION time so the
+ 189:         # shipped page never carries impossible counts (tE > tN). This is the
+ 190:         # root-cause fix for the bug repaired downstream by
+ 191:         # `scripts/fix_event_counts_safe.py` -- see commit 4d8476d5d.
+ 192:         tE = _safe_event_count(tE_raw, tN)
+ 193:         cE = _safe_event_count(cE_raw, cN)
+ 194: 
+ 195:         pub_es = ex.get("published_effect_size")
+ 196:         pub_t = ex.get("published_effect_type")
+ 197:         pub_lci = ex.get("published_ci_lower")
+ 198:         pub_uci = ex.get("published_ci_upper")
+ 199: 
+ 200:         outcome_label = (ex.get("aact_primary_outcome_measure") or "Primary outcome")[:120]
+ 201:         outcome_obj = {
+ 202:             "shortLabel": "MACE",
+ 203:             "title": outcome_label + " (primary)",
+ 204:             "type": "PRIMARY",
+ 205:             "matchScore": 90,
+ 206:         }
+ 207:         if pub_es is not None:
+ 208:             outcome_obj["estimandType"] = pub_t or "OR"
+ 209:             if pub_t == "MD":
+ 210:                 outcome_obj["md"] = pub_es
+ 211:             else:
+ 212:                 outcome_obj["effect"] = pub_es
+ 213:                 if pub_lci is not None: outcome_obj["lci"] = pub_lci
+ 214:                 if pub_uci is not None: outcome_obj["uci"] = pub_uci
+ 215:         else:
+ 216:             outcome_obj["estimandType"] = "OR"
+ 217:             if tE is not None: outcome_obj["tE"] = tE
+ 218:             if cE is not None: outcome_obj["cE"] = cE
+ 219: 
+ 220:         # Resolve a verified primary PMID from the AACT study_references map.
+ 221:         # Picking the smallest RESULT/DERIVED PMID per NCT yields the trial's
+ 222:         # original primary publication (oldest = first to be PubMed-indexed).
+ 223:         # The topic_doc.pmid field is corpus-wide unreliable and is NOT used.
+ 224:         pmid_info = NCT_PMID.get(nct) or {}
+ 225:         pmid_val = pmid_info.get("pmid", "")
+ 226: 
+ 227:         rob5, rob_src = _rob_from_aact(nct)
+ 228: 
+ 229:         trial_entry = {
+ 230:             "nct": nct,
+ 231:             "name": acr,
+ 232:             "pmid": pmid_val,
+ 233:             "phase": "III",
+ 234:             "year": ex.get("pubmed_year") or 2024,
+ 235:             "tE": tE, "tN": tN or 0, "cE": cE, "cN": cN or 0,
+ 236:             "group": f"{drug} vs comparator in {cond} (AACT-verified primary)",
+ 237:             "publishedHR": pub_es if pub_t in ("HR","OR","RR","IRR") else None,
+ 238:             "hrLCI": pub_lci if pub_t in ("HR","OR","RR","IRR") else None,
+ 239:             "hrUCI": pub_uci if pub_t in ("HR","OR","RR","IRR") else None,
+ 240:             "allOutcomes": [outcome_obj],
+ 241:             "rob": rob5,
+ 242:             "robSource": rob_src,
+ 243:             "snippet": f"NCT {nct}: {outcome_label}. Source: ClinicalTrials.gov registry (AACT-verified); publication resolved live via NCT.",
+ 244:             "sourceUrl": f"https://clinicaltrials.gov/study/{nct}",
+ 245:             "evidence": [],
+ 246:         }
+ 247:         trials.append(trial_entry)
+ 248:         ncts.append(nct)
+ 249:         acrs[nct] = acr
+ 250: 
+ 251:     if not trials:
+ 252:         return None
+ 253: 
+ 254:     drug_l = drug.lower()
+ 255:     cond_u = cond.upper()
+ 256:     stem_l = stem.lower()
+ 257:     pop_txt = f"Adults randomised in trials registered on ClinicalTrials.gov for {cond}"
+ 258:     # PICO outcome shown in the editable `#p-out` field + meta strings. Derive
+ 259:     # from the first included trial's primary-outcome title (strip the
+ 260:     # " (primary)" suffix) so a clone never displays the base's COPD outcome
+ 261:     # ("Annual moderate-severe exacerbation rate"). This reproduces the P0-2
+ 262:     # codemod at source so a future regeneration ships clean.
+ 263:     pico_out = trials[0]["allOutcomes"][0]["title"]
+ 264:     if pico_out.endswith(" (primary)"):
+ 265:         pico_out = pico_out[:-len(" (primary)")]
+ 266:     pico_out = safe(pico_out) or "Trial-declared primary outcome"
+ 267: 
+ 268:     def attr(s):  # safe inside an HTML value="..." attribute
+ 269:         return s.replace('"', "&quot;").replace("<", "&lt;").replace(">", "&gt;")
+ 270: 
+ 271:     cfg = {
+ 272:         "base": str(BASE_TEMPLATE),
+ 273:         "out":  str(HERE / f"{stem}_FULL_REVIEW.html"),
+ 274:         "title": f"RapidMeta | {name} (audit-first, full-functionality)",
+ 275:         "hero_h2": name,
+ 276:         "nyt_headline": f"The {drug} Evidence",
+ 277:         "auto_include_ncts": ncts,
+ 278:         "nct_acronyms": acrs,
+ 279:         "blank_benchmarks": True,
+ 280:         "pico": {
+ 281:             "pop":      pop_txt,
+ 282:             "int":      f"{drug} (AACT-verified intervention name)",
+ 283:             "comp":     "Active comparator or placebo as registered on AACT",
+ 284:             "out":      "Trial-declared primary outcome (AACT design_outcomes); event counts from AACT outcome_measurements",
+ 285:             "subgroup": "Subgroup analyses per parent trial protocol",
+ 286:         },
+ 287:         "real_data_entries": trials,
+ 288:         # --- Precise, single-occurrence claim neutralizers (run first) ---
+ 289:         # Replace claim-bearing prose with data-only text so the swap can
+ 290:         # never produce a false mechanism/phenotype claim.
+ 291:         "extra_replaces": [
+ 292:             ["Dupilumab (IL-4Ralpha Monoclonal Antibody) for Moderate-to-Severe "
+ 293:              "COPD with Type 2 Inflammation (Blood Eosinophils >=300/uL): A Living "
+ 294:              "Systematic Review and Meta-Analysis of Phase 3 RCTs",
+ 295:              f"{drug} for {cond}: A Living Systematic Review and Meta-Analysis of "
+ 296:              f"Registered RCTs (audit-first; trial data verified against "
+ 297:              f"ClinicalTrials.gov / AACT)"],
+ 298:             ['value="Adults with COPD and type-2 inflammation"',
+ 299:              f'value="{attr(pop_txt)}"'],
+ 300:             ['value="Dupilumab"', f'value="{attr(drug)}"'],
+ 301:             ["COPD + T2 inflammation", cond],
+ 302:         ],
+ 303:         # --- Global replace-ALL (fixes the n>1 SKIP bug). Longest/compound
+ 304:         # tokens FIRST so substrings are not partially clobbered. ---
+ 305:         "global_replaces": [
+ 306:             # Retarget the base's self-referential canonical URL / OG filename
+ 307:             # to this clone's real output name BEFORE the COPD->cond and
+ 308:             # DUPILUMAB->drug swaps mangle it into a non-existent path. Must be
+ 309:             # first: longest compound token wins.
+ 310:             ["DUPILUMAB_COPD_REVIEW.html", f"{stem}_FULL_REVIEW.html"],
+ 311:             ["rapid_meta_dupilumab_copd", f"rapid_meta_{stem_l}"],
+ 312:             ["dupilumab_copd", stem_l],
+ 313:             ["IL-4Ralpha Monoclonal Antibody",
+ 314:              "intervention as registered on ClinicalTrials.gov"],
+ 315:             ["Type 2 Inflammation", "the registered population"],
+ 316:             ["type-2 inflammation", "the registered population"],
+ 317:             ["T2 inflammation", "the registered population"],
+ 318:             ["Blood Eosinophils >=300/uL", "per the registered eligibility"],
+ 319:             ["Dupilumab", drug],
+ 320:             ["dupilumab", drug_l],
+ 321:             ["DUPILUMAB", drug.upper()],
+ 322:             ["BOREAS", "the registered pivotal trial"],
+ 323:             ["NOTUS", "the registered confirmatory trial"],
+ 324:             # PICO outcome leftover: the COPD primary outcome appears in the
+ 325:             # editable `#p-out` value plus 2 hardcoded meta/description strings.
+ 326:             # protocol.out is already swapped upstream by clone_dashboard.
+ 327:             ["Annual moderate-severe exacerbation rate", pico_out],
+ 328:             # NMA indirect-comparison label is hardcoded HF-specific in the
+ 329:             # base ("ARNI vs Other HF Therapies"); neutralize to a generic one.
+ 330:             ["ARNI vs Other HF Therapies (Indirect)",
+ 331:              "Intervention vs comparators (Indirect)"],
+ 332:         ],
+ 333:     }
+ 334:     # COPD is a base-template leftover ONLY when this topic is not itself a
+ 335:     # COPD topic. If the topic IS about COPD, leave 'COPD' untouched.
+ 336:     if "copd" not in (cond.lower() + " " + name.lower() + " " + stem_l):
+ 337:         cfg["global_replaces"].append(["COPD", cond_u])
+ 338:     return cfg
+ 339: 
+ 340: 
+ 341: def _load(mod):
+ 342:     import importlib.util
+ 343:     spec = importlib.util.spec_from_file_location(mod, str(HERE / "scripts" / f"{mod}.py"))
+ 344:     m = importlib.util.module_from_spec(spec)
+ 345:     spec.loader.exec_module(m)
+ 346:     return m
+ 347: 
+ 348: 
+ 349: QUARANTINE = HERE / "outputs" / "quarantine_full_review"
+ 350: 
+ 351: 
+ 352: def main():
+ 353:     import argparse, time
+ 354:     ap = argparse.ArgumentParser()
+ 355:     ap.add_argument("--limit", type=int, default=0, help="cap topics (0=all)")
+ 356:     ap.add_argument("--no-gate", action="store_true",
+ 357:                     help="DEBUG ONLY: skip scanner/jscheck gates")
+ 358:     ap.add_argument("--all-topics", action="store_true",
+ 359:                     help="also build NON_VIABLE topics that have >=1 "
+ 360:                          "gate-passing trial (build_config filters no-data ones)")
+ 361:     args = ap.parse_args()
+ 362: 
+ 363:     clone = _load("clone_dashboard")
+ 364:     scanner = _load("scan_narrative_leftover")
+ 365:     jscheck = _load("jscheck")
+ 366:     QUARANTINE.mkdir(parents=True, exist_ok=True)
+ 367: 
+ 368:     # Force-regenerate: a stale broken *_FULL_REVIEW.html must never survive
+ 369:     # via SKIP_IF_EXISTS. Every shipped file must come from this fixed run.
+ 370:     for stale in HERE.glob("*_FULL_REVIEW.html"):
+ 371:         stale.unlink()
+ 372:     for stale in QUARANTINE.glob("*.html"):
+ 373:         stale.unlink()
+ 374: 
+ 375:     topics = [p for p in sorted(TOPICS.glob("*.json"))]
+ 376:     ok = qfail = build_none = err = 0
+ 377:     quarantined = []
+ 378:     t0 = time.time()
+ 379:     processed = 0
+ 380: 
+ 381:     for json_p in topics:
+ 382:         try:
+ 383:             doc = json.loads(json_p.read_text(encoding="utf-8", errors="replace"))
+ 384:         except Exception:
+ 385:             continue
+ 386:         # Default: VIABLE (k>=3) only. With --all-topics: also build
+ 387:         # NON_VIABLE topics that still have >=1 gate-passing trial â€” build_config
+ 388:         # returns None when there is no usable trial data, so it is the natural
+ 389:         # filter (no-data topics are skipped as build_none, not stubbed).
+ 390:         if not args.all_topics and doc.get("verdict") != "VIABLE":
+ 391:             continue
+ 392:         if args.limit and processed >= args.limit:
+ 393:             break
+ 394:         processed += 1
+ 395:         stem = doc["topic"]["stem"]
+ 396:         out_html = HERE / f"{stem}_FULL_REVIEW.html"
+ 397: 
+ 398:         cfg = build_config(doc)
+ 399:         if not cfg:
+ 400:             build_none += 1
+ 401:             continue
+ 402:         cfg_p = CONFIGS / f"_audit_{stem.lower()}.json"
+ 403:         cfg_p.write_text(json.dumps(cfg, indent=2, ensure_ascii=False),
+ 404:                           encoding="utf-8")
+ 405: 
+ 406:         try:
+ 407:             clone.clone(cfg, dry=False)
+ 408:         except Exception as e:
+ 409:             err += 1
+ 410:             print(f"  ERR  {stem}: clone raised {e}")
+ 411:             continue
+ 412:         if not out_html.exists() or out_html.stat().st_size < 200_000:
+ 413:             err += 1
+ 414:             print(f"  ERR  {stem}: clone produced no/short output")
+ 415:             continue
+ 416: 
+ 417:         if args.no_gate:
+ 418:             ok += 1
+ 419:             continue
+ 420: 
+ 421:         # --- Triple ship-gate ---
+ 422:         reason = None
+ 423:         v = scanner.scan(str(out_html), str(json_p))
+ 424:         if v:
+ 425:             seen = {}
+ 426:             for tok, _o, _c in v:
+ 427:                 seen[tok] = seen.get(tok, 0) + 1
+ 428:             reason = "leftover " + ",".join(f"{k}x{n}" for k, n in sorted(seen.items()))
+ 429:         else:
+ 430:             jp = jscheck.check(str(out_html))
+ 431:             if jp:
+ 432:                 reason = f"js-broken block#{jp[0][0]} {jp[0][1][:80]}"
+ 433:             else:
+ 434:                 # Build-time JS parse gate (E2). Catches None-in-JS,
+ 435:                 # apostrophe-in-string, Plotly title-injection, etc. at the
+ 436:                 # point of file creation so a regression can never persist to
+ 437:                 # the shipped portfolio.
+ 438:                 try:
+ 439:                     from _js_parse_gate import js_parse_ok
+ 440:                 except ImportError:
+ 441:                     js_parse_ok = lambda _p: True
+ 442:                 if not js_parse_ok(out_html):
+ 443:                     reason = "js-parse-gate: realData literal failed V8 parse"
+ 444: 
+ 445:         if reason:
+ 446:             qfail += 1
+ 447:             dest = QUARANTINE / out_html.name
+ 448:             out_html.replace(dest)
+ 449:             quarantined.append((stem, reason))
+ 450:             print(f"  QUARANTINE {stem}: {reason}")
+ 451:         else:
+ 452:             ok += 1
+ 453:             if ok <= 5 or ok % 50 == 0:
+ 454:                 dt = time.time() - t0
+ 455:                 print(f"  [{ok}] {stem}: {out_html.stat().st_size:,}B  ({dt:.0f}s)")
+ 456: 
+ 457:     print(f"\n=== Bulk-clone Summary ===")
+ 458:     print(f"Shipped (both gates green): {ok}")
+ 459:     print(f"Quarantined (gate fail)   : {qfail}")
+ 460:     print(f"Build returned None       : {build_none}")
+
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=0; Get-Content -Path scripts/bulk_clone_audit_first.py | ForEach-Object { $i++; if($i -ge 457 -and $i -le 470){ '"'{0,4}: {1}' -f "'$i, $_ } }' in F:\rapidmeta-ssot-shell
+ succeeded in 1541ms:
+ 457:     print(f"\n=== Bulk-clone Summary ===")
+ 458:     print(f"Shipped (both gates green): {ok}")
+ 459:     print(f"Quarantined (gate fail)   : {qfail}")
+ 460:     print(f"Build returned None       : {build_none}")
+ 461:     print(f"Clone errors              : {err}")
+ 462:     print(f"Elapsed                   : {time.time()-t0:.0f}s")
+ 463:     if quarantined:
+ 464:         qlog = HERE / "outputs" / "bulk_clone_quarantine.log"
+ 465:         qlog.write_text("\n".join(f"{s}\t{r}" for s, r in quarantined),
+ 466:                          encoding="utf-8")
+ 467:         print(f"Quarantine reasons logged -> {qlog}")
+ 468:         for s, r in quarantined[:20]:
+ 469:             print(f"   - {s}: {r}")
+ 470: 
+
+codex
+Defects found:
+
+- **Check that cannot fail / status code wrapper**: lines 408-411.  
+  Exact input: any VIABLE topic for which `clone.clone(cfg, dry=False)` raises, e.g. `RuntimeError("boom")`.  
+  Consequence: the script records `err += 1` but never exits non-zero, so a CI gate can pass with clone failures.
+
+- **Check that cannot fail**: lines 438-441.  
+  Exact input: `_js_parse_gate` not importable, with an output HTML that only `js_parse_ok(out_html)` would reject.  
+  Consequence: the advertised JS parse gate becomes `lambda _p: True`, so that gate cannot quarantine anything.
+
+- **Check that cannot fail**: line 159.  
+  Exact input: a trial object with `"gates": {}`.  
+  Consequence: `all({}.values())` is `True`, so a trial with no gate evidence passes the gate filter.
+
+- **ZERO CONFLATED WITH ABSENT**: line 235.  
+  Exact input: `extracted` has no `aact_per_arm_counts`, but has `aact_outcome_count_rows` such as `[["Drug", 5], ["Control", 4]]`.  
+  Consequence: absent denominators are emitted as `tN: 0` and `cN: 0`, creating impossible event/denominator records instead of dropping the trial.
+
+- **Off-by-one / count gate**: lines 392-394.  
+  Exact input: `--limit 1 --all-topics`, where the first sorted topic returns `build_config(doc) is None` and the second is buildable.  
+  Consequence: the limit is consumed by a skipped topic, so zero dashboards are built despite a buildable topic being next.
+
+No proven defect found here for CRLF text comparison, merged-cell tabulation, or idempotency guard satisfied by its own comment.
+
+COULD NOT DETERMINE for negation-dropped and corpus-form selector defects in `_arm_order`: missing `ssot/arm_roles.py` and representative `aact_per_arm_counts` / `aact_outcome_count_rows` corpus records.
+tokens used
+26,115
+Defects found:
+
+- **Check that cannot fail / status code wrapper**: lines 408-411.  
+  Exact input: any VIABLE topic for which `clone.clone(cfg, dry=False)` raises, e.g. `RuntimeError("boom")`.  
+  Consequence: the script records `err += 1` but never exits non-zero, so a CI gate can pass with clone failures.
+
+- **Check that cannot fail**: lines 438-441.  
+  Exact input: `_js_parse_gate` not importable, with an output HTML that only `js_parse_ok(out_html)` would reject.  
+  Consequence: the advertised JS parse gate becomes `lambda _p: True`, so that gate cannot quarantine anything.
+
+- **Check that cannot fail**: line 159.  
+  Exact input: a trial object with `"gates": {}`.  
+  Consequence: `all({}.values())` is `True`, so a trial with no gate evidence passes the gate filter.
+
+- **ZERO CONFLATED WITH ABSENT**: line 235.  
+  Exact input: `extracted` has no `aact_per_arm_counts`, but has `aact_outcome_count_rows` such as `[["Drug", 5], ["Control", 4]]`.  
+  Consequence: absent denominators are emitted as `tN: 0` and `cN: 0`, creating impossible event/denominator records instead of dropping the trial.
+
+- **Off-by-one / count gate**: lines 392-394.  
+  Exact input: `--limit 1 --all-topics`, where the first sorted topic returns `build_config(doc) is None` and the second is buildable.  
+  Consequence: the limit is consumed by a skipped topic, so zero dashboards are built despite a buildable topic being next.
+
+No proven defect found here for CRLF text comparison, merged-cell tabulation, or idempotency guard satisfied by its own comment.
+
+COULD NOT DETERMINE for negation-dropped and corpus-form selector defects in `_arm_order`: missing `ssot/arm_roles.py` and representative `aact_per_arm_counts` / `aact_outcome_count_rows` corpus records.

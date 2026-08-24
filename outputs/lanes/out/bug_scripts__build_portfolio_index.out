@@ -1,0 +1,529 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a0316d-0c6a-75c1-8221-29ba1ac82c2a
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/build_portfolio_index.py
+
+--- THE FILE, IN FULL ---
+"""Build outputs/portfolio_index.json — one row per *_REVIEW.html in
+the corpus, with the metrics needed to drive dashboard.html.
+
+Per row:
+  file              ABLATION_AF_REVIEW.html
+  topic             ABLATION_AF
+  display_name      "Ablation AF"
+  type              "NMA" | "Pairwise"
+  k                 number of trials
+  pooled_OR         from outputs/r_validation/<topic>.json (if present)
+  ci_low / ci_high  from R validation
+  I2                from R validation
+  tau2              from R validation
+  ncts              list of NCT ids referenced in the review
+  integrity_flags   count of NCTs in this review that carry concordance flags
+  has_baseline      bool — at least one trial has age/female from AACT
+  last_modified     git last commit date for the file (ISO)
+
+Idempotent. Run after r_validate.py and compute_trial_integrity.py.
+"""
+from __future__ import annotations
+import sys, io, re, json, subprocess
+from pathlib import Path
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+REPO = Path(__file__).resolve().parent.parent
+
+sys.path.insert(0, str(REPO / "ssot"))
+from placeholder_provenance import apply_to_row as _pp_withdraw   # noqa: E402
+
+NCT_RE = re.compile(r"'(NCT\d{8})'\s*:")
+TITLE_RE = re.compile(r"<title[^>]*>(.*?)</title>", re.IGNORECASE | re.DOTALL)
+REDIRECT_RE = re.compile(r'http-equiv=.{0,10}refresh', re.IGNORECASE)
+TREATMENTS_RE = re.compile(r"treatments\s*:\s*\[([^\]]+)\]", re.DOTALL)
+
+
+def display_from_topic(topic):
+    parts = topic.replace("_", " ").split()
+    return " ".join(p.title() if p.isupper() and len(p) > 3 else p for p in parts)
+
+
+def is_nma(text, filename=""):
+    # Filename "_NMA_" is the canonical signal — matches the user's commit-
+    # message convention and the landing-page count. Structural heuristics
+    # (vendor/nma-*.js script tags, id="plot-nma", id="nma-network-plot")
+    # are NOT reliable: vendor scripts are loaded by every review template
+    # regardless of analysis type, and the placeholder NMA tab div exists
+    # in pairwise reviews too. Only the filename distinguishes them.
+    return "_NMA_" in filename
+
+
+def git_last_modified(path: Path) -> str:
+    try:
+        r = subprocess.run(
+            ["git", "log", "-1", "--format=%cI", "--", path.name],
+            cwd=str(REPO), capture_output=True, text=True, timeout=10,
+        )
+        out = (r.stdout or "").strip()
+        if out: return out
+    except Exception:
+        pass
+    return ""
+
+
+def main():
+    files = sorted(REPO.glob("*_REVIEW.html"))
+    print(f"Indexing {len(files)} reviews ...")
+
+    # Load auxiliary JSONs once
+    r_dir = REPO / "outputs/r_validation"
+    integrity_path = REPO / "outputs/trial_integrity.json"
+    integrity = json.loads(integrity_path.read_text()) if integrity_path.exists() else {}
+    aact_baselines_path = REPO / "outputs/aact_baselines.json"
+    aact_baselines = json.loads(aact_baselines_path.read_text()) if aact_baselines_path.exists() else {}
+
+    rows = []
+    n_with_r = 0
+    for hp in files:
+        text = hp.read_text(encoding="utf-8", errors="replace")
+        # Skip redirect stubs (short files that redirect to _FULL_REVIEW)
+        if len(text) < 2048 or REDIRECT_RE.search(text[:1024]):
+            continue
+        topic = hp.stem.replace("_REVIEW", "")
+        ncts = sorted(set(NCT_RE.findall(text)))
+        title_m = TITLE_RE.search(text)
+        title_html = title_m.group(1).strip() if title_m else ""
+        # Derive a clean display_name from HTML title if available
+        # "RapidMeta Cardiology | Finerenone in DKD (NMA) v1.0" -> "Finerenone in DKD (NMA)"
+        if " | " in title_html:
+            clean_title = title_html.split(" | ", 1)[1].strip()
+        else:
+            clean_title = title_html
+        # strip trailing version tag " v1.0", " v2.3" etc.
+        import re as _re
+        clean_title = _re.sub(r'\s+v\d+\.\d+$', '', clean_title).strip()
+        # Treatment count for NMA
+        treat_match = TREATMENTS_RE.search(text)
+        n_treatments = 0
+        if treat_match:
+            inner = treat_match.group(1)
+            n_treatments = len(re.findall(r"'[^']+'", inner))
+
+        rtype = "NMA" if is_nma(text, hp.name) else "Pairwise"
+
+        row = {
+            "file": hp.name,
+            "topic": topic,
+            "display_name": clean_title if clean_title else display_from_topic(topic),
+            "title": title_html,
+            "type": rtype,
+            "n_trials": len(ncts),
+            "n_treatments": n_treatments if rtype == "NMA" else None,
+            "ncts": ncts,
+        }
+
+        # R validation
+        rj = r_dir / f"{topic}.json"
+        if rj.exists():
+            try:
+                r = json.loads(rj.read_text())
+                if not r.get("error"):
+                    row["k"] = r.get("k")
+                    row["pooled_OR"] = r.get("pooled_OR")
+                    row["ci_low"] = r.get("ci_low_OR")
+                    row["ci_high"] = r.get("ci_high_OR")
+                    row["I2"] = r.get("I2")
+                    row["tau2"] = r.get("tau2")
+                    row["PI_low"] = r.get("PI_low_OR")
+                    row["PI_high"] = r.get("PI_high_OR")
+                    row["regenerated_from"] = r.get("regenerated_from")
+                    n_with_r += 1
+                    # AN ESTIMATE BUILT FROM PLACEHOLDER INPUTS IS NOT PUBLISHED HERE.
+                    #
+                    # `regenerate_catastrophic_sidecars.R:111` writes hand-chosen hazard
+                    # ratios -- "Substitute placeholder HRs ... these will be flagged for
+                    # human verification" -- and they were never flagged. They were pooled,
+                    # copied into this index and rendered on dashboard.html under "Pooled OR
+                    # (95% CI)". THE ROW SURVIVES and carries the reason; the estimate does
+                    # not. See ssot/placeholder_provenance.py for which reason applies where.
+                    _pp_withdraw(row)
+            except Exception:
+                pass
+
+        # Integrity flags within this review
+        flag_count = sum(1 for nct in ncts if integrity.get(nct, {}).get("any_flag"))
+        retro_count = sum(1 for nct in ncts if integrity.get(nct, {}).get("retro_registered"))
+        overdue_count = sum(1 for nct in ncts if integrity.get(nct, {}).get("results_overdue"))
+        row["integrity_flags"] = flag_count
+        row["retro_count"] = retro_count
+        row["overdue_count"] = overdue_count
+
+        # Has baseline data
+        row["n_with_baseline"] = sum(1 for nct in ncts if aact_baselines.get(nct))
+        row["stats_pending"] = row.get("pooled_OR") is None
+
+        # Last modified
+        row["last_modified"] = git_last_modified(hp)
+
+        rows.append(row)
+
+    # Assign domain bucket based on filename keywords (best-effort)
+    BUCKETS = [
+        ("Cardiology", ["HF","CARDIO","CHF","HFREF","HFPEF","ARNI","SGLT2","CV","ATTR","STROKE","ACS","DOAC","AF","COL","MI","RENAL_DENERV","INCLISIRAN","STATIN","TNK","TPA","ABLATION","HCM","AFICAMTEN","BEMPEDOIC","HFCM","CABG","ROCKET","STEMI","SOTAGLIFLOZIN","PCSK9","TIRZEPATIDE","NOAC","PAH","PAD"]),
+        ("Oncology",   ["ONCO","BREAST","LUNG","NSCLC","SCLC","PROSTATE","OVARIAN","HEMAT","LEUKEMI","LYMPHOMA","CLL","BTK","MYELOMA","MM_","MELANOMA","HEPATOC","HCC","COLO","GASTRIC","ENDOMETRIAL","CHECKPOINT","CART","ADC","KRAS","ALK","CDK","PARP","ARPI","TARLATAMAB","PDL1","PD1","ROS1","FGFR"]),
+        ("Endocrine",  ["DIABETES","T1D","T2D","INSULIN","GLP1","INCRETIN","HBA1C","OBESITY","WEIGHT","CKD"]),
+        ("ID/Vaccine", ["HIV","TB","TUBERC","MALARIA","HEPATITIS","HEPC","DENGUE","COVID","INFLUENZA","RSV","VACCINE","ANTIBIOTIC","SEPSIS","BACTER","CHOLER","TYPHOID","PEDIATRIC_HIV","PREP","ART","MDR","BPAL","ROTAVIRUS","SCHISTOSOM","YELLOW_FEVER","HPV","PNEUMONIA","CRYPTO","CARBAPENEM"]),
+        ("Neuro",      ["MS","ALZHEIM","DEMENTIA","ANTIAMYLOID","CGRP","MIGRAINE","EPILEP","STROKE","SEIZURE","DRAVET","LGS","CBD","FENFLURAMINE","ANTI_CD20","DMD","DELANDISTROGENE"]),
+        ("GI/IBD",     ["UC","CROHN","CD_","IBS","IBD","BIOLOGIC","UPADAC","TOFACITINIB","JAK_UC","UC_","JAK_UC_","INFLAMMATORY","BARIATRIC","RYGB","SG_","RYGB_VS_SG","H_PYLORI"]),
+        ("Resp/Allergy",["ASTHMA","COPD","TEZE","DUPI","CFTR","CYSTIC","PULM"]),
+        ("Renal",      ["DKD","KIDNEY","CKD","HEMODIA","DIALYSIS","GLOMERUL","FINERENONE","NEPH","AKI"]),
+        ("Rheum",      ["RA_","JAKI_RA","SLE","LUPUS","BELIMUMAB","ANIFROL","SPONDYL","PSORIASIS","PSA","HIDR","ALOPECIA","AXSPA","BIOLOGICS","JIA","GOUT","URICOSURIC"]),
+        ("Derm",       ["ATOPIC","DERM","ALOPECIA","VITILIG","HIDR","BIMEK"]),
+        ("Hem",        ["AML","CML","HEMOPH","SICKLE","SCD","MITAPIVAT","THALAS","RUSFER","POLYC","PV_","PNH"]),
+        ("Ophth",      ["NAMD","DR_","RETINOPATHY","UVEITIS","DIABETIC_RETIN","DIABETIC_MACULAR","ANTIVEGF","AVACINCAPTAD","PEGCETACO","GA_","DIABETIC_MAC","AFLIBERCEPT"]),
+        ("Psych",      ["DEPRESS","ANXIETY","SCHIZO","ANTIPSYCH","BIPOLAR","ZURANOLONE","PPD","ADHD","MENTAL"]),
+        ("OB-GYN",     ["PREGNANCY","POSTPARTUM","PPH_","HRT","CONTRACEP","FERTILITY","WOMEN_HEALTH","AGYW","IRON_FCM","HPV"]),
+        ("Critical",   ["ICU","ARDS","SEPSIS","PRONE","TRAUMA","RESUSCIT","HYDROCORT"]),
+        ("Other",      []),
+    ]
+    def bucket_of(topic):
+        u = topic.upper()
+        for name, keys in BUCKETS:
+            for k in keys:
+                if k in u: return name
+        return "Other"
+    for r in rows:
+        r["bucket"] = bucket_of(r["topic"])
+
+    out = REPO / "outputs/portfolio_index.json"
+    out.write_text(json.dumps({
+        "generated": __import__("datetime").datetime.now().isoformat(timespec="seconds"),
+        "n_total": len(rows),
+        "n_pairwise": sum(1 for r in rows if r["type"] == "Pairwise"),
+        "n_nma": sum(1 for r in rows if r["type"] == "NMA"),
+        "n_with_r_validation": n_with_r,
+        "n_validated_provenance": sum(1 for r in rows if r.get("pooled_OR") is not None),
+        "n_stats_pending": sum(1 for r in rows if r.get("stats_pending")),
+        "rows": rows,
+    }, indent=2))
+
+    print(f"\n=== Summary ===")
+    print(f"  Total reviews:        {len(rows)}")
+    print(f"  Pairwise:             {sum(1 for r in rows if r['type'] == 'Pairwise')}")
+    print(f"  NMA:                  {sum(1 for r in rows if r['type'] == 'NMA')}")
+    print(f"  With R validation:    {n_with_r}")
+    print(f"  With ≥1 integrity flag: {sum(1 for r in rows if r['integrity_flags']>0)}")
+    print(f"\nWritten: {out}")
+
+
+if __name__ == "__main__":
+    main()
+
+codex
+I’ll stay inside the pasted packet and treat missing context as unknowable rather than filling gaps from the workspace. I’m checking only the named recurrent defect shapes and will keep the answer tight.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=0; Get-Content -LiteralPath '"'scripts/build_portfolio_index.py' | ForEach-Object { "'$i++; '"'{0,4}: {1}' -f "'$i, $_ }' in F:\rapidmeta-ssot-shell
+ succeeded in 1527ms:
+   1: """Build outputs/portfolio_index.json â€” one row per *_REVIEW.html in
+   2: the corpus, with the metrics needed to drive dashboard.html.
+   3: 
+   4: Per row:
+   5:   file              ABLATION_AF_REVIEW.html
+   6:   topic             ABLATION_AF
+   7:   display_name      "Ablation AF"
+   8:   type              "NMA" | "Pairwise"
+   9:   k                 number of trials
+  10:   pooled_OR         from outputs/r_validation/<topic>.json (if present)
+  11:   ci_low / ci_high  from R validation
+  12:   I2                from R validation
+  13:   tau2              from R validation
+  14:   ncts              list of NCT ids referenced in the review
+  15:   integrity_flags   count of NCTs in this review that carry concordance flags
+  16:   has_baseline      bool â€” at least one trial has age/female from AACT
+  17:   last_modified     git last commit date for the file (ISO)
+  18: 
+  19: Idempotent. Run after r_validate.py and compute_trial_integrity.py.
+  20: """
+  21: from __future__ import annotations
+  22: import sys, io, re, json, subprocess
+  23: from pathlib import Path
+  24: sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+  25: 
+  26: REPO = Path(__file__).resolve().parent.parent
+  27: 
+  28: sys.path.insert(0, str(REPO / "ssot"))
+  29: from placeholder_provenance import apply_to_row as _pp_withdraw   # noqa: E402
+  30: 
+  31: NCT_RE = re.compile(r"'(NCT\d{8})'\s*:")
+  32: TITLE_RE = re.compile(r"<title[^>]*>(.*?)</title>", re.IGNORECASE | re.DOTALL)
+  33: REDIRECT_RE = re.compile(r'http-equiv=.{0,10}refresh', re.IGNORECASE)
+  34: TREATMENTS_RE = re.compile(r"treatments\s*:\s*\[([^\]]+)\]", re.DOTALL)
+  35: 
+  36: 
+  37: def display_from_topic(topic):
+  38:     parts = topic.replace("_", " ").split()
+  39:     return " ".join(p.title() if p.isupper() and len(p) > 3 else p for p in parts)
+  40: 
+  41: 
+  42: def is_nma(text, filename=""):
+  43:     # Filename "_NMA_" is the canonical signal â€” matches the user's commit-
+  44:     # message convention and the landing-page count. Structural heuristics
+  45:     # (vendor/nma-*.js script tags, id="plot-nma", id="nma-network-plot")
+  46:     # are NOT reliable: vendor scripts are loaded by every review template
+  47:     # regardless of analysis type, and the placeholder NMA tab div exists
+  48:     # in pairwise reviews too. Only the filename distinguishes them.
+  49:     return "_NMA_" in filename
+  50: 
+  51: 
+  52: def git_last_modified(path: Path) -> str:
+  53:     try:
+  54:         r = subprocess.run(
+  55:             ["git", "log", "-1", "--format=%cI", "--", path.name],
+  56:             cwd=str(REPO), capture_output=True, text=True, timeout=10,
+  57:         )
+  58:         out = (r.stdout or "").strip()
+  59:         if out: return out
+  60:     except Exception:
+  61:         pass
+  62:     return ""
+  63: 
+  64: 
+  65: def main():
+  66:     files = sorted(REPO.glob("*_REVIEW.html"))
+  67:     print(f"Indexing {len(files)} reviews ...")
+  68: 
+  69:     # Load auxiliary JSONs once
+  70:     r_dir = REPO / "outputs/r_validation"
+  71:     integrity_path = REPO / "outputs/trial_integrity.json"
+  72:     integrity = json.loads(integrity_path.read_text()) if integrity_path.exists() else {}
+  73:     aact_baselines_path = REPO / "outputs/aact_baselines.json"
+  74:     aact_baselines = json.loads(aact_baselines_path.read_text()) if aact_baselines_path.exists() else {}
+  75: 
+  76:     rows = []
+  77:     n_with_r = 0
+  78:     for hp in files:
+  79:         text = hp.read_text(encoding="utf-8", errors="replace")
+  80:         # Skip redirect stubs (short files that redirect to _FULL_REVIEW)
+  81:         if len(text) < 2048 or REDIRECT_RE.search(text[:1024]):
+  82:             continue
+  83:         topic = hp.stem.replace("_REVIEW", "")
+  84:         ncts = sorted(set(NCT_RE.findall(text)))
+  85:         title_m = TITLE_RE.search(text)
+  86:         title_html = title_m.group(1).strip() if title_m else ""
+  87:         # Derive a clean display_name from HTML title if available
+  88:         # "RapidMeta Cardiology | Finerenone in DKD (NMA) v1.0" -> "Finerenone in DKD (NMA)"
+  89:         if " | " in title_html:
+  90:             clean_title = title_html.split(" | ", 1)[1].strip()
+  91:         else:
+  92:             clean_title = title_html
+  93:         # strip trailing version tag " v1.0", " v2.3" etc.
+  94:         import re as _re
+  95:         clean_title = _re.sub(r'\s+v\d+\.\d+$', '', clean_title).strip()
+  96:         # Treatment count for NMA
+  97:         treat_match = TREATMENTS_RE.search(text)
+  98:         n_treatments = 0
+  99:         if treat_match:
+ 100:             inner = treat_match.group(1)
+ 101:             n_treatments = len(re.findall(r"'[^']+'", inner))
+ 102: 
+ 103:         rtype = "NMA" if is_nma(text, hp.name) else "Pairwise"
+ 104: 
+ 105:         row = {
+ 106:             "file": hp.name,
+ 107:             "topic": topic,
+ 108:             "display_name": clean_title if clean_title else display_from_topic(topic),
+ 109:             "title": title_html,
+ 110:             "type": rtype,
+ 111:             "n_trials": len(ncts),
+ 112:             "n_treatments": n_treatments if rtype == "NMA" else None,
+ 113:             "ncts": ncts,
+ 114:         }
+ 115: 
+ 116:         # R validation
+ 117:         rj = r_dir / f"{topic}.json"
+ 118:         if rj.exists():
+ 119:             try:
+ 120:                 r = json.loads(rj.read_text())
+ 121:                 if not r.get("error"):
+ 122:                     row["k"] = r.get("k")
+ 123:                     row["pooled_OR"] = r.get("pooled_OR")
+ 124:                     row["ci_low"] = r.get("ci_low_OR")
+ 125:                     row["ci_high"] = r.get("ci_high_OR")
+ 126:                     row["I2"] = r.get("I2")
+ 127:                     row["tau2"] = r.get("tau2")
+ 128:                     row["PI_low"] = r.get("PI_low_OR")
+ 129:                     row["PI_high"] = r.get("PI_high_OR")
+ 130:                     row["regenerated_from"] = r.get("regenerated_from")
+ 131:                     n_with_r += 1
+ 132:                     # AN ESTIMATE BUILT FROM PLACEHOLDER INPUTS IS NOT PUBLISHED HERE.
+ 133:                     #
+ 134:                     # `regenerate_catastrophic_sidecars.R:111` writes hand-chosen hazard
+ 135:                     # ratios -- "Substitute placeholder HRs ... these will be flagged for
+ 136:                     # human verification" -- and they were never flagged. They were pooled,
+ 137:                     # copied into this index and rendered on dashboard.html under "Pooled OR
+ 138:                     # (95% CI)". THE ROW SURVIVES and carries the reason; the estimate does
+ 139:                     # not. See ssot/placeholder_provenance.py for which reason applies where.
+ 140:                     _pp_withdraw(row)
+ 141:             except Exception:
+ 142:                 pass
+ 143: 
+ 144:         # Integrity flags within this review
+ 145:         flag_count = sum(1 for nct in ncts if integrity.get(nct, {}).get("any_flag"))
+ 146:         retro_count = sum(1 for nct in ncts if integrity.get(nct, {}).get("retro_registered"))
+ 147:         overdue_count = sum(1 for nct in ncts if integrity.get(nct, {}).get("results_overdue"))
+ 148:         row["integrity_flags"] = flag_count
+ 149:         row["retro_count"] = retro_count
+ 150:         row["overdue_count"] = overdue_count
+ 151: 
+ 152:         # Has baseline data
+ 153:         row["n_with_baseline"] = sum(1 for nct in ncts if aact_baselines.get(nct))
+ 154:         row["stats_pending"] = row.get("pooled_OR") is None
+ 155: 
+ 156:         # Last modified
+ 157:         row["last_modified"] = git_last_modified(hp)
+ 158: 
+ 159:         rows.append(row)
+ 160: 
+ 161:     # Assign domain bucket based on filename keywords (best-effort)
+ 162:     BUCKETS = [
+ 163:         ("Cardiology", ["HF","CARDIO","CHF","HFREF","HFPEF","ARNI","SGLT2","CV","ATTR","STROKE","ACS","DOAC","AF","COL","MI","RENAL_DENERV","INCLISIRAN","STATIN","TNK","TPA","ABLATION","HCM","AFICAMTEN","BEMPEDOIC","HFCM","CABG","ROCKET","STEMI","SOTAGLIFLOZIN","PCSK9","TIRZEPATIDE","NOAC","PAH","PAD"]),
+ 164:         ("Oncology",   ["ONCO","BREAST","LUNG","NSCLC","SCLC","PROSTATE","OVARIAN","HEMAT","LEUKEMI","LYMPHOMA","CLL","BTK","MYELOMA","MM_","MELANOMA","HEPATOC","HCC","COLO","GASTRIC","ENDOMETRIAL","CHECKPOINT","CART","ADC","KRAS","ALK","CDK","PARP","ARPI","TARLATAMAB","PDL1","PD1","ROS1","FGFR"]),
+ 165:         ("Endocrine",  ["DIABETES","T1D","T2D","INSULIN","GLP1","INCRETIN","HBA1C","OBESITY","WEIGHT","CKD"]),
+ 166:         ("ID/Vaccine", ["HIV","TB","TUBERC","MALARIA","HEPATITIS","HEPC","DENGUE","COVID","INFLUENZA","RSV","VACCINE","ANTIBIOTIC","SEPSIS","BACTER","CHOLER","TYPHOID","PEDIATRIC_HIV","PREP","ART","MDR","BPAL","ROTAVIRUS","SCHISTOSOM","YELLOW_FEVER","HPV","PNEUMONIA","CRYPTO","CARBAPENEM"]),
+ 167:         ("Neuro",      ["MS","ALZHEIM","DEMENTIA","ANTIAMYLOID","CGRP","MIGRAINE","EPILEP","STROKE","SEIZURE","DRAVET","LGS","CBD","FENFLURAMINE","ANTI_CD20","DMD","DELANDISTROGENE"]),
+ 168:         ("GI/IBD",     ["UC","CROHN","CD_","IBS","IBD","BIOLOGIC","UPADAC","TOFACITINIB","JAK_UC","UC_","JAK_UC_","INFLAMMATORY","BARIATRIC","RYGB","SG_","RYGB_VS_SG","H_PYLORI"]),
+ 169:         ("Resp/Allergy",["ASTHMA","COPD","TEZE","DUPI","CFTR","CYSTIC","PULM"]),
+ 170:         ("Renal",      ["DKD","KIDNEY","CKD","HEMODIA","DIALYSIS","GLOMERUL","FINERENONE","NEPH","AKI"]),
+ 171:         ("Rheum",      ["RA_","JAKI_RA","SLE","LUPUS","BELIMUMAB","ANIFROL","SPONDYL","PSORIASIS","PSA","HIDR","ALOPECIA","AXSPA","BIOLOGICS","JIA","GOUT","URICOSURIC"]),
+ 172:         ("Derm",       ["ATOPIC","DERM","ALOPECIA","VITILIG","HIDR","BIMEK"]),
+ 173:         ("Hem",        ["AML","CML","HEMOPH","SICKLE","SCD","MITAPIVAT","THALAS","RUSFER","POLYC","PV_","PNH"]),
+ 174:         ("Ophth",      ["NAMD","DR_","RETINOPATHY","UVEITIS","DIABETIC_RETIN","DIABETIC_MACULAR","ANTIVEGF","AVACINCAPTAD","PEGCETACO","GA_","DIABETIC_MAC","AFLIBERCEPT"]),
+ 175:         ("Psych",      ["DEPRESS","ANXIETY","SCHIZO","ANTIPSYCH","BIPOLAR","ZURANOLONE","PPD","ADHD","MENTAL"]),
+ 176:         ("OB-GYN",     ["PREGNANCY","POSTPARTUM","PPH_","HRT","CONTRACEP","FERTILITY","WOMEN_HEALTH","AGYW","IRON_FCM","HPV"]),
+ 177:         ("Critical",   ["ICU","ARDS","SEPSIS","PRONE","TRAUMA","RESUSCIT","HYDROCORT"]),
+ 178:         ("Other",      []),
+ 179:     ]
+ 180:     def bucket_of(topic):
+ 181:         u = topic.upper()
+ 182:         for name, keys in BUCKETS:
+ 183:             for k in keys:
+ 184:                 if k in u: return name
+ 185:         return "Other"
+ 186:     for r in rows:
+ 187:         r["bucket"] = bucket_of(r["topic"])
+ 188: 
+ 189:     out = REPO / "outputs/portfolio_index.json"
+ 190:     out.write_text(json.dumps({
+ 191:         "generated": __import__("datetime").datetime.now().isoformat(timespec="seconds"),
+ 192:         "n_total": len(rows),
+ 193:         "n_pairwise": sum(1 for r in rows if r["type"] == "Pairwise"),
+ 194:         "n_nma": sum(1 for r in rows if r["type"] == "NMA"),
+ 195:         "n_with_r_validation": n_with_r,
+ 196:         "n_validated_provenance": sum(1 for r in rows if r.get("pooled_OR") is not None),
+ 197:         "n_stats_pending": sum(1 for r in rows if r.get("stats_pending")),
+ 198:         "rows": rows,
+ 199:     }, indent=2))
+ 200: 
+ 201:     print(f"\n=== Summary ===")
+ 202:     print(f"  Total reviews:        {len(rows)}")
+ 203:     print(f"  Pairwise:             {sum(1 for r in rows if r['type'] == 'Pairwise')}")
+ 204:     print(f"  NMA:                  {sum(1 for r in rows if r['type'] == 'NMA')}")
+ 205:     print(f"  With R validation:    {n_with_r}")
+ 206:     print(f"  With â‰¥1 integrity flag: {sum(1 for r in rows if r['integrity_flags']>0)}")
+ 207:     print(f"\nWritten: {out}")
+ 208: 
+ 209: 
+ 210: if __name__ == "__main__":
+ 211:     main()
+
+codex
+Defects found:
+
+- **SELECTOR KEYED TO A FORM**: line 31, used at line 84.  
+  Exact input: `X_REVIEW.html = "<title>X</title>\n<p>NCT01234567</p>\n" + ("x"*2050)`  
+  Consequence: `ncts=[]` and `n_trials=0` even though the review references `NCT01234567`.
+
+- **SELECTOR KEYED TO A FORM**: line 101.  
+  Exact input: `X_NMA_REVIEW.html = "<title>X</title>\ntreatments: [\"Placebo\", \"Drug\"]\n'NCT01234567': {}\n" + ("x"*2050)`  
+  Consequence: `n_treatments` becomes `0` because only single-quoted treatments are counted.
+
+- **CHECK WITH WRONG REACH**: line 81.  
+  Exact input: `SHORT_REVIEW.html = "<title>S</title>\n'NCT01234567': {}"`  
+  Consequence: the review is skipped solely because it is under 2048 bytes, despite containing no redirect marker.
+
+- **STATUS/WORK FAILURE IGNORED**: lines 119-142, especially 141-142.  
+  Exact input: valid `X_REVIEW.html` plus `outputs/r_validation/X.json = "{not-json"`  
+  Consequence: the broken validation artifact is silently treated like missing stats and the script still exits successfully.
+
+- **IDEMPOTENCY BROKEN**: line 191.  
+  Exact input: any unchanged corpus, run twice one second apart.  
+  Consequence: `outputs/portfolio_index.json` changes only because `generated` is rewritten from wall-clock time.
+
+No proven defect in this pasted file for: probe keyed to string a fix removes; idempotency guard satisfied by own comment; CRLF text comparison; merged-cell tabulation; negation dropped.  
+COULD NOT DETERMINE different-copy and zero-vs-absent cases without the caller contract and `outputs/aact_baselines.json` schema.
+tokens used
+21,767
+Defects found:
+
+- **SELECTOR KEYED TO A FORM**: line 31, used at line 84.  
+  Exact input: `X_REVIEW.html = "<title>X</title>\n<p>NCT01234567</p>\n" + ("x"*2050)`  
+  Consequence: `ncts=[]` and `n_trials=0` even though the review references `NCT01234567`.
+
+- **SELECTOR KEYED TO A FORM**: line 101.  
+  Exact input: `X_NMA_REVIEW.html = "<title>X</title>\ntreatments: [\"Placebo\", \"Drug\"]\n'NCT01234567': {}\n" + ("x"*2050)`  
+  Consequence: `n_treatments` becomes `0` because only single-quoted treatments are counted.
+
+- **CHECK WITH WRONG REACH**: line 81.  
+  Exact input: `SHORT_REVIEW.html = "<title>S</title>\n'NCT01234567': {}"`  
+  Consequence: the review is skipped solely because it is under 2048 bytes, despite containing no redirect marker.
+
+- **STATUS/WORK FAILURE IGNORED**: lines 119-142, especially 141-142.  
+  Exact input: valid `X_REVIEW.html` plus `outputs/r_validation/X.json = "{not-json"`  
+  Consequence: the broken validation artifact is silently treated like missing stats and the script still exits successfully.
+
+- **IDEMPOTENCY BROKEN**: line 191.  
+  Exact input: any unchanged corpus, run twice one second apart.  
+  Consequence: `outputs/portfolio_index.json` changes only because `generated` is rewritten from wall-clock time.
+
+No proven defect in this pasted file for: probe keyed to string a fix removes; idempotency guard satisfied by own comment; CRLF text comparison; merged-cell tabulation; negation dropped.  
+COULD NOT DETERMINE different-copy and zero-vs-absent cases without the caller contract and `outputs/aact_baselines.json` schema.

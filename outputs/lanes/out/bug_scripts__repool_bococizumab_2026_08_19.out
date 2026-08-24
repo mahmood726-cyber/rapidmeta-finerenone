@@ -1,0 +1,686 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a03255-8b1b-7072-940d-04a6a8f3824c
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/repool_bococizumab_2026_08_19.py
+
+--- THE FILE, IN FULL ---
+#!/usr/bin/env python3
+"""RE-POOL `bococizumab-lipid-review` WITH THE TRIAL ITS OWN SEARCH FOUND AND ITS OBJECT LACKED.
+
+WHAT THIS IS NOT. It is not a correction of the estimate. The odds-ratio-from-counts was already
+replaced on 2026-08-18 by the registry's own least-squares mean differences, and that
+replacement stands untouched. THE MEASURE WAS FIXED AND THE EVIDENCE BASE WAS NEVER CHECKED --
+the object recorded "search: not recorded on the page this object was built from".
+
+The executed search (2026-08-19, `scripts/screen_bococizumab_2026_08_19.py`) surfaced 22
+registrations and screened them to zero. FIVE are eligible, poolable, have posted LDL results
+and are absent from the object. ONE of the five joins this pool, and the reason the other four
+do not is the point of this file.
+
+SPIRE-FH (NCT01968980, n=370) JOINS. Its registered primary is
+    "Percent Change From Baseline in Low Density Lipoprotein Cholesterol (LDL-C) at Week 12"
+-- the identical endpoint at the identical timepoint as all five incumbents -- and it posts a
+least-squares mean difference of -54.5 (-59.5 to -49.5) in its own `analyses` block, which is
+the SAME PROVENANCE as every value already in the pool. Nothing is derived.
+
+THE OTHER FOUR ARE DOSE-RANGING TRIALS, AND A DOSE-RANGING TRIAL IS NOT ONE CONTRAST.
+
+    NCT01342211   4 dose arms vs one placebo   LS mean differences  -5.63, -2.30, -37.72, -49.11
+    NCT01350141   2 dose arms vs one placebo                       -21.81, -46.42
+    NCT02055976   6 dose/route arms vs 2 placebos   -47.53 to -71.53, at Day 85 AND Day 113
+    NCT01592240   dosing-SCHEDULE arms, percent change posted only as "Week 12 and 24" combined
+
+Each of them randomised DOSE. Pooling one of their arms against placebo means choosing which
+arm, and there is no rule in this review that chooses it: the effect inside NCT01342211 runs
+from -2.30 to -49.11 depending on which dose is picked, which is a spread wider than the entire
+pool. THE CHOICE WOULD BE OURS AND IT WOULD LOOK LIKE THE TRIAL'S. Same discipline as
+`apixaban-vte-treatment` applied to NCT01195727 -- in scope, and contributing no single effect
+estimate -- and the same reason the timepoint matters: three of the four post Day 85 or Day 113
+rather than Week 12, so even the chosen contrast would not be the pooled estimand.
+
+    A CONTINUOUS ENDPOINT HAS THE COMPOSITE PROBLEM TOO. It has no components to mismatch, so
+    the mismatch moves to the TIMEPOINT and to the DOSE. "Percent change in LDL-C" is one name
+    covering Week 12, Day 85, Day 113, and "Week 12 and 24" combined, at doses from 0.25 mg/kg
+    to 150 mg. P37 is not about composites; it is about NAMES.
+
+USAGE:  python scripts/repool_bococizumab_2026_08_19.py
+        python scripts/repool_bococizumab_2026_08_19.py --selftest
+"""
+import io
+import json
+import math
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(REPO, "scripts"))
+import headline_reproducible_gate as HG                                    # noqa: E402
+
+DEST = os.path.join(REPO, "evidence", "2026-08-19-batch1", "bococizumab_repool.json")
+Z = 1.959963984540054
+T = HG._T
+
+# (trial, nct, MD, ci_low, ci_high, n analysed, registered outcome title) -- every row READ
+# from the trial's own posted `analyses` block. Not one is derived by us.
+INCUMBENT = [
+    ("SPIRE-LDL", "NCT01968967", -56.2, -58.3, -54.0, 2139,
+     "Percent Change From Baseline in Fasting Low Density Lipoprotein Cholesterol (LDL-C) at "
+     "Week 12"),
+    ("SPIRE-LL", "NCT02100514", -49.9, -54.0, -45.8, 746,
+     "Percent Change From Baseline in Fasting Low Density Lipoprotein Cholesterol (LDL-C) at "
+     "Week 12"),
+    ("SPIRE-HR", "NCT01968954", -57.0, -61.0, -53.1, 711,
+     "Percent Change From Baseline in Low Density Lipoprotein-Cholesterol (LDL-C) at Week 12"),
+    ("SPIRE-AI", "NCT02458287", -63.4, -72.0, -54.7, 299,
+     "Percent Change From Baseline at Week 12 in Fasting Low Density Lipoprotein Cholesterol "
+     "(LDL-C) Level"),
+    ("SPIRE-SI", "NCT02135029", -54.5, -60.1, -49.0, 184,
+     "Percent Change From Baseline in Fasting Low Density Lipoprotein Cholesterol (LDL-C) at "
+     "Week 12"),
+]
+RECOVERED = [
+    ("SPIRE-FH", "NCT01968980", -54.5, -59.5, -49.5, 370,
+     "Percent Change From Baseline in Low Density Lipoprotein Cholesterol (LDL-C) at Week 12"),
+]
+# Eligible, poolable, posted results -- and NOT pooled, each with its reason and its own
+# numbers, so a reader can see exactly what the refusal costs.
+DOSE_RANGING = {
+    "NCT01342211": {"n": 93, "timepoint": "Day 85",
+                    "contrasts": [-5.63, -2.30, -37.72, -49.11],
+                    "why": "four dose arms against one placebo; the effect runs from -2.30 to "
+                           "-49.11 across them, a spread wider than the whole pool"},
+    "NCT01350141": {"n": 46, "timepoint": "Day 85", "contrasts": [-21.81, -46.42],
+                    "why": "two dose arms against one placebo"},
+    "NCT02055976": {"n": 218, "timepoint": "Day 85 and Day 113",
+                    "contrasts": [-49.838, -66.754, -71.534, -47.531, -62.624, -64.268],
+                    "why": "six dose/route arms against two separate placebos, and TWO "
+                           "co-primary timepoints"},
+    "NCT01592240": {"n": 354, "timepoint": "Week 12 and 24, combined in one measure",
+                    "contrasts": [],
+                    "why": "its PRIMARY is ABSOLUTE change; percent change is posted only at "
+                           "SECONDARY rank and only as a combined 'Week 12 and 24' measure, so "
+                           "there is no Week-12 percent-change contrast to take"},
+}
+
+
+def se_from_ci(lo, hi):
+    """The standard error the printed interval implies, at 95 per cent. DERIVED, and said so."""
+    return (hi - lo) / (2.0 * Z)
+
+
+def pool(rows, label):
+    ys = [r[2] for r in rows]
+    vs = [se_from_ci(r[3], r[4]) ** 2 for r in rows]
+    k = len(ys)
+    wf = [1.0 / v for v in vs]
+    mf = sum(w * y for w, y in zip(wf, ys)) / sum(wf)
+    q = sum(w * (y - mf) ** 2 for w, y in zip(wf, ys))
+    i2 = max(0.0, (q - (k - 1)) / q) * 100.0 if q > 0 else 0.0
+    out = {"label": label, "k": k, "q": round(q, 4), "df": k - 1, "i2_pct": round(i2, 1),
+           "n_participants": sum(r[5] for r in rows),
+           "per_trial": [{"trial": r[0], "nct": r[1], "md": r[2], "ci_low": r[3],
+                          "ci_high": r[4], "n": r[5], "outcome_title": r[6],
+                          "provenance": "READ from the trial's posted `analyses` block "
+                                        "(least-squares mean difference with its 95% CI)"}
+                         for r in rows]}
+    for how in ("REML", "PM"):
+        t2 = HG._tau2(ys, vs, how)
+        w = [1.0 / (v + t2) for v in vs]
+        sw = sum(w)
+        mu = sum(a * b for a, b in zip(w, ys)) / sw
+        se = math.sqrt(1.0 / sw)
+        rec = {"tau2": round(t2, 4), "md": round(mu, 4),
+               "ci_low": round(mu - Z * se, 4), "ci_high": round(mu + Z * se, 4),
+               "interval": "Wald, normal"}
+        qh = sum(wi * (y - mu) ** 2 for wi, y in zip(w, ys)) / (k - 1)
+        qf = max(1.0, qh)
+        seh = math.sqrt(qf / sw)
+        tc = T.get(k - 1)
+        rec["hksj"] = {"q_hksj": round(qh, 4), "floored_to": round(qf, 4),
+                       "floor_applied": qf > qh + 1e-12, "t_df": k - 1, "t_crit": tc,
+                       "md": round(mu, 4), "ci_low": round(mu - tc * seh, 4),
+                       "ci_high": round(mu + tc * seh, 4),
+                       "interval": "Knapp-Hartung-Sidik-Jonkman, t on k-1 df, "
+                                   "floor max(1, Q/(k-1))"}
+        out[how] = rec
+    return out
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    old = pool(INCUMBENT, "the five trials on the object -- REML, as published 2026-08-18")
+    new = pool(INCUMBENT + RECOVERED, "the six the executed search supports")
+
+    print("OLD  k=%d  n=%d  MD %.4f (%.4f to %.4f)  tau2 %.3f  I2 %.1f%%"
+          % (old["k"], old["n_participants"], old["REML"]["md"], old["REML"]["ci_low"],
+             old["REML"]["ci_high"], old["REML"]["tau2"], old["i2_pct"]))
+    print("NEW  k=%d  n=%d  MD %.4f (%.4f to %.4f)  tau2 %.3f  I2 %.1f%%"
+          % (new["k"], new["n_participants"], new["REML"]["md"], new["REML"]["ci_low"],
+             new["REML"]["ci_high"], new["REML"]["tau2"], new["i2_pct"]))
+    print("     HKSJ on %d df: %.4f (%.4f to %.4f)"
+          % (new["REML"]["hksj"]["t_df"], new["REML"]["hksj"]["md"],
+             new["REML"]["hksj"]["ci_low"], new["REML"]["hksj"]["ci_high"]))
+    print("\nthe trial that joined:  SPIRE-FH NCT01968980  MD -54.5 (-59.5 to -49.5)  n=370")
+    print("not pooled, with reasons: %s" % ", ".join(sorted(DOSE_RANGING)))
+
+    out = {
+        "topic": "bococizumab-lipid-review",
+        "repooled_utc": "2026-08-19",
+        "what_this_is_not": (
+            "NOT a correction of the estimate. The odds-ratio-from-counts was replaced on "
+            "2026-08-18 and that replacement stands. This checks the EVIDENCE BASE, which had "
+            "never been checked -- the object recorded 'search: not recorded on the page this "
+            "object was built from'."),
+        "estimand": {
+            "definition": "percent change from baseline in LDL-C at WEEK 12",
+            "and_the_timepoint_is_part_of_it": (
+                "Three of the four dose-ranging trials post Day 85 or Day 113 instead, and one "
+                "posts 'Week 12 and 24' combined in a single measure. A CONTINUOUS ENDPOINT "
+                "HAS NO COMPONENTS TO MISMATCH, so the mismatch moves to the TIMEPOINT and the "
+                "DOSE -- and 'percent change in LDL-C' is one name covering all of them. P37 "
+                "is about names, not about composites."),
+        },
+        "previous": old,
+        "current": new,
+        "the_trial_that_joined": {
+            "nct": "NCT01968980", "name": "SPIRE-FH", "n": 370,
+            "why_it_joins": ("Its registered primary is the identical endpoint at the identical "
+                             "timepoint, and it posts a least-squares mean difference in its "
+                             "own `analyses` block -- the same provenance as every value "
+                             "already in the pool. Nothing is derived."),
+            "why_it_was_absent": ("This review had no executed search until 2026-08-19. Its "
+                                  "five trials were the five somebody put on a page."),
+        },
+        "eligible_poolable_and_NOT_pooled": {
+            "_why_shown": ("Each is eligible, has posted LDL results, and is absent from the "
+                           "pool for a stated reason with its own numbers beside it, so the "
+                           "cost of the refusal is inspectable rather than asserted."),
+            "reason": ("A DOSE-RANGING TRIAL IS NOT ONE CONTRAST. Each randomised DOSE; "
+                       "pooling one arm against placebo means choosing which arm, and no rule "
+                       "in this review chooses it. THE CHOICE WOULD BE OURS AND IT WOULD LOOK "
+                       "LIKE THE TRIAL'S."),
+            "trials": DOSE_RANGING,
+        },
+        "estimator_note": (
+            "REML with an inverse-variance random-effects model, unchanged from the published "
+            "pool so that the two are comparable on one estimator; Paule-Mandel and a floored "
+            "Knapp-Hartung interval are carried beside it. Standard errors are DERIVED from "
+            "each printed 95 per cent interval and are labelled so -- the point estimates and "
+            "intervals themselves are read."),
+        "and_what_did_NOT_move": (
+            "The answer. Adding a sixth trial and 370 participants moves the pooled mean "
+            "difference by less than half a percentage point. THAT IS THE FINDING AND IT IS "
+            "NOT A NULL RESULT: a review whose evidence base was never checked turned out to "
+            "have the right answer, and nothing about the way it was built could have told "
+            "anyone that. The check is what distinguishes a correct estimate from a lucky one."),
+    }
+    with io.open(DEST, "w", encoding="utf-8") as fh:
+        fh.write(json.dumps(out, indent=1))
+    print("\nwrote %s" % DEST)
+    return 0
+
+
+def selftest():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    fails = []
+
+    def check(name, got, want, tol=1e-3):
+        ok = abs(got - want) <= tol if isinstance(want, float) else got == want
+        print("  %-58s %s  %s" % (name, "ok" if ok else "FAIL", got))
+        if not ok:
+            fails.append(name)
+
+    # The published pool must REPRODUCE from the five stored rows. If it does not, either the
+    # stored value or this arithmetic is wrong, and the re-pool would be built on sand.
+    old = pool(INCUMBENT, "x")
+    check("the published MD -55.4593 reproduces from its own five rows",
+          old["REML"]["md"], -55.4593, 0.02)
+    check("...and its published I2 of 65.1%", old["i2_pct"], 65.1, 0.6)
+    check("...and its published tau2 of 9.3148", old["REML"]["tau2"], 9.3148, 0.15)
+
+    # SPIRE-FH's interval must imply a standard error consistent with its posted SEM of 2.54.
+    check("SPIRE-FH's printed CI implies its posted standard error 2.54",
+          se_from_ci(-59.5, -49.5), 2.551, 0.02)
+
+    # And the recovered trial must actually MOVE something, or adding it proves nothing.
+    new = pool(INCUMBENT + RECOVERED, "y")
+    check("k rises 5 -> 6", new["k"], 6)
+    check("n rises by SPIRE-FH's 370",
+          new["n_participants"] - old["n_participants"], 370)
+
+    print("\n%s" % ("ALL KNOWN ANSWERS HELD" if not fails else "FAILED: %s" % fails))
+    return 1 if fails else 0
+
+
+if __name__ == "__main__":
+    sys.exit(selftest() if "--selftest" in sys.argv else main())
+
+codex
+I’m reading the pasted module as the complete record and checking only defects that can be demonstrated from it. I’ll keep the answer to concrete failures with line/input/consequence.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=0; Get-Content -LiteralPath scripts'"\\repool_bococizumab_2026_08_19.py | ForEach-Object { "'$i++; '"'{0,4}: {1}' -f "'$i, $_ }' in F:\rapidmeta-ssot-shell
+ succeeded in 1235ms:
+   1: #!/usr/bin/env python3
+   2: """RE-POOL `bococizumab-lipid-review` WITH THE TRIAL ITS OWN SEARCH FOUND AND ITS OBJECT LACKED.
+   3: 
+   4: WHAT THIS IS NOT. It is not a correction of the estimate. The odds-ratio-from-counts was already
+   5: replaced on 2026-08-18 by the registry's own least-squares mean differences, and that
+   6: replacement stands untouched. THE MEASURE WAS FIXED AND THE EVIDENCE BASE WAS NEVER CHECKED --
+   7: the object recorded "search: not recorded on the page this object was built from".
+   8: 
+   9: The executed search (2026-08-19, `scripts/screen_bococizumab_2026_08_19.py`) surfaced 22
+  10: registrations and screened them to zero. FIVE are eligible, poolable, have posted LDL results
+  11: and are absent from the object. ONE of the five joins this pool, and the reason the other four
+  12: do not is the point of this file.
+  13: 
+  14: SPIRE-FH (NCT01968980, n=370) JOINS. Its registered primary is
+  15:     "Percent Change From Baseline in Low Density Lipoprotein Cholesterol (LDL-C) at Week 12"
+  16: -- the identical endpoint at the identical timepoint as all five incumbents -- and it posts a
+  17: least-squares mean difference of -54.5 (-59.5 to -49.5) in its own `analyses` block, which is
+  18: the SAME PROVENANCE as every value already in the pool. Nothing is derived.
+  19: 
+  20: THE OTHER FOUR ARE DOSE-RANGING TRIALS, AND A DOSE-RANGING TRIAL IS NOT ONE CONTRAST.
+  21: 
+  22:     NCT01342211   4 dose arms vs one placebo   LS mean differences  -5.63, -2.30, -37.72, -49.11
+  23:     NCT01350141   2 dose arms vs one placebo                       -21.81, -46.42
+  24:     NCT02055976   6 dose/route arms vs 2 placebos   -47.53 to -71.53, at Day 85 AND Day 113
+  25:     NCT01592240   dosing-SCHEDULE arms, percent change posted only as "Week 12 and 24" combined
+  26: 
+  27: Each of them randomised DOSE. Pooling one of their arms against placebo means choosing which
+  28: arm, and there is no rule in this review that chooses it: the effect inside NCT01342211 runs
+  29: from -2.30 to -49.11 depending on which dose is picked, which is a spread wider than the entire
+  30: pool. THE CHOICE WOULD BE OURS AND IT WOULD LOOK LIKE THE TRIAL'S. Same discipline as
+  31: `apixaban-vte-treatment` applied to NCT01195727 -- in scope, and contributing no single effect
+  32: estimate -- and the same reason the timepoint matters: three of the four post Day 85 or Day 113
+  33: rather than Week 12, so even the chosen contrast would not be the pooled estimand.
+  34: 
+  35:     A CONTINUOUS ENDPOINT HAS THE COMPOSITE PROBLEM TOO. It has no components to mismatch, so
+  36:     the mismatch moves to the TIMEPOINT and to the DOSE. "Percent change in LDL-C" is one name
+  37:     covering Week 12, Day 85, Day 113, and "Week 12 and 24" combined, at doses from 0.25 mg/kg
+  38:     to 150 mg. P37 is not about composites; it is about NAMES.
+  39: 
+  40: USAGE:  python scripts/repool_bococizumab_2026_08_19.py
+  41:         python scripts/repool_bococizumab_2026_08_19.py --selftest
+  42: """
+  43: import io
+  44: import json
+  45: import math
+  46: import os
+  47: import sys
+  48: 
+  49: REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+  50: sys.path.insert(0, os.path.join(REPO, "scripts"))
+  51: import headline_reproducible_gate as HG                                    # noqa: E402
+  52: 
+  53: DEST = os.path.join(REPO, "evidence", "2026-08-19-batch1", "bococizumab_repool.json")
+  54: Z = 1.959963984540054
+  55: T = HG._T
+  56: 
+  57: # (trial, nct, MD, ci_low, ci_high, n analysed, registered outcome title) -- every row READ
+  58: # from the trial's own posted `analyses` block. Not one is derived by us.
+  59: INCUMBENT = [
+  60:     ("SPIRE-LDL", "NCT01968967", -56.2, -58.3, -54.0, 2139,
+  61:      "Percent Change From Baseline in Fasting Low Density Lipoprotein Cholesterol (LDL-C) at "
+  62:      "Week 12"),
+  63:     ("SPIRE-LL", "NCT02100514", -49.9, -54.0, -45.8, 746,
+  64:      "Percent Change From Baseline in Fasting Low Density Lipoprotein Cholesterol (LDL-C) at "
+  65:      "Week 12"),
+  66:     ("SPIRE-HR", "NCT01968954", -57.0, -61.0, -53.1, 711,
+  67:      "Percent Change From Baseline in Low Density Lipoprotein-Cholesterol (LDL-C) at Week 12"),
+  68:     ("SPIRE-AI", "NCT02458287", -63.4, -72.0, -54.7, 299,
+  69:      "Percent Change From Baseline at Week 12 in Fasting Low Density Lipoprotein Cholesterol "
+  70:      "(LDL-C) Level"),
+  71:     ("SPIRE-SI", "NCT02135029", -54.5, -60.1, -49.0, 184,
+  72:      "Percent Change From Baseline in Fasting Low Density Lipoprotein Cholesterol (LDL-C) at "
+  73:      "Week 12"),
+  74: ]
+  75: RECOVERED = [
+  76:     ("SPIRE-FH", "NCT01968980", -54.5, -59.5, -49.5, 370,
+  77:      "Percent Change From Baseline in Low Density Lipoprotein Cholesterol (LDL-C) at Week 12"),
+  78: ]
+  79: # Eligible, poolable, posted results -- and NOT pooled, each with its reason and its own
+  80: # numbers, so a reader can see exactly what the refusal costs.
+  81: DOSE_RANGING = {
+  82:     "NCT01342211": {"n": 93, "timepoint": "Day 85",
+  83:                     "contrasts": [-5.63, -2.30, -37.72, -49.11],
+  84:                     "why": "four dose arms against one placebo; the effect runs from -2.30 to "
+  85:                            "-49.11 across them, a spread wider than the whole pool"},
+  86:     "NCT01350141": {"n": 46, "timepoint": "Day 85", "contrasts": [-21.81, -46.42],
+  87:                     "why": "two dose arms against one placebo"},
+  88:     "NCT02055976": {"n": 218, "timepoint": "Day 85 and Day 113",
+  89:                     "contrasts": [-49.838, -66.754, -71.534, -47.531, -62.624, -64.268],
+  90:                     "why": "six dose/route arms against two separate placebos, and TWO "
+  91:                            "co-primary timepoints"},
+  92:     "NCT01592240": {"n": 354, "timepoint": "Week 12 and 24, combined in one measure",
+  93:                     "contrasts": [],
+  94:                     "why": "its PRIMARY is ABSOLUTE change; percent change is posted only at "
+  95:                            "SECONDARY rank and only as a combined 'Week 12 and 24' measure, so "
+  96:                            "there is no Week-12 percent-change contrast to take"},
+  97: }
+  98: 
+  99: 
+ 100: def se_from_ci(lo, hi):
+ 101:     """The standard error the printed interval implies, at 95 per cent. DERIVED, and said so."""
+ 102:     return (hi - lo) / (2.0 * Z)
+ 103: 
+ 104: 
+ 105: def pool(rows, label):
+ 106:     ys = [r[2] for r in rows]
+ 107:     vs = [se_from_ci(r[3], r[4]) ** 2 for r in rows]
+ 108:     k = len(ys)
+ 109:     wf = [1.0 / v for v in vs]
+ 110:     mf = sum(w * y for w, y in zip(wf, ys)) / sum(wf)
+ 111:     q = sum(w * (y - mf) ** 2 for w, y in zip(wf, ys))
+ 112:     i2 = max(0.0, (q - (k - 1)) / q) * 100.0 if q > 0 else 0.0
+ 113:     out = {"label": label, "k": k, "q": round(q, 4), "df": k - 1, "i2_pct": round(i2, 1),
+ 114:            "n_participants": sum(r[5] for r in rows),
+ 115:            "per_trial": [{"trial": r[0], "nct": r[1], "md": r[2], "ci_low": r[3],
+ 116:                           "ci_high": r[4], "n": r[5], "outcome_title": r[6],
+ 117:                           "provenance": "READ from the trial's posted `analyses` block "
+ 118:                                         "(least-squares mean difference with its 95% CI)"}
+ 119:                          for r in rows]}
+ 120:     for how in ("REML", "PM"):
+ 121:         t2 = HG._tau2(ys, vs, how)
+ 122:         w = [1.0 / (v + t2) for v in vs]
+ 123:         sw = sum(w)
+ 124:         mu = sum(a * b for a, b in zip(w, ys)) / sw
+ 125:         se = math.sqrt(1.0 / sw)
+ 126:         rec = {"tau2": round(t2, 4), "md": round(mu, 4),
+ 127:                "ci_low": round(mu - Z * se, 4), "ci_high": round(mu + Z * se, 4),
+ 128:                "interval": "Wald, normal"}
+ 129:         qh = sum(wi * (y - mu) ** 2 for wi, y in zip(w, ys)) / (k - 1)
+ 130:         qf = max(1.0, qh)
+ 131:         seh = math.sqrt(qf / sw)
+ 132:         tc = T.get(k - 1)
+ 133:         rec["hksj"] = {"q_hksj": round(qh, 4), "floored_to": round(qf, 4),
+ 134:                        "floor_applied": qf > qh + 1e-12, "t_df": k - 1, "t_crit": tc,
+ 135:                        "md": round(mu, 4), "ci_low": round(mu - tc * seh, 4),
+ 136:                        "ci_high": round(mu + tc * seh, 4),
+ 137:                        "interval": "Knapp-Hartung-Sidik-Jonkman, t on k-1 df, "
+ 138:                                    "floor max(1, Q/(k-1))"}
+ 139:         out[how] = rec
+ 140:     return out
+ 141: 
+ 142: 
+ 143: def main():
+ 144:     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+ 145:     old = pool(INCUMBENT, "the five trials on the object -- REML, as published 2026-08-18")
+ 146:     new = pool(INCUMBENT + RECOVERED, "the six the executed search supports")
+ 147: 
+ 148:     print("OLD  k=%d  n=%d  MD %.4f (%.4f to %.4f)  tau2 %.3f  I2 %.1f%%"
+ 149:           % (old["k"], old["n_participants"], old["REML"]["md"], old["REML"]["ci_low"],
+ 150:              old["REML"]["ci_high"], old["REML"]["tau2"], old["i2_pct"]))
+ 151:     print("NEW  k=%d  n=%d  MD %.4f (%.4f to %.4f)  tau2 %.3f  I2 %.1f%%"
+ 152:           % (new["k"], new["n_participants"], new["REML"]["md"], new["REML"]["ci_low"],
+ 153:              new["REML"]["ci_high"], new["REML"]["tau2"], new["i2_pct"]))
+ 154:     print("     HKSJ on %d df: %.4f (%.4f to %.4f)"
+ 155:           % (new["REML"]["hksj"]["t_df"], new["REML"]["hksj"]["md"],
+ 156:              new["REML"]["hksj"]["ci_low"], new["REML"]["hksj"]["ci_high"]))
+ 157:     print("\nthe trial that joined:  SPIRE-FH NCT01968980  MD -54.5 (-59.5 to -49.5)  n=370")
+ 158:     print("not pooled, with reasons: %s" % ", ".join(sorted(DOSE_RANGING)))
+ 159: 
+ 160:     out = {
+ 161:         "topic": "bococizumab-lipid-review",
+ 162:         "repooled_utc": "2026-08-19",
+ 163:         "what_this_is_not": (
+ 164:             "NOT a correction of the estimate. The odds-ratio-from-counts was replaced on "
+ 165:             "2026-08-18 and that replacement stands. This checks the EVIDENCE BASE, which had "
+ 166:             "never been checked -- the object recorded 'search: not recorded on the page this "
+ 167:             "object was built from'."),
+ 168:         "estimand": {
+ 169:             "definition": "percent change from baseline in LDL-C at WEEK 12",
+ 170:             "and_the_timepoint_is_part_of_it": (
+ 171:                 "Three of the four dose-ranging trials post Day 85 or Day 113 instead, and one "
+ 172:                 "posts 'Week 12 and 24' combined in a single measure. A CONTINUOUS ENDPOINT "
+ 173:                 "HAS NO COMPONENTS TO MISMATCH, so the mismatch moves to the TIMEPOINT and the "
+ 174:                 "DOSE -- and 'percent change in LDL-C' is one name covering all of them. P37 "
+ 175:                 "is about names, not about composites."),
+ 176:         },
+ 177:         "previous": old,
+ 178:         "current": new,
+ 179:         "the_trial_that_joined": {
+ 180:             "nct": "NCT01968980", "name": "SPIRE-FH", "n": 370,
+ 181:             "why_it_joins": ("Its registered primary is the identical endpoint at the identical "
+ 182:                              "timepoint, and it posts a least-squares mean difference in its "
+ 183:                              "own `analyses` block -- the same provenance as every value "
+ 184:                              "already in the pool. Nothing is derived."),
+ 185:             "why_it_was_absent": ("This review had no executed search until 2026-08-19. Its "
+ 186:                                   "five trials were the five somebody put on a page."),
+ 187:         },
+ 188:         "eligible_poolable_and_NOT_pooled": {
+ 189:             "_why_shown": ("Each is eligible, has posted LDL results, and is absent from the "
+ 190:                            "pool for a stated reason with its own numbers beside it, so the "
+ 191:                            "cost of the refusal is inspectable rather than asserted."),
+ 192:             "reason": ("A DOSE-RANGING TRIAL IS NOT ONE CONTRAST. Each randomised DOSE; "
+ 193:                        "pooling one arm against placebo means choosing which arm, and no rule "
+ 194:                        "in this review chooses it. THE CHOICE WOULD BE OURS AND IT WOULD LOOK "
+ 195:                        "LIKE THE TRIAL'S."),
+ 196:             "trials": DOSE_RANGING,
+ 197:         },
+ 198:         "estimator_note": (
+ 199:             "REML with an inverse-variance random-effects model, unchanged from the published "
+ 200:             "pool so that the two are comparable on one estimator; Paule-Mandel and a floored "
+ 201:             "Knapp-Hartung interval are carried beside it. Standard errors are DERIVED from "
+ 202:             "each printed 95 per cent interval and are labelled so -- the point estimates and "
+ 203:             "intervals themselves are read."),
+ 204:         "and_what_did_NOT_move": (
+ 205:             "The answer. Adding a sixth trial and 370 participants moves the pooled mean "
+ 206:             "difference by less than half a percentage point. THAT IS THE FINDING AND IT IS "
+ 207:             "NOT A NULL RESULT: a review whose evidence base was never checked turned out to "
+ 208:             "have the right answer, and nothing about the way it was built could have told "
+ 209:             "anyone that. The check is what distinguishes a correct estimate from a lucky one."),
+ 210:     }
+ 211:     with io.open(DEST, "w", encoding="utf-8") as fh:
+ 212:         fh.write(json.dumps(out, indent=1))
+ 213:     print("\nwrote %s" % DEST)
+ 214:     return 0
+ 215: 
+ 216: 
+ 217: def selftest():
+ 218:     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+ 219:     fails = []
+ 220: 
+ 221:     def check(name, got, want, tol=1e-3):
+ 222:         ok = abs(got - want) <= tol if isinstance(want, float) else got == want
+ 223:         print("  %-58s %s  %s" % (name, "ok" if ok else "FAIL", got))
+ 224:         if not ok:
+ 225:             fails.append(name)
+ 226: 
+ 227:     # The published pool must REPRODUCE from the five stored rows. If it does not, either the
+ 228:     # stored value or this arithmetic is wrong, and the re-pool would be built on sand.
+ 229:     old = pool(INCUMBENT, "x")
+ 230:     check("the published MD -55.4593 reproduces from its own five rows",
+ 231:           old["REML"]["md"], -55.4593, 0.02)
+ 232:     check("...and its published I2 of 65.1%", old["i2_pct"], 65.1, 0.6)
+ 233:     check("...and its published tau2 of 9.3148", old["REML"]["tau2"], 9.3148, 0.15)
+ 234: 
+ 235:     # SPIRE-FH's interval must imply a standard error consistent with its posted SEM of 2.54.
+ 236:     check("SPIRE-FH's printed CI implies its posted standard error 2.54",
+ 237:           se_from_ci(-59.5, -49.5), 2.551, 0.02)
+ 238: 
+ 239:     # And the recovered trial must actually MOVE something, or adding it proves nothing.
+ 240:     new = pool(INCUMBENT + RECOVERED, "y")
+ 241:     check("k rises 5 -> 6", new["k"], 6)
+ 242:     check("n rises by SPIRE-FH's 370",
+ 243:           new["n_participants"] - old["n_participants"], 370)
+ 244: 
+ 245:     print("\n%s" % ("ALL KNOWN ANSWERS HELD" if not fails else "FAILED: %s" % fails))
+ 246:     return 1 if fails else 0
+ 247: 
+ 248: 
+ 249: if __name__ == "__main__":
+ 250:     sys.exit(selftest() if "--selftest" in sys.argv else main())
+
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "@'
+import scripts.repool_bococizumab_2026_08_19 as m
+m.RECOVERED = [(\"SPIRE-FH\", \"NCT01968980\", 999.0, 998.0, 1000.0, 370, \"Percent Change From Baseline in Low Density Lipoprotein Cholesterol (LDL-C) at Week 12\")]
+raise SystemExit(m.selftest())
+'@ | python -" in F:\rapidmeta-ssot-shell
+ succeeded in 1338ms:
+  the published MD -55.4593 reproduces from its own five rows ok  -55.4593
+  ...and its published I2 of 65.1%                           ok  65.1
+  ...and its published tau2 of 9.3148                        ok  9.3148
+  SPIRE-FH's printed CI implies its posted standard error 2.54 ok  2.5510672846232696
+  k rises 5 -> 6                                             ok  6
+  n rises by SPIRE-FH's 370                                  ok  370
+
+ALL KNOWN ANSWERS HELD
+
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "@'
+import scripts.repool_bococizumab_2026_08_19 as m
+row = [(\"one\",\"NCT00000000\",-1.0,-2.0,0.0,1,\"x\")]
+try:
+    m.pool(row, \"x\")
+except Exception as e:
+    print(type(e).__name__ + \": \" + str(e))
+'@ | python -" in F:\rapidmeta-ssot-shell
+ succeeded in 1373ms:
+ZeroDivisionError: float division by zero
+
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "@'
+import scripts.repool_bococizumab_2026_08_19 as m
+row = [(\"one\",\"NCT00000000\",-1.0,-2.0,0.0,1,\"x\")]
+m.pool(row, \"x\")
+'@ | python -" in F:\rapidmeta-ssot-shell
+2026-08-24T05:55:56.472334Z ERROR codex_core::tools::router: error=Exit code: 1
+Wall time: 1.3 seconds
+Output:
+Traceback (most recent call last):
+  File "<stdin>", line 3, in <module>
+  File "F:\rapidmeta-ssot-shell\scripts\repool_bococizumab_2026_08_19.py", line 129, in pool
+    qh = sum(wi * (y - mu) ** 2 for wi, y in zip(w, ys)) / (k - 1)
+         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~
+ZeroDivisionError: float division by zero
+
+ exited 1 in 1263ms:
+Traceback (most recent call last):
+  File "<stdin>", line 3, in <module>
+  File "F:\rapidmeta-ssot-shell\scripts\repool_bococizumab_2026_08_19.py", line 129, in pool
+    qh = sum(wi * (y - mu) ** 2 for wi, y in zip(w, ys)) / (k - 1)
+         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~
+ZeroDivisionError: float division by zero
+
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "@'
+import math
+import scripts.repool_bococizumab_2026_08_19 as m
+rows=[(\"a\",\"NCT00000001\",math.nan,-2,0,1,\"x\"),(\"b\",\"NCT00000002\",-1,-2,0,1,\"x\")]
+try:
+ print(m.pool(rows,\"x\"))
+except Exception as e:
+ import traceback; traceback.print_exc()
+'@ | python -" in F:\rapidmeta-ssot-shell
+ succeeded in 1382ms:
+{'label': 'x', 'k': 2, 'q': nan, 'df': 1, 'i2_pct': 0.0, 'n_participants': 2, 'per_trial': [{'trial': 'a', 'nct': 'NCT00000001', 'md': nan, 'ci_low': -2, 'ci_high': 0, 'n': 1, 'outcome_title': 'x', 'provenance': "READ from the trial's posted `analyses` block (least-squares mean difference with its 95% CI)"}, {'trial': 'b', 'nct': 'NCT00000002', 'md': -1, 'ci_low': -2, 'ci_high': 0, 'n': 1, 'outcome_title': 'x', 'provenance': "READ from the trial's posted `analyses` block (least-squares mean difference with its 95% CI)"}], 'REML': {'tau2': 0.0, 'md': nan, 'ci_low': nan, 'ci_high': nan, 'interval': 'Wald, normal', 'hksj': {'q_hksj': nan, 'floored_to': 1.0, 'floor_applied': False, 't_df': 1, 't_crit': 12.706205, 'md': nan, 'ci_low': nan, 'ci_high': nan, 'interval': 'Knapp-Hartung-Sidik-Jonkman, t on k-1 df, floor max(1, Q/(k-1))'}}, 'PM': {'tau2': 0.0, 'md': nan, 'ci_low': nan, 'ci_high': nan, 'interval': 'Wald, normal', 'hksj': {'q_hksj': nan, 'floored_to': 1.0, 'floor_applied': False, 't_df': 1, 't_crit': 12.706205, 'md': nan, 'ci_low': nan, 'ci_high': nan, 'interval': 'Knapp-Hartung-Sidik-Jonkman, t on k-1 df, floor max(1, Q/(k-1))'}}}
+
+codex
+**Defects**
+
+1. **STATUS CODE REPORTING THE WRAPPER rather than the work**: lines 240-246.  
+Exact input:
+```python
+import scripts.repool_bococizumab_2026_08_19 as m
+m.RECOVERED = [("SPIRE-FH","NCT01968980",999.0,998.0,1000.0,370,"Percent Change From Baseline in Low Density Lipoprotein Cholesterol (LDL-C) at Week 12")]
+m.selftest()
+```
+Consequence: `selftest()` still exits 0 because it checks only `k` and `n`, not the recovered trial’s MD/CI or the new pooled estimate.
+
+2. **OFF-BY-ONE in count/df handling**: line 129.  
+Exact input:
+```python
+pool([("one","NCT00000000",-1.0,-2.0,0.0,1,"x")], "x")
+```
+Consequence: a one-study pool crashes with `ZeroDivisionError` on `k - 1` instead of failing closed with a clear “HKSJ requires k > 1” error.
+
+3. **ZERO CONFLATED WITH ABSENT/invalid numeric**: lines 112 and 130.  
+Exact input:
+```python
+pool([
+  ("a","NCT00000001",float("nan"),-2,0,1,"x"),
+  ("b","NCT00000002",-1,-2,0,1,"x")
+], "x")
+```
+Consequence: `q = nan` reports `i2_pct = 0.0`, and `qh = nan` is floored to `1.0`, so a missing/invalid effect can be presented as zero heterogeneity/floored HKSJ rather than rejected.
+
+**COULD NOT DETERMINE**: lines 55, 121, 132 depend on missing `scripts/headline_reproducible_gate.py`, specifically `HG._tau2` and `HG._T`.
+
+No proven defect found for: probe keyed to string a fix removes; idempotency guard satisfied by own comment/marker; instrument reading different copy; selector keyed to unused corpus form; CRLF/LF text comparison; merged-cell tabulation; negation dropped.
+tokens used
+41,987
+**Defects**
+
+1. **STATUS CODE REPORTING THE WRAPPER rather than the work**: lines 240-246.  
+Exact input:
+```python
+import scripts.repool_bococizumab_2026_08_19 as m
+m.RECOVERED = [("SPIRE-FH","NCT01968980",999.0,998.0,1000.0,370,"Percent Change From Baseline in Low Density Lipoprotein Cholesterol (LDL-C) at Week 12")]
+m.selftest()
+```
+Consequence: `selftest()` still exits 0 because it checks only `k` and `n`, not the recovered trial’s MD/CI or the new pooled estimate.
+
+2. **OFF-BY-ONE in count/df handling**: line 129.  
+Exact input:
+```python
+pool([("one","NCT00000000",-1.0,-2.0,0.0,1,"x")], "x")
+```
+Consequence: a one-study pool crashes with `ZeroDivisionError` on `k - 1` instead of failing closed with a clear “HKSJ requires k > 1” error.
+
+3. **ZERO CONFLATED WITH ABSENT/invalid numeric**: lines 112 and 130.  
+Exact input:
+```python
+pool([
+  ("a","NCT00000001",float("nan"),-2,0,1,"x"),
+  ("b","NCT00000002",-1,-2,0,1,"x")
+], "x")
+```
+Consequence: `q = nan` reports `i2_pct = 0.0`, and `qh = nan` is floored to `1.0`, so a missing/invalid effect can be presented as zero heterogeneity/floored HKSJ rather than rejected.
+
+**COULD NOT DETERMINE**: lines 55, 121, 132 depend on missing `scripts/headline_reproducible_gate.py`, specifically `HG._tau2` and `HG._T`.
+
+No proven defect found for: probe keyed to string a fix removes; idempotency guard satisfied by own comment/marker; instrument reading different copy; selector keyed to unused corpus form; CRLF/LF text comparison; merged-cell tabulation; negation dropped.

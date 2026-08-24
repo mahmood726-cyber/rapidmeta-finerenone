@@ -1,0 +1,255 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/screen_apixaban_split_2026_08_19.py
+
+--- THE FILE, IN FULL ---
+"""SCREEN THE 71-TRIAL REMAINDER for BOTH apixaban reviews, with SEPARATE criteria.
+
+ONE FILE, TWO RULE SETS, AND THE DISTINCTION IS ENFORCED RATHER THAN TRUSTED. Route 7 is a
+screener that asks the neighbouring topic's question; the guard against it is
+scripts/lint_criteria_fingerprint.py, and both rule sets here are written to be told apart by
+it. They are NOT a parameterised single rule with the topic name substituted -- that is the
+same defect wearing a loop.
+
+WHERE THE TWO REVIEWS ACTUALLY DIFFER: the POPULATION limb, and only that.
+
+    treatment    adults with ACUTE OR RECENT VTE being treated for it
+    prophylaxis  adults AT RISK of VTE receiving thromboprophylaxis
+
+Intervention (apixaban randomised) and comparator (another anticoagulant, or placebo) are the
+same question for both, because it is one drug. Saying so explicitly is safer than duplicating
+two near-identical blocks and inviting them to drift.
+
+THE POPULATION LIMB IS DECIDED BY TWO FIELDS AND THEY DISAGREE. `primaryPurpose` is a CODED
+field and it separates the two questions cleanly IN AGGREGATE -- 34 TREATMENT against 33
+PREVENTION over 73 trials. IT FAILS ROW BY ROW:
+
+    ADVANCE-2  NCT00452530  knee replacement thromboprophylaxis  -> coded TREATMENT
+    ADVANCE-3  NCT00423319  hip  replacement thromboprophylaxis  -> coded PREVENTION
+
+A CODED FIELD CAN BE RELIABLE IN AGGREGATE AND UNRELIABLE PER RECORD, AND THOSE ARE DIFFERENT
+PROPERTIES. So this screener reads BOTH the coded purpose and the condition text, and where
+they disagree it returns NEEDS_ADJUDICATION rather than letting either win silently.
+"""
+import io
+import json
+import os
+import re
+import sys
+
+REPO = "F:/rapidmeta-ssot-shell"
+sys.path.insert(0, REPO + "/ssot")
+os.environ.setdefault(
+    "RM_CTGOV_CACHE",
+    "F:/claude-temp/claude/F--rapidmeta-ssot-shell/"
+    "eb4d84e5-8a24-4c3b-afe2-34bd91c20bc7/scratchpad/.ctgov-raw-cache")
+
+import ctgov_transport as X          # noqa: E402
+import topic_identity as T           # noqa: E402
+
+DEST = os.path.join(REPO, "evidence", "2026-08-19-batch1", "apixaban_split_screening.json")
+
+E, ENP, ENR, EPNI, ADJ = ("EXCLUDED", "ELIGIBLE_NOT_POOLABLE", "ELIGIBLE_NO_RESULTS_YET",
+                          "ELIGIBLE_POOLABLE_NOT_INCLUDED", "NEEDS_ADJUDICATION")
+
+INCLUDED = {"apixaban-vte-treatment": "NCT02829957",
+            "apixaban-vte-prophylaxis": "NCT02366871"}
+
+# --- population vocabularies, per review, written out so a reader disagrees with a term
+TREATMENT_TERMS = ("venous thromboembolism", "deep vein thrombosis", "pulmonary embolism",
+                   "dvt", "vte", "thrombosis", "thromboembolism", "clot")
+PROPHYLAXIS_TERMS = ("prophylaxis", "prevention", "thromboprophylaxis", "at risk",
+                     "arthroplasty", "replacement", "surgery", "postoperative",
+                     "medically ill", "immobil")
+# --- shared limbs: it is ONE DRUG, so these are the same question for both reviews
+ANTICOAG_TERMS = ("enoxaparin", "heparin", "warfarin", "vitamin k antagonist", "vka",
+                  "rivaroxaban", "dabigatran", "edoxaban", "fondaparinux", "dalteparin",
+                  "tinzaparin", "acenocoumarol", "aspirin")
+PLACEBO_TYPES = ("PLACEBO", "SHAM", "NO_INTERVENTION")
+BLEED_TERMS = ("major bleeding", "bleeding", "haemorrhage", "hemorrhage")
+VTE_OUTCOME_TERMS = ("recurrent venous thromboembolism", "recurrent vte", "symptomatic venous",
+                     "venous thromboembolism", "deep vein thrombosis", "pulmonary embolism")
+NO_RESULT_STATUSES = ("RECRUITING", "NOT_YET_RECRUITING", "ENROLLING_BY_INVITATION",
+                      "ACTIVE_NOT_RECRUITING", "WITHDRAWN", "SUSPENDED", "UNKNOWN")
+
+
+def hits(text, terms):
+    t = " " + re.sub(r"\s+", " ", (text or "").lower()) + " "
+    return [w for w in terms if w in t]
+
+
+def population(topic, purpose, conds, title):
+    """(verdict, why) -- reads the CODED purpose and the CONDITION text, and refuses on
+    disagreement rather than letting either win."""
+    text = conds + " ; " + title
+    looks_prophylaxis = bool(hits(text, PROPHYLAXIS_TERMS))
+    looks_treatment = bool(hits(text, TREATMENT_TERMS)) and not looks_prophylaxis
+    coded = (purpose or "").upper()
+
+    if topic == "apixaban-vte-prophylaxis":
+        if coded == "PREVENTION" and looks_prophylaxis:
+            return "HOLDS", "coded PREVENTION and the text agrees"
+        if coded == "PREVENTION" and looks_treatment:
+            return "UNSETTLED", ("coded PREVENTION but the condition text reads as treatment "
+                                 "-- the ADVANCE-2/ADVANCE-3 disagreement, not resolved here")
+        if coded == "TREATMENT" and looks_prophylaxis:
+            return "UNSETTLED", ("coded TREATMENT but the text reads as prophylaxis -- exactly "
+                                 "ADVANCE-2's shape, and the coded field is what is wrong "
+                                 "there")
+        if looks_prophylaxis:
+            return "HOLDS", "no usable coded purpose; the condition text reads as prophylaxis"
+        return "FAILS", "neither the coded purpose nor the text places this in prophylaxis"
+
+    if coded == "TREATMENT" and looks_treatment:
+        return "HOLDS", "coded TREATMENT and the text agrees"
+    if coded == "TREATMENT" and looks_prophylaxis:
+        return "UNSETTLED", ("coded TREATMENT but the text reads as prophylaxis -- ADVANCE-2's "
+                             "shape")
+    if coded == "PREVENTION" and looks_treatment:
+        return "UNSETTLED", "coded PREVENTION but the text reads as treatment"
+    if looks_treatment:
+        return "HOLDS", "no usable coded purpose; the text reads as treatment of established VTE"
+    return "FAILS", "neither the coded purpose nor the text places this in treatment"
+
+
+def screen(topic, nct, doc):
+    p = doc["protocolSection"]
+    dm = p.get("designModule") or {}
+    purpose = (dm.get("designInfo") or {}).get("primaryPurpose")
+    conds = " ; ".join((p.get("conditionsModule") or {}).get("conditions") or [])
+    title = (p.get("identificationModule") or {}).get("briefTitle") or ""
+    status = str((p.get("statusModule") or {}).get("overallStatus") or "")
+    arms = (p.get("armsInterventionsModule") or {}).get("armGroups") or []
+    om = p.get("outcomesModule") or {}
+    ranks = " ; ".join([(o.get("measure") or "")
+                        for o in (om.get("primaryOutcomes") or [])
+                        + (om.get("secondaryOutcomes") or [])])
+
+    limbs = {}
+    limbs["POPULATION"], pop_why = population(topic, purpose, conds, title)
+
+    role, _ev = T.locate(doc, T.synonyms_for("apixaban"))
+    limbs["INTERVENTION"] = ("HOLDS" if role in (T.EXPERIMENTAL, T.COMPARATOR) else
+                             "UNSETTLED" if role == T.NOT_ASSESSABLE else "FAILS")
+
+    if len(arms) < 2:
+        limbs["COMPARATOR"] = "UNSETTLED" if not arms else "FAILS"
+    else:
+        other = " ".join(str(n) for a in arms
+                         for n in (a.get("interventionNames") or []))
+        inert = any(any(t in str(a.get("type") or "").upper() for t in PLACEBO_TYPES)
+                    for a in arms)
+        limbs["COMPARATOR"] = ("HOLDS" if (hits(other, ANTICOAG_TERMS) or inert)
+                               else "UNSETTLED")
+
+    has_vte = bool(hits(ranks, VTE_OUTCOME_TERMS))
+    has_bleed = bool(hits(ranks, BLEED_TERMS))
+    limbs["ESTIMAND"] = ("HOLDS" if (has_vte or has_bleed) else
+                         "UNSETTLED" if not ranks else "FAILS")
+
+    failing = [k for k, v in limbs.items() if v == "FAILS" and k != "ESTIMAND"]
+    unsettled = [k for k, v in limbs.items() if v == "UNSETTLED" and k != "ESTIMAND"]
+    if failing:
+        return (E, failing[0], limbs, status, purpose,
+                "fails %s (%s). ALL limbs: %s" % (", ".join(failing), pop_why, limbs))
+    if unsettled:
+        return (ADJ, unsettled[0], limbs, status, purpose,
+                "cannot settle %s: %s" % (", ".join(unsettled), pop_why))
+    if "hasResults" not in doc:
+        return (ADJ, "hasResults ABSENT", limbs, status, purpose,
+                "eligible; whether it posted results cannot be read from this payload")
+    if status in NO_RESULT_STATUSES or not doc.get("hasResults"):
+        return (ENR, "NO RESULTS POSTED", limbs, status, purpose,
+                "eligible; status %s, hasResults=%s" % (status, doc.get("hasResults")))
+    if limbs["ESTIMAND"] != "HOLDS":
+        return (ENP, "ESTIMAND", limbs, status, purpose,
+                "eligible with results, but no VTE or bleeding outcome at any rank")
+    return (EPNI, "ESTIMAND MATCHES", limbs, status, purpose,
+            "ELIGIBLE, POOLABLE AND NOT IN THIS OBJECT")
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    # The surfaced set: re-execute the recorded query rather than inherit an id list.
+    sys.path.insert(0, os.path.join(REPO, "scripts"))
+    import regate_cascade_2026_08_19 as R
+    expr = {"query.cond": "venous thromboembolism OR deep vein thrombosis OR pulmonary embolism",
+            "query.intr": "apixaban",
+            "filter.advanced": "AREA[StudyType]INTERVENTIONAL"}
+    state, ids, detail = R.raw_search(expr)
+    ids = sorted(set(ids))
+    print("surfaced set re-executed: %s -- %s" % (state, detail))
+    if state != X.OK:
+        print("REFUSING: incomplete surfaced set.")
+        return 1
+
+    payloads = {}
+    for nct in ids:
+        st, study, det = X.fetch_raw(nct, fields="protocolSection,hasResults")
+        if st == X.OK:
+            payloads[nct] = X.require_raw_v2(study, nct)
+
+    out = {}
+    for topic, inc in INCLUDED.items():
+        syns = T.synonyms_for("apixaban")
+        candidates = [n for n in ids if n in payloads
+                      and T.locate(payloads[n], syns)[0] in (T.EXPERIMENTAL, T.COMPARATOR)]
+        remainder = [n for n in candidates if n != inc]
+        rows, tally = [], {}
+        for nct in remainder:
+            v, crit, limbs, status, purpose, why = screen(topic, nct, payloads[nct])
+            rows.append({"nct": nct, "verdict": v, "criterion": crit, "limbs": limbs,
+                         "status": status, "primaryPurpose": purpose, "reason": why})
+            tally[v] = tally.get(v, 0) + 1
+        out[topic] = {"candidate_pool": len(candidates), "included": inc,
+                      "remainder": len(remainder),
+                      "tally": {k: tally.get(k, 0) for k in (E, ENP, ENR, EPNI, ADJ)},
+                      "trials": rows}
+        print("\n--- %s" % topic)
+        print("    candidate pool %d, included 1, remainder %d" % (len(candidates),
+                                                                   len(remainder)))
+        for k in (E, ENP, ENR, EPNI, ADJ):
+            print("    %-32s %3d" % (k, tally.get(k, 0)))
+        print("    EVERY DISPOSITION REACHED? " + ", ".join(
+            "%s:%s" % (k, "yes" if tally.get(k) else "NO") for k in (E, ENP, ENR, EPNI, ADJ)))
+
+    with io.open(DEST, "w", encoding="utf-8") as fh:
+        fh.write(json.dumps(out, indent=1))
+    print("\nwrote %s" % DEST)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

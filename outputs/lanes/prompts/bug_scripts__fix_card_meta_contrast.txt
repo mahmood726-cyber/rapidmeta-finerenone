@@ -1,0 +1,120 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/fix_card_meta_contrast.py
+
+--- THE FILE, IN FULL ---
+"""Bump low-contrast text styles to WCAG AA across the curated pages.
+
+Lighthouse contrast combos (after the badge + conf-btn fixes):
+   #888 on #f8fafc / #fff / #fdfcfa     -> 727 + 29 + 1 hits (gray meta text)
+   #ffffff on #34c96a / #34ca6b         -> 286 hits (light-green status chips)
+   #ffffff on #ca8a04                   -> 97 hits  (amber chips)
+   #059669 on #ffffff                   -> 75 hits  (green link)
+   #ffffff on #ea580c                   -> 33 hits  (orange chip)
+
+Fixes (each lifts the affected combo to >=4.5:1 white-on-color or
+~5.0:1 gray-on-white):
+   color:#888           -> color:#666           (4.74:1 vs #fff)
+   color: #888          -> color: #666
+   background:#34c96a   -> background:#15803d   (green-700; AA with white)
+   background:#34ca6b   -> background:#15803d
+   color:#34c96a        -> color:#15803d        (when used as text)
+   background:#ca8a04   -> background:#a16207   (yellow-700; AA with white)
+   color:#059669        -> color:#047857        (emerald-700; 4.6:1 on white)
+   background:#ea580c   -> background:#c2410c   (orange-700; AA with white)
+
+All targeted at exact inline-style or CSS-rule occurrences. Idempotent.
+"""
+from __future__ import annotations
+import sys
+import io
+from pathlib import Path
+
+if "pytest" not in sys.modules and hasattr(sys.stdout, "buffer"):
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+HERE = Path(__file__).resolve().parent.parent
+
+# (old, new) - applied as plain substring replace so accidental matches in
+# different contexts are extremely unlikely (these are full color hex codes
+# preceded by the property name).
+REPLACEMENTS = [
+    # Gray meta text on near-white card backgrounds.
+    ("color:#888;", "color:#666;"),
+    ("color: #888;", "color: #666;"),
+    ("color:#888}", "color:#666}"),
+    # Bright tailwind green-500 used as chip background with white text.
+    ("background:#34c96a;color:#fff", "background:#15803d;color:#fff"),
+    ("background:#34ca6b;color:#fff", "background:#15803d;color:#fff"),
+    # Yellow / amber on white.
+    ("background:#ca8a04;color:#fff", "background:#a16207;color:#fff"),
+    # Green-600 link on white text.
+    ("color:#059669;", "color:#047857;"),
+    # Orange chip with white text.
+    ("background:#ea580c;color:#fff", "background:#c2410c;color:#fff"),
+]
+
+
+def patch_file(p: Path) -> int:
+    txt = p.read_text(encoding="utf-8", errors="replace")
+    n = 0
+    for old, new in REPLACEMENTS:
+        if old == new:
+            continue
+        new_txt = txt.replace(old, new)
+        if new_txt != txt:
+            n += txt.count(old)
+            txt = new_txt
+    if n > 0:
+        p.write_text(txt, encoding="utf-8")
+    return n
+
+
+def main():
+    targets = sorted(p for p in HERE.glob("*.html") if p.is_file())
+    print(f"Targets: {len(targets):,} HTML files")
+    files = subs = 0
+    for i, p in enumerate(targets, 1):
+        n = patch_file(p)
+        if n:
+            files += 1
+            subs += n
+        if i % 500 == 0:
+            print(f"  [{i}/{len(targets)}]")
+    print(f"\nFiles changed: {files:,}  substitutions: {subs:,}")
+
+
+if __name__ == "__main__":
+    main()

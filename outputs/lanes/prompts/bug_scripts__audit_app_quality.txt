@@ -1,0 +1,148 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/audit_app_quality.py
+
+--- THE FILE, IN FULL ---
+"""Quality audit across all generated meta apps (read-only).
+
+Scores every *.html app against a rubric and emits per-category gap counts
+plus a per-app JSON, so the "bring all apps to the highest standard" program
+can be planned and batch-fixed by category instead of blind rewrites.
+
+Rubric dimensions (each a measurable static signal):
+  engine_new        newer outcome engine (label-classes + per-mode availability)
+  dropdown_dedup    duplicate-outcome dropdown fix present (old engine only)
+  all_mace          every outcome carries the template shortLabel "MACE"
+  narrative_leftover dupilumab/BOREAS/NOTUS/ARNI/exacerbation (COPD only off-topic)
+  placeholder       unpopulated {{..}}/REPLACE_ME/__PLACEHOLDER__
+  has_pmid          >=1 non-empty trial pmid
+  rob_sourced       RoB carries a source attribution (not the all-'low' stub)
+  benchmark         published-MA benchmark present / honest-empty / missing
+  paper_studio      Evidence Paper Studio tab present
+"""
+from __future__ import annotations
+import glob, io, json, os, re, sys
+from collections import Counter
+
+if hasattr(sys.stdout, "buffer") and getattr(sys.stdout, "encoding", "").lower() != "utf-8":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+
+def audit_one(path):
+    s = io.open(path, encoding="utf-8", errors="replace").read()
+    name = os.path.basename(path)
+    is_app = "populateOutcomeSelector" in s or "RapidMeta" in s
+    if not is_app:
+        return None
+    short_labels = set(re.findall(r"shortLabel:\s*['\"]([^'\"]+)", s))
+    pmids = re.findall(r"pmid:\s*['\"]([^'\"]*)", s)
+    topic_l = name.lower()
+    leftovers = []
+    for tok in ("dupilumab", "BOREAS", "NOTUS", "ARNI vs Other HF",
+                "Annual moderate-severe exacerbation"):
+        if tok.lower() in s.lower():
+            leftovers.append(tok)
+    if "copd" not in topic_l and re.search(r"\bCOPD\b", s):
+        leftovers.append("COPD")
+    bench = "missing"
+    m = re.search(r"PUBLISHED_META_BENCHMARKS\s*[:=]\s*\{(\s*)\}", s)
+    if m:
+        bench = "empty-honest"
+    elif re.search(r"PUBLISHED_META_BENCHMARKS\s*[:=]\s*\{", s):
+        bench = "present"
+    return {
+        "name": name,
+        "tier": "AUTO" if "AUTO" in name.upper() else "curated",
+        "engine_new": "_outcomeAvailabilityCount(" in s,
+        "dropdown_dedup": "findIndex(q=>q[1]===p[1])" in s,
+        "all_mace": short_labels == {"MACE"},
+        "short_labels_n": len(short_labels),
+        "narrative_leftover": leftovers,
+        "placeholder": bool(re.search(r"\{\{[^}]+\}\}|REPLACE_ME|__PLACEHOLDER__", s)),
+        "has_pmid": any(p.strip() for p in pmids),
+        "rob_sourced": "robSource" in s,
+        "benchmark": bench,
+        "paper_studio": "Paper Studio" in s or "paper-studio" in s,
+    }
+
+
+def main():
+    files = sorted(glob.glob(os.path.join(HERE, "*.html")))
+    apps = []
+    for p in files:
+        a = audit_one(p)
+        if a:
+            apps.append(a)
+
+    out = os.path.join(HERE, "outputs", "app_quality_audit.json")
+    os.makedirs(os.path.dirname(out), exist_ok=True)
+    json.dump(apps, io.open(out, "w", encoding="utf-8"), indent=1, ensure_ascii=False)
+
+    n = len(apps)
+    tier = Counter(a["tier"] for a in apps)
+
+    def cnt(pred):
+        return sum(1 for a in apps if pred(a))
+
+    print(f"Apps audited: {n}   ({dict(tier)})   report -> {out}\n")
+    print("=== GAP COUNTS (lower = better) ===")
+    rows = [
+        ("old engine",            cnt(lambda a: not a["engine_new"])),
+        ("  of which dropdown-unfixed", cnt(lambda a: not a["engine_new"] and not a["dropdown_dedup"])),
+        ("all-MACE outcome label", cnt(lambda a: a["all_mace"])),
+        ("narrative leftover",     cnt(lambda a: a["narrative_leftover"])),
+        ("unpopulated placeholder",cnt(lambda a: a["placeholder"])),
+        ("no PMID on any trial",   cnt(lambda a: not a["has_pmid"])),
+        ("RoB not sourced",        cnt(lambda a: not a["rob_sourced"])),
+        ("benchmark missing",      cnt(lambda a: a["benchmark"] == "missing")),
+        ("no Paper Studio tab",    cnt(lambda a: not a["paper_studio"])),
+    ]
+    for label, c in rows:
+        print(f"  {label:30} {c:5}  ({100*c//n if n else 0}%)")
+
+    # leftover token breakdown
+    lk = Counter()
+    for a in apps:
+        for t in a["narrative_leftover"]:
+            lk[t] += 1
+    if lk:
+        print("\nnarrative-leftover token breakdown:", dict(lk.most_common()))
+    print("\nbenchmark distribution:", dict(Counter(a["benchmark"] for a in apps)))
+
+
+if __name__ == "__main__":
+    main()

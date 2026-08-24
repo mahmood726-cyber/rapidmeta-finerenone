@@ -1,0 +1,18 @@
+1. **OVERCLAIM**: 
+- *"Revascularisation is the highest-frequency component in this class of trial"*. The packet contains component counts for *these* specific trials, but it contains no general assertion about frequency in "this class of trial." This is imported external knowledge.
+- *"...and a poolable_reason stating the estimate had been RECOVERED from the page rather than established."* The absorbed object's `poolable_reason` did not state this; it cited mismatched composite endpoints and inappropriately derived odds ratios. The fact that the data was "RECOVERED" is recorded in `provenance` and `conversion_note`, not in the previous `poolable_reason`.
+
+2. **UNDERCLAIM**: 
+Yes. The text entirely omits three fatal defects documented in the absorbed object:
+- **Index presentation failure**: The displayed number was a single trial's result falsely presented as the pool. "The card and the table row published 'HR 0.85... THIS OBJECT'S POOLED VALUE IS OR 0.8440... it is a single trial's own reported hazard ratio, presented as a two-trial pooled result".
+- **Arm inversion**: "The arm carrying the role INTERVENTION is labelled 'Placebo' on FOURIER and 'Placebo' on ODYSSEY OUTCOMES". 
+- **Metric mismatch**: The pool inappropriately used derived odds ratios from 2x2 counts for time-to-event outcomes, when both trials reported hazard ratios. 
+
+3. **FACT vs JUDGEMENT**: 
+*"Revascularisation is the highest-frequency component in this class of trial, so this is not a rounding difference in the event definition..."* An unevidenced clinical generalisation and its interpretive conclusion ("not a rounding difference") are written in the grammar of objective fact.
+
+4. **IS THE STATED REASON THE ACTUAL REASON?** 
+The stated reason (mismatched components and invalid DL estimator at k=2) is supported by the packet, but it is incomplete. The packet could easily support withdrawing this pool because the published number was effectively fabricated (a single trial's HR passed off as the meta-analysis) and the intervention/placebo arms were swapped. 
+
+5. **VERDICT**: 
+**REJECT**. The text overclaims by importing external clinical generalisations and misquoting previous fields, while severely underclaiming by omitting the most critical operational failures: publishing a fake pooled number and inverting the intervention and control arms.

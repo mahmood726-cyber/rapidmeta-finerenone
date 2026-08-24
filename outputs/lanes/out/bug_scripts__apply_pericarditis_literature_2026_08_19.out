@@ -1,0 +1,245 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a0312e-e026-7e20-9d40-87fc8a256b86
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/apply_pericarditis_literature_2026_08_19.py
+
+--- THE FILE, IN FULL ---
+#!/usr/bin/env python3
+"""APPLY THE PERICARDITIS LITERATURE LIMB to the object and rebuild its page.
+
+WHAT CHANGES, AND IT IS THE HEADLINE. The object said
+`NO_ESTIMATE_POSSIBLE_NOTHING_HAS_REPORTED`. That was TRUE OF THE REGISTRY and FALSE OF THE
+WORLD: four of the five trials are published, three of them in Ann Intern Med, NEJM and Lancet.
+
+    A REGISTRY IS AN INDEX. "An absence reported by an index is not an absence in the world"
+    was written about PAGE_MAP eight hours ago; ClinicalTrials.gov's results section is the same
+    kind of object, and the same sentence applies to it. `ELIGIBLE_COMPLETED_NO_RESULTS_POSTED`
+    is a statement about a database, not about a literature.
+
+AND THE POOL IS STILL REFUSED, but now on evidence rather than on silence. The three
+recurrence-type trials are three DIFFERENT DISEASE STAGES -- first attack (ICAP), first
+recurrence (CORP), multiple recurrences (CORP-2) -- and ICAP's published primary counts
+INCESSANT disease, which the other two do not. The registry's outcome-title field showed none of
+that; all three read "Recurrence rate at 18 months".
+
+WHAT IS NOT DONE. No pool is computed. Pooling across disease stage is a declarable judgement,
+not a title match, and it is owed as its own decision.
+"""
+import io
+import json
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import build_colchicine_readings_2026_08_19 as B                        # noqa: E402
+
+TOPIC = "colchicine-pericarditis"
+PATH = os.path.join(REPO, "ssot", TOPIC, TOPIC + ".json")
+EXTRACT = os.path.join(REPO, "evidence", "2026-08-19-batch1",
+                       "pericarditis_publication_extraction.json")
+
+LIMBS = [
+    {"property": "P37",
+     "finding": ("THE REGISTERED TITLES MATCH AND THE ENDPOINTS DO NOT. All three recurrence "
+                 "trials register 'Recurrence rate at 18 months'. ICAP's PUBLISHED primary is "
+                 "'incessant or recurrent pericarditis' -- it counts INCESSANT disease, which "
+                 "CORP and CORP-2 do not. Read from the papers, not the registry.")},
+    {"property": "P43",
+     "finding": ("THREE DIFFERENT DISEASE STAGES UNDER ONE TITLE. ICAP (NCT00128453) randomised "
+                 "a FIRST ATTACK of acute pericarditis; CORP (NCT00128414) a FIRST RECURRENCE; "
+                 "CORP-2 (NCT00235079) MULTIPLE recurrences. The population is part of the "
+                 "estimand and the registry's outcome-title field carries none of it.")},
+]
+
+
+def run(apply_it):
+    with io.open(EXTRACT, "r", encoding="utf-8") as fh:
+        ex = json.load(fh)
+    with io.open(PATH, "r", encoding="utf-8") as fh:
+        o = json.load(fh)
+    by = {t["nct"]: t for t in ex["trials"]}
+    pr = o["results"]["by_outcome"]["primary"]
+
+    before = pr["estimand_screen_verdict"]
+    n_pub = 0
+    for t in o["inputs"]["trials"]:
+        e = by.get(t["nct"])
+        if not e:
+            t["published_report"] = {
+                "state": "NONE_FOUND",
+                "why": ("No publication is listed on the registration and none was resolved. "
+                        "Reported as unresolved, never approximated."),
+            }
+            continue
+        n_pub += 1
+        t["pmid"] = e["pmid"]
+        t["pmid_state"] = "RESOLVED from the registration's own references, confirmed via PubMed"
+        t["published_report"] = {
+            "state": "PUBLISHED",
+            "citation": e["citation"], "pmid": e["pmid"], "doi": e["doi"],
+            "according_to": "PubMed, retrieved 2026-08-19",
+            "population_as_the_paper_states_it": e["population_as_the_paper_states_it"],
+            "primary_outcome_as_the_paper_states_it":
+                e["primary_outcome_as_the_paper_states_it"],
+            "extracted_cells": e["cells"],
+            "extraction_state": e["extraction_state"],
+        }
+
+    pr["estimand_screen_verdict"] = "POOL_NOT_ADMISSIBLE"
+    pr["failing_limbs"] = LIMBS
+    pr["k_with_published_reports"] = n_pub
+    pr["poolable_reason"] = " ".join("[%s] %s" % (f["property"], f["finding"]) for f in LIMBS)
+    pr["absent_is_not_zero"] = (
+        "SUPERSEDED BY THE LITERATURE LIMB, and the supersession is the finding. This object "
+        "previously recorded NO_ESTIMATE_POSSIBLE_NOTHING_HAS_REPORTED, which was TRUE OF THE "
+        "REGISTRY and FALSE OF THE WORLD: %d of %d trials are published, three of them in Ann "
+        "Intern Med, NEJM and Lancet. A REGISTRY IS AN INDEX, and an absence reported by an "
+        "index is not an absence in the world."
+        % (n_pub, len(o["inputs"]["trials"])))
+    pr["previous_verdict_before_the_literature_limb"] = before
+    pr["pooled"]["absent_reason"] = (
+        pr["poolable_reason"] + " NO POOL IS COMPUTED: combining across disease stage is a "
+        "declarable judgement, not a title match, and it is owed as its own decision.")
+    pr["what_this_verdict_does_not_establish"] = (
+        "NOT that colchicine is ineffective in pericarditis -- each published trial reports a "
+        "reduction on its own endpoint in its own population. NOT that these trials can never "
+        "be combined: a pool across disease stage may well be defensible, but it must be "
+        "DECLARED on a named axis rather than inherited from three identical registry titles.")
+    o["screening"]["registries_and_limbs_not_searched"] = (
+        "The PubMed limb has now been run FOR THIS READING and its five trials only; 523 "
+        "colchicine records remain unscreened across the other readings. ANZCTR was never "
+        "searched, and LoDoCo2 is registered there.")
+    o["sources"]["literature_extraction"] = (
+        "evidence/2026-08-19-batch1/pericarditis_publication_extraction.json")
+    o["verification_basis"]["what_verifies_this_object"] = (
+        "ClinicalTrials.gov protocol records read 2026-08-19 at every registered rank, AND the "
+        "published reports of four of the five trials, read cell by cell with each number's "
+        "quote and location recorded. Bibliographic detail according to PubMed.")
+
+    print("  verdict %s -> %s" % (before, pr["estimand_screen_verdict"]))
+    print("  published reports resolved: %d of %d" % (n_pub, len(o["inputs"]["trials"])))
+    for f in LIMBS:
+        print("     %s  %s" % (f["property"], f["finding"][:88]))
+
+    if not apply_it:
+        print("\nDRY RUN -- nothing written. Re-run with --apply.")
+        return 0
+
+    with io.open(PATH, "w", encoding="utf-8", newline="") as fh:
+        fh.write(json.dumps(o, indent=1, ensure_ascii=False))
+
+    scr = json.load(io.open(os.path.join(REPO, "evidence", "2026-08-19-batch1",
+                                         "colchicine_split_screening.json"), encoding="utf-8"))
+    disp = {r["nct"]: r["disposition"] for r in scr["rows"]}
+    spec = B.READINGS["PERICARD"]
+    sibs = [(B.READINGS[r]["page"], B.READINGS[r]["title"])
+            for r in B.READINGS if r != "PERICARD"]
+    html = B.page_html(spec, o, disp, sibs)
+    # PUBLISHED REPORTS ARE ADDED TO THE PAGE, not left only in the object.
+    rows = []
+    for t in o["inputs"]["trials"]:
+        p = t.get("published_report") or {}
+        if p.get("state") != "PUBLISHED":
+            rows.append("<tr><td><code>%s</code></td><td colspan='3'>%s</td></tr>"
+                        % (B.esc(t["nct"]), B.esc(p.get("why") or "no report resolved")))
+            continue
+        cells = "; ".join(
+            "%s = %s" % (B.esc(k), B.esc(c.get("value")))
+            for k, c in p["extracted_cells"].items() if c.get("value") is not None)
+        miss = [k for k, c in p["extracted_cells"].items()
+                if c.get("value") is None]
+        rows.append(
+            "<tr><td><code>%s</code></td><td>%s<br><span class='sub'>%s</span></td>"
+            "<td>%s</td><td>%s%s</td></tr>"
+            % (B.esc(t["nct"]), B.esc(p["citation"]),
+               "PMID %s &middot; doi %s &middot; according to PubMed"
+               % (B.esc(p["pmid"]), B.esc(p["doi"])),
+               B.esc(p["population_as_the_paper_states_it"]["value"]),
+               cells,
+               ("<br><span class='sub'>NOT STATED in the source read: %s</span>"
+                % B.esc(", ".join(miss))) if miss else ""))
+    block = (
+        "<h2>The published reports</h2>"
+        "<p>Bibliographic detail and abstracts <b>according to PubMed</b>, retrieved "
+        "2026-08-19. This is the first literature-limb extraction in this corpus and was done "
+        "cell by cell: every number records the quote and location it came from, and "
+        "<b>nothing is computed from another cell</b> &mdash; a percentage is not turned into a "
+        "count, and a total is not split into arms.</p>"
+        "<div class='wrap'><table><thead><tr><th>Registration</th><th>Report</th>"
+        "<th>Population as the paper states it</th><th>Extracted cells</th></tr></thead>"
+        "<tbody>%s</tbody></table></div>" % "".join(rows))
+    html = html.replace("<h2>What was and was not searched</h2>",
+                        block + "<h2>What was and was not searched</h2>")
+    with io.open(os.path.join(REPO, spec["page"]), "w", encoding="utf-8", newline="") as fh:
+        fh.write(html)
+    print("\n  rewrote %s (%d bytes)" % (spec["page"], len(html.encode("utf-8"))))
+    return 0
+
+
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    sys.exit(run("--apply" in sys.argv))
+
+codex
+I’ll treat the pasted file as the complete review packet and only call something indeterminate when the defect depends on an external file or caller. I’m going line-by-line against the named defect shapes, not doing a general quality pass.
+codex
+Defect found:
+
+- Line 165: probe keyed to the exact string a later fix can remove, with wrapper success at line 170. Exact input: `--apply` where `B.page_html(...)` returns HTML without literal `<h2>What was and was not searched</h2>`, e.g. `"<html><h2>Search coverage</h2></html>"`. Consequence: the published-reports block is not inserted, but the script still writes the page, prints `rewrote ...`, and exits `0`.
+
+COULD NOT DETERMINE whether that exact input occurs in this repository’s current generated page: missing `scripts/build_colchicine_readings_2026_08_19.py` and the generated HTML baseline.
+
+No proven defect in this file for: idempotency guard satisfied by own comment, different-copy instrumentation, CRLF/LF text comparison, merged-cell/off-by-one tabulation, zero conflated with absent, negation dropped.
+tokens used
+12,880
+Defect found:
+
+- Line 165: probe keyed to the exact string a later fix can remove, with wrapper success at line 170. Exact input: `--apply` where `B.page_html(...)` returns HTML without literal `<h2>What was and was not searched</h2>`, e.g. `"<html><h2>Search coverage</h2></html>"`. Consequence: the published-reports block is not inserted, but the script still writes the page, prints `rewrote ...`, and exits `0`.
+
+COULD NOT DETERMINE whether that exact input occurs in this repository’s current generated page: missing `scripts/build_colchicine_readings_2026_08_19.py` and the generated HTML baseline.
+
+No proven defect in this file for: idempotency guard satisfied by own comment, different-copy instrumentation, CRLF/LF text comparison, merged-cell/off-by-one tabulation, zero conflated with absent, negation dropped.

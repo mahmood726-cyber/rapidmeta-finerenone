@@ -1,0 +1,993 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a0323a-a0fe-7c40-b1a7-3f0f8728ccb7
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/r_validate.py
+
+--- THE FILE, IN FULL ---
+"""R metafor validation harness for the rapidmeta-finerenone corpus.
+
+For each *_REVIEW.html with realData and at least 2 trials:
+  1. Extract trials: name, tE, tN, cE, cN  (and publishedHR/CI when present)
+  2. Build a CSV per topic: outputs/r_validation/csv/<topic>.csv
+  3. Run R metafor pooling (REML + HKSJ + PI Cochrane v6.5 t_{k-1})
+     primary scale = log(OR) from 2x2 (escalc measure="OR", to="if0all")
+  4. Save outputs/r_validation/<topic>.json with:
+       k, pooled_logOR, pooled_se, pooled_OR, ci_low, ci_high,
+       tau2, tau2_se, I2, H2, Q, Qdf, Qp, PI_low, PI_high, hksj_floor_applied
+  5. Build outputs/r_validation/index.json — manifest of all topics
+
+Skip files with k<2 or no realData.
+
+Usage:
+  python scripts/r_validate.py            # full corpus
+  python scripts/r_validate.py FILE1 ...  # subset
+"""
+from __future__ import annotations
+import os, sys, io, re, json, csv, shutil, subprocess
+from pathlib import Path
+
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+REPO = Path(__file__).resolve().parent.parent
+# Rscript location: $RSCRIPT_EXE, then PATH, then the common Windows install dir.
+RSCRIPT = (
+    os.environ.get("RSCRIPT_EXE")
+    or shutil.which("Rscript")
+    or r"C:\Program Files\R\R-4.5.2\bin\Rscript.exe"
+)
+OUTDIR = REPO / "outputs/r_validation"
+CSVDIR = OUTDIR / "csv"
+JSONDIR = OUTDIR
+OUTDIR.mkdir(parents=True, exist_ok=True)
+CSVDIR.mkdir(parents=True, exist_ok=True)
+
+# Regex to capture trial 2x2 from realData entries
+TRIAL_RE = re.compile(
+    r"'(NCT\d{8})'\s*:\s*\{[^{}]*?"
+    r"name:\s*'([^']+?)',[^{}]*?"
+    r"(?:baseline:\s*\{[^{}]*?\}\s*,\s*[^{}]*?)?"
+    r"tE:\s*([\d.eE+\-]+|null|None|NaN)\s*,[^{}]*?"
+    r"tN:\s*([\d.eE+\-]+|null|None|NaN)\s*,[^{}]*?"
+    r"cE:\s*([\d.eE+\-]+|null|None|NaN)\s*,[^{}]*?"
+    r"cN:\s*([\d.eE+\-]+|null|None|NaN)",
+    re.DOTALL,
+)
+
+
+def to_int(s):
+    s = (s or "").strip()
+    if s.lower() in ("null", "none", "nan", ""): return None
+    try:
+        v = float(s)
+        return int(v)
+    except (ValueError, TypeError):
+        return None
+
+
+BINARY_INSIDE_RE = re.compile(
+    r"\btE\s*:\s*(-?[\d.eE+\-]+|null|None|NaN)\s*,[^{}]*?"
+    r"\btN\s*:\s*(-?[\d.eE+\-]+|null|None|NaN)\s*,[^{}]*?"
+    r"\bcE\s*:\s*(-?[\d.eE+\-]+|null|None|NaN)\s*,[^{}]*?"
+    r"\bcN\s*:\s*(-?[\d.eE+\-]+|null|None|NaN)",
+    re.DOTALL,
+)
+
+
+def extract_trials(text):
+    """Walk each NCT entry's balanced { } block and pick tE/tN/cE/cN.
+    Tolerant of the realData entry ordering (baseline before name, etc).
+    Returns list of dicts: nct, name, tE, tN, cE, cN."""
+    rows = []
+    for m in TRIAL_HEAD_RE.finditer(text):
+        nct = m.group(1)
+        bounds = find_balanced_block(text, m.end() - 1)
+        if not bounds:
+            continue
+        block = text[bounds[0]:bounds[1]]
+        nm = NAME_INSIDE_RE.search(block)
+        if not nm:
+            continue
+        name = nm.group(1)
+        bm = BINARY_INSIDE_RE.search(block)
+        if not bm:
+            continue
+        tE_i, tN_i, cE_i, cN_i = (to_int(x) for x in bm.groups())
+        if None in (tE_i, tN_i, cE_i, cN_i): continue
+        if tN_i <= 0 or cN_i <= 0: continue
+        if tE_i < 0 or cE_i < 0: continue
+        if tE_i > tN_i or cE_i > cN_i: continue
+        # Reject placeholder zero-event-both-arms rows: when both arms have
+        # exactly 0 events with N>>0, the row is encoding a continuous
+        # outcome with dummy event counts (e.g. ANTIAMYLOID_AD's CDR-SB MD
+        # outcome). Pooling these as binary OR with continuity correction
+        # produces a meaningless OR ≈ 1 from synthetic 0.5/N corrections.
+        if tE_i == 0 and cE_i == 0 and tN_i >= 30 and cN_i >= 30:
+            continue
+        rows.append({"nct": nct, "name": name, "tE": tE_i, "tN": tN_i,
+                     "cE": cE_i, "cN": cN_i})
+    return rows
+
+
+# Continuous outcome detection — walk the file, find each trial entry's
+# balanced { } block, then within it search for allOutcomes containing a
+# CONTINUOUS row with md + se. Bracket nesting in `baseline:{...}` and
+# `allOutcomes:[{...}]` rules out a single-pass regex.
+TRIAL_HEAD_RE = re.compile(r"'(NCT\d{8})'\s*:\s*\{")
+NAME_INSIDE_RE = re.compile(r"name\s*:\s*'([^']+?)'")
+CONTINUOUS_INNER_RE = re.compile(
+    r"\{[^{}]*?type\s*:\s*['\"]?CONTINUOUS['\"]?[^{}]*?"
+    r"md\s*:\s*(-?[\d.eE+\-]+)[^{}]*?"
+    r"se\s*:\s*(-?[\d.eE+\-]+)",
+    re.DOTALL,
+)
+
+
+def find_balanced_block(text, start_brace_pos):
+    """Given the position of an opening '{', return (start, end) of its
+    balanced-brace block (end exclusive). Returns None on mismatch."""
+    depth = 1
+    i = start_brace_pos + 1
+    n = len(text)
+    while i < n and depth > 0:
+        c = text[i]
+        if c == "'":
+            i += 1
+            while i < n and text[i] != "'":
+                i += 2 if text[i] == "\\" else 1
+            i += 1
+        elif c == '{': depth += 1; i += 1
+        elif c == '}': depth -= 1; i += 1
+        else: i += 1
+    return (start_brace_pos, i) if depth == 0 else None
+
+
+def to_float(s):
+    s = (s or "").strip()
+    if s.lower() in ("null", "none", "nan", ""): return None
+    try: return float(s)
+    except (ValueError, TypeError): return None
+
+
+def extract_continuous_trials(text):
+    """Walk each NCT entry's balanced { } block and pick the first
+    allOutcomes entry of type CONTINUOUS with md + se. Returns rows."""
+    rows = []
+    for m in TRIAL_HEAD_RE.finditer(text):
+        nct = m.group(1)
+        bounds = find_balanced_block(text, m.end() - 1)
+        if not bounds:
+            continue
+        block = text[bounds[0]:bounds[1]]
+        nm = NAME_INSIDE_RE.search(block)
+        if not nm:
+            continue
+        name = nm.group(1)
+        cm = CONTINUOUS_INNER_RE.search(block)
+        if not cm:
+            continue
+        md = to_float(cm.group(1))
+        se = to_float(cm.group(2))
+        if md is None or se is None or se <= 0:
+            continue
+        rows.append({"nct": nct, "name": name, "md": md, "se": se})
+    return rows
+
+
+R_SCRIPT = r'''
+suppressPackageStartupMessages({ library(metafor); library(jsonlite) })
+
+args <- commandArgs(trailingOnly = TRUE)
+csv_in <- args[1]
+json_out <- args[2]
+
+dat <- read.csv(csv_in, stringsAsFactors = FALSE)
+k <- nrow(dat)
+
+if (k < 2) {
+  jsonlite::write_json(list(error = "k<2", k = k), json_out, auto_unbox = TRUE)
+  quit(status = 0)
+}
+
+# escalc — log OR with continuity correction only when needed
+es <- tryCatch(
+  metafor::escalc(measure = "OR",
+                  ai = tE, n1i = tN, ci = cE, n2i = cN,
+                  data = dat, to = "only0", add = 0.5,
+                  drop00 = FALSE),
+  error = function(e) NULL
+)
+if (is.null(es) || all(is.na(es$yi))) {
+  jsonlite::write_json(list(error = "escalc_failed", k = k), json_out, auto_unbox = TRUE)
+  quit(status = 0)
+}
+
+# REML + HKSJ
+res <- tryCatch(
+  metafor::rma(yi = es$yi, vi = es$vi, method = "REML", test = "knha"),
+  error = function(e) NULL
+)
+if (is.null(res)) {
+  # Fallback DL if REML fails
+  res <- tryCatch(
+    metafor::rma(yi = es$yi, vi = es$vi, method = "DL", test = "knha"),
+    error = function(e) NULL
+  )
+}
+if (is.null(res)) {
+  jsonlite::write_json(list(error = "rma_failed", k = k), json_out, auto_unbox = TRUE)
+  quit(status = 0)
+}
+
+# HKSJ floor: max(1, Q/(k-1)) — metafor handles HKSJ but not the floor;
+# we report whether floor would have applied.
+Q <- as.numeric(res$QE)
+df <- k - 1
+phi <- max(1, Q / df)
+hksj_floor_applied <- (Q < df)
+
+# Prediction interval (Cochrane v6.5 t_{k-1}): pred() default in metafor uses k-2
+# We compute t_{k-1} convention manually for repro alignment:
+tau2 <- as.numeric(res$tau2)
+se_b <- as.numeric(res$se)
+b <- as.numeric(res$b)
+tcrit <- qt(0.975, df = max(1, k - 1))
+pi_se <- sqrt(tau2 + se_b^2)
+PI_low <- b - tcrit * pi_se
+PI_high <- b + tcrit * pi_se
+
+# CI from rma (already HKSJ when test="knha")
+ci_low <- as.numeric(res$ci.lb)
+ci_high <- as.numeric(res$ci.ub)
+
+out <- list(
+  k = k,
+  pooled_logOR = b,
+  pooled_se = se_b,
+  pooled_OR = exp(b),
+  ci_low_OR = exp(ci_low),
+  ci_high_OR = exp(ci_high),
+  tau2 = tau2,
+  I2 = as.numeric(res$I2),
+  H2 = as.numeric(res$H2),
+  Q = Q,
+  Qdf = df,
+  Qp = as.numeric(res$QEp),
+  PI_low_OR = exp(PI_low),
+  PI_high_OR = exp(PI_high),
+  pi_df_convention = "t_{k-1}_Cochrane_v6.5",
+  hksj_floor_applied = hksj_floor_applied,
+  method = paste0(res$method, "+HKSJ"),
+  trials = lapply(seq_len(k), function(i) list(
+    name = dat$name[i],
+    nct = dat$nct[i],
+    tE = dat$tE[i], tN = dat$tN[i],
+    cE = dat$cE[i], cN = dat$cN[i],
+    yi = es$yi[i], vi = es$vi[i]
+  ))
+)
+jsonlite::write_json(out, json_out, auto_unbox = TRUE, pretty = TRUE, digits = 6)
+'''
+
+
+R_SCRIPT_CONTINUOUS = r'''
+suppressPackageStartupMessages({ library(metafor); library(jsonlite) })
+
+args <- commandArgs(trailingOnly = TRUE)
+csv_in <- args[1]
+json_out <- args[2]
+
+dat <- read.csv(csv_in, stringsAsFactors = FALSE)
+k <- nrow(dat)
+
+if (k < 2) {
+  jsonlite::write_json(list(error = "k<2", k = k), json_out, auto_unbox = TRUE)
+  quit(status = 0)
+}
+
+# Generic precomputed-yi/vi pool: yi = mean difference, vi = se^2
+dat$vi <- dat$se ^ 2
+res <- tryCatch(
+  metafor::rma(yi = dat$md, vi = dat$vi, method = "REML", test = "knha"),
+  error = function(e) NULL
+)
+if (is.null(res)) {
+  res <- tryCatch(
+    metafor::rma(yi = dat$md, vi = dat$vi, method = "DL", test = "knha"),
+    error = function(e) NULL
+  )
+}
+if (is.null(res)) {
+  jsonlite::write_json(list(error = "rma_failed", k = k), json_out, auto_unbox = TRUE)
+  quit(status = 0)
+}
+
+# HKSJ floor flag
+Q <- as.numeric(res$QE); df <- k - 1
+hksj_floor_applied <- (Q < df)
+
+# PI: t_{k-1} convention
+tau2 <- as.numeric(res$tau2)
+se_b <- as.numeric(res$se)
+b <- as.numeric(res$b)
+tcrit <- qt(0.975, df = max(1, k - 1))
+pi_se <- sqrt(tau2 + se_b^2)
+PI_low <- b - tcrit * pi_se
+PI_high <- b + tcrit * pi_se
+
+ci_low <- as.numeric(res$ci.lb)
+ci_high <- as.numeric(res$ci.ub)
+
+out <- list(
+  k = k,
+  effect_type = "MD",
+  pooled_MD = b,
+  pooled_se = se_b,
+  ci_low_MD = ci_low,
+  ci_high_MD = ci_high,
+  tau2 = tau2,
+  I2 = as.numeric(res$I2),
+  H2 = as.numeric(res$H2),
+  Q = Q, Qdf = df, Qp = as.numeric(res$QEp),
+  PI_low_MD = PI_low,
+  PI_high_MD = PI_high,
+  pi_df_convention = "t_{k-1}_Cochrane_v6.5",
+  hksj_floor_applied = hksj_floor_applied,
+  method = paste0(res$method, "+HKSJ+continuous"),
+  trials = lapply(seq_len(k), function(i) list(
+    name = dat$name[i], nct = dat$nct[i],
+    md = dat$md[i], se = dat$se[i]
+  ))
+)
+jsonlite::write_json(out, json_out, auto_unbox = TRUE, pretty = TRUE, digits = 6)
+'''
+
+
+_R_SCRIPT_PATH = OUTDIR / "_validate.R"
+_R_SCRIPT_PATH.write_text(R_SCRIPT, encoding="utf-8")
+_R_SCRIPT_CONT_PATH = OUTDIR / "_validate_continuous.R"
+_R_SCRIPT_CONT_PATH.write_text(R_SCRIPT_CONTINUOUS, encoding="utf-8")
+
+
+def run_r(csv_path: Path, json_path: Path, scale="binary"):
+    script_path = _R_SCRIPT_CONT_PATH if scale == "continuous" else _R_SCRIPT_PATH
+    proc = subprocess.run(
+        [RSCRIPT, str(script_path), str(csv_path), str(json_path)],
+        capture_output=True, text=True, timeout=60,
+    )
+    return proc.returncode, proc.stdout, proc.stderr
+
+
+def topic_name(hp: Path):
+    return hp.stem.replace("_REVIEW", "")
+
+
+def main(argv):
+    files = (
+        [REPO / a for a in argv]
+        if argv
+        else sorted(REPO.glob("*_REVIEW.html"))
+    )
+    print(f"Validating {len(files)} files via R metafor 4.8.0 (REML+HKSJ) ...")
+
+    manifest = []
+    n_validated = 0
+    n_skipped_lowK = 0
+    n_failed = 0
+
+    n_validated_continuous = 0
+    for hp in files:
+        topic = topic_name(hp)
+        text = hp.read_text(encoding="utf-8", errors="replace")
+        trials = extract_trials(text)
+
+        # Path A: binary 2x2 — pool log-OR (existing behaviour)
+        if len(trials) >= 2:
+            csv_path = CSVDIR / f"{topic}.csv"
+            with csv_path.open("w", newline="", encoding="utf-8") as f:
+                w = csv.DictWriter(f, fieldnames=["nct", "name", "tE", "tN", "cE", "cN"])
+                w.writeheader()
+                for r in trials: w.writerow(r)
+            json_path = JSONDIR / f"{topic}.json"
+            rc, _stdout, stderr = run_r(csv_path, json_path)
+            if rc != 0 or not json_path.exists():
+                n_failed += 1; print(f"  FAIL {topic}: rc={rc} {stderr[:200]}"); continue
+            try: res = json.loads(json_path.read_text())
+            except Exception as e:
+                n_failed += 1; print(f"  FAIL {topic}: parse {e}"); continue
+            if "error" in res: n_failed += 1; continue
+            n_validated += 1
+            manifest.append({
+                "topic": topic, "file": hp.name, "effect_type": "OR",
+                "k": res["k"], "pooled_OR": res.get("pooled_OR"),
+                "ci_low": res.get("ci_low_OR"), "ci_high": res.get("ci_high_OR"),
+                "I2": res.get("I2"), "tau2": res.get("tau2"),
+            })
+            continue
+
+        # Path B: no binary 2x2 — try continuous (md/se from allOutcomes)
+        cont_trials = extract_continuous_trials(text)
+        if len(cont_trials) >= 2:
+            csv_path = CSVDIR / f"{topic}__cont.csv"
+            with csv_path.open("w", newline="", encoding="utf-8") as f:
+                w = csv.DictWriter(f, fieldnames=["nct", "name", "md", "se"])
+                w.writeheader()
+                for r in cont_trials: w.writerow(r)
+            json_path = JSONDIR / f"{topic}.json"
+            rc, _stdout, stderr = run_r(csv_path, json_path, scale="continuous")
+            if rc != 0 or not json_path.exists():
+                n_failed += 1; print(f"  FAIL {topic} (cont): rc={rc} {stderr[:200]}"); continue
+            try: res = json.loads(json_path.read_text())
+            except Exception as e:
+                n_failed += 1; print(f"  FAIL {topic} (cont): parse {e}"); continue
+            if "error" in res: n_failed += 1; continue
+            n_validated_continuous += 1
+            manifest.append({
+                "topic": topic, "file": hp.name, "effect_type": "MD",
+                "k": res["k"], "pooled_MD": res.get("pooled_MD"),
+                "ci_low": res.get("ci_low_MD"), "ci_high": res.get("ci_high_MD"),
+                "I2": res.get("I2"), "tau2": res.get("tau2"),
+            })
+            continue
+
+        # Skipped — neither path had enough data
+        n_skipped_lowK += 1
+
+    manifest.sort(key=lambda r: r["topic"])
+    (OUTDIR / "index.json").write_text(json.dumps({
+        "engine": "R 4.5.2 + metafor 4.8.0",
+        "method": "REML + HKSJ + PI t_{k-1} (Cochrane v6.5)",
+        "generated": __import__("datetime").datetime.now().isoformat(timespec="seconds"),
+        "n_validated": n_validated,
+        "n_validated_continuous": n_validated_continuous,
+        "n_skipped_lowK": n_skipped_lowK,
+        "n_failed": n_failed,
+        "topics": manifest,
+    }, indent=2))
+
+    print(f"\n=== Summary ===")
+    print(f"  Validated (binary OR):     {n_validated}")
+    print(f"  Validated (continuous MD): {n_validated_continuous}")
+    print(f"  Total validated:           {n_validated + n_validated_continuous}")
+    print(f"  Skipped (k<2 both paths):  {n_skipped_lowK}")
+    print(f"  Failed:                    {n_failed}")
+    print(f"  Manifest:                  {OUTDIR / 'index.json'}")
+
+
+if __name__ == "__main__":
+    main(sys.argv[1:])
+
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command 'Get-Content -Path scripts/r_validate.py | ForEach-Object -Begin {$i=0} -Process {$i++; '"'{0,4}: {1}' -f "'$i, $_} | Select-Object -First 520' in F:\rapidmeta-ssot-shell
+ succeeded in 1439ms:
+   1: """R metafor validation harness for the rapidmeta-finerenone corpus.
+   2: 
+   3: For each *_REVIEW.html with realData and at least 2 trials:
+   4:   1. Extract trials: name, tE, tN, cE, cN  (and publishedHR/CI when present)
+   5:   2. Build a CSV per topic: outputs/r_validation/csv/<topic>.csv
+   6:   3. Run R metafor pooling (REML + HKSJ + PI Cochrane v6.5 t_{k-1})
+   7:      primary scale = log(OR) from 2x2 (escalc measure="OR", to="if0all")
+   8:   4. Save outputs/r_validation/<topic>.json with:
+   9:        k, pooled_logOR, pooled_se, pooled_OR, ci_low, ci_high,
+  10:        tau2, tau2_se, I2, H2, Q, Qdf, Qp, PI_low, PI_high, hksj_floor_applied
+  11:   5. Build outputs/r_validation/index.json â€” manifest of all topics
+  12: 
+  13: Skip files with k<2 or no realData.
+  14: 
+  15: Usage:
+  16:   python scripts/r_validate.py            # full corpus
+  17:   python scripts/r_validate.py FILE1 ...  # subset
+  18: """
+  19: from __future__ import annotations
+  20: import os, sys, io, re, json, csv, shutil, subprocess
+  21: from pathlib import Path
+  22: 
+  23: sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+  24: 
+  25: REPO = Path(__file__).resolve().parent.parent
+  26: # Rscript location: $RSCRIPT_EXE, then PATH, then the common Windows install dir.
+  27: RSCRIPT = (
+  28:     os.environ.get("RSCRIPT_EXE")
+  29:     or shutil.which("Rscript")
+  30:     or r"C:\Program Files\R\R-4.5.2\bin\Rscript.exe"
+  31: )
+  32: OUTDIR = REPO / "outputs/r_validation"
+  33: CSVDIR = OUTDIR / "csv"
+  34: JSONDIR = OUTDIR
+  35: OUTDIR.mkdir(parents=True, exist_ok=True)
+  36: CSVDIR.mkdir(parents=True, exist_ok=True)
+  37: 
+  38: # Regex to capture trial 2x2 from realData entries
+  39: TRIAL_RE = re.compile(
+  40:     r"'(NCT\d{8})'\s*:\s*\{[^{}]*?"
+  41:     r"name:\s*'([^']+?)',[^{}]*?"
+  42:     r"(?:baseline:\s*\{[^{}]*?\}\s*,\s*[^{}]*?)?"
+  43:     r"tE:\s*([\d.eE+\-]+|null|None|NaN)\s*,[^{}]*?"
+  44:     r"tN:\s*([\d.eE+\-]+|null|None|NaN)\s*,[^{}]*?"
+  45:     r"cE:\s*([\d.eE+\-]+|null|None|NaN)\s*,[^{}]*?"
+  46:     r"cN:\s*([\d.eE+\-]+|null|None|NaN)",
+  47:     re.DOTALL,
+  48: )
+  49: 
+  50: 
+  51: def to_int(s):
+  52:     s = (s or "").strip()
+  53:     if s.lower() in ("null", "none", "nan", ""): return None
+  54:     try:
+  55:         v = float(s)
+  56:         return int(v)
+  57:     except (ValueError, TypeError):
+  58:         return None
+  59: 
+  60: 
+  61: BINARY_INSIDE_RE = re.compile(
+  62:     r"\btE\s*:\s*(-?[\d.eE+\-]+|null|None|NaN)\s*,[^{}]*?"
+  63:     r"\btN\s*:\s*(-?[\d.eE+\-]+|null|None|NaN)\s*,[^{}]*?"
+  64:     r"\bcE\s*:\s*(-?[\d.eE+\-]+|null|None|NaN)\s*,[^{}]*?"
+  65:     r"\bcN\s*:\s*(-?[\d.eE+\-]+|null|None|NaN)",
+  66:     re.DOTALL,
+  67: )
+  68: 
+  69: 
+  70: def extract_trials(text):
+  71:     """Walk each NCT entry's balanced { } block and pick tE/tN/cE/cN.
+  72:     Tolerant of the realData entry ordering (baseline before name, etc).
+  73:     Returns list of dicts: nct, name, tE, tN, cE, cN."""
+  74:     rows = []
+  75:     for m in TRIAL_HEAD_RE.finditer(text):
+  76:         nct = m.group(1)
+  77:         bounds = find_balanced_block(text, m.end() - 1)
+  78:         if not bounds:
+  79:             continue
+  80:         block = text[bounds[0]:bounds[1]]
+  81:         nm = NAME_INSIDE_RE.search(block)
+  82:         if not nm:
+  83:             continue
+  84:         name = nm.group(1)
+  85:         bm = BINARY_INSIDE_RE.search(block)
+  86:         if not bm:
+  87:             continue
+  88:         tE_i, tN_i, cE_i, cN_i = (to_int(x) for x in bm.groups())
+  89:         if None in (tE_i, tN_i, cE_i, cN_i): continue
+  90:         if tN_i <= 0 or cN_i <= 0: continue
+  91:         if tE_i < 0 or cE_i < 0: continue
+  92:         if tE_i > tN_i or cE_i > cN_i: continue
+  93:         # Reject placeholder zero-event-both-arms rows: when both arms have
+  94:         # exactly 0 events with N>>0, the row is encoding a continuous
+  95:         # outcome with dummy event counts (e.g. ANTIAMYLOID_AD's CDR-SB MD
+  96:         # outcome). Pooling these as binary OR with continuity correction
+  97:         # produces a meaningless OR â‰ˆ 1 from synthetic 0.5/N corrections.
+  98:         if tE_i == 0 and cE_i == 0 and tN_i >= 30 and cN_i >= 30:
+  99:             continue
+ 100:         rows.append({"nct": nct, "name": name, "tE": tE_i, "tN": tN_i,
+ 101:                      "cE": cE_i, "cN": cN_i})
+ 102:     return rows
+ 103: 
+ 104: 
+ 105: # Continuous outcome detection â€” walk the file, find each trial entry's
+ 106: # balanced { } block, then within it search for allOutcomes containing a
+ 107: # CONTINUOUS row with md + se. Bracket nesting in `baseline:{...}` and
+ 108: # `allOutcomes:[{...}]` rules out a single-pass regex.
+ 109: TRIAL_HEAD_RE = re.compile(r"'(NCT\d{8})'\s*:\s*\{")
+ 110: NAME_INSIDE_RE = re.compile(r"name\s*:\s*'([^']+?)'")
+ 111: CONTINUOUS_INNER_RE = re.compile(
+ 112:     r"\{[^{}]*?type\s*:\s*['\"]?CONTINUOUS['\"]?[^{}]*?"
+ 113:     r"md\s*:\s*(-?[\d.eE+\-]+)[^{}]*?"
+ 114:     r"se\s*:\s*(-?[\d.eE+\-]+)",
+ 115:     re.DOTALL,
+ 116: )
+ 117: 
+ 118: 
+ 119: def find_balanced_block(text, start_brace_pos):
+ 120:     """Given the position of an opening '{', return (start, end) of its
+ 121:     balanced-brace block (end exclusive). Returns None on mismatch."""
+ 122:     depth = 1
+ 123:     i = start_brace_pos + 1
+ 124:     n = len(text)
+ 125:     while i < n and depth > 0:
+ 126:         c = text[i]
+ 127:         if c == "'":
+ 128:             i += 1
+ 129:             while i < n and text[i] != "'":
+ 130:                 i += 2 if text[i] == "\\" else 1
+ 131:             i += 1
+ 132:         elif c == '{': depth += 1; i += 1
+ 133:         elif c == '}': depth -= 1; i += 1
+ 134:         else: i += 1
+ 135:     return (start_brace_pos, i) if depth == 0 else None
+ 136: 
+ 137: 
+ 138: def to_float(s):
+ 139:     s = (s or "").strip()
+ 140:     if s.lower() in ("null", "none", "nan", ""): return None
+ 141:     try: return float(s)
+ 142:     except (ValueError, TypeError): return None
+ 143: 
+ 144: 
+ 145: def extract_continuous_trials(text):
+ 146:     """Walk each NCT entry's balanced { } block and pick the first
+ 147:     allOutcomes entry of type CONTINUOUS with md + se. Returns rows."""
+ 148:     rows = []
+ 149:     for m in TRIAL_HEAD_RE.finditer(text):
+ 150:         nct = m.group(1)
+ 151:         bounds = find_balanced_block(text, m.end() - 1)
+ 152:         if not bounds:
+ 153:             continue
+ 154:         block = text[bounds[0]:bounds[1]]
+ 155:         nm = NAME_INSIDE_RE.search(block)
+ 156:         if not nm:
+ 157:             continue
+ 158:         name = nm.group(1)
+ 159:         cm = CONTINUOUS_INNER_RE.search(block)
+ 160:         if not cm:
+ 161:             continue
+ 162:         md = to_float(cm.group(1))
+ 163:         se = to_float(cm.group(2))
+ 164:         if md is None or se is None or se <= 0:
+ 165:             continue
+ 166:         rows.append({"nct": nct, "name": name, "md": md, "se": se})
+ 167:     return rows
+ 168: 
+ 169: 
+ 170: R_SCRIPT = r'''
+ 171: suppressPackageStartupMessages({ library(metafor); library(jsonlite) })
+ 172: 
+ 173: args <- commandArgs(trailingOnly = TRUE)
+ 174: csv_in <- args[1]
+ 175: json_out <- args[2]
+ 176: 
+ 177: dat <- read.csv(csv_in, stringsAsFactors = FALSE)
+ 178: k <- nrow(dat)
+ 179: 
+ 180: if (k < 2) {
+ 181:   jsonlite::write_json(list(error = "k<2", k = k), json_out, auto_unbox = TRUE)
+ 182:   quit(status = 0)
+ 183: }
+ 184: 
+ 185: # escalc â€” log OR with continuity correction only when needed
+ 186: es <- tryCatch(
+ 187:   metafor::escalc(measure = "OR",
+ 188:                   ai = tE, n1i = tN, ci = cE, n2i = cN,
+ 189:                   data = dat, to = "only0", add = 0.5,
+ 190:                   drop00 = FALSE),
+ 191:   error = function(e) NULL
+ 192: )
+ 193: if (is.null(es) || all(is.na(es$yi))) {
+ 194:   jsonlite::write_json(list(error = "escalc_failed", k = k), json_out, auto_unbox = TRUE)
+ 195:   quit(status = 0)
+ 196: }
+ 197: 
+ 198: # REML + HKSJ
+ 199: res <- tryCatch(
+ 200:   metafor::rma(yi = es$yi, vi = es$vi, method = "REML", test = "knha"),
+ 201:   error = function(e) NULL
+ 202: )
+ 203: if (is.null(res)) {
+ 204:   # Fallback DL if REML fails
+ 205:   res <- tryCatch(
+ 206:     metafor::rma(yi = es$yi, vi = es$vi, method = "DL", test = "knha"),
+ 207:     error = function(e) NULL
+ 208:   )
+ 209: }
+ 210: if (is.null(res)) {
+ 211:   jsonlite::write_json(list(error = "rma_failed", k = k), json_out, auto_unbox = TRUE)
+ 212:   quit(status = 0)
+ 213: }
+ 214: 
+ 215: # HKSJ floor: max(1, Q/(k-1)) â€” metafor handles HKSJ but not the floor;
+ 216: # we report whether floor would have applied.
+ 217: Q <- as.numeric(res$QE)
+ 218: df <- k - 1
+ 219: phi <- max(1, Q / df)
+ 220: hksj_floor_applied <- (Q < df)
+ 221: 
+ 222: # Prediction interval (Cochrane v6.5 t_{k-1}): pred() default in metafor uses k-2
+ 223: # We compute t_{k-1} convention manually for repro alignment:
+ 224: tau2 <- as.numeric(res$tau2)
+ 225: se_b <- as.numeric(res$se)
+ 226: b <- as.numeric(res$b)
+ 227: tcrit <- qt(0.975, df = max(1, k - 1))
+ 228: pi_se <- sqrt(tau2 + se_b^2)
+ 229: PI_low <- b - tcrit * pi_se
+ 230: PI_high <- b + tcrit * pi_se
+ 231: 
+ 232: # CI from rma (already HKSJ when test="knha")
+ 233: ci_low <- as.numeric(res$ci.lb)
+ 234: ci_high <- as.numeric(res$ci.ub)
+ 235: 
+ 236: out <- list(
+ 237:   k = k,
+ 238:   pooled_logOR = b,
+ 239:   pooled_se = se_b,
+ 240:   pooled_OR = exp(b),
+ 241:   ci_low_OR = exp(ci_low),
+ 242:   ci_high_OR = exp(ci_high),
+ 243:   tau2 = tau2,
+ 244:   I2 = as.numeric(res$I2),
+ 245:   H2 = as.numeric(res$H2),
+ 246:   Q = Q,
+ 247:   Qdf = df,
+ 248:   Qp = as.numeric(res$QEp),
+ 249:   PI_low_OR = exp(PI_low),
+ 250:   PI_high_OR = exp(PI_high),
+ 251:   pi_df_convention = "t_{k-1}_Cochrane_v6.5",
+ 252:   hksj_floor_applied = hksj_floor_applied,
+ 253:   method = paste0(res$method, "+HKSJ"),
+ 254:   trials = lapply(seq_len(k), function(i) list(
+ 255:     name = dat$name[i],
+ 256:     nct = dat$nct[i],
+ 257:     tE = dat$tE[i], tN = dat$tN[i],
+ 258:     cE = dat$cE[i], cN = dat$cN[i],
+ 259:     yi = es$yi[i], vi = es$vi[i]
+ 260:   ))
+ 261: )
+ 262: jsonlite::write_json(out, json_out, auto_unbox = TRUE, pretty = TRUE, digits = 6)
+ 263: '''
+ 264: 
+ 265: 
+ 266: R_SCRIPT_CONTINUOUS = r'''
+ 267: suppressPackageStartupMessages({ library(metafor); library(jsonlite) })
+ 268: 
+ 269: args <- commandArgs(trailingOnly = TRUE)
+ 270: csv_in <- args[1]
+ 271: json_out <- args[2]
+ 272: 
+ 273: dat <- read.csv(csv_in, stringsAsFactors = FALSE)
+ 274: k <- nrow(dat)
+ 275: 
+ 276: if (k < 2) {
+ 277:   jsonlite::write_json(list(error = "k<2", k = k), json_out, auto_unbox = TRUE)
+ 278:   quit(status = 0)
+ 279: }
+ 280: 
+ 281: # Generic precomputed-yi/vi pool: yi = mean difference, vi = se^2
+ 282: dat$vi <- dat$se ^ 2
+ 283: res <- tryCatch(
+ 284:   metafor::rma(yi = dat$md, vi = dat$vi, method = "REML", test = "knha"),
+ 285:   error = function(e) NULL
+ 286: )
+ 287: if (is.null(res)) {
+ 288:   res <- tryCatch(
+ 289:     metafor::rma(yi = dat$md, vi = dat$vi, method = "DL", test = "knha"),
+ 290:     error = function(e) NULL
+ 291:   )
+ 292: }
+ 293: if (is.null(res)) {
+ 294:   jsonlite::write_json(list(error = "rma_failed", k = k), json_out, auto_unbox = TRUE)
+ 295:   quit(status = 0)
+ 296: }
+ 297: 
+ 298: # HKSJ floor flag
+ 299: Q <- as.numeric(res$QE); df <- k - 1
+ 300: hksj_floor_applied <- (Q < df)
+ 301: 
+ 302: # PI: t_{k-1} convention
+ 303: tau2 <- as.numeric(res$tau2)
+ 304: se_b <- as.numeric(res$se)
+ 305: b <- as.numeric(res$b)
+ 306: tcrit <- qt(0.975, df = max(1, k - 1))
+ 307: pi_se <- sqrt(tau2 + se_b^2)
+ 308: PI_low <- b - tcrit * pi_se
+ 309: PI_high <- b + tcrit * pi_se
+ 310: 
+ 311: ci_low <- as.numeric(res$ci.lb)
+ 312: ci_high <- as.numeric(res$ci.ub)
+ 313: 
+ 314: out <- list(
+ 315:   k = k,
+ 316:   effect_type = "MD",
+ 317:   pooled_MD = b,
+ 318:   pooled_se = se_b,
+ 319:   ci_low_MD = ci_low,
+ 320:   ci_high_MD = ci_high,
+ 321:   tau2 = tau2,
+ 322:   I2 = as.numeric(res$I2),
+ 323:   H2 = as.numeric(res$H2),
+ 324:   Q = Q, Qdf = df, Qp = as.numeric(res$QEp),
+ 325:   PI_low_MD = PI_low,
+ 326:   PI_high_MD = PI_high,
+ 327:   pi_df_convention = "t_{k-1}_Cochrane_v6.5",
+ 328:   hksj_floor_applied = hksj_floor_applied,
+ 329:   method = paste0(res$method, "+HKSJ+continuous"),
+ 330:   trials = lapply(seq_len(k), function(i) list(
+ 331:     name = dat$name[i], nct = dat$nct[i],
+ 332:     md = dat$md[i], se = dat$se[i]
+ 333:   ))
+ 334: )
+ 335: jsonlite::write_json(out, json_out, auto_unbox = TRUE, pretty = TRUE, digits = 6)
+ 336: '''
+ 337: 
+ 338: 
+ 339: _R_SCRIPT_PATH = OUTDIR / "_validate.R"
+ 340: _R_SCRIPT_PATH.write_text(R_SCRIPT, encoding="utf-8")
+ 341: _R_SCRIPT_CONT_PATH = OUTDIR / "_validate_continuous.R"
+ 342: _R_SCRIPT_CONT_PATH.write_text(R_SCRIPT_CONTINUOUS, encoding="utf-8")
+ 343: 
+ 344: 
+ 345: def run_r(csv_path: Path, json_path: Path, scale="binary"):
+ 346:     script_path = _R_SCRIPT_CONT_PATH if scale == "continuous" else _R_SCRIPT_PATH
+ 347:     proc = subprocess.run(
+ 348:         [RSCRIPT, str(script_path), str(csv_path), str(json_path)],
+ 349:         capture_output=True, text=True, timeout=60,
+ 350:     )
+ 351:     return proc.returncode, proc.stdout, proc.stderr
+ 352: 
+ 353: 
+ 354: def topic_name(hp: Path):
+ 355:     return hp.stem.replace("_REVIEW", "")
+ 356: 
+ 357: 
+ 358: def main(argv):
+ 359:     files = (
+ 360:         [REPO / a for a in argv]
+ 361:         if argv
+ 362:         else sorted(REPO.glob("*_REVIEW.html"))
+ 363:     )
+ 364:     print(f"Validating {len(files)} files via R metafor 4.8.0 (REML+HKSJ) ...")
+ 365: 
+ 366:     manifest = []
+ 367:     n_validated = 0
+ 368:     n_skipped_lowK = 0
+ 369:     n_failed = 0
+ 370: 
+ 371:     n_validated_continuous = 0
+ 372:     for hp in files:
+ 373:         topic = topic_name(hp)
+ 374:         text = hp.read_text(encoding="utf-8", errors="replace")
+ 375:         trials = extract_trials(text)
+ 376: 
+ 377:         # Path A: binary 2x2 â€” pool log-OR (existing behaviour)
+ 378:         if len(trials) >= 2:
+ 379:             csv_path = CSVDIR / f"{topic}.csv"
+ 380:             with csv_path.open("w", newline="", encoding="utf-8") as f:
+ 381:                 w = csv.DictWriter(f, fieldnames=["nct", "name", "tE", "tN", "cE", "cN"])
+ 382:                 w.writeheader()
+ 383:                 for r in trials: w.writerow(r)
+ 384:             json_path = JSONDIR / f"{topic}.json"
+ 385:             rc, _stdout, stderr = run_r(csv_path, json_path)
+ 386:             if rc != 0 or not json_path.exists():
+ 387:                 n_failed += 1; print(f"  FAIL {topic}: rc={rc} {stderr[:200]}"); continue
+ 388:             try: res = json.loads(json_path.read_text())
+ 389:             except Exception as e:
+ 390:                 n_failed += 1; print(f"  FAIL {topic}: parse {e}"); continue
+ 391:             if "error" in res: n_failed += 1; continue
+ 392:             n_validated += 1
+ 393:             manifest.append({
+ 394:                 "topic": topic, "file": hp.name, "effect_type": "OR",
+ 395:                 "k": res["k"], "pooled_OR": res.get("pooled_OR"),
+ 396:                 "ci_low": res.get("ci_low_OR"), "ci_high": res.get("ci_high_OR"),
+ 397:                 "I2": res.get("I2"), "tau2": res.get("tau2"),
+ 398:             })
+ 399:             continue
+ 400: 
+ 401:         # Path B: no binary 2x2 â€” try continuous (md/se from allOutcomes)
+ 402:         cont_trials = extract_continuous_trials(text)
+ 403:         if len(cont_trials) >= 2:
+ 404:             csv_path = CSVDIR / f"{topic}__cont.csv"
+ 405:             with csv_path.open("w", newline="", encoding="utf-8") as f:
+ 406:                 w = csv.DictWriter(f, fieldnames=["nct", "name", "md", "se"])
+ 407:                 w.writeheader()
+ 408:                 for r in cont_trials: w.writerow(r)
+ 409:             json_path = JSONDIR / f"{topic}.json"
+ 410:             rc, _stdout, stderr = run_r(csv_path, json_path, scale="continuous")
+ 411:             if rc != 0 or not json_path.exists():
+ 412:                 n_failed += 1; print(f"  FAIL {topic} (cont): rc={rc} {stderr[:200]}"); continue
+ 413:             try: res = json.loads(json_path.read_text())
+ 414:             except Exception as e:
+ 415:                 n_failed += 1; print(f"  FAIL {topic} (cont): parse {e}"); continue
+ 416:             if "error" in res: n_failed += 1; continue
+ 417:             n_validated_continuous += 1
+ 418:             manifest.append({
+ 419:                 "topic": topic, "file": hp.name, "effect_type": "MD",
+ 420:                 "k": res["k"], "pooled_MD": res.get("pooled_MD"),
+ 421:                 "ci_low": res.get("ci_low_MD"), "ci_high": res.get("ci_high_MD"),
+ 422:                 "I2": res.get("I2"), "tau2": res.get("tau2"),
+ 423:             })
+ 424:             continue
+ 425: 
+ 426:         # Skipped â€” neither path had enough data
+ 427:         n_skipped_lowK += 1
+ 428: 
+ 429:     manifest.sort(key=lambda r: r["topic"])
+ 430:     (OUTDIR / "index.json").write_text(json.dumps({
+ 431:         "engine": "R 4.5.2 + metafor 4.8.0",
+ 432:         "method": "REML + HKSJ + PI t_{k-1} (Cochrane v6.5)",
+ 433:         "generated": __import__("datetime").datetime.now().isoformat(timespec="seconds"),
+ 434:         "n_validated": n_validated,
+ 435:         "n_validated_continuous": n_validated_continuous,
+ 436:         "n_skipped_lowK": n_skipped_lowK,
+ 437:         "n_failed": n_failed,
+ 438:         "topics": manifest,
+ 439:     }, indent=2))
+ 440: 
+ 441:     print(f"\n=== Summary ===")
+ 442:     print(f"  Validated (binary OR):     {n_validated}")
+ 443:     print(f"  Validated (continuous MD): {n_validated_continuous}")
+ 444:     print(f"  Total validated:           {n_validated + n_validated_continuous}")
+ 445:     print(f"  Skipped (k<2 both paths):  {n_skipped_lowK}")
+ 446:     print(f"  Failed:                    {n_failed}")
+ 447:     print(f"  Manifest:                  {OUTDIR / 'index.json'}")
+ 448: 
+ 449: 
+ 450: if __name__ == "__main__":
+ 451:     main(sys.argv[1:])
+
+codex
+- **SELECTOR KEYED TO FIELD ORDER**: line 112 requires `type` before `md` before `se`.  
+  Exact input to `extract_continuous_trials`: `"'NCT00000001': {name: 'A', allOutcomes: [{md: 1, se: 0.2, type: 'CONTINUOUS'}]}, 'NCT00000002': {name: 'B', allOutcomes: [{md: 2, se: 0.3, type: 'CONTINUOUS'}]}"`  
+  Consequence: returns no continuous trials and skips a two-trial continuous topic.
+
+- **SELECTOR NOT SCOPED TO CLAIMED FORM**: line 159 searches the whole trial block, not `allOutcomes`.  
+  Exact input: `"'NCT00000001': {name: 'A', audit: {type: 'CONTINUOUS', md: 1, se: 0.2}}, 'NCT00000002': {name: 'B', audit: {type: 'CONTINUOUS', md: 2, se: 0.3}}"`  
+  Consequence: non-outcome nested objects can be pooled as continuous outcomes.
+
+- **INSTRUMENT READING A DIFFERENT COPY / NAME VS BINDING**: line 431 hardcodes `"R 4.5.2 + metafor 4.8.0"` while lines 27-30 select any `RSCRIPT_EXE`/PATH Rscript.  
+  Exact input: run with `RSCRIPT_EXE=C:\R\R-4.4.3\bin\Rscript.exe` and any valid two-trial review file.  
+  Consequence: `index.json` reports an engine version that may not be the engine actually used.
+
+- **STATUS CODE REPORTING THE WRAPPER RATHER THAN THE WORK**: line 182 exits `0` after writing `error = "k<2"`; same pattern at 195, 212, 278, 295.  
+  Exact input to generated `_validate.R`: CSV `nct,name,tE,tN,cE,cN\nNCT00000001,A,1,10,2,10\n`.  
+  Consequence: a status-only gate sees PASS for a failed validation.
+
+No proven defects in packet for: probe keyed to string a fix removes; idempotency guard satisfied by own marker; CRLF/LF text comparison; merged-cell/off-by-one tabulation; reachable zero-conflated-with-absent through current regex callers; negation dropped. COULD NOT DETERMINE corpus-wide “matches nothing” claims without the `*_REVIEW.html` corpus.
+tokens used
+19,337
+- **SELECTOR KEYED TO FIELD ORDER**: line 112 requires `type` before `md` before `se`.  
+  Exact input to `extract_continuous_trials`: `"'NCT00000001': {name: 'A', allOutcomes: [{md: 1, se: 0.2, type: 'CONTINUOUS'}]}, 'NCT00000002': {name: 'B', allOutcomes: [{md: 2, se: 0.3, type: 'CONTINUOUS'}]}"`  
+  Consequence: returns no continuous trials and skips a two-trial continuous topic.
+
+- **SELECTOR NOT SCOPED TO CLAIMED FORM**: line 159 searches the whole trial block, not `allOutcomes`.  
+  Exact input: `"'NCT00000001': {name: 'A', audit: {type: 'CONTINUOUS', md: 1, se: 0.2}}, 'NCT00000002': {name: 'B', audit: {type: 'CONTINUOUS', md: 2, se: 0.3}}"`  
+  Consequence: non-outcome nested objects can be pooled as continuous outcomes.
+
+- **INSTRUMENT READING A DIFFERENT COPY / NAME VS BINDING**: line 431 hardcodes `"R 4.5.2 + metafor 4.8.0"` while lines 27-30 select any `RSCRIPT_EXE`/PATH Rscript.  
+  Exact input: run with `RSCRIPT_EXE=C:\R\R-4.4.3\bin\Rscript.exe` and any valid two-trial review file.  
+  Consequence: `index.json` reports an engine version that may not be the engine actually used.
+
+- **STATUS CODE REPORTING THE WRAPPER RATHER THAN THE WORK**: line 182 exits `0` after writing `error = "k<2"`; same pattern at 195, 212, 278, 295.  
+  Exact input to generated `_validate.R`: CSV `nct,name,tE,tN,cE,cN\nNCT00000001,A,1,10,2,10\n`.  
+  Consequence: a status-only gate sees PASS for a failed validation.
+
+No proven defects in packet for: probe keyed to string a fix removes; idempotency guard satisfied by own marker; CRLF/LF text comparison; merged-cell/off-by-one tabulation; reachable zero-conflated-with-absent through current regex callers; negation dropped. COULD NOT DETERMINE corpus-wide “matches nothing” claims without the `*_REVIEW.html` corpus.

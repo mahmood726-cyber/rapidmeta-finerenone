@@ -1,0 +1,168 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a03119-e6a7-7921-b71b-41d7519591e2
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/add_dta_tau2_ci_display.py
+
+--- THE FILE, IN FULL ---
+"""
+Wire DTA Q-profile tau2 CI into the heterogeneity panel display.
+
+Updates the metric-ci sub-line on the tau2_sens / tau2_spec cards to show
+the Q-profile 95% CI when available (k>=2 and not single_study).
+
+Idempotent: skipped if 'Q-profile 95% CI' already in the file.
+
+Usage: python scripts/add_dta_tau2_ci_display.py [--dry-run]
+"""
+import argparse
+import io
+import os
+import sys
+
+if sys.platform == 'win32':
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+
+ROOT = os.environ.get(
+    'RAPIDMETA_REPO_ROOT',
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+)
+
+SENS_OLD = (
+    "          '<div class=\"metric-card\"><div class=\"metric-label\">tau&sup2; (Sens, logit)</div>' +\n"
+    "          '<div class=\"metric-value\">' + fmtNum(fit.tau2_sens, 4) + '</div>' +\n"
+    "          '<div class=\"metric-ci\">between-study variance on logit scale</div></div>' +\n"
+)
+SENS_NEW = (
+    "          '<div class=\"metric-card\"><div class=\"metric-label\">tau&sup2; (Sens, logit)</div>' +\n"
+    "          '<div class=\"metric-value\">' + fmtNum(fit.tau2_sens, 4) + '</div>' +\n"
+    "          '<div class=\"metric-ci\">' + (Number.isFinite(fit.tau2_sens_lo) && Number.isFinite(fit.tau2_sens_hi) ? 'Q-profile 95% CI: ' + fmtNum(fit.tau2_sens_lo, 4) + ' &mdash; ' + fmtNum(fit.tau2_sens_hi, 4) : 'between-study variance on logit scale') + '</div></div>' +\n"
+)
+
+SPEC_OLD = (
+    "          '<div class=\"metric-card\"><div class=\"metric-label\">tau&sup2; (Spec, logit)</div>' +\n"
+    "          '<div class=\"metric-value\">' + fmtNum(fit.tau2_spec, 4) + '</div>' +\n"
+    "          '<div class=\"metric-ci\">between-study variance on logit scale</div></div>' +\n"
+)
+SPEC_NEW = (
+    "          '<div class=\"metric-card\"><div class=\"metric-label\">tau&sup2; (Spec, logit)</div>' +\n"
+    "          '<div class=\"metric-value\">' + fmtNum(fit.tau2_spec, 4) + '</div>' +\n"
+    "          '<div class=\"metric-ci\">' + (Number.isFinite(fit.tau2_spec_lo) && Number.isFinite(fit.tau2_spec_hi) ? 'Q-profile 95% CI: ' + fmtNum(fit.tau2_spec_lo, 4) + ' &mdash; ' + fmtNum(fit.tau2_spec_hi, 4) : 'between-study variance on logit scale') + '</div></div>' +\n"
+)
+
+FIXED_MARKER = "Q-profile 95% CI"
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument('--dry-run', action='store_true')
+    args = ap.parse_args()
+    print(f'Mode: {"DRY-RUN" if args.dry_run else "APPLY"}')
+    files = sorted(
+        f for f in os.listdir(ROOT)
+        if f.endswith('_DTA_REVIEW.html') and not f.endswith('.bak.html')
+    )
+    summary = {'changed': 0, 'unchanged': 0, 'no_anchor': 0}
+    for fname in files:
+        path = os.path.join(ROOT, fname)
+        src = open(path, 'r', encoding='utf-8').read()
+        if FIXED_MARKER in src:
+            summary['unchanged'] += 1
+            continue
+        out = src
+        if SENS_OLD in out:
+            out = out.replace(SENS_OLD, SENS_NEW, 1)
+        if SPEC_OLD in out:
+            out = out.replace(SPEC_OLD, SPEC_NEW, 1)
+        if out == src:
+            summary['no_anchor'] += 1
+            continue
+        if not args.dry_run:
+            open(path, 'w', encoding='utf-8').write(out)
+        summary['changed'] += 1
+    print(f'Summary: {summary}')
+    return 0
+
+
+if __name__ == '__main__':
+    sys.exit(main())
+
+codex
+Defects found:
+
+- **Check that CANNOT FAIL / status code reports wrapper**: line 77.  
+  Exact input: `ROOT` contains no files ending `_DTA_REVIEW.html`, or contains `demo_DTA_REVIEW.html` with exactly `no matching anchor`.  
+  Consequence: the script exits `0` and can satisfy CI/release checks even though no target was updated.
+
+- **Idempotency guard satisfied by marker rather than work**: lines 46 and 62.  
+  Exact input: `demo_DTA_REVIEW.html` contains `<!-- Q-profile 95% CI TODO -->` plus the old tau2 sensitivity/spec blocks.  
+  Consequence: the file is counted `unchanged` and both real display replacements are skipped.
+
+- **Partial-work idempotency guard**: line 62.  
+  Exact input: a file where the sensitivity card has already been changed to `SENS_NEW`, but the specificity card still exactly equals `SPEC_OLD`.  
+  Consequence: the marker from the sensitivity card prevents the missing specificity replacement from ever running.
+
+Not found in this packet: string-a-fix-removes probe; different-copy instrument; CRLF/LF text comparison defect; merged-cell/off-by-one; zero conflated with absent; negation dropped.
+
+COULD NOT DETERMINE: selector keyed to a form the corpus does not use, because the actual `_DTA_REVIEW.html` corpus files are missing.
+tokens used
+5,223
+Defects found:
+
+- **Check that CANNOT FAIL / status code reports wrapper**: line 77.  
+  Exact input: `ROOT` contains no files ending `_DTA_REVIEW.html`, or contains `demo_DTA_REVIEW.html` with exactly `no matching anchor`.  
+  Consequence: the script exits `0` and can satisfy CI/release checks even though no target was updated.
+
+- **Idempotency guard satisfied by marker rather than work**: lines 46 and 62.  
+  Exact input: `demo_DTA_REVIEW.html` contains `<!-- Q-profile 95% CI TODO -->` plus the old tau2 sensitivity/spec blocks.  
+  Consequence: the file is counted `unchanged` and both real display replacements are skipped.
+
+- **Partial-work idempotency guard**: line 62.  
+  Exact input: a file where the sensitivity card has already been changed to `SENS_NEW`, but the specificity card still exactly equals `SPEC_OLD`.  
+  Consequence: the marker from the sensitivity card prevents the missing specificity replacement from ever running.
+
+Not found in this packet: string-a-fix-removes probe; different-copy instrument; CRLF/LF text comparison defect; merged-cell/off-by-one; zero conflated with absent; negation dropped.
+
+COULD NOT DETERMINE: selector keyed to a form the corpus does not use, because the actual `_DTA_REVIEW.html` corpus files are missing.

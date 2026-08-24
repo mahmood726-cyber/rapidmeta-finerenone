@@ -1,0 +1,1122 @@
+PACKET COMPLETENESS, ASSERTED. Everything you need is in this message. The
+material below is reproduced IN FULL and unabridged; nothing is withheld or summarised. You
+have no file access and should not ask for any.
+
+If something you need is genuinely not here, answer COULD NOT DETERMINE and NAME what is
+missing. Do NOT say anything is fabricated, invented, or absent from the record: an earlier
+blinded read of a partial packet returned six confident accusations of fabrication, and all
+six named facts that were present in the record and missing only from the packet. A false
+accusation costs as much here as a missed defect.
+
+A field is RECORDED on 1 object(s) in this corpus and appears on
+ZERO delivered pages. The audit that found it can measure that silence and cannot judge it.
+You are being asked for the judgement, and only the judgement.
+
+THE FIELD: and_one_of_those_was_wrong_in_this_repository
+HELD BY: 1 object(s).  SHOWN ON: 0 pages.
+
+The question is NOT whether the field is well written. It is:
+
+1. IS A READER OWED THIS? Answer OWED / NOT OWED / COULD NOT DETERMINE, and say why in one
+   sentence. Some silence is correct -- a field recording an internal decision, a duplicate
+   of text already shown under another name, or a machine flag -- and saying NOT OWED where
+   that is true is as valuable as saying OWED where it is not.
+2. IF OWED: WHERE. Which reader, at what moment, needs it. A qualification shown in a place
+   nobody reads has not reached anyone.
+3. IS IT A DUPLICATE? Search the complete object below. If this text is already on a page
+   under a different field name, say so and name the other field -- that would make the
+   silence harmless and the finding a false positive.
+4. WHAT WOULD BE LOST if this were simply deleted rather than shown?
+
+Under 350 words. If the stored value is boilerplate that says nothing, say so plainly.
+
+--- THE STORED VALUES, AND ONE COMPLETE OBJECT THAT HOLDS THE FIELD ---
+{
+ "field": "and_one_of_those_was_wrong_in_this_repository",
+ "holders": [
+  {
+   "topic": "colchicine-cvd-coronary",
+   "path_in_object": "registration_identity.and_one_of_those_was_wrong_in_this_repository",
+   "stored_value": "PUBLISHED_META_BENCHMARKS.json recorded LoDoCo2 as PMID 32865375. That PMID is EAST-AFNET 4, an atrial-fibrillation trial this corpus already cites correctly on two other pages. Corrected 2026-08-19; DEFECT-REGISTRY class 22."
+  }
+ ],
+ "THE_COMPLETE_OBJECT": {
+  "app_id": "colchicine-cvd-coronary",
+  "schema_version": 2,
+  "title": "Colchicine for major adverse cardiovascular events in coronary disease",
+  "question": "Does low-dose colchicine reduce major adverse cardiovascular events in patients with established coronary artery disease or after myocardial infarction?",
+  "question_provenance": {
+   "state": "DERIVED_POST_HOC",
+   "why": "The parent `colchicine-cvd-review` asked one question of trials in three different vascular beds. This reading is the coronary one."
+  },
+  "built": "2026-08-19",
+  "build_mode": "AUTHORED",
+  "split_provenance": {
+   "parent": "colchicine-cvd-review",
+   "why_split": "The parent held COLCOT (after myocardial infarction), CLEAR SYNERGY (after myocardial infarction, inside a 2x2 factorial) and CONVINCE (after NON-CARDIOEMBOLIC ISCHAEMIC STROKE) under one question. The complete 137-record search added peripheral artery disease, intracerebral haemorrhage, peri-procedural prevention and pericarditis. Seven readings; see DECIDED-colchicine-cvd-2026-08-19.md. P21.",
+   "siblings": [
+    "colchicine-cvd-cerebrovascular",
+    "colchicine-cvd-pad",
+    "colchicine-cvd-ich",
+    "colchicine-cvd-ascvd-mixed",
+    "colchicine-periprocedural",
+    "colchicine-pericarditis"
+   ],
+   "siblings_state": "NOT YET BUILT. This is the first of the seven. Naming them here before they exist is deliberate: a reading that is named and unbuilt is visible, and a reading that is neither is not.",
+   "precedence": "PERIPROC > PERICARD > ICH > CEREBRO > PAD > CORONARY, applied in that order and STATED rather than discovered. A different precedence would move trials between readings and these counts would change with it. PERIPROC requires BOTH a procedural anchor AND a primary outcome that is a complication of the procedure, because a 'was a procedure involved' rule sends CLEAR SYNERGY out of its own review.",
+   "the_seventh_reading_was_an_amendment": "Six readings were fixed before any count existed. The screen then surfaced a population none of them covered -- established atherosclerotic disease with no named vascular bed -- and ASCVD_MIXED was added as a DATED AMENDMENT rather than folded back into the original six."
+  },
+  "outcomes": [
+   {
+    "id": "mace",
+    "type": "primary",
+    "name": "Major adverse cardiovascular events, as each trial defines them",
+    "definition": "NOT ONE DEFINITION, AND THAT IS THIS PAGE'S RESULT. The three published primaries share exactly ONE component -- cardiovascular death -- out of a union of TEN. Each trial's own definition is quoted verbatim beside its estimate.",
+    "definition_note": "This outcome exists so the page can state that the trials do not share it. The name above is what all three call their endpoint; the definitions below are what they mean by it, and they differ by a whole component and by three qualifiers.",
+    "measure": "HR",
+    "effect_scale": "log",
+    "estimand": {
+     "id": "mace",
+     "family": "time to first event",
+     "model": "none -- no shared estimand was established"
+    },
+    "comparator": "placebo in all three",
+    "comparator_type": "placebo",
+    "direction_of_benefit": "lower is better",
+    "null_value": 1
+   }
+  ],
+  "inputs": {
+   "trials": [
+    {
+     "id": "NCT02551094",
+     "name": "COLCOT",
+     "nct": "NCT02551094",
+     "registry_id": "NCT02551094",
+     "pmid": "31733140",
+     "doi": "10.1056/NEJMoa1912388",
+     "arms": [
+      {
+       "label": "colchicine 0.5 mg once daily",
+       "role": "treatment",
+       "participants": 2366
+      },
+      {
+       "label": "placebo",
+       "role": "control",
+       "participants": 2379
+      }
+     ],
+     "registration_enrolment": 4745,
+     "population_verbatim": "patients recruited within 30 days after a myocardial infarction",
+     "follow_up_verbatim": "a median of 22.6 months",
+     "by_outcome": {
+      "mace": {
+       "effect": {
+        "measure": "HR",
+        "scale": "log",
+        "point": 0.77,
+        "ci_low": 0.61,
+        "ci_high": 0.96,
+        "ci_level": 95,
+        "derived_from": "the trial's own abstract, as PubMed prints it",
+        "derivation_note": "READ from the source as printed, never recomputed and never taken from the previous object, whose values carried the provenance tag PAGE-EMBEDDED and a note that they had not been checked. The log point and log standard error are DERIVED from the printed interval and neither is claimed to appear in any source."
+       },
+       "provenance": {
+        "tag": "READ_FROM_PUBLICATION_ABSTRACT",
+        "source_quotes": [
+         "The primary end point occurred in 5.5% of the patients in the colchicine group, as compared with 7.1% of those in the placebo group (hazard ratio, 0.77; 95% confidence interval [CI], 0.61 to 0.96; P = 0.02)",
+         "a composite of death from cardiovascular causes, resuscitated cardiac arrest, myocardial infarction, stroke, or urgent hospitalization for angina leading to coronary revascularization"
+        ],
+        "quote_note": "Two sentences: the effect with its interval, and the primary endpoint DEFINITION. The definition is quoted because this page's whole finding is that the definitions differ, and a reader must be able to check that against the source rather than against our paraphrase."
+       },
+       "source_url": "https://doi.org/10.1056/NEJMoa1912388",
+       "pubmed_url": "https://pubmed.ncbi.nlm.nih.gov/31733140/",
+       "outcome_definition": "a composite of death from cardiovascular causes, resuscitated cardiac arrest, myocardial infarction, stroke, or urgent hospitalization for angina leading to coronary revascularization",
+       "outcome_definition_source": {
+        "source": "publication abstract",
+        "source_field": "abstract, METHODS sentence naming the primary end point",
+        "journal": "N Engl J Med",
+        "year": 2019,
+        "pmid": "31733140",
+        "doi": "10.1056/NEJMoa1912388",
+        "read_utc": "2026-08-19",
+        "components_as_the_paper_states_them": [
+         "cv_death",
+         "resuscitated_cardiac_arrest",
+         "myocardial_infarction",
+         "stroke",
+         "urgent_hospitalisation_for_angina_leading_to_revasc"
+        ]
+       },
+       "what_was_NOT_read": "Component-level event counts, analysis populations, per-protocol sets and subgroups. The full text was not read. Absent, and recorded as absent."
+      }
+     },
+     "all_ranks_read_utc": "2026-08-19",
+     "ranks_read_note": "'Every rank' means every rank THIS TRIAL'S ABSTRACT PRINTS -- the primary, any key secondary, and any component reported separately. The full text was not read; what that leaves unread is stated in `what_was_NOT_read` on the outcome.",
+     "registered_secondaries": {
+      "ranks_read": "primary, plus EVERY COMPONENT of the primary reported separately",
+      "components_published_in_the_abstract": {
+       "cardiovascular death": "HR 0.84 (0.46 to 1.52)",
+       "resuscitated cardiac arrest": "HR 0.83 (0.25 to 2.73)",
+       "myocardial infarction": "HR 0.91 (0.68 to 1.21)",
+       "stroke": "HR 0.26 (0.10 to 0.70)",
+       "urgent hospitalisation for angina leading to coronary revascularisation": "HR 0.50 (0.31 to 0.81)"
+      },
+      "verbatim": "The hazard ratios were 0.84 (95% CI, 0.46 to 1.52) for death from cardiovascular causes, 0.83 (95% CI, 0.25 to 2.73) for resuscitated cardiac arrest, 0.91 (95% CI, 0.68 to 1.21) for myocardial infarction, 0.26 (95% CI, 0.10 to 0.70) for stroke, and 0.50 (95% CI, 0.31 to 0.81) for urgent hospitalization for angina leading to coronary revascularization",
+      "note": "COLCOT's overall benefit is carried by STROKE and by URGENT REVASCULARISATION. Its cardiovascular-death limb crosses one. That is visible only because the components were read, and it matters for this page: the one component all three trials share is the one on which COLCOT shows least."
+     }
+    },
+    {
+     "id": "ACTRN12614000093684",
+     "name": "LoDoCo2",
+     "nct": null,
+     "registry_id": "ACTRN12614000093684",
+     "pmid": "32865380",
+     "doi": "10.1056/NEJMoa2021372",
+     "arms": [
+      {
+       "label": "colchicine 0.5 mg once daily",
+       "role": "treatment",
+       "participants": 2762
+      },
+      {
+       "label": "placebo",
+       "role": "control",
+       "participants": 2760
+      }
+     ],
+     "registration_enrolment": 5522,
+     "population_verbatim": "patients with chronic coronary disease",
+     "follow_up_verbatim": "The median duration of follow-up was 28.6 months",
+     "by_outcome": {
+      "mace": {
+       "effect": {
+        "measure": "HR",
+        "scale": "log",
+        "point": 0.69,
+        "ci_low": 0.57,
+        "ci_high": 0.83,
+        "ci_level": 95,
+        "derived_from": "the trial's own abstract, as PubMed prints it",
+        "derivation_note": "READ from the source as printed, never recomputed and never taken from the previous object, whose values carried the provenance tag PAGE-EMBEDDED and a note that they had not been checked. The log point and log standard error are DERIVED from the printed interval and neither is claimed to appear in any source."
+       },
+       "provenance": {
+        "tag": "READ_FROM_PUBLICATION_ABSTRACT",
+        "source_quotes": [
+         "A primary end-point event occurred in 187 patients (6.8%) in the colchicine group and in 264 patients (9.6%) in the placebo group (incidence, 2.5 vs. 3.6 events per 100 person-years; hazard ratio, 0.69; 95% confidence interval [CI], 0.57 to 0.83; P<0.001)",
+         "a composite of cardiovascular death, spontaneous (nonprocedural) myocardial infarction, ischemic stroke, or ischemia-driven coronary revascularization"
+        ],
+        "quote_note": "Two sentences: the effect with its interval, and the primary endpoint DEFINITION. The definition is quoted because this page's whole finding is that the definitions differ, and a reader must be able to check that against the source rather than against our paraphrase."
+       },
+       "source_url": "https://doi.org/10.1056/NEJMoa2021372",
+       "pubmed_url": "https://pubmed.ncbi.nlm.nih.gov/32865380/",
+       "outcome_definition": "a composite of cardiovascular death, spontaneous (nonprocedural) myocardial infarction, ischemic stroke, or ischemia-driven coronary revascularization",
+       "outcome_definition_source": {
+        "source": "publication abstract",
+        "source_field": "abstract, METHODS sentence naming the primary end point",
+        "journal": "N Engl J Med",
+        "year": 2020,
+        "pmid": "32865380",
+        "doi": "10.1056/NEJMoa2021372",
+        "read_utc": "2026-08-19",
+        "components_as_the_paper_states_them": [
+         "cv_death",
+         "spontaneous_nonprocedural_myocardial_infarction",
+         "ischaemic_stroke",
+         "ischaemia_driven_revascularisation"
+        ]
+       },
+       "what_was_NOT_read": "Component-level event counts, analysis populations, per-protocol sets and subgroups. The full text was not read. Absent, and recorded as absent."
+      }
+     },
+     "all_ranks_read_utc": "2026-08-19",
+     "ranks_read_note": "'Every rank' means every rank THIS TRIAL'S ABSTRACT PRINTS -- the primary, any key secondary, and any component reported separately. The full text was not read; what that leaves unread is stated in `what_was_NOT_read` on the outcome.",
+     "registered_secondaries": {
+      "ranks_read": "primary and KEY SECONDARY",
+      "key_secondary": "a composite of cardiovascular death, spontaneous myocardial infarction, or ischemic stroke -- HR 0.72 (0.57 to 0.92)",
+      "why_it_is_the_nearest_candidate": "It DROPS REVASCULARISATION, which is the component whose trigger differs most across the three.",
+      "no_component_is_reported_separately_with_a_number": true
+     }
+    },
+    {
+     "id": "NCT03048825",
+     "name": "CLEAR SYNERGY",
+     "nct": "NCT03048825",
+     "registry_id": "NCT03048825",
+     "pmid": "39555823",
+     "doi": "10.1056/NEJMoa2405922",
+     "arms": [
+      {
+       "label": "colchicine 0.5 mg once daily",
+       "role": "treatment",
+       "participants": 3528
+      },
+      {
+       "label": "placebo",
+       "role": "control",
+       "participants": 3534
+      }
+     ],
+     "registration_enrolment": 7062,
+     "population_verbatim": "patients who had myocardial infarction",
+     "follow_up_verbatim": "a median follow-up period of 3 years",
+     "by_outcome": {
+      "mace": {
+       "effect": {
+        "measure": "HR",
+        "scale": "log",
+        "point": 0.99,
+        "ci_low": 0.85,
+        "ci_high": 1.16,
+        "ci_level": 95,
+        "derived_from": "the trial's own abstract, as PubMed prints it",
+        "derivation_note": "READ from the source as printed, never recomputed and never taken from the previous object, whose values carried the provenance tag PAGE-EMBEDDED and a note that they had not been checked. The log point and log standard error are DERIVED from the printed interval and neither is claimed to appear in any source."
+       },
+       "provenance": {
+        "tag": "READ_FROM_PUBLICATION_ABSTRACT",
+        "source_quotes": [
+         "A primary-outcome event occurred in 322 of 3528 patients (9.1%) in the colchicine group and 327 of 3534 patients (9.3%) in the placebo group over a median follow-up period of 3 years (hazard ratio, 0.99; 95% confidence interval [CI], 0.85 to 1.16; P = 0.93)",
+         "a composite of death from cardiovascular causes, recurrent myocardial infarction, stroke, or unplanned ischemia-driven coronary revascularization, evaluated in a time-to-event analysis"
+        ],
+        "quote_note": "Two sentences: the effect with its interval, and the primary endpoint DEFINITION. The definition is quoted because this page's whole finding is that the definitions differ, and a reader must be able to check that against the source rather than against our paraphrase."
+       },
+       "source_url": "https://doi.org/10.1056/NEJMoa2405922",
+       "pubmed_url": "https://pubmed.ncbi.nlm.nih.gov/39555823/",
+       "outcome_definition": "a composite of death from cardiovascular causes, recurrent myocardial infarction, stroke, or unplanned ischemia-driven coronary revascularization, evaluated in a time-to-event analysis",
+       "outcome_definition_source": {
+        "source": "publication abstract",
+        "source_field": "abstract, METHODS sentence naming the primary end point",
+        "journal": "N Engl J Med",
+        "year": 2024,
+        "pmid": "39555823",
+        "doi": "10.1056/NEJMoa2405922",
+        "read_utc": "2026-08-19",
+        "components_as_the_paper_states_them": [
+         "cv_death",
+         "recurrent_myocardial_infarction",
+         "stroke",
+         "unplanned_ischaemia_driven_revascularisation"
+        ]
+       },
+       "what_was_NOT_read": "Component-level event counts, analysis populations, per-protocol sets and subgroups. The full text was not read. Absent, and recorded as absent."
+      }
+     },
+     "all_ranks_read_utc": "2026-08-19",
+     "ranks_read_note": "'Every rank' means every rank THIS TRIAL'S ABSTRACT PRINTS -- the primary, any key secondary, and any component reported separately. The full text was not read; what that leaves unread is stated in `what_was_NOT_read` on the outcome.",
+     "registered_secondaries": {
+      "ranks_read": "primary; components sought and NOT AVAILABLE from this source",
+      "verbatim": "The incidence of individual components of the primary outcome appeared to be similar in the two groups",
+      "state": "NOT_ASSESSABLE at component level from the abstract",
+      "note": "A qualitative sentence with no numbers. NOT a null result and NOT an absence of effect -- an absence of a READING."
+     }
+    }
+   ]
+  },
+  "config": {
+   "confidence_level": 95,
+   "model": "random-effects",
+   "scale": "log"
+  },
+  "results": {
+   "by_outcome": {
+    "mace": {
+     "k": 3,
+     "estimand_id": "mace",
+     "model": "random-effects",
+     "estimator": "not pooled -- no shared estimand",
+     "estimator_used": "none",
+     "estimator_note": "Nothing is pooled as this page's answer. Two pools WERE computed so their cost is measured rather than asserted, and both are reported below as declined. Both use Paule-Mandel between-study variance with a floored Knapp-Hartung t interval; DerSimonian-Laird is refused below k=10 by the house rule. At k=2 the Knapp-Hartung multiplier is 12.706 on one degree of freedom, which is why that interval is enormous -- correct behaviour, and a reason a k=2 Knapp-Hartung interval must never be read as a precision statement.",
+     "comparator_type": "placebo",
+     "poolable": false,
+     "poolable_reason": "THE THREE TRIALS DO NOT SHARE AN ENDPOINT. Decomposed into components and compared as SETS rather than by name, the union is TEN components and exactly ONE -- cardiovascular death -- is common to all three. RESUSCITATED CARDIAC ARREST is in COLCOT and in neither of the others: a whole component present in one arm of the comparison and absent from the rest. MYOCARDIAL INFARCTION is ANY in COLCOT, SPONTANEOUS (NONPROCEDURAL) ONLY in LoDoCo2, and RECURRENT in CLEAR SYNERGY -- and LoDoCo2's qualifier EXCLUDES periprocedural infarction in a literature where a large share of infarctions are periprocedural. STROKE is ANY TYPE in COLCOT and CLEAR SYNERGY and ISCHAEMIC ONLY in LoDoCo2; colchicine's effect in intracerebral haemorrhage is an open question with its own reading in this split, so a trial counting only ischaemic strokes and a trial counting every stroke are measuring the drug against different risks. REVASCULARISATION requires an URGENT HOSPITALISATION FOR ANGINA in COLCOT, is ISCHAEMIA-DRIVEN in LoDoCo2, and is UNPLANNED AND ISCHAEMIA-DRIVEN in CLEAR SYNERGY. A pool of these three would report a number for a quantity no trial measured.",
+     "pooled": {
+      "measure": "HR",
+      "point": null,
+      "ci_low": null,
+      "ci_high": null,
+      "ci_level": 95,
+      "scale": "log",
+      "withdrawn": true,
+      "withdrawn_reason": "no shared estimand -- see poolable_reason",
+      "card_note": "the three trials share ONE component of TEN; each trial's own result and its own endpoint definition are on the page"
+     },
+     "pool_uniformity": {
+      "effect_measure": [
+       "ESTABLISHED",
+       "all three publish a hazard ratio"
+      ],
+      "comparator": [
+       "ESTABLISHED",
+       "all three randomise against placebo"
+      ],
+      "population": [
+       "REFUTED",
+       "COLCOT and CLEAR SYNERGY enrol after myocardial infarction; LoDoCo2 enrols chronic coronary disease"
+      ],
+      "estimand": [
+       "REFUTED",
+       "one shared component of ten"
+      ]
+     },
+     "heterogeneity_status": "Reported for the DECLINED pools only, and it settles nothing either way. The name-matched k=3 pool has I-squared 77.9%% and it is also the estimand-INCOHERENT one, so here a statistic and a reading of the definitions happen to agree. On `apixaban-vte-treatment` they pointed in OPPOSITE directions -- the estimand-coherent pool was the MORE heterogeneous. P36 stands: a low I-squared does not show trials measure the same thing and a high one does not show they do not. Coherence was established here by reading ten component definitions.",
+     "the_pools_this_refusal_declines_to_report": {
+      "name_matched_k3": {
+       "k": 3,
+       "trials": [
+        "COLCOT",
+        "LoDoCo2",
+        "CLEAR SYNERGY"
+       ],
+       "point": 0.813432912372349,
+       "ci_low": 0.5074499133313151,
+       "ci_high": 1.3039180528907768,
+       "tau2": 0.026689742331737407,
+       "Q": 9.057110255945288,
+       "df": 2,
+       "i2": 77.91790158801307,
+       "estimator": "Paule-Mandel tau-squared, Knapp-Hartung t interval on 2 df with the variance-inflation floor at 1",
+       "n_total": 17329,
+       "what_it_is": "WHAT A NAME-MATCHING REVIEWER PUBLISHES. Computed and reported so its cost is measured rather than asserted, exactly as the apixaban topics did. IT IS NOT THIS PAGE'S ANSWER.",
+       "why_it_is_not_reported_as_the_result": "The three primaries differ by a whole component and by three qualifiers. Averaging them produces a number for a quantity no trial measured."
+      },
+      "mi_population_k2": {
+       "k": 2,
+       "trials": [
+        "COLCOT",
+        "CLEAR SYNERGY"
+       ],
+       "point": 0.8855023761321199,
+       "ci_low": 0.1812039024520342,
+       "ci_high": 4.327249289474825,
+       "tau2": 0.02174199769811208,
+       "Q": 3.210120138074683,
+       "df": 1,
+       "i2": 68.84851790625616,
+       "estimator": "Paule-Mandel tau-squared, Knapp-Hartung t interval on 1 df with the variance-inflation floor at 1",
+       "n_total": 11807,
+       "what_it_is": "COLCOT and CLEAR SYNERGY -- the two whose population is AFTER MYOCARDIAL INFARCTION, so the population axis is coherent.",
+       "why_it_is_still_not_reported": "THE POPULATION MATCHING DOES NOT FIX THE ESTIMAND. COLCOT counts resuscitated cardiac arrest and CLEAR SYNERGY does not; COLCOT's revascularisation limb requires an urgent hospitalisation for angina and CLEAR SYNERGY's requires only that the revascularisation be unplanned and ischaemia-driven. A shared population is NECESSARY and it is NOT SUFFICIENT -- the same shape as P38, one axis down."
+      },
+      "why_both_are_shown": "A refusal that names no number is not checkable. Both are computed, both are labelled as NOT this page's answer, and the second exists to make a separate point: MATCHING THE POPULATION DOES NOT FIX THE ESTIMAND. COLCOT and CLEAR SYNERGY share a population and still differ by a whole component and by their revascularisation trigger. P38, one axis down."
+     },
+     "per_trial": [
+      {
+       "trial_id": "NCT02551094",
+       "nct": "NCT02551094",
+       "measure": "HR",
+       "point": 0.77,
+       "ci_low": 0.61,
+       "ci_high": 0.96,
+       "ci_level": 95,
+       "estimand_id": "mace"
+      },
+      {
+       "trial_id": "ACTRN12614000093684",
+       "nct": null,
+       "measure": "HR",
+       "point": 0.69,
+       "ci_low": 0.57,
+       "ci_high": 0.83,
+       "ci_level": 95,
+       "estimand_id": "mace"
+      },
+      {
+       "trial_id": "NCT03048825",
+       "nct": "NCT03048825",
+       "measure": "HR",
+       "point": 0.99,
+       "ci_low": 0.85,
+       "ci_high": 1.16,
+       "ci_level": 95,
+       "estimand_id": "mace"
+      }
+     ],
+     "sensitivity": {
+      "analyses": [],
+      "decision_under_test": "none -- there is no pooled estimate to be sensitive to",
+      "authority": "A leave-one-out analysis of a pool that was refused would describe the stability of a number this page does not report."
+     },
+     "grade": null,
+     "cross_engine": null,
+     "single_study_ref": null,
+     "withholding_question_summary": "NAMED, not general. (1) CARDIOVASCULAR DEATH is the one component all three share, and only COLCOT publishes it separately -- 1 of 3. (2) LoDoCo2's KEY SECONDARY is the nearest thing to a common estimand and NEITHER of the other two reports that composite at all -- 1 of 3. (3) CLEAR SYNERGY reports its components in words and not in numbers, so it cannot join ANY component-level pool from this source. THE BLOCKER IS CLEAR SYNERGY'S REPORTING, AND IT IS THE LARGEST OF THE THREE. Reading its full text is the single action that would change this page's answer.",
+     "r_output": {
+      "state": "ABSENT_AND_THAT_IS_THE_FINDING",
+      "_why_absent": "k=3 and nothing was pooled, so there is NO model call to quote, NO pooled estimate, NO heterogeneity and NO package version. This is not a missing artefact; it is the correct state for a topic with no synthesis.",
+      "k_read_from_object": 3,
+      "quotable_model_call": null,
+      "heterogeneity": null,
+      "heterogeneity_reason": "Undefined: no between-study variance was estimated because no model was run.",
+      "package_version": null,
+      "what_would_change_it": "An estimand shared by two or more included trials. Where k is already above 1 and nothing pooled, the obstacle is the ESTIMAND rather than the evidence base, and this field must say which."
+     }
+    }
+   },
+   "headline_outcome": "mace"
+  },
+  "prisma_flow": {
+   "registry_records_surfaced": 137,
+   "registry_records_screened": 137,
+   "assigned_to_this_reading": 48,
+   "eligible_in_this_reading": 42,
+   "with_a_published_primary_result": 3,
+   "contributing_an_estimate": 3,
+   "pooled": 0,
+   "reconciles": "137 surfaced == 137 screened; 48 assigned to CORONARY of which 42 eligible; 3 carry a published primary and 3 contribute an estimate; 0 pooled, because no shared estimand was established.",
+   "LoDoCo2_is_NOT_in_the_registry_arithmetic": "LoDoCo2 contributes an estimate and is NOT among the 137, because it is not registered on ClinicalTrials.gov. IT IS THEREFORE NOT COUNTED IN THE REGISTRY CASCADE and is counted in the contributing set. Two denominators, kept apart on purpose: folding it into the registry counts would make them stop reconciling and hide the reason.",
+   "_scope": "PRISMA 2020 flow, counted from the executed searches above.",
+   "identification": {
+    "ctgov": 137,
+    "pubmed": 523
+   },
+   "eligibility_ctgov": {
+    "role_located": 133,
+    "topic_is_experimental_arm": 117,
+    "topic_is_comparator_arm": 13,
+    "topic_is_background": 3,
+    "not_assessable": 4,
+    "note": "One search over the drug, one arm-role cascade; the seven readings are applied after it by a stated precedence."
+   },
+   "included": {
+    "in_this_object": 3,
+    "contributing_to_the_pool": 0,
+    "registration_ids": [
+     "NCT02551094",
+     "NCT03048825",
+     "ACTRN12614000093684"
+    ],
+    "nct": [
+     "NCT02551094",
+     "NCT03048825"
+    ],
+    "not_registered_on_ctgov": [
+     "ACTRN12614000093684 (LoDoCo2)"
+    ],
+    "why_two_lists": "`nct` names only the ClinicalTrials.gov registrations, because that is what the name means and an ANZCTR id written there would be a type lie that breaks every registry lookup. `registration_ids` names EVERY included trial, which is what a PRISMA included count is."
+   },
+   "reconciliation": {
+    "arithmetic": "48 of 137 assigned to this reading, of which 42 eligible, of which 3 carry a published primary result. LoDoCo2 is one of those 3 and is NOT one of the 137.",
+    "reconciles": true,
+    "unscreened_remainder": 0,
+    "remainder_means": "ZERO on the registry limb. The PubMed limb's 520 unread records are a SEPARATE remainder and are declared as such, never folded in.",
+    "two_denominators_kept_apart": "LoDoCo2 contributes an estimate and is not in the registry cascade. Folding it in would make the registry counts stop reconciling and would hide the reason -- that the trial is registered on a registry this project did not search."
+   }
+  },
+  "k_cascade": {
+   "k0_surfaced_registrations": 137,
+   "k1_assigned_to_this_reading": 48,
+   "k2_eligible": 42,
+   "k3_with_published_primary_result": 3,
+   "k4_contributing_an_estimate": 3,
+   "k5_pooled": 0,
+   "kNA_not_assessable": 4,
+   "arm_role_cascade_over_all_137": {
+    "experimental": 117,
+    "background_or_coadministered": 3,
+    "not_assessable": 4,
+    "comparator": 13
+   },
+   "dispositions_over_all_137": {
+    "ELIGIBLE_NO_RESULTS_YET": 33,
+    "ELIGIBLE_COMPLETED_NO_RESULTS_POSTED": 53,
+    "EXCLUDED": 39,
+    "NOT_ASSESSABLE": 4,
+    "ELIGIBLE_WITH_RESULTS": 8
+   },
+   "note": "k is reported at every stage and never as one number. The drop from 42 eligible to 3 with a published primary is the finding of the search, not of the screen: 39 eligible trials have run or are running and have published no primary result this pass could read.",
+   "k0_surfaced": 137,
+   "k2_role_located": 133,
+   "k3_experimental": 117,
+   "k4_comparator": 13,
+   "k5_background": 3,
+   "k_assigned_to_this_reading": 48,
+   "k_eligible": 42,
+   "k_with_posted_results": 3,
+   "k_included_in_object": 3,
+   "k_pooled": 0,
+   "k_unscreened_remainder": 0,
+   "reproduced_by": "scripts/screen_colchicine_split_2026_08_19.py",
+   "what_the_drop_from_42_to_3_means": "IT IS A FINDING OF THE SEARCH, NOT OF THE SCREEN. Thirty-nine eligible trials have run or are running and have published no primary result this pass could read. Per PAGE-STANDARD.md a body of eligible-but-unreported trials means the query is well aimed and the field is still in flight -- and the disposition split sharpens it: 53 of the 137 are COMPLETED, TERMINATED or WITHDRAWN with NOTHING posted to the registry, against 33 that have genuinely not reported yet. Those two states were separated deliberately, because folded together they read as a field still in flight when half of it is not.",
+   "and_the_registration_count_is_not_a_study_count": "NCT04906720 and NCT06731595 are ONE trial under two registration ids -- identical official title, org identifier, enrolment 248, dates, status and conditions. 137 is a count of REGISTRATIONS and at most 136 studies.",
+   "_why": "k is never one number. Each stage is what the instrument at that stage could actually decide.",
+   "keyed_on": "registration id"
+  },
+  "screening": {
+   "search_note": "Two searches, both exhausted, both with their identifier lists written down and their arithmetic re-derivable by scripts/verify_search_record_reconciles.py.",
+   "eligibility": "PREDEFINED: no. Derived post hoc on 2026-08-19 when colchicine-cvd-review was split into seven readings. A trial is in THIS reading when its population is established coronary artery disease or recent myocardial infarction, read from the coded conditions and, where those name something true but not the population's vascular disease, from the trial's own title with the fallback recorded. It is ELIGIBLE when colchicine is the randomised contrast, the allocation is RANDOMIZED, and the registration declares at least two arms. A PRECEDENCE RULE ASSIGNS EVERY RECORD TO EXACTLY ONE READING and it is published in full on this page, because a rule that decides inclusion and is published nowhere is not a criterion but a habit.",
+   "eligibility_provenance": {
+    "state": "DERIVED_POST_HOC",
+    "predefined": false,
+    "post_hoc": true,
+    "authority_it_satisfies": "MECIR R29/R30/R31",
+    "authority_it_does_NOT_establish": "MECIR C5/C7",
+    "precedence": "PERIPROC > PERICARD > ICH > CEREBRO > PAD > CORONARY, applied in that order and STATED rather than discovered. A different precedence would move trials between readings and these counts would change with it. PERIPROC requires BOTH a procedural anchor AND a primary outcome that is a complication of the procedure, because a 'was a procedure involved' rule sends CLEAR SYNERGY out of its own review.",
+    "known_members_asserted_in_advance": {
+     "NCT02551094": "CORONARY",
+     "NCT03048825": "CORONARY",
+     "NCT02898610": "CEREBRO",
+     "NCT05439356": "CEREBRO",
+     "NCT04774159": "PAD",
+     "NCT06587737": "ICH",
+     "NCT03310125": "PERIPROC",
+     "NCT01552187": "PERIPROC",
+     "NCT00128453": "PERICARD",
+     "NCT00235079": "PERICARD",
+     "NCT06930885": "ASCVD_MIXED",
+     "NCT02162303": "ASCVD_MIXED",
+     "NCT06062277": "CEREBRO"
+    },
+    "why_that_matters": "A precedence rule applied FIRST is the most damaging place to be wrong, because it removes trials from every downstream reading before any of them can judge them (P43). Ten known members were named in the decision document BEFORE the screen ran and the screen refuses to write anything if one lands elsewhere."
+   },
+   "duplicate_screening": {
+    "performed": false,
+    "state": "OWED, AND RECORDED AS OWED RATHER THAN DESCRIBED",
+    "what_was_NOT_done": "No second model family read this screen. An agreement rate over one reader is not an agreement rate."
+   },
+   "boundary_criterion": "PERIPROC BEFORE CORONARY, and it is defined by WHAT THE PRIMARY OUTCOME IS -- a complication of an operation or catheter procedure -- never by a procedure having occurred. CLEAR SYNERGY randomises myocardial-infarction patients undergoing PCI, so a 'was a procedure involved' rule would have taken THE LARGEST TRIAL IN THIS REVIEW out of it."
+  },
+  "screening_of_remainder": {
+   "unscreened_remainder": 0,
+   "the_whole_137_was_screened_to_zero": true,
+   "disposition_split": {
+    "ELIGIBLE_NO_RESULTS_YET": 33,
+    "ELIGIBLE_COMPLETED_NO_RESULTS_POSTED": 53,
+    "EXCLUDED": 39,
+    "NOT_ASSESSABLE": 4,
+    "ELIGIBLE_WITH_RESULTS": 8
+   },
+   "what_the_split_diagnoses": "53 records are ELIGIBLE_COMPLETED_NO_RESULTS_POSTED against 33 ELIGIBLE_NO_RESULTS_YET. Folded together as 'no results' they read as a field still in flight; separated, FIFTY-THREE COMPLETED TRIALS HAVE POSTED NOTHING TO THIS REGISTRY. That is a fact about the database and about publication, and it is why the PubMed limb was not optional here.",
+   "PUBMED_REMAINDER_IS_NOT_SCREENED_AND_THAT_IS_DECLARED": "The 523 PubMed records establish the denominator and recall. NO DISPOSITION HAS BEEN APPLIED TO ANY OF THEM. Three publications were read; 520 were not. This is an UNSCREENED REMAINDER on the PubMed limb and it is stated rather than reported as zero -- E9, absence of a count is not a count of zero."
+  },
+  "withholding_question": {
+   "asked_on": "2026-08-19",
+   "question": "Before concluding that nothing pools, is there a lower-ranked outcome at which these trials DO share an estimand?",
+   "answer": "ASKED AT EVERY RANK THESE SOURCES REACH, AND BLOCKED BY A NAMED TRIAL",
+   "detail": "Before concluding that nothing pools, the question is put at every rank the sources reach. LoDoCo2 publishes a KEY SECONDARY -- 'a composite of cardiovascular death, spontaneous myocardial infarction, or ischemic stroke', HR 0.72 (0.57 to 0.92) -- which drops revascularisation and is the closest thing to a common estimand in these three papers. NEITHER COLCOT NOR CLEAR SYNERGY REPORTS THAT COMPOSITE IN ITS ABSTRACT. COLCOT does publish every component of its own primary separately, and CLEAR SYNERGY says only that 'the incidence of individual components of the primary outcome appeared to be similar in the two groups' WITHOUT NUMBERS. SO THE ANSWER IS NOT 'NOTHING POOLS'. It is that a component-level or key-secondary-level pool WOULD REQUIRE THE FULL TEXTS, which this pass did not read. That is OWED WORK, recorded as owed, and it is NOT a negative finding -- an absence of a reading is not a reading of absence.",
+   "why_the_distinction_matters": "On `apixaban-vte-prophylaxis` this question moved the poolable set from 3 to 8; on `apixaban-vte-treatment` it moved it from 8 to 3; on `bococizumab-lipid` it moved nothing. It is a CHECK, not a way of finding more trials, and here its honest answer is that the full texts were not read. AN ABSENCE OF A READING IS NOT A READING OF ABSENCE.",
+   "all_ranks_read_utc": "2026-08-19",
+   "what_rank_means_here": "The abstracts are the source, so 'every rank' means every rank an abstract prints: the primary, any key secondary, and any component of the primary reported separately. Full texts were not read and would reach further; that limit is stated per trial below rather than left as a general caveat.",
+   "registered_secondaries": {
+    "COLCOT": {
+     "ranks_read": "primary, plus EVERY COMPONENT of the primary reported separately",
+     "components_published_in_the_abstract": {
+      "cardiovascular death": "HR 0.84 (0.46 to 1.52)",
+      "resuscitated cardiac arrest": "HR 0.83 (0.25 to 2.73)",
+      "myocardial infarction": "HR 0.91 (0.68 to 1.21)",
+      "stroke": "HR 0.26 (0.10 to 0.70)",
+      "urgent hospitalisation for angina leading to coronary revascularisation": "HR 0.50 (0.31 to 0.81)"
+     },
+     "verbatim": "The hazard ratios were 0.84 (95% CI, 0.46 to 1.52) for death from cardiovascular causes, 0.83 (95% CI, 0.25 to 2.73) for resuscitated cardiac arrest, 0.91 (95% CI, 0.68 to 1.21) for myocardial infarction, 0.26 (95% CI, 0.10 to 0.70) for stroke, and 0.50 (95% CI, 0.31 to 0.81) for urgent hospitalization for angina leading to coronary revascularization",
+     "note": "COLCOT's overall benefit is carried by STROKE and by URGENT REVASCULARISATION. Its cardiovascular-death limb crosses one. That is visible only because the components were read, and it matters for this page: the one component all three trials share is the one on which COLCOT shows least."
+    },
+    "LoDoCo2": {
+     "ranks_read": "primary and KEY SECONDARY",
+     "key_secondary": "a composite of cardiovascular death, spontaneous myocardial infarction, or ischemic stroke -- HR 0.72 (0.57 to 0.92)",
+     "why_it_is_the_nearest_candidate": "It DROPS REVASCULARISATION, which is the component whose trigger differs most across the three.",
+     "no_component_is_reported_separately_with_a_number": true
+    },
+    "CLEAR SYNERGY": {
+     "ranks_read": "primary; components sought and NOT AVAILABLE from this source",
+     "verbatim": "The incidence of individual components of the primary outcome appeared to be similar in the two groups",
+     "state": "NOT_ASSESSABLE at component level from the abstract",
+     "note": "A qualitative sentence with no numbers. NOT a null result and NOT an absence of effect -- an absence of a READING."
+    }
+   },
+   "what_blocks_a_pool_at_every_rank_that_was_read": "NAMED, not general. (1) CARDIOVASCULAR DEATH is the one component all three share, and only COLCOT publishes it separately -- 1 of 3. (2) LoDoCo2's KEY SECONDARY is the nearest thing to a common estimand and NEITHER of the other two reports that composite at all -- 1 of 3. (3) CLEAR SYNERGY reports its components in words and not in numbers, so it cannot join ANY component-level pool from this source. THE BLOCKER IS CLEAR SYNERGY'S REPORTING, AND IT IS THE LARGEST OF THE THREE. Reading its full text is the single action that would change this page's answer.",
+   "what_would_change_the_answer": "The full texts, in this order of expected yield: CLEAR SYNERGY (component counts), LoDoCo2 (cardiovascular death alone, and its components), COLCOT (already component-complete in its abstract). If all three publish cardiovascular death separately, a k=3 pool of a SINGLE SHARED COMPONENT becomes available -- and it would be the first estimand on this topic that every trial actually measured."
+  },
+  "topic_state": {
+   "state": "BUILT_AND_REFUSING",
+   "what_would_change_it": "Full texts for COLCOT, LoDoCo2 and CLEAR SYNERGY, read for a common component or a common secondary composite. LoDoCo2's key secondary is the nearest candidate."
+  },
+  "risk_of_bias": {
+   "tool": "RoB 2",
+   "state": "NOT_ASSESSED_FOR_THIS_REVIEW",
+   "why": "No result-level RoB 2 assessment has been performed. RECORDED AS UNASSESSED, NEVER AS ABSENT OF BIAS: an unassessed domain is NOT_ASSESSABLE, not LOW.",
+   "what_would_close_it": "RoB 2 per RESULT for each of the three contributing results."
+  },
+  "grade": {
+   "state": "NOT_RATED",
+   "why": "GRADE rates a body of evidence for an OUTCOME. This page establishes that the three trials do not share one, so there is no single outcome to rate. Rating the name-matched pool would certify a quantity no trial measured."
+  },
+  "protocol": {
+   "prespecified": false,
+   "permanently_refused": true,
+   "why": "A protocol specified before data collection is a HISTORICAL FACT ABOUT THE PAST and cannot be created retrospectively.",
+   "what_was_actually_done": "Criteria derived post hoc on 2026-08-19 at the split.",
+   "authority_permitting_it": "MECIR R107, provided they are declared as such."
+  },
+  "sources": {},
+  "sources_note": "EVERY EFFECT ESTIMATE AND EVERY ENDPOINT DEFINITION ON THIS PAGE IS READ FROM THE TRIAL'S OWN PUBLICATION ABSTRACT, quoted verbatim, with its PMID and DOI. According to PubMed. No number is taken from the previous object, whose values were tagged PAGE-EMBEDDED and marked unchecked. No full text was read, and what that leaves unread is named per trial.",
+  "registration_identity": {
+   "verified_against": "ClinicalTrials.gov v2 for the two registered trials",
+   "COLCOT": "NCT02551094",
+   "CLEAR SYNERGY": "NCT03048825",
+   "LoDoCo2": "ACTRN12614000093684 on ANZCTR. NOT verified against that registry -- it was not searched. The identifier is quoted from the trial's own abstract, which prints it.",
+   "pmids_verified_by_lookup": {
+    "COLCOT": "31733140",
+    "LoDoCo2": "32865380",
+    "CLEAR SYNERGY": "39555823"
+   },
+   "and_one_of_those_was_wrong_in_this_repository": "PUBLISHED_META_BENCHMARKS.json recorded LoDoCo2 as PMID 32865375. That PMID is EAST-AFNET 4, an atrial-fibrillation trial this corpus already cites correctly on two other pages. Corrected 2026-08-19; DEFECT-REGISTRY class 22.",
+   "verified_utc": "2026-08-19",
+   "method": "live fetch of the raw ClinicalTrials.gov v2 record and comparison of the returned nctId against the id stored on this object",
+   "trials": [
+    {
+     "nct": "NCT02551094",
+     "verified": true,
+     "link": "https://clinicaltrials.gov/study/NCT02551094"
+    },
+    {
+     "nct": null,
+     "nct_is_null_because": "LoDoCo2 is registered as ACTRN12614000093684 on ANZCTR and is not registered on ClinicalTrials.gov. A field named `nct` cannot carry an ANZCTR identifier; writing one into it would be a type lie that breaks every registry lookup keyed on this field.",
+     "registration_id": "ACTRN12614000093684",
+     "registry": "ANZCTR",
+     "verified": "NOT_ASSESSABLE",
+     "verified_because": "This block's `method` is a live fetch of the ClinicalTrials.gov v2 record. That method cannot be applied to a trial with no ClinicalTrials.gov record, so no verification was performed for this trial. RECORDED AS NOT VERIFIED BY THIS METHOD, NEVER AS UNREGISTERED OR AS ABSENT: the identifier above is quoted from the trial's own published abstract, which prints it, and that is a source for the id and not a verification of it.",
+     "link": null,
+     "link_is_null_because": "The previous value was 'https://clinicaltrials.gov/study/None' -- a URL produced by formatting a null into an f-string. It resolved to nothing and asserted the wrong registry. A link is withheld rather than fabricated.",
+     "what_would_close_it": "A verification of ACTRN12614000093684 against ANZCTR, returning that registry's own record for the trial."
+    },
+    {
+     "nct": "NCT03048825",
+     "verified": true,
+     "link": "https://clinicaltrials.gov/study/NCT03048825"
+    }
+   ],
+   "duplicate_seeding_check": {
+    "state": "CHECKED",
+    "checked_against": "evidence/2026-08-19-corpus/reconcile.json",
+    "n_trials_checked": 3,
+    "shared_with_other_topics": false,
+    "shared": null
+   }
+  },
+  "shared_with_other_topics": {
+   "computed": true,
+   "computed_against": "every other topic object under ssot/ -- 144 checked -- by reading each one's inputs.trials. Not asserted.",
+   "shared": {
+    "NCT02551094": {
+     "also_in": [
+      "colchicine-cvd-review"
+     ],
+     "why": "The parent `colchicine-cvd-review` has NOT been retired and still holds this trial. Retiring it is a deletion and is not taken unilaterally."
+    },
+    "NCT03048825": {
+     "also_in": [
+      "colchicine-cvd-review"
+     ],
+     "why": "The parent `colchicine-cvd-review` has NOT been retired and still holds this trial. Retiring it is a deletion and is not taken unilaterally."
+    }
+   },
+   "summing_per_topic_k_double_counts": "A CORPUS-LEVEL k OBTAINED BY SUMMING PER-TOPIC k DOUBLE-COUNTS. 2 of this review's 2 registered trials are also held elsewhere. Measured corpus-wide on 2026-08-19: 354 summed against 286 distinct registrations, 68 double-counted.",
+   "LoDoCo2_cannot_be_checked_this_way": "It has no ClinicalTrials.gov identifier, and this computation keys on NCT ids. Its sharing status is NOT_ASSESSABLE by this method rather than false."
+  },
+  "build_provenance": {
+   "built_by": "scripts/create_colchicine_coronary_2026_08_19.py",
+   "built_utc": "2026-08-19",
+   "why_this_is_not_in_build_stamp": "`build_stamp` is owned by ssot/build_to_standard.py, which writes it wholesale. Fields placed there by the object's creator are REMOVED on the first stamping run -- the net-deletion guard refused that run and named the six keys it would have dropped, which is the guard doing exactly what it exists for."
+  },
+  "published_benchmark_withdrawn": {
+   "state": "THE BENCHMARK FOR THIS TOPIC WAS WITHDRAWN AS A COMPARATOR, NOT MATCHED",
+   "what_the_card_used_to_serve": "HR 0.75 (0.61 to 0.91), k=2",
+   "what_it_actually_was": "An external published benchmark declared in PUBLISHED_META_BENCHMARKS.json, rendered where this review's own result belongs. It does not follow from its own declared source either: COLCOT and LoDoCo2 pool to 0.7215 (0.6243 to 0.8338), the served upper bound out by 0.0762 -- seven and a half units in the last quoted place -- and its stated N of 11,816 against an actual 10,267.",
+   "closed_by": "scripts/pooled_point_in_achievable_range_gate.py, by a BOUND rather than an enumeration, so the 'maybe another subset reproduces it' reply is foreclosed. DEFECT-REGISTRY class 21.",
+   "_note": "Kept under its own key because `published_comparison` is written by the stamper. This records what the PARENT topic's card served and why it was withdrawn; it is not a comparison of this review against a published synthesis, and calling it one would overstate it."
+  },
+  "extraction_source_note": {
+   "state": "ABSTRACT-LEVEL, AND LABELLED AS SUCH",
+   "what_is_held": "primary endpoint definition, effect estimate with interval, arm sizes, follow-up, population -- each with the sentence it came from",
+   "what_is_NOT_held": "component-level counts, analysis populations, subgroups",
+   "_note": "The stamper writes the full `extraction` table. This is the creator's summary of what was and was not read, kept because it states the limit in one place."
+  },
+  "search_is_written_by_the_stamper": "ssot/build_to_standard.py owns `search` and writes it from TOPIC_DATA['colchicine-cvd-coronary'], which carries BOTH executed limbs with their pagination proofs and the UNSEARCHED ANZCTR limb. This object deliberately holds no second copy: two records of one search under two field vocabularies is a drift waiting to happen, and the net-deletion guard refused the build twice rather than silently keeping one and dropping the other.",
+  "search": {
+   "executed_by": "lane 1 (Claude, Anthropic family)",
+   "databases": [
+    {
+     "database": "ClinicalTrials.gov API v2",
+     "tool": "mcp__plugin_bio-research_c-trials__search_trials",
+     "query_as_executed": "intervention=\"colchicine\"; condition=\"coronary artery disease OR myocardial infarction OR cardiovascular disease OR stroke OR atherosclerosis\"; study_type=INTERVENTIONAL; page_size=100; count_total=true",
+     "date_executed": "2026-08-19",
+     "http_status": 200,
+     "records_returned": 137,
+     "total_reported": 137,
+     "recall_on_included_set": "3/3",
+     "pagination_verified": "100 + 37 = 137 == totalCount and the cursor returned null on page 2. THE PROOF IS THE SUM ACROSS PAGES. Page 2 held CLEAR SYNERGY (n=7,264), one of the review's own included trials and the largest -- a screen stopped at page 1 would have reported a complete-looking cascade over 100 records and been 27 per cent short.",
+     "identifiers_recorded_at": "evidence/2026-08-19-batch1/colchicine_surfaced_137.json"
+    },
+    {
+     "database": "PubMed",
+     "tool": "mcp__plugin_bio-research_pubmed__search_articles",
+     "query_as_executed": "colchicine AND (cardiovascular OR coronary OR \"myocardial infarction\" OR stroke OR atherosclerosis) AND (randomized controlled trial[Publication Type] OR randomised OR randomized)",
+     "date_executed": "2026-08-19",
+     "http_status": 200,
+     "records_returned": 523,
+     "total_reported": 523,
+     "recall_on_included_set": "3/3, and 4/4 counting LoDoCo2",
+     "pagination_verified": "100 x 5 + 23 = 523 == total_count, has_more FALSE on the last page.",
+     "why_this_limb_was_required": "The registry screen found EIGHT records with posted results against FIFTY-THREE completed or terminated with none, and CONVINCE, CHANCE-3 and CLEAR SYNERGY are all in the fifty-three. A REGISTRY-ONLY REVIEW HERE WOULD HAVE REFUSED TO POOL ON THE GROUND THAT ITS OWN ANCHOR TRIALS HAD NOT REPORTED -- a finding about the database presented as a finding about the literature.",
+     "what_is_unexamined": "NO DISPOSITION HAS BEEN APPLIED TO ANY OF THE 523. Three publications were read and 520 were not. This limb establishes the denominator and recall and nothing else.",
+     "identifiers_recorded_at": "evidence/2026-08-19-batch1/colchicine_pubmed_523.json"
+    },
+    {
+     "database": "ANZCTR",
+     "tool": "NOT EXECUTED",
+     "query_as_executed": "NOT EXECUTED FOR THIS TOPIC",
+     "date_executed": "2026-08-19",
+     "http_status": null,
+     "records_returned": null,
+     "total_reported": null,
+     "recall_on_included_set": "NOT MEASURED",
+     "what_is_unexamined": "LoDoCo2 (ACTRN12614000093684) and COPS are registered on ANZCTR and NOWHERE on ClinicalTrials.gov. LoDoCo2 reaches this review through PubMed alone, so its ARMS and ENDPOINTS are read from the publication and its REGISTRATION IS UNREAD. COPS does not reach this review at all."
+    }
+   ],
+   "pagination_verified": "Both executed limbs exhausted; the third was not run and says so."
+  },
+  "precondition_verdict": {
+   "assessed_on": "2026-08-19",
+   "standard_version": "1.17.0-2026-08-19",
+   "authority": {
+    "handbook": "Cochrane Handbook for Systematic Reviews of Interventions",
+    "version": "6.5, 2024",
+    "verified_on": "2026-08-19",
+    "verified_how": "read from cochrane.org/authors/handbooks-and-manuals/handbook/current chapters 10 and 23, and from the official MECIR PDF (February 2022), text extracted locally rather than summarised"
+   },
+   "publishable": true,
+   "authoring_constraint": "These preconditions were authored in the same session that applied them. A reader who disagrees should disagree with ssot/preconditions.py, from which every verdict here is reproducible.",
+   "verdicts": {
+    "population_stated": {
+     "verdict": "PASS",
+     "reason": "present: question carries 152 characters",
+     "authority": "MECIR C62 'Ensuring meta-analyses are meaningful' (Mandatory, READ 2026-08-19): 'Undertake (or display) a meta-analysis only if participants, interventions, comparisons and outcomes are judged to be sufficiently similar...'; MECIR C5 'Predefining unambiguous criteria for participants' (Mandatory)"
+    },
+    "arm_role_resolved": {
+     "verdict": "PASS",
+     "reason": "inputs.trials: all 3 trial(s) carry arms with a readable role",
+     "authority": "MECIR C62 (Mandatory), 'interventions' limb -- this is a PRECONDITION FOR ASSESSING C62, not an enforcement of it: you cannot judge whether interventions are 'sufficiently similar' without knowing which arm is the intervention. NOT cited to C5/C7: those govern PREDEFINITION of criteria, and this check only reads whether a field is populated."
+    },
+    "comparators_identified": {
+     "verdict": "PASS",
+     "reason": "every outcome names a comparator type ['placebo']; none declares 'mixed'. Within-outcome consistency is visible only through the declared type, and cross-outcome differences are not judged.",
+     "authority": "MECIR C62 (Mandatory), 'comparisons' limb -- a synthesis pools one contrast. NOT cited to C7: C7 governs PREDEFINITION, and this check reads recorded comparator fields and tests them for consistency."
+    },
+    "estimand_named": {
+     "verdict": "PASS",
+     "reason": "outcomes.estimand: all 1 outcome(s) name a quantity",
+     "authority": "MECIR C8 'Clarifying role of outcomes' (Mandatory, READ 2026-08-19); MECIR C62 (Mandatory), 'outcomes' limb"
+    },
+    "criteria_stated": {
+     "verdict": "PASS",
+     "reason": "present: screening.eligibility carries 726 characters",
+     "authority": "MECIR R29 'Eligibility criteria for types of participants', R30 '...types of interventions', R31 'Role of outcomes' -- ALL Mandatory REPORTING standards (READ 2026-08-19). Their verb is STATE. A block DERIVED post hoc satisfies this if it is labelled post hoc per R107."
+    },
+    "criteria_predefined": {
+     "verdict": "FAIL",
+     "reason": "screening.eligibility_provenance.predefined is false: the criteria were DERIVED post hoc from this object's own question and recorded exclusions. That is auditable (R29/R30/R31) and is not pre-specification (C5/C7). This FAIL is permanent and correct.",
+     "authority": "MECIR C5 'Predefining unambiguous criteria for participants' AND C7 '...for interventions and comparators', BOTH Mandatory (READ 2026-08-19): 'Predefined, unambiguous eligibility criteria are a fundamental prerequisite for a systematic review.' C5/C7 govern PREDEFINITION and CANNOT be discharged by a post hoc derivation."
+    },
+    "eligibility_met": {
+     "verdict": "NOT-ASSESSABLE",
+     "reason": "cannot assess: criteria are stated, but sources is an empty dict -- no full text was available this pass, and inclusion logic is conditional prose",
+     "authority": "MECIR C5/C7 (Mandatory) with C6 'Predefining a strategy for studies with a subset of eligible participants' (Highly desirable, READ 2026-08-19) -- eligibility is assessed against the full report"
+    },
+    "contributes_a_randomised_contrast": {
+     "verdict": "PASS",
+     "reason": "inputs.trials.arms: all 3 readable trial(s) contribute one topic-vs-control randomised contrast",
+     "authority": "Handbook 6.5 s23.3.4 'How to include multiple groups from one study' (READ 2026-08-19) and s23.3.6 'Factorial trials'; MECIR C7 'Predefining unambiguous criteria for interventions and comparators' (Mandatory)"
+    }
+   }
+  },
+  "extraction": {
+   "_why": "Every cell says whether it was READ or DERIVED and carries what it was read from.",
+   "verified_utc": "2026-08-19",
+   "source": {
+    "publications": "the three trials' own abstracts, as PubMed prints them",
+    "read_via": "mcp__plugin_bio-research_pubmed__get_article_metadata",
+    "attribution": "According to PubMed. Each carries its PMID and DOI.",
+    "what_was_NOT_read": "No full text. Component-level counts, analysis populations and subgroups are absent and are recorded as absent."
+   },
+   "cells": [
+    {
+     "field": "COLCOT primary endpoint definition",
+     "label": "READ",
+     "source_path": "PMID 31733140, abstract, METHODS",
+     "verbatim": "a composite of death from cardiovascular causes, resuscitated cardiac arrest, myocardial infarction, stroke, or urgent hospitalization for angina leading to coronary revascularization"
+    },
+    {
+     "field": "LoDoCo2 primary endpoint definition",
+     "label": "READ",
+     "source_path": "PMID 32865380, abstract, METHODS",
+     "verbatim": "a composite of cardiovascular death, spontaneous (nonprocedural) myocardial infarction, ischemic stroke, or ischemia-driven coronary revascularization"
+    },
+    {
+     "field": "CLEAR SYNERGY primary endpoint definition",
+     "label": "READ",
+     "source_path": "PMID 39555823, abstract, METHODS",
+     "verbatim": "a composite of death from cardiovascular causes, recurrent myocardial infarction, stroke, or unplanned ischemia-driven coronary revascularization"
+    },
+    {
+     "field": "components shared by all three",
+     "value": "1 of 10",
+     "label": "DERIVED",
+     "derived_by": "set intersection over the three component lists, decomposed from the verbatim definitions above",
+     "note": "THE FINDING OF THIS PAGE. Only cardiovascular death is common to all three. Resuscitated cardiac arrest is in COLCOT alone; myocardial infarction is ANY / SPONTANEOUS ONLY / RECURRENT across the three; stroke is ANY TYPE in two and ISCHAEMIC ONLY in one; and the revascularisation trigger differs in all three."
+    },
+    {
+     "field": "CLEAR SYNERGY randomised",
+     "value": "7,062 published against 7,264 registered",
+     "label": "READ",
+     "source_path": "PMID 39555823 abstract; NCT03048825 enrollmentInfo",
+     "note": "A 202-participant discrepancy, NAMED AND NOT RECONCILED. The factorial-population explanation is plausible and is not evidence. The published figure is used because it is the denominator of the effect estimate beside it."
+    },
+    {
+     "field": "trials with a published primary",
+     "value": "3 of 42 eligible",
+     "label": "DERIVED",
+     "derived_by": "hasResults over the registry set, plus the PubMed limb"
+    }
+   ]
+  },
+  "published_comparison": {
+   "state": "PENDING_EXTERNAL_RESOLUTION",
+   "_why": "Every page this project ships carries this section with a DENOMINATOR. A comparison without one reports the syntheses it happened to find.",
+   "denominator": null,
+   "denominator_reason": "Not yet established. Establishing it requires resolving published syntheses' included-sets to REGISTRATION IDs. A second lane has validated that pipeline (stated-k table identification plus two-hop citation->PMID->registration) and is running it now.",
+   "explicitly_not_done": "CITATION-STRING MATCHING. It would produce a comparison-shaped answer tonight and it is not identity: two syntheses citing the same trial under different labels would read as different, and the same label on different trials as the same. That is the substitution class this project audits for.",
+   "candidate_source_search": "PubMed search recorded at search.databases[1], which returned 523 record(s).",
+   "blocked_on": "lane 2 registration-id resolution",
+   "candidate_source_search_restated": "Restated 2026-08-20. This field previously read 'PubMed search recorded at search.databases[1] (109 records)' on FOURTEEN objects, which is true of bempedoic-acid-review alone; the count and, on half of them, the database were another topic's. Re-derive with: python scripts/lint_refusal_citation_resolves.py"
+  },
+  "build_stamp": {
+   "page_standard_version": "1.17.0-2026-08-19",
+   "standard_document": "PAGE-STANDARD.md",
+   "built_utc": "2026-08-19",
+   "built_by": "ssot/build_to_standard.py",
+   "properties": {
+    "P1_executed_search": {
+     "state": "HELD",
+     "reason": "3 database queries recorded verbatim with dates and counts; PRISMA arithmetic reconciles and the 0-trial unscreened remainder is stated as a number rather than omitted."
+    },
+    "P2_k_cascade": {
+     "state": "HELD",
+     "reason": "k at every stage: surfaced 137, located 133, experimental 117, comparator 13, included 3, unscreened remainder 0."
+    },
+    "P3_inclusion_criteria": {
+     "state": "HELD",
+     "reason": "Criteria provenance block present with predefined=False on its face (state 'DERIVED_POST_HOC')."
+    },
+    "P4_preconditions": {
+     "state": "HELD",
+     "reason": "All 8 recorded with verdict and cited authority: 1 FAIL, 1 NOT-ASSESSABLE. criteria_predefined is FAIL -- post hoc criteria, which R107 permits and C5/C7 does not satisfy."
+    },
+    "P5_extraction_table": {
+     "state": "HELD",
+     "reason": "6 cells: 4 READ with source path and verbatim text, 2 DERIVED with the method named."
+    },
+    "P6_analysis_output": {
+     "state": "REFUSING",
+     "reason": "No quotable model output exists: k=3 and nothing was pooled. The absence is recorded as a finding with its cause and its trigger."
+    },
+    "P7_published_comparison": {
+     "state": "REFUSING",
+     "reason": "No denominator yet. Blocked on external registration-id resolution; citation-string matching explicitly refused rather than substituted."
+    },
+    "P8_registration_identity": {
+     "state": "HELD",
+     "reason": "3 of 3 trial(s) verified live against the registry."
+    },
+    "P18_restatement_is_reproducible": {
+     "state": "REFUSING",
+     "reason": "No restatement block on this cascade, so there is nothing to re-derive. This is NOT_ASSESSABLE dressed as a refusal rather than a pass: a topic that has never been restated has not demonstrated that a restatement of it would be checkable."
+    },
+    "P19_promotion_reaches_derived_blocks": {
+     "state": "HELD",
+     "reason": "inputs.trials, k_cascade.k_included_in_object and prisma_flow.included all say 3; no first-person field in published_comparison declares a k the pooled outcome(s) do not."
+    },
+    "P20_cascade_reconciles": {
+     "state": "HELD",
+     "reason": "k2_role_located=133 == k3+k4+k5, and k0_surfaced=137 == k3+k4+k5+kNA. Both checked, and every failing limb would be reported rather than the first."
+    },
+    "P21_ambiguous_question_split": {
+     "state": "HELD",
+     "reason": "Split from 'colchicine-cvd-review' into this review and 6 sibling(s) ['colchicine-cvd-cerebrovascular', 'colchicine-cvd-pad', 'colchicine-cvd-ich', 'colchicine-cvd-ascvd-mixed', 'colchicine-periprocedural', 'colchicine-pericarditis'], with the decision recorded at None. Nothing was dropped to resolve the ambiguity."
+    },
+    "P22_sharing_recorded": {
+     "state": "HELD",
+     "reason": "2 shared trial(s), each recorded with the topics holding it and why: NCT02551094 in ['colchicine-cvd-review']; NCT03048825 in ['colchicine-cvd-review']. The object also states that summing per-topic k double-counts."
+    },
+    "P23_recall_measured": {
+     "state": "HELD",
+     "reason": "All 3 recorded quer(ies) state their recall against this review's own included set: ['3/3', '3/3, and 4/4 counting LoDoCo2', 'NOT MEASURED']."
+    }
+   },
+   "held": [
+    "P19_promotion_reaches_derived_blocks",
+    "P1_executed_search",
+    "P20_cascade_reconciles",
+    "P21_ambiguous_question_split",
+    "P22_sharing_recorded",
+    "P23_recall_measured",
+    "P2_k_cascade",
+    "P3_inclusion_criteria",
+    "P4_preconditions",
+    "P5_extraction_table",
+    "P8_registration_identity"
+   ],
+   "refusing": [
+    "P18_restatement_is_reproducible",
+    "P6_analysis_output",
+    "P7_published_comparison"
+   ],
+   "_ratchet": "This page is stamped to the standard version above. If the standard rises, this page is BELOW it and knowably so. No page is grandfathered; arni-hfref is presently UNSTAMPED and is therefore unknown-version, not compliant."
+  },
+  "precondition_verdict_superseded": {
+   "superseded_on": "2026-08-19",
+   "superseded_because": "the seven preconditions became eight when inclusion_criteria_auditable split into criteria_stated (MECIR R29/R30/R31) and criteria_predefined (MECIR C5/C7)",
+   "block": {
+    "assessed_on": "2026-08-19",
+    "standard_version": "1.17.0-2026-08-19",
+    "authority": {
+     "handbook": "Cochrane Handbook for Systematic Reviews of Interventions",
+     "version": "6.5, 2024",
+     "verified_on": "2026-08-19",
+     "verified_how": "read from cochrane.org/authors/handbooks-and-manuals/handbook/current chapters 10 and 23, and from the official MECIR PDF (February 2022), text extracted locally rather than summarised"
+    },
+    "publishable": true,
+    "authoring_constraint": "These preconditions were authored in the same session that applied them. A reader who disagrees should disagree with ssot/preconditions.py, from which every verdict here is reproducible.",
+    "verdicts": {
+     "population_stated": {
+      "verdict": "PASS",
+      "reason": "present: question carries 152 characters",
+      "authority": "MECIR C62 'Ensuring meta-analyses are meaningful' (Mandatory, READ 2026-08-19): 'Undertake (or display) a meta-analysis only if participants, interventions, comparisons and outcomes are judged to be sufficiently similar...'; MECIR C5 'Predefining unambiguous criteria for participants' (Mandatory)"
+     },
+     "arm_role_resolved": {
+      "verdict": "PASS",
+      "reason": "inputs.trials: all 3 trial(s) carry arms with a readable role",
+      "authority": "MECIR C62 (Mandatory), 'interventions' limb -- this is a PRECONDITION FOR ASSESSING C62, not an enforcement of it: you cannot judge whether interventions are 'sufficiently similar' without knowing which arm is the intervention. NOT cited to C5/C7: those govern PREDEFINITION of criteria, and this check only reads whether a field is populated."
+     },
+     "comparators_identified": {
+      "verdict": "PASS",
+      "reason": "every outcome names a comparator type ['placebo']; none declares 'mixed'. Within-outcome consistency is visible only through the declared type, and cross-outcome differences are not judged.",
+      "authority": "MECIR C62 (Mandatory), 'comparisons' limb -- a synthesis pools one contrast. NOT cited to C7: C7 governs PREDEFINITION, and this check reads recorded comparator fields and tests them for consistency."
+     },
+     "estimand_named": {
+      "verdict": "PASS",
+      "reason": "outcomes.estimand: all 1 outcome(s) name a quantity",
+      "authority": "MECIR C8 'Clarifying role of outcomes' (Mandatory, READ 2026-08-19); MECIR C62 (Mandatory), 'outcomes' limb"
+     },
+     "criteria_stated": {
+      "verdict": "PASS",
+      "reason": "present: screening.eligibility carries 726 characters",
+      "authority": "MECIR R29 'Eligibility criteria for types of participants', R30 '...types of interventions', R31 'Role of outcomes' -- ALL Mandatory REPORTING standards (READ 2026-08-19). Their verb is STATE. A block DERIVED post hoc satisfies this if it is labelled post hoc per R107."
+     },
+     "criteria_predefined": {
+      "verdict": "FAIL",
+      "reason": "screening.eligibility_provenance.predefined is false: the criteria were DERIVED post hoc from this object's own question and recorded exclusions. That is auditable (R29/R30/R31) and is not pre-specification (C5/C7). This FAIL is permanent and correct.",
+      "authority": "MECIR C5 'Predefining unambiguous criteria for participants' AND C7 '...for interventions and comparators', BOTH Mandatory (READ 2026-08-19): 'Predefined, unambiguous eligibility criteria are a fundamental prerequisite for a systematic review.' C5/C7 govern PREDEFINITION and CANNOT be discharged by a post hoc derivation."
+     },
+     "eligibility_met": {
+      "verdict": "NOT-ASSESSABLE",
+      "reason": "cannot assess: criteria are stated, but sources is an empty dict -- no full text was available this pass, and inclusion logic is conditional prose",
+      "authority": "MECIR C5/C7 (Mandatory) with C6 'Predefining a strategy for studies with a subset of eligible participants' (Highly desirable, READ 2026-08-19) -- eligibility is assessed against the full report"
+     },
+     "contributes_a_randomised_contrast": {
+      "verdict": "PASS",
+      "reason": "inputs.trials.arms: all 3 readable trial(s) contribute one topic-vs-control randomised contrast",
+      "authority": "Handbook 6.5 s23.3.4 'How to include multiple groups from one study' (READ 2026-08-19) and s23.3.6 'Factorial trials'; MECIR C7 'Predefining unambiguous criteria for interventions and comparators' (Mandatory)"
+     }
+    }
+   }
+  },
+  "manuscript": {
+   "references": {
+    "_what": "A reference list, assembled from this object's own fields. Distinct from `sources`, which records the provenance LAYER each fact was read at; this is what a reader would look up.",
+    "included_studies": [
+     {
+      "registration": "ACTRN12614000093684",
+      "label": "ACTRN12614000093684",
+      "registry": "ClinicalTrials.gov",
+      "url": "https://clinicaltrials.gov/study/ACTRN12614000093684",
+      "read_utc": ""
+     },
+     {
+      "registration": "NCT02551094",
+      "label": "",
+      "registry": "ClinicalTrials.gov",
+      "url": "https://clinicaltrials.gov/study/NCT02551094",
+      "read_utc": ""
+     },
+     {
+      "registration": "NCT03048825",
+      "label": "",
+      "registry": "ClinicalTrials.gov",
+      "url": "https://clinicaltrials.gov/study/NCT03048825",
+      "read_utc": ""
+     }
+    ],
+    "published_syntheses_compared_against": [],
+    "_published_syntheses_note": "No published synthesis is listed here. The comparison section states its own denominator and why nothing citable was appraised. ",
+    "methods_guidance_and_software": [
+     {
+      "cited_for": "the reporting guideline this manuscript is written against",
+      "citation": "Page MJ, McKenzie JE, Bossuyt PM, et al. The PRISMA 2020 statement: an updated guideline for reporting systematic reviews. BMJ. 2021;372:n71. doi:10.1136/bmj.n71"
+     }
+    ]
+   },
+   "introduction": "This review asks: Does low-dose colchicine reduce major adverse cardiovascular events in patients with established coronary artery disease or after myocardial infarction?\n\nIt examines 3 randomised trials and DOES NOT POOL THEM, against placebo in all three.\n\nThe outcome sought is Major adverse cardiovascular events, as each trial defines them.\n\nEverything in this paragraph is derived from stored fields and none of it is authored. The interpretive sentences that follow are marked as drafts and are the author's to replace."
+  },
+  "bookkeeping_2026_08_21": {
+   "_what": "The five reporting claims a PRISMA-2020 manuscript needs that are FETCHABLE rather than argued -- each derived from a field here, or stated as an honest absence.",
+   "which_limbs_this_review_refuses": "Of the four properties this project requires of a completed topic, 0 are held (none) and 4 are refused with the obstacle named in the evidence (comparison denominator, grade per pool, model output verbatim, rob per result).",
+   "the_search_its_date_and_its_databases": "PRIMARY TRIALS. NO BIBLIOGRAPHIC SEARCH FOR PRIMARY TRIALS WAS RUN. The 3 included trials were identified by reading named registrations on the dates recorded on each entry.",
+   "whether_this_review_was_prospectively_registered": "NO PROSPERO REGISTRATION OR PROTOCOL RECORD IS HELD ON THIS OBJECT. That is not the same as knowing this review was not registered, and neither claim is made. It is recorded here as an absence so that a reader does not have to infer it from silence.",
+   "that_two_assessors_disagreed_and_where": "NO SECOND, INDEPENDENT RISK-OF-BIAS ASSESSMENT IS RECORDED FOR THIS TOPIC. The judgements were made once. Stated so that single assessment is not mistaken for agreement between two."
+  },
+  "display_change_announced": [
+   {
+    "date": "2026-08-21",
+    "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+    "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+    "what_changed": "references built, introduction written, bookkeeping claims 4",
+    "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+   },
+   {
+    "date": "2026-08-21",
+    "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+    "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+    "what_changed": "references built, introduction written, bookkeeping claims 4",
+    "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+   },
+   {
+    "date": "2026-08-21",
+    "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+    "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+    "what_changed": "references built, introduction written, bookkeeping claims 4",
+    "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+   },
+   {
+    "date": "2026-08-21",
+    "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+    "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+    "what_changed": "references built, introduction written, bookkeeping claims 4",
+    "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+   },
+   {
+    "date": "2026-08-21",
+    "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+    "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+    "what_changed": "references built, introduction written, bookkeeping claims 4",
+    "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+   },
+   {
+    "date": "2026-08-21",
+    "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+    "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+    "what_changed": "references built, introduction written, bookkeeping claims 4",
+    "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+   }
+  ]
+ }
+}

@@ -1,0 +1,10 @@
+1. **OVERCLAIM**. Quote: "...and all register an adequate-clinical-and-parasitological-response primary." 
+The extra claim is that all five trials registered this specific outcome formulation. The packet shows they registered distinct text (e.g., "treatment success," "clinical and parasitological cure," "PCR adjusted efficacy"), and `outcomes[0].name` explicitly confirms the outcome is merely "each trial's own registered primary outcome" rather than a unified string. 
+
+2. **UNDERCLAIM**. NONE. The packet's `topic_state` and `which_limb_fails` fields confirm that missing data is the sole reason the pool was not built.
+
+3. **FACT vs JUDGEMENT**. "The participants, intervention and outcome limbs PASS." The text asserts this as a verified fact. While this mirrors the text in `which_limb_fails` ("the limbs pass"), the packet also records `estimand_established: null`, defining this state as "never checked" and explicitly warning that "null is not a pass." Treating an unchecked limb as definitively passing is an interpretive judgement masking a gap in the evidence.
+
+4. **IS THE STATED REASON THE ACTUAL REASON?** Yes. The packet confirms `results_posted: false` across all five trials, and `what_would_make_this_buildable` confirms that the absence of results sections is the exact barrier blocking the pool. The reason strictly follows from the evidence.
+
+5. **VERDICT**: REJECT. The text materially overclaims the uniformity of the trials' registered primary outcomes, contradicting the distinct registry strings in the packet. It also asserts a definitive "PASS" for the outcome limb despite the packet explicitly recording that the estimand was never checked (`null`).

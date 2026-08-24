@@ -1,0 +1,183 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/audit_refusal_names_object_or_renderer.py
+
+--- THE FILE, IN FULL ---
+"""Does each refusal name a FACT ABOUT THE OBJECT, or a LIMIT OF THE RENDERER?
+
+THE MECHANISM, STATED GENERALLY. A refusal names the thing that could not be done. It does
+not, unless it is written to, name the REASON it could not be done -- and a reader,
+INCLUDING US, will attribute a blank section to the input.
+
+    "the Discussion -- the object records no interpretive text"
+    "the Discussion -- this projector cannot render the text the object holds"
+
+produce the SAME blank section and are OPPOSITE FINDINGS. On 2026-08-20 the first sentence
+was on ARNI's projection while the object held seven authored paragraphs. It was quoted for
+a week as evidence that OBJECTS lack substance. The true reason was that the paragraphs
+carried `[[k]]`-style substitution tokens this projector could not resolve. Correcting it
+moved the reproduction figure from ~11% to 26.2%.
+
+SO EVERY REFUSAL IS CHECKED AGAINST THAT DISTINCTION. This is a bounded sweep: the
+projector's refusal strings are finite and enumerable.
+
+  OBJECT   -- names a fact about the input. "no per-trial estimates are stored".
+  RENDERER -- names a limit here. "cannot be rendered by this projector".
+  UNMARKED -- says only that something is absent, WITHOUT saying which side is at fault.
+              These are the dangerous ones: they are read as OBJECT by default, and if the
+              real cause is RENDERER the misreading is invisible and durable.
+
+THIS IS A WARN, NOT A BLOCK. Whether an UNMARKED refusal is wrong depends on the object it
+fires against, which this cannot know. It surfaces them for a human to read, which is the
+same standing this project gives the empty-DataFrame rule.
+"""
+import io
+import os
+import re
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from instrument_controls import require_controls          # noqa: E402
+
+TARGET = os.path.join(REPO, "ssot", "paper_projector.py")
+
+# Phrases that ATTRIBUTE the absence to one side or the other.
+OBJECT_WORDS = re.compile(
+    r"no .{0,40}(?:is|are) (?:recorded|stored|held|carried)|does not carry|not on this "
+    r"object|th(?:is|e) object (?:records|carries|holds|stores) no|is absent from|no field "
+    r"of this object|carries no|holds none|records none|stores no|no .{0,30}stored", re.I)
+RENDERER_WORDS = re.compile(
+    r"cannot be rendered|this projector|the renderer|not rendered here|cannot be "
+    r"resolved|no change to this projector|rendering one", re.I)
+
+
+def refusals(src):
+    """Every literal appended to a Section's refusals, with its line."""
+    out = []
+    for m in re.finditer(r"refusals\.append\(", src):
+        seg = src[m.start():m.start() + 2200]
+        depth, end = 0, None
+        for i, ch in enumerate(seg):
+            if ch == "(":
+                depth += 1
+            elif ch == ")":
+                depth -= 1
+                if depth == 0:
+                    end = i
+                    break
+        block = seg[:end + 1] if end else seg
+        strings = re.findall(r'"((?:[^"\\]|\\.)*)"', block)
+        text = " ".join(strings).strip()
+        if text:
+            out.append((src[:m.start()].count("\n") + 1, text))
+    return out
+
+
+def classify(text):
+    o = bool(OBJECT_WORDS.search(text))
+    r = bool(RENDERER_WORDS.search(text))
+    if o and r:
+        return "BOTH"
+    if r:
+        return "RENDERER"
+    if o:
+        return "OBJECT"
+    return "UNMARKED"
+
+
+def main():
+    gate = "--gate" in sys.argv
+    require_controls(
+        "audit_refusal_names_object_or_renderer",
+        positive=("a refusal naming a renderer limit is classified RENDERER",
+                  classify("the Discussion -- this projector cannot render it") == "RENDERER",
+                  True),
+        negative=("a refusal naming an object fact is classified RENDERER",
+                  classify("the Discussion -- no interpretive text is recorded on this "
+                           "object") == "RENDERER", True))
+
+    # THE FOUNDING CASE, AS A KNOWN-ANSWER CONTROL. This exact sentence shipped on ARNI
+    # while the object held seven authored paragraphs, so it must classify as making an
+    # OBJECT claim -- it does, and it was WRONG. A classifier that cannot see the object
+    # claim in the refusal that caused the incident is not measuring the incident.
+    _founding = ("the Discussion -- this is a CONTENT gap. The object records no "
+                 "interpretive text, and none is generated here: a discussion written by "
+                 "the renderer would be an argument no field supports")
+    if classify(_founding) not in ("OBJECT", "BOTH"):
+        sys.exit("PROOF FAILED: the founding case classifies as %r, and it makes an "
+                 "explicit claim about the object." % classify(_founding))
+    print("    known-answer control: the founding ARNI refusal classifies as %s -- it DOES "
+          "claim\n    something about the object, and on ARNI that claim was FALSE."
+          % classify(_founding))
+
+    src = io.open(TARGET, encoding="utf-8").read()
+    rows = [(ln, classify(t), t) for ln, t in refusals(src)]
+    if not rows:
+        print("NOT_ASSESSABLE: no refusal literals were found in %s. That is a broken "
+              "reader, not a clean file." % os.path.relpath(TARGET, REPO))
+        return 2
+
+    buckets = {}
+    for ln, c, t in rows:
+        buckets.setdefault(c, []).append((ln, t))
+
+    print("")
+    print("REFUSALS READ FROM %s: %d" % (os.path.relpath(TARGET, REPO), len(rows)))
+    for c in ("OBJECT", "RENDERER", "BOTH", "UNMARKED"):
+        print("   %-9s %d" % (c, len(buckets.get(c, []))))
+
+    print("")
+    print("UNMARKED -- says something is absent without saying WHICH SIDE is at fault.")
+    print("A reader attributes these to the OBJECT by default. Where the real cause is the")
+    print("RENDERER, the misreading is invisible and durable -- that is the ~11%% figure.")
+    for ln, t in buckets.get("UNMARKED", []):
+        print("   line %-5d %s" % (ln, t[:150]))
+
+    print("")
+    print("RENDERER -- correctly attributed, and these are the ones worth copying:")
+    for ln, t in buckets.get("RENDERER", []) + buckets.get("BOTH", []):
+        print("   line %-5d %s" % (ln, t[:150]))
+
+    print("")
+    print("WARN, NOT BLOCK. Whether an UNMARKED refusal is WRONG depends on the object it")
+    print("fires against, which this file cannot know. It surfaces them to be read.")
+    if gate:
+        return 0
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

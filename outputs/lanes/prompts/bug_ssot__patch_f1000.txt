@@ -1,0 +1,179 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: ssot/patch_f1000.py
+
+--- THE FILE, IN FULL ---
+"""Bring the figure pipeline to the journal profile.
+
+FORMATS. EPS first (the journal's stated first preference for line art, and all
+ten plots are line art), uncompressed TIFF at 600 dpi as the stated fallback,
+JPEG dropped, SVG kept for the web page only where it is the master.
+
+TEXT SIZE. This is the change the profile forced that nobody would have caught by
+eye. The figures are authored at 720 user units wide and are double-column
+figures, so they display at 150 mm. At that width one unit is 0.2083 mm, and the
+journal's 8 pt floor is therefore 13.5 units. Every text element on every figure
+was 10, 11 or 12 units -- 5.9 to 7.1 pt. All ten figures were below the minimum
+and would have been returned. Sizes are raised to 14 and 15, which give 8.3 and
+8.9 pt.
+"""
+import ast
+import io
+import sys
+
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+N = [0]
+
+
+def sub(path, old, new, tag, count=1):
+    s = open(path, encoding="utf-8").read()
+    if old not in s:
+        raise SystemExit("ANCHOR MISSING (%s) in %s" % (tag, path))
+    n = s.count(old) if count == -1 else count
+    open(path, "w", encoding="utf-8").write(s.replace(old, new, n))
+    N[0] += n
+    print("  %-52s x%d" % (tag, n))
+
+
+PJ = "ssot/projectors.py"
+FG = "ssot/figures.py"
+
+print("TEXT SIZE -- every figure was below the 8pt floor at 150mm")
+for old, new, tag in ((' font-size="10"', ' font-size="14"', "axis tick labels 10 -> 14"),
+                      (' font-size="11"', ' font-size="14"', "axis titles 11 -> 14"),
+                      (' font-size="12"', ' font-size="15"', "trial labels 12 -> 15")):
+    s = open(PJ, encoding="utf-8").read()
+    if old in s:
+        c = s.count(old)
+        open(PJ, "w", encoding="utf-8").write(s.replace(old, new))
+        N[0] += c
+        print("  %-52s x%d" % (tag, c))
+
+print("FORMATS -- EPS first, uncompressed TIFF fallback, no JPEG")
+sub(FG, '''def convert(png_path, stem, outdir):
+    """PNG -> TIFF (LZW) and JPG (q95), both with a real dpi header."""
+    out = {}
+    try:
+        from PIL import Image
+    except ImportError:
+        return out
+    try:
+        im = Image.open(png_path)
+        im.load()
+        tp = os.path.join(outdir, stem + ".tiff")
+        im.convert("RGB").save(tp, format="TIFF", compression="tiff_lzw",
+                               dpi=(DPI, DPI))
+        out["tiff"] = tp
+        jp = os.path.join(outdir, stem + ".jpg")
+        im.convert("RGB").save(jp, format="JPEG", quality=95, optimize=True,
+                               dpi=(DPI, DPI))
+        out["jpg"] = jp
+    except Exception:                                    # noqa: BLE001
+        pass
+    return out''',
+    '''def to_eps(svg, stem, outdir):
+    """SVG -> genuine VECTOR EPS. The journal's first preference for line art.
+
+    Vector, not a raster wrapped in an EPS header: the marks stay resolution-
+    independent, which is the whole reason the journal asks for EPS on line art.
+    Returns None if the toolchain is absent, and the caller says so rather than
+    silently offering one format fewer.
+    """
+    try:
+        from svglib.svglib import svg2rlg
+        from reportlab.graphics import renderPS
+    except ImportError:
+        return None
+    sp = os.path.join(outdir, stem + "_src.svg")
+    ep = os.path.join(outdir, stem + ".eps")
+    try:
+        with open(sp, "w", encoding="utf-8") as f:
+            f.write(svg)
+        drawing = svg2rlg(sp)
+        if drawing is None:
+            return None
+        renderPS.drawToFile(drawing, ep)
+    except Exception:                                    # noqa: BLE001
+        return None
+    return ep if os.path.exists(ep) and os.path.getsize(ep) > 0 else None
+
+
+def convert(png_path, stem, outdir):
+    """PNG -> UNCOMPRESSED TIFF at 600 dpi.
+
+    Uncompressed is explicit, not an oversight: the journal's fallback wording is
+    "uncompressed TIFF", and an LZW file is smaller but is not what was asked
+    for. JPEG is gone -- it is not on the accepted list and it is a lossy
+    photographic codec applied to line art.
+    """
+    out = {}
+    try:
+        from PIL import Image
+    except ImportError:
+        return out
+    try:
+        im = Image.open(png_path)
+        im.load()
+        tp = os.path.join(outdir, stem + ".tiff")
+        im.convert("RGB").save(tp, format="TIFF", compression=None,
+                               dpi=(DPI, DPI))
+        out["tiff"] = tp
+    except Exception:                                    # noqa: BLE001
+        pass
+    return out''', "convert(): uncompressed TIFF, EPS helper added")
+
+sub(FG, '''        # TIFF and JPEG are no longer offered. JPEG is a lossy photographic
+        # codec and these are line art: it puts ringing on every rule and every
+        # glyph edge, so it was strictly worse than the PNG beside it. The TIFF
+        # was a lossless duplicate of that PNG at four times the bytes. Dropping
+        # both takes the page from 5.25 MB to about 1.4 MB and IMPROVES the
+        # artwork. SVG remains the master and PNG the raster of record; any
+        # journal wanting TIFF can convert either without loss.''',
+    '''        # Journal order of preference, and the order matters: satisfying the
+        # fallback while the first choice was available is a worse submission,
+        # not an equal one. EPS is offered first because these are line art.
+        eps = to_eps(svg, stem, outdir)
+        if eps:
+            items.append(("EPS (vector, journal's first choice for line art)",
+                          stem + ".eps", _uri(eps, "application/postscript"),
+                          os.path.getsize(eps)))
+        for k, p in convert(png, stem, outdir).items():
+            items.append(("TIFF (uncompressed, %d dpi -- journal fallback)" % DPI,
+                          os.path.basename(p), _uri(p, "image/tiff"),
+                          os.path.getsize(p)))''', "downloads: EPS + uncompressed TIFF")
+
+for f in (PJ, FG):
+    ast.parse(open(f, encoding="utf-8").read())
+print("\n%d edits; both modules parse" % N[0])

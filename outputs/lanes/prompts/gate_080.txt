@@ -1,0 +1,31 @@
+A prior audit classified this repository's refusal gates by whether they
+could cover the output of `generate_living_ma_v13.py`, which writes HTML into sibling
+`*_LivingMeta` directories and does NOT write ssot/**/*.json. Most were classed
+STRUCTURALLY CANNOT.
+
+For EACH of the 10 gates below, read it in the repository and answer ONE question:
+
+    What would it take to make this gate cover v13's HTML output -- or is that impossible,
+    and why exactly?
+
+Answer in one of exactly three forms per gate:
+   EXTENDABLE  -- name the concrete change: the glob to add, the field to read from HTML
+                  instead of JSON, the predicate that would still hold
+   IMPOSSIBLE  -- name the property of v13 output that makes the gate's subject absent
+                  from it. "It reads JSON" is not an answer; say what the gate is ABOUT and
+                  why v13 pages cannot have it.
+   ALREADY     -- it already reads files v13 writes; say which.
+
+THE GATES:
+  scripts/lint_search_pagination_declared.py
+  scripts/lint_self_describing_safety_claim.py
+  scripts/lint_string_where_collection_expected.py
+  scripts/lint_subprocess_decode.py
+  scripts/lint_unsubstituted_tokens.py
+  scripts/lint_withholding_asked.py
+  scripts/lint_withholding_direction_paired.py
+  scripts/lint_zero_is_a_value_2026_08_23.py
+  scripts/marker_prefix_gate.py
+  scripts/pooled_point_in_achievable_range_gate.py
+
+Be concrete and be short: two or three sentences each. Do not modify any file.

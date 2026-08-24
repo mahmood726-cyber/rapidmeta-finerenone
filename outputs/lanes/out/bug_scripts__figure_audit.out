@@ -1,0 +1,551 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a031a7-7247-7f71-bb42-bf68ceb7a4c5
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/figure_audit.py
+
+--- THE FILE, IN FULL ---
+"""Audit every RENDERED figure on a page: distinct series, declared axes, honest captions.
+
+Reading the plotting code tells you what it meant to draw. This renders the page
+and reads the geometry back out, which is the only thing that answers "do these
+two panels show the same series".
+
+RENDERER-AWARE, and that is not optional. This corpus has two entirely different
+figure implementations:
+
+  SSOT pages      server-side inline <svg>, one per figure, inside a .card with
+                  an <h3> title and the caption as the last <p><small>.
+  Corpus pages    Plotly, drawn client-side into <div class="chart-container">,
+                  with an <h4> title and a .chart-desc caption.
+
+The first version of this script swept `document.querySelectorAll('svg')` and was
+correct on SSOT pages only. Pointed at a corpus page it found SIXTY-FIVE "figures"
+-- Plotly emits several nested <svg> layers per chart plus icon glyphs -- and
+reported 71 series collisions between axis layers of the same plot, with every
+figure named svg0..svg64 because the title selector matched nothing. Across 1,217
+pages that is roughly 86,000 false findings, which is worse than no tool at all:
+a detector that cries wolf at that volume gets switched off, and then the real
+findings go with it.
+
+So figures are located by their CONTAINER, never by raw <svg>, and the container
+is chosen per renderer. A page whose structure matches neither is reported as
+unrecognised rather than swept anyway.
+
+Usage:  python figure_audit.py <page.html>
+        python figure_audit.py --selftest-structure <ssot.html> <corpus.html>
+"""
+import io
+import json
+import os
+import re
+import sys
+import time
+
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+# (name, container, title, caption) -- container must hold exactly one figure.
+RENDERERS = [
+    ("ssot-svg", ".card", "h3", "p > small"),
+    ("plotly", "div.col-span-1, div.col-span-2, .chart-block",
+     "h4", ".chart-desc"),
+]
+
+JS = r"""
+const [rname, csel, tsel, capsel] = arguments;
+const out = [];
+document.querySelectorAll(csel).forEach(card => {
+  // The figure is the LARGEST svg in the container. Plotly nests several
+  // (axis layer, legend, defs) and pages carry icon svgs; taking them all is
+  // what produced 65 "figures" on a page with 12.
+  const svgs = [...card.querySelectorAll('svg')];
+  if (!svgs.length) return;
+  let s = svgs[0], best = 0;
+  for (const c of svgs) {
+    const r = c.getBoundingClientRect();
+    if (r.width * r.height > best) { best = r.width * r.height; s = c; }
+  }
+  if (best < 5000) return;                    // icons and sparks are not figures
+  const h = card.querySelector(tsel);
+  const cap = card.querySelector(capsel);
+  const geom = {
+    lines: [...s.querySelectorAll('line')].map(l => ({
+      x1:+l.getAttribute('x1'), y1:+l.getAttribute('y1'),
+      x2:+l.getAttribute('x2'), y2:+l.getAttribute('y2'),
+      dash: !!l.getAttribute('stroke-dasharray')})),
+    polys: s.querySelectorAll('polygon, path.js-fill').length,
+    paths: s.querySelectorAll('path').length};
+  const circles = [...s.querySelectorAll('circle, path.point')].map(c => {
+    const r = c.getBoundingClientRect();
+    return [Math.round(r.x + r.width/2), Math.round(r.y + r.height/2)];});
+  const rects = [...s.querySelectorAll('rect')].filter(r =>
+      +r.getAttribute('width') < 40).map(c => [
+      +c.getAttribute('x'), +c.getAttribute('y')]);
+  out.push({renderer: rname,
+            title: h ? h.innerText.trim() : '',
+            aria: s.getAttribute('aria-label') || '',
+            caption: cap ? cap.innerText.trim().slice(0, 600) : '',
+            circles: circles, rects: rects,
+            texts: [...s.querySelectorAll('text')].map(t=>t.textContent.trim()),
+            geom: geom, viewBox: s.getAttribute('viewBox')});
+});
+return out;
+"""
+
+
+def collect(page):
+    from selenium import webdriver
+    from selenium.webdriver.chrome.options import Options
+    o = Options()
+    for a in ("--headless=new", "--disable-gpu", "--no-sandbox",
+              "--window-size=1500,1200"):
+        o.add_argument(a)
+    d = webdriver.Chrome(options=o)
+    d.set_page_load_timeout(300)
+    try:
+        d.get("file:///" + os.path.abspath(page).replace("\\", "/"))
+        time.sleep(3)
+        d.execute_script("document.querySelectorAll('.panel').forEach(p=>{"
+                         "p.style.height='auto';p.style.overflow='visible';});")
+        # Plotly draws on demand; give any deferred render a chance before the
+        # geometry is read, or an unrendered chart looks like a missing figure.
+        time.sleep(2.5)
+        for name, csel, tsel, capsel in RENDERERS:
+            figs = d.execute_script(JS, name, csel, tsel, capsel)
+            named = [f for f in figs if f["title"]]
+            if len(named) >= 3:
+                return name, named
+        # DEGENERATE GEOMETRY IS NOT A CLEAN PAGE. Corpus pages draw with Plotly
+        # into containers that measure 0x0 under headless file:// -- the charts
+        # exist, three <svg> layers deep, and every coordinate this audit would
+        # read is zero. A geometry check over zeros returns "0 collisions", which
+        # is a pass produced by measuring nothing. That is the same species as a
+        # caption check reading the downloads block, and it must be loud.
+        probe = d.execute_script(
+            "const c=[...document.querySelectorAll('.chart-container')];"
+            "return [c.length, c.filter(x=>x.getBoundingClientRect().width>1)"
+            ".length, c.filter(x=>x.querySelector('svg')).length];")
+        if probe and probe[0] and not probe[1]:
+            raise SystemExit(
+                "UNAUDITABLE: %d chart containers found, %d have drawn SVG, and "
+                "NONE has a non-zero width. Their geometry is all zeros in this "
+                "environment, so any collision or promise check would pass by "
+                "measuring nothing. Refusing to report a result rather than "
+                "returning a clean one." % (probe[0], probe[2]))
+        return None, []
+    finally:
+        d.quit()
+
+
+def norm(pts):
+    if len(pts) < 2:
+        return tuple(tuple(round(v, 3) for v in p) for p in pts)
+    xs = [p[0] for p in pts]
+    ys = [p[1] for p in pts]
+    dx = (max(xs) - min(xs)) or 1.0
+    dy = (max(ys) - min(ys)) or 1.0
+    return tuple(sorted((round((p[0] - min(xs)) / dx, 3),
+                         round((p[1] - min(ys)) / dy, 3)) for p in pts))
+
+
+def _diag(g):
+    return any(abs(l["x2"] - l["x1"]) > 6 and abs(l["y2"] - l["y1"]) > 6
+               for l in g["lines"])
+
+
+def _vline(g):
+    return any(abs(l["x2"] - l["x1"]) < 1.5 and abs(l["y2"] - l["y1"]) > 20
+               for l in g["lines"])
+
+
+PROMISES = [
+    (r"\bdiagonal\b", "a diagonal", _diag),
+    (r"no effect line|line of no effect|null line|reference line",
+     "a reference/null line", lambda g: _vline(g) or _diag(g)),
+    (r"contour|pseudo-confidence|funnel band",
+     "contours or a pseudo-confidence funnel",
+     lambda g: g["polys"] >= 2 or sum(1 for l in g["lines"] if l["dash"]) >= 2),
+    (r"dashed line", "a dashed line",
+     lambda g: any(l["dash"] for l in g["lines"])),
+]
+
+
+def audit(page):
+    renderer, figs = collect(page)
+    if renderer is None:
+        print("UNRECOGNISED PAGE STRUCTURE: no known figure container matched.")
+        print("Reported rather than swept, because sweeping raw <svg> is what "
+              "produced 65 false figures per page on the Plotly corpus.")
+        return 2
+    print("renderer: %s | figures: %d" % (renderer, len(figs)))
+    for f in figs:
+        f["_n"] = len(f["circles"] or f["rects"])
+        f["_sig"] = norm(f["circles"] or f["rects"])
+    coll = []
+    for i in range(len(figs)):
+        for j in range(i + 1, len(figs)):
+            a, b = figs[i], figs[j]
+            if a["_n"] >= 2 and a["_sig"] == b["_sig"]:
+                coll.append((a["title"], b["title"], a["_n"]))
+    print("series collisions: %d" % len(coll))
+    for a, b, n in coll:
+        print("   - %s == %s (%d identical marks)" % (a[:34], b[:34], n))
+    # aria-label is an SSOT-side contract; Plotly does not emit one, so the
+    # check is scoped to the renderer that can satisfy it rather than failing
+    # every corpus page for a property its library never sets.
+    unl = []
+    if renderer == "ssot-svg":
+        unl = [f for f in figs if "(horizontal)" not in f["aria"]
+               and "rows" not in f["aria"] and "Forest" not in f["aria"]
+               and "not " not in f["aria"]]
+        print("figures whose aria-label does not name both axes: %d" % len(unl))
+        for f in unl:
+            print("   -", f["title"][:60])
+    broken = []
+    for f in figs:
+        low = ((f.get("caption") or "") + " " + (f.get("aria") or "")).lower()
+        for pat, what, pred in PROMISES:
+            if re.search(pat, low) and not pred(f["geom"]):
+                broken.append((f["title"], what))
+    print("captions promising an undrawn element: %d" % len(broken))
+    for t, w in broken:
+        print("   - %s: caption names %s, none is drawn" % (t[:44], w))
+    json.dump(figs, open(os.path.splitext(os.path.abspath(page))[0]
+                         + ".figaudit.json", "w", encoding="utf-8"),
+              indent=1, default=str)
+    return 1 if (coll or unl or broken) else 0
+
+
+if __name__ == "__main__":
+    if "--selftest-structure" in sys.argv:
+        # The structural claim IS the check here: each renderer must be
+        # recognised as itself, and neither may be swept by the other's rules.
+        args = [a for a in sys.argv[1:] if not a.startswith("--")]
+        ok = True
+        for want, page in zip(("ssot-svg", "plotly"), args):
+            got, figs = collect(page)
+            good = got == want and 3 <= len(figs) <= 40
+            ok &= good
+            print("  %-46s renderer=%-10s figures=%-3d %s"
+                  % (os.path.basename(page)[:46], got, len(figs),
+                     "correct" if good else "WRONG (expected %s, 3..40)" % want))
+        print("\nstructure detection correct on both renderers:", ok)
+        raise SystemExit(0 if ok else 1)
+    raise SystemExit(audit(sys.argv[1]))
+
+codex
+I’m going to treat the pasted packet as the record and focus only on demonstrable defects in the listed shapes. I’ll use the line numbers from the pasted file.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=0; Get-Content -Path scripts/figure_audit.py | ForEach-Object { $i++; '"'{0,4}: {1}' -f "'$i, $_ } | Select-Object -First 260' in F:\rapidmeta-ssot-shell
+ succeeded in 1688ms:
+   1: """Audit every RENDERED figure on a page: distinct series, declared axes, honest captions.
+   2: 
+   3: Reading the plotting code tells you what it meant to draw. This renders the page
+   4: and reads the geometry back out, which is the only thing that answers "do these
+   5: two panels show the same series".
+   6: 
+   7: RENDERER-AWARE, and that is not optional. This corpus has two entirely different
+   8: figure implementations:
+   9: 
+  10:   SSOT pages      server-side inline <svg>, one per figure, inside a .card with
+  11:                   an <h3> title and the caption as the last <p><small>.
+  12:   Corpus pages    Plotly, drawn client-side into <div class="chart-container">,
+  13:                   with an <h4> title and a .chart-desc caption.
+  14: 
+  15: The first version of this script swept `document.querySelectorAll('svg')` and was
+  16: correct on SSOT pages only. Pointed at a corpus page it found SIXTY-FIVE "figures"
+  17: -- Plotly emits several nested <svg> layers per chart plus icon glyphs -- and
+  18: reported 71 series collisions between axis layers of the same plot, with every
+  19: figure named svg0..svg64 because the title selector matched nothing. Across 1,217
+  20: pages that is roughly 86,000 false findings, which is worse than no tool at all:
+  21: a detector that cries wolf at that volume gets switched off, and then the real
+  22: findings go with it.
+  23: 
+  24: So figures are located by their CONTAINER, never by raw <svg>, and the container
+  25: is chosen per renderer. A page whose structure matches neither is reported as
+  26: unrecognised rather than swept anyway.
+  27: 
+  28: Usage:  python figure_audit.py <page.html>
+  29:         python figure_audit.py --selftest-structure <ssot.html> <corpus.html>
+  30: """
+  31: import io
+  32: import json
+  33: import os
+  34: import re
+  35: import sys
+  36: import time
+  37: 
+  38: sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+  39: 
+  40: # (name, container, title, caption) -- container must hold exactly one figure.
+  41: RENDERERS = [
+  42:     ("ssot-svg", ".card", "h3", "p > small"),
+  43:     ("plotly", "div.col-span-1, div.col-span-2, .chart-block",
+  44:      "h4", ".chart-desc"),
+  45: ]
+  46: 
+  47: JS = r"""
+  48: const [rname, csel, tsel, capsel] = arguments;
+  49: const out = [];
+  50: document.querySelectorAll(csel).forEach(card => {
+  51:   // The figure is the LARGEST svg in the container. Plotly nests several
+  52:   // (axis layer, legend, defs) and pages carry icon svgs; taking them all is
+  53:   // what produced 65 "figures" on a page with 12.
+  54:   const svgs = [...card.querySelectorAll('svg')];
+  55:   if (!svgs.length) return;
+  56:   let s = svgs[0], best = 0;
+  57:   for (const c of svgs) {
+  58:     const r = c.getBoundingClientRect();
+  59:     if (r.width * r.height > best) { best = r.width * r.height; s = c; }
+  60:   }
+  61:   if (best < 5000) return;                    // icons and sparks are not figures
+  62:   const h = card.querySelector(tsel);
+  63:   const cap = card.querySelector(capsel);
+  64:   const geom = {
+  65:     lines: [...s.querySelectorAll('line')].map(l => ({
+  66:       x1:+l.getAttribute('x1'), y1:+l.getAttribute('y1'),
+  67:       x2:+l.getAttribute('x2'), y2:+l.getAttribute('y2'),
+  68:       dash: !!l.getAttribute('stroke-dasharray')})),
+  69:     polys: s.querySelectorAll('polygon, path.js-fill').length,
+  70:     paths: s.querySelectorAll('path').length};
+  71:   const circles = [...s.querySelectorAll('circle, path.point')].map(c => {
+  72:     const r = c.getBoundingClientRect();
+  73:     return [Math.round(r.x + r.width/2), Math.round(r.y + r.height/2)];});
+  74:   const rects = [...s.querySelectorAll('rect')].filter(r =>
+  75:       +r.getAttribute('width') < 40).map(c => [
+  76:       +c.getAttribute('x'), +c.getAttribute('y')]);
+  77:   out.push({renderer: rname,
+  78:             title: h ? h.innerText.trim() : '',
+  79:             aria: s.getAttribute('aria-label') || '',
+  80:             caption: cap ? cap.innerText.trim().slice(0, 600) : '',
+  81:             circles: circles, rects: rects,
+  82:             texts: [...s.querySelectorAll('text')].map(t=>t.textContent.trim()),
+  83:             geom: geom, viewBox: s.getAttribute('viewBox')});
+  84: });
+  85: return out;
+  86: """
+  87: 
+  88: 
+  89: def collect(page):
+  90:     from selenium import webdriver
+  91:     from selenium.webdriver.chrome.options import Options
+  92:     o = Options()
+  93:     for a in ("--headless=new", "--disable-gpu", "--no-sandbox",
+  94:               "--window-size=1500,1200"):
+  95:         o.add_argument(a)
+  96:     d = webdriver.Chrome(options=o)
+  97:     d.set_page_load_timeout(300)
+  98:     try:
+  99:         d.get("file:///" + os.path.abspath(page).replace("\\", "/"))
+ 100:         time.sleep(3)
+ 101:         d.execute_script("document.querySelectorAll('.panel').forEach(p=>{"
+ 102:                          "p.style.height='auto';p.style.overflow='visible';});")
+ 103:         # Plotly draws on demand; give any deferred render a chance before the
+ 104:         # geometry is read, or an unrendered chart looks like a missing figure.
+ 105:         time.sleep(2.5)
+ 106:         for name, csel, tsel, capsel in RENDERERS:
+ 107:             figs = d.execute_script(JS, name, csel, tsel, capsel)
+ 108:             named = [f for f in figs if f["title"]]
+ 109:             if len(named) >= 3:
+ 110:                 return name, named
+ 111:         # DEGENERATE GEOMETRY IS NOT A CLEAN PAGE. Corpus pages draw with Plotly
+ 112:         # into containers that measure 0x0 under headless file:// -- the charts
+ 113:         # exist, three <svg> layers deep, and every coordinate this audit would
+ 114:         # read is zero. A geometry check over zeros returns "0 collisions", which
+ 115:         # is a pass produced by measuring nothing. That is the same species as a
+ 116:         # caption check reading the downloads block, and it must be loud.
+ 117:         probe = d.execute_script(
+ 118:             "const c=[...document.querySelectorAll('.chart-container')];"
+ 119:             "return [c.length, c.filter(x=>x.getBoundingClientRect().width>1)"
+ 120:             ".length, c.filter(x=>x.querySelector('svg')).length];")
+ 121:         if probe and probe[0] and not probe[1]:
+ 122:             raise SystemExit(
+ 123:                 "UNAUDITABLE: %d chart containers found, %d have drawn SVG, and "
+ 124:                 "NONE has a non-zero width. Their geometry is all zeros in this "
+ 125:                 "environment, so any collision or promise check would pass by "
+ 126:                 "measuring nothing. Refusing to report a result rather than "
+ 127:                 "returning a clean one." % (probe[0], probe[2]))
+ 128:         return None, []
+ 129:     finally:
+ 130:         d.quit()
+ 131: 
+ 132: 
+ 133: def norm(pts):
+ 134:     if len(pts) < 2:
+ 135:         return tuple(tuple(round(v, 3) for v in p) for p in pts)
+ 136:     xs = [p[0] for p in pts]
+ 137:     ys = [p[1] for p in pts]
+ 138:     dx = (max(xs) - min(xs)) or 1.0
+ 139:     dy = (max(ys) - min(ys)) or 1.0
+ 140:     return tuple(sorted((round((p[0] - min(xs)) / dx, 3),
+ 141:                          round((p[1] - min(ys)) / dy, 3)) for p in pts))
+ 142: 
+ 143: 
+ 144: def _diag(g):
+ 145:     return any(abs(l["x2"] - l["x1"]) > 6 and abs(l["y2"] - l["y1"]) > 6
+ 146:                for l in g["lines"])
+ 147: 
+ 148: 
+ 149: def _vline(g):
+ 150:     return any(abs(l["x2"] - l["x1"]) < 1.5 and abs(l["y2"] - l["y1"]) > 20
+ 151:                for l in g["lines"])
+ 152: 
+ 153: 
+ 154: PROMISES = [
+ 155:     (r"\bdiagonal\b", "a diagonal", _diag),
+ 156:     (r"no effect line|line of no effect|null line|reference line",
+ 157:      "a reference/null line", lambda g: _vline(g) or _diag(g)),
+ 158:     (r"contour|pseudo-confidence|funnel band",
+ 159:      "contours or a pseudo-confidence funnel",
+ 160:      lambda g: g["polys"] >= 2 or sum(1 for l in g["lines"] if l["dash"]) >= 2),
+ 161:     (r"dashed line", "a dashed line",
+ 162:      lambda g: any(l["dash"] for l in g["lines"])),
+ 163: ]
+ 164: 
+ 165: 
+ 166: def audit(page):
+ 167:     renderer, figs = collect(page)
+ 168:     if renderer is None:
+ 169:         print("UNRECOGNISED PAGE STRUCTURE: no known figure container matched.")
+ 170:         print("Reported rather than swept, because sweeping raw <svg> is what "
+ 171:               "produced 65 false figures per page on the Plotly corpus.")
+ 172:         return 2
+ 173:     print("renderer: %s | figures: %d" % (renderer, len(figs)))
+ 174:     for f in figs:
+ 175:         f["_n"] = len(f["circles"] or f["rects"])
+ 176:         f["_sig"] = norm(f["circles"] or f["rects"])
+ 177:     coll = []
+ 178:     for i in range(len(figs)):
+ 179:         for j in range(i + 1, len(figs)):
+ 180:             a, b = figs[i], figs[j]
+ 181:             if a["_n"] >= 2 and a["_sig"] == b["_sig"]:
+ 182:                 coll.append((a["title"], b["title"], a["_n"]))
+ 183:     print("series collisions: %d" % len(coll))
+ 184:     for a, b, n in coll:
+ 185:         print("   - %s == %s (%d identical marks)" % (a[:34], b[:34], n))
+ 186:     # aria-label is an SSOT-side contract; Plotly does not emit one, so the
+ 187:     # check is scoped to the renderer that can satisfy it rather than failing
+ 188:     # every corpus page for a property its library never sets.
+ 189:     unl = []
+ 190:     if renderer == "ssot-svg":
+ 191:         unl = [f for f in figs if "(horizontal)" not in f["aria"]
+ 192:                and "rows" not in f["aria"] and "Forest" not in f["aria"]
+ 193:                and "not " not in f["aria"]]
+ 194:         print("figures whose aria-label does not name both axes: %d" % len(unl))
+ 195:         for f in unl:
+ 196:             print("   -", f["title"][:60])
+ 197:     broken = []
+ 198:     for f in figs:
+ 199:         low = ((f.get("caption") or "") + " " + (f.get("aria") or "")).lower()
+ 200:         for pat, what, pred in PROMISES:
+ 201:             if re.search(pat, low) and not pred(f["geom"]):
+ 202:                 broken.append((f["title"], what))
+ 203:     print("captions promising an undrawn element: %d" % len(broken))
+ 204:     for t, w in broken:
+ 205:         print("   - %s: caption names %s, none is drawn" % (t[:44], w))
+ 206:     json.dump(figs, open(os.path.splitext(os.path.abspath(page))[0]
+ 207:                          + ".figaudit.json", "w", encoding="utf-8"),
+ 208:               indent=1, default=str)
+ 209:     return 1 if (coll or unl or broken) else 0
+ 210: 
+ 211: 
+ 212: if __name__ == "__main__":
+ 213:     if "--selftest-structure" in sys.argv:
+ 214:         # The structural claim IS the check here: each renderer must be
+ 215:         # recognised as itself, and neither may be swept by the other's rules.
+ 216:         args = [a for a in sys.argv[1:] if not a.startswith("--")]
+ 217:         ok = True
+ 218:         for want, page in zip(("ssot-svg", "plotly"), args):
+ 219:             got, figs = collect(page)
+ 220:             good = got == want and 3 <= len(figs) <= 40
+ 221:             ok &= good
+ 222:             print("  %-46s renderer=%-10s figures=%-3d %s"
+ 223:                   % (os.path.basename(page)[:46], got, len(figs),
+ 224:                      "correct" if good else "WRONG (expected %s, 3..40)" % want))
+ 225:         print("\nstructure detection correct on both renderers:", ok)
+ 226:         raise SystemExit(0 if ok else 1)
+ 227:     raise SystemExit(audit(sys.argv[1]))
+
+codex
+Defects found:
+
+- **Selector keyed to form corpus does not use**: line 43.  
+  Input: `plotly.html` containing three copies of `<div class="chart-container"><h4>A</h4><div class="chart-desc">caption</div><svg width="100" height="100"><circle cx="10" cy="10" r="3"/></svg></div>`, then `python scripts/figure_audit.py plotly.html`.  
+  Consequence: the documented Plotly container `.chart-container` is not selected, so a valid corpus page is reported unrecognised.
+
+- **Idempotency guard satisfied by marker, not work**: line 193.  
+  Input: three SSOT cards whose SVGs use `aria-label="not labelled"`: `<div class="card"><h3>A</h3><svg width="100" height="100" aria-label="not labelled"><circle cx="10" cy="10" r="3"/></svg><p><small>x</small></p></div>`.  
+  Consequence: `"not "` makes the axis-label check pass even though neither axis is named.
+
+- **Negation dropped**: line 156.  
+  Input: SSOT card caption `<p><small>No reference line is drawn.</small></p>` with an SVG containing no line.  
+  Consequence: the audit treats a denial as a promise and reports a false missing-reference-line defect.
+
+- **Check can pass while incomplete**: line 218.  
+  Input: `python scripts/figure_audit.py --selftest-structure ssot.html`, where `ssot.html` is any recognised SSOT page with 3 figures.  
+  Consequence: `zip(("ssot-svg", "plotly"), args)` silently skips the Plotly half and can exit 0 while claiming both renderers were checked.
+
+No proven defect found in this packet for CRLF/LF text comparison, merged-cell/off-by-one tabulation, or wrapper status-code reporting.
+tokens used
+16,881
+Defects found:
+
+- **Selector keyed to form corpus does not use**: line 43.  
+  Input: `plotly.html` containing three copies of `<div class="chart-container"><h4>A</h4><div class="chart-desc">caption</div><svg width="100" height="100"><circle cx="10" cy="10" r="3"/></svg></div>`, then `python scripts/figure_audit.py plotly.html`.  
+  Consequence: the documented Plotly container `.chart-container` is not selected, so a valid corpus page is reported unrecognised.
+
+- **Idempotency guard satisfied by marker, not work**: line 193.  
+  Input: three SSOT cards whose SVGs use `aria-label="not labelled"`: `<div class="card"><h3>A</h3><svg width="100" height="100" aria-label="not labelled"><circle cx="10" cy="10" r="3"/></svg><p><small>x</small></p></div>`.  
+  Consequence: `"not "` makes the axis-label check pass even though neither axis is named.
+
+- **Negation dropped**: line 156.  
+  Input: SSOT card caption `<p><small>No reference line is drawn.</small></p>` with an SVG containing no line.  
+  Consequence: the audit treats a denial as a promise and reports a false missing-reference-line defect.
+
+- **Check can pass while incomplete**: line 218.  
+  Input: `python scripts/figure_audit.py --selftest-structure ssot.html`, where `ssot.html` is any recognised SSOT page with 3 figures.  
+  Consequence: `zip(("ssot-svg", "plotly"), args)` silently skips the Plotly half and can exit 0 while claiming both renderers were checked.
+
+No proven defect found in this packet for CRLF/LF text comparison, merged-cell/off-by-one tabulation, or wrapper status-code reporting.

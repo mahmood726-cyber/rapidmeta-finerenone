@@ -1,0 +1,240 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a0319d-592a-71e3-a7cc-132fc9f059df
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/every_rank_from_objects.py
+
+--- THE FILE, IN FULL ---
+"""EVERY-RANK READ, for pages whose trials live in the SSOT OBJECT, not a JS seed.
+
+The seed-based reader could not see 29 of cardiology's 53 pages, because the v1
+projector generation holds its trials in `inputs.trials[]` rather than in an embedded
+`AUTO_INCLUDE_TRIAL_IDS`. This reads those, so the section can be reported whole
+instead of as the 24-page subset the other method happened to be able to see.
+
+Same question, same rank coverage: does ANY contributing trial register a clinical
+endpoint at primary, secondary or other rank?
+"""
+from __future__ import annotations
+import io
+import json
+import os
+import re
+import sys
+import time
+import urllib.request
+
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+API = "https://clinicaltrials.gov/api/v2/studies/{}?format=json"
+CACHE = os.path.join(REPO, ".every-rank-cache.json")
+
+EFFICACY = re.compile(
+    r"incidence of|episode|infection|mortality|death|hospitali|cure|clearance|"
+    r"eradicat|relapse|recurren|treatment failure|viral load|suppress|acquisition|"
+    r"severe|symptomatic|confirmed case|parasit|culture conver|sputum|stroke|"
+    r"myocardial infarction|revasculari|amputation|dialysis|transplant|"
+    r"exacerbation|remission|progression|walk|worsening", re.I)
+NONCLINICAL = re.compile(
+    r"antibody|antibodies|titer|titre|immunogenic|seroconver|seroprotect|"
+    r"geometric mean|reactogenic|solicited|adverse event|tolerabilit|safety|"
+    r"pharmacokinet|concentration", re.I)
+DESIGNED = re.compile(
+    r"safety|immunogenic|tolerabilit|pharmacokinet|reactogenic|dose.finding|"
+    r"bioequivalence|dose.rang|open.label extension|extension study", re.I)
+
+cache = json.load(io.open(CACHE, encoding="utf-8")) if os.path.exists(CACHE) else {}
+
+
+def fetch(nct):
+    if nct in cache:
+        return cache[nct]
+    try:
+        req = urllib.request.Request(API.format(nct), headers={"User-Agent": "rm-obj"})
+        with urllib.request.urlopen(req, timeout=45) as r:
+            d = json.loads(r.read().decode("utf-8"))
+        ps = d.get("protocolSection") or {}
+        om = ps.get("outcomesModule") or {}
+        rec = {"title": (ps.get("identificationModule") or {}).get("briefTitle", ""),
+               "primary": [o.get("measure", "") for o in (om.get("primaryOutcomes") or [])],
+               "secondary": [o.get("measure", "") for o in (om.get("secondaryOutcomes") or [])],
+               "other": [o.get("measure", "") for o in (om.get("otherOutcomes") or [])]}
+    except Exception as e:
+        rec = {"error": str(e)[:40]}
+    cache[nct] = rec
+    time.sleep(0.07)
+    return rec
+
+
+def has_clinical(r):
+    for b in ("primary", "secondary", "other"):
+        for m in r.get(b) or []:
+            if EFFICACY.search(m or "") and not NONCLINICAL.search(m or ""):
+                return True
+    return False
+
+
+def main() -> int:
+    pm = json.load(io.open(os.path.join(REPO, "ssot", "PAGE_MAP.json"), encoding="utf-8"))
+    idx = io.open(os.path.join(REPO, "index.html"), encoding="utf-8",
+                  errors="replace").read()
+    a, b = idx.find('id="sp-cardiology"'), idx.find('id="sp-dermatology"')
+    seg = idx[a:b]
+    pages, seen = [], set()
+    for m in re.finditer(r'href="([A-Za-z0-9_]+\.html)"', seg):
+        p = m.group(1)
+        if p not in seen:
+            seen.add(p)
+            pages.append(p)
+
+    ALL, MIXED, FINE, NOOBJ = [], [], [], []
+    AUTO = re.compile(r"AUTO_INCLUDE_TRIAL_IDS")
+    for p in pages:
+        fp = os.path.join(REPO, p)
+        if not os.path.exists(fp) or os.path.getsize(fp) < 10000:
+            continue
+        html = io.open(fp, encoding="utf-8", errors="replace").read()
+        if AUTO.search(html):
+            continue                      # the other reader already covered these
+        obj_rel = pm.get(p)
+        if not obj_rel or not os.path.exists(os.path.join(REPO, obj_rel)):
+            NOOBJ.append(p)
+            continue
+        obj = json.load(io.open(os.path.join(REPO, obj_rel), encoding="utf-8"))
+        ncts = []
+        for t in ((obj.get("inputs") or {}).get("trials") or []):
+            n = t.get("nct") or t.get("registration")
+            if isinstance(n, str) and n.startswith("NCT"):
+                ncts.append(n)
+        ncts = sorted(set(ncts))
+        if not ncts:
+            NOOBJ.append(p)
+            continue
+        with_, without, designed = [], [], []
+        for n in ncts:
+            r = fetch(n)
+            if r.get("error"):
+                continue
+            if has_clinical(r):
+                with_.append(n)
+            else:
+                without.append(n)
+                if DESIGNED.search(r.get("title", "")):
+                    designed.append(n)
+        json.dump(cache, io.open(CACHE, "w", encoding="utf-8"), ensure_ascii=False)
+        if not without:
+            FINE.append(p)
+        elif not with_:
+            ALL.append((p, len(ncts), len(designed)))
+            print("ALL    %-50s k=%-2d  designed non-clinical: %d"
+                  % (p[:49], len(ncts), len(designed)))
+        else:
+            MIXED.append((p, len(with_), len(without), len(designed)))
+            print("MIXED  %-50s %d with / %d without  (designed: %d)"
+                  % (p[:49], len(with_), len(without), len(designed)))
+
+    n = len(ALL) + len(MIXED) + len(FINE) + len(NOOBJ)
+    print()
+    print("=" * 92)
+    print("OBJECT-BASED READ -- the cardiology pages the seed reader could not see")
+    print("=" * 92)
+    print("  pages read from objects            : %d" % n)
+    print("  ALL trials register no clinical    : %d" % len(ALL))
+    print("  MIXED                              : %d" % len(MIXED))
+    print("  every trial registers one          : %d" % len(FINE))
+    print("  object has no usable registration  : %d" % len(NOOBJ))
+    for p in NOOBJ:
+        print("      %s" % p)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+
+codex
+I’m doing this as a defect read against the pasted packet only, so I’m treating external files/callers as inputs only where the module itself names them.
+codex
+Defects found:
+
+- Line 77: input `index.html='<html><a href="x.html">x</a></html>'`, `ssot/PAGE_MAP.json={}`. Consequence: both anchors are absent, `seg` becomes empty, and line 143 returns success after a zero-page audit.
+
+- Line 79: input cardiology segment `<a href="heart-failure.html">HF</a>`. Consequence: the selector rejects hyphenated page names, so that page is invisible to the count.
+
+- Line 92: input page HTML `<!-- AUTO_INCLUDE_TRIAL_IDS removed from seed -->` padded past 10000 bytes, with no actual seed array. Consequence: the guard is satisfied by its own marker text and skips a page the object reader should inspect.
+
+- Line 89: input indexed page `x.html` of 9999 bytes with valid `PAGE_MAP["x.html"]` and a valid object. Consequence: the page is silently dropped from all buckets, so the denominator excludes an audited target.
+
+- Line 101: input object `{"inputs":{"trials":[{"nct":"unknown","registration":"NCT12345678"}]}}`. Consequence: the invalid nonempty `nct` field shadows the valid `registration`, causing a real trial ID to be discarded.
+
+- Lines 111 and 120: input cache `{"NCT00000001":{"error":"timeout"}}` and object `{"inputs":{"trials":[{"nct":"NCT00000001"}]}}`. Consequence: a total fetch failure leaves `without=[]`, so the page is classified as `FINE`.
+
+- Line 123: input cache `{"NCT1":{"title":"","primary":["Antibody titer"],"secondary":[],"other":[]},"NCT2":{"error":"timeout"}}` and object containing both IDs. Consequence: it reports `ALL ... k=2` although only one trial was actually classified.
+
+- Lines 27-32: input `has_clinical({"primary":["Overall survival"],"secondary":[],"other":[]})`. Consequence: a standard clinical endpoint is missed because the efficacy selector lacks `survival`.
+
+No finding from this packet alone: CRLF/LF text comparison, merged-cell handling, or worktree-vs-HEAD-vs-served copy mismatch.
+tokens used
+12,229
+Defects found:
+
+- Line 77: input `index.html='<html><a href="x.html">x</a></html>'`, `ssot/PAGE_MAP.json={}`. Consequence: both anchors are absent, `seg` becomes empty, and line 143 returns success after a zero-page audit.
+
+- Line 79: input cardiology segment `<a href="heart-failure.html">HF</a>`. Consequence: the selector rejects hyphenated page names, so that page is invisible to the count.
+
+- Line 92: input page HTML `<!-- AUTO_INCLUDE_TRIAL_IDS removed from seed -->` padded past 10000 bytes, with no actual seed array. Consequence: the guard is satisfied by its own marker text and skips a page the object reader should inspect.
+
+- Line 89: input indexed page `x.html` of 9999 bytes with valid `PAGE_MAP["x.html"]` and a valid object. Consequence: the page is silently dropped from all buckets, so the denominator excludes an audited target.
+
+- Line 101: input object `{"inputs":{"trials":[{"nct":"unknown","registration":"NCT12345678"}]}}`. Consequence: the invalid nonempty `nct` field shadows the valid `registration`, causing a real trial ID to be discarded.
+
+- Lines 111 and 120: input cache `{"NCT00000001":{"error":"timeout"}}` and object `{"inputs":{"trials":[{"nct":"NCT00000001"}]}}`. Consequence: a total fetch failure leaves `without=[]`, so the page is classified as `FINE`.
+
+- Line 123: input cache `{"NCT1":{"title":"","primary":["Antibody titer"],"secondary":[],"other":[]},"NCT2":{"error":"timeout"}}` and object containing both IDs. Consequence: it reports `ALL ... k=2` although only one trial was actually classified.
+
+- Lines 27-32: input `has_clinical({"primary":["Overall survival"],"secondary":[],"other":[]})`. Consequence: a standard clinical endpoint is missed because the efficacy selector lacks `survival`.
+
+No finding from this packet alone: CRLF/LF text comparison, merged-cell handling, or worktree-vs-HEAD-vs-served copy mismatch.

@@ -1,0 +1,319 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/lint_arm_roles_contradict_the_object.py
+
+--- THE FILE, IN FULL ---
+"""Arm roles that the object's OWN other fields contradict. No registration needed.
+
+`attr-pn-review` records inotersen as NEURO-TTRansform's treatment arm and eplontersen as
+its control, which the registration reverses. Establishing THAT required reading
+NCT04136184, and reading a registration per trial does not scale to a corpus.
+
+THIS FILE ASKS ONLY WHAT THE OBJECT CAN ANSWER ABOUT ITSELF. Every finding here is provable
+from two fields of the same object disagreeing, which is why none of them is a judgement
+call and none of them needs a source outside the repository.
+
+    A  A TREATMENT ARM WHOSE LABEL IS A PLACEBO.
+       `evolocumab-mixed-dyslipidemia-auto-full-review`, HUA TUO (NCT03433755):
+           treatment  "Placebo Q2W"
+           control    "Evolocumab 420 mg QM"
+       A placebo is not an intervention. The roles are inverted, and if the effect was
+       stored in the direction the roles imply, ITS SIGN IS INVERTED TOO.
+
+    B  A TRIAL NAME THAT NAMES A COMPARATOR THE ARMS DO NOT.
+       `rosuvastatin-auto-full-review`, HOPE-3 (NCT00468923):
+           name       "HOPE-3 (rosuvastatin 10 mg vs placebo)"
+           control    "Candesartan/HCT"
+       HOPE-3 was 2x2 factorial and the arm recorded is the ANTIHYPERTENSIVE factor, not
+       the lipid one. The object's own name says which comparison it meant.
+       `hepatitis-b-taf-tdf-review`, both trials:
+           name       "GS-US-320-0108 (TAF vs TDF, HBeAg-negative)"
+           control    "Open-label TAF"
+       TDF appears nowhere in either row. A pool described as TAF against TDF is recorded
+       as TAF against TAF.
+
+    C  BOTH ARMS NAMING THE SAME AGENT WITH NO PLACEBO ANYWHERE.
+       `netarsudil-ocular-hypertension-auto-full-review`, ROCKET-2 (NCT02207621):
+           treatment  "AR-13324 Ophthalmic Solution 0.02% & pla"
+           control    "AR-13324 Ophthalmic Solution 0.02% BID"
+       A dose-or-schedule contrast sitting beside two netarsudil-against-timolol rows. The
+       treatment label is also truncated mid-word, which is its own defect.
+
+WHAT THIS FILE DOES NOT DO. It does not correct anything. A role swap changes what the
+object says a trial DID, and on two of these topics the stored effect's sign depends on the
+roles. Correcting from inference is the error `attr-pn` was written up to avoid: there the
+labels looked obvious from the drug names and the registration turned out to say something
+sharper still -- that the stored value was not the randomised contrast at all.
+
+IT ALSO REPORTS THREE STATES, NOT TWO. A trial with no arms is UNREAD, not clean; 241
+contributing trials across the corpus carry none.
+"""
+import io
+import json
+import os
+import re
+import sys
+import glob
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+# C ROUTES THROUGH THE SAME DRUG RECOGNISER AS audit_mixed_contrast_pools RATHER THAN
+# THROUGH BARE WORD OVERLAP. Word overlap flagged three `intensive-bp-review` rows on the
+# shared token "BP" -- "Intensive BP control" against "Standard BP control" is a STRATEGY
+# contrast, correctly labelled, and calling it a mislabelled drug row is an accusation in
+# the wrong direction. A shared token has to be a DRUG for C to mean anything.
+from audit_mixed_contrast_pools import real_tokens as drug_tokens
+from audit_mixed_contrast_pools import CARE
+
+PLACEBO = re.compile(r"placebo|saline|sham|vehicle|alum-only|dummy", re.I)
+# "X vs Y" or "X versus Y" inside a trial name.
+VS = re.compile(r"\b(?:vs\.?|versus)\s+([a-z0-9][a-z0-9 /+-]{2,40})", re.I)
+WORD = re.compile(r"[a-z][a-z0-9-]{1,}", re.I)
+
+STOP = set(["placebo", "control", "comparator", "group", "arm", "arms", "dose", "daily",
+            "twice", "once", "with", "plus", "alone", "usual", "care", "standard", "open",
+            "label", "solution", "ophthalmic", "week", "weeks", "month", "months",
+            "matching", "treatment", "therapy", "intensive", "mg", "g", "of", "the", "and",
+            "or", "in", "vs", "versus", "bid", "qd", "qm", "q2w", "ow", "sc", "iv", "po",
+            "study", "trial", "phase", "high", "low", "target"])
+
+
+def words(text):
+    return set(w.lower() for w in WORD.findall(text or "") if w.lower() not in STOP)
+
+
+BASELINE = os.path.join(REPO, "scripts", "baselines", "arm_role_contradiction_baseline.json")
+
+
+def ratchet(hits, gate, write_if_missing=True):
+    """The ten known contradictions are recorded. A NEW one refuses.
+
+    NOT A CLEARANCE. Every entry is a defect that is still there -- FOURIER's swapped arms
+    still carry their counts, icosapent's arms table still tells a reader the treatment was
+    placebo. The baseline says only that they are SEEN, and correcting them is a
+    published-number decision. What the ratchet buys is that the eleventh is caught when it
+    is written rather than three weeks later.
+    """
+    present = sorted(hits)
+    if not os.path.exists(BASELINE):
+        if not write_if_missing:
+            return []
+        os.makedirs(os.path.dirname(BASELINE), exist_ok=True)
+        json.dump({"written": "2026-08-20",
+                   "not_a_clearance": (
+                       "Each entry is a live defect, recorded as SEEN and not as resolved. "
+                       "Correcting an arm role is a published-number decision."),
+                   "contradictions": present},
+                  io.open(BASELINE, "w", encoding="utf-8", newline=chr(10)), indent=1,
+                  ensure_ascii=False)
+        print("wrote baseline %s with %d contradictions" % (BASELINE, len(present)))
+        return []
+    known = set(json.load(io.open(BASELINE, encoding="utf-8")).get("contradictions") or [])
+    new = sorted(set(present) - known)
+    healed = sorted(known - set(present))
+    if healed:
+        print("%d baselined contradiction(s) are gone: %s" % (len(healed), ", ".join(healed)))
+    if new:
+        print("")
+        print("REFUSED: %d NEW arm-role contradiction(s) an object states against itself:"
+              % len(new))
+        for k in new:
+            print("    %s" % k)
+        print("")
+        print("Establish the contrast from the REGISTRATION before changing anything -- "
+              "attr-pn's")
+        print("roles looked obvious from the drug names and the registration said something")
+        print("sharper. If the row is correct as it stands, baseline it with a reason.")
+        if gate:
+            sys.exit(1)
+    else:
+        print("NO NEW ARM-ROLE CONTRADICTION. The baseline has not risen.")
+    return new
+
+
+def prove():
+    """A contradiction absent from the baseline must come back NEW."""
+    hits = collect()
+    fake = "PROOF/NCT00000000/A"
+    if fake not in ratchet(hits + [fake], gate=False, write_if_missing=False):
+        sys.exit("PROOF FAILED: an unbaselined contradiction was not reported as new. The "
+                 "ratchet cannot rise and is decorative.")
+    if ratchet(hits, gate=False, write_if_missing=False):
+        sys.exit("PROOF FAILED: the corpus as it stands reports new contradictions, so the "
+                 "baseline does not describe the corpus it was written from.")
+    print("PROOF PASSED: an unbaselined arm-role contradiction is reported NEW, and the")
+    print("corpus as it stands reports none.")
+
+
+def scan():
+    a_hits, b_hits, c_hits = [], [], []
+    trials_seen = 0
+    trials_unread = 0
+    topics = 0
+
+    for path in sorted(glob.glob(os.path.join(REPO, "ssot", "*", "*.json"))):
+        topic = os.path.basename(os.path.dirname(path))
+        if os.path.basename(path) != topic + ".json":
+            continue
+        try:
+            obj = json.load(io.open(path, encoding="utf-8"))
+        except Exception:
+            continue
+        trials = (obj.get("inputs") or {}).get("trials")
+        if not isinstance(trials, list):
+            continue
+        topics += 1
+        for t in trials:
+            nct = t.get("nct") or t.get("trial_id") or t.get("id") or "?"
+            name = str(t.get("name") or "")
+            arms = t.get("arms") or []
+            if not arms:
+                trials_unread += 1
+                continue
+            trials_seen += 1
+            treats = [str(a.get("label") or "") for a in arms
+                      if a.get("role") == "treatment"]
+            ctrls = [str(a.get("label") or "") for a in arms if a.get("role") == "control"]
+            if not treats or not ctrls:
+                trials_unread += 1
+                continue
+
+            # A -- a treatment arm that is a placebo, and a control arm that is not.
+            for lab in treats:
+                if PLACEBO.search(lab) and not any(PLACEBO.search(c) for c in ctrls):
+                    a_hits.append((topic, nct, lab, " / ".join(ctrls)))
+
+            # B -- the name names a comparator the control arm does not carry.
+            for m in VS.finditer(name):
+                have = set()
+                for c in ctrls:
+                    have |= words(c)
+                if PLACEBO.search(m.group(1)):
+                    # The name says the comparator was a placebo.
+                    if any(PLACEBO.search(c) for c in ctrls):
+                        continue
+                    b_hits.append((topic, nct, name, " / ".join(ctrls),
+                                   "a placebo, and no control arm is one"))
+                    break
+                named = words(m.group(1))
+                if not named:
+                    continue
+                if not (named & have):
+                    b_hits.append((topic, nct, name, " / ".join(ctrls),
+                                   ", ".join(sorted(named))))
+                    break
+
+            # C -- both arms name the same agent and nothing is a placebo.
+            if any(PLACEBO.search(x) for x in treats + ctrls):
+                continue
+            # A DECLARED STRATEGY CONTRAST IS NOT A MISLABELLING. cryptococcal-meningitis's
+            # COAT row gives both arms antiretroviral therapy and says so in the label --
+            # "started four weeks after randomisation ... the trial's control strategy".
+            # The shared drug is the POINT of that comparison, not evidence against it.
+            if any(CARE.search(c) for c in ctrls):
+                continue
+            shared = set()
+            for c in ctrls:
+                for tr in treats:
+                    shared |= (drug_tokens(c)[0] & drug_tokens(tr)[0])
+            if shared:
+                cs = set()
+                for c in ctrls:
+                    cs |= drug_tokens(c)[0]
+                if cs and cs <= shared:
+                    c_hits.append((topic, nct, " / ".join(treats), " / ".join(ctrls),
+                                   ", ".join(sorted(shared))))
+
+    return a_hits, b_hits, c_hits, topics, trials_seen, trials_unread
+
+
+def collect():
+    """Stable keys for the ratchet: topic/nct/class."""
+    a, b, c, _t, _s, _u = scan()
+    keys = ["%s/%s/A" % (h[0], h[1]) for h in a]
+    keys += ["%s/%s/B" % (h[0], h[1]) for h in b]
+    keys += ["%s/%s/C" % (h[0], h[1]) for h in c]
+    return sorted(keys)
+
+
+def main():
+    verbose = "--verbose" in sys.argv
+    a_hits, b_hits, c_hits, topics, trials_seen, trials_unread = scan()
+
+    print("ARM ROLES CONTRADICTED BY THE OBJECT'S OWN FIELDS")
+    print("%d topics, %d trials with both roles readable, %d UNREAD (no arms or one role "
+          "only)" % (topics, trials_seen, trials_unread))
+    print("UNREAD IS NOT CLEAN. Nothing below was asked of those %d." % trials_unread)
+
+    print("")
+    print("A -- A TREATMENT ARM WHOSE LABEL IS A PLACEBO (%d)" % len(a_hits))
+    print("    A placebo is not an intervention. If the effect was stored in the direction")
+    print("    these roles imply, its SIGN IS INVERTED.")
+    for topic, nct, lab, ctrl in a_hits:
+        print("    %s  %s" % (topic, nct))
+        print("        treatment %r  control %r" % (lab, ctrl))
+
+    print("")
+    print("B -- THE TRIAL NAME NAMES A COMPARATOR THE CONTROL ARM DOES NOT (%d)"
+          % len(b_hits))
+    for topic, nct, name, ctrl, named in b_hits:
+        print("    %s  %s" % (topic, nct))
+        print("        name    %r" % name)
+        print("        control %r  -- the name says %s" % (ctrl, named))
+
+    print("")
+    print("C -- BOTH ARMS NAME THE SAME AGENT AND NEITHER IS A PLACEBO (%d)" % len(c_hits))
+    print("    A dose, schedule or duration contrast -- or a mislabelling. Either way it is")
+    print("    not a drug-against-comparator row and must not be pooled with ones that are.")
+    for topic, nct, tr, ctrl, shared in c_hits:
+        print("    %s  %s   [%s in both]" % (topic, nct, shared))
+        print("        treatment %r" % tr)
+        print("        control   %r" % ctrl)
+
+    total = len(a_hits) + len(b_hits) + len(c_hits)
+    print("")
+    print("%d contradictions across %d readable trials. NOTHING IS CORRECTED HERE -- a role "
+          "swap" % (total, trials_seen))
+    print("changes what the object says a trial did, and on the sign-bearing ones that is a")
+    print("published-number decision.")
+
+
+if __name__ == "__main__":
+    if "--prove" in sys.argv:
+        prove()
+    else:
+        main()
+        ratchet(collect(), gate="--gate" in sys.argv)

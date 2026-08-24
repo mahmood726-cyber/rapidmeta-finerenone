@@ -1,0 +1,865 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a031e3-cb99-7a31-a3a8-e8b94e64b23c
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/k_consistency_gate.py
+
+--- THE FILE, IN FULL ---
+"""Every derived panel must be computed at the same k as the headline it sits beside.
+
+WHY THIS EXISTS, and it is not hypothetical. On 2026-08-13 ANSWER-HF entered the
+ARNI pool and the headline became k=4. The entire `panels` block -- its own `fit`,
+leave-one-out, cumulative, influence, Baujat, Galbraith, funnel, Egger, the
+prediction interval and the tau-squared interval -- stayed at k=3, and so did
+`count_panels`. The page therefore showed a four-trial forest plot directly above
+a three-row leave-one-out, and a prediction interval computed from three trials
+under a four-trial pooled estimate. Nothing failed. Every number was individually
+correct; they were correct about different pools.
+
+The interpretation moved too, which is what makes this severe rather than untidy:
+at k=3 the pooled interval excluded no difference and at k=4 it does not. The
+Discussion still said "the interval excludes the null" while the Conclusions of
+the same manuscript said "consistent with no difference".
+
+THE INVARIANT: for each outcome, every block that carries a k, or a row-per-trial
+list, agrees with the number of contributing trials in `per_trial`. A block that
+is deliberately behind must say so in a `_STALE` field -- then it is a stated
+limitation rather than a silent disagreement.
+
+Usage:  python scripts/k_consistency_gate.py <object.json> [more.json ...]
+        python scripts/k_consistency_gate.py --selftest
+"""
+import io
+import json
+import re
+import sys
+
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+# Panels whose length must equal k (one row per contributing trial).
+ROW_PER_TRIAL = ("leave_one_out", "cumulative", "influence", "baujat",
+                 "galbraith", "funnel")
+
+# ---------------------------------------------------------------- textual k
+# The numeric half of this gate reconciled object FIELDS and passed while the
+# TITLE said "the three randomised trials" over a k=4 pool. k is written as a
+# word in a phrase far more often than it is stored as a number, so the field
+# check could never have caught it. Mahmood caught it by opening the file and
+# reading the first line.
+#
+# The hard part is precision, not recall. "three" appears all over legitimate
+# prose -- three GRADE domains, three scales, three protocol commits -- and a
+# gate that fires on all of them is a regression of its own. Two rules keep it
+# tight:
+#   1. Only phrases where a study noun follows the number are considered.
+#   2. Of those, only WHOLE-REVIEW assertions are enforced. A subset phrase
+#      ("the three REMAINING trials", "the two SMALLER trials", "one trial
+#      carries the weight") is a claim about part of the pool and is reported
+#      for review, never failed, because its correct value is not k.
+NUMWORDS = {"one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6,
+            "seven": 7, "eight": 8, "nine": 9, "ten": 10, "eleven": 11,
+            "twelve": 12}
+_NUM = r"(?:\d{1,3}|" + "|".join(NUMWORDS) + r")"
+# Qualifiers that make the phrase a SUBSET of the pool, not the pool itself.
+SUBSET = (r"remaining|smaller|larger|largest|further|subsequent|other|later|"
+          r"earlier|single|excluded|screened|retrieved|ineligible|additional|"
+          r"pivotal|index|new|prior|previous")
+# Qualifiers that make it an assertion about the review's own size.
+WHOLE = (r"randomised|randomized|included|eligible|contributing|pooled|"
+         r"analysed|analyzed")
+_NOUN = r"(?:trials?|studies|study|randomisations?|randomizations?|RCTs?)"
+# A number belonging to a PRECEDING noun is not a count: "both phase 3 trials",
+# "a phase 2 randomized trial", "stage 3 studies". The first cut of this gate
+# flagged three otherwise-clean objects in the corpus on exactly that, which is
+# the over-loose-word-match regression this gate must not become.
+# A number introduced by a comparison word is a THRESHOLD, not a count of this
+# review's studies: "below about ten studies", "fewer than five trials", "at
+# least two randomised trials". The Handbook's ten-study rule for funnel
+# asymmetry is quoted in our own Results, and the gate flagged it as a claim
+# that we pooled ten trials. Standard methodological phrasing, so this will
+# recur across every page in the corpus.
+_NOT_A_COUNT = (r"(?<!phase )(?<!stage )(?<!grade )(?<!class )(?<!step )"
+                r"(?<!type )(?<!tier )(?<!arm )(?<!about )(?<!below )"
+                r"(?<!under )(?<!over )(?<!least )(?<!than )(?<!approximately )")
+K_ASSERT = re.compile(
+    _NOT_A_COUNT + r"\b(" + _NUM + r")\s+(?:(" + WHOLE + r")\s+)?("
+    + _NOUN + r")\b", re.I)
+K_SUBSET = re.compile(
+    r"\b(" + _NUM + r")\s+(?:(" + SUBSET + r")\s+)", re.I)
+
+# Paths whose strings are NOT this review speaking: other papers' titles, quoted
+# assessor rationales, handbook section text, and the correction log, which
+# records superseded claims verbatim and must keep saying what it used to say.
+EXCLUDE = (".screening.corpus", ".screening.dual_screening", ".sources",
+           ".rob2", ".methodological_authority", ".claims_corrected",
+           ".citations", ".reconciliation", ".registration", ".protocol",
+           ".prisma_items", ".count_recovery", ".attestations",
+           ".eligible_but_not_contributing", ".outcomes_considered",
+           # The comparison section quotes ANOTHER review verbatim -- "A total of
+           # nine studies", "1,066 studies" -- and those counts are theirs, not
+           # ours. Reconciling them against our k would demand we misquote the
+           # paper we are auditing. The R blocks are captured metafor output and
+           # print their own k, which is checked separately and far more strictly
+           # by the agreement gate in add_r_output.py.
+           # Exempted DELIBERATELY: both were already passing by accident of the
+           # bare-noun rule, and an exemption that holds by accident stops holding
+           # the moment someone writes "nine included trials" in one of them.
+           ".published_comparison", ".r_output",
+           ".results.by_outcome.cvdeath_or_hfh_first.r_output")
+# Strings that deliberately narrate the k change itself.
+HISTORY = ("_stale", "recomputed", "superseded", "k=3", "k = 3", "at k=3")
+
+
+def _num(tok):
+    tok = tok.lower()
+    return NUMWORDS.get(tok) or (int(tok) if tok.isdigit() else None)
+
+
+def textual_k_problems(strings, k):
+    """strings: iterable of (location, text). Returns (failures, for_review)."""
+    fails, review = [], []
+    for loc, txt in strings:
+        # startswith is not enough: r_output is nested under the outcome, so the
+        # path is .results.by_outcome.<id>.r_output and no prefix would match it.
+        if any(p in loc for p in EXCLUDE):
+            continue
+        low = (txt or "").lower()
+        if any(h in low for h in HISTORY):
+            continue
+        for m in K_ASSERT.finditer(txt or ""):
+            v = _num(m.group(1))
+            if v is None:
+                continue
+            # A subset phrase starting at the same number is not a k assertion.
+            seg = txt[m.start():m.start() + 60]
+            if K_SUBSET.match(seg):
+                if v != k:
+                    review.append((loc, m.group(0).strip(), v))
+                continue
+            # "one trial carries most of the weight", "rests on any one trial",
+            # "a discrepancy in one trial" -- singular emphasis, which is how a
+            # dominant-study argument is written, not a claim that the review
+            # contains one study. This is what the first cut of the negative
+            # self-test caught: the gate failed a document whose every count was
+            # correct, which is a regression in its own right.
+            noun = (m.group(3) or "").lower()
+            if v == 1 and not noun.endswith("s"):
+                continue
+            if not m.group(2):
+                # Bare "three trials" -- only enforced where the review states
+                # its own scope. Elsewhere it is usually about someone else's.
+                if not any(s in loc for s in (".title", ".question",
+                                              ".manuscript", "definition_note",
+                                              "decision_under_test",
+                                              "::<title>", "::h1")):
+                    continue
+            if v != k:
+                fails.append((loc, m.group(0).strip(), v))
+    return fails, review
+
+
+def check_outcome(oid, res):
+    """Returns a list of problem strings. Empty means consistent."""
+    bad = []
+    per = res.get("per_trial") or []
+    k = res.get("k") or len(per)
+    if not k:
+        return bad
+
+    pan = res.get("panels") or {}
+    stale = bool(pan.get("_STALE"))
+    fit = pan.get("fit") or {}
+    if fit.get("k") is not None and fit["k"] != k and not stale:
+        bad.append("%s: panels.fit.k=%s but the outcome has k=%s"
+                   % (oid, fit["k"], k))
+    for name in ROW_PER_TRIAL:
+        rows = pan.get(name)
+        if isinstance(rows, list) and rows and len(rows) != k and not stale:
+            bad.append("%s: panels.%s has %d rows for k=%s"
+                       % (oid, name, len(rows), k))
+
+    cp = res.get("count_panels") or {}
+    cstale = bool(cp.get("_STALE"))
+    for meas in ("rr", "or", "rd"):
+        m = cp.get(meas)
+        if isinstance(m, dict) and m.get("k") is not None and m["k"] != k \
+                and not cstale:
+            bad.append("%s: count_panels.%s.k=%s but the outcome has k=%s"
+                       % (oid, meas, m["k"], k))
+
+    # The pooled interval and the prose must agree about the null. This is the
+    # part that changes a reader's conclusion rather than a figure's row count.
+    p = res.get("pooled") or {}
+    lo, hi = p.get("ci_low"), p.get("ci_high")
+    null = 1.0
+    if lo is not None and hi is not None:
+        includes = lo <= null <= hi
+        blob = json.dumps(res.get("_prose", "")) if res.get("_prose") else ""
+        if includes and "excludes the null" in blob:
+            bad.append("%s: pooled interval %s-%s contains the null but the "
+                       "prose says it excludes it" % (oid, lo, hi))
+    return bad
+
+
+def check_object(path):
+    d = json.load(open(path, encoding="utf-8"))
+    bad = []
+    for oid, res in ((d.get("results") or {}).get("by_outcome") or {}).items():
+        bad += check_outcome(oid, res)
+    # The manuscript is prose ABOUT the pool, so it is checked against the pool.
+    ms = json.dumps(d.get("manuscript") or {}, ensure_ascii=False)
+    for oid, res in ((d.get("results") or {}).get("by_outcome") or {}).items():
+        p = res.get("pooled") or {}
+        lo, hi = p.get("ci_low"), p.get("ci_high")
+        if lo is not None and hi is not None and lo <= 1.0 <= hi \
+                and "excludes the null" in ms:
+            bad.append("%s: pooled interval %.4g-%.4g contains the null but the "
+                       "manuscript says it excludes it" % (oid, lo, hi))
+        break
+
+    # Textual k, across every string this review speaks in its own voice.
+    k = None
+    for _oid, res in ((d.get("results") or {}).get("by_outcome") or {}).items():
+        k = res.get("k") or len(res.get("per_trial") or [])
+        break
+    if k:
+        fails, _rev = textual_k_problems(walk_strings(d), k)
+        for loc, frag, v in fails:
+            bad.append("%s states %r (k=%s) but the pool has k=%d"
+                       % (loc, frag, v, k))
+    return bad
+
+
+def walk_strings(o, path=""):
+    if isinstance(o, dict):
+        for kk, v in o.items():
+            yield from walk_strings(v, path + "." + str(kk))
+    elif isinstance(o, list):
+        for i, v in enumerate(o):
+            yield from walk_strings(v, path + "[%d]" % i)
+    elif isinstance(o, str):
+        yield path, o
+
+
+def selftest():
+    """A gate that cannot fail is not a gate. These must all be CAUGHT."""
+    cases = [
+        ("panels stale at k=3 under a k=4 pool",
+         {"results": {"by_outcome": {"o": {
+             "k": 4, "per_trial": [1, 2, 3, 4],
+             "pooled": {"ci_low": 0.7, "ci_high": 1.02},
+             "panels": {"fit": {"k": 3},
+                        "leave_one_out": [1, 2, 3]}}}}}, True),
+        ("count_panels stale at k=3",
+         {"results": {"by_outcome": {"o": {
+             "k": 4, "per_trial": [1, 2, 3, 4],
+             "pooled": {"ci_low": 0.7, "ci_high": 1.02},
+             "count_panels": {"rr": {"k": 3}}}}}}, True),
+        ("prose says excludes-null while the interval contains it",
+         {"results": {"by_outcome": {"o": {
+             "k": 2, "per_trial": [1, 2],
+             "pooled": {"ci_low": 0.7, "ci_high": 1.02}, "panels": {}}}},
+          "manuscript": {"d": "the interval excludes the null"}}, True),
+        ("consistent object",
+         {"results": {"by_outcome": {"o": {
+             "k": 4, "per_trial": [1, 2, 3, 4],
+             "pooled": {"ci_low": 0.7, "ci_high": 1.02},
+             "panels": {"fit": {"k": 4}, "leave_one_out": [1, 2, 3, 4]}}}},
+          "manuscript": {"d": "the interval contains the null"}}, False),
+        ("stale but DECLARED -- a stated limitation, not a silent one",
+         {"results": {"by_outcome": {"o": {
+             "k": 4, "per_trial": [1, 2, 3, 4],
+             "pooled": {"ci_low": 0.7, "ci_high": 1.02},
+             "panels": {"_STALE": "computed at k=3, recorded",
+                        "fit": {"k": 3}, "leave_one_out": [1, 2, 3]}}}}}, False),
+
+        # --- textual k. The positive is the REAL title that shipped. ---------
+        ("POSITIVE: the actual title that shipped saying three over a k=4 pool",
+         {"title": "Sacubitril/valsartan against enalapril in heart failure "
+                   "with reduced ejection fraction: the three randomised "
+                   "trials that report cardiovascular death or heart failure "
+                   "hospitalization as a time-to-first hazard ratio",
+          "results": {"by_outcome": {"o": {"k": 4, "per_trial": [1, 2, 3, 4],
+                                           "pooled": {"ci_low": .7, "ci_high": 1.02}}}}},
+         True),
+        ("POSITIVE: digits rather than a number-word",
+         {"title": "a pooled analysis of 3 randomised trials",
+          "results": {"by_outcome": {"o": {"k": 4, "per_trial": [1, 2, 3, 4],
+                                           "pooled": {"ci_low": .7, "ci_high": 1.02}}}}},
+         True),
+        # --- THE NEGATIVE. This is the criterion that keeps getting skipped: a
+        # gate that fires on correct prose is its own regression. Everything
+        # here is TRUE at k=4 and must not be flagged: the corrected title, a
+        # subset phrase, a singular emphasis, and unrelated counts of things
+        # that are not trials.
+        ("NEGATIVE: corrected title + subsets + unrelated threes must all PASS",
+         {"title": "the four randomised trials that report the composite",
+          "manuscript": {
+              "a": "The three smaller trials are individually compatible with "
+                   "no effect, and one trial carries most of the weight.",
+              "b": "Omitting the largest leaves three remaining trials.",
+              "c": "Three protocol commits are recorded, and the same 2x2 is "
+                   "shown on three scales across three GRADE domains.",
+              "d": "the interval contains the null"},
+          "results": {"by_outcome": {"o": {"k": 4, "per_trial": [1, 2, 3, 4],
+                                           "pooled": {"ci_low": .7, "ci_high": 1.02}}}}},
+         False),
+        ("NEGATIVE: 'below about ten studies' is a threshold, not a count",
+         {"title": "the four randomised trials that report the composite",
+          "manuscript": {"a": "the Handbook advises against interpreting these "
+                              "tests below about ten studies, and with fewer "
+                              "than five trials the test has no power"},
+          "results": {"by_outcome": {"o": {
+              "k": 4, "per_trial": [1, 2, 3, 4],
+              "pooled": {"ci_low": .7, "ci_high": 1.02}}}}}, False),
+        ("NEGATIVE: 'both phase 3 trials' is a phase, not a count",
+         {"title": "both phase 3 trials, reported as incidence rate ratios",
+          "question": "In the two phase 3 trials that supported approval",
+          "results": {"by_outcome": {"o": {
+              "k": 2, "per_trial": [1, 2],
+              "pooled": {"ci_low": .7, "ci_high": 1.02}}}}}, False),
+        ("NEGATIVE: another paper's title in the screening corpus is not ours",
+         {"title": "the four randomised trials that report the composite",
+          "screening": {"corpus": [{"title": "A meta-analysis of 6 randomized "
+                                             "trials in heart failure"}]},
+          "results": {"by_outcome": {"o": {"k": 4, "per_trial": [1, 2, 3, 4],
+                                           "pooled": {"ci_low": .7, "ci_high": 1.02}}}}},
+         False),
+    ]
+    ok = True
+    print("=== the gate must FAIL on a silent k mismatch, and PASS otherwise ===")
+    import tempfile
+    import os
+    for name, obj, expect_fail in cases:
+        fd, p = tempfile.mkstemp(suffix=".json")
+        os.close(fd)
+        json.dump(obj, open(p, "w", encoding="utf-8"))
+        got = bool(check_object(p))
+        os.unlink(p)
+        good = got == expect_fail
+        ok &= good
+        print("  %-52s %s expected=%s %s"
+              % (name, "FAIL" if got else "PASS",
+                 "FAIL" if expect_fail else "PASS",
+                 "correct" if good else "WRONG"))
+    print("\nk-consistency gate proved able to fail on every silent mismatch:", ok)
+    return 0 if ok else 1
+
+
+if __name__ == "__main__":
+    if "--selftest" in sys.argv:
+        raise SystemExit(selftest())
+    paths = [a for a in sys.argv[1:] if not a.startswith("-")]
+    if not paths:
+        raise SystemExit("usage: k_consistency_gate.py <object.json> ...")
+    problems = 0
+    for p in paths:
+        b = check_object(p)
+        problems += len(b)
+        print("%s: %s" % (p, "CONSISTENT" if not b else "%d PROBLEM(S)" % len(b)))
+        for x in b:
+            print("   -", x)
+    raise SystemExit(1 if problems else 0)
+
+codex
+I’ll verify line numbers against the local module, then keep the answer to concrete defects only.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=0; Get-Content -Path scripts/k_consistency_gate.py | ForEach-Object { $i++; '"'{0,4}: {1}' -f "'$i, $_ }' in F:\rapidmeta-ssot-shell
+ succeeded in 1404ms:
+   1: """Every derived panel must be computed at the same k as the headline it sits beside.
+   2: 
+   3: WHY THIS EXISTS, and it is not hypothetical. On 2026-08-13 ANSWER-HF entered the
+   4: ARNI pool and the headline became k=4. The entire `panels` block -- its own `fit`,
+   5: leave-one-out, cumulative, influence, Baujat, Galbraith, funnel, Egger, the
+   6: prediction interval and the tau-squared interval -- stayed at k=3, and so did
+   7: `count_panels`. The page therefore showed a four-trial forest plot directly above
+   8: a three-row leave-one-out, and a prediction interval computed from three trials
+   9: under a four-trial pooled estimate. Nothing failed. Every number was individually
+  10: correct; they were correct about different pools.
+  11: 
+  12: The interpretation moved too, which is what makes this severe rather than untidy:
+  13: at k=3 the pooled interval excluded no difference and at k=4 it does not. The
+  14: Discussion still said "the interval excludes the null" while the Conclusions of
+  15: the same manuscript said "consistent with no difference".
+  16: 
+  17: THE INVARIANT: for each outcome, every block that carries a k, or a row-per-trial
+  18: list, agrees with the number of contributing trials in `per_trial`. A block that
+  19: is deliberately behind must say so in a `_STALE` field -- then it is a stated
+  20: limitation rather than a silent disagreement.
+  21: 
+  22: Usage:  python scripts/k_consistency_gate.py <object.json> [more.json ...]
+  23:         python scripts/k_consistency_gate.py --selftest
+  24: """
+  25: import io
+  26: import json
+  27: import re
+  28: import sys
+  29: 
+  30: sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+  31: 
+  32: # Panels whose length must equal k (one row per contributing trial).
+  33: ROW_PER_TRIAL = ("leave_one_out", "cumulative", "influence", "baujat",
+  34:                  "galbraith", "funnel")
+  35: 
+  36: # ---------------------------------------------------------------- textual k
+  37: # The numeric half of this gate reconciled object FIELDS and passed while the
+  38: # TITLE said "the three randomised trials" over a k=4 pool. k is written as a
+  39: # word in a phrase far more often than it is stored as a number, so the field
+  40: # check could never have caught it. Mahmood caught it by opening the file and
+  41: # reading the first line.
+  42: #
+  43: # The hard part is precision, not recall. "three" appears all over legitimate
+  44: # prose -- three GRADE domains, three scales, three protocol commits -- and a
+  45: # gate that fires on all of them is a regression of its own. Two rules keep it
+  46: # tight:
+  47: #   1. Only phrases where a study noun follows the number are considered.
+  48: #   2. Of those, only WHOLE-REVIEW assertions are enforced. A subset phrase
+  49: #      ("the three REMAINING trials", "the two SMALLER trials", "one trial
+  50: #      carries the weight") is a claim about part of the pool and is reported
+  51: #      for review, never failed, because its correct value is not k.
+  52: NUMWORDS = {"one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6,
+  53:             "seven": 7, "eight": 8, "nine": 9, "ten": 10, "eleven": 11,
+  54:             "twelve": 12}
+  55: _NUM = r"(?:\d{1,3}|" + "|".join(NUMWORDS) + r")"
+  56: # Qualifiers that make the phrase a SUBSET of the pool, not the pool itself.
+  57: SUBSET = (r"remaining|smaller|larger|largest|further|subsequent|other|later|"
+  58:           r"earlier|single|excluded|screened|retrieved|ineligible|additional|"
+  59:           r"pivotal|index|new|prior|previous")
+  60: # Qualifiers that make it an assertion about the review's own size.
+  61: WHOLE = (r"randomised|randomized|included|eligible|contributing|pooled|"
+  62:          r"analysed|analyzed")
+  63: _NOUN = r"(?:trials?|studies|study|randomisations?|randomizations?|RCTs?)"
+  64: # A number belonging to a PRECEDING noun is not a count: "both phase 3 trials",
+  65: # "a phase 2 randomized trial", "stage 3 studies". The first cut of this gate
+  66: # flagged three otherwise-clean objects in the corpus on exactly that, which is
+  67: # the over-loose-word-match regression this gate must not become.
+  68: # A number introduced by a comparison word is a THRESHOLD, not a count of this
+  69: # review's studies: "below about ten studies", "fewer than five trials", "at
+  70: # least two randomised trials". The Handbook's ten-study rule for funnel
+  71: # asymmetry is quoted in our own Results, and the gate flagged it as a claim
+  72: # that we pooled ten trials. Standard methodological phrasing, so this will
+  73: # recur across every page in the corpus.
+  74: _NOT_A_COUNT = (r"(?<!phase )(?<!stage )(?<!grade )(?<!class )(?<!step )"
+  75:                 r"(?<!type )(?<!tier )(?<!arm )(?<!about )(?<!below )"
+  76:                 r"(?<!under )(?<!over )(?<!least )(?<!than )(?<!approximately )")
+  77: K_ASSERT = re.compile(
+  78:     _NOT_A_COUNT + r"\b(" + _NUM + r")\s+(?:(" + WHOLE + r")\s+)?("
+  79:     + _NOUN + r")\b", re.I)
+  80: K_SUBSET = re.compile(
+  81:     r"\b(" + _NUM + r")\s+(?:(" + SUBSET + r")\s+)", re.I)
+  82: 
+  83: # Paths whose strings are NOT this review speaking: other papers' titles, quoted
+  84: # assessor rationales, handbook section text, and the correction log, which
+  85: # records superseded claims verbatim and must keep saying what it used to say.
+  86: EXCLUDE = (".screening.corpus", ".screening.dual_screening", ".sources",
+  87:            ".rob2", ".methodological_authority", ".claims_corrected",
+  88:            ".citations", ".reconciliation", ".registration", ".protocol",
+  89:            ".prisma_items", ".count_recovery", ".attestations",
+  90:            ".eligible_but_not_contributing", ".outcomes_considered",
+  91:            # The comparison section quotes ANOTHER review verbatim -- "A total of
+  92:            # nine studies", "1,066 studies" -- and those counts are theirs, not
+  93:            # ours. Reconciling them against our k would demand we misquote the
+  94:            # paper we are auditing. The R blocks are captured metafor output and
+  95:            # print their own k, which is checked separately and far more strictly
+  96:            # by the agreement gate in add_r_output.py.
+  97:            # Exempted DELIBERATELY: both were already passing by accident of the
+  98:            # bare-noun rule, and an exemption that holds by accident stops holding
+  99:            # the moment someone writes "nine included trials" in one of them.
+ 100:            ".published_comparison", ".r_output",
+ 101:            ".results.by_outcome.cvdeath_or_hfh_first.r_output")
+ 102: # Strings that deliberately narrate the k change itself.
+ 103: HISTORY = ("_stale", "recomputed", "superseded", "k=3", "k = 3", "at k=3")
+ 104: 
+ 105: 
+ 106: def _num(tok):
+ 107:     tok = tok.lower()
+ 108:     return NUMWORDS.get(tok) or (int(tok) if tok.isdigit() else None)
+ 109: 
+ 110: 
+ 111: def textual_k_problems(strings, k):
+ 112:     """strings: iterable of (location, text). Returns (failures, for_review)."""
+ 113:     fails, review = [], []
+ 114:     for loc, txt in strings:
+ 115:         # startswith is not enough: r_output is nested under the outcome, so the
+ 116:         # path is .results.by_outcome.<id>.r_output and no prefix would match it.
+ 117:         if any(p in loc for p in EXCLUDE):
+ 118:             continue
+ 119:         low = (txt or "").lower()
+ 120:         if any(h in low for h in HISTORY):
+ 121:             continue
+ 122:         for m in K_ASSERT.finditer(txt or ""):
+ 123:             v = _num(m.group(1))
+ 124:             if v is None:
+ 125:                 continue
+ 126:             # A subset phrase starting at the same number is not a k assertion.
+ 127:             seg = txt[m.start():m.start() + 60]
+ 128:             if K_SUBSET.match(seg):
+ 129:                 if v != k:
+ 130:                     review.append((loc, m.group(0).strip(), v))
+ 131:                 continue
+ 132:             # "one trial carries most of the weight", "rests on any one trial",
+ 133:             # "a discrepancy in one trial" -- singular emphasis, which is how a
+ 134:             # dominant-study argument is written, not a claim that the review
+ 135:             # contains one study. This is what the first cut of the negative
+ 136:             # self-test caught: the gate failed a document whose every count was
+ 137:             # correct, which is a regression in its own right.
+ 138:             noun = (m.group(3) or "").lower()
+ 139:             if v == 1 and not noun.endswith("s"):
+ 140:                 continue
+ 141:             if not m.group(2):
+ 142:                 # Bare "three trials" -- only enforced where the review states
+ 143:                 # its own scope. Elsewhere it is usually about someone else's.
+ 144:                 if not any(s in loc for s in (".title", ".question",
+ 145:                                               ".manuscript", "definition_note",
+ 146:                                               "decision_under_test",
+ 147:                                               "::<title>", "::h1")):
+ 148:                     continue
+ 149:             if v != k:
+ 150:                 fails.append((loc, m.group(0).strip(), v))
+ 151:     return fails, review
+ 152: 
+ 153: 
+ 154: def check_outcome(oid, res):
+ 155:     """Returns a list of problem strings. Empty means consistent."""
+ 156:     bad = []
+ 157:     per = res.get("per_trial") or []
+ 158:     k = res.get("k") or len(per)
+ 159:     if not k:
+ 160:         return bad
+ 161: 
+ 162:     pan = res.get("panels") or {}
+ 163:     stale = bool(pan.get("_STALE"))
+ 164:     fit = pan.get("fit") or {}
+ 165:     if fit.get("k") is not None and fit["k"] != k and not stale:
+ 166:         bad.append("%s: panels.fit.k=%s but the outcome has k=%s"
+ 167:                    % (oid, fit["k"], k))
+ 168:     for name in ROW_PER_TRIAL:
+ 169:         rows = pan.get(name)
+ 170:         if isinstance(rows, list) and rows and len(rows) != k and not stale:
+ 171:             bad.append("%s: panels.%s has %d rows for k=%s"
+ 172:                        % (oid, name, len(rows), k))
+ 173: 
+ 174:     cp = res.get("count_panels") or {}
+ 175:     cstale = bool(cp.get("_STALE"))
+ 176:     for meas in ("rr", "or", "rd"):
+ 177:         m = cp.get(meas)
+ 178:         if isinstance(m, dict) and m.get("k") is not None and m["k"] != k \
+ 179:                 and not cstale:
+ 180:             bad.append("%s: count_panels.%s.k=%s but the outcome has k=%s"
+ 181:                        % (oid, meas, m["k"], k))
+ 182: 
+ 183:     # The pooled interval and the prose must agree about the null. This is the
+ 184:     # part that changes a reader's conclusion rather than a figure's row count.
+ 185:     p = res.get("pooled") or {}
+ 186:     lo, hi = p.get("ci_low"), p.get("ci_high")
+ 187:     null = 1.0
+ 188:     if lo is not None and hi is not None:
+ 189:         includes = lo <= null <= hi
+ 190:         blob = json.dumps(res.get("_prose", "")) if res.get("_prose") else ""
+ 191:         if includes and "excludes the null" in blob:
+ 192:             bad.append("%s: pooled interval %s-%s contains the null but the "
+ 193:                        "prose says it excludes it" % (oid, lo, hi))
+ 194:     return bad
+ 195: 
+ 196: 
+ 197: def check_object(path):
+ 198:     d = json.load(open(path, encoding="utf-8"))
+ 199:     bad = []
+ 200:     for oid, res in ((d.get("results") or {}).get("by_outcome") or {}).items():
+ 201:         bad += check_outcome(oid, res)
+ 202:     # The manuscript is prose ABOUT the pool, so it is checked against the pool.
+ 203:     ms = json.dumps(d.get("manuscript") or {}, ensure_ascii=False)
+ 204:     for oid, res in ((d.get("results") or {}).get("by_outcome") or {}).items():
+ 205:         p = res.get("pooled") or {}
+ 206:         lo, hi = p.get("ci_low"), p.get("ci_high")
+ 207:         if lo is not None and hi is not None and lo <= 1.0 <= hi \
+ 208:                 and "excludes the null" in ms:
+ 209:             bad.append("%s: pooled interval %.4g-%.4g contains the null but the "
+ 210:                        "manuscript says it excludes it" % (oid, lo, hi))
+ 211:         break
+ 212: 
+ 213:     # Textual k, across every string this review speaks in its own voice.
+ 214:     k = None
+ 215:     for _oid, res in ((d.get("results") or {}).get("by_outcome") or {}).items():
+ 216:         k = res.get("k") or len(res.get("per_trial") or [])
+ 217:         break
+ 218:     if k:
+ 219:         fails, _rev = textual_k_problems(walk_strings(d), k)
+ 220:         for loc, frag, v in fails:
+ 221:             bad.append("%s states %r (k=%s) but the pool has k=%d"
+ 222:                        % (loc, frag, v, k))
+ 223:     return bad
+ 224: 
+ 225: 
+ 226: def walk_strings(o, path=""):
+ 227:     if isinstance(o, dict):
+ 228:         for kk, v in o.items():
+ 229:             yield from walk_strings(v, path + "." + str(kk))
+ 230:     elif isinstance(o, list):
+ 231:         for i, v in enumerate(o):
+ 232:             yield from walk_strings(v, path + "[%d]" % i)
+ 233:     elif isinstance(o, str):
+ 234:         yield path, o
+ 235: 
+ 236: 
+ 237: def selftest():
+ 238:     """A gate that cannot fail is not a gate. These must all be CAUGHT."""
+ 239:     cases = [
+ 240:         ("panels stale at k=3 under a k=4 pool",
+ 241:          {"results": {"by_outcome": {"o": {
+ 242:              "k": 4, "per_trial": [1, 2, 3, 4],
+ 243:              "pooled": {"ci_low": 0.7, "ci_high": 1.02},
+ 244:              "panels": {"fit": {"k": 3},
+ 245:                         "leave_one_out": [1, 2, 3]}}}}}, True),
+ 246:         ("count_panels stale at k=3",
+ 247:          {"results": {"by_outcome": {"o": {
+ 248:              "k": 4, "per_trial": [1, 2, 3, 4],
+ 249:              "pooled": {"ci_low": 0.7, "ci_high": 1.02},
+ 250:              "count_panels": {"rr": {"k": 3}}}}}}, True),
+ 251:         ("prose says excludes-null while the interval contains it",
+ 252:          {"results": {"by_outcome": {"o": {
+ 253:              "k": 2, "per_trial": [1, 2],
+ 254:              "pooled": {"ci_low": 0.7, "ci_high": 1.02}, "panels": {}}}},
+ 255:           "manuscript": {"d": "the interval excludes the null"}}, True),
+ 256:         ("consistent object",
+ 257:          {"results": {"by_outcome": {"o": {
+ 258:              "k": 4, "per_trial": [1, 2, 3, 4],
+ 259:              "pooled": {"ci_low": 0.7, "ci_high": 1.02},
+ 260:              "panels": {"fit": {"k": 4}, "leave_one_out": [1, 2, 3, 4]}}}},
+ 261:           "manuscript": {"d": "the interval contains the null"}}, False),
+ 262:         ("stale but DECLARED -- a stated limitation, not a silent one",
+ 263:          {"results": {"by_outcome": {"o": {
+ 264:              "k": 4, "per_trial": [1, 2, 3, 4],
+ 265:              "pooled": {"ci_low": 0.7, "ci_high": 1.02},
+ 266:              "panels": {"_STALE": "computed at k=3, recorded",
+ 267:                         "fit": {"k": 3}, "leave_one_out": [1, 2, 3]}}}}}, False),
+ 268: 
+ 269:         # --- textual k. The positive is the REAL title that shipped. ---------
+ 270:         ("POSITIVE: the actual title that shipped saying three over a k=4 pool",
+ 271:          {"title": "Sacubitril/valsartan against enalapril in heart failure "
+ 272:                    "with reduced ejection fraction: the three randomised "
+ 273:                    "trials that report cardiovascular death or heart failure "
+ 274:                    "hospitalization as a time-to-first hazard ratio",
+ 275:           "results": {"by_outcome": {"o": {"k": 4, "per_trial": [1, 2, 3, 4],
+ 276:                                            "pooled": {"ci_low": .7, "ci_high": 1.02}}}}},
+ 277:          True),
+ 278:         ("POSITIVE: digits rather than a number-word",
+ 279:          {"title": "a pooled analysis of 3 randomised trials",
+ 280:           "results": {"by_outcome": {"o": {"k": 4, "per_trial": [1, 2, 3, 4],
+ 281:                                            "pooled": {"ci_low": .7, "ci_high": 1.02}}}}},
+ 282:          True),
+ 283:         # --- THE NEGATIVE. This is the criterion that keeps getting skipped: a
+ 284:         # gate that fires on correct prose is its own regression. Everything
+ 285:         # here is TRUE at k=4 and must not be flagged: the corrected title, a
+ 286:         # subset phrase, a singular emphasis, and unrelated counts of things
+ 287:         # that are not trials.
+ 288:         ("NEGATIVE: corrected title + subsets + unrelated threes must all PASS",
+ 289:          {"title": "the four randomised trials that report the composite",
+ 290:           "manuscript": {
+ 291:               "a": "The three smaller trials are individually compatible with "
+ 292:                    "no effect, and one trial carries most of the weight.",
+ 293:               "b": "Omitting the largest leaves three remaining trials.",
+ 294:               "c": "Three protocol commits are recorded, and the same 2x2 is "
+ 295:                    "shown on three scales across three GRADE domains.",
+ 296:               "d": "the interval contains the null"},
+ 297:           "results": {"by_outcome": {"o": {"k": 4, "per_trial": [1, 2, 3, 4],
+ 298:                                            "pooled": {"ci_low": .7, "ci_high": 1.02}}}}},
+ 299:          False),
+ 300:         ("NEGATIVE: 'below about ten studies' is a threshold, not a count",
+ 301:          {"title": "the four randomised trials that report the composite",
+ 302:           "manuscript": {"a": "the Handbook advises against interpreting these "
+ 303:                               "tests below about ten studies, and with fewer "
+ 304:                               "than five trials the test has no power"},
+ 305:           "results": {"by_outcome": {"o": {
+ 306:               "k": 4, "per_trial": [1, 2, 3, 4],
+ 307:               "pooled": {"ci_low": .7, "ci_high": 1.02}}}}}, False),
+ 308:         ("NEGATIVE: 'both phase 3 trials' is a phase, not a count",
+ 309:          {"title": "both phase 3 trials, reported as incidence rate ratios",
+ 310:           "question": "In the two phase 3 trials that supported approval",
+ 311:           "results": {"by_outcome": {"o": {
+ 312:               "k": 2, "per_trial": [1, 2],
+ 313:               "pooled": {"ci_low": .7, "ci_high": 1.02}}}}}, False),
+ 314:         ("NEGATIVE: another paper's title in the screening corpus is not ours",
+ 315:          {"title": "the four randomised trials that report the composite",
+ 316:           "screening": {"corpus": [{"title": "A meta-analysis of 6 randomized "
+ 317:                                              "trials in heart failure"}]},
+ 318:           "results": {"by_outcome": {"o": {"k": 4, "per_trial": [1, 2, 3, 4],
+ 319:                                            "pooled": {"ci_low": .7, "ci_high": 1.02}}}}},
+ 320:          False),
+ 321:     ]
+ 322:     ok = True
+ 323:     print("=== the gate must FAIL on a silent k mismatch, and PASS otherwise ===")
+ 324:     import tempfile
+ 325:     import os
+ 326:     for name, obj, expect_fail in cases:
+ 327:         fd, p = tempfile.mkstemp(suffix=".json")
+ 328:         os.close(fd)
+ 329:         json.dump(obj, open(p, "w", encoding="utf-8"))
+ 330:         got = bool(check_object(p))
+ 331:         os.unlink(p)
+ 332:         good = got == expect_fail
+ 333:         ok &= good
+ 334:         print("  %-52s %s expected=%s %s"
+ 335:               % (name, "FAIL" if got else "PASS",
+ 336:                  "FAIL" if expect_fail else "PASS",
+ 337:                  "correct" if good else "WRONG"))
+ 338:     print("\nk-consistency gate proved able to fail on every silent mismatch:", ok)
+ 339:     return 0 if ok else 1
+ 340: 
+ 341: 
+ 342: if __name__ == "__main__":
+ 343:     if "--selftest" in sys.argv:
+ 344:         raise SystemExit(selftest())
+ 345:     paths = [a for a in sys.argv[1:] if not a.startswith("-")]
+ 346:     if not paths:
+ 347:         raise SystemExit("usage: k_consistency_gate.py <object.json> ...")
+ 348:     problems = 0
+ 349:     for p in paths:
+ 350:         b = check_object(p)
+ 351:         problems += len(b)
+ 352:         print("%s: %s" % (p, "CONSISTENT" if not b else "%d PROBLEM(S)" % len(b)))
+ 353:         for x in b:
+ 354:             print("   -", x)
+ 355:     raise SystemExit(1 if problems else 0)
+
+codex
+I’ve got the line map. I’m checking the candidate defects against the actual callable path so I don’t hand you a plausible-looking false positive.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "@'
+import json, tempfile, os
+from scripts.k_consistency_gate import check_object
+cases = {
+\"empty_rows\": {\"results\":{\"by_outcome\":{\"o\":{\"k\":4,\"per_trial\":[1,2,3,4],\"panels\":{\"leave_one_out\":[]}}}}},
+\"zero_k\": {\"results\":{\"by_outcome\":{\"o\":{\"k\":0,\"per_trial\":[],\"panels\":{\"fit\":{\"k\":3}}}}}},
+\"other_panel_k\": {\"results\":{\"by_outcome\":{\"o\":{\"k\":4,\"per_trial\":[1,2,3,4],\"panels\":{\"egger\":{\"k\":3},\"prediction_interval\":{\"k\":3}}}}}},
+\"stale_marker\": {\"results\":{\"by_outcome\":{\"o\":{\"k\":4,\"per_trial\":[1,2,3,4],\"panels\":{\"_STALE\":\"false\",\"fit\":{\"k\":3},\"leave_one_out\":[1,2,3]}}}}},
+\"first_only_ms\": {\"results\":{\"by_outcome\":{\"a\":{\"k\":2,\"per_trial\":[1,2],\"pooled\":{\"ci_low\":1.1,\"ci_high\":2.0}},\"b\":{\"k\":2,\"per_trial\":[1,2],\"pooled\":{\"ci_low\":0.7,\"ci_high\":1.02}}}},\"manuscript\":{\"d\":\"the interval excludes the null\"}},
+\"first_k_text\": {\"results\":{\"by_outcome\":{\"a\":{\"k\":3,\"per_trial\":[1,2,3],\"pooled\":{\"ci_low\":0.7,\"ci_high\":1.02}},\"b\":{\"k\":4,\"per_trial\":[1,2,3,4],\"definition_note\":\"the three randomized trials\",\"pooled\":{\"ci_low\":0.7,\"ci_high\":1.02}}}}},
+\"negation\": {\"title\":\"This is not three randomized trials; it is four.\",\"results\":{\"by_outcome\":{\"o\":{\"k\":4,\"per_trial\":[1,2,3,4]}}}},
+\"history_skip\": {\"title\":\"recomputed: the three randomized trials\",\"results\":{\"by_outcome\":{\"o\":{\"k\":4,\"per_trial\":[1,2,3,4]}}}},
+}
+for name,obj in cases.items():
+    fd,p=tempfile.mkstemp(suffix='.json'); os.close(fd)
+    with open(p,'w',encoding='utf-8') as f: json.dump(obj,f)
+    try:
+        print(name, check_object(p))
+    finally:
+        os.unlink(p)
+'@ | python -" in F:\rapidmeta-ssot-shell
+ succeeded in 1420ms:
+empty_rows []
+zero_k []
+other_panel_k []
+stale_marker []
+first_only_ms []
+first_k_text []
+negation [".title states 'three randomized trials' (k=3) but the pool has k=4"]
+history_skip []
+
+codex
+**Defects Found**
+
+- `ZERO CONFLATED WITH ABSENT`, line 170.  
+  Input: `{"results":{"by_outcome":{"o":{"k":4,"per_trial":[1,2,3,4],"panels":{"leave_one_out":[]}}}}}`  
+  Consequence: an explicitly present zero-row row-per-trial panel passes for `k=4`.
+
+- `ZERO CONFLATED WITH ABSENT`, line 158.  
+  Input: `{"results":{"by_outcome":{"o":{"k":0,"per_trial":[],"panels":{"fit":{"k":3}}}}}}`  
+  Consequence: explicit `k=0` is treated as absence and the stale `panels.fit.k=3` is never reported.
+
+- `SELECTOR KEYED TO TOO LITTLE OF THE CORPUS`, line 165.  
+  Input: `{"results":{"by_outcome":{"o":{"k":4,"per_trial":[1,2,3,4],"panels":{"egger":{"k":3},"prediction_interval":{"k":3}}}}}}`  
+  Consequence: panel subblocks carrying their own stale `k` pass unless the subblock is exactly `panels.fit`.
+
+- `IDEMPOTENCY GUARD SATISFIED BY ITS OWN MARKER`, line 163.  
+  Input: `{"results":{"by_outcome":{"o":{"k":4,"per_trial":[1,2,3,4],"panels":{"_STALE":"false","fit":{"k":3},"leave_one_out":[1,2,3]}}}}}`  
+  Consequence: any truthy `_STALE` string, even one denying staleness, suppresses all panel mismatch failures.
+
+- `OFF-BY-ONE / FIRST-ONLY READ`, line 211.  
+  Input: `{"results":{"by_outcome":{"a":{"k":2,"per_trial":[1,2],"pooled":{"ci_low":1.1,"ci_high":2.0}},"b":{"k":2,"per_trial":[1,2],"pooled":{"ci_low":0.7,"ci_high":1.02}}}},"manuscript":{"d":"the interval excludes the null"}}`  
+  Consequence: manuscript null-claim checking stops after the first outcome and misses the contradictory second outcome.
+
+- `INSTRUMENT READING A DIFFERENT BINDING`, line 217.  
+  Input: `{"results":{"by_outcome":{"a":{"k":3,"per_trial":[1,2,3]},"b":{"k":4,"per_trial":[1,2,3,4],"definition_note":"the three randomized trials"}}}}`  
+  Consequence: text under outcome `b` is checked against outcome `a`’s `k`, so stale text passes.
+
+- `NEGATION DROPPED`, line 122.  
+  Input: `{"title":"This is not three randomized trials; it is four.","results":{"by_outcome":{"o":{"k":4,"per_trial":[1,2,3,4]}}}}`  
+  Consequence: a denied count is reported as an asserted stale count.
+
+No CRLF/LF text-comparison defect found. No subprocess-wrapper status-code defect found. No merged-cell defect applicable in this file.
+tokens used
+45,911
+**Defects Found**
+
+- `ZERO CONFLATED WITH ABSENT`, line 170.  
+  Input: `{"results":{"by_outcome":{"o":{"k":4,"per_trial":[1,2,3,4],"panels":{"leave_one_out":[]}}}}}`  
+  Consequence: an explicitly present zero-row row-per-trial panel passes for `k=4`.
+
+- `ZERO CONFLATED WITH ABSENT`, line 158.  
+  Input: `{"results":{"by_outcome":{"o":{"k":0,"per_trial":[],"panels":{"fit":{"k":3}}}}}}`  
+  Consequence: explicit `k=0` is treated as absence and the stale `panels.fit.k=3` is never reported.
+
+- `SELECTOR KEYED TO TOO LITTLE OF THE CORPUS`, line 165.  
+  Input: `{"results":{"by_outcome":{"o":{"k":4,"per_trial":[1,2,3,4],"panels":{"egger":{"k":3},"prediction_interval":{"k":3}}}}}}`  
+  Consequence: panel subblocks carrying their own stale `k` pass unless the subblock is exactly `panels.fit`.
+
+- `IDEMPOTENCY GUARD SATISFIED BY ITS OWN MARKER`, line 163.  
+  Input: `{"results":{"by_outcome":{"o":{"k":4,"per_trial":[1,2,3,4],"panels":{"_STALE":"false","fit":{"k":3},"leave_one_out":[1,2,3]}}}}}`  
+  Consequence: any truthy `_STALE` string, even one denying staleness, suppresses all panel mismatch failures.
+
+- `OFF-BY-ONE / FIRST-ONLY READ`, line 211.  
+  Input: `{"results":{"by_outcome":{"a":{"k":2,"per_trial":[1,2],"pooled":{"ci_low":1.1,"ci_high":2.0}},"b":{"k":2,"per_trial":[1,2],"pooled":{"ci_low":0.7,"ci_high":1.02}}}},"manuscript":{"d":"the interval excludes the null"}}`  
+  Consequence: manuscript null-claim checking stops after the first outcome and misses the contradictory second outcome.
+
+- `INSTRUMENT READING A DIFFERENT BINDING`, line 217.  
+  Input: `{"results":{"by_outcome":{"a":{"k":3,"per_trial":[1,2,3]},"b":{"k":4,"per_trial":[1,2,3,4],"definition_note":"the three randomized trials"}}}}`  
+  Consequence: text under outcome `b` is checked against outcome `a`’s `k`, so stale text passes.
+
+- `NEGATION DROPPED`, line 122.  
+  Input: `{"title":"This is not three randomized trials; it is four.","results":{"by_outcome":{"o":{"k":4,"per_trial":[1,2,3,4]}}}}`  
+  Consequence: a denied count is reported as an asserted stale count.
+
+No CRLF/LF text-comparison defect found. No subprocess-wrapper status-code defect found. No merged-cell defect applicable in this file.

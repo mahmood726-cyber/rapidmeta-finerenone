@@ -1,0 +1,409 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a0323f-fb69-7cd3-99ff-689823c7c4a4
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/read_attrpn_all_ranks_2026_08_23.py
+
+--- THE FILE, IN FULL ---
+"""Answer the withholding question at every registered rank for attr-pn-review.
+
+# no-control: an edit, not a detector. Its control is that every rank recorded here comes
+# from a live registry read whose outcome titles are stored verbatim; the run refuses if a
+# registration returns no outcome module at all, rather than recording an empty read as a
+# read.
+
+WHY THIS EXISTS AND WHAT IT DOES NOT DO. `scripts/lint_withholding_asked.py` refused the
+attr-pn withdrawal because the topic declines to pool with no evidence that any rank below
+the primary was ever read. It is right to refuse: twice in this project a topic that
+"did not pool" had a harmonisable SECONDARY, and on `sglt2-hf` and
+`apixaban-vte-prophylaxis` that secondary became a real pooled estimate.
+
+So the question is asked here properly, by reading each registration's PRIMARY, SECONDARY
+and OTHER outcome titles from ClinicalTrials.gov and storing them verbatim on the trial.
+Nothing is supplied to satisfy a gate: `all_ranks_read_utc` is written only for a trial
+whose ranks were actually fetched in this run.
+
+AND THE ANSWER DOES NOT DISSOLVE THIS WITHDRAWAL, WHICH IS THE POINT WORTH RECORDING. The
+obstacle on this topic is not that the trials measure different things -- they measure the
+same thing, and `estimand_established` is TRUE and stays true. The obstacle is that two of
+three contrasts are against a BORROWED historical control. A comparator is a property of
+the DESIGN, not of the outcome rank: reading NEURO-TTRansform's secondaries cannot make
+its comparator randomised or concurrent, and reading HELIOS-A's cannot give it a placebo
+arm it does not have. Whatever ranks these registrations declare, every one of them is
+measured against the same borrowed groups.
+
+That is the difference between this refusal and the two the gate was built from. There,
+the obstacle lived in WHICH outcome was being compared, so a different outcome could
+dissolve it. Here it lives in WHAT the outcome is compared against, and no outcome can.
+The distinction is recorded on the object so the gate's question is answered rather than
+routed around.
+"""
+from __future__ import annotations
+
+import io
+import json
+import os
+import sys
+import urllib.request
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+OBJ = os.path.join(REPO, "ssot", "attr-pn-review", "attr-pn-review.json")
+API = ("https://clinicaltrials.gov/api/v2/studies/%s"
+       "?fields=protocolSection.outcomesModule")
+TODAY = "2026-08-23"
+
+WHY_RANK_CANNOT_HELP = (
+    "READING EVERY RANK DOES NOT DISSOLVE THIS REFUSAL, AND THAT IS WHY THE RANKS ARE "
+    "RECORDED RATHER THAN TREATED AS AN ANSWER. The obstacle on this topic is the "
+    "COMPARATOR, not the outcome: two of the three contributing contrasts are measured "
+    "against a BORROWED historical control rather than a randomised concurrent one. A "
+    "comparator is a property of the trial's DESIGN, so it is the same at every rank -- "
+    "reading NEURO-TTRansform's secondaries cannot make its comparator randomised, and "
+    "reading HELIOS-A's cannot give it the placebo arm it does not have. This is the "
+    "opposite shape from the two refusals that turned into pools when the question was "
+    "asked properly (sglt2-hf, apixaban-vte-prophylaxis): there the obstacle lived in "
+    "WHICH outcome was compared, and a different outcome dissolved it. Here it lives in "
+    "WHAT the outcome is compared against, and no outcome can.")
+
+
+def fetch_ranks(nct):
+    with urllib.request.urlopen(API % nct, timeout=90) as r:
+        d = json.load(r)
+    om = (d.get("protocolSection") or {}).get("outcomesModule") or {}
+    out = {}
+    for key, rank in (("primaryOutcomes", "PRIMARY"),
+                      ("secondaryOutcomes", "SECONDARY"),
+                      ("otherOutcomes", "OTHER")):
+        out[rank] = [str((o or {}).get("measure", "")).strip()
+                     for o in (om.get(key) or [])]
+    if not any(out.values()):
+        return None
+    return out
+
+
+def count_keys(x):
+    if isinstance(x, dict):
+        return len(x) + sum(count_keys(v) for v in x.values())
+    if isinstance(x, list):
+        return sum(count_keys(v) for v in x)
+    return 0
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    apply = "--apply" in sys.argv
+    raw = io.open(OBJ, encoding="utf-8", newline="").read()
+    obj = json.loads(raw)
+    before = count_keys(obj)
+
+    print("")
+    print("attr-pn-review -- every registered rank, read from the registry")
+    print("")
+    touched = 0
+    for tr in (obj.get("inputs") or {}).get("trials") or []:
+        nct = tr.get("nct") or tr.get("id")
+        if not nct:
+            continue
+        ranks = fetch_ranks(nct)
+        if ranks is None:
+            sys.exit("REFUSED: %s returned no outcomes module. An empty read is not a read, "
+                     "and recording it as one is how a gate gets satisfied by a string."
+                     % nct)
+        print("   %-14s %-18s PRIMARY %d   SECONDARY %d   OTHER %d"
+              % (nct, tr.get("name", "")[:18], len(ranks["PRIMARY"]),
+                 len(ranks["SECONDARY"]), len(ranks["OTHER"])))
+        for r in ("SECONDARY", "OTHER"):
+            for m in ranks[r][:3]:
+                print("        %-9s %s" % (r, m[:96]))
+        if apply:
+            tr["registered_secondaries"] = ranks["SECONDARY"]
+            tr["registered_other_outcomes"] = ranks["OTHER"]
+            tr["all_ranks_read_utc"] = TODAY
+            tr["all_ranks_read_source"] = API % nct
+            touched += 1
+
+    print("")
+    print("   %s" % WHY_RANK_CANNOT_HELP[:110])
+    print("")
+    if not apply:
+        print("   dry run -- pass --apply to write")
+        return
+    blk = ((obj.get("results") or {}).get("by_outcome") or {}).get("primary") or {}
+    pooled = blk.get("pooled") or {}
+    if not pooled.get("withdrawn"):
+        sys.exit("REFUSED: this topic is not withdrawn, so the note below would describe "
+                 "a state it is not in.")
+    pooled["why_reading_every_rank_does_not_change_this"] = WHY_RANK_CANNOT_HELP
+    after = count_keys(obj)
+    if after < before:
+        sys.exit("REFUSED: the object lost keys (%d -> %d)." % (before, after))
+    nl = "\r\n" if "\r\n" in raw else "\n"
+    body = json.dumps(obj, indent=1, ensure_ascii=False) + "\n"
+    io.open(OBJ, "w", encoding="utf-8", newline="").write(
+        body.replace("\n", nl) if nl != "\n" else body)
+    print("   %d trial(s) now carry all_ranks_read_utc; keys %d -> %d (net-additive)"
+          % (touched, before, after))
+
+
+if __name__ == "__main__":
+    main()
+
+codex
+I’ll treat the pasted module as the whole record and keep this to proven, input-demonstrable failure modes only.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=0; Get-Content -Path scripts/read_attrpn_all_ranks_2026_08_23.py | ForEach-Object { $i++; '"'{0,4}: {1}' -f "'$i, $_ }' in F:\rapidmeta-ssot-shell
+ succeeded in 1265ms:
+   1: """Answer the withholding question at every registered rank for attr-pn-review.
+   2: 
+   3: # no-control: an edit, not a detector. Its control is that every rank recorded here comes
+   4: # from a live registry read whose outcome titles are stored verbatim; the run refuses if a
+   5: # registration returns no outcome module at all, rather than recording an empty read as a
+   6: # read.
+   7: 
+   8: WHY THIS EXISTS AND WHAT IT DOES NOT DO. `scripts/lint_withholding_asked.py` refused the
+   9: attr-pn withdrawal because the topic declines to pool with no evidence that any rank below
+  10: the primary was ever read. It is right to refuse: twice in this project a topic that
+  11: "did not pool" had a harmonisable SECONDARY, and on `sglt2-hf` and
+  12: `apixaban-vte-prophylaxis` that secondary became a real pooled estimate.
+  13: 
+  14: So the question is asked here properly, by reading each registration's PRIMARY, SECONDARY
+  15: and OTHER outcome titles from ClinicalTrials.gov and storing them verbatim on the trial.
+  16: Nothing is supplied to satisfy a gate: `all_ranks_read_utc` is written only for a trial
+  17: whose ranks were actually fetched in this run.
+  18: 
+  19: AND THE ANSWER DOES NOT DISSOLVE THIS WITHDRAWAL, WHICH IS THE POINT WORTH RECORDING. The
+  20: obstacle on this topic is not that the trials measure different things -- they measure the
+  21: same thing, and `estimand_established` is TRUE and stays true. The obstacle is that two of
+  22: three contrasts are against a BORROWED historical control. A comparator is a property of
+  23: the DESIGN, not of the outcome rank: reading NEURO-TTRansform's secondaries cannot make
+  24: its comparator randomised or concurrent, and reading HELIOS-A's cannot give it a placebo
+  25: arm it does not have. Whatever ranks these registrations declare, every one of them is
+  26: measured against the same borrowed groups.
+  27: 
+  28: That is the difference between this refusal and the two the gate was built from. There,
+  29: the obstacle lived in WHICH outcome was being compared, so a different outcome could
+  30: dissolve it. Here it lives in WHAT the outcome is compared against, and no outcome can.
+  31: The distinction is recorded on the object so the gate's question is answered rather than
+  32: routed around.
+  33: """
+  34: from __future__ import annotations
+  35: 
+  36: import io
+  37: import json
+  38: import os
+  39: import sys
+  40: import urllib.request
+  41: 
+  42: REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+  43: OBJ = os.path.join(REPO, "ssot", "attr-pn-review", "attr-pn-review.json")
+  44: API = ("https://clinicaltrials.gov/api/v2/studies/%s"
+  45:        "?fields=protocolSection.outcomesModule")
+  46: TODAY = "2026-08-23"
+  47: 
+  48: WHY_RANK_CANNOT_HELP = (
+  49:     "READING EVERY RANK DOES NOT DISSOLVE THIS REFUSAL, AND THAT IS WHY THE RANKS ARE "
+  50:     "RECORDED RATHER THAN TREATED AS AN ANSWER. The obstacle on this topic is the "
+  51:     "COMPARATOR, not the outcome: two of the three contributing contrasts are measured "
+  52:     "against a BORROWED historical control rather than a randomised concurrent one. A "
+  53:     "comparator is a property of the trial's DESIGN, so it is the same at every rank -- "
+  54:     "reading NEURO-TTRansform's secondaries cannot make its comparator randomised, and "
+  55:     "reading HELIOS-A's cannot give it the placebo arm it does not have. This is the "
+  56:     "opposite shape from the two refusals that turned into pools when the question was "
+  57:     "asked properly (sglt2-hf, apixaban-vte-prophylaxis): there the obstacle lived in "
+  58:     "WHICH outcome was compared, and a different outcome dissolved it. Here it lives in "
+  59:     "WHAT the outcome is compared against, and no outcome can.")
+  60: 
+  61: 
+  62: def fetch_ranks(nct):
+  63:     with urllib.request.urlopen(API % nct, timeout=90) as r:
+  64:         d = json.load(r)
+  65:     om = (d.get("protocolSection") or {}).get("outcomesModule") or {}
+  66:     out = {}
+  67:     for key, rank in (("primaryOutcomes", "PRIMARY"),
+  68:                       ("secondaryOutcomes", "SECONDARY"),
+  69:                       ("otherOutcomes", "OTHER")):
+  70:         out[rank] = [str((o or {}).get("measure", "")).strip()
+  71:                      for o in (om.get(key) or [])]
+  72:     if not any(out.values()):
+  73:         return None
+  74:     return out
+  75: 
+  76: 
+  77: def count_keys(x):
+  78:     if isinstance(x, dict):
+  79:         return len(x) + sum(count_keys(v) for v in x.values())
+  80:     if isinstance(x, list):
+  81:         return sum(count_keys(v) for v in x)
+  82:     return 0
+  83: 
+  84: 
+  85: def main():
+  86:     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+  87:     apply = "--apply" in sys.argv
+  88:     raw = io.open(OBJ, encoding="utf-8", newline="").read()
+  89:     obj = json.loads(raw)
+  90:     before = count_keys(obj)
+  91: 
+  92:     print("")
+  93:     print("attr-pn-review -- every registered rank, read from the registry")
+  94:     print("")
+  95:     touched = 0
+  96:     for tr in (obj.get("inputs") or {}).get("trials") or []:
+  97:         nct = tr.get("nct") or tr.get("id")
+  98:         if not nct:
+  99:             continue
+ 100:         ranks = fetch_ranks(nct)
+ 101:         if ranks is None:
+ 102:             sys.exit("REFUSED: %s returned no outcomes module. An empty read is not a read, "
+ 103:                      "and recording it as one is how a gate gets satisfied by a string."
+ 104:                      % nct)
+ 105:         print("   %-14s %-18s PRIMARY %d   SECONDARY %d   OTHER %d"
+ 106:               % (nct, tr.get("name", "")[:18], len(ranks["PRIMARY"]),
+ 107:                  len(ranks["SECONDARY"]), len(ranks["OTHER"])))
+ 108:         for r in ("SECONDARY", "OTHER"):
+ 109:             for m in ranks[r][:3]:
+ 110:                 print("        %-9s %s" % (r, m[:96]))
+ 111:         if apply:
+ 112:             tr["registered_secondaries"] = ranks["SECONDARY"]
+ 113:             tr["registered_other_outcomes"] = ranks["OTHER"]
+ 114:             tr["all_ranks_read_utc"] = TODAY
+ 115:             tr["all_ranks_read_source"] = API % nct
+ 116:             touched += 1
+ 117: 
+ 118:     print("")
+ 119:     print("   %s" % WHY_RANK_CANNOT_HELP[:110])
+ 120:     print("")
+ 121:     if not apply:
+ 122:         print("   dry run -- pass --apply to write")
+ 123:         return
+ 124:     blk = ((obj.get("results") or {}).get("by_outcome") or {}).get("primary") or {}
+ 125:     pooled = blk.get("pooled") or {}
+ 126:     if not pooled.get("withdrawn"):
+ 127:         sys.exit("REFUSED: this topic is not withdrawn, so the note below would describe "
+ 128:                  "a state it is not in.")
+ 129:     pooled["why_reading_every_rank_does_not_change_this"] = WHY_RANK_CANNOT_HELP
+ 130:     after = count_keys(obj)
+ 131:     if after < before:
+ 132:         sys.exit("REFUSED: the object lost keys (%d -> %d)." % (before, after))
+ 133:     nl = "\r\n" if "\r\n" in raw else "\n"
+ 134:     body = json.dumps(obj, indent=1, ensure_ascii=False) + "\n"
+ 135:     io.open(OBJ, "w", encoding="utf-8", newline="").write(
+ 136:         body.replace("\n", nl) if nl != "\n" else body)
+ 137:     print("   %d trial(s) now carry all_ranks_read_utc; keys %d -> %d (net-additive)"
+ 138:           % (touched, before, after))
+ 139: 
+ 140: 
+ 141: if __name__ == "__main__":
+ 142:     main()
+
+codex
+- **CHECK THAT CANNOT FAIL**: line 96.  
+  Exact input: `{"inputs":{"trials":[]},"results":{"by_outcome":{"primary":{"pooled":{"withdrawn":true}}}}}` with `--apply`.  
+  Consequence: exits 0 and writes the withdrawal note after reading zero registrations.
+
+- **CHECK THAT CANNOT FAIL / EMPTY READ ACCEPTED**: line 72.  
+  Exact registry response for any trial: `{"protocolSection":{"outcomesModule":{"primaryOutcomes":[{"measure":""}]}}}`.  
+  Consequence: `fetch_ranks()` returns `{"PRIMARY":[""],"SECONDARY":[],"OTHER":[]}` instead of refusing, so a blank outcome title can satisfy the read marker.
+
+- **MARKER NOT BACKED BY WORK**: lines 112-115.  
+  Exact registry response: `{"protocolSection":{"outcomesModule":{"primaryOutcomes":[{"measure":"Primary X"}]}}}` with a trial object lacking any existing primary-outcome field.  
+  Consequence: `all_ranks_read_utc` is written although the fetched PRIMARY title is not stored on the trial.
+
+- **NET-ADDITIVE CHECK MISREADS CONTENT LOSS AS SAFE**: lines 130-132.  
+  Exact input: trial has `"registered_secondaries":["old curated title"]`; registry response has `"secondaryOutcomes":[]`; `--apply`.  
+  Consequence: the old title is deleted, but `count_keys()` does not count scalar list contents, so the loss is not caught.
+
+No proven probe keyed to a string a fix removes.
+
+No proven idempotency guard satisfied by its own comment or marker.
+
+COULD NOT DETERMINE different-copy instrumentation: missing `scripts/lint_withholding_asked.py`, the actual SSOT object, and the caller/gate path.
+
+No proven selector keyed to a corpus-unused form.
+
+No proven CRLF/LF text-comparison defect.
+
+No merged-cell or off-by-one tabulation/count logic present.
+
+No proven zero-conflated-with-absent defect beyond the empty-list/default behavior above.
+
+No negation-parsing logic present.
+
+No proven wrapper-status-code defect.
+tokens used
+18,217
+- **CHECK THAT CANNOT FAIL**: line 96.  
+  Exact input: `{"inputs":{"trials":[]},"results":{"by_outcome":{"primary":{"pooled":{"withdrawn":true}}}}}` with `--apply`.  
+  Consequence: exits 0 and writes the withdrawal note after reading zero registrations.
+
+- **CHECK THAT CANNOT FAIL / EMPTY READ ACCEPTED**: line 72.  
+  Exact registry response for any trial: `{"protocolSection":{"outcomesModule":{"primaryOutcomes":[{"measure":""}]}}}`.  
+  Consequence: `fetch_ranks()` returns `{"PRIMARY":[""],"SECONDARY":[],"OTHER":[]}` instead of refusing, so a blank outcome title can satisfy the read marker.
+
+- **MARKER NOT BACKED BY WORK**: lines 112-115.  
+  Exact registry response: `{"protocolSection":{"outcomesModule":{"primaryOutcomes":[{"measure":"Primary X"}]}}}` with a trial object lacking any existing primary-outcome field.  
+  Consequence: `all_ranks_read_utc` is written although the fetched PRIMARY title is not stored on the trial.
+
+- **NET-ADDITIVE CHECK MISREADS CONTENT LOSS AS SAFE**: lines 130-132.  
+  Exact input: trial has `"registered_secondaries":["old curated title"]`; registry response has `"secondaryOutcomes":[]`; `--apply`.  
+  Consequence: the old title is deleted, but `count_keys()` does not count scalar list contents, so the loss is not caught.
+
+No proven probe keyed to a string a fix removes.
+
+No proven idempotency guard satisfied by its own comment or marker.
+
+COULD NOT DETERMINE different-copy instrumentation: missing `scripts/lint_withholding_asked.py`, the actual SSOT object, and the caller/gate path.
+
+No proven selector keyed to a corpus-unused form.
+
+No proven CRLF/LF text-comparison defect.
+
+No merged-cell or off-by-one tabulation/count logic present.
+
+No proven zero-conflated-with-absent defect beyond the empty-list/default behavior above.
+
+No negation-parsing logic present.
+
+No proven wrapper-status-code defect.

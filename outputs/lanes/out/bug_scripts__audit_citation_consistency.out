@@ -1,0 +1,927 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a03136-93a7-7061-a0e9-f5a435db452e
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/audit_citation_consistency.py
+
+--- THE FILE, IN FULL ---
+"""
+Portfolio audit: citation / sourceUrl / page-number consistency.
+
+Cross-checks every (pmid, snippet, sourceUrl) triple in every
+*_REVIEW.html against PubMed E-utilities ESummary metadata.
+
+Caught classes of error (the ones that hit PEGCETACOPLAN_GA):
+  AUTHOR_MISMATCH    -- snippet attributes the cite to "Liao 2023"
+                        but PubMed says first author is Heier
+  YEAR_MISMATCH      -- snippet says "2018" but PubMed says 2020
+  PII_MISMATCH       -- sourceUrl's PII (S0140-6736(23)01578-0) does
+                        not match the DOI/PII PubMed has for that
+                        PMID (S0140-6736(23)01520-9)
+  PAGE_MISMATCH      -- snippet says "1591-1604" but PubMed says
+                        "1434-1448"
+  PMID_NOT_FOUND     -- PubMed returned no record for the PMID
+                        (possibly a typo or de-listed)
+
+Cache: outputs/_pubmed_cache.json keyed by PMID; 24h TTL.
+
+Usage:
+  python scripts/audit_citation_consistency.py
+  python scripts/audit_citation_consistency.py --csv outputs/citation_audit.csv
+  python scripts/audit_citation_consistency.py --offline   # skip net, use cache only
+
+NCBI rate-limit: 3 req/sec without an API key. Script throttles to
+2.5 req/sec to be polite. Target ~500-800 unique PMIDs across the
+portfolio -> ~5 min cold cache.
+"""
+from __future__ import annotations
+
+import argparse
+import csv
+import io
+import json
+import re
+import sys
+import time
+import unicodedata
+import urllib.error
+import urllib.parse
+import urllib.request
+from pathlib import Path
+
+
+def strip_accents(s: str) -> str:
+    """NFKD-normalise so 'Schüpke' compares equal to 'Schupke'."""
+    if not s:
+        return ""
+    nfkd = unicodedata.normalize('NFKD', s)
+    return ''.join(c for c in nfkd if not unicodedata.combining(c))
+
+
+def has_any_author_pattern(snippet: str) -> bool:
+    """Detect whether the snippet actually carries an author CITATION.
+
+    Must be high-precision: a bare journal citation like
+    'N Engl J Med 2018; 378:417-427' contains NO author, yet the old
+    heuristic 'Surname Initial' matched the journal abbreviation
+    'Engl J' and produced a false AUTHOR_MISMATCH against the correct
+    PMID's real first author (this over-fired on ~93% of rows). NCT
+    outcome-measure snippets ('NCT...: Number of Participants...')
+    likewise have no author.
+
+    Only the following count as a genuine author list:
+      - 'et al' anywhere,
+      - 'Source: Surname AB' (explicit author-led citation), or
+      - two comma-separated 'Surname AB, Surname CD' author tokens.
+    """
+    if not snippet:
+        return False
+    if re.search(r"\bet\s+al\b", snippet):
+        return True
+    if re.search(r"\bSource:\s*[A-Z][a-zA-Z]+(?:-[A-Z][a-zA-Z]+)?\s+[A-Z]{1,3}\b", snippet):
+        return True
+    if re.search(r"\b[A-Z][a-zA-Z]{2,}\s+[A-Z]{1,3},\s*[A-Z][a-zA-Z]{2,}\s+[A-Z]{1,3}\b", snippet):
+        return True
+    return False
+
+
+def journal_url_token(url: str) -> str | None:
+    """Extract a journal-shorthand token from sourceUrl path.
+    Useful values: 'lancet', 'lanonc', 'jama', 'nejm', 'circulation',
+    'european-heart-journal', 'thelancet', etc."""
+    if not url:
+        return None
+    u = url.lower()
+    if 'thelancet.com/journals/lancet/' in u: return 'lancet'
+    if 'thelancet.com/journals/lanonc' in u: return 'lancet oncol'
+    if 'thelancet.com/journals/lanrhe' in u: return 'lancet rheumatol'
+    if 'thelancet.com/journals/landig' in u: return 'lancet digital'
+    if 'thelancet.com/journals/lanres' in u: return 'lancet respir'
+    if 'thelancet.com/journals/lanhae' in u: return 'lancet haematol'
+    if 'thelancet.com/journals/laninf' in u: return 'lancet infect dis'
+    if 'thelancet.com/journals/lanepe' in u: return 'lancet'
+    if 'nejm.org' in u: return 'n engl j med'
+    if 'jamanetwork.com/journals/jama/' in u: return 'jama'
+    if 'jamanetwork.com/journals/jamaoncology' in u: return 'jama oncol'
+    if 'jamanetwork.com/journals/jamacardiology' in u: return 'jama cardiol'
+    if 'jamanetwork.com/journals/jamaneurology' in u: return 'jama neurol'
+    if 'ahajournals.org/doi' in u and 'circulation' in u: return 'circulation'
+    if 'academic.oup.com/eurheartj' in u: return 'eur heart j'
+    return None
+
+
+def journal_match(url_token: str | None, pubmed_journal: str) -> bool | None:
+    """True if URL journal matches PubMed journal; False if mismatch;
+    None if URL has no journal token to compare."""
+    if not url_token:
+        return None
+    pj = (pubmed_journal or "").lower()
+    return url_token in pj or any(tok in pj for tok in url_token.split())
+
+ROOT = Path(__file__).resolve().parent.parent
+DEFAULT_CSV = ROOT / "outputs" / "citation_audit.csv"
+CACHE_PATH = ROOT / "outputs" / "_pubmed_cache.json"
+CACHE_TTL_SEC = 24 * 60 * 60
+
+ESUMMARY = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi"
+
+# Quote-agnostic: dashboards are emitted minified with EITHER single or
+# double quotes (e.g. name:'CASTLE-AF' vs name:"CASTLE-AF"). Each pattern
+# captures the opening quote and backreferences it for the close, so a value
+# may freely contain the OTHER quote char. The value is always group 'val'.
+def _qpat(name: str) -> re.Pattern:
+    return re.compile(r"\b" + name + r":\s*(['\"])(?P<val>(?:\\.|(?!\1).)*)\1")
+
+PMID_RE = re.compile(r"\bpmid:\s*['\"](?P<val>\d+)['\"]")
+NAME_RE = _qpat("name")
+SNIPPET_RE = _qpat("snippet")
+SOURCE_URL_RE = _qpat("sourceUrl")
+
+# Match surrounding object literal so we can pair pmid with snippet/sourceUrl
+NAME_PMID_ANCHOR = re.compile(
+    r"\bname:\s*(['\"])(?:\\.|(?!\1).)*\1\s*,\s*pmid:\s*['\"]\d+['\"]")
+
+
+def find_trial_blocks(text: str) -> list[str]:
+    """Extract balanced { ... } blocks anchored on `name: '...', pmid:`."""
+    out = []
+    for m in NAME_PMID_ANCHOR.finditer(text):
+        idx = m.start()
+        # walk back to opening brace
+        depth = 0
+        start = None
+        for i in range(idx, -1, -1):
+            ch = text[i]
+            if ch == '}':
+                depth += 1
+            elif ch == '{':
+                if depth == 0:
+                    start = i
+                    break
+                depth -= 1
+        if start is None:
+            continue
+        depth = 0
+        end = None
+        for j in range(start, len(text)):
+            ch = text[j]
+            if ch == '{':
+                depth += 1
+            elif ch == '}':
+                depth -= 1
+                if depth == 0:
+                    end = j + 1
+                    break
+        if end is None:
+            continue
+        out.append(text[start:end])
+    return out
+
+
+def field(rx: re.Pattern, blob: str) -> str | None:
+    m = rx.search(blob)
+    return m.group("val") if m else None
+
+
+def load_cache() -> dict:
+    if CACHE_PATH.exists():
+        try:
+            return json.loads(CACHE_PATH.read_text(encoding="utf-8"))
+        except Exception:
+            return {}
+    return {}
+
+
+def save_cache(cache: dict) -> None:
+    CACHE_PATH.parent.mkdir(parents=True, exist_ok=True)
+    CACHE_PATH.write_text(json.dumps(cache, indent=2), encoding="utf-8")
+
+
+def fetch_pubmed_metadata(pmid: str, cache: dict, offline: bool = False) -> dict | None:
+    """Returns ESummary record or None on miss/error."""
+    cache_key = f"esummary_{pmid}"
+    now = int(time.time())
+    cached = cache.get(cache_key)
+    if cached and now - cached.get("_t", 0) < CACHE_TTL_SEC:
+        return cached.get("v")
+    if offline:
+        return None
+    url = f"{ESUMMARY}?db=pubmed&id={pmid}&retmode=json"
+    try:
+        with urllib.request.urlopen(url, timeout=15) as r:
+            data = json.loads(r.read().decode("utf-8"))
+        rec = data.get("result", {}).get(pmid)
+        cache[cache_key] = {"_t": now, "v": rec}
+        return rec
+    except (urllib.error.URLError, urllib.error.HTTPError, json.JSONDecodeError, TimeoutError) as e:
+        cache[cache_key] = {"_t": now, "v": None, "err": str(e)}
+        return None
+
+
+def extract_pii(url: str) -> str | None:
+    """Extract Lancet/Elsevier-style PII from a sourceUrl, e.g.
+    PIIS0140-6736(23)01520-9 -> S0140-6736(23)01520-9."""
+    m = re.search(r"PII(S\d{4}-\d{4}\(\d{2}\)\d+-?\d?)", url)
+    return m.group(1) if m else None
+
+
+def extract_pii_from_articleids(articleids: list[dict]) -> str | None:
+    """ESummary returns articleids; look for 'pii' or DOI."""
+    for a in articleids or []:
+        idtype = (a.get("idtype") or "").lower()
+        val = a.get("value") or ""
+        if idtype == "pii":
+            return val
+        if idtype == "doi":
+            # Convert DOI like 10.1016/S0140-6736(23)01520-9 -> S0140-6736(23)01520-9
+            m = re.search(r"(S\d{4}-\d{4}\(\d{2}\)\d+-?\d?)", val)
+            if m:
+                return m.group(1)
+    return None
+
+
+def extract_year_from_pubdate(pubdate: str) -> int | None:
+    m = re.match(r"(\d{4})", pubdate or "")
+    return int(m.group(1)) if m else None
+
+
+def normalize_pages(s: str) -> str:
+    """e.g. '1434-1448' -> '1434-1448', '1434-48' -> '1434-1448'."""
+    if not s:
+        return ""
+    m = re.match(r"(\d+)\s*[-–]\s*(\d+)", s)
+    if not m:
+        return s
+    a, b = m.group(1), m.group(2)
+    if len(b) < len(a):
+        # shortened end-page e.g. "1434-48"
+        b = a[:len(a) - len(b)] + b
+    return f"{a}-{b}"
+
+
+def extract_snippet_pages(snippet: str) -> str | None:
+    """Look for "<journal>;<vol>(...):<pages>" or "<vol>:<pages>" pattern."""
+    m = re.search(r":\s*(\d+\s*[-–]\s*\d+)", snippet or "")
+    return normalize_pages(m.group(1)) if m else None
+
+
+def compare_one(dashboard: str, trial_name: str, pmid: str, snippet: str,
+                source_url: str, meta: dict | None) -> dict:
+    issues = []
+    expected_author = ""
+    expected_year = None
+    expected_pages = ""
+    expected_journal = ""
+
+    if meta is None:
+        issues.append("PMID_NOT_FOUND")
+    else:
+        expected_author = (meta.get("sortfirstauthor")
+                           or (meta.get("authors", [{}])[0].get("name", "") if meta.get("authors") else ""))
+        last_name = (expected_author.split(" ")[0] if expected_author else "")
+        expected_year = extract_year_from_pubdate(meta.get("pubdate", ""))
+        expected_pages = normalize_pages(meta.get("pages", ""))
+        expected_journal = (meta.get("fulljournalname") or meta.get("source") or "")
+
+        # AUTHOR_MISMATCH only meaningful when snippet actually attempts to
+        # name an author. Skip for "Journal 2018; pages" style snippets.
+        # Also normalise accents so 'Schüpke' == 'Schupke'.
+        if last_name and has_any_author_pattern(snippet):
+            if strip_accents(last_name).lower() not in strip_accents(snippet or "").lower():
+                issues.append("AUTHOR_MISMATCH")
+
+        if expected_year is not None:
+            # Only flag YEAR_MISMATCH if the snippet quotes a DIFFERENT 4-digit
+            # year (positive evidence of wrong year), not just absence.
+            quoted_years = set(re.findall(r"\b(20\d\d|19\d\d)\b", snippet or ""))
+            if quoted_years and str(expected_year) not in quoted_years:
+                issues.append("YEAR_MISMATCH")
+
+        if expected_pages:
+            snippet_pages = extract_snippet_pages(snippet)
+            if snippet_pages and snippet_pages != expected_pages:
+                issues.append("PAGE_MISMATCH")
+
+        # JOURNAL_MISMATCH: stronger than PII_MISMATCH because we don't
+        # have to wrestle with PubMed's articleid grab-bag. URL host/path
+        # implies the journal; compare to PubMed's fulljournalname.
+        url_token = journal_url_token(source_url or "")
+        jm = journal_match(url_token, expected_journal)
+        if jm is False:
+            issues.append("JOURNAL_MISMATCH")
+
+    return {
+        "dashboard": dashboard,
+        "trial_name": trial_name,
+        "pmid": pmid,
+        "issues": ";".join(issues),
+        "expected_author": expected_author,
+        "expected_year": expected_year or "",
+        "expected_pages": expected_pages,
+        "expected_journal": expected_journal,
+        "snippet": (snippet or "")[:200],
+        "source_url": source_url or "",
+    }
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--csv", type=Path, default=DEFAULT_CSV)
+    ap.add_argument("--root", type=Path, default=ROOT)
+    ap.add_argument("--offline", action="store_true", help="skip network, use cache only")
+    ap.add_argument("--throttle", type=float, default=0.4, help="seconds between PubMed requests")
+    args = ap.parse_args()
+
+    if hasattr(sys.stdout, "buffer"):
+        sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace", line_buffering=True)
+
+    cache = load_cache()
+    dashboards = sorted(p for p in args.root.glob("*_REVIEW.html") if p.is_file())
+    print(f"Scanning {len(dashboards)} dashboards under {args.root}")
+
+    triples: list[dict] = []
+    for p in dashboards:
+        try:
+            text = p.read_text(encoding="utf-8", errors="replace")
+        except Exception:
+            continue
+        for blk in find_trial_blocks(text):
+            pmid = field(PMID_RE, blk) or ""
+            if not pmid:
+                continue
+            triples.append({
+                "dashboard": p.name,
+                "trial_name": field(NAME_RE, blk) or "",
+                "pmid": pmid,
+                "snippet": field(SNIPPET_RE, blk) or "",
+                "source_url": field(SOURCE_URL_RE, blk) or "",
+            })
+
+    print(f"Extracted {len(triples)} (pmid, snippet, sourceUrl) triples across the portfolio.")
+    unique_pmids = sorted(set(t["pmid"] for t in triples))
+    print(f"  unique PMIDs: {len(unique_pmids)}")
+
+    if not args.offline:
+        print(f"Fetching PubMed ESummary for {len(unique_pmids)} PMIDs (throttle {args.throttle}s)...")
+        for i, pmid in enumerate(unique_pmids, 1):
+            cache_key = f"esummary_{pmid}"
+            cached = cache.get(cache_key)
+            now = int(time.time())
+            if cached and now - cached.get("_t", 0) < CACHE_TTL_SEC:
+                continue
+            fetch_pubmed_metadata(pmid, cache, offline=False)
+            time.sleep(args.throttle)
+            if i % 25 == 0:
+                save_cache(cache)
+                print(f"  {i}/{len(unique_pmids)} fetched")
+        save_cache(cache)
+        print("PubMed fetch complete.")
+    else:
+        print("Offline mode: using cache only.")
+
+    rows = []
+    for t in triples:
+        meta = fetch_pubmed_metadata(t["pmid"], cache, offline=True)
+        rows.append(compare_one(t["dashboard"], t["trial_name"], t["pmid"],
+                                t["snippet"], t["source_url"], meta))
+
+    args.csv.parent.mkdir(parents=True, exist_ok=True)
+    fields = ["dashboard", "trial_name", "pmid", "issues", "expected_author",
+              "expected_year", "expected_pages", "expected_journal", "snippet", "source_url"]
+    with args.csv.open("w", encoding="utf-8", newline="") as fh:
+        w = csv.DictWriter(fh, fieldnames=fields)
+        w.writeheader()
+        w.writerows(rows)
+
+    n_issues = sum(1 for r in rows if r["issues"])
+    by_class: dict[str, int] = {}
+    for r in rows:
+        for c in (r["issues"] or "").split(";"):
+            if c:
+                by_class[c] = by_class.get(c, 0) + 1
+
+    # HIGH-CONFIDENCE: trial flagged with TWO OR MORE classes is almost
+    # certainly a real wrong-PMID situation (two or more independent
+    # signals say the cited paper differs from the PMID's actual paper).
+    high_conf = [r for r in rows if r["issues"].count(";") >= 1]
+
+    print(f"\nResults:")
+    print(f"  Total trial-citation rows:        {len(rows)}")
+    print(f"  Rows with at least 1 issue:       {n_issues}")
+    print(f"  HIGH-CONFIDENCE (>=2 issues):     {len(high_conf)}")
+    for cls in ["PMID_NOT_FOUND", "AUTHOR_MISMATCH", "YEAR_MISMATCH",
+                "PAGE_MISMATCH", "JOURNAL_MISMATCH"]:
+        print(f"  {cls:18} {by_class.get(cls, 0)}")
+    print(f"\nCSV written: {args.csv}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+
+codex
+I’m treating the pasted module as the review record and checking only defects that can be demonstrated from that code, with no assumptions about missing callers or data.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=0; Get-Content -Path scripts/audit_citation_consistency.py | ForEach-Object { $i++; '"'{0,4}: {1}' -f "'$i, $_ }' in F:\rapidmeta-ssot-shell
+ succeeded in 5209ms:
+   1: """
+   2: Portfolio audit: citation / sourceUrl / page-number consistency.
+   3: 
+   4: Cross-checks every (pmid, snippet, sourceUrl) triple in every
+   5: *_REVIEW.html against PubMed E-utilities ESummary metadata.
+   6: 
+   7: Caught classes of error (the ones that hit PEGCETACOPLAN_GA):
+   8:   AUTHOR_MISMATCH    -- snippet attributes the cite to "Liao 2023"
+   9:                         but PubMed says first author is Heier
+  10:   YEAR_MISMATCH      -- snippet says "2018" but PubMed says 2020
+  11:   PII_MISMATCH       -- sourceUrl's PII (S0140-6736(23)01578-0) does
+  12:                         not match the DOI/PII PubMed has for that
+  13:                         PMID (S0140-6736(23)01520-9)
+  14:   PAGE_MISMATCH      -- snippet says "1591-1604" but PubMed says
+  15:                         "1434-1448"
+  16:   PMID_NOT_FOUND     -- PubMed returned no record for the PMID
+  17:                         (possibly a typo or de-listed)
+  18: 
+  19: Cache: outputs/_pubmed_cache.json keyed by PMID; 24h TTL.
+  20: 
+  21: Usage:
+  22:   python scripts/audit_citation_consistency.py
+  23:   python scripts/audit_citation_consistency.py --csv outputs/citation_audit.csv
+  24:   python scripts/audit_citation_consistency.py --offline   # skip net, use cache only
+  25: 
+  26: NCBI rate-limit: 3 req/sec without an API key. Script throttles to
+  27: 2.5 req/sec to be polite. Target ~500-800 unique PMIDs across the
+  28: portfolio -> ~5 min cold cache.
+  29: """
+  30: from __future__ import annotations
+  31: 
+  32: import argparse
+  33: import csv
+  34: import io
+  35: import json
+  36: import re
+  37: import sys
+  38: import time
+  39: import unicodedata
+  40: import urllib.error
+  41: import urllib.parse
+  42: import urllib.request
+  43: from pathlib import Path
+  44: 
+  45: 
+  46: def strip_accents(s: str) -> str:
+  47:     """NFKD-normalise so 'SchÃ¼pke' compares equal to 'Schupke'."""
+  48:     if not s:
+  49:         return ""
+  50:     nfkd = unicodedata.normalize('NFKD', s)
+  51:     return ''.join(c for c in nfkd if not unicodedata.combining(c))
+  52: 
+  53: 
+  54: def has_any_author_pattern(snippet: str) -> bool:
+  55:     """Detect whether the snippet actually carries an author CITATION.
+  56: 
+  57:     Must be high-precision: a bare journal citation like
+  58:     'N Engl J Med 2018; 378:417-427' contains NO author, yet the old
+  59:     heuristic 'Surname Initial' matched the journal abbreviation
+  60:     'Engl J' and produced a false AUTHOR_MISMATCH against the correct
+  61:     PMID's real first author (this over-fired on ~93% of rows). NCT
+  62:     outcome-measure snippets ('NCT...: Number of Participants...')
+  63:     likewise have no author.
+  64: 
+  65:     Only the following count as a genuine author list:
+  66:       - 'et al' anywhere,
+  67:       - 'Source: Surname AB' (explicit author-led citation), or
+  68:       - two comma-separated 'Surname AB, Surname CD' author tokens.
+  69:     """
+  70:     if not snippet:
+  71:         return False
+  72:     if re.search(r"\bet\s+al\b", snippet):
+  73:         return True
+  74:     if re.search(r"\bSource:\s*[A-Z][a-zA-Z]+(?:-[A-Z][a-zA-Z]+)?\s+[A-Z]{1,3}\b", snippet):
+  75:         return True
+  76:     if re.search(r"\b[A-Z][a-zA-Z]{2,}\s+[A-Z]{1,3},\s*[A-Z][a-zA-Z]{2,}\s+[A-Z]{1,3}\b", snippet):
+  77:         return True
+  78:     return False
+  79: 
+  80: 
+  81: def journal_url_token(url: str) -> str | None:
+  82:     """Extract a journal-shorthand token from sourceUrl path.
+  83:     Useful values: 'lancet', 'lanonc', 'jama', 'nejm', 'circulation',
+  84:     'european-heart-journal', 'thelancet', etc."""
+  85:     if not url:
+  86:         return None
+  87:     u = url.lower()
+  88:     if 'thelancet.com/journals/lancet/' in u: return 'lancet'
+  89:     if 'thelancet.com/journals/lanonc' in u: return 'lancet oncol'
+  90:     if 'thelancet.com/journals/lanrhe' in u: return 'lancet rheumatol'
+  91:     if 'thelancet.com/journals/landig' in u: return 'lancet digital'
+  92:     if 'thelancet.com/journals/lanres' in u: return 'lancet respir'
+  93:     if 'thelancet.com/journals/lanhae' in u: return 'lancet haematol'
+  94:     if 'thelancet.com/journals/laninf' in u: return 'lancet infect dis'
+  95:     if 'thelancet.com/journals/lanepe' in u: return 'lancet'
+  96:     if 'nejm.org' in u: return 'n engl j med'
+  97:     if 'jamanetwork.com/journals/jama/' in u: return 'jama'
+  98:     if 'jamanetwork.com/journals/jamaoncology' in u: return 'jama oncol'
+  99:     if 'jamanetwork.com/journals/jamacardiology' in u: return 'jama cardiol'
+ 100:     if 'jamanetwork.com/journals/jamaneurology' in u: return 'jama neurol'
+ 101:     if 'ahajournals.org/doi' in u and 'circulation' in u: return 'circulation'
+ 102:     if 'academic.oup.com/eurheartj' in u: return 'eur heart j'
+ 103:     return None
+ 104: 
+ 105: 
+ 106: def journal_match(url_token: str | None, pubmed_journal: str) -> bool | None:
+ 107:     """True if URL journal matches PubMed journal; False if mismatch;
+ 108:     None if URL has no journal token to compare."""
+ 109:     if not url_token:
+ 110:         return None
+ 111:     pj = (pubmed_journal or "").lower()
+ 112:     return url_token in pj or any(tok in pj for tok in url_token.split())
+ 113: 
+ 114: ROOT = Path(__file__).resolve().parent.parent
+ 115: DEFAULT_CSV = ROOT / "outputs" / "citation_audit.csv"
+ 116: CACHE_PATH = ROOT / "outputs" / "_pubmed_cache.json"
+ 117: CACHE_TTL_SEC = 24 * 60 * 60
+ 118: 
+ 119: ESUMMARY = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi"
+ 120: 
+ 121: # Quote-agnostic: dashboards are emitted minified with EITHER single or
+ 122: # double quotes (e.g. name:'CASTLE-AF' vs name:"CASTLE-AF"). Each pattern
+ 123: # captures the opening quote and backreferences it for the close, so a value
+ 124: # may freely contain the OTHER quote char. The value is always group 'val'.
+ 125: def _qpat(name: str) -> re.Pattern:
+ 126:     return re.compile(r"\b" + name + r":\s*(['\"])(?P<val>(?:\\.|(?!\1).)*)\1")
+ 127: 
+ 128: PMID_RE = re.compile(r"\bpmid:\s*['\"](?P<val>\d+)['\"]")
+ 129: NAME_RE = _qpat("name")
+ 130: SNIPPET_RE = _qpat("snippet")
+ 131: SOURCE_URL_RE = _qpat("sourceUrl")
+ 132: 
+ 133: # Match surrounding object literal so we can pair pmid with snippet/sourceUrl
+ 134: NAME_PMID_ANCHOR = re.compile(
+ 135:     r"\bname:\s*(['\"])(?:\\.|(?!\1).)*\1\s*,\s*pmid:\s*['\"]\d+['\"]")
+ 136: 
+ 137: 
+ 138: def find_trial_blocks(text: str) -> list[str]:
+ 139:     """Extract balanced { ... } blocks anchored on `name: '...', pmid:`."""
+ 140:     out = []
+ 141:     for m in NAME_PMID_ANCHOR.finditer(text):
+ 142:         idx = m.start()
+ 143:         # walk back to opening brace
+ 144:         depth = 0
+ 145:         start = None
+ 146:         for i in range(idx, -1, -1):
+ 147:             ch = text[i]
+ 148:             if ch == '}':
+ 149:                 depth += 1
+ 150:             elif ch == '{':
+ 151:                 if depth == 0:
+ 152:                     start = i
+ 153:                     break
+ 154:                 depth -= 1
+ 155:         if start is None:
+ 156:             continue
+ 157:         depth = 0
+ 158:         end = None
+ 159:         for j in range(start, len(text)):
+ 160:             ch = text[j]
+ 161:             if ch == '{':
+ 162:                 depth += 1
+ 163:             elif ch == '}':
+ 164:                 depth -= 1
+ 165:                 if depth == 0:
+ 166:                     end = j + 1
+ 167:                     break
+ 168:         if end is None:
+ 169:             continue
+ 170:         out.append(text[start:end])
+ 171:     return out
+ 172: 
+ 173: 
+ 174: def field(rx: re.Pattern, blob: str) -> str | None:
+ 175:     m = rx.search(blob)
+ 176:     return m.group("val") if m else None
+ 177: 
+ 178: 
+ 179: def load_cache() -> dict:
+ 180:     if CACHE_PATH.exists():
+ 181:         try:
+ 182:             return json.loads(CACHE_PATH.read_text(encoding="utf-8"))
+ 183:         except Exception:
+ 184:             return {}
+ 185:     return {}
+ 186: 
+ 187: 
+ 188: def save_cache(cache: dict) -> None:
+ 189:     CACHE_PATH.parent.mkdir(parents=True, exist_ok=True)
+ 190:     CACHE_PATH.write_text(json.dumps(cache, indent=2), encoding="utf-8")
+ 191: 
+ 192: 
+ 193: def fetch_pubmed_metadata(pmid: str, cache: dict, offline: bool = False) -> dict | None:
+ 194:     """Returns ESummary record or None on miss/error."""
+ 195:     cache_key = f"esummary_{pmid}"
+ 196:     now = int(time.time())
+ 197:     cached = cache.get(cache_key)
+ 198:     if cached and now - cached.get("_t", 0) < CACHE_TTL_SEC:
+ 199:         return cached.get("v")
+ 200:     if offline:
+ 201:         return None
+ 202:     url = f"{ESUMMARY}?db=pubmed&id={pmid}&retmode=json"
+ 203:     try:
+ 204:         with urllib.request.urlopen(url, timeout=15) as r:
+ 205:             data = json.loads(r.read().decode("utf-8"))
+ 206:         rec = data.get("result", {}).get(pmid)
+ 207:         cache[cache_key] = {"_t": now, "v": rec}
+ 208:         return rec
+ 209:     except (urllib.error.URLError, urllib.error.HTTPError, json.JSONDecodeError, TimeoutError) as e:
+ 210:         cache[cache_key] = {"_t": now, "v": None, "err": str(e)}
+ 211:         return None
+ 212: 
+ 213: 
+ 214: def extract_pii(url: str) -> str | None:
+ 215:     """Extract Lancet/Elsevier-style PII from a sourceUrl, e.g.
+ 216:     PIIS0140-6736(23)01520-9 -> S0140-6736(23)01520-9."""
+ 217:     m = re.search(r"PII(S\d{4}-\d{4}\(\d{2}\)\d+-?\d?)", url)
+ 218:     return m.group(1) if m else None
+ 219: 
+ 220: 
+ 221: def extract_pii_from_articleids(articleids: list[dict]) -> str | None:
+ 222:     """ESummary returns articleids; look for 'pii' or DOI."""
+ 223:     for a in articleids or []:
+ 224:         idtype = (a.get("idtype") or "").lower()
+ 225:         val = a.get("value") or ""
+ 226:         if idtype == "pii":
+ 227:             return val
+ 228:         if idtype == "doi":
+ 229:             # Convert DOI like 10.1016/S0140-6736(23)01520-9 -> S0140-6736(23)01520-9
+ 230:             m = re.search(r"(S\d{4}-\d{4}\(\d{2}\)\d+-?\d?)", val)
+ 231:             if m:
+ 232:                 return m.group(1)
+ 233:     return None
+ 234: 
+ 235: 
+ 236: def extract_year_from_pubdate(pubdate: str) -> int | None:
+ 237:     m = re.match(r"(\d{4})", pubdate or "")
+ 238:     return int(m.group(1)) if m else None
+ 239: 
+ 240: 
+ 241: def normalize_pages(s: str) -> str:
+ 242:     """e.g. '1434-1448' -> '1434-1448', '1434-48' -> '1434-1448'."""
+ 243:     if not s:
+ 244:         return ""
+ 245:     m = re.match(r"(\d+)\s*[-â€“]\s*(\d+)", s)
+ 246:     if not m:
+ 247:         return s
+ 248:     a, b = m.group(1), m.group(2)
+ 249:     if len(b) < len(a):
+ 250:         # shortened end-page e.g. "1434-48"
+ 251:         b = a[:len(a) - len(b)] + b
+ 252:     return f"{a}-{b}"
+ 253: 
+ 254: 
+ 255: def extract_snippet_pages(snippet: str) -> str | None:
+ 256:     """Look for "<journal>;<vol>(...):<pages>" or "<vol>:<pages>" pattern."""
+ 257:     m = re.search(r":\s*(\d+\s*[-â€“]\s*\d+)", snippet or "")
+ 258:     return normalize_pages(m.group(1)) if m else None
+ 259: 
+ 260: 
+ 261: def compare_one(dashboard: str, trial_name: str, pmid: str, snippet: str,
+ 262:                 source_url: str, meta: dict | None) -> dict:
+ 263:     issues = []
+ 264:     expected_author = ""
+ 265:     expected_year = None
+ 266:     expected_pages = ""
+ 267:     expected_journal = ""
+ 268: 
+ 269:     if meta is None:
+ 270:         issues.append("PMID_NOT_FOUND")
+ 271:     else:
+ 272:         expected_author = (meta.get("sortfirstauthor")
+ 273:                            or (meta.get("authors", [{}])[0].get("name", "") if meta.get("authors") else ""))
+ 274:         last_name = (expected_author.split(" ")[0] if expected_author else "")
+ 275:         expected_year = extract_year_from_pubdate(meta.get("pubdate", ""))
+ 276:         expected_pages = normalize_pages(meta.get("pages", ""))
+ 277:         expected_journal = (meta.get("fulljournalname") or meta.get("source") or "")
+ 278: 
+ 279:         # AUTHOR_MISMATCH only meaningful when snippet actually attempts to
+ 280:         # name an author. Skip for "Journal 2018; pages" style snippets.
+ 281:         # Also normalise accents so 'SchÃ¼pke' == 'Schupke'.
+ 282:         if last_name and has_any_author_pattern(snippet):
+ 283:             if strip_accents(last_name).lower() not in strip_accents(snippet or "").lower():
+ 284:                 issues.append("AUTHOR_MISMATCH")
+ 285: 
+ 286:         if expected_year is not None:
+ 287:             # Only flag YEAR_MISMATCH if the snippet quotes a DIFFERENT 4-digit
+ 288:             # year (positive evidence of wrong year), not just absence.
+ 289:             quoted_years = set(re.findall(r"\b(20\d\d|19\d\d)\b", snippet or ""))
+ 290:             if quoted_years and str(expected_year) not in quoted_years:
+ 291:                 issues.append("YEAR_MISMATCH")
+ 292: 
+ 293:         if expected_pages:
+ 294:             snippet_pages = extract_snippet_pages(snippet)
+ 295:             if snippet_pages and snippet_pages != expected_pages:
+ 296:                 issues.append("PAGE_MISMATCH")
+ 297: 
+ 298:         # JOURNAL_MISMATCH: stronger than PII_MISMATCH because we don't
+ 299:         # have to wrestle with PubMed's articleid grab-bag. URL host/path
+ 300:         # implies the journal; compare to PubMed's fulljournalname.
+ 301:         url_token = journal_url_token(source_url or "")
+ 302:         jm = journal_match(url_token, expected_journal)
+ 303:         if jm is False:
+ 304:             issues.append("JOURNAL_MISMATCH")
+ 305: 
+ 306:     return {
+ 307:         "dashboard": dashboard,
+ 308:         "trial_name": trial_name,
+ 309:         "pmid": pmid,
+ 310:         "issues": ";".join(issues),
+ 311:         "expected_author": expected_author,
+ 312:         "expected_year": expected_year or "",
+ 313:         "expected_pages": expected_pages,
+ 314:         "expected_journal": expected_journal,
+ 315:         "snippet": (snippet or "")[:200],
+ 316:         "source_url": source_url or "",
+ 317:     }
+ 318: 
+ 319: 
+ 320: def main() -> int:
+ 321:     ap = argparse.ArgumentParser()
+ 322:     ap.add_argument("--csv", type=Path, default=DEFAULT_CSV)
+ 323:     ap.add_argument("--root", type=Path, default=ROOT)
+ 324:     ap.add_argument("--offline", action="store_true", help="skip network, use cache only")
+ 325:     ap.add_argument("--throttle", type=float, default=0.4, help="seconds between PubMed requests")
+ 326:     args = ap.parse_args()
+ 327: 
+ 328:     if hasattr(sys.stdout, "buffer"):
+ 329:         sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace", line_buffering=True)
+ 330: 
+ 331:     cache = load_cache()
+ 332:     dashboards = sorted(p for p in args.root.glob("*_REVIEW.html") if p.is_file())
+ 333:     print(f"Scanning {len(dashboards)} dashboards under {args.root}")
+ 334: 
+ 335:     triples: list[dict] = []
+ 336:     for p in dashboards:
+ 337:         try:
+ 338:             text = p.read_text(encoding="utf-8", errors="replace")
+ 339:         except Exception:
+ 340:             continue
+ 341:         for blk in find_trial_blocks(text):
+ 342:             pmid = field(PMID_RE, blk) or ""
+ 343:             if not pmid:
+ 344:                 continue
+ 345:             triples.append({
+ 346:                 "dashboard": p.name,
+ 347:                 "trial_name": field(NAME_RE, blk) or "",
+ 348:                 "pmid": pmid,
+ 349:                 "snippet": field(SNIPPET_RE, blk) or "",
+ 350:                 "source_url": field(SOURCE_URL_RE, blk) or "",
+ 351:             })
+ 352: 
+ 353:     print(f"Extracted {len(triples)} (pmid, snippet, sourceUrl) triples across the portfolio.")
+ 354:     unique_pmids = sorted(set(t["pmid"] for t in triples))
+ 355:     print(f"  unique PMIDs: {len(unique_pmids)}")
+ 356: 
+ 357:     if not args.offline:
+ 358:         print(f"Fetching PubMed ESummary for {len(unique_pmids)} PMIDs (throttle {args.throttle}s)...")
+ 359:         for i, pmid in enumerate(unique_pmids, 1):
+ 360:             cache_key = f"esummary_{pmid}"
+ 361:             cached = cache.get(cache_key)
+ 362:             now = int(time.time())
+ 363:             if cached and now - cached.get("_t", 0) < CACHE_TTL_SEC:
+ 364:                 continue
+ 365:             fetch_pubmed_metadata(pmid, cache, offline=False)
+ 366:             time.sleep(args.throttle)
+ 367:             if i % 25 == 0:
+ 368:                 save_cache(cache)
+ 369:                 print(f"  {i}/{len(unique_pmids)} fetched")
+ 370:         save_cache(cache)
+ 371:         print("PubMed fetch complete.")
+ 372:     else:
+ 373:         print("Offline mode: using cache only.")
+ 374: 
+ 375:     rows = []
+ 376:     for t in triples:
+ 377:         meta = fetch_pubmed_metadata(t["pmid"], cache, offline=True)
+ 378:         rows.append(compare_one(t["dashboard"], t["trial_name"], t["pmid"],
+ 379:                                 t["snippet"], t["source_url"], meta))
+ 380: 
+ 381:     args.csv.parent.mkdir(parents=True, exist_ok=True)
+ 382:     fields = ["dashboard", "trial_name", "pmid", "issues", "expected_author",
+ 383:               "expected_year", "expected_pages", "expected_journal", "snippet", "source_url"]
+ 384:     with args.csv.open("w", encoding="utf-8", newline="") as fh:
+ 385:         w = csv.DictWriter(fh, fieldnames=fields)
+ 386:         w.writeheader()
+ 387:         w.writerows(rows)
+ 388: 
+ 389:     n_issues = sum(1 for r in rows if r["issues"])
+ 390:     by_class: dict[str, int] = {}
+ 391:     for r in rows:
+ 392:         for c in (r["issues"] or "").split(";"):
+ 393:             if c:
+ 394:                 by_class[c] = by_class.get(c, 0) + 1
+ 395: 
+ 396:     # HIGH-CONFIDENCE: trial flagged with TWO OR MORE classes is almost
+ 397:     # certainly a real wrong-PMID situation (two or more independent
+ 398:     # signals say the cited paper differs from the PMID's actual paper).
+ 399:     high_conf = [r for r in rows if r["issues"].count(";") >= 1]
+ 400: 
+ 401:     print(f"\nResults:")
+ 402:     print(f"  Total trial-citation rows:        {len(rows)}")
+ 403:     print(f"  Rows with at least 1 issue:       {n_issues}")
+ 404:     print(f"  HIGH-CONFIDENCE (>=2 issues):     {len(high_conf)}")
+ 405:     for cls in ["PMID_NOT_FOUND", "AUTHOR_MISMATCH", "YEAR_MISMATCH",
+ 406:                 "PAGE_MISMATCH", "JOURNAL_MISMATCH"]:
+ 407:         print(f"  {cls:18} {by_class.get(cls, 0)}")
+ 408:     print(f"\nCSV written: {args.csv}")
+ 409:     return 0
+ 410: 
+ 411: 
+ 412: if __name__ == "__main__":
+ 413:     raise SystemExit(main())
+
+codex
+- **Check that cannot fail**: line 409.  
+  Input: any dashboard/cache combination that makes `rows` contain an issue, e.g. `issues="AUTHOR_MISMATCH"`.  
+  Consequence: the audit process still exits `0`, so a CI/gate caller cannot fail on detected citation defects.
+
+- **Check that cannot fire**: lines 214 and 221 define PII extractors, but no line ever appends `PII_MISMATCH`.  
+  Input: `source_url=".../PIIS0140-6736(23)01578-0/..."`, `meta={"articleids":[{"idtype":"doi","value":"10.1016/S0140-6736(23)01520-9"}],"fulljournalname":"Lancet","pubdate":"2020","pages":"1-2","sortfirstauthor":"Smith A"}`, `snippet="Smith et al 2020;1:1-2"`.  
+  Consequence: the documented PII mismatch class is impossible to report.
+
+- **Instrument reading a different copy**: line 116.  
+  Input: `python scripts/audit_citation_consistency.py --root F:\other_project --csv F:\other_project\outputs\citation_audit.csv --offline`.  
+  Consequence: dashboards are read from `F:\other_project`, but PubMed cache is read from this script repo’s `outputs\_pubmed_cache.json`.
+
+- **Selector overmatches the wrong form**: line 112.  
+  Input: `source_url="https://jamanetwork.com/journals/jamacardiology/fullarticle/x"`, `meta["fulljournalname"]="JAMA"`.  
+  Consequence: `journal_match("jama cardiol", "JAMA")` returns true because token `"jama"` matches, suppressing `JOURNAL_MISMATCH`.
+
+- **Selector keyed too loosely for pages**: line 257.  
+  Input: `snippet="NCT123: 10-20 participants; N Engl J Med 2020;383:1434-1448"`, `meta["pages"]="1434-1448"`.  
+  Consequence: it extracts `10-20` as pages and emits a false `PAGE_MISMATCH`.
+
+No proven finding: probe keyed to string a fix removes; idempotency guard; CRLF/LF text compare; merged-cell tabulation; zero conflated with absent; negation dropped.
+tokens used
+23,349
+- **Check that cannot fail**: line 409.  
+  Input: any dashboard/cache combination that makes `rows` contain an issue, e.g. `issues="AUTHOR_MISMATCH"`.  
+  Consequence: the audit process still exits `0`, so a CI/gate caller cannot fail on detected citation defects.
+
+- **Check that cannot fire**: lines 214 and 221 define PII extractors, but no line ever appends `PII_MISMATCH`.  
+  Input: `source_url=".../PIIS0140-6736(23)01578-0/..."`, `meta={"articleids":[{"idtype":"doi","value":"10.1016/S0140-6736(23)01520-9"}],"fulljournalname":"Lancet","pubdate":"2020","pages":"1-2","sortfirstauthor":"Smith A"}`, `snippet="Smith et al 2020;1:1-2"`.  
+  Consequence: the documented PII mismatch class is impossible to report.
+
+- **Instrument reading a different copy**: line 116.  
+  Input: `python scripts/audit_citation_consistency.py --root F:\other_project --csv F:\other_project\outputs\citation_audit.csv --offline`.  
+  Consequence: dashboards are read from `F:\other_project`, but PubMed cache is read from this script repo’s `outputs\_pubmed_cache.json`.
+
+- **Selector overmatches the wrong form**: line 112.  
+  Input: `source_url="https://jamanetwork.com/journals/jamacardiology/fullarticle/x"`, `meta["fulljournalname"]="JAMA"`.  
+  Consequence: `journal_match("jama cardiol", "JAMA")` returns true because token `"jama"` matches, suppressing `JOURNAL_MISMATCH`.
+
+- **Selector keyed too loosely for pages**: line 257.  
+  Input: `snippet="NCT123: 10-20 participants; N Engl J Med 2020;383:1434-1448"`, `meta["pages"]="1434-1448"`.  
+  Consequence: it extracts `10-20` as pages and emits a false `PAGE_MISMATCH`.
+
+No proven finding: probe keyed to string a fix removes; idempotency guard; CRLF/LF text compare; merged-cell tabulation; zero conflated with absent; negation dropped.

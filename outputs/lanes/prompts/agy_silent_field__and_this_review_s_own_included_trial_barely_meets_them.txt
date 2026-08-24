@@ -1,0 +1,3203 @@
+PACKET COMPLETENESS CANNOT BE ASSERTED FOR THIS ONE, AND YOU ARE BEING TOLD SO
+RATHER THAN REASSURED. This message is 185020 bytes. Packets above roughly 191581 bytes
+have been observed arriving CUT, with the tail silently removed before you see
+it. What was SENT is complete. What ARRIVED may not be.
+
+So: if a field you need is not here, the correct answer is COULD NOT DETERMINE,
+NAMING the field. Do NOT conclude it is missing from the record, and do NOT call
+anything fabricated -- an earlier blinded read of a partial packet returned six
+confident accusations of fabrication and all six named facts that were in the
+record and missing only from the packet. If you can see a marker saying input
+was truncated, say so in your first line and stop; that answer is more useful
+than one written over a hole.
+
+A field is RECORDED on 1 object(s) in this corpus and appears on
+ZERO delivered pages. The audit that found it can measure that silence and cannot judge it.
+You are being asked for the judgement, and only the judgement.
+
+THE FIELD: and_this_review_s_own_included_trial_barely_meets_them
+HELD BY: 1 object(s).  SHOWN ON: 0 pages.
+
+The question is NOT whether the field is well written. It is:
+
+1. IS A READER OWED THIS? Answer OWED / NOT OWED / COULD NOT DETERMINE, and say why in one
+   sentence. Some silence is correct -- a field recording an internal decision, a duplicate
+   of text already shown under another name, or a machine flag -- and saying NOT OWED where
+   that is true is as valuable as saying OWED where it is not.
+2. IF OWED: WHERE. Which reader, at what moment, needs it. A qualification shown in a place
+   nobody reads has not reached anyone.
+3. IS IT A DUPLICATE? Search the complete object below. If this text is already on a page
+   under a different field name, say so and name the other field -- that would make the
+   silence harmless and the finding a false positive.
+4. WHAT WOULD BE LOST if this were simply deleted rather than shown?
+
+Under 350 words. If the stored value is boilerplate that says nothing, say so plainly.
+
+--- THE STORED VALUES, AND ONE COMPLETE OBJECT THAT HOLDS THE FIELD ---
+{
+ "field": "and_this_review_s_own_included_trial_barely_meets_them",
+ "holders": [
+  {
+   "topic": "apixaban-vte-treatment",
+   "path_in_object": "screening.eligibility_provenance.and_this_review_s_own_included_trial_barely_meets_them",
+   "stored_value": "RAMBLE (NCT02829957) is n=19, randomises rivaroxaban against apixaban with BOTH arms typed ACTIVE_COMPARATOR, and its registered primary is a PICTORIAL MENSTRUAL BLOOD-LOSS CHART. It is in scope by POPULATION and by INTERVENTION and it will not pool on this estimand. STATED HERE RATHER THAN DISCOVERED AT THE POOLING STEP, because a review whose only included trial cannot contribute to its own estimand is a review whose k=1 is not the number a reader should take away."
+  }
+ ],
+ "THE_COMPLETE_OBJECT": {
+  "app_id": "apixaban-vte-treatment",
+  "schema_version": 2,
+  "title": "Apixaban for the treatment of venous thromboembolism: eight trials report an outcome named for recurrent VTE, and three of them count the same thing",
+  "question": "In adults with acute or recent venous thromboembolism, what is the effect of apixaban compared with conventional anticoagulation, another direct oral anticoagulant, or placebo on recurrent venous thromboembolism and on bleeding?",
+  "question_provenance": "One of the two readings `apixaban-vte` was split into on 2026-08-19. The parent's question was the OBJECT'S OWN VERDICT with a question mark appended -- 'NOT POOLABLE AS POSED...?' -- which no lint could see because the string appears in no registry record. Both readings are built; neither was chosen over the other.",
+  "built": "2026-08-19",
+  "build_mode": "AUTHORED",
+  "split_provenance": {
+   "parent": "apixaban-vte",
+   "why_split": "The parent asked one question of two evidence bases of almost equal size -- 34 trials coded TREATMENT and 33 coded PREVENTION -- and its two included trials fall on opposite sides. See BLOCKED-apixaban-vte-2026-08-19.md. P21.",
+   "siblings": [
+    "apixaban-vte-prophylaxis"
+   ],
+   "shared_trials": {
+    "with_apixaban-vte-prophylaxis": [],
+    "computed_over": "the two objects' own included NCT sets: 4 here against 5 there, intersected. Not asserted.",
+    "why_empty_is_a_result_and_not_a_blank": "The boundary criterion assigns every trial to exactly one of the two reviews, so the intersection is EMPTY BY CONSTRUCTION and the emptiness is computed rather than left as a bare `[]`. P17. The corpus-level consequence is the good one: summing k across these two topics does NOT double-count, which is the opposite of the ablation split's situation."
+   }
+  },
+  "outcomes": [
+   {
+    "id": "recurrent_vte",
+    "name": "Recurrent symptomatic venous thromboembolism -- nonfatal deep vein thrombosis or nonfatal pulmonary embolism -- with NO death term",
+    "definition": "recurrent symptomatic venous thromboembolism -- nonfatal deep vein thrombosis or nonfatal pulmonary embolism -- with NO death term",
+    "restriction": "acute treatment of the index event, apixaban randomised as a drug rather than as a member of a class, against another anticoagulant",
+    "definition_note": "THE DEATH TERM IS PART OF THE DEFINITION AND NOT A DETAIL. Five of the eleven trials register a primary composite carrying one, and they do not carry the SAME one: AMPLIFY counts VTE-related death, AMPLIFY-EXT counts ALL-CAUSE death. Same sponsor, same programme, sequential trials, names differing by a hyphenated suffix.",
+    "measure": "RR",
+    "effect_scale": "log",
+    "type": "binary",
+    "estimand": {
+     "id": "recurrent_vte",
+     "family": "binary risk",
+     "model": "random-effects, REML",
+     "unit_of_analysis": "participant, first recurrent event",
+     "case_definition": "recurrent symptomatic venous thromboembolism -- nonfatal deep vein thrombosis or nonfatal pulmonary embolism -- with NO death term"
+    },
+    "comparator": "another anticoagulant",
+    "comparator_type": "active",
+    "direction_of_benefit": "lower",
+    "null_value": 1.0
+   }
+  ],
+  "withholding_question": {
+   "asked_on": "2026-08-19",
+   "question": "does each trial report a recurrent-VTE efficacy outcome at ANY registered rank -- primary, secondary or other -- before concluding which trials can be combined?",
+   "answer": "YES AT EVERY RANK, AND THE ANSWER DOES NOT SETTLE POOLABILITY",
+   "n_with_the_outcome_at_some_rank": 9,
+   "n_of_those_with_posted_results": 8,
+   "n_that_actually_pool": 3,
+   "what_asking_it_bought_and_what_it_did_not": "IT BOUGHT THE REVIEW ITS ENTIRE POOL. All three contributing results were found by asking at every rank: two of the three are SECONDARY outcomes in trials whose registered PRIMARY is a bleeding endpoint, so a review reading primaries only would have reported that they contribute nothing. IT DID NOT BUY POOLABILITY: eight trials answered yes and five of the eight still do not pool, each for a named reason. The prophylaxis half of this pair ran the identical discipline and its poolable set went 3 -> 8. HERE IT WENT 8 -> 3. THE METHOD HAS NO DIRECTION -- asking is not a way of finding more trials, it is a way of finding out.",
+   "per_trial_ranks_read": {
+    "NCT00643201": 21,
+    "NCT01780987": 6,
+    "NCT02744092": 11,
+    "NCT03045406": 1,
+    "NCT03196349": 7,
+    "NCT03266783": 10,
+    "NCT04168203": 5,
+    "NCT00633893": 22,
+    "NCT03678506": 6
+   },
+   "direction": {
+    "topic": "apixaban-vte-treatment",
+    "moved": "8 -> 3",
+    "direction": "DOWN -- the question DISSOLVED a pool",
+    "detail": "Eight trials with posted results report an outcome named for recurrent VTE. Reading what each one COUNTS leaves three. The two largest trials in the field, AMPLIFY and AMPLIFY-EXT, post no recurrent-VTE measure without a death term at any registered rank.",
+    "counter_instance": {
+     "topic": "apixaban-vte-prophylaxis",
+     "moved": "3 -> 8",
+     "direction": "UP -- the question RECOVERED a pool",
+     "detail": "Four trials register four different primary composites and would not pool. All four also register proximal DVT, non-fatal PE, or VTE-related death, at SECONDARY rank in every one. Four trials and 13,570 participants, available only because someone asked below the primary."
+    },
+    "why_both_are_stated_together": "THE SAME QUESTION, ASKED THE SAME WAY, ON THE SAME DRUG, ON THE SAME NIGHT, MOVED ONE REVIEW'S POOLABLE SET UP AND THE OTHER'S DOWN. Every earlier instance in this corpus recovered a pool, and a check that has only ever returned the convenient answer cannot be told apart from no check at all. This pair is the refutation, and it arose on its own rather than being sought: it cost the treatment review the two largest trials in its field. Asking the withholding question is not a way of finding more trials. It is a way of finding out.",
+    "what_it_does_not_establish": "NOT that either pool is correct -- both were judged by reading endpoint definitions, and that judgement stands or falls on its own. NOT that the direction is unpredictable in general; two instances are two instances. What it establishes is narrow and it is the thing that was missing: THE PROCEDURE HAS NO BUILT-IN DIRECTION, demonstrated rather than asserted."
+   }
+  },
+  "inputs": {
+   "trials": [
+    {
+     "id": "NCT03045406",
+     "nct": "NCT03045406",
+     "name": "CARAVAGGIO",
+     "arms": [
+      {
+       "label": "Apixaban",
+       "role": "treatment",
+       "events": 32,
+       "participants": 576
+      },
+      {
+       "label": "ACTIVE -- LMWH",
+       "role": "control",
+       "events": 46,
+       "participants": 579
+      }
+     ],
+     "design": "apixaban vs dalteparin, cancer-associated VTE",
+     "comparator_type": "active",
+     "comparator_type_basis": "Every trial in the pool this review reports randomises apixaban against ANOTHER ANTICOAGULANT. The trials that randomise against placebo are eligible and are reported separately, never averaged in.",
+     "enrolled": 1155,
+     "by_outcome": {
+      "recurrent_vte": {
+       "effect": {
+        "measure": "RR",
+        "point": 0.6993,
+        "ci_low": 0.4521,
+        "ci_high": 1.0816,
+        "ci_level": 95,
+        "scale": "log",
+        "derived_from": "arm-level event counts posted by the trial",
+        "derivation_note": "The risk ratio and its interval are DERIVED from the arm-level counts, which are READ. Neither the ratio nor the interval is claimed to appear in any source."
+       },
+       "provenance": {
+        "tag": "MEASURED",
+        "source_id": "NCT03045406",
+        "source": "ClinicalTrials.gov posted results, read 2026-08-19",
+        "source_outcome_title": "Recurrent Venous Thromboembolism",
+        "source_quotes": [
+         "Recurrent Venous Thromboembolism",
+         "posted COUNT_OF_PARTICIPANTS, OG000 Apixaban = 32 of 576, OG001 Dalteparin = 46 of 579"
+        ],
+        "quote_note": "Two quotes: the endpoint TITLE as the registry posts it, and the arm-level counts as the registry posts them. The first says what was counted and the second says what happened, and this review exists partly because eight trials' titles agreed while what they counted did not."
+       },
+       "analysed": {
+        "treatment": 576,
+        "control": 579
+       },
+       "outcome_definition": "Recurrent Venous Thromboembolism",
+       "outcome_definition_source": {
+        "source": "registry results section",
+        "source_field": "resultsSection.outcomeMeasuresModule.outcomeMeasures[]",
+        "source_url": "https://clinicaltrials.gov/study/NCT03045406",
+        "read_utc": "2026-08-19"
+       },
+       "counts_read_from": "posted COUNT_OF_PARTICIPANTS, OG000 Apixaban = 32 of 576, OG001 Dalteparin = 46 of 579",
+       "endpoint_rank_in_its_own_trial": "PRIMARY",
+       "source_tier": "registry_posted_results"
+      }
+     },
+     "registration_read_utc": "2026-08-19",
+     "all_ranks_read_utc": "2026-08-19"
+    },
+    {
+     "id": "NCT03266783",
+     "nct": "NCT03266783",
+     "name": "COBRRA",
+     "arms": [
+      {
+       "label": "Apixaban",
+       "role": "treatment",
+       "events": 15,
+       "participants": 1345
+      },
+      {
+       "label": "ACTIVE -- another direct oral anticoagulant",
+       "role": "control",
+       "events": 14,
+       "participants": 1355
+      }
+     ],
+     "design": "apixaban vs rivaroxaban, acute VTE",
+     "comparator_type": "active",
+     "comparator_type_basis": "Every trial in the pool this review reports randomises apixaban against ANOTHER ANTICOAGULANT. The trials that randomise against placebo are eligible and are reported separately, never averaged in.",
+     "enrolled": 2700,
+     "by_outcome": {
+      "recurrent_vte": {
+       "effect": {
+        "measure": "RR",
+        "point": 1.0794,
+        "ci_low": 0.5231,
+        "ci_high": 2.2274,
+        "ci_level": 95,
+        "scale": "log",
+        "derived_from": "arm-level event counts posted by the trial",
+        "derivation_note": "The risk ratio and its interval are DERIVED from the arm-level counts, which are READ. Neither the ratio nor the interval is claimed to appear in any source."
+       },
+       "provenance": {
+        "tag": "MEASURED",
+        "source_id": "NCT03266783",
+        "source": "ClinicalTrials.gov posted results, read 2026-08-19",
+        "source_outcome_title": "Number of Participants With Adjudicated Recurrent Venous Thromboembolism (VTE) Events",
+        "source_quotes": [
+         "Number of Participants With Adjudicated Recurrent Venous Thromboembolism (VTE) Events",
+         "posted COUNT_OF_PARTICIPANTS, OG000 Apixaban Group = 15 of 1345, OG001 Rivaroxaban Group = 14 of 1355"
+        ],
+        "quote_note": "Two quotes: the endpoint TITLE as the registry posts it, and the arm-level counts as the registry posts them. The first says what was counted and the second says what happened, and this review exists partly because eight trials' titles agreed while what they counted did not."
+       },
+       "analysed": {
+        "treatment": 1345,
+        "control": 1355
+       },
+       "outcome_definition": "Number of Participants With Adjudicated Recurrent Venous Thromboembolism (VTE) Events",
+       "outcome_definition_source": {
+        "source": "registry results section",
+        "source_field": "resultsSection.outcomeMeasuresModule.outcomeMeasures[]",
+        "source_url": "https://clinicaltrials.gov/study/NCT03266783",
+        "read_utc": "2026-08-19"
+       },
+       "counts_read_from": "posted COUNT_OF_PARTICIPANTS, OG000 Apixaban Group = 15 of 1345, OG001 Rivaroxaban Group = 14 of 1355",
+       "endpoint_rank_in_its_own_trial": "SECONDARY",
+       "source_tier": "registry_posted_results"
+      }
+     },
+     "registration_read_utc": "2026-08-19",
+     "all_ranks_read_utc": "2026-08-19"
+    },
+    {
+     "id": "NCT01780987",
+     "nct": "NCT01780987",
+     "name": "Japanese acute DVT/PE study",
+     "arms": [
+      {
+       "label": "Apixaban",
+       "role": "treatment",
+       "events": 0,
+       "participants": 38
+      },
+      {
+       "label": "ACTIVE -- heparin/vitamin-K antagonist",
+       "role": "control",
+       "events": 1,
+       "participants": 40
+      }
+     ],
+     "design": "apixaban vs unfractionated heparin followed by warfarin",
+     "comparator_type": "active",
+     "comparator_type_basis": "Every trial in the pool this review reports randomises apixaban against ANOTHER ANTICOAGULANT. The trials that randomise against placebo are eligible and are reported separately, never averaged in.",
+     "enrolled": 78,
+     "by_outcome": {
+      "recurrent_vte": {
+       "effect": {
+        "measure": "RR",
+        "point": 0.3504,
+        "ci_low": 0.0147,
+        "ci_high": 8.3465,
+        "ci_level": 95,
+        "scale": "log",
+        "derived_from": "arm-level event counts posted by the trial",
+        "derivation_note": "The risk ratio and its interval are DERIVED from the arm-level counts, which are READ. Neither the ratio nor the interval is claimed to appear in any source.  A 0.5 continuity correction is applied to BOTH arms because one cell is zero; it is applied for that reason and for no other, an unconditional correction biasing the ratio toward the null."
+       },
+       "provenance": {
+        "tag": "MEASURED",
+        "source_id": "NCT01780987",
+        "source": "ClinicalTrials.gov posted results, read 2026-08-19",
+        "source_outcome_title": "Number of Participants With Adjudicated Recurrent Symptomatic Venous Thromboembolism (VTE) [Nonfatal Deep Venous Thrombosis (DVT) or Nonfatal Pulmonary Embolism (PE)]",
+        "source_quotes": [
+         "Number of Participants With Adjudicated Recurrent Symptomatic Venous Thromboembolism (VTE) [Nonfatal Deep Venous Thrombosis (DVT) or Nonfatal Pulmonary Embolism (PE)]",
+         "posted measurement, OG000 Apixaban = 0 of 38, OG001 UFH/Warfarin = 1 of 40"
+        ],
+        "quote_note": "Two quotes: the endpoint TITLE as the registry posts it, and the arm-level counts as the registry posts them. The first says what was counted and the second says what happened, and this review exists partly because eight trials' titles agreed while what they counted did not."
+       },
+       "analysed": {
+        "treatment": 38,
+        "control": 40
+       },
+       "outcome_definition": "Number of Participants With Adjudicated Recurrent Symptomatic Venous Thromboembolism (VTE) [Nonfatal Deep Venous Thrombosis (DVT) or Nonfatal Pulmonary Embolism (PE)]",
+       "outcome_definition_source": {
+        "source": "registry results section",
+        "source_field": "resultsSection.outcomeMeasuresModule.outcomeMeasures[]",
+        "source_url": "https://clinicaltrials.gov/study/NCT01780987",
+        "read_utc": "2026-08-19"
+       },
+       "counts_read_from": "posted measurement, OG000 Apixaban = 0 of 38, OG001 UFH/Warfarin = 1 of 40",
+       "endpoint_rank_in_its_own_trial": "SECONDARY",
+       "source_tier": "registry_posted_results"
+      }
+     },
+     "registration_read_utc": "2026-08-19",
+     "all_ranks_read_utc": "2026-08-19"
+    },
+    {
+     "id": "NCT02829957",
+     "nct": "NCT02829957",
+     "name": "RAMBLE",
+     "arms": [],
+     "design": "randomised, rivaroxaban against apixaban in heavy menstrual bleeding on anticoagulation; BOTH arms typed ACTIVE_COMPARATOR, so apixaban is not the declared intervention",
+     "comparator_type": "active",
+     "comparator_type_basis": "rivaroxaban, another direct oral anticoagulant.",
+     "enrolled": 19,
+     "contributes_to_no_pool": {
+      "state": "ELIGIBLE, NOT POOLABLE",
+      "why": "n=19, and its registered primary is a PICTORIAL MENSTRUAL BLOOD-LOSS CHART (PBAC score). It is in scope by population and by intervention and it reports nothing on this review's estimand at any rank.",
+      "why_it_is_kept": "It is the trial the parent object included on this side of the split. Dropping it would make k=3 read as everything this review found, and would erase the fact that the review's only pre-existing trial cannot answer its own question."
+     },
+     "by_outcome": {},
+     "registration_read_utc": "2026-08-19",
+     "all_ranks_read_utc": "2026-08-19"
+    }
+   ]
+  },
+  "config": {
+   "confidence_level": 95
+  },
+  "results": {
+   "by_outcome": {
+    "recurrent_vte": {
+     "k": 3,
+     "estimand_id": "recurrent_vte",
+     "model": "random-effects",
+     "estimator": "REML",
+     "estimator_used": "REML",
+     "interval_method": "Knapp-Hartung-Sidik-Jonkman, t on k-1 df, floor max(1, Q/(k-1))",
+     "comparator_type": "active",
+     "poolable": true,
+     "poolable_reason": "Three trials randomise apixaban ITSELF against another anticoagulant for the acute event and post an arm-level count of recurrent symptomatic VTE with no death term. Their definitions were read and compared, not their names.",
+     "pooled": {
+      "measure": "RR",
+      "point": 0.7763,
+      "ci_low": 0.3437,
+      "ci_high": 1.753,
+      "ci_level": 95,
+      "scale": "log",
+      "withdrawn": false
+     },
+     "favours": "neither -- the interval spans the null",
+     "per_trial": [
+      {
+       "trial_id": "CARAVAGGIO",
+       "nct": "NCT03045406",
+       "measure": "RR",
+       "point": 0.6993,
+       "ci_low": 0.4521,
+       "ci_high": 1.0816,
+       "ci_level": 95,
+       "events_apixaban": 32,
+       "n_apixaban": 576,
+       "events_comparator": 46,
+       "n_comparator": 579,
+       "continuity_corrected": false,
+       "endpoint_rank_in_its_own_trial": "PRIMARY",
+       "outcome_definition": "Recurrent Venous Thromboembolism"
+      },
+      {
+       "trial_id": "COBRRA",
+       "nct": "NCT03266783",
+       "measure": "RR",
+       "point": 1.0794,
+       "ci_low": 0.5231,
+       "ci_high": 2.2274,
+       "ci_level": 95,
+       "events_apixaban": 15,
+       "n_apixaban": 1345,
+       "events_comparator": 14,
+       "n_comparator": 1355,
+       "continuity_corrected": false,
+       "endpoint_rank_in_its_own_trial": "SECONDARY",
+       "outcome_definition": "Number of Participants With Adjudicated Recurrent Venous Thromboembolism (VTE) Events"
+      },
+      {
+       "trial_id": "Japanese acute DVT/PE study",
+       "nct": "NCT01780987",
+       "measure": "RR",
+       "point": 0.3504,
+       "ci_low": 0.0147,
+       "ci_high": 8.3465,
+       "ci_level": 95,
+       "events_apixaban": 0,
+       "n_apixaban": 38,
+       "events_comparator": 1,
+       "n_comparator": 40,
+       "continuity_corrected": true,
+       "endpoint_rank_in_its_own_trial": "SECONDARY",
+       "outcome_definition": "Number of Participants With Adjudicated Recurrent Symptomatic Venous Thromboembolism (VTE) [Nonfatal Deep Venous Thrombosis (DVT) or Nonfatal Pulmonary Embolism (PE)]"
+      }
+     ],
+     "heterogeneity": {
+      "q": 1.257466,
+      "df": 2,
+      "tau2": 0.0,
+      "i2": 0.0,
+      "i2_definition": "REML/metafor I-squared, as printed by rma(method='REML'). It is copied from this block's declared `estimator` and not inferred. Before 2026-08-20 this field read the Higgins form, or read UNDECIDABLE where both forms gave 0; the estimator change makes it determinate.",
+      "AND IT ESTABLISHES NOTHING ABOUT COHERENCE": "I-SQUARED IS 0.0% ON THIS POOL AND THAT IS NOT WHY THE POOL IS REPORTED. The coherence judgement was made by reading three endpoint definitions and would be identical at any I-squared. On the same page, the pool this review DECLINES whose estimand IS shared comes out at 93.5% -- higher than the name-matched pool whose estimands agree on nothing. P36, measured in both directions on one topic.",
+      "tau2_estimator": "REML -- copied from this block's declared `estimator`, which is the authoritative record of how the pool was computed. NOT inferred: an object that declared no estimator would be left undeclared here, because the absence is itself the finding.",
+      "i2_definition_evidence": "The value beside it is metafor's own I-squared from the REML fit quoted verbatim in `r_output`, not a recomputation of it. Environment: R version 4.6.0 (2026-04-24 ucrt); metafor 5.0.1."
+     },
+     "heterogeneity_status": "computed; tau-squared is 0 and at k=3 that is an estimate from almost no information, which is why the interval is Knapp-Hartung on 2 degrees of freedom rather than a normal one",
+     "sensitivity": {
+      "analyses": [
+       {
+        "omitted": "CARAVAGGIO",
+        "k": 2,
+        "point": 1.0208,
+        "ci_low": 0.0105,
+        "ci_high": 99.3808,
+        "i2_pct": 0.0
+       },
+       {
+        "omitted": "COBRRA",
+        "k": 2,
+        "point": 0.6904,
+        "ci_low": 0.0419,
+        "ci_high": 11.3675,
+        "i2_pct": 0.0
+       },
+       {
+        "omitted": "Japanese acute DVT/PE study",
+        "k": 2,
+        "point": 0.7859,
+        "ci_low": 0.0681,
+        "ci_high": 9.0688,
+        "i2_pct": 1.2
+       }
+      ],
+      "decision_under_test": "Does the reported estimate depend on any one of the three trials? At k=3 that is not a formality: the largest contributor is more than seven times the size of the other two together.",
+      "authority": "Cochrane Handbook 10.14: sensitivity analyses ask whether the conclusions are robust to decisions made during the review. Here the decision under test is the inclusion of each individual trial, not the estimator -- the estimator comparison is reported separately at `estimator_sensitivity`, because they are different questions and presenting them in one table would let a stable point estimate under one read as stability under the other.",
+      "conclusion": "AT k=3 THE POOL IS LARGELY ONE TRIAL. CARAVAGGIO contributes 78 of the 108 events in this pool; its two companions contribute 30 between them. Omitting it moves the point estimate from 0.776 to 1.021, and the span across all three leave-one-out fits is 0.690 to 1.021. All three intervals span the null, so no single trial is holding the conclusion up -- and none is holding it down either. The honest reading is that this estimate is a description of CARAVAGGIO with two small trials attached.",
+      "interval_method": "REML with a floored Knapp-Hartung interval on k-1 df, the same as the pool itself. At k=2 that is t on ONE degree of freedom, whose critical value is 12.7 -- which is why these intervals are enormous and why they should be.  [RESTATED 2026-08-20: the estimator moved to REML under DECISIONS-COCHRANE-2026-08-18.md section 1, on Cochrane Handbook 6.5 section 10.10.4.4: \"Decision: REML, everywhere.\" The INTERVAL method is unchanged. Every fit under this label was refitted with REML and checked against its stored value by ssot/reml_apx_treatment_sensitivity_check.R, which reproduces all three leave-one-out analyses to four decimals and refuses if any does not.]",
+      "interval_method_superseded_2026_08_20": "Paule-Mandel with a floored Knapp-Hartung interval on k-1 df, the same as the pool itself. At k=2 that is t on ONE degree of freedom, whose critical value is 12.7 -- which is why these intervals are enormous and why they should be."
+     },
+     "estimator_sensitivity": {
+      "DerSimonian-Laird, Wald interval": {
+       "point": 0.7763,
+       "ci_low": 0.5356,
+       "ci_high": 1.1251
+      },
+      "Paule-Mandel, floored Knapp-Hartung t interval": {
+       "point": 0.7763,
+       "ci_low": 0.3437,
+       "ci_high": 1.7532
+      },
+      "note": "THE SAME POINT ESTIMATE AND A MUCH NARROWER INTERVAL: 0.5356 to 1.1251 against 0.3437 to 1.7532. The difference is entirely the t multiplier on 2 degrees of freedom against 1.96, and it is the difference between an interval that looks like an answer and one that admits k=3. The wider one is reported."
+     },
+     "the_pools_this_review_declines": {
+      "_why_shown": "SHOWN SO THE COST OF EACH REFUSAL IS INSPECTABLE, and labelled so none can be mistaken for this review's answer.",
+      "name_matched_k8": {
+       "why": "This is the pool obtained by matching endpoints on the NAME 'recurrent VTE'. Two of its eight rows count a death; six do not; one is a class effect and one is derived from a percentage. It is computed so that the number a name-matching reviewer would have published is visible beside the one this review reports.",
+       "label": "whatever each trial posts under a recurrent-VTE NAME -- the pool a reviewer matching endpoints by name computes",
+       "k": 8,
+       "q": 29.6682,
+       "df": 7,
+       "i2_pct": 76.4,
+       "per_trial": [
+        {
+         "trial": "AMPLIFY",
+         "events_apixaban": 59,
+         "n_apixaban": 2609,
+         "events_comparator": 71,
+         "n_comparator": 2635,
+         "continuity_corrected": false,
+         "rr": 0.8393,
+         "ci_low": 0.5968,
+         "ci_high": 1.1803
+        },
+        {
+         "trial": "AMPLIFY-EXT",
+         "events_apixaban": 61,
+         "n_apixaban": 1653,
+         "events_comparator": 92,
+         "n_comparator": 829,
+         "continuity_corrected": false,
+         "rr": 0.3325,
+         "ci_low": 0.2432,
+         "ci_high": 0.4546
+        },
+        {
+         "trial": "CARAVAGGIO",
+         "events_apixaban": 32,
+         "n_apixaban": 576,
+         "events_comparator": 46,
+         "n_comparator": 579,
+         "continuity_corrected": false,
+         "rr": 0.6993,
+         "ci_low": 0.4521,
+         "ci_high": 1.0816
+        },
+        {
+         "trial": "COBRRA",
+         "events_apixaban": 15,
+         "n_apixaban": 1345,
+         "events_comparator": 14,
+         "n_comparator": 1355,
+         "continuity_corrected": false,
+         "rr": 1.0794,
+         "ci_low": 0.5231,
+         "ci_high": 2.2274
+        },
+        {
+         "trial": "Japanese acute DVT/PE study",
+         "events_apixaban": 0,
+         "n_apixaban": 38,
+         "events_comparator": 1,
+         "n_comparator": 40,
+         "continuity_corrected": true,
+         "rr": 0.3504,
+         "ci_low": 0.0147,
+         "ci_high": 8.3465
+        },
+        {
+         "trial": "HI-PRO",
+         "events_apixaban": 4,
+         "n_apixaban": 300,
+         "events_comparator": 30,
+         "n_comparator": 300,
+         "continuity_corrected": false,
+         "rr": 0.1333,
+         "ci_low": 0.0476,
+         "ci_high": 0.3738
+        },
+        {
+         "trial": "COVET",
+         "events_apixaban": 1,
+         "n_apixaban": 14,
+         "events_comparator": 0,
+         "n_comparator": 17,
+         "continuity_corrected": true,
+         "rr": 3.6,
+         "ci_low": 0.158,
+         "ci_high": 82.0504
+        },
+        {
+         "trial": "CANVAS",
+         "events_apixaban": 20,
+         "n_apixaban": 330,
+         "events_comparator": 27,
+         "n_comparator": 308,
+         "continuity_corrected": false,
+         "rr": 0.6914,
+         "ci_low": 0.3961,
+         "ci_high": 1.2067
+        }
+       ],
+       "n_participants": 12928,
+       "PM": {
+        "tau2": 0.33404,
+        "rr": 0.5705,
+        "ci_low": 0.3439,
+        "ci_high": 0.9465,
+        "interval": "Wald, normal",
+        "hksj": {
+         "q_hksj": 1.0,
+         "floored_to": 1.0,
+         "floor_applied": false,
+         "t_df": 7,
+         "t_crit": 2.364624,
+         "rr": 0.5705,
+         "ci_low": 0.3098,
+         "ci_high": 1.0508,
+         "interval": "Knapp-Hartung-Sidik-Jonkman, t on k-1 df, floor max(1, Q/(k-1))"
+        }
+       },
+       "DL": {
+        "tau2": 0.25577,
+        "rr": 0.5721,
+        "ci_low": 0.3624,
+        "ci_high": 0.9031,
+        "interval": "Wald, normal"
+       }
+      },
+      "estimand_shared_comparator_not_k2": {
+       "why": "AMPLIFY and AMPLIFY-EXT DO share this estimand -- primary in one, secondary in the other, same sponsor, same programme. They are still not pooled: one randomises apixaban against enoxaparin followed by warfarin and the other against PLACEBO. ESTIMAND COHERENCE IS NECESSARY AND NOT SUFFICIENT, and this is the pool that shows it -- the estimand agrees and the quantity still is not the same quantity.",
+       "label": "recurrent VTE or VTE-related death -- AMPLIFY and AMPLIFY-EXT, an estimand they DO share",
+       "k": 2,
+       "q": 15.3822,
+       "df": 1,
+       "i2_pct": 93.5,
+       "per_trial": [
+        {
+         "trial": "AMPLIFY",
+         "events_apixaban": 59,
+         "n_apixaban": 2609,
+         "events_comparator": 71,
+         "n_comparator": 2635,
+         "continuity_corrected": false,
+         "rr": 0.8393,
+         "ci_low": 0.5968,
+         "ci_high": 1.1803
+        },
+        {
+         "trial": "AMPLIFY-EXT",
+         "events_apixaban": 61,
+         "n_apixaban": 1653,
+         "events_comparator": 92,
+         "n_comparator": 829,
+         "continuity_corrected": false,
+         "rr": 0.3325,
+         "ci_low": 0.2432,
+         "ci_high": 0.4546
+        }
+       ],
+       "n_participants": 7726,
+       "PM": {
+        "tau2": 0.40071,
+        "rr": 0.5269,
+        "ci_low": 0.2127,
+        "ci_high": 1.3054,
+        "interval": "Wald, normal",
+        "hksj": {
+         "q_hksj": 1.0,
+         "floored_to": 1.0,
+         "floor_applied": false,
+         "t_df": 1,
+         "t_crit": 12.706205,
+         "rr": 0.5269,
+         "ci_low": 0.0015,
+         "ci_high": 188.8533,
+         "interval": "Knapp-Hartung-Sidik-Jonkman, t on k-1 df, floor max(1, Q/(k-1))"
+        }
+       },
+       "DL": {
+        "tau2": 0.40071,
+        "rr": 0.5269,
+        "ci_low": 0.2127,
+        "ci_high": 1.3054,
+        "interval": "Wald, normal"
+       }
+      },
+      "each_trials_own_primary": {
+       "computed": false,
+       "refused_because": "THREE OF THE EIGHT REGISTER A BLEEDING ENDPOINT AS THEIR PRIMARY -- COBRRA, COVET and the Japanese study. Pooling 'each trial's own primary' would average a HARM against a BENEFIT, and the pooled quantity would have no direction: a risk ratio below one would mean fewer thromboses in five trials and fewer bleeds in three. This is the only declined pool in this file that is refused as INCOMPUTABLE rather than computed and set aside, and the reason is stated so a reader can check that it is a reason and not a preference.",
+       "which_three": {
+        "NCT03266783": "The Rate of Adjudicated Clinically Relevant Bleeding (CRB) Events",
+        "NCT03196349": "Number of Subjects With Clinically Relevant Bleeding Events (one of two co-primaries)",
+        "NCT01780987": "Number of Participants With Major Bleeding Events [ISTH] or Clinically Relevant Non-major Bleeding"
+       }
+      }
+     },
+     "coherence_screen": {
+      "NCT00643201": {
+       "acronym": "AMPLIFY",
+       "verdict": "NOT_POOLED",
+       "failing_axes": [
+        "ESTIMAND: posts no recurrent-VTE measure without a death term at ANY of its registered ranks. Its every recurrence outcome carries a mortality component."
+       ],
+       "phase": "ACUTE",
+       "comparator_class": "ACTIVE -- LMWH/vitamin-K antagonist",
+       "randomised": "apixaban vs enoxaparin followed by warfarin"
+      },
+      "NCT00633893": {
+       "acronym": "AMPLIFY-EXT",
+       "verdict": "NOT_POOLED",
+       "failing_axes": [
+        "ESTIMAND: posts no recurrent-VTE measure without a death term at ANY of its registered ranks. Its every recurrence outcome carries a mortality component.",
+        "CLINICAL PHASE: extended anticoagulation after completed treatment, not treatment of the acute event. Eligible under this review's boundary rule and a different clinical question, with a different event horizon.",
+        "COMPARATOR: randomised against PLACEBO, not against another anticoagulant. The quantity estimated is not the same quantity."
+       ],
+       "phase": "EXTENDED",
+       "comparator_class": "PLACEBO",
+       "randomised": "apixaban 2.5 mg or 5 mg vs PLACEBO, after completed treatment"
+      },
+      "NCT03045406": {
+       "acronym": "CARAVAGGIO",
+       "verdict": "IN_POOL",
+       "failing_axes": [],
+       "phase": "ACUTE",
+       "comparator_class": "ACTIVE -- LMWH",
+       "randomised": "apixaban vs dalteparin, cancer-associated VTE"
+      },
+      "NCT03266783": {
+       "acronym": "COBRRA",
+       "verdict": "IN_POOL",
+       "failing_axes": [],
+       "phase": "ACUTE",
+       "comparator_class": "ACTIVE -- another direct oral anticoagulant",
+       "randomised": "apixaban vs rivaroxaban, acute VTE"
+      },
+      "NCT01780987": {
+       "acronym": "Japanese acute DVT/PE study",
+       "verdict": "IN_POOL",
+       "failing_axes": [],
+       "phase": "ACUTE",
+       "comparator_class": "ACTIVE -- heparin/vitamin-K antagonist",
+       "randomised": "apixaban vs unfractionated heparin followed by warfarin"
+      },
+      "NCT04168203": {
+       "acronym": "HI-PRO",
+       "verdict": "NOT_POOLED",
+       "failing_axes": [
+        "CLINICAL PHASE: extended anticoagulation after completed treatment, not treatment of the acute event. Eligible under this review's boundary rule and a different clinical question, with a different event horizon.",
+        "COMPARATOR: randomised against PLACEBO, not against another anticoagulant. The quantity estimated is not the same quantity."
+       ],
+       "phase": "EXTENDED",
+       "comparator_class": "PLACEBO",
+       "randomised": "low-intensity apixaban 2.5 mg vs PLACEBO, after >=3 months of treatment"
+      },
+      "NCT03196349": {
+       "acronym": "COVET",
+       "verdict": "NOT_POOLED",
+       "failing_axes": [
+        "CLINICAL PHASE: extended anticoagulation after completed treatment, not treatment of the acute event. Eligible under this review's boundary rule and a different clinical question, with a different event horizon."
+       ],
+       "phase": "EXTENDED",
+       "comparator_class": "ACTIVE -- vitamin-K antagonist (warfarin arm taken as comparator)",
+       "randomised": "warfarin vs apixaban vs rivaroxaban, extended anticoagulation"
+      },
+      "NCT02744092": {
+       "acronym": "CANVAS",
+       "verdict": "NOT_POOLED",
+       "failing_axes": [
+        "READ: its recurrent-VTE result is posted as a PERCENTAGE and the arm-level counts would have to be derived from it. A derived count does not enter a reported pool.",
+        "INTERVENTION: what was randomised is a DRUG CLASS, not apixaban. Apixaban is one of four permitted drugs in the intervention arm, so the posted contrast is a class effect and attributing it to apixaban would be a claim the trial cannot support."
+       ],
+       "phase": "ACUTE",
+       "comparator_class": "ACTIVE -- LMWH class",
+       "randomised": "a CLASS against a CLASS: any of rivaroxaban, apixaban, edoxaban or dabigatran, versus LMWH (dalteparin, enoxaparin or fondaparinux) with or without warfarin"
+      }
+     },
+     "derivation_refused_with_its_arithmetic": {
+      "what_was_refused": "reconstructing a recurrent-VTE-alone estimand for AMPLIFY and AMPLIFY-EXT by summing the components they post separately",
+      "amplify_components": {
+       "nonfatal_DVT": [
+        22,
+        2608,
+        35,
+        2633
+       ],
+       "nonfatal_PE": [
+        27,
+        2606,
+        25,
+        2632
+       ],
+       "VTE_related_death": [
+        12,
+        2608,
+        16,
+        2630
+       ]
+      },
+      "amplify_sums": {
+       "apixaban": 61,
+       "comparator": 76
+      },
+      "amplify_posted_composite": {
+       "apixaban": 59,
+       "comparator": 71
+      },
+      "why_refused": "The components sum to 61 and 76 against a posted composite of 59 and 71. A composite counts a participant's FIRST event; its components count participants. Summing them would have manufactured 2 and 5 events that the trial's own adjudication does not record, and the manufactured events fall in the comparator arm at more than twice the rate they fall in the apixaban arm -- so the derivation is not merely imprecise, it is biased in the direction that flatters the drug.",
+      "amplify_ext_components": {
+       "nonfatal_DVT": "19, 28, 72 (2.5 mg, 5 mg, placebo)",
+       "nonfatal_PE": "23, 25, 37",
+       "VTE_related_death": "17, 24, 26"
+      },
+      "amplify_ext_note": "The same check on AMPLIFY-EXT gives a much larger discrepancy -- placebo components 72 + 37 + 26 = 135 against a posted composite of 92 -- which first-event counting alone does not explain. No explanation is offered here because none was read; the refusal does not depend on having one."
+     },
+     "the_duplicate_a_text_match_cannot_settle": {
+      "trial": "NCT00633893 AMPLIFY-EXT",
+      "what": "Its primary composite is posted TWICE, typed PRIMARY both times, under the same registered name, differing only in the trailing 'Randomized Population With Imputation' / 'Without Imputation'.",
+      "with_imputation": "32, 34, 96 events (apixaban 2.5 mg, 5 mg, placebo)",
+      "without_imputation": "19, 14, 77 events",
+      "why_it_matters": "P35 says match the registered text and never the position. Here the text matches TWO posted measures and the values differ by more than half again on the treatment arms. CHOOSING AMONG MATCHES BY POSITION IS P35's OWN DEFECT ONE LEVEL DOWN, and nothing in the payload is malformed.",
+      "how_it_was_settled": "By reading the descriptions, not the order: the WITHOUT-imputation record states 'No imputation was done for these endpoints', marking it as the sensitivity analysis, and the WITH-imputation record names the imputed counts in its own population description. The with-imputation analysis is used, the choice is applied to every measure taken from this trial, and both pools are computed so the choice's cost is visible rather than asserted to be small."
+     },
+     "prediction_stated_before_the_run": {
+      "stated_before_the_run": true,
+      "prediction": "The estimand-COHERENT, comparator-INCOHERENT pool (AMPLIFY + AMPLIFY-EXT) will show heterogeneity AT LEAST AS HIGH as the name-matched eight-trial pool, whose estimands do not agree at all.",
+      "why_this_indicator_and_not_another": "P32: name a quantity that could not move for another reason. A high I2 on the name-matched pool would be consistent with the estimands disagreeing AND with ordinary clinical variation, so it tests nothing on its own. The COMPARISON is the test: if the pool where the estimand IS shared is the more heterogeneous, then I2 is not tracking estimand coherence, and it cannot be doing so by coincidence in the direction that favours us.",
+      "i2_name_matched_pct": 76.4,
+      "i2_estimand_coherent_pct": 93.5,
+      "outcome": "HELD",
+      "what_it_does_NOT_establish": "Nothing about whether either pool is coherent. P36 stands unchanged: the coherence judgements in this file were made by reading definitions and would be identical if every I2 came out zero."
+     },
+     "r_output": {
+      "state": "PRESENT",
+      "environment": "R 4.6.0 with metafor 5.0.1",
+      "script": "ssot/reml_two_special_cases.R",
+      "run_utc": "2026-08-21",
+      "call": "Rscript ssot/fit_from_per_trial.R apixaban-vte-treatment recurrent_vte",
+      "interval_method": "floored Knapp-Hartung, t(k-1), factor max(1, Q/(k-1))",
+      "verbatim": "R version 4.6.0 (2026-04-24 ucrt) \nmetafor 5.0.1 \nrun_utc 2026-08-21\n\n================================================================\nTOPIC   apixaban-vte-treatment\nOUTCOME recurrent_vte\nSTORED  RR 0.7763 (0.3437 to 1.7530), k = 3, random-effects / REML\nINPUTS READ FROM THE OBJECT (log scale, SE derived from the published interval):\n   CARAVAGGIO       0.6993 (0.4521 to 1.0816)  yi=-0.357675  sei=0.222528\n   COBRRA           1.0794 (0.5231 to 2.2274)  yi=+0.076405  sei=0.369603\n   Japanese acute DVT/PE study 0.3504 (0.0147 to 8.3465)  yi=-1.048680  sei=1.617823\n----------------------------------------------------------------\nCALL: rma(yi = yi, sei = sei, method = \"REML\", test = \"knha\")\n\n\nRandom-Effects Model (k = 3; tau^2 estimator: REML)\n\n  logLik  deviance       AIC       BIC      AICc   \n -1.5646    3.1292    7.1292    4.5155   19.1292   \n\ntau^2 (estimated amount of total heterogeneity): 0 (SE = 0.1309)\ntau (square root of estimated tau^2 value):      0\nI^2 (total heterogeneity / total variability):   0.00%\nH^2 (total variability / sampling variability):  1.00\n\nTest for Heterogeneity:\nQ(df = 2) = 1.2575, p-val = 0.5333\n\nModel Results:\n\nestimate      se     zval    pval    ci.lb   ci.ub    \n -0.2532  0.1893  -1.3375  0.1811  -0.6243  0.1178    \n\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n\n--- SAME FIT WITH HARTUNG-KNAPP (test = \"knha\") ---\n\nRandom-Effects Model (k = 3; tau^2 estimator: REML)\n\n  logLik  deviance       AIC       BIC      AICc   \n -1.5646    3.1292    7.1292    4.5155   19.1292   \n\ntau^2 (estimated amount of total heterogeneity): 0 (SE = 0.1309)\ntau (square root of estimated tau^2 value):      0\nI^2 (total heterogeneity / total variability):   0.00%\nH^2 (total variability / sampling variability):  1.00\n\nTest for Heterogeneity:\nQ(df = 2) = 1.2575, p-val = 0.5333\n\nModel Results:\n\nestimate      se     tval  df    pval    ci.lb   ci.ub    \n -0.2532  0.1501  -1.6868   2  0.2337  -0.8992  0.3927    \n\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n\nBACK-TRANSFORMED:\n   unadjusted     0.7763 (0.5356 to 1.1251)\n   Hartung-Knapp  0.7763 (0.3437 to 1.7531)   [t crit 4.3027 on 2 df]  <- HOUSE INTERVAL, inflation factor floored at 1 (raw 0.7929)\n   metafor raw    0.7763 (0.4069 to 1.4810)   [test=knha, UNFLOORED]\n   tau^2 0.000000   Q 1.2575 on 2 df, p = 0.5333   I^2 0.00%\n\nAGREES WITH THE STORED POINT TO 4 dp: YES\n",
+      "what_it_is": "The fit that produces the numbers this block now publishes, printed by metafor and pasted unaltered. The previous fit, under the estimator this pool used before 2026-08-20, is kept beside it under r_output_superseded_2026_08_20 rather than discarded.",
+      "reproduction_of_the_previous_value": "Before this refit was applied, the OLD estimator was refitted on the same inputs and checked against the stored value: REPRODUCED (special case). A pool whose old fit did not reproduce was not overwritten.",
+      "stored_at": "evidence/refits_2026_08_21/apixaban-vte-treatment__recurrent_vte.txt",
+      "why_this_was_re_run": "THE PREVIOUS STORED OUTPUT QUOTED A FIT THAT DID NOT PRODUCE THIS PAGE'S NUMBERS. It printed 'tau^2 estimator: PM' where this object declares REML, at k = 3 -- and this project's own statistics rule forbids DerSimonian-Laird below k = 10. EVERY STORED NUMBER ON THIS OBJECT IS REML: the stored tau-squared and I-squared match a REML refit exactly. So the quotation was of a DIFFERENT FIT from the one behind the published values, presented verbatim as this engine's word. P56. Re-run under the declared estimator; NO PUBLISHED NUMBER MOVED -- the point, the interval and the heterogeneity all reproduce."
+     },
+     "r_output_superseded": {
+      "state": "NO_QUOTABLE_MODEL_OUTPUT_BUT_A_POOL_EXISTS",
+      "_why_absent": "k=3 AND A POOL WAS COMPUTED -- it is on this page -- but NOT by a model call this object can quote. There is no R session, no printed output and no package version, so P6 refuses on the QUOTATION and not on the synthesis. The arithmetic is reproducible from the script named on the outcome; a quotable metafor call is what is missing and what would hold P6.",
+      "what_would_hold_P6": "metafor::rma(measure='RR', method='PM', test='knha') over the three arm-level tables, with its printed output quoted verbatim.",
+      "k_read_from_object": 3,
+      "quotable_model_call": null,
+      "heterogeneity": null,
+      "heterogeneity_reason": "Undefined: no between-study variance was estimated because no model was run.",
+      "package_version": null,
+      "what_would_change_it": "An estimand shared by two or more included trials. Where k is already above 1 and nothing pooled, the obstacle is the ESTIMAND rather than the evidence base, and this field must say which.",
+      "_superseded_on": "2026-08-20",
+      "_superseded_because": "This refusal was TRUE when written: no model call existed that this object could quote. The model was then run (ssot/apx_treatment_pool.R) and its printed output is at results.by_outcome.recurrent_vte.r_output. The refusal is retained rather than deleted because it records what the object could honestly say before the work was done, and because it named the call that would close it -- which is what made closing it straightforward."
+     },
+     "r_output_superseded_2026_08_20": {
+      "_environment": "R version 4.6.0 (2026-04-24 ucrt); metafor 5.0.1",
+      "call": "rma(yi = log(rr), sei = (log(hi) - log(lo))/(2*qnorm(0.975)), method = \"REML\"), with the interval taken as Knapp-Hartung on t(k-1) and the scale factor floored at max(1, Q/(k-1))",
+      "script": "ssot/apx_treatment_pool.R",
+      "verbatim": "Loading required package: Matrix\nLoading required package: metadat\nLoading required package: numDeriv\n\nLoading the 'metafor' package (version 5.0-1). For an\nintroduction to the package please type: help(metafor)\n\nR environment, quoted rather than asserted:\nR version 4.6.0 (2026-04-24 ucrt) \nmetafor 5.0.1 \n\n============================================================================== \nRecurrent VTE -- apixaban against its comparator, random-effects REML on the log scale\n============================================================================== \ntrials: CARAVAGGIO, COBRRA, Japanese acute DVT/PE study \n\n\nRandom-Effects Model (k = 3; tau^2 estimator: REML)\n\ntau^2 (estimated amount of total heterogeneity): 0 (SE = 0.1309)\ntau (square root of estimated tau^2 value):      0\nI^2 (total heterogeneity / total variability):   0.00%\nH^2 (total variability / sampling variability):  1.00\n\nTest for Heterogeneity:\nQ(df = 2) = 1.2575, p-val = 0.5333\n\nModel Results:\n\nestimate      se     zval    pval    ci.lb   ci.ub    \n -0.2532  0.1893  -1.3375  0.1811  -0.6243  0.1178    \n\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n\nKnapp-Hartung with the floor, which is the interval this page serves:\n  scale factor max(1, Q/(k-1)) = max(1, 0.6287) = 1.0000\n  t(2) = 4.3027, against z = 1.9600\n  RR 0.7763 (0.3437 to 1.7531)\n\nFor contrast, the ordinary REML/z interval, which this page does NOT serve:\n\n   pred  ci.lb  ci.ub  pi.lb  pi.ub \n 0.7763 0.5356 1.1251 0.5356 1.1251 \n\n\nPer-trial contributions, as weights:\n                 CARAVAGGIO                      COBRRA \n                      72.39                       26.24 \nJapanese acute DVT/PE study \n                       1.37 \n\nCHECK AGAINST THE VALUE THE PAGE SERVES:\n  refit  [HKSJ, floored]  RR 0.7763 (0.3437 to 1.7531)\n  stored                  RR 0.7763 (0.3437 to 1.7532)\n  Q 1.2575 on 2 df; stored Q 1.2575 on 2 df\n  I^2 0.00%; stored 0.00%\n",
+      "captured_how": "Rscript ssot/apx_treatment_pool.R, stdout captured to a file and read back unchanged. Not retyped.",
+      "reproduces_the_stored_value": "YES, and the one difference is stated rather than smoothed. Point 0.7763 and lower bound 0.3437 reproduce exactly; Q 1.2575 on 2 df and I^2 0.00% reproduce exactly. The upper bound refits to 1.7531 against a stored 1.7532 -- a difference of 1 in the fourth decimal, which is rounding in the stored value and not a disagreement about the model.",
+      "the_first_refit_was_wrong_and_that_is_the_point": "A plain REML/z fit reproduced the point, Q and I^2 EXACTLY and returned 0.5356 to 1.1251 against the stored 0.3437 to 1.7532. Identical point and heterogeneity with a different interval means the inputs were right and the SPECIFICATION was wrong. The stored value was therefore investigated rather than overwritten, and it was correct: the interval is Knapp-Hartung on t(k-1) = t(2) = 4.3027 with the scale factor floored at max(1, Q/(k-1)), and with Q/(k-1) = 0.6288 the floor binds.",
+      "supersedes": "results.by_outcome.recurrent_vte.r_output_superseded, a P6 refusal that was correct until this output existed. IT WAS BRIEFLY DESTROYED rather than superseded: the script that wrote this block assigned the key wholesale and its only guard was that the object grew -- which it did, because the replacement was larger than what it replaced. Restored by comparing KEY PATHS against a backup."
+     },
+     "estimator_note_superseded_2026_08_20": "Paule-Mandel between-study variance with a Knapp-Hartung interval on k-1 degrees of freedom, floored at max(1, Q/(k-1)). The house rule refuses DerSimonian-Laird below k=10 and this pool is k=3. DL+Wald is carried alongside because it is what the PROPHYLAXIS half of this pair reported at k=4 -- SO THAT HALF IS NOW OWED THE SAME CORRECTION, and this note is the record of the debt rather than a silent divergence between two pages built the same night.",
+     "estimator_note_2026_08_20": "REML, applied 2026-08-20 under DECISIONS-COCHRANE-2026-08-18.md section 1, on Cochrane Handbook 6.5 section 10.10.4.4: \"Decision: REML, everywhere.\" The estimator this pool used before that date was Paule-Mandel; that fit was reproduced first and is quoted under r_output_superseded_2026_08_20, so the movement is attributable rather than asserted.",
+     "POOL_FINDINGS_2026_08_21": {
+      "a_all_three_trials_are_open_label": "READ THIS BESIDE THE ESTIMATE. NOT ONE of the three contributing trials masks anybody: NCT03045406, NCT03266783 and NCT01780987 all register MASKING: NONE. The endpoint is adjudicated on all three, which is the standard mitigation for an open-label anticoagulation trial, but NO REGISTRATION STATES THAT THE ADJUDICATORS WERE BLINDED.",
+      "b_two_of_the_three_are_contributing_a_secondary_outcome": "On NCT03266783 the registered primary is CLINICALLY RELEVANT BLEEDING and recurrent VTE is the third of nine secondaries. On NCT01780987 the registered primary is MAJOR BLEEDING and recurrent VTE is the first of five. ONLY CARAVAGGIO CONTRIBUTES ITS OWN REGISTERED PRIMARY.",
+      "c_and_the_three_comparators_are_three_different_drugs": "Dalteparin, rivaroxaban, and unfractionated heparin followed by warfarin. The pooled quantity is therefore apixaban against WHATEVER ELSE WAS GIVEN, which is one step from any question a reader has. This object's GRADE rates indirectness down for it and the certainty here is VERY LOW."
+     }
+    }
+   }
+  },
+  "search": {
+   "executed_by": "lane 1 (Claude, Anthropic family)",
+   "databases": [
+    {
+     "database": "ClinicalTrials.gov API v2",
+     "tool": "raw /studies",
+     "query_as_executed": "Executed 2026-08-19 against ClinicalTrials.gov API v2, raw. query.cond=\"venous thromboembolism OR deep vein thrombosis OR pulmonary embolism\"; query.intr=\"apixaban\"; filter.advanced=AREA[StudyType]INTERVENTIONAL -- NO PHASE FILTER. 82 records, returned == totalCount, nextPageToken null.",
+     "date_executed": "2026-08-19",
+     "http_status": 200,
+     "records_returned": 82,
+     "total_reported": 82,
+     "recall_on_included_set": "1/1"
+    },
+    {
+     "database": "ClinicalTrials.gov API v2 -- FIRST QUERY, RECORDED BECAUSE IT MISSED",
+     "tool": "raw /studies",
+     "query_as_executed": "same terms with filter.advanced=... AND AREA[Phase](PHASE3 OR PHASE4)",
+     "date_executed": "2026-08-19",
+     "http_status": 200,
+     "records_returned": 49,
+     "total_reported": 49,
+     "recall_on_included_set": "1/1 for THIS review, 1/2 for the parent",
+     "what_it_cost": "THE FIRST QUERY CARRIED phase=[PHASE3,PHASE4] AND RETURNED 49 RECORDS WITHOUT NCT02366871 -- one of the parent object's own two trials -- because it is registered PHASE2. Recorded rather than replaced. The corpus-wide cost of that filter is measured at evidence/2026-08-19-batch1/phase_filter_recall_sweep.json, where apixaban-vte is one of two topics that lost an included trial to it. P23."
+    },
+    {
+     "database": "PubMed (NCBI E-utilities esearch)",
+     "tool": "esearch",
+     "query_as_executed": "apixaban AND venous thromboembolism",
+     "date_executed": "2026-08-19",
+     "http_status": 200,
+     "records_returned": 50,
+     "total_reported": 439,
+     "recall_on_included_set": "NOT MEASURED",
+     "what_is_unexamined": "439 records matched and 50 were retrieved. THE OTHER 389 ARE UNEXAMINED, NOT EXCLUDED, and recall against this review's included set was never measured on this database -- so P23 cannot hold on it and says so."
+    }
+   ],
+   "pagination_verified": "returned == totalCount on both registry queries, totalCount read from the FIRST page."
+  },
+  "prisma_flow": {
+   "_scope": "PRISMA 2020 flow, counted from the executed search above.",
+   "identification": {
+    "ctgov": 82,
+    "pubmed_total": 439,
+    "pubmed_retrieved": 50
+   },
+   "eligibility_ctgov": {
+    "role_located": 80,
+    "topic_is_experimental_arm": 54,
+    "topic_is_comparator_arm": 19,
+    "topic_is_background": 7,
+    "not_assessable": 2,
+    "note": "80, not 82. The parent object recorded k2_role_located = 82 -- the SURFACED total -- while carrying kNA = 2, so the stage named 'role located' counted the two records whose role could NOT be read. Corrected here; the same defect was fixed on three other objects on 2026-08-19 and is now refused by scripts/lint_cascade_arithmetic.py."
+   },
+   "screening_of_the_candidate_pool": {
+    "screened": 72,
+    "excluded": 48,
+    "eligible": 25,
+    "excluded_on": {
+     "POPULATION": 39,
+     "COMPARATOR": 9
+    },
+    "eligible_split": {
+     "ELIGIBLE_POOLABLE": 11,
+     "ELIGIBLE_NO_RESULTS_YET": 12,
+     "ELIGIBLE_NOT_POOLABLE": 2
+    },
+    "note": "16 of the 72 were UNSETTLED at the mechanical screen and were adjudicated one by one; their dispositions are at `screening.adjudication`."
+   },
+   "included": {
+    "in_this_object": 4,
+    "contributing_to_the_pool": 3,
+    "nct": [
+     "NCT02829957",
+     "NCT03045406",
+     "NCT03266783",
+     "NCT01780987"
+    ]
+   },
+   "reconciliation": {
+    "arithmetic": "82 identified = 54 experimental + 19 comparator + 7 background + 2 not_assessable; 80 of the 82 had a role located; 73 candidate pool = 48 excluded + 25 eligible",
+    "reconciles": true,
+    "unscreened_remainder": 0,
+    "remainder_means": "ZERO. The 71 carried at the split have been screened to a disposition table. THE REVIEW IS STILL NOT COMPLETE, and the reason has changed: it is now 12 eligible trials that have posted no results and 8 eligible poolable trials that post no arm-level count of the shared estimand, not 71 records nobody has read."
+   }
+  },
+  "k_cascade": {
+   "k0_surfaced": 82,
+   "k2_role_located": 80,
+   "k3_experimental": 54,
+   "k4_comparator": 19,
+   "k5_background": 7,
+   "kNA_not_assessable": 2,
+   "k_candidate_pool": 73,
+   "k_screened": 73,
+   "k_excluded": 48,
+   "k_eligible": 25,
+   "k_eligible_no_results_yet": 12,
+   "k_eligible_not_poolable": 2,
+   "k_eligible_poolable": 11,
+   "k_with_posted_results_reporting_a_recurrent_VTE_outcome": 8,
+   "k_included_in_object": 4,
+   "k_pooled": 3,
+   "k_unscreened_remainder": 0,
+   "reproduced_by": "scripts/screen_apixaban_split_2026_08_19.py, scripts/adjudicate_apixaban_split_2026_08_19.py and scripts/repool_apixaban_treatment_2026_08_19.py.",
+   "reconciliation": "82 surfaced = 54 experimental + 19 comparator + 7 background + 2 not-assessable; 80 of the 82 had a role located. 73 place apixaban in the randomised contrast and are this review's candidate pool. 1 was in the parent object and 72 were screened, so k_screened = 73. 48 excluded + 25 eligible = 73. Of the 25 eligible, 12 have posted no results, 2 are eligible and not poolable, and 11 are eligible and poolable. REMAINDER ZERO.",
+   "why_the_remainder_is_now_ZERO_and_was_71": "It was 71 when the split was recorded and the whole remainder has since been screened -- 39 excluded and 16 sent to adjudication mechanically, the 16 adjudicated by hand. A REMAINDER IS NOT A QUEUE TO BE DRAINED; screening it is what turned 71 into a disposition table, and the shape of that table is the finding: 48 of 73 fail a criterion, and 39 of the 48 fail on POPULATION -- 30 at the mechanical screen and all 9 of the adjudicated exclusions -- because they are thromboprophylaxis trials in patients who have never had a venous thromboembolism. The surfacing query reaches across the treatment/prevention boundary because ONE SEARCH OVER ONE DRUG NECESSARILY DOES; that is a fact about splitting a drug topic in two, not a criticism of the query, and the sibling review holds the trials this one excludes.",
+   "why_k_included_is_4_and_k_pooled_is_3": "The object holds RAMBLE (NCT02829957), which the parent included and which cannot contribute -- n=19, both arms typed ACTIVE_COMPARATOR, registered primary a pictorial menstrual blood-loss chart -- together with the three trials that pool. It is kept and named rather than dropped, because a trial that fails only at the POOLING step is a fact about this review's evidence base and dropping it would erase that fact. ELEVEN trials are eligible and poolable and only THREE contribute: the other eight post no arm-level count of the shared estimand, and each is named on the page.",
+   "_why": "k is never one number. Each stage is what the instrument at that stage could actually decide.",
+   "keyed_on": "registration id"
+  },
+  "screening": {
+   "search_note": "Mechanical screen over the surfaced set on four limbs, then adjudication of every UNSETTLED record.",
+   "eligibility": "POPULATION: adults with acute or recent venous thromboembolism being TREATED for it. INTERVENTION: apixaban as the randomised intervention -- the drug itself, not a class of which it is one member. COMPARATOR: conventional anticoagulation, another direct oral anticoagulant, or placebo. ESTIMAND, which governs POOLABILITY and not eligibility: recurrent venous thromboembolism, or major bleeding, at ANY registered rank. AND THE BOUNDARY WITH THE PROPHYLAXIS REVIEW: extended anticoagulation in patients who have ALREADY HAD a venous thromboembolism is TREATMENT and belongs here; primary prophylaxis in patients who have not is PREVENTION and belongs to the sibling. The discriminator is read from each trial's eligibility criteria, because the registry's coded `primaryPurpose` does not carry it and both conventions are used for both situations. Criteria are DERIVED POST HOC and say so.",
+   "boundary_criterion": {
+    "criterion": "EXTENDED ANTICOAGULATION IN PATIENTS WHO HAVE ALREADY HAD A VENOUS THROMBOEMBOLISM IS TREATMENT. PRIMARY PROPHYLAXIS IN PATIENTS WHO HAVE NOT IS PREVENTION.",
+    "discriminator": "whether the randomised population has already had the event, read from `eligibilityModule.eligibilityCriteria` and `descriptionModule.briefSummary`",
+    "why_not_the_coded_field": "`designModule.designInfo.primaryPurpose` does not carry it, and BOTH registrant conventions are used for BOTH situations. ADVANCE-2 is knee-replacement thromboprophylaxis coded TREATMENT; APIDULCIS randomises extended anticoagulation after a first VTE and is coded PREVENTION. The coded field decides which POOL a trial is COUNTED in; the trial's own design decides which review INCLUDES it.",
+    "authority_it_satisfies": "MECIR R29/R30/R31 -- eligibility criteria stated and applied consistently. The same authority the rest of both criteria sets are written against, cited the same way.",
+    "authority_it_does_NOT_establish": "MECIR C5/C7. This boundary was written on 2026-08-19, after both reviews' included sets existed. `predefined: false`, like everything else in these criteria.",
+    "predefined": false,
+    "where_it_moved_a_trial": {
+     "NCT03678506": "APIDULCIS -- coded PREVENTION, admitted to TREATMENT",
+     "NCT00452530": "ADVANCE-2 -- coded TREATMENT, admitted to PREVENTION",
+     "NCT03080883": "'preventing SECONDARY cancer-related VTE' -- secondary means after a first event, so admitted to TREATMENT",
+     "NCT05618808": "REGN9933 -- coded TREATMENT, the design is prophylaxis, EXCLUDED from treatment"
+    },
+    "and_a_prediction_it_REFUTED": {
+     "stated_before_the_check": true,
+     "prediction": "HI-PRO (NCT04168203) will FAIL this boundary and leave the treatment review. Its registered arm is labelled `Extended Duration Thromboprophylaxis`, its brief title says `to Prevent Recurrence`, and it randomises against placebo -- every surface reads prophylaxis.",
+     "indicator_chosen_because_it_could_only_move_one_way": "P32: the test was its ELIGIBILITY TEXT, which states what was enrolled and cannot be true for both answers. A trial's own words about who may enter it settle whether the population has had the event; the arm label does not.",
+     "outcome": "REFUTED, and the refutation is the finding.",
+     "what_the_eligibility_actually_says": "\"Objectively-confirmed provoked DVT and/or PE\" and \"Treated for at least 3 months with standard therapeutic anticoagulant therapy\". EVERY PARTICIPANT HAS ALREADY HAD THE EVENT. HI-PRO is extended treatment and it stays.",
+     "the_general_form": "THE ARM LABEL SAID PROPHYLAXIS AND THE POPULATION SAID TREATMENT. This is P33 on the other foot: P33 says a property is not the presence of its own name; this says a property is not ABSENT because another name is present. Four surfaces agreed with each other and disagreed with the eligibility criteria, and the eligibility criteria were right."
+    },
+    "what_this_boundary_does_not_do": "It does not make the two reviews clinically homogeneous. Extended anticoagulation after a completed course and treatment of the acute event are both TREATMENT under this criterion and they are different clinical questions with different comparators, which is why the treatment review pools within the acute stratum and states the extended trials separately rather than averaging across them."
+   },
+   "eligibility_provenance": {
+    "state": "DERIVED_POST_HOC",
+    "predefined": false,
+    "post_hoc": true,
+    "derived": true,
+    "predefined_is_false_because": "written 2026-08-19 when apixaban-vte was split in two, after the parent's included set existed.",
+    "authority_it_satisfies": "MECIR R29/R30/R31.",
+    "authority_it_does_NOT_establish": "MECIR C5/C7 -- criteria defined in advance.",
+    "elements": [
+     {
+      "element": "POPULATION",
+      "criterion": "adults with acute or recent venous thromboembolism -- deep vein thrombosis or pulmonary embolism -- being TREATED for it",
+      "auditable_against": "conditionsModule.conditions + designModule.designInfo.primaryPurpose",
+      "settles_it": false,
+      "why_it_does_not_settle_it_alone": "primaryPurpose is a REGISTRANT'S CODING and not a fact about the trial. ADVANCE-2 and ADVANCE-3 are one programme coded on opposite sides of it. The coded field decides which POOL a trial is counted in; the trial's own design decides whether it is INCLUDED, and where the two disagree the design wins and the disagreement is recorded."
+     },
+     {
+      "element": "INTERVENTION",
+      "criterion": "apixaban as the randomised intervention",
+      "auditable_against": "armsInterventionsModule.armGroups",
+      "settles_it": true,
+      "evidence": "matched against the declared synonym set topic_identity.TOPIC_SYNONYMS['apixaban']. Placebo records naming the drug -- `Apixaban-matching placebo`, `Apixaban Placebo` -- are NOT the drug, which cost three pivotal trials before it was fixed."
+     },
+     {
+      "element": "COMPARATOR",
+      "criterion": "conventional anticoagulation (heparin/LMWH/vitamin-K antagonist), another direct oral anticoagulant, or placebo",
+      "auditable_against": "armsInterventionsModule.armGroups",
+      "settles_it": true
+     },
+     {
+      "element": "ESTIMAND (poolability, NOT eligibility)",
+      "criterion": "recurrent venous thromboembolism, or major bleeding, as a risk ratio or hazard ratio",
+      "auditable_against": "outcomesModule, EVERY rank",
+      "settles_it": true
+     }
+    ],
+    "and_this_review_s_own_included_trial_barely_meets_them": "RAMBLE (NCT02829957) is n=19, randomises rivaroxaban against apixaban with BOTH arms typed ACTIVE_COMPARATOR, and its registered primary is a PICTORIAL MENSTRUAL BLOOD-LOSS CHART. It is in scope by POPULATION and by INTERVENTION and it will not pool on this estimand. STATED HERE RATHER THAN DISCOVERED AT THE POOLING STEP, because a review whose only included trial cannot contribute to its own estimand is a review whose k=1 is not the number a reader should take away."
+   },
+   "records": [
+    {
+     "nct": "NCT00097357",
+     "verdict": "EXCLUDED",
+     "criterion": "POPULATION",
+     "limbs": {
+      "POPULATION": "FAILS",
+      "INTERVENTION": "HOLDS",
+      "COMPARATOR": "HOLDS",
+      "ESTIMAND": "HOLDS"
+     },
+     "status": "COMPLETED",
+     "primaryPurpose": "PREVENTION",
+     "reason": "fails POPULATION (neither the coded purpose nor the text places this in treatment). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR HOLDS, ESTIMAND HOLDS"
+    },
+    {
+     "nct": "NCT00320255",
+     "verdict": "EXCLUDED",
+     "criterion": "POPULATION",
+     "limbs": {
+      "POPULATION": "FAILS",
+      "INTERVENTION": "HOLDS",
+      "COMPARATOR": "HOLDS",
+      "ESTIMAND": "HOLDS"
+     },
+     "status": "COMPLETED",
+     "primaryPurpose": "PREVENTION",
+     "reason": "fails POPULATION (neither the coded purpose nor the text places this in treatment). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR HOLDS, ESTIMAND HOLDS"
+    },
+    {
+     "nct": "NCT00371683",
+     "verdict": "EXCLUDED",
+     "criterion": "POPULATION",
+     "limbs": {
+      "POPULATION": "FAILS",
+      "INTERVENTION": "HOLDS",
+      "COMPARATOR": "HOLDS",
+      "ESTIMAND": "HOLDS"
+     },
+     "status": "COMPLETED",
+     "primaryPurpose": "PREVENTION",
+     "reason": "fails POPULATION (neither the coded purpose nor the text places this in treatment). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR HOLDS, ESTIMAND HOLDS"
+    },
+    {
+     "nct": "NCT00423319",
+     "verdict": "EXCLUDED",
+     "criterion": "POPULATION",
+     "limbs": {
+      "POPULATION": "FAILS",
+      "INTERVENTION": "HOLDS",
+      "COMPARATOR": "HOLDS",
+      "ESTIMAND": "HOLDS"
+     },
+     "status": "COMPLETED",
+     "primaryPurpose": "PREVENTION",
+     "reason": "fails POPULATION (neither the coded purpose nor the text places this in treatment). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR HOLDS, ESTIMAND HOLDS"
+    },
+    {
+     "nct": "NCT00452530",
+     "verdict": "NEEDS_ADJUDICATION",
+     "criterion": "POPULATION",
+     "limbs": {
+      "POPULATION": "UNSETTLED",
+      "INTERVENTION": "HOLDS",
+      "COMPARATOR": "HOLDS",
+      "ESTIMAND": "HOLDS"
+     },
+     "status": "COMPLETED",
+     "primaryPurpose": "TREATMENT",
+     "reason": "cannot settle POPULATION: coded TREATMENT but the text reads as prophylaxis -- ADVANCE-2's shape"
+    },
+    {
+     "nct": "NCT00457002",
+     "verdict": "EXCLUDED",
+     "criterion": "POPULATION",
+     "limbs": {
+      "POPULATION": "FAILS",
+      "INTERVENTION": "HOLDS",
+      "COMPARATOR": "HOLDS",
+      "ESTIMAND": "HOLDS"
+     },
+     "status": "COMPLETED",
+     "primaryPurpose": "PREVENTION",
+     "reason": "fails POPULATION (neither the coded purpose nor the text places this in treatment). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR HOLDS, ESTIMAND HOLDS"
+    },
+    {
+     "nct": "NCT00633893",
+     "verdict": "NEEDS_ADJUDICATION",
+     "criterion": "COMPARATOR",
+     "limbs": {
+      "POPULATION": "HOLDS",
+      "INTERVENTION": "HOLDS",
+      "COMPARATOR": "UNSETTLED",
+      "ESTIMAND": "HOLDS"
+     },
+     "status": "COMPLETED",
+     "primaryPurpose": "TREATMENT",
+     "reason": "cannot settle COMPARATOR: coded TREATMENT and the text agrees"
+    },
+    {
+     "nct": "NCT00643201",
+     "verdict": "ELIGIBLE_POOLABLE_NOT_INCLUDED",
+     "criterion": "ESTIMAND MATCHES",
+     "limbs": {
+      "POPULATION": "HOLDS",
+      "INTERVENTION": "HOLDS",
+      "COMPARATOR": "HOLDS",
+      "ESTIMAND": "HOLDS"
+     },
+     "status": "COMPLETED",
+     "primaryPurpose": "TREATMENT",
+     "reason": "ELIGIBLE, POOLABLE AND NOT IN THIS OBJECT"
+    },
+    {
+     "nct": "NCT01195727",
+     "verdict": "NEEDS_ADJUDICATION",
+     "criterion": "COMPARATOR",
+     "limbs": {
+      "POPULATION": "HOLDS",
+      "INTERVENTION": "HOLDS",
+      "COMPARATOR": "UNSETTLED",
+      "ESTIMAND": "FAILS"
+     },
+     "status": "TERMINATED",
+     "primaryPurpose": "OTHER",
+     "reason": "cannot settle COMPARATOR: no usable coded purpose; the text reads as treatment of established VTE"
+    },
+    {
+     "nct": "NCT01707394",
+     "verdict": "EXCLUDED",
+     "criterion": "POPULATION",
+     "limbs": {
+      "POPULATION": "FAILS",
+      "INTERVENTION": "HOLDS",
+      "COMPARATOR": "UNSETTLED",
+      "ESTIMAND": "FAILS"
+     },
+     "status": "COMPLETED",
+     "primaryPurpose": "OTHER",
+     "reason": "fails POPULATION (neither the coded purpose nor the text places this in treatment). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR UNSETTLED, ESTIMAND FAILS"
+    },
+    {
+     "nct": "NCT01780987",
+     "verdict": "ELIGIBLE_POOLABLE_NOT_INCLUDED",
+     "criterion": "ESTIMAND MATCHES",
+     "limbs": {
+      "POPULATION": "HOLDS",
+      "INTERVENTION": "HOLDS",
+      "COMPARATOR": "HOLDS",
+      "ESTIMAND": "HOLDS"
+     },
+     "status": "COMPLETED",
+     "primaryPurpose": "TREATMENT",
+     "reason": "ELIGIBLE, POOLABLE AND NOT IN THIS OBJECT"
+    },
+    {
+     "nct": "NCT02048865",
+     "verdict": "EXCLUDED",
+     "criterion": "POPULATION",
+     "limbs": {
+      "POPULATION": "FAILS",
+      "INTERVENTION": "HOLDS",
+      "COMPARATOR": "HOLDS",
+      "ESTIMAND": "FAILS"
+     },
+     "status": "COMPLETED",
+     "primaryPurpose": "PREVENTION",
+     "reason": "fails POPULATION (neither the coded purpose nor the text places this in treatment). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR HOLDS, ESTIMAND FAILS"
+    },
+    {
+     "nct": "NCT02066454",
+     "verdict": "EXCLUDED",
+     "criterion": "COMPARATOR",
+     "limbs": {
+      "POPULATION": "HOLDS",
+      "INTERVENTION": "HOLDS",
+      "COMPARATOR": "FAILS",
+      "ESTIMAND": "HOLDS"
+     },
+     "status": "COMPLETED",
+     "primaryPurpose": "TREATMENT",
+     "reason": "fails COMPARATOR (coded TREATMENT and the text agrees). ALL limbs: POPULATION HOLDS, INTERVENTION HOLDS, COMPARATOR FAILS, ESTIMAND HOLDS"
+    },
+    {
+     "nct": "NCT02366871",
+     "verdict": "EXCLUDED",
+     "criterion": "POPULATION",
+     "limbs": {
+      "POPULATION": "FAILS",
+      "INTERVENTION": "HOLDS",
+      "COMPARATOR": "HOLDS",
+      "ESTIMAND": "HOLDS"
+     },
+     "status": "COMPLETED",
+     "primaryPurpose": "PREVENTION",
+     "reason": "fails POPULATION (neither the coded purpose nor the text places this in treatment). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR HOLDS, ESTIMAND HOLDS"
+    },
+    {
+     "nct": "NCT02369653",
+     "verdict": "NEEDS_ADJUDICATION",
+     "criterion": "POPULATION",
+     "limbs": {
+      "POPULATION": "UNSETTLED",
+      "INTERVENTION": "HOLDS",
+      "COMPARATOR": "HOLDS",
+      "ESTIMAND": "HOLDS"
+     },
+     "status": "COMPLETED",
+     "primaryPurpose": "PREVENTION",
+     "reason": "cannot settle POPULATION: coded PREVENTION but the text reads as treatment"
+    },
+    {
+     "nct": "NCT02464969",
+     "verdict": "EXCLUDED",
+     "criterion": "COMPARATOR",
+     "limbs": {
+      "POPULATION": "HOLDS",
+      "INTERVENTION": "HOLDS",
+      "COMPARATOR": "FAILS",
+      "ESTIMAND": "HOLDS"
+     },
+     "status": "COMPLETED",
+     "primaryPurpose": "TREATMENT",
+     "reason": "fails COMPARATOR (coded TREATMENT and the text agrees). ALL limbs: POPULATION HOLDS, INTERVENTION HOLDS, COMPARATOR FAILS, ESTIMAND HOLDS"
+    },
+    {
+     "nct": "NCT02559856",
+     "verdict": "ELIGIBLE_NO_RESULTS_YET",
+     "criterion": "NO RESULTS POSTED",
+     "limbs": {
+      "POPULATION": "HOLDS",
+      "INTERVENTION": "HOLDS",
+      "COMPARATOR": "HOLDS",
+      "ESTIMAND": "HOLDS"
+     },
+     "status": "COMPLETED",
+     "primaryPurpose": "TREATMENT",
+     "reason": "eligible; status COMPLETED, hasResults=False"
+    },
+    {
+     "nct": "NCT02585713",
+     "verdict": "ELIGIBLE_POOLABLE_NOT_INCLUDED",
+     "criterion": "ESTIMAND MATCHES",
+     "limbs": {
+      "POPULATION": "HOLDS",
+      "INTERVENTION": "HOLDS",
+      "COMPARATOR": "HOLDS",
+      "ESTIMAND": "HOLDS"
+     },
+     "status": "COMPLETED",
+     "primaryPurpose": "SUPPORTIVE_CARE",
+     "reason": "ELIGIBLE, POOLABLE AND NOT IN THIS OBJECT"
+    },
+    {
+     "nct": "NCT02664155",
+     "verdict": "ELIGIBLE_NO_RESULTS_YET",
+     "criterion": "NO RESULTS POSTED",
+     "limbs": {
+      "POPULATION": "HOLDS",
+      "INTERVENTION": "HOLDS",
+      "COMPARATOR": "HOLDS",
+      "ESTIMAND": "HOLDS"
+     },
+     "status": "TERMINATED",
+     "primaryPurpose": "TREATMENT",
+     "reason": "eligible; status TERMINATED, hasResults=False"
+    },
+    {
+     "nct": "NCT02744092",
+     "verdict": "ELIGIBLE_POOLABLE_NOT_INCLUDED",
+     "criterion": "ESTIMAND MATCHES",
+     "limbs": {
+      "POPULATION": "HOLDS",
+      "INTERVENTION": "HOLDS",
+      "COMPARATOR": "HOLDS",
+      "ESTIMAND": "HOLDS"
+     },
+     "status": "COMPLETED",
+     "primaryPurpose": "TREATMENT",
+     "reason": "ELIGIBLE, POOLABLE AND NOT IN THIS OBJECT"
+    },
+    {
+     "nct": "NCT02889562",
+     "verdict": "EXCLUDED",
+     "criterion": "POPULATION",
+     "limbs": {
+      "POPULATION": "FAILS",
+      "INTERVENTION": "HOLDS",
+      "COMPARATOR": "HOLDS",
+      "ESTIMAND": "FAILS"
+     },
+     "status": "COMPLETED",
+     "primaryPurpose": "PREVENTION",
+     "reason": "fails POPULATION (neither the coded purpose nor the text places this in treatment). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR HOLDS, ESTIMAND FAILS"
+    },
+    {
+     "nct": "NCT02912234",
+     "verdict": "EXCLUDED",
+     "criterion": "COMPARATOR",
+     "limbs": {
+      "POPULATION": "HOLDS",
+      "INTERVENTION": "HOLDS",
+      "COMPARATOR": "FAILS",
+      "ESTIMAND": "FAILS"
+     },
+     "status": "COMPLETED",
+     "primaryPurpose": "BASIC_SCIENCE",
+     "reason": "fails COMPARATOR (no usable coded purpose; the text reads as treatment of established VTE). ALL limbs: POPULATION HOLDS, INTERVENTION HOLDS, COMPARATOR FAILS, ESTIMAND FAILS"
+    },
+    {
+     "nct": "NCT02945280",
+     "verdict": "EXCLUDED",
+     "criterion": "COMPARATOR",
+     "limbs": {
+      "POPULATION": "HOLDS",
+      "INTERVENTION": "HOLDS",
+      "COMPARATOR": "FAILS",
+      "ESTIMAND": "HOLDS"
+     },
+     "status": "TERMINATED",
+     "primaryPurpose": "TREATMENT",
+     "reason": "fails COMPARATOR (coded TREATMENT and the text agrees). ALL limbs: POPULATION HOLDS, INTERVENTION HOLDS, COMPARATOR FAILS, ESTIMAND HOLDS"
+    },
+    {
+     "nct": "NCT02958969",
+     "verdict": "EXCLUDED",
+     "criterion": "POPULATION",
+     "limbs": {
+      "POPULATION": "FAILS",
+      "INTERVENTION": "HOLDS",
+      "COMPARATOR": "FAILS",
+      "ESTIMAND": "HOLDS"
+     },
+     "status": "COMPLETED",
+     "primaryPurpose": "PREVENTION",
+     "reason": "fails POPULATION, COMPARATOR (neither the coded purpose nor the text places this in treatment). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR FAILS, ESTIMAND HOLDS"
+    },
+    {
+     "nct": "NCT03045406",
+     "verdict": "ELIGIBLE_POOLABLE_NOT_INCLUDED",
+     "criterion": "ESTIMAND MATCHES",
+     "limbs": {
+      "POPULATION": "HOLDS",
+      "INTERVENTION": "HOLDS",
+      "COMPARATOR": "HOLDS",
+      "ESTIMAND": "HOLDS"
+     },
+     "status": "COMPLETED",
+     "primaryPurpose": "TREATMENT",
+     "reason": "ELIGIBLE, POOLABLE AND NOT IN THIS OBJECT"
+    },
+    {
+     "nct": "NCT03080883",
+     "verdict": "NEEDS_ADJUDICATION",
+     "criterion": "POPULATION",
+     "limbs": {
+      "POPULATION": "UNSETTLED",
+      "INTERVENTION": "HOLDS",
+      "COMPARATOR": "UNSETTLED",
+      "ESTIMAND": "HOLDS"
+     },
+     "status": "COMPLETED",
+     "primaryPurpose": "PREVENTION",
+     "reason": "cannot settle POPULATION, COMPARATOR: coded PREVENTION but the text reads as treatment"
+    },
+    {
+     "nct": "NCT03129555",
+     "verdict": "ELIGIBLE_NO_RESULTS_YET",
+     "criterion": "NO RESULTS POSTED",
+     "limbs": {
+      "POPULATION": "HOLDS",
+      "INTERVENTION": "HOLDS",
+      "COMPARATOR": "HOLDS",
+      "ESTIMAND": "HOLDS"
+     },
+     "status": "ACTIVE_NOT_RECRUITING",
+     "primaryPurpose": "TREATMENT",
+     "reason": "eligible; status ACTIVE_NOT_RECRUITING, hasResults=False"
+    },
+    {
+     "nct": "NCT03139487",
+     "verdict": "ELIGIBLE_NO_RESULTS_YET",
+     "criterion": "NO RESULTS POSTED",
+     "limbs": {
+      "POPULATION": "HOLDS",
+      "INTERVENTION": "HOLDS",
+      "COMPARATOR": "HOLDS",
+      "ESTIMAND": "HOLDS"
+     },
+     "status": "UNKNOWN",
+     "primaryPurpose": "TREATMENT",
+     "reason": "eligible; status UNKNOWN, hasResults=False"
+    },
+    {
+     "nct": "NCT03196349",
+     "verdict": "ELIGIBLE_POOLABLE_NOT_INCLUDED",
+     "criterion": "ESTIMAND MATCHES",
+     "limbs": {
+      "POPULATION": "HOLDS",
+      "INTERVENTION": "HOLDS",
+      "COMPARATOR": "HOLDS",
+      "ESTIMAND": "HOLDS"
+     },
+     "status": "TERMINATED",
+     "primaryPurpose": "TREATMENT",
+     "reason": "ELIGIBLE, POOLABLE AND NOT IN THIS OBJECT"
+    },
+    {
+     "nct": "NCT03200613",
+     "verdict": "EXCLUDED",
+     "criterion": "POPULATION",
+     "limbs": {
+      "POPULATION": "FAILS",
+      "INTERVENTION": "HOLDS",
+      "COMPARATOR": "HOLDS",
+      "ESTIMAND": "HOLDS"
+     },
+     "status": "TERMINATED",
+     "primaryPurpose": "PREVENTION",
+     "reason": "fails POPULATION (neither the coded purpose nor the text places this in treatment). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR HOLDS, ESTIMAND HOLDS"
+    },
+    {
+     "nct": "NCT03266783",
+     "verdict": "ELIGIBLE_POOLABLE_NOT_INCLUDED",
+     "criterion": "ESTIMAND MATCHES",
+     "limbs": {
+      "POPULATION": "HOLDS",
+      "INTERVENTION": "HOLDS",
+      "COMPARATOR": "HOLDS",
+      "ESTIMAND": "HOLDS"
+     },
+     "status": "COMPLETED",
+     "primaryPurpose": "TREATMENT",
+     "reason": "ELIGIBLE, POOLABLE AND NOT IN THIS OBJECT"
+    },
+    {
+     "nct": "NCT03276143",
+     "verdict": "EXCLUDED",
+     "criterion": "POPULATION",
+     "limbs": {
+      "POPULATION": "FAILS",
+      "INTERVENTION": "HOLDS",
+      "COMPARATOR": "HOLDS",
+      "ESTIMAND": "HOLDS"
+     },
+     "status": "COMPLETED",
+     "primaryPurpose": "PREVENTION",
+     "reason": "fails POPULATION (neither the coded purpose nor the text places this in treatment). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR HOLDS, ESTIMAND HOLDS"
+    },
+    {
+     "nct": "NCT03590743",
+     "verdict": "ELIGIBLE_POOLABLE_NOT_INCLUDED",
+     "criterion": "ESTIMAND MATCHES",
+     "limbs": {
+      "POPULATION": "HOLDS",
+      "INTERVENTION": "HOLDS",
+      "COMPARATOR": "HOLDS",
+      "ESTIMAND": "HOLDS"
+     },
+     "status": "TERMINATED",
+     "primaryPurpose": "TREATMENT",
+     "reason": "ELIGIBLE, POOLABLE AND NOT IN THIS OBJECT"
+    },
+    {
+     "nct": "NCT03678506",
+     "verdict": "NEEDS_ADJUDICATION",
+     "criterion": "POPULATION",
+     "limbs": {
+      "POPULATION": "UNSETTLED",
+      "INTERVENTION": "HOLDS",
+      "COMPARATOR": "HOLDS",
+      "ESTIMAND": "HOLDS"
+     },
+     "status": "TERMINATED",
+     "primaryPurpose": "PREVENTION",
+     "reason": "cannot settle POPULATION: coded PREVENTION but the text reads as treatment"
+    },
+    {
+     "nct": "NCT03935451",
+     "verdict": "EXCLUDED",
+     "criterion": "POPULATION",
+     "limbs": {
+      "POPULATION": "FAILS",
+      "INTERVENTION": "HOLDS",
+      "COMPARATOR": "HOLDS",
+      "ESTIMAND": "HOLDS"
+     },
+     "status": "UNKNOWN",
+     "primaryPurpose": "PREVENTION",
+     "reason": "fails POPULATION (neither the coded purpose nor the text places this in treatment). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR HOLDS, ESTIMAND HOLDS"
+    },
+    {
+     "nct": "NCT04041843",
+     "verdict": "EXCLUDED",
+     "criterion": "COMPARATOR",
+     "limbs": {
+      "POPULATION": "HOLDS",
+      "INTERVENTION": "HOLDS",
+      "COMPARATOR": "FAILS",
+      "ESTIMAND": "HOLDS"
+     },
+     "status": "COMPLETED",
+     "primaryPurpose": "TREATMENT",
+     "reason": "fails COMPARATOR (coded TREATMENT and the text agrees). ALL limbs: POPULATION HOLDS, INTERVENTION HOLDS, COMPARATOR FAILS, ESTIMAND HOLDS"
+    },
+    {
+     "nct": "NCT04106700",
+     "verdict": "EXCLUDED",
+     "criterion": "COMPARATOR",
+     "limbs": {
+      "POPULATION": "UNSETTLED",
+      "INTERVENTION": "HOLDS",
+      "COMPARATOR": "FAILS",
+      "ESTIMAND": "HOLDS"
+     },
+     "status": "TERMINATED",
+     "primaryPurpose": "TREATMENT",
+     "reason": "fails COMPARATOR (coded TREATMENT but the text reads as prophylaxis -- ADVANCE-2's shape). ALL limbs: POPULATION UNSETTLED, INTERVENTION HOLDS, COMPARATOR FAILS, ESTIMAND HOLDS"
+    },
+    {
+     "nct": "NCT04168203",
+     "verdict": "ELIGIBLE_POOLABLE_NOT_INCLUDED",
+     "criterion": "ESTIMAND MATCHES",
+     "limbs": {
+      "POPULATION": "HOLDS",
+      "INTERVENTION": "HOLDS",
+      "COMPARATOR": "HOLDS",
+      "ESTIMAND": "HOLDS"
+     },
+     "status": "COMPLETED",
+     "primaryPurpose": "TREATMENT",
+     "reason": "ELIGIBLE, POOLABLE AND NOT IN THIS OBJECT"
+    },
+    {
+     "nct": "NCT04191928",
+     "verdict": "EXCLUDED",
+     "criterion": "COMPARATOR",
+     "limbs": {
+      "POPULATION": "HOLDS",
+      "INTERVENTION": "HOLDS",
+      "COMPARATOR": "FAILS",
+      "ESTIMAND": "FAILS"
+     },
+     "status": "COMPLETED",
+     "primaryPurpose": "TREATMENT",
+     "reason": "fails COMPARATOR (coded TREATMENT and the text agrees). ALL limbs: POPULATION HOLDS, INTERVENTION HOLDS, COMPARATOR FAILS, ESTIMAND FAILS"
+    },
+    {
+     "nct": "NCT04243122",
+     "verdict": "EXCLUDED",
+     "criterion": "POPULATION",
+     "limbs": {
+      "POPULATION": "FAILS",
+      "INTERVENTION": "HOLDS",
+      "COMPARATOR": "HOLDS",
+      "ESTIMAND": "HOLDS"
+     },
+     "status": "COMPLETED",
+     "primaryPurpose": "PREVENTION",
+     "reason": "fails POPULATION (neither the coded purpose nor the text places this in treatment). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR HOLDS, ESTIMAND HOLDS"
+    },
+    {
+     "nct": "NCT04462003",
+     "verdict": "ELIGIBLE_NO_RESULTS_YET",
+     "criterion": "NO RESULTS POSTED",
+     "limbs": {
+      "POPULATION": "HOLDS",
+      "INTERVENTION": "HOLDS",
+      "COMPARATOR": "HOLDS",
+      "ESTIMAND": "HOLDS"
+     },
+     "status": "UNKNOWN",
+     "primaryPurpose": "TREATMENT",
+     "reason": "eligible; status UNKNOWN, hasResults=False"
+    },
+    {
+     "nct": "NCT04479579",
+     "verdict": "EXCLUDED",
+     "criterion": "POPULATION",
+     "limbs": {
+      "POPULATION": "FAILS",
+      "INTERVENTION": "HOLDS",
+      "COMPARATOR": "FAILS",
+      "ESTIMAND": "HOLDS"
+     },
+     "status": "COMPLETED",
+     "primaryPurpose": "PREVENTION",
+     "reason": "fails POPULATION, COMPARATOR (neither the coded purpose nor the text places this in treatment). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR FAILS, ESTIMAND HOLDS"
+    },
+    {
+     "nct": "NCT04504318",
+     "verdict": "NEEDS_ADJUDICATION",
+     "criterion": "POPULATION",
+     "limbs": {
+      "POPULATION": "UNSETTLED",
+      "INTERVENTION": "HOLDS",
+      "COMPARATOR": "HOLDS",
+      "ESTIMAND": "HOLDS"
+     },
+     "status": "COMPLETED",
+     "primaryPurpose": "PREVENTION",
+     "reason": "cannot settle POPULATION: coded PREVENTION but the text reads as treatment"
+    },
+    {
+     "nct": "NCT04746339",
+     "verdict": "EXCLUDED",
+     "criterion": "POPULATION",
+     "limbs": {
+      "POPULATION": "FAILS",
+      "INTERVENTION": "HOLDS",
+      "COMPARATOR": "HOLDS",
+      "ESTIMAND": "HOLDS"
+     },
+     "status": "TERMINATED",
+     "primaryPurpose": "PREVENTION",
+     "reason": "fails POPULATION (neither the coded purpose nor the text places this in treatment). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR HOLDS, ESTIMAND HOLDS"
+    },
+    {
+     "nct": "NCT04874428",
+     "verdict": "EXCLUDED",
+     "criterion": "POPULATION",
+     "limbs": {
+      "POPULATION": "FAILS",
+      "INTERVENTION": "HOLDS",
+      "COMPARATOR": "HOLDS",
+      "ESTIMAND": "FAILS"
+     },
+     "status": "RECRUITING",
+     "primaryPurpose": "BASIC_SCIENCE",
+     "reason": "fails POPULATION (neither the coded purpose nor the text places this in treatment). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR HOLDS, ESTIMAND FAILS"
+    },
+    {
+     "nct": "NCT05089227",
+     "verdict": "EXCLUDED",
+     "criterion": "POPULATION",
+     "limbs": {
+      "POPULATION": "FAILS",
+      "INTERVENTION": "HOLDS",
+      "COMPARATOR": "UNSETTLED",
+      "ESTIMAND": "HOLDS"
+     },
+     "status": "RECRUITING",
+     "primaryPurpose": "PREVENTION",
+     "reason": "fails POPULATION (neither the coded purpose nor the text places this in treatment). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR UNSETTLED, ESTIMAND HOLDS"
+    },
+    {
+     "nct": "NCT05171049",
+     "verdict": "NEEDS_ADJUDICATION",
+     "criterion": "COMPARATOR",
+     "limbs": {
+      "POPULATION": "HOLDS",
+      "INTERVENTION": "HOLDS",
+      "COMPARATOR": "UNSETTLED",
+      "ESTIMAND": "HOLDS"
+     },
+     "status": "TERMINATED",
+     "primaryPurpose": "TREATMENT",
+     "reason": "cannot settle COMPARATOR: coded TREATMENT and the text agrees"
+    },
+    {
+     "nct": "NCT05198960",
+     "verdict": "EXCLUDED",
+     "criterion": "POPULATION",
+     "limbs": {
+      "POPULATION": "FAILS",
+      "INTERVENTION": "HOLDS",
+      "COMPARATOR": "HOLDS",
+      "ESTIMAND": "HOLDS"
+     },
+     "status": "RECRUITING",
+     "primaryPurpose": "PREVENTION",
+     "reason": "fails POPULATION (neither the coded purpose nor the text places this in treatment). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR HOLDS, ESTIMAND HOLDS"
+    },
+    {
+     "nct": "NCT05259553",
+     "verdict": "EXCLUDED",
+     "criterion": "POPULATION",
+     "limbs": {
+      "POPULATION": "FAILS",
+      "INTERVENTION": "HOLDS",
+      "COMPARATOR": "FAILS",
+      "ESTIMAND": "FAILS"
+     },
+     "status": "RECRUITING",
+     "primaryPurpose": "PREVENTION",
+     "reason": "fails POPULATION, COMPARATOR (neither the coded purpose nor the text places this in treatment). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR FAILS, ESTIMAND FAILS"
+    },
+    {
+     "nct": "NCT05618808",
+     "verdict": "NEEDS_ADJUDICATION",
+     "criterion": "POPULATION",
+     "limbs": {
+      "POPULATION": "UNSETTLED",
+      "INTERVENTION": "HOLDS",
+      "COMPARATOR": "HOLDS",
+      "ESTIMAND": "HOLDS"
+     },
+     "status": "COMPLETED",
+     "primaryPurpose": "TREATMENT",
+     "reason": "cannot settle POPULATION: coded TREATMENT but the text reads as prophylaxis -- ADVANCE-2's shape"
+    },
+    {
+     "nct": "NCT05622500",
+     "verdict": "NEEDS_ADJUDICATION",
+     "criterion": "COMPARATOR",
+     "limbs": {
+      "POPULATION": "HOLDS",
+      "INTERVENTION": "HOLDS",
+      "COMPARATOR": "UNSETTLED",
+      "ESTIMAND": "FAILS"
+     },
+     "status": "TERMINATED",
+     "primaryPurpose": "TREATMENT",
+     "reason": "cannot settle COMPARATOR: coded TREATMENT and the text agrees"
+    },
+    {
+     "nct": "NCT05683808",
+     "verdict": "EXCLUDED",
+     "criterion": "POPULATION",
+     "limbs": {
+      "POPULATION": "FAILS",
+      "INTERVENTION": "HOLDS",
+      "COMPARATOR": "FAILS",
+      "ESTIMAND": "HOLDS"
+     },
+     "status": "RECRUITING",
+     "primaryPurpose": "SUPPORTIVE_CARE",
+     "reason": "fails POPULATION, COMPARATOR (neither the coded purpose nor the text places this in treatment). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR FAILS, ESTIMAND HOLDS"
+    },
+    {
+     "nct": "NCT05701917",
+     "verdict": "ELIGIBLE_NO_RESULTS_YET",
+     "criterion": "NO RESULTS POSTED",
+     "limbs": {
+      "POPULATION": "HOLDS",
+      "INTERVENTION": "HOLDS",
+      "COMPARATOR": "HOLDS",
+      "ESTIMAND": "FAILS"
+     },
+     "status": "RECRUITING",
+     "primaryPurpose": "TREATMENT",
+     "reason": "eligible; status RECRUITING, hasResults=False"
+    },
+    {
+     "nct": "NCT05735639",
+     "verdict": "EXCLUDED",
+     "criterion": "POPULATION",
+     "limbs": {
+      "POPULATION": "FAILS",
+      "INTERVENTION": "HOLDS",
+      "COMPARATOR": "HOLDS",
+      "ESTIMAND": "HOLDS"
+     },
+     "status": "RECRUITING",
+     "primaryPurpose": "PREVENTION",
+     "reason": "fails POPULATION (neither the coded purpose nor the text places this in treatment). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR HOLDS, ESTIMAND HOLDS"
+    },
+    {
+     "nct": "NCT06055920",
+     "verdict": "NEEDS_ADJUDICATION",
+     "criterion": "COMPARATOR",
+     "limbs": {
+      "POPULATION": "HOLDS",
+      "INTERVENTION": "HOLDS",
+      "COMPARATOR": "UNSETTLED",
+      "ESTIMAND": "HOLDS"
+     },
+     "status": "ACTIVE_NOT_RECRUITING",
+     "primaryPurpose": "TREATMENT",
+     "reason": "cannot settle COMPARATOR: coded TREATMENT and the text agrees"
+    },
+    {
+     "nct": "NCT06243510",
+     "verdict": "EXCLUDED",
+     "criterion": "POPULATION",
+     "limbs": {
+      "POPULATION": "FAILS",
+      "INTERVENTION": "HOLDS",
+      "COMPARATOR": "HOLDS",
+      "ESTIMAND": "HOLDS"
+     },
+     "status": "COMPLETED",
+     "primaryPurpose": "PREVENTION",
+     "reason": "fails POPULATION (neither the coded purpose nor the text places this in treatment). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR HOLDS, ESTIMAND HOLDS"
+    },
+    {
+     "nct": "NCT06523959",
+     "verdict": "NEEDS_ADJUDICATION",
+     "criterion": "POPULATION",
+     "limbs": {
+      "POPULATION": "UNSETTLED",
+      "INTERVENTION": "HOLDS",
+      "COMPARATOR": "HOLDS",
+      "ESTIMAND": "HOLDS"
+     },
+     "status": "RECRUITING",
+     "primaryPurpose": "TREATMENT",
+     "reason": "cannot settle POPULATION: coded TREATMENT but the text reads as prophylaxis -- ADVANCE-2's shape"
+    },
+    {
+     "nct": "NCT06531122",
+     "verdict": "ELIGIBLE_NO_RESULTS_YET",
+     "criterion": "NO RESULTS POSTED",
+     "limbs": {
+      "POPULATION": "HOLDS",
+      "INTERVENTION": "HOLDS",
+      "COMPARATOR": "HOLDS",
+      "ESTIMAND": "HOLDS"
+     },
+     "status": "RECRUITING",
+     "primaryPurpose": "TREATMENT",
+     "reason": "eligible; status RECRUITING, hasResults=False"
+    },
+    {
+     "nct": "NCT06551415",
+     "verdict": "ELIGIBLE_NO_RESULTS_YET",
+     "criterion": "NO RESULTS POSTED",
+     "limbs": {
+      "POPULATION": "HOLDS",
+      "INTERVENTION": "HOLDS",
+      "COMPARATOR": "HOLDS",
+      "ESTIMAND": "HOLDS"
+     },
+     "status": "RECRUITING",
+     "primaryPurpose": "TREATMENT",
+     "reason": "eligible; status RECRUITING, hasResults=False"
+    },
+    {
+     "nct": "NCT06581965",
+     "verdict": "EXCLUDED",
+     "criterion": "POPULATION",
+     "limbs": {
+      "POPULATION": "FAILS",
+      "INTERVENTION": "HOLDS",
+      "COMPARATOR": "UNSETTLED",
+      "ESTIMAND": "HOLDS"
+     },
+     "status": "RECRUITING",
+     "primaryPurpose": "PREVENTION",
+     "reason": "fails POPULATION (neither the coded purpose nor the text places this in treatment). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR UNSETTLED, ESTIMAND HOLDS"
+    },
+    {
+     "nct": "NCT06603870",
+     "verdict": "EXCLUDED",
+     "criterion": "COMPARATOR",
+     "limbs": {
+      "POPULATION": "UNSETTLED",
+      "INTERVENTION": "HOLDS",
+      "COMPARATOR": "FAILS",
+      "ESTIMAND": "HOLDS"
+     },
+     "status": "RECRUITING",
+     "primaryPurpose": "TREATMENT",
+     "reason": "fails COMPARATOR (coded TREATMENT but the text reads as prophylaxis -- ADVANCE-2's shape). ALL limbs: POPULATION UNSETTLED, INTERVENTION HOLDS, COMPARATOR FAILS, ESTIMAND HOLDS"
+    },
+    {
+     "nct": "NCT06886516",
+     "verdict": "EXCLUDED",
+     "criterion": "COMPARATOR",
+     "limbs": {
+      "POPULATION": "HOLDS",
+      "INTERVENTION": "HOLDS",
+      "COMPARATOR": "FAILS",
+      "ESTIMAND": "HOLDS"
+     },
+     "status": "RECRUITING",
+     "primaryPurpose": "TREATMENT",
+     "reason": "fails COMPARATOR (coded TREATMENT and the text agrees). ALL limbs: POPULATION HOLDS, INTERVENTION HOLDS, COMPARATOR FAILS, ESTIMAND HOLDS"
+    },
+    {
+     "nct": "NCT07005024",
+     "verdict": "EXCLUDED",
+     "criterion": "POPULATION",
+     "limbs": {
+      "POPULATION": "FAILS",
+      "INTERVENTION": "HOLDS",
+      "COMPARATOR": "UNSETTLED",
+      "ESTIMAND": "HOLDS"
+     },
+     "status": "RECRUITING",
+     "primaryPurpose": "PREVENTION",
+     "reason": "fails POPULATION (neither the coded purpose nor the text places this in treatment). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR UNSETTLED, ESTIMAND HOLDS"
+    },
+    {
+     "nct": "NCT07015905",
+     "verdict": "NEEDS_ADJUDICATION",
+     "criterion": "POPULATION",
+     "limbs": {
+      "POPULATION": "UNSETTLED",
+      "INTERVENTION": "HOLDS",
+      "COMPARATOR": "HOLDS",
+      "ESTIMAND": "HOLDS"
+     },
+     "status": "RECRUITING",
+     "primaryPurpose": "TREATMENT",
+     "reason": "cannot settle POPULATION: coded TREATMENT but the text reads as prophylaxis -- ADVANCE-2's shape"
+    },
+    {
+     "nct": "NCT07160686",
+     "verdict": "EXCLUDED",
+     "criterion": "POPULATION",
+     "limbs": {
+      "POPULATION": "FAILS",
+      "INTERVENTION": "HOLDS",
+      "COMPARATOR": "HOLDS",
+      "ESTIMAND": "HOLDS"
+     },
+     "status": "NOT_YET_RECRUITING",
+     "primaryPurpose": "PREVENTION",
+     "reason": "fails POPULATION (neither the coded purpose nor the text places this in treatment). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR HOLDS, ESTIMAND HOLDS"
+    },
+    {
+     "nct": "NCT07189897",
+     "verdict": "EXCLUDED",
+     "criterion": "POPULATION",
+     "limbs": {
+      "POPULATION": "FAILS",
+      "INTERVENTION": "HOLDS",
+      "COMPARATOR": "HOLDS",
+      "ESTIMAND": "FAILS"
+     },
+     "status": "RECRUITING",
+     "primaryPurpose": "PREVENTION",
+     "reason": "fails POPULATION (neither the coded purpose nor the text places this in treatment). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR HOLDS, ESTIMAND FAILS"
+    },
+    {
+     "nct": "NCT07228663",
+     "verdict": "EXCLUDED",
+     "criterion": "POPULATION",
+     "limbs": {
+      "POPULATION": "FAILS",
+      "INTERVENTION": "HOLDS",
+      "COMPARATOR": "HOLDS",
+      "ESTIMAND": "FAILS"
+     },
+     "status": "NOT_YET_RECRUITING",
+     "primaryPurpose": "PREVENTION",
+     "reason": "fails POPULATION (neither the coded purpose nor the text places this in treatment). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR HOLDS, ESTIMAND FAILS"
+    },
+    {
+     "nct": "NCT07270263",
+     "verdict": "NEEDS_ADJUDICATION",
+     "criterion": "POPULATION",
+     "limbs": {
+      "POPULATION": "UNSETTLED",
+      "INTERVENTION": "HOLDS",
+      "COMPARATOR": "HOLDS",
+      "ESTIMAND": "HOLDS"
+     },
+     "status": "RECRUITING",
+     "primaryPurpose": "PREVENTION",
+     "reason": "cannot settle POPULATION: coded PREVENTION but the text reads as treatment"
+    },
+    {
+     "nct": "NCT07493304",
+     "verdict": "NEEDS_ADJUDICATION",
+     "criterion": "POPULATION",
+     "limbs": {
+      "POPULATION": "UNSETTLED",
+      "INTERVENTION": "HOLDS",
+      "COMPARATOR": "UNSETTLED",
+      "ESTIMAND": "HOLDS"
+     },
+     "status": "RECRUITING",
+     "primaryPurpose": "TREATMENT",
+     "reason": "cannot settle POPULATION, COMPARATOR: coded TREATMENT but the text reads as prophylaxis -- ADVANCE-2's shape"
+    },
+    {
+     "nct": "NCT07699796",
+     "verdict": "NEEDS_ADJUDICATION",
+     "criterion": "POPULATION",
+     "limbs": {
+      "POPULATION": "UNSETTLED",
+      "INTERVENTION": "HOLDS",
+      "COMPARATOR": "HOLDS",
+      "ESTIMAND": "HOLDS"
+     },
+     "status": "COMPLETED",
+     "primaryPurpose": "PREVENTION",
+     "reason": "cannot settle POPULATION: coded PREVENTION but the text reads as treatment"
+    },
+    {
+     "nct": "NCT07713875",
+     "verdict": "EXCLUDED",
+     "criterion": "POPULATION",
+     "limbs": {
+      "POPULATION": "FAILS",
+      "INTERVENTION": "HOLDS",
+      "COMPARATOR": "FAILS",
+      "ESTIMAND": "HOLDS"
+     },
+     "status": "NOT_YET_RECRUITING",
+     "primaryPurpose": "PREVENTION",
+     "reason": "fails POPULATION, COMPARATOR (neither the coded purpose nor the text places this in treatment). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR FAILS, ESTIMAND HOLDS"
+    },
+    {
+     "nct": "NCT07716332",
+     "verdict": "EXCLUDED",
+     "criterion": "POPULATION",
+     "limbs": {
+      "POPULATION": "FAILS",
+      "INTERVENTION": "HOLDS",
+      "COMPARATOR": "HOLDS",
+      "ESTIMAND": "HOLDS"
+     },
+     "status": "NOT_YET_RECRUITING",
+     "primaryPurpose": "PREVENTION",
+     "reason": "fails POPULATION (neither the coded purpose nor the text places this in treatment). ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR HOLDS, ESTIMAND HOLDS"
+    }
+   ],
+   "adjudication": {
+    "n": 16,
+    "tally": {
+     "ELIGIBLE_POOLABLE_NOT_INCLUDED": 2,
+     "ELIGIBLE_NO_RESULTS_YET": 4,
+     "ELIGIBLE_NOT_POOLABLE": 1,
+     "EXCLUDED": 9
+    },
+    "trials": [
+     {
+      "nct": "NCT00633893",
+      "verdict": "ELIGIBLE_POOLABLE_NOT_INCLUDED",
+      "why": "AMPLIFY-EXT, n=2711. Extended treatment of VTE against placebo. ALREADY HAD THE EVENT -> treatment. The packet named this as a treatment anchor and it was outside the object."
+     },
+     {
+      "nct": "NCT03678506",
+      "verdict": "ELIGIBLE_POOLABLE_NOT_INCLUDED",
+      "why": "APIDULCIS, n=800. Coded PREVENTION, and it randomises extended anticoagulation in patients who have had a VTE -> treatment by the boundary above. A trial the coded field would have sent to the wrong review."
+     },
+     {
+      "nct": "NCT03080883",
+      "verdict": "ELIGIBLE_NO_RESULTS_YET",
+      "why": "n=370, coded PREVENTION, 'preventing SECONDARY cancer-related VTE' -- secondary means after a first event, so treatment. No posted results."
+     },
+     {
+      "nct": "NCT05171049",
+      "verdict": "ELIGIBLE_NO_RESULTS_YET",
+      "why": "abelacimab against apixaban in the TREATMENT of VTE, n=1150. Apixaban is the comparator, which is in scope -- a drug compared against apixaban randomises apixaban."
+     },
+     {
+      "nct": "NCT06055920",
+      "verdict": "ELIGIBLE_NO_RESULTS_YET",
+      "why": "PEERLESS II, n=1200, pulmonary embolism. Treatment of an established event."
+     },
+     {
+      "nct": "NCT07493304",
+      "verdict": "ELIGIBLE_NO_RESULTS_YET",
+      "why": "n=1600, 'Treatment and Secondary Prevention of Venous Thrombosis' -- both limbs are post-event."
+     },
+     {
+      "nct": "NCT01195727",
+      "verdict": "ELIGIBLE_NOT_POOLABLE",
+      "why": "n=13 paediatric multiple-dose study in children WITH venous thromboembolism. In scope by population; a dose-finding design that will not contribute a VTE or bleeding effect estimate."
+     },
+     {
+      "nct": "NCT00452530",
+      "verdict": "EXCLUDED",
+      "why": "ADVANCE-2, knee-replacement thromboprophylaxis. Coded TREATMENT, and the DESIGN is primary prevention in patients who have not had a VTE. Belongs to the prophylaxis review, where it is admitted."
+     },
+     {
+      "nct": "NCT02369653",
+      "verdict": "EXCLUDED",
+      "why": "primary thromboprophylaxis in lymphoma and acute lymphoblastic leukaemia, n=512. No prior event."
+     },
+     {
+      "nct": "NCT04504318",
+      "verdict": "EXCLUDED",
+      "why": "apixaban vs enoxaparin after microsurgical breast reconstruction, n=82. Surgical prophylaxis."
+     },
+     {
+      "nct": "NCT07015905",
+      "verdict": "EXCLUDED",
+      "why": "REGN7508 vs apixaban and enoxaparin for THROMBOPROPHYLAXIS, n=2000."
+     },
+     {
+      "nct": "NCT06523959",
+      "verdict": "EXCLUDED",
+      "why": "n=5436, thrombosis and bleeding in surgery -- perioperative prophylaxis."
+     },
+     {
+      "nct": "NCT07270263",
+      "verdict": "EXCLUDED",
+      "why": "reduced-dose DOAC vs low-molecular-weight heparin for prophylaxis in haematological malignancy, n=100."
+     },
+     {
+      "nct": "NCT07699796",
+      "verdict": "EXCLUDED",
+      "why": "apixaban vs rivaroxaban vs no anticoagulant to PREVENT thrombosis, n=564. No prior event."
+     },
+     {
+      "nct": "NCT05618808",
+      "verdict": "EXCLUDED",
+      "why": "REGN9933 for PREVENTION of VTE, n=373. Coded TREATMENT and the title says prevention; the design is prophylaxis."
+     },
+     {
+      "nct": "NCT05622500",
+      "verdict": "EXCLUDED",
+      "why": "n=12, CHRONIC VENOUS INSUFFICIENCY with endovenous stenting. Population is chronic venous disease, not acute or recent VTE."
+     }
+    ],
+    "eligible_poolable_total": 11
+   },
+   "duplicate_screening": {
+    "performed": false,
+    "state": "OWED, AND RECORDED AS OWED RATHER THAN DESCRIBED",
+    "what_is_owed": "Independent duplicate screening of the surfaced set by a second reader. The mechanical screen and the sixteen-trial adjudication were performed by ONE family (Claude), with the registry payload as the evidence.",
+    "what_was_NOT_done": "No second model family read this topic's screen. The 2026-08-19 cross-family adjudications covered the ablation and rhythm topics; this topic was not among them.",
+    "why_it_is_not_reported_as_a_rate": "An agreement rate over one reader is not an agreement rate. A seat that did not read is ABSENT, not concurring -- the rule that keeps 88 trials off `early-rhythm-control-af`'s adjudicated count."
+   }
+  },
+  "screening_of_remainder": {
+   "recovered_eligible_poolable_not_included": 11,
+   "of_those_with_posted_results": 8,
+   "of_those_that_pool": 3,
+   "what_ELIGIBLE_POOLABLE_NOT_INCLUDED_means": "A GAP IN OUR OWN EVIDENCE BASE, not a gap in the literature. Each of the eleven was surfaced by this review's own search, passed its own criteria, and was not in the object. The disposition exists to name that state rather than let it read as an exclusion.",
+   "trials_with_results_and_no_recurrent_VTE_outcome_at_any_rank": {
+    "NCT02585713": "acute cancer-associated VTE, apixaban vs dalteparin, n=300",
+    "NCT03590743": "isolated calf DVT, apixaban vs placebo, TERMINATED at n=5"
+   },
+   "and_the_boundary_was_not_applied_to_all_of_them_until_now": "The boundary criterion reached the SIXTEEN trials sent to adjudication. The NINE admitted by the mechanical screen were admitted on `primaryPurpose`, the coded field these criteria say does not settle the question, and were put to the boundary for the first time in this build. HI-PRO survived it against a stated prediction that it would not.",
+   "unscreened_remainder": 0,
+   "and_the_remainder_is_now_ZERO": "It was 71 at the split. The whole of it has been screened, and the SHAPE of the disposition table is what a bare count could not say: 39 of the 48 exclusions fail on POPULATION, because they are thromboprophylaxis trials in patients who have never had a VTE. One search over one drug necessarily reaches across the boundary this pair of reviews is split on, and the trials this review excludes are the trials its sibling holds. That is a fact about splitting a drug topic in two, not a criticism of the query.",
+   "what_limits_this_review_now": "TWELVE eligible trials have posted no results, and EIGHT of the eleven eligible poolable trials post no arm-level count of the shared estimand. Neither limit is fixed by a better query.",
+   "extraction_source": "see `extraction` block"
+  },
+  "topic_state": "REPORTED, WITH A ZERO REMAINDER AND THREE OF EIGHT POOLING. Every one of the 73 candidate registrations has a disposition. The review is NOT complete and the reason has changed: 12 eligible trials have posted no results, and the two largest trials in the field post no measure this review can pool.",
+  "risk_of_bias": {
+   "tool": "RoB 2 (Cochrane risk-of-bias tool for randomized trials)",
+   "version": "22 August 2019 version, as reproduced in the Cochrane Handbook",
+   "handbook": "Higgins JPT, Savovic J, Page MJ, Elbers RG, Sterne JAC. Chapter 8: Assessing risk of bias in a randomized trial. In: Cochrane Handbook for Systematic Reviews of Interventions version 6.5.1",
+   "unit_of_assessment": "A RESULT, not a study -- Handbook 8.2. Every judgement below names the outcome it is about, and for two of the three that outcome is a SECONDARY.",
+   "default_rule": "A domain that cannot be judged from the registration and the posted results is NO_INFORMATION, never LOW. Low-by-default asserts a fact; high-by-default invents a defect.",
+   "ceiling": {
+    "no_result_can_reach_LOW": true,
+    "statement": "NO RESULT IN THIS REVIEW CAN REACH LOW RISK OF BIAS ON THE EVIDENCE WE CAN REACH, AND THAT IS A FACT ABOUT OUR ACCESS RATHER THAN ABOUT THE TRIALS. D1 needs allocation concealment and baseline data, held for none of them; D5 needs each trial's statistical analysis plan, held for none of them. SOME CONCERNS IS THE CEILING, NOT A FINDING.",
+    "what_would_change_it": "Retrieving each trial's full published report and its statistical analysis plan or protocol."
+   },
+   "and_one_domain_here_is_worse_than_the_ceiling": "D5 is SOME CONCERNS for every result in this review and for TWO OF THE THREE it carries an extra reason that is OURS: the result used is a SECONDARY outcome that THIS REVIEW selected from among the trial's registered ranks. The selection was made by a stated rule -- the shared estimand, chosen before any result was read -- and it is still a selection, and it is named rather than left for a reader to notice.",
+   "by_result": {
+    "recurrent_vte": {
+     "NCT03045406": {
+      "trial": "CARAVAGGIO",
+      "domains": {
+       "D1_randomisation": {
+        "judgement": "SOME_CONCERNS",
+        "evidence": [
+         "designInfo.allocation = RANDOMIZED",
+         "Allocation concealment and baseline balance are in neither the registration nor the posted results."
+        ]
+       },
+       "D2_deviations": {
+        "judgement": "SOME_CONCERNS",
+        "evidence": [
+         "designInfo.maskingInfo.masking = NONE. Participants and carers knew the assignment; an open-label anticoagulant trial cannot reach LOW here on the registration alone.",
+         "The trial describes itself as PROBE -- open, blinded end-point."
+        ]
+       },
+       "D3_missing_outcome_data": {
+        "judgement": "LOW",
+        "evidence": [
+         "participant flow STARTED 585 + 585 = 1170; the recurrent-VTE denominators are 576 and 579 = 1155, so 15 of 1170 (1.28%) are not in the analysed set."
+        ]
+       },
+       "D4_measurement": {
+        "judgement": "LOW",
+        "evidence": [
+         "blinded end-point adjudication, and the outcome is an objectively confirmed thrombotic event."
+        ]
+       },
+       "D5_selection_of_result": {
+        "judgement": "SOME_CONCERNS",
+        "evidence": [
+         "No statistical analysis plan is held, so D5 cannot reach LOW.",
+         "The result used is this trial's own registered PRIMARY, so no selection among ranks was made by this review."
+        ]
+       }
+      },
+      "overall": "SOME_CONCERNS"
+     },
+     "NCT03266783": {
+      "trial": "COBRRA",
+      "domains": {
+       "D1_randomisation": {
+        "judgement": "SOME_CONCERNS",
+        "evidence": [
+         "designInfo.allocation = RANDOMIZED; concealment not reported."
+        ]
+       },
+       "D2_deviations": {
+        "judgement": "SOME_CONCERNS",
+        "evidence": [
+         "masking = NONE; a pragmatic PROBE trial of two oral drugs."
+        ]
+       },
+       "D3_missing_outcome_data": {
+        "judgement": "SOME_CONCERNS",
+        "evidence": [
+         "STARTED 1370 + 1390 = 2760; the recurrent-VTE denominators are 1345 and 1355, WHICH EQUAL THE COMPLETED COUNTS EXACTLY. The analysis of this outcome is on completers, not on all randomised -- 60 of 2760 (2.17%) are absent from it, and the equality with the completion milestone is what identifies it as a completer analysis rather than an ITT one."
+        ]
+       },
+       "D4_measurement": {
+        "judgement": "LOW",
+        "evidence": [
+         "the measure is titled `Adjudicated`, and the event is objective."
+        ]
+       },
+       "D5_selection_of_result": {
+        "judgement": "SOME_CONCERNS",
+        "evidence": [
+         "No statistical analysis plan is held.",
+         "THE RESULT USED IS A SECONDARY OUTCOME, selected by THIS REVIEW from among ten posted ranks. The rule that chose it -- the estimand shared across the pool -- was fixed before any result was read, and it is still a selection this review made."
+        ]
+       }
+      },
+      "overall": "SOME_CONCERNS"
+     },
+     "NCT01780987": {
+      "trial": "Japanese acute DVT/PE study",
+      "domains": {
+       "D1_randomisation": {
+        "judgement": "SOME_CONCERNS",
+        "evidence": [
+         "designInfo.allocation = RANDOMIZED; concealment not reported; n=80, at which size baseline imbalance is likely and unreported."
+        ]
+       },
+       "D2_deviations": {
+        "judgement": "SOME_CONCERNS",
+        "evidence": [
+         "masking = NONE."
+        ]
+       },
+       "D3_missing_outcome_data": {
+        "judgement": "SOME_CONCERNS",
+        "evidence": [
+         "STARTED 40 + 40; the recurrent-VTE denominators are 38 and 40. Two participants are absent from one arm of a trial with ONE event in total, so the missing data are of the same order as the outcome."
+        ]
+       },
+       "D4_measurement": {
+        "judgement": "LOW",
+        "evidence": [
+         "titled `Adjudicated`; objective event."
+        ]
+       },
+       "D5_selection_of_result": {
+        "judgement": "SOME_CONCERNS",
+        "evidence": [
+         "No statistical analysis plan is held.",
+         "THE RESULT USED IS A SECONDARY OUTCOME; this trial's registered primary is a bleeding endpoint."
+        ]
+       }
+      },
+      "overall": "SOME_CONCERNS"
+     }
+    }
+   },
+   "by_outcome": {
+    "recurrent_vte": {
+     "NCT01780987": {
+      "nct": "NCT01780987",
+      "trial": "(Japanese acute DVT/PE study)",
+      "registered_enrolment": 80,
+      "registered_masking": "NONE -- OPEN LABEL",
+      "registered_comparator": "UNFRACTIONATED HEPARIN followed by WARFARIN (arm typed ACTIVE_COMPARATOR; apixaban EXPERIMENTAL)",
+      "registered_primary_outcome": "Number of Participants With Major Bleeding Events, per the International Society on Thrombosis and Haemostasis definition",
+      "rank_of_the_result_this_review_pools": "SECONDARY -- the first of five",
+      "result_assessed": "adjudicated recurrent venous thromboembolism",
+      "domains": {
+       "D1_randomisation_process": {
+        "judgement": "NO_INFORMATION",
+        "basis": "REGISTRATION DESIGN MODULE, READ",
+        "reason": "allocation is recorded as RANDOMIZED on the design module.",
+        "what_is_NOT_established": "The concealment MECHANISM is not on the registry and no publication was read.",
+        "resolved_2026_08_21": {
+         "resolved_by": "GUIDANCE, NOT PREFERENCE",
+         "what_this_judgement_was": "LOW",
+         "what_it_is_now": "NO_INFORMATION",
+         "the_text_that_decides_it": "RoB 2 guidance 2019, Box 4, signalling question 1.1: \"Answer 'No information' if the only information about randomization methods is a statement that the study is randomized.\" And section 4.4: \"A judgement of low risk of bias requires that the trial has an adequate method of concealing the allocation sequence from those involved in enrolling participants, and there are no concerns about generation of the allocation sequence.\" Cochrane Handbook 6.5 section 8.3 names the domain's three components.",
+         "why_this_is_not_an_adjudicated_dispute": "A blind second assessor from a different model family disagreed with this domain on 89% of judgements across 22 topics. THAT WOULD ORDINARILY BE A DISPUTE TO ADJUDICATE. It is not one: the tool's own text names this exact evidential situation -- a bare statement that a study was randomised -- and prescribes the answer. The second assessor is not being deferred to; the guidance is being applied.",
+         "what_the_registry_gives_and_does_not": "A ClinicalTrials.gov design module records `allocation: RANDOMIZED`. It carries no sequence-generation method and no allocation-concealment mechanism. The original judgement's own note said so before scoring LOW.",
+         "how_this_maps_to_the_tool_s_algorithm": "The tool maps 'No information' on 1.1 and 1.2 with no baseline concern to a DOMAIN judgement of SOME CONCERNS. This project writes NO_INFORMATION on the domain when it could not be judged from the sources read, and caps the OVERALL at SOME_CONCERNS. Same place, and it keeps 'we could not judge this' distinguishable from 'we judged it and had concerns'.",
+         "what_does_not_change": "NO OVERALL RATING AND NO GRADE CERTAINTY MOVES. All 51 judgements were already capped at SOME_CONCERNS or HIGH by another NO_INFORMATION domain.",
+         "what_would_close_it_properly": "The trial publications or protocols, which carry sequence generation and concealment. Neither was read. Until one is, LOW is not available on this domain for any result in this corpus."
+        }
+       },
+       "D2_deviations_from_intended_intervention": {
+        "judgement": "NO_INFORMATION",
+        "basis": "NOT ESTABLISHED -- THE REGISTRY DOES NOT CARRY THE FIELD",
+        "reason": "Deviations from the intended intervention and the analysis population used are not on the registration. IN AN OPEN-LABEL ANTICOAGULATION TRIAL this is the domain that would describe whether knowledge of allocation changed management, which is precisely what open label puts in question."
+       },
+       "D3_missing_outcome_data": {
+        "judgement": "NO_INFORMATION",
+        "basis": "NOT ESTABLISHED -- THE REGISTRY DOES NOT CARRY THE FIELD",
+        "reason": "No registration states how many participants were missing from the analysed population or how they were handled."
+       },
+       "D4_measurement_of_the_outcome": {
+        "judgement": "SOME_CONCERNS",
+        "basis": "REGISTRATION DESIGN MODULE AND THE REGISTERED OUTCOME TITLE, TOGETHER",
+        "reason": "MASKING IS RECORDED AS NONE -- this trial is OPEN LABEL. The endpoint is ADJUDICATED, which the registered outcome title states, and adjudication by a committee blinded to allocation is the standard mitigation for exactly this design. BUT NO REGISTRATION STATES THAT THE ADJUDICATORS WERE BLINDED, so the mitigation is PLAUSIBLE AND NOT ESTABLISHED. NOT LOW, because that would assert a blinding nobody here has seen; NOT HIGH, because nothing read shows adjudication differed by arm."
+       },
+       "D5_selection_of_the_reported_result": {
+        "judgement": "SOME_CONCERNS",
+        "basis": "REGISTERED PRIMARY OUTCOMES COMPARED WITH WHAT THIS OBJECT POOLS",
+        "reason": "THE REGISTERED PRIMARY IS MAJOR BLEEDING, NOT RECURRENT VTE. Recurrent VTE is the FIRST OF FIVE registered secondaries. Same shape as NCT03266783 and the same judgement, for the same reason and not by analogy -- both registrations were read."
+       }
+      },
+      "overall": "SOME_CONCERNS",
+      "overall_reason": "D4 is SOME_CONCERNS on an open-label trial whose adjudication is not shown to have been blinded; D2 and D3 are NO_INFORMATION. Under RoB 2 an unjudgeable domain cannot yield LOW overall, and in an open-label anticoagulation trial D2 is the domain that would describe whether knowing the allocation changed management.",
+      "also_recorded": "THIS TRIAL RANDOMISED EIGHTY PARTICIPANTS. It contributes to a three-trial pool alongside trials of 1,170 and 2,760, so its weight is small, but its presence is what makes the comparator set three drugs rather than two."
+     },
+     "NCT03045406": {
+      "nct": "NCT03045406",
+      "trial": "Caravaggio",
+      "registered_enrolment": 1170,
+      "registered_masking": "NONE -- OPEN LABEL",
+      "registered_comparator": "DALTEPARIN (arm typed ACTIVE_COMPARATOR; apixaban EXPERIMENTAL)",
+      "registered_primary_outcome": "Recurrent Venous Thromboembolism",
+      "rank_of_the_result_this_review_pools": "PRIMARY",
+      "result_assessed": "adjudicated recurrent venous thromboembolism",
+      "domains": {
+       "D1_randomisation_process": {
+        "judgement": "NO_INFORMATION",
+        "basis": "REGISTRATION DESIGN MODULE, READ",
+        "reason": "allocation is recorded as RANDOMIZED on the design module.",
+        "what_is_NOT_established": "The concealment MECHANISM is not on the registry and no publication was read.",
+        "resolved_2026_08_21": {
+         "resolved_by": "GUIDANCE, NOT PREFERENCE",
+         "what_this_judgement_was": "LOW",
+         "what_it_is_now": "NO_INFORMATION",
+         "the_text_that_decides_it": "RoB 2 guidance 2019, Box 4, signalling question 1.1: \"Answer 'No information' if the only information about randomization methods is a statement that the study is randomized.\" And section 4.4: \"A judgement of low risk of bias requires that the trial has an adequate method of concealing the allocation sequence from those involved in enrolling participants, and there are no concerns about generation of the allocation sequence.\" Cochrane Handbook 6.5 section 8.3 names the domain's three components.",
+         "why_this_is_not_an_adjudicated_dispute": "A blind second assessor from a different model family disagreed with this domain on 89% of judgements across 22 topics. THAT WOULD ORDINARILY BE A DISPUTE TO ADJUDICATE. It is not one: the tool's own text names this exact evidential situation -- a bare statement that a study was randomised -- and prescribes the answer. The second assessor is not being deferred to; the guidance is being applied.",
+         "what_the_registry_gives_and_does_not": "A ClinicalTrials.gov design module records `allocation: RANDOMIZED`. It carries no sequence-generation method and no allocation-concealment mechanism. The original judgement's own note said so before scoring LOW.",
+         "how_this_maps_to_the_tool_s_algorithm": "The tool maps 'No information' on 1.1 and 1.2 with no baseline concern to a DOMAIN judgement of SOME CONCERNS. This project writes NO_INFORMATION on the domain when it could not be judged from the sources read, and caps the OVERALL at SOME_CONCERNS. Same place, and it keeps 'we could not judge this' distinguishable from 'we judged it and had concerns'.",
+         "what_does_not_change": "NO OVERALL RATING AND NO GRADE CERTAINTY MOVES. All 51 judgements were already capped at SOME_CONCERNS or HIGH by another NO_INFORMATION domain.",
+         "what_would_close_it_properly": "The trial publications or protocols, which carry sequence generation and concealment. Neither was read. Until one is, LOW is not available on this domain for any result in this corpus."
+        }
+       },
+       "D2_deviations_from_intended_intervention": {
+        "judgement": "NO_INFORMATION",
+        "basis": "NOT ESTABLISHED -- THE REGISTRY DOES NOT CARRY THE FIELD",
+        "reason": "Deviations from the intended intervention and the analysis population used are not on the registration. IN AN OPEN-LABEL ANTICOAGULATION TRIAL this is the domain that would describe whether knowledge of allocation changed management, which is precisely what open label puts in question."
+       },
+       "D3_missing_outcome_data": {
+        "judgement": "NO_INFORMATION",
+        "basis": "NOT ESTABLISHED -- THE REGISTRY DOES NOT CARRY THE FIELD",
+        "reason": "No registration states how many participants were missing from the analysed population or how they were handled."
+       },
+       "D4_measurement_of_the_outcome": {
+        "judgement": "SOME_CONCERNS",
+        "basis": "REGISTRATION DESIGN MODULE AND THE REGISTERED OUTCOME TITLE, TOGETHER",
+        "reason": "MASKING IS RECORDED AS NONE -- this trial is OPEN LABEL. The endpoint is ADJUDICATED, which the registered outcome title states, and adjudication by a committee blinded to allocation is the standard mitigation for exactly this design. BUT NO REGISTRATION STATES THAT THE ADJUDICATORS WERE BLINDED, so the mitigation is PLAUSIBLE AND NOT ESTABLISHED. NOT LOW, because that would assert a blinding nobody here has seen; NOT HIGH, because nothing read shows adjudication differed by arm."
+       },
+       "D5_selection_of_the_reported_result": {
+        "judgement": "LOW",
+        "basis": "REGISTERED PRIMARY OUTCOMES COMPARED WITH WHAT THIS OBJECT POOLS",
+        "reason": "ONE primary outcome is registered -- Recurrent Venous Thromboembolism -- and IT IS THE RESULT THIS REVIEW POOLS. There is no set of ranks to have chosen from, so the selection concern that applies to the other two contributing results cannot arise here. RECORDED BECAUSE THE CONTRAST IS THE POINT."
+       }
+      },
+      "overall": "SOME_CONCERNS",
+      "overall_reason": "D4 is SOME_CONCERNS on an open-label trial whose adjudication is not shown to have been blinded; D2 and D3 are NO_INFORMATION. Under RoB 2 an unjudgeable domain cannot yield LOW overall, and in an open-label anticoagulation trial D2 is the domain that would describe whether knowing the allocation changed management."
+     },
+     "NCT03266783": {
+      "nct": "NCT03266783",
+      "trial": "(apixaban versus rivaroxaban)",
+      "registered_enrolment": 2760,
+      "registered_masking": "NONE -- OPEN LABEL",
+      "registered_comparator": "RIVAROXABAN -- and BOTH arms are typed ACTIVE_COMPARATOR on the registration, so the registry itself does not mark one as the intervention under test",
+      "registered_primary_outcome": "The Rate of Adjudicated Clinically Relevant Bleeding (CRB) Events",
+      "rank_of_the_result_this_review_pools": "SECONDARY -- the third of nine",
+      "result_assessed": "adjudicated recurrent venous thromboembolism",
+      "domains": {
+       "D1_randomisation_process": {
+        "judgement": "NO_INFORMATION",
+        "basis": "REGISTRATION DESIGN MODULE, READ",
+        "reason": "allocation is recorded as RANDOMIZED on the design module.",
+        "what_is_NOT_established": "The concealment MECHANISM is not on the registry and no publication was read.",
+        "resolved_2026_08_21": {
+         "resolved_by": "GUIDANCE, NOT PREFERENCE",
+         "what_this_judgement_was": "LOW",
+         "what_it_is_now": "NO_INFORMATION",
+         "the_text_that_decides_it": "RoB 2 guidance 2019, Box 4, signalling question 1.1: \"Answer 'No information' if the only information about randomization methods is a statement that the study is randomized.\" And section 4.4: \"A judgement of low risk of bias requires that the trial has an adequate method of concealing the allocation sequence from those involved in enrolling participants, and there are no concerns about generation of the allocation sequence.\" Cochrane Handbook 6.5 section 8.3 names the domain's three components.",
+         "why_this_is_not_an_adjudicated_dispute": "A blind second assessor from a different model family disagreed with this domain on 89% of judgements across 22 topics. THAT WOULD ORDINARILY BE A DISPUTE TO ADJUDICATE. It is not one: the tool's own text names this exact evidential situation -- a bare statement that a study was randomised -- and prescribes the answer. The second assessor is not being deferred to; the guidance is being applied.",
+         "what_the_registry_gives_and_does_not": "A ClinicalTrials.gov design module records `allocation: RANDOMIZED`. It carries no sequence-generation method and no allocation-concealment mechanism. The original judgement's own note said so before scoring LOW.",
+         "how_this_maps_to_the_tool_s_algorithm": "The tool maps 'No information' on 1.1 and 1.2 with no baseline concern to a DOMAIN judgement of SOME CONCERNS. This project writes NO_INFORMATION on the domain when it could not be judged from the sources read, and caps the OVERALL at SOME_CONCERNS. Same place, and it keeps 'we could not judge this' distinguishable from 'we judged it and had concerns'.",
+         "what_does_not_change": "NO OVERALL RATING AND NO GRADE CERTAINTY MOVES. All 51 judgements were already capped at SOME_CONCERNS or HIGH by another NO_INFORMATION domain.",
+         "what_would_close_it_properly": "The trial publications or protocols, which carry sequence generation and concealment. Neither was read. Until one is, LOW is not available on this domain for any result in this corpus."
+        }
+       },
+       "D2_deviations_from_intended_intervention": {
+        "judgement": "NO_INFORMATION",
+        "basis": "NOT ESTABLISHED -- THE REGISTRY DOES NOT CARRY THE FIELD",
+        "reason": "Deviations from the intended intervention and the analysis population used are not on the registration. IN AN OPEN-LABEL ANTICOAGULATION TRIAL this is the domain that would describe whether knowledge of allocation changed management, which is precisely what open label puts in question."
+       },
+       "D3_missing_outcome_data": {
+        "judgement": "NO_INFORMATION",
+        "basis": "NOT ESTABLISHED -- THE REGISTRY DOES NOT CARRY THE FIELD",
+        "reason": "No registration states how many participants were missing from the analysed population or how they were handled."
+       },
+       "D4_measurement_of_the_outcome": {
+        "judgement": "SOME_CONCERNS",
+        "basis": "REGISTRATION DESIGN MODULE AND THE REGISTERED OUTCOME TITLE, TOGETHER",
+        "reason": "MASKING IS RECORDED AS NONE -- this trial is OPEN LABEL. The endpoint is ADJUDICATED, which the registered outcome title states, and adjudication by a committee blinded to allocation is the standard mitigation for exactly this design. BUT NO REGISTRATION STATES THAT THE ADJUDICATORS WERE BLINDED, so the mitigation is PLAUSIBLE AND NOT ESTABLISHED. NOT LOW, because that would assert a blinding nobody here has seen; NOT HIGH, because nothing read shows adjudication differed by arm."
+       },
+       "D5_selection_of_the_reported_result": {
+        "judgement": "SOME_CONCERNS",
+        "basis": "REGISTERED PRIMARY OUTCOMES COMPARED WITH WHAT THIS OBJECT POOLS",
+        "reason": "THE REGISTERED PRIMARY IS BLEEDING, NOT RECURRENT VTE. Recurrent VTE is the THIRD OF NINE registered secondaries, and it is what this review pools. Selecting a secondary from among registered ranks is a D5 concern whatever the reason for it. NOT HIGH: nothing read shows the rank was chosen after seeing the data, and the choice is transparent -- this review is about recurrent VTE and took the result that answers it."
+       }
+      },
+      "overall": "SOME_CONCERNS",
+      "overall_reason": "D4 is SOME_CONCERNS on an open-label trial whose adjudication is not shown to have been blinded; D2 and D3 are NO_INFORMATION. Under RoB 2 an unjudgeable domain cannot yield LOW overall, and in an open-label anticoagulation trial D2 is the domain that would describe whether knowing the allocation changed management."
+     }
+    }
+   },
+   "assessed_utc": "2026-08-21",
+   "assessed_per": "RESULT, not trial -- Handbook 8.2",
+   "sources_read": [
+    "ClinicalTrials.gov API v2 NCT01780987 -- design module, arm groups, and the full registered primary and secondary outcome lists",
+    "ClinicalTrials.gov API v2 NCT03045406 -- design module, arm groups, and the full registered primary and secondary outcome lists",
+    "ClinicalTrials.gov API v2 NCT03266783 -- design module, arm groups, and the full registered primary and secondary outcome lists"
+   ],
+   "sources_NOT_read": "The trial publications. D2 and D3 depend on them and are NO_INFORMATION for that reason.",
+   "ALL_THREE_ARE_OPEN_LABEL": "NOT ONE of the three registrations masks anybody -- all record MASKING: NONE. The endpoint is adjudicated on all three, which is the standard mitigation, but NO REGISTRATION STATES THAT THE ADJUDICATORS WERE BLINDED. The mitigation is plausible and not established.",
+   "TWO_OF_THREE_CONTRIBUTE_A_SECONDARY": "On NCT03266783 and NCT01780987 the REGISTERED PRIMARY IS BLEEDING and recurrent VTE is a secondary. This review pools recurrent VTE. Only Caravaggio contributes its own registered primary.",
+   "THE_COMPARATORS_ARE_THREE_DIFFERENT_DRUGS": "Dalteparin, rivaroxaban, and unfractionated heparin followed by warfarin. RECORDED HERE AND NOT SCORED AS A DOMAIN: RoB 2 asks whether a trial's own result is biased, not whether three trials answer the same question. This object's GRADE already rates INDIRECTNESS down for it, in those words, and scoring it again here would double-count one fact as two defects.",
+   "ONE_ASSESSOR_ONLY": "ASSESSED BY ONE ASSESSOR. Under the standing specification that risk of bias 2 must be complete and done by TWO AIs from different model families, THIS ASSESSMENT IS INCOMPLETE. Recorded as such, and `rob2.assessors` is deliberately NOT written.",
+   "CORROBORATES_RATHER_THAN_REVEALS": "The three facts above were already named in this object's GRADE entry before any registration was read for this assessment. An independent reading of all three registrations found the same three. THAT IS A CORROBORATION, worth less than a discovery and more than an assumption, and it is recorded as one.",
+   "SECOND_ASSESSOR_2026_08_21": {
+    "assessor_2": "GPT-5 Codex (openai family), via `codex exec`",
+    "assessor_1": "Claude Opus 5 (anthropic family) -- the assessment above",
+    "how_it_was_asked": "BLIND, from scripts/second_assessor_prompt.py, which assembles the prompt from an ALLOW-LIST of registry-sourced factual fields and REFUSES to send it if any RoB 2 verdict word appears in the assembled text. The second assessor was not shown this assessment and was not asked whether it agreed. It was given this project's NO_INFORMATION-never-LOW rule so the comparison measures judgement rather than house dialect.",
+    "verbatim_reply": "NCT01780987__recurrent_vte D1=NO_INFORMATION D2=NO_INFORMATION D3=NO_INFORMATION D4=SOME_CONCERNS D5=SOME_CONCERNS OVERALL=SOME_CONCERNS\nNCT03045406__recurrent_vte D1=NO_INFORMATION D2=NO_INFORMATION D3=NO_INFORMATION D4=SOME_CONCERNS D5=LOW OVERALL=SOME_CONCERNS\nNCT03266783__recurrent_vte D1=NO_INFORMATION D2=NO_INFORMATION D3=NO_INFORMATION D4=SOME_CONCERNS D5=SOME_CONCERNS OVERALL=SOME_CONCERNS",
+    "DISAGREEMENT_RATE": "3 of 18 judgements -- 16.7%. Reported as DISAGREEMENT: agreement between two assessors given the same facts authenticates nothing.",
+    "PER_DOMAIN": {
+     "D1": "3 of 3 disagree",
+     "D2": "0 of 3 disagree",
+     "D3": "0 of 3 disagree",
+     "D4": "0 of 3 disagree",
+     "D5": "0 of 3 disagree",
+     "OVERALL": "0 of 3 disagree"
+    },
+    "each_disagreement": [
+     "NCT01780987__recurrent_vte D1: assessor 1 LOW, assessor 2 NO_INFORMATION",
+     "NCT03045406__recurrent_vte D1: assessor 1 LOW, assessor 2 NO_INFORMATION",
+     "NCT03266783__recurrent_vte D1: assessor 1 LOW, assessor 2 NO_INFORMATION"
+    ],
+    "prompt_generation": "first allow-list (9 registry fields)",
+    "not_resolved_here": "A disagreement is recorded, not adjudicated. The second assessor is NOT an appeal court: three topics went against assessor 1 on D1 and the RoB 2 guidance backed assessor 2, and the pressure from there is to defer on everything -- which would make the second assessor a reviewer and reproduce the inheritance problem with the sign flipped.",
+    "RECOUNTED_AFTER_THE_D1_RESOLUTION_2026_08_21": {
+     "why_this_field_exists": "On 2026-08-21 this review's D1 judgements moved from LOW to NO_INFORMATION on the RoB 2 guidance -- the position assessor 2 had taken. The rate above was measured BEFORE that and is left exactly as measured: it is a published number, it is the record of what a blind second assessor said, and it is the reason the guidance was re-read. Editing it would delete the evidence that the change was warranted. This is the same computation re-run on the object as it now stands, so both are visible and neither is silently corrected.",
+     "as_measured_before": "3 of 18 judgements -- 16.7%. Reported as DISAGREEMENT: agreement between two assessors given the same facts authenticates nothing.",
+     "recounted_now": "0 of 18 judgements -- 0.0%",
+     "PER_DOMAIN_recounted_now": {
+      "D1": "0 of 3 disagree",
+      "D2": "0 of 3 disagree",
+      "D3": "0 of 3 disagree",
+      "D4": "0 of 3 disagree",
+      "D5": "0 of 3 disagree",
+      "OVERALL": "0 of 3 disagree"
+     },
+     "D1_before": "3 of 3 disagree",
+     "D1_now": "0 of 3 disagree",
+     "what_moved_and_what_did_not": "3 D1 judgement(s) on this topic moved. Any D1 disagreement that REMAINS is one where this assessment said SOME_CONCERNS rather than LOW -- assessor 2 said NO_INFORMATION there too, and the guidance applied here speaks to LOW, not to SOME_CONCERNS. So a claim that 'the D1 disagreement is resolved' would be false wherever those two numbers differ, which is why the count is re-run per topic instead of asserted once.",
+     "why_D1_still_disagrees_here": "D1 now agrees with assessor 2 on every compared result.",
+     "and_it_bounds_a_finding_of_ours": "Class 94 records assessor 2 saying NO_INFORMATION on D1/D2/D3 `100 of 100`. Measured across all 23 topics now stored that is 239 of 243, and ALL FOUR exceptions are D1=SOME_CONCERNS on `agyw-hiv-prep-review` and `cab-prep-hiv-review` -- two of the three topics asked under the EARLIER prompt build, the one whose reply ids are bare NCTs. Under that build it is 4 of 6; under the later build 0 of 75. The 100% was measured on the later build's topics. The two-defaults mechanism stands; its universality does not, and what varies with it is the PROMPT.",
+     "the_rate_is_still_conditional_on_the_same_allow_list": "Both numbers are conditional on the fact list in THE_ALLOW_LIST_THE_RATE_IS_CONDITIONAL_ON above. Neither is a rate of agreement between assessors in general."
+    }
+   }
+  },
+  "grade": {
+   "approach": "GRADE",
+   "reference": "Schunemann H, Brozek J, Guyatt G, Oxman A (editors). GRADE Handbook for grading quality of evidence and strength of recommendations.",
+   "handbook_chapter": "Cochrane Handbook for Systematic Reviews of Interventions version 6.5.1, Chapter 14",
+   "starting_point": "HIGH for a body of randomised evidence, then rated down.",
+   "not_rated_up": "No domain is rated up.",
+   "by_outcome": {
+    "recurrent_vte": {
+     "rated": true,
+     "certainty": "VERY_LOW",
+     "k": 3,
+     "i2": 0.0,
+     "estimate": {
+      "point": 0.7763,
+      "ci_low": 0.3437,
+      "ci_high": 1.753
+     },
+     "started_at": "HIGH",
+     "steps": [
+      {
+       "domain": "risk_of_bias",
+       "levels": -1,
+       "from": "HIGH",
+       "to": "MODERATE",
+       "reason": "All three contributing results are SOME CONCERNS overall, and all three are open-label. Two are secondary outcomes selected by this review from among registered ranks."
+      },
+      {
+       "domain": "inconsistency",
+       "levels": 0,
+       "from": "MODERATE",
+       "to": "MODERATE",
+       "reason": "I-squared 0% over k=3: not rated down. A LOW I-SQUARED DOES NOT SHOW THE TRIALS MEASURE THE SAME THING -- on this very page the pool with the SHARED estimand comes out at 93.5%. Coherence is handled under indirectness, where it belongs."
+      },
+      {
+       "domain": "indirectness",
+       "levels": -1,
+       "from": "MODERATE",
+       "to": "LOW",
+       "reason": "The three comparators are NOT the same comparator: dalteparin, rivaroxaban, and unfractionated heparin followed by warfarin. The estimand is shared and the contrast is not, so the pooled quantity is 'apixaban against whatever else was given', which is one step from any question a reader has. Stated rather than absorbed into heterogeneity."
+      },
+      {
+       "domain": "imprecision",
+       "levels": -1,
+       "from": "LOW",
+       "to": "VERY_LOW",
+       "reason": "k=3, 3,933 participants, 61 events in total, and the Knapp-Hartung interval runs 0.34 to 1.75 -- consistent with a two-thirds reduction and with a three-quarters increase. This is the honest width and it is why the review's answer is 'not established' rather than 'no difference'."
+      },
+      {
+       "domain": "publication_bias",
+       "levels": 0,
+       "from": "VERY_LOW",
+       "to": "VERY_LOW",
+       "reason": "k=3. A funnel plot or Egger test at k=3 has no power and would be theatre. NOT ASSESSED, and not counted as absent."
+      }
+     ],
+     "and_what_the_rating_is_NOT_about": "VERY LOW certainty here is not a claim that apixaban is ineffective in acute VTE. It is a claim about WHAT THIS REVIEW CAN SHOW from three trials on one shared estimand. The largest trials in the field are excluded from this pool for a reason recorded on this page, and their results are not smuggled into the certainty rating by implication.",
+     "estimate_superseded_2026_08_20": {
+      "point": 0.7763,
+      "ci_low": 0.3437,
+      "ci_high": 1.7532
+     },
+     "i2_superseded_2026_08_20": 0.0,
+     "reratings_checked_2026_08_20": "The pooled estimate moved from 0.7763 (0.3437 to 1.7532) to 0.7763 (0.3437 to 1.753) and I-squared from 0.0 to 0.0. Each domain was re-read against the new values: the interval still crosses the null, so imprecision is unchanged at its recorded level; inconsistency reads I-squared, whose restated value is above. NO LEVEL WAS CHANGED BY THIS SCRIPT -- a certainty rating is a judgement, and this pass moves the numbers a judgement reads, not the judgement."
+    }
+   }
+  },
+  "protocol": {
+   "prespecified": false,
+   "permanently_refused": true,
+   "why": "A protocol specified before data collection is a HISTORICAL FACT ABOUT THE PAST and cannot be created retrospectively. Writing one now and calling it prespecified would invalidate every other refusal on this page, because a reader who caught it would be right to disbelieve all of them.",
+   "what_was_actually_done": "Eligibility criteria were derived POST HOC when `apixaban-vte` was split in two on 2026-08-19, after the parent object's included set existed. The derivation is recorded element by element in `screening.eligibility`, and the criterion that separates this review from its sibling is stated in full at `screening.boundary_criterion`.",
+   "authority_permitting_it": "MECIR R107 permits post-hoc eligibility criteria PROVIDED THEY ARE DECLARED AS SUCH. They are declared, here and on the page.",
+   "forward_remedy": "For topics not yet built, a protocol is to be written and registered BEFORE the search is executed. It is never to be made true retroactively for a built topic."
+  },
+  "sources": {},
+  "sources_note": "Every number on this page is traceable to a ClinicalTrials.gov v2 payload read on 2026-08-19 and quoted in the extraction table. No journal article was read for any effect estimate; where a published report would settle something the registry cannot, that is recorded as unheld rather than inferred.",
+  "extraction": {
+   "_why": "Every cell says whether it was READ from a named source or DERIVED, and carries the sentence it was read from. A cell with no label is not evidence.",
+   "verified_utc": "2026-08-19",
+   "source": {
+    "registry": "ClinicalTrials.gov; the eleven recoverable registrations read in full, and the eight with posted results read again for resultsSection.outcomeMeasuresModule",
+    "read_via": "raw v2 API, fields=protocolSection,hasResults,resultsSection"
+   },
+   "cells": [
+    {
+     "field": "NCT03045406 CARAVAGGIO recurrent VTE",
+     "label": "READ",
+     "source_path": "resultsSection.outcomeMeasuresModule.outcomeMeasures[0]",
+     "verbatim": "Recurrent Venous Thromboembolism -- OG000 Apixaban 32 of 576, OG001 Dalteparin 46 of 579",
+     "note": "PRIMARY rank. Posted as COUNT_OF_PARTICIPANTS, so the counts are read and not derived from a percentage."
+    },
+    {
+     "field": "NCT03266783 COBRRA recurrent VTE",
+     "label": "READ",
+     "source_path": "resultsSection.outcomeMeasuresModule.outcomeMeasures[3]",
+     "verbatim": "Number of Participants With Adjudicated Recurrent Venous Thromboembolism (VTE) Events -- OG000 Apixaban Group 15 of 1345, OG001 Rivaroxaban Group 14 of 1355",
+     "note": "SECONDARY rank. Its registered PRIMARY is clinically relevant bleeding, so a review reading primaries only would have recorded this trial as reporting no efficacy outcome at all."
+    },
+    {
+     "field": "NCT01780987 recurrent VTE",
+     "label": "READ",
+     "source_path": "resultsSection.outcomeMeasuresModule.outcomeMeasures[1]",
+     "verbatim": "Number of Participants With Adjudicated Recurrent Symptomatic Venous Thromboembolism (VTE) -- OG000 Apixaban 0 of 38, OG001 UFH/Warfarin 1 of 40",
+     "note": "SECONDARY rank; registered primary is bleeding. A zero cell, and the only row in this pool that takes the 0.5 continuity correction."
+    },
+    {
+     "field": "NCT00643201 AMPLIFY primary composite",
+     "label": "READ",
+     "source_path": "resultsSection.outcomeMeasuresModule.outcomeMeasures[0].populationDescription",
+     "verbatim": "All randomized participants with a non-missing primary endpoint (n/N: 59/2609; 71/2635, in apixaban, enoxaparin/warfarin, respectively)",
+     "note": "COUNTS READ FROM THE TRIAL'S OWN POPULATION DESCRIPTION, not derived from the posted proportion 0.0226 / 0.0269. The two agree; the read one is used."
+    },
+    {
+     "field": "NCT00643201 AMPLIFY -- recurrent VTE with no death term",
+     "label": "READ",
+     "source_path": "resultsSection.outcomeMeasuresModule.outcomeMeasures[].title, all 21",
+     "verbatim": "ABSENT. Every one of AMPLIFY's twenty-one posted outcome measures that names recurrent VTE carries a death term.",
+     "note": "A NEGATIVE CLAIM, COMPUTED OVER ALL TWENTY-ONE RANKS AND NOT ASSERTED (P17). This one absence is why the largest trial in this review contributes to no pool it reports."
+    },
+    {
+     "field": "NCT00633893 AMPLIFY-EXT primary, WITH imputation",
+     "label": "READ",
+     "source_path": "resultsSection.outcomeMeasuresModule.outcomeMeasures[0].populationDescription",
+     "verbatim": "(n) number of events=32, 34, 96 in apixaban 2.5 mg, 5 mg, and placebo arms, respectively; number of events imputed=13, 20, 19",
+     "note": "THE SAME REGISTERED ENDPOINT IS POSTED TWICE, typed PRIMARY both times, differing only in the trailing 'With Imputation' / 'Without Imputation'."
+    },
+    {
+     "field": "NCT00633893 AMPLIFY-EXT primary, WITHOUT imputation",
+     "label": "READ",
+     "source_path": "resultsSection.outcomeMeasuresModule.outcomeMeasures[2].populationDescription",
+     "verbatim": "(n) number of events = 19, 14, 77 in apixaban 2.5 mg, 5 mg, and placebo arms, respectively. All events were counted; no events were imputed.",
+     "note": "Both cells are carried BECAUSE they differ: 32 against 19 on the same arm under the same registered name. A text match returns both, and choosing between them by position is P35 one level down."
+    },
+    {
+     "field": "NCT04168203 HI-PRO recurrent VTE",
+     "label": "READ",
+     "source_path": "resultsSection.outcomeMeasuresModule.outcomeMeasures[0]",
+     "verbatim": "Frequency of Symptomatic, Recurrent VTE ... OG000 Extended Duration Thromboprophylaxis 4 of 300, OG001 Control 30 of 300"
+    },
+    {
+     "field": "NCT04168203 HI-PRO eligibility",
+     "label": "READ",
+     "source_path": "protocolSection.eligibilityModule.eligibilityCriteria",
+     "verbatim": "Objectively-confirmed provoked DVT and/or PE; Treated for at least 3 months with standard therapeutic anticoagulant therapy",
+     "note": "THE CELL THAT REFUTED A STATED PREDICTION. Its arm is labelled `Extended Duration Thromboprophylaxis`; its population has already had the event, so it is treatment."
+    },
+    {
+     "field": "NCT02744092 CANVAS randomised arm",
+     "label": "READ",
+     "source_path": "protocolSection.armsInterventionsModule.armGroups[0].description",
+     "verbatim": "There are four FDA-approved DOAC drugs that may be used for this study: Rivaroxaban, Apixaban, Edoxaban, or Dabigatran.",
+     "note": "WHAT WAS RANDOMISED IS A CLASS. Apixaban appears in the intervention list and is not the randomised intervention, so the posted 6.1% vs 8.8% is a DOAC-class effect."
+    },
+    {
+     "field": "NCT03196349 COVET registered primaries",
+     "label": "READ",
+     "source_path": "resultsSection.outcomeMeasuresModule.outcomeMeasures[0..1].title",
+     "verbatim": "Number of Subjects With Clinically Relevant Bleeding Events; Number of Subjects With Recurrent Venous Thromboembolism (VTE)",
+     "note": "TWO co-primaries, one a harm and one a benefit, in one trial."
+    },
+    {
+     "field": "distinct primary component sets across the eleven",
+     "value": "5",
+     "label": "DERIVED",
+     "derived_by": "scripts/estimand_apixaban_treatment_2026_08_19.py over every registered primary, decomposed into components structurally (P33)",
+     "note": "{bleeding} 4, {vte} 3, {vte, VTE-related death} 2, {dvt, pe} 1, {vte, all-cause death} 1."
+    },
+    {
+     "field": "AMPLIFY components summed against its posted composite",
+     "value": "61 vs 59 and 76 vs 71",
+     "label": "DERIVED",
+     "derived_by": "nonfatal DVT 22/35 + nonfatal PE 27/25 + VTE-related death 12/16, against the posted composite 59/71",
+     "note": "THE ARITHMETIC THAT REFUSES THE DERIVATION. Reconstructing the missing estimand from its components would manufacture 2 events in the apixaban arm and 5 in the comparator -- biased toward the drug."
+    },
+    {
+     "field": "trials in the pool this review reports",
+     "value": "3 of 8 with results",
+     "label": "DERIVED",
+     "derived_by": "scripts/repool_apixaban_treatment_2026_08_19.py, coherence screen"
+    }
+   ]
+  },
+  "shared_with_other_topics": {
+   "computed": true,
+   "computed_against": "every other topic object under ssot/ -- 138 checked -- by reading each one's inputs.trials. Not asserted, and not limited to the sibling.",
+   "shared": {
+    "NCT02829957": {
+     "also_in": [
+      "apixaban-vte"
+     ],
+     "why": "This review was split out of `apixaban-vte` and the parent object still holds this trial. The sharing is a consequence of the split, not of two reviews independently including it."
+    },
+    "NCT03045406": {
+     "also_in": [
+      "doac-cancer-vte-review"
+     ],
+     "why": "held by another topic; recorded rather than left to a summed corpus k to hide."
+    }
+   },
+   "summing_per_topic_k_double_counts": "A CORPUS-LEVEL k OBTAINED BY SUMMING PER-TOPIC k DOUBLE-COUNTS. 2 of this review's 4 trials are also held elsewhere. The parent `apixaban-vte` is superseded by this split and has not been retired, so its trials are counted twice for as long as it stands.",
+   "and_the_split_ITSELF_shares_nothing": "The two split reviews share NO trial with each other, by construction: the boundary criterion assigns every trial to exactly one of them. That is worth stating precisely because it is the answer to a DIFFERENT question from the one above, and reporting it in place of the parent overlap would have been a true sentence standing where a false impression was needed."
+  },
+  "precondition_verdict": {
+   "assessed_on": "2026-08-19",
+   "standard_version": "1.14.0-2026-08-19",
+   "authority": {
+    "handbook": "Cochrane Handbook for Systematic Reviews of Interventions",
+    "version": "6.5, 2024",
+    "verified_on": "2026-08-19",
+    "verified_how": "read from cochrane.org/authors/handbooks-and-manuals/handbook/current chapters 10 and 23, and from the official MECIR PDF (February 2022), text extracted locally rather than summarised"
+   },
+   "publishable": true,
+   "authoring_constraint": "These preconditions were authored in the same session that applied them. A reader who disagrees should disagree with ssot/preconditions.py, from which every verdict here is reproducible.",
+   "verdicts": {
+    "population_stated": {
+     "verdict": "PASS",
+     "reason": "present: question carries 228 characters",
+     "authority": "MECIR C62 'Ensuring meta-analyses are meaningful' (Mandatory, READ 2026-08-19): 'Undertake (or display) a meta-analysis only if participants, interventions, comparisons and outcomes are judged to be sufficiently similar...'; MECIR C5 'Predefining unambiguous criteria for participants' (Mandatory)"
+    },
+    "arm_role_resolved": {
+     "verdict": "NOT-ASSESSABLE",
+     "reason": "cannot assess: inputs.trials has 1 trial(s) with no readable arms ['NCT02829957'] and 0 with a blank arm role []. Absent role data is not a wrong role.",
+     "authority": "MECIR C62 (Mandatory), 'interventions' limb -- this is a PRECONDITION FOR ASSESSING C62, not an enforcement of it: you cannot judge whether interventions are 'sufficiently similar' without knowing which arm is the intervention. NOT cited to C5/C7: those govern PREDEFINITION of criteria, and this check only reads whether a field is populated."
+    },
+    "comparators_identified": {
+     "verdict": "PASS",
+     "reason": "every outcome names a comparator type ['active']; none declares 'mixed'. Within-outcome consistency is visible only through the declared type, and cross-outcome differences are not judged.",
+     "authority": "MECIR C62 (Mandatory), 'comparisons' limb -- a synthesis pools one contrast. NOT cited to C7: C7 governs PREDEFINITION, and this check reads recorded comparator fields and tests them for consistency."
+    },
+    "estimand_named": {
+     "verdict": "PASS",
+     "reason": "outcomes.estimand: all 1 outcome(s) name a quantity",
+     "authority": "MECIR C8 'Clarifying role of outcomes' (Mandatory, READ 2026-08-19); MECIR C62 (Mandatory), 'outcomes' limb"
+    },
+    "criteria_stated": {
+     "verdict": "PASS",
+     "reason": "present: screening.eligibility carries 890 characters",
+     "authority": "MECIR R29 'Eligibility criteria for types of participants', R30 '...types of interventions', R31 'Role of outcomes' -- ALL Mandatory REPORTING standards (READ 2026-08-19). Their verb is STATE. A block DERIVED post hoc satisfies this if it is labelled post hoc per R107."
+    },
+    "criteria_predefined": {
+     "verdict": "FAIL",
+     "reason": "screening.eligibility_provenance.predefined is false: the criteria were DERIVED post hoc from this object's own question and recorded exclusions. That is auditable (R29/R30/R31) and is not pre-specification (C5/C7). This FAIL is permanent and correct.",
+     "authority": "MECIR C5 'Predefining unambiguous criteria for participants' AND C7 '...for interventions and comparators', BOTH Mandatory (READ 2026-08-19): 'Predefined, unambiguous eligibility criteria are a fundamental prerequisite for a systematic review.' C5/C7 govern PREDEFINITION and CANNOT be discharged by a post hoc derivation."
+    },
+    "eligibility_met": {
+     "verdict": "NOT-ASSESSABLE",
+     "reason": "cannot assess: criteria are stated, but sources is an empty dict -- no full text was available this pass, and inclusion logic is conditional prose",
+     "authority": "MECIR C5/C7 (Mandatory) with C6 'Predefining a strategy for studies with a subset of eligible participants' (Highly desirable, READ 2026-08-19) -- eligibility is assessed against the full report"
+    },
+    "contributes_a_randomised_contrast": {
+     "verdict": "NOT-ASSESSABLE",
+     "reason": "cannot assess: 1 of 4 trial(s) carry no readable arm roles ['NCT02829957']",
+     "authority": "Handbook 6.5 s23.3.4 'How to include multiple groups from one study' (READ 2026-08-19) and s23.3.6 'Factorial trials'; MECIR C7 'Predefining unambiguous criteria for interventions and comparators' (Mandatory)"
+    }
+   }
+  },
+  "published_comparison": {
+   "state": "PENDING_EXTERNAL_RESOLUTION",
+   "_why": "Every page this project ships carries this section with a DENOMINATOR. A comparison without one reports the syntheses it happened to find.",
+   "denominator": null,
+   "denominator_reason": "Not established, and the obstacle is that no candidate synthesis has been identified for this estimand at all. The PubMed search at search.databases[2] reported 439 record(s) and retrieved 50; 389 were not retrieved and none of the 50 retrieved has been screened for whether it synthesises recurrent VTE on apixaban. There is therefore nothing yet to form a denominator over -- not a synthesis whose included set is unresolved, but no identified synthesis.",
+   "explicitly_not_done": "CITATION-STRING MATCHING. It would produce a comparison-shaped answer tonight and it is not identity: two syntheses citing the same trial under different labels would read as different, and the same label on different trials as the same. That is the substitution class this project audits for.",
+   "candidate_source_search": "PubMed search recorded at search.databases[2], which reported 439 record(s) and retrieved 50; 389 were not retrieved.",
+   "blocked_on": "lane 2 registration-id resolution",
+   "candidate_source_search_restated": "Restated 2026-08-20. This field previously read 'PubMed search recorded at search.databases[1] (109 records)' on FOURTEEN objects, which is true of bempedoic-acid-review alone; the count and, on half of them, the database were another topic's. Re-derive with: python scripts/lint_refusal_citation_resolves.py",
+   "what_would_have_to_be_obtained": "Two things, in order. First the remaining 389 records, because a search that returned 50 of 439 has not finished and its misses are unknown rather than absent. Then a screen of the full yield for syntheses reporting recurrent VTE on apixaban, each resolved to the registration ids of its included trials so overlap with this review's own three trials is counted by identity.",
+   "refusal_discharges_P46_because": "It names what was reached (a PubMed search with its yield and its shortfall), what was found insufficient (no synthesis identified, and a search that retrieved 50 of 439), and what would have to be obtained. Re-derive with: python scripts/lint_refusal_citation_resolves.py"
+  },
+  "registration_identity": {
+   "verified_utc": "2026-08-19",
+   "method": "live fetch of the raw ClinicalTrials.gov v2 record and comparison of the returned nctId against the id stored on this object",
+   "trials": [
+    {
+     "nct": "NCT03045406",
+     "verified": true,
+     "link": "https://clinicaltrials.gov/study/NCT03045406"
+    },
+    {
+     "nct": "NCT03266783",
+     "verified": true,
+     "link": "https://clinicaltrials.gov/study/NCT03266783"
+    },
+    {
+     "nct": "NCT01780987",
+     "verified": true,
+     "link": "https://clinicaltrials.gov/study/NCT01780987"
+    },
+    {
+     "nct": "NCT02829957",
+     "verified": true,
+     "link": "https://clinicaltrials.gov/study/NCT02829957"
+    }
+   ],
+   "duplicate_seeding_check": {
+    "state": "CHECKED",
+    "checked_against": "evidence/2026-08-19-corpus/reconcile.json",
+    "n_trials_checked": 4,
+    "shared_with_other_topics": false,
+    "shared": null
+   }
+  },
+  "build_stamp": {
+   "page_standard_version": "1.14.0-2026-08-19",
+   "standard_document": "PAGE-STANDARD.md",
+   "built_utc": "2026-08-19",
+   "built_by": "ssot/build_to_standard.py",
+   "properties": {
+    "P1_executed_search": {
+     "state": "HELD",
+     "reason": "3 database queries recorded verbatim with dates and counts; PRISMA arithmetic reconciles and the 0-trial unscreened remainder is stated as a number rather than omitted."
+    },
+    "P2_k_cascade": {
+     "state": "HELD",
+     "reason": "k at every stage: surfaced 82, located 80, experimental 54, comparator 19, included 4, unscreened remainder 0."
+    },
+    "P3_inclusion_criteria": {
+     "state": "HELD",
+     "reason": "Criteria provenance block present with predefined=False on its face (state 'DERIVED_POST_HOC')."
+    },
+    "P4_preconditions": {
+     "state": "HELD",
+     "reason": "All 8 recorded with verdict and cited authority: 1 FAIL, 3 NOT-ASSESSABLE. criteria_predefined is FAIL -- post hoc criteria, which R107 permits and C5/C7 does not satisfy."
+    },
+    "P5_extraction_table": {
+     "state": "HELD",
+     "reason": "14 cells: 11 READ with source path and verbatim text, 3 DERIVED with the method named."
+    },
+    "P6_analysis_output": {
+     "state": "REFUSING",
+     "reason": "No quotable model output exists: k=3 and the pool on this page was computed outside R, so there is a synthesis and no quotation. The absence is recorded as a finding with its cause and what would close it."
+    },
+    "P7_published_comparison": {
+     "state": "REFUSING",
+     "reason": "No denominator yet. Blocked on external registration-id resolution; citation-string matching explicitly refused rather than substituted."
+    },
+    "P8_registration_identity": {
+     "state": "HELD",
+     "reason": "4 of 4 trial(s) verified live against the registry."
+    },
+    "P18_restatement_is_reproducible": {
+     "state": "REFUSING",
+     "reason": "No restatement block on this cascade, so there is nothing to re-derive. This is NOT_ASSESSABLE dressed as a refusal rather than a pass: a topic that has never been restated has not demonstrated that a restatement of it would be checkable."
+    },
+    "P19_promotion_reaches_derived_blocks": {
+     "state": "HELD",
+     "reason": "inputs.trials, k_cascade.k_included_in_object and prisma_flow.included all say 4; no first-person field in published_comparison declares a k the pooled outcome(s) do not."
+    },
+    "P20_cascade_reconciles": {
+     "state": "HELD",
+     "reason": "k2_role_located=80 == k3+k4+k5, and k0_surfaced=82 == k3+k4+k5+kNA. Both checked, and every failing limb would be reported rather than the first."
+    },
+    "P21_ambiguous_question_split": {
+     "state": "HELD",
+     "reason": "Split from 'apixaban-vte' into this review and 1 sibling(s) ['apixaban-vte-prophylaxis'], with the decision recorded at None. Nothing was dropped to resolve the ambiguity."
+    },
+    "P22_sharing_recorded": {
+     "state": "HELD",
+     "reason": "2 shared trial(s), each recorded with the topics holding it and why: NCT02829957 in ['apixaban-vte']; NCT03045406 in ['doac-cancer-vte-review']. The object also states that summing per-topic k double-counts."
+    },
+    "P23_recall_measured": {
+     "state": "HELD",
+     "reason": "All 3 recorded quer(ies) state their recall against this review's own included set: ['1/1', '1/1 for THIS review, 1/2 for the parent', 'NOT MEASURED']."
+    }
+   },
+   "held": [
+    "P19_promotion_reaches_derived_blocks",
+    "P1_executed_search",
+    "P20_cascade_reconciles",
+    "P21_ambiguous_question_split",
+    "P22_sharing_recorded",
+    "P23_recall_measured",
+    "P2_k_cascade",
+    "P3_inclusion_criteria",
+    "P4_preconditions",
+    "P5_extraction_table",
+    "P8_registration_identity"
+   ],
+   "refusing": [
+    "P18_restatement_is_reproducible",
+    "P6_analysis_output",
+    "P7_published_comparison"
+   ],
+   "_ratchet": "This page is stamped to the standard version above. If the standard rises, this page is BELOW it and knowably so. No page is grandfathered; arni-hfref is presently UNSTAMPED and is therefore unknown-version, not compliant."
+  },
+  "display_change_announced": [
+   {
+    "date": "2026-08-20",
+    "change": "estimator changed to REML -- LABEL ONLY, no value moved",
+    "values_moved": "NONE",
+    "what_changed": "This pool was fitted with Paule-Mandel. It is refitted with REML under DECISIONS-COCHRANE-2026-08-18.md section 1, on Cochrane Handbook 6.5 section 10.10.4.4: \"Decision: REML, everywhere.\" The old fit was reproduced against the stored value FIRST (REPRODUCED (special case)) and only then replaced. Stored values are also rounded at storage -- effects to 4 decimals, tau-squared and Q to 6, I-squared to 4 -- because several of these pools carried sixteen significant figures on a two- or three-study pool.",
+    "why": "The corpus held two estimator conventions at once: 23 pools REML, 9 DerSimonian-Laird, 1 Paule-Mandel. Handbook 6.5 s10.10.4.4 records REML as RevMan's own current default and this project's statistics rules already refused DerSimonian-Laird below k=10, which every pool in this corpus is. The decision was taken on 2026-08-18 and not applied; applying it to some pools and not others would have been worse than either convention.",
+    "interval_method": "floored Knapp-Hartung, t(k-1), factor max(1, Q/(k-1))"
+   },
+   {
+    "date": "2026-08-21",
+    "change": "risk of bias assessed per result (P46 limb 1); this topic held the framing and none of the judgements",
+    "values_moved": "NONE",
+    "what_changed": "3 result-level assessments, all overall SOME_CONCERNS",
+    "why": "`risk_of_bias` carried the tool, the ceiling and the default rule and had NO `by_outcome`. A header without judgements reads as an assessment to anyone who does not look for the rows."
+   },
+   {
+    "date": "2026-08-21",
+    "change": "the stored model output quoted a fit under an estimator this object does not declare; re-run",
+    "values_moved": "NONE -- point, interval and heterogeneity all reproduce under the declared estimator",
+    "what_changed": "re-ran recurrent_vte under REML; the previous output printed a DerSimonian-Laird or Paule-Mandel fit",
+    "why": "P56: verbatim quotation guarantees fidelity to the TOOL, not to the METHOD. Nine stored outputs across the corpus quoted a fit that did not produce their page's numbers."
+   },
+   {
+    "date": "2026-08-21",
+    "change": "a blind cross-family second risk-of-bias assessment was obtained",
+    "values_moved": "NONE",
+    "what_changed": "disagreement 3 of 18 judgements",
+    "why": "Mahmood's specification requires two assessors from different model families."
+   },
+   {
+    "date": "2026-08-21",
+    "change": "D1 moved from LOW to NO_INFORMATION on the RoB 2 guidance",
+    "values_moved": "NONE -- no overall rating, no GRADE certainty, no estimate and no interval changes",
+    "what_changed": "3 D1 judgement(s): recurrent_vte/NCT01780987, recurrent_vte/NCT03045406, recurrent_vte/NCT03266783",
+    "why": "RoB 2 Box 4 question 1.1: 'Answer No information if the only information about randomization methods is a statement that the study is randomized.' RESOLVED BY GUIDANCE, NOT BY PREFERENCE."
+   },
+   {
+    "date": "2026-08-21",
+    "change": "second-assessor disagreement rate recounted beside the stored one",
+    "values_moved": "NONE -- the stored rate and PER_DOMAIN are untouched. The recount is written as a separate, labelled field.",
+    "what_changed": "D1 3 of 3 disagree -> 0 of 3 disagree; overall 3 of 18 judgements -> 0 of 18",
+    "why": "Applying the D1 guidance moved this review's judgements to the position assessor 2 had taken, which left the stored rate describing a disagreement the object no longer holds. Both numbers now appear."
+   },
+   {
+    "date": "2026-08-21",
+    "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+    "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+    "what_changed": "references built, introduction written, bookkeeping claims 5",
+    "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+   },
+   {
+    "date": "2026-08-21",
+    "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+    "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+    "what_changed": "references built, introduction written, bookkeeping claims 5",
+    "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+   },
+   {
+    "date": "2026-08-21",
+    "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+    "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+    "what_changed": "references built, introduction written, bookkeeping claims 5",
+    "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+   },
+   {
+    "date": "2026-08-21",
+    "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+    "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+    "what_changed": "references built, introduction written, bookkeeping claims 5",
+    "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+   },
+   {
+    "date": "2026-08-21",
+    "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+    "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+    "what_changed": "references built, introduction written, bookkeeping claims 5",
+    "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+   },
+   {
+    "date": "2026-08-21",
+    "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+    "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+    "what_changed": "references built, introduction written, bookkeeping claims 5",
+    "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+   },
+   {
+    "date": "2026-08-21",
+    "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+    "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+    "what_changed": "references built, introduction written, bookkeeping claims 5",
+    "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+   },
+   {
+    "date": "2026-08-21",
+    "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+    "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+    "what_changed": "references built, introduction written, bookkeeping claims 5",
+    "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+   },
+   {
+    "date": "2026-08-21",
+    "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+    "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+    "what_changed": "references built, introduction written, bookkeeping claims 5",
+    "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+   },
+   {
+    "date": "2026-08-21",
+    "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+    "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+    "what_changed": "references built, introduction written, bookkeeping claims 5",
+    "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+   },
+   {
+    "date": "2026-08-21",
+    "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+    "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+    "what_changed": "references built, introduction written, bookkeeping claims 5",
+    "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+   }
+  ],
+  "manuscript": {
+   "references": {
+    "_what": "A reference list, assembled from this object's own fields. Distinct from `sources`, which records the provenance LAYER each fact was read at; this is what a reader would look up.",
+    "included_studies": [
+     {
+      "registration": "NCT01780987",
+      "label": "",
+      "registry": "ClinicalTrials.gov",
+      "url": "https://clinicaltrials.gov/study/NCT01780987",
+      "read_utc": ""
+     },
+     {
+      "registration": "NCT02829957",
+      "label": "",
+      "registry": "ClinicalTrials.gov",
+      "url": "https://clinicaltrials.gov/study/NCT02829957",
+      "read_utc": ""
+     },
+     {
+      "registration": "NCT03045406",
+      "label": "",
+      "registry": "ClinicalTrials.gov",
+      "url": "https://clinicaltrials.gov/study/NCT03045406",
+      "read_utc": ""
+     },
+     {
+      "registration": "NCT03266783",
+      "label": "",
+      "registry": "ClinicalTrials.gov",
+      "url": "https://clinicaltrials.gov/study/NCT03266783",
+      "read_utc": ""
+     }
+    ],
+    "published_syntheses_compared_against": [],
+    "_published_syntheses_note": "No published synthesis is listed here. The comparison section states its own denominator and why nothing citable was appraised. ",
+    "methods_guidance_and_software": [
+     {
+      "cited_for": "risk of bias in the included results",
+      "citation": "Sterne JAC, Savovic J, Page MJ, et al. RoB 2: a revised tool for assessing risk of bias in randomised trials. BMJ. 2019;366:l4898. doi:10.1136/bmj.l4898"
+     },
+     {
+      "cited_for": "certainty of the evidence",
+      "citation": "Schunemann HJ, Higgins JPT, Vist GE, et al. Chapter 14: Completing 'Summary of findings' tables and grading the certainty of the evidence. In: Cochrane Handbook for Systematic Reviews of Interventions version 6.5. Cochrane; 2024."
+     },
+     {
+      "cited_for": "the model fitted, as R 4.6.0 with metafor 5.0.1",
+      "citation": "Viechtbauer W. Conducting meta-analyses in R with the metafor package. J Stat Softw. 2010;36(3):1-48. doi:10.18637/jss.v036.i03"
+     },
+     {
+      "cited_for": "the reporting guideline this manuscript is written against",
+      "citation": "Page MJ, McKenzie JE, Bossuyt PM, et al. The PRISMA 2020 statement: an updated guideline for reporting systematic reviews. BMJ. 2021;372:n71. doi:10.1136/bmj.n71"
+     }
+    ]
+   },
+   "introduction": "This review asks: In adults with acute or recent venous thromboembolism, what is the effect of apixaban compared with conventional anticoagulation, another direct oral anticoagulant, or placebo on recurrent venous thromboembolism and on bleeding?\n\nIt pools 3 randomised trials, against another anticoagulant.\n\nThe outcome pooled is Recurrent symptomatic venous thromboembolism -- nonfatal deep vein thrombosis or nonfatal pulmonary embolism -- with NO death term.\n\nEverything in this paragraph is derived from stored fields and none of it is authored. The interpretive sentences that follow are marked as drafts and are the author's to replace."
+  },
+  "bookkeeping_2026_08_21": {
+   "_what": "The five reporting claims a PRISMA-2020 manuscript needs that are FETCHABLE rather than argued -- each derived from a field here, or stated as an honest absence.",
+   "which_limbs_this_review_refuses": "Of the four properties this project requires of a completed topic, 3 are held (grade per pool, model output verbatim, rob per result) and 1 are refused with the obstacle named in the evidence (comparison denominator).",
+   "the_search_its_date_and_its_databases": "PRIMARY TRIALS. NO BIBLIOGRAPHIC SEARCH FOR PRIMARY TRIALS WAS RUN. The 4 included trials were identified by reading named registrations on the dates recorded on each entry.",
+   "whether_this_review_was_prospectively_registered": "NO PROSPERO REGISTRATION OR PROTOCOL RECORD IS HELD ON THIS OBJECT. That is not the same as knowing this review was not registered, and neither claim is made. It is recorded here as an absence so that a reader does not have to infer it from silence.",
+   "that_two_assessors_disagreed_and_where": "Risk of bias was assessed independently a second time by GPT-5 Codex (openai family), via `codex exec`, blind to this assessment and given the same registry facts. 3 of 18 judgements -- 16.7%. Reported as DISAGREEMENT: agreement between two assessors given the same facts authenticates nothing. By domain: D1 3 of 3 disagree, D2 0 of 3 disagree, D3 0 of 3 disagree, D4 0 of 3 disagree, D5 0 of 3 disagree, OVERALL 0 of 3 disagree. Recounted after this review's D1 judgements moved: 0 of 18 judgements -- 0.0%.",
+   "which_risk_of_bias_domains_drove_the_rating": "Where a result is rated worse than LOW overall, the domain carrying that judgement is: D4 on 3 result(s), D5 on 2 result(s). The overall rating is the worst domain, so these are the domains that determine it."
+  },
+  "manuscript_draft_2026_08_21": {
+   "_what": "The twelve claims a PRISMA manuscript needs that NO FIELD CAN BACK, drafted as scaffolding for the author to dictate over. Each states the facts the judgement needs and then names the judgement as his.",
+   "_status": "DRAFT. Every sentence here was written by the projector's drafter, not read from a source. They are kept under this dated key, each marked `is_a_draft`, so a later pass can always tell what was written from what was read. A draft must never quietly become a fact.",
+   "_the_rule": "No drafted sentence asserts anything this object cannot back. Where the claim requires a judgement, the draft stops at the facts and says so. A plausible sentence is the one most likely to survive dictation unexamined, which is why none is written.",
+   "claims": {
+    "why_the_question_is_open": {
+     "section": "Introduction",
+     "the_claim": "Why the question is still open -- the specific uncertainty this review addresses",
+     "draft": "The evidence identified on this question is 3 randomised trials (NCT01780987, NCT03045406, NCT03266783), pooled here at 0.776 (95% CI 0.344 to 1.753) for recurrent_vte. Certainty in that estimate is rated VERY_LOW. WHICH OF THOSE UNRESOLVED POINTS MAKES THE QUESTION WORTH ASKING NOW IS THE AUTHOR'S JUDGEMENT.",
+     "facts_from": [
+      "results.by_outcome.recurrent_vte.pooled",
+      "results.by_outcome.recurrent_vte.k",
+      "results.by_outcome.recurrent_vte.what_this_does_not_establish",
+      "grade.by_outcome.recurrent_vte.certainty"
+     ],
+     "is_a_draft": true,
+     "the_judgement_that_is_the_authors": "This sentence is the author's judgement and is not derivable from any field here."
+    },
+    "why_a_new_synthesis": {
+     "section": "Introduction",
+     "the_claim": "Why a NEW synthesis is warranted rather than citing an existing one",
+     "draft": "No search for published syntheses is recorded on this object. WHETHER THOSE DIFFERENCES WARRANT A NEW SYNTHESIS RATHER THAN CITING THE EXISTING ONE IS THE AUTHOR'S JUDGEMENT.",
+     "facts_from": [
+      "published_comparison.denominator",
+      "published_comparison.reviews"
+     ],
+     "is_a_draft": true,
+     "the_judgement_that_is_the_authors": "This sentence is the author's judgement and is not derivable from any field here."
+    },
+    "why_this_differs_from_published": {
+     "section": "Discussion",
+     "the_claim": "WHY this result differs from the published ones, mechanically or methodologically",
+     "draft": "No published synthesis was appraised against this review, so no difference between this result and a published one is recorded. There is nothing here for this sentence to explain, and stating a reason for a difference that has not been established would be inventing one.",
+     "facts_from": [
+      "published_comparison.reviews",
+      "published_comparison.identity_basis"
+     ],
+     "is_a_draft": true,
+     "the_judgement_that_is_the_authors": "This sentence is the author's judgement and is not derivable from any field here."
+    },
+    "is_the_heterogeneity_clinically_important": {
+     "section": "Discussion",
+     "the_claim": "Whether the observed heterogeneity is clinically important",
+     "draft": "Across 3 trials, tau-squared 0; every trial interval includes no effect. WHETHER THAT DEGREE OF DISAGREEMENT MATTERS CLINICALLY -- WHETHER THE TRIALS ARE ANSWERING THE SAME QUESTION IN THE SAME PATIENTS -- IS THE AUTHOR'S JUDGEMENT.",
+     "facts_from": [
+      "results.by_outcome.recurrent_vte.heterogeneity",
+      "results.by_outcome.recurrent_vte.per_trial"
+     ],
+     "is_a_draft": true,
+     "the_judgement_that_is_the_authors": "This sentence is the author's judgement and is not derivable from any field here."
+    },
+    "is_the_effect_size_clinically_meaningful": {
+     "section": "Discussion",
+     "the_claim": "Whether the effect size is clinically meaningful",
+     "draft": "The pooled RR is 0.776 (95% CI 0.344 to 1.753) over 3 trials. Certainty is rated VERY_LOW. WHETHER A CHANGE OF THAT MAGNITUDE IS CLINICALLY MEANINGFUL IN THIS POPULATION IS THE AUTHOR'S JUDGEMENT: NO FIELD ON THIS OBJECT RECORDS A THRESHOLD OF IMPORTANCE, AND NONE IS ASSUMED HERE.",
+     "facts_from": [
+      "results.by_outcome.recurrent_vte.pooled",
+      "results.by_outcome.recurrent_vte.k",
+      "results.by_outcome.recurrent_vte.comparator",
+      "grade.by_outcome.recurrent_vte.certainty"
+     ],
+     "is_a_draft": true,
+     "the_judgement_that_is_the_authors": "This sentence is the author's judgement and is not derivable from any field here."
+    },
+    "is_the_evidence_base_adequate": {
+     "section": "Discussion",
+     "the_claim": "Whether the evidence base is adequate to answer the question",
+     "draft": "The evidence base is 3 trials, assessed for risk of bias as SOME_CONCERNS on 3 result(s). GRADE certainty is VERY_LOW. WHETHER THAT IS ENOUGH TO ANSWER THE QUESTION DEPENDS ON THE DECISION THE ANSWER IS FOR, WHICH IS NOT STATED ON THIS OBJECT, AND IS THE AUTHOR'S JUDGEMENT.",
+     "facts_from": [
+      "risk_of_bias.by_outcome",
+      "grade.by_outcome.recurrent_vte"
+     ],
+     "is_a_draft": true,
+     "the_judgement_that_is_the_authors": "This sentence is the author's judgement and is not derivable from any field here."
+    },
+    "what_further_evidence_would_change_it": {
+     "section": "Discussion",
+     "the_claim": "What further evidence would change the conclusion",
+     "draft": "Certainty was not rated down on any GRADE domain. WHAT FURTHER EVIDENCE WOULD CHANGE THE CONCLUSION IS A JUDGEMENT ABOUT A TRIAL NOBODY HAS RUN, AND IS THE AUTHOR'S.",
+     "facts_from": [
+      "grade.by_outcome.recurrent_vte.steps"
+     ],
+     "is_a_draft": true,
+     "the_judgement_that_is_the_authors": "This sentence is the author's judgement and is not derivable from any field here."
+    },
+    "was_the_search_broad_enough": {
+     "section": "Discussion",
+     "the_claim": "Whether the search was broad enough",
+     "draft": "PRIMARY TRIALS. NO BIBLIOGRAPHIC SEARCH FOR PRIMARY TRIALS WAS RUN. The 4 included trials were identified by reading named registrations on the dates recorded on each entry. WHETHER THAT IS BROAD ENOUGH FOR THE CLAIM THIS REVIEW MAKES IS THE AUTHOR'S JUDGEMENT.",
+     "facts_from": [
+      "bookkeeping_2026_08_21.the_search_its_date_and_its_databases"
+     ],
+     "is_a_draft": true,
+     "the_judgement_that_is_the_authors": "This sentence is the author's judgement and is not derivable from any field here."
+    },
+    "what_the_evidence_shows": {
+     "section": "Conclusions",
+     "the_claim": "A one-sentence statement of what the evidence shows",
+     "draft": "Across 3 randomised trials, RR was 0.776 (95% CI 0.344 to 1.753) for recurrent_vte. Certainty in that estimate is VERY_LOW. THAT IS THE ESTIMATE. WHAT THE EVIDENCE SHOWS -- STATED AS A FINDING RATHER THAN AS A NUMBER -- IS THE AUTHOR'S SENTENCE.",
+     "facts_from": [
+      "results.by_outcome.recurrent_vte.pooled",
+      "results.by_outcome.recurrent_vte.k",
+      "results.by_outcome.recurrent_vte.outcome",
+      "grade.by_outcome.recurrent_vte.certainty"
+     ],
+     "is_a_draft": true,
+     "the_judgement_that_is_the_authors": "This sentence is the author's judgement and is not derivable from any field here."
+    },
+    "implication_for_practice": {
+     "section": "Conclusions",
+     "the_claim": "The implication for clinical practice",
+     "draft": "What a clinician should do differently on this evidence -- the estimate and certainty stated above -- is a RECOMMENDATION, not a measurement. No field on this object can back one, and none is drafted. It is the author's sentence.",
+     "facts_from": [
+      "results.by_outcome.recurrent_vte.pooled",
+      "results.by_outcome.recurrent_vte.k",
+      "grade.by_outcome.recurrent_vte"
+     ],
+     "is_a_draft": true,
+     "the_judgement_that_is_the_authors": "This sentence is the author's judgement and is not derivable from any field here."
+    },
+    "implication_for_policy": {
+     "section": "Conclusions",
+     "the_claim": "The implication for policy",
+     "draft": "What a payer, guideline or programme should do on this evidence -- the estimate and certainty stated above -- is a RECOMMENDATION, not a measurement. No field on this object can back one, and none is drafted. It is the author's sentence.",
+     "facts_from": [
+      "results.by_outcome.recurrent_vte.pooled",
+      "results.by_outcome.recurrent_vte.k",
+      "grade.by_outcome.recurrent_vte"
+     ],
+     "is_a_draft": true,
+     "the_judgement_that_is_the_authors": "This sentence is the author's judgement and is not derivable from any field here."
+    },
+    "implication_for_research": {
+     "section": "Conclusions",
+     "the_claim": "The implication for future research",
+     "draft": "What should be studied next on this evidence -- the estimate and certainty stated above -- is a RECOMMENDATION, not a measurement. No field on this object can back one, and none is drafted. It is the author's sentence.",
+     "facts_from": [
+      "results.by_outcome.recurrent_vte.pooled",
+      "results.by_outcome.recurrent_vte.k",
+      "grade.by_outcome.recurrent_vte"
+     ],
+     "is_a_draft": true,
+     "the_judgement_that_is_the_authors": "This sentence is the author's judgement and is not derivable from any field here."
+    }
+   }
+  }
+ }
+}

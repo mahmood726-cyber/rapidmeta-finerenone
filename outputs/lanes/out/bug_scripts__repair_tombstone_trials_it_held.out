@@ -1,0 +1,240 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a03253-dbf7-7831-bb7f-386938005e9a
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/repair_tombstone_trials_it_held.py
+
+--- THE FILE, IN FULL ---
+#!/usr/bin/env python3
+"""VERIFY EVERY TOMBSTONE IS INTACT -- and the record of a defect that turned out not to exist.
+
+WHAT THIS WAS WRITTEN TO REPAIR, AND WHY IT REPAIRS NOTHING. An audit reported that all ten
+retired objects carried `trials_it_held: []` while each in fact held one to three trials, and
+that `THE_OBJECT_AS_IT_STOOD_AT_RETIREMENT` was nested two deep with the outer layer a copy of
+the tombstone. Both observations were true OF THE WORKING TREE and false of the repository.
+
+  THE WORKING TREE HELD AN UNCOMMITTED SECOND RUN OF THE MERGE EXECUTOR. All nineteen merge-
+  cluster files carried an mtime of 16:36:01, eight minutes after the merge commit at 16:28:41.
+  That re-run wrapped each tombstone in a further retirement layer and re-blanked
+  `trials_it_held`. **The committed corpus was correct the whole time**: depth 1, the genuine
+  pre-retirement object directly beneath, and `trials_it_held` already populated.
+
+  A SECOND FALSE LAYER SAT ON TOP OF THE FIRST. The comparison that was supposed to settle it
+  used `subprocess.run(..., text=True)` with no `encoding=`, so on Windows `git show` came back
+  decoded as cp1252 and one field appeared to differ (`AUC0-âˆž` against `AUC0-∞`). Re-run with
+  `encoding='utf-8'`, all nineteen files match HEAD exactly and all 240 committed objects scan
+  clean. See `scripts/sweep_mojibake.py`.
+
+SO THREE THINGS ARE TRUE AT ONCE, and only the third is a defect in this repository:
+
+  1. The tombstones were never damaged. `git checkout -- ssot/` returned the tree to a state
+     where this script finds NOTHING to repair, which is the outcome that proves the point.
+  2. Two successive false findings were produced by reading tools -- a stale worktree and a
+     mis-specified decoder -- not by the corpus.
+  3. Seven DELIVERED pages did carry genuinely double-encoded characters, found only because
+     the false alarm provoked a sweep. Those were real, byte-verified, and are now repaired by
+     `scripts/fix_double_encoded_delivered_pages.py`.
+
+WHAT THIS SCRIPT IS NOW. A VERIFIER. It unwraps each tombstone to its innermost snapshot, reads
+the trials from it, and checks that value against the pre-retirement object in git. It writes
+only where `trials_it_held` is genuinely empty, and refuses where the two disagree. On an intact
+corpus it reports `0 tombstone(s) REPAIRED`, and that zero is the assertion.
+
+USAGE
+    python scripts/repair_tombstone_trials_it_held.py            # verify only
+    python scripts/repair_tombstone_trials_it_held.py --apply    # write, only where empty
+    python scripts/repair_tombstone_trials_it_held.py --selftest
+"""
+import glob
+import io
+import json
+import os
+import subprocess
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+NOTE = ("Populated 2026-08-19 from the innermost `THE_OBJECT_AS_IT_STOOD_AT_RETIREMENT`. The "
+        "field was written as an empty list at retirement -- it read the wrong key -- so this "
+        "tombstone said it held nothing while in fact holding these trials. The value was "
+        "verified against the pre-retirement object in git before being written, and every one "
+        "of these trials is also present in the survivor. NOTHING WAS LOST; ONE FIELD WAS "
+        "BLANK.")
+
+
+def innermost(o):
+    d = 0
+    while isinstance(o, dict) and "THE_OBJECT_AS_IT_STOOD_AT_RETIREMENT" in o:
+        o = o["THE_OBJECT_AS_IT_STOOD_AT_RETIREMENT"]
+        d += 1
+    return o, d
+
+
+def ncts(o):
+    return sorted(x.get("nct") for x in ((o.get("inputs") or {}).get("trials") or [])
+                  if isinstance(x, dict) and x.get("nct"))
+
+
+def git_before(relpath):
+    """The object as the repository held it in the commit BEFORE the retiring one."""
+    cs = subprocess.run(["git", "log", "--format=%H", "--", relpath],
+                        capture_output=True, cwd=REPO).stdout.decode("utf-8", "replace").split()
+    if len(cs) < 2:
+        return None
+    # `encoding="utf-8"` IS THE FIX FOR THE FALSE FINDING THIS FILE DOCUMENTS. Without it,
+    # `text=True` decodes with the Windows locale codec (cp1252) and every non-ASCII character
+    # in the committed object comes back mangled -- which this script then reported as
+    # corruption in the repository. Never call `git show` on JSON without naming the encoding.
+    raw = subprocess.run(["git", "show", "%s:%s" % (cs[1], relpath)],
+                         capture_output=True, cwd=REPO).stdout.decode("utf-8", "replace")
+    try:
+        return json.loads(raw)
+    except Exception:
+        return None
+
+
+def run(apply_it):
+    changed, refused = [], []
+    for p in sorted(glob.glob(os.path.join(REPO, "ssot", "*", "*.json"))):
+        with io.open(p, "r", encoding="utf-8") as fh:
+            o = json.load(fh)
+        if str(o.get("state") or "").upper() != "RETIRED":
+            continue
+        rel = os.path.relpath(p, REPO).replace(os.sep, "/")
+        inner, depth = innermost(o)
+        want = ncts(inner)
+        prev = git_before(rel)
+        was = ncts(prev) if prev else None
+
+        # THE GATE. A repair that cannot be checked against the repository is not applied.
+        if was is None:
+            refused.append((rel, "no pre-retirement commit could be read"))
+            continue
+        if want != was:
+            refused.append((rel, "snapshot %s != git %s" % (want, was)))
+            continue
+        if o.get("trials_it_held"):
+            print("  %-42s already populated -- left alone" % os.path.basename(p))
+            continue
+
+        print("  %-42s depth=%d  ->  %s" % (os.path.basename(p), depth, ", ".join(want) or "-"))
+        changed.append(rel)
+        if apply_it:
+            o["trials_it_held"] = want
+            o["trials_it_held_note"] = NOTE
+            o["trials_it_held_verified_against"] = (
+                "git show <the commit before retirement>:%s -- identical" % rel)
+            with io.open(p, "w", encoding="utf-8", newline="") as fh:
+                fh.write(json.dumps(o, indent=1, ensure_ascii=False))
+
+    print("\n%d tombstone(s) %s" % (len(changed), "REPAIRED" if apply_it else "would be repaired"))
+    if refused:
+        print("REFUSED (not written, and that is the correct outcome):")
+        for r, why in refused:
+            print("   %-46s %s" % (r, why))
+    return 1 if refused else 0
+
+
+def selftest():
+    fails = []
+
+    def ck(n, got, want):
+        ok = got == want
+        print("  %-64s %s  %r" % (n, "ok" if ok else "FAIL", got))
+        if not ok:
+            fails.append(n)
+
+    print("1. THE SNAPSHOT IS UNWRAPPED TO ITS INNERMOST LAYER, not the first one:")
+    nested = {"state": "RETIRED", "THE_OBJECT_AS_IT_STOOD_AT_RETIREMENT": {
+        "state": "RETIRED", "THE_OBJECT_AS_IT_STOOD_AT_RETIREMENT": {
+            "inputs": {"trials": [{"nct": "NCT1"}, {"nct": "NCT2"}]}}}}
+    inner, d = innermost(nested)
+    ck("depth found", d, 2)
+    ck("and the trials come from the INNER layer", ncts(inner), ["NCT1", "NCT2"])
+    # THE POINT OF THIS ONE. Reading only the first layer returns [] -- which is what nearly
+    # got written up as data loss. An empty read is not evidence of an empty object.
+    ck("reading only the FIRST layer returns nothing, which is the trap",
+       ncts(nested["THE_OBJECT_AS_IT_STOOD_AT_RETIREMENT"]), [])
+
+    print("\n2. AND A TOMBSTONE WITH NO SNAPSHOT AT ALL YIELDS NOTHING RATHER THAN CRASHING:")
+    inner, d = innermost({"state": "RETIRED"})
+    ck("depth", d, 0)
+    ck("trials", ncts(inner), [])
+
+    print("\n%s" % ("SELFTEST FAILED: %s" % fails if fails else "SELFTEST PASSED"))
+    return 1 if fails else 0
+
+
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    if "--selftest" in sys.argv:
+        sys.exit(selftest())
+    sys.exit(run("--apply" in sys.argv))
+
+codex
+Line numbers counted from the pasted file.
+
+- **Line 126, check cannot fail / wrapper status.** Input: `ssot/a/t.json` = `{"state":"RETIRED","trials_it_held":[],"THE_OBJECT_AS_IT_STOOD_AT_RETIREMENT":{"inputs":{"trials":[{"nct":"NCT1"}]}}}`, with the previous git object for that path containing `{"inputs":{"trials":[{"nct":"NCT1"}]}}`; run without `--apply`. Consequence: it prints `1 tombstone(s) would be repaired` but exits `0`, so verification passes while detecting a repairable defect.
+
+- **Line 107, idempotency guard satisfied by marker rather than work.** Input: same as above, except `trials_it_held:["NCT999"]`. Consequence: any truthy `trials_it_held` is treated as “already populated,” so a wrong non-empty value is left untouched and exits `0`.
+
+- **Line 79, instrument reading a different copy.** Input: git history for `ssot/a/t.json` is newest `C3` post-retirement note edit, then `C2` retirement tombstone, then `C1` pre-retirement object with `NCT1`. Consequence: `cs[1]` reads `C2`, not the commit before retirement, so the comparison can refuse a valid repair or validate against the wrong historical object.
+
+- **Lines 89 and 126, selector/check can pass on an empty corpus.** Input: repo contains this script but no files matching `ssot/*/*.json`; run without `--apply`. Consequence: it scans zero files and exits `0`, making “nothing scanned” indistinguishable from “all tombstones intact.”
+
+No proven instance in this file: probe keyed to a removed string; CRLF/LF text comparison; merged-cell/off-by-one tabulation; zero conflated with a valid `0`; negation dropped.
+tokens used
+12,049
+Line numbers counted from the pasted file.
+
+- **Line 126, check cannot fail / wrapper status.** Input: `ssot/a/t.json` = `{"state":"RETIRED","trials_it_held":[],"THE_OBJECT_AS_IT_STOOD_AT_RETIREMENT":{"inputs":{"trials":[{"nct":"NCT1"}]}}}`, with the previous git object for that path containing `{"inputs":{"trials":[{"nct":"NCT1"}]}}`; run without `--apply`. Consequence: it prints `1 tombstone(s) would be repaired` but exits `0`, so verification passes while detecting a repairable defect.
+
+- **Line 107, idempotency guard satisfied by marker rather than work.** Input: same as above, except `trials_it_held:["NCT999"]`. Consequence: any truthy `trials_it_held` is treated as “already populated,” so a wrong non-empty value is left untouched and exits `0`.
+
+- **Line 79, instrument reading a different copy.** Input: git history for `ssot/a/t.json` is newest `C3` post-retirement note edit, then `C2` retirement tombstone, then `C1` pre-retirement object with `NCT1`. Consequence: `cs[1]` reads `C2`, not the commit before retirement, so the comparison can refuse a valid repair or validate against the wrong historical object.
+
+- **Lines 89 and 126, selector/check can pass on an empty corpus.** Input: repo contains this script but no files matching `ssot/*/*.json`; run without `--apply`. Consequence: it scans zero files and exits `0`, making “nothing scanned” indistinguishable from “all tombstones intact.”
+
+No proven instance in this file: probe keyed to a removed string; CRLF/LF text comparison; merged-cell/off-by-one tabulation; zero conflated with a valid `0`; negation dropped.

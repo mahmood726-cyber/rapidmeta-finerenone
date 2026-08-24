@@ -1,0 +1,232 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a031c9-0e5a-7951-8b9e-adb589ed7b38
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/g1_runtime_census.py
+
+--- THE FILE, IN FULL ---
+"""Actual tab occupancy on G1 pages, measured by RENDERING them.
+
+STRUCTURAL PRESENCE IS NOT OCCUPANCY, and on this generation the difference is total. A G1
+page carries `<div id="tab-screen" class="tab-content">` in its served bytes and fills it
+at load from `ScreenEngine.render()`. So a static reader sees seven tabs on 434 pages and
+learns NOTHING about whether any of them holds content -- the same reason content_gate
+cannot check a V2 page.
+
+Reporting "7 tabs present" for these would be the exact error the mapped-corpus census
+made when it scored SOTATERCEPT_PAH_AUTO_2 at zero: mistaking what the instrument can see
+for what is there. In that case the instrument under-read; here it would over-read. BOTH
+DIRECTIONS ARE THE SAME DEFECT.
+
+So: render a sample in Chrome, wait for the engines, and measure the text each panel
+actually holds. A SAMPLE IS NOT THE POPULATION and the number is reported as a sample.
+"""
+import io
+import json
+import os
+import subprocess
+import sys
+import tempfile
+
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+REPO = r"F:\rapidmeta-ssot-shell"
+CHROME = r"C:\Program Files\Google\Chrome\Application\chrome.exe"
+TABS = ["protocol", "search", "screen", "extract", "analysis", "report", "paper",
+        "statistics"]
+FLOOR = 400          # same spirit as the builder's content floor
+
+SAMPLE = [
+          "ABALOPARATIDE_OSTEO_AUTO_FULL_REVIEW.html",
+          "AVATROMBOPAG_CIT_AUTO_FULL_REVIEW.html",
+          "BUDESONIDE_IBD_AUTO_FULL_REVIEW.html",
+          "DELANDISTROGENE_DMD_AUTO_FULL_REVIEW.html",
+          "ERDAFITINIB_BLADDER_AUTO_FULL_REVIEW.html",
+          "GOSERELIN_PROSTATE_AUTO_FULL_REVIEW.html",
+          "IXEKIZUMAB_PSORIASIS_AUTO_FULL_REVIEW.html",
+          "MOMELOTINIB_MF_AUTO_2.html",
+          "OZANIMOD_CROHN_DISEASE_AUTO_FULL_REVIEW.html",
+          "PPSV23_VACCINE_AUTO_FULL_REVIEW.html",
+          "RUCAPARIB_PROSTATE_AUTO_FULL_REVIEW.html",
+          "TIRZEPATIDE_ARDS_AUTO_FULL_REVIEW.html"
+]
+
+JS = """
+(() => {
+  const out = {};
+  for (const t of %s) {
+    const el = document.getElementById('tab-' + t);
+    if (!el) { out[t] = null; continue; }
+    const txt = (el.innerText || el.textContent || '').replace(/\\s+/g,' ').trim();
+    const data = el.querySelectorAll('table, svg, li').length;
+    out[t] = {n: txt.length, d: data};
+  }
+  return JSON.stringify(out);
+})()
+""" % json.dumps(TABS)
+
+
+def render(path):
+    """Load the page in headless Chrome and evaluate the probe after the engines run."""
+    with tempfile.TemporaryDirectory() as prof:
+        # --virtual-time-budget lets the page's own scripts finish before the dump.
+        cmd = [CHROME, "--headless=new", "--disable-gpu", "--no-sandbox",
+               "--user-data-dir=" + prof, "--virtual-time-budget=9000",
+               "--run-all-compositor-stages-before-draw",
+               "--dump-dom", "file:///" + path.replace("\\", "/")]
+        try:
+            r = subprocess.run(cmd, capture_output=True, timeout=120)
+        except subprocess.TimeoutExpired:
+            return None
+        if r.returncode != 0:
+            return None
+        return r.stdout.decode("utf-8", "replace")
+
+
+def main():
+    import re
+    print("G1 RUNTIME TAB CENSUS -- rendered, not read from served bytes")
+    print("sample of %d pages; a sample is not the population" % len(SAMPLE))
+    print()
+    rows = []
+    for name in SAMPLE:
+        p = os.path.join(REPO, name)
+        if not os.path.exists(p):
+            print("  %-46s FILE ABSENT" % name[:45])
+            continue
+        dom = render(p)
+        if dom is None:
+            print("  %-46s RENDER FAILED -- not measurable, not zero" % name[:45])
+            continue
+        st = []
+        for t in TABS:
+            m = re.search(r'id="tab-%s"' % t, dom)
+            if not m:
+                st.append(" ")
+                continue
+            seg = dom[m.start():m.start() + 400000]
+            nxt = re.search(r'id="tab-(?!%s)' % t, seg[10:])
+            if nxt:
+                seg = seg[:nxt.start() + 10]
+            text = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", seg)).strip()
+            data = len(re.findall(r"<(?:table|svg|li)[ >/]", seg))
+            st.append("H" if (len(text) >= FLOOR and data >= 1) else "-")
+        rows.append((name, st))
+        print("  %-46s %s" % (name[:45], "  ".join(st)))
+
+    if rows:
+        print()
+        print("  %-46s %s" % ("TAB", " ".join(t[:4] for t in TABS)))
+        held = [sum(1 for _, st in rows if st[i] == "H") for i in range(len(TABS))]
+        print("  %-46s %s" % ("HELD in sample",
+                              " ".join("%-4d" % h for h in held)))
+        print()
+        print("  pages in sample with all 7 present tabs held: %d of %d"
+              % (sum(1 for _, st in rows if all(s != "-" for s in st[:7])), len(rows)))
+    print()
+    print("A RENDER FAILURE IS 'NOT MEASURABLE', NEVER 'ZERO TABS HELD'.")
+
+
+if __name__ == "__main__":
+    main()
+
+codex
+Defects found:
+
+- **Instrument reading a different copy**: line 25.  
+  Exact input: run `C:\rapidmeta-ssot-shell\scripts\g1_runtime_census.py` after editing `C:\rapidmeta-ssot-shell\ABALOPARATIDE_OSTEO_AUTO_FULL_REVIEW.html`, with `F:\rapidmeta-ssot-shell\ABALOPARATIDE_OSTEO_AUTO_FULL_REVIEW.html` unchanged.  
+  Consequence: the census reports the hardcoded `F:` copy, not the worktree being changed.
+
+- **Check that cannot fail**: lines 86-92.  
+  Exact input: filesystem state where none of the 12 `SAMPLE` files exists under `F:\rapidmeta-ssot-shell`.  
+  Consequence: every page prints `FILE ABSENT`, no row is measured, and the script still exits zero.
+
+- **Status code reporting the wrapper rather than the work**: line 73.  
+  Exact input: a sampled HTML file containing `<script>throw new Error('boom')</script><div id="tab-protocol"></div>`.  
+  Consequence: Chrome can exit zero while the page engine failed, so the script counts runtime failure as empty tab content.
+
+- **Selector keyed too broadly**: line 100.  
+  Exact input: `<div id="tab-protocol"><span id="tab-note"></span>` + `"x"` repeated 400 times + `<table></table></div><div id="tab-search"></div>`.  
+  Consequence: `id="tab-note"` is treated as the next tab boundary, truncating real protocol content to a false `-`.
+
+- **Instrument reads markup text as occupancy**: lines 99 and 103.  
+  Exact input: `<div id="tab-protocol" data-x="` + `"x"` repeated 400 times + `"><table></table></div><div id="tab-search"></div>`.  
+  Consequence: attribute text is counted as panel text because the slice starts at `id=`, so an empty tab can become `H`.
+
+- **Zero conflated with absent / off-by-one**: line 117.  
+  Exact input: `st == ['H','H','H','H','H','H',' ','-']`.  
+  Consequence: a missing seventh tab counts as “all 7 present tabs held,” while the eighth configured tab is ignored.
+
+Not found: string-fix probe, idempotency guard, CRLF/LF text comparison, negation-dropped sentence parser.  
+COULD NOT DETERMINE corpus-specific selector coverage: rendered SAMPLE HTML files are missing.
+tokens used
+15,081
+Defects found:
+
+- **Instrument reading a different copy**: line 25.  
+  Exact input: run `C:\rapidmeta-ssot-shell\scripts\g1_runtime_census.py` after editing `C:\rapidmeta-ssot-shell\ABALOPARATIDE_OSTEO_AUTO_FULL_REVIEW.html`, with `F:\rapidmeta-ssot-shell\ABALOPARATIDE_OSTEO_AUTO_FULL_REVIEW.html` unchanged.  
+  Consequence: the census reports the hardcoded `F:` copy, not the worktree being changed.
+
+- **Check that cannot fail**: lines 86-92.  
+  Exact input: filesystem state where none of the 12 `SAMPLE` files exists under `F:\rapidmeta-ssot-shell`.  
+  Consequence: every page prints `FILE ABSENT`, no row is measured, and the script still exits zero.
+
+- **Status code reporting the wrapper rather than the work**: line 73.  
+  Exact input: a sampled HTML file containing `<script>throw new Error('boom')</script><div id="tab-protocol"></div>`.  
+  Consequence: Chrome can exit zero while the page engine failed, so the script counts runtime failure as empty tab content.
+
+- **Selector keyed too broadly**: line 100.  
+  Exact input: `<div id="tab-protocol"><span id="tab-note"></span>` + `"x"` repeated 400 times + `<table></table></div><div id="tab-search"></div>`.  
+  Consequence: `id="tab-note"` is treated as the next tab boundary, truncating real protocol content to a false `-`.
+
+- **Instrument reads markup text as occupancy**: lines 99 and 103.  
+  Exact input: `<div id="tab-protocol" data-x="` + `"x"` repeated 400 times + `"><table></table></div><div id="tab-search"></div>`.  
+  Consequence: attribute text is counted as panel text because the slice starts at `id=`, so an empty tab can become `H`.
+
+- **Zero conflated with absent / off-by-one**: line 117.  
+  Exact input: `st == ['H','H','H','H','H','H',' ','-']`.  
+  Consequence: a missing seventh tab counts as “all 7 present tabs held,” while the eighth configured tab is ignored.
+
+Not found: string-fix probe, idempotency guard, CRLF/LF text comparison, negation-dropped sentence parser.  
+COULD NOT DETERMINE corpus-specific selector coverage: rendered SAMPLE HTML files are missing.

@@ -1,0 +1,321 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/make_prisma_checklist.py
+
+--- THE FILE, IN FULL ---
+"""Generate the completed PRISMA 2020 checklist as a deposit-ready artefact.
+
+F1000Research requires the COMPLETED checklist deposited in an approved
+repository, with the guideline type, repository, DOI and licence stated in the
+Data Availability Statement -- not merely a claim in the paper that PRISMA was
+followed. This produces the file to deposit.
+
+Item text is quoted VERBATIM from the PRISMA 2020 statement (Page MJ et al, BMJ
+2021;372:n71, doi:10.1136/bmj.n71), retrieved from PubMed Central PMC8005924.
+Looked up, not recalled: a checklist reconstructed from memory would be a
+checklist of what I think PRISMA says.
+
+Locations are PROJECTED from the canonical object wherever the object can back
+them, so the checklist cannot drift from the paper it describes. Items the paper
+does not satisfy are marked NOT REPORTED with the reason. A checklist that
+claims full compliance is worth nothing; the point of completing one is to find
+what is missing before a reviewer does.
+"""
+import csv
+import io
+import json
+import os
+import sys
+
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+# (section, item, verbatim text) -- PRISMA 2020, BMJ 2021;372:n71
+ITEMS = [
+ ("Title", "1", "Identify the report as a systematic review."),
+ ("Abstract", "2", "See the PRISMA 2020 for Abstracts checklist."),
+ ("Introduction", "3", "Describe the rationale for the review in the context of "
+  "existing knowledge."),
+ ("Introduction", "4", "Provide an explicit statement of the objective(s) or "
+  "question(s) the review addresses."),
+ ("Methods", "5", "Specify the inclusion and exclusion criteria for the review "
+  "and how studies were grouped for the syntheses."),
+ ("Methods", "6", "Specify all databases, registers, websites, organisations, "
+  "reference lists and other sources searched or consulted to identify studies. "
+  "Specify the date when each source was last searched or consulted."),
+ ("Methods", "7", "Present the full search strategies for all databases, "
+  "registers and websites, including any filters and limits used."),
+ ("Methods", "8", "Specify the methods used to decide whether a study met the "
+  "inclusion criteria of the review, including how many reviewers screened each "
+  "record and each report retrieved, whether they worked independently, and if "
+  "applicable, details of automation tools used in the process."),
+ ("Methods", "9", "Specify the methods used to collect data from reports, "
+  "including how many reviewers collected data from each report, whether they "
+  "worked independently, any processes for obtaining or confirming data from "
+  "study investigators, and if applicable, details of automation tools used in "
+  "the process."),
+ ("Methods", "10a", "List and define all outcomes for which data were sought. "
+  "Specify whether all results that were compatible with each outcome domain in "
+  "each study were sought (e.g. for all measures, time points, analyses), and if "
+  "not, the methods used to decide which results to collect."),
+ ("Methods", "10b", "List and define all other variables for which data were "
+  "sought (e.g. participant and intervention characteristics, funding sources). "
+  "Describe any assumptions made about any missing or unclear information."),
+ ("Methods", "11", "Specify the methods used to assess risk of bias in the "
+  "included studies, including details of the tool(s) used, how many reviewers "
+  "assessed each study and whether they worked independently, and if applicable, "
+  "details of automation tools used in the process."),
+ ("Methods", "12", "Specify for each outcome the effect measure(s) (e.g. risk "
+  "ratio, mean difference) used in the synthesis or presentation of results."),
+ ("Methods", "13a", "Describe the processes used to decide which studies were "
+  "eligible for each synthesis."),
+ ("Methods", "13b", "Describe any methods required to prepare the data for "
+  "presentation or synthesis, such as handling of missing summary statistics, or "
+  "data conversions."),
+ ("Methods", "13c", "Describe any methods used to tabulate or visually display "
+  "results of individual studies and syntheses."),
+ ("Methods", "13d", "Describe any methods used to synthesise results and provide "
+  "a rationale for the choice(s). If meta-analysis was performed, describe the "
+  "model(s), method(s) to identify the presence and extent of statistical "
+  "heterogeneity, and software package(s) used."),
+ ("Methods", "13e", "Describe any methods used to explore possible causes of "
+  "heterogeneity among study results (e.g. subgroup analysis, meta-regression)."),
+ ("Methods", "13f", "Describe any sensitivity analyses conducted to assess "
+  "robustness of the synthesised results."),
+ ("Methods", "14", "Describe any methods used to assess risk of bias due to "
+  "missing results in a synthesis (arising from reporting biases)."),
+ ("Methods", "15", "Describe any methods used to assess certainty (or "
+  "confidence) in the body of evidence for an outcome."),
+ ("Results", "16a", "Describe the results of the search and selection process, "
+  "from the number of records identified in the search to the number of studies "
+  "included in the review, ideally using a flow diagram."),
+ ("Results", "16b", "Cite studies that might appear to meet the inclusion "
+  "criteria, but which were excluded, and explain why they were excluded."),
+ ("Results", "17", "Cite each included study and present its characteristics."),
+ ("Results", "18", "Present assessments of risk of bias for each included study."),
+ ("Results", "19", "For all outcomes, present, for each study: (a) summary "
+  "statistics for each group (where appropriate) and (b) an effect estimate and "
+  "its precision (e.g. confidence/credible interval), ideally using structured "
+  "tables or plots."),
+ ("Results", "20a", "For each synthesis, briefly summarise the characteristics "
+  "and risk of bias among contributing studies."),
+ ("Results", "20b", "Present results of all statistical syntheses conducted. If "
+  "meta-analysis was done, present for each the summary estimate and its "
+  "precision (e.g. confidence/credible interval) and measures of statistical "
+  "heterogeneity. If comparing groups, describe the direction of the effect."),
+ ("Results", "20c", "Present results of all investigations of possible causes of "
+  "heterogeneity among study results."),
+ ("Results", "20d", "Present results of all sensitivity analyses conducted to "
+  "assess the robustness of the synthesised results."),
+ ("Results", "21", "Present assessments of risk of bias due to missing results "
+  "(arising from reporting biases) for each synthesis assessed."),
+ ("Results", "22", "Present assessments of certainty (or confidence) in the body "
+  "of evidence for each outcome assessed."),
+ ("Discussion", "23a", "Provide a general interpretation of the results in the "
+  "context of other evidence."),
+ ("Discussion", "23b", "Discuss any limitations of the evidence included in the "
+  "review."),
+ ("Discussion", "23c", "Discuss any limitations of the review processes used."),
+ ("Discussion", "23d", "Discuss implications of the results for practice, "
+  "policy, and future research."),
+ ("Other information", "24a", "Provide registration information for the review, "
+  "including register name and registration number, or state that the review was "
+  "not registered."),
+ ("Other information", "24b", "Indicate where the review protocol can be "
+  "accessed, or state that a protocol was not prepared."),
+ ("Other information", "24c", "Describe and explain any amendments to "
+  "information provided at registration or in the protocol."),
+ ("Other information", "25", "Describe sources of financial or non-financial "
+  "support for the review, and the role of the funders or sponsors in the "
+  "review."),
+ ("Other information", "26", "Declare any competing interests of review "
+  "authors."),
+ ("Other information", "27", "Report which of the following are publicly "
+  "available and where they can be found: template data collection forms; data "
+  "extracted from included studies; data used for all analyses; analytic code; "
+  "any other materials used in the review."),
+]
+
+
+def locations(d):
+    """Where each item is satisfied. NOT REPORTED where it is not."""
+    ms = d.get("manuscript") or {}
+    title = d.get("title", "")
+    oid = next(iter(d["results"]["by_outcome"]))
+    res = d["results"]["by_outcome"][oid]
+    sw = ms.get("software_availability") or {}
+    das = ms.get("data_availability_statement") or {}
+    ed = das.get("extended_data") or {}
+    # Item 1 is a genuine failure and is reported as one: the title names the
+    # comparison and the estimand but never says "systematic review" or
+    # "meta-analysis", so a reader scanning titles cannot identify the design.
+    t1 = ("NOT REPORTED. The title identifies the comparison, the population and "
+          "the estimand, but does not contain the words 'systematic review' or "
+          "'meta-analysis', so the report is not identifiable as a systematic "
+          "review from its title alone."
+          if not any(w in title.lower()
+                     for w in ("systematic review", "meta-analysis"))
+          else "Title.")
+    fund = ms.get("funding") or ms.get("funding_statement")
+    coi = ms.get("competing_interests")
+    return {
+     "1": t1,
+     "2": "Abstract (structured: %s)." % ", ".join(
+          k for k in (ms.get("abstract") or {}) if not k.startswith("_")),
+     "3": "Introduction, paragraphs 1-2.",
+     "4": "Introduction, paragraph 4; review question stated in full on the title "
+          "page and in the Protocol section.",
+     "5": "Methods, Eligibility criteria; full criteria also in the screening "
+          "record for every adjudicated record.",
+     "6": "Methods, Information sources and search; Table of databases with the "
+          "date each was executed (%s)." % (d.get("search") or {}).get("capture_date"),
+     "7": "Search strategy, verbatim as executed, for both databases, in the "
+          "Search section and the extended data (search_capture.csv).",
+     "8": "Methods, Study selection and data collection. Two independent "
+          "cross-family screeners; disagreements recorded and adjudicated.",
+     "9": "Methods, Study selection and data collection; per-cell source tier "
+          "and source pointer recorded for every extracted quantity.",
+     "10a": "Methods, Effect measures and synthesis; outcome definition note. "
+            "Outcomes considered and not pooled are listed with the reason.",
+     "10b": "Results, Trial characteristics; Table of characteristics of the "
+            "included trials.",
+     "11": "Methods, Risk of bias; RoB-2, effect-of-assignment variant, two "
+           "independent assessors of different model families, unreconciled.",
+     "12": "Methods, Effect measures and synthesis (%s)."
+           % (res.get("pooled") or {}).get("measure", ""),
+     "13a": "Methods, Effect measures and synthesis; eligibility is by the "
+            "reported quantity, stated in the Eligibility criteria.",
+     "13b": "Methods, Effect measures and synthesis; log-scale analysis and "
+            "derivation of the standard error from the published interval, "
+            "flagged as derived on each cell.",
+     "13c": "Methods, Certainty and robustness; Figures (forest, leave-one-out, "
+            "cumulative) and the Tables section.",
+     "13d": "Methods, Effect measures and synthesis; random-effects model, "
+            "REML estimator, metafor under R, with the verbatim call and package "
+            "version quoted in Statistical output.",
+     "13e": "Results, Subgroup analysis (post hoc aetiology split, labelled post "
+            "hoc, with the interaction test).",
+     "13f": "Results, Robustness; leave-one-out and the between-study-variance "
+            "estimator comparison.",
+     "14": "Methods, Meta-bias assessment; Results, Small-study effects.",
+     "15": "Methods, Certainty and robustness; GRADE, all five domains.",
+     "16a": "Results, Study selection; PRISMA flow figure and the PRISMA flow "
+            "counts table.",
+     "16b": "Results, Study selection; the screening log lists every adjudicated "
+            "record with the axis it failed and the quantity it reports instead.",
+     "17": "Results, Trial characteristics; Table of characteristics of the "
+           "included trials.",
+     "18": "Results, Risk of bias; risk-of-bias figure and tables, both "
+           "assessors shown separately.",
+     "19": "Results, Primary synthesis; forest plot and the per-arm event count "
+           "table.",
+     "20a": "Results, Trial characteristics and Risk of bias.",
+     "20b": "Results, Primary synthesis; pooled estimate with interval and "
+            "heterogeneity, and the verbatim model output.",
+     "20c": "Results, Subgroup analysis; Heterogeneity in the Discussion.",
+     "20d": "Results, Robustness; leave-one-out table and estimator comparison.",
+     "21": "Results, Small-study effects. Reported and explicitly NOT "
+           "interpreted at this number of studies.",
+     "22": "Results, Certainty of the evidence; GRADE summary of findings table.",
+     "23a": "Discussion, Principal findings and Interpreting the estimate.",
+     "23b": "Discussion, Why the risk-of-bias rating did not change; Limitations.",
+     "23c": "Limitations; What this review could not settle.",
+     "23d": "Discussion, Comparison with other evidence and Strengths.",
+     "24a": "Other information, Note on registration. This review is NOT "
+            "registered in PROSPERO or any other register; it is registered as a "
+            "timestamped public git commit, and that distinction is stated "
+            "rather than presented as equivalent.",
+     "24b": "Other information, Note on registration; protocol permalink pinned "
+            "to a commit SHA.",
+     "24c": "Protocol amendment history, each amendment marked before or after "
+            "the first executed query.",
+     "25": ("Other information, Funding." if fund else
+            "NOT REPORTED. The object records no funding statement. A statement "
+            "must be supplied by the authors before submission; it is not "
+            "invented here."),
+     "26": ("Other information, Competing interests." if coi else
+            "NOT REPORTED. The object records no competing-interests "
+            "declaration. Must be supplied by the authors before submission."),
+     "27": ("Data availability and Software availability. Extended data: %s. "
+            "Archived code: %s."
+            % (ed.get("persistent_identifier")
+               or "REPOSITORY NAMED BUT DOI NOT YET MINTED -- deposit pending",
+               sw.get("archived_source_code_at_time_of_publication")
+               or "ZENODO DOI NOT YET MINTED -- deposit pending")),
+    }
+
+
+def main(obj_path, outdir):
+    d = json.load(open(obj_path, encoding="utf-8"))
+    loc = locations(d)
+    rows = [(s, i, t, loc.get(i, "NOT REPORTED.")) for s, i, t in ITEMS]
+    os.makedirs(outdir, exist_ok=True)
+    csv_p = os.path.join(outdir, "PRISMA_2020_checklist.csv")
+    with open(csv_p, "w", encoding="utf-8", newline="") as f:
+        w = csv.writer(f)
+        w.writerow(["Section and topic", "Item #", "Checklist item",
+                    "Location where item is reported"])
+        w.writerows(rows)
+    md_p = os.path.join(outdir, "PRISMA_2020_checklist.md")
+    unmet = [r for r in rows if r[3].startswith("NOT REPORTED")]
+    with open(md_p, "w", encoding="utf-8") as f:
+        f.write("# PRISMA 2020 checklist\n\n")
+        f.write("**Review:** %s\n\n" % d.get("title", ""))
+        f.write("Checklist item text is quoted verbatim from the PRISMA 2020 "
+                "statement (Page MJ, McKenzie JE, Bossuyt PM, et al. The PRISMA "
+                "2020 statement: an updated guideline for reporting systematic "
+                "reviews. BMJ 2021;372:n71. doi:10.1136/bmj.n71), retrieved from "
+                "PubMed Central PMC8005924.\n\n")
+        f.write("Locations are projected from the canonical object this review "
+                "is built from, so this checklist cannot drift from the paper it "
+                "describes. **%d of %d items are NOT REPORTED**, and each says "
+                "why; a checklist claiming full compliance would be worth "
+                "nothing.\n\n" % (len(unmet), len(rows)))
+        cur = None
+        for s, i, t, l in rows:
+            if s != cur:
+                f.write("\n## %s\n\n" % s)
+                cur = s
+            mark = "NOT REPORTED" if l.startswith("NOT REPORTED") else "Reported"
+            f.write("**%s** — %s\n\n*%s:* %s\n\n" % (i, t, mark, l))
+    print("wrote %s" % csv_p)
+    print("wrote %s" % md_p)
+    print("%d items, %d NOT REPORTED:" % (len(rows), len(unmet)))
+    for s, i, t, l in unmet:
+        print("   item %-4s %s" % (i, l[:110]))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main(sys.argv[1], sys.argv[2]))

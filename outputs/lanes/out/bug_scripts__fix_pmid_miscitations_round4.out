@@ -1,0 +1,168 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a031c2-7009-75a1-a0c9-9e0049c1f6aa
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/fix_pmid_miscitations_round4.py
+
+--- THE FILE, IN FULL ---
+#!/usr/bin/env python
+"""Round 4: BREEZE-AD and IMvigor130 -- primaries found via citation lookup /
+NCT verification, with app effect values cross-checked to the target trial.
+
+  BREEZE-AD1/AD2 baricitinib (NCT03334396) -> 31995838
+    Simpson et al, Br J Dermatol 2020 (10.1111/bjd.18898), "results from two
+    randomized monotherapy phase III trials"; primary vIGA-AD (0,1) at wk 16
+    (BREEZE-AD1 4 mg 16.8% vs placebo 4.8%) matches the app outcome. Found via
+    lookup_article_by_citation after keyword search failed (the paper's PubMed
+    record is not tagged with the NCT). Was citing a PRO sub-paper (33222559)
+    and a review (34437922).
+  IMvigor130 atezolizumab (NCT02807636) -> 32416780
+    Galsky et al, Lancet 2020 (10.1016/S0140-6736(20)30230-0); NCT02807636
+    confirmed in abstract. The dedicated app's record is name="IMvigor130",
+    PFS HR 0.82 [0.70-0.96] == IMvigor130 PFS; the NMA app is name="IMvigor-130",
+    OS HR 0.83 [0.69-1.00] == IMvigor130 OS -- both genuine IMvigor130 records
+    that cited the wrong paper: the IMvigor210 paper (27939400, which is actually
+    registered under NCT02108652) and a COVID-vaccine comment (32861315).
+
+Still DEFERRED (true NCT/identity mismatch, NOT a citation swap):
+  nirsevimab/MEDLEY (NCT02878330) -- the NMA record is name="MEDLEY" with a
+  MEDLEY-specific effect (0.33 [0.14-0.81]) but assigned the Phase-2b NCT
+  (NCT02878330, real value 0.30 [0.19-0.48]). Needs the NCT corrected to MEDLEY's
+  NCT03959488 (+ its primary paper), not a PMID swap. Left for manual review.
+
+Object-scoped, idempotent, binary-safe, dry-run-first, asserting.
+"""
+from __future__ import annotations
+import argparse
+import glob
+import importlib.util
+import os
+import re
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+_spec = importlib.util.spec_from_file_location(
+    "dia", os.path.join(REPO, "scripts", "data_integrity_audit.py"))
+dia = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(dia)
+
+FIXES = {
+    "NCT03334396": {"33222559": "31995838", "34437922": "31995838"},  # BREEZE-AD1/2
+    "NCT02807636": {"27939400": "32416780", "32861315": "32416780"},  # IMvigor130
+}
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--dry-run", action="store_true")
+    args = ap.parse_args()
+
+    changes = []
+    apps_changed = 0
+    for path in sorted(glob.glob(os.path.join(REPO, "*_REVIEW*.html"))):
+        if "backup" in path:
+            continue
+        data = open(path, "rb").read().decode("utf-8", "replace")
+        new_data = data
+        app_changed = False
+        for key, obj in dia.find_trial_objects(new_data):
+            nct = key.split("_")[0]
+            fixmap = FIXES.get(nct)
+            if not fixmap:
+                continue
+            cur = str(dia.str_field(obj, "pmid"))
+            if cur not in fixmap:
+                continue
+            new_pmid = fixmap[cur]
+            new_obj = re.sub(r'(pmid"?\s*:\s*")' + re.escape(cur) + r'(")',
+                             r"\g<1>" + new_pmid + r"\g<2>", obj, count=1)
+            assert new_obj != obj, f"{os.path.basename(path)}:{key} pmid not matched"
+            assert new_data.count(obj) == 1, f"{os.path.basename(path)}:{key} not unique"
+            new_data = new_data.replace(obj, new_obj, 1)
+            changes.append((os.path.basename(path), nct, cur, new_pmid))
+            app_changed = True
+        if app_changed:
+            apps_changed += 1
+            if not args.dry_run:
+                open(path, "wb").write(new_data.encode("utf-8"))
+
+    verb = "WOULD fix" if args.dry_run else "fixed"
+    print(f"{verb} {len(changes)} pmid miscitations across {apps_changed} apps:\n")
+    for app, nct, old, new in sorted(changes):
+        print(f"  {nct}  {old} -> {new}  {app}")
+    miss = set(FIXES) - {c[1] for c in changes}
+    if miss:
+        print(f"\nNOTE: no matching record for {sorted(miss)}")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+
+codex
+COULD NOT DETERMINE raw HTML fixtures: missing `scripts/data_integrity_audit.py` (`find_trial_objects`, `str_field`) and the `*_REVIEW*.html` corpus. At this module’s helper boundary:
+
+- Line 70, selector too broad: input `key="NCT03334396_x"`, `obj='{"other_pmid":"33222559","pmid":"33222559"}'`. The regex rewrites `other_pmid` first, leaving the actual `pmid` unchanged while recording a successful fix.
+
+- Lines 67 and 86-89, probe keyed to the string the fix removes / status code reports wrapper: input objects already corrected, e.g. `("NCT03334396_x",'{"pmid":"31995838"}')` and `("NCT02807636_x",'{"pmid":"32416780"}')`. The old-PMID probe skips them, prints `NOTE: no matching record...`, then exits `0`, so automation cannot distinguish fixed records from absent/wrong records.
+
+- Line 86, completeness check cannot prove all mappings fired: input has three of four required mappings, e.g. `NCT03334396/33222559`, `NCT02807636/27939400`, `NCT02807636/32861315`, but no `NCT03334396/34437922`. `{c[1]}` contains both NCTs, so `miss` is empty and one required swap is silently unreported.
+
+- Line 56, selector over whole path: input script path `F:\backup\rapidmeta-ssot-shell\scripts\fix_pmid_miscitations_round4.py` and target file `F:\backup\rapidmeta-ssot-shell\foo_REVIEW.html`. Every candidate path contains lowercase `backup`, so all work is skipped and line 89 still returns `0`.
+
+No proven instance in this file: comment/marker idempotency guard; different-copy read; CRLF/LF equality comparison; merged-cell/off-by-one tabulation; zero-vs-absent conflation; negation-dropped parsing.
+tokens used
+14,832
+COULD NOT DETERMINE raw HTML fixtures: missing `scripts/data_integrity_audit.py` (`find_trial_objects`, `str_field`) and the `*_REVIEW*.html` corpus. At this module’s helper boundary:
+
+- Line 70, selector too broad: input `key="NCT03334396_x"`, `obj='{"other_pmid":"33222559","pmid":"33222559"}'`. The regex rewrites `other_pmid` first, leaving the actual `pmid` unchanged while recording a successful fix.
+
+- Lines 67 and 86-89, probe keyed to the string the fix removes / status code reports wrapper: input objects already corrected, e.g. `("NCT03334396_x",'{"pmid":"31995838"}')` and `("NCT02807636_x",'{"pmid":"32416780"}')`. The old-PMID probe skips them, prints `NOTE: no matching record...`, then exits `0`, so automation cannot distinguish fixed records from absent/wrong records.
+
+- Line 86, completeness check cannot prove all mappings fired: input has three of four required mappings, e.g. `NCT03334396/33222559`, `NCT02807636/27939400`, `NCT02807636/32861315`, but no `NCT03334396/34437922`. `{c[1]}` contains both NCTs, so `miss` is empty and one required swap is silently unreported.
+
+- Line 56, selector over whole path: input script path `F:\backup\rapidmeta-ssot-shell\scripts\fix_pmid_miscitations_round4.py` and target file `F:\backup\rapidmeta-ssot-shell\foo_REVIEW.html`. Every candidate path contains lowercase `backup`, so all work is skipped and line 89 still returns `0`.
+
+No proven instance in this file: comment/marker idempotency guard; different-copy read; CRLF/LF equality comparison; merged-cell/off-by-one tabulation; zero-vs-absent conflation; negation-dropped parsing.

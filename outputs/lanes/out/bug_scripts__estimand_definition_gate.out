@@ -1,0 +1,2186 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a0319b-8370-7363-b0f8-866965f45b23
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/estimand_definition_gate.py
+
+--- THE FILE, IN FULL ---
+"""ESTIMAND DEFINITION -- was each trial's endpoint READ, or was it assumed?
+
+WHY THIS EXISTS -- IT CAUGHT WHAT EVERYTHING ELSE MISSED
+    SGLT2_HF pooled four trials as one estimand and was live, carrying
+    HR 0.7785 (0.7296-0.8306), k=4. It passed arm_identity, identity_by_
+    registration, subject_match, card_matches_page, build_stamp,
+    no_synthesised_absence, the whole regression set and the harness gate.
+
+    And DAPA-HF and DELIVER count "CV death, HF hospitalisation, OR URGENT HF
+    VISIT", while both EMPEROR trials count "CV death or HF hospitalisation"
+    only. Two trials counted an event class the other two did not.
+
+    THE OBJECT RECORDED NO PER-TRIAL ENDPOINT DEFINITION AT ALL. What it carried
+    instead were RESULT sentences -- "the primary outcome occurred in 386 of 2373
+    patients (16.3%) ... hazard ratio, 0.74" -- filed as provenance.
+
+    A QUOTE THAT SAYS WHAT HAPPENED IS NOT A QUOTE THAT SAYS WHAT WAS COUNTED.
+    That distinction withdrew a live four-trial estimate, and it is the only
+    defect so far that survived every other check in this repository, including
+    the ones written the same day.
+
+WHAT A FULL PASS DOES NOT ESTABLISH -- written in advance
+    - NOT that the recorded definition is the trial's TRUE endpoint. It checks
+      that one was recorded and that the recorded ones agree; only a registry
+      read establishes truth, and this gate says when one is owed.
+    - NOT that agreeing definitions license a pool. Populations, follow-up and
+      analysis sets can still differ.
+    - NOT anything about a single-trial object: nothing to compare, UNCHECKABLE.
+"""
+from __future__ import annotations
+import io, json, os, re, sys
+
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+# A RESULT sentence reports an outcome's VALUE. A DEFINITION states what the
+# outcome IS. These patterns are what a result looks like; matching one where a
+# definition is owed is the SGLT2 defect exactly.
+RESULT_SENTENCE = re.compile(
+    r"occurred in\s+\d|hazard ratio[,:]?\s*[\d.]|"
+    r"\d+\s+of\s+\d+\s+patients|\(\s*\d+\.\d+\s*%\s*\)|"
+    r"95%\s*(?:confidence interval|CI)", re.I)
+
+# Components that change what a composite counts. Compared as whole normalised
+# fields, never as fragments -- the rule this repo broke inside its own auditor.
+COMPONENT = re.compile(
+    r"urgent(?:\s+\w+){0,3}\s+visit|hospitali[sz]ation|hospitali[sz]ed|"
+    # A PARENTHETICAL ABBREVIATION BETWEEN THE TWO WORDS. Registries write
+    # "cardiovascular (CV) death" and "heart failure (HF) hospitalization", and
+    # the first of those matched NEITHER alternative here, so PARALLEL-HF's
+    # correctly-recorded endpoint read as counting hospitalisation and no death
+    # -- disagreeing with three trials that count exactly what it counts. The
+    # under-read again, and again in the direction that argues for a withdrawal.
+    r"cardiovascular\s*(?:\([^)]{0,12}\))?\s*death|cv death|"
+    r"death(?:s)? from cardiovascular causes|"
+    # "CV mortality" is how IRONMAN's registry writes the component that
+    # AFFIRM-AHF's writes as "CV Death". Neither the death nor the
+    # from-cardiovascular-causes alternative reaches it, so a correctly-recorded
+    # IRONMAN definition read as carrying NO cardiovascular-death component and
+    # the two trials appeared to count different things. Same family as
+    # "deaths from cardiovascular causes" on SOTAGLIFLOZIN: an under-read
+    # manufactures a disagreement exactly as an over-read manufactures an
+    # agreement, and the first argues for withdrawing a sound estimate.
+    r"(?:cardiovascular|cv) mortality|"
+    r"all-cause (?:death|mortality)|(?:death|mortality) from any cause|"
+    r"any-cause (?:death|mortality)|total mortality|"
+    # ABLATION_AF, 2026-08-17. CABANA's registry endpoint is "Total Mortality,
+    # Disabling Stroke, Serious Bleeding, or Cardiac Arrest" and this reader saw
+    # ONE of those four: stroke. Three whole components of a composite were
+    # invisible, so an object pairing CABANA with a stroke-only trial would have
+    # been reported as counting the same events. That is the comfortable
+    # direction and it was sitting in a live object.
+    r"serious bleeding|major bleeding|cardiac arrest|acute coronary syndrome|"
+    # DOAC_AF, 2026-08-18. Four registry records, four composites, every one of
+    # them "stroke OR systemic embolism" -- and this reader saw ONE of the two.
+    # Half of every composite in the topic was invisible, and the gate reported
+    # PASS "they agree" from a reading of the other half. Same shape as CABANA
+    # above and same shape as the CKD false agreement, in a third vocabulary.
+    # DOAC_CANCER_VTE, 2026-08-18. The hunting list correctly refused to decide
+    # here -- "venous thromboembolism" was unrecognised -- on a topic whose
+    # endpoints really do disagree: one trial counts VTE OR MAJOR BLEEDING and
+    # the others count VTE alone. The classifier half follows the finder half in
+    # the same commit, which is the rule this file has broken three times.
+    r"recurrent venous thromboembolism|venous thromboembolism|"
+    r"deep vein thrombosis|pulmonary embolism|\bvte\b|\bdvt\b|"
+    r"non-?cns systemic embolism|systemic embolic events?|"
+    r"systemic emboli[sz]ation|systemic embolism|systemic emboli|"
+    r"myocardial infarction|stroke|worsening heart failure", re.I)
+
+# "WORSENING HEART FAILURE" IS USUALLY A QUALIFIER, NOT A COMPONENT.
+#
+# "hospitalisation for worsening heart failure" names ONE counted event. Read as
+# two matches it added a phantom component, and that alone made EMPEROR-Reduced
+# ("cardiovascular death or hospitalization for worsening heart failure") differ
+# from EMPEROR-Preserved ("cardiovascular death or hospitalization for heart
+# failure") -- two trials that count the same thing, separated by one word of
+# orthography. The same phantom separated AFFIRM-AHF from IRONMAN.
+#
+# Two shapes, and the attached one must be stripped FIRST or the umbrella
+# pattern swallows a parenthesis that merely mentions hospitalisations:
+#   attached  "<hospitalisation|admission|visit> [for|due to] worsening heart failure"
+#   umbrella  "worsening heart failure (<...enumerating hospitalisation or visit...>)"
+# Anything else -- a standalone worsening-heart-failure event, which some trials
+# really do count separately -- still yields its own component.
+_WORSENING_ATTACHED = re.compile(
+    r"\b(hospitali[sz]\w*|admission\w*|admitted|visits?)"
+    r"(?:\s+(?:for|due to|because of))?\s+worsening\s+heart\s+failure", re.I)
+# AND THE SAME PHRASE WITH THE WORDS THE OTHER WAY ROUND. CASTLE-AF's registry
+# endpoint is "worsening heart failure REQUIRING UNPLANNED HOSPITALIZATION", which
+# the attached pattern cannot see because the qualifier comes first. One counted
+# event read as two, on a live object -- the EMPEROR over-read in mirror image,
+# found the same day the first half was fixed.
+_WORSENING_LEADING = re.compile(
+    r"\bworsening\s+heart\s+failure\s+(?:requiring|leading to|resulting in)"
+    r"(?:\s+\w+){0,2}\s+(hospitali[sz]\w*|admission\w*)", re.I)
+_WORSENING_UMBRELLA = re.compile(
+    r"\bworsening\s+heart\s+failure\s*(?=\([^)]*(?:hospitali|visit))", re.I)
+
+
+def _norm(s):
+    return re.sub(r"[^a-z0-9 ]+", " ", re.sub(r"\s+", " ", (s or "").lower())).strip()
+
+
+# CANONICAL KEYS, not raw matched text. The first cut compared normalised match
+# strings and failed its own negative control, because "hospitalisation" and
+# "hospitalization" normalise to different tokens -- the British-spelling trap in
+# a new costume, and a gate that fails on everything is worth nothing. Each match
+# now maps to ONE key, so orthography cannot manufacture a difference and only a
+# real component change can.
+_CANON = (
+    (re.compile(r"urgent", re.I), "urgent_visit"),
+    (re.compile(r"hospitali", re.I), "hf_hospitalisation"),
+    # PHRASING VARIANTS MAP TO ONE KEY. "deaths from cardiovascular causes" is the
+    # same component as "cardiovascular death" and matched neither pattern, so a
+    # correctly-recorded SOTAGLIFLOZIN definition read as carrying no CV-death
+    # component. Under-reading manufactures disagreements exactly as over-reading
+    # does, and a withdrawal needs the same evidentiary standard as a claim.
+    # THE PARENTHETICAL HAS TO BE ALLOWED HERE TOO. COMPONENT finds the phrase
+    # and this table classifies it; widening one without the other means the
+    # match is found and then silently DROPPED, assigned to no key at all, which
+    # is indistinguishable from not finding it. Two places, one fact -- and the
+    # first fix touched only one of them.
+    (re.compile(r"(cardiovascular|cv)\s*(?:\([^)]{0,12}\))?\s*death|"
+                r"death.{0,3} from cardiovascular", re.I), "cv_death"),
+    (re.compile(r"all-cause|any-cause|from any cause|total mortality", re.I),
+     "all_cause_death"),
+    (re.compile(r"serious bleeding|major bleeding", re.I), "serious_bleeding"),
+    (re.compile(r"cardiac arrest", re.I), "cardiac_arrest"),
+    (re.compile(r"acute coronary syndrome", re.I), "acs"),
+    (re.compile(r"(cardiovascular|cv) mortality", re.I), "cv_death"),
+    (re.compile(r"myocardial infarction", re.I), "mi"),
+    # ONE KEY FOR ALL FOUR PHRASINGS, and the reason is written down because
+    # this is exactly the kind of judgement that manufactures an agreement if
+    # it is wrong. RE-LY writes "systemic embolic event", ARISTOTLE "Systemic
+    # Embolism", ENGAGE "Systemic Embolic Events", ROCKET AF "non-CNS systemic
+    # embolism". The "non-CNS" is a clarification rather than a narrowing: an
+    # embolus reaching the brain is counted by all four as STROKE, which is the
+    # other arm of the same composite, so the non-CNS qualifier removes nothing
+    # the other three records count. Four descriptions, one event.
+    # SPLITTING THEM WOULD MANUFACTURE A DISAGREEMENT between four trials that
+    # count the same thing -- the destructive direction, because it argues for
+    # withdrawing a sound estimate.
+    # ONE KEY FOR THE WHOLE VTE FAMILY. CARAVAGGIO's registry description defines
+    # its primary as "the composite of: proximal DVT of the lower limbs
+    # (symptomatic or unsuspected), DVT of the upper limb (symptomatic), PE
+    # (symptomatic or unsuspected)" -- DVT and PE are THE CONTENTS OF THE UMBRELLA,
+    # not components beside it. Separate keys would read CARAVAGGIO as
+    # {vte, dvt, pe} against Hokusai's {vte, serious_bleeding} and manufacture a
+    # disagreement out of a trial spelling out what it means. That is the EMPEROR
+    # "hospitalisation for worsening heart failure" over-read, which this file has
+    # already had to fix twice.
+    # THIS ORDERS BEFORE systemic_embolism DELIBERATELY: "non-CNS systemic
+    # embolism" must not be swallowed by a VTE pattern, and it is not -- the two
+    # families share no matching text -- but the ordering is fixed so a later
+    # widening of either cannot silently reassign the other.
+    (re.compile(r"venous thromboembolism|deep vein thrombosis|"
+                r"pulmonary embolism|\bvte\b|\bdvt\b", re.I), "vte"),
+    (re.compile(r"systemic embol", re.I), "systemic_embolism"),
+    (re.compile(r"stroke", re.I), "stroke"),
+    (re.compile(r"worsening heart failure", re.I), "worsening_hf"),
+)
+
+
+def _components(s):
+    s = _WORSENING_ATTACHED.sub(lambda m: m.group(1), s or "")
+    s = _WORSENING_LEADING.sub(lambda m: m.group(1), s)
+    s = _WORSENING_UMBRELLA.sub("", s)
+    out = set()
+    for m in COMPONENT.finditer(s or ""):
+        raw = m.group(0)
+        for rx, key in _CANON:
+            if rx.search(raw):
+                out.add(key)
+                break
+    return frozenset(out)
+
+
+# ---------------------------------------------------------------------------
+# THE HUNTING LIST -- and why this gate needed a SECOND list rather than a
+# LONGER first one.
+#
+# COMPONENT and _CANON are entirely CARDIOLOGICAL: hospitalisation, CV death,
+# stroke, MI, bleeding, cardiac arrest, ACS, worsening heart failure. There is
+# nothing renal in them, nothing infectious, nothing oncological.
+#
+# On 2026-08-18 this gate was run on SGLT2_CKD, whose three trials record three
+# DIFFERENT primary composites in their own registry records:
+#
+#   CREDENCE     doubling of serum creatinine, ESKD, renal or CV death
+#   DAPA-CKD     >=50% sustained decline in eGFR, ESRD, CV death, renal death
+#   EMPA-KIDNEY  kidney disease progression (ESKD, eGFR to <10, renal death,
+#                >=40% sustained decline in eGFR) or CV death
+#
+# ALL THREE REDUCED TO {cv_death}. Every renal component of every composite was
+# invisible, and the gate reported "every pooled outcome has a recorded endpoint
+# definition and THEY AGREE" -- a PASS, on three composites that differ on the
+# threshold at which kidney-function decline is counted at all.
+#
+# THIS IS THE CABANA DEFECT AND IT FAILS TOWARD COMFORT. CABANA's four-component
+# endpoint was read as "stroke", and that argued for pooling it with a
+# stroke-only trial. Here five components are read as one, and it argues for
+# pooling three composites that are not the same. Every other under-read in the
+# ledger failed toward ALARM; this one manufactures an AGREEMENT, which is the
+# direction that survives, because nobody investigates a green.
+#
+# LENGTHENING _CANON DOES NOT FIX IT. A recognition list over an open domain is
+# wrong again the first time this gate meets a specialty nobody added -- and the
+# whole infectious-disease set is next. So the fix is structural:
+#
+#     THE RECOGNITION LIST DECIDES PASS.
+#     THIS LIST DECIDES WHETHER THE GATE MAY DECIDE AT ALL.
+#
+# EVENT_LIKE is deliberately over-broad. Its failure mode is flagging a term the
+# recognition list actually handles, which yields UNCHECKABLE -- an alarm, and a
+# cheap one to investigate. A gap in THIS list is one level further back than a
+# gap in _CANON, and it is the only comfortable failure left in the design.
+EVENT_LIKE = re.compile(
+    r"\b(?:"
+    # renal -- the set that was invisible
+    r"creatinine|egfr|glomerular filtration|dialysis|transplantation|transplant|"
+    r"end[- ]stage|eskd|esrd|kidney disease progression|kidney failure|"
+    r"renal death|renal failure|renal replacement|albuminuria|proteinuria|"
+    r"nephropathy|"
+    # progression / decline language that names a counted event
+    r"doubling|sustained decline|disease progression|progression-free|"
+    # other specialties, so this is not merely cardiology-plus-renal
+    r"relapse|remission|recurrence|exacerbation|infection|bacteraemia|"
+    r"bacteremia|seroconversion|viral load|virologic failure|virological "
+    r"failure|treatment failure|fracture|amputation|blindness|visual acuity|"
+    r"overall survival|readmission|intubation|ventilation|transfusion|"
+    r"revascularisation|revascularization|graft loss|rejection|"
+    # the term whose absence let this list fail at the job it exists for
+    r"systemic embol[a-z]*|embolism|embolic|thromboembolism|"
+    r"venous thromboembolism|pulmonary embolism|deep vein thrombosis"
+    r")\b", re.I)
+
+
+def unrecognised_terms(s):
+    """Event-like phrases in a definition that the recognition list cannot see.
+
+    A NON-EMPTY RESULT MEANS THE GATE MUST NOT COMPARE THIS DEFINITION. It has
+    read part of a composite and has no way to know whether the part it could
+    not read is the part that differs.
+    """
+    if not s:
+        return frozenset()
+    covered = " ".join(m.group(0) for m in COMPONENT.finditer(s)).lower()
+    return frozenset(m.group(0).lower() for m in EVENT_LIKE.finditer(s)
+                     if m.group(0).lower() not in covered)
+
+
+def definition_for(bo):
+    """The endpoint definition recorded on ONE trial-outcome cell, or "".
+
+    THE ONE PLACE THIS LOGIC LIVES. `poolability` reported "N of N trials carry
+    no outcome definition" on every SSOT object in the repository, because it
+    read a field only the extraction schema has. That is a FALSE ALARM, and a
+    false alarm here is not the safe direction: it argues for withdrawing a
+    correct estimate, and a withdrawal needs the same evidentiary standard as a
+    claim. Rather than copy the resolution into a second gate -- two copies
+    diverge, and the divergence is invisible -- both callers use this.
+
+    Order: the explicit field, then a provenance quote that is a DEFINITION
+    rather than a RESULT. The second half is what lets an object that quotes the
+    registry's outcome-measure title pass without also passing an object whose
+    provenance is "the primary outcome occurred in 386 of 2373 patients".
+    """
+    if not isinstance(bo, dict):
+        return ""
+    d = (bo.get("outcome_definition") or bo.get("definition")
+         or bo.get("endpoint_definition") or "")
+    if d:
+        # A TITLE CAN BE A LABEL RATHER THAN A DEFINITION, and then the
+        # DESCRIPTION is where the components live. PARALLEL-HF's registry title
+        # is "Number of Participants Who Had CEC Confirmed Composite Endpoints"
+        # -- which names no event at all -- while its description says "either
+        # cardiovascular (CV) death or heart failure (HF) hospitalization". Read
+        # from the title alone the trial appeared to count NOTHING, and a trial
+        # counting nothing disagrees with every trial that counts something. The
+        # recorded definition is both fields, because that is what was read.
+        desc = (bo.get("outcome_definition_source") or {}).get(
+            "description_verbatim")
+        return "%s %s" % (d, desc) if desc else d
+    quotes = (bo.get("provenance") or {}).get("source_quotes") or []
+    cand = [q for q in quotes if not RESULT_SENTENCE.search(q) and _components(q)]
+    return max(cand, key=len) if cand else ""
+
+
+def check(obj):
+    trials = ((obj.get("inputs") or {}).get("trials")) or []
+    results = ((obj.get("results") or {}).get("by_outcome")) or {}
+    if not trials or not results:
+        return "UNCHECKABLE", ["object carries no trials or no pooled outcome"]
+
+    notes, bad, withdrawn_for_this = [], False, False
+    unreadable_for_this = False
+    for oid, res in results.items():
+        if (res.get("k") or 0) < 2:
+            notes.append("%s: k<2, nothing to compare" % oid)
+            continue
+        # A POOL ALREADY WITHDRAWN FOR THIS EXACT REASON IS THE PROPERTY MET.
+        #
+        # ABLATION_AF's four trials record four different primary composites, and
+        # its estimate is withdrawn WITH that as the stated reason. Scoring it
+        # FAIL made a page that found the difference and acted on it
+        # indistinguishable from a page that pooled straight through -- which is
+        # SGLT2_HF, whose object still carries a live k=4 point. A score that
+        # cannot tell those two apart cannot measure the thing it is for.
+        #
+        # This is NOT an escape hatch: a withdrawn pool displays no number, so
+        # there is nothing left for a mismatched estimand to be wrong about. A
+        # LIVE pool with disagreeing definitions still FAILs, which is the
+        # constructible failure and the SGLT2 replay.
+        _p = res.get("pooled") or {}
+        _withdrawn = (_p.get("point") is None and _p.get("withdrawn")
+                      and (_p.get("withdrawn_reason") or "").strip())
+        defs, missing, resultish, unregistered = {}, [], [], []
+        for t in trials:
+            bo = (t.get("by_outcome") or {}).get(oid)
+            if not bo:
+                continue
+            name = t.get("name") or t.get("nct") or "?"
+            # AN ENDPOINT THAT IS NOT REGISTERED AT ALL IS A FOURTH STATE, and
+            # until 2026-08-18 this gate had no way to hold it. ARNI_HF pools
+            # ANSWER-HF's composite of cardiovascular death and heart-failure
+            # hospitalisation; NCT04853758 declares TWO primary outcome measures
+            # and EIGHTEEN secondary ones and none of the twenty is that
+            # composite. The quantity exists only in the publication.
+            #
+            # Recording that truthfully put the registry's ENUMERATION -- which
+            # is the proof of the absence -- into the definition field, where the
+            # vocabulary scanner met the word "creatinine", declared itself
+            # unable to read a definition, and returned UNCHECKABLE. The gate
+            # answered the strongest finding available to it with "I could not
+            # read this", which is the comfortable direction.
+            #
+            # The state is DECLARED by the object rather than inferred from its
+            # prose: a declared field beats an inferred one, the same precedence
+            # v1_coverage_audit had to learn three times. It is a FAIL and not an
+            # UNCHECKABLE, because nothing here is unreadable -- the registry was
+            # read in full and what it says is that the endpoint is absent.
+            _rank = ((bo.get("outcome_definition_source") or {})
+                     .get("endpoint_rank") or "")
+            if "not registered" in str(_rank).lower():
+                unregistered.append(name)
+                continue
+            # A QUOTE CAN BE THE DEFINITION -- that is the whole distinction, and
+            # it is resolved in definition_for() so poolability cannot drift from
+            # it. FINERENONE_CV stores each trial's endpoint TITLE, read word for
+            # word from the registry, in source_quotes. SGLT2_HF stores RESULT
+            # sentences in the same field. Failing both would mean the gate
+            # cannot tell the work done right from the work done wrong, which is
+            # the property it exists to measure.
+            d = definition_for(bo)
+            quotes = (bo.get("provenance") or {}).get("source_quotes") or []
+            if not d:
+                missing.append(name)
+                if quotes and RESULT_SENTENCE.search(" ".join(quotes)):
+                    resultish.append(name)
+            else:
+                defs[name] = d
+        if unregistered:
+            if _withdrawn:
+                withdrawn_for_this = True
+            else:
+                bad = True
+            notes.append(
+                "%s: %d of %d contributing trial(s) REGISTER NO SUCH ENDPOINT, at "
+                "any rank: %s. This is not a definition that disagrees and not a "
+                "definition that is missing from the object -- it is a definition "
+                "that is missing from the REGISTRATION, so for this trial there is "
+                "no pre-specified statement of what was counted for the pool to "
+                "rest on. The remaining rows are compared to each other below and "
+                "their agreement, if any, is agreement among them alone."
+                % (oid, len(unregistered), len(unregistered) + len(defs) + len(missing),
+                   ", ".join(unregistered[:6])))
+        if missing:
+            if _withdrawn:
+                withdrawn_for_this = True
+            else:
+                bad = True
+            notes.append("%s: NO endpoint definition recorded for %d trial(s): %s"
+                         % (oid, len(missing), ", ".join(missing[:6])))
+            if resultish:
+                notes.append("    and the provenance quote is a RESULT sentence on "
+                             "%d of them: %s -- what happened, never what was counted"
+                             % (len(resultish), ", ".join(resultish[:6])))
+        if len(defs) > 1:
+            # BEFORE COMPARING ANYTHING: can this reader read these definitions?
+            # A comparison of two partial readings is not a comparison of two
+            # definitions. If the recognition vocabulary cannot see event-like
+            # terms that are present in the text, the honest verdict is that the
+            # gate could not read them -- NOT that they agree.
+            blind = {n: unrecognised_terms(d) for n, d in defs.items()}
+            unread = {n: t for n, t in blind.items() if t}
+            if unread:
+                unreadable_for_this = True
+                notes.append(
+                    "%s: THIS GATE CANNOT READ %d of %d definitions. Its component "
+                    "vocabulary is cardiological and these name events it does not "
+                    "recognise, so any agreement it reported would be an agreement "
+                    "between two PARTIAL READINGS:" % (oid, len(unread), len(defs)))
+                for n in sorted(unread):
+                    notes.append("    %-22s unrecognised: {%s}   recognised: {%s}"
+                                 % (n, ", ".join(sorted(unread[n])[:8]),
+                                    ", ".join(sorted(_components(defs[n]))) or "-"))
+                notes.append("    Read these by hand against the registry. A PASS "
+                             "here would be the CABANA under-read failing toward "
+                             "comfort instead of toward alarm.")
+                continue
+            comp = {n: _components(d) for n, d in defs.items()}
+            # A NOTE THAT PROMISES A COMPARISON MUST SHOW IT. The unregistered
+            # branch above says "the remaining rows are compared to each other
+            # below", and when they agree nothing was printed, because agreement
+            # is the silent path. A reader then sees an accusation and no
+            # acquittal -- confirmations have to be as visible as errors.
+            if unregistered and len(set(comp.values())) == 1:
+                notes.append(
+                    "    and the %d trial(s) that DO register it agree with each "
+                    "other exactly -- %s all count {%s}. The defect is confined to "
+                    "the unregistered row."
+                    % (len(comp), ", ".join(sorted(comp)),
+                       ", ".join(sorted(next(iter(comp.values())))) or "-"))
+            if len(set(comp.values())) > 1:
+                if _withdrawn:
+                    withdrawn_for_this = True
+                else:
+                    bad = True
+                notes.append("%s: recorded definitions DISAGREE across trials%s:"
+                             % (oid, " -- AND THE ESTIMATE IS WITHDRAWN, WITH THIS "
+                                     "AS ITS STATED REASON" if _withdrawn else ""))
+                for n, c in comp.items():
+                    notes.append("    %-22s counts {%s}"
+                                 % (n, ", ".join(sorted(c)) or "-"))
+    if not notes:
+        notes = ["every pooled outcome has a recorded endpoint definition and they agree"]
+    if bad:
+        return "FAIL", notes
+    # UNCHECKABLE OUTRANKS WITHDRAWN AND PASS. If the gate could not read the
+    # definitions it cannot certify that a withdrawal was for the right reason
+    # either -- and a withdrawal made on an unread definition is exactly the
+    # destructive error this whole apparatus exists to prevent.
+    if unreadable_for_this:
+        notes.append("-> UNCHECKABLE. The gate found event terms it does not "
+                     "recognise and refuses to report agreement or disagreement "
+                     "from a partial reading. This is NOT a pass and NOT a "
+                     "failure of the object.")
+        return "UNCHECKABLE", notes
+    if withdrawn_for_this:
+        notes.append("-> the definitions do not agree and NO ESTIMATE IS DISPLAYED. "
+                     "The property is met by the withholding, not by agreement, and "
+                     "this is recorded as WITHDRAWN rather than passed.")
+        return "WITHDRAWN", notes
+    return "PASS", notes
+
+
+def selftest():
+    """REPLAYED AGAINST SGLT2_HF's OWN OBJECT -- four trials, two definitions,
+    and it was passing every other check we own."""
+    ok = True
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    real = os.path.join(root, "ssot", "sglt2-hf", "sglt2-hf.json")
+    if os.path.exists(real):
+        obj = json.loads(open(real, encoding="utf-8").read())
+        # THE POSITIVE CONTROL IS THE STATE THIS OBJECT WAS IN, NOT THE STATE IT
+        # IS IN NOW. Its pool has since been withdrawn IN THE OBJECT, so the live
+        # object correctly returns WITHDRAWN. Restoring the point from the
+        # `previous_values` that the withdrawal preserved replays the exact
+        # historical artefact -- four trials, two endpoint definitions, a live
+        # k=4 estimate. Without this, remediating the defect would have quietly
+        # deleted the only real past defect this gate is proved against, and the
+        # selftest would have gone on printing PASS over a control that no longer
+        # controls anything.
+        for _res in ((obj.get("results") or {}).get("by_outcome") or {}).values():
+            _p = _res.get("pooled") or {}
+            if _p.get("withdrawn") and _p.get("previous_values"):
+                _res["pooled"] = dict(_p["previous_values"][0])
+        v, notes = check(obj)
+        good = v == "FAIL"
+        ok &= good
+        print("  POSITIVE SGLT2_HF, pool restored from its own withdrawal record "
+              "-> %-5s %s" % (v, "correct" if good else "WRONG"))
+        for n in notes[:2]:
+            print("        %s" % n[:112])
+        v_now, _ = check(json.loads(open(real, encoding="utf-8").read()))
+        ok &= v_now == "WITHDRAWN"
+        print("  NEGATIVE SGLT2_HF as it stands today, pool withdrawn -> %-9s %s"
+              % (v_now, "correct" if v_now == "WITHDRAWN" else "WRONG"))
+    else:
+        print("  fixture absent: sglt2-hf object -- NOT PROVEN")
+        ok = False
+
+    clean = {"inputs": {"trials": [
+        {"name": "A", "by_outcome": {"o": {"outcome_definition":
+         "cardiovascular death or hospitalisation for heart failure"}}},
+        {"name": "B", "by_outcome": {"o": {"outcome_definition":
+         "cardiovascular death or hospitalization for heart failure"}}}]},
+        "results": {"by_outcome": {"o": {"k": 2}}}}
+    v2, _ = check(clean)
+    ok &= v2 == "PASS"
+    print("  NEGATIVE same definition, spelling aside            -> %-5s %s"
+          % (v2, "correct" if v2 == "PASS" else "WRONG"))
+
+    # THE UNREGISTERED-ENDPOINT BRANCH, WITH BOTH SIGNS. Its founding artefact is
+    # ARNI_HF's ANSWER-HF row. The pair matters more than either half: the two
+    # inputs differ ONLY in whether the third trial's registration declares the
+    # endpoint, and the definitions AGREE in both, so a gate that could not tell
+    # them apart would report PASS on a pool a quarter of which rests on nothing
+    # pre-specified.
+    unreg = json.loads(json.dumps(clean))
+    unreg["inputs"]["trials"].append(
+        {"name": "C", "by_outcome": {"o": {
+            "outcome_definition": "cardiovascular death or hospitalisation for "
+                                  "heart failure",
+            "outcome_definition_source": {"endpoint_rank": "SECONDARY"}}}})
+    unreg["results"]["by_outcome"]["o"]["k"] = 3
+    v3a, _ = check(unreg)
+    ok &= v3a == "PASS"
+    print("  NEGATIVE third trial registers it as a secondary    -> %-5s %s"
+          % (v3a, "correct" if v3a == "PASS" else "WRONG"))
+
+    unreg2 = json.loads(json.dumps(unreg))
+    (unreg2["inputs"]["trials"][2]["by_outcome"]["o"]["outcome_definition_source"]
+     ["endpoint_rank"]) = "NOT REGISTERED AT ANY RANK"
+    v3b, n3b = check(unreg2)
+    ok &= v3b == "FAIL"
+    print("  POSITIVE same definition, registered at NO rank     -> %-5s %s"
+          % (v3b, "correct" if v3b == "FAIL" else "WRONG"))
+    print("        %s" % n3b[0][:112])
+
+    mixed = json.loads(json.dumps(clean))
+    mixed["inputs"]["trials"][1]["by_outcome"]["o"]["outcome_definition"] = (
+        "cardiovascular death, hospitalisation for heart failure, or urgent "
+        "heart failure visit")
+    v3, _ = check(mixed)
+    ok &= v3 == "FAIL"
+    print("  POSITIVE one trial adds an urgent-visit component   -> %-5s %s"
+          % (v3, "correct" if v3 == "FAIL" else "WRONG"))
+
+    resultish = {"inputs": {"trials": [
+        {"name": "A", "by_outcome": {"o": {"provenance": {"source_quotes": [
+            "the primary outcome occurred in 386 of 2373 patients (16.3%) "
+            "(hazard ratio, 0.74; 95% CI 0.65-0.85)"]}}}},
+        {"name": "B", "by_outcome": {"o": {"provenance": {"source_quotes": [
+            "a primary outcome event occurred in 361 of 1863 patients"]}}}}]},
+        "results": {"by_outcome": {"o": {"k": 2}}}}
+    v4, notes4 = check(resultish)
+    ok &= v4 == "FAIL" and any("RESULT sentence" in n for n in notes4)
+    print("  POSITIVE result sentences filed as provenance       -> %-5s %s"
+          % (v4, "correct" if v4 == "FAIL" else "WRONG"))
+
+    fin = os.path.join(root, "ssot", "finerenone-cv", "finerenone-cv.json")
+    if os.path.exists(fin):
+        v6, n6 = check(json.loads(open(fin, encoding="utf-8").read()))
+        ok &= v6 == "PASS"
+        print("  NEGATIVE FINERENONE_CV: endpoint TITLES quoted -> %-5s %s"
+              % (v6, "correct" if v6 == "PASS" else "WRONG -- the gate cannot tell "
+                 "a definition quote from a result quote"))
+
+    # THE CANON ITSELF, on real registry text. Each of these read WRONG before
+    # 2026-08-17 and each wrong reading manufactured a disagreement between
+    # trials that count the same events -- the direction that argues for
+    # withdrawing a sound estimate.
+    print("")
+    canon_cases = [
+        ("AFFIRM-AHF primary, registry",
+         "HF Hospitalizations and CV Death", {"cv_death", "hf_hospitalisation"}),
+        ("IRONMAN primary, registry -- 'CV mortality', and a qualifier not a "
+         "component",
+         "CV mortality or hospitalisation for worsening heart failure (analysis "
+         "will include first and recurrent hospitalisations)",
+         {"cv_death", "hf_hospitalisation"}),
+        ("EMPEROR-Reduced: 'hospitalization for WORSENING heart failure'",
+         "a composite of cardiovascular death or hospitalization for worsening "
+         "heart failure", {"cv_death", "hf_hospitalisation"}),
+        ("EMPEROR-Preserved: the same events, one word apart",
+         "a composite of cardiovascular death or hospitalization for heart "
+         "failure", {"cv_death", "hf_hospitalisation"}),
+        ("DAPA-HF: the umbrella phrase enumerates its own contents",
+         "a composite of worsening heart failure (hospitalization or an urgent "
+         "visit resulting in intravenous therapy for heart failure) or "
+         "cardiovascular death",
+         {"cv_death", "hf_hospitalisation", "urgent_visit"}),
+        ("a STANDALONE worsening-HF event still counts as its own component",
+         "a composite of cardiovascular death or a worsening heart failure event "
+         "treated in the outpatient setting", {"cv_death", "worsening_hf"}),
+        ("CONFIRM-HF: the publication's own words for the death row",
+         "all-cause death, analysed as time to first event", {"all_cause_death"}),
+        # ABLATION_AF: four endpoints that must come out DIFFERENT, and three of
+        # the four had components this reader could not see at all.
+        ("CASTLE-AF: the qualifier BEFORE the hospitalisation, not after",
+         "All-cause mortality or worsening heart failure requiring unplanned "
+         "hospitalization", {"all_cause_death", "hf_hospitalisation"}),
+        ("CABANA: three of its four components were invisible",
+         "Number of Participants With Composite of Total Mortality, Disabling "
+         "Stroke, Serious Bleeding, or Cardiac Arrest in Patients Warranting "
+         "Therapy for AF.",
+         {"all_cause_death", "stroke", "serious_bleeding", "cardiac_arrest"}),
+        ("EAST-AFNET 4: acute coronary syndrome was invisible",
+         "A composite of cardiovascular death, stroke and hospitalization due to "
+         "worsening of heart failure or due to acute coronary syndrome.",
+         {"cv_death", "stroke", "hf_hospitalisation", "acs"}),
+        ("RAFT-AF: all-cause mortality and heart failure events",
+         "Composite of All-cause Mortality and Heart Failure Events",
+         {"all_cause_death"}),
+    ]
+    for label, text, want in canon_cases:
+        got = set(_components(text))
+        good = got == want
+        ok &= good
+        print("  CANON %-62s %s" % (label[:62], "correct" if good else
+                                    "WRONG: %s" % sorted(got)))
+    print("")
+
+    v5, _ = check({})
+    ok &= v5 == "UNCHECKABLE"
+    print("  NEGATIVE an empty object                            -> %-5s %s (not a pass)"
+          % (v5, "correct" if v5 == "UNCHECKABLE" else "WRONG"))
+
+    # ---- THE REPLAY: three CKD composites this gate reported as AGREEING ----
+    # Real registry text, read 2026-08-18 from the ClinicalTrials.gov protocol
+    # records. Before the hunting list, all three reduced to {cv_death} and the
+    # gate returned PASS with "they agree".
+    print("")
+    ckd = {
+        "CREDENCE": ("Primary Composite Endpoint of Doubling of Serum Creatinine "
+                     "(DoSC), End-stage Kidney Disease (ESKD), and Renal or "
+                     "Cardiovascular (CV) Death"),
+        "DAPA-CKD": ("Time to the First Occurrence of Any of the Components of the "
+                     "Composite: >=50% Sustained Decline in eGFR or Reaching ESRD "
+                     "or CV Death or Renal Death."),
+        "EMPA-KIDNEY": ("Interventional Part: Time to First Occurrence of Kidney "
+                        "Disease Progression or Cardiovascular Death "
+                        "('as Adjudicated')"),
+    }
+    same = len({_components(v) for v in ckd.values()}) == 1
+    unread = {n: unrecognised_terms(v) for n, v in ckd.items()}
+    all_flagged = all(unread.values())
+    ok &= same and all_flagged
+    print("  REPLAY SGLT2_CKD: three DIFFERENT composites, recognition list sees")
+    for n, v in ckd.items():
+        print("        %-12s recognised={%s}  unrecognised={%s}"
+              % (n, ", ".join(sorted(_components(v))) or "-",
+                 ", ".join(sorted(unread[n])[:5])))
+    print("        all three reduce to one component set: %s  (that is the false "
+          "agreement)" % same)
+    print("        every one flagged as unreadable: %-5s %s"
+          % (all_flagged, "correct" if (same and all_flagged) else "WRONG"))
+    print("        the version this replaces returned PASS -- 'every pooled outcome "
+          "has a recorded")
+    print("        endpoint definition and they agree' -- on these exact strings.")
+
+    # AND THE HUNTING LIST MUST NOT FLAG A CARDIOLOGY DEFINITION IT CAN READ.
+    # A gate that returns UNCHECKABLE on everything is worth nothing; this is
+    # the negative control for the new branch.
+    card = ("Cardiovascular death or hospitalization for heart failure",
+            "cardiovascular (CV) death or heart failure (HF) hospitalization",
+            "Total Mortality, Disabling Stroke, Serious Bleeding, or Cardiac Arrest")
+    clean = all(not unrecognised_terms(c) for c in card)
+    ok &= clean
+    # ------------------------------------------------ DOAC_AF, 2026-08-18
+    # SYSTEMIC EMBOLISM WAS INVISIBLE TO ALL THREE LISTS. Four registry
+    # composites, every one "stroke OR systemic embolism", and _components()
+    # returned frozenset({'stroke'}) for each -- so the gate compared HALF of
+    # every composite in the topic and reported that they agreed.
+    #
+    # It was not caught by EVENT_LIKE either, and that is the part that matters:
+    # EVENT_LIKE exists to force UNCHECKABLE whenever the recognition list meets
+    # a term it cannot handle, and TOOLING-QUEUE.md recorded that mechanism as
+    # the reason "the gate can no longer report agreement from a partial
+    # reading". The net had the same hole as the thing it was netting.
+    #
+    # THE WIDENING MOVED NO VERDICT ON ANY OBJECT IN THE REPOSITORY. DOAC_AF was
+    # PASS before and PASS after, because its four composites really do agree.
+    # So the only thing that can demonstrate the fix is a pair that differs ONLY
+    # in the half that used to be unreadable. Old gate: PASS. New gate: FAIL.
+    _doac = {"inputs": {"trials": [
+        {"name": "A", "nct": "NCT1",
+         "by_outcome": {"o": {"outcome_definition": "Stroke or systemic embolism"}}},
+        {"name": "B", "nct": "NCT2",
+         "by_outcome": {"o": {"outcome_definition": "Stroke"}}}]},
+        "results": {"by_outcome": {"o": {"k": 2, "pooled": {"point": 0.8}}}}}
+    _v = check(_doac)[0]
+    _good = _v == "FAIL"
+    ok &= _good
+    print("\n  REPLAY DOAC_AF: two composites differing ONLY in the embolism half")
+    for _n, _t in (("RE-LY      ", "Time to first occurrence of stroke or systemic embolic event."),
+                   ("ROCKET AF  ", "the first occurrence of a stroke or non-CNS systemic embolism"),
+                   ("ARISTOTLE  ", "First Event of Ischemic/Unspecified Stroke, Hemorrhagic Stroke, or Systemic Embolism"),
+                   ("ENGAGE     ", "The composite of stroke and Systemic Embolic Events (SEE)")):
+        print("        %s reads %s" % (_n, sorted(_components(_t))))
+    print("        'stroke or systemic embolism' vs 'stroke' -> %s  %s"
+          % (_v, "correct" if _good else "WRONG"))
+    print("        the version this replaces returned PASS on that pair -- it could "
+          "not see\n        the component that is the entire difference.")
+
+    print("\n  NEGATIVE CONTROL cardiology definitions stay readable -> %-5s %s"
+          % (clean, "correct" if clean else
+             "WRONG: %s" % [sorted(unrecognised_terms(c)) for c in card]))
+
+    print("\nWHAT A FAILURE WOULD LOOK LIKE: SGLT2_HF passing -- which it did on "
+          "every other check in this repository while pooling two different "
+          "endpoints as one.")
+    print("-> SELFTEST PASS" if ok else "-> SELFTEST FAILED")
+    return 0 if ok else 1
+
+
+def main():
+    if len(sys.argv) < 2 or sys.argv[1] == "--selftest":
+        return selftest()
+    if not os.path.exists(sys.argv[1]):
+        print("estimand_definition: %s does not exist. NOT RUN." % sys.argv[1],
+              file=sys.stderr)
+        return 2
+    v, notes = check(json.loads(open(sys.argv[1], encoding="utf-8",
+                                     errors="replace").read()))
+    for n in notes:
+        print("  %s" % n)
+    print("  -> %s" % v)
+    # FOUR STATES, FOUR EXIT CODES, because a caller that maps three of them onto
+    # "PASS" cannot report what it measured. 0 PASS, 1 FAIL, 2 UNCHECKABLE (ran,
+    # could not see -- not a pass), 3 WITHDRAWN (the definitions disagree AND no
+    # estimate is displayed, so the property is met by the withholding). A
+    # distinct CODE rather than a word in the output, so no caller has to
+    # substring-search for it -- which is the over-match this repository has now
+    # committed three times.
+    return {"PASS": 0, "FAIL": 1, "UNCHECKABLE": 2, "WITHDRAWN": 3}.get(v, 1)
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+
+codex
+I’ll treat this as a defect hunt on the pasted module and use the local copy only to anchor line numbers, then keep the response to findings only.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Get-Content -LiteralPath F:\\ProjectIndex\\INDEX.md -TotalCount 40" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=0; Get-Content -LiteralPath scripts'"\\estimand_definition_gate.py | ForEach-Object { "'$i++; '"'{0,4}: {1}' -f "'$i, $_ }' in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Get-Content -LiteralPath F:\\E156\\rewrite-workbook.txt -TotalCount 40" in F:\rapidmeta-ssot-shell
+ succeeded in 663ms:
+<!-- sentinel:skip-file - portfolio registry; absolute paths ARE the data -->
+# C: Drive Project Index
+> **Last updated**: 2026-05-14 (C:\HTML apps focused repair batch continued: hub shell launch fix, static contracts across ten HTML app repos, NMA/living-meta/nma-dose-response landing and asset-link repairs, and NMA doc hardcoded-path cleanup. Prior SheafNMA v0.2.0, D-drive legacy smoke-contract continuation, CardioOracle lifecycle status freeze, C-drive model/project smoke-contract continuation, mahmood789 consolidation, Sentinel/Overmind JSONL and verification repair, C-drive reproducibility audit continuation, C-drive verification repair, D-drive repair batch, superapp, C-drive sweep, home-folder hardening, Trial Truthfulness Atlas, and portfolio notes retained below.)
+
+### C:\HTML apps focused repair batch (2026-05-14)
+> - `C:\HTML apps\hub\`: added a launchable `index.html` shell and static contract tests for required registry/runtime wiring; fixed `app.js` local `file://` launch resolution so the hub opened from `hub\index.html` links sibling apps from the parent HTML-apps directory instead of nesting paths under `hub`. Verification: `pytest -q -p no:cacheprovider` -> `3 passed`; `node --check app.js && node --check projects.js` -> PASS; headless Chrome smoke on `file:///mnt/c/HTML%20apps/hub/index.html` confirmed the page title and sibling app links. GitHub pushed: `mahmood726-cyber/hub` main `c1a6725`.
+> - `C:\HTML apps\evidence-board\`, `C:\HTML apps\focus-studio\`, `C:\HTML apps\kanban-lab\`: added pytest-visible static app shell contracts covering title/description, localStorage persistence hooks, key controls, and absence of unresolved templates or hardcoded local drive paths; added repo `.gitignore` entries for Python caches and `PROGRESS.md`. Verification: each `pytest -q -p no:cacheprovider` -> `2 passed` with the existing pytest `cache_dir` warning; scoped `git diff --check` -> PASS. GitHub pushed: `evidence-board` master `9a87c8b`, `focus-studio` master `0fa728b`, `kanban-lab` master `81cad38`.
+> - `C:\HTML apps\nma-pro-v2\`: fixed the landing page's broken app links from absent v6/v7 asset filenames to the current `e156-submission/assets/nma-pro-v8.0.html`, added static link-resolution contracts, and removed Sentinel P0 hardcoded local OneDrive paths from legacy docs. Verification: `pytest -q -p no:cacheprovider tests/test_smoke.py tests/test_static_links.py` -> `3 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=1 INFO=302` (pre-existing tracked autogen warning plus HTML a11y INFO). GitHub pushed: master `a2834e7` for the link fix and master `a74e385` for the P0 doc cleanup.
+> - `C:\HTML apps\IPD-Meta-Pro\` and `C:\HTML apps\Truthcert1\`: added static link-resolution contracts for landing-page local assets and canonical app entrypoints. Verification: `IPD-Meta-Pro` `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; `Truthcert1` same command -> `2 passed` with existing pytest `cache_dir` warning. GitHub pushed: `IPD-Meta-Pro` master `b26ee09`, `Truthcert1` master `81eddd3`.
+> - `C:\HTML apps\living-meta\`: repaired landing-page validation links that pointed to a missing HTML asset and an out-of-repo sibling path; linked the existing validation and limitations docs instead, and added a static link-resolution contract. Verification: `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=8` (pre-existing HTML a11y INFO). GitHub pushed: master `c3c8a9b`.
+> - `C:\HTML apps\Pairwiseai\`: added a static landing-page contract covering local link resolution, absence of unresolved templates/local drive paths, and the key app entrypoints under `e156-submission/assets`. Verification: `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=1731` (pre-existing HTML a11y INFO). GitHub pushed: master `2ade493`.
+> - `C:\HTML apps\nma-dose-response-app\`: pushed the existing smoke-blocker commit and added an E156 asset-bundle repair so `e156-submission\assets\index*.html` resolves its JS runtime dependencies from inside the assets folder; added a static link-resolution contract covering root and E156 app entrypoints. Verification: `pytest -q -p no:cacheprovider tests/test_smoke.py tests/test_static_links.py` -> `4 passed` with the existing pytest `cache_dir` warning; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=442` (pre-existing HTML a11y INFO). GitHub pushed: master `e95fae0` and `96594b6`.
+> - Push gate: Windows Git credential path succeeded after WSL Git lacked HTTPS credentials. Sentinel pre-push/manual scan verdicts were BLOCK=0; evidence-board INFO=18, focus-studio INFO=10, kanban-lab INFO=10, living-meta INFO=8, Pairwiseai INFO=1731, nma-dose-response-app INFO=442 (pre-existing P2 HTML accessibility notes); hub push emitted no Sentinel findings.
+> - Existing unrelated dirty files were left unstaged in these repos, mainly protocol/license/doc edits and untracked `paper\` outputs in the three app repos, plus pre-existing hub metadata/submission/style edits.
+
+### SheafNMA (2026-05-12; v0.2.0 real-NMA-corpus validation + 36-cell Ã— 1000-rep simulation + methods paper draft)
+> - `C:\Models\SheafNMA\` â€” cellular-sheaf inconsistency localization for network meta-analysis. v0.1.0 (2026-04-07) was math + single-file HTML dashboard + E156 #153 micro-paper on a synthetic 12-contrast network. v0.2.0 refactored the 457-LOC `generate_figures.py` into a `sheafnma/` package (`core`, `io`, `simulate`, `comparators`, `r_bridge`), validated on 13 R-netmeta built-in NMAs, and shipped a methods-paper draft for Research Synthesis Methods.
+> - Method: precision-weighted coboundary `F[e, treat1] = -1/SE_e, F[e, treat2] = +1/SE_e`; sheaf Laplacian `L = Fáµ€F` (symmetric PSD); WLS-solve node estimates with node 0 anchored; per-edge residuals `r_e = dÌƒ_e âˆ’ (F x*)_e` localize inconsistency; **Global Inconsistency Index** `GII = Î£ rÂ²` is the global statistic. One algebraic object yields both global + per-edge â€” complements (not replaces) node-splitting.
+> - Real-corpus headline: across **13 R-netmeta built-in NMAs** (Senn 2013 diabetes, Dias smokingcessation, Dong 2013 thrombolytics, Linde 2015/2016 acupuncture, Salanti antimanic, Baker, Dogliotti, Franchini, Gurusamy, Stowe, Woods, dietaryfat, parkinson) the global design-by-treatment Ï‡Â² (Higgins 2012) failed to reject in all 13. **SheafNMA flagged â‰¥1 localized inconsistency edge in 5 of those 13 (38.5%)** at the Youden-frozen threshold of **2.6912** â€” networks that look globally consistent harbor at least one inconsistent edge the global test misses.
+> - Simulation rigor: 36-cell grid (n_treatments âˆˆ {4,6,8} Ã— n_studies_per_edge âˆˆ {3,5,10} Ã— Ï„_inc âˆˆ {0,0.2,0.5,1.0}) Ã— **1000 replications per cell**, held-out training cell at (6,5,0.5) for Youden's-J threshold selection (frozen before evaluating remaining 35 cells). Type-I error at Ï„_inc=0 was **0.000 across all cells**. Mean per-edge sensitivity 0.981 / specificity 0.945 at Ï„_inc=0.5.
+> - Comparator suite: DBT-Ï‡Â² (Higgins 2012 Â§3.2, pure-Python), Bucher loop closure (Bucher 1997, pure-Python), node-splitting (Dias 2010, via `netmeta::netsplit` shelled to R 4.5.2). Per-edge agreement with node-splitting was 45.4% â€” asymmetric: SheafNMA flags 12/506 = 2.4% of edges vs node-splitting's 250/436 = 57% at p<0.05 Bonferroni-uncorrected (the calibrated Youden cut is much more conservative than a per-edge Î±-test). Â§4.2 of the paper explicitly explains this rather than presenting the 45.4% bare.
+> - Corpus export: `corpus/export_netmeta.R` handles 7 distinct netmeta dataset formats (contrast-level TE/seTE, arm-based event/n, arm-based mean/sd/n, wide multi-arm OR/MD, three-arm smokingcessation, rate-based IRR/person-years) and exports all 13 to `corpus/data/*.csv` in the sheafnma standard schema (`study, treat1, treat2, effect, se`).
+> - GitHub: `https://github.com/mahmood726-cyber/sheaf-nma` (master `6c7db13`, tag `v0.2.0`). Pages LIVE: `https://mahmood726-cyber.github.io/sheaf-nma/` (Phase-1 dashboard unchanged in v0.2). 33 tests passing; Sentinel BLOCK=0 WARN=0 (2 INFO = pre-existing HTML a11y items in the v0.1 dashboard).
+> - Workbook entry: `[153/919] SheafNMA`. CURRENT BODY updated 2026-05-12 to the v0.2 156-word / 7-sentence body (replaces v0.1 synthetic-"smoking cessation" framing with the real netmeta corpus). SUBMITTED `[ ]`; YOUR REWRITE preserved untouched per workbook protection rules. Target: Research Synthesis Methods full methods paper (`paper/sheafnma_v2.md`, 1190 words drafted; [TODO] prose blocks in Â§1 Background / Â§4.3 case studies / Â§5 Discussion) + SynthÄ“sis Methods Note companion (`paper/methods_note.md`, 156-word).
+> - Known landmine: `Dong2013` netsplit fails inside netmeta's multi-arm validator ("wrong number of comparisons"); SheafNMA + DBT + Bucher still run on it, only `netsplit_p` column is blank for its 70 edges.
+> - v0.2 deferrals (spec Â§10): multi-arm covariance correction (single-D stalks only), higher-D stalks (Phase 1 Â§3.4 future work), Bayesian sheaf priors, OTS / Bitcoin anchor (broken on Py 3.13 Windows per `lessons.md`).
+
+### hksj-q-floor-atlas (2026-05-12; 8th Pairwise70 atlas; tags prereg-v0.0.1 + v0.1.0)
+> - `C:\Projects\hksj-q-floor-atlas\` â€” 8th calibration atlas in the Pairwise70 series. Sister to `cochrane-modern-re` (engine source), `repro-floor-atlas`, `responder-floor-atlas`, `trial-truthfulness-atlas`, `africa-tb-atlas`, `pactr-hiddenness-atlas`, `africa-hiv-prep-atlas`.
+> - Question: how often does omitting the `max(1, Q/(k-1))` floor on HKSJ variance, in the I^2=0 regime where un-floored HKSJ narrows below REML+Wald, overstate precision across the Cochrane CDSR? Pre-registered via `prereg-v0.0.1` tag + 4 Internet Archive snapshots (Bitcoin OTS deferred â€” Python 3.13 SSL libeay32 bug per lessons.md; web-stamper fallback documented).
+> - Headline: D_1 (I^2=0, k>=2, converged) = 3,677 MAs = 57.6% of corpus. On D_1a (Q>0, n=3,536): median CI-width ratio (floored / un-floored) = 3.64x (IQR 1.60-10.56; 95th pct 57.4x); significance lost in 17.08% of MAs. D_1b (Q=0, n=141 = 3.83% of D_1): sig_loss 24.8%, ratio unbounded â€” un-floored HKSJ SE is exactly zero (the floor effect is unbounded); see `docs/AMENDMENTS.md` entry 1 for split rationale.
+> - Per k-stratum medians: k=2: 4.26x (sig_loss 8.6%); k=3: 3.64x (12.9%); k=4-5: 3.10x (13.1%); k=6-9: 3.18x (17.3%); k>=10: 3.80x (25.1%). sig_loss increases with k because higher-k pooled effects sit closer to null, so floor widening crosses zero more often.
+> - Engine: independent metafor pass via fork of cochrane-modern-re's `run_metafor.R` minus the floor block. Input parquet SHA-256 pinned in `docs/spec.md` sec.1.5 (`31434fb118c6ec44a025eeb43a90e35ef9e050711fa45aa2cb5c1244b2d89751`). 3 hand-verified golden MAs match metafor reference within 1e-6.
+> - GitHub: `https://github.com/mahmood726-cyber/hksj-q-floor-atlas` (master + tags `prereg-v0.0.1` and `v0.1.0`). Pages LIVE: `https://mahmood726-cyber.github.io/hksj-q-floor-atlas/`.
+> - 64 tests; Sentinel BLOCK=0 WARN=0 INFO=0; 7 IA snapshots recorded in `docs/preregistration.md`.
+> - Workbook entry: `[920/920] hksj-q-floor-atlas`; target SynthÄ“sis Methods Note (340w draft, â‰¤400 cap).
+> - v0.2 candidates (NOT in v0.1.0): published-CI matching ("is THIS Cochrane review wrong?"), PM/SJ/Bayesian Ï„Â² robustness, DL re-pooling, Bitcoin OTS once Python 3.13 issue is resolved.
+
+### D-drive legacy smoke-contract continuation (2026-05-12)
+> - `D:\Projects\mahmood789\786-MIII-Mean-single-group\`: fixed the placeholder issue-tracker link in `README.md` and added a pytest-visible static contract for the Shiny app package surface, sample-data schema, metafor workflow, downloads, and absence of local paths/template links. Verification: `pytest -q -p no:cacheprovider` -> `2 passed`; `git diff --check` -> PASS.
+
+ succeeded in 685ms:
+E156 REWRITE WORKBOOK
+sentinel:skip-file
+sentinel:claim-language-allow
+(Sentinel markers above:
+ - sentinel:skip-file: this workbook intentionally contains C:\Users\... PATH:
+   lines pointing to each project's local source directory â€” they're metadata,
+   not code. The marker keeps Sentinel from emitting ~16 P0 hardcoded-path
+   BLOCKs every push.
+ - sentinel:claim-language-allow: CURRENT BODY entries are the AI-drafted
+   summaries that students rewrite into hedged language â€” flagging overclaim
+   words IN those drafts is the whole pedagogical point, not a defect.
+   File-scope marker here suppresses the ~1293 claim-language WARNs on the
+   CURRENT BODY entries; the YOUR REWRITE entries are where the hedging
+   discipline matters and remains lintable in the rendered student board.)
+
+DENOMINATOR CONVENTION (added 2026-05-06 after review-findings P1-5):
+  Each entry header is `[N/total]` where N = ordinal insertion index and
+  `total` = current portfolio size as of the most recent reconcile sweep.
+  Older entries are back-rewritten on milestone boundaries (rather than
+  preserving their insertion-time denominator) to keep
+  reconcile_counts.py from flagging "WORKBOOK DRIFT". The pre-commit
+  guard (scripts/check_workbook_commit.py) blocks commits that bundle a
+  denominator sweep with substantive content edits to existing entries.
+
+======================================================================
+
+INSTRUCTIONS:
+- Replace text under YOUR REWRITE with your body (at most 156 words, 7 sentences)
+- S1=Question S2=Dataset S3=Method S4=Result(number+interval) S5=Robustness S6=Interpretation S7=Boundary(limitation)
+- Leave YOUR REWRITE blank to keep current version
+- Run: python C:/E156/scripts/apply_rewrites.py          (validate)
+- Run: python C:/E156/scripts/apply_rewrites.py --apply (apply)
+
+AUTHORSHIP RULE (mandatory for every submission):
+- Mahmood Ahmad (MA) must NEVER be listed as first author and NEVER as
+  last (senior) author. The student rewriter is first author. Last/senior
+  author must be a faculty supervisor or co-investigator distinct from MA.
+  MA's position is middle-author only (e.g. role: data curation, software,
+  methodology, supervision-of-tooling). This applies to every paper in
+  this workbook regardless of contribution depth.
+
+ succeeded in 1824ms:
+   1: """ESTIMAND DEFINITION -- was each trial's endpoint READ, or was it assumed?
+   2: 
+   3: WHY THIS EXISTS -- IT CAUGHT WHAT EVERYTHING ELSE MISSED
+   4:     SGLT2_HF pooled four trials as one estimand and was live, carrying
+   5:     HR 0.7785 (0.7296-0.8306), k=4. It passed arm_identity, identity_by_
+   6:     registration, subject_match, card_matches_page, build_stamp,
+   7:     no_synthesised_absence, the whole regression set and the harness gate.
+   8: 
+   9:     And DAPA-HF and DELIVER count "CV death, HF hospitalisation, OR URGENT HF
+  10:     VISIT", while both EMPEROR trials count "CV death or HF hospitalisation"
+  11:     only. Two trials counted an event class the other two did not.
+  12: 
+  13:     THE OBJECT RECORDED NO PER-TRIAL ENDPOINT DEFINITION AT ALL. What it carried
+  14:     instead were RESULT sentences -- "the primary outcome occurred in 386 of 2373
+  15:     patients (16.3%) ... hazard ratio, 0.74" -- filed as provenance.
+  16: 
+  17:     A QUOTE THAT SAYS WHAT HAPPENED IS NOT A QUOTE THAT SAYS WHAT WAS COUNTED.
+  18:     That distinction withdrew a live four-trial estimate, and it is the only
+  19:     defect so far that survived every other check in this repository, including
+  20:     the ones written the same day.
+  21: 
+  22: WHAT A FULL PASS DOES NOT ESTABLISH -- written in advance
+  23:     - NOT that the recorded definition is the trial's TRUE endpoint. It checks
+  24:       that one was recorded and that the recorded ones agree; only a registry
+  25:       read establishes truth, and this gate says when one is owed.
+  26:     - NOT that agreeing definitions license a pool. Populations, follow-up and
+  27:       analysis sets can still differ.
+  28:     - NOT anything about a single-trial object: nothing to compare, UNCHECKABLE.
+  29: """
+  30: from __future__ import annotations
+  31: import io, json, os, re, sys
+  32: 
+  33: if __name__ == "__main__":
+  34:     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+  35: 
+  36: # A RESULT sentence reports an outcome's VALUE. A DEFINITION states what the
+  37: # outcome IS. These patterns are what a result looks like; matching one where a
+  38: # definition is owed is the SGLT2 defect exactly.
+  39: RESULT_SENTENCE = re.compile(
+  40:     r"occurred in\s+\d|hazard ratio[,:]?\s*[\d.]|"
+  41:     r"\d+\s+of\s+\d+\s+patients|\(\s*\d+\.\d+\s*%\s*\)|"
+  42:     r"95%\s*(?:confidence interval|CI)", re.I)
+  43: 
+  44: # Components that change what a composite counts. Compared as whole normalised
+  45: # fields, never as fragments -- the rule this repo broke inside its own auditor.
+  46: COMPONENT = re.compile(
+  47:     r"urgent(?:\s+\w+){0,3}\s+visit|hospitali[sz]ation|hospitali[sz]ed|"
+  48:     # A PARENTHETICAL ABBREVIATION BETWEEN THE TWO WORDS. Registries write
+  49:     # "cardiovascular (CV) death" and "heart failure (HF) hospitalization", and
+  50:     # the first of those matched NEITHER alternative here, so PARALLEL-HF's
+  51:     # correctly-recorded endpoint read as counting hospitalisation and no death
+  52:     # -- disagreeing with three trials that count exactly what it counts. The
+  53:     # under-read again, and again in the direction that argues for a withdrawal.
+  54:     r"cardiovascular\s*(?:\([^)]{0,12}\))?\s*death|cv death|"
+  55:     r"death(?:s)? from cardiovascular causes|"
+  56:     # "CV mortality" is how IRONMAN's registry writes the component that
+  57:     # AFFIRM-AHF's writes as "CV Death". Neither the death nor the
+  58:     # from-cardiovascular-causes alternative reaches it, so a correctly-recorded
+  59:     # IRONMAN definition read as carrying NO cardiovascular-death component and
+  60:     # the two trials appeared to count different things. Same family as
+  61:     # "deaths from cardiovascular causes" on SOTAGLIFLOZIN: an under-read
+  62:     # manufactures a disagreement exactly as an over-read manufactures an
+  63:     # agreement, and the first argues for withdrawing a sound estimate.
+  64:     r"(?:cardiovascular|cv) mortality|"
+  65:     r"all-cause (?:death|mortality)|(?:death|mortality) from any cause|"
+  66:     r"any-cause (?:death|mortality)|total mortality|"
+  67:     # ABLATION_AF, 2026-08-17. CABANA's registry endpoint is "Total Mortality,
+  68:     # Disabling Stroke, Serious Bleeding, or Cardiac Arrest" and this reader saw
+  69:     # ONE of those four: stroke. Three whole components of a composite were
+  70:     # invisible, so an object pairing CABANA with a stroke-only trial would have
+  71:     # been reported as counting the same events. That is the comfortable
+  72:     # direction and it was sitting in a live object.
+  73:     r"serious bleeding|major bleeding|cardiac arrest|acute coronary syndrome|"
+  74:     # DOAC_AF, 2026-08-18. Four registry records, four composites, every one of
+  75:     # them "stroke OR systemic embolism" -- and this reader saw ONE of the two.
+  76:     # Half of every composite in the topic was invisible, and the gate reported
+  77:     # PASS "they agree" from a reading of the other half. Same shape as CABANA
+  78:     # above and same shape as the CKD false agreement, in a third vocabulary.
+  79:     # DOAC_CANCER_VTE, 2026-08-18. The hunting list correctly refused to decide
+  80:     # here -- "venous thromboembolism" was unrecognised -- on a topic whose
+  81:     # endpoints really do disagree: one trial counts VTE OR MAJOR BLEEDING and
+  82:     # the others count VTE alone. The classifier half follows the finder half in
+  83:     # the same commit, which is the rule this file has broken three times.
+  84:     r"recurrent venous thromboembolism|venous thromboembolism|"
+  85:     r"deep vein thrombosis|pulmonary embolism|\bvte\b|\bdvt\b|"
+  86:     r"non-?cns systemic embolism|systemic embolic events?|"
+  87:     r"systemic emboli[sz]ation|systemic embolism|systemic emboli|"
+  88:     r"myocardial infarction|stroke|worsening heart failure", re.I)
+  89: 
+  90: # "WORSENING HEART FAILURE" IS USUALLY A QUALIFIER, NOT A COMPONENT.
+  91: #
+  92: # "hospitalisation for worsening heart failure" names ONE counted event. Read as
+  93: # two matches it added a phantom component, and that alone made EMPEROR-Reduced
+  94: # ("cardiovascular death or hospitalization for worsening heart failure") differ
+  95: # from EMPEROR-Preserved ("cardiovascular death or hospitalization for heart
+  96: # failure") -- two trials that count the same thing, separated by one word of
+  97: # orthography. The same phantom separated AFFIRM-AHF from IRONMAN.
+  98: #
+  99: # Two shapes, and the attached one must be stripped FIRST or the umbrella
+ 100: # pattern swallows a parenthesis that merely mentions hospitalisations:
+ 101: #   attached  "<hospitalisation|admission|visit> [for|due to] worsening heart failure"
+ 102: #   umbrella  "worsening heart failure (<...enumerating hospitalisation or visit...>)"
+ 103: # Anything else -- a standalone worsening-heart-failure event, which some trials
+ 104: # really do count separately -- still yields its own component.
+ 105: _WORSENING_ATTACHED = re.compile(
+ 106:     r"\b(hospitali[sz]\w*|admission\w*|admitted|visits?)"
+ 107:     r"(?:\s+(?:for|due to|because of))?\s+worsening\s+heart\s+failure", re.I)
+ 108: # AND THE SAME PHRASE WITH THE WORDS THE OTHER WAY ROUND. CASTLE-AF's registry
+ 109: # endpoint is "worsening heart failure REQUIRING UNPLANNED HOSPITALIZATION", which
+ 110: # the attached pattern cannot see because the qualifier comes first. One counted
+ 111: # event read as two, on a live object -- the EMPEROR over-read in mirror image,
+ 112: # found the same day the first half was fixed.
+ 113: _WORSENING_LEADING = re.compile(
+ 114:     r"\bworsening\s+heart\s+failure\s+(?:requiring|leading to|resulting in)"
+ 115:     r"(?:\s+\w+){0,2}\s+(hospitali[sz]\w*|admission\w*)", re.I)
+ 116: _WORSENING_UMBRELLA = re.compile(
+ 117:     r"\bworsening\s+heart\s+failure\s*(?=\([^)]*(?:hospitali|visit))", re.I)
+ 118: 
+ 119: 
+ 120: def _norm(s):
+ 121:     return re.sub(r"[^a-z0-9 ]+", " ", re.sub(r"\s+", " ", (s or "").lower())).strip()
+ 122: 
+ 123: 
+ 124: # CANONICAL KEYS, not raw matched text. The first cut compared normalised match
+ 125: # strings and failed its own negative control, because "hospitalisation" and
+ 126: # "hospitalization" normalise to different tokens -- the British-spelling trap in
+ 127: # a new costume, and a gate that fails on everything is worth nothing. Each match
+ 128: # now maps to ONE key, so orthography cannot manufacture a difference and only a
+ 129: # real component change can.
+ 130: _CANON = (
+ 131:     (re.compile(r"urgent", re.I), "urgent_visit"),
+ 132:     (re.compile(r"hospitali", re.I), "hf_hospitalisation"),
+ 133:     # PHRASING VARIANTS MAP TO ONE KEY. "deaths from cardiovascular causes" is the
+ 134:     # same component as "cardiovascular death" and matched neither pattern, so a
+ 135:     # correctly-recorded SOTAGLIFLOZIN definition read as carrying no CV-death
+ 136:     # component. Under-reading manufactures disagreements exactly as over-reading
+ 137:     # does, and a withdrawal needs the same evidentiary standard as a claim.
+ 138:     # THE PARENTHETICAL HAS TO BE ALLOWED HERE TOO. COMPONENT finds the phrase
+ 139:     # and this table classifies it; widening one without the other means the
+ 140:     # match is found and then silently DROPPED, assigned to no key at all, which
+ 141:     # is indistinguishable from not finding it. Two places, one fact -- and the
+ 142:     # first fix touched only one of them.
+ 143:     (re.compile(r"(cardiovascular|cv)\s*(?:\([^)]{0,12}\))?\s*death|"
+ 144:                 r"death.{0,3} from cardiovascular", re.I), "cv_death"),
+ 145:     (re.compile(r"all-cause|any-cause|from any cause|total mortality", re.I),
+ 146:      "all_cause_death"),
+ 147:     (re.compile(r"serious bleeding|major bleeding", re.I), "serious_bleeding"),
+ 148:     (re.compile(r"cardiac arrest", re.I), "cardiac_arrest"),
+ 149:     (re.compile(r"acute coronary syndrome", re.I), "acs"),
+ 150:     (re.compile(r"(cardiovascular|cv) mortality", re.I), "cv_death"),
+ 151:     (re.compile(r"myocardial infarction", re.I), "mi"),
+ 152:     # ONE KEY FOR ALL FOUR PHRASINGS, and the reason is written down because
+ 153:     # this is exactly the kind of judgement that manufactures an agreement if
+ 154:     # it is wrong. RE-LY writes "systemic embolic event", ARISTOTLE "Systemic
+ 155:     # Embolism", ENGAGE "Systemic Embolic Events", ROCKET AF "non-CNS systemic
+ 156:     # embolism". The "non-CNS" is a clarification rather than a narrowing: an
+ 157:     # embolus reaching the brain is counted by all four as STROKE, which is the
+ 158:     # other arm of the same composite, so the non-CNS qualifier removes nothing
+ 159:     # the other three records count. Four descriptions, one event.
+ 160:     # SPLITTING THEM WOULD MANUFACTURE A DISAGREEMENT between four trials that
+ 161:     # count the same thing -- the destructive direction, because it argues for
+ 162:     # withdrawing a sound estimate.
+ 163:     # ONE KEY FOR THE WHOLE VTE FAMILY. CARAVAGGIO's registry description defines
+ 164:     # its primary as "the composite of: proximal DVT of the lower limbs
+ 165:     # (symptomatic or unsuspected), DVT of the upper limb (symptomatic), PE
+ 166:     # (symptomatic or unsuspected)" -- DVT and PE are THE CONTENTS OF THE UMBRELLA,
+ 167:     # not components beside it. Separate keys would read CARAVAGGIO as
+ 168:     # {vte, dvt, pe} against Hokusai's {vte, serious_bleeding} and manufacture a
+ 169:     # disagreement out of a trial spelling out what it means. That is the EMPEROR
+ 170:     # "hospitalisation for worsening heart failure" over-read, which this file has
+ 171:     # already had to fix twice.
+ 172:     # THIS ORDERS BEFORE systemic_embolism DELIBERATELY: "non-CNS systemic
+ 173:     # embolism" must not be swallowed by a VTE pattern, and it is not -- the two
+ 174:     # families share no matching text -- but the ordering is fixed so a later
+ 175:     # widening of either cannot silently reassign the other.
+ 176:     (re.compile(r"venous thromboembolism|deep vein thrombosis|"
+ 177:                 r"pulmonary embolism|\bvte\b|\bdvt\b", re.I), "vte"),
+ 178:     (re.compile(r"systemic embol", re.I), "systemic_embolism"),
+ 179:     (re.compile(r"stroke", re.I), "stroke"),
+ 180:     (re.compile(r"worsening heart failure", re.I), "worsening_hf"),
+ 181: )
+ 182: 
+ 183: 
+ 184: def _components(s):
+ 185:     s = _WORSENING_ATTACHED.sub(lambda m: m.group(1), s or "")
+ 186:     s = _WORSENING_LEADING.sub(lambda m: m.group(1), s)
+ 187:     s = _WORSENING_UMBRELLA.sub("", s)
+ 188:     out = set()
+ 189:     for m in COMPONENT.finditer(s or ""):
+ 190:         raw = m.group(0)
+ 191:         for rx, key in _CANON:
+ 192:             if rx.search(raw):
+ 193:                 out.add(key)
+ 194:                 break
+ 195:     return frozenset(out)
+ 196: 
+ 197: 
+ 198: # ---------------------------------------------------------------------------
+ 199: # THE HUNTING LIST -- and why this gate needed a SECOND list rather than a
+ 200: # LONGER first one.
+ 201: #
+ 202: # COMPONENT and _CANON are entirely CARDIOLOGICAL: hospitalisation, CV death,
+ 203: # stroke, MI, bleeding, cardiac arrest, ACS, worsening heart failure. There is
+ 204: # nothing renal in them, nothing infectious, nothing oncological.
+ 205: #
+ 206: # On 2026-08-18 this gate was run on SGLT2_CKD, whose three trials record three
+ 207: # DIFFERENT primary composites in their own registry records:
+ 208: #
+ 209: #   CREDENCE     doubling of serum creatinine, ESKD, renal or CV death
+ 210: #   DAPA-CKD     >=50% sustained decline in eGFR, ESRD, CV death, renal death
+ 211: #   EMPA-KIDNEY  kidney disease progression (ESKD, eGFR to <10, renal death,
+ 212: #                >=40% sustained decline in eGFR) or CV death
+ 213: #
+ 214: # ALL THREE REDUCED TO {cv_death}. Every renal component of every composite was
+ 215: # invisible, and the gate reported "every pooled outcome has a recorded endpoint
+ 216: # definition and THEY AGREE" -- a PASS, on three composites that differ on the
+ 217: # threshold at which kidney-function decline is counted at all.
+ 218: #
+ 219: # THIS IS THE CABANA DEFECT AND IT FAILS TOWARD COMFORT. CABANA's four-component
+ 220: # endpoint was read as "stroke", and that argued for pooling it with a
+ 221: # stroke-only trial. Here five components are read as one, and it argues for
+ 222: # pooling three composites that are not the same. Every other under-read in the
+ 223: # ledger failed toward ALARM; this one manufactures an AGREEMENT, which is the
+ 224: # direction that survives, because nobody investigates a green.
+ 225: #
+ 226: # LENGTHENING _CANON DOES NOT FIX IT. A recognition list over an open domain is
+ 227: # wrong again the first time this gate meets a specialty nobody added -- and the
+ 228: # whole infectious-disease set is next. So the fix is structural:
+ 229: #
+ 230: #     THE RECOGNITION LIST DECIDES PASS.
+ 231: #     THIS LIST DECIDES WHETHER THE GATE MAY DECIDE AT ALL.
+ 232: #
+ 233: # EVENT_LIKE is deliberately over-broad. Its failure mode is flagging a term the
+ 234: # recognition list actually handles, which yields UNCHECKABLE -- an alarm, and a
+ 235: # cheap one to investigate. A gap in THIS list is one level further back than a
+ 236: # gap in _CANON, and it is the only comfortable failure left in the design.
+ 237: EVENT_LIKE = re.compile(
+ 238:     r"\b(?:"
+ 239:     # renal -- the set that was invisible
+ 240:     r"creatinine|egfr|glomerular filtration|dialysis|transplantation|transplant|"
+ 241:     r"end[- ]stage|eskd|esrd|kidney disease progression|kidney failure|"
+ 242:     r"renal death|renal failure|renal replacement|albuminuria|proteinuria|"
+ 243:     r"nephropathy|"
+ 244:     # progression / decline language that names a counted event
+ 245:     r"doubling|sustained decline|disease progression|progression-free|"
+ 246:     # other specialties, so this is not merely cardiology-plus-renal
+ 247:     r"relapse|remission|recurrence|exacerbation|infection|bacteraemia|"
+ 248:     r"bacteremia|seroconversion|viral load|virologic failure|virological "
+ 249:     r"failure|treatment failure|fracture|amputation|blindness|visual acuity|"
+ 250:     r"overall survival|readmission|intubation|ventilation|transfusion|"
+ 251:     r"revascularisation|revascularization|graft loss|rejection|"
+ 252:     # the term whose absence let this list fail at the job it exists for
+ 253:     r"systemic embol[a-z]*|embolism|embolic|thromboembolism|"
+ 254:     r"venous thromboembolism|pulmonary embolism|deep vein thrombosis"
+ 255:     r")\b", re.I)
+ 256: 
+ 257: 
+ 258: def unrecognised_terms(s):
+ 259:     """Event-like phrases in a definition that the recognition list cannot see.
+ 260: 
+ 261:     A NON-EMPTY RESULT MEANS THE GATE MUST NOT COMPARE THIS DEFINITION. It has
+ 262:     read part of a composite and has no way to know whether the part it could
+ 263:     not read is the part that differs.
+ 264:     """
+ 265:     if not s:
+ 266:         return frozenset()
+ 267:     covered = " ".join(m.group(0) for m in COMPONENT.finditer(s)).lower()
+ 268:     return frozenset(m.group(0).lower() for m in EVENT_LIKE.finditer(s)
+ 269:                      if m.group(0).lower() not in covered)
+ 270: 
+ 271: 
+ 272: def definition_for(bo):
+ 273:     """The endpoint definition recorded on ONE trial-outcome cell, or "".
+ 274: 
+ 275:     THE ONE PLACE THIS LOGIC LIVES. `poolability` reported "N of N trials carry
+ 276:     no outcome definition" on every SSOT object in the repository, because it
+ 277:     read a field only the extraction schema has. That is a FALSE ALARM, and a
+ 278:     false alarm here is not the safe direction: it argues for withdrawing a
+ 279:     correct estimate, and a withdrawal needs the same evidentiary standard as a
+ 280:     claim. Rather than copy the resolution into a second gate -- two copies
+ 281:     diverge, and the divergence is invisible -- both callers use this.
+ 282: 
+ 283:     Order: the explicit field, then a provenance quote that is a DEFINITION
+ 284:     rather than a RESULT. The second half is what lets an object that quotes the
+ 285:     registry's outcome-measure title pass without also passing an object whose
+ 286:     provenance is "the primary outcome occurred in 386 of 2373 patients".
+ 287:     """
+ 288:     if not isinstance(bo, dict):
+ 289:         return ""
+ 290:     d = (bo.get("outcome_definition") or bo.get("definition")
+ 291:          or bo.get("endpoint_definition") or "")
+ 292:     if d:
+ 293:         # A TITLE CAN BE A LABEL RATHER THAN A DEFINITION, and then the
+ 294:         # DESCRIPTION is where the components live. PARALLEL-HF's registry title
+ 295:         # is "Number of Participants Who Had CEC Confirmed Composite Endpoints"
+ 296:         # -- which names no event at all -- while its description says "either
+ 297:         # cardiovascular (CV) death or heart failure (HF) hospitalization". Read
+ 298:         # from the title alone the trial appeared to count NOTHING, and a trial
+ 299:         # counting nothing disagrees with every trial that counts something. The
+ 300:         # recorded definition is both fields, because that is what was read.
+ 301:         desc = (bo.get("outcome_definition_source") or {}).get(
+ 302:             "description_verbatim")
+ 303:         return "%s %s" % (d, desc) if desc else d
+ 304:     quotes = (bo.get("provenance") or {}).get("source_quotes") or []
+ 305:     cand = [q for q in quotes if not RESULT_SENTENCE.search(q) and _components(q)]
+ 306:     return max(cand, key=len) if cand else ""
+ 307: 
+ 308: 
+ 309: def check(obj):
+ 310:     trials = ((obj.get("inputs") or {}).get("trials")) or []
+ 311:     results = ((obj.get("results") or {}).get("by_outcome")) or {}
+ 312:     if not trials or not results:
+ 313:         return "UNCHECKABLE", ["object carries no trials or no pooled outcome"]
+ 314: 
+ 315:     notes, bad, withdrawn_for_this = [], False, False
+ 316:     unreadable_for_this = False
+ 317:     for oid, res in results.items():
+ 318:         if (res.get("k") or 0) < 2:
+ 319:             notes.append("%s: k<2, nothing to compare" % oid)
+ 320:             continue
+ 321:         # A POOL ALREADY WITHDRAWN FOR THIS EXACT REASON IS THE PROPERTY MET.
+ 322:         #
+ 323:         # ABLATION_AF's four trials record four different primary composites, and
+ 324:         # its estimate is withdrawn WITH that as the stated reason. Scoring it
+ 325:         # FAIL made a page that found the difference and acted on it
+ 326:         # indistinguishable from a page that pooled straight through -- which is
+ 327:         # SGLT2_HF, whose object still carries a live k=4 point. A score that
+ 328:         # cannot tell those two apart cannot measure the thing it is for.
+ 329:         #
+ 330:         # This is NOT an escape hatch: a withdrawn pool displays no number, so
+ 331:         # there is nothing left for a mismatched estimand to be wrong about. A
+ 332:         # LIVE pool with disagreeing definitions still FAILs, which is the
+ 333:         # constructible failure and the SGLT2 replay.
+ 334:         _p = res.get("pooled") or {}
+ 335:         _withdrawn = (_p.get("point") is None and _p.get("withdrawn")
+ 336:                       and (_p.get("withdrawn_reason") or "").strip())
+ 337:         defs, missing, resultish, unregistered = {}, [], [], []
+ 338:         for t in trials:
+ 339:             bo = (t.get("by_outcome") or {}).get(oid)
+ 340:             if not bo:
+ 341:                 continue
+ 342:             name = t.get("name") or t.get("nct") or "?"
+ 343:             # AN ENDPOINT THAT IS NOT REGISTERED AT ALL IS A FOURTH STATE, and
+ 344:             # until 2026-08-18 this gate had no way to hold it. ARNI_HF pools
+ 345:             # ANSWER-HF's composite of cardiovascular death and heart-failure
+ 346:             # hospitalisation; NCT04853758 declares TWO primary outcome measures
+ 347:             # and EIGHTEEN secondary ones and none of the twenty is that
+ 348:             # composite. The quantity exists only in the publication.
+ 349:             #
+ 350:             # Recording that truthfully put the registry's ENUMERATION -- which
+ 351:             # is the proof of the absence -- into the definition field, where the
+ 352:             # vocabulary scanner met the word "creatinine", declared itself
+ 353:             # unable to read a definition, and returned UNCHECKABLE. The gate
+ 354:             # answered the strongest finding available to it with "I could not
+ 355:             # read this", which is the comfortable direction.
+ 356:             #
+ 357:             # The state is DECLARED by the object rather than inferred from its
+ 358:             # prose: a declared field beats an inferred one, the same precedence
+ 359:             # v1_coverage_audit had to learn three times. It is a FAIL and not an
+ 360:             # UNCHECKABLE, because nothing here is unreadable -- the registry was
+ 361:             # read in full and what it says is that the endpoint is absent.
+ 362:             _rank = ((bo.get("outcome_definition_source") or {})
+ 363:                      .get("endpoint_rank") or "")
+ 364:             if "not registered" in str(_rank).lower():
+ 365:                 unregistered.append(name)
+ 366:                 continue
+ 367:             # A QUOTE CAN BE THE DEFINITION -- that is the whole distinction, and
+ 368:             # it is resolved in definition_for() so poolability cannot drift from
+ 369:             # it. FINERENONE_CV stores each trial's endpoint TITLE, read word for
+ 370:             # word from the registry, in source_quotes. SGLT2_HF stores RESULT
+ 371:             # sentences in the same field. Failing both would mean the gate
+ 372:             # cannot tell the work done right from the work done wrong, which is
+ 373:             # the property it exists to measure.
+ 374:             d = definition_for(bo)
+ 375:             quotes = (bo.get("provenance") or {}).get("source_quotes") or []
+ 376:             if not d:
+ 377:                 missing.append(name)
+ 378:                 if quotes and RESULT_SENTENCE.search(" ".join(quotes)):
+ 379:                     resultish.append(name)
+ 380:             else:
+ 381:                 defs[name] = d
+ 382:         if unregistered:
+ 383:             if _withdrawn:
+ 384:                 withdrawn_for_this = True
+ 385:             else:
+ 386:                 bad = True
+ 387:             notes.append(
+ 388:                 "%s: %d of %d contributing trial(s) REGISTER NO SUCH ENDPOINT, at "
+ 389:                 "any rank: %s. This is not a definition that disagrees and not a "
+ 390:                 "definition that is missing from the object -- it is a definition "
+ 391:                 "that is missing from the REGISTRATION, so for this trial there is "
+ 392:                 "no pre-specified statement of what was counted for the pool to "
+ 393:                 "rest on. The remaining rows are compared to each other below and "
+ 394:                 "their agreement, if any, is agreement among them alone."
+ 395:                 % (oid, len(unregistered), len(unregistered) + len(defs) + len(missing),
+ 396:                    ", ".join(unregistered[:6])))
+ 397:         if missing:
+ 398:             if _withdrawn:
+ 399:                 withdrawn_for_this = True
+ 400:             else:
+ 401:                 bad = True
+ 402:             notes.append("%s: NO endpoint definition recorded for %d trial(s): %s"
+ 403:                          % (oid, len(missing), ", ".join(missing[:6])))
+ 404:             if resultish:
+ 405:                 notes.append("    and the provenance quote is a RESULT sentence on "
+ 406:                              "%d of them: %s -- what happened, never what was counted"
+ 407:                              % (len(resultish), ", ".join(resultish[:6])))
+ 408:         if len(defs) > 1:
+ 409:             # BEFORE COMPARING ANYTHING: can this reader read these definitions?
+ 410:             # A comparison of two partial readings is not a comparison of two
+ 411:             # definitions. If the recognition vocabulary cannot see event-like
+ 412:             # terms that are present in the text, the honest verdict is that the
+ 413:             # gate could not read them -- NOT that they agree.
+ 414:             blind = {n: unrecognised_terms(d) for n, d in defs.items()}
+ 415:             unread = {n: t for n, t in blind.items() if t}
+ 416:             if unread:
+ 417:                 unreadable_for_this = True
+ 418:                 notes.append(
+ 419:                     "%s: THIS GATE CANNOT READ %d of %d definitions. Its component "
+ 420:                     "vocabulary is cardiological and these name events it does not "
+ 421:                     "recognise, so any agreement it reported would be an agreement "
+ 422:                     "between two PARTIAL READINGS:" % (oid, len(unread), len(defs)))
+ 423:                 for n in sorted(unread):
+ 424:                     notes.append("    %-22s unrecognised: {%s}   recognised: {%s}"
+ 425:                                  % (n, ", ".join(sorted(unread[n])[:8]),
+ 426:                                     ", ".join(sorted(_components(defs[n]))) or "-"))
+ 427:                 notes.append("    Read these by hand against the registry. A PASS "
+ 428:                              "here would be the CABANA under-read failing toward "
+ 429:                              "comfort instead of toward alarm.")
+ 430:                 continue
+ 431:             comp = {n: _components(d) for n, d in defs.items()}
+ 432:             # A NOTE THAT PROMISES A COMPARISON MUST SHOW IT. The unregistered
+ 433:             # branch above says "the remaining rows are compared to each other
+ 434:             # below", and when they agree nothing was printed, because agreement
+ 435:             # is the silent path. A reader then sees an accusation and no
+ 436:             # acquittal -- confirmations have to be as visible as errors.
+ 437:             if unregistered and len(set(comp.values())) == 1:
+ 438:                 notes.append(
+ 439:                     "    and the %d trial(s) that DO register it agree with each "
+ 440:                     "other exactly -- %s all count {%s}. The defect is confined to "
+ 441:                     "the unregistered row."
+ 442:                     % (len(comp), ", ".join(sorted(comp)),
+ 443:                        ", ".join(sorted(next(iter(comp.values())))) or "-"))
+ 444:             if len(set(comp.values())) > 1:
+ 445:                 if _withdrawn:
+ 446:                     withdrawn_for_this = True
+ 447:                 else:
+ 448:                     bad = True
+ 449:                 notes.append("%s: recorded definitions DISAGREE across trials%s:"
+ 450:                              % (oid, " -- AND THE ESTIMATE IS WITHDRAWN, WITH THIS "
+ 451:                                      "AS ITS STATED REASON" if _withdrawn else ""))
+ 452:                 for n, c in comp.items():
+ 453:                     notes.append("    %-22s counts {%s}"
+ 454:                                  % (n, ", ".join(sorted(c)) or "-"))
+ 455:     if not notes:
+ 456:         notes = ["every pooled outcome has a recorded endpoint definition and they agree"]
+ 457:     if bad:
+ 458:         return "FAIL", notes
+ 459:     # UNCHECKABLE OUTRANKS WITHDRAWN AND PASS. If the gate could not read the
+ 460:     # definitions it cannot certify that a withdrawal was for the right reason
+ 461:     # either -- and a withdrawal made on an unread definition is exactly the
+ 462:     # destructive error this whole apparatus exists to prevent.
+ 463:     if unreadable_for_this:
+ 464:         notes.append("-> UNCHECKABLE. The gate found event terms it does not "
+ 465:                      "recognise and refuses to report agreement or disagreement "
+ 466:                      "from a partial reading. This is NOT a pass and NOT a "
+ 467:                      "failure of the object.")
+ 468:         return "UNCHECKABLE", notes
+ 469:     if withdrawn_for_this:
+ 470:         notes.append("-> the definitions do not agree and NO ESTIMATE IS DISPLAYED. "
+ 471:                      "The property is met by the withholding, not by agreement, and "
+ 472:                      "this is recorded as WITHDRAWN rather than passed.")
+ 473:         return "WITHDRAWN", notes
+ 474:     return "PASS", notes
+ 475: 
+ 476: 
+ 477: def selftest():
+ 478:     """REPLAYED AGAINST SGLT2_HF's OWN OBJECT -- four trials, two definitions,
+ 479:     and it was passing every other check we own."""
+ 480:     ok = True
+ 481:     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ 482:     real = os.path.join(root, "ssot", "sglt2-hf", "sglt2-hf.json")
+ 483:     if os.path.exists(real):
+ 484:         obj = json.loads(open(real, encoding="utf-8").read())
+ 485:         # THE POSITIVE CONTROL IS THE STATE THIS OBJECT WAS IN, NOT THE STATE IT
+ 486:         # IS IN NOW. Its pool has since been withdrawn IN THE OBJECT, so the live
+ 487:         # object correctly returns WITHDRAWN. Restoring the point from the
+ 488:         # `previous_values` that the withdrawal preserved replays the exact
+ 489:         # historical artefact -- four trials, two endpoint definitions, a live
+ 490:         # k=4 estimate. Without this, remediating the defect would have quietly
+ 491:         # deleted the only real past defect this gate is proved against, and the
+ 492:         # selftest would have gone on printing PASS over a control that no longer
+ 493:         # controls anything.
+ 494:         for _res in ((obj.get("results") or {}).get("by_outcome") or {}).values():
+ 495:             _p = _res.get("pooled") or {}
+ 496:             if _p.get("withdrawn") and _p.get("previous_values"):
+ 497:                 _res["pooled"] = dict(_p["previous_values"][0])
+ 498:         v, notes = check(obj)
+ 499:         good = v == "FAIL"
+ 500:         ok &= good
+ 501:         print("  POSITIVE SGLT2_HF, pool restored from its own withdrawal record "
+ 502:               "-> %-5s %s" % (v, "correct" if good else "WRONG"))
+ 503:         for n in notes[:2]:
+ 504:             print("        %s" % n[:112])
+ 505:         v_now, _ = check(json.loads(open(real, encoding="utf-8").read()))
+ 506:         ok &= v_now == "WITHDRAWN"
+ 507:         print("  NEGATIVE SGLT2_HF as it stands today, pool withdrawn -> %-9s %s"
+ 508:               % (v_now, "correct" if v_now == "WITHDRAWN" else "WRONG"))
+ 509:     else:
+ 510:         print("  fixture absent: sglt2-hf object -- NOT PROVEN")
+ 511:         ok = False
+ 512: 
+ 513:     clean = {"inputs": {"trials": [
+ 514:         {"name": "A", "by_outcome": {"o": {"outcome_definition":
+ 515:          "cardiovascular death or hospitalisation for heart failure"}}},
+ 516:         {"name": "B", "by_outcome": {"o": {"outcome_definition":
+ 517:          "cardiovascular death or hospitalization for heart failure"}}}]},
+ 518:         "results": {"by_outcome": {"o": {"k": 2}}}}
+ 519:     v2, _ = check(clean)
+ 520:     ok &= v2 == "PASS"
+ 521:     print("  NEGATIVE same definition, spelling aside            -> %-5s %s"
+ 522:           % (v2, "correct" if v2 == "PASS" else "WRONG"))
+ 523: 
+ 524:     # THE UNREGISTERED-ENDPOINT BRANCH, WITH BOTH SIGNS. Its founding artefact is
+ 525:     # ARNI_HF's ANSWER-HF row. The pair matters more than either half: the two
+ 526:     # inputs differ ONLY in whether the third trial's registration declares the
+ 527:     # endpoint, and the definitions AGREE in both, so a gate that could not tell
+ 528:     # them apart would report PASS on a pool a quarter of which rests on nothing
+ 529:     # pre-specified.
+ 530:     unreg = json.loads(json.dumps(clean))
+ 531:     unreg["inputs"]["trials"].append(
+ 532:         {"name": "C", "by_outcome": {"o": {
+ 533:             "outcome_definition": "cardiovascular death or hospitalisation for "
+ 534:                                   "heart failure",
+ 535:             "outcome_definition_source": {"endpoint_rank": "SECONDARY"}}}})
+ 536:     unreg["results"]["by_outcome"]["o"]["k"] = 3
+ 537:     v3a, _ = check(unreg)
+ 538:     ok &= v3a == "PASS"
+ 539:     print("  NEGATIVE third trial registers it as a secondary    -> %-5s %s"
+ 540:           % (v3a, "correct" if v3a == "PASS" else "WRONG"))
+ 541: 
+ 542:     unreg2 = json.loads(json.dumps(unreg))
+ 543:     (unreg2["inputs"]["trials"][2]["by_outcome"]["o"]["outcome_definition_source"]
+ 544:      ["endpoint_rank"]) = "NOT REGISTERED AT ANY RANK"
+ 545:     v3b, n3b = check(unreg2)
+ 546:     ok &= v3b == "FAIL"
+ 547:     print("  POSITIVE same definition, registered at NO rank     -> %-5s %s"
+ 548:           % (v3b, "correct" if v3b == "FAIL" else "WRONG"))
+ 549:     print("        %s" % n3b[0][:112])
+ 550: 
+ 551:     mixed = json.loads(json.dumps(clean))
+ 552:     mixed["inputs"]["trials"][1]["by_outcome"]["o"]["outcome_definition"] = (
+ 553:         "cardiovascular death, hospitalisation for heart failure, or urgent "
+ 554:         "heart failure visit")
+ 555:     v3, _ = check(mixed)
+ 556:     ok &= v3 == "FAIL"
+ 557:     print("  POSITIVE one trial adds an urgent-visit component   -> %-5s %s"
+ 558:           % (v3, "correct" if v3 == "FAIL" else "WRONG"))
+ 559: 
+ 560:     resultish = {"inputs": {"trials": [
+ 561:         {"name": "A", "by_outcome": {"o": {"provenance": {"source_quotes": [
+ 562:             "the primary outcome occurred in 386 of 2373 patients (16.3%) "
+ 563:             "(hazard ratio, 0.74; 95% CI 0.65-0.85)"]}}}},
+ 564:         {"name": "B", "by_outcome": {"o": {"provenance": {"source_quotes": [
+ 565:             "a primary outcome event occurred in 361 of 1863 patients"]}}}}]},
+ 566:         "results": {"by_outcome": {"o": {"k": 2}}}}
+ 567:     v4, notes4 = check(resultish)
+ 568:     ok &= v4 == "FAIL" and any("RESULT sentence" in n for n in notes4)
+ 569:     print("  POSITIVE result sentences filed as provenance       -> %-5s %s"
+ 570:           % (v4, "correct" if v4 == "FAIL" else "WRONG"))
+ 571: 
+ 572:     fin = os.path.join(root, "ssot", "finerenone-cv", "finerenone-cv.json")
+ 573:     if os.path.exists(fin):
+ 574:         v6, n6 = check(json.loads(open(fin, encoding="utf-8").read()))
+ 575:         ok &= v6 == "PASS"
+ 576:         print("  NEGATIVE FINERENONE_CV: endpoint TITLES quoted -> %-5s %s"
+ 577:               % (v6, "correct" if v6 == "PASS" else "WRONG -- the gate cannot tell "
+ 578:                  "a definition quote from a result quote"))
+ 579: 
+ 580:     # THE CANON ITSELF, on real registry text. Each of these read WRONG before
+ 581:     # 2026-08-17 and each wrong reading manufactured a disagreement between
+ 582:     # trials that count the same events -- the direction that argues for
+ 583:     # withdrawing a sound estimate.
+ 584:     print("")
+ 585:     canon_cases = [
+ 586:         ("AFFIRM-AHF primary, registry",
+ 587:          "HF Hospitalizations and CV Death", {"cv_death", "hf_hospitalisation"}),
+ 588:         ("IRONMAN primary, registry -- 'CV mortality', and a qualifier not a "
+ 589:          "component",
+ 590:          "CV mortality or hospitalisation for worsening heart failure (analysis "
+ 591:          "will include first and recurrent hospitalisations)",
+ 592:          {"cv_death", "hf_hospitalisation"}),
+ 593:         ("EMPEROR-Reduced: 'hospitalization for WORSENING heart failure'",
+ 594:          "a composite of cardiovascular death or hospitalization for worsening "
+ 595:          "heart failure", {"cv_death", "hf_hospitalisation"}),
+ 596:         ("EMPEROR-Preserved: the same events, one word apart",
+ 597:          "a composite of cardiovascular death or hospitalization for heart "
+ 598:          "failure", {"cv_death", "hf_hospitalisation"}),
+ 599:         ("DAPA-HF: the umbrella phrase enumerates its own contents",
+ 600:          "a composite of worsening heart failure (hospitalization or an urgent "
+ 601:          "visit resulting in intravenous therapy for heart failure) or "
+ 602:          "cardiovascular death",
+ 603:          {"cv_death", "hf_hospitalisation", "urgent_visit"}),
+ 604:         ("a STANDALONE worsening-HF event still counts as its own component",
+ 605:          "a composite of cardiovascular death or a worsening heart failure event "
+ 606:          "treated in the outpatient setting", {"cv_death", "worsening_hf"}),
+ 607:         ("CONFIRM-HF: the publication's own words for the death row",
+ 608:          "all-cause death, analysed as time to first event", {"all_cause_death"}),
+ 609:         # ABLATION_AF: four endpoints that must come out DIFFERENT, and three of
+ 610:         # the four had components this reader could not see at all.
+ 611:         ("CASTLE-AF: the qualifier BEFORE the hospitalisation, not after",
+ 612:          "All-cause mortality or worsening heart failure requiring unplanned "
+ 613:          "hospitalization", {"all_cause_death", "hf_hospitalisation"}),
+ 614:         ("CABANA: three of its four components were invisible",
+ 615:          "Number of Participants With Composite of Total Mortality, Disabling "
+ 616:          "Stroke, Serious Bleeding, or Cardiac Arrest in Patients Warranting "
+ 617:          "Therapy for AF.",
+ 618:          {"all_cause_death", "stroke", "serious_bleeding", "cardiac_arrest"}),
+ 619:         ("EAST-AFNET 4: acute coronary syndrome was invisible",
+ 620:          "A composite of cardiovascular death, stroke and hospitalization due to "
+ 621:          "worsening of heart failure or due to acute coronary syndrome.",
+ 622:          {"cv_death", "stroke", "hf_hospitalisation", "acs"}),
+ 623:         ("RAFT-AF: all-cause mortality and heart failure events",
+ 624:          "Composite of All-cause Mortality and Heart Failure Events",
+ 625:          {"all_cause_death"}),
+ 626:     ]
+ 627:     for label, text, want in canon_cases:
+ 628:         got = set(_components(text))
+ 629:         good = got == want
+ 630:         ok &= good
+ 631:         print("  CANON %-62s %s" % (label[:62], "correct" if good else
+ 632:                                     "WRONG: %s" % sorted(got)))
+ 633:     print("")
+ 634: 
+ 635:     v5, _ = check({})
+ 636:     ok &= v5 == "UNCHECKABLE"
+ 637:     print("  NEGATIVE an empty object                            -> %-5s %s (not a pass)"
+ 638:           % (v5, "correct" if v5 == "UNCHECKABLE" else "WRONG"))
+ 639: 
+ 640:     # ---- THE REPLAY: three CKD composites this gate reported as AGREEING ----
+ 641:     # Real registry text, read 2026-08-18 from the ClinicalTrials.gov protocol
+ 642:     # records. Before the hunting list, all three reduced to {cv_death} and the
+ 643:     # gate returned PASS with "they agree".
+ 644:     print("")
+ 645:     ckd = {
+ 646:         "CREDENCE": ("Primary Composite Endpoint of Doubling of Serum Creatinine "
+ 647:                      "(DoSC), End-stage Kidney Disease (ESKD), and Renal or "
+ 648:                      "Cardiovascular (CV) Death"),
+ 649:         "DAPA-CKD": ("Time to the First Occurrence of Any of the Components of the "
+ 650:                      "Composite: >=50% Sustained Decline in eGFR or Reaching ESRD "
+ 651:                      "or CV Death or Renal Death."),
+ 652:         "EMPA-KIDNEY": ("Interventional Part: Time to First Occurrence of Kidney "
+ 653:                         "Disease Progression or Cardiovascular Death "
+ 654:                         "('as Adjudicated')"),
+ 655:     }
+ 656:     same = len({_components(v) for v in ckd.values()}) == 1
+ 657:     unread = {n: unrecognised_terms(v) for n, v in ckd.items()}
+ 658:     all_flagged = all(unread.values())
+ 659:     ok &= same and all_flagged
+ 660:     print("  REPLAY SGLT2_CKD: three DIFFERENT composites, recognition list sees")
+ 661:     for n, v in ckd.items():
+ 662:         print("        %-12s recognised={%s}  unrecognised={%s}"
+ 663:               % (n, ", ".join(sorted(_components(v))) or "-",
+ 664:                  ", ".join(sorted(unread[n])[:5])))
+ 665:     print("        all three reduce to one component set: %s  (that is the false "
+ 666:           "agreement)" % same)
+ 667:     print("        every one flagged as unreadable: %-5s %s"
+ 668:           % (all_flagged, "correct" if (same and all_flagged) else "WRONG"))
+ 669:     print("        the version this replaces returned PASS -- 'every pooled outcome "
+ 670:           "has a recorded")
+ 671:     print("        endpoint definition and they agree' -- on these exact strings.")
+ 672: 
+ 673:     # AND THE HUNTING LIST MUST NOT FLAG A CARDIOLOGY DEFINITION IT CAN READ.
+ 674:     # A gate that returns UNCHECKABLE on everything is worth nothing; this is
+ 675:     # the negative control for the new branch.
+ 676:     card = ("Cardiovascular death or hospitalization for heart failure",
+ 677:             "cardiovascular (CV) death or heart failure (HF) hospitalization",
+ 678:             "Total Mortality, Disabling Stroke, Serious Bleeding, or Cardiac Arrest")
+ 679:     clean = all(not unrecognised_terms(c) for c in card)
+ 680:     ok &= clean
+ 681:     # ------------------------------------------------ DOAC_AF, 2026-08-18
+ 682:     # SYSTEMIC EMBOLISM WAS INVISIBLE TO ALL THREE LISTS. Four registry
+ 683:     # composites, every one "stroke OR systemic embolism", and _components()
+ 684:     # returned frozenset({'stroke'}) for each -- so the gate compared HALF of
+ 685:     # every composite in the topic and reported that they agreed.
+ 686:     #
+ 687:     # It was not caught by EVENT_LIKE either, and that is the part that matters:
+ 688:     # EVENT_LIKE exists to force UNCHECKABLE whenever the recognition list meets
+ 689:     # a term it cannot handle, and TOOLING-QUEUE.md recorded that mechanism as
+ 690:     # the reason "the gate can no longer report agreement from a partial
+ 691:     # reading". The net had the same hole as the thing it was netting.
+ 692:     #
+ 693:     # THE WIDENING MOVED NO VERDICT ON ANY OBJECT IN THE REPOSITORY. DOAC_AF was
+ 694:     # PASS before and PASS after, because its four composites really do agree.
+ 695:     # So the only thing that can demonstrate the fix is a pair that differs ONLY
+ 696:     # in the half that used to be unreadable. Old gate: PASS. New gate: FAIL.
+ 697:     _doac = {"inputs": {"trials": [
+ 698:         {"name": "A", "nct": "NCT1",
+ 699:          "by_outcome": {"o": {"outcome_definition": "Stroke or systemic embolism"}}},
+ 700:         {"name": "B", "nct": "NCT2",
+ 701:          "by_outcome": {"o": {"outcome_definition": "Stroke"}}}]},
+ 702:         "results": {"by_outcome": {"o": {"k": 2, "pooled": {"point": 0.8}}}}}
+ 703:     _v = check(_doac)[0]
+ 704:     _good = _v == "FAIL"
+ 705:     ok &= _good
+ 706:     print("\n  REPLAY DOAC_AF: two composites differing ONLY in the embolism half")
+ 707:     for _n, _t in (("RE-LY      ", "Time to first occurrence of stroke or systemic embolic event."),
+ 708:                    ("ROCKET AF  ", "the first occurrence of a stroke or non-CNS systemic embolism"),
+ 709:                    ("ARISTOTLE  ", "First Event of Ischemic/Unspecified Stroke, Hemorrhagic Stroke, or Systemic Embolism"),
+ 710:                    ("ENGAGE     ", "The composite of stroke and Systemic Embolic Events (SEE)")):
+ 711:         print("        %s reads %s" % (_n, sorted(_components(_t))))
+ 712:     print("        'stroke or systemic embolism' vs 'stroke' -> %s  %s"
+ 713:           % (_v, "correct" if _good else "WRONG"))
+ 714:     print("        the version this replaces returned PASS on that pair -- it could "
+ 715:           "not see\n        the component that is the entire difference.")
+ 716: 
+ 717:     print("\n  NEGATIVE CONTROL cardiology definitions stay readable -> %-5s %s"
+ 718:           % (clean, "correct" if clean else
+ 719:              "WRONG: %s" % [sorted(unrecognised_terms(c)) for c in card]))
+ 720: 
+ 721:     print("\nWHAT A FAILURE WOULD LOOK LIKE: SGLT2_HF passing -- which it did on "
+ 722:           "every other check in this repository while pooling two different "
+ 723:           "endpoints as one.")
+ 724:     print("-> SELFTEST PASS" if ok else "-> SELFTEST FAILED")
+ 725:     return 0 if ok else 1
+ 726: 
+ 727: 
+ 728: def main():
+ 729:     if len(sys.argv) < 2 or sys.argv[1] == "--selftest":
+ 730:         return selftest()
+ 731:     if not os.path.exists(sys.argv[1]):
+ 732:         print("estimand_definition: %s does not exist. NOT RUN." % sys.argv[1],
+ 733:               file=sys.stderr)
+ 734:         return 2
+ 735:     v, notes = check(json.loads(open(sys.argv[1], encoding="utf-8",
+ 736:                                      errors="replace").read()))
+ 737:     for n in notes:
+ 738:         print("  %s" % n)
+ 739:     print("  -> %s" % v)
+ 740:     # FOUR STATES, FOUR EXIT CODES, because a caller that maps three of them onto
+ 741:     # "PASS" cannot report what it measured. 0 PASS, 1 FAIL, 2 UNCHECKABLE (ran,
+ 742:     # could not see -- not a pass), 3 WITHDRAWN (the definitions disagree AND no
+ 743:     # estimate is displayed, so the property is met by the withholding). A
+ 744:     # distinct CODE rather than a word in the output, so no caller has to
+ 745:     # substring-search for it -- which is the over-match this repository has now
+ 746:     # committed three times.
+ 747:     return {"PASS": 0, "FAIL": 1, "UNCHECKABLE": 2, "WITHDRAWN": 3}.get(v, 1)
+ 748: 
+ 749: 
+ 750: if __name__ == "__main__":
+ 751:     sys.exit(main())
+
+codex
+I’ve got line anchors. I’m checking only demonstrable failure cases now, because the prompt penalizes plausible-but-unproven objections.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "python - <<'PY'
+from scripts.estimand_definition_gate import check,_components,unrecognised_terms
+
+def obj(a,b):
+ return {'inputs':{'trials':[{'name':'A','by_outcome':{'o':{'outcome_definition':a}}},{'name':'B','by_outcome':{'o':{'outcome_definition':b}}}]},'results':{'by_outcome':{'o':{'k':2,'pooled':{'point':1.0}}}}}
+
+cases = {
+'negation': obj('heart failure hospitalization', 'heart failure hospitalization, not cardiovascular death'),
+'visit-leading': obj('urgent heart failure visit', 'worsening heart failure requiring an urgent heart failure visit'),
+'zero-k': {'inputs':{'trials':[{'name':'A','by_outcome':{'o':{'outcome_definition':'cardiovascular death'}}},{'name':'B','by_outcome':{'o':{'outcome_definition':'hospitalization'}}}]},'results':{'by_outcome':{'o':{'k':0,'pooled':{'point':1.0}}}}},
+'missing-bo': {'inputs':{'trials':[{'name':'A','by_outcome':{'o':{'outcome_definition':'cardiovascular death'}}},{'name':'B','by_outcome':{}}]},'results':{'by_outcome':{'o':{'k':2,'pooled':{'point':1.0}}}}},
+'bare-embolism-suppressed': obj('Stroke or systemic embolism', 'Stroke or systemic embolism or embolism')
+}
+for name,o in cases.items():
+    v, notes = check(o)
+    print(name, v)
+    for n in notes: print(' ', n[:160])
+    print()
+for s in ['worsening heart failure requiring an urgent heart failure visit','Stroke or systemic embolism or embolism','Stroke or systemic embolism or peripheral embolism']:
+    print(s, 'components=', _components(s), 'unread=', unrecognised_terms(s))
+PY" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$start=105; $end=190; $i=0; Get-Content -LiteralPath scripts'"\\estimand_definition_gate.py | ForEach-Object { "'$i++; if ($i -ge $start -and $i -le $end) { '"'{0,4}: {1}' -f "'$i, $_ } }' in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$start=237; $end=269; $i=0; Get-Content -LiteralPath scripts'"\\estimand_definition_gate.py | ForEach-Object { "'$i++; if ($i -ge $start -and $i -le $end) { '"'{0,4}: {1}' -f "'$i, $_ } }' in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$start=309; $end=475; $i=0; Get-Content -LiteralPath scripts'"\\estimand_definition_gate.py | ForEach-Object { "'$i++; if ($i -ge $start -and $i -le $end) { '"'{0,4}: {1}' -f "'$i, $_ } }' in F:\rapidmeta-ssot-shell
+2026-08-24T02:32:20.310907Z ERROR codex_core::tools::router: error=Exit code: 1
+Wall time: 2.3 seconds
+Output:
+At line:2 char:11
++ python - <<'PY'
++           ~
+Missing file specification after redirection operator.
+At line:2 char:10
++ python - <<'PY'
++          ~
+The '<' operator is reserved for future use.
+At line:2 char:11
++ python - <<'PY'
++           ~
+The '<' operator is reserved for future use.
+At line:3 char:1
++ from scripts.estimand_definition_gate import check,_components,unreco ...
++ ~~~~
+The 'from' keyword is not supported in this version of the language.
+At line:5 char:10
++ def obj(a,b):
++          ~
+Missing argument in parameter list.
+At line:6 char:18
++  return {'inputs':{'trials':[{'name':'A','by_outcome':{'o':{'outcome_ ...
++                  ~
+Unexpected token ':' in expression or statement.
+At line:6 char:28
++  return {'inputs':{'trials':[{'name':'A','by_outcome':{'o':{'outcome_ ...
++                            ~~
+Unexpected token ':[' in expression or statement.
+At line:6 char:37
++  return {'inputs':{'trials':[{'name':'A','by_outcome':{'o':{'outcome_ ...
++                                     ~~~~
+Unexpected token ':'A'' in expression or statement.
+At line:6 char:41
++  return {'inputs':{'trials':[{'name':'A','by_outcome':{'o':{'outcome_ ...
++                                         ~
+Missing argument in parameter list.
+At line:6 char:59
++  return {'inputs':{'trials':[{'name':'A','by_outcome':{'o':{'outcome_ ...
++                                                           ~
+Unexpected token ':' in expression or statement.
+Not all parse errors were reported.  Correct the reported errors and try again.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : MissingFileSpecification
+ 
+
+ exited 1 in 2341ms:
+At line:2 char:11
++ python - <<'PY'
++           ~
+Missing file specification after redirection operator.
+At line:2 char:10
++ python - <<'PY'
++          ~
+The '<' operator is reserved for future use.
+At line:2 char:11
++ python - <<'PY'
++           ~
+The '<' operator is reserved for future use.
+At line:3 char:1
++ from scripts.estimand_definition_gate import check,_components,unreco ...
++ ~~~~
+The 'from' keyword is not supported in this version of the language.
+At line:5 char:10
++ def obj(a,b):
++          ~
+Missing argument in parameter list.
+At line:6 char:18
++  return {'inputs':{'trials':[{'name':'A','by_outcome':{'o':{'outcome_ ...
++                  ~
+Unexpected token ':' in expression or statement.
+At line:6 char:28
++  return {'inputs':{'trials':[{'name':'A','by_outcome':{'o':{'outcome_ ...
++                            ~~
+Unexpected token ':[' in expression or statement.
+At line:6 char:37
++  return {'inputs':{'trials':[{'name':'A','by_outcome':{'o':{'outcome_ ...
++                                     ~~~~
+Unexpected token ':'A'' in expression or statement.
+At line:6 char:41
++  return {'inputs':{'trials':[{'name':'A','by_outcome':{'o':{'outcome_ ...
++                                         ~
+Missing argument in parameter list.
+At line:6 char:59
++  return {'inputs':{'trials':[{'name':'A','by_outcome':{'o':{'outcome_ ...
++                                                           ~
+Unexpected token ':' in expression or statement.
+Not all parse errors were reported.  Correct the reported errors and try again.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : MissingFileSpecification
+ 
+
+ succeeded in 2388ms:
+ 237: EVENT_LIKE = re.compile(
+ 238:     r"\b(?:"
+ 239:     # renal -- the set that was invisible
+ 240:     r"creatinine|egfr|glomerular filtration|dialysis|transplantation|transplant|"
+ 241:     r"end[- ]stage|eskd|esrd|kidney disease progression|kidney failure|"
+ 242:     r"renal death|renal failure|renal replacement|albuminuria|proteinuria|"
+ 243:     r"nephropathy|"
+ 244:     # progression / decline language that names a counted event
+ 245:     r"doubling|sustained decline|disease progression|progression-free|"
+ 246:     # other specialties, so this is not merely cardiology-plus-renal
+ 247:     r"relapse|remission|recurrence|exacerbation|infection|bacteraemia|"
+ 248:     r"bacteremia|seroconversion|viral load|virologic failure|virological "
+ 249:     r"failure|treatment failure|fracture|amputation|blindness|visual acuity|"
+ 250:     r"overall survival|readmission|intubation|ventilation|transfusion|"
+ 251:     r"revascularisation|revascularization|graft loss|rejection|"
+ 252:     # the term whose absence let this list fail at the job it exists for
+ 253:     r"systemic embol[a-z]*|embolism|embolic|thromboembolism|"
+ 254:     r"venous thromboembolism|pulmonary embolism|deep vein thrombosis"
+ 255:     r")\b", re.I)
+ 256: 
+ 257: 
+ 258: def unrecognised_terms(s):
+ 259:     """Event-like phrases in a definition that the recognition list cannot see.
+ 260: 
+ 261:     A NON-EMPTY RESULT MEANS THE GATE MUST NOT COMPARE THIS DEFINITION. It has
+ 262:     read part of a composite and has no way to know whether the part it could
+ 263:     not read is the part that differs.
+ 264:     """
+ 265:     if not s:
+ 266:         return frozenset()
+ 267:     covered = " ".join(m.group(0) for m in COMPONENT.finditer(s)).lower()
+ 268:     return frozenset(m.group(0).lower() for m in EVENT_LIKE.finditer(s)
+ 269:                      if m.group(0).lower() not in covered)
+
+ succeeded in 2415ms:
+ 105: _WORSENING_ATTACHED = re.compile(
+ 106:     r"\b(hospitali[sz]\w*|admission\w*|admitted|visits?)"
+ 107:     r"(?:\s+(?:for|due to|because of))?\s+worsening\s+heart\s+failure", re.I)
+ 108: # AND THE SAME PHRASE WITH THE WORDS THE OTHER WAY ROUND. CASTLE-AF's registry
+ 109: # endpoint is "worsening heart failure REQUIRING UNPLANNED HOSPITALIZATION", which
+ 110: # the attached pattern cannot see because the qualifier comes first. One counted
+ 111: # event read as two, on a live object -- the EMPEROR over-read in mirror image,
+ 112: # found the same day the first half was fixed.
+ 113: _WORSENING_LEADING = re.compile(
+ 114:     r"\bworsening\s+heart\s+failure\s+(?:requiring|leading to|resulting in)"
+ 115:     r"(?:\s+\w+){0,2}\s+(hospitali[sz]\w*|admission\w*)", re.I)
+ 116: _WORSENING_UMBRELLA = re.compile(
+ 117:     r"\bworsening\s+heart\s+failure\s*(?=\([^)]*(?:hospitali|visit))", re.I)
+ 118: 
+ 119: 
+ 120: def _norm(s):
+ 121:     return re.sub(r"[^a-z0-9 ]+", " ", re.sub(r"\s+", " ", (s or "").lower())).strip()
+ 122: 
+ 123: 
+ 124: # CANONICAL KEYS, not raw matched text. The first cut compared normalised match
+ 125: # strings and failed its own negative control, because "hospitalisation" and
+ 126: # "hospitalization" normalise to different tokens -- the British-spelling trap in
+ 127: # a new costume, and a gate that fails on everything is worth nothing. Each match
+ 128: # now maps to ONE key, so orthography cannot manufacture a difference and only a
+ 129: # real component change can.
+ 130: _CANON = (
+ 131:     (re.compile(r"urgent", re.I), "urgent_visit"),
+ 132:     (re.compile(r"hospitali", re.I), "hf_hospitalisation"),
+ 133:     # PHRASING VARIANTS MAP TO ONE KEY. "deaths from cardiovascular causes" is the
+ 134:     # same component as "cardiovascular death" and matched neither pattern, so a
+ 135:     # correctly-recorded SOTAGLIFLOZIN definition read as carrying no CV-death
+ 136:     # component. Under-reading manufactures disagreements exactly as over-reading
+ 137:     # does, and a withdrawal needs the same evidentiary standard as a claim.
+ 138:     # THE PARENTHETICAL HAS TO BE ALLOWED HERE TOO. COMPONENT finds the phrase
+ 139:     # and this table classifies it; widening one without the other means the
+ 140:     # match is found and then silently DROPPED, assigned to no key at all, which
+ 141:     # is indistinguishable from not finding it. Two places, one fact -- and the
+ 142:     # first fix touched only one of them.
+ 143:     (re.compile(r"(cardiovascular|cv)\s*(?:\([^)]{0,12}\))?\s*death|"
+ 144:                 r"death.{0,3} from cardiovascular", re.I), "cv_death"),
+ 145:     (re.compile(r"all-cause|any-cause|from any cause|total mortality", re.I),
+ 146:      "all_cause_death"),
+ 147:     (re.compile(r"serious bleeding|major bleeding", re.I), "serious_bleeding"),
+ 148:     (re.compile(r"cardiac arrest", re.I), "cardiac_arrest"),
+ 149:     (re.compile(r"acute coronary syndrome", re.I), "acs"),
+ 150:     (re.compile(r"(cardiovascular|cv) mortality", re.I), "cv_death"),
+ 151:     (re.compile(r"myocardial infarction", re.I), "mi"),
+ 152:     # ONE KEY FOR ALL FOUR PHRASINGS, and the reason is written down because
+ 153:     # this is exactly the kind of judgement that manufactures an agreement if
+ 154:     # it is wrong. RE-LY writes "systemic embolic event", ARISTOTLE "Systemic
+ 155:     # Embolism", ENGAGE "Systemic Embolic Events", ROCKET AF "non-CNS systemic
+ 156:     # embolism". The "non-CNS" is a clarification rather than a narrowing: an
+ 157:     # embolus reaching the brain is counted by all four as STROKE, which is the
+ 158:     # other arm of the same composite, so the non-CNS qualifier removes nothing
+ 159:     # the other three records count. Four descriptions, one event.
+ 160:     # SPLITTING THEM WOULD MANUFACTURE A DISAGREEMENT between four trials that
+ 161:     # count the same thing -- the destructive direction, because it argues for
+ 162:     # withdrawing a sound estimate.
+ 163:     # ONE KEY FOR THE WHOLE VTE FAMILY. CARAVAGGIO's registry description defines
+ 164:     # its primary as "the composite of: proximal DVT of the lower limbs
+ 165:     # (symptomatic or unsuspected), DVT of the upper limb (symptomatic), PE
+ 166:     # (symptomatic or unsuspected)" -- DVT and PE are THE CONTENTS OF THE UMBRELLA,
+ 167:     # not components beside it. Separate keys would read CARAVAGGIO as
+ 168:     # {vte, dvt, pe} against Hokusai's {vte, serious_bleeding} and manufacture a
+ 169:     # disagreement out of a trial spelling out what it means. That is the EMPEROR
+ 170:     # "hospitalisation for worsening heart failure" over-read, which this file has
+ 171:     # already had to fix twice.
+ 172:     # THIS ORDERS BEFORE systemic_embolism DELIBERATELY: "non-CNS systemic
+ 173:     # embolism" must not be swallowed by a VTE pattern, and it is not -- the two
+ 174:     # families share no matching text -- but the ordering is fixed so a later
+ 175:     # widening of either cannot silently reassign the other.
+ 176:     (re.compile(r"venous thromboembolism|deep vein thrombosis|"
+ 177:                 r"pulmonary embolism|\bvte\b|\bdvt\b", re.I), "vte"),
+ 178:     (re.compile(r"systemic embol", re.I), "systemic_embolism"),
+ 179:     (re.compile(r"stroke", re.I), "stroke"),
+ 180:     (re.compile(r"worsening heart failure", re.I), "worsening_hf"),
+ 181: )
+ 182: 
+ 183: 
+ 184: def _components(s):
+ 185:     s = _WORSENING_ATTACHED.sub(lambda m: m.group(1), s or "")
+ 186:     s = _WORSENING_LEADING.sub(lambda m: m.group(1), s)
+ 187:     s = _WORSENING_UMBRELLA.sub("", s)
+ 188:     out = set()
+ 189:     for m in COMPONENT.finditer(s or ""):
+ 190:         raw = m.group(0)
+
+ succeeded in 2390ms:
+ 309: def check(obj):
+ 310:     trials = ((obj.get("inputs") or {}).get("trials")) or []
+ 311:     results = ((obj.get("results") or {}).get("by_outcome")) or {}
+ 312:     if not trials or not results:
+ 313:         return "UNCHECKABLE", ["object carries no trials or no pooled outcome"]
+ 314: 
+ 315:     notes, bad, withdrawn_for_this = [], False, False
+ 316:     unreadable_for_this = False
+ 317:     for oid, res in results.items():
+ 318:         if (res.get("k") or 0) < 2:
+ 319:             notes.append("%s: k<2, nothing to compare" % oid)
+ 320:             continue
+ 321:         # A POOL ALREADY WITHDRAWN FOR THIS EXACT REASON IS THE PROPERTY MET.
+ 322:         #
+ 323:         # ABLATION_AF's four trials record four different primary composites, and
+ 324:         # its estimate is withdrawn WITH that as the stated reason. Scoring it
+ 325:         # FAIL made a page that found the difference and acted on it
+ 326:         # indistinguishable from a page that pooled straight through -- which is
+ 327:         # SGLT2_HF, whose object still carries a live k=4 point. A score that
+ 328:         # cannot tell those two apart cannot measure the thing it is for.
+ 329:         #
+ 330:         # This is NOT an escape hatch: a withdrawn pool displays no number, so
+ 331:         # there is nothing left for a mismatched estimand to be wrong about. A
+ 332:         # LIVE pool with disagreeing definitions still FAILs, which is the
+ 333:         # constructible failure and the SGLT2 replay.
+ 334:         _p = res.get("pooled") or {}
+ 335:         _withdrawn = (_p.get("point") is None and _p.get("withdrawn")
+ 336:                       and (_p.get("withdrawn_reason") or "").strip())
+ 337:         defs, missing, resultish, unregistered = {}, [], [], []
+ 338:         for t in trials:
+ 339:             bo = (t.get("by_outcome") or {}).get(oid)
+ 340:             if not bo:
+ 341:                 continue
+ 342:             name = t.get("name") or t.get("nct") or "?"
+ 343:             # AN ENDPOINT THAT IS NOT REGISTERED AT ALL IS A FOURTH STATE, and
+ 344:             # until 2026-08-18 this gate had no way to hold it. ARNI_HF pools
+ 345:             # ANSWER-HF's composite of cardiovascular death and heart-failure
+ 346:             # hospitalisation; NCT04853758 declares TWO primary outcome measures
+ 347:             # and EIGHTEEN secondary ones and none of the twenty is that
+ 348:             # composite. The quantity exists only in the publication.
+ 349:             #
+ 350:             # Recording that truthfully put the registry's ENUMERATION -- which
+ 351:             # is the proof of the absence -- into the definition field, where the
+ 352:             # vocabulary scanner met the word "creatinine", declared itself
+ 353:             # unable to read a definition, and returned UNCHECKABLE. The gate
+ 354:             # answered the strongest finding available to it with "I could not
+ 355:             # read this", which is the comfortable direction.
+ 356:             #
+ 357:             # The state is DECLARED by the object rather than inferred from its
+ 358:             # prose: a declared field beats an inferred one, the same precedence
+ 359:             # v1_coverage_audit had to learn three times. It is a FAIL and not an
+ 360:             # UNCHECKABLE, because nothing here is unreadable -- the registry was
+ 361:             # read in full and what it says is that the endpoint is absent.
+ 362:             _rank = ((bo.get("outcome_definition_source") or {})
+ 363:                      .get("endpoint_rank") or "")
+ 364:             if "not registered" in str(_rank).lower():
+ 365:                 unregistered.append(name)
+ 366:                 continue
+ 367:             # A QUOTE CAN BE THE DEFINITION -- that is the whole distinction, and
+ 368:             # it is resolved in definition_for() so poolability cannot drift from
+ 369:             # it. FINERENONE_CV stores each trial's endpoint TITLE, read word for
+ 370:             # word from the registry, in source_quotes. SGLT2_HF stores RESULT
+ 371:             # sentences in the same field. Failing both would mean the gate
+ 372:             # cannot tell the work done right from the work done wrong, which is
+ 373:             # the property it exists to measure.
+ 374:             d = definition_for(bo)
+ 375:             quotes = (bo.get("provenance") or {}).get("source_quotes") or []
+ 376:             if not d:
+ 377:                 missing.append(name)
+ 378:                 if quotes and RESULT_SENTENCE.search(" ".join(quotes)):
+ 379:                     resultish.append(name)
+ 380:             else:
+ 381:                 defs[name] = d
+ 382:         if unregistered:
+ 383:             if _withdrawn:
+ 384:                 withdrawn_for_this = True
+ 385:             else:
+ 386:                 bad = True
+ 387:             notes.append(
+ 388:                 "%s: %d of %d contributing trial(s) REGISTER NO SUCH ENDPOINT, at "
+ 389:                 "any rank: %s. This is not a definition that disagrees and not a "
+ 390:                 "definition that is missing from the object -- it is a definition "
+ 391:                 "that is missing from the REGISTRATION, so for this trial there is "
+ 392:                 "no pre-specified statement of what was counted for the pool to "
+ 393:                 "rest on. The remaining rows are compared to each other below and "
+ 394:                 "their agreement, if any, is agreement among them alone."
+ 395:                 % (oid, len(unregistered), len(unregistered) + len(defs) + len(missing),
+ 396:                    ", ".join(unregistered[:6])))
+ 397:         if missing:
+ 398:             if _withdrawn:
+ 399:                 withdrawn_for_this = True
+ 400:             else:
+ 401:                 bad = True
+ 402:             notes.append("%s: NO endpoint definition recorded for %d trial(s): %s"
+ 403:                          % (oid, len(missing), ", ".join(missing[:6])))
+ 404:             if resultish:
+ 405:                 notes.append("    and the provenance quote is a RESULT sentence on "
+ 406:                              "%d of them: %s -- what happened, never what was counted"
+ 407:                              % (len(resultish), ", ".join(resultish[:6])))
+ 408:         if len(defs) > 1:
+ 409:             # BEFORE COMPARING ANYTHING: can this reader read these definitions?
+ 410:             # A comparison of two partial readings is not a comparison of two
+ 411:             # definitions. If the recognition vocabulary cannot see event-like
+ 412:             # terms that are present in the text, the honest verdict is that the
+ 413:             # gate could not read them -- NOT that they agree.
+ 414:             blind = {n: unrecognised_terms(d) for n, d in defs.items()}
+ 415:             unread = {n: t for n, t in blind.items() if t}
+ 416:             if unread:
+ 417:                 unreadable_for_this = True
+ 418:                 notes.append(
+ 419:                     "%s: THIS GATE CANNOT READ %d of %d definitions. Its component "
+ 420:                     "vocabulary is cardiological and these name events it does not "
+ 421:                     "recognise, so any agreement it reported would be an agreement "
+ 422:                     "between two PARTIAL READINGS:" % (oid, len(unread), len(defs)))
+ 423:                 for n in sorted(unread):
+ 424:                     notes.append("    %-22s unrecognised: {%s}   recognised: {%s}"
+ 425:                                  % (n, ", ".join(sorted(unread[n])[:8]),
+ 426:                                     ", ".join(sorted(_components(defs[n]))) or "-"))
+ 427:                 notes.append("    Read these by hand against the registry. A PASS "
+ 428:                              "here would be the CABANA under-read failing toward "
+ 429:                              "comfort instead of toward alarm.")
+ 430:                 continue
+ 431:             comp = {n: _components(d) for n, d in defs.items()}
+ 432:             # A NOTE THAT PROMISES A COMPARISON MUST SHOW IT. The unregistered
+ 433:             # branch above says "the remaining rows are compared to each other
+ 434:             # below", and when they agree nothing was printed, because agreement
+ 435:             # is the silent path. A reader then sees an accusation and no
+ 436:             # acquittal -- confirmations have to be as visible as errors.
+ 437:             if unregistered and len(set(comp.values())) == 1:
+ 438:                 notes.append(
+ 439:                     "    and the %d trial(s) that DO register it agree with each "
+ 440:                     "other exactly -- %s all count {%s}. The defect is confined to "
+ 441:                     "the unregistered row."
+ 442:                     % (len(comp), ", ".join(sorted(comp)),
+ 443:                        ", ".join(sorted(next(iter(comp.values())))) or "-"))
+ 444:             if len(set(comp.values())) > 1:
+ 445:                 if _withdrawn:
+ 446:                     withdrawn_for_this = True
+ 447:                 else:
+ 448:                     bad = True
+ 449:                 notes.append("%s: recorded definitions DISAGREE across trials%s:"
+ 450:                              % (oid, " -- AND THE ESTIMATE IS WITHDRAWN, WITH THIS "
+ 451:                                      "AS ITS STATED REASON" if _withdrawn else ""))
+ 452:                 for n, c in comp.items():
+ 453:                     notes.append("    %-22s counts {%s}"
+ 454:                                  % (n, ", ".join(sorted(c)) or "-"))
+ 455:     if not notes:
+ 456:         notes = ["every pooled outcome has a recorded endpoint definition and they agree"]
+ 457:     if bad:
+ 458:         return "FAIL", notes
+ 459:     # UNCHECKABLE OUTRANKS WITHDRAWN AND PASS. If the gate could not read the
+ 460:     # definitions it cannot certify that a withdrawal was for the right reason
+ 461:     # either -- and a withdrawal made on an unread definition is exactly the
+ 462:     # destructive error this whole apparatus exists to prevent.
+ 463:     if unreadable_for_this:
+ 464:         notes.append("-> UNCHECKABLE. The gate found event terms it does not "
+ 465:                      "recognise and refuses to report agreement or disagreement "
+ 466:                      "from a partial reading. This is NOT a pass and NOT a "
+ 467:                      "failure of the object.")
+ 468:         return "UNCHECKABLE", notes
+ 469:     if withdrawn_for_this:
+ 470:         notes.append("-> the definitions do not agree and NO ESTIMATE IS DISPLAYED. "
+ 471:                      "The property is met by the withholding, not by agreement, and "
+ 472:                      "this is recorded as WITHDRAWN rather than passed.")
+ 473:         return "WITHDRAWN", notes
+ 474:     return "PASS", notes
+ 475: 
+
+codex
+The first quick Python probe used Bash redirection syntax in PowerShell, so I’m rerunning that probe with PowerShell’s here-string form; no files are being changed.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "@'
+from scripts.estimand_definition_gate import check,_components,unrecognised_terms
+
+def obj(a,b):
+    return {'inputs':{'trials':[{'name':'A','by_outcome':{'o':{'outcome_definition':a}}},{'name':'B','by_outcome':{'o':{'outcome_definition':b}}}]},'results':{'by_outcome':{'o':{'k':2,'pooled':{'point':1.0}}}}}
+
+cases = {
+'negation': obj('heart failure hospitalization', 'heart failure hospitalization, not cardiovascular death'),
+'visit-leading': obj('urgent heart failure visit', 'worsening heart failure requiring an urgent heart failure visit'),
+'zero-k': {'inputs':{'trials':[{'name':'A','by_outcome':{'o':{'outcome_definition':'cardiovascular death'}}},{'name':'B','by_outcome':{'o':{'outcome_definition':'hospitalization'}}}]},'results':{'by_outcome':{'o':{'k':0,'pooled':{'point':1.0}}}}},
+'missing-bo': {'inputs':{'trials':[{'name':'A','by_outcome':{'o':{'outcome_definition':'cardiovascular death'}}},{'name':'B','by_outcome':{}}]},'results':{'by_outcome':{'o':{'k':2,'pooled':{'point':1.0}}}}},
+'bare-embolism-suppressed': obj('Stroke or systemic embolism', 'Stroke or systemic embolism or peripheral embolism')
+}
+for name,o in cases.items():
+    v, notes = check(o)
+    print(name, v)
+    for n in notes: print(' ', n[:180])
+    print()
+for s in ['worsening heart failure requiring an urgent heart failure visit','Stroke or systemic embolism or embolism','Stroke or systemic embolism or peripheral embolism']:
+    print(s, 'components=', _components(s), 'unread=', unrecognised_terms(s))
+'@ | python -" in F:\rapidmeta-ssot-shell
+ succeeded in 1635ms:
+negation FAIL
+  o: recorded definitions DISAGREE across trials:
+      A                      counts {hf_hospitalisation}
+      B                      counts {cv_death, hf_hospitalisation}
+
+visit-leading FAIL
+  o: recorded definitions DISAGREE across trials:
+      A                      counts {urgent_visit}
+      B                      counts {urgent_visit, worsening_hf}
+
+zero-k PASS
+  o: k<2, nothing to compare
+
+missing-bo PASS
+  every pooled outcome has a recorded endpoint definition and they agree
+
+bare-embolism-suppressed PASS
+  every pooled outcome has a recorded endpoint definition and they agree
+
+worsening heart failure requiring an urgent heart failure visit components= frozenset({'worsening_hf', 'urgent_visit'}) unread= frozenset()
+Stroke or systemic embolism or embolism components= frozenset({'systemic_embolism', 'stroke'}) unread= frozenset()
+Stroke or systemic embolism or peripheral embolism components= frozenset({'systemic_embolism', 'stroke'}) unread= frozenset()
+
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "@'
+from scripts.estimand_definition_gate import check,_components,unrecognised_terms
+
+def obj(a,b):
+    return {'inputs':{'trials':[{'name':'A','by_outcome':{'o':{'outcome_definition':a}}},{'name':'B','by_outcome':{'o':{'outcome_definition':b}}}]},'results':{'by_outcome':{'o':{'k':2,'pooled':{'point':1.0}}}}}
+for b in ['Stroke or systemic embolism or air embolism','Stroke or systemic embolism or fat embolism','Stroke or systemic embolism or retinal embolism']:
+    o=obj('Stroke or systemic embolism', b)
+    print(b, check(o)[0], _components(b), unrecognised_terms(b))
+'@ | python -" in F:\rapidmeta-ssot-shell
+ succeeded in 1715ms:
+Stroke or systemic embolism or air embolism PASS frozenset({'stroke', 'systemic_embolism'}) frozenset()
+Stroke or systemic embolism or fat embolism PASS frozenset({'stroke', 'systemic_embolism'}) frozenset()
+Stroke or systemic embolism or retinal embolism PASS frozenset({'stroke', 'systemic_embolism'}) frozenset()
+
+codex
+A stronger issue surfaced in the withdrawn branch: the comments require withdrawal for this exact reason, but the predicate only checks that some reason string exists. I’m verifying that with a minimal object.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "@'
+from scripts.estimand_definition_gate import check
+obj={'inputs':{'trials':[{'name':'A','by_outcome':{'o':{'outcome_definition':'cardiovascular death'}}},{'name':'B','by_outcome':{'o':{'outcome_definition':'hospitalization'}}}]},'results':{'by_outcome':{'o':{'k':2,'pooled':{'point':None,'withdrawn':True,'withdrawn_reason':'low certainty only'}}}}}
+print(check(obj)[0])
+for n in check(obj)[1]: print(n[:180])
+'@ | python -" in F:\rapidmeta-ssot-shell
+ succeeded in 2235ms:
+WITHDRAWN
+o: recorded definitions DISAGREE across trials -- AND THE ESTIMATE IS WITHDRAWN, WITH THIS AS ITS STATED REASON:
+    A                      counts {cv_death}
+    B                      counts {hf_hospitalisation}
+-> the definitions do not agree and NO ESTIMATE IS DISPLAYED. The property is met by the withholding, not by agreement, and this is recorded as WITHDRAWN rather than passed.
+
+codex
+- **STATUS CODE REPORTING THE WRAPPER**: lines 335-336.  
+  Input: `{"inputs":{"trials":[{"name":"A","by_outcome":{"o":{"outcome_definition":"cardiovascular death"}}},{"name":"B","by_outcome":{"o":{"outcome_definition":"hospitalization"}}}]},"results":{"by_outcome":{"o":{"k":2,"pooled":{"point":null,"withdrawn":true,"withdrawn_reason":"low certainty only"}}}}}`  
+  Consequence: returns `WITHDRAWN` and says “WITH THIS AS ITS STATED REASON” although the reason is unrelated.
+
+- **CHECK THAT CANNOT FAIL**: lines 318-320, completed by line 474.  
+  Input: `{"inputs":{"trials":[{"name":"A","by_outcome":{"o":{"outcome_definition":"cardiovascular death"}}}]},"results":{"by_outcome":{"o":{"k":1}}}}`  
+  Consequence: records “k<2, nothing to compare” but returns `PASS`, so an explicitly uncheckable single-trial object exits 0.
+
+- **SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE**: line 115 omits `visit` from the leading worsening-HF stripper.  
+  Input: `A="urgent heart failure visit"` vs `B="worsening heart failure requiring an urgent heart failure visit"` in two `k=2` trials.  
+  Consequence: returns `FAIL` because B reads as `{urgent_visit, worsening_hf}` instead of `{urgent_visit}`.
+
+- **NEGATION DROPPED**: line 54, classified at line 143.  
+  Input: `A="heart failure hospitalization"` vs `B="heart failure hospitalization, not cardiovascular death"` in two `k=2` trials.  
+  Consequence: returns `FAIL` because the negated CV-death exclusion is counted as an included component.
+
+- **SELECTOR USING TEXT MEMBERSHIP INSTEAD OF OCCURRENCES**: lines 267-269.  
+  Input: `A="Stroke or systemic embolism"` vs `B="Stroke or systemic embolism or air embolism"` in two `k=2` trials.  
+  Consequence: returns `PASS`; bare `embolism` is suppressed as “covered” because it is a substring of the recognized `systemic embolism`.
+
+No proven finding here for CRLF/LF text comparison, merged-cell/off-by-one tabulation, idempotency guard satisfied by its own comment, different-copy instrumentation, or probe keyed to a fix-removed string.
+tokens used
+55,240
+- **STATUS CODE REPORTING THE WRAPPER**: lines 335-336.  
+  Input: `{"inputs":{"trials":[{"name":"A","by_outcome":{"o":{"outcome_definition":"cardiovascular death"}}},{"name":"B","by_outcome":{"o":{"outcome_definition":"hospitalization"}}}]},"results":{"by_outcome":{"o":{"k":2,"pooled":{"point":null,"withdrawn":true,"withdrawn_reason":"low certainty only"}}}}}`  
+  Consequence: returns `WITHDRAWN` and says “WITH THIS AS ITS STATED REASON” although the reason is unrelated.
+
+- **CHECK THAT CANNOT FAIL**: lines 318-320, completed by line 474.  
+  Input: `{"inputs":{"trials":[{"name":"A","by_outcome":{"o":{"outcome_definition":"cardiovascular death"}}}]},"results":{"by_outcome":{"o":{"k":1}}}}`  
+  Consequence: records “k<2, nothing to compare” but returns `PASS`, so an explicitly uncheckable single-trial object exits 0.
+
+- **SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE**: line 115 omits `visit` from the leading worsening-HF stripper.  
+  Input: `A="urgent heart failure visit"` vs `B="worsening heart failure requiring an urgent heart failure visit"` in two `k=2` trials.  
+  Consequence: returns `FAIL` because B reads as `{urgent_visit, worsening_hf}` instead of `{urgent_visit}`.
+
+- **NEGATION DROPPED**: line 54, classified at line 143.  
+  Input: `A="heart failure hospitalization"` vs `B="heart failure hospitalization, not cardiovascular death"` in two `k=2` trials.  
+  Consequence: returns `FAIL` because the negated CV-death exclusion is counted as an included component.
+
+- **SELECTOR USING TEXT MEMBERSHIP INSTEAD OF OCCURRENCES**: lines 267-269.  
+  Input: `A="Stroke or systemic embolism"` vs `B="Stroke or systemic embolism or air embolism"` in two `k=2` trials.  
+  Consequence: returns `PASS`; bare `embolism` is suppressed as “covered” because it is a substring of the recognized `systemic embolism`.
+
+No proven finding here for CRLF/LF text comparison, merged-cell/off-by-one tabulation, idempotency guard satisfied by its own comment, different-copy instrumentation, or probe keyed to a fix-removed string.

@@ -1,0 +1,887 @@
+PACKET COMPLETENESS, ASSERTED. Everything you need is in this message. The
+material below is reproduced IN FULL and unabridged; nothing is withheld or
+summarised. You have no file access and should not ask for any.
+
+If something you need is genuinely not here, answer COULD NOT DETERMINE and
+NAME what is missing. Do NOT say anything is fabricated, invented, or absent
+from the record: an earlier blinded read of a partial packet returned six
+confident accusations of fabrication, and all six named facts that were
+present in the record and missing only from the packet. A false accusation
+costs as much here as a missed defect.
+
+A field is RECORDED on 1 object(s) in this corpus and appears on
+ZERO delivered pages. The audit that found it can measure that silence and cannot judge it.
+You are being asked for the judgement, and only the judgement.
+
+THE FIELD: interval_absent_reason
+HELD BY: 1 object(s).  SHOWN ON: 0 pages.
+
+The question is NOT whether the field is well written. It is:
+
+1. IS A READER OWED THIS? Answer OWED / NOT OWED / COULD NOT DETERMINE, and say why in one
+   sentence. Some silence is correct -- a field recording an internal decision, a duplicate
+   of text already shown under another name, or a machine flag -- and saying NOT OWED where
+   that is true is as valuable as saying OWED where it is not.
+2. IF OWED: WHERE. Which reader, at what moment, needs it. A qualification shown in a place
+   nobody reads has not reached anyone.
+3. IS IT A DUPLICATE? Search the complete object below. If this text is already on a page
+   under a different field name, say so and name the other field -- that would make the
+   silence harmless and the finding a false positive.
+4. WHAT WOULD BE LOST if this were simply deleted rather than shown?
+
+Under 350 words. If the stored value is boilerplate that says nothing, say so plainly.
+
+--- THE STORED VALUES, AND ONE COMPLETE OBJECT THAT HOLDS THE FIELD ---
+{
+ "field": "interval_absent_reason",
+ "holders": [
+  {
+   "topic": "antimalarial-act",
+   "path_in_object": "results.by_outcome.dp_vs_al.per_trial[0].interval_absent_reason",
+   "stored_value": "An interval on this row would require adding a constant to each cell, and Cochrane Handbook section 10.4.4 warns that correction 'usually has the undesirable effect of biasing study estimates towards no difference'. Section 10.4.4.1 is the specific case, a study with no events in an arm. Nothing on this row is pooled with anything, so adding the constant would buy an interval and no comparison. The counts are what the trial reports and they are shown."
+  }
+ ],
+ "THE_COMPLETE_OBJECT": {
+  "app_id": "antimalarial-act",
+  "schema_version": 2,
+  "title": "Artemisinin-based combination therapies against artemether-lumefantrine: three direct comparisons, a network with no closed loop, and no indirect estimate",
+  "question": "Among trials comparing an artemisinin-based combination therapy with artemether-lumefantrine, what is the PCR-corrected treatment failure in each direct comparison, and can the resulting network support an indirect comparison between the therapies that were never randomised against each other?",
+  "built": "2026-08-09",
+  "_prose_rule": "Prose may not restate a number the object holds structurally.",
+  "_sourcing_rule": "Every MEASURED input carries the verbatim sentence it was read from. Where a paper reports adequate responses and this object stores failures, the subtraction is shown in the staged extract.",
+  "_estimand_rule": "The outcome is a proportion of evaluable participants, so counts are the correct storage form. Each comparison is its own outcome, because the interventions differ and combining them would average across drugs.",
+  "build_mode": "full",
+  "cited_total": 3,
+  "completeness_statement": "Every registration that contributes data is held and reported. Nothing was cited and then dropped, so there is no removal block. Two further eligible registrations post no results; they are listed under eligible_but_not_contributing and are not excluded.",
+  "eligible_but_not_contributing": {
+   "note": "These registrations meet the eligibility criteria and are NOT excluded. They contribute no data because neither posts results. The Handbook section governing the selection process sends a completed but unreported study that clearly meets the criteria to the included side rather than out of the review, and forbids omitting a study solely because its outcome data are unreported; that section is cited on the scope decision.",
+   "studies": [
+    {
+     "nct": "NCT06076213",
+     "status_in_registry": "completed",
+     "reason_no_data": "the registry record carries no results section",
+     "counts_previously_attributed": "unsourced; not carried"
+    },
+    {
+     "nct": "NCT04767191",
+     "status_in_registry": "completed",
+     "reason_no_data": "the registry record carries no results section",
+     "counts_previously_attributed": "unsourced; not carried"
+    }
+   ]
+  },
+  "network": {
+   "treatments": [
+    {
+     "id": "AL",
+     "label": "artemether-lumefantrine",
+     "is_reference": true
+    },
+    {
+     "id": "DP",
+     "label": "dihydroartemisinin-piperaquine",
+     "is_reference": false
+    },
+    {
+     "id": "ASAQ",
+     "label": "artesunate-amodiaquine",
+     "is_reference": false
+    },
+    {
+     "id": "PA",
+     "label": "pyronaridine-artesunate",
+     "is_reference": false
+    }
+   ],
+   "reference_treatment": "AL",
+   "edges": [
+    {
+     "comparison": "DP vs AL",
+     "outcome_id": "dp_vs_al",
+     "studies": 1,
+     "follow_up_days": 42,
+     "administration": "supervised"
+    },
+    {
+     "comparison": "ASAQ vs AL",
+     "outcome_id": "asaq_vs_al",
+     "studies": 1,
+     "follow_up_days": 28,
+     "administration": "unsupervised after the first dose"
+    },
+    {
+     "comparison": "PA vs AL",
+     "outcome_id": "pa_vs_al",
+     "studies": 1,
+     "follow_up_days": 28,
+     "administration": "supervised"
+    }
+   ],
+   "connected": true,
+   "closed_loops": 0,
+   "multi_arm_studies": 0,
+   "multi_arm_covariance_note": "The schema carries a covariance term for a study contributing more than one contrast against a shared arm, because a network must. NO included study is multi-arm, so the term is not exercised here and no covariance is estimated. Recording that it is unexercised is the point: a facility that has never run is not evidence that it works.",
+   "status": "exploratory only; not a robust network meta-analysis",
+   "why_no_network_estimate": "An indirect comparison between two treatments never randomised against each other IS constructible here: they meet at a common comparator, which is what Handbook section 11.2.1 describes, and a star graph supplies that path even though it contains no closed loop. An earlier version of this object said the absence of a loop meant there was no path at all, which is wrong, and a reviewer was right to say so. What the absence of a loop actually costs is the CHECK: section 11.4.4 assesses disagreement between evidence sources, and 11.4.4.1 measures incoherence in a closed loop as the absolute difference between the direct and the indirect summary estimate. With no loop there is no such difference to compute, so the assumption that indirect and direct evidence agree cannot be tested at all here. NO INDIRECT ESTIMATE IS COMPUTED, and the reason is a judgement about TRANSITIVITY under 11.2.2 rather than a graph-theoretic impossibility: that section requires the sets of trials to be similar, on average, in all important factors other than the comparison being made, and these are not. Every edge meets the same comparator, so the graph is joined; what differs is WHEN the outcome was measured, one comparison ending its follow-up a fortnight later than the other two. One trial dosed at home rather than under observation, making it a measurement of effectiveness where the others measure efficacy. Those are the grounds, and they are differences in effect modifiers, which is what that section is about. That each comparison rests on one study is ALSO true and is NOT part of this ground: it is a limit on precision and on replication, not an effect modifier, and an earlier version wrongly folded it in. The missing loop is why the judgement cannot be checked rather than why it holds."
+  },
+  "methodological_authority": {
+   "reference": "Higgins JPT, Thomas J, Chandler J, Cumpston M, Li T, Page MJ, et al (editors). Cochrane Handbook for Systematic Reviews of Interventions version 6.5.1. Cochrane, 2025.",
+   "url": "https://www.cochrane.org/authors/handbooks-and-manuals/handbook",
+   "version": "6.5.1",
+   "version_checked_on": "2026-08-09",
+   "version_checked_how": "The publisher's own page for each chapter relied on was opened and its printed citation line read. The version and the dates below are what those lines say, not what an earlier build of this object assumed. The publisher's versions-and-changes page was read on the same day and is what settles which version is current: it lists 6.5.1 as the newest release line, with entries dated 2026 and 2025, above 6.5 dated 2024. Two of the publisher's own pages disagree with that and the disagreement is recorded rather than resolved: the Handbook landing page and the current-version index both still print version 6.5 updated August 2024. Where they conflict this object follows the version history and the per-chapter citation lines, because those are the more specific and the more recent statements, and the newest release listed under 6.5.1 revised a chapter this object does not cite.",
+   "chapters_as_dated_by_the_publisher": [
+    {
+     "chapter": 4,
+     "title": "Searching for and selecting studies",
+     "version": "6.5.1",
+     "published": 2025,
+     "last_updated": "March 2025"
+    },
+    {
+     "chapter": 10,
+     "title": "Analysing data and undertaking meta-analyses",
+     "version": "6.5",
+     "published": 2024,
+     "last_updated": "November 2024"
+    },
+    {
+     "chapter": 11,
+     "title": "Undertaking network meta-analyses",
+     "version": "6.5",
+     "published": 2024,
+     "last_updated": "October 2019"
+    }
+   ],
+   "version_note": "The Handbook is versioned as a whole AND dated per chapter, and the two do not move together: the table above gives each chapter the version and the last-updated date the publisher prints on it, and they are not the same as each other. An earlier version of this object named one version and one update month for the whole Handbook, and that pair matched neither the current version nor any date printed on the chapters actually relied on. Listing them chapter by chapter keeps the age of the authority behind each decision visible instead of averaged away; one of these chapters is a good deal older than the others.",
+   "note": "Every scope and synthesis decision names the section governing it, on the block it governs.",
+   "sections_relied_on": [
+    {
+     "section": "4.3.3",
+     "title": "Trials registers and trials results registers",
+     "used_for": "Trials registers as a source to be searched, which is how every registration named here was checked for results."
+    },
+    {
+     "section": "4.6.3",
+     "title": "A typical process for selecting studies",
+     "used_for": "The disposition of a completed but unreported registration: the section sends it to the included studies table or to studies awaiting classification according to whether it clearly meets the eligibility criteria, and forbids omitting a study solely because its outcome data are unreported."
+    },
+    {
+     "section": "10.4.4",
+     "title": "Meta-analysis of rare events",
+     "used_for": "The continuity correction software applies to a zero cell, and the bias toward no difference it carries."
+    },
+    {
+     "section": "10.4.4.1",
+     "title": "Studies with no events in one or more arms",
+     "used_for": "The specific case of the row whose treatment arm recorded no failures at all."
+    },
+    {
+     "section": "11.2.1",
+     "title": "Indirect comparisons",
+     "used_for": "The indirect path a common comparator makes available. A star graph HAS such a path, so declining to use it is a choice that has to be argued rather than a consequence of the shape."
+    },
+    {
+     "section": "11.2.2",
+     "title": "Transitivity",
+     "used_for": "The requirement that the sets of trials be similar in all important factors other than the comparison being made. This is the ground on which the indirect comparison is declined."
+    },
+    {
+     "section": "11.4.4",
+     "title": "Disagreement between evidence sources (incoherence)",
+     "used_for": "The check that a closed loop would permit and that this network cannot support."
+    },
+    {
+     "section": "11.4.4.1",
+     "title": "What is incoherence?",
+     "used_for": "Incoherence as the difference between the direct and the indirect summary estimate, which needs a loop to compute."
+    }
+   ]
+  },
+  "sources": {
+   "OA_URSING2016": {
+    "layer": "Primary paper (open access full text)",
+    "layer_rank": 4,
+    "name": "Ursing J, Rombo L, Rodrigues A, Kofoed P-E. Artemether-Lumefantrine versus Dihydroartemisinin-Piperaquine for Treatment of Uncomplicated Plasmodium falciparum Malaria in Children Aged Less than 15 Years in Guinea-Bissau. PLoS ONE.",
+    "url": "https://doi.org/10.1371/journal.pone.0161495",
+    "staged_as": "ACT-trials.extract.json",
+    "access_note": "QUOTED: open access; the figures used are staged verbatim."
+   },
+   "OA_NIBA2022": {
+    "layer": "Primary paper (abstract)",
+    "layer_rank": 4,
+    "name": "Niba PTN et al. Effectiveness and safety of artesunate-amodiaquine versus artemether-lumefantrine for home-based treatment of uncomplicated Plasmodium falciparum malaria among children in Yaounde, Cameroon. BMC Infect Dis.",
+    "url": "https://doi.org/10.1186/s12879-022-07101-2",
+    "staged_as": "ACT-trials.extract.json",
+    "access_note": "QUOTED: open access; the abstract carries the cure rates and the statement that dosing was unsupervised."
+   },
+   "OA_FALADE2023": {
+    "layer": "Primary paper (open access full text)",
+    "layer_rank": 4,
+    "name": "Falade CO et al. Efficacy and safety of pyronaridine-artesunate versus artemether-lumefantrine in the treatment of acute uncomplicated malaria in children in South-West Nigeria. Malaria Journal.",
+    "url": "https://doi.org/10.1186/s12936-023-04574-7",
+    "staged_as": "ACT-trials.extract.json",
+    "access_note": "QUOTED: open access; the per-protocol PCR-corrected cure rates are staged with their numerators and denominators."
+   },
+   "REGISTRY_CTGOV": {
+    "layer": "Registry",
+    "layer_rank": 5,
+    "name": "ClinicalTrials.gov records for every registration this object names.",
+    "url": "https://clinicaltrials.gov/",
+    "access_note": "QUOTED: fetched for every registration this object names, including the two that post no results, where that absence is why they contribute nothing."
+   }
+  },
+  "outcomes": [
+   {
+    "id": "dp_vs_al",
+    "name": "Dihydroartemisinin-piperaquine against artemether-lumefantrine",
+    "type": "primary",
+    "measure": "RR",
+    "direction_of_benefit": "lower",
+    "null_value": 1,
+    "effect_scale": "log",
+    "estimand": {
+     "id": "dp_vs_al-estimand",
+     "family": "binary_proportion",
+     "model": "proportion of evaluable participants meeting the PCR-corrected treatment failure definition",
+     "unit_of_analysis": "participant, classified as failure or adequate response",
+     "case_definition": "PCR-corrected treatment failure, that is the complement of adequate clinical and parasitological response after new infections are censored",
+     "window": "day 42",
+     "follow_up_days": 42,
+     "analysis_population": "per protocol"
+    },
+    "treatment_node": "DP",
+    "comparator_node": "AL",
+    "administration": "supervised",
+    "definition": "Dihydroartemisinin-piperaquine against artemether-lumefantrine",
+    "definition_note": "A single trial carries this comparison."
+   },
+   {
+    "id": "asaq_vs_al",
+    "name": "Artesunate-amodiaquine against artemether-lumefantrine",
+    "type": "primary",
+    "measure": "RR",
+    "direction_of_benefit": "lower",
+    "null_value": 1,
+    "effect_scale": "log",
+    "estimand": {
+     "id": "asaq_vs_al-estimand",
+     "family": "binary_proportion",
+     "model": "proportion of evaluable participants meeting the PCR-corrected treatment failure definition",
+     "unit_of_analysis": "participant, classified as failure or adequate response",
+     "case_definition": "PCR-corrected treatment failure, that is the complement of adequate clinical and parasitological response after new infections are censored",
+     "window": "day 28",
+     "follow_up_days": 28,
+     "analysis_population": "per protocol"
+    },
+    "treatment_node": "ASAQ",
+    "comparator_node": "AL",
+    "administration": "unsupervised, taken at home after the first dose",
+    "definition": "Artesunate-amodiaquine against artemether-lumefantrine",
+    "definition_note": "A single trial carries this comparison."
+   },
+   {
+    "id": "pa_vs_al",
+    "name": "Pyronaridine-artesunate against artemether-lumefantrine",
+    "type": "primary",
+    "measure": "RR",
+    "direction_of_benefit": "lower",
+    "null_value": 1,
+    "effect_scale": "log",
+    "estimand": {
+     "id": "pa_vs_al-estimand",
+     "family": "binary_proportion",
+     "model": "proportion of evaluable participants meeting the PCR-corrected treatment failure definition",
+     "unit_of_analysis": "participant, classified as failure or adequate response",
+     "case_definition": "PCR-corrected treatment failure, that is the complement of adequate clinical and parasitological response after new infections are censored",
+     "window": "day 28",
+     "follow_up_days": 28,
+     "analysis_population": "per protocol"
+    },
+    "treatment_node": "PA",
+    "comparator_node": "AL",
+    "administration": "supervised",
+    "definition": "Pyronaridine-artesunate against artemether-lumefantrine",
+    "definition_note": "A single trial carries this comparison."
+   }
+  ],
+  "inputs": {
+   "trials": [
+    {
+     "id": "guinea-bissau-dp-al",
+     "name": "Guinea-Bissau, Bandim and Belem Health Centres",
+     "nct": "NCT01704508",
+     "pmid": "27649561",
+     "year": 2016,
+     "design": "open-label, randomised, non-inferiority, two arms",
+     "comparator_type": "active",
+     "administration": "supervised",
+     "arms": [
+      {
+       "label": "dihydroartemisinin-piperaquine",
+       "role": "treatment",
+       "failures": 0,
+       "evaluable": 136,
+       "randomised": 157,
+       "pcr_corrected_cure_percent": 100.0
+      },
+      {
+       "label": "artemether-lumefantrine, active control",
+       "role": "control",
+       "failures": 7,
+       "evaluable": 135,
+       "randomised": 155,
+       "pcr_corrected_cure_percent": 95.0
+      }
+     ],
+     "arms_not_used": [],
+     "enrolled": 312,
+     "enrolment_note": "Children randomised.",
+     "by_outcome": {
+      "dp_vs_al": {
+       "estimand_id": "dp_vs_al-estimand",
+       "control_arm_key": "NCT01704508-al",
+       "treatment": {
+        "events": 0,
+        "n": 136,
+        "source_fragments": [
+         "136 adequate clinical and parasitological responses out of 136 evaluable",
+         "136 - 136 = 0 of 136 for"
+        ]
+       },
+       "control": {
+        "events": 7,
+        "n": 135,
+        "source_fragments": [
+         "128 out of 135 evaluable (95%)",
+         "135 - 128 = 7 of 135 for"
+        ]
+       },
+       "analysed": {
+        "treatment": 136,
+        "control": 135
+       },
+       "analysed_scope": "the per-protocol evaluable participants at day 42, which are fewer than the randomised.",
+       "provenance": {
+        "tag": "MEASURED",
+        "source_id": "OA_URSING2016",
+        "source_quotes": [
+         "dihydroartemisinin-piperaquine: 136 adequate clinical and parasitological responses out of 136 evaluable (100%)",
+         "artemether-lumefantrine: 128 out of 135 evaluable (95%)",
+         "So PCR-corrected treatment FAILURES at day 42 are 136 - 136 = 0 of 136 for dihydroartemisinin-piperaquine, and 135 - 128 = 7 of 135 for artemether-lumefantrine.",
+         "Randomisation: 312 children in total, 155 to artemether-lumefantrine and 157 to dihydroartemisinin-piperaquine."
+        ],
+        "quote_note": "The paper reports adequate responses; the failures stored here are the evaluable total minus that count, and the subtraction is shown in the staged extract."
+       },
+       "outcome_definition": "Adequate clinical and parasitological response rate",
+       "outcome_definition_source": {
+        "description_verbatim": "The data will be analysed using survival estimates of per protocol treatment failure rates but also intention to treat treatment failure rates.",
+        "time_frame": "42 days",
+        "endpoint_rank": "PRIMARY",
+        "source": "registry",
+        "source_field": "protocolSection.outcomesModule.primaryOutcomes[0].measure",
+        "source_url": "https://clinicaltrials.gov/study/NCT01704508",
+        "read_utc": "2026-08-18",
+        "window_registered": "42 days -- the LONGEST of the three, and the object's estimand is stated as PCR-corrected. The registered text does not use the words 'PCR-corrected' or 'PCR-adjusted'; it names adequate clinical and parasitological response and leaves the correction to the analysis description.",
+        "pooled_with_the_others": "NO. This trial carries the DP-versus-AL contrast alone. The three contrasts on this page are never combined, so the differences between these three registered definitions are disclosed per contrast and do not enter a pool."
+       }
+      }
+     },
+     "registration_arm_count": 2,
+     "registration_contrasts_read_utc": "2026-08-18",
+     "registration_counts_read_utc": "2026-08-18",
+     "registered_primaries": [
+      "Adequate clinical and parasitological response rate"
+     ],
+     "registered_secondaries": [
+      "the safety of AL and DP"
+     ],
+     "registered_other_outcomes": [
+      "To determine the capacity of each drug combination to protect against re-infection and to differentiate recrudescence from re-infections using PCR based methods",
+      "Genetic polymorphisms in P. falciparum causing reparasitaemia (by PCR) and in 50 children perform a characterisation of P. falciparum geno- and phenotypes.",
+      "haemoglobin values"
+     ],
+     "all_ranks_read_utc": "2026-08-18"
+    },
+    {
+     "id": "cameroon-asaq-al",
+     "name": "Cameroon, two secondary hospitals in Yaounde",
+     "nct": "NCT04565184",
+     "pmid": "35189818",
+     "year": 2022,
+     "design": "open-label, randomised, two arms, home-based dosing",
+     "comparator_type": "active",
+     "administration": "unsupervised after the first dose",
+     "arms": [
+      {
+       "label": "artesunate-amodiaquine",
+       "role": "treatment",
+       "failures": 3,
+       "evaluable": 97,
+       "randomised": 114,
+       "pcr_corrected_cure_percent": 96.9
+      },
+      {
+       "label": "artemether-lumefantrine, active control",
+       "role": "control",
+       "failures": 5,
+       "evaluable": 112,
+       "randomised": 128,
+       "pcr_corrected_cure_percent": 95.5
+      }
+     ],
+     "arms_not_used": [],
+     "enrolled": 242,
+     "enrolment_note": "Children randomised.",
+     "by_outcome": {
+      "asaq_vs_al": {
+       "estimand_id": "asaq_vs_al-estimand",
+       "control_arm_key": "NCT04565184-al",
+       "treatment": {
+        "events": 3,
+        "n": 97,
+        "source_fragments": [
+         "AS-AQ = 96.9% (95% CI, 91.2-99.4)",
+         "corresponds to 94 of 97 evaluable, that is 3 failures of 97"
+        ]
+       },
+       "control": {
+        "events": 5,
+        "n": 112,
+        "source_fragments": [
+         "AL = 95.5% (95% CI, 89.9-98.5)",
+         "corresponds to 107 of 112, that is 5 failures of 112"
+        ]
+       },
+       "analysed": {
+        "treatment": 97,
+        "control": 112
+       },
+       "analysed_scope": "the per-protocol evaluable participants at day 28. The paper reports cure percentages rather than counts, and these denominators are the ones those percentages resolve to.",
+       "provenance": {
+        "tag": "MEASURED",
+        "source_id": "OA_NIBA2022",
+        "source_quotes": [
+         "The PP PCR adjusted day 28 cure rates were [AS-AQ = 96.9% (95% CI, 91.2-99.4) versus AL = 95.5% (95% CI, 89.9-98.5), P = 0.797].",
+         "A cure rate of 96.9 per cent corresponds to 94 of 97 evaluable, that is 3 failures of 97; a cure rate of 95.5 per cent corresponds to 107 of 112, that is 5 failures of 112.",
+         "After the first dose, antimalarial drugs were given at home, rather than under direct observation by a study staff."
+        ],
+        "quote_note": "The second quote is why this trial is not interchangeable with the other two: its doses were taken at home rather than observed, so it measures effectiveness where they measure efficacy."
+       },
+       "outcome_definition": "Number of participants with treatment success and adverse events following treatment with artesunate-modiaquine and artemether-lumefantrine",
+       "outcome_definition_source": {
+        "description_verbatim": "Eligible children for whom parent/guardian informed consents are obtained will be randomized to receive either artesunate-amodiaquine (group A) or artemether-lumefantrine (group B) and follow-up will be done for a duration of 28 days.",
+        "time_frame": "18 months",
+        "endpoint_rank": "PRIMARY",
+        "source": "registry",
+        "source_field": "protocolSection.outcomesModule.primaryOutcomes[0].measure",
+        "source_url": "https://clinicaltrials.gov/study/NCT04565184",
+        "read_utc": "2026-08-18",
+        "registered_text_note": "The registered measure COMBINES an efficacy quantity and a safety quantity in ONE outcome measure -- 'treatment success AND adverse events'. The efficacy half is what this contrast uses. The registry spells the drug 'artesunate-modiaquine'; transcribed as registered rather than corrected.",
+        "window_registered": "The measure's time frame field reads '18 months', which is the study duration; the DESCRIPTION states the per-participant follow-up is 28 days. The 28 days is the window that matches this contrast.",
+        "pooled_with_the_others": "NO. This trial carries the ASAQ-versus-AL contrast alone."
+       }
+      }
+     },
+     "registration_arm_count": 2,
+     "registration_contrasts_read_utc": "2026-08-18",
+     "registration_counts_read_utc": "2026-08-18",
+     "registered_primaries": [
+      "Number of participants with treatment success and adverse events following treatment with artesunate-modiaquine and artemether-lumefantrine during 28 days follow-up period in children with acute uncomplicated P. falciparum malaria in Yaounde"
+     ],
+     "registered_secondaries": [
+      "Proportion of patients with early treatment failure, late clinical failure, late parasitological failure or an adequate clinical and parasitological response as indicators of efficacy according to the WHO 2009 guidelines",
+      "Number of participants with treatment-related adverse events as assessed by CTCAE v4.0",
+      "Number of children with single nucleotide polymorphisms of P. falciparum genes responsible for AS-AQ and AL resistance",
+      "Number of children haboring single nucleotide polymorphisms in key genes involved in the metabolism of AS-AQ and AL"
+     ],
+     "registered_other_outcomes": [],
+     "all_ranks_read_utc": "2026-08-18"
+    },
+    {
+     "id": "nigeria-pa-al",
+     "name": "Nigeria, Ibadan",
+     "nct": "NCT05192265",
+     "pmid": "37179349",
+     "year": 2023,
+     "design": "open-label, randomised, two arms",
+     "comparator_type": "active",
+     "administration": "supervised",
+     "arms": [
+      {
+       "label": "pyronaridine-artesunate",
+       "role": "treatment",
+       "failures": 2,
+       "evaluable": 78,
+       "randomised": 85,
+       "pcr_corrected_cure_percent": 97.4
+      },
+      {
+       "label": "artemether-lumefantrine, active control",
+       "role": "control",
+       "failures": 8,
+       "evaluable": 67,
+       "randomised": 87,
+       "pcr_corrected_cure_percent": 88.1
+      }
+     ],
+     "arms_not_used": [],
+     "enrolled": 172,
+     "enrolment_note": "Children enrolled and randomised.",
+     "by_outcome": {
+      "pa_vs_al": {
+       "estimand_id": "pa_vs_al-estimand",
+       "control_arm_key": "NCT05192265-al",
+       "treatment": {
+        "events": 2,
+        "n": 78,
+        "source_fragments": [
+         "PCR-corrected Day-28 cure rates for PA were 97.4% (76/78)",
+         "78 - 76 = 2 of 78 for"
+        ]
+       },
+       "control": {
+        "events": 8,
+        "n": 67,
+        "source_fragments": [
+         "88.1% (59/67) for AL",
+         "67 - 59 = 8 of 67 for"
+        ]
+       },
+       "analysed": {
+        "treatment": 78,
+        "control": 67
+       },
+       "analysed_scope": "the per-protocol evaluable participants at day 28, after new infections were censored.",
+       "provenance": {
+        "tag": "MEASURED",
+        "source_id": "OA_FALADE2023",
+        "source_quotes": [
+         "PCR-corrected Day-28 cure rates for PA were 97.4% (76/78) and 88.1% (59/67) for AL (= 0.04) in the per-protocol population after new infections were censored.",
+         "So PCR-corrected treatment FAILURES at day 28 are 78 - 76 = 2 of 78 for pyronaridine-artesunate, and 67 - 59 = 8 of 67 for artemether-lumefantrine."
+        ],
+        "quote_note": "The quote carries both numerators and both denominators, so the failures are the subtraction shown in the staged extract."
+       },
+       "outcome_definition": "PCR-adjusted adequate clinical and parasitological response (ACPR)",
+       "outcome_definition_source": {
+        "description_verbatim": "Defined as absence of patent parasitaemia, regardless of axillary temperature and without evidence of previous treatment failure up to day 28.",
+        "time_frame": "Treatment day 3 to 28",
+        "endpoint_rank": "PRIMARY",
+        "source": "registry",
+        "source_field": "protocolSection.outcomesModule.primaryOutcomes[0].measure",
+        "source_url": "https://clinicaltrials.gov/study/NCT05192265",
+        "read_utc": "2026-08-18",
+        "window_registered": "28 days. This is the only one of the three whose registered TITLE states the PCR adjustment in words.",
+        "pooled_with_the_others": "NO. This trial carries the PA-versus-AL contrast alone."
+       }
+      }
+     },
+     "registration_arm_count": 2,
+     "registration_contrasts_read_utc": "2026-08-18",
+     "registration_counts_read_utc": "2026-08-18",
+     "registered_primaries": [
+      "PCR-adjusted adequate clinical and parasitological response (ACPR)"
+     ],
+     "registered_secondaries": [
+      "Adequate clinical and parasitological response without correction for reinfection",
+      "Parasite clearance time",
+      "Fever clearance time",
+      "Gametocyte carriage"
+     ],
+     "registered_other_outcomes": [],
+     "all_ranks_read_utc": "2026-08-18"
+    }
+   ]
+  },
+  "config": {
+   "confidence_level": 95
+  },
+  "results": {
+   "by_outcome": {
+    "dp_vs_al": {
+     "k": 1,
+     "estimand_id": "dp_vs_al-estimand",
+     "handbook": {
+      "decision": "Report the three direct comparisons and compute NO indirect or mixed estimate, on a TRANSITIVITY judgement rather than on the shape of the graph; and On the row whose treatment arm recorded no failures, store the boundary point estimate and NO interval, and add no constant to any cell",
+      "sections": [
+       "11.2.1",
+       "11.2.2",
+       "11.4.4",
+       "11.4.4.1",
+       "10.4.4",
+       "10.4.4.1"
+      ],
+      "conformance": "Section 11.2.1 defines the indirect comparison a common comparator makes available, so the path exists and the decision not to use it is a choice that must be argued. Section 11.2.2 supplies the argument: transitivity requires the sets of trials to be similar, on average, in all important factors other than the comparison being made, and here they differ in when the outcome was measured and in whether dosing was observed. Both are effect modifiers, which is what that section asks about. That each comparison rests on one study is not offered as a transitivity ground, because it is not one. Sections 11.4.4 and 11.4.4.1 are why the judgement cannot be checked: incoherence is measured in a closed loop as the difference between direct and indirect estimates, and this graph has none. Section 10.4.4.1 is the case of a study with no events in one or more arms. Section 10.4.4 records that software routines add a fixed value, typically one half, to all cells of a two-by-two table where the problem occurs, and that doing so 'usually has the undesirable effect of biasing study estimates towards no difference and over-estimating variances of study estimates'. The correction exists to let a study enter a pooled estimate. This row enters none, so the correction would buy an interval and no comparison, and it is not applied."
+     },
+     "per_trial": [
+      {
+       "trial_id": "guinea-bissau-dp-al",
+       "nct": "NCT01704508",
+       "measure": "RR",
+       "treatment_failures": 0,
+       "treatment_evaluable": 136,
+       "control_failures": 7,
+       "control_evaluable": 135,
+       "estimand_id": "dp_vs_al-estimand",
+       "point": 0.0,
+       "ci_low": null,
+       "ci_high": null,
+       "scale": "not-log-transformable",
+       "not_log_transformable_because": "The stored point is a boundary value. Zero has no logarithm, so the log-scale normal approximation that supplies every other interval in this object cannot supply one here.",
+       "boundary_estimate": true,
+       "interval_absent_reason": "An interval on this row would require adding a constant to each cell, and Cochrane Handbook section 10.4.4 warns that correction 'usually has the undesirable effect of biasing study estimates towards no difference'. Section 10.4.4.1 is the specific case, a study with no events in an arm. Nothing on this row is pooled with anything, so adding the constant would buy an interval and no comparison. The counts are what the trial reports and they are shown.",
+       "derivation": "risk ratio of PCR-corrected treatment failure, computed from this trial's own two-by-two counts. The treatment arm recorded no failures at all, so the ratio takes the smallest value it can take. Failure is the outcome, so that is the best direction, not a missing result."
+      }
+     ],
+     "poolable": false,
+     "not_poolable_reason": "A single trial carries this comparison.",
+     "model": "single-study, counts reported",
+     "estimator": "none (no synthesis)",
+     "estimator_used": "none (no synthesis)",
+     "pooled": null,
+     "single_study_ref": "guinea-bissau-dp-al",
+     "heterogeneity": null,
+     "heterogeneity_status": "not applicable; a single trial per comparison",
+     "source_page_pooled": false,
+     "poolable_DEPRECATED_note": "`poolable` MEANT ONLY 'the source page pooled these trials'. It was never a judgement that the pool was sound, and the renderer read it as permission to assert 'pooled on the X scale'. RENAMED to source_page_pooled, which is what it says. `poolable` is retained so nothing breaks, and it is DEPRECATED: read source_page_pooled for what the source did, and estimand_established for whether the pool is defensible. A PAGE SHOULD DISPLAY A POOLED ESTIMATE BECAUSE ITS ESTIMAND WAS ESTABLISHED, NOT BECAUSE SOMEONE ONCE POOLED IT.",
+     "estimand_established": null,
+     "estimand_established_means": "TRUE only where every contributing trial has been READ and shown to measure the same quantity, or the same construct with a variance stated. FALSE where that was checked and failed. NULL where it was never checked -- AN ABSENT ASSERTION AND A NEGATIVE ONE ARE DIFFERENT STATES and null is not a pass.",
+     "estimand_established_does_not_cover_the_contrast_2026_08_20": "READ THIS BESIDE `estimand_established`. That flag records that every contributing trial measures the SAME QUANTITY. It records NOTHING about what that quantity was measured AGAINST -- whether the comparators are of one kind, whether each comparison was randomised, whether it was concurrent. On attr-pn-review the flag is TRUE and correct while the pool combines patisiran against its own saline placebo, vutrisiran against PATISIRAN, and eplontersen against the placebo cohort of a DIFFERENT TRIAL. The two questions were never separated. Named as P48 in PAGE-STANDARD.md v1.21.0 and swept by scripts/audit_mixed_contrast_pools.py."
+    },
+    "asaq_vs_al": {
+     "k": 1,
+     "estimand_id": "asaq_vs_al-estimand",
+     "handbook": {
+      "decision": "Report the three direct comparisons and compute NO indirect or mixed estimate, on a TRANSITIVITY judgement rather than on the shape of the graph",
+      "sections": [
+       "11.2.1",
+       "11.2.2",
+       "11.4.4",
+       "11.4.4.1"
+      ],
+      "conformance": "Section 11.2.1 defines the indirect comparison a common comparator makes available, so the path exists and the decision not to use it is a choice that must be argued. Section 11.2.2 supplies the argument: transitivity requires the sets of trials to be similar, on average, in all important factors other than the comparison being made, and here they differ in when the outcome was measured and in whether dosing was observed. Both are effect modifiers, which is what that section asks about. That each comparison rests on one study is not offered as a transitivity ground, because it is not one. Sections 11.4.4 and 11.4.4.1 are why the judgement cannot be checked: incoherence is measured in a closed loop as the difference between direct and indirect estimates, and this graph has none."
+     },
+     "per_trial": [
+      {
+       "trial_id": "cameroon-asaq-al",
+       "nct": "NCT04565184",
+       "measure": "RR",
+       "treatment_failures": 3,
+       "treatment_evaluable": 97,
+       "control_failures": 5,
+       "control_evaluable": 112,
+       "estimand_id": "asaq_vs_al-estimand",
+       "point": 0.6928,
+       "ci_low": 0.1699,
+       "ci_high": 2.8243,
+       "ci_level": 95,
+       "derivation": "risk ratio of PCR-corrected treatment failure, computed from this trial's own two-by-two counts with a normal-approximation interval on the log scale. Failure is the outcome, so a ratio BELOW one means fewer failures on the first-named treatment."
+      }
+     ],
+     "poolable": false,
+     "not_poolable_reason": "A single trial carries this comparison.",
+     "model": "single-study, counts reported",
+     "estimator": "none (no synthesis)",
+     "estimator_used": "none (no synthesis)",
+     "pooled": null,
+     "single_study_ref": "cameroon-asaq-al",
+     "heterogeneity": null,
+     "heterogeneity_status": "not applicable; a single trial per comparison",
+     "source_page_pooled": false,
+     "poolable_DEPRECATED_note": "`poolable` MEANT ONLY 'the source page pooled these trials'. It was never a judgement that the pool was sound, and the renderer read it as permission to assert 'pooled on the X scale'. RENAMED to source_page_pooled, which is what it says. `poolable` is retained so nothing breaks, and it is DEPRECATED: read source_page_pooled for what the source did, and estimand_established for whether the pool is defensible. A PAGE SHOULD DISPLAY A POOLED ESTIMATE BECAUSE ITS ESTIMAND WAS ESTABLISHED, NOT BECAUSE SOMEONE ONCE POOLED IT.",
+     "estimand_established": null,
+     "estimand_established_means": "TRUE only where every contributing trial has been READ and shown to measure the same quantity, or the same construct with a variance stated. FALSE where that was checked and failed. NULL where it was never checked -- AN ABSENT ASSERTION AND A NEGATIVE ONE ARE DIFFERENT STATES and null is not a pass.",
+     "estimand_established_does_not_cover_the_contrast_2026_08_20": "READ THIS BESIDE `estimand_established`. That flag records that every contributing trial measures the SAME QUANTITY. It records NOTHING about what that quantity was measured AGAINST -- whether the comparators are of one kind, whether each comparison was randomised, whether it was concurrent. On attr-pn-review the flag is TRUE and correct while the pool combines patisiran against its own saline placebo, vutrisiran against PATISIRAN, and eplontersen against the placebo cohort of a DIFFERENT TRIAL. The two questions were never separated. Named as P48 in PAGE-STANDARD.md v1.21.0 and swept by scripts/audit_mixed_contrast_pools.py."
+    },
+    "pa_vs_al": {
+     "k": 1,
+     "estimand_id": "pa_vs_al-estimand",
+     "handbook": {
+      "decision": "Report the three direct comparisons and compute NO indirect or mixed estimate, on a TRANSITIVITY judgement rather than on the shape of the graph",
+      "sections": [
+       "11.2.1",
+       "11.2.2",
+       "11.4.4",
+       "11.4.4.1"
+      ],
+      "conformance": "Section 11.2.1 defines the indirect comparison a common comparator makes available, so the path exists and the decision not to use it is a choice that must be argued. Section 11.2.2 supplies the argument: transitivity requires the sets of trials to be similar, on average, in all important factors other than the comparison being made, and here they differ in when the outcome was measured and in whether dosing was observed. Both are effect modifiers, which is what that section asks about. That each comparison rests on one study is not offered as a transitivity ground, because it is not one. Sections 11.4.4 and 11.4.4.1 are why the judgement cannot be checked: incoherence is measured in a closed loop as the difference between direct and indirect estimates, and this graph has none."
+     },
+     "per_trial": [
+      {
+       "trial_id": "nigeria-pa-al",
+       "nct": "NCT05192265",
+       "measure": "RR",
+       "treatment_failures": 2,
+       "treatment_evaluable": 78,
+       "control_failures": 8,
+       "control_evaluable": 67,
+       "estimand_id": "pa_vs_al-estimand",
+       "point": 0.2147,
+       "ci_low": 0.0472,
+       "ci_high": 0.9767,
+       "ci_level": 95,
+       "derivation": "risk ratio of PCR-corrected treatment failure, computed from this trial's own two-by-two counts with a normal-approximation interval on the log scale. Failure is the outcome, so a ratio BELOW one means fewer failures on the first-named treatment."
+      }
+     ],
+     "poolable": false,
+     "not_poolable_reason": "A single trial carries this comparison.",
+     "model": "single-study, counts reported",
+     "estimator": "none (no synthesis)",
+     "estimator_used": "none (no synthesis)",
+     "pooled": null,
+     "single_study_ref": "nigeria-pa-al",
+     "heterogeneity": null,
+     "heterogeneity_status": "not applicable; a single trial per comparison",
+     "source_page_pooled": false,
+     "poolable_DEPRECATED_note": "`poolable` MEANT ONLY 'the source page pooled these trials'. It was never a judgement that the pool was sound, and the renderer read it as permission to assert 'pooled on the X scale'. RENAMED to source_page_pooled, which is what it says. `poolable` is retained so nothing breaks, and it is DEPRECATED: read source_page_pooled for what the source did, and estimand_established for whether the pool is defensible. A PAGE SHOULD DISPLAY A POOLED ESTIMATE BECAUSE ITS ESTIMAND WAS ESTABLISHED, NOT BECAUSE SOMEONE ONCE POOLED IT.",
+     "estimand_established": null,
+     "estimand_established_means": "TRUE only where every contributing trial has been READ and shown to measure the same quantity, or the same construct with a variance stated. FALSE where that was checked and failed. NULL where it was never checked -- AN ABSENT ASSERTION AND A NEGATIVE ONE ARE DIFFERENT STATES and null is not a pass.",
+     "estimand_established_does_not_cover_the_contrast_2026_08_20": "READ THIS BESIDE `estimand_established`. That flag records that every contributing trial measures the SAME QUANTITY. It records NOTHING about what that quantity was measured AGAINST -- whether the comparators are of one kind, whether each comparison was randomised, whether it was concurrent. On attr-pn-review the flag is TRUE and correct while the pool combines patisiran against its own saline placebo, vutrisiran against PATISIRAN, and eplontersen against the placebo cohort of a DIFFERENT TRIAL. The two questions were never separated. Named as P48 in PAGE-STANDARD.md v1.21.0 and swept by scripts/audit_mixed_contrast_pools.py."
+    }
+   }
+  },
+  "scope_decisions": {
+   "NETWORK:no-indirect-estimates": {
+    "decision": "Report the three direct comparisons and compute NO indirect or mixed estimate, on a TRANSITIVITY judgement rather than on the shape of the graph",
+    "sections": [
+     "11.2.1",
+     "11.2.2",
+     "11.4.4",
+     "11.4.4.1"
+    ],
+    "conformance": "Section 11.2.1 defines the indirect comparison a common comparator makes available, so the path exists and the decision not to use it is a choice that must be argued. Section 11.2.2 supplies the argument: transitivity requires the sets of trials to be similar, on average, in all important factors other than the comparison being made, and here they differ in when the outcome was measured and in whether dosing was observed. Both are effect modifiers, which is what that section asks about. That each comparison rests on one study is not offered as a transitivity ground, because it is not one. Sections 11.4.4 and 11.4.4.1 are why the judgement cannot be checked: incoherence is measured in a closed loop as the difference between direct and indirect estimates, and this graph has none."
+   },
+   "SCOPE:awaiting-results-registrations": {
+    "decision": "Record two completed registrations as ELIGIBLE BUT CONTRIBUTING NO DATA, awaiting results; do not treat them as excluded",
+    "sections": [
+     "4.3.3",
+     "4.6.3"
+    ],
+    "conformance": "Section 4.3.3 covers trials registers as a source to be searched, and both registrations were retrieved there; neither carries a results section. Section 4.6.3 governs the DISPOSITION, and it has now been read rather than named. Its selection process ends by asking the reviewer to tag or record any completed or terminated study not yet reported so that it goes to either the included studies table or the table of studies awaiting classification, the choice between the two turning on whether the study clearly meets the eligibility criteria; the same section adds that a study should not be omitted from a review solely because measured outcome data are not reported, and the MECIR expectation printed beside it makes not excluding on that ground mandatory. Both registrations are completed, both are unreported, and both clearly meet the eligibility criteria, so the disposition the section directs is the included side of that choice, carrying no data. That is what this object records. Earlier rounds of this object had the citation wrong in both directions and both are withdrawn: 4.6.5 governs studies listed as EXCLUDED, which these are not, and before that a passage about reports in unreadable languages was cited on the strength of an analogy, which is not conformance. This build previously named 4.6.3 as UNREAD, because five retrievals truncated before it; the truncation was in the retrieval, not the source, and fetching the chapter's own bytes rather than a summary of them returned the section in full."
+   },
+   "ZERO-EVENT:no-continuity-correction": {
+    "decision": "On the row whose treatment arm recorded no failures, store the boundary point estimate and NO interval, and add no constant to any cell",
+    "sections": [
+     "10.4.4",
+     "10.4.4.1"
+    ],
+    "conformance": "Section 10.4.4.1 is the case of a study with no events in one or more arms. Section 10.4.4 records that software routines add a fixed value, typically one half, to all cells of a two-by-two table where the problem occurs, and that doing so 'usually has the undesirable effect of biasing study estimates towards no difference and over-estimating variances of study estimates'. The correction exists to let a study enter a pooled estimate. This row enters none, so the correction would buy an interval and no comparison, and it is not applied."
+   }
+  },
+  "claims_corrected": [
+   {
+    "claim": "a composite outcome label carried over from a template",
+    "status": "meaningless for this review",
+    "correction": "The outcome is named for what it is: PCR-corrected treatment failure at the prespecified end of follow-up.",
+    "source_id": "OA_URSING2016"
+   },
+   {
+    "claim": "that both arms of the Nigerian trial cured more than nine in ten",
+    "status": "false",
+    "correction": "The artemether-lumefantrine arm cured 88.1 per cent, which is below that threshold, and the difference from the comparator arm was the trial's finding.",
+    "source_id": "OA_FALADE2023"
+   },
+   {
+    "claim": "that the Cameroonian trial ran at a dispensary in Garki",
+    "status": "false",
+    "correction": "It ran at two secondary hospitals in Yaounde, Cameroon. Garki is in Nigeria.",
+    "source_id": "OA_NIBA2022"
+   },
+   {
+    "claim": "per-arm counts for two registrations with no posted results",
+    "status": "unsourced",
+    "correction": "Both registrations were fetched and neither posts results. The counts are not carried. The studies themselves are listed as eligible and non-contributing rather than excluded, because an unusable result is not a reason to remove an eligible study from the map.",
+    "source_id": "REGISTRY_CTGOV"
+   }
+  ],
+  "all_ranks_captured_2026_08_18": "Registered outcomes captured at EVERY rank -- primary, secondary and other -- by re-reading each registration on 2026-08-18. Previously only primaries were recorded, which made this topic's withdrawal UNTESTABLE for proportionality: the SGLT2 failure lived one rank down and we had not kept one rank down. The read date is stamped FOR THIS READ, not carried over.",
+  "manuscript": {
+   "references": {
+    "_what": "A reference list, assembled from this object's own fields. Distinct from `sources`, which records the provenance LAYER each fact was read at; this is what a reader would look up.",
+    "included_studies": [
+     {
+      "registration": "NCT01704508",
+      "label": "",
+      "registry": "ClinicalTrials.gov",
+      "url": "https://clinicaltrials.gov/study/NCT01704508",
+      "read_utc": ""
+     },
+     {
+      "registration": "NCT04565184",
+      "label": "",
+      "registry": "ClinicalTrials.gov",
+      "url": "https://clinicaltrials.gov/study/NCT04565184",
+      "read_utc": ""
+     },
+     {
+      "registration": "NCT05192265",
+      "label": "",
+      "registry": "ClinicalTrials.gov",
+      "url": "https://clinicaltrials.gov/study/NCT05192265",
+      "read_utc": ""
+     }
+    ],
+    "published_syntheses_compared_against": [],
+    "_published_syntheses_note": "No published synthesis is listed here. The comparison section states its own denominator and why nothing citable was appraised. ",
+    "methods_guidance_and_software": [
+     {
+      "cited_for": "the reporting guideline this manuscript is written against",
+      "citation": "Page MJ, McKenzie JE, Bossuyt PM, et al. The PRISMA 2020 statement: an updated guideline for reporting systematic reviews. BMJ. 2021;372:n71. doi:10.1136/bmj.n71"
+     }
+    ]
+   },
+   "introduction": "This review asks: Among trials comparing an artemisinin-based combination therapy with artemether-lumefantrine, what is the PCR-corrected treatment failure in each direct comparison, and can the resulting network support an indirect comparison between the therapies that were never randomised against each other?\n\nIt examines 1 randomised trial and DOES NOT POOL THEM.\n\nThe outcomes sought are Dihydroartemisinin-piperaquine against artemether-lumefantrine; Artesunate-amodiaquine against artemether-lumefantrine; Pyronaridine-artesunate against artemether-lumefantrine.\n\nEverything in this paragraph is derived from stored fields and none of it is authored. The interpretive sentences that follow are marked as drafts and are the author's to replace."
+  },
+  "bookkeeping_2026_08_21": {
+   "_what": "The five reporting claims a PRISMA-2020 manuscript needs that are FETCHABLE rather than argued -- each derived from a field here, or stated as an honest absence.",
+   "which_limbs_this_review_refuses": "Of the four properties this project requires of a completed topic, 0 are held (none) and 4 are refused with the obstacle named in the evidence (comparison denominator, grade per pool, model output verbatim, rob per result).",
+   "the_search_its_date_and_its_databases": "PRIMARY TRIALS. NO BIBLIOGRAPHIC SEARCH FOR PRIMARY TRIALS WAS RUN. The 3 included trials were identified by reading named registrations on the dates recorded on each entry.",
+   "whether_this_review_was_prospectively_registered": "NO PROSPERO REGISTRATION OR PROTOCOL RECORD IS HELD ON THIS OBJECT. That is not the same as knowing this review was not registered, and neither claim is made. It is recorded here as an absence so that a reader does not have to infer it from silence.",
+   "that_two_assessors_disagreed_and_where": "NO SECOND, INDEPENDENT RISK-OF-BIAS ASSESSMENT IS RECORDED FOR THIS TOPIC. The judgements were made once. Stated so that single assessment is not mistaken for agreement between two."
+  },
+  "display_change_announced": [
+   {
+    "date": "2026-08-21",
+    "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+    "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+    "what_changed": "references built, introduction written, bookkeeping claims 4",
+    "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+   },
+   {
+    "date": "2026-08-21",
+    "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+    "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+    "what_changed": "references built, introduction written, bookkeeping claims 4",
+    "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+   },
+   {
+    "date": "2026-08-21",
+    "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+    "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+    "what_changed": "references built, introduction written, bookkeeping claims 4",
+    "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+   },
+   {
+    "date": "2026-08-21",
+    "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+    "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+    "what_changed": "references built, introduction written, bookkeeping claims 4",
+    "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+   },
+   {
+    "date": "2026-08-21",
+    "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+    "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+    "what_changed": "references built, introduction written, bookkeeping claims 4",
+    "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+   },
+   {
+    "date": "2026-08-21",
+    "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+    "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+    "what_changed": "references built, introduction written, bookkeeping claims 4",
+    "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+   }
+  ]
+ }
+}

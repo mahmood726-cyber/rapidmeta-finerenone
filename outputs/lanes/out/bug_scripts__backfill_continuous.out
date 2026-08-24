@@ -1,0 +1,233 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a03157-c773-7700-b4fd-24ff22e9ca0f
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/backfill_continuous.py
+
+--- THE FILE, IN FULL ---
+#!/usr/bin/env python
+"""Backfill source-verified effect values into trials whose effect is null.
+
+Reads outputs/pmid_resolver/nct_continuous.json (per-NCT effect + CI extracted
+from ClinicalTrials.gov structured results: outcome_analyses /
+outcome_measurements_mean_arms), and fills the generic effect fields
+(publishedHR/hrLCI/hrUCI + pubHR/pubHR_LCI/pubHR_UCI) for every trial whose
+publishedHR is currently null. The engine reads MD/RD/HR/OR/RR from these fields
+uniformly; the outcome-level estimandType drives interpretation.
+
+This restores the legitimate mean-differences that the over-aggressive
+continuous-as-ratio null removed, corrects the values that were genuinely wrong,
+and fills trials that never had an effect extracted. It only writes where the
+field is currently null, so curated non-null values are never overwritten.
+
+Binary-safe (preserves line endings), idempotent, dry-run-first.
+
+Usage:
+  python scripts/backfill_continuous.py --dry-run
+  python scripts/backfill_continuous.py
+"""
+from __future__ import annotations
+import argparse
+import importlib.util
+import glob
+import json
+import os
+import re
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+_spec = importlib.util.spec_from_file_location(
+    "dia", os.path.join(REPO, "scripts", "data_integrity_audit.py"))
+dia = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(dia)
+
+CONT = json.load(open(os.path.join(REPO, "outputs", "pmid_resolver", "nct_continuous.json"),
+                     encoding="utf-8"))
+
+# Map the generic effect fields to the source keys.
+FIELD_SRC = [
+    ("publishedHR", "effect"), ("hrLCI", "lci"), ("hrUCI", "uci"),
+    ("pubHR", "effect"), ("pubHR_LCI", "lci"), ("pubHR_UCI", "uci"),
+]
+
+
+def numstr(v):
+    if v is None:
+        return "null"
+    if isinstance(v, float) and v.is_integer():
+        return str(int(v))
+    return repr(v) if isinstance(v, float) else str(v)
+
+
+def set_null_field(obj_head: str, name: str, value):
+    """Replace `name:null` with `name:value` in the head (before allOutcomes).
+    Only touches a currently-null field. Returns (head, changed)."""
+    pat = re.compile(r"(?<![A-Za-z_])(" + re.escape(name) + r")\s*:\s*null")
+    new, n = pat.subn(lambda m: f"{m.group(1)}:{numstr(value)}", obj_head, count=1)
+    return new, n > 0
+
+
+def outcome_estimand(obj: str):
+    tail = obj.split("allOutcomes", 1)
+    if len(tail) < 2:
+        return None
+    mt = re.search(r'estimandType:"([^"]+)"', tail[1])
+    return mt.group(1).upper() if mt else None
+
+
+def backfill_trial(obj: str, info: dict):
+    if info.get("effect") is None:
+        return obj, []
+    # Measure-consistency guard: the CT.gov source `kind` must match the trial's
+    # outcome estimandType exactly. This prevents landing an OR/HR value in a
+    # continuous (MD) outcome (or vice-versa) -- the failure mode behind the
+    # earlier mistaken null. If the outcome has no estimandType we cannot verify
+    # the measure, so we skip (conservative).
+    oe = outcome_estimand(obj)
+    src_kind = str(info.get("kind", "")).upper()
+    if oe is None or oe != src_kind:
+        return obj, []
+    head, sep, tail = obj.partition("allOutcomes")
+    changed = []
+    for field_name, src_key in FIELD_SRC:
+        head, c = set_null_field(head, field_name, info.get(src_key))
+        if c:
+            changed.append(field_name)
+    return head + sep + tail, changed
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument("--glob", default="*_REVIEW*.html")
+    args = ap.parse_args()
+
+    files = sorted(glob.glob(os.path.join(REPO, args.glob)))
+    trials_filled = 0
+    apps_changed = 0
+    by_kind = {}
+    no_source = 0
+    for path in files:
+        data = open(path, "rb").read().decode("utf-8", "replace")
+        new_data = data
+        app_changed = False
+        for key, obj in dia.find_trial_objects(data):
+            # Only fill where publishedHR is currently null.
+            if dia.as_num(dia.field(obj, "publishedHR")) is not None:
+                continue
+            nct = key.split("_")[0]
+            info = CONT.get(nct)
+            if not info:
+                no_source += 1
+                continue
+            new_obj, changed = backfill_trial(obj, info)
+            if not changed:
+                continue
+            assert new_data.count(obj) == 1, f"{os.path.basename(path)}:{key} not unique"
+            new_data = new_data.replace(obj, new_obj, 1)
+            trials_filled += 1
+            kind = str(info.get("kind", "?")).upper()
+            by_kind[kind] = by_kind.get(kind, 0) + 1
+            app_changed = True
+        if app_changed:
+            apps_changed += 1
+            if not args.dry_run:
+                open(path, "wb").write(new_data.encode("utf-8"))
+
+    verb = "WOULD backfill" if args.dry_run else "backfilled"
+    print(f"{verb} {trials_filled} trials across {apps_changed} apps.")
+    print("  by source kind: " + ", ".join(f"{k}={v}" for k, v in sorted(by_kind.items())))
+    print(f"  null-effect trials with no source data (left null): {no_source}")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+
+codex
+Defects found:
+
+- **SELECTOR KEYED TO NON-KEY TEXT**: line 58.  
+  Exact input: `set_null_field('note:"publishedHR:null",publishedHR:null', 'publishedHR', 1.25)` returns `note:"publishedHR:1.25",publishedHR:null`, changed `True`.  
+  Consequence: it edits a string/comment occurrence and leaves the real field null while reporting success.
+
+- **IDEMPOTENCY/MEASURE GUARD SATISFIED BY MARKER STRING**: line 64.  
+  Exact input: `backfill_trial('{publishedHR:null,hrLCI:null,hrUCI:null,pubHR:null,pubHR_LCI:null,pubHR_UCI:null,note:\'allOutcomes estimandType:"MD"\',allOutcomes:[{estimandType:"OR"}]}', {"kind":"MD","effect":2.0,"lci":1.0,"uci":3.0})`.  
+  Consequence: the guard reads `MD` from the note before the real `allOutcomes`, then writes MD values into an OR trial.
+
+- **SELECTOR KEYED TO ONE FORM**: line 67.  
+  Exact input: `backfill_trial('{publishedHR:null,hrLCI:null,hrUCI:null,pubHR:null,pubHR_LCI:null,pubHR_UCI:null,allOutcomes:[{estimandType: "MD"}]}', {"kind":"MD","effect":2.0,"lci":1.0,"uci":3.0})`.  
+  Consequence: a semantically valid spaced form is skipped because the regex only matches `estimandType:"..."`.
+
+- **STATUS CODE REPORTING THE WRAPPER RATHER THAN THE WORK**: line 134.  
+  Exact input: `python scripts/backfill_continuous.py --glob __no_match__.html`, assuming the imported module and JSON file exist.  
+  Consequence: zero target files still exits 0, so a caller cannot distinguish “nothing was checked/changed” from success.
+
+No proven defect from this file alone for: probe keyed to string a fix removes; CRLF text comparison; merged-cell/off-by-one; zero conflated with absent; negation dropped.
+
+COULD NOT DETERMINE instrument-reading-different-copy corpus impact: missing `scripts/data_integrity_audit.py` and the `*_REVIEW*.html` corpus.
+tokens used
+16,076
+Defects found:
+
+- **SELECTOR KEYED TO NON-KEY TEXT**: line 58.  
+  Exact input: `set_null_field('note:"publishedHR:null",publishedHR:null', 'publishedHR', 1.25)` returns `note:"publishedHR:1.25",publishedHR:null`, changed `True`.  
+  Consequence: it edits a string/comment occurrence and leaves the real field null while reporting success.
+
+- **IDEMPOTENCY/MEASURE GUARD SATISFIED BY MARKER STRING**: line 64.  
+  Exact input: `backfill_trial('{publishedHR:null,hrLCI:null,hrUCI:null,pubHR:null,pubHR_LCI:null,pubHR_UCI:null,note:\'allOutcomes estimandType:"MD"\',allOutcomes:[{estimandType:"OR"}]}', {"kind":"MD","effect":2.0,"lci":1.0,"uci":3.0})`.  
+  Consequence: the guard reads `MD` from the note before the real `allOutcomes`, then writes MD values into an OR trial.
+
+- **SELECTOR KEYED TO ONE FORM**: line 67.  
+  Exact input: `backfill_trial('{publishedHR:null,hrLCI:null,hrUCI:null,pubHR:null,pubHR_LCI:null,pubHR_UCI:null,allOutcomes:[{estimandType: "MD"}]}', {"kind":"MD","effect":2.0,"lci":1.0,"uci":3.0})`.  
+  Consequence: a semantically valid spaced form is skipped because the regex only matches `estimandType:"..."`.
+
+- **STATUS CODE REPORTING THE WRAPPER RATHER THAN THE WORK**: line 134.  
+  Exact input: `python scripts/backfill_continuous.py --glob __no_match__.html`, assuming the imported module and JSON file exist.  
+  Consequence: zero target files still exits 0, so a caller cannot distinguish “nothing was checked/changed” from success.
+
+No proven defect from this file alone for: probe keyed to string a fix removes; CRLF text comparison; merged-cell/off-by-one; zero conflated with absent; negation dropped.
+
+COULD NOT DETERMINE instrument-reading-different-copy corpus impact: missing `scripts/data_integrity_audit.py` and the `*_REVIEW*.html` corpus.

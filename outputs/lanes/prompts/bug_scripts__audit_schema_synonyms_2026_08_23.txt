@@ -1,0 +1,216 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/audit_schema_synonyms_2026_08_23.py
+
+--- THE FILE, IN FULL ---
+"""One concept stored under two names. Keys and values. A page reading one spelling publishes a false absence.
+
+# no-control: routed through require_controls with the two instances established by hand.
+# POSITIVE is `dual_screening` / `duplicate_screening`, which must be found as a synonym pair --
+# ARNI stores the first and SGLT2 the second, and a projection reading only one reported "no
+# screening record" for the ONE object in the corpus holding a named adjudicator. NEGATIVE is
+# that two genuinely distinct keys under one parent must NOT be paired.
+
+WHY THIS IS A CLASS AND NOT A COINCIDENCE. Three instances now, in one day:
+
+    GRADE            results.*.grade.certainty  AND  grade.by_outcome.*.certainty
+                     Two LOCATIONS. Each rendered surface read a different one, and 23 of 34
+                     pooled outcomes disagree between them.
+
+    screening        screening.dual_screening   AND  screening.duplicate_screening
+                     Two NAMES for one concept. The projection read one and refused on the
+                     object that holds the record.
+
+    model            "random"                   AND  "random-effects"
+                     Two SPELLINGS of one VALUE, both on SGLT2, and a string operation that
+                     assumed one produced "random, random-effects-effects".
+
+Keys and values both. THE CONSEQUENCE IS ALWAYS THE SAME AND IT IS ALWAYS SILENT: whichever
+surface reads the wrong spelling publishes an absence that is not real, and an absence looks
+like caution rather than like an error.
+
+WHAT THIS DOES NOT DO: unify them. That is a data change over 155 objects and it needs care.
+This names them so the next projection can read both, and so the decision is taken rather than
+discovered.
+
+THE DETECTION. Two key names are candidate synonyms when they share a parent path, are
+lexically close (a shared stem of five or more characters, or one contains the other), and
+NEVER CO-OCCUR IN THE SAME OBJECT. The last condition is what separates a synonym from a pair
+of genuinely different siblings: `ci_low` and `ci_high` share a stem and always appear
+together, so they are not a synonym pair.
+"""
+from __future__ import annotations
+
+import collections
+import glob
+import io
+import json
+import os
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from instrument_controls import require_controls          # noqa: E402
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+OUT = os.path.join(REPO, "outputs", "schema_synonyms_2026_08_23.json")
+
+# Value fields worth checking for synonym spellings, with the concept they express.
+VALUE_FIELDS = {"model": "the synthesis model", "estimator": "the tau^2 estimator",
+                "comparator_type": "the comparator", "measure": "the effect measure"}
+
+
+def objects():
+    for p in sorted(glob.glob(os.path.join(REPO, "ssot", "*", "*.json"))):
+        t = os.path.basename(os.path.dirname(p))
+        if os.path.basename(p) != t + ".json":
+            continue
+        try:
+            yield t, json.load(io.open(p, encoding="utf-8"))
+        except ValueError:
+            continue
+
+
+def walk(x, path=""):
+    if isinstance(x, dict):
+        for k, v in x.items():
+            yield path, str(k), v
+            yield from walk(v, path + "." + str(k))
+    elif isinstance(x, list):
+        for v in x[:40]:
+            yield from walk(v, path + "[]")
+
+
+def stem(a, b):
+    n = 0
+    for x, y in zip(a, b):
+        if x != y:
+            break
+        n += 1
+    return n
+
+
+def suffix(a, b):
+    """Shared trailing characters.
+
+    THE FIRST VERSION TESTED ONLY A SHARED PREFIX AND MISSED THE KNOWN PAIR.
+    `dual_screening` and `duplicate_screening` share exactly two leading characters -- "du" --
+    and the concept they name is in the SUFFIX. A synonym pair is usually two different
+    qualifiers on the same noun, so the noun is at the end: `dual_screening` /
+    `duplicate_screening`, `read_utc` / `checked_utc`. The hand-established control caught
+    this, which is the only reason it was caught.
+    """
+    n = 0
+    for x, y in zip(reversed(a), reversed(b)):
+        if x != y:
+            break
+        n += 1
+    return n
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    # parent path -> key -> set(topics)
+    tree = collections.defaultdict(lambda: collections.defaultdict(set))
+    values = collections.defaultdict(lambda: collections.defaultdict(set))
+    n = 0
+    for topic, obj in objects():
+        n += 1
+        for parent, key, val in walk(obj):
+            tree[parent][key].add(topic)
+            if key in VALUE_FIELDS and isinstance(val, str) and val.strip():
+                values[key][val.strip().lower()].add(topic)
+
+    pairs = []
+    for parent, keys in tree.items():
+        names = sorted(keys)
+        for i, a in enumerate(names):
+            for b in names[i + 1:]:
+                if keys[a] & keys[b]:
+                    continue                       # co-occur -> siblings, not synonyms
+                close = (a in b or b in a or stem(a, b) >= 5
+                         or suffix(a, b) >= 5
+                         or a.replace("_", "") == b.replace("_", ""))
+                if not close:
+                    continue
+                pairs.append({"parent": parent or "<root>", "a": a, "b": b,
+                              "a_topics": len(keys[a]), "b_topics": len(keys[b])})
+
+    require_controls(
+        "schema_synonyms",
+        ("screening.dual_screening / duplicate_screening is found as a synonym pair "
+         "(ARNI holds the first, SGLT2 the second)",
+         any({p["a"], p["b"]} == {"dual_screening", "duplicate_screening"} for p in pairs),
+         True),
+        ("ci_low and ci_high are NOT paired -- they co-occur, so they are siblings",
+         any({p["a"], p["b"]} == {"ci_low", "ci_high"} for p in pairs), True))
+
+    print("")
+    print("SCHEMA SYNONYMS across %d object(s)" % n)
+    print("")
+    print("KEYS -- one concept, two names, never co-occurring:  %d candidate pair(s)"
+          % len(pairs))
+    for p in sorted(pairs, key=lambda d: -(d["a_topics"] + d["b_topics"]))[:24]:
+        print("   %-40s %-26s (%d obj)  vs  %-26s (%d obj)"
+              % (p["parent"][:40], p["a"][:26], p["a_topics"], p["b"][:26], p["b_topics"]))
+    print("")
+    print("VALUES -- one concept, two spellings:")
+    nv = 0
+    for field, concept in VALUE_FIELDS.items():
+        seen = values.get(field) or {}
+        if len(seen) < 2:
+            continue
+        fam = collections.defaultdict(list)
+        for v in seen:
+            fam[v.replace("-effects", "").replace("_", "").replace("-", "").strip()].append(v)
+        for base, spellings in fam.items():
+            if len(spellings) > 1:
+                nv += 1
+                print("   %-18s %s  -> %s" % (field, concept,
+                                              " / ".join("%r (%d obj)" % (s, len(seen[s]))
+                                                         for s in sorted(spellings))))
+    if not nv:
+        print("   none found among %s" % ", ".join(VALUE_FIELDS))
+    print("")
+    print("A PAGE THAT READS ONE SPELLING PUBLISHES AN ABSENCE THAT IS NOT REAL, and an")
+    print("absence looks like caution rather than like an error. Nothing is unified here:")
+    print("that is a data change over %d objects and it is a decision, not a cleanup." % n)
+    json.dump({"objects": n, "key_pairs": pairs},
+              io.open(OUT, "w", encoding="utf-8"), indent=1)
+    print("")
+    print("written: %s" % os.path.relpath(OUT, REPO))
+
+
+if __name__ == "__main__":
+    main()

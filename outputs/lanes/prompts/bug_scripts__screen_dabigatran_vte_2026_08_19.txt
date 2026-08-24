@@ -1,0 +1,350 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/screen_dabigatran_vte_2026_08_19.py
+
+--- THE FILE, IN FULL ---
+#!/usr/bin/env python3
+"""SCREEN THE 38 SURFACED DABIGATRAN REGISTRATIONS TO ZERO, AND ASSIGN THEM TO READINGS.
+
+Search: evidence/2026-08-19-batch1/dabigatran_vte_search.json -- 38 == 38, RECONCILED. The null
+cursor agrees with the reconciliation rather than standing in for it.
+
+THE P21 QUESTION THIS FEEDS. The object holds four trials of four different questions and its
+estimate is already withdrawn. The surfaced set separates into readings by WHAT THE DRUG IS
+BEING GIVEN FOR, which is the axis that decides which events are even countable:
+
+    TREATMENT     acute symptomatic VTE, treated
+    EXTENDED      secondary prevention after treatment is complete
+    SURGICAL      prophylaxis after elective hip or knee replacement
+    CEREBRAL      cerebral venous and dural sinus thrombosis
+    NONE          outside all four -- dispositioned with the criterion named
+
+PRECEDENCE, STATED RATHER THAN DISCOVERED, and applied in this order:
+  1. CEREBRAL   conditionsModule / title names cerebral venous or dural sinus thrombosis.
+                First because a cerebral venous thrombosis trial is not a limb-DVT trial
+                whatever its comparator or duration.
+  2. SURGICAL   the population is defined by an ELECTIVE ARTHROPLASTY. Read from conditions and
+                title; prophylaxis in a surgical population is a different question from
+                treating a clot that has happened.
+  3. EXTENDED   the trial randomises AFTER a completed course of anticoagulation.
+  4. TREATMENT  acute symptomatic VTE.
+
+KNOWN MEMBERS ASSERTED IN ADVANCE (P43). The partition is refused entirely if any lands
+elsewhere -- a rule that partitions before it judges is the most damaging place to be wrong.
+
+USAGE:  python scripts/screen_dabigatran_vte_2026_08_19.py
+        python scripts/screen_dabigatran_vte_2026_08_19.py --selftest
+"""
+import io
+import json
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(REPO, "ssot"))
+import ctgov_transport as X                                            # noqa: E402
+import topic_identity as TI                                            # noqa: E402
+
+EV = os.path.join(REPO, "evidence", "2026-08-19-batch1")
+DEST = os.path.join(EV, "dabigatran_vte_screening.json")
+
+SURFACED = [
+    "NCT01184989", "NCT02197416", "NCT05735639", "NCT02067182", "NCT02979561", "NCT00680186",
+    "NCT01999179", "NCT03217448", "NCT02170935", "NCT00329238", "NCT01773174", "NCT00558259",
+    "NCT02170701", "NCT00291330", "NCT03240120", "NCT02913326", "NCT06887270", "NCT06551402",
+    "NCT04157881", "NCT01225822", "NCT01895777", "NCT00168818", "NCT02596555", "NCT00152971",
+    "NCT02815670", "NCT02223260", "NCT01431456", "NCT00246025", "NCT06581965", "NCT06551415",
+    "NCT03465735", "NCT02744092", "NCT00844415", "NCT01083732", "NCT03129555", "NCT00657150",
+    "NCT01210755", "NCT07352358",
+]
+IN_OBJECT = ["NCT00329238", "NCT01505881", "NCT02913326", "NCT00168805"]
+
+CEREBRAL = ("cerebral venous", "dural sinus", "cerebral venous sinus", "cerebral vein")
+SURGICAL = ("arthroplasty", "hip replacement", "knee replacement", "total hip", "total knee",
+            "elective total", "joint replacement")
+EXTENDED = ("extended", "secondary prevention", "long-term prevention", "prolonged",
+            "recurrent venous thromboembolism", "long term prevention")
+TREATMENT = ("acute symptomatic", "treatment of symptomatic", "symptomatic deep-vein",
+             "symptomatic deep vein", "treatment of acute", "acute deep vein",
+             "acute proximal", "pulmonary embolism")
+
+READINGS = ("CEREBRAL", "SURGICAL", "EXTENDED", "TREATMENT", "NONE")
+
+KNOWN_MEMBERS = {
+    "NCT02913326": ("CEREBRAL", "RE-SPECT CVT -- cerebral venous and dural sinus thrombosis"),
+    "NCT00168818": ("SURGICAL", "RE-NOVATE -- elective total hip replacement"),
+    "NCT00152971": ("SURGICAL", "RE-MODEL sibling -- elective total knee replacement"),
+    "NCT00558259": ("EXTENDED", "RE-SONATE -- long-term prevention after treatment, vs PLACEBO"),
+    "NCT00329238": ("EXTENDED", "RE-MEDY -- secondary prevention, vs warfarin"),
+    "NCT00291330": ("TREATMENT", "RE-COVER -- 6-month treatment of acute symptomatic VTE"),
+    "NCT00680186": ("TREATMENT", "RE-COVER II -- the same design, second trial"),
+}
+
+
+def norm(s):
+    return " ".join(str(s or "").lower().replace("–", "-").split())
+
+
+def _any(terms, blob):
+    return sorted({t for t in terms if t in blob})
+
+
+def assign(study):
+    ps = study.get("protocolSection") or {}
+    idm = ps.get("identificationModule") or {}
+    dm = ps.get("designModule") or {}
+    conds = norm(" ; ".join((ps.get("conditionsModule") or {}).get("conditions") or []))
+    title = norm(" ".join([str(idm.get("briefTitle") or ""), str(idm.get("officialTitle") or "")]))
+    both = conds + " " + title
+    role, role_ev = TI.locate(study, TI.synonyms_for("dabigatran")
+                              if "dabigatran" in TI.TOPIC_SYNONYMS
+                              else ["dabigatran", "dabigatran etexilate", "pradaxa", "bibr 1048"])
+    ev = {
+        "brief_title": (idm.get("briefTitle") or "")[:130],
+        "conditions": (ps.get("conditionsModule") or {}).get("conditions"),
+        "enrolment": (dm.get("enrollmentInfo") or {}).get("count"),
+        "status": (ps.get("statusModule") or {}).get("overallStatus"),
+        "allocation": (dm.get("designInfo") or {}).get("allocation"),
+        "n_arms": len((ps.get("armsInterventionsModule") or {}).get("armGroups") or []),
+        "has_results": bool(study.get("hasResults")),
+        "arm_role": role,
+        "phases": dm.get("phases"),
+    }
+    hit = _any(CEREBRAL, both)
+    if hit:
+        return "CEREBRAL", "names %s" % ", ".join(hit), ev
+    hit = _any(SURGICAL, both)
+    if hit:
+        return "SURGICAL", "the population is an elective arthroplasty (%s)" % ", ".join(hit), ev
+    hit = _any(EXTENDED, both)
+    if hit:
+        return "EXTENDED", "randomises after a completed course (%s)" % ", ".join(hit), ev
+    hit = _any(TREATMENT, both)
+    if hit:
+        return "TREATMENT", "acute symptomatic venous thromboembolism (%s)" % ", ".join(hit), ev
+    return "NONE", "no reading's population terms are matched by the conditions or the title", ev
+
+
+def disposition(reading, ev):
+    """EVERY failing limb is reported, never only the first (P15)."""
+    fails = []
+    if reading == "NONE":
+        fails.append("POPULATION: outside all four readings")
+    if ev["arm_role"] == "not_assessable":
+        return "NOT_ASSESSABLE", ["ARM ROLE: dabigatran could not be located in the arms, the "
+                                  "interventions or the title. ABSENT IS NOT ZERO."]
+    if ev["arm_role"] not in ("experimental", "comparator"):
+        fails.append("INTERVENTION: dabigatran is not the randomised contrast (role %r)"
+                     % ev["arm_role"])
+    if (ev["allocation"] or "").upper() != "RANDOMIZED":
+        fails.append("DESIGN: allocation is %r, not RANDOMIZED" % ev["allocation"])
+    if ev["n_arms"] < 2:
+        fails.append("COMPARATOR: %d arm(s) declared; no randomised contrast to read"
+                     % ev["n_arms"])
+    if fails:
+        return "EXCLUDED", fails
+    st = (ev.get("status") or "").upper()
+    if not ev["has_results"]:
+        if st in ("COMPLETED", "TERMINATED", "WITHDRAWN", "SUSPENDED", "UNKNOWN"):
+            return "ELIGIBLE_COMPLETED_NO_RESULTS_POSTED", [
+                "eligible on every limb; status %r and NO results section on this registry. A "
+                "publication may exist and this registry search cannot see one." % ev["status"]]
+        return "ELIGIBLE_NO_RESULTS_YET", ["eligible; status %r, not yet reported" % ev["status"]]
+    return "ELIGIBLE_WITH_RESULTS", ["eligible on every limb, and results are posted. The "
+                                     "estimand screen is a SEPARATE stage."]
+
+
+def screen():
+    rows = []
+    for nct in SURFACED:
+        st, s, detail = X.fetch_raw(nct, fields="protocolSection,hasResults")
+        if st != X.OK:
+            rows.append({"nct": nct, "reading": "NOT_ASSESSABLE",
+                         "why": "transport: %s" % st, "disposition": "NOT_ASSESSABLE",
+                         "disposition_why": ["TRANSPORT %s -- unreachable is not absent" % st],
+                         "evidence": {}})
+            continue
+        reading, why, ev = assign(s)
+        disp, dwhy = disposition(reading, ev)
+        rows.append({"nct": nct, "reading": reading, "why": why, "disposition": disp,
+                     "disposition_why": dwhy, "evidence": ev})
+    return rows
+
+
+def assert_known(rows):
+    by = {r["nct"]: r for r in rows}
+    bad = []
+    for nct, (want, why) in sorted(KNOWN_MEMBERS.items()):
+        r = by.get(nct)
+        if r is None:
+            bad.append("%s is a declared known member and IS NOT IN THE SURFACED SET" % nct)
+        elif r["reading"] != want:
+            bad.append("%s -> %s, declared %s (%s)" % (nct, r["reading"], want, why))
+    return bad
+
+
+def main():
+    rows = screen()
+    bad = assert_known(rows)
+    if bad:
+        print("PARTITION REFUSED -- %d declared member(s) landed elsewhere:\n" % len(bad))
+        for b in bad:
+            print("   " + b)
+        print("\nNOTHING WAS WRITTEN.")
+        return 2
+
+    casc, disp, by = {}, {}, {}
+    for r in rows:
+        casc[(r.get("evidence") or {}).get("arm_role") or "unreadable"] = \
+            casc.get((r.get("evidence") or {}).get("arm_role") or "unreadable", 0) + 1
+        disp[r["disposition"]] = disp.get(r["disposition"], 0) + 1
+        b = by.setdefault(r["reading"], {"records": 0, "eligible": 0, "with_results": 0,
+                                         "ncts": []})
+        b["records"] += 1
+        b["ncts"].append(r["nct"])
+        if r["disposition"].startswith("ELIGIBLE"):
+            b["eligible"] += 1
+        if r["disposition"] == "ELIGIBLE_WITH_RESULTS":
+            b["with_results"] += 1
+
+    assert sum(disp.values()) == len(SURFACED)
+    print("SURFACED %d   screened %d   UNSCREENED REMAINDER %d\n"
+          % (len(SURFACED), sum(disp.values()), len(SURFACED) - sum(disp.values())))
+    print("arm-role cascade:")
+    for k in sorted(casc):
+        print("    %-32s %3d" % (k, casc[k]))
+    print("\ndispositions:")
+    for k in sorted(disp):
+        print("    %-38s %3d" % (k, disp[k]))
+    print("")
+    for k in READINGS:
+        b = by.get(k)
+        if not b:
+            print("  %-10s records  0" % k)
+            continue
+        print("  %-10s records %2d   ELIGIBLE %2d   with posted results %2d"
+              % (k, b["records"], b["eligible"], b["with_results"]))
+    print("")
+    for k in READINGS:
+        if k == "NONE":
+            continue
+        el = [r for r in rows if r["reading"] == k and r["disposition"].startswith("ELIGIBLE")]
+        print("  %s -- eligible (%d):" % (k, len(el)))
+        for r in sorted(el, key=lambda r: -(r["evidence"].get("enrolment") or 0)):
+            e = r["evidence"]
+            print("      %-12s n=%-6s %-11s %s"
+                  % (r["nct"], e.get("enrolment"),
+                     "RESULTS" if e.get("has_results") else "no results",
+                     (e.get("brief_title") or "")[:56]))
+        if not el:
+            print("      NONE -- AN EMPTY QUESTION, not a review.")
+
+    out = {"topic": "dabigatran-vte-review", "screened_utc": "2026-08-19",
+           "surfaced": len(SURFACED), "arm_role_cascade": casc, "dispositions": disp,
+           "k_unscreened_remainder": len(SURFACED) - sum(disp.values()),
+           "known_member_assertion": "PASSED -- %d declared members" % len(KNOWN_MEMBERS),
+           "known_members": {k: v[0] for k, v in KNOWN_MEMBERS.items()},
+           "precedence": "CEREBRAL > SURGICAL > EXTENDED > TREATMENT, stated not discovered",
+           "by_reading": by,
+           "recall_note": ("The object's four trials include NCT01505881, a MECHANICAL HEART "
+                           "VALVE trial, and NCT00168805 (RE-MODEL), which the condition filter "
+                           "missed because it is coded with the broader term `Thromboembolism`. "
+                           "Neither is in this surfaced set and both are recorded in "
+                           "dabigatran_vte_search.json."),
+           "rows": rows}
+    with io.open(DEST, "w", encoding="utf-8") as fh:
+        fh.write(json.dumps(out, indent=1, ensure_ascii=False))
+    print("\nwrote %s" % os.path.relpath(DEST, REPO))
+    return 0
+
+
+def selftest():
+    fails = []
+
+    def ck(name, got, want):
+        ok = got == want
+        print("  %-66s %s  %r" % (name, "ok" if ok else "FAIL", got))
+        if not ok:
+            fails.append(name)
+
+    print("1. EVERY DECLARED KNOWN MEMBER LANDS IN ITS DECLARED READING (P43):")
+    for nct, (want, why) in sorted(KNOWN_MEMBERS.items()):
+        st, s, _ = X.fetch_raw(nct, fields="protocolSection,hasResults")
+        if st != X.OK:
+            fails.append("transport %s" % nct)
+            continue
+        ck("%s -> %s" % (nct, want), assign(s)[0], want)
+
+    print("\n2. THE GUARD CAN FIRE, and does not fire on the correct case (P16):")
+    # ---------------------------------------------------------------------------------------
+    # READ THIS BEFORE ASSUMING THE GUARD WAS LOOSENED. It was not. `assert_known` was never
+    # changed; the ASSERTION was.
+    #
+    # The first version of this block passed a ONE-ROW list to `assert_known`, which checks all
+    # seven declared members. Six were legitimately reported ABSENT, so the call returned 7
+    # while the assertion expected 1, and the selftest failed.
+    #
+    #   THE TEST WAS WRONG AND THE GUARD WAS RIGHT.
+    #
+    # That is the harder of the two cases a control exists to tell apart, and the tempting fix
+    # -- relax `assert_known` until the number comes back 1 -- would have silently destroyed the
+    # only thing protecting the partition: its ability to notice a member that is missing rather
+    # than merely misplaced. The fixture was corrected instead, so it now carries EVERY known
+    # member and misplaces exactly one.
+    #
+    # A future reader who finds a guard and a test disagreeing should establish which one is
+    # wrong before changing either. Here it was the TEST.
+    # ---------------------------------------------------------------------------------------
+    allright = [{"nct": n, "reading": w} for n, (w, _y) in KNOWN_MEMBERS.items()]
+    ck("all seven in their declared readings is NOT refused", assert_known(allright), [])
+    one_wrong = [dict(r, reading=("SURGICAL" if r["nct"] == "NCT00291330" else r["reading"]))
+                 for r in allright]
+    ck("exactly one misplaced member is reported", len(assert_known(one_wrong)), 1)
+    ck("and it names the trial", "NCT00291330" in assert_known(one_wrong)[0], True)
+    ck("a member absent from the set is reported",
+       len(assert_known([{"nct": "NCT99999999", "reading": "TREATMENT"}])),
+       len(KNOWN_MEMBERS))
+
+    print("\n3. THE SURFACED LIST MATCHES THE SEARCH RECORD IT CAME FROM:")
+    ck("38 surfaced", len(SURFACED), 38)
+    ck("and all distinct", len(set(SURFACED)), 38)
+
+    print("\n%s" % ("SELFTEST FAILED: %s" % fails if fails else "SELFTEST PASSED"))
+    return 1 if fails else 0
+
+
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    sys.exit(selftest() if "--selftest" in sys.argv else main())

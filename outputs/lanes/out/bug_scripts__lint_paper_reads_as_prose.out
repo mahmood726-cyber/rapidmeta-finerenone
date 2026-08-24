@@ -1,0 +1,691 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a031f1-6772-79f3-944f-a0a49ad8b3ec
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/lint_paper_reads_as_prose.py
+
+--- THE FILE, IN FULL ---
+"""How much of the Paper panel is machine vocabulary a reader has no way to parse?
+
+MAHMOOD READ `SGLT2_HF_REVIEW.html#paper` ON THE PUBLIC HOST AND CALLED IT "COMPUTER CODE".
+He is the second reader tonight to reach that manuscript and bounce off it, AFTER the
+`#paper` anchor was created and the section order was fixed. So the ordering was necessary
+and was not what either of them met.
+
+THIS COUNTS SENTENCES, NOT SECTIONS. A sentence reads as code if it contains any of:
+
+    FIELD PATH      a dotted path into the object -- `results.by_outcome.x.heterogeneity.i2`,
+                    `screening.eligibility_provenance`, `protocol.rationale`
+    SNAKE/CAMEL     an identifier in the prose -- `cvdeath_or_whf_first`,
+                    `harmonised_cvdeath_or_hhf`, `k_unscreened_remainder`
+    BARE NCT        a registration id inline in a sentence rather than in a table or a
+                    provenance line
+    STORAGE DIGITS  a number carried at more decimal places than the estimate supports --
+                    `0.7576` where the page renders 0.76, `tau-squared 0.0012`
+    RAW STATS       machine statistics with no gloss -- `tau^2`, `I^2`, `zval`, `pval`,
+                    `ci.lb`, `se`, `Q(df = 2)`
+
+AND SEPARATELY, THE PROVENANCE ARROW. Every projected paragraph on every page ends with
+`<small class='muted'>&larr; <field path></small>`. That is not one topic's prose; it is
+`ssot/paper_projector.py` appending the source field to each paragraph it writes. IT IS
+CORRECT AND IT IS THE SINGLE LARGEST SOURCE OF FIELD NAMES IN THE READER'S EYE. Counted on
+its own line here because the fix for it is a projector change that reaches 141 pages, not a
+rewrite of one topic.
+
+WHAT THIS DOES NOT MEASURE, AND WILL NOT. The `Statistical output, quoted verbatim` section
+is R console output ON PURPOSE -- P46's fourth criterion requires the model output quoted
+verbatim, and a reader who wants to check the arithmetic needs exactly those characters. It
+is machine vocabulary that BELONGS. It is excluded by name, and excluding it is the
+difference between measuring a defect and measuring the standard.
+
+THREE STATES. A page with no Paper panel is NOT_ASSESSABLE, not clean.
+"""
+import io
+import os
+import re
+import sys
+import glob
+import html as htmllib
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from instrument_controls import require_controls
+
+# Sections that are machine vocabulary BY DESIGN and are excluded from the count.
+# "quoted verbatim" as a substring, because the heading is not stable across generators:
+# the delivered SGLT2 page says "Statistical output, quoted verbatim" and an older build
+# says "Analysis output - <estimand> (quoted verbatim)". Matching the stable phrase rather
+# than one generator's wording is the difference between excluding the R output and
+# counting it as a defect.
+BY_DESIGN = ("quoted verbatim", "software availability", "data availability",
+             "references", "submission conformance")
+
+READER_FACING = ("abstract", "introduction", "discussion", "conclusions")
+
+FIELD_PATH = re.compile(
+    r"\b(?:results|screening|protocol|search|config|outcomes|risk_of_bias|grade|inputs|"
+    r"k_cascade|prisma_flow|manuscript|methodological_authority|withholding_question)"
+    r"[\.\[][\w\.\[\]=\-]+")
+SNAKE = re.compile(r"\b[a-z][a-z0-9]*(?:_[a-z0-9]+){1,}\b")
+CAMEL = re.compile(r"\b[a-z]+[A-Z][a-zA-Z]*\b")
+NCT = re.compile(r"\bNCT\d{8}\b")
+RAW_STATS = re.compile(
+    r"tau\^2|I\^2|H\^2|\bzval\b|\bpval\b|\bci\.(?:lb|ub)\b|\bpi\.(?:lb|ub)\b|"
+    r"\bQ\(df\s*=|\byi\s*=|\bsei\s*=|\brma\(|\bqnorm\(|\bp-val\b|\btau-squared\b|"
+    r"\bI-squared\b|degrees of freedom")
+# Four or more decimal places is beyond what any effect estimate on these pages supports.
+STORAGE_DIGITS = re.compile(r"\d\.\d{4,}")
+
+SENT = re.compile(r"(?<=[.!?])\s+(?=[A-Z←])|\n+")
+
+
+def panel_text(raw):
+    """(sections, provenance entries) from the delivered bytes. sections = [(heading, text)].
+
+    THE BOUNDARY IS THE <h2>, AND THE FIRST VERSION OF THIS FUNCTION GOT IT WRONG. It
+    started at `id="paper"` and ended at the next element carrying an `id` it recognised --
+    which on this page does not exist, so it ran to the end of the file and swept in the
+    Extract and Analysis panels. It reported 41 sections where the Paper panel has 27, and
+    the sections it added -- `Preconditions`, `Page standard 1.12.0`, `Analysis output --
+    <estimand> (quoted verbatim)` -- are exactly the machine-vocabulary-heavy ones, so the
+    error inflated the very number the instrument exists to report. Found by reading the
+    section list after a change that should have moved it and did not.
+    """
+    i = raw.find('id="pn-paper"')
+    if i < 0:
+        i = raw.find('id="paper"')
+    if i < 0:
+        return None, 0
+    h2 = raw.find("<h2", i)
+    if h2 < 0:
+        return None, 0
+    # END AT THE NEXT PANEL, not the next <h2>. The Paper card carries exactly one <h2>
+    # and the Extract and Analysis panels that follow use <h3> throughout, so "to the next
+    # <h2>" ran to the end of the file and swept both of them in.
+    end = raw.find('class="panel"', h2)
+    panel = raw[h2:end if end > 0 else len(raw)]
+
+    arrows = panel.count("&larr;") + panel.count("←")
+    # THE PROVENANCE COLUMN IS NOT PROSE, for exactly the reason the arrow was not: it is
+    # the field paths, deliberately outside the sentence flow, counted on their own line.
+    # Counting it as prose would score the fix as a failure BECAUSE it moved the paths
+    # somewhere visible, which is the one thing the fix was for.
+    prov = len(re.findall(r"(?is)<li>\s*<code>", panel))
+    # TABLES ARE NOT PROSE, AND COUNTING THEM HERE MIS-SPECIFIED THE METRIC.
+    # After the register change, ten of the twenty-five remaining "machine sentences" were
+    # NCT strings in the registration-identity and trial-characteristics tables -- that is,
+    # identifiers doing exactly what this project's own rule says they should do: live in a
+    # table rather than in a sentence. A metric that scores the design working as a defect
+    # is wrong, and it is wrong in the direction of a worse-looking number, which is not a
+    # safer kind of wrong.
+    #
+    # Machine vocabulary inside a table CELL is not unmeasured: it is the subject of
+    # scripts/lint_container_repr_on_a_page.py, which is a stronger check for it -- a
+    # Python dict repr in a cell is not one machine sentence among twenty-five, it is a
+    # different order of defect and gets counted as one.
+    cells = len(re.findall(r"(?is)<t[dh][ >]", panel))
+    panel = re.sub(r"(?is)<table.*?</table>", " ", panel)
+    panel = re.sub(r"(?is)<div class=.prov-block.>.*?</ol>\s*</div>", " ", panel)
+
+    t = re.sub(r"(?is)<script.*?</script>", " ", panel)
+    t = re.sub(r"(?is)<style.*?</style>", " ", t)
+    # The provenance arrow is its own element and is counted separately, not as prose.
+    t = re.sub(r"(?is)<small[^>]*>\s*(?:&larr;|←).*?</small>", " ", t)
+    t = re.sub(r"(?i)<h[1-6][^>]*>", "\n@@@", t)
+    t = re.sub(r"(?i)</h[1-6]>", "\n", t)
+    t = re.sub(r"(?i)<(p|div|li|tr|br)[^>]*>", "\n", t)
+    t = re.sub(r"<[^>]+>", " ", t)
+    t = htmllib.unescape(t)
+    t = re.sub(r"[ \t]+", " ", t)
+
+    sections, head, buf = [], "(preamble)", []
+    for line in t.split("\n"):
+        if line.startswith("@@@"):
+            sections.append((head, "\n".join(buf)))
+            head, buf = line[3:].strip(), []
+        else:
+            if line.strip():
+                buf.append(line.strip())
+    sections.append((head, "\n".join(buf)))
+    return sections, arrows + prov
+
+
+def score(text):
+    """-> (sentences, machine_sentences, reasons Counter-ish dict)."""
+    sents = [s.strip() for s in SENT.split(text) if len(s.strip()) > 25]
+    bad, why = 0, {}
+    for s in sents:
+        hits = []
+        if FIELD_PATH.search(s):
+            hits.append("field path")
+        if RAW_STATS.search(s):
+            hits.append("raw stats")
+        if NCT.search(s):
+            hits.append("bare NCT")
+        if STORAGE_DIGITS.search(s):
+            hits.append("storage digits")
+        # snake/camel, after field paths so a path is not double-counted
+        if not hits or "field path" not in hits:
+            if SNAKE.search(s) or CAMEL.search(s):
+                hits.append("identifier")
+        if hits:
+            bad += 1
+            for h in hits:
+                why[h] = why.get(h, 0) + 1
+    return len(sents), bad, why
+
+
+def measure(path):
+    raw = io.open(path, encoding="utf-8", errors="replace").read()
+    sections, arrows = panel_text(raw)
+    if sections is None:
+        return None
+    tot = mach = 0
+    rf_tot = rf_mach = 0
+    why = {}
+    worst = []
+    for head, text in sections:
+        h = head.lower().strip()
+        if any(b in h for b in BY_DESIGN):
+            continue
+        n, b, w = score(text)
+        tot += n
+        mach += b
+        for k, v in w.items():
+            why[k] = why.get(k, 0) + v
+        if any(r in h for r in READER_FACING):
+            rf_tot += n
+            rf_mach += b
+        if b:
+            worst.append((b, n, head))
+    worst.sort(reverse=True)
+    return {"sentences": tot, "machine": mach, "arrows": arrows, "why": why,
+            "reader_facing": (rf_mach, rf_tot), "worst": worst}
+
+
+def main():
+    target = None
+    for a in sys.argv[1:]:
+        if not a.startswith("--"):
+            target = a
+    figs = REPO   # delivered pages live at the repo root, not in figs/
+    paths = ([target] if target
+             else sorted(glob.glob(os.path.join(figs, "*_REVIEW.html"))))
+
+    # CONTROLS. The positive is the page Mahmood read; its Paper panel demonstrably
+    # contains field paths, because they are visible in the delivered bytes. The negative
+    # is the verbatim-R section, which is machine vocabulary BY DESIGN -- if the check
+    # counts that, it is measuring the standard rather than a defect.
+    probe = os.path.join(figs, "SGLT2_HF_REVIEW.html")
+    if os.path.exists(probe):
+        m = measure(probe)
+        raw = io.open(probe, encoding="utf-8", errors="replace").read()
+        secs, _a = panel_text(raw)
+        # Is any "quoted verbatim" section reaching the count? It must not: that is R
+        # console output P46 requires, and a check that scored it would be measuring the
+        # standard rather than a defect. Stated as the plain question rather than the
+        # double negative the first version used.
+        secs, _a = panel_text(raw)
+        verbatim_sections = [h for h, _t in (secs or []) if "quoted verbatim" in h.lower()]
+        verbatim_counted = any(
+            not any(b in h.lower() for b in BY_DESIGN) for h in verbatim_sections)
+        require_controls(
+            "lint_paper_reads_as_prose",
+            positive=("SGLT2_HF_REVIEW's Paper panel, which a reader called computer code",
+                      m is not None and m["machine"] > 0, True),
+            negative=("the %d verbatim-R section(s), machine vocabulary BY DESIGN"
+                      % len(verbatim_sections), verbatim_counted, True))
+        # SECOND NEGATIVE CONTROL, declared for the same reason as the first. A trial
+        # characteristics row -- "NCT03036124 DAPA-HF dapagliflozin 10 mg once daily
+        # (treatment, n=2373) vs placebo (control, n=2371)" -- is an identifier in a table,
+        # which is where this project's own rule puts identifiers. It must NOT be counted.
+        _row = ("<table><tr><td>NCT03036124</td><td>DAPA-HF</td></tr></table>"
+                "<p>An ordinary sentence with no machine vocabulary at all.</p>")
+        _secs2, _p2 = panel_text('<span id="paper"></span><h2>Paper</h2><h3>T</h3>'
+                                 + _row + '<div class="panel">')
+        _n2, _b2, _w2 = score(chr(10).join(t for _h, t in (_secs2 or [])))
+        require_controls(
+            "lint_paper_reads_as_prose/tables",
+            positive=("a paragraph of plain prose is still read as a sentence", _n2 > 0,
+                      True),
+            negative=("a trial-characteristics table row carrying an NCT", _b2 > 0, True))
+
+    print("")
+    rows = []
+    for p in paths:
+        m = measure(p)
+        name = os.path.basename(p)
+        if m is None:
+            rows.append((name, None))
+            continue
+        rows.append((name, m))
+
+    assessable = [(n, m) for n, m in rows if m]
+    print("PAPER PANELS MEASURED: %d; NOT_ASSESSABLE (no Paper panel): %d"
+          % (len(assessable), len(rows) - len(assessable)))
+    print("NOT_ASSESSABLE MEANS NO PANEL WAS FOUND, NOT THAT THE PROSE IS CLEAN.")
+
+    if target or len(assessable) == 1:
+        for name, m in assessable:
+            pct = 100.0 * m["machine"] / m["sentences"] if m["sentences"] else 0
+            rf_m, rf_t = m["reader_facing"]
+            print("")
+            print("%s" % name)
+            print("    sentences in the Paper panel (verbatim-R and references excluded) %4d"
+                  % m["sentences"])
+            print("    sentences carrying machine vocabulary                            %4d"
+                  " (%.0f%%)" % (m["machine"], pct))
+            print("    of those, in the four READER-FACING sections                     %4d"
+                  " of %d" % (rf_m, rf_t))
+            print("    provenance arrows appended by the projector                      %4d"
+                  % m["arrows"])
+            for k in sorted(m["why"], key=lambda k: -m["why"][k]):
+                print("        %-16s %4d" % (k, m["why"][k]))
+            print("    heaviest sections:")
+            for b, n, head in m["worst"][:8]:
+                print("        %3d/%-3d  %s" % (b, n, head))
+        return
+
+    tot_s = sum(m["sentences"] for _n, m in assessable)
+    tot_m = sum(m["machine"] for _n, m in assessable)
+    tot_a = sum(m["arrows"] for _n, m in assessable)
+    print("")
+    print("ACROSS THE CORPUS")
+    print("    sentences                    %6d" % tot_s)
+    print("    carrying machine vocabulary  %6d  (%.0f%%)"
+          % (tot_m, 100.0 * tot_m / tot_s if tot_s else 0))
+    print("    provenance arrows            %6d" % tot_a)
+    print("")
+    print("WORST PAGES BY PROPORTION:")
+    ranked = sorted(((100.0 * m["machine"] / m["sentences"] if m["sentences"] else 0,
+                      m["machine"], m["sentences"], n) for n, m in assessable),
+                    reverse=True)
+    for pct, b, n_, name in ranked[:12]:
+        print("    %5.0f%%  %4d/%-4d  %s" % (pct, b, n_, name))
+
+
+if __name__ == "__main__":
+    main()
+
+codex
+I’ll stick to the pasted record and focus only on demonstrable defects in the named shapes.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=0; Get-Content -Path scripts/lint_paper_reads_as_prose.py | ForEach-Object { $i++; '"'{0,4}: {1}' -f "'$i, $_ }' in F:\rapidmeta-ssot-shell
+ succeeded in 1264ms:
+   1: """How much of the Paper panel is machine vocabulary a reader has no way to parse?
+   2: 
+   3: MAHMOOD READ `SGLT2_HF_REVIEW.html#paper` ON THE PUBLIC HOST AND CALLED IT "COMPUTER CODE".
+   4: He is the second reader tonight to reach that manuscript and bounce off it, AFTER the
+   5: `#paper` anchor was created and the section order was fixed. So the ordering was necessary
+   6: and was not what either of them met.
+   7: 
+   8: THIS COUNTS SENTENCES, NOT SECTIONS. A sentence reads as code if it contains any of:
+   9: 
+  10:     FIELD PATH      a dotted path into the object -- `results.by_outcome.x.heterogeneity.i2`,
+  11:                     `screening.eligibility_provenance`, `protocol.rationale`
+  12:     SNAKE/CAMEL     an identifier in the prose -- `cvdeath_or_whf_first`,
+  13:                     `harmonised_cvdeath_or_hhf`, `k_unscreened_remainder`
+  14:     BARE NCT        a registration id inline in a sentence rather than in a table or a
+  15:                     provenance line
+  16:     STORAGE DIGITS  a number carried at more decimal places than the estimate supports --
+  17:                     `0.7576` where the page renders 0.76, `tau-squared 0.0012`
+  18:     RAW STATS       machine statistics with no gloss -- `tau^2`, `I^2`, `zval`, `pval`,
+  19:                     `ci.lb`, `se`, `Q(df = 2)`
+  20: 
+  21: AND SEPARATELY, THE PROVENANCE ARROW. Every projected paragraph on every page ends with
+  22: `<small class='muted'>&larr; <field path></small>`. That is not one topic's prose; it is
+  23: `ssot/paper_projector.py` appending the source field to each paragraph it writes. IT IS
+  24: CORRECT AND IT IS THE SINGLE LARGEST SOURCE OF FIELD NAMES IN THE READER'S EYE. Counted on
+  25: its own line here because the fix for it is a projector change that reaches 141 pages, not a
+  26: rewrite of one topic.
+  27: 
+  28: WHAT THIS DOES NOT MEASURE, AND WILL NOT. The `Statistical output, quoted verbatim` section
+  29: is R console output ON PURPOSE -- P46's fourth criterion requires the model output quoted
+  30: verbatim, and a reader who wants to check the arithmetic needs exactly those characters. It
+  31: is machine vocabulary that BELONGS. It is excluded by name, and excluding it is the
+  32: difference between measuring a defect and measuring the standard.
+  33: 
+  34: THREE STATES. A page with no Paper panel is NOT_ASSESSABLE, not clean.
+  35: """
+  36: import io
+  37: import os
+  38: import re
+  39: import sys
+  40: import glob
+  41: import html as htmllib
+  42: 
+  43: REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+  44: sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+  45: from instrument_controls import require_controls
+  46: 
+  47: # Sections that are machine vocabulary BY DESIGN and are excluded from the count.
+  48: # "quoted verbatim" as a substring, because the heading is not stable across generators:
+  49: # the delivered SGLT2 page says "Statistical output, quoted verbatim" and an older build
+  50: # says "Analysis output - <estimand> (quoted verbatim)". Matching the stable phrase rather
+  51: # than one generator's wording is the difference between excluding the R output and
+  52: # counting it as a defect.
+  53: BY_DESIGN = ("quoted verbatim", "software availability", "data availability",
+  54:              "references", "submission conformance")
+  55: 
+  56: READER_FACING = ("abstract", "introduction", "discussion", "conclusions")
+  57: 
+  58: FIELD_PATH = re.compile(
+  59:     r"\b(?:results|screening|protocol|search|config|outcomes|risk_of_bias|grade|inputs|"
+  60:     r"k_cascade|prisma_flow|manuscript|methodological_authority|withholding_question)"
+  61:     r"[\.\[][\w\.\[\]=\-]+")
+  62: SNAKE = re.compile(r"\b[a-z][a-z0-9]*(?:_[a-z0-9]+){1,}\b")
+  63: CAMEL = re.compile(r"\b[a-z]+[A-Z][a-zA-Z]*\b")
+  64: NCT = re.compile(r"\bNCT\d{8}\b")
+  65: RAW_STATS = re.compile(
+  66:     r"tau\^2|I\^2|H\^2|\bzval\b|\bpval\b|\bci\.(?:lb|ub)\b|\bpi\.(?:lb|ub)\b|"
+  67:     r"\bQ\(df\s*=|\byi\s*=|\bsei\s*=|\brma\(|\bqnorm\(|\bp-val\b|\btau-squared\b|"
+  68:     r"\bI-squared\b|degrees of freedom")
+  69: # Four or more decimal places is beyond what any effect estimate on these pages supports.
+  70: STORAGE_DIGITS = re.compile(r"\d\.\d{4,}")
+  71: 
+  72: SENT = re.compile(r"(?<=[.!?])\s+(?=[A-Zâ†])|\n+")
+  73: 
+  74: 
+  75: def panel_text(raw):
+  76:     """(sections, provenance entries) from the delivered bytes. sections = [(heading, text)].
+  77: 
+  78:     THE BOUNDARY IS THE <h2>, AND THE FIRST VERSION OF THIS FUNCTION GOT IT WRONG. It
+  79:     started at `id="paper"` and ended at the next element carrying an `id` it recognised --
+  80:     which on this page does not exist, so it ran to the end of the file and swept in the
+  81:     Extract and Analysis panels. It reported 41 sections where the Paper panel has 27, and
+  82:     the sections it added -- `Preconditions`, `Page standard 1.12.0`, `Analysis output --
+  83:     <estimand> (quoted verbatim)` -- are exactly the machine-vocabulary-heavy ones, so the
+  84:     error inflated the very number the instrument exists to report. Found by reading the
+  85:     section list after a change that should have moved it and did not.
+  86:     """
+  87:     i = raw.find('id="pn-paper"')
+  88:     if i < 0:
+  89:         i = raw.find('id="paper"')
+  90:     if i < 0:
+  91:         return None, 0
+  92:     h2 = raw.find("<h2", i)
+  93:     if h2 < 0:
+  94:         return None, 0
+  95:     # END AT THE NEXT PANEL, not the next <h2>. The Paper card carries exactly one <h2>
+  96:     # and the Extract and Analysis panels that follow use <h3> throughout, so "to the next
+  97:     # <h2>" ran to the end of the file and swept both of them in.
+  98:     end = raw.find('class="panel"', h2)
+  99:     panel = raw[h2:end if end > 0 else len(raw)]
+ 100: 
+ 101:     arrows = panel.count("&larr;") + panel.count("â†")
+ 102:     # THE PROVENANCE COLUMN IS NOT PROSE, for exactly the reason the arrow was not: it is
+ 103:     # the field paths, deliberately outside the sentence flow, counted on their own line.
+ 104:     # Counting it as prose would score the fix as a failure BECAUSE it moved the paths
+ 105:     # somewhere visible, which is the one thing the fix was for.
+ 106:     prov = len(re.findall(r"(?is)<li>\s*<code>", panel))
+ 107:     # TABLES ARE NOT PROSE, AND COUNTING THEM HERE MIS-SPECIFIED THE METRIC.
+ 108:     # After the register change, ten of the twenty-five remaining "machine sentences" were
+ 109:     # NCT strings in the registration-identity and trial-characteristics tables -- that is,
+ 110:     # identifiers doing exactly what this project's own rule says they should do: live in a
+ 111:     # table rather than in a sentence. A metric that scores the design working as a defect
+ 112:     # is wrong, and it is wrong in the direction of a worse-looking number, which is not a
+ 113:     # safer kind of wrong.
+ 114:     #
+ 115:     # Machine vocabulary inside a table CELL is not unmeasured: it is the subject of
+ 116:     # scripts/lint_container_repr_on_a_page.py, which is a stronger check for it -- a
+ 117:     # Python dict repr in a cell is not one machine sentence among twenty-five, it is a
+ 118:     # different order of defect and gets counted as one.
+ 119:     cells = len(re.findall(r"(?is)<t[dh][ >]", panel))
+ 120:     panel = re.sub(r"(?is)<table.*?</table>", " ", panel)
+ 121:     panel = re.sub(r"(?is)<div class=.prov-block.>.*?</ol>\s*</div>", " ", panel)
+ 122: 
+ 123:     t = re.sub(r"(?is)<script.*?</script>", " ", panel)
+ 124:     t = re.sub(r"(?is)<style.*?</style>", " ", t)
+ 125:     # The provenance arrow is its own element and is counted separately, not as prose.
+ 126:     t = re.sub(r"(?is)<small[^>]*>\s*(?:&larr;|â†).*?</small>", " ", t)
+ 127:     t = re.sub(r"(?i)<h[1-6][^>]*>", "\n@@@", t)
+ 128:     t = re.sub(r"(?i)</h[1-6]>", "\n", t)
+ 129:     t = re.sub(r"(?i)<(p|div|li|tr|br)[^>]*>", "\n", t)
+ 130:     t = re.sub(r"<[^>]+>", " ", t)
+ 131:     t = htmllib.unescape(t)
+ 132:     t = re.sub(r"[ \t]+", " ", t)
+ 133: 
+ 134:     sections, head, buf = [], "(preamble)", []
+ 135:     for line in t.split("\n"):
+ 136:         if line.startswith("@@@"):
+ 137:             sections.append((head, "\n".join(buf)))
+ 138:             head, buf = line[3:].strip(), []
+ 139:         else:
+ 140:             if line.strip():
+ 141:                 buf.append(line.strip())
+ 142:     sections.append((head, "\n".join(buf)))
+ 143:     return sections, arrows + prov
+ 144: 
+ 145: 
+ 146: def score(text):
+ 147:     """-> (sentences, machine_sentences, reasons Counter-ish dict)."""
+ 148:     sents = [s.strip() for s in SENT.split(text) if len(s.strip()) > 25]
+ 149:     bad, why = 0, {}
+ 150:     for s in sents:
+ 151:         hits = []
+ 152:         if FIELD_PATH.search(s):
+ 153:             hits.append("field path")
+ 154:         if RAW_STATS.search(s):
+ 155:             hits.append("raw stats")
+ 156:         if NCT.search(s):
+ 157:             hits.append("bare NCT")
+ 158:         if STORAGE_DIGITS.search(s):
+ 159:             hits.append("storage digits")
+ 160:         # snake/camel, after field paths so a path is not double-counted
+ 161:         if not hits or "field path" not in hits:
+ 162:             if SNAKE.search(s) or CAMEL.search(s):
+ 163:                 hits.append("identifier")
+ 164:         if hits:
+ 165:             bad += 1
+ 166:             for h in hits:
+ 167:                 why[h] = why.get(h, 0) + 1
+ 168:     return len(sents), bad, why
+ 169: 
+ 170: 
+ 171: def measure(path):
+ 172:     raw = io.open(path, encoding="utf-8", errors="replace").read()
+ 173:     sections, arrows = panel_text(raw)
+ 174:     if sections is None:
+ 175:         return None
+ 176:     tot = mach = 0
+ 177:     rf_tot = rf_mach = 0
+ 178:     why = {}
+ 179:     worst = []
+ 180:     for head, text in sections:
+ 181:         h = head.lower().strip()
+ 182:         if any(b in h for b in BY_DESIGN):
+ 183:             continue
+ 184:         n, b, w = score(text)
+ 185:         tot += n
+ 186:         mach += b
+ 187:         for k, v in w.items():
+ 188:             why[k] = why.get(k, 0) + v
+ 189:         if any(r in h for r in READER_FACING):
+ 190:             rf_tot += n
+ 191:             rf_mach += b
+ 192:         if b:
+ 193:             worst.append((b, n, head))
+ 194:     worst.sort(reverse=True)
+ 195:     return {"sentences": tot, "machine": mach, "arrows": arrows, "why": why,
+ 196:             "reader_facing": (rf_mach, rf_tot), "worst": worst}
+ 197: 
+ 198: 
+ 199: def main():
+ 200:     target = None
+ 201:     for a in sys.argv[1:]:
+ 202:         if not a.startswith("--"):
+ 203:             target = a
+ 204:     figs = REPO   # delivered pages live at the repo root, not in figs/
+ 205:     paths = ([target] if target
+ 206:              else sorted(glob.glob(os.path.join(figs, "*_REVIEW.html"))))
+ 207: 
+ 208:     # CONTROLS. The positive is the page Mahmood read; its Paper panel demonstrably
+ 209:     # contains field paths, because they are visible in the delivered bytes. The negative
+ 210:     # is the verbatim-R section, which is machine vocabulary BY DESIGN -- if the check
+ 211:     # counts that, it is measuring the standard rather than a defect.
+ 212:     probe = os.path.join(figs, "SGLT2_HF_REVIEW.html")
+ 213:     if os.path.exists(probe):
+ 214:         m = measure(probe)
+ 215:         raw = io.open(probe, encoding="utf-8", errors="replace").read()
+ 216:         secs, _a = panel_text(raw)
+ 217:         # Is any "quoted verbatim" section reaching the count? It must not: that is R
+ 218:         # console output P46 requires, and a check that scored it would be measuring the
+ 219:         # standard rather than a defect. Stated as the plain question rather than the
+ 220:         # double negative the first version used.
+ 221:         secs, _a = panel_text(raw)
+ 222:         verbatim_sections = [h for h, _t in (secs or []) if "quoted verbatim" in h.lower()]
+ 223:         verbatim_counted = any(
+ 224:             not any(b in h.lower() for b in BY_DESIGN) for h in verbatim_sections)
+ 225:         require_controls(
+ 226:             "lint_paper_reads_as_prose",
+ 227:             positive=("SGLT2_HF_REVIEW's Paper panel, which a reader called computer code",
+ 228:                       m is not None and m["machine"] > 0, True),
+ 229:             negative=("the %d verbatim-R section(s), machine vocabulary BY DESIGN"
+ 230:                       % len(verbatim_sections), verbatim_counted, True))
+ 231:         # SECOND NEGATIVE CONTROL, declared for the same reason as the first. A trial
+ 232:         # characteristics row -- "NCT03036124 DAPA-HF dapagliflozin 10 mg once daily
+ 233:         # (treatment, n=2373) vs placebo (control, n=2371)" -- is an identifier in a table,
+ 234:         # which is where this project's own rule puts identifiers. It must NOT be counted.
+ 235:         _row = ("<table><tr><td>NCT03036124</td><td>DAPA-HF</td></tr></table>"
+ 236:                 "<p>An ordinary sentence with no machine vocabulary at all.</p>")
+ 237:         _secs2, _p2 = panel_text('<span id="paper"></span><h2>Paper</h2><h3>T</h3>'
+ 238:                                  + _row + '<div class="panel">')
+ 239:         _n2, _b2, _w2 = score(chr(10).join(t for _h, t in (_secs2 or [])))
+ 240:         require_controls(
+ 241:             "lint_paper_reads_as_prose/tables",
+ 242:             positive=("a paragraph of plain prose is still read as a sentence", _n2 > 0,
+ 243:                       True),
+ 244:             negative=("a trial-characteristics table row carrying an NCT", _b2 > 0, True))
+ 245: 
+ 246:     print("")
+ 247:     rows = []
+ 248:     for p in paths:
+ 249:         m = measure(p)
+ 250:         name = os.path.basename(p)
+ 251:         if m is None:
+ 252:             rows.append((name, None))
+ 253:             continue
+ 254:         rows.append((name, m))
+ 255: 
+ 256:     assessable = [(n, m) for n, m in rows if m]
+ 257:     print("PAPER PANELS MEASURED: %d; NOT_ASSESSABLE (no Paper panel): %d"
+ 258:           % (len(assessable), len(rows) - len(assessable)))
+ 259:     print("NOT_ASSESSABLE MEANS NO PANEL WAS FOUND, NOT THAT THE PROSE IS CLEAN.")
+ 260: 
+ 261:     if target or len(assessable) == 1:
+ 262:         for name, m in assessable:
+ 263:             pct = 100.0 * m["machine"] / m["sentences"] if m["sentences"] else 0
+ 264:             rf_m, rf_t = m["reader_facing"]
+ 265:             print("")
+ 266:             print("%s" % name)
+ 267:             print("    sentences in the Paper panel (verbatim-R and references excluded) %4d"
+ 268:                   % m["sentences"])
+ 269:             print("    sentences carrying machine vocabulary                            %4d"
+ 270:                   " (%.0f%%)" % (m["machine"], pct))
+ 271:             print("    of those, in the four READER-FACING sections                     %4d"
+ 272:                   " of %d" % (rf_m, rf_t))
+ 273:             print("    provenance arrows appended by the projector                      %4d"
+ 274:                   % m["arrows"])
+ 275:             for k in sorted(m["why"], key=lambda k: -m["why"][k]):
+ 276:                 print("        %-16s %4d" % (k, m["why"][k]))
+ 277:             print("    heaviest sections:")
+ 278:             for b, n, head in m["worst"][:8]:
+ 279:                 print("        %3d/%-3d  %s" % (b, n, head))
+ 280:         return
+ 281: 
+ 282:     tot_s = sum(m["sentences"] for _n, m in assessable)
+ 283:     tot_m = sum(m["machine"] for _n, m in assessable)
+ 284:     tot_a = sum(m["arrows"] for _n, m in assessable)
+ 285:     print("")
+ 286:     print("ACROSS THE CORPUS")
+ 287:     print("    sentences                    %6d" % tot_s)
+ 288:     print("    carrying machine vocabulary  %6d  (%.0f%%)"
+ 289:           % (tot_m, 100.0 * tot_m / tot_s if tot_s else 0))
+ 290:     print("    provenance arrows            %6d" % tot_a)
+ 291:     print("")
+ 292:     print("WORST PAGES BY PROPORTION:")
+ 293:     ranked = sorted(((100.0 * m["machine"] / m["sentences"] if m["sentences"] else 0,
+ 294:                       m["machine"], m["sentences"], n) for n, m in assessable),
+ 295:                     reverse=True)
+ 296:     for pct, b, n_, name in ranked[:12]:
+ 297:         print("    %5.0f%%  %4d/%-4d  %s" % (pct, b, n_, name))
+ 298: 
+ 299: 
+ 300: if __name__ == "__main__":
+ 301:     main()
+
+codex
+Defects found:
+
+- **Check that CANNOT FAIL / probe keyed to same string**: line 223.  
+  Exact input: `raw='<span id="paper"></span><h2>Paper</h2><h3>Statistical output, quoted verbatim</h3><p>tau^2 = 0.0012 and pval = 0.03.</p><div class="panel">'`  
+  Consequence: `verbatim_sections` is selected only by `"quoted verbatim"`, and `BY_DESIGN` also contains `"quoted verbatim"`, so `verbatim_counted` is always false and the negative control never tests whether the scorer actually counted the R-output text.
+
+- **Check that CANNOT FAIL when fixture is absent**: line 213.  
+  Exact input: invoke with any target HTML while `SGLT2_HF_REVIEW.html` is absent from `REPO`, e.g. target file containing `<span id="paper"></span><h2>Paper</h2><p>Plain prose sentence longer than twenty-five characters.</p><div class="panel">`.  
+  Consequence: all controls are skipped, so the instrument can report results without proving either positive or negative controls ran.
+
+- **Selector keyed to too-narrow form**: line 121.  
+  Exact input: `<span id="paper"></span><h2>Paper</h2><div class="prov-block extra"><ol><li><code>results.x</code></li></ol></div><p>Plain prose sentence longer than twenty-five characters.</p><div class="panel">`  
+  Consequence: the provenance block is not removed because the class selector requires exactly `class="prov-block"`, so provenance field paths leak into prose scoring.
+
+No proven defect found in the pasted record for CRLF/LF text comparison, merged-cell tabulation, zero conflated with absent, negation dropped, or wrapper status-code reporting. COULD NOT DETERMINE reachable non-zero exit behavior: `instrument_controls.require_controls` is not in the packet.
+tokens used
+21,969
+Defects found:
+
+- **Check that CANNOT FAIL / probe keyed to same string**: line 223.  
+  Exact input: `raw='<span id="paper"></span><h2>Paper</h2><h3>Statistical output, quoted verbatim</h3><p>tau^2 = 0.0012 and pval = 0.03.</p><div class="panel">'`  
+  Consequence: `verbatim_sections` is selected only by `"quoted verbatim"`, and `BY_DESIGN` also contains `"quoted verbatim"`, so `verbatim_counted` is always false and the negative control never tests whether the scorer actually counted the R-output text.
+
+- **Check that CANNOT FAIL when fixture is absent**: line 213.  
+  Exact input: invoke with any target HTML while `SGLT2_HF_REVIEW.html` is absent from `REPO`, e.g. target file containing `<span id="paper"></span><h2>Paper</h2><p>Plain prose sentence longer than twenty-five characters.</p><div class="panel">`.  
+  Consequence: all controls are skipped, so the instrument can report results without proving either positive or negative controls ran.
+
+- **Selector keyed to too-narrow form**: line 121.  
+  Exact input: `<span id="paper"></span><h2>Paper</h2><div class="prov-block extra"><ol><li><code>results.x</code></li></ol></div><p>Plain prose sentence longer than twenty-five characters.</p><div class="panel">`  
+  Consequence: the provenance block is not removed because the class selector requires exactly `class="prov-block"`, so provenance field paths leak into prose scoring.
+
+No proven defect found in the pasted record for CRLF/LF text comparison, merged-cell tabulation, zero conflated with absent, negation dropped, or wrapper status-code reporting. COULD NOT DETERMINE reachable non-zero exit behavior: `instrument_controls.require_controls` is not in the packet.

@@ -1,0 +1,388 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/screen_ablation_medical_remainder_2026_08_19.py
+
+--- THE FILE, IN FULL ---
+"""SCREEN THE 621-TRIAL REMAINDER of `ablation-af-medical-therapy`.
+
+SIX HUNDRED AND TWENTY-ONE IS TOO MANY TO WRITE BY HAND, AND THAT IS A CONSTRAINT ON THE
+METHOD, NOT A LICENCE. A mechanical pass is used for the limbs a coded field settles, and
+ANYTHING THE RULES CANNOT SETTLE IS `NEEDS_ADJUDICATION` -- never guessed, never defaulted to
+EXCLUDED. A screen that resolves everything is a screen that has stopped distinguishing
+between deciding and assuming.
+
+WHY THIS TOPIC HAS A REMAINDER OF 621 AT ALL. Its surfaced set is 931 because no narrower query
+keeps 3/3 recall: CABANA and RAFT-AF are registered `phases: ["NA"]`, so a phase filter costs
+two of the three included trials. What distinguishes this review from the literature it sits in
+is its COMPARATOR -- ablation against MEDICAL THERAPY -- and a comparator is a screening
+criterion, not a search term. The device-and-technique literature (ablation against ablation)
+therefore arrives in full and is screened out here rather than filtered out there.
+
+IDENTITY IS BY ENUMERATED TERM SET OVER DECLARED NAMES, NEVER SUBSTRING OVER CLINICAL TEXT.
+P14. Every rule below reads `armGroups[].type`, `armGroups[].interventionNames` and
+`armGroups[].label` -- fields a registrant filled in deliberately -- and matches them against
+term sets written out in this file. Arm DESCRIPTIONS are never consulted: the matching-placebo
+convention means a control arm's description names the active drug, and the same is true of
+ablation ("standard care, ablation permitted if symptoms persist").
+
+    AND THE ONE JUDGEMENT IS THE SAME ONE THE SIBLING REVIEW CARRIES. AV-node and AV-junction
+    ablation are NOT this review's intervention: they ablate the conduction system, require a
+    permanent pacemaker, and are RATE CONTROL DELIVERED BY ABLATION. They say `ablation` in
+    their arm labels, which is exactly why identity is taken from what the arm DOES.
+"""
+import io
+import json
+import os
+import re
+import sys
+
+REPO = "F:/rapidmeta-ssot-shell"
+sys.path.insert(0, REPO + "/ssot")
+os.environ.setdefault(
+    "RM_CTGOV_CACHE",
+    "F:/claude-temp/claude/F--rapidmeta-ssot-shell/"
+    "eb4d84e5-8a24-4c3b-afe2-34bd91c20bc7/scratchpad/.ctgov-raw-cache")
+
+import ctgov_transport as X          # noqa: E402
+
+CASCADE = os.path.join(REPO, "evidence", "2026-08-19-batch1", "ablation_split_cascade.json")
+DEST = os.path.join(REPO, "evidence", "2026-08-19-batch1", "ablation_medical_screening.json")
+
+E, ENP, ENR, EPNI, ADJ = ("EXCLUDED", "ELIGIBLE_NOT_POOLABLE", "ELIGIBLE_NO_RESULTS_YET",
+                          "ELIGIBLE_POOLABLE_NOT_INCLUDED", "NEEDS_ADJUDICATION")
+
+# --- ENUMERATED TERM SETS. Written out so a reader can disagree with a term rather than with
+# --- a verdict. Matched against declared NAMES and LABELS only.
+AF_TERMS = ("atrial fibrillation", "atrial flutter", "af ", " af", "afib", "paroxysmal af",
+            "persistent af", "arrhythmia")
+ABLATION_TERMS = ("catheter ablation", "pulmonary vein isolation", "pvi",
+                  "radiofrequency ablation", "rf ablation", "cryoablation",
+                  "cryoballoon", "pulsed field ablation", "pfa", "left atrial ablation",
+                  "ablation", "isolation of the pulmonary veins", "electroporation")
+# The conduction-system family -- checked BEFORE the general ablation family, because every one
+# of these also matches `ablation`.
+NODAL_TERMS = ("av node", "av-node", "avn ablation", "atrioventricular node",
+               "atrioventricular nodal", "av junction", "atrioventricular junction",
+               "av nodal", "avj ablation", "pace and ablate", "pace & ablate",
+               "his bundle", "conduction system pacing")
+SURGICAL_TERMS = ("surgical ablation", "maze", "cox-maze", "thoracoscopic",
+                  "epicardial ablation", "concomitant surgical")
+# "RHYTHM CONTROL" IS NOT A MEDICAL TERM AND PUTTING IT HERE EXCLUDED RAFT-AF.
+#
+# The known-answer test caught it before the 621-trial pass ran. RAFT-AF declares
+#     ACTIVE_COMPARATOR  'Rhythm Control'  ['Procedure: Rhythm control']
+#     ACTIVE_COMPARATOR  'Rate Control'    ['Other: Rate Control']
+# and with `rhythm control` in this list BOTH arms read as MEDICAL, so the screener returned
+# INTERVENTION FAILS and COMPARATOR FAILS -- ON ONE OF THIS REVIEW'S OWN THREE INCLUDED TRIALS.
+# The withholding direction, and it would have removed a pivotal trial from its own review's
+# remainder accounting without anything looking wrong.
+#
+#     RATE control is delivered by drugs (or by nodal ablation, which is caught earlier).
+#     RHYTHM control is delivered by drugs OR BY ABLATION, and the arm's declared name does
+#     not say which. That is genuinely UNSETTLED from armGroups, and the honest verdict is
+#     NEEDS_ADJUDICATION -- not a guess in either direction.
+#
+# So `rhythm control` moves to AMBIGUOUS_TERMS below and is never read as medical.
+AMBIGUOUS_TERMS = ("rhythm control", "sinus rhythm control", "rhythm-control strategy",
+                   "early rhythm control")
+MEDICAL_TERMS = ("rate control", "antiarrhythmic", "anti-arrhythmic",
+                 "amiodarone", "flecainide", "propafenone", "dronedarone", "sotalol",
+                 "beta blocker", "beta-blocker", "digoxin", "diltiazem", "verapamil",
+                 "metoprolol", "bisoprolol", "carvedilol", "medical therapy",
+                 "medical treatment", "drug therapy", "conventional treatment",
+                 "conventional therapy", "usual care", "standard care", "standard medical",
+                 "best medical", "optimal medical", "pharmacological", "medication",
+                 "antiarrhythmic drug")
+NO_TREATMENT_TYPES = ("NO_INTERVENTION",)
+# Estimand: a time-to-first-event composite carrying ALL-CAUSE MORTALITY.
+MORTALITY_TERMS = ("all-cause mortality", "all cause mortality", "total mortality",
+                   "death from any cause", "all-cause death", "all cause death",
+                   "mortality")
+COMPOSITE_TERMS = ("composite", "or hospitalization", "and heart failure event",
+                   "time to first")
+NO_RESULT_STATUSES = ("RECRUITING", "NOT_YET_RECRUITING", "ENROLLING_BY_INVITATION",
+                      "ACTIVE_NOT_RECRUITING", "WITHDRAWN", "SUSPENDED", "UNKNOWN")
+
+
+def hits(text, terms):
+    t = " " + re.sub(r"\s+", " ", (text or "").lower()) + " "
+    return [w for w in terms if w in t]
+
+
+def arm_kind(arm):
+    """ABLATION / NODAL / SURGICAL / MEDICAL / NONE / AMBIGUOUS / OTHER_DECLARED / UNREADABLE.
+
+    TWO KINDS OF "NOT MATCHED" ARE KEPT APART, and collapsing them was the second defect here.
+
+        OTHER_DECLARED  the arm declares its interventions and NONE of them is an ablation.
+                        That is a READING: there is no ablation in this arm.
+        UNREADABLE      the arm declares nothing to read. That is an ABSENCE, and absent input
+                        is NOT_ASSESSABLE, never a negative verdict.
+
+    Folded together, a trial whose arms simply could not be parsed would be EXCLUDED for
+    "having no ablation arm" -- the same substitution of a refusal for an exclusion this
+    project fixed in the classifier and would have reintroduced in the screener.
+    """
+    if str(arm.get("type") or "").upper() in NO_TREATMENT_TYPES:
+        return "NONE"
+    names = " ".join(str(n) for n in (arm.get("interventionNames") or []))
+    label = str(arm.get("label") or "").strip()
+    blob = label + " " + names
+    if hits(blob, NODAL_TERMS):
+        return "NODAL"
+    if hits(blob, SURGICAL_TERMS):
+        return "SURGICAL"
+    if hits(blob, ABLATION_TERMS):
+        return "ABLATION"
+    if hits(blob, MEDICAL_TERMS):
+        return "MEDICAL"
+    if hits(blob, AMBIGUOUS_TERMS):
+        # THE INTERVENTION TYPE PREFIX IS A CODED FIELD AND IT SETTLES HALF OF THESE.
+        #
+        # ClinicalTrials.gov requires every intervention to declare a TYPE, which the API
+        # renders as the prefix of interventionNames: `Drug:`, `Procedure:`, `Device:`,
+        # `Other:`. On an arm whose NAME says only "rhythm control", that type is the
+        # difference between antiarrhythmic therapy and an ablation:
+        #
+        #     CABANA   'Drug: Rate or Rhythm Control Therapy'  -> a DRUG arm, i.e. medical
+        #     RAFT-AF  'Procedure: Rhythm control'             -> a PROCEDURE, which MAY be
+        #                                                         an ablation and may not
+        #
+        # Read without the type, CABANA's control arm was AMBIGUOUS and its comparator limb
+        # failed -- excluding a second included trial. THE CODED FIELD GOVERNS; the label only
+        # corroborates. A PROCEDURE or DEVICE stays AMBIGUOUS, because "delivered by a
+        # procedure" does not say WHICH procedure, and guessing there is how a rate-control
+        # strategy would be read as an ablation.
+        if re.search(r"\bdrug\s*:", names, re.I):
+            return "MEDICAL"
+        return "AMBIGUOUS"
+    if not names.strip():
+        return "UNREADABLE"
+    # AN ARM WHOSE DECLARED INTERVENTIONS ARE ALL `Drug:`-TYPED IS A MEDICAL-THERAPY ARM,
+    # WHATEVER THE DRUG IS CALLED.
+    #
+    # Found by reading the arms behind the 400 comparator exclusions. NCT01570361 declares
+    #     EXPERIMENTAL       'Catheter Ablation'  ['Device: Catheter Ablation']
+    #     ACTIVE_COMPARATOR  'Drug Treatment'     ['Drug: Drug Treatment']
+    # and was EXCLUDED on COMPARATOR, because MEDICAL_TERMS contains "drug therapy" and not
+    # "drug treatment". A HAND-WRITTEN DRUG VOCABULARY CANNOT BE COMPLETE, and every gap in it
+    # fails toward EXCLUSION -- the withholding direction, on a trial that is ablation against
+    # medical therapy and belongs in this review's screen as ELIGIBLE.
+    #
+    # The registry already codes this: `Drug:` is the intervention TYPE. The coded field
+    # governs; the drug's NAME only corroborates. This removes the vocabulary from the
+    # decision entirely for control arms.
+    if re.findall(r"(?:^|\|)\s*([A-Za-z ]+?)\s*:", names):
+        types = {t.strip().lower() for t in re.findall(r"([A-Za-z ]+?)\s*:", names)}
+        if types and types <= {"drug", "dietary supplement", "behavioral"}:
+            return "MEDICAL"
+    # STILL UNMATCHED, AND THAT IS NOT A READING. `Device: PVAC`, `Device: EAS-AC (HeartLight)`
+    # and `Procedure: Pulmonary Vein Antrum Isolation` are all ABLATIONS whose names are not in
+    # the term set; `Procedure: MVS` and `Procedure: Percutaneous closure of LAA` are not. The
+    # rules cannot tell them apart, so the arm is UNSETTLED rather than silently "not an
+    # ablation" -- which would exclude technique trials for the wrong reason and, worse, would
+    # exclude ablation-vs-drug trials whose ablation arm the vocabulary happens to miss.
+    return "UNSETTLED_DECLARED"
+
+
+def screen(nct, doc):
+    p = doc["protocolSection"]
+    conds = " ; ".join((p.get("conditionsModule") or {}).get("conditions") or [])
+    status = str((p.get("statusModule") or {}).get("overallStatus") or "")
+    arms = (p.get("armsInterventionsModule") or {}).get("armGroups") or []
+    om = p.get("outcomesModule") or {}
+    ranks = [(o.get("measure") or "") for o in (om.get("primaryOutcomes") or [])]
+    ranks += [(o.get("measure") or "") for o in (om.get("secondaryOutcomes") or [])]
+    all_ranks = " ; ".join(ranks)
+
+    limbs = {}
+    limbs["POPULATION"] = "HOLDS" if hits(conds, AF_TERMS) else "FAILS"
+    kinds = [arm_kind(a) for a in arms]
+
+    n_abl = kinds.count("ABLATION")
+    n_ctrl = kinds.count("MEDICAL") + kinds.count("NONE")
+    n_amb = kinds.count("AMBIGUOUS")
+    # UNSETTLED_DECLARED joins UNREADABLE: both mean "the rules cannot say what this arm is".
+    # One is an absence of data, the other an absence of vocabulary, and NEITHER is a reading.
+    n_unread = kinds.count("UNREADABLE") + kinds.count("UNSETTLED_DECLARED")
+
+    if len(arms) < 2:
+        # ARM COUNT IS READABLE EVEN WHEN ARM CONTENT IS NOT, and conflating the two was
+        # caught by the known-answer instance NCT01639495 -- a single-arm THERMOCOOL study
+        # whose one arm the vocabulary cannot classify. ONE DECLARED ARM CANNOT CARRY A
+        # RANDOMISED CONTRAST whatever that arm contains, so the comparator limb FAILS on a
+        # structural reading and does not depend on the term sets at all.
+        # Only a record declaring NO armGroups is unsettled here: that is an absence.
+        limbs["COMPARATOR"] = "UNSETTLED" if not arms else "FAILS"
+        limbs["INTERVENTION"] = ("HOLDS" if n_abl else
+                                 "UNSETTLED" if (n_unread or n_amb) else "FAILS")
+    else:
+        if n_abl:
+            limbs["INTERVENTION"] = "HOLDS"
+        elif n_amb or n_unread:
+            # An AMBIGUOUS arm may BE an ablation arm -- `Procedure: Rhythm control` is how
+            # RAFT-AF declares one. Refusing to decide is the whole point.
+            limbs["INTERVENTION"] = "UNSETTLED"
+        else:
+            limbs["INTERVENTION"] = "FAILS"
+
+        if n_abl and n_ctrl:
+            limbs["COMPARATOR"] = "HOLDS"
+        elif n_unread or n_amb:
+            # An AMBIGUOUS arm might be the control (a drug-delivered rhythm-control strategy)
+            # or the intervention (an ablation-delivered one). Either way the contrast cannot
+            # be read from declared fields, and FAILS would be a decision rather than a
+            # reading -- which on CABANA meant excluding an included trial.
+            limbs["COMPARATOR"] = "UNSETTLED"
+        else:
+            limbs["COMPARATOR"] = "FAILS"
+
+    has_mort = bool(hits(all_ranks, MORTALITY_TERMS))
+    has_comp = bool(hits(all_ranks, COMPOSITE_TERMS))
+    limbs["ESTIMAND"] = "HOLDS" if (has_mort and has_comp) else (
+        "UNSETTLED" if not all_ranks else "FAILS")
+
+    failing = [k for k, v in limbs.items() if v == "FAILS" and k != "ESTIMAND"]
+    unsettled = [k for k, v in limbs.items() if v == "UNSETTLED"]
+
+    if failing:
+        return (E, "ELIGIBILITY", failing[0], limbs, kinds, status, conds,
+                "fails %s. ALL limbs: %s. arms: %s"
+                % (", ".join(failing), limbs, kinds))
+    if unsettled and unsettled != ["ESTIMAND"]:
+        return (ADJ, "ELIGIBILITY", unsettled[0], limbs, kinds, status, conds,
+                "the rules cannot settle %s from declared fields. arms: %s"
+                % (", ".join(unsettled), kinds))
+    # Eligible. Status is the stronger ground where it settles the matter.
+    #
+    # `hasResults` MUST BE PRESENT IN THE PAYLOAD OR THIS BRANCH IS A LIE.
+    #
+    # The first run of this screener returned ELIGIBLE_NO_RESULTS_YET 65, ELIGIBLE_NOT_POOLABLE
+    # 0 and NEEDS_ADJUDICATION 0 over 621 trials -- and the zero in the middle was not a
+    # finding, it was an UNREACHABLE BRANCH. `ctgov_transport.fetch_raw` defaults to
+    # `fields="protocolSection"`, so `hasResults` is not in the cached record at all;
+    # `not doc.get("hasResults")` was therefore ALWAYS true and every eligible trial routed
+    # here regardless of whether it had posted results.
+    #
+    #     A DISPOSITION THAT CANNOT BE REACHED IS NOT A CONSERVATIVE DEFAULT. It reported
+    #     "nothing to extract" for trials that HAVE posted results and could have been
+    #     assessed -- the withholding direction, arriving through a missing API field.
+    #
+    # And the number it produced looked entirely reasonable. Nothing about "65 not yet
+    # reported" invites a second look; it was the ZERO beside it, and the zero adjudications,
+    # that did -- which is why the screener prints all five dispositions rather than a summary.
+    if "hasResults" not in doc:
+        return (ADJ, "TRANSPORT", "hasResults ABSENT FROM PAYLOAD", limbs, kinds, status,
+                conds,
+                "eligible, and whether it has posted results CANNOT BE READ from this record: "
+                "the payload was fetched with fields=protocolSection only. Absent input is "
+                "NOT_ASSESSABLE, never a verdict.")
+    if status in NO_RESULT_STATUSES or not doc.get("hasResults"):
+        return (ENR, "STATUS", "NO RESULTS POSTED", limbs, kinds, status, conds,
+                "eligible; status %s and hasResults=%s, so there is nothing to extract"
+                % (status, doc.get("hasResults")))
+    if limbs["ESTIMAND"] != "HOLDS":
+        return (ENP, "POOLABILITY", "ESTIMAND", limbs, kinds, status, conds,
+                "eligible and reports results, but no all-cause-mortality composite at ANY "
+                "registered rank")
+    return (EPNI, "POOLABILITY", "ESTIMAND MATCHES", limbs, kinds, status, conds,
+            "ELIGIBLE, POOLABLE AND NOT IN THIS OBJECT -- must be extracted and re-pooled")
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    casc = json.load(io.open(CASCADE, encoding="utf-8"))["ablation-af-medical-therapy"]
+    pool = sorted(set(casc["experimental_ids"] + casc["comparator_ids"]))
+    included = set(casc["included"])
+    remainder = [n for n in pool if n not in included]
+    print("candidate pool %d, included %d, remainder %d" % (len(pool), len(included),
+                                                            len(remainder)))
+
+    rows, tally, by_limb = [], {}, {}
+    for i, nct in enumerate(remainder, 1):
+        # hasResults is NOT in the default field set -- request it explicitly, or the
+        # "no results posted" branch decides on an absence. Separate cache key, so this
+        # re-fetches rather than reusing the protocolSection-only records.
+        st, study, det = X.fetch_raw(nct, fields="protocolSection,hasResults")
+        if st != X.OK:
+            rows.append({"nct": nct, "verdict": ADJ, "axis": "TRANSPORT",
+                         "criterion": "UNREACHABLE", "reason": "%s: %s" % (st, det)})
+            tally[ADJ] = tally.get(ADJ, 0) + 1
+            continue
+        doc = X.require_raw_v2(study, nct)
+        v, axis, crit, limbs, kinds, status, conds, reason = screen(nct, doc)
+        rows.append({"nct": nct, "verdict": v, "axis": axis, "criterion": crit,
+                     "limbs": limbs, "arm_kinds": kinds, "status": status,
+                     "conditions": conds[:160],
+                     "field_read": "armsInterventionsModule.armGroups + conditionsModule + "
+                                   "outcomesModule (every rank) + statusModule",
+                     "reason": reason})
+        tally[v] = tally.get(v, 0) + 1
+        if v == E:
+            by_limb[crit] = by_limb.get(crit, 0) + 1
+        if i % 150 == 0:
+            print("   screened %d/%d" % (i, len(remainder)))
+
+    print("\nDISPOSITIONS")
+    for k in (E, ENP, ENR, EPNI, ADJ):
+        print("   %-32s %4d" % (k, tally.get(k, 0)))
+    print("   %-32s %4d" % ("total", sum(tally.values())))
+    print("\nEXCLUSIONS BY THE LIMB THE VERDICT RESTS ON")
+    for k, v in sorted(by_limb.items(), key=lambda kv: -kv[1]):
+        print("   %-16s %4d" % (k, v))
+
+    out = {"screened_utc": "2026-08-19", "topic": "ablation-af-medical-therapy",
+           "remainder": len(remainder),
+           "method": ("MECHANICAL FIRST PASS over declared registry fields, with enumerated "
+                      "term sets written out in scripts/"
+                      "screen_ablation_medical_remainder_2026_08_19.py. Anything the rules "
+                      "cannot settle is NEEDS_ADJUDICATION and is listed, never guessed and "
+                      "never defaulted to EXCLUDED."),
+           "tally": {k: tally.get(k, 0) for k in (E, ENP, ENR, EPNI, ADJ)},
+           "exclusions_by_failing_limb": by_limb,
+           "trials": rows}
+    with io.open(DEST, "w", encoding="utf-8") as fh:
+        fh.write(json.dumps(out, indent=1))
+    print("\nwrote %s" % DEST)
+    adj = tally.get(ADJ, 0)
+    epni = tally.get(EPNI, 0)
+    print("\nNEEDS_ADJUDICATION %d -- these are NOT screened and the remainder is NOT zero "
+          "until they are." % adj)
+    print("ELIGIBLE_POOLABLE_NOT_INCLUDED %d -- each must be opened individually." % epni)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

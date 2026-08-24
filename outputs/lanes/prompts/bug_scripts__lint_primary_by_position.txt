@@ -1,0 +1,237 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/lint_primary_by_position.py
+
+--- THE FILE, IN FULL ---
+#!/usr/bin/env python3
+"""P35 MADE MECHANICAL: THE PRIMARY OUTCOME IS READ BY MATCHING ITS TEXT, NEVER BY POSITION.
+
+THE INSTANCE THAT PROMPTED IT, AND WHY IT IS THE WORST SHAPE OF DEFECT THIS PROJECT HAS.
+Re-pooling `apixaban-vte-prophylaxis`, `resultsSection.outcomeMeasuresModule.outcomeMeasures[0]`
+is the MAJOR-VTE **secondary** for ADVANCE-2 (NCT00452530) and the **primary** for its three
+companions. Taking element zero would have pooled one trial's secondary against three trials'
+primaries -- and
+
+    NOTHING WOULD HAVE BEEN MALFORMED ANYWHERE. Every field present, every type correct, every
+    schema satisfied, four numbers of the right shape. No parse error, no null, no missing key.
+    The pool would have been WRONG and would have looked exactly like a right one.
+
+That is why prose cannot hold this class: there is no downstream symptom to notice.
+
+WHAT IT SEARCHES FOR. A constant-integer subscript of a collection whose NAME says it holds
+outcomes -- `outcomes[0]`, `outcomeMeasures[0]`, `primaryOutcomes[1]`, `x["allOutcomes"][0]`.
+Registries do not promise order. ClinicalTrials.gov does not promise that element zero of
+`outcomeMeasures` is the trial's registered primary, and on ADVANCE-2 it demonstrably is not.
+
+WHAT IT FOUND ON ITS FIRST RUN, WHICH IS WHY THIS IS NOT A HYPOTHETICAL DETECTOR:
+
+  * SIX files -- `populate_nma_benchmarks_batch_E..J.py` -- containing the literal line
+    `primary = outcomes[0]`, inside `render_outcome_map()`, which then maps the `default` and
+    `MACE` dashboard keys onto it. These SHIPPED (commit de3cf9b1e, batch-22). Element zero is
+    named `primary` and rendered as the dashboard's default outcome.
+  * `retire_mace_hardcode.py`, which deliberately REPLACED a text match
+    -- `outcomes.find(o => o.shortLabel === 'MACE')` -- with `(outcomes && outcomes[0])`
+    across the dashboards, justified in its own docstring as "the array is ordered with primary
+    first BY CONVENTION". That is the defect argued for in writing, by an author fixing a
+    different real bug. Checked, not assumed: no tracked page carries the replacement today.
+  * `bulk_clone_audit_first.py`, `nafis_harness/check.py`, and the `populate` family.
+
+THE RATCHET, AND WHY IT IS NOT AN ABSOLUTION. Existing sites are carried as a NAMED baseline
+that is PRINTED IN FULL ON EVERY RUN, not silently allowed. They are not thereby declared
+correct -- `primary = outcomes[0]` is a live defect awaiting a fix, and this file says so every
+time it runs. What the lint blocks today is a NEW one, because that is the part a commit can
+be held responsible for.
+
+THE WAIVER, DELIBERATELY LOUD. Where a positional read is genuinely right -- iterating, or
+taking element zero of a list the code itself just built and ordered -- mark the line
+`# POSITION-IS-REGISTERED: <reason>`. Waivers are COUNTED AND PRINTED. A silent waiver marker
+would turn this into the fifth guard in this repo that can only pass.
+"""
+import ast
+import io
+import json
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASELINE = os.path.join(REPO, "evidence", "primary_by_position_baseline.json")
+SKIP_DIRS = {".git", "__pycache__", "node_modules", "figs", "sources", "nafis_harness"}
+
+# Names that say "this collection holds outcomes". Matched case-insensitively as a substring,
+# because the corpus mixes registry camelCase with local snake_case.
+OUTCOME_NAMES = ("outcome", "endpoint", "primaryoutcomes", "secondaryoutcomes")
+WAIVER = "POSITION-IS-REGISTERED:"
+
+
+def _base_name(node):
+    """The readable name of whatever is being subscripted, or None.
+
+    Handles the three shapes the corpus actually uses:
+        outcomes[0]                     Name
+        r.outcomeMeasures[0]            Attribute
+        trial["allOutcomes"][0]         Subscript with a string key
+    """
+    if isinstance(node, ast.Name):
+        return node.id
+    if isinstance(node, ast.Attribute):
+        return node.attr
+    if isinstance(node, ast.Subscript):
+        s = node.slice
+        if isinstance(s, ast.Constant) and isinstance(s.value, str):
+            return s.value
+        # DO NOT recurse through an INTEGER subscript. `outcomes[0][1]` is one positional read
+        # of an outcome collection followed by a tuple field access; recursing counted it twice
+        # and attributed the second hit to `outcomes`, which would have inflated every count
+        # this file reports. Caught by reading the first run's output rather than its exit code.
+        return None
+    if isinstance(node, ast.Call):
+        return _base_name(node.func)
+    return None
+
+
+def _is_positional(node):
+    """A subscript whose index is a constant non-negative integer -- `x[0]`, `x[2]`.
+
+    A slice (`x[:2]`) is NOT flagged: taking a prefix does not claim the prefix is the primary.
+    A variable index is NOT flagged either -- `outcomes[i]` inside a loop is iteration, and the
+    detector must not manufacture a finding it cannot demonstrate.
+    """
+    if not isinstance(node, ast.Subscript):
+        return False
+    s = node.slice
+    return (isinstance(s, ast.Constant) and isinstance(s.value, int)
+            and not isinstance(s.value, bool))
+
+
+def scan_file(path, rel):
+    try:
+        with io.open(path, encoding="utf-8", errors="replace") as fh:
+            src = fh.read()
+    except OSError:
+        return [], 0
+    try:
+        tree = ast.parse(src)
+    except SyntaxError:
+        return [], 0                       # not assessable: a parse failure is not a finding
+    lines = src.splitlines()
+    hits, waived = [], 0
+    for node in ast.walk(tree):
+        if not _is_positional(node):
+            continue
+        name = _base_name(node.value)
+        if not name:
+            continue
+        low = name.lower()
+        if not any(v in low for v in OUTCOME_NAMES):
+            continue
+        ln = getattr(node, "lineno", 0)
+        text = lines[ln - 1] if 0 < ln <= len(lines) else ""
+        if WAIVER in text:
+            waived += 1
+            continue
+        hits.append({"file": rel, "line": ln, "name": name,
+                     "src": text.strip()[:110]})
+    return hits, waived
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    found, waived_total = [], 0
+    for root, dirs, files in os.walk(REPO):
+        dirs[:] = [d for d in dirs if d not in SKIP_DIRS]
+        for f in files:
+            if not f.endswith(".py"):
+                continue
+            p = os.path.join(root, f)
+            rel = os.path.relpath(p, REPO).replace("\\", "/")
+            if rel == "scripts/lint_primary_by_position.py":
+                continue               # this file quotes the pattern it forbids
+            h, w = scan_file(p, rel)
+            found.extend(h)
+            waived_total += w
+
+    # KEYED BY FILE + SOURCE TEXT, NEVER BY LINE NUMBER. The first version keyed `file:line`,
+    # and the two screener fixes made three lines below them shift -- so the lint reported the
+    # SAME sites as NEW and its own proof failed at part 1. A baseline keyed by position
+    # manufactures findings from unrelated edits, which is the positional-read defect one level
+    # up: identify the thing by what it IS, not by where it sits.
+    keys = sorted("%s :: %s" % (h["file"], " ".join(h["src"].split())) for h in found)
+    by_file = {}
+    for h in found:
+        by_file.setdefault(h["file"], []).append(h)
+
+    print("POSITIONAL READS OF AN OUTCOME COLLECTION -- %d site(s) in %d file(s), %d waived"
+          % (len(found), len(by_file), waived_total))
+    for f in sorted(by_file):
+        for h in by_file[f]:
+            print("   %s:%d   %s" % (f, h["line"], h["src"]))
+
+    if not os.path.exists(BASELINE):
+        with io.open(BASELINE, "w", encoding="utf-8") as fh:
+            fh.write(json.dumps({"sites": keys, "not_absolved": True,
+                                 "why": ("These are LIVE DEFECTS carried so the lint can block "
+                                         "NEW ones. `primary = outcomes[0]` in the six "
+                                         "populate_nma_benchmarks batch files names element "
+                                         "zero `primary` and ships it as the dashboard default "
+                                         "outcome. Baselined is not fixed.")}, indent=1))
+        print("\nbaseline written (NOT an absolution): %s" % BASELINE)
+        return 0
+
+    with io.open(BASELINE, encoding="utf-8") as fh:
+        base = set(json.load(fh)["sites"])
+    new = [k for k in keys if k not in base]
+    gone = [k for k in sorted(base) if k not in set(keys)]
+    if gone:
+        print("\n%d baselined site(s) resolved -- baseline tightened." % len(gone))
+        with io.open(BASELINE, encoding="utf-8") as fh:
+            b = json.load(fh)
+        b["sites"] = [k for k in b["sites"] if k in set(keys)]
+        with io.open(BASELINE, "w", encoding="utf-8") as fh:
+            fh.write(json.dumps(b, indent=1))
+    if new:
+        print("\nNEW positional read(s) of an outcome collection:")
+        for k in new:
+            print("   %s" % k)
+        print("\nThe registered primary is found by MATCHING ITS TEXT. Element zero of")
+        print("outcomeMeasures is ADVANCE-2's SECONDARY and its three companions' PRIMARY, and")
+        print("a pool built on it is wrong with nothing malformed anywhere.")
+        return 1
+    print("\n%d baselined site(s) remain UNFIXED and are not absolved by being listed."
+          % len(base & set(keys)))
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

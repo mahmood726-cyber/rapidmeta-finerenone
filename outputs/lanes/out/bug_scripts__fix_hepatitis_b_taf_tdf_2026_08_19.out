@@ -1,0 +1,503 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a031b5-aa39-7a11-ab56-b13760374311
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/fix_hepatitis_b_taf_tdf_2026_08_19.py
+
+--- THE FILE, IN FULL ---
+#!/usr/bin/env python3
+"""`hepatitis-b-taf-tdf-review` -- the first infectious-disease unit, and it had four defects.
+
+THE SEVERE ONE: THE COMPARATOR ARM IS NOT IN THE OBJECT. Both registrations carry THREE arms:
+
+    TAF 25 mg        EXPERIMENTAL
+    TDF 300 mg       ACTIVE_COMPARATOR      <- the comparator the review is named for
+    Open-label TAF   EXPERIMENTAL           <- the open-label extension
+
+The object stored `TAF 25 mg` against `Open-label TAF` -- THE TWO EXPERIMENTAL ARMS -- and
+dropped the ACTIVE_COMPARATOR entirely. So the served pooled `OR 0.913 (0.691-1.206)` compares
+TAF AGAINST TAF. Worse than a wrong comparator: the open-label extension enrols EVERYONE WHO
+COMPLETED THE DOUBLE-BLIND PERIOD, so it contains the TDF patients who rolled over and largely
+the same people as the arm it is compared with.
+
+    A CONTROL ARM THAT IS NOT A CONTROL. The number is not a weak comparison or a mismatched
+    one; it is not a comparison. And nothing about it looks wrong: 0.91 with a CI spanning 1 in
+    a head-to-head of two tenofovir prodrugs is exactly what a reader would expect to see.
+
+AND THE DASHBOARD SERVES IT WHILE BEING UNABLE TO CHECK IT. The row for this page carries
+`pooled_OR: 0.912997` and `ssot_state: UNMAPPED` -- PAGE_MAP has no entry, so the projection
+gate that exists to stop exactly this could not see the row. The gate's own output says the
+unmapped rows are "uncheckable, never clean", and there are 601 of them serving a value, 562
+with a page on disk. This is one of them, now mapped.
+
+THIRD: `estimand_established: true` SITTING ON TOP OF A REASON THAT SAYS IT IS NOT. The object's
+own `poolable_reason` reads "The extractor recovered a pooled result from this page ... Whether
+they SHOULD have been pooled is not established by conversion". A boolean asserting the opposite
+of the prose beside it.
+
+FOURTH, AND IT IS MINE: THE QUESTION PACKETED BECAUSE OF MY OWN TOKEN FILTER. The restatement
+script required topic tokens longer than three characters, so `taf` and `tdf` -- the entire
+subject of this review -- were discarded, no coded intervention matched, and the topic was
+routed for escalation. THE DRUG NAME WAS TOO SHORT FOR THE FILTER. And the question was
+derivable all along from a field the coded-fields route never reads: the registrations'
+`officialTitle`, which states in plain words "Study to Compare Tenofovir Alafenamide (TAF)
+Versus Tenofovir Disoproxil Fumarate (TDF)".
+
+USAGE
+    python scripts/fix_hepatitis_b_taf_tdf_2026_08_19.py [--apply]
+"""
+import io
+import json
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(REPO, "ssot"))
+import ctgov_transport as X                                             # noqa: E402
+
+TOPIC = "hepatitis-b-taf-tdf-review"
+PATH = os.path.join(REPO, "ssot", TOPIC, TOPIC + ".json")
+PAGE = "HEPATITIS_B_TAF_TDF_REVIEW.html"
+
+REASON = (
+    "THE COMPARATOR ARM IS NOT IN THIS OBJECT. Both registrations carry three arms, read from "
+    "ClinicalTrials.gov 2026-08-19: 'TAF 25 mg' (EXPERIMENTAL), 'TDF 300 mg' "
+    "(ACTIVE_COMPARATOR) and 'Open-label TAF' (EXPERIMENTAL). This object stored 'TAF 25 mg' "
+    "against 'Open-label TAF' -- THE TWO EXPERIMENTAL ARMS -- and the ACTIVE_COMPARATOR the "
+    "review is named for is absent. The pooled OR 0.913 (0.691-1.206) therefore compares TAF "
+    "WITH TAF. It is not a weak or mismatched comparison; it is not a comparison. The "
+    "open-label arm additionally enrols every participant who completed the double-blind "
+    "period, so it contains the TDF patients who rolled over and largely the same people as the "
+    "arm it is set against. SEPARATELY, the estimator was DerSimonian-Laird at k=2, and DL is "
+    "refused below k=10 in this project. AND THE OBJECT ALREADY CONTRADICTED ITSELF: "
+    "estimand_established was true while its own poolable_reason said the pool was RECOVERED "
+    "from the page and not established.")
+
+
+def run(apply_it):
+    with io.open(PATH, "r", encoding="utf-8") as fh:
+        o = json.load(fh)
+
+    arms = {}
+    for t in o["inputs"]["trials"]:
+        st, s, d = X.fetch_raw(t["nct"], fields="protocolSection")
+        if st != X.OK:
+            print("REFUSED: %s unreachable" % t["nct"])
+            return 1
+        ps = s.get("protocolSection") or {}
+        arms[t["nct"]] = {
+            "official_title": (ps.get("identificationModule") or {}).get("officialTitle"),
+            "arms_as_the_registry_lists_them": [
+                {"label": a.get("label"), "type": a.get("type")}
+                for a in ((ps.get("armsInterventionsModule") or {}).get("armGroups") or [])],
+        }
+        stored = [a.get("label") for a in (t.get("arms") or [])]
+        comp = [a["label"] for a in arms[t["nct"]]["arms_as_the_registry_lists_them"]
+                if a["type"] == "ACTIVE_COMPARATOR"]
+        print("  %s" % t["nct"])
+        print("     registry arms : %s" % ", ".join(
+            "%s [%s]" % (a["label"], a["type"])
+            for a in arms[t["nct"]]["arms_as_the_registry_lists_them"]))
+        print("     object stored : %s" % ", ".join(stored))
+        print("     ACTIVE_COMPARATOR %s in the object: %s"
+              % (comp, "YES" if any(c in stored for c in comp) else "NO -- IT IS ABSENT"))
+
+    pr = o["results"]["by_outcome"]["primary"]
+    pl = pr.get("pooled") or {}
+    if pl.get("point") is None:
+        print("\nalready withdrawn")
+        return 0
+
+    if not apply_it:
+        print("\nDRY RUN -- nothing written.")
+        return 0
+
+    pr["pooled_superseded"] = dict(pl)
+    pr["pooled_superseded_because"] = REASON
+    pr["pooled"] = {"measure": pl.get("measure"), "point": None, "ci_low": None,
+                    "ci_high": None, "ci_level": pl.get("ci_level", 95),
+                    "scale": pl.get("scale", "log"), "withdrawn": True,
+                    "withdrawn_utc": "2026-08-19", "withdrawn_reason": REASON}
+    pr["poolable"] = False
+    pr["poolable_reason"] = REASON
+    # The boolean asserted the opposite of the prose beside it.
+    pr["estimand_established"] = False
+    pr["estimand_established_corrected"] = (
+        "Was `true` while this object's own poolable_reason said the pool had been RECOVERED "
+        "from the page and was not established by conversion. A boolean asserting the opposite "
+        "of the text beside it.")
+    pr["arms_as_the_registry_lists_them_read_utc"] = "2026-08-19"
+    for t in o["inputs"]["trials"]:
+        t["arms_as_the_registry_lists_them_VERBATIM"] = \
+            arms[t["nct"]]["arms_as_the_registry_lists_them"]
+        t["official_title"] = arms[t["nct"]]["official_title"]
+        t["arms_stored_on_this_object_are_NOT_the_comparison"] = (
+            "The stored pair is the two EXPERIMENTAL arms. The ACTIVE_COMPARATOR is absent. "
+            "The stored counts are preserved and are used for nothing.")
+
+    # The question, derived from a field the coded-fields route never reads.
+    o["title"] = "Tenofovir alafenamide versus tenofovir disoproxil fumarate in chronic hepatitis B"
+    o["question"] = (
+        "In adults with chronic hepatitis B, does tenofovir alafenamide compared with tenofovir "
+        "disoproxil fumarate increase the proportion achieving HBV DNA below 29 IU/mL?")
+    o["question_restated_2026_08_19"] = {
+        "was": ("Multiple trial-declared outcomes: Percentage of Participants With Hepatitis B "
+                "Virus (HBV) DNA < 29 IU/mL | ... -- the TITLE AND THE QUESTION were both a "
+                "registry outcome string."),
+        "derived_from": {
+            "field": "identificationModule.officialTitle on both registrations",
+            "verbatim": [arms[n]["official_title"] for n in sorted(arms)],
+            "and_the_outcome_from": "outcomesModule.primaryOutcomes[0].measure",
+        },
+        "why_the_coded_fields_route_failed": (
+            "The restatement script required topic tokens LONGER THAN THREE CHARACTERS, so "
+            "`taf` and `tdf` -- the entire subject of this review -- were discarded and no "
+            "coded intervention matched. THE DRUG NAME WAS TOO SHORT FOR THE FILTER. The "
+            "officialTitle states the comparison in plain words and is not read by that route "
+            "at all."),
+    }
+    with io.open(PATH, "w", encoding="utf-8", newline="") as fh:
+        fh.write(json.dumps(o, indent=1, ensure_ascii=False))
+
+    pm = os.path.join(REPO, "ssot", "PAGE_MAP.json")
+    with io.open(pm, "r", encoding="utf-8") as fh:
+        pmap = json.load(fh)
+    if os.path.exists(os.path.join(REPO, PAGE)):
+        pmap[PAGE] = "ssot/%s/%s.json" % (TOPIC, TOPIC)
+        with io.open(pm, "w", encoding="utf-8", newline="") as fh:
+            fh.write(json.dumps(pmap, indent=1, ensure_ascii=False, sort_keys=True))
+        print("\n  mapped %s -> %s, so the projection gate can see it" % (PAGE, TOPIC))
+    print("  estimate WITHDRAWN, old value kept under pooled_superseded")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    sys.exit(run("--apply" in sys.argv))
+
+codex
+I’ll anchor line numbers against the reviewed file and only report defects that are directly demonstrable from this packet.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Get-Content -Path 'F:\\ProjectIndex\\INDEX.md' -TotalCount 40" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Get-Content -Path 'F:\\E156\\rewrite-workbook.txt' -TotalCount 40" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=0; Get-Content -Path '"'scripts\\fix_hepatitis_b_taf_tdf_2026_08_19.py' | ForEach-Object { "'$i++; '"'{0,4}: {1}' -f "'$i, $_ }' in F:\rapidmeta-ssot-shell
+ succeeded in 638ms:
+<!-- sentinel:skip-file - portfolio registry; absolute paths ARE the data -->
+# C: Drive Project Index
+> **Last updated**: 2026-05-14 (C:\HTML apps focused repair batch continued: hub shell launch fix, static contracts across ten HTML app repos, NMA/living-meta/nma-dose-response landing and asset-link repairs, and NMA doc hardcoded-path cleanup. Prior SheafNMA v0.2.0, D-drive legacy smoke-contract continuation, CardioOracle lifecycle status freeze, C-drive model/project smoke-contract continuation, mahmood789 consolidation, Sentinel/Overmind JSONL and verification repair, C-drive reproducibility audit continuation, C-drive verification repair, D-drive repair batch, superapp, C-drive sweep, home-folder hardening, Trial Truthfulness Atlas, and portfolio notes retained below.)
+
+### C:\HTML apps focused repair batch (2026-05-14)
+> - `C:\HTML apps\hub\`: added a launchable `index.html` shell and static contract tests for required registry/runtime wiring; fixed `app.js` local `file://` launch resolution so the hub opened from `hub\index.html` links sibling apps from the parent HTML-apps directory instead of nesting paths under `hub`. Verification: `pytest -q -p no:cacheprovider` -> `3 passed`; `node --check app.js && node --check projects.js` -> PASS; headless Chrome smoke on `file:///mnt/c/HTML%20apps/hub/index.html` confirmed the page title and sibling app links. GitHub pushed: `mahmood726-cyber/hub` main `c1a6725`.
+> - `C:\HTML apps\evidence-board\`, `C:\HTML apps\focus-studio\`, `C:\HTML apps\kanban-lab\`: added pytest-visible static app shell contracts covering title/description, localStorage persistence hooks, key controls, and absence of unresolved templates or hardcoded local drive paths; added repo `.gitignore` entries for Python caches and `PROGRESS.md`. Verification: each `pytest -q -p no:cacheprovider` -> `2 passed` with the existing pytest `cache_dir` warning; scoped `git diff --check` -> PASS. GitHub pushed: `evidence-board` master `9a87c8b`, `focus-studio` master `0fa728b`, `kanban-lab` master `81cad38`.
+> - `C:\HTML apps\nma-pro-v2\`: fixed the landing page's broken app links from absent v6/v7 asset filenames to the current `e156-submission/assets/nma-pro-v8.0.html`, added static link-resolution contracts, and removed Sentinel P0 hardcoded local OneDrive paths from legacy docs. Verification: `pytest -q -p no:cacheprovider tests/test_smoke.py tests/test_static_links.py` -> `3 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=1 INFO=302` (pre-existing tracked autogen warning plus HTML a11y INFO). GitHub pushed: master `a2834e7` for the link fix and master `a74e385` for the P0 doc cleanup.
+> - `C:\HTML apps\IPD-Meta-Pro\` and `C:\HTML apps\Truthcert1\`: added static link-resolution contracts for landing-page local assets and canonical app entrypoints. Verification: `IPD-Meta-Pro` `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; `Truthcert1` same command -> `2 passed` with existing pytest `cache_dir` warning. GitHub pushed: `IPD-Meta-Pro` master `b26ee09`, `Truthcert1` master `81eddd3`.
+> - `C:\HTML apps\living-meta\`: repaired landing-page validation links that pointed to a missing HTML asset and an out-of-repo sibling path; linked the existing validation and limitations docs instead, and added a static link-resolution contract. Verification: `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=8` (pre-existing HTML a11y INFO). GitHub pushed: master `c3c8a9b`.
+> - `C:\HTML apps\Pairwiseai\`: added a static landing-page contract covering local link resolution, absence of unresolved templates/local drive paths, and the key app entrypoints under `e156-submission/assets`. Verification: `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=1731` (pre-existing HTML a11y INFO). GitHub pushed: master `2ade493`.
+> - `C:\HTML apps\nma-dose-response-app\`: pushed the existing smoke-blocker commit and added an E156 asset-bundle repair so `e156-submission\assets\index*.html` resolves its JS runtime dependencies from inside the assets folder; added a static link-resolution contract covering root and E156 app entrypoints. Verification: `pytest -q -p no:cacheprovider tests/test_smoke.py tests/test_static_links.py` -> `4 passed` with the existing pytest `cache_dir` warning; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=442` (pre-existing HTML a11y INFO). GitHub pushed: master `e95fae0` and `96594b6`.
+> - Push gate: Windows Git credential path succeeded after WSL Git lacked HTTPS credentials. Sentinel pre-push/manual scan verdicts were BLOCK=0; evidence-board INFO=18, focus-studio INFO=10, kanban-lab INFO=10, living-meta INFO=8, Pairwiseai INFO=1731, nma-dose-response-app INFO=442 (pre-existing P2 HTML accessibility notes); hub push emitted no Sentinel findings.
+> - Existing unrelated dirty files were left unstaged in these repos, mainly protocol/license/doc edits and untracked `paper\` outputs in the three app repos, plus pre-existing hub metadata/submission/style edits.
+
+### SheafNMA (2026-05-12; v0.2.0 real-NMA-corpus validation + 36-cell Ã— 1000-rep simulation + methods paper draft)
+> - `C:\Models\SheafNMA\` â€” cellular-sheaf inconsistency localization for network meta-analysis. v0.1.0 (2026-04-07) was math + single-file HTML dashboard + E156 #153 micro-paper on a synthetic 12-contrast network. v0.2.0 refactored the 457-LOC `generate_figures.py` into a `sheafnma/` package (`core`, `io`, `simulate`, `comparators`, `r_bridge`), validated on 13 R-netmeta built-in NMAs, and shipped a methods-paper draft for Research Synthesis Methods.
+> - Method: precision-weighted coboundary `F[e, treat1] = -1/SE_e, F[e, treat2] = +1/SE_e`; sheaf Laplacian `L = Fáµ€F` (symmetric PSD); WLS-solve node estimates with node 0 anchored; per-edge residuals `r_e = dÌƒ_e âˆ’ (F x*)_e` localize inconsistency; **Global Inconsistency Index** `GII = Î£ rÂ²` is the global statistic. One algebraic object yields both global + per-edge â€” complements (not replaces) node-splitting.
+> - Real-corpus headline: across **13 R-netmeta built-in NMAs** (Senn 2013 diabetes, Dias smokingcessation, Dong 2013 thrombolytics, Linde 2015/2016 acupuncture, Salanti antimanic, Baker, Dogliotti, Franchini, Gurusamy, Stowe, Woods, dietaryfat, parkinson) the global design-by-treatment Ï‡Â² (Higgins 2012) failed to reject in all 13. **SheafNMA flagged â‰¥1 localized inconsistency edge in 5 of those 13 (38.5%)** at the Youden-frozen threshold of **2.6912** â€” networks that look globally consistent harbor at least one inconsistent edge the global test misses.
+> - Simulation rigor: 36-cell grid (n_treatments âˆˆ {4,6,8} Ã— n_studies_per_edge âˆˆ {3,5,10} Ã— Ï„_inc âˆˆ {0,0.2,0.5,1.0}) Ã— **1000 replications per cell**, held-out training cell at (6,5,0.5) for Youden's-J threshold selection (frozen before evaluating remaining 35 cells). Type-I error at Ï„_inc=0 was **0.000 across all cells**. Mean per-edge sensitivity 0.981 / specificity 0.945 at Ï„_inc=0.5.
+> - Comparator suite: DBT-Ï‡Â² (Higgins 2012 Â§3.2, pure-Python), Bucher loop closure (Bucher 1997, pure-Python), node-splitting (Dias 2010, via `netmeta::netsplit` shelled to R 4.5.2). Per-edge agreement with node-splitting was 45.4% â€” asymmetric: SheafNMA flags 12/506 = 2.4% of edges vs node-splitting's 250/436 = 57% at p<0.05 Bonferroni-uncorrected (the calibrated Youden cut is much more conservative than a per-edge Î±-test). Â§4.2 of the paper explicitly explains this rather than presenting the 45.4% bare.
+> - Corpus export: `corpus/export_netmeta.R` handles 7 distinct netmeta dataset formats (contrast-level TE/seTE, arm-based event/n, arm-based mean/sd/n, wide multi-arm OR/MD, three-arm smokingcessation, rate-based IRR/person-years) and exports all 13 to `corpus/data/*.csv` in the sheafnma standard schema (`study, treat1, treat2, effect, se`).
+> - GitHub: `https://github.com/mahmood726-cyber/sheaf-nma` (master `6c7db13`, tag `v0.2.0`). Pages LIVE: `https://mahmood726-cyber.github.io/sheaf-nma/` (Phase-1 dashboard unchanged in v0.2). 33 tests passing; Sentinel BLOCK=0 WARN=0 (2 INFO = pre-existing HTML a11y items in the v0.1 dashboard).
+> - Workbook entry: `[153/919] SheafNMA`. CURRENT BODY updated 2026-05-12 to the v0.2 156-word / 7-sentence body (replaces v0.1 synthetic-"smoking cessation" framing with the real netmeta corpus). SUBMITTED `[ ]`; YOUR REWRITE preserved untouched per workbook protection rules. Target: Research Synthesis Methods full methods paper (`paper/sheafnma_v2.md`, 1190 words drafted; [TODO] prose blocks in Â§1 Background / Â§4.3 case studies / Â§5 Discussion) + SynthÄ“sis Methods Note companion (`paper/methods_note.md`, 156-word).
+> - Known landmine: `Dong2013` netsplit fails inside netmeta's multi-arm validator ("wrong number of comparisons"); SheafNMA + DBT + Bucher still run on it, only `netsplit_p` column is blank for its 70 edges.
+> - v0.2 deferrals (spec Â§10): multi-arm covariance correction (single-D stalks only), higher-D stalks (Phase 1 Â§3.4 future work), Bayesian sheaf priors, OTS / Bitcoin anchor (broken on Py 3.13 Windows per `lessons.md`).
+
+### hksj-q-floor-atlas (2026-05-12; 8th Pairwise70 atlas; tags prereg-v0.0.1 + v0.1.0)
+> - `C:\Projects\hksj-q-floor-atlas\` â€” 8th calibration atlas in the Pairwise70 series. Sister to `cochrane-modern-re` (engine source), `repro-floor-atlas`, `responder-floor-atlas`, `trial-truthfulness-atlas`, `africa-tb-atlas`, `pactr-hiddenness-atlas`, `africa-hiv-prep-atlas`.
+> - Question: how often does omitting the `max(1, Q/(k-1))` floor on HKSJ variance, in the I^2=0 regime where un-floored HKSJ narrows below REML+Wald, overstate precision across the Cochrane CDSR? Pre-registered via `prereg-v0.0.1` tag + 4 Internet Archive snapshots (Bitcoin OTS deferred â€” Python 3.13 SSL libeay32 bug per lessons.md; web-stamper fallback documented).
+> - Headline: D_1 (I^2=0, k>=2, converged) = 3,677 MAs = 57.6% of corpus. On D_1a (Q>0, n=3,536): median CI-width ratio (floored / un-floored) = 3.64x (IQR 1.60-10.56; 95th pct 57.4x); significance lost in 17.08% of MAs. D_1b (Q=0, n=141 = 3.83% of D_1): sig_loss 24.8%, ratio unbounded â€” un-floored HKSJ SE is exactly zero (the floor effect is unbounded); see `docs/AMENDMENTS.md` entry 1 for split rationale.
+> - Per k-stratum medians: k=2: 4.26x (sig_loss 8.6%); k=3: 3.64x (12.9%); k=4-5: 3.10x (13.1%); k=6-9: 3.18x (17.3%); k>=10: 3.80x (25.1%). sig_loss increases with k because higher-k pooled effects sit closer to null, so floor widening crosses zero more often.
+> - Engine: independent metafor pass via fork of cochrane-modern-re's `run_metafor.R` minus the floor block. Input parquet SHA-256 pinned in `docs/spec.md` sec.1.5 (`31434fb118c6ec44a025eeb43a90e35ef9e050711fa45aa2cb5c1244b2d89751`). 3 hand-verified golden MAs match metafor reference within 1e-6.
+> - GitHub: `https://github.com/mahmood726-cyber/hksj-q-floor-atlas` (master + tags `prereg-v0.0.1` and `v0.1.0`). Pages LIVE: `https://mahmood726-cyber.github.io/hksj-q-floor-atlas/`.
+> - 64 tests; Sentinel BLOCK=0 WARN=0 INFO=0; 7 IA snapshots recorded in `docs/preregistration.md`.
+> - Workbook entry: `[920/920] hksj-q-floor-atlas`; target SynthÄ“sis Methods Note (340w draft, â‰¤400 cap).
+> - v0.2 candidates (NOT in v0.1.0): published-CI matching ("is THIS Cochrane review wrong?"), PM/SJ/Bayesian Ï„Â² robustness, DL re-pooling, Bitcoin OTS once Python 3.13 issue is resolved.
+
+### D-drive legacy smoke-contract continuation (2026-05-12)
+> - `D:\Projects\mahmood789\786-MIII-Mean-single-group\`: fixed the placeholder issue-tracker link in `README.md` and added a pytest-visible static contract for the Shiny app package surface, sample-data schema, metafor workflow, downloads, and absence of local paths/template links. Verification: `pytest -q -p no:cacheprovider` -> `2 passed`; `git diff --check` -> PASS.
+
+ succeeded in 678ms:
+E156 REWRITE WORKBOOK
+sentinel:skip-file
+sentinel:claim-language-allow
+(Sentinel markers above:
+ - sentinel:skip-file: this workbook intentionally contains C:\Users\... PATH:
+   lines pointing to each project's local source directory â€” they're metadata,
+   not code. The marker keeps Sentinel from emitting ~16 P0 hardcoded-path
+   BLOCKs every push.
+ - sentinel:claim-language-allow: CURRENT BODY entries are the AI-drafted
+   summaries that students rewrite into hedged language â€” flagging overclaim
+   words IN those drafts is the whole pedagogical point, not a defect.
+   File-scope marker here suppresses the ~1293 claim-language WARNs on the
+   CURRENT BODY entries; the YOUR REWRITE entries are where the hedging
+   discipline matters and remains lintable in the rendered student board.)
+
+DENOMINATOR CONVENTION (added 2026-05-06 after review-findings P1-5):
+  Each entry header is `[N/total]` where N = ordinal insertion index and
+  `total` = current portfolio size as of the most recent reconcile sweep.
+  Older entries are back-rewritten on milestone boundaries (rather than
+  preserving their insertion-time denominator) to keep
+  reconcile_counts.py from flagging "WORKBOOK DRIFT". The pre-commit
+  guard (scripts/check_workbook_commit.py) blocks commits that bundle a
+  denominator sweep with substantive content edits to existing entries.
+
+======================================================================
+
+INSTRUCTIONS:
+- Replace text under YOUR REWRITE with your body (at most 156 words, 7 sentences)
+- S1=Question S2=Dataset S3=Method S4=Result(number+interval) S5=Robustness S6=Interpretation S7=Boundary(limitation)
+- Leave YOUR REWRITE blank to keep current version
+- Run: python C:/E156/scripts/apply_rewrites.py          (validate)
+- Run: python C:/E156/scripts/apply_rewrites.py --apply (apply)
+
+AUTHORSHIP RULE (mandatory for every submission):
+- Mahmood Ahmad (MA) must NEVER be listed as first author and NEVER as
+  last (senior) author. The student rewriter is first author. Last/senior
+  author must be a faculty supervisor or co-investigator distinct from MA.
+  MA's position is middle-author only (e.g. role: data curation, software,
+  methodology, supervision-of-tooling). This applies to every paper in
+  this workbook regardless of contribution depth.
+
+ succeeded in 1732ms:
+   1: #!/usr/bin/env python3
+   2: """`hepatitis-b-taf-tdf-review` -- the first infectious-disease unit, and it had four defects.
+   3: 
+   4: THE SEVERE ONE: THE COMPARATOR ARM IS NOT IN THE OBJECT. Both registrations carry THREE arms:
+   5: 
+   6:     TAF 25 mg        EXPERIMENTAL
+   7:     TDF 300 mg       ACTIVE_COMPARATOR      <- the comparator the review is named for
+   8:     Open-label TAF   EXPERIMENTAL           <- the open-label extension
+   9: 
+  10: The object stored `TAF 25 mg` against `Open-label TAF` -- THE TWO EXPERIMENTAL ARMS -- and
+  11: dropped the ACTIVE_COMPARATOR entirely. So the served pooled `OR 0.913 (0.691-1.206)` compares
+  12: TAF AGAINST TAF. Worse than a wrong comparator: the open-label extension enrols EVERYONE WHO
+  13: COMPLETED THE DOUBLE-BLIND PERIOD, so it contains the TDF patients who rolled over and largely
+  14: the same people as the arm it is compared with.
+  15: 
+  16:     A CONTROL ARM THAT IS NOT A CONTROL. The number is not a weak comparison or a mismatched
+  17:     one; it is not a comparison. And nothing about it looks wrong: 0.91 with a CI spanning 1 in
+  18:     a head-to-head of two tenofovir prodrugs is exactly what a reader would expect to see.
+  19: 
+  20: AND THE DASHBOARD SERVES IT WHILE BEING UNABLE TO CHECK IT. The row for this page carries
+  21: `pooled_OR: 0.912997` and `ssot_state: UNMAPPED` -- PAGE_MAP has no entry, so the projection
+  22: gate that exists to stop exactly this could not see the row. The gate's own output says the
+  23: unmapped rows are "uncheckable, never clean", and there are 601 of them serving a value, 562
+  24: with a page on disk. This is one of them, now mapped.
+  25: 
+  26: THIRD: `estimand_established: true` SITTING ON TOP OF A REASON THAT SAYS IT IS NOT. The object's
+  27: own `poolable_reason` reads "The extractor recovered a pooled result from this page ... Whether
+  28: they SHOULD have been pooled is not established by conversion". A boolean asserting the opposite
+  29: of the prose beside it.
+  30: 
+  31: FOURTH, AND IT IS MINE: THE QUESTION PACKETED BECAUSE OF MY OWN TOKEN FILTER. The restatement
+  32: script required topic tokens longer than three characters, so `taf` and `tdf` -- the entire
+  33: subject of this review -- were discarded, no coded intervention matched, and the topic was
+  34: routed for escalation. THE DRUG NAME WAS TOO SHORT FOR THE FILTER. And the question was
+  35: derivable all along from a field the coded-fields route never reads: the registrations'
+  36: `officialTitle`, which states in plain words "Study to Compare Tenofovir Alafenamide (TAF)
+  37: Versus Tenofovir Disoproxil Fumarate (TDF)".
+  38: 
+  39: USAGE
+  40:     python scripts/fix_hepatitis_b_taf_tdf_2026_08_19.py [--apply]
+  41: """
+  42: import io
+  43: import json
+  44: import os
+  45: import sys
+  46: 
+  47: REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+  48: sys.path.insert(0, os.path.join(REPO, "ssot"))
+  49: import ctgov_transport as X                                             # noqa: E402
+  50: 
+  51: TOPIC = "hepatitis-b-taf-tdf-review"
+  52: PATH = os.path.join(REPO, "ssot", TOPIC, TOPIC + ".json")
+  53: PAGE = "HEPATITIS_B_TAF_TDF_REVIEW.html"
+  54: 
+  55: REASON = (
+  56:     "THE COMPARATOR ARM IS NOT IN THIS OBJECT. Both registrations carry three arms, read from "
+  57:     "ClinicalTrials.gov 2026-08-19: 'TAF 25 mg' (EXPERIMENTAL), 'TDF 300 mg' "
+  58:     "(ACTIVE_COMPARATOR) and 'Open-label TAF' (EXPERIMENTAL). This object stored 'TAF 25 mg' "
+  59:     "against 'Open-label TAF' -- THE TWO EXPERIMENTAL ARMS -- and the ACTIVE_COMPARATOR the "
+  60:     "review is named for is absent. The pooled OR 0.913 (0.691-1.206) therefore compares TAF "
+  61:     "WITH TAF. It is not a weak or mismatched comparison; it is not a comparison. The "
+  62:     "open-label arm additionally enrols every participant who completed the double-blind "
+  63:     "period, so it contains the TDF patients who rolled over and largely the same people as the "
+  64:     "arm it is set against. SEPARATELY, the estimator was DerSimonian-Laird at k=2, and DL is "
+  65:     "refused below k=10 in this project. AND THE OBJECT ALREADY CONTRADICTED ITSELF: "
+  66:     "estimand_established was true while its own poolable_reason said the pool was RECOVERED "
+  67:     "from the page and not established.")
+  68: 
+  69: 
+  70: def run(apply_it):
+  71:     with io.open(PATH, "r", encoding="utf-8") as fh:
+  72:         o = json.load(fh)
+  73: 
+  74:     arms = {}
+  75:     for t in o["inputs"]["trials"]:
+  76:         st, s, d = X.fetch_raw(t["nct"], fields="protocolSection")
+  77:         if st != X.OK:
+  78:             print("REFUSED: %s unreachable" % t["nct"])
+  79:             return 1
+  80:         ps = s.get("protocolSection") or {}
+  81:         arms[t["nct"]] = {
+  82:             "official_title": (ps.get("identificationModule") or {}).get("officialTitle"),
+  83:             "arms_as_the_registry_lists_them": [
+  84:                 {"label": a.get("label"), "type": a.get("type")}
+  85:                 for a in ((ps.get("armsInterventionsModule") or {}).get("armGroups") or [])],
+  86:         }
+  87:         stored = [a.get("label") for a in (t.get("arms") or [])]
+  88:         comp = [a["label"] for a in arms[t["nct"]]["arms_as_the_registry_lists_them"]
+  89:                 if a["type"] == "ACTIVE_COMPARATOR"]
+  90:         print("  %s" % t["nct"])
+  91:         print("     registry arms : %s" % ", ".join(
+  92:             "%s [%s]" % (a["label"], a["type"])
+  93:             for a in arms[t["nct"]]["arms_as_the_registry_lists_them"]))
+  94:         print("     object stored : %s" % ", ".join(stored))
+  95:         print("     ACTIVE_COMPARATOR %s in the object: %s"
+  96:               % (comp, "YES" if any(c in stored for c in comp) else "NO -- IT IS ABSENT"))
+  97: 
+  98:     pr = o["results"]["by_outcome"]["primary"]
+  99:     pl = pr.get("pooled") or {}
+ 100:     if pl.get("point") is None:
+ 101:         print("\nalready withdrawn")
+ 102:         return 0
+ 103: 
+ 104:     if not apply_it:
+ 105:         print("\nDRY RUN -- nothing written.")
+ 106:         return 0
+ 107: 
+ 108:     pr["pooled_superseded"] = dict(pl)
+ 109:     pr["pooled_superseded_because"] = REASON
+ 110:     pr["pooled"] = {"measure": pl.get("measure"), "point": None, "ci_low": None,
+ 111:                     "ci_high": None, "ci_level": pl.get("ci_level", 95),
+ 112:                     "scale": pl.get("scale", "log"), "withdrawn": True,
+ 113:                     "withdrawn_utc": "2026-08-19", "withdrawn_reason": REASON}
+ 114:     pr["poolable"] = False
+ 115:     pr["poolable_reason"] = REASON
+ 116:     # The boolean asserted the opposite of the prose beside it.
+ 117:     pr["estimand_established"] = False
+ 118:     pr["estimand_established_corrected"] = (
+ 119:         "Was `true` while this object's own poolable_reason said the pool had been RECOVERED "
+ 120:         "from the page and was not established by conversion. A boolean asserting the opposite "
+ 121:         "of the text beside it.")
+ 122:     pr["arms_as_the_registry_lists_them_read_utc"] = "2026-08-19"
+ 123:     for t in o["inputs"]["trials"]:
+ 124:         t["arms_as_the_registry_lists_them_VERBATIM"] = \
+ 125:             arms[t["nct"]]["arms_as_the_registry_lists_them"]
+ 126:         t["official_title"] = arms[t["nct"]]["official_title"]
+ 127:         t["arms_stored_on_this_object_are_NOT_the_comparison"] = (
+ 128:             "The stored pair is the two EXPERIMENTAL arms. The ACTIVE_COMPARATOR is absent. "
+ 129:             "The stored counts are preserved and are used for nothing.")
+ 130: 
+ 131:     # The question, derived from a field the coded-fields route never reads.
+ 132:     o["title"] = "Tenofovir alafenamide versus tenofovir disoproxil fumarate in chronic hepatitis B"
+ 133:     o["question"] = (
+ 134:         "In adults with chronic hepatitis B, does tenofovir alafenamide compared with tenofovir "
+ 135:         "disoproxil fumarate increase the proportion achieving HBV DNA below 29 IU/mL?")
+ 136:     o["question_restated_2026_08_19"] = {
+ 137:         "was": ("Multiple trial-declared outcomes: Percentage of Participants With Hepatitis B "
+ 138:                 "Virus (HBV) DNA < 29 IU/mL | ... -- the TITLE AND THE QUESTION were both a "
+ 139:                 "registry outcome string."),
+ 140:         "derived_from": {
+ 141:             "field": "identificationModule.officialTitle on both registrations",
+ 142:             "verbatim": [arms[n]["official_title"] for n in sorted(arms)],
+ 143:             "and_the_outcome_from": "outcomesModule.primaryOutcomes[0].measure",
+ 144:         },
+ 145:         "why_the_coded_fields_route_failed": (
+ 146:             "The restatement script required topic tokens LONGER THAN THREE CHARACTERS, so "
+ 147:             "`taf` and `tdf` -- the entire subject of this review -- were discarded and no "
+ 148:             "coded intervention matched. THE DRUG NAME WAS TOO SHORT FOR THE FILTER. The "
+ 149:             "officialTitle states the comparison in plain words and is not read by that route "
+ 150:             "at all."),
+ 151:     }
+ 152:     with io.open(PATH, "w", encoding="utf-8", newline="") as fh:
+ 153:         fh.write(json.dumps(o, indent=1, ensure_ascii=False))
+ 154: 
+ 155:     pm = os.path.join(REPO, "ssot", "PAGE_MAP.json")
+ 156:     with io.open(pm, "r", encoding="utf-8") as fh:
+ 157:         pmap = json.load(fh)
+ 158:     if os.path.exists(os.path.join(REPO, PAGE)):
+ 159:         pmap[PAGE] = "ssot/%s/%s.json" % (TOPIC, TOPIC)
+ 160:         with io.open(pm, "w", encoding="utf-8", newline="") as fh:
+ 161:             fh.write(json.dumps(pmap, indent=1, ensure_ascii=False, sort_keys=True))
+ 162:         print("\n  mapped %s -> %s, so the projection gate can see it" % (PAGE, TOPIC))
+ 163:     print("  estimate WITHDRAWN, old value kept under pooled_superseded")
+ 164:     return 0
+ 165: 
+ 166: 
+ 167: if __name__ == "__main__":
+ 168:     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+ 169:     sys.exit(run("--apply" in sys.argv))
+
+codex
+- **Check that cannot fail, line 96.** Input: `run(True)` with stored arms `["TAF 25 mg", "TDF 300 mg"]` and registry arms including `{"label":"TDF 300 mg","type":"ACTIVE_COMPARATOR"}`. Consequence: it prints `YES` but still reaches lines 108-153 and withdraws the estimate.
+
+- **Idempotency guard satisfied by its own marker, line 100.** Input: `{"inputs":{"trials":[]},"results":{"by_outcome":{"primary":{"pooled":{"point":null},"poolable":true,"estimand_established":true}}}}`. Consequence: it exits `0` as “already withdrawn” while leaving the rest of the correction unapplied.
+
+- **Absent conflated with empty, lines 80 and 85.** Input: one trial with a non-null pooled point, and `X.fetch_raw(...) -> (X.OK, {}, None)`. Consequence: missing registry payload becomes empty arms, so the script can proceed as if absence of the active comparator was established.
+
+- **Instrument reading a different copy: COULD NOT DETERMINE.** Missing: `ssot/ctgov_transport.py` semantics and the dashboard/page build path, needed to know whether line 76 reads live, cached, or archived CT.gov data and whether line 158 checks the served page copy.
+
+No proven finding for: probe keyed to a string the fix removes; selector keyed to unused corpus form; CRLF/LF text comparison; merged-cell/off-by-one tabulation; negation dropped; wrapper status code reporting.
+tokens used
+21,725
+- **Check that cannot fail, line 96.** Input: `run(True)` with stored arms `["TAF 25 mg", "TDF 300 mg"]` and registry arms including `{"label":"TDF 300 mg","type":"ACTIVE_COMPARATOR"}`. Consequence: it prints `YES` but still reaches lines 108-153 and withdraws the estimate.
+
+- **Idempotency guard satisfied by its own marker, line 100.** Input: `{"inputs":{"trials":[]},"results":{"by_outcome":{"primary":{"pooled":{"point":null},"poolable":true,"estimand_established":true}}}}`. Consequence: it exits `0` as “already withdrawn” while leaving the rest of the correction unapplied.
+
+- **Absent conflated with empty, lines 80 and 85.** Input: one trial with a non-null pooled point, and `X.fetch_raw(...) -> (X.OK, {}, None)`. Consequence: missing registry payload becomes empty arms, so the script can proceed as if absence of the active comparator was established.
+
+- **Instrument reading a different copy: COULD NOT DETERMINE.** Missing: `ssot/ctgov_transport.py` semantics and the dashboard/page build path, needed to know whether line 76 reads live, cached, or archived CT.gov data and whether line 158 checks the served page copy.
+
+No proven finding for: probe keyed to a string the fix removes; selector keyed to unused corpus form; CRLF/LF text comparison; merged-cell/off-by-one tabulation; negation dropped; wrapper status code reporting.

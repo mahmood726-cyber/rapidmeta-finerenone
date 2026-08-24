@@ -1,0 +1,511 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a0322d-545c-7563-aa31-eb716a4807aa
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/pubmed_cross_check_v2.py
+
+--- THE FILE, IN FULL ---
+"""PubMed cross-check v2 — refined filter that distinguishes acronym-vs-formal-title
+false positives from genuinely-wrong PMIDs.
+
+Decision rule:
+  For each (file, NCT, PMID) triple, we expect the PubMed title to mention either:
+    (a) the trial acronym (claim_name tokens), OR
+    (b) the topic-area drug/condition (extracted from filename), OR
+    (c) the trial's first author surname (from snippet).
+
+  If NONE of (a), (b), (c) appear in the PubMed title → likely WRONG_PMID
+  (truly off-topic article, not just naming convention).
+
+Output: outputs/pubmed_cross_check_v2.csv with verdict per record.
+"""
+from __future__ import annotations
+import csv
+import re
+import time
+import urllib.request
+import defusedxml.ElementTree as ET  # noqa: N817 — security: parse untrusted PubMed XML safely
+from pathlib import Path
+
+REPO_DIR = Path(__file__).resolve().parent.parent
+PRIOR_CSV = REPO_DIR / "outputs" / "pubmed_cross_check.csv"
+OUT_CSV = REPO_DIR / "outputs" / "pubmed_cross_check_v2.csv"
+
+# Topic-area keyword map: filename substring → drug/condition keyword set
+# Used to validate that the PubMed title is *about* the right topic area.
+TOPIC_KEYWORDS = {
+    "AFICAMTEN_HCM": {"aficamten", "hypertrophic", "cardiomyopathy", "myosin", "obstructive"},
+    "AGYW_HIV_PREP": {"hiv", "prep", "tenofovir", "cabotegravir", "preexposure", "prevention", "agyw", "adolescent"},
+    "ALDO_SYNTHASE": {"aldosterone", "synthase", "hypertension", "baxdrostat", "lorundrostat", "blood pressure"},
+    "ALOPECIA_JAKI": {"alopecia", "jak", "baricitinib", "ritlecitinib", "deuruxolitinib"},
+    "ALK_NSCLC": {"alk", "nsclc", "lung", "alectinib", "crizotinib", "brigatinib", "lorlatinib", "ensartinib"},
+    "ANIFROLUMAB": {"anifrolumab", "lupus", "sle"},
+    "ANTI_CD20_MS": {"ocrelizumab", "ofatumumab", "multiple sclerosis", "rituximab", "ublituximab"},
+    "ANTIAMYLOID_AD": {"alzheimer", "lecanemab", "donanemab", "aducanumab", "gantenerumab", "amyloid"},
+    "ABLATION_AF": {"ablation", "atrial fibrillation", "pulmonary vein", "cryoballoon", "radiofrequency"},
+    "ACALABRUTINIB_CLL": {"acalabrutinib", "cll", "lymphocytic leukemia", "ibrutinib"},
+    "ACORAMIDIS_ATTR_CM": {"acoramidis", "transthyretin", "amyloidosis", "ttr", "cardiomyopathy"},
+    "ACS_ANTIPLATELET": {"prasugrel", "ticagrelor", "clopidogrel", "antiplatelet", "myocardial infarction", "acute coronary"},
+    "ADC_HER2": {"trastuzumab", "her2", "breast cancer", "deruxtecan", "emtansine"},
+    "ADJUVANT_IO_MELANOMA": {"melanoma", "nivolumab", "pembrolizumab", "ipilimumab", "dabrafenib", "trametinib"},
+    "AFLIBERCEPT_HD": {"aflibercept", "wet amd", "diabetic macular", "vegf"},
+    "AZITHROMYCIN_CHILD": {"azithromycin", "mortality", "child"},
+    "BPAL_MDRTB": {"bedaquiline", "pretomanid", "linezolid", "tuberculosis", "tb", "mdr", "rifampicin-resistant"},
+    "CARDIOVASCULAR_RWD": {"cardiovascular", "real-world", "registry"},
+    "CFTR_CF": {"cystic fibrosis", "elexacaftor", "tezacaftor", "ivacaftor", "cftr", "trikafta"},
+    "COVID_ANTIGEN_DTA": {"covid", "antigen", "lateral flow", "rapid", "sars"},
+    "DAPA_GLP1_DM": {"dapagliflozin", "glp", "semaglutide", "tirzepatide", "diabetes"},
+    "DDIMER_PE_DTA": {"d-dimer", "pulmonary embolism"},
+    "DOLUTEGRAVIR_ART": {"dolutegravir", "hiv", "antiretroviral", "art"},
+    "FENFLURAMINE_SEIZURE": {"fenfluramine", "dravet", "lennox-gastaut", "seizure"},
+    "FINERENONE": {"finerenone", "ckd", "diabetic", "kidney", "mra"},
+    "GENEXPERT_ULTRA_TB": {"xpert", "tuberculosis", "tb", "rifampicin"},
+    "HIFPH_CKD_ANEMIA": {"hif", "roxadustat", "vadadustat", "daprodustat", "ckd", "anemia"},
+    "HIV_ART_TIMING": {"antiretroviral", "art", "hiv", "cd4"},
+    "HIV_PREP_INJECTABLE": {"cabotegravir", "prep", "hiv", "prevention", "f/taf", "f/tdf"},
+    "HIV_TB_COINFECTION": {"hiv", "tb", "tuberculosis", "art"},
+    "HSCTN_NSTEMI_DTA": {"troponin", "nstemi", "myocardial"},
+    "HPV": {"hpv", "papillomavirus", "cervical", "cervarix", "gardasil"},
+    "MALARIA_VACCINE": {"malaria", "rts,s", "r21", "matrix-m", "vaccine"},
+    "MDR_TB": {"tuberculosis", "tb", "mdr", "rifampicin", "bedaquiline"},
+    "MPMRI_PROSTATE": {"mri", "prostate", "biopsy"},
+    "PEDIATRIC_HIV_ART": {"pediatric", "paediatric", "hiv", "art", "children", "dolutegravir"},
+    "POSTPARTUM_HEMORRHAGE": {"postpartum", "hemorrhage", "tranexamic", "carbetocin", "oxytocin"},
+    "PRIMAQUINE_GAMETOCYTE": {"primaquine", "gametocyte", "malaria", "falciparum"},
+    "PTAU217_AD": {"ptau", "alzheimer", "biomarker", "tau"},
+    "RESPONDER": {"responder"},
+    "ROTAVIRUS_VACCINE": {"rotavirus", "vaccine", "gastroenteritis", "rotarix", "rotateq"},
+    "SCD_DISEASE_MOD": {"sickle", "disease modifying", "voxelotor", "crizanlizumab", "lentiviral"},
+    "SEVERE_ASTHMA": {"asthma", "mepolizumab", "benralizumab", "tezepelumab", "dupilumab", "reslizumab"},
+    "SEVERE_PEDIATRIC_FEBRILE": {"malaria", "fluid", "transfusion", "child", "severe"},
+    "SGLT2": {"empagliflozin", "dapagliflozin", "canagliflozin", "sotagliflozin", "sglt2", "sglt-2"},
+    "SPONDYLOARTHRITIS": {"spondyloarthritis", "ankylosing", "secukinumab", "ixekizumab", "bimekizumab"},
+    "TB_PREVENTION": {"tuberculosis", "tb", "isoniazid", "rifapentine", "preventive"},
+    "TB_DRUG_SUSCEPTIBLE": {"tuberculosis", "tb", "rifapentine", "moxifloxacin"},
+    "UC_BIOLOGICS": {"ulcerative colitis", "infliximab", "adalimumab", "vedolizumab", "ustekinumab", "tofacitinib"},
+    "YELLOW_FEVER": {"yellow fever", "vaccine", "fractional"},
+    "PNEUMONIA": {"pneumonia", "amoxicillin", "antibiotic"},
+    "SCHISTOSOMIASIS": {"schistosomiasis", "praziquantel", "arpraziquantel"},
+    "CRYPTOCOCCAL_MENINGITIS": {"cryptococcal", "amphotericin", "flucytosine", "fluconazole", "ambisome"},
+    "PREGNANCY_HIV": {"pregnancy", "hiv", "dolutegravir", "efavirenz"},
+}
+
+
+def derive_topic_keywords(filename: str) -> set[str]:
+    """Match filename against TOPIC_KEYWORDS and union all matched keyword sets."""
+    name_upper = filename.upper().replace("_REVIEW.HTML", "")
+    out = set()
+    for substr, kws in TOPIC_KEYWORDS.items():
+        if substr in name_upper:
+            out.update(kws)
+    return out
+
+
+def title_mentions_topic(title: str, keywords: set[str]) -> bool:
+    title_lower = title.lower()
+    return any(kw.lower() in title_lower for kw in keywords)
+
+
+def main():
+    # Reuse PMID data from prior run via the v1 CSV
+    if not PRIOR_CSV.exists():
+        print(f"Prior CSV missing: {PRIOR_CSV}")
+        return
+    rows = list(csv.DictReader(PRIOR_CSV.open(encoding="utf-8")))
+    print(f"Loaded {len(rows)} prior findings from v1 CSV")
+
+    out_rows = []
+    for r in rows:
+        verdict = r["verdict"]
+        if verdict == "OK":
+            out_rows.append({**r, "v2_verdict": "OK", "topic_match": "", "v2_notes": ""})
+            continue
+        if "PMID_NOT_FOUND" in verdict:
+            out_rows.append({**r, "v2_verdict": "PMID_NOT_FOUND", "topic_match": "", "v2_notes": "PMID not in PubMed"})
+            continue
+
+        # For TRIAL_PMID_MISALIGNED + YEAR_MISMATCH: refine using topic-area keyword
+        topic_kws = derive_topic_keywords(r["file"])
+        title = r["pubmed_title"]
+        topic_ok = title_mentions_topic(title, topic_kws)
+
+        v2_verdict = "OK"
+        notes = []
+        if "YEAR_MISMATCH" in verdict:
+            try:
+                yd = int(r["year_diff"])
+                if abs(yd) > 1:
+                    v2_verdict = "YEAR_MISMATCH"
+                    notes.append(f"year diff {yd}")
+            except (ValueError, TypeError):
+                pass
+        if "TRIAL_PMID_MISALIGNED" in verdict and not topic_ok:
+            # Truly off-topic — likely wrong PMID
+            v2_verdict = "WRONG_PMID" if v2_verdict == "OK" else v2_verdict + "+WRONG_PMID"
+            notes.append(f"PubMed title doesn't mention any of: {sorted(topic_kws)[:5]}")
+
+        out_rows.append({
+            **r,
+            "v2_verdict": v2_verdict,
+            "topic_match": "YES" if topic_ok else "NO",
+            "v2_notes": "; ".join(notes),
+        })
+
+    OUT_CSV.parent.mkdir(parents=True, exist_ok=True)
+    with OUT_CSV.open("w", newline="", encoding="utf-8") as f:
+        w = csv.DictWriter(f, fieldnames=list(out_rows[0].keys()))
+        w.writeheader()
+        w.writerows(out_rows)
+
+    by_v2: dict[str, int] = {}
+    for r in out_rows:
+        by_v2[r["v2_verdict"]] = by_v2.get(r["v2_verdict"], 0) + 1
+    print(f"\n=== v2 verdict counts (n={len(out_rows)}) ===")
+    for k in sorted(by_v2.keys()):
+        print(f"  {k:30s} {by_v2[k]}")
+
+    real = [r for r in out_rows if r["v2_verdict"] not in ("OK",)]
+    print(f"\n=== {len(real)} real defects ===\n")
+    for r in real:
+        print(f"  [{r['v2_verdict']:30s}] {r['file']:50s} {r['key']:18s} pmid={r['pmid']}")
+        print(f"     claim: {r['claim_name'][:50]:50s} year={r['claim_year']}")
+        print(f"     pubmed: {r['pubmed_title'][:80]}")
+        print(f"     {r['v2_notes']}")
+        print()
+
+
+if __name__ == "__main__":
+    main()
+
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Get-Content -Path F:\\ProjectIndex\\INDEX.md -TotalCount 20; Get-Content -Path F:\\E156\\rewrite-workbook.txt -TotalCount 20" in F:\rapidmeta-ssot-shell
+ succeeded in 315ms:
+<!-- sentinel:skip-file - portfolio registry; absolute paths ARE the data -->
+# C: Drive Project Index
+> **Last updated**: 2026-05-14 (C:\HTML apps focused repair batch continued: hub shell launch fix, static contracts across ten HTML app repos, NMA/living-meta/nma-dose-response landing and asset-link repairs, and NMA doc hardcoded-path cleanup. Prior SheafNMA v0.2.0, D-drive legacy smoke-contract continuation, CardioOracle lifecycle status freeze, C-drive model/project smoke-contract continuation, mahmood789 consolidation, Sentinel/Overmind JSONL and verification repair, C-drive reproducibility audit continuation, C-drive verification repair, D-drive repair batch, superapp, C-drive sweep, home-folder hardening, Trial Truthfulness Atlas, and portfolio notes retained below.)
+
+### C:\HTML apps focused repair batch (2026-05-14)
+> - `C:\HTML apps\hub\`: added a launchable `index.html` shell and static contract tests for required registry/runtime wiring; fixed `app.js` local `file://` launch resolution so the hub opened from `hub\index.html` links sibling apps from the parent HTML-apps directory instead of nesting paths under `hub`. Verification: `pytest -q -p no:cacheprovider` -> `3 passed`; `node --check app.js && node --check projects.js` -> PASS; headless Chrome smoke on `file:///mnt/c/HTML%20apps/hub/index.html` confirmed the page title and sibling app links. GitHub pushed: `mahmood726-cyber/hub` main `c1a6725`.
+> - `C:\HTML apps\evidence-board\`, `C:\HTML apps\focus-studio\`, `C:\HTML apps\kanban-lab\`: added pytest-visible static app shell contracts covering title/description, localStorage persistence hooks, key controls, and absence of unresolved templates or hardcoded local drive paths; added repo `.gitignore` entries for Python caches and `PROGRESS.md`. Verification: each `pytest -q -p no:cacheprovider` -> `2 passed` with the existing pytest `cache_dir` warning; scoped `git diff --check` -> PASS. GitHub pushed: `evidence-board` master `9a87c8b`, `focus-studio` master `0fa728b`, `kanban-lab` master `81cad38`.
+> - `C:\HTML apps\nma-pro-v2\`: fixed the landing page's broken app links from absent v6/v7 asset filenames to the current `e156-submission/assets/nma-pro-v8.0.html`, added static link-resolution contracts, and removed Sentinel P0 hardcoded local OneDrive paths from legacy docs. Verification: `pytest -q -p no:cacheprovider tests/test_smoke.py tests/test_static_links.py` -> `3 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=1 INFO=302` (pre-existing tracked autogen warning plus HTML a11y INFO). GitHub pushed: master `a2834e7` for the link fix and master `a74e385` for the P0 doc cleanup.
+> - `C:\HTML apps\IPD-Meta-Pro\` and `C:\HTML apps\Truthcert1\`: added static link-resolution contracts for landing-page local assets and canonical app entrypoints. Verification: `IPD-Meta-Pro` `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; `Truthcert1` same command -> `2 passed` with existing pytest `cache_dir` warning. GitHub pushed: `IPD-Meta-Pro` master `b26ee09`, `Truthcert1` master `81eddd3`.
+> - `C:\HTML apps\living-meta\`: repaired landing-page validation links that pointed to a missing HTML asset and an out-of-repo sibling path; linked the existing validation and limitations docs instead, and added a static link-resolution contract. Verification: `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=8` (pre-existing HTML a11y INFO). GitHub pushed: master `c3c8a9b`.
+> - `C:\HTML apps\Pairwiseai\`: added a static landing-page contract covering local link resolution, absence of unresolved templates/local drive paths, and the key app entrypoints under `e156-submission/assets`. Verification: `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=1731` (pre-existing HTML a11y INFO). GitHub pushed: master `2ade493`.
+> - `C:\HTML apps\nma-dose-response-app\`: pushed the existing smoke-blocker commit and added an E156 asset-bundle repair so `e156-submission\assets\index*.html` resolves its JS runtime dependencies from inside the assets folder; added a static link-resolution contract covering root and E156 app entrypoints. Verification: `pytest -q -p no:cacheprovider tests/test_smoke.py tests/test_static_links.py` -> `4 passed` with the existing pytest `cache_dir` warning; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=442` (pre-existing HTML a11y INFO). GitHub pushed: master `e95fae0` and `96594b6`.
+> - Push gate: Windows Git credential path succeeded after WSL Git lacked HTTPS credentials. Sentinel pre-push/manual scan verdicts were BLOCK=0; evidence-board INFO=18, focus-studio INFO=10, kanban-lab INFO=10, living-meta INFO=8, Pairwiseai INFO=1731, nma-dose-response-app INFO=442 (pre-existing P2 HTML accessibility notes); hub push emitted no Sentinel findings.
+> - Existing unrelated dirty files were left unstaged in these repos, mainly protocol/license/doc edits and untracked `paper\` outputs in the three app repos, plus pre-existing hub metadata/submission/style edits.
+
+### SheafNMA (2026-05-12; v0.2.0 real-NMA-corpus validation + 36-cell Ã— 1000-rep simulation + methods paper draft)
+> - `C:\Models\SheafNMA\` â€” cellular-sheaf inconsistency localization for network meta-analysis. v0.1.0 (2026-04-07) was math + single-file HTML dashboard + E156 #153 micro-paper on a synthetic 12-contrast network. v0.2.0 refactored the 457-LOC `generate_figures.py` into a `sheafnma/` package (`core`, `io`, `simulate`, `comparators`, `r_bridge`), validated on 13 R-netmeta built-in NMAs, and shipped a methods-paper draft for Research Synthesis Methods.
+> - Method: precision-weighted coboundary `F[e, treat1] = -1/SE_e, F[e, treat2] = +1/SE_e`; sheaf Laplacian `L = Fáµ€F` (symmetric PSD); WLS-solve node estimates with node 0 anchored; per-edge residuals `r_e = dÌƒ_e âˆ’ (F x*)_e` localize inconsistency; **Global Inconsistency Index** `GII = Î£ rÂ²` is the global statistic. One algebraic object yields both global + per-edge â€” complements (not replaces) node-splitting.
+> - Real-corpus headline: across **13 R-netmeta built-in NMAs** (Senn 2013 diabetes, Dias smokingcessation, Dong 2013 thrombolytics, Linde 2015/2016 acupuncture, Salanti antimanic, Baker, Dogliotti, Franchini, Gurusamy, Stowe, Woods, dietaryfat, parkinson) the global design-by-treatment Ï‡Â² (Higgins 2012) failed to reject in all 13. **SheafNMA flagged â‰¥1 localized inconsistency edge in 5 of those 13 (38.5%)** at the Youden-frozen threshold of **2.6912** â€” networks that look globally consistent harbor at least one inconsistent edge the global test misses.
+> - Simulation rigor: 36-cell grid (n_treatments âˆˆ {4,6,8} Ã— n_studies_per_edge âˆˆ {3,5,10} Ã— Ï„_inc âˆˆ {0,0.2,0.5,1.0}) Ã— **1000 replications per cell**, held-out training cell at (6,5,0.5) for Youden's-J threshold selection (frozen before evaluating remaining 35 cells). Type-I error at Ï„_inc=0 was **0.000 across all cells**. Mean per-edge sensitivity 0.981 / specificity 0.945 at Ï„_inc=0.5.
+E156 REWRITE WORKBOOK
+sentinel:skip-file
+sentinel:claim-language-allow
+(Sentinel markers above:
+ - sentinel:skip-file: this workbook intentionally contains C:\Users\... PATH:
+   lines pointing to each project's local source directory â€” they're metadata,
+   not code. The marker keeps Sentinel from emitting ~16 P0 hardcoded-path
+   BLOCKs every push.
+ - sentinel:claim-language-allow: CURRENT BODY entries are the AI-drafted
+   summaries that students rewrite into hedged language â€” flagging overclaim
+   words IN those drafts is the whole pedagogical point, not a defect.
+   File-scope marker here suppresses the ~1293 claim-language WARNs on the
+   CURRENT BODY entries; the YOUR REWRITE entries are where the hedging
+   discipline matters and remains lintable in the rendered student board.)
+
+DENOMINATOR CONVENTION (added 2026-05-06 after review-findings P1-5):
+  Each entry header is `[N/total]` where N = ordinal insertion index and
+  `total` = current portfolio size as of the most recent reconcile sweep.
+  Older entries are back-rewritten on milestone boundaries (rather than
+  preserving their insertion-time denominator) to keep
+
+codex
+I’m going to pin line numbers from the checked-in file, then keep the finding tied to the pasted packet rather than broadening the review.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=1; Get-Content -Path scripts'"\\pubmed_cross_check_v2.py | ForEach-Object { '{0,4}: {1}' -f "'$i, $_; $i++ }' in F:\rapidmeta-ssot-shell
+ succeeded in 1274ms:
+   1: """PubMed cross-check v2 â€” refined filter that distinguishes acronym-vs-formal-title
+   2: false positives from genuinely-wrong PMIDs.
+   3: 
+   4: Decision rule:
+   5:   For each (file, NCT, PMID) triple, we expect the PubMed title to mention either:
+   6:     (a) the trial acronym (claim_name tokens), OR
+   7:     (b) the topic-area drug/condition (extracted from filename), OR
+   8:     (c) the trial's first author surname (from snippet).
+   9: 
+  10:   If NONE of (a), (b), (c) appear in the PubMed title â†’ likely WRONG_PMID
+  11:   (truly off-topic article, not just naming convention).
+  12: 
+  13: Output: outputs/pubmed_cross_check_v2.csv with verdict per record.
+  14: """
+  15: from __future__ import annotations
+  16: import csv
+  17: import re
+  18: import time
+  19: import urllib.request
+  20: import defusedxml.ElementTree as ET  # noqa: N817 â€” security: parse untrusted PubMed XML safely
+  21: from pathlib import Path
+  22: 
+  23: REPO_DIR = Path(__file__).resolve().parent.parent
+  24: PRIOR_CSV = REPO_DIR / "outputs" / "pubmed_cross_check.csv"
+  25: OUT_CSV = REPO_DIR / "outputs" / "pubmed_cross_check_v2.csv"
+  26: 
+  27: # Topic-area keyword map: filename substring â†’ drug/condition keyword set
+  28: # Used to validate that the PubMed title is *about* the right topic area.
+  29: TOPIC_KEYWORDS = {
+  30:     "AFICAMTEN_HCM": {"aficamten", "hypertrophic", "cardiomyopathy", "myosin", "obstructive"},
+  31:     "AGYW_HIV_PREP": {"hiv", "prep", "tenofovir", "cabotegravir", "preexposure", "prevention", "agyw", "adolescent"},
+  32:     "ALDO_SYNTHASE": {"aldosterone", "synthase", "hypertension", "baxdrostat", "lorundrostat", "blood pressure"},
+  33:     "ALOPECIA_JAKI": {"alopecia", "jak", "baricitinib", "ritlecitinib", "deuruxolitinib"},
+  34:     "ALK_NSCLC": {"alk", "nsclc", "lung", "alectinib", "crizotinib", "brigatinib", "lorlatinib", "ensartinib"},
+  35:     "ANIFROLUMAB": {"anifrolumab", "lupus", "sle"},
+  36:     "ANTI_CD20_MS": {"ocrelizumab", "ofatumumab", "multiple sclerosis", "rituximab", "ublituximab"},
+  37:     "ANTIAMYLOID_AD": {"alzheimer", "lecanemab", "donanemab", "aducanumab", "gantenerumab", "amyloid"},
+  38:     "ABLATION_AF": {"ablation", "atrial fibrillation", "pulmonary vein", "cryoballoon", "radiofrequency"},
+  39:     "ACALABRUTINIB_CLL": {"acalabrutinib", "cll", "lymphocytic leukemia", "ibrutinib"},
+  40:     "ACORAMIDIS_ATTR_CM": {"acoramidis", "transthyretin", "amyloidosis", "ttr", "cardiomyopathy"},
+  41:     "ACS_ANTIPLATELET": {"prasugrel", "ticagrelor", "clopidogrel", "antiplatelet", "myocardial infarction", "acute coronary"},
+  42:     "ADC_HER2": {"trastuzumab", "her2", "breast cancer", "deruxtecan", "emtansine"},
+  43:     "ADJUVANT_IO_MELANOMA": {"melanoma", "nivolumab", "pembrolizumab", "ipilimumab", "dabrafenib", "trametinib"},
+  44:     "AFLIBERCEPT_HD": {"aflibercept", "wet amd", "diabetic macular", "vegf"},
+  45:     "AZITHROMYCIN_CHILD": {"azithromycin", "mortality", "child"},
+  46:     "BPAL_MDRTB": {"bedaquiline", "pretomanid", "linezolid", "tuberculosis", "tb", "mdr", "rifampicin-resistant"},
+  47:     "CARDIOVASCULAR_RWD": {"cardiovascular", "real-world", "registry"},
+  48:     "CFTR_CF": {"cystic fibrosis", "elexacaftor", "tezacaftor", "ivacaftor", "cftr", "trikafta"},
+  49:     "COVID_ANTIGEN_DTA": {"covid", "antigen", "lateral flow", "rapid", "sars"},
+  50:     "DAPA_GLP1_DM": {"dapagliflozin", "glp", "semaglutide", "tirzepatide", "diabetes"},
+  51:     "DDIMER_PE_DTA": {"d-dimer", "pulmonary embolism"},
+  52:     "DOLUTEGRAVIR_ART": {"dolutegravir", "hiv", "antiretroviral", "art"},
+  53:     "FENFLURAMINE_SEIZURE": {"fenfluramine", "dravet", "lennox-gastaut", "seizure"},
+  54:     "FINERENONE": {"finerenone", "ckd", "diabetic", "kidney", "mra"},
+  55:     "GENEXPERT_ULTRA_TB": {"xpert", "tuberculosis", "tb", "rifampicin"},
+  56:     "HIFPH_CKD_ANEMIA": {"hif", "roxadustat", "vadadustat", "daprodustat", "ckd", "anemia"},
+  57:     "HIV_ART_TIMING": {"antiretroviral", "art", "hiv", "cd4"},
+  58:     "HIV_PREP_INJECTABLE": {"cabotegravir", "prep", "hiv", "prevention", "f/taf", "f/tdf"},
+  59:     "HIV_TB_COINFECTION": {"hiv", "tb", "tuberculosis", "art"},
+  60:     "HSCTN_NSTEMI_DTA": {"troponin", "nstemi", "myocardial"},
+  61:     "HPV": {"hpv", "papillomavirus", "cervical", "cervarix", "gardasil"},
+  62:     "MALARIA_VACCINE": {"malaria", "rts,s", "r21", "matrix-m", "vaccine"},
+  63:     "MDR_TB": {"tuberculosis", "tb", "mdr", "rifampicin", "bedaquiline"},
+  64:     "MPMRI_PROSTATE": {"mri", "prostate", "biopsy"},
+  65:     "PEDIATRIC_HIV_ART": {"pediatric", "paediatric", "hiv", "art", "children", "dolutegravir"},
+  66:     "POSTPARTUM_HEMORRHAGE": {"postpartum", "hemorrhage", "tranexamic", "carbetocin", "oxytocin"},
+  67:     "PRIMAQUINE_GAMETOCYTE": {"primaquine", "gametocyte", "malaria", "falciparum"},
+  68:     "PTAU217_AD": {"ptau", "alzheimer", "biomarker", "tau"},
+  69:     "RESPONDER": {"responder"},
+  70:     "ROTAVIRUS_VACCINE": {"rotavirus", "vaccine", "gastroenteritis", "rotarix", "rotateq"},
+  71:     "SCD_DISEASE_MOD": {"sickle", "disease modifying", "voxelotor", "crizanlizumab", "lentiviral"},
+  72:     "SEVERE_ASTHMA": {"asthma", "mepolizumab", "benralizumab", "tezepelumab", "dupilumab", "reslizumab"},
+  73:     "SEVERE_PEDIATRIC_FEBRILE": {"malaria", "fluid", "transfusion", "child", "severe"},
+  74:     "SGLT2": {"empagliflozin", "dapagliflozin", "canagliflozin", "sotagliflozin", "sglt2", "sglt-2"},
+  75:     "SPONDYLOARTHRITIS": {"spondyloarthritis", "ankylosing", "secukinumab", "ixekizumab", "bimekizumab"},
+  76:     "TB_PREVENTION": {"tuberculosis", "tb", "isoniazid", "rifapentine", "preventive"},
+  77:     "TB_DRUG_SUSCEPTIBLE": {"tuberculosis", "tb", "rifapentine", "moxifloxacin"},
+  78:     "UC_BIOLOGICS": {"ulcerative colitis", "infliximab", "adalimumab", "vedolizumab", "ustekinumab", "tofacitinib"},
+  79:     "YELLOW_FEVER": {"yellow fever", "vaccine", "fractional"},
+  80:     "PNEUMONIA": {"pneumonia", "amoxicillin", "antibiotic"},
+  81:     "SCHISTOSOMIASIS": {"schistosomiasis", "praziquantel", "arpraziquantel"},
+  82:     "CRYPTOCOCCAL_MENINGITIS": {"cryptococcal", "amphotericin", "flucytosine", "fluconazole", "ambisome"},
+  83:     "PREGNANCY_HIV": {"pregnancy", "hiv", "dolutegravir", "efavirenz"},
+  84: }
+  85: 
+  86: 
+  87: def derive_topic_keywords(filename: str) -> set[str]:
+  88:     """Match filename against TOPIC_KEYWORDS and union all matched keyword sets."""
+  89:     name_upper = filename.upper().replace("_REVIEW.HTML", "")
+  90:     out = set()
+  91:     for substr, kws in TOPIC_KEYWORDS.items():
+  92:         if substr in name_upper:
+  93:             out.update(kws)
+  94:     return out
+  95: 
+  96: 
+  97: def title_mentions_topic(title: str, keywords: set[str]) -> bool:
+  98:     title_lower = title.lower()
+  99:     return any(kw.lower() in title_lower for kw in keywords)
+ 100: 
+ 101: 
+ 102: def main():
+ 103:     # Reuse PMID data from prior run via the v1 CSV
+ 104:     if not PRIOR_CSV.exists():
+ 105:         print(f"Prior CSV missing: {PRIOR_CSV}")
+ 106:         return
+ 107:     rows = list(csv.DictReader(PRIOR_CSV.open(encoding="utf-8")))
+ 108:     print(f"Loaded {len(rows)} prior findings from v1 CSV")
+ 109: 
+ 110:     out_rows = []
+ 111:     for r in rows:
+ 112:         verdict = r["verdict"]
+ 113:         if verdict == "OK":
+ 114:             out_rows.append({**r, "v2_verdict": "OK", "topic_match": "", "v2_notes": ""})
+ 115:             continue
+ 116:         if "PMID_NOT_FOUND" in verdict:
+ 117:             out_rows.append({**r, "v2_verdict": "PMID_NOT_FOUND", "topic_match": "", "v2_notes": "PMID not in PubMed"})
+ 118:             continue
+ 119: 
+ 120:         # For TRIAL_PMID_MISALIGNED + YEAR_MISMATCH: refine using topic-area keyword
+ 121:         topic_kws = derive_topic_keywords(r["file"])
+ 122:         title = r["pubmed_title"]
+ 123:         topic_ok = title_mentions_topic(title, topic_kws)
+ 124: 
+ 125:         v2_verdict = "OK"
+ 126:         notes = []
+ 127:         if "YEAR_MISMATCH" in verdict:
+ 128:             try:
+ 129:                 yd = int(r["year_diff"])
+ 130:                 if abs(yd) > 1:
+ 131:                     v2_verdict = "YEAR_MISMATCH"
+ 132:                     notes.append(f"year diff {yd}")
+ 133:             except (ValueError, TypeError):
+ 134:                 pass
+ 135:         if "TRIAL_PMID_MISALIGNED" in verdict and not topic_ok:
+ 136:             # Truly off-topic â€” likely wrong PMID
+ 137:             v2_verdict = "WRONG_PMID" if v2_verdict == "OK" else v2_verdict + "+WRONG_PMID"
+ 138:             notes.append(f"PubMed title doesn't mention any of: {sorted(topic_kws)[:5]}")
+ 139: 
+ 140:         out_rows.append({
+ 141:             **r,
+ 142:             "v2_verdict": v2_verdict,
+ 143:             "topic_match": "YES" if topic_ok else "NO",
+ 144:             "v2_notes": "; ".join(notes),
+ 145:         })
+ 146: 
+ 147:     OUT_CSV.parent.mkdir(parents=True, exist_ok=True)
+ 148:     with OUT_CSV.open("w", newline="", encoding="utf-8") as f:
+ 149:         w = csv.DictWriter(f, fieldnames=list(out_rows[0].keys()))
+ 150:         w.writeheader()
+ 151:         w.writerows(out_rows)
+ 152: 
+ 153:     by_v2: dict[str, int] = {}
+ 154:     for r in out_rows:
+ 155:         by_v2[r["v2_verdict"]] = by_v2.get(r["v2_verdict"], 0) + 1
+ 156:     print(f"\n=== v2 verdict counts (n={len(out_rows)}) ===")
+ 157:     for k in sorted(by_v2.keys()):
+ 158:         print(f"  {k:30s} {by_v2[k]}")
+ 159: 
+ 160:     real = [r for r in out_rows if r["v2_verdict"] not in ("OK",)]
+ 161:     print(f"\n=== {len(real)} real defects ===\n")
+ 162:     for r in real:
+ 163:         print(f"  [{r['v2_verdict']:30s}] {r['file']:50s} {r['key']:18s} pmid={r['pmid']}")
+ 164:         print(f"     claim: {r['claim_name'][:50]:50s} year={r['claim_year']}")
+ 165:         print(f"     pubmed: {r['pubmed_title'][:80]}")
+ 166:         print(f"     {r['v2_notes']}")
+ 167:         print()
+ 168: 
+ 169: 
+ 170: if __name__ == "__main__":
+ 171:     main()
+
+codex
+- **Check that CANNOT FAIL / wrapper status**: line 106.  
+  Exact input: run with `outputs/pubmed_cross_check.csv` absent.  
+  Consequence: the prerequisite failure prints a message and exits status 0, so CI/wrappers can record success with no v2 output.
+
+- **Selector ignores advertised acronym branch**: lines 121-123 and 135.  
+  Exact CSV:
+  ```csv
+  file,verdict,pubmed_title,year_diff,key,pmid,claim_name,claim_year
+  AFICAMTEN_HCM_REVIEW.HTML,TRIAL_PMID_MISALIGNED,SEQUOIA-HCM trial results,0,k1,123,SEQUOIA-HCM,2024
+  ```
+  Consequence: a title matching `claim_name` is still emitted as `WRONG_PMID` because only topic keywords are checked.
+
+- **Substring selector false match**: line 99.  
+  Exact CSV:
+  ```csv
+  file,verdict,pubmed_title,year_diff,key,pmid,claim_name,claim_year
+  HIV_ART_TIMING_REVIEW.HTML,TRIAL_PMID_MISALIGNED,Heart failure outcomes,0,k2,456,OTHER,2024
+  ```
+  Consequence: `art` matches inside `Heart`, so an off-topic PMID is cleared as `OK`.
+
+- **NEGATION DROPPED**: line 127.  
+  Exact CSV:
+  ```csv
+  file,verdict,pubmed_title,year_diff,key,pmid,claim_name,claim_year
+  AFICAMTEN_HCM_REVIEW.HTML,NO_YEAR_MISMATCH,aficamten results,2,k3,789,SEQUOIA-HCM,2024
+  ```
+  Consequence: a negated verdict string is treated as a positive `YEAR_MISMATCH`.
+
+- **Off-by-zero tabulation crash**: line 149.  
+  Exact input: `outputs/pubmed_cross_check.csv` exists but is empty.  
+  Consequence: `out_rows[0]` raises `IndexError`, so a valid empty finding set cannot produce an empty v2 CSV.
+
+No proven defect from this packet for: idempotency guard satisfied by own comment, different-copy instrumentation, CRLF/LF text comparison, merged-cell tabulation, zero conflated with absent, or probe keyed to a string a fix removes.
+tokens used
+21,149
+- **Check that CANNOT FAIL / wrapper status**: line 106.  
+  Exact input: run with `outputs/pubmed_cross_check.csv` absent.  
+  Consequence: the prerequisite failure prints a message and exits status 0, so CI/wrappers can record success with no v2 output.
+
+- **Selector ignores advertised acronym branch**: lines 121-123 and 135.  
+  Exact CSV:
+  ```csv
+  file,verdict,pubmed_title,year_diff,key,pmid,claim_name,claim_year
+  AFICAMTEN_HCM_REVIEW.HTML,TRIAL_PMID_MISALIGNED,SEQUOIA-HCM trial results,0,k1,123,SEQUOIA-HCM,2024
+  ```
+  Consequence: a title matching `claim_name` is still emitted as `WRONG_PMID` because only topic keywords are checked.
+
+- **Substring selector false match**: line 99.  
+  Exact CSV:
+  ```csv
+  file,verdict,pubmed_title,year_diff,key,pmid,claim_name,claim_year
+  HIV_ART_TIMING_REVIEW.HTML,TRIAL_PMID_MISALIGNED,Heart failure outcomes,0,k2,456,OTHER,2024
+  ```
+  Consequence: `art` matches inside `Heart`, so an off-topic PMID is cleared as `OK`.
+
+- **NEGATION DROPPED**: line 127.  
+  Exact CSV:
+  ```csv
+  file,verdict,pubmed_title,year_diff,key,pmid,claim_name,claim_year
+  AFICAMTEN_HCM_REVIEW.HTML,NO_YEAR_MISMATCH,aficamten results,2,k3,789,SEQUOIA-HCM,2024
+  ```
+  Consequence: a negated verdict string is treated as a positive `YEAR_MISMATCH`.
+
+- **Off-by-zero tabulation crash**: line 149.  
+  Exact input: `outputs/pubmed_cross_check.csv` exists but is empty.  
+  Consequence: `out_rows[0]` raises `IndexError`, so a valid empty finding set cannot produce an empty v2 CSV.
+
+No proven defect from this packet for: idempotency guard satisfied by own comment, different-copy instrumentation, CRLF/LF text comparison, merged-cell tabulation, zero conflated with absent, or probe keyed to a string a fix removes.

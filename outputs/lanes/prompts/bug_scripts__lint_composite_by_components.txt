@@ -1,0 +1,276 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/lint_composite_by_components.py
+
+--- THE FILE, IN FULL ---
+#!/usr/bin/env python3
+"""P33 + P36 MADE MECHANICAL: COMPOSITES ARE COMPARED BY COMPONENTS, NEVER BY NAME.
+
+THREE INSTANCES IN ONE NIGHT, IN TWO DISEASE AREAS, and every one of them was found by a human
+reading four strings -- never by a statistic and never by a schema.
+
+    ablation-af-heart-failure    2 trials, 2 definitions of the heart-failure limb   I2  0.0%
+    ablation-af-medical-therapy  3 trials, 3 different composites                    I2  3.9%
+    apixaban-vte-prophylaxis     4 trials, 4 different primaries                     I2 83.6%
+                                 the same 4 trials on a SHARED secondary             I2 67.8%
+
+THE STATISTIC MEASURED IT IN BOTH DIRECTIONS AND SETTLED NOTHING. Mismatched estimands pooled
+at 0.0% and 3.9%; matched ones pooled at 67.8% while the mismatched version of the same four
+trials pooled at 83.6%. A LOW I-SQUARED DOES NOT SHOW THAT TRIALS MEASURE THE SAME THING, AND A
+HIGH ONE DOES NOT SHOW THAT THEY DO NOT. That is P36, and its practical consequence is that
+coherence has to be CHECKED, by something, every time.
+
+WHY BY COMPONENTS AND NOT BY NAME (P33). The two apixaban primaries below share a name in every
+sense a reader or a string comparison would use -- both are "VTE and death":
+
+    ADOPT      total VTE  +  VTE-RELATED death
+    ADVANCE-1  VTE        +  ALL-CAUSE death
+
+They are not the same endpoint. All-cause death is not VTE-related death, and the difference is
+the entire question of whether the two numbers may be added. A name comparison sees a match; a
+COMPONENT comparison sees `death_all_cause` against `death_vte_related`. Equally, the three
+ablation composites are "composite of mortality and events" three times over and decompose into
+{death, hf_event}, {death, stroke, bleeding, cardiac_arrest}, {death, hf_event}.
+
+THE RULE, AND WHY IT IS NOT "REFUSE ALL MISMATCHES". Pooling trials whose endpoints differ is
+sometimes the right call -- both ablation reviews did it deliberately, with the mismatch stated
+as the review's own limitation. What is never acceptable is doing it SILENTLY. So:
+
+    A POOL OF k>1 WHOSE TRIALS' REGISTERED ENDPOINTS DECOMPOSE INTO DIFFERENT COMPONENT SETS
+    MUST CARRY A STRUCTURED RECORD OF THE MISMATCH -- `outcomes[].component_mismatch`, naming
+    the components that differ. Prose in a note does not satisfy it, because prose is exactly
+    what a component comparison is for.
+
+WHAT IT CANNOT DO, STATED. The component vocabulary is finite and hand-built. An endpoint whose
+limbs it does not recognise decomposes to `{}` on both sides and compares EQUAL -- so an
+unrecognised vocabulary reads as agreement, which is the failure direction that matters. Every
+unmatched endpoint string is therefore PRINTED as UNDECOMPOSED and counted, so a growing count
+is visible rather than silently reassuring. That is the same discipline the criteria-fingerprint
+detector uses, and for the same reason.
+"""
+import io
+import json
+import os
+import re
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+SSOT = os.path.join(REPO, "ssot")
+
+# STRUCTURAL COMPONENTS, not names of endpoints. Ordered: the FIRST pattern that matches a
+# clause wins, so the specific mortality forms must precede the general one -- "VTE-related
+# death" must not be swallowed by the bare-death pattern, since that collapse IS the defect.
+COMPONENTS = [
+    ("death_vte_related", r"(vte|venous thromboembolism|pulmonary embolism)[\s\-]*related\s+"
+                          r"(death|mortality)"),
+    ("death_cv",          r"(cardiovascular|cardiac|cv)[\s\-]*(death|mortality)"),
+    ("death_all_cause",   r"(all[\s\-]?cause|total)\s*(death|mortality)"),
+    ("death_unqualified", r"\b(death from any cause|death|mortality)\b"),
+    ("hf_event",          r"heart[\s\-]?failure|hospitali[sz]ation for hf|worsening heart"),
+    ("stroke",            r"\bstroke\b|cerebrovascular"),
+    ("bleeding",          r"bleed"),
+    ("cardiac_arrest",    r"cardiac arrest|resuscitated"),
+    ("mi",                r"myocardial infarction|\bmi\b"),
+    ("dvt",               r"deep vein thrombosis|\bdvt\b"),
+    ("pe",                r"pulmonary embolism|\bpe\b"),
+    ("vte",               r"\bvte\b|venous thromboembolism"),
+    ("revascularisation", r"revasculari"),
+    ("hospitalisation",   r"hospitali[sz]"),
+]
+_COMPILED = [(n, re.compile(p, re.I)) for n, p in COMPONENTS]
+
+
+def components(text):
+    """Decompose an endpoint string into its component set.
+
+    Clause-by-clause, because ORDER MATTERS WITHIN A CLAUSE ONLY. Splitting on the conjunctions
+    that build a composite keeps "VTE-related death" whole inside its own clause, so the
+    specific-before-general ordering can do its job. Matching the whole string at once would let
+    the bare-death pattern fire on a clause that the VTE-related pattern owns.
+    """
+    found = set()
+    for clause in re.split(r",|\bor\b|\band\b|/|\+|;", text or ""):
+        for name, rx in _COMPILED:
+            if rx.search(clause):
+                found.add(name)
+                break              # first (most specific) match owns the clause
+    # A bare death term alongside a qualified one in the SAME endpoint is the qualified one.
+    if found & {"death_vte_related", "death_cv", "death_all_cause"}:
+        found.discard("death_unqualified")
+    return found
+
+
+def pools_each_trials_own_primary(obj):
+    """Does this object POOL each trial's own registered primary? Two ways to say so.
+
+    THE FIRST VERSION OF THIS FILE DID NOT ASK, AND IT WAS WRONG ON MOST OF THE CORPUS. It
+    compared `registered_primaries[0]` across every pooled topic and reported 27 mismatches.
+    But a review that pools LDL-C percent change at week 24 is not pooling anybody's registered
+    primary, so comparing primaries there compares two things the review never combined -- and
+    reading the output was the only thing that caught it. Worse: `registered_primaries[0]` is
+    itself a POSITIONAL READ of an outcome list, which is the very defect the sibling detector
+    exists for. A detector that commits its own class is not a detector.
+
+    So the comparison is made ONLY where the object states that the pooled quantity IS each
+    trial's registered primary. Everywhere else the per-trial endpoint that supplied each number
+    is simply NOT RECORDED IN THE CORPUS -- and that absence is reported as NOT_ASSESSABLE, which
+    is the honest answer and a real finding in its own right.
+    """
+    for o in (obj.get("outcomes") or []):
+        if (o or {}).get("source_is_each_trials_registered_primary") is True:
+            return "declared"
+    # Transitional: the same claim made in the outcome's own prose, which the objects written
+    # before this detector existed use. Reported distinctly so the two are never conflated.
+    for o in (obj.get("outcomes") or []):
+        txt = "%s %s" % ((o or {}).get("definition") or "", (o or {}).get("name") or "")
+        if re.search(r"(each trial'?s? own|the trial'?s?) registered primary", txt, re.I):
+            return "prose"
+    return None
+
+
+def endpoints_of(obj):
+    """(trial label, endpoint text) for every trial, ONLY where the object pools primaries."""
+    out = []
+    for t in ((obj.get("inputs") or {}).get("trials") or []):
+        prim = t.get("registered_primaries") or []
+        label = t.get("name") or t.get("id") or t.get("nct") or "?"
+        if len(prim) == 1:
+            out.append((label, prim[0]))
+        elif prim:
+            # MORE THAN ONE REGISTERED PRIMARY: there is no "the" primary to compare, and
+            # picking one would be the positional read again. Joined, so a component set that
+            # differs on ANY limb still differs -- conservative in the direction of looking.
+            out.append((label, " ; ".join(prim)))
+    return out
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    undecomposed, mismatched, ok = [], [], 0
+    not_assessable, by_mechanism = [], {"declared": 0, "prose": 0}
+    for topic in sorted(os.listdir(SSOT)):
+        path = os.path.join(SSOT, topic, "%s.json" % topic)
+        if not os.path.isfile(path):
+            continue
+        try:
+            with io.open(path, encoding="utf-8") as fh:
+                obj = json.load(fh)
+        except Exception:
+            continue
+        if len(((obj.get("inputs") or {}).get("trials") or [])) < 2:
+            continue
+        # THE PROPERTY IS ABOUT POOLING MISMATCHED ESTIMANDS. A review that records each trial's
+        # own primary verbatim and COMBINES NOTHING has committed no offence, and four topics --
+        # warfarin-af, enoxaparin-vte, covid-oral-antivirals, dabigatran-stroke -- are exactly
+        # that: `pooled.point` is null on every outcome. The first version accused all four.
+        pooled_any = any((((v or {}).get("pooled") or {}).get("point")) is not None
+                         for v in (((obj.get("results") or {}).get("by_outcome")) or {}).values())
+        if not pooled_any:
+            continue
+        mech = pools_each_trials_own_primary(obj)
+        if not mech:
+            not_assessable.append((topic, "the endpoint each trial supplied to the pool is "
+                                          "not recorded"))
+            continue
+        by_mechanism[mech] += 1
+        eps = endpoints_of(obj)
+        if len(eps) < 2:
+            not_assessable.append((topic, "fewer than two trials carry a registered primary"))
+            continue
+        sets, skipped = {}, []
+        for label, txt in eps:
+            c = components(txt)
+            if not c:
+                # NOT_ASSESSABLE, NEVER A MISMATCH. Treating an unrecognised endpoint as the
+                # empty set made it differ from every recognised one, which manufactured
+                # findings out of vocabulary gaps -- the opposite of what a detector owes.
+                undecomposed.append((topic, label, txt[:90]))
+                skipped.append(label)
+                continue
+            sets[label] = c
+        if len(sets) < 2:
+            not_assessable.append((topic, "fewer than two endpoints decompose"))
+            continue
+        distinct = {frozenset(v) for v in sets.values()}
+        if len(distinct) <= 1:
+            ok += 1
+            continue
+        # A mismatch exists. Is it RECORDED, structurally?
+        recorded = any((o or {}).get("component_mismatch")
+                       for o in (obj.get("outcomes") or []))
+        differing = sorted(set().union(*distinct) - set().intersection(*distinct))
+        mismatched.append({"topic": topic, "recorded": bool(recorded),
+                           "differing": differing, "mechanism": mech, "skipped": skipped,
+                           "sets": {k: sorted(v) for k, v in sets.items()}})
+
+    print("COMPOSITE ENDPOINTS COMPARED BY COMPONENTS")
+    print("  assessed      %3d topic(s) that pool each trial's OWN registered primary "
+          "(%d declared, %d by prose)"
+          % (by_mechanism["declared"] + by_mechanism["prose"],
+             by_mechanism["declared"], by_mechanism["prose"]))
+    print("  coherent      %3d" % ok)
+    print("  mismatched    %3d" % len(mismatched))
+    print("  NOT_ASSESSABLE %3d -- the corpus does not record, per trial per pooled outcome,"
+          % len(not_assessable))
+    print("                     WHICH REGISTERED ENDPOINT SUPPLIED THE NUMBER. A gap, not a")
+    print("                     clean result.")
+    unrecorded = [m for m in mismatched if not m["recorded"]]
+    for m in mismatched:
+        tag = "RECORDED  " if m["recorded"] else "UNRECORDED"
+        print("\n  %s %s -- components that differ: %s"
+              % (tag, m["topic"], ", ".join(m["differing"]) or "(none named)"))
+        for k, v in sorted(m["sets"].items()):
+            print("        %-46s %s" % (k[:46], "{%s}" % ", ".join(v)))
+    if undecomposed:
+        print("\nUNDECOMPOSED -- %d endpoint(s) matched NO component pattern. An unrecognised "
+              "vocabulary\ncompares EQUAL on both sides, so these are counted, not ignored:"
+              % len(undecomposed))
+        for t, lbl, txt in undecomposed[:15]:
+            print("     %s / %s: %r" % (t, lbl, txt))
+
+    if unrecorded:
+        print("\nREFUSED: %d topic(s) pool endpoints with different component sets and carry no"
+              % len(unrecorded))
+        print("`outcomes[].component_mismatch` record. Pooling a mismatch may be the right call;")
+        print("doing it SILENTLY never is, and heterogeneity cannot tell you either way --")
+        print("0.0%, 3.9% and 83.6% were all measured over mismatched estimands.")
+        for m in unrecorded:
+            print("   %s" % m["topic"])
+        return 1
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

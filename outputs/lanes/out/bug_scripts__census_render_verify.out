@@ -1,0 +1,198 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a03177-d79a-7f81-bd53-e927777b7951
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/census_render_verify.py
+
+--- THE FILE, IN FULL ---
+"""Render the mapped pages and compare occupancy against the static census.
+
+WHY, IN THE USER'S TERMS. The tab-occupancy matrix was produced by an instrument that had
+already been corrected twice in the same run -- once for markup generation, once for
+click-lazy rendering. TWO KNOWN BLIND SPOTS IN ONE CENSUS IS NOT A CENSUS. The number
+"101 of 116 hold three of eight" was reported as measured fact and is unverified until the
+probe is re-run generation-aware and click-aware.
+
+WHAT THE RE-EXAMINATION ESTABLISHED BEFORE RENDERING ANYTHING:
+
+  * The mapped set is 115 G3 pages plus ONE G1 page, not 116 of one family.
+  * G3 tabs are PURE CSS -- `<input type="radio" name="rmtab">` plus `<label for="rt-X">`.
+    One <script> in the file, no *Engine.render(), no click listeners. So the click blind
+    spot that invalidated the G1 numbers DOES NOT APPLY to G3.
+  * The `absent-state` div that marks a refused tab sits at offset ~44, IMMEDIATELY after
+    the section tag. Panels holding content carry none. So the static classification is
+    reading the right marker.
+
+That is three reasons to expect the static matrix to hold, and NOT ONE OF THEM IS A
+MEASUREMENT. This renders the pages and compares, because the entire lesson of the run is
+that reasoning about what an instrument should see is not a substitute for looking.
+"""
+from __future__ import annotations
+import io
+import json
+import os
+import re
+import subprocess
+import sys
+import tempfile
+
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+CHROME = r"C:\Program Files\Google\Chrome\Application\chrome.exe"
+TABS = ["protocol", "search", "screen", "extract", "analysis", "report", "paper",
+        "statistics"]
+PANEL = re.compile(r'<section class="panel" id="pn-([a-z]+)"', re.I)
+
+
+def classify(html: str) -> dict:
+    marks = [(m.group(1), m.start()) for m in PANEL.finditer(html)]
+    out = {}
+    for i, (tid, start) in enumerate(marks):
+        end = marks[i + 1][1] if i + 1 < len(marks) else len(html)
+        seg = html[start:end]
+        m = re.search(r'class="absent-state"', seg)
+        # TAB-LEVEL REFUSAL ONLY. `absent-state` is ALSO used inside a populated
+        # panel for a withdrawn-estimate note, so "contains absent-state anywhere"
+        # would score a full panel as empty. The tab-level note is emitted
+        # immediately after the section tag; anything deeper is content.
+        out[tid] = "-" if (m and m.start() < 200) else "H"
+    return out
+
+
+def render(path: str):
+    with tempfile.TemporaryDirectory() as prof:
+        cmd = [CHROME, "--headless=new", "--disable-gpu", "--no-sandbox",
+               "--user-data-dir=" + prof, "--virtual-time-budget=8000",
+               "--dump-dom", "file:///" + path.replace("\\", "/")]
+        try:
+            r = subprocess.run(cmd, capture_output=True, timeout=120)
+        except subprocess.TimeoutExpired:
+            return None
+        return r.stdout.decode("utf-8", "replace") if r.returncode == 0 else None
+
+
+def main() -> int:
+    pm = sorted(json.load(io.open(os.path.join(REPO, "ssot", "PAGE_MAP.json"),
+                                  encoding="utf-8")))
+    g3 = []
+    for p in pm:
+        fp = os.path.join(REPO, p)
+        if not os.path.exists(fp):
+            continue
+        t = io.open(fp, encoding="utf-8", errors="replace").read()
+        if '<section class="panel" id="pn-' in t:
+            g3.append(p)
+
+    step = max(1, len(g3) // 10)
+    sample = [g3[i] for i in range(0, len(g3), step)][:10]
+
+    print("RENDER-VERIFY: static census against rendered DOM")
+    print("G3 pages in the mapped set: %d   sample: %d" % (len(g3), len(sample)))
+    print()
+    print("%-44s %-9s %s" % ("PAGE", "SOURCE", " ".join(t[:4] for t in TABS)))
+    agree = differ = failed = 0
+    for name in sample:
+        fp = os.path.join(REPO, name)
+        stat = classify(io.open(fp, encoding="utf-8", errors="replace").read())
+        dom = render(fp)
+        if dom is None:
+            failed += 1
+            print("%-44s RENDER FAILED -- not measurable, not zero" % name[:43])
+            continue
+        rend = classify(dom)
+        srow = [stat.get(t, " ") for t in TABS]
+        rrow = [rend.get(t, " ") for t in TABS]
+        print("%-44s %-9s %s" % (name[:43], "static", "  ".join(srow)))
+        print("%-44s %-9s %s   %s" % ("", "rendered", "  ".join(rrow),
+                                      "AGREE" if srow == rrow else "*** DIFFERS ***"))
+        if srow == rrow:
+            agree += 1
+        else:
+            differ += 1
+
+    print()
+    print("agree %d   differ %d   render-failed %d" % (agree, differ, failed))
+    if differ == 0 and agree:
+        print()
+        print("THE STATIC MATRIX HOLDS ON G3. No delta. The click blind spot that")
+        print("invalidated the G1 sample does not reach this generation, because these")
+        print("tabs are CSS and their panels are emitted by the builder, not by a script.")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+
+codex
+Findings:
+
+- **STATUS CODE REPORTING THE WRAPPER / check cannot fail**, line 113: exact input `ssot/PAGE_MAP.json = ["p.html"]`, `p.html = '<section class="panel" id="pn-protocol"><div class="absent-state"></div></section><script>document.querySelector(".absent-state").remove()</script>'`; consequence: the script can print `*** DIFFERS ***` and still exit `0`, so CI treats a proved mismatch as pass.
+
+- **Probe keyed to the string a fix removes**, lines 76 and 113: exact input `ssot/PAGE_MAP.json = ["p.html"]`, `p.html = '<section id="pn-protocol" class="panel"><div class="absent-state"></div></section>'`; consequence: equivalent reordered attributes make `g3` empty, sample `0`, and the verifier exits `0` without measuring the page.
+
+- **Idempotency guard satisfied by its own marker/comment**, lines 37 and 76: exact input `ssot/PAGE_MAP.json = ["p.html"]`, `p.html = '<!-- <section class="panel" id="pn-protocol"> -->'`; consequence: a comment is selected and classified as a real held panel, so marker text can satisfy the census.
+
+- **Off-by-one / incomplete count**, line 80: exact input `PAGE_MAP.json = ["p00.html","p01.html","p02.html","p03.html","p04.html","p05.html","p06.html","p07.html","p08.html","p09.html","p10.html"]`, with `p00`-`p09` each exactly `<section class="panel" id="pn-protocol"></section>` and `p10` the differing script input from finding 1; consequence: `p10.html` is never sampled, so a known bad mapped page cannot fail the run.
+
+- **Absent conflated with blank**, lines 96-101: exact input `ssot/PAGE_MAP.json = ["p.html"]`, `p.html = '<section class="panel" id="pn-protocol"></section>'`; consequence: the seven missing expected tabs become `" "` on both sides and count as `AGREE`.
+
+No finding in this pasted module for CRLF text comparison, merged cells, or negation-dropped extraction. COULD NOT DETERMINE different-copy defect: missing caller/CI/deployment target defining whether worktree, HEAD, origin, or served pages are intended.
+tokens used
+12,989
+Findings:
+
+- **STATUS CODE REPORTING THE WRAPPER / check cannot fail**, line 113: exact input `ssot/PAGE_MAP.json = ["p.html"]`, `p.html = '<section class="panel" id="pn-protocol"><div class="absent-state"></div></section><script>document.querySelector(".absent-state").remove()</script>'`; consequence: the script can print `*** DIFFERS ***` and still exit `0`, so CI treats a proved mismatch as pass.
+
+- **Probe keyed to the string a fix removes**, lines 76 and 113: exact input `ssot/PAGE_MAP.json = ["p.html"]`, `p.html = '<section id="pn-protocol" class="panel"><div class="absent-state"></div></section>'`; consequence: equivalent reordered attributes make `g3` empty, sample `0`, and the verifier exits `0` without measuring the page.
+
+- **Idempotency guard satisfied by its own marker/comment**, lines 37 and 76: exact input `ssot/PAGE_MAP.json = ["p.html"]`, `p.html = '<!-- <section class="panel" id="pn-protocol"> -->'`; consequence: a comment is selected and classified as a real held panel, so marker text can satisfy the census.
+
+- **Off-by-one / incomplete count**, line 80: exact input `PAGE_MAP.json = ["p00.html","p01.html","p02.html","p03.html","p04.html","p05.html","p06.html","p07.html","p08.html","p09.html","p10.html"]`, with `p00`-`p09` each exactly `<section class="panel" id="pn-protocol"></section>` and `p10` the differing script input from finding 1; consequence: `p10.html` is never sampled, so a known bad mapped page cannot fail the run.
+
+- **Absent conflated with blank**, lines 96-101: exact input `ssot/PAGE_MAP.json = ["p.html"]`, `p.html = '<section class="panel" id="pn-protocol"></section>'`; consequence: the seven missing expected tabs become `" "` on both sides and count as `AGREE`.
+
+No finding in this pasted module for CRLF text comparison, merged cells, or negation-dropped extraction. COULD NOT DETERMINE different-copy defect: missing caller/CI/deployment target defining whether worktree, HEAD, origin, or served pages are intended.

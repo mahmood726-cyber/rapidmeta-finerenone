@@ -1,0 +1,232 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/ssot_net_deletion_check.py
+
+--- THE FILE, IN FULL ---
+"""Refuse a commit whose STAGED diff net-deletes from an SSOT object.
+
+WHY THIS IS A HOOK AND NOT A HELPER
+    scripts/rebuild_guard.py was written for exactly this defect and committed the day
+    before it recurred. It did not fire, because the offending script called
+    `io.open(...).write()` instead of `guard_write()`.
+
+        A GUARD THAT MUST BE REMEMBERED IS NOT A GUARD.
+
+    That is the same shape as a harness nothing invokes, a detector no build calls, and
+    a repair applied in one of twelve clones: AN AVAILABLE MECHANISM IS NOT AN OPERATIVE
+    ONE. A helper anyone can bypass is a suggestion; a hook on the commit path is
+    enforcement, and only the second cannot be forgotten.
+
+DETECTION IS A HABIT; PREVENTION IS A FUNCTION CALL; ONLY ONE IS ENFORCEABLE
+    Both instances of this defect -- bococizumab, then prevnar15 -- were caught by a
+    human reading `git show --stat` and noticing an absurd deletion count. That
+    discipline holds exactly as long as attention does. This does not.
+
+WHAT IT CHECKS
+    For every staged `ssot/**/*.json`: if the diff removes more lines than it adds, the
+    commit is refused. An SSOT object is an accumulating record -- registry reads,
+    withdrawal reasons, sources, risk-of-bias verdicts -- and a write that shrinks one is
+    almost always a rebuild that replaced it rather than a patch that changed it.
+
+OVERRIDE, deliberately awkward
+    Set SSOT_ALLOW_NET_DELETION to a non-empty REASON. It is printed with the refusal
+    that it overrides, so the reason is on the record rather than in someone's head.
+
+WHAT THIS DOES NOT ESTABLISH -- written in advance
+    - NOT that a net-adding write is correct. A patch that adds a hundred lines and
+      quietly changes one value passes this. That is the delta check's job.
+    - NOT that every net deletion is wrong. A genuine consolidation trips it, and is
+      meant to, so that the person doing it says why out loud.
+    - NOTHING about files outside ssot/. Pages, scripts and documents are not covered.
+
+USAGE
+    python scripts/ssot_net_deletion_check.py            # check the staged diff
+    python scripts/ssot_net_deletion_check.py --selftest
+"""
+from __future__ import annotations
+import io
+import json
+import os
+import subprocess
+import sys
+
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+
+def staged_numstat():
+    """[(added, removed, path)] for staged ssot json files."""
+    out = subprocess.run(["git", "-C", REPO, "diff", "--cached", "--numstat", "--",
+                          "ssot/**/*.json", "ssot/*.json"],
+                         capture_output=True, text=True, encoding="utf-8").stdout
+    rows = []
+    for line in out.splitlines():
+        parts = line.split("\t")
+        if len(parts) != 3:
+            continue
+        a, r, p = parts
+        if a == "-" or r == "-":          # binary
+            continue
+        rows.append((int(a), int(r), p))
+    return rows
+
+
+def empty_or_unparseable(rows):
+    """Objects that are zero bytes or do not parse. A NAMED VERDICT, not an exception.
+
+    ON 2026-08-20 AN APPLIER TRUNCATED `apixaban-vte-prophylaxis.json` TO ZERO BYTES.
+    `io.open(path, "w", newline="\\\\n")` opened the file -- which truncates -- and then
+    raised on the illegal newline value, so the failure landed AFTER the destruction and
+    BEFORE the write. Nothing in this repository was watching for it: every guard here
+    compares NEW content to OLD, and there was no new content to compare.
+
+    THIS CHECK DID STOP THE COMMIT -- BY CRASHING. `json.load` on an empty file raises, the
+    hook exits non-zero, and the zero-byte object cannot be committed. THAT IS PROTECTION BY
+    EXCEPTION, AND IT DISAPPEARS THE MOMENT SOMEONE WRAPS THIS CALL IN A try/except FOR AN
+    UNRELATED REASON -- which is a normal thing for a future author to do, because a
+    traceback from a checker looks like a bug in the checker.
+
+    So the empty object becomes a VERDICT the check states in words, with the same
+    three-state discipline as everything else: it parses, it is empty, or it does not parse.
+    A protection that reads as a crash is one refactor away from being no protection.
+    """
+    bad = []
+    for _a, _r, p in rows:
+        full = os.path.join(REPO, p)
+        if not os.path.exists(full):
+            continue                      # a deletion: the net-delete rule covers it
+        try:
+            size = os.path.getsize(full)
+        except OSError as exc:
+            bad.append((p, "UNREADABLE (%s)" % exc))
+            continue
+        if size == 0:
+            bad.append((p, "ZERO BYTES -- the file was truncated and never written"))
+            continue
+        try:
+            json.load(io.open(full, encoding="utf-8"))
+        except ValueError as exc:
+            bad.append((p, "DOES NOT PARSE (%s)" % str(exc)[:70]))
+        except OSError as exc:
+            bad.append((p, "UNREADABLE (%s)" % exc))
+    return bad
+
+
+def check(rows):
+    return [(a, r, p) for a, r, p in rows if r > a]
+
+
+def _empty_verdict(rows):
+    """Stated in words rather than raised. Returns the exit code."""
+    empties = empty_or_unparseable(rows)
+    if not empties:
+        return 0
+    print()
+    print("=" * 78)
+    print("SSOT OBJECT EMPTY OR UNPARSEABLE -- %d staged object(s)" % len(empties))
+    print("=" * 78)
+    for p, why in empties:
+        print("   %-56s %s" % (p, why))
+    print()
+    print("A ZERO-BYTE OBJECT IS NOT A SHRUNKEN ONE. The net-deletion rule compares new")
+    print("content against old, and here there is no new content to compare -- which is why")
+    print("this check used to stop such a commit by RAISING inside json.load rather than by")
+    print("judging. Protection by exception disappears the first time somebody wraps the")
+    print("call in a try/except, so it is a verdict now.")
+    print()
+    print("An applier truncated apixaban-vte-prophylaxis.json on 2026-08-20: io.open(path,")
+    print("'w', newline=...) opened the file, which truncates, and raised afterwards. Use")
+    print("ssot/atomic_write.py -- serialise first, temp sibling, fsync, os.replace.")
+    return 1
+
+
+def main() -> int:
+    if "--selftest" in sys.argv:
+        cases = [
+            ("a net addition passes", [(2471, 42, "ssot/x/x.json")], 0),
+            ("a net DELETION refuses", [(203, 2422, "ssot/prevnar15/prevnar15.json")], 1),
+            ("equal counts pass", [(5, 5, "ssot/y/y.json")], 0),
+            ("mixed: one offender is enough to refuse",
+             [(100, 1, "ssot/a/a.json"), (1, 100, "ssot/b/b.json")], 1),
+        ]
+        ok = True
+        for label, rows, want in cases:
+            got = 1 if check(rows) else 0
+            good = got == want
+            ok &= good
+            print("  %-52s -> %s (want %s) %s"
+                  % (label[:52], got, want, "correct" if good else "WRONG"))
+        print()
+        print("WHAT A FAILURE WOULD LOOK LIKE: the 203-over-2422 case passing. That is")
+        print("the prevnar15 write exactly, and the guard that existed did not stop it")
+        print("because it was never called.")
+        print("-> SELFTEST PASS" if ok else "-> SELFTEST FAILED")
+        return 0 if ok else 1
+
+    staged = staged_numstat()
+    offenders = check(staged)
+    if not offenders:
+        return _empty_verdict(staged)
+
+    reason = os.environ.get("SSOT_ALLOW_NET_DELETION", "").strip()
+    print()
+    print("=" * 78)
+    print("SSOT NET-DELETION CHECK -- %d staged object(s) shrink" % len(offenders))
+    print("=" * 78)
+    for a, r, p in offenders:
+        print("   -%-6d +%-6d %s" % (r, a, p))
+    print()
+    print("An SSOT object is an ACCUMULATING record -- registry reads, withdrawal")
+    print("reasons, sources, risk-of-bias verdicts. A write that shrinks one is almost")
+    print("always a rebuild that REPLACED it rather than a patch that changed it, and")
+    print("the material it destroys is exactly what makes the page checkable.")
+    print()
+    if reason:
+        print("OVERRIDDEN: SSOT_ALLOW_NET_DELETION=%r" % reason)
+        print("Proceeding, and the reason is on the record.")
+        return 0
+    print("REFUSED. If this is deliberate, re-run with a reason on the record:")
+    print('    SSOT_ALLOW_NET_DELETION="consolidating three blocks into one" git commit ...')
+    print()
+    print("This happened twice in two days -- bococizumab and prevnar15 -- both times to")
+    print("an object holding a day of registry reading, and both times the guard that")
+    print("existed was simply not called. Hence a hook rather than a helper.")
+    return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())

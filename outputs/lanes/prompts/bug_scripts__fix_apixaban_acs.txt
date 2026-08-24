@@ -1,0 +1,585 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/fix_apixaban_acs.py
+
+--- THE FILE, IN FULL ---
+"""Apply the verified APIXABAN_ACS correction to both app variants.
+
+Every number written by this script was re-verified in this session against
+ClinicalTrials.gov API v2 posted results and the PubMed abstract of the primary
+publication. Sources are recorded in outputs/apixaban_acs_correction_ledger.json.
+
+The pooled estimate is Mantel-Haenszel OR with Robins-Breslow-Greenland SE,
+cross-checked against R 4.6.0 / metafor rma.mh to 4 decimal places.
+
+Nothing here fabricates a count. AUGUSTUS's per-arm counts could not be
+recovered from any source, so they are marked unverified and quarantined
+rather than back-computed from a percentage.
+"""
+import base64
+import io
+import json
+import math
+import re
+import sys
+
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+FULL = "APIXABAN_ACS_AUTO_FULL_REVIEW.html"
+STUB = "APIXABAN_ACS_AUTO_REVIEW.html"
+
+# --------------------------------------------------------------------------
+# Verified 2x2 data for the coherent primary pool.
+# Outcome: ISTH major or clinically relevant non-major bleeding,
+#          apixaban vs placebo on top of standard antiplatelet therapy, ACS.
+# --------------------------------------------------------------------------
+POOL = {
+    "NCT00313300": dict(tE=18, tN=315, cE=18, cN=599),   # APPRAISE-1, apixaban 2.5 mg BID vs placebo
+    "NCT00852397": dict(tE=4, tN=99, cE=1, cN=52),       # APPRAISE-J, apixaban 2.5+5 mg vs placebo
+}
+
+
+def woolf(tE, tN, cE, cN):
+    """log OR and its Woolf variance, matching the convention already in the blob."""
+    a, b, c, d = tE, tN - tE, cE, cN - cE
+    y = math.log((a * d) / (b * c))
+    v = 1.0 / a + 1.0 / b + 1.0 / c + 1.0 / d
+    return y, v
+
+
+def mh_or(rows):
+    """Mantel-Haenszel OR with Robins-Breslow-Greenland SE."""
+    R = S = sPR = sPSQR = sQS = 0.0
+    for tE, tN, cE, cN in rows:
+        a, b, c, d = tE, tN - tE, cE, cN - cE
+        N = tN + cN
+        Ri, Si = a * d / N, b * c / N
+        P, Q = (a + d) / N, (b + c) / N
+        R += Ri
+        S += Si
+        sPR += P * Ri
+        sPSQR += P * Si + Q * Ri
+        sQS += Q * Si
+    OR = R / S
+    var = sPR / (2 * R * R) + sPSQR / (2 * R * S) + sQS / (2 * S * S)
+    se = math.sqrt(var)
+    return OR, math.exp(math.log(OR) - 1.96 * se), math.exp(math.log(OR) + 1.96 * se), se
+
+
+# --------------------------------------------------------------------------
+# The corrected realData ledger (analysis pool only).
+# --------------------------------------------------------------------------
+SRC_A1 = (
+    "APPRAISE-1 (Alexander 2009, Circulation 2009;119:2877-85, PMID 19470889, "
+    "DOI 10.1161/CIRCULATIONAHA.108.832139). Per-arm counts recovered from "
+    "ClinicalTrials.gov NCT00313300 posted results: primary outcome unit is "
+    "'percentage of participants' (a true proportion) - placebo 3.0% of 599 = 18, "
+    "apixaban 2.5 mg BID 5.7% of 315 = 18. Arms bound by group TITLE: the registry "
+    "lists Placebo as OG000. Registry-analysed denominators used throughout; the "
+    "publication's randomised n are 611 placebo / 317 apixaban 2.5 mg BID. "
+    "Published HR for this outcome, apixaban 2.5 mg BID vs placebo: 1.78 "
+    "(95% CI 0.91-3.48, P=0.09) - same direction as the crude OR 1.96. "
+    "Three higher-dose apixaban arms (10 mg QD n=318, 10 mg BID n=248, "
+    "20 mg QD n=221) are NOT pooled here; the two highest-dose arms were stopped "
+    "for excess bleeding."
+)
+
+SRC_AJ = (
+    "APPRAISE-J (Ogawa 2013, Circ J 2013;77:2341-8, PMID 23748920, "
+    "DOI 10.1253/circj.cj-13-0209). Counts stated in the publication: "
+    "'major or clinically relevant nonmajor bleeding occurred in 2 patients (4.1%) "
+    "in each apixaban treatment group and 1 patient (2.0%) in the placebo group'. "
+    "Both apixaban arms pooled: 2+2 = 4 of 49+50 = 99; placebo 1 of 52. "
+    "Publication randomised denominators used. ClinicalTrials.gov NCT00852397 posted "
+    "results agree (unit 'Percentage of Participants': 4.1% of 49, 4.1% of 49, "
+    "2.0% of 51 - recoverable counts 2, 2, 1); on registry-analysed denominators the "
+    "row is 4/98 vs 1/51 and the pooled OR is unchanged at 1.97. Arms bound by group "
+    "TITLE: the registry lists Placebo as OG000."
+)
+
+LEDGER_ROWS = {
+    "NCT00313300": dict(
+        name="APPRAISE-1 (Alexander 2009)",
+        pmid="19470889",
+        phase="II",
+        year=2009,
+        comparator="placebo",
+        population="ACS, on standard antiplatelet therapy",
+        armT="Apixaban 2.5 mg BID",
+        armC="Placebo",
+        denomSource="ClinicalTrials.gov posted results (analysed)",
+        outcomeTitle=(
+            "ISTH major or clinically relevant non-major bleeding "
+            "(apixaban 2.5 mg BID vs placebo)"
+        ),
+        rob=["low", "low", "some-concerns", "low", "some-concerns"],
+        robSource="ClinicalTrials.gov design: allocation RANDOMIZED, masking DOUBLE, phase 2",
+        snippet=SRC_A1,
+    ),
+    "NCT00852397": dict(
+        name="APPRAISE-J (Ogawa 2013)",
+        pmid="23748920",
+        phase="II",
+        year=2013,
+        comparator="placebo",
+        population="ACS, Japanese, on standard antiplatelet therapy",
+        armT="Apixaban 2.5 mg BID + 5 mg BID (pooled)",
+        armC="Placebo",
+        denomSource="Publication (randomised)",
+        outcomeTitle=(
+            "ISTH major or clinically relevant non-major bleeding "
+            "(apixaban 2.5+5 mg BID vs placebo)"
+        ),
+        rob=["low", "low", "some-concerns", "low", "some-concerns"],
+        robSource="ClinicalTrials.gov design: allocation RANDOMIZED, masking DOUBLE, phase 2",
+        snippet=SRC_AJ,
+    ),
+}
+
+SHORT_LABEL = "ISTHMajorCRNMvsPlacebo"
+
+
+def js_str(s):
+    """JS string literal - never emits a bare None."""
+    return json.dumps("" if s is None else str(s), ensure_ascii=False)
+
+
+def build_ledger_js():
+    parts = []
+    for nct, meta in LEDGER_ROWS.items():
+        d = POOL[nct]
+        f = (
+            f'{nct}:{{name:{js_str(meta["name"])},pmid:{js_str(meta["pmid"])},'
+            f'phase:{js_str(meta["phase"])},year:{meta["year"]},'
+            f'tE:{d["tE"]},tN:{d["tN"]},cE:{d["cE"]},cN:{d["cN"]},'
+            f'armT:{js_str(meta["armT"])},armC:{js_str(meta["armC"])},'
+            f'comparator:{js_str(meta["comparator"])},population:{js_str(meta["population"])},'
+            f'denominatorSource:{js_str(meta["denomSource"])},'
+            f'verifiedAgainst:"ClinicalTrials.gov API v2 posted results + PubMed abstract, 2026-07-30",'
+            f'group:{js_str("Apixaban vs placebo in ACS - ISTH major/CRNM bleeding (source-verified)")},'
+            f'publishedHR:null,hrLCI:null,hrUCI:null,pubHR:null,pubHR_LCI:null,pubHR_UCI:null,'
+            f'allOutcomes:[{{shortLabel:{js_str(SHORT_LABEL)},title:{js_str(meta["outcomeTitle"])},'
+            f'type:"PRIMARY",tE:{d["tE"]},cE:{d["cE"]},matchScore:100,estimandType:"OR"}}],'
+            f'rob:{json.dumps(meta["rob"])},robSource:{js_str(meta["robSource"])},'
+            f'snippet:{js_str(meta["snippet"])},'
+            f'sourceUrl:"https://clinicaltrials.gov/study/{nct}",'
+            f'ctgovUrl:"https://clinicaltrials.gov/study/{nct}",evidence:[]}}'
+        )
+        parts.append(f)
+    return "{" + ",".join(parts) + "}"
+
+
+# --------------------------------------------------------------------------
+# Quarantined rows - retained, disclosed, and unable to rejoin the pool.
+# --------------------------------------------------------------------------
+QUARANTINE = {
+    "NCT00831441": {
+        "name": "APPRAISE-2",
+        "pmid": "21780946",
+        "doi": "10.1056/NEJMoa1105819",
+        "citation": "Alexander JH et al. N Engl J Med 2011;365(8):699-708",
+        "phase": "III",
+        "year": 2011,
+        "status_in_registry": "TERMINATED",
+        "quarantine_reason": (
+            "Reports neither arm of the pooled outcome. Its co-primaries are an "
+            "ISCHAEMIC composite and TIMI-defined major bleeding; neither is the "
+            "ISTH major/CRNM composite pooled in this app. Pooling it with the "
+            "bleeding rows produced an estimate of nothing."
+        ),
+        "previous_ledger_values": {"tE": 515, "tN": 3687, "cE": 489, "cN": 3705},
+        "previous_values_defect": (
+            "MANUFACTURED. The registry posts the primary in units of 'percentage of "
+            "participants/100-pt years' - an incidence rate over person-time. The "
+            "extractor read it as a proportion: 3687 x 13.96/100 = 514.6 -> 515 and "
+            "3705 x 13.20/100 = 489.1 -> 489. Neither count appears in any source. "
+            "The arms were also swapped: tN 3687 is the PLACEBO denominator."
+        ),
+        "corrected_outcomes": [
+            {
+                "outcome": "CV death, MI or ischaemic stroke (efficacy co-primary)",
+                "apixaban": "279/3705",
+                "placebo": "293/3687",
+                "published": "HR 0.95 (95% CI 0.80-1.11), P=0.51 - not significant",
+                "crude_OR": "0.943 (0.795-1.119)",
+                "source": "PMID 21780946 abstract, verbatim",
+            },
+            {
+                "outcome": "TIMI major bleeding (safety co-primary)",
+                "apixaban": "46/3673",
+                "placebo": "18/3642",
+                "published": "HR 2.59 (95% CI 1.50-4.46), P=0.001",
+                "crude_OR": "2.553 (1.478-4.412)",
+                "source": "PMID 21780946 abstract, verbatim",
+            },
+        ],
+        "note": (
+            "This trial was terminated early for excess major bleeding with apixaban "
+            "without a counterbalancing reduction in ischaemic events. It is the "
+            "finding that ended apixaban's development in ACS."
+        ),
+    },
+    "NCT02415400": {
+        "name": "AUGUSTUS",
+        "pmid": "30883055",
+        "doi": "10.1056/NEJMoa1817083",
+        "citation": "Lopes RD et al. N Engl J Med 2019;380(16):1509-1524",
+        "previously_cited_pmid": "29898844",
+        "previously_cited_is": (
+            "Lopes RD et al. 'Rationale and design of the AUGUSTUS trial.' Am Heart J "
+            "2018;200:17-23. PubMed types it a Clinical Trial Protocol. It reports no "
+            "outcome data and cannot substantiate any extracted count."
+        ),
+        "phase": "IV",
+        "year": 2019,
+        "status_in_registry": "COMPLETED",
+        "quarantine_reason": (
+            "Wrong PICO for this app. AUGUSTUS randomised patients with ATRIAL "
+            "FIBRILLATION who had an ACS or PCI and compared apixaban against a "
+            "VITAMIN K ANTAGONIST - not against placebo on top of antiplatelet "
+            "therapy. It is also the only open-label (masking NONE) and only phase 4 "
+            "trial in an otherwise double-blind phase 2-3 set, and a 2x2 factorial "
+            "that no single 2x2 table can represent without stating which factor is "
+            "estimated."
+        ),
+        "previous_ledger_values": {"tE": 284, "tN": 1153, "cE": 413, "cN": 1153},
+        "previous_values_defect": (
+            "MANUFACTURED, on a denominator belonging to no arm. The registry posts "
+            "the primary in units of 'Percentage per year' - a rate. 1153 x 24.66/100 "
+            "= 284.3 -> 284 and 1153 x 35.79/100 = 412.7 -> 413. The registry's arm "
+            "denominators are 2290 and 2259; 1153 is approximately 4614/4 and "
+            "corresponds to no randomised arm. Both ledger arms were given the SAME "
+            "invented denominator."
+        ),
+        "per_arm_counts": "UNVERIFIED - NOT RECONSTRUCTED",
+        "per_arm_counts_note": (
+            "The publication reports percentages (10.5% apixaban vs 14.7% vitamin K "
+            "antagonist), not counts, and the registry posts a per-year rate. "
+            "Back-computing counts from either would repeat the exact error being "
+            "corrected. No counts are asserted."
+        ),
+        "published_effect": "HR 0.69 (95% CI 0.58-0.81), P<0.001 for noninferiority and superiority",
+        "previous_ledger_CI_defect": "Ledger carried an upper CI of 0.82; the publication states 0.81.",
+    },
+}
+
+
+def patch_full(path):
+    s = open(path, encoding="utf-8").read()
+    orig_len = len(s)
+    changes = []
+
+    # ---- 1. realData JS object -------------------------------------------
+    i = s.index("realData:{NCT00313300")
+    j = i + len("realData:")
+    depth = 0
+    for k in range(j, len(s)):
+        if s[k] == "{":
+            depth += 1
+        elif s[k] == "}":
+            depth -= 1
+            if depth == 0:
+                break
+    s = s[:j] + build_ledger_js() + s[k + 1:]
+    changes.append("realData JS ledger -> 2 source-verified rows")
+
+    # ---- 2. embedded data/realData.json blob ------------------------------
+    m = re.search(r'("data/realData\.json": ")([A-Za-z0-9+/=]+)(")', s)
+    if m is None:
+        # The main-lineage build carries no embedded data/realData.json blob.
+        # Nothing to regenerate; the JS ledger above is the only data surface.
+        changes.append("embedded realData.json blob: ABSENT on this lineage - skipped")
+    blob = {}
+    for nct, d in POOL.items():
+        y, v = woolf(d["tE"], d["tN"], d["cE"], d["cN"])
+        blob[nct] = {
+            "cE": float(d["cE"]), "cN": float(d["cN"]),
+            "tE": float(d["tE"]), "tN": float(d["tN"]),
+            "v": v, "y": y,
+        }
+    if m is not None:
+        enc = base64.b64encode(
+            json.dumps(blob, indent=1, sort_keys=True).encode("utf-8")
+        ).decode("ascii")
+        s = s[:m.start(2)] + enc + s[m.end(2):]
+        changes.append("embedded realData.json blob regenerated (y/v recomputed)")
+
+    # ---- 3. AUTO_INCLUDE_TRIAL_IDS ---------------------------------------
+    old = 'AUTO_INCLUDE_TRIAL_IDS=new Set(["NCT00313300","NCT00831441","NCT00852397","NCT02415400"])'
+    assert old in s, "AUTO_INCLUDE_TRIAL_IDS anchor missing"
+    s = s.replace(old, 'AUTO_INCLUDE_TRIAL_IDS=new Set(["NCT00313300","NCT00852397"])', 1)
+    changes.append("AUTO_INCLUDE_TRIAL_IDS -> the 2 pooled trials only")
+
+    # ---- 4. phase-2 pooling override, disclosed ---------------------------
+    old = 'isPhaseTwoLike=(phaseLabel="")=>{const p=String(phaseLabel??"").toLowerCase().trim();'
+    assert old in s, "isPhaseTwoLike anchor missing"
+    new = (
+        'isPhaseTwoLike=(phaseLabel="")=>{'
+        # DISCLOSED OVERRIDE: the entire coherent evidence base for apixaban vs
+        # placebo in ACS on the ISTH major/CRNM bleeding outcome is phase 2.
+        # The default phase-2 exclusion would empty the pool, so it is disabled
+        # here. The phase-2 status of both trials is stated on the integrity
+        # badge and in each ledger row - it is disclosed, not hidden.
+        'if(!0===window.__RM_ALLOW_PHASE2_POOLING)return!1;'
+        'const p=String(phaseLabel??"").toLowerCase().trim();'
+    )
+    s = s.replace(old, new, 1)
+    changes.append("isPhaseTwoLike honours a disclosed per-app override")
+
+    # ---- 5. pin the effect measure to OR ---------------------------------
+    old = 'confLevel:.95,effectMeasure:"AUTO",selectedOutcome:"default"'
+    assert old in s, "effectMeasure anchor missing"
+    s = s.replace(old, 'confLevel:.95,effectMeasure:"OR",selectedOutcome:"default"', 1)
+    changes.append('default effectMeasure "AUTO" -> "OR" (the validated estimator)')
+
+    # ---- 6. outcomeKeys display map --------------------------------------
+    m = re.search(r'(<script data-rm-outcome-key="1">)(.*?)(</script>)', s, re.S)
+    if m is None:
+        changes.append("outcomeKeys display map: ABSENT on this lineage - skipped")
+    keys = {
+        "NCT00313300": {
+            "nct": "NCT00313300",
+            "outcome": "ISTH major or clinically relevant non-major bleeding (apixaban 2.5 mg BID vs placebo)",
+            "timepoint_weeks": 26.0,
+            "timepoint_text": "6 months of randomised treatment",
+            "arms": ["Apixaban 2.5 mg BID", "Placebo"],
+            "source_tier": "registry posted results + publication",
+        },
+        "NCT00852397": {
+            "nct": "NCT00852397",
+            "outcome": "ISTH major or clinically relevant non-major bleeding (apixaban 2.5+5 mg BID vs placebo)",
+            "timepoint_weeks": 24.0,
+            "timepoint_text": "Week 0 to Week 24",
+            "arms": ["Apixaban 2.5 mg BID + 5 mg BID (pooled)", "Placebo"],
+            "source_tier": "publication + registry posted results",
+        },
+    }
+    body = (
+        "window.RapidMeta=window.RapidMeta||{};"
+        "window.RapidMeta.outcomeKeys=Object.assign(window.RapidMeta.outcomeKeys||{},"
+        + json.dumps(keys, ensure_ascii=False)
+        + ");"
+    )
+    if m is not None:
+        s = s[:m.start(2)] + body + s[m.end(2):]
+        changes.append("outcomeKeys map -> the 2 pooled trials, arms named")
+
+    # ---- 7. verdict + quarantine + badge ---------------------------------
+    OR, lo, hi, se = mh_or([(d["tE"], d["tN"], d["cE"], d["cN"]) for d in POOL.values()])
+    verdict = {
+        "verdict": "UNCERTAIN",
+        "counts": {
+            "P0_internal": 0,
+            "P0_aact_nct_missing": 0,
+            "P0_grim": None,
+            "P1_aact_concord": 0,
+            "P1_fi_critical": 0,
+            "P1_fi_warn": 1,
+            "P1_pi_gap": 0,
+            "P2_evidence_incomplete": 2,
+            "n_trials_seen": 2,
+            "n_trials_quarantined": 2,
+            "P2_aact_advisory": 2,
+        },
+        "reasons": [
+            "Pooled k=2. Both pooled trials are PHASE 2 dose-ranging studies; the app's "
+            "default phase-2 exclusion is disabled for this question because the entire "
+            "coherent evidence base is phase 2. Disclosed, not hidden.",
+            "2 trials quarantined and excluded from the pool: APPRAISE-2 (reports an "
+            "ischaemic composite and TIMI major bleeding, not the ISTH major/CRNM "
+            "composite) and AUGUSTUS (vitamin K antagonist comparator, atrial-fibrillation "
+            "population, open-label, phase 4).",
+            "Prior ledger counts for APPRAISE-2 (515/489) and AUGUSTUS (284/413) were "
+            "manufactured by multiplying a ClinicalTrials.gov posted RATE by an arm "
+            "denominator. They appear in no source and have been removed from the pool.",
+            "Arms were previously bound by registry group index; ClinicalTrials.gov lists "
+            "placebo first in APPRAISE-1, APPRAISE-2 and APPRAISE-J, so 3 of 4 rows were "
+            "inverted. Arms are now bound by group TITLE.",
+            "AUGUSTUS per-arm counts remain UNVERIFIED and are not reconstructed; the "
+            "publication reports percentages and the registry a per-year rate.",
+            "GRIM/GRIMMER is N/A on binary per-arm counts - not a pass. Benford is "
+            "UNDERPOWERED (fewer than 30 digits) - cannot test, not 'no signal'.",
+            "Verification is 2-source (publication + ClinicalTrials.gov posted results). "
+            "No FDA/EMA review document and no prior meta-analysis was consulted. "
+            "Concordance against the AACT 2026-04-12 snapshot is unverified.",
+            "AMSTAR-2 confidence: CRITICALLY LOW.",
+        ],
+        "p0_total": 0,
+        "p0_total_note": "0 P0s means no arithmetic-plausibility finding, NOT an integrity pass.",
+        "pooled": {
+            "estimator": "Mantel-Haenszel OR, Robins-Breslow-Greenland SE",
+            "k": 2,
+            "or": round(OR, 4),
+            "ci": [round(lo, 4), round(hi, 4)],
+            "validated": "R 4.6.0 / metafor rma.mh, agreement to 4 decimal places",
+            "supersedes": "OR 0.850 (0.766-0.943), k=4 - built on manufactured counts, "
+                          "inverted arms and a mixed outcome set",
+        },
+    }
+    old_v = re.search(r'<script>window\.__verdict = \{.*?\};</script>', s).group(0)
+    new_v = (
+        "<script>window.__RM_ALLOW_PHASE2_POOLING = true; /* disclosed: see badge */\n"
+        "window.__verdict = " + json.dumps(verdict, ensure_ascii=False) + ";\n"
+        "window.__quarantinedTrials = " + json.dumps(QUARANTINE, ensure_ascii=False) + ";</script>"
+    )
+    s = s.replace(old_v, new_v, 1)
+    changes.append("window.__verdict rewritten; __quarantinedTrials published")
+
+    # ---- 8. the visible badge --------------------------------------------
+    i = s.index('id="rapidmeta-integrity-badge"')
+    st = s.rfind("<div", 0, i)
+    depth = 0
+    k = st
+    while k < len(s):
+        if s.startswith("<div", k):
+            depth += 1
+        elif s.startswith("</div>", k):
+            depth -= 1
+            if depth == 0:
+                k += 6
+                break
+        k += 1
+    badge = (
+        '<div id="rapidmeta-integrity-badge" role="status" '
+        'style="background:#7c2d12;color:#fff;padding:12px 20px;font-family:system-ui,sans-serif;'
+        'font-size:13.5px;border-bottom:3px solid #431407;line-height:1.55;">'
+        '<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">'
+        '<strong style="font-size:14px;letter-spacing:0.04em;">VERDICT: UNCERTAIN '
+        '&mdash; CORRECTED, AND THE CONCLUSION REVERSED</strong>'
+        '<span style="font-size:11.5px;">Pooled: <strong>2</strong> trials &middot; '
+        'Quarantined: <strong>2</strong> &middot; Arithmetic findings: <strong>0</strong> '
+        '&mdash; a tested zero, not a pass</span></div>'
+        '<div style="margin-top:6px;font-size:12.5px;">'
+        'This page previously reported <strong>OR 0.850 (0.766&ndash;0.943)</strong>, a '
+        'significant <em>benefit</em> of apixaban. That figure was built on counts that '
+        'appear in no source, on arms bound by registry index rather than by name, and on '
+        'an ischaemic outcome pooled with bleeding outcomes. Corrected and re-sourced, the '
+        'estimate for <strong>ISTH major or clinically relevant non-major bleeding, '
+        'apixaban vs placebo on top of antiplatelet therapy in ACS</strong> is '
+        f'<strong>OR {OR:.3f} ({lo:.3f}&ndash;{hi:.3f})</strong>, k=2, Mantel-Haenszel with '
+        'Robins-Breslow-Greenland SE, reproduced in R 4.6.0 / metafor to 4 decimal places. '
+        '<strong>Apixaban roughly doubles major/CRNM bleeding.</strong> '
+        'This is a provenance correction, not a result that got worse &mdash; the evidence '
+        'did not change; the page was wrong.</div>'
+        '<div style="margin-top:6px;font-size:11.5px;">'
+        '<strong>What was wrong.</strong> APPRAISE-2&rsquo;s 515/489 and AUGUSTUS&rsquo;s '
+        '284/413 were produced by multiplying a ClinicalTrials.gov posted value by an arm '
+        'denominator, where the posted unit is <em>events per 100 patient-years</em> / '
+        '<em>percentage per year</em> &mdash; a rate, not a proportion. AUGUSTUS&rsquo;s '
+        'denominator 1153 matches no arm of the trial (the arms are 2290 and 2259). Arms '
+        'were inverted in 3 of 4 rows because ClinicalTrials.gov lists placebo first. Phase '
+        'was wrong in 3 of 4 rows. AUGUSTUS cited PMID 29898844, the trial&rsquo;s '
+        '<em>protocol</em> paper, which reports no outcome data; the results paper is PMID '
+        '30883055.</div>'
+        '<div style="margin-top:6px;font-size:11.5px;">'
+        '<strong>Quarantined, not deleted</strong> (see <code style="background:rgba(255,255,255,0.28);'
+        'padding:1px 4px;border-radius:2px;">window.__quarantinedTrials</code>). '
+        '<strong>APPRAISE-2</strong> reports an ischaemic composite (279/3705 apixaban vs '
+        '293/3687 placebo; HR 0.95, 0.80&ndash;1.11, <strong>P=0.51, not significant</strong>) '
+        'and TIMI major bleeding (46/3673 vs 18/3642; HR 2.59, 1.50&ndash;4.46, P=0.001) '
+        '&mdash; neither is the ISTH composite pooled here. It was terminated early for '
+        'exactly this bleeding excess. <strong>AUGUSTUS</strong> compared apixaban against a '
+        '<em>vitamin K antagonist</em> in an <em>atrial fibrillation</em> population, '
+        'open-label, phase 4, 2&times;2 factorial &mdash; a different question. Its per-arm '
+        'counts are <strong>UNVERIFIED and deliberately not reconstructed</strong>; the '
+        'publication gives percentages (10.5% vs 14.7%, HR 0.69, 0.58&ndash;0.81) and the '
+        'registry a per-year rate, and back-computing counts from either would repeat the '
+        'error being corrected.</div>'
+        '<div style="margin-top:6px;font-size:10.5px;">'
+        '<strong>Limits, stated.</strong> Both pooled trials are <strong>phase 2</strong> '
+        'dose-ranging studies; the app&rsquo;s default phase-2 exclusion is switched off for '
+        'this question because the entire coherent evidence base is phase 2 &mdash; disclosed, '
+        'not hidden. APPRAISE-1 contributes only its 2.5 mg BID arm (three higher-dose arms, '
+        '787 patients, are not pooled; the two highest were stopped for excess bleeding). '
+        'GRIM/GRIMMER is <strong>N/A</strong> on binary counts, not passed. Benford is '
+        '<strong>UNDERPOWERED</strong> (&lt;30 digits) &mdash; cannot test, not &ldquo;no '
+        'signal&rdquo;. Verification is <strong>2-source</strong> (publication + '
+        'ClinicalTrials.gov API v2 posted results, retrieved 2026-07-30); no FDA/EMA review '
+        'document and no prior meta-analysis was consulted, and concordance against the AACT '
+        '2026-04-12 snapshot is unverified. At k=2, publication bias, small-study effects and '
+        'prediction intervals are not assessable. AMSTAR-2 confidence: '
+        '<strong>CRITICALLY LOW</strong>.</div></div>'
+    )
+    s = s[:st] + badge + s[k:]
+    changes.append("visible integrity badge replaced (whole block, not patched)")
+
+    open(path, "w", encoding="utf-8", newline="").write(s)
+    print(f"{path}: {orig_len} -> {len(s)} bytes")
+    for c in changes:
+        print("  -", c)
+    return OR, lo, hi
+
+
+def patch_stub(path, OR, lo, hi):
+    """The stub carried neither verdict surface. Give it both, agreeing with the full app."""
+    s = open(path, encoding="utf-8").read()
+    assert "__verdict" not in s, "stub already carries a verdict surface"
+    banner = (
+        '<div id="rapidmeta-integrity-badge" role="status" '
+        'style="background:#7c2d12;color:#fff;padding:12px 20px;font-family:system-ui,sans-serif;'
+        'font-size:13.5px;border-bottom:3px solid #431407;line-height:1.55;">'
+        '<strong style="font-size:14px;letter-spacing:0.04em;">VERDICT: UNCERTAIN '
+        '&mdash; CORRECTED, AND THE CONCLUSION REVERSED</strong>'
+        '<div style="margin-top:6px;font-size:12.5px;">This page previously reported a '
+        'significant <em>benefit</em> of apixaban (OR 0.850). Corrected and re-sourced, '
+        f'apixaban roughly <strong>doubles</strong> ISTH major/CRNM bleeding: '
+        f'<strong>OR {OR:.3f} ({lo:.3f}&ndash;{hi:.3f})</strong>, k=2. '
+        'See the full review for the ledger, the quarantined trials and the stated limits. '
+        'AMSTAR-2 confidence: <strong>CRITICALLY LOW</strong>.</div></div>\n'
+    )
+    verdict_js = (
+        '<script>window.__verdict = {"verdict":"UNCERTAIN","counts":{"n_trials_seen":2,'
+        '"n_trials_quarantined":2,"p0_total":0},"reasons":["Redirect stub. Verdict mirrors '
+        'APIXABAN_ACS_AUTO_FULL_REVIEW.html: pooled k=2, 2 trials quarantined, prior pooled '
+        'estimate superseded after manufactured counts and inverted arms were corrected."],'
+        '"p0_total":0,"pooled":{"estimator":"Mantel-Haenszel OR, Robins-Breslow-Greenland SE",'
+        f'"k":2,"or":{OR:.4f},"ci":[{lo:.4f},{hi:.4f}]}}}};</script>\n'
+    )
+    m = re.search(r"<body[^>]*>", s)
+    if m:
+        s = s[:m.end()] + "\n" + banner + verdict_js + s[m.end():]
+    else:
+        s = s.replace("</head>", "</head>\n" + verdict_js, 1)
+        s = s.replace("<body>", "<body>\n" + banner, 1)
+    open(path, "w", encoding="utf-8", newline="").write(s)
+    print(f"{path}: badge + __verdict added (both surfaces now present and agreeing)")
+
+
+if __name__ == "__main__":
+    rows = [(d["tE"], d["tN"], d["cE"], d["cN"]) for d in POOL.values()]
+    OR, lo, hi, se = mh_or(rows)
+    print(f"Corrected pooled MH OR = {OR:.4f} ({lo:.4f}, {hi:.4f}), SE(lnOR) = {se:.4f}\n")
+    OR, lo, hi = patch_full(FULL)
+    patch_stub(STUB, OR, lo, hi)

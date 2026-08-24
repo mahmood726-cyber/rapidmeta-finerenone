@@ -1,0 +1,259 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a031f3-b2c4-72b2-8fcf-229530ffb5e0
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/lint_published_over_false_estimand.py
+
+--- THE FILE, IN FULL ---
+"""A NEW pooled estimate published over `estimand_established: false` is refused.
+
+THE PART OF THE RECOMMENDATION THAT NEEDS NO DECISION. Whether the two estimates currently
+in this state should be withdrawn, disclosed or left is a published-number decision and
+belongs to Mahmood. Whether a THIRD should be able to appear without anyone noticing is not
+a decision, and this refuses it.
+
+THE STATE IT GUARDS. `estimand_established: false` means the object HAS CHECKED and found
+that the contributing trials do NOT measure one quantity. It is not "unknown" -- null is
+unknown, and the objects' own `estimand_established_means` insists on the difference:
+"AN ABSENT ASSERTION AND A NEGATIVE ONE ARE DIFFERENT STATES and null is not a pass". So
+this gate keys on FALSE ONLY. Keying it on "not TRUE" would refuse 25 of the 34 published
+estimates in this corpus, which is an outage rather than a fix, and would refuse them for a
+question nobody asked rather than one answered no.
+
+THE TWO KNOWN INSTANCES ARE GRANDFATHERED BY NAME, NOT SILENTLY:
+
+    rosuvastatin-auto-full-review / primary        OR 0.6561
+    sglt2-mace-cvot-review / primary               OR 0.9074
+
+Both were REFERRED on 2026-08-20 for exactly this, with the reason written onto the object.
+They are in the baseline so that the gate blocks nothing today and catches the third. A
+baseline is not a clearance: each of these is a live estimate a reader meets while the
+object beside it declines to stand behind it.
+
+THE POSITIVE CONTROL IS CONSTRUCTED, NOT ONE OF THE TWO LIVE PAGES -- registry class 58. A
+control that says "the corpus currently contains this defect" stops asserting anything the
+day the corpus is clean, and these two are EXPECTED to be fixed.
+"""
+import io
+import json
+import os
+import sys
+import glob
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from instrument_controls import require_controls
+
+BASELINE = os.path.join(REPO, "scripts", "baselines",
+                        "published_over_false_estimand_baseline.json")
+
+
+def offenders(obj, topic):
+    """-> [(topic, outcome, measure, point)] publishing over a FALSE flag."""
+    out = []
+    for name, blk in ((obj.get("results") or {}).get("by_outcome") or {}).items():
+        if not isinstance(blk, dict):
+            continue
+        if blk.get("estimand_established") is not False:
+            continue                      # NULL and ABSENT are different states
+        p = blk.get("pooled")
+        if not isinstance(p, dict):
+            continue
+        if p.get("point") is None or p.get("withdrawn"):
+            continue
+        out.append((topic, name, p.get("measure"), p.get("point")))
+    return out
+
+
+def scan():
+    hits = []
+    for path in sorted(glob.glob(os.path.join(REPO, "ssot", "*", "*.json"))):
+        topic = os.path.basename(os.path.dirname(path))
+        if os.path.basename(path) != topic + ".json":
+            continue
+        try:
+            obj = json.load(io.open(path, encoding="utf-8"))
+        except Exception:
+            continue
+        hits.extend(offenders(obj, topic))
+    return hits
+
+
+def main():
+    gate = "--gate" in sys.argv
+
+    fixture_bad = {"results": {"by_outcome": {"primary": {
+        "estimand_established": False,
+        "pooled": {"point": 0.77, "measure": "HR"}}}}}
+    fixture_null = {"results": {"by_outcome": {"primary": {
+        "estimand_established": None,
+        "pooled": {"point": 0.77, "measure": "HR"}}}}}
+    require_controls(
+        "lint_published_over_false_estimand",
+        positive=("a constructed block publishing a point over a FALSE flag",
+                  bool(offenders(fixture_bad, "fixture")), True),
+        negative=("the same block with the flag NULL -- an unasked question, not a "
+                  "failed check", bool(offenders(fixture_null, "fixture")), True))
+
+    hits = scan()
+    keys = sorted("%s/%s" % (t, n) for t, n, _m, _p in hits)
+    print("")
+    print("POOLED ESTIMATES PUBLISHED OVER estimand_established FALSE: %d" % len(hits))
+    for topic, name, measure, point in sorted(hits):
+        print("    %-42s %-24s %s %s" % (topic, name, measure or "?", point))
+
+    if not os.path.exists(BASELINE):
+        os.makedirs(os.path.dirname(BASELINE), exist_ok=True)
+        json.dump({
+            "written": "2026-08-20",
+            "NOT_A_CLEARANCE": (
+                "Each entry is a LIVE estimate a reader meets while the object beside it "
+                "declines to stand behind it. Both were REFERRED on 2026-08-20 with the "
+                "reason written onto the object. They are grandfathered BY NAME so the "
+                "gate blocks nothing today and catches the third. Whether to withdraw, "
+                "disclose or leave them is a published-number decision and is Mahmood's."),
+            "grandfathered": keys,
+        }, io.open(BASELINE, "w", encoding="utf-8", newline=chr(10)), indent=1,
+            ensure_ascii=False)
+        print("")
+        print("wrote baseline with %d grandfathered instance(s)" % len(keys))
+        return 0
+
+    known = set(json.load(io.open(BASELINE, encoding="utf-8")).get("grandfathered") or [])
+    new = sorted(set(keys) - known)
+    healed = sorted(known - set(keys))
+    print("")
+    if healed:
+        print("%d grandfathered instance(s) are gone -- the estimate was withdrawn, the "
+              "flag became true, or the block was removed: %s"
+              % (len(healed), ", ".join(healed)))
+    if new:
+        print("REFUSED: %d NEW pooled estimate(s) published over a FALSE estimand flag:"
+              % len(new))
+        for k in new:
+            print("    %s" % k)
+        print("")
+        print("`estimand_established: false` means the OBJECT HAS CHECKED and found the")
+        print("trials do not measure one quantity. Publishing a pooled point over it puts a")
+        print("number in front of a reader that the object itself declines to stand behind.")
+        print("Either establish the estimand, or withdraw the pool with its reason, or")
+        print("refer it and add it to the baseline with that reason recorded.")
+        if gate:
+            return 1
+    else:
+        print("NO NEW INSTANCE. The baseline of %d has not risen." % len(known))
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+
+codex
+Findings:
+
+1. **STATUS CODE REPORTING THE WRAPPER**: line 134  
+   Input: baseline `{"grandfathered":[]}`, `ssot/drug/drug.json`:
+   ```json
+   {"results":{"by_outcome":{"primary":{"estimand_established":false,"pooled":{"point":0.77,"measure":"HR"}}}}}
+   ```
+   Run `python scripts/lint_published_over_false_estimand.py` without `--gate`.  
+   Consequence: it prints `REFUSED` but exits `0`, so a caller running the lint script normally records success.
+
+2. **IDEMPOTENCY GUARD SATISFIED BY ITS OWN MARKER**: line 113  
+   Input: same SSOT offender as above, but delete `scripts/baselines/published_over_false_estimand_baseline.json`; run with `--gate`.  
+   Consequence: the script writes the current offender into the baseline and returns `0`, converting an unapproved new defect into a grandfathered one.
+
+3. **A CHECK THAT CANNOT FAIL / FAIL-OPEN READ**: line 70  
+   Input: `ssot/bad/bad.json` containing only:
+   ```json
+   {
+   ```
+   with baseline `{"grandfathered":[]}`, then run with `--gate`.  
+   Consequence: unreadable SSOT files are silently skipped, so corrupted or unparseable evidence removes itself from enforcement.
+
+4. **GRANDFATHER KEY DROPS THE PUBLISHED VALUE**: line 92  
+   Input: baseline `{"grandfathered":["drug/primary"]}`, `ssot/drug/drug.json`:
+   ```json
+   {"results":{"by_outcome":{"primary":{"estimand_established":false,"pooled":{"point":9.99,"measure":"HR"}}}}}
+   ```
+   Consequence: any changed pooled point under the same topic/outcome is accepted as grandfathered because the key excludes measure and point.
+
+No proven defect from this packet for: probe keyed to string a fix removes; instrument reading a different copy; selector keyed to corpus form; CRLF/LF text comparison; merged-cell/off-by-one tabulation; zero conflated with absent; negation dropped.
+
+COULD NOT DETERMINE: `scripts/instrument_controls.py` is missing, so I cannot prove whether lines 84-89’s control tuple semantics are correct.
+tokens used
+13,137
+Findings:
+
+1. **STATUS CODE REPORTING THE WRAPPER**: line 134  
+   Input: baseline `{"grandfathered":[]}`, `ssot/drug/drug.json`:
+   ```json
+   {"results":{"by_outcome":{"primary":{"estimand_established":false,"pooled":{"point":0.77,"measure":"HR"}}}}}
+   ```
+   Run `python scripts/lint_published_over_false_estimand.py` without `--gate`.  
+   Consequence: it prints `REFUSED` but exits `0`, so a caller running the lint script normally records success.
+
+2. **IDEMPOTENCY GUARD SATISFIED BY ITS OWN MARKER**: line 113  
+   Input: same SSOT offender as above, but delete `scripts/baselines/published_over_false_estimand_baseline.json`; run with `--gate`.  
+   Consequence: the script writes the current offender into the baseline and returns `0`, converting an unapproved new defect into a grandfathered one.
+
+3. **A CHECK THAT CANNOT FAIL / FAIL-OPEN READ**: line 70  
+   Input: `ssot/bad/bad.json` containing only:
+   ```json
+   {
+   ```
+   with baseline `{"grandfathered":[]}`, then run with `--gate`.  
+   Consequence: unreadable SSOT files are silently skipped, so corrupted or unparseable evidence removes itself from enforcement.
+
+4. **GRANDFATHER KEY DROPS THE PUBLISHED VALUE**: line 92  
+   Input: baseline `{"grandfathered":["drug/primary"]}`, `ssot/drug/drug.json`:
+   ```json
+   {"results":{"by_outcome":{"primary":{"estimand_established":false,"pooled":{"point":9.99,"measure":"HR"}}}}}
+   ```
+   Consequence: any changed pooled point under the same topic/outcome is accepted as grandfathered because the key excludes measure and point.
+
+No proven defect from this packet for: probe keyed to string a fix removes; instrument reading a different copy; selector keyed to corpus form; CRLF/LF text comparison; merged-cell/off-by-one tabulation; zero conflated with absent; negation dropped.
+
+COULD NOT DETERMINE: `scripts/instrument_controls.py` is missing, so I cannot prove whether lines 84-89’s control tuple semantics are correct.

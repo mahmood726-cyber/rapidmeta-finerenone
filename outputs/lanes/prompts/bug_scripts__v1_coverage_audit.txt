@@ -1,0 +1,215 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/v1_coverage_audit.py
+
+--- THE FILE, IN FULL ---
+"""V1 COVERAGE AUDIT -- for each standard property, does a check exist, and can it SEE?
+
+WHY THIS EXISTS
+    On 2026-08-17 `arm_identity_gate` returned UNCHECKABLE and `poolability`
+    returned UNASSESSABLE on 100% of a real v1 object -- two of the standard's
+    own properties, in gates I wrote, which I had been citing as coverage. If a
+    page had shipped with "all eleven v1 properties pass", that sentence would
+    have been about gates that RAN, not properties that HOLD.
+
+    Two blind out of eleven is not a reason to assume the other nine see. It is
+    a reason to measure all of them.
+
+    LOGGED AS A SAVE, NOT ONLY A DEFECT: those two gates returned UNCHECKABLE
+    rather than PASS. That single design choice is what stood between us and a
+    false green, and this repo has far more logged failures than logged saves.
+    A three-state verdict is worth its cost the first time it is right.
+
+WHAT THIS AUDIT DOES NOT ESTABLISH -- written in advance
+    - NOT that a PASS is correct. It records what each checker returned, not
+      whether the checker is right.
+    - NOT that a property with no checker is unmet -- only that nothing
+      automated is watching it, which is a different and equally important fact.
+    - NOT that a checker seeing ONE object sees all of them. Coverage is
+      per-object and reported that way.
+"""
+from __future__ import annotations
+import io, json, os, subprocess, sys
+
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# (property, checker script or None, argv builder). None = no automated check.
+def _obj(o, p):
+    return [o]
+
+
+def _page(o, p):
+    return [p]
+
+
+def _page_obj(o, p):
+    return [p, o]
+
+
+CHECKS = [
+    ("tabbed_build",             "checkbuild-equivalent", None),
+    ("estimate_preserved",       "checkbuild-equivalent", None),
+    ("card_matches_page",        "card_alignment_gate.py", _page),
+    ("extraction_table",         "extraction_table_gate.py", _page),
+    ("sections_in_both_surfaces", "section_manifest_gate.py", _obj),  # needs a docmodel too
+    ("build_stamp",              "build_stamp_gate.py", _page),
+    ("subject_match",            "subject_match_gate.py", _page_obj),
+    ("arm_identity",             "arm_identity_gate.py", _obj),
+    ("poolable_or_withheld",     "poolability.py", _obj),
+    ("estimand_definition_read", "estimand_definition_gate.py", _obj),
+    ("identity_by_registration", "identity_by_registration_gate.py", _obj),
+    ("no_synthesised_absence",   "absence_reason_gate.py", lambda o, p: [p, o]),
+    ("self_contained",           "external_dependency_census.py", None),
+    ("display_change_announced", None, None),
+]
+
+# Words a checker uses when it ran but could not see. Treated as UNCHECKABLE,
+# never as a pass -- that distinction is the whole point of this file.
+BLIND = ("UNCHECKABLE", "UNASSESSABLE", "no checkable", "NOT PROVEN",
+         "fixtures absent", "not applicable", "0 check")
+
+
+def run(script, argv):
+    p = os.path.join(REPO, "scripts", script)
+    if not os.path.exists(p):
+        return "NO CHECKER", ""
+    try:
+        r = subprocess.run([sys.executable, p] + argv, cwd=REPO,
+                           capture_output=True, text=True, timeout=180)
+    except subprocess.TimeoutExpired:
+        return "TIMEOUT", ""
+    out = (r.stdout or "") + (r.stderr or "")
+    # DROP TALLY LINES BEFORE CLASSIFYING. The first cut substring-searched the
+    # whole output for "UNCHECKABLE" and matched card_alignment_gate's own tally
+    # LABEL ("  UNCHECKABLE  508"), reporting a working gate as blind. That is
+    # the AF_-inside-TAF_TDF over-match, committed inside the audit written to
+    # find exactly this class. Normalise and compare the whole field, never a
+    # fragment: a line that is <word> <integer> is a count, not a verdict.
+    #
+    # SECOND INSTANCE OF THE SAME OVER-MATCH, FOUND 2026-08-17 AFTER THE FIRST
+    # WAS FIXED. The pattern below only stripped `<word> <integer>`, so
+    # poolability's tally -- "  UNASSESSABLE  0  0.0%" -- still classified a
+    # gate that ran perfectly as blind, on the strength of a label naming a
+    # count of ZERO. The rule was already written, already quoted, and broken
+    # again in the same file within hours. Knowing a rule does not apply it;
+    # only a check does. A line that is a label followed by nothing but numbers
+    # and percentages is a TALLY, never a verdict.
+    import re as _re
+    lines = [l for l in out.splitlines()
+             if not _re.match(r"^\s*[A-Za-z_]+(?:\s+[\d.]+%?)+\s*$", l)]
+    out = chr(10).join(lines)
+    last = out.strip().splitlines()[-1][:90] if out.strip() else ""
+
+    # THIRD INSTANCE, 2026-08-18, AND THE LAST ONE THIS FILE WILL GET BY PATCHING
+    # THE PATTERN. card_alignment_gate exits 3 (met by withholding) and PRINTS,
+    # in prose a reader needs, "drift: UNCHECKABLE -- 0 of 1 cards were
+    # numerically comparable". The tally-stripper does not touch that line
+    # because it is a sentence, so the blind scan matched it and overrode a
+    # deliberate exit code with a word lifted out of an explanation.
+    #
+    # TWO PATCHES TO THIS REGEX ALREADY FAILED, so the fix is not a third
+    # pattern. THE DEFECT IS THE PRECEDENCE: a gate states its verdict in its
+    # EXIT CODE, and this function was inferring one by grepping the gate's free
+    # text FIRST and consulting the declared answer only if the grep found
+    # nothing. A declared field must beat an inferred one every time.
+    #
+    # So: exit 2 (could not run) and exit 3 (met by withholding) are AUTHORITATIVE
+    # and are read before any text at all. The blind scan survives only for exit 0
+    # and 1, where it is still needed -- arm_identity_gate exits 0 while reporting
+    # UNCHECKABLE, and that is the case this scan exists for.
+    if "Traceback (most recent call last)" in out:
+        # A CRASH IS ITS OWN VERDICT. A traceback means the gate never examined
+        # the subject, so scoring it FAIL asserts a defect on a page nobody
+        # opened, and scoring it PASS is worse.
+        return "ERROR", last
+    if r.returncode == 2:
+        return "NOT RUN", last
+    # 3 = MET BY WITHHOLDING. ABLATION_AF's four trials record four different
+    # endpoints and its estimate is withdrawn for exactly that reason. Scoring it
+    # FAIL made a page that found the difference and acted on it look identical to
+    # one that pooled straight through; scoring it PASS would hide that no
+    # estimate is displayed. It is neither, and the ledger says so.
+    if r.returncode == 3:
+        return "WITHHELD", last
+    if any(b.lower() in out.lower() for b in BLIND):
+        return "UNCHECKABLE", last
+    if r.returncode == 0:
+        return "PASS", ""
+    return "FAIL", last
+
+
+def main():
+    targets = []
+    m = json.loads(open(os.path.join(REPO, "ssot", "PAGE_MAP.json"),
+                        encoding="utf-8").read())
+    want = sys.argv[1:] or ["ARNI_HF_REVIEW.html", "FINERENONE_CV_REVIEW.html"]
+    for page in want:
+        if page in m:
+            targets.append((page, m[page]))
+        else:
+            print("no object mapped for %s -- skipped, not passed" % page)
+
+    tally = {}
+    for page, obj in targets:
+        print("\n=== %s  <-  %s" % (page, obj))
+        for prop, script, build in CHECKS:
+            if script is None:
+                state, note = "NO CHECKER", ""
+            elif build is None:
+                state, note = "NOT WIRED HERE", ""
+            else:
+                state, note = run(script, build(obj, page))
+            tally[state] = tally.get(state, 0) + 1
+            print("   %-26s %-14s %s" % (prop, state, note))
+
+    print("\nVERDICT DISTRIBUTION across %d object(s) x %d propert(ies):"
+          % (len(targets), len(CHECKS)))
+    for k in sorted(tally, key=lambda x: -tally[x]):
+        print("   %-16s %d" % (k, tally[k]))
+    blind = tally.get("UNCHECKABLE", 0) + tally.get("NO CHECKER", 0) + \
+        tally.get("NOT WIRED HERE", 0) + tally.get("TIMEOUT", 0)
+    total = sum(tally.values())
+    print("\n   NOT ESTABLISHED BY ANY RUNNING CHECK: %d of %d (%.0f%%)"
+          % (blind, total, 100.0 * blind / total if total else 0))
+    print("   A property with no checker, or a checker that cannot see, is NOT a "
+          "passing property. It is an unmeasured one.")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

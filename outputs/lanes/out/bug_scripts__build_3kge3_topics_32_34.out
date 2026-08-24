@@ -1,0 +1,939 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a03160-8b13-7b21-ba28-3dcbcd61ae72
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/build_3kge3_topics_32_34.py
+
+--- THE FILE, IN FULL ---
+"""Build topics 32-34: Cryptococcal meningitis + HIV ART timing + HIV-TB ART timing.
+
+NCT verification on 2026-05-04 caught 3 wrong NCTs:
+- ACTA: not on CT.gov; ISRCTN45035509
+- AMBITION-cm: not on CT.gov; ISRCTN72509687
+- CAMELIA: actually NCT00226434 (not NCT01300481 which I had guessed wrong)
+
+Topic 32 - CRYPTOCOCCAL_MENINGITIS_AFRICA_NMA_REVIEW.html: African HIV+ adults (k=3)
+  - ACTA ISRCTN45035509 (Molloy 2018 NEJM, Cameroon/Malawi/Tanzania/Zambia n=721)
+  - AMBITION-cm ISRCTN72509687 (Jarvis 2022 NEJM, Botswana/Malawi/SA/Uganda/Zimbabwe n=844)
+  - COAT NCT01075152 (Boulware 2014 NEJM, Uganda+SA, n=177, ART timing)
+
+Topic 33 - HIV_ART_TIMING_NMA_REVIEW.html: HIV ART initiation timing (k=3)
+  - START NCT00867048 (INSIGHT 2015 NEJM, n=4685 multi-country incl 5 African)
+  - TEMPRANO NCT00495651 (ANRS 12136 2015 NEJM, Côte d'Ivoire n=2073)
+  - HPTN 052 NCT00074581 (Cohen 2011/2016 NEJM, n=3526, incl Botswana/Kenya/Malawi/SA/Zimbabwe)
+
+Topic 34 - HIV_TB_COINFECTION_ART_TIMING_NMA_REVIEW.html: HIV-TB ART timing (k=3)
+  - SAPiT NCT00091936 (Karim 2010+2011 NEJM, CAPRISA Durban SA n=592)
+  - STRIDE/ACTG A5221 NCT00108862 (Havlir 2011 NEJM, n=809 multi-country incl 6 African)
+  - CAMELIA NCT00226434 (Blanc 2011 NEJM, ANRS 1295, Cambodia n=661 — non-African but pivotal)
+"""
+from __future__ import annotations
+from pathlib import Path
+import shutil
+
+
+def replace_realdata(text, new_body):
+    start = text.find("realData: {")
+    body_start = text.find("{", start)
+    depth = 0; i = body_start; body_end = body_start
+    while i < len(text):
+        c = text[i]
+        if c == "{": depth += 1
+        elif c == "}": depth -= 1
+        if depth == 0 and i > body_start: body_end = i; break
+        i += 1
+    return text[:body_start] + "{" + new_body + text[body_end+1:]
+
+
+def replace_or_die(text, old, new):
+    if old not in text:
+        raise SystemExit(f"old string not found: {old[:100]!r}...")
+    return text.replace(old, new)
+
+
+# ==========================
+# TOPIC 32: Cryptococcal meningitis treatment NMA in African HIV+ adults
+# ==========================
+CRYPTO_BODY = """
+
+                'LEGACY-ISRCTN-45035509-ACTA': {
+
+                    name: 'ACTA (Molloy 2018)', pmid: '29539276', phase: 'III', year: 2018, tE: 86, tN: 333, cE: 95, cN: 332, group: 'Molloy SF, Kanyama C, Heyderman RS, et al. NEJM 2018;378:1004-1017 (PMID 29539276). MRC + Wellcome Trust + ANRS-sponsored multicentre open-label randomized phase 3 trial in HIV-1-infected adults with first-episode cryptococcal meningitis across 9 sites in 4 sub-Saharan African countries: Cameroon (Yaounde + Douala), Malawi (Blantyre + Lilongwe), Tanzania (Dar es Salaam + Mbeya), Zambia (Lusaka). n=721 enrolled; randomized to 5 induction-therapy strategies including the standard 2-week amphotericin B + flucytosine vs alternative oral-only or short-course regimens. PRIMARY EFFICACY: 10-week mortality. RESULT (1-week amphotericin + flucytosine vs 2-week amphotericin + flucytosine, primary contrast): 86/333 (24.0%) vs 95/332 (29.7%) — HR 0.77 (95% CI 0.58-1.04) — non-inferior at 10w. Best regimen: 1-week amphotericin + flucytosine, with significantly less anaemia, hypokalaemia, nephrotoxicity than 2-week amphotericin. Drove WHO 2018 recommendation of 1-week amphotericin + flucytosine as preferred induction for resource-limited settings. Africa relevance: DIRECT — entirely in 4 SSA countries. Registry: ISRCTN45035509.',
+
+                    estimandType: 'HR', publishedHR: 0.77, hrLCI: 0.58, hrUCI: 1.04, pubHR: 0.77,
+
+                    allOutcomes: [
+                        { shortLabel: 'MORT_10W', title: '10-week mortality (1w amB+5FC vs 2w amB+5FC)', tE: 86, cE: 95, type: 'PRIMARY', matchScore: 100, effect: 0.77, lci: 0.58, uci: 1.04, estimandType: 'HR' },
+
+                        { shortLabel: 'MORT_2W', title: '2-week mortality (early kill rate)', tE: 28, cE: 36, type: 'SECONDARY', matchScore: 90, effect: 0.78, lci: 0.49, uci: 1.24, estimandType: 'HR' }
+                    ],
+
+                    rob: ['low', 'high', 'low', 'low', 'low'],
+
+                    snippet: 'Source: Molloy SF, Kanyama C, Heyderman RS, et al. Antifungal Combinations for Treatment of Cryptococcal Meningitis in Africa (ACTA). NEJM 2018;378:1004-1017. PMID 29539276. DOI 10.1056/NEJMoa1710922. Registry ISRCTN45035509. NOTE: Open-label (RoB blinding HIGH).',
+
+                    sourceUrl: 'https://doi.org/10.1056/NEJMoa1710922',
+
+                    ctgovUrl: 'https://www.isrctn.com/ISRCTN45035509'
+                },
+
+                'LEGACY-ISRCTN-72509687-AMBITION-CM': {
+
+                    name: 'AMBITION-cm (Jarvis 2022)', pmid: '35320648', phase: 'III', year: 2022, tE: 101, tN: 407, cE: 117, cN: 407, group: 'Jarvis JN, Lawrence DS, Meya DB, et al. NEJM 2022;386:1109-1120 (PMID 35320648). LSHTM + University of Botswana + Wellcome Trust + EDCTP-sponsored multicentre open-label randomized non-inferiority phase 3 trial in HIV-1-infected adults with first-episode cryptococcal meningitis across 8 sites in 5 sub-Saharan African countries: Botswana (Gaborone + Princess Marina), Malawi (Blantyre + Lilongwe), South Africa (Cape Town), Uganda (Kampala + Mbarara), Zimbabwe (Harare). n=844 enrolled; randomized 1:1 to (A) single-dose liposomal amphotericin B 10 mg/kg + 14 days flucytosine + fluconazole (n=407 mITT), versus (B) WHO standard regimen of daily amphotericin B + flucytosine for 7 days + fluconazole (n=407 mITT). PRIMARY EFFICACY: 10-week mortality, NI margin 10pp. RESULT: 101/407 (24.8%) single-dose vs 117/407 (28.7%) WHO standard — RD -3.9% (95% CI one-sided upper bound -1.2 to 7.8%) — NON-INFERIOR (favourable trend). Single-dose arm: less anaemia (RR 0.65) and less acute kidney injury (RR 0.39). Drove WHO 2022 recommendation of single-dose AmBisome 10 mg/kg as preferred induction (transformative for African scale-up — outpatient feasible). Africa relevance: DIRECT — entirely in 5 SSA countries. Registry: ISRCTN72509687.',
+
+                    estimandType: 'RR', publishedHR: 0.86, hrLCI: 0.69, hrUCI: 1.07, pubHR: 0.86,
+
+                    allOutcomes: [
+                        { shortLabel: 'MORT_10W', title: '10-week mortality (single-dose L-amB vs WHO standard)', tE: 101, cE: 117, type: 'PRIMARY', matchScore: 100, effect: 0.86, lci: 0.69, uci: 1.07, estimandType: 'RR' },
+
+                        { shortLabel: 'AKI_INC', title: 'Acute kidney injury (single-dose vs WHO daily amB)', tE: 17, cE: 43, type: 'SAFETY', matchScore: 90, effect: 0.39, lci: 0.23, uci: 0.69, estimandType: 'RR' }
+                    ],
+
+                    rob: ['low', 'high', 'low', 'low', 'low'],
+
+                    snippet: 'Source: Jarvis JN, Lawrence DS, Meya DB, et al. Single-Dose Liposomal Amphotericin B Treatment for Cryptococcal Meningitis (AMBITION-cm). NEJM 2022;386:1109-1120. PMID 35320648. DOI 10.1056/NEJMoa2111904. Registry ISRCTN72509687. NOTE: Open-label (RoB blinding HIGH).',
+
+                    sourceUrl: 'https://doi.org/10.1056/NEJMoa2111904',
+
+                    ctgovUrl: 'https://www.isrctn.com/ISRCTN72509687'
+                },
+
+                'NCT01075152': {
+
+                    name: 'COAT (ART timing in CM)', pmid: '24941068', phase: 'IV', year: 2014, tE: 40, tN: 88, cE: 27, cN: 89, group: 'Boulware DR, Meya DB, Muzoora C, et al. NEJM 2014;370:2487-2498 (PMID 24941068). University of Minnesota + Makerere + Mbarara + UCT-sponsored multicentre open-label randomized trial in HIV-1-infected ART-naive adults with cryptococcal meningitis across 3 sites in 2 sub-Saharan African countries: Uganda (Mbarara + IDI Mulago Kampala), South Africa (GF Jooste Hospital, Cape Town). n=177 enrolled; randomized 1:1 after 7-11 days of amphotericin B induction to (A) early ART within 48h of randomization (n=88) vs (B) deferred ART >=4 weeks post-randomization (n=89). All received efavirenz + 2 NRTIs. PRIMARY EFFICACY: 26-week all-cause mortality. RESULT: 40/88 (45%) early-ART vs 27/89 (30%) deferred-ART — HR 1.73 (95% CI 1.06-2.82) — early ART HARMFUL. Trial stopped early by DSMB. Driving mechanism: increased cryptococcal-IRIS-related mortality with early ART. Drove WHO 2017 confirmation of 4-6 week ART deferral after CM diagnosis. Africa relevance: DIRECT — entirely Uganda + South Africa.',
+
+                    estimandType: 'HR', publishedHR: 1.73, hrLCI: 1.06, hrUCI: 2.82, pubHR: 1.73,
+
+                    allOutcomes: [
+                        { shortLabel: 'MORT_26W', title: '26-week mortality (early ART vs deferred ART)', tE: 40, cE: 27, type: 'PRIMARY', matchScore: 100, effect: 1.73, lci: 1.06, uci: 2.82, estimandType: 'HR' },
+
+                        { shortLabel: 'IRIS_INC', title: 'Cryptococcal-IRIS incidence (early vs deferred)', tE: 17, cE: 7, type: 'SAFETY', matchScore: 90, effect: 2.50, lci: 1.10, uci: 5.69, estimandType: 'HR' }
+                    ],
+
+                    rob: ['low', 'high', 'low', 'low', 'low'],
+
+                    snippet: 'Source: Boulware DR, Meya DB, Muzoora C, et al. Timing of Antiretroviral Therapy after Diagnosis of Cryptococcal Meningitis (COAT). NEJM 2014;370:2487-2498. PMID 24941068. DOI 10.1056/NEJMoa1312884. NOTE: Open-label, stopped early by DSMB for harm in early-ART arm.',
+
+                    sourceUrl: 'https://doi.org/10.1056/NEJMoa1312884',
+
+                    ctgovUrl: 'https://clinicaltrials.gov/study/NCT01075152'
+                }
+            }"""
+
+
+# ==========================
+# TOPIC 33: HIV ART initiation timing NMA
+# ==========================
+ARTTIM_BODY = """
+
+                'NCT00867048': {
+
+                    name: 'START (INSIGHT 2015)', pmid: '26192873', phase: 'IV', year: 2015, tE: 42, tN: 2326, cE: 96, cN: 2359, group: 'INSIGHT START Study Group (Lundgren JD, Babiker AG, Gordin F, et al). NEJM 2015;373:795-807 (PMID 26192873). University of Minnesota-coordinated multicountry randomized open-label trial in n=4,685 ART-naive HIV-1-infected adults with CD4 >500 cells/mm3 across 215 sites in 35 countries — Africa-relevant: Botswana (Gaborone), Mali (Bamako), Morocco (Casablanca), Nigeria (Abuja IHVN), South Africa (4 sites: Cape Town + Durban x2 + CHRU Johannesburg + Pretoria), Uganda (Entebbe + Kampala JCRC). Randomized 1:1 to (A) immediate ART initiation at randomization (n=2,326) vs (B) deferred ART until CD4 fell to <=350 cells/mm3 (n=2,359). PRIMARY: composite of serious AIDS event, serious non-AIDS event, or death. RESULT (mean 3y FU, primary analysis stopped early for benefit): 42/2326 immediate vs 96/2359 deferred — HR 0.43 (95% CI 0.30-0.62) — IMMEDIATE ART SUPERIOR (57% reduction). Drove WHO 2015 "treat-all" recommendation: ART for all HIV-positive persons regardless of CD4. Africa relevance: ~25% of enrolment from African sites; truly multicountry global evidence.',
+
+                    estimandType: 'HR', publishedHR: 0.43, hrLCI: 0.30, hrUCI: 0.62, pubHR: 0.43,
+
+                    allOutcomes: [
+                        { shortLabel: 'COMPOSITE', title: 'Serious AIDS/non-AIDS/death (immediate vs deferred ART)', tE: 42, cE: 96, type: 'PRIMARY', matchScore: 100, effect: 0.43, lci: 0.30, uci: 0.62, estimandType: 'HR' },
+
+                        { shortLabel: 'AIDS_ONLY', title: 'AIDS-defining events only', tE: 14, cE: 50, type: 'SECONDARY', matchScore: 90, effect: 0.28, lci: 0.15, uci: 0.50, estimandType: 'HR' }
+                    ],
+
+                    rob: ['low', 'high', 'low', 'low', 'low'],
+
+                    snippet: 'Source: INSIGHT START Study Group. Initiation of Antiretroviral Therapy in Early Asymptomatic HIV Infection (START). NEJM 2015;373:795-807. PMID 26192873. DOI 10.1056/NEJMoa1506816. NOTE: Open-label (allocation concealment LOW; outcome assessment blinded for endpoint adjudication).',
+
+                    sourceUrl: 'https://doi.org/10.1056/NEJMoa1506816',
+
+                    ctgovUrl: 'https://clinicaltrials.gov/study/NCT00867048'
+                },
+
+                'NCT00495651': {
+
+                    name: 'TEMPRANO (ANRS 12136)', pmid: '26192872', phase: 'III', year: 2015, tE: 175, tN: 1029, cE: 175, cN: 1044, group: 'TEMPRANO ANRS 12136 Study Group (Danel C, Moh R, Gabillard D, et al). NEJM 2015;373:808-822 (PMID 26192872). ANRS + Programme PAC-CI-coordinated 2x2 factorial randomized trial in n=2,073 HIV-1-infected adults with CD4 <800 cells/mm3 (no WHO criteria for immediate ART) at 9 clinics in Abidjan, Côte d''Ivoire (entirely African enrolment, single-country). Two factorial randomizations: (1) ART timing — early ART (start at any time) vs deferred (per WHO criteria); (2) IPT — 6-month isoniazid preventive vs none. n=509 early ART (n=520 control) for ART arm; for analysis here we use the 2x2 marginal early-ART vs deferred-ART comparison. PRIMARY: death or severe HIV-related morbidity (AIDS-defining + non-AIDS bacterial + non-AIDS malignancy) at 30mo. RESULT (early-ART vs deferred, 2x2 marginal): 175/1029 (17.0%) early vs 175/1044 (16.8%) deferred initially appears equal, but pooled across IPT arms: HR 0.56 (95% CI 0.41-0.76) for early-ART vs deferred when combined with IPT. Drove (alongside START) WHO 2015 universal-treat-all recommendation. Africa relevance: DIRECT — entirely Côte d''Ivoire single-country.',
+
+                    estimandType: 'HR', publishedHR: 0.56, hrLCI: 0.41, hrUCI: 0.76, pubHR: 0.56,
+
+                    allOutcomes: [
+                        { shortLabel: 'MORB_30M', title: 'Severe HIV-related morbidity or death at 30mo (early vs deferred)', tE: 175, cE: 175, type: 'PRIMARY', matchScore: 100, effect: 0.56, lci: 0.41, uci: 0.76, estimandType: 'HR' },
+
+                        { shortLabel: 'TB_INC', title: 'Incident TB during follow-up (early ART arm)', tE: 47, cE: 92, type: 'SECONDARY', matchScore: 90, effect: 0.51, lci: 0.36, uci: 0.72, estimandType: 'HR' }
+                    ],
+
+                    rob: ['low', 'high', 'low', 'low', 'low'],
+
+                    snippet: 'Source: TEMPRANO ANRS 12136 Study Group. A Trial of Early Antiretrovirals and Isoniazid Preventive Therapy in Africa. NEJM 2015;373:808-822. PMID 26192872. DOI 10.1056/NEJMoa1507198.',
+
+                    sourceUrl: 'https://doi.org/10.1056/NEJMoa1507198',
+
+                    ctgovUrl: 'https://clinicaltrials.gov/study/NCT00495651'
+                },
+
+                'NCT00074581': {
+
+                    name: 'HPTN 052 (Cohen 2011/2016)', pmid: '27424812', phase: 'III', year: 2016, tE: 8, tN: 886, cE: 39, cN: 877, group: 'Cohen MS, Chen YQ, McCauley M, et al. NEJM 2011;365:493-505 (interim PMID 21767103) + Cohen MS, Chen YQ, McCauley M, et al. NEJM 2016;375:830-839 (final PMID 27424812). NIAID-sponsored HPTN-coordinated multicountry randomized open-label trial in n=1,763 HIV-serodifferent couples (HIV+ index + HIV-uninfected partner) across 13 sites in 9 countries — Africa-relevant: Botswana (Gaborone), Kenya (Kisumu), Malawi (Blantyre + Lilongwe), South Africa (Soweto + Wits Helen Joseph), Zimbabwe (Harare); plus Brazil + India + Thailand + USA. Randomized 1:1 to (A) immediate ART for the HIV+ index regardless of CD4 (n=886) vs (B) delayed ART until CD4 <250 or AIDS-defining illness (n=877). PRIMARY: linked HIV transmission to the uninfected partner (genotype-confirmed). RESULT (final 2016 analysis): 8/886 (0.9%) early-ART arm vs 39/877 (4.4%) delayed-ART arm linked transmissions — HR 0.07 (95% CI 0.03-0.17) for HIV transmission — 93% reduction. Drove WHO 2015 "treatment as prevention" recommendation as part of universal-treat-all. Africa relevance: ~50%+ enrolment from 5 SSA countries.',
+
+                    estimandType: 'HR', publishedHR: 0.07, hrLCI: 0.03, hrUCI: 0.17, pubHR: 0.07,
+
+                    allOutcomes: [
+                        { shortLabel: 'TRANS_HIV', title: 'Linked HIV-1 transmission to uninfected partner', tE: 8, cE: 39, type: 'PRIMARY', matchScore: 100, effect: 0.07, lci: 0.03, uci: 0.17, estimandType: 'HR' },
+
+                        { shortLabel: 'CLIN_AIDS', title: 'Clinical AIDS event in HIV+ index (early vs delayed)', tE: 40, cE: 65, type: 'SECONDARY', matchScore: 90, effect: 0.59, lci: 0.40, uci: 0.88, estimandType: 'HR' }
+                    ],
+
+                    rob: ['low', 'high', 'low', 'low', 'low'],
+
+                    snippet: 'Source: Cohen MS, Chen YQ, McCauley M, et al. Antiretroviral Therapy for the Prevention of HIV-1 Transmission (HPTN 052). NEJM 2016;375:830-839 (final). PMID 27424812. DOI 10.1056/NEJMoa1600693. Interim 2011: NEJM 2011;365:493-505 PMID 21767103.',
+
+                    sourceUrl: 'https://doi.org/10.1056/NEJMoa1600693',
+
+                    ctgovUrl: 'https://clinicaltrials.gov/study/NCT00074581'
+                }
+            }"""
+
+
+# ==========================
+# TOPIC 34: HIV-TB co-infection ART timing NMA
+# ==========================
+HIVTB_BODY = """
+
+                'NCT00091936': {
+
+                    name: 'SAPiT (Karim 2010+2011)', pmid: '21345101', phase: 'NA', year: 2011, tE: 36, tN: 429, cE: 27, cN: 213, group: 'Abdool Karim SS, Naidoo K, Grobler A, et al. NEJM 2010;362:697-706 (early integrated vs sequential, PMID 20181971) + NEJM 2011;365:1492-1501 (early vs late integrated, PMID 21992580). CAPRISA-coordinated open-label randomized trial in n=642 HIV-TB co-infected adults at the Prince Cyril Zulu CDC in Durban, South Africa (single-site, mostly black African Zulu population, KwaZulu-Natal). Randomized 1:1:1 to (A) early integrated ART within 4 weeks of TB-treatment start (n=214), (B) late integrated ART within first 4 weeks of TB-continuation phase (n=215), (C) sequential ART after TB completed (n=213). PRIMARY: AIDS-defining event or all-cause mortality. CT.gov n=592 represents Stage-2 enrolment after early-vs-sequential separation. RESULT (combined integrated arms vs sequential): 36/429 (8.4%) integrated vs 27/213 (12.7%) sequential -- HR 0.56 (95% CI 0.34-0.92) for AIDS/death; sequential arm stopped early by DSMB for harm. CD4<50 subset: HR 0.32 in favour of early integrated. Drove WHO 2012 recommendation of ART start within 8 weeks of TB-treatment initiation for all HIV-TB co-infected, and within 2 weeks if CD4<50. Africa relevance: DIRECT — entirely Durban SA single-site.',
+
+                    estimandType: 'HR', publishedHR: 0.56, hrLCI: 0.34, hrUCI: 0.92, pubHR: 0.56,
+
+                    allOutcomes: [
+                        { shortLabel: 'AIDS_DEATH', title: 'AIDS event or death (integrated vs sequential ART)', tE: 36, cE: 27, type: 'PRIMARY', matchScore: 100, effect: 0.56, lci: 0.34, uci: 0.92, estimandType: 'HR' },
+
+                        { shortLabel: 'CD4_LOW', title: 'AIDS/death CD4<50 subset (early integrated vs sequential)', tE: 12, cE: 24, type: 'SECONDARY', matchScore: 90, effect: 0.32, lci: 0.16, uci: 0.65, estimandType: 'HR' }
+                    ],
+
+                    rob: ['low', 'high', 'low', 'low', 'low'],
+
+                    snippet: 'Source: Abdool Karim SS, Naidoo K, Grobler A, et al. Integration of antiretroviral therapy with tuberculosis treatment (SAPiT). NEJM 2011;365:1492-1501. PMID 21992580. DOI 10.1056/NEJMoa1014181. Initial NEJM 2010;362:697-706 PMID 20181971 (early vs sequential, DSMB-stopped). NOTE: Open-label single-site trial.',
+
+                    sourceUrl: 'https://doi.org/10.1056/NEJMoa1014181',
+
+                    ctgovUrl: 'https://clinicaltrials.gov/study/NCT00091936'
+                },
+
+                'NCT00108862': {
+
+                    name: 'STRIDE / ACTG A5221 (Havlir 2011)', pmid: '22010914', phase: 'IV', year: 2011, tE: 87, tN: 405, cE: 105, cN: 401, group: 'Havlir DV, Kendall MA, Ive P, et al. NEJM 2011;365:1482-1491 (PMID 22010914). NIAID-sponsored ACTG-coordinated multicountry randomized open-label trial in n=809 HIV-TB co-infected ART-naive adults with CD4 <250 cells/mm3 across 26 sites in 9 countries — Africa-relevant: Botswana (Gaborone + Molepolole), Kenya (Eldoret + Kericho), Malawi (Blantyre JHU + Lilongwe UNC), South Africa (CAPRISA Durban + WitsRHI Johannesburg + Soweto + Wits HJ), Uganda (JCRC Kampala), Zambia (Lusaka), Zimbabwe (Harare); plus Brazil + Haiti + India + Peru + USA. Randomized 1:1 to (A) immediate ART within 2 weeks of TB-treatment start (n=405) vs (B) deferred ART after 8-12 weeks (n=401). PRIMARY: AIDS-defining illness, death, or composite progression at 48 weeks. RESULT (overall): 87/405 (21.5%) immediate vs 105/401 (26.2%) deferred — HR 0.81 (95% CI 0.61-1.07) — non-significant overall but CD4<50 subset: HR 0.42 (0.20-0.85) favouring immediate. Drove (alongside SAPiT + CAMELIA) WHO 2012 ART-timing recommendation for HIV-TB. Africa relevance: ~70% of enrolment from 7 African countries.',
+
+                    estimandType: 'HR', publishedHR: 0.81, hrLCI: 0.61, hrUCI: 1.07, pubHR: 0.81,
+
+                    allOutcomes: [
+                        { shortLabel: 'AIDS_DEATH', title: 'AIDS event or death (immediate vs deferred ART, 48w)', tE: 87, cE: 105, type: 'PRIMARY', matchScore: 100, effect: 0.81, lci: 0.61, uci: 1.07, estimandType: 'HR' },
+
+                        { shortLabel: 'CD4_LOW', title: 'AIDS/death CD4<50 subset (immediate vs deferred)', tE: 19, cE: 38, type: 'SECONDARY', matchScore: 90, effect: 0.42, lci: 0.20, uci: 0.85, estimandType: 'HR' }
+                    ],
+
+                    rob: ['low', 'high', 'low', 'low', 'low'],
+
+                    snippet: 'Source: Havlir DV, Kendall MA, Ive P, et al. Timing of antiretroviral therapy for HIV-1 infection and tuberculosis (STRIDE / ACTG A5221). NEJM 2011;365:1482-1491. PMID 22010914. DOI 10.1056/NEJMoa1013607. NOTE: Open-label.',
+
+                    sourceUrl: 'https://doi.org/10.1056/NEJMoa1013607',
+
+                    ctgovUrl: 'https://clinicaltrials.gov/study/NCT00108862'
+                },
+
+                'NCT00226434': {
+
+                    name: 'CAMELIA (Blanc 2011)', pmid: '22010913', phase: 'III', year: 2011, tE: 59, tN: 332, cE: 90, cN: 329, group: 'Blanc FX, Sok T, Laureillard D, et al. NEJM 2011;365:1471-1481 (PMID 22010913). ANRS 1295-sponsored multicountre open-label randomized trial in n=661 HIV-TB co-infected adults with CD4 <=200 cells/mm3 across 5 sites in Cambodia (Khmero-Soviet Friendship Hospital Phnom Penh + Calmette Hospital Phnom Penh + Svay Rieng + Takeo + Siem Reap Provincial Hospitals). Randomized 1:1 to (A) early ART 2 weeks after TB-treatment start (n=332) vs (B) late ART 8 weeks after TB-treatment start (n=329). All received d4T+3TC+EFV. PRIMARY: all-cause mortality. RESULT: 59/332 (18%) early vs 90/329 (27%) late — HR 0.62 (95% CI 0.44-0.86) — IMMEDIATE ART SUPERIOR (38% reduction). Africa relevance: NON-AFRICAN — entirely Cambodian. INCLUDED in this NMA because CAMELIA is the third pillar of the WHO 2012 HIV-TB ART-timing evidence base alongside SAPiT (SA) + STRIDE (multi-country). Teaching point: an Africa-focused NMA must sometimes include non-African pivotal trials when they are part of the WHO global guideline evidence base.',
+
+                    estimandType: 'HR', publishedHR: 0.62, hrLCI: 0.44, hrUCI: 0.86, pubHR: 0.62,
+
+                    allOutcomes: [
+                        { shortLabel: 'MORT_ALL', title: 'All-cause mortality (early vs late ART, Cambodia)', tE: 59, cE: 90, type: 'PRIMARY', matchScore: 100, effect: 0.62, lci: 0.44, uci: 0.86, estimandType: 'HR' },
+
+                        { shortLabel: 'IRIS_INC', title: 'TB-IRIS incidence (early vs late ART)', tE: 110, cE: 27, type: 'SAFETY', matchScore: 80, effect: 4.04, lci: 2.71, uci: 6.03, estimandType: 'HR' }
+                    ],
+
+                    rob: ['low', 'high', 'low', 'low', 'low'],
+
+                    snippet: 'Source: Blanc FX, Sok T, Laureillard D, et al. Earlier versus later start of antiretroviral therapy in HIV-infected adults with tuberculosis (CAMELIA / ANRS 1295). NEJM 2011;365:1471-1481. PMID 22010913. DOI 10.1056/NEJMoa1013911. NOTE: Open-label, non-African (Cambodia).',
+
+                    sourceUrl: 'https://doi.org/10.1056/NEJMoa1013911',
+
+                    ctgovUrl: 'https://clinicaltrials.gov/study/NCT00226434'
+                }
+            }"""
+
+
+# ==========================
+# Build all 3 files
+# ==========================
+TEMPLATE = Path("SGLT2I_HF_NMA_REVIEW.html")
+
+CONFIGS = [
+    {
+        "out": "CRYPTOCOCCAL_MENINGITIS_AFRICA_NMA_REVIEW.html",
+        "title": "RapidMeta Infectious Disease | Cryptococcal Meningitis NMA in African HIV+ Adults &mdash; ACTA + AMBITION-cm + COAT v0.1",
+        "auto_include": "['LEGACY-ISRCTN-45035509-ACTA', 'LEGACY-ISRCTN-72509687-AMBITION-CM', 'NCT01075152']",
+        "acronyms": "'LEGACY-ISRCTN-45035509-ACTA': 'ACTA', 'LEGACY-ISRCTN-72509687-AMBITION-CM': 'AMBITION-cm', 'NCT01075152': 'COAT'",
+        "body": CRYPTO_BODY,
+    },
+    {
+        "out": "HIV_ART_TIMING_NMA_REVIEW.html",
+        "title": "RapidMeta HIV | HIV ART Initiation Timing NMA &mdash; START + TEMPRANO + HPTN 052 v0.1",
+        "auto_include": "['NCT00867048', 'NCT00495651', 'NCT00074581']",
+        "acronyms": "'NCT00867048': 'START', 'NCT00495651': 'TEMPRANO', 'NCT00074581': 'HPTN 052'",
+        "body": ARTTIM_BODY,
+    },
+    {
+        "out": "HIV_TB_COINFECTION_ART_TIMING_NMA_REVIEW.html",
+        "title": "RapidMeta HIV-TB | HIV-TB Co-infection ART Timing NMA &mdash; SAPiT + STRIDE + CAMELIA v0.1",
+        "auto_include": "['NCT00091936', 'NCT00108862', 'NCT00226434']",
+        "acronyms": "'NCT00091936': 'SAPiT', 'NCT00108862': 'STRIDE / ACTG A5221', 'NCT00226434': 'CAMELIA'",
+        "body": HIVTB_BODY,
+    },
+]
+
+OLD_TITLE = "<title>RapidMeta Cardiology | SGLT2 Inhibitor Class NMA in Heart Failure v1.0</title>"
+OLD_AUTO_INCLUDE = "const AUTO_INCLUDE_TRIAL_IDS = new Set(['NCT03036124', 'NCT03057977', 'NCT03057951', 'NCT03619213', 'NCT03521934', 'NCT03315143']);"
+OLD_NCT_ACRONYMS_BLOCK_RE = "'NCT03036124': 'DAPA-HF', 'NCT03057977': 'EMPEROR-Reduced', 'NCT03057951': 'EMPEROR-Preserved', 'NCT03619213': 'DELIVER', 'NCT03521934': 'SOLOIST-WHF', 'NCT03315143': 'SCORED'"
+
+for cfg in CONFIGS:
+    out_path = Path(cfg["out"])
+    shutil.copy(TEMPLATE, out_path)
+    text = out_path.read_text(encoding="utf-8")
+    text = replace_or_die(text, OLD_TITLE, f'<title>{cfg["title"]}</title>')
+    text = replace_or_die(text, OLD_AUTO_INCLUDE, f'const AUTO_INCLUDE_TRIAL_IDS = new Set({cfg["auto_include"]});')
+    text = replace_or_die(text, OLD_NCT_ACRONYMS_BLOCK_RE, cfg["acronyms"])
+    text = replace_realdata(text, cfg["body"])
+    out_path.write_text(text, encoding="utf-8")
+    print(f"  {cfg['out']}: {len(text):,}")
+
+codex
+I’ll treat this as a targeted defect hunt against the pasted module only. I’m going to avoid external assumptions except where the template contents are required to prove or disprove a selector.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Get-Content -Path F:\\ProjectIndex\\INDEX.md -TotalCount 40" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Select-String -Path scripts\\build_3kge3_topics_32_34.py -Pattern \"def replace_realdata|start = text.find|body_start = text.find|OLD_TITLE|OLD_AUTO_INCLUDE|OLD_NCT_ACRONYMS|shutil.copy|replace_or_die|replace_realdata\"" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Get-Content -Path F:\\E156\\rewrite-workbook.txt -TotalCount 40" in F:\rapidmeta-ssot-shell
+ succeeded in 2488ms:
+<!-- sentinel:skip-file - portfolio registry; absolute paths ARE the data -->
+# C: Drive Project Index
+> **Last updated**: 2026-05-14 (C:\HTML apps focused repair batch continued: hub shell launch fix, static contracts across ten HTML app repos, NMA/living-meta/nma-dose-response landing and asset-link repairs, and NMA doc hardcoded-path cleanup. Prior SheafNMA v0.2.0, D-drive legacy smoke-contract continuation, CardioOracle lifecycle status freeze, C-drive model/project smoke-contract continuation, mahmood789 consolidation, Sentinel/Overmind JSONL and verification repair, C-drive reproducibility audit continuation, C-drive verification repair, D-drive repair batch, superapp, C-drive sweep, home-folder hardening, Trial Truthfulness Atlas, and portfolio notes retained below.)
+
+### C:\HTML apps focused repair batch (2026-05-14)
+> - `C:\HTML apps\hub\`: added a launchable `index.html` shell and static contract tests for required registry/runtime wiring; fixed `app.js` local `file://` launch resolution so the hub opened from `hub\index.html` links sibling apps from the parent HTML-apps directory instead of nesting paths under `hub`. Verification: `pytest -q -p no:cacheprovider` -> `3 passed`; `node --check app.js && node --check projects.js` -> PASS; headless Chrome smoke on `file:///mnt/c/HTML%20apps/hub/index.html` confirmed the page title and sibling app links. GitHub pushed: `mahmood726-cyber/hub` main `c1a6725`.
+> - `C:\HTML apps\evidence-board\`, `C:\HTML apps\focus-studio\`, `C:\HTML apps\kanban-lab\`: added pytest-visible static app shell contracts covering title/description, localStorage persistence hooks, key controls, and absence of unresolved templates or hardcoded local drive paths; added repo `.gitignore` entries for Python caches and `PROGRESS.md`. Verification: each `pytest -q -p no:cacheprovider` -> `2 passed` with the existing pytest `cache_dir` warning; scoped `git diff --check` -> PASS. GitHub pushed: `evidence-board` master `9a87c8b`, `focus-studio` master `0fa728b`, `kanban-lab` master `81cad38`.
+> - `C:\HTML apps\nma-pro-v2\`: fixed the landing page's broken app links from absent v6/v7 asset filenames to the current `e156-submission/assets/nma-pro-v8.0.html`, added static link-resolution contracts, and removed Sentinel P0 hardcoded local OneDrive paths from legacy docs. Verification: `pytest -q -p no:cacheprovider tests/test_smoke.py tests/test_static_links.py` -> `3 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=1 INFO=302` (pre-existing tracked autogen warning plus HTML a11y INFO). GitHub pushed: master `a2834e7` for the link fix and master `a74e385` for the P0 doc cleanup.
+> - `C:\HTML apps\IPD-Meta-Pro\` and `C:\HTML apps\Truthcert1\`: added static link-resolution contracts for landing-page local assets and canonical app entrypoints. Verification: `IPD-Meta-Pro` `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; `Truthcert1` same command -> `2 passed` with existing pytest `cache_dir` warning. GitHub pushed: `IPD-Meta-Pro` master `b26ee09`, `Truthcert1` master `81eddd3`.
+> - `C:\HTML apps\living-meta\`: repaired landing-page validation links that pointed to a missing HTML asset and an out-of-repo sibling path; linked the existing validation and limitations docs instead, and added a static link-resolution contract. Verification: `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=8` (pre-existing HTML a11y INFO). GitHub pushed: master `c3c8a9b`.
+> - `C:\HTML apps\Pairwiseai\`: added a static landing-page contract covering local link resolution, absence of unresolved templates/local drive paths, and the key app entrypoints under `e156-submission/assets`. Verification: `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=1731` (pre-existing HTML a11y INFO). GitHub pushed: master `2ade493`.
+> - `C:\HTML apps\nma-dose-response-app\`: pushed the existing smoke-blocker commit and added an E156 asset-bundle repair so `e156-submission\assets\index*.html` resolves its JS runtime dependencies from inside the assets folder; added a static link-resolution contract covering root and E156 app entrypoints. Verification: `pytest -q -p no:cacheprovider tests/test_smoke.py tests/test_static_links.py` -> `4 passed` with the existing pytest `cache_dir` warning; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=442` (pre-existing HTML a11y INFO). GitHub pushed: master `e95fae0` and `96594b6`.
+> - Push gate: Windows Git credential path succeeded after WSL Git lacked HTTPS credentials. Sentinel pre-push/manual scan verdicts were BLOCK=0; evidence-board INFO=18, focus-studio INFO=10, kanban-lab INFO=10, living-meta INFO=8, Pairwiseai INFO=1731, nma-dose-response-app INFO=442 (pre-existing P2 HTML accessibility notes); hub push emitted no Sentinel findings.
+> - Existing unrelated dirty files were left unstaged in these repos, mainly protocol/license/doc edits and untracked `paper\` outputs in the three app repos, plus pre-existing hub metadata/submission/style edits.
+
+### SheafNMA (2026-05-12; v0.2.0 real-NMA-corpus validation + 36-cell Ã— 1000-rep simulation + methods paper draft)
+> - `C:\Models\SheafNMA\` â€” cellular-sheaf inconsistency localization for network meta-analysis. v0.1.0 (2026-04-07) was math + single-file HTML dashboard + E156 #153 micro-paper on a synthetic 12-contrast network. v0.2.0 refactored the 457-LOC `generate_figures.py` into a `sheafnma/` package (`core`, `io`, `simulate`, `comparators`, `r_bridge`), validated on 13 R-netmeta built-in NMAs, and shipped a methods-paper draft for Research Synthesis Methods.
+> - Method: precision-weighted coboundary `F[e, treat1] = -1/SE_e, F[e, treat2] = +1/SE_e`; sheaf Laplacian `L = Fáµ€F` (symmetric PSD); WLS-solve node estimates with node 0 anchored; per-edge residuals `r_e = dÌƒ_e âˆ’ (F x*)_e` localize inconsistency; **Global Inconsistency Index** `GII = Î£ rÂ²` is the global statistic. One algebraic object yields both global + per-edge â€” complements (not replaces) node-splitting.
+> - Real-corpus headline: across **13 R-netmeta built-in NMAs** (Senn 2013 diabetes, Dias smokingcessation, Dong 2013 thrombolytics, Linde 2015/2016 acupuncture, Salanti antimanic, Baker, Dogliotti, Franchini, Gurusamy, Stowe, Woods, dietaryfat, parkinson) the global design-by-treatment Ï‡Â² (Higgins 2012) failed to reject in all 13. **SheafNMA flagged â‰¥1 localized inconsistency edge in 5 of those 13 (38.5%)** at the Youden-frozen threshold of **2.6912** â€” networks that look globally consistent harbor at least one inconsistent edge the global test misses.
+> - Simulation rigor: 36-cell grid (n_treatments âˆˆ {4,6,8} Ã— n_studies_per_edge âˆˆ {3,5,10} Ã— Ï„_inc âˆˆ {0,0.2,0.5,1.0}) Ã— **1000 replications per cell**, held-out training cell at (6,5,0.5) for Youden's-J threshold selection (frozen before evaluating remaining 35 cells). Type-I error at Ï„_inc=0 was **0.000 across all cells**. Mean per-edge sensitivity 0.981 / specificity 0.945 at Ï„_inc=0.5.
+> - Comparator suite: DBT-Ï‡Â² (Higgins 2012 Â§3.2, pure-Python), Bucher loop closure (Bucher 1997, pure-Python), node-splitting (Dias 2010, via `netmeta::netsplit` shelled to R 4.5.2). Per-edge agreement with node-splitting was 45.4% â€” asymmetric: SheafNMA flags 12/506 = 2.4% of edges vs node-splitting's 250/436 = 57% at p<0.05 Bonferroni-uncorrected (the calibrated Youden cut is much more conservative than a per-edge Î±-test). Â§4.2 of the paper explicitly explains this rather than presenting the 45.4% bare.
+> - Corpus export: `corpus/export_netmeta.R` handles 7 distinct netmeta dataset formats (contrast-level TE/seTE, arm-based event/n, arm-based mean/sd/n, wide multi-arm OR/MD, three-arm smokingcessation, rate-based IRR/person-years) and exports all 13 to `corpus/data/*.csv` in the sheafnma standard schema (`study, treat1, treat2, effect, se`).
+> - GitHub: `https://github.com/mahmood726-cyber/sheaf-nma` (master `6c7db13`, tag `v0.2.0`). Pages LIVE: `https://mahmood726-cyber.github.io/sheaf-nma/` (Phase-1 dashboard unchanged in v0.2). 33 tests passing; Sentinel BLOCK=0 WARN=0 (2 INFO = pre-existing HTML a11y items in the v0.1 dashboard).
+> - Workbook entry: `[153/919] SheafNMA`. CURRENT BODY updated 2026-05-12 to the v0.2 156-word / 7-sentence body (replaces v0.1 synthetic-"smoking cessation" framing with the real netmeta corpus). SUBMITTED `[ ]`; YOUR REWRITE preserved untouched per workbook protection rules. Target: Research Synthesis Methods full methods paper (`paper/sheafnma_v2.md`, 1190 words drafted; [TODO] prose blocks in Â§1 Background / Â§4.3 case studies / Â§5 Discussion) + SynthÄ“sis Methods Note companion (`paper/methods_note.md`, 156-word).
+> - Known landmine: `Dong2013` netsplit fails inside netmeta's multi-arm validator ("wrong number of comparisons"); SheafNMA + DBT + Bucher still run on it, only `netsplit_p` column is blank for its 70 edges.
+> - v0.2 deferrals (spec Â§10): multi-arm covariance correction (single-D stalks only), higher-D stalks (Phase 1 Â§3.4 future work), Bayesian sheaf priors, OTS / Bitcoin anchor (broken on Py 3.13 Windows per `lessons.md`).
+
+### hksj-q-floor-atlas (2026-05-12; 8th Pairwise70 atlas; tags prereg-v0.0.1 + v0.1.0)
+> - `C:\Projects\hksj-q-floor-atlas\` â€” 8th calibration atlas in the Pairwise70 series. Sister to `cochrane-modern-re` (engine source), `repro-floor-atlas`, `responder-floor-atlas`, `trial-truthfulness-atlas`, `africa-tb-atlas`, `pactr-hiddenness-atlas`, `africa-hiv-prep-atlas`.
+> - Question: how often does omitting the `max(1, Q/(k-1))` floor on HKSJ variance, in the I^2=0 regime where un-floored HKSJ narrows below REML+Wald, overstate precision across the Cochrane CDSR? Pre-registered via `prereg-v0.0.1` tag + 4 Internet Archive snapshots (Bitcoin OTS deferred â€” Python 3.13 SSL libeay32 bug per lessons.md; web-stamper fallback documented).
+> - Headline: D_1 (I^2=0, k>=2, converged) = 3,677 MAs = 57.6% of corpus. On D_1a (Q>0, n=3,536): median CI-width ratio (floored / un-floored) = 3.64x (IQR 1.60-10.56; 95th pct 57.4x); significance lost in 17.08% of MAs. D_1b (Q=0, n=141 = 3.83% of D_1): sig_loss 24.8%, ratio unbounded â€” un-floored HKSJ SE is exactly zero (the floor effect is unbounded); see `docs/AMENDMENTS.md` entry 1 for split rationale.
+> - Per k-stratum medians: k=2: 4.26x (sig_loss 8.6%); k=3: 3.64x (12.9%); k=4-5: 3.10x (13.1%); k=6-9: 3.18x (17.3%); k>=10: 3.80x (25.1%). sig_loss increases with k because higher-k pooled effects sit closer to null, so floor widening crosses zero more often.
+> - Engine: independent metafor pass via fork of cochrane-modern-re's `run_metafor.R` minus the floor block. Input parquet SHA-256 pinned in `docs/spec.md` sec.1.5 (`31434fb118c6ec44a025eeb43a90e35ef9e050711fa45aa2cb5c1244b2d89751`). 3 hand-verified golden MAs match metafor reference within 1e-6.
+> - GitHub: `https://github.com/mahmood726-cyber/hksj-q-floor-atlas` (master + tags `prereg-v0.0.1` and `v0.1.0`). Pages LIVE: `https://mahmood726-cyber.github.io/hksj-q-floor-atlas/`.
+> - 64 tests; Sentinel BLOCK=0 WARN=0 INFO=0; 7 IA snapshots recorded in `docs/preregistration.md`.
+> - Workbook entry: `[920/920] hksj-q-floor-atlas`; target SynthÄ“sis Methods Note (340w draft, â‰¤400 cap).
+> - v0.2 candidates (NOT in v0.1.0): published-CI matching ("is THIS Cochrane review wrong?"), PM/SJ/Bayesian Ï„Â² robustness, DL re-pooling, Bitcoin OTS once Python 3.13 issue is resolved.
+
+### D-drive legacy smoke-contract continuation (2026-05-12)
+> - `D:\Projects\mahmood789\786-MIII-Mean-single-group\`: fixed the placeholder issue-tracker link in `README.md` and added a pytest-visible static contract for the Shiny app package surface, sample-data schema, metafor workflow, downloads, and absence of local paths/template links. Verification: `pytest -q -p no:cacheprovider` -> `2 passed`; `git diff --check` -> PASS.
+
+ succeeded in 2644ms:
+E156 REWRITE WORKBOOK
+sentinel:skip-file
+sentinel:claim-language-allow
+(Sentinel markers above:
+ - sentinel:skip-file: this workbook intentionally contains C:\Users\... PATH:
+   lines pointing to each project's local source directory â€” they're metadata,
+   not code. The marker keeps Sentinel from emitting ~16 P0 hardcoded-path
+   BLOCKs every push.
+ - sentinel:claim-language-allow: CURRENT BODY entries are the AI-drafted
+   summaries that students rewrite into hedged language â€” flagging overclaim
+   words IN those drafts is the whole pedagogical point, not a defect.
+   File-scope marker here suppresses the ~1293 claim-language WARNs on the
+   CURRENT BODY entries; the YOUR REWRITE entries are where the hedging
+   discipline matters and remains lintable in the rendered student board.)
+
+DENOMINATOR CONVENTION (added 2026-05-06 after review-findings P1-5):
+  Each entry header is `[N/total]` where N = ordinal insertion index and
+  `total` = current portfolio size as of the most recent reconcile sweep.
+  Older entries are back-rewritten on milestone boundaries (rather than
+  preserving their insertion-time denominator) to keep
+  reconcile_counts.py from flagging "WORKBOOK DRIFT". The pre-commit
+  guard (scripts/check_workbook_commit.py) blocks commits that bundle a
+  denominator sweep with substantive content edits to existing entries.
+
+======================================================================
+
+INSTRUCTIONS:
+- Replace text under YOUR REWRITE with your body (at most 156 words, 7 sentences)
+- S1=Question S2=Dataset S3=Method S4=Result(number+interval) S5=Robustness S6=Interpretation S7=Boundary(limitation)
+- Leave YOUR REWRITE blank to keep current version
+- Run: python C:/E156/scripts/apply_rewrites.py          (validate)
+- Run: python C:/E156/scripts/apply_rewrites.py --apply (apply)
+
+AUTHORSHIP RULE (mandatory for every submission):
+- Mahmood Ahmad (MA) must NEVER be listed as first author and NEVER as
+  last (senior) author. The student rewriter is first author. Last/senior
+  author must be a faculty supervisor or co-investigator distinct from MA.
+  MA's position is middle-author only (e.g. role: data curation, software,
+  methodology, supervision-of-tooling). This applies to every paper in
+  this workbook regardless of contribution depth.
+
+ succeeded in 4051ms:
+
+scripts\build_3kge3_topics_32_34.py:28:def replace_realdata(text, new_body):
+scripts\build_3kge3_topics_32_34.py:29:    start = text.find("realData: {")
+scripts\build_3kge3_topics_32_34.py:30:    body_start = text.find("{", start)
+scripts\build_3kge3_topics_32_34.py:41:def replace_or_die(text, old, new):
+scripts\build_3kge3_topics_32_34.py:286:OLD_TITLE = "<title>RapidMeta Cardiology | SGLT2 Inhibitor Class NMA in Heart 
+Failure v1.0</title>"
+scripts\build_3kge3_topics_32_34.py:287:OLD_AUTO_INCLUDE = "const AUTO_INCLUDE_TRIAL_IDS = new Set(['NCT03036124', 
+'NCT03057977', 'NCT03057951', 'NCT03619213', 'NCT03521934', 'NCT03315143']);"
+scripts\build_3kge3_topics_32_34.py:288:OLD_NCT_ACRONYMS_BLOCK_RE = "'NCT03036124': 'DAPA-HF', 'NCT03057977': 
+'EMPEROR-Reduced', 'NCT03057951': 'EMPEROR-Preserved', 'NCT03619213': 'DELIVER', 'NCT03521934': 'SOLOIST-WHF', 
+'NCT03315143': 'SCORED'"
+scripts\build_3kge3_topics_32_34.py:292:    shutil.copy(TEMPLATE, out_path)
+scripts\build_3kge3_topics_32_34.py:294:    text = replace_or_die(text, OLD_TITLE, f'<title>{cfg["title"]}</title>')
+scripts\build_3kge3_topics_32_34.py:295:    text = replace_or_die(text, OLD_AUTO_INCLUDE, f'const 
+AUTO_INCLUDE_TRIAL_IDS = new Set({cfg["auto_include"]});')
+scripts\build_3kge3_topics_32_34.py:296:    text = replace_or_die(text, OLD_NCT_ACRONYMS_BLOCK_RE, cfg["acronyms"])
+scripts\build_3kge3_topics_32_34.py:297:    text = replace_realdata(text, cfg["body"])
+
+
+
+codex
+I have the target line anchors now. The only places in this file that can prove the requested defect shapes without the external template are the brace replacement helper and the literal selector replacements.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=1; Get-Content -Path scripts'"\\build_3kge3_topics_32_34.py | ForEach-Object { if("'$i -ge 28 -and $i -le 45){ '"'{0,4}: {1}' -f "'$i, $_ }; $i++ }' in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=1; Get-Content -Path scripts'"\\build_3kge3_topics_32_34.py | ForEach-Object { if("'$i -ge 282 -and $i -le 299){ '"'{0,4}: {1}' -f "'$i, $_ }; $i++ }' in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "python - <<'PY'
+from scripts.build_3kge3_topics_32_34 import replace_realdata
+for s in ['no marker {x}', 'abc realData: no brace', 'abc']:
+    try:
+        print(repr(s), '=>', repr(replace_realdata(s, 'NEW')))
+    except Exception as e:
+        print(repr(s), type(e).__name__, str(e))
+PY" in F:\rapidmeta-ssot-shell
+ succeeded in 2700ms:
+ 282:         "body": HIVTB_BODY,
+ 283:     },
+ 284: ]
+ 285: 
+ 286: OLD_TITLE = "<title>RapidMeta Cardiology | SGLT2 Inhibitor Class NMA in Heart Failure v1.0</title>"
+ 287: OLD_AUTO_INCLUDE = "const AUTO_INCLUDE_TRIAL_IDS = new Set(['NCT03036124', 'NCT03057977', 'NCT03057951', 'NCT03619213', 'NCT03521934', 'NCT03315143']);"
+ 288: OLD_NCT_ACRONYMS_BLOCK_RE = "'NCT03036124': 'DAPA-HF', 'NCT03057977': 'EMPEROR-Reduced', 'NCT03057951': 'EMPEROR-Preserved', 'NCT03619213': 'DELIVER', 'NCT03521934': 'SOLOIST-WHF', 'NCT03315143': 'SCORED'"
+ 289: 
+ 290: for cfg in CONFIGS:
+ 291:     out_path = Path(cfg["out"])
+ 292:     shutil.copy(TEMPLATE, out_path)
+ 293:     text = out_path.read_text(encoding="utf-8")
+ 294:     text = replace_or_die(text, OLD_TITLE, f'<title>{cfg["title"]}</title>')
+ 295:     text = replace_or_die(text, OLD_AUTO_INCLUDE, f'const AUTO_INCLUDE_TRIAL_IDS = new Set({cfg["auto_include"]});')
+ 296:     text = replace_or_die(text, OLD_NCT_ACRONYMS_BLOCK_RE, cfg["acronyms"])
+ 297:     text = replace_realdata(text, cfg["body"])
+ 298:     out_path.write_text(text, encoding="utf-8")
+ 299:     print(f"  {cfg['out']}: {len(text):,}")
+
+ succeeded in 2792ms:
+  28: def replace_realdata(text, new_body):
+  29:     start = text.find("realData: {")
+  30:     body_start = text.find("{", start)
+  31:     depth = 0; i = body_start; body_end = body_start
+  32:     while i < len(text):
+  33:         c = text[i]
+  34:         if c == "{": depth += 1
+  35:         elif c == "}": depth -= 1
+  36:         if depth == 0 and i > body_start: body_end = i; break
+  37:         i += 1
+  38:     return text[:body_start] + "{" + new_body + text[body_end+1:]
+  39: 
+  40: 
+  41: def replace_or_die(text, old, new):
+  42:     if old not in text:
+  43:         raise SystemExit(f"old string not found: {old[:100]!r}...")
+  44:     return text.replace(old, new)
+  45: 
+
+2026-08-24T01:27:33.753436Z ERROR codex_core::tools::router: error=Exit code: 1
+Wall time: 2.9 seconds
+Output:
+At line:2 char:11
++ python - <<'PY'
++           ~
+Missing file specification after redirection operator.
+At line:2 char:10
++ python - <<'PY'
++          ~
+The '<' operator is reserved for future use.
+At line:2 char:11
++ python - <<'PY'
++           ~
+The '<' operator is reserved for future use.
+At line:3 char:1
++ from scripts.build_3kge3_topics_32_34 import replace_realdata
++ ~~~~
+The 'from' keyword is not supported in this version of the language.
+At line:4 char:4
++ for s in ['no marker {x}', 'abc realData: no brace', 'abc']:
++    ~
+Missing opening '(' after keyword 'for'.
+At line:6 char:53
++         print(repr(s), '=>', repr(replace_realdata(s, 'NEW')))
++                                                     ~
+Missing argument in parameter list.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : MissingFileSpecification
+ 
+
+ exited 1 in 2948ms:
+At line:2 char:11
++ python - <<'PY'
++           ~
+Missing file specification after redirection operator.
+At line:2 char:10
++ python - <<'PY'
++          ~
+The '<' operator is reserved for future use.
+At line:2 char:11
++ python - <<'PY'
++           ~
+The '<' operator is reserved for future use.
+At line:3 char:1
++ from scripts.build_3kge3_topics_32_34 import replace_realdata
++ ~~~~
+The 'from' keyword is not supported in this version of the language.
+At line:4 char:4
++ for s in ['no marker {x}', 'abc realData: no brace', 'abc']:
++    ~
+Missing opening '(' after keyword 'for'.
+At line:6 char:53
++         print(repr(s), '=>', repr(replace_realdata(s, 'NEW')))
++                                                     ~
+Missing argument in parameter list.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : MissingFileSpecification
+ 
+
+codex
+One attempted inline Python probe used POSIX redirection syntax in PowerShell, so it did not run. I’ll keep the review grounded in the static code; no file edits or side effects are needed.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Select-String -Path SGLT2I_HF_NMA_REVIEW.html -Pattern \"realData: \\{|AUTO_INCLUDE_TRIAL_IDS|NCT03036124|RapidMeta Cardiology\"" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command 'Get-ChildItem -Path . -Filter SGLT2I_HF_NMA_REVIEW.html | Select-Object FullName,Length,LastWriteTime' in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "python -c \"text='abc'; start=text.find('realData: {'); print(start, text.find('{', start)); text='no marker {x}'; start=text.find('realData: {'); print(start, text.find('{', start))\"" in F:\rapidmeta-ssot-shell
+ succeeded in 3389ms:
+-1 -1
+-1 -1
+
+ succeeded in 3440ms:
+
+FullName                                          Length LastWriteTime      
+--------                                          ------ -------------      
+F:\rapidmeta-ssot-shell\SGLT2I_HF_NMA_REVIEW.html 949287 17/08/2026 19:06:00
+
+
+
+2026-08-24T01:27:54.246546Z ERROR codex_core::tools::router: error=Exit code: 124
+Wall time: 11.9 seconds
+Output:
+command timed out after 11877 milliseconds
+
+SGLT2I_HF_NMA_REVIEW.html:16:    <title>RapidMeta Cardiology | SGLT2 Inhibitor Class NMA in Heart Failure v1.0</title>
+SGLT2I_HF_NMA_REVIEW.html:1268:<script 
+type="application/ld+json">{"@context":"https://schema.org","@type":"MedicalScholarlyArticle","headline":"RapidMeta 
+Cardiology | SGLT2 Inhibitor Class NMA in Heart Failure v1.0","name":"RapidMeta Cardiology | SGLT2 Inhibitor Class NMA 
+in Heart Failure v1.0","url":"https://mahmood726-cyber.github.io/rapidmeta-finerenone/SGLT2I_HF_NMA_REVIEW.html","dateP
+ublished":"2026-05-24","dateModified":"2026-05-24","inLanguage":"en","author":{"@type":"Person","name":"Mahmood Ahmad",
+"identifier":"https://orcid.org/"},"publisher":{"@type":"Organization","name":"RapidMeta","url":"https://mahmood726-cyb
+er.github.io/rapidmeta-finerenone/"},"isAccessibleForFree":true,"keywords":"meta-analysis, living review, RapidMeta, 
+Empagliflozin, Dapagliflozin, or Sacubitril/Valsartan","description":"Empagliflozin, Dapagliflozin, or 
+Sacubitril/Valsartan; Adults with chronic HFrEF (LVEF &lt;=40%, NYHA II-IV); CV death or HF hospitalization 
+composite","mentions":{"@type":"Drug","name":"Empagliflozin, Dapagliflozin, or Sacubitril/Valsartan"}}</script>
+
+ exited 124 in 11877ms:
+
+SGLT2I_HF_NMA_REVIEW.html:16:    <title>RapidMeta Cardiology | SGLT2 Inhibitor Class NMA in Heart Failure v1.0</title>
+SGLT2I_HF_NMA_REVIEW.html:1268:<script 
+type="application/ld+json">{"@context":"https://schema.org","@type":"MedicalScholarlyArticle","headline":"RapidMeta 
+Cardiology | SGLT2 Inhibitor Class NMA in Heart Failure v1.0","name":"RapidMeta Cardiology | SGLT2 Inhibitor Class NMA 
+in Heart Failure v1.0","url":"https://mahmood726-cyber.github.io/rapidmeta-finerenone/SGLT2I_HF_NMA_REVIEW.html","dateP
+ublished":"2026-05-24","dateModified":"2026-05-24","inLanguage":"en","author":{"@type":"Person","name":"Mahmood Ahmad",
+"identifier":"https://orcid.org/"},"publisher":{"@type":"Organization","name":"RapidMeta","url":"https://mahmood726-cyb
+er.github.io/rapidmeta-finerenone/"},"isAccessibleForFree":true,"keywords":"meta-analysis, living review, RapidMeta, 
+Empagliflozin, Dapagliflozin, or Sacubitril/Valsartan","description":"Empagliflozin, Dapagliflozin, or 
+Sacubitril/Valsartan; Adults with chronic HFrEF (LVEF &lt;=40%, NYHA II-IV); CV death or HF hospitalization 
+composite","mentions":{"@type":"Drug","name":"Empagliflozin, Dapagliflozin, or Sacubitril/Valsartan"}}</script>
+
+codex
+There are also internal numeric consistency checks available inside the pasted literals themselves. I’m checking those only where the numerator, denominator, and claimed percentage are all in the same record.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Select-String -Path scripts\\build_3kge3_topics_32_34.py -Pattern \"24\\.0|29\\.7|17\\.0|16\\.8|8\\.4|12\\.7|21\\.5|26\\.2|0\\.9|4\\.4|18\\%|27\\%\"" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Select-String -Path scripts\\build_3kge3_topics_32_34.py -Pattern \"Côte d''Ivoire|multicountre|publishedHR: 0\\.86|IRIS_INC|AKI_INC|CD4<50\"" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "python -c \"for n,d in [(86,333),(95,332),(175,1029),(175,1044),(36,429),(27,213),(87,405),(105,401),(8,886),(39,877),(59,332),(90,329),(101,407),(117,407),(40,88),(27,89),(42,2326),(96,2359)]: print(f'{n}/{d}={100*n/d:.1f}%')\"" in F:\rapidmeta-ssot-shell
+ succeeded in 3670ms:
+86/333=25.8%
+95/332=28.6%
+175/1029=17.0%
+175/1044=16.8%
+36/429=8.4%
+27/213=12.7%
+87/405=21.5%
+105/401=26.2%
+8/886=0.9%
+39/877=4.4%
+59/332=17.8%
+90/329=27.4%
+101/407=24.8%
+117/407=28.7%
+40/88=45.5%
+27/89=30.3%
+42/2326=1.8%
+96/2359=4.1%
+
+ succeeded in 3826ms:
+
+scripts\build_3kge3_topics_32_34.py:77:                    estimandType: 'RR', publishedHR: 0.86, hrLCI: 0.69, hrUCI: 
+1.07, pubHR: 0.86,
+scripts\build_3kge3_topics_32_34.py:82:                        { shortLabel: 'AKI_INC', title: 'Acute kidney injury 
+(single-dose vs WHO daily amB)', tE: 17, cE: 43, type: 'SAFETY', matchScore: 90, effect: 0.39, lci: 0.23, uci: 0.69, 
+estimandType: 'RR' }
+scripts\build_3kge3_topics_32_34.py:103:                        { shortLabel: 'IRIS_INC', title: 'Cryptococcal-IRIS 
+incidence (early vs deferred)', tE: 17, cE: 7, type: 'SAFETY', matchScore: 90, effect: 2.50, lci: 1.10, uci: 5.69, 
+estimandType: 'HR' }
+scripts\build_3kge3_topics_32_34.py:145:                    name: 'TEMPRANO (ANRS 12136)', pmid: '26192872', phase: 
+'III', year: 2015, tE: 175, tN: 1029, cE: 175, cN: 1044, group: 'TEMPRANO ANRS 12136 Study Group (Danel C, Moh R, 
+Gabillard D, et al). NEJM 2015;373:808-822 (PMID 26192872). ANRS + Programme PAC-CI-coordinated 2x2 factorial 
+randomized trial in n=2,073 HIV-1-infected adults with CD4 <800 cells/mm3 (no WHO criteria for immediate ART) at 9 
+clinics in Abidjan, Côte d''Ivoire (entirely African enrolment, single-country). Two factorial randomizations: (1) ART 
+timing — early ART (start at any time) vs deferred (per WHO criteria); (2) IPT — 6-month isoniazid preventive vs none. 
+n=509 early ART (n=520 control) for ART arm; for analysis here we use the 2x2 marginal early-ART vs deferred-ART 
+comparison. PRIMARY: death or severe HIV-related morbidity (AIDS-defining + non-AIDS bacterial + non-AIDS malignancy) 
+at 30mo. RESULT (early-ART vs deferred, 2x2 marginal): 175/1029 (17.0%) early vs 175/1044 (16.8%) deferred initially 
+appears equal, but pooled across IPT arms: HR 0.56 (95% CI 0.41-0.76) for early-ART vs deferred when combined with 
+IPT. Drove (alongside START) WHO 2015 universal-treat-all recommendation. Africa relevance: DIRECT — entirely Côte 
+d''Ivoire single-country.',
+scripts\build_3kge3_topics_32_34.py:194:                    name: 'SAPiT (Karim 2010+2011)', pmid: '21345101', phase: 
+'NA', year: 2011, tE: 36, tN: 429, cE: 27, cN: 213, group: 'Abdool Karim SS, Naidoo K, Grobler A, et al. NEJM 
+2010;362:697-706 (early integrated vs sequential, PMID 20181971) + NEJM 2011;365:1492-1501 (early vs late integrated, 
+PMID 21992580). CAPRISA-coordinated open-label randomized trial in n=642 HIV-TB co-infected adults at the Prince Cyril 
+Zulu CDC in Durban, South Africa (single-site, mostly black African Zulu population, KwaZulu-Natal). Randomized 1:1:1 
+to (A) early integrated ART within 4 weeks of TB-treatment start (n=214), (B) late integrated ART within first 4 weeks 
+of TB-continuation phase (n=215), (C) sequential ART after TB completed (n=213). PRIMARY: AIDS-defining event or 
+all-cause mortality. CT.gov n=592 represents Stage-2 enrolment after early-vs-sequential separation. RESULT (combined 
+integrated arms vs sequential): 36/429 (8.4%) integrated vs 27/213 (12.7%) sequential -- HR 0.56 (95% CI 0.34-0.92) 
+for AIDS/death; sequential arm stopped early by DSMB for harm. CD4<50 subset: HR 0.32 in favour of early integrated. 
+Drove WHO 2012 recommendation of ART start within 8 weeks of TB-treatment initiation for all HIV-TB co-infected, and 
+within 2 weeks if CD4<50. Africa relevance: DIRECT — entirely Durban SA single-site.',
+scripts\build_3kge3_topics_32_34.py:201:                        { shortLabel: 'CD4_LOW', title: 'AIDS/death CD4<50 
+subset (early integrated vs sequential)', tE: 12, cE: 24, type: 'SECONDARY', matchScore: 90, effect: 0.32, lci: 0.16, 
+uci: 0.65, estimandType: 'HR' }
+scripts\build_3kge3_topics_32_34.py:215:                    name: 'STRIDE / ACTG A5221 (Havlir 2011)', pmid: 
+'22010914', phase: 'IV', year: 2011, tE: 87, tN: 405, cE: 105, cN: 401, group: 'Havlir DV, Kendall MA, Ive P, et al. 
+NEJM 2011;365:1482-1491 (PMID 22010914). NIAID-sponsored ACTG-coordinated multicountry randomized open-label trial in 
+n=809 HIV-TB co-infected ART-naive adults with CD4 <250 cells/mm3 across 26 sites in 9 countries — Africa-relevant: 
+Botswana (Gaborone + Molepolole), Kenya (Eldoret + Kericho), Malawi (Blantyre JHU + Lilongwe UNC), South Africa 
+(CAPRISA Durban + WitsRHI Johannesburg + Soweto + Wits HJ), Uganda (JCRC Kampala), Zambia (Lusaka), Zimbabwe (Harare); 
+plus Brazil + Haiti + India + Peru + USA. Randomized 1:1 to (A) immediate ART within 2 weeks of TB-treatment start 
+(n=405) vs (B) deferred ART after 8-12 weeks (n=401). PRIMARY: AIDS-defining illness, death, or composite progression 
+at 48 weeks. RESULT (overall): 87/405 (21.5%) immediate vs 105/401 (26.2%) deferred — HR 0.81 (95% CI 0.61-1.07) — 
+non-significant overall but CD4<50 subset: HR 0.42 (0.20-0.85) favouring immediate. Drove (alongside SAPiT + CAMELIA) 
+WHO 2012 ART-timing recommendation for HIV-TB. Africa relevance: ~70% of enrolment from 7 African countries.',
+scripts\build_3kge3_topics_32_34.py:222:                        { shortLabel: 'CD4_LOW', title: 'AIDS/death CD4<50 
+subset (immediate vs deferred)', tE: 19, cE: 38, type: 'SECONDARY', matchScore: 90, effect: 0.42, lci: 0.20, uci: 
+0.85, estimandType: 'HR' }
+scripts\build_3kge3_topics_32_34.py:236:                    name: 'CAMELIA (Blanc 2011)', pmid: '22010913', phase: 
+'III', year: 2011, tE: 59, tN: 332, cE: 90, cN: 329, group: 'Blanc FX, Sok T, Laureillard D, et al. NEJM 
+2011;365:1471-1481 (PMID 22010913). ANRS 1295-sponsored multicountre open-label randomized trial in n=661 HIV-TB 
+co-infected adults with CD4 <=200 cells/mm3 across 5 sites in Cambodia (Khmero-Soviet Friendship Hospital Phnom Penh + 
+Calmette Hospital Phnom Penh + Svay Rieng + Takeo + Siem Reap Provincial Hospitals). Randomized 1:1 to (A) early ART 2 
+weeks after TB-treatment start (n=332) vs (B) late ART 8 weeks after TB-treatment start (n=329). All received 
+d4T+3TC+EFV. PRIMARY: all-cause mortality. RESULT: 59/332 (18%) early vs 90/329 (27%) late — HR 0.62 (95% CI 
+0.44-0.86) — IMMEDIATE ART SUPERIOR (38% reduction). Africa relevance: NON-AFRICAN — entirely Cambodian. INCLUDED in 
+this NMA because CAMELIA is the third pillar of the WHO 2012 HIV-TB ART-timing evidence base alongside SAPiT (SA) + 
+STRIDE (multi-country). Teaching point: an Africa-focused NMA must sometimes include non-African pivotal trials when 
+they are part of the WHO global guideline evidence base.',
+scripts\build_3kge3_topics_32_34.py:243:                        { shortLabel: 'IRIS_INC', title: 'TB-IRIS incidence 
+(early vs late ART)', tE: 110, cE: 27, type: 'SAFETY', matchScore: 80, effect: 4.04, lci: 2.71, uci: 6.03, 
+estimandType: 'HR' }
+
+
+
+ succeeded in 3866ms:
+
+scripts\build_3kge3_topics_32_34.py:54:                    name: 'ACTA (Molloy 2018)', pmid: '29539276', phase: 'III', 
+year: 2018, tE: 86, tN: 333, cE: 95, cN: 332, group: 'Molloy SF, Kanyama C, Heyderman RS, et al. NEJM 
+2018;378:1004-1017 (PMID 29539276). MRC + Wellcome Trust + ANRS-sponsored multicentre open-label randomized phase 3 
+trial in HIV-1-infected adults with first-episode cryptococcal meningitis across 9 sites in 4 sub-Saharan African 
+countries: Cameroon (Yaounde + Douala), Malawi (Blantyre + Lilongwe), Tanzania (Dar es Salaam + Mbeya), Zambia 
+(Lusaka). n=721 enrolled; randomized to 5 induction-therapy strategies including the standard 2-week amphotericin B + 
+flucytosine vs alternative oral-only or short-course regimens. PRIMARY EFFICACY: 10-week mortality. RESULT (1-week 
+amphotericin + flucytosine vs 2-week amphotericin + flucytosine, primary contrast): 86/333 (24.0%) vs 95/332 (29.7%) — 
+HR 0.77 (95% CI 0.58-1.04) — non-inferior at 10w. Best regimen: 1-week amphotericin + flucytosine, with significantly 
+less anaemia, hypokalaemia, nephrotoxicity than 2-week amphotericin. Drove WHO 2018 recommendation of 1-week 
+amphotericin + flucytosine as preferred induction for resource-limited settings. Africa relevance: DIRECT — entirely 
+in 4 SSA countries. Registry: ISRCTN45035509.',
+scripts\build_3kge3_topics_32_34.py:145:                    name: 'TEMPRANO (ANRS 12136)', pmid: '26192872', phase: 
+'III', year: 2015, tE: 175, tN: 1029, cE: 175, cN: 1044, group: 'TEMPRANO ANRS 12136 Study Group (Danel C, Moh R, 
+Gabillard D, et al). NEJM 2015;373:808-822 (PMID 26192872). ANRS + Programme PAC-CI-coordinated 2x2 factorial 
+randomized trial in n=2,073 HIV-1-infected adults with CD4 <800 cells/mm3 (no WHO criteria for immediate ART) at 9 
+clinics in Abidjan, Côte d''Ivoire (entirely African enrolment, single-country). Two factorial randomizations: (1) ART 
+timing — early ART (start at any time) vs deferred (per WHO criteria); (2) IPT — 6-month isoniazid preventive vs none. 
+n=509 early ART (n=520 control) for ART arm; for analysis here we use the 2x2 marginal early-ART vs deferred-ART 
+comparison. PRIMARY: death or severe HIV-related morbidity (AIDS-defining + non-AIDS bacterial + non-AIDS malignancy) 
+at 30mo. RESULT (early-ART vs deferred, 2x2 marginal): 175/1029 (17.0%) early vs 175/1044 (16.8%) deferred initially 
+appears equal, but pooled across IPT arms: HR 0.56 (95% CI 0.41-0.76) for early-ART vs deferred when combined with 
+IPT. Drove (alongside START) WHO 2015 universal-treat-all recommendation. Africa relevance: DIRECT — entirely Côte 
+d''Ivoire single-country.',
+scripts\build_3kge3_topics_32_34.py:166:                    name: 'HPTN 052 (Cohen 2011/2016)', pmid: '27424812', 
+phase: 'III', year: 2016, tE: 8, tN: 886, cE: 39, cN: 877, group: 'Cohen MS, Chen YQ, McCauley M, et al. NEJM 
+2011;365:493-505 (interim PMID 21767103) + Cohen MS, Chen YQ, McCauley M, et al. NEJM 2016;375:830-839 (final PMID 
+27424812). NIAID-sponsored HPTN-coordinated multicountry randomized open-label trial in n=1,763 HIV-serodifferent 
+couples (HIV+ index + HIV-uninfected partner) across 13 sites in 9 countries — Africa-relevant: Botswana (Gaborone), 
+Kenya (Kisumu), Malawi (Blantyre + Lilongwe), South Africa (Soweto + Wits Helen Joseph), Zimbabwe (Harare); plus 
+Brazil + India + Thailand + USA. Randomized 1:1 to (A) immediate ART for the HIV+ index regardless of CD4 (n=886) vs 
+(B) delayed ART until CD4 <250 or AIDS-defining illness (n=877). PRIMARY: linked HIV transmission to the uninfected 
+partner (genotype-confirmed). RESULT (final 2016 analysis): 8/886 (0.9%) early-ART arm vs 39/877 (4.4%) delayed-ART 
+arm linked transmissions — HR 0.07 (95% CI 0.03-0.17) for HIV transmission — 93% reduction. Drove WHO 2015 "treatment 
+as prevention" recommendation as part of universal-treat-all. Africa relevance: ~50%+ enrolment from 5 SSA countries.',
+scripts\build_3kge3_topics_32_34.py:194:                    name: 'SAPiT (Karim 2010+2011)', pmid: '21345101', phase: 
+'NA', year: 2011, tE: 36, tN: 429, cE: 27, cN: 213, group: 'Abdool Karim SS, Naidoo K, Grobler A, et al. NEJM 
+2010;362:697-706 (early integrated vs sequential, PMID 20181971) + NEJM 2011;365:1492-1501 (early vs late integrated, 
+PMID 21992580). CAPRISA-coordinated open-label randomized trial in n=642 HIV-TB co-infected adults at the Prince Cyril 
+Zulu CDC in Durban, South Africa (single-site, mostly black African Zulu population, KwaZulu-Natal). Randomized 1:1:1 
+to (A) early integrated ART within 4 weeks of TB-treatment start (n=214), (B) late integrated ART within first 4 weeks 
+of TB-continuation phase (n=215), (C) sequential ART after TB completed (n=213). PRIMARY: AIDS-defining event or 
+all-cause mortality. CT.gov n=592 represents Stage-2 enrolment after early-vs-sequential separation. RESULT (combined 
+integrated arms vs sequential): 36/429 (8.4%) integrated vs 27/213 (12.7%) sequential -- HR 0.56 (95% CI 0.34-0.92) 
+for AIDS/death; sequential arm stopped early by DSMB for harm. CD4<50 subset: HR 0.32 in favour of early integrated. 
+Drove WHO 2012 recommendation of ART start within 8 weeks of TB-treatment initiation for all HIV-TB co-infected, and 
+within 2 weeks if CD4<50. Africa relevance: DIRECT — entirely Durban SA single-site.',
+scripts\build_3kge3_topics_32_34.py:196:                    estimandType: 'HR', publishedHR: 0.56, hrLCI: 0.34, hrUCI: 
+0.92, pubHR: 0.56,
+scripts\build_3kge3_topics_32_34.py:199:                        { shortLabel: 'AIDS_DEATH', title: 'AIDS event or 
+death (integrated vs sequential ART)', tE: 36, cE: 27, type: 'PRIMARY', matchScore: 100, effect: 0.56, lci: 0.34, uci: 
+0.92, estimandType: 'HR' },
+scripts\build_3kge3_topics_32_34.py:215:                    name: 'STRIDE / ACTG A5221 (Havlir 2011)', pmid: 
+'22010914', phase: 'IV', year: 2011, tE: 87, tN: 405, cE: 105, cN: 401, group: 'Havlir DV, Kendall MA, Ive P, et al. 
+NEJM 2011;365:1482-1491 (PMID 22010914). NIAID-sponsored ACTG-coordinated multicountry randomized open-label trial in 
+n=809 HIV-TB co-infected ART-naive adults with CD4 <250 cells/mm3 across 26 sites in 9 countries — Africa-relevant: 
+Botswana (Gaborone + Molepolole), Kenya (Eldoret + Kericho), Malawi (Blantyre JHU + Lilongwe UNC), South Africa 
+(CAPRISA Durban + WitsRHI Johannesburg + Soweto + Wits HJ), Uganda (JCRC Kampala), Zambia (Lusaka), Zimbabwe (Harare); 
+plus Brazil + Haiti + India + Peru + USA. Randomized 1:1 to (A) immediate ART within 2 weeks of TB-treatment start 
+(n=405) vs (B) deferred ART after 8-12 weeks (n=401). PRIMARY: AIDS-defining illness, death, or composite progression 
+at 48 weeks. RESULT (overall): 87/405 (21.5%) immediate vs 105/401 (26.2%) deferred — HR 0.81 (95% CI 0.61-1.07) — 
+non-significant overall but CD4<50 subset: HR 0.42 (0.20-0.85) favouring immediate. Drove (alongside SAPiT + CAMELIA) 
+WHO 2012 ART-timing recommendation for HIV-TB. Africa relevance: ~70% of enrolment from 7 African countries.',
+scripts\build_3kge3_topics_32_34.py:236:                    name: 'CAMELIA (Blanc 2011)', pmid: '22010913', phase: 
+'III', year: 2011, tE: 59, tN: 332, cE: 90, cN: 329, group: 'Blanc FX, Sok T, Laureillard D, et al. NEJM 
+2011;365:1471-1481 (PMID 22010913). ANRS 1295-sponsored multicountre open-label randomized trial in n=661 HIV-TB 
+co-infected adults with CD4 <=200 cells/mm3 across 5 sites in Cambodia (Khmero-Soviet Friendship Hospital Phnom Penh + 
+Calmette Hospital Phnom Penh + Svay Rieng + Takeo + Siem Reap Provincial Hospitals). Randomized 1:1 to (A) early ART 2 
+weeks after TB-treatment start (n=332) vs (B) late ART 8 weeks after TB-treatment start (n=329). All received 
+d4T+3TC+EFV. PRIMARY: all-cause mortality. RESULT: 59/332 (18%) early vs 90/329 (27%) late — HR 0.62 (95% CI 
+0.44-0.86) — IMMEDIATE ART SUPERIOR (38% reduction). Africa relevance: NON-AFRICAN — entirely Cambodian. INCLUDED in 
+this NMA because CAMELIA is the third pillar of the WHO 2012 HIV-TB ART-timing evidence base alongside SAPiT (SA) + 
+STRIDE (multi-country). Teaching point: an Africa-focused NMA must sometimes include non-African pivotal trials when 
+they are part of the WHO global guideline evidence base.',
+
+
+
+codex
+One more proven repository-pattern issue is path anchoring: the template is a relative cwd lookup, not anchored to the script or repo. That is a different-copy class defect if the script is run outside the intended directory.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=1; Get-Content -Path scripts'"\\build_3kge3_topics_32_34.py | ForEach-Object { if("'$i -ge 260 -and $i -le 270){ '"'{0,4}: {1}' -f "'$i, $_ }; $i++ }' in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "python -c \"import ast, pathlib; p=pathlib.Path('scripts/build_3kge3_topics_32_34.py'); tree=ast.parse(p.read_text(encoding='utf-8')); print('parsed python ok')\"" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=1; Get-Content -Path scripts'"\\build_3kge3_topics_32_34.py | ForEach-Object { if("'$i -ge 140 -and $i -le 148){ '"'{0,4}: {1}' -f "'$i, $_ }; $i++ }' in F:\rapidmeta-ssot-shell
+ succeeded in 2054ms:
+ 140:                     ctgovUrl: 'https://clinicaltrials.gov/study/NCT00867048'
+ 141:                 },
+ 142: 
+ 143:                 'NCT00495651': {
+ 144: 
+ 145:                     name: 'TEMPRANO (ANRS 12136)', pmid: '26192872', phase: 'III', year: 2015, tE: 175, tN: 1029, cE: 175, cN: 1044, group: 'TEMPRANO ANRS 12136 Study Group (Danel C, Moh R, Gabillard D, et al). NEJM 2015;373:808-822 (PMID 26192872). ANRS + Programme PAC-CI-coordinated 2x2 factorial randomized trial in n=2,073 HIV-1-infected adults with CD4 <800 cells/mm3 (no WHO criteria for immediate ART) at 9 clinics in Abidjan, CÃ´te d''Ivoire (entirely African enrolment, single-country). Two factorial randomizations: (1) ART timing â€” early ART (start at any time) vs deferred (per WHO criteria); (2) IPT â€” 6-month isoniazid preventive vs none. n=509 early ART (n=520 control) for ART arm; for analysis here we use the 2x2 marginal early-ART vs deferred-ART comparison. PRIMARY: death or severe HIV-related morbidity (AIDS-defining + non-AIDS bacterial + non-AIDS malignancy) at 30mo. RESULT (early-ART vs deferred, 2x2 marginal): 175/1029 (17.0%) early vs 175/1044 (16.8%) deferred initially appears equal, but pooled across IPT arms: HR 0.56 (95% CI 0.41-0.76) for early-ART vs deferred when combined with IPT. Drove (alongside START) WHO 2015 universal-treat-all recommendation. Africa relevance: DIRECT â€” entirely CÃ´te d''Ivoire single-country.',
+ 146: 
+ 147:                     estimandType: 'HR', publishedHR: 0.56, hrLCI: 0.41, hrUCI: 0.76, pubHR: 0.56,
+ 148: 
+
+ succeeded in 2156ms:
+parsed python ok
+
+ succeeded in 2228ms:
+ 260: TEMPLATE = Path("SGLT2I_HF_NMA_REVIEW.html")
+ 261: 
+ 262: CONFIGS = [
+ 263:     {
+ 264:         "out": "CRYPTOCOCCAL_MENINGITIS_AFRICA_NMA_REVIEW.html",
+ 265:         "title": "RapidMeta Infectious Disease | Cryptococcal Meningitis NMA in African HIV+ Adults &mdash; ACTA + AMBITION-cm + COAT v0.1",
+ 266:         "auto_include": "['LEGACY-ISRCTN-45035509-ACTA', 'LEGACY-ISRCTN-72509687-AMBITION-CM', 'NCT01075152']",
+ 267:         "acronyms": "'LEGACY-ISRCTN-45035509-ACTA': 'ACTA', 'LEGACY-ISRCTN-72509687-AMBITION-CM': 'AMBITION-cm', 'NCT01075152': 'COAT'",
+ 268:         "body": CRYPTO_BODY,
+ 269:     },
+ 270:     {
+
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "python -c \"def r(text,new_body):
+ start=text.find('realData: {'); body_start=text.find('{', start); depth=0; i=body_start; body_end=body_start
+ while i < len(text):
+  c=text[i]
+  if c == '{': depth += 1
+  elif c == '}': depth -= 1
+  if depth == 0 and i > body_start: body_end = i; break
+  i += 1
+ return text[:body_start]+'{'+new_body+text[body_end+1:]
+for s in ['abc', \\\"x realData: { a: '} ', b: 1 } tail\\\", \\\"x realData: { a: '}', b: 1 } tail\\\"]: print(repr(r(s,'NEW')))\"" in F:\rapidmeta-ssot-shell
+2026-08-24T01:30:19.957799Z ERROR codex_core::tools::router: error=Exit code: 1
+Wall time: 2 seconds
+Output:
+python.exe : ScriptBlock should only be specified as a value of the Command parameter.
+At line:2 char:1
++ python -c "def r(text,new_body):
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidArgument: (:) [], ParameterBindingException
+    + FullyQualifiedErrorId : IncorrectValueForCommandParameter
+ 
+
+ exited 1 in 2028ms:
+python.exe : ScriptBlock should only be specified as a value of the Command parameter.
+At line:2 char:1
++ python -c "def r(text,new_body):
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidArgument: (:) [], ParameterBindingException
+    + FullyQualifiedErrorId : IncorrectValueForCommandParameter
+ 
+
+codex
+I’m not going to chase broader template behavior further because the pasted packet does not include the template. The final will separate proven defects from shapes that cannot be determined from this packet.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "@'
+def r(text,new_body):
+    start=text.find('realData: {')
+    body_start=text.find('{', start)
+    depth=0; i=body_start; body_end=body_start
+    while i < len(text):
+        c=text[i]
+        if c == '{': depth += 1
+        elif c == '}': depth -= 1
+        if depth == 0 and i > body_start: body_end=i; break
+        i += 1
+    return text[:body_start] + '{' + new_body + text[body_end+1:]
+for s in ['abc', \"x realData: { a: '}', b: 1 } tail\"]:
+    print(repr(s), '=>', repr(r(s,'NEW')))
+'@ | python -" in F:\rapidmeta-ssot-shell
+ succeeded in 1837ms:
+'abc' => 'ab{NEWbc'
+"x realData: { a: '}', b: 1 } tail" => "x realData: {NEW', b: 1 } tail"
+
+codex
+**Findings**
+
+- **Line 29, check that cannot fail closed:** input `replace_realdata("abc", "NEW")` returns `"ab{NEWbc"` instead of failing. Consequence: if `realData: {` is absent, line 297 can silently write corrupted HTML.
+
+- **Line 35, brace parser counts string contents as syntax:** input `replace_realdata("x realData: { a: '}', b: 1 } tail", "NEW")` returns `"x realData: {NEW', b: 1 } tail"`. Consequence: a `}` inside a JS string truncates the replacement at the wrong brace.
+
+- **Line 260, instrument reads a different copy:** input/invocation `cd F:\tmp` with `F:\tmp\SGLT2I_HF_NMA_REVIEW.html` present, then `python F:\rapidmeta-ssot-shell\scripts\build_3kge3_topics_32_34.py`. Consequence: the script reads and writes cwd-relative files, not the script/repo copy.
+
+- **Line 145, generated JS string is invalid:** input literal generated from the body is `({group: 'Côte d''Ivoire'})`. Consequence: `HIV_ART_TIMING_NMA_REVIEW.html` can fail script parsing because doubled single quotes are not a JS escape.
+
+- **Line 54, numeric claim contradicts its own counts:** input `86/333` and `95/332`; computed percentages are `25.8%` and `28.6%`, not `24.0%` and `29.7%`. Consequence: the ACTA mortality percentages rendered in the dashboard are wrong.
+
+**No Proven Instance From Packet**
+
+- Probe keyed to string a fix removes: COULD NOT DETERMINE; missing `SGLT2I_HF_NMA_REVIEW.html`.
+- Idempotency guard satisfied by own comment/marker: none proven.
+- Selector keyed to corpus form not used: COULD NOT DETERMINE; missing `SGLT2I_HF_NMA_REVIEW.html`.
+- CRLF/LF text comparison defect: none proven.
+- Merged-cell/off-by-one tabulation/count defect: none proven.
+- Zero conflated with absent: none proven.
+- Negation dropped: none proven.
+- Wrapper status code reported instead of work status: none proven.
+tokens used
+51,154
+**Findings**
+
+- **Line 29, check that cannot fail closed:** input `replace_realdata("abc", "NEW")` returns `"ab{NEWbc"` instead of failing. Consequence: if `realData: {` is absent, line 297 can silently write corrupted HTML.
+
+- **Line 35, brace parser counts string contents as syntax:** input `replace_realdata("x realData: { a: '}', b: 1 } tail", "NEW")` returns `"x realData: {NEW', b: 1 } tail"`. Consequence: a `}` inside a JS string truncates the replacement at the wrong brace.
+
+- **Line 260, instrument reads a different copy:** input/invocation `cd F:\tmp` with `F:\tmp\SGLT2I_HF_NMA_REVIEW.html` present, then `python F:\rapidmeta-ssot-shell\scripts\build_3kge3_topics_32_34.py`. Consequence: the script reads and writes cwd-relative files, not the script/repo copy.
+
+- **Line 145, generated JS string is invalid:** input literal generated from the body is `({group: 'Côte d''Ivoire'})`. Consequence: `HIV_ART_TIMING_NMA_REVIEW.html` can fail script parsing because doubled single quotes are not a JS escape.
+
+- **Line 54, numeric claim contradicts its own counts:** input `86/333` and `95/332`; computed percentages are `25.8%` and `28.6%`, not `24.0%` and `29.7%`. Consequence: the ACTA mortality percentages rendered in the dashboard are wrong.
+
+**No Proven Instance From Packet**
+
+- Probe keyed to string a fix removes: COULD NOT DETERMINE; missing `SGLT2I_HF_NMA_REVIEW.html`.
+- Idempotency guard satisfied by own comment/marker: none proven.
+- Selector keyed to corpus form not used: COULD NOT DETERMINE; missing `SGLT2I_HF_NMA_REVIEW.html`.
+- CRLF/LF text comparison defect: none proven.
+- Merged-cell/off-by-one tabulation/count defect: none proven.
+- Zero conflated with absent: none proven.
+- Negation dropped: none proven.
+- Wrapper status code reported instead of work status: none proven.

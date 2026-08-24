@@ -1,0 +1,251 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/precision_sample_gate.py
+
+--- THE FILE, IN FULL ---
+"""precision-sample mismatch -- is this estimate's precision consistent with its own arms?
+
+WHY THIS EXISTS
+    MAVACAMTEN_HCM displayed OR 6.67 (2.09-21.30) against EXPLORER-HCM arms of
+    45/123 vs 22/128. Eight reconstruction routes were computed from those counts
+    and NONE produced 6.67. But the value is not junk: its interval is
+    log-symmetric (sqrt(2.09*21.30) = 6.6721), so it is a genuinely computed odds
+    ratio -- with an implied SE(lnOR) of 0.5922, while the arms it is attached to
+    support SE 0.2999. Since SE^2 = 1/a+1/b+1/c+1/d, that is roughly FOUR TIMES
+    less information than the stated sample carries: tens of patients, not 123 v 128.
+
+    So the defect is legitimate arithmetic on the WRONG POPULATION. That is worse
+    than a mislabelled measure, because the value survives every label-consistency
+    check we own while describing a different population. Relabelling it would have
+    left 6.67 attached to a population it does not describe.
+
+WHAT THIS CHECKS
+    SE implied by the reported interval (or stored variance), against SE implied by
+    the reported arm sizes. A large mismatch means the estimate and the sample it is
+    attached to are inconsistent -- the number came from somewhere else.
+
+    Needs only the row itself: no primary source, no registry, no network.
+
+SCOPE -- READ THIS BEFORE TRUSTING A RATE
+    The identity SE^2 = 1/a + 1/b + 1/c + 1/d holds for a log ODDS RATIO from a 2x2
+    table. It does NOT hold for a hazard ratio from a time-to-event analysis (whose
+    variance depends on event times and censoring, not cell counts), nor for a mean
+    difference. Rows that are not count-derived ORs are reported UNMEASURABLE, never
+    PASS. A field nobody could check must not read as a field that passed.
+
+Exit: 0 = no mismatch found, 1 = mismatch(es) found, 2 = nothing assessable.
+"""
+from __future__ import annotations
+import argparse, json, math, sys, glob, os
+
+# ratio of claimed SE to implied SE beyond which we call it a mismatch.
+# 1.5 is deliberately loose: a 1.5x SE gap is a 2.25x information gap, which no
+# rounding or continuity correction explains. MAVACAMTEN sits at 1.97.
+THRESH = 1.5
+
+
+def se_from_counts(a, n1, c, n0):
+    """SE(ln OR) implied by a 2x2 table. Returns (se, corrected)."""
+    b, d = n1 - a, n0 - c
+    corrected = False
+    if min(a, b, c, d) <= 0:                 # Haldane-Anscombe, only when needed
+        a, b, c, d = a + .5, b + .5, c + .5, d + .5
+        corrected = True
+    return math.sqrt(1 / a + 1 / b + 1 / c + 1 / d), corrected
+
+
+def se_from_ci(lo, hi, z=1.959963984540054):
+    """SE(ln OR) implied by a log-symmetric 95% interval."""
+    if not lo or not hi or lo <= 0 or hi <= 0:
+        return None
+    return (math.log(hi) - math.log(lo)) / (2 * z)
+
+
+def assess_trial(t):
+    """-> (verdict, detail). verdict in PASS / MISMATCH / UNMEASURABLE."""
+    eff = t.get("effect") or {}
+    meas, scale = eff.get("measure"), eff.get("scale")
+    if scale != "log":
+        return "UNMEASURABLE", f"scale={scale!r}: the 1/a+1/b+1/c+1/d identity does not apply"
+    if meas not in ("OR",):
+        return "UNMEASURABLE", f"measure={meas!r}: identity holds for log OR only (an HR's variance is not a cell-count function)"
+    arms = {a.get("role"): a for a in (t.get("arms") or [])}
+    i, c = arms.get("intervention"), arms.get("control")
+    if not i or not c or i.get("events") is None or c.get("events") is None \
+       or i.get("n") is None or c.get("n") is None:
+        return "UNMEASURABLE", "arm events/n missing -- cannot imply an SE from the sample"
+    var = eff.get("variance")
+    if var is None or var <= 0:
+        return "UNMEASURABLE", "no stored variance"
+    se_claimed = math.sqrt(var)
+    se_implied, corr = se_from_counts(i["events"], i["n"], c["events"], c["n"])
+    ratio = se_claimed / se_implied if se_implied else None
+    info_ratio = ratio ** 2 if ratio else None
+    d = (f"claimed SE {se_claimed:.4f} vs implied {se_implied:.4f} "
+         f"(ratio {ratio:.3f}, information x{1/info_ratio:.2f})"
+         + (" [continuity-corrected]" if corr else ""))
+    if ratio and (ratio > THRESH or ratio < 1 / THRESH):
+        return "MISMATCH", d
+    return "PASS", d
+
+
+def run(paths, verbose=False):
+    tot = {"PASS": 0, "MISMATCH": 0, "UNMEASURABLE": 0}
+    hits = []
+    for p in paths:
+        try:
+            d = json.loads(open(p, encoding="utf-8", errors="replace").read())
+        except Exception:
+            continue
+        for t in ((d.get("canonical") or {}).get("trials") or []):
+            v, det = assess_trial(t)
+            tot[v] += 1
+            if v == "MISMATCH":
+                hits.append((os.path.basename(p).replace(".html.canonical.json", ""),
+                             (t.get("identity") or {}).get("label"), det))
+    return tot, hits
+
+
+def selftest() -> int:
+    """Positive AND negative, from real corpus material. A gate that cannot fail is not a gate."""
+    ok = True
+    # POSITIVE: MAVACAMTEN's displayed interval against EXPLORER-HCM's real arms.
+    se_claimed = se_from_ci(2.09, 21.30)
+    se_implied, _ = se_from_counts(45, 123, 22, 128)
+    ratio = se_claimed / se_implied
+    p_ok = ratio > THRESH
+    print(f"  POSITIVE MAVACAMTEN_HCM: claimed SE {se_claimed:.4f} (from 2.09-21.30), "
+          f"implied {se_implied:.4f} (45/123 v 22/128), ratio {ratio:.3f} -> "
+          f"{'FIRES' if p_ok else 'SILENT -- WRONG'}")
+    ok &= p_ok
+    # log-symmetry of the claimed interval, which is what makes it a real OR
+    gm = math.sqrt(2.09 * 21.30)
+    print(f"  ... and the interval is log-symmetric: sqrt(2.09*21.30) = {gm:.4f} vs claimed 6.67")
+    # NEGATIVE: the MITRAL object, internally consistent.
+    mp = r"F:\E156\outputs\codex-corpus-scan\extract\full_run\MITRAL_FUNCMR_REVIEW.html.canonical.json"
+    try:
+        d = json.loads(open(mp, encoding="utf-8", errors="replace").read())
+        n_ok, shown = True, []
+        for t in (d["canonical"]["trials"]):
+            v, det = assess_trial(t)
+            shown.append(f"{(t['identity'].get('label') or '?')[:12]}={v}")
+            if v == "MISMATCH":
+                n_ok = False
+        print(f"  NEGATIVE MITRAL_FUNCMR : {', '.join(shown)} -> "
+              f"{'SILENT' if n_ok else 'FIRES -- WRONG'}")
+        ok &= n_ok
+    except FileNotFoundError:
+        print("  NEGATIVE MITRAL_FUNCMR : object not found -- NEGATIVE NOT PROVEN")
+        ok = False
+    print(f"\nWHAT A FAILURE WOULD LOOK LIKE: the positive staying silent (we would have "
+          f"missed 6.67 attached to the wrong population), or the negative firing (a "
+          f"false-positive flood across ~791 pages that nobody would work through).")
+    print("-> SELFTEST PASS" if ok else "-> SELFTEST FAILED")
+    return 0 if ok else 1
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--glob", help="canonical object glob to sweep")
+    ap.add_argument("--selftest", action="store_true")
+    a = ap.parse_args()
+    if a.selftest:
+        return selftest()
+    if not a.glob:
+        ap.error("--glob or --selftest required")
+    paths = sorted(glob.glob(a.glob))
+    tot, hits = run(paths)
+    n = sum(tot.values())
+    print(f"objects swept: {len(paths)}   trial rows examined: {n}")
+    print(f"  PASS         {tot['PASS']}")
+    print(f"  MISMATCH     {tot['MISMATCH']}")
+    print(f"  UNMEASURABLE {tot['UNMEASURABLE']}  (not a pass -- scale/measure/counts unavailable)")
+    denom = tot["PASS"] + tot["MISMATCH"]
+    if denom:
+        print(f"  rate among ASSESSABLE rows: {tot['MISMATCH']}/{denom} = {100*tot['MISMATCH']/denom:.1f}%")
+    else:
+        print("  no assessable rows -- rate UNDEFINED, not zero")
+    for pg, lab, det in sorted(hits):
+        print(f"    {pg[:44]:44s} {str(lab)[:20]:20s} {det}")
+    if not denom:
+        return 2
+    return 1 if tot["MISMATCH"] else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+
+
+# --- L2: pooled estimates resting on unverifiable inputs -------------------
+# The L1 check above compares a trial's stored variance against its own counts.
+# That passes BY CONSTRUCTION whenever the variance was computed from those counts,
+# which is why it returned 0/1111 corpus-wide and did NOT catch MAVACAMTEN:
+# EXPLORER-HCM's own row is consistent (ratio 1.07). MAVACAMTEN's 6.67 is a k=3
+# POOL in which 2 of 3 trials carry no arm counts at all, displayed as if it were
+# one trial's result. L2 is the check that fires on that.
+def l2(paths):
+    rows = []
+    for p in paths:
+        try:
+            d = json.loads(open(p, encoding="utf-8", errors="replace").read())
+        except Exception:
+            continue
+        c = d.get("canonical") or {}
+        tr = c.get("trials") or []
+        rep = ((c.get("result") or {}).get("reported") or {})
+        if not tr or rep.get("logEffect") is None:
+            continue
+        noc = sum(1 for t in tr
+                  if any((a.get("events") is None) for a in (t.get("arms") or []))
+                  or not t.get("arms"))
+        if noc:
+            rows.append((os.path.basename(p).replace(".html.canonical.json", ""),
+                         noc, len(tr), rep.get("k")))
+    return rows
+
+
+if os.environ.get("PSG_L2"):
+    _paths = sorted(glob.glob(os.environ["PSG_L2"]))
+    _r = l2(_paths)
+    _all = sum(1 for p in _paths
+               if ((json.loads(open(p, encoding="utf-8", errors="replace").read())
+                    .get("canonical") or {}).get("result") or {}).get("reported", {}).get("logEffect") is not None)
+    print(f"L2 pooled-on-unverifiable-inputs: {len(_r)}/{_all} pooled objects "
+          f"have >=1 contributing trial with NO arm counts")
+    _full = [x for x in _r if x[1] == x[2]]
+    print(f"   of which {len(_full)} have NO counts on ANY contributing trial "
+          f"(the pooled value rests on nothing extractable)")
+    for pg, noc, n, k in sorted(_r, key=lambda x: -x[1])[:25]:
+        print(f"     {pg[:50]:50s} {noc}/{n} trials without counts (reported k={k})")

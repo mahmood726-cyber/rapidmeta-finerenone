@@ -1,0 +1,654 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a03189-529b-7c73-b23f-c018b4efe487
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/create_colchicine_coronary_2026_08_19.py
+
+--- THE FILE, IN FULL ---
+#!/usr/bin/env python3
+"""BUILD THE CORONARY READING OF `colchicine-cvd-review`.
+
+Decision: DECIDED-colchicine-cvd-2026-08-19.md (seven readings, six pre-registered and the
+seventh declared as a dated amendment).
+Screen:   evidence/2026-08-19-batch1/colchicine_split_screening.json (137 registrations to zero).
+Estimand: evidence/2026-08-19-batch1/colchicine_coronary_estimand.json (component sets, verbatim).
+
+THIS PAGE PUBLISHES A REFUSAL AND THREE TRIALS' OWN RESULTS. Only ONE component --
+cardiovascular death -- is shared by all three published primaries, out of a union of ten. That
+is P37 at full strength, and it is a finding about the trials rather than a gap in the work.
+
+Run: python scripts/create_colchicine_coronary_2026_08_19.py [--recreate]
+"""
+import io
+import json
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+EV = os.path.join(REPO, "evidence", "2026-08-19-batch1")
+TOPIC = "colchicine-cvd-coronary"
+SIBS = ["colchicine-cvd-cerebrovascular", "colchicine-cvd-pad", "colchicine-cvd-ich",
+        "colchicine-cvd-ascvd-mixed", "colchicine-periprocedural", "colchicine-pericarditis"]
+
+
+def load(name):
+    with io.open(os.path.join(EV, name), "r", encoding="utf-8") as fh:
+        return json.load(fh)
+
+
+def trial_record(key, t, est):
+    """One trial, with the sentence every number was read from attached to it."""
+    return {
+        "id": t.get("nct") or t.get("registry_id"),
+        "name": key,
+        "nct": t.get("nct"),
+        "registry_id": t.get("registry_id") or t.get("nct"),
+        "pmid": t["pmid"],
+        "doi": t["doi"],
+        "arms": [
+            {"label": "colchicine 0.5 mg once daily", "role": "treatment",
+             "participants": t["n_treatment"]},
+            {"label": "placebo", "role": "control", "participants": t["n_control"]},
+        ],
+        "registration_enrolment": t["n_total"],
+        "population_verbatim": t["population_verbatim"],
+        "follow_up_verbatim": t["follow_up_verbatim"],
+        "by_outcome": {
+            "mace": {
+                "effect": {
+                    "measure": "HR", "scale": "log",
+                    "point": t["hr"], "ci_low": t["lci"], "ci_high": t["uci"], "ci_level": 95,
+                    "derived_from": "the trial's own abstract, as PubMed prints it",
+                    "derivation_note": (
+                        "READ from the source as printed, never recomputed and never taken from "
+                        "the previous object, whose values carried the provenance tag "
+                        "PAGE-EMBEDDED and a note that they had not been checked. The log point "
+                        "and log standard error are DERIVED from the printed interval and "
+                        "neither is claimed to appear in any source."),
+                },
+                "provenance": {
+                    "tag": "READ_FROM_PUBLICATION_ABSTRACT",
+                    "source_quotes": [t["effect_verbatim"], t["primary_verbatim"]],
+                    "quote_note": (
+                        "Two sentences: the effect with its interval, and the primary endpoint "
+                        "DEFINITION. The definition is quoted because this page's whole finding "
+                        "is that the definitions differ, and a reader must be able to check "
+                        "that against the source rather than against our paraphrase."),
+                },
+                "source_url": "https://doi.org/%s" % t["doi"],
+                "pubmed_url": "https://pubmed.ncbi.nlm.nih.gov/%s/" % t["pmid"],
+                "outcome_definition": t["primary_verbatim"],
+                "outcome_definition_source": {
+                    "source": "publication abstract",
+                    "source_field": "abstract, METHODS sentence naming the primary end point",
+                    "journal": t["journal"], "year": t["year"],
+                    "pmid": t["pmid"], "doi": t["doi"], "read_utc": "2026-08-19",
+                    "components_as_the_paper_states_them": [
+                        est["component_analysis"] and c for c in t["components"]],
+                },
+                "what_was_NOT_read": (
+                    "Component-level event counts, analysis populations, per-protocol sets and "
+                    "subgroups. The full text was not read. Absent, and recorded as absent."),
+            }
+        },
+    }
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    est = load("colchicine_coronary_estimand.json")
+    screen = load("colchicine_split_screening.json")
+    reg = load("colchicine_surfaced_137.json")
+    pub = load("colchicine_pubmed_523.json")
+    cor = screen["by_reading"]["CORONARY"]
+
+    trials = [trial_record(k, est["trials"][k], est) for k in
+              ("COLCOT", "LoDoCo2", "CLEAR SYNERGY")]
+
+    nm = est["pools"]["name_matched_k3"]
+    mi = est["pools"]["mi_population_k2"]
+
+    outcome = {
+        "id": "mace", "type": "primary",
+        "name": "Major adverse cardiovascular events, as each trial defines them",
+        "definition": (
+            "NOT ONE DEFINITION, AND THAT IS THIS PAGE'S RESULT. The three published primaries "
+            "share exactly ONE component -- cardiovascular death -- out of a union of TEN. Each "
+            "trial's own definition is quoted verbatim beside its estimate."),
+        "definition_note": (
+            "This outcome exists so the page can state that the trials do not share it. The "
+            "name above is what all three call their endpoint; the definitions below are what "
+            "they mean by it, and they differ by a whole component and by three qualifiers."),
+        "measure": "HR", "effect_scale": "log",
+        "estimand": {"id": "mace", "family": "time to first event",
+                     "model": "none -- no shared estimand was established"},
+        "comparator": "placebo in all three", "comparator_type": "placebo",
+        "direction_of_benefit": "lower is better", "null_value": 1,
+    }
+
+    result = {
+        "k": 3, "estimand_id": "mace", "model": "random-effects",
+        "estimator": "not pooled -- no shared estimand",
+        "estimator_used": "none",
+        "estimator_note": (
+            "Nothing is pooled as this page's answer. Two pools WERE computed so their cost is "
+            "measured rather than asserted, and both are reported below as declined. Both use "
+            "Paule-Mandel between-study variance with a floored Knapp-Hartung t interval; "
+            "DerSimonian-Laird is refused below k=10 by the house rule. At k=2 the "
+            "Knapp-Hartung multiplier is 12.706 on one degree of freedom, which is why that "
+            "interval is enormous -- correct behaviour, and a reason a k=2 Knapp-Hartung "
+            "interval must never be read as a precision statement."),
+        "comparator_type": "placebo",
+        "poolable": False,
+        "poolable_reason": (
+            "THE THREE TRIALS DO NOT SHARE AN ENDPOINT. Decomposed into components and compared "
+            "as SETS rather than by name, the union is TEN components and exactly ONE -- "
+            "cardiovascular death -- is common to all three. "
+            "RESUSCITATED CARDIAC ARREST is in COLCOT and in neither of the others: a whole "
+            "component present in one arm of the comparison and absent from the rest. "
+            "MYOCARDIAL INFARCTION is ANY in COLCOT, SPONTANEOUS (NONPROCEDURAL) ONLY in "
+            "LoDoCo2, and RECURRENT in CLEAR SYNERGY -- and LoDoCo2's qualifier EXCLUDES "
+            "periprocedural infarction in a literature where a large share of infarctions are "
+            "periprocedural. "
+            "STROKE is ANY TYPE in COLCOT and CLEAR SYNERGY and ISCHAEMIC ONLY in LoDoCo2; "
+            "colchicine's effect in intracerebral haemorrhage is an open question with its own "
+            "reading in this split, so a trial counting only ischaemic strokes and a trial "
+            "counting every stroke are measuring the drug against different risks. "
+            "REVASCULARISATION requires an URGENT HOSPITALISATION FOR ANGINA in COLCOT, is "
+            "ISCHAEMIA-DRIVEN in LoDoCo2, and is UNPLANNED AND ISCHAEMIA-DRIVEN in CLEAR "
+            "SYNERGY. "
+            "A pool of these three would report a number for a quantity no trial measured."),
+        "pooled": {"measure": "HR", "point": None, "ci_low": None, "ci_high": None,
+                   "ci_level": 95, "scale": "log", "withdrawn": True,
+                   "withdrawn_reason": "no shared estimand -- see poolable_reason",
+                   "card_note": ("the three trials share ONE component of TEN; each trial's own "
+                                 "result and its own endpoint definition are on the page")},
+        "pool_uniformity": {
+            "effect_measure": ["ESTABLISHED", "all three publish a hazard ratio"],
+            "comparator": ["ESTABLISHED", "all three randomise against placebo"],
+            "population": ["REFUTED", "COLCOT and CLEAR SYNERGY enrol after myocardial "
+                                      "infarction; LoDoCo2 enrols chronic coronary disease"],
+            "estimand": ["REFUTED", "one shared component of ten"],
+        },
+        "heterogeneity_status": (
+            "Reported for the DECLINED pools only, and it settles nothing either way. The "
+            "name-matched k=3 pool has I-squared 77.9%% and it is also the estimand-INCOHERENT "
+            "one, so here a statistic and a reading of the definitions happen to agree. On "
+            "`apixaban-vte-treatment` they pointed in OPPOSITE directions -- the "
+            "estimand-coherent pool was the MORE heterogeneous. P36 stands: a low I-squared "
+            "does not show trials measure the same thing and a high one does not show they do "
+            "not. Coherence was established here by reading ten component definitions."),
+        "the_pools_this_refusal_declines_to_report": {
+            "name_matched_k3": nm, "mi_population_k2": mi,
+            "why_both_are_shown": (
+                "A refusal that names no number is not checkable. Both are computed, both are "
+                "labelled as NOT this page's answer, and the second exists to make a separate "
+                "point: MATCHING THE POPULATION DOES NOT FIX THE ESTIMAND. COLCOT and CLEAR "
+                "SYNERGY share a population and still differ by a whole component and by their "
+                "revascularisation trigger. P38, one axis down."),
+        },
+        "per_trial": [
+            {"trial_id": t["id"], "nct": t["nct"], "measure": "HR",
+             "point": t["by_outcome"]["mace"]["effect"]["point"],
+             "ci_low": t["by_outcome"]["mace"]["effect"]["ci_low"],
+             "ci_high": t["by_outcome"]["mace"]["effect"]["ci_high"],
+             "ci_level": 95, "estimand_id": "mace"} for t in trials],
+        "sensitivity": {
+            "analyses": [],
+            "decision_under_test": "none -- there is no pooled estimate to be sensitive to",
+            "authority": ("A leave-one-out analysis of a pool that was refused would describe "
+                          "the stability of a number this page does not report."),
+        },
+        "grade": None, "cross_engine": None, "single_study_ref": None,
+    }
+
+    obj = {
+        "app_id": TOPIC, "schema_version": 2,
+        "title": "Colchicine for major adverse cardiovascular events in coronary disease",
+        "question": ("Does low-dose colchicine reduce major adverse cardiovascular events in "
+                     "patients with established coronary artery disease or after myocardial "
+                     "infarction?"),
+        "question_provenance": {
+            "state": "DERIVED_POST_HOC",
+            "why": ("The parent `colchicine-cvd-review` asked one question of trials in three "
+                    "different vascular beds. This reading is the coronary one."),
+        },
+        "built": "2026-08-19", "build_mode": "AUTHORED",
+        "split_provenance": {
+            "parent": "colchicine-cvd-review",
+            "why_split": (
+                "The parent held COLCOT (after myocardial infarction), CLEAR SYNERGY (after "
+                "myocardial infarction, inside a 2x2 factorial) and CONVINCE (after "
+                "NON-CARDIOEMBOLIC ISCHAEMIC STROKE) under one question. The complete 137-record "
+                "search added peripheral artery disease, intracerebral haemorrhage, "
+                "peri-procedural prevention and pericarditis. Seven readings; see "
+                "DECIDED-colchicine-cvd-2026-08-19.md. P21."),
+            "siblings": SIBS,
+            "siblings_state": ("NOT YET BUILT. This is the first of the seven. Naming them here "
+                               "before they exist is deliberate: a reading that is named and "
+                               "unbuilt is visible, and a reading that is neither is not."),
+            "precedence": screen["precedence"],
+            "the_seventh_reading_was_an_amendment": (
+                "Six readings were fixed before any count existed. The screen then surfaced a "
+                "population none of them covered -- established atherosclerotic disease with no "
+                "named vascular bed -- and ASCVD_MIXED was added as a DATED AMENDMENT rather "
+                "than folded back into the original six."),
+        },
+        "outcomes": [outcome],
+        "inputs": {"trials": trials},
+        "config": {"confidence_level": 95, "model": "random-effects", "scale": "log"},
+        "results": {"by_outcome": {"mace": result}, "headline_outcome": "mace"},
+        "search": {
+            "databases": [
+                {"database": "ClinicalTrials.gov API v2",
+                 "query": reg["query_as_executed"], "executed_utc": "2026-08-19",
+                 "records_returned": 137, "total_reported": 137,
+                 "pagination": ("100 + 37 = 137 == totalCount, cursor null on page 2. THE PROOF "
+                                "IS THE SUM ACROSS PAGES. Page 2 held CLEAR SYNERGY, one of the "
+                                "review's own included trials and the largest."),
+                 "recall_against_included_set": "3/3",
+                 "identifiers_recorded_at": "evidence/2026-08-19-batch1/colchicine_surfaced_137.json"},
+                {"database": "PubMed",
+                 "query": pub["query_as_executed"], "executed_utc": "2026-08-19",
+                 "records_returned": 523, "total_reported": 523,
+                 "pagination": "100 x 5 + 23 = 523 == total_count, has_more FALSE on the last page.",
+                 "recall_against_included_set": "3/3, and 4/4 counting LoDoCo2",
+                 "why_this_limb_was_required": (
+                     "The registry screen found EIGHT records with posted results against "
+                     "FIFTY-THREE completed or terminated with none. CONVINCE, CHANCE-3 and "
+                     "CLEAR SYNERGY are all in the fifty-three and all have published. A "
+                     "registry-only review here would have refused to pool on the ground that "
+                     "its own anchor trials had not reported -- a finding about the DATABASE "
+                     "presented as a finding about the LITERATURE."),
+                 "identifiers_recorded_at": "evidence/2026-08-19-batch1/colchicine_pubmed_523.json"},
+            ],
+            "databases_NOT_searched": [
+                {"database": "ANZCTR",
+                 "why_it_matters": ("LoDoCo2 (ACTRN12614000093684) and COPS are registered "
+                                    "there and NOWHERE on ClinicalTrials.gov. LoDoCo2 reaches "
+                                    "this page through PubMed alone, so its ARMS and ENDPOINTS "
+                                    "are read from the publication and its registration is "
+                                    "UNREAD. COPS does not reach this page at all.")},
+            ],
+        },
+        "prisma_flow": {
+            "registry_records_surfaced": 137,
+            "registry_records_screened": 137,
+            "assigned_to_this_reading": cor["records"],
+            "eligible_in_this_reading": cor["eligible"],
+            "with_a_published_primary_result": 3,
+            "contributing_an_estimate": 3,
+            "pooled": 0,
+            "reconciles": ("137 surfaced == 137 screened; %d assigned to CORONARY of which %d "
+                           "eligible; 3 carry a published primary and 3 contribute an estimate; "
+                           "0 pooled, because no shared estimand was established."
+                           % (cor["records"], cor["eligible"])),
+            "LoDoCo2_is_NOT_in_the_registry_arithmetic": (
+                "LoDoCo2 contributes an estimate and is NOT among the 137, because it is not "
+                "registered on ClinicalTrials.gov. IT IS THEREFORE NOT COUNTED IN THE REGISTRY "
+                "CASCADE and is counted in the contributing set. Two denominators, kept apart "
+                "on purpose: folding it into the registry counts would make them stop "
+                "reconciling and hide the reason."),
+        },
+        "k_cascade": {
+            "k0_surfaced_registrations": 137,
+            "k1_assigned_to_this_reading": cor["records"],
+            "k2_eligible": cor["eligible"],
+            "k3_with_published_primary_result": 3,
+            "k4_contributing_an_estimate": 3,
+            "k5_pooled": 0,
+            "kNA_not_assessable": screen["dispositions"].get("NOT_ASSESSABLE", 0),
+            "arm_role_cascade_over_all_137": screen["arm_role_cascade"],
+            "dispositions_over_all_137": screen["dispositions"],
+            "note": ("k is reported at every stage and never as one number. The drop from %d "
+                     "eligible to 3 with a published primary is the finding of the search, not "
+                     "of the screen: 39 eligible trials have run or are running and have "
+                     "published no primary result this pass could read."
+                     % cor["eligible"]),
+        },
+        "screening": {
+            "search_note": ("Two searches, both exhausted, both with their identifier lists "
+                            "written down and their arithmetic re-derivable by "
+                            "scripts/verify_search_record_reconciles.py."),
+            "eligibility": (
+                "PREDEFINED: no. Derived post hoc on 2026-08-19 when colchicine-cvd-review was "
+                "split into seven readings. A trial is in THIS reading when its population is "
+                "established coronary artery disease or recent myocardial infarction, read from "
+                "the coded conditions and, where those name something true but not the "
+                "population's vascular disease, from the trial's own title with the fallback "
+                "recorded. It is ELIGIBLE when colchicine is the randomised contrast, the "
+                "allocation is RANDOMIZED, and the registration declares at least two arms. "
+                "A PRECEDENCE RULE ASSIGNS EVERY RECORD TO EXACTLY ONE READING and it is "
+                "published in full on this page, because a rule that decides inclusion and is "
+                "published nowhere is not a criterion but a habit."),
+            "eligibility_provenance": {
+                "state": "DERIVED_POST_HOC", "predefined": False, "post_hoc": True,
+                "authority_it_satisfies": "MECIR R29/R30/R31",
+                "authority_it_does_NOT_establish": "MECIR C5/C7",
+                "precedence": screen["precedence"],
+                "known_members_asserted_in_advance": screen["known_members"],
+                "why_that_matters": (
+                    "A precedence rule applied FIRST is the most damaging place to be wrong, "
+                    "because it removes trials from every downstream reading before any of them "
+                    "can judge them (P43). Ten known members were named in the decision document "
+                    "BEFORE the screen ran and the screen refuses to write anything if one lands "
+                    "elsewhere."),
+            },
+            "duplicate_screening": {
+                "performed": False,
+                "state": "OWED, AND RECORDED AS OWED RATHER THAN DESCRIBED",
+                "what_was_NOT_done": ("No second model family read this screen. An agreement "
+                                      "rate over one reader is not an agreement rate."),
+            },
+            "boundary_criterion": (
+                "PERIPROC BEFORE CORONARY, and it is defined by WHAT THE PRIMARY OUTCOME IS -- "
+                "a complication of an operation or catheter procedure -- never by a procedure "
+                "having occurred. CLEAR SYNERGY randomises myocardial-infarction patients "
+                "undergoing PCI, so a 'was a procedure involved' rule would have taken THE "
+                "LARGEST TRIAL IN THIS REVIEW out of it."),
+        },
+        "screening_of_remainder": {
+            "unscreened_remainder": screen["k_unscreened_remainder"],
+            "the_whole_137_was_screened_to_zero": True,
+            "disposition_split": screen["dispositions"],
+            "what_the_split_diagnoses": (
+                "53 records are ELIGIBLE_COMPLETED_NO_RESULTS_POSTED against 33 "
+                "ELIGIBLE_NO_RESULTS_YET. Folded together as 'no results' they read as a field "
+                "still in flight; separated, FIFTY-THREE COMPLETED TRIALS HAVE POSTED NOTHING TO "
+                "THIS REGISTRY. That is a fact about the database and about publication, and it "
+                "is why the PubMed limb was not optional here."),
+            "PUBMED_REMAINDER_IS_NOT_SCREENED_AND_THAT_IS_DECLARED": (
+                "The 523 PubMed records establish the denominator and recall. NO DISPOSITION HAS "
+                "BEEN APPLIED TO ANY OF THEM. Three publications were read; 520 were not. This "
+                "is an UNSCREENED REMAINDER on the PubMed limb and it is stated rather than "
+                "reported as zero -- E9, absence of a count is not a count of zero."),
+        },
+        "withholding_question": {
+            "asked_on": "2026-08-19",
+            "question": ("Before concluding that nothing pools, is there a lower-ranked outcome "
+                         "at which these trials DO share an estimand?"),
+            "answer": "OWED, NOT NEGATIVE",
+            "detail": est["THE_WITHHOLDING_QUESTION_ASKED_AND_ITS_ANSWER_RECORDED"],
+            "why_the_distinction_matters": (
+                "On `apixaban-vte-prophylaxis` this question moved the poolable set from 3 to 8; "
+                "on `apixaban-vte-treatment` it moved it from 8 to 3; on `bococizumab-lipid` it "
+                "moved nothing. It is a CHECK, not a way of finding more trials, and here its "
+                "honest answer is that the full texts were not read. AN ABSENCE OF A READING IS "
+                "NOT A READING OF ABSENCE."),
+        },
+        "topic_state": {
+            "state": "BUILT_AND_REFUSING",
+            "what_would_change_it": ("Full texts for COLCOT, LoDoCo2 and CLEAR SYNERGY, read for "
+                                     "a common component or a common secondary composite. "
+                                     "LoDoCo2's key secondary is the nearest candidate."),
+        },
+        "risk_of_bias": {
+            "tool": "RoB 2", "state": "NOT_ASSESSED_FOR_THIS_REVIEW",
+            "why": ("No result-level RoB 2 assessment has been performed. RECORDED AS "
+                    "UNASSESSED, NEVER AS ABSENT OF BIAS: an unassessed domain is "
+                    "NOT_ASSESSABLE, not LOW."),
+            "what_would_close_it": "RoB 2 per RESULT for each of the three contributing results.",
+        },
+        "grade": {
+            "state": "NOT_RATED",
+            "why": ("GRADE rates a body of evidence for an OUTCOME. This page establishes that "
+                    "the three trials do not share one, so there is no single outcome to rate. "
+                    "Rating the name-matched pool would certify a quantity no trial measured."),
+        },
+        "protocol": {
+            "prespecified": False, "permanently_refused": True,
+            "why": ("A protocol specified before data collection is a HISTORICAL FACT ABOUT THE "
+                    "PAST and cannot be created retrospectively."),
+            "what_was_actually_done": ("Criteria derived post hoc on 2026-08-19 at the split."),
+            "authority_permitting_it": "MECIR R107, provided they are declared as such.",
+        },
+        "sources": {},
+        "sources_note": (
+            "EVERY EFFECT ESTIMATE AND EVERY ENDPOINT DEFINITION ON THIS PAGE IS READ FROM THE "
+            "TRIAL'S OWN PUBLICATION ABSTRACT, quoted verbatim, with its PMID and DOI. According "
+            "to PubMed. No number is taken from the previous object, whose values were tagged "
+            "PAGE-EMBEDDED and marked unchecked. No full text was read, and what that leaves "
+            "unread is named per trial."),
+        "extraction": {
+            "state": "ABSTRACT-LEVEL, AND LABELLED AS SUCH",
+            "what_is_held": "primary endpoint definition, effect estimate with interval, arm "
+                            "sizes, follow-up, population -- each with the sentence it came from",
+            "what_is_NOT_held": "component-level counts, analysis populations, subgroups",
+        },
+        "registration_identity": {
+            "verified_against": "ClinicalTrials.gov v2 for the two registered trials",
+            "COLCOT": "NCT02551094", "CLEAR SYNERGY": "NCT03048825",
+            "LoDoCo2": ("ACTRN12614000093684 on ANZCTR. NOT verified against that registry -- "
+                        "it was not searched. The identifier is quoted from the trial's own "
+                        "abstract, which prints it."),
+            "pmids_verified_by_lookup": {
+                "COLCOT": "31733140", "LoDoCo2": "32865380", "CLEAR SYNERGY": "39555823"},
+            "and_one_of_those_was_wrong_in_this_repository": (
+                "PUBLISHED_META_BENCHMARKS.json recorded LoDoCo2 as PMID 32865375. That PMID is "
+                "EAST-AFNET 4, an atrial-fibrillation trial this corpus already cites correctly "
+                "on two other pages. Corrected 2026-08-19; DEFECT-REGISTRY class 22."),
+        },
+        "published_comparison": {
+            "state": "THE BENCHMARK FOR THIS TOPIC WAS WITHDRAWN AS A COMPARATOR, NOT MATCHED",
+            "what_the_card_used_to_serve": "HR 0.75 (0.61 to 0.91), k=2",
+            "what_it_actually_was": (
+                "An external published benchmark declared in PUBLISHED_META_BENCHMARKS.json, "
+                "rendered where this review's own result belongs. It does not follow from its "
+                "own declared source either: COLCOT and LoDoCo2 pool to 0.7215 (0.6243 to "
+                "0.8338), the served upper bound out by 0.0762 -- seven and a half units in the "
+                "last quoted place -- and its stated N of 11,816 against an actual 10,267."),
+            "closed_by": ("scripts/pooled_point_in_achievable_range_gate.py, by a BOUND rather "
+                          "than an enumeration, so the 'maybe another subset reproduces it' "
+                          "reply is foreclosed. DEFECT-REGISTRY class 21."),
+        },
+        "build_stamp": {"standard_version": "1.17.0-2026-08-19", "built_utc": "2026-08-19",
+                        "builder": "scripts/create_colchicine_coronary_2026_08_19.py"},
+    }
+
+    # P22 -- SHARING, COMPUTED AGAINST THE WHOLE CORPUS, never asserted.
+    ssot_dir = os.path.join(REPO, "ssot")
+    mine = [t.get("nct") for t in trials if t.get("nct")]
+    found, checked = {}, 0
+    for dd in sorted(os.listdir(ssot_dir)):
+        if dd == TOPIC:
+            continue
+        p2 = os.path.join(ssot_dir, dd, dd + ".json")
+        if not os.path.exists(p2):
+            continue
+        checked += 1
+        try:
+            with io.open(p2, encoding="utf-8") as fh:
+                o2 = json.load(fh)
+        except (ValueError, OSError):
+            continue
+        their = {t.get("nct") for t in ((o2.get("inputs") or {}).get("trials") or [])}
+        for n in mine:
+            if n in their:
+                found.setdefault(n, []).append(dd)
+    obj["shared_with_other_topics"] = {
+        "computed": True,
+        "computed_against": ("every other topic object under ssot/ -- %d checked -- by reading "
+                             "each one's inputs.trials. Not asserted." % checked),
+        "shared": {n: {"also_in": ts,
+                       "why": ("The parent `colchicine-cvd-review` has NOT been retired and "
+                               "still holds this trial. Retiring it is a deletion and is not "
+                               "taken unilaterally."
+                               if ts == ["colchicine-cvd-review"] else
+                               "held by another topic; recorded rather than left to a summed "
+                               "corpus k to hide.")}
+                   for n, ts in sorted(found.items())},
+        "summing_per_topic_k_double_counts": (
+            "A CORPUS-LEVEL k OBTAINED BY SUMMING PER-TOPIC k DOUBLE-COUNTS. %d of this "
+            "review's %d registered trials are also held elsewhere. Measured corpus-wide on "
+            "2026-08-19: 354 summed against 286 distinct registrations, 68 double-counted."
+            % (len(found), len(mine))),
+        "LoDoCo2_cannot_be_checked_this_way": (
+            "It has no ClinicalTrials.gov identifier, and this computation keys on NCT ids. Its "
+            "sharing status is NOT_ASSESSABLE by this method rather than false."),
+    }
+
+    d = os.path.join(REPO, "ssot", TOPIC)
+    os.makedirs(d, exist_ok=True)
+    dest = os.path.join(d, "%s.json" % TOPIC)
+    if os.path.exists(dest) and "--recreate" not in sys.argv:
+        raise SystemExit("REFUSED: %s exists. This script CREATES." % dest)
+    if os.path.exists(dest):
+        with io.open(dest, encoding="utf-8") as fh:
+            if json.load(fh).get("build_stamp"):
+                raise SystemExit("REFUSED: %s is stamped; MERGE instead, never overwrite." % dest)
+    with io.open(dest, "w", encoding="utf-8") as fh:
+        fh.write(json.dumps(obj, indent=1, ensure_ascii=False))
+    print("wrote %s" % os.path.relpath(dest, REPO))
+    print("  k cascade: 137 surfaced -> %d in reading -> %d eligible -> 3 published -> 0 pooled"
+          % (cor["records"], cor["eligible"]))
+    print("  shared with other topics: %s" % (sorted(found) or "none"))
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+
+codex
+I’ll use the pasted module as the review record and only use the local file, if present, to anchor line numbers for exact references. I’m checking the named defect shapes directly, not doing a general quality pass.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "rg -n \"est\\[\\\"component_analysis\\\"\\]|get\\(\\\"NOT_ASSESSABLE\\\", 0\\)|os\\.path\\.exists\\(dest\\)|for dd in sorted\\(os\\.listdir\\(ssot_dir\\)\\)|their =|mine =|with io\\.open\\(dest\" scripts/create_colchicine_coronary_2026_08_19.py" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Get-Content -Path F:\\ProjectIndex\\INDEX.md -TotalCount 5" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Get-Content -Path F:\\E156\\rewrite-workbook.txt -TotalCount 5" in F:\rapidmeta-ssot-shell
+ succeeded in 847ms:
+<!-- sentinel:skip-file - portfolio registry; absolute paths ARE the data -->
+# C: Drive Project Index
+> **Last updated**: 2026-05-14 (C:\HTML apps focused repair batch continued: hub shell launch fix, static contracts across ten HTML app repos, NMA/living-meta/nma-dose-response landing and asset-link repairs, and NMA doc hardcoded-path cleanup. Prior SheafNMA v0.2.0, D-drive legacy smoke-contract continuation, CardioOracle lifecycle status freeze, C-drive model/project smoke-contract continuation, mahmood789 consolidation, Sentinel/Overmind JSONL and verification repair, C-drive reproducibility audit continuation, C-drive verification repair, D-drive repair batch, superapp, C-drive sweep, home-folder hardening, Trial Truthfulness Atlas, and portfolio notes retained below.)
+
+### C:\HTML apps focused repair batch (2026-05-14)
+
+ succeeded in 847ms:
+E156 REWRITE WORKBOOK
+sentinel:skip-file
+sentinel:claim-language-allow
+(Sentinel markers above:
+ - sentinel:skip-file: this workbook intentionally contains C:\Users\... PATH:
+
+2026-08-24T02:11:42.403856Z ERROR codex_core::tools::router: error=Exit code: 1
+Wall time: 1.9 seconds
+Output:
+rg: regex parse error:
+    (?:est\[\)
+    ^
+error: unclosed group
+
+ exited 1 in 1908ms:
+rg: regex parse error:
+    (?:est\[\)
+    ^
+error: unclosed group
+
+codex
+The startup files are readable. I hit a quoting issue on the line-number search, so I’m rerunning that with literal matching.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Select-String -Path scripts/create_colchicine_coronary_2026_08_19.py -SimpleMatch -Pattern 'est[\"component_analysis\"]','get(\"NOT_ASSESSABLE\", 0)','if os.path.exists(dest) and \"--recreate\" not in sys.argv','if os.path.exists(dest):','for dd in sorted(os.listdir(ssot_dir)):','their =','mine =','with io.open(dest' | ForEach-Object { \"{0}:{1}\" -f "'$_.LineNumber,$_.Line.Trim() }' in F:\rapidmeta-ssot-shell
+ succeeded in 1560ms:
+80:est["component_analysis"] and c for c in t["components"]],
+293:"kNA_not_assessable": screen["dispositions"].get("NOT_ASSESSABLE", 0),
+443:mine = [t.get("nct") for t in trials if t.get("nct")]
+445:for dd in sorted(os.listdir(ssot_dir)):
+457:their = {t.get("nct") for t in ((o2.get("inputs") or {}).get("trials") or [])}
+486:if os.path.exists(dest) and "--recreate" not in sys.argv:
+488:if os.path.exists(dest):
+489:with io.open(dest, encoding="utf-8") as fh:
+492:with io.open(dest, "w", encoding="utf-8") as fh:
+
+codex
+The main candidates are not behavioral summaries; they’re guard/probe failures where the code can emit a precise but unsupported value. I’m checking whether each one is demonstrable from the module alone or requires the missing JSON corpus.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Select-String -Path scripts/create_colchicine_coronary_2026_08_19.py -SimpleMatch -Pattern '354 summed against 286','records_returned\": 137','total_reported\": 137','records_returned\": 523','total_reported\": 523','137 surfaced == 137 screened','100 + 37 = 137','100 x 5 + 23 = 523' | ForEach-Object { \"{0}:{1}\" -f "'$_.LineNumber,$_.Line.Trim() }' in F:\rapidmeta-ssot-shell
+ succeeded in 1500ms:
+238:"records_returned": 137, "total_reported": 137,
+239:"pagination": ("100 + 37 = 137 == totalCount, cursor null on page 2. THE PROOF "
+246:"records_returned": 523, "total_reported": 523,
+247:"pagination": "100 x 5 + 23 = 523 == total_count, has_more FALSE on the last page.",
+275:"reconciles": ("137 surfaced == 137 screened; %d assigned to CORONARY of which %d "
+476:"2026-08-19: 354 summed against 286 distinct registrations, 68 double-counted."
+
+codex
+I have enough to separate module-proven defects from corpus-dependent suspicions. I’m going to keep the final tight and mark data-dependent shapes as undetermined instead of filling gaps from memory.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Select-String -Path scripts/create_colchicine_coronary_2026_08_19.py -SimpleMatch -Pattern 'if json.load(fh).get(\"build_stamp\")','raise SystemExit(\"REFUSED: %s is stamped','\"registry_id\": t.get(\"registry_id\") or t.get(\"nct\")','\"id\": t.get(\"nct\") or t.get(\"registry_id\")' | ForEach-Object { \"{0}:{1}\" -f "'$_.LineNumber,$_.Line.Trim() }' in F:\rapidmeta-ssot-shell
+ succeeded in 1685ms:
+35:"id": t.get("nct") or t.get("registry_id"),
+38:"registry_id": t.get("registry_id") or t.get("nct"),
+490:if json.load(fh).get("build_stamp"):
+491:raise SystemExit("REFUSED: %s is stamped; MERGE instead, never overwrite." % dest)
+
+codex
+- ZERO CONFLATED WITH ABSENT, line 293. Exact input: `screen["dispositions"] = {}`. Consequence: `kNA_not_assessable` is emitted as `0`, so a missing source category is reported as a real zero.
+
+- ZERO CONFLATED WITH ABSENT, line 80. Exact input: call `trial_record("T", t, {"component_analysis": {}})` where `t["components"] = ["cardiovascular death"]` and other required `t` fields are present. Consequence: `components_as_the_paper_states_them` becomes `[{}]` instead of `["cardiovascular death"]`.
+
+- IDEMPOTENCY GUARD SATISFIED BY ITS OWN MARKER, line 490. Exact input: existing destination JSON is `{"build_stamp":{"builder":"anything"}}`, command includes `--recreate`. Consequence: creation is refused even though the file need not contain the built topic object; the marker alone satisfies the guard.
+
+- CHECK THAT CANNOT FAIL, lines 238 and 246. Exact input: `colchicine_surfaced_137.json = {"query_as_executed":"Q"}` and `colchicine_pubmed_523.json = {"query_as_executed":"P"}`, with other loaded JSONs valid. Consequence: the output still reports `137` and `523`; the asserted search counts are not checked against the search files.
+
+- INSTRUMENT READING A DIFFERENT COPY / STALE ASSERTION, line 476. Exact input: `ssot/` contains zero other topic JSONs, so line 445 checks none. Consequence: output can say `0 checked` while still claiming corpus-wide measured totals `354`, `286`, and `68`.
+
+No module-proven defect found for: string-a-fix-removes probe, CRLF/LF text comparison, merged-cell tabulation, negation dropped, or wrapper status-code reporting.
+
+COULD NOT DETERMINE selector-keyed-to-unused-corpus-form: missing `evidence/2026-08-19-batch1/*.json` and current `ssot/` corpus contents.
+tokens used
+38,170
+- ZERO CONFLATED WITH ABSENT, line 293. Exact input: `screen["dispositions"] = {}`. Consequence: `kNA_not_assessable` is emitted as `0`, so a missing source category is reported as a real zero.
+
+- ZERO CONFLATED WITH ABSENT, line 80. Exact input: call `trial_record("T", t, {"component_analysis": {}})` where `t["components"] = ["cardiovascular death"]` and other required `t` fields are present. Consequence: `components_as_the_paper_states_them` becomes `[{}]` instead of `["cardiovascular death"]`.
+
+- IDEMPOTENCY GUARD SATISFIED BY ITS OWN MARKER, line 490. Exact input: existing destination JSON is `{"build_stamp":{"builder":"anything"}}`, command includes `--recreate`. Consequence: creation is refused even though the file need not contain the built topic object; the marker alone satisfies the guard.
+
+- CHECK THAT CANNOT FAIL, lines 238 and 246. Exact input: `colchicine_surfaced_137.json = {"query_as_executed":"Q"}` and `colchicine_pubmed_523.json = {"query_as_executed":"P"}`, with other loaded JSONs valid. Consequence: the output still reports `137` and `523`; the asserted search counts are not checked against the search files.
+
+- INSTRUMENT READING A DIFFERENT COPY / STALE ASSERTION, line 476. Exact input: `ssot/` contains zero other topic JSONs, so line 445 checks none. Consequence: output can say `0 checked` while still claiming corpus-wide measured totals `354`, `286`, and `68`.
+
+No module-proven defect found for: string-a-fix-removes probe, CRLF/LF text comparison, merged-cell tabulation, negation dropped, or wrapper status-code reporting.
+
+COULD NOT DETERMINE selector-keyed-to-unused-corpus-form: missing `evidence/2026-08-19-batch1/*.json` and current `ssot/` corpus contents.

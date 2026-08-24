@@ -1,0 +1,346 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a03129-73f2-7333-813a-b2a40040b5f0
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/analyze_poolability.py
+
+--- THE FILE, IN FULL ---
+"""Poolability analysis for generated meta apps (READ-ONLY).
+
+A meta-analysis needs >=2 trials measuring the SAME outcome with the SAME
+effect type. AUTO apps tag every trial's outcome "MACE", so the engine pools
+heterogeneous endpoints. This script reconstructs the real per-trial outcomes
+from realData, fuzzy-clusters them, and classifies each app:
+
+  poolable      >=1 cluster (same normalized endpoint + same effect class)
+                spanning >=2 distinct trials
+  non-poolable  no such cluster — either a single trial, or every trial
+                measures a different endpoint (fuzzy matching can't help)
+
+Outputs counts at several similarity thresholds (sensitivity) + a JSON list
+of remove-candidates. Writes nothing else. Run --selftest to validate the
+clustering on known cases first.
+"""
+from __future__ import annotations
+import glob, io, json, os, re, sys
+
+if hasattr(sys.stdout, "buffer") and getattr(sys.stdout, "encoding", "").lower() != "utf-8":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+STOP = set("the of in a an and or to for with at from by on as is was were be been "
+           "after before during per change baseline week weeks day days month months "
+           "year years number percent participants patients subjects time score mean "
+           "rate ratio total least dose last".split())
+
+# Canonicalize common endpoint phrases to a single token so spelled-out and
+# abbreviated forms match (e.g. "American College of Rheumatology" vs "ACR 20").
+SYNONYMS = {
+    "american college of rheumatology": " acr ",
+    "progression free survival": " pfs ",
+    "progression-free survival": " pfs ",
+    "overall survival": " os ",
+    "forced expiratory volume in one second": " fev1 ",
+    "forced expiratory volume in 1 second": " fev1 ",
+    "forced expiratory volume": " fev1 ",
+    "estimated glomerular filtration rate": " egfr ",
+    "glycated hemoglobin": " hba1c ",
+    "glycosylated hemoglobin": " hba1c ",
+    "hemoglobin a1c": " hba1c ",
+    "psoriasis area and severity index": " pasi ",
+    "eczema area and severity index": " easi ",
+    "disease activity score": " das28 ",
+    "major adverse cardiovascular events": " mace ",
+    "major adverse cardiac events": " mace ",
+    "lean body mass": " leanbodymass ",
+    "bone mineral density": " bmd ",
+    "american college of cardiology": " acc ",
+    "investigator-assessed": " ",
+    "investigator assessed": " ",
+}
+_ACRO_RE = re.compile(r"\(([A-Za-z]{2,6}\s?\d{0,3})\)")
+
+
+def _acronyms(title):
+    out = set()
+    for m in _ACRO_RE.finditer(title):
+        a = re.sub(r"\s+", "", m.group(1)).lower()
+        if a and not a.isdigit():
+            out.add(a)
+    return out
+
+
+# Distinctive endpoint identifiers (incl. short ones like "os"): sharing one is
+# strong evidence of the same endpoint even when surrounding wording differs.
+CANON = {"acr", "pfs", "os", "fev1", "egfr", "hba1c", "pasi", "easi",
+         "das28", "mace", "bmd", "leanbodymass", "acc"}
+
+
+def normalize_tokens(title):
+    t = re.sub(r"\(primary\)\s*$", "", title.lower())
+    for phrase, repl in SYNONYMS.items():
+        t = t.replace(phrase, repl)
+    acro = _acronyms(title)
+    t = re.sub(r"[^a-z0-9\s]", " ", t)
+    toks = set(acro)
+    for w in t.split():
+        # keep CANON tokens even when short (e.g. "os") — the length filter
+        # would otherwise drop them and break OS/2-char-endpoint clustering.
+        if w in STOP or w.isdigit() or (len(w) <= 2 and w not in CANON):
+            continue
+        toks.add(w)
+    return toks
+
+
+def effect_class(o):
+    et = (o.get("estimandType") or "").upper()
+    if et == "MD" or ("md" in o and "effect" not in o):
+        return "continuous"
+    return "binary"
+
+
+def jaccard(a, b):
+    if not a or not b:
+        return 0.0
+    return len(a & b) / len(a | b)
+
+
+def salient_tokens(title):
+    return _acronyms(title) | (normalize_tokens(title) & CANON)
+
+
+def cluster_outcomes(outcomes, thresh):
+    """Greedy union-find: group outcomes with the same effect class when their
+    token-Jaccard >= thresh OR they share a distinctive endpoint acronym."""
+    n = len(outcomes)
+    parent = list(range(n))
+
+    def find(x):
+        while parent[x] != x:
+            parent[x] = parent[parent[x]]
+            x = parent[x]
+        return x
+
+    def union(x, y):
+        parent[find(x)] = find(y)
+
+    toks = [normalize_tokens(o["title"]) for o in outcomes]
+    sal = [salient_tokens(o["title"]) for o in outcomes]
+    cls = [effect_class(o) for o in outcomes]
+    for i in range(n):
+        for j in range(i + 1, n):
+            if cls[i] != cls[j]:
+                continue
+            if jaccard(toks[i], toks[j]) >= thresh or (sal[i] & sal[j]):
+                union(i, j)
+    groups = {}
+    for i in range(n):
+        groups.setdefault(find(i), []).append(i)
+    return list(groups.values())
+
+
+# Quoted-string body that tolerates the OTHER quote, apostrophes, and escapes
+# (lessons.md: "Alzheimer's"/"Crohn's" inside a double-quoted title must not
+# truncate the match).
+_OUTCOME_RE = re.compile(
+    r"\{\s*shortLabel:\s*(['\"])(?:\\.|(?!\1).)*\1\s*,\s*title:\s*(['\"])"
+    r"(?P<title>(?:\\.|(?!\2).)*)\2(?P<rest>(?:\\.|[^}])*)\}")
+
+_NCT_RE = re.compile(r"(?<![\w'\"])(NCT\d+)\s*:\s*\{")
+
+
+def _parse_outcome(m):
+    rest = m.group("rest")
+    o = {"title": m.group("title")}
+    et = re.search(r"estimandType:\s*(['\"])([^'\"]*)\1", rest)
+    if et:
+        o["estimandType"] = et.group(2)
+    if re.search(r"\bmd:", rest):
+        o["md"] = True
+    if re.search(r"\beffect:", rest):
+        o["effect"] = True
+    return o
+
+
+def extract_trial_outcomes(html):
+    """Return list of (trial_id, outcome_dict). Each outcome is associated with
+    the nearest preceding NCT trial key so a cluster can require >=2 DISTINCT
+    trials (never pool one trial's own multiple outcomes)."""
+    ncts = [(m.start(), m.group(1)) for m in _NCT_RE.finditer(html)]
+    nct_pos = [p for p, _ in ncts]
+    import bisect
+    pairs = []
+    for m in _OUTCOME_RE.finditer(html):
+        i = bisect.bisect_right(nct_pos, m.start()) - 1
+        tid = ncts[i][1] if i >= 0 else f"_pos{m.start()}"
+        pairs.append((tid, _parse_outcome(m)))
+    return pairs
+
+
+def extract_app_outcomes(html):
+    return [o for _, o in extract_trial_outcomes(html)]
+
+
+def count_trials(html):
+    return len(_NCT_RE.findall(html))
+
+
+def classify(html, thresh):
+    pairs = extract_trial_outcomes(html)
+    outs = [o for _, o in pairs]
+    tids = [t for t, _ in pairs]
+    ntrials = len(set(tids))
+    if ntrials < 2:
+        return {"poolable": False, "reason": "single-trial/k<2",
+                "n_outcomes": len(outs), "n_trials": ntrials, "max_cluster_trials": ntrials}
+    clusters = cluster_outcomes(outs, thresh)
+    # a cluster pools only if it spans >=2 DISTINCT trials
+    max_trials = max((len({tids[i] for i in c}) for c in clusters), default=0)
+    return {"poolable": max_trials >= 2,
+            "reason": "has poolable cluster" if max_trials >= 2 else "all endpoints distinct",
+            "n_outcomes": len(outs), "n_trials": ntrials, "max_cluster_trials": max_trials,
+            "n_clusters": len(clusters)}
+
+
+def selftest():
+    cases = {
+        "OMALIZUMAB (4 distinct)": [
+            {"title": "Tolerance of 2000 mg 6 Weeks After Last Dose (primary)", "estimandType": "OR"},
+            {"title": "Change in Allergen-specific Serum IgG4 and IgE (primary)", "estimandType": "OR"},
+            {"title": "Decrease in Pn-BHR AUC of > 80% (primary)", "estimandType": "OR"},
+            {"title": "Number of Participants With Anaphylaxis (primary)", "estimandType": "OR"},
+        ],
+        "Shared PFS x3 (poolable)": [
+            {"title": "Investigator-assessed Progression Free Survival (primary)", "estimandType": "HR"},
+            {"title": "Progression Free Survival by investigator (primary)", "estimandType": "HR"},
+            {"title": "Progression-Free Survival (primary)", "estimandType": "HR"},
+        ],
+        "Mixed type same words (not poolable - type differs)": [
+            {"title": "Fracture incidence (primary)", "estimandType": "OR"},
+            {"title": "Fracture incidence change (primary)", "estimandType": "MD", "md": True},
+        ],
+        "ACR spelled-out vs abbreviated (poolable via synonym)": [
+            {"title": "Percentage of Participants Achieving an American College of Rheumatology 20 response (primary)", "estimandType": "OR"},
+            {"title": "Number of American College of Rheumatology 20 (ACR 20) Responders (primary)", "estimandType": "OR"},
+        ],
+    }
+    print("=== selftest (thresh=0.5) ===")
+    ok = True
+    expect = {"OMALIZUMAB (4 distinct)": False, "Shared PFS x3 (poolable)": True,
+              "Mixed type same words (not poolable - type differs)": False,
+              "ACR spelled-out vs abbreviated (poolable via synonym)": True}
+    for name, outs in cases.items():
+        cl = cluster_outcomes(outs, 0.5)
+        biggest = max(len(c) for c in cl)
+        got = biggest >= 2
+        flag = "OK" if got == expect[name] else "FAIL"
+        if got != expect[name]:
+            ok = False
+        print(f"  [{flag}] {name}: max_cluster={biggest} poolable={got} (expect {expect[name]})")
+    print("selftest", "PASSED" if ok else "FAILED")
+    return ok
+
+
+def main():
+    if "--selftest" in sys.argv:
+        sys.exit(0 if selftest() else 1)
+    pattern = "*_AUTO*_FULL_REVIEW.html"
+    files = sorted(glob.glob(os.path.join(HERE, pattern)))
+    thresholds = [0.4, 0.5, 0.6]
+    print(f"AUTO_FULL_REVIEW apps: {len(files)}  (pattern {pattern})\n")
+    per_thresh = {}
+    detail = {}
+    for th in thresholds:
+        keep = remove = 0
+        removes = []
+        for p in files:
+            html = io.open(p, encoding="utf-8", errors="replace").read()
+            r = classify(html, th)
+            if r["poolable"]:
+                keep += 1
+            else:
+                remove += 1
+                removes.append({"name": os.path.basename(p), **r})
+            if th == 0.5:
+                detail[os.path.basename(p)] = r
+        per_thresh[th] = (keep, remove)
+        print(f"thresh={th}: KEEP(poolable)={keep}  REMOVE(non-poolable)={remove}")
+        if th == 0.5:
+            out = os.path.join(HERE, "outputs", "poolability_remove_candidates.json")
+            json.dump(removes, io.open(out, "w", encoding="utf-8"), indent=1, ensure_ascii=False)
+            print(f"  remove-candidates (thresh 0.5) -> {out}")
+    # reason breakdown at 0.5
+    from collections import Counter
+    rc = Counter(d["reason"] for d in detail.values() if not d["poolable"])
+    print("\nnon-poolable reason breakdown (thresh 0.5):", dict(rc))
+    tc = Counter(min(d["n_trials"], 5) for d in detail.values())
+    print("trial-count distribution (capped 5):", dict(sorted(tc.items())))
+
+
+if __name__ == "__main__":
+    main()
+
+codex
+- Line 83 and line 128: `classify("""NCT00000001: { { shortLabel: "a", title: "Percentage of Participants Achieving an American College of Rheumatology 20 response (primary)", estimandType: "OR", effect: 1 } } NCT00000002: { { shortLabel: "b", title: "Percentage of Participants Achieving an American College of Rheumatology 50 response (primary)", estimandType: "OR", effect: 1 } }""", 0.5)` returns poolable. Consequence: ACR20 and ACR50 are different endpoints, but numeric qualifiers are dropped and shared `acr` forces a merge.
+
+- Line 93: `classify("""NCT00000001: { { shortLabel: "a", title: "Overall Survival (primary)", estimandType: "HR", effect: 0.8 } } NCT00000002: { { shortLabel: "b", title: "Overall Survival (primary)", estimandType: "OR", effect: 0.7 } }""", 0.5)` returns poolable. Consequence: HR and OR are incompatible effect measures, but every non-MD estimand collapses to `"binary"`.
+
+- Line 169: `classify("""{ shortLabel: "a", title: "Progression Free Survival (primary)", estimandType: "HR", effect: 0.8 } { shortLabel: "b", title: "Progression-Free Survival (primary)", estimandType: "HR", effect: 0.9 }""", 0.5)` returns poolable. Consequence: absent trial IDs are converted into distinct synthetic trial IDs, so “no trial key found” becomes evidence of two trials.
+
+- Line 141: `classify("""NCT00000001: { { shortLabel: "a", title: "Fracture incidence (primary)", ci: { low: 0, high: 1 }, estimandType: "MD", md: 1 } } NCT00000002: { { shortLabel: "b", title: "Fracture incidence (primary)", estimandType: "OR", effect: 1 } }""", 0.5)` returns poolable. Consequence: a nested `}` before `estimandType` truncates `rest`, so the MD outcome is parsed as binary and can pool with OR.
+
+No proven defects in the pasted file for CRLF text comparison, merged-cell/off-by-one tabulation, negation-dropped sentence parsing, wrapper status-code reporting, or probe-keyed-to-fixed-string.
+tokens used
+17,762
+- Line 83 and line 128: `classify("""NCT00000001: { { shortLabel: "a", title: "Percentage of Participants Achieving an American College of Rheumatology 20 response (primary)", estimandType: "OR", effect: 1 } } NCT00000002: { { shortLabel: "b", title: "Percentage of Participants Achieving an American College of Rheumatology 50 response (primary)", estimandType: "OR", effect: 1 } }""", 0.5)` returns poolable. Consequence: ACR20 and ACR50 are different endpoints, but numeric qualifiers are dropped and shared `acr` forces a merge.
+
+- Line 93: `classify("""NCT00000001: { { shortLabel: "a", title: "Overall Survival (primary)", estimandType: "HR", effect: 0.8 } } NCT00000002: { { shortLabel: "b", title: "Overall Survival (primary)", estimandType: "OR", effect: 0.7 } }""", 0.5)` returns poolable. Consequence: HR and OR are incompatible effect measures, but every non-MD estimand collapses to `"binary"`.
+
+- Line 169: `classify("""{ shortLabel: "a", title: "Progression Free Survival (primary)", estimandType: "HR", effect: 0.8 } { shortLabel: "b", title: "Progression-Free Survival (primary)", estimandType: "HR", effect: 0.9 }""", 0.5)` returns poolable. Consequence: absent trial IDs are converted into distinct synthetic trial IDs, so “no trial key found” becomes evidence of two trials.
+
+- Line 141: `classify("""NCT00000001: { { shortLabel: "a", title: "Fracture incidence (primary)", ci: { low: 0, high: 1 }, estimandType: "MD", md: 1 } } NCT00000002: { { shortLabel: "b", title: "Fracture incidence (primary)", estimandType: "OR", effect: 1 } }""", 0.5)` returns poolable. Consequence: a nested `}` before `estimandType` truncates `rest`, so the MD outcome is parsed as binary and can pool with OR.
+
+No proven defects in the pasted file for CRLF text comparison, merged-cell/off-by-one tabulation, negation-dropped sentence parsing, wrapper status-code reporting, or probe-keyed-to-fixed-string.

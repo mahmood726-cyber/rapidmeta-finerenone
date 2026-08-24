@@ -1,0 +1,186 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a031bd-4fab-7bb1-8f81-ce178e081c7a
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/fix_nct_name_drift.py
+
+--- THE FILE, IN FULL ---
+"""Align nctAcronyms[NCT] to match realData[NCT].name for the 7
+WARNs surfaced by Sentinel P0-rapidmeta-data-integrity.
+
+Strategy: the substantive data-of-record is realData[NCT].name. The
+nctAcronyms map is a display-label cache. When they disagree, prefer
+realData and update nctAcronyms.
+
+We do NOT touch realData. We do NOT touch the 'b'-suffixed parallel
+NCT entries (these are intentional disambiguation in PNH for two
+trials registered together; their names are correct already).
+
+Idempotent.
+"""
+from __future__ import annotations
+import sys, io, re
+from pathlib import Path
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+REPO = Path(__file__).resolve().parent.parent
+
+TARGETS = [
+    'MALARIA_VACCINE_REVIEW.html',
+    'PNH_NEW_COMPLEMENT_REVIEW.html',
+    'PRIMAQUINE_GAMETOCYTE_DR_REVIEW.html',
+    'ROTAVIRUS_VACCINE_AFRICA_REVIEW.html',
+]
+
+# (NCT, expected new acronym value) — derived from realData.name
+FIXES = {
+    'NCT03896724': 'R21/Matrix-M Phase 2b (Datoo 2021)',
+    'NCT04704830': 'R21/Matrix-M Phase 3 (Datoo 2024)',
+    'NCT04434092': 'COMMODORE-2',  # Registry truth; AACT confirms NCT04434092 = COMMODORE 2
+    'NCT01365598': 'Eziefula 2014 Uganda',
+    'NCT02174900': 'SAFEPRIM Burkina Faso',
+    'NCT00241644': 'Rotarix Africa (Madhi 2010)',
+    'NCT00362648': 'RotaTeq Africa (Armah 2010)',
+}
+
+# For PNH NCT04434092 specifically: realData.name says COMMODORE-1 but
+# AACT says it's COMMODORE-2. Fix realData too — registry is truth.
+REALDATA_FIXES = {
+    'PNH_NEW_COMPLEMENT_REVIEW.html': {
+        'NCT04434092': ('COMMODORE-1', 'COMMODORE-2'),
+    },
+}
+
+
+def patch_nct_acronyms(text, fixes):
+    """Update each 'NCT...': 'OLD' inside an nctAcronyms object to 'NEW'."""
+    n = 0
+    for nct, new_acronym in fixes.items():
+        pat = re.compile(r"('" + re.escape(nct) + r"'\s*:\s*)'([^']+)'")
+        def replacer(m):
+            nonlocal n
+            old = m.group(2)
+            if old == new_acronym:
+                return m.group(0)
+            n += 1
+            return m.group(1) + "'" + new_acronym + "'"
+        text = pat.sub(replacer, text, count=1)
+    return text, n
+
+
+def patch_realdata_name(text, nct, old_name, new_name):
+    """Update realData[NCT].name from old to new. Idempotent."""
+    pat = re.compile(
+        r"('" + re.escape(nct) + r"'\s*:\s*\{\s*\n?\s*"
+        r"name\s*:\s*)'" + re.escape(old_name) + r"'"
+    )
+    new, n = pat.subn(r"\1'" + new_name + "'", text, count=1)
+    return new, n
+
+
+def main():
+    total_acronym_fixes = 0
+    total_realdata_fixes = 0
+    for fname in TARGETS:
+        hp = REPO / fname
+        if not hp.exists(): continue
+        text = hp.read_text(encoding="utf-8", errors="replace")
+        # Step 1: fix nctAcronyms
+        new, n_acro = patch_nct_acronyms(text, FIXES)
+        # Step 2: realData fixes (PNH only)
+        n_real = 0
+        if fname in REALDATA_FIXES:
+            for nct, (old, new_name) in REALDATA_FIXES[fname].items():
+                new, n_one = patch_realdata_name(new, nct, old, new_name)
+                n_real += n_one
+        if n_acro > 0 or n_real > 0:
+            hp.write_text(new, encoding="utf-8")
+            total_acronym_fixes += n_acro
+            total_realdata_fixes += n_real
+            print(f"  {fname}: nctAcronyms {n_acro}, realData {n_real}")
+    print(f"\nTotal nctAcronyms updates: {total_acronym_fixes}")
+    print(f"Total realData updates:    {total_realdata_fixes}")
+
+
+if __name__ == "__main__":
+    main()
+
+codex
+**Defects Found**
+
+- Line 60: exact input to `patch_nct_acronyms`: `"'NCT01365598': 'Eziefula 2014 Uganda'\nconst nctAcronyms = {'NCT01365598': 'WRONG'}"` with `{'NCT01365598': 'Eziefula 2014 Uganda'}`. The first already-fixed occurrence satisfies the idempotency guard and `count=1` prevents the stale live occurrence from being patched.
+
+- Line 52: exact input to `patch_nct_acronyms`: `"const realData = {'NCT01365598': 'OLD'};\nconst nctAcronyms = {'NCT01365598': 'WRONG'};"` with `{'NCT01365598': 'Eziefula 2014 Uganda'}`. The regex is not scoped to `nctAcronyms`, so it can mutate a different binding and leave the intended cache unchanged.
+
+- Lines 79 and 94-99: exact input/environment: run the script from a repo where none of `MALARIA_VACCINE_REVIEW.html`, `PNH_NEW_COMPLEMENT_REVIEW.html`, `PRIMAQUINE_GAMETOCYTE_DR_REVIEW.html`, or `ROTAVIRUS_VACCINE_AFRICA_REVIEW.html` exists. The script prints zero updates and exits 0, so the wrapper status reports success without proving any work happened.
+
+- Lines 67-68: exact input to `patch_realdata_name`: `"'NCT04434092': {\n  arms: [],\n  name: 'COMMODORE-1'\n}"`. The selector only matches `name` as the first property, so a real `realData[NCT].name` later in the object is silently skipped.
+
+**Not Proven From This Packet**
+
+- Probe keyed to string a fix removes: not found.
+- CRLF/LF text comparison defect: not found.
+- Merged-cell/off-by-one defect: not applicable in this file.
+- Negation dropped: not found.
+- Corpus-wide selector coverage: COULD NOT DETERMINE without the four target HTML files named in `TARGETS`.
+tokens used
+10,596
+**Defects Found**
+
+- Line 60: exact input to `patch_nct_acronyms`: `"'NCT01365598': 'Eziefula 2014 Uganda'\nconst nctAcronyms = {'NCT01365598': 'WRONG'}"` with `{'NCT01365598': 'Eziefula 2014 Uganda'}`. The first already-fixed occurrence satisfies the idempotency guard and `count=1` prevents the stale live occurrence from being patched.
+
+- Line 52: exact input to `patch_nct_acronyms`: `"const realData = {'NCT01365598': 'OLD'};\nconst nctAcronyms = {'NCT01365598': 'WRONG'};"` with `{'NCT01365598': 'Eziefula 2014 Uganda'}`. The regex is not scoped to `nctAcronyms`, so it can mutate a different binding and leave the intended cache unchanged.
+
+- Lines 79 and 94-99: exact input/environment: run the script from a repo where none of `MALARIA_VACCINE_REVIEW.html`, `PNH_NEW_COMPLEMENT_REVIEW.html`, `PRIMAQUINE_GAMETOCYTE_DR_REVIEW.html`, or `ROTAVIRUS_VACCINE_AFRICA_REVIEW.html` exists. The script prints zero updates and exits 0, so the wrapper status reports success without proving any work happened.
+
+- Lines 67-68: exact input to `patch_realdata_name`: `"'NCT04434092': {\n  arms: [],\n  name: 'COMMODORE-1'\n}"`. The selector only matches `name` as the first property, so a real `realData[NCT].name` later in the object is silently skipped.
+
+**Not Proven From This Packet**
+
+- Probe keyed to string a fix removes: not found.
+- CRLF/LF text comparison defect: not found.
+- Merged-cell/off-by-one defect: not applicable in this file.
+- Negation dropped: not found.
+- Corpus-wide selector coverage: COULD NOT DETERMINE without the four target HTML files named in `TARGETS`.

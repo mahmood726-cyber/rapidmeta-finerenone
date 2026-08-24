@@ -1,0 +1,681 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a0324a-d647-7f60-bbcd-0d8b791a220c
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/regate_cascade_2026_08_19.py
+
+--- THE FILE, IN FULL ---
+"""RE-GATE THE FIVE COMPLETED TOPICS AGAINST THE REPAIRED CLASSIFIER.
+
+Commit e20f94068 repaired `topic_identity.locate()` for the TRAILING placebo convention
+(`Drug: Apixaban-matching placebo`) and stated, in its own message:
+
+    "no INCLUDED trial of any of the five gated topics changed role -- checked, not assumed.
+     Their CASCADE COUNTS may move where a changed registration was in their surfaced set,
+     and those four topics are now knowably below the instrument that produced them. To be
+     re-run and re-gated with old and new side by side, not silently."
+
+This file is that re-run. It answers ONE question per topic: does the repaired classifier
+change any k on a page that is already gated?
+
+TWO CLASSIFIERS, BOTH LOADED FROM GIT, NEITHER REIMPLEMENTED FROM MEMORY.
+  NEW = ssot/topic_identity.py at the working tree
+  OLD = ssot/topic_identity.py at 7a08bcbe1, the commit immediately BEFORE e20f94068
+Reimplementing the old rule from the commit message would test this script against its
+author's reading of it, which is detector 10's rule in the other direction.
+
+THE SURFACED SET IS HELD CONSTANT ON PURPOSE. Each topic's BROAD query is re-executed
+verbatim from the object's own `search.databases[].query_as_executed`, so k0 is measured
+rather than inherited. If today's k0 differs from the stored k0 that is REGISTRY DRIFT, and
+it is printed as a separate line and never folded into the classifier delta -- two causes
+summed into one number is the "one k" error the cascade exists to avoid.
+
+Pagination is checked, not assumed (E10): returned == totalCount and nextPageToken is null,
+per query, printed.
+"""
+import importlib.util
+import json
+import os
+import subprocess
+import sys
+import urllib.parse
+import urllib.request
+
+REPO = "F:/rapidmeta-ssot-shell"
+sys.path.insert(0, REPO + "/ssot")
+os.environ.setdefault(
+    "RM_CTGOV_CACHE",
+    "F:/claude-temp/claude/F--rapidmeta-ssot-shell/"
+    "eb4d84e5-8a24-4c3b-afe2-34bd91c20bc7/scratchpad/.ctgov-raw-cache")
+
+import ctgov_transport as X          # noqa: E402  (path set above)
+import topic_identity as NEW         # noqa: E402
+
+OLD_REV = "0d9786b13"   # the commit before the NO_INTERVENTION fix
+SCRATCH = ("F:/claude-temp/claude/F--rapidmeta-ssot-shell/"
+           "6b629e1e-cc8c-4565-af03-e40341ee43f3/scratchpad")
+
+
+def load_old_classifier():
+    """topic_identity.py AS IT WAS, read out of git. Not a reimplementation."""
+    # DECODED EXPLICITLY, not via text=True: that decodes with the console codepage, so on a
+    # cp1252 box a source file containing any non-ASCII byte either mangles or raises -- and
+    # the thing being read here is the CLASSIFIER whose behaviour the whole run depends on.
+    src = subprocess.run(["git", "-C", REPO, "show", f"{OLD_REV}:ssot/topic_identity.py"],
+                         capture_output=True, check=True).stdout.decode("utf-8", "replace")
+    os.makedirs(SCRATCH, exist_ok=True)
+    path = os.path.join(SCRATCH, "topic_identity_OLD.py")
+    with open(path, "w", encoding="utf-8") as fh:
+        fh.write(src)
+    spec = importlib.util.spec_from_file_location("topic_identity_OLD", path)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+# ---------------------------------------------------------------------------
+# THE FIVE GATED TOPICS. Each query is the BROAD one recorded in the object's own
+# `search` block -- the one whose recall on the included set was measured.
+# ---------------------------------------------------------------------------
+TOPICS = {
+    "alirocumab-lipid": {
+        "topic_key": "alirocumab",
+        "stored_k0": 99,
+        "query_as_stored": ('query.intr="alirocumab OR praluent OR SAR236553 OR REGN727"; '
+                            'filter.advanced=AREA[StudyType]INTERVENTIONAL'),
+        "raw_expr": {"query.intr": "alirocumab OR praluent OR SAR236553 OR REGN727",
+                     "filter.advanced": "AREA[StudyType]INTERVENTIONAL"},
+    },
+    "attr-cm-review": {
+        "topic_key": "tafamidis OR acoramidis",
+        "stored_k0": 55,
+        "query_as_stored": ('query.intr="tafamidis OR acoramidis OR vyndaqel OR vyndamax OR '
+                            'attruby OR AG10"; filter.advanced=AREA[StudyType]INTERVENTIONAL'),
+        "raw_expr": {"query.intr": ("tafamidis OR acoramidis OR vyndaqel OR vyndamax OR "
+                                    "attruby OR AG10"),
+                     "filter.advanced": "AREA[StudyType]INTERVENTIONAL"},
+    },
+    "bempedoic-acid-review": {
+        "topic_key": "bempedoic acid",
+        "stored_k0": 21,
+        "query_as_stored": ('condition="hypercholesterolemia OR dyslipidemia OR cardiovascular '
+                            'disease"; intervention="bempedoic acid"; INTERVENTIONAL; '
+                            'phase=[PHASE3,PHASE4]'),
+        "raw_expr": {"query.cond": "hypercholesterolemia OR dyslipidemia OR cardiovascular disease",
+                     "query.intr": "bempedoic acid",
+                     "filter.advanced": ("AREA[StudyType]INTERVENTIONAL AND "
+                                         "AREA[Phase](PHASE3 OR PHASE4)")},
+    },
+    "iv-iron-hf": {
+        "topic_key": "intravenous iron",
+        "stored_k0": 47,
+        "query_as_stored": ('query.cond="heart failure"; query.intr="ferric carboxymaltose OR '
+                            'iron sucrose OR ferric derisomaltose OR iron isomaltoside OR '
+                            'intravenous iron"; filter.advanced=AREA[StudyType]INTERVENTIONAL'),
+        "raw_expr": {"query.cond": "heart failure",
+                     "query.intr": ("ferric carboxymaltose OR iron sucrose OR ferric "
+                                    "derisomaltose OR iron isomaltoside OR intravenous iron"),
+                     "filter.advanced": "AREA[StudyType]INTERVENTIONAL"},
+    },
+    "sglt2-hf": {
+        "topic_key": "sglt2 inhibitors",
+        "stored_k0": 56,
+        "query_as_stored": ('condition="heart failure"; intervention="dapagliflozin OR '
+                            'empagliflozin OR sotagliflozin OR canagliflozin OR ertugliflozin"; '
+                            'INTERVENTIONAL; phase=[PHASE3]'),
+        "raw_expr": {"query.cond": "heart failure",
+                     "query.intr": ("dapagliflozin OR empagliflozin OR sotagliflozin OR "
+                                    "canagliflozin OR ertugliflozin"),
+                     "filter.advanced": ("AREA[StudyType]INTERVENTIONAL AND "
+                                         "AREA[Phase]PHASE3")},
+    },
+}
+
+SEARCH_API = "https://clinicaltrials.gov/api/v2/studies"
+
+
+def raw_search(expr, page_size=1000):
+    """(state, ids, detail). Paginates; never returns a partial list as if complete."""
+    ids, token, pages, total = [], None, 0, None
+    while True:
+        params = dict(expr)
+        params["fields"] = "NCTId"
+        params["pageSize"] = str(page_size)
+        params["countTotal"] = "true"
+        if token:
+            params["pageToken"] = token
+        url = f"{SEARCH_API}?{urllib.parse.urlencode(params)}"
+        try:
+            with urllib.request.urlopen(url, timeout=90) as resp:
+                if resp.status != 200:
+                    return X.UNREACHABLE, ids, f"HTTP {resp.status} on page {pages + 1}"
+                payload = json.loads(resp.read().decode("utf-8"))
+        except Exception as exc:                       # noqa: BLE001 - transport, reported
+            return X.UNREACHABLE, ids, f"{type(exc).__name__}: {exc} on page {pages + 1}"
+        for s in payload.get("studies") or []:
+            nct = (((s.get("protocolSection") or {}).get("identificationModule")
+                    or {}).get("nctId"))
+            if nct:
+                ids.append(nct)
+        pages += 1
+        token = payload.get("nextPageToken")
+        # FROM THE FIRST PAGE ONLY. `countTotal=true` populates totalCount on the first
+        # response and returns null on later ones, so reading it here reported
+        # `returned==totalCount: False` on a complete multi-page fetch. Every query this file
+        # runs fits in one page, so the last page WAS the first and the defect could not
+        # show -- it was found on a two-page query in scripts/search_ablation_split.
+        # A guard that has only ever run on single-page inputs has not been tested on the
+        # case it exists for.
+        if pages == 1:
+            total = payload.get("totalCount")
+        if not token:
+            return (X.OK, ids,
+                    f"{len(ids)} ids over {pages} page(s), totalCount={total}, "
+                    f"nextPageToken=null, returned==totalCount: {len(ids) == total}")
+        if pages > 20:
+            return X.MALFORMED, ids, "pagination did not terminate in 20 pages"
+
+
+def included_ncts(topic_dir):
+    """The object's own included set, read from the object -- never recalled."""
+    path = f"{REPO}/ssot/{topic_dir}/{topic_dir}.json"
+    obj = json.load(open(path, encoding="utf-8"))
+    out = []
+    pf = (obj.get("prisma_flow") or {}).get("included") or {}
+    out += [str(n) for n in (pf.get("nct") or [])]
+    for t in ((obj.get("inputs") or {}).get("trials") or []):
+        for key in ("nct", "nct_id", "registration", "registration_id", "id"):
+            v = t.get(key)
+            if isinstance(v, str) and v.upper().startswith("NCT"):
+                out.append(v)
+                break
+    return sorted(set(out))
+
+
+def tally(roles, mod):
+    return {
+        "k2_role_located": sum(1 for r in roles.values()
+                               if r in (mod.EXPERIMENTAL, mod.COMPARATOR, mod.BACKGROUND)),
+        "k3_experimental": sum(1 for r in roles.values() if r == mod.EXPERIMENTAL),
+        "k4_comparator": sum(1 for r in roles.values() if r == mod.COMPARATOR),
+        "k5_background": sum(1 for r in roles.values() if r == mod.BACKGROUND),
+        "kNA_not_assessable": sum(1 for r in roles.values() if r == mod.NOT_ASSESSABLE),
+    }
+
+
+def main():
+    OLD = load_old_classifier()
+    print(f"OLD classifier loaded from git {OLD_REV}:ssot/topic_identity.py "
+          f"({len(OLD.TOPIC_SYNONYMS)} declared topics)")
+    print(f"NEW classifier from working tree ({len(NEW.TOPIC_SYNONYMS)} declared topics)")
+    print()
+
+    report = {}
+    for topic_dir, spec in sorted(TOPICS.items()):
+        key = spec["topic_key"]
+        syns_new = NEW.synonyms_for(key)
+        syns_old = OLD.synonyms_for(key)
+        if syns_new != syns_old:
+            print(f"!! {topic_dir}: SYNONYM SET ALSO CHANGED between the two revisions. "
+                  f"The delta below is NOT attributable to locate() alone.")
+        state, ids, detail = raw_search(spec["raw_expr"])
+        ids = sorted(set(ids))
+        inc = included_ncts(topic_dir)
+
+        roles_old, roles_new, unreachable = {}, {}, []
+        for nct in ids:
+            st, study, det = X.fetch_raw(nct)
+            if st != X.OK:
+                unreachable.append(nct)
+                continue
+            payload = X.require_raw_v2(study, nct)
+            roles_old[nct] = OLD.locate(payload, syns_old)[0]
+            roles_new[nct], ev = NEW.locate(payload, syns_new)
+            if roles_old[nct] != roles_new[nct]:
+                roles_new[nct + "_ev"] = ev
+
+        t_old, t_new = tally(roles_old, OLD), tally(
+            {k: v for k, v in roles_new.items() if not k.endswith("_ev")}, NEW)
+        changed = {n: (roles_old[n], roles_new[n]) for n in roles_old
+                   if roles_old[n] != roles_new[n]}
+        changed_included = {n: v for n, v in changed.items() if n in inc}
+        inc_not_surfaced = [n for n in inc if n not in ids]
+
+        rec = {"topic_dir": topic_dir, "topic_key": key,
+               "query_as_stored": spec["query_as_stored"],
+               "search_state": state, "search_detail": detail,
+               "stored_k0": spec["stored_k0"], "k0_today": len(ids),
+               "k0_drift": len(ids) - spec["stored_k0"],
+               "kUNREACHABLE": len(unreachable), "unreachable_ids": unreachable,
+               "old": t_old, "new": t_new,
+               "changed": {n: {"old": a, "new": b} for n, (a, b) in sorted(changed.items())},
+               "changed_evidence": {n[:-3]: roles_new[n] for n in roles_new
+                                    if n.endswith("_ev")},
+               "included_in_object": inc,
+               "included_that_changed_role": changed_included,
+               "included_not_surfaced_by_this_query": inc_not_surfaced}
+        report[topic_dir] = rec
+
+        print(f"--- {topic_dir}   [{key}]")
+        print(f"    search  {state} -- {detail}")
+        print(f"    k0 stored {spec['stored_k0']:>4}  |  k0 today {len(ids):>4}  "
+              f"({'SAME SURFACED SIZE' if len(ids) == spec['stored_k0'] else 'REGISTRY DRIFT -- reported, NOT folded into the classifier delta'})")
+        if unreachable:
+            print(f"    kUNREACHABLE {len(unreachable)} -- never read; not a verdict: {unreachable}")
+        print(f"    {'stage':<20}{'OLD':>6}{'NEW':>6}{'delta':>8}")
+        for stg in ("k2_role_located", "k3_experimental", "k4_comparator",
+                    "k5_background", "kNA_not_assessable"):
+            d = t_new[stg] - t_old[stg]
+            print(f"    {stg:<20}{t_old[stg]:>6}{t_new[stg]:>6}{d:>+8}"
+                  f"{'   <-- MOVED' if d else ''}")
+        print(f"    role changes: {len(changed)}")
+        for n, (a, b) in sorted(changed.items()):
+            mark = "  *** IN THIS OBJECT'S INCLUDED SET ***" if n in inc else ""
+            print(f"      {n}  {a} -> {b}{mark}")
+            print(f"        NEW evidence: {roles_new.get(n + '_ev')}")
+        print(f"    included set ({len(inc)}): {inc}")
+        if inc_not_surfaced:
+            print(f"    !! included but NOT surfaced by this query: {inc_not_surfaced}")
+        print(f"    INCLUDED trials whose role changed: "
+              f"{changed_included if changed_included else 'NONE'}")
+        print()
+
+    out = os.path.join(SCRATCH, "regate_cascade_2026_08_19.json")
+    os.makedirs(SCRATCH, exist_ok=True)
+    with open(out, "w", encoding="utf-8") as fh:
+        json.dump(report, fh, indent=1)
+    print(f"wrote {out}")
+
+    moved = [t for t, r in report.items()
+             if any(r["new"][s] != r["old"][s] for s in r["old"])]
+    drifted = [t for t, r in report.items() if r["k0_drift"]]
+    print()
+    print("SUMMARY")
+    print(f"  topics whose cascade MOVED under the repaired classifier: "
+          f"{moved if moved else 'NONE'}")
+    print(f"  topics whose k0 drifted since the stored search: "
+          f"{drifted if drifted else 'NONE'}")
+    print("  A moved cascade requires the page to be RESTATED and RE-GATED, not silently "
+          "rebuilt.")
+
+
+if __name__ == "__main__":
+    main()
+
+codex
+I’ll stay within the pasted packet and treat external behavior as unknown unless the defect follows from this file alone. I’m going to pin findings to exact lines and avoid speculative accusations.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "if (Test-Path 'scripts/regate_cascade_2026_08_19.py') { "'$i=0; Get-Content '"'scripts/regate_cascade_2026_08_19.py' | ForEach-Object { "'$i++; '"'{0,4}: {1}' -f "'$i, $_ } } else { '"'MISSING' }" in F:\rapidmeta-ssot-shell
+ succeeded in 1484ms:
+   1: """RE-GATE THE FIVE COMPLETED TOPICS AGAINST THE REPAIRED CLASSIFIER.
+   2: 
+   3: Commit e20f94068 repaired `topic_identity.locate()` for the TRAILING placebo convention
+   4: (`Drug: Apixaban-matching placebo`) and stated, in its own message:
+   5: 
+   6:     "no INCLUDED trial of any of the five gated topics changed role -- checked, not assumed.
+   7:      Their CASCADE COUNTS may move where a changed registration was in their surfaced set,
+   8:      and those four topics are now knowably below the instrument that produced them. To be
+   9:      re-run and re-gated with old and new side by side, not silently."
+  10: 
+  11: This file is that re-run. It answers ONE question per topic: does the repaired classifier
+  12: change any k on a page that is already gated?
+  13: 
+  14: TWO CLASSIFIERS, BOTH LOADED FROM GIT, NEITHER REIMPLEMENTED FROM MEMORY.
+  15:   NEW = ssot/topic_identity.py at the working tree
+  16:   OLD = ssot/topic_identity.py at 7a08bcbe1, the commit immediately BEFORE e20f94068
+  17: Reimplementing the old rule from the commit message would test this script against its
+  18: author's reading of it, which is detector 10's rule in the other direction.
+  19: 
+  20: THE SURFACED SET IS HELD CONSTANT ON PURPOSE. Each topic's BROAD query is re-executed
+  21: verbatim from the object's own `search.databases[].query_as_executed`, so k0 is measured
+  22: rather than inherited. If today's k0 differs from the stored k0 that is REGISTRY DRIFT, and
+  23: it is printed as a separate line and never folded into the classifier delta -- two causes
+  24: summed into one number is the "one k" error the cascade exists to avoid.
+  25: 
+  26: Pagination is checked, not assumed (E10): returned == totalCount and nextPageToken is null,
+  27: per query, printed.
+  28: """
+  29: import importlib.util
+  30: import json
+  31: import os
+  32: import subprocess
+  33: import sys
+  34: import urllib.parse
+  35: import urllib.request
+  36: 
+  37: REPO = "F:/rapidmeta-ssot-shell"
+  38: sys.path.insert(0, REPO + "/ssot")
+  39: os.environ.setdefault(
+  40:     "RM_CTGOV_CACHE",
+  41:     "F:/claude-temp/claude/F--rapidmeta-ssot-shell/"
+  42:     "eb4d84e5-8a24-4c3b-afe2-34bd91c20bc7/scratchpad/.ctgov-raw-cache")
+  43: 
+  44: import ctgov_transport as X          # noqa: E402  (path set above)
+  45: import topic_identity as NEW         # noqa: E402
+  46: 
+  47: OLD_REV = "0d9786b13"   # the commit before the NO_INTERVENTION fix
+  48: SCRATCH = ("F:/claude-temp/claude/F--rapidmeta-ssot-shell/"
+  49:            "6b629e1e-cc8c-4565-af03-e40341ee43f3/scratchpad")
+  50: 
+  51: 
+  52: def load_old_classifier():
+  53:     """topic_identity.py AS IT WAS, read out of git. Not a reimplementation."""
+  54:     # DECODED EXPLICITLY, not via text=True: that decodes with the console codepage, so on a
+  55:     # cp1252 box a source file containing any non-ASCII byte either mangles or raises -- and
+  56:     # the thing being read here is the CLASSIFIER whose behaviour the whole run depends on.
+  57:     src = subprocess.run(["git", "-C", REPO, "show", f"{OLD_REV}:ssot/topic_identity.py"],
+  58:                          capture_output=True, check=True).stdout.decode("utf-8", "replace")
+  59:     os.makedirs(SCRATCH, exist_ok=True)
+  60:     path = os.path.join(SCRATCH, "topic_identity_OLD.py")
+  61:     with open(path, "w", encoding="utf-8") as fh:
+  62:         fh.write(src)
+  63:     spec = importlib.util.spec_from_file_location("topic_identity_OLD", path)
+  64:     mod = importlib.util.module_from_spec(spec)
+  65:     spec.loader.exec_module(mod)
+  66:     return mod
+  67: 
+  68: 
+  69: # ---------------------------------------------------------------------------
+  70: # THE FIVE GATED TOPICS. Each query is the BROAD one recorded in the object's own
+  71: # `search` block -- the one whose recall on the included set was measured.
+  72: # ---------------------------------------------------------------------------
+  73: TOPICS = {
+  74:     "alirocumab-lipid": {
+  75:         "topic_key": "alirocumab",
+  76:         "stored_k0": 99,
+  77:         "query_as_stored": ('query.intr="alirocumab OR praluent OR SAR236553 OR REGN727"; '
+  78:                             'filter.advanced=AREA[StudyType]INTERVENTIONAL'),
+  79:         "raw_expr": {"query.intr": "alirocumab OR praluent OR SAR236553 OR REGN727",
+  80:                      "filter.advanced": "AREA[StudyType]INTERVENTIONAL"},
+  81:     },
+  82:     "attr-cm-review": {
+  83:         "topic_key": "tafamidis OR acoramidis",
+  84:         "stored_k0": 55,
+  85:         "query_as_stored": ('query.intr="tafamidis OR acoramidis OR vyndaqel OR vyndamax OR '
+  86:                             'attruby OR AG10"; filter.advanced=AREA[StudyType]INTERVENTIONAL'),
+  87:         "raw_expr": {"query.intr": ("tafamidis OR acoramidis OR vyndaqel OR vyndamax OR "
+  88:                                     "attruby OR AG10"),
+  89:                      "filter.advanced": "AREA[StudyType]INTERVENTIONAL"},
+  90:     },
+  91:     "bempedoic-acid-review": {
+  92:         "topic_key": "bempedoic acid",
+  93:         "stored_k0": 21,
+  94:         "query_as_stored": ('condition="hypercholesterolemia OR dyslipidemia OR cardiovascular '
+  95:                             'disease"; intervention="bempedoic acid"; INTERVENTIONAL; '
+  96:                             'phase=[PHASE3,PHASE4]'),
+  97:         "raw_expr": {"query.cond": "hypercholesterolemia OR dyslipidemia OR cardiovascular disease",
+  98:                      "query.intr": "bempedoic acid",
+  99:                      "filter.advanced": ("AREA[StudyType]INTERVENTIONAL AND "
+ 100:                                          "AREA[Phase](PHASE3 OR PHASE4)")},
+ 101:     },
+ 102:     "iv-iron-hf": {
+ 103:         "topic_key": "intravenous iron",
+ 104:         "stored_k0": 47,
+ 105:         "query_as_stored": ('query.cond="heart failure"; query.intr="ferric carboxymaltose OR '
+ 106:                             'iron sucrose OR ferric derisomaltose OR iron isomaltoside OR '
+ 107:                             'intravenous iron"; filter.advanced=AREA[StudyType]INTERVENTIONAL'),
+ 108:         "raw_expr": {"query.cond": "heart failure",
+ 109:                      "query.intr": ("ferric carboxymaltose OR iron sucrose OR ferric "
+ 110:                                     "derisomaltose OR iron isomaltoside OR intravenous iron"),
+ 111:                      "filter.advanced": "AREA[StudyType]INTERVENTIONAL"},
+ 112:     },
+ 113:     "sglt2-hf": {
+ 114:         "topic_key": "sglt2 inhibitors",
+ 115:         "stored_k0": 56,
+ 116:         "query_as_stored": ('condition="heart failure"; intervention="dapagliflozin OR '
+ 117:                             'empagliflozin OR sotagliflozin OR canagliflozin OR ertugliflozin"; '
+ 118:                             'INTERVENTIONAL; phase=[PHASE3]'),
+ 119:         "raw_expr": {"query.cond": "heart failure",
+ 120:                      "query.intr": ("dapagliflozin OR empagliflozin OR sotagliflozin OR "
+ 121:                                     "canagliflozin OR ertugliflozin"),
+ 122:                      "filter.advanced": ("AREA[StudyType]INTERVENTIONAL AND "
+ 123:                                          "AREA[Phase]PHASE3")},
+ 124:     },
+ 125: }
+ 126: 
+ 127: SEARCH_API = "https://clinicaltrials.gov/api/v2/studies"
+ 128: 
+ 129: 
+ 130: def raw_search(expr, page_size=1000):
+ 131:     """(state, ids, detail). Paginates; never returns a partial list as if complete."""
+ 132:     ids, token, pages, total = [], None, 0, None
+ 133:     while True:
+ 134:         params = dict(expr)
+ 135:         params["fields"] = "NCTId"
+ 136:         params["pageSize"] = str(page_size)
+ 137:         params["countTotal"] = "true"
+ 138:         if token:
+ 139:             params["pageToken"] = token
+ 140:         url = f"{SEARCH_API}?{urllib.parse.urlencode(params)}"
+ 141:         try:
+ 142:             with urllib.request.urlopen(url, timeout=90) as resp:
+ 143:                 if resp.status != 200:
+ 144:                     return X.UNREACHABLE, ids, f"HTTP {resp.status} on page {pages + 1}"
+ 145:                 payload = json.loads(resp.read().decode("utf-8"))
+ 146:         except Exception as exc:                       # noqa: BLE001 - transport, reported
+ 147:             return X.UNREACHABLE, ids, f"{type(exc).__name__}: {exc} on page {pages + 1}"
+ 148:         for s in payload.get("studies") or []:
+ 149:             nct = (((s.get("protocolSection") or {}).get("identificationModule")
+ 150:                     or {}).get("nctId"))
+ 151:             if nct:
+ 152:                 ids.append(nct)
+ 153:         pages += 1
+ 154:         token = payload.get("nextPageToken")
+ 155:         # FROM THE FIRST PAGE ONLY. `countTotal=true` populates totalCount on the first
+ 156:         # response and returns null on later ones, so reading it here reported
+ 157:         # `returned==totalCount: False` on a complete multi-page fetch. Every query this file
+ 158:         # runs fits in one page, so the last page WAS the first and the defect could not
+ 159:         # show -- it was found on a two-page query in scripts/search_ablation_split.
+ 160:         # A guard that has only ever run on single-page inputs has not been tested on the
+ 161:         # case it exists for.
+ 162:         if pages == 1:
+ 163:             total = payload.get("totalCount")
+ 164:         if not token:
+ 165:             return (X.OK, ids,
+ 166:                     f"{len(ids)} ids over {pages} page(s), totalCount={total}, "
+ 167:                     f"nextPageToken=null, returned==totalCount: {len(ids) == total}")
+ 168:         if pages > 20:
+ 169:             return X.MALFORMED, ids, "pagination did not terminate in 20 pages"
+ 170: 
+ 171: 
+ 172: def included_ncts(topic_dir):
+ 173:     """The object's own included set, read from the object -- never recalled."""
+ 174:     path = f"{REPO}/ssot/{topic_dir}/{topic_dir}.json"
+ 175:     obj = json.load(open(path, encoding="utf-8"))
+ 176:     out = []
+ 177:     pf = (obj.get("prisma_flow") or {}).get("included") or {}
+ 178:     out += [str(n) for n in (pf.get("nct") or [])]
+ 179:     for t in ((obj.get("inputs") or {}).get("trials") or []):
+ 180:         for key in ("nct", "nct_id", "registration", "registration_id", "id"):
+ 181:             v = t.get(key)
+ 182:             if isinstance(v, str) and v.upper().startswith("NCT"):
+ 183:                 out.append(v)
+ 184:                 break
+ 185:     return sorted(set(out))
+ 186: 
+ 187: 
+ 188: def tally(roles, mod):
+ 189:     return {
+ 190:         "k2_role_located": sum(1 for r in roles.values()
+ 191:                                if r in (mod.EXPERIMENTAL, mod.COMPARATOR, mod.BACKGROUND)),
+ 192:         "k3_experimental": sum(1 for r in roles.values() if r == mod.EXPERIMENTAL),
+ 193:         "k4_comparator": sum(1 for r in roles.values() if r == mod.COMPARATOR),
+ 194:         "k5_background": sum(1 for r in roles.values() if r == mod.BACKGROUND),
+ 195:         "kNA_not_assessable": sum(1 for r in roles.values() if r == mod.NOT_ASSESSABLE),
+ 196:     }
+ 197: 
+ 198: 
+ 199: def main():
+ 200:     OLD = load_old_classifier()
+ 201:     print(f"OLD classifier loaded from git {OLD_REV}:ssot/topic_identity.py "
+ 202:           f"({len(OLD.TOPIC_SYNONYMS)} declared topics)")
+ 203:     print(f"NEW classifier from working tree ({len(NEW.TOPIC_SYNONYMS)} declared topics)")
+ 204:     print()
+ 205: 
+ 206:     report = {}
+ 207:     for topic_dir, spec in sorted(TOPICS.items()):
+ 208:         key = spec["topic_key"]
+ 209:         syns_new = NEW.synonyms_for(key)
+ 210:         syns_old = OLD.synonyms_for(key)
+ 211:         if syns_new != syns_old:
+ 212:             print(f"!! {topic_dir}: SYNONYM SET ALSO CHANGED between the two revisions. "
+ 213:                   f"The delta below is NOT attributable to locate() alone.")
+ 214:         state, ids, detail = raw_search(spec["raw_expr"])
+ 215:         ids = sorted(set(ids))
+ 216:         inc = included_ncts(topic_dir)
+ 217: 
+ 218:         roles_old, roles_new, unreachable = {}, {}, []
+ 219:         for nct in ids:
+ 220:             st, study, det = X.fetch_raw(nct)
+ 221:             if st != X.OK:
+ 222:                 unreachable.append(nct)
+ 223:                 continue
+ 224:             payload = X.require_raw_v2(study, nct)
+ 225:             roles_old[nct] = OLD.locate(payload, syns_old)[0]
+ 226:             roles_new[nct], ev = NEW.locate(payload, syns_new)
+ 227:             if roles_old[nct] != roles_new[nct]:
+ 228:                 roles_new[nct + "_ev"] = ev
+ 229: 
+ 230:         t_old, t_new = tally(roles_old, OLD), tally(
+ 231:             {k: v for k, v in roles_new.items() if not k.endswith("_ev")}, NEW)
+ 232:         changed = {n: (roles_old[n], roles_new[n]) for n in roles_old
+ 233:                    if roles_old[n] != roles_new[n]}
+ 234:         changed_included = {n: v for n, v in changed.items() if n in inc}
+ 235:         inc_not_surfaced = [n for n in inc if n not in ids]
+ 236: 
+ 237:         rec = {"topic_dir": topic_dir, "topic_key": key,
+ 238:                "query_as_stored": spec["query_as_stored"],
+ 239:                "search_state": state, "search_detail": detail,
+ 240:                "stored_k0": spec["stored_k0"], "k0_today": len(ids),
+ 241:                "k0_drift": len(ids) - spec["stored_k0"],
+ 242:                "kUNREACHABLE": len(unreachable), "unreachable_ids": unreachable,
+ 243:                "old": t_old, "new": t_new,
+ 244:                "changed": {n: {"old": a, "new": b} for n, (a, b) in sorted(changed.items())},
+ 245:                "changed_evidence": {n[:-3]: roles_new[n] for n in roles_new
+ 246:                                     if n.endswith("_ev")},
+ 247:                "included_in_object": inc,
+ 248:                "included_that_changed_role": changed_included,
+ 249:                "included_not_surfaced_by_this_query": inc_not_surfaced}
+ 250:         report[topic_dir] = rec
+ 251: 
+ 252:         print(f"--- {topic_dir}   [{key}]")
+ 253:         print(f"    search  {state} -- {detail}")
+ 254:         print(f"    k0 stored {spec['stored_k0']:>4}  |  k0 today {len(ids):>4}  "
+ 255:               f"({'SAME SURFACED SIZE' if len(ids) == spec['stored_k0'] else 'REGISTRY DRIFT -- reported, NOT folded into the classifier delta'})")
+ 256:         if unreachable:
+ 257:             print(f"    kUNREACHABLE {len(unreachable)} -- never read; not a verdict: {unreachable}")
+ 258:         print(f"    {'stage':<20}{'OLD':>6}{'NEW':>6}{'delta':>8}")
+ 259:         for stg in ("k2_role_located", "k3_experimental", "k4_comparator",
+ 260:                     "k5_background", "kNA_not_assessable"):
+ 261:             d = t_new[stg] - t_old[stg]
+ 262:             print(f"    {stg:<20}{t_old[stg]:>6}{t_new[stg]:>6}{d:>+8}"
+ 263:                   f"{'   <-- MOVED' if d else ''}")
+ 264:         print(f"    role changes: {len(changed)}")
+ 265:         for n, (a, b) in sorted(changed.items()):
+ 266:             mark = "  *** IN THIS OBJECT'S INCLUDED SET ***" if n in inc else ""
+ 267:             print(f"      {n}  {a} -> {b}{mark}")
+ 268:             print(f"        NEW evidence: {roles_new.get(n + '_ev')}")
+ 269:         print(f"    included set ({len(inc)}): {inc}")
+ 270:         if inc_not_surfaced:
+ 271:             print(f"    !! included but NOT surfaced by this query: {inc_not_surfaced}")
+ 272:         print(f"    INCLUDED trials whose role changed: "
+ 273:               f"{changed_included if changed_included else 'NONE'}")
+ 274:         print()
+ 275: 
+ 276:     out = os.path.join(SCRATCH, "regate_cascade_2026_08_19.json")
+ 277:     os.makedirs(SCRATCH, exist_ok=True)
+ 278:     with open(out, "w", encoding="utf-8") as fh:
+ 279:         json.dump(report, fh, indent=1)
+ 280:     print(f"wrote {out}")
+ 281: 
+ 282:     moved = [t for t, r in report.items()
+ 283:              if any(r["new"][s] != r["old"][s] for s in r["old"])]
+ 284:     drifted = [t for t, r in report.items() if r["k0_drift"]]
+ 285:     print()
+ 286:     print("SUMMARY")
+ 287:     print(f"  topics whose cascade MOVED under the repaired classifier: "
+ 288:           f"{moved if moved else 'NONE'}")
+ 289:     print(f"  topics whose k0 drifted since the stored search: "
+ 290:           f"{drifted if drifted else 'NONE'}")
+ 291:     print("  A moved cascade requires the page to be RESTATED and RE-GATED, not silently "
+ 292:           "rebuilt.")
+ 293: 
+ 294: 
+ 295: if __name__ == "__main__":
+ 296:     main()
+
+codex
+Defects found:
+
+- **Instrument reading a DIFFERENT COPY, line 47.** Exact input: this file unchanged; line 16 claims OLD is `7a08bcbe1`, but line 47 loads `0d9786b13`. Consequence: the old/new classifier delta is against a different baseline than the stated repaired-change baseline.
+
+- **Instrument reading a DIFFERENT COPY, line 37.** Exact input: run this script from any checkout other than `F:/rapidmeta-ssot-shell`, with that checkout’s `ssot/topic_identity.py` changed and `F:/rapidmeta-ssot-shell/ssot/topic_identity.py` stale. Consequence: `NEW` is not the working tree being tested.
+
+- **Check that CANNOT FAIL, line 165.** Exact input to `raw_search`: one-page API response `{"studies":[],"totalCount":1}` with no `nextPageToken`. Consequence: the function returns `X.OK` while embedding `returned==totalCount: False` only in text.
+
+- **Status code reporting the wrapper rather than the work, line 223.** Exact input: `raw_search(...)` returns `["NCT00000001"]`, and `X.fetch_raw("NCT00000001")` returns `(X.UNREACHABLE, None, "timeout")`. Consequence: the missing trial is skipped, counts are still computed, and the run can report no moved cascade without assessing all surfaced studies.
+
+- **Check that CANNOT FAIL, line 211.** Exact input: `OLD.synonyms_for(key) == ("a",)` and `NEW.synonyms_for(key) == ("b",)` for any topic. Consequence: the script prints that the delta is not attributable to `locate()` alone, then still includes it in the moved-cascade summary.
+
+No proven finding from the pasted file: probe keyed to string a fix removes; idempotency guard satisfied by own comment/marker; CRLF/LF text comparison; merged-cell/off-by-one tabulation; zero conflated with absent; negation dropped.
+
+COULD NOT DETERMINE selector-keyed-to-corpus-form: missing `ssot/<topic>/<topic>.json` corpus values.
+tokens used
+24,243
+Defects found:
+
+- **Instrument reading a DIFFERENT COPY, line 47.** Exact input: this file unchanged; line 16 claims OLD is `7a08bcbe1`, but line 47 loads `0d9786b13`. Consequence: the old/new classifier delta is against a different baseline than the stated repaired-change baseline.
+
+- **Instrument reading a DIFFERENT COPY, line 37.** Exact input: run this script from any checkout other than `F:/rapidmeta-ssot-shell`, with that checkout’s `ssot/topic_identity.py` changed and `F:/rapidmeta-ssot-shell/ssot/topic_identity.py` stale. Consequence: `NEW` is not the working tree being tested.
+
+- **Check that CANNOT FAIL, line 165.** Exact input to `raw_search`: one-page API response `{"studies":[],"totalCount":1}` with no `nextPageToken`. Consequence: the function returns `X.OK` while embedding `returned==totalCount: False` only in text.
+
+- **Status code reporting the wrapper rather than the work, line 223.** Exact input: `raw_search(...)` returns `["NCT00000001"]`, and `X.fetch_raw("NCT00000001")` returns `(X.UNREACHABLE, None, "timeout")`. Consequence: the missing trial is skipped, counts are still computed, and the run can report no moved cascade without assessing all surfaced studies.
+
+- **Check that CANNOT FAIL, line 211.** Exact input: `OLD.synonyms_for(key) == ("a",)` and `NEW.synonyms_for(key) == ("b",)` for any topic. Consequence: the script prints that the delta is not attributable to `locate()` alone, then still includes it in the moved-cascade summary.
+
+No proven finding from the pasted file: probe keyed to string a fix removes; idempotency guard satisfied by own comment/marker; CRLF/LF text comparison; merged-cell/off-by-one tabulation; zero conflated with absent; negation dropped.
+
+COULD NOT DETERMINE selector-keyed-to-corpus-form: missing `ssot/<topic>/<topic>.json` corpus values.

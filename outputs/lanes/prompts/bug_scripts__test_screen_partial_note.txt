@@ -1,0 +1,188 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/test_screen_partial_note.py
+
+--- THE FILE, IN FULL ---
+#!/usr/bin/env python3
+"""THE COMPUTED SCREEN NOTE, TESTED AGAINST ITS OWN FIVE FOUNDING CASES.
+
+A detector built from one instance encodes that instance's shape (registry class 27),
+and the way that class was found was a detector that scored its own founding case
+UNCLASSIFIED. So this calls the REAL function in ssot/projectors.py -- not a local
+copy of its branch -- and feeds it the REAL rendered bodies of the five delivered
+pages that produced it.
+
+  EARLY_RHYTHM_CONTROL_AF   551 records, 551 with a reason
+  APIXABAN_VTE_PROPHYLAXIS   72 records,  72 with a reason
+  APIXABAN_VTE_TREATMENT     72 records,  72 with a reason
+  AZILSARTAN_CLD_VS_OLM      57 records,   0 with a reason
+  BOCOCIZUMAB_LIPID          22 records,   0 with a reason
+
+THE ASSERTION THAT MATTERS is not that a sentence is produced. It is that the sentence
+DIFFERS between the two groups on the exact limb they differ on -- because a note that
+reads the same for 551-of-551 and 0-of-57 is the defect it was written to remove, and
+it would still pass a test that only checked a sentence came back.
+
+The delivered pages are read as BYTES and never written. If a page is absent the case
+is NOT_ASSESSABLE and is reported as such -- an absence found by a filesystem is not an
+absence in the world, and it is never a FAIL.
+"""
+import os
+import re
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(REPO, "ssot"))
+import projectors as P                                                  # noqa: E402
+
+# page -> (records, records carrying a reason), measured from the delivered bytes
+FOUNDING = {
+    "EARLY_RHYTHM_CONTROL_AF_REVIEW.html": (551, 551),
+    "APIXABAN_VTE_PROPHYLAXIS_REVIEW.html": (72, 72),
+    "APIXABAN_VTE_TREATMENT_REVIEW.html": (72, 72),
+    "AZILSARTAN_CLD_VS_OLM_HCTZ_REVIEW.html": (57, 0),
+    "BOCOCIZUMAB_LIPID_REVIEW.html": (22, 0),
+}
+
+FAILS = []
+NOT_ASSESSABLE = []
+
+
+def ck(name, got, want):
+    ok = got == want
+    print("  %-68s %s" % (name[:68], "ok" if ok else "FAIL"))
+    if not ok:
+        print("      got  %r" % (got,))
+        print("      want %r" % (want,))
+        FAILS.append(name)
+
+
+def screen_body(path):
+    """The pn-screen panel's body -- everything after the state banner."""
+    b = open(path, "rb").read().decode("utf-8", "replace")
+    i = b.find('id="pn-screen"')
+    j = b.find("<!--end-screen-->")
+    if i < 0 or j <= i:
+        return None
+    seg = b[i:j]
+    k = seg.find("</div>")
+    return seg[k + 6:] if k >= 0 else seg
+
+
+def main():
+    os.chdir(REPO)
+
+    print("1. THE FIVE FOUNDING CASES, through the real function:")
+    notes = {}
+    for page, (n_rec, n_reason) in sorted(FOUNDING.items()):
+        if not os.path.exists(page):
+            print("  %-46s NOT_ASSESSABLE (page not on disk)" % page[:46])
+            NOT_ASSESSABLE.append(page)
+            continue
+        body = screen_body(page)
+        if body is None:
+            print("  %-46s NOT_ASSESSABLE (no pn-screen panel)" % page[:46])
+            NOT_ASSESSABLE.append(page)
+            continue
+        note = P.screen_partial_note(body)
+        notes[page] = note
+        if note is None:
+            print("  %-46s FAIL -- returned None on a panel with %d cards"
+                  % (page[:46], n_rec))
+            FAILS.append("%s returned None" % page)
+            continue
+        ck("%s: names its own record count %d" % (page[:34], n_rec),
+           (" %d record" % n_rec) in note, True)
+        if n_reason == n_rec:
+            ck("%s: says every record carries a reason" % page[:34],
+               "every one carrying a stated reason" in note, True)
+            ck("%s: does NOT deny reasons it is printing" % page[:34],
+               "a reason for any individual exclusion" in note, False)
+        else:
+            ck("%s: says none carries a reason" % page[:34],
+               "none of which carries a stated reason" in note, True)
+            ck("%s: DOES name the missing reasons" % page[:34],
+               "a reason for any individual exclusion" in note, True)
+
+    print("\n2. THE LIMB THE OLD CONSTANT COULD NOT SEE -- the two groups must DIFFER:")
+    got_reasons = [n for p, n in notes.items() if FOUNDING[p][1] == FOUNDING[p][0]]
+    no_reasons = [n for p, n in notes.items() if FOUNDING[p][1] == 0]
+    if got_reasons and no_reasons:
+        ck("no sentence is shared between the two groups",
+           bool(set(got_reasons) & set(no_reasons)), False)
+        ck("the reason-bearing group never denies reasons",
+           any("a reason for any individual exclusion" in n for n in got_reasons), False)
+        ck("the reasonless group always names them",
+           all("a reason for any individual exclusion" in n for n in no_reasons), True)
+    else:
+        print("  NOT_ASSESSABLE -- both groups need at least one page present")
+        NOT_ASSESSABLE.append("group comparison")
+
+    print("\n3. IT REFUSES RATHER THAN GUESSES:")
+    ck("an empty body returns None", P.screen_partial_note(""), None)
+    ck("a body with no record card returns None",
+       P.screen_partial_note("<p>some prose about screening</p>"), None)
+
+    print("\n4. A PANEL MISSING NOTHING IS NOT A PARTIAL:")
+    complete = ("<table><tr><td>identified</td></tr></table>"
+                "<div class='card warn'>  <h3>Adjudication: X</h3></div>"
+                "<div class='card rec'>  <h3>T <small>NCT1</small></h3>"
+                "  <p><strong>This review's decision: excluded.</strong></p>"
+                "  <p>fails COMPARATOR.</p></div>")
+    ck("returns None so the caller does not label it partial",
+       P.screen_partial_note(complete), None)
+
+    print("\n5. THE COUNT IS THE PANEL'S, NOT A CONSTANT -- a one-record log says '1 record':")
+    one = ("<div class='card rec'>  <h3>T <small>NCT1</small></h3>"
+           "  <p><strong>This review's decision: excluded.</strong></p></div>")
+    n1 = P.screen_partial_note(one)
+    ck("singular, not '1 records'", "1 record," in n1 and "1 records" not in n1, True)
+
+    print()
+    if NOT_ASSESSABLE:
+        print("NOT_ASSESSABLE (%d): %s" % (len(NOT_ASSESSABLE), ", ".join(NOT_ASSESSABLE)))
+        print("  -- reported, NOT counted as a pass and NOT counted as a failure.")
+    if FAILS:
+        print("FAILED (%d):" % len(FAILS))
+        for f in FAILS:
+            print("  - " + f)
+        return 1
+    print("PASSED -- on %d of %d founding cases actually present on disk."
+          % (len(notes), len(FOUNDING)))
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

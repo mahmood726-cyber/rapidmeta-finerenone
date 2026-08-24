@@ -1,0 +1,209 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a031d8-96d5-7aa0-9f25-7aa3932a3fa1
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/inject_aact_baselines.py
+
+--- THE FILE, IN FULL ---
+"""Enrich realData baseline objects with AACT-extracted age and pct_female.
+
+For each NCT in outputs/aact_baselines.json:
+  - Find that NCT's block in each *_REVIEW.html
+  - If `baseline: {...}` exists in that block: merge missing keys (age, pct_female)
+  - If not: inject `baseline: { age, pct_female }` after `name: '...',`
+
+Idempotent: never overwrites an existing key.
+"""
+from __future__ import annotations
+import sys, io, re, json
+from pathlib import Path
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+REPO = Path(__file__).resolve().parent.parent
+baselines = json.loads((REPO / "outputs/aact_baselines.json").read_text())
+
+# Regex to find a single trial block
+def find_trial_block_bounds(text, nct):
+    """Find balanced { } block for a given NCT. Returns (start, end) or None."""
+    pattern = re.compile(r"'" + re.escape(nct) + r"'\s*:\s*\{")
+    m = pattern.search(text)
+    if not m:
+        return None
+    start = m.end() - 1  # position of opening {
+    depth = 1
+    i = start + 1
+    n = len(text)
+    while i < n and depth > 0:
+        c = text[i]
+        if c == "'":
+            # Skip string literal (handle escaped quotes)
+            i += 1
+            while i < n and text[i] != "'":
+                if text[i] == "\\":
+                    i += 2
+                else:
+                    i += 1
+            i += 1
+        elif c == "{":
+            depth += 1
+            i += 1
+        elif c == "}":
+            depth -= 1
+            i += 1
+        else:
+            i += 1
+    if depth != 0:
+        return None
+    return (m.start(), i)
+
+
+def parse_baseline_keys(block):
+    """Return dict of existing baseline keys."""
+    m = re.search(r"baseline:\s*\{([^{}]*)\}", block)
+    if not m:
+        return None, None
+    existing_str = m.group(0)
+    inner = m.group(1)
+    keys = set()
+    for k in re.findall(r"(\w+)\s*:", inner):
+        keys.add(k)
+    return existing_str, keys
+
+
+def enrich_block(block, age, pf):
+    """Enrich a trial block with age/pct_female. Returns (new_block, changed)."""
+    existing_str, keys = parse_baseline_keys(block)
+    additions = []
+    if age is not None and "age" not in (keys or set()):
+        additions.append(f"age: {age}")
+    if pf is not None and "pct_female" not in (keys or set()):
+        additions.append(f"pct_female: {pf}")
+    if not additions:
+        return block, False
+    if existing_str is None:
+        # No baseline yet — inject after name:
+        new_obj = "baseline: {" + ", ".join(additions) + "},"
+        new_block = re.sub(
+            r"(name:\s*'[^']+?',)",
+            r"\1 " + new_obj,
+            block,
+            count=1,
+        )
+        return new_block, new_block != block
+    # Merge: insert at end of existing baseline
+    inner_match = re.search(r"baseline:\s*\{([^{}]*)\}", block)
+    inner = inner_match.group(1).rstrip().rstrip(",")
+    new_inner = inner + (", " if inner.strip() else "") + ", ".join(additions)
+    new_obj = f"baseline: {{{new_inner}}}"
+    new_block = block.replace(existing_str, new_obj, 1)
+    return new_block, True
+
+
+def patch_file(text, baselines):
+    """Apply enrichment for every NCT we have baselines for."""
+    changes = 0
+    # Find every NCT that appears in this file AND we have baseline data for
+    for nct, rec in baselines.items():
+        bounds = find_trial_block_bounds(text, nct)
+        if not bounds:
+            continue
+        s, e = bounds
+        block = text[s:e]
+        new_block, changed = enrich_block(block, rec.get("age"), rec.get("pct_female"))
+        if changed:
+            text = text[:s] + new_block + text[e:]
+            changes += 1
+    return text, changes
+
+
+def main():
+    files = sorted(REPO.glob("*_REVIEW.html"))
+    print(f"Scanning {len(files)} files with {len(baselines)} NCTs of AACT data ...")
+    total_changes = 0
+    files_modified = 0
+    for hp in files:
+        text = hp.read_text(encoding="utf-8", errors="replace")
+        new_text, n = patch_file(text, baselines)
+        if n > 0:
+            hp.write_text(new_text, encoding="utf-8")
+            total_changes += n
+            files_modified += 1
+    print(f"\n=== Summary ===")
+    print(f"  Trials enriched: {total_changes}")
+    print(f"  Files modified:  {files_modified}")
+
+
+if __name__ == "__main__":
+    main()
+
+codex
+Findings:
+
+- **Idempotency guard satisfied by string marker**, lines 55, 61, 91. Exact input: `enrich_block("'NCT1': { name: 'T', note: 'baseline: {age: 1}', baseline: {} }", 50, 40)`. Consequence: the regex treats note text as the baseline, skips real `age`, edits the note string, and leaves the actual `baseline: {}` unchanged.
+
+- **Selector keyed to a form the parser does not handle**, lines 31-39. Exact input: `patch_file("'NCT1': { name: 'T', note: \"}\", baseline: {} }", {"NCT1":{"age":50}})`. Consequence: block balancing counts `}` inside a double-quoted string as syntax, so the selected trial block is truncated before the real object ends.
+
+- **Selector keyed to single-quoted `name` form**, line 80. Exact input: `enrich_block("'NCT1': { name: \"Trial\", arm: 'x' }", 50, 40)`. Consequence: when no baseline exists, injection silently does nothing for a double-quoted name even though the trial block was found.
+
+- **Check/status can report wrapper success without work**, lines 112-126. Exact input: `outputs/aact_baselines.json = {"NCT1":{"age":50,"pct_female":0}}` and zero `*_REVIEW.html` files under `REPO`. Consequence: the process prints `Scanning 0 files...` and exits 0, so a wrong target set can pass.
+
+No proven defect found for: probe keyed to fix-removed string; CRLF/LF text comparison; merged-cell/off-by-one tabulation; zero conflated with absent; negation dropped.
+
+COULD NOT DETERMINE instrument-copy mismatch: missing caller/CI command, served path, and deployment target.
+tokens used
+12,158
+Findings:
+
+- **Idempotency guard satisfied by string marker**, lines 55, 61, 91. Exact input: `enrich_block("'NCT1': { name: 'T', note: 'baseline: {age: 1}', baseline: {} }", 50, 40)`. Consequence: the regex treats note text as the baseline, skips real `age`, edits the note string, and leaves the actual `baseline: {}` unchanged.
+
+- **Selector keyed to a form the parser does not handle**, lines 31-39. Exact input: `patch_file("'NCT1': { name: 'T', note: \"}\", baseline: {} }", {"NCT1":{"age":50}})`. Consequence: block balancing counts `}` inside a double-quoted string as syntax, so the selected trial block is truncated before the real object ends.
+
+- **Selector keyed to single-quoted `name` form**, line 80. Exact input: `enrich_block("'NCT1': { name: \"Trial\", arm: 'x' }", 50, 40)`. Consequence: when no baseline exists, injection silently does nothing for a double-quoted name even though the trial block was found.
+
+- **Check/status can report wrapper success without work**, lines 112-126. Exact input: `outputs/aact_baselines.json = {"NCT1":{"age":50,"pct_female":0}}` and zero `*_REVIEW.html` files under `REPO`. Consequence: the process prints `Scanning 0 files...` and exits 0, so a wrong target set can pass.
+
+No proven defect found for: probe keyed to fix-removed string; CRLF/LF text comparison; merged-cell/off-by-one tabulation; zero conflated with absent; negation dropped.
+
+COULD NOT DETERMINE instrument-copy mismatch: missing caller/CI command, served path, and deployment target.

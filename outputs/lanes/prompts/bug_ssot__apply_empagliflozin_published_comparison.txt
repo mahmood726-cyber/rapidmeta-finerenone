@@ -1,0 +1,425 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: ssot/apply_empagliflozin_published_comparison.py
+
+--- THE FILE, IN FULL ---
+"""empagliflozin-hf: the published comparison, P46 limb 3.
+
+IDENTITY BEFORE NUMBERS. Every trial in this review is keyed to a verified registration id
+before any count is compared -- NCT03057977 (EMPEROR-Reduced) and NCT03057951
+(EMPEROR-Preserved), both carrying the registry's own posted primary-outcome title on this
+object. A k that agrees is not a k that matches, and half the published errors found in this
+corpus so far are one trial entered twice under different author strings.
+
+AND THE PUBLISHED SETS ARE INFERRED, NOT READ. This is the line held on
+inclisiran-lipid-kidney and it is held here: NONE of the four identified syntheses had its
+included-study table read. Their trial sets are inferred from their abstracts' descriptions,
+counts and search cut-offs. A reconciliation against an INFERRED set is a different claim
+from one against a READ list, and the difference is exactly where citation-string versus
+trial-identity failures live. Every row says which it is.
+
+THE HEADLINE FINDING, and it is unusual: NO IDENTIFIED SYNTHESIS POOLS THIS PAIR ON THIS
+ENDPOINT. The nearest empagliflozin-only synthesis predates EMPEROR-Preserved; the nearest
+one containing EMPEROR-Preserved is class-wide and restricted to preserved and mildly
+reduced ejection fraction. So this review's estimate is not corroborated OR contradicted by
+the identified literature -- it is unreplicated, which is a finding about the evidence and
+not about this review.
+"""
+import io
+import json
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+TOPIC = "empagliflozin-hf-auto-full-review"
+TODAY = "2026-08-20"
+STAMP = TODAY.replace("-", "_")
+OBJ = os.path.join(REPO, "ssot", TOPIC, TOPIC + ".json")
+APPRAISAL = os.path.join(REPO, "ssot", TOPIC, "appraisal")
+
+SCREEN = {
+    "_what_this_is": (
+        "The search behind `published_comparison`, at its real size. Smaller than "
+        "alirocumab-lipid's 101 abstracts and larger than inclisiran's 10, and saying so "
+        "is the same discipline as stating a denominator."),
+    "run_utc": TODAY,
+    "transport": "PubMed E-utilities via the bio-research MCP server",
+    "query": ("(empagliflozin) AND (heart failure) AND (meta-analysis[Publication Type] OR "
+              "meta-analysis[Title] OR pooled analysis[Title])"),
+    "records_matched": 130,
+    "records_retrieved": 25,
+    "records_appraised_at_metadata_level": 5,
+    "records_not_appraised": 125,
+    "why_not_all_were_appraised": (
+        "The 5 appraised were the highest-relevance records. THE REMAINING 125 WERE NOT "
+        "READ. A synthesis pooling exactly EMPEROR-Reduced with EMPEROR-Preserved on this "
+        "endpoint could exist among them; if one does, this comparison has missed it, and "
+        "the headline finding below -- that this pairing is unreplicated -- is bounded by "
+        "that."),
+    "no_included_study_table_was_read": (
+        "NOT ONE of the five had its included-study list read. Trial sets below are "
+        "INFERRED from abstract text, participant totals and search cut-off dates. Every "
+        "check that rests on an inferred set says so in its own verdict."),
+    "appraised": [
+        {"pmid": "34239906", "decision": "INCLUDED",
+         "why": "empagliflozin alone, in heart failure, reporting the composite of "
+                "cardiovascular death or hospitalisation for worsening heart failure -- "
+                "the closest published match to this review's estimand"},
+        {"pmid": "36914068", "decision": "INCLUDED",
+         "why": "contains EMPEROR-Preserved and reports CV death or HHF, but class-wide "
+                "and restricted to preserved/mildly reduced EF"},
+        {"pmid": "38179304", "decision": "INCLUDED",
+         "why": "network meta-analysis over T2D with heart failure; a different question, "
+                "included so a reader can see it was considered"},
+        {"pmid": "35777490", "decision": "EXCLUDED",
+         "why": "safety outcomes only -- serious adverse events, genital and urinary "
+                "infection. No efficacy estimate for this endpoint"},
+        {"pmid": "37286032", "decision": "EXCLUDED",
+         "why": "patient-level pooled analysis of two empagliflozin trials on LEFT "
+                "VENTRICULAR REMODELING, not on the clinical composite. A Letter"},
+    ],
+}
+
+
+def build(obj):
+    blk = obj["results"]["by_outcome"]["primary"]
+    p = blk["pooled"]
+    trials = {t["nct"]: t for t in obj["inputs"]["trials"]}
+    checks = []
+
+    # ---- IDENTITY FIRST -------------------------------------------------------------
+    for nct, name in (("NCT03057977", "EMPEROR-Reduced"), ("NCT03057951", "EMPEROR-Preserved")):
+        t = trials[nct]
+        pc = t["registration_primary_counts"]
+        tr = [a for a in t["arms"] if a["role"] == "treatment"][0]
+        ct = [a for a in t["arms"] if a["role"] == "control"][0]
+        o = (tr["events"] / (tr["participants"] - tr["events"])) / \
+            (ct["events"] / (ct["participants"] - ct["events"]))
+        checks.append({
+            "id": "identity-%s" % name.lower(),
+            "what": "%s keyed to a verified registration id BEFORE any count is compared" % name,
+            "verdict": "CONFIRMED",
+            "whose": "ours",
+            "detail": ("%s is keyed to %s, which carries the registry's own posted primary "
+                       "outcome title on this object: %r. Its arm counts are %d/%d against "
+                       "%d/%d, and the odds ratio they give -- %.6f -- reproduces the "
+                       "stored %.6f to six decimals. IDENTITY BEFORE NUMBERS: the trial is "
+                       "fixed by registration, not by an author string, before any k is "
+                       "compared to anyone else's."
+                       % (name, nct, pc["title"], tr["events"], tr["participants"],
+                          ct["events"], ct["participants"], o, p["point"])),
+            "quote": pc["title"],
+            "location": "https://clinicaltrials.gov/study/%s" % nct,
+        })
+
+    checks.append({
+        "id": "estimand-shared-between-the-two",
+        "what": "Whether both trials registered the SAME primary outcome",
+        "verdict": "CONFIRMED",
+        "whose": "ours",
+        "detail": ("They did, and the object previously said otherwise. Its `question` "
+                   "asserted that the primaries 'differ across the 2 trials here'. The "
+                   "registered strings differ by ONE WORD -- EMPEROR-Reduced writes 'Time "
+                   "to the First Event of...' and EMPEROR-Preserved 'Time to First Event "
+                   "of...'. Same components, same adjudication, same order. Corrected %s. "
+                   "It is the same orthographic trap the inclisiran object documents for "
+                   "'Percent' against 'Percentage', RESOLVED IN THE OPPOSITE DIRECTION: a "
+                   "generated sentence asserting the pool was incoherent when it is sound."
+                   % TODAY),
+        "quote": "Time to the First Event of Adjudicated Cardiovascular (CV) Death or "
+                 "Adjudicated Hospitalisation for Heart Failure (HHF)",
+        "location": "inputs.trials[].registration_primary_counts.title",
+    })
+
+    # ---- THE ERROR, AND IT IS OURS ---------------------------------------------------
+    checks.append({
+        "id": "summary-measure-is-not-the-trials-measure",
+        "what": "The measure this pool combines, against the measure the trials reported",
+        "verdict": "ERROR",
+        "severity": "material",
+        "whose": "ours",
+        "detail": ("Both trials registered this endpoint as TIME TO FIRST EVENT and both "
+                   "published a HAZARD RATIO. This pool combines ODDS RATIOS computed from "
+                   "cumulative arm counts, over trials that did not run for the same length "
+                   "of time. AN ODDS RATIO OVER UNEQUAL FOLLOW-UP IS NOT A HAZARD RATIO AND "
+                   "DOES NOT BECOME ONE BY BEING POOLED. It is disclosed beside the estimate "
+                   "on three rendered fields and inside the pooled-result card, so no reader "
+                   "reaches the number without meeting it -- verified by building the page "
+                   "and measuring the distance, maximum 868 characters. RECORDED AS OUR "
+                   "ERROR. Recomputing from the published hazard ratios is a "
+                   "published-number change owing P19 to every derived block and is "
+                   "referred, not taken."),
+        "quote": None,
+        "location": "results.by_outcome.primary.A_SEPARATE_FINDING_NOT_RESOLVED_HERE_%s" % STAMP,
+    })
+
+    # ---- AGAINST THE LITERATURE ------------------------------------------------------
+    checks.append({
+        "id": "ours-vs-pan-2021",
+        "what": "This review against the closest empagliflozin-only synthesis",
+        "verdict": "ABSENT",
+        "whose": "neither -- the trial sets do not overlap enough to compare",
+        "detail": ("Pan et al. 2021 pool SEVEN empagliflozin trials with 5,150 participants "
+                   "and report the composite of cardiovascular death or hospitalisation for "
+                   "worsening heart failure as RR 0.77 (0.68 to 0.87), I-squared 18%%. THEIR "
+                   "SEARCH CLOSED 20 JANUARY 2021 AND EMPEROR-PRESERVED REPORTED IN AUGUST "
+                   "2021, so it cannot be in their set; their 5,150 is also smaller than "
+                   "EMPEROR-Reduced and EMPEROR-Preserved together, which is 9,718 on this "
+                   "object's own arm counts. So they pool one of this review's two trials "
+                   "plus six smaller ones this review does not include. THE SETS ARE "
+                   "INFERRED FROM THEIR ABSTRACT AND CUT-OFF DATE, NOT READ FROM THEIR "
+                   "INCLUDED-STUDY TABLE. Their RR is also a different measure from this "
+                   "review's OR. NOT A CHECK ON EITHER NUMBER, and listed because a reader "
+                   "asking 'has anyone else pooled empagliflozin in heart failure' is asking "
+                   "a question with an answer that does not corroborate this one."),
+        "quote": "a composite of cardiovascular death or hospitalization for worsening "
+                 "heart failure [RR: 0.77 (95% CI 0.68-0.87)]",
+        "location": "PMID 34239906, doi 10.3389/fcvm.2021.683281",
+    })
+    checks.append({
+        "id": "ours-vs-banerjee-2023",
+        "what": "This review against the nearest synthesis containing EMPEROR-Preserved",
+        "verdict": "UNRESOLVED",
+        "whose": "neither -- it cannot be settled at the layer available",
+        "detail": ("Banerjee et al. 2023 pool six RCTs with 15,769 patients with mildly "
+                   "reduced or preserved ejection fraction and report CV death or HHF as "
+                   "HR 0.80 (0.74 to 0.86), I-squared 0%%. That contains EMPEROR-Preserved "
+                   "and DELIVER, is CLASS-WIDE rather than empagliflozin-only, and EXCLUDES "
+                   "reduced ejection fraction -- so it excludes EMPEROR-Reduced, which is "
+                   "half of this review. Their 0.80 and this review's %.4f sit close "
+                   "together and that closeness means little: different drugs, different "
+                   "population frame, different measure. WHETHER THE AGREEMENT IS "
+                   "SUBSTANTIVE CANNOT BE DECIDED WITHOUT THEIR INCLUDED-STUDY TABLE AND A "
+                   "COMMON MEASURE, so it is left unresolved rather than reported as "
+                   "corroboration." % p["point"]),
+        "quote": "pooled HR 0.80, 95% CI: 0.74, 0.86",
+        "location": "PMID 36914068, doi 10.1016/j.ihj.2023.03.003",
+        "what_would_settle_it": "Their included-study table, and a hazard ratio from this "
+                                "review computed on the same scale.",
+    })
+    checks.append({
+        "id": "no-synthesis-pools-this-pair",
+        "what": "Whether any identified synthesis pools EMPEROR-Reduced WITH "
+                "EMPEROR-Preserved on this endpoint",
+        "verdict": "ABSENT",
+        "whose": "neither -- this is a fact about the literature",
+        "detail": ("NONE OF THE FIVE APPRAISED DOES. The empagliflozin-only synthesis "
+                   "predates EMPEROR-Preserved; the one containing EMPEROR-Preserved is "
+                   "class-wide and excludes reduced ejection fraction; the network analysis "
+                   "asks a different question; one is safety-only and one is a "
+                   "left-ventricular-remodeling letter. SO THIS REVIEW'S ESTIMATE IS "
+                   "NEITHER CORROBORATED NOR CONTRADICTED BY THE IDENTIFIED LITERATURE -- "
+                   "IT IS UNREPLICATED. That is a finding about the evidence rather than "
+                   "about this review, and it is bounded by the 125 records the screen "
+                   "retrieved and did not read."),
+        "quote": None,
+        "location": "ssot/%s/appraisal/PUBLISHED_SYNTHESIS_SCREEN.json" % TOPIC,
+    })
+    checks.append({
+        "id": "arm-labels-repaired",
+        "what": "The provenance block's arm labels against arms[]",
+        "verdict": "ERROR",
+        "severity": "material",
+        "whose": "ours",
+        "detail": ("Both trials' `registration_primary_counts` had treatment and control "
+                   "INVERTED, because the extractor assigned them by registry position and "
+                   "this registry lists placebo first. Read as labelled the block said "
+                   "empagliflozin was WORSE than placebo -- 21.0 against 15.77, and 8.67 "
+                   "against 6.86 -- while the effect two fields away said the opposite and "
+                   "was right. Repaired %s; the stored odds ratios reproduce from arms[] to "
+                   "six decimals, so THE PUBLISHED NUMBER WAS NEVER AFFECTED. The block's "
+                   "own note claimed 'a swapped pair would show as a mismatch rather than a "
+                   "silent pass'; nothing made that true until "
+                   "scripts/lint_registration_counts_arm_order.py, which found 23 "
+                   "inconsistent rows across 75." % TODAY),
+        "quote": "arm order as the registry lists it; a swapped pair would show as a "
+                 "mismatch rather than a silent pass",
+        "location": "inputs.trials[].registration_primary_counts_superseded_%s" % STAMP,
+    })
+
+    v = [c["verdict"] for c in checks]
+    return {
+        "_why": (
+            "Two trials, one drug, one endpoint verified word for word against both "
+            "registrations -- and NO PUBLISHED SYNTHESIS THAT POOLS THEM TOGETHER. The two "
+            "errors found are OURS and are in the table with the same weight as anything "
+            "found in the literature."),
+        "_how_identified": (
+            "PubMed E-utilities; query, counts and a per-record decision in "
+            "ssot/%s/appraisal/PUBLISHED_SYNTHESIS_SCREEN.json. 130 records matched, 25 "
+            "retrieved, 5 appraised, 125 NOT READ. NO INCLUDED-STUDY TABLE WAS READ for any "
+            "of the five: their trial sets are INFERRED from abstract text, participant "
+            "totals and search cut-off dates, and every check resting on an inferred set "
+            "says so." % TOPIC),
+        "identity_basis": (
+            "Both contributing trials are keyed to a verified ClinicalTrials.gov "
+            "registration -- NCT03057977 and NCT03057951 -- each carrying the registry's "
+            "own posted primary-outcome title on this object, BEFORE any count was compared "
+            "with anyone else's. A k that agrees is not a k that matches."),
+        "reviews": [
+            {"id": "PM_EMPA_HF_2021", "pmid": "34239906",
+             "citation": "Pan D, Xu L, Chen P, Jiang H, Shi D, Guo M. Empagliflozin in "
+                         "Patients With Heart Failure: A Systematic Review and "
+                         "Meta-Analysis of Randomized Controlled Trials. Front Cardiovasc "
+                         "Med 2021;8:683281. doi 10.3389/fcvm.2021.683281",
+             "their_k": 7, "their_n": 5150,
+             "scope": "empagliflozin against placebo in heart failure, search closed "
+                      "20 January 2021",
+             "trial_set_read": False,
+             "how_it_differs_from_ours": (
+                 "Its search closed seven months before EMPEROR-Preserved reported, and its "
+                 "5,150 participants are fewer than this review's two trials alone (9,718). "
+                 "So it pools one of our two plus six smaller trials we do not include. "
+                 "INFERRED from the cut-off date and the participant total, NOT read.")},
+            {"id": "PM_SGLT2_HFPEF_2023", "pmid": "36914068",
+             "citation": "Banerjee M, Pal R, Nair K, Mukhopadhyay S. SGLT2 inhibitors and "
+                         "cardiovascular outcomes in heart failure with mildly reduced and "
+                         "preserved ejection fraction. Indian Heart J 2023;75(2):122-127. "
+                         "doi 10.1016/j.ihj.2023.03.003",
+             "their_k": 6, "their_n": 15769,
+             "scope": "SGLT2 inhibitors class-wide, HFmrEF and HFpEF only",
+             "trial_set_read": False,
+             "how_it_differs_from_ours": (
+                 "Class-wide rather than empagliflozin-only, and it EXCLUDES reduced "
+                 "ejection fraction, so it excludes EMPEROR-Reduced -- half of this review.")},
+            {"id": "PM_SGLT2_NMA_2023", "pmid": "38179304",
+             "citation": "Kongmalai T, et al. Comparative cardiovascular benefits of "
+                         "individual SGLT2 inhibitors in type 2 diabetes and heart failure: "
+                         "a systematic review and network meta-analysis. Front Endocrinol "
+                         "2023;14:1216160. doi 10.3389/fendo.2023.1216160",
+             "their_k": 11, "their_n": 20438,
+             "scope": "network meta-analysis, type 2 diabetes with a history of heart failure",
+             "trial_set_read": False,
+             "how_it_differs_from_ours": (
+                 "A different QUESTION -- relative efficacy between agents, not the size of "
+                 "the effect against placebo -- and a different population frame.")},
+        ],
+        "divergence_decomposed": {
+            "ours": ("Odds ratio %.4f (%.4f to %.4f) for the first occurrence of "
+                     "adjudicated cardiovascular death or adjudicated hospitalisation for "
+                     "heart failure, k=2, random effects, REML. READ WITH THE CAVEAT ON THE "
+                     "ESTIMATE: the trials registered a time-to-first-event endpoint and "
+                     "published hazard ratios; this is an odds ratio over unequal follow-up."
+                     % (p["point"], p["ci_low"], p["ci_high"])),
+            "theirs": ("RR 0.77 (0.68 to 0.87) over seven empagliflozin trials whose search "
+                       "predates EMPEROR-Preserved; HR 0.80 (0.74 to 0.86) over six "
+                       "class-wide trials restricted to preserved and mildly reduced "
+                       "ejection fraction; and a network analysis reporting relative rather "
+                       "than absolute effect."),
+            "why_they_differ": (
+                "BY TRIAL SET AND BY MEASURE, AND NOT BY DISAGREEMENT. No identified "
+                "synthesis pools these two trials together on this endpoint: one predates "
+                "the second trial, the other excludes the first. Every published figure "
+                "points the same direction as this review and not one of them is an "
+                "independent check on it. THE HONEST SUMMARY IS THAT THIS PAIRING IS "
+                "UNREPLICATED, bounded by the 125 records not read."),
+        },
+        "denominator": {
+            "rows_checked": len(checks),
+            "confirmed": v.count("CONFIRMED"),
+            "errors": v.count("ERROR"),
+            "errors_in_the_literature": 0,
+            "errors_in_this_review": v.count("ERROR"),
+            "absent": v.count("ABSENT"),
+            "unresolved": v.count("UNRESOLVED"),
+            "statement": (
+                "%d checks were applied and %d came back clean, %d found an error, %d found "
+                "something absent and %d could not be settled at the layer available. The "
+                "denominator is stated because a list of only the failures is not a "
+                "finding, it is a selection."
+                % (len(checks), v.count("CONFIRMED"), v.count("ERROR"), v.count("ABSENT"),
+                   v.count("UNRESOLVED"))),
+            "symmetry": (
+                "Confirmations are listed in the same table, in the same detail, as errors. "
+                "BOTH ERRORS FOUND ARE OURS -- a summary measure that is not the measure "
+                "the trials reported, and a provenance block whose arm labels were inverted "
+                "-- and the published literature is implicated in none of the rows. That is "
+                "the result every cardiology topic reconciled in this corpus has produced."),
+            "what_this_denominator_does_not_cover": (
+                "The 125 records the screen retrieved and did not read, and the "
+                "included-study table of every one of the five it did. NO PUBLISHED TRIAL "
+                "SET HERE WAS READ; all are inferred. The check count is honest about the "
+                "checks and the screen is separately honest about its size."),
+        },
+    }
+
+
+def main():
+    dry = "--apply" not in sys.argv
+    obj = json.load(io.open(OBJ, encoding="utf-8"))
+    if obj.get("published_comparison") is not None:
+        sys.exit("REFUSED: published_comparison already present.")
+    pc = build(obj)
+    d = pc["denominator"]
+    if d["rows_checked"] < 5 or (d["confirmed"] == 0 and d["errors"] == 0):
+        sys.exit("REFUSED: %d checks, %d confirmed, %d errors -- not a comparison."
+                 % (d["rows_checked"], d["confirmed"], d["errors"]))
+    obj["published_comparison"] = pc
+    obj.setdefault("display_change_announced", []).append({
+        "date": TODAY,
+        "change": "published comparison added, with its denominator",
+        "values_moved": "NONE",
+        "what_changed": "P46 limb 3 was ABSENT. It now holds 3 identified syntheses, %d "
+                        "checks with a stated denominator, and a decomposition."
+                        % d["rows_checked"],
+        "why": ("A pooled estimate published with no comparison against the literature "
+                "cannot be checked by a reader against anything."),
+        "what_it_found": (
+            "That NO identified synthesis pools EMPEROR-Reduced with EMPEROR-Preserved on "
+            "this endpoint -- one predates the second trial, the other excludes the first. "
+            "This review's estimate is UNREPLICATED rather than corroborated. Both errors "
+            "in the table are ours."),
+    })
+    print("built %d checks: %s" % (d["rows_checked"], d["statement"]))
+    if dry:
+        print("DRY RUN -- pass --apply to write")
+        return
+    if not os.path.isdir(APPRAISAL):
+        os.makedirs(APPRAISAL)
+    with io.open(os.path.join(APPRAISAL, "PUBLISHED_SYNTHESIS_SCREEN.json"), "w",
+                 encoding="utf-8", newline="\n") as fh:
+        json.dump(SCREEN, fh, indent=1, ensure_ascii=False)
+        fh.write("\n")
+    with io.open(OBJ, "rb") as fh:
+        raw = fh.read()
+    nl = "\r\n" if b"\r\n" in raw.split(b"\n", 3)[0] + b"\n" else "\n"
+    with io.open(OBJ, "w", encoding="utf-8", newline=nl) as fh:
+        json.dump(obj, fh, indent=1, ensure_ascii=False)
+        fh.write("\n")
+    print("wrote %s and the screen file" % OBJ)
+
+
+if __name__ == "__main__":
+    main()

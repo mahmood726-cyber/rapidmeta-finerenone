@@ -1,0 +1,240 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a031cc-34b7-7433-9391-83e9f57c2258
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/gate_kinds.py
+
+--- THE FILE, IN FULL ---
+"""GATE KINDS -- how many INDEPENDENT kinds of evidence does the gate set have?
+
+WHY THIS EXISTS
+    Two pages were edited with a five-check suite in front of them -- div balance,
+    script-tag count, numerals-lost, byte growth, anchor-matched-once. All five
+    passed. All five were THE SAME CHECK: each asks about CONTENT, and the damage
+    was to ENCODING, which content checks are blind to by construction. The edit
+    rewrote 12,031 line endings and only `git commit`'s own line count noticed.
+
+    FIVE CONTENT CHECKS ARE NOT REDUNDANCY AGAINST AN ENCODING FAULT. They are one
+    check run five times.
+
+    So the coverage question this repository has been asking -- how many checks does
+    a page pass -- is the wrong one. The honest question is HOW MANY INDEPENDENT
+    KINDS, and which kinds nothing is looking at.
+
+    This file names the kinds, assigns every gate to one, and reports the kinds with
+    NO gate at all. The assignment is a judgement and is written down so it can be
+    argued with; the LIST of gates is derived from disk so the count cannot decay.
+
+A TRAP WORTH KEEPING
+    `ls scripts/*gate*.py` returns 52 files. Twenty-one of them are `propagate_*`
+    scripts -- the glob matches "propa-GATE". Anyone quoting "52 gates" from that
+    glob is wrong by two thirds. The filter below is explicit for that reason.
+
+USAGE
+    python scripts/gate_kinds.py
+"""
+from __future__ import annotations
+import glob
+import io
+import os
+import sys
+
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# NOT gates: propagate_*/aggregate_* are matched only by the "gate" substring, and
+# fix_*/regenerate_*/add_*/extend_* are one-off repair scripts, not checks.
+NOT_A_GATE = ("propagate_", "aggregate_", "fix_", "regenerate_", "add_", "extend_",
+              "gate_kinds")
+
+KINDS = {
+    "INTERNAL AGREEMENT": (
+        "two of OUR OWN surfaces compared with each other",
+        ["alignment_gate", "card_alignment_gate", "extraction_table_gate",
+         "k_consistency_gate", "pooled_value_gate", "prose_claim_gate",
+         "section_manifest_gate"]),
+    "EXTERNAL AGREEMENT": (
+        "ours against a source OUTSIDE the repository -- a registry, an article",
+        ["absence_reason_gate", "arm_identity_gate", "citation_year_gate",
+         "count_provenance_gate", "declared_contrast_gate",
+         "estimand_definition_gate", "identity_by_registration_gate",
+         "identity_gate", "registration_identity_gate", "search_recall_gate",
+         "withdrawal_reason_gate"]),
+    "ARITHMETIC": (
+        "do the numbers reconcile with each other",
+        ["headline_reproducible_gate", "precision_sample_gate"]),
+    "MARKUP / STRUCTURE": (
+        "is the artefact well formed as a document",
+        ["_js_parse_gate", "double_escape_gate", "index_markup_gate"]),
+    "PRESENCE / DURABILITY": (
+        "does the thing exist, is it tracked, is it current",
+        ["build_stamp_gate", "clone_contamination_gate", "durable_artefact_gate",
+         "staleness_gate"]),
+    "TOPICALITY": (
+        "is this about the right subject at all",
+        ["subject_match_gate", "protocol_subject_gate"]),
+    "SELF-CHECK": (
+        "can the checks themselves fail, and did they run",
+        ["gate_integrity", "harness_gate"]),
+}
+
+# Kinds with NO gate. Each has already produced a real defect, which is the point:
+# these are not hypothetical gaps.
+UNCOVERED = [
+    ("ENCODING / BYTE INTEGRITY",
+     "line endings, BOM, charset -- anything true of the FILE rather than of its text",
+     "2026-08-18: a text-mode round-trip converted 12,031 CRLF endings to LF on two "
+     "live pages. Five content checks passed it. Caught by git's line count alone."),
+    ("DELIVERY / LIVENESS",
+     "does the far side actually SERVE the bytes that were pushed",
+     "2026-08-18: ssot/ had returned 404 for weeks while every page promised the "
+     "reader a canonical object. 'Verify live' is a manual protocol step, and for an "
+     "object-only change it had nothing to check, so it passed vacuously every time."),
+    ("DELTA / IDEMPOTENCY",
+     "did this patch change what it was meant to change, and only that",
+     "the ledger's own entry: an append-instead-of-set produced a well-formed object "
+     "that every gate passed. Only a diff against the EXPECTED change reveals it, and "
+     "no gate computes one."),
+]
+
+
+def main() -> int:
+    found = set()
+    for f in sorted(glob.glob(os.path.join(REPO, "scripts", "*gate*.py"))):
+        b = os.path.basename(f)[:-3]
+        if any(b.startswith(p) for p in NOT_A_GATE):
+            continue
+        found.add(b)
+
+    print("gate files on disk (after removing propagate_/fix_/... ): %d" % len(found))
+    print("raw `scripts/*gate*.py` glob would report: %d"
+          % len(glob.glob(os.path.join(REPO, "scripts", "*gate*.py"))))
+    print()
+    print("%-24s %-4s %s" % ("KIND", "n", "what it actually inspects"))
+    print("-" * 100)
+    assigned = set()
+    for kind, (what, members) in KINDS.items():
+        live = [m for m in members if m in found]
+        assigned |= set(members)
+        print("%-24s %-4d %s" % (kind, len(live), what))
+        for m in sorted(live):
+            print("%-29s %s" % ("", m))
+        missing = [m for m in members if m not in found]
+        for m in missing:
+            print("%-29s %s   (CLASSIFIED BUT NOT ON DISK)" % ("", m))
+    print()
+    unclassified = sorted(found - assigned)
+    print("gates on disk with no kind assigned: %d" % len(unclassified))
+    for u in unclassified:
+        print("   %s" % u)
+
+    print()
+    print("=" * 100)
+    print("KINDS WITH NO GATE AT ALL -- and each has already cost us something")
+    print("=" * 100)
+    for name, what, cost in UNCOVERED:
+        print()
+        print("  %s" % name)
+        print("      inspects : %s" % what)
+        print("      real cost: %s" % cost)
+
+    print()
+    print("THE MEASUREMENT: %d gates across %d kinds, and %d kinds with zero coverage."
+          % (len(found), len([k for k, (_, m) in KINDS.items()
+                              if any(x in found for x in m)]), len(UNCOVERED)))
+    print("A page passing every gate in this set is unchecked in all three.")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+
+codex
+Defects found:
+
+- **CHECK THAT CANNOT FAIL / STATUS CODE REPORTING WRAPPER** — line 141. Exact input: add an empty `scripts/new_gate.py`, then run `python scripts/gate_kinds.py`. Consequence: it reports `gates on disk with no kind assigned: 1` but exits `0`, so CI cannot block an unclassified gate.
+
+- **SELECTOR KEYED TO THE WRONG FORM** — line 98, enabled by line 100. Exact input: add an empty `scripts/investigate_encoding.py`, then run `python scripts/gate_kinds.py`. Consequence: `*gate*.py` matches the `gate` substring inside `investigate`, inflating the gate count with a non-gate script.
+
+- **COUNT / TABULATION DEFECT** — line 137. Exact input: have `scripts/alignment_gate.py` and `scripts/new_gate.py` on disk. Consequence: the headline reports `2 gates across 1 kinds` even though only one gate is assigned to a kind, overstating typed coverage.
+
+No probe keyed to the string a fix removes found.
+
+No idempotency guard satisfied by its own comment or marker found.
+
+COULD NOT DETERMINE instrument-reading-different-copy without the caller/CI invocation target.
+
+No CRLF-vs-LF text comparison found.
+
+No merged-cell defect found.
+
+No zero-conflated-with-absent defect found.
+
+No negation-dropped parser/count defect found.
+tokens used
+15,125
+Defects found:
+
+- **CHECK THAT CANNOT FAIL / STATUS CODE REPORTING WRAPPER** — line 141. Exact input: add an empty `scripts/new_gate.py`, then run `python scripts/gate_kinds.py`. Consequence: it reports `gates on disk with no kind assigned: 1` but exits `0`, so CI cannot block an unclassified gate.
+
+- **SELECTOR KEYED TO THE WRONG FORM** — line 98, enabled by line 100. Exact input: add an empty `scripts/investigate_encoding.py`, then run `python scripts/gate_kinds.py`. Consequence: `*gate*.py` matches the `gate` substring inside `investigate`, inflating the gate count with a non-gate script.
+
+- **COUNT / TABULATION DEFECT** — line 137. Exact input: have `scripts/alignment_gate.py` and `scripts/new_gate.py` on disk. Consequence: the headline reports `2 gates across 1 kinds` even though only one gate is assigned to a kind, overstating typed coverage.
+
+No probe keyed to the string a fix removes found.
+
+No idempotency guard satisfied by its own comment or marker found.
+
+COULD NOT DETERMINE instrument-reading-different-copy without the caller/CI invocation target.
+
+No CRLF-vs-LF text comparison found.
+
+No merged-cell defect found.
+
+No zero-conflated-with-absent defect found.
+
+No negation-dropped parser/count defect found.

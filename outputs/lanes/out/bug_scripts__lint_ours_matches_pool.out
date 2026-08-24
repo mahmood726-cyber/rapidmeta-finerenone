@@ -1,0 +1,647 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a031ef-b926-77f2-8a0d-f1c8f6b5df82
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/lint_ours_matches_pool.py
+
+--- THE FILE, IN FULL ---
+#!/usr/bin/env python3
+"""A FIELD THAT SAYS "OURS" MUST HOLD OUR NUMBER.
+
+THE INSTANCE, AND WHY THE EXISTING DETECTOR COULD NOT SEE IT.
+
+`alirocumab-lipid` was restated from k=6 to k=8 when two eligible, poolable trials were
+recovered by screening. The headline moved to MD -54.82 (-60.23 to -49.42). Its
+published-comparison block did not:
+
+    published_comparison.divergence_decomposed.ours
+        "Mean difference -54.66 percent (-60.75 to -48.56) ... at week 24, k=6, random
+         effects, DerSimonian-Laird. PREDICTION INTERVAL -74.1 to -35.2, which is the number
+         to quote."
+
+So a gated page states two different estimates for its own review, and the superseded one is
+the one sitting in the table a reader consults to compare us against the literature -- P7,
+which must agree between the page and the Word manuscript.
+
+`scripts/lint_block_contradicts_object.py` is silent on it BY CONSTRUCTION. It scopes
+`published_comparison` out entirely as a FOREIGN_SUBJECT, because that block describes OTHER
+people's reviews and reading "reports no pooled estimate of its own" as a claim about this
+object was one of its two false-alarm families. That exclusion was right about the block and
+wrong about one field inside it:
+
+    A BLOCK EXCLUDED BECAUSE IT DESCRIBES OTHER WORK IS EXACTLY WHERE A FIELD NAMED `ours`
+    HIDES. The scope-out is at block level; the first person is at field level.
+
+This is not the removed prose check returning. That one asked what an arbitrary sentence
+meant, could not tell a THRESHOLD ("below k=10") from a CLAIM, and accused 43 correct objects.
+Here the subject is given by the KEY -- `ours`, `our_estimate`, `this_review` -- so no sentence
+is interpreted to decide who it is about. Only the numbers are read.
+
+WHAT IS CHECKED, and every failing limb is reported rather than the first:
+
+  1  POINT   a first-person field quotes no number that round-matches this object's own pooled
+             point AT THE PRECISION THE FIELD ITSELF QUOTES. `-54.8` matches a stored -54.82;
+             `-54.66` does not. Precision comes from the text, so rounding is never an excuse
+             and never a false alarm.
+  2  K       a first-person field says `k=N` where N is not the k of any pooled outcome.
+  3  OUR-N   `our <decimal>` in running prose must round-match a pooled point the same way.
+
+TWO FALSE ALARMS WERE FIXED RATHER THAN BASELINED, AND THEY NAME THE LIMIT OF LIMB 1.
+`incretin-hfpef-review` carries
+`...published_synthesis_comparison.trial_set_overlap.ours = ["NCT04847557 SUMMIT
+(tirzepatide)", ...]` -- a first-person field whose content is an ID LIST, not an estimate.
+The first version read `04847557` as a quoted number and accused a correct object.
+
+    A FIELD CAN BE FIRST-PERSON AND NOT BE A NUMERIC CLAIM.
+
+So limb 1 is assessable only where the field quotes at least one DECIMAL number, and registry
+identifiers are stripped before any number is read. The conservative direction is stated
+rather than hidden: an `ours` field whose estimate is a whole number is NOT_ASSESSABLE here
+and this check will not catch it.
+
+LIMB 3 WAS PROMOTED FROM ADVISORY AFTER EVERY HIT WAS READ. It raised 3 occurrences, all on
+`alirocumab-lipid`, and all 3 are the SAME stale k=6 estimate reached by a different route
+(`our -54.66` twice, `our -54.7` once -- the latter being -54.66 rounded, so it was correct
+when written and is stale now). 3 inspected, 3 true, 0 baselined. Had any been correct text
+the limb would have stayed advisory: an uninspected alarm may not be assumed false.
+
+ABSENT IS NOT FAIL. An object with no pooled point is NOT_ASSESSABLE here: there is nothing
+for a first-person field to disagree with, and refusing on that would be inventing a defect
+out of an absence.
+"""
+import io
+import json
+import os
+import re
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+SSOT = os.path.join(REPO, "ssot")
+
+FAIL, NA, OK = "FAIL", "NOT_ASSESSABLE", "OK"
+
+# The subject is decided by the KEY, never by parsing the sentence.
+FIRST_PERSON_KEY = re.compile(r"^(ours|our|our_[a-z0-9_]+|this_review|ours_[a-z0-9_]+)$", re.I)
+
+NUM = re.compile(r"-?\d+\.\d+|-?\d+")
+K_CLAIM = re.compile(r"\bk\s*=\s*(\d+)")
+OUR_NUM = re.compile(r"\bour\s+(-?\d+\.\d+)")
+DECIMAL = re.compile(r"-?\d+\.\d+")
+# Registry identifiers are not quantities. NCT04847557 read as a number is how limb 1
+# accused a correct object; stripped here rather than filtered by magnitude, because a
+# magnitude threshold is a guess and a prefix is a fact about the identifier scheme.
+IDENTIFIER = re.compile(r"\b(?:NCT|PMID|PMC|DOI|ISRCTN|EudraCT|NTR|ChiCTR)[:\s]*[\w./-]+",
+                        re.I)
+
+
+def walk(node, path=""):
+    if isinstance(node, dict):
+        for k, v in node.items():
+            for r in walk(v, path + "." + k):
+                yield r
+    elif isinstance(node, list):
+        for i, v in enumerate(node):
+            for r in walk(v, "%s[%d]" % (path, i)):
+                yield r
+    elif isinstance(node, str):
+        yield path, node
+
+
+def quoted_numbers(text):
+    """(value, decimals) for every number in the text, decimals as WRITTEN.
+
+    Identifiers are removed FIRST. `NCT04847557` is not the number 4,847,557.
+    """
+    text = IDENTIFIER.sub(" ", text)
+    out = []
+    for tok in NUM.findall(text):
+        try:
+            v = float(tok)
+        except ValueError:
+            continue
+        d = len(tok.split(".")[1]) if "." in tok else 0
+        out.append((v, d))
+    return out
+
+
+def pooled_points(obj):
+    """[(outcome, point, k)] for outcomes that really pooled a value."""
+    out = []
+    for name, blk in (((obj.get("results") or {}).get("by_outcome")) or {}).items():
+        if not isinstance(blk, dict):
+            continue
+        pooled = blk.get("pooled") or {}
+        pt = pooled.get("point")
+        if pt is None or pooled.get("withdrawn"):
+            continue
+        out.append((name, float(pt), blk.get("k")))
+    return out
+
+
+def check(obj):
+    pts = pooled_points(obj)
+    rows, advisory = [], []
+
+    for path, text in walk(obj):
+        key = path.rsplit(".", 1)[-1]
+        key = re.sub(r"\[\d+\]$", "", key)
+
+        # LIMB 3 -- `our <decimal>` in running prose, anywhere in the object.
+        for m in OUR_NUM.finditer(text):
+            v = float(m.group(1))
+            d = len(m.group(1).split(".")[1])
+            if not pts:
+                advisory.append((path, m.group(0), NA))
+            elif any(round(pt, d) == v for _n, pt, _k in pts):
+                advisory.append((path, m.group(0), OK))
+            else:
+                rows.append((path, FAIL,
+                             "prose says '%s'; this object's pooled point(s) are %s"
+                             % (m.group(0),
+                                ", ".join("%g" % p for _n, p, _ in pts)),
+                             " ".join(text.split())[:170]))
+
+        if not FIRST_PERSON_KEY.match(key):
+            continue
+        if not pts:
+            rows.append((path, NA, "no pooled point exists in this object to compare against",
+                         text[:120]))
+            continue
+        # A FIELD CAN BE FIRST-PERSON AND NOT BE A NUMERIC CLAIM -- an id list, a trial name,
+        # a scope sentence. Limb 1 is assessable only where a DECIMAL is quoted.
+        if not DECIMAL.search(IDENTIFIER.sub(" ", text)):
+            rows.append((path, NA,
+                         "first-person field quotes no decimal number, so there is no "
+                         "estimate here to disagree with the pool",
+                         " ".join(text.split())[:120]))
+            continue
+
+        # 1 -- POINT, at the precision the field itself quotes.
+        quoted = quoted_numbers(text)
+        matched = None
+        for name, pt, _k in pts:
+            for v, d in quoted:
+                if round(pt, d) == v:
+                    matched = (name, pt, v, d)
+                    break
+            if matched:
+                break
+        if matched is None:
+            rows.append((path, FAIL,
+                         "quotes no number matching this object's own pooled point(s) %s at "
+                         "the precision it writes them"
+                         % ", ".join("%s=%g" % (n, p) for n, p, _ in pts),
+                         " ".join(text.split())[:170]))
+
+        # 2 -- K. Reported even when limb 1 already failed: a check that returns on the first
+        #      failing limb makes the reason a fact about the order the limbs were written in.
+        ks = {k for _n, _p, k in pts if isinstance(k, int)}
+        for m in K_CLAIM.finditer(text):
+            claimed = int(m.group(1))
+            if ks and claimed not in ks:
+                rows.append((path, FAIL,
+                             "says k=%d; this object's pooled outcome(s) declare k in %s"
+                             % (claimed, sorted(ks)),
+                             " ".join(text.split())[:170]))
+    return rows, advisory
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    only = sys.argv[1] if len(sys.argv) > 1 else None
+    scanned = 0
+    failing = {}
+    advisories = []
+    na = 0
+    for d in sorted(os.listdir(SSOT)):
+        if only and d != only:
+            continue
+        p = os.path.join(SSOT, d, d + ".json")
+        if not os.path.exists(p):
+            continue
+        try:
+            with io.open(p, encoding="utf-8") as fh:
+                obj = json.load(fh)
+        except (ValueError, OSError) as exc:
+            print("%s  UNREADABLE: %s -- NOT_ASSESSABLE, not a failure" % (d, exc))
+            continue
+        scanned += 1
+        rows, adv = check(obj)
+        advisories += [(d, a, b, c) for a, b, c in adv]
+        bad = [r for r in rows if r[1] == FAIL]
+        na += sum(1 for r in rows if r[1] == NA)
+        if bad:
+            failing[d] = bad
+            print(d)
+            for path, verdict, why, excerpt in bad:
+                print("   %s" % path)
+                print("      %s" % why)
+                print("      ...%s..." % excerpt)
+            print()
+
+    print("topic objects scanned                         %d" % scanned)
+    print("first-person fields with nothing to check     %d   <- NOT_ASSESSABLE" % na)
+    print("objects whose first-person field disagrees    %d" % len(failing))
+    print()
+    print("`our <number>` in prose that AGREES with the pool: %d occurrence(s)"
+          % sum(1 for _d, _p, _f, v in advisories if v == OK))
+    for d, path, frag, verdict in advisories:
+        print("   %-24s %-52s %-14s %s" % (d, path[:52], frag, verdict))
+    if failing:
+        print()
+        print("REFUSED: a field named for this review states a number this review does not hold.")
+        return 1
+    print()
+    print("every first-person field agrees with this object's own pool.")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+
+codex
+I’m treating this as a defect review of only the pasted module and will keep the result to the named defect shapes with concrete reproductions.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=0; Get-Content -Path '"'scripts/lint_ours_matches_pool.py' | ForEach-Object { "'$i++; '"'{0,4}: {1}' -f "'$i, $_ } | Select-Object -Skip 100 -First 100' in F:\rapidmeta-ssot-shell
+ succeeded in 1324ms:
+ 101: 
+ 102: 
+ 103: def quoted_numbers(text):
+ 104:     """(value, decimals) for every number in the text, decimals as WRITTEN.
+ 105: 
+ 106:     Identifiers are removed FIRST. `NCT04847557` is not the number 4,847,557.
+ 107:     """
+ 108:     text = IDENTIFIER.sub(" ", text)
+ 109:     out = []
+ 110:     for tok in NUM.findall(text):
+ 111:         try:
+ 112:             v = float(tok)
+ 113:         except ValueError:
+ 114:             continue
+ 115:         d = len(tok.split(".")[1]) if "." in tok else 0
+ 116:         out.append((v, d))
+ 117:     return out
+ 118: 
+ 119: 
+ 120: def pooled_points(obj):
+ 121:     """[(outcome, point, k)] for outcomes that really pooled a value."""
+ 122:     out = []
+ 123:     for name, blk in (((obj.get("results") or {}).get("by_outcome")) or {}).items():
+ 124:         if not isinstance(blk, dict):
+ 125:             continue
+ 126:         pooled = blk.get("pooled") or {}
+ 127:         pt = pooled.get("point")
+ 128:         if pt is None or pooled.get("withdrawn"):
+ 129:             continue
+ 130:         out.append((name, float(pt), blk.get("k")))
+ 131:     return out
+ 132: 
+ 133: 
+ 134: def check(obj):
+ 135:     pts = pooled_points(obj)
+ 136:     rows, advisory = [], []
+ 137: 
+ 138:     for path, text in walk(obj):
+ 139:         key = path.rsplit(".", 1)[-1]
+ 140:         key = re.sub(r"\[\d+\]$", "", key)
+ 141: 
+ 142:         # LIMB 3 -- `our <decimal>` in running prose, anywhere in the object.
+ 143:         for m in OUR_NUM.finditer(text):
+ 144:             v = float(m.group(1))
+ 145:             d = len(m.group(1).split(".")[1])
+ 146:             if not pts:
+ 147:                 advisory.append((path, m.group(0), NA))
+ 148:             elif any(round(pt, d) == v for _n, pt, _k in pts):
+ 149:                 advisory.append((path, m.group(0), OK))
+ 150:             else:
+ 151:                 rows.append((path, FAIL,
+ 152:                              "prose says '%s'; this object's pooled point(s) are %s"
+ 153:                              % (m.group(0),
+ 154:                                 ", ".join("%g" % p for _n, p, _ in pts)),
+ 155:                              " ".join(text.split())[:170]))
+ 156: 
+ 157:         if not FIRST_PERSON_KEY.match(key):
+ 158:             continue
+ 159:         if not pts:
+ 160:             rows.append((path, NA, "no pooled point exists in this object to compare against",
+ 161:                          text[:120]))
+ 162:             continue
+ 163:         # A FIELD CAN BE FIRST-PERSON AND NOT BE A NUMERIC CLAIM -- an id list, a trial name,
+ 164:         # a scope sentence. Limb 1 is assessable only where a DECIMAL is quoted.
+ 165:         if not DECIMAL.search(IDENTIFIER.sub(" ", text)):
+ 166:             rows.append((path, NA,
+ 167:                          "first-person field quotes no decimal number, so there is no "
+ 168:                          "estimate here to disagree with the pool",
+ 169:                          " ".join(text.split())[:120]))
+ 170:             continue
+ 171: 
+ 172:         # 1 -- POINT, at the precision the field itself quotes.
+ 173:         quoted = quoted_numbers(text)
+ 174:         matched = None
+ 175:         for name, pt, _k in pts:
+ 176:             for v, d in quoted:
+ 177:                 if round(pt, d) == v:
+ 178:                     matched = (name, pt, v, d)
+ 179:                     break
+ 180:             if matched:
+ 181:                 break
+ 182:         if matched is None:
+ 183:             rows.append((path, FAIL,
+ 184:                          "quotes no number matching this object's own pooled point(s) %s at "
+ 185:                          "the precision it writes them"
+ 186:                          % ", ".join("%s=%g" % (n, p) for n, p, _ in pts),
+ 187:                          " ".join(text.split())[:170]))
+ 188: 
+ 189:         # 2 -- K. Reported even when limb 1 already failed: a check that returns on the first
+ 190:         #      failing limb makes the reason a fact about the order the limbs were written in.
+ 191:         ks = {k for _n, _p, k in pts if isinstance(k, int)}
+ 192:         for m in K_CLAIM.finditer(text):
+ 193:             claimed = int(m.group(1))
+ 194:             if ks and claimed not in ks:
+ 195:                 rows.append((path, FAIL,
+ 196:                              "says k=%d; this object's pooled outcome(s) declare k in %s"
+ 197:                              % (claimed, sorted(ks)),
+ 198:                              " ".join(text.split())[:170]))
+ 199:     return rows, advisory
+ 200: 
+
+codex
+I’ve got the line references now. The main risky areas are the key extraction/matching around first-person fields and the “our number” prose probe.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=0; Get-Content -Path '"'scripts/lint_ours_matches_pool.py' | ForEach-Object { "'$i++; '"'{0,4}: {1}' -f "'$i, $_ } | Select-Object -First 120' in F:\rapidmeta-ssot-shell
+ succeeded in 1793ms:
+   1: #!/usr/bin/env python3
+   2: """A FIELD THAT SAYS "OURS" MUST HOLD OUR NUMBER.
+   3: 
+   4: THE INSTANCE, AND WHY THE EXISTING DETECTOR COULD NOT SEE IT.
+   5: 
+   6: `alirocumab-lipid` was restated from k=6 to k=8 when two eligible, poolable trials were
+   7: recovered by screening. The headline moved to MD -54.82 (-60.23 to -49.42). Its
+   8: published-comparison block did not:
+   9: 
+  10:     published_comparison.divergence_decomposed.ours
+  11:         "Mean difference -54.66 percent (-60.75 to -48.56) ... at week 24, k=6, random
+  12:          effects, DerSimonian-Laird. PREDICTION INTERVAL -74.1 to -35.2, which is the number
+  13:          to quote."
+  14: 
+  15: So a gated page states two different estimates for its own review, and the superseded one is
+  16: the one sitting in the table a reader consults to compare us against the literature -- P7,
+  17: which must agree between the page and the Word manuscript.
+  18: 
+  19: `scripts/lint_block_contradicts_object.py` is silent on it BY CONSTRUCTION. It scopes
+  20: `published_comparison` out entirely as a FOREIGN_SUBJECT, because that block describes OTHER
+  21: people's reviews and reading "reports no pooled estimate of its own" as a claim about this
+  22: object was one of its two false-alarm families. That exclusion was right about the block and
+  23: wrong about one field inside it:
+  24: 
+  25:     A BLOCK EXCLUDED BECAUSE IT DESCRIBES OTHER WORK IS EXACTLY WHERE A FIELD NAMED `ours`
+  26:     HIDES. The scope-out is at block level; the first person is at field level.
+  27: 
+  28: This is not the removed prose check returning. That one asked what an arbitrary sentence
+  29: meant, could not tell a THRESHOLD ("below k=10") from a CLAIM, and accused 43 correct objects.
+  30: Here the subject is given by the KEY -- `ours`, `our_estimate`, `this_review` -- so no sentence
+  31: is interpreted to decide who it is about. Only the numbers are read.
+  32: 
+  33: WHAT IS CHECKED, and every failing limb is reported rather than the first:
+  34: 
+  35:   1  POINT   a first-person field quotes no number that round-matches this object's own pooled
+  36:              point AT THE PRECISION THE FIELD ITSELF QUOTES. `-54.8` matches a stored -54.82;
+  37:              `-54.66` does not. Precision comes from the text, so rounding is never an excuse
+  38:              and never a false alarm.
+  39:   2  K       a first-person field says `k=N` where N is not the k of any pooled outcome.
+  40:   3  OUR-N   `our <decimal>` in running prose must round-match a pooled point the same way.
+  41: 
+  42: TWO FALSE ALARMS WERE FIXED RATHER THAN BASELINED, AND THEY NAME THE LIMIT OF LIMB 1.
+  43: `incretin-hfpef-review` carries
+  44: `...published_synthesis_comparison.trial_set_overlap.ours = ["NCT04847557 SUMMIT
+  45: (tirzepatide)", ...]` -- a first-person field whose content is an ID LIST, not an estimate.
+  46: The first version read `04847557` as a quoted number and accused a correct object.
+  47: 
+  48:     A FIELD CAN BE FIRST-PERSON AND NOT BE A NUMERIC CLAIM.
+  49: 
+  50: So limb 1 is assessable only where the field quotes at least one DECIMAL number, and registry
+  51: identifiers are stripped before any number is read. The conservative direction is stated
+  52: rather than hidden: an `ours` field whose estimate is a whole number is NOT_ASSESSABLE here
+  53: and this check will not catch it.
+  54: 
+  55: LIMB 3 WAS PROMOTED FROM ADVISORY AFTER EVERY HIT WAS READ. It raised 3 occurrences, all on
+  56: `alirocumab-lipid`, and all 3 are the SAME stale k=6 estimate reached by a different route
+  57: (`our -54.66` twice, `our -54.7` once -- the latter being -54.66 rounded, so it was correct
+  58: when written and is stale now). 3 inspected, 3 true, 0 baselined. Had any been correct text
+  59: the limb would have stayed advisory: an uninspected alarm may not be assumed false.
+  60: 
+  61: ABSENT IS NOT FAIL. An object with no pooled point is NOT_ASSESSABLE here: there is nothing
+  62: for a first-person field to disagree with, and refusing on that would be inventing a defect
+  63: out of an absence.
+  64: """
+  65: import io
+  66: import json
+  67: import os
+  68: import re
+  69: import sys
+  70: 
+  71: REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+  72: SSOT = os.path.join(REPO, "ssot")
+  73: 
+  74: FAIL, NA, OK = "FAIL", "NOT_ASSESSABLE", "OK"
+  75: 
+  76: # The subject is decided by the KEY, never by parsing the sentence.
+  77: FIRST_PERSON_KEY = re.compile(r"^(ours|our|our_[a-z0-9_]+|this_review|ours_[a-z0-9_]+)$", re.I)
+  78: 
+  79: NUM = re.compile(r"-?\d+\.\d+|-?\d+")
+  80: K_CLAIM = re.compile(r"\bk\s*=\s*(\d+)")
+  81: OUR_NUM = re.compile(r"\bour\s+(-?\d+\.\d+)")
+  82: DECIMAL = re.compile(r"-?\d+\.\d+")
+  83: # Registry identifiers are not quantities. NCT04847557 read as a number is how limb 1
+  84: # accused a correct object; stripped here rather than filtered by magnitude, because a
+  85: # magnitude threshold is a guess and a prefix is a fact about the identifier scheme.
+  86: IDENTIFIER = re.compile(r"\b(?:NCT|PMID|PMC|DOI|ISRCTN|EudraCT|NTR|ChiCTR)[:\s]*[\w./-]+",
+  87:                         re.I)
+  88: 
+  89: 
+  90: def walk(node, path=""):
+  91:     if isinstance(node, dict):
+  92:         for k, v in node.items():
+  93:             for r in walk(v, path + "." + k):
+  94:                 yield r
+  95:     elif isinstance(node, list):
+  96:         for i, v in enumerate(node):
+  97:             for r in walk(v, "%s[%d]" % (path, i)):
+  98:                 yield r
+  99:     elif isinstance(node, str):
+ 100:         yield path, node
+ 101: 
+ 102: 
+ 103: def quoted_numbers(text):
+ 104:     """(value, decimals) for every number in the text, decimals as WRITTEN.
+ 105: 
+ 106:     Identifiers are removed FIRST. `NCT04847557` is not the number 4,847,557.
+ 107:     """
+ 108:     text = IDENTIFIER.sub(" ", text)
+ 109:     out = []
+ 110:     for tok in NUM.findall(text):
+ 111:         try:
+ 112:             v = float(tok)
+ 113:         except ValueError:
+ 114:             continue
+ 115:         d = len(tok.split(".")[1]) if "." in tok else 0
+ 116:         out.append((v, d))
+ 117:     return out
+ 118: 
+ 119: 
+ 120: def pooled_points(obj):
+
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=0; Get-Content -Path '"'scripts/lint_ours_matches_pool.py' | ForEach-Object { "'$i++; '"'{0,4}: {1}' -f "'$i, $_ } | Select-Object -Skip 198 -First 80' in F:\rapidmeta-ssot-shell
+ succeeded in 1309ms:
+ 199:     return rows, advisory
+ 200: 
+ 201: 
+ 202: def main():
+ 203:     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+ 204:     only = sys.argv[1] if len(sys.argv) > 1 else None
+ 205:     scanned = 0
+ 206:     failing = {}
+ 207:     advisories = []
+ 208:     na = 0
+ 209:     for d in sorted(os.listdir(SSOT)):
+ 210:         if only and d != only:
+ 211:             continue
+ 212:         p = os.path.join(SSOT, d, d + ".json")
+ 213:         if not os.path.exists(p):
+ 214:             continue
+ 215:         try:
+ 216:             with io.open(p, encoding="utf-8") as fh:
+ 217:                 obj = json.load(fh)
+ 218:         except (ValueError, OSError) as exc:
+ 219:             print("%s  UNREADABLE: %s -- NOT_ASSESSABLE, not a failure" % (d, exc))
+ 220:             continue
+ 221:         scanned += 1
+ 222:         rows, adv = check(obj)
+ 223:         advisories += [(d, a, b, c) for a, b, c in adv]
+ 224:         bad = [r for r in rows if r[1] == FAIL]
+ 225:         na += sum(1 for r in rows if r[1] == NA)
+ 226:         if bad:
+ 227:             failing[d] = bad
+ 228:             print(d)
+ 229:             for path, verdict, why, excerpt in bad:
+ 230:                 print("   %s" % path)
+ 231:                 print("      %s" % why)
+ 232:                 print("      ...%s..." % excerpt)
+ 233:             print()
+ 234: 
+ 235:     print("topic objects scanned                         %d" % scanned)
+ 236:     print("first-person fields with nothing to check     %d   <- NOT_ASSESSABLE" % na)
+ 237:     print("objects whose first-person field disagrees    %d" % len(failing))
+ 238:     print()
+ 239:     print("`our <number>` in prose that AGREES with the pool: %d occurrence(s)"
+ 240:           % sum(1 for _d, _p, _f, v in advisories if v == OK))
+ 241:     for d, path, frag, verdict in advisories:
+ 242:         print("   %-24s %-52s %-14s %s" % (d, path[:52], frag, verdict))
+ 243:     if failing:
+ 244:         print()
+ 245:         print("REFUSED: a field named for this review states a number this review does not hold.")
+ 246:         return 1
+ 247:     print()
+ 248:     print("every first-person field agrees with this object's own pool.")
+ 249:     return 0
+ 250: 
+ 251: 
+ 252: if __name__ == "__main__":
+ 253:     sys.exit(main())
+
+codex
+1. **Check that cannot fail, line 249.**  
+Input: run `python scripts/lint_ours_matches_pool.py no-such-topic` when `ssot/no-such-topic/no-such-topic.json` is absent.  
+Consequence: the targeted check scans `0` objects and exits `0` with a success message.
+
+2. **Status code reports wrapper, lines 219-220.**  
+Input: `ssot/bad/bad.json` containing only `{`.  
+Consequence: unreadable work is skipped as `NOT_ASSESSABLE`, so the script can still exit `0`.
+
+3. **Selector misses top-level first-person key, line 93.**  
+Input: `{"results":{"by_outcome":{"x":{"k":8,"pooled":{"point":-54.82}}}},"ours":"Mean difference -54.66 percent, k=6"}`.  
+Consequence: path becomes `.ours`, which fails `FIRST_PERSON_KEY`, so the stale field is never checked.
+
+4. **Selector keyed to narrower prose form, line 81.**  
+Input: `{"results":{"by_outcome":{"x":{"k":8,"pooled":{"point":-54.82}}}},"discussion":"Our -54.66"}`.  
+Consequence: sentence-initial `Our` is missed because `OUR_NUM` is case-sensitive.
+
+5. **Negation dropped, line 192.**  
+Input: `{"results":{"by_outcome":{"x":{"k":8,"pooled":{"point":-54.82}}}},"published_comparison":{"ours":"Mean difference -54.82 percent, not k=6; k=8"}}`.  
+Consequence: correct text that denies `k=6` is refused because `K_CLAIM` still reads the denied value.
+
+6. **Name vs binding error, line 177.**  
+Input: `{"results":{"by_outcome":{"x":{"k":8,"pooled":{"point":-60.75}}}},"published_comparison":{"ours":"Mean difference -54.66 percent (-60.75 to -48.56), k=8"}}`.  
+Consequence: a CI bound can satisfy the pooled-point match, letting the stale point estimate pass.
+
+No packet-proven defects found for CRLF text comparison, merged-cell/off-by-one tabulation, zero-vs-absent, idempotency guards, or fix-string probes.
+tokens used
+21,481
+1. **Check that cannot fail, line 249.**  
+Input: run `python scripts/lint_ours_matches_pool.py no-such-topic` when `ssot/no-such-topic/no-such-topic.json` is absent.  
+Consequence: the targeted check scans `0` objects and exits `0` with a success message.
+
+2. **Status code reports wrapper, lines 219-220.**  
+Input: `ssot/bad/bad.json` containing only `{`.  
+Consequence: unreadable work is skipped as `NOT_ASSESSABLE`, so the script can still exit `0`.
+
+3. **Selector misses top-level first-person key, line 93.**  
+Input: `{"results":{"by_outcome":{"x":{"k":8,"pooled":{"point":-54.82}}}},"ours":"Mean difference -54.66 percent, k=6"}`.  
+Consequence: path becomes `.ours`, which fails `FIRST_PERSON_KEY`, so the stale field is never checked.
+
+4. **Selector keyed to narrower prose form, line 81.**  
+Input: `{"results":{"by_outcome":{"x":{"k":8,"pooled":{"point":-54.82}}}},"discussion":"Our -54.66"}`.  
+Consequence: sentence-initial `Our` is missed because `OUR_NUM` is case-sensitive.
+
+5. **Negation dropped, line 192.**  
+Input: `{"results":{"by_outcome":{"x":{"k":8,"pooled":{"point":-54.82}}}},"published_comparison":{"ours":"Mean difference -54.82 percent, not k=6; k=8"}}`.  
+Consequence: correct text that denies `k=6` is refused because `K_CLAIM` still reads the denied value.
+
+6. **Name vs binding error, line 177.**  
+Input: `{"results":{"by_outcome":{"x":{"k":8,"pooled":{"point":-60.75}}}},"published_comparison":{"ours":"Mean difference -54.66 percent (-60.75 to -48.56), k=8"}}`.  
+Consequence: a CI bound can satisfy the pooled-point match, letting the stale point estimate pass.
+
+No packet-proven defects found for CRLF text comparison, merged-cell/off-by-one tabulation, zero-vs-absent, idempotency guards, or fix-string probes.

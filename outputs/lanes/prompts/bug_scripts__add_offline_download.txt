@@ -1,0 +1,124 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/add_offline_download.py
+
+--- THE FILE, IN FULL ---
+"""Inject the offline-download button (scripts/offline_bundle_snippet.html) before
+</body> and extend connect-src so the bundler's fetches to cdn.plot.ly / cdnjs are
+not CSP-blocked. Idempotent (skips files already carrying the marker), jscheck-gated.
+
+Usage:
+  python scripts/add_offline_download.py --files FINERENONE_REVIEW.html   # one app
+  python scripts/add_offline_download.py --keep                            # validated tier
+  python scripts/add_offline_download.py --all                             # every app
+  add --dry-run to preview.
+"""
+import re, glob, io, sys, os, json, subprocess, argparse
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+SNIPPET = open(os.path.join(REPO, "scripts", "offline_bundle_snippet.html"), encoding="utf-8").read().strip()
+MARKER = "rm-offline-download:begin"
+CDN_HOSTS = "https://cdn.plot.ly https://cdnjs.cloudflare.com"
+
+
+def jscheck(fn):
+    r = subprocess.run([sys.executable, os.path.join(REPO, "scripts", "jscheck.py"), fn],
+                       capture_output=True, text=True)
+    return "[JS-OK]" in (r.stdout + r.stderr)
+
+
+def extend_connect_src(html):
+    """Add the CDN hosts to connect-src if a CSP exists and they're absent."""
+    m = re.search(r'(connect-src\s+)([^;"]*)', html)
+    if not m:
+        return html
+    existing = m.group(2)
+    add = " ".join(h for h in CDN_HOSTS.split() if h not in existing)
+    if not add:
+        return html
+    return html[:m.start(2)] + existing.rstrip() + " " + add + html[m.end(2):]
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--files", nargs="*")
+    ap.add_argument("--keep", action="store_true")
+    ap.add_argument("--all", action="store_true")
+    ap.add_argument("--dry-run", action="store_true")
+    args = ap.parse_args()
+
+    if args.files:
+        targets = args.files
+    elif args.keep:
+        part = json.load(open(os.path.join(REPO, "outputs", "corpus_partition.json"), encoding="utf-8"))
+        targets = [n + "_REVIEW.html" for n in part["tiers"]["BENCHMARK"] + part["tiers"]["PROVENANCE"]]
+    elif args.all:
+        targets = [os.path.basename(p) for p in glob.glob(os.path.join(REPO, "*_REVIEW.html"))]
+    else:
+        ap.error("choose --files / --keep / --all")
+
+    done = skip = reverts = 0
+    for fn in sorted(set(targets)):
+        p = os.path.join(REPO, fn)
+        if not os.path.exists(p):
+            continue
+        html = open(p, encoding="utf-8", errors="replace").read()
+        if MARKER in html:
+            skip += 1; continue
+        # Extend connect-src FIRST (it inserts text earlier in the doc, shifting
+        # later offsets), THEN locate the LAST </body> in the resulting string.
+        # Computing the offset before the edit lands the splice ~48 chars early,
+        # mid-content. Inject before the LAST </body> (the real document close):
+        # apps embed printable HTML templates (new Blob(['<html>...</body>...']))
+        # whose in-string </body> would otherwise be matched first.
+        new = extend_connect_src(html)
+        matches = list(re.finditer(r"</body\s*>", new, re.IGNORECASE))
+        if not matches:
+            skip += 1; continue
+        pos = matches[-1].start()
+        new = new[:pos] + "\n" + SNIPPET + "\n" + new[pos:]
+        if args.dry_run:
+            done += 1; continue
+        open(p, "w", encoding="utf-8").write(new)
+        if not jscheck(p):
+            open(p, "w", encoding="utf-8").write(html); reverts += 1
+            print(f"  REVERTED {fn}"); continue
+        done += 1
+    print(f"{'DRY-RUN ' if args.dry_run else ''}injected: {done}, already-present: {skip}, reverts: {reverts}")
+
+
+if __name__ == "__main__":
+    main()

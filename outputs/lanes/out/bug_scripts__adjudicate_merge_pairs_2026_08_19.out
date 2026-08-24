@@ -1,0 +1,610 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a03124-d56f-7ae0-9b63-4849fe284b01
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/adjudicate_merge_pairs_2026_08_19.py
+
+--- THE FILE, IN FULL ---
+#!/usr/bin/env python3
+"""ADJUDICATE THE 15 IDENTICAL-TRIAL-SET PAIRS -- evidence first, direction second.
+
+Mahmood authorised the merges. This file does NOT merge. It assembles, for every pair, the
+evidence a merge direction has to be argued from, and it applies the three rules that were set
+before it ran:
+
+  1. IS IT ACTUALLY A DUPLICATE? An identical trial set is a QUESTION, never a verdict. Two
+     topics may ask legitimately different questions of the same evidence -- that is P21 in
+     reverse -- and collapsing them silently would discard a QUESTION rather than a duplicate.
+     A pair whose questions differ materially is reported as NOT A MERGE.
+  2. MERGE IN THE DIRECTION OF EVIDENCE, NOT OF TIDINESS. Where one member is a subset of the
+     other, the superset survives. Where the sets are identical and one object is materially
+     richer, the richer survives.
+  3. WHERE NEITHER IS RICHER, THE BETTER QUESTION SURVIVES and the other's question is recorded
+     on it as an alternative reading.
+
+AND THE PAIRS ARE NOT INDEPENDENT. `omecamtiv-heartfail`, `omecamtiv-hf` and `omecamtiv-hfref`
+hold the same single trial and appear as THREE pairs of one three-way cluster. `mavacamten-ohcm`
+and `mavacamten-ohcm-review` are identical to each other AND both subsets of
+`mavacamten-hcm-review`. `sacubitril-heartfail` and `sacubitril-valsartan-hf` are identical AND
+both subsets of `arni-hfref`. TREATING THOSE AS PAIRWISE MERGES WOULD RETIRE A TOPIC INTO
+ANOTHER TOPIC THAT IS ITSELF ABOUT TO BE RETIRED, so clusters are resolved as clusters.
+
+USAGE:  python scripts/adjudicate_merge_pairs_2026_08_19.py
+        python scripts/adjudicate_merge_pairs_2026_08_19.py --selftest
+"""
+import io
+import json
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+EV = os.path.join(REPO, "evidence", "2026-08-19-batch1")
+AUDIT = os.path.join(EV, "corpus_duplication.json")
+DEST = os.path.join(EV, "merge_adjudication.json")
+
+
+def obj_path(topic):
+    return os.path.join(REPO, "ssot", topic, topic + ".json")
+
+
+def load(topic):
+    p = obj_path(topic)
+    if not os.path.exists(p):
+        return None
+    try:
+        with io.open(p, "r", encoding="utf-8") as fh:
+            return json.load(fh)
+    except (OSError, ValueError):
+        return None
+
+
+def leaves(o, p=""):
+    if isinstance(o, dict):
+        for k, v in o.items():
+            for x in leaves(v, p + "/" + str(k)):
+                yield x
+    elif isinstance(o, list):
+        for i, v in enumerate(o):
+            for x in leaves(v, "%s[%d]" % (p, i)):
+                yield x
+    else:
+        yield (p, o)
+
+
+def profile(topic):
+    """Everything a merge direction can be argued from. Counted, never eyeballed."""
+    o = load(topic)
+    if o is None:
+        return {"topic": topic, "state": "NO_OBJECT_ON_DISK"}
+    lv = dict(leaves(o))
+    outs = ((o.get("results") or {}).get("by_outcome")) or {}
+    trials = ((o.get("inputs") or {}).get("trials")) or []
+    pooled = []
+    for oid, blk in outs.items():
+        if not isinstance(blk, dict):
+            continue
+        p = blk.get("pooled") or {}
+        pooled.append({"outcome": oid, "measure": p.get("measure"), "point": p.get("point"),
+                       "withdrawn": bool(p.get("withdrawn")), "k": blk.get("k")})
+    return {
+        "topic": topic, "state": "READ",
+        "title": (o.get("title") or "")[:200],
+        "question": (o.get("question") or "")[:600],
+        "leaf_count": len(lv),
+        "bytes": os.path.getsize(obj_path(topic)),
+        "n_trials": len(trials),
+        "trials": sorted(t.get("nct") or t.get("id") or "?" for t in trials),
+        "n_outcomes": len(outs),
+        "outcomes": pooled,
+        "has_build_stamp": bool(o.get("build_stamp")),
+        "standard_version": ((o.get("build_stamp") or {}).get("page_standard_version")
+                             or (o.get("build_stamp") or {}).get("standard_version")),
+        "has_search": bool(o.get("search")),
+        "has_k_cascade": bool(o.get("k_cascade")),
+        "has_prisma": bool(o.get("prisma_flow")),
+        "has_screening": bool(o.get("screening")),
+        "n_corrections": len(o.get("claims_corrected") or []),
+        "has_superseded_blocks": sum(1 for k in lv if "supersed" in k.lower()),
+        "has_restated_blocks": sum(1 for k in lv if "restat" in k.lower()),
+        "n_provenance_blocks": sum(1 for k in lv if "provenance" in k.lower()),
+        "n_limitations": sum(1 for k in lv if "limitation" in k.lower()
+                             or "known_limitation" in k.lower()),
+        "build_mode": o.get("build_mode"),
+    }
+
+
+# RICHNESS IS A COMPOSITE OF THINGS THAT WOULD BE LOST, not of file size. A bigger file can be
+# bigger because it embeds a longer prose block; what matters for a merge is whether it holds
+# STRUCTURE the other does not.
+RICHNESS_KEYS = ("has_build_stamp", "has_search", "has_k_cascade", "has_prisma",
+                 "has_screening")
+COUNT_KEYS = ("n_outcomes", "n_corrections", "has_superseded_blocks", "has_restated_blocks",
+              "n_provenance_blocks", "n_limitations", "leaf_count")
+
+
+def richness(p):
+    if p.get("state") != "READ":
+        return -1
+    return (sum(1 for k in RICHNESS_KEYS if p.get(k)) * 1000
+            + p.get("n_outcomes", 0) * 100
+            + p.get("n_corrections", 0) * 50
+            + p.get("has_superseded_blocks", 0) * 10
+            + p.get("n_provenance_blocks", 0)
+            + p.get("leaf_count", 0) // 100)
+
+
+# THE AUTO-BUILD TEMPLATE. 37 of the corpus's 144 questions end in this exact clause, and none
+# of them is a question -- each is the object's TITLE with a stock suffix appended. Comparing a
+# templated title against a real question measures the template.
+TEMPLATE_TAIL = "on each trial's own registered primary outcome?"
+
+
+def is_templated(q):
+    return (q or "").strip().lower().endswith(TEMPLATE_TAIL)
+
+
+def questions_differ(a, b):
+    """Do the two topics ask MATERIALLY different questions? Conservative on purpose.
+
+    A merge that collapses two different questions destroys evidence in the direction this
+    project has no guard for. So the test errs toward REPORTING a difference: identical or
+    empty questions are the only confident duplicate.
+
+    AND A TEMPLATED TITLE IS AN ABSENT QUESTION, NOT A DIFFERENT ONE. The first run of this file
+    flagged `lenacapavir-prep` against `lenacapavir-prep-review` at 6% overlap and
+    `cryptococcal-meningitis` against its `-africa` stub at 13%, and neither pair asks two
+    questions: one member of each is an auto-built stub whose `question` field is its own title
+    with `on each trial's own registered primary outcome?` appended. Treating that as a rival
+    question would have blocked two merges for the wrong reason -- and, worse, would have
+    reported a REAL finding ("these are two questions") that was an artefact of a template.
+    """
+    qa, qb = (a.get("question") or "").strip(), (b.get("question") or "").strip()
+    if not qa and not qb:
+        return False, "neither object records a question"
+    if not qa or not qb:
+        return False, "only one object records a question, so there is nothing to differ"
+    if is_templated(qa) and is_templated(qb):
+        return False, "BOTH questions are the auto-build template, so neither states a question"
+    if is_templated(qa) or is_templated(qb):
+        which = a.get("topic") if is_templated(qa) else b.get("topic")
+        return False, ("%s carries the AUTO-BUILD TEMPLATE, not a question -- its `question` "
+                       "field is its own title with a stock suffix. An absent question is not a "
+                       "different question." % which)
+    if qa == qb:
+        return False, "the two questions are byte-identical"
+    # Token overlap on the content words.
+    stop = set("does do is are the a an of in for with and or on at to from by as this that "
+               "than versus vs compared comparison patients people adults".split())
+    ta = {w for w in "".join(c.lower() if c.isalnum() else " " for c in qa).split()
+          if w not in stop and len(w) > 2}
+    tb = {w for w in "".join(c.lower() if c.isalnum() else " " for c in qb).split()
+          if w not in stop and len(w) > 2}
+    if not ta or not tb:
+        return False, "one question carries no content words"
+    j = len(ta & tb) / float(len(ta | tb))
+    if j >= 0.6:
+        return False, "questions overlap %.0f%% on content words" % (100 * j)
+    return True, ("questions overlap only %.0f%% on content words -- REPORT, do not merge, "
+                  "until a human confirms they are one question" % (100 * j))
+
+
+def main():
+    with io.open(AUDIT, "r", encoding="utf-8") as fh:
+        audit = json.load(fh)
+    pairs = audit["identical_trial_sets"]
+    subs = audit["subset_relations"]
+    superset_of = {}
+    for s in subs:
+        superset_of.setdefault(s["subset"], []).append(s["superset"])
+
+    # CLUSTERS, not pairs. Union-find over the identical-set relation.
+    parent = {}
+
+    def find(x):
+        parent.setdefault(x, x)
+        while parent[x] != x:
+            parent[x] = parent[parent[x]]
+            x = parent[x]
+        return x
+
+    def union(a, b):
+        ra, rb = find(a), find(b)
+        if ra != rb:
+            parent[ra] = rb
+
+    for p in pairs:
+        union(p["topics"][0], p["topics"][1])
+    clusters = {}
+    for t in parent:
+        clusters.setdefault(find(t), []).append(t)
+
+    rows = []
+    for root, members in sorted(clusters.items(), key=lambda kv: sorted(kv[1])[0]):
+        members = sorted(members)
+        profs = {m: profile(m) for m in members}
+        diffs = []
+        for i in range(len(members)):
+            for j in range(i + 1, len(members)):
+                d, why = questions_differ(profs[members[i]], profs[members[j]])
+                diffs.append({"a": members[i], "b": members[j], "questions_differ": d,
+                              "why": why})
+        any_diff = any(d["questions_differ"] for d in diffs)
+
+        # IS THE PAIR ACTUALLY AN IDENTICAL SET? RE-CHECKED HERE, AGAINST EVERY TRIAL.
+        #
+        # `corpus_duplication.json` compared trial sets keyed on NCT ids. A trial registered
+        # anywhere else -- ANZCTR, ISRCTN, EudraCT -- is INVISIBLE to that comparison, so a
+        # topic holding three trials of which one has an NCT looks identical to a topic holding
+        # that one trial. `cryptococcal-meningitis` holds ACTA, AMBITION-cm and NCT01075152;
+        # `cryptococcal-meningitis-africa` holds NCT01075152 alone. THE AUDIT REPORTED THEM AS
+        # AN IDENTICAL SET AND THEY ARE A SUBSET RELATION.
+        #
+        # Same class as the P19 check that could not carry an ANZCTR trial, found hours earlier
+        # on `colchicine-cvd-coronary`: A COMPARISON KEYED ON ONE REGISTRY'S IDENTIFIER CANNOT
+        # SEE TRIALS FROM ANOTHER. Merging on an unverified pair list would retire a topic into
+        # one that does not contain it.
+        sets = {m: set(profs[m].get("trials") or []) for m in members
+                if profs[m].get("state") == "READ"}
+        sizes = {m: len(s) for m, s in sets.items()}
+        truly_identical = len({frozenset(s) for s in sets.values()}) == 1
+        set_note = None
+        if not truly_identical:
+            biggest = max(sets, key=lambda m: len(sets[m]))
+            others_are_subsets = all(sets[m] <= sets[biggest] for m in sets)
+            set_note = {
+                "audit_said": "identical trial sets",
+                "recheck_says": ("NOT IDENTICAL over ALL trials: %s" % sizes),
+                "why_the_audit_missed_it": ("it compared sets keyed on NCT ids, and a trial "
+                                            "registered on another registry is invisible to "
+                                            "that comparison"),
+                "relation": ("SUBSET -- every other member is contained in %s" % biggest
+                             if others_are_subsets else "PARTIAL OVERLAP"),
+            }
+        # Is any member a subset of a topic OUTSIDE the cluster? Then the cluster's survivor is
+        # itself absorbed and the merge must not be taken pairwise.
+        outside = {}
+        for m in members:
+            up = [s for s in superset_of.get(m, []) if s not in members]
+            if up:
+                outside[m] = up
+        ranked = sorted(members, key=lambda m: -richness(profs[m]))
+        survivor = ranked[0]
+        retire = [m for m in members if m != survivor]
+        verdict = "MERGE"
+        note = ("survivor is the richest object in the cluster by structure held, not by file "
+                "size")
+        if not truly_identical:
+            verdict = "NOT_AN_IDENTICAL_SET_REPORT_ONLY"
+            note = ("THE AUDIT'S PAIRING IS WRONG FOR THIS CLUSTER and no merge is taken on it. "
+                    "%s. A merge authorised for identical sets must not be executed on a pair "
+                    "that is not one." % set_note["recheck_says"])
+        elif any_diff:
+            verdict = "NOT_A_MERGE_REPORT_ONLY"
+            note = ("at least one pair in this cluster asks materially different questions of "
+                    "the same evidence. THAT IS P21 IN REVERSE and collapsing it would discard "
+                    "a question rather than a duplicate.")
+        elif outside:
+            verdict = "MERGE_BUT_THE_CLUSTER_IS_ITSELF_A_SUBSET"
+            note = ("every member is a subset of %s. Merging inside the cluster is correct and "
+                    "INCOMPLETE: the survivor should then be considered against its superset, "
+                    "which is a SECOND decision and is not taken here."
+                    % sorted({s for v in outside.values() for s in v}))
+        if any(profs[m]["state"] != "READ" for m in members):
+            verdict = "NOT_ASSESSABLE"
+            note = "at least one member has no readable object on disk"
+        rows.append({
+            "cluster": members, "verdict": verdict, "survivor": survivor,
+            "trial_sets_rechecked_over_ALL_trials": {m: sorted(sets.get(m, ())) for m in members},
+            "truly_identical": truly_identical, "set_recheck": set_note,
+            "retire": retire, "note": note,
+            "richness": {m: richness(profs[m]) for m in members},
+            "question_comparison": diffs,
+            "subset_of_topics_outside_the_cluster": outside,
+            "profiles": profs,
+        })
+
+    out = {
+        "adjudicated_utc": "2026-08-19",
+        "authority": ("Mahmood authorised the merges. The direction of each one is argued from "
+                      "evidence here and no object is written by this file."),
+        "rules_applied_and_set_before_this_ran": [
+            "An identical trial set is a QUESTION, never a verdict. A pair whose questions "
+            "differ materially is REPORTED, not merged.",
+            "Where one member is a subset of another topic, the superset survives.",
+            "Where sets are identical, the object holding more STRUCTURE survives -- search, "
+            "cascade, PRISMA, screening, outcomes, corrections, supersede chains, provenance. "
+            "NOT file size.",
+            "Where neither is richer, the better question survives and the other's question is "
+            "recorded on it as an alternative reading.",
+        ],
+        "clusters": len(rows),
+        "pairs_reported_by_the_audit": len(pairs),
+        "why_those_two_numbers_differ": (
+            "The 15 pairs are not 15 independent merges. The three omecamtiv topics hold the "
+            "same single trial and appear as THREE pairs of ONE three-way cluster. Treating "
+            "them pairwise would retire a topic into a topic that is itself being retired."),
+        "rows": rows,
+    }
+    with io.open(DEST, "w", encoding="utf-8") as fh:
+        fh.write(json.dumps(out, indent=1, ensure_ascii=False))
+
+    print("%d identical-set PAIRS resolve into %d CLUSTERS\n" % (len(pairs), len(rows)))
+    for r in rows:
+        print("%-38s %s" % (" + ".join(r["cluster"])[:38], r["verdict"]))
+        print("     survivor  %s   retire  %s" % (r["survivor"], r["retire"]))
+        for m in r["cluster"]:
+            p = r["profiles"][m]
+            if p["state"] != "READ":
+                print("       %-40s %s" % (m, p["state"]))
+                continue
+            print("       %-40s richness %6d  leaves %5d  outcomes %d  k=%d  stamp=%s"
+                  % (m, r["richness"][m], p["leaf_count"], p["n_outcomes"], p["n_trials"],
+                     p["standard_version"] or "-"))
+        for d in r["question_comparison"]:
+            if d["questions_differ"]:
+                print("       QUESTIONS DIFFER: %s" % d["why"])
+        if r["subset_of_topics_outside_the_cluster"]:
+            print("       subset of: %s" % r["subset_of_topics_outside_the_cluster"])
+        print("")
+    print("wrote %s" % os.path.relpath(DEST, REPO))
+    return 0
+
+
+def selftest():
+    fails = []
+
+    def ck(name, got, want):
+        ok = got == want
+        print("  %-70s %s  %r" % (name, "ok" if ok else "FAIL", got))
+        if not ok:
+            fails.append(name)
+
+    print("1. THE QUESTION TEST ERRS TOWARD REPORTING A DIFFERENCE:")
+    same = {"question": "Does X reduce Y in Z?"}
+    ck("identical questions are not a difference", questions_differ(same, same)[0], False)
+    ck("two unrelated questions ARE a difference",
+       questions_differ({"question": "Does colchicine reduce stroke recurrence?"},
+                        {"question": "Does bosentan improve walk distance in children?"})[0],
+       True)
+    ck("a missing question on one side is not a difference",
+       questions_differ({"question": "Does X reduce Y?"}, {"question": ""})[0], False)
+
+    print("\n2. RICHNESS IS STRUCTURE HELD, NOT FILE SIZE:")
+    lean = {"state": "READ", "leaf_count": 20000, "n_outcomes": 1}
+    rich = {"state": "READ", "leaf_count": 400, "n_outcomes": 2, "has_build_stamp": True,
+            "has_search": True, "has_k_cascade": True, "has_prisma": True,
+            "has_screening": True}
+    ck("a small structured object outranks a large unstructured one",
+       richness(rich) > richness(lean), True)
+
+    print("\n3. AN UNREADABLE OBJECT IS NOT_ASSESSABLE, never the loser by default:")
+    ck("no object on disk ranks -1", richness({"state": "NO_OBJECT_ON_DISK"}), -1)
+
+    print("\n4. THE LIVE ADJUDICATION RUNS AND CLUSTERS THE OMECAMTIV TRIPLE AS ONE:")
+    rc = main()
+    with io.open(DEST, "r", encoding="utf-8") as fh:
+        out = json.load(fh)
+    om = [r for r in out["rows"] if any("omecamtiv" in m for m in r["cluster"])]
+    ck("the three omecamtiv topics form ONE cluster", len(om), 1)
+    if om:
+        ck("and it has three members", len(om[0]["cluster"]), 3)
+    ck("15 pairs resolve into fewer clusters", out["clusters"] < 15, True)
+
+    print("\n%s" % ("SELFTEST FAILED: %s" % fails if fails else "SELFTEST PASSED"))
+    return 1 if fails else 0
+
+
+if __name__ == "__main__":
+    # WRAPPED ONCE, AT THE ENTRY POINT. `selftest()` calls `main()`, and with the wrapper inside
+    # both, the second call replaced the first's TextIOWrapper and closed its buffer -- every
+    # later print raising ValueError from inside a test that was passing. THE SAME TRAP WAS
+    # FIXED IN scripts/verify_search_record_reconciles.py EARLIER TODAY AND WAS WRITTEN AGAIN
+    # HERE TWO HOURS LATER. That is the argument for a mechanism, not for more care.
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    sys.exit(selftest() if "--selftest" in sys.argv else main())
+
+codex
+I’ll keep this to the pasted record only and treat it as a defect hunt, not a general review. I’m numbering from the first shebang line as line 1.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=0; Get-Content -LiteralPath '"'scripts/adjudicate_merge_pairs_2026_08_19.py' | ForEach-Object { "'$i++; if ($i -ge 232 -and $i -le 286) { '"'{0,4}: {1}' -f "'$i, $_ } }' in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=0; Get-Content -LiteralPath '"'scripts/adjudicate_merge_pairs_2026_08_19.py' | ForEach-Object { "'$i++; if ($i -ge 370 -and $i -le 386) { '"'{0,4}: {1}' -f "'$i, $_ } }' in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=0; Get-Content -LiteralPath '"'scripts/adjudicate_merge_pairs_2026_08_19.py' | ForEach-Object { "'$i++; if ($i -ge 80 -and $i -le 100) { '"'{0,4}: {1}' -f "'$i, $_ } }' in F:\rapidmeta-ssot-shell
+ succeeded in 2005ms:
+ 370:     ck("a small structured object outranks a large unstructured one",
+ 371:        richness(rich) > richness(lean), True)
+ 372: 
+ 373:     print("\n3. AN UNREADABLE OBJECT IS NOT_ASSESSABLE, never the loser by default:")
+ 374:     ck("no object on disk ranks -1", richness({"state": "NO_OBJECT_ON_DISK"}), -1)
+ 375: 
+ 376:     print("\n4. THE LIVE ADJUDICATION RUNS AND CLUSTERS THE OMECAMTIV TRIPLE AS ONE:")
+ 377:     rc = main()
+ 378:     with io.open(DEST, "r", encoding="utf-8") as fh:
+ 379:         out = json.load(fh)
+ 380:     om = [r for r in out["rows"] if any("omecamtiv" in m for m in r["cluster"])]
+ 381:     ck("the three omecamtiv topics form ONE cluster", len(om), 1)
+ 382:     if om:
+ 383:         ck("and it has three members", len(om[0]["cluster"]), 3)
+ 384:     ck("15 pairs resolve into fewer clusters", out["clusters"] < 15, True)
+ 385: 
+ 386:     print("\n%s" % ("SELFTEST FAILED: %s" % fails if fails else "SELFTEST PASSED"))
+
+ succeeded in 2021ms:
+ 232:         # `cryptococcal-meningitis-africa` holds NCT01075152 alone. THE AUDIT REPORTED THEM AS
+ 233:         # AN IDENTICAL SET AND THEY ARE A SUBSET RELATION.
+ 234:         #
+ 235:         # Same class as the P19 check that could not carry an ANZCTR trial, found hours earlier
+ 236:         # on `colchicine-cvd-coronary`: A COMPARISON KEYED ON ONE REGISTRY'S IDENTIFIER CANNOT
+ 237:         # SEE TRIALS FROM ANOTHER. Merging on an unverified pair list would retire a topic into
+ 238:         # one that does not contain it.
+ 239:         sets = {m: set(profs[m].get("trials") or []) for m in members
+ 240:                 if profs[m].get("state") == "READ"}
+ 241:         sizes = {m: len(s) for m, s in sets.items()}
+ 242:         truly_identical = len({frozenset(s) for s in sets.values()}) == 1
+ 243:         set_note = None
+ 244:         if not truly_identical:
+ 245:             biggest = max(sets, key=lambda m: len(sets[m]))
+ 246:             others_are_subsets = all(sets[m] <= sets[biggest] for m in sets)
+ 247:             set_note = {
+ 248:                 "audit_said": "identical trial sets",
+ 249:                 "recheck_says": ("NOT IDENTICAL over ALL trials: %s" % sizes),
+ 250:                 "why_the_audit_missed_it": ("it compared sets keyed on NCT ids, and a trial "
+ 251:                                             "registered on another registry is invisible to "
+ 252:                                             "that comparison"),
+ 253:                 "relation": ("SUBSET -- every other member is contained in %s" % biggest
+ 254:                              if others_are_subsets else "PARTIAL OVERLAP"),
+ 255:             }
+ 256:         # Is any member a subset of a topic OUTSIDE the cluster? Then the cluster's survivor is
+ 257:         # itself absorbed and the merge must not be taken pairwise.
+ 258:         outside = {}
+ 259:         for m in members:
+ 260:             up = [s for s in superset_of.get(m, []) if s not in members]
+ 261:             if up:
+ 262:                 outside[m] = up
+ 263:         ranked = sorted(members, key=lambda m: -richness(profs[m]))
+ 264:         survivor = ranked[0]
+ 265:         retire = [m for m in members if m != survivor]
+ 266:         verdict = "MERGE"
+ 267:         note = ("survivor is the richest object in the cluster by structure held, not by file "
+ 268:                 "size")
+ 269:         if not truly_identical:
+ 270:             verdict = "NOT_AN_IDENTICAL_SET_REPORT_ONLY"
+ 271:             note = ("THE AUDIT'S PAIRING IS WRONG FOR THIS CLUSTER and no merge is taken on it. "
+ 272:                     "%s. A merge authorised for identical sets must not be executed on a pair "
+ 273:                     "that is not one." % set_note["recheck_says"])
+ 274:         elif any_diff:
+ 275:             verdict = "NOT_A_MERGE_REPORT_ONLY"
+ 276:             note = ("at least one pair in this cluster asks materially different questions of "
+ 277:                     "the same evidence. THAT IS P21 IN REVERSE and collapsing it would discard "
+ 278:                     "a question rather than a duplicate.")
+ 279:         elif outside:
+ 280:             verdict = "MERGE_BUT_THE_CLUSTER_IS_ITSELF_A_SUBSET"
+ 281:             note = ("every member is a subset of %s. Merging inside the cluster is correct and "
+ 282:                     "INCOMPLETE: the survivor should then be considered against its superset, "
+ 283:                     "which is a SECOND decision and is not taken here."
+ 284:                     % sorted({s for v in outside.values() for s in v}))
+ 285:         if any(profs[m]["state"] != "READ" for m in members):
+ 286:             verdict = "NOT_ASSESSABLE"
+
+ succeeded in 2021ms:
+  80:         pooled.append({"outcome": oid, "measure": p.get("measure"), "point": p.get("point"),
+  81:                        "withdrawn": bool(p.get("withdrawn")), "k": blk.get("k")})
+  82:     return {
+  83:         "topic": topic, "state": "READ",
+  84:         "title": (o.get("title") or "")[:200],
+  85:         "question": (o.get("question") or "")[:600],
+  86:         "leaf_count": len(lv),
+  87:         "bytes": os.path.getsize(obj_path(topic)),
+  88:         "n_trials": len(trials),
+  89:         "trials": sorted(t.get("nct") or t.get("id") or "?" for t in trials),
+  90:         "n_outcomes": len(outs),
+  91:         "outcomes": pooled,
+  92:         "has_build_stamp": bool(o.get("build_stamp")),
+  93:         "standard_version": ((o.get("build_stamp") or {}).get("page_standard_version")
+  94:                              or (o.get("build_stamp") or {}).get("standard_version")),
+  95:         "has_search": bool(o.get("search")),
+  96:         "has_k_cascade": bool(o.get("k_cascade")),
+  97:         "has_prisma": bool(o.get("prisma_flow")),
+  98:         "has_screening": bool(o.get("screening")),
+  99:         "n_corrections": len(o.get("claims_corrected") or []),
+ 100:         "has_superseded_blocks": sum(1 for k in lv if "supersed" in k.lower()),
+
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=0; Get-Content -LiteralPath '"'scripts/adjudicate_merge_pairs_2026_08_19.py' | ForEach-Object { "'$i++; if ($i -ge 390 -and $i -le 400) { '"'{0,4}: {1}' -f "'$i, $_ } }' in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=0; Get-Content -LiteralPath '"'scripts/adjudicate_merge_pairs_2026_08_19.py' | ForEach-Object { "'$i++; if ($i -ge 286 -and $i -le 296) { '"'{0,4}: {1}' -f "'$i, $_ } }' in F:\rapidmeta-ssot-shell
+ succeeded in 1820ms:
+ 390: if __name__ == "__main__":
+ 391:     # WRAPPED ONCE, AT THE ENTRY POINT. `selftest()` calls `main()`, and with the wrapper inside
+ 392:     # both, the second call replaced the first's TextIOWrapper and closed its buffer -- every
+ 393:     # later print raising ValueError from inside a test that was passing. THE SAME TRAP WAS
+ 394:     # FIXED IN scripts/verify_search_record_reconciles.py EARLIER TODAY AND WAS WRITTEN AGAIN
+ 395:     # HERE TWO HOURS LATER. That is the argument for a mechanism, not for more care.
+ 396:     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+ 397:     sys.exit(selftest() if "--selftest" in sys.argv else main())
+
+ succeeded in 1815ms:
+ 286:             verdict = "NOT_ASSESSABLE"
+ 287:             note = "at least one member has no readable object on disk"
+ 288:         rows.append({
+ 289:             "cluster": members, "verdict": verdict, "survivor": survivor,
+ 290:             "trial_sets_rechecked_over_ALL_trials": {m: sorted(sets.get(m, ())) for m in members},
+ 291:             "truly_identical": truly_identical, "set_recheck": set_note,
+ 292:             "retire": retire, "note": note,
+ 293:             "richness": {m: richness(profs[m]) for m in members},
+ 294:             "question_comparison": diffs,
+ 295:             "subset_of_topics_outside_the_cluster": outside,
+ 296:             "profiles": profs,
+
+codex
+Defects found:
+
+- **Line 89, SELECTOR KEYED TO A FORM THE CORPUS MAY NOT USE:** exact input: `a.json={"inputs":{"trials":[{"registry":"ANZCTR-1"},{"registry":"ANZCTR-2"}]}}`, `b.json={"inputs":{"trials":[{"registry":"ISRCTN-9"}]}}`, audit pair `{"topics":["a","b"]}`. Consequence: both profiles produce trial set `{"?"}`, so non-identical trial sets are reported identical.
+
+- **Lines 239-245, CHECK CANNOT REACH ITS NOT_ASSESSABLE GUARD:** exact input: audit `{"identical_trial_sets":[{"topics":["missing-a","missing-b"]}],"subset_relations":[]}` with neither object on disk. Consequence: `sets={}` makes line 245 raise `ValueError: max() arg is an empty sequence` before lines 285-287 can report `NOT_ASSESSABLE`.
+
+- **Lines 263-290, STATUS REPORT CONTRADICTS WORK STATE:** exact input: audit pair `{"topics":["readable","missing"]}` with only `readable` present and one trial `{"id":"T1"}`. Consequence: output verdict is `NOT_ASSESSABLE`, but still emits `survivor:"readable"` and `retire:["missing"]`, recording a merge direction for an unassessable cluster.
+
+- **Line 384, CHECK PROVES LESS THAN ITS LABEL:** exact input: audit containing only the omecamtiv triple as two pairs, with three readable objects. Consequence: `"15 pairs resolve into fewer clusters"` passes even when the input has 2 pairs, because it never asserts `len(pairs) == 15`.
+
+None found for: probe keyed to string a fix removes; idempotency guard satisfied by own comment; instrument reading a different copy; CRLF/LF text comparison; merged-cell/off-by-one tabulation; negation dropped.
+
+ZERO CONFLATED WITH ABSENT: COULD NOT DETERMINE; missing trial identifier schema is needed to know whether numeric `id: 0` is valid input.
+tokens used
+36,045
+Defects found:
+
+- **Line 89, SELECTOR KEYED TO A FORM THE CORPUS MAY NOT USE:** exact input: `a.json={"inputs":{"trials":[{"registry":"ANZCTR-1"},{"registry":"ANZCTR-2"}]}}`, `b.json={"inputs":{"trials":[{"registry":"ISRCTN-9"}]}}`, audit pair `{"topics":["a","b"]}`. Consequence: both profiles produce trial set `{"?"}`, so non-identical trial sets are reported identical.
+
+- **Lines 239-245, CHECK CANNOT REACH ITS NOT_ASSESSABLE GUARD:** exact input: audit `{"identical_trial_sets":[{"topics":["missing-a","missing-b"]}],"subset_relations":[]}` with neither object on disk. Consequence: `sets={}` makes line 245 raise `ValueError: max() arg is an empty sequence` before lines 285-287 can report `NOT_ASSESSABLE`.
+
+- **Lines 263-290, STATUS REPORT CONTRADICTS WORK STATE:** exact input: audit pair `{"topics":["readable","missing"]}` with only `readable` present and one trial `{"id":"T1"}`. Consequence: output verdict is `NOT_ASSESSABLE`, but still emits `survivor:"readable"` and `retire:["missing"]`, recording a merge direction for an unassessable cluster.
+
+- **Line 384, CHECK PROVES LESS THAN ITS LABEL:** exact input: audit containing only the omecamtiv triple as two pairs, with three readable objects. Consequence: `"15 pairs resolve into fewer clusters"` passes even when the input has 2 pairs, because it never asserts `len(pairs) == 15`.
+
+None found for: probe keyed to string a fix removes; idempotency guard satisfied by own comment; instrument reading a different copy; CRLF/LF text comparison; merged-cell/off-by-one tabulation; negation dropped.
+
+ZERO CONFLATED WITH ABSENT: COULD NOT DETERMINE; missing trial identifier schema is needed to know whether numeric `id: 0` is valid input.

@@ -1,0 +1,881 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a031ff-a068-7570-9c16-595463388f52
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/merge_bococizumab_2026_08_19.py
+
+--- THE FILE, IN FULL ---
+#!/usr/bin/env python3
+"""MERGE the executed search, the screen and the k=6 pool into `bococizumab-lipid-review`.
+
+A MERGE, NEVER A WHOLESALE WRITE. This object holds the 2026-08-18 re-analysis -- the withdrawn
+odds-ratio outcome, its provenance, the leave-one-out and the estimator comparison -- and a
+wholesale write would regress all of it. Every top-level key present before must be present
+after, and the script refuses if one is lost.
+
+WHAT IT ADDS
+  * `search`, `prisma_flow`, `k_cascade`, `screening` with its criteria -- the blocks the
+    object recorded as "not recorded on the page this object was built from".
+  * SPIRE-FH into `inputs.trials` and into the pool: k=5 -> 6, MD -55.4593 -> -55.2406.
+  * The four dose-ranging trials, eligible with results and not pooled, each with its numbers.
+  * A restated QUESTION. The field currently holds the DEFECT STATEMENT --
+    "Every trial here registers a CONTINUOUS percent change in LDL-C, and this page derived an
+    odds ratio from counts." -- which is the object's own verdict with no question mark, the
+    58-of-135 shape recorded in FINDINGS-TWO-READ-FAILURES.
+  * RoB 2 per RESULT and GRADE for the pooled outcome.
+  * `protocol`, refusing prespecification permanently, like every other topic here.
+
+AND THE FINDING THIS UNIT EXISTS FOR, ON THE PAGE RATHER THAN IN A COMMIT MESSAGE:
+
+    A CONFIRMATION IS A RESULT, NOT A NULL. Before the search nobody could tell "right" from
+    "unexamined and lucky", and the two are indistinguishable from the outside. That is the
+    third direction -- 3 -> 8, 8 -> 3, and unchanged -- and it is what completes the argument
+    that these checks have no built-in direction.
+
+Run: python scripts/merge_bococizumab_2026_08_19.py
+"""
+import io
+import json
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(REPO, "ssot"))
+import boco_topic_data as D                                              # noqa: E402
+
+TOPIC = "bococizumab-lipid-review"
+DEST = os.path.join(REPO, "ssot", TOPIC, "%s.json" % TOPIC)
+EV = os.path.join(REPO, "evidence", "2026-08-19-batch1")
+
+
+def load(name):
+    with io.open(os.path.join(EV, name), encoding="utf-8") as fh:
+        return json.load(fh)
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    with io.open(DEST, encoding="utf-8") as fh:
+        obj = json.load(fh)
+    before = set(obj)
+    screen = load("bococizumab_screening.json")
+    repool = load("bococizumab_repool.json")
+    cur, prev = repool["current"], repool["previous"]
+
+    obj["question"] = (
+        "In adults with primary hyperlipidaemia, mixed dyslipidaemia or heterozygous familial "
+        "hypercholesterolaemia, what is the effect of bococizumab compared with placebo or an "
+        "active lipid-lowering comparator on the percent change from baseline in LDL "
+        "cholesterol at week 12?")
+    obj["question_provenance"] = (
+        "RESTATED 2026-08-19. The field previously held the object's own verdict -- 'Every "
+        "trial here registers a CONTINUOUS percent change in LDL-C, and this page derived an "
+        "odds ratio from counts.' -- which is a true sentence about a DEFECT and is not a "
+        "question anybody asked of the literature. That is the 58-of-135 shape recorded in "
+        "FINDINGS-TWO-READ-FAILURES-2026-08-19.md, and it is the same shape "
+        "BLOCKED-apixaban-vte-2026-08-19.md was written about. The defect statement is kept, "
+        "at `results.by_outcome.primary.pooled.withdrawn_reason`, where it belongs.")
+    obj["title"] = ("Bococizumab and LDL cholesterol: the measure was corrected in 2026, and "
+                    "the evidence base was checked for the first time in 2026-08")
+
+    obj["search"] = D.BOCO_SEARCH
+    obj["prisma_flow"] = D.BOCO_PRISMA
+    obj["k_cascade"] = D.BOCO_CASCADE
+    obj["extraction"] = D.BOCO_EXTRACTION
+
+    obj["screening"] = {
+        "search_note": ("Executed 2026-08-19. 22 registrations surfaced and screened to a "
+                        "disposition; remainder ZERO."),
+        "eligibility": (
+            "POPULATION: adults with a lipid disorder -- primary hyperlipidaemia, mixed "
+            "dyslipidaemia, hypercholesterolaemia, or heterozygous familial "
+            "hypercholesterolaemia. A record whose only condition is `Healthy` is not in this "
+            "population, and that limb removes the phase-1 pharmacology programme; a record "
+            "whose only condition is `Cardiovascular Disease` is the SPIRE-1/SPIRE-2 outcomes "
+            "programme, which asks a different question with a different endpoint. "
+            "INTERVENTION: bococizumab as the randomised intervention, matched against the "
+            "declared synonym set including the development codes PF-04950615 and RN316 -- "
+            "eleven of the twenty-two registrations name the drug by a code. COMPARATOR: "
+            "placebo or an active lipid-lowering comparator, read from arm TYPE **or** from "
+            "what the arms RECEIVE, because each reading is blind to a real design the other "
+            "sees. ESTIMAND, which governs POOLABILITY and not eligibility: percent change "
+            "from baseline in LDL-C at WEEK 12, detected structurally at every rank rather "
+            "than by the registered phrase. THE TIMEPOINT IS PART OF THE ESTIMAND. Criteria "
+            "are DERIVED POST HOC and say so."),
+        "eligibility_provenance": D.BOCO_CRITERIA,
+        "tally": screen["tally"],
+        "dispositions_reached_zero_times": screen["dispositions_reached_zero_times"],
+        "records": screen["rows"],
+        "duplicate_screening": {
+            "performed": False,
+            "state": "OWED, AND RECORDED AS OWED RATHER THAN DESCRIBED",
+            "what_is_owed": "independent duplicate screening by a second reader.",
+            "what_was_NOT_done": ("No second model family read this screen. An agreement rate "
+                                  "over one reader is not an agreement rate."),
+        },
+    }
+    # THE PROJECTOR KEYS `per_trial` BY REGISTRATION ID, and the screen writes it as a LIST.
+    # Handing over the list raised `AttributeError: 'list' object has no attribute 'items'` in
+    # the page build -- a producer/consumer schema break of exactly the shape the repo's own
+    # note at `SEARCH.query_as_executed` records ("STRING, because the page builder escapes
+    # this field as text"). Converted here, on the producer side, rather than loosening the
+    # consumer.
+    wq = dict(screen["withholding_question"])
+    wq["per_trial"] = {
+        r["nct"]: {"name": r["acronym"],
+                   "two_component": "%d rank(s) read" % r["ranks_read"],
+                   "three_component": "; ".join(
+                       "[%s] %s" % (h["rank"], h["measure"][:90])
+                       for h in r["ldl_pct_change_at_ranks"]) or
+                       "NO LDL percent-change outcome at any rank"}
+        for r in wq["per_trial"]}
+    wq["why_before_deciding"] = (
+        "Asked at EVERY registered rank before concluding which trials can be combined, and "
+        "detected STRUCTURALLY -- an LDL term plus a change term -- rather than by the "
+        "registered phrase. Matching the five incumbents' wording would have found the five "
+        "that already agree and nothing else, which is the method that made eight apixaban "
+        "trials look poolable when three were.")
+    wq["answer"] = ("YES FOR TEN OF THE TWENTY-TWO, AND THAT DID NOT SETTLE POOLABILITY: six "
+                    "pool, and four are eligible with posted results and cannot contribute a "
+                    "single contrast because each randomised DOSE.")
+    obj["withholding_question"] = wq
+    obj["screening_of_remainder"] = {
+        "unscreened_remainder": 0,
+        "recovered_eligible_poolable_not_included": 5,
+        "of_those_that_joined_the_pool": 1,
+        "what_ELIGIBLE_POOLABLE_NOT_INCLUDED_means": (
+            "A GAP IN OUR OWN EVIDENCE BASE, not the literature's. Each was surfaced by this "
+            "review's own search, passed its own criteria, has posted LDL results, and was "
+            "not in the object -- because this review had no executed search until "
+            "2026-08-19."),
+        "and_the_shape_of_the_remainder_is_the_diagnosis": (
+            "SEVEN of 22 fail a criterion and FOUR of the five recovered trials are eligible "
+            "with results and still cannot contribute. That is neither a query that is too "
+            "broad nor a field still in flight: it is a DEVELOPMENT PROGRAMME whose early "
+            "phase is dose-ranging by design. No better query recovers a single contrast from "
+            "a trial that randomised four doses."),
+    }
+
+    # ---- the pool ------------------------------------------------------------------
+    b = obj["results"]["by_outcome"]["ldlc_pct_change_wk12"]
+    b["k"] = cur["k"]
+    # THE STORED NUMBER MUST BE THE DISPLAYED NUMBER, AND FOR THIS MEASURE IT WAS NOT.
+    #
+    # `ssot/build_tabbed.py` renders four SIGNIFICANT FIGURES; the pool was stored at four
+    # DECIMAL PLACES. For a ratio near 0.78 those are the same thing, which is why every
+    # apixaban and SGLT2 pool in this corpus survived. FOR A MEAN DIFFERENCE OF ABOUT -55 THEY
+    # ARE NOT: four significant figures is TWO decimals, so the object held -55.2406 and the
+    # page rendered -55.24, and the string -55.2406 appeared NOWHERE in 1.6 MB of shipped HTML.
+    #
+    # `scripts/verify_delivered_bytes.py` refused the delivery on exactly that, which is the
+    # content check earning its keep: the bytes matched the build perfectly and the BUILD did
+    # not match the OBJECT. A hash alone would have passed it.
+    #
+    # This is the defect build_tabbed's own docstring records at THREE figures -- sotagliflozin
+    # 0.7171 rendering as 0.717 -- recurring at FOUR, one order of magnitude up. A fixed
+    # significant-figure display and a fixed decimal-place store cannot both be honoured; WHICH
+    # ONE WINS DEPENDS ON THE MAGNITUDE OF THE ESTIMATE, and a corpus of ratio measures never
+    # had to find out.
+    #
+    # Fixed at the source: the object stores what the page can display. Full precision is kept
+    # in evidence/2026-08-19-batch1/bococizumab_repool.json, which is what a re-derivation reads.
+    sys.path.insert(0, os.path.join(REPO, "ssot"))
+    import projectors as _pj
+    _s4 = lambda x: float(_pj.sig(x, 4))          # noqa: E731
+    b["pooled"] = {"measure": "MD", "point": _s4(cur["REML"]["md"]),
+                   "ci_low": _s4(cur["REML"]["ci_low"]),
+                   "ci_high": _s4(cur["REML"]["ci_high"]),
+                   "stored_at_display_precision": (
+                       "Four significant figures, matching what the page renders, so the "
+                       "published number and the verified number are the same string. Full "
+                       "precision -- %.4f (%.4f to %.4f) -- is in "
+                       "evidence/2026-08-19-batch1/bococizumab_repool.json."
+                       % (cur["REML"]["md"], cur["REML"]["ci_low"], cur["REML"]["ci_high"])),
+                   "ci_level": 95, "scale": "natural", "withdrawn": False,
+                   "previous_values": [{"measure": "MD", "point": _s4(prev["REML"]["md"]),
+                                        "ci_low": _s4(prev["REML"]["ci_low"]),
+                                        "ci_high": _s4(prev["REML"]["ci_high"]),
+                                        "ci_level": 95, "scale": "natural",
+                                        "superseded_on": "2026-08-19",
+                                        "superseded_because": "SPIRE-FH joined; k=5 -> 6"}]}
+    b["per_trial"] = [{"trial_id": r["trial"], "nct": r["nct"], "measure": "MD",
+                       "point": r["md"], "ci_low": r["ci_low"], "ci_high": r["ci_high"],
+                       "ci_level": 95, "n": r["n"],
+                       "endpoint_rank_in_its_own_trial": "PRIMARY",
+                       "outcome_definition": r["outcome_title"],
+                       "derivation": r["provenance"]}
+                      for r in cur["per_trial"]]
+    b["heterogeneity"] = {"q": cur["q"], "df": cur["df"], "tau2": cur["REML"]["tau2"],
+                          "i2": cur["i2_pct"],
+                          "i2_definition": "Higgins (Q - df)/Q, clamped at 0"}
+    b["heterogeneity_status"] = (
+        "I-squared %.1f per cent and tau-squared %.2f under REML, over k=6. BOTH FELL when the "
+        "sixth trial joined -- I-squared from 65.1 and tau-squared from 9.31 -- and that is "
+        "not evidence that the pool became more coherent. Coherence was established by reading "
+        "six endpoint definitions and would be identical at any I-squared (P36)."
+        % (cur["i2_pct"], cur["REML"]["tau2"]))
+    b["poolable_reason"] = (
+        "SIX TRIALS REGISTER THE IDENTICAL PRIMARY -- percent change from baseline in LDL-C at "
+        "WEEK 12 -- and every value pooled is the trial's OWN least-squares mean difference, "
+        "read from its posted `analyses` block. Not one is derived by us. THE ESTIMAND WAS "
+        "NEVER THE PROBLEM ON THIS TOPIC; the measure was, and the measure was corrected in "
+        "2026-08. What was still missing was any evidence that these were the right six "
+        "trials, and the executed search of 2026-08-19 supplied it: SPIRE-FH (NCT01968980, "
+        "n=370) was surfaced by this review's own query, passed its own criteria, and was "
+        "absent from the object. FOUR MORE ARE ELIGIBLE, HAVE POSTED LDL RESULTS, AND STILL "
+        "CANNOT CONTRIBUTE, because each randomised DOSE rather than drug-against-placebo -- "
+        "inside NCT01342211 alone the effect runs from -2.30 to -49.11 percentage points, a "
+        "spread wider than this entire pool. ELIGIBLE WITH RESULTS IS NOT POOLABLE.")
+    b["what_the_check_changed"] = {
+        "headline": "A CONFIRMATION IS A RESULT, NOT A NULL.",
+        "old": {"k": prev["k"], "n": prev["n_participants"], "md": prev["REML"]["md"],
+                "ci_low": prev["REML"]["ci_low"], "ci_high": prev["REML"]["ci_high"],
+                "i2": prev["i2_pct"], "tau2": prev["REML"]["tau2"]},
+        "new": {"k": cur["k"], "n": cur["n_participants"], "md": cur["REML"]["md"],
+                "ci_low": cur["REML"]["ci_low"], "ci_high": cur["REML"]["ci_high"],
+                "i2": cur["i2_pct"], "tau2": cur["REML"]["tau2"]},
+        "what_moved": ("The pooled mean difference by 0.22 percentage points; k by one trial "
+                       "and 370 participants; tau-squared from 9.31 to 5.84."),
+        "why_that_is_a_finding_and_not_a_null_result": (
+            "BEFORE THE SEARCH, NOBODY COULD TELL 'RIGHT' FROM 'UNEXAMINED AND LUCKY', AND "
+            "FROM THE OUTSIDE THE TWO ARE IDENTICAL. This review's five trials were the five "
+            "somebody once put on a page. That they turned out to be very nearly the right "
+            "five is a fact that only exists BECAUSE the check was run -- it was not available "
+            "beforehand and could not have been inferred from the page, the estimate, or the "
+            "care taken over the measure. THE CHECK IS WHAT DISTINGUISHES A CORRECT ESTIMATE "
+            "FROM A LUCKY ONE, and it is worth exactly as much when it confirms."),
+        "the_third_direction": (
+            "On one night, on one corpus, the same discipline moved a poolable set UP "
+            "(apixaban prophylaxis, 3 -> 8), DOWN (apixaban treatment, 8 -> 3), and NOT AT "
+            "ALL (here). A procedure that only ever produced convenient answers would be "
+            "indistinguishable from no procedure. THESE THREE TOGETHER ARE WHAT MAKE IT A "
+            "CHECK, and none of the three was arranged."),
+        "and_the_reverse_reading_is_available_too": (
+            "A reader may take this as evidence the original page was competently built, and "
+            "that reading is supported: the estimate was right, the measure was corrected "
+            "properly, and the five trials were nearly the whole of the evidence. Both "
+            "readings are compatible, and only one of them was checkable before 2026-08-19."),
+    }
+    b["eligible_with_results_and_not_pooled"] = repool["eligible_poolable_and_NOT_pooled"]
+    b["grade"] = None
+
+    # SPIRE-FH into inputs.trials, merged by NCT so nothing existing is replaced.
+    have = {t.get("nct") for t in obj["inputs"]["trials"]}
+    if "NCT01968980" not in have:
+        obj["inputs"]["trials"].append({
+            "id": "NCT01968980", "nct": "NCT01968980", "name": "SPIRE-FH",
+            "arms": [{"label": "Bococizumab", "role": "treatment", "participants": 185},
+                     {"label": "Placebo", "role": "control", "participants": 185}],
+            "design": ("52-week, phase 3, double-blind, randomised, placebo-controlled, "
+                       "parallel-group, heterozygous familial hypercholesterolaemia"),
+            "comparator_type": "placebo",
+            "comparator_type_basis": "PLACEBO_COMPARATOR arm, read from the registry.",
+            "enrolled": 370,
+            "by_outcome": {"ldlc_pct_change_wk12": {
+                "effect": {"measure": "MD", "point": -54.5, "ci_low": -59.5, "ci_high": -49.5,
+                           "ci_level": 95, "scale": "natural",
+                           "derived_from": "the trial's own posted least-squares mean "
+                                           "difference",
+                           "derivation_note": ("READ, not derived. The standard error used in "
+                                               "the pool is derived from this printed "
+                                               "interval and is labelled so; its implied "
+                                               "value 2.551 agrees with the 2.54 the trial "
+                                               "posts.")},
+                "provenance": {
+                    "tag": "MEASURED", "source_id": "NCT01968980",
+                    "source": "ClinicalTrials.gov posted results, read 2026-08-19",
+                    "source_outcome_title": ("Percent Change From Baseline in Low Density "
+                                             "Lipoprotein Cholesterol (LDL-C) at Week 12"),
+                    "source_quotes": [
+                        "Percent Change From Baseline in Low Density Lipoprotein Cholesterol "
+                        "(LDL-C) at Week 12",
+                        "Least square (LS) mean difference -54.5, 95% CI -59.5 to -49.5, "
+                        "MMRM, p<0.001",
+                    ],
+                    "quote_note": ("The endpoint TITLE as the registry posts it and the "
+                                   "effect as the registry computes it. The identical "
+                                   "endpoint at the identical timepoint as all five "
+                                   "incumbents."),
+                },
+                "analysed": {"treatment": 166, "control": 175},
+                "outcome_definition": ("Percent Change From Baseline in Low Density "
+                                       "Lipoprotein Cholesterol (LDL-C) at Week 12"),
+                "outcome_definition_source": {
+                    "source": "registry results section",
+                    "source_field": "resultsSection.outcomeMeasuresModule.outcomeMeasures[0]",
+                    "source_url": "https://clinicaltrials.gov/study/NCT01968980",
+                    "read_utc": "2026-08-19"},
+                "endpoint_rank_in_its_own_trial": "PRIMARY",
+                "source_tier": "registry_posted_results",
+            }},
+            "registration_read_utc": "2026-08-19",
+            "all_ranks_read_utc": "2026-08-19",
+        })
+
+    obj["protocol"] = {
+        "prespecified": False, "permanently_refused": True,
+        "why": ("A protocol specified before data collection is a HISTORICAL FACT ABOUT THE "
+                "PAST and cannot be created retrospectively."),
+        "what_was_actually_done": ("Eligibility criteria were derived POST HOC on 2026-08-19, "
+                                   "when this review's search was executed for the first "
+                                   "time -- years after its included set existed on a page."),
+        "authority_permitting_it": "MECIR R107, provided they are declared as such.",
+        "forward_remedy": ("For topics not yet built, register a protocol BEFORE the search."),
+    }
+    obj["risk_of_bias_verdict"] = None
+    obj["risk_of_bias"] = {
+        "tool": "RoB 2", "state": "NOT_ASSESSED_FOR_THIS_REVIEW",
+        "why": ("No result-level RoB 2 assessment has been performed for any of the six "
+                "contributing results. RECORDED AS UNASSESSED, NEVER AS ABSENT OF BIAS: an "
+                "unassessed domain is NOT_ASSESSABLE, not LOW."),
+        "consequence_carried_into_grade": "GRADE rates down one level for risk of bias.",
+        "what_would_close_it": ("RoB 2 per RESULT on the week-12 LDL outcome in each of "
+                                "NCT01968967, NCT02100514, NCT01968954, NCT02458287, "
+                                "NCT02135029 and NCT01968980."),
+    }
+    obj["grade"] = {
+        "approach": "GRADE",
+        "reference": "Schunemann H, Brozek J, Guyatt G, Oxman A (editors). GRADE Handbook.",
+        "handbook_chapter": ("Cochrane Handbook for Systematic Reviews of Interventions "
+                             "version 6.5.1, Chapter 14"),
+        "starting_point": "HIGH for a body of randomised evidence, then rated down.",
+        "not_rated_up": "No domain is rated up.",
+        "by_outcome": {"ldlc_pct_change_wk12": {
+            "rated": True, "certainty": "LOW", "k": cur["k"], "i2": cur["i2_pct"],
+            "estimate": {"point": cur["REML"]["md"], "ci_low": cur["REML"]["ci_low"],
+                         "ci_high": cur["REML"]["ci_high"]},
+            "started_at": "HIGH",
+            "steps": [
+                {"domain": "risk_of_bias", "levels": -1, "from": "HIGH", "to": "MODERATE",
+                 "reason": ("No result-level RoB 2 assessment exists for this outcome. Rated "
+                            "down one level because unassessed is not low.")},
+                {"domain": "inconsistency", "levels": -1, "from": "MODERATE", "to": "LOW",
+                 "reason": ("I-squared %.1f per cent over k=6, with per-trial mean differences "
+                            "from -49.9 to -63.4 percentage points. Rated down for the spread. "
+                            "This is inconsistency of RESULT and says nothing about whether "
+                            "the estimand is shared, which was established by reading six "
+                            "registered titles." % cur["i2_pct"])},
+                {"domain": "indirectness", "levels": 0, "from": "LOW", "to": "LOW",
+                 "reason": ("One comparator class, one endpoint, one timepoint, verified by "
+                            "reading each trial's registered text. THE OUTCOME IS A SURROGATE "
+                            "-- LDL cholesterol, not a clinical event -- and that is stated "
+                            "rather than rated down here, because the review's question names "
+                            "the surrogate explicitly. A reader who wants clinical outcomes is "
+                            "asking a different question, and bococizumab's two outcome "
+                            "trials, SPIRE-1 and SPIRE-2, were terminated.")},
+                {"domain": "imprecision", "levels": 0, "from": "LOW", "to": "LOW",
+                 "reason": ("k=6, 4,449 participants, interval -57.9 to -52.6 percentage "
+                            "points. The interval excludes no effect by a wide margin and is "
+                            "narrow relative to the effect. Not rated down.")},
+                {"domain": "publication_bias", "levels": 0, "from": "LOW", "to": "LOW",
+                 "reason": ("k=6. A funnel plot at k=6 has little power and would be theatre. "
+                            "NOT ASSESSED, and not counted as absent. One relevant fact IS "
+                            "recorded: the entire programme is one sponsor's, and it was "
+                            "discontinued -- the direction that hazard runs is unknown.")},
+            ],
+            "and_what_this_rating_is_about": (
+                "The certainty of the LDL-lowering estimate, not of any clinical benefit. "
+                "Bococizumab was discontinued; this review measures what it did to a "
+                "laboratory value."),
+        }},
+    }
+
+    after = set(obj)
+    lost = before - after
+    if lost:
+        raise SystemExit(
+            "REFUSED: merging would drop top-level key(s) %s. A wholesale write regresses "
+            "every enrichment since the last build; this script MERGES and refuses if a merge "
+            "would lose anything." % sorted(lost))
+
+    with io.open(DEST, "w", encoding="utf-8") as fh:
+        fh.write(json.dumps(obj, indent=1))
+    print("top-level keys before %d, after %d, lost %d" % (len(before), len(after), len(lost)))
+    print("k %d -> %d   MD %.4f -> %.4f   I2 %.1f%% -> %.1f%%"
+          % (prev["k"], cur["k"], prev["REML"]["md"], cur["REML"]["md"],
+             prev["i2_pct"], cur["i2_pct"]))
+    print("trials in object: %d" % len(obj["inputs"]["trials"]))
+    print("wrote %s" % DEST)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+
+codex
+I’m going to verify line numbers against the local copy if it is present, then keep the finding tied only to the pasted module and name missing external inputs where the defect depends on them.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command 'if (Test-Path scripts/merge_bococizumab_2026_08_19.py) { $i=1; Get-Content scripts/merge_bococizumab_2026_08_19.py | ForEach-Object { '"'{0,4}: {1}' -f "'$i, $_; $i++ } | Select-Object -First 430 } else { '"'MISSING' }" in F:\rapidmeta-ssot-shell
+ succeeded in 1447ms:
+   1: #!/usr/bin/env python3
+   2: """MERGE the executed search, the screen and the k=6 pool into `bococizumab-lipid-review`.
+   3: 
+   4: A MERGE, NEVER A WHOLESALE WRITE. This object holds the 2026-08-18 re-analysis -- the withdrawn
+   5: odds-ratio outcome, its provenance, the leave-one-out and the estimator comparison -- and a
+   6: wholesale write would regress all of it. Every top-level key present before must be present
+   7: after, and the script refuses if one is lost.
+   8: 
+   9: WHAT IT ADDS
+  10:   * `search`, `prisma_flow`, `k_cascade`, `screening` with its criteria -- the blocks the
+  11:     object recorded as "not recorded on the page this object was built from".
+  12:   * SPIRE-FH into `inputs.trials` and into the pool: k=5 -> 6, MD -55.4593 -> -55.2406.
+  13:   * The four dose-ranging trials, eligible with results and not pooled, each with its numbers.
+  14:   * A restated QUESTION. The field currently holds the DEFECT STATEMENT --
+  15:     "Every trial here registers a CONTINUOUS percent change in LDL-C, and this page derived an
+  16:     odds ratio from counts." -- which is the object's own verdict with no question mark, the
+  17:     58-of-135 shape recorded in FINDINGS-TWO-READ-FAILURES.
+  18:   * RoB 2 per RESULT and GRADE for the pooled outcome.
+  19:   * `protocol`, refusing prespecification permanently, like every other topic here.
+  20: 
+  21: AND THE FINDING THIS UNIT EXISTS FOR, ON THE PAGE RATHER THAN IN A COMMIT MESSAGE:
+  22: 
+  23:     A CONFIRMATION IS A RESULT, NOT A NULL. Before the search nobody could tell "right" from
+  24:     "unexamined and lucky", and the two are indistinguishable from the outside. That is the
+  25:     third direction -- 3 -> 8, 8 -> 3, and unchanged -- and it is what completes the argument
+  26:     that these checks have no built-in direction.
+  27: 
+  28: Run: python scripts/merge_bococizumab_2026_08_19.py
+  29: """
+  30: import io
+  31: import json
+  32: import os
+  33: import sys
+  34: 
+  35: REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+  36: sys.path.insert(0, os.path.join(REPO, "ssot"))
+  37: import boco_topic_data as D                                              # noqa: E402
+  38: 
+  39: TOPIC = "bococizumab-lipid-review"
+  40: DEST = os.path.join(REPO, "ssot", TOPIC, "%s.json" % TOPIC)
+  41: EV = os.path.join(REPO, "evidence", "2026-08-19-batch1")
+  42: 
+  43: 
+  44: def load(name):
+  45:     with io.open(os.path.join(EV, name), encoding="utf-8") as fh:
+  46:         return json.load(fh)
+  47: 
+  48: 
+  49: def main():
+  50:     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+  51:     with io.open(DEST, encoding="utf-8") as fh:
+  52:         obj = json.load(fh)
+  53:     before = set(obj)
+  54:     screen = load("bococizumab_screening.json")
+  55:     repool = load("bococizumab_repool.json")
+  56:     cur, prev = repool["current"], repool["previous"]
+  57: 
+  58:     obj["question"] = (
+  59:         "In adults with primary hyperlipidaemia, mixed dyslipidaemia or heterozygous familial "
+  60:         "hypercholesterolaemia, what is the effect of bococizumab compared with placebo or an "
+  61:         "active lipid-lowering comparator on the percent change from baseline in LDL "
+  62:         "cholesterol at week 12?")
+  63:     obj["question_provenance"] = (
+  64:         "RESTATED 2026-08-19. The field previously held the object's own verdict -- 'Every "
+  65:         "trial here registers a CONTINUOUS percent change in LDL-C, and this page derived an "
+  66:         "odds ratio from counts.' -- which is a true sentence about a DEFECT and is not a "
+  67:         "question anybody asked of the literature. That is the 58-of-135 shape recorded in "
+  68:         "FINDINGS-TWO-READ-FAILURES-2026-08-19.md, and it is the same shape "
+  69:         "BLOCKED-apixaban-vte-2026-08-19.md was written about. The defect statement is kept, "
+  70:         "at `results.by_outcome.primary.pooled.withdrawn_reason`, where it belongs.")
+  71:     obj["title"] = ("Bococizumab and LDL cholesterol: the measure was corrected in 2026, and "
+  72:                     "the evidence base was checked for the first time in 2026-08")
+  73: 
+  74:     obj["search"] = D.BOCO_SEARCH
+  75:     obj["prisma_flow"] = D.BOCO_PRISMA
+  76:     obj["k_cascade"] = D.BOCO_CASCADE
+  77:     obj["extraction"] = D.BOCO_EXTRACTION
+  78: 
+  79:     obj["screening"] = {
+  80:         "search_note": ("Executed 2026-08-19. 22 registrations surfaced and screened to a "
+  81:                         "disposition; remainder ZERO."),
+  82:         "eligibility": (
+  83:             "POPULATION: adults with a lipid disorder -- primary hyperlipidaemia, mixed "
+  84:             "dyslipidaemia, hypercholesterolaemia, or heterozygous familial "
+  85:             "hypercholesterolaemia. A record whose only condition is `Healthy` is not in this "
+  86:             "population, and that limb removes the phase-1 pharmacology programme; a record "
+  87:             "whose only condition is `Cardiovascular Disease` is the SPIRE-1/SPIRE-2 outcomes "
+  88:             "programme, which asks a different question with a different endpoint. "
+  89:             "INTERVENTION: bococizumab as the randomised intervention, matched against the "
+  90:             "declared synonym set including the development codes PF-04950615 and RN316 -- "
+  91:             "eleven of the twenty-two registrations name the drug by a code. COMPARATOR: "
+  92:             "placebo or an active lipid-lowering comparator, read from arm TYPE **or** from "
+  93:             "what the arms RECEIVE, because each reading is blind to a real design the other "
+  94:             "sees. ESTIMAND, which governs POOLABILITY and not eligibility: percent change "
+  95:             "from baseline in LDL-C at WEEK 12, detected structurally at every rank rather "
+  96:             "than by the registered phrase. THE TIMEPOINT IS PART OF THE ESTIMAND. Criteria "
+  97:             "are DERIVED POST HOC and say so."),
+  98:         "eligibility_provenance": D.BOCO_CRITERIA,
+  99:         "tally": screen["tally"],
+ 100:         "dispositions_reached_zero_times": screen["dispositions_reached_zero_times"],
+ 101:         "records": screen["rows"],
+ 102:         "duplicate_screening": {
+ 103:             "performed": False,
+ 104:             "state": "OWED, AND RECORDED AS OWED RATHER THAN DESCRIBED",
+ 105:             "what_is_owed": "independent duplicate screening by a second reader.",
+ 106:             "what_was_NOT_done": ("No second model family read this screen. An agreement rate "
+ 107:                                   "over one reader is not an agreement rate."),
+ 108:         },
+ 109:     }
+ 110:     # THE PROJECTOR KEYS `per_trial` BY REGISTRATION ID, and the screen writes it as a LIST.
+ 111:     # Handing over the list raised `AttributeError: 'list' object has no attribute 'items'` in
+ 112:     # the page build -- a producer/consumer schema break of exactly the shape the repo's own
+ 113:     # note at `SEARCH.query_as_executed` records ("STRING, because the page builder escapes
+ 114:     # this field as text"). Converted here, on the producer side, rather than loosening the
+ 115:     # consumer.
+ 116:     wq = dict(screen["withholding_question"])
+ 117:     wq["per_trial"] = {
+ 118:         r["nct"]: {"name": r["acronym"],
+ 119:                    "two_component": "%d rank(s) read" % r["ranks_read"],
+ 120:                    "three_component": "; ".join(
+ 121:                        "[%s] %s" % (h["rank"], h["measure"][:90])
+ 122:                        for h in r["ldl_pct_change_at_ranks"]) or
+ 123:                        "NO LDL percent-change outcome at any rank"}
+ 124:         for r in wq["per_trial"]}
+ 125:     wq["why_before_deciding"] = (
+ 126:         "Asked at EVERY registered rank before concluding which trials can be combined, and "
+ 127:         "detected STRUCTURALLY -- an LDL term plus a change term -- rather than by the "
+ 128:         "registered phrase. Matching the five incumbents' wording would have found the five "
+ 129:         "that already agree and nothing else, which is the method that made eight apixaban "
+ 130:         "trials look poolable when three were.")
+ 131:     wq["answer"] = ("YES FOR TEN OF THE TWENTY-TWO, AND THAT DID NOT SETTLE POOLABILITY: six "
+ 132:                     "pool, and four are eligible with posted results and cannot contribute a "
+ 133:                     "single contrast because each randomised DOSE.")
+ 134:     obj["withholding_question"] = wq
+ 135:     obj["screening_of_remainder"] = {
+ 136:         "unscreened_remainder": 0,
+ 137:         "recovered_eligible_poolable_not_included": 5,
+ 138:         "of_those_that_joined_the_pool": 1,
+ 139:         "what_ELIGIBLE_POOLABLE_NOT_INCLUDED_means": (
+ 140:             "A GAP IN OUR OWN EVIDENCE BASE, not the literature's. Each was surfaced by this "
+ 141:             "review's own search, passed its own criteria, has posted LDL results, and was "
+ 142:             "not in the object -- because this review had no executed search until "
+ 143:             "2026-08-19."),
+ 144:         "and_the_shape_of_the_remainder_is_the_diagnosis": (
+ 145:             "SEVEN of 22 fail a criterion and FOUR of the five recovered trials are eligible "
+ 146:             "with results and still cannot contribute. That is neither a query that is too "
+ 147:             "broad nor a field still in flight: it is a DEVELOPMENT PROGRAMME whose early "
+ 148:             "phase is dose-ranging by design. No better query recovers a single contrast from "
+ 149:             "a trial that randomised four doses."),
+ 150:     }
+ 151: 
+ 152:     # ---- the pool ------------------------------------------------------------------
+ 153:     b = obj["results"]["by_outcome"]["ldlc_pct_change_wk12"]
+ 154:     b["k"] = cur["k"]
+ 155:     # THE STORED NUMBER MUST BE THE DISPLAYED NUMBER, AND FOR THIS MEASURE IT WAS NOT.
+ 156:     #
+ 157:     # `ssot/build_tabbed.py` renders four SIGNIFICANT FIGURES; the pool was stored at four
+ 158:     # DECIMAL PLACES. For a ratio near 0.78 those are the same thing, which is why every
+ 159:     # apixaban and SGLT2 pool in this corpus survived. FOR A MEAN DIFFERENCE OF ABOUT -55 THEY
+ 160:     # ARE NOT: four significant figures is TWO decimals, so the object held -55.2406 and the
+ 161:     # page rendered -55.24, and the string -55.2406 appeared NOWHERE in 1.6 MB of shipped HTML.
+ 162:     #
+ 163:     # `scripts/verify_delivered_bytes.py` refused the delivery on exactly that, which is the
+ 164:     # content check earning its keep: the bytes matched the build perfectly and the BUILD did
+ 165:     # not match the OBJECT. A hash alone would have passed it.
+ 166:     #
+ 167:     # This is the defect build_tabbed's own docstring records at THREE figures -- sotagliflozin
+ 168:     # 0.7171 rendering as 0.717 -- recurring at FOUR, one order of magnitude up. A fixed
+ 169:     # significant-figure display and a fixed decimal-place store cannot both be honoured; WHICH
+ 170:     # ONE WINS DEPENDS ON THE MAGNITUDE OF THE ESTIMATE, and a corpus of ratio measures never
+ 171:     # had to find out.
+ 172:     #
+ 173:     # Fixed at the source: the object stores what the page can display. Full precision is kept
+ 174:     # in evidence/2026-08-19-batch1/bococizumab_repool.json, which is what a re-derivation reads.
+ 175:     sys.path.insert(0, os.path.join(REPO, "ssot"))
+ 176:     import projectors as _pj
+ 177:     _s4 = lambda x: float(_pj.sig(x, 4))          # noqa: E731
+ 178:     b["pooled"] = {"measure": "MD", "point": _s4(cur["REML"]["md"]),
+ 179:                    "ci_low": _s4(cur["REML"]["ci_low"]),
+ 180:                    "ci_high": _s4(cur["REML"]["ci_high"]),
+ 181:                    "stored_at_display_precision": (
+ 182:                        "Four significant figures, matching what the page renders, so the "
+ 183:                        "published number and the verified number are the same string. Full "
+ 184:                        "precision -- %.4f (%.4f to %.4f) -- is in "
+ 185:                        "evidence/2026-08-19-batch1/bococizumab_repool.json."
+ 186:                        % (cur["REML"]["md"], cur["REML"]["ci_low"], cur["REML"]["ci_high"])),
+ 187:                    "ci_level": 95, "scale": "natural", "withdrawn": False,
+ 188:                    "previous_values": [{"measure": "MD", "point": _s4(prev["REML"]["md"]),
+ 189:                                         "ci_low": _s4(prev["REML"]["ci_low"]),
+ 190:                                         "ci_high": _s4(prev["REML"]["ci_high"]),
+ 191:                                         "ci_level": 95, "scale": "natural",
+ 192:                                         "superseded_on": "2026-08-19",
+ 193:                                         "superseded_because": "SPIRE-FH joined; k=5 -> 6"}]}
+ 194:     b["per_trial"] = [{"trial_id": r["trial"], "nct": r["nct"], "measure": "MD",
+ 195:                        "point": r["md"], "ci_low": r["ci_low"], "ci_high": r["ci_high"],
+ 196:                        "ci_level": 95, "n": r["n"],
+ 197:                        "endpoint_rank_in_its_own_trial": "PRIMARY",
+ 198:                        "outcome_definition": r["outcome_title"],
+ 199:                        "derivation": r["provenance"]}
+ 200:                       for r in cur["per_trial"]]
+ 201:     b["heterogeneity"] = {"q": cur["q"], "df": cur["df"], "tau2": cur["REML"]["tau2"],
+ 202:                           "i2": cur["i2_pct"],
+ 203:                           "i2_definition": "Higgins (Q - df)/Q, clamped at 0"}
+ 204:     b["heterogeneity_status"] = (
+ 205:         "I-squared %.1f per cent and tau-squared %.2f under REML, over k=6. BOTH FELL when the "
+ 206:         "sixth trial joined -- I-squared from 65.1 and tau-squared from 9.31 -- and that is "
+ 207:         "not evidence that the pool became more coherent. Coherence was established by reading "
+ 208:         "six endpoint definitions and would be identical at any I-squared (P36)."
+ 209:         % (cur["i2_pct"], cur["REML"]["tau2"]))
+ 210:     b["poolable_reason"] = (
+ 211:         "SIX TRIALS REGISTER THE IDENTICAL PRIMARY -- percent change from baseline in LDL-C at "
+ 212:         "WEEK 12 -- and every value pooled is the trial's OWN least-squares mean difference, "
+ 213:         "read from its posted `analyses` block. Not one is derived by us. THE ESTIMAND WAS "
+ 214:         "NEVER THE PROBLEM ON THIS TOPIC; the measure was, and the measure was corrected in "
+ 215:         "2026-08. What was still missing was any evidence that these were the right six "
+ 216:         "trials, and the executed search of 2026-08-19 supplied it: SPIRE-FH (NCT01968980, "
+ 217:         "n=370) was surfaced by this review's own query, passed its own criteria, and was "
+ 218:         "absent from the object. FOUR MORE ARE ELIGIBLE, HAVE POSTED LDL RESULTS, AND STILL "
+ 219:         "CANNOT CONTRIBUTE, because each randomised DOSE rather than drug-against-placebo -- "
+ 220:         "inside NCT01342211 alone the effect runs from -2.30 to -49.11 percentage points, a "
+ 221:         "spread wider than this entire pool. ELIGIBLE WITH RESULTS IS NOT POOLABLE.")
+ 222:     b["what_the_check_changed"] = {
+ 223:         "headline": "A CONFIRMATION IS A RESULT, NOT A NULL.",
+ 224:         "old": {"k": prev["k"], "n": prev["n_participants"], "md": prev["REML"]["md"],
+ 225:                 "ci_low": prev["REML"]["ci_low"], "ci_high": prev["REML"]["ci_high"],
+ 226:                 "i2": prev["i2_pct"], "tau2": prev["REML"]["tau2"]},
+ 227:         "new": {"k": cur["k"], "n": cur["n_participants"], "md": cur["REML"]["md"],
+ 228:                 "ci_low": cur["REML"]["ci_low"], "ci_high": cur["REML"]["ci_high"],
+ 229:                 "i2": cur["i2_pct"], "tau2": cur["REML"]["tau2"]},
+ 230:         "what_moved": ("The pooled mean difference by 0.22 percentage points; k by one trial "
+ 231:                        "and 370 participants; tau-squared from 9.31 to 5.84."),
+ 232:         "why_that_is_a_finding_and_not_a_null_result": (
+ 233:             "BEFORE THE SEARCH, NOBODY COULD TELL 'RIGHT' FROM 'UNEXAMINED AND LUCKY', AND "
+ 234:             "FROM THE OUTSIDE THE TWO ARE IDENTICAL. This review's five trials were the five "
+ 235:             "somebody once put on a page. That they turned out to be very nearly the right "
+ 236:             "five is a fact that only exists BECAUSE the check was run -- it was not available "
+ 237:             "beforehand and could not have been inferred from the page, the estimate, or the "
+ 238:             "care taken over the measure. THE CHECK IS WHAT DISTINGUISHES A CORRECT ESTIMATE "
+ 239:             "FROM A LUCKY ONE, and it is worth exactly as much when it confirms."),
+ 240:         "the_third_direction": (
+ 241:             "On one night, on one corpus, the same discipline moved a poolable set UP "
+ 242:             "(apixaban prophylaxis, 3 -> 8), DOWN (apixaban treatment, 8 -> 3), and NOT AT "
+ 243:             "ALL (here). A procedure that only ever produced convenient answers would be "
+ 244:             "indistinguishable from no procedure. THESE THREE TOGETHER ARE WHAT MAKE IT A "
+ 245:             "CHECK, and none of the three was arranged."),
+ 246:         "and_the_reverse_reading_is_available_too": (
+ 247:             "A reader may take this as evidence the original page was competently built, and "
+ 248:             "that reading is supported: the estimate was right, the measure was corrected "
+ 249:             "properly, and the five trials were nearly the whole of the evidence. Both "
+ 250:             "readings are compatible, and only one of them was checkable before 2026-08-19."),
+ 251:     }
+ 252:     b["eligible_with_results_and_not_pooled"] = repool["eligible_poolable_and_NOT_pooled"]
+ 253:     b["grade"] = None
+ 254: 
+ 255:     # SPIRE-FH into inputs.trials, merged by NCT so nothing existing is replaced.
+ 256:     have = {t.get("nct") for t in obj["inputs"]["trials"]}
+ 257:     if "NCT01968980" not in have:
+ 258:         obj["inputs"]["trials"].append({
+ 259:             "id": "NCT01968980", "nct": "NCT01968980", "name": "SPIRE-FH",
+ 260:             "arms": [{"label": "Bococizumab", "role": "treatment", "participants": 185},
+ 261:                      {"label": "Placebo", "role": "control", "participants": 185}],
+ 262:             "design": ("52-week, phase 3, double-blind, randomised, placebo-controlled, "
+ 263:                        "parallel-group, heterozygous familial hypercholesterolaemia"),
+ 264:             "comparator_type": "placebo",
+ 265:             "comparator_type_basis": "PLACEBO_COMPARATOR arm, read from the registry.",
+ 266:             "enrolled": 370,
+ 267:             "by_outcome": {"ldlc_pct_change_wk12": {
+ 268:                 "effect": {"measure": "MD", "point": -54.5, "ci_low": -59.5, "ci_high": -49.5,
+ 269:                            "ci_level": 95, "scale": "natural",
+ 270:                            "derived_from": "the trial's own posted least-squares mean "
+ 271:                                            "difference",
+ 272:                            "derivation_note": ("READ, not derived. The standard error used in "
+ 273:                                                "the pool is derived from this printed "
+ 274:                                                "interval and is labelled so; its implied "
+ 275:                                                "value 2.551 agrees with the 2.54 the trial "
+ 276:                                                "posts.")},
+ 277:                 "provenance": {
+ 278:                     "tag": "MEASURED", "source_id": "NCT01968980",
+ 279:                     "source": "ClinicalTrials.gov posted results, read 2026-08-19",
+ 280:                     "source_outcome_title": ("Percent Change From Baseline in Low Density "
+ 281:                                              "Lipoprotein Cholesterol (LDL-C) at Week 12"),
+ 282:                     "source_quotes": [
+ 283:                         "Percent Change From Baseline in Low Density Lipoprotein Cholesterol "
+ 284:                         "(LDL-C) at Week 12",
+ 285:                         "Least square (LS) mean difference -54.5, 95% CI -59.5 to -49.5, "
+ 286:                         "MMRM, p<0.001",
+ 287:                     ],
+ 288:                     "quote_note": ("The endpoint TITLE as the registry posts it and the "
+ 289:                                    "effect as the registry computes it. The identical "
+ 290:                                    "endpoint at the identical timepoint as all five "
+ 291:                                    "incumbents."),
+ 292:                 },
+ 293:                 "analysed": {"treatment": 166, "control": 175},
+ 294:                 "outcome_definition": ("Percent Change From Baseline in Low Density "
+ 295:                                        "Lipoprotein Cholesterol (LDL-C) at Week 12"),
+ 296:                 "outcome_definition_source": {
+ 297:                     "source": "registry results section",
+ 298:                     "source_field": "resultsSection.outcomeMeasuresModule.outcomeMeasures[0]",
+ 299:                     "source_url": "https://clinicaltrials.gov/study/NCT01968980",
+ 300:                     "read_utc": "2026-08-19"},
+ 301:                 "endpoint_rank_in_its_own_trial": "PRIMARY",
+ 302:                 "source_tier": "registry_posted_results",
+ 303:             }},
+ 304:             "registration_read_utc": "2026-08-19",
+ 305:             "all_ranks_read_utc": "2026-08-19",
+ 306:         })
+ 307: 
+ 308:     obj["protocol"] = {
+ 309:         "prespecified": False, "permanently_refused": True,
+ 310:         "why": ("A protocol specified before data collection is a HISTORICAL FACT ABOUT THE "
+ 311:                 "PAST and cannot be created retrospectively."),
+ 312:         "what_was_actually_done": ("Eligibility criteria were derived POST HOC on 2026-08-19, "
+ 313:                                    "when this review's search was executed for the first "
+ 314:                                    "time -- years after its included set existed on a page."),
+ 315:         "authority_permitting_it": "MECIR R107, provided they are declared as such.",
+ 316:         "forward_remedy": ("For topics not yet built, register a protocol BEFORE the search."),
+ 317:     }
+ 318:     obj["risk_of_bias_verdict"] = None
+ 319:     obj["risk_of_bias"] = {
+ 320:         "tool": "RoB 2", "state": "NOT_ASSESSED_FOR_THIS_REVIEW",
+ 321:         "why": ("No result-level RoB 2 assessment has been performed for any of the six "
+ 322:                 "contributing results. RECORDED AS UNASSESSED, NEVER AS ABSENT OF BIAS: an "
+ 323:                 "unassessed domain is NOT_ASSESSABLE, not LOW."),
+ 324:         "consequence_carried_into_grade": "GRADE rates down one level for risk of bias.",
+ 325:         "what_would_close_it": ("RoB 2 per RESULT on the week-12 LDL outcome in each of "
+ 326:                                 "NCT01968967, NCT02100514, NCT01968954, NCT02458287, "
+ 327:                                 "NCT02135029 and NCT01968980."),
+ 328:     }
+ 329:     obj["grade"] = {
+ 330:         "approach": "GRADE",
+ 331:         "reference": "Schunemann H, Brozek J, Guyatt G, Oxman A (editors). GRADE Handbook.",
+ 332:         "handbook_chapter": ("Cochrane Handbook for Systematic Reviews of Interventions "
+ 333:                              "version 6.5.1, Chapter 14"),
+ 334:         "starting_point": "HIGH for a body of randomised evidence, then rated down.",
+ 335:         "not_rated_up": "No domain is rated up.",
+ 336:         "by_outcome": {"ldlc_pct_change_wk12": {
+ 337:             "rated": True, "certainty": "LOW", "k": cur["k"], "i2": cur["i2_pct"],
+ 338:             "estimate": {"point": cur["REML"]["md"], "ci_low": cur["REML"]["ci_low"],
+ 339:                          "ci_high": cur["REML"]["ci_high"]},
+ 340:             "started_at": "HIGH",
+ 341:             "steps": [
+ 342:                 {"domain": "risk_of_bias", "levels": -1, "from": "HIGH", "to": "MODERATE",
+ 343:                  "reason": ("No result-level RoB 2 assessment exists for this outcome. Rated "
+ 344:                             "down one level because unassessed is not low.")},
+ 345:                 {"domain": "inconsistency", "levels": -1, "from": "MODERATE", "to": "LOW",
+ 346:                  "reason": ("I-squared %.1f per cent over k=6, with per-trial mean differences "
+ 347:                             "from -49.9 to -63.4 percentage points. Rated down for the spread. "
+ 348:                             "This is inconsistency of RESULT and says nothing about whether "
+ 349:                             "the estimand is shared, which was established by reading six "
+ 350:                             "registered titles." % cur["i2_pct"])},
+ 351:                 {"domain": "indirectness", "levels": 0, "from": "LOW", "to": "LOW",
+ 352:                  "reason": ("One comparator class, one endpoint, one timepoint, verified by "
+ 353:                             "reading each trial's registered text. THE OUTCOME IS A SURROGATE "
+ 354:                             "-- LDL cholesterol, not a clinical event -- and that is stated "
+ 355:                             "rather than rated down here, because the review's question names "
+ 356:                             "the surrogate explicitly. A reader who wants clinical outcomes is "
+ 357:                             "asking a different question, and bococizumab's two outcome "
+ 358:                             "trials, SPIRE-1 and SPIRE-2, were terminated.")},
+ 359:                 {"domain": "imprecision", "levels": 0, "from": "LOW", "to": "LOW",
+ 360:                  "reason": ("k=6, 4,449 participants, interval -57.9 to -52.6 percentage "
+ 361:                             "points. The interval excludes no effect by a wide margin and is "
+ 362:                             "narrow relative to the effect. Not rated down.")},
+ 363:                 {"domain": "publication_bias", "levels": 0, "from": "LOW", "to": "LOW",
+ 364:                  "reason": ("k=6. A funnel plot at k=6 has little power and would be theatre. "
+ 365:                             "NOT ASSESSED, and not counted as absent. One relevant fact IS "
+ 366:                             "recorded: the entire programme is one sponsor's, and it was "
+ 367:                             "discontinued -- the direction that hazard runs is unknown.")},
+ 368:             ],
+ 369:             "and_what_this_rating_is_about": (
+ 370:                 "The certainty of the LDL-lowering estimate, not of any clinical benefit. "
+ 371:                 "Bococizumab was discontinued; this review measures what it did to a "
+ 372:                 "laboratory value."),
+ 373:         }},
+ 374:     }
+ 375: 
+ 376:     after = set(obj)
+ 377:     lost = before - after
+ 378:     if lost:
+ 379:         raise SystemExit(
+ 380:             "REFUSED: merging would drop top-level key(s) %s. A wholesale write regresses "
+ 381:             "every enrichment since the last build; this script MERGES and refuses if a merge "
+ 382:             "would lose anything." % sorted(lost))
+ 383: 
+ 384:     with io.open(DEST, "w", encoding="utf-8") as fh:
+ 385:         fh.write(json.dumps(obj, indent=1))
+ 386:     print("top-level keys before %d, after %d, lost %d" % (len(before), len(after), len(lost)))
+ 387:     print("k %d -> %d   MD %.4f -> %.4f   I2 %.1f%% -> %.1f%%"
+ 388:           % (prev["k"], cur["k"], prev["REML"]["md"], cur["REML"]["md"],
+ 389:              prev["i2_pct"], cur["i2_pct"]))
+ 390:     print("trials in object: %d" % len(obj["inputs"]["trials"]))
+ 391:     print("wrote %s" % DEST)
+ 392:     return 0
+ 393: 
+ 394: 
+ 395: if __name__ == "__main__":
+ 396:     sys.exit(main())
+
+codex
+Defects found:
+
+- **check that CANNOT FAIL**: line 377, `lost = before - after`.  
+  Exact input: any `DEST` JSON that reaches line 376, e.g. one with required paths `results.by_outcome.ldlc_pct_change_wk12` and `inputs.trials`; the module only assigns keys and appends, never deletes/pops/clears a top-level key.  
+  Consequence: the advertised refusal on lost top-level keys has no reachable firing path, so a destructive overwrite of an existing top-level value still prints `lost 0`.
+
+- **idempotency guard satisfied by its OWN marker rather than by the work**: line 257, `if "NCT01968980" not in have:`.  
+  Exact input: `obj["inputs"]["trials"] = [{"nct": "NCT01968980"}]` with the rest of the required object/evidence present.  
+  Consequence: the SPIRE-FH append is skipped even though the trial record lacks the arms, design, outcome, provenance, analysed counts, and dates the block is supposed to add.
+
+- **instrument reading a DIFFERENT COPY than the one being changed**: lines 178-180 store display-rounded `b["pooled"]`, but lines 227-229 and 337-339 store the same current estimate from `cur["REML"]` at full precision.  
+  Exact input: `cur["REML"]["md"] = -55.2406`, `ci_low = -57.9123`, `ci_high = -52.5678`.  
+  Consequence: the object contains multiple non-identical copies of the same pooled estimate, so a verifier or page reading the GRADE/check-change path can disagree with the rounded pooled path.
+
+No proven instance in the pasted module: probe keyed to string a fix removes; selector keyed to unused corpus form; CRLF/LF text comparison; merged-cell/off-by-one tabulation; zero conflated with absent; negation dropped; wrapper status code reporting.
+tokens used
+23,003
+Defects found:
+
+- **check that CANNOT FAIL**: line 377, `lost = before - after`.  
+  Exact input: any `DEST` JSON that reaches line 376, e.g. one with required paths `results.by_outcome.ldlc_pct_change_wk12` and `inputs.trials`; the module only assigns keys and appends, never deletes/pops/clears a top-level key.  
+  Consequence: the advertised refusal on lost top-level keys has no reachable firing path, so a destructive overwrite of an existing top-level value still prints `lost 0`.
+
+- **idempotency guard satisfied by its OWN marker rather than by the work**: line 257, `if "NCT01968980" not in have:`.  
+  Exact input: `obj["inputs"]["trials"] = [{"nct": "NCT01968980"}]` with the rest of the required object/evidence present.  
+  Consequence: the SPIRE-FH append is skipped even though the trial record lacks the arms, design, outcome, provenance, analysed counts, and dates the block is supposed to add.
+
+- **instrument reading a DIFFERENT COPY than the one being changed**: lines 178-180 store display-rounded `b["pooled"]`, but lines 227-229 and 337-339 store the same current estimate from `cur["REML"]` at full precision.  
+  Exact input: `cur["REML"]["md"] = -55.2406`, `ci_low = -57.9123`, `ci_high = -52.5678`.  
+  Consequence: the object contains multiple non-identical copies of the same pooled estimate, so a verifier or page reading the GRADE/check-change path can disagree with the rounded pooled path.
+
+No proven instance in the pasted module: probe keyed to string a fix removes; selector keyed to unused corpus form; CRLF/LF text comparison; merged-cell/off-by-one tabulation; zero conflated with absent; negation dropped; wrapper status code reporting.

@@ -1,0 +1,925 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a03184-48c4-7a41-9d3d-aa5214d6ea0b
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/compute_union_proofs_2026_08_19.py
+
+--- THE FILE, IN FULL ---
+#!/usr/bin/env python3
+"""Independently compute union proofs for the 2026-08-19 merge clusters.
+
+This script intentionally does not import scripts/execute_merges_2026_08_19.py.
+It recomputes the proof surface from the adjudication file and the current SSOT
+JSON objects only.
+"""
+
+from __future__ import annotations
+
+import argparse
+import copy
+import hashlib
+import json
+from pathlib import Path
+from typing import Any
+
+
+REPO = Path(__file__).resolve().parents[1]
+EV = REPO / "evidence" / "2026-08-19-batch1"
+ADJ = EV / "merge_adjudication.json"
+PAGE_MAP = REPO / "ssot" / "PAGE_MAP.json"
+DEST = EV / "union_proofs_independent.json"
+DATE = "2026-08-19"
+EXPECTED_MERGE_CLUSTERS = 12
+
+
+def load_json(path: Path) -> Any:
+    with path.open("r", encoding="utf-8") as fh:
+        return json.load(fh)
+
+
+def canonical_bytes(value: Any) -> bytes:
+    return json.dumps(
+        value,
+        sort_keys=True,
+        ensure_ascii=False,
+        separators=(",", ":"),
+    ).encode("utf-8")
+
+
+def canonical_sha256(value: Any) -> str:
+    return hashlib.sha256(canonical_bytes(value)).hexdigest()
+
+
+def leaves(value: Any, path: str = ""):
+    if isinstance(value, dict):
+        for key, child in value.items():
+            yield from leaves(child, f"{path}/{key}")
+    elif isinstance(value, list):
+        for idx, child in enumerate(value):
+            yield from leaves(child, f"{path}[{idx}]")
+    else:
+        yield path, value
+
+
+def topic_path(topic: str) -> Path:
+    return REPO / "ssot" / topic / f"{topic}.json"
+
+
+def page_for(topic: str, page_map: dict[str, str]) -> str | None:
+    suffix = f"/{topic}.json"
+    for page, rel in page_map.items():
+        normalized = rel.replace("\\", "/")
+        if normalized.endswith(suffix):
+            return page
+    return None
+
+
+def trial_ids(obj: dict[str, Any]) -> list[str]:
+    trials = ((obj.get("inputs") or {}).get("trials") or [])
+    ids: set[str] = set()
+    for trial in trials:
+        if not isinstance(trial, dict):
+            continue
+        tid = trial.get("nct") or trial.get("id") or trial.get("registration")
+        if tid:
+            ids.add(str(tid))
+    return sorted(ids)
+
+
+def unwrap_original_payload(current_retired: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any]]:
+    chain: list[dict[str, Any]] = []
+    obj = current_retired
+    while (
+        isinstance(obj, dict)
+        and str(obj.get("state") or "").upper() == "RETIRED"
+        and isinstance(obj.get("THE_OBJECT_AS_IT_STOOD_AT_RETIREMENT"), dict)
+    ):
+        chain.append(obj)
+        obj = obj["THE_OBJECT_AS_IT_STOOD_AT_RETIREMENT"]
+    source_kind = "live_object" if not chain else "tombstone_chain_unwrapped_original"
+    return obj, {
+        "source_kind": source_kind,
+        "tombstone_depth": len(chain),
+        "outer_absorbed_by": chain[0].get("absorbed_by") if chain else None,
+        "outer_trials_it_held": sorted(str(x) for x in chain[0].get("trials_it_held", []))
+        if chain
+        else [],
+        "chain_sha256": [canonical_sha256(item) for item in chain],
+    }
+
+
+def find_equal_subtrees(value: Any, target: Any, path: str = "") -> list[str]:
+    found: list[str] = []
+    if value == target:
+        found.append(path or "/")
+    if isinstance(value, dict):
+        for key, child in value.items():
+            found.extend(find_equal_subtrees(child, target, f"{path}/{key}"))
+    elif isinstance(value, list):
+        for idx, child in enumerate(value):
+            found.extend(find_equal_subtrees(child, target, f"{path}[{idx}]"))
+    return found
+
+
+def classify_absorbed_payload(
+    survivor_obj: dict[str, Any],
+    retired_topic: str,
+    original_obj: dict[str, Any],
+) -> dict[str, Any]:
+    absorbed = survivor_obj.get("absorbed_topics")
+    if not isinstance(absorbed, dict) or retired_topic not in absorbed:
+        return {
+            "absorbed_block_present": False,
+            "payload_kind": "absent",
+            "direct_payload_verbatim": False,
+            "recoverable_original_verbatim": False,
+            "recoverable_original_locations": [],
+        }
+
+    block = absorbed.get(retired_topic)
+    payload = block.get("THE_WHOLE_OBJECT_VERBATIM") if isinstance(block, dict) else None
+    direct = payload == original_obj
+    payload_locations = find_equal_subtrees(payload, original_obj) if payload is not None else []
+    nested = bool(payload_locations) and not direct
+    if direct:
+        kind = "direct_original"
+    elif nested:
+        kind = "payload_contains_original"
+    elif payload is None:
+        kind = "missing_payload"
+    else:
+        kind = "payload_mismatch"
+    return {
+        "absorbed_block_present": True,
+        "payload_kind": kind,
+        "direct_payload_verbatim": direct,
+        "recoverable_original_verbatim": direct or nested,
+        "original_locations_inside_payload": payload_locations,
+        "recoverable_original_locations": find_equal_subtrees(survivor_obj, original_obj),
+    }
+
+
+def proof_for_retired(
+    row: dict[str, Any],
+    survivor_obj: dict[str, Any],
+    retired_topic: str,
+) -> dict[str, Any]:
+    current_retired = load_json(topic_path(retired_topic))
+    original_obj, source_info = unwrap_original_payload(current_retired)
+    source_kind = source_info["source_kind"]
+    original_leaf_paths = [path for path, _ in leaves(original_obj)]
+    original_trials = trial_ids(original_obj)
+    survivor_trials = trial_ids(survivor_obj)
+    missing_trials = sorted(set(original_trials) - set(survivor_trials))
+
+    current_locations = find_equal_subtrees(survivor_obj, original_obj)
+    absorbed = classify_absorbed_payload(survivor_obj, retired_topic, original_obj)
+
+    simulated = copy.deepcopy(survivor_obj)
+    simulated.setdefault("absorbed_topics", {})[retired_topic] = {
+        "THE_WHOLE_OBJECT_VERBATIM": original_obj
+    }
+    simulated_locations = find_equal_subtrees(simulated, original_obj)
+
+    tombstone_checks: dict[str, Any] = {
+        "is_tombstone": source_kind == "tombstone_chain_unwrapped_original",
+        "tombstone_depth": source_info["tombstone_depth"],
+    }
+    if source_kind == "tombstone_chain_unwrapped_original":
+        tombstone_checks.update(
+            {
+                "outer_absorbed_by": source_info["outer_absorbed_by"],
+                "outer_absorbed_by_matches_survivor": source_info["outer_absorbed_by"]
+                == row["survivor"],
+                "outer_trials_it_held_matches_original": source_info["outer_trials_it_held"]
+                == original_trials,
+                "chain_sha256": source_info["chain_sha256"],
+            }
+        )
+
+    return {
+        "retired": retired_topic,
+        "source_used_for_retired_object": source_kind,
+        "original_object_sha256": canonical_sha256(original_obj),
+        "leaves_in_original_retired_object": len(original_leaf_paths),
+        "original_trial_ids": original_trials,
+        "survivor_trial_ids": survivor_trials,
+        "trials_not_in_survivor_inputs": missing_trials,
+        "current_survivor_contains_original_verbatim": bool(current_locations),
+        "current_original_locations": current_locations,
+        "absorbed_payload": absorbed,
+        "simulated_absorption_contains_original_verbatim": bool(simulated_locations),
+        "simulated_original_locations": simulated_locations,
+        "current_union_proven": bool(current_locations) and not missing_trials,
+        "simulated_union_proven": bool(simulated_locations) and not missing_trials,
+        "tombstone_checks": tombstone_checks,
+    }
+
+
+def build_report() -> dict[str, Any]:
+    adjudication = load_json(ADJ)
+    page_map = load_json(PAGE_MAP)
+    merge_rows = [row for row in adjudication["rows"] if row["verdict"].startswith("MERGE")]
+    non_merge_rows = [
+        {"cluster": row["cluster"], "verdict": row["verdict"]}
+        for row in adjudication["rows"]
+        if not row["verdict"].startswith("MERGE")
+    ]
+
+    rows: list[dict[str, Any]] = []
+    for row in merge_rows:
+        survivor = row["survivor"]
+        survivor_obj = load_json(topic_path(survivor))
+        survivor_page = page_for(survivor, page_map)
+        proofs = [proof_for_retired(row, survivor_obj, retired) for retired in row["retire"]]
+        current_all = all(proof["current_union_proven"] for proof in proofs)
+        simulated_all = all(proof["simulated_union_proven"] for proof in proofs)
+        if current_all:
+            status = "CURRENT_UNION_PROVEN"
+        elif simulated_all:
+            status = "NOT_CURRENTLY_ABSORBED_BUT_SIMULATED_UNION_PROVEN"
+        else:
+            status = "UNION_PROOF_FAILED"
+        rows.append(
+            {
+                "cluster": row["cluster"],
+                "survivor": survivor,
+                "retire": row["retire"],
+                "survivor_page": survivor_page,
+                "survivor_page_exists": bool(survivor_page and (REPO / survivor_page).exists()),
+                "status": status,
+                "proofs": proofs,
+            }
+        )
+
+    retired_proofs = [proof for row in rows for proof in row["proofs"]]
+    return {
+        "computed_utc": DATE,
+        "independence_statement": (
+            "Computed from merge_adjudication.json plus current SSOT JSON files. "
+            "This script does not import or execute the merge executor."
+        ),
+        "proof_rule": (
+            "For each MERGE cluster, the retired object's original payload is taken from "
+            "THE_OBJECT_AS_IT_STOOD_AT_RETIREMENT when the topic is already a RETIRED "
+            "tombstone, otherwise from the live topic object. Current union is proven only "
+            "when that original object exists verbatim somewhere in the survivor and every "
+            "retired trial id is present in survivor inputs.trials. Deferred clusters also "
+            "get a simulated absorption check without writing files."
+        ),
+        "counts": {
+            "expected_merge_clusters": EXPECTED_MERGE_CLUSTERS,
+            "merge_clusters_checked": len(rows),
+            "retired_topic_proofs_checked": len(retired_proofs),
+            "non_merge_clusters_excluded": len(non_merge_rows),
+            "clusters_current_union_proven": sum(
+                1 for row in rows if row["status"] == "CURRENT_UNION_PROVEN"
+            ),
+            "clusters_deferred_or_not_currently_absorbed_but_simulated_proven": sum(
+                1
+                for row in rows
+                if row["status"] == "NOT_CURRENTLY_ABSORBED_BUT_SIMULATED_UNION_PROVEN"
+            ),
+            "clusters_failed": sum(1 for row in rows if row["status"] == "UNION_PROOF_FAILED"),
+            "retired_topics_current_union_proven": sum(
+                1 for proof in retired_proofs if proof["current_union_proven"]
+            ),
+            "retired_topics_simulated_union_proven": sum(
+                1 for proof in retired_proofs if proof["simulated_union_proven"]
+            ),
+            "absorbed_payload_direct_original": sum(
+                1
+                for proof in retired_proofs
+                if proof["absorbed_payload"]["payload_kind"] == "direct_original"
+            ),
+            "absorbed_payload_contains_original": sum(
+                1
+                for proof in retired_proofs
+                if proof["absorbed_payload"]["payload_kind"] == "payload_contains_original"
+            ),
+            "absorbed_payload_absent": sum(
+                1 for proof in retired_proofs if proof["absorbed_payload"]["payload_kind"] == "absent"
+            ),
+        },
+        "expectation_checks": {
+            "merge_cluster_count_is_expected": len(rows) == EXPECTED_MERGE_CLUSTERS,
+            "no_union_proof_failures": all(
+                row["status"] != "UNION_PROOF_FAILED" for row in rows
+            ),
+            "all_retired_topics_simulated_union_proven": all(
+                proof["simulated_union_proven"] for proof in retired_proofs
+            ),
+        },
+        "hardcode_disclosure": [
+            {
+                "item": "DATE",
+                "classification": "static run stamp",
+                "value": DATE,
+                "reason": "The batch being audited is dated 2026-08-19.",
+            },
+            {
+                "item": "EXPECTED_MERGE_CLUSTERS",
+                "classification": "static guard",
+                "value": EXPECTED_MERGE_CLUSTERS,
+                "reason": "The user requested exactly twelve merge-cluster proofs.",
+            },
+            {
+                "item": "cluster members, survivors, retired topics, object payloads, trials, pages",
+                "classification": "dynamic",
+                "value": "read from merge_adjudication.json, PAGE_MAP.json, and ssot/*/*.json",
+                "reason": "No proof result is hardcoded.",
+            },
+        ],
+        "non_merge_clusters_excluded": non_merge_rows,
+        "rows": rows,
+    }
+
+
+def selftest() -> int:
+    original = {"app_id": "retired", "inputs": {"trials": [{"nct": "NCT1"}]}, "x": [1, None]}
+    survivor = {"inputs": {"trials": [{"nct": "NCT1"}]}}
+    row = {"survivor": "survivor"}
+
+    simulated = copy.deepcopy(survivor)
+    simulated.setdefault("absorbed_topics", {})["retired"] = {
+        "THE_WHOLE_OBJECT_VERBATIM": original
+    }
+    checks = [
+        ("hash stable", canonical_sha256(original) == canonical_sha256(copy.deepcopy(original))),
+        ("finds inserted original", bool(find_equal_subtrees(simulated, original))),
+        (
+            "classifies direct original",
+            classify_absorbed_payload(simulated, "retired", original)["payload_kind"]
+            == "direct_original",
+        ),
+        (
+            "classifies payload containing original",
+            classify_absorbed_payload(
+                {
+                    "absorbed_topics": {
+                        "retired": {
+                            "THE_WHOLE_OBJECT_VERBATIM": {
+                                "state": "RETIRED",
+                                "THE_OBJECT_AS_IT_STOOD_AT_RETIREMENT": original,
+                            }
+                        }
+                    }
+                },
+                "retired",
+                original,
+            )["payload_kind"]
+            == "payload_contains_original",
+        ),
+        (
+            "trial ids read",
+            trial_ids(original) == ["NCT1"] and trial_ids({"inputs": {"trials": []}}) == [],
+        ),
+        ("row shape independent", row["survivor"] == "survivor"),
+    ]
+    failed = [name for name, ok in checks if not ok]
+    for name, ok in checks:
+        print(f"{name}: {'ok' if ok else 'FAIL'}")
+    if failed:
+        print("SELFTEST FAILED: " + ", ".join(failed))
+        return 1
+    print("SELFTEST PASSED")
+    return 0
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--write", action="store_true", help=f"write {DEST.relative_to(REPO)}")
+    parser.add_argument("--selftest", action="store_true")
+    args = parser.parse_args()
+
+    if args.selftest:
+        return selftest()
+
+    report = build_report()
+    text = json.dumps(report, indent=1, ensure_ascii=False)
+    if args.write:
+        DEST.write_text(text + "\n", encoding="utf-8")
+    counts = report["counts"]
+    print(json.dumps(counts, indent=1, ensure_ascii=False))
+    for row in report["rows"]:
+        print(f"{row['status']}: {row['survivor']} <- {', '.join(row['retire'])}")
+        for proof in row["proofs"]:
+            print(
+                "  {retired}: {leaves} leaves, current={current}, simulated={simulated}, "
+                "payload={payload}, missing_trials={missing}".format(
+                    retired=proof["retired"],
+                    leaves=proof["leaves_in_original_retired_object"],
+                    current=proof["current_union_proven"],
+                    simulated=proof["simulated_union_proven"],
+                    payload=proof["absorbed_payload"]["payload_kind"],
+                    missing=len(proof["trials_not_in_survivor_inputs"]),
+                )
+            )
+    expectations = report["expectation_checks"]
+    return 1 if counts["clusters_failed"] or not all(expectations.values()) else 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+
+codex
+I’m treating this as a narrow defect hunt against only the pasted module and the listed recurrence shapes. I’ll give line-level findings only where the pasted code itself proves the behavior.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=0; Get-Content -LiteralPath '"'scripts/compute_union_proofs_2026_08_19.py' | ForEach-Object { "'$i++; '"'{0,4}: {1}' -f "'$i, $_ }' in F:\rapidmeta-ssot-shell
+ succeeded in 1690ms:
+   1: #!/usr/bin/env python3
+   2: """Independently compute union proofs for the 2026-08-19 merge clusters.
+   3: 
+   4: This script intentionally does not import scripts/execute_merges_2026_08_19.py.
+   5: It recomputes the proof surface from the adjudication file and the current SSOT
+   6: JSON objects only.
+   7: """
+   8: 
+   9: from __future__ import annotations
+  10: 
+  11: import argparse
+  12: import copy
+  13: import hashlib
+  14: import json
+  15: from pathlib import Path
+  16: from typing import Any
+  17: 
+  18: 
+  19: REPO = Path(__file__).resolve().parents[1]
+  20: EV = REPO / "evidence" / "2026-08-19-batch1"
+  21: ADJ = EV / "merge_adjudication.json"
+  22: PAGE_MAP = REPO / "ssot" / "PAGE_MAP.json"
+  23: DEST = EV / "union_proofs_independent.json"
+  24: DATE = "2026-08-19"
+  25: EXPECTED_MERGE_CLUSTERS = 12
+  26: 
+  27: 
+  28: def load_json(path: Path) -> Any:
+  29:     with path.open("r", encoding="utf-8") as fh:
+  30:         return json.load(fh)
+  31: 
+  32: 
+  33: def canonical_bytes(value: Any) -> bytes:
+  34:     return json.dumps(
+  35:         value,
+  36:         sort_keys=True,
+  37:         ensure_ascii=False,
+  38:         separators=(",", ":"),
+  39:     ).encode("utf-8")
+  40: 
+  41: 
+  42: def canonical_sha256(value: Any) -> str:
+  43:     return hashlib.sha256(canonical_bytes(value)).hexdigest()
+  44: 
+  45: 
+  46: def leaves(value: Any, path: str = ""):
+  47:     if isinstance(value, dict):
+  48:         for key, child in value.items():
+  49:             yield from leaves(child, f"{path}/{key}")
+  50:     elif isinstance(value, list):
+  51:         for idx, child in enumerate(value):
+  52:             yield from leaves(child, f"{path}[{idx}]")
+  53:     else:
+  54:         yield path, value
+  55: 
+  56: 
+  57: def topic_path(topic: str) -> Path:
+  58:     return REPO / "ssot" / topic / f"{topic}.json"
+  59: 
+  60: 
+  61: def page_for(topic: str, page_map: dict[str, str]) -> str | None:
+  62:     suffix = f"/{topic}.json"
+  63:     for page, rel in page_map.items():
+  64:         normalized = rel.replace("\\", "/")
+  65:         if normalized.endswith(suffix):
+  66:             return page
+  67:     return None
+  68: 
+  69: 
+  70: def trial_ids(obj: dict[str, Any]) -> list[str]:
+  71:     trials = ((obj.get("inputs") or {}).get("trials") or [])
+  72:     ids: set[str] = set()
+  73:     for trial in trials:
+  74:         if not isinstance(trial, dict):
+  75:             continue
+  76:         tid = trial.get("nct") or trial.get("id") or trial.get("registration")
+  77:         if tid:
+  78:             ids.add(str(tid))
+  79:     return sorted(ids)
+  80: 
+  81: 
+  82: def unwrap_original_payload(current_retired: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any]]:
+  83:     chain: list[dict[str, Any]] = []
+  84:     obj = current_retired
+  85:     while (
+  86:         isinstance(obj, dict)
+  87:         and str(obj.get("state") or "").upper() == "RETIRED"
+  88:         and isinstance(obj.get("THE_OBJECT_AS_IT_STOOD_AT_RETIREMENT"), dict)
+  89:     ):
+  90:         chain.append(obj)
+  91:         obj = obj["THE_OBJECT_AS_IT_STOOD_AT_RETIREMENT"]
+  92:     source_kind = "live_object" if not chain else "tombstone_chain_unwrapped_original"
+  93:     return obj, {
+  94:         "source_kind": source_kind,
+  95:         "tombstone_depth": len(chain),
+  96:         "outer_absorbed_by": chain[0].get("absorbed_by") if chain else None,
+  97:         "outer_trials_it_held": sorted(str(x) for x in chain[0].get("trials_it_held", []))
+  98:         if chain
+  99:         else [],
+ 100:         "chain_sha256": [canonical_sha256(item) for item in chain],
+ 101:     }
+ 102: 
+ 103: 
+ 104: def find_equal_subtrees(value: Any, target: Any, path: str = "") -> list[str]:
+ 105:     found: list[str] = []
+ 106:     if value == target:
+ 107:         found.append(path or "/")
+ 108:     if isinstance(value, dict):
+ 109:         for key, child in value.items():
+ 110:             found.extend(find_equal_subtrees(child, target, f"{path}/{key}"))
+ 111:     elif isinstance(value, list):
+ 112:         for idx, child in enumerate(value):
+ 113:             found.extend(find_equal_subtrees(child, target, f"{path}[{idx}]"))
+ 114:     return found
+ 115: 
+ 116: 
+ 117: def classify_absorbed_payload(
+ 118:     survivor_obj: dict[str, Any],
+ 119:     retired_topic: str,
+ 120:     original_obj: dict[str, Any],
+ 121: ) -> dict[str, Any]:
+ 122:     absorbed = survivor_obj.get("absorbed_topics")
+ 123:     if not isinstance(absorbed, dict) or retired_topic not in absorbed:
+ 124:         return {
+ 125:             "absorbed_block_present": False,
+ 126:             "payload_kind": "absent",
+ 127:             "direct_payload_verbatim": False,
+ 128:             "recoverable_original_verbatim": False,
+ 129:             "recoverable_original_locations": [],
+ 130:         }
+ 131: 
+ 132:     block = absorbed.get(retired_topic)
+ 133:     payload = block.get("THE_WHOLE_OBJECT_VERBATIM") if isinstance(block, dict) else None
+ 134:     direct = payload == original_obj
+ 135:     payload_locations = find_equal_subtrees(payload, original_obj) if payload is not None else []
+ 136:     nested = bool(payload_locations) and not direct
+ 137:     if direct:
+ 138:         kind = "direct_original"
+ 139:     elif nested:
+ 140:         kind = "payload_contains_original"
+ 141:     elif payload is None:
+ 142:         kind = "missing_payload"
+ 143:     else:
+ 144:         kind = "payload_mismatch"
+ 145:     return {
+ 146:         "absorbed_block_present": True,
+ 147:         "payload_kind": kind,
+ 148:         "direct_payload_verbatim": direct,
+ 149:         "recoverable_original_verbatim": direct or nested,
+ 150:         "original_locations_inside_payload": payload_locations,
+ 151:         "recoverable_original_locations": find_equal_subtrees(survivor_obj, original_obj),
+ 152:     }
+ 153: 
+ 154: 
+ 155: def proof_for_retired(
+ 156:     row: dict[str, Any],
+ 157:     survivor_obj: dict[str, Any],
+ 158:     retired_topic: str,
+ 159: ) -> dict[str, Any]:
+ 160:     current_retired = load_json(topic_path(retired_topic))
+ 161:     original_obj, source_info = unwrap_original_payload(current_retired)
+ 162:     source_kind = source_info["source_kind"]
+ 163:     original_leaf_paths = [path for path, _ in leaves(original_obj)]
+ 164:     original_trials = trial_ids(original_obj)
+ 165:     survivor_trials = trial_ids(survivor_obj)
+ 166:     missing_trials = sorted(set(original_trials) - set(survivor_trials))
+ 167: 
+ 168:     current_locations = find_equal_subtrees(survivor_obj, original_obj)
+ 169:     absorbed = classify_absorbed_payload(survivor_obj, retired_topic, original_obj)
+ 170: 
+ 171:     simulated = copy.deepcopy(survivor_obj)
+ 172:     simulated.setdefault("absorbed_topics", {})[retired_topic] = {
+ 173:         "THE_WHOLE_OBJECT_VERBATIM": original_obj
+ 174:     }
+ 175:     simulated_locations = find_equal_subtrees(simulated, original_obj)
+ 176: 
+ 177:     tombstone_checks: dict[str, Any] = {
+ 178:         "is_tombstone": source_kind == "tombstone_chain_unwrapped_original",
+ 179:         "tombstone_depth": source_info["tombstone_depth"],
+ 180:     }
+ 181:     if source_kind == "tombstone_chain_unwrapped_original":
+ 182:         tombstone_checks.update(
+ 183:             {
+ 184:                 "outer_absorbed_by": source_info["outer_absorbed_by"],
+ 185:                 "outer_absorbed_by_matches_survivor": source_info["outer_absorbed_by"]
+ 186:                 == row["survivor"],
+ 187:                 "outer_trials_it_held_matches_original": source_info["outer_trials_it_held"]
+ 188:                 == original_trials,
+ 189:                 "chain_sha256": source_info["chain_sha256"],
+ 190:             }
+ 191:         )
+ 192: 
+ 193:     return {
+ 194:         "retired": retired_topic,
+ 195:         "source_used_for_retired_object": source_kind,
+ 196:         "original_object_sha256": canonical_sha256(original_obj),
+ 197:         "leaves_in_original_retired_object": len(original_leaf_paths),
+ 198:         "original_trial_ids": original_trials,
+ 199:         "survivor_trial_ids": survivor_trials,
+ 200:         "trials_not_in_survivor_inputs": missing_trials,
+ 201:         "current_survivor_contains_original_verbatim": bool(current_locations),
+ 202:         "current_original_locations": current_locations,
+ 203:         "absorbed_payload": absorbed,
+ 204:         "simulated_absorption_contains_original_verbatim": bool(simulated_locations),
+ 205:         "simulated_original_locations": simulated_locations,
+ 206:         "current_union_proven": bool(current_locations) and not missing_trials,
+ 207:         "simulated_union_proven": bool(simulated_locations) and not missing_trials,
+ 208:         "tombstone_checks": tombstone_checks,
+ 209:     }
+ 210: 
+ 211: 
+ 212: def build_report() -> dict[str, Any]:
+ 213:     adjudication = load_json(ADJ)
+ 214:     page_map = load_json(PAGE_MAP)
+ 215:     merge_rows = [row for row in adjudication["rows"] if row["verdict"].startswith("MERGE")]
+ 216:     non_merge_rows = [
+ 217:         {"cluster": row["cluster"], "verdict": row["verdict"]}
+ 218:         for row in adjudication["rows"]
+ 219:         if not row["verdict"].startswith("MERGE")
+ 220:     ]
+ 221: 
+ 222:     rows: list[dict[str, Any]] = []
+ 223:     for row in merge_rows:
+ 224:         survivor = row["survivor"]
+ 225:         survivor_obj = load_json(topic_path(survivor))
+ 226:         survivor_page = page_for(survivor, page_map)
+ 227:         proofs = [proof_for_retired(row, survivor_obj, retired) for retired in row["retire"]]
+ 228:         current_all = all(proof["current_union_proven"] for proof in proofs)
+ 229:         simulated_all = all(proof["simulated_union_proven"] for proof in proofs)
+ 230:         if current_all:
+ 231:             status = "CURRENT_UNION_PROVEN"
+ 232:         elif simulated_all:
+ 233:             status = "NOT_CURRENTLY_ABSORBED_BUT_SIMULATED_UNION_PROVEN"
+ 234:         else:
+ 235:             status = "UNION_PROOF_FAILED"
+ 236:         rows.append(
+ 237:             {
+ 238:                 "cluster": row["cluster"],
+ 239:                 "survivor": survivor,
+ 240:                 "retire": row["retire"],
+ 241:                 "survivor_page": survivor_page,
+ 242:                 "survivor_page_exists": bool(survivor_page and (REPO / survivor_page).exists()),
+ 243:                 "status": status,
+ 244:                 "proofs": proofs,
+ 245:             }
+ 246:         )
+ 247: 
+ 248:     retired_proofs = [proof for row in rows for proof in row["proofs"]]
+ 249:     return {
+ 250:         "computed_utc": DATE,
+ 251:         "independence_statement": (
+ 252:             "Computed from merge_adjudication.json plus current SSOT JSON files. "
+ 253:             "This script does not import or execute the merge executor."
+ 254:         ),
+ 255:         "proof_rule": (
+ 256:             "For each MERGE cluster, the retired object's original payload is taken from "
+ 257:             "THE_OBJECT_AS_IT_STOOD_AT_RETIREMENT when the topic is already a RETIRED "
+ 258:             "tombstone, otherwise from the live topic object. Current union is proven only "
+ 259:             "when that original object exists verbatim somewhere in the survivor and every "
+ 260:             "retired trial id is present in survivor inputs.trials. Deferred clusters also "
+ 261:             "get a simulated absorption check without writing files."
+ 262:         ),
+ 263:         "counts": {
+ 264:             "expected_merge_clusters": EXPECTED_MERGE_CLUSTERS,
+ 265:             "merge_clusters_checked": len(rows),
+ 266:             "retired_topic_proofs_checked": len(retired_proofs),
+ 267:             "non_merge_clusters_excluded": len(non_merge_rows),
+ 268:             "clusters_current_union_proven": sum(
+ 269:                 1 for row in rows if row["status"] == "CURRENT_UNION_PROVEN"
+ 270:             ),
+ 271:             "clusters_deferred_or_not_currently_absorbed_but_simulated_proven": sum(
+ 272:                 1
+ 273:                 for row in rows
+ 274:                 if row["status"] == "NOT_CURRENTLY_ABSORBED_BUT_SIMULATED_UNION_PROVEN"
+ 275:             ),
+ 276:             "clusters_failed": sum(1 for row in rows if row["status"] == "UNION_PROOF_FAILED"),
+ 277:             "retired_topics_current_union_proven": sum(
+ 278:                 1 for proof in retired_proofs if proof["current_union_proven"]
+ 279:             ),
+ 280:             "retired_topics_simulated_union_proven": sum(
+ 281:                 1 for proof in retired_proofs if proof["simulated_union_proven"]
+ 282:             ),
+ 283:             "absorbed_payload_direct_original": sum(
+ 284:                 1
+ 285:                 for proof in retired_proofs
+ 286:                 if proof["absorbed_payload"]["payload_kind"] == "direct_original"
+ 287:             ),
+ 288:             "absorbed_payload_contains_original": sum(
+ 289:                 1
+ 290:                 for proof in retired_proofs
+ 291:                 if proof["absorbed_payload"]["payload_kind"] == "payload_contains_original"
+ 292:             ),
+ 293:             "absorbed_payload_absent": sum(
+ 294:                 1 for proof in retired_proofs if proof["absorbed_payload"]["payload_kind"] == "absent"
+ 295:             ),
+ 296:         },
+ 297:         "expectation_checks": {
+ 298:             "merge_cluster_count_is_expected": len(rows) == EXPECTED_MERGE_CLUSTERS,
+ 299:             "no_union_proof_failures": all(
+ 300:                 row["status"] != "UNION_PROOF_FAILED" for row in rows
+ 301:             ),
+ 302:             "all_retired_topics_simulated_union_proven": all(
+ 303:                 proof["simulated_union_proven"] for proof in retired_proofs
+ 304:             ),
+ 305:         },
+ 306:         "hardcode_disclosure": [
+ 307:             {
+ 308:                 "item": "DATE",
+ 309:                 "classification": "static run stamp",
+ 310:                 "value": DATE,
+ 311:                 "reason": "The batch being audited is dated 2026-08-19.",
+ 312:             },
+ 313:             {
+ 314:                 "item": "EXPECTED_MERGE_CLUSTERS",
+ 315:                 "classification": "static guard",
+ 316:                 "value": EXPECTED_MERGE_CLUSTERS,
+ 317:                 "reason": "The user requested exactly twelve merge-cluster proofs.",
+ 318:             },
+ 319:             {
+ 320:                 "item": "cluster members, survivors, retired topics, object payloads, trials, pages",
+ 321:                 "classification": "dynamic",
+ 322:                 "value": "read from merge_adjudication.json, PAGE_MAP.json, and ssot/*/*.json",
+ 323:                 "reason": "No proof result is hardcoded.",
+ 324:             },
+ 325:         ],
+ 326:         "non_merge_clusters_excluded": non_merge_rows,
+ 327:         "rows": rows,
+ 328:     }
+ 329: 
+ 330: 
+ 331: def selftest() -> int:
+ 332:     original = {"app_id": "retired", "inputs": {"trials": [{"nct": "NCT1"}]}, "x": [1, None]}
+ 333:     survivor = {"inputs": {"trials": [{"nct": "NCT1"}]}}
+ 334:     row = {"survivor": "survivor"}
+ 335: 
+ 336:     simulated = copy.deepcopy(survivor)
+ 337:     simulated.setdefault("absorbed_topics", {})["retired"] = {
+ 338:         "THE_WHOLE_OBJECT_VERBATIM": original
+ 339:     }
+ 340:     checks = [
+ 341:         ("hash stable", canonical_sha256(original) == canonical_sha256(copy.deepcopy(original))),
+ 342:         ("finds inserted original", bool(find_equal_subtrees(simulated, original))),
+ 343:         (
+ 344:             "classifies direct original",
+ 345:             classify_absorbed_payload(simulated, "retired", original)["payload_kind"]
+ 346:             == "direct_original",
+ 347:         ),
+ 348:         (
+ 349:             "classifies payload containing original",
+ 350:             classify_absorbed_payload(
+ 351:                 {
+ 352:                     "absorbed_topics": {
+ 353:                         "retired": {
+ 354:                             "THE_WHOLE_OBJECT_VERBATIM": {
+ 355:                                 "state": "RETIRED",
+ 356:                                 "THE_OBJECT_AS_IT_STOOD_AT_RETIREMENT": original,
+ 357:                             }
+ 358:                         }
+ 359:                     }
+ 360:                 },
+ 361:                 "retired",
+ 362:                 original,
+ 363:             )["payload_kind"]
+ 364:             == "payload_contains_original",
+ 365:         ),
+ 366:         (
+ 367:             "trial ids read",
+ 368:             trial_ids(original) == ["NCT1"] and trial_ids({"inputs": {"trials": []}}) == [],
+ 369:         ),
+ 370:         ("row shape independent", row["survivor"] == "survivor"),
+ 371:     ]
+ 372:     failed = [name for name, ok in checks if not ok]
+ 373:     for name, ok in checks:
+ 374:         print(f"{name}: {'ok' if ok else 'FAIL'}")
+ 375:     if failed:
+ 376:         print("SELFTEST FAILED: " + ", ".join(failed))
+ 377:         return 1
+ 378:     print("SELFTEST PASSED")
+ 379:     return 0
+ 380: 
+ 381: 
+ 382: def main() -> int:
+ 383:     parser = argparse.ArgumentParser()
+ 384:     parser.add_argument("--write", action="store_true", help=f"write {DEST.relative_to(REPO)}")
+ 385:     parser.add_argument("--selftest", action="store_true")
+ 386:     args = parser.parse_args()
+ 387: 
+ 388:     if args.selftest:
+ 389:         return selftest()
+ 390: 
+ 391:     report = build_report()
+ 392:     text = json.dumps(report, indent=1, ensure_ascii=False)
+ 393:     if args.write:
+ 394:         DEST.write_text(text + "\n", encoding="utf-8")
+ 395:     counts = report["counts"]
+ 396:     print(json.dumps(counts, indent=1, ensure_ascii=False))
+ 397:     for row in report["rows"]:
+ 398:         print(f"{row['status']}: {row['survivor']} <- {', '.join(row['retire'])}")
+ 399:         for proof in row["proofs"]:
+ 400:             print(
+ 401:                 "  {retired}: {leaves} leaves, current={current}, simulated={simulated}, "
+ 402:                 "payload={payload}, missing_trials={missing}".format(
+ 403:                     retired=proof["retired"],
+ 404:                     leaves=proof["leaves_in_original_retired_object"],
+ 405:                     current=proof["current_union_proven"],
+ 406:                     simulated=proof["simulated_union_proven"],
+ 407:                     payload=proof["absorbed_payload"]["payload_kind"],
+ 408:                     missing=len(proof["trials_not_in_survivor_inputs"]),
+ 409:                 )
+ 410:             )
+ 411:     expectations = report["expectation_checks"]
+ 412:     return 1 if counts["clusters_failed"] or not all(expectations.values()) else 0
+ 413: 
+ 414: 
+ 415: if __name__ == "__main__":
+ 416:     raise SystemExit(main())
+
+codex
+Findings:
+
+- **Check that cannot fail:** lines 171-175 and 207.  
+  Input: `row={"survivor":"s"}`, survivor object `{"inputs":{"trials":[{"nct":"NCT1"}]}}`, retired topic object `{"inputs":{"trials":[{"nct":"NCT1"}]},"lost":true}`.  
+  Consequence: `simulated_union_proven` is true because the code first inserts the retired object into `simulated`, so the payload-presence probe proves its own insertion.
+
+- **Check that cannot fail / vacuous all:** lines 227-231.  
+  Input: `adjudication["rows"]` containing 12 rows like `{"cluster":"c1","verdict":"MERGE","survivor":"s","retire":[]}` through `c12`, plus `ssot/s/s.json={"inputs":{"trials":[]}}`.  
+  Consequence: every empty-retire merge row gets `CURRENT_UNION_PROVEN` with zero retired-topic proofs.
+
+- **ZERO CONFLATED WITH ABSENT:** lines 76-78.  
+  Input: retired object `{"inputs":{"trials":[{"id":0}]},"k":"v"}` and survivor object `{"inputs":{"trials":[]},"absorbed_topics":{"r":{"THE_WHOLE_OBJECT_VERBATIM":{"inputs":{"trials":[{"id":0}]},"k":"v"}}}}`.  
+  Consequence: trial id `0` is dropped, so `missing_trials` is empty and `current_union_proven` can pass despite the survivor inputs lacking that trial.
+
+COULD NOT DETERMINE selector-keyed-to-corpus-form: missing actual `merge_adjudication.json` and `PAGE_MAP.json` corpus values.
+
+No proven finding from this file for string-a-fix-removes probes, comment/marker idempotency, different-copy instrumentation, CRLF text comparison, merged-cell/off-by-one tabulation, dropped negation, or subprocess-wrapper status codes.
+tokens used
+20,796
+Findings:
+
+- **Check that cannot fail:** lines 171-175 and 207.  
+  Input: `row={"survivor":"s"}`, survivor object `{"inputs":{"trials":[{"nct":"NCT1"}]}}`, retired topic object `{"inputs":{"trials":[{"nct":"NCT1"}]},"lost":true}`.  
+  Consequence: `simulated_union_proven` is true because the code first inserts the retired object into `simulated`, so the payload-presence probe proves its own insertion.
+
+- **Check that cannot fail / vacuous all:** lines 227-231.  
+  Input: `adjudication["rows"]` containing 12 rows like `{"cluster":"c1","verdict":"MERGE","survivor":"s","retire":[]}` through `c12`, plus `ssot/s/s.json={"inputs":{"trials":[]}}`.  
+  Consequence: every empty-retire merge row gets `CURRENT_UNION_PROVEN` with zero retired-topic proofs.
+
+- **ZERO CONFLATED WITH ABSENT:** lines 76-78.  
+  Input: retired object `{"inputs":{"trials":[{"id":0}]},"k":"v"}` and survivor object `{"inputs":{"trials":[]},"absorbed_topics":{"r":{"THE_WHOLE_OBJECT_VERBATIM":{"inputs":{"trials":[{"id":0}]},"k":"v"}}}}`.  
+  Consequence: trial id `0` is dropped, so `missing_trials` is empty and `current_union_proven` can pass despite the survivor inputs lacking that trial.
+
+COULD NOT DETERMINE selector-keyed-to-corpus-form: missing actual `merge_adjudication.json` and `PAGE_MAP.json` corpus values.
+
+No proven finding from this file for string-a-fix-removes probes, comment/marker idempotency, different-copy instrumentation, CRLF text comparison, merged-cell/off-by-one tabulation, dropped negation, or subprocess-wrapper status codes.

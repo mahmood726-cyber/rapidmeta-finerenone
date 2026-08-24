@@ -1,0 +1,341 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a031d2-78ac-7802-9118-cfb182d70b3f
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/grade_assess_2026_08_19.py
+
+--- THE FILE, IN FULL ---
+#!/usr/bin/env python3
+"""DO THE THIRD OF THE FOUR: GRADE, PER POOLED OUTCOME, EVERY RATING-DOWN STEP WITH ITS REASON.
+
+ONLY POOLED ESTIMATES ARE RATED. A withdrawn or declined pool has no effect estimate to rate
+the certainty OF, and rating one would be certainty about a number we refused to publish.
+Declined outcomes are listed with that as the reason.
+
+    START AT HIGH FOR RANDOMISED EVIDENCE, THEN RATE DOWN AND SAY WHY EACH TIME. A certainty
+    rating with no recorded steps is a number that cannot be argued with, which is the opposite
+    of what GRADE is for.
+
+THE FIVE DOMAINS, AND WHY THIS CORPUS HAS UNUSUALLY GOOD EVIDENCE FOR TWO OF THEM:
+
+  RISK OF BIAS      read from `evidence/.../rob2.json` -- the per-result assessment, not a
+                    guess. NOT ONE result in this corpus reaches LOW, because D5 cannot (no
+                    trial's analysis plan is held) and D1 cannot (allocation concealment is in
+                    neither the registration nor our fields). So every pool rates down at
+                    least one level here, and the reason is recorded as a limit on what we can
+                    reach rather than as a criticism of the trials.
+
+  INCONSISTENCY     I-squared AND, where it exists, the COMPONENT-LEVEL DIFFERENCE between the
+                    endpoints pooled. P36: heterogeneity can neither establish nor refute
+                    estimand coherence -- measured in both directions in one night -- so I2 is
+                    reported as ONE input and never as the test.
+
+  INDIRECTNESS      WHERE A POOL COMBINES COMPOSITES THAT DIFFER IN COMPONENTS, THAT IS A
+                    DOCUMENTED JUDGEMENT AND NOT AN ASSERTION. The component sets are already
+                    computed by `lint_composite_by_components.py` and the differences are
+                    recorded on the pages. A pool whose trials count different events is
+                    answering a slightly different question in each trial, which is what
+                    indirectness means.
+
+  IMPRECISION       an interval crossing the null with a wide ratio is rated, not argued away.
+                    And k is stated: AT k = 2 OR 3, tau-squared is estimated from almost no
+                    information and the interval is optimistic even when it looks tight.
+
+  PUBLICATION BIAS  at k < 10 a funnel plot and Egger's test have no power, so this is
+                    UNDETECTED rather than NOT PRESENT. The distinction is the whole of P24
+                    applied to a GRADE domain: an unreachable state is not a clean one.
+"""
+import io
+import json
+import math
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+EV = os.path.join(REPO, "evidence", "2026-08-19-batch1")
+DEST = os.path.join(EV, "grade.json")
+ROB = os.path.join(EV, "rob2.json")
+
+LEVELS = ["VERY_LOW", "LOW", "MODERATE", "HIGH"]
+
+AUTHORITY = {
+    "approach": "GRADE",
+    "reference": ("Schunemann H, Brozek J, Guyatt G, Oxman A (editors). GRADE Handbook for "
+                  "grading quality of evidence and strength of recommendations."),
+    "handbook_chapter": ("Cochrane Handbook for Systematic Reviews of Interventions version "
+                        "6.5.1, Chapter 14: Completing 'Summary of findings' tables and "
+                        "grading the certainty of the evidence"),
+    "checked_on": "2026-08-19",
+    "starting_point": "HIGH for a body of randomised evidence, then rated down with reasons.",
+    "not_rated_up": ("No domain is rated UP. Rating up for large effect or dose-response "
+                     "applies to observational evidence that has not already been rated down, "
+                     "and neither condition holds here."),
+}
+
+
+def down(cur, n, domain, reason, steps):
+    i = max(0, LEVELS.index(cur) - n)
+    steps.append({"domain": domain, "levels": -n, "from": cur, "to": LEVELS[i],
+                  "reason": reason})
+    return LEVELS[i]
+
+
+def rob_for(rob, topic, oid):
+    per = ((rob.get("by_topic") or {}).get(topic) or {}).get(oid) or {}
+    if not per:
+        return None, {}
+    tally = {}
+    for rec in per.values():
+        tally[rec["overall"]] = tally.get(rec["overall"], 0) + 1
+    return per, tally
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    with io.open(ROB, encoding="utf-8") as fh:
+        rob = json.load(fh)
+    topics = sys.argv[1:] or sorted((rob.get("by_topic") or {}).keys())
+    out = {}
+    for topic in topics:
+        p = os.path.join(REPO, "ssot", topic, topic + ".json")
+        if not os.path.exists(p):
+            continue
+        with io.open(p, encoding="utf-8") as fh:
+            obj = json.load(fh)
+        out[topic] = {}
+        for oid, blk in ((obj.get("results") or {}).get("by_outcome") or {}).items():
+            blk = blk or {}
+            pooled = blk.get("pooled") or {}
+            if pooled.get("point") is None:
+                out[topic][oid] = {"rated": False,
+                                   "why_not": ("This pool is declined or withdrawn, so there is "
+                                               "no effect estimate to rate the certainty OF. "
+                                               "Rating it would be certainty about a number "
+                                               "this review refused to publish. The reason for "
+                                               "the refusal is on the object.")}
+                continue
+            k = blk.get("k") or 0
+            het = blk.get("heterogeneity") or {}
+            i2 = het.get("i2")
+            lo, hi = pooled.get("ci_low"), pooled.get("ci_high")
+            steps, cur = [], "HIGH"
+
+            # --- RISK OF BIAS ---------------------------------------------------------
+            per, tally = rob_for(rob, topic, oid)
+            if per is None:
+                cur = down(cur, 1, "risk_of_bias",
+                           "No result-level RoB 2 assessment exists for this outcome, so risk "
+                           "of bias is NOT ASSESSED rather than absent. Rated down one level "
+                           "because unassessed is not low.", steps)
+            else:
+                ni = tally.get("NO_INFORMATION", 0)
+                low = tally.get("LOW", 0)
+                cur = down(cur, 1, "risk_of_bias",
+                           ("Result-level RoB 2 over %d contributing result(s): %s. NOT ONE "
+                            "reaches LOW -- D5 cannot, because no trial's statistical analysis "
+                            "plan is held, and D1 cannot, because allocation concealment is in "
+                            "neither the registration nor this object. %d have at least one "
+                            "domain at NO INFORMATION. This is a limit on what we can reach, "
+                            "not a finding against the trials."
+                            % (len(per), ", ".join("%s=%d" % kv for kv in sorted(tally.items())),
+                               ni)), steps)
+                if low:
+                    steps[-1]["reason"] += " (%d at LOW)" % low
+
+            # --- INCONSISTENCY --------------------------------------------------------
+            if k < 2:
+                steps.append({"domain": "inconsistency", "levels": 0, "from": cur, "to": cur,
+                              "reason": "k = %d: inconsistency cannot be assessed with a "
+                                        "single contributing result, and NOT ASSESSABLE is "
+                                        "recorded rather than 'no inconsistency'." % k})
+            elif i2 is not None and float(i2) >= 50:
+                cur = down(cur, 1, "inconsistency",
+                           "I-squared %.4g%% over k = %d. Rated down. I-squared is one input "
+                           "and never the test -- P36 -- but at this magnitude with a small k "
+                           "the point estimates genuinely disperse." % (float(i2), k), steps)
+            else:
+                steps.append({"domain": "inconsistency", "levels": 0, "from": cur, "to": cur,
+                              "reason": ("I-squared %s%% over k = %d: not rated down. A LOW "
+                                         "I-SQUARED DOES NOT SHOW THE TRIALS MEASURE THE SAME "
+                                         "THING (P36, measured in both directions in one "
+                                         "night); coherence is established by reading the "
+                                         "definitions, which is done under indirectness."
+                                         % (("%.4g" % float(i2)) if i2 is not None else "n/a", k))})
+
+            # --- INDIRECTNESS ---------------------------------------------------------
+            mismatch = None
+            for o in (obj.get("outcomes") or []):
+                if (o or {}).get("component_mismatch"):
+                    mismatch = o["component_mismatch"]
+            note = blk.get("relationship_to_the_other_pools") or blk.get("what_this_does_not_establish")
+            if mismatch:
+                cur = down(cur, 1, "indirectness",
+                           ("The pooled trials' endpoints differ in components (%s), recorded "
+                            "structurally on the object. A pool whose trials count different "
+                            "events answers a slightly different question in each trial, which "
+                            "is what indirectness means. THIS IS A DOCUMENTED JUDGEMENT, not "
+                            "an assertion." % ", ".join(mismatch)), steps)
+            else:
+                steps.append({"domain": "indirectness", "levels": 0, "from": cur, "to": cur,
+                              "reason": ("The contributing results share one endpoint "
+                                         "definition, verified by reading each trial's "
+                                         "registered text rather than by comparing names."
+                                         + ((" The object records what this does not "
+                                             "establish: " + str(note)[:220]) if note else ""))})
+
+            # --- IMPRECISION ----------------------------------------------------------
+            crosses = (lo is not None and hi is not None and
+                       ((lo < 1.0 < hi) if pooled.get("measure", "").upper() not in ("MD", "SMD")
+                        and (lo or 0) > 0 else (lo < 0 < hi)))
+            ratio = (hi / lo) if (lo and hi and lo > 0) else None
+            if crosses:
+                cur = down(cur, 1, "imprecision",
+                           "The %d%% interval (%.4g to %.4g) crosses the no-difference value, "
+                           "so the evidence is compatible with benefit and with harm. Rated "
+                           "down, not argued away."
+                           % (pooled.get("ci_level", 95), lo, hi), steps)
+            elif k <= 3:
+                cur = down(cur, 1, "imprecision",
+                           ("k = %d. The interval (%.4g to %.4g) does not cross the null, but "
+                            "at k = %d tau-squared is estimated from almost no information and "
+                            "a random-effects interval is optimistic even when it looks tight. "
+                            "Rated down for a small contributing set rather than reporting the "
+                            "number as if it were robust." % (k, lo, hi, k)), steps)
+            else:
+                steps.append({"domain": "imprecision", "levels": 0, "from": cur, "to": cur,
+                              "reason": "k = %d and the interval (%.4g to %.4g) excludes the "
+                                        "null%s." % (k, lo, hi,
+                                                     (" with a %.2g-fold width" % ratio) if ratio else "")})
+
+            # --- PUBLICATION BIAS -----------------------------------------------------
+            steps.append({"domain": "publication_bias", "levels": 0, "from": cur, "to": cur,
+                          "reason": ("k = %d. A funnel plot and Egger's test have no power "
+                                     "below k = 10, so publication bias is UNDETECTED rather "
+                                     "than ABSENT. Not rated down, and not reported as clean: "
+                                     "an unreachable state is not a passing one." % k)
+                          } if k < 10 else
+                         {"domain": "publication_bias", "levels": 0, "from": cur, "to": cur,
+                          "reason": "k = %d: small-study effects are assessable and no "
+                                    "asymmetry test is recorded on this object, so this is "
+                                    "NOT ASSESSED." % k})
+
+            out[topic][oid] = {
+                "rated": True, "certainty": cur, "k": k, "i2": i2,
+                "estimate": {"point": pooled.get("point"), "ci_low": lo, "ci_high": hi},
+                "started_at": "HIGH", "steps": steps,
+                "summary": " ".join("%s %+d" % (s["domain"], s["levels"]) for s in steps),
+            }
+            print("%-28s %-34s %-9s  k=%-2s I2=%-6s  %s"
+                  % (topic, oid[:34], cur, k, ("%.4g" % float(i2)) if i2 is not None else "n/a",
+                     " ".join("%s%+d" % (s["domain"][:5], s["levels"])
+                              for s in steps if s["levels"])))
+    tally = {}
+    for t, per in out.items():
+        for oid, r in per.items():
+            key = r.get("certainty") if r.get("rated") else "NOT_RATED_declined_pool"
+            tally[key] = tally.get(key, 0) + 1
+    print("\nCERTAINTY ACROSS ALL POOLED OUTCOMES")
+    for k in ("HIGH", "MODERATE", "LOW", "VERY_LOW", "NOT_RATED_declined_pool"):
+        if tally.get(k):
+            print("   %-26s %d" % (k, tally[k]))
+    with io.open(DEST, "w", encoding="utf-8") as fh:
+        fh.write(json.dumps({"assessed_utc": "2026-08-19", "authority": AUTHORITY,
+                             "by_topic": out}, indent=1))
+    print("\nwrote %s" % DEST)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+
+codex
+I’ll keep this to the requested defect shapes only, using the pasted module as the complete record and naming missing context only where needed.
+codex
+I’m checking the defects against the code paths that can be demonstrated from this file alone. Where a shape depends on the actual corpus JSON layout rather than this module, I’ll call that out instead of guessing.
+codex
+Defects found:
+
+- **Instrument reading a different copy/name than binding**: line 158.
+  Exact input: `ssot/T/T.json` has `results.by_outcome.A` and `results.by_outcome.B`, but `outcomes=[{"id":"B","component_mismatch":["death vs hospitalization"]}]`; run `grade_assess_2026_08_19.py T`.
+  Consequence: while grading outcome `A`, the code reads mismatch from unrelated outcome `B` and wrongly rates `A` down for indirectness.
+
+- **ZERO CONFLATED WITH ABSENT**: line 108.
+  Exact input: `{"results":{"by_outcome":{"A":{"pooled":{"point":1.2,"ci_low":1.1,"ci_high":1.3,"measure":"RR"}}}}}` with no `k`.
+  Consequence: missing contributor count is reported and reasoned about as real `k = 0`, producing bogus inconsistency/imprecision/publication-bias text.
+
+- **ZERO CONFLATED WITH ABSENT**: line 180.
+  Exact input: `{"k":4,"pooled":{"point":1.1,"ci_low":0.0,"ci_high":2.0,"measure":"RR"}}`.
+  Consequence: an RR interval that includes the null `1.0` is not detected as crossing because `0.0` is treated as falsy and the code switches to the zero-null branch.
+
+- **STATUS CODE REPORTING THE WRAPPER rather than the work**: lines 92-93 and 236.
+  Exact input: argv `["NO_SUCH_TOPIC"]`, `rob2.json` readable, and `ssot/NO_SUCH_TOPIC/NO_SUCH_TOPIC.json` absent.
+  Consequence: the requested topic is silently skipped, an output can still be written, and the process exits `0`.
+
+No defect found in this file for: probe keyed to string a fix removes; idempotency guard satisfied by own comment; CRLF/LF text comparison; merged-cell/off-by-one tabulation; negation dropped.
+
+COULD NOT DETERMINE: selector keyed to a form the corpus does not use requires the actual `ssot/*/*.json` corpus shape.
+tokens used
+13,261
+Defects found:
+
+- **Instrument reading a different copy/name than binding**: line 158.
+  Exact input: `ssot/T/T.json` has `results.by_outcome.A` and `results.by_outcome.B`, but `outcomes=[{"id":"B","component_mismatch":["death vs hospitalization"]}]`; run `grade_assess_2026_08_19.py T`.
+  Consequence: while grading outcome `A`, the code reads mismatch from unrelated outcome `B` and wrongly rates `A` down for indirectness.
+
+- **ZERO CONFLATED WITH ABSENT**: line 108.
+  Exact input: `{"results":{"by_outcome":{"A":{"pooled":{"point":1.2,"ci_low":1.1,"ci_high":1.3,"measure":"RR"}}}}}` with no `k`.
+  Consequence: missing contributor count is reported and reasoned about as real `k = 0`, producing bogus inconsistency/imprecision/publication-bias text.
+
+- **ZERO CONFLATED WITH ABSENT**: line 180.
+  Exact input: `{"k":4,"pooled":{"point":1.1,"ci_low":0.0,"ci_high":2.0,"measure":"RR"}}`.
+  Consequence: an RR interval that includes the null `1.0` is not detected as crossing because `0.0` is treated as falsy and the code switches to the zero-null branch.
+
+- **STATUS CODE REPORTING THE WRAPPER rather than the work**: lines 92-93 and 236.
+  Exact input: argv `["NO_SUCH_TOPIC"]`, `rob2.json` readable, and `ssot/NO_SUCH_TOPIC/NO_SUCH_TOPIC.json` absent.
+  Consequence: the requested topic is silently skipped, an output can still be written, and the process exits `0`.
+
+No defect found in this file for: probe keyed to string a fix removes; idempotency guard satisfied by own comment; CRLF/LF text comparison; merged-cell/off-by-one tabulation; negation dropped.
+
+COULD NOT DETERMINE: selector keyed to a form the corpus does not use requires the actual `ssot/*/*.json` corpus shape.

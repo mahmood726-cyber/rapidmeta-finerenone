@@ -1,0 +1,186 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a031b1-88b5-7fa0-995f-5f2debf8bf57
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/fix_evdata_null_map.py
+
+--- THE FILE, IN FULL ---
+"""Fix `evData.map(ev => ...)` failing on null entries in renderEvidencePanels.
+
+Bug: evData arrays sometimes contain null entries (likely from JSON
+serialization of incomplete evidence stubs). The .map callback then accesses
+`ev.text` and throws TypeError, breaking the Extraction tab.
+
+Fix: insert `.filter(Boolean)` between `evData` and `.map` so the callback
+never receives null/undefined. Idempotent — running twice is a no-op because
+the second run sees `evData.filter(Boolean).map(...)` and won't double-apply.
+
+Usage: python scripts/fix_evdata_null_map.py [--dry-run]
+"""
+from __future__ import annotations
+import sys, io, argparse, re
+from pathlib import Path
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+REPO = Path(__file__).resolve().parent.parent
+
+# Match `evData.map(ev =>` but NOT if `.filter(` is already chained before .map
+PATTERN = re.compile(r"\bevData\.map\(ev\s*=>")
+GUARDED = "evData.filter(Boolean).map(ev =>"
+
+# Negative-lookbehind for already-fixed: "evData.filter(Boolean).map" already shipping
+ALREADY_FIXED = re.compile(r"evData\.filter\(Boolean\)\.map\(ev\s*=>")
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--dry-run", action="store_true")
+    args = ap.parse_args()
+
+    files = sorted(REPO.glob("*_REVIEW.html"))
+    print(f"Scanning {len(files)} review HTMLs ...")
+
+    changed, already, no_match = 0, 0, 0
+    for hp in files:
+        text = hp.read_text(encoding="utf-8", errors="replace")
+        already_fixed_count = len(ALREADY_FIXED.findall(text))
+        # Find unguarded matches: any `evData.map(ev =>` NOT preceded by `.filter(Boolean)`
+        # Strategy: count all PATTERN matches, subtract already-fixed.
+        all_matches = PATTERN.findall(text)
+        unguarded = len(all_matches) - already_fixed_count
+        if unguarded == 0:
+            if already_fixed_count > 0:
+                already += 1
+            else:
+                no_match += 1
+            continue
+
+        # Apply fix only to unguarded occurrences. Walk and replace one by one.
+        new_text = text
+        # Use lookbehind-style replacement: replace occurrences where the
+        # preceding 22 chars do NOT contain ".filter(Boolean)".
+        out_chunks = []
+        i = 0
+        while i < len(new_text):
+            m = PATTERN.search(new_text, i)
+            if not m:
+                out_chunks.append(new_text[i:])
+                break
+            preceding = new_text[max(0, m.start() - 22): m.start()]
+            out_chunks.append(new_text[i: m.start()])
+            if ".filter(Boolean)" in preceding:
+                # already guarded — keep as-is
+                out_chunks.append(m.group(0))
+            else:
+                out_chunks.append(GUARDED)
+            i = m.end()
+        new_text = "".join(out_chunks)
+
+        if new_text != text:
+            changed += 1
+            print(f"  PATCH {hp.name}: {unguarded} occurrence(s)")
+            if not args.dry_run:
+                hp.write_text(new_text, encoding="utf-8")
+
+    print(f"\n=== Summary ===")
+    print(f"  Files patched:      {changed}")
+    print(f"  Already-fixed:      {already}")
+    print(f"  No `evData.map`:    {no_match}")
+    if args.dry_run:
+        print("\n  DRY RUN — no files written.")
+
+
+if __name__ == "__main__":
+    main()
+
+codex
+Line numbers counted from the pasted file.
+
+- **Merged/count defect**: line 43. Exact input in `a_REVIEW.html`: `evData.filter(Boolean).map(ev => ev.text); evData.map(ev => ev.text);` Consequence: `all_matches == 1`, `already_fixed_count == 1`, so `unguarded == 0` and the unguarded crash site is skipped.
+
+- **Idempotency guard satisfied by comment/marker**: lines 39 and 43. Exact input: `<!-- evData.filter(Boolean).map(ev => marker) -->\nevData.map(ev => ev.text)` Consequence: the comment is counted as an already-fixed occurrence, making the real unguarded occurrence disappear from the patch decision.
+
+- **Idempotency guard satisfied by unrelated marker**: line 64. Exact input: `x.filter(Boolean); evData.map(ev => ev.text)` Consequence: the preceding-window substring check treats unrelated prior text as the guard and leaves the unsafe `evData.map` unchanged.
+
+- **Selector keyed to too-narrow form**: line 21. Exact input: `evData.map( ev => ev.text)` or `evData.map((ev) => ev.text)` Consequence: common equivalent JavaScript forms are not matched, so null entries still reach the callback.
+
+- **Check that cannot fail**: COULD NOT DETERMINE; missing caller/gate that interprets this script’s zero exit or printed counts as a check.
+
+- **Probe keyed to string a fix removes**: COULD NOT DETERMINE; missing external probe/test harness.
+
+- **Instrument reading a different copy**: COULD NOT DETERMINE; missing expected HTML location and served/deployed target path.
+
+- **CRLF/LF text comparison**: no proven defect in the pasted module.
+
+- **Zero conflated with absent**: no proven defect in the pasted module.
+
+- **Negation dropped**: no negation-parsing logic present.
+
+- **Status code reporting wrapper instead of work**: no pipe/subprocess/wrapper status logic present.
+tokens used
+11,833
+Line numbers counted from the pasted file.
+
+- **Merged/count defect**: line 43. Exact input in `a_REVIEW.html`: `evData.filter(Boolean).map(ev => ev.text); evData.map(ev => ev.text);` Consequence: `all_matches == 1`, `already_fixed_count == 1`, so `unguarded == 0` and the unguarded crash site is skipped.
+
+- **Idempotency guard satisfied by comment/marker**: lines 39 and 43. Exact input: `<!-- evData.filter(Boolean).map(ev => marker) -->\nevData.map(ev => ev.text)` Consequence: the comment is counted as an already-fixed occurrence, making the real unguarded occurrence disappear from the patch decision.
+
+- **Idempotency guard satisfied by unrelated marker**: line 64. Exact input: `x.filter(Boolean); evData.map(ev => ev.text)` Consequence: the preceding-window substring check treats unrelated prior text as the guard and leaves the unsafe `evData.map` unchanged.
+
+- **Selector keyed to too-narrow form**: line 21. Exact input: `evData.map( ev => ev.text)` or `evData.map((ev) => ev.text)` Consequence: common equivalent JavaScript forms are not matched, so null entries still reach the callback.
+
+- **Check that cannot fail**: COULD NOT DETERMINE; missing caller/gate that interprets this script’s zero exit or printed counts as a check.
+
+- **Probe keyed to string a fix removes**: COULD NOT DETERMINE; missing external probe/test harness.
+
+- **Instrument reading a different copy**: COULD NOT DETERMINE; missing expected HTML location and served/deployed target path.
+
+- **CRLF/LF text comparison**: no proven defect in the pasted module.
+
+- **Zero conflated with absent**: no proven defect in the pasted module.
+
+- **Negation dropped**: no negation-parsing logic present.
+
+- **Status code reporting wrapper instead of work**: no pipe/subprocess/wrapper status logic present.

@@ -1,0 +1,248 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a0318d-72de-7b11-b0f7-094af3108b4c
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/ctgov_apply_counts.py
+
+--- THE FILE, IN FULL ---
+"""Apply the ctgov recheck verdicts to the suspect apps' realData.
+
+For every trial flagged by scripts/ctgov_recheck_counts.py:
+  FIXABLE_BINARY + clean ctgov 2x2  -> overwrite tE/tN/cE/cN with source counts
+  everything else (single-arm, continuous, ambiguous, no-results) -> NULL the
+      tE/tN/cE/cN (and any negative publishedHR) so the trial is honestly
+      non-poolable instead of carrying fabricated/impossible numbers.
+
+Safety:
+  * edits ONLY the numeric values of tE/tN/cE/cN/publishedHR inside the exact
+    span of the target trial object -- never reformats the block, never adds keys.
+  * idempotent (re-running is a no-op once applied).
+  * refuses to touch any app in BENCHMARK_PROTECT (curated/benchmarked apps).
+  * re-reads each file with the validator parser afterwards and reverts the file
+    if realData no longer parses.
+  * --dry-run by default; --apply to write.
+"""
+from __future__ import annotations
+import argparse, io, json, re, sys, importlib.util
+from pathlib import Path
+
+if hasattr(sys.stdout, "buffer") and getattr(sys.stdout, "encoding", "").lower() != "utf-8":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+HERE = Path(__file__).resolve().parent.parent
+CACHE = HERE / "outputs" / "ctgov_cache"
+REPORT = HERE / "outputs" / "ctgov_recheck_report.json"
+
+sys.path.insert(0, str(HERE / "scripts"))
+from _ctgov_extract import extract_2x2  # noqa: E402
+
+_spec = importlib.util.spec_from_file_location("vv", HERE / "validate_living_ma_portfolio.py")
+vv = importlib.util.module_from_spec(_spec); _spec.loader.exec_module(vv)
+
+# Never edit curated/benchmarked flagship apps.
+BENCHMARK_PROTECT = set(vv.BENCHMARKS.keys()) if hasattr(vv, "BENCHMARKS") else set()
+
+
+def _trial_span(html, nct):
+    """Return (start, end) of the `"NCT…": { … }` object in the realData block."""
+    rd = html.find("realData:")
+    if rd < 0:
+        return None
+    m = re.search(rf'["\']{re.escape(nct)}["\']\s*:\s*\{{', html[rd:])
+    if not m:
+        return None
+    obj_start = rd + m.end() - 1  # at the '{'
+    depth = 0
+    for k in range(obj_start, len(html)):
+        if html[k] == "{":
+            depth += 1
+        elif html[k] == "}":
+            depth -= 1
+            if depth == 0:
+                return (rd + m.start(), k + 1)
+    return None
+
+
+def _set_field(span_text, field, value):
+    """Replace `field: <num|null>` value inside one trial object's text."""
+    val = "null" if value is None else str(int(value) if float(value).is_integer() else value)
+    pat = re.compile(rf'(["\']?{field}["\']?\s*:\s*)(-?[\d.]+|null)')
+    new, n = pat.subn(rf'\g<1>{val}', span_text, count=1)
+    return new if n else span_text
+
+
+def apply_to_html(html, nct, counts):
+    """counts = dict(tE,tN,cE,cN) or None (=null all). Returns new html or None."""
+    span = _trial_span(html, nct)
+    if not span:
+        return None
+    s, e = span
+    body = html[s:e]
+    new_body = body
+    fields = {"tE": None, "tN": None, "cE": None, "cN": None} if counts is None else counts
+    for f, v in fields.items():
+        new_body = _set_field(new_body, f, v)
+    # also clear a negative publishedHR (the MD-in-HR artefact) when nulling
+    if counts is None and re.search(r'publishedHR["\']?\s*:\s*-[\d.]', new_body):
+        new_body = _set_field(new_body, "publishedHR", None)
+    if new_body == body:
+        return html  # nothing changed (idempotent)
+    return html[:s] + new_body + html[e:]
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--apply", action="store_true", help="write changes (default: dry-run)")
+    ap.add_argument("--limit", type=int, default=0)
+    args = ap.parse_args()
+
+    rep = json.loads(REPORT.read_text(encoding="utf-8"))
+    rows = rep["results"]
+    if args.limit:
+        rows = rows[:args.limit]
+
+    stats = {"fixed": 0, "nulled": 0, "skipped_protected": 0, "no_span": 0, "parse_revert": 0, "files": set()}
+    by_file = {}
+    for r in rows:
+        app = r["app"]
+        stem = app.replace("_REVIEW.html", "").replace(".html", "")
+        base = stem.split("_AUTO")[0]
+        if any(base.startswith(b) or b == base for b in BENCHMARK_PROTECT):
+            stats["skipped_protected"] += 1
+            continue
+        counts = None
+        if r["verdict"] == "FIXABLE_BINARY":
+            cf = CACHE / f"{r['nct']}.json"
+            if cf.exists():
+                got = extract_2x2(json.loads(cf.read_text(encoding="utf-8")))
+                if got:
+                    counts = {k: got[k] for k in ("tE", "tN", "cE", "cN")}
+        by_file.setdefault(app, []).append((r["nct"], counts))
+
+    for app, edits in by_file.items():
+        p = HERE / app
+        if not p.exists():
+            continue
+        html = p.read_text(encoding="utf-8", errors="replace")
+        orig = html
+        local_fixed = local_nulled = 0
+        for nct, counts in edits:
+            new = apply_to_html(html, nct, counts)
+            if new is None:
+                stats["no_span"] += 1
+                continue
+            if new != html:
+                html = new
+                if counts is None:
+                    local_nulled += 1
+                else:
+                    local_fixed += 1
+        if html != orig:
+            # validate: realData must still parse and contain trials
+            if not vv.extract_real_data(html):
+                stats["parse_revert"] += 1
+                continue
+            stats["fixed"] += local_fixed
+            stats["nulled"] += local_nulled
+            stats["files"].add(app)
+            if args.apply:
+                p.write_text(html, encoding="utf-8")
+
+    print(f"{'APPLIED' if args.apply else 'DRY-RUN'}:")
+    print(f"  trials fixed (source counts): {stats['fixed']}")
+    print(f"  trials nulled (honest non-poolable): {stats['nulled']}")
+    print(f"  protected (benchmarked) skipped: {stats['skipped_protected']}")
+    print(f"  no span found: {stats['no_span']}   parse-revert (file skipped): {stats['parse_revert']}")
+    print(f"  files touched: {len(stats['files'])}")
+
+
+if __name__ == "__main__":
+    main()
+
+codex
+- **ZERO CONFLATED WITH ABSENT**: lines 106-113.  
+  Exact input: report row `{"app":"a.html","nct":"NCT00000001","verdict":"FIXABLE_BINARY"}`, file `outputs/ctgov_cache/NCT00000001.json` absent, and `a.html` containing `realData: {"NCT00000001": {tE: 1, tN: 2, cE: 3, cN: 4}}`.  
+  Consequence: a trial classified as fixable is nulled instead of rejected as missing source counts.
+
+- **SELECTOR MATCHES WRONG FIELD**: line 62.  
+  Exact input: `apply_to_html('realData: {"NCT00000001": {"eventE": 9, "tE": 1, "tN": 2, "cE": 3, "cN": 4}}', 'NCT00000001', {"tE":0,"tN":2,"cE":3,"cN":4})`.  
+  Consequence: the regex matches `tE` inside `"eventE"` first, changes `"eventE": 0`, and leaves the actual `"tE": 1`.
+
+- **DIFFERENT COPY THAN THE ONE BEING CHANGED**: lines 41 and 44.  
+  Exact input: `apply_to_html('realData: {}\nconst ui = {"NCT00000001": {tE: 1, tN: 2, cE: 3, cN: 4}};', 'NCT00000001', None)`.  
+  Consequence: because the search runs from `realData:` to EOF, it edits a later non-realData object.
+
+- **IDEMPOTENCY GUARD HIDES FAILED WORK**: lines 49-55 and 81-82.  
+  Exact input: `apply_to_html('realData: {"NCT00000001": {note: "}", tE: 1, tN: 2, cE: 3, cN: 4}}', 'NCT00000001', None)`.  
+  Consequence: the brace scanner stops inside the string, no fields are changed, and the caller treats this as a no-op rather than a failed edit.
+
+- **STATUS CODE REPORTS WRAPPER, NOT WORK**: lines 124-126 and 144-149.  
+  Exact input: report row `{"app":"a.html","nct":"NCT00000001","verdict":"AMBIGUOUS"}` with `a.html` as `realData: {}`; run `python scripts/ctgov_apply_counts.py --apply`.  
+  Consequence: `no_span` increments but the process still exits success.
+
+No proven finding from this packet for: probe keyed to string a fix removes, CRLF/LF text comparison, merged-cell/off-by-one tabulation, or dropped negation.
+tokens used
+13,418
+- **ZERO CONFLATED WITH ABSENT**: lines 106-113.  
+  Exact input: report row `{"app":"a.html","nct":"NCT00000001","verdict":"FIXABLE_BINARY"}`, file `outputs/ctgov_cache/NCT00000001.json` absent, and `a.html` containing `realData: {"NCT00000001": {tE: 1, tN: 2, cE: 3, cN: 4}}`.  
+  Consequence: a trial classified as fixable is nulled instead of rejected as missing source counts.
+
+- **SELECTOR MATCHES WRONG FIELD**: line 62.  
+  Exact input: `apply_to_html('realData: {"NCT00000001": {"eventE": 9, "tE": 1, "tN": 2, "cE": 3, "cN": 4}}', 'NCT00000001', {"tE":0,"tN":2,"cE":3,"cN":4})`.  
+  Consequence: the regex matches `tE` inside `"eventE"` first, changes `"eventE": 0`, and leaves the actual `"tE": 1`.
+
+- **DIFFERENT COPY THAN THE ONE BEING CHANGED**: lines 41 and 44.  
+  Exact input: `apply_to_html('realData: {}\nconst ui = {"NCT00000001": {tE: 1, tN: 2, cE: 3, cN: 4}};', 'NCT00000001', None)`.  
+  Consequence: because the search runs from `realData:` to EOF, it edits a later non-realData object.
+
+- **IDEMPOTENCY GUARD HIDES FAILED WORK**: lines 49-55 and 81-82.  
+  Exact input: `apply_to_html('realData: {"NCT00000001": {note: "}", tE: 1, tN: 2, cE: 3, cN: 4}}', 'NCT00000001', None)`.  
+  Consequence: the brace scanner stops inside the string, no fields are changed, and the caller treats this as a no-op rather than a failed edit.
+
+- **STATUS CODE REPORTS WRAPPER, NOT WORK**: lines 124-126 and 144-149.  
+  Exact input: report row `{"app":"a.html","nct":"NCT00000001","verdict":"AMBIGUOUS"}` with `a.html` as `realData: {}`; run `python scripts/ctgov_apply_counts.py --apply`.  
+  Consequence: `no_span` increments but the process still exits success.
+
+No proven finding from this packet for: probe keyed to string a fix removes, CRLF/LF text comparison, merged-cell/off-by-one tabulation, or dropped negation.

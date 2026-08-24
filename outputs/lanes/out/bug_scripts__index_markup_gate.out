@@ -1,0 +1,541 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a031d8-216f-7d11-9070-16de9e3c41cf
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/index_markup_gate.py
+
+--- THE FILE, IN FULL ---
+"""INDEX MARKUP GATE -- is the root index's link tree well formed, and do its cards point at pages that exist?
+
+WHY THIS EXISTS
+    On 2026-08-17 the FINERENONE card was superseded and a new card added beside
+    it. The edit rewrote the old card's <span class="pub"> text but never closed
+    it, so the NEW card was emitted INSIDE the old card's anchor:
+
+        <a href="FINERENONE_REVIEW.html" ...><span class="pub">Superseded ...
+            <a href="FINERENONE_CV_REVIEW.html" ...>...</a></span></a>
+
+    An <a> inside an <a> is not valid HTML and no two browsers repair it the same
+    way. The root index is the definition of done -- the surface Mahmood actually
+    checks -- and it shipped with the new card reachable only by accident.
+
+    Worse than the defect: MY OWN VERIFICATION SAID "ABSENT" FOR THE OLD CARD AND
+    I ALMOST REPORTED SUCCESS ANYWAY, because the regex for the new card happened
+    to match the inner anchor. The check that found the new card was passing for
+    a reason unrelated to correctness. That is the fifth instance this week of a
+    check reporting success without having performed the check, and the reason
+    this gate tests STRUCTURE (a stack of open anchors) rather than presence.
+
+    The repo has carried a div-balance rule for large HTML apps since long before
+    this. Nobody had attached the same idea to the index, which is the one file
+    edited by hand on nearly every deploy.
+
+WHAT A FULL PASS DOES NOT ESTABLISH -- written in advance
+    - NOT that the card TEXT is true. A perfectly nested card can quote an
+      estimate that no longer matches the page; card_alignment_gate owns that,
+      and this gate passing says nothing about it.
+    - NOT that a page which SHOULD have a card has one. This walks the cards that
+      exist; it cannot see a review that was never linked.
+    - NOT that the linked page is correct, current, or non-superseded -- only
+      that the file is there to be served.
+    - NOT that the rest of the index's markup is valid. It checks anchor nesting
+      and card->file resolution, not tables, headings or scripts.
+"""
+from __future__ import annotations
+import os, re, sys, io
+
+# Guarded: reassigning stdout AT IMPORT closes the caller's wrapper and the
+# importer dies on "I/O operation on closed file" at its next print.
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+SSOT = r"F:\rapidmeta-ssot-shell"
+ANCHOR = re.compile(r"<a\b[^>]*>|</a\s*>", re.I)
+HREF = re.compile(r'href\s*=\s*["\']([^"\']+)["\']', re.I)
+
+
+SCRIPTY = re.compile(r"<(script|style)\b[^>]*>.*?</\1\s*>", re.I | re.S)
+
+
+def _markup_only(html):
+    """Blank out <script>/<style> bodies, PRESERVING LENGTH so reported offsets
+    still point into the real file. The index's own chip-injector contains the
+    string '<a> inside <a>' in a comment explaining why it avoids exactly this
+    defect -- and the first run of this gate flagged that comment as the defect.
+    The repo's div-balance rule has always carried the same 'exclude JS' caveat;
+    it had to be rediscovered here because the rule was prose, not code."""
+    return SCRIPTY.sub(lambda m: " " * len(m.group(0)), html)
+
+
+def nesting_faults(html):
+    """-> list of (offset, href_of_inner, href_of_outer) for every <a> opened
+    while another <a> is still open. Stack-based: a fragment test cannot see
+    this, because each anchor is individually well formed."""
+    stack, faults = [], []
+    for m in ANCHOR.finditer(_markup_only(html)):
+        tok = m.group(0)
+        if tok.lower().startswith("</"):
+            if stack:
+                stack.pop()
+        else:
+            h = HREF.search(tok)
+            href = h.group(1) if h else "(no href)"
+            if stack:
+                faults.append((m.start(), href, stack[-1]))
+            stack.append(href)
+    return faults, len(stack)
+
+
+def dead_cards(html, root):
+    """Card hrefs that resolve to no file on disk. Local targets only."""
+    dead = []
+    for m in re.finditer(r'<a\b[^>]*class\s*=\s*["\'][^"\']*\bcard\b[^"\']*["\'][^>]*>', html, re.I):
+        h = HREF.search(m.group(0))
+        if not h:
+            continue
+        u = h.group(1).split("#")[0].split("?")[0]
+        if not u or u.startswith(("http", "mailto:", "data:", "//")):
+            continue
+        if not os.path.exists(os.path.join(root, u.replace("/", os.sep))):
+            dead.append(u)
+    return sorted(set(dead))
+
+
+def check(path, root=None):
+    root = root or os.path.dirname(os.path.abspath(path))
+    html = open(path, encoding="utf-8", errors="replace").read()
+    faults, unclosed = nesting_faults(html)
+    dead = dead_cards(html, root)
+    verdict = "FAIL" if (faults or unclosed or dead) else "PASS"
+    return verdict, faults, unclosed, dead
+
+
+def main():
+    if len(sys.argv) > 1 and sys.argv[1] == "--selftest":
+        return selftest()
+    path = sys.argv[1] if len(sys.argv) > 1 else os.path.join(SSOT, "index.html")
+    v, faults, unclosed, dead = check(path)
+    print("%s" % os.path.basename(path))
+    print("  nested anchors : %d" % len(faults))
+    if len(faults) > 1:
+        print("      (FIX THE FIRST ONE. A single unclosed anchor makes every card after it "
+              "look nested; the rest of this list is cascade, not %d separate defects.)" % len(faults))
+    for off, inner, outer in faults[:10]:
+        print("      at %d  <a href=%s> opened inside <a href=%s>" % (off, inner, outer))
+    print("  unclosed <a>   : %d" % unclosed)
+    print("  dead card links: %d %s" % (len(dead), dead[:6] if dead else ""))
+    print("  -> %s" % v)
+    return 0 if v == "PASS" else 1
+
+
+def selftest():
+    """POSITIVE: the real 2026-08-17 defect, verbatim. NEGATIVE: the repaired
+    index, and a card whose target genuinely exists."""
+    ok = True
+    BROKEN = ('<div class="grid">\n'
+              '<a href="FINERENONE_REVIEW.html" class="card ckd"><span class="name">Finerenone (FIDELITY)'
+              '</span><span class="pub">Superseded &mdash; rebuilt from source as '
+              '<a href="FINERENONE_CV_REVIEW.html">Finerenone CV composite</a>\n'
+              '<a href="FINERENONE_CV_REVIEW.html" class="card ckd"><span class="name">Finerenone CV'
+              '</span><span class="pub">Published: HR 0.8655</span></a></span></a>\n</div>')
+    faults, unclosed = nesting_faults(BROKEN)
+    good = len(faults) == 2
+    ok &= good
+    print("  POSITIVE the real nested-card defect        -> %d nested anchor(s) %s"
+          % (len(faults), "correct" if good else "WRONG (expected 2)"))
+    for off, inner, outer in faults:
+        print("        <a href=%s> inside <a href=%s>" % (inner, outer))
+
+    # Written out in full, NOT derived from BROKEN by str.replace. Deriving it
+    # was the first attempt and both replaces silently no-opped, so the negative
+    # fixture was the positive fixture and the selftest "failed" for the wrong
+    # reason. str.replace returns a copy whether or not it matched; a fixture
+    # that can quietly become a duplicate of its own opposite proves nothing.
+    REPAIRED = ('<div class="grid">\n'
+                '<a href="FINERENONE_REVIEW.html" class="card ckd"><span class="name">Finerenone (FIDELITY)'
+                '</span><span class="pub">Superseded &mdash; rebuilt from source as Finerenone CV composite'
+                '</span></a>\n'
+                '<a href="FINERENONE_CV_REVIEW.html" class="card ckd"><span class="name">Finerenone CV'
+                '</span><span class="pub">Published: HR 0.8655</span></a>\n</div>')
+    assert REPAIRED != BROKEN, "negative fixture is identical to the positive one"
+    faults2, unclosed2 = nesting_faults(REPAIRED)
+    good2 = not faults2
+    ok &= good2
+    print("  NEGATIVE the same cards, correctly closed   -> %d nested anchor(s) %s"
+          % (len(faults2), "correct" if good2 else "WRONG"))
+
+    live = os.path.join(SSOT, "index.html")
+    if os.path.exists(live):
+        v, f, u, d = check(live)
+        ok &= v == "PASS"
+        print("  NEGATIVE the live root index                -> %-4s %s"
+              % (v, "correct" if v == "PASS" else "WRONG: nested=%d unclosed=%d dead=%s" % (len(f), u, d[:4])))
+
+    print("\nWHAT A FAILURE WOULD LOOK LIKE: the nested-card defect passing, which is "
+          "exactly what shipped to the root index and what my own presence-regex "
+          "reported as fine; or the repaired index failing, because a gate nobody "
+          "can satisfy gets bypassed and then rots.")
+    print("-> SELFTEST PASS" if ok else "-> SELFTEST FAILED")
+    return 0 if ok else 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+
+codex
+I’ll verify line numbers against the workspace copy, then I’ll keep the response limited to proven defect shapes from the pasted module.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Get-Content -Path F:\\E156\\rewrite-workbook.txt -TotalCount 40" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Get-Content -Path F:\\ProjectIndex\\INDEX.md -TotalCount 40" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=1; Get-Content -Path scripts'"\\index_markup_gate.py | ForEach-Object { '{0,4}: {1}' -f "'$i, $_; $i++ }' in F:\rapidmeta-ssot-shell
+ succeeded in 435ms:
+E156 REWRITE WORKBOOK
+sentinel:skip-file
+sentinel:claim-language-allow
+(Sentinel markers above:
+ - sentinel:skip-file: this workbook intentionally contains C:\Users\... PATH:
+   lines pointing to each project's local source directory â€” they're metadata,
+   not code. The marker keeps Sentinel from emitting ~16 P0 hardcoded-path
+   BLOCKs every push.
+ - sentinel:claim-language-allow: CURRENT BODY entries are the AI-drafted
+   summaries that students rewrite into hedged language â€” flagging overclaim
+   words IN those drafts is the whole pedagogical point, not a defect.
+   File-scope marker here suppresses the ~1293 claim-language WARNs on the
+   CURRENT BODY entries; the YOUR REWRITE entries are where the hedging
+   discipline matters and remains lintable in the rendered student board.)
+
+DENOMINATOR CONVENTION (added 2026-05-06 after review-findings P1-5):
+  Each entry header is `[N/total]` where N = ordinal insertion index and
+  `total` = current portfolio size as of the most recent reconcile sweep.
+  Older entries are back-rewritten on milestone boundaries (rather than
+  preserving their insertion-time denominator) to keep
+  reconcile_counts.py from flagging "WORKBOOK DRIFT". The pre-commit
+  guard (scripts/check_workbook_commit.py) blocks commits that bundle a
+  denominator sweep with substantive content edits to existing entries.
+
+======================================================================
+
+INSTRUCTIONS:
+- Replace text under YOUR REWRITE with your body (at most 156 words, 7 sentences)
+- S1=Question S2=Dataset S3=Method S4=Result(number+interval) S5=Robustness S6=Interpretation S7=Boundary(limitation)
+- Leave YOUR REWRITE blank to keep current version
+- Run: python C:/E156/scripts/apply_rewrites.py          (validate)
+- Run: python C:/E156/scripts/apply_rewrites.py --apply (apply)
+
+AUTHORSHIP RULE (mandatory for every submission):
+- Mahmood Ahmad (MA) must NEVER be listed as first author and NEVER as
+  last (senior) author. The student rewriter is first author. Last/senior
+  author must be a faculty supervisor or co-investigator distinct from MA.
+  MA's position is middle-author only (e.g. role: data curation, software,
+  methodology, supervision-of-tooling). This applies to every paper in
+  this workbook regardless of contribution depth.
+
+ succeeded in 482ms:
+<!-- sentinel:skip-file - portfolio registry; absolute paths ARE the data -->
+# C: Drive Project Index
+> **Last updated**: 2026-05-14 (C:\HTML apps focused repair batch continued: hub shell launch fix, static contracts across ten HTML app repos, NMA/living-meta/nma-dose-response landing and asset-link repairs, and NMA doc hardcoded-path cleanup. Prior SheafNMA v0.2.0, D-drive legacy smoke-contract continuation, CardioOracle lifecycle status freeze, C-drive model/project smoke-contract continuation, mahmood789 consolidation, Sentinel/Overmind JSONL and verification repair, C-drive reproducibility audit continuation, C-drive verification repair, D-drive repair batch, superapp, C-drive sweep, home-folder hardening, Trial Truthfulness Atlas, and portfolio notes retained below.)
+
+### C:\HTML apps focused repair batch (2026-05-14)
+> - `C:\HTML apps\hub\`: added a launchable `index.html` shell and static contract tests for required registry/runtime wiring; fixed `app.js` local `file://` launch resolution so the hub opened from `hub\index.html` links sibling apps from the parent HTML-apps directory instead of nesting paths under `hub`. Verification: `pytest -q -p no:cacheprovider` -> `3 passed`; `node --check app.js && node --check projects.js` -> PASS; headless Chrome smoke on `file:///mnt/c/HTML%20apps/hub/index.html` confirmed the page title and sibling app links. GitHub pushed: `mahmood726-cyber/hub` main `c1a6725`.
+> - `C:\HTML apps\evidence-board\`, `C:\HTML apps\focus-studio\`, `C:\HTML apps\kanban-lab\`: added pytest-visible static app shell contracts covering title/description, localStorage persistence hooks, key controls, and absence of unresolved templates or hardcoded local drive paths; added repo `.gitignore` entries for Python caches and `PROGRESS.md`. Verification: each `pytest -q -p no:cacheprovider` -> `2 passed` with the existing pytest `cache_dir` warning; scoped `git diff --check` -> PASS. GitHub pushed: `evidence-board` master `9a87c8b`, `focus-studio` master `0fa728b`, `kanban-lab` master `81cad38`.
+> - `C:\HTML apps\nma-pro-v2\`: fixed the landing page's broken app links from absent v6/v7 asset filenames to the current `e156-submission/assets/nma-pro-v8.0.html`, added static link-resolution contracts, and removed Sentinel P0 hardcoded local OneDrive paths from legacy docs. Verification: `pytest -q -p no:cacheprovider tests/test_smoke.py tests/test_static_links.py` -> `3 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=1 INFO=302` (pre-existing tracked autogen warning plus HTML a11y INFO). GitHub pushed: master `a2834e7` for the link fix and master `a74e385` for the P0 doc cleanup.
+> - `C:\HTML apps\IPD-Meta-Pro\` and `C:\HTML apps\Truthcert1\`: added static link-resolution contracts for landing-page local assets and canonical app entrypoints. Verification: `IPD-Meta-Pro` `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; `Truthcert1` same command -> `2 passed` with existing pytest `cache_dir` warning. GitHub pushed: `IPD-Meta-Pro` master `b26ee09`, `Truthcert1` master `81eddd3`.
+> - `C:\HTML apps\living-meta\`: repaired landing-page validation links that pointed to a missing HTML asset and an out-of-repo sibling path; linked the existing validation and limitations docs instead, and added a static link-resolution contract. Verification: `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=8` (pre-existing HTML a11y INFO). GitHub pushed: master `c3c8a9b`.
+> - `C:\HTML apps\Pairwiseai\`: added a static landing-page contract covering local link resolution, absence of unresolved templates/local drive paths, and the key app entrypoints under `e156-submission/assets`. Verification: `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=1731` (pre-existing HTML a11y INFO). GitHub pushed: master `2ade493`.
+> - `C:\HTML apps\nma-dose-response-app\`: pushed the existing smoke-blocker commit and added an E156 asset-bundle repair so `e156-submission\assets\index*.html` resolves its JS runtime dependencies from inside the assets folder; added a static link-resolution contract covering root and E156 app entrypoints. Verification: `pytest -q -p no:cacheprovider tests/test_smoke.py tests/test_static_links.py` -> `4 passed` with the existing pytest `cache_dir` warning; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=442` (pre-existing HTML a11y INFO). GitHub pushed: master `e95fae0` and `96594b6`.
+> - Push gate: Windows Git credential path succeeded after WSL Git lacked HTTPS credentials. Sentinel pre-push/manual scan verdicts were BLOCK=0; evidence-board INFO=18, focus-studio INFO=10, kanban-lab INFO=10, living-meta INFO=8, Pairwiseai INFO=1731, nma-dose-response-app INFO=442 (pre-existing P2 HTML accessibility notes); hub push emitted no Sentinel findings.
+> - Existing unrelated dirty files were left unstaged in these repos, mainly protocol/license/doc edits and untracked `paper\` outputs in the three app repos, plus pre-existing hub metadata/submission/style edits.
+
+### SheafNMA (2026-05-12; v0.2.0 real-NMA-corpus validation + 36-cell Ã— 1000-rep simulation + methods paper draft)
+> - `C:\Models\SheafNMA\` â€” cellular-sheaf inconsistency localization for network meta-analysis. v0.1.0 (2026-04-07) was math + single-file HTML dashboard + E156 #153 micro-paper on a synthetic 12-contrast network. v0.2.0 refactored the 457-LOC `generate_figures.py` into a `sheafnma/` package (`core`, `io`, `simulate`, `comparators`, `r_bridge`), validated on 13 R-netmeta built-in NMAs, and shipped a methods-paper draft for Research Synthesis Methods.
+> - Method: precision-weighted coboundary `F[e, treat1] = -1/SE_e, F[e, treat2] = +1/SE_e`; sheaf Laplacian `L = Fáµ€F` (symmetric PSD); WLS-solve node estimates with node 0 anchored; per-edge residuals `r_e = dÌƒ_e âˆ’ (F x*)_e` localize inconsistency; **Global Inconsistency Index** `GII = Î£ rÂ²` is the global statistic. One algebraic object yields both global + per-edge â€” complements (not replaces) node-splitting.
+> - Real-corpus headline: across **13 R-netmeta built-in NMAs** (Senn 2013 diabetes, Dias smokingcessation, Dong 2013 thrombolytics, Linde 2015/2016 acupuncture, Salanti antimanic, Baker, Dogliotti, Franchini, Gurusamy, Stowe, Woods, dietaryfat, parkinson) the global design-by-treatment Ï‡Â² (Higgins 2012) failed to reject in all 13. **SheafNMA flagged â‰¥1 localized inconsistency edge in 5 of those 13 (38.5%)** at the Youden-frozen threshold of **2.6912** â€” networks that look globally consistent harbor at least one inconsistent edge the global test misses.
+> - Simulation rigor: 36-cell grid (n_treatments âˆˆ {4,6,8} Ã— n_studies_per_edge âˆˆ {3,5,10} Ã— Ï„_inc âˆˆ {0,0.2,0.5,1.0}) Ã— **1000 replications per cell**, held-out training cell at (6,5,0.5) for Youden's-J threshold selection (frozen before evaluating remaining 35 cells). Type-I error at Ï„_inc=0 was **0.000 across all cells**. Mean per-edge sensitivity 0.981 / specificity 0.945 at Ï„_inc=0.5.
+> - Comparator suite: DBT-Ï‡Â² (Higgins 2012 Â§3.2, pure-Python), Bucher loop closure (Bucher 1997, pure-Python), node-splitting (Dias 2010, via `netmeta::netsplit` shelled to R 4.5.2). Per-edge agreement with node-splitting was 45.4% â€” asymmetric: SheafNMA flags 12/506 = 2.4% of edges vs node-splitting's 250/436 = 57% at p<0.05 Bonferroni-uncorrected (the calibrated Youden cut is much more conservative than a per-edge Î±-test). Â§4.2 of the paper explicitly explains this rather than presenting the 45.4% bare.
+> - Corpus export: `corpus/export_netmeta.R` handles 7 distinct netmeta dataset formats (contrast-level TE/seTE, arm-based event/n, arm-based mean/sd/n, wide multi-arm OR/MD, three-arm smokingcessation, rate-based IRR/person-years) and exports all 13 to `corpus/data/*.csv` in the sheafnma standard schema (`study, treat1, treat2, effect, se`).
+> - GitHub: `https://github.com/mahmood726-cyber/sheaf-nma` (master `6c7db13`, tag `v0.2.0`). Pages LIVE: `https://mahmood726-cyber.github.io/sheaf-nma/` (Phase-1 dashboard unchanged in v0.2). 33 tests passing; Sentinel BLOCK=0 WARN=0 (2 INFO = pre-existing HTML a11y items in the v0.1 dashboard).
+> - Workbook entry: `[153/919] SheafNMA`. CURRENT BODY updated 2026-05-12 to the v0.2 156-word / 7-sentence body (replaces v0.1 synthetic-"smoking cessation" framing with the real netmeta corpus). SUBMITTED `[ ]`; YOUR REWRITE preserved untouched per workbook protection rules. Target: Research Synthesis Methods full methods paper (`paper/sheafnma_v2.md`, 1190 words drafted; [TODO] prose blocks in Â§1 Background / Â§4.3 case studies / Â§5 Discussion) + SynthÄ“sis Methods Note companion (`paper/methods_note.md`, 156-word).
+> - Known landmine: `Dong2013` netsplit fails inside netmeta's multi-arm validator ("wrong number of comparisons"); SheafNMA + DBT + Bucher still run on it, only `netsplit_p` column is blank for its 70 edges.
+> - v0.2 deferrals (spec Â§10): multi-arm covariance correction (single-D stalks only), higher-D stalks (Phase 1 Â§3.4 future work), Bayesian sheaf priors, OTS / Bitcoin anchor (broken on Py 3.13 Windows per `lessons.md`).
+
+### hksj-q-floor-atlas (2026-05-12; 8th Pairwise70 atlas; tags prereg-v0.0.1 + v0.1.0)
+> - `C:\Projects\hksj-q-floor-atlas\` â€” 8th calibration atlas in the Pairwise70 series. Sister to `cochrane-modern-re` (engine source), `repro-floor-atlas`, `responder-floor-atlas`, `trial-truthfulness-atlas`, `africa-tb-atlas`, `pactr-hiddenness-atlas`, `africa-hiv-prep-atlas`.
+> - Question: how often does omitting the `max(1, Q/(k-1))` floor on HKSJ variance, in the I^2=0 regime where un-floored HKSJ narrows below REML+Wald, overstate precision across the Cochrane CDSR? Pre-registered via `prereg-v0.0.1` tag + 4 Internet Archive snapshots (Bitcoin OTS deferred â€” Python 3.13 SSL libeay32 bug per lessons.md; web-stamper fallback documented).
+> - Headline: D_1 (I^2=0, k>=2, converged) = 3,677 MAs = 57.6% of corpus. On D_1a (Q>0, n=3,536): median CI-width ratio (floored / un-floored) = 3.64x (IQR 1.60-10.56; 95th pct 57.4x); significance lost in 17.08% of MAs. D_1b (Q=0, n=141 = 3.83% of D_1): sig_loss 24.8%, ratio unbounded â€” un-floored HKSJ SE is exactly zero (the floor effect is unbounded); see `docs/AMENDMENTS.md` entry 1 for split rationale.
+> - Per k-stratum medians: k=2: 4.26x (sig_loss 8.6%); k=3: 3.64x (12.9%); k=4-5: 3.10x (13.1%); k=6-9: 3.18x (17.3%); k>=10: 3.80x (25.1%). sig_loss increases with k because higher-k pooled effects sit closer to null, so floor widening crosses zero more often.
+> - Engine: independent metafor pass via fork of cochrane-modern-re's `run_metafor.R` minus the floor block. Input parquet SHA-256 pinned in `docs/spec.md` sec.1.5 (`31434fb118c6ec44a025eeb43a90e35ef9e050711fa45aa2cb5c1244b2d89751`). 3 hand-verified golden MAs match metafor reference within 1e-6.
+> - GitHub: `https://github.com/mahmood726-cyber/hksj-q-floor-atlas` (master + tags `prereg-v0.0.1` and `v0.1.0`). Pages LIVE: `https://mahmood726-cyber.github.io/hksj-q-floor-atlas/`.
+> - 64 tests; Sentinel BLOCK=0 WARN=0 INFO=0; 7 IA snapshots recorded in `docs/preregistration.md`.
+> - Workbook entry: `[920/920] hksj-q-floor-atlas`; target SynthÄ“sis Methods Note (340w draft, â‰¤400 cap).
+> - v0.2 candidates (NOT in v0.1.0): published-CI matching ("is THIS Cochrane review wrong?"), PM/SJ/Bayesian Ï„Â² robustness, DL re-pooling, Bitcoin OTS once Python 3.13 issue is resolved.
+
+### D-drive legacy smoke-contract continuation (2026-05-12)
+> - `D:\Projects\mahmood789\786-MIII-Mean-single-group\`: fixed the placeholder issue-tracker link in `README.md` and added a pytest-visible static contract for the Shiny app package surface, sample-data schema, metafor workflow, downloads, and absence of local paths/template links. Verification: `pytest -q -p no:cacheprovider` -> `2 passed`; `git diff --check` -> PASS.
+
+ succeeded in 1567ms:
+   1: """INDEX MARKUP GATE -- is the root index's link tree well formed, and do its cards point at pages that exist?
+   2: 
+   3: WHY THIS EXISTS
+   4:     On 2026-08-17 the FINERENONE card was superseded and a new card added beside
+   5:     it. The edit rewrote the old card's <span class="pub"> text but never closed
+   6:     it, so the NEW card was emitted INSIDE the old card's anchor:
+   7: 
+   8:         <a href="FINERENONE_REVIEW.html" ...><span class="pub">Superseded ...
+   9:             <a href="FINERENONE_CV_REVIEW.html" ...>...</a></span></a>
+  10: 
+  11:     An <a> inside an <a> is not valid HTML and no two browsers repair it the same
+  12:     way. The root index is the definition of done -- the surface Mahmood actually
+  13:     checks -- and it shipped with the new card reachable only by accident.
+  14: 
+  15:     Worse than the defect: MY OWN VERIFICATION SAID "ABSENT" FOR THE OLD CARD AND
+  16:     I ALMOST REPORTED SUCCESS ANYWAY, because the regex for the new card happened
+  17:     to match the inner anchor. The check that found the new card was passing for
+  18:     a reason unrelated to correctness. That is the fifth instance this week of a
+  19:     check reporting success without having performed the check, and the reason
+  20:     this gate tests STRUCTURE (a stack of open anchors) rather than presence.
+  21: 
+  22:     The repo has carried a div-balance rule for large HTML apps since long before
+  23:     this. Nobody had attached the same idea to the index, which is the one file
+  24:     edited by hand on nearly every deploy.
+  25: 
+  26: WHAT A FULL PASS DOES NOT ESTABLISH -- written in advance
+  27:     - NOT that the card TEXT is true. A perfectly nested card can quote an
+  28:       estimate that no longer matches the page; card_alignment_gate owns that,
+  29:       and this gate passing says nothing about it.
+  30:     - NOT that a page which SHOULD have a card has one. This walks the cards that
+  31:       exist; it cannot see a review that was never linked.
+  32:     - NOT that the linked page is correct, current, or non-superseded -- only
+  33:       that the file is there to be served.
+  34:     - NOT that the rest of the index's markup is valid. It checks anchor nesting
+  35:       and card->file resolution, not tables, headings or scripts.
+  36: """
+  37: from __future__ import annotations
+  38: import os, re, sys, io
+  39: 
+  40: # Guarded: reassigning stdout AT IMPORT closes the caller's wrapper and the
+  41: # importer dies on "I/O operation on closed file" at its next print.
+  42: if __name__ == "__main__":
+  43:     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+  44: 
+  45: SSOT = r"F:\rapidmeta-ssot-shell"
+  46: ANCHOR = re.compile(r"<a\b[^>]*>|</a\s*>", re.I)
+  47: HREF = re.compile(r'href\s*=\s*["\']([^"\']+)["\']', re.I)
+  48: 
+  49: 
+  50: SCRIPTY = re.compile(r"<(script|style)\b[^>]*>.*?</\1\s*>", re.I | re.S)
+  51: 
+  52: 
+  53: def _markup_only(html):
+  54:     """Blank out <script>/<style> bodies, PRESERVING LENGTH so reported offsets
+  55:     still point into the real file. The index's own chip-injector contains the
+  56:     string '<a> inside <a>' in a comment explaining why it avoids exactly this
+  57:     defect -- and the first run of this gate flagged that comment as the defect.
+  58:     The repo's div-balance rule has always carried the same 'exclude JS' caveat;
+  59:     it had to be rediscovered here because the rule was prose, not code."""
+  60:     return SCRIPTY.sub(lambda m: " " * len(m.group(0)), html)
+  61: 
+  62: 
+  63: def nesting_faults(html):
+  64:     """-> list of (offset, href_of_inner, href_of_outer) for every <a> opened
+  65:     while another <a> is still open. Stack-based: a fragment test cannot see
+  66:     this, because each anchor is individually well formed."""
+  67:     stack, faults = [], []
+  68:     for m in ANCHOR.finditer(_markup_only(html)):
+  69:         tok = m.group(0)
+  70:         if tok.lower().startswith("</"):
+  71:             if stack:
+  72:                 stack.pop()
+  73:         else:
+  74:             h = HREF.search(tok)
+  75:             href = h.group(1) if h else "(no href)"
+  76:             if stack:
+  77:                 faults.append((m.start(), href, stack[-1]))
+  78:             stack.append(href)
+  79:     return faults, len(stack)
+  80: 
+  81: 
+  82: def dead_cards(html, root):
+  83:     """Card hrefs that resolve to no file on disk. Local targets only."""
+  84:     dead = []
+  85:     for m in re.finditer(r'<a\b[^>]*class\s*=\s*["\'][^"\']*\bcard\b[^"\']*["\'][^>]*>', html, re.I):
+  86:         h = HREF.search(m.group(0))
+  87:         if not h:
+  88:             continue
+  89:         u = h.group(1).split("#")[0].split("?")[0]
+  90:         if not u or u.startswith(("http", "mailto:", "data:", "//")):
+  91:             continue
+  92:         if not os.path.exists(os.path.join(root, u.replace("/", os.sep))):
+  93:             dead.append(u)
+  94:     return sorted(set(dead))
+  95: 
+  96: 
+  97: def check(path, root=None):
+  98:     root = root or os.path.dirname(os.path.abspath(path))
+  99:     html = open(path, encoding="utf-8", errors="replace").read()
+ 100:     faults, unclosed = nesting_faults(html)
+ 101:     dead = dead_cards(html, root)
+ 102:     verdict = "FAIL" if (faults or unclosed or dead) else "PASS"
+ 103:     return verdict, faults, unclosed, dead
+ 104: 
+ 105: 
+ 106: def main():
+ 107:     if len(sys.argv) > 1 and sys.argv[1] == "--selftest":
+ 108:         return selftest()
+ 109:     path = sys.argv[1] if len(sys.argv) > 1 else os.path.join(SSOT, "index.html")
+ 110:     v, faults, unclosed, dead = check(path)
+ 111:     print("%s" % os.path.basename(path))
+ 112:     print("  nested anchors : %d" % len(faults))
+ 113:     if len(faults) > 1:
+ 114:         print("      (FIX THE FIRST ONE. A single unclosed anchor makes every card after it "
+ 115:               "look nested; the rest of this list is cascade, not %d separate defects.)" % len(faults))
+ 116:     for off, inner, outer in faults[:10]:
+ 117:         print("      at %d  <a href=%s> opened inside <a href=%s>" % (off, inner, outer))
+ 118:     print("  unclosed <a>   : %d" % unclosed)
+ 119:     print("  dead card links: %d %s" % (len(dead), dead[:6] if dead else ""))
+ 120:     print("  -> %s" % v)
+ 121:     return 0 if v == "PASS" else 1
+ 122: 
+ 123: 
+ 124: def selftest():
+ 125:     """POSITIVE: the real 2026-08-17 defect, verbatim. NEGATIVE: the repaired
+ 126:     index, and a card whose target genuinely exists."""
+ 127:     ok = True
+ 128:     BROKEN = ('<div class="grid">\n'
+ 129:               '<a href="FINERENONE_REVIEW.html" class="card ckd"><span class="name">Finerenone (FIDELITY)'
+ 130:               '</span><span class="pub">Superseded &mdash; rebuilt from source as '
+ 131:               '<a href="FINERENONE_CV_REVIEW.html">Finerenone CV composite</a>\n'
+ 132:               '<a href="FINERENONE_CV_REVIEW.html" class="card ckd"><span class="name">Finerenone CV'
+ 133:               '</span><span class="pub">Published: HR 0.8655</span></a></span></a>\n</div>')
+ 134:     faults, unclosed = nesting_faults(BROKEN)
+ 135:     good = len(faults) == 2
+ 136:     ok &= good
+ 137:     print("  POSITIVE the real nested-card defect        -> %d nested anchor(s) %s"
+ 138:           % (len(faults), "correct" if good else "WRONG (expected 2)"))
+ 139:     for off, inner, outer in faults:
+ 140:         print("        <a href=%s> inside <a href=%s>" % (inner, outer))
+ 141: 
+ 142:     # Written out in full, NOT derived from BROKEN by str.replace. Deriving it
+ 143:     # was the first attempt and both replaces silently no-opped, so the negative
+ 144:     # fixture was the positive fixture and the selftest "failed" for the wrong
+ 145:     # reason. str.replace returns a copy whether or not it matched; a fixture
+ 146:     # that can quietly become a duplicate of its own opposite proves nothing.
+ 147:     REPAIRED = ('<div class="grid">\n'
+ 148:                 '<a href="FINERENONE_REVIEW.html" class="card ckd"><span class="name">Finerenone (FIDELITY)'
+ 149:                 '</span><span class="pub">Superseded &mdash; rebuilt from source as Finerenone CV composite'
+ 150:                 '</span></a>\n'
+ 151:                 '<a href="FINERENONE_CV_REVIEW.html" class="card ckd"><span class="name">Finerenone CV'
+ 152:                 '</span><span class="pub">Published: HR 0.8655</span></a>\n</div>')
+ 153:     assert REPAIRED != BROKEN, "negative fixture is identical to the positive one"
+ 154:     faults2, unclosed2 = nesting_faults(REPAIRED)
+ 155:     good2 = not faults2
+ 156:     ok &= good2
+ 157:     print("  NEGATIVE the same cards, correctly closed   -> %d nested anchor(s) %s"
+ 158:           % (len(faults2), "correct" if good2 else "WRONG"))
+ 159: 
+ 160:     live = os.path.join(SSOT, "index.html")
+ 161:     if os.path.exists(live):
+ 162:         v, f, u, d = check(live)
+ 163:         ok &= v == "PASS"
+ 164:         print("  NEGATIVE the live root index                -> %-4s %s"
+ 165:               % (v, "correct" if v == "PASS" else "WRONG: nested=%d unclosed=%d dead=%s" % (len(f), u, d[:4])))
+ 166: 
+ 167:     print("\nWHAT A FAILURE WOULD LOOK LIKE: the nested-card defect passing, which is "
+ 168:           "exactly what shipped to the root index and what my own presence-regex "
+ 169:           "reported as fine; or the repaired index failing, because a gate nobody "
+ 170:           "can satisfy gets bypassed and then rots.")
+ 171:     print("-> SELFTEST PASS" if ok else "-> SELFTEST FAILED")
+ 172:     return 0 if ok else 1
+ 173: 
+ 174: 
+ 175: if __name__ == "__main__":
+ 176:     sys.exit(main())
+
+codex
+- DIFFERENT COPY: line 109, fed by hardcoded `SSOT` on line 45. Exact input: run `python scripts/index_markup_gate.py` with no args from a `C:\rapidmeta-ssot-shell` mirror after changing `C:\rapidmeta-ssot-shell\index.html`. Consequence: the gate checks `F:\rapidmeta-ssot-shell\index.html`, not the worktree being changed.
+
+- CHECK THAT CANNOT FAIL: lines 70-72 ignore unmatched closing anchors. Exact input: `nesting_faults("</a>")` returns `([], 0)`, so `check()` on a file containing only `</a>` reports `PASS`. Consequence: malformed anchor structure can pass because stray closing anchors are erased.
+
+- CHECK THAT CANNOT FAIL: line 90 treats any href beginning with `http` as external. Exact input: `<a href="http_report.html" class="card"></a>` with no `http_report.html` on disk. Consequence: a missing local card target is skipped and the dead-link gate reports `PASS`.
+
+- SELECTOR KEYED TO A FORM THE CORPUS MAY NOT USE: lines 47 and 85 only recognize quoted `href`/`class` attributes. Exact input: `<a href=missing.html class=card></a>` with no file present. Consequence: a valid HTML card form is invisible to `dead_cards()` and the missing page passes.
+
+No proven probe keyed to string a fix removes.
+
+No proven idempotency guard satisfied by its own comment or marker.
+
+No proven CRLF/LF text comparison defect.
+
+No merged-cell or off-by-one tabulation/count defect found.
+
+No zero-conflated-with-absent numeric defect found.
+
+No negation-dropped defect found.
+
+No wrapper-status-code defect found.
+tokens used
+20,411
+- DIFFERENT COPY: line 109, fed by hardcoded `SSOT` on line 45. Exact input: run `python scripts/index_markup_gate.py` with no args from a `C:\rapidmeta-ssot-shell` mirror after changing `C:\rapidmeta-ssot-shell\index.html`. Consequence: the gate checks `F:\rapidmeta-ssot-shell\index.html`, not the worktree being changed.
+
+- CHECK THAT CANNOT FAIL: lines 70-72 ignore unmatched closing anchors. Exact input: `nesting_faults("</a>")` returns `([], 0)`, so `check()` on a file containing only `</a>` reports `PASS`. Consequence: malformed anchor structure can pass because stray closing anchors are erased.
+
+- CHECK THAT CANNOT FAIL: line 90 treats any href beginning with `http` as external. Exact input: `<a href="http_report.html" class="card"></a>` with no `http_report.html` on disk. Consequence: a missing local card target is skipped and the dead-link gate reports `PASS`.
+
+- SELECTOR KEYED TO A FORM THE CORPUS MAY NOT USE: lines 47 and 85 only recognize quoted `href`/`class` attributes. Exact input: `<a href=missing.html class=card></a>` with no file present. Consequence: a valid HTML card form is invisible to `dead_cards()` and the missing page passes.
+
+No proven probe keyed to string a fix removes.
+
+No proven idempotency guard satisfied by its own comment or marker.
+
+No proven CRLF/LF text comparison defect.
+
+No merged-cell or off-by-one tabulation/count defect found.
+
+No zero-conflated-with-absent numeric defect found.
+
+No negation-dropped defect found.
+
+No wrapper-status-code defect found.

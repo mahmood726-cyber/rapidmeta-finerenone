@@ -1,0 +1,194 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a03208-5742-7de0-bcc3-b9886d25f23a
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/patch_docx_presentation.py
+
+--- THE FILE, IN FULL ---
+import io, sys
+
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+P = r"F:\rapidmeta-ssot-shell\ssot\make_docx.py"
+s = open(P, encoding="utf-8").read()
+
+# --- 1. tblHeader: repeat the header row across page breaks -------------------
+old = '''    for i, h in enumerate(headers):
+        cell = t.rows[0].cells[i]
+        cell.text = ""
+        run = cell.paragraphs[0].add_run(h)
+        run.bold = True'''
+new = '''    # REPEAT THE HEADER ROW ACROSS PAGE BREAKS. Zero of seventeen tables had
+    # this. The screening log is fourteen rows and the statistical-output table
+    # fourteen more; both cross a page in the Word file, and a reader met the
+    # continuation with no column headers at all. This is a reading defect, not
+    # a cosmetic one, and it is the first thing a reviewer would hit.
+    _trPr = t.rows[0]._tr.get_or_add_trPr()
+    _th = OxmlElement('w:tblHeader')
+    _th.set(qn('w:val'), "true")
+    _trPr.append(_th)
+    for i, h in enumerate(headers):
+        cell = t.rows[0].cells[i]
+        cell.text = ""
+        run = cell.paragraphs[0].add_run(h)
+        run.bold = True
+        # Light shading on the header so the repeat is recognisable as a header
+        # rather than as data. Grey, not a theme accent: this is a manuscript.
+        _sh = OxmlElement('w:shd')
+        _sh.set(qn('w:val'), 'clear')
+        _sh.set(qn('w:fill'), 'EDEDED')
+        cell._tc.get_or_add_tcPr().append(_sh)'''
+assert s.count(old) == 1
+s = s.replace(old, new)
+
+# --- 2. figures sized to CONTENT, not all to the full measure ----------------
+old2 = '''def figure(doc, caption, path, width=6.0):
+    global FIG
+    FIG += 1
+    doc.add_picture(path, width=Inches(width))'''
+new2 = '''def figure(doc, caption, path, width=6.0):
+    """Size to the image, within the measure -- not every figure to the measure.
+
+    All fifteen were forced to exactly 6.00 inches against a text measure of
+    exactly 6.00 inches (8.5 less two 1.25 margins), so every figure ran edge to
+    edge with no breathing room, and because aspect ratios span 0.15 to 0.68 the
+    empty-state panels became 6x0.9 inch strips. Width is now capped below the
+    measure and height capped so nothing runs past a page, with the aspect ratio
+    preserved from the file rather than assumed.
+    """
+    global FIG
+    FIG += 1
+    MAX_W, MAX_H = 5.6, 7.0
+    w = width
+    try:
+        from PIL import Image as _I
+        with _I.open(path) as im:
+            pw, ph = im.size
+        w = min(MAX_W, MAX_W)                       # never wider than the cap
+        if ph and pw and (ph / float(pw)) * w > MAX_H:
+            w = MAX_H * (pw / float(ph))            # tall image: bound by height
+    except Exception:                                # noqa: BLE001
+        w = min(width, MAX_W)
+    doc.add_picture(path, width=Inches(w))'''
+assert s.count(old2) == 1
+s = s.replace(old2, new2)
+
+# --- 3. body face, line spacing, table style ---------------------------------
+old3 = '''st = doc.styles["Normal"]
+st.font.name = "Calibri"
+st.font.size = Pt(11)'''
+new3 = '''st = doc.styles["Normal"]
+# A MANUSCRIPT FACE, NOT A UI FACE. Calibri 11 is Word's default and reads as an
+# office document; the HTML projection -- which is the surface Mahmood judged
+# better -- sets Georgia. Matching it is the point: both are projections of one
+# object and the Word file was the lossy one.
+st.font.name = "Georgia"
+st.font.size = Pt(10.5)
+# 1.5 line spacing. Journals ask for 1.5 or double on a review copy and Word's
+# default single is neither. Ragged right rather than justified: Word does not
+# hyphenate by default and justified text without hyphenation opens rivers,
+# which is worse than the ragged edge it replaces.
+st.paragraph_format.line_spacing = 1.5
+st.paragraph_format.space_after = Pt(6)'''
+assert s.count(old3) == 1
+s = s.replace(old3, new3)
+
+old4 = '''    t.style = "Light Grid Accent 1"'''
+new4 = '''    # Plain ruled grid. "Light Grid Accent 1" is an Office theme style whose
+    # colour belongs to a slide deck, not to a manuscript table.
+    try:
+        t.style = "Table Grid"
+    except KeyError:
+        t.style = "Light Grid Accent 1"'''
+assert s.count(old4) == 1
+s = s.replace(old4, new4)
+
+open(P, "w", encoding="utf-8").write(s)
+print("make_docx: tblHeader on every table, content-sized figures, Georgia 1.5, plain grid")
+
+codex
+Findings:
+
+- **Different copy**: line 4, `P = r"F:\rapidmeta-ssot-shell\ssot\make_docx.py"`.  
+  Exact input: run this script from `C:\rapidmeta-ssot-shell\scripts\patch_docx_presentation.py` with a `C:\rapidmeta-ssot-shell\ssot\make_docx.py` checkout intended for the change and an `F:` mirror present.  
+  Consequence: the script patches the `F:` copy while tests or review may read the `C:` worktree.
+
+- **Check cannot fail / wrapper reports success**: lines 33, 65, 85, 95 use `assert` as the only guard; line 99 prints success.  
+  Exact input: run `python -O scripts/patch_docx_presentation.py` when `ssot\make_docx.py` contains none of the four `old*` strings, for example after the patch has already been applied.  
+  Consequence: optimized Python removes the assertions, no required replacement occurs, and the script still exits 0 with a success message.
+
+- **Check cannot fail**: line 59, `w = min(MAX_W, MAX_W)`.  
+  Exact input: after patching, call `figure(doc, "c", "square.png", width=3.0)` where `square.png` is any valid 100x100 image.  
+  Consequence: the caller’s `width=3.0` is ignored and the figure is widened to `5.6`.
+
+- **Text comparison / line endings**: line 98, `open(P, "w", encoding="utf-8").write(s)`.  
+  Exact input: `ssot\make_docx.py` uses LF-only endings and contains each `old*` string exactly once.  
+  Consequence: on Windows the write normalizes output to CRLF, so equal untouched lines appear changed in text diffs.
+
+COULD NOT DETERMINE: whether inserted `OxmlElement` / `qn` calls at lines 18-20 are runtime `NameError`s; missing full `ssot\make_docx.py` imports.
+
+No proven instance found: idempotency guard satisfied by its own comment, selector keyed to unused corpus form, merged-cell/off-by-one count, zero conflated with absent, or negation dropped.
+tokens used
+11,273
+Findings:
+
+- **Different copy**: line 4, `P = r"F:\rapidmeta-ssot-shell\ssot\make_docx.py"`.  
+  Exact input: run this script from `C:\rapidmeta-ssot-shell\scripts\patch_docx_presentation.py` with a `C:\rapidmeta-ssot-shell\ssot\make_docx.py` checkout intended for the change and an `F:` mirror present.  
+  Consequence: the script patches the `F:` copy while tests or review may read the `C:` worktree.
+
+- **Check cannot fail / wrapper reports success**: lines 33, 65, 85, 95 use `assert` as the only guard; line 99 prints success.  
+  Exact input: run `python -O scripts/patch_docx_presentation.py` when `ssot\make_docx.py` contains none of the four `old*` strings, for example after the patch has already been applied.  
+  Consequence: optimized Python removes the assertions, no required replacement occurs, and the script still exits 0 with a success message.
+
+- **Check cannot fail**: line 59, `w = min(MAX_W, MAX_W)`.  
+  Exact input: after patching, call `figure(doc, "c", "square.png", width=3.0)` where `square.png` is any valid 100x100 image.  
+  Consequence: the caller’s `width=3.0` is ignored and the figure is widened to `5.6`.
+
+- **Text comparison / line endings**: line 98, `open(P, "w", encoding="utf-8").write(s)`.  
+  Exact input: `ssot\make_docx.py` uses LF-only endings and contains each `old*` string exactly once.  
+  Consequence: on Windows the write normalizes output to CRLF, so equal untouched lines appear changed in text diffs.
+
+COULD NOT DETERMINE: whether inserted `OxmlElement` / `qn` calls at lines 18-20 are runtime `NameError`s; missing full `ssot\make_docx.py` imports.
+
+No proven instance found: idempotency guard satisfied by its own comment, selector keyed to unused corpus form, merged-cell/off-by-one count, zero conflated with absent, or negation dropped.

@@ -1,0 +1,184 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a031af-b2ac-7102-ac1e-68052133e8f2
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/fix_dropdown_outcome_dupe.py
+
+--- THE FILE, IN FULL ---
+"""Fix the duplicate-outcome dropdown across all generated meta apps.
+
+Bug: populateOutcomeSelector renders a synthetic "default" option plus one
+option per distinct outcome shortLabel. outcomeLabel("default") returns the
+highest-count outcome's title, which is identical to that outcome's own named
+option -> the SAME outcome text appears twice in #outcome-selector. On
+AUTO_FULL_REVIEW apps (all shortLabel "MACE") it is blatant.
+
+Fix: dedupe the option list by rendered label (first occurrence wins), so two
+keys that resolve to the same display text collapse to one <option>.
+
+Idempotent (skips files already carrying the dedupe token). --dry-run prints
+counts only. Reports files that contain populateOutcomeSelector but whose
+render expression did not match (for manual review).
+"""
+from __future__ import annotations
+import argparse, glob, io, os, re, sys
+
+if hasattr(sys.stdout, "buffer") and getattr(sys.stdout, "encoding", "").lower() != "utf-8":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DEDUP_TOKEN = "findIndex(q=>q[1]===p[1])"
+
+PAT = re.compile(
+    r'sel\.innerHTML\s*=\s*\[\.\.\.allLabels\]\.map\(\s*\(?\s*(\w+)\s*\)?\s*=>\s*'
+    r'`<option value="\$\{escapeHtml\(\1\)\}"\$\{\s*\1\s*===\s*(\w+)\s*\?\s*" selected"\s*:\s*""\s*\}>'
+    r'\$\{escapeHtml\(this\.outcomeLabel\(\1\)\)\}</option>`\s*\)\.join\(\s*""\s*\)'
+)
+REPL = (r'sel.innerHTML=[...allLabels].map(\g<1>=>[\g<1>,this.outcomeLabel(\g<1>)])'
+        r'.filter((p,i,a)=>a.findIndex(q=>q[1]===p[1])===i)'
+        r'.map(p=>`<option value="${escapeHtml(p[0])}"${p[0]===\g<2>?" selected":""}>'
+        r'${escapeHtml(p[1])}</option>`).join("")')
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument("--glob", default="*.html", help="file glob (relative to repo root)")
+    args = ap.parse_args()
+
+    files = sorted(glob.glob(os.path.join(HERE, args.glob)))
+    fixed = already = nomatch = nopop = 0
+    nomatch_files = []
+    for p in files:
+        s = io.open(p, encoding="utf-8", errors="replace").read()
+        if "populateOutcomeSelector" not in s:
+            nopop += 1
+            continue
+        if DEDUP_TOKEN in s:
+            already += 1
+            continue
+        new, n = PAT.subn(REPL, s, count=1)
+        if n == 0:
+            nomatch += 1
+            nomatch_files.append(os.path.basename(p))
+            continue
+        if not args.dry_run:
+            io.open(p, "w", encoding="utf-8", newline="").write(new)
+        fixed += 1
+
+    print(f"Files scanned          : {len(files)}")
+    print(f"{'Would fix' if args.dry_run else 'Fixed'}              : {fixed}")
+    print(f"Already deduped        : {already}")
+    print(f"Has populate, no match : {nomatch}")
+    print(f"No populateOutcome     : {nopop}")
+    if nomatch_files:
+        print(f"\nUnmatched (manual review, {len(nomatch_files)}):")
+        print("   " + ", ".join(nomatch_files[:30]) + (" ..." if len(nomatch_files) > 30 else ""))
+
+
+if __name__ == "__main__":
+    main()
+
+codex
+Defects found:
+
+- **Check cannot fail / wrapper status**: line 54-57.  
+  Input: `bad.html` containing `<script>function populateOutcomeSelector(){ sel.innerHTML = "x"; }</script>`, run `python scripts/fix_dropdown_outcome_dupe.py --glob bad.html`.  
+  Consequence: it reports `Has populate, no match : 1` but exits 0, so a CI/check wrapper can treat an unfixed target as success.
+
+- **Idempotency guard satisfied by marker/comment**: line 50.  
+  Input: an unfixed HTML file containing `<!-- findIndex(q=>q[1]===p[1]) -->` plus the original duplicate-producing selector expression.  
+  Consequence: the file is counted as `Already deduped` and skipped even though the actual dropdown code was never fixed.
+
+- **Idempotency guard + first replacement only**: lines 50 and 53.  
+  Input: one HTML file with two matching `sel.innerHTML=[...allLabels].map(...)...join("")` blocks and `populateOutcomeSelector` present.  
+  Consequence: first run fixes only the first block because `count=1`; second run skips the whole file because the token is now present, leaving the second duplicate permanently unfixed.
+
+- **CRLF/LF text instability**: lines 46 and 59.  
+  Input: a CRLF-encoded matching HTML file.  
+  Consequence: read normalizes CRLF to LF, then write emits LF, so the script rewrites unrelated line endings and makes raw-text diffs/baselines show changes outside the intended fix.
+
+COULD NOT DETERMINE selector-keyed-to-unused-corpus: missing the generated HTML corpus.
+
+No finding for probe keyed to string a fix removes.
+
+No finding for different-copy instrumentation.
+
+No finding for merged-cell/off-by-one tabulation.
+
+No finding for zero conflated with absent.
+
+No finding for negation dropped.
+tokens used
+11,388
+Defects found:
+
+- **Check cannot fail / wrapper status**: line 54-57.  
+  Input: `bad.html` containing `<script>function populateOutcomeSelector(){ sel.innerHTML = "x"; }</script>`, run `python scripts/fix_dropdown_outcome_dupe.py --glob bad.html`.  
+  Consequence: it reports `Has populate, no match : 1` but exits 0, so a CI/check wrapper can treat an unfixed target as success.
+
+- **Idempotency guard satisfied by marker/comment**: line 50.  
+  Input: an unfixed HTML file containing `<!-- findIndex(q=>q[1]===p[1]) -->` plus the original duplicate-producing selector expression.  
+  Consequence: the file is counted as `Already deduped` and skipped even though the actual dropdown code was never fixed.
+
+- **Idempotency guard + first replacement only**: lines 50 and 53.  
+  Input: one HTML file with two matching `sel.innerHTML=[...allLabels].map(...)...join("")` blocks and `populateOutcomeSelector` present.  
+  Consequence: first run fixes only the first block because `count=1`; second run skips the whole file because the token is now present, leaving the second duplicate permanently unfixed.
+
+- **CRLF/LF text instability**: lines 46 and 59.  
+  Input: a CRLF-encoded matching HTML file.  
+  Consequence: read normalizes CRLF to LF, then write emits LF, so the script rewrites unrelated line endings and makes raw-text diffs/baselines show changes outside the intended fix.
+
+COULD NOT DETERMINE selector-keyed-to-unused-corpus: missing the generated HTML corpus.
+
+No finding for probe keyed to string a fix removes.
+
+No finding for different-copy instrumentation.
+
+No finding for merged-cell/off-by-one tabulation.
+
+No finding for zero conflated with absent.
+
+No finding for negation dropped.

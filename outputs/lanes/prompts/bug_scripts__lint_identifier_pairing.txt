@@ -1,0 +1,272 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/lint_identifier_pairing.py
+
+--- THE FILE, IN FULL ---
+#!/usr/bin/env python3
+"""IDENTIFIERS FROM RECALL, MADE MECHANICAL -- the class that still rests on remembering.
+
+THE CLASS. A registration id written beside a trial ACRONYM is two claims: the id, and the
+pairing. The id gets checked. THE PAIRING ALMOST NEVER DOES, because it reads as a label rather
+than as an assertion.
+
+THE LIVE INSTANCE, 2026-08-19. Auditing `iv-iron-hf` I read its trials, recalled the mapping,
+and got THREE OF FIVE WRONG:
+
+    NCT01453608  registry says CONFIRM-HF   I recalled EFFECT-HF   # lint:known-mispairing
+    NCT03037931  registry says HEART-FID    I recalled FAIR-HF2    # lint:known-mispairing
+    NCT03036462  registry says FAIR-HF2     I recalled HEART-FID   # lint:known-mispairing
+
+The object was correct throughout. I was one sentence from publishing an accusation that a
+correct page carried mismatched identifiers.
+
+    A RECALLED IDENTIFIER IN A BUILD PRODUCES A WRONG VALUE THAT LATER CHECKS MAY CATCH.
+    A RECALLED IDENTIFIER IN AN AUDIT PRODUCES AN ACCUSATION, AND NOTHING AUDITS THE AUDITOR.
+
+WHY IT SCANS PROSE AND NOT THE OBJECTS. The first version of this file checked `trial_id`
+against the registry. `trial_id` IS None ON EVERY TRIAL IN THE CORPUS, so the check fell back to
+`name` -- a brief title -- and compared a TITLE against an ACRONYM. Two fields never claimed to
+be the same thing. It raised two false alarms against `alirocumab-lipid`, which was correct.
+That is the unit-of-analysis defect in new clothes, and it is recorded here rather than quietly
+fixed because a detector's own false-alarm history is the only evidence that it was ever tested.
+The defect never lived in the objects. It lives in AUTHORED PROSE -- findings documents, commit
+messages, page copy -- which is where my near-miss was headed.
+
+THE VOCABULARY IS CLOSED, WHICH IS WHAT MAKES IT LINTABLE. It does not guess which token is a
+trial acronym; guessing needs a stopword list and a stopword list is a permanent argument. It
+compares only against acronyms THE REGISTRY ITSELF PUBLISHED, read from the local raw cache.
+An alarm means: this registration id is written next to some OTHER trial's real acronym, and
+not next to its own.
+"""
+import bisect
+import io
+import json
+import os
+import re
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+CACHE = os.environ.get(
+    "RM_CTGOV_CACHE",
+    "F:/claude-temp/claude/F--rapidmeta-ssot-shell/"
+    "eb4d84e5-8a24-4c3b-afe2-34bd91c20bc7/scratchpad/.ctgov-raw-cache")
+
+NCT_RE = re.compile(r"NCT\d{8}")
+MIN_ACRONYM = 4                   # "FIT", "ACT" as bare words are not evidence of anything
+
+# APPOSITION, NOT PROXIMITY. The first version took a 140-char window and raised 1277 alarms,
+# almost all on correct text: this corpus routinely lists four trials in one sentence, so every
+# id sat near its NEIGHBOUR'S acronym. Proximity is not a claim of identity.
+#
+# The defect is a LABEL ATTACHED TO AN ID -- `NCT01453608 EFFECT-HF` -- and a label is adjacent.
+# lint:known-mispairing (the line above is the documented error, and is the positive control)
+# So the window is tight enough that only apposition fits, and a separator charset that admits
+# the punctuation labels actually use and nothing that could carry a second trial.
+WINDOW = 36
+#
+# NO COMMA, AND NO MAPPING KEY. Apposition alone still flagged 13, and every one was correct
+# text. The reason is structural: in `{"NCT01453608": "CONFIRM-HF", "NCT02937454": ...}` the
+# value of one key is adjacent to the NEXT key, so a correct mapping reads as a mispairing.
+#   - A COMMA between an id and a label means they are separate elements of a list or mapping,
+#     not a label applied to an id. Prose apposition (`NCT01453608 CONFIRM-HF`, `CONFIRM-HF
+#     (NCT01453608)`, `NCT01453608 -- CONFIRM-HF`) carries no comma.
+#   - A token followed by `":` or `':` is a MAPPING KEY. That is what flagged `"value":
+#     "NCT02993406"` as the VALUE hypertension trial.
+# COST, NAMED RATHER THAN HIDDEN: the form `NCT01453608, EFFECT-HF` is now invisible. That is a
+# real narrowing accepted to buy a zero false-alarm rate, because a check with 13 false alarms
+# and 0 true ones gets switched off within a week and then catches nothing at all.
+#   - NO NEWLINE. A trailing comment labels ITS OWN line. In
+#         "NCT03037931",  # HEART-FID
+#         "NCT03036124",  # DAPA-HF
+#     the label HEART-FID ends line N and NCT03036124 opens line N+1, so they are adjacent
+#     across the break while belonging to different records. Prose apposition never crosses a
+#     line, so requiring same-line costs nothing real.
+SEPARATOR = re.compile(r"^[ \t:;()\[\]/|*_`\"'.-]*$")
+IS_MAPPING_KEY = re.compile(r"^[\"']?\s*:")
+
+# A DECLARED exemption, on or just above the line. The file that documents a defect class
+# contains that class -- exactly as PAGE-STANDARD.md's description of heredoc mangling was
+# itself mangled. Declaring it keeps the docstring as a PERMANENT POSITIVE CONTROL:
+#     python scripts/lint_identifier_pairing.py --positive-control
+# must find them. A detector whose firing is a claim rather than a command is not proven.
+EXEMPT_TOKEN = "lint:known-mispairing"
+
+SCAN_DIRS = ("", "ssot", "scripts", "docs")
+SCAN_EXT = (".md", ".py")
+SKIP_DIRS = {".git", "figs", "__pycache__", "node_modules", "sources"}
+
+
+def load_vocabulary():
+    """acronym(upper) -> set of NCT ids. Only what the REGISTRY published."""
+    vocab = {}
+    if not os.path.isdir(CACHE):
+        return vocab
+    for fn in os.listdir(CACHE):
+        if not fn.endswith(".json"):
+            continue
+        try:
+            with io.open(os.path.join(CACHE, fn), encoding="utf-8") as fh:
+                rec = json.load(fh)
+        except (ValueError, OSError):
+            continue
+        idm = ((rec.get("protocolSection") or {}).get("identificationModule") or {})
+        acr, nct = idm.get("acronym"), idm.get("nctId")
+        if acr and nct and len(acr) >= MIN_ACRONYM:
+            vocab.setdefault(acr.upper(), set()).add(nct)
+    return vocab
+
+
+def authored_files():
+    for root, dirs, files in os.walk(REPO):
+        dirs[:] = [d for d in dirs if d not in SKIP_DIRS and not d.startswith(".")]
+        for fn in files:
+            if fn.endswith(SCAN_EXT) and not fn.startswith("."):
+                yield os.path.join(root, fn)
+
+
+def compile_vocabulary(vocab):
+    """ONE alternation over all acronyms, longest-first so FAIR-HF2 wins over FAIR-HF.
+
+    The first version compiled 784 patterns per id occurrence and ran for minutes. A check
+    too slow to run at commit is a check that runs never, which is indistinguishable from
+    not having written it.
+    """
+    if not vocab:
+        return None
+    alts = sorted(vocab, key=len, reverse=True)
+    return re.compile(r"\b(%s)\b" % "|".join(re.escape(a) for a in alts))
+
+
+def check_text(text, vocab, own_of, vocab_re, honour_exemptions=True):
+    """Yield (nct, wrong_acronym, own_acronym, excerpt) for each mispairing.
+
+    An id is checked ONLY if the registry published an acronym for it. Where the registry
+    published none there is nothing for a label to contradict, and calling that a mispairing
+    is asserting a fact we do not have -- the same error as reading absence as failure.
+    """
+    lines = text.split("\n")
+    line_of, pos = [], 0
+    for ln in lines:                      # char offset -> line index, for the exemption token
+        line_of.append(pos)
+        pos += len(ln) + 1
+
+    def exempt(off):
+        if honour_exemptions is False:
+            return False
+        i = bisect.bisect_right(line_of, off) - 1
+        return EXEMPT_TOKEN in lines[i] or (i + 1 < len(lines) and EXEMPT_TOKEN in lines[i + 1])
+
+    for m in NCT_RE.finditer(text):
+        nct = m.group(0)
+        own = own_of.get(nct)
+        if not own:
+            continue                      # nothing published to contradict: NOT_ASSESSABLE
+        if exempt(m.start()):
+            continue
+        own_u = own.upper()
+        lo, hi = max(0, m.start() - WINDOW), m.end() + WINDOW
+        win_u = text[lo:hi].upper()
+        for g in vocab_re.finditer(win_u):
+            acr = g.group(1)
+            if acr == own_u or nct in vocab[acr]:
+                continue                  # its own acronym: correctly paired
+            if IS_MAPPING_KEY.match(win_u[g.end():g.end() + 3]):
+                continue                  # a mapping KEY, not a label applied to the id
+            # Only apposition counts: nothing but separators between the id and the label.
+            if g.end() <= m.start() - lo:
+                between = win_u[g.end():m.start() - lo]
+            elif g.start() >= m.end() - lo:
+                between = win_u[m.end() - lo:g.start()]
+            else:
+                continue
+            if SEPARATOR.match(between):
+                yield (nct, acr, own, " ".join(text[lo:hi].split())[:150])
+                break
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    vocab = load_vocabulary()
+    if not vocab:
+        # A vocabulary of zero would let every file pass. That is a BROKEN INSTRUMENT
+        # REPORTING SUCCESS -- the exact shape of the foreign-id guard that printed
+        # "HELD 7 / REFUSING 1" while unable to match anything. Refuse instead.
+        print("REFUSED: acronym vocabulary is EMPTY (cache: %s)." % CACHE)
+        print("A check with nothing to check against passes everything. That is not a pass.")
+        return 2
+    own_of = {}
+    for acr, ncts in vocab.items():
+        for n in ncts:
+            own_of[n] = acr
+
+    honour = "--positive-control" not in sys.argv
+    vocab_re = compile_vocabulary(vocab)
+    hits, scanned = [], 0
+    for path in authored_files():
+        try:
+            with io.open(path, encoding="utf-8", errors="replace") as fh:
+                text = fh.read()
+        except OSError:
+            continue
+        scanned += 1
+        for nct, acr, own, excerpt in check_text(text, vocab, own_of, vocab_re, honour):
+            hits.append((os.path.relpath(path, REPO), nct, acr, own, excerpt))
+
+    for rel, nct, acr, own, excerpt in hits:
+        print("%s" % rel)
+        print("   %s sits beside %r, which the registry assigns to a DIFFERENT trial." % (nct, acr))
+        print("   registry acronym for %s: %s" % (nct, own or "(none published)"))
+        print("   ...%s..." % excerpt)
+        print()
+    print("acronym vocabulary   %d acronyms over %d registration ids (registry-published only)"
+          % (len(vocab), len(own_of)))
+    print("authored files       %d scanned (%s; caches and extracted sources excluded)"
+          % (scanned, "/".join(x or "root" for x in SCAN_DIRS)))
+    print("mispairings          %d" % len(hits))
+    if hits:
+        print()
+        print("REFUSED: %d registration id(s) written beside another trial's acronym." % len(hits))
+        print("FIX: take the acronym from the registration record, never from recall.")
+        return 1
+    print()
+    print("no registration id is written beside another trial's acronym.")
+    print("NOT CHECKED, and named rather than implied: an id paired with an acronym the")
+    print("registry never published, and an id whose record is not cached. Both are invisible")
+    print("to a closed vocabulary. See DEFECT-REGISTRY for the exposure.")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

@@ -1,0 +1,151 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/fix_pmid_miscitations.py
+
+--- THE FILE, IN FULL ---
+#!/usr/bin/env python
+"""Correct PMID miscitations: records that show a trial's PRIMARY outcome but
+cite the trial's design/rationale/secondary paper instead of its primary-results
+publication.
+
+Each (NCT, old_pmid -> new_pmid) below was established by:
+  1. Cross-app PMID conflict detection (the same NCT carrying different PMIDs in
+     different apps -- scripts/adjudicate_pmid_conflicts.py).
+  2. Resolving every PMID's title/year via PubMed and tagging DESIGN
+     (rationale/protocol/design) or SUB (post-hoc/secondary/QoL/review).
+  3. Confirming, per app, that the record displays the PRIMARY outcome yet cites
+     a DESIGN/SUB paper, while a sibling app cites the genuine primary-results
+     paper (scripts/map_miscitation_apps.py).
+
+Only conflicts with an unambiguous primary-results target are included. Cases
+where NO cited PMID is the primary (BREEZE-AD baricitinib, DELIVER subgroup-only,
+momelotinib) are intentionally EXCLUDED and left for manual review -- we never
+substitute a target we have not positively identified as the primary.
+
+The replacement is scoped to the pmid field of the trial object whose NCT
+matches, only when its current value equals old_pmid (idempotent). Binary-safe,
+dry-run-first, asserting.
+
+Mapping targets (all verified primary-results papers, PubMed-resolved):
+  RE-LY 19717844, ENGAGE-AF 24251359, CHAMPION-PHOENIX 23473369,
+  COAPT 30280640, ARCH 28892457, ODYSSEY-OUTCOMES 30403574, FOURIER 28304224,
+  APOLLO 29972753, VOYAGE-1 28057360, VOYAGER-PAD 32222135, ASCEND-D 34739194,
+  semaglutide-NASH 33185364, SELECT-PsA-1 33789011, EXPLORER-HCM 32871100,
+  AMPLITUDE-O 34215025, VISION 34161051.
+"""
+from __future__ import annotations
+import argparse
+import glob
+import importlib.util
+import os
+import re
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+_spec = importlib.util.spec_from_file_location(
+    "dia", os.path.join(REPO, "scripts", "data_integrity_audit.py"))
+dia = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(dia)
+
+# nct -> {old_pmid: new_pmid}
+FIXES = {
+    "NCT00262600": {"19376304": "19717844"},   # RE-LY (dabigatran)
+    "NCT00781391": {"20934556": "24251359"},   # ENGAGE-AF (edoxaban)
+    "NCT01156571": {"22607853": "23473369"},   # CHAMPION PHOENIX (cangrelor)
+    "NCT01626079": {"30134187": "30280640"},   # COAPT (MitraClip)
+    "NCT01631214": {"38573517": "28892457"},   # ARCH (romosozumab)
+    "NCT01663402": {"25440796": "30403574"},   # ODYSSEY OUTCOMES (alirocumab)
+    "NCT01764633": {"28859947": "28304224"},   # FOURIER (evolocumab)
+    "NCT01960348": {"28893208": "29972753"},   # APOLLO (patisiran)
+    "NCT02207231": {"29799960": "28057360"},   # VOYAGE 1 (guselkumab)
+    "NCT02504216": {"29754671": "32222135"},   # VOYAGER PAD (rivaroxaban)
+    "NCT02879305": {"33744933": "34739194"},   # ASCEND-D (daprodustat)
+    "NCT02970942": {"33039693": "33185364"},   # semaglutide NASH
+    "NCT03104400": {"38331400": "33789011"},   # SELECT-PsA 1 (upadacitinib)
+    "NCT03470545": {"32498620": "32871100"},   # EXPLORER-HCM (mavacamten)
+    "NCT03496298": {"33026143": "34215025"},   # AMPLITUDE-O (efpeglenatide)
+    "NCT03511664": {"37269841": "34161051",    # VISION (Lu-PSMA): QoL sub-paper
+                    "31595044": "34161051"},   # VISION: theranostics review
+}
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--dry-run", action="store_true")
+    args = ap.parse_args()
+
+    changes = []
+    apps_changed = 0
+    for path in sorted(glob.glob(os.path.join(REPO, "*_REVIEW*.html"))):
+        if "backup" in path:
+            continue
+        data = open(path, "rb").read().decode("utf-8", "replace")
+        new_data = data
+        app_changed = False
+        for key, obj in dia.find_trial_objects(new_data):
+            nct = key.split("_")[0]
+            fixmap = FIXES.get(nct)
+            if not fixmap:
+                continue
+            cur = str(dia.str_field(obj, "pmid"))
+            if cur not in fixmap:
+                continue  # not the miscited value (idempotent: already fixed or other)
+            new_pmid = fixmap[cur]
+            new_obj = re.sub(r'(pmid"?\s*:\s*")' + re.escape(cur) + r'(")',
+                             r"\g<1>" + new_pmid + r"\g<2>", obj, count=1)
+            assert new_obj != obj, f"{os.path.basename(path)}:{key} pmid field not matched"
+            assert new_data.count(obj) == 1, f"{os.path.basename(path)}:{key} object not unique"
+            new_data = new_data.replace(obj, new_obj, 1)
+            changes.append((os.path.basename(path), nct, cur, new_pmid))
+            app_changed = True
+        if app_changed:
+            apps_changed += 1
+            if not args.dry_run:
+                open(path, "wb").write(new_data.encode("utf-8"))
+
+    verb = "WOULD fix" if args.dry_run else "fixed"
+    print(f"{verb} {len(changes)} pmid miscitations across {apps_changed} apps:\n")
+    for app, nct, old, new in changes:
+        print(f"  {nct}  {old} -> {new}  {app}")
+    ncts_hit = {c[1] for c in changes}
+    missing = set(FIXES) - ncts_hit
+    if missing:
+        print(f"\nNOTE: no matching record found for: {sorted(missing)} "
+              f"(already fixed, or value differs)")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

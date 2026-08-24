@@ -1,0 +1,273 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: ssot/apply_empagliflozin_estimand.py
+
+--- THE FILE, IN FULL ---
+"""empagliflozin-hf: establish the estimand, and repair two provenance blocks that
+contradict the estimate they sit beside.
+
+THE OBJECT ASSERTED THE OPPOSITE OF WHAT IS TRUE, IN ITS OWN QUESTION FIELD:
+
+    "does Empagliflozin compared with placebo affect the outcome each trial registered as
+     its primary, WHICH DIFFER ACROSS THE 2 TRIALS HERE?"
+
+They do not differ. Read from the registrations held on this object:
+
+    EMPEROR-Reduced    "Time to THE First Event of Adjudicated Cardiovascular (CV) Death
+                        or Adjudicated Hospitalisation for Heart Failure (HHF)"
+    EMPEROR-Preserved  "Time to First Event of Adjudicated Cardiovascular (CV) Death or
+                        Adjudicated Hospitalisation for Heart Failure (HHF)"
+
+ONE WORD. It is the same orthographic trap the inclisiran object documents at length for
+"Percent" against "Percentage" -- and it is resolved here in the OPPOSITE DIRECTION. Every
+other defect this week made a page look better than it was. THIS ONE MAKES IT LOOK WORSE:
+a generated sentence asserting the pool is incoherent when it is sound, which would have
+led someone to withdraw a good estimate. Same mechanism, opposite sign, and the sign is
+why it survived -- nobody audits a page for being too hard on itself.
+
+AND THE PROVENANCE BLOCKS ARE MISLABELLED ON BOTH TRIALS.
+
+`registration_primary_counts` carries, on every instance of it in this corpus, the note
+"arm order as the registry lists it; a swapped pair would show as a mismatch rather than a
+silent pass". Nothing made that true. scripts/lint_registration_counts_arm_order.py was
+written to make it true and found 23 inconsistent rows across 75, two of them here:
+
+    EMPEROR-Reduced    treatment_n 1867 / control_n 1863   arms say 1863 / 1867
+    EMPEROR-Preserved  treatment_n 2991 / control_n 2997   arms say 2997 / 2991
+
+The registry lists the placebo arm first, and the extractor assigned "treatment" and
+"control" BY POSITION. So `treatment_events` holds the PLACEBO value on both trials: read
+as labelled, this block says empagliflozin is WORSE than placebo -- 21.0 against 15.77,
+and 8.67 against 6.86 -- while the effect stored two fields away says the opposite.
+
+THE PUBLISHED ESTIMATE IS NOT AFFECTED, and that is checked rather than assumed: the
+stored odds ratios reproduce exactly from `arms[]`, 0.730923 and 0.780050 to six decimals.
+The defect is in the block a reader or a later script would use to CHECK the estimate, and
+which, read literally, contradicts it.
+
+The posted values are also RATES per 100 patient-years, not counts, sitting in fields
+named `_events`. That is a second, independent label defect on the same block and it is
+recorded rather than silently corrected, because renaming a field is not the same as
+knowing what is in it.
+
+WHAT THIS DOES NOT CLAIM. Establishing that both trials registered the same endpoint does
+NOT establish that pooling odds ratios is the right way to combine them. Both trials
+registered a TIME-TO-FIRST-EVENT outcome and this object stores ODDS RATIOS derived from
+cumulative arm counts, and the two trials ran for different durations. An odds ratio over
+unequal follow-up is not a hazard ratio and does not become one by being pooled. That is a
+separate finding, recorded here and not resolved here.
+"""
+import io
+import json
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+TOPIC = "empagliflozin-hf-auto-full-review"
+TODAY = "2026-08-20"
+STAMP = TODAY.replace("-", "_")
+OBJ = os.path.join(REPO, "ssot", TOPIC, TOPIC + ".json")
+
+TITLES = {
+    "NCT03057977": "Time to the First Event of Adjudicated Cardiovascular (CV) Death or "
+                   "Adjudicated Hospitalisation for Heart Failure (HHF)",
+    "NCT03057951": "Time to First Event of Adjudicated Cardiovascular (CV) Death or "
+                   "Adjudicated Hospitalisation for Heart Failure (HHF)",
+}
+
+
+def main():
+    dry = "--apply" not in sys.argv
+    obj = json.load(io.open(OBJ, encoding="utf-8"))
+    blk = obj["results"]["by_outcome"]["primary"]
+    trials = {t["nct"]: t for t in obj["inputs"]["trials"]}
+    if set(trials) != set(TITLES):
+        sys.exit("REFUSED: trial set is %s, expected %s" % (sorted(trials), sorted(TITLES)))
+
+    # ---- 1. the registered titles, read and compared -------------------------------
+    for nct, expected in TITLES.items():
+        held = (trials[nct].get("registration_primary_counts") or {}).get("title")
+        if held != expected:
+            sys.exit("REFUSED: %s holds %r, not the title this script was written "
+                     "against. Re-read before writing." % (nct, held))
+
+    # ---- 2. the arm-label swap, verified before it is repaired ----------------------
+    repaired = 0
+    for nct, t in trials.items():
+        pc = t["registration_primary_counts"]
+        tr = [a for a in t["arms"] if a["role"] == "treatment"][0]
+        ct = [a for a in t["arms"] if a["role"] == "control"][0]
+        if not (pc["treatment_n"] == ct["participants"]
+                and pc["control_n"] == tr["participants"]):
+            sys.exit("REFUSED: %s is not the swap this script was written against." % nct)
+        # the estimate must reproduce from arms[], or the defect is bigger than a label
+        o = ((tr["events"] / (tr["participants"] - tr["events"]))
+             / (ct["events"] / (ct["participants"] - ct["events"])))
+        stored = t["by_outcome"]["primary"]["effect"]["point"]
+        if abs(o - stored) > 1e-6:
+            sys.exit("REFUSED: %s effect %r does not reproduce from arms[] (%r). The "
+                     "published number may depend on the mislabelled block and this is no "
+                     "longer a label repair." % (nct, stored, o))
+        t["registration_primary_counts_superseded_%s" % STAMP] = dict(pc)
+        pc["treatment_n"], pc["control_n"] = tr["participants"], ct["participants"]
+        pc["treatment_events"], pc["control_events"] = (
+            pc["control_events"], pc["treatment_events"])
+        pc["note"] = (
+            "ARM LABELS REPAIRED %s. They were assigned BY REGISTRY POSITION and this "
+            "registry lists the placebo arm first, so `treatment_n` held the control arm's "
+            "n and `treatment_events` held the placebo value -- read as labelled the block "
+            "said empagliflozin was WORSE than placebo while the effect beside it said the "
+            "opposite. The previous content is at "
+            "registration_primary_counts_superseded_%s. The stored odds ratio reproduces "
+            "from arms[] to six decimals, so THE PUBLISHED NUMBER WAS NEVER AFFECTED; what "
+            "was wrong is the block a reader would use to check it." % (TODAY, STAMP))
+        pc["what_these_values_are"] = (
+            "RATES PER 100 PATIENT-YEARS, not event counts, despite the field names ending "
+            "in `_events`. The trial reports its primary as an event rate. The arm-level "
+            "COUNTS are on arms[].events and are what the stored effect is computed from. "
+            "The field names are left as they are because renaming them across the corpus "
+            "is a separate change; the content is named here so nobody reads a rate as a "
+            "count.")
+        pc["the_note_this_replaces_claimed_a_guarantee_nothing_provided"] = (
+            "It read 'arm order as the registry lists it; a swapped pair would show as a "
+            "mismatch rather than a silent pass'. It would not and it did not. Nothing in "
+            "this repository compared this block against arms[] until "
+            "scripts/lint_registration_counts_arm_order.py was written on %s, which found "
+            "23 inconsistent rows across 75. A SENTENCE DESCRIBING A CHECK THAT NO COMMAND "
+            "PERFORMS IS NOT A CHECK." % TODAY)
+        repaired += 1
+    if repaired != 2:
+        sys.exit("REFUSED: repaired %d of 2." % repaired)
+
+    # ---- 3. the estimand, established ----------------------------------------------
+    blk["estimand_established"] = True
+    blk["estimand_established_reason_%s" % STAMP] = (
+        "CHECKED ON %s AND ESTABLISHED. Both trials register the SAME primary outcome and "
+        "the registered strings differ by one word: EMPEROR-Reduced writes 'Time to the "
+        "First Event of...' and EMPEROR-Preserved 'Time to First Event of...'. Same "
+        "components, same adjudication, same order, same construct. This is the "
+        "orthographic difference that has manufactured false disagreements in this "
+        "repository before -- 'Percent' against 'Percentage' on the ORION trials -- and it "
+        "is not a disagreement here either." % TODAY)
+    blk["pool_uniformity"] = {
+        "effect_measure": ["ESTABLISHED", "both stored as odds ratios computed from "
+                           "arm-level counts on arms[], reproduced to six decimals"],
+        "estimand": ["ESTABLISHED", blk["estimand_established_reason_%s" % STAMP]],
+        "superseded_%s" % STAMP: (
+            "Both limbs previously read NOT ESTABLISHED with the reason 'not recorded on "
+            "the page this object was extracted from' -- the NEVER-CHECKED state written "
+            "as though it were a negative finding. It has been checked."),
+    }
+    blk["A_SEPARATE_FINDING_NOT_RESOLVED_HERE_%s" % STAMP] = {
+        "what": "The pool combines ODDS RATIOS on a TIME-TO-FIRST-EVENT endpoint, over "
+                "trials of different duration.",
+        "detail": (
+            "Both trials registered time to first event. This object stores odds ratios "
+            "derived from cumulative arm counts, and the two trials did not run for the "
+            "same length of time. AN ODDS RATIO OVER UNEQUAL FOLLOW-UP IS NOT A HAZARD "
+            "RATIO AND DOES NOT BECOME ONE BY BEING POOLED: it depends on how long each "
+            "trial ran, so the weights mean something different from what a reader will "
+            "assume. The two trials' own published hazard ratios exist and would be the "
+            "right inputs."),
+        "why_it_is_recorded_and_not_fixed": (
+            "Recomputing this pool from hazard ratios is a published-number change and "
+            "would have to reach the heterogeneity, the estimator, the GRADE domains and "
+            "the result card in one pass, per P19. Establishing the estimand and repairing "
+            "the provenance labels is this pass. The two findings are independent: the "
+            "endpoint IS shared, which is what this pass establishes, and the SUMMARY "
+            "MEASURE may still be the wrong one, which is what this note records."),
+        "what_would_settle_it": (
+            "The published hazard ratios for both trials with their confidence intervals, "
+            "and a decision about whether this review pools the effect measure the trials "
+            "reported or the one its extractor could compute."),
+    }
+
+    obj["question_superseded_%s" % STAMP] = obj["question"]
+    obj["question"] = (
+        "In adults with heart failure, does empagliflozin compared with placebo reduce the "
+        "first occurrence of adjudicated cardiovascular death or adjudicated "
+        "hospitalisation for heart failure -- the outcome BOTH trials register as their "
+        "primary?")
+    obj["question_change_record_%s" % STAMP] = {
+        "previous_question": obj["question_superseded_%s" % STAMP],
+        "why_it_was_wrong": (
+            "It asserted that the two trials' registered primaries DIFFER. They differ by "
+            "the word 'the'. The sentence was generated rather than read, and it made this "
+            "pool look incoherent when it is sound."),
+        "why_this_direction_matters": (
+            "Every other defect found in this corpus this week made a page look BETTER "
+            "than it was. This one made it look worse, and would have led someone to "
+            "withdraw a good estimate. It survived precisely because of its direction: "
+            "nobody audits a page for being too hard on itself."),
+        "stated_before_any_number": True,
+    }
+
+    obj.setdefault("display_change_announced", []).append({
+        "date": TODAY,
+        "change": "estimand established; a false question sentence replaced; two "
+                  "provenance blocks repaired",
+        "values_moved": "NONE -- no published estimate changes",
+        "what_changed": (
+            "The `question` claimed the two trials' registered primaries differ; they "
+            "differ by one word. `estimand_established` moved False to True with a checked "
+            "reason in place of the never-checked placeholder. Both "
+            "`registration_primary_counts` blocks had their arm labels inverted and are "
+            "repaired, with the previous content kept."),
+        "why": (
+            "A pool cannot be compared against the literature, or defended, while the "
+            "object says its own trials measured different things and its provenance "
+            "blocks say the drug is harmful. Neither was true."),
+        "what_is_recorded_and_not_fixed": (
+            "The pool combines odds ratios on a time-to-first-event endpoint over trials "
+            "of unequal duration. The endpoint is shared; the summary measure may be the "
+            "wrong one. Recorded at "
+            "results.by_outcome.primary.A_SEPARATE_FINDING_NOT_RESOLVED_HERE_%s." % STAMP),
+    })
+
+    print("estimand established; question replaced; %d provenance block(s) repaired" % repaired)
+    if dry:
+        print("DRY RUN -- pass --apply to write")
+        return
+    with io.open(OBJ, "rb") as fh:
+        raw = fh.read()
+    nl = "\r\n" if b"\r\n" in raw.split(b"\n", 3)[0] + b"\n" else "\n"
+    with io.open(OBJ, "w", encoding="utf-8", newline=nl) as fh:
+        json.dump(obj, fh, indent=1, ensure_ascii=False)
+        fh.write("\n")
+    print("wrote %s" % OBJ)
+
+
+if __name__ == "__main__":
+    main()

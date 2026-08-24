@@ -1,0 +1,107 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/fix_apixaban_acs_render.py
+
+--- THE FILE, IN FULL ---
+"""Second-stage APIXABAN_ACS fixes - both found by rendering the page, not by the file gate.
+
+R1. The prediction-interval cell is guarded by `k>=3` but its fallback text reads
+    "N/A (k < 2)". At the corrected k=2 that label is a false statement on a live
+    page. Same off-by-one in the QA7 checklist row. The HKSJ cell's identical
+    string is CORRECT (its guard really is k<2) and is left alone.
+
+R2. The page's own analysis panel flags "Discordant: consider HKSJ more reliable
+    for small k" - the HKSJ-adjusted interval crosses 1 while the primary
+    interval does not. A badge claiming nominal significance without saying so
+    would contradict the page it sits on. Disclosed in the badge.
+"""
+import io
+import re
+import sys
+
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+FULL = "APIXABAN_ACS_AUTO_FULL_REVIEW.html"
+
+s = open(FULL, encoding="utf-8").read()
+before = len(s)
+done = []
+
+# ---- R1a: the res-pi fallback label ---------------------------------------
+old = (
+    'document.getElementById("res-pi").innerText=c.k>=3&&Number.isFinite(c.piLCI)?'
+    '`${c.piLCI.toFixed(2)} — ${c.piUCI.toFixed(2)}`:"N/A (k < 2)"'
+)
+assert s.count(old) == 1, f"res-pi anchor count = {s.count(old)}"
+s = s.replace(
+    old,
+    'document.getElementById("res-pi").innerText=c.k>=3&&Number.isFinite(c.piLCI)?'
+    '`${c.piLCI.toFixed(2)} — ${c.piUCI.toFixed(2)}`:"N/A (k < 3)"',
+    1,
+)
+done.append('res-pi fallback label "N/A (k < 2)" -> "N/A (k < 3)" (guard is k>=3)')
+
+# ---- R1b: the QA7 checklist detail ----------------------------------------
+old = '"PI: "+r.piLCI+"—"+r.piUCI:"Not available (k < 2)"'
+assert s.count(old) == 1, f"QA7 anchor count = {s.count(old)}"
+s = s.replace(old, '"PI: "+r.piLCI+"—"+r.piUCI:"Not available (k < 3)"', 1)
+done.append('QA7 detail "Not available (k < 2)" -> "(k < 3)"')
+
+# ---- R2: HKSJ discordance disclosed in the badge --------------------------
+anchor = (
+    "At k=2, publication bias, small-study effects and "
+    "prediction intervals are not assessable."
+)
+assert s.count(anchor) == 1, f"badge limits anchor count = {s.count(anchor)}"
+s = s.replace(
+    anchor,
+    "At k=2, publication bias, small-study effects and prediction intervals are not "
+    "assessable. <strong>The significance is fragile and the page says so:</strong> the "
+    "HKSJ-adjusted interval (t with df=k&minus;1=1) is 0.03&ndash;124.7 and <em>crosses "
+    "1</em>, the analysis panel flags the discordance, and the fragility index is "
+    "<strong>1</strong> &mdash; a single event overturns nominal significance. The "
+    "direction (harm) is robust and is corroborated independently by APPRAISE-2&rsquo;s "
+    "TIMI major bleeding HR 2.59 (1.50&ndash;4.46); the <em>p-value</em> is not robust. "
+    "The on-page panel pools by inverse-variance random effects (&tau;&sup2;=0, so DL and "
+    "Paule-Mandel coincide) and reads 1.97 (1.04&ndash;3.74); the Mantel-Haenszel figure "
+    "quoted above is 1.975 (1.041&ndash;3.746). They agree to the displayed precision.",
+    1,
+)
+done.append("badge discloses HKSJ discordance, FI=1, and the two estimators' agreement")
+
+open(FULL, "w", encoding="utf-8", newline="").write(s)
+print(f"{FULL}: {before} -> {len(s)} bytes")
+for d in done:
+    print("  -", d)

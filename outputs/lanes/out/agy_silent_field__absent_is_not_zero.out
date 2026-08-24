@@ -1,0 +1,11 @@
+**1. IS A READER OWED THIS?**
+NOT OWED. The field functions as an internal procedural note and audit trail ("CHECKED AGAINST THE LITERATURE, not assumed"; "SUPERSEDED BY THE LITERATURE LIMB") rather than a novel interpretive finding, and its underlying facts are already fully documented. 
+
+**2. IF OWED: WHERE.**
+N/A.
+
+**3. IS IT A DUPLICATE?**
+Yes. The exact numerical breakdown of trial states (1 published, 0 due but unresolved, 3 unfinished) is natively recorded in `results.by_outcome.primary.literature_limb`. Additionally, the conceptual rationale for why an unfinished trial's absence is not considered "silence" is duplicated in both `literature_limb.why_the_third_state_exists` and the `publication_state_why` field of each individual unpublished trial.
+
+**4. WHAT WOULD BE LOST?**
+Nothing substantive for the reader. The object would merely lose a redundant internal sign-off confirming that a check was performed (and the historical note of what the object *used* to record), but the actual results of the literature check and the methodology behind the classification remain completely intact elsewhere.

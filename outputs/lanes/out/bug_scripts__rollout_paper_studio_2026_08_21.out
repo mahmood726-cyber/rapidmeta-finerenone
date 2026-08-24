@@ -1,0 +1,605 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a0325f-7b12-7713-999c-5a3401f1afd1
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/rollout_paper_studio_2026_08_21.py
+
+--- THE FILE, IN FULL ---
+"""Roll the Paper Studio restructure across every mapped page, with a predicate per page.
+
+SAME DISCIPLINE AS THE TWO PREVIOUS ROLLOUTS. A lock so two runs cannot interleave; every page
+measured BEFORE it is rebuilt; four predictions stated for every page and checked on the
+delivered bytes afterwards; a ledger that survives a crash; and every page built against the
+LAST KNOWN-GOOD COMMITTED COPY rather than whatever is in the working tree (registry class 70 --
+a guard measured against a baseline the same run had already lowered).
+
+THE FOUR PREDICTIONS, PER PAGE:
+
+    1  NOTHING LOST -- every estimate, registration id and registered outcome string present
+       before is present after. The change reorders sections; it must not drop content.
+    2  THE R TRANSCRIPT IS PRESENT AND BYTE-IDENTICAL where the page carried one. This is P46
+       limb 4. It MOVES to Extended data; moving it and losing it would be the worst outcome
+       available, so it is compared character for character, on every page, not on a sample.
+    3  THE FIRST SENTENCE OF THE PAPER IS REACHED EARLIER -- fewer visible blocks before it.
+    4  NO PAGE IS BYTE-IDENTICAL. Every page's section order changes, so a page that did not
+       change did not rebuild, and a silent no-op is the failure this predicate exists to catch.
+
+AND A FIFTH THING COUNTED RATHER THAN PREDICTED: the refusal notices. They are FINDINGS -- an
+obstacle named in the evidence -- and a section move is exactly the operation that silently
+drops a block. Counted before and after per page; any page that loses one is reported and the
+run stops.
+
+"VISIBLE" MEANS WHAT A READER MEETS. A closed <details> is not on the screen, and a text
+extractor reads straight through it. The first measurement of this change reported 58 field
+names still visible because it read inside the collapsed block. Everything here strips closed
+<details> bodies first.
+"""
+import glob
+import html as H
+import io
+import json
+import os
+import re
+import subprocess
+import sys
+import time
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+SSOT = os.path.join(REPO, "ssot")
+LOCK = os.path.join(REPO, "outputs", ".paper_studio_rollout.lock")
+LEDGER = os.path.join(REPO, "outputs", "paper_studio_rollout_2026_08_21.json")
+RUN_ID = "%d@%s" % (os.getpid(), time.strftime("%H%M%S"))
+
+sys.path.insert(0, SSOT)
+from do_not_rebuild import PAGES as DO_NOT_REBUILD           # noqa: E402
+
+NCT = re.compile(r"NCT\d{8}")
+EST = re.compile(r"\b\d+\.\d{2,4}\s*\((?:-?\d+\.\d+)\s*to\s*(?:-?\d+\.\d+)\)")
+# THE TRANSCRIPT COMES FROM THE OBJECT, NOT FROM A PATTERN.
+#
+# A first version matched `R version ... AGREES WITH THE STORED POINT TO 4 dp` -- the shape
+# `fit_from_per_trial.R` prints. sglt2-hf's stored output came from an OLDER script and begins
+# "Cross-engine verification ... metafor 5.0.1 under R 4.6.0", so the check reported
+# "transcripts 0" on a page that carries two. FIFTEENTH lookup this run to under-count by
+# reading one spelling.
+#
+# The authoritative comparison is against the object: take every `r_output.verbatim` the object
+# stores and require each to appear, character for character, in the delivered bytes. That
+# cannot drift with the format, and it is the only test that actually proves limb 4 survived
+# the move.
+def stored_transcripts(objp):
+    try:
+        obj = json.load(io.open(os.path.join(REPO, "ssot", objp) if not
+                                os.path.isabs(objp) else objp, encoding="utf-8"))
+    except Exception:                                              # noqa: BLE001
+        return []
+    out = []
+    for blk in ((obj.get("results") or {}).get("by_outcome") or {}).values():
+        v = ((blk or {}).get("r_output") or {}).get("verbatim")
+        if isinstance(v, str) and v.strip():
+            out.append(v)
+    return out
+REFUSAL = re.compile(r"<strong>Refused:</strong>")
+
+
+def acquire():
+    os.makedirs(os.path.dirname(LOCK), exist_ok=True)
+    try:
+        fd = os.open(LOCK, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+    except OSError:
+        held = ""
+        try:
+            held = io.open(LOCK, encoding="utf-8").read().strip()
+        except Exception:                                          # noqa: BLE001
+            pass
+        sys.exit("REFUSED: a rollout is already running (%s). Read the lock before clearing "
+                 "it -- a second writer resolves by whoever wrote last." % (held or "unknown"))
+    os.write(fd, RUN_ID.encode())
+    os.close(fd)
+
+
+def release():
+    try:
+        os.remove(LOCK)
+    except OSError:
+        pass
+
+
+def visible(html_text):
+    """The panel as a reader meets it: closed <details> bodies are not on the screen."""
+    i = html_text.find('id="paper"')
+    seg = html_text[i:] if i >= 0 else ""
+    seg = re.sub(r"(?is)<(script|style)[^>]*>.*?</\1>", " ", seg)
+
+    def collapse(m):
+        body = m.group(0)
+        if re.match(r"(?is)<details[^>]*\bopen\b", body):
+            return body
+        s = re.search(r"(?is)<summary[^>]*>(.*?)</summary>", body)
+        return "<p>%s</p>" % (s.group(1) if s else "")
+
+    seg = re.sub(r"(?is)<details[^>]*>.*?</details>", collapse, seg)
+    seg = re.sub(r"(?i)<(/?)(div|p|h[1-6]|li|tr|section|table|br|summary)[^>]*>", "\n", seg)
+    seg = H.unescape(re.sub(r"<[^>]+>", " ", seg))
+    return [re.sub(r"\s+", " ", l).strip() for l in seg.split("\n") if l.strip()]
+
+
+def first_sentence_block(blocks):
+    """How many visible blocks a reader passes before the ABSTRACT's first sentence.
+
+    A first version took the first 12-word block, which is the TITLE -- legitimately content,
+    and it never moves, so the metric read 5->5 and could not see the change at all. The
+    quantity the prediction is about is how much APPARATUS stands between arriving at #paper
+    and reading the paper, and the Abstract is where the paper starts.
+    """
+    for n, b in enumerate(blocks):
+        if b.strip().lower() == "abstract":
+            return n + 1
+    for n, b in enumerate(blocks):
+        if len(b.split()) >= 12 and not b.startswith(("In this section:",
+                                                      "Sources for this section",
+                                                      "Every statement below is projected")):
+            return n
+    return len(blocks)
+
+
+def measure(path):
+    if not os.path.isfile(path):
+        return None
+    h = io.open(path, encoding="utf-8", errors="replace").read()
+    bl = visible(h)
+    return {
+        "bytes": len(h),
+        "ncts": sorted(set(NCT.findall(h))),
+        "estimates": sorted(set(EST.findall(h))),
+        # THE PAGE, UNESCAPED, for comparing stored text against delivered text.
+        # The renderer escapes quotes and ampersands on the way out, so a stored transcript
+        # containing `method = "REML"` appears as `method = &quot;REML&quot;`. A raw
+        # substring test therefore fails on a transcript that survived perfectly. Comparing
+        # CONTENT is the question; comparing escaping is not.
+        "text": H.unescape(h),
+        "refusals": len(REFUSAL.findall(h)),
+        "first_sentence_at": first_sentence_block(bl),
+        "visible_blocks": len(bl),
+        "has_paper": 'id="paper"' in h,
+    }
+
+
+def restore_from_git(page):
+    """Class 70: measure and build against the COMMITTED copy, never the working tree."""
+    r = subprocess.run(["git", "checkout", "--", page], cwd=REPO,
+                       stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    return r.returncode == 0
+
+
+def main():
+    only = [a for a in sys.argv[1:] if not a.startswith("--")]
+    limit = next((int(a.split("=")[1]) for a in sys.argv[1:] if a.startswith("--limit=")), None)
+    acquire()
+    try:
+        M = json.load(io.open(os.path.join(SSOT, "PAGE_MAP.json"), encoding="utf-8"))
+        pages = sorted(M)
+        if only:
+            pages = [p for p in pages if p in only]
+        led = {}
+        if os.path.isfile(LEDGER):
+            led = json.load(io.open(LEDGER, encoding="utf-8"))
+        done = set(led.get("done", {}))
+        todo = [p for p in pages if p not in done and p not in DO_NOT_REBUILD]
+        skipped = [p for p in pages if p in DO_NOT_REBUILD]
+        if limit:
+            todo = todo[:limit]
+        print("pages mapped %d | already done %d | to build %d | protected %d (%s)"
+              % (len(pages), len(done), len(todo), len(skipped), ", ".join(skipped)))
+
+        results = led.setdefault("done", {})
+        for n, page in enumerate(todo, 1):
+            objp = M[page]
+            objp = objp[5:] if objp.startswith("ssot/") else objp
+            full = os.path.join(REPO, page)
+            restore_from_git(page)
+            want = stored_transcripts(objp)
+            before = measure(full)
+            if not before or not before["has_paper"]:
+                results[page] = {"state": "NO PAPER PANEL -- not judged"}
+                print("%3d/%d %-46s no paper panel" % (n, len(todo), page[:46]))
+                continue
+            r = subprocess.run([sys.executable, "build_tabbed.py", objp,
+                                os.path.join("..", page)], cwd=SSOT,
+                               stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            out = r.stdout.decode("utf-8", "replace")
+            if r.returncode != 0:
+                results[page] = {"state": "BUILD REFUSED", "tail": out[-300:]}
+                print("%3d/%d %-46s BUILD REFUSED" % (n, len(todo), page[:46]))
+                json.dump(led, io.open(LEDGER, "w", encoding="utf-8"), indent=1)
+                continue
+            after = measure(full)
+
+            v = {
+                "1_nothing_lost": (set(before["ncts"]) <= set(after["ncts"])
+                                   and set(before["estimates"]) <= set(after["estimates"])),
+                # EVERY stored transcript must appear character for character in the
+                # delivered bytes AFTER the move -- checked against the object, on every page,
+                # never on a sample.
+                "2_transcript_byte_identical": all(t in after["text"] for t in want),
+                "3_first_sentence_earlier": after["first_sentence_at"] <= before["first_sentence_at"],
+                "4_not_byte_identical": before["bytes"] != after["bytes"],
+                "5_refusals_kept": after["refusals"] >= before["refusals"],
+            }
+            results[page] = {
+                "state": "ok" if all(v.values()) else "PREDICTION FAILED",
+                "checks": v,
+                "first_sentence": [before["first_sentence_at"], after["first_sentence_at"]],
+                "refusals": [before["refusals"], after["refusals"]],
+                "transcripts": len(want),
+                "lost_ncts": sorted(set(before["ncts"]) - set(after["ncts"])),
+                "lost_estimates": sorted(set(before["estimates"]) - set(after["estimates"])),
+            }
+            bad = [k for k, ok in v.items() if not ok]
+            print("%3d/%d %-46s %s  first-sentence %d->%d  refusals %d->%d  transcripts %d"
+                  % (n, len(todo), page[:46], "ok" if not bad else "FAILED " + ",".join(bad),
+                     before["first_sentence_at"], after["first_sentence_at"],
+                     before["refusals"], after["refusals"], len(want)))
+            json.dump(led, io.open(LEDGER, "w", encoding="utf-8"), indent=1)
+
+        ok = sum(1 for v in results.values() if v.get("state") == "ok")
+        fail = [p for p, v in results.items() if v.get("state") == "PREDICTION FAILED"]
+        ref = [p for p, v in results.items() if v.get("state") == "BUILD REFUSED"]
+        print("\nbuilt ok %d | prediction failed %d | build refused %d | ledger %s"
+              % (ok, len(fail), len(ref), os.path.relpath(LEDGER, REPO)))
+        for p in fail[:10]:
+            print("   FAILED %-44s %s" % (p, results[p]["checks"]))
+    finally:
+        release()
+
+
+if __name__ == "__main__":
+    main()
+
+codex
+I’ll treat this as a narrow defect hunt against the pasted packet only and keep the response constrained to concrete, demonstrable failures.
+codex
+I’m checking line numbering against the local file so the findings point to exact lines rather than estimated positions.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=1; Get-Content -LiteralPath '"'scripts/rollout_paper_studio_2026_08_21.py' | ForEach-Object { '{0,4}: {1}' -f "'$i, $_; $i++ }' in F:\rapidmeta-ssot-shell
+ succeeded in 1222ms:
+   1: """Roll the Paper Studio restructure across every mapped page, with a predicate per page.
+   2: 
+   3: SAME DISCIPLINE AS THE TWO PREVIOUS ROLLOUTS. A lock so two runs cannot interleave; every page
+   4: measured BEFORE it is rebuilt; four predictions stated for every page and checked on the
+   5: delivered bytes afterwards; a ledger that survives a crash; and every page built against the
+   6: LAST KNOWN-GOOD COMMITTED COPY rather than whatever is in the working tree (registry class 70 --
+   7: a guard measured against a baseline the same run had already lowered).
+   8: 
+   9: THE FOUR PREDICTIONS, PER PAGE:
+  10: 
+  11:     1  NOTHING LOST -- every estimate, registration id and registered outcome string present
+  12:        before is present after. The change reorders sections; it must not drop content.
+  13:     2  THE R TRANSCRIPT IS PRESENT AND BYTE-IDENTICAL where the page carried one. This is P46
+  14:        limb 4. It MOVES to Extended data; moving it and losing it would be the worst outcome
+  15:        available, so it is compared character for character, on every page, not on a sample.
+  16:     3  THE FIRST SENTENCE OF THE PAPER IS REACHED EARLIER -- fewer visible blocks before it.
+  17:     4  NO PAGE IS BYTE-IDENTICAL. Every page's section order changes, so a page that did not
+  18:        change did not rebuild, and a silent no-op is the failure this predicate exists to catch.
+  19: 
+  20: AND A FIFTH THING COUNTED RATHER THAN PREDICTED: the refusal notices. They are FINDINGS -- an
+  21: obstacle named in the evidence -- and a section move is exactly the operation that silently
+  22: drops a block. Counted before and after per page; any page that loses one is reported and the
+  23: run stops.
+  24: 
+  25: "VISIBLE" MEANS WHAT A READER MEETS. A closed <details> is not on the screen, and a text
+  26: extractor reads straight through it. The first measurement of this change reported 58 field
+  27: names still visible because it read inside the collapsed block. Everything here strips closed
+  28: <details> bodies first.
+  29: """
+  30: import glob
+  31: import html as H
+  32: import io
+  33: import json
+  34: import os
+  35: import re
+  36: import subprocess
+  37: import sys
+  38: import time
+  39: 
+  40: REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+  41: SSOT = os.path.join(REPO, "ssot")
+  42: LOCK = os.path.join(REPO, "outputs", ".paper_studio_rollout.lock")
+  43: LEDGER = os.path.join(REPO, "outputs", "paper_studio_rollout_2026_08_21.json")
+  44: RUN_ID = "%d@%s" % (os.getpid(), time.strftime("%H%M%S"))
+  45: 
+  46: sys.path.insert(0, SSOT)
+  47: from do_not_rebuild import PAGES as DO_NOT_REBUILD           # noqa: E402
+  48: 
+  49: NCT = re.compile(r"NCT\d{8}")
+  50: EST = re.compile(r"\b\d+\.\d{2,4}\s*\((?:-?\d+\.\d+)\s*to\s*(?:-?\d+\.\d+)\)")
+  51: # THE TRANSCRIPT COMES FROM THE OBJECT, NOT FROM A PATTERN.
+  52: #
+  53: # A first version matched `R version ... AGREES WITH THE STORED POINT TO 4 dp` -- the shape
+  54: # `fit_from_per_trial.R` prints. sglt2-hf's stored output came from an OLDER script and begins
+  55: # "Cross-engine verification ... metafor 5.0.1 under R 4.6.0", so the check reported
+  56: # "transcripts 0" on a page that carries two. FIFTEENTH lookup this run to under-count by
+  57: # reading one spelling.
+  58: #
+  59: # The authoritative comparison is against the object: take every `r_output.verbatim` the object
+  60: # stores and require each to appear, character for character, in the delivered bytes. That
+  61: # cannot drift with the format, and it is the only test that actually proves limb 4 survived
+  62: # the move.
+  63: def stored_transcripts(objp):
+  64:     try:
+  65:         obj = json.load(io.open(os.path.join(REPO, "ssot", objp) if not
+  66:                                 os.path.isabs(objp) else objp, encoding="utf-8"))
+  67:     except Exception:                                              # noqa: BLE001
+  68:         return []
+  69:     out = []
+  70:     for blk in ((obj.get("results") or {}).get("by_outcome") or {}).values():
+  71:         v = ((blk or {}).get("r_output") or {}).get("verbatim")
+  72:         if isinstance(v, str) and v.strip():
+  73:             out.append(v)
+  74:     return out
+  75: REFUSAL = re.compile(r"<strong>Refused:</strong>")
+  76: 
+  77: 
+  78: def acquire():
+  79:     os.makedirs(os.path.dirname(LOCK), exist_ok=True)
+  80:     try:
+  81:         fd = os.open(LOCK, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+  82:     except OSError:
+  83:         held = ""
+  84:         try:
+  85:             held = io.open(LOCK, encoding="utf-8").read().strip()
+  86:         except Exception:                                          # noqa: BLE001
+  87:             pass
+  88:         sys.exit("REFUSED: a rollout is already running (%s). Read the lock before clearing "
+  89:                  "it -- a second writer resolves by whoever wrote last." % (held or "unknown"))
+  90:     os.write(fd, RUN_ID.encode())
+  91:     os.close(fd)
+  92: 
+  93: 
+  94: def release():
+  95:     try:
+  96:         os.remove(LOCK)
+  97:     except OSError:
+  98:         pass
+  99: 
+ 100: 
+ 101: def visible(html_text):
+ 102:     """The panel as a reader meets it: closed <details> bodies are not on the screen."""
+ 103:     i = html_text.find('id="paper"')
+ 104:     seg = html_text[i:] if i >= 0 else ""
+ 105:     seg = re.sub(r"(?is)<(script|style)[^>]*>.*?</\1>", " ", seg)
+ 106: 
+ 107:     def collapse(m):
+ 108:         body = m.group(0)
+ 109:         if re.match(r"(?is)<details[^>]*\bopen\b", body):
+ 110:             return body
+ 111:         s = re.search(r"(?is)<summary[^>]*>(.*?)</summary>", body)
+ 112:         return "<p>%s</p>" % (s.group(1) if s else "")
+ 113: 
+ 114:     seg = re.sub(r"(?is)<details[^>]*>.*?</details>", collapse, seg)
+ 115:     seg = re.sub(r"(?i)<(/?)(div|p|h[1-6]|li|tr|section|table|br|summary)[^>]*>", "\n", seg)
+ 116:     seg = H.unescape(re.sub(r"<[^>]+>", " ", seg))
+ 117:     return [re.sub(r"\s+", " ", l).strip() for l in seg.split("\n") if l.strip()]
+ 118: 
+ 119: 
+ 120: def first_sentence_block(blocks):
+ 121:     """How many visible blocks a reader passes before the ABSTRACT's first sentence.
+ 122: 
+ 123:     A first version took the first 12-word block, which is the TITLE -- legitimately content,
+ 124:     and it never moves, so the metric read 5->5 and could not see the change at all. The
+ 125:     quantity the prediction is about is how much APPARATUS stands between arriving at #paper
+ 126:     and reading the paper, and the Abstract is where the paper starts.
+ 127:     """
+ 128:     for n, b in enumerate(blocks):
+ 129:         if b.strip().lower() == "abstract":
+ 130:             return n + 1
+ 131:     for n, b in enumerate(blocks):
+ 132:         if len(b.split()) >= 12 and not b.startswith(("In this section:",
+ 133:                                                       "Sources for this section",
+ 134:                                                       "Every statement below is projected")):
+ 135:             return n
+ 136:     return len(blocks)
+ 137: 
+ 138: 
+ 139: def measure(path):
+ 140:     if not os.path.isfile(path):
+ 141:         return None
+ 142:     h = io.open(path, encoding="utf-8", errors="replace").read()
+ 143:     bl = visible(h)
+ 144:     return {
+ 145:         "bytes": len(h),
+ 146:         "ncts": sorted(set(NCT.findall(h))),
+ 147:         "estimates": sorted(set(EST.findall(h))),
+ 148:         # THE PAGE, UNESCAPED, for comparing stored text against delivered text.
+ 149:         # The renderer escapes quotes and ampersands on the way out, so a stored transcript
+ 150:         # containing `method = "REML"` appears as `method = &quot;REML&quot;`. A raw
+ 151:         # substring test therefore fails on a transcript that survived perfectly. Comparing
+ 152:         # CONTENT is the question; comparing escaping is not.
+ 153:         "text": H.unescape(h),
+ 154:         "refusals": len(REFUSAL.findall(h)),
+ 155:         "first_sentence_at": first_sentence_block(bl),
+ 156:         "visible_blocks": len(bl),
+ 157:         "has_paper": 'id="paper"' in h,
+ 158:     }
+ 159: 
+ 160: 
+ 161: def restore_from_git(page):
+ 162:     """Class 70: measure and build against the COMMITTED copy, never the working tree."""
+ 163:     r = subprocess.run(["git", "checkout", "--", page], cwd=REPO,
+ 164:                        stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+ 165:     return r.returncode == 0
+ 166: 
+ 167: 
+ 168: def main():
+ 169:     only = [a for a in sys.argv[1:] if not a.startswith("--")]
+ 170:     limit = next((int(a.split("=")[1]) for a in sys.argv[1:] if a.startswith("--limit=")), None)
+ 171:     acquire()
+ 172:     try:
+ 173:         M = json.load(io.open(os.path.join(SSOT, "PAGE_MAP.json"), encoding="utf-8"))
+ 174:         pages = sorted(M)
+ 175:         if only:
+ 176:             pages = [p for p in pages if p in only]
+ 177:         led = {}
+ 178:         if os.path.isfile(LEDGER):
+ 179:             led = json.load(io.open(LEDGER, encoding="utf-8"))
+ 180:         done = set(led.get("done", {}))
+ 181:         todo = [p for p in pages if p not in done and p not in DO_NOT_REBUILD]
+ 182:         skipped = [p for p in pages if p in DO_NOT_REBUILD]
+ 183:         if limit:
+ 184:             todo = todo[:limit]
+ 185:         print("pages mapped %d | already done %d | to build %d | protected %d (%s)"
+ 186:               % (len(pages), len(done), len(todo), len(skipped), ", ".join(skipped)))
+ 187: 
+ 188:         results = led.setdefault("done", {})
+ 189:         for n, page in enumerate(todo, 1):
+ 190:             objp = M[page]
+ 191:             objp = objp[5:] if objp.startswith("ssot/") else objp
+ 192:             full = os.path.join(REPO, page)
+ 193:             restore_from_git(page)
+ 194:             want = stored_transcripts(objp)
+ 195:             before = measure(full)
+ 196:             if not before or not before["has_paper"]:
+ 197:                 results[page] = {"state": "NO PAPER PANEL -- not judged"}
+ 198:                 print("%3d/%d %-46s no paper panel" % (n, len(todo), page[:46]))
+ 199:                 continue
+ 200:             r = subprocess.run([sys.executable, "build_tabbed.py", objp,
+ 201:                                 os.path.join("..", page)], cwd=SSOT,
+ 202:                                stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+ 203:             out = r.stdout.decode("utf-8", "replace")
+ 204:             if r.returncode != 0:
+ 205:                 results[page] = {"state": "BUILD REFUSED", "tail": out[-300:]}
+ 206:                 print("%3d/%d %-46s BUILD REFUSED" % (n, len(todo), page[:46]))
+ 207:                 json.dump(led, io.open(LEDGER, "w", encoding="utf-8"), indent=1)
+ 208:                 continue
+ 209:             after = measure(full)
+ 210: 
+ 211:             v = {
+ 212:                 "1_nothing_lost": (set(before["ncts"]) <= set(after["ncts"])
+ 213:                                    and set(before["estimates"]) <= set(after["estimates"])),
+ 214:                 # EVERY stored transcript must appear character for character in the
+ 215:                 # delivered bytes AFTER the move -- checked against the object, on every page,
+ 216:                 # never on a sample.
+ 217:                 "2_transcript_byte_identical": all(t in after["text"] for t in want),
+ 218:                 "3_first_sentence_earlier": after["first_sentence_at"] <= before["first_sentence_at"],
+ 219:                 "4_not_byte_identical": before["bytes"] != after["bytes"],
+ 220:                 "5_refusals_kept": after["refusals"] >= before["refusals"],
+ 221:             }
+ 222:             results[page] = {
+ 223:                 "state": "ok" if all(v.values()) else "PREDICTION FAILED",
+ 224:                 "checks": v,
+ 225:                 "first_sentence": [before["first_sentence_at"], after["first_sentence_at"]],
+ 226:                 "refusals": [before["refusals"], after["refusals"]],
+ 227:                 "transcripts": len(want),
+ 228:                 "lost_ncts": sorted(set(before["ncts"]) - set(after["ncts"])),
+ 229:                 "lost_estimates": sorted(set(before["estimates"]) - set(after["estimates"])),
+ 230:             }
+ 231:             bad = [k for k, ok in v.items() if not ok]
+ 232:             print("%3d/%d %-46s %s  first-sentence %d->%d  refusals %d->%d  transcripts %d"
+ 233:                   % (n, len(todo), page[:46], "ok" if not bad else "FAILED " + ",".join(bad),
+ 234:                      before["first_sentence_at"], after["first_sentence_at"],
+ 235:                      before["refusals"], after["refusals"], len(want)))
+ 236:             json.dump(led, io.open(LEDGER, "w", encoding="utf-8"), indent=1)
+ 237: 
+ 238:         ok = sum(1 for v in results.values() if v.get("state") == "ok")
+ 239:         fail = [p for p, v in results.items() if v.get("state") == "PREDICTION FAILED"]
+ 240:         ref = [p for p, v in results.items() if v.get("state") == "BUILD REFUSED"]
+ 241:         print("\nbuilt ok %d | prediction failed %d | build refused %d | ledger %s"
+ 242:               % (ok, len(fail), len(ref), os.path.relpath(LEDGER, REPO)))
+ 243:         for p in fail[:10]:
+ 244:             print("   FAILED %-44s %s" % (p, results[p]["checks"]))
+ 245:     finally:
+ 246:         release()
+ 247: 
+ 248: 
+ 249: if __name__ == "__main__":
+ 250:     main()
+
+codex
+Findings:
+
+- Line 163: `git checkout -- page` restores from the index, not HEAD. Exact input: HEAD has `p.html=A`, staged index has `p.html=B`, worktree has `p.html=C`, and `PAGE_MAP` includes `p.html`; consequence: the “committed copy” baseline measured at line 195 is `B`, not committed `A`.
+
+- Line 193: `restore_from_git(page)` return value is ignored. Exact input: `PAGE_MAP` includes an untracked `p.html`; `git checkout -- p.html` exits nonzero, but line 195 still measures the worktree; consequence: the guard reads the wrong copy after restore failure.
+
+- Lines 180-181: the idempotency guard treats any ledger key as done. Exact input: `{"done":{"p.html":{"state":"PREDICTION FAILED"}}}`; consequence: reruns skip a failed page as already complete.
+
+- Lines 183-184: zero is conflated with absent. Exact input: `--limit=0`; consequence: the script builds all todo pages instead of none.
+
+- Lines 145 and 219: “byte-identical” is implemented as character-count inequality. Exact input: before page text `id="paper">A`, after page text `id="paper">B` with the same length; consequence: a changed page can fail the “not byte-identical” check, while byte identity itself is never compared.
+
+- Line 218: “earlier” allows equality. Exact input: before `first_sentence_at=5`, after `first_sentence_at=5`; consequence: no earlier reach is reported as passing.
+
+- Line 50: the estimate regex drops a negative point-estimate sign. Exact input: before `-0.42 (-0.70 to -0.10)`, after `0.42 (-0.70 to -0.10)`; consequence: an effect-direction reversal passes `1_nothing_lost`.
+
+- Lines 67-68 and 217: failed or empty transcript extraction becomes `want=[]`, and `all([])` passes. Exact input object: `{"results":{"by_outcome":{"x":{}}}}` with a page that carried a transcript before and drops it after; consequence: transcript preservation is vacuous.
+
+- Lines 142 and 217: transcript comparison reads HTML as text, normalizing line endings. Exact input stored transcript `a\nb`, delivered bytes `a\r\nb`; consequence: byte identity is reported even though delivered bytes differ.
+
+No merged-cell/tabulation defect found in this module.  
+COULD NOT DETERMINE corpus-specific selector underreach without `PAGE_MAP.json`, object JSON files, rendered pages, and `build_tabbed.py`.
+tokens used
+21,754
+Findings:
+
+- Line 163: `git checkout -- page` restores from the index, not HEAD. Exact input: HEAD has `p.html=A`, staged index has `p.html=B`, worktree has `p.html=C`, and `PAGE_MAP` includes `p.html`; consequence: the “committed copy” baseline measured at line 195 is `B`, not committed `A`.
+
+- Line 193: `restore_from_git(page)` return value is ignored. Exact input: `PAGE_MAP` includes an untracked `p.html`; `git checkout -- p.html` exits nonzero, but line 195 still measures the worktree; consequence: the guard reads the wrong copy after restore failure.
+
+- Lines 180-181: the idempotency guard treats any ledger key as done. Exact input: `{"done":{"p.html":{"state":"PREDICTION FAILED"}}}`; consequence: reruns skip a failed page as already complete.
+
+- Lines 183-184: zero is conflated with absent. Exact input: `--limit=0`; consequence: the script builds all todo pages instead of none.
+
+- Lines 145 and 219: “byte-identical” is implemented as character-count inequality. Exact input: before page text `id="paper">A`, after page text `id="paper">B` with the same length; consequence: a changed page can fail the “not byte-identical” check, while byte identity itself is never compared.
+
+- Line 218: “earlier” allows equality. Exact input: before `first_sentence_at=5`, after `first_sentence_at=5`; consequence: no earlier reach is reported as passing.
+
+- Line 50: the estimate regex drops a negative point-estimate sign. Exact input: before `-0.42 (-0.70 to -0.10)`, after `0.42 (-0.70 to -0.10)`; consequence: an effect-direction reversal passes `1_nothing_lost`.
+
+- Lines 67-68 and 217: failed or empty transcript extraction becomes `want=[]`, and `all([])` passes. Exact input object: `{"results":{"by_outcome":{"x":{}}}}` with a page that carried a transcript before and drops it after; consequence: transcript preservation is vacuous.
+
+- Lines 142 and 217: transcript comparison reads HTML as text, normalizing line endings. Exact input stored transcript `a\nb`, delivered bytes `a\r\nb`; consequence: byte identity is reported even though delivered bytes differ.
+
+No merged-cell/tabulation defect found in this module.  
+COULD NOT DETERMINE corpus-specific selector underreach without `PAGE_MAP.json`, object JSON files, rendered pages, and `build_tabbed.py`.

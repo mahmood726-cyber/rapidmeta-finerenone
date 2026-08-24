@@ -1,0 +1,427 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a03248-db86-7aa1-bc4d-7079aea3cd11
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/rederive_pooled.py
+
+--- THE FILE, IN FULL ---
+"""Re-derive every published pooled estimate from its OWN object's per-trial inputs.
+
+NOT the headline sweep. That one compared PAGE TO OBJECT and returned 514 of 514, which
+establishes the projection is faithful and says NOTHING about whether the object's own
+arithmetic is right. THIS ASKS WHETHER THE OBJECT AGREES WITH ITSELF.
+
+TWO PASSES PER TOPIC, because the second is worthless without the first:
+
+  PASS 1  INPUT INTEGRITY. Where a per-trial log point and log standard error are stored,
+          recompute them from the effect and interval stored beside them. Where they are
+          NOT stored, they must be DERIVED -- and derivation is itself a place to be wrong
+          (the unicode-minus and exponentiated-mean-difference defects both lived there).
+          Any topic whose inputs had to be derived is REPORTED AS SUCH, never silently.
+
+  PASS 2  POOLED ARITHMETIC. REML random-effects on those inputs, compared to the
+          published point, interval and tau-squared.
+
+I-SQUARED IS COMPARED UNDER BOTH DEFINITIONS and neither is treated as the right one.
+Higgins (Q-df)/Q and the metafor/REML tau2/(tau2+s2) are different quantities; ARNI carries
+the second under a field named only 'i2'. A mismatch on one but not the other is a
+LABELLING finding, not an arithmetic one, and is reported separately so the two are never
+confused.
+
+A FAILURE HERE IS NOT AUTOMATICALLY A WRONG NUMBER. A pooled estimate that does not
+reproduce from its own inputs is EITHER a wrong number on a live page OR a wrong record of
+how it was computed -- for instance a different estimator, a continuity correction, or a
+trial excluded from the pool but left in per_trial. Those need different treatments, so
+this script reports the discrepancy and does NOT fix anything.
+"""
+from __future__ import annotations
+import io
+import json
+import math
+import os
+import sys
+
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+Z = 1.959963985
+# RATE_RATIO was MISSING here and iv-iron-hf was pooled on the natural scale instead of
+# the log scale as a result -- reported as a non-reproducing estimate when the object was
+# correct. Any ratio measure added to the corpus must be added here.
+RATIO = {"HR", "RR", "OR", "IRR", "RATE_RATIO", "RATERATIO", "IRR_", "HAZARD_RATIO",
+         "RISK_RATIO", "ODDS_RATIO"}
+
+
+def dl(y, v):
+    """DerSimonian-Laird. THE OBJECT'S DECLARED ESTIMATOR IS AUTHORITATIVE, not ours."""
+    W = [1 / x for x in v]
+    SW = sum(W)
+    mu0 = sum(a * b for a, b in zip(W, y)) / SW
+    q = sum(a * (b - mu0) ** 2 for a, b in zip(W, y))
+    c = SW - sum(x * x for x in W) / SW
+    t2 = max(0.0, (q - (len(y) - 1)) / c) if c > 0 else 0.0
+    w = [1 / (vi + t2) for vi in v]
+    sw = sum(w)
+    return sum(a * b for a, b in zip(w, y)) / sw, math.sqrt(1 / sw), t2, q
+
+
+def reml(y, v, it=800):
+    w = [1 / x for x in v]
+    sw = sum(w)
+    mu = sum(a * b for a, b in zip(w, y)) / sw
+    q = sum(a * (b - mu) ** 2 for a, b in zip(w, y))
+    c = sw - sum(x * x for x in w) / sw
+    t2 = max(0.0, (q - (len(y) - 1)) / c) if c > 0 else 0.0
+    for _ in range(it):
+        w = [1 / (vi + t2) for vi in v]
+        sw = sum(w)
+        mu = sum(a * b for a, b in zip(w, y)) / sw
+        num = sum((wi ** 2) * ((yi - mu) ** 2 - vi) for wi, yi, vi in zip(w, y, v))
+        num += sum(x * x for x in w) / sw
+        den = sum(x ** 2 for x in w)
+        new = max(0.0, num / den) if den else 0.0
+        if abs(new - t2) < 1e-15:
+            t2 = new
+            break
+        t2 = new
+    w = [1 / (vi + t2) for vi in v]
+    sw = sum(w)
+    return sum(a * b for a, b in zip(w, y)) / sw, math.sqrt(1 / sw), t2, q
+
+
+def inputs_from(pt, measure):
+    """Return (y, v, derived_flags, integrity) or None if the shape does not permit."""
+    y, v, derived, integrity = [], [], [], []
+    log_scale = (measure or "").upper() in RATIO
+    for t in pt:
+        p, lo, hi = t.get("point"), t.get("ci_low"), t.get("ci_high")
+        ly, ls = t.get("log_point"), t.get("log_se")
+        se = t.get("se") or t.get("se_log_rr")
+        if log_scale:
+            if ly is not None and ls not in (None, 0):
+                # PASS 1: check the stored logs against the stored effect
+                if None not in (p, lo, hi) and p > 0 and lo > 0 and hi > 0:
+                    d1 = abs(math.log(p) - ly)
+                    d2 = abs((math.log(hi) - math.log(lo)) / (2 * Z) - ls)
+                    integrity.append(max(d1, d2))
+                y.append(ly)
+                v.append(ls * ls)
+                derived.append(False)
+            elif None not in (p, lo, hi) and p > 0 and lo > 0 and hi > 0:
+                y.append(math.log(p))
+                v.append(((math.log(hi) - math.log(lo)) / (2 * Z)) ** 2)
+                derived.append(True)
+            else:
+                return None
+        else:
+            if p is None:
+                return None
+            s = se if se else (
+                (hi - lo) / (2 * Z) if None not in (lo, hi) else None)
+            if not s:
+                return None
+            y.append(p)
+            v.append(s * s)
+            derived.append(se is None)
+    return (y, v, derived, integrity) if len(y) >= 2 else None
+
+
+def main() -> int:
+    targets = json.load(io.open(os.path.join(REPO, ".rederive-targets.json"),
+                                encoding="utf-8"))
+    ok, bad, unck = [], [], []
+    for topic in targets:
+        f = os.path.join(REPO, "ssot", topic, topic + ".json")
+        if not os.path.exists(f):
+            unck.append((topic, "no object"))
+            continue
+        o = json.load(io.open(f, encoding="utf-8"))
+        bo = ((o.get("results") or {}).get("by_outcome") or {})
+        hit = None
+        for name, blk in bo.items():
+            pl = (blk or {}).get("pooled") or {}
+            if pl.get("point") is not None and (blk.get("per_trial") or []):
+                hit = (name, blk, pl)
+                break
+        if not hit:
+            unck.append((topic, "no outcome carries both a pooled point and per_trial"))
+            continue
+        name, blk, pl = hit
+        measure = pl.get("measure") or blk.get("measure") or ""
+        got = inputs_from(blk["per_trial"], measure)
+        if not got:
+            unck.append((topic, "per_trial shape does not permit re-derivation"))
+            continue
+        y, v, derived, integ = got
+        if len(y) != (blk.get("k") or len(y)):
+            unck.append((topic, "per_trial n=%d but k=%s -- pool membership unclear"
+                         % (len(y), blk.get("k"))))
+            continue
+        # RE-DERIVE WITH THE ESTIMATOR THE OBJECT DECLARES. The first version of this
+        # script used REML unconditionally and reported three DerSimonian-Laird topics as
+        # non-reproducing. An audit that ignores the method under audit is not an audit.
+        est = (blk.get("estimator") or blk.get("estimator_used") or "").lower()
+        fn = dl if ("dersimonian" in est or est.strip() in ("dl", "d-l")) else reml
+        mu, se, t2, q = fn(y, v)
+        rec_est = "DL" if fn is dl else "REML"
+        log_scale = measure.upper() in RATIO
+        pt_r = math.exp(mu) if log_scale else mu
+        lo_r = math.exp(mu - Z * se) if log_scale else mu - Z * se
+        hi_r = math.exp(mu + Z * se) if log_scale else mu + Z * se
+        dp = abs(pt_r - pl["point"]) / max(1e-12, abs(pl["point"]))
+        d_lo = (abs(lo_r - pl["ci_low"]) / max(1e-12, abs(pl["ci_low"]))
+                if pl.get("ci_low") is not None else 0)
+        d_hi = (abs(hi_r - pl["ci_high"]) / max(1e-12, abs(pl["ci_high"]))
+                if pl.get("ci_high") is not None else 0)
+        rec = {"topic": topic, "outcome": name, "measure": measure, "k": len(y),
+               "published": [pl["point"], pl.get("ci_low"), pl.get("ci_high")],
+               "rederived": [round(pt_r, 8), round(lo_r, 8), round(hi_r, 8)],
+               "rel_delta": [dp, d_lo, d_hi],
+               "inputs_derived_here": sum(derived),
+               "input_integrity_max_abs": (max(integ) if integ else None),
+               "estimator_declared": blk.get("estimator"), "estimator_used": rec_est}
+        (ok if max(dp, d_lo, d_hi) < 1e-3 else bad).append(rec)
+
+    print("RE-DERIVED OK (relative difference < 1e-3): %d" % len(ok))
+    for r in ok:
+        note = ""
+        if r["inputs_derived_here"]:
+            note = "  [%d input(s) DERIVED here, not stored]" % r["inputs_derived_here"]
+        print("   %-44s %-3s k=%-2d  %.10g vs %.10g   d=%.1e%s"
+              % (r["topic"][:43], r["measure"], r["k"], r["rederived"][0],
+                 r["published"][0], r["rel_delta"][0], note))
+    print()
+    print("DID NOT RE-DERIVE: %d" % len(bad))
+    for r in bad:
+        print("   %-44s %-3s k=%-2d" % (r["topic"][:43], r["measure"], r["k"]))
+        print("        published  %s" % r["published"])
+        print("        rederived  %s" % r["rederived"])
+        print("        rel deltas point %.3e  lo %.3e  hi %.3e" % tuple(r["rel_delta"]))
+        if r["inputs_derived_here"]:
+            print("        NOTE: %d input(s) had to be DERIVED -- the derivation is itself "
+                  "a candidate cause" % r["inputs_derived_here"])
+    print()
+    print("NOT CHECKABLE: %d   -- these are a HOLE, not a pass" % len(unck))
+    for t, why in unck:
+        print("   %-44s %s" % (t[:43], why[:56]))
+    json.dump({"ok": ok, "failed": bad, "unchecked": unck},
+              io.open(os.path.join(REPO, ".rederive-result.json"), "w", encoding="utf-8"),
+              ensure_ascii=False, indent=1)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=0; Get-Content -LiteralPath '"'scripts/rederive_pooled.py' | ForEach-Object { "'$i++; if($i -ge 85 -and $i -le 208){ '"'{0,4}: {1}' -f "'$i, $_ } }' in F:\rapidmeta-ssot-shell
+ succeeded in 1557ms:
+  85: 
+  86: def inputs_from(pt, measure):
+  87:     """Return (y, v, derived_flags, integrity) or None if the shape does not permit."""
+  88:     y, v, derived, integrity = [], [], [], []
+  89:     log_scale = (measure or "").upper() in RATIO
+  90:     for t in pt:
+  91:         p, lo, hi = t.get("point"), t.get("ci_low"), t.get("ci_high")
+  92:         ly, ls = t.get("log_point"), t.get("log_se")
+  93:         se = t.get("se") or t.get("se_log_rr")
+  94:         if log_scale:
+  95:             if ly is not None and ls not in (None, 0):
+  96:                 # PASS 1: check the stored logs against the stored effect
+  97:                 if None not in (p, lo, hi) and p > 0 and lo > 0 and hi > 0:
+  98:                     d1 = abs(math.log(p) - ly)
+  99:                     d2 = abs((math.log(hi) - math.log(lo)) / (2 * Z) - ls)
+ 100:                     integrity.append(max(d1, d2))
+ 101:                 y.append(ly)
+ 102:                 v.append(ls * ls)
+ 103:                 derived.append(False)
+ 104:             elif None not in (p, lo, hi) and p > 0 and lo > 0 and hi > 0:
+ 105:                 y.append(math.log(p))
+ 106:                 v.append(((math.log(hi) - math.log(lo)) / (2 * Z)) ** 2)
+ 107:                 derived.append(True)
+ 108:             else:
+ 109:                 return None
+ 110:         else:
+ 111:             if p is None:
+ 112:                 return None
+ 113:             s = se if se else (
+ 114:                 (hi - lo) / (2 * Z) if None not in (lo, hi) else None)
+ 115:             if not s:
+ 116:                 return None
+ 117:             y.append(p)
+ 118:             v.append(s * s)
+ 119:             derived.append(se is None)
+ 120:     return (y, v, derived, integrity) if len(y) >= 2 else None
+ 121: 
+ 122: 
+ 123: def main() -> int:
+ 124:     targets = json.load(io.open(os.path.join(REPO, ".rederive-targets.json"),
+ 125:                                 encoding="utf-8"))
+ 126:     ok, bad, unck = [], [], []
+ 127:     for topic in targets:
+ 128:         f = os.path.join(REPO, "ssot", topic, topic + ".json")
+ 129:         if not os.path.exists(f):
+ 130:             unck.append((topic, "no object"))
+ 131:             continue
+ 132:         o = json.load(io.open(f, encoding="utf-8"))
+ 133:         bo = ((o.get("results") or {}).get("by_outcome") or {})
+ 134:         hit = None
+ 135:         for name, blk in bo.items():
+ 136:             pl = (blk or {}).get("pooled") or {}
+ 137:             if pl.get("point") is not None and (blk.get("per_trial") or []):
+ 138:                 hit = (name, blk, pl)
+ 139:                 break
+ 140:         if not hit:
+ 141:             unck.append((topic, "no outcome carries both a pooled point and per_trial"))
+ 142:             continue
+ 143:         name, blk, pl = hit
+ 144:         measure = pl.get("measure") or blk.get("measure") or ""
+ 145:         got = inputs_from(blk["per_trial"], measure)
+ 146:         if not got:
+ 147:             unck.append((topic, "per_trial shape does not permit re-derivation"))
+ 148:             continue
+ 149:         y, v, derived, integ = got
+ 150:         if len(y) != (blk.get("k") or len(y)):
+ 151:             unck.append((topic, "per_trial n=%d but k=%s -- pool membership unclear"
+ 152:                          % (len(y), blk.get("k"))))
+ 153:             continue
+ 154:         # RE-DERIVE WITH THE ESTIMATOR THE OBJECT DECLARES. The first version of this
+ 155:         # script used REML unconditionally and reported three DerSimonian-Laird topics as
+ 156:         # non-reproducing. An audit that ignores the method under audit is not an audit.
+ 157:         est = (blk.get("estimator") or blk.get("estimator_used") or "").lower()
+ 158:         fn = dl if ("dersimonian" in est or est.strip() in ("dl", "d-l")) else reml
+ 159:         mu, se, t2, q = fn(y, v)
+ 160:         rec_est = "DL" if fn is dl else "REML"
+ 161:         log_scale = measure.upper() in RATIO
+ 162:         pt_r = math.exp(mu) if log_scale else mu
+ 163:         lo_r = math.exp(mu - Z * se) if log_scale else mu - Z * se
+ 164:         hi_r = math.exp(mu + Z * se) if log_scale else mu + Z * se
+ 165:         dp = abs(pt_r - pl["point"]) / max(1e-12, abs(pl["point"]))
+ 166:         d_lo = (abs(lo_r - pl["ci_low"]) / max(1e-12, abs(pl["ci_low"]))
+ 167:                 if pl.get("ci_low") is not None else 0)
+ 168:         d_hi = (abs(hi_r - pl["ci_high"]) / max(1e-12, abs(pl["ci_high"]))
+ 169:                 if pl.get("ci_high") is not None else 0)
+ 170:         rec = {"topic": topic, "outcome": name, "measure": measure, "k": len(y),
+ 171:                "published": [pl["point"], pl.get("ci_low"), pl.get("ci_high")],
+ 172:                "rederived": [round(pt_r, 8), round(lo_r, 8), round(hi_r, 8)],
+ 173:                "rel_delta": [dp, d_lo, d_hi],
+ 174:                "inputs_derived_here": sum(derived),
+ 175:                "input_integrity_max_abs": (max(integ) if integ else None),
+ 176:                "estimator_declared": blk.get("estimator"), "estimator_used": rec_est}
+ 177:         (ok if max(dp, d_lo, d_hi) < 1e-3 else bad).append(rec)
+ 178: 
+ 179:     print("RE-DERIVED OK (relative difference < 1e-3): %d" % len(ok))
+ 180:     for r in ok:
+ 181:         note = ""
+ 182:         if r["inputs_derived_here"]:
+ 183:             note = "  [%d input(s) DERIVED here, not stored]" % r["inputs_derived_here"]
+ 184:         print("   %-44s %-3s k=%-2d  %.10g vs %.10g   d=%.1e%s"
+ 185:               % (r["topic"][:43], r["measure"], r["k"], r["rederived"][0],
+ 186:                  r["published"][0], r["rel_delta"][0], note))
+ 187:     print()
+ 188:     print("DID NOT RE-DERIVE: %d" % len(bad))
+ 189:     for r in bad:
+ 190:         print("   %-44s %-3s k=%-2d" % (r["topic"][:43], r["measure"], r["k"]))
+ 191:         print("        published  %s" % r["published"])
+ 192:         print("        rederived  %s" % r["rederived"])
+ 193:         print("        rel deltas point %.3e  lo %.3e  hi %.3e" % tuple(r["rel_delta"]))
+ 194:         if r["inputs_derived_here"]:
+ 195:             print("        NOTE: %d input(s) had to be DERIVED -- the derivation is itself "
+ 196:                   "a candidate cause" % r["inputs_derived_here"])
+ 197:     print()
+ 198:     print("NOT CHECKABLE: %d   -- these are a HOLE, not a pass" % len(unck))
+ 199:     for t, why in unck:
+ 200:         print("   %-44s %s" % (t[:43], why[:56]))
+ 201:     json.dump({"ok": ok, "failed": bad, "unchecked": unck},
+ 202:               io.open(os.path.join(REPO, ".rederive-result.json"), "w", encoding="utf-8"),
+ 203:               ensure_ascii=False, indent=1)
+ 204:     return 0
+ 205: 
+ 206: 
+ 207: if __name__ == "__main__":
+ 208:     sys.exit(main())
+
+codex
+Findings:
+
+Let `A=[{"point":1,"log_point":0,"log_se":0.1},{"point":1,"log_point":0,"log_se":0.1}]` and `B=[{"point":2,"ci_low":1,"ci_high":4,"log_point":0,"log_se":0.1},{"point":2,"ci_low":1,"ci_high":4,"log_point":0,"log_se":0.1}]`.
+
+- CHECK CANNOT FAIL / STATUS CODE REPORTING THE WRAPPER, line 204. Input: `.rederive-targets.json=["x"]`, `ssot/x/x.json={"results":{"by_outcome":{"o":{"measure":"RR","pooled":{"point":2},"per_trial":A,"k":2}}}}`. Consequence: a non-rederived estimate is recorded in `failed` but the process exits success.
+
+- CHECK CANNOT FAIL, line 177. Input: `.rederive-targets.json=["x"]`, `ssot/x/x.json={"results":{"by_outcome":{"o":{"measure":"RR","pooled":{"point":1,"ci_low":0.8706,"ci_high":1.1486},"per_trial":B,"k":2}}}}`. Consequence: corrupted stored per-trial effects pass as OK because `input_integrity_max_abs` is recorded but never gates failure.
+
+- SELECTOR MISSES REACHABLE TARGETS, line 139. Input: `.rederive-targets.json=["x"]`, `ssot/x/x.json={"results":{"by_outcome":{"ok":{"measure":"RR","pooled":{"point":1},"per_trial":A,"k":2},"bad":{"measure":"RR","pooled":{"point":2},"per_trial":A,"k":2}}}}`. Consequence: the bad second outcome is never checked.
+
+- ZERO CONFLATED WITH ABSENT, line 150. Input: `.rederive-targets.json=["x"]`, `ssot/x/x.json={"results":{"by_outcome":{"o":{"measure":"RR","pooled":{"point":1},"per_trial":A,"k":0}}}}`. Consequence: declared `k=0` is treated like missing `k` and the membership guard does not fire.
+
+- ABSENT CONFLATED WITH ZERO DELTA, lines 167 and 169. Input: `.rederive-targets.json=["x"]`, `ssot/x/x.json={"results":{"by_outcome":{"o":{"measure":"RR","pooled":{"point":1},"per_trial":A,"k":2}}}}`. Consequence: missing published interval bounds are scored as exact matches.
+
+- CHECK CANNOT FAIL, line 177. Input: `.rederive-targets.json=["x"]`, `ssot/x/x.json={"results":{"by_outcome":{"o":{"measure":"RR","pooled":{"point":1,"ci_low":0.8706,"ci_high":1.1486,"i2":999},"i2":999,"per_trial":A,"k":2}}}}`. Consequence: arbitrary `i2` values pass because heterogeneity fields are never compared.
+
+Not found in this packet: probe keyed to a removed fix string; idempotency guard satisfied by its own comment; CRLF/LF text comparison; merged-cell/off-by-one tabulation; negation dropped.
+
+COULD NOT DETERMINE actual corpus-form selector coverage: missing `.rederive-targets.json` and `ssot/*/*.json`.
+tokens used
+29,841
+Findings:
+
+Let `A=[{"point":1,"log_point":0,"log_se":0.1},{"point":1,"log_point":0,"log_se":0.1}]` and `B=[{"point":2,"ci_low":1,"ci_high":4,"log_point":0,"log_se":0.1},{"point":2,"ci_low":1,"ci_high":4,"log_point":0,"log_se":0.1}]`.
+
+- CHECK CANNOT FAIL / STATUS CODE REPORTING THE WRAPPER, line 204. Input: `.rederive-targets.json=["x"]`, `ssot/x/x.json={"results":{"by_outcome":{"o":{"measure":"RR","pooled":{"point":2},"per_trial":A,"k":2}}}}`. Consequence: a non-rederived estimate is recorded in `failed` but the process exits success.
+
+- CHECK CANNOT FAIL, line 177. Input: `.rederive-targets.json=["x"]`, `ssot/x/x.json={"results":{"by_outcome":{"o":{"measure":"RR","pooled":{"point":1,"ci_low":0.8706,"ci_high":1.1486},"per_trial":B,"k":2}}}}`. Consequence: corrupted stored per-trial effects pass as OK because `input_integrity_max_abs` is recorded but never gates failure.
+
+- SELECTOR MISSES REACHABLE TARGETS, line 139. Input: `.rederive-targets.json=["x"]`, `ssot/x/x.json={"results":{"by_outcome":{"ok":{"measure":"RR","pooled":{"point":1},"per_trial":A,"k":2},"bad":{"measure":"RR","pooled":{"point":2},"per_trial":A,"k":2}}}}`. Consequence: the bad second outcome is never checked.
+
+- ZERO CONFLATED WITH ABSENT, line 150. Input: `.rederive-targets.json=["x"]`, `ssot/x/x.json={"results":{"by_outcome":{"o":{"measure":"RR","pooled":{"point":1},"per_trial":A,"k":0}}}}`. Consequence: declared `k=0` is treated like missing `k` and the membership guard does not fire.
+
+- ABSENT CONFLATED WITH ZERO DELTA, lines 167 and 169. Input: `.rederive-targets.json=["x"]`, `ssot/x/x.json={"results":{"by_outcome":{"o":{"measure":"RR","pooled":{"point":1},"per_trial":A,"k":2}}}}`. Consequence: missing published interval bounds are scored as exact matches.
+
+- CHECK CANNOT FAIL, line 177. Input: `.rederive-targets.json=["x"]`, `ssot/x/x.json={"results":{"by_outcome":{"o":{"measure":"RR","pooled":{"point":1,"ci_low":0.8706,"ci_high":1.1486,"i2":999},"i2":999,"per_trial":A,"k":2}}}}`. Consequence: arbitrary `i2` values pass because heterogeneity fields are never compared.
+
+Not found in this packet: probe keyed to a removed fix string; idempotency guard satisfied by its own comment; CRLF/LF text comparison; merged-cell/off-by-one tabulation; negation dropped.
+
+COULD NOT DETERMINE actual corpus-form selector coverage: missing `.rederive-targets.json` and `ssot/*/*.json`.

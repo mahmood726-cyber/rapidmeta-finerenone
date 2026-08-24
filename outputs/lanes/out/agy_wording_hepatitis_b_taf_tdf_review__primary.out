@@ -1,0 +1,21 @@
+**1. OVERCLAIM**
+*   *"The open-label arm additionally enrols every participant who completed the double-blind period, so it contains the TDF patients who rolled over and largely the same people as the arm it is set against."*
+    *   **Extra claim:** Asserts specific trial protocol mechanics (rollover phase) and demographic composition ("largely the same people"). None of this information exists in the object.
+*   *"...and DL is refused below k=10 in this project."*
+    *   **Extra claim:** Asserts a project-level methodological rule that is not recorded anywhere on this object.
+
+**2. UNDERCLAIM**
+Yes. The object explicitly records under `absent_from_source` that the protocol, search strategy, screening log, risk-of-bias assessment, certainty rating, and sources are entirely absent. This total lack of systematic review methodology independently invalidates the evidence, but the text does not mention it. Additionally, `pool_uniformity.effect_measure` is explicitly recorded as `"NOT ESTABLISHED"`.
+
+**3. FACT vs JUDGEMENT**
+*   *"It is not a weak or mismatched comparison; it is not a comparison."* — An interpretive framing/rhetorical flourish written as a literal fact.
+*   *"...largely the same people..."* — An interpretive judgement about population overlap stated as a raw fact.
+
+**4. IS THE STATED REASON THE ACTUAL REASON?**
+Yes. The stated reason definitively follows from the evidence: `arms_stored_on_this_object_are_NOT_the_comparison` explicitly flags that the active comparator is missing and that the two stored arms are both experimental. However, as noted in #2, the packet easily supports a completely different, unstated reason for withdrawal: the complete absence of foundational systematic review components (`absent_from_source`).
+
+**5. VERDICT**
+**ACCEPT WITH CHANGES.** 
+*   **Remove** the entire sentence about open-label rollover mechanics and patient composition ("The open-label arm additionally enrols..."). 
+*   **Remove** the clause invoking the unrecorded project rule ("...and DL is refused below k=10 in this project."). 
+*   **Keep** the remaining text, which accurately and sufficiently reports the fatal arm mismatch and the internal boolean contradiction (`estimand_established`) exactly as supported by the object.

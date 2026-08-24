@@ -1,0 +1,189 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/lane_daemon.py
+
+--- THE FILE, IN FULL ---
+"""Keep Codex and agy saturated independently of whoever is writing.
+
+WHY A DAEMON AND NOT A SEQUENCE OF CALLS. Ten lanes across a whole session is not hard use,
+and the reason was structural: each vendor call was a STEP in the writer's sequence --
+launch, await, read, report, launch. A separate machine idles for the whole of every step
+that is not its own. This owns the queue instead: it keeps N Codex and M agy processes
+alive at all times, starts the next task the instant one lands, and never waits for anyone.
+
+DETACHED ON PURPOSE. Earlier lanes died when the shell that spawned them was killed by an
+unrelated timeout. These are started with CREATE_NEW_PROCESS_GROUP / DETACHED_PROCESS on
+Windows and setsid elsewhere, so a lane outlives the thing that launched it.
+
+THE QUEUE IS A DIRECTORY. Drop a .task JSON in `outputs/lanes/queue/`; the daemon picks it
+up on its next tick. So work can be added while it runs, which is the point -- a lane
+finishing with nothing queued is the failure to avoid.
+
+STATUS IS A FILE, NOT A MEMORY. `outputs/lanes/status.json` carries launched/running/done
+counts and every lane's state, so throughput can be reported as a number by anyone, at any
+time, without asking the daemon anything.
+"""
+from __future__ import annotations
+
+import io
+import json
+import os
+import subprocess
+import sys
+import time
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+LANES = os.path.join(REPO, "outputs", "lanes")
+QUEUE = os.path.join(LANES, "queue")
+DONE = os.path.join(LANES, "done")
+OUT = os.path.join(LANES, "out")
+STATUS = os.path.join(LANES, "status.json")
+
+MAX = {"codex": 4, "agy": 2}
+TICK = 10
+# A lane that has produced no bytes for this long is hung, not thinking.
+STALL_SECONDS = 2400
+
+
+def _mkdirs():
+    for d in (LANES, QUEUE, DONE, OUT):
+        os.makedirs(d, exist_ok=True)
+
+
+def _spawn(engine, prompt_path, out_path):
+    prompt = io.open(prompt_path, encoding="utf-8", errors="replace").read()
+    if engine == "codex":
+        cmd = ["codex", "exec", "--skip-git-repo-check", prompt]
+    else:
+        cmd = ["agy", "--print", prompt]
+    fh = io.open(out_path, "wb")
+    kw = {}
+    if os.name == "nt":
+        kw["creationflags"] = (subprocess.CREATE_NEW_PROCESS_GROUP
+                               | getattr(subprocess, "DETACHED_PROCESS", 0x00000008))
+    else:
+        kw["start_new_session"] = True
+    devnull = io.open(os.devnull, "rb")
+    return subprocess.Popen(cmd, cwd=REPO, stdin=devnull, stdout=fh,
+                            stderr=subprocess.STDOUT, **kw), fh
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    _mkdirs()
+    running = {}          # name -> dict
+    launched = done = failed = 0
+    started = time.time()
+    idle_ticks = 0
+    while True:
+        # --- reap
+        for name in list(running):
+            r = running[name]
+            if r["proc"].poll() is None:
+                size = os.path.getsize(r["out"]) if os.path.isfile(r["out"]) else 0
+                if size != r["size"]:
+                    r["size"], r["last"] = size, time.time()
+                elif time.time() - r["last"] > STALL_SECONDS:
+                    r["proc"].kill()
+                continue
+            r["fh"].close()
+            done += 1
+            rc = r["proc"].returncode
+            if rc != 0:
+                failed += 1
+            os.replace(r["task"], os.path.join(DONE, os.path.basename(r["task"])))
+            running.pop(name)
+
+        # --- fill
+        for engine in ("codex", "agy"):
+            live = sum(1 for r in running.values() if r["engine"] == engine)
+            while live < MAX[engine]:
+                nxt = None
+                for f in sorted(os.listdir(QUEUE)):
+                    if not f.endswith(".task"):
+                        continue
+                    t = json.load(io.open(os.path.join(QUEUE, f), encoding="utf-8"))
+                    if t.get("engine") == engine:
+                        nxt = (f, t)
+                        break
+                if not nxt:
+                    break
+                f, t = nxt
+                name = f[:-5]
+                out_path = os.path.join(OUT, name + ".out")
+                try:
+                    proc, fh = _spawn(engine, os.path.join(REPO, t["prompt"]), out_path)
+                except Exception as exc:
+                    failed += 1
+                    io.open(out_path, "w", encoding="utf-8").write("SPAWN FAILED: %s" % exc)
+                    os.replace(os.path.join(QUEUE, f), os.path.join(DONE, f))
+                    continue
+                running[name] = {"engine": engine, "proc": proc, "fh": fh,
+                                 "out": out_path, "size": 0, "last": time.time(),
+                                 "task": os.path.join(QUEUE, f),
+                                 "started": time.time()}
+                launched += 1
+                live += 1
+
+        queued = len([f for f in os.listdir(QUEUE) if f.endswith(".task")])
+        json.dump({
+            "launched": launched, "returned": done, "failed": failed,
+            "running": len(running), "queued": queued,
+            "uptime_s": int(time.time() - started),
+            "by_engine": {e: sum(1 for r in running.values() if r["engine"] == e)
+                          for e in MAX},
+            "live": sorted((n, int(time.time() - r["started"]),
+                            os.path.getsize(r["out"]) if os.path.isfile(r["out"]) else 0)
+                           for n, r in running.items()),
+        }, io.open(STATUS, "w", encoding="utf-8"), indent=1)
+
+        if not running and not queued:
+            idle_ticks += 1
+            # NOT A SILENT EXIT. An empty queue is the failure the operator asked to be told
+            # about, so it is written where a report can read it rather than just stopping.
+            if idle_ticks >= 6:
+                json.dump({"launched": launched, "returned": done, "failed": failed,
+                           "running": 0, "queued": 0,
+                           "POOLS_IDLE": "both pools have had nothing to do for a minute",
+                           "uptime_s": int(time.time() - started)},
+                          io.open(STATUS, "w", encoding="utf-8"), indent=1)
+                return
+        else:
+            idle_ticks = 0
+        time.sleep(TICK)
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,14 @@
+1. **OVERCLAIM:** NONE. 
+
+2. **UNDERCLAIM:** Yes. The packet shows two additional grounds for withdrawal that the text does not state:
+   - **Mismatched timeframes/analysis sets:** ATTR-ACT evaluates at "30 months", whereas ATTRibute-CM evaluates "at the last available visit where both compared subjects had non-missing assessments."
+   - **Unacknowledged dose pooling:** The ATTR-ACT treatment arm counts (264 participants) represent pooled doses (20 mg and 80 mg), but the object erroneously labels this combined arm simply as "Tafamidis - 20 mg". 
+
+3. **FACT vs JUDGEMENT:** *"Two hierarchies of different depth, whose tie-breaking rules differ and whose lower levels are not even the same kind of quantity, do not estimate one thing."* 
+The conclusion *"do not estimate one thing"* is a methodological judgement written in the grammar of an objective fact, rather than owned by the authors.
+
+4. **IS THE STATED REASON THE ACTUAL REASON?** Yes. Both trials register hierarchical win-ratio endpoints, but the packet’s 2x2 `events` and `participants` arrays (78/264 and 79/409) have erroneously extracted the secondary all-cause mortality counts, completely discarding the win-ratio hierarchy. The stated reason matches the `pool_uniformity` and withdrawal notes perfectly. The packet *could* support a different reason (the differing timeframes or the dose-pooling anomaly) but the stated reason is correct and paramount.
+
+5. **VERDICT:** ACCEPT WITH CHANGES. 
+   - Rephrase the final sentence to own the judgement (e.g., *"We judge that two hierarchies... do not estimate one thing."*).
+   - (Optional) Mention the differing analysis timeframes as an additional barrier to pooling.

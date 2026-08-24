@@ -24,10 +24,12 @@
     tag. The block announces itself; reading it is optional, knowing it is there is not. */
  .prov-ref{font-size:.68em;line-height:0;vertical-align:super;color:var(--accent);
        font-family:var(--sans,system-ui,sans-serif);padding-left:.15em}
- .prov-block{margin:.6rem 0 1.4rem;padding:.5rem .8rem;border-left:2px solid var(--line);
+ .prov-block{margin:.4rem 0 1.2rem;padding:0;border:0;background:none}
+ .prov-title{margin:0;font-size:.72rem;letter-spacing:.02em;color:var(--muted);
+       font-family:var(--sans,system-ui,sans-serif);cursor:pointer;opacity:.65}
+ .prov-block[open]>.prov-title{margin-bottom:.35rem;opacity:1}
+ .prov-block[open]{padding:.5rem .8rem;border-left:2px solid var(--line);
        background:var(--soft)}
- .prov-title{margin:0 0 .3rem;font-size:.78rem;letter-spacing:.02em;color:var(--muted);
-       font-family:var(--sans,system-ui,sans-serif);text-transform:uppercase}
  .prov-list{margin:0;padding-left:1.4rem}
  .prov-list li{font-size:.78rem;line-height:1.45;color:var(--muted)}
  .prov-list code{font-size:.95em;word-break:break-word}
@@ -160,6 +162,7 @@
  #rt-analysis:focus-visible ~ .tabnav label[for="rt-analysis"]{outline:3px solid var(--accent);outline-offset:2px}
  #rt-report:checked ~ .panels > #pn-report{height:auto;overflow:visible}
  #rt-report:checked ~ .tabnav label[for="rt-report"]{color:#111;background:#fff;border-color:#d4d4d8;box-shadow:0 2px 0 0 #fff}
+ #rt-report:focus-visible ~ .tabnav label[for="rt-report"]{outline:3px solid var(--accent);outline-offset:2px}
  #rt-paper:checked ~ .panels > #pn-paper{height:auto;overflow:visible}
  #rt-paper:checked ~ .tabnav label[for="rt-paper"]{color:#111;background:#fff;border-color:#d4d4d8;box-shadow:0 2px 0 0 #fff}
  #rt-paper:focus-visible ~ .tabnav label[for="rt-paper"]{outline:3px solid var(--accent);outline-offset:2px}
@@ -218,13 +221,13 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <p>In children with pulmonary arterial hypertension or persistent pulmonary hypertension of the newborn, what is the effect of bosentan compared with placebo or an alternative regimen on clinical outcomes?</p>
 
 <div class="tabs">
-<input type="radio" name="rmtab" id="rt-protocol" checked>
+<input type="radio" name="rmtab" id="rt-protocol">
 <input type="radio" name="rmtab" id="rt-search">
 <input type="radio" name="rmtab" id="rt-screen">
 <input type="radio" name="rmtab" id="rt-extract">
 <input type="radio" name="rmtab" id="rt-analysis">
 <input type="radio" name="rmtab" id="rt-report">
-<input type="radio" name="rmtab" id="rt-paper">
+<input type="radio" name="rmtab" id="rt-paper" checked>
 <input type="radio" name="rmtab" id="rt-statistics">
 <nav class="tabnav" aria-label="Review sections">
   <label for="rt-protocol">1. Protocol</label>
@@ -232,7 +235,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
  <label for="rt-screen">3. Screening</label>
   <label for="rt-extract">4. Extraction</label>
   <label for="rt-analysis">5. Analysis Suite</label>
- <label for="rt-report">6. Scientific Output</label>
+  <label for="rt-report">6. Scientific Output</label>
   <label for="rt-paper">7. Paper Studio</label>
  <label for="rt-statistics">Statistics</label>
 </nav>
@@ -247,18 +250,18 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
     <tr><th scope='col'>Review title</th><td>Bosentan in children with pulmonary hypertension: two trials have reported, and they measure different things</td></tr>
     <tr><th scope='col'>Review question (PICO)</th><td>In children with pulmonary arterial hypertension or persistent pulmonary hypertension of the newborn, what is the effect of bosentan compared with placebo or an alternative regimen on clinical outcomes?</td></tr>
     <tr><th scope='col'>Background / rationale</th><td><em>Not recorded &mdash; this object holds no background field, and an introduction generated without one would be argument that no source in this review supports</em></td></tr>
-    <tr><th scope='col'>Eligibility criteria</th><td>POPULATION: children. READ FROM THE ELIGIBILITY MODULE AND NOT FROM A MINIMUM AGE: a paediatric trial is one with NO ADULT STRATUM AT ALL, or a maximum age under 18. Assigning by `minimumAge &lt; 18` pulled EARLY and COMPASS-2 -- adult trials admitting adolescents from 12 -- into this reading and out of their own. INTERVENTION: bosentan as the randomised intervention, and NOT named in an arm description as background therapy: NCT01824290 records &#x27;All participants were taking endothelin receptor antagonist (ERA) (such as bosentan...)&#x27; on BOTH arms and is adjudicated out. COMPARATOR: placebo, an alternative regimen, or an alternative dosing schedule. ESTIMAND, which governs POOLABILITY and not eligibility: any clinical outcome shared by two or more trials. Criteria are DERIVED POST HOC and say so.</td></tr>
+    <tr><th scope='col'>Eligibility criteria</th><td>Population: children. Read from the eligibility module and not from a minimum age: a paediatric trial is one with no adult stratum at all, or a maximum age under 18. Assigning by `minimumAge &lt; 18` pulled early and COMPASS-2 -- adult trials admitting adolescents from 12 -- into this reading and out of their own. Intervention: bosentan as the randomised intervention, and not named in an arm description as background therapy: NCT01824290 records &#x27;All participants were taking endothelin receptor antagonist (ERA) (such as bosentan...)&#x27; on both arms and is adjudicated out. Comparator: placebo, an alternative regimen, or an alternative dosing schedule. Estimand, which governs poolability and not eligibility: any clinical outcome shared by two or more trials. Criteria are derived post hoc and say so.</td></tr>
     <tr><th scope='col'>Information sources</th><td>0 source layers, listed on the <a href="#extract">Extraction tab</a></td></tr>
     <tr><th scope='col'>Search strategy</th><td>The executed strings, datetimes, filters and hit counts are on the <a href="#search">Search tab</a></td></tr>
-    <tr><th scope='col'>Study selection process</th><td>Two independent screeners of different model families, title/abstract then full text, with named human adjudication</td></tr>
-    <tr><th scope='col'>Number of screeners</th><td>Two, cross-family. Two instances of one model is one screener run twice and its agreement statistic is meaningless</td></tr>
-    <tr><th scope='col'>Data extraction items</th><td>Registry id, primary publication, year, design, population, arms, the analysed denominator and the randomised total SEPARATELY, per-arm event counts, and the published effect with its interval and its stated level</td></tr>
+    <tr><th scope='col'>Study selection process</th><td>A second independent screen was NOT run for this review.</td></tr>
+    <tr><th scope='col'>Number of screeners</th><td>One. No second independent screen was run.</td></tr>
+    <tr><th scope='col'>Data extraction items</th><td>Extracted per trial on this object: registry id; design; arms; per-arm counts and the published effect; the randomised total, separately from the analysed denominator. Fields not listed here were not extracted.</td></tr>
     <tr><th scope='col'>Outcomes and prioritisation</th><td>Any shared clinical outcome</td></tr>
     <tr><th scope='col'>Risk of bias method</th><td><em>Not recorded &mdash; no per-domain RoB-2 assessment exists yet</em></td></tr>
-    <tr><th scope='col'>Synthesis methods</th><td>Random effects on the log scale; REML headline; HKSJ reported alongside; leave-one-out and an estimator comparison, all pre-specified before the search</td></tr>
-    <tr><th scope='col'>Subgroup analyses</th><td><em>Not recorded &mdash; none pre-specified. At this k any contrast would be underpowered and post hoc, and none will later be presented as though planned</em></td></tr>
-    <tr><th scope='col'>Meta-bias assessment</th><td>Funnel, Egger and Peters, each reported as a computed value with the caveat that below about ten studies they have almost no power</td></tr>
-    <tr><th scope='col'>Certainty assessment</th><td>GRADE, all five domains, on the <a href="#report">Certainty tab</a></td></tr>
+    <tr><th scope='col'>Synthesis methods</th><td><em>Not recorded &mdash; no outcome on this object carries a pooled estimate, so no synthesis method was applied</em></td></tr>
+    <tr><th scope='col'>Subgroup analyses</th><td><em>Not recorded &mdash; this object records no subgroup-analysis field at all, so whether any were prespecified is UNKNOWN -- which is not the same as none having been</em></td></tr>
+    <tr><th scope='col'>Meta-bias assessment</th><td><em>Not recorded &mdash; no funnel, Egger or Peters value is held on this object, so no meta-bias assessment is claimed</em></td></tr>
+    <tr><th scope='col'>Certainty assessment</th><td>GRADE, recorded for 1 outcome(s) (GRADE). The ratings are on the <a href="#report">Certainty tab</a>.</td></tr>
     <tr><th scope='col'>Confidence level</th><td>95%</td></tr>
     <tr><th scope='col'>Funding</th><td><em>Not recorded &mdash; no funding statement is recorded for this review</em></td></tr>
     <tr><th scope='col'>Competing interests</th><td><em>Not recorded &mdash; no declaration is recorded</em></td></tr>
@@ -316,7 +319,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 </div>
 <div class='card'>
   <h2 id="extract-pooled-result">Pooled result</h2>
-  <div class='absent-state' role='note'><strong>Estimate withdrawn.</strong> No reason recorded.</div>
+  <div class='absent-state' role='note'><strong>Estimate withdrawn.</strong> see poolable_reason</div>
   <p>Any shared clinical outcome. k = 2.</p>
 </div>
 
@@ -329,7 +332,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
         <th>MD (interval, at each row's own level), or events</th>
         <th>Source of this cell</th></tr>
   </table></div>
-  <p><small>This reading registers no shared estimand. The definition above names what a pooled outcome WOULD have been, and the page reports why there is none rather than leaving the slot blank.</small></p>
+  <p><small>This reading registers no shared estimand. The definition above names what a pooled outcome would have been, and the page reports why there is none rather than leaving the slot blank.</small></p>
 </div>
 </section>
   </section>
@@ -401,248 +404,62 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <p><small>The protocol pre-specifies no moderator, and at k = 2 a meta-regression would be fitted on 2 points. Not drawn rather than drawn with a caveat: a bubble plot invites reading a slope, and there is no slope here that any reader should read.</small></p>
 </div>
   </section>
-<!--end-analysis--> <section class="panel" id="pn-report">
-<div class="absent-state" role="note"><strong>Partially held.</strong> Part of the reporting record is held and is shown below. No GRADE certainty rating is carried, so the certainty column is left as an em dash rather than guessed.</div>
+<!--end-analysis-->  <section class="panel" id="pn-report"><span id="report"></span>
+  <p class='toc'><strong>In this section:</strong> <a href="#report-summary-of-findings">Summary of findings</a> &middot; <a href="#report-reproducibility-artifact">Reproducibility artifact</a> &middot; <a href="#report-other-recorded-qualifications">Other recorded qualifications</a></p>
 <div class='card'>
-  <h3>Summary of findings</h3>
+  <h3 id="report-summary-of-findings">Summary of findings</h3>
   <div class='tscroll'><table>
     <caption>Table 7. Summary of findings</caption>
 
     <tr><th>Outcome</th><th>k</th><th>Pooled effect</th><th>Certainty</th></tr>
-    <tr><td>Any shared clinical outcome</td><td class='num'>2</td><td class='num'>not pooled</td><td>&mdash;</td></tr>
+    <tr><td>Any shared clinical outcome</td><td class='num'>2</td><td class='num'>not pooled</td><td>See comment<sup>1</sup></td></tr>
   </table></div>
+  <ol class='sof-notes' style='font-size:0.86em;margin:0.6em 0 0 1.2em;'>
+    <li>The pooled estimate for this outcome has been WITHDRAWN, so there is no estimate for a certainty rating to be about. Any rating this object still carries for this outcome was made about the withdrawn estimate and is not shown beside it.</li>
+  </ol>
 </div>
 <div class='card'>
-  <h3>Reproducibility artifact</h3>
+  <h3 id="report-reproducibility-artifact">Reproducibility artifact</h3>
   <div class='tscroll'><table>
     <caption>Table 8. Reproducibility artifact</caption>
 
     <tr><th scope='col'>Canonical object</th><td><code>—</code></td></tr>
     <tr><th scope='col'>Registered at</th><td><code>—</code> —</td></tr>
     <tr><th scope='col'>Schema</th><td>2</td></tr>
-    <tr><th scope='col'>Built</th><td>2026-08-19</td></tr>
-    <tr><th scope='col'>Generator build</th><td><code>2c1ee7a32</code>, built to STANDARD v1</td></tr>
+    <tr><th scope='col'>Object last updated</th><td>2026-08-19</td></tr>
+    <tr><th scope='col'>Page generated</th><td>2026-08-24 14:28 UTC</td></tr>
+    <tr><th scope='col'>Generator build</th><td><code>e4813bcec</code> (uncommitted generator changes -- NOT REPRODUCIBLE from this stamp alone), built to STANDARD v1</td></tr>
   </table></div>
   <p><small>Everything a third party needs to rebuild this page. Each figure on the Analysis tab downloads as an SVG carrying exactly the values shown.</small></p>
 </div>
- </section>
-<!--end-report-->  <section class="panel" id="pn-paper"><span id="paper"></span>
-  <p class='toc'><strong>In this section:</strong> <a href="#paper-paper">Paper</a> &middot; <a href="#paper-title-and-review-question">Title and review question</a> &middot; <a href="#paper-abstract">Abstract</a> &middot; <a href="#paper-introduction">Introduction</a> &middot; <a href="#paper-methods-search">Methods — search</a> &middot; <a href="#paper-methods-eligibility-criteria">Methods — eligibility criteria</a> &middot; <a href="#paper-methods-study-flow-and-k-at-every-stage">Methods — study flow and k at every stage</a> &middot; <a href="#paper-methods-outcomes-sought-at-every-registere">Methods — outcomes sought at every registered rank</a> &middot; <a href="#paper-methods-synthesis">Methods — synthesis</a> &middot; <a href="#paper-results">Results</a> &middot; <a href="#paper-statistical-output-quoted-verbatim">Statistical output, quoted verbatim</a> &middot; <a href="#paper-risk-of-bias-in-the-included-results">Risk of bias in the included results</a> &middot; <a href="#paper-certainty-of-the-evidence">Certainty of the evidence</a> &middot; <a href="#paper-comparison-with-published-syntheses">Comparison with published syntheses</a> &middot; <a href="#paper-disagreements-between-sources">Disagreements between sources</a> &middot; <a href="#paper-discussion">Discussion</a> &middot; <a href="#paper-conclusions">Conclusions</a> &middot; <a href="#paper-limitations">Limitations</a> &middot; <a href="#paper-sections-not-written-and-why">Sections not written, and why</a> &middot; <a href="#paper-funding-and-conflicts-of-interest">Funding and conflicts of interest</a> &middot; <a href="#paper-references">References</a> &middot; <a href="#paper-keywords">Keywords</a> &middot; <a href="#paper-data-availability">Data availability</a> &middot; <a href="#paper-software-availability">Software availability</a> &middot; <a href="#paper-note-on-registration">Note on registration</a> &middot; <a href="#paper-trial-characteristics">Trial characteristics</a> &middot; <a href="#paper-figure-legends">Figure legends</a> &middot; <a href="#paper-figures">Figures</a> &middot; <a href="#paper-submission-conformance">Submission conformance</a></p>
 <div class='card'>
-<h2 id="paper-paper">Paper</h2>
-<p class='muted'>Every statement below is projected from a field of this object. The superscripts are sources: each section ends with the fields its statements came from, in order. <strong>A section with no field behind it is not written</strong> &mdash; it is refused, by name, so a reader can tell an absent procedure from an unmentioned one.</p>
-<h3 id="paper-title-and-review-question">Title and review question</h3>
-<p>Bosentan in children with pulmonary hypertension: two trials have reported, and they measure different things<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
-<p>In children with pulmonary arterial hypertension or persistent pulmonary hypertension of the newborn, what is the effect of bosentan compared with placebo or an alternative regimen on clinical outcomes?<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
-<li><code>title</code></li>
-<li><code>question</code></li>
-</ol></div>
-<h3 id="paper-abstract">Abstract</h3>
-<p>Question. In children with pulmonary arterial hypertension or persistent pulmonary hypertension of the newborn, what is the effect of bosentan compared with placebo or an alternative regimen on clinical outcomes?<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
-<div class='absent-state' role='note'><strong>Refused:</strong> the findings sentence of the abstract -- this review pools nothing, and the reason is given in Results rather than an estimate being manufactured here<sup class='prov-ref' title='source 2 for this section'>2</sup></div>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
-<li><code>question</code></li>
-<li><code>results.by_outcome.*.pooled.point</code></li>
-</ol></div>
-<h3 id="paper-introduction">Introduction</h3>
-<div class='absent-state' role='note'><strong>Refused:</strong> the Introduction -- no background or rationale is recorded on this object. This is a CONTENT gap, not a rendering one: no change to this projector produces it, and it is written by adding `protocol.rationale` to the object<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
-<li><code>protocol.rationale</code></li>
-</ol></div>
-<h3 id="paper-methods-search">Methods — search</h3>
-<p>Searches were executed in ClinicalTrials.gov API v2 on 2026-08-19 with the query, verbatim: intervention=&quot;bosentan&quot;; condition=&quot;pulmonary arterial hypertension OR pulmonary hypertension&quot;; study_type=INTERVENTIONAL; NO phase filter; page_size=100. It returned 57 record(s).<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
-<p>Searches were executed in PubMed on 2026-08-19 with the query, verbatim: NOT EXECUTED FOR THIS TOPIC. It returned an unrecorded number of record(s).<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
-<li><code>search.databases[0]</code></li>
-<li><code>search.databases[1]</code></li>
-</ol></div>
-<h3 id="paper-methods-eligibility-criteria">Methods — eligibility criteria</h3>
-<p>POPULATION: children. READ FROM THE ELIGIBILITY MODULE AND NOT FROM A MINIMUM AGE: a paediatric trial is one with NO ADULT STRATUM AT ALL, or a maximum age under 18. Assigning by `minimumAge &lt; 18` pulled EARLY and COMPASS-2 -- adult trials admitting adolescents from 12 -- into this reading and out of their own. INTERVENTION: bosentan as the randomised intervention, and NOT named in an arm description as background therapy: NCT01824290 records &#x27;All participants were taking endothelin receptor antagonist (ERA) (such as bosentan...)&#x27; on BOTH arms and is adjudicated out. COMPARATOR: placebo, an alternative regimen, or an alternative dosing schedule. ESTIMAND, which governs POOLABILITY and not eligibility: any clinical outcome shared by two or more trials. Criteria are DERIVED POST HOC and say so.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
-<p>Each criterion above is recorded with the source it was derived from in `screening.eligibility_provenance`; none is asserted here without one.<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
-<li><code>screening.eligibility</code></li>
-<li><code>screening.eligibility_provenance</code></li>
-</ol></div>
-<h3 id="paper-methods-study-flow-and-k-at-every-stage">Methods — study flow and k at every stage</h3>
-<p>The PRISMA 2020 flow counts are recorded in `prisma_flow` and reconcile with the executed searches above.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
-<p>The unscreened remainder is 0.<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
-<div class='tscroll'><table><caption>Records at every stage of screening. k is reported at each stage rather than as a single number, because each stage is what the instrument at that stage could actually decide.<sup class='prov-ref' title='source 3 for this section'>3</sup></caption>
-<tr><th>Stage</th><th>Records</th></tr>
-<tr><td>Records surfaced by the executed searches</td><td>57</td></tr>
-<tr><td>Records where the topic drug&#x27;s role in the trial could be located</td><td>47</td></tr>
-<tr><td>Records where the topic drug is the randomised intervention</td><td>35</td></tr>
-<tr><td>Records where the topic drug is the comparator instead</td><td>4</td></tr>
-<tr><td>Records where the topic drug is background therapy in both arms</td><td>8</td></tr>
-<tr><td>Records where the role could not be decided either way</td><td>10</td></tr>
-<tr><td>k assigned to this reading</td><td>5</td></tr>
-<tr><td>k eligible</td><td>2</td></tr>
-<tr><td>k with posted results</td><td>2</td></tr>
-<tr><td>Trials included in this review</td><td>2</td></tr>
-<tr><td>k pooled</td><td>0</td></tr>
-<tr><td>Surfaced records not yet screened</td><td>0</td></tr>
+  <h3 id="report-other-recorded-qualifications">Other recorded qualifications</h3>
+  <p><small>Statements this review records about the limits of what it establishes, which are not shown elsewhere on this page. They are reproduced from the object verbatim and are not summarised.</small></p>
+  <div class='tscroll'><table>
+    <caption>Table 9. Other recorded qualifications</caption>
+
+    <tr><th>And a dosing comparison is not a drug comparison</th><td>FUTURE-3 randomises bosentan twice daily against bosentan three times daily. Every participant receives the drug; the contrast is the schedule. It is in scope by population and by intervention and it cannot contribute to a question about the effect of bosentan against anything else.</td></tr>
+    <tr><th>Why absent</th><td>k=2 and nothing was pooled, so there is NO model call to quote, NO pooled estimate, NO heterogeneity and NO package version. This is not a missing artefact; it is the correct state for a topic with no synthesis.</td></tr>
+    <tr><th>And the paediatric boundary was wrong first time</th><td>The reading was first assigned by `minimumAge &lt; 18`, which is not what a paediatric trial is: Early and COMPASS-2 admit adolescents from 12 and are adult trials. That rule pulled both of them into this reading and out of their own. Corrected to &#x27;no adult stratum at all, or maximumAge under 18&#x27;.</td></tr>
+    <tr><th>And the four readings share nothing with each other</th><td>Computed, not asserted: the precedence rule assigns every record to exactly one reading, so the four intersect emptily by construction. Any sharing reported above is with a topic outside the split.</td></tr>
+  </table></div>
+</div>
+  </section>
+<!--end-report-->  <section class="panel" id="pn-paper"><span id="paper"></span>
+  <p class='toc'><strong>In this section:</strong> <a href="#paper-summary">Summary</a></p>
+<div class='card'>
+<h2 id="paper-summary">Summary</h2>
+<p><strong>Question.</strong> In children with pulmonary arterial hypertension or persistent pulmonary hypertension of the newborn, what is the effect of bosentan compared with placebo or an alternative regimen on clinical outcomes?</p>
+<p><strong>What was found.</strong> 2 registered trials:</p>
+<div class='tscroll'><table>
+    <caption>Table 10. Summary</caption>
+<tr><th>Registration</th><th>Trial</th></tr>
+<tr><td>NCT01223352</td><td>title not recorded in the registry read</td></tr>
+<tr><td>NCT01389856</td><td>title not recorded in the registry read</td></tr>
 </table></div>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
-<li><code>prisma_flow</code></li>
-<li><code>k_cascade.k_unscreened_remainder</code></li>
-<li><code>k_cascade</code></li>
-</ol></div>
-<h3 id="paper-methods-outcomes-sought-at-every-registere">Methods — outcomes sought at every registered rank</h3>
-<p>Before deciding which outcomes could be combined, every trial was read at every registered rank -- primary, secondary and other -- asking: does each eligible trial register, at ANY rank, a six-minute walk distance CHANGE, or a clinical-worsening / morbidity-mortality outcome, before any decision about which trials can be combined? NO, AND DECISIVELY. Both trials have posted results and neither registers a walk change or a clinical-worsening outcome; their primaries are a pharmacokinetic exposure and ventilator weaning.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
-<li><code>withholding_question.question, withholding_question.why_before_deciding</code></li>
-</ol></div>
-<h3 id="paper-methods-synthesis">Methods — synthesis</h3>
-<p>For any shared clinical outcome, a none model was fitted with the not applicable estimator.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
-<p>Intervals are 95% confidence intervals.<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
-<p>Risk of bias was assessed with RoB 2 (), following .  0 result-level assessments were made. <sup class='prov-ref' title='source 3 for this section'>3</sup></p>
-<p>Certainty of evidence was rated with GRADE, following .  0 pooled outcome(s) were rated.  1 outcome(s) were NOT rated because their pool is declined or withdrawn: there is no effect estimate to rate the certainty of, and rating one would be certainty about a number this review refused to publish.<sup class='prov-ref' title='source 4 for this section'>4</sup></p>
-<div class='absent-state' role='note'><strong>Refused:</strong> the claim that records were screened in duplicate -- and this topic OWES one rather than merely lacking one: <sup class='prov-ref' title='source 5 for this section'>5</sup></div>
-<div class='absent-state' role='note'><strong>Refused:</strong> the claim that the review methods were prespecified before data collection. THIS REFUSAL IS PERMANENT AND IS NOT A GAP TO BE FILLED. A protocol specified before data collection is a HISTORICAL FACT ABOUT THE PAST and cannot be created retrospectively. Eligibility criteria were derived POST HOC on 2026-08-19, when `bosentan-pah` was split into four readings. MECIR R107, provided they are declared as such.<sup class='prov-ref' title='source 6 for this section'>6</sup></div>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
-<li><code>results.by_outcome.shared_clinical_outcome.model, results.by_outcome.shared_clinical_outcome.estimator_used</code></li>
-<li><code>config.confidence_level</code></li>
-<li><code>risk_of_bias.tool, risk_of_bias.by_outcome</code></li>
-<li><code>grade.approach, grade.by_outcome</code></li>
-<li><code>screening.duplicate_screening.performed</code></li>
-<li><code>protocol.prespecified = false (declared, not missing)</code></li>
-</ol></div>
-<h3 id="paper-results">Results</h3>
-<p>Any shared clinical outcome. These 2 trials are NOT pooled, and the reason is stated rather than the outcome being quietly omitted: BOTH ELIGIBLE TRIALS HAVE POSTED RESULTS AND THEY MEASURE DIFFERENT THINGS. FUTURE-3 (NCT01223352, n=64) compares TWO DOSING REGIMENS and registers &#x27;Dose-corrected Daily Exposure [AUC(0-24c)] to Bosentan&#x27; -- a PHARMACOKINETIC endpoint. The PPHN trial (NCT01389856, n=23, TERMINATED) registers &#x27;Percentage of Patients With Treatment Failure&#x27;, &#x27;Time to Complete Weaning From iNO&#x27; and &#x27;Time to Complete Weaning From Mechanical Ventilation&#x27;. Neither registers a walk-distance or clinical-worsening outcome and NO ESTIMAND IS SHARED. This is not a case of unreported data -- both reported, and there is still nothing to combine.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
-<li><code>outcomes[id=shared_clinical_outcome].name, results.by_outcome.shared_clinical_outcome.poolable_reason</code></li>
-</ol></div>
-<h3 id="paper-statistical-output-quoted-verbatim">Statistical output, quoted verbatim</h3>
-<div class='absent-state' role='note'><strong>Refused:</strong> the verbatim model output -- no analysis output is stored on this object, so nothing can be quoted and nothing is paraphrased in its place<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
-<li><code>results.by_outcome.*.r_output.verbatim</code></li>
-</ol></div>
-<h3 id="paper-risk-of-bias-in-the-included-results">Risk of bias in the included results</h3>
-<p>Risk of bias was assessed with RoB 2. The unit of assessment is a result<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
-<li><code>risk_of_bias.tool</code></li>
-</ol></div>
-<h3 id="paper-certainty-of-the-evidence">Certainty of the evidence</h3>
-<p>Certainty was rated with GRADE. <sup class='prov-ref' title='source 1 for this section'>1</sup></p>
-<div class='tscroll'><table><caption>Certainty of the evidence, by outcome, with every rating step<sup class='prov-ref' title='source 2 for this section'>2</sup></caption>
-<tr><th>Outcome</th><th>Certainty</th><th>k</th><th>Started at</th><th>Rating steps</th></tr>
-<tr><td>any shared clinical outcome</td><td>not rated</td><td>?</td><td></td><td>no downgrade recorded</td></tr>
-</table></div>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
-<li><code>grade.approach</code></li>
-<li><code>grade.by_outcome.shared_clinical_outcome</code></li>
-</ol></div>
-<h3 id="paper-comparison-with-published-syntheses">Comparison with published syntheses</h3>
-<div class='absent-state' role='note'><strong>Refused:</strong> the comparison with published syntheses -- no published synthesis is recorded for this topic, so no denominator can be given<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
-<li><code>published_comparison</code></li>
-</ol></div>
-<h3 id="paper-disagreements-between-sources">Disagreements between sources</h3>
-<div class='absent-state' role='note'><strong>Refused:</strong> the reconciliation against other sources<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
-<li><code>reconciliation</code></li>
-</ol></div>
-<h3 id="paper-discussion">Discussion</h3>
-<div class='absent-state' role='note'><strong>Refused:</strong> the Discussion -- this is a CONTENT gap. The object records no interpretive text, and none is generated here: a discussion written by the renderer would be an argument no field supports<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
-<li><code>discussion</code></li>
-</ol></div>
-<h3 id="paper-conclusions">Conclusions</h3>
-<div class='absent-state' role='note'><strong>Refused:</strong> the Conclusions -- this is a CONTENT gap. The object records no interpretive text, and none is generated here: a conclusions written by the renderer would be an argument no field supports<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
-<li><code>conclusions</code></li>
-</ol></div>
-<h3 id="paper-limitations">Limitations</h3>
-<div class='absent-state' role='note'><strong>Refused:</strong> the limitations section<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
-<li><code>screening.known_limitation</code></li>
-</ol></div>
-<h3 id="paper-sections-not-written-and-why">Sections not written, and why</h3>
-<p>This review refuses 3 of the page standard&#x27;s properties, by name: P18_restatement_is_reproducible, P6_analysis_output, P7_published_comparison. A refused property is a completed outcome with a stated reason, not an omission.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
-<li><code>build_stamp.refusing</code></li>
-</ol></div>
-<h3 id="paper-funding-and-conflicts-of-interest">Funding and conflicts of interest</h3>
-<div class='absent-state' role='note'><strong>Refused:</strong> <sup class='prov-ref' title='source 1 for this section'>1</sup></div>
-<div class='absent-state' role='note'><strong>Refused:</strong> the funding and conflict-of-interest statement -- a CONTENT gap. A submission requires it and this object does not carry it; it is not inferable from anything held here<sup class='prov-ref' title='source 2 for this section'>2</sup></div>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
-<li><code>funding</code></li>
-<li><code>funding</code></li>
-</ol></div>
-<h3 id="paper-references">References</h3>
-<div class='absent-state' role='note'><strong>Refused:</strong> the reference list<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
-<li><code>sources</code></li>
-</ol></div>
-<h3 id="paper-keywords">Keywords</h3>
-<div class='absent-state' role='note'><strong>Refused:</strong> <sup class='prov-ref' title='source 1 for this section'>1</sup></div>
-<div class='absent-state' role='note'><strong>Refused:</strong> the keyword list -- a CONTENT gap; no keywords are recorded and inventing them would be indexing this review under terms nobody chose<sup class='prov-ref' title='source 2 for this section'>2</sup></div>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
-<li><code>keywords</code></li>
-<li><code>keywords</code></li>
-</ol></div>
-<h3 id="paper-data-availability">Data availability</h3>
-<p>Every trial in this review is keyed to a registration identifier, verified by live fetch of the raw ClinicalTrials.gov v2 record and comparison of the returned nctId against the id stored on this object on 2026-08-19.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
-<div class='tscroll'><table><caption>Registration identifiers, and whether each was verified<sup class='prov-ref' title='source 2 for this section'>2</sup></caption>
-<tr><th>Registration</th><th>Verified</th><th>Link</th></tr>
-<tr><td>NCT01223352</td><td>True</td><td>https://clinicaltrials.gov/study/NCT01223352</td></tr>
-<tr><td>NCT01389856</td><td>True</td><td>https://clinicaltrials.gov/study/NCT01389856</td></tr>
-</table></div>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
-<li><code>registration_identity.method</code></li>
-<li><code>registration_identity.trials</code></li>
-</ol></div>
-<h3 id="paper-software-availability">Software availability</h3>
-<p>Intervals are reported at the 95% level.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
-<li><code>config.confidence_level</code></li>
-</ol></div>
-<h3 id="paper-note-on-registration">Note on registration</h3>
-<p>Protocol status. Prespecified: False. A protocol specified before data collection is a HISTORICAL FACT ABOUT THE PAST and cannot be created retrospectively.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
-<p>Eligibility criteria were derived POST HOC on 2026-08-19, when `bosentan-pah` was split into four readings.<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
-<p>Authority: MECIR R107, provided they are declared as such.<sup class='prov-ref' title='source 3 for this section'>3</sup></p>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
-<li><code>protocol</code></li>
-<li><code>protocol.what_was_actually_done</code></li>
-<li><code>protocol.authority_permitting_it</code></li>
-</ol></div>
-<h3 id="paper-trial-characteristics">Trial characteristics</h3>
-<div class='tscroll'><table><caption>Characteristics of every trial contributing to this review<sup class='prov-ref' title='source 1 for this section'>1</sup></caption>
-<tr><th>Registration</th><th>Trial</th><th>Arms</th><th>Participants</th></tr>
-<tr><td>NCT01223352</td><td>Effects of Two Dosing Regimens of Bosentan in Children With </td><td>not recorded on this object</td><td>not extracted</td></tr>
-<tr><td>NCT01389856</td><td>Persistent Pulmonary Hypertension of the Newborn</td><td>not recorded on this object</td><td>not extracted</td></tr>
-</table></div>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
-<li><code>inputs.trials</code></li>
-</ol></div>
-<h3 id="paper-figure-legends">Figure legends</h3>
-<div class='tscroll'><table><caption>Figures, and what each one shows<sup class='prov-ref' title='source 1 for this section'>1</sup></caption>
-<tr><th>Outcome</th><th>Figure</th><th>What it shows</th></tr>
-<tr><td>Any shared clinical outcome</td><td>Forest plot</td><td>not pooled; the reason is given in Results</td></tr>
-</table></div>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
-<li><code>results.by_outcome</code></li>
-</ol></div>
-<h3 id="paper-figures">Figures</h3>
-<figure>
-<div class='absent-state' role='note'><strong>Figure 1 not drawn.</strong> no per-trial estimates are stored for this outcome, so there are no rows to plot. The pooled value alone is a point, not a forest.</div>
-<figcaption>Figure 1. Forest plot -- any shared clinical outcome. Each contributing trial&#x27;s stored estimate and interval, with the pooled result. k = 2.<sup class='prov-ref' title='source 1 for this section'>1</sup></figcaption>
-</figure>
-<figure>
-<div class='absent-state' role='note'><strong>Figure 2 not drawn.</strong> k = 2. A funnel plot and its asymmetry tests have almost no power below about ten trials (Cochrane Handbook 13.3.5.4), so a funnel drawn here would invite a reading of asymmetry this evidence cannot support. IT IS DECLINED RATHER THAN DRAWN, and this slot says so where the plot would have been.</div>
-<figcaption>Figure 2. Funnel plot -- any shared clinical outcome. Standard error against effect, with the pseudo-confidence funnel drawn from the pooled estimate. k = 2.<sup class='prov-ref' title='source 2 for this section'>2</sup></figcaption>
-</figure>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
-<li><code>results.by_outcome.shared_clinical_outcome.pooled</code></li>
-<li><code>results.by_outcome.shared_clinical_outcome.pooled</code></li>
-</ol></div>
-<h3 id="paper-submission-conformance">Submission conformance</h3>
-<p>This review was built to page standard 1.17.0-2026-08-19 (PAGE-STANDARD.md), by ssot/build_to_standard.py on 2026-08-19. A page built below the current standard is knowably below it rather than silently stale.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
-<p>Properties held: 11, by name -- P19_promotion_reaches_derived_blocks, P1_executed_search, P20_cascade_reconciles, P21_ambiguous_question_split, P22_sharing_recorded, P23_recall_measured, P2_k_cascade, P3_inclusion_criteria, P4_preconditions, P5_extraction_table, P8_registration_identity.<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
-<li><code>build_stamp.page_standard_version</code></li>
-<li><code>build_stamp.held</code></li>
-</ol></div>
+<p><strong>Why no result is pooled.</strong> Both eligible trials have posted results and they measure different things. Future-3 (nct01223352, n=64) compares two dosing regimens and registers &#x27;Dose-corrected Daily Exposure [auc(0-24c)] to Bosentan&#x27; -- a pharmacokinetic endpoint. The pphn trial (nct01389856, n=23, terminated) registers &#x27;Percentage of Patients With Treatment Failure&#x27;, &#x27;Time to Complete Weaning From iNO&#x27; and &#x27;Time to Complete Weaning From Mechanical Ventilation&#x27;.</p>
+<p><strong>What would change this.</strong> A pooled result becomes possible when trials reporting a shared, comparably measured outcome are available.</p>
+<p><small>No pooled estimate, risk-of-bias assessment or certainty rating is published for this question, because there is no combined result for them to describe.</small></p>
 </div>  </section>
 <!--end-paper--> <section class="panel" id="pn-statistics">
 <div class="absent-state" role="note"><strong>Not held in this object.</strong> No statistical panel set is held in this object.</div>
@@ -684,22 +501,22 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 })();
 </script>
 <div class='card'><h2>Page standard 1.17.0-2026-08-19</h2><p>Built 2026-08-19 by <code>ssot/build_to_standard.py</code> against <code>PAGE-STANDARD.md</code>. <strong>11 held, 3 refusing.</strong> A refusal is a complete outcome; nothing is generated to fill a slot.</p><div class='tscroll'><table>
-    <caption>Table 9. Page standard 1.17.0-2026-08-19</caption>
+    <caption>Table 11. Page standard 1.17.0-2026-08-19</caption>
 <tr><th>property</th><th>state</th><th>reason</th></tr><tr class='ok'><td>P1_executed_search</td><td><strong>HELD</strong></td><td>2 database queries recorded verbatim with dates and counts; PRISMA arithmetic reconciles and the 0-trial unscreened remainder is stated as a number rather than omitted.</td></tr><tr class='ok'><td>P2_k_cascade</td><td><strong>HELD</strong></td><td>k at every stage: surfaced 57, located 47, experimental 35, comparator 4, included 2, unscreened remainder 0.</td></tr><tr class='ok'><td>P3_inclusion_criteria</td><td><strong>HELD</strong></td><td>Criteria provenance block present with predefined=False on its face (state &#x27;DERIVED_POST_HOC&#x27;).</td></tr><tr class='ok'><td>P4_preconditions</td><td><strong>HELD</strong></td><td>All 8 recorded with verdict and cited authority: 1 FAIL, 3 NOT-ASSESSABLE. criteria_predefined is FAIL -- post hoc criteria, which R107 permits and C5/C7 does not satisfy.</td></tr><tr class='ok'><td>P5_extraction_table</td><td><strong>HELD</strong></td><td>4 cells: 3 READ with source path and verbatim text, 1 DERIVED with the method named.</td></tr><tr class='warn'><td>P6_analysis_output</td><td><strong>REFUSING</strong></td><td>No quotable model output exists: k=2 and nothing was pooled. The absence is recorded as a finding with its cause and its trigger.</td></tr><tr class='warn'><td>P7_published_comparison</td><td><strong>REFUSING</strong></td><td>No denominator yet. Blocked on external registration-id resolution; citation-string matching explicitly refused rather than substituted.</td></tr><tr class='ok'><td>P8_registration_identity</td><td><strong>HELD</strong></td><td>2 of 2 trial(s) verified live against the registry.</td></tr><tr class='warn'><td>P18_restatement_is_reproducible</td><td><strong>REFUSING</strong></td><td>No restatement block on this cascade, so there is nothing to re-derive. This is NOT_ASSESSABLE dressed as a refusal rather than a pass: a topic that has never been restated has not demonstrated that a restatement of it would be checkable.</td></tr><tr class='ok'><td>P19_promotion_reaches_derived_blocks</td><td><strong>HELD</strong></td><td>inputs.trials, k_cascade.k_included_in_object and prisma_flow.included all say 2; no first-person field in published_comparison declares a k the pooled outcome(s) do not.</td></tr><tr class='ok'><td>P20_cascade_reconciles</td><td><strong>HELD</strong></td><td>k2_role_located=47 == k3+k4+k5, and k0_surfaced=57 == k3+k4+k5+kNA. Both checked, and every failing limb would be reported rather than the first.</td></tr><tr class='ok'><td>P21_ambiguous_question_split</td><td><strong>HELD</strong></td><td>Split from &#x27;bosentan-pah&#x27; into this review and 3 sibling(s) [&#x27;bosentan-pah-monotherapy&#x27;, &#x27;bosentan-pah-combination&#x27;, &#x27;bosentan-ph-not-group1&#x27;], with the decision recorded at None. Nothing was dropped to resolve the ambiguity.</td></tr><tr class='ok'><td>P22_sharing_recorded</td><td><strong>HELD</strong></td><td>No trial of this review appears in any other object&#x27;s included set. COMPUTED over the corpus, not asserted: 2 trial(s) checked against every other topic object.</td></tr><tr class='ok'><td>P23_recall_measured</td><td><strong>HELD</strong></td><td>All 2 recorded quer(ies) state their recall against this review&#x27;s own included set: [&#x27;1/1 -- FUTURE-2 (NCT00319020) surfaced&#x27;, &#x27;NOT MEASURED&#x27;].</td></tr></table></div><h3>k at every stage</h3><div class='tscroll'><table>
-    <caption>Table 10. k at every stage</caption>
+    <caption>Table 12. k at every stage</caption>
 <tr><th>stage</th><th>k</th></tr><tr><td>k0_surfaced</td><td>57</td></tr><tr><td>k2_role_located</td><td>47</td></tr><tr><td>k3_experimental</td><td>35</td></tr><tr><td>k4_comparator</td><td>4</td></tr><tr><td>k5_background</td><td>8</td></tr><tr><td>kNA_not_assessable</td><td>10</td></tr><tr><td>k_assigned_to_this_reading</td><td>5</td></tr><tr><td>k_eligible</td><td>2</td></tr><tr><td>k_with_posted_results</td><td>2</td></tr><tr><td>k_included_in_object</td><td>2</td></tr><tr><td>k_pooled</td><td>0</td></tr><tr><td>k_unscreened_remainder</td><td>0</td></tr><tr><td>reproduced_by</td><td>scripts/screen_bosentan_split_2026_08_19.py and scripts/estimand_bosentan_readings_2026_08_19.py.</td></tr><tr><td>why_k_pooled_is_ZERO</td><td>BOTH eligible trials have posted results and THEY MEASURE DIFFERENT THINGS. FUTURE-3 (NCT01223352, n=64) registers &#x27;Dose-corrected Daily Exposure [AUC(0-24c)] to Bosentan&#x27; -- a PHARMACOKINETIC endpoint from a dosing-regimen comparison. The PPHN trial (NCT01389856, n=23, TERMINATED) registers &#x27;Percentage of Patients With Treatment Failure&#x27;, &#x27;Time to Complete Weaning From iNO&#x27; and &#x27;Time to Complete Weaning From Mechanical Ventilation&#x27;. Neither registers a walk-distance or clinical-worsening outcome, and no estimand is shared.</td></tr><tr><td>and_the_paediatric_boundary_was_wrong_first_time</td><td>The reading was first assigned by `minimumAge &lt; 18`, which is not what a paediatric trial is: EARLY and COMPASS-2 admit adolescents from 12 and are adult trials. That rule pulled BOTH of them into this reading and out of their own. Corrected to &#x27;no adult stratum at all, or maximumAge under 18&#x27;.</td></tr><tr><td>keyed_on</td><td>registration id</td></tr></table></div><h3>Inclusion criteria — derived, post hoc</h3><p><strong>predefined: False &nbsp;|&nbsp; post_hoc: True</strong> — derived —</p><p><small>—</small></p><div class='tscroll'><table>
-    <caption>Table 11. Inclusion criteria — derived, post hoc</caption>
+    <caption>Table 13. Inclusion criteria — derived, post hoc</caption>
 <tr><th>limb</th><th>value</th><th>derived from</th></tr></table></div><h3>The withholding question, asked at every rank</h3><p><em>does each eligible trial register, at ANY rank, a six-minute walk distance CHANGE, or a clinical-worsening / morbidity-mortality outcome, before any decision about which trials can be combined?</em></p><p><strong>NO, AND DECISIVELY. Both trials have posted results and neither registers a walk change or a clinical-worsening outcome; their primaries are a pharmacokinetic exposure and ventilator weaning.</strong></p><p><small>—</small></p><div class='tscroll'><table>
-    <caption>Table 12. The withholding question, asked at every rank</caption>
-<tr><th>registration</th><th>trial</th><th>two-component</th><th>three-component</th></tr><tr><td><code>NCT01223352</code></td><td>Effects of Two Dosing Regimens of Bosentan in Children With Pulmonary </td><td><small>8 rank(s) read; RESULTS POSTED</small></td><td><small>NO walk-change and NO clinical-worsening outcome at any rank</small></td></tr><tr><td><code>NCT01389856</code></td><td>Persistent Pulmonary Hypertension of the Newborn</td><td><small>33 rank(s) read; RESULTS POSTED</small></td><td><small>NO walk-change and NO clinical-worsening outcome at any rank</small></td></tr></table></div><h3>Screening of the remainder — — screened, — included, — excluded, — not-assessable</h3><p>—</p><p><strong>k after screening: —.</strong> —</p><div class='tscroll'><table>
-    <caption>Table 13. Screening of the remainder — — screened, — included, — excluded, — not-assessable</caption>
-<tr><th>failing limb</th><th>n</th><th>registrations</th></tr></table></div><h4>The withholding question, asked at every rank</h4><p><em>—</em></p><p><small>—</small></p><div class='tscroll'><table>
     <caption>Table 14. The withholding question, asked at every rank</caption>
+<tr><th>registration</th><th>trial</th><th>two-component</th><th>three-component</th></tr><tr><td><code>NCT01223352</code></td><td>Effects of Two Dosing Regimens of Bosentan in Children With Pulmonary </td><td><small>8 rank(s) read; RESULTS POSTED</small></td><td><small>NO walk-change and NO clinical-worsening outcome at any rank</small></td></tr><tr><td><code>NCT01389856</code></td><td>Persistent Pulmonary Hypertension of the Newborn</td><td><small>33 rank(s) read; RESULTS POSTED</small></td><td><small>NO walk-change and NO clinical-worsening outcome at any rank</small></td></tr></table></div><h3>Screening of the remainder — — screened, — included, — excluded, — not-assessable</h3><p>—</p><p><strong>k after screening: —.</strong> —</p><div class='tscroll'><table>
+    <caption>Table 15. Screening of the remainder — — screened, — included, — excluded, — not-assessable</caption>
+<tr><th>failing limb</th><th>n</th><th>registrations</th></tr></table></div><h4>The withholding question, asked at every rank</h4><p><em>—</em></p><p><small>—</small></p><div class='tscroll'><table>
+    <caption>Table 16. The withholding question, asked at every rank</caption>
 <tr><th>registration</th><th>rank</th><th>matching outcome</th></tr></table></div><h4>Every trial, with its reason</h4><div class='tscroll'><table>
-    <caption>Table 15. Every trial, with its reason</caption>
+    <caption>Table 17. Every trial, with its reason</caption>
 <tr><th>registration</th><th>verdict</th><th>limb</th><th>reason</th></tr></table></div><h3>Analysis output — ABSENT_AND_THAT_IS_THE_FINDING</h3><p>k=2 and nothing was pooled, so there is NO model call to quote, NO pooled estimate, NO heterogeneity and NO package version. This is not a missing artefact; it is the correct state for a topic with no synthesis.</p><p><strong>What stands instead:</strong> —<br><small>Provenance: —</small><br><code>—</code></p><p><small>Heterogeneity: Undefined: no between-study variance was estimated because no model was run.<br>What would change it: An estimand shared by two or more included trials. Where k is already above 1 and nothing pooled, the obstacle is the ESTIMAND rather than the evidence base, and this field must say which.</small></p><h3>Published-meta comparison — PENDING_EXTERNAL_RESOLUTION</h3><p><strong>Denominator: —.</strong> Not yet established. Establishing it requires resolving published syntheses&#x27; included-sets to REGISTRATION IDs. A second lane has validated that pipeline (stated-k table identification plus two-hop citation-&gt;PMID-&gt;registration) and is running it now.</p><p><small><strong>Explicitly not done:</strong> CITATION-STRING MATCHING. It would produce a comparison-shaped answer tonight and it is not identity: two syntheses citing the same trial under different labels would read as different, and the same label on different trials as the same. That is the substitution class this project audits for.</small></p><p><small>Blocked on: lane 2 registration-id resolution</small></p><h3>Preconditions</h3><p><small>Authority: Cochrane Handbook for Systematic Reviews of Interventions 6.5, 2024, verified 2026-08-19. Publishable: True.</small></p><div class='tscroll'><table>
-    <caption>Table 16. Preconditions</caption>
-<tr><th>precondition</th><th>verdict</th><th>reason</th><th>authority</th></tr><tr><td>population_stated</td><td><strong>PASS</strong></td><td><small>present: question carries 202 characters</small></td><td><small>MECIR C62 &#x27;Ensuring meta-analyses are meaningful&#x27; (Mandatory, READ 2026-08-19): &#x27;Undertake (or display) a meta-analysis only if participants, interventions, comparisons and outcomes are judged to be s</small></td></tr><tr><td>arm_role_resolved</td><td><strong>NOT-ASSESSABLE</strong></td><td><small>cannot assess: inputs.trials has 2 trial(s) with no readable arms [&#x27;NCT01223352&#x27;, &#x27;NCT01389856&#x27;] and 0 with a blank arm role []. Absent role data is not a wrong role.</small></td><td><small>MECIR C62 (Mandatory), &#x27;interventions&#x27; limb -- this is a PRECONDITION FOR ASSESSING C62, not an enforcement of it: you cannot judge whether interventions are &#x27;sufficiently similar&#x27; without knowing whi</small></td></tr><tr><td>comparators_identified</td><td><strong>PASS</strong></td><td><small>every outcome names a comparator type [&#x27;placebo&#x27;]; none declares &#x27;mixed&#x27;. Within-outcome consistency is visible only through the declared type, and cross-outcome differences are not judged.</small></td><td><small>MECIR C62 (Mandatory), &#x27;comparisons&#x27; limb -- a synthesis pools one contrast. NOT cited to C7: C7 governs PREDEFINITION, and this check reads recorded comparator fields and tests them for consistency.</small></td></tr><tr><td>estimand_named</td><td><strong>PASS</strong></td><td><small>outcomes.estimand: all 1 outcome(s) name a quantity</small></td><td><small>MECIR C8 &#x27;Clarifying role of outcomes&#x27; (Mandatory, READ 2026-08-19); MECIR C62 (Mandatory), &#x27;outcomes&#x27; limb</small></td></tr><tr><td>criteria_stated</td><td><strong>PASS</strong></td><td><small>present: screening.eligibility carries 803 characters</small></td><td><small>MECIR R29 &#x27;Eligibility criteria for types of participants&#x27;, R30 &#x27;...types of interventions&#x27;, R31 &#x27;Role of outcomes&#x27; -- ALL Mandatory REPORTING standards (READ 2026-08-19). Their verb is STATE. A block</small></td></tr><tr><td>criteria_predefined</td><td><strong>FAIL</strong></td><td><small>screening.eligibility_provenance.predefined is false: the criteria were DERIVED post hoc from this object&#x27;s own question and recorded exclusions. That is auditable (R29/R30/R31) and is not pre-specification (C5/C7). This</small></td><td><small>MECIR C5 &#x27;Predefining unambiguous criteria for participants&#x27; AND C7 &#x27;...for interventions and comparators&#x27;, BOTH Mandatory (READ 2026-08-19): &#x27;Predefined, unambiguous eligibility criteria are a fundam</small></td></tr><tr><td>eligibility_met</td><td><strong>NOT-ASSESSABLE</strong></td><td><small>cannot assess: criteria are stated, but sources is an empty dict -- no full text was available this pass, and inclusion logic is conditional prose</small></td><td><small>MECIR C5/C7 (Mandatory) with C6 &#x27;Predefining a strategy for studies with a subset of eligible participants&#x27; (Highly desirable, READ 2026-08-19) -- eligibility is assessed against the full report</small></td></tr><tr><td>contributes_a_randomised_contrast</td><td><strong>NOT-ASSESSABLE</strong></td><td><small>cannot assess: 2 of 2 trial(s) carry no readable arm roles [&#x27;NCT01223352&#x27;, &#x27;NCT01389856&#x27;]</small></td><td><small>Handbook 6.5 s23.3.4 &#x27;How to include multiple groups from one study&#x27; (READ 2026-08-19) and s23.3.6 &#x27;Factorial trials&#x27;; MECIR C7 &#x27;Predefining unambiguous criteria for interventions and comparators&#x27; (Ma</small></td></tr></table></div><p><small>This page is stamped to the standard version above. If the standard rises, this page is BELOW it and knowably so. No page is grandfathered; arni-hfref is presently UNSTAMPED and is therefore unknown-version, not compliant.</small></p></div>
+    <caption>Table 18. Preconditions</caption>
+<tr><th>precondition</th><th>verdict</th><th>reason</th><th>authority</th></tr><tr><td>population_stated</td><td><strong>PASS</strong></td><td><small>present: question carries 202 characters</small></td><td><small>MECIR C62 &#x27;Ensuring meta-analyses are meaningful&#x27; (Mandatory, READ 2026-08-19): &#x27;Undertake (or display) a meta-analysis only if participants, interventions, comparisons and outcomes are judged to be s</small></td></tr><tr><td>arm_role_resolved</td><td><strong>NOT-ASSESSABLE</strong></td><td><small>cannot assess: inputs.trials has 2 trial(s) with no readable arms [&#x27;NCT01223352&#x27;, &#x27;NCT01389856&#x27;] and 0 with a blank arm role []. Absent role data is not a wrong role.</small></td><td><small>MECIR C62 (Mandatory), &#x27;interventions&#x27; limb -- this is a PRECONDITION FOR ASSESSING C62, not an enforcement of it: you cannot judge whether interventions are &#x27;sufficiently similar&#x27; without knowing whi</small></td></tr><tr><td>comparators_identified</td><td><strong>PASS</strong></td><td><small>every outcome names a comparator type [&#x27;placebo&#x27;]; none declares &#x27;mixed&#x27;. Within-outcome consistency is visible only through the declared type, and cross-outcome differences are not judged.</small></td><td><small>MECIR C62 (Mandatory), &#x27;comparisons&#x27; limb -- a synthesis pools one contrast. NOT cited to C7: C7 governs PREDEFINITION, and this check reads recorded comparator fields and tests them for consistency.</small></td></tr><tr><td>estimand_named</td><td><strong>PASS</strong></td><td><small>outcomes.estimand: all 1 outcome(s) name a quantity</small></td><td><small>MECIR C8 &#x27;Clarifying role of outcomes&#x27; (Mandatory, READ 2026-08-19); MECIR C62 (Mandatory), &#x27;outcomes&#x27; limb</small></td></tr><tr><td>criteria_stated</td><td><strong>PASS</strong></td><td><small>present: screening.eligibility carries 803 characters</small></td><td><small>MECIR R29 &#x27;Eligibility criteria for types of participants&#x27;, R30 &#x27;...types of interventions&#x27;, R31 &#x27;Role of outcomes&#x27; -- ALL Mandatory REPORTING standards (READ 2026-08-19). Their verb is STATE. A block</small></td></tr><tr><td>criteria_predefined</td><td><strong>FAIL</strong></td><td><small>screening.eligibility_provenance.predefined is false: the criteria were DERIVED post hoc from this object&#x27;s own question and recorded exclusions. That is auditable (R29/R30/R31) and is not pre-specification (C5/C7). This</small></td><td><small>MECIR C5 &#x27;Predefining unambiguous criteria for participants&#x27; AND C7 &#x27;...for interventions and comparators&#x27;, BOTH Mandatory (READ 2026-08-19): &#x27;Predefined, unambiguous eligibility criteria are a fundam</small></td></tr><tr><td>eligibility_met</td><td><strong>NOT-ASSESSABLE</strong></td><td><small>cannot assess: criteria are stated, but sources is an empty dict -- no full text was available this pass, and inclusion logic is conditional prose</small></td><td><small>MECIR C5/C7 (Mandatory) with C6 &#x27;Predefining a strategy for studies with a subset of eligible participants&#x27; (Highly desirable, READ 2026-08-19) -- eligibility is assessed against the full report</small></td></tr><tr><td>contributes_a_randomised_contrast</td><td><strong>NOT-ASSESSABLE</strong></td><td><small>cannot assess: 2 of 2 trial(s) carry no readable arm roles [&#x27;NCT01223352&#x27;, &#x27;NCT01389856&#x27;]</small></td><td><small>Handbook 6.5 s23.3.4 &#x27;How to include multiple groups from one study&#x27; (READ 2026-08-19) and s23.3.6 &#x27;Factorial trials&#x27;; MECIR C7 &#x27;Predefining unambiguous criteria for interventions and comparators&#x27; (Ma</small></td></tr></table></div><p><small>This page is stamped to the standard version above. If the standard rises, this page is below it and knowably so. No page is grandfathered; arni-hfref is presently unstamped and is therefore unknown-version, not compliant.</small></p></div>
 <p><small>Every number on this page is projected from a single canonical object,
 and each measured cell names the source analysis it was read from. That is what is
 machine-checked. It does not establish that the underlying sources are right, only

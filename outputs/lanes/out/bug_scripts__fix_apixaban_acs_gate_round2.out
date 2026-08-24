@@ -1,0 +1,1203 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a031aa-0a21-7092-b3a2-c4eff71d6a5f
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/fix_apixaban_acs_gate_round2.py
+
+--- THE FILE, IN FULL ---
+"""Round-2 revision of APIXABAN_ACS after the cross-family gate (Codex gpt-5.5 + Gemini).
+
+The gate reproduced the arithmetic and the sign flip intact (OR 1.9748,
+1.0411-3.7458, p=0.037, direction = harm). It rejected TWO of the fix's own
+EXPLANATORY claims as unverified assertions - the same class of defect the fix
+existed to remove. Both are corrected here, each re-verified to source.
+
+G1. FALSE: "APPRAISE-2 reports neither arm of the pooled outcome / neither is the
+    ISTH composite pooled here."
+    ClinicalTrials.gov NCT00831441 posts, as a SECONDARY outcome, exactly that
+    endpoint - "Event Rate of Confirmed Major Bleeding or Clinically Relevant
+    Non-Major Bleeding (CRNM) Using ISTH Criteria During the Treatment Period -
+    Treated Participants", Placebo 2.29 vs Apixaban 6.15, unit 'percentage of
+    participants/100-pt years', denominators 3643 and 3672. Re-read live this
+    session.
+    The defensible exclusion reason is about the MEASURE, not the endpoint: it is
+    posted only as an incidence RATE, so per-arm counts cannot be recovered
+    without repeating the rate-as-count error being corrected. The rate ratio on
+    that identical endpoint (2.686) is now cited as corroboration - stronger than
+    the TIMI HR 2.59 previously cited, because it is the same endpoint definition
+    rather than a different one.
+
+G2. FALSE: "AUGUSTUS's denominator 1153 matches no arm of the trial."
+    NCT02415400's participant flow and baseline denominators are 1153 / 1153 /
+    1154 / 1154 (total 4614) - the four cells of the 2x2 factorial. 1153 is the
+    randomised size of each of the two APIXABAN cells. It is a real registry
+    denominator, not an invented number.
+    The real defect is a LEVEL-OF-AGGREGATION mismatch: a factorial-CELL
+    denominator paired with a FACTOR-LEVEL marginal rate (24.66 and 35.79 belong
+    to the apixaban and VKA marginals, analysed on 2290 and 2259). Compounding
+    it, the same apixaban-side cell denominator was applied to the VKA arm too,
+    whose cells are 1154.
+
+G3. Pooled total events (41) and N (1065) added to the visible badge.
+G4. The 1-patient TIMI denominator discordance recorded (publication 3673/3642
+    vs registry 3672/3643).
+G5. Gemini's phase-2 circularity addressed head-on, now that G1 is known: the
+    count-based pool is phase-2-only as a consequence of the MEASURE available,
+    not of a judgement that phase-3 evidence should be dropped - and the excluded
+    phase-3 trial points the same way, harder. Added as a rate-based sensitivity
+    comparison rather than left implicit.
+G6. Over-claims softened: "root cause, proven" -> "arithmetic origin", with the
+    reproduction stated as a measured max deviation (0.341, not "<0.34"); and the
+    APPRAISE-2 termination is no longer phrased so that a terminating finding is
+    attributed to a pool that excludes APPRAISE-2.
+"""
+import io
+import json
+import math
+import re
+import sys
+
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+FULL = "APIXABAN_ACS_AUTO_FULL_REVIEW.html"
+STUB = "APIXABAN_ACS_AUTO_REVIEW.html"
+LEDGER = "outputs/apixaban_acs_correction_ledger.json"
+
+# --------------------------------------------------------------------------
+# Everything below is re-derived here rather than restated, so the numbers on
+# the page and the numbers in this file cannot drift apart.
+# --------------------------------------------------------------------------
+POOL = [
+    ("APPRAISE-1", 18, 315, 18, 599),
+    ("APPRAISE-J", 4, 99, 1, 52),
+]
+TOTAL_EVENTS = sum(a + c for _, a, _, c, _ in POOL)          # 41
+TOTAL_N = sum(n1 + n0 for _, _, n1, _, n0 in POOL)           # 1065
+
+
+def mh_or(rows):
+    R = S = sPR = sPSQR = sQS = 0.0
+    for _, a, n1, c, n0 in rows:
+        b, d, N = n1 - a, n0 - c, n1 + n0
+        Ri, Si = a * d / N, b * c / N
+        P, Q = (a + d) / N, (b + c) / N
+        R += Ri; S += Si
+        sPR += P * Ri; sPSQR += P * Si + Q * Ri; sQS += Q * Si
+    OR = R / S
+    se = math.sqrt(sPR / (2 * R * R) + sPSQR / (2 * R * S) + sQS / (2 * S * S))
+    z = math.log(OR) / se
+    p = 2 * (1 - 0.5 * (1 + math.erf(abs(z) / math.sqrt(2))))
+    return OR, math.exp(math.log(OR) - 1.96 * se), math.exp(math.log(OR) + 1.96 * se), p
+
+
+OR, LO, HI, P = mh_or(POOL)
+
+# The four reproductions, measured rather than asserted.
+REPRO = [
+    ("APPRAISE-2 placebo", 3687, 13.96, 515),
+    ("APPRAISE-2 apixaban", 3705, 13.20, 489),
+    ("AUGUSTUS apixaban", 1153, 24.66, 284),
+    ("AUGUSTUS VKA", 1153, 35.79, 413),
+]
+MAX_DEV = max(abs(led - n * v / 100.0) for _, n, v, led in REPRO)
+
+# APPRAISE-2 posted ISTH major+CRNM rates (SECONDARY outcome, NCT00831441).
+ISTH_PLACEBO_RATE, ISTH_APIX_RATE = 2.29, 6.15
+ISTH_RR = ISTH_APIX_RATE / ISTH_PLACEBO_RATE                 # 2.6856
+ISTH_DENOM_PLACEBO, ISTH_DENOM_APIX = 3643, 3672
+
+assert TOTAL_EVENTS == 41 and TOTAL_N == 1065, (TOTAL_EVENTS, TOTAL_N)
+assert abs(OR - 1.9748) < 1e-3 and abs(ISTH_RR - 2.686) < 1e-3
+
+print(f"pooled  OR {OR:.4f} ({LO:.4f}-{HI:.4f})  p={P:.4f}  events={TOTAL_EVENTS}  N={TOTAL_N}")
+print(f"repro   max deviation {MAX_DEV:.4f}")
+print(f"ISTH    rate ratio {ISTH_RR:.4f}  ({ISTH_APIX_RATE} vs {ISTH_PLACEBO_RATE} per 100 pt-yr)")
+print()
+
+
+# ==========================================================================
+# 1. window.__verdict + window.__quarantinedTrials - replaced wholesale
+# ==========================================================================
+VERDICT = {
+    "verdict": "UNCERTAIN",
+    "gate_status": (
+        "Revised 2026-07-30 after a cross-family review (Codex gpt-5.5 + Gemini). The "
+        "arithmetic and the direction survived unchanged; two EXPLANATORY claims did not "
+        "and are corrected below. Pending re-gate."
+    ),
+    "counts": {
+        "P0_internal": 0, "P0_aact_nct_missing": 0, "P0_grim": None,
+        "P1_aact_concord": 0, "P1_fi_critical": 0, "P1_fi_warn": 1, "P1_pi_gap": 0,
+        "P2_evidence_incomplete": 2, "n_trials_seen": 2, "n_trials_quarantined": 2,
+        "P2_aact_advisory": 2,
+        "pooled_events": TOTAL_EVENTS, "pooled_N": TOTAL_N,
+    },
+    "reasons": [
+        f"Pooled k=2, {TOTAL_EVENTS} events across {TOTAL_N} randomised participants. "
+        "Both pooled trials are PHASE 2 dose-ranging studies.",
+        "WHY THE POOL IS PHASE-2-ONLY, stated because it would otherwise look circular: "
+        "the phase-3 trial (APPRAISE-2) DOES report the pooled endpoint, but posts it only "
+        "as an incidence RATE per 100 patient-years, and a count-based estimator cannot "
+        "consume a rate without person-time or counts. The restriction follows from the "
+        "MEASURE available, not from a judgement that phase-3 evidence should be dropped. "
+        "It is not a favourable subset: on the identical endpoint APPRAISE-2's rate ratio "
+        f"is {ISTH_RR:.2f}, which agrees with and EXCEEDS the pooled OR {OR:.2f}.",
+        "CORRECTED 2026-07-30 (cross-family gate): an earlier version of this verdict said "
+        "APPRAISE-2 'reports neither arm of the pooled outcome'. That was FALSE. "
+        "ClinicalTrials.gov NCT00831441 posts, as a SECONDARY outcome, 'Event Rate of "
+        "Confirmed Major Bleeding or Clinically Relevant Non-Major Bleeding (CRNM) Using "
+        f"ISTH Criteria' - placebo {ISTH_PLACEBO_RATE} vs apixaban {ISTH_APIX_RATE} per 100 "
+        f"patient-years on {ISTH_DENOM_PLACEBO} and {ISTH_DENOM_APIX}. It is excluded from "
+        "the COUNT-based pool because that endpoint is posted as a RATE, so recovering "
+        "per-arm counts would repeat exactly the error this page corrects.",
+        "CORRECTED 2026-07-30 (cross-family gate): an earlier version said AUGUSTUS's "
+        "denominator 1153 'matches no arm of the trial'. That was FALSE. The registry's "
+        "randomised cells are 1153/1153/1154/1154 (total 4614) and 1153 is the size of each "
+        "APIXABAN factorial cell. The real defect is a LEVEL-OF-AGGREGATION mismatch: a "
+        "factorial-CELL denominator paired with a FACTOR-LEVEL marginal rate (24.66 and "
+        "35.79 belong to the apixaban and VKA marginals, analysed on 2290 and 2259). The "
+        "same apixaban-side cell denominator was also applied to the VKA arm, whose cells "
+        "are 1154.",
+        "Prior ledger counts for APPRAISE-2 (515/489) and AUGUSTUS (284/413) have an "
+        f"arithmetic origin: multiplying a ClinicalTrials.gov posted value by a denominator "
+        f"reproduces all four to within {MAX_DEV:.3f}. The posted units are events per 100 "
+        "patient-years and percentage per year - rates, not proportions. This is a measured "
+        "reproduction, not a proof of intent.",
+        "Arms were previously bound by registry group index; ClinicalTrials.gov lists "
+        "placebo first in APPRAISE-1, APPRAISE-2 and APPRAISE-J, so 3 of 4 rows were "
+        "inverted. Arms are now bound by group TITLE.",
+        "AUGUSTUS per-arm counts remain UNVERIFIED and are not reconstructed.",
+        "GRIM/GRIMMER is N/A on binary per-arm counts - not a pass. Benford is UNDERPOWERED "
+        "(fewer than 30 digits) - cannot test, not 'no signal'.",
+        "SOURCE DISCORDANCE, recorded not resolved: APPRAISE-2's TIMI major bleeding "
+        "denominators differ by one patient per arm between documents - the publication "
+        "states 46/3673 apixaban and 18/3642 placebo, the registry posts safety "
+        "denominators of 3672 and 3643. Immaterial to every estimate here; recorded because "
+        "an unexplained one-patient gap is exactly what this audit exists to surface.",
+        "Verification is 2-source (publication + ClinicalTrials.gov posted results). No "
+        "FDA/EMA review document and no prior meta-analysis was consulted. Concordance "
+        "against the AACT 2026-04-12 snapshot is unverified.",
+        "AMSTAR-2 confidence: CRITICALLY LOW.",
+    ],
+    "p0_total": 0,
+    "p0_total_note": "0 P0s means no arithmetic-plausibility finding, NOT an integrity pass.",
+    "pooled": {
+        "estimator": "Mantel-Haenszel OR, Robins-Breslow-Greenland SE",
+        "k": 2, "events": TOTAL_EVENTS, "n": TOTAL_N,
+        "or": round(OR, 4), "ci": [round(LO, 4), round(HI, 4)], "p": round(P, 4),
+        "validated": "R 4.6.0 / metafor rma.mh, agreement to 4 decimal places; independently "
+                     "reproduced digit-for-digit by Codex gpt-5.5 in cross-family review",
+        "supersedes": "OR 0.850 (0.766-0.943), k=4 - built on counts with an arithmetic "
+                      "origin in a rate, inverted arms and a mixed outcome set",
+        "fragility": {
+            "hksj_ci": [0.03, 124.7],
+            "hksj_crosses_null": True,
+            "fragility_index": 1,
+            "note": "The DIRECTION is robust and corroborated on the identical endpoint by "
+                    f"APPRAISE-2's ISTH rate ratio {ISTH_RR:.2f}. The P-VALUE is not robust.",
+        },
+    },
+    "external_corroboration": {
+        "same_endpoint_rate_ratio": {
+            "trial": "APPRAISE-2 (NCT00831441), phase 3, not in the pool",
+            "endpoint": "ISTH major or clinically relevant non-major bleeding - the IDENTICAL "
+                        "endpoint definition to the pooled one",
+            "posted": f"placebo {ISTH_PLACEBO_RATE} vs apixaban {ISTH_APIX_RATE} per 100 "
+                      f"patient-years (denominators {ISTH_DENOM_PLACEBO}, {ISTH_DENOM_APIX})",
+            "rate_ratio": round(ISTH_RR, 3),
+            "ci": None,
+            "ci_note": "No confidence interval is computable from posted rates alone - "
+                       "person-time is not posted and the counts are not recoverable. The "
+                       "point estimate is quoted without one rather than derived.",
+            "why_it_matters": "Stronger corroboration than the TIMI major bleeding HR 2.59 "
+                              "cited previously, because it is the same endpoint definition "
+                              "rather than a different (narrower) one.",
+        },
+        "other_appraise2_outcomes": {
+            "ISTH_major_only_rate_ratio": round(5.13 / 2.04, 3),
+            "TIMI_major_published_HR": "2.59 (1.50-4.46), P=0.001",
+        },
+    },
+}
+
+QUARANTINE = {
+    "NCT00831441": {
+        "name": "APPRAISE-2",
+        "pmid": "21780946",
+        "doi": "10.1056/NEJMoa1105819",
+        "citation": "Alexander JH et al. N Engl J Med 2011;365(8):699-708",
+        "phase": "III",
+        "year": 2011,
+        "status_in_registry": "TERMINATED",
+        "quarantine_reason": (
+            "MEASURE, not endpoint. This trial DOES report the pooled endpoint: "
+            "ClinicalTrials.gov posts, as a SECONDARY outcome, 'Event Rate of Confirmed "
+            "Major Bleeding or Clinically Relevant Non-Major Bleeding (CRNM) Using ISTH "
+            f"Criteria During the Treatment Period - Treated Participants' - placebo "
+            f"{ISTH_PLACEBO_RATE} vs apixaban {ISTH_APIX_RATE}, unit 'percentage of "
+            f"participants/100-pt years', denominators {ISTH_DENOM_PLACEBO} and "
+            f"{ISTH_DENOM_APIX}. It is excluded from the COUNT-based pool because that "
+            "endpoint is posted only as an incidence RATE over person-time: recovering "
+            "per-arm counts from it would repeat precisely the rate-as-count error this "
+            "correction exists to remove. It is carried instead as a rate-based sensitivity "
+            f"comparison - rate ratio {ISTH_RR:.3f} on the identical endpoint."
+        ),
+        "correction_note": (
+            "CORRECTED 2026-07-30 after cross-family review. The previous exclusion reason "
+            "read 'Reports neither arm of the pooled outcome ... neither is the ISTH "
+            "major/CRNM composite pooled in this app.' That was FALSE and is retained here "
+            "so the error is visible rather than quietly overwritten."
+        ),
+        "previous_ledger_values": {"tE": 515, "tN": 3687, "cE": 489, "cN": 3705},
+        "previous_values_defect": (
+            "Arithmetic origin in a rate. The registry posts the primary in units of "
+            "'percentage of participants/100-pt years' - an incidence rate over person-time. "
+            "3687 x 13.96/100 = 514.71 and 3705 x 13.20/100 = 489.06, reproducing the "
+            f"ledger's 515 and 489 to within {MAX_DEV:.3f}. Neither count appears in any "
+            "source. The arms were also swapped: tN 3687 is the PLACEBO denominator."
+        ),
+        "reported_outcomes": [
+            {
+                "outcome": "ISTH major or CRNM bleeding (SECONDARY) - the pooled endpoint",
+                "unit": "percentage of participants/100-pt years",
+                "placebo": f"{ISTH_PLACEBO_RATE} on {ISTH_DENOM_PLACEBO}",
+                "apixaban": f"{ISTH_APIX_RATE} on {ISTH_DENOM_APIX}",
+                "rate_ratio": round(ISTH_RR, 3),
+                "counts_recoverable": False,
+                "source": "ClinicalTrials.gov NCT00831441 posted results, read 2026-07-30",
+            },
+            {
+                "outcome": "CV death, MI or ischaemic stroke (efficacy co-primary)",
+                "apixaban": "279/3705", "placebo": "293/3687",
+                "published": "HR 0.95 (0.80-1.11), P=0.51 - not significant",
+                "crude_OR": "0.943 (0.795-1.119)",
+                "source": "PMID 21780946 abstract, verbatim",
+            },
+            {
+                "outcome": "TIMI major bleeding (safety co-primary)",
+                "apixaban": "46/3673", "placebo": "18/3642",
+                "published": "HR 2.59 (1.50-4.46), P=0.001",
+                "crude_OR": "2.553 (1.478-4.412)",
+                "source": "PMID 21780946 abstract, verbatim",
+                "source_discordance": (
+                    "The publication states denominators 3673 (apixaban) and 3642 (placebo); "
+                    "the registry posts safety denominators of 3672 and 3643 - a one-patient "
+                    "difference per arm, in opposite directions. Unexplained. Immaterial to "
+                    "every estimate on this page. Recorded, not resolved."
+                ),
+            },
+        ],
+        "note": (
+            "APPRAISE-2 was terminated early for excess major bleeding with apixaban without "
+            "a counterbalancing reduction in ischaemic events. That termination is a finding "
+            "about APPRAISE-2, which is NOT in this pool - it is external corroboration of "
+            "the pooled result's direction, not the pooled result itself."
+        ),
+    },
+    "NCT02415400": {
+        "name": "AUGUSTUS",
+        "pmid": "30883055",
+        "doi": "10.1056/NEJMoa1817083",
+        "citation": "Lopes RD et al. N Engl J Med 2019;380(16):1509-1524",
+        "previously_cited_pmid": "29898844",
+        "previously_cited_is": (
+            "Lopes RD et al. 'Rationale and design of the AUGUSTUS trial.' Am Heart J "
+            "2018;200:17-23. PubMed types it a Clinical Trial Protocol. It reports no "
+            "outcome data and cannot substantiate any extracted count."
+        ),
+        "phase": "IV",
+        "year": 2019,
+        "status_in_registry": "COMPLETED",
+        "quarantine_reason": (
+            "Wrong PICO. AUGUSTUS randomised patients with ATRIAL FIBRILLATION who had an ACS "
+            "or PCI and compared apixaban against a VITAMIN K ANTAGONIST - not against "
+            "placebo on top of antiplatelet therapy. It is also the only open-label (masking "
+            "NONE) and only phase 4 trial in an otherwise double-blind phase 2-3 set, and a "
+            "2x2 factorial that no single 2x2 table can represent without stating which "
+            "factor is estimated."
+        ),
+        "correction_note": (
+            "CORRECTED 2026-07-30 after cross-family review. The previous defect description "
+            "said the denominator 1153 'belongs to no arm'. That was FALSE - see below. The "
+            "erroneous claim is retained here so the correction is visible."
+        ),
+        "previous_ledger_values": {"tE": 284, "tN": 1153, "cE": 413, "cN": 1153},
+        "previous_values_defect": (
+            "A LEVEL-OF-AGGREGATION mismatch, compounded by a rate read as a proportion. "
+            "1153 is a REAL registry denominator: NCT02415400's randomised cells are "
+            "1153 / 1153 / 1154 / 1154 (total 4614) and 1153 is the size of each of the two "
+            "APIXABAN cells of the 2x2 factorial. The error is that a factorial-CELL "
+            "denominator was paired with a FACTOR-LEVEL marginal rate - the posted 24.66 and "
+            "35.79 ('Percentage per year') belong to the apixaban and VKA factor levels, "
+            "analysed on 2290 and 2259. Compounding it, the same apixaban-side cell "
+            "denominator (1153) was applied to the VKA arm as well, whose cells are 1154. "
+            "1153 x 24.66/100 = 284.33 and 1153 x 35.79/100 = 412.66, reproducing the "
+            f"ledger's 284 and 413 to within {MAX_DEV:.3f}."
+        ),
+        "per_arm_counts": "UNVERIFIED - NOT RECONSTRUCTED",
+        "per_arm_counts_note": (
+            "The publication reports percentages (10.5% apixaban vs 14.7% vitamin K "
+            "antagonist), not counts, and the registry posts a per-year rate. Back-computing "
+            "counts from either would repeat the error being corrected. No counts are asserted."
+        ),
+        "published_effect": "HR 0.69 (95% CI 0.58-0.81), P<0.001 for noninferiority and superiority",
+        "previous_ledger_CI_defect": "Ledger carried an upper CI of 0.82; the publication states 0.81.",
+    },
+}
+
+
+s = open(FULL, encoding="utf-8").read()
+before = len(s)
+
+old_block = re.search(
+    r"<script>window\.__RM_ALLOW_PHASE2_POOLING = true;.*?</script>", s, re.S
+)
+assert old_block, "phase2/verdict script block not found"
+new_block = (
+    "<script>window.__RM_ALLOW_PHASE2_POOLING = true; /* disclosed: see badge */\n"
+    "window.__verdict = " + json.dumps(VERDICT, ensure_ascii=False) + ";\n"
+    "window.__quarantinedTrials = " + json.dumps(QUARANTINE, ensure_ascii=False) + ";</script>"
+)
+s = s[:old_block.start()] + new_block + s[old_block.end():]
+print("  - window.__verdict + __quarantinedTrials replaced wholesale")
+
+
+# ==========================================================================
+# 2. the visible badge - whole block replaced, never patched
+# ==========================================================================
+i = s.index('id="rapidmeta-integrity-badge"')
+st = s.rfind("<div", 0, i)
+depth, k = 0, st
+while k < len(s):
+    if s.startswith("<div", k):
+        depth += 1
+    elif s.startswith("</div>", k):
+        depth -= 1
+        if depth == 0:
+            k += 6
+            break
+    k += 1
+
+badge = (
+    '<div id="rapidmeta-integrity-badge" role="status" '
+    'style="background:#7c2d12;color:#fff;padding:12px 20px;font-family:system-ui,sans-serif;'
+    'font-size:13.5px;border-bottom:3px solid #431407;line-height:1.55;">'
+    '<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">'
+    '<strong style="font-size:14px;letter-spacing:0.04em;">VERDICT: UNCERTAIN '
+    '&mdash; CORRECTED, AND THE CONCLUSION REVERSED</strong>'
+    f'<span style="font-size:11.5px;">Pooled: <strong>2</strong> trials &middot; '
+    f'<strong>{TOTAL_EVENTS}</strong> events / <strong>{TOTAL_N:,}</strong> participants '
+    '&middot; Quarantined: <strong>2</strong> &middot; Arithmetic findings: <strong>0</strong> '
+    '&mdash; a tested zero, not a pass</span></div>'
+
+    '<div style="margin-top:6px;font-size:12.5px;">'
+    'This page previously reported <strong>OR 0.850 (0.766&ndash;0.943)</strong>, a '
+    'significant <em>benefit</em> of apixaban. That figure rested on counts that appear in no '
+    'source, on arms bound by registry index rather than by name, and on an ischaemic outcome '
+    'pooled with bleeding outcomes. Corrected and re-sourced, the estimate for <strong>ISTH '
+    'major or clinically relevant non-major bleeding, apixaban vs placebo on top of '
+    'antiplatelet therapy in ACS</strong> is '
+    f'<strong>OR {OR:.3f} ({LO:.3f}&ndash;{HI:.3f})</strong>, p={P:.3f}, k=2, on '
+    f'<strong>{TOTAL_EVENTS} events across {TOTAL_N:,} randomised participants</strong> '
+    '(Mantel-Haenszel, Robins-Breslow-Greenland SE; reproduced in R 4.6.0 / metafor to 4 '
+    'decimal places and independently digit-for-digit in cross-family review). '
+    '<strong>Apixaban roughly doubles major/CRNM bleeding.</strong> '
+    'This is a provenance correction, not a result that got worse &mdash; the evidence did '
+    'not change; the page was wrong.</div>'
+
+    '<div style="margin-top:6px;font-size:11.5px;">'
+    '<strong>What was wrong.</strong> APPRAISE-2&rsquo;s 515/489 and AUGUSTUS&rsquo;s 284/413 '
+    'have an <strong>arithmetic origin</strong>: multiplying a ClinicalTrials.gov posted value '
+    f'by a denominator reproduces all four to within <strong>{MAX_DEV:.3f}</strong>, where the '
+    'posted units are <em>events per 100 patient-years</em> and <em>percentage per year</em> '
+    '&mdash; rates, not proportions. (A measured reproduction, not a claim about intent.) '
+    'Arms were inverted in 3 of 4 rows because ClinicalTrials.gov lists placebo first. Phase '
+    'was wrong in 3 of 4 rows. AUGUSTUS cited PMID 29898844, the trial&rsquo;s <em>protocol</em> '
+    'paper, which reports no outcome data; the results paper is PMID 30883055.</div>'
+
+    '<div style="margin-top:6px;font-size:11.5px;background:rgba(0,0,0,0.18);padding:7px 10px;'
+    'border-radius:3px;">'
+    '<strong>Two claims on this badge were themselves wrong, and were corrected on '
+    '2026-07-30 after cross-family review.</strong> They are named rather than quietly '
+    'replaced. <em>(1)</em> It said APPRAISE-2 &ldquo;reports neither arm of the pooled '
+    'outcome&rdquo;. <strong>False.</strong> ClinicalTrials.gov posts that exact endpoint for '
+    'it as a <em>secondary</em> outcome &mdash; ISTH major or CRNM bleeding, placebo '
+    f'{ISTH_PLACEBO_RATE} vs apixaban {ISTH_APIX_RATE} per 100 patient-years on '
+    f'{ISTH_DENOM_PLACEBO:,} and {ISTH_DENOM_APIX:,}. <em>(2)</em> It said AUGUSTUS&rsquo;s '
+    'denominator 1153 &ldquo;matches no arm of the trial&rdquo;. <strong>False.</strong> The '
+    'randomised cells are 1153/1153/1154/1154 and 1153 is the size of each <em>apixaban</em> '
+    'cell of the 2&times;2 factorial. The corrected readings are below.</div>'
+
+    '<div style="margin-top:6px;font-size:11.5px;">'
+    '<strong>Quarantined, not deleted</strong> (see <code style="background:rgba(255,255,255,0.28);'
+    'padding:1px 4px;border-radius:2px;">window.__quarantinedTrials</code>). '
+    '<strong>APPRAISE-2 is excluded for its MEASURE, not its endpoint.</strong> It reports the '
+    'pooled endpoint &mdash; but only as an incidence <em>rate</em> per 100 patient-years, so '
+    'per-arm counts cannot be recovered from it without repeating the very rate-as-count error '
+    'this page corrects. On that identical endpoint its <strong>rate ratio is '
+    f'{ISTH_RR:.2f}</strong>, which <em>agrees with and exceeds</em> the pooled OR '
+    f'{OR:.2f}. (No confidence interval is quoted for it: person-time is not posted and the '
+    'counts are not recoverable, so an interval would have to be invented.) Its other outcomes '
+    '&mdash; ischaemic composite 279/3705 vs 293/3687, HR 0.95 (0.80&ndash;1.11), '
+    '<strong>P=0.51, not significant</strong>; TIMI major bleeding 46/3673 vs 18/3642, HR 2.59 '
+    '(1.50&ndash;4.46) &mdash; are narrower or different endpoints. '
+    '<strong>AUGUSTUS</strong> compared apixaban against a <em>vitamin K antagonist</em> in an '
+    '<em>atrial fibrillation</em> population, open-label, phase 4, 2&times;2 factorial &mdash; a '
+    'different question. Its 284/413 came from pairing a factorial-<em>cell</em> denominator '
+    '(1153) with a factor-<em>level</em> marginal rate (24.66 and 35.79 belong to the apixaban '
+    'and VKA marginals, analysed on 2,290 and 2,259), and the apixaban-side cell figure was '
+    'applied to the VKA arm too, whose cells are 1,154. Its per-arm counts are '
+    '<strong>UNVERIFIED and deliberately not reconstructed</strong>.</div>'
+
+    '<div style="margin-top:6px;font-size:11.5px;">'
+    '<strong>Why the pool is phase-2-only, and why that is not circular.</strong> Both pooled '
+    'trials are phase 2, and the app&rsquo;s default phase-2 exclusion is switched off here. '
+    'That could look like excluding the only phase-3 trial and then removing the guard because '
+    'only phase 2 remained. It is not: APPRAISE-2 is out because its version of this endpoint '
+    'is a <em>rate</em>, and no count-based estimator can consume a rate without person-time '
+    '&mdash; the restriction follows from the available <strong>measure</strong>, not from a '
+    'judgement that phase-3 evidence should be dropped. Nor does it select a favourable subset: '
+    f'the excluded phase-3 trial points the <em>same way, harder</em> (rate ratio {ISTH_RR:.2f} '
+    f'vs pooled OR {OR:.2f}). Restricting to phase 3 would leave no count-based estimate at '
+    'all; restricting to phase 2 gives the smaller of the two effects.</div>'
+
+    '<div style="margin-top:6px;font-size:10.5px;">'
+    '<strong>Limits, stated.</strong> APPRAISE-1 contributes only its 2.5 mg BID arm (three '
+    'higher-dose arms, 787 patients, are not pooled; the two highest were stopped for excess '
+    'bleeding). GRIM/GRIMMER is <strong>N/A</strong> on binary counts, not passed. Benford is '
+    '<strong>UNDERPOWERED</strong> (&lt;30 digits) &mdash; cannot test, not &ldquo;no '
+    'signal&rdquo;. Verification is <strong>2-source</strong> (publication + '
+    'ClinicalTrials.gov API v2 posted results, retrieved 2026-07-30); no FDA/EMA review '
+    'document and no prior meta-analysis was consulted, and concordance against the AACT '
+    '2026-04-12 snapshot is unverified. At k=2, publication bias, small-study effects and '
+    'prediction intervals are not assessable. <strong>The significance is fragile and the page '
+    'says so:</strong> the HKSJ-adjusted interval (t with df=k&minus;1=1) is 0.03&ndash;124.7 '
+    'and <em>crosses 1</em>, the analysis panel flags the discordance, and the fragility index '
+    'is <strong>1</strong> &mdash; a single event overturns nominal significance. The direction '
+    f'(harm) is robust and corroborated on the identical endpoint by APPRAISE-2 (rate ratio '
+    f'{ISTH_RR:.2f}); the <em>p-value</em> is not robust. A one-patient source discordance is '
+    'recorded but unresolved: APPRAISE-2&rsquo;s TIMI denominators are 3,673/3,642 in the '
+    'publication and 3,672/3,643 in the registry. The on-page panel pools by inverse-variance '
+    'random effects (&tau;&sup2;=0, so DL and Paule-Mandel coincide) and reads 1.97 '
+    f'(1.04&ndash;3.74); the Mantel-Haenszel figure above is {OR:.3f} ({LO:.3f}&ndash;{HI:.3f}). '
+    'They agree to the displayed precision. APPRAISE-2 was terminated early for excess major '
+    'bleeding &mdash; a finding about APPRAISE-2, which is <em>not</em> in this pool, and so '
+    'external corroboration of the direction rather than the pooled result itself. '
+    'AMSTAR-2 confidence: <strong>CRITICALLY LOW</strong>.</div></div>'
+)
+s = s[:st] + badge + s[k:]
+print("  - visible badge replaced wholesale (events/N added, both false claims corrected)")
+
+open(FULL, "w", encoding="utf-8", newline="").write(s)
+print(f"{FULL}: {before} -> {len(s)} bytes\n")
+
+
+# ==========================================================================
+# 3. the stub - keep both surfaces agreeing with the full app
+# ==========================================================================
+t = open(STUB, encoding="utf-8").read()
+tb = len(t)
+i = t.index('id="rapidmeta-integrity-badge"')
+st = t.rfind("<div", 0, i)
+depth, k = 0, st
+while k < len(t):
+    if t.startswith("<div", k):
+        depth += 1
+    elif t.startswith("</div>", k):
+        depth -= 1
+        if depth == 0:
+            k += 6
+            break
+    k += 1
+stub_badge = (
+    '<div id="rapidmeta-integrity-badge" role="status" '
+    'style="background:#7c2d12;color:#fff;padding:12px 20px;font-family:system-ui,sans-serif;'
+    'font-size:13.5px;border-bottom:3px solid #431407;line-height:1.55;">'
+    '<strong style="font-size:14px;letter-spacing:0.04em;">VERDICT: UNCERTAIN '
+    '&mdash; CORRECTED, AND THE CONCLUSION REVERSED</strong>'
+    '<div style="margin-top:6px;font-size:12.5px;">This page previously reported a significant '
+    '<em>benefit</em> of apixaban (OR 0.850). Corrected and re-sourced, apixaban roughly '
+    f'<strong>doubles</strong> ISTH major/CRNM bleeding: <strong>OR {OR:.3f} '
+    f'({LO:.3f}&ndash;{HI:.3f})</strong>, p={P:.3f}, k=2, on <strong>{TOTAL_EVENTS} events '
+    f'across {TOTAL_N:,} randomised participants</strong>. The direction is corroborated on the '
+    f'identical endpoint by APPRAISE-2 (rate ratio {ISTH_RR:.2f}); the p-value is fragile '
+    '(HKSJ crosses 1, fragility index 1). See the full review for the ledger, the quarantined '
+    'trials and the stated limits. AMSTAR-2 confidence: <strong>CRITICALLY LOW</strong>.</div></div>'
+)
+t = t[:st] + stub_badge + t[k:]
+old_sv = re.search(r"<script>window\.__verdict = \{.*?\};</script>", t, re.S)
+assert old_sv, "stub verdict not found"
+stub_verdict = {
+    "verdict": "UNCERTAIN",
+    "counts": {"n_trials_seen": 2, "n_trials_quarantined": 2, "p0_total": 0,
+               "pooled_events": TOTAL_EVENTS, "pooled_N": TOTAL_N},
+    "reasons": [
+        "Redirect stub. Verdict mirrors APIXABAN_ACS_AUTO_FULL_REVIEW.html: pooled k=2 on "
+        f"{TOTAL_EVENTS} events / {TOTAL_N} participants, 2 trials quarantined, prior pooled "
+        "estimate superseded after counts with an arithmetic origin in a rate and inverted "
+        "arms were corrected.",
+        "Revised 2026-07-30 after cross-family review, which corrected two explanatory claims "
+        "on the full page while leaving the arithmetic and the direction unchanged.",
+    ],
+    "p0_total": 0,
+    "pooled": {"estimator": "Mantel-Haenszel OR, Robins-Breslow-Greenland SE", "k": 2,
+               "events": TOTAL_EVENTS, "n": TOTAL_N,
+               "or": round(OR, 4), "ci": [round(LO, 4), round(HI, 4)], "p": round(P, 4)},
+}
+t = t[:old_sv.start()] + "<script>window.__verdict = " + json.dumps(stub_verdict, ensure_ascii=False) + ";</script>" + t[old_sv.end():]
+open(STUB, "w", encoding="utf-8", newline="").write(t)
+print(f"{STUB}: {tb} -> {len(t)} bytes  (badge + verdict kept in step with the full app)")
+
+codex
+I’ll use the pasted packet as the record and only use the workspace copy to verify line numbering, not to introduce extra facts outside the packet.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=0; Get-Content -Path scripts/fix_apixaban_acs_gate_round2.py | ForEach-Object { $i++; '"'{0,4}: {1}' -f "'$i, $_ }' in F:\rapidmeta-ssot-shell
+ succeeded in 1506ms:
+   1: """Round-2 revision of APIXABAN_ACS after the cross-family gate (Codex gpt-5.5 + Gemini).
+   2: 
+   3: The gate reproduced the arithmetic and the sign flip intact (OR 1.9748,
+   4: 1.0411-3.7458, p=0.037, direction = harm). It rejected TWO of the fix's own
+   5: EXPLANATORY claims as unverified assertions - the same class of defect the fix
+   6: existed to remove. Both are corrected here, each re-verified to source.
+   7: 
+   8: G1. FALSE: "APPRAISE-2 reports neither arm of the pooled outcome / neither is the
+   9:     ISTH composite pooled here."
+  10:     ClinicalTrials.gov NCT00831441 posts, as a SECONDARY outcome, exactly that
+  11:     endpoint - "Event Rate of Confirmed Major Bleeding or Clinically Relevant
+  12:     Non-Major Bleeding (CRNM) Using ISTH Criteria During the Treatment Period -
+  13:     Treated Participants", Placebo 2.29 vs Apixaban 6.15, unit 'percentage of
+  14:     participants/100-pt years', denominators 3643 and 3672. Re-read live this
+  15:     session.
+  16:     The defensible exclusion reason is about the MEASURE, not the endpoint: it is
+  17:     posted only as an incidence RATE, so per-arm counts cannot be recovered
+  18:     without repeating the rate-as-count error being corrected. The rate ratio on
+  19:     that identical endpoint (2.686) is now cited as corroboration - stronger than
+  20:     the TIMI HR 2.59 previously cited, because it is the same endpoint definition
+  21:     rather than a different one.
+  22: 
+  23: G2. FALSE: "AUGUSTUS's denominator 1153 matches no arm of the trial."
+  24:     NCT02415400's participant flow and baseline denominators are 1153 / 1153 /
+  25:     1154 / 1154 (total 4614) - the four cells of the 2x2 factorial. 1153 is the
+  26:     randomised size of each of the two APIXABAN cells. It is a real registry
+  27:     denominator, not an invented number.
+  28:     The real defect is a LEVEL-OF-AGGREGATION mismatch: a factorial-CELL
+  29:     denominator paired with a FACTOR-LEVEL marginal rate (24.66 and 35.79 belong
+  30:     to the apixaban and VKA marginals, analysed on 2290 and 2259). Compounding
+  31:     it, the same apixaban-side cell denominator was applied to the VKA arm too,
+  32:     whose cells are 1154.
+  33: 
+  34: G3. Pooled total events (41) and N (1065) added to the visible badge.
+  35: G4. The 1-patient TIMI denominator discordance recorded (publication 3673/3642
+  36:     vs registry 3672/3643).
+  37: G5. Gemini's phase-2 circularity addressed head-on, now that G1 is known: the
+  38:     count-based pool is phase-2-only as a consequence of the MEASURE available,
+  39:     not of a judgement that phase-3 evidence should be dropped - and the excluded
+  40:     phase-3 trial points the same way, harder. Added as a rate-based sensitivity
+  41:     comparison rather than left implicit.
+  42: G6. Over-claims softened: "root cause, proven" -> "arithmetic origin", with the
+  43:     reproduction stated as a measured max deviation (0.341, not "<0.34"); and the
+  44:     APPRAISE-2 termination is no longer phrased so that a terminating finding is
+  45:     attributed to a pool that excludes APPRAISE-2.
+  46: """
+  47: import io
+  48: import json
+  49: import math
+  50: import re
+  51: import sys
+  52: 
+  53: sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+  54: 
+  55: FULL = "APIXABAN_ACS_AUTO_FULL_REVIEW.html"
+  56: STUB = "APIXABAN_ACS_AUTO_REVIEW.html"
+  57: LEDGER = "outputs/apixaban_acs_correction_ledger.json"
+  58: 
+  59: # --------------------------------------------------------------------------
+  60: # Everything below is re-derived here rather than restated, so the numbers on
+  61: # the page and the numbers in this file cannot drift apart.
+  62: # --------------------------------------------------------------------------
+  63: POOL = [
+  64:     ("APPRAISE-1", 18, 315, 18, 599),
+  65:     ("APPRAISE-J", 4, 99, 1, 52),
+  66: ]
+  67: TOTAL_EVENTS = sum(a + c for _, a, _, c, _ in POOL)          # 41
+  68: TOTAL_N = sum(n1 + n0 for _, _, n1, _, n0 in POOL)           # 1065
+  69: 
+  70: 
+  71: def mh_or(rows):
+  72:     R = S = sPR = sPSQR = sQS = 0.0
+  73:     for _, a, n1, c, n0 in rows:
+  74:         b, d, N = n1 - a, n0 - c, n1 + n0
+  75:         Ri, Si = a * d / N, b * c / N
+  76:         P, Q = (a + d) / N, (b + c) / N
+  77:         R += Ri; S += Si
+  78:         sPR += P * Ri; sPSQR += P * Si + Q * Ri; sQS += Q * Si
+  79:     OR = R / S
+  80:     se = math.sqrt(sPR / (2 * R * R) + sPSQR / (2 * R * S) + sQS / (2 * S * S))
+  81:     z = math.log(OR) / se
+  82:     p = 2 * (1 - 0.5 * (1 + math.erf(abs(z) / math.sqrt(2))))
+  83:     return OR, math.exp(math.log(OR) - 1.96 * se), math.exp(math.log(OR) + 1.96 * se), p
+  84: 
+  85: 
+  86: OR, LO, HI, P = mh_or(POOL)
+  87: 
+  88: # The four reproductions, measured rather than asserted.
+  89: REPRO = [
+  90:     ("APPRAISE-2 placebo", 3687, 13.96, 515),
+  91:     ("APPRAISE-2 apixaban", 3705, 13.20, 489),
+  92:     ("AUGUSTUS apixaban", 1153, 24.66, 284),
+  93:     ("AUGUSTUS VKA", 1153, 35.79, 413),
+  94: ]
+  95: MAX_DEV = max(abs(led - n * v / 100.0) for _, n, v, led in REPRO)
+  96: 
+  97: # APPRAISE-2 posted ISTH major+CRNM rates (SECONDARY outcome, NCT00831441).
+  98: ISTH_PLACEBO_RATE, ISTH_APIX_RATE = 2.29, 6.15
+  99: ISTH_RR = ISTH_APIX_RATE / ISTH_PLACEBO_RATE                 # 2.6856
+ 100: ISTH_DENOM_PLACEBO, ISTH_DENOM_APIX = 3643, 3672
+ 101: 
+ 102: assert TOTAL_EVENTS == 41 and TOTAL_N == 1065, (TOTAL_EVENTS, TOTAL_N)
+ 103: assert abs(OR - 1.9748) < 1e-3 and abs(ISTH_RR - 2.686) < 1e-3
+ 104: 
+ 105: print(f"pooled  OR {OR:.4f} ({LO:.4f}-{HI:.4f})  p={P:.4f}  events={TOTAL_EVENTS}  N={TOTAL_N}")
+ 106: print(f"repro   max deviation {MAX_DEV:.4f}")
+ 107: print(f"ISTH    rate ratio {ISTH_RR:.4f}  ({ISTH_APIX_RATE} vs {ISTH_PLACEBO_RATE} per 100 pt-yr)")
+ 108: print()
+ 109: 
+ 110: 
+ 111: # ==========================================================================
+ 112: # 1. window.__verdict + window.__quarantinedTrials - replaced wholesale
+ 113: # ==========================================================================
+ 114: VERDICT = {
+ 115:     "verdict": "UNCERTAIN",
+ 116:     "gate_status": (
+ 117:         "Revised 2026-07-30 after a cross-family review (Codex gpt-5.5 + Gemini). The "
+ 118:         "arithmetic and the direction survived unchanged; two EXPLANATORY claims did not "
+ 119:         "and are corrected below. Pending re-gate."
+ 120:     ),
+ 121:     "counts": {
+ 122:         "P0_internal": 0, "P0_aact_nct_missing": 0, "P0_grim": None,
+ 123:         "P1_aact_concord": 0, "P1_fi_critical": 0, "P1_fi_warn": 1, "P1_pi_gap": 0,
+ 124:         "P2_evidence_incomplete": 2, "n_trials_seen": 2, "n_trials_quarantined": 2,
+ 125:         "P2_aact_advisory": 2,
+ 126:         "pooled_events": TOTAL_EVENTS, "pooled_N": TOTAL_N,
+ 127:     },
+ 128:     "reasons": [
+ 129:         f"Pooled k=2, {TOTAL_EVENTS} events across {TOTAL_N} randomised participants. "
+ 130:         "Both pooled trials are PHASE 2 dose-ranging studies.",
+ 131:         "WHY THE POOL IS PHASE-2-ONLY, stated because it would otherwise look circular: "
+ 132:         "the phase-3 trial (APPRAISE-2) DOES report the pooled endpoint, but posts it only "
+ 133:         "as an incidence RATE per 100 patient-years, and a count-based estimator cannot "
+ 134:         "consume a rate without person-time or counts. The restriction follows from the "
+ 135:         "MEASURE available, not from a judgement that phase-3 evidence should be dropped. "
+ 136:         "It is not a favourable subset: on the identical endpoint APPRAISE-2's rate ratio "
+ 137:         f"is {ISTH_RR:.2f}, which agrees with and EXCEEDS the pooled OR {OR:.2f}.",
+ 138:         "CORRECTED 2026-07-30 (cross-family gate): an earlier version of this verdict said "
+ 139:         "APPRAISE-2 'reports neither arm of the pooled outcome'. That was FALSE. "
+ 140:         "ClinicalTrials.gov NCT00831441 posts, as a SECONDARY outcome, 'Event Rate of "
+ 141:         "Confirmed Major Bleeding or Clinically Relevant Non-Major Bleeding (CRNM) Using "
+ 142:         f"ISTH Criteria' - placebo {ISTH_PLACEBO_RATE} vs apixaban {ISTH_APIX_RATE} per 100 "
+ 143:         f"patient-years on {ISTH_DENOM_PLACEBO} and {ISTH_DENOM_APIX}. It is excluded from "
+ 144:         "the COUNT-based pool because that endpoint is posted as a RATE, so recovering "
+ 145:         "per-arm counts would repeat exactly the error this page corrects.",
+ 146:         "CORRECTED 2026-07-30 (cross-family gate): an earlier version said AUGUSTUS's "
+ 147:         "denominator 1153 'matches no arm of the trial'. That was FALSE. The registry's "
+ 148:         "randomised cells are 1153/1153/1154/1154 (total 4614) and 1153 is the size of each "
+ 149:         "APIXABAN factorial cell. The real defect is a LEVEL-OF-AGGREGATION mismatch: a "
+ 150:         "factorial-CELL denominator paired with a FACTOR-LEVEL marginal rate (24.66 and "
+ 151:         "35.79 belong to the apixaban and VKA marginals, analysed on 2290 and 2259). The "
+ 152:         "same apixaban-side cell denominator was also applied to the VKA arm, whose cells "
+ 153:         "are 1154.",
+ 154:         "Prior ledger counts for APPRAISE-2 (515/489) and AUGUSTUS (284/413) have an "
+ 155:         f"arithmetic origin: multiplying a ClinicalTrials.gov posted value by a denominator "
+ 156:         f"reproduces all four to within {MAX_DEV:.3f}. The posted units are events per 100 "
+ 157:         "patient-years and percentage per year - rates, not proportions. This is a measured "
+ 158:         "reproduction, not a proof of intent.",
+ 159:         "Arms were previously bound by registry group index; ClinicalTrials.gov lists "
+ 160:         "placebo first in APPRAISE-1, APPRAISE-2 and APPRAISE-J, so 3 of 4 rows were "
+ 161:         "inverted. Arms are now bound by group TITLE.",
+ 162:         "AUGUSTUS per-arm counts remain UNVERIFIED and are not reconstructed.",
+ 163:         "GRIM/GRIMMER is N/A on binary per-arm counts - not a pass. Benford is UNDERPOWERED "
+ 164:         "(fewer than 30 digits) - cannot test, not 'no signal'.",
+ 165:         "SOURCE DISCORDANCE, recorded not resolved: APPRAISE-2's TIMI major bleeding "
+ 166:         "denominators differ by one patient per arm between documents - the publication "
+ 167:         "states 46/3673 apixaban and 18/3642 placebo, the registry posts safety "
+ 168:         "denominators of 3672 and 3643. Immaterial to every estimate here; recorded because "
+ 169:         "an unexplained one-patient gap is exactly what this audit exists to surface.",
+ 170:         "Verification is 2-source (publication + ClinicalTrials.gov posted results). No "
+ 171:         "FDA/EMA review document and no prior meta-analysis was consulted. Concordance "
+ 172:         "against the AACT 2026-04-12 snapshot is unverified.",
+ 173:         "AMSTAR-2 confidence: CRITICALLY LOW.",
+ 174:     ],
+ 175:     "p0_total": 0,
+ 176:     "p0_total_note": "0 P0s means no arithmetic-plausibility finding, NOT an integrity pass.",
+ 177:     "pooled": {
+ 178:         "estimator": "Mantel-Haenszel OR, Robins-Breslow-Greenland SE",
+ 179:         "k": 2, "events": TOTAL_EVENTS, "n": TOTAL_N,
+ 180:         "or": round(OR, 4), "ci": [round(LO, 4), round(HI, 4)], "p": round(P, 4),
+ 181:         "validated": "R 4.6.0 / metafor rma.mh, agreement to 4 decimal places; independently "
+ 182:                      "reproduced digit-for-digit by Codex gpt-5.5 in cross-family review",
+ 183:         "supersedes": "OR 0.850 (0.766-0.943), k=4 - built on counts with an arithmetic "
+ 184:                       "origin in a rate, inverted arms and a mixed outcome set",
+ 185:         "fragility": {
+ 186:             "hksj_ci": [0.03, 124.7],
+ 187:             "hksj_crosses_null": True,
+ 188:             "fragility_index": 1,
+ 189:             "note": "The DIRECTION is robust and corroborated on the identical endpoint by "
+ 190:                     f"APPRAISE-2's ISTH rate ratio {ISTH_RR:.2f}. The P-VALUE is not robust.",
+ 191:         },
+ 192:     },
+ 193:     "external_corroboration": {
+ 194:         "same_endpoint_rate_ratio": {
+ 195:             "trial": "APPRAISE-2 (NCT00831441), phase 3, not in the pool",
+ 196:             "endpoint": "ISTH major or clinically relevant non-major bleeding - the IDENTICAL "
+ 197:                         "endpoint definition to the pooled one",
+ 198:             "posted": f"placebo {ISTH_PLACEBO_RATE} vs apixaban {ISTH_APIX_RATE} per 100 "
+ 199:                       f"patient-years (denominators {ISTH_DENOM_PLACEBO}, {ISTH_DENOM_APIX})",
+ 200:             "rate_ratio": round(ISTH_RR, 3),
+ 201:             "ci": None,
+ 202:             "ci_note": "No confidence interval is computable from posted rates alone - "
+ 203:                        "person-time is not posted and the counts are not recoverable. The "
+ 204:                        "point estimate is quoted without one rather than derived.",
+ 205:             "why_it_matters": "Stronger corroboration than the TIMI major bleeding HR 2.59 "
+ 206:                               "cited previously, because it is the same endpoint definition "
+ 207:                               "rather than a different (narrower) one.",
+ 208:         },
+ 209:         "other_appraise2_outcomes": {
+ 210:             "ISTH_major_only_rate_ratio": round(5.13 / 2.04, 3),
+ 211:             "TIMI_major_published_HR": "2.59 (1.50-4.46), P=0.001",
+ 212:         },
+ 213:     },
+ 214: }
+ 215: 
+ 216: QUARANTINE = {
+ 217:     "NCT00831441": {
+ 218:         "name": "APPRAISE-2",
+ 219:         "pmid": "21780946",
+ 220:         "doi": "10.1056/NEJMoa1105819",
+ 221:         "citation": "Alexander JH et al. N Engl J Med 2011;365(8):699-708",
+ 222:         "phase": "III",
+ 223:         "year": 2011,
+ 224:         "status_in_registry": "TERMINATED",
+ 225:         "quarantine_reason": (
+ 226:             "MEASURE, not endpoint. This trial DOES report the pooled endpoint: "
+ 227:             "ClinicalTrials.gov posts, as a SECONDARY outcome, 'Event Rate of Confirmed "
+ 228:             "Major Bleeding or Clinically Relevant Non-Major Bleeding (CRNM) Using ISTH "
+ 229:             f"Criteria During the Treatment Period - Treated Participants' - placebo "
+ 230:             f"{ISTH_PLACEBO_RATE} vs apixaban {ISTH_APIX_RATE}, unit 'percentage of "
+ 231:             f"participants/100-pt years', denominators {ISTH_DENOM_PLACEBO} and "
+ 232:             f"{ISTH_DENOM_APIX}. It is excluded from the COUNT-based pool because that "
+ 233:             "endpoint is posted only as an incidence RATE over person-time: recovering "
+ 234:             "per-arm counts from it would repeat precisely the rate-as-count error this "
+ 235:             "correction exists to remove. It is carried instead as a rate-based sensitivity "
+ 236:             f"comparison - rate ratio {ISTH_RR:.3f} on the identical endpoint."
+ 237:         ),
+ 238:         "correction_note": (
+ 239:             "CORRECTED 2026-07-30 after cross-family review. The previous exclusion reason "
+ 240:             "read 'Reports neither arm of the pooled outcome ... neither is the ISTH "
+ 241:             "major/CRNM composite pooled in this app.' That was FALSE and is retained here "
+ 242:             "so the error is visible rather than quietly overwritten."
+ 243:         ),
+ 244:         "previous_ledger_values": {"tE": 515, "tN": 3687, "cE": 489, "cN": 3705},
+ 245:         "previous_values_defect": (
+ 246:             "Arithmetic origin in a rate. The registry posts the primary in units of "
+ 247:             "'percentage of participants/100-pt years' - an incidence rate over person-time. "
+ 248:             "3687 x 13.96/100 = 514.71 and 3705 x 13.20/100 = 489.06, reproducing the "
+ 249:             f"ledger's 515 and 489 to within {MAX_DEV:.3f}. Neither count appears in any "
+ 250:             "source. The arms were also swapped: tN 3687 is the PLACEBO denominator."
+ 251:         ),
+ 252:         "reported_outcomes": [
+ 253:             {
+ 254:                 "outcome": "ISTH major or CRNM bleeding (SECONDARY) - the pooled endpoint",
+ 255:                 "unit": "percentage of participants/100-pt years",
+ 256:                 "placebo": f"{ISTH_PLACEBO_RATE} on {ISTH_DENOM_PLACEBO}",
+ 257:                 "apixaban": f"{ISTH_APIX_RATE} on {ISTH_DENOM_APIX}",
+ 258:                 "rate_ratio": round(ISTH_RR, 3),
+ 259:                 "counts_recoverable": False,
+ 260:                 "source": "ClinicalTrials.gov NCT00831441 posted results, read 2026-07-30",
+ 261:             },
+ 262:             {
+ 263:                 "outcome": "CV death, MI or ischaemic stroke (efficacy co-primary)",
+ 264:                 "apixaban": "279/3705", "placebo": "293/3687",
+ 265:                 "published": "HR 0.95 (0.80-1.11), P=0.51 - not significant",
+ 266:                 "crude_OR": "0.943 (0.795-1.119)",
+ 267:                 "source": "PMID 21780946 abstract, verbatim",
+ 268:             },
+ 269:             {
+ 270:                 "outcome": "TIMI major bleeding (safety co-primary)",
+ 271:                 "apixaban": "46/3673", "placebo": "18/3642",
+ 272:                 "published": "HR 2.59 (1.50-4.46), P=0.001",
+ 273:                 "crude_OR": "2.553 (1.478-4.412)",
+ 274:                 "source": "PMID 21780946 abstract, verbatim",
+ 275:                 "source_discordance": (
+ 276:                     "The publication states denominators 3673 (apixaban) and 3642 (placebo); "
+ 277:                     "the registry posts safety denominators of 3672 and 3643 - a one-patient "
+ 278:                     "difference per arm, in opposite directions. Unexplained. Immaterial to "
+ 279:                     "every estimate on this page. Recorded, not resolved."
+ 280:                 ),
+ 281:             },
+ 282:         ],
+ 283:         "note": (
+ 284:             "APPRAISE-2 was terminated early for excess major bleeding with apixaban without "
+ 285:             "a counterbalancing reduction in ischaemic events. That termination is a finding "
+ 286:             "about APPRAISE-2, which is NOT in this pool - it is external corroboration of "
+ 287:             "the pooled result's direction, not the pooled result itself."
+ 288:         ),
+ 289:     },
+ 290:     "NCT02415400": {
+ 291:         "name": "AUGUSTUS",
+ 292:         "pmid": "30883055",
+ 293:         "doi": "10.1056/NEJMoa1817083",
+ 294:         "citation": "Lopes RD et al. N Engl J Med 2019;380(16):1509-1524",
+ 295:         "previously_cited_pmid": "29898844",
+ 296:         "previously_cited_is": (
+ 297:             "Lopes RD et al. 'Rationale and design of the AUGUSTUS trial.' Am Heart J "
+ 298:             "2018;200:17-23. PubMed types it a Clinical Trial Protocol. It reports no "
+ 299:             "outcome data and cannot substantiate any extracted count."
+ 300:         ),
+ 301:         "phase": "IV",
+ 302:         "year": 2019,
+ 303:         "status_in_registry": "COMPLETED",
+ 304:         "quarantine_reason": (
+ 305:             "Wrong PICO. AUGUSTUS randomised patients with ATRIAL FIBRILLATION who had an ACS "
+ 306:             "or PCI and compared apixaban against a VITAMIN K ANTAGONIST - not against "
+ 307:             "placebo on top of antiplatelet therapy. It is also the only open-label (masking "
+ 308:             "NONE) and only phase 4 trial in an otherwise double-blind phase 2-3 set, and a "
+ 309:             "2x2 factorial that no single 2x2 table can represent without stating which "
+ 310:             "factor is estimated."
+ 311:         ),
+ 312:         "correction_note": (
+ 313:             "CORRECTED 2026-07-30 after cross-family review. The previous defect description "
+ 314:             "said the denominator 1153 'belongs to no arm'. That was FALSE - see below. The "
+ 315:             "erroneous claim is retained here so the correction is visible."
+ 316:         ),
+ 317:         "previous_ledger_values": {"tE": 284, "tN": 1153, "cE": 413, "cN": 1153},
+ 318:         "previous_values_defect": (
+ 319:             "A LEVEL-OF-AGGREGATION mismatch, compounded by a rate read as a proportion. "
+ 320:             "1153 is a REAL registry denominator: NCT02415400's randomised cells are "
+ 321:             "1153 / 1153 / 1154 / 1154 (total 4614) and 1153 is the size of each of the two "
+ 322:             "APIXABAN cells of the 2x2 factorial. The error is that a factorial-CELL "
+ 323:             "denominator was paired with a FACTOR-LEVEL marginal rate - the posted 24.66 and "
+ 324:             "35.79 ('Percentage per year') belong to the apixaban and VKA factor levels, "
+ 325:             "analysed on 2290 and 2259. Compounding it, the same apixaban-side cell "
+ 326:             "denominator (1153) was applied to the VKA arm as well, whose cells are 1154. "
+ 327:             "1153 x 24.66/100 = 284.33 and 1153 x 35.79/100 = 412.66, reproducing the "
+ 328:             f"ledger's 284 and 413 to within {MAX_DEV:.3f}."
+ 329:         ),
+ 330:         "per_arm_counts": "UNVERIFIED - NOT RECONSTRUCTED",
+ 331:         "per_arm_counts_note": (
+ 332:             "The publication reports percentages (10.5% apixaban vs 14.7% vitamin K "
+ 333:             "antagonist), not counts, and the registry posts a per-year rate. Back-computing "
+ 334:             "counts from either would repeat the error being corrected. No counts are asserted."
+ 335:         ),
+ 336:         "published_effect": "HR 0.69 (95% CI 0.58-0.81), P<0.001 for noninferiority and superiority",
+ 337:         "previous_ledger_CI_defect": "Ledger carried an upper CI of 0.82; the publication states 0.81.",
+ 338:     },
+ 339: }
+ 340: 
+ 341: 
+ 342: s = open(FULL, encoding="utf-8").read()
+ 343: before = len(s)
+ 344: 
+ 345: old_block = re.search(
+ 346:     r"<script>window\.__RM_ALLOW_PHASE2_POOLING = true;.*?</script>", s, re.S
+ 347: )
+ 348: assert old_block, "phase2/verdict script block not found"
+ 349: new_block = (
+ 350:     "<script>window.__RM_ALLOW_PHASE2_POOLING = true; /* disclosed: see badge */\n"
+ 351:     "window.__verdict = " + json.dumps(VERDICT, ensure_ascii=False) + ";\n"
+ 352:     "window.__quarantinedTrials = " + json.dumps(QUARANTINE, ensure_ascii=False) + ";</script>"
+ 353: )
+ 354: s = s[:old_block.start()] + new_block + s[old_block.end():]
+ 355: print("  - window.__verdict + __quarantinedTrials replaced wholesale")
+ 356: 
+ 357: 
+ 358: # ==========================================================================
+ 359: # 2. the visible badge - whole block replaced, never patched
+ 360: # ==========================================================================
+ 361: i = s.index('id="rapidmeta-integrity-badge"')
+ 362: st = s.rfind("<div", 0, i)
+ 363: depth, k = 0, st
+ 364: while k < len(s):
+ 365:     if s.startswith("<div", k):
+ 366:         depth += 1
+ 367:     elif s.startswith("</div>", k):
+ 368:         depth -= 1
+ 369:         if depth == 0:
+ 370:             k += 6
+ 371:             break
+ 372:     k += 1
+ 373: 
+ 374: badge = (
+ 375:     '<div id="rapidmeta-integrity-badge" role="status" '
+ 376:     'style="background:#7c2d12;color:#fff;padding:12px 20px;font-family:system-ui,sans-serif;'
+ 377:     'font-size:13.5px;border-bottom:3px solid #431407;line-height:1.55;">'
+ 378:     '<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">'
+ 379:     '<strong style="font-size:14px;letter-spacing:0.04em;">VERDICT: UNCERTAIN '
+ 380:     '&mdash; CORRECTED, AND THE CONCLUSION REVERSED</strong>'
+ 381:     f'<span style="font-size:11.5px;">Pooled: <strong>2</strong> trials &middot; '
+ 382:     f'<strong>{TOTAL_EVENTS}</strong> events / <strong>{TOTAL_N:,}</strong> participants '
+ 383:     '&middot; Quarantined: <strong>2</strong> &middot; Arithmetic findings: <strong>0</strong> '
+ 384:     '&mdash; a tested zero, not a pass</span></div>'
+ 385: 
+ 386:     '<div style="margin-top:6px;font-size:12.5px;">'
+ 387:     'This page previously reported <strong>OR 0.850 (0.766&ndash;0.943)</strong>, a '
+ 388:     'significant <em>benefit</em> of apixaban. That figure rested on counts that appear in no '
+ 389:     'source, on arms bound by registry index rather than by name, and on an ischaemic outcome '
+ 390:     'pooled with bleeding outcomes. Corrected and re-sourced, the estimate for <strong>ISTH '
+ 391:     'major or clinically relevant non-major bleeding, apixaban vs placebo on top of '
+ 392:     'antiplatelet therapy in ACS</strong> is '
+ 393:     f'<strong>OR {OR:.3f} ({LO:.3f}&ndash;{HI:.3f})</strong>, p={P:.3f}, k=2, on '
+ 394:     f'<strong>{TOTAL_EVENTS} events across {TOTAL_N:,} randomised participants</strong> '
+ 395:     '(Mantel-Haenszel, Robins-Breslow-Greenland SE; reproduced in R 4.6.0 / metafor to 4 '
+ 396:     'decimal places and independently digit-for-digit in cross-family review). '
+ 397:     '<strong>Apixaban roughly doubles major/CRNM bleeding.</strong> '
+ 398:     'This is a provenance correction, not a result that got worse &mdash; the evidence did '
+ 399:     'not change; the page was wrong.</div>'
+ 400: 
+ 401:     '<div style="margin-top:6px;font-size:11.5px;">'
+ 402:     '<strong>What was wrong.</strong> APPRAISE-2&rsquo;s 515/489 and AUGUSTUS&rsquo;s 284/413 '
+ 403:     'have an <strong>arithmetic origin</strong>: multiplying a ClinicalTrials.gov posted value '
+ 404:     f'by a denominator reproduces all four to within <strong>{MAX_DEV:.3f}</strong>, where the '
+ 405:     'posted units are <em>events per 100 patient-years</em> and <em>percentage per year</em> '
+ 406:     '&mdash; rates, not proportions. (A measured reproduction, not a claim about intent.) '
+ 407:     'Arms were inverted in 3 of 4 rows because ClinicalTrials.gov lists placebo first. Phase '
+ 408:     'was wrong in 3 of 4 rows. AUGUSTUS cited PMID 29898844, the trial&rsquo;s <em>protocol</em> '
+ 409:     'paper, which reports no outcome data; the results paper is PMID 30883055.</div>'
+ 410: 
+ 411:     '<div style="margin-top:6px;font-size:11.5px;background:rgba(0,0,0,0.18);padding:7px 10px;'
+ 412:     'border-radius:3px;">'
+ 413:     '<strong>Two claims on this badge were themselves wrong, and were corrected on '
+ 414:     '2026-07-30 after cross-family review.</strong> They are named rather than quietly '
+ 415:     'replaced. <em>(1)</em> It said APPRAISE-2 &ldquo;reports neither arm of the pooled '
+ 416:     'outcome&rdquo;. <strong>False.</strong> ClinicalTrials.gov posts that exact endpoint for '
+ 417:     'it as a <em>secondary</em> outcome &mdash; ISTH major or CRNM bleeding, placebo '
+ 418:     f'{ISTH_PLACEBO_RATE} vs apixaban {ISTH_APIX_RATE} per 100 patient-years on '
+ 419:     f'{ISTH_DENOM_PLACEBO:,} and {ISTH_DENOM_APIX:,}. <em>(2)</em> It said AUGUSTUS&rsquo;s '
+ 420:     'denominator 1153 &ldquo;matches no arm of the trial&rdquo;. <strong>False.</strong> The '
+ 421:     'randomised cells are 1153/1153/1154/1154 and 1153 is the size of each <em>apixaban</em> '
+ 422:     'cell of the 2&times;2 factorial. The corrected readings are below.</div>'
+ 423: 
+ 424:     '<div style="margin-top:6px;font-size:11.5px;">'
+ 425:     '<strong>Quarantined, not deleted</strong> (see <code style="background:rgba(255,255,255,0.28);'
+ 426:     'padding:1px 4px;border-radius:2px;">window.__quarantinedTrials</code>). '
+ 427:     '<strong>APPRAISE-2 is excluded for its MEASURE, not its endpoint.</strong> It reports the '
+ 428:     'pooled endpoint &mdash; but only as an incidence <em>rate</em> per 100 patient-years, so '
+ 429:     'per-arm counts cannot be recovered from it without repeating the very rate-as-count error '
+ 430:     'this page corrects. On that identical endpoint its <strong>rate ratio is '
+ 431:     f'{ISTH_RR:.2f}</strong>, which <em>agrees with and exceeds</em> the pooled OR '
+ 432:     f'{OR:.2f}. (No confidence interval is quoted for it: person-time is not posted and the '
+ 433:     'counts are not recoverable, so an interval would have to be invented.) Its other outcomes '
+ 434:     '&mdash; ischaemic composite 279/3705 vs 293/3687, HR 0.95 (0.80&ndash;1.11), '
+ 435:     '<strong>P=0.51, not significant</strong>; TIMI major bleeding 46/3673 vs 18/3642, HR 2.59 '
+ 436:     '(1.50&ndash;4.46) &mdash; are narrower or different endpoints. '
+ 437:     '<strong>AUGUSTUS</strong> compared apixaban against a <em>vitamin K antagonist</em> in an '
+ 438:     '<em>atrial fibrillation</em> population, open-label, phase 4, 2&times;2 factorial &mdash; a '
+ 439:     'different question. Its 284/413 came from pairing a factorial-<em>cell</em> denominator '
+ 440:     '(1153) with a factor-<em>level</em> marginal rate (24.66 and 35.79 belong to the apixaban '
+ 441:     'and VKA marginals, analysed on 2,290 and 2,259), and the apixaban-side cell figure was '
+ 442:     'applied to the VKA arm too, whose cells are 1,154. Its per-arm counts are '
+ 443:     '<strong>UNVERIFIED and deliberately not reconstructed</strong>.</div>'
+ 444: 
+ 445:     '<div style="margin-top:6px;font-size:11.5px;">'
+ 446:     '<strong>Why the pool is phase-2-only, and why that is not circular.</strong> Both pooled '
+ 447:     'trials are phase 2, and the app&rsquo;s default phase-2 exclusion is switched off here. '
+ 448:     'That could look like excluding the only phase-3 trial and then removing the guard because '
+ 449:     'only phase 2 remained. It is not: APPRAISE-2 is out because its version of this endpoint '
+ 450:     'is a <em>rate</em>, and no count-based estimator can consume a rate without person-time '
+ 451:     '&mdash; the restriction follows from the available <strong>measure</strong>, not from a '
+ 452:     'judgement that phase-3 evidence should be dropped. Nor does it select a favourable subset: '
+ 453:     f'the excluded phase-3 trial points the <em>same way, harder</em> (rate ratio {ISTH_RR:.2f} '
+ 454:     f'vs pooled OR {OR:.2f}). Restricting to phase 3 would leave no count-based estimate at '
+ 455:     'all; restricting to phase 2 gives the smaller of the two effects.</div>'
+ 456: 
+ 457:     '<div style="margin-top:6px;font-size:10.5px;">'
+ 458:     '<strong>Limits, stated.</strong> APPRAISE-1 contributes only its 2.5 mg BID arm (three '
+ 459:     'higher-dose arms, 787 patients, are not pooled; the two highest were stopped for excess '
+ 460:     'bleeding). GRIM/GRIMMER is <strong>N/A</strong> on binary counts, not passed. Benford is '
+ 461:     '<strong>UNDERPOWERED</strong> (&lt;30 digits) &mdash; cannot test, not &ldquo;no '
+ 462:     'signal&rdquo;. Verification is <strong>2-source</strong> (publication + '
+ 463:     'ClinicalTrials.gov API v2 posted results, retrieved 2026-07-30); no FDA/EMA review '
+ 464:     'document and no prior meta-analysis was consulted, and concordance against the AACT '
+ 465:     '2026-04-12 snapshot is unverified. At k=2, publication bias, small-study effects and '
+ 466:     'prediction intervals are not assessable. <strong>The significance is fragile and the page '
+ 467:     'says so:</strong> the HKSJ-adjusted interval (t with df=k&minus;1=1) is 0.03&ndash;124.7 '
+ 468:     'and <em>crosses 1</em>, the analysis panel flags the discordance, and the fragility index '
+ 469:     'is <strong>1</strong> &mdash; a single event overturns nominal significance. The direction '
+ 470:     f'(harm) is robust and corroborated on the identical endpoint by APPRAISE-2 (rate ratio '
+ 471:     f'{ISTH_RR:.2f}); the <em>p-value</em> is not robust. A one-patient source discordance is '
+ 472:     'recorded but unresolved: APPRAISE-2&rsquo;s TIMI denominators are 3,673/3,642 in the '
+ 473:     'publication and 3,672/3,643 in the registry. The on-page panel pools by inverse-variance '
+ 474:     'random effects (&tau;&sup2;=0, so DL and Paule-Mandel coincide) and reads 1.97 '
+ 475:     f'(1.04&ndash;3.74); the Mantel-Haenszel figure above is {OR:.3f} ({LO:.3f}&ndash;{HI:.3f}). '
+ 476:     'They agree to the displayed precision. APPRAISE-2 was terminated early for excess major '
+ 477:     'bleeding &mdash; a finding about APPRAISE-2, which is <em>not</em> in this pool, and so '
+ 478:     'external corroboration of the direction rather than the pooled result itself. '
+ 479:     'AMSTAR-2 confidence: <strong>CRITICALLY LOW</strong>.</div></div>'
+ 480: )
+ 481: s = s[:st] + badge + s[k:]
+ 482: print("  - visible badge replaced wholesale (events/N added, both false claims corrected)")
+ 483: 
+ 484: open(FULL, "w", encoding="utf-8", newline="").write(s)
+ 485: print(f"{FULL}: {before} -> {len(s)} bytes\n")
+ 486: 
+ 487: 
+ 488: # ==========================================================================
+ 489: # 3. the stub - keep both surfaces agreeing with the full app
+ 490: # ==========================================================================
+ 491: t = open(STUB, encoding="utf-8").read()
+ 492: tb = len(t)
+ 493: i = t.index('id="rapidmeta-integrity-badge"')
+ 494: st = t.rfind("<div", 0, i)
+ 495: depth, k = 0, st
+ 496: while k < len(t):
+ 497:     if t.startswith("<div", k):
+ 498:         depth += 1
+ 499:     elif t.startswith("</div>", k):
+ 500:         depth -= 1
+ 501:         if depth == 0:
+ 502:             k += 6
+ 503:             break
+ 504:     k += 1
+ 505: stub_badge = (
+ 506:     '<div id="rapidmeta-integrity-badge" role="status" '
+ 507:     'style="background:#7c2d12;color:#fff;padding:12px 20px;font-family:system-ui,sans-serif;'
+ 508:     'font-size:13.5px;border-bottom:3px solid #431407;line-height:1.55;">'
+ 509:     '<strong style="font-size:14px;letter-spacing:0.04em;">VERDICT: UNCERTAIN '
+ 510:     '&mdash; CORRECTED, AND THE CONCLUSION REVERSED</strong>'
+ 511:     '<div style="margin-top:6px;font-size:12.5px;">This page previously reported a significant '
+ 512:     '<em>benefit</em> of apixaban (OR 0.850). Corrected and re-sourced, apixaban roughly '
+ 513:     f'<strong>doubles</strong> ISTH major/CRNM bleeding: <strong>OR {OR:.3f} '
+ 514:     f'({LO:.3f}&ndash;{HI:.3f})</strong>, p={P:.3f}, k=2, on <strong>{TOTAL_EVENTS} events '
+ 515:     f'across {TOTAL_N:,} randomised participants</strong>. The direction is corroborated on the '
+ 516:     f'identical endpoint by APPRAISE-2 (rate ratio {ISTH_RR:.2f}); the p-value is fragile '
+ 517:     '(HKSJ crosses 1, fragility index 1). See the full review for the ledger, the quarantined '
+ 518:     'trials and the stated limits. AMSTAR-2 confidence: <strong>CRITICALLY LOW</strong>.</div></div>'
+ 519: )
+ 520: t = t[:st] + stub_badge + t[k:]
+ 521: old_sv = re.search(r"<script>window\.__verdict = \{.*?\};</script>", t, re.S)
+ 522: assert old_sv, "stub verdict not found"
+ 523: stub_verdict = {
+ 524:     "verdict": "UNCERTAIN",
+ 525:     "counts": {"n_trials_seen": 2, "n_trials_quarantined": 2, "p0_total": 0,
+ 526:                "pooled_events": TOTAL_EVENTS, "pooled_N": TOTAL_N},
+ 527:     "reasons": [
+ 528:         "Redirect stub. Verdict mirrors APIXABAN_ACS_AUTO_FULL_REVIEW.html: pooled k=2 on "
+ 529:         f"{TOTAL_EVENTS} events / {TOTAL_N} participants, 2 trials quarantined, prior pooled "
+ 530:         "estimate superseded after counts with an arithmetic origin in a rate and inverted "
+ 531:         "arms were corrected.",
+ 532:         "Revised 2026-07-30 after cross-family review, which corrected two explanatory claims "
+ 533:         "on the full page while leaving the arithmetic and the direction unchanged.",
+ 534:     ],
+ 535:     "p0_total": 0,
+ 536:     "pooled": {"estimator": "Mantel-Haenszel OR, Robins-Breslow-Greenland SE", "k": 2,
+ 537:                "events": TOTAL_EVENTS, "n": TOTAL_N,
+ 538:                "or": round(OR, 4), "ci": [round(LO, 4), round(HI, 4)], "p": round(P, 4)},
+ 539: }
+ 540: t = t[:old_sv.start()] + "<script>window.__verdict = " + json.dumps(stub_verdict, ensure_ascii=False) + ";</script>" + t[old_sv.end():]
+ 541: open(STUB, "w", encoding="utf-8", newline="").write(t)
+ 542: print(f"{STUB}: {tb} -> {len(t)} bytes  (badge + verdict kept in step with the full app)")
+
+codex
+Defects found:
+
+- **SELECTOR KEYED TO A FORM THE CORPUS MAY NOT USE**: line 345.  
+  Exact `FULL` input fragment:
+  ```html
+  <script>window.__RM_ALLOW_PHASE2_POOLING = true;</script>
+  <script>window.__verdict = {"verdict":"OLD"}; window.__quarantinedTrials = {"OLD":{}};</script>
+  <div id="rapidmeta-integrity-badge"></div>
+  ```
+  Consequence: the regex replaces only the phase-2 script, leaves the later old verdict script in place, and the browser can end with `window.__verdict === OLD`.
+
+- **SELECTOR KEYED TO HTML-LIKE TEXT, NOT HTML STRUCTURE**: line 367, same defect repeated at line 499.  
+  Exact badge input:
+  ```html
+  <div id="rapidmeta-integrity-badge"><script>const x="</div>";</script><b>old</b></div>
+  ```
+  Consequence: the scanner treats `"</div>"` inside JavaScript as the real closing tag and leaves a malformed tail after replacement.
+
+- **VALUES CHANGED BY LINE-ENDING NORMALISATION**: lines 342/484 and 491/541.  
+  Exact input: valid `APIXABAN_ACS_AUTO_FULL_REVIEW.html` and `APIXABAN_ACS_AUTO_REVIEW.html` stored with CRLF (`\r\n`) line endings.  
+  Consequence: Python reads with universal newlines and writes with `newline=""`, so unchanged surviving content is rewritten as LF-only and byte/text gates can report false changes.
+
+- **INSTRUMENT READING A DIFFERENT COPY / NO COPY**: line 57 names `LEDGER`, but lines 244 and 317 hardcode the ledger values.  
+  Exact input:
+  ```json
+  {"NCT00831441":{"previous_ledger_values":{"tE":516,"tN":3687,"cE":489,"cN":3705}}}
+  ```
+  Consequence: the output still reports `515/489` and `284/413`, so ledger drift is invisible.
+
+No finding: check-cannot-fail, probe keyed to removed string, idempotency guard satisfied by own comment, merged-cell/off-by-one tabulation, zero conflated with absent, negation dropped, status-code wrapper.
+tokens used
+33,764
+Defects found:
+
+- **SELECTOR KEYED TO A FORM THE CORPUS MAY NOT USE**: line 345.  
+  Exact `FULL` input fragment:
+  ```html
+  <script>window.__RM_ALLOW_PHASE2_POOLING = true;</script>
+  <script>window.__verdict = {"verdict":"OLD"}; window.__quarantinedTrials = {"OLD":{}};</script>
+  <div id="rapidmeta-integrity-badge"></div>
+  ```
+  Consequence: the regex replaces only the phase-2 script, leaves the later old verdict script in place, and the browser can end with `window.__verdict === OLD`.
+
+- **SELECTOR KEYED TO HTML-LIKE TEXT, NOT HTML STRUCTURE**: line 367, same defect repeated at line 499.  
+  Exact badge input:
+  ```html
+  <div id="rapidmeta-integrity-badge"><script>const x="</div>";</script><b>old</b></div>
+  ```
+  Consequence: the scanner treats `"</div>"` inside JavaScript as the real closing tag and leaves a malformed tail after replacement.
+
+- **VALUES CHANGED BY LINE-ENDING NORMALISATION**: lines 342/484 and 491/541.  
+  Exact input: valid `APIXABAN_ACS_AUTO_FULL_REVIEW.html` and `APIXABAN_ACS_AUTO_REVIEW.html` stored with CRLF (`\r\n`) line endings.  
+  Consequence: Python reads with universal newlines and writes with `newline=""`, so unchanged surviving content is rewritten as LF-only and byte/text gates can report false changes.
+
+- **INSTRUMENT READING A DIFFERENT COPY / NO COPY**: line 57 names `LEDGER`, but lines 244 and 317 hardcode the ledger values.  
+  Exact input:
+  ```json
+  {"NCT00831441":{"previous_ledger_values":{"tE":516,"tN":3687,"cE":489,"cN":3705}}}
+  ```
+  Consequence: the output still reports `515/489` and `284/413`, so ledger drift is invisible.
+
+No finding: check-cannot-fail, probe keyed to removed string, idempotency guard satisfied by own comment, merged-cell/off-by-one tabulation, zero conflated with absent, negation dropped, status-code wrapper.

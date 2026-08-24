@@ -1,0 +1,454 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a03257-38bb-7540-953c-5a474150fdc3
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/reset_event_counts_from_source.py
+
+--- THE FILE, IN FULL ---
+"""Reset compounded event-count corruption introduced by repeated runs of
+fix_audit40_findings.py.
+
+Origin of the bug: when AACT's outcome_measurements stored a percentage like
+'57.1' or a continuous-outcome value like '350.0', the bulk_clone_audit_first
+pipeline cast it via `int(float(v))` and treated it as an integer event count.
+The original audit40 fixer then noticed tE>tN (impossible event count) and
+applied `round(v/100 * N)` to recover the percentage. BUT the fixer was NOT
+guarded against re-application — and on a second run, if the corrected value
+was still > N, the same operation was reapplied, compounding the corruption:
+  TITAN cE: 524 -> 204 -> 80 -> 31  (the original AACT value 524 is gone)
+  DAPRODUSTAT NCT03029208 cE: 350 -> 542 -> 840  (compounding upward)
+
+This script rebuilds the canonical tE/tN/cE/cN values from the immutable
+source-of-truth `outputs/new_topics/<STEM>_AUTO.json` files (which are the
+output of `add_topic_autodiscover.py` — the upstream of bulk_clone). For
+each NCT in each FULL_REVIEW/AUTO_REVIEW page, it writes back the original
+tE/cE values. NO percentage correction is applied — the user sees the
+underlying AACT-derived counts as-is; trials where the counts don't make
+sense (tE > tN) are flagged with a comment but not silently transformed.
+"""
+from __future__ import annotations
+import json
+import re
+import sys
+import io
+from pathlib import Path
+
+if "pytest" not in sys.modules and hasattr(sys.stdout, "buffer"):
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+HERE = Path(__file__).resolve().parent.parent
+TOPICS_DIR = HERE / "outputs" / "new_topics"
+
+NCT_RE = re.compile(r"NCT\d{7,8}")
+TRIAL_BLOCK_RE = re.compile(
+    r"'(NCT\d{7,8})':\s*\{(?P<body>(?:[^{}]|\{[^{}]*\}){0,4000})\}",
+    re.DOTALL,
+)
+
+
+
+def _arm_order(per_arm):
+    """Group labels ordered TREATMENT FIRST by what the label says, not by the alphabet.
+
+    AACT's per-arm map carries no role, so the label is all there is. A label naming a control
+    is put SECOND explicitly; where neither label says, the order is left as given and the
+    written object must carry `role` for anything downstream to trust it. Sorting was the bug:
+    `BG_CONTROL` < `BG_EXPERIMENTAL`, and the effect inverts silently.
+    """
+    import sys as _s, os as _o
+    _s.path.insert(0, _o.path.join(_o.path.dirname(_o.path.dirname(_o.path.abspath(__file__))),
+                                   "ssot"))
+    from arm_roles import CONTROL as _CTRL
+    keys = list(per_arm.keys())
+    ctrl = [k for k in keys if any(w in str(k).lower() for w in _CTRL)]
+    rest = [k for k in keys if k not in ctrl]
+    return rest + ctrl if ctrl else keys
+
+
+def build_source_truth():
+    """Build NCT -> (tE, tN, cE, cN) from outputs/new_topics/*.json.
+
+    Replays the same extraction logic as bulk_clone_audit_first.build_config:
+      arms = sorted(aact_per_arm_counts.keys())
+      tN = first arm count, cN = second arm count
+      og_vals = first occurrence per OG ID, cast to int(float(v))
+      tE = og_vals[sorted_ogs[0]], cE = og_vals[sorted_ogs[1]]
+    """
+    truth: dict[str, tuple] = {}
+    for jp in sorted(TOPICS_DIR.glob("*.json")):
+        try:
+            doc = json.loads(jp.read_text(encoding="utf-8", errors="replace"))
+        except Exception:
+            continue
+        for t in doc.get("trials", []):
+            if not all(t.get("gates", {}).values()):
+                continue
+            ex = t.get("extracted", {})
+            nct = ex.get("nct")
+            if not nct:
+                continue
+            per_arm = ex.get("aact_per_arm_counts") or {}
+            og_rows = ex.get("aact_outcome_count_rows") or []
+            # ARM ROLE IS READ, NEVER SORTED -- see ssot/arm_roles.py. Sorting put
+            # `BG_CONTROL` first and inverted the effect.
+            arms = _arm_order(per_arm)
+            tN = per_arm.get(arms[0]) if arms else None
+            cN = per_arm.get(arms[1]) if len(arms) > 1 else None
+            og_vals: dict[str, int] = {}
+            for og, v in og_rows:
+                if og not in og_vals:
+                    try:
+                        og_vals[og] = int(float(v))
+                    except Exception:
+                        pass
+                if len(og_vals) >= 2:
+                    break
+            # SAME DEFECT AS THE ARMS LINE ABOVE, AND I FIXED ONLY THAT ONE. The
+            # outcome-group order decides which count is the treatment arm; sorting it
+            # alphabetically is the identical coin-flip. Found by the lint on its first
+            # run -- one-of-two coverage, in the fix for a one-of-three coverage defect.
+            ogs = _arm_order(og_vals)
+            tE = og_vals.get(ogs[0]) if ogs else None
+            cE = og_vals.get(ogs[1]) if len(ogs) > 1 else None
+            # Last write wins per NCT — fine because the same NCT in two
+            # different topics would have the same AACT data.
+            truth[nct] = (tE, tN, cE, cN)
+    return truth
+
+
+# Replace a numeric field in a trial body.
+def set_field(body: str, field: str, value) -> str:
+    """Replace `field: <num|null>` with the canonical value, preserving spacing."""
+    if value is None:
+        repl = f"{field}: null"
+    else:
+        repl = f"{field}: {value}"
+    return re.sub(rf"\b{field}:\s*(?:-?\d+|null|None)", repl, body, count=1)
+
+
+def reset_trial_body(body: str, nct: str, truth: dict) -> tuple[str, bool]:
+    if nct not in truth:
+        return body, False
+    tE, tN, cE, cN = truth[nct]
+    new_body = body
+    new_body = set_field(new_body, "tE", tE)
+    new_body = set_field(new_body, "tN", tN)
+    new_body = set_field(new_body, "cE", cE)
+    new_body = set_field(new_body, "cN", cN)
+    # Propagate to allOutcomes[0].tE / cE so analysis-engine reads consistent values.
+    if tE is not None and cE is not None:
+        ao_re = re.compile(r"(allOutcomes:\s*\[\s*\{[^}]*\btE:\s*)(-?\d+|null)([^}]*\bcE:\s*)(-?\d+|null)")
+        new_body = ao_re.sub(
+            lambda m: m.group(1) + str(tE) + m.group(3) + str(cE), new_body, count=1
+        )
+    return new_body, new_body != body
+
+
+def patch_file(p: Path, truth: dict) -> int:
+    txt = p.read_text(encoding="utf-8", errors="replace")
+    orig = txt
+    n_reset = 0
+    out_parts = []
+    last = 0
+    for m in TRIAL_BLOCK_RE.finditer(txt):
+        nct = m.group(1)
+        body = m.group("body")
+        new_body, changed = reset_trial_body(body, nct, truth)
+        if changed:
+            out_parts.append(txt[last:m.start()])
+            out_parts.append(f"'{nct}': {{{new_body}}}")
+            last = m.end()
+            n_reset += 1
+    out_parts.append(txt[last:])
+    new_txt = "".join(out_parts)
+    if new_txt != orig:
+        p.write_text(new_txt, encoding="utf-8")
+    return n_reset
+
+
+def main():
+    truth = build_source_truth()
+    print(f"Built source-truth map: {len(truth):,} NCTs")
+
+    targets = sorted(p for p in HERE.glob("*_FULL_REVIEW.html") if p.is_file())
+    print(f"Targets: {len(targets):,} FULL_REVIEW files")
+    total_reset = files_changed = 0
+    for i, p in enumerate(targets, 1):
+        n = patch_file(p, truth)
+        if n > 0:
+            files_changed += 1
+        total_reset += n
+        if i % 300 == 0:
+            print(f"  [{i}/{len(targets)}] {p.name}: reset={n}")
+    print(f"\nFiles changed: {files_changed:,}  trial cells reset: {total_reset:,}")
+
+
+if __name__ == "__main__":
+    main()
+
+codex
+I’ll keep this to the pasted packet only and treat missing caller/data context as unavailable rather than inferring it. I’m checking the named defect shapes against reachable behavior in this module.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$p = '"'scripts/reset_event_counts_from_source.py'; if (Test-Path "'$p) { $i=1; Get-Content $p | ForEach-Object { '"'{0,4}: {1}' -f "'$i, $_; $i++ } | Select-Object -First 220 } else { '"'missing' }" in F:\rapidmeta-ssot-shell
+ succeeded in 1287ms:
+   1: """Reset compounded event-count corruption introduced by repeated runs of
+   2: fix_audit40_findings.py.
+   3: 
+   4: Origin of the bug: when AACT's outcome_measurements stored a percentage like
+   5: '57.1' or a continuous-outcome value like '350.0', the bulk_clone_audit_first
+   6: pipeline cast it via `int(float(v))` and treated it as an integer event count.
+   7: The original audit40 fixer then noticed tE>tN (impossible event count) and
+   8: applied `round(v/100 * N)` to recover the percentage. BUT the fixer was NOT
+   9: guarded against re-application â€” and on a second run, if the corrected value
+  10: was still > N, the same operation was reapplied, compounding the corruption:
+  11:   TITAN cE: 524 -> 204 -> 80 -> 31  (the original AACT value 524 is gone)
+  12:   DAPRODUSTAT NCT03029208 cE: 350 -> 542 -> 840  (compounding upward)
+  13: 
+  14: This script rebuilds the canonical tE/tN/cE/cN values from the immutable
+  15: source-of-truth `outputs/new_topics/<STEM>_AUTO.json` files (which are the
+  16: output of `add_topic_autodiscover.py` â€” the upstream of bulk_clone). For
+  17: each NCT in each FULL_REVIEW/AUTO_REVIEW page, it writes back the original
+  18: tE/cE values. NO percentage correction is applied â€” the user sees the
+  19: underlying AACT-derived counts as-is; trials where the counts don't make
+  20: sense (tE > tN) are flagged with a comment but not silently transformed.
+  21: """
+  22: from __future__ import annotations
+  23: import json
+  24: import re
+  25: import sys
+  26: import io
+  27: from pathlib import Path
+  28: 
+  29: if "pytest" not in sys.modules and hasattr(sys.stdout, "buffer"):
+  30:     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+  31: 
+  32: HERE = Path(__file__).resolve().parent.parent
+  33: TOPICS_DIR = HERE / "outputs" / "new_topics"
+  34: 
+  35: NCT_RE = re.compile(r"NCT\d{7,8}")
+  36: TRIAL_BLOCK_RE = re.compile(
+  37:     r"'(NCT\d{7,8})':\s*\{(?P<body>(?:[^{}]|\{[^{}]*\}){0,4000})\}",
+  38:     re.DOTALL,
+  39: )
+  40: 
+  41: 
+  42: 
+  43: def _arm_order(per_arm):
+  44:     """Group labels ordered TREATMENT FIRST by what the label says, not by the alphabet.
+  45: 
+  46:     AACT's per-arm map carries no role, so the label is all there is. A label naming a control
+  47:     is put SECOND explicitly; where neither label says, the order is left as given and the
+  48:     written object must carry `role` for anything downstream to trust it. Sorting was the bug:
+  49:     `BG_CONTROL` < `BG_EXPERIMENTAL`, and the effect inverts silently.
+  50:     """
+  51:     import sys as _s, os as _o
+  52:     _s.path.insert(0, _o.path.join(_o.path.dirname(_o.path.dirname(_o.path.abspath(__file__))),
+  53:                                    "ssot"))
+  54:     from arm_roles import CONTROL as _CTRL
+  55:     keys = list(per_arm.keys())
+  56:     ctrl = [k for k in keys if any(w in str(k).lower() for w in _CTRL)]
+  57:     rest = [k for k in keys if k not in ctrl]
+  58:     return rest + ctrl if ctrl else keys
+  59: 
+  60: 
+  61: def build_source_truth():
+  62:     """Build NCT -> (tE, tN, cE, cN) from outputs/new_topics/*.json.
+  63: 
+  64:     Replays the same extraction logic as bulk_clone_audit_first.build_config:
+  65:       arms = sorted(aact_per_arm_counts.keys())
+  66:       tN = first arm count, cN = second arm count
+  67:       og_vals = first occurrence per OG ID, cast to int(float(v))
+  68:       tE = og_vals[sorted_ogs[0]], cE = og_vals[sorted_ogs[1]]
+  69:     """
+  70:     truth: dict[str, tuple] = {}
+  71:     for jp in sorted(TOPICS_DIR.glob("*.json")):
+  72:         try:
+  73:             doc = json.loads(jp.read_text(encoding="utf-8", errors="replace"))
+  74:         except Exception:
+  75:             continue
+  76:         for t in doc.get("trials", []):
+  77:             if not all(t.get("gates", {}).values()):
+  78:                 continue
+  79:             ex = t.get("extracted", {})
+  80:             nct = ex.get("nct")
+  81:             if not nct:
+  82:                 continue
+  83:             per_arm = ex.get("aact_per_arm_counts") or {}
+  84:             og_rows = ex.get("aact_outcome_count_rows") or []
+  85:             # ARM ROLE IS READ, NEVER SORTED -- see ssot/arm_roles.py. Sorting put
+  86:             # `BG_CONTROL` first and inverted the effect.
+  87:             arms = _arm_order(per_arm)
+  88:             tN = per_arm.get(arms[0]) if arms else None
+  89:             cN = per_arm.get(arms[1]) if len(arms) > 1 else None
+  90:             og_vals: dict[str, int] = {}
+  91:             for og, v in og_rows:
+  92:                 if og not in og_vals:
+  93:                     try:
+  94:                         og_vals[og] = int(float(v))
+  95:                     except Exception:
+  96:                         pass
+  97:                 if len(og_vals) >= 2:
+  98:                     break
+  99:             # SAME DEFECT AS THE ARMS LINE ABOVE, AND I FIXED ONLY THAT ONE. The
+ 100:             # outcome-group order decides which count is the treatment arm; sorting it
+ 101:             # alphabetically is the identical coin-flip. Found by the lint on its first
+ 102:             # run -- one-of-two coverage, in the fix for a one-of-three coverage defect.
+ 103:             ogs = _arm_order(og_vals)
+ 104:             tE = og_vals.get(ogs[0]) if ogs else None
+ 105:             cE = og_vals.get(ogs[1]) if len(ogs) > 1 else None
+ 106:             # Last write wins per NCT â€” fine because the same NCT in two
+ 107:             # different topics would have the same AACT data.
+ 108:             truth[nct] = (tE, tN, cE, cN)
+ 109:     return truth
+ 110: 
+ 111: 
+ 112: # Replace a numeric field in a trial body.
+ 113: def set_field(body: str, field: str, value) -> str:
+ 114:     """Replace `field: <num|null>` with the canonical value, preserving spacing."""
+ 115:     if value is None:
+ 116:         repl = f"{field}: null"
+ 117:     else:
+ 118:         repl = f"{field}: {value}"
+ 119:     return re.sub(rf"\b{field}:\s*(?:-?\d+|null|None)", repl, body, count=1)
+ 120: 
+ 121: 
+ 122: def reset_trial_body(body: str, nct: str, truth: dict) -> tuple[str, bool]:
+ 123:     if nct not in truth:
+ 124:         return body, False
+ 125:     tE, tN, cE, cN = truth[nct]
+ 126:     new_body = body
+ 127:     new_body = set_field(new_body, "tE", tE)
+ 128:     new_body = set_field(new_body, "tN", tN)
+ 129:     new_body = set_field(new_body, "cE", cE)
+ 130:     new_body = set_field(new_body, "cN", cN)
+ 131:     # Propagate to allOutcomes[0].tE / cE so analysis-engine reads consistent values.
+ 132:     if tE is not None and cE is not None:
+ 133:         ao_re = re.compile(r"(allOutcomes:\s*\[\s*\{[^}]*\btE:\s*)(-?\d+|null)([^}]*\bcE:\s*)(-?\d+|null)")
+ 134:         new_body = ao_re.sub(
+ 135:             lambda m: m.group(1) + str(tE) + m.group(3) + str(cE), new_body, count=1
+ 136:         )
+ 137:     return new_body, new_body != body
+ 138: 
+ 139: 
+ 140: def patch_file(p: Path, truth: dict) -> int:
+ 141:     txt = p.read_text(encoding="utf-8", errors="replace")
+ 142:     orig = txt
+ 143:     n_reset = 0
+ 144:     out_parts = []
+ 145:     last = 0
+ 146:     for m in TRIAL_BLOCK_RE.finditer(txt):
+ 147:         nct = m.group(1)
+ 148:         body = m.group("body")
+ 149:         new_body, changed = reset_trial_body(body, nct, truth)
+ 150:         if changed:
+ 151:             out_parts.append(txt[last:m.start()])
+ 152:             out_parts.append(f"'{nct}': {{{new_body}}}")
+ 153:             last = m.end()
+ 154:             n_reset += 1
+ 155:     out_parts.append(txt[last:])
+ 156:     new_txt = "".join(out_parts)
+ 157:     if new_txt != orig:
+ 158:         p.write_text(new_txt, encoding="utf-8")
+ 159:     return n_reset
+ 160: 
+ 161: 
+ 162: def main():
+ 163:     truth = build_source_truth()
+ 164:     print(f"Built source-truth map: {len(truth):,} NCTs")
+ 165: 
+ 166:     targets = sorted(p for p in HERE.glob("*_FULL_REVIEW.html") if p.is_file())
+ 167:     print(f"Targets: {len(targets):,} FULL_REVIEW files")
+ 168:     total_reset = files_changed = 0
+ 169:     for i, p in enumerate(targets, 1):
+ 170:         n = patch_file(p, truth)
+ 171:         if n > 0:
+ 172:             files_changed += 1
+ 173:         total_reset += n
+ 174:         if i % 300 == 0:
+ 175:             print(f"  [{i}/{len(targets)}] {p.name}: reset={n}")
+ 176:     print(f"\nFiles changed: {files_changed:,}  trial cells reset: {total_reset:,}")
+ 177: 
+ 178: 
+ 179: if __name__ == "__main__":
+ 180:     main()
+
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "@'
+from scripts.reset_event_counts_from_source import reset_trial_body, TRIAL_BLOCK_RE
+
+body = \"allOutcomes: [{tE: 1, cE: 2}], tE: 99, tN: 10, cE: 88, cN: 20\"
+print(reset_trial_body(body, 'NCT12345678', {'NCT12345678': (5,10,6,20)}))
+body2 = \"tE: 99, tN: 10, cE: 88, cN: 20, allOutcomes: [{tE: 1, cE: 2}]\"
+print(reset_trial_body(body2, 'NCT12345678', {'NCT12345678': (None,10,6,20)}))
+print(bool(TRIAL_BLOCK_RE.search(\"'NCT12345678': { tE: 1, meta: { foo: { bar: 1 } }, cE: 2 }\")))
+print(bool(TRIAL_BLOCK_RE.search('\"NCT12345678\": { tE: 1, cE: 2 }')))
+'@ | python -" in F:\rapidmeta-ssot-shell
+ succeeded in 1711ms:
+('allOutcomes: [{tE: 5, cE: 6}], tE: 99, tN: 10, cE: 88, cN: 20', True)
+('tE: null, tN: 10, cE: 6, cN: 20, allOutcomes: [{tE: 1, cE: 2}]', True)
+False
+False
+
+codex
+- **check that CANNOT FAIL, line 77**: input topic trial `{"gates":{},"extracted":{"nct":"NCT12345678","aact_per_arm_counts":{"Treatment":10,"Control":10},"aact_outcome_count_rows":[["Treatment","1"],["Control","2"]]}}`. Consequence: empty gates pass because `all([])` is true, so ungated source data enters `truth`.
+
+- **instrument reading a DIFFERENT COPY, line 119**: `reset_trial_body("allOutcomes: [{tE: 1, cE: 2}], tE: 99, tN: 10, cE: 88, cN: 20","NCT12345678",{"NCT12345678":(5,10,6,20)})`. Consequence: the first `tE`/`cE` matched is inside `allOutcomes`, leaving top-level `tE: 99` and `cE: 88` corrupt while reporting a change.
+
+- **instrument reading a DIFFERENT COPY, line 132**: `reset_trial_body("tE: 99, tN: 10, cE: 88, cN: 20, allOutcomes: [{tE: 1, cE: 2}]","NCT12345678",{"NCT12345678":(None,10,6,20)})`. Consequence: top-level `cE` is reset to `6`, but `allOutcomes[0].cE` remains `2` because propagation is skipped when either event count is `None`.
+
+- **selector keyed to wrong form, line 166**: input file `ANY_AUTO_REVIEW.html` containing `"'NCT12345678': {tE: 1, tN: 10, cE: 2, cN: 20}"` plus matching source truth. Consequence: despite the module claiming `FULL_REVIEW/AUTO_REVIEW`, `main()` never targets `*_AUTO_REVIEW.html`, so those pages remain unreset.
+
+COULD NOT DETERMINE: `_arm_order` role correctness at lines 54-58 needs missing `ssot/arm_roles.py` and the missing source binding between outcome-group IDs and arm labels. Other named shapes: no proven CRLF text-compare, merged-cell/off-by-one, zero-as-absent, dropped-negation, or string-fix probe defect in this pasted module.
+tokens used
+28,506
+- **check that CANNOT FAIL, line 77**: input topic trial `{"gates":{},"extracted":{"nct":"NCT12345678","aact_per_arm_counts":{"Treatment":10,"Control":10},"aact_outcome_count_rows":[["Treatment","1"],["Control","2"]]}}`. Consequence: empty gates pass because `all([])` is true, so ungated source data enters `truth`.
+
+- **instrument reading a DIFFERENT COPY, line 119**: `reset_trial_body("allOutcomes: [{tE: 1, cE: 2}], tE: 99, tN: 10, cE: 88, cN: 20","NCT12345678",{"NCT12345678":(5,10,6,20)})`. Consequence: the first `tE`/`cE` matched is inside `allOutcomes`, leaving top-level `tE: 99` and `cE: 88` corrupt while reporting a change.
+
+- **instrument reading a DIFFERENT COPY, line 132**: `reset_trial_body("tE: 99, tN: 10, cE: 88, cN: 20, allOutcomes: [{tE: 1, cE: 2}]","NCT12345678",{"NCT12345678":(None,10,6,20)})`. Consequence: top-level `cE` is reset to `6`, but `allOutcomes[0].cE` remains `2` because propagation is skipped when either event count is `None`.
+
+- **selector keyed to wrong form, line 166**: input file `ANY_AUTO_REVIEW.html` containing `"'NCT12345678': {tE: 1, tN: 10, cE: 2, cN: 20}"` plus matching source truth. Consequence: despite the module claiming `FULL_REVIEW/AUTO_REVIEW`, `main()` never targets `*_AUTO_REVIEW.html`, so those pages remain unreset.
+
+COULD NOT DETERMINE: `_arm_order` role correctness at lines 54-58 needs missing `ssot/arm_roles.py` and the missing source binding between outcome-group IDs and arm labels. Other named shapes: no proven CRLF text-compare, merged-cell/off-by-one, zero-as-absent, dropped-negation, or string-fix probe defect in this pasted module.

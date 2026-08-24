@@ -1,0 +1,394 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: ssot/bos_topic_data.py
+
+--- THE FILE, IN FULL ---
+"""Per-reading data for the FOUR reviews `bosentan-pah` was split into.
+
+THE DECISION AND THE COUNTS THAT MADE IT are in `DECIDED-bosentan-pah-2026-08-19.md`. P21: an
+ambiguous question is built as several reviews, never chosen between. The empty-question test
+was set in advance and did not fire -- every reading has eligible trials, so every reading is a
+review.
+
+FOUR SIBLING TOPICS BUILT IN ONE SESSION IS THE EXACT SHAPE THAT PRODUCED THE CROSS-TOPIC
+CONTAMINATION CLASS, and route 7 of that class travelled through a COPY. So each reading's
+blocks are written out separately below. They are repetitive on purpose; a helper composing
+four cascades from one template is the thing that goes wrong.
+
+WHAT THESE FOUR REVIEWS REPORT, and it is the same answer three times over:
+
+    A  monotherapy      4 eligible, 2 with results, NEITHER registering a measurable shared
+                        endpoint -> REFUSAL
+    B  combination      7 eligible, 1 with results -> k=1, COMPASS-2's own result
+    C  not group 1      8 eligible, ZERO with results -> REFUSAL, and the field is in flight
+    D  children         2 eligible, both with results, measuring different things -> REFUSAL
+
+ONE POOLED ESTIMATE DOES NOT EXIST ANYWHERE IN THIS DRUG'S REGISTERED EVIDENCE UNDER ANY OF THE
+FOUR READINGS. That is a finding about the registrations, not a gap in the work.
+"""
+
+# ONE SEARCH, STATED AS A SHARED FACT AND NOT A SHARED BLOCK -- the four readings were surfaced
+# by one query because they are one drug. Their CASCADES, CRITERIA and SCREENS are separate.
+_QUERY = ('intervention="bosentan"; condition="pulmonary arterial hypertension OR pulmonary '
+          'hypertension"; study_type=INTERVENTIONAL; NO phase filter; page_size=100')
+_PUBMED_ABSENT = ("NO PUBMED SEARCH WAS RUN FOR THIS TOPIC. Recorded as an absence rather than "
+                  "omitted: the registry search is the only executed search behind this "
+                  "review, so any trial reported in the literature and never registered is "
+                  "outside what was looked at. P23 cannot hold on a database nobody queried.")
+
+
+def _search(recall):
+    """The executed search record, with THIS reading's own recall. Recall is never shared."""
+    return {
+        "executed_by": "lane 1 (Claude, Anthropic family)",
+        "databases": [
+            {"database": "ClinicalTrials.gov API v2",
+             "tool": "mcp__plugin_bio-research_c-trials__search_trials",
+             "query_as_executed": _QUERY, "date_executed": "2026-08-19",
+             "http_status": 200, "records_returned": 57, "total_reported": 57,
+             "recall_on_included_set": recall,
+             "pagination_verified": "next_page_token null and returned == totalCount, from "
+                                    "the FIRST page."},
+            {"database": "PubMed", "tool": "NOT EXECUTED",
+             "query_as_executed": "NOT EXECUTED FOR THIS TOPIC", "date_executed": "2026-08-19",
+             "http_status": None, "records_returned": None, "total_reported": None,
+             "recall_on_included_set": "NOT MEASURED", "what_is_unexamined": _PUBMED_ABSENT},
+        ],
+        "pagination_verified": "returned == totalCount on the registry query.",
+    }
+
+
+_ADJUDICATION = (
+    "TWO RECORDS WERE ADJUDICATED OUT OF THEIR READINGS, both for one reason. NCT04273945 "
+    "(macitentan 75 mg vs 10 mg) names bosentan in its ARM DESCRIPTION as a prior exposure "
+    "participants must come off; NCT01824290 (tadalafil in children) names it as an EXAMPLE OF "
+    "A CLASS in a background record attached to BOTH arms. `locate()` scored both EXPERIMENTAL "
+    "because its step-1 scan reads arm DESCRIPTIONS while its control-arm test reads "
+    "intervention NAMES only -- an asymmetry built deliberately for DAPA-HF and wrong here. A "
+    "DRUG NAMED IN AN ARM DESCRIPTION AS PRIOR OR BACKGROUND THERAPY IS NOT THE RANDOMISED "
+    "INTERVENTION, and where the mention is identical in every arm it is by construction not "
+    "the contrast.")
+
+_PRECEDENCE = (
+    "The four readings are NOT mutually exclusive by construction -- a trial can be paediatric "
+    "and group-1 and a combination design at once -- so an assignment rule is required. It is "
+    "D children > C not-WHO-group-1 > B combination > A monotherapy, applied in that order, "
+    "each step naming the field it reads. A DIFFERENT PRECEDENCE WOULD MOVE TRIALS BETWEEN "
+    "READINGS AND THESE COUNTS WOULD CHANGE WITH IT, which is why it is written down as a "
+    "choice rather than presented as a discovery.")
+
+# ==========================================================================================
+# A -- MONOTHERAPY against an inactive control, WHO group 1
+# ==========================================================================================
+BOSA_SEARCH = _search("1/1 -- EARLY (NCT00091715) surfaced")
+BOSA_PRISMA = {
+    "_scope": "PRISMA 2020 flow, counted from the executed search above.",
+    "identification": {"ctgov": 57, "pubmed": None},
+    "eligibility_ctgov": {"role_located": 47, "topic_is_experimental_arm": 35,
+                          "topic_is_comparator_arm": 4, "topic_is_background": 8,
+                          "not_assessable": 10,
+                          "note": "cascade over the whole surfaced set, shared by all four "
+                                  "readings because it is one search; the READING split is "
+                                  "applied after it."},
+    "assigned_to_this_reading": 14,
+    "included": {"in_this_object": 4, "contributing_to_the_pool": 0,
+                 "nct": ["NCT00091715", "NCT00377455", "NCT00825266", "NCT01827059"]},
+    "reconciliation": {
+        "arithmetic": "57 = 35 experimental + 4 comparator + 8 background + 10 not-assessable; "
+                      "14 of the 57 assigned to this reading, of which 4 are eligible",
+        "reconciles": True, "unscreened_remainder": 0,
+        "remainder_means": "ZERO. Every surfaced record has a reading and a disposition.",
+    },
+}
+BOSA_CASCADE = {
+    "k0_surfaced": 57, "k2_role_located": 47, "k3_experimental": 35, "k4_comparator": 4,
+    "k5_background": 8, "kNA_not_assessable": 10,
+    "k_assigned_to_this_reading": 14, "k_eligible": 4, "k_with_posted_results": 2,
+    "k_included_in_object": 4, "k_pooled": 0, "k_unscreened_remainder": 0,
+    "reproduced_by": "scripts/screen_bosentan_split_2026_08_19.py and "
+                     "scripts/estimand_bosentan_readings_2026_08_19.py.",
+    "why_k_pooled_is_ZERO": (
+        "NOT ONE of the four eligible trials registers a six-minute-walk CHANGE or a "
+        "clinical-worsening outcome. The two with posted results register 'Total Exercise Time "
+        "on the Exercise Echocardiogram' (n=5) and 'Insulin Resistance Profile Change - "
+        "Triglyceride:HDL Cholesterol' (n=2). THERE IS NOTHING TO POOL, and that is a fact "
+        "about the registrations."),
+    "and_the_anchor_trial_registers_no_measurable_endpoint_at_all": (
+        "EARLY (NCT00091715, n=185) is this reading's largest trial and its registered "
+        "PRIMARIES are the two-word strings 'exercise capacity' and 'cardiac hemodynamics'. No "
+        "measure, no timepoint, no direction. It has posted no results. THE REGISTRATION NAMES "
+        "A CONSTRUCT AND NOT AN ENDPOINT, and a review cannot pool a construct."),
+}
+BOSA_EXTRACTION = {
+    "_why": "Every cell says whether it was READ or DERIVED and carries what it was read from.",
+    "verified_utc": "2026-08-19",
+    "source": {"registry": "ClinicalTrials.gov, the four eligible registrations read in full",
+               "read_via": "raw v2 API, fields=protocolSection,hasResults,resultsSection"},
+    "cells": [
+        {"field": "NCT00091715 EARLY registered primaries", "label": "READ",
+         "source_path": "protocolSection.outcomesModule.primaryOutcomes[].measure",
+         "verbatim": "exercise capacity; cardiac hemodynamics",
+         "note": "TWO WORDS EACH. This is the cell the whole reading turns on."},
+        {"field": "NCT00091715 EARLY posted results", "label": "READ",
+         "source_path": "hasResults", "verbatim": "false",
+         "note": "n=185, COMPLETED 2006, and no results section."},
+        {"field": "NCT00377455 registered primary", "label": "READ",
+         "source_path": "protocolSection.outcomesModule.primaryOutcomes[0].measure",
+         "verbatim": "Total Exercise Time on the Exercise Echocardiogram Using the Standard "
+                     "Bruce Stress Protocol.",
+         "note": "n=5, TERMINATED. Its 6-minute walk distance is a SECONDARY registered as a "
+                 "bare construct with no change term."},
+        {"field": "NCT00825266 registered primary", "label": "READ",
+         "source_path": "protocolSection.outcomesModule.primaryOutcomes[0].measure",
+         "verbatim": "Insulin Resistance Profile Change - Triglyceride:HDL Cholesterol Ratio",
+         "note": "n=2, TERMINATED. A metabolic endpoint in a PAH population."},
+        {"field": "trials registering a walk-distance CHANGE", "value": "0 of 4",
+         "label": "DERIVED",
+         "derived_by": "structural detection over every registered rank -- a walk term plus a "
+                       "change term, scripts/estimand_bosentan_readings_2026_08_19.py"},
+        {"field": "trials naming a walk endpoint AT ALL", "value": "2 of 4", "label": "DERIVED",
+         "derived_by": "the weaker limb, reported separately",
+         "note": "THE GAP BETWEEN 0 AND 2 IS THE FINDING. Two trials name the endpoint as a "
+                 "CONSTRUCT with no change term, timepoint or direction. Calling those a "
+                 "shared estimand would be inferring the analysis from the construct."},
+    ],
+}
+
+# ==========================================================================================
+# B -- COMBINATION therapy
+# ==========================================================================================
+BOSB_SEARCH = _search("1/1 -- COMPASS-2 (NCT00303459) surfaced")
+BOSB_PRISMA = {
+    "_scope": "PRISMA 2020 flow, counted from the executed search above.",
+    "identification": {"ctgov": 57, "pubmed": None},
+    "eligibility_ctgov": {"role_located": 47, "topic_is_experimental_arm": 35,
+                          "topic_is_comparator_arm": 4, "topic_is_background": 8,
+                          "not_assessable": 10,
+                          "note": "one search, one cascade; the reading split is applied after."},
+    "assigned_to_this_reading": 19,
+    "included": {"in_this_object": 7, "contributing_to_the_pool": 1,
+                 "nct": ["NCT00120380", "NCT00303459", "NCT01100736", "NCT01352065",
+                         "NCT03053739", "NCT04039464", "NCT06317805"]},
+    "reconciliation": {
+        "arithmetic": "20 records assigned before adjudication, 19 after NCT04273945 was "
+                      "adjudicated out; 7 of the 19 are eligible",
+        "reconciles": True, "unscreened_remainder": 0,
+        "remainder_means": "ZERO.",
+    },
+}
+BOSB_CASCADE = {
+    "k0_surfaced": 57, "k2_role_located": 47, "k3_experimental": 35, "k4_comparator": 4,
+    "k5_background": 8, "kNA_not_assessable": 10,
+    "k_assigned_to_this_reading": 19, "k_eligible": 7, "k_with_posted_results": 1,
+    "k_included_in_object": 7, "k_pooled": 1, "k_unscreened_remainder": 0,
+    "reproduced_by": "scripts/screen_bosentan_split_2026_08_19.py and "
+                     "scripts/estimand_bosentan_readings_2026_08_19.py.",
+    "why_k_pooled_is_ONE": (
+        "SEVEN eligible trials and ONE with posted results. COMPASS-2 (NCT00303459, n=334) is "
+        "the only trial in this reading that has reported anything. k=1 IS A FLOOR AND NOT AN "
+        "ANSWER: six eligible trials -- 268 further participants across five of them and 110 "
+        "in an ongoing sixth -- have posted nothing."),
+    "and_this_reading_is_where_the_ADD_ON_DESIGN_IS_INVISIBLE": (
+        "COMPASS-2 declares exactly what EARLY declares -- armGroups `bosentan | placebo`, "
+        "interventions `['bosentan','placebo']` -- because its SILDENAFIL IS BACKGROUND "
+        "THERAPY AND BACKGROUND THERAPY IS NOT A REGISTERED INTERVENTION. The one distinction "
+        "this whole reading turns on is precisely the one the registry does not encode."),
+}
+BOSB_EXTRACTION = {
+    "_why": "Every cell says whether it was READ or DERIVED and carries what it was read from.",
+    "verified_utc": "2026-08-19",
+    "source": {"registry": "ClinicalTrials.gov, the seven eligible registrations read in full",
+               "read_via": "raw v2 API, fields=protocolSection,hasResults,resultsSection"},
+    "cells": [
+        {"field": "NCT00303459 COMPASS-2 registered primary", "label": "READ",
+         "source_path": "protocolSection.outcomesModule.primaryOutcomes[0].measure",
+         "verbatim": "Time to First Confirmed Morbidity/Mortality Event up to the End of "
+                     "Treatment",
+         "note": "The only registered primary in this reading attached to posted results."},
+        {"field": "NCT00303459 COMPASS-2 arms", "label": "READ",
+         "source_path": "protocolSection.armsInterventionsModule",
+         "verbatim": "armGroups: EXPERIMENTAL 'A' [bosentan]; PLACEBO_COMPARATOR 'B' "
+                     "[placebo]. interventions: ['bosentan', 'placebo'].",
+         "note": "IDENTICAL IN SHAPE TO EARLY'S, a monotherapy trial. The sildenafil that "
+                 "makes this a combination trial appears in NO arm field -- only in the "
+                 "official title."},
+        {"field": "NCT00303459 COMPASS-2 official title", "label": "READ",
+         "source_path": "protocolSection.identificationModule.officialTitle",
+         "verbatim": "Effects of Combination of Bosentan and Sildenafil Versus Sildenafil "
+                     "Monotherapy on Morbidity and Mortality in Symptomatic Patients With "
+                     "Pulmonary Arterial Hypertension",
+         "note": "THE ONLY PLACE THE DESIGN IS DECLARED. The reading assignment rests on this "
+                 "sentence and records that it rests on TEXT."},
+        {"field": "eligible trials with no posted results", "value": "6 of 7", "label": "DERIVED",
+         "derived_by": "hasResults over the eligible set"},
+    ],
+}
+
+# ==========================================================================================
+# C -- PULMONARY HYPERTENSION THAT IS NOT WHO GROUP 1
+# ==========================================================================================
+BOSC_SEARCH = _search("NOT APPLICABLE -- this reading had no included set before today")
+BOSC_PRISMA = {
+    "_scope": "PRISMA 2020 flow, counted from the executed search above.",
+    "identification": {"ctgov": 57, "pubmed": None},
+    "eligibility_ctgov": {"role_located": 47, "topic_is_experimental_arm": 35,
+                          "topic_is_comparator_arm": 4, "topic_is_background": 8,
+                          "not_assessable": 10,
+                          "note": "one search, one cascade; the reading split is applied after."},
+    "assigned_to_this_reading": 17,
+    "included": {"in_this_object": 8, "contributing_to_the_pool": 0,
+                 "nct": ["NCT00310830", "NCT00313196", "NCT00581607", "NCT00625469",
+                         "NCT00637065", "NCT00820352", "NCT00926627", "NCT01449253"]},
+    "reconciliation": {
+        "arithmetic": "17 of 57 assigned to this reading, of which 8 are eligible",
+        "reconciles": True, "unscreened_remainder": 0, "remainder_means": "ZERO.",
+    },
+}
+BOSC_CASCADE = {
+    "k0_surfaced": 57, "k2_role_located": 47, "k3_experimental": 35, "k4_comparator": 4,
+    "k5_background": 8, "kNA_not_assessable": 10,
+    "k_assigned_to_this_reading": 17, "k_eligible": 8, "k_with_posted_results": 0,
+    "k_included_in_object": 8, "k_pooled": 0, "k_unscreened_remainder": 0,
+    "reproduced_by": "scripts/screen_bosentan_split_2026_08_19.py and "
+                     "scripts/estimand_bosentan_readings_2026_08_19.py.",
+    "why_k_pooled_is_ZERO_AND_WHY_THAT_IS_A_FINDING": (
+        "EIGHT ELIGIBLE TRIALS AND NOT ONE POSTED RESULT. Sarcoidosis, interstitial lung "
+        "disease, diastolic heart failure, sickle-cell disease twice, idiopathic pulmonary "
+        "fibrosis, and a treatment-regimen comparison. Two are TERMINATED at n=14 and n=12 and "
+        "one was WITHDRAWN at n=0. Under the remainder reading in PAGE-STANDARD.md a body of "
+        "eligible-but-unreported trials means the QUERY IS WELL AIMED AND THE FIELD IS STILL "
+        "IN FLIGHT -- and here it means something sharper: a whole disease area in which this "
+        "drug was tried and nothing was ever reported. THIS PAGE IS A FINDING ABOUT A "
+        "LITERATURE, NOT A GAP IN THIS REVIEW."),
+    "and_the_coded_condition_hid_two_of_them": (
+        "ASSET-1 and ASSET-2 (NCT00310830, NCT00313196) declare `conditions: ['Pulmonary "
+        "Hypertension']` and are titled '...in Sickle Cell Disease (SCD) Patients'. The coded "
+        "field is TRUE and names the SYNDROME where this reading needs the CAUSE. Read "
+        "literally, both sickle-cell trials were assigned to the WHO-group-1 monotherapy "
+        "reading. P42."),
+}
+BOSC_EXTRACTION = {
+    "_why": "Every cell says whether it was READ or DERIVED and carries what it was read from.",
+    "verified_utc": "2026-08-19",
+    "source": {"registry": "ClinicalTrials.gov, the eight eligible registrations read in full",
+               "read_via": "raw v2 API, fields=protocolSection,hasResults,resultsSection"},
+    "cells": [
+        {"field": "NCT00310830 coded condition", "label": "READ",
+         "source_path": "protocolSection.conditionsModule.conditions",
+         "verbatim": "Pulmonary Hypertension",
+         "note": "TRUE, AND IT NAMES THE SYNDROME. The title names the cause: 'Efficacy and "
+                 "Safety of Bosentan in Sickle Cell Disease (SCD) Patients'."},
+        {"field": "NCT00313196 coded condition", "label": "READ",
+         "source_path": "protocolSection.conditionsModule.conditions",
+         "verbatim": "Pulmonary Hypertension",
+         "note": "The same, on ASSET-2."},
+        {"field": "posted results across the eligible set", "value": "0 of 8", "label": "DERIVED",
+         "derived_by": "hasResults over the eligible set",
+         "note": "THE FINDING OF THIS PAGE."},
+        {"field": "terminated or withdrawn", "value": "3 of 8", "label": "DERIVED",
+         "derived_by": "statusModule.overallStatus over the eligible set",
+         "note": "NCT00310830 and NCT00313196 TERMINATED at n=14 and n=12; NCT00625469 "
+                 "WITHDRAWN at n=0."},
+    ],
+}
+
+# ==========================================================================================
+# D -- CHILDREN
+# ==========================================================================================
+BOSD_SEARCH = _search("1/1 -- FUTURE-2 (NCT00319020) surfaced")
+BOSD_PRISMA = {
+    "_scope": "PRISMA 2020 flow, counted from the executed search above.",
+    "identification": {"ctgov": 57, "pubmed": None},
+    "eligibility_ctgov": {"role_located": 47, "topic_is_experimental_arm": 35,
+                          "topic_is_comparator_arm": 4, "topic_is_background": 8,
+                          "not_assessable": 10,
+                          "note": "one search, one cascade; the reading split is applied after."},
+    "assigned_to_this_reading": 5,
+    "included": {"in_this_object": 2, "contributing_to_the_pool": 0,
+                 "nct": ["NCT01223352", "NCT01389856"]},
+    "reconciliation": {
+        "arithmetic": "6 records assigned before adjudication, 5 after NCT01824290 was "
+                      "adjudicated out; 2 of the 5 are eligible",
+        "reconciles": True, "unscreened_remainder": 0, "remainder_means": "ZERO.",
+    },
+}
+BOSD_CASCADE = {
+    "k0_surfaced": 57, "k2_role_located": 47, "k3_experimental": 35, "k4_comparator": 4,
+    "k5_background": 8, "kNA_not_assessable": 10,
+    "k_assigned_to_this_reading": 5, "k_eligible": 2, "k_with_posted_results": 2,
+    "k_included_in_object": 2, "k_pooled": 0, "k_unscreened_remainder": 0,
+    "reproduced_by": "scripts/screen_bosentan_split_2026_08_19.py and "
+                     "scripts/estimand_bosentan_readings_2026_08_19.py.",
+    "why_k_pooled_is_ZERO": (
+        "BOTH eligible trials have posted results and THEY MEASURE DIFFERENT THINGS. FUTURE-3 "
+        "(NCT01223352, n=64) registers 'Dose-corrected Daily Exposure [AUC(0-24c)] to "
+        "Bosentan' -- a PHARMACOKINETIC endpoint from a dosing-regimen comparison. The PPHN "
+        "trial (NCT01389856, n=23, TERMINATED) registers 'Percentage of Patients With "
+        "Treatment Failure', 'Time to Complete Weaning From iNO' and 'Time to Complete Weaning "
+        "From Mechanical Ventilation'. Neither registers a walk-distance or clinical-worsening "
+        "outcome, and no estimand is shared."),
+    "and_the_paediatric_boundary_was_wrong_first_time": (
+        "The reading was first assigned by `minimumAge < 18`, which is not what a paediatric "
+        "trial is: EARLY and COMPASS-2 admit adolescents from 12 and are adult trials. That "
+        "rule pulled BOTH of them into this reading and out of their own. Corrected to 'no "
+        "adult stratum at all, or maximumAge under 18'."),
+}
+BOSD_EXTRACTION = {
+    "_why": "Every cell says whether it was READ or DERIVED and carries what it was read from.",
+    "verified_utc": "2026-08-19",
+    "source": {"registry": "ClinicalTrials.gov, the two eligible registrations read in full",
+               "read_via": "raw v2 API, fields=protocolSection,hasResults,resultsSection"},
+    "cells": [
+        {"field": "NCT01223352 FUTURE-3 registered primary", "label": "READ",
+         "source_path": "protocolSection.outcomesModule.primaryOutcomes[0].measure",
+         "verbatim": "Dose-corrected Daily Exposure [AUC(0-24c)] to Bosentan",
+         "note": "A PHARMACOKINETIC endpoint. This trial compares two DOSING REGIMENS, not "
+                 "bosentan against a control."},
+        {"field": "NCT01389856 registered primaries", "label": "READ",
+         "source_path": "protocolSection.outcomesModule.primaryOutcomes[].measure",
+         "verbatim": "Percentage of Patients With Treatment Failure; Time to Complete Weaning "
+                     "From iNO; Time to Complete Weaning From Mechanical Ventilation",
+         "note": "Persistent pulmonary hypertension of the NEWBORN, TERMINATED at n=23. Three "
+                 "primaries, none shared with FUTURE-3."},
+        {"field": "eligibility basis for this reading", "label": "READ",
+         "source_path": "protocolSection.eligibilityModule.stdAges / maximumAge",
+         "verbatim": "NCT01223352 stdAges ['CHILD'], maximumAge 12 Years; NCT01389856 "
+                     "paediatric by maximumAge",
+         "note": "NO ADULT STRATUM AT ALL is what makes a trial paediatric here -- not a "
+                 "minimum age below 18, which every adolescent-admitting adult trial also has."},
+        {"field": "shared estimand across the two", "value": "NONE", "label": "DERIVED",
+         "derived_by": "structural detection over every registered rank of both trials"},
+    ],
+}

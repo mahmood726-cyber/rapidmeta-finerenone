@@ -1,0 +1,179 @@
+PACKET COMPLETENESS, ASSERTED. Everything you need is in this message. The
+material below is reproduced IN FULL and unabridged; nothing is withheld or summarised. You
+have no file access and should not ask for any.
+
+If something you need is genuinely not here, answer COULD NOT DETERMINE and NAME what is
+missing. Do NOT say anything is fabricated, invented, or absent from the record: an earlier
+blinded read of a partial packet returned six confident accusations of fabrication, and all
+six named facts that were present in the record and missing only from the packet. A false
+accusation costs as much here as a missed defect.
+
+A corpus contains network meta-analyses. Most are STARS: every
+treatment compared only against one common comparator, no closed loop. All present a
+RANKING. The decision taken is: emit the computed topology, do NOT remove rankings, and
+where a ranking sits on a star, state what it can and cannot support.
+
+THE TRAP: qualifying a ranking can slide from a STATEMENT OF WHAT THE NETWORK IS -- a fact
+about the graph -- into a JUDGEMENT ABOUT HOW MUCH TO DISCOUNT IT, which is an opinion. The
+first is owed to the reader; the second is not ours to make.
+
+A candidate single sentence has been proposed:
+
+  "This network is a star with no closed loops: every non-comparator treatment is evaluated
+   purely via indirect comparison through the common comparator, and statistical consistency
+   cannot be assessed."
+
+Answer in under 400 words:
+1. Is every clause of that sentence a FACT about the graph? Name any clause that is not.
+2. Is anything the topology determines LEFT OUT of it? Add only what is fact.
+3. What would a well-meaning author be tempted to append that would cross into judgement?
+4. Check it against the two real networks below: is it TRUE of each? Where a network is not
+   a star, what should the sentence say instead?
+
+--- THE NETWORKS, AS JSON ---
+{
+ "antimalarial-act": {
+  "network": {
+   "treatments": [
+    {
+     "id": "AL",
+     "label": "artemether-lumefantrine",
+     "is_reference": true
+    },
+    {
+     "id": "DP",
+     "label": "dihydroartemisinin-piperaquine",
+     "is_reference": false
+    },
+    {
+     "id": "ASAQ",
+     "label": "artesunate-amodiaquine",
+     "is_reference": false
+    },
+    {
+     "id": "PA",
+     "label": "pyronaridine-artesunate",
+     "is_reference": false
+    }
+   ],
+   "reference_treatment": "AL",
+   "edges": [
+    {
+     "comparison": "DP vs AL",
+     "outcome_id": "dp_vs_al",
+     "studies": 1,
+     "follow_up_days": 42,
+     "administration": "supervised"
+    },
+    {
+     "comparison": "ASAQ vs AL",
+     "outcome_id": "asaq_vs_al",
+     "studies": 1,
+     "follow_up_days": 28,
+     "administration": "unsupervised after the first dose"
+    },
+    {
+     "comparison": "PA vs AL",
+     "outcome_id": "pa_vs_al",
+     "studies": 1,
+     "follow_up_days": 28,
+     "administration": "supervised"
+    }
+   ],
+   "connected": true,
+   "closed_loops": 0,
+   "multi_arm_studies": 0,
+   "multi_arm_covariance_note": "The schema carries a covariance term for a study contributing more than one contrast against a shared arm, because a network must. NO included study is multi-arm, so the term is not exercised here and no covariance is estimated. Recording that it is unexercised is the point: a facility that has never run is not evidence that it works.",
+   "status": "exploratory only; not a robust network meta-analysis",
+   "why_no_network_estimate": "An indirect comparison between two treatments never randomised against each other IS constructible here: they meet at a common comparator, which is what Handbook section 11.2.1 describes, and a star graph supplies that path even though it contains no closed loop. An earlier version of this object said the absence of a loop meant there was no path at all, which is wrong, and a reviewer was right to say so. What the absence of a loop actually costs is the CHECK: section 11.4.4 assesses disagreement between evidence sources, and 11.4.4.1 measures incoherence in a closed loop as the absolute difference between the direct and the indirect summary estimate. With no loop there is no such difference to compute, so the assumption that indirect and direct evidence agree cannot be tested at all here. NO INDIRECT ESTIMATE IS COMPUTED, and the reason is a judgement about TRANSITIVITY under 11.2.2 rather than a graph-theoretic impossibility: that section requires the sets of trials to be similar, on average, in all important factors other than the comparison being made, and these are not. Every edge meets the same comparator, so the graph is joined; what differs is WHEN the outcome was measured, one comparison ending its follow-up a fortnight later than the other two. One trial dosed at home rather than under observation, making it a measurement of effectiveness where the others measure efficacy. Those are the grounds, and they are differences in effect modifiers, which is what that section is about. That each comparison rests on one study is ALSO true and is NOT part of this ground: it is a limit on precision and on replication, not an effect modifier, and an earlier version wrongly folded it in. The missing loop is why the judgement cannot be checked rather than why it holds."
+  }
+ },
+ "cryptococcal-meningitis": {
+  "network": {
+   "scope": "antifungal induction only",
+   "treatments": [
+    {
+     "id": "ORAL_FLU_5FC",
+     "component": "antifungal-induction",
+     "label": "oral fluconazole 1200 mg/day plus flucytosine 100 mg/kg/day for two weeks",
+     "trial": "ACTA",
+     "is_reference": false
+    },
+    {
+     "id": "AMB1W_MIXED",
+     "component": "antifungal-induction",
+     "label": "one week of amphotericin B deoxycholate 1 mg/kg/day, partner drug randomised between flucytosine and fluconazole",
+     "trial": "ACTA",
+     "is_reference": false
+    },
+    {
+     "id": "AMB2W_MIXED",
+     "component": "antifungal-induction",
+     "label": "two weeks of amphotericin B deoxycholate 1 mg/kg/day, partner drug randomised between flucytosine and fluconazole",
+     "trial": "ACTA",
+     "is_reference": true
+    },
+    {
+     "id": "LAMB_SINGLE",
+     "component": "antifungal-induction",
+     "label": "a single 10 mg/kg dose of liposomal amphotericin B with flucytosine and fluconazole for two weeks",
+     "trial": "AMBITION-cm",
+     "is_reference": false
+    },
+    {
+     "id": "AMB1W_5FC",
+     "component": "antifungal-induction",
+     "label": "one week of amphotericin B deoxycholate 1 mg/kg/day with flucytosine, then fluconazole 1200 mg/day on days eight to fourteen",
+     "trial": "AMBITION-cm",
+     "is_reference": true
+    }
+   ],
+   "reference_treatment": null,
+   "reference_treatment_absent_because": "A reference treatment is the node every other node is expressed against, and naming one presupposes that every node can reach it. In a graph that falls into more than one piece there is no such node, so naming one would assert a comparison that does not exist. Each trial has its own reference arm, and those are marked on the nodes.",
+   "edges": [
+    {
+     "comparison": "ORAL_FLU_5FC vs AMB2W_MIXED",
+     "trial": "ACTA",
+     "outcome_id": "acta_oral_vs_2wk",
+     "studies": 1
+    },
+    {
+     "comparison": "AMB1W_MIXED vs AMB2W_MIXED",
+     "trial": "ACTA",
+     "outcome_id": "acta_1wk_vs_2wk",
+     "studies": 1
+    },
+    {
+     "comparison": "ORAL_FLU_5FC vs AMB1W_MIXED",
+     "trial": "ACTA",
+     "outcome_id": "acta_oral_vs_1wk",
+     "studies": 1,
+     "correlated_with": [
+      "acta_oral_vs_2wk",
+      "acta_1wk_vs_2wk"
+     ]
+    },
+    {
+     "comparison": "LAMB_SINGLE vs AMB1W_5FC",
+     "trial": "AMBITION-cm",
+     "outcome_id": "ambition_lamb_vs_amb1w",
+     "studies": 1
+    }
+   ],
+   "connected": false,
+   "components": 2,
+   "closed_loops": 1,
+   "multi_arm_studies": 1,
+   "single_study_loop_note": "The one closed loop in this graph is drawn entirely by the multi-arm trial. Every edge in it comes from one randomised population, so the loop carries no independent indirect evidence and supports no incoherence assessment. A loop count above zero must not be read here as evidence that could be checked against itself.",
+   "edges_are_the_trials_own_contrasts": "The multi-arm trial contributes the two comparisons it framed, both against its own reference arm. The third pairwise comparison among its strategies is ALSO recoverable, because the source publishes an arm-level count and denominator for each of the three strategies, and it is recorded beside them as a within-trial contrast. An earlier version of this object declined it on the ground that the trial did not frame it. That ground was STRICTER THAN THE HANDBOOK and a reviewer was right to say so: chapter 23 states that where summary data are provided for each intervention group it does not matter how the groups were combined in the reported analyses, and that review authors do not need to analyse the data the same way the study authors did. What remains true is the unit-of-analysis constraint under 23.3.4: the three contrasts come from one randomised population and share arms, so none of them may be entered alongside another as though it were an independent study. That is not the same as saying they may never be combined at all, and an earlier version of this text said so wrongly; the section lists accounting for the correlation, and network meta-analysis, as routes that do permit it. The third is held as a contrast rather than as an independent edge.",
+   "third_within_trial_contrast": {
+    "promoted_to_outcome": "acta_oral_vs_1wk",
+    "what_changed": "This block used to carry the contrast's own point and interval beside the outcomes rather than among them, which duplicated a value in two places -- the defect this batch spends most of its rounds removing. It is now a full outcome with its own counts, its own recomputed estimate and its own edge in the graph, and this block only points at it.",
+    "must_not_be_treated_as_independent": "It shares participants with both other contrasts from the same trial. Entering any of the three alongside another as though it were a separate study is the unit-of-analysis error 23.3.4 names. Section 23.3.4 does list routes that would permit all three together -- accounting for the correlation, or a network meta-analysis -- so the constraint is on treating them as independent, not on holding them at all.",
+    "sections": [
+     "23.3.2",
+     "23.3.3",
+     "23.3.4"
+    ]
+   },
+   "multi_arm_covariance_note": "The multi-arm trial contributes two contrasts from one randomised population, sharing a control arm, so those contrasts are correlated and any synthesis using both would need the covariance between them. An earlier version of this object said that covariance COULD NOT BE CONSTRUCTED because the source publishes no variance for any arm. That was false, and false against this object's own arithmetic:

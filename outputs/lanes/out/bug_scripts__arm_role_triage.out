@@ -1,0 +1,258 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a03130-b30b-79c2-b24d-6f039db7c3ac
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/arm_role_triage.py
+
+--- THE FILE, IN FULL ---
+"""Does the arm assigned as INTERVENTION match the registry's own typing?
+
+THE FOUNDING CASE, introduced and caught the same day. `fcm-hf-review`'s harmonised pool
+assigned IRONMAN's `arms[0]` to the intervention. `arms[0]` IS THE CONTROL: the object
+labels it "Standard care" (336/569) against "Standard care plus IV iron infusion"
+(411/568), and the registry types the first NO_INTERVENTION and the second EXPERIMENTAL.
+
+POSITION IN A LIST IS NOT A ROLE. Both the label and `armGroups[].type` said which arm was
+which, and neither was read.
+
+THE TELL, and it is counter-intuitive enough to be worth encoding. Inverted, the pool read
+RR 0.7987 with I-SQUARED 0%. Corrected, it read 0.976 with I-SQUARED 97.9% and the two
+trials pointing in OPPOSITE directions. INVERTING ONE ARM TURNS DISAGREEMENT INTO
+AGREEMENT -- a mirrored pair looks like perfect consistency. SO A SUSPICIOUSLY CLEAN
+HETEROGENEITY ON k=2 IS ITSELF A REASON TO CHECK THE ARMS, because the inversion improves
+every statistic a reviewer would look at.
+
+An older inverted row would therefore make its pool look BETTER, not worse, and nothing
+downstream would flag it.
+
+TWO CHECKS, both cheap:
+
+  ROLE   for every per-trial row carrying arm-level counts, compare the events assigned to
+         the intervention against the registry's EXPERIMENTAL arm and the control against
+         its comparator. Registry typing is authoritative; the object's list order is not.
+         ARM TYPES ARE NOT ALWAYS RELIABLE -- RE-LY typed all three of its arms
+         ACTIVE_COMPARATOR -- so a disagreement is a FLAG TO READ, never a verdict.
+
+  MIRROR flag any k=2 pool whose I-squared is 0 and whose per-trial effects sit on opposite
+         sides of the null once one row is inverted. That is the inversion signature.
+
+THIS IS A TRIAGE. A flag means read the trial; it never means the row is wrong.
+"""
+from __future__ import annotations
+import io
+import json
+import os
+import sys
+import time
+import urllib.request
+
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+API = "https://clinicaltrials.gov/api/v2/studies/{}?format=json"
+CACHE = os.path.join(REPO, ".armrole-cache.json")
+cache = json.load(io.open(CACHE, encoding="utf-8")) if os.path.exists(CACHE) else {}
+EXPERIMENTAL = ("EXPERIMENTAL",)
+CONTROL = ("PLACEBO_COMPARATOR", "NO_INTERVENTION", "SHAM_COMPARATOR")
+
+
+def arms_of(nct):
+    if nct in cache:
+        return cache[nct]
+    out = None
+    try:
+        req = urllib.request.Request(API.format(nct), headers={"User-Agent": "rm-arm"})
+        with urllib.request.urlopen(req, timeout=45) as r:
+            d = json.loads(r.read().decode("utf-8"))
+        out = [{"type": a.get("type") or "", "label": (a.get("label") or "")}
+               for a in (((d.get("protocolSection") or {})
+                          .get("armsInterventionsModule") or {}).get("armGroups") or [])]
+    except Exception:
+        out = None
+    cache[nct] = out
+    time.sleep(0.06)
+    return out
+
+
+def norm(s):
+    return " ".join(str(s or "").lower().split())
+
+
+def main() -> int:
+    ss = os.path.join(REPO, "ssot")
+    role_flags, mirror_flags, checked = [], [], 0
+    for d in sorted(os.listdir(ss)):
+        f = os.path.join(ss, d, d + ".json")
+        if not os.path.exists(f):
+            continue
+        try:
+            o = json.load(io.open(f, encoding="utf-8"))
+        except Exception:
+            continue
+
+        # ROLE: object arms[] order against registry typing
+        for t in ((o.get("inputs") or {}).get("trials") or []):
+            if not isinstance(t, dict):
+                continue
+            arms = [a for a in (t.get("arms") or []) if isinstance(a, dict)]
+            nct = str(t.get("nct") or "")
+            if len(arms) < 2 or not nct.startswith("NCT"):
+                continue
+            reg = arms_of(nct)
+            json.dump(cache, io.open(CACHE, "w", encoding="utf-8", newline="\n"),
+                      ensure_ascii=False)
+            if not reg:
+                continue
+            checked += 1
+            exp_labels = [norm(a["label"]) for a in reg if a["type"] in EXPERIMENTAL]
+            ctl_labels = [norm(a["label"]) for a in reg if a["type"] in CONTROL]
+            if not exp_labels or not ctl_labels:
+                continue          # arm types unusable here; RE-LY shape
+            first = norm(arms[0].get("label"))
+            # arms[0] is treated as the intervention by every builder in this tree
+            if any(first == c for c in ctl_labels):
+                role_flags.append((d, nct, arms[0].get("label"),
+                                   arms[0].get("events"), arms[1].get("label"),
+                                   arms[1].get("events")))
+
+        # MIRROR: k=2, I2 == 0, effects on opposite sides once one is inverted
+        for name, blk in ((o.get("results") or {}).get("by_outcome") or {}).items():
+            if not isinstance(blk, dict):
+                continue
+            rows = [r for r in (blk.get("per_trial") or [])
+                    if isinstance(r, dict) and isinstance(r.get("point"), (int, float))]
+            het = blk.get("heterogeneity") or {}
+            i2 = het.get("i2") if het.get("i2") is not None else het.get("i2_percent")
+            if len(rows) == 2 and i2 is not None and float(i2) < 0.5:
+                a, b = rows[0]["point"], rows[1]["point"]
+                if a > 0 and b > 0:
+                    # NARROWED, AND THE REASON MATTERS MORE THAN THE THRESHOLD. The first
+                    # version fired whenever a pair straddled once one row was inverted.
+                    # ANY VALUE NEAR 1 STRADDLES ONCE INVERTED -- invert 0.97 and you get
+                    # 1.03 -- so it flagged both lefamulin pools, which are two SUCCESSFUL
+                    # NON-INFERIORITY trials sitting exactly where such trials sit. That is
+                    # the commonest sound result in an antibiotics corpus, and a check that
+                    # fires on it trains a reader to skim.
+                    #
+                    # A PAIR ALREADY NEAR THE NULL CARRIES NO INFORMATION EITHER WAY. The
+                    # fcm-hf signature is different: two trials that DISAGREE SUBSTANTIALLY
+                    # and would AGREE if one were flipped -- 0.776 against 1.225. So both
+                    # rows must sit a real distance from the null, and inverting one must
+                    # bring them together.
+                    MARGIN = 0.15          # 15% from the null on the ratio scale
+                    far = abs(a - 1) > MARGIN and abs(b - 1) > MARGIN
+                    if far and (a - 1) * ((1.0 / b) - 1) > 0:
+                        mirror_flags.append((d, name, a, b))
+
+    print("trials with usable registry arm typing checked: %d" % checked)
+    print()
+    print("ROLE FLAGS -- arms[0] matches a CONTROL arm in the registry: %d" % len(role_flags))
+    for d, nct, l0, e0, l1, e1 in role_flags:
+        print("   %-34s %s" % (d[:33], nct))
+        print("        arms[0] %-40s events=%s" % (str(l0)[:40], e0))
+        print("        arms[1] %-40s events=%s" % (str(l1)[:40], e1))
+    print()
+    print("MIRROR FLAGS -- k=2 with I2 under 0.5%% whose pair straddles once inverted: %d"
+          % len(mirror_flags))
+    for d, name, a, b in mirror_flags:
+        print("   %-34s %-16s %.4f / %.4f" % (d[:33], name[:15], a, b))
+    print()
+    print("TRIAGE, NEVER A VERDICT. Registry arm types are not always reliable -- RE-LY")
+    print("typed all three of its arms ACTIVE_COMPARATOR -- so a flag means READ THE TRIAL.")
+    print("But an inversion IMPROVES every statistic a reviewer looks at, so nothing")
+    print("downstream will ever flag it. This is the only place it can be caught.")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+
+codex
+I’m going to verify the line numbers against the workspace copy only; the review itself will stay confined to the pasted module.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=0; Get-Content -Path .'"\\scripts\\arm_role_triage.py | ForEach-Object { "'$i++; if ($i -in 50,54,64,66,100,116,117,118,119,120,158) { "{0}: {1}" -f $i, $_ } }' in F:\rapidmeta-ssot-shell
+ succeeded in 2814ms:
+50: CONTROL = ("PLACEBO_COMPARATOR", "NO_INTERVENTION", "SHAM_COMPARATOR")
+54:     if nct in cache:
+64:     except Exception:
+66:     cache[nct] = out
+100:             checked += 1
+116:             rows = [r for r in (blk.get("per_trial") or [])
+117:                     if isinstance(r, dict) and isinstance(r.get("point"), (int, float))]
+118:             het = blk.get("heterogeneity") or {}
+119:             i2 = het.get("i2") if het.get("i2") is not None else het.get("i2_percent")
+120:             if len(rows) == 2 and i2 is not None and float(i2) < 0.5:
+158:     return 0
+
+codex
+- Check cannot fail / wrapper status: line 158. Exact input: `.armrole-cache.json={"NCT00000001":[{"type":"NO_INTERVENTION","label":"control"},{"type":"EXPERIMENTAL","label":"drug"}]}` and `ssot/x/x.json={"inputs":{"trials":[{"nct":"NCT00000001","arms":[{"label":"control","events":1},{"label":"drug","events":2}]}]}}`. Consequence: it prints `ROLE FLAGS ... 1` but exits `0`, so a gate cannot block the defect it found.
+
+- Selector keyed to a form the corpus can use but the selector omits: line 50. Exact input: `.armrole-cache.json={"NCT00000002":[{"type":"ACTIVE_COMPARATOR","label":"usual care"},{"type":"EXPERIMENTAL","label":"drug"}]}` and `ssot/x/x.json={"inputs":{"trials":[{"nct":"NCT00000002","arms":[{"label":"usual care"},{"label":"drug"}]}]}}`. Consequence: line 103 skips because `ctl_labels` is empty, missing an inverted active-comparator trial.
+
+- Instrument reads stale/different copy: lines 54, 64, 66. Exact input: first run has `urlopen` timeout for `NCT00000003`, producing cache `{"NCT00000003":null}`; second run uses the same SSOT trial after the API is available. Consequence: line 54 returns cached `null`, so the registry is never re-read and the arm check remains permanently vacuous for that trial.
+
+- Status count reports wrapper, not work: line 100. Exact input: same `ACTIVE_COMPARATOR` input above. Consequence: `checked` increments before line 103 proves usable experimental/control labels exist, so the printed “usable registry arm typing checked” count includes trials that were not checked.
+
+- Off-by-one/count defect: lines 116-120. Exact input: `{"results":{"by_outcome":{"o":{"heterogeneity":{"i2":0},"per_trial":[{"point":0.7},{"point":1.4},{"point":"1.1"}]}}}}`. Consequence: a three-row outcome is treated as `k=2` because the count is taken after dropping the string-valued row.
+
+- Scale/field selector defect: lines 119-120. Exact input: `{"heterogeneity":{"i2":0.49,"i2_percent":49.0},"per_trial":[{"point":0.7},{"point":1.4}]}`. Consequence: it uses fractional `i2` as if it were percent and reports a 49% heterogeneity case as “under 0.5%”.
+
+No proven defect in this packet for: probe keyed to a removed string, own-comment idempotency guard, CRLF/LF text comparison, zero conflated with absent, negation dropped, or merged-cell-specific handling.
+tokens used
+22,816
+- Check cannot fail / wrapper status: line 158. Exact input: `.armrole-cache.json={"NCT00000001":[{"type":"NO_INTERVENTION","label":"control"},{"type":"EXPERIMENTAL","label":"drug"}]}` and `ssot/x/x.json={"inputs":{"trials":[{"nct":"NCT00000001","arms":[{"label":"control","events":1},{"label":"drug","events":2}]}]}}`. Consequence: it prints `ROLE FLAGS ... 1` but exits `0`, so a gate cannot block the defect it found.
+
+- Selector keyed to a form the corpus can use but the selector omits: line 50. Exact input: `.armrole-cache.json={"NCT00000002":[{"type":"ACTIVE_COMPARATOR","label":"usual care"},{"type":"EXPERIMENTAL","label":"drug"}]}` and `ssot/x/x.json={"inputs":{"trials":[{"nct":"NCT00000002","arms":[{"label":"usual care"},{"label":"drug"}]}]}}`. Consequence: line 103 skips because `ctl_labels` is empty, missing an inverted active-comparator trial.
+
+- Instrument reads stale/different copy: lines 54, 64, 66. Exact input: first run has `urlopen` timeout for `NCT00000003`, producing cache `{"NCT00000003":null}`; second run uses the same SSOT trial after the API is available. Consequence: line 54 returns cached `null`, so the registry is never re-read and the arm check remains permanently vacuous for that trial.
+
+- Status count reports wrapper, not work: line 100. Exact input: same `ACTIVE_COMPARATOR` input above. Consequence: `checked` increments before line 103 proves usable experimental/control labels exist, so the printed “usable registry arm typing checked” count includes trials that were not checked.
+
+- Off-by-one/count defect: lines 116-120. Exact input: `{"results":{"by_outcome":{"o":{"heterogeneity":{"i2":0},"per_trial":[{"point":0.7},{"point":1.4},{"point":"1.1"}]}}}}`. Consequence: a three-row outcome is treated as `k=2` because the count is taken after dropping the string-valued row.
+
+- Scale/field selector defect: lines 119-120. Exact input: `{"heterogeneity":{"i2":0.49,"i2_percent":49.0},"per_trial":[{"point":0.7},{"point":1.4}]}`. Consequence: it uses fractional `i2` as if it were percent and reports a 49% heterogeneity case as “under 0.5%”.
+
+No proven defect in this packet for: probe keyed to a removed string, own-comment idempotency guard, CRLF/LF text comparison, zero conflated with absent, negation dropped, or merged-cell-specific handling.

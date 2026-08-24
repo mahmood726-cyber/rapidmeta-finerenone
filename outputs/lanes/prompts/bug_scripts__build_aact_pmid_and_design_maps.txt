@@ -1,0 +1,150 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/build_aact_pmid_and_design_maps.py
+
+--- THE FILE, IN FULL ---
+"""Build the two AACT-derived sidecar maps the generators consume.
+
+Outputs:
+    outputs/pmid_resolver/nct_to_pmid.json
+        NCT -> {pmid, type}. Picking rule: smallest PMID among RESULT+DERIVED
+        per NCT (oldest primary publication; extensions get higher PMIDs).
+        BACKGROUND-typed refs are excluded to keep wrong-paper false positives
+        out — see commit 4917069b8 lite-page mismatch findings.
+
+    outputs/pmid_resolver/nct_design.json
+        NCT -> {allocation, masking, intervention_model, primary_purpose,
+                subject_masked, caregiver_masked, investigator_masked,
+                outcomes_assessor_masked}. Used as a defensible RoB-2 heuristic
+        by both `enrich_trials_with_aact_design.py` (retroactive) and
+        `bulk_clone_audit_first.py` (forward).
+
+Reads from F:\\AACT-storage\\AACT\\2026-04-12\\{study_references.txt,designs.txt}.
+"""
+from __future__ import annotations
+import csv
+import json
+import sys
+import io
+from pathlib import Path
+from collections import Counter
+
+if "pytest" not in sys.modules and hasattr(sys.stdout, "buffer"):
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+csv.field_size_limit(50_000_000)
+
+HERE = Path(__file__).resolve().parent.parent
+AACT = Path(r"F:\AACT-storage\AACT\2026-04-12")
+OUT = HERE / "outputs" / "pmid_resolver"
+OUT.mkdir(parents=True, exist_ok=True)
+
+
+def build_pmid_map():
+    ref = AACT / "study_references.txt"
+    result_pmids: dict[str, list[str]] = {}
+    derived_pmids: dict[str, list[str]] = {}
+    type_of: dict[tuple[str, str], str] = {}
+    n_rows = n_bg = 0
+
+    with ref.open(encoding="utf-8", errors="replace") as f:
+        rd = csv.reader(f, delimiter="|")
+        next(rd)
+        for row in rd:
+            if len(row) < 4:
+                continue
+            n_rows += 1
+            nct = row[1].strip()
+            pmid = row[2].strip()
+            rtype = row[3].strip()
+            if not pmid.isdigit() or not nct.startswith("NCT"):
+                continue
+            type_of[(nct, pmid)] = rtype
+            if rtype == "RESULT":
+                result_pmids.setdefault(nct, []).append(pmid)
+            elif rtype == "DERIVED":
+                derived_pmids.setdefault(nct, []).append(pmid)
+            else:
+                n_bg += 1
+
+    out: dict[str, dict] = {}
+    for nct in set(result_pmids) | set(derived_pmids):
+        pool = result_pmids.get(nct, []) + derived_pmids.get(nct, [])
+        if not pool:
+            continue
+        best = min(pool, key=lambda x: int(x))
+        out[nct] = {"pmid": best, "type": type_of[(nct, best)]}
+
+    p = OUT / "nct_to_pmid.json"
+    p.write_text(json.dumps(out), encoding="utf-8")
+    print(f"  nct_to_pmid.json: {len(out):,} NCTs (BACKGROUND-only skipped: {n_bg:,} rows)")
+    print(f"  type breakdown:", Counter(v["type"] for v in out.values()))
+
+
+def build_design_map():
+    ref = AACT / "designs.txt"
+    out: dict[str, dict] = {}
+    with ref.open(encoding="utf-8", errors="replace") as f:
+        rd = csv.DictReader(f, delimiter="|")
+        for row in rd:
+            nct = (row.get("nct_id") or "").strip()
+            if not nct.startswith("NCT"):
+                continue
+            out[nct] = {
+                "allocation": (row.get("allocation") or "").strip(),
+                "masking": (row.get("masking") or "").strip(),
+                "intervention_model": (row.get("intervention_model") or "").strip(),
+                "primary_purpose": (row.get("primary_purpose") or "").strip(),
+                "subject_masked": (row.get("subject_masked") or "").strip(),
+                "caregiver_masked": (row.get("caregiver_masked") or "").strip(),
+                "investigator_masked": (row.get("investigator_masked") or "").strip(),
+                "outcomes_assessor_masked": (row.get("outcomes_assessor_masked") or "").strip(),
+            }
+    p = OUT / "nct_design.json"
+    p.write_text(json.dumps(out), encoding="utf-8")
+    print(f"  nct_design.json: {len(out):,} NCTs")
+    print(f"  allocation:", Counter(v["allocation"] for v in out.values()).most_common(5))
+    print(f"  masking:", Counter(v["masking"] for v in out.values()).most_common(7))
+
+
+def main():
+    print("Building NCT -> PMID map...")
+    build_pmid_map()
+    print("Building NCT -> design map...")
+    build_design_map()
+
+
+if __name__ == "__main__":
+    main()

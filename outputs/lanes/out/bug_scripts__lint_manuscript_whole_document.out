@@ -1,0 +1,405 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a031ed-6ed3-7900-aeed-b2e6740cb683
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/lint_manuscript_whole_document.py
+
+--- THE FILE, IN FULL ---
+#!/usr/bin/env python3
+"""A WHOLE-DOCUMENT CHECK ON THE PROJECTED MANUSCRIPT. Per-section checks are blind to this.
+
+WHY IT EXISTS. The risk-of-bias ceiling statement -- 300 characters -- was emitted TWICE in
+every manuscript whose object records one: once by `methods_synthesis`, which had carried it
+for weeks, and once by the `risk_of_bias` section added hours later.
+
+    NEITHER SITE WAS WRONG ON ITS OWN. The duplication came into existence when the second
+    section was added, which is exactly why it was invisible to whoever wrote either one.
+    No check that looks at one section at a time can see it, however careful.
+
+So the unit of checking has to be the DOCUMENT. Three things are checked, each of which is a
+property of the whole and of no part:
+
+  D1 REPEATED PARAGRAPH   the same substantial paragraph emitted in more than one place
+  D2 REPEATED TABLE       the same caption, or the same rows, tabled twice
+  D3 REFUSED-THEN-USED    one section refuses for want of a field that ANOTHER section
+                          successfully cites. That is class 29 at document scale: the
+                          manuscript tells the reader a thing is not held on a page that
+                          uses it.
+
+WHAT IT DELIBERATELY DOES NOT DO. It does not flag near-duplicates or paraphrase. A rule that
+fires on similarity would fire on every methods section in the corpus and would be ignored
+within a day -- the same reasoning that kept the refusal lint narrow enough to find 11 real
+contradictions among 38 candidates.
+
+Exit 1 on any finding. Absent or unreadable objects are NOT_ASSESSABLE, named, and never a
+failure: an absence reported by a filesystem is not an absence in the world.
+"""
+import collections
+import glob
+import json
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(REPO, "ssot"))
+import paper_projector as ppj                                          # noqa: E402
+
+PARA_FLOOR = 120                 # a paragraph short enough to repeat innocently
+NA, FINDINGS = [], []
+
+
+def check(topic, obj):
+    """Return [(code, detail)] for one object's projected manuscript."""
+    out = []
+    secs = ppj.project(obj)
+
+    # D1 -- the same substantial paragraph in more than one place
+    seen = collections.defaultdict(list)
+    for s in secs:
+        for text, _ in s.paras:
+            if len(text) >= PARA_FLOOR:
+                seen[text].append(s.key)
+    for text, keys in seen.items():
+        if len(keys) > 1:
+            out.append(("D1 repeated paragraph",
+                        "%d chars in sections %s -- %r"
+                        % (len(text), " + ".join(keys), text[:90])))
+
+    # D2 -- the same table twice, by caption or by content
+    caps = collections.defaultdict(list)
+    bodies = collections.defaultdict(list)
+    for s in secs:
+        for caption, headers, rows, _ in getattr(s, "tables", []):
+            caps[caption].append(s.key)
+            bodies[json.dumps(rows, sort_keys=True)].append(s.key)
+    for cap, keys in caps.items():
+        if len(keys) > 1:
+            out.append(("D2 repeated table caption",
+                        "%r in sections %s" % (cap[:70], " + ".join(keys))))
+    for body, keys in bodies.items():
+        if len(keys) > 1 and len(body) > 80:
+            out.append(("D2 repeated table content",
+                        "identical rows in sections %s" % " + ".join(keys)))
+
+    # D3 -- a field refused in one section and successfully cited in another
+    refused_fields = collections.defaultdict(list)
+    used_fields = collections.defaultdict(list)
+    for s in secs:
+        for _what, missing in s.refusals:
+            for f in missing:
+                refused_fields[f].append(s.key)
+        for _text, fields in s.paras:
+            for f in fields:
+                used_fields[f].append(s.key)
+        for _c, _h, _r, fields in getattr(s, "tables", []):
+            for f in fields:
+                used_fields[f].append(s.key)
+    for f, where in refused_fields.items():
+        if f in used_fields:
+            out.append(("D3 refused-then-used",
+                        "`%s` refused in %s and USED in %s"
+                        % (f, " + ".join(sorted(set(where))),
+                           " + ".join(sorted(set(used_fields[f]))))))
+    return out
+
+
+def main():
+    os.chdir(REPO)
+    only = sys.argv[1:] or None
+    topics = 0
+    for op in sorted(glob.glob("ssot/*/*.json")):
+        name = os.path.basename(op)[:-5]
+        if os.path.basename(os.path.dirname(op)) != name:
+            continue
+        if only and name not in only:
+            continue
+        try:
+            obj = json.load(open(op, encoding="utf-8"))
+        except Exception as exc:
+            NA.append((name, "unreadable: %s" % exc))
+            continue
+        if not isinstance(obj, dict) or "title" not in obj:
+            NA.append((name, "not a topic object"))
+            continue
+        topics += 1
+        try:
+            found = check(name, obj)
+        except Exception as exc:
+            NA.append((name, "projector raised %s: %s" % (type(exc).__name__, exc)))
+            continue
+        for code, detail in found:
+            FINDINGS.append((name, code, detail))
+
+    print("manuscripts checked as WHOLE DOCUMENTS : %d" % topics)
+    print("NOT_ASSESSABLE                         : %d" % len(NA))
+    for n, why in NA[:10]:
+        print("    %-38s %s" % (n[:38], why))
+    print()
+    by_code = collections.Counter(c for _, c, _ in FINDINGS)
+    print("FINDINGS: %d across %d topic(s)"
+          % (len(FINDINGS), len({t for t, _, _ in FINDINGS})))
+    for code, n in sorted(by_code.items()):
+        print("    %-28s %d" % (code, n))
+    print()
+    for topic, code, detail in FINDINGS[:40]:
+        print("  %-30s %-28s %s" % (topic[:30], code, detail[:90]))
+    if len(FINDINGS) > 40:
+        print("  ... %d more" % (len(FINDINGS) - 40))
+    if FINDINGS:
+        print()
+        print("REFUSED: a projected manuscript repeats itself or contradicts itself across "
+              "sections.")
+        return 1
+    print("OK -- no manuscript repeats a paragraph or a table, and no section refuses for "
+          "want of a field another section uses.")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+
+codex
+I’m treating this as a narrow defect hunt against the pasted module only. I’ll name missing external behavior as not determinable rather than infer `paper_projector` internals.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=0; Get-Content -LiteralPath '"'scripts/lint_manuscript_whole_document.py' | ForEach-Object { "'$i++; '"'{0,4}: {1}' -f "'$i, $_ }' in F:\rapidmeta-ssot-shell
+ succeeded in 1246ms:
+   1: #!/usr/bin/env python3
+   2: """A WHOLE-DOCUMENT CHECK ON THE PROJECTED MANUSCRIPT. Per-section checks are blind to this.
+   3: 
+   4: WHY IT EXISTS. The risk-of-bias ceiling statement -- 300 characters -- was emitted TWICE in
+   5: every manuscript whose object records one: once by `methods_synthesis`, which had carried it
+   6: for weeks, and once by the `risk_of_bias` section added hours later.
+   7: 
+   8:     NEITHER SITE WAS WRONG ON ITS OWN. The duplication came into existence when the second
+   9:     section was added, which is exactly why it was invisible to whoever wrote either one.
+  10:     No check that looks at one section at a time can see it, however careful.
+  11: 
+  12: So the unit of checking has to be the DOCUMENT. Three things are checked, each of which is a
+  13: property of the whole and of no part:
+  14: 
+  15:   D1 REPEATED PARAGRAPH   the same substantial paragraph emitted in more than one place
+  16:   D2 REPEATED TABLE       the same caption, or the same rows, tabled twice
+  17:   D3 REFUSED-THEN-USED    one section refuses for want of a field that ANOTHER section
+  18:                           successfully cites. That is class 29 at document scale: the
+  19:                           manuscript tells the reader a thing is not held on a page that
+  20:                           uses it.
+  21: 
+  22: WHAT IT DELIBERATELY DOES NOT DO. It does not flag near-duplicates or paraphrase. A rule that
+  23: fires on similarity would fire on every methods section in the corpus and would be ignored
+  24: within a day -- the same reasoning that kept the refusal lint narrow enough to find 11 real
+  25: contradictions among 38 candidates.
+  26: 
+  27: Exit 1 on any finding. Absent or unreadable objects are NOT_ASSESSABLE, named, and never a
+  28: failure: an absence reported by a filesystem is not an absence in the world.
+  29: """
+  30: import collections
+  31: import glob
+  32: import json
+  33: import os
+  34: import sys
+  35: 
+  36: REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+  37: sys.path.insert(0, os.path.join(REPO, "ssot"))
+  38: import paper_projector as ppj                                          # noqa: E402
+  39: 
+  40: PARA_FLOOR = 120                 # a paragraph short enough to repeat innocently
+  41: NA, FINDINGS = [], []
+  42: 
+  43: 
+  44: def check(topic, obj):
+  45:     """Return [(code, detail)] for one object's projected manuscript."""
+  46:     out = []
+  47:     secs = ppj.project(obj)
+  48: 
+  49:     # D1 -- the same substantial paragraph in more than one place
+  50:     seen = collections.defaultdict(list)
+  51:     for s in secs:
+  52:         for text, _ in s.paras:
+  53:             if len(text) >= PARA_FLOOR:
+  54:                 seen[text].append(s.key)
+  55:     for text, keys in seen.items():
+  56:         if len(keys) > 1:
+  57:             out.append(("D1 repeated paragraph",
+  58:                         "%d chars in sections %s -- %r"
+  59:                         % (len(text), " + ".join(keys), text[:90])))
+  60: 
+  61:     # D2 -- the same table twice, by caption or by content
+  62:     caps = collections.defaultdict(list)
+  63:     bodies = collections.defaultdict(list)
+  64:     for s in secs:
+  65:         for caption, headers, rows, _ in getattr(s, "tables", []):
+  66:             caps[caption].append(s.key)
+  67:             bodies[json.dumps(rows, sort_keys=True)].append(s.key)
+  68:     for cap, keys in caps.items():
+  69:         if len(keys) > 1:
+  70:             out.append(("D2 repeated table caption",
+  71:                         "%r in sections %s" % (cap[:70], " + ".join(keys))))
+  72:     for body, keys in bodies.items():
+  73:         if len(keys) > 1 and len(body) > 80:
+  74:             out.append(("D2 repeated table content",
+  75:                         "identical rows in sections %s" % " + ".join(keys)))
+  76: 
+  77:     # D3 -- a field refused in one section and successfully cited in another
+  78:     refused_fields = collections.defaultdict(list)
+  79:     used_fields = collections.defaultdict(list)
+  80:     for s in secs:
+  81:         for _what, missing in s.refusals:
+  82:             for f in missing:
+  83:                 refused_fields[f].append(s.key)
+  84:         for _text, fields in s.paras:
+  85:             for f in fields:
+  86:                 used_fields[f].append(s.key)
+  87:         for _c, _h, _r, fields in getattr(s, "tables", []):
+  88:             for f in fields:
+  89:                 used_fields[f].append(s.key)
+  90:     for f, where in refused_fields.items():
+  91:         if f in used_fields:
+  92:             out.append(("D3 refused-then-used",
+  93:                         "`%s` refused in %s and USED in %s"
+  94:                         % (f, " + ".join(sorted(set(where))),
+  95:                            " + ".join(sorted(set(used_fields[f]))))))
+  96:     return out
+  97: 
+  98: 
+  99: def main():
+ 100:     os.chdir(REPO)
+ 101:     only = sys.argv[1:] or None
+ 102:     topics = 0
+ 103:     for op in sorted(glob.glob("ssot/*/*.json")):
+ 104:         name = os.path.basename(op)[:-5]
+ 105:         if os.path.basename(os.path.dirname(op)) != name:
+ 106:             continue
+ 107:         if only and name not in only:
+ 108:             continue
+ 109:         try:
+ 110:             obj = json.load(open(op, encoding="utf-8"))
+ 111:         except Exception as exc:
+ 112:             NA.append((name, "unreadable: %s" % exc))
+ 113:             continue
+ 114:         if not isinstance(obj, dict) or "title" not in obj:
+ 115:             NA.append((name, "not a topic object"))
+ 116:             continue
+ 117:         topics += 1
+ 118:         try:
+ 119:             found = check(name, obj)
+ 120:         except Exception as exc:
+ 121:             NA.append((name, "projector raised %s: %s" % (type(exc).__name__, exc)))
+ 122:             continue
+ 123:         for code, detail in found:
+ 124:             FINDINGS.append((name, code, detail))
+ 125: 
+ 126:     print("manuscripts checked as WHOLE DOCUMENTS : %d" % topics)
+ 127:     print("NOT_ASSESSABLE                         : %d" % len(NA))
+ 128:     for n, why in NA[:10]:
+ 129:         print("    %-38s %s" % (n[:38], why))
+ 130:     print()
+ 131:     by_code = collections.Counter(c for _, c, _ in FINDINGS)
+ 132:     print("FINDINGS: %d across %d topic(s)"
+ 133:           % (len(FINDINGS), len({t for t, _, _ in FINDINGS})))
+ 134:     for code, n in sorted(by_code.items()):
+ 135:         print("    %-28s %d" % (code, n))
+ 136:     print()
+ 137:     for topic, code, detail in FINDINGS[:40]:
+ 138:         print("  %-30s %-28s %s" % (topic[:30], code, detail[:90]))
+ 139:     if len(FINDINGS) > 40:
+ 140:         print("  ... %d more" % (len(FINDINGS) - 40))
+ 141:     if FINDINGS:
+ 142:         print()
+ 143:         print("REFUSED: a projected manuscript repeats itself or contradicts itself across "
+ 144:               "sections.")
+ 145:         return 1
+ 146:     print("OK -- no manuscript repeats a paragraph or a table, and no section refuses for "
+ 147:           "want of a field another section uses.")
+ 148:     return 0
+ 149: 
+ 150: 
+ 151: if __name__ == "__main__":
+ 152:     sys.exit(main())
+
+codex
+Defects found:
+
+- **Line 73, check that cannot fail for short repeated tables.**  
+  Exact input: `ppj.project = lambda obj: [NS(key="a", paras=[], refusals=[], tables=[("A", ["h"], [["x"]], [])]), NS(key="b", paras=[], refusals=[], tables=[("B", ["h"], [["x"]], [])])]`; then `check("t", {})`.  
+  Consequence: identical table rows are accepted whenever their JSON string is `<= 80` chars, despite D2 claiming “same rows” are refused.
+
+- **Line 54, values compared as text where line endings differ.**  
+  Exact input: `p1 = "A"*60 + "\r\n" + "B"*60`; `p2 = "A"*60 + "\n" + "B"*60`; projector returns those as paragraphs in two sections.  
+  Consequence: the same rendered paragraph can evade D1 solely because CRLF and LF are different string keys.
+
+- **Line 91, D3 does not enforce “another section”.**  
+  Exact input: projector returns `[NS(key="methods", paras=[("uses n", ["n"])], refusals=[("missing", ["n"])], tables=[])]`.  
+  Consequence: one section can be reported as “refused in methods and USED in methods”, contradicting the stated cross-section defect.
+
+- **Lines 107 and 148, check can pass without assessing requested input.**  
+  Exact input: run `python scripts/lint_manuscript_whole_document.py __definitely_absent_topic__` with no matching `ssot/__definitely_absent_topic__/__definitely_absent_topic__.json`.  
+  Consequence: `topics` remains `0`, but the script exits `0` and prints OK.
+
+No finding: probe keyed to string a fix removes; idempotency guard satisfied by own comment/marker; instrument reading different copy; merged-cell/off-by-one tabulation; zero conflated with absent; negation dropped; wrapper status code reported instead of work.
+
+COULD NOT DETERMINE: selector keyed to corpus form, because the actual `ssot` corpus layout is not in the packet.
+tokens used
+19,311
+Defects found:
+
+- **Line 73, check that cannot fail for short repeated tables.**  
+  Exact input: `ppj.project = lambda obj: [NS(key="a", paras=[], refusals=[], tables=[("A", ["h"], [["x"]], [])]), NS(key="b", paras=[], refusals=[], tables=[("B", ["h"], [["x"]], [])])]`; then `check("t", {})`.  
+  Consequence: identical table rows are accepted whenever their JSON string is `<= 80` chars, despite D2 claiming “same rows” are refused.
+
+- **Line 54, values compared as text where line endings differ.**  
+  Exact input: `p1 = "A"*60 + "\r\n" + "B"*60`; `p2 = "A"*60 + "\n" + "B"*60`; projector returns those as paragraphs in two sections.  
+  Consequence: the same rendered paragraph can evade D1 solely because CRLF and LF are different string keys.
+
+- **Line 91, D3 does not enforce “another section”.**  
+  Exact input: projector returns `[NS(key="methods", paras=[("uses n", ["n"])], refusals=[("missing", ["n"])], tables=[])]`.  
+  Consequence: one section can be reported as “refused in methods and USED in methods”, contradicting the stated cross-section defect.
+
+- **Lines 107 and 148, check can pass without assessing requested input.**  
+  Exact input: run `python scripts/lint_manuscript_whole_document.py __definitely_absent_topic__` with no matching `ssot/__definitely_absent_topic__/__definitely_absent_topic__.json`.  
+  Consequence: `topics` remains `0`, but the script exits `0` and prints OK.
+
+No finding: probe keyed to string a fix removes; idempotency guard satisfied by own comment/marker; instrument reading different copy; merged-cell/off-by-one tabulation; zero conflated with absent; negation dropped; wrapper status code reported instead of work.
+
+COULD NOT DETERMINE: selector keyed to corpus form, because the actual `ssot` corpus layout is not in the packet.

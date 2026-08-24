@@ -1,0 +1,11 @@
+1. **IS A READER OWED THIS?** 
+NOT OWED. It is an internal pipeline provenance note recording that the document's assembly process safely copied the numbers from the canonical run rather than recomputing them, rather than a finding, interpretation, or clinical caveat.
+
+2. **IF OWED: WHERE.** 
+N/A.
+
+3. **IS IT A DUPLICATE?** 
+The exact text is not a duplicate, but the underlying fact that heterogeneity metrics are inherited from the authoritative run is already established in `results.by_outcome.primary.heterogeneity.tau2_estimator` ("copied from this block's declared `estimator`") and the `r_output` block. This field is just the GRADE section's local receipt for those numbers.
+
+4. **WHAT WOULD BE LOST if this were simply deleted rather than shown?** 
+Nothing of value to a reader. Deleting it would only remove an internal bookkeeping trail proving that the GRADE builder script didn't perform a rogue secondary derivation. The actual heterogeneity numbers, the verbatim R output they come from, and their consequences for certainty remain fully intact and visible elsewhere in the object.

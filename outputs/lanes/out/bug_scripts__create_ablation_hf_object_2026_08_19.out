@@ -1,0 +1,1052 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a03186-9240-7f83-85cd-89fc64156cc4
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/create_ablation_hf_object_2026_08_19.py
+
+--- THE FILE, IN FULL ---
+"""CREATE the `ablation-af-heart-failure` object -- one of the three reviews
+`ablation-af-review` was split into.
+
+CREATES, AND REFUSES TO OVERWRITE. If the object already exists this script exits without
+touching it: a create script that silently replaces is a wholesale write, which is the class
+this repository has met six times.
+
+WHAT IT WRITES, and where each part comes from:
+  question / title      composed for THIS review and traceable to the two trials' own
+                        registry fields -- never a copied registry string, which is the defect
+                        that blocked the parent topic
+  inputs.trials         carried across from `ablation-af-review` WITH their original
+                        provenance, not re-typed
+  screening             criteria derived post hoc, `predefined: false` on its face
+  screening_of_remainder  the 43 verdicts from
+                        evidence/2026-08-19-batch1/ablation_hf_screening.json
+  shared_with_other_topics  P22: both trials appear in the sibling reviews BY DESIGN
+  results.by_outcome    A REFUSAL TO POOL, with the pool it declines shown beside it
+"""
+import io
+import json
+import math
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+TOPIC = "ablation-af-heart-failure"
+DEST_DIR = os.path.join(REPO, "ssot", TOPIC)
+DEST = os.path.join(DEST_DIR, TOPIC + ".json")
+SRC = os.path.join(REPO, "ssot", "ablation-af-review", "ablation-af-review.json")
+SCREEN = os.path.join(REPO, "evidence", "2026-08-19-batch1", "ablation_hf_screening.json")
+Z = 1.959963984540054
+
+QUESTION = ("In adults with atrial fibrillation and heart failure, what is the effect of "
+            "catheter ablation of atrial fibrillation compared with medical rate- or "
+            "rhythm-control therapy on the composite of all-cause mortality and heart-failure "
+            "events?")
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    if os.path.exists(DEST):
+        print("REFUSED: %s already exists. This script creates; it does not overwrite." % DEST)
+        return 1
+
+    src = json.load(io.open(SRC, encoding="utf-8"))
+    screen = json.load(io.open(SCREEN, encoding="utf-8"))
+    keep = {"NCT00643188", "NCT01420393"}
+    trials = [t for t in src["inputs"]["trials"] if t.get("nct") in keep]
+    if len(trials) != 2:
+        print("REFUSED: expected 2 trials carried across, got %d" % len(trials))
+        return 1
+
+    per = [t for t in src["results"]["by_outcome"]["primary"]["per_trial"]
+           if t.get("nct") in keep]
+    ys = [math.log(t["point"]) for t in per]
+    ses = [(math.log(t["ci_high"]) - math.log(t["ci_low"])) / (2 * Z) for t in per]
+    w = [1.0 / s ** 2 for s in ses]
+    fe = sum(a * b for a, b in zip(w, ys)) / sum(w)
+    q = sum(a * (b - fe) ** 2 for a, b in zip(w, ys))
+    mu, se = fe, math.sqrt(1.0 / sum(w))
+
+    obj = {
+        "app_id": TOPIC,
+        "schema_version": src.get("schema_version"),
+        "title": "Catheter ablation of atrial fibrillation in patients with heart failure, "
+                 "against medical rate- or rhythm-control therapy",
+        "question": QUESTION,
+        "question_provenance": {
+            "state": "COMPOSED FOR THIS REVIEW, TRACEABLE TO NAMED REGISTRY FIELDS",
+            "not_a_copied_registry_string": (
+                "The parent object's question WAS a copied registry string -- CABANA's primary "
+                "outcome measure, truncated at 120 characters mid-word, filling `title`, "
+                "`question` and both outcome fields at once. That is the defect this split was "
+                "decided from. This question is composed, and every limb of it points at a "
+                "field: POPULATION at conditionsModule.conditions of both included trials "
+                "('Atrial Fibrillation', 'Heart Failure'), INTERVENTION and COMPARATOR at "
+                "their armGroups, and the OUTCOME at each trial's registered primary."),
+            "checkable_by": "scripts/lint_question_is_a_question.py",
+        },
+        "built": "2026-08-19",
+        "build_mode": "split_from_parent",
+        "split_provenance": {
+            "parent": "ablation-af-review",
+            "decision": "DECIDED-ablation-af-review-2026-08-19.md",
+            "why_three_and_not_one": (
+                "The parent's question was ambiguous between three legitimate readings and the "
+                "packet framed the choice as WHICH TRIALS TO DROP. Choosing is a decision to "
+                "withhold evidence from whichever readings lose, and nothing in this project's "
+                "guard set catches that -- a dropped trial leaves no trace in any object. "
+                "PAGE-STANDARD P21."),
+            "siblings": ["ablation-af-medical-therapy", "early-rhythm-control-af"],
+        },
+        "shared_with_other_topics": {
+            "_rule": "P22 -- sharing is legitimate; UNRECORDED sharing is not.",
+            "computed_against": "the included sets of the two sibling reviews, which are "
+                                "declared in DECIDED-ablation-af-review-2026-08-19.md",
+            "shared": {
+                "NCT00643188": {
+                    "acronym": "CASTLE-AF",
+                    "also_in": ["ablation-af-medical-therapy", "early-rhythm-control-af"],
+                    "why": "It answers all three questions. It randomised catheter ablation "
+                           "against conventional therapy (so it belongs to the "
+                           "ablation-vs-medical-therapy review), it is a rhythm-control "
+                           "strategy trial (so it belongs to the rhythm-control review), and "
+                           "it required heart failure at entry (so it belongs here). BY "
+                           "DESIGN, not by accident."},
+                "NCT01420393": {
+                    "acronym": "RAFT-AF",
+                    "also_in": ["ablation-af-medical-therapy", "early-rhythm-control-af"],
+                    "why": "Same three questions, same reason. Its conditionsModule names "
+                           "Heart Failure first."},
+            },
+            "a_corpus_level_k_must_not_be_obtained_by_summing": (
+                "BOTH of this review's two trials also appear in both sibling reviews. Adding "
+                "the three reviews' k together gives 9 where the distinct evidence base is 4 "
+                "trials. Any corpus-level count computed by summing per-topic k DOUBLE-COUNTS, "
+                "and roughly a fifth of this corpus's registration identities were already "
+                "shared across topics before this split made it deliberate."),
+        },
+        "sources": src.get("sources") or {},
+        "outcomes": [{
+            "id": "primary",
+            "name": "Composite of all-cause mortality and heart-failure events",
+            "definition": ("Time to first occurrence of death from any cause or a "
+                           "heart-failure event, as each trial's own registered primary "
+                           "composite."),
+            "definition_note": ("THE TWO TRIALS DO NOT DEFINE THE HEART-FAILURE LIMB THE SAME "
+                                "WAY, and that is recorded here rather than in a footnote -- "
+                                "see results.by_outcome.primary.poolable_reason."),
+            "measure": "HR",
+            "effect_scale": "log",
+            "type": "primary",
+            "estimand": {"id": "primary", "family": "time-to-first-event",
+                         "model": "random-effects"},
+            "comparator": "medical rate- or rhythm-control therapy, or conventional care",
+            "comparator_type": "active",
+            "direction_of_benefit": "lower is better",
+            "null_value": 1,
+        }],
+        "inputs": {"trials": trials},
+        "screening": {
+            "eligibility_provenance": {
+                "state": "DERIVED_POST_HOC",
+                "predefined": False,
+                "post_hoc": True,
+                "derived": True,
+                "predefined_is_false_because": (
+                    "These criteria were written on 2026-08-19, when the parent topic was "
+                    "split into three reviews -- AFTER the included set existed. `false` is "
+                    "asserted rather than left null because the derivation order is known: the "
+                    "trials came first. That is the honest label and it is worse than null, "
+                    "which is why it is on the block's face."),
+                "authority_it_satisfies": "MECIR R29/R30/R31 -- the review STATES its "
+                                          "eligibility criteria.",
+                "authority_it_does_NOT_establish": "MECIR C5/C7 -- criteria DEFINED IN ADVANCE.",
+                "what_would_settle_it": "a protocol record timestamped before the first "
+                                        "executed query",
+                "elements": [
+                    {"element": "POPULATION",
+                     "criterion": "adults with atrial fibrillation AND heart failure or "
+                                  "left-ventricular dysfunction",
+                     "auditable_against": "protocolSection.conditionsModule.conditions",
+                     "settles_it": True,
+                     "evidence": "Both included registrations list Atrial Fibrillation and "
+                                 "Heart Failure among their conditions."},
+                    {"element": "INTERVENTION",
+                     "criterion": "catheter-based ablation of atrial fibrillation -- pulmonary "
+                                  "vein isolation, radiofrequency or cryoballoon -- as the "
+                                  "randomised intervention",
+                     "auditable_against": "protocolSection.armsInterventionsModule.armGroups",
+                     "settles_it": True,
+                     "evidence_and_the_judgement_it_carries": (
+                         "AV-NODE AND AV-JUNCTION ABLATION ARE NOT THIS INTERVENTION. They "
+                         "ablate the conduction system, require a permanent pacemaker, and are "
+                         "RATE CONTROL DELIVERED BY ABLATION -- they do not restore sinus "
+                         "rhythm. Eight of the twenty exclusions turn on this one distinction "
+                         "and every one of them says `ablation` in its arm labels, which is "
+                         "why identity is taken from what the arm DOES rather than from the "
+                         "word it contains. TWO OF THE EIGHT -- NCT01522898 and NCT06833138 -- "
+                         "register EXACTLY this review's estimand, so the boundary is what "
+                         "excludes them and not the outcome. A reader who draws the line "
+                         "elsewhere can see precisely what including them would add. "
+                         "Surgical maze ablation is excluded on the same limb, and drug trials "
+                         "run after an ablation are excluded because the randomised contrast "
+                         "is the drug.")},
+                    {"element": "COMPARATOR",
+                     "criterion": "medical therapy -- rate- or rhythm-control drugs, or "
+                                  "conventional / usual / standard care",
+                     "auditable_against": "protocolSection.armsInterventionsModule.armGroups",
+                     "settles_it": True,
+                     "evidence": "Eight exclusions are ablation-against-ablation technique "
+                                 "comparisons or single-arm studies with no control declared. "
+                                 "A NO_INTERVENTION arm counts as medical therapy where the "
+                                 "registration describes it as conventional or usual care."},
+                    {"element": "ESTIMAND (poolability, NOT eligibility)",
+                     "criterion": "a time-to-first-event composite of all-cause mortality with "
+                                  "heart-failure hospitalisation or heart-failure events, as a "
+                                  "hazard ratio",
+                     "auditable_against": "protocolSection.outcomesModule, EVERY rank",
+                     "settles_it": True,
+                     "evidence": "Eligibility deliberately does NOT turn on the reported "
+                                 "outcome -- Handbook s3.2.4, because making eligibility "
+                                 "depend on what a trial reported invites outcome-reporting "
+                                 "bias. Poolability is a separate axis under s10.9, and "
+                                 "ELIGIBLE_NOT_POOLABLE means the estimand appears at NO rank, "
+                                 "primary or secondary."},
+                ],
+            },
+        },
+        "screening_of_remainder": {"ablation_hf_2026_08_19": screen},
+        "results": {"by_outcome": {"primary": {
+            "k": 2,
+            "estimand_id": "primary",
+            "model": "random-effects",
+            "estimator": "DerSimonian-Laird",
+            "estimator_used": "DerSimonian-Laird",
+            "comparator_type": "active",
+            "favours": "treatment",
+            "poolable": False,
+            "poolable_reason": (
+                "THE TWO TRIALS DEFINE THE HEART-FAILURE LIMB OF THEIR COMPOSITE DIFFERENTLY, "
+                "AND THE REGISTRY STATES BOTH. CASTLE-AF counts 'All-cause mortality or "
+                "worsening heart failure requiring unplanned HOSPITALIZATION'. RAFT-AF counts "
+                "all-cause mortality plus heart-failure events, where an event is an admission "
+                "of more than 24 hours OR treatment in an emergency department OR a same-day "
+                "access clinic OR an infusion centre OR an unscheduled visit for intravenous "
+                "diuretic with an increase in chronic heart-failure therapy. RAFT-AF's limb "
+                "counts OUTPATIENT events that CASTLE-AF does not count at all. Two composites "
+                "of the same SHAPE are not the same QUANTITY, and pooling them would report an "
+                "average over two definitions as though it were one effect."),
+            "the_split_did_not_dissolve_this": (
+                "Stated plainly because it would be easy to read the split as having fixed it. "
+                "THE SPLIT FIXED THE QUESTION, NOT THE ESTIMAND. The parent object refused to "
+                "pool four trials measuring four different composites; this review refuses to "
+                "pool two measuring two. Correctly scoping a review does not make its trials "
+                "measure the same thing."),
+            "pooled": {"withdrawn": True, "point": None,
+                       "withdrawn_because": "see poolable_reason"},
+            "the_pool_this_refusal_declines_to_report": {
+                "_why_shown": (
+                    "SHOWN SO THE COST OF THE REFUSAL IS INSPECTABLE, and labelled so it "
+                    "cannot be mistaken for this review's answer. A reader who judges the two "
+                    "heart-failure definitions close enough to combine can see exactly what "
+                    "they would get; a reader who agrees with the refusal can see that nothing "
+                    "is being hidden by it."),
+                "measure": "HR", "k": 2,
+                "point": round(math.exp(mu), 4),
+                "ci_low": round(math.exp(mu - Z * se), 4),
+                "ci_high": round(math.exp(mu + Z * se), 4),
+                "q": round(q, 4), "df": 1, "tau2": 0.0, "i2_pct": 0.0,
+                "AND THIS IS THE POINT WORTH TAKING FROM THE PAGE": (
+                    "I-SQUARED IS EXACTLY ZERO AND Q IS 0.27 ON 1 DEGREE OF FREEDOM. The two "
+                    "trials are as statistically consistent as two trials can be -- and they "
+                    "still measure different things. HETEROGENEITY STATISTICS CANNOT DETECT AN "
+                    "ESTIMAND MISMATCH: they are computed from the numbers, and the numbers "
+                    "are all that survives extraction. A low I-squared is evidence that two "
+                    "estimates agree, and NO evidence that they answer the same question. Had "
+                    "this review pooled on the strength of I-squared = 0, every downstream "
+                    "check would have passed."),
+            },
+            "per_trial": [
+                {"trial_id": t["trial_id"], "nct": t["nct"], "measure": t["measure"],
+                 "point": t["point"], "ci_low": t["ci_low"], "ci_high": t["ci_high"],
+                 "ci_level": t["ci_level"],
+                 "endpoint_rank_in_its_own_trial": "PRIMARY",
+                 "outcome_definition": (
+                     "All-cause mortality or worsening heart failure requiring unplanned "
+                     "hospitalization" if t["nct"] == "NCT00643188" else
+                     "Composite of All-cause Mortality and Heart Failure Events, where an "
+                     "event includes outpatient intravenous diuretic administration"),
+                 "derivation": t["derivation"]}
+                for t in per],
+            "heterogeneity": {"q": round(q, 4), "df": 1, "tau2": 0.0, "i2": 0.0,
+                              "i2_definition": "Higgins (Q - df)/Q, clamped at 0",
+                              "note": "Computed for the pool this review DECLINES to report, "
+                                      "and carried here for that reason only."},
+            "heterogeneity_status": "not applicable -- nothing was pooled",
+        }}},
+        "config": src.get("config") or {},
+    }
+
+    os.makedirs(DEST_DIR, exist_ok=True)
+    with io.open(DEST, "w", encoding="utf-8") as fh:
+        fh.write(json.dumps(obj, indent=1, ensure_ascii=True))
+    print("created %s" % DEST)
+    print("   k                 %d" % 2)
+    print("   remainder         %d screened to 0" % screen["remainder"])
+    print("   pooling           REFUSED (%s)" % "different heart-failure event definitions")
+    print("   pool declined     HR %.4f (%.4f, %.4f), I2 %.1f%%"
+          % (math.exp(mu), math.exp(mu - Z * se), math.exp(mu + Z * se), 0.0))
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+
+codex
+I’ll verify the canonical context files, then line-number the reviewed module so the findings cite exact locations rather than inferred offsets.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Get-Content -Path F:\\ProjectIndex\\INDEX.md -TotalCount 40" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Get-Content -Path F:\\E156\\rewrite-workbook.txt -TotalCount 40" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=1; Get-Content -Path scripts'"\\create_ablation_hf_object_2026_08_19.py | ForEach-Object { '{0,4}: {1}' -f "'$i, $_; $i++ }' in F:\rapidmeta-ssot-shell
+ succeeded in 964ms:
+E156 REWRITE WORKBOOK
+sentinel:skip-file
+sentinel:claim-language-allow
+(Sentinel markers above:
+ - sentinel:skip-file: this workbook intentionally contains C:\Users\... PATH:
+   lines pointing to each project's local source directory â€” they're metadata,
+   not code. The marker keeps Sentinel from emitting ~16 P0 hardcoded-path
+   BLOCKs every push.
+ - sentinel:claim-language-allow: CURRENT BODY entries are the AI-drafted
+   summaries that students rewrite into hedged language â€” flagging overclaim
+   words IN those drafts is the whole pedagogical point, not a defect.
+   File-scope marker here suppresses the ~1293 claim-language WARNs on the
+   CURRENT BODY entries; the YOUR REWRITE entries are where the hedging
+   discipline matters and remains lintable in the rendered student board.)
+
+DENOMINATOR CONVENTION (added 2026-05-06 after review-findings P1-5):
+  Each entry header is `[N/total]` where N = ordinal insertion index and
+  `total` = current portfolio size as of the most recent reconcile sweep.
+  Older entries are back-rewritten on milestone boundaries (rather than
+  preserving their insertion-time denominator) to keep
+  reconcile_counts.py from flagging "WORKBOOK DRIFT". The pre-commit
+  guard (scripts/check_workbook_commit.py) blocks commits that bundle a
+  denominator sweep with substantive content edits to existing entries.
+
+======================================================================
+
+INSTRUCTIONS:
+- Replace text under YOUR REWRITE with your body (at most 156 words, 7 sentences)
+- S1=Question S2=Dataset S3=Method S4=Result(number+interval) S5=Robustness S6=Interpretation S7=Boundary(limitation)
+- Leave YOUR REWRITE blank to keep current version
+- Run: python C:/E156/scripts/apply_rewrites.py          (validate)
+- Run: python C:/E156/scripts/apply_rewrites.py --apply (apply)
+
+AUTHORSHIP RULE (mandatory for every submission):
+- Mahmood Ahmad (MA) must NEVER be listed as first author and NEVER as
+  last (senior) author. The student rewriter is first author. Last/senior
+  author must be a faculty supervisor or co-investigator distinct from MA.
+  MA's position is middle-author only (e.g. role: data curation, software,
+  methodology, supervision-of-tooling). This applies to every paper in
+  this workbook regardless of contribution depth.
+
+ succeeded in 966ms:
+<!-- sentinel:skip-file - portfolio registry; absolute paths ARE the data -->
+# C: Drive Project Index
+> **Last updated**: 2026-05-14 (C:\HTML apps focused repair batch continued: hub shell launch fix, static contracts across ten HTML app repos, NMA/living-meta/nma-dose-response landing and asset-link repairs, and NMA doc hardcoded-path cleanup. Prior SheafNMA v0.2.0, D-drive legacy smoke-contract continuation, CardioOracle lifecycle status freeze, C-drive model/project smoke-contract continuation, mahmood789 consolidation, Sentinel/Overmind JSONL and verification repair, C-drive reproducibility audit continuation, C-drive verification repair, D-drive repair batch, superapp, C-drive sweep, home-folder hardening, Trial Truthfulness Atlas, and portfolio notes retained below.)
+
+### C:\HTML apps focused repair batch (2026-05-14)
+> - `C:\HTML apps\hub\`: added a launchable `index.html` shell and static contract tests for required registry/runtime wiring; fixed `app.js` local `file://` launch resolution so the hub opened from `hub\index.html` links sibling apps from the parent HTML-apps directory instead of nesting paths under `hub`. Verification: `pytest -q -p no:cacheprovider` -> `3 passed`; `node --check app.js && node --check projects.js` -> PASS; headless Chrome smoke on `file:///mnt/c/HTML%20apps/hub/index.html` confirmed the page title and sibling app links. GitHub pushed: `mahmood726-cyber/hub` main `c1a6725`.
+> - `C:\HTML apps\evidence-board\`, `C:\HTML apps\focus-studio\`, `C:\HTML apps\kanban-lab\`: added pytest-visible static app shell contracts covering title/description, localStorage persistence hooks, key controls, and absence of unresolved templates or hardcoded local drive paths; added repo `.gitignore` entries for Python caches and `PROGRESS.md`. Verification: each `pytest -q -p no:cacheprovider` -> `2 passed` with the existing pytest `cache_dir` warning; scoped `git diff --check` -> PASS. GitHub pushed: `evidence-board` master `9a87c8b`, `focus-studio` master `0fa728b`, `kanban-lab` master `81cad38`.
+> - `C:\HTML apps\nma-pro-v2\`: fixed the landing page's broken app links from absent v6/v7 asset filenames to the current `e156-submission/assets/nma-pro-v8.0.html`, added static link-resolution contracts, and removed Sentinel P0 hardcoded local OneDrive paths from legacy docs. Verification: `pytest -q -p no:cacheprovider tests/test_smoke.py tests/test_static_links.py` -> `3 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=1 INFO=302` (pre-existing tracked autogen warning plus HTML a11y INFO). GitHub pushed: master `a2834e7` for the link fix and master `a74e385` for the P0 doc cleanup.
+> - `C:\HTML apps\IPD-Meta-Pro\` and `C:\HTML apps\Truthcert1\`: added static link-resolution contracts for landing-page local assets and canonical app entrypoints. Verification: `IPD-Meta-Pro` `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; `Truthcert1` same command -> `2 passed` with existing pytest `cache_dir` warning. GitHub pushed: `IPD-Meta-Pro` master `b26ee09`, `Truthcert1` master `81eddd3`.
+> - `C:\HTML apps\living-meta\`: repaired landing-page validation links that pointed to a missing HTML asset and an out-of-repo sibling path; linked the existing validation and limitations docs instead, and added a static link-resolution contract. Verification: `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=8` (pre-existing HTML a11y INFO). GitHub pushed: master `c3c8a9b`.
+> - `C:\HTML apps\Pairwiseai\`: added a static landing-page contract covering local link resolution, absence of unresolved templates/local drive paths, and the key app entrypoints under `e156-submission/assets`. Verification: `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=1731` (pre-existing HTML a11y INFO). GitHub pushed: master `2ade493`.
+> - `C:\HTML apps\nma-dose-response-app\`: pushed the existing smoke-blocker commit and added an E156 asset-bundle repair so `e156-submission\assets\index*.html` resolves its JS runtime dependencies from inside the assets folder; added a static link-resolution contract covering root and E156 app entrypoints. Verification: `pytest -q -p no:cacheprovider tests/test_smoke.py tests/test_static_links.py` -> `4 passed` with the existing pytest `cache_dir` warning; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=442` (pre-existing HTML a11y INFO). GitHub pushed: master `e95fae0` and `96594b6`.
+> - Push gate: Windows Git credential path succeeded after WSL Git lacked HTTPS credentials. Sentinel pre-push/manual scan verdicts were BLOCK=0; evidence-board INFO=18, focus-studio INFO=10, kanban-lab INFO=10, living-meta INFO=8, Pairwiseai INFO=1731, nma-dose-response-app INFO=442 (pre-existing P2 HTML accessibility notes); hub push emitted no Sentinel findings.
+> - Existing unrelated dirty files were left unstaged in these repos, mainly protocol/license/doc edits and untracked `paper\` outputs in the three app repos, plus pre-existing hub metadata/submission/style edits.
+
+### SheafNMA (2026-05-12; v0.2.0 real-NMA-corpus validation + 36-cell Ã— 1000-rep simulation + methods paper draft)
+> - `C:\Models\SheafNMA\` â€” cellular-sheaf inconsistency localization for network meta-analysis. v0.1.0 (2026-04-07) was math + single-file HTML dashboard + E156 #153 micro-paper on a synthetic 12-contrast network. v0.2.0 refactored the 457-LOC `generate_figures.py` into a `sheafnma/` package (`core`, `io`, `simulate`, `comparators`, `r_bridge`), validated on 13 R-netmeta built-in NMAs, and shipped a methods-paper draft for Research Synthesis Methods.
+> - Method: precision-weighted coboundary `F[e, treat1] = -1/SE_e, F[e, treat2] = +1/SE_e`; sheaf Laplacian `L = Fáµ€F` (symmetric PSD); WLS-solve node estimates with node 0 anchored; per-edge residuals `r_e = dÌƒ_e âˆ’ (F x*)_e` localize inconsistency; **Global Inconsistency Index** `GII = Î£ rÂ²` is the global statistic. One algebraic object yields both global + per-edge â€” complements (not replaces) node-splitting.
+> - Real-corpus headline: across **13 R-netmeta built-in NMAs** (Senn 2013 diabetes, Dias smokingcessation, Dong 2013 thrombolytics, Linde 2015/2016 acupuncture, Salanti antimanic, Baker, Dogliotti, Franchini, Gurusamy, Stowe, Woods, dietaryfat, parkinson) the global design-by-treatment Ï‡Â² (Higgins 2012) failed to reject in all 13. **SheafNMA flagged â‰¥1 localized inconsistency edge in 5 of those 13 (38.5%)** at the Youden-frozen threshold of **2.6912** â€” networks that look globally consistent harbor at least one inconsistent edge the global test misses.
+> - Simulation rigor: 36-cell grid (n_treatments âˆˆ {4,6,8} Ã— n_studies_per_edge âˆˆ {3,5,10} Ã— Ï„_inc âˆˆ {0,0.2,0.5,1.0}) Ã— **1000 replications per cell**, held-out training cell at (6,5,0.5) for Youden's-J threshold selection (frozen before evaluating remaining 35 cells). Type-I error at Ï„_inc=0 was **0.000 across all cells**. Mean per-edge sensitivity 0.981 / specificity 0.945 at Ï„_inc=0.5.
+> - Comparator suite: DBT-Ï‡Â² (Higgins 2012 Â§3.2, pure-Python), Bucher loop closure (Bucher 1997, pure-Python), node-splitting (Dias 2010, via `netmeta::netsplit` shelled to R 4.5.2). Per-edge agreement with node-splitting was 45.4% â€” asymmetric: SheafNMA flags 12/506 = 2.4% of edges vs node-splitting's 250/436 = 57% at p<0.05 Bonferroni-uncorrected (the calibrated Youden cut is much more conservative than a per-edge Î±-test). Â§4.2 of the paper explicitly explains this rather than presenting the 45.4% bare.
+> - Corpus export: `corpus/export_netmeta.R` handles 7 distinct netmeta dataset formats (contrast-level TE/seTE, arm-based event/n, arm-based mean/sd/n, wide multi-arm OR/MD, three-arm smokingcessation, rate-based IRR/person-years) and exports all 13 to `corpus/data/*.csv` in the sheafnma standard schema (`study, treat1, treat2, effect, se`).
+> - GitHub: `https://github.com/mahmood726-cyber/sheaf-nma` (master `6c7db13`, tag `v0.2.0`). Pages LIVE: `https://mahmood726-cyber.github.io/sheaf-nma/` (Phase-1 dashboard unchanged in v0.2). 33 tests passing; Sentinel BLOCK=0 WARN=0 (2 INFO = pre-existing HTML a11y items in the v0.1 dashboard).
+> - Workbook entry: `[153/919] SheafNMA`. CURRENT BODY updated 2026-05-12 to the v0.2 156-word / 7-sentence body (replaces v0.1 synthetic-"smoking cessation" framing with the real netmeta corpus). SUBMITTED `[ ]`; YOUR REWRITE preserved untouched per workbook protection rules. Target: Research Synthesis Methods full methods paper (`paper/sheafnma_v2.md`, 1190 words drafted; [TODO] prose blocks in Â§1 Background / Â§4.3 case studies / Â§5 Discussion) + SynthÄ“sis Methods Note companion (`paper/methods_note.md`, 156-word).
+> - Known landmine: `Dong2013` netsplit fails inside netmeta's multi-arm validator ("wrong number of comparisons"); SheafNMA + DBT + Bucher still run on it, only `netsplit_p` column is blank for its 70 edges.
+> - v0.2 deferrals (spec Â§10): multi-arm covariance correction (single-D stalks only), higher-D stalks (Phase 1 Â§3.4 future work), Bayesian sheaf priors, OTS / Bitcoin anchor (broken on Py 3.13 Windows per `lessons.md`).
+
+### hksj-q-floor-atlas (2026-05-12; 8th Pairwise70 atlas; tags prereg-v0.0.1 + v0.1.0)
+> - `C:\Projects\hksj-q-floor-atlas\` â€” 8th calibration atlas in the Pairwise70 series. Sister to `cochrane-modern-re` (engine source), `repro-floor-atlas`, `responder-floor-atlas`, `trial-truthfulness-atlas`, `africa-tb-atlas`, `pactr-hiddenness-atlas`, `africa-hiv-prep-atlas`.
+> - Question: how often does omitting the `max(1, Q/(k-1))` floor on HKSJ variance, in the I^2=0 regime where un-floored HKSJ narrows below REML+Wald, overstate precision across the Cochrane CDSR? Pre-registered via `prereg-v0.0.1` tag + 4 Internet Archive snapshots (Bitcoin OTS deferred â€” Python 3.13 SSL libeay32 bug per lessons.md; web-stamper fallback documented).
+> - Headline: D_1 (I^2=0, k>=2, converged) = 3,677 MAs = 57.6% of corpus. On D_1a (Q>0, n=3,536): median CI-width ratio (floored / un-floored) = 3.64x (IQR 1.60-10.56; 95th pct 57.4x); significance lost in 17.08% of MAs. D_1b (Q=0, n=141 = 3.83% of D_1): sig_loss 24.8%, ratio unbounded â€” un-floored HKSJ SE is exactly zero (the floor effect is unbounded); see `docs/AMENDMENTS.md` entry 1 for split rationale.
+> - Per k-stratum medians: k=2: 4.26x (sig_loss 8.6%); k=3: 3.64x (12.9%); k=4-5: 3.10x (13.1%); k=6-9: 3.18x (17.3%); k>=10: 3.80x (25.1%). sig_loss increases with k because higher-k pooled effects sit closer to null, so floor widening crosses zero more often.
+> - Engine: independent metafor pass via fork of cochrane-modern-re's `run_metafor.R` minus the floor block. Input parquet SHA-256 pinned in `docs/spec.md` sec.1.5 (`31434fb118c6ec44a025eeb43a90e35ef9e050711fa45aa2cb5c1244b2d89751`). 3 hand-verified golden MAs match metafor reference within 1e-6.
+> - GitHub: `https://github.com/mahmood726-cyber/hksj-q-floor-atlas` (master + tags `prereg-v0.0.1` and `v0.1.0`). Pages LIVE: `https://mahmood726-cyber.github.io/hksj-q-floor-atlas/`.
+> - 64 tests; Sentinel BLOCK=0 WARN=0 INFO=0; 7 IA snapshots recorded in `docs/preregistration.md`.
+> - Workbook entry: `[920/920] hksj-q-floor-atlas`; target SynthÄ“sis Methods Note (340w draft, â‰¤400 cap).
+> - v0.2 candidates (NOT in v0.1.0): published-CI matching ("is THIS Cochrane review wrong?"), PM/SJ/Bayesian Ï„Â² robustness, DL re-pooling, Bitcoin OTS once Python 3.13 issue is resolved.
+
+### D-drive legacy smoke-contract continuation (2026-05-12)
+> - `D:\Projects\mahmood789\786-MIII-Mean-single-group\`: fixed the placeholder issue-tracker link in `README.md` and added a pytest-visible static contract for the Shiny app package surface, sample-data schema, metafor workflow, downloads, and absence of local paths/template links. Verification: `pytest -q -p no:cacheprovider` -> `2 passed`; `git diff --check` -> PASS.
+
+ succeeded in 1863ms:
+   1: """CREATE the `ablation-af-heart-failure` object -- one of the three reviews
+   2: `ablation-af-review` was split into.
+   3: 
+   4: CREATES, AND REFUSES TO OVERWRITE. If the object already exists this script exits without
+   5: touching it: a create script that silently replaces is a wholesale write, which is the class
+   6: this repository has met six times.
+   7: 
+   8: WHAT IT WRITES, and where each part comes from:
+   9:   question / title      composed for THIS review and traceable to the two trials' own
+  10:                         registry fields -- never a copied registry string, which is the defect
+  11:                         that blocked the parent topic
+  12:   inputs.trials         carried across from `ablation-af-review` WITH their original
+  13:                         provenance, not re-typed
+  14:   screening             criteria derived post hoc, `predefined: false` on its face
+  15:   screening_of_remainder  the 43 verdicts from
+  16:                         evidence/2026-08-19-batch1/ablation_hf_screening.json
+  17:   shared_with_other_topics  P22: both trials appear in the sibling reviews BY DESIGN
+  18:   results.by_outcome    A REFUSAL TO POOL, with the pool it declines shown beside it
+  19: """
+  20: import io
+  21: import json
+  22: import math
+  23: import os
+  24: import sys
+  25: 
+  26: REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+  27: TOPIC = "ablation-af-heart-failure"
+  28: DEST_DIR = os.path.join(REPO, "ssot", TOPIC)
+  29: DEST = os.path.join(DEST_DIR, TOPIC + ".json")
+  30: SRC = os.path.join(REPO, "ssot", "ablation-af-review", "ablation-af-review.json")
+  31: SCREEN = os.path.join(REPO, "evidence", "2026-08-19-batch1", "ablation_hf_screening.json")
+  32: Z = 1.959963984540054
+  33: 
+  34: QUESTION = ("In adults with atrial fibrillation and heart failure, what is the effect of "
+  35:             "catheter ablation of atrial fibrillation compared with medical rate- or "
+  36:             "rhythm-control therapy on the composite of all-cause mortality and heart-failure "
+  37:             "events?")
+  38: 
+  39: 
+  40: def main():
+  41:     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+  42:     if os.path.exists(DEST):
+  43:         print("REFUSED: %s already exists. This script creates; it does not overwrite." % DEST)
+  44:         return 1
+  45: 
+  46:     src = json.load(io.open(SRC, encoding="utf-8"))
+  47:     screen = json.load(io.open(SCREEN, encoding="utf-8"))
+  48:     keep = {"NCT00643188", "NCT01420393"}
+  49:     trials = [t for t in src["inputs"]["trials"] if t.get("nct") in keep]
+  50:     if len(trials) != 2:
+  51:         print("REFUSED: expected 2 trials carried across, got %d" % len(trials))
+  52:         return 1
+  53: 
+  54:     per = [t for t in src["results"]["by_outcome"]["primary"]["per_trial"]
+  55:            if t.get("nct") in keep]
+  56:     ys = [math.log(t["point"]) for t in per]
+  57:     ses = [(math.log(t["ci_high"]) - math.log(t["ci_low"])) / (2 * Z) for t in per]
+  58:     w = [1.0 / s ** 2 for s in ses]
+  59:     fe = sum(a * b for a, b in zip(w, ys)) / sum(w)
+  60:     q = sum(a * (b - fe) ** 2 for a, b in zip(w, ys))
+  61:     mu, se = fe, math.sqrt(1.0 / sum(w))
+  62: 
+  63:     obj = {
+  64:         "app_id": TOPIC,
+  65:         "schema_version": src.get("schema_version"),
+  66:         "title": "Catheter ablation of atrial fibrillation in patients with heart failure, "
+  67:                  "against medical rate- or rhythm-control therapy",
+  68:         "question": QUESTION,
+  69:         "question_provenance": {
+  70:             "state": "COMPOSED FOR THIS REVIEW, TRACEABLE TO NAMED REGISTRY FIELDS",
+  71:             "not_a_copied_registry_string": (
+  72:                 "The parent object's question WAS a copied registry string -- CABANA's primary "
+  73:                 "outcome measure, truncated at 120 characters mid-word, filling `title`, "
+  74:                 "`question` and both outcome fields at once. That is the defect this split was "
+  75:                 "decided from. This question is composed, and every limb of it points at a "
+  76:                 "field: POPULATION at conditionsModule.conditions of both included trials "
+  77:                 "('Atrial Fibrillation', 'Heart Failure'), INTERVENTION and COMPARATOR at "
+  78:                 "their armGroups, and the OUTCOME at each trial's registered primary."),
+  79:             "checkable_by": "scripts/lint_question_is_a_question.py",
+  80:         },
+  81:         "built": "2026-08-19",
+  82:         "build_mode": "split_from_parent",
+  83:         "split_provenance": {
+  84:             "parent": "ablation-af-review",
+  85:             "decision": "DECIDED-ablation-af-review-2026-08-19.md",
+  86:             "why_three_and_not_one": (
+  87:                 "The parent's question was ambiguous between three legitimate readings and the "
+  88:                 "packet framed the choice as WHICH TRIALS TO DROP. Choosing is a decision to "
+  89:                 "withhold evidence from whichever readings lose, and nothing in this project's "
+  90:                 "guard set catches that -- a dropped trial leaves no trace in any object. "
+  91:                 "PAGE-STANDARD P21."),
+  92:             "siblings": ["ablation-af-medical-therapy", "early-rhythm-control-af"],
+  93:         },
+  94:         "shared_with_other_topics": {
+  95:             "_rule": "P22 -- sharing is legitimate; UNRECORDED sharing is not.",
+  96:             "computed_against": "the included sets of the two sibling reviews, which are "
+  97:                                 "declared in DECIDED-ablation-af-review-2026-08-19.md",
+  98:             "shared": {
+  99:                 "NCT00643188": {
+ 100:                     "acronym": "CASTLE-AF",
+ 101:                     "also_in": ["ablation-af-medical-therapy", "early-rhythm-control-af"],
+ 102:                     "why": "It answers all three questions. It randomised catheter ablation "
+ 103:                            "against conventional therapy (so it belongs to the "
+ 104:                            "ablation-vs-medical-therapy review), it is a rhythm-control "
+ 105:                            "strategy trial (so it belongs to the rhythm-control review), and "
+ 106:                            "it required heart failure at entry (so it belongs here). BY "
+ 107:                            "DESIGN, not by accident."},
+ 108:                 "NCT01420393": {
+ 109:                     "acronym": "RAFT-AF",
+ 110:                     "also_in": ["ablation-af-medical-therapy", "early-rhythm-control-af"],
+ 111:                     "why": "Same three questions, same reason. Its conditionsModule names "
+ 112:                            "Heart Failure first."},
+ 113:             },
+ 114:             "a_corpus_level_k_must_not_be_obtained_by_summing": (
+ 115:                 "BOTH of this review's two trials also appear in both sibling reviews. Adding "
+ 116:                 "the three reviews' k together gives 9 where the distinct evidence base is 4 "
+ 117:                 "trials. Any corpus-level count computed by summing per-topic k DOUBLE-COUNTS, "
+ 118:                 "and roughly a fifth of this corpus's registration identities were already "
+ 119:                 "shared across topics before this split made it deliberate."),
+ 120:         },
+ 121:         "sources": src.get("sources") or {},
+ 122:         "outcomes": [{
+ 123:             "id": "primary",
+ 124:             "name": "Composite of all-cause mortality and heart-failure events",
+ 125:             "definition": ("Time to first occurrence of death from any cause or a "
+ 126:                            "heart-failure event, as each trial's own registered primary "
+ 127:                            "composite."),
+ 128:             "definition_note": ("THE TWO TRIALS DO NOT DEFINE THE HEART-FAILURE LIMB THE SAME "
+ 129:                                 "WAY, and that is recorded here rather than in a footnote -- "
+ 130:                                 "see results.by_outcome.primary.poolable_reason."),
+ 131:             "measure": "HR",
+ 132:             "effect_scale": "log",
+ 133:             "type": "primary",
+ 134:             "estimand": {"id": "primary", "family": "time-to-first-event",
+ 135:                          "model": "random-effects"},
+ 136:             "comparator": "medical rate- or rhythm-control therapy, or conventional care",
+ 137:             "comparator_type": "active",
+ 138:             "direction_of_benefit": "lower is better",
+ 139:             "null_value": 1,
+ 140:         }],
+ 141:         "inputs": {"trials": trials},
+ 142:         "screening": {
+ 143:             "eligibility_provenance": {
+ 144:                 "state": "DERIVED_POST_HOC",
+ 145:                 "predefined": False,
+ 146:                 "post_hoc": True,
+ 147:                 "derived": True,
+ 148:                 "predefined_is_false_because": (
+ 149:                     "These criteria were written on 2026-08-19, when the parent topic was "
+ 150:                     "split into three reviews -- AFTER the included set existed. `false` is "
+ 151:                     "asserted rather than left null because the derivation order is known: the "
+ 152:                     "trials came first. That is the honest label and it is worse than null, "
+ 153:                     "which is why it is on the block's face."),
+ 154:                 "authority_it_satisfies": "MECIR R29/R30/R31 -- the review STATES its "
+ 155:                                           "eligibility criteria.",
+ 156:                 "authority_it_does_NOT_establish": "MECIR C5/C7 -- criteria DEFINED IN ADVANCE.",
+ 157:                 "what_would_settle_it": "a protocol record timestamped before the first "
+ 158:                                         "executed query",
+ 159:                 "elements": [
+ 160:                     {"element": "POPULATION",
+ 161:                      "criterion": "adults with atrial fibrillation AND heart failure or "
+ 162:                                   "left-ventricular dysfunction",
+ 163:                      "auditable_against": "protocolSection.conditionsModule.conditions",
+ 164:                      "settles_it": True,
+ 165:                      "evidence": "Both included registrations list Atrial Fibrillation and "
+ 166:                                  "Heart Failure among their conditions."},
+ 167:                     {"element": "INTERVENTION",
+ 168:                      "criterion": "catheter-based ablation of atrial fibrillation -- pulmonary "
+ 169:                                   "vein isolation, radiofrequency or cryoballoon -- as the "
+ 170:                                   "randomised intervention",
+ 171:                      "auditable_against": "protocolSection.armsInterventionsModule.armGroups",
+ 172:                      "settles_it": True,
+ 173:                      "evidence_and_the_judgement_it_carries": (
+ 174:                          "AV-NODE AND AV-JUNCTION ABLATION ARE NOT THIS INTERVENTION. They "
+ 175:                          "ablate the conduction system, require a permanent pacemaker, and are "
+ 176:                          "RATE CONTROL DELIVERED BY ABLATION -- they do not restore sinus "
+ 177:                          "rhythm. Eight of the twenty exclusions turn on this one distinction "
+ 178:                          "and every one of them says `ablation` in its arm labels, which is "
+ 179:                          "why identity is taken from what the arm DOES rather than from the "
+ 180:                          "word it contains. TWO OF THE EIGHT -- NCT01522898 and NCT06833138 -- "
+ 181:                          "register EXACTLY this review's estimand, so the boundary is what "
+ 182:                          "excludes them and not the outcome. A reader who draws the line "
+ 183:                          "elsewhere can see precisely what including them would add. "
+ 184:                          "Surgical maze ablation is excluded on the same limb, and drug trials "
+ 185:                          "run after an ablation are excluded because the randomised contrast "
+ 186:                          "is the drug.")},
+ 187:                     {"element": "COMPARATOR",
+ 188:                      "criterion": "medical therapy -- rate- or rhythm-control drugs, or "
+ 189:                                   "conventional / usual / standard care",
+ 190:                      "auditable_against": "protocolSection.armsInterventionsModule.armGroups",
+ 191:                      "settles_it": True,
+ 192:                      "evidence": "Eight exclusions are ablation-against-ablation technique "
+ 193:                                  "comparisons or single-arm studies with no control declared. "
+ 194:                                  "A NO_INTERVENTION arm counts as medical therapy where the "
+ 195:                                  "registration describes it as conventional or usual care."},
+ 196:                     {"element": "ESTIMAND (poolability, NOT eligibility)",
+ 197:                      "criterion": "a time-to-first-event composite of all-cause mortality with "
+ 198:                                   "heart-failure hospitalisation or heart-failure events, as a "
+ 199:                                   "hazard ratio",
+ 200:                      "auditable_against": "protocolSection.outcomesModule, EVERY rank",
+ 201:                      "settles_it": True,
+ 202:                      "evidence": "Eligibility deliberately does NOT turn on the reported "
+ 203:                                  "outcome -- Handbook s3.2.4, because making eligibility "
+ 204:                                  "depend on what a trial reported invites outcome-reporting "
+ 205:                                  "bias. Poolability is a separate axis under s10.9, and "
+ 206:                                  "ELIGIBLE_NOT_POOLABLE means the estimand appears at NO rank, "
+ 207:                                  "primary or secondary."},
+ 208:                 ],
+ 209:             },
+ 210:         },
+ 211:         "screening_of_remainder": {"ablation_hf_2026_08_19": screen},
+ 212:         "results": {"by_outcome": {"primary": {
+ 213:             "k": 2,
+ 214:             "estimand_id": "primary",
+ 215:             "model": "random-effects",
+ 216:             "estimator": "DerSimonian-Laird",
+ 217:             "estimator_used": "DerSimonian-Laird",
+ 218:             "comparator_type": "active",
+ 219:             "favours": "treatment",
+ 220:             "poolable": False,
+ 221:             "poolable_reason": (
+ 222:                 "THE TWO TRIALS DEFINE THE HEART-FAILURE LIMB OF THEIR COMPOSITE DIFFERENTLY, "
+ 223:                 "AND THE REGISTRY STATES BOTH. CASTLE-AF counts 'All-cause mortality or "
+ 224:                 "worsening heart failure requiring unplanned HOSPITALIZATION'. RAFT-AF counts "
+ 225:                 "all-cause mortality plus heart-failure events, where an event is an admission "
+ 226:                 "of more than 24 hours OR treatment in an emergency department OR a same-day "
+ 227:                 "access clinic OR an infusion centre OR an unscheduled visit for intravenous "
+ 228:                 "diuretic with an increase in chronic heart-failure therapy. RAFT-AF's limb "
+ 229:                 "counts OUTPATIENT events that CASTLE-AF does not count at all. Two composites "
+ 230:                 "of the same SHAPE are not the same QUANTITY, and pooling them would report an "
+ 231:                 "average over two definitions as though it were one effect."),
+ 232:             "the_split_did_not_dissolve_this": (
+ 233:                 "Stated plainly because it would be easy to read the split as having fixed it. "
+ 234:                 "THE SPLIT FIXED THE QUESTION, NOT THE ESTIMAND. The parent object refused to "
+ 235:                 "pool four trials measuring four different composites; this review refuses to "
+ 236:                 "pool two measuring two. Correctly scoping a review does not make its trials "
+ 237:                 "measure the same thing."),
+ 238:             "pooled": {"withdrawn": True, "point": None,
+ 239:                        "withdrawn_because": "see poolable_reason"},
+ 240:             "the_pool_this_refusal_declines_to_report": {
+ 241:                 "_why_shown": (
+ 242:                     "SHOWN SO THE COST OF THE REFUSAL IS INSPECTABLE, and labelled so it "
+ 243:                     "cannot be mistaken for this review's answer. A reader who judges the two "
+ 244:                     "heart-failure definitions close enough to combine can see exactly what "
+ 245:                     "they would get; a reader who agrees with the refusal can see that nothing "
+ 246:                     "is being hidden by it."),
+ 247:                 "measure": "HR", "k": 2,
+ 248:                 "point": round(math.exp(mu), 4),
+ 249:                 "ci_low": round(math.exp(mu - Z * se), 4),
+ 250:                 "ci_high": round(math.exp(mu + Z * se), 4),
+ 251:                 "q": round(q, 4), "df": 1, "tau2": 0.0, "i2_pct": 0.0,
+ 252:                 "AND THIS IS THE POINT WORTH TAKING FROM THE PAGE": (
+ 253:                     "I-SQUARED IS EXACTLY ZERO AND Q IS 0.27 ON 1 DEGREE OF FREEDOM. The two "
+ 254:                     "trials are as statistically consistent as two trials can be -- and they "
+ 255:                     "still measure different things. HETEROGENEITY STATISTICS CANNOT DETECT AN "
+ 256:                     "ESTIMAND MISMATCH: they are computed from the numbers, and the numbers "
+ 257:                     "are all that survives extraction. A low I-squared is evidence that two "
+ 258:                     "estimates agree, and NO evidence that they answer the same question. Had "
+ 259:                     "this review pooled on the strength of I-squared = 0, every downstream "
+ 260:                     "check would have passed."),
+ 261:             },
+ 262:             "per_trial": [
+ 263:                 {"trial_id": t["trial_id"], "nct": t["nct"], "measure": t["measure"],
+ 264:                  "point": t["point"], "ci_low": t["ci_low"], "ci_high": t["ci_high"],
+ 265:                  "ci_level": t["ci_level"],
+ 266:                  "endpoint_rank_in_its_own_trial": "PRIMARY",
+ 267:                  "outcome_definition": (
+ 268:                      "All-cause mortality or worsening heart failure requiring unplanned "
+ 269:                      "hospitalization" if t["nct"] == "NCT00643188" else
+ 270:                      "Composite of All-cause Mortality and Heart Failure Events, where an "
+ 271:                      "event includes outpatient intravenous diuretic administration"),
+ 272:                  "derivation": t["derivation"]}
+ 273:                 for t in per],
+ 274:             "heterogeneity": {"q": round(q, 4), "df": 1, "tau2": 0.0, "i2": 0.0,
+ 275:                               "i2_definition": "Higgins (Q - df)/Q, clamped at 0",
+ 276:                               "note": "Computed for the pool this review DECLINES to report, "
+ 277:                                       "and carried here for that reason only."},
+ 278:             "heterogeneity_status": "not applicable -- nothing was pooled",
+ 279:         }}},
+ 280:         "config": src.get("config") or {},
+ 281:     }
+ 282: 
+ 283:     os.makedirs(DEST_DIR, exist_ok=True)
+ 284:     with io.open(DEST, "w", encoding="utf-8") as fh:
+ 285:         fh.write(json.dumps(obj, indent=1, ensure_ascii=True))
+ 286:     print("created %s" % DEST)
+ 287:     print("   k                 %d" % 2)
+ 288:     print("   remainder         %d screened to 0" % screen["remainder"])
+ 289:     print("   pooling           REFUSED (%s)" % "different heart-failure event definitions")
+ 290:     print("   pool declined     HR %.4f (%.4f, %.4f), I2 %.1f%%"
+ 291:           % (math.exp(mu), math.exp(mu - Z * se), math.exp(mu + Z * se), 0.0))
+ 292:     return 0
+ 293: 
+ 294: 
+ 295: if __name__ == "__main__":
+ 296:     sys.exit(main())
+
+codex
+The line map is ready. I’m checking only the source records this script names, because several possible failures depend on whether the parent object or screening file actually uses the assumed keys and counts.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "python - <<'PY'
+import json
+from pathlib import Path
+p=Path('ssot/ablation-af-review/ablation-af-review.json')
+obj=json.load(open(p,encoding='utf-8'))
+print('schema', obj.get('schema_version'))
+print('trial keys')
+for t in obj['inputs']['trials']:
+    if t.get('nct') in {'NCT00643188','NCT01420393'}:
+        print(t.get('nct'), sorted(t.keys()))
+print('per rows')
+for t in obj['results']['by_outcome']['primary']['per_trial']:
+    if t.get('nct') in {'NCT00643188','NCT01420393'}:
+        print(t)
+print('sources type', type(obj.get('sources')).__name__, obj.get('sources'))
+print('config type', type(obj.get('config')).__name__, obj.get('config'))
+PY" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "python - <<'PY'
+import json
+from pathlib import Path
+p=Path('evidence/2026-08-19-batch1/ablation_hf_screening.json')
+obj=json.load(open(p,encoding='utf-8'))
+print(type(obj).__name__)
+print(obj.keys() if isinstance(obj,dict) else 'not dict')
+print(json.dumps(obj, indent=2)[:2000])
+PY" in F:\rapidmeta-ssot-shell
+2026-08-24T02:09:42.824662Z ERROR codex_core::tools::router: error=Exit code: 1
+Wall time: 1.9 seconds
+Output:
+At line:2 char:11
++ python - <<'PY'
++           ~
+Missing file specification after redirection operator.
+At line:2 char:10
++ python - <<'PY'
++          ~
+The '<' operator is reserved for future use.
+At line:2 char:11
++ python - <<'PY'
++           ~
+The '<' operator is reserved for future use.
+At line:4 char:1
++ from pathlib import Path
++ ~~~~
+The 'from' keyword is not supported in this version of the language.
+At line:6 char:21
++ obj=json.load(open(p,encoding='utf-8'))
++                     ~
+Missing argument in parameter list.
+At line:8 char:16
++ print(obj.keys() if isinstance(obj,dict) else 'not dict')
++                ~
+An expression was expected after '('.
+At line:8 char:35
++ print(obj.keys() if isinstance(obj,dict) else 'not dict')
++                                   ~
+Missing argument in parameter list.
+At line:9 char:21
++ print(json.dumps(obj, indent=2)[:2000])
++                     ~
+Missing argument in parameter list.
+At line:9 char:33
++ print(json.dumps(obj, indent=2)[:2000])
++                                 ~
+Array index expression is missing or not valid.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : MissingFileSpecification
+ 
+
+ exited 1 in 1879ms:
+At line:2 char:11
++ python - <<'PY'
++           ~
+Missing file specification after redirection operator.
+At line:2 char:10
++ python - <<'PY'
++          ~
+The '<' operator is reserved for future use.
+At line:2 char:11
++ python - <<'PY'
++           ~
+The '<' operator is reserved for future use.
+At line:4 char:1
++ from pathlib import Path
++ ~~~~
+The 'from' keyword is not supported in this version of the language.
+At line:6 char:21
++ obj=json.load(open(p,encoding='utf-8'))
++                     ~
+Missing argument in parameter list.
+At line:8 char:16
++ print(obj.keys() if isinstance(obj,dict) else 'not dict')
++                ~
+An expression was expected after '('.
+At line:8 char:35
++ print(obj.keys() if isinstance(obj,dict) else 'not dict')
++                                   ~
+Missing argument in parameter list.
+At line:9 char:21
++ print(json.dumps(obj, indent=2)[:2000])
++                     ~
+Missing argument in parameter list.
+At line:9 char:33
++ print(json.dumps(obj, indent=2)[:2000])
++                                 ~
+Array index expression is missing or not valid.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : MissingFileSpecification
+ 
+
+2026-08-24T02:09:42.845233Z ERROR codex_core::tools::router: error=Exit code: 1
+Wall time: 1.9 seconds
+Output:
+At line:2 char:11
++ python - <<'PY'
++           ~
+Missing file specification after redirection operator.
+At line:2 char:10
++ python - <<'PY'
++          ~
+The '<' operator is reserved for future use.
+At line:2 char:11
++ python - <<'PY'
++           ~
+The '<' operator is reserved for future use.
+At line:4 char:1
++ from pathlib import Path
++ ~~~~
+The 'from' keyword is not supported in this version of the language.
+At line:6 char:21
++ obj=json.load(open(p,encoding='utf-8'))
++                     ~
+Missing argument in parameter list.
+At line:7 char:16
++ print('schema', obj.get('schema_version'))
++                ~
+Missing expression after ','.
+At line:7 char:17
++ print('schema', obj.get('schema_version'))
++                 ~~~~~~~
+Unexpected token 'obj.get' in expression or statement.
+At line:7 char:16
++ print('schema', obj.get('schema_version'))
++                ~
+Missing closing ')' in expression.
+At line:7 char:42
++ print('schema', obj.get('schema_version'))
++                                          ~
+Unexpected token ')' in expression or statement.
+At line:9 char:4
++ for t in obj['inputs']['trials']:
++    ~
+Missing opening '(' after keyword 'for'.
+Not all parse errors were reported.  Correct the reported errors and try again.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : MissingFileSpecification
+ 
+
+ exited 1 in 1918ms:
+At line:2 char:11
++ python - <<'PY'
++           ~
+Missing file specification after redirection operator.
+At line:2 char:10
++ python - <<'PY'
++          ~
+The '<' operator is reserved for future use.
+At line:2 char:11
++ python - <<'PY'
++           ~
+The '<' operator is reserved for future use.
+At line:4 char:1
++ from pathlib import Path
++ ~~~~
+The 'from' keyword is not supported in this version of the language.
+At line:6 char:21
++ obj=json.load(open(p,encoding='utf-8'))
++                     ~
+Missing argument in parameter list.
+At line:7 char:16
++ print('schema', obj.get('schema_version'))
++                ~
+Missing expression after ','.
+At line:7 char:17
++ print('schema', obj.get('schema_version'))
++                 ~~~~~~~
+Unexpected token 'obj.get' in expression or statement.
+At line:7 char:16
++ print('schema', obj.get('schema_version'))
++                ~
+Missing closing ')' in expression.
+At line:7 char:42
++ print('schema', obj.get('schema_version'))
++                                          ~
+Unexpected token ')' in expression or statement.
+At line:9 char:4
++ for t in obj['inputs']['trials']:
++    ~
+Missing opening '(' after keyword 'for'.
+Not all parse errors were reported.  Correct the reported errors and try again.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : MissingFileSpecification
+ 
+
+codex
+PowerShell rejected the Unix heredoc form, so I’m rerunning the same JSON inspection with a PowerShell-native here-string.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "@'
+import json
+from pathlib import Path
+p=Path('ssot/ablation-af-review/ablation-af-review.json')
+obj=json.load(open(p,encoding='utf-8'))
+print('schema', obj.get('schema_version'))
+print('trial keys')
+for t in obj['inputs']['trials']:
+    if t.get('nct') in {'NCT00643188','NCT01420393'}:
+        print(t.get('nct'), sorted(t.keys()))
+print('per rows')
+for t in obj['results']['by_outcome']['primary']['per_trial']:
+    if t.get('nct') in {'NCT00643188','NCT01420393'}:
+        print(t)
+print('sources type', type(obj.get('sources')).__name__, obj.get('sources'))
+print('config type', type(obj.get('config')).__name__, obj.get('config'))
+'@ | python -" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "@'
+import json
+from pathlib import Path
+p=Path('evidence/2026-08-19-batch1/ablation_hf_screening.json')
+obj=json.load(open(p,encoding='utf-8'))
+print(type(obj).__name__)
+print(obj.keys() if isinstance(obj,dict) else 'not dict')
+print(json.dumps(obj, indent=2)[:2000])
+'@ | python -" in F:\rapidmeta-ssot-shell
+ succeeded in 1708ms:
+schema 2-converted-from-extractor
+trial keys
+NCT00643188 ['all_ranks_read_utc', 'arms', 'by_outcome', 'comparator_type', 'comparator_type_basis', 'design', 'enrolled', 'id', 'name', 'nct', 'pmid', 'registered_other_outcomes', 'registered_primaries', 'registered_secondaries', 'registration_arm_count', 'registration_brief_title', 'registration_contrasts_read_utc', 'registration_counts_read_utc', 'registration_enrolment', 'registration_org_study_id', 'registration_read_utc']
+NCT01420393 ['all_ranks_read_utc', 'arms', 'by_outcome', 'comparator_type', 'comparator_type_basis', 'design', 'enrolled', 'id', 'name', 'nct', 'pmid', 'registered_other_outcomes', 'registered_primaries', 'registered_secondaries', 'registration_arm_count', 'registration_brief_title', 'registration_contrasts_read_utc', 'registration_counts_read_utc', 'registration_enrolment', 'registration_org_study_id', 'registration_other_outcome_counts', 'registration_primary_counts', 'registration_read_utc']
+per rows
+{'trial_id': 'CASTLE-AF', 'nct': 'NCT00643188', 'measure': 'HR', 'point': 0.62, 'ci_low': 0.43, 'ci_high': 0.87, 'ci_level': 95, 'estimand_id': "each trial's OWN primary composite -- FOUR DIFFERENT ONES", 'endpoint_rank_in_its_own_trial': 'PRIMARY', 'derivation': "the hazard ratio the source prints, stored on the log scale with the standard error its printed interval implies at that interval's own level"}
+{'trial_id': 'RAFT-AF', 'nct': 'NCT01420393', 'measure': 'HR', 'point': 0.71, 'ci_low': 0.49, 'ci_high': 1.03, 'ci_level': 95, 'estimand_id': "each trial's OWN primary composite -- FOUR DIFFERENT ONES", 'endpoint_rank_in_its_own_trial': 'PRIMARY', 'derivation': "the hazard ratio the source prints, stored on the log scale with the standard error its printed interval implies at that interval's own level"}
+sources type dict {}
+config type dict {'model': 'random-effects', 'method': 'DerSimonian-Laird inverse-variance on extracted effect estimates', 'scale': 'log'}
+
+ succeeded in 1735ms:
+dict
+dict_keys(['screened_utc', 'topic', 'criteria_status', 'remainder', 'tally', 'eligible_poolable_not_included_is_zero_because', 'exclusions_by_failing_limb', 'av_node_ablation_boundary', 'trials'])
+{
+  "screened_utc": "2026-08-19",
+  "topic": "ablation-af-heart-failure",
+  "criteria_status": "DERIVED POST HOC on 2026-08-19, when ablation-af-review was split into three reviews. predefined: false.",
+  "remainder": 43,
+  "tally": {
+    "EXCLUDED": 20,
+    "ELIGIBLE_NOT_POOLABLE": 12,
+    "ELIGIBLE_NO_RESULTS_YET": 11,
+    "ELIGIBLE_POOLABLE_NOT_INCLUDED": 0
+  },
+  "eligible_poolable_not_included_is_zero_because": "FOUR trials were the only candidates for this cell -- NCT03062241, NCT04160000, NCT04342832 and NCT04649801, each eligible with a composite primary. All four were checked LIVE against the registry and NONE has posted results (hasResults=false, no resultsSection). The zero is what four lookups returned, not a cell nobody filled.",
+  "exclusions_by_failing_limb": {
+    "INTERVENTION": 11,
+    "POPULATION": 1,
+    "COMPARATOR": 8
+  },
+  "av_node_ablation_boundary": "EIGHT exclusions turn on ONE judgement: AV-node / AV-junction ablation is not this review's intervention. It ablates the conduction system, requires a permanent pacemaker, and is rate control delivered by ablation rather than restoration of sinus rhythm. Every one of the eight says `ablation` in its arm labels, which is why identity is taken from what the arm DOES. Two of them -- NCT01522898 and NCT06833138 -- register EXACTLY this review's estimand, so the boundary is what excludes them and not the outcome. A reader who draws it elsewhere can see precisely what including them would add.",
+  "trials": [
+    {
+      "nct": "NCT00292162",
+      "verdict": "ELIGIBLE_NOT_POOLABLE",
+      "axis": "POOLABILITY",
+      "criterion": "ESTIMAND",
+      "field_read": "outcomesModule",
+      "reason": "ELIGIBLE: chronic heart failure + AF, radiofrequency ablation against a medical-therapy arm (ACE inhibitor, beta blocker, aldosterone antagonist). It HAS posted results. Its primaries are all LEFT VENTRICULAR EJECTION FRACTION by MRI (change, baseline, and at 6 months) and its secondaries are plasma BNP. No 
+
+codex
+**Defects Found**
+
+- **Merged-cell / count error**: line 54, with `SRC.results.by_outcome.primary.per_trial` containing only one kept row, e.g. `{"nct":"NCT00643188","point":0.62,"ci_low":0.43,"ci_high":0.87,"measure":"HR","ci_level":95,"trial_id":"CASTLE-AF","derivation":"x"}` while `SRC.inputs.trials` contains both kept NCTs. Consequence: the output still writes `k: 2`, `df: 1`, and a one-row `per_trial`, so the result count is false.
+
+- **Status reports wrapper, not work**: line 288, with `SCREEN={"remainder":43,"tally":{"ELIGIBLE_POOLABLE_NOT_INCLUDED":1}}`. Consequence: stdout says `43 screened to 0` even when the screening file records a nonzero eligible-poolable remainder.
+
+- **Zero/absent conflation**: lines 121 and 280, with `SRC` containing present-but-falsey fields such as `"sources":[]` or `"config":0`. Consequence: the script silently rewrites present values to `{}`, hiding malformed or meaningful input instead of preserving or rejecting it.
+
+**Shapes Not Proven Here**
+
+- Check that cannot fail: none found.
+- Probe keyed to string a fix removes: none found.
+- Idempotency guard satisfied by own comment/marker: none found.
+- Instrument reading different copy: none found in this file.
+- Selector keyed to unused corpus form: COULD NOT DETERMINE; missing full parent corpus schema.
+- CRLF/LF text comparison: none found.
+- Negation dropped: none found.
+tokens used
+41,025
+**Defects Found**
+
+- **Merged-cell / count error**: line 54, with `SRC.results.by_outcome.primary.per_trial` containing only one kept row, e.g. `{"nct":"NCT00643188","point":0.62,"ci_low":0.43,"ci_high":0.87,"measure":"HR","ci_level":95,"trial_id":"CASTLE-AF","derivation":"x"}` while `SRC.inputs.trials` contains both kept NCTs. Consequence: the output still writes `k: 2`, `df: 1`, and a one-row `per_trial`, so the result count is false.
+
+- **Status reports wrapper, not work**: line 288, with `SCREEN={"remainder":43,"tally":{"ELIGIBLE_POOLABLE_NOT_INCLUDED":1}}`. Consequence: stdout says `43 screened to 0` even when the screening file records a nonzero eligible-poolable remainder.
+
+- **Zero/absent conflation**: lines 121 and 280, with `SRC` containing present-but-falsey fields such as `"sources":[]` or `"config":0`. Consequence: the script silently rewrites present values to `{}`, hiding malformed or meaningful input instead of preserving or rejecting it.
+
+**Shapes Not Proven Here**
+
+- Check that cannot fail: none found.
+- Probe keyed to string a fix removes: none found.
+- Idempotency guard satisfied by own comment/marker: none found.
+- Instrument reading different copy: none found in this file.
+- Selector keyed to unused corpus form: COULD NOT DETERMINE; missing full parent corpus schema.
+- CRLF/LF text comparison: none found.
+- Negation dropped: none found.

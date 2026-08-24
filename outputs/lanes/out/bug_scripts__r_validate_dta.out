@@ -1,0 +1,241 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a0323d-886a-7371-b139-c0ac1770f4f4
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/r_validate_dta.py
+
+--- THE FILE, IN FULL ---
+"""Python wrapper that runs R mada::reitsma cross-validation on each DTA review.
+
+For each *_DTA_REVIEW.html in the repo:
+  1. Extract the JSON from <script type="application/json" id="dta-trials">
+  2. Build the trials array (primary_tier ∪ sensitivity_tier_added)
+  3. Write input JSON to outputs/r_validation/dta/<REVIEW>.input.json
+  4. Call Rscript scripts/r_validate_dta.R
+  5. Save result to outputs/r_validation/dta/<REVIEW>.json
+
+Idempotent.
+"""
+from __future__ import annotations
+import io, json, re, subprocess, sys
+from pathlib import Path
+
+# P1-3 fix: only wrap stdout once; idempotent against multiple imports.
+if (sys.platform == "win32"
+    and hasattr(sys.stdout, "buffer")
+    and getattr(sys.stdout, "encoding", "").lower() != "utf-8"):
+    try:
+        sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+
+REPO = Path(__file__).resolve().parent.parent
+OUT_DIR = REPO / "outputs" / "r_validation" / "dta"
+OUT_DIR.mkdir(parents=True, exist_ok=True)
+R_SCRIPT = REPO / "scripts" / "r_validate_dta.R"
+# P0-5 fix: env var → PATH lookup → hardcoded fallback.
+import os as _os, shutil as _shutil
+RSCRIPT_EXE = (
+    _os.environ.get("RSCRIPT_EXE")
+    or _shutil.which("Rscript")
+    or r"C:\Program Files\R\R-4.5.2\bin\Rscript.exe"
+)
+
+DTA_JSON_RE = re.compile(
+    r'<script\s+type="application/json"\s+id="dta-trials"\s*>(.*?)</script>',
+    re.DOTALL,
+)
+
+# P1-7 fix: path-traversal guard.
+import re as _re_p17
+_STEM_OK = _re_p17.compile(r"^[A-Za-z0-9_.-]+$")
+def _stem_safe(s) -> bool:
+    return isinstance(s, str) and bool(_STEM_OK.match(s)) and ".." not in s
+
+
+def extract_dta_trials(html_path: Path) -> dict | None:
+    text = html_path.read_text(encoding="utf-8", errors="replace")
+    m = DTA_JSON_RE.search(text)
+    if not m:
+        return None
+    try:
+        data = json.loads(m.group(1))
+    except json.JSONDecodeError as e:
+        print(f"  {html_path.name}: JSON parse error: {e}")
+        return None
+    trials = []
+    for tier_key in ("primary_tier", "sensitivity_tier_added", "sensitivity_tier"):
+        for t in (data.get(tier_key) or []):
+            if all(k in t for k in ("TP", "FP", "FN", "TN")):
+                trials.append({
+                    "studlab": t.get("studlab") or t.get("name") or "?",
+                    "TP": int(t["TP"]),
+                    "FP": int(t["FP"]),
+                    "FN": int(t["FN"]),
+                    "TN": int(t["TN"]),
+                    "tier": tier_key,
+                })
+    return {"review": html_path.stem, "trials": trials} if trials else None
+
+
+def run_rscript(input_path: Path, output_path: Path) -> tuple[bool, str]:
+    try:
+        result = subprocess.run(
+            [RSCRIPT_EXE, str(R_SCRIPT), str(input_path), str(output_path)],
+            capture_output=True, text=True, timeout=120,
+        )
+    except subprocess.TimeoutExpired:
+        return False, "timeout"
+    except FileNotFoundError:
+        return False, f"Rscript not found at {RSCRIPT_EXE}"
+    if result.returncode != 0:
+        return False, f"exit {result.returncode}: {result.stderr.strip()[:300]}"
+    return output_path.exists(), result.stdout.strip()
+
+
+def main() -> None:
+    dta_files = sorted(REPO.glob("*_DTA_REVIEW.html"))
+    print(f"Found {len(dta_files)} DTA reviews")
+    n_ok, n_skip, n_fail = 0, 0, 0
+    for hp in dta_files:
+        stem = hp.stem
+        extracted = extract_dta_trials(hp)
+        if not extracted:
+            print(f"  {stem}: no DTA trial JSON found — skip")
+            n_skip += 1
+            continue
+        if len(extracted["trials"]) < 4:
+            print(f"  {stem}: only k={len(extracted['trials'])} trials — reitsma needs k≥4")
+            n_skip += 1
+            continue
+        input_path  = OUT_DIR / f"{stem}.input.json"
+        output_path = OUT_DIR / f"{stem}.json"
+        input_path.write_text(json.dumps(extracted, indent=2), encoding="utf-8")
+        ok, msg = run_rscript(input_path, output_path)
+        if ok:
+            result = json.loads(output_path.read_text(encoding="utf-8"))
+            if result.get("fit_ok"):
+                print(f"  {stem}: [OK] k={result['k']} Se={result['sens_pool']:.3f} "
+                      f"Sp={result['spec_pool']:.3f} DOR={result['dor']:.1f} AUC={result.get('auc',0):.3f}")
+                n_ok += 1
+            else:
+                print(f"  {stem}: [WARN] fit failed — {result.get('error')}")
+                n_fail += 1
+        else:
+            print(f"  {stem}: [FAIL] Rscript failed: {msg}")
+            n_fail += 1
+    print(f"\nOK: {n_ok}  skipped: {n_skip}  failed: {n_fail}")
+
+
+if __name__ == "__main__":
+    main()
+
+codex
+Defects found:
+
+1. **Check that cannot fail**: lines 45-46, never called before lines 104-106.
+   Exact input: file `aa.._DTA_REVIEW.html` with valid DTA JSON.
+   Consequence: `_stem_safe("aa.._DTA_REVIEW")` would reject the stem, but the guard is unreachable and output is still written.
+
+2. **Selector keyed to one HTML form**: lines 37-39.
+   Exact input:
+   ```html
+   <script id="dta-trials" type="application/json">{"primary_tier":[{"studlab":"a","TP":1,"FP":0,"FN":0,"TN":1},{"studlab":"b","TP":1,"FP":0,"FN":0,"TN":1},{"studlab":"c","TP":1,"FP":0,"FN":0,"TN":1},{"studlab":"d","TP":1,"FP":0,"FN":0,"TN":1}]}</script>
+   ```
+   Consequence: valid JSON is skipped because attribute order differs.
+
+3. **Count duplication / tabulation defect**: lines 60-61.
+   Exact input JSON inside the matched script:
+   ```json
+   {"primary_tier":[{"studlab":"a","TP":1,"FP":0,"FN":0,"TN":1}],"sensitivity_tier_added":[{"studlab":"b","TP":1,"FP":0,"FN":0,"TN":1},{"studlab":"c","TP":1,"FP":0,"FN":0,"TN":1},{"studlab":"d","TP":1,"FP":0,"FN":0,"TN":1}],"sensitivity_tier":[{"studlab":"a","TP":1,"FP":0,"FN":0,"TN":1},{"studlab":"b","TP":1,"FP":0,"FN":0,"TN":1},{"studlab":"c","TP":1,"FP":0,"FN":0,"TN":1},{"studlab":"d","TP":1,"FP":0,"FN":0,"TN":1}]}
+   ```
+   Consequence: four studies become eight rows, changing `k` and model inputs.
+
+4. **Instrument reads stale/different copy**: lines 86 and 109.
+   Exact input state: pre-existing `outputs/r_validation/dta/X_DTA_REVIEW.json` contains `{"fit_ok":true,"k":4,"sens_pool":0.8,"spec_pool":0.9,"dor":10,"auc":0.7}`, and `RSCRIPT_EXE` points to a `.cmd` that exits `0` without writing output.
+   Consequence: the wrapper reports `[OK]` from stale JSON.
+
+5. **Zero conflated with absent**: line 112.
+   Exact input output JSON:
+   ```json
+   {"fit_ok":true,"k":4,"sens_pool":0.8,"spec_pool":0.9,"dor":10}
+   ```
+   Consequence: missing AUC is printed as `AUC=0.000`.
+
+No proven defect for CRLF/LF text comparison, negation parsing, or pipe `$?` wrapper-status reporting in this file.
+tokens used
+14,142
+Defects found:
+
+1. **Check that cannot fail**: lines 45-46, never called before lines 104-106.
+   Exact input: file `aa.._DTA_REVIEW.html` with valid DTA JSON.
+   Consequence: `_stem_safe("aa.._DTA_REVIEW")` would reject the stem, but the guard is unreachable and output is still written.
+
+2. **Selector keyed to one HTML form**: lines 37-39.
+   Exact input:
+   ```html
+   <script id="dta-trials" type="application/json">{"primary_tier":[{"studlab":"a","TP":1,"FP":0,"FN":0,"TN":1},{"studlab":"b","TP":1,"FP":0,"FN":0,"TN":1},{"studlab":"c","TP":1,"FP":0,"FN":0,"TN":1},{"studlab":"d","TP":1,"FP":0,"FN":0,"TN":1}]}</script>
+   ```
+   Consequence: valid JSON is skipped because attribute order differs.
+
+3. **Count duplication / tabulation defect**: lines 60-61.
+   Exact input JSON inside the matched script:
+   ```json
+   {"primary_tier":[{"studlab":"a","TP":1,"FP":0,"FN":0,"TN":1}],"sensitivity_tier_added":[{"studlab":"b","TP":1,"FP":0,"FN":0,"TN":1},{"studlab":"c","TP":1,"FP":0,"FN":0,"TN":1},{"studlab":"d","TP":1,"FP":0,"FN":0,"TN":1}],"sensitivity_tier":[{"studlab":"a","TP":1,"FP":0,"FN":0,"TN":1},{"studlab":"b","TP":1,"FP":0,"FN":0,"TN":1},{"studlab":"c","TP":1,"FP":0,"FN":0,"TN":1},{"studlab":"d","TP":1,"FP":0,"FN":0,"TN":1}]}
+   ```
+   Consequence: four studies become eight rows, changing `k` and model inputs.
+
+4. **Instrument reads stale/different copy**: lines 86 and 109.
+   Exact input state: pre-existing `outputs/r_validation/dta/X_DTA_REVIEW.json` contains `{"fit_ok":true,"k":4,"sens_pool":0.8,"spec_pool":0.9,"dor":10,"auc":0.7}`, and `RSCRIPT_EXE` points to a `.cmd` that exits `0` without writing output.
+   Consequence: the wrapper reports `[OK]` from stale JSON.
+
+5. **Zero conflated with absent**: line 112.
+   Exact input output JSON:
+   ```json
+   {"fit_ok":true,"k":4,"sens_pool":0.8,"spec_pool":0.9,"dor":10}
+   ```
+   Consequence: missing AUC is printed as `AUC=0.000`.
+
+No proven defect for CRLF/LF text comparison, negation parsing, or pipe `$?` wrapper-status reporting in this file.

@@ -1,0 +1,173 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a03252-5495-7e21-a3d5-01ac5bd96f21
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/remove_predimedplus_fabricated.py
+
+--- THE FILE, IN FULL ---
+#!/usr/bin/env python
+"""Remove the fabricated PREDIMED-Plus trial row from MEDITERRANEAN_DIET_CV.
+
+PREDIMED-Plus is a confirmed fabricated citation (no Lancet paper exists; pmid
+38924767 -> a perinatal paper; DOI 10.1016/S0140-6736(24)00822-0 unregistered),
+so its event counts have no source. Per user decision (2026-06-09): remove the
+trial row entirely. The two real arms (PREDIMED, CORDIOPREV) remain.
+
+Removes: the realData entry object (balanced-brace), the id from the canonical
+AL_IDS set and the nctAcronyms map, and the cosmetic '+ PREDIMED-Plus' in titles.
+Default dry-run; --apply to write.
+"""
+import io, re, sys, argparse
+from pathlib import Path
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+ROOT = Path(__file__).resolve().parent.parent
+FILE = ROOT / "MEDITERRANEAN_DIET_CV_REVIEW.html"
+KEY = '"LEGACY-ISRCTN-89898870-PREDIMEDPLUS"'
+
+def remove_realdata_entry(s):
+    """Remove `,KEY:{...}` (balanced) — returns (s, n_removed)."""
+    anchor = KEY + ":{"
+    i = s.find(anchor)
+    if i < 0:
+        return s, 0
+    # include a leading comma if present (entry is comma-separated in realData)
+    start = i
+    if s[i-1] == ",":
+        start = i - 1
+    j = i + len(anchor) - 1  # at '{'
+    depth, k = 0, j
+    while k < len(s):
+        if s[k] == "{": depth += 1
+        elif s[k] == "}":
+            depth -= 1
+            if depth == 0:
+                break
+        k += 1
+    # if no leading comma (was first entry), drop a trailing comma instead
+    end = k + 1
+    if start == i and end < len(s) and s[end] == ",":
+        end += 1
+    return s[:start] + s[end:], 1
+
+def main():
+    ap = argparse.ArgumentParser(); ap.add_argument("--apply", action="store_true")
+    args = ap.parse_args()
+    s0 = FILE.read_text(encoding="utf-8")
+    s = s0
+    changes = []
+
+    s, n = remove_realdata_entry(s)
+    changes.append(("realData entry (balanced)", n))
+
+    # canonical AL_IDS set element  ,"...PREDIMEDPLUS"
+    before = s
+    s = s.replace(',' + KEY, '')      # removes from AL_IDS array AND nctAcronyms key-part start
+    # nctAcronyms left a dangling :"PREDIMED-Plus" ? handle the full pair first instead:
+    s = before  # revert; do precise removals
+    s = s.replace(',' + KEY + ':"PREDIMED-Plus"', '', 1)   # nctAcronyms pair
+    changes.append(("nctAcronyms pair", 1 if (',' + KEY + ':"PREDIMED-Plus"') in before else 0))
+    before2 = s
+    s = s.replace(',' + KEY, '')      # AL_IDS array element (now the only remaining ,KEY)
+    changes.append(("AL_IDS element", before2.count(',' + KEY)))
+
+    # cosmetic title strings
+    n_title = s.count(" + PREDIMED-Plus")
+    s = s.replace(" + PREDIMED-Plus", "")
+    changes.append(("title '+ PREDIMED-Plus'", n_title))
+
+    # report
+    print("DRY-RUN" if not args.apply else "APPLY")
+    for label, n in changes:
+        print(f"  {label}: {n}")
+    remaining = s.count("PREDIMEDPLUS") + s.count("PREDIMED-Plus") + s.count("38924767") + s.count("00822-0")
+    print(f"  residual PREDIMEDPLUS/PREDIMED-Plus/38924767/00822-0 tokens: {remaining}")
+    if args.apply:
+        FILE.write_text(s, encoding="utf-8")
+        print("  written.")
+
+if __name__ == "__main__":
+    main()
+
+codex
+- Line 28: exact input `'"LEGACY-ISRCTN-89898870-PREDIMEDPLUS":{}'` to `remove_realdata_entry`.
+  Consequence: because `i == 0`, `s[i-1]` reads the last character, so a first realData entry preceded by no comma is tested against unrelated trailing text.
+
+- Lines 32-42: exact input `',"LEGACY-ISRCTN-89898870-PREDIMEDPLUS":{bad:{still_open}'` to `remove_realdata_entry`.
+  Consequence: the balanced-brace remover reports `n_removed == 1` even though no balanced closing brace exists, silently deleting to EOF instead of failing closed.
+
+- Line 60: exact file input `const nctAcronyms={"LEGACY-ISRCTN-89898870-PREDIMEDPLUS":"PREDIMED-Plus"}; const AL_IDS=["LEGACY-ISRCTN-89898870-PREDIMEDPLUS"];`.
+  Consequence: the nctAcronyms pair is not removed because it has no leading comma, and the later broad `replace(',' + KEY, '')` cannot remove either occurrence, leaving the fabricated trial in place.
+
+- Lines 69-70: exact file input `const x = "LEGACY-ISRCTN-89898870-PREDIMEDPLUS";` run without `--apply`.
+  Consequence: the script prints a residual count but exits `0`, so a wrapper can treat a failed removal as success.
+
+- Values compared as text / CRLF vs LF: none found.
+
+- Merged-cell and off-by-one tabulation/count errors: none found.
+
+- Zero conflated with absent: none found.
+
+- Negation dropped: none found.
+tokens used
+6,240
+- Line 28: exact input `'"LEGACY-ISRCTN-89898870-PREDIMEDPLUS":{}'` to `remove_realdata_entry`.
+  Consequence: because `i == 0`, `s[i-1]` reads the last character, so a first realData entry preceded by no comma is tested against unrelated trailing text.
+
+- Lines 32-42: exact input `',"LEGACY-ISRCTN-89898870-PREDIMEDPLUS":{bad:{still_open}'` to `remove_realdata_entry`.
+  Consequence: the balanced-brace remover reports `n_removed == 1` even though no balanced closing brace exists, silently deleting to EOF instead of failing closed.
+
+- Line 60: exact file input `const nctAcronyms={"LEGACY-ISRCTN-89898870-PREDIMEDPLUS":"PREDIMED-Plus"}; const AL_IDS=["LEGACY-ISRCTN-89898870-PREDIMEDPLUS"];`.
+  Consequence: the nctAcronyms pair is not removed because it has no leading comma, and the later broad `replace(',' + KEY, '')` cannot remove either occurrence, leaving the fabricated trial in place.
+
+- Lines 69-70: exact file input `const x = "LEGACY-ISRCTN-89898870-PREDIMEDPLUS";` run without `--apply`.
+  Consequence: the script prints a residual count but exits `0`, so a wrapper can treat a failed removal as success.
+
+- Values compared as text / CRLF vs LF: none found.
+
+- Merged-cell and off-by-one tabulation/count errors: none found.
+
+- Zero conflated with absent: none found.
+
+- Negation dropped: none found.

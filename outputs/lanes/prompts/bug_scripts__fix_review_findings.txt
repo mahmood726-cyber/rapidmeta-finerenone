@@ -1,0 +1,208 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/fix_review_findings.py
+
+--- THE FILE, IN FULL ---
+import io, sys, json, collections, re
+
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+P = r"F:\rapidmeta-ssot-shell\ssot\arni-hfref\arni-hfref.json"
+d = json.load(open(P, encoding="utf-8"), object_pairs_hook=collections.OrderedDict)
+log = []
+
+TBL2 = ("Cardiovascular death and heart failure hospitalization 12/95 (12.6) "
+        "8/95 (8.4) 1.83 (0.72-4.67) 0.205")
+
+# --- 1. the screening-log entry, which was factually wrong -------------------
+for r in d["screening"]["corpus"]:
+    if r.get("record_id") == "41396086":
+        r["decision"] = "INCLUDE"
+        r["axis_failed"] = None
+        r["synthesis_candidate"] = "Y"
+        r["quantity_reported_instead"] = None
+        r["quantity_reported"] = (
+            "Table 2 'Clinical Endpoints at 6 Months' reports the composite of "
+            "cardiovascular death and heart failure hospitalization as "
+            "12/95 (12.6%) vs 8/95 (8.4%), HR 1.83 (0.72-4.67), P=0.205, from "
+            "Cox proportional hazard models with treatment group and research "
+            "site as fixed-effect factors. That is a time-to-first-event "
+            "composite hazard ratio and it is the quantity this review pools.")
+        r["decision_corrected"] = (
+            "CORRECTED 2026-08-14. This record previously read 'exclude' on the "
+            "OUTCOME axis, with the reason 'No time-to-first-event hazard ratio "
+            "for the composite'. That was FALSE: the full text reports one in "
+            "Table 2, from a Cox model stated in the Methods. The error was "
+            "made against the abstract, which reports only the LVEF primary and "
+            "the hierarchical win ratio; nobody had read the table until the "
+            "full text was obtained. The trial was nonetheless adjudicated in "
+            "and pooled, so for a period this object pooled a trial its own "
+            "screening log called excluded -- a contradiction an independent "
+            "review found and correctly raised.")
+        log.append("screening record 41396086 -> INCLUDE, reason corrected")
+
+# --- 2/3. the cell's own source sentence, and the year ----------------------
+tr = [t for t in d["inputs"]["trials"] if t["id"] == "answer-hf"][0]
+bo = tr["by_outcome"]["cvdeath_or_hfh_first"]
+pv = bo["provenance"]
+pv["source_quotes"] = [TBL2]
+pv["quote_note"] = (
+    "Quoted verbatim from Table 2 of the JACC full text, obtained and read "
+    "2026-08-14. This cell previously carried a transcription flagged 'Not read "
+    "at the publisher by screener A', and that unquoted state is what allowed an "
+    "independent review to reasonably conclude the value was untraceable. The "
+    "cell now carries its sentence.")
+pv["model_statement_quote"] = (
+    "estimates of cardiovascular death and heart failure hospitalization at 6 "
+    "months reported using Cox proportional hazard models, with treatment group "
+    "and research site as fixed-effect factors. HRs, 95% CIs, and 2-sided P "
+    "values are reported.")
+tr["year"] = 2025
+log.append("ANSWER-HF cell now carries its Table 2 source sentence")
+
+raw = json.dumps(d, ensure_ascii=False)
+n_year = raw.count("JACC 2026")
+d = json.loads(raw.replace("JACC 2026;87(10):1220-1232",
+                           "JACC 2025;87(10):1220-1232"),
+               object_pairs_hook=collections.OrderedDict)
+log.append("JACC 2026 -> 2025 in %d place(s) (published 2025-11-09)" % n_year)
+
+# --- 4. component HRs, the all-cause row, and the secondary pools ------------
+tr = [t for t in d["inputs"]["trials"] if t["id"] == "answer-hf"][0]
+rows = tr["component_endpoints"]["rows"]
+
+
+def pe(point, lo, hi, p, quote):
+    return collections.OrderedDict(
+        measure="HR", point=point, ci_low=lo, ci_high=hi, ci_level=95,
+        p_value=p, source_tier="T1",
+        source_pointer="JACC 2025;87(10):1220-1232, Table 2, Clinical Endpoints "
+                       "at 6 Months",
+        access="OPEN to us as of 2026-08-14; full text obtained and read.",
+        read_or_derived="read", pooled_here=False,
+        why_not_pooled="This review's estimand is the composite. Component "
+                       "endpoints are shown because they are reported.",
+        quote=quote)
+
+
+for r in rows:
+    if r["endpoint"] == "Cardiovascular death":
+        r["published_effect"] = pe(1.27, 0.43, 3.81, 0.665,
+                                   "Cardiovascular death 7/95 (7.4) 6/95 (6.3) "
+                                   "1.27 (0.43-3.81) 0.665")
+        r.pop("no_published_effect_because", None)
+    elif r["endpoint"] == "First heart-failure hospitalisation":
+        r["published_effect"] = pe(1.42, 0.45, 4.46, 0.553,
+                                   "Heart failure hospitalization 7/95 (7.4) "
+                                   "5/95 (5.3) 1.42 (0.45-4.46) 0.553")
+        r.pop("no_published_effect_because", None)
+if not any(r["endpoint"] == "All-cause death" for r in rows):
+    rows.append(collections.OrderedDict(
+        endpoint="All-cause death", treatment_events=8, treatment_n=95,
+        control_events=8, control_n=95, source_tier="T1",
+        source_pointer="JACC 2025;87(10):1220-1232, Table 2.",
+        read_or_derived="read",
+        published_effect=pe(1.08, 0.40, 2.89, 0.879,
+                            "All-cause death 8/95 (8.4) 8/95 (8.4) "
+                            "1.08 (0.40-2.89) 0.879")))
+log.append("ANSWER-HF component HRs added; all-cause death row added (8/95 vs 8/95)")
+
+# --- 5. the directional defects ---------------------------------------------
+ms = d["manuscript"]
+for x in ms["discussion"]:
+    if "reduced the hazard" in x["text"]:
+        x["text"] = x["text"].replace(
+            "sacubitril/valsartan reduced the hazard of a first cardiovascular "
+            "death or heart failure hospitalisation relative to enalapril",
+            "the pooled hazard of a first cardiovascular death or heart failure "
+            "hospitalisation with sacubitril/valsartan relative to enalapril was "
+            "[[pooled]] ([[ci_low]] to [[ci_high]]), an interval that includes "
+            "no difference")
+        log.append("discussion: 'reduced the hazard' -> states the interval, "
+                   "which contains the null")
+    if "does not attempt a formal comparison with previous syntheses" in x["text"]:
+        x["text"] = re.sub(
+            r"This review does not attempt a formal comparison with previous "
+            r"syntheses,[^.]*\.",
+            "This review reconciles itself against the one published synthesis "
+            "on this comparison whose included-study table could be read, trial "
+            "by trial, and reports the checks applied to it with their "
+            "denominator in the section on comparison with published syntheses.",
+            x["text"])
+        log.append("discussion: the no-comparison claim contradicted a major "
+                   "section of this paper; corrected")
+ms["conclusions"] = ms["conclusions"].replace(
+    "One trial establishes this benefit; three further trials have not confirmed it.",
+    "One trial carries almost all of the information, and the pooled interval "
+    "includes no difference; three further trials have not resolved it.")
+log.append("conclusions: 'establishes this benefit' -> states what the interval "
+           "supports")
+
+# --- 6. the k fossils --------------------------------------------------------
+r = d["results"]["by_outcome"]["cvdeath_or_hfh_first"]
+r["sensitivity"]["leave_one_out_finding"] = \
+    r["sensitivity"]["leave_one_out_finding"].replace(
+        "the other four trials together sit at or above the null",
+        "the other three trials together sit at or above the null")
+r["handbook"]["conformance"] = r["handbook"]["conformance"].replace(
+    "This pool has three, so the comparison is RUN",
+    "This pool has four, so the comparison is RUN")
+r["count_panels"]["peters"]["note"] = r["count_panels"]["peters"]["note"].replace(
+    "With k = 3 it still has almost no power",
+    "With k = 4 it still has almost no power")
+log.append("three k fossils corrected (leave-one-out finding, handbook "
+           "conformance, Peters note)")
+# the 'two to three' statements are HISTORY -- they describe what the
+# reconciliation did at the time, and rewriting them would falsify the record.
+log.append("'k rose from two to three' left as-is in 3 places: those are "
+           "statements about what the reconciliation DID, not about current k")
+
+d.setdefault("claims_corrected", []).append(collections.OrderedDict([
+    ("claim", "that ANSWER-HF reports no time-to-first-event hazard ratio for "
+              "the composite, and is excluded on the OUTCOME axis"),
+    ("correction", "False on both counts. Table 2 of the JACC full text reports "
+                   "the composite as 12/95 vs 8/95, HR 1.83 (0.72-4.67), "
+                   "P=0.205, from Cox models stated in the Methods. The "
+                   "screening decision had been made against the abstract, "
+                   "which reports only the LVEF primary and the hierarchical "
+                   "win ratio. The trial is eligible and stays in the pool; k "
+                   "remains 4 and the pooled estimate is unchanged at 0.872 "
+                   "(0.746 to 1.018). The cell now carries its source sentence, "
+                   "which is what was actually missing."),
+    ("source_id", "JACC 2025;87(10):1220-1232 Table 2; doi:10.1016/j.jacc.2025.10.053"),
+    ("corrected_utc", "2026-08-14T00:00:00Z")]))
+
+json.dump(d, open(P, "w", encoding="utf-8"), indent=1, ensure_ascii=False)
+for x in log:
+    print(" *", x)

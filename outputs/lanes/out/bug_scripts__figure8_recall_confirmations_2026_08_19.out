@@ -1,0 +1,493 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a031a7-7040-7dc3-8407-8f6c7b087b01
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/figure8_recall_confirmations_2026_08_19.py
+
+--- THE FILE, IN FULL ---
+#!/usr/bin/env python3
+"""FIGURE 8 RECALL BARS -- confirmations, and the RETRACTION of my own correction.
+
+I TOLD MAHMOOD A DELIVERED FIGURE WAS WRONG. IT WAS NOT. This file exists so the retraction is
+as durable as the error.
+
+THE RETRACTION. I reported that `SUBMISSION-REFERENCES.md` was wrong to state the phase filter
+took recall "on ablation-af-review from 4/4 to 2/4", and asserted the true figure was 1/3 -> 3/3
+on `ablation-af-medical-therapy`. **BOTH FIGURES ARE TRUE AND THEY ARE DIFFERENT MEASUREMENTS.**
+
+    evidence/2026-08-19-batch1/phase_filter_recall_sweep.json, row `ablation-af-review`:
+        included 4, recall_with "2/4", recall_without "4/4", k0 143 -> 931.
+    evidence/2026-08-19-batch1/ablation_split_search.json, topic `ablation-af-medical-therapy`:
+        a 3-trial recall TARGET, Q1 with the filter 1/3, Q2 without it 3/3, k0 143 -> 931.
+
+THE k0 PAIR IS IDENTICAL IN BOTH -- 143 and 931 -- because it is THE SAME QUERY PAIR, scored
+against two different denominators: one topic's included set, and a hand-set 3-trial target in a
+different topic's ablation. The delivered figure is correct and must not be changed.
+
+WHY I GOT IT WRONG, because the cause is the reusable part. I searched for evidence containing
+recall fractions, found ONE file, and treated it as the corpus's answer. There was a second and
+more authoritative file -- a corpus-wide sweep across 10 structured queries -- that I never
+opened. **AN ABSENCE REPORTED BY MY OWN SEARCH IS NOT AN ABSENCE IN THE REPOSITORY**, which is
+the same sentence as PAGE_MAP and as the registry, arriving a third time and this time against
+the evidence directory. The rule "re-derive, never cite a secondary source" is necessary and was
+NOT sufficient: I re-derived from an incomplete search and published the result as a correction.
+
+    RE-DERIVATION IS ONLY AS GOOD AS THE ENUMERATION IT RE-DERIVES OVER. A re-derived figure
+    from a partial source set is a secondary source wearing a primary source's clothes.
+
+Everything below is confirmed against the recorded evidence and, for registration facts, against
+ClinicalTrials.gov at run time.
+"""
+import io
+import json
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(REPO, "ssot"))
+import ctgov_transport as X                                             # noqa: E402
+
+EV = os.path.join(REPO, "evidence", "2026-08-19-batch1")
+OUT = os.path.join(EV, "figure8_recall_confirmations.json")
+
+
+def reg(nct):
+    st, s, d = X.fetch_raw(nct, fields="protocolSection")
+    if st != X.OK:
+        return {"nct": nct, "state": "UNREACHABLE", "why": str(d)[:120]}
+    ps = s.get("protocolSection") or {}
+    return {
+        "nct": nct,
+        "acronym": (ps.get("identificationModule") or {}).get("acronym"),
+        "conditions_VERBATIM": (ps.get("conditionsModule") or {}).get("conditions"),
+        "phases_VERBATIM": (ps.get("designModule") or {}).get("phases"),
+        "enrollment": ((ps.get("designModule") or {}).get("enrollmentInfo") or {}).get("count"),
+        "read_utc": "2026-08-19",
+    }
+
+
+def run(apply_it):
+    sweep = json.load(io.open(os.path.join(EV, "phase_filter_recall_sweep.json"),
+                              encoding="utf-8"))
+    colc = json.load(io.open(os.path.join(EV, "colchicine_search_COMPLETE.json"),
+                             encoding="utf-8"))
+    apx = json.load(io.open(os.path.join(REPO, "ssot", "apixaban-vte-prophylaxis",
+                                         "apixaban-vte-prophylaxis.json"), encoding="utf-8"))
+    sglt = json.load(io.open(os.path.join(REPO, "ssot", "sglt2-hf", "sglt2-hf.json"),
+                             encoding="utf-8"))
+
+    abl_row = [r for r in sweep["rows"] if r["topic"] == "ablation-af-review"][0]
+    apx_db = apx["search"]["databases"]
+    q_with = [d for d in apx_db if "FIRST QUERY" in d["database"]][0]
+    q_without = [d for d in apx_db if "FIRST QUERY" not in d["database"]][0]
+    s_db = sglt["search"]["databases"]
+    s1 = [d for d in s_db if "QUERY 1" in d["database"]][0]
+    s2 = [d for d in s_db if "QUERY 2" in d["database"]][0]
+    sglt_phase = [r for r in sweep["rows"] if r["topic"] == "sglt2-hf"][0]
+
+    out = {
+        "built_utc": "2026-08-19",
+        "RETRACTION": {
+            "what_I_said": ("That SUBMISSION-REFERENCES.md was wrong to state the phase filter "
+                            "took recall on `ablation-af-review` from 4/4 to 2/4."),
+            "what_is_true": ("THE DELIVERED FIGURE IS CORRECT. phase_filter_recall_sweep.json "
+                             "records ablation-af-review with included=%d, recall_with=%s, "
+                             "recall_without=%s, k0 %d -> %d."
+                             % (abl_row["included"], abl_row["recall_with"],
+                                abl_row["recall_without"], abl_row["k0_with"],
+                                abl_row["k0_without"])),
+            "why_both_numbers_exist": ("The 1/3 -> 3/3 I quoted is from ablation_split_search"
+                                       ".json for topic `ablation-af-medical-therapy`, a "
+                                       "3-trial hand-set recall TARGET. The k0 pair is "
+                                       "IDENTICAL (143, 931) because it is the same query pair "
+                                       "scored against a different denominator."),
+            "action": "DO NOT CHANGE THIS BAR.",
+            "the_cause": ("I searched the evidence directory for files containing recall "
+                          "fractions, found one, and treated it as the answer. A second and "
+                          "more authoritative file -- a corpus-wide sweep over 10 structured "
+                          "queries -- was never opened. RE-DERIVATION IS ONLY AS GOOD AS THE "
+                          "ENUMERATION IT RE-DERIVES OVER."),
+        },
+        "bar_1_apixaban_vte_prophylaxis_phase_filter": {
+            "state": "CONFIRMED AS DESCRIBED",
+            "topic": "apixaban-vte-prophylaxis",
+            "records_with_the_phase_filter": q_with["records_returned"],
+            "records_without_it": q_without["records_returned"],
+            "recall_with": q_with["recall_on_included_set"],
+            "recall_without": q_without["recall_on_included_set"],
+            "EXACT_FRACTIONS": "0/1 -> 1/1",
+            "the_trial_lost": reg("NCT02366871"),
+            "why_total": ("The review's only included trial AT THE TIME OF THAT SEARCH was the "
+                          "PHASE2 one the filter dropped, so the phase-filtered search had ZERO "
+                          "recall on the review's entire evidence base."),
+            "CAVEAT_THE_DENOMINATOR_HAS_SINCE_CHANGED": (
+                "The object now holds %d trials. The 0/1 and 1/1 are against the included set "
+                "AS IT STOOD when that search ran, which is what the record states. Quoting "
+                "them against today's set would be wrong."
+                % len((apx.get("inputs") or {}).get("trials") or [])),
+            "DO_NOT_CONFUSE_WITH": ("`apixaban-vte`, a DIFFERENT topic, which the corpus sweep "
+                                    "records at included=2, recall 1/2 -> 2/2, losing the SAME "
+                                    "trial. Two topics, two denominators. This is exactly the "
+                                    "confusion that produced the retraction above."),
+        },
+        "bar_2_sglt2_hf_condition_term": {
+            "state": "CONFIRMED",
+            "EXACT_FRACTIONS": "3/4 -> 4/4",
+            "query_1": {"condition_term": "chronic heart failure",
+                        "records": s1["records_returned"],
+                        "missed": "NCT03619213 (DELIVER)"},
+            "query_2": {"condition_term": "heart failure",
+                        "records": s2["records_returned"],
+                        "covers_all_included": s2.get("covers_all_included")},
+            "included_set_size": 4,
+            "DELIVER_registered_condition_VERBATIM": reg("NCT03619213"),
+            "DAPA_HF_registered_condition_VERBATIM": reg("NCT03036124"),
+            "the_quotable_claim": ("The query asked for `chronic heart failure`. DELIVER's "
+                                   "registered condition is `Heart Failure With Preserved "
+                                   "Ejection Fraction` -- it contains no `chronic`. DAPA-HF's "
+                                   "is `Chronic Heart Failure With Reduced Ejection Fraction "
+                                   "(HFrEF)`, which does. One word in the query, present in one "
+                                   "trial's registered condition and absent from the other's."),
+            "CAVEAT_NOT_A_CLEAN_SINGLE_VARIABLE_TEST": (
+                "Query 1 carried phase=[PHASE3,PHASE4] and query 2 carried phase=[PHASE3]. The "
+                "phase clause therefore differs between the two queries as well as the "
+                "condition term. THE CONTROL IS SEPARATE AND IT HOLDS: the corpus-wide phase "
+                "sweep records sglt2-hf at recall %s -> %s with NOTHING lost to the phase "
+                "filter, which isolates the condition term as the cause of the miss. The bar is "
+                "sound; the caption should not claim a single-variable experiment."
+                % (sglt_phase["recall_with"], sglt_phase["recall_without"])),
+        },
+        "bar_3_colchicine_pagination": {
+            "state": "CONFIRMED",
+            "EXACT_FRACTIONS": "%s -> %s" % (
+                colc["WHAT_THE_ABANDONED_CURSOR_WOULD_HAVE_COST"]["recall_on_page_1_alone"],
+                colc["WHAT_THE_ABANDONED_CURSOR_WOULD_HAVE_COST"][
+                    "recall_on_the_complete_search"]),
+            "included_set": colc["WHAT_THE_ABANDONED_CURSOR_WOULD_HAVE_COST"]["included_set"],
+            "surfaced_on_page_1": colc["WHAT_THE_ABANDONED_CURSOR_WOULD_HAVE_COST"][
+                "surfaced_on_page_1"],
+            "surfaced_on_page_2_only": colc["WHAT_THE_ABANDONED_CURSOR_WOULD_HAVE_COST"][
+                "surfaced_on_page_2_ONLY"],
+            "pages": colc["pages"],
+            "the_trial_on_page_2": reg("NCT03048825"),
+        },
+        "bar_4_ablation_af_phase_filter": {
+            "state": "CONFIRMED -- AND MY CORRECTION OF IT IS RETRACTED",
+            "EXACT_FRACTIONS": "%s -> %s" % (abl_row["recall_with"], abl_row["recall_without"]),
+            "records": "%d -> %d" % (abl_row["k0_with"], abl_row["k0_without"]),
+            "included_set_size": abl_row["included"],
+            "lost_to_the_filter": [reg(n) for n in abl_row["lost_to_the_phase_filter"]],
+        },
+    }
+
+    for k, v in out.items():
+        if k == "built_utc" or not isinstance(v, dict):
+            continue
+        if k == "RETRACTION":
+            print("RETRACTION: %s" % v["action"])
+            print("   %s" % v["what_is_true"])
+            continue
+        print("%-44s %-34s %s" % (k, v.get("EXACT_FRACTIONS", ""), v["state"]))
+
+    if apply_it:
+        with io.open(OUT, "w", encoding="utf-8", newline="") as fh:
+            fh.write(json.dumps(out, indent=1, ensure_ascii=False))
+        print("\nwrote %s" % os.path.relpath(OUT, REPO))
+    return 0
+
+
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    sys.exit(run("--apply" in sys.argv))
+
+codex
+I’ll treat the pasted packet as the review record and only call out defects I can demonstrate from this file’s behavior. I’m going to keep the output terse and keyed to the named shapes.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=0; Get-Content -Path '"'scripts/figure8_recall_confirmations_2026_08_19.py' | ForEach-Object { "'$i++; '"'{0,4}: {1}' -f "'$i, $_ }' in F:\rapidmeta-ssot-shell
+ succeeded in 1593ms:
+   1: #!/usr/bin/env python3
+   2: """FIGURE 8 RECALL BARS -- confirmations, and the RETRACTION of my own correction.
+   3: 
+   4: I TOLD MAHMOOD A DELIVERED FIGURE WAS WRONG. IT WAS NOT. This file exists so the retraction is
+   5: as durable as the error.
+   6: 
+   7: THE RETRACTION. I reported that `SUBMISSION-REFERENCES.md` was wrong to state the phase filter
+   8: took recall "on ablation-af-review from 4/4 to 2/4", and asserted the true figure was 1/3 -> 3/3
+   9: on `ablation-af-medical-therapy`. **BOTH FIGURES ARE TRUE AND THEY ARE DIFFERENT MEASUREMENTS.**
+  10: 
+  11:     evidence/2026-08-19-batch1/phase_filter_recall_sweep.json, row `ablation-af-review`:
+  12:         included 4, recall_with "2/4", recall_without "4/4", k0 143 -> 931.
+  13:     evidence/2026-08-19-batch1/ablation_split_search.json, topic `ablation-af-medical-therapy`:
+  14:         a 3-trial recall TARGET, Q1 with the filter 1/3, Q2 without it 3/3, k0 143 -> 931.
+  15: 
+  16: THE k0 PAIR IS IDENTICAL IN BOTH -- 143 and 931 -- because it is THE SAME QUERY PAIR, scored
+  17: against two different denominators: one topic's included set, and a hand-set 3-trial target in a
+  18: different topic's ablation. The delivered figure is correct and must not be changed.
+  19: 
+  20: WHY I GOT IT WRONG, because the cause is the reusable part. I searched for evidence containing
+  21: recall fractions, found ONE file, and treated it as the corpus's answer. There was a second and
+  22: more authoritative file -- a corpus-wide sweep across 10 structured queries -- that I never
+  23: opened. **AN ABSENCE REPORTED BY MY OWN SEARCH IS NOT AN ABSENCE IN THE REPOSITORY**, which is
+  24: the same sentence as PAGE_MAP and as the registry, arriving a third time and this time against
+  25: the evidence directory. The rule "re-derive, never cite a secondary source" is necessary and was
+  26: NOT sufficient: I re-derived from an incomplete search and published the result as a correction.
+  27: 
+  28:     RE-DERIVATION IS ONLY AS GOOD AS THE ENUMERATION IT RE-DERIVES OVER. A re-derived figure
+  29:     from a partial source set is a secondary source wearing a primary source's clothes.
+  30: 
+  31: Everything below is confirmed against the recorded evidence and, for registration facts, against
+  32: ClinicalTrials.gov at run time.
+  33: """
+  34: import io
+  35: import json
+  36: import os
+  37: import sys
+  38: 
+  39: REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+  40: sys.path.insert(0, os.path.join(REPO, "ssot"))
+  41: import ctgov_transport as X                                             # noqa: E402
+  42: 
+  43: EV = os.path.join(REPO, "evidence", "2026-08-19-batch1")
+  44: OUT = os.path.join(EV, "figure8_recall_confirmations.json")
+  45: 
+  46: 
+  47: def reg(nct):
+  48:     st, s, d = X.fetch_raw(nct, fields="protocolSection")
+  49:     if st != X.OK:
+  50:         return {"nct": nct, "state": "UNREACHABLE", "why": str(d)[:120]}
+  51:     ps = s.get("protocolSection") or {}
+  52:     return {
+  53:         "nct": nct,
+  54:         "acronym": (ps.get("identificationModule") or {}).get("acronym"),
+  55:         "conditions_VERBATIM": (ps.get("conditionsModule") or {}).get("conditions"),
+  56:         "phases_VERBATIM": (ps.get("designModule") or {}).get("phases"),
+  57:         "enrollment": ((ps.get("designModule") or {}).get("enrollmentInfo") or {}).get("count"),
+  58:         "read_utc": "2026-08-19",
+  59:     }
+  60: 
+  61: 
+  62: def run(apply_it):
+  63:     sweep = json.load(io.open(os.path.join(EV, "phase_filter_recall_sweep.json"),
+  64:                               encoding="utf-8"))
+  65:     colc = json.load(io.open(os.path.join(EV, "colchicine_search_COMPLETE.json"),
+  66:                              encoding="utf-8"))
+  67:     apx = json.load(io.open(os.path.join(REPO, "ssot", "apixaban-vte-prophylaxis",
+  68:                                          "apixaban-vte-prophylaxis.json"), encoding="utf-8"))
+  69:     sglt = json.load(io.open(os.path.join(REPO, "ssot", "sglt2-hf", "sglt2-hf.json"),
+  70:                              encoding="utf-8"))
+  71: 
+  72:     abl_row = [r for r in sweep["rows"] if r["topic"] == "ablation-af-review"][0]
+  73:     apx_db = apx["search"]["databases"]
+  74:     q_with = [d for d in apx_db if "FIRST QUERY" in d["database"]][0]
+  75:     q_without = [d for d in apx_db if "FIRST QUERY" not in d["database"]][0]
+  76:     s_db = sglt["search"]["databases"]
+  77:     s1 = [d for d in s_db if "QUERY 1" in d["database"]][0]
+  78:     s2 = [d for d in s_db if "QUERY 2" in d["database"]][0]
+  79:     sglt_phase = [r for r in sweep["rows"] if r["topic"] == "sglt2-hf"][0]
+  80: 
+  81:     out = {
+  82:         "built_utc": "2026-08-19",
+  83:         "RETRACTION": {
+  84:             "what_I_said": ("That SUBMISSION-REFERENCES.md was wrong to state the phase filter "
+  85:                             "took recall on `ablation-af-review` from 4/4 to 2/4."),
+  86:             "what_is_true": ("THE DELIVERED FIGURE IS CORRECT. phase_filter_recall_sweep.json "
+  87:                              "records ablation-af-review with included=%d, recall_with=%s, "
+  88:                              "recall_without=%s, k0 %d -> %d."
+  89:                              % (abl_row["included"], abl_row["recall_with"],
+  90:                                 abl_row["recall_without"], abl_row["k0_with"],
+  91:                                 abl_row["k0_without"])),
+  92:             "why_both_numbers_exist": ("The 1/3 -> 3/3 I quoted is from ablation_split_search"
+  93:                                        ".json for topic `ablation-af-medical-therapy`, a "
+  94:                                        "3-trial hand-set recall TARGET. The k0 pair is "
+  95:                                        "IDENTICAL (143, 931) because it is the same query pair "
+  96:                                        "scored against a different denominator."),
+  97:             "action": "DO NOT CHANGE THIS BAR.",
+  98:             "the_cause": ("I searched the evidence directory for files containing recall "
+  99:                           "fractions, found one, and treated it as the answer. A second and "
+ 100:                           "more authoritative file -- a corpus-wide sweep over 10 structured "
+ 101:                           "queries -- was never opened. RE-DERIVATION IS ONLY AS GOOD AS THE "
+ 102:                           "ENUMERATION IT RE-DERIVES OVER."),
+ 103:         },
+ 104:         "bar_1_apixaban_vte_prophylaxis_phase_filter": {
+ 105:             "state": "CONFIRMED AS DESCRIBED",
+ 106:             "topic": "apixaban-vte-prophylaxis",
+ 107:             "records_with_the_phase_filter": q_with["records_returned"],
+ 108:             "records_without_it": q_without["records_returned"],
+ 109:             "recall_with": q_with["recall_on_included_set"],
+ 110:             "recall_without": q_without["recall_on_included_set"],
+ 111:             "EXACT_FRACTIONS": "0/1 -> 1/1",
+ 112:             "the_trial_lost": reg("NCT02366871"),
+ 113:             "why_total": ("The review's only included trial AT THE TIME OF THAT SEARCH was the "
+ 114:                           "PHASE2 one the filter dropped, so the phase-filtered search had ZERO "
+ 115:                           "recall on the review's entire evidence base."),
+ 116:             "CAVEAT_THE_DENOMINATOR_HAS_SINCE_CHANGED": (
+ 117:                 "The object now holds %d trials. The 0/1 and 1/1 are against the included set "
+ 118:                 "AS IT STOOD when that search ran, which is what the record states. Quoting "
+ 119:                 "them against today's set would be wrong."
+ 120:                 % len((apx.get("inputs") or {}).get("trials") or [])),
+ 121:             "DO_NOT_CONFUSE_WITH": ("`apixaban-vte`, a DIFFERENT topic, which the corpus sweep "
+ 122:                                     "records at included=2, recall 1/2 -> 2/2, losing the SAME "
+ 123:                                     "trial. Two topics, two denominators. This is exactly the "
+ 124:                                     "confusion that produced the retraction above."),
+ 125:         },
+ 126:         "bar_2_sglt2_hf_condition_term": {
+ 127:             "state": "CONFIRMED",
+ 128:             "EXACT_FRACTIONS": "3/4 -> 4/4",
+ 129:             "query_1": {"condition_term": "chronic heart failure",
+ 130:                         "records": s1["records_returned"],
+ 131:                         "missed": "NCT03619213 (DELIVER)"},
+ 132:             "query_2": {"condition_term": "heart failure",
+ 133:                         "records": s2["records_returned"],
+ 134:                         "covers_all_included": s2.get("covers_all_included")},
+ 135:             "included_set_size": 4,
+ 136:             "DELIVER_registered_condition_VERBATIM": reg("NCT03619213"),
+ 137:             "DAPA_HF_registered_condition_VERBATIM": reg("NCT03036124"),
+ 138:             "the_quotable_claim": ("The query asked for `chronic heart failure`. DELIVER's "
+ 139:                                    "registered condition is `Heart Failure With Preserved "
+ 140:                                    "Ejection Fraction` -- it contains no `chronic`. DAPA-HF's "
+ 141:                                    "is `Chronic Heart Failure With Reduced Ejection Fraction "
+ 142:                                    "(HFrEF)`, which does. One word in the query, present in one "
+ 143:                                    "trial's registered condition and absent from the other's."),
+ 144:             "CAVEAT_NOT_A_CLEAN_SINGLE_VARIABLE_TEST": (
+ 145:                 "Query 1 carried phase=[PHASE3,PHASE4] and query 2 carried phase=[PHASE3]. The "
+ 146:                 "phase clause therefore differs between the two queries as well as the "
+ 147:                 "condition term. THE CONTROL IS SEPARATE AND IT HOLDS: the corpus-wide phase "
+ 148:                 "sweep records sglt2-hf at recall %s -> %s with NOTHING lost to the phase "
+ 149:                 "filter, which isolates the condition term as the cause of the miss. The bar is "
+ 150:                 "sound; the caption should not claim a single-variable experiment."
+ 151:                 % (sglt_phase["recall_with"], sglt_phase["recall_without"])),
+ 152:         },
+ 153:         "bar_3_colchicine_pagination": {
+ 154:             "state": "CONFIRMED",
+ 155:             "EXACT_FRACTIONS": "%s -> %s" % (
+ 156:                 colc["WHAT_THE_ABANDONED_CURSOR_WOULD_HAVE_COST"]["recall_on_page_1_alone"],
+ 157:                 colc["WHAT_THE_ABANDONED_CURSOR_WOULD_HAVE_COST"][
+ 158:                     "recall_on_the_complete_search"]),
+ 159:             "included_set": colc["WHAT_THE_ABANDONED_CURSOR_WOULD_HAVE_COST"]["included_set"],
+ 160:             "surfaced_on_page_1": colc["WHAT_THE_ABANDONED_CURSOR_WOULD_HAVE_COST"][
+ 161:                 "surfaced_on_page_1"],
+ 162:             "surfaced_on_page_2_only": colc["WHAT_THE_ABANDONED_CURSOR_WOULD_HAVE_COST"][
+ 163:                 "surfaced_on_page_2_ONLY"],
+ 164:             "pages": colc["pages"],
+ 165:             "the_trial_on_page_2": reg("NCT03048825"),
+ 166:         },
+ 167:         "bar_4_ablation_af_phase_filter": {
+ 168:             "state": "CONFIRMED -- AND MY CORRECTION OF IT IS RETRACTED",
+ 169:             "EXACT_FRACTIONS": "%s -> %s" % (abl_row["recall_with"], abl_row["recall_without"]),
+ 170:             "records": "%d -> %d" % (abl_row["k0_with"], abl_row["k0_without"]),
+ 171:             "included_set_size": abl_row["included"],
+ 172:             "lost_to_the_filter": [reg(n) for n in abl_row["lost_to_the_phase_filter"]],
+ 173:         },
+ 174:     }
+ 175: 
+ 176:     for k, v in out.items():
+ 177:         if k == "built_utc" or not isinstance(v, dict):
+ 178:             continue
+ 179:         if k == "RETRACTION":
+ 180:             print("RETRACTION: %s" % v["action"])
+ 181:             print("   %s" % v["what_is_true"])
+ 182:             continue
+ 183:         print("%-44s %-34s %s" % (k, v.get("EXACT_FRACTIONS", ""), v["state"]))
+ 184: 
+ 185:     if apply_it:
+ 186:         with io.open(OUT, "w", encoding="utf-8", newline="") as fh:
+ 187:             fh.write(json.dumps(out, indent=1, ensure_ascii=False))
+ 188:         print("\nwrote %s" % os.path.relpath(OUT, REPO))
+ 189:     return 0
+ 190: 
+ 191: 
+ 192: if __name__ == "__main__":
+ 193:     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+ 194:     sys.exit(run("--apply" in sys.argv))
+
+codex
+Found defects:
+
+- `line 75` — selector keyed too broadly.  
+  Exact input: `apx["search"]["databases"] = [{"database":"FIRST QUERY CT.gov","records_returned":1,"recall_on_included_set":"0/1"},{"database":"PubMed","records_returned":999,"recall_on_included_set":"0/0"},{"database":"SECOND QUERY CT.gov","records_returned":931,"recall_on_included_set":"1/1"}]`  
+  Consequence: `q_without` becomes `PubMed`, so the “without phase filter” bar is built from the wrong database entry.
+
+- `line 77` — selector matches a form it does not intend.  
+  Exact input: `sglt["search"]["databases"] = [{"database":"QUERY 10","records_returned":10},{"database":"QUERY 1","records_returned":1},{"database":"QUERY 2","records_returned":2}]`  
+  Consequence: `s1` becomes `QUERY 10`, so the condition-term comparison can silently use the wrong query.
+
+- `lines 49-50` plus `line 189` — status code reports the wrapper, not the work.  
+  Exact input: `X.fetch_raw("NCT02366871", fields="protocolSection") -> (500, None, {"error":"timeout"})`, with otherwise valid JSON files.  
+  Consequence: the script writes/prints `CONFIRMED` output and exits `0` while the ClinicalTrials.gov confirmation is explicitly `UNREACHABLE`.
+
+- `line 111` — check cannot fail because the asserted fraction is hardcoded, not checked against the loaded query records.  
+  Exact input: `q_with["recall_on_included_set"]="9/9"` and `q_without["recall_on_included_set"]="8/8"`.  
+  Consequence: output still says `"EXACT_FRACTIONS": "0/1 -> 1/1"`.
+
+- `lines 128 and 135` — check cannot fail for the SGLT2 bar.  
+  Exact input: `s1["records_returned"]=0`, `s2["records_returned"]=0`, and `sglt_phase["recall_with"]="0/4"`, `sglt_phase["recall_without"]="0/4"`.  
+  Consequence: output still says `"EXACT_FRACTIONS": "3/4 -> 4/4"` and `"included_set_size": 4`.
+
+No proven instance found in this file for CRLF/LF text comparison, merged-cell/off-by-one tabulation, zero conflated with absent, or an idempotency guard satisfied by its own comment.
+tokens used
+16,724
+Found defects:
+
+- `line 75` — selector keyed too broadly.  
+  Exact input: `apx["search"]["databases"] = [{"database":"FIRST QUERY CT.gov","records_returned":1,"recall_on_included_set":"0/1"},{"database":"PubMed","records_returned":999,"recall_on_included_set":"0/0"},{"database":"SECOND QUERY CT.gov","records_returned":931,"recall_on_included_set":"1/1"}]`  
+  Consequence: `q_without` becomes `PubMed`, so the “without phase filter” bar is built from the wrong database entry.
+
+- `line 77` — selector matches a form it does not intend.  
+  Exact input: `sglt["search"]["databases"] = [{"database":"QUERY 10","records_returned":10},{"database":"QUERY 1","records_returned":1},{"database":"QUERY 2","records_returned":2}]`  
+  Consequence: `s1` becomes `QUERY 10`, so the condition-term comparison can silently use the wrong query.
+
+- `lines 49-50` plus `line 189` — status code reports the wrapper, not the work.  
+  Exact input: `X.fetch_raw("NCT02366871", fields="protocolSection") -> (500, None, {"error":"timeout"})`, with otherwise valid JSON files.  
+  Consequence: the script writes/prints `CONFIRMED` output and exits `0` while the ClinicalTrials.gov confirmation is explicitly `UNREACHABLE`.
+
+- `line 111` — check cannot fail because the asserted fraction is hardcoded, not checked against the loaded query records.  
+  Exact input: `q_with["recall_on_included_set"]="9/9"` and `q_without["recall_on_included_set"]="8/8"`.  
+  Consequence: output still says `"EXACT_FRACTIONS": "0/1 -> 1/1"`.
+
+- `lines 128 and 135` — check cannot fail for the SGLT2 bar.  
+  Exact input: `s1["records_returned"]=0`, `s2["records_returned"]=0`, and `sglt_phase["recall_with"]="0/4"`, `sglt_phase["recall_without"]="0/4"`.  
+  Consequence: output still says `"EXACT_FRACTIONS": "3/4 -> 4/4"` and `"included_set_size": 4`.
+
+No proven instance found in this file for CRLF/LF text comparison, merged-cell/off-by-one tabulation, zero conflated with absent, or an idempotency guard satisfied by its own comment.

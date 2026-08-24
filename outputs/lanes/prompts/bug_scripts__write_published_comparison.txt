@@ -1,0 +1,931 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/write_published_comparison.py
+
+--- THE FILE, IN FULL ---
+"""PUBLISHED COMPARISON -- reconcile this review against the published literature.
+
+WHY EVERY PAGE OWES ONE
+    A synthesis that reports only its own result asks a reader to take the field
+    on trust. One that reconciles itself against the syntheses on the same
+    question -- naming what they got RIGHT as prominently as what they got wrong,
+    and showing the denominator -- can be checked.
+
+THE THREE RULES THIS ENFORCES BY CONSTRUCTION
+    1. A DENOMINATOR OR IT IS NOT A FINDING. A list of failures with no count of
+       what was examined is a selection, not a result. `denominator` is required
+       and is computed from the checks, never typed.
+    2. CONFIRMATIONS IN THE SAME TABLE, IN THE SAME DETAIL, AS ERRORS. The
+       running result across this lane is that where a defect existed it was
+       OURS, and the literature was right. A comparison that only had room for
+       the literature's errors could not have discovered that.
+    3. AN UNRESOLVED LAYER IS NAMED, NOT SILENTLY DROPPED. Where an abstract
+       cannot establish what a synthesis pooled, the check says UNRESOLVED and
+       says why. It is never counted as agreement.
+
+REPLACES A HARDCODED ONE-OFF
+    `add_comparison.py` was ARNI's comparison with ARNI's absolute path inside
+    it. The second topic would have been a copy, and a copy is where two records
+    drift. The comparisons live in DATA here; this file is only the writer.
+
+WHAT WRITING ONE DOES NOT ESTABLISH -- written in advance
+    - NOT that our value is right. Where ours and a published one differ, both
+      are candidates, and each check names which side was checked against source.
+    - NOT that the literature was searched completely. The denominator is one
+      database and one query, and it says so.
+    - NOT that a synthesis which does not name our trials excluded them.
+
+USAGE  python scripts/write_published_comparison.py <app_id>
+"""
+from __future__ import annotations
+import collections, io, json, os, sys
+
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+O = collections.OrderedDict
+
+
+def C(**k):
+    return O(k)
+
+
+# ---------------------------------------------------------------------------
+# app_id -> the comparison. `checks` carry a verdict in
+# CONFIRMED / ERROR / ABSENT / UNRESOLVED, and the denominator is derived.
+# ---------------------------------------------------------------------------
+COMPARISONS = {
+ "sotagliflozin-hf": O(
+  _why="This review pools two trials on a total-occurrence composite reported as a "
+       "hazard ratio. The question a reader needs answered is whether the published "
+       "literature reports that quantity, and whether anyone -- them or us -- got it "
+       "wrong. Both halves are reported below, with the number of records screened.",
+  _how_identified="PubMed E-utilities, query and counts recorded in "
+       "ssot/sotagliflozin-hf/appraisal/PUBLISHED_SYNTHESIS_SCREEN.json, which "
+       "carries a decision for every record. This layer is machine-screened at "
+       "ABSTRACT level and the limitation is stated there and in the checks below.",
+  reviews=[
+   O(id="PM_BANTOUNOU2025",
+     citation="Bantounou MA, et al. Meta-analysis of sotagliflozin, a dual "
+              "sodium-glucose-cotransporter 1/2 inhibitor, for heart failure in type 2 "
+              "diabetes. ESC Heart Fail 2025;12(2):968-979.",
+     pmid="39257196", prospero="CRD42023432732",
+     their_k=9, their_n=15320, their_search_closed="2023-06-02",
+     scope="sotagliflozin in type 2 diabetes, any randomised design reporting heart "
+           "failure events",
+     how_it_differs_from_ours="It pools RELATIVE RISKS across nine studies of mixed "
+       "design and reports neither trial's own primary -- a total-occurrence composite "
+       "as a hazard ratio -- as a separate row. Its abstract does not name its included "
+       "studies, so a trial-by-trial reconciliation against it cannot be done at this "
+       "layer."),
+   O(id="PM_CUREUS2024",
+     citation="Sotagliflozin vs Dapagliflozin: A Systematic Review Comparing "
+              "Cardiovascular Mortality. Cureus 2024.",
+     pmid="37868384",
+     scope="narrative systematic review comparing sotagliflozin and dapagliflozin",
+     how_it_differs_from_ours="It NAMES both trials we pool -- the only record in 112 "
+       "that does -- but reports no pooled estimate of its own. It therefore supplies "
+       "no number to reconcile against, and is counted as located rather than as "
+       "agreeing."),
+  ],
+  checks=[
+   C(id="soloist-hr-vs-registry-results",
+     what="Our SOLOIST-WHF input against the registry's POSTED RESULT",
+     verdict="CONFIRMED",
+     detail="The registry's results section posts, on the primary outcome whose "
+            "definition we read, a hazard ratio of 0.67 with a 95% interval of 0.52 to "
+            "0.85. This object stores 0.67 (0.52 to 0.85). Identical, and read from the "
+            "registry's own analysis record rather than from the publication that "
+            "reports it -- two independent surfaces agreeing.",
+     quote="Hazard Ratio (HR) 0.67, CI 0.52 to 0.85",
+     location="ClinicalTrials.gov NCT03521934, resultsSection, primary outcome analysis"),
+   C(id="scored-hr-vs-registry-results",
+     what="Our SCORED input against the registry's POSTED RESULT",
+     verdict="CONFIRMED",
+     detail="The registry posts a hazard ratio of 0.74 with a 95% interval of 0.63 to "
+            "0.88 on the same primary outcome. This object stores 0.74 (0.63 to 0.88). "
+            "Identical.",
+     quote="Hazard Ratio (HR) 0.74, CI 0.63 to 0.88",
+     location="ClinicalTrials.gov NCT03315143, resultsSection, primary outcome analysis"),
+   C(id="endpoint-definitions-identical",
+     what="Whether the two trials counted the same events",
+     verdict="CONFIRMED",
+     detail="Both registry records give the primary outcome measure in identical words, "
+            "and both descriptions specify the total number of occurrences, first and "
+            "potentially subsequent. This is the check SGLT2_HF failed -- there, two "
+            "trials counted urgent heart-failure visits and two did not -- and here it "
+            "comes back clean, on text read from the registry rather than inferred from "
+            "a result sentence.",
+     quote="Number of Total Occurrences of Cardiovascular (CV) Death, Hospitalizations "
+           "for Heart Failure (HHF) and Urgent Visits for Heart Failure (HF)",
+     location="ClinicalTrials.gov NCT03521934 and NCT03315143, primary outcome measure"),
+   C(id="scored-endpoint-was-changed",
+     what="Whether the amended SCORED endpoint is the one our estimate belongs to",
+     verdict="CONFIRMED",
+     detail="SCORED's primary end point was changed during the trial. The registry "
+            "record read here is the AMENDED one, and the posted hazard ratio 0.74 sits "
+            "on that amended outcome, which is the one we pool. The superseded original "
+            "coprimary -- first occurrence of CV death, non-fatal myocardial infarction "
+            "or non-fatal stroke -- is carried separately in this object at k=1 and is "
+            "pooled with nothing. A reader who worried that an amended endpoint had been "
+            "quietly substituted can see that both halves are recorded.",
+     quote="The primary end point was changed during the trial to the composite of the "
+           "total number of deaths from cardiovascular causes, hospitalizations for "
+           "heart failure, and urgent visits for heart failure.",
+     location="SCORED publication; and the amended measure on the registry record"),
+   C(id="no-synthesis-reports-this-estimand",
+     what="Whether any published synthesis reports the quantity we pool",
+     verdict="ABSENT",
+     detail="112 records matched the query and all 112 were read at abstract level. One "
+            "names both trials we pool and reports no pooled estimate of its own. The "
+            "drug-specific meta-analysis pools relative risks over nine mixed-design "
+            "studies. No located synthesis reports a hazard ratio for the "
+            "total-occurrence composite, so this pooled value cannot be checked against "
+            "an external number. THAT IS A STATEMENT ABOUT THE LITERATURE, NOT A CLAIM "
+            "OF NOVELTY.",
+     quote=None,
+     location="PUBLISHED_SYNTHESIS_SCREEN.json, 112 of 112 records read"),
+   C(id="what-the-abstract-layer-cannot-settle",
+     what="Whether the 107 syntheses that name no trial included ours",
+     verdict="UNRESOLVED",
+     detail="107 of 112 records do not name any trial we pool, and four have no indexed "
+            "abstract. Abstract-level screening cannot establish what a synthesis "
+            "pooled. Reporting '0 syntheses affected' from this would be absence of "
+            "evidence dressed as evidence of absence -- the same error the first version "
+            "of this topic's search record made, when it concluded no synthesis existed "
+            "and one was found in a single step the same day. Settling it needs full "
+            "text.",
+     quote=None,
+     location="PUBLISHED_SYNTHESIS_SCREEN.json, tally"),
+   C(id="bantounou-precision-query",
+     what="An unexplained precision gap in the drug-specific meta-analysis",
+     verdict="UNRESOLVED",
+     detail="Its printed interval 0.64 to 0.69 implies a standard error on the log scale "
+            "of about 0.0192; our two-trial pool over 11,806 participants implies 0.0705. "
+            "With 8,040 and 7,280 participants, an event in 10% of each arm gives 0.0485, "
+            "20% gives 0.0324, and even 30% in both arms gives 0.0247 -- all wider than "
+            "printed. THE STRONGEST INNOCENT EXPLANATION IS PLAUSIBLE AND IS STATED: if "
+            "the pool counts total recurrent events rather than participants, counts can "
+            "exceed the participant number and that precision is attainable. The abstract "
+            "does not state the unit of analysis, so this is recorded for a reader and "
+            "NOT asserted as an error. Full text or the PROSPERO record would settle it.",
+     quote="sotagliflozin significantly reduced the risk of HF [n = 8 studies; "
+           "RR = 0.66 (0.64, 0.69)]",
+     location="PMID 39257196, abstract"),
+  ],
+  divergence_decomposed=O(
+   ours="HR 0.7171 (0.6246 to 0.8234) for the total number of occurrences of CV death, "
+        "HF hospitalisation and urgent HF visit, k=2, both pivotal trials.",
+   theirs="RR 0.66 (0.64 to 0.69) for heart failure over 8 studies, and RR 0.73 (0.66 to "
+          "0.81) for MACE over 8 studies.",
+   why_they_differ="A different quantity (a relative risk of experiencing an event is "
+     "not a hazard ratio for the total number of events), a different eligible set (nine "
+     "mixed-design studies against the two pivotal trials), and a different question. "
+     "Same direction, but direction agreement is worth little across estimands: a close "
+     "answer to a different question is the most persuasive kind of wrong. NEITHER SIDE "
+     "IS SHOWN TO BE IN ERROR HERE, and that is the finding."),
+ ),
+
+ "iv-iron-hf": O(
+  _why="This is the topic where a published synthesis pools THE SAME TWO TRIALS on "
+       "THE SAME ENDPOINT as this review, so the pooled value here can be checked "
+       "against an external number rather than only described. It is also the topic "
+       "with the largest published evidence base -- six trials with individual "
+       "participant data -- against which our two-trial pool has to explain itself.",
+  _how_identified="PubMed E-utilities; the query, the counts and a decision for "
+       "every record are in ssot/iv-iron-hf/appraisal/PUBLISHED_SYNTHESIS_SCREEN.json. "
+       "61 records matched and all 61 were read at abstract level; 5 name at least "
+       "one trial we pool.",
+  reviews=[
+   O(id="PM_CLINRESCARDIOL2023", pmid="37074386",
+     citation="Efficacy and safety of intravenous iron repletion in patients with "
+              "heart failure: a systematic review and meta-analysis. Clin Res "
+              "Cardiol 2023.",
+     their_k=2,
+     scope="AFFIRM-AHF and IRONMAN on the composite of recurrent heart-failure "
+           "hospitalisations and cardiovascular death",
+     how_it_differs_from_ours="It does not differ. Same two trials, same endpoint, "
+       "independently computed -- which makes it the only direct external check of "
+       "a pooled value anywhere in this cardiology lane."),
+   O(id="PM_NATMED2025", pmid="40159279",
+     citation="Systematic review and meta-analysis of intravenous iron therapy for "
+              "patients with heart failure and iron deficiency. Nat Med 2025.",
+     their_k=6, their_n=7175,
+     scope="FAIR-HF, CONFIRM-HF, AFFIRM-AHF, IRONMAN, HEART-FID and FAIR-HF2, "
+           "Bayesian, with individual participant data from five",
+     how_it_differs_from_ours="It has INDIVIDUAL PARTICIPANT DATA and we have "
+       "published summaries. That is the whole difference: four of its six trials "
+       "publish no recurrent-events composite at all, so it could DERIVE the "
+       "endpoint for them and we could not. Our k=2 is a limit of the layer "
+       "available to us, not a judgement that the other four are ineligible."),
+   O(id="PM_EJHF2023", pmid="37062867",
+     citation="Effect of intravenous iron replacement on recurrent heart failure "
+              "hospitalizations and cardiovascular mortality in patients with heart "
+              "failure and iron deficiency: A Bayesian meta-analysis. Eur J Heart "
+              "Fail 2023.",
+     their_k=4,
+     scope="FAIR-HF, CONFIRM-HF and AFFIRM-AHF individual participant data "
+           "re-analysed to match IRONMAN's approach",
+     how_it_differs_from_ours="It is the clearest example in this lane of the "
+       "estimand work being done properly by someone else: rather than pooling "
+       "whatever each trial happened to report, it re-derived the outcome in three "
+       "trials to match the fourth, and says so in its abstract."),
+   O(id="PM_CLINRESCARDIOL2021", pmid="33755777",
+     citation="Intravenous iron for heart failure with evidence of iron deficiency: "
+              "a meta-analysis of randomised trials. Clin Res Cardiol 2021.",
+     their_k=7,
+     scope="seven trials, the composite of FIRST heart-failure hospitalisation or "
+           "cardiovascular mortality, pooled as odds ratios",
+     how_it_differs_from_ours="A different estimand -- first event, odds ratio -- "
+       "and it says so. It describes AFFIRM-AHF's primary as the recurrent "
+       "composite in its introduction and then pools first-event data, which is "
+       "the correct handling and not a slip."),
+  ],
+  checks=[
+   C(id="affirm-recurrent-vs-registry-results",
+     what="Our AFFIRM-AHF recurrent-composite input against the registry's POSTED "
+          "RESULT",
+     verdict="CONFIRMED",
+     detail="The registry posts, on the primary outcome whose definition we read, an "
+            "annualised event rate ratio of 0.79 with a 95% interval of 0.62 to "
+            "1.01, from a negative binomial model adjusted for sex, age, HF "
+            "aetiology, HF duration and country. This object stores 0.79 (0.62 to "
+            "1.01). Identical, and taken from the registry's analysis record rather "
+            "than from the publication.",
+     quote="Annualised event rate ratio (RR) = 0.79, CI 0.62-1.01",
+     location="ClinicalTrials.gov NCT02937454, resultsSection, primary outcome"),
+   C(id="affirm-first-event-vs-registry-results",
+     what="Our AFFIRM-AHF time-to-first input against the registry's POSTED RESULT",
+     verdict="CONFIRMED",
+     detail="Registry: hazard ratio 0.80 (0.66 to 0.98), Cox, same covariates. This "
+            "object stores 0.80 (0.66 to 0.98).",
+     quote="Hazard Ratio (HR) = 0.80, CI 0.66-0.98",
+     location="ClinicalTrials.gov NCT02937454, 'Composite of HF Hospitalisations or "
+              "CV Death'"),
+   C(id="affirm-hfh-and-acm-vs-registry-results",
+     what="Our two remaining AFFIRM-AHF inputs against the registry's POSTED RESULTS",
+     verdict="CONFIRMED",
+     detail="Recurrent heart-failure hospitalisations: registry 0.74 (0.58 to 0.94), "
+            "object 0.74 (0.58 to 0.94). All-cause mortality: registry 0.99 (0.75 to "
+            "1.31), object 0.99 (0.75 to 1.31). All four of this trial's "
+            "contributions to this review are therefore confirmed against a surface "
+            "independent of its publication -- which matters here, because the "
+            "publication does not report the all-cause figure at all.",
+     quote="Annualised event rate ratio (RR) = 0.74, CI 0.58-0.94; Hazard Ratio (HR) "
+           "= 0.99, CI 0.75-1.31",
+     location="ClinicalTrials.gov NCT02937454, secondary and other-prespecified "
+              "outcomes"),
+   C(id="which-affirm-analysis-is-pooled",
+     what="The registry posts TWO analyses per AFFIRM-AHF outcome; which one is here",
+     verdict="CONFIRMED",
+     detail="Every AFFIRM-AHF outcome carries a pre-specified COVID-19 sensitivity "
+            "analysis beside the main one -- on the primary, 0.75 (0.59 to 0.96) "
+            "against 0.79 (0.62 to 1.01). This object pools the MAIN analysis "
+            "throughout. The distinction decides whether this trial's own result "
+            "crosses the null, so a review that took one without saying which would "
+            "be reporting a choice as though it were a reading. Checked because "
+            "value-without-its-analysis is a defect class this batch has produced "
+            "before; here it is clean and now explicit.",
+     quote="Annualised event rate ratio (RR) = 0.75, CI 0.59-0.96 -- the second "
+           "analysis posted on the same outcome",
+     location="ClinicalTrials.gov NCT02937454, primary outcome, analysis 2"),
+   C(id="confirm-hf-ratio-is-a-hazard-ratio",
+     what="Whether CONFIRM-HF's 0.89 is established as a HAZARD ratio, or only "
+          "assumed to be one",
+     verdict="CONFIRMED",
+     detail="It is established. The column header of the trial's own Table 2 reads "
+            "'Time to first event hazard ratio | 95% CI | P-value'. THIS OBJECT HAD "
+            "STORED THE ROW WITHOUT THE HEADER -- 'Death 12 12 (8.9) 14 14 (9.9) "
+            "0.89 (0.41-1.93) 0.77' -- and a row of numbers does not say what the "
+            "numbers are. The header has been added to the extraction surface. This "
+            "is the same question that is currently OPEN on ARNI, where a "
+            "contributing ratio is not established as a hazard ratio and decides the "
+            "result; asked here, it comes back clean.",
+     quote="End-point or event | ... | Time to first event hazard ratio | 95% CI | "
+           "P-value",
+     location="Eur Heart J 2015, CONFIRM-HF, Table 2 column header, read from the "
+              "open-access full text"),
+   C(id="our-pool-against-the-same-two-trials-published",
+     what="Our recurrent-composite pool against a published meta-analysis of THE "
+          "SAME TWO TRIALS",
+     verdict="CONFIRMED",
+     detail="Clin Res Cardiol 2023 pools AFFIRM-AHF and IRONMAN on this endpoint and "
+            "reports RR 0.81 (0.69 to 0.95), I-squared 0%. This object reports 0.8066 "
+            "(0.6856 to 0.9488). The two agree to the precision either one prints. "
+            "An inverse-variance pool of the two trials' main analyses -- 0.79 (0.62 "
+            "to 1.01) and 0.82 (0.66 to 1.02) -- reproduces 0.8066 (0.6856 to 0.9488) "
+            "exactly, which is the arithmetic behind the agreement rather than an "
+            "assertion of it. THIS IS THE ONLY DIRECT EXTERNAL CHECK OF A POOLED "
+            "VALUE IN THIS CARDIOLOGY LANE, and it passes.",
+     quote="FCM/FDI reduced the primary endpoint (RR = 0.81, 95% CI 0.69-0.95, "
+           "p = 0.01, I2 = 0%)",
+     location="PMID 37074386, abstract"),
+   C(id="our-pool-against-the-six-trial-ipd-analysis",
+     what="Our two-trial pool against the six-trial individual-participant-data "
+          "analysis",
+     verdict="CONFIRMED",
+     detail="Nat Med 2025 reports RR 0.81 (0.63 to 0.97) for recurrent HF "
+            "hospitalisations and cardiovascular mortality over the complete "
+            "follow-up of six trials, 7,175 patients. This object reports 0.8066 "
+            "(0.6856 to 0.9488) over two. The point estimates agree to two decimal "
+            "places across a threefold difference in evidence, and their interval is "
+            "WIDER than ours despite three times the patients -- which is what a "
+            "Bayesian random-effects model with between-trial variance does, and is "
+            "worth a reader's attention because the naive expectation is the "
+            "opposite.",
+     quote="lower rates for the composite endpoint of recurrent HF hospitalizations "
+           "and cardiovascular mortality ... for the complete length of follow-up "
+           "(RR = 0.81 (95% CI = 0.63-0.97))",
+     location="PMID 40159279, abstract"),
+   C(id="did-anyone-pool-mismatched-endpoints",
+     what="Whether any located synthesis pooled trials that count different things",
+     verdict="CONFIRMED",
+     detail="None of the four located syntheses did, and two of them did the "
+            "harmonisation work explicitly. The Bayesian analysis states that "
+            "'definitions of outcomes and subgroups from the FAIR-HF, CONFIRM-HF and "
+            "AFFIRM-AHF were matched with those used in IRONMAN', and the Nat Med "
+            "analysis used individual participant data to derive a common endpoint "
+            "across six trials. The 2021 analysis pools a FIRST-event composite as "
+            "odds ratios and says so, rather than mixing it with AFFIRM-AHF's "
+            "recurrent primary. THE LITERATURE HANDLED THE ESTIMAND CORRECTLY, and "
+            "that is recorded as prominently as an error would be -- it is the third "
+            "cardiology topic in a row where the defect, where there was one, was "
+            "ours.",
+     quote="Definitions of outcomes and subgroups from the FAIR-HF, CONFIRM-HF and "
+           "AFFIRM-AHF were matched with those used in IRONMAN.",
+     location="PMID 37062867, abstract"),
+   C(id="two-trials-post-no-registry-results",
+     what="Registry confirmation for IRONMAN and FAIR-HF2",
+     verdict="ABSENT",
+     detail="Neither registry record posts a results section: the API returns zero "
+            "posted outcome measures for both. Their contributions to this review "
+            "therefore rest on their publications alone, with no second surface to "
+            "check them against. Recorded as an absence in OUR evidence rather than "
+            "a fault in the trials, and established by querying the records rather "
+            "than inferred.",
+     quote=None,
+     location="ClinicalTrials.gov NCT02642562 and NCT03036462, resultsSection"),
+   C(id="what-the-abstract-layer-cannot-settle",
+     what="Whether the 52 syntheses that name no trial included ours",
+     verdict="UNRESOLVED",
+     detail="52 of 61 records name none of our trials in the abstract and four carry "
+            "no indexed abstract. Abstract-level screening cannot establish what a "
+            "synthesis pooled. Counting them as agreeing would be absence of "
+            "evidence dressed as evidence of absence.",
+     quote=None,
+     location="PUBLISHED_SYNTHESIS_SCREEN.json, tally"),
+   C(id="which-inputs-the-matching-meta-analysis-used",
+     what="Whether the matching two-trial meta-analysis pooled the main or the "
+          "COVID-19 analyses",
+     verdict="UNRESOLVED",
+     detail="Its abstract's opening sentence says the two trials demonstrated their "
+            "results 'utilizing prespecified COVID-19 analyses', but its pooled 0.81 "
+            "(0.69 to 0.95) reproduces the MAIN analyses and not the COVID ones, "
+            "which would pool near 0.76. The numerical agreement makes the main "
+            "analyses the more likely inputs, and the sentence is the more likely "
+            "loose one -- but that is an inference and it is recorded as one. Full "
+            "text would settle it, and nothing here depends on the answer.",
+     quote="utilizing prespecified COVID-19 analyses",
+     location="PMID 37074386, abstract, first sentence"),
+  ],
+  divergence_decomposed=O(
+   ours="Rate ratio 0.8066 (0.6856 to 0.9488) for recurrent heart-failure "
+        "hospitalisations together with cardiovascular death, k=2, AFFIRM-AHF and "
+        "IRONMAN, from published summary data.",
+   theirs="RR 0.81 (0.69 to 0.95) on the same two trials (Clin Res Cardiol 2023); "
+          "RR 0.81 (0.63 to 0.97) on six trials with individual participant data "
+          "(Nat Med 2025); RR 0.73 (0.48 to 0.99) on four trials with harmonised "
+          "definitions (Eur J Heart Fail 2023).",
+   why_they_differ="On the same two trials they do not differ at all. Across the "
+     "wider analyses the difference is ACCESS, not method: individual participant "
+     "data let those authors derive a recurrent-events composite for four trials "
+     "that publish none, and no amount of care with published summaries can "
+     "substitute for that. The honest statement is that our k=2 is the limit of what "
+     "the published layer supports, and that where the layers overlap the numbers "
+     "agree."),
+ ),
+
+ "alirocumab-lipid": O(
+  _why="Six trials, one endpoint, and every value posted by the registry -- so the "
+       "trial-by-trial check here is complete in a way it cannot be where trials "
+       "post no results. It is also the topic where the error found is OURS, and "
+       "it is in the table below with the same weight as anything found in the "
+       "literature.",
+  _how_identified="PubMed E-utilities; query, counts and a per-record decision in "
+       "ssot/alirocumab-lipid/appraisal/PUBLISHED_SYNTHESIS_SCREEN.json. 101 "
+       "records matched and all 101 were read at abstract level.",
+  reviews=[
+   O(id="PM_FH_PCSK9_2022", pmid="34754882",
+     citation="A Systematic Review and Meta-Analysis of Therapeutic Efficacy and "
+              "Safety of Alirocumab and Evolocumab on Familial "
+              "Hypercholesterolemia. Biomed Res Int 2022.",
+     their_k=7, their_n=926,
+     scope="PCSK9 monoclonal antibodies in familial hypercholesterolaemia",
+     how_it_differs_from_ours="It pools BOTH drugs and restricts to familial "
+       "hypercholesterolaemia; we pool one drug across a mixed population. Its "
+       "weighted mean difference -49.14% (-55.81 to -42.47) is a different set of "
+       "trials answering a narrower question, and it overlaps ours."),
+   O(id="PM_ALIRO_NMA_2019", pmid="30782243",
+     citation="Efficacy and safety of different doses of alirocumab in reducing "
+              "low-density lipoprotein cholesterol levels: a network "
+              "meta-analysis. Pharmazie 2019.",
+     their_k=16,
+     scope="alirocumab at three dose strategies against placebo and ezetimibe, "
+           "network meta-analysis",
+     how_it_differs_from_ours="A NETWORK estimate over sixteen studies rather than "
+       "a direct pool over six, and its intervals are about forty points wide. "
+       "Its alirocumab-versus-placebo relative effects run from -71 to -77, "
+       "further from zero than our -54.7, and the abstract does not state the "
+       "unit or the model well enough to say why."),
+   O(id="PM_ALIRO12_2019", pmid="31463238",
+     citation="Safety and efficacy of alirocumab: A meta analysis of 12 randomized "
+              "controlled trials. J Family Med Prim Care 2019.",
+     their_k=12, their_n=6019,
+     scope="phase 3 alirocumab trials in hypercholesterolaemia and familial "
+           "hypercholesterolaemia",
+     how_it_differs_from_ours="It reports 'over 50%' LDL-C reduction without a "
+       "pooled interval in its abstract, so it supplies a direction and a rough "
+       "magnitude and no number to reconcile against."),
+   O(id="PM_CKD_PCSK9_2019", pmid="29299849",
+     citation="Lipid Management in Chronic Kidney Disease: Systematic Review of "
+              "PCSK9 Targeting. Drugs 2019.",
+     scope="narrative review of PCSK9 inhibition in chronic kidney disease",
+     how_it_differs_from_ours="It reports no pooled estimate, but it is the record "
+       "that independently confirms which ODYSSEY COMBO trial used which "
+       "comparator -- see the comparator check."),
+  ],
+  checks=[
+   C(id="ldl-values-vs-registry-1",
+     what="NCT01507831, the largest trial, against the registry's posted analysis",
+     verdict="CONFIRMED",
+     detail="Registry: LS Mean Difference -61.9, 95% CI -64.3 to -59.4, Mixed "
+            "Models Analysis, over 1530 against 780. This object stores -61.9 "
+            "(-64.3 to -59.4). Identical. NOTE this trial's LDL result is a "
+            "SECONDARY outcome -- its only primary is the adverse-event "
+            "proportion, because it was designed as a long-term safety study -- "
+            "and an earlier build EXCLUDED it for posting no LDL result, which "
+            "came from reading primary outcomes only.",
+     quote="LS Mean Difference -61.9 (-64.3 to -59.4), Mixed Models Analysis",
+     location="ClinicalTrials.gov NCT01507831, resultsSection"),
+   C(id="ldl-values-vs-registry-2",
+     what="NCT01617655 against the registry's posted analysis",
+     verdict="CONFIRMED",
+     detail="Registry: LS mean difference -39.1 (-51.1 to -27.1) over 71 against "
+            "35. Object: -39.1 (-51.1 to -27.1). Identical. This is the smallest "
+            "and least precise of the six and the furthest from the pooled value.",
+     quote="LS mean difference -39.1 (-51.1 to -27.1), Mixed Models Analysis",
+     location="ClinicalTrials.gov NCT01617655, resultsSection"),
+   C(id="ldl-values-vs-registry-3",
+     what="NCT01623115 against the registry's posted analysis",
+     verdict="CONFIRMED",
+     detail="Registry: LS mean difference -57.9 (-63.3 to -52.6) over 322 against "
+            "163. Object: -57.9 (-63.3 to -52.6). Identical.",
+     quote="LS mean difference -57.9 (-63.3 to -52.6), Mixed Models Analysis",
+     location="ClinicalTrials.gov NCT01623115, resultsSection"),
+   C(id="ldl-values-vs-registry-4",
+     what="NCT01644175 against the registry's posted analysis",
+     verdict="CONFIRMED",
+     detail="Registry: LS Mean Difference -45.9 (-52.5 to -39.3) over 205 against "
+            "106. Object: -45.9 (-52.5 to -39.3). Identical.",
+     quote="LS Mean Difference -45.9 (-52.5 to -39.3), Mixed Models Analysis",
+     location="ClinicalTrials.gov NCT01644175, resultsSection"),
+   C(id="ldl-values-vs-registry-5",
+     what="NCT01709500 against the registry's posted analysis, and its arm ORDER",
+     verdict="CONFIRMED",
+     detail="Registry: LS Mean Difference -51.4 (-58.1 to -44.8) over 166 against "
+            "81. Object: -51.4 (-58.1 to -44.8). Identical. AND THE ARM ORDER IS "
+            "REVERSED ON THIS RECORD ALONE: the registry lists alirocumab first "
+            "and placebo second, the opposite of the other five. The posted "
+            "difference is still alirocumab minus placebo, still negative, and "
+            "the arm means (-48.7 against 2.8) confirm the sign independently. "
+            "Checked because a silently reversed contrast is a defect class this "
+            "repository has shipped before.",
+     quote="Alirocumab 75 mg/up to 150 mg -48.7; Placebo 2.8; LS Mean Difference "
+           "-51.4 (-58.1 to -44.8)",
+     location="ClinicalTrials.gov NCT01709500, resultsSection, group order"),
+   C(id="ldl-values-vs-registry-6",
+     what="NCT02107898 against the registry's posted analysis",
+     verdict="CONFIRMED",
+     detail="Registry: LS Mean Difference -64.1 (-68.5 to -59.8) over 143 against "
+            "72. Object: -64.1 (-68.5 to -59.8). Identical. SIX OF SIX "
+            "CONTRIBUTING VALUES ARE THEREFORE CONFIRMED AGAINST THEIR REGISTRY "
+            "RECORDS -- the only topic in this lane where the trial-by-trial check "
+            "is complete.",
+     quote="LS Mean Difference -64.1 (-68.5 to -59.8), Mixed Models Analysis",
+     location="ClinicalTrials.gov NCT02107898, resultsSection"),
+   C(id="endpoint-definitions-identical",
+     what="Whether the six trials measured the same thing",
+     verdict="CONFIRMED",
+     detail="All six registry records give the outcome as 'Percent Change From "
+            "Baseline in Calculated LDL-C at Week 24' on the intention-to-treat "
+            "analysis. The only differences are orthographic -- one record writes "
+            "'Intent--to--Treat' with doubled hyphens, another closes the bracket "
+            "after 'ITT Analysis' rather than before it. Compared as whole "
+            "normalised fields, which is the rule this repository once broke "
+            "inside its own auditor by testing a fragment.",
+     quote="Percent Change From Baseline in Calculated LDL-C at Week 24 - "
+           "Intent-to-Treat (ITT) Analysis",
+     location="ClinicalTrials.gov, all six records, outcome measure title"),
+   C(id="comparator-is-placebo-on-all-six",
+     what="Whether any of the six is actually an ACTIVE-comparator trial",
+     verdict="CONFIRMED",
+     detail="None is. All six registry records type the control arm "
+            "PLACEBO_COMPARATOR. This was checked rather than assumed because the "
+            "ODYSSEY programme contains sibling trials with different "
+            "comparators, and a published review states it independently: "
+            "'ODYSSEY COMBO I and ODYSSEY COMBO II studies demonstrated "
+            "significant superiority of alirocumab ... in comparison to placebo "
+            "and ezetimibe, respectively'. NCT01644175 is COMBO I, the "
+            "placebo-controlled one, and COMBO II is not in this set. A pool "
+            "silently mixing a placebo contrast with an ezetimibe contrast would "
+            "have been an average over two different questions.",
+     quote="ODYSSEY COMBO I and ODYSSEY COMBO II studies demonstrated significant "
+           "superiority of alirocumab on LDL-cholesterol lowering in comparison "
+           "to placebo and ezetimibe, respectively",
+     location="PMID 29299849, abstract; and the armGroups type on all six records"),
+   C(id="our-estimator-breaks-our-own-rule",
+     what="The between-study variance estimator used for the headline",
+     verdict="ERROR", severity="material", whose="ours",
+     detail="THIS ONE IS OURS. The pool is DerSimonian-Laird at k=6, and this "
+            "project's own statistical rules say not to use DerSimonian-Laird "
+            "below about ten studies because it underestimates the between-trial "
+            "variance and narrows the interval. Recomputed on exactly these six "
+            "values: REML gives tau-squared 71.2 against 47.4, and I-squared 91.6 "
+            "per cent against 87.9. THE VERDICT ON WHETHER THESE TRIALS SHOULD BE "
+            "AVERAGED AT ALL TURNS ON THAT, because this project's own poolability "
+            "screen treats 90 per cent as the point where an average conceals more "
+            "than it conveys -- so the estimator that the rules advise against is "
+            "the one that keeps the pool on the acceptable side of the threshold. "
+            "The headline is NOT re-estimated in this pass: the same estimator is "
+            "used across this corpus including the flagship, and changing one page "
+            "alone would make it inconsistent with its neighbours without fixing "
+            "anything. It is recorded in the open, with the alternatives printed "
+            "beside it, rather than quietly left or quietly changed.",
+     quote=None,
+     location="this object, results.ldlc_pct_change_wk24.estimator and "
+              "estimator_sensitivity"),
+   C(id="no-synthesis-reports-this-estimand",
+     what="Whether any published synthesis pools these six trials on this endpoint",
+     verdict="ABSENT",
+     detail="None located. The closest are a familial-hypercholesterolaemia pool "
+            "of seven trials across BOTH PCSK9 antibodies, weighted mean "
+            "difference -49.14% (-55.81 to -42.47), and a twelve-trial alirocumab "
+            "review reporting 'over 50%' with no interval. Both overlap our -54.66% "
+            "and neither answers the same question. So this pooled value cannot be "
+            "checked against an external number, which is a statement about the "
+            "literature rather than a claim of novelty.",
+     quote="PCSK9-mAbs reduced the LDL-C level by the greatest margin, WMD -49.14%, "
+           "95% CI: -55.81 to -42.47%, on FH versus control groups",
+     location="PMID 34754882, abstract"),
+   C(id="network-estimates-further-from-zero",
+     what="A network meta-analysis reporting a much larger reduction",
+     verdict="UNRESOLVED",
+     detail="It reports alirocumab-versus-placebo relative effects of -71.45 "
+            "(-91.16 to -50.44), -74.32 (-90.40 to -58.63) and -77.28 (-92.21 to "
+            "-61.90) by dose strategy -- all further from zero than our -54.66, and "
+            "all with intervals around forty points wide. It cannot be settled from "
+            "the abstract whether those are percent changes on the same basis, and "
+            "an interval that wide is compatible with a wide range of truths. "
+            "Recorded for a reader rather than asserted as a discrepancy in either "
+            "direction.",
+     quote="alirocumab could significantly reduce LDL-c levels, compared with "
+           "placebo (relative effect 95 % CI: -71.45 [-91.16, -50.44], -74.32 "
+           "[-90.40, -58.63] and -77.28 [-92.21, -61.90])",
+     location="PMID 30782243, abstract"),
+   C(id="what-the-abstract-layer-cannot-settle",
+     what="Whether the 97 syntheses that name no trial included ours",
+     verdict="UNRESOLVED",
+     detail="97 of 101 records name none of our six trials in the abstract and two "
+            "carry no indexed abstract. Alirocumab LDL-lowering is a crowded "
+            "literature and many of those certainly do include these trials; which "
+            "ones, and on what endpoint, cannot be decided from an abstract.",
+     quote=None,
+     location="PUBLISHED_SYNTHESIS_SCREEN.json, tally"),
+  ],
+  divergence_decomposed=O(
+   ours="Mean difference -54.66 percent (-60.75 to -48.56) in calculated LDL "
+        "cholesterol at week 24, k=6, random effects, DerSimonian-Laird. "
+        "PREDICTION INTERVAL -74.1 to -35.2, which is the number to quote.",
+   theirs="-49.14% (-55.81 to -42.47) over seven familial-hypercholesterolaemia "
+          "trials of both PCSK9 antibodies; 'over 50%' over twelve alirocumab "
+          "trials; -71 to -77 by dose in a sixteen-study network analysis.",
+   why_they_differ="Different eligible sets and different questions -- one drug or "
+     "two, one population or several, direct pool or network. Nothing here shows "
+     "either side in error on the numbers. THE SUBSTANTIVE POINT IS NOT THE "
+     "DIFFERENCE BETWEEN REVIEWS, IT IS THE SPREAD WITHIN OURS: six trials running "
+     "from -39.1 to -64.1, each with a tight interval of its own, I-squared near "
+     "90 per cent. A single number for 'how much does alirocumab lower LDL' "
+     "conceals a twenty-five point range, and the prediction interval is the only "
+     "honest summary of it."),
+ ),
+
+ "ablation-af-review": O(
+  _why="This page's pooled estimate was already WITHDRAWN. That is not the end of "
+       "the reconciliation, it is the start of it: a reader still had four trial "
+       "rows in front of them, and a withdrawal needs the same evidentiary standard "
+       "as a claim. Reading the four registry records confirmed the verdict, "
+       "REFUTED THE REASON GIVEN FOR IT, and found four further defects in the "
+       "rows the withdrawal left standing. Every one of them is ours.",
+  _how_identified="PubMed E-utilities; query, counts and a per-record decision in "
+       "ssot/ablation-af-review/appraisal/PUBLISHED_SYNTHESIS_SCREEN.json. 213 "
+       "records matched and all 213 were read at abstract level; 3 name a trial "
+       "this review includes. The four trials' endpoints and results were read "
+       "from ClinicalTrials.gov and, where the registry posts no results, from the "
+       "trials' own publications.",
+  reviews=[
+   O(id="PM_AFCA_COMPONENTS_2021", pmid="32115777",
+     citation="Impact of atrial fibrillation catheter ablation on mortality, "
+              "stroke, and heart failure hospitalizations: A meta-analysis. J "
+              "Cardiovasc Electrophysiol 2021.",
+     their_k=9, their_n=241372,
+     scope="one randomised trial (CABANA) and eight matched population studies, "
+           "ablation against medical therapy",
+     how_it_differs_from_ours="IT POOLS COMPONENTS, NOT COMPOSITES -- all-cause "
+       "mortality, stroke and heart-failure hospitalisation separately, each with "
+       "its own hazard ratio and its own I-squared. That is the correct response to "
+       "trials whose composites differ, and it is precisely what this review did "
+       "not do. It also mixes randomised with observational evidence, which we "
+       "would not, and it says so."),
+   O(id="PM_LVEF_2026", pmid="42525055",
+     citation="Impact of Catheter Ablation on LVEF in Patients with Atrial "
+              "Fibrillation and Heart Failure. 2026.",
+     scope="ejection fraction as the primary outcome, with mortality and "
+           "heart-failure hospitalisation as secondary",
+     how_it_differs_from_ours="A different primary outcome entirely, and again the "
+       "clinical endpoints are handled as separate components rather than as a "
+       "composite."),
+  ],
+  checks=[
+   C(id="castle-af-value-vs-publication",
+     what="Our CASTLE-AF row against the trial's own report",
+     verdict="CONFIRMED",
+     detail="The publication gives 51 of 179 in the ablation group against 82 of "
+            "184 in the medical-therapy group, hazard ratio 0.62 (95% CI 0.43 to "
+            "0.87). The counts in this object were already correct. The row now "
+            "carries the trial's hazard ratio rather than an odds ratio we "
+            "computed from those counts. This trial's registry record posts NO "
+            "results section, so there is no second surface to check it against, "
+            "and that is recorded on the cell.",
+     quote="the primary composite end point occurred in significantly fewer "
+           "patients in the ablation group than in the medical-therapy group (51 "
+           "patients [28.5%] vs. 82 patients [44.6%]; hazard ratio, 0.62; 95% "
+           "confidence interval [CI], 0.43 to 0.87; P=0.007)",
+     location="PMID 29385358, abstract"),
+   C(id="cabana-value-vs-registry-results",
+     what="Our CABANA row against the registry's POSTED analysis",
+     verdict="CONFIRMED",
+     detail="The registry posts 89 of 1108 against 101 of 1096 and its own Cox "
+            "proportional-hazards analysis, 0.86 (95% CI 0.65 to 1.15). The row now "
+            "carries that.",
+     quote="Cox Proportional Hazard 0.86, 95% CI 0.65 to 1.15",
+     location="ClinicalTrials.gov NCT00911508, resultsSection, primary outcome"),
+   C(id="raft-af-counts-on-two-surfaces",
+     what="Our RAFT-AF row against BOTH the registry and the publication",
+     verdict="CONFIRMED",
+     detail="The registry posts 50 of 214 in the rhythm-control group and 64 of 197 "
+            "in the rate-control group; the publication prints the same two counts "
+            "and a hazard ratio of 0.71 (95% CI 0.49 to 1.03). Two independent "
+            "surfaces agreeing, which is what made the stored counts checkable at "
+            "all -- see the error below.",
+     quote="The primary outcome occurred in 50 (23.4%) patients in the "
+           "rhythm-control group and 64 (32.5%) patients in the rate-control group "
+           "(hazard ratio, 0.71 [95% CI, 0.49-1.03])",
+     location="PMID 35313733, abstract; and NCT01420393 resultsSection"),
+   C(id="four-different-endpoints",
+     what="Whether the four trials measured the same thing",
+     verdict="CONFIRMED",
+     detail="They did not, and no two of the four are the same. CASTLE-AF: "
+            "all-cause mortality or worsening heart failure requiring unplanned "
+            "hospitalisation. CABANA: total mortality, disabling stroke, serious "
+            "bleeding or cardiac arrest. EAST-AFNET 4: cardiovascular death, "
+            "stroke, and hospitalisation for worsening heart failure or acute "
+            "coronary syndrome. RAFT-AF: all-cause mortality and heart failure "
+            "events, where an event includes an outpatient intravenous-diuretic "
+            "visit. THE WITHDRAWAL OF THE POOL IS CORRECT AND IS NOW STANDING ON "
+            "the reason that is true.",
+     quote="All-cause mortality or worsening heart failure requiring unplanned "
+           "hospitalization / Number of Participants With Composite of Total "
+           "Mortality, Disabling Stroke, Serious Bleeding, or Cardiac Arrest",
+     location="ClinicalTrials.gov, all four primary outcome measures"),
+   C(id="the-withdrawal-reason-was-wrong",
+     what="The reason recorded for withdrawing the pool",
+     verdict="ERROR", severity="material", whose="ours",
+     detail="It read '3 of 4 contributing trials carry no outcome definition "
+            "(CABANA alone records one)'. ALL FOUR RECORD ONE. They are on the "
+            "registry, they are quoted above, and they were not read. ABSENCE OF "
+            "EVIDENCE WAS RECORDED WHERE THERE WAS EVIDENCE OF DIFFERENCE. The "
+            "verdict is unchanged -- the pool was not established and is not "
+            "established now -- but a withdrawal published on a reason that is "
+            "false is a rigorous-looking wrong, and it is the specific failure this "
+            "lane was warned about: withdrawing on the wrong ground is not made "
+            "safe by the verdict coming out right.",
+     quote=None,
+     location="this object, results.primary.pooled.withdrawn_reason, as it stood "
+              "before 2026-08-17"),
+   C(id="east-afnet-arms-were-swapped",
+     what="Which EAST-AFNET 4 arm this review called the intervention",
+     verdict="ERROR", severity="material", whose="ours",
+     detail="It called USUAL CARE the intervention arm. The object labelled the "
+            "249-event arm 'Usual care' and gave it the role TREATMENT, while the "
+            "trial's own sentence assigns those 249 events to EARLY RHYTHM "
+            "CONTROL. The label was taken from the registry's arm ORDER and the "
+            "count from the publication's, and the two orders differ. The derived "
+            "odds ratio was unaffected in MAGNITUDE, which is exactly why nothing "
+            "caught it: the numbers were internally consistent and the labels were "
+            "not. Same family as RE-LY entered as dabigatran-versus-dabigatran.",
+     quote="A first-primary-outcome event occurred in 249 of the patients assigned "
+           "to early rhythm control (3.9 per 100 person-years) and in 316 patients "
+           "assigned to usual care (5.0 per 100 person-years)",
+     location="PMID 32865375, abstract"),
+   C(id="raft-af-counts-were-wrong",
+     what="RAFT-AF's event counts as this review stored them",
+     verdict="ERROR", severity="material", whose="ours",
+     detail="44 and 55 were stored against a true 50 and 64. Both arms wrong, and "
+            "the odds ratio shown on the page was computed from them. Found by "
+            "querying the registry's posted results, which agree with the "
+            "publication -- so the correct numbers were available on two surfaces "
+            "the whole time.",
+     quote="Rhythm Control 50 of 214; Rate Control 64 of 197",
+     location="ClinicalTrials.gov NCT01420393, resultsSection"),
+   C(id="odds-ratios-where-the-trials-report-hazard-ratios",
+     what="The effect measure on all four rows",
+     verdict="ERROR", severity="material", whose="ours",
+     detail="Every value was an ODDS RATIO derived by us from 2x2 participant "
+            "counts, while all four trials report a TIME-TO-FIRST-EVENT HAZARD "
+            "RATIO. An odds ratio on participants discards the time dimension, and "
+            "the two are not interchangeable: on CASTLE-AF the derived odds ratio "
+            "is 0.4956 against the trial's own 0.62. On CABANA the point estimates "
+            "agree to two decimals BY COINCIDENCE and the intervals do not -- 0.639 "
+            "to 1.159 against 0.65 to 1.15 -- which is the most misleading shape "
+            "available, because it looks like confirmation. All four rows now carry "
+            "each trial's own reported hazard ratio at the interval level the "
+            "source printed, including EAST-AFNET 4's 96 per cent.",
+     quote=None,
+     location="this object, inputs.trials[].by_outcome.primary.effect, as it stood "
+              "before 2026-08-17"),
+   C(id="one-trial-is-not-an-ablation-trial",
+     what="Whether all four trials make the comparison this review is about",
+     verdict="ERROR", severity="material", whose="ours",
+     detail="EAST-AFNET 4's intervention is EARLY STANDARDISED RHYTHM CONTROL "
+            "against USUAL CARE -- a strategy arm delivered mostly with "
+            "antiarrhythmic drugs, in which ablation is one option among several. "
+            "It sits in a review about catheter ablation. This is the "
+            "DOAC-versus-warfarin defect: a review whose subject its own trials do "
+            "not all share. Recorded and flagged on the trial rather than resolved "
+            "here, because removing a trial or re-scoping a review is a human "
+            "decision and not a script's.",
+     quote="early standardised rhythm control -- Patients in the early therapy "
+           "group will be treated following the same therapeutic recommendations",
+     location="ClinicalTrials.gov NCT01288352, armGroups"),
+   C(id="did-the-literature-make-the-same-mistake",
+     what="Whether any published synthesis pooled these incompatible composites",
+     verdict="CONFIRMED",
+     detail="None located did. The one meta-analysis that includes a trial from "
+            "this set pools COMPONENTS SEPARATELY -- all-cause mortality 0.62 (0.54 "
+            "to 0.72), stroke 0.63 (0.56 to 0.70) and heart-failure hospitalisation "
+            "0.64 (0.51 to 0.80), each with its own heterogeneity -- which is "
+            "exactly the right response to trials whose composites differ, and "
+            "exactly what this review failed to do. IT IS THE FOURTH CARDIOLOGY "
+            "TOPIC IN A ROW WHERE THE PUBLISHED LITERATURE HANDLED THE ESTIMAND "
+            "CORRECTLY AND WE DID NOT.",
+     quote="AFCA decreased the risk of mortality (hazard ratio [HR], 0.62; 95% "
+           "confidence interval [CI], 0.54-0.72; I2 = 54%), stroke (HR, 0.63; 95% "
+           "CI, 0.56-0.70; I2 = 23%) and hospitalization for heart failure (HR, "
+           "0.64; 95% CI, 0.51-0.80; I2 = 28%)",
+     location="PMID 32115777, abstract"),
+   C(id="what-the-abstract-layer-cannot-settle",
+     what="Whether the 208 syntheses that name no trial included ours",
+     verdict="UNRESOLVED",
+     detail="208 of 213 records name none of our four trials in the abstract and "
+            "two carry no indexed abstract. Ablation in atrial fibrillation is a "
+            "large synthesis literature and many of those certainly include these "
+            "trials; which ones, and on what endpoint, cannot be decided from an "
+            "abstract.",
+     quote=None,
+     location="PUBLISHED_SYNTHESIS_SCREEN.json, tally"),
+  ],
+  divergence_decomposed=O(
+   ours="NO POOLED ESTIMATE. The four trials measure four different primary "
+        "composites and are presented separately: CASTLE-AF HR 0.62 (0.43-0.87), "
+        "CABANA HR 0.86 (0.65-1.15), EAST-AFNET 4 HR 0.79 (0.66-0.94 at 96%), "
+        "RAFT-AF HR 0.71 (0.49-1.03) -- each on its own endpoint, none of them "
+        "the same endpoint.",
+   theirs="All-cause mortality HR 0.62 (0.54-0.72), stroke HR 0.63 (0.56-0.70) and "
+          "heart-failure hospitalisation HR 0.64 (0.51-0.80), pooled as separate "
+          "COMPONENTS over nine studies of which one is randomised.",
+   why_they_differ="They found a poolable question and we did not look for one. "
+     "Where composites differ, the components several trials share can often still "
+     "be pooled, and that is the route the published synthesis took. This review "
+     "instead averaged the composites and has now withdrawn the result. The "
+     "component route is the obvious replacement question for this page and it is "
+     "NOT taken here: a replacement question must be chosen before the number is "
+     "seen, and this comparison already knows what the components give."),
+ ),
+}
+
+
+def write(app_id):
+    path = os.path.join(REPO, "ssot", app_id, "%s.json" % app_id)
+    if not os.path.exists(path):
+        print("no object at %s -- NOT RUN" % path, file=sys.stderr)
+        return 2
+    cmp_ = COMPARISONS.get(app_id)
+    if not cmp_:
+        print("no comparison recorded for %s -- NOT RUN. This writer emits only what "
+              "was actually reconciled." % app_id, file=sys.stderr)
+        return 2
+    checks = cmp_["checks"]
+    ver = collections.Counter(c["verdict"] for c in checks)
+    n = len(checks)
+    # DERIVED, NEVER TYPED. A denominator typed by hand is a number that stops
+    # matching the table under it the first time a row is added.
+    cmp_ = O(cmp_)
+    cmp_["denominator"] = O(
+        rows_checked=n,
+        confirmed=ver["CONFIRMED"], errors=ver["ERROR"],
+        errors_in_the_literature=sum(1 for c in checks if c["verdict"] == "ERROR"
+                                     and c.get("whose") != "ours"),
+        errors_in_this_review=sum(1 for c in checks if c["verdict"] == "ERROR"
+                                  and c.get("whose") == "ours"),
+        absent=ver["ABSENT"], unresolved=ver["UNRESOLVED"],
+        statement="%d checks were applied and %d came back clean, %d found an error, "
+                  "%d found something absent and %d could not be settled at the layer "
+                  "available. The denominator is stated because a list of only the "
+                  "failures is not a finding, it is a selection."
+                  % (n, ver["CONFIRMED"], ver["ERROR"], ver["ABSENT"], ver["UNRESOLVED"]),
+        symmetry="Confirmations are listed in the same table, in the same detail, as "
+                 "errors. Across the cardiology topics reconciled so far the published "
+                 "literature has been implicated in none of them: where a defect "
+                 "existed it was ours. A comparison with room only for their errors "
+                 "could not have found that out.")
+    obj = json.loads(open(path, encoding="utf-8").read())
+    obj["published_comparison"] = cmp_
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(obj, f, ensure_ascii=False, indent=1)
+        f.write("\n")
+    print("published_comparison written to %s" % path)
+    print("  %d checks -> %d CONFIRMED, %d ERROR, %d ABSENT, %d UNRESOLVED"
+          % (n, ver["CONFIRMED"], ver["ERROR"], ver["ABSENT"], ver["UNRESOLVED"]))
+    theirs = [c for c in checks
+              if c["verdict"] == "ERROR" and c.get("whose") != "ours"]
+    ours = [c for c in checks
+            if c["verdict"] == "ERROR" and c.get("whose") == "ours"]
+    # WHOSE ERROR IT IS, COUNTED SEPARATELY. "0 errors" over a table that mixes
+    # checks on us with checks on them says nothing about either. The running
+    # finding across this lane is specifically that the errors are OURS, and a
+    # tally that cannot express that cannot support it.
+    print("  errors found in the published literature: %d" % len(theirs))
+    print("  errors found in THIS review:              %d" % len(ours))
+    if not theirs:
+        print("  the published literature is implicated in NONE of these checks -- "
+              "stated as prominently as the opposite finding would be")
+    return 0
+
+
+def main():
+    args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    if not args:
+        print("usage: write_published_comparison.py <app_id>\nknown: %s"
+              % ", ".join(sorted(COMPARISONS)), file=sys.stderr)
+        return 2
+    rc = 0
+    for a in args:
+        rc |= write(a)
+    return rc
+
+
+if __name__ == "__main__":
+    sys.exit(main())

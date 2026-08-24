@@ -1,0 +1,248 @@
+PACKET COMPLETENESS, ASSERTED. Everything you need is in this message. The
+material below is reproduced IN FULL and unabridged; nothing is withheld or summarised. You
+have no file access and should not ask for any.
+
+If something you need is genuinely not here, answer COULD NOT DETERMINE and NAME what is
+missing. Do NOT say anything is fabricated, invented, or absent from the record: an earlier
+blinded read of a partial packet returned six confident accusations of fabrication, and all
+six named facts that were present in the record and missing only from the packet. A false
+accusation costs as much here as a missed defect.
+
+You are reviewing ONE withdrawal text, cold. The house rule
+it must satisfy: a stated reason asserts exactly what the evidence supports -- NO MORE, and
+no less. Overclaiming is the failure being hunted; understating in the corpus's own favour
+is the same failure pointing the other way.
+
+Answer these, briefly, in under 400 words total:
+
+1. OVERCLAIM. Quote any sentence asserting more than the packet supports, and say what the
+   extra claim is. If none, say NONE.
+2. UNDERCLAIM. Does the packet show a ground for withdrawal that the text does not state?
+   Name it. This is the more likely failure on a text written by the person who withdrew it.
+3. FACT vs JUDGEMENT. Any place an interpretive judgement is written in the grammar of a
+   fact, or attributed to the evidence rather than owned.
+4. IS THE STATED REASON THE ACTUAL REASON? Given the contributing trials and their declared
+   contrasts, does the reason follow? Could the same packet support a DIFFERENT reason that
+   has not been given?
+5. VERDICT: ACCEPT / ACCEPT WITH CHANGES (list them) / REJECT (say why).
+
+NOTE ON THE PACKET: it contains the ENTIRE canonical object this text was written from,
+under THE_COMPLETE_OBJECT_THIS_TEXT_WAS_WRITTEN_FROM -- every field at every depth, not a
+selection. So "the packet does not contain X" is now a strong statement: if a value is not
+in there, it is not on the object either. Search it before saying anything is missing.
+
+--- THE PACKET, AS JSON ---
+{
+ "topic": "dabigatran-af",
+ "outcome_under_review": "stroke_se",
+ "THE_WITHDRAWAL_TEXT_TO_REVIEW": "k=1 ON THE QUESTION THIS PAGE ASKS. Read from ClinicalTrials.gov 2026-08-18. NCT00262600 (RE-LY) is the trial that established dabigatran in atrial fibrillation and its registered primary is the yearly event rate for stroke or systemic embolism. NCT04532528 (ReAHEAD) is not a drug trial at all: BOTH its arms receive dabigatran and the randomisation is between an educational intervention and standard care, with a registered primary of 'Number of Patients With High (MMAS-8 Score: 8 Points) Adherence to Dabigatran Treatment'. IT ASKS WHETHER EDUCATION IMPROVES ADHERENCE, NOT WHETHER DABIGATRAN WORKS. Averaging an adherence outcome with a stroke outcome is not a pool of one question, so one trial remains and a single trial is reported as a single trial. WHY THIS TOPIC WAS NEARLY RETIRED FOR THE WRONG REASON, recorded because the near miss matters: subject_is_experimental_gate returned FAIL here, because RE-LY types ALL THREE of its arms ACTIVE_COMPARATOR and ReAHEAD types neither of its arms at all. Read by hand, dabigatran is unambiguously the intervention in RE-LY. THE GATE TOLD US WHERE TO LOOK AND WAS WRONG ABOUT WHAT WE WOULD FIND, which is exactly what a gate is for and exactly why a verdict is not a reading.",
+ "THE_NOTE": null,
+ "OTHER_GROUNDS_RECORDED": null,
+ "THE_COMPLETE_OBJECT_THIS_TEXT_WAS_WRITTEN_FROM": {
+  "app_id": "dabigatran-af",
+  "schema_version": 2,
+  "title": "Dabigatran in atrial fibrillation: NOT POOLABLE -- k=1 on the efficacy question, and the second trial asks about ADHERENCE",
+  "built": "2026-08-18",
+  "build_mode": "verdict-only",
+  "topic_state": "NOT POOLABLE -- k=1, decided from the registrations",
+  "verification_basis": "Every registration read in full on 2026-08-18, including armsInterventionsModule.armGroups[].type and interventionNames[], and the brief title. Arm TYPE alone was not sufficient on either topic and the reading says why.",
+  "inputs": {
+   "trials": [
+    {
+     "id": "NCT00262600",
+     "nct": "NCT00262600",
+     "registration": "NCT00262600",
+     "registry": "ClinicalTrials.gov",
+     "label": "RE-LY -- Randomized Evaluation of Long Term Anticoagulant Therapy",
+     "experimental_arm_as_registered": "Dabigatran dose 1 and dose 2 -- BOTH typed ACTIVE_COMPARATOR by the registrants, though dabigatran is plainly the intervention",
+     "comparator_arm_as_registered": "Warfarin (also typed ACTIVE_COMPARATOR)",
+     "registered_primary": "Yearly Event Rate for Composite Endpoint of Stroke/SEE",
+     "contributes": "CONTRIBUTES -- the drug-efficacy question",
+     "source_url": "https://clinicaltrials.gov/study/NCT00262600",
+     "read_utc": "2026-08-18",
+     "registered_primaries": [
+      "Yearly Event Rate for Composite Endpoint of Stroke/SEE"
+     ],
+     "registered_secondaries": [
+      "Yearly Event Rate for Composite Endpoint of Stroke/SEE/All Cause Death",
+      "Yearly Event Rate: Composite of Stroke/SEE/PE/MI/Vascular Death",
+      "Bleeding Events (Major and Minor)",
+      "Clinical Relevant Abnormalities for Intracerebral Hemorrhage and Other Intracranial Hemorrhage (ICH)",
+      "Abnormal Liver Function Test"
+     ],
+     "registered_other_outcomes": [],
+     "all_ranks_read_utc": "2026-08-18"
+    },
+    {
+     "id": "NCT04532528",
+     "nct": "NCT04532528",
+     "registration": "NCT04532528",
+     "registry": "ClinicalTrials.gov",
+     "label": "ReAHEAD -- whether education improves adherence to dabigatran",
+     "experimental_arm_as_registered": "Standard of care only, and SOC with advanced educational intervention -- BOTH arms receive dabigatran and NEITHER carries an arm type at all",
+     "comparator_arm_as_registered": "there is no drug comparator; the comparison is between education strategies",
+     "registered_primary": "Number of Patients With High (MMAS-8 Score: 8 Points) Adherence to Dabigatran Treatment",
+     "contributes": "DOES NOT CONTRIBUTE -- an ADHERENCE trial, not a drug-efficacy trial",
+     "source_url": "https://clinicaltrials.gov/study/NCT04532528",
+     "read_utc": "2026-08-18",
+     "registered_primaries": [
+      "Number of Patients With High (MMAS-8 Score: 8 Points) Adherence to Dabigatran Treatment at Month 12 in Patients With and Without Advanced Educational Intervention"
+     ],
+     "registered_secondaries": [
+      "Number of Patients With High (MMAS-8 Score: 8 Points) Adherence to Dabigatran Treatment at 3, 6, and 9 Months in Patients With and Without Advanced Educational Intervention",
+      "Number of Patients With Medium (MMAS-8 Score: 6 to 7 Points) Adherence to Dabigatran Treatment at 3, 6, 9, and 12 Months in Patients With and Without Advanced Educational Intervention",
+      "Number of Patients With Low (MMAS-8 Score: 0 to 5 Points) Adherence to Dabigatran Treatment at 3, 6, 9, and 12 Months in Patients With and Without Advanced Educational Intervention",
+      "Mean MMAS-8 Score at 3, 6, 9, and 12 Months in Patients With and Without Advanced Educational Intervention",
+      "Number of Patients Who Discontinued Treatment With Dabigatran in Patients With and Without Advanced Educational Intervention",
+      "Number of Patients Who Discontinued Treatment With Dabigatran and Reasons Why They Discontinued in Patients With and Without Advanced Educational Intervention",
+      "Number of Patients Who Switched Treatment With Dabigatran and Reasons Why They Switched in Patients With and Without Advanced Educational Intervention"
+     ],
+     "registered_other_outcomes": [],
+     "all_ranks_read_utc": "2026-08-18"
+    }
+   ]
+  },
+  "outcomes": [
+   {
+    "id": "stroke_se",
+    "name": "Stroke or systemic embolism",
+    "type": "primary",
+    "definition": "Stroke or systemic embolism",
+    "measure": "not applicable",
+    "measure_note": "THE GENERATOR'S OWN IDIOM FOR ABSENCE. This topic publishes no estimate, so there is no measure it was expressed in. Not a borrowed value: sibling objects whose estimate was WITHDRAWN legitimately carry the withdrawn measure, which is a different case.",
+    "comparator": null,
+    "comparator_type": "not applicable",
+    "definition_note": "Registered endpoint definitions are recorded per trial on this object."
+   }
+  ],
+  "results": {
+   "by_outcome": {
+    "stroke_se": {
+     "k": 1,
+     "poolable": false,
+     "poolable_reason": "k=1 ON THE QUESTION THIS PAGE ASKS. Read from ClinicalTrials.gov 2026-08-18. NCT00262600 (RE-LY) is the trial that established dabigatran in atrial fibrillation and its registered primary is the yearly event rate for stroke or systemic embolism. NCT04532528 (ReAHEAD) is not a drug trial at all: BOTH its arms receive dabigatran and the randomisation is between an educational intervention and standard care, with a registered primary of 'Number of Patients With High (MMAS-8 Score: 8 Points) Adherence to Dabigatran Treatment'. IT ASKS WHETHER EDUCATION IMPROVES ADHERENCE, NOT WHETHER DABIGATRAN WORKS. Averaging an adherence outcome with a stroke outcome is not a pool of one question, so one trial remains and a single trial is reported as a single trial. WHY THIS TOPIC WAS NEARLY RETIRED FOR THE WRONG REASON, recorded because the near miss matters: subject_is_experimental_gate returned FAIL here, because RE-LY types ALL THREE of its arms ACTIVE_COMPARATOR and ReAHEAD types neither of its arms at all. Read by hand, dabigatran is unambiguously the intervention in RE-LY. THE GATE TOLD US WHERE TO LOOK AND WAS WRONG ABOUT WHAT WE WOULD FIND, which is exactly what a gate is for and exactly why a verdict is not a reading.",
+     "pooled": {
+      "point": null,
+      "ci_low": null,
+      "ci_high": null,
+      "withdrawn": true,
+      "withdrawn_reason": "k=1 ON THE QUESTION THIS PAGE ASKS. Read from ClinicalTrials.gov 2026-08-18. NCT00262600 (RE-LY) is the trial that established dabigatran in atrial fibrillation and its registered primary is the yearly event rate for stroke or systemic embolism. NCT04532528 (ReAHEAD) is not a drug trial at all: BOTH its arms receive dabigatran and the randomisation is between an educational intervention and standard care, with a registered primary of 'Number of Patients With High (MMAS-8 Score: 8 Points) Adherence to Dabigatran Treatment'. IT ASKS WHETHER EDUCATION IMPROVES ADHERENCE, NOT WHETHER DABIGATRAN WORKS. Averaging an adherence outcome with a stroke outcome is not a pool of one question, so one trial remains and a single trial is reported as a single trial. WHY THIS TOPIC WAS NEARLY RETIRED FOR THE WRONG REASON, recorded because the near miss matters: subject_is_experimental_gate returned FAIL here, because RE-LY types ALL THREE of its arms ACTIVE_COMPARATOR and ReAHEAD types neither of its arms at all. Read by hand, dabigatran is unambiguously the intervention in RE-LY. THE GATE TOLD US WHERE TO LOOK AND WAS WRONG ABOUT WHAT WE WOULD FIND, which is exactly what a gate is for and exactly why a verdict is not a reading.",
+      "withdrawn_utc": "2026-08-18"
+     },
+     "per_trial": [],
+     "what_this_verdict_does_not_establish": "NOT that the contributing trial is poor -- it is registered, randomised and reports its primary. NOT that the drug is ineffective. NOT that no poolable question exists in this area: only that this page holds one trial that answers the question its title asks.",
+     "model": "random-effects",
+     "estimator_used": "not applicable",
+     "source_page_pooled": false,
+     "poolable_DEPRECATED_note": "`poolable` MEANT ONLY 'the source page pooled these trials'. It was never a judgement that the pool was sound, and the renderer read it as permission to assert 'pooled on the X scale'. RENAMED to source_page_pooled, which is what it says. `poolable` is retained so nothing breaks, and it is DEPRECATED: read source_page_pooled for what the source did, and estimand_established for whether the pool is defensible. A PAGE SHOULD DISPLAY A POOLED ESTIMATE BECAUSE ITS ESTIMAND WAS ESTABLISHED, NOT BECAUSE SOMEONE ONCE POOLED IT.",
+     "estimand_established": null,
+     "estimand_established_means": "TRUE only where every contributing trial has been READ and shown to measure the same quantity, or the same construct with a variance stated. FALSE where that was checked and failed. NULL where it was never checked -- AN ABSENT ASSERTION AND A NEGATIVE ONE ARE DIFFERENT STATES and null is not a pass.",
+     "estimand_established_does_not_cover_the_contrast_2026_08_20": "READ THIS BESIDE `estimand_established`. That flag records that every contributing trial measures the SAME QUANTITY. It records NOTHING about what that quantity was measured AGAINST -- whether the comparators are of one kind, whether each comparison was randomised, whether it was concurrent. On attr-pn-review the flag is TRUE and correct while the pool combines patisiran against its own saline placebo, vutrisiran against PATISIRAN, and eplontersen against the placebo cohort of a DIFFERENT TRIAL. The two questions were never separated. Named as P48 in PAGE-STANDARD.md v1.21.0 and swept by scripts/audit_mixed_contrast_pools.py."
+    }
+   }
+  },
+  "risk_of_bias_verdict": "Not assessed. A risk-of-bias assessment grades the trials contributing to a pooled result, and this page publishes none.",
+  "handbook_authority": {
+   "handbook": "Cochrane Handbook for Systematic Reviews of Interventions",
+   "version": "Version 6.5, 2024",
+   "verified_on": "2026-08-18",
+   "sections": "10.10.3; MECIR Box 10.10.a (C62)",
+   "a_review_need_not_pool": "'A systematic review need not contain any meta-analyses.'"
+  },
+  "carried_contrasts": [],
+  "sources": {},
+  "question": "Dabigatran in atrial fibrillation: NOT POOLABLE -- k=1 on the efficacy question, and the second trial asks about ADHERENCE on Stroke or systemic embolism?",
+  "generator_schema_patch_2026_08_18": {
+   "relocations": "SAME VALUE, PLACED WHERE THE CONSUMER LOOKS. The generator reads this key; our schema wrote it elsewhere on the same object. A relocation, not a new claim.",
+   "genuinely_empty": "GENUINELY EMPTY for this topic, not emptied to pass a check. The same field is empty on acs-antiplatelet-review, which builds.",
+   "rule": "Every field added falls into RELOCATION, GENUINELY EMPTY, or DERIVED FROM RECORDED CONTENT. A field falling into none was REFUSED. Adding a key to satisfy a generator is not the same as adding the content that key should hold.",
+   "fields": [
+    "carried_contrasts=[] (empty)",
+    "sources={} (empty)",
+    "question (derived)"
+   ]
+  },
+  "all_ranks_captured_2026_08_18": "Registered outcomes captured at EVERY rank -- primary, secondary and other -- by re-reading each registration on 2026-08-18. Previously only primaries were recorded, which made this topic's withdrawal UNTESTABLE for proportionality: the SGLT2 failure lived one rank down and we had not kept one rank down. The read date is stamped FOR THIS READ, not carried over.",
+  "manuscript": {
+   "references": {
+    "_what": "A reference list, assembled from this object's own fields. Distinct from `sources`, which records the provenance LAYER each fact was read at; this is what a reader would look up.",
+    "included_studies": [
+     {
+      "registration": "NCT00262600",
+      "label": "RE-LY -- Randomized Evaluation of Long Term Anticoagulant Therapy",
+      "registry": "ClinicalTrials.gov",
+      "url": "https://clinicaltrials.gov/study/NCT00262600",
+      "read_utc": "2026-08-18"
+     },
+     {
+      "registration": "NCT04532528",
+      "label": "ReAHEAD -- whether education improves adherence to dabigatran",
+      "registry": "ClinicalTrials.gov",
+      "url": "https://clinicaltrials.gov/study/NCT04532528",
+      "read_utc": "2026-08-18"
+     }
+    ],
+    "published_syntheses_compared_against": [],
+    "_published_syntheses_note": "No published synthesis is listed here. The comparison section states its own denominator and why nothing citable was appraised. ",
+    "methods_guidance_and_software": [
+     {
+      "cited_for": "the reporting guideline this manuscript is written against",
+      "citation": "Page MJ, McKenzie JE, Bossuyt PM, et al. The PRISMA 2020 statement: an updated guideline for reporting systematic reviews. BMJ. 2021;372:n71. doi:10.1136/bmj.n71"
+     }
+    ]
+   },
+   "introduction": "This review asks: Dabigatran in atrial fibrillation: NOT POOLABLE -- k=1 on the efficacy question, and the second trial asks about ADHERENCE on Stroke or systemic embolism?\n\nIt examines 1 randomised trial and DOES NOT POOL THEM.\n\nThe outcome sought is Stroke or systemic embolism.\n\nEverything in this paragraph is derived from stored fields and none of it is authored. The interpretive sentences that follow are marked as drafts and are the author's to replace."
+  },
+  "bookkeeping_2026_08_21": {
+   "_what": "The five reporting claims a PRISMA-2020 manuscript needs that are FETCHABLE rather than argued -- each derived from a field here, or stated as an honest absence.",
+   "which_limbs_this_review_refuses": "Of the four properties this project requires of a completed topic, 0 are held (none) and 4 are refused with the obstacle named in the evidence (comparison denominator, grade per pool, model output verbatim, rob per result).",
+   "the_search_its_date_and_its_databases": "PRIMARY TRIALS. NO BIBLIOGRAPHIC SEARCH FOR PRIMARY TRIALS WAS RUN. The 2 included trials were identified by reading named registrations on 2026-08-18. Every registration read in full on 2026-08-18, including armsInterventionsModule.armGroups[].type and interventionNames[], and the brief title. Arm TYPE alone was not sufficient on either topic and the reading says why.",
+   "whether_this_review_was_prospectively_registered": "NO PROSPERO REGISTRATION OR PROTOCOL RECORD IS HELD ON THIS OBJECT. That is not the same as knowing this review was not registered, and neither claim is made. It is recorded here as an absence so that a reader does not have to infer it from silence.",
+   "that_two_assessors_disagreed_and_where": "NO SECOND, INDEPENDENT RISK-OF-BIAS ASSESSMENT IS RECORDED FOR THIS TOPIC. The judgements were made once. Stated so that single assessment is not mistaken for agreement between two."
+  },
+  "display_change_announced": [
+   {
+    "date": "2026-08-21",
+    "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+    "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+    "what_changed": "references built, introduction written, bookkeeping claims 4",
+    "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+   },
+   {
+    "date": "2026-08-21",
+    "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+    "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+    "what_changed": "references built, introduction written, bookkeeping claims 4",
+    "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+   },
+   {
+    "date": "2026-08-21",
+    "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+    "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+    "what_changed": "references built, introduction written, bookkeeping claims 4",
+    "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+   },
+   {
+    "date": "2026-08-21",
+    "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+    "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+    "what_changed": "references built, introduction written, bookkeeping claims 4",
+    "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+   },
+   {
+    "date": "2026-08-21",
+    "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+    "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+    "what_changed": "references built, introduction written, bookkeeping claims 4",
+    "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+   },
+   {
+    "date": "2026-08-21",
+    "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+    "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+    "what_changed": "references built, introduction written, bookkeeping claims 4",
+    "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+   }
+  ]
+ }
+}

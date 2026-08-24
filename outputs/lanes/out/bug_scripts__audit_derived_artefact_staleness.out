@@ -1,0 +1,308 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a0313c-3a7f-7442-8366-baca8c037133
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/audit_derived_artefact_staleness.py
+
+--- THE FILE, IN FULL ---
+#!/usr/bin/env python3
+"""WHICH DERIVED ARTEFACTS ARE CONSUMED AS CURRENT AND DEFENDED ONLY BY A DATE?
+
+THE REASONING THIS GENERALISES, from the dashboard fix:
+
+    A TIMESTAMP ANSWERS "WHEN WAS THIS MADE", WHICH IS NOT THE QUESTION. The question is
+    "DO THE SOURCES STILL SAY WHAT THIS WAS BUILT FROM". A regenerated snapshot with a fresh
+    timestamp and a stale withdrawal passes a date check and fails a fingerprint check.
+
+A FIRST PASS AT THIS COUNTED 2,210 ARTEFACTS CARRYING A DATE AND NO FINGERPRINT, AND THAT NUMBER
+IS WRONG TO REPORT AS A DEFECT. Almost all of them are `evidence/` files: RECORDS OF A MOMENT --
+a search executed on a date, a screen run on a date, a cross-family read taken on a date. For a
+moment-record a date is not a weak guarantee, IT IS THE WHOLE POINT, and going out of date is
+not a defect but the passage of time. Reporting 2,210 would have been a large alarming number
+measuring nothing.
+
+The artefacts that matter are the ones **CONSUMED AS CURRENT STATE**: something reads them and
+acts, serves or gates on what they say now. For those, and only those, a date is insufficient.
+
+HOW CONSUMPTION IS DETECTED, and its limits stated
+  * a JSON path referenced as a string literal in any `.py` or `.html` in the repo
+  * moment-records under `evidence/<date>/` are excluded BY PATH -- see above
+  * THIS UNDERCOUNTS. A path built by string concatenation, a glob, or a variable is invisible
+    here. A clean run is a floor, never a total.
+
+USAGE:  python scripts/audit_derived_artefact_staleness.py
+        python scripts/audit_derived_artefact_staleness.py --selftest
+"""
+import glob
+import io
+import json
+import os
+import re
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DEST = os.path.join(REPO, "evidence", "2026-08-19-batch1", "derived_artefact_staleness.json")
+
+DATE_KEYS = ("generated", "generated_utc", "built", "built_utc", "created", "created_utc",
+             "date", "_date", "computed_utc", "audited_utc", "projected_utc", "as_of",
+             "last_modified", "timestamp", "swept_utc", "recorded_utc")
+FP_HINTS = ("fingerprint", "source_hash", "content_hash", "inputs_hash", "objects_hash")
+
+JSON_REF = re.compile(r"[\"']([A-Za-z0-9_\-/.]+\.json)[\"']")
+
+
+def is_moment_record(rel):
+    """A record OF a date is not a claim ABOUT now. Excluded, and the rule is stated."""
+    r = rel.replace("\\", "/")
+    return "/2026-" in r or r.startswith("evidence/2026")
+
+
+def consumers(repo=REPO):
+    """{json path: set(files that name it)} -- string literals only, which undercounts."""
+    refs = {}
+    pats = ("scripts/*.py", "ssot/*.py", "*.py", "*.html")
+    for pat in pats:
+        for p in glob.glob(os.path.join(repo, pat)):
+            if os.path.getsize(p) > 3_000_000:
+                continue
+            try:
+                with io.open(p, "r", encoding="utf-8", errors="replace") as fh:
+                    t = fh.read()
+            except OSError:
+                continue
+            for m in JSON_REF.finditer(t):
+                f = m.group(1).replace("\\", "/")
+                if f.startswith("."):
+                    continue
+                refs.setdefault(f, set()).add(os.path.relpath(p, repo))
+    return refs
+
+
+def profile(rel, repo=REPO):
+    """(has_date, has_fingerprint) for one artefact, or None if unreadable."""
+    p = os.path.join(repo, rel.replace("/", os.sep))
+    if not os.path.exists(p) or os.path.getsize(p) > 60_000_000:
+        return None
+    try:
+        with io.open(p, "r", encoding="utf-8") as fh:
+            d = json.load(fh)
+    except (OSError, ValueError):
+        return None
+    if not isinstance(d, dict):
+        return None
+    keys = set()
+    for k, v in d.items():
+        keys.add(str(k).lower())
+        if isinstance(v, dict):
+            for k2 in v:
+                keys.add(str(k2).lower())
+    has_date = any(k in keys for k in DATE_KEYS)
+    has_fp = any(any(h in k for h in FP_HINTS) for k in keys)
+    return has_date, has_fp
+
+
+def run():
+    refs = consumers()
+    rows, excluded = [], 0
+    for rel, users in sorted(refs.items()):
+        if is_moment_record(rel):
+            excluded += 1
+            continue
+        pr = profile(rel)
+        if pr is None:
+            continue
+        has_date, has_fp = pr
+        rows.append({"artefact": rel, "consumers": sorted(users), "n_consumers": len(users),
+                     "carries_a_date": has_date, "carries_a_fingerprint": has_fp,
+                     "defended_only_by_a_date": bool(has_date and not has_fp),
+                     "bytes": os.path.getsize(os.path.join(REPO, rel.replace("/", os.sep)))})
+    only_date = [r for r in rows if r["defended_only_by_a_date"]]
+    neither = [r for r in rows if not r["carries_a_date"] and not r["carries_a_fingerprint"]]
+    out = {
+        "audited_utc": "2026-08-19",
+        "the_reasoning_this_generalises": (
+            "A timestamp answers WHEN WAS THIS MADE, which is not the question. The question is "
+            "DO THE SOURCES STILL SAY WHAT THIS WAS BUILT FROM. A regenerated snapshot with a "
+            "fresh timestamp and a stale withdrawal passes a date check and fails a fingerprint "
+            "check."),
+        "why_the_first_number_was_wrong": (
+            "A first pass counted 2,210 artefacts carrying a date and no fingerprint. Almost all "
+            "are `evidence/` moment-records -- a search executed on a date, a screen run on a "
+            "date. FOR A MOMENT-RECORD A DATE IS THE WHOLE POINT and going out of date is the "
+            "passage of time, not a defect. 2,210 would have been a large alarming number "
+            "measuring nothing."),
+        "artefacts_consumed_by_code": len(rows),
+        "moment_records_excluded_by_path": excluded,
+        "carrying_a_fingerprint": sum(1 for r in rows if r["carries_a_fingerprint"]),
+        "DEFENDED_ONLY_BY_A_DATE": len(only_date),
+        "carrying_neither": len(neither),
+        "what_this_undercounts": (
+            "Consumption is detected from STRING LITERALS in .py and .html. A path built by "
+            "concatenation, a glob, or a variable is invisible here. A clean run is a FLOOR."),
+        "and_what_it_does_NOT_claim": (
+            "NOT that every artefact listed needs a fingerprint. An artefact whose sources "
+            "cannot change, or that is regenerated on every read, does not. The list is the "
+            "question, never the verdict -- the same rule this corpus applies to an identical "
+            "trial set."),
+        "rows": sorted(rows, key=lambda r: (-r["n_consumers"], r["artefact"])),
+    }
+    with io.open(DEST, "w", encoding="utf-8") as fh:
+        fh.write(json.dumps(out, indent=1, ensure_ascii=False))
+
+    print("artefacts consumed by code (moment-records excluded): %d" % len(rows))
+    print("   excluded as records OF a date : %d" % excluded)
+    print("   carrying a fingerprint        : %d" % out["carrying_a_fingerprint"])
+    print("   DEFENDED ONLY BY A DATE       : %d" % len(only_date))
+    print("   carrying neither              : %d\n" % len(neither))
+    print("  %-46s %5s %-6s %s" % ("artefact", "users", "date", "fingerprint"))
+    for r in out["rows"][:24]:
+        mark = "  <-- only a date" if r["defended_only_by_a_date"] else ""
+        print("  %-46s %5d %-6s %-11s%s"
+              % (r["artefact"][:46], r["n_consumers"],
+                 "yes" if r["carries_a_date"] else "-",
+                 "YES" if r["carries_a_fingerprint"] else "no", mark))
+    print("\nwrote %s" % os.path.relpath(DEST, REPO))
+    return 0
+
+
+def selftest():
+    fails = []
+
+    def ck(name, got, want):
+        ok = got == want
+        print("  %-64s %s  %r" % (name, "ok" if ok else "FAIL", got))
+        if not ok:
+            fails.append(name)
+
+    print("1. A MOMENT-RECORD IS EXCLUDED AND A CONSUMED ARTEFACT IS NOT:")
+    ck("evidence/2026-08-19-batch1/x.json is a moment record",
+       is_moment_record("evidence/2026-08-19-batch1/x.json"), True)
+    ck("outputs/portfolio_index.json is not", is_moment_record("outputs/portfolio_index.json"),
+       False)
+    ck("ssot/PAGE_MAP.json is not", is_moment_record("ssot/PAGE_MAP.json"), False)
+
+    print("\n2. THE PROFILE READS BOTH DEFENCES ON A REAL ARTEFACT:")
+    pr = profile("outputs/portfolio_index.json")
+    ck("the dashboard index carries a date", pr[0], True)
+    ck("and NOW carries a fingerprint, because it was fixed", pr[1], True)
+
+    print("\n3. AND FINDS THE ABSENCE ON ONE THAT WAS NOT:")
+    pr2 = profile("PUBLISHED_META_BENCHMARKS.json")
+    ck("the benchmarks file carries a date", pr2[0], True)
+    ck("and carries NO fingerprint", pr2[1], False)
+
+    print("\n4. THE LIVE RUN -- a zero here would make the audit meaningless:")
+    run()
+    with io.open(DEST, "r", encoding="utf-8") as fh:
+        out = json.load(fh)
+    ck("artefacts were found to classify", out["artefacts_consumed_by_code"] > 0, True)
+    ck("and moment-records were excluded rather than counted",
+       out["moment_records_excluded_by_path"] > 0, True)
+
+    print("\n%s" % ("SELFTEST FAILED: %s" % fails if fails else "SELFTEST PASSED"))
+    return 1 if fails else 0
+
+
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    sys.exit(selftest() if "--selftest" in sys.argv else run())
+
+codex
+Defects found:
+
+- **Line 39: selector keyed to a form the corpus may not use.**  
+  Exact input: a scanned file containing `"outputs\\portfolio_index.json"`.  
+  Consequence: `JSON_REF` cannot match backslashes at all, so Windows-style JSON references are invisible even though line 48 tries to normalize them.
+
+- **Line 39: selector matches comments, not string literals.**  
+  Exact input: a scanned `.py` file containing `# "outputs/portfolio_index.json"` and no executable reference.  
+  Consequence: the artefact is counted as consumed by code when the only “consumer” is a comment.
+
+- **Lines 74-78: selector keyed to shallow fingerprint fields only.**  
+  Exact input JSON: `{"generated_utc":"2026-08-19","metadata":{"inputs":{"source_hash":"abc"}}}`.  
+  Consequence: `profile()` reports `(True, False)` because it only inspects top-level keys and one nested level, so a real fingerprint nested deeper is missed.
+
+- **Lines 136-137: selftest can crash instead of reporting failure.**  
+  Exact input: missing or invalid `outputs/portfolio_index.json`, making `profile("outputs/portfolio_index.json")` return `None`.  
+  Consequence: `pr[0]` raises `TypeError`, so the selftest exits by exception rather than recording the defect in `fails`.
+
+- **Lines 141-143: selftest can crash instead of reporting failure.**  
+  Exact input: missing or invalid `PUBLISHED_META_BENCHMARKS.json`, making `profile(...)` return `None`.  
+  Consequence: `pr2[0]` raises `TypeError`, so this check never produces an ordinary failed assertion.
+
+No proven CRLF/LF text-comparison defect.  
+No proven merged-cell/off-by-one tabulation defect.  
+No proven zero-conflated-with-absent defect.  
+No proven negation-dropped defect.  
+No proven wrapper-status-code defect.
+tokens used
+7,815
+Defects found:
+
+- **Line 39: selector keyed to a form the corpus may not use.**  
+  Exact input: a scanned file containing `"outputs\\portfolio_index.json"`.  
+  Consequence: `JSON_REF` cannot match backslashes at all, so Windows-style JSON references are invisible even though line 48 tries to normalize them.
+
+- **Line 39: selector matches comments, not string literals.**  
+  Exact input: a scanned `.py` file containing `# "outputs/portfolio_index.json"` and no executable reference.  
+  Consequence: the artefact is counted as consumed by code when the only “consumer” is a comment.
+
+- **Lines 74-78: selector keyed to shallow fingerprint fields only.**  
+  Exact input JSON: `{"generated_utc":"2026-08-19","metadata":{"inputs":{"source_hash":"abc"}}}`.  
+  Consequence: `profile()` reports `(True, False)` because it only inspects top-level keys and one nested level, so a real fingerprint nested deeper is missed.
+
+- **Lines 136-137: selftest can crash instead of reporting failure.**  
+  Exact input: missing or invalid `outputs/portfolio_index.json`, making `profile("outputs/portfolio_index.json")` return `None`.  
+  Consequence: `pr[0]` raises `TypeError`, so the selftest exits by exception rather than recording the defect in `fails`.
+
+- **Lines 141-143: selftest can crash instead of reporting failure.**  
+  Exact input: missing or invalid `PUBLISHED_META_BENCHMARKS.json`, making `profile(...)` return `None`.  
+  Consequence: `pr2[0]` raises `TypeError`, so this check never produces an ordinary failed assertion.
+
+No proven CRLF/LF text-comparison defect.  
+No proven merged-cell/off-by-one tabulation defect.  
+No proven zero-conflated-with-absent defect.  
+No proven negation-dropped defect.  
+No proven wrapper-status-code defect.

@@ -1,0 +1,715 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a03208-08e1-7ed3-9b32-23f60c58ce55
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/patch_continuous_forest.py
+
+--- THE FILE, IN FULL ---
+"""
+Bulk-apply the continuous-outcome forest-plot fix across rapidmeta-finerenone
+pairwise reviews.
+
+Same 7 edits that fixed FARICIMAB_NAMD_REVIEW.html (commit 16a80e9, 20caf98)
+and AFLIBERCEPT_HD_REVIEW.html (commit 69f2f92). Idempotent: re-running on
+already-fixed files is a no-op.
+
+Usage:
+    python scripts/patch_continuous_forest.py --dry-run    # report only
+    python scripts/patch_continuous_forest.py              # apply
+"""
+import argparse, os, re, sys
+
+ROOT = os.environ.get('RAPIDMETA_REPO_ROOT', os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+# The 20 pairwise reviews flagged NEEDS_FIX by the audit.
+TARGETS = [
+    'ANTIAMYLOID_AD_REVIEW.html', 'ARNI_HF_REVIEW.html', 'BEMPEDOIC_ACID_REVIEW.html',
+    'BIOLOGIC_ASTHMA_REVIEW.html', 'CFTR_CF_REVIEW.html', 'CGRP_MIGRAINE_REVIEW.html',
+    'COPD_TRIPLE_REVIEW.html', 'DUPILUMAB_COPD_REVIEW.html', 'ESKETAMINE_TRD_REVIEW.html',
+    'FEZOLINETANT_VMS_REVIEW.html', 'INCLISIRAN_REVIEW.html', 'INSULIN_ICODEC_REVIEW.html',
+    'KARXT_SCZ_REVIEW.html', 'PATISIRAN_POLYNEUROPATHY_REVIEW.html',
+    'PEGCETACOPLAN_GA_REVIEW.html', 'RENAL_DENERV_REVIEW.html', 'ROMOSOZUMAB_OP_REVIEW.html',
+    'SEMAGLUTIDE_OBESITY_REVIEW.html', 'TIRZEPATIDE_OBESITY_REVIEW.html',
+    'TIRZEPATIDE_T2D_REVIEW.html',
+]
+
+
+# ---------- Edit 1: ContinuousMDEngine plotData alias ----------
+EDIT1_OLD = "        const pSE = Math.sqrt(1/sWR);\n\n\n        \n"
+EDIT1_NEW = (
+    "        const pSE = Math.sqrt(1/sWR);\n\n\n"
+    "        // Alias md->logOR, name->id so existing OR/HR-shaped consumers (renderPlots\n"
+    "        // forest/subgroup/cumulative) read MD values without rewriting their schema.\n"
+    "        // Linear-scale renderers must check r.isContinuous and skip exp() back-transforms.\n"
+    "        plotData.forEach(d => { d.logOR = d.md; d.id = d.name; d.group = d.group ?? 'Treatment vs comparator'; d.tE = d.tE ?? 0; d.cE = d.cE ?? 0; d.tN = d.tN ?? 0; d.cN = d.cN ?? 0; });\n\n\n\n"
+)
+
+# ---------- Edit 2: pool() return shape ----------
+EDIT2_OLD = "            or: pMD.toFixed(2), lci: lci, uci: uci,\n\n\n            pOR: pMD, I2: I2, Q: Q, df: df, tau2: tau2,"
+EDIT2_NEW = (
+    "            or: pMD.toFixed(2), lci: lci, uci: uci,\n\n\n"
+    "            pOR: pMD, pLogOR: pMD, pSE: pSE, zCrit: zCrit,\n\n\n"
+    "            I2: I2, Q: Q, df: df, tau2: tau2,"
+)
+
+# ---------- Edit 3: Engine.render() Math.exp bug ----------
+EDIT3_OLD = "                    this.renderPlots(c.plotData, parseFloat(c.or), parseFloat(c.pSE), Math.exp(parseFloat(c.or)), parseFloat(c.zCrit ?? 1.96), parseFloat(c.tau2), {}, {}, {});"
+EDIT3_NEW = (
+    "                    // Continuous MD: pLogOR=MD, pOR=MD (no exp back-transform), pSE/zCrit\n"
+    "                    // come straight from ContinuousMDEngine. The downstream forest plot is\n"
+    "                    // linear-scale; reference line at 0 is handled inside renderAnnotatedForest.\n"
+    "                    this.renderPlots(c.plotData, parseFloat(c.pLogOR ?? c.or), parseFloat(c.pSE), parseFloat(c.pOR ?? c.or), parseFloat(c.zCrit ?? 1.96), parseFloat(c.tau2), {}, {}, {});"
+)
+
+# ---------- Edit 4: renderAnnotatedForest CONTINUOUS routing ----------
+EDIT4_OLD = (
+    "            renderAnnotatedForest(r, included) {\n\n\n"
+    "                const confLevel = RapidMeta.state.confLevel ?? 0.95;\n\n\n"
+    "                const zCrit = normalQuantile(1 - (1 - confLevel) / 2);\n\n\n"
+    "                const ciPct = (confLevel * 100).toFixed(0);"
+)
+EDIT4_NEW = (
+    "            renderAnnotatedForest(r, included) {\n\n\n"
+    "                const confLevel = RapidMeta.state.confLevel ?? 0.95;\n\n\n"
+    "                const zCrit = normalQuantile(1 - (1 - confLevel) / 2);\n\n\n"
+    "                const ciPct = (confLevel * 100).toFixed(0);\n\n\n"
+    "                // CONTINUOUS (MD) branch — for outcomes pooled by ContinuousMDEngine.\n"
+    "                // Linear x-axis, reference at 0, no exp() back-transform.\n"
+    "                // Binary OR/RR/HR branch below is unchanged.\n"
+    "                if (r && r.isContinuous) {\n"
+    "                    return this.renderAnnotatedForestMD(r, included, zCrit, ciPct);\n"
+    "                }"
+)
+
+# ---------- Edit 5: append renderAnnotatedForestMD function ----------
+EDIT5_OLD = (
+    "                Plotly.newPlot('plot-forest-nyt', [trace], layout, { displayModeBar: false, responsive: true });\n\n\n"
+    "            },"
+)
+EDIT5_NEW = (
+    "                Plotly.newPlot('plot-forest-nyt', [trace], layout, { displayModeBar: false, responsive: true });\n\n\n"
+    "            },\n\n\n"
+    "            // Headline forest plot for CONTINUOUS (mean-difference) outcomes.\n"
+    "            // Routed from renderAnnotatedForest when r.isContinuous === true.\n"
+    "            // Linear x-axis, reference line at 0, no exp() back-transform.\n"
+    "            renderAnnotatedForestMD(r, included, zCrit, ciPct) {\n"
+    "                const studies = (r.plotData ?? []).map(d => {\n"
+    "                    const md = d.md;\n"
+    "                    const se = d.se;\n"
+    "                    const lo = md - zCrit * se;\n"
+    "                    const hi = md + zCrit * se;\n"
+    "                    const w  = 1 / (se * se);\n"
+    "                    return { name: d.name ?? d.id, year: d.year ?? '', md, lo, hi, w };\n"
+    "                });\n"
+    "                if (studies.length === 0) {\n"
+    "                    Plotly.newPlot('plot-forest-nyt', [], { paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)' });\n"
+    "                    return;\n"
+    "                }\n"
+    "                const totalW = studies.reduce((a, s) => a + s.w, 0);\n"
+    "\n"
+    "                const yLabels = studies.map(s => s.name + (s.year ? ' (' + s.year + ')' : ''));\n"
+    "                yLabels.push('Pooled (RE)');\n"
+    "\n"
+    "                const xVals = studies.map(s => s.md);\n"
+    "                xVals.push(parseFloat(r.or));\n"
+    "\n"
+    "                const errLo = studies.map(s => s.md - s.lo);\n"
+    "                errLo.push(parseFloat(r.or) - parseFloat(r.lci));\n"
+    "\n"
+    "                const errHi = studies.map(s => s.hi - s.md);\n"
+    "                errHi.push(parseFloat(r.uci) - parseFloat(r.or));\n"
+    "\n"
+    "                const sizes = studies.map(s => 8 + 20 * (s.w / totalW));\n"
+    "                sizes.push(18);\n"
+    "\n"
+    "                const colors = studies.map(() => '#3b82f6');\n"
+    "                colors.push('#ef4444');\n"
+    "\n"
+    "                const symbols = studies.map(() => 'square');\n"
+    "                symbols.push('diamond');\n"
+    "\n"
+    "                const _selOutcome = RapidMeta.state.selectedOutcome || 'default';\n"
+    "                const _outcomeLabel = (typeof RapidMeta.continuousAxisLabel === 'function')\n"
+    "                    ? RapidMeta.continuousAxisLabel(_selOutcome)\n"
+    "                    : 'Mean difference (intervention - comparator)';\n"
+    "\n"
+    "                const hoverTexts = studies.map(s =>\n"
+    "                    s.name + '<br>MD: ' + s.md.toFixed(2) + ' (' + s.lo.toFixed(2) + '–' + s.hi.toFixed(2) + ')'\n"
+    "                    + '<br>Weight: ' + (s.w / totalW * 100).toFixed(1) + '%'\n"
+    "                );\n"
+    "                hoverTexts.push('Pooled<br>MD: ' + r.or + ' (' + (parseFloat(r.lci)).toFixed(2) + '–' + (parseFloat(r.uci)).toFixed(2) + ')');\n"
+    "\n"
+    "                const annotations = studies.map((s, i) => ({\n"
+    "                    x: Math.max(s.hi + 0.4, parseFloat(r.uci) + 0.4),\n"
+    "                    y: i,\n"
+    "                    text: '<b>' + s.md.toFixed(2) + '</b> [' + s.lo.toFixed(2) + ', ' + s.hi.toFixed(2) + '] W=' + (s.w / totalW * 100).toFixed(0) + '%',\n"
+    "                    showarrow: false,\n"
+    "                    font: { size: 9, color: '#94a3b8', family: 'JetBrains Mono' },\n"
+    "                    xanchor: 'left'\n"
+    "                }));\n"
+    "                annotations.push({\n"
+    "                    x: Math.max(parseFloat(r.uci) + 0.4, parseFloat(r.or) + 0.4),\n"
+    "                    y: studies.length,\n"
+    "                    text: '<b>' + parseFloat(r.or).toFixed(2) + '</b> [' + parseFloat(r.lci).toFixed(2) + ', ' + parseFloat(r.uci).toFixed(2) + ']',\n"
+    "                    showarrow: false,\n"
+    "                    font: { size: 10, color: '#ef4444', family: 'JetBrains Mono' },\n"
+    "                    xanchor: 'left'\n"
+    "                });\n"
+    "\n"
+    "                const _niMargin = (typeof RapidMeta.continuousNIMargin === 'function')\n"
+    "                    ? RapidMeta.continuousNIMargin(_selOutcome)\n"
+    "                    : null;\n"
+    "                const _shapes = [\n"
+    "                    { type: 'line', x0: 0, x1: 0, y0: -0.5, y1: yLabels.length - 0.5, line: { color: '#ef4444', width: 1.5, dash: 'dot' } }\n"
+    "                ];\n"
+    "                if (_niMargin && Number.isFinite(_niMargin.value)) {\n"
+    "                    _shapes.push({ type: 'line', x0: _niMargin.value, x1: _niMargin.value, y0: -0.5, y1: yLabels.length - 0.5, line: { color: '#f59e0b', width: 1.5, dash: 'dash' } });\n"
+    "                    annotations.push({\n"
+    "                        x: _niMargin.value, y: -0.5, yanchor: 'bottom',\n"
+    "                        text: 'NI margin (' + _niMargin.value + ')',\n"
+    "                        showarrow: false,\n"
+    "                        font: { size: 9, color: '#f59e0b', family: 'JetBrains Mono' }\n"
+    "                    });\n"
+    "                }\n"
+    "                if (_niMargin && _niMargin.favoursLeft && _niMargin.favoursRight) {\n"
+    "                    annotations.push(\n"
+    "                        { xref: 'paper', yref: 'paper', x: 0.0, y: -0.16, xanchor: 'left',  text: '← favours ' + _niMargin.favoursLeft,  showarrow: false, font: { size: 9, color: '#94a3b8' } },\n"
+    "                        { xref: 'paper', yref: 'paper', x: 1.0, y: -0.16, xanchor: 'right', text: 'favours ' + _niMargin.favoursRight + ' →', showarrow: false, font: { size: 9, color: '#94a3b8' } }\n"
+    "                    );\n"
+    "                }\n"
+    "\n"
+    "                const trace = {\n"
+    "                    x: xVals, y: yLabels, mode: 'markers', type: 'scatter',\n"
+    "                    marker: { size: sizes, color: colors, symbol: symbols },\n"
+    "                    error_x: { type: 'data', symmetric: false, array: errHi, arrayminus: errLo, visible: true, color: '#3b82f6', thickness: 2 },\n"
+    "                    hovertext: hoverTexts, hoverinfo: 'text'\n"
+    "                };\n"
+    "\n"
+    "                const layout = {\n"
+    "                    paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',\n"
+    "                    xaxis: { title: _outcomeLabel + ' (' + ciPct + '% CI)', gridcolor: '#1e293b', color: '#94a3b8', zeroline: false },\n"
+    "                    yaxis: { gridcolor: '#1e293b', color: '#94a3b8', autorange: 'reversed' },\n"
+    "                    font: { color: '#94a3b8', size: 10 },\n"
+    "                    margin: { t: 10, b: 70, l: 160, r: 200 },\n"
+    "                    shapes: _shapes,\n"
+    "                    annotations: annotations,\n"
+    "                    showlegend: false\n"
+    "                };\n"
+    "\n"
+    "                Plotly.newPlot('plot-forest-nyt', [trace], layout, { displayModeBar: false, responsive: true });\n"
+    "\n"
+    "                const cap = document.querySelector('#plot-forest-nyt')?.closest('section, div')?.querySelector('.nyt-figure-caption');\n"
+    "                if (cap) cap.textContent = 'Fig. - Forest plot of ' + _outcomeLabel + ' (random-effects, DL estimator)';\n"
+    "            },"
+)
+
+# ---------- Edit 6: insert helpers ----------
+EDIT6_OLD = "                return map[format] ?? em;\n\n\n            },\n\n\n            outcomeLabel(key) {"
+EDIT6_NEW = (
+    "                return map[format] ?? em;\n\n\n"
+    "            },\n\n\n"
+    "            // Axis label for continuous (mean-difference) forest plots. Routed from\n"
+    "            // renderAnnotatedForestMD. Override per dashboard to set domain-specific\n"
+    "            // wording (units, contrast direction).\n"
+    "            continuousAxisLabel(outcomeKey) {\n"
+    "                return 'Mean difference (intervention - comparator)';\n"
+    "            },\n\n\n"
+    "            // Non-inferiority margin overlay. Returns {value, favoursLeft, favoursRight}\n"
+    "            // or null. Default null (no overlay). Override per dashboard for NI trials\n"
+    "            // (e.g. nAMD pivotals where margin is -4 ETDRS letters).\n"
+    "            continuousNIMargin(outcomeKey) {\n"
+    "                return null;\n"
+    "            },\n\n\n"
+    "            outcomeLabel(key) {"
+)
+
+# ---------- Edit 7: hardcoded MACE composite caption ----------
+# Two known patterns observed across the template:
+#   "Fig. — Forest plot of <something> vs <something> for MACE composite (random-effects, DL estimator)"
+EDIT7_RE = re.compile(
+    r'<p class="nyt-figure-caption mt-3">Fig\. [—-] Forest plot of [^<]*?for MACE composite \(random-effects, DL estimator\)</p>'
+)
+EDIT7_NEW = '<p class="nyt-figure-caption mt-3">Fig. - Forest plot of the registered primary continuous outcome (random-effects, DL estimator)</p>'
+
+
+def apply_edit(src, old, new, label, sentinel=None):
+    """Apply edit only if old still present and the unique sentinel isn't.
+
+    Some edits' OLD anchors are prefixes of their NEW replacement (e.g. edit5
+    keeps the original Plotly call line), which would re-fire on every run if
+    we only checked `old in src`. Pass a `sentinel` string from NEW that does
+    NOT appear in the original file - if present, the edit is already done.
+    """
+    if sentinel is not None and sentinel in src:
+        return src, 'SKIP_already_applied'
+    if new in src and old not in src:
+        return src, 'SKIP_already_applied'
+    if old not in src:
+        return src, 'SKIP_anchor_not_found'
+    if src.count(old) > 1:
+        return src, f'SKIP_anchor_ambiguous ({src.count(old)} matches)'
+    return src.replace(old, new, 1), 'APPLIED'
+
+
+def apply_edit_re(src, regex, new, label):
+    matches = regex.findall(src)
+    if not matches:
+        if new in src:
+            return src, 'SKIP_already_applied'
+        return src, 'SKIP_anchor_not_found'
+    return regex.sub(new, src), f'APPLIED ({len(matches)} match(es))'
+
+
+def patch_file(path, dry=False):
+    src = open(path, 'r', encoding='utf-8').read()
+    original = src
+    log = []
+    # Sentinel strings unique to each NEW that aren't in the original template.
+    # Used for idempotency when OLD is a prefix of NEW (edit5).
+    edits = [
+        (EDIT1_OLD, EDIT1_NEW, 'plotData alias',     'd.logOR = d.md'),
+        (EDIT2_OLD, EDIT2_NEW, 'pool() return shape','pLogOR: pMD, pSE: pSE, zCrit: zCrit'),
+        (EDIT3_OLD, EDIT3_NEW, 'Math.exp() bug',     'pLogOR ?? c.or'),
+        (EDIT4_OLD, EDIT4_NEW, 'forest routing',     'r && r.isContinuous'),
+        (EDIT5_OLD, EDIT5_NEW, 'forestMD function',  'renderAnnotatedForestMD(r, included, zCrit, ciPct) {'),
+        (EDIT6_OLD, EDIT6_NEW, 'helpers',            'continuousAxisLabel(outcomeKey) {'),
+    ]
+    for i, (old, new, label, sentinel) in enumerate(edits, start=1):
+        src, status = apply_edit(src, old, new, label, sentinel=sentinel)
+        log.append(f'  edit{i} ({label}): {status}')
+    src, status = apply_edit_re(src, EDIT7_RE, EDIT7_NEW, 'caption')
+    log.append(f'  edit7 (caption): {status}')
+
+    changed = src != original
+    if changed and not dry:
+        open(path, 'w', encoding='utf-8').write(src)
+    return changed, log
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument('--dry-run', action='store_true')
+    args = ap.parse_args()
+    print(f'Mode: {"DRY-RUN" if args.dry_run else "APPLY"}')
+    summary = {'changed': 0, 'unchanged': 0, 'errors': 0}
+    for fname in TARGETS:
+        path = os.path.join(ROOT, fname)
+        if not os.path.exists(path):
+            print(f'\n[ERROR] {fname}: not found')
+            summary['errors'] += 1
+            continue
+        try:
+            changed, log = patch_file(path, dry=args.dry_run)
+            tag = 'CHANGED' if changed else 'unchanged'
+            print(f'\n[{tag}] {fname}')
+            for line in log:
+                print(line)
+            summary['changed' if changed else 'unchanged'] += 1
+        except Exception as e:
+            print(f'\n[ERROR] {fname}: {e}')
+            summary['errors'] += 1
+    print(f'\nSummary: {summary}')
+    return 0 if summary['errors'] == 0 else 1
+
+
+if __name__ == '__main__':
+    sys.exit(main())
+
+codex
+I’m going to pin line numbers before calling defects, then keep the answer limited to the requested defect shapes.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=0; Get-Content -LiteralPath scripts/patch_continuous_forest.py | ForEach-Object { $i++; '"'{0,4}: {1}' -f "'$i, $_ }' in F:\rapidmeta-ssot-shell
+ succeeded in 1274ms:
+   1: """
+   2: Bulk-apply the continuous-outcome forest-plot fix across rapidmeta-finerenone
+   3: pairwise reviews.
+   4: 
+   5: Same 7 edits that fixed FARICIMAB_NAMD_REVIEW.html (commit 16a80e9, 20caf98)
+   6: and AFLIBERCEPT_HD_REVIEW.html (commit 69f2f92). Idempotent: re-running on
+   7: already-fixed files is a no-op.
+   8: 
+   9: Usage:
+  10:     python scripts/patch_continuous_forest.py --dry-run    # report only
+  11:     python scripts/patch_continuous_forest.py              # apply
+  12: """
+  13: import argparse, os, re, sys
+  14: 
+  15: ROOT = os.environ.get('RAPIDMETA_REPO_ROOT', os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+  16: 
+  17: # The 20 pairwise reviews flagged NEEDS_FIX by the audit.
+  18: TARGETS = [
+  19:     'ANTIAMYLOID_AD_REVIEW.html', 'ARNI_HF_REVIEW.html', 'BEMPEDOIC_ACID_REVIEW.html',
+  20:     'BIOLOGIC_ASTHMA_REVIEW.html', 'CFTR_CF_REVIEW.html', 'CGRP_MIGRAINE_REVIEW.html',
+  21:     'COPD_TRIPLE_REVIEW.html', 'DUPILUMAB_COPD_REVIEW.html', 'ESKETAMINE_TRD_REVIEW.html',
+  22:     'FEZOLINETANT_VMS_REVIEW.html', 'INCLISIRAN_REVIEW.html', 'INSULIN_ICODEC_REVIEW.html',
+  23:     'KARXT_SCZ_REVIEW.html', 'PATISIRAN_POLYNEUROPATHY_REVIEW.html',
+  24:     'PEGCETACOPLAN_GA_REVIEW.html', 'RENAL_DENERV_REVIEW.html', 'ROMOSOZUMAB_OP_REVIEW.html',
+  25:     'SEMAGLUTIDE_OBESITY_REVIEW.html', 'TIRZEPATIDE_OBESITY_REVIEW.html',
+  26:     'TIRZEPATIDE_T2D_REVIEW.html',
+  27: ]
+  28: 
+  29: 
+  30: # ---------- Edit 1: ContinuousMDEngine plotData alias ----------
+  31: EDIT1_OLD = "        const pSE = Math.sqrt(1/sWR);\n\n\n        \n"
+  32: EDIT1_NEW = (
+  33:     "        const pSE = Math.sqrt(1/sWR);\n\n\n"
+  34:     "        // Alias md->logOR, name->id so existing OR/HR-shaped consumers (renderPlots\n"
+  35:     "        // forest/subgroup/cumulative) read MD values without rewriting their schema.\n"
+  36:     "        // Linear-scale renderers must check r.isContinuous and skip exp() back-transforms.\n"
+  37:     "        plotData.forEach(d => { d.logOR = d.md; d.id = d.name; d.group = d.group ?? 'Treatment vs comparator'; d.tE = d.tE ?? 0; d.cE = d.cE ?? 0; d.tN = d.tN ?? 0; d.cN = d.cN ?? 0; });\n\n\n\n"
+  38: )
+  39: 
+  40: # ---------- Edit 2: pool() return shape ----------
+  41: EDIT2_OLD = "            or: pMD.toFixed(2), lci: lci, uci: uci,\n\n\n            pOR: pMD, I2: I2, Q: Q, df: df, tau2: tau2,"
+  42: EDIT2_NEW = (
+  43:     "            or: pMD.toFixed(2), lci: lci, uci: uci,\n\n\n"
+  44:     "            pOR: pMD, pLogOR: pMD, pSE: pSE, zCrit: zCrit,\n\n\n"
+  45:     "            I2: I2, Q: Q, df: df, tau2: tau2,"
+  46: )
+  47: 
+  48: # ---------- Edit 3: Engine.render() Math.exp bug ----------
+  49: EDIT3_OLD = "                    this.renderPlots(c.plotData, parseFloat(c.or), parseFloat(c.pSE), Math.exp(parseFloat(c.or)), parseFloat(c.zCrit ?? 1.96), parseFloat(c.tau2), {}, {}, {});"
+  50: EDIT3_NEW = (
+  51:     "                    // Continuous MD: pLogOR=MD, pOR=MD (no exp back-transform), pSE/zCrit\n"
+  52:     "                    // come straight from ContinuousMDEngine. The downstream forest plot is\n"
+  53:     "                    // linear-scale; reference line at 0 is handled inside renderAnnotatedForest.\n"
+  54:     "                    this.renderPlots(c.plotData, parseFloat(c.pLogOR ?? c.or), parseFloat(c.pSE), parseFloat(c.pOR ?? c.or), parseFloat(c.zCrit ?? 1.96), parseFloat(c.tau2), {}, {}, {});"
+  55: )
+  56: 
+  57: # ---------- Edit 4: renderAnnotatedForest CONTINUOUS routing ----------
+  58: EDIT4_OLD = (
+  59:     "            renderAnnotatedForest(r, included) {\n\n\n"
+  60:     "                const confLevel = RapidMeta.state.confLevel ?? 0.95;\n\n\n"
+  61:     "                const zCrit = normalQuantile(1 - (1 - confLevel) / 2);\n\n\n"
+  62:     "                const ciPct = (confLevel * 100).toFixed(0);"
+  63: )
+  64: EDIT4_NEW = (
+  65:     "            renderAnnotatedForest(r, included) {\n\n\n"
+  66:     "                const confLevel = RapidMeta.state.confLevel ?? 0.95;\n\n\n"
+  67:     "                const zCrit = normalQuantile(1 - (1 - confLevel) / 2);\n\n\n"
+  68:     "                const ciPct = (confLevel * 100).toFixed(0);\n\n\n"
+  69:     "                // CONTINUOUS (MD) branch â€” for outcomes pooled by ContinuousMDEngine.\n"
+  70:     "                // Linear x-axis, reference at 0, no exp() back-transform.\n"
+  71:     "                // Binary OR/RR/HR branch below is unchanged.\n"
+  72:     "                if (r && r.isContinuous) {\n"
+  73:     "                    return this.renderAnnotatedForestMD(r, included, zCrit, ciPct);\n"
+  74:     "                }"
+  75: )
+  76: 
+  77: # ---------- Edit 5: append renderAnnotatedForestMD function ----------
+  78: EDIT5_OLD = (
+  79:     "                Plotly.newPlot('plot-forest-nyt', [trace], layout, { displayModeBar: false, responsive: true });\n\n\n"
+  80:     "            },"
+  81: )
+  82: EDIT5_NEW = (
+  83:     "                Plotly.newPlot('plot-forest-nyt', [trace], layout, { displayModeBar: false, responsive: true });\n\n\n"
+  84:     "            },\n\n\n"
+  85:     "            // Headline forest plot for CONTINUOUS (mean-difference) outcomes.\n"
+  86:     "            // Routed from renderAnnotatedForest when r.isContinuous === true.\n"
+  87:     "            // Linear x-axis, reference line at 0, no exp() back-transform.\n"
+  88:     "            renderAnnotatedForestMD(r, included, zCrit, ciPct) {\n"
+  89:     "                const studies = (r.plotData ?? []).map(d => {\n"
+  90:     "                    const md = d.md;\n"
+  91:     "                    const se = d.se;\n"
+  92:     "                    const lo = md - zCrit * se;\n"
+  93:     "                    const hi = md + zCrit * se;\n"
+  94:     "                    const w  = 1 / (se * se);\n"
+  95:     "                    return { name: d.name ?? d.id, year: d.year ?? '', md, lo, hi, w };\n"
+  96:     "                });\n"
+  97:     "                if (studies.length === 0) {\n"
+  98:     "                    Plotly.newPlot('plot-forest-nyt', [], { paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)' });\n"
+  99:     "                    return;\n"
+ 100:     "                }\n"
+ 101:     "                const totalW = studies.reduce((a, s) => a + s.w, 0);\n"
+ 102:     "\n"
+ 103:     "                const yLabels = studies.map(s => s.name + (s.year ? ' (' + s.year + ')' : ''));\n"
+ 104:     "                yLabels.push('Pooled (RE)');\n"
+ 105:     "\n"
+ 106:     "                const xVals = studies.map(s => s.md);\n"
+ 107:     "                xVals.push(parseFloat(r.or));\n"
+ 108:     "\n"
+ 109:     "                const errLo = studies.map(s => s.md - s.lo);\n"
+ 110:     "                errLo.push(parseFloat(r.or) - parseFloat(r.lci));\n"
+ 111:     "\n"
+ 112:     "                const errHi = studies.map(s => s.hi - s.md);\n"
+ 113:     "                errHi.push(parseFloat(r.uci) - parseFloat(r.or));\n"
+ 114:     "\n"
+ 115:     "                const sizes = studies.map(s => 8 + 20 * (s.w / totalW));\n"
+ 116:     "                sizes.push(18);\n"
+ 117:     "\n"
+ 118:     "                const colors = studies.map(() => '#3b82f6');\n"
+ 119:     "                colors.push('#ef4444');\n"
+ 120:     "\n"
+ 121:     "                const symbols = studies.map(() => 'square');\n"
+ 122:     "                symbols.push('diamond');\n"
+ 123:     "\n"
+ 124:     "                const _selOutcome = RapidMeta.state.selectedOutcome || 'default';\n"
+ 125:     "                const _outcomeLabel = (typeof RapidMeta.continuousAxisLabel === 'function')\n"
+ 126:     "                    ? RapidMeta.continuousAxisLabel(_selOutcome)\n"
+ 127:     "                    : 'Mean difference (intervention - comparator)';\n"
+ 128:     "\n"
+ 129:     "                const hoverTexts = studies.map(s =>\n"
+ 130:     "                    s.name + '<br>MD: ' + s.md.toFixed(2) + ' (' + s.lo.toFixed(2) + 'â€“' + s.hi.toFixed(2) + ')'\n"
+ 131:     "                    + '<br>Weight: ' + (s.w / totalW * 100).toFixed(1) + '%'\n"
+ 132:     "                );\n"
+ 133:     "                hoverTexts.push('Pooled<br>MD: ' + r.or + ' (' + (parseFloat(r.lci)).toFixed(2) + 'â€“' + (parseFloat(r.uci)).toFixed(2) + ')');\n"
+ 134:     "\n"
+ 135:     "                const annotations = studies.map((s, i) => ({\n"
+ 136:     "                    x: Math.max(s.hi + 0.4, parseFloat(r.uci) + 0.4),\n"
+ 137:     "                    y: i,\n"
+ 138:     "                    text: '<b>' + s.md.toFixed(2) + '</b> [' + s.lo.toFixed(2) + ', ' + s.hi.toFixed(2) + '] W=' + (s.w / totalW * 100).toFixed(0) + '%',\n"
+ 139:     "                    showarrow: false,\n"
+ 140:     "                    font: { size: 9, color: '#94a3b8', family: 'JetBrains Mono' },\n"
+ 141:     "                    xanchor: 'left'\n"
+ 142:     "                }));\n"
+ 143:     "                annotations.push({\n"
+ 144:     "                    x: Math.max(parseFloat(r.uci) + 0.4, parseFloat(r.or) + 0.4),\n"
+ 145:     "                    y: studies.length,\n"
+ 146:     "                    text: '<b>' + parseFloat(r.or).toFixed(2) + '</b> [' + parseFloat(r.lci).toFixed(2) + ', ' + parseFloat(r.uci).toFixed(2) + ']',\n"
+ 147:     "                    showarrow: false,\n"
+ 148:     "                    font: { size: 10, color: '#ef4444', family: 'JetBrains Mono' },\n"
+ 149:     "                    xanchor: 'left'\n"
+ 150:     "                });\n"
+ 151:     "\n"
+ 152:     "                const _niMargin = (typeof RapidMeta.continuousNIMargin === 'function')\n"
+ 153:     "                    ? RapidMeta.continuousNIMargin(_selOutcome)\n"
+ 154:     "                    : null;\n"
+ 155:     "                const _shapes = [\n"
+ 156:     "                    { type: 'line', x0: 0, x1: 0, y0: -0.5, y1: yLabels.length - 0.5, line: { color: '#ef4444', width: 1.5, dash: 'dot' } }\n"
+ 157:     "                ];\n"
+ 158:     "                if (_niMargin && Number.isFinite(_niMargin.value)) {\n"
+ 159:     "                    _shapes.push({ type: 'line', x0: _niMargin.value, x1: _niMargin.value, y0: -0.5, y1: yLabels.length - 0.5, line: { color: '#f59e0b', width: 1.5, dash: 'dash' } });\n"
+ 160:     "                    annotations.push({\n"
+ 161:     "                        x: _niMargin.value, y: -0.5, yanchor: 'bottom',\n"
+ 162:     "                        text: 'NI margin (' + _niMargin.value + ')',\n"
+ 163:     "                        showarrow: false,\n"
+ 164:     "                        font: { size: 9, color: '#f59e0b', family: 'JetBrains Mono' }\n"
+ 165:     "                    });\n"
+ 166:     "                }\n"
+ 167:     "                if (_niMargin && _niMargin.favoursLeft && _niMargin.favoursRight) {\n"
+ 168:     "                    annotations.push(\n"
+ 169:     "                        { xref: 'paper', yref: 'paper', x: 0.0, y: -0.16, xanchor: 'left',  text: 'â† favours ' + _niMargin.favoursLeft,  showarrow: false, font: { size: 9, color: '#94a3b8' } },\n"
+ 170:     "                        { xref: 'paper', yref: 'paper', x: 1.0, y: -0.16, xanchor: 'right', text: 'favours ' + _niMargin.favoursRight + ' â†’', showarrow: false, font: { size: 9, color: '#94a3b8' } }\n"
+ 171:     "                    );\n"
+ 172:     "                }\n"
+ 173:     "\n"
+ 174:     "                const trace = {\n"
+ 175:     "                    x: xVals, y: yLabels, mode: 'markers', type: 'scatter',\n"
+ 176:     "                    marker: { size: sizes, color: colors, symbol: symbols },\n"
+ 177:     "                    error_x: { type: 'data', symmetric: false, array: errHi, arrayminus: errLo, visible: true, color: '#3b82f6', thickness: 2 },\n"
+ 178:     "                    hovertext: hoverTexts, hoverinfo: 'text'\n"
+ 179:     "                };\n"
+ 180:     "\n"
+ 181:     "                const layout = {\n"
+ 182:     "                    paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',\n"
+ 183:     "                    xaxis: { title: _outcomeLabel + ' (' + ciPct + '% CI)', gridcolor: '#1e293b', color: '#94a3b8', zeroline: false },\n"
+ 184:     "                    yaxis: { gridcolor: '#1e293b', color: '#94a3b8', autorange: 'reversed' },\n"
+ 185:     "                    font: { color: '#94a3b8', size: 10 },\n"
+ 186:     "                    margin: { t: 10, b: 70, l: 160, r: 200 },\n"
+ 187:     "                    shapes: _shapes,\n"
+ 188:     "                    annotations: annotations,\n"
+ 189:     "                    showlegend: false\n"
+ 190:     "                };\n"
+ 191:     "\n"
+ 192:     "                Plotly.newPlot('plot-forest-nyt', [trace], layout, { displayModeBar: false, responsive: true });\n"
+ 193:     "\n"
+ 194:     "                const cap = document.querySelector('#plot-forest-nyt')?.closest('section, div')?.querySelector('.nyt-figure-caption');\n"
+ 195:     "                if (cap) cap.textContent = 'Fig. - Forest plot of ' + _outcomeLabel + ' (random-effects, DL estimator)';\n"
+ 196:     "            },"
+ 197: )
+ 198: 
+ 199: # ---------- Edit 6: insert helpers ----------
+ 200: EDIT6_OLD = "                return map[format] ?? em;\n\n\n            },\n\n\n            outcomeLabel(key) {"
+ 201: EDIT6_NEW = (
+ 202:     "                return map[format] ?? em;\n\n\n"
+ 203:     "            },\n\n\n"
+ 204:     "            // Axis label for continuous (mean-difference) forest plots. Routed from\n"
+ 205:     "            // renderAnnotatedForestMD. Override per dashboard to set domain-specific\n"
+ 206:     "            // wording (units, contrast direction).\n"
+ 207:     "            continuousAxisLabel(outcomeKey) {\n"
+ 208:     "                return 'Mean difference (intervention - comparator)';\n"
+ 209:     "            },\n\n\n"
+ 210:     "            // Non-inferiority margin overlay. Returns {value, favoursLeft, favoursRight}\n"
+ 211:     "            // or null. Default null (no overlay). Override per dashboard for NI trials\n"
+ 212:     "            // (e.g. nAMD pivotals where margin is -4 ETDRS letters).\n"
+ 213:     "            continuousNIMargin(outcomeKey) {\n"
+ 214:     "                return null;\n"
+ 215:     "            },\n\n\n"
+ 216:     "            outcomeLabel(key) {"
+ 217: )
+ 218: 
+ 219: # ---------- Edit 7: hardcoded MACE composite caption ----------
+ 220: # Two known patterns observed across the template:
+ 221: #   "Fig. â€” Forest plot of <something> vs <something> for MACE composite (random-effects, DL estimator)"
+ 222: EDIT7_RE = re.compile(
+ 223:     r'<p class="nyt-figure-caption mt-3">Fig\. [â€”-] Forest plot of [^<]*?for MACE composite \(random-effects, DL estimator\)</p>'
+ 224: )
+ 225: EDIT7_NEW = '<p class="nyt-figure-caption mt-3">Fig. - Forest plot of the registered primary continuous outcome (random-effects, DL estimator)</p>'
+ 226: 
+ 227: 
+ 228: def apply_edit(src, old, new, label, sentinel=None):
+ 229:     """Apply edit only if old still present and the unique sentinel isn't.
+ 230: 
+ 231:     Some edits' OLD anchors are prefixes of their NEW replacement (e.g. edit5
+ 232:     keeps the original Plotly call line), which would re-fire on every run if
+ 233:     we only checked `old in src`. Pass a `sentinel` string from NEW that does
+ 234:     NOT appear in the original file - if present, the edit is already done.
+ 235:     """
+ 236:     if sentinel is not None and sentinel in src:
+ 237:         return src, 'SKIP_already_applied'
+ 238:     if new in src and old not in src:
+ 239:         return src, 'SKIP_already_applied'
+ 240:     if old not in src:
+ 241:         return src, 'SKIP_anchor_not_found'
+ 242:     if src.count(old) > 1:
+ 243:         return src, f'SKIP_anchor_ambiguous ({src.count(old)} matches)'
+ 244:     return src.replace(old, new, 1), 'APPLIED'
+ 245: 
+ 246: 
+ 247: def apply_edit_re(src, regex, new, label):
+ 248:     matches = regex.findall(src)
+ 249:     if not matches:
+ 250:         if new in src:
+ 251:             return src, 'SKIP_already_applied'
+ 252:         return src, 'SKIP_anchor_not_found'
+ 253:     return regex.sub(new, src), f'APPLIED ({len(matches)} match(es))'
+ 254: 
+ 255: 
+ 256: def patch_file(path, dry=False):
+ 257:     src = open(path, 'r', encoding='utf-8').read()
+ 258:     original = src
+ 259:     log = []
+ 260:     # Sentinel strings unique to each NEW that aren't in the original template.
+ 261:     # Used for idempotency when OLD is a prefix of NEW (edit5).
+ 262:     edits = [
+ 263:         (EDIT1_OLD, EDIT1_NEW, 'plotData alias',     'd.logOR = d.md'),
+ 264:         (EDIT2_OLD, EDIT2_NEW, 'pool() return shape','pLogOR: pMD, pSE: pSE, zCrit: zCrit'),
+ 265:         (EDIT3_OLD, EDIT3_NEW, 'Math.exp() bug',     'pLogOR ?? c.or'),
+ 266:         (EDIT4_OLD, EDIT4_NEW, 'forest routing',     'r && r.isContinuous'),
+ 267:         (EDIT5_OLD, EDIT5_NEW, 'forestMD function',  'renderAnnotatedForestMD(r, included, zCrit, ciPct) {'),
+ 268:         (EDIT6_OLD, EDIT6_NEW, 'helpers',            'continuousAxisLabel(outcomeKey) {'),
+ 269:     ]
+ 270:     for i, (old, new, label, sentinel) in enumerate(edits, start=1):
+ 271:         src, status = apply_edit(src, old, new, label, sentinel=sentinel)
+ 272:         log.append(f'  edit{i} ({label}): {status}')
+ 273:     src, status = apply_edit_re(src, EDIT7_RE, EDIT7_NEW, 'caption')
+ 274:     log.append(f'  edit7 (caption): {status}')
+ 275: 
+ 276:     changed = src != original
+ 277:     if changed and not dry:
+ 278:         open(path, 'w', encoding='utf-8').write(src)
+ 279:     return changed, log
+ 280: 
+ 281: 
+ 282: def main():
+ 283:     ap = argparse.ArgumentParser()
+ 284:     ap.add_argument('--dry-run', action='store_true')
+ 285:     args = ap.parse_args()
+ 286:     print(f'Mode: {"DRY-RUN" if args.dry_run else "APPLY"}')
+ 287:     summary = {'changed': 0, 'unchanged': 0, 'errors': 0}
+ 288:     for fname in TARGETS:
+ 289:         path = os.path.join(ROOT, fname)
+ 290:         if not os.path.exists(path):
+ 291:             print(f'\n[ERROR] {fname}: not found')
+ 292:             summary['errors'] += 1
+ 293:             continue
+ 294:         try:
+ 295:             changed, log = patch_file(path, dry=args.dry_run)
+ 296:             tag = 'CHANGED' if changed else 'unchanged'
+ 297:             print(f'\n[{tag}] {fname}')
+ 298:             for line in log:
+ 299:                 print(line)
+ 300:             summary['changed' if changed else 'unchanged'] += 1
+ 301:         except Exception as e:
+ 302:             print(f'\n[ERROR] {fname}: {e}')
+ 303:             summary['errors'] += 1
+ 304:     print(f'\nSummary: {summary}')
+ 305:     return 0 if summary['errors'] == 0 else 1
+ 306: 
+ 307: 
+ 308: if __name__ == '__main__':
+ 309:     sys.exit(main())
+
+codex
+Defects found:
+
+- `idempotency guard satisfied by marker` at line 236. Exact input: `apply_edit("// pLogOR ?? c.or\n" + EDIT3_OLD, EDIT3_OLD, EDIT3_NEW, "Math.exp() bug", sentinel="pLogOR ?? c.or")`. Consequence: returns `SKIP_already_applied` while the old `Math.exp(parseFloat(c.or))` call is still present.
+
+- `check that CANNOT FAIL` / `STATUS CODE REPORTING THE WRAPPER` at line 305. Exact input: set `RAPIDMETA_REPO_ROOT` to a directory containing all 20 `TARGETS` as empty UTF-8 files, then run `python scripts/patch_continuous_forest.py --dry-run`. Consequence: every edit logs `SKIP_anchor_not_found`, no work is done, and the process still exits `0`.
+
+No proven finding for `probe keyed to the STRING A FIX REMOVES`.
+
+COULD NOT DETERMINE `instrument reading a DIFFERENT COPY`: missing caller/CI/deploy invocation.
+
+COULD NOT DETERMINE `SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE`: missing the 20 target HTML files.
+
+No proven finding for `values compared AS TEXT where line endings differ`.
+
+No proven finding for `merged-cell and OFF-BY-ONE errors`.
+
+No proven finding for `ZERO CONFLATED WITH ABSENT`.
+
+No proven finding for `NEGATION DROPPED`.
+tokens used
+22,223
+Defects found:
+
+- `idempotency guard satisfied by marker` at line 236. Exact input: `apply_edit("// pLogOR ?? c.or\n" + EDIT3_OLD, EDIT3_OLD, EDIT3_NEW, "Math.exp() bug", sentinel="pLogOR ?? c.or")`. Consequence: returns `SKIP_already_applied` while the old `Math.exp(parseFloat(c.or))` call is still present.
+
+- `check that CANNOT FAIL` / `STATUS CODE REPORTING THE WRAPPER` at line 305. Exact input: set `RAPIDMETA_REPO_ROOT` to a directory containing all 20 `TARGETS` as empty UTF-8 files, then run `python scripts/patch_continuous_forest.py --dry-run`. Consequence: every edit logs `SKIP_anchor_not_found`, no work is done, and the process still exits `0`.
+
+No proven finding for `probe keyed to the STRING A FIX REMOVES`.
+
+COULD NOT DETERMINE `instrument reading a DIFFERENT COPY`: missing caller/CI/deploy invocation.
+
+COULD NOT DETERMINE `SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE`: missing the 20 target HTML files.
+
+No proven finding for `values compared AS TEXT where line endings differ`.
+
+No proven finding for `merged-cell and OFF-BY-ONE errors`.
+
+No proven finding for `ZERO CONFLATED WITH ABSENT`.
+
+No proven finding for `NEGATION DROPPED`.

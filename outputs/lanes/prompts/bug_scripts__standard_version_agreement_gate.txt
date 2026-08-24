@@ -1,0 +1,230 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/standard_version_agreement_gate.py
+
+--- THE FILE, IN FULL ---
+#!/usr/bin/env python3
+"""THE VERSION MARKER THAT MAKES STALENESS VISIBLE WENT STALE. Nothing noticed for seven bumps.
+
+`PAGE-STANDARD.md` opens by declaring the standard version. `ssot/build_to_standard.py` stamps
+every page with its own constant. On 2026-08-19 they read:
+
+    PAGE-STANDARD.md heading         1.6.0-2026-08-19
+    PAGE-STANDARD.md last log entry  1.12.0-2026-08-19
+    build_to_standard.py constant    1.13.0-2026-08-19
+
+Three numbers, one property, no two agreeing. Nothing shipped wrong -- pages carry the CODE's
+version, which was the newest -- and that is exactly why it survived: THE DRIFT HAD NO
+DOWNSTREAM SYMPTOM. The document that exists to say "this page is below the current standard"
+was itself below the current standard, and the only reader who could have noticed was a human
+comparing two files nobody had a reason to open together.
+
+    A VERSION MARKER IS A CLAIM ABOUT ANOTHER FILE. Unchecked, it ages exactly like the
+    `restated_*` blocks P18 was written for: its presence shows someone once looked, never
+    that anyone looked last.
+
+WHAT THIS CHECKS -- three things, and it reports EVERY failing limb rather than the first (P15).
+
+  1. The heading in PAGE-STANDARD.md equals the constant in ssot/build_to_standard.py.
+  2. The newest entry in the version log equals the heading -- a heading bumped without a log
+     entry is a version with no content, which is how 1.13.0 came to exist unexplained.
+  3. Every property named in the version log appears in the properties table, and every
+     property in the table is reachable from some log entry. A property in one and not the
+     other is a rule that is either unexplained or unlisted.
+
+WHAT IT DOES NOT CHECK, stated so the pass is not read as more than it is:
+  - NOT that any page actually MEETS the standard. It compares three declarations to each
+    other. A corpus stamped 1.14.0 by a builder that implements nothing would pass this.
+  - NOT that the log entry DESCRIBES the property correctly. Prose is not checkable here.
+
+USAGE:  python scripts/standard_version_agreement_gate.py
+        python scripts/standard_version_agreement_gate.py --selftest
+"""
+import io
+import os
+import re
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DOC = os.path.join(REPO, "PAGE-STANDARD.md")
+CODE = os.path.join(REPO, "ssot", "build_to_standard.py")
+
+VER = r"\d+\.\d+\.\d+-\d{4}-\d{2}-\d{2}"
+HEAD_RE = re.compile(r'PAGE_STANDARD_VERSION\s*=\s*"(%s)"' % VER)
+LOG_RE = re.compile(r"^###\s+(%s)\s*$" % VER, re.M)
+TABLE_RE = re.compile(r"^\|\s*(P\d+)\s*\|", re.M)
+MENTION_RE = re.compile(r"\bP(\d+)\b")
+
+
+def read(path):
+    with io.open(path, encoding="utf-8") as fh:
+        return fh.read()
+
+
+def check(doc, code):
+    """[(limb, detail)] -- EVERY failing limb. An empty list is a pass."""
+    fails = []
+
+    code_m = HEAD_RE.search(code)
+    if not code_m:
+        # An absent constant is NOT_ASSESSABLE for the comparison and a BROKEN GATE for us:
+        # a check whose reference value has vanished cannot pass, it can only fail to run.
+        return [("REFERENCE_ABSENT",
+                 "ssot/build_to_standard.py declares no PAGE_STANDARD_VERSION. There is "
+                 "nothing to compare the document against, so this is a broken instrument "
+                 "and not a clean result.")]
+    code_v = code_m.group(1)
+
+    # The heading is the FIRST occurrence in the document; later ones are quotations.
+    doc_m = HEAD_RE.search(doc)
+    doc_v = doc_m.group(1) if doc_m else None
+    if doc_v is None:
+        fails.append(("HEADING_ABSENT",
+                      "PAGE-STANDARD.md declares no PAGE_STANDARD_VERSION heading."))
+    elif doc_v != code_v:
+        fails.append(("HEADING_DISAGREES",
+                      "PAGE-STANDARD.md heading says %s; ssot/build_to_standard.py stamps "
+                      "%s. Pages carry the CODE's version, so the DOCUMENT is what is wrong."
+                      % (doc_v, code_v)))
+
+    logs = LOG_RE.findall(doc)
+    if not logs:
+        fails.append(("LOG_ABSENT", "PAGE-STANDARD.md has no version log entries."))
+    elif doc_v and logs[0] != doc_v:
+        fails.append(("LOG_DISAGREES",
+                      "the newest version-log entry is %s and the heading is %s. A heading "
+                      "bumped without a log entry is a version with no content." %
+                      (logs[0], doc_v)))
+
+    table = set(TABLE_RE.findall(doc))
+    if not table:
+        fails.append(("TABLE_ABSENT",
+                      "no property rows found in PAGE-STANDARD.md. A check with nothing to "
+                      "check against passes everything."))
+    else:
+        log_start = doc.find("## Version log")
+        mentioned = {"P" + n for n in MENTION_RE.findall(doc[log_start:])} if log_start >= 0 \
+            else set()
+        unexplained = sorted(table - mentioned, key=lambda s: int(s[1:]))
+        if unexplained:
+            fails.append(("PROPERTY_UNEXPLAINED",
+                          "listed in the properties table and named nowhere in the version "
+                          "log: %s. A rule with no entry is a rule nobody can date." %
+                          ", ".join(unexplained)))
+    return fails
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    fails = check(read(DOC), read(CODE))
+    v = HEAD_RE.search(read(CODE))
+    print("ssot/build_to_standard.py stamps  %s" % (v.group(1) if v else "NOTHING"))
+    d = HEAD_RE.search(read(DOC))
+    print("PAGE-STANDARD.md heading says     %s" % (d.group(1) if d else "NOTHING"))
+    logs = LOG_RE.findall(read(DOC))
+    print("newest version-log entry          %s" % (logs[0] if logs else "NONE"))
+    print("properties in the table           %d" % len(set(TABLE_RE.findall(read(DOC)))))
+    if not fails:
+        print("\nthe three declarations agree.")
+        print("NOT CHECKED: whether any page MEETS the standard. This compares declarations "
+              "to each other.")
+        return 0
+    print("")
+    for limb, detail in fails:
+        print("REFUSED [%s]: %s" % (limb, detail))
+    return 1
+
+
+def selftest():
+    """FOUR PROOFS, per P16, and the fourth is the one usually skipped.
+
+    (1) it can fire; (2) it does not fire on the correct case; (3) neither is established by
+    the gate exiting 0 on the repository; and (4) ITS TRIGGERING CONDITION HAS ACTUALLY
+    OCCURRED -- the 1.6.0 / 1.13.0 disagreement is a real state of this repository on
+    2026-08-19, reconstructed below from the values that were really there, not invented.
+    """
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    real_doc, real_code = read(DOC), read(CODE)
+    fails = []
+    # THE CURRENT VERSION IS READ, NEVER TYPED. The first version of this self-test hard-coded
+    # the version string of the day, so the very next bump made all four mutation cases fail to
+    # find their anchor and the suite went red while the GATE stayed green -- a proof that
+    # expires on the first success of the thing it proves. Derived from the file instead.
+    _cur = HEAD_RE.search(real_code).group(1)
+
+    def case(name, doc, code, want_limbs):
+        got = {l for l, _ in check(doc, code)}
+        ok = got == set(want_limbs)
+        print("  %-52s %s  %s" % (name, "ok" if ok else "FAIL", sorted(got) or "clean"))
+        if not ok:
+            fails.append(name)
+
+    # (2) the correct case: the repository as it stands.
+    case("live repository is clean", real_doc, real_code, [])
+
+    # (1) + (4) THE STATE THAT ACTUALLY OCCURRED. Heading 1.6.0 against a 1.13.0 constant,
+    # with the log at 1.12.0 -- all three values read from this repository's own history.
+    was = real_doc.replace('PAGE_STANDARD_VERSION = "%s"' % _cur,
+                           'PAGE_STANDARD_VERSION = "1.6.0-2026-08-19"', 1)
+    was_code = real_code.replace('PAGE_STANDARD_VERSION = "%s"' % _cur,
+                                 'PAGE_STANDARD_VERSION = "1.13.0-2026-08-19"', 1)
+    case("the drift that really happened: 1.6.0 doc vs 1.13.0 code", was, was_code,
+         ["HEADING_DISAGREES", "LOG_DISAGREES"])
+
+    # a heading bumped with no log entry -- how 1.13.0 came to exist unexplained.
+    bumped = real_doc.replace('PAGE_STANDARD_VERSION = "%s"' % _cur,
+                              'PAGE_STANDARD_VERSION = "9.9.9-2026-08-19"', 1)
+    bumped_code = real_code.replace('PAGE_STANDARD_VERSION = "%s"' % _cur,
+                                    'PAGE_STANDARD_VERSION = "9.9.9-2026-08-19"', 1)
+    case("heading bumped with no version-log entry", bumped, bumped_code, ["LOG_DISAGREES"])
+
+    # a property added to the table and to no log entry.
+    orphan = real_doc.replace("\n## Reading the remainder",
+                              "\n| P99 | **an orphan** | added to the table and explained "
+                              "nowhere |\n\n## Reading the remainder", 1)
+    case("property in the table with no log entry", orphan, real_code,
+         ["PROPERTY_UNEXPLAINED"])
+
+    # a broken instrument is not a pass.
+    case("constant deleted from the builder -> REFERENCE_ABSENT", real_doc,
+         real_code.replace('PAGE_STANDARD_VERSION = "%s"' % _cur, "", 1),
+         ["REFERENCE_ABSENT"])
+
+    print("\n%s" % ("ALL FOUR PROOFS HELD" if not fails else "FAILED: %s" % fails))
+    return 1 if fails else 0
+
+
+if __name__ == "__main__":
+    sys.exit(selftest() if "--selftest" in sys.argv else main())

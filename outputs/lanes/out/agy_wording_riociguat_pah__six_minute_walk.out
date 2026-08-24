@@ -1,0 +1,16 @@
+1. **OVERCLAIM.** "CTEPH is a different disease from PAH, with a different mechanism and different management..."
+The extra claim is "with a different mechanism and different management." The packet records the two different registered populations (PAH vs. CTEPH), but contains no information about their underlying mechanisms or clinical management. This imports outside medical knowledge.
+
+2. **UNDERCLAIM.** NONE. The text successfully captures the population mismatch (PAH vs. CTEPH) and also volunteers the secondary mismatch in measurement timing (Week 12 vs. Week 16). No other grounds for withdrawal are present in the packet. 
+
+3. **FACT vs JUDGEMENT.** 
+"CTEPH is a different disease from PAH, with a different mechanism and different management..." 
+This writes a reviewer's clinical interpretation (that the two registered terms represent distinct pathophysiological entities requiring different management) in the grammar of an absolute, un-owned fact. 
+
+Additionally, "so the intervention, comparator and outcome limbs all pass" states a methodological judgement (passing internal screening limbs) as though it were a direct consequence objectively verifiable on ClinicalTrials.gov.
+
+4. **IS THE STATED REASON THE ACTUAL REASON?** Yes. The stated reason (differing populations) directly follows from the `population_as_registered` strings in the contributing trials. The title asks for PAH, meaning the CTEPH trial cannot contribute, reducing the pool to *k*=1.
+Could the same packet support a DIFFERENT reason? Yes. The text notes the timepoints differ (Week 12 vs 16). While this packet explicitly rules that the outcome limb *passes*, strict adherence to measurement timing could legitimately support failing the OUTCOME limb instead of or alongside the participants limb.
+
+5. **VERDICT: ACCEPT WITH CHANGES.**
+* Delete the unsupported clause ", with a different mechanism and different management" as it violates the strict extraction rule.

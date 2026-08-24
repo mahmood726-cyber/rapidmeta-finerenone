@@ -1,0 +1,315 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/standard_manifest.py
+
+--- THE FILE, IN FULL ---
+"""THE STANDARD -- what "done" means, versioned, with a check for every property.
+
+ADMISSION CRITERION -- THIS IS THE RULE THAT WILL DECAY FIRST
+    NO PROPERTY ENTERS v(n+1) WITHOUT A CONSTRUCTIBLE FAILING INPUT AND A REAL
+    DEFECT IT WOULD HAVE CAUGHT.
+
+    The pressure to add an aspirational property with no check will arrive the
+    moment someone wants this list to look complete. A property with no failing
+    input is a wish; a list of wishes reads as a standard and enforces nothing.
+    This is the same bar as detector promotion in gate_integrity, and the symmetry
+    is not a coincidence -- it is the same mechanism: A CHECK THAT CANNOT FAIL
+    REPORTS SUCCESS WITHOUT HAVING CHECKED.
+
+THE BOUNDARY OF THIS WHOLE APPARATUS
+    THE STANDARD DOES NOT MAKE A REVIEW CORRECT. IT MAKES A REVIEW CHECKABLE.
+
+    Every property below is structural or provenance-related. Eleven of them
+    cannot detect a correctly-formatted synthesis of the wrong trials: a page can
+    satisfy all of them, carry perfect provenance, agree across every surface, and
+    pool trials that never measured the same thing. Source verification is human
+    work and nothing here stands in for it.
+
+    Anyone who reads v1 compliance as correctness has made the same error as
+    reading a green gate as a verified page -- and this project made that error
+    five separate times in a single day.
+
+WHY THIS IS VERSIONED RATHER THAN FIXED
+    "ARNI standard" was out of date the moment we found the Word renderer gap:
+    ARNI itself did not meet the standard we now hold. A bar that moves as we
+    learn is correct -- each page should be better than the last -- but "better
+    than the last one" is unauditable unless the bar is written down and stamped.
+
+    So: each page records the STANDARD VERSION it was built to, in its build
+    stamp. A page at v1 while the standard is v3 is HONESTLY LABELLED, not
+    silently stale, and "bring cardiology to standard" becomes a countable backlog
+    instead of a feeling.
+
+    NO PAGE IS GRANDFATHERED. When the version increments, every earlier page is
+    out of date BY DEFINITION, including the flagship. ARNI was stale and its Word
+    manuscript was missing a section; being the reference implementation earns no
+    exemption.
+
+THE RATCHET APPLIES TO THE HARNESS TOO
+    Every defect found on page N becomes a detector before page N+1 is built.
+    That is the mechanism that makes each page better than the last rather than
+    merely aspiring to. A property enters this manifest only WITH a check that can
+    fail, and where a real past defect exists the check must be replayed against
+    it -- see the promotion criterion in gate_integrity.
+
+WHAT A FULL PASS DOES NOT ESTABLISH -- written in advance
+    - NOT that the review is CORRECT. Every property here is structural or
+      provenance-related. A page can satisfy all of them and pool the wrong trials.
+    - NOT that the numbers are right. Source verification is human work and this
+      cannot stand in for it.
+    - NOT that the standard is COMPLETE. It is the current state of what we have
+      learned, which is exactly why it carries a version rather than a claim.
+"""
+from __future__ import annotations
+import json, os, re, sys, io
+
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+# ---------------------------------------------------------------- the standard
+STANDARD_VERSION = 1
+STANDARD_DATE = "2026-08-17"
+# v1 is the FIRST time the standard has been written down. Everything built before
+# it was built to no written standard at all, which is why the corpus run found
+# 6 of 513 pages on the current build and 1 of 53 cardiology topics at the bar.
+
+# ENFORCEMENT STATE PER PROPERTY -- the part of this document that matters.
+#
+# On 2026-08-17 this file read as eleven enforced properties. Measured, FOUR of
+# twenty-six property-checks were established by anything that ran; the rest had
+# no checker, had one that could not see the object, or were checked only inside
+# the build path. A standard that does not say which of its properties are
+# actually watched is the same defect one level up -- an assertion wearing the
+# costume of a measurement.
+#
+#   ENFORCED      a checker exists, has a constructible failing input, and runs
+#   DECLARED      written down, intended, and NOT watched by anything automatic
+#   UNENFORCEABLE no artefact-decidable check is possible; states why
+#
+# DECLARED IS NOT A LESSER FORM OF ENFORCED. It is an honest label for a promise
+# we keep by hand, and eleven honest properties with four enforced is worth more
+# than eleven asserted. What is not allowed is silence about which is which.
+ENFORCEMENT = {
+    "tabbed_build":             ("ENFORCED", "checkbuild, in the build path"),
+    "estimate_preserved":       ("ENFORCED", "checkbuild numeric comparison; the "
+                                 "sig(3) rounding defect is its replay case"),
+    "card_matches_page":        ("ENFORCED", "card_alignment_gate, now scoped to "
+                                 "named targets; its proportion carries its "
+                                 "comparable fraction inline"),
+    "extraction_table":         ("ENFORCED", "extraction_table_gate -- all four "
+                                 "components or FAIL; replayed on ABLATION_AF and "
+                                 "ALIROCUMAB, which carry tables with zero quotes"),
+    "sections_in_both_surfaces": ("ENFORCED", "section_manifest_gate; needs a "
+                                  "docmodel, and refuses with exit 2 rather than "
+                                  "tracebacking when it is absent"),
+    "build_stamp":              ("ENFORCED", "build_stamp_gate; FAILs on absent, "
+                                 "UNKNOWN and id-less stamps, PASSes a dirty-tree "
+                                 "stamp that declares itself"),
+    "subject_match":            ("ENFORCED", "subject_match_gate, keyed on "
+                                 "registration ids, not names"),
+    "arm_identity":             ("ENFORCED", "arm_identity_gate; reads both object "
+                                 "schemas since 2026-08-17, replays DOAC_AF and "
+                                 "HEPATITIS_B"),
+    "poolable_or_withheld":     ("ENFORCED", "poolability; reads both schemas. "
+                                 "Returns UNCHECKABLE where the object records no "
+                                 "outcome definition -- which is not a pass"),
+    "identity_by_registration": ("ENFORCED", "identity_by_registration_gate; "
+                                 "replayed against the PARACHUTE-HF/ANSWER-HF "
+                                 "conflation itself"),
+    "no_synthesised_absence":   ("ENFORCED", "absence_reason_gate; replays the "
+                                 "authored reason on a converted page. Skips "
+                                 "build-mode-neutral reasons, which are identical "
+                                 "in both vocabularies and false for neither"),
+    "estimand_definition_read": ("ENFORCED", "estimand_definition_gate; replayed against SGLT2_HF, which pooled two endpoint definitions as one while passing every other check in the repository"),
+    "self_contained":           ("DECLARED", "external_dependency_census measures "
+                                 "it corpus-wide but is not wired per page; "
+                                 "checkbuild enforces it on new builds only"),
+    "display_change_announced": ("UNENFORCEABLE", "no artefact can show that a "
+                                 "change was ANNOUNCED -- the evidence is a "
+                                 "message to a reader, outside every file we "
+                                 "control. Kept as a rule with a named owner "
+                                 "rather than a checker that could not fail"),
+}
+
+
+PROPERTIES = [
+    ("tabbed_build",
+     "Eight-tab shell, no empty tab; absent sections render an honest state naming "
+     "what is missing and why",
+     "the flat pages were a different generation and read as unfinished"),
+    ("estimate_preserved",
+     "The displayed estimate equals the object's, digit for digit",
+     "sig(x,3) silently rounded verified values during a REBUILD; 0.7171 became "
+     "0.717 and the verified string appeared nowhere in the artefact"),
+    ("card_matches_page",
+     "The index card agrees with the page it points at",
+     "ABLATION_AF served card HR 0.77 against page OR 0.7151 -- a public "
+     "self-contradiction on a page reported as done"),
+    ("extraction_table",
+     "Extraction tab carries value, VERBATIM SOURCE SENTENCE, resolvable link, and "
+     "read-versus-derived, per extracted value. ALL FOUR, OR THE PROPERTY IS NOT MET "
+     "-- a table of values with no sentences is provenance theatre and FAILS, it "
+     "does not partially pass",
+     "a reader must be able to check us without reading the manuscript and without "
+     "trusting us. ABLATION_AF and ALIROCUMAB both carry the table with ZERO verbatim "
+     "quotes, and were nearly recorded as partial. The quote is the half that makes "
+     "the table checkable: value plus link tells a reader WHERE to look, and only the "
+     "sentence tells them WHAT WE READ, which is the thing they are checking. "
+     "RELATEDLY, AND THE SAME BOUNDARY FROM THE OTHER SIDE: HAVING LINKS IS NOT BEING "
+     "CHECKABLE. Trial-level provenance -- a resolvable link per included trial -- is "
+     "widespread here, 27 of 31 sampled pages. Value-level provenance -- which NUMBER "
+     "came from which SENTENCE -- exists on seven pages in 1450. A page can cite every "
+     "trial correctly and still give a reader no way to check a single extracted "
+     "number, and it will look fully sourced while doing it"),
+    ("sections_in_both_surfaces",
+     "Every section the object earns appears in BOTH the page and the manuscript",
+     "the extraction table was missing from every Word manuscript ever produced and "
+     "the alignment gate could not see it, because it compared only the intersection"),
+    ("build_stamp",
+     "Page states the generator commit AND standard version it was built to, and "
+     "declares itself not reproducible if built from uncommitted code",
+     "ARNI served a build predating a feature every neighbouring page had, and "
+     "nothing detected it"),
+    ("subject_match",
+     "Every registration id on the page belongs to this page's own object",
+     "four pages went live carrying ARNI's trials and manuscript"),
+    ("arm_identity",
+     "Intervention and control arms are distinguishable and are the claimed comparison",
+     "DOAC_AF entered RE-LY as dabigatran-versus-dabigatran; HEPATITIS_B entered "
+     "TAF-versus-TAF on a page titled TAF versus TDF"),
+    ("poolable_or_withheld",
+     "A pooled estimate is displayed only where the pool is established; otherwise "
+     "withdrawn WITH ITS REASON",
+     "of 522 judgeable topics, 141 cannot support a pooled estimate at all"),
+    ("identity_by_registration",
+     "Trials are keyed to registration id, never to a covering label",
+     "PARACHUTE-HF was once read as ANSWER-HF because a label was accepted as identity"),
+    ("estimand_definition_read",
+     "Every trial's endpoint definition is READ from the registry before its "
+     "effect is pooled; a result sentence is never accepted as an endpoint "
+     "definition",
+     "SGLT2_HF pooled DAPA-HF and DELIVER (CV death, HF hospitalisation OR "
+     "URGENT HF VISIT) with both EMPEROR trials (hospitalisation only) as one "
+     "estimand, live, at k=4. The object recorded NO per-trial endpoint "
+     "definition: its provenance quotes were RESULT sentences. A quote that "
+     "says what HAPPENED is not a quote that says what was COUNTED"),
+    ("no_synthesised_absence",
+     "Absent fields state their absence and its correct reason; no plausible default "
+     "is ever filled in",
+     "a converted page explained its gap with an authored page's reason, which was "
+     "false; and comparator_type would be right most of the time as 'placebo', which "
+     "is exactly why guessing it is dangerous"),
+    ("self_contained",
+     "The page renders its FULL PROVENANCE from its own bytes. No fetch to a third "
+     "party is required for a reader to see which trial, which value, which source",
+     "the claim of this project is that a reader without journal access can check us. "
+     "A page that fetches its provenance at load is not checkable, it is CHECKABLE ON "
+     "A GOOD DAY -- and when the third party rate-limits, is down, or is firewalled, "
+     "the reader sees an unsourced page WITH NO WAY TO KNOW WHY. There is no error "
+     "state for 'the sources exist but could not be fetched'; there is just a page "
+     "with less on it. Measured 2026-08-17: 19 of 21 sampled pages issue third-party "
+     "requests on load and ALL NINETEEN got HTTP 429 from api.openalex.org in the same "
+     "run. The only two with zero outbound requests were the two built to this "
+     "standard. ~874 pages also fetch cdnjs.cloudflare.com and webr.r-wasm.org -- not "
+     "data but CODE: the R runtime used for statistical cross-validation is downloaded "
+     "from a CDN at read time, so a reproducibility claim silently degrades to whether "
+     "someone else's CDN is up. checkbuild already refuses any new build with an "
+     "external reference; nothing enforced it on the generation before"),
+    ("display_change_announced",
+     "ANY change to a published display value is announced, INCLUDING when the "
+     "underlying value is unchanged -- a re-rounding, a precision change, a unit or "
+     "format change, all of it",
+     "ARNI's card moved from HR 0.872 (0.746-1.02) to 0.8715 (0.7461-1.018) when the "
+     "generator's precision went from three significant figures to four. Same number, "
+     "0.87153524291, one more digit, and all three surfaces moved together -- so every "
+     "internal consistency check passed and nothing would have said a word. But A "
+     "READER WHO WROTE DOWN 0.872 AND NOW SEES 0.8715 HAS NO WAY TO KNOW WHICH OF THE "
+     "TWO IS THE CORRECTION. Silence makes a refinement indistinguishable from a "
+     "retraction, and the reader must assume the worse of the two. The obligation is "
+     "to the reader's record, not to our own consistency; 'the value did not change' "
+     "is precisely the case where nobody thinks to say anything"),
+]
+
+# Properties a page may not yet reach, but which must be TRUE OR DECLARED.
+ASPIRATIONAL = [
+    ("manuscript_own",
+     "The review has a manuscript of its own, projected from its own object",
+     "a hardcoded path put ARNI's manuscript on four unrelated pages"),
+    ("r_output_verbatim",
+     "Statistical output quoted verbatim from a second engine",
+     "reproducibility validates the engine, not the inputs -- but it is still owed"),
+    ("published_comparison",
+     "Comparison with published syntheses, in both surfaces",
+     "or an explicit statement that no synthesis reports this estimand"),
+    ("search_and_screening",
+     "Search record with recall precondition, screening log with a decision per "
+     "record, PRISMA counts that close",
+     "a search that misses the trials you already include is not a search strategy"),
+    ("rob2_and_grade",
+     "Risk-of-bias assessment and certainty rating, dated honestly",
+     "an unverifiable domain is not a low-risk domain"),
+]
+
+
+def render():
+    print("THE STANDARD  v%d  (%s)" % (STANDARD_VERSION, STANDARD_DATE))
+    print("=" * 78)
+    print("\nREQUIRED -- a page is not at standard without all of these:\n")
+    _st = {}
+    for _k, (_s, _n) in ENFORCEMENT.items():
+        _st[_k] = (_s, _n)
+    _c = {}
+    for _s, _ in ENFORCEMENT.values():
+        _c[_s] = _c.get(_s, 0) + 1
+    print("ENFORCEMENT: " + ", ".join("%s %d" % (k, v) for k, v in sorted(_c.items())))
+    print("A DECLARED property is kept by hand and watched by nothing. An "
+          "UNENFORCEABLE one says why no check is possible.")
+    print("")
+    for i, (k, what, why) in enumerate(PROPERTIES, 1):
+        _s, _n = ENFORCEMENT.get(k, ("DECLARED", "no enforcement recorded"))
+        print("%2d. [%-13s] %-28s %s" % (i, _s, k, what))
+        print("    enforcement: %s" % _n)
+        print("    %s   because: %s" % (" " * 28, why))
+    print("\nOWED -- true or explicitly declared absent, never silently missing:\n")
+    for i, (k, what, why) in enumerate(ASPIRATIONAL, 1):
+        print("%2d. %-28s %s" % (i, k, what))
+        print("    %s   note: %s" % (" " * 28, why))
+    print("\nEVERY property above entered this list WITH a check that can fail.")
+    print("When a new defect is learned, the version increments and every earlier")
+    print("page is out of date by definition -- the flagship included.")
+
+
+if __name__ == "__main__":
+    render()

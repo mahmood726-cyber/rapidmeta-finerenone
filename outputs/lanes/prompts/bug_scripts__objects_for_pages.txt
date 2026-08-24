@@ -1,0 +1,107 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/objects_for_pages.py
+
+--- THE FILE, IN FULL ---
+"""Changed page filenames -> the SSOT objects they were built from.
+
+The mapping is EXPLICIT (ssot/PAGE_MAP.json), not inferred from the filename.
+"arni-hfref" and "ARNI_HF_REVIEW.html" do not transform into one another by any
+rule, and a heuristic that appeared to work on six names and quietly missed the
+seventh would hand the harness gate an empty list -- which, before the
+zero-execution guard, read as PASS.
+
+Pages with no mapped object are printed to stderr so the caller can say so out
+loud. A page silently absent from a gate's input is the difference between
+"checked and clean" and "never looked at", and this repo has spent a day on that
+distinction.
+"""
+import json, os, sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import retirement as R                                       # noqa: E402
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+MAP = os.path.join(REPO, "ssot", "PAGE_MAP.json")
+
+
+def main():
+    try:
+        with open(MAP, encoding="utf-8") as fh:
+            m = json.load(fh)
+    except Exception as ex:                                  # noqa: BLE001
+        print("objects_for_pages: cannot read %s (%s)" % (MAP, ex), file=sys.stderr)
+        return 2
+    mapped, unmapped, retired = [], [], []
+    for p in sys.argv[1:]:
+        b = os.path.basename(p)
+        if b not in m:
+            unmapped.append(b)
+            continue
+        rel = m[b]
+        # A RETIRED TOMBSTONE IS NOT AN OBJECT THE DETECTORS CAN READ, and it must not enter
+        # the harness gate's input at all.
+        #
+        # The gate's contract is "every artefact I was told about must exist", and it is a good
+        # contract -- it is what stops a silently-missing export reading as a pass. A tombstone
+        # exports nothing by design, so naming it here makes the gate look for a file that will
+        # never be written and refuse the push. The fix belongs HERE, at the point that decides
+        # what the gate is told about, not in the gate, whose strictness is the whole point.
+        #
+        # RETIRED, UNMAPPED and PRESENT are three states and are reported as three.
+        try:
+            with open(os.path.join(REPO, rel.replace("/", os.sep)), encoding="utf-8") as fh:
+                o = json.load(fh)
+        except Exception:                                    # noqa: BLE001
+            mapped.append(rel)
+            continue
+        # RETIREMENT IS DECIDED BY `state` ALONE -- see scripts/retirement.py. This test read
+        # `state == RETIRED **and** o.get("absorbed_by")`, which made the successor field a
+        # PRECONDITION for seeing a tombstone at all. A topic retired by SPLIT records
+        # `split_into`, so it was not recognised as retired and fell through to the live path.
+        if R.is_retired(o):
+            retired.append("%s -> succeeded by %s" % (b, R.successor_label(o)))
+            continue
+        mapped.append(rel)
+    for u in unmapped:
+        print("UNMAPPED %s" % u, file=sys.stderr)
+    for r in retired:
+        print("RETIRED (no artefact by design) %s" % r, file=sys.stderr)
+    print(" ".join(mapped))
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

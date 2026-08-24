@@ -1,0 +1,165 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a0311e-380a-7451-a035-b9fa2510fd2f
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/add_r_output.py
+
+--- THE FILE, IN FULL ---
+import io, sys, json, re, collections
+
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+P = r"F:\rapidmeta-ssot-shell\ssot\arni-hfref\arni-hfref.json"
+d = json.load(open(P, encoding="utf-8"), object_pairs_hook=collections.OrderedDict)
+r_out = json.load(open(r"F:\claude-temp\arni\r_out.json", encoding="utf-8"))
+res = d["results"]["by_outcome"]["cvdeath_or_hfh_first"]
+
+# --- the gate: the quoted text must agree with the projected numbers ----------
+# A quotation that disagrees with the number printed beside it is worse than no
+# quotation, because it looks like provenance. So the agreement is CHECKED at the
+# point the quotation is stored, and refuses to write if it fails.
+prim = r_out["primary_pooled"]["output"]
+k_q = int(re.search(r"\(k = (\d+)", prim).group(1))
+i2_q = float(re.search(r"I\^2 .*?:\s+([\d.]+)%", prim).group(1))
+q_q = float(re.search(r"Q\(df = \d+\) = ([\d.]+)", prim).group(1))
+est_q, lo_q, hi_q = (float(x) for x in re.search(
+    r"^\s*(-?[\d.]+)\s+[\d.]+\s+-?[\d.]+\s+[\d.]+\s+(-?[\d.]+)\s+(-?[\d.]+)",
+    prim, re.M).groups())
+
+import math
+k_o = res.get("k") or len(res.get("per_trial") or [])
+checks = [
+    ("k", k_q, k_o, 0),
+    ("I2", i2_q, res["heterogeneity"]["i2"], 0.01),
+    ("Q", q_q, res["heterogeneity"]["q"], 0.001),
+    ("pooled point", math.exp(est_q), res["pooled"]["point"], 5e-4),
+    ("ci_low", math.exp(lo_q), res["pooled"]["ci_low"], 5e-4),
+    ("ci_high", math.exp(hi_q), res["pooled"]["ci_high"], 5e-4),
+]
+bad = []
+print("AGREEMENT: quoted R output against the projected object values")
+for name, quoted, projected, tol in checks:
+    ok = abs(float(quoted) - float(projected)) <= tol
+    bad += [] if ok else [name]
+    print("  %-13s quoted=%-12s projected=%-12s %s"
+          % (name, round(float(quoted), 6), round(float(projected), 6),
+             "OK" if ok else "MISMATCH"))
+if bad:
+    raise SystemExit("REFUSED: quoted R output disagrees with the object on %s"
+                     % ", ".join(bad))
+
+res["r_output"] = collections.OrderedDict(
+    _why="Every result below carries the VERBATIM printed output of the call that "
+         "produced it, captured with capture.output() rather than re-typed. A bare "
+         "number can only be checked against the object that produced it, and the "
+         "object is ours; a quoted metafor call carries its own k, its own "
+         "estimator, its own heterogeneity and its own package version, so a "
+         "reader can audit the provenance without trusting us. It would have made "
+         "this project's worst defect visible on sight: a printed k = 4 sitting "
+         "under a leave-one-out panel drawn from three studies is obvious, where a "
+         "bare 0.839 is not.",
+    _agreement_checked="The quoted output is parsed and compared against the "
+         "projected values at the moment it is stored -- k, I-squared, Q and the "
+         "back-transformed estimate with its interval. A quotation that disagrees "
+         "with the number printed beside it is worse than no quotation, because it "
+         "looks like provenance. The write refuses if they disagree.",
+    _environment=r_out["primary_pooled"]["environment"],
+    blocks=collections.OrderedDict(
+        (k, collections.OrderedDict(label=v["label"], call=v["call"],
+                                    output=v["output"]))
+        for k, v in r_out.items()),
+)
+json.dump(d, open(P, "w", encoding="utf-8"), indent=1, ensure_ascii=False)
+print("\nstored %d verbatim R blocks; agreement verified on 6 quantities"
+      % len(r_out))
+
+codex
+Defects found:
+
+- **ZERO CONFLATED WITH ABSENT**: line 22, `k_o = res.get("k") or len(res.get("per_trial") or [])`.
+  Exact input: `res={"k":0,"per_trial":[{}]}` with `prim` containing `(k = 0)`.
+  Consequence: explicit `k: 0` is discarded and replaced with `len(per_trial)==1`, causing a false mismatch.
+
+- **ZERO CONFLATED WITH ABSENT**: line 22, same expression.
+  Exact input: `res={"heterogeneity":...,"pooled":...}` with no `k` and no `per_trial`, and `prim` containing `(k = 0)`.
+  Consequence: missing source fields are silently treated as a real zero-study count, so the k check can pass without either required object value existing.
+
+- **INSTRUMENT READING A DIFFERENT COPY THAN THE ONE BEING CHANGED**: line 4, `P = r"F:\rapidmeta-ssot-shell\ssot\arni-hfref\arni-hfref.json"`.
+  Exact input: run this script from any other checkout, e.g. `C:\rapidmeta-ssot-shell\scripts\add_r_output.py`.
+  Consequence: it reads and writes the hardcoded `F:` checkout, not the checkout containing the script being run.
+
+- **STATUS CODE REPORTING THE WRAPPER RATHER THAN THE WORK**: lines 59-62 store every `r_out` block, but only line 13’s `primary_pooled` block is parsed and checked.
+  Exact input: `r_out["primary_pooled"]["output"]` matches `d`, while `r_out["leave_one_out"]["output"]` contains `"(k = 999)"`.
+  Consequence: the script exits successfully and writes unverified contradictory R output blocks.
+
+- **SELECTOR KEYED TO A FORM THE CORPUS MAY NOT USE**: line 18, numeric regex `[\d.]+` excludes scientific notation.
+  Exact input: primary output row `1e-04 0.01 0.01 0.99 -1e-03 2e-03`.
+  Consequence: valid R numeric output crashes with `.groups()` on `None` before the agreement gate can run.
+
+No proven defect found for: string-a-fix-removes probe, own-comment idempotency guard, CRLF-vs-LF text comparison, merged-cell/off-by-one tabulation, or dropped negation.
+tokens used
+5,946
+Defects found:
+
+- **ZERO CONFLATED WITH ABSENT**: line 22, `k_o = res.get("k") or len(res.get("per_trial") or [])`.
+  Exact input: `res={"k":0,"per_trial":[{}]}` with `prim` containing `(k = 0)`.
+  Consequence: explicit `k: 0` is discarded and replaced with `len(per_trial)==1`, causing a false mismatch.
+
+- **ZERO CONFLATED WITH ABSENT**: line 22, same expression.
+  Exact input: `res={"heterogeneity":...,"pooled":...}` with no `k` and no `per_trial`, and `prim` containing `(k = 0)`.
+  Consequence: missing source fields are silently treated as a real zero-study count, so the k check can pass without either required object value existing.
+
+- **INSTRUMENT READING A DIFFERENT COPY THAN THE ONE BEING CHANGED**: line 4, `P = r"F:\rapidmeta-ssot-shell\ssot\arni-hfref\arni-hfref.json"`.
+  Exact input: run this script from any other checkout, e.g. `C:\rapidmeta-ssot-shell\scripts\add_r_output.py`.
+  Consequence: it reads and writes the hardcoded `F:` checkout, not the checkout containing the script being run.
+
+- **STATUS CODE REPORTING THE WRAPPER RATHER THAN THE WORK**: lines 59-62 store every `r_out` block, but only line 13’s `primary_pooled` block is parsed and checked.
+  Exact input: `r_out["primary_pooled"]["output"]` matches `d`, while `r_out["leave_one_out"]["output"]` contains `"(k = 999)"`.
+  Consequence: the script exits successfully and writes unverified contradictory R output blocks.
+
+- **SELECTOR KEYED TO A FORM THE CORPUS MAY NOT USE**: line 18, numeric regex `[\d.]+` excludes scientific notation.
+  Exact input: primary output row `1e-04 0.01 0.01 0.99 -1e-03 2e-03`.
+  Consequence: valid R numeric output crashes with `.groups()` on `None` before the agreement gate can run.
+
+No proven defect found for: string-a-fix-removes probe, own-comment idempotency guard, CRLF-vs-LF text comparison, merged-cell/off-by-one tabulation, or dropped negation.

@@ -1,0 +1,287 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a031c9-9af9-7251-ba28-a67f520fb4ed
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/gate_benchmark_pmid_names_its_trial_2026_08_23.py
+
+--- THE FILE, IN FULL ---
+"""Does each benchmark PMID cite the trial its field names? A resolving PMID passes everything else.
+
+# control: planted every run. A correct entry has a real PMID for an unrelated paper swapped in
+# and the check must flag it; the entry is then restored and the restoration asserted. Without
+# that, a check reporting "all clean" is indistinguishable from one that cannot fire.
+
+WHY THIS FILE AND NOT ANOTHER. `PUBLISHED_META_BENCHMARKS.json` is what every pool in this
+project is validated against. Two of its entries cite papers that are not the trials they name:
+
+    pmid_kronos  30201345  "Multiple Polypoid Lesions in the Ileum After Treatment for Primary
+                            Ileal Follicular Lymphoma"          (Gastroenterology)
+    pmid_strive  29180078  "Surgical Orthopedics in a Spondylometaphyseal Dysplastic Patient"
+                                                                (World Neurosurgery)
+
+BOTH ARE REAL PMIDs THAT RESOLVE. They fetch, they have titles and DOIs, and they pass every
+mechanical check this repository owns. The only test that catches them is reading the title and
+asking whether it is the trial.
+
+AND STRIVE IS THE HARDER CASE: two different trials carry that name -- ivacaftor in cystic
+fibrosis and erenumab in migraine. The name collides; only the identifier separates them, and
+the identifier is wrong on one. That is the covering-label conflation this project already has
+a rule about, occurring inside its own validation file.
+
+WHAT IS FLAGGED AND WHAT IS NOT. A field named `pmid_<trial>` asserts that this PMID is that
+trial. The check looks for the trial token in the title, the abstract or the registration
+number. ABSENCE IS NOT PROOF OF ERROR -- many papers never print their own acronym -- so a
+miss is reported as NEEDS A LOOK rather than as wrong, and the CLEAN entries are reported too.
+A check that only lists failures gives no way to judge its own coverage: 12 of 14 duplicate
+PMIDs agreeing is what made the 2 that disagreed credible.
+"""
+from __future__ import annotations
+
+import io
+import json
+import os
+import re
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BENCH = os.path.join(REPO, "PUBLISHED_META_BENCHMARKS.json")
+CACHE = os.path.join(REPO, "outputs", "pubmed_title_cache_2026_08_23.json")
+OUT = os.path.join(REPO, "outputs", "benchmark_pmid_names_its_trial_2026_08_23.json")
+
+# Established by lookup on 2026-08-23; used to prove the check fires.
+KNOWN_WRONG = {"30201345": "lymphoma case report cited as KRONOS",
+               "29180078": "spinal-surgery case report cited as STRIVE (CGRP)"}
+
+
+def claims():
+    """-> [(entry, trial_token, pmid)] for every field that NAMES a trial."""
+    b = json.load(io.open(BENCH, encoding="utf-8"))["benchmarks"]
+    out = []
+    for entry, v in b.items():
+        if not isinstance(v, dict):
+            continue
+        for f, val in v.items():
+            m = re.match(r"pmid[_\.]([a-z0-9][a-z0-9_]*)$", str(f).lower())
+            if not m or m.group(1) == "pmid":
+                continue
+            token = m.group(1).split("_corrected")[0]
+            for pm in re.findall(r"\b\d{7,8}\b", str(val)):
+                out.append((entry, token, pm))
+    return out
+
+
+def cache():
+    if os.path.isfile(CACHE):
+        return json.load(io.open(CACHE, encoding="utf-8"))
+    return {}
+
+
+STOP = {"the", "and", "for", "with", "vs", "versus", "in", "of", "a", "an", "or", "rate",
+        "ratio", "risk", "review", "html", "html.", "trial", "trials", "study", "at",
+        "primary", "outcome", "change", "score", "mean", "difference", "to", "from", "per"}
+
+
+def topic_terms(entry, bench):
+    """What this benchmark entry is ABOUT -- from its own fields, not from a guess."""
+    v = bench.get(entry) or {}
+    text = " ".join(str(v.get(k, "")) for k in ("primary_outcome", "source", "method"))
+    text += " " + re.sub(r"[_\.]", " ", entry).replace("REVIEW", "").replace("html", "")
+    words = {w for w in re.findall(r"[a-z]{4,}", text.lower()) if w not in STOP}
+    return words
+
+
+def names_its_trial(token, rec, topics=()):
+    """Does this paper plausibly report the trial the field names?
+
+    THE ACRONYM ALONE HAS NO DISCRIMINATION. The first version asked only whether the trial
+    token appeared in the title or abstract, and returned 0 clean out of 5 -- flagging the
+    CORRECT NEJM reports of IMPACT and ETHOS, neither of which prints its own acronym anywhere
+    a metadata record shows. A check that flags the true entries alongside the false ones tells
+    a reader nothing and gets ignored.
+
+    So the test is EITHER the acronym OR the subject matter: does this paper talk about what
+    this benchmark entry is about? A COPD trial report that never says "IMPACT" still mentions
+    COPD; a lymphoma case report mentions neither.
+
+    THIS IS A SCREEN, NOT A VERDICT -- the lesson from the donor heuristic, which computed a
+    substring overlap and called it a judgement about identity. A miss here means A PERSON
+    SHOULD READ IT, and that is what the output says.
+    """
+    if not rec:
+        return None
+    hay = " ".join(str(rec.get(k, "")) for k in ("title", "abstract", "journal")).lower()
+    t = str(token).lower()
+    if len(t) >= 3 and not t.isdigit() and t in hay:
+        return True
+    if topics:
+        overlap = sum(1 for w in topics if w in hay)
+        if overlap >= 2:
+            return True
+    if len(t) < 3 or t.isdigit():
+        return None                      # a token like "102" identifies nothing
+    return False
+
+
+def check(rows, titles, bench=None):
+    bench = bench if bench is not None else json.load(io.open(BENCH, encoding="utf-8"))["benchmarks"]
+    named, missed, unknown = [], [], []
+    for entry, token, pm in rows:
+        v = names_its_trial(token, titles.get(pm), topic_terms(entry, bench))
+        rec = (entry, token, pm, (titles.get(pm) or {}).get("title", ""))
+        (named if v is True else missed if v is False else unknown).append(rec)
+    return named, missed, unknown
+
+
+def prove(titles):
+    """Plant a known-wrong citation into a correct claim and require the check to flag it."""
+    good = ("PROOF_ENTRY", "kronos", "30232048")      # the CORRECT KRONOS citation
+    bad = ("PROOF_ENTRY", "kronos", "30201345")       # the lymphoma case report
+    if not titles.get("30232048") or not titles.get("30201345"):
+        return "SKIPPED -- the two proof PMIDs are not in the title cache yet"
+    # The proof entry has no benchmark record, so topic terms are empty and the acronym test
+    # decides -- which is what makes this a proof of the acronym limb specifically.
+    ok_named, ok_missed, _ = check([good], titles, {})
+    bad_named, bad_missed, _ = check([bad], titles, {})
+    if not ok_named:
+        sys.exit("PROOF FAILED: the CORRECT KRONOS citation was not recognised as naming its "
+                 "trial. Nothing reported.")
+    if not bad_missed:
+        sys.exit("PROOF FAILED: the planted lymphoma case report was NOT flagged. A check that "
+                 "cannot catch the defect it was built for reports nothing.")
+    return "PASSED -- correct citation recognised, planted wrong citation flagged"
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    rows = claims()
+    titles = cache()
+    pending = sorted({pm for _e, _t, pm in rows} - set(titles))
+
+    print("")
+    print("BENCHMARK PMID -> TRIAL CORRESPONDENCE")
+    print("")
+    print("   entries in the benchmark file        %4d"
+          % len(json.load(io.open(BENCH, encoding="utf-8"))["benchmarks"]))
+    print("   fields that NAME a trial             %4d" % len(rows))
+    print("   distinct PMIDs they cite             %4d" % len({p for _e, _t, p in rows}))
+    print("   titles cached                        %4d" % len(titles))
+    print("   still to fetch                       %4d" % len(pending))
+    print("")
+    print("   PROOF: %s" % prove(titles))
+    print("")
+
+    named, missed, unknown = check(rows, titles)
+    print("   claims where the paper NAMES its trial   %4d" % len(named))
+    print("   claims where it does NOT                 %4d   <- needs a look, not a verdict"
+          % len(missed))
+    print("   claims with no title yet                 %4d" % len(unknown))
+    print("")
+    for entry, token, pm, title in missed[:24]:
+        mark = "  *** KNOWN WRONG" if pm in KNOWN_WRONG else ""
+        print("   %-30s %-14s %-9s %s%s"
+              % (entry[:30], token[:14], pm, (title or "(no title)")[:52], mark))
+    print("")
+    print("ABSENCE OF THE ACRONYM IS NOT PROOF OF ERROR -- many trial reports never print their")
+    print("own name. These are for a person to read, and the CLEAN count above is what makes")
+    print("any failure in this list credible.")
+    if pending:
+        print("")
+        print("NEXT %d PMID(s) TO FETCH:" % min(20, len(pending)))
+        print("   " + " ".join(pending[:20]))
+    if not os.path.isdir(os.path.dirname(OUT)):
+        os.makedirs(os.path.dirname(OUT))
+    json.dump({"named": len(named), "missed": [list(m) for m in missed],
+               "unknown": len(unknown), "pending": pending},
+              io.open(OUT, "w", encoding="utf-8"), indent=1)
+
+
+if __name__ == "__main__":
+    main()
+
+codex
+- **Probe keyed to string a fix removes / check cannot fail**: lines 131-133.  
+  Input: `prove({"30232048": {"title": "KRONOS trial report"}})` with no `"30201345"` in the cache.  
+  Consequence: after the bad PMID is removed from the data/cache, the planted control returns `SKIPPED` instead of failing, so the gate can exit 0 without proving it still fires.
+
+- **Instrument reading a different copy than the one being checked**: lines 136-137.  
+  Input: `BENCH = {"benchmarks": {}}`, plus `titles = {"30232048": {"title": "KRONOS trial"}, "30201345": {"title": "Ileal lymphoma case report"}}`.  
+  Consequence: `claims()` checks zero benchmark fields while `prove(titles)` still returns `PASSED`, so the proof validates synthetic rows, not benchmark extraction.
+
+- **Selector keyed to wrong field path**: line 105.  
+  Input: `names_its_trial("kronos", {"title": "", "abstract": "", "journal": "", "registration_number": "KRONOS"})`.  
+  Consequence: a record naming the trial only in the registration field is reported as missed because the code reads `journal` instead of registration number.
+
+- **Negation dropped**: line 107.  
+  Input: `names_its_trial("strive", {"title": "This paper is not the STRIVE trial", "abstract": "", "journal": ""})`.  
+  Consequence: an explicit denial is counted as the paper naming the trial.
+
+- **Negation dropped in PMID extraction**: line 61.  
+  Input BENCH contents: `{"benchmarks":{"E":{"pmid_kronos":"not 30201345; correct PMID 30232048"}}}`.  
+  Consequence: the denied PMID is treated as an asserted benchmark citation.
+
+No finding in the pasted packet for CRLF/LF text comparison, merged-cell/off-by-one, idempotency satisfied by its own comment, or zero conflated with absent.
+tokens used
+15,512
+- **Probe keyed to string a fix removes / check cannot fail**: lines 131-133.  
+  Input: `prove({"30232048": {"title": "KRONOS trial report"}})` with no `"30201345"` in the cache.  
+  Consequence: after the bad PMID is removed from the data/cache, the planted control returns `SKIPPED` instead of failing, so the gate can exit 0 without proving it still fires.
+
+- **Instrument reading a different copy than the one being checked**: lines 136-137.  
+  Input: `BENCH = {"benchmarks": {}}`, plus `titles = {"30232048": {"title": "KRONOS trial"}, "30201345": {"title": "Ileal lymphoma case report"}}`.  
+  Consequence: `claims()` checks zero benchmark fields while `prove(titles)` still returns `PASSED`, so the proof validates synthetic rows, not benchmark extraction.
+
+- **Selector keyed to wrong field path**: line 105.  
+  Input: `names_its_trial("kronos", {"title": "", "abstract": "", "journal": "", "registration_number": "KRONOS"})`.  
+  Consequence: a record naming the trial only in the registration field is reported as missed because the code reads `journal` instead of registration number.
+
+- **Negation dropped**: line 107.  
+  Input: `names_its_trial("strive", {"title": "This paper is not the STRIVE trial", "abstract": "", "journal": ""})`.  
+  Consequence: an explicit denial is counted as the paper naming the trial.
+
+- **Negation dropped in PMID extraction**: line 61.  
+  Input BENCH contents: `{"benchmarks":{"E":{"pmid_kronos":"not 30201345; correct PMID 30232048"}}}`.  
+  Consequence: the denied PMID is treated as an asserted benchmark citation.
+
+No finding in the pasted packet for CRLF/LF text comparison, merged-cell/off-by-one, idempotency satisfied by its own comment, or zero conflated with absent.

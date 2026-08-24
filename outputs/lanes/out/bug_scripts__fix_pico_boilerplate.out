@@ -1,0 +1,521 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a031bf-c1c7-7c61-b67c-f5c4eb2442e1
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/fix_pico_boilerplate.py
+
+--- THE FILE, IN FULL ---
+#!/usr/bin/env python3
+# sentinel:skip-file - developer tool; hardcoded ROOT is intentional (local Finrenone checkout only)
+"""Replace the clone-template PICO boilerplate (Sacubitril/Valsartan intervention,
+'Heart Failure' population, 'CV Death or HF Hospitalization' outcome) with
+drug-appropriate values per app.
+
+Affects <input id="p-pop"|"p-int"|"p-comp"|"p-out"> defaults in 80+ apps.
+
+Keeps the original ARNI_HF_REVIEW.html intact (it's the source drug).
+"""
+import argparse, pathlib, re, sys
+
+ROOT = pathlib.Path(__file__).resolve().parent.parent
+
+# (population, intervention, comparator, outcome)
+PICO = {
+    "ABLATION_AF_REVIEW.html":             ("Adults with symptomatic atrial fibrillation",                        "Catheter ablation",                   "Antiarrhythmic drug therapy",               "Recurrent AF or major cardiovascular events"),
+    "ACALABRUTINIB_CLL_REVIEW.html":       ("Adults with CLL or SLL",                                              "Acalabrutinib",                       "Chemoimmunotherapy or placebo",             "Progression-free survival"),
+    "ADC_HER2_ADJUVANT_NMA_REVIEW.html":   ("HER2+ early breast cancer with residual disease after neoadjuvant",   "Trastuzumab emtansine (T-DM1) adjuvant", "Trastuzumab or placebo",                 "Invasive disease-free survival (iDFS)"),
+    "ADC_HER2_LOW_NMA_REVIEW.html":        ("HER2-low metastatic breast cancer",                                   "Trastuzumab deruxtecan (T-DXd)",       "Physician's-choice chemotherapy",            "Progression-free survival (PFS)"),
+    "ADC_HER2_NMA_REVIEW.html":            ("HER2+ metastatic breast cancer",                                      "HER2-directed ADC (T-DXd, T-DM1, etc.)", "T-DM1 or chemotherapy",                    "Progression-free survival (PFS)"),
+    "AFLIBERCEPT_HD_REVIEW.html":          ("Adults with neovascular AMD or DME",                                  "Aflibercept 8 mg (high-dose)",         "Aflibercept 2 mg or ranibizumab",            "BCVA change (letters)"),
+    "ANIFROLUMAB_SLE_REVIEW.html":         ("Adults with moderate-to-severe systemic lupus erythematosus",         "Anifrolumab",                          "Placebo + standard of care",                 "BICLA response at week 52"),
+    "ANTIAMYLOID_AD_NMA_REVIEW.html":      ("Early Alzheimer's disease (MCI or mild AD with confirmed amyloid)",   "Anti-amyloid monoclonal antibody",     "Placebo",                                    "CDR-SB change at 18 months"),
+    "ANTIAMYLOID_AD_REVIEW.html":          ("Early Alzheimer's disease (MCI or mild AD with confirmed amyloid)",   "Anti-amyloid monoclonal antibody (lecanemab, donanemab)", "Placebo",                   "CDR-SB change at 18 months"),
+    "ANTIPSYCHOTICS_SCHIZO_NMA_REVIEW.html": ("Adults with acute schizophrenia",                                    "Oral antipsychotic",                   "Placebo",                                    "PANSS total / overall symptoms change"),
+    "ANTIVEGF_NAMD_NMA_REVIEW.html":       ("Adults with neovascular age-related macular degeneration",            "Anti-VEGF (ranibizumab, aflibercept, faricimab)", "Sham / reference anti-VEGF",       "BCVA change (ETDRS letters)"),
+    "ARPI_mHSPC_REVIEW.html":              ("Men with metastatic hormone-sensitive prostate cancer",               "Androgen-receptor pathway inhibitor + ADT", "ADT alone",                             "Overall survival"),
+    "ATOPIC_DERM_NMA_REVIEW.html":         ("Adults and adolescents with moderate-to-severe atopic dermatitis",    "Systemic immunomodulator (dupilumab, JAKi, etc.)", "Placebo",                       "EASI75 at 16 weeks"),
+    "ATTR_CM_REVIEW.html":                 ("Adults with transthyretin amyloid cardiomyopathy",                    "TTR stabilizer (tafamidis, acoramidis)", "Placebo",                                 "All-cause mortality or CV hospitalization"),
+    "BELIMUMAB_SLE_REVIEW.html":           ("Adults with seropositive systemic lupus erythematosus",               "Belimumab",                            "Placebo + standard of care",                 "SRI-4 response at week 52"),
+    "BEMPEDOIC_ACID_REVIEW.html":          ("Adults with ASCVD (statin-intolerant or statin-treated)",             "Bempedoic acid",                       "Placebo",                                    "MACE-4 composite"),
+    "BIOLOGIC_ASTHMA_REVIEW.html":         ("Adults with severe asthma",                                           "Biologic (mepolizumab, benralizumab, dupilumab)", "Placebo",                         "Annual exacerbation rate"),
+    "BTKI_CLL_NMA_REVIEW.html":            ("Adults with CLL or SLL",                                              "BTK inhibitor (ibrutinib, acalabrutinib, zanubrutinib)", "BTK comparator or chemoimmunotherapy", "Progression-free survival"),
+    "CAB_PREP_HIV_REVIEW.html":            ("Adults at risk of HIV acquisition",                                   "Long-acting cabotegravir (PrEP)",      "Daily oral TDF/FTC",                         "HIV incidence"),
+    "CANGRELOR_PCI_REVIEW.html":           ("Adults undergoing PCI",                                               "Cangrelor",                            "Clopidogrel loading dose",                   "Death, MI, ischemia-driven revasc or stent thrombosis at 48 h"),
+    "CARDIORENAL_DKD_NMA_REVIEW.html":     ("Adults with type 2 diabetes and CKD",                                 "SGLT2i / finerenone / GLP-1 RA",       "Placebo + standard RAS blockade",            "Renal composite (failure, eGFR decline, renal death)"),
+    "CART_DLBCL_REVIEW.html":              ("Adults with relapsed/refractory large B-cell lymphoma",               "CAR-T cell therapy (axi-cel, liso-cel)", "Standard-of-care 2nd-line therapy",         "Event-free survival"),
+    "CART_MM_REVIEW.html":                 ("Adults with relapsed/refractory multiple myeloma",                    "CAR-T cell therapy (cilta-cel, ide-cel)", "Physician's-choice regimen",              "Progression-free survival"),
+    "CBD_SEIZURE_REVIEW.html":             ("Children / adolescents with Dravet or Lennox-Gastaut syndrome",       "Cannabidiol",                          "Placebo",                                    "Convulsive seizure frequency reduction"),
+    "CDK46_MBC_REVIEW.html":               ("HR+/HER2- metastatic breast cancer (1L)",                             "CDK4/6 inhibitor + endocrine therapy", "Endocrine therapy alone",                    "Progression-free survival"),
+    "CD_BIOLOGICS_NMA_REVIEW.html":        ("Adults with moderate-to-severe Crohn's disease",                      "Biologic or small molecule",           "Placebo",                                    "Clinical remission at induction"),
+    "CFTR_CF_REVIEW.html":                 ("Patients with cystic fibrosis (F508del-eligible)",                    "CFTR modulator (ELX/TEZ/IVA, TEZ/IVA)", "Placebo",                                   "Absolute ppFEV1 change"),
+    "CFTR_MODULATORS_NMA_REVIEW.html":     ("Patients with cystic fibrosis",                                       "CFTR modulator (any generation)",      "Placebo",                                    "ppFEV1 and pulmonary exacerbation rate"),
+    "CGRP_MIGRAINE_NMA_REVIEW.html":       ("Adults with episodic or chronic migraine",                            "Anti-CGRP monoclonal antibody",        "Placebo",                                    "Monthly migraine days reduction"),
+    "CGRP_MIGRAINE_REVIEW.html":           ("Adults with episodic or chronic migraine",                            "Anti-CGRP monoclonal antibody (erenumab, fremanezumab, galcanezumab, eptinezumab)", "Placebo", "Monthly migraine days reduction"),
+    "COLCHICINE_CVD_REVIEW.html":          ("Adults with stable CAD or recent MI",                                 "Low-dose colchicine (0.5 mg)",         "Placebo",                                    "MACE composite"),
+    "COPD_TRIPLE_REVIEW.html":             ("Adults with COPD and exacerbation history",                           "Triple therapy (ICS/LABA/LAMA)",       "Dual ICS/LABA or LAMA/LABA",                 "Moderate/severe exacerbation rate"),
+    "COVID_ORAL_ANTIVIRALS_REVIEW.html":   ("Outpatients with COVID-19 at risk for severe disease",                "Oral antiviral (nirmatrelvir/r, molnupiravir)", "Placebo",                          "Hospitalization or death"),
+    "DOAC_AF_NMA_REVIEW.html":             ("Adults with non-valvular atrial fibrillation",                        "DOAC (apixaban, dabigatran, edoxaban, rivaroxaban)", "Warfarin",                       "Stroke or systemic embolism"),
+    "DOAC_AF_REVIEW.html":                 ("Adults with non-valvular atrial fibrillation",                        "Direct oral anticoagulant (DOAC)",     "Warfarin",                                   "Stroke or systemic embolism"),
+    "DOAC_CANCER_VTE_REVIEW.html":         ("Patients with cancer-associated VTE",                                 "DOAC (apixaban, edoxaban, rivaroxaban)", "LMWH (dalteparin)",                        "Recurrent VTE"),
+    "DOAC_VTE_NMA_REVIEW.html":            ("Adults with acute venous thromboembolism",                            "Direct oral anticoagulant",            "Vitamin K antagonist",                       "VTE recurrence"),
+    "DUPILUMAB_AD_REVIEW.html":            ("Adults and adolescents with moderate-to-severe atopic dermatitis",    "Dupilumab",                            "Placebo",                                    "EASI75 at 16 weeks"),
+    "DUPILUMAB_COPD_REVIEW.html":          ("Adults with COPD and type-2 inflammation",                            "Dupilumab",                            "Placebo",                                    "Annual moderate-severe exacerbation rate"),
+    "ESKETAMINE_TRD_REVIEW.html":          ("Adults with treatment-resistant depression",                          "Intranasal esketamine + oral antidepressant", "Placebo spray + oral antidepressant",  "MADRS change"),
+    "EVT_BASILAR_REVIEW.html":             ("Adults with acute basilar-artery occlusion",                          "Endovascular thrombectomy",            "Best medical management",                    "mRS 0-3 at 90 days"),
+    "EVT_EXTENDED_WINDOW_REVIEW.html":     ("Adults with anterior-circulation stroke in 6-24 h window",            "Endovascular thrombectomy",            "Medical management",                         "Functional independence (mRS 0-2) at 90 days"),
+    "EVT_LARGECORE_REVIEW.html":           ("Adults with large-core ischemic stroke (ASPECTS 3-5)",                "Endovascular thrombectomy",            "Medical management",                         "mRS 0-3 at 90 days"),
+    "FARICIMAB_NAMD_REVIEW.html":          ("Adults with neovascular AMD",                                         "Faricimab",                            "Aflibercept",                                "BCVA change (ETDRS letters)"),
+    "FENFLURAMINE_SEIZURE_REVIEW.html":    ("Children / adolescents with Dravet syndrome",                         "Fenfluramine",                         "Placebo",                                    "Convulsive seizure frequency reduction"),
+    "FEZOLINETANT_VMS_REVIEW.html":        ("Postmenopausal women with moderate-severe vasomotor symptoms",        "Fezolinetant",                         "Placebo",                                    "VMS frequency reduction"),
+    "GLP1_CVOT_NMA_REVIEW.html":           ("Adults with type 2 diabetes at elevated cardiovascular risk",         "GLP-1 receptor agonist",               "Placebo",                                    "3-point MACE"),
+    "GLP1_CVOT_REVIEW.html":               ("Adults with type 2 diabetes at elevated cardiovascular risk",         "GLP-1 receptor agonist",               "Placebo",                                    "3-point MACE"),
+    "HIGH_EFFICACY_MS_REVIEW.html":        ("Adults with relapsing-remitting multiple sclerosis",                  "High-efficacy DMT (ocrelizumab, natalizumab, etc.)", "Interferon or moderate DMT",     "Annualized relapse rate"),
+    "IL23_PSORIASIS_REVIEW.html":          ("Adults with moderate-to-severe plaque psoriasis",                     "IL-23 inhibitor (risankizumab, guselkumab, tildrakizumab)", "Placebo or comparator biologic", "PASI90 at week 16"),
+    "IL_PSORIASIS_NMA_REVIEW.html":        ("Adults with moderate-to-severe plaque psoriasis",                     "Systemic biologic / small molecule",   "Placebo",                                    "PASI90 at induction"),
+    "INCLISIRAN_REVIEW.html":              ("Adults with ASCVD or heterozygous FH on maximally tolerated statin",  "Inclisiran",                           "Placebo",                                    "LDL-C percent change"),
+    "INCRETINS_T2D_NMA_REVIEW.html":       ("Adults with type 2 diabetes",                                         "GLP-1 RA or DPP-4 inhibitor",          "Placebo or other glucose-lowering agent",    "HbA1c change"),
+    "INCRETIN_HFpEF_REVIEW.html":          ("Adults with HFpEF and obesity",                                       "Semaglutide or tirzepatide",           "Placebo",                                    "KCCQ-CSS change"),
+    "INSULIN_ICODEC_REVIEW.html":          ("Adults with type 2 diabetes",                                         "Once-weekly insulin icodec",           "Daily basal insulin",                        "HbA1c change (non-inferiority)"),
+    "INTENSIVE_BP_REVIEW.html":            ("Adults at elevated cardiovascular risk",                              "Intensive BP control (SBP < 120-130)", "Standard BP control (SBP < 140)",            "MACE composite"),
+    "IO_CHEMO_NSCLC_1L_REVIEW.html":       ("Adults with advanced NSCLC (1L)",                                     "Anti-PD-(L)1 + chemotherapy",          "Chemotherapy alone",                         "Overall survival"),
+    "IV_IRON_HF_REVIEW.html":              ("Adults with HFrEF and iron deficiency",                               "IV ferric carboxymaltose",             "Placebo",                                    "CV death or HF hospitalization"),
+    "JAKI_AD_REVIEW.html":                 ("Adults with moderate-to-severe atopic dermatitis",                    "JAK inhibitor (upadacitinib, abrocitinib)", "Placebo",                                "EASI75 at 16 weeks"),
+    "JAKI_RA_NMA_REVIEW.html":             ("Adults with moderate-to-severe rheumatoid arthritis",                 "JAK inhibitor",                        "Placebo or active comparator",               "ACR20 at 12-24 weeks"),
+    "JAK_RA_REVIEW.html":                  ("Adults with moderate-to-severe rheumatoid arthritis",                 "JAK inhibitor (tofacitinib, baricitinib, upadacitinib, filgotinib)", "Placebo", "ACR20 at 12-24 weeks"),
+    "JAK_UC_REVIEW.html":                  ("Adults with moderate-to-severe ulcerative colitis",                   "JAK inhibitor (tofacitinib, upadacitinib)", "Placebo",                               "Clinical remission at 8 weeks"),
+    "KARXT_SCZ_REVIEW.html":               ("Adults with acute schizophrenia",                                     "Xanomeline + trospium (KarXT)",        "Placebo",                                    "PANSS total change at week 5"),
+    "LENACAPAVIR_PREP_REVIEW.html":        ("Adults at risk of HIV acquisition",                                   "Lenacapavir SC twice-yearly",          "Daily oral TDF/FTC",                         "HIV incidence"),
+    "LIPID_HUB_REVIEW.html":               ("Adults with ASCVD or high cardiovascular risk",                       "Lipid-lowering therapy (statin, PCSK9i, etc.)", "Placebo or less-intensive therapy",   "MACE composite"),
+    "LU_PSMA_MCRPC_REVIEW.html":           ("Men with PSMA+ mCRPC post-ARPI and taxane",                           "177Lu-PSMA-617 + standard of care",    "Standard of care alone",                     "Overall survival"),
+    "MAVACAMTEN_HCM_REVIEW.html":          ("Adults with symptomatic obstructive HCM",                             "Mavacamten",                           "Placebo",                                    "Composite functional/pVO2 response"),
+    "MIRIKIZUMAB_UC_REVIEW.html":          ("Adults with moderate-to-severe ulcerative colitis",                   "Mirikizumab",                          "Placebo",                                    "Clinical remission at induction"),
+    "MITRAL_FUNCMR_REVIEW.html":           ("Adults with severe secondary mitral regurgitation",                   "Transcatheter mitral edge-to-edge repair + GDMT", "GDMT alone",                      "CV death or HF hospitalization"),
+    "NIRSEVIMAB_INFANT_RSV_REVIEW.html":   ("Healthy term / late-preterm infants",                                 "Nirsevimab (single IM dose)",          "Placebo",                                    "Medically-attended RSV LRTI"),
+    "PARP_ARPI_MCRPC_REVIEW.html":         ("Men with mCRPC (1L)",                                                 "PARP inhibitor + androgen-receptor pathway inhibitor", "ARPI + placebo",                 "Radiographic progression-free survival"),
+    "PARP_OVARIAN_REVIEW.html":            ("Women with advanced ovarian cancer (maintenance)",                    "PARP inhibitor (olaparib, niraparib)", "Placebo",                                    "Progression-free survival"),
+    "PATISIRAN_POLYNEUROPATHY_REVIEW.html": ("Adults with hereditary transthyretin amyloidosis with polyneuropathy", "Patisiran",                            "Placebo",                                    "mNIS+7 change at 18 months"),
+    "PBC_PPAR_REVIEW.html":                ("Adults with primary biliary cholangitis with inadequate UDCA response", "PPAR agonist (elafibranor, seladelpar)", "Placebo + UDCA",                        "Biochemical response (composite ALP / bilirubin)"),
+    "PCSK9_LIPID_NMA_REVIEW.html":         ("Adults with ASCVD or very-high cardiovascular risk",                  "PCSK9 inhibitor (alirocumab, evolocumab, inclisiran)", "Placebo",                  "MACE or LDL-C change"),
+    "PCSK9_REVIEW.html":                   ("Adults with ASCVD or heterozygous FH",                                "PCSK9 inhibitor",                      "Placebo",                                    "MACE composite"),
+    "PEGCETACOPLAN_GA_REVIEW.html":        ("Adults with geographic atrophy secondary to AMD",                     "Intravitreal pegcetacoplan",           "Sham",                                       "GA lesion-area change"),
+    "RENAL_DENERV_REVIEW.html":            ("Adults with uncontrolled hypertension on medication",                 "Catheter-based renal denervation",     "Sham procedure",                             "24-h ambulatory SBP change"),
+    "RISANKIZUMAB_CD_REVIEW.html":         ("Adults with moderate-to-severe Crohn's disease",                      "Risankizumab",                         "Placebo",                                    "Clinical remission at induction"),
+    "RIVAROXABAN_VASC_REVIEW.html":        ("Adults with stable ASCVD or PAD",                                     "Rivaroxaban 2.5 mg BID + aspirin",     "Aspirin alone",                              "MACE composite"),
+    "ROMOSOZUMAB_OP_REVIEW.html":          ("Postmenopausal women with osteoporosis",                              "Romosozumab",                          "Alendronate or placebo",                     "New vertebral fracture"),
+    "RSV_VACCINE_OLDER_REVIEW.html":       ("Adults aged >=60 years",                                              "RSV prefusion-F vaccine",              "Placebo",                                    "RSV-associated lower respiratory tract disease"),
+    "SEMAGLUTIDE_OBESITY_REVIEW.html":     ("Adults with overweight/obesity and established CVD (without diabetes)", "Semaglutide 2.4 mg weekly",          "Placebo",                                    "3-point MACE"),
+    "SEVERE_ASTHMA_NMA_REVIEW.html":       ("Adults with severe eosinophilic asthma",                              "Biologic (mepolizumab, benralizumab, dupilumab, tezepelumab)", "Placebo",            "Annual exacerbation rate"),
+    "SGLT2I_HF_NMA_REVIEW.html":           ("Adults with heart failure across EF spectrum",                        "SGLT2 inhibitor",                      "Placebo",                                    "CV death or HF hospitalization"),
+    "SGLT2_CKD_REVIEW.html":               ("Adults with CKD (with or without type 2 diabetes)",                   "SGLT2 inhibitor (dapagliflozin, empagliflozin)", "Placebo",                          "Renal composite"),
+    "SGLT2_HF_REVIEW.html":                ("Adults with heart failure",                                           "SGLT2 inhibitor",                      "Placebo",                                    "CV death or HF hospitalization"),
+    "SGLT2_MACE_CVOT_REVIEW.html":         ("Adults with type 2 diabetes at cardiovascular risk",                  "SGLT2 inhibitor",                      "Placebo",                                    "3-point MACE"),
+    "SOTAGLIFLOZIN_HF_REVIEW.html":        ("Adults with T2D recently hospitalized for worsening HF",              "Sotagliflozin",                        "Placebo",                                    "CV death, HHF, or urgent HF visit"),
+    "TAVR_LOWRISK_REVIEW.html":            ("Adults with severe aortic stenosis at low surgical risk",             "TAVR",                                 "Surgical aortic valve replacement",          "Death, stroke, or rehospitalization at 1 yr"),
+    "TDXD_HER2LOW_BC_REVIEW.html":         ("HER2-low metastatic breast cancer",                                   "Trastuzumab deruxtecan (T-DXd)",       "Physician's-choice chemotherapy",            "Progression-free survival"),
+    "TIRZEPATIDE_OBESITY_REVIEW.html":     ("Adults with overweight/obesity without diabetes",                     "Tirzepatide",                          "Placebo",                                    "Body-weight percent change"),
+    "TIRZEPATIDE_T2D_REVIEW.html":         ("Adults with type 2 diabetes",                                         "Tirzepatide",                          "Semaglutide or placebo",                     "HbA1c change"),
+    "TNK_VS_TPA_STROKE_REVIEW.html":       ("Adults with acute ischemic stroke within 4.5 h",                      "Tenecteplase",                         "Alteplase",                                  "mRS 0-1 at 90 days"),
+    "UC_BIOLOGICS_NMA_REVIEW.html":        ("Adults with moderate-to-severe ulcerative colitis",                   "Biologic or small molecule",           "Placebo",                                    "Clinical remission at induction"),
+    "UPADACITINIB_CD_REVIEW.html":         ("Adults with moderate-to-severe Crohn's disease",                      "Upadacitinib",                         "Placebo",                                    "Clinical remission at induction"),
+    "VENETOCLAX_AML_REVIEW.html":          ("Adults with newly-diagnosed AML ineligible for intensive chemo",      "Venetoclax + azacitidine",             "Placebo + azacitidine",                      "Overall survival"),
+}
+
+
+def apply_to_file(path: pathlib.Path, pop, intv, comp, out, dry_run: bool) -> str:
+    raw = path.read_bytes()
+    crlf = b"\r\n" in raw
+    text = raw.decode("utf-8")
+
+    # Each input is a one-liner with id="p-X" and value="..."
+    # Four substitutions per file, targeted narrowly.
+    replacements = [
+        (re.compile(r'(<input id="p-pop"[^>]*value=")[^"]*(")'),  pop),
+        (re.compile(r'(<input id="p-int"[^>]*value=")[^"]*(")'),  intv),
+        (re.compile(r'(<input id="p-comp"[^>]*value=")[^"]*(")'), comp),
+        (re.compile(r'(<input id="p-out"[^>]*value=")[^"]*(")'),  out),
+    ]
+    changes = 0
+    for pat, val in replacements:
+        new_text, n = pat.subn(lambda m: m.group(1) + val + m.group(2), text, count=1)
+        if n > 0:
+            changes += n
+            text = new_text
+    if changes == 0:
+        return f"MISS {path.name}: no PICO inputs found"
+    if not dry_run:
+        path.write_bytes(text.encode("utf-8"))
+    return f"OK   {path.name}: {changes}/4 inputs updated"
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument("--apply", action="store_true")
+    args = ap.parse_args()
+    if not (args.dry_run or args.apply):
+        ap.error("pass --dry-run or --apply")
+
+    ok = miss = 0
+    for name, pico in PICO.items():
+        p = ROOT / name
+        if not p.exists():
+            continue
+        r = apply_to_file(p, *pico, dry_run=args.dry_run)
+        if r.startswith("OK"):
+            ok += 1
+        else:
+            miss += 1
+        if miss < 10 or r.startswith("OK"):
+            print(r)
+    print(f"\n{'dry-run' if args.dry_run else 'apply'}: {ok} ok / {miss} miss")
+
+
+if __name__ == "__main__":
+    main()
+
+codex
+I’ll verify the pasted module’s line positions against the workspace copy only for line numbering, then I’ll keep the answer limited to demonstrable defect cases.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Get-Content -Path F:\\ProjectIndex\\INDEX.md -TotalCount 5" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Get-Content -Path F:\\E156\\rewrite-workbook.txt -TotalCount 5" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=0; Get-Content -Path scripts'"\\fix_pico_boilerplate.py | ForEach-Object { "'$i++; '"'{0,4}: {1}' -f "'$i, $_ }' in F:\rapidmeta-ssot-shell
+ succeeded in 5556ms:
+<!-- sentinel:skip-file - portfolio registry; absolute paths ARE the data -->
+# C: Drive Project Index
+> **Last updated**: 2026-05-14 (C:\HTML apps focused repair batch continued: hub shell launch fix, static contracts across ten HTML app repos, NMA/living-meta/nma-dose-response landing and asset-link repairs, and NMA doc hardcoded-path cleanup. Prior SheafNMA v0.2.0, D-drive legacy smoke-contract continuation, CardioOracle lifecycle status freeze, C-drive model/project smoke-contract continuation, mahmood789 consolidation, Sentinel/Overmind JSONL and verification repair, C-drive reproducibility audit continuation, C-drive verification repair, D-drive repair batch, superapp, C-drive sweep, home-folder hardening, Trial Truthfulness Atlas, and portfolio notes retained below.)
+
+### C:\HTML apps focused repair batch (2026-05-14)
+
+ succeeded in 5554ms:
+E156 REWRITE WORKBOOK
+sentinel:skip-file
+sentinel:claim-language-allow
+(Sentinel markers above:
+ - sentinel:skip-file: this workbook intentionally contains C:\Users\... PATH:
+
+ succeeded in 5614ms:
+   1: #!/usr/bin/env python3
+   2: # sentinel:skip-file - developer tool; hardcoded ROOT is intentional (local Finrenone checkout only)
+   3: """Replace the clone-template PICO boilerplate (Sacubitril/Valsartan intervention,
+   4: 'Heart Failure' population, 'CV Death or HF Hospitalization' outcome) with
+   5: drug-appropriate values per app.
+   6: 
+   7: Affects <input id="p-pop"|"p-int"|"p-comp"|"p-out"> defaults in 80+ apps.
+   8: 
+   9: Keeps the original ARNI_HF_REVIEW.html intact (it's the source drug).
+  10: """
+  11: import argparse, pathlib, re, sys
+  12: 
+  13: ROOT = pathlib.Path(__file__).resolve().parent.parent
+  14: 
+  15: # (population, intervention, comparator, outcome)
+  16: PICO = {
+  17:     "ABLATION_AF_REVIEW.html":             ("Adults with symptomatic atrial fibrillation",                        "Catheter ablation",                   "Antiarrhythmic drug therapy",               "Recurrent AF or major cardiovascular events"),
+  18:     "ACALABRUTINIB_CLL_REVIEW.html":       ("Adults with CLL or SLL",                                              "Acalabrutinib",                       "Chemoimmunotherapy or placebo",             "Progression-free survival"),
+  19:     "ADC_HER2_ADJUVANT_NMA_REVIEW.html":   ("HER2+ early breast cancer with residual disease after neoadjuvant",   "Trastuzumab emtansine (T-DM1) adjuvant", "Trastuzumab or placebo",                 "Invasive disease-free survival (iDFS)"),
+  20:     "ADC_HER2_LOW_NMA_REVIEW.html":        ("HER2-low metastatic breast cancer",                                   "Trastuzumab deruxtecan (T-DXd)",       "Physician's-choice chemotherapy",            "Progression-free survival (PFS)"),
+  21:     "ADC_HER2_NMA_REVIEW.html":            ("HER2+ metastatic breast cancer",                                      "HER2-directed ADC (T-DXd, T-DM1, etc.)", "T-DM1 or chemotherapy",                    "Progression-free survival (PFS)"),
+  22:     "AFLIBERCEPT_HD_REVIEW.html":          ("Adults with neovascular AMD or DME",                                  "Aflibercept 8 mg (high-dose)",         "Aflibercept 2 mg or ranibizumab",            "BCVA change (letters)"),
+  23:     "ANIFROLUMAB_SLE_REVIEW.html":         ("Adults with moderate-to-severe systemic lupus erythematosus",         "Anifrolumab",                          "Placebo + standard of care",                 "BICLA response at week 52"),
+  24:     "ANTIAMYLOID_AD_NMA_REVIEW.html":      ("Early Alzheimer's disease (MCI or mild AD with confirmed amyloid)",   "Anti-amyloid monoclonal antibody",     "Placebo",                                    "CDR-SB change at 18 months"),
+  25:     "ANTIAMYLOID_AD_REVIEW.html":          ("Early Alzheimer's disease (MCI or mild AD with confirmed amyloid)",   "Anti-amyloid monoclonal antibody (lecanemab, donanemab)", "Placebo",                   "CDR-SB change at 18 months"),
+  26:     "ANTIPSYCHOTICS_SCHIZO_NMA_REVIEW.html": ("Adults with acute schizophrenia",                                    "Oral antipsychotic",                   "Placebo",                                    "PANSS total / overall symptoms change"),
+  27:     "ANTIVEGF_NAMD_NMA_REVIEW.html":       ("Adults with neovascular age-related macular degeneration",            "Anti-VEGF (ranibizumab, aflibercept, faricimab)", "Sham / reference anti-VEGF",       "BCVA change (ETDRS letters)"),
+  28:     "ARPI_mHSPC_REVIEW.html":              ("Men with metastatic hormone-sensitive prostate cancer",               "Androgen-receptor pathway inhibitor + ADT", "ADT alone",                             "Overall survival"),
+  29:     "ATOPIC_DERM_NMA_REVIEW.html":         ("Adults and adolescents with moderate-to-severe atopic dermatitis",    "Systemic immunomodulator (dupilumab, JAKi, etc.)", "Placebo",                       "EASI75 at 16 weeks"),
+  30:     "ATTR_CM_REVIEW.html":                 ("Adults with transthyretin amyloid cardiomyopathy",                    "TTR stabilizer (tafamidis, acoramidis)", "Placebo",                                 "All-cause mortality or CV hospitalization"),
+  31:     "BELIMUMAB_SLE_REVIEW.html":           ("Adults with seropositive systemic lupus erythematosus",               "Belimumab",                            "Placebo + standard of care",                 "SRI-4 response at week 52"),
+  32:     "BEMPEDOIC_ACID_REVIEW.html":          ("Adults with ASCVD (statin-intolerant or statin-treated)",             "Bempedoic acid",                       "Placebo",                                    "MACE-4 composite"),
+  33:     "BIOLOGIC_ASTHMA_REVIEW.html":         ("Adults with severe asthma",                                           "Biologic (mepolizumab, benralizumab, dupilumab)", "Placebo",                         "Annual exacerbation rate"),
+  34:     "BTKI_CLL_NMA_REVIEW.html":            ("Adults with CLL or SLL",                                              "BTK inhibitor (ibrutinib, acalabrutinib, zanubrutinib)", "BTK comparator or chemoimmunotherapy", "Progression-free survival"),
+  35:     "CAB_PREP_HIV_REVIEW.html":            ("Adults at risk of HIV acquisition",                                   "Long-acting cabotegravir (PrEP)",      "Daily oral TDF/FTC",                         "HIV incidence"),
+  36:     "CANGRELOR_PCI_REVIEW.html":           ("Adults undergoing PCI",                                               "Cangrelor",                            "Clopidogrel loading dose",                   "Death, MI, ischemia-driven revasc or stent thrombosis at 48 h"),
+  37:     "CARDIORENAL_DKD_NMA_REVIEW.html":     ("Adults with type 2 diabetes and CKD",                                 "SGLT2i / finerenone / GLP-1 RA",       "Placebo + standard RAS blockade",            "Renal composite (failure, eGFR decline, renal death)"),
+  38:     "CART_DLBCL_REVIEW.html":              ("Adults with relapsed/refractory large B-cell lymphoma",               "CAR-T cell therapy (axi-cel, liso-cel)", "Standard-of-care 2nd-line therapy",         "Event-free survival"),
+  39:     "CART_MM_REVIEW.html":                 ("Adults with relapsed/refractory multiple myeloma",                    "CAR-T cell therapy (cilta-cel, ide-cel)", "Physician's-choice regimen",              "Progression-free survival"),
+  40:     "CBD_SEIZURE_REVIEW.html":             ("Children / adolescents with Dravet or Lennox-Gastaut syndrome",       "Cannabidiol",                          "Placebo",                                    "Convulsive seizure frequency reduction"),
+  41:     "CDK46_MBC_REVIEW.html":               ("HR+/HER2- metastatic breast cancer (1L)",                             "CDK4/6 inhibitor + endocrine therapy", "Endocrine therapy alone",                    "Progression-free survival"),
+  42:     "CD_BIOLOGICS_NMA_REVIEW.html":        ("Adults with moderate-to-severe Crohn's disease",                      "Biologic or small molecule",           "Placebo",                                    "Clinical remission at induction"),
+  43:     "CFTR_CF_REVIEW.html":                 ("Patients with cystic fibrosis (F508del-eligible)",                    "CFTR modulator (ELX/TEZ/IVA, TEZ/IVA)", "Placebo",                                   "Absolute ppFEV1 change"),
+  44:     "CFTR_MODULATORS_NMA_REVIEW.html":     ("Patients with cystic fibrosis",                                       "CFTR modulator (any generation)",      "Placebo",                                    "ppFEV1 and pulmonary exacerbation rate"),
+  45:     "CGRP_MIGRAINE_NMA_REVIEW.html":       ("Adults with episodic or chronic migraine",                            "Anti-CGRP monoclonal antibody",        "Placebo",                                    "Monthly migraine days reduction"),
+  46:     "CGRP_MIGRAINE_REVIEW.html":           ("Adults with episodic or chronic migraine",                            "Anti-CGRP monoclonal antibody (erenumab, fremanezumab, galcanezumab, eptinezumab)", "Placebo", "Monthly migraine days reduction"),
+  47:     "COLCHICINE_CVD_REVIEW.html":          ("Adults with stable CAD or recent MI",                                 "Low-dose colchicine (0.5 mg)",         "Placebo",                                    "MACE composite"),
+  48:     "COPD_TRIPLE_REVIEW.html":             ("Adults with COPD and exacerbation history",                           "Triple therapy (ICS/LABA/LAMA)",       "Dual ICS/LABA or LAMA/LABA",                 "Moderate/severe exacerbation rate"),
+  49:     "COVID_ORAL_ANTIVIRALS_REVIEW.html":   ("Outpatients with COVID-19 at risk for severe disease",                "Oral antiviral (nirmatrelvir/r, molnupiravir)", "Placebo",                          "Hospitalization or death"),
+  50:     "DOAC_AF_NMA_REVIEW.html":             ("Adults with non-valvular atrial fibrillation",                        "DOAC (apixaban, dabigatran, edoxaban, rivaroxaban)", "Warfarin",                       "Stroke or systemic embolism"),
+  51:     "DOAC_AF_REVIEW.html":                 ("Adults with non-valvular atrial fibrillation",                        "Direct oral anticoagulant (DOAC)",     "Warfarin",                                   "Stroke or systemic embolism"),
+  52:     "DOAC_CANCER_VTE_REVIEW.html":         ("Patients with cancer-associated VTE",                                 "DOAC (apixaban, edoxaban, rivaroxaban)", "LMWH (dalteparin)",                        "Recurrent VTE"),
+  53:     "DOAC_VTE_NMA_REVIEW.html":            ("Adults with acute venous thromboembolism",                            "Direct oral anticoagulant",            "Vitamin K antagonist",                       "VTE recurrence"),
+  54:     "DUPILUMAB_AD_REVIEW.html":            ("Adults and adolescents with moderate-to-severe atopic dermatitis",    "Dupilumab",                            "Placebo",                                    "EASI75 at 16 weeks"),
+  55:     "DUPILUMAB_COPD_REVIEW.html":          ("Adults with COPD and type-2 inflammation",                            "Dupilumab",                            "Placebo",                                    "Annual moderate-severe exacerbation rate"),
+  56:     "ESKETAMINE_TRD_REVIEW.html":          ("Adults with treatment-resistant depression",                          "Intranasal esketamine + oral antidepressant", "Placebo spray + oral antidepressant",  "MADRS change"),
+  57:     "EVT_BASILAR_REVIEW.html":             ("Adults with acute basilar-artery occlusion",                          "Endovascular thrombectomy",            "Best medical management",                    "mRS 0-3 at 90 days"),
+  58:     "EVT_EXTENDED_WINDOW_REVIEW.html":     ("Adults with anterior-circulation stroke in 6-24 h window",            "Endovascular thrombectomy",            "Medical management",                         "Functional independence (mRS 0-2) at 90 days"),
+  59:     "EVT_LARGECORE_REVIEW.html":           ("Adults with large-core ischemic stroke (ASPECTS 3-5)",                "Endovascular thrombectomy",            "Medical management",                         "mRS 0-3 at 90 days"),
+  60:     "FARICIMAB_NAMD_REVIEW.html":          ("Adults with neovascular AMD",                                         "Faricimab",                            "Aflibercept",                                "BCVA change (ETDRS letters)"),
+  61:     "FENFLURAMINE_SEIZURE_REVIEW.html":    ("Children / adolescents with Dravet syndrome",                         "Fenfluramine",                         "Placebo",                                    "Convulsive seizure frequency reduction"),
+  62:     "FEZOLINETANT_VMS_REVIEW.html":        ("Postmenopausal women with moderate-severe vasomotor symptoms",        "Fezolinetant",                         "Placebo",                                    "VMS frequency reduction"),
+  63:     "GLP1_CVOT_NMA_REVIEW.html":           ("Adults with type 2 diabetes at elevated cardiovascular risk",         "GLP-1 receptor agonist",               "Placebo",                                    "3-point MACE"),
+  64:     "GLP1_CVOT_REVIEW.html":               ("Adults with type 2 diabetes at elevated cardiovascular risk",         "GLP-1 receptor agonist",               "Placebo",                                    "3-point MACE"),
+  65:     "HIGH_EFFICACY_MS_REVIEW.html":        ("Adults with relapsing-remitting multiple sclerosis",                  "High-efficacy DMT (ocrelizumab, natalizumab, etc.)", "Interferon or moderate DMT",     "Annualized relapse rate"),
+  66:     "IL23_PSORIASIS_REVIEW.html":          ("Adults with moderate-to-severe plaque psoriasis",                     "IL-23 inhibitor (risankizumab, guselkumab, tildrakizumab)", "Placebo or comparator biologic", "PASI90 at week 16"),
+  67:     "IL_PSORIASIS_NMA_REVIEW.html":        ("Adults with moderate-to-severe plaque psoriasis",                     "Systemic biologic / small molecule",   "Placebo",                                    "PASI90 at induction"),
+  68:     "INCLISIRAN_REVIEW.html":              ("Adults with ASCVD or heterozygous FH on maximally tolerated statin",  "Inclisiran",                           "Placebo",                                    "LDL-C percent change"),
+  69:     "INCRETINS_T2D_NMA_REVIEW.html":       ("Adults with type 2 diabetes",                                         "GLP-1 RA or DPP-4 inhibitor",          "Placebo or other glucose-lowering agent",    "HbA1c change"),
+  70:     "INCRETIN_HFpEF_REVIEW.html":          ("Adults with HFpEF and obesity",                                       "Semaglutide or tirzepatide",           "Placebo",                                    "KCCQ-CSS change"),
+  71:     "INSULIN_ICODEC_REVIEW.html":          ("Adults with type 2 diabetes",                                         "Once-weekly insulin icodec",           "Daily basal insulin",                        "HbA1c change (non-inferiority)"),
+  72:     "INTENSIVE_BP_REVIEW.html":            ("Adults at elevated cardiovascular risk",                              "Intensive BP control (SBP < 120-130)", "Standard BP control (SBP < 140)",            "MACE composite"),
+  73:     "IO_CHEMO_NSCLC_1L_REVIEW.html":       ("Adults with advanced NSCLC (1L)",                                     "Anti-PD-(L)1 + chemotherapy",          "Chemotherapy alone",                         "Overall survival"),
+  74:     "IV_IRON_HF_REVIEW.html":              ("Adults with HFrEF and iron deficiency",                               "IV ferric carboxymaltose",             "Placebo",                                    "CV death or HF hospitalization"),
+  75:     "JAKI_AD_REVIEW.html":                 ("Adults with moderate-to-severe atopic dermatitis",                    "JAK inhibitor (upadacitinib, abrocitinib)", "Placebo",                                "EASI75 at 16 weeks"),
+  76:     "JAKI_RA_NMA_REVIEW.html":             ("Adults with moderate-to-severe rheumatoid arthritis",                 "JAK inhibitor",                        "Placebo or active comparator",               "ACR20 at 12-24 weeks"),
+  77:     "JAK_RA_REVIEW.html":                  ("Adults with moderate-to-severe rheumatoid arthritis",                 "JAK inhibitor (tofacitinib, baricitinib, upadacitinib, filgotinib)", "Placebo", "ACR20 at 12-24 weeks"),
+  78:     "JAK_UC_REVIEW.html":                  ("Adults with moderate-to-severe ulcerative colitis",                   "JAK inhibitor (tofacitinib, upadacitinib)", "Placebo",                               "Clinical remission at 8 weeks"),
+  79:     "KARXT_SCZ_REVIEW.html":               ("Adults with acute schizophrenia",                                     "Xanomeline + trospium (KarXT)",        "Placebo",                                    "PANSS total change at week 5"),
+  80:     "LENACAPAVIR_PREP_REVIEW.html":        ("Adults at risk of HIV acquisition",                                   "Lenacapavir SC twice-yearly",          "Daily oral TDF/FTC",                         "HIV incidence"),
+  81:     "LIPID_HUB_REVIEW.html":               ("Adults with ASCVD or high cardiovascular risk",                       "Lipid-lowering therapy (statin, PCSK9i, etc.)", "Placebo or less-intensive therapy",   "MACE composite"),
+  82:     "LU_PSMA_MCRPC_REVIEW.html":           ("Men with PSMA+ mCRPC post-ARPI and taxane",                           "177Lu-PSMA-617 + standard of care",    "Standard of care alone",                     "Overall survival"),
+  83:     "MAVACAMTEN_HCM_REVIEW.html":          ("Adults with symptomatic obstructive HCM",                             "Mavacamten",                           "Placebo",                                    "Composite functional/pVO2 response"),
+  84:     "MIRIKIZUMAB_UC_REVIEW.html":          ("Adults with moderate-to-severe ulcerative colitis",                   "Mirikizumab",                          "Placebo",                                    "Clinical remission at induction"),
+  85:     "MITRAL_FUNCMR_REVIEW.html":           ("Adults with severe secondary mitral regurgitation",                   "Transcatheter mitral edge-to-edge repair + GDMT", "GDMT alone",                      "CV death or HF hospitalization"),
+  86:     "NIRSEVIMAB_INFANT_RSV_REVIEW.html":   ("Healthy term / late-preterm infants",                                 "Nirsevimab (single IM dose)",          "Placebo",                                    "Medically-attended RSV LRTI"),
+  87:     "PARP_ARPI_MCRPC_REVIEW.html":         ("Men with mCRPC (1L)",                                                 "PARP inhibitor + androgen-receptor pathway inhibitor", "ARPI + placebo",                 "Radiographic progression-free survival"),
+  88:     "PARP_OVARIAN_REVIEW.html":            ("Women with advanced ovarian cancer (maintenance)",                    "PARP inhibitor (olaparib, niraparib)", "Placebo",                                    "Progression-free survival"),
+  89:     "PATISIRAN_POLYNEUROPATHY_REVIEW.html": ("Adults with hereditary transthyretin amyloidosis with polyneuropathy", "Patisiran",                            "Placebo",                                    "mNIS+7 change at 18 months"),
+  90:     "PBC_PPAR_REVIEW.html":                ("Adults with primary biliary cholangitis with inadequate UDCA response", "PPAR agonist (elafibranor, seladelpar)", "Placebo + UDCA",                        "Biochemical response (composite ALP / bilirubin)"),
+  91:     "PCSK9_LIPID_NMA_REVIEW.html":         ("Adults with ASCVD or very-high cardiovascular risk",                  "PCSK9 inhibitor (alirocumab, evolocumab, inclisiran)", "Placebo",                  "MACE or LDL-C change"),
+  92:     "PCSK9_REVIEW.html":                   ("Adults with ASCVD or heterozygous FH",                                "PCSK9 inhibitor",                      "Placebo",                                    "MACE composite"),
+  93:     "PEGCETACOPLAN_GA_REVIEW.html":        ("Adults with geographic atrophy secondary to AMD",                     "Intravitreal pegcetacoplan",           "Sham",                                       "GA lesion-area change"),
+  94:     "RENAL_DENERV_REVIEW.html":            ("Adults with uncontrolled hypertension on medication",                 "Catheter-based renal denervation",     "Sham procedure",                             "24-h ambulatory SBP change"),
+  95:     "RISANKIZUMAB_CD_REVIEW.html":         ("Adults with moderate-to-severe Crohn's disease",                      "Risankizumab",                         "Placebo",                                    "Clinical remission at induction"),
+  96:     "RIVAROXABAN_VASC_REVIEW.html":        ("Adults with stable ASCVD or PAD",                                     "Rivaroxaban 2.5 mg BID + aspirin",     "Aspirin alone",                              "MACE composite"),
+  97:     "ROMOSOZUMAB_OP_REVIEW.html":          ("Postmenopausal women with osteoporosis",                              "Romosozumab",                          "Alendronate or placebo",                     "New vertebral fracture"),
+  98:     "RSV_VACCINE_OLDER_REVIEW.html":       ("Adults aged >=60 years",                                              "RSV prefusion-F vaccine",              "Placebo",                                    "RSV-associated lower respiratory tract disease"),
+  99:     "SEMAGLUTIDE_OBESITY_REVIEW.html":     ("Adults with overweight/obesity and established CVD (without diabetes)", "Semaglutide 2.4 mg weekly",          "Placebo",                                    "3-point MACE"),
+ 100:     "SEVERE_ASTHMA_NMA_REVIEW.html":       ("Adults with severe eosinophilic asthma",                              "Biologic (mepolizumab, benralizumab, dupilumab, tezepelumab)", "Placebo",            "Annual exacerbation rate"),
+ 101:     "SGLT2I_HF_NMA_REVIEW.html":           ("Adults with heart failure across EF spectrum",                        "SGLT2 inhibitor",                      "Placebo",                                    "CV death or HF hospitalization"),
+ 102:     "SGLT2_CKD_REVIEW.html":               ("Adults with CKD (with or without type 2 diabetes)",                   "SGLT2 inhibitor (dapagliflozin, empagliflozin)", "Placebo",                          "Renal composite"),
+ 103:     "SGLT2_HF_REVIEW.html":                ("Adults with heart failure",                                           "SGLT2 inhibitor",                      "Placebo",                                    "CV death or HF hospitalization"),
+ 104:     "SGLT2_MACE_CVOT_REVIEW.html":         ("Adults with type 2 diabetes at cardiovascular risk",                  "SGLT2 inhibitor",                      "Placebo",                                    "3-point MACE"),
+ 105:     "SOTAGLIFLOZIN_HF_REVIEW.html":        ("Adults with T2D recently hospitalized for worsening HF",              "Sotagliflozin",                        "Placebo",                                    "CV death, HHF, or urgent HF visit"),
+ 106:     "TAVR_LOWRISK_REVIEW.html":            ("Adults with severe aortic stenosis at low surgical risk",             "TAVR",                                 "Surgical aortic valve replacement",          "Death, stroke, or rehospitalization at 1 yr"),
+ 107:     "TDXD_HER2LOW_BC_REVIEW.html":         ("HER2-low metastatic breast cancer",                                   "Trastuzumab deruxtecan (T-DXd)",       "Physician's-choice chemotherapy",            "Progression-free survival"),
+ 108:     "TIRZEPATIDE_OBESITY_REVIEW.html":     ("Adults with overweight/obesity without diabetes",                     "Tirzepatide",                          "Placebo",                                    "Body-weight percent change"),
+ 109:     "TIRZEPATIDE_T2D_REVIEW.html":         ("Adults with type 2 diabetes",                                         "Tirzepatide",                          "Semaglutide or placebo",                     "HbA1c change"),
+ 110:     "TNK_VS_TPA_STROKE_REVIEW.html":       ("Adults with acute ischemic stroke within 4.5 h",                      "Tenecteplase",                         "Alteplase",                                  "mRS 0-1 at 90 days"),
+ 111:     "UC_BIOLOGICS_NMA_REVIEW.html":        ("Adults with moderate-to-severe ulcerative colitis",                   "Biologic or small molecule",           "Placebo",                                    "Clinical remission at induction"),
+ 112:     "UPADACITINIB_CD_REVIEW.html":         ("Adults with moderate-to-severe Crohn's disease",                      "Upadacitinib",                         "Placebo",                                    "Clinical remission at induction"),
+ 113:     "VENETOCLAX_AML_REVIEW.html":          ("Adults with newly-diagnosed AML ineligible for intensive chemo",      "Venetoclax + azacitidine",             "Placebo + azacitidine",                      "Overall survival"),
+ 114: }
+ 115: 
+ 116: 
+ 117: def apply_to_file(path: pathlib.Path, pop, intv, comp, out, dry_run: bool) -> str:
+ 118:     raw = path.read_bytes()
+ 119:     crlf = b"\r\n" in raw
+ 120:     text = raw.decode("utf-8")
+ 121: 
+ 122:     # Each input is a one-liner with id="p-X" and value="..."
+ 123:     # Four substitutions per file, targeted narrowly.
+ 124:     replacements = [
+ 125:         (re.compile(r'(<input id="p-pop"[^>]*value=")[^"]*(")'),  pop),
+ 126:         (re.compile(r'(<input id="p-int"[^>]*value=")[^"]*(")'),  intv),
+ 127:         (re.compile(r'(<input id="p-comp"[^>]*value=")[^"]*(")'), comp),
+ 128:         (re.compile(r'(<input id="p-out"[^>]*value=")[^"]*(")'),  out),
+ 129:     ]
+ 130:     changes = 0
+ 131:     for pat, val in replacements:
+ 132:         new_text, n = pat.subn(lambda m: m.group(1) + val + m.group(2), text, count=1)
+ 133:         if n > 0:
+ 134:             changes += n
+ 135:             text = new_text
+ 136:     if changes == 0:
+ 137:         return f"MISS {path.name}: no PICO inputs found"
+ 138:     if not dry_run:
+ 139:         path.write_bytes(text.encode("utf-8"))
+ 140:     return f"OK   {path.name}: {changes}/4 inputs updated"
+ 141: 
+ 142: 
+ 143: def main():
+ 144:     ap = argparse.ArgumentParser()
+ 145:     ap.add_argument("--dry-run", action="store_true")
+ 146:     ap.add_argument("--apply", action="store_true")
+ 147:     args = ap.parse_args()
+ 148:     if not (args.dry_run or args.apply):
+ 149:         ap.error("pass --dry-run or --apply")
+ 150: 
+ 151:     ok = miss = 0
+ 152:     for name, pico in PICO.items():
+ 153:         p = ROOT / name
+ 154:         if not p.exists():
+ 155:             continue
+ 156:         r = apply_to_file(p, *pico, dry_run=args.dry_run)
+ 157:         if r.startswith("OK"):
+ 158:             ok += 1
+ 159:         else:
+ 160:             miss += 1
+ 161:         if miss < 10 or r.startswith("OK"):
+ 162:             print(r)
+ 163:     print(f"\n{'dry-run' if args.dry_run else 'apply'}: {ok} ok / {miss} miss")
+ 164: 
+ 165: 
+ 166: if __name__ == "__main__":
+ 167:     main()
+
+codex
+The line numbers are now anchored. I’m checking only inputs that can be demonstrated from this file’s own API and command-line behavior, and separating those from corpus-dependent claims.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "@'
+import pathlib, tempfile, importlib.util
+spec = importlib.util.spec_from_file_location('fix_pico', r'F:\\rapidmeta-ssot-shell\\scripts\\fix_pico_boilerplate.py')
+mod = importlib.util.module_from_spec(spec); spec.loader.exec_module(mod)
+with tempfile.TemporaryDirectory(dir=r'F:\\tmp') as d:
+    p = pathlib.Path(d)/'ABLATION_AF_REVIEW.html'
+    cases = {
+      'none': '<html></html>',
+      'one': '<input id=\"p-pop\" value=\"Heart Failure\">',
+      'data_after': '<input id=\"p-pop\" value=\"Heart Failure\" data-value=\"template\"><input id=\"p-int\" value=\"Sacubitril/Valsartan\"><input id=\"p-comp\" value=\"Placebo\"><input id=\"p-out\" value=\"CV Death or HF Hospitalization\">',
+      'attr_before': '<input class=\"x\" id=\"p-pop\" value=\"Heart Failure\"><input class=\"x\" id=\"p-int\" value=\"Sacubitril/Valsartan\"><input class=\"x\" id=\"p-comp\" value=\"Placebo\"><input class=\"x\" id=\"p-out\" value=\"CV Death or HF Hospitalization\">',
+    }
+    for name, html in cases.items():
+        p.write_text(html, encoding='utf-8')
+        print(name, '=>', mod.apply_to_file(p, *mod.PICO['ABLATION_AF_REVIEW.html'], dry_run=False))
+        print(p.read_text(encoding='utf-8'))
+'@ | python -" in F:\rapidmeta-ssot-shell
+2026-08-24T03:12:46.192159Z ERROR codex_core::tools::router: error=Exit code: 1
+Wall time: 1.6 seconds
+Output:
+Traceback (most recent call last):
+  File "<stdin>", line 4, in <module>
+  File "C:\Users\mahmo\AppData\Local\Programs\Python\Python313\Lib\tempfile.py", line 887, in __init__
+    self.name = mkdtemp(suffix, prefix, dir)
+                ~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\mahmo\AppData\Local\Programs\Python\Python313\Lib\tempfile.py", line 381, in mkdtemp
+    _os.mkdir(file, 0o700)
+    ~~~~~~~~~^^^^^^^^^^^^^
+PermissionError: [WinError 5] Access is denied: 'F:\\tmp\\tmpo8nc3xgs'
+
+ exited 1 in 1644ms:
+Traceback (most recent call last):
+  File "<stdin>", line 4, in <module>
+  File "C:\Users\mahmo\AppData\Local\Programs\Python\Python313\Lib\tempfile.py", line 887, in __init__
+    self.name = mkdtemp(suffix, prefix, dir)
+                ~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\mahmo\AppData\Local\Programs\Python\Python313\Lib\tempfile.py", line 381, in mkdtemp
+    _os.mkdir(file, 0o700)
+    ~~~~~~~~~^^^^^^^^^^^^^
+PermissionError: [WinError 5] Access is denied: 'F:\\tmp\\tmpo8nc3xgs'
+
+codex
+The first temp location was not writable despite being listed; I’m rerunning the same isolated check inside the workspace so I can verify the regex behaviors without touching project files.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "@'
+import pathlib, tempfile, importlib.util
+spec = importlib.util.spec_from_file_location('fix_pico', r'F:\\rapidmeta-ssot-shell\\scripts\\fix_pico_boilerplate.py')
+mod = importlib.util.module_from_spec(spec); spec.loader.exec_module(mod)
+with tempfile.TemporaryDirectory(dir=r'F:\\rapidmeta-ssot-shell') as d:
+    p = pathlib.Path(d)/'ABLATION_AF_REVIEW.html'
+    cases = {
+      'none': '<html></html>',
+      'one': '<input id=\"p-pop\" value=\"Heart Failure\">',
+      'data_after': '<input id=\"p-pop\" value=\"Heart Failure\" data-value=\"template\"><input id=\"p-int\" value=\"Sacubitril/Valsartan\"><input id=\"p-comp\" value=\"Placebo\"><input id=\"p-out\" value=\"CV Death or HF Hospitalization\">',
+      'attr_before': '<input class=\"x\" id=\"p-pop\" value=\"Heart Failure\"><input class=\"x\" id=\"p-int\" value=\"Sacubitril/Valsartan\"><input class=\"x\" id=\"p-comp\" value=\"Placebo\"><input class=\"x\" id=\"p-out\" value=\"CV Death or HF Hospitalization\">',
+    }
+    for name, html in cases.items():
+        p.write_text(html, encoding='utf-8')
+        print(name, '=>', mod.apply_to_file(p, *mod.PICO['ABLATION_AF_REVIEW.html'], dry_run=False))
+        print(p.read_text(encoding='utf-8'))
+'@ | python -" in F:\rapidmeta-ssot-shell
+ succeeded in 1535ms:
+none => MISS ABLATION_AF_REVIEW.html: no PICO inputs found
+<html></html>
+one => OK   ABLATION_AF_REVIEW.html: 1/4 inputs updated
+<input id="p-pop" value="Adults with symptomatic atrial fibrillation">
+data_after => OK   ABLATION_AF_REVIEW.html: 4/4 inputs updated
+<input id="p-pop" value="Heart Failure" data-value="Adults with symptomatic atrial fibrillation"><input id="p-int" value="Catheter ablation"><input id="p-comp" value="Antiarrhythmic drug therapy"><input id="p-out" value="Recurrent AF or major cardiovascular events">
+attr_before => MISS ABLATION_AF_REVIEW.html: no PICO inputs found
+<input class="x" id="p-pop" value="Heart Failure"><input class="x" id="p-int" value="Sacubitril/Valsartan"><input class="x" id="p-comp" value="Placebo"><input class="x" id="p-out" value="CV Death or HF Hospitalization">
+
+codex
+Defects found:
+
+- **Line 125 — selector writes the wrong attribute.** Exact input: `<input id="p-pop" value="Heart Failure" data-value="template"><input id="p-int" value="Sacubitril/Valsartan"><input id="p-comp" value="Placebo"><input id="p-out" value="CV Death or HF Hospitalization">`  
+  Consequence: reports `4/4 inputs updated`, but `p-pop` still has `value="Heart Failure"` because the regex updates `data-value`.
+
+- **Lines 125-128 — selector keyed to one attribute order.** Exact input: `<input class="x" id="p-pop" value="Heart Failure"><input class="x" id="p-int" value="Sacubitril/Valsartan"><input class="x" id="p-comp" value="Placebo"><input class="x" id="p-out" value="CV Death or HF Hospitalization">`  
+  Consequence: returns `MISS ... no PICO inputs found` although all four target inputs exist.
+
+- **Line 136 — partial update counted as success.** Exact input: `<input id="p-pop" value="Heart Failure">` for `ABLATION_AF_REVIEW.html`.  
+  Consequence: returns `OK ... 1/4 inputs updated`, so three absent/unchanged PICO fields are not treated as failure.
+
+- **Lines 154-155 — missing target files disappear from accounting.** Exact input: `PICO` contains `ABLATION_AF_REVIEW.html`, but `ROOT / "ABLATION_AF_REVIEW.html"` does not exist.  
+  Consequence: the file is counted as neither `ok` nor `miss`, so a missing expected app can produce `0 ok / 0 miss`.
+
+- **Line 163 — status code reports the wrapper, not the work.** Exact input: existing `ABLATION_AF_REVIEW.html` containing `<html></html>`, command `python scripts/fix_pico_boilerplate.py --apply`.  
+  Consequence: prints a `MISS` summary but falls through with process exit code `0`.
+
+Not proven from this packet: CRLF text-comparison defect, merged-cell/off-by-one tabulation, zero-conflated-with-absent, negation dropped, probe keyed to removed string, idempotency guard satisfied by own marker, or different-copy instrumentation.
+tokens used
+32,249
+Defects found:
+
+- **Line 125 — selector writes the wrong attribute.** Exact input: `<input id="p-pop" value="Heart Failure" data-value="template"><input id="p-int" value="Sacubitril/Valsartan"><input id="p-comp" value="Placebo"><input id="p-out" value="CV Death or HF Hospitalization">`  
+  Consequence: reports `4/4 inputs updated`, but `p-pop` still has `value="Heart Failure"` because the regex updates `data-value`.
+
+- **Lines 125-128 — selector keyed to one attribute order.** Exact input: `<input class="x" id="p-pop" value="Heart Failure"><input class="x" id="p-int" value="Sacubitril/Valsartan"><input class="x" id="p-comp" value="Placebo"><input class="x" id="p-out" value="CV Death or HF Hospitalization">`  
+  Consequence: returns `MISS ... no PICO inputs found` although all four target inputs exist.
+
+- **Line 136 — partial update counted as success.** Exact input: `<input id="p-pop" value="Heart Failure">` for `ABLATION_AF_REVIEW.html`.  
+  Consequence: returns `OK ... 1/4 inputs updated`, so three absent/unchanged PICO fields are not treated as failure.
+
+- **Lines 154-155 — missing target files disappear from accounting.** Exact input: `PICO` contains `ABLATION_AF_REVIEW.html`, but `ROOT / "ABLATION_AF_REVIEW.html"` does not exist.  
+  Consequence: the file is counted as neither `ok` nor `miss`, so a missing expected app can produce `0 ok / 0 miss`.
+
+- **Line 163 — status code reports the wrapper, not the work.** Exact input: existing `ABLATION_AF_REVIEW.html` containing `<html></html>`, command `python scripts/fix_pico_boilerplate.py --apply`.  
+  Consequence: prints a `MISS` summary but falls through with process exit code `0`.
+
+Not proven from this packet: CRLF text-comparison defect, merged-cell/off-by-one tabulation, zero-conflated-with-absent, negation dropped, probe keyed to removed string, idempotency guard satisfied by own marker, or different-copy instrumentation.

@@ -1,0 +1,1017 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a0317a-9a6a-7ce3-9caa-1a9eb16fe2a5
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/classify_five_buckets_2026_08_23.py
+
+--- THE FILE, IN FULL ---
+"""Five buckets, both denominators, and every bucket anchored to a page a person read.
+
+# control: routed through instrument_controls.require_controls. Four hand-read pages must land
+# where the people who read them put them -- GLP1_CVOT (legacy), PCSK9 (tombstone),
+# MAVACAMTEN (SSOT), MOMELOTINIB_MF_AUTO_2 (audit-first). The negative control is that the
+# audit-first family must NOT be counted as legacy, which is the error this revision fixes.
+
+THIS FIGURE HAS BEEN WITHDRAWN TWICE AND THE REASONS ARE WORTH KEEPING, because both were the
+same mistake in different clothes: a denominator that was never stated, and a scheme that split
+a family it did not know existed.
+
+  FIRST WITHDRAWAL -- THE DENOMINATOR STOPPED AT THE FIRST HOP. 579 `href=` occurrences in
+  index.html were called the reader-facing corpus. But `audit_table.html` (889 links) and
+  `portfolio_pools.html` (766) are themselves linked FROM the index, so a reader two clicks in
+  reaches 351 pages the index never names. Both numbers are real and they answer DIFFERENT
+  QUESTIONS, so both are reported here, labelled, and never collapsed.
+
+  SECOND WITHDRAWAL -- A FOUR-BUCKET SCHEME SPLIT ONE FAMILY FOUR WAYS. The `*_AUTO_2`
+  "audit-first build" carries a TRUSTWORTHY badge, a 6-gate audit, a real pooled OR and an
+  auto-derived GRADE, and NONE of the SSOT, legacy or retired markers. Twenty such pages landed
+  as 8 unclassifiable, 8 legacy, 3 SSOT and 1 tombstone. A classification that scatters a
+  coherent family across every bucket is not measuring the corpus, it is measuring its own
+  blind spot -- so the family gets a bucket and the counts are re-derived.
+
+WHAT THE LEGACY SET DOES RIGHT, WHICH IS PART OF THE MEASUREMENT AND NOT A COURTESY. Legacy
+pages carry an Overmind provenance banner that NAMES the identifiers it could not verify --
+"1 UNVERIFIED -- not found in ClinicalTrials.gov, PubMed" with the NCT printed. That disclosure
+is the behaviour this whole project argues for, and the SSOT pages express it differently
+rather than better. They also compute: executed in headless Chrome, roughly nine in ten hold a
+real pooled estimate a reader meets, and `--` in the static bytes is the PRE-SCRIPT state, not
+an absence. Any report of this corpus that omits those two facts is not accurate.
+"""
+from __future__ import annotations
+
+import collections
+import io
+import json
+import os
+import re
+import subprocess
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from instrument_controls import require_controls  # noqa: E402
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+REF = "origin/main"
+OUT = os.path.join(REPO, "outputs", "five_bucket_classes_2026_08_23.json")
+
+# EVERY EXCLUSION ENUMERATED WITH ITS REASON.
+#
+# A DENOMINATOR WHOSE EXCLUSIONS ARE LISTED IS DEFENSIBLE AT ANY VALUE; ONE THAT IS OFF BY ONE
+# FOR UNSTATED REASONS IS NOT. Three counts of this same population were in circulation --
+# 572, 573, 574 -- and the gaps were never one page of substance, they were three different
+# unstated lists. So the list is here, by name, and the arithmetic is printed rather than
+# asserted.
+#
+# The index links 579 distinct .html files and all 579 resolve. Of those, 24 are not named
+# `*_REVIEW.html`, and they split three ways -- which is the whole reason the count wobbled:
+# ten of the twenty-four ARE reviews whose filenames do not say so.
+NOT_REVIEWS = {
+    # Hubs and instruments: pages ABOUT the corpus, not entries in it.
+    "index.html": "the front page",
+    "audit_table.html": "hub: a table about the corpus",
+    "portfolio_pools.html": "hub: a table about the corpus",
+    "dashboard.html": "hub: renders rows from outputs/portfolio_index.json",
+    "auto-gallery.html": "hub: an index of generated pages",
+    "what_changed.html": "instrument: a change log",
+    "EVIDENCE_GAPS.html": "instrument: a gap report across topics",
+    # Tools and apps: software with a UI, not a review of anything.
+    "AutoGRADE.html": "tool: a GRADE-assessment app",
+    "AutoManuscript.html": "tool: a manuscript-drafting app",
+    "MetaExtract.html": "tool: a data-extraction app",
+    "TrialRadar.html": "tool: a trial-surveillance app",
+    "LivingMeta.html": "tool: a living-meta-analysis app",
+    "META_DASHBOARD.html": "tool: a dashboard app",
+    "cardiology_mortality_atlas.html": "tool: an atlas view over a dataset",
+}
+# NOT EXCLUDED, AND THIS IS THE PART THAT MOVED THE NUMBER: the ten `*_AUTO_2` pages are
+# REVIEWS. Their filenames omit `_REVIEW`, so a name-keyed count drops them and a link-keyed
+# count keeps them, and that alone is worth one to ten pages depending on which was used.
+HUBS = set(NOT_REVIEWS)
+
+SSOT_MARKS = ("Reproducibility artifact", "Sources for this section",
+              "<strong>Refused:</strong>")
+LEGACY_MARKS = ("Run Acquisition", "INTERNAL CHECKS PASSED", "AMSTAR 2",
+                "Fabrication-risk", "Loading...")
+# THE FIFTH BUCKET. `audit-first` and `6-gate` appear on the AUTO_2 pages and nowhere in the
+# SSOT or legacy vocabularies, and the family carries no AMSTAR block at all -- which is what
+# separates it from legacy, whose defining artefact IS the AMSTAR table.
+AUDIT_FIRST_MARKS = ("audit-first", "6-gate")
+
+
+def git(*a):
+    return subprocess.run(["git"] + list(a), cwd=REPO, capture_output=True)
+
+
+def text(p, cache={}):
+    if p not in cache:
+        r = git("show", "%s:%s" % (REF, p))
+        cache[p] = "" if r.returncode else r.stdout.decode("utf-8", "replace")
+    return cache[p]
+
+
+def tree_root():
+    out = git("ls-tree", "-r", "--name-only", REF).stdout.decode("utf-8", "replace")
+    return set(f for f in out.split("\n") if f.endswith(".html") and "/" not in f)
+
+
+def links_of(page, root):
+    return set(m.group(1).split("/")[-1]
+               for m in re.finditer(r'href="([^"#?]+\.html)', text(page))
+               if not m.group(1).startswith("http")
+               and m.group(1).split("/")[-1] in root)
+
+
+def populations(root):
+    """index-linked reviews, and hub-reachable reviews. Two questions, two answers."""
+    idx = links_of("index.html", root)
+    seen, q = {"index.html"}, ["index.html"]
+    while q:
+        for n in links_of(q.pop(0), root):
+            if n not in seen:
+                seen.add(n)
+                q.append(n)
+    return sorted(idx - HUBS), sorted(seen - HUBS)
+
+
+def classify(t):
+    low = t.lower()
+    if (("retired" in low and "noindex" in low)
+            or "this review has been retired" in low
+            or re.search(r'page-state["\s:=]+retired', low)):
+        return "tombstone"
+    ssot = sum(1 for m in SSOT_MARKS if m in t)
+    legacy = sum(1 for m in LEGACY_MARKS if m in t)
+    audit = sum(1 for m in AUDIT_FIRST_MARKS if m in t)
+    # AUDIT-FIRST IS TESTED BEFORE LEGACY. The family has a rapidmeta-integrity-badge, which
+    # is also a legacy marker, so a legacy-first order reabsorbs it into the bucket this
+    # revision exists to take it out of.
+    if audit >= 2 and "AMSTAR" not in t and ssot == 0:
+        return "audit-first"
+    if ssot >= 2:
+        return "ssot"
+    if legacy >= 1 and ssot == 0:
+        return "legacy"
+    return "unclassifiable"
+
+
+def tally(names):
+    b = collections.Counter()
+    byc = collections.defaultdict(list)
+    for n in names:
+        t = text(n)
+        if not t:
+            b["missing"] += 1
+            byc["missing"].append(n)
+            continue
+        c = classify(t)
+        b[c] += 1
+        byc[c].append(n)
+    return b, byc
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    root = tree_root()
+    idx_reviews, hub_reviews = populations(root)
+
+    # THE CONTROLS. Four pages read by people, each asserted into the bucket they put it in.
+    cls = {n: classify(text(n)) for n in
+           ("GLP1_CVOT_REVIEW.html", "PCSK9_REVIEW.html", "MAVACAMTEN_HCM_REVIEW.html",
+            "MOMELOTINIB_MF_AUTO_2.html", "AVACINCAPTAD_GA_AUTO_2.html")
+           if text(n)}
+    hand = {"GLP1_CVOT_REVIEW.html": "legacy", "PCSK9_REVIEW.html": "tombstone",
+            "MAVACAMTEN_HCM_REVIEW.html": "ssot"}
+    agree = all(cls.get(k) == v for k, v in hand.items() if k in cls)
+    a2 = [v for k, v in cls.items() if k.endswith("_AUTO_2.html")]
+    require_controls(
+        "five_bucket_classification",
+        ("GLP1_CVOT=legacy, PCSK9=tombstone, MAVACAMTEN=ssot -- all three read by hand "
+         "(got %s)" % {k: cls.get(k) for k in hand}, agree, True),
+        ("the audit-first family is no longer swallowed by 'legacy' (got %s)" % a2,
+         bool(a2) and any(v == "legacy" for v in a2), True))
+
+    idx_all = links_of("index.html", root)
+    hub_all = set(idx_reviews) | set(hub_reviews) | HUBS
+    print("")
+    print("THE EXCLUSIONS, ENUMERATED -- the arithmetic is shown, not asserted")
+    print("")
+    print("   index links, all resolving                  %4d" % len(idx_all))
+    hubs_hit = sorted(n for n in idx_all if n in NOT_REVIEWS)
+    for n in hubs_hit:
+        print("      -1  %-38s %s" % (n, NOT_REVIEWS[n]))
+    print("   = review pages linked from the index        %4d" % len(idx_reviews))
+    print("")
+    print("   NOT excluded: the %d `*_AUTO_2` pages are REVIEWS whose filenames omit"
+          % len([n for n in idx_reviews if "_AUTO_2" in n]))
+    print("   `_REVIEW`. A name-keyed count drops them and a link-keyed count keeps them,")
+    print("   which is most of the 572/573/574 disagreement on its own.")
+    print("")
+    print("FIVE BUCKETS, BOTH DENOMINATORS -- a rate must name which it is against")
+    print("")
+    for label, names in (("LINKED FROM THE INDEX", idx_reviews),
+                         ("REACHABLE FROM ANY HUB", hub_reviews)):
+        b, byc = tally(names)
+        tot = len(names)
+        print("   %s: %d review pages" % (label, tot))
+        for k, lab in (("ssot", "SSOT-generated"), ("legacy", "legacy app"),
+                       ("audit-first", "audit-first (*_AUTO_2)"),
+                       ("tombstone", "retired tombstone"),
+                       ("unclassifiable", "unclassifiable"),
+                       ("missing", "linked, not on disk")):
+            print("      %-28s %4d   %5.1f%%" % (lab, b[k], 100.0 * b[k] / max(1, tot)))
+        s = sum(b[k] for k in ("ssot", "legacy", "audit-first", "tombstone",
+                               "unclassifiable", "missing"))
+        if s != tot:
+            sys.exit("REFUSED: %s does not close -- %d pages, %d classified." % (label, tot, s))
+        print("      %-28s %4d   == the population" % ("sum", s))
+        print("")
+        if label.startswith("REACHABLE"):
+            json.dump({k: v for k, v in byc.items()},
+                      io.open(OUT, "w", encoding="utf-8"), indent=1)
+            if byc["unclassifiable"]:
+                print("   UNCLASSIFIABLE, BY NAME -- never folded to tidy a total:")
+                for n in byc["unclassifiable"][:24]:
+                    print("      %s" % n)
+                print("")
+
+    print("WHAT THE LEGACY SET DOES RIGHT, AND IT IS PART OF THE MEASUREMENT:")
+    print("   * its provenance banner NAMES the identifiers it could not verify, with the NCT")
+    print("     printed -- the behaviour this project argues for, expressed differently")
+    print("     rather than worse than the SSOT pages express it")
+    print("   * it computes: ~9 in 10 hold a real pooled estimate a reader meets. `--` in the")
+    print("     static bytes is the PRE-SCRIPT state, not an absence.")
+
+
+if __name__ == "__main__":
+    main()
+
+codex
+I’ll treat the pasted file as the complete review packet and stay inside the requested defect shapes. I’m going to use the line numbers from the pasted module text.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "rg -n \"require_controls|bool\\(a2\\)|git\\(\\\"ls-tree\\\"|all\\(cls\\.get|hub_all|href=|page-state|AMSTAR\" scripts/classify_five_buckets_2026_08_23.py" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command 'git status --short' in F:\rapidmeta-ssot-shell
+2026-08-24T01:56:26.813995Z ERROR codex_core::tools::router: error=Exit code: 1
+Wall time: 1.7 seconds
+Output:
+rg: regex parse error:
+    (?:require_controls|bool\(a2\)|git\(\)
+    ^
+error: unclosed group
+
+ exited 1 in 1685ms:
+rg: regex parse error:
+    (?:require_controls|bool\(a2\)|git\(\)
+    ^
+error: unclosed group
+
+ succeeded in 1813ms:
+ M ABLATION_AF_REVIEW.html
+ M ACS_ANTIPLATELET_REVIEW.html
+ M ALIROCUMAB_LIPID_AUTO_FULL_REVIEW.html
+ M AMOXICILLIN_AOM_AUTO_FULL_REVIEW.html
+ M ANIDULAFUNGIN_CANDIDA_AUTO_FULL_REVIEW.html
+ M ANIDULAFUNGIN_FUNGAL_AUTO_FULL_REVIEW.html
+ M APIXABAN_ACS_AUTO_FULL_REVIEW.html
+ M APIXABAN_AF_AUTO_FULL_REVIEW.html
+ M APIXABAN_VTE_AUTO_FULL_REVIEW.html
+ M ATTR_CM_REVIEW.html
+ M ATTR_PN_REVIEW.html
+ M AZILSARTAN_CLD_VS_OLM_HCTZ_REVIEW.html
+ M AZILSARTAN_HTN_AUTO_FULL_REVIEW.html
+ M BAMLANIVIMAB_COVID_AUTO_FULL_REVIEW.html
+ M BEMPEDOIC_ACID_REVIEW.html
+ M BEZLOTOXUMAB_CDI_AUTO_FULL_REVIEW.html
+ M BOCOCIZUMAB_LIPID_AUTO_FULL_REVIEW.html
+ M BOSENTAN_PAH_AUTO_FULL_REVIEW.html
+ M CANGRELOR_PCI_REVIEW.html
+ M CASIRIVIMAB_COVID_AUTO_FULL_REVIEW.html
+ M CASPOFUNGIN_FUNGAL_AUTO_FULL_REVIEW.html
+ M CEFEPIME_TAZ_AUTO_FULL_REVIEW.html
+ M CEFTAZIDIME_AVIBACTAM_AUTO_FULL_REVIEW.html
+ M CEFTOLOZANE_INFECTION_AUTO_FULL_REVIEW.html
+ M COLCHICINE_CVD_REVIEW.html
+ M COLCHICINE_ICH_REVIEW.html
+ M COLCHICINE_MIXED_ASCVD_REVIEW.html
+ M COLCHICINE_PAD_REVIEW.html
+ M COLCHICINE_PERICARDITIS_REVIEW.html
+ M COLCHICINE_PERIPROCEDURAL_REVIEW.html
+ M COLCHICINE_STROKE_REVIEW.html
+ M COVID19_VACCINES_REVIEW.html
+ M COVID_ORAL_ANTIVIRALS_REVIEW.html
+ M CRYPTOCOCCAL_MENINGITIS_AFRICA_REVIEW.html
+ M CVNCOV_COVID19_AUTO_FULL_REVIEW.html
+ M DABIGATRAN_AF_AUTO_FULL_REVIEW.html
+ M DABIGATRAN_STROKE_AUTO_FULL_REVIEW.html
+ M DABIGATRAN_VTE_CEREBRAL_REVIEW.html
+ M DABIGATRAN_VTE_EXTENDED_REVIEW.html
+ M DABIGATRAN_VTE_SURGICAL_REVIEW.html
+ M DABIGATRAN_VTE_TREATMENT_REVIEW.html
+ M DELAMANID_TB_AUTO_FULL_REVIEW.html
+ M DOAC_AF_NMA_REVIEW.html
+ M DOAC_AF_REVIEW.html
+ M DOAC_CANCER_VTE_REVIEW.html
+ M DORAVIRINE_HIV_AUTO_FULL_REVIEW.html
+ M DORAVIRINE_HIV_REVIEW.html
+ M DORIPENEM_AUTO_FULL_REVIEW.html
+ M DROTRECOGIN_SEPSIS_AUTO_FULL_REVIEW.html
+ M EDOXABAN_CANCER_VTE_AUTO_FULL_REVIEW.html
+ M EDOXABAN_VTE_AUTO_FULL_REVIEW.html
+ M EMPAGLIFLOZIN_HF_AUTO_FULL_REVIEW.html
+ M EMTRICITABINE_HIV_AUTO_FULL_REVIEW.html
+ M ENOXAPARIN_VTE_AUTO_FULL_REVIEW.html
+ M ERAVACYCLINE_INFECTION_AUTO_FULL_REVIEW.html
+ M ERTAPENEM_AUTO_FULL_REVIEW.html
+ M ETESEVIMAB_COVID_AUTO_FULL_REVIEW.html
+ M ETRIPAMIL_PAROXYSMAL_SUPRAVENTRICU_AUTO_FULL_REVIEW.html
+ M EVINACUMAB_HOFH_AUTO_FULL_REVIEW.html
+ M EVOLOCUMAB_ASCVD_AUTO_2.html
+ M EVOLOCUMAB_ASCVD_AUTO_2_FULL_REVIEW.html
+ M EVOLOCUMAB_DYSLIPIDEMIA_AUTO_FULL_REVIEW.html
+ M EVOLOCUMAB_MIXED_DYSLIPIDEMIA_AUTO_FULL_REVIEW.html
+ M FCM_HF_REVIEW.html
+ M FIDAXOMICIN_CDIFF_AUTO_FULL_REVIEW.html
+ M FIDAXOMICIN_CDI_AUTO_FULL_REVIEW.html
+ M FINERENONE_CV_REVIEW.html
+ M FINERENONE_REVIEW.html
+ M FONDAPARINUX_AUTO_FULL_REVIEW.html
+ M FONDAPARINUX_VTE_AUTO_FULL_REVIEW.html
+ M HEPATITIS_B_TAF_TDF_REVIEW.html
+ M HIV_LA_PREP_REVIEW.html
+ M HIV_PREP_INJECTABLE_REVIEW.html
+ M ICOSAPENT_LIPID_AUTO_FULL_REVIEW.html
+ M INCLISIRAN_HOFH_AUTO_FULL_REVIEW.html
+ M INCLISIRAN_LIPID_KIDNEY_AUTO_FULL_REVIEW.html
+ M INCRETIN_HFpEF_REVIEW.html
+ M INFLUENZA_RECOMBINANT_AUTO_FULL_REVIEW.html
+ M INTENSIVE_BP_REVIEW.html
+ M IVERMECTIN_LF_AUTO_FULL_REVIEW.html
+ M LENACAPAVIR_HIV_AUTO_FULL_REVIEW.html
+ M LENACAPAVIR_PREP_SSOT.html
+ M LINEZOLID_MRSA_AUTO_FULL_REVIEW.html
+ M MALARIA_ACT_REVIEW.html
+ M MALARIA_VACCINE_REVIEW.html
+ M MARIBAVIR_CMV_AUTO_FULL_REVIEW.html
+ M MAVACAMTEN_HCM_REVIEW.html
+ M MAVACAMTEN_OHCM_REVIEW.html
+ M MDR_TB_SHORTENED_REVIEW.html
+ M MENACWY_BOOSTER_AUTO_FULL_REVIEW.html
+ M MENACYW_HEALTHY_VOLUNTEERS_AUTO_FULL_REVIEW.html
+ M MEN_ACWY_AUTO_FULL_REVIEW.html
+ M MEROPENEM_AUTO_FULL_REVIEW.html
+ M MIPOMERSEN_HOFH_AUTO_FULL_REVIEW.html
+ M MITRAL_FUNCMR_REVIEW.html
+ M MOXIFLOXACIN_RESPI_AUTO_FULL_REVIEW.html
+ M OLMESARTAN_HTN_AUTO_FULL_REVIEW.html
+ M OMECAMTIV_HEARTFAIL_AUTO_FULL_REVIEW.html
+ M PCSK9_INHIBITORS_CV_REVIEW.html
+ M PCSK9_LIPID_NMA_REVIEW.html
+ M PEDIATRIC_HIV_ART_REVIEW.html
+ M PITAVASTATIN_AUTO_FULL_REVIEW.html
+ M PLAZOMICIN_INFECTION_AUTO_FULL_REVIEW.html
+ M POSACONAZOLE_FUNGAL_AUTO_FULL_REVIEW.html
+ M PREVNAR15_PNEUMO_AUTO_FULL_REVIEW.html
+ M RALTEGRAVIR_HIV_AUTO_FULL_REVIEW.html
+ M REMDESIVIR_COVID_AUTO_FULL_REVIEW.html
+ M RIFAPENTINE_TB_AUTO_FULL_REVIEW.html
+ M RIOCIGUAT_PAH_AUTO_FULL_REVIEW.html
+ M RIVAROXABAN_ACS_AUTO_FULL_REVIEW.html
+ M RIVAROXABAN_VASC_REVIEW.html
+ M ROSUVASTATIN_AUTO_FULL_REVIEW.html
+ M ROTAVIRUS_VACCINE_AFRICA_REVIEW.html
+ M ROTAVIRUS_VACCINE_AUTO_FULL_REVIEW.html
+ M SACUBITRIL_HEARTFAIL_AUTO_FULL_REVIEW.html
+ M SARILUMAB_COVID_AUTO_FULL_REVIEW.html
+ M SELEXIPAG_PAH_AUTO_FULL_REVIEW.html
+ M SER109_CDI_AUTO_FULL_REVIEW.html
+ M SGLT2_CKD_REVIEW.html
+ M SGLT2_MACE_CVOT_REVIEW.html
+ M SOTAGLIFLOZIN_HF_REVIEW.html
+ M SOTATERCEPT_PAH_AUTO_2_FULL_REVIEW.html
+ M SOTATERCEPT_PAH_AUTO_FULL_REVIEW.html
+ M TECOVIRIMAT_MPOX_AUTO_FULL_REVIEW.html
+ M THIAMINE_SEPSIS_AUTO_FULL_REVIEW.html
+ M TIGECYCLINE_CIAI_SSOT.html
+ M TIGECYCLINE_INFECTION_AUTO_FULL_REVIEW.html
+ M WARFARIN_AF_AUTO_FULL_REVIEW.html
+ M evidence/withholding_asked_baseline.json
+ M figs/forest.html
+ M figs/forest_fit.html
+ M figs/forest_w1.html
+ M figs/forest_w2.html
+ M figs/forest_w3.html
+ M figs/visual-abstract.html
+ M ssot/amoxicillin-aom/amoxicillin-aom.json
+ M ssot/doravirine-hiv/doravirine-hiv.json
+ M ssot/influenza-recombinant/influenza-recombinant.json
+ M ssot/lenacapavir-hiv/lenacapavir-hiv.json
+ M ssot/linezolid-mrsa/linezolid-mrsa.json
+ M ssot/menacwy-booster/menacwy-booster.json
+ M ssot/posaconazole-fungal/posaconazole-fungal.json
+ M ssot/rifapentine-tb/rifapentine-tb.json
+ M ssot/thiamine-sepsis/thiamine-sepsis.json
+ M ssot/tigecycline-infection/tigecycline-infection.json
+?? ._rm_hook_identity_1012889
+?? ._rm_hook_identity_1013901
+?? ._rm_hook_identity_103677
+?? ._rm_hook_identity_103811
+?? ._rm_hook_identity_103900
+?? ._rm_hook_identity_105793
+?? ._rm_hook_identity_105837
+?? ._rm_hook_identity_1058434
+?? ._rm_hook_identity_1058738
+?? ._rm_hook_identity_105892
+?? ._rm_hook_identity_106011
+?? ._rm_hook_identity_106145
+?? ._rm_hook_identity_106200
+?? ._rm_hook_identity_107675
+?? ._rm_hook_identity_107723
+?? ._rm_hook_identity_108131
+?? ._rm_hook_identity_108188
+?? ._rm_hook_identity_108466
+?? ._rm_hook_identity_108502
+?? ._rm_hook_identity_1089738
+?? ._rm_hook_identity_1090125
+?? ._rm_hook_identity_109194
+?? ._rm_hook_identity_109230
+?? ._rm_hook_identity_109573
+?? ._rm_hook_identity_109615
+?? ._rm_hook_identity_1105408
+?? ._rm_hook_identity_1105772
+?? ._rm_hook_identity_111223
+?? ._rm_hook_identity_111280
+?? ._rm_hook_identity_111480
+?? ._rm_hook_identity_111633
+?? ._rm_hook_identity_111677
+?? ._rm_hook_identity_1119259
+?? ._rm_hook_identity_1119673
+?? ._rm_hook_identity_112100
+?? ._rm_hook_identity_112164
+?? ._rm_hook_identity_112400
+?? ._rm_hook_identity_112450
+?? ._rm_hook_identity_114192
+?? ._rm_hook_identity_114239
+?? ._rm_hook_identity_1159304
+?? ._rm_hook_identity_1159752
+?? ._rm_hook_identity_1171650
+?? ._rm_hook_identity_1171988
+?? ._rm_hook_identity_1187595
+?? ._rm_hook_identity_1187922
+?? ._rm_hook_identity_119758
+?? ._rm_hook_identity_1418275
+?? ._rm_hook_identity_1418639
+?? ._rm_hook_identity_1455212
+?? ._rm_hook_identity_1455606
+?? ._rm_hook_identity_1475100
+?? ._rm_hook_identity_1475391
+?? ._rm_hook_identity_1489392
+?? ._rm_hook_identity_1489627
+?? ._rm_hook_identity_1510305
+?? ._rm_hook_identity_1510550
+?? ._rm_hook_identity_1529213
+?? ._rm_hook_identity_1529602
+?? ._rm_hook_identity_1557274
+?? ._rm_hook_identity_1557522
+?? ._rm_hook_identity_1578745
+?? ._rm_hook_identity_1579126
+?? ._rm_hook_identity_1585450
+?? ._rm_hook_identity_1585653
+?? ._rm_hook_identity_1610522
+?? ._rm_hook_identity_1610768
+?? ._rm_hook_identity_1633580
+?? ._rm_hook_identity_1633902
+?? ._rm_hook_identity_1669456
+?? ._rm_hook_identity_1669796
+?? ._rm_hook_identity_1685107
+?? ._rm_hook_identity_1685367
+?? ._rm_hook_identity_1732655
+?? ._rm_hook_identity_1732925
+?? ._rm_hook_identity_1832973
+?? ._rm_hook_identity_1834181
+?? ._rm_hook_identity_1908950
+?? ._rm_hook_identity_1909614
+?? ._rm_hook_identity_2005712
+?? ._rm_hook_identity_2006416
+?? ._rm_hook_identity_2048492
+?? ._rm_hook_identity_2049080
+?? ._rm_hook_identity_2099825
+?? ._rm_hook_identity_2100422
+?? ._rm_hook_identity_2169172
+?? ._rm_hook_identity_2169560
+?? ._rm_hook_identity_2285986
+?? ._rm_hook_identity_2287555
+?? ._rm_hook_identity_2336467
+?? ._rm_hook_identity_2336967
+?? ._rm_hook_identity_2378679
+?? ._rm_hook_identity_2379023
+?? ._rm_hook_identity_254861
+?? ._rm_hook_identity_2757541
+?? ._rm_hook_identity_2758988
+?? ._rm_hook_identity_2759591
+?? ._rm_hook_identity_2803845
+?? ._rm_hook_identity_2805298
+?? ._rm_hook_identity_2868738
+?? ._rm_hook_identity_2870407
+?? ._rm_hook_identity_2870690
+?? ._rm_hook_identity_2870966
+?? ._rm_hook_identity_3023756
+?? ._rm_hook_identity_3024279
+?? ._rm_hook_identity_304653
+?? ._rm_hook_identity_3210374
+?? ._rm_hook_identity_3211915
+?? ._rm_hook_identity_3278777
+?? ._rm_hook_identity_3279182
+?? ._rm_hook_identity_3389420
+?? ._rm_hook_identity_3390803
+?? ._rm_hook_identity_3482515
+?? ._rm_hook_identity_3482922
+?? ._rm_hook_identity_3655619
+?? ._rm_hook_identity_3752719
+?? ._rm_hook_identity_39074
+?? ._rm_hook_identity_3913616
+?? ._rm_hook_identity_39180
+?? ._rm_hook_identity_39929
+?? ._rm_hook_identity_40167
+?? ._rm_hook_identity_40309
+?? ._rm_hook_identity_40651
+?? ._rm_hook_identity_40760
+?? ._rm_hook_identity_408889
+?? ._rm_hook_identity_409393
+?? ._rm_hook_identity_41582
+?? ._rm_hook_identity_42187
+?? ._rm_hook_identity_452084
+?? ._rm_hook_identity_452477
+?? ._rm_hook_identity_45800
+?? ._rm_hook_identity_473067
+?? ._rm_hook_identity_473314
+?? ._rm_hook_identity_525137
+?? ._rm_hook_identity_525388
+?? ._rm_hook_identity_53532
+?? ._rm_hook_identity_54494
+?? ._rm_hook_identity_55529
+?? ._rm_hook_identity_612403
+?? ._rm_hook_identity_614013
+?? ._rm_hook_identity_758804
+?? ._rm_hook_identity_758851
+?? ._rm_hook_identity_759134
+?? ._rm_hook_identity_759136
+?? ._rm_hook_identity_82656
+?? ._rm_hook_identity_83157
+?? ._rm_hook_identity_83687
+?? ._rm_hook_identity_84020
+?? ._rm_hook_identity_84372
+?? ._rm_hook_identity_84523
+?? ._rm_hook_identity_86777
+?? ._rm_hook_identity_86845
+?? ._rm_hook_identity_87499
+?? ._rm_hook_identity_87531
+?? ._rm_hook_identity_887954
+?? ._rm_hook_identity_889137
+?? ._rm_hook_identity_89112
+?? ._rm_hook_identity_89155
+?? ._rm_hook_identity_89350
+?? ._rm_hook_identity_89382
+?? ._rm_hook_identity_89730
+?? ._rm_hook_identity_89762
+?? ._rm_hook_identity_90945
+?? ._rm_hook_identity_90977
+?? ._rm_hook_identity_91341
+?? ._rm_hook_identity_91373
+?? ._rm_hook_identity_94621
+?? ._rm_hook_identity_94656
+?? ._rm_hook_identity_95052
+?? ._rm_hook_identity_95087
+?? ._rm_hook_identity_96084
+?? ._rm_hook_identity_96238
+?? ._rm_hook_identity_96281
+?? ._rm_identity_034e3b7d0f20
+?? ._rm_identity_07f88ed7d954
+?? ._rm_identity_0bcaec440b4c
+?? ._rm_identity_0c26b35824a9
+?? ._rm_identity_0f2d5deab6c5
+?? ._rm_identity_1031f09e26b3
+?? ._rm_identity_10d64e0b900b
+?? ._rm_identity_11f139a858e6
+?? ._rm_identity_12d6621ba79a
+?? ._rm_identity_13eda4f9f2af
+?? ._rm_identity_147969d954b7
+?? ._rm_identity_15358c8642cc
+?? ._rm_identity_154521deb5da
+?? ._rm_identity_16fc1eb0c506
+?? ._rm_identity_175a84b86880
+?? ._rm_identity_19816373599c
+?? ._rm_identity_1f72fdf1d651
+?? ._rm_identity_2027c55dcd48
+?? ._rm_identity_20fc57ed5bbf
+?? ._rm_identity_210153122e3a
+?? ._rm_identity_21dc5b597745
+?? ._rm_identity_22799604faa0
+?? ._rm_identity_2350dbd8f19e
+?? ._rm_identity_2380564c8cec
+?? ._rm_identity_29dc85d6098e
+?? ._rm_identity_2d05d58c484a
+?? ._rm_identity_2f45861a99cb
+?? ._rm_identity_339e2ffabf98
+?? ._rm_identity_348d8eab8dd6
+?? ._rm_identity_3572f9727dcd
+?? ._rm_identity_38272936cdcc
+?? ._rm_identity_384f64705f09
+?? ._rm_identity_398887496afa
+?? ._rm_identity_3a612ae67da5
+?? ._rm_identity_3abec9a1e937
+?? ._rm_identity_3bc92f33e6fc
+?? ._rm_identity_3be1a7ae9ce0
+?? ._rm_identity_412bb509ed31
+?? ._rm_identity_418812264db7
+?? ._rm_identity_42515bfcbe11
+?? ._rm_identity_435191add2ff
+?? ._rm_identity_45d5c763ab47
+?? ._rm_identity_492402847454
+?? ._rm_identity_4a78461b4390
+?? ._rm_identity_4ae1d150d516
+?? ._rm_identity_4c99c8d36ef0
+?? ._rm_identity_4e76f6427355
+?? ._rm_identity_4ef5b62a6809
+?? ._rm_identity_4f96ae0a8d2c
+?? ._rm_identity_50243e7b4687
+?? ._rm_identity_5164e497e6d4
+?? ._rm_identity_54680643b708
+?? ._rm_identity_54f5547aad1f
+?? ._rm_identity_559adc9c7b2b
+?? ._rm_identity_571aac64f01b
+?? ._rm_identity_589129de75ba
+?? ._rm_identity_59b182273c85
+?? ._rm_identity_5b017288a626
+?? ._rm_identity_5b91dcfffcce
+?? ._rm_identity_5e6d6f0ce5c8
+?? ._rm_identity_60ceeb4d5c1c
+?? ._rm_identity_65ea900d5b15
+?? ._rm_identity_6910ade38240
+?? ._rm_identity_6a7496ca58ab
+?? ._rm_identity_6a8ada66600e
+?? ._rm_identity_6b9c5b571e75
+?? ._rm_identity_6ca811581a05
+?? ._rm_identity_6caab401530b
+?? ._rm_identity_6de4793a6489
+?? ._rm_identity_6fcd81157233
+?? ._rm_identity_708919f5939a
+?? ._rm_identity_722fc34e457d
+?? ._rm_identity_73a84c2ebe46
+?? ._rm_identity_73d5fd9454ef
+?? ._rm_identity_7496684a4676
+?? ._rm_identity_75f2e87b9bc4
+?? ._rm_identity_7a9cec53157b
+?? ._rm_identity_7ccc61202e9c
+?? ._rm_identity_811851725b3b
+?? ._rm_identity_82adc98eb3a5
+?? ._rm_identity_8436e55e1f3a
+?? ._rm_identity_85e2d33e5087
+?? ._rm_identity_87814dbcf28a
+?? ._rm_identity_8928dfd72468
+?? ._rm_identity_8a74e88efc18
+?? ._rm_identity_8ad156c56487
+?? ._rm_identity_8cd208b4162c
+?? ._rm_identity_8db2d11bdacb
+?? ._rm_identity_8ea5cb9417e7
+?? ._rm_identity_8faf1a127938
+?? ._rm_identity_9084cdff75c0
+?? ._rm_identity_9153e4257957
+?? ._rm_identity_91838d3e8753
+?? ._rm_identity_925d4185aac3
+?? ._rm_identity_933a4de5700e
+?? ._rm_identity_986d420cb81f
+?? ._rm_identity_98d5287bc5d4
+?? ._rm_identity_9a61f23602ec
+?? ._rm_identity_9b5a94b5a58d
+?? ._rm_identity_9c49790b72b3
+?? ._rm_identity_9cdbb6a61392
+?? ._rm_identity_9f26400ddaa7
+?? ._rm_identity_a02ece3a93bc
+?? ._rm_identity_a336f24ccc09
+?? ._rm_identity_a39aaf11ad51
+?? ._rm_identity_a3e45771ddb3
+?? ._rm_identity_a9a6e9f22925
+?? ._rm_identity_aa972e7aa551
+?? ._rm_identity_aab593156a2e
+?? ._rm_identity_ab0a8bf9100f
+?? ._rm_identity_ab8b7998ad8f
+?? ._rm_identity_abe1b913e5d9
+?? ._rm_identity_adc84277ad55
+?? ._rm_identity_ae79057bf553
+?? ._rm_identity_b053c25e31ae
+?? ._rm_identity_b27923c92d64
+?? ._rm_identity_b592451c81eb
+?? ._rm_identity_b60111a69ea4
+?? ._rm_identity_b786f5aca0e7
+?? ._rm_identity_bd908869ed6d
+?? ._rm_identity_be4b50134170
+?? ._rm_identity_bffb6a039de2
+?? ._rm_identity_c10d658b9d6a
+?? ._rm_identity_c357f488c27d
+?? ._rm_identity_c51531a156ac
+?? ._rm_identity_c9295514dff2
+?? ._rm_identity_c96d79abfd51
+?? ._rm_identity_c9a3e2f6dc17
+?? ._rm_identity_ca4a7a92450d
+?? ._rm_identity_cbb632264fd8
+?? ._rm_identity_cdceac0ff667
+?? ._rm_identity_cf0187c91d91
+?? ._rm_identity_d205a2ba8902
+?? ._rm_identity_d3d6e92584f1
+?? ._rm_identity_d61dc511d55d
+?? ._rm_identity_d6c9ecc77218
+?? ._rm_identity_d733a1a2779f
+?? ._rm_identity_d75ea7319142
+?? ._rm_identity_d8e07a44e966
+?? ._rm_identity_d9da7ddd0b9d
+?? ._rm_identity_da1926330b77
+?? ._rm_identity_db6a6a241aaa
+?? ._rm_identity_dcb8a7414d87
+?? ._rm_identity_ddb8258813bb
+?? ._rm_identity_ddebac644b6a
+?? ._rm_identity_dded20fc90be
+?? ._rm_identity_e6a15f4626e3
+?? ._rm_identity_e763a2e1cae7
+?? ._rm_identity_e83ba9ad7c83
+?? ._rm_identity_e853e3dcb77d
+?? ._rm_identity_e9a197405628
+?? ._rm_identity_e9b3fc25c207
+?? ._rm_identity_ec0443c41226
+?? ._rm_identity_ed6ffd47ed71
+?? ._rm_identity_efa35989d234
+?? ._rm_identity_f2e1cdad0ff9
+?? ._rm_identity_f3a90c4e02ec
+?? ._rm_identity_f434fdf33df4
+?? ._rm_identity_f5acc4d6fff4
+?? ._rm_identity_f5edea517542
+?? ._rm_identity_f6009b3906e1
+?? ._rm_identity_f813636f31da
+?? ._rm_identity_f880e1b8a196
+?? ._rm_identity_f8b8decea698
+?? ._rm_identity_f97bcf78c66a
+?? ._rm_identity_fc57f35c672d
+?? ._rm_identity_fdcd7d2ad91b
+?? ._rm_identity_fdd751c0cb72
+?? .agy_seven.txt
+?? .agy_seven_prompt.txt
+?? .agy_seven_verdict.txt
+?? .agy_sglt2.txt
+?? .agy_sglt2_verdict.txt
+?? .allranks-cache.json
+?? .armrole-cache.json
+?? .blank57.json
+?? .buildability.json
+?? .codex_arni_review.txt
+?? .codex_blinded_prompt.txt
+?? .codex_rebuilt_prompt.txt
+?? .codex_rebuilt_review.txt
+?? .fifteen_seeds.json
+?? .g_one.txt
+?? .gate_pairs.txt
+?? .gate_run2.txt
+?? .metric-cache.json
+?? .nejm2307563.txt
+?? .noprov.json
+?? .othernames-cache.json
+?? .proportionality.json
+?? .prov-cache.json
+?? .sglt2_registry.txt
+?? .subjectrole-cache.json
+?? CODEX_NAME_VS_PREDICATE.md
+?? evidence/2026-08-19-batch2/arni_docmodel_port.json
+?? figs/baujat.eps
+?? figs/baujat.html
+?? figs/baujat.png
+?? figs/baujat.tiff
+?? figs/baujat_src.svg
+?? figs/bubble.eps
+?? figs/bubble.png
+?? figs/bubble.tiff
+?? figs/bubble_src.svg
+?? figs/cumulative.eps
+?? figs/cumulative.html
+?? figs/cumulative.png
+?? figs/cumulative.tiff
+?? figs/cumulative_src.svg
+?? figs/forest.eps
+?? figs/forest.png
+?? figs/forest.tiff
+?? figs/forest_fit.eps
+?? figs/forest_fit.png
+?? figs/forest_fit.tiff
+?? figs/forest_fit_src.svg
+?? figs/forest_src.svg
+?? figs/forest_w1.eps
+?? figs/forest_w1.png
+?? figs/forest_w1.tiff
+?? figs/forest_w1_src.svg
+?? figs/forest_w2.eps
+?? figs/forest_w2.png
+?? figs/forest_w2.tiff
+?? figs/forest_w2_src.svg
+?? figs/forest_w3.eps
+?? figs/forest_w3.png
+?? figs/forest_w3.tiff
+?? figs/forest_w3_src.svg
+?? figs/funnel.eps
+?? figs/funnel.html
+?? figs/funnel.png
+?? figs/funnel.tiff
+?? figs/funnel_src.svg
+?? figs/galbraith.eps
+?? figs/galbraith.html
+?? figs/galbraith.png
+?? figs/galbraith.tiff
+?? figs/galbraith_src.svg
+?? figs/gosh.eps
+?? figs/gosh.png
+?? figs/gosh.tiff
+?? figs/gosh_src.svg
+?? figs/influence.eps
+?? figs/influence.html
+?? figs/influence.png
+?? figs/influence.tiff
+?? figs/influence_src.svg
+?? figs/labbe.eps
+?? figs/labbe.html
+?? figs/labbe.png
+?? figs/labbe.tiff
+?? figs/labbe_src.svg
+?? figs/leave-one-out.eps
+?? figs/leave-one-out.html
+?? figs/leave-one-out.png
+?? figs/leave-one-out.tiff
+?? figs/leave-one-out_src.svg
+?? figs/nnt-curve.eps
+?? figs/nnt-curve.html
+?? figs/nnt-curve.png
+?? figs/nnt-curve.tiff
+?? figs/nnt-curve_src.svg
+?? figs/posterior.eps
+?? figs/posterior.html
+?? figs/posterior.png
+?? figs/posterior.tiff
+?? figs/posterior_src.svg
+?? figs/prisma-flow.eps
+?? figs/prisma-flow.html
+?? figs/prisma-flow.png
+?? figs/prisma-flow.tiff
+?? figs/prisma-flow_src.svg
+?? figs/rob-traffic-light.eps
+?? figs/rob-traffic-light.png
+?? figs/rob-traffic-light.tiff
+?? figs/rob-traffic-light_src.svg
+?? figs/tsa.eps
+?? figs/tsa.png
+?? figs/tsa.tiff
+?? figs/tsa_src.svg
+?? figs/visual-abstract.eps
+?? figs/visual-abstract.png
+?? figs/visual-abstract.tiff
+?? figs/visual-abstract_src.svg
+?? outputs/_cross_meta_violations.log
+?? outputs/c2.log
+?? outputs/c3.log
+?? outputs/c4.log
+?? outputs/c5.log
+?? outputs/c6.log
+?? outputs/commit.log
+?? outputs/corpus_rebuild_2026_08_23.log
+?? outputs/corpus_rebuild_round2.log
+?? outputs/corpus_rebuild_round3.log
+?? outputs/corpus_rebuild_round4.log
+?? outputs/eighth_rebuild.log
+?? outputs/figs/
+?? outputs/held_triage.log
+?? outputs/lanes/
+?? outputs/mav_build.log
+?? outputs/p2.log
+?? outputs/p3.log
+?? outputs/p5.log
+?? outputs/p6.log
+?? outputs/p7.log
+?? outputs/push.log
+?? outputs/qual_before.txt
+?? outputs/quarantine_bookkeeping_2026_08_23/
+?? outputs/rebuild_backup_2026_08_23/
+?? outputs/reg_family.log
+?? outputs/triage.log
+?? scripts/audit_prisma_nma_block_2026_08_23.py
+?? scripts/repair_unbounded_registration_claim_2026_08_24.py
+warning: could not open directory 'docs/verification-lane/.pytest_cache/': Permission denied
+
+codex
+The worktree is very dirty, so I’m ignoring local state and using only the pasted record for the review. One control inversion is already visible; I’m checking whether any other listed recurring shapes are provable from this file alone.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "rg -n \"bool\\(a2\\)|agree =|git\\(\\\"ls-tree\\\"|git\\(\\\"show\\\"|hub_all|href=|page-state|AMSTAR\" scripts/classify_five_buckets_2026_08_23.py" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command 'rg -n "def text|def tree_root|def links_of|def classify|def main|require_controls" scripts/classify_five_buckets_2026_08_23.py' in F:\rapidmeta-ssot-shell
+ succeeded in 3734ms:
+3:# control: routed through instrument_controls.require_controls. Four hand-read pages must land
+44:from instrument_controls import require_controls  # noqa: E402
+98:def text(p, cache={}):
+105:def tree_root():
+110:def links_of(page, root):
+129:def classify(t):
+165:def main():
+179:    require_controls(
+
+2026-08-24T01:56:37.526154Z ERROR codex_core::tools::router: error=Exit code: 1
+Wall time: 4 seconds
+Output:
+
+ exited 1 in 4019ms:
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Select-String -Path scripts/classify_five_buckets_2026_08_23.py -Pattern 'bool\\(a2\\)|all\\(cls\\.get|split\\(\"/\"\\)\\[-1\\] in root|max\\(1, tot\\)|retired\" in low and \"noindex\"' | ForEach-Object { \"{0}:{1}\" -f "'$_.LineNumber,$_.Line.Trim() }' in F:\rapidmeta-ssot-shell
+ succeeded in 1678ms:
+114:and m.group(1).split("/")[-1] in root)
+131:if (("retired" in low and "noindex" in low)
+177:agree = all(cls.get(k) == v for k, v in hand.items() if k in cls)
+184:bool(a2) and any(v == "legacy" for v in a2), True))
+214:print("      %-28s %4d   %5.1f%%" % (lab, b[k], 100.0 * b[k] / max(1, tot)))
+
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Select-String -Path scripts/classify_five_buckets_2026_08_23.py -Pattern '"'^REF =|git'"\\(\"show\"|git\\(\"ls-tree\"|idx_all = links_of|linked, not on disk|hub_all' | ForEach-Object { \"{0}:{1}\" -f "'$_.LineNumber,$_.Line.Trim() }' in F:\rapidmeta-ssot-shell
+ succeeded in 2502ms:
+47:REF = "origin/main"
+100:r = git("show", "%s:%s" % (REF, p))
+106:out = git("ls-tree", "-r", "--name-only", REF).stdout.decode("utf-8", "replace")
+186:idx_all = links_of("index.html", root)
+187:hub_all = set(idx_reviews) | set(hub_reviews) | HUBS
+213:("missing", "linked, not on disk")):
+
+codex
+- Line 184, probe keyed to string a fix removes / negation dropped. Exact input: `cls={"MOMELOTINIB_MF_AUTO_2.html":"audit-first","AVACINCAPTAD_GA_AUTO_2.html":"audit-first"}`. Consequence: the intended fix makes `any(v == "legacy" for v in a2)` false, while the broken legacy result passes.
+
+- Lines 173 and 177, check that cannot fail on absent controls. Exact input: `text(GLP1)=text(PCSK9)=text(MAVACAMTEN)=""`, `text(MOMELOTINIB)="Loading..."`, `text(AVACINCAPTAD)=""`. Consequence: the hand-read controls are filtered out, `all([])` is true, and the control can pass without checking any hand-read page.
+
+- Line 114, missing-page bucket cannot fire for broken links. Exact input: `root={"index.html"}` and `text("index.html")='<a href="MISSING_REVIEW.html">x</a>'`. Consequence: the unresolved link is discarded before `tally`, so line 213’s “linked, not on disk” bucket reports zero instead of the missing page.
+
+- Lines 47, 100, and 106, instrument reads a different copy. Exact input: worktree `MOMELOTINIB_MF_AUTO_2.html` contains `audit-first 6-gate`; `origin/main:MOMELOTINIB_MF_AUTO_2.html` contains `Loading...`. Consequence: a local fix is not measured; stale `origin/main` is classified instead.
+
+- Line 214, zero conflated with absent. Exact input: `names=[]` for either denominator loop. Consequence: `max(1, tot)` prints `0.0%` rates for an empty population instead of refusing a missing denominator.
+
+- Line 131, negation dropped. Exact input: `<meta name="robots" content="noindex"><p>not retired</p>`. Consequence: a sentence denying retirement is classified as `tombstone`.
+
+COULD NOT DETERMINE actual non-zero exit behavior: missing `instrument_controls.require_controls`.
+
+No proved CRLF text-compare or merged-cell/tabulation defect in this file.
+tokens used
+32,957
+- Line 184, probe keyed to string a fix removes / negation dropped. Exact input: `cls={"MOMELOTINIB_MF_AUTO_2.html":"audit-first","AVACINCAPTAD_GA_AUTO_2.html":"audit-first"}`. Consequence: the intended fix makes `any(v == "legacy" for v in a2)` false, while the broken legacy result passes.
+
+- Lines 173 and 177, check that cannot fail on absent controls. Exact input: `text(GLP1)=text(PCSK9)=text(MAVACAMTEN)=""`, `text(MOMELOTINIB)="Loading..."`, `text(AVACINCAPTAD)=""`. Consequence: the hand-read controls are filtered out, `all([])` is true, and the control can pass without checking any hand-read page.
+
+- Line 114, missing-page bucket cannot fire for broken links. Exact input: `root={"index.html"}` and `text("index.html")='<a href="MISSING_REVIEW.html">x</a>'`. Consequence: the unresolved link is discarded before `tally`, so line 213’s “linked, not on disk” bucket reports zero instead of the missing page.
+
+- Lines 47, 100, and 106, instrument reads a different copy. Exact input: worktree `MOMELOTINIB_MF_AUTO_2.html` contains `audit-first 6-gate`; `origin/main:MOMELOTINIB_MF_AUTO_2.html` contains `Loading...`. Consequence: a local fix is not measured; stale `origin/main` is classified instead.
+
+- Line 214, zero conflated with absent. Exact input: `names=[]` for either denominator loop. Consequence: `max(1, tot)` prints `0.0%` rates for an empty population instead of refusing a missing denominator.
+
+- Line 131, negation dropped. Exact input: `<meta name="robots" content="noindex"><p>not retired</p>`. Consequence: a sentence denying retirement is classified as `tombstone`.
+
+COULD NOT DETERMINE actual non-zero exit behavior: missing `instrument_controls.require_controls`.
+
+No proved CRLF text-compare or merged-cell/tabulation defect in this file.

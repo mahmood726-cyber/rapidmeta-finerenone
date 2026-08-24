@@ -1,0 +1,982 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/clone_contamination_gate.py
+
+--- THE FILE, IN FULL ---
+#!/usr/bin/env python
+"""RapidMeta POST-CLONE CONTAMINATION GATE (fail-closed).
+
+Closes the structural hole that let one SGLT2-HF / finerenone base engine reach
+161 apps: `clone_dashboard.py` retemplates only what a config author remembered
+to list, and `replace_one()` SILENTLY SKIPS an anchor it cannot uniquely place
+(SKIP_NOT_FOUND / SKIP_AMBIGUOUS). Any base-engine string the author forgot
+survives into the clone, and nothing downstream ever looked.
+
+Corpus evidence (2026-07-23 audit + 2026-07-23 remediation):
+  147 apps rendered "Total serious AEs (SAE), plus SGLT2i-specific signals: UTI,
+  Fournier's gangrene, DKA, genital mycotic infections, ..." as the primary
+  SAFETY-OUTCOME DEFINITION of vaccines, oncology, surgery and neurology apps.
+  The same cohort shipped `<title>SGLT2-HF Meta-Analysis Report</title>` in its
+  export, `app:"RapidMeta SGLT2-HF"` in its data-seal payload, and a baked
+  `rReference` of DAPA-HF / EMPEROR / DELIVER pooled results.
+
+Four checks, per section 6 of the audit:
+  1. BASE-VOCABULARY BLOCKLIST  - no claim-bearing slot may name another
+     domain's drug class, adverse-event profile, trial registry or report title.
+  2. DATA-SEAL DECODE-AND-COMPARE - any baked base64 seal must decode to an
+     "app" that IS this file; the export seal `app:"RapidMeta X"` must name a
+     subject this file actually declares.
+  3. CROSS-DOMAIN HARMS / i18n   - AE fingerprints and i18n values that name a
+     drug class foreign to the declared subject.
+  4. SILENT-SKIP PROMOTION       - `assert_no_silent_skip()` turns a
+     SKIP_AMBIGUOUS / SKIP_NOT_FOUND on a CLAIM-BEARING anchor from a log line
+     into a hard failure (see clone_dashboard.py integration below).
+
+HARD findings block. WARN findings are advisory and never block - keeping the
+HARD set false-positive-free is what makes blocking safe (same principle as
+scripts/build_gate.py).
+
+Usage:
+  python scripts/clone_contamination_gate.py FILE ...   # gate given files
+  python scripts/clone_contamination_gate.py --all      # whole corpus
+  python scripts/clone_contamination_gate.py --selftest # prove the gate FAILS
+                                                        # on a seeded positive
+  python scripts/clone_contamination_gate.py --all --write-baseline
+                                # snapshot today's findings as pre-existing debt
+  python scripts/clone_contamination_gate.py --all --no-baseline
+                                # ignore the snapshot; show the full backlog
+
+Exit 0 = no NEW hard findings, 1 = new HARD violation(s), 2 = usage/self-test
+failure. Findings listed in outputs/clone_contamination_baseline.json are
+grandfathered by corpus sweeps (still printed, never silent) so the gate can be
+wired into CI against a corpus that already carries a survivor backlog.
+assert_clean() NEVER consults the baseline - a fresh clone must be clean.
+
+Library use (clone_dashboard.py, generators):
+    from clone_contamination_gate import assert_clean, assert_no_silent_skip
+    assert_no_silent_skip(log)        # before writing
+    assert_clean(out_path)            # after writing; deletes `out` on failure
+"""
+from __future__ import annotations
+
+import base64
+import glob
+import io
+import json
+import os
+import re
+import sys
+
+ROOT = os.environ.get(
+    "RAPIDMETA_REPO_ROOT",
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+)
+
+
+class CloneContaminationError(RuntimeError):
+    """Raised by assert_clean / assert_no_silent_skip. Fail-closed."""
+
+
+# ---------------------------------------------------------------------------
+# Vocabulary. Kept deliberately small and specific: every entry below is a
+# token that can only appear in a claim-bearing slot if that slot is talking
+# about that drug class. Broad words ("therapy", "placebo") are never listed.
+# ---------------------------------------------------------------------------
+DRUG_CLASS = {
+    "sglt2i": ["sglt2", "sglt-2", "sglt1/2", "dapagliflozin", "empagliflozin",
+               "canagliflozin", "ertugliflozin", "sotagliflozin", "gliflozin"],
+    "mra": ["finerenone", "spironolactone", "eplerenone"],
+    "glp1": ["semaglutide", "liraglutide", "dulaglutide", "tirzepatide",
+             "exenatide", "glp-1 ra"],
+    "arni": ["sacubitril", "valsartan/sacubitril", "entresto"],
+    "checkpoint": ["pembrolizumab", "nivolumab", "atezolizumab", "durvalumab",
+                   "ipilimumab"],
+    "cart": ["axicabtagene", "tisagenlecleucel", "lisocabtagene"],
+    "il4": ["dupilumab", "tralokinumab", "lebrikizumab"],
+    "antifibrotic": ["nintedanib", "pirfenidone"],
+    "pcsk9": ["evolocumab", "alirocumab", "inclisiran"],
+}
+
+# Adverse-event fingerprints. A fingerprint in a SAFETY-DEFINITION slot for a
+# subject outside its class is the harmful-mis-attribution case.
+AE_FINGERPRINT = {
+    "sglt2i": ["fournier", "genital mycotic", "diabetic ketoacidosis", "dka",
+               "euglycaemic ketoacidosis", "euglycemic ketoacidosis"],
+    "glp1": ["pancreatitis", "gallbladder", "medullary thyroid",
+             "diabetic retinopathy"],
+    "checkpoint": ["immune-related adverse", "irae", "colitis (immune"],
+    "cart": ["cytokine release syndrome", "icans", "neutropenia"],
+    "mra": ["hyperkalaemia", "hyperkalemia"],
+}
+
+# Trial acronyms that belong to a specific base lineage. Rendering one of these
+# outside an app that actually includes that trial is a registry survivor.
+#
+# Matched on WORD BOUNDARIES (see _trial_rx). A bare substring test made the
+# ordinary English word "delivery" match the trial DELIVER, hard-failing every
+# obstetric/surgical app on its own safety-outcome text (codex review F-10b,
+# reproduced 2026-07-23 on a POSTPARTUM_HEMORRHAGE probe). An over-block is not
+# a safe failure here: it is what pressures someone into weakening the gate.
+BASE_TRIALS = ["DAPA-HF", "EMPEROR-Reduced", "EMPEROR-Preserved", "DELIVER",
+               "SOLOIST-WHF", "PARADIGM-HF", "FINEARTS-HF", "FIDELIO-DKD",
+               "FIGARO-DKD"]
+
+_TRIAL_RX = {t: re.compile(r"(?<![A-Za-z0-9])" + re.escape(t) + r"(?![A-Za-z0-9])",
+                           re.I) for t in BASE_TRIALS}
+
+# Subject labels that identify a known BASE app. If one of these names a
+# claim-bearing slot in a file that does not itself declare that subject, the
+# clone did not fully retemplate.
+BASE_SUBJECT_LABELS = ["SGLT2-HF", "GLP1-CVOT", "GLP-1 RA CVOT", "Finerenone",
+                       "Dupilumab-COPD", "PCSK9"]
+
+# Claim-bearing slots. (id, compiled regex, human description). Each capture
+# group 1 is the text whose vocabulary is checked.
+# Whitespace between </td> and <td> is tolerated throughout: the shipped corpus
+# is minified, but an un-minified or hand-edited clone puts a newline there and
+# the old anchors then matched NOTHING - a contaminated AE cell scanned clean
+# (codex review F-09, reproduced 2026-07-23). A gate that only sees one
+# whitespace shape is a gate an ordinary reformat disables.
+SLOTS = [
+    ("safety_outcome_td",
+     re.compile(r"AE Categories</td>\s*<td[^>]*>(.*?)</td>", re.S),
+     "primary safety-outcome definition (rendered table cell)"),
+    ("limitations_td",
+     re.compile(r">Limitations</td>\s*<td[^>]*>(.*?)</td>", re.S),
+     "limitations cell (rendered)"),
+    ("export_report_title",
+     re.compile(r"<title>([^<]*Meta-Analysis Report)</title>"),
+     "exported HTML report <title>"),
+    ("waiting_room_title",
+     re.compile(r"<title>([^<]*Waiting Room Summary)</title>"),
+     "exported waiting-room <title>"),
+    ("patient_summary_h1",
+     re.compile(r">([^<>]{0,80}— Patient Summary)</h1>"),
+     "patient-summary <h1>"),
+    ("seal_app",
+     re.compile(r'app:\s*"(RapidMeta [^"]*)"'),
+     'data-seal export payload meta.app'),
+    ("seal_app_json",
+     re.compile(r'"app"\s*:\s*"(RapidMeta [^"]*)"'),
+     'data-seal payload meta.app (quoted-key JSON form)'),
+    ("py_export_docstring",
+     re.compile(r"(Python validation script for [^\"\\\n]{0,60})"),
+     "exported Python script docstring"),
+    # NOTE: `rReference` moved to REGISTRY_IDENTS below - it is now brace-scanned
+    # rather than matched by the `}, runRValidation` terminator shape (F-03).
+    ("form_placeholder",
+     re.compile(r'placeholder="(e\.g\.[^"]*)"'),
+     "manual-entry form placeholder"),
+]
+
+# Embedded (non-rendered) registry literals. SLOTS above only cover strings the
+# user can SEE; the audit's class C survivor is a JS literal that never renders
+# until a matching trial enters the set - `KNOWN_TRIAL_ALIASES` (NCT -> alias),
+# `AUTO_INCLUDE_TRIAL_IDS` (auto-screen allowlist). A foreign alias map is not
+# inert: `findConflictingTrialAlias()` substring-matches its aliases against
+# candidate abstracts and applies score -= 32, so the base's "deliver" alias
+# penalises every obstetric candidate mentioning "delivery". Checked separately
+# from SLOTS because there is no rendered text to inspect.
+# Located by IDENTIFIER and then BRACE-SCANNED, not matched by a fixed shape.
+# The previous patterns required the literal to be followed by `},` (and
+# rReference by `}, runRValidation`), so the same contaminated registry written
+# with a trailing `;` - or followed by a `function` declaration instead of a
+# method shorthand - scanned completely clean (codex review F-03, both
+# reproduced 2026-07-23 against passing controls). Terminator punctuation is an
+# accident of minifier output; the gate must not depend on it.
+REGISTRY_IDENTS = [
+    ("known_trial_aliases", r"KNOWN_TRIAL_ALIASES\s*[:=]\s*", "{",
+     "embedded NCT->alias trial registry"),
+    ("auto_include_trial_ids", r"AUTO_INCLUDE_TRIAL_IDS\s*[:=]\s*(?:new\s+Set\s*\(\s*)?", "[",
+     "auto-screen INCLUDE allowlist"),
+    ("r_reference", r"rReference\s*[:=]\s*", "{",
+     "baked R cross-validation reference"),
+]
+
+_PAIR = {"{": "}", "[": "]"}
+
+
+def _balanced(src, start, opener, limit=200000):
+    """Return the balanced literal beginning at the first `opener` at/after
+    `start`, or "" if it does not close within `limit` chars. Quote-aware so a
+    brace inside a JS string does not unbalance the scan."""
+    try:
+        o = src.index(opener, start)
+    except ValueError:
+        return ""
+    closer = _PAIR[opener]
+    depth = 0
+    quote = None
+    esc = False
+    for j in range(o, min(len(src), o + limit)):
+        c = src[j]
+        if esc:
+            esc = False
+            continue
+        if quote:
+            if c == "\\":
+                esc = True
+            elif c == quote:
+                quote = None
+            continue
+        if c in "\"'`":
+            quote = c
+        elif c == opener:
+            depth += 1
+        elif c == closer:
+            depth -= 1
+            if depth == 0:
+                return src[o:j + 1]
+    return ""
+
+_NCT = re.compile(r"NCT\d{8}")
+_WORD = re.compile(r"[a-z0-9]+")
+
+
+def _tokens(text):
+    return set(_WORD.findall((text or "").lower()))
+
+
+# ---------------------------------------------------------------------------
+def _realdata_block(src):
+    """The app's own realData object literal, brace-scanned. This is the ONLY
+    trustworthy in-file source of 'which trials are mine' - a global regex over
+    the whole document picks up the base engine's leftover PICO/i18n strings
+    and would launder the contamination into the subject basis (observed: the
+    base's `"SGLT2 inhibitor therapy (dapagliflozin...)"` i18n key made a
+    vaccine app look like an SGLT2i app, silencing the AE check)."""
+    m = re.search(r"realData\s*:\s*\{", src)
+    if not m:
+        return ""
+    o = src.index("{", m.start())
+    depth = 0
+    for j in range(o, len(src)):
+        if src[j] == "{":
+            depth += 1
+        elif src[j] == "}":
+            depth -= 1
+            if depth == 0:
+                return src[o:j + 1]
+    return ""
+
+
+def declared_subject(src, path):
+    """Everything this app says it is about: filename, page <title>, hero <h2>,
+    and the trial names/labels inside its own realData. The nyt headline is
+    deliberately EXCLUDED - it is itself a claim-bearing slot.
+
+    USED ONLY as the *topic-word* basis for the adverse-event exemption in
+    ae_classes_in() ("medullary thyroid" is not a mis-attribution in a
+    medullary-thyroid app). It must NOT be used to grant DRUG-CLASS exemptions -
+    see subject_classes() for why."""
+    parts = [os.path.basename(path).replace("_", " ")]
+    for rx in (r"<title>([^<]*)</title>",
+               r'<div class="va-header"><h2[^>]*>([^<]*)</h2>'):
+        m = re.search(rx, src)
+        if m:
+            parts.append(m.group(1))
+    rd = _realdata_block(src)
+    parts += re.findall(r'name:\s*[\'"]([^\'"]{2,80})[\'"]', rd)[:400]
+    parts += re.findall(r'group:\s*[\'"]([^\'"]{2,160})[\'"]', rd)[:400]
+    return " ".join(parts)
+
+
+def subject_classes(path):
+    """Drug classes this app is entitled to talk about - derived from the
+    FILENAME ONLY.
+
+    ⛔ THIS IS THE FAIL-CLOSED CORE OF THE GATE. Every finding is computed as
+    `classes_in(slot) - subject_classes(...)`, so whatever widens the subject
+    SILENCES the gate. Previously the subject was widened by <title>, hero and
+    the realData `group:` labels - all of them strings a BROKEN clone carries
+    over from the base. That inverted the gate: the more of the base engine
+    survived, the less the gate could see.
+
+    Reproduced 2026-07-23 (codex review F-01 + this lane's realData variant):
+      * an Ebola app rendering the full SGLT2i AE profile scanned HARD=2;
+      * leave the base's `<title>SGLT2-HF Meta-Analysis Report</title>` behind
+        and the SAME app scans HARD=0;
+      * leave ONE base trial in realData (`group:'Dapagliflozin ... (SGLT2
+        inhibitor)'`) and the SAME app scans HARD=0.
+    Both are exactly the un-retemplated case the gate exists to catch.
+
+    The filename is the one identifier a clone cannot inherit: `out` is chosen
+    per-clone by the config. Measured cost of the narrowing across all 1216
+    apps: 802 -> 863 hard findings (+61), with the 148-app remediated cohort
+    unchanged at 2. Fail-closed direction, and it does not disturb the fixed
+    corpus."""
+    return classes_in(os.path.basename(path).replace("_", " "))
+
+
+def own_trials(src):
+    """Trial acronyms/names this app legitimately includes (nctAcronyms map +
+    realData trial names)."""
+    body = re.search(r"nctAcronyms:\s*\{([^}]{0,4000})\}", src)
+    acr = set(re.findall(r'[\'"]([^\'"]{2,40})[\'"]', body.group(1))) if body else set()
+    acr |= set(re.findall(r'name:\s*[\'"]([^\'"]{2,60})[\'"]', _realdata_block(src)))
+    return {a.upper() for a in acr}
+
+
+def own_ncts(src):
+    """NCT ids this app legitimately includes. Sourced from its OWN realData
+    block and its OWN nctAcronyms map only - never from a global sweep, which
+    would pick up the base engine's registry and declare it self-consistent."""
+    ids = set(_NCT.findall(_realdata_block(src)))
+    body = re.search(r"nctAcronyms:\s*\{([^}]{0,4000})\}", src)
+    if body:
+        ids |= set(_NCT.findall(body.group(1)))
+    return ids
+
+
+def classes_in(text):
+    low = (text or "").lower()
+    return {cls for cls, toks in DRUG_CLASS.items() if any(t in low for t in toks)}
+
+
+def ae_classes_in(text, subject=""):
+    """Classes whose AE fingerprint appears in `text`.
+
+    An AE term that ALSO appears in the app's declared subject is not a
+    mis-attribution - it is the topic (medullary thyroid in a medullary-thyroid
+    cancer app; diabetic retinopathy in a retinopathy app; neutropenia in an
+    oncology app). Without this exemption the gate false-positives on exactly
+    the apps the 2026-07-23 audit already cleared as legitimate."""
+    low = (text or "").lower()
+    subj = (subject or "").lower()
+    out = set()
+    for cls, toks in AE_FINGERPRINT.items():
+        hit = [t for t in toks if t in low and t not in subj]
+        if hit:
+            out.add(cls)
+    return out
+
+
+def _check_text(fn, desc, val, subj_classes, subj_tokens, subject, mine):
+    """The four vocabulary checks applied to one claim-bearing string. Factored
+    out so a rendered SLOT and an embedded REGISTRY literal are held to the same
+    standard - previously the registry loop checked only NCT ids and drug class,
+    so a baked `trials:"DAPA-HF,DELIVER"` reference was judged by a weaker rule
+    than the same text in a table cell."""
+    out = []
+    foreign = classes_in(val) - subj_classes
+    if foreign:
+        out.append((fn, "foreign_drug_class_in_claim_slot",
+                    f"{desc}: names {sorted(foreign)} drug class, "
+                    f"absent from declared subject :: {val[:110]!r}"))
+    foreign_ae = ae_classes_in(val, subject) - subj_classes
+    if foreign_ae:
+        out.append((fn, "foreign_ae_profile",
+                    f"{desc}: renders {sorted(foreign_ae)} adverse-event "
+                    f"fingerprint on a foreign subject :: {val[:110]!r}"))
+    for lab in BASE_SUBJECT_LABELS:
+        if lab.lower() in val.lower() and not _tokens(lab) <= subj_tokens:
+            out.append((fn, "base_subject_label_survivor",
+                        f"{desc}: names base subject {lab!r} which this "
+                        f"app does not declare :: {val[:110]!r}"))
+    for tr in BASE_TRIALS:
+        # word-boundary: "delivery" must not match the DELIVER trial (F-10b)
+        if _TRIAL_RX[tr].search(val) and tr.upper() not in mine:
+            out.append((fn, "foreign_trial_registry_rendered",
+                        f"{desc}: names trial {tr!r}, not in this app's "
+                        f"own trial set :: {val[:110]!r}"))
+    return out
+
+
+# base64 of `{"app` under the standard and URL-safe alphabets. A quoted literal
+# starting with this prefix IS a seal - if it will not decode, that is a finding,
+# not something to skip.
+_SEAL_PREFIXES = ("eyJhcHAi", "eyJhcHAg", "eyIgYXBw", "eyJ%22app")
+
+
+def _decode_seal(blob):
+    """Decode a base64 seal tolerantly (standard AND url-safe alphabets, any
+    padding). Returns the dict, or None if it genuinely is not a JSON object.
+
+    The old decoder accepted only `[A-Za-z0-9+/=]` and a single `+"=="` padding
+    guess, and swallowed every failure with `except Exception: continue`. A
+    url-safe seal (containing `-`/`_`) therefore truncated at the first `_`,
+    failed to decode, and was silently treated as NO CONTAMINATION - fail-open
+    on the exact check whose whole job is to catch a foreign seal (F-02)."""
+    for alphabet in (base64.b64decode, base64.urlsafe_b64decode):
+        for pad in ("", "=", "==", "==="):
+            try:
+                raw = alphabet(blob + pad)
+            except Exception:
+                continue
+            try:
+                obj = json.loads(raw.decode("utf-8", "ignore"))
+            except Exception:
+                continue
+            if isinstance(obj, dict):
+                return obj
+    return None
+
+
+# ---------------------------------------------------------------------------
+def scan(src, path):
+    """Return (hard, warn); each finding = (file, check, detail)."""
+    fn = os.path.basename(path)
+    hard, warn = [], []
+    subject = declared_subject(src, path)
+    # Drug-class exemptions come from the FILENAME ONLY - see subject_classes().
+    # `subject` (the wide text) is still used for the AE topic-word exemption.
+    subj_classes = subject_classes(path)
+    subj_tokens = _tokens(os.path.basename(path).replace("_", " "))
+    mine = own_trials(src)
+
+    # --- 1 + 3: base-vocabulary blocklist over every claim-bearing slot -----
+    for sid, rx, desc in SLOTS:
+        for m in rx.finditer(src):
+            val = m.group(1)
+            hard += _check_text(fn, desc, val, subj_classes, subj_tokens,
+                                subject, mine)
+
+    # --- 1b: embedded (non-rendered) trial-registry survivors ---------------
+    ncts = own_ncts(src)
+    for rid, ident_rx, opener, desc in REGISTRY_IDENTS:
+        for m in re.finditer(ident_rx, src):
+            body = _balanced(src, m.end(), opener)
+            if not body:
+                continue
+            foreign_ncts = sorted(set(_NCT.findall(body)) - ncts)
+            if foreign_ncts:
+                hard.append((fn, "foreign_embedded_trial_registry",
+                             f"{desc}: keyed on NCT id(s) {foreign_ncts[:5]} that are "
+                             f"not in this app's own trial set"))
+            # The registry body is also checked against the SAME vocabulary as a
+            # rendered slot: the baked `rReference` names DAPA-HF/EMPEROR in a
+            # trials: string, which is a base-trial survivor, not just a foreign NCT.
+            for tr in BASE_TRIALS:
+                if _TRIAL_RX[tr].search(body) and tr.upper() not in mine:
+                    hard.append((fn, "foreign_trial_registry_rendered",
+                                 f"{desc}: names trial {tr!r}, not in this app's "
+                                 f"own trial set :: {body[:110]!r}"))
+            foreign_cls = classes_in(body) - subj_classes
+            if foreign_cls:
+                hard.append((fn, "foreign_embedded_trial_registry",
+                             f"{desc}: names {sorted(foreign_cls)} drug class, "
+                             f"absent from declared subject :: {body[:110]!r}"))
+
+    # --- 2: data-seal decode-and-compare -----------------------------------
+    stem = os.path.splitext(fn)[0].lower()
+    # charset now includes the url-safe alphabet (-_) so a base64url seal is not
+    # truncated at its first `-`/`_` and silently dropped (F-02).
+    for m in re.finditer(r'["\'`](ey[A-Za-z0-9+/=_-]{24,})["\'`]', src):
+        blob = m.group(1)
+        obj = _decode_seal(blob)
+        if obj is None:
+            # Undecodable is only a finding when the payload is UNAMBIGUOUSLY a
+            # seal (it starts with base64 of `{"app`). Any other `ey...` literal
+            # may legitimately be a JWT, hash or image and is left alone, which
+            # keeps the HARD set false-positive-free.
+            if blob.startswith(_SEAL_PREFIXES):
+                hard.append((fn, "undecodable_baked_seal",
+                             f"literal begins with a base64 `{{\"app` seal prefix but "
+                             f"does not decode to JSON - cannot be verified against "
+                             f"this file :: {blob[:40]!r}"))
+            continue
+        if "app" in obj:
+            sealed = str(obj["app"])
+            if os.path.splitext(sealed)[0].lower() != stem:
+                hard.append((fn, "foreign_baked_seal",
+                             f'baked base64 seal decodes to app={sealed!r}, '
+                             f"which is not this file"))
+
+    # --- 3b: i18n values naming a foreign drug (advisory) -------------------
+    i18n_foreign = 0
+    for m in re.finditer(r'"[^"]{1,80}"\s*:\s*"([^"]{1,160})"', src):
+        if classes_in(m.group(1)) - subj_classes:
+            i18n_foreign += 1
+    if i18n_foreign:
+        warn.append((fn, "foreign_drug_class_in_i18n_value",
+                     f"{i18n_foreign} translated value(s) name a drug class this "
+                     f"app does not declare"))
+
+    # --- 5: APP-INTEGRITY checks (added 2026-07-23 after HFREF_NMA_FULL_REVIEW
+    # shipped a green badge it had not earned AND a completely dead tab bar).
+    # These are not contamination-vocabulary checks; they catch a clone that is
+    # STRUCTURALLY broken or that displays an INHERITED verdict. Kept in this
+    # gate because it is the only fail-closed check that runs on every freshly
+    # written clone, and both defects are born at clone time.
+    hard += _scan_app_integrity(src, fn)
+    return hard, warn
+
+
+# ---------------------------------------------------------------------------
+# App-integrity checks (the HFrEF failure classes)
+# ---------------------------------------------------------------------------
+_VERDICT = re.compile(r"window\.__verdict\s*=\s*", re.I)
+_GREEN = ("stable", "pass", "clean", "ok", "green", "verified")
+# `RapidMeta.foo(` reached from an inline HTML event-handler attribute.
+_HANDLER_ATTR = re.compile(r"\son[a-z]+\s*=\s*\"([^\"]{1,400})\"", re.I)
+_RM_CALL = re.compile(r"RapidMeta\.([A-Za-z_$][\w$]*)\s*\(")
+# Anything that plausibly DEFINES `name`: method shorthand, `name: function`,
+# `name: (`, or `X.name = function/(`. Deliberately permissive - a definition we
+# fail to recognise would be a false BLOCK, and this check must stay
+# false-positive-free to be safe to block on.
+_DEFS = re.compile(
+    r"(?:(?<![.\w$])([A-Za-z_$][\w$]*)\s*(?:\([^()]{0,300}\)\s*\{"
+    r"|:\s*(?:async\s+)?(?:function\b|\()))"
+    r"|(?:(?<![\w$])([A-Za-z_$][\w$]*)\s*=\s*(?:async\s*)?(?:function\b|\())")
+
+
+def _scan_app_integrity(src, fn):
+    """Two structural defects that no vocabulary blocklist can see.
+
+    (a) DEAD EVENT HANDLERS. `<button onclick="RapidMeta.switchTab('protocol')">`
+        with no `switchTab` defined anywhere in the file: every tab throws
+        TypeError and the app is unusable. HFREF_NMA_FULL_REVIEW.html shipped
+        with all 16 of its RapidMeta.* handler targets undefined.
+        Measured false-positive rate: 1 hit across 759 corpus apps, and the one
+        hit IS HFrEF. The other 758 define every handler they call.
+
+    (b) INHERITED GREEN VERDICT BADGE. `window.__verdict = {"verdict":"STABLE"}`
+        renders a reassuring badge. If the payload carries no binding to THIS
+        app - no self-naming `app` field - a clone inherits its base's verdict
+        and displays a green badge it never earned. Reported as a finding only
+        when the verdict is a GREEN one: an inherited red badge is a bug too,
+        but it does not mislead a reader into trusting the numbers."""
+    out = []
+
+    handler_targets = set()
+    for m in _HANDLER_ATTR.finditer(src):
+        handler_targets |= set(_RM_CALL.findall(m.group(1)))
+    if handler_targets:
+        defined = {g for m in _DEFS.finditer(src) for g in m.groups() if g}
+        dead = sorted(handler_targets - defined)
+        if dead:
+            out.append((fn, "dead_event_handler",
+                        f"{len(dead)} inline handler target(s) are never defined in "
+                        f"this file - every such control throws TypeError when "
+                        f"clicked: {dead[:8]}"))
+
+    return out
+
+
+def verdict_payload(src):
+    """The `window.__verdict = {...}` object literal, or "" if absent."""
+    m = _VERDICT.search(src)
+    return _balanced(src, m.end(), "{", limit=20000) if m else ""
+
+
+def verdict_grade(payload):
+    m = re.search(r'"verdict"\s*:\s*"([^"]{1,40})"', payload or "")
+    return (m.group(1) if m else "").lower()
+
+
+def is_green_verdict(payload):
+    v = verdict_grade(payload)
+    return bool(v) and any(g in v for g in _GREEN)
+
+
+def inherited_verdict(src, base_src):
+    """True when this file's verdict badge is BYTE-IDENTICAL to its base's.
+
+    ⭐ This is the sound test for the HFrEF green-badge failure, and choosing it
+    took a measurement. The obvious check - 'require the payload to name its own
+    app' - is NOT sound: 713 of the 759 corpus apps ship a green STABLE verdict
+    and NONE of them carries a self-reference, so that rule would block almost
+    the whole corpus while proving nothing about inheritance.
+
+    Byte-identity against the base does prove it. Verified 2026-07-23:
+    HFREF_NMA_FULL_REVIEW.html's payload is byte-identical to
+    GLP1_CVOT_REVIEW.html's - and GLP1_CVOT is exactly the base the 2026-07-23
+    audit identified HFrEF as a clone of. The green badge was inherited, not
+    earned. A genuinely recomputed verdict differs in at least one count.
+
+    Corpus context (advisory, reported by --all): 700 of 750 apps carrying a
+    verdict share their payload with at least one other app; one single payload
+    is shared by 436 apps. That is a corpus-wide debt, not something a per-clone
+    gate can fix - but it must never be silently normalised."""
+    p = verdict_payload(src)
+    return bool(p) and p == verdict_payload(base_src) and is_green_verdict(p)
+
+
+# ---------------------------------------------------------------------------
+# Library entrypoints for clone_dashboard.py / generators
+# ---------------------------------------------------------------------------
+# Matched on WORD BOUNDARIES, not as raw substrings. As bare substrings, "ae"
+# matched "michAEl", "AEtiology" and "hAEmoglobin", so a purely cosmetic skip
+# hard-failed the clone; and the list contained no concrete drug or trial token,
+# so a skip on `extra_replace [Fournier's gangrene, genital mycotic ...]` was
+# TOLERATED. Both reproduced 2026-07-23 - the check was simultaneously too loud
+# and too quiet.
+CLAIM_BEARING = ("ae", "aes", "adverse", "safety", "title", "hero", "headline",
+                 "seal", "report", "subject", "drug", "indication", "trial",
+                 "registry", "waiting", "benchmark", "reference", "global",
+                 "outcome", "pico", "protocol", "acronym")
+
+_CLAIM_RX = re.compile(
+    r"(?<![a-z0-9])(?:" + "|".join(re.escape(t) for t in CLAIM_BEARING) +
+    r")(?![a-z0-9])", re.I)
+
+
+def assert_no_silent_skip(log, extra_claim_terms=()):
+    """Check 4. Promote a SKIP on a CLAIM-BEARING anchor to a hard failure.
+
+    `clone_dashboard.replace_one` appends '  [SKIP_NOT_FOUND] <label>' or
+    '  [SKIP_AMBIGUOUS:n] <label>'. A skip on a cosmetic anchor is tolerable; a
+    skip on an anchor that carries a CLAIM (a drug name, an AE profile, a report
+    title, a seal, a trial registry) means the base's claim survived into the
+    clone. That is the exact bug that produced 147 contaminated apps.
+    """
+    extra = tuple(t.lower() for t in extra_claim_terms)
+    offenders = []
+    for line in log:
+        if "[SKIP_NOT_FOUND]" not in line and "[SKIP_AMBIGUOUS" not in line:
+            continue
+        low = line.lower()
+        claim = bool(_CLAIM_RX.search(line)) or any(t in low for t in extra)
+        # A skipped anchor whose OWN TEXT names a drug class, an adverse-event
+        # fingerprint, a base trial or a base subject label is claim-bearing no
+        # matter what the label around it says. This is what closes the
+        # `extra_replace [...]` hole: those anchors are described in
+        # clone_dashboard.py as "precise, single-occurrence claim neutralizers",
+        # yet their label carried no claim word and the skip stayed silent.
+        if not claim:
+            claim = bool(classes_in(low) or ae_classes_in(low)
+                         or any(_TRIAL_RX[t].search(line) for t in BASE_TRIALS)
+                         or any(lab.lower() in low for lab in BASE_SUBJECT_LABELS))
+        if claim:
+            offenders.append(line.strip())
+    if offenders:
+        raise CloneContaminationError(
+            "clone left claim-bearing anchor(s) unreplaced - the base engine "
+            "survives in the output:\n  " + "\n  ".join(offenders))
+
+
+def assert_clean(out_path, delete_on_failure=True, name_as=None, base_path=None):
+    """Checks 1-3 + app-integrity against a freshly written clone. Fail-closed.
+
+    `name_as` is the filename the scan should judge the content AS. Callers that
+    stage to a temp path must pass the final name: the seal check and the
+    subject-class basis are both derived from the filename, and scanning
+    `FOO_REVIEW.html.staging` would compare the seal against the wrong stem.
+
+    `delete_on_failure` is retained for direct callers, but clone_dashboard.py
+    now stages to a temp file and never asks the gate to delete anything at the
+    destination - see the stage-then-promote block there."""
+    with open(out_path, "r", encoding="utf-8", newline="") as fh:
+        src = fh.read()
+    hard, _ = scan(src, name_as or out_path)
+    # Inherited green verdict badge - only decidable with the base in hand,
+    # which is exactly the situation at clone time. See inherited_verdict().
+    if base_path and os.path.exists(base_path):
+        with open(base_path, "r", encoding="utf-8", newline="") as fh:
+            base_src = fh.read()
+        if inherited_verdict(src, base_src):
+            hard.append((os.path.basename(name_as or out_path),
+                         "inherited_verdict_badge",
+                         f"window.__verdict is byte-identical to the base "
+                         f"({os.path.basename(base_path)}) and reports "
+                         f"{verdict_grade(verdict_payload(src))!r} - this clone would "
+                         f"display a green verdict computed for a different app"))
+    if hard:
+        if delete_on_failure and os.path.exists(out_path):
+            os.unlink(out_path)
+        raise CloneContaminationError(
+            f"post-clone contamination gate FAILED for {out_path} "
+            f"({len(hard)} hard finding(s)); output deleted:\n  "
+            + "\n  ".join(f"[{c}] {d}" for _, c, d in hard[:12]))
+    return True
+
+
+# ---------------------------------------------------------------------------
+SELFTEST_HTML = """<!DOCTYPE html><html><head><title>RapidMeta Vaccines | Mpox Vaccine v1.0</title></head><body>
+<div class="va-header"><h2 class="x">Mpox Vaccines</h2></div>
+<table><tr><td class="p-3 font-bold">AE Categories</td><td class="p-3">Total serious AEs (SAE), plus SGLT2i-specific signals: UTI, Fournier's gangrene, DKA, genital mycotic infections.</td></tr></table>
+<script>const t=`<title>SGLT2-HF Meta-Analysis Report</title>`;const p={meta:{app:"RapidMeta SGLT2-HF"}};
+realData:{trials:[{nct:'NCT04988048',name:'MVA-BN Mpox'}]},
+nctAcronyms:{NCT04988048:"MVA-BN"},
+const KNOWN_TRIAL_ALIASES={NCT03036124:["dapa-hf","dapagliflozin"],NCT03619213:["deliver","dapagliflozin"]},_normAlias=0;
+rReference:{MACE_OR:{k:4,trials:"DAPA-HF,EMPEROR-Reduced,EMPEROR-Preserved,DELIVER"}},runRValidation(){}
+</script></body></html>"""
+
+
+def selftest():
+    """A check that cannot fail is not a check. Prove this one fails."""
+    ok = True
+    hard, _ = scan(SELFTEST_HTML, "MPOX_VACCINE_NMA_REVIEW.html")
+    got = {c for _, c, _ in hard}
+    need = {"foreign_ae_profile", "base_subject_label_survivor",
+            "foreign_trial_registry_rendered", "foreign_embedded_trial_registry"}
+    print("seeded-positive control -> hard findings:", sorted(got))
+    if not need <= got:
+        print(f"  FAIL: expected at least {sorted(need)}")
+        ok = False
+
+    clean = SELFTEST_HTML.replace(
+        "plus SGLT2i-specific signals: UTI, Fournier's gangrene, DKA, "
+        "genital mycotic infections.",
+        "plus any pre-specified serious adverse events reported in the "
+        "included trials.")
+    clean = clean.replace("SGLT2-HF Meta-Analysis Report", "Mpox Meta-Analysis Report")
+    clean = clean.replace('app:"RapidMeta SGLT2-HF"', 'app:"RapidMeta Mpox"')
+    clean = clean.replace(
+        'rReference:{MACE_OR:{k:4,trials:"DAPA-HF,EMPEROR-Reduced,'
+        'EMPEROR-Preserved,DELIVER"}}', "rReference:{}")
+    clean = clean.replace(
+        'const KNOWN_TRIAL_ALIASES={NCT03036124:["dapa-hf","dapagliflozin"],'
+        'NCT03619213:["deliver","dapagliflozin"]}',
+        "const KNOWN_TRIAL_ALIASES={}")
+    hard2, _ = scan(clean, "MPOX_VACCINE_NMA_REVIEW.html")
+    print("remediated control    -> hard findings:", sorted({c for _, c, _ in hard2}))
+    if hard2:
+        print("  FAIL: remediated control should be clean")
+        ok = False
+
+    # skip-promotion
+    try:
+        assert_no_silent_skip(["  [SKIP_AMBIGUOUS:3] global [SGLT2-HF -> Mpox]"])
+        print("  FAIL: assert_no_silent_skip did not raise")
+        ok = False
+    except CloneContaminationError:
+        print("silent-skip promotion -> raises as expected")
+    try:
+        assert_no_silent_skip(["  [SKIP_NOT_FOUND]   nyt_subhead spacing tweak"])
+        print("cosmetic skip         -> tolerated as expected")
+    except CloneContaminationError:
+        print("  FAIL: cosmetic skip should not raise")
+        ok = False
+
+    # --- regression controls for the 2026-07-23 codex review -----------------
+    # Each pairs a POSITIVE (must block) with the shape that used to evade it.
+    def _expect(label, src, name, want, should_have=True):
+        got = {c for _, c, _ in scan(src, name)[0]}
+        good = (want in got) if should_have else (want not in got)
+        print(f"  {'ok  ' if good else 'FAIL'} {label}")
+        return good
+
+    HEAD = ('<title>Mpox Vaccine v1.0</title>'
+            '<div class="va-header"><h2 class="x">Mpox Vaccines</h2></div>')
+    MP = "MPOX_VACCINE_NMA_REVIEW.html"
+
+    # F-01 subject laundering: a surviving base <title> must NOT buy an exemption
+    ok &= _expect("F-01 title-laundered AE profile still blocks",
+                  '<title>SGLT2-HF Meta-Analysis Report</title>'
+                  '<div class="va-header"><h2>Mpox</h2></div>'
+                  "<td>AE Categories</td><td>SGLT2i signals: Fournier's gangrene, DKA</td>",
+                  MP, "foreign_ae_profile")
+    # F-09 whitespace between </td> and <td>
+    ok &= _expect("F-09 AE cell with newline before <td> still blocks",
+                  HEAD + "<td>AE Categories</td>\n <td>SGLT2i: Fournier gangrene, DKA</td>",
+                  MP, "foreign_ae_profile")
+    # F-02 url-safe / undecodable seals
+    ok &= _expect("F-02 base64url foreign seal still blocks",
+                  HEAD + '<script>const s="' + base64.urlsafe_b64encode(
+                      json.dumps({"app": "SGLT2_HF_REVIEW.html", "n": "??>"}).encode()
+                  ).decode() + '";</script>', MP, "foreign_baked_seal")
+    ok &= _expect("F-02 undecodable {\"app seal is a finding",
+                  HEAD + '<script>const s="eyJhcHAiOiJSYXBpZE1ldGEgU0dMVDItSE";</script>',
+                  MP, "undecodable_baked_seal")
+    # F-03 registry written with a different terminator
+    ok &= _expect("F-03 KNOWN_TRIAL_ALIASES={...}; still blocks",
+                  HEAD + '<script>const KNOWN_TRIAL_ALIASES={NCT03036124:["dapagliflozin"]};</script>',
+                  MP, "foreign_embedded_trial_registry")
+    ok &= _expect("F-03 rReference + function runRValidation still blocks",
+                  HEAD + '<script>rReference:{MACE_OR:{trials:"DAPA-HF,DELIVER"}}; '
+                         'function runRValidation(){}</script>',
+                  MP, "foreign_trial_registry_rendered")
+    # F-10b over-block control: the ordinary word "delivery" must NOT fire
+    ok &= _expect("F-10b ordinary word 'delivery' does NOT block (over-block control)",
+                  '<title>Postpartum Haemorrhage</title>'
+                  '<div class="va-header"><h2>Postpartum Haemorrhage</h2></div>'
+                  "<td>AE Categories</td><td>Serious AEs after delivery of the placenta.</td>",
+                  "POSTPARTUM_HEMORRHAGE_NEW_NMA_REVIEW.html",
+                  "foreign_trial_registry_rendered", should_have=False)
+    # app-integrity: dead handler + unbound green verdict
+    ok &= _expect("dead inline handler blocks",
+                  HEAD + '<button onclick="RapidMeta.switchTab(\'protocol\')">T</button>'
+                         '<script>const RapidMeta={state:{}};</script>',
+                  MP, "dead_event_handler")
+    ok &= _expect("defined handler does NOT block (over-block control)",
+                  HEAD + '<button onclick="RapidMeta.switchTab(\'protocol\')">T</button>'
+                         '<script>const RapidMeta={switchTab(id){return id}};</script>',
+                  MP, "dead_event_handler", should_have=False)
+    # inherited green verdict badge (the HFrEF class) - decided against the BASE
+    BASE_V = HEAD + '<script>window.__verdict = {"verdict":"STABLE","counts":{"n":10}};</script>'
+    SAME = HEAD + '<script>window.__verdict = {"verdict":"STABLE","counts":{"n":10}};</script>'
+    RECOMPUTED = HEAD + '<script>window.__verdict = {"verdict":"STABLE","counts":{"n":4}};</script>'
+    RED = HEAD + '<script>window.__verdict = {"verdict":"UNCERTAIN","counts":{"n":10}};</script>'
+    checks = [("verdict inherited byte-identical from base -> detected",
+               inherited_verdict(SAME, BASE_V) is True),
+              ("verdict recomputed (counts differ) -> NOT flagged (over-block control)",
+               inherited_verdict(RECOMPUTED, BASE_V) is False),
+              ("inherited but non-green verdict -> not flagged (only green misleads)",
+               inherited_verdict(RED, RED) is False)]
+    for label, good in checks:
+        print(f"  {'ok  ' if good else 'FAIL'} {label}")
+        ok &= good
+
+    # skip-promotion: the extra_replace hole, and the "ae"-substring over-match
+    try:
+        assert_no_silent_skip(["  [SKIP_NOT_FOUND] extra_replace [Fournier...] :: "
+                               "anchor=\"Fournier's gangrene, genital mycotic infections\""])
+        print("  FAIL: claim-bearing extra_replace skip was tolerated")
+        ok = False
+    except CloneContaminationError:
+        print("  ok   claim-bearing extra_replace skip -> raises (F-08)")
+    for cosmetic in ("  [SKIP_NOT_FOUND]   nyt_subhead: Michael Brown spacing",
+                     "  [SKIP_NOT_FOUND]   haemoglobin unit label nudge"):
+        try:
+            assert_no_silent_skip([cosmetic])
+            print(f"  ok   cosmetic skip tolerated: {cosmetic.split(']')[-1].strip()[:38]}")
+        except CloneContaminationError:
+            print(f"  FAIL: cosmetic skip over-matched: {cosmetic!r}")
+            ok = False
+    print("\nSELFTEST", "PASS" if ok else "FAIL")
+    return 0 if ok else 2
+
+
+# ---------------------------------------------------------------------------
+BASELINE_PATH = os.path.join(ROOT, "outputs", "clone_contamination_baseline.json")
+
+
+def _key(finding):
+    """Stable identity for a finding: (file, check, first 90 chars of detail)."""
+    f, c, d = finding
+    return f"{f}|{c}|{d[:90]}"
+
+
+def load_baseline(path=BASELINE_PATH):
+    """Findings known to pre-date gate adoption. Grandfathered in corpus sweeps so
+    the gate can be wired into CI TODAY against a corpus that already carries a
+    large survivor backlog (594 apps at adoption). They are still printed - a
+    grandfathered finding is deferred debt, never a pass.
+
+    Deliberately NOT consulted by assert_clean(): a freshly written clone must be
+    clean outright, which is the recurrence-prevention the gate exists for."""
+    try:
+        with open(path, "r", encoding="utf-8") as fh:
+            return set(json.load(fh).get("grandfathered", []))
+    except (OSError, ValueError):
+        return set()
+
+
+def main(argv):
+    if "--selftest" in argv:
+        return selftest()
+    args = [a for a in argv[1:] if not a.startswith("-")]
+    if "--all" in argv or not args:
+        paths = sorted(glob.glob(os.path.join(ROOT, "*_REVIEW.html")))
+    else:
+        paths = args
+    HARD, WARN = [], []
+    for p in paths:
+        try:
+            with open(p, "r", encoding="utf-8", newline="") as fh:
+                src = fh.read()
+        except OSError as e:
+            HARD.append((os.path.basename(p), "unreadable", str(e)))
+            continue
+        h, w = scan(src, p)
+        HARD += h
+        WARN += w
+    from collections import Counter
+    outdir = os.path.join(ROOT, "outputs")
+
+    if "--write-baseline" in argv:
+        if not os.path.isdir(outdir):
+            os.makedirs(outdir)
+        with open(BASELINE_PATH, "w", encoding="utf-8") as fh:
+            json.dump({"note": "Findings pre-dating gate adoption. Grandfathered by "
+                               "corpus sweeps; NEVER consulted by assert_clean(). "
+                               "Shrink this file, never grow it.",
+                       "grandfathered": sorted({_key(f) for f in HARD})}, fh, indent=1)
+        print(f"wrote baseline: {len(set(_key(f) for f in HARD))} finding(s) -> {BASELINE_PATH}")
+        return 0
+
+    base = set() if "--no-baseline" in argv else load_baseline()
+    new = [f for f in HARD if _key(f) not in base]
+    old = [f for f in HARD if _key(f) in base]
+
+    print(f"=== RapidMeta post-clone contamination gate - {len(paths)} file(s) ===")
+    print(f"HARD total : {len(HARD)} in {len(set(f[0] for f in HARD))} apps  "
+          f"{dict(Counter(f[1] for f in HARD))}")
+    if base:
+        print(f"  grandfathered (pre-existing debt, not blocking): {len(old)} "
+              f"in {len(set(f[0] for f in old))} apps")
+    print(f"  BLOCKING (new since baseline): {len(new)} in {len(set(f[0] for f in new))} apps")
+    for f in new[:40]:
+        print(f"   [BLOCK] {f[0]}  {f[1]}: {f[2][:150]}")
+    if len(new) > 40:
+        print(f"   ... {len(new)-40} more blocking finding(s) not shown")
+    print(f"WARN (advisory): {len(WARN)} in {len(set(f[0] for f in WARN))} apps  "
+          f"{dict(Counter(f[1] for f in WARN))}")
+
+    # Cross-app verdict-badge duplication. Only computable over a corpus, so it
+    # is reported here rather than in scan(). Advisory: it is pre-existing debt
+    # at adoption, but it must stay visible - a shared payload means those apps
+    # display a verdict computed for a different app.
+    if len(paths) > 1:
+        import hashlib
+        vgroups = {}
+        for p in paths:
+            try:
+                with open(p, "r", encoding="utf-8", errors="replace", newline="") as fh:
+                    pl = verdict_payload(fh.read())
+            except OSError:
+                continue
+            if pl and is_green_verdict(pl):
+                vgroups.setdefault(hashlib.sha1(pl.encode()).hexdigest(), []).append(
+                    os.path.basename(p))
+        shared = {k: v for k, v in vgroups.items() if len(v) > 1}
+        if shared:
+            worst = max(shared.values(), key=len)
+            print(f"VERDICT-BADGE duplication (advisory): "
+                  f"{sum(len(v) for v in shared.values())} apps share a GREEN "
+                  f"window.__verdict payload with another app across "
+                  f"{len(shared)} payload group(s); largest group = {len(worst)} apps "
+                  f"(e.g. {worst[0]}). A shared payload is a verdict computed for a "
+                  f"different app.")
+    if os.path.isdir(outdir):
+        with open(os.path.join(outdir, "clone_contamination_report.json"),
+                  "w", encoding="utf-8") as fh:
+            json.dump({"hard": [list(f) for f in HARD],
+                       "blocking": [list(f) for f in new],
+                       "grandfathered": [list(f) for f in old],
+                       "warn": [list(f) for f in WARN]}, fh, indent=1)
+    if new:
+        print(f"\nBLOCKED: {len(new)} new hard contamination finding(s).")
+        return 1
+    print(f"\nGATE OK: 0 new hard contamination findings"
+          + (f" ({len(old)} grandfathered, still owed)." if old else "."))
+    return 0
+
+
+if __name__ == "__main__":
+    if hasattr(sys.stdout, "buffer") and getattr(sys.stdout, "encoding", "").lower() != "utf-8":
+        sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    sys.exit(main(sys.argv))

@@ -1,0 +1,219 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/withdraw_pcsk9_estimate_2026_08_19.py
+
+--- THE FILE, IN FULL ---
+#!/usr/bin/env python3
+"""WITHDRAW THE `pcsk9-inhibitors-cv-review` POOLED ESTIMATE -- two composites, not one estimand.
+
+WHY THIS CAME UP NOW. This topic is the SURVIVOR of a deferred merge: `pcsk9-review` holds the
+live URL and this object is the richer one, so the merge cannot execute until the survivor has a
+page. Building that page meant deciding what it would display -- and what it held was
+`OR 0.844 (0.795-0.896)` at k=2.
+
+WHAT THE OBJECT ALREADY ADMITTED, in its own `poolable_reason`:
+
+    "The extractor recovered a pooled result from this page, so the page pooled these trials.
+     Whether they SHOULD have been pooled is not established by conversion"
+
+with `estimand_established: False`. The estimate was never established; it was RECOVERED.
+
+AND THE REGISTERED PRIMARIES DIFFER ON THREE AXES, read verbatim from ClinicalTrials.gov on
+2026-08-19 and not from recall:
+
+    FOURIER   NCT01764633  n=27,564
+      "Time to Cardiovascular Death, Myocardial Infarction, Hospitalization for Unstable
+       Angina, Stroke, or Coronary Revascularization"
+
+    ODYSSEY OUTCOMES  NCT01663402  n=18,924
+      "Time to First Occurrence of Major Adverse Cardiovascular Event (MACE)", whose own
+       description defines it as "Coronary Heart Disease (CHD) death, non-fatal Myocardial
+       Infarction (MI), fatal and non-fatal ischemic stroke (IS), or [unstable angina
+       requiring hospitalisation]"
+
+      DEATH            FOURIER counts ALL CARDIOVASCULAR death; ODYSSEY counts CHD death only.
+      STROKE           FOURIER counts ALL stroke;               ODYSSEY counts ISCHAEMIC only.
+      REVASCULARISATION  FOURIER COUNTS IT.                     ODYSSEY DOES NOT.
+
+Coronary revascularisation is not a rounding difference -- it is the highest-frequency component
+in this class of trial, and including it changes what the denominator of events even is. Two
+endpoints both spoken of as "MACE" are being pooled across three different component lists.
+**That is P37: composite names are not definitions.**
+
+AND THE ESTIMATOR IS WRONG FOR THE k IN ANY CASE. `DerSimonian-Laird` at k=2. DL is refused
+below k=10 in this project because its tau-squared is badly biased with few studies; at k=2 the
+between-study variance is barely identified at all.
+
+WHAT THIS SCRIPT DOES. It MOVES the estimate to `pooled_superseded` and records the reason. It
+does NOT delete it: what the page served is what a reader saw, and that record is the evidence
+for the withdrawal rather than something to be tidied away.
+
+WHAT IT DOES NOT CLAIM. NOT that PCSK9 inhibition is ineffective -- both trials individually
+report reductions. NOT that no poolable question exists here: a shared estimand may well be
+constructible from a component both trials report separately, and that is a build, not a
+deletion. Only that THIS number, as pooled, does not estimate one quantity.
+"""
+import io
+import json
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+TOPIC = "pcsk9-inhibitors-cv-review"
+PATH = os.path.join(REPO, "ssot", TOPIC, TOPIC + ".json")
+
+REASON = (
+    "TWO COMPOSITES, NOT ONE ESTIMAND. Registered primaries read from ClinicalTrials.gov "
+    "2026-08-19. FOURIER (NCT01764633, n=27,564) registers 'Time to Cardiovascular Death, "
+    "Myocardial Infarction, Hospitalization for Unstable Angina, Stroke, or Coronary "
+    "Revascularization'. ODYSSEY OUTCOMES (NCT01663402, n=18,924) registers 'Time to First "
+    "Occurrence of Major Adverse Cardiovascular Event (MACE)', defined in its own description "
+    "as CHD death, non-fatal MI, fatal and non-fatal ischaemic stroke, or unstable angina "
+    "requiring hospitalisation. THEY DIFFER ON THREE AXES: FOURIER counts ALL CARDIOVASCULAR "
+    "death against ODYSSEY's CHD death; FOURIER counts ALL stroke against ODYSSEY's ISCHAEMIC "
+    "stroke; and FOURIER COUNTS CORONARY REVASCULARISATION, WHICH ODYSSEY DOES NOT. "
+    "Revascularisation is the highest-frequency component in this class of trial, so this is "
+    "not a rounding difference in the event definition -- it changes what is being counted. "
+    "P37: composite names are not definitions. SEPARATELY, the estimator was DerSimonian-Laird "
+    "at k=2, and DL is refused below k=10 in this project because its tau-squared is badly "
+    "biased with few studies. AND THE OBJECT ALREADY SAID SO: it carried "
+    "estimand_established=false and a poolable_reason stating the estimate had been RECOVERED "
+    "from the page rather than established. AUTHORITY: MECIR Box 10.10.a C62 -- undertake or "
+    "display a meta-analysis only if participants, interventions, comparisons and outcomes are "
+    "judged sufficiently similar to ensure a clinically meaningful answer.")
+
+NOT_CLAIMED = (
+    "NOT that PCSK9 inhibition is ineffective -- both trials individually report reductions. "
+    "NOT that either trial is poor. NOT that no poolable question exists here: a shared "
+    "estimand may well be constructible from a component both trials report separately, and "
+    "that is a build rather than a deletion. Only that THIS number, as pooled, does not "
+    "estimate one quantity.")
+
+
+def run(apply_it):
+    with io.open(PATH, "r", encoding="utf-8") as fh:
+        o = json.load(fh)
+    pr = o["results"]["by_outcome"]["primary"]
+    pl = pr.get("pooled") or {}
+
+    if pl.get("withdrawn"):
+        print("already withdrawn -- nothing to do")
+        return 0
+    if pl.get("point") is None:
+        print("REFUSED: there is no pooled point to withdraw. This script exists to withdraw a "
+              "SERVED estimate; running it on an object that publishes none would write a "
+              "withdrawal notice for something that was never shown.")
+        return 1
+
+    print("  currently served : OR %.4f (%.4f-%.4f), k=%s, %s"
+          % (pl["point"], pl["ci_low"], pl["ci_high"], pr.get("k"), pr.get("estimator")))
+    print("  estimand_established: %s" % pr.get("estimand_established"))
+    if not apply_it:
+        print("\nDRY RUN -- nothing written. Re-run with --apply.")
+        return 0
+
+    # MOVED, NEVER DELETED. What the page served is what a reader saw, and that record is the
+    # evidence FOR the withdrawal rather than something to tidy away.
+    pr["pooled_superseded"] = dict(pl)
+    pr["pooled_superseded_because"] = REASON
+    pr["pooled"] = {
+        "measure": pl.get("measure"), "point": None, "ci_low": None, "ci_high": None,
+        "ci_level": pl.get("ci_level", 95), "scale": pl.get("scale", "log"),
+        "withdrawn": True,
+        "withdrawn_utc": "2026-08-19",
+        "withdrawn_reason": REASON,
+    }
+    pr["poolable"] = False
+    pr["poolable_reason"] = REASON
+    pr["what_this_verdict_does_not_establish"] = NOT_CLAIMED
+    pr["registered_primaries_compared_verbatim"] = {
+        "NCT01764633": ("Time to Cardiovascular Death, Myocardial Infarction, Hospitalization "
+                        "for Unstable Angina, Stroke, or Coronary Revascularization"),
+        "NCT01663402": ("Time to First Occurrence of Major Adverse Cardiovascular Event "
+                        "(MACE): CHD death, non-fatal MI, fatal and non-fatal ischaemic "
+                        "stroke, or unstable angina requiring hospitalisation"),
+        "read_utc": "2026-08-19",
+        "source": "protocolSection.outcomesModule.primaryOutcomes[0] on each registration",
+    }
+    with io.open(PATH, "w", encoding="utf-8", newline="") as fh:
+        fh.write(json.dumps(o, indent=1, ensure_ascii=False))
+
+    # READ BACK FROM DISK. The in-memory object is not the evidence.
+    with io.open(PATH, "r", encoding="utf-8") as fh:
+        back = json.load(fh)["results"]["by_outcome"]["primary"]
+    ok = (back["pooled"]["point"] is None and back["pooled"]["withdrawn"] is True
+          and back["pooled_superseded"]["point"] == pl["point"])
+    print("\n  re-read from disk: served point is None=%s, withdrawn=%s, "
+          "superseded value kept=%s"
+          % (back["pooled"]["point"] is None, back["pooled"]["withdrawn"],
+             back["pooled_superseded"]["point"]))
+    print("  %s" % ("WITHDRAWN, AND THE OLD VALUE IS KEPT" if ok else "FAILED"))
+    return 0 if ok else 1
+
+
+def selftest():
+    fails = []
+
+    def ck(n, got, want):
+        ok = got == want
+        print("  %-64s %s  %r" % (n, "ok" if ok else "FAIL", got))
+        if not ok:
+            fails.append(n)
+
+    print("1. THE REASON NAMES ALL THREE COMPONENT MISMATCHES:")
+    lo = REASON.lower()
+    ck("death", "chd death" in lo, True)
+    ck("stroke", "ischaemic" in lo, True)
+    ck("revascularisation", "revascularisation" in lo, True)
+    ck("and the estimator problem is separate, not the reason",
+       "separately, the estimator" in lo, True)
+
+    print("\n2. IT NAMES BOTH REGISTRATIONS, so the claim is checkable:")
+    ck("FOURIER", "NCT01764633" in REASON, True)
+    ck("ODYSSEY", "NCT01663402" in REASON, True)
+
+    print("\n3. AND IT STATES WHAT IT DOES NOT CLAIM:")
+    ck("not that the drug fails", "ineffective" in NOT_CLAIMED, True)
+    ck("not that no pool exists here", "constructible" in NOT_CLAIMED, True)
+
+    print("\n%s" % ("SELFTEST FAILED: %s" % fails if fails else "SELFTEST PASSED"))
+    return 1 if fails else 0
+
+
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    if "--selftest" in sys.argv:
+        sys.exit(selftest())
+    sys.exit(run("--apply" in sys.argv))

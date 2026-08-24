@@ -1,0 +1,179 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a0312c-3e52-7992-8ac7-be82d1d7950e
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/apply_aact_counts_retro.py
+
+--- THE FILE, IN FULL ---
+"""Retroactively apply the param_type-aware AACT counts to FULL_REVIEW pages.
+
+Reads outputs/pmid_resolver/nct_counts.json (built by
+build_aact_counts_with_param_type.py). For each trial block whose NCT is in
+the map, overwrites tE/tN/cE/cN AND the matching allOutcomes[0].tE/cE so the
+analysis engine reads consistent values.
+
+This supersedes the value-vs-N heuristic in fix_event_counts_safe.py for
+trials AACT actually has outcome_measurements for; trials with no AACT
+outcomes are untouched (their counts came from elsewhere or are null).
+
+Idempotent — re-running just no-ops every block that's already aligned.
+"""
+from __future__ import annotations
+import json
+import re
+import sys
+import io
+from pathlib import Path
+
+if "pytest" not in sys.modules and hasattr(sys.stdout, "buffer"):
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+HERE = Path(__file__).resolve().parent.parent
+COUNTS = json.loads((HERE / "outputs" / "pmid_resolver" / "nct_counts.json").read_text(encoding="utf-8"))
+
+TRIAL_BLOCK_RE = re.compile(
+    r"'(NCT\d{7,8})':\s*\{(?P<body>(?:[^{}]|\{[^{}]*\}){0,4000})\}",
+    re.DOTALL,
+)
+
+
+def set_field(body: str, field: str, value) -> str:
+    repl = "null" if value is None else str(int(value))
+    return re.sub(rf"\b{field}:\s*(?:-?\d+|null|None)", f"{field}: {repl}", body, count=1)
+
+
+def patch_trial(nct: str, body: str) -> tuple[str, bool]:
+    info = COUNTS.get(nct)
+    if not info:
+        return body, False
+    new = body
+    new = set_field(new, "tE", info["tE"])
+    new = set_field(new, "tN", info["tN"])
+    new = set_field(new, "cE", info["cE"])
+    new = set_field(new, "cN", info["cN"])
+    # Propagate to allOutcomes[0].tE / cE
+    ao_re = re.compile(
+        r"(allOutcomes:\s*\[\s*\{[^}]*\btE:\s*)(-?\d+|null)([^}]*\bcE:\s*)(-?\d+|null)"
+    )
+    new = ao_re.sub(lambda m: m.group(1) + str(info["tE"]) + m.group(3) + str(info["cE"]), new, count=1)
+    return new, new != body
+
+
+def patch_file(p: Path) -> int:
+    txt = p.read_text(encoding="utf-8", errors="replace")
+    orig = txt
+    n = 0
+    out_parts = []
+    last = 0
+    for m in TRIAL_BLOCK_RE.finditer(txt):
+        new_body, changed = patch_trial(m.group(1), m.group("body"))
+        if changed:
+            out_parts.append(txt[last:m.start()])
+            out_parts.append(f"'{m.group(1)}': {{{new_body}}}")
+            last = m.end()
+            n += 1
+    out_parts.append(txt[last:])
+    new_txt = "".join(out_parts)
+    if new_txt != orig:
+        # E2 build-time JS parse gate: verify the new file's realData literal
+        # parses under V8 before persisting. If it doesn't, ROLL BACK to the
+        # original — the user can investigate via .js_parse_failures.log.
+        try:
+            from _js_parse_gate import js_parse_ok
+        except ImportError:
+            js_parse_ok = lambda _t: True
+        if not js_parse_ok(new_txt):
+            print(f"  ROLLBACK {p.name}: JS parse gate failed; original kept")
+            return 0
+        p.write_text(new_txt, encoding="utf-8")
+    return n
+
+
+def main():
+    targets = sorted(p for p in HERE.glob("*_FULL_REVIEW.html") if p.is_file())
+    print(f"Targets: {len(targets):,} FULL_REVIEW files")
+    tot = files = 0
+    for i, p in enumerate(targets, 1):
+        n = patch_file(p)
+        if n:
+            files += 1
+            tot += n
+        if i % 300 == 0:
+            print(f"  [{i}/{len(targets)}] {p.name}: trials updated={n}")
+    print(f"\nFiles changed: {files:,}, trials re-extracted: {tot:,}")
+
+
+if __name__ == "__main__":
+    main()
+
+codex
+Lines as pasted.
+
+- Line 36 - selector updates the first `tE`/`cE`, not the top-level fields. Exact input: `nct_counts.json={"NCT0000001":{"tE":7,"tN":80,"cE":8,"cN":90}}`; block `'NCT0000001': {allOutcomes: [{tE: 1, cE: 2}], tE: 3, tN: 4, cE: 5, cN: 6}`. Consequence: top-level `tE` and `cE` remain stale while nested outcome values change.
+
+- Line 50 - selector is keyed to `tE` before `cE`. Exact input: same counts; block `'NCT0000001': {tE: 1, tN: 10, cE: 2, cN: 20, allOutcomes: [{cE: 2, tE: 1}]}`. Consequence: `allOutcomes[0]` is left inconsistent because the field order is reversed.
+
+- Line 52 - `None` is serialized as Python `None`, not JS `null`. Exact input: `nct_counts.json={"NCT0000001":{"tE":null,"tN":10,"cE":null,"cN":20}}`; block `'NCT0000001': {tE: 1, tN: 2, cE: 3, cN: 4, allOutcomes: [{tE: 1, cE: 3}]}`. Consequence: the patched page contains invalid JavaScript unless the parse gate catches and rolls it back.
+
+- Line 29 - selector only matches one brace level inside a trial block. Exact input: same counts; block `'NCT0000001': {tE: 1, tN: 10, cE: 2, cN: 20, allOutcomes: [{tE: 1, cE: 2, stats: {p: 0.1}}]}`. Consequence: the trial is silently skipped.
+
+- Lines 78 and 81 - check/status can report wrapper success instead of work failure. COULD NOT DETERMINE live behavior: `_js_parse_gate.py` is missing from the packet. Exact input: any changed block plus `_js_parse_gate.js_parse_ok(new_txt) == False`; line 81 returns `0` and `main()` exits normally. Consequence: automation can see success after rollback.
+
+No finding here for CRLF text comparison, merged-cell/off-by-one, negation dropped, or own-comment idempotency guard.
+tokens used
+13,757
+Lines as pasted.
+
+- Line 36 - selector updates the first `tE`/`cE`, not the top-level fields. Exact input: `nct_counts.json={"NCT0000001":{"tE":7,"tN":80,"cE":8,"cN":90}}`; block `'NCT0000001': {allOutcomes: [{tE: 1, cE: 2}], tE: 3, tN: 4, cE: 5, cN: 6}`. Consequence: top-level `tE` and `cE` remain stale while nested outcome values change.
+
+- Line 50 - selector is keyed to `tE` before `cE`. Exact input: same counts; block `'NCT0000001': {tE: 1, tN: 10, cE: 2, cN: 20, allOutcomes: [{cE: 2, tE: 1}]}`. Consequence: `allOutcomes[0]` is left inconsistent because the field order is reversed.
+
+- Line 52 - `None` is serialized as Python `None`, not JS `null`. Exact input: `nct_counts.json={"NCT0000001":{"tE":null,"tN":10,"cE":null,"cN":20}}`; block `'NCT0000001': {tE: 1, tN: 2, cE: 3, cN: 4, allOutcomes: [{tE: 1, cE: 3}]}`. Consequence: the patched page contains invalid JavaScript unless the parse gate catches and rolls it back.
+
+- Line 29 - selector only matches one brace level inside a trial block. Exact input: same counts; block `'NCT0000001': {tE: 1, tN: 10, cE: 2, cN: 20, allOutcomes: [{tE: 1, cE: 2, stats: {p: 0.1}}]}`. Consequence: the trial is silently skipped.
+
+- Lines 78 and 81 - check/status can report wrapper success instead of work failure. COULD NOT DETERMINE live behavior: `_js_parse_gate.py` is missing from the packet. Exact input: any changed block plus `_js_parse_gate.js_parse_ok(new_txt) == False`; line 81 returns `0` and `main()` exits normally. Consequence: automation can see success after rollback.
+
+No finding here for CRLF text comparison, merged-cell/off-by-one, negation dropped, or own-comment idempotency guard.

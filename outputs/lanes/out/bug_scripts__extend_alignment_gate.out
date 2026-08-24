@@ -1,0 +1,254 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a031a0-412a-7840-8131-9a768c668af9
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/extend_alignment_gate.py
+
+--- THE FILE, IN FULL ---
+import io, sys
+
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+P = r"F:\rapidmeta-ssot-shell\scripts\alignment_gate.py"
+s = open(P, encoding="utf-8").read()
+
+ANCHOR = "def check(model, docx, page):"
+assert s.count(ANCHOR) == 1
+
+NEW = r'''# A CONTRACT ON PRESENTATION, not only on content.
+#
+# The content half of this gate reported ALIGNED on 301 blocks while a reader
+# comparing the two surfaces said one was plainly better. Both were true: the
+# block sequence corresponds exactly, because both are projections of one
+# docmodel, and the Word file was still the worse document -- Calibri 11 against
+# the HTML's serif, no line spacing, every figure forced to the full text
+# measure, and header rows that did not repeat across page breaks on any of
+# seventeen tables.
+#
+# Content equality was never going to catch a typeface. So the docx is also
+# checked against a presentation contract taken from the HTML, which is the
+# surface judged better and is therefore the reference. These are the properties
+# that make a document readable rather than merely correct.
+PRESENTATION = {
+    "serif body face": lambda d: d["font"] not in ("Calibri", "Aptos", "Arial",
+                                                   "Segoe UI", None),
+    "line spacing set": lambda d: d["line_spacing"] is not None,
+    "header rows repeat on every table": lambda d: d["tables"] > 0
+                                                   and d["tbl_header"] >= d["tables"],
+    "no figure wider than the text measure": lambda d: d["over_measure"] == 0,
+    "plain table grid, not a theme accent": lambda d: not any(
+        "Accent" in x for x in d["tbl_styles"]),
+}
+
+
+def docx_presentation(path):
+    """Read the properties a reader actually sees, out of the file."""
+    import re as _re
+    import zipfile as _z
+    z = _z.ZipFile(path)
+    x = z.read("word/document.xml").decode("utf-8")
+    st = z.read("word/styles.xml").decode("utf-8")
+    m = _re.search(r'<w:style [^>]*w:styleId="Normal".*?</w:style>', st, _re.S)
+    seg = m.group(0) if m else ""
+    fm = _re.search(r'w:ascii="([^"]+)"', seg)
+    ls = _re.search(r'<w:spacing[^>]*w:line="(\d+)"', seg)
+    # text measure = page width less both margins, in EMU (1 inch = 914400)
+    pg = _re.search(r'<w:pgSz w:w="(\d+)"', x)
+    mg = _re.search(r'<w:pgMar w:top="\d+" w:right="(\d+)"[^>]*w:left="(\d+)"', x)
+    measure = None
+    if pg and mg:
+        measure = (int(pg.group(1)) - int(mg.group(1)) - int(mg.group(2))) / 1440.0
+    over = 0
+    for cx, _cy in _re.findall(r'<wp:extent cx="(\d+)" cy="(\d+)"', x):
+        if measure and int(cx) / 914400.0 > measure - 0.05:
+            over += 1
+    return {"font": fm.group(1) if fm else None,
+            "line_spacing": ls.group(1) if ls else None,
+            "tables": x.count("<w:tbl>"),
+            "tbl_header": x.count("tblHeader"),
+            "tbl_styles": set(_re.findall(r'<w:tblStyle w:val="([^"]+)"', x)),
+            "over_measure": over, "measure_in": measure}
+
+
+def check_presentation(path):
+    d = docx_presentation(path)
+    bad = []
+    for name, pred in PRESENTATION.items():
+        try:
+            ok = pred(d)
+        except Exception:                                # noqa: BLE001
+            ok = False
+        if not ok:
+            bad.append("presentation: %s -- FAILED (font=%s, line_spacing=%s, "
+                       "tables=%s, tblHeader=%s, styles=%s, figures wider than "
+                       "the %.2f in measure=%s)"
+                       % (name, d["font"], d["line_spacing"], d["tables"],
+                          d["tbl_header"], sorted(d["tbl_styles"]),
+                          d["measure_in"] or 0, d["over_measure"]))
+    return bad
+
+
+def check(model, docx, page):'''
+
+s = s.replace(ANCHOR, NEW, 1)
+
+# heading LEVELS, not just heading text
+old2 = '''    for h in m_heads:
+        if h and h not in p_heads:
+            bad.append("docmodel heading missing from the page: %r" % h[:60])'''
+new2 = '''    for h in m_heads:
+        if h and h not in p_heads:
+            bad.append("docmodel heading missing from the page: %r" % h[:60])
+    # LEVELS, not just presence. A heading that survives as text but drops a
+    # level has lost the structure it was carrying, and the content check would
+    # never see it.
+    m_lv = [(norm(b["text"]), int(b["kind"][1])) for b in model
+            if b.get("kind", "")[:1] == "h" and b.get("kind", "")[1:].isdigit()]
+    p_lv = {}
+    for tag, txt in (page.get("head_levels") or []):
+        p_lv.setdefault(norm(txt), int(tag[1]))
+    off = None
+    for txt, lv in m_lv:
+        if txt in p_lv:
+            delta = p_lv[txt] - lv
+            if off is None:
+                off = delta
+            elif delta != off:
+                bad.append("heading level drifts: %r is level %d in the docmodel "
+                           "and renders at h%d on the page, where the constant "
+                           "offset is %+d" % (txt[:48], lv, p_lv[txt], off))
+                break'''
+assert s.count(old2) == 1
+s = s.replace(old2, new2)
+
+# expose head levels from the page
+old3 = '''          return {heads:[...doc.querySelectorAll('h2,h3,h4,h5')].map(h=>h.innerText.trim()),'''
+new3 = '''          return {heads:[...doc.querySelectorAll('h2,h3,h4,h5')].map(h=>h.innerText.trim()),
+                  head_levels:[...doc.querySelectorAll('h2,h3,h4,h5')]
+                        .map(h=>[h.tagName.toLowerCase(), h.innerText.trim()]),'''
+assert s.count(old3) == 1
+s = s.replace(old3, new3)
+
+# run the presentation contract from main()
+old4 = '''    model, meta = model_blocks(sys.argv[1])
+    problems = check(model, docx_sequence(sys.argv[2]), page_docview(sys.argv[3]))'''
+new4 = '''    model, meta = model_blocks(sys.argv[1])
+    problems = check(model, docx_sequence(sys.argv[2]), page_docview(sys.argv[3]))
+    problems += check_presentation(sys.argv[2])'''
+assert s.count(old4) == 1
+s = s.replace(old4, new4)
+
+# self-test the presentation contract too
+old5 = '''    ok = True
+    print("=== the gate must FAIL on divergence and PASS on agreement ===")'''
+new5 = '''    print("=== presentation contract ===")
+    pres_cases = [
+        ("a Word default document (Calibri, no spacing, no tblHeader)",
+         {"font": "Calibri", "line_spacing": None, "tables": 17,
+          "tbl_header": 0, "tbl_styles": {"LightGrid-Accent1"},
+          "over_measure": 15, "measure_in": 6.0}, True),
+        ("a document meeting the contract",
+         {"font": "Georgia", "line_spacing": "360", "tables": 17,
+          "tbl_header": 17, "tbl_styles": {"TableGrid"},
+          "over_measure": 0, "measure_in": 6.0}, False),
+    ]
+    ok = True
+    for name, dd, want_fail in pres_cases:
+        got = bool([1 for _n, pr in PRESENTATION.items() if not pr(dd)])
+        good = got == want_fail
+        ok &= good
+        print("  %-52s %s expected=%s %s"
+              % (name, "FAIL" if got else "PASS",
+                 "FAIL" if want_fail else "PASS", "correct" if good else "WRONG"))
+    print()
+    print("=== the gate must FAIL on divergence and PASS on agreement ===")'''
+assert s.count(old5) == 1
+s = s.replace(old5, new5)
+
+open(P, "w", encoding="utf-8").write(s)
+print("alignment gate: presentation contract + heading levels")
+
+codex
+I’m treating the pasted packet as complete and only deriving defects from this file. I’m going line-by-line against the named recurrent shapes, with no assumptions about unseen callers.
+codex
+Defects found:
+
+- Line 4, `P = r"F:\rapidmeta-ssot-shell\scripts\alignment_gate.py"`: exact input `cd C:\rapidmeta-ssot-shell; python F:\rapidmeta-ssot-shell\scripts\extend_alignment_gate.py` with a separate `C:\rapidmeta-ssot-shell\scripts\alignment_gate.py`; consequence: the script instruments the F: copy, not the worktree the operator is in.
+
+- Lines 8, 112, 120, 129, 156: exact input `python -O scripts\extend_alignment_gate.py` with `F:\rapidmeta-ssot-shell\scripts\alignment_gate.py` containing only `print("unchanged")`; consequence: all patch-presence checks are stripped, replacements silently do nothing, and line 160 still prints success.
+
+- Line 48: exact DOCX input whose `word/document.xml` contains `<w:pgSz w:h="15840" w:w="12240"/><w:pgMar w:top="1440" w:left="1440" w:right="1440"/><wp:extent cx="91440000" cy="914400"/>`; consequence: valid XML attribute order prevents margin detection, so line 54 skips an obviously over-wide figure.
+
+- Line 28: exact parsed input `{"tables": 2, "tbl_header": 2}` produced by XML with two `tblHeader` rows in the first table and none in the second; consequence: “header rows repeat on every table” passes while one table has no repeating header.
+
+- Line 100: exact input `model=[{"kind":"h2","text":"Results"},{"kind":"h3","text":"Results"}]`, `page={"head_levels":[("h2","Results"),("h3","Results")]}`; consequence: `setdefault` keys by heading text and can report drift for correctly rendered duplicate headings.
+
+- Line 54: exact XML input `<w:pgSz w:w="2880"/><w:pgMar w:top="0" w:right="1440" w:left="1440"/><wp:extent cx="914400" cy="914400"/>`; consequence: a real computed zero text measure is treated as absent, so figure-width checking is bypassed.
+
+No proven defect found for negation-dropped matching.
+
+No proven defect found for an idempotency guard satisfied by its own comment or marker.
+
+COULD NOT DETERMINE corpus-specific selector miss-rate without the target `scripts/alignment_gate.py` and the DOCX corpus.
+tokens used
+15,760
+Defects found:
+
+- Line 4, `P = r"F:\rapidmeta-ssot-shell\scripts\alignment_gate.py"`: exact input `cd C:\rapidmeta-ssot-shell; python F:\rapidmeta-ssot-shell\scripts\extend_alignment_gate.py` with a separate `C:\rapidmeta-ssot-shell\scripts\alignment_gate.py`; consequence: the script instruments the F: copy, not the worktree the operator is in.
+
+- Lines 8, 112, 120, 129, 156: exact input `python -O scripts\extend_alignment_gate.py` with `F:\rapidmeta-ssot-shell\scripts\alignment_gate.py` containing only `print("unchanged")`; consequence: all patch-presence checks are stripped, replacements silently do nothing, and line 160 still prints success.
+
+- Line 48: exact DOCX input whose `word/document.xml` contains `<w:pgSz w:h="15840" w:w="12240"/><w:pgMar w:top="1440" w:left="1440" w:right="1440"/><wp:extent cx="91440000" cy="914400"/>`; consequence: valid XML attribute order prevents margin detection, so line 54 skips an obviously over-wide figure.
+
+- Line 28: exact parsed input `{"tables": 2, "tbl_header": 2}` produced by XML with two `tblHeader` rows in the first table and none in the second; consequence: “header rows repeat on every table” passes while one table has no repeating header.
+
+- Line 100: exact input `model=[{"kind":"h2","text":"Results"},{"kind":"h3","text":"Results"}]`, `page={"head_levels":[("h2","Results"),("h3","Results")]}`; consequence: `setdefault` keys by heading text and can report drift for correctly rendered duplicate headings.
+
+- Line 54: exact XML input `<w:pgSz w:w="2880"/><w:pgMar w:top="0" w:right="1440" w:left="1440"/><wp:extent cx="914400" cy="914400"/>`; consequence: a real computed zero text measure is treated as absent, so figure-width checking is bypassed.
+
+No proven defect found for negation-dropped matching.
+
+No proven defect found for an idempotency guard satisfied by its own comment or marker.
+
+COULD NOT DETERMINE corpus-specific selector miss-rate without the target `scripts/alignment_gate.py` and the DOCX corpus.

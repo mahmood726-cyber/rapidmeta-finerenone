@@ -1,0 +1,272 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a031d3-8af8-7203-8d66-484d1f69e9fc
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/harmonize_outcomes.py
+
+--- THE FILE, IN FULL ---
+"""Harmonize outcome labels in poolable AUTO apps (PILOT).
+
+The engine pools trials by realData outcome `shortLabel`. AUTO apps tag every
+outcome "MACE", so all endpoints pool as one (invalid). This relabels each
+outcome's shortLabel with a per-cluster key (fuzzy clustering from
+analyze_poolability), so genuinely-matching endpoints pool and distinct ones
+separate. Also:
+  - state.selectedOutcome "MACE" -> "default" (valid resolved key)
+  - neutralizes the visible cardiovascular MACE strings (label / narrative /
+    NNT) that are wrong for a non-cardiac topic
+
+Display labels come from the outcome `title` (via _derivedOutcomeMap), so the
+new shortLabel keys are internal join keys and never shown.
+
+Usage:
+    python scripts/harmonize_outcomes.py FILE.html [FILE2 ...] [--dry-run]
+"""
+from __future__ import annotations
+import argparse, io, os, re, sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import analyze_poolability as ap  # noqa: E402
+
+if hasattr(sys.stdout, "buffer") and getattr(sys.stdout, "encoding", "").lower() != "utf-8":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+THRESH = 0.5
+
+# Replace the shortLabel value only, keyed by the outcome's title.
+_RELABEL_RE = re.compile(
+    r"(\{shortLabel:(['\"]))MACE(\2,\s*title:(['\"])(?P<title>(?:\\.|(?!\4).)*)\4)")
+
+
+def _slug(title):
+    t = re.sub(r"\(primary\)\s*$", "", title)
+    s = re.sub(r"[^A-Za-z0-9]", "", t.title())[:24]
+    return s or "Outcome"
+
+
+def assign_keys(outcomes, clusters):
+    used = set()
+    title_to_key = {}
+    for cl in clusters:
+        titles = [outcomes[i]["title"] for i in cl]
+        # prefer a distinctive salient acronym shared in the cluster
+        key = None
+        sal = set()
+        for i in cl:
+            sal |= ap.salient_tokens(outcomes[i]["title"])
+        for a in sorted(sal):
+            cand = a.upper()
+            if cand not in used:
+                key = cand
+                break
+        if key is None:
+            base = _slug(min(titles, key=len))
+            key = base
+            n = 2
+            while key in used:
+                key = f"{base}{n}"
+                n += 1
+        used.add(key)
+        for t in titles:
+            title_to_key[t] = key
+    return title_to_key
+
+
+def harmonize(html):
+    pairs = ap.extract_trial_outcomes(html)
+    outcomes = [o for _, o in pairs]
+    if not outcomes:
+        return html, {"changed": False, "reason": "no outcomes"}
+    clusters = ap.cluster_outcomes(outcomes, THRESH)
+    title_to_key = assign_keys(outcomes, clusters)
+
+    def repl(m):
+        key = title_to_key.get(m.group("title"))
+        if not key:
+            return m.group(0)
+        return m.group(1) + key + m.group(3)
+
+    new, n = _RELABEL_RE.subn(repl, html)
+
+    # state default + visible cardiovascular strings
+    new = new.replace('selectedOutcome:"MACE"', 'selectedOutcome:"default"')
+    new = new.replace("Primary MACE Result", "Primary Result")
+    new = new.replace(" (MACE)", "")
+    new = new.replace("prevent 1 MACE event", "prevent 1 event")
+
+    # build a small report: per-key trial count (simulated pooling)
+    tids_by_key = {}
+    for (tid, o) in pairs:
+        k = title_to_key.get(o["title"], "?")
+        tids_by_key.setdefault(k, set()).add(tid)
+    pooled = {k: len(v) for k, v in tids_by_key.items()}
+    return new, {"changed": n > 0, "relabeled": n, "n_outcomes": len(outcomes),
+                 "n_trials": len({t for t, _ in pairs}), "pooled_k": pooled}
+
+
+def main():
+    import glob
+    p = argparse.ArgumentParser()
+    p.add_argument("files", nargs="*")
+    p.add_argument("--glob", help="process all files matching this glob (repo root)")
+    p.add_argument("--dry-run", action="store_true")
+    p.add_argument("--limit", type=int, default=0)
+    p.add_argument("--quiet", action="store_true", help="one line per app")
+    args = p.parse_args()
+
+    try:
+        import jscheck
+    except Exception:
+        jscheck = None
+
+    files = list(args.files)
+    if args.glob:
+        root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        files += sorted(glob.glob(os.path.join(root, args.glob)))
+    if args.limit:
+        files = files[:args.limit]
+
+    done = skipped = failed = 0
+    for f in files:
+        name = os.path.basename(f)
+        html = io.open(f, encoding="utf-8", errors="replace").read()
+        # Idempotency: nothing to do if no template MACE shortLabel remains.
+        if 'shortLabel:"MACE"' not in html and "shortLabel:'MACE'" not in html:
+            skipped += 1
+            continue
+        new, rep = harmonize(html)
+        if not rep["changed"]:
+            skipped += 1
+            continue
+        maxk = max(rep["pooled_k"].values()) if rep["pooled_k"] else 0
+        if args.dry_run:
+            print(f"[DRY] {name}: {rep['relabeled']} outcomes -> {len(rep['pooled_k'])} keys, max k={maxk}")
+            done += 1
+            continue
+        io.open(f, "w", encoding="utf-8", newline="").write(new)
+        # jscheck gate: auto-revert on V8 parse failure
+        if jscheck is not None:
+            problems = jscheck.check(f)
+            if problems:
+                io.open(f, "w", encoding="utf-8", newline="").write(html)  # restore
+                print(f"[REVERT] {name}: jscheck failed -> {problems[0][1][:70]}")
+                failed += 1
+                continue
+        done += 1
+        if not args.quiet:
+            print(f"[OK] {name}: {rep['relabeled']} outcomes -> {len(rep['pooled_k'])} keys, max k={maxk}")
+
+    print(f"\n=== Harmonize summary ===")
+    print(f"{'planned' if args.dry_run else 'done'}={done}  skipped(idempotent/no-change)={skipped}  reverted(jscheck)={failed}")
+
+
+if __name__ == "__main__":
+    main()
+
+codex
+Defects found:
+
+- SELECTOR KEYED TO A FORM THE CORPUS MAY NOT USE: line 127.  
+  Exact input: `<script>const x={shortLabel: "MACE", title:"Death"};</script>`  
+  Consequence: the idempotency guard treats the file as already done and skips, leaving `shortLabel: "MACE"` unchanged.
+
+- SELECTOR KEYED TO A FORM THE CORPUS MAY NOT USE: line 85.  
+  Exact input: `<script>state={selectedOutcome:'MACE'}; x={shortLabel:"MACE", title:"Death"};</script>`  
+  Consequence: after relabeling removes the `MACE` outcome key, `selectedOutcome:'MACE'` still points at the old key.
+
+- STATUS CODE REPORTING THE WRAPPER rather than the work: line 147.  
+  Exact input: any file that reaches `jscheck.check(f)` and returns `problems`, e.g. `problems=[("x","SyntaxError")]`.  
+  Consequence: the file is reverted and `failed` increments, but the process still exits zero because failure only `continue`s.
+
+- a check that CANNOT FAIL: lines 110-113.  
+  Exact input: environment where `import jscheck` raises `ImportError`, plus any processed HTML file.  
+  Consequence: the advertised parse gate is silently disabled, so parse failures cannot block the run.
+
+No proven probe keyed to string a fix removes beyond the line-127 guard above.
+
+No proven idempotency guard satisfied by its own comment/marker.
+
+COULD NOT DETERMINE instrument reading a different copy; missing `jscheck.check` implementation.
+
+No proven CRLF-vs-LF text comparison.
+
+No merged-cell/off-by-one tabulation in this file.
+
+No proven zero-conflated-with-absent defect.
+
+COULD NOT DETERMINE negation-dropped parsing; missing `analyze_poolability.py`.
+tokens used
+12,520
+Defects found:
+
+- SELECTOR KEYED TO A FORM THE CORPUS MAY NOT USE: line 127.  
+  Exact input: `<script>const x={shortLabel: "MACE", title:"Death"};</script>`  
+  Consequence: the idempotency guard treats the file as already done and skips, leaving `shortLabel: "MACE"` unchanged.
+
+- SELECTOR KEYED TO A FORM THE CORPUS MAY NOT USE: line 85.  
+  Exact input: `<script>state={selectedOutcome:'MACE'}; x={shortLabel:"MACE", title:"Death"};</script>`  
+  Consequence: after relabeling removes the `MACE` outcome key, `selectedOutcome:'MACE'` still points at the old key.
+
+- STATUS CODE REPORTING THE WRAPPER rather than the work: line 147.  
+  Exact input: any file that reaches `jscheck.check(f)` and returns `problems`, e.g. `problems=[("x","SyntaxError")]`.  
+  Consequence: the file is reverted and `failed` increments, but the process still exits zero because failure only `continue`s.
+
+- a check that CANNOT FAIL: lines 110-113.  
+  Exact input: environment where `import jscheck` raises `ImportError`, plus any processed HTML file.  
+  Consequence: the advertised parse gate is silently disabled, so parse failures cannot block the run.
+
+No proven probe keyed to string a fix removes beyond the line-127 guard above.
+
+No proven idempotency guard satisfied by its own comment/marker.
+
+COULD NOT DETERMINE instrument reading a different copy; missing `jscheck.check` implementation.
+
+No proven CRLF-vs-LF text comparison.
+
+No merged-cell/off-by-one tabulation in this file.
+
+No proven zero-conflated-with-absent defect.
+
+COULD NOT DETERMINE negation-dropped parsing; missing `analyze_poolability.py`.

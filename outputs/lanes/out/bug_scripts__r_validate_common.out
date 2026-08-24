@@ -1,0 +1,216 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a0323b-648f-7a33-b5fc-7b2c9c8c6562
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/r_validate_common.py
+
+--- THE FILE, IN FULL ---
+"""Shared utilities for R-validation Python wrappers (P1-1, P1-2, P1-4, P1-5).
+
+Single source of truth for:
+  * RSCRIPT_EXE resolution (env → PATH → hardcoded fallback)
+  * Path-traversal stem guard
+  * Idempotency: SHA-256 sidecar (.input.sha256) — skip rerun when input
+    + R-script mtime haven't changed
+  * Concurrency: ProcessPoolExecutor (≤4 workers per lessons.md throttle rule)
+  * stderr persistence: <REVIEW>.error.log on non-zero exit + always log
+    non-empty stderr at WARN even on success
+  * Schema validation: minimal contract check on _index.json and R-output JSON
+"""
+from __future__ import annotations
+import concurrent.futures as _cf
+import hashlib
+import io
+import json
+import os
+import re
+import shutil
+import subprocess
+import sys
+from pathlib import Path
+from typing import Callable
+
+# P1-3 fix: only wrap stdout once; idempotent against multiple imports.
+if (sys.platform == "win32"
+    and hasattr(sys.stdout, "buffer")
+    and getattr(sys.stdout, "encoding", "").lower() != "utf-8"):
+    try:
+        sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+
+
+RSCRIPT_EXE = (
+    os.environ.get("RSCRIPT_EXE")
+    or shutil.which("Rscript")
+    or r"C:\Program Files\R\R-4.5.2\bin\Rscript.exe"
+)
+
+_STEM_OK = re.compile(r"^[A-Za-z0-9_.-]+$")
+
+
+def stem_safe(s) -> bool:
+    """P1-7: refuse path-traversal in review stems."""
+    return isinstance(s, str) and bool(_STEM_OK.match(s)) and ".." not in s
+
+
+def hash_input(payload: dict, r_script_path: Path) -> str:
+    """SHA-256 of (canonicalised input JSON || R-script mtime)."""
+    canon = json.dumps(payload, sort_keys=True, ensure_ascii=False).encode("utf-8")
+    mtime = str(int(r_script_path.stat().st_mtime)).encode("utf-8") if r_script_path.exists() else b"-"
+    return hashlib.sha256(canon + b"|" + mtime).hexdigest()
+
+
+def already_validated(out_json_path: Path, sha_sidecar: Path, expected_sha: str) -> bool:
+    """P1-1 idempotency: skip rerun when output exists, parses, AND sidecar matches."""
+    if not (out_json_path.exists() and sha_sidecar.exists()):
+        return False
+    try:
+        if sha_sidecar.read_text().strip() != expected_sha:
+            return False
+        json.loads(out_json_path.read_text(encoding="utf-8"))
+        return True
+    except Exception:
+        return False
+
+
+def write_sidecar(sha_sidecar: Path, expected_sha: str) -> None:
+    sha_sidecar.write_text(expected_sha, encoding="utf-8")
+
+
+def run_rscript_one(args: tuple) -> dict:
+    """Worker for the pool. args = (r_script, input_path, output_path,
+    error_log_path)."""
+    r_script, input_path, output_path, error_log_path = args
+    try:
+        result = subprocess.run(
+            [RSCRIPT_EXE, str(r_script), str(input_path), str(output_path)],
+            capture_output=True, text=True, encoding="utf-8", errors="replace",
+            timeout=120,
+        )
+    except subprocess.TimeoutExpired:
+        return {"ok": False, "exit": -1, "stderr": "timeout"}
+    except FileNotFoundError:
+        return {"ok": False, "exit": -2, "stderr": f"Rscript not found at {RSCRIPT_EXE}"}
+    # P1-4: persist stderr on any non-empty content
+    if result.stderr.strip():
+        error_log_path.write_text(result.stderr, encoding="utf-8")
+    return {"ok": result.returncode == 0 and output_path.exists(),
+            "exit": result.returncode, "stderr": result.stderr[:500]}
+
+
+def parallel_run(jobs: list, max_workers: int = 4, on_done: Callable | None = None) -> list:
+    """Run R subprocesses in parallel. jobs = list of (r_script, in, out, err).
+    P1-2: ProcessPoolExecutor with throttle ≤4 per lessons.md."""
+    results = []
+    workers = min(max_workers, max(1, (os.cpu_count() or 1) - 1), 4)
+    with _cf.ProcessPoolExecutor(max_workers=workers) as ex:
+        for r in ex.map(run_rscript_one, jobs):
+            results.append(r)
+            if on_done: on_done(r)
+    return results
+
+
+def validate_index_entry(entry: dict) -> bool:
+    """P1-5: minimal schema check on _index.json entries."""
+    return (isinstance(entry, dict)
+            and isinstance(entry.get("stem"), str)
+            and isinstance(entry.get("has_realData"), bool)
+            and stem_safe(entry["stem"]))
+
+
+def validate_r_output(doc: dict) -> bool:
+    """P1-5: minimal schema check on R wrapper output JSON."""
+    if not isinstance(doc, dict):
+        return False
+    if "fit_ok" not in doc or not isinstance(doc["fit_ok"], bool):
+        return False
+    if "engine" not in doc or not isinstance(doc["engine"], str):
+        return False
+    return True
+
+codex
+**Defects Found**
+
+- **STATUS CODE REPORTING THE WRAPPER rather than the work**: line 91. Exact input: Rscript exits `0` and writes `{}` to `output_path`; `run_rscript_one((r_script, input_path, output_path, error_log_path))` returns `ok: True`. Consequence: invalid R output can be reported as a successful validation.
+
+- **Instrument reading a DIFFERENT COPY than the one being changed**: line 80 via lines 100-101. Exact input on Windows: set `scripts.r_validate_common.RSCRIPT_EXE = r"F:\tmp\fake-rscript.cmd"` in the caller, then call `parallel_run(...)` without setting environment variable `RSCRIPT_EXE`. Consequence: spawned workers re-import the module and use the original import-time executable, not the caller-mutated binding.
+
+- **Idempotency guard satisfied by marker/time surrogate rather than work**: line 53. Exact input: same `payload`, valid existing `out_json_path`, sidecar containing the old expected SHA, then change `r_script_path` contents while preserving the same integer `st_mtime`. Consequence: `already_validated(...)` can skip rerun after the R script changed.
+
+- **Selector matches less than the stated condition**: line 89. Exact input: subprocess exits `1` with `stderr=""`. Consequence: no `<REVIEW>.error.log` is written despite the stated non-zero-exit persistence contract.
+
+**Shapes Not Proven Here**
+
+- Check that cannot fail: none proven.
+- Probe keyed to string a fix removes: none proven.
+- Idempotency guard satisfied by its own comment: none proven beyond the sidecar/mtime defect above.
+- Selector keyed to corpus form: COULD NOT DETERMINE; missing actual `_index.json` corpus.
+- CRLF/LF text comparison: none present.
+- Merged-cell/off-by-one tabulation: none present.
+- Zero conflated with absent: none proven.
+- Negation dropped: none present.
+tokens used
+12,734
+**Defects Found**
+
+- **STATUS CODE REPORTING THE WRAPPER rather than the work**: line 91. Exact input: Rscript exits `0` and writes `{}` to `output_path`; `run_rscript_one((r_script, input_path, output_path, error_log_path))` returns `ok: True`. Consequence: invalid R output can be reported as a successful validation.
+
+- **Instrument reading a DIFFERENT COPY than the one being changed**: line 80 via lines 100-101. Exact input on Windows: set `scripts.r_validate_common.RSCRIPT_EXE = r"F:\tmp\fake-rscript.cmd"` in the caller, then call `parallel_run(...)` without setting environment variable `RSCRIPT_EXE`. Consequence: spawned workers re-import the module and use the original import-time executable, not the caller-mutated binding.
+
+- **Idempotency guard satisfied by marker/time surrogate rather than work**: line 53. Exact input: same `payload`, valid existing `out_json_path`, sidecar containing the old expected SHA, then change `r_script_path` contents while preserving the same integer `st_mtime`. Consequence: `already_validated(...)` can skip rerun after the R script changed.
+
+- **Selector matches less than the stated condition**: line 89. Exact input: subprocess exits `1` with `stderr=""`. Consequence: no `<REVIEW>.error.log` is written despite the stated non-zero-exit persistence contract.
+
+**Shapes Not Proven Here**
+
+- Check that cannot fail: none proven.
+- Probe keyed to string a fix removes: none proven.
+- Idempotency guard satisfied by its own comment: none proven beyond the sidecar/mtime defect above.
+- Selector keyed to corpus form: COULD NOT DETERMINE; missing actual `_index.json` corpus.
+- CRLF/LF text comparison: none present.
+- Merged-cell/off-by-one tabulation: none present.
+- Zero conflated with absent: none proven.
+- Negation dropped: none present.

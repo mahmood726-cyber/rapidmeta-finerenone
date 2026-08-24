@@ -1,0 +1,136 @@
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/fix_newer_engine_cv_seed.py
+
+--- THE FILE, IN FULL ---
+"""Fix the hardcoded finerenone CV outcome taxonomy in newer-engine apps.
+
+The newer NMA engine seeds its outcome dropdown with a hardcoded CV class set
+["default","ACM","CVD","ACH","RENAL","RecurrentHF"] and labels the default
+outcome "CV Death or Worsening HF". On a non-CV topic (pediatric AD, NSCLC,
+ALS, ...) that shows phantom 0-count CV outcomes and a wrong default label,
+even though the real outcomes (EASI75/PFS/OS/...) are correctly in realData.
+
+Fix:
+  - seed -> ["default"] for ALL such apps (safe: genuinely-CV apps re-add their
+    classes from realData via the populateOutcomeSelector loop; non-CV apps
+    lose only the phantom entries)
+  - on NON-CV apps only (no CV-class shortLabel in realData), genericize the
+    CV default label + narrative so the default isn't labeled "CV Death or
+    Worsening HF"
+
+Idempotent, --dry-run, jscheck-gated auto-revert.
+"""
+from __future__ import annotations
+import argparse, glob, io, os, re, sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+SEED = '"default","ACM","CVD","ACH","RENAL","RecurrentHF"'
+SEED_FIXED = '"default"'
+# Precise CV-default strings to genericize on non-CV apps (dropdown label map,
+# narrative composite text, bare narrative label map, and the static <option>).
+NONCV_REPLACE = [
+    ('default:"CV Death or Worsening HF (default)"', 'default:"Primary outcome (default)"'),
+    ('default:"the primary composite endpoint (cardiovascular death or worsening heart failure)"',
+     'default:"the trial-registered primary outcome"'),
+    ('default:"CV Death or Worsening HF"', 'default:"Primary outcome"'),
+    ('<option value="default">CV Death or Worsening HF (default)</option>',
+     '<option value="default">Primary outcome (default)</option>'),
+]
+
+CV_CLASSES = {"ACM", "CVD", "ACH", "RENAL", "RecurrentHF"}
+
+
+def is_cv_app(html):
+    sls = set(re.findall(r'\{shortLabel:"([^"]+)",title:"', html))
+    return bool(sls & CV_CLASSES)
+
+
+def process(html):
+    if "_outcomeAvailabilityCount(" not in html or SEED not in html:
+        return html, "not-target"
+    new = html.replace(SEED, SEED_FIXED)
+    tag = "seed"
+    if not is_cv_app(new):
+        n = 0
+        for old, repl in NONCV_REPLACE:
+            if old in new:
+                new = new.replace(old, repl)
+                n += 1
+        tag += f"+delabel{n}"
+    else:
+        tag += "(cv-keep-labels)"
+    if new == html:
+        return html, "no-change"
+    return new, tag
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument("--glob", default="*_REVIEW.html")
+    args = ap.parse_args()
+    try:
+        import jscheck
+    except Exception:
+        jscheck = None
+    from collections import Counter
+    tags = Counter()
+    done = reverted = 0
+    for f in sorted(glob.glob(os.path.join(HERE, args.glob))):
+        if "_AUTO" in os.path.basename(f):
+            continue
+        html = io.open(f, encoding="utf-8", errors="replace").read()
+        new, tag = process(html)
+        if tag in ("not-target", "no-change"):
+            continue
+        tags[tag] += 1
+        if args.dry_run:
+            done += 1
+            continue
+        io.open(f, "w", encoding="utf-8", newline="").write(new)
+        if jscheck is not None and jscheck.check(f):
+            io.open(f, "w", encoding="utf-8", newline="").write(html)
+            reverted += 1
+            continue
+        done += 1
+    print(f"{'DRY-RUN' if args.dry_run else 'APPLIED'}  fixed={done} reverted={reverted}")
+    print("tags:", dict(tags))
+
+
+if __name__ == "__main__":
+    main()

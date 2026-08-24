@@ -1,0 +1,887 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a0324c-fa68-7703-9f25-4284d41cc499
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/registration_identity_gate.py
+
+--- THE FILE, IN FULL ---
+"""REGISTRATION IDENTITY -- does the registration actually name THIS trial?
+
+WHY THIS EXISTS
+    `identity_by_registration_gate` checks that every pooled trial carries a
+    registration and that no two rows share one. It PASSED DOAC_CANCER_VTE's row
+    `NCT02583191 = 'SELECT-D'`. That registration is CONKO-011 / AIO-SUP-0115,
+    sponsored by AIO-Studien-gGmbH in Germany, enrolment 246, whose registered
+    primary outcome is patient-reported treatment satisfaction measured to four
+    weeks. It is not SELECT-D; SELECT-D is ISRCTN86712308 and is not on
+    ClinicalTrials.gov at all.
+
+    The existing gate closes the LABEL -> IDENTITY direction, which is the
+    PARACHUTE-HF/ANSWER-HF defect. It leaves REGISTRATION -> IDENTITY wide open,
+    and that direction fails toward COMFORT: a wrong key looks exactly like a
+    right one to any check that only asks whether a key is present and unique.
+
+WHAT IT COMPARES, AND WHY THAT SIGNAL
+    The obvious check -- does the trial's NAME appear in the registration's
+    title? -- DOES NOT WORK, and it is worth recording why rather than letting
+    someone rediscover it. Hokusai VTE-Cancer's registration has no acronym and
+    its brief title is "Cancer Venous Thromboembolism (VTE)". The name appears
+    nowhere in its own record. A name-match check would flag a correct row.
+
+    What DOES discriminate is arithmetic the registry states and the object
+    states independently: THE NUMBER OF PARTICIPANTS ANALYSED against the
+    ENROLMENT the registration records.
+
+        Hokusai      522 + 524 = 1046   registered 1046    exact
+        CARAVAGGIO   576 + 579 = 1155   registered 1170    1.3% below, analysed < randomised
+        SELECT-D row 101 + 102 =  203   registered  246   17.5% below   <-- the wrong key
+
+    A row keyed to the wrong registration is a row whose two halves were sized by
+    different trials, so this fires on exactly the defect it is named for.
+
+WHAT THIS DOES NOT ESTABLISH -- written in advance, because that is the rule here
+    - NOT that a row inside the tolerance is correctly keyed. Two trials of
+      similar size would pass. This is a screen, not a proof.
+    - NOT that a row outside it is wrongly keyed. Analysed is legitimately below
+      randomised, sometimes far below: a per-protocol population, an
+      efficacy-cutoff population, a trial reporting one of three arms. THAT IS
+      WHY THE VERDICT IS `REVIEW`, NOT `FAIL` -- this gate hands a human a short
+      list and refuses to convict on arithmetic alone.
+    - NOTHING AT ALL without a stored enrolment. A row with no
+      `registration_enrolment` is UNMEASURED and says so; it is never a pass.
+      An absent field must not read as a clean one.
+
+    The tolerance is deliberately loose. A tight one would convict every
+    per-protocol analysis in the corpus and be switched off within a week, which
+    is how a check that fails toward alarm dies -- and this file would rather be
+    quiet and trusted than loud and ignored.
+
+USAGE
+    python scripts/registration_identity_gate.py <object.json> [...]
+    python scripts/registration_identity_gate.py --selftest
+    python scripts/registration_identity_gate.py --fetch <object.json>
+        --fetch fills registration_enrolment from ClinicalTrials.gov and writes
+        it back, so every later run is offline.
+"""
+from __future__ import annotations
+import io
+import json
+import os
+import sys
+
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+# Below this ratio of analysed-to-registered, the row is listed for a human.
+# 0.75 keeps CARAVAGGIO (0.987) and every ordinary per-protocol shortfall quiet
+# while listing the SELECT-D row (0.825)... which it does NOT. See _THRESHOLD_NOTE.
+_THRESHOLD_NOTE = """
+    THE FIRST THRESHOLD I PICKED WAS WRONG AND THE SELFTEST CAUGHT IT.
+    0.75 was chosen to "keep per-protocol analyses quiet". The SELECT-D row sits
+    at 0.825, ABOVE it, so the one real defect this gate was built for would have
+    passed silently -- a gate that cannot catch its own founding case. Raised to
+    0.90, which lists SELECT-D (0.825) and keeps CARAVAGGIO (0.987) and Hokusai
+    (1.000) quiet. Recorded rather than quietly corrected, because picking a
+    threshold that excludes your own fixture is the exact shape of a check built
+    to pass.
+"""
+MIN_ANALYSED_RATIO = 0.90
+
+
+def _analysed(trial, oid):
+    """Participants analysed on this trial, from arms or from the outcome cell."""
+    bo = (trial.get("by_outcome") or {}).get(oid) or {}
+    an = bo.get("analysed") or {}
+    # BOTH VOCABULARIES. The v1 objects say {"treatment", "control"}; the
+    # extractor schema says {"intervention", "control"}. The first cut of this
+    # read only the second pair, so on a v1 object it summed the control arm
+    # alone and returned HALF THE TRIAL -- and thirteen correctly-keyed rows came
+    # back at 46-50%, which would have made this gate noise on its first run.
+    # arm_identity_gate carries a comment about hitting exactly this, which I had
+    # read. Knowing a rule does not apply it; only a check does, so the selftest
+    # below now carries a treatment/control row.
+    tot = 0.0
+    for key in ("intervention", "treatment", "control", "comparator"):
+        v = an.get(key)
+        if isinstance(v, (int, float)):
+            tot += float(v)
+    if tot > 0:
+        return tot
+    for a in trial.get("arms") or []:
+        v = a.get("participants")
+        if isinstance(v, (int, float)):
+            tot += float(v)
+    return tot or None
+
+
+def check(obj):
+    trials = ((obj.get("inputs") or {}).get("trials")) or []
+    results = ((obj.get("results") or {}).get("by_outcome")) or {}
+    if not trials or not results:
+        return "UNCHECKABLE", ["object carries no trials or no pooled outcome"]
+    oid = sorted(results)[0]
+
+    notes, listed, unmeasured, checked = [], [], [], 0
+    for t in trials:
+        name = t.get("name") or t.get("nct") or "?"
+        reg = t.get("nct") or ""
+        # A conflict already RECORDED on the object is the property met by
+        # declaration: the object is not hiding it, and a second alarm about a
+        # documented fact is noise. It is still reported, distinctly.
+        if t.get("identity_conflict"):
+            notes.append("  %-22s %-13s DECLARED   an identity conflict is recorded "
+                         "on this row" % (name[:22], reg))
+            continue
+        enrolled = t.get("registration_enrolment")
+        analysed = _analysed(t, oid)
+        if not isinstance(enrolled, (int, float)) or not enrolled:
+            unmeasured.append(name)
+            notes.append("  %-22s %-13s UNMEASURED no registration_enrolment stored "
+                         "-- run --fetch. This is not a pass" % (name[:22], reg))
+            continue
+        if not analysed:
+            unmeasured.append(name)
+            notes.append("  %-22s %-13s UNMEASURED no analysed count on this row"
+                         % (name[:22], reg))
+            continue
+        checked += 1
+        ratio = analysed / float(enrolled)
+        # A MULTI-ARM TRIAL POOLED TWO ARMS AT A TIME IS NOT A SHORTFALL.
+        # RE-LY registers three arms and this corpus pools dabigatran 150 against
+        # warfarin; ENGAGE registers three and it pools high-dose edoxaban against
+        # warfarin. Both land near two thirds and both are correct. The arm count
+        # is STATED rather than used to adjust the denominator: scaling by it would
+        # be guessing which arms were pooled and how big they were.
+        arms_registered = t.get("registration_arm_count")
+        arms_pooled = len([a for a in (t.get("arms") or [])
+                           if a.get("role") in ("treatment", "intervention", "control",
+                                                "comparator")])
+        multiarm = (isinstance(arms_registered, int) and arms_pooled
+                    and arms_registered > arms_pooled)
+        if ratio < MIN_ANALYSED_RATIO:
+            why = ("" if not multiarm else
+                   "  -- but the registration has %d arms and this pool takes %d, "
+                   "which accounts for a shortfall of about this size"
+                   % (arms_registered, arms_pooled))
+            listed.append((name, reg, analysed, enrolled, ratio))
+            notes.append("  %-22s %-13s REVIEW     analysed %d against registered %d "
+                         "= %.1f%%%s" % (name[:22], reg, analysed, enrolled,
+                                         100 * ratio, why))
+        else:
+            notes.append("  %-22s %-13s ok         analysed %d against registered %d "
+                         "= %.1f%%" % (name[:22], reg, analysed, enrolled, 100 * ratio))
+
+    if not checked and not listed:
+        notes.append("-> UNMEASURED. No row could be compared, so nothing is "
+                     "established. This is NOT a pass.")
+        return "UNCHECKABLE", notes
+    if listed:
+        notes.append("-> REVIEW: %d row(s) analyse far fewer participants than their "
+                     "registration records. That is legitimate for a per-protocol or "
+                     "efficacy-cutoff population and it is also what a WRONG "
+                     "REGISTRATION looks like. A human decides; this gate does not "
+                     "convict on arithmetic." % len(listed))
+        return "REVIEW", notes
+    notes.append("-> PASS: every checked row's analysed count is consistent with its "
+                 "registration's enrolment. This screens the key, not the trial.")
+    return "PASS", notes
+
+
+# ------------------------------------------------------------------ selftest
+def selftest() -> int:
+    ok = True
+
+    def obj(rows):
+        return {"inputs": {"trials": rows},
+                "results": {"by_outcome": {"primary": {"k": len(rows)}}}}
+
+    def row(name, nct, tn, cn, enrolled, conflict=None):
+        r = {"name": name, "nct": nct,
+             "arms": [{"role": "treatment", "participants": tn},
+                      {"role": "control", "participants": cn}],
+             "by_outcome": {"primary": {}}}
+        if enrolled is not None:
+            r["registration_enrolment"] = enrolled
+        if conflict:
+            r["identity_conflict"] = conflict
+        return r
+
+    def row_v1(name, nct, tn, cn, enrolled):
+        """A v1-shaped row: analysed keyed treatment/control, arms unpopulated.
+
+        This is the shape that broke the first cut. alirocumab's rows carry
+        participants: None on the arms and the real numbers only under analysed,
+        so a reader that misses this key has nothing to fall back on.
+        """
+        return {"name": name, "nct": nct,
+                "arms": [{"role": "treatment", "participants": None},
+                         {"role": "control", "participants": None}],
+                "by_outcome": {"primary": {"analysed": {"treatment": tn,
+                                                        "control": cn}}},
+                "registration_enrolment": enrolled}
+
+    HOKUSAI = row("HOKUSAI VTE-Cancer", "NCT02073682", 522, 524, 1046)
+    CARAVAGGIO = row("CARAVAGGIO", "NCT03045406", 576, 579, 1170)
+    SELECTD = row("SELECT-D", "NCT02583191", 101, 102, 246)
+
+    cases = [
+        ("POSITIVE the founding case: SELECT-D's data under CONKO-011's key",
+         obj([HOKUSAI, CARAVAGGIO, SELECTD]), "REVIEW"),
+        ("NEGATIVE the same object with only the correctly-keyed rows",
+         obj([HOKUSAI, CARAVAGGIO]), "PASS"),
+        ("NEGATIVE an exact-enrolment row alone",
+         obj([HOKUSAI]), "PASS"),
+        ("NEGATIVE analysed just below randomised is ordinary, not suspicious",
+         obj([CARAVAGGIO]), "PASS"),
+        ("NEGATIVE a v1-shaped row -- analysed keyed treatment/control, arms empty",
+         obj([row_v1("PARADIGM-HF", "NCT01035255", 4187, 4212, 8442)]), "PASS"),
+        ("NEGATIVE a v1 row whose arms carry no participants at all",
+         obj([row_v1("Alirocumab LONG TERM", "NCT01507831", 1530, 780, 2341)]), "PASS"),
+        ("UNMEASURED no enrolment stored is not a pass",
+         obj([row("X", "NCT1", 100, 100, None)]), "UNCHECKABLE"),
+        ("DECLARED a recorded conflict is not re-alarmed, and does not pass either",
+         obj([row("Y", "NCT2", 101, 102, 246, conflict="recorded")]), "UNCHECKABLE"),
+    ]
+    for label, o, want in cases:
+        v, notes = check(o)
+        good = v == want
+        ok &= good
+        print("  %-62s -> %-12s (want %-12s) %s"
+              % (label, v, want, "correct" if good else "WRONG"))
+        if not good:
+            for n in notes:
+                print("        " + n)
+
+    # THE THRESHOLD MUST CONTAIN ITS OWN FOUNDING CASE.
+    ratio = 203 / 246.0
+    inside = ratio < MIN_ANALYSED_RATIO
+    ok &= inside
+    print("\n  threshold %.2f vs the founding case's ratio %.3f -> %s"
+          % (MIN_ANALYSED_RATIO, ratio,
+             "the case is caught" if inside else "WRONG: the gate cannot catch the "
+             "defect it was built for"))
+    print(_THRESHOLD_NOTE.rstrip())
+
+    print("\nWHAT A FAILURE WOULD LOOK LIKE: the SELECT-D row passing -- which is what "
+          "identity_by_registration_gate does today, because it asks whether a "
+          "registration is present and unique and never whether it is the right one.")
+    print("WHAT THIS GATE STILL CANNOT SEE: a wrong registration of the SAME SIZE. It "
+          "screens the key; it does not prove it.")
+    print("-> SELFTEST PASS" if ok else "-> SELFTEST FAILED")
+    return 0 if ok else 1
+
+
+def fetch_into(path):
+    """Fill registration_enrolment from ClinicalTrials.gov and write it back."""
+    import urllib.request
+    obj = json.load(open(path, encoding="utf-8"))
+    n = 0
+    for t in (obj.get("inputs") or {}).get("trials") or []:
+        nct = t.get("nct") or ""
+        if not nct.upper().startswith("NCT") or t.get("registration_enrolment"):
+            continue
+        url = ("https://clinicaltrials.gov/api/v2/studies/%s"
+               "?fields=protocolSection.designModule,"
+               "protocolSection.identificationModule,"
+               "protocolSection.armsInterventionsModule" % nct)
+        req = urllib.request.Request(url, headers={"User-Agent": "rapidmeta-registry-read"})
+        with urllib.request.urlopen(req, timeout=60) as r:
+            d = json.loads(r.read().decode("utf-8"))
+        ps = d.get("protocolSection") or {}
+        cnt = ((ps.get("designModule") or {}).get("enrollmentInfo") or {}).get("count")
+        idm = ps.get("identificationModule") or {}
+        arms = ((ps.get("armsInterventionsModule") or {}).get("armGroups") or [])
+        if cnt:
+            t["registration_enrolment"] = cnt
+            if arms:
+                t["registration_arm_count"] = len(arms)
+            t["registration_brief_title"] = idm.get("briefTitle")
+            t["registration_org_study_id"] = (idm.get("orgStudyIdInfo") or {}).get("id")
+            t["registration_read_utc"] = "2026-08-18"
+            n += 1
+    json.dump(obj, open(path, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+    print("filled registration_enrolment on %d trial(s) in %s" % (n, path))
+    return 0
+
+
+def main() -> int:
+    if len(sys.argv) < 2 or sys.argv[1] == "--selftest":
+        return selftest()
+    if sys.argv[1] == "--fetch":
+        rc = 0
+        for p in sys.argv[2:]:
+            rc |= fetch_into(p)
+        return rc
+    worst = 0
+    for p in sys.argv[1:]:
+        if not os.path.exists(p):
+            print("registration_identity: %s does not exist. NOT RUN -- not a pass." % p,
+                  file=sys.stderr)
+            worst = max(worst, 2)
+            continue
+        v, notes = check(json.load(open(p, encoding="utf-8")))
+        print("%s" % os.path.basename(p))
+        for n in notes:
+            print(n)
+        print("  -> %s" % v)
+        worst = max(worst, {"PASS": 0, "REVIEW": 1, "UNCHECKABLE": 2}.get(v, 2))
+    return worst
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+
+codex
+I’m going straight at the requested defect shapes and using the pasted module as the record. I’ll only name a defect where there is a concrete input that demonstrates it.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Get-Content -Path 'F:\\E156\\rewrite-workbook.txt' -TotalCount 20" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Get-Content -Path 'F:\\ProjectIndex\\INDEX.md' -TotalCount 20" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "if (Test-Path 'scripts/registration_identity_gate.py') { "'$i=1; Get-Content '"'scripts/registration_identity_gate.py' | ForEach-Object { '{0,4}: {1}' -f "'$i, $_; $i++ } } else { '"'missing' }" in F:\rapidmeta-ssot-shell
+ succeeded in 622ms:
+E156 REWRITE WORKBOOK
+sentinel:skip-file
+sentinel:claim-language-allow
+(Sentinel markers above:
+ - sentinel:skip-file: this workbook intentionally contains C:\Users\... PATH:
+   lines pointing to each project's local source directory â€” they're metadata,
+   not code. The marker keeps Sentinel from emitting ~16 P0 hardcoded-path
+   BLOCKs every push.
+ - sentinel:claim-language-allow: CURRENT BODY entries are the AI-drafted
+   summaries that students rewrite into hedged language â€” flagging overclaim
+   words IN those drafts is the whole pedagogical point, not a defect.
+   File-scope marker here suppresses the ~1293 claim-language WARNs on the
+   CURRENT BODY entries; the YOUR REWRITE entries are where the hedging
+   discipline matters and remains lintable in the rendered student board.)
+
+DENOMINATOR CONVENTION (added 2026-05-06 after review-findings P1-5):
+  Each entry header is `[N/total]` where N = ordinal insertion index and
+  `total` = current portfolio size as of the most recent reconcile sweep.
+  Older entries are back-rewritten on milestone boundaries (rather than
+  preserving their insertion-time denominator) to keep
+
+ succeeded in 614ms:
+<!-- sentinel:skip-file - portfolio registry; absolute paths ARE the data -->
+# C: Drive Project Index
+> **Last updated**: 2026-05-14 (C:\HTML apps focused repair batch continued: hub shell launch fix, static contracts across ten HTML app repos, NMA/living-meta/nma-dose-response landing and asset-link repairs, and NMA doc hardcoded-path cleanup. Prior SheafNMA v0.2.0, D-drive legacy smoke-contract continuation, CardioOracle lifecycle status freeze, C-drive model/project smoke-contract continuation, mahmood789 consolidation, Sentinel/Overmind JSONL and verification repair, C-drive reproducibility audit continuation, C-drive verification repair, D-drive repair batch, superapp, C-drive sweep, home-folder hardening, Trial Truthfulness Atlas, and portfolio notes retained below.)
+
+### C:\HTML apps focused repair batch (2026-05-14)
+> - `C:\HTML apps\hub\`: added a launchable `index.html` shell and static contract tests for required registry/runtime wiring; fixed `app.js` local `file://` launch resolution so the hub opened from `hub\index.html` links sibling apps from the parent HTML-apps directory instead of nesting paths under `hub`. Verification: `pytest -q -p no:cacheprovider` -> `3 passed`; `node --check app.js && node --check projects.js` -> PASS; headless Chrome smoke on `file:///mnt/c/HTML%20apps/hub/index.html` confirmed the page title and sibling app links. GitHub pushed: `mahmood726-cyber/hub` main `c1a6725`.
+> - `C:\HTML apps\evidence-board\`, `C:\HTML apps\focus-studio\`, `C:\HTML apps\kanban-lab\`: added pytest-visible static app shell contracts covering title/description, localStorage persistence hooks, key controls, and absence of unresolved templates or hardcoded local drive paths; added repo `.gitignore` entries for Python caches and `PROGRESS.md`. Verification: each `pytest -q -p no:cacheprovider` -> `2 passed` with the existing pytest `cache_dir` warning; scoped `git diff --check` -> PASS. GitHub pushed: `evidence-board` master `9a87c8b`, `focus-studio` master `0fa728b`, `kanban-lab` master `81cad38`.
+> - `C:\HTML apps\nma-pro-v2\`: fixed the landing page's broken app links from absent v6/v7 asset filenames to the current `e156-submission/assets/nma-pro-v8.0.html`, added static link-resolution contracts, and removed Sentinel P0 hardcoded local OneDrive paths from legacy docs. Verification: `pytest -q -p no:cacheprovider tests/test_smoke.py tests/test_static_links.py` -> `3 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=1 INFO=302` (pre-existing tracked autogen warning plus HTML a11y INFO). GitHub pushed: master `a2834e7` for the link fix and master `a74e385` for the P0 doc cleanup.
+> - `C:\HTML apps\IPD-Meta-Pro\` and `C:\HTML apps\Truthcert1\`: added static link-resolution contracts for landing-page local assets and canonical app entrypoints. Verification: `IPD-Meta-Pro` `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; `Truthcert1` same command -> `2 passed` with existing pytest `cache_dir` warning. GitHub pushed: `IPD-Meta-Pro` master `b26ee09`, `Truthcert1` master `81eddd3`.
+> - `C:\HTML apps\living-meta\`: repaired landing-page validation links that pointed to a missing HTML asset and an out-of-repo sibling path; linked the existing validation and limitations docs instead, and added a static link-resolution contract. Verification: `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=8` (pre-existing HTML a11y INFO). GitHub pushed: master `c3c8a9b`.
+> - `C:\HTML apps\Pairwiseai\`: added a static landing-page contract covering local link resolution, absence of unresolved templates/local drive paths, and the key app entrypoints under `e156-submission/assets`. Verification: `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=1731` (pre-existing HTML a11y INFO). GitHub pushed: master `2ade493`.
+> - `C:\HTML apps\nma-dose-response-app\`: pushed the existing smoke-blocker commit and added an E156 asset-bundle repair so `e156-submission\assets\index*.html` resolves its JS runtime dependencies from inside the assets folder; added a static link-resolution contract covering root and E156 app entrypoints. Verification: `pytest -q -p no:cacheprovider tests/test_smoke.py tests/test_static_links.py` -> `4 passed` with the existing pytest `cache_dir` warning; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=442` (pre-existing HTML a11y INFO). GitHub pushed: master `e95fae0` and `96594b6`.
+> - Push gate: Windows Git credential path succeeded after WSL Git lacked HTTPS credentials. Sentinel pre-push/manual scan verdicts were BLOCK=0; evidence-board INFO=18, focus-studio INFO=10, kanban-lab INFO=10, living-meta INFO=8, Pairwiseai INFO=1731, nma-dose-response-app INFO=442 (pre-existing P2 HTML accessibility notes); hub push emitted no Sentinel findings.
+> - Existing unrelated dirty files were left unstaged in these repos, mainly protocol/license/doc edits and untracked `paper\` outputs in the three app repos, plus pre-existing hub metadata/submission/style edits.
+
+### SheafNMA (2026-05-12; v0.2.0 real-NMA-corpus validation + 36-cell Ã— 1000-rep simulation + methods paper draft)
+> - `C:\Models\SheafNMA\` â€” cellular-sheaf inconsistency localization for network meta-analysis. v0.1.0 (2026-04-07) was math + single-file HTML dashboard + E156 #153 micro-paper on a synthetic 12-contrast network. v0.2.0 refactored the 457-LOC `generate_figures.py` into a `sheafnma/` package (`core`, `io`, `simulate`, `comparators`, `r_bridge`), validated on 13 R-netmeta built-in NMAs, and shipped a methods-paper draft for Research Synthesis Methods.
+> - Method: precision-weighted coboundary `F[e, treat1] = -1/SE_e, F[e, treat2] = +1/SE_e`; sheaf Laplacian `L = Fáµ€F` (symmetric PSD); WLS-solve node estimates with node 0 anchored; per-edge residuals `r_e = dÌƒ_e âˆ’ (F x*)_e` localize inconsistency; **Global Inconsistency Index** `GII = Î£ rÂ²` is the global statistic. One algebraic object yields both global + per-edge â€” complements (not replaces) node-splitting.
+> - Real-corpus headline: across **13 R-netmeta built-in NMAs** (Senn 2013 diabetes, Dias smokingcessation, Dong 2013 thrombolytics, Linde 2015/2016 acupuncture, Salanti antimanic, Baker, Dogliotti, Franchini, Gurusamy, Stowe, Woods, dietaryfat, parkinson) the global design-by-treatment Ï‡Â² (Higgins 2012) failed to reject in all 13. **SheafNMA flagged â‰¥1 localized inconsistency edge in 5 of those 13 (38.5%)** at the Youden-frozen threshold of **2.6912** â€” networks that look globally consistent harbor at least one inconsistent edge the global test misses.
+> - Simulation rigor: 36-cell grid (n_treatments âˆˆ {4,6,8} Ã— n_studies_per_edge âˆˆ {3,5,10} Ã— Ï„_inc âˆˆ {0,0.2,0.5,1.0}) Ã— **1000 replications per cell**, held-out training cell at (6,5,0.5) for Youden's-J threshold selection (frozen before evaluating remaining 35 cells). Type-I error at Ï„_inc=0 was **0.000 across all cells**. Mean per-edge sensitivity 0.981 / specificity 0.945 at Ï„_inc=0.5.
+
+ succeeded in 1697ms:
+   1: """REGISTRATION IDENTITY -- does the registration actually name THIS trial?
+   2: 
+   3: WHY THIS EXISTS
+   4:     `identity_by_registration_gate` checks that every pooled trial carries a
+   5:     registration and that no two rows share one. It PASSED DOAC_CANCER_VTE's row
+   6:     `NCT02583191 = 'SELECT-D'`. That registration is CONKO-011 / AIO-SUP-0115,
+   7:     sponsored by AIO-Studien-gGmbH in Germany, enrolment 246, whose registered
+   8:     primary outcome is patient-reported treatment satisfaction measured to four
+   9:     weeks. It is not SELECT-D; SELECT-D is ISRCTN86712308 and is not on
+  10:     ClinicalTrials.gov at all.
+  11: 
+  12:     The existing gate closes the LABEL -> IDENTITY direction, which is the
+  13:     PARACHUTE-HF/ANSWER-HF defect. It leaves REGISTRATION -> IDENTITY wide open,
+  14:     and that direction fails toward COMFORT: a wrong key looks exactly like a
+  15:     right one to any check that only asks whether a key is present and unique.
+  16: 
+  17: WHAT IT COMPARES, AND WHY THAT SIGNAL
+  18:     The obvious check -- does the trial's NAME appear in the registration's
+  19:     title? -- DOES NOT WORK, and it is worth recording why rather than letting
+  20:     someone rediscover it. Hokusai VTE-Cancer's registration has no acronym and
+  21:     its brief title is "Cancer Venous Thromboembolism (VTE)". The name appears
+  22:     nowhere in its own record. A name-match check would flag a correct row.
+  23: 
+  24:     What DOES discriminate is arithmetic the registry states and the object
+  25:     states independently: THE NUMBER OF PARTICIPANTS ANALYSED against the
+  26:     ENROLMENT the registration records.
+  27: 
+  28:         Hokusai      522 + 524 = 1046   registered 1046    exact
+  29:         CARAVAGGIO   576 + 579 = 1155   registered 1170    1.3% below, analysed < randomised
+  30:         SELECT-D row 101 + 102 =  203   registered  246   17.5% below   <-- the wrong key
+  31: 
+  32:     A row keyed to the wrong registration is a row whose two halves were sized by
+  33:     different trials, so this fires on exactly the defect it is named for.
+  34: 
+  35: WHAT THIS DOES NOT ESTABLISH -- written in advance, because that is the rule here
+  36:     - NOT that a row inside the tolerance is correctly keyed. Two trials of
+  37:       similar size would pass. This is a screen, not a proof.
+  38:     - NOT that a row outside it is wrongly keyed. Analysed is legitimately below
+  39:       randomised, sometimes far below: a per-protocol population, an
+  40:       efficacy-cutoff population, a trial reporting one of three arms. THAT IS
+  41:       WHY THE VERDICT IS `REVIEW`, NOT `FAIL` -- this gate hands a human a short
+  42:       list and refuses to convict on arithmetic alone.
+  43:     - NOTHING AT ALL without a stored enrolment. A row with no
+  44:       `registration_enrolment` is UNMEASURED and says so; it is never a pass.
+  45:       An absent field must not read as a clean one.
+  46: 
+  47:     The tolerance is deliberately loose. A tight one would convict every
+  48:     per-protocol analysis in the corpus and be switched off within a week, which
+  49:     is how a check that fails toward alarm dies -- and this file would rather be
+  50:     quiet and trusted than loud and ignored.
+  51: 
+  52: USAGE
+  53:     python scripts/registration_identity_gate.py <object.json> [...]
+  54:     python scripts/registration_identity_gate.py --selftest
+  55:     python scripts/registration_identity_gate.py --fetch <object.json>
+  56:         --fetch fills registration_enrolment from ClinicalTrials.gov and writes
+  57:         it back, so every later run is offline.
+  58: """
+  59: from __future__ import annotations
+  60: import io
+  61: import json
+  62: import os
+  63: import sys
+  64: 
+  65: if __name__ == "__main__":
+  66:     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+  67: 
+  68: # Below this ratio of analysed-to-registered, the row is listed for a human.
+  69: # 0.75 keeps CARAVAGGIO (0.987) and every ordinary per-protocol shortfall quiet
+  70: # while listing the SELECT-D row (0.825)... which it does NOT. See _THRESHOLD_NOTE.
+  71: _THRESHOLD_NOTE = """
+  72:     THE FIRST THRESHOLD I PICKED WAS WRONG AND THE SELFTEST CAUGHT IT.
+  73:     0.75 was chosen to "keep per-protocol analyses quiet". The SELECT-D row sits
+  74:     at 0.825, ABOVE it, so the one real defect this gate was built for would have
+  75:     passed silently -- a gate that cannot catch its own founding case. Raised to
+  76:     0.90, which lists SELECT-D (0.825) and keeps CARAVAGGIO (0.987) and Hokusai
+  77:     (1.000) quiet. Recorded rather than quietly corrected, because picking a
+  78:     threshold that excludes your own fixture is the exact shape of a check built
+  79:     to pass.
+  80: """
+  81: MIN_ANALYSED_RATIO = 0.90
+  82: 
+  83: 
+  84: def _analysed(trial, oid):
+  85:     """Participants analysed on this trial, from arms or from the outcome cell."""
+  86:     bo = (trial.get("by_outcome") or {}).get(oid) or {}
+  87:     an = bo.get("analysed") or {}
+  88:     # BOTH VOCABULARIES. The v1 objects say {"treatment", "control"}; the
+  89:     # extractor schema says {"intervention", "control"}. The first cut of this
+  90:     # read only the second pair, so on a v1 object it summed the control arm
+  91:     # alone and returned HALF THE TRIAL -- and thirteen correctly-keyed rows came
+  92:     # back at 46-50%, which would have made this gate noise on its first run.
+  93:     # arm_identity_gate carries a comment about hitting exactly this, which I had
+  94:     # read. Knowing a rule does not apply it; only a check does, so the selftest
+  95:     # below now carries a treatment/control row.
+  96:     tot = 0.0
+  97:     for key in ("intervention", "treatment", "control", "comparator"):
+  98:         v = an.get(key)
+  99:         if isinstance(v, (int, float)):
+ 100:             tot += float(v)
+ 101:     if tot > 0:
+ 102:         return tot
+ 103:     for a in trial.get("arms") or []:
+ 104:         v = a.get("participants")
+ 105:         if isinstance(v, (int, float)):
+ 106:             tot += float(v)
+ 107:     return tot or None
+ 108: 
+ 109: 
+ 110: def check(obj):
+ 111:     trials = ((obj.get("inputs") or {}).get("trials")) or []
+ 112:     results = ((obj.get("results") or {}).get("by_outcome")) or {}
+ 113:     if not trials or not results:
+ 114:         return "UNCHECKABLE", ["object carries no trials or no pooled outcome"]
+ 115:     oid = sorted(results)[0]
+ 116: 
+ 117:     notes, listed, unmeasured, checked = [], [], [], 0
+ 118:     for t in trials:
+ 119:         name = t.get("name") or t.get("nct") or "?"
+ 120:         reg = t.get("nct") or ""
+ 121:         # A conflict already RECORDED on the object is the property met by
+ 122:         # declaration: the object is not hiding it, and a second alarm about a
+ 123:         # documented fact is noise. It is still reported, distinctly.
+ 124:         if t.get("identity_conflict"):
+ 125:             notes.append("  %-22s %-13s DECLARED   an identity conflict is recorded "
+ 126:                          "on this row" % (name[:22], reg))
+ 127:             continue
+ 128:         enrolled = t.get("registration_enrolment")
+ 129:         analysed = _analysed(t, oid)
+ 130:         if not isinstance(enrolled, (int, float)) or not enrolled:
+ 131:             unmeasured.append(name)
+ 132:             notes.append("  %-22s %-13s UNMEASURED no registration_enrolment stored "
+ 133:                          "-- run --fetch. This is not a pass" % (name[:22], reg))
+ 134:             continue
+ 135:         if not analysed:
+ 136:             unmeasured.append(name)
+ 137:             notes.append("  %-22s %-13s UNMEASURED no analysed count on this row"
+ 138:                          % (name[:22], reg))
+ 139:             continue
+ 140:         checked += 1
+ 141:         ratio = analysed / float(enrolled)
+ 142:         # A MULTI-ARM TRIAL POOLED TWO ARMS AT A TIME IS NOT A SHORTFALL.
+ 143:         # RE-LY registers three arms and this corpus pools dabigatran 150 against
+ 144:         # warfarin; ENGAGE registers three and it pools high-dose edoxaban against
+ 145:         # warfarin. Both land near two thirds and both are correct. The arm count
+ 146:         # is STATED rather than used to adjust the denominator: scaling by it would
+ 147:         # be guessing which arms were pooled and how big they were.
+ 148:         arms_registered = t.get("registration_arm_count")
+ 149:         arms_pooled = len([a for a in (t.get("arms") or [])
+ 150:                            if a.get("role") in ("treatment", "intervention", "control",
+ 151:                                                 "comparator")])
+ 152:         multiarm = (isinstance(arms_registered, int) and arms_pooled
+ 153:                     and arms_registered > arms_pooled)
+ 154:         if ratio < MIN_ANALYSED_RATIO:
+ 155:             why = ("" if not multiarm else
+ 156:                    "  -- but the registration has %d arms and this pool takes %d, "
+ 157:                    "which accounts for a shortfall of about this size"
+ 158:                    % (arms_registered, arms_pooled))
+ 159:             listed.append((name, reg, analysed, enrolled, ratio))
+ 160:             notes.append("  %-22s %-13s REVIEW     analysed %d against registered %d "
+ 161:                          "= %.1f%%%s" % (name[:22], reg, analysed, enrolled,
+ 162:                                          100 * ratio, why))
+ 163:         else:
+ 164:             notes.append("  %-22s %-13s ok         analysed %d against registered %d "
+ 165:                          "= %.1f%%" % (name[:22], reg, analysed, enrolled, 100 * ratio))
+ 166: 
+ 167:     if not checked and not listed:
+ 168:         notes.append("-> UNMEASURED. No row could be compared, so nothing is "
+ 169:                      "established. This is NOT a pass.")
+ 170:         return "UNCHECKABLE", notes
+ 171:     if listed:
+ 172:         notes.append("-> REVIEW: %d row(s) analyse far fewer participants than their "
+ 173:                      "registration records. That is legitimate for a per-protocol or "
+ 174:                      "efficacy-cutoff population and it is also what a WRONG "
+ 175:                      "REGISTRATION looks like. A human decides; this gate does not "
+ 176:                      "convict on arithmetic." % len(listed))
+ 177:         return "REVIEW", notes
+ 178:     notes.append("-> PASS: every checked row's analysed count is consistent with its "
+ 179:                  "registration's enrolment. This screens the key, not the trial.")
+ 180:     return "PASS", notes
+ 181: 
+ 182: 
+ 183: # ------------------------------------------------------------------ selftest
+ 184: def selftest() -> int:
+ 185:     ok = True
+ 186: 
+ 187:     def obj(rows):
+ 188:         return {"inputs": {"trials": rows},
+ 189:                 "results": {"by_outcome": {"primary": {"k": len(rows)}}}}
+ 190: 
+ 191:     def row(name, nct, tn, cn, enrolled, conflict=None):
+ 192:         r = {"name": name, "nct": nct,
+ 193:              "arms": [{"role": "treatment", "participants": tn},
+ 194:                       {"role": "control", "participants": cn}],
+ 195:              "by_outcome": {"primary": {}}}
+ 196:         if enrolled is not None:
+ 197:             r["registration_enrolment"] = enrolled
+ 198:         if conflict:
+ 199:             r["identity_conflict"] = conflict
+ 200:         return r
+ 201: 
+ 202:     def row_v1(name, nct, tn, cn, enrolled):
+ 203:         """A v1-shaped row: analysed keyed treatment/control, arms unpopulated.
+ 204: 
+ 205:         This is the shape that broke the first cut. alirocumab's rows carry
+ 206:         participants: None on the arms and the real numbers only under analysed,
+ 207:         so a reader that misses this key has nothing to fall back on.
+ 208:         """
+ 209:         return {"name": name, "nct": nct,
+ 210:                 "arms": [{"role": "treatment", "participants": None},
+ 211:                          {"role": "control", "participants": None}],
+ 212:                 "by_outcome": {"primary": {"analysed": {"treatment": tn,
+ 213:                                                         "control": cn}}},
+ 214:                 "registration_enrolment": enrolled}
+ 215: 
+ 216:     HOKUSAI = row("HOKUSAI VTE-Cancer", "NCT02073682", 522, 524, 1046)
+ 217:     CARAVAGGIO = row("CARAVAGGIO", "NCT03045406", 576, 579, 1170)
+ 218:     SELECTD = row("SELECT-D", "NCT02583191", 101, 102, 246)
+ 219: 
+ 220:     cases = [
+ 221:         ("POSITIVE the founding case: SELECT-D's data under CONKO-011's key",
+ 222:          obj([HOKUSAI, CARAVAGGIO, SELECTD]), "REVIEW"),
+ 223:         ("NEGATIVE the same object with only the correctly-keyed rows",
+ 224:          obj([HOKUSAI, CARAVAGGIO]), "PASS"),
+ 225:         ("NEGATIVE an exact-enrolment row alone",
+ 226:          obj([HOKUSAI]), "PASS"),
+ 227:         ("NEGATIVE analysed just below randomised is ordinary, not suspicious",
+ 228:          obj([CARAVAGGIO]), "PASS"),
+ 229:         ("NEGATIVE a v1-shaped row -- analysed keyed treatment/control, arms empty",
+ 230:          obj([row_v1("PARADIGM-HF", "NCT01035255", 4187, 4212, 8442)]), "PASS"),
+ 231:         ("NEGATIVE a v1 row whose arms carry no participants at all",
+ 232:          obj([row_v1("Alirocumab LONG TERM", "NCT01507831", 1530, 780, 2341)]), "PASS"),
+ 233:         ("UNMEASURED no enrolment stored is not a pass",
+ 234:          obj([row("X", "NCT1", 100, 100, None)]), "UNCHECKABLE"),
+ 235:         ("DECLARED a recorded conflict is not re-alarmed, and does not pass either",
+ 236:          obj([row("Y", "NCT2", 101, 102, 246, conflict="recorded")]), "UNCHECKABLE"),
+ 237:     ]
+ 238:     for label, o, want in cases:
+ 239:         v, notes = check(o)
+ 240:         good = v == want
+ 241:         ok &= good
+ 242:         print("  %-62s -> %-12s (want %-12s) %s"
+ 243:               % (label, v, want, "correct" if good else "WRONG"))
+ 244:         if not good:
+ 245:             for n in notes:
+ 246:                 print("        " + n)
+ 247: 
+ 248:     # THE THRESHOLD MUST CONTAIN ITS OWN FOUNDING CASE.
+ 249:     ratio = 203 / 246.0
+ 250:     inside = ratio < MIN_ANALYSED_RATIO
+ 251:     ok &= inside
+ 252:     print("\n  threshold %.2f vs the founding case's ratio %.3f -> %s"
+ 253:           % (MIN_ANALYSED_RATIO, ratio,
+ 254:              "the case is caught" if inside else "WRONG: the gate cannot catch the "
+ 255:              "defect it was built for"))
+ 256:     print(_THRESHOLD_NOTE.rstrip())
+ 257: 
+ 258:     print("\nWHAT A FAILURE WOULD LOOK LIKE: the SELECT-D row passing -- which is what "
+ 259:           "identity_by_registration_gate does today, because it asks whether a "
+ 260:           "registration is present and unique and never whether it is the right one.")
+ 261:     print("WHAT THIS GATE STILL CANNOT SEE: a wrong registration of the SAME SIZE. It "
+ 262:           "screens the key; it does not prove it.")
+ 263:     print("-> SELFTEST PASS" if ok else "-> SELFTEST FAILED")
+ 264:     return 0 if ok else 1
+ 265: 
+ 266: 
+ 267: def fetch_into(path):
+ 268:     """Fill registration_enrolment from ClinicalTrials.gov and write it back."""
+ 269:     import urllib.request
+ 270:     obj = json.load(open(path, encoding="utf-8"))
+ 271:     n = 0
+ 272:     for t in (obj.get("inputs") or {}).get("trials") or []:
+ 273:         nct = t.get("nct") or ""
+ 274:         if not nct.upper().startswith("NCT") or t.get("registration_enrolment"):
+ 275:             continue
+ 276:         url = ("https://clinicaltrials.gov/api/v2/studies/%s"
+ 277:                "?fields=protocolSection.designModule,"
+ 278:                "protocolSection.identificationModule,"
+ 279:                "protocolSection.armsInterventionsModule" % nct)
+ 280:         req = urllib.request.Request(url, headers={"User-Agent": "rapidmeta-registry-read"})
+ 281:         with urllib.request.urlopen(req, timeout=60) as r:
+ 282:             d = json.loads(r.read().decode("utf-8"))
+ 283:         ps = d.get("protocolSection") or {}
+ 284:         cnt = ((ps.get("designModule") or {}).get("enrollmentInfo") or {}).get("count")
+ 285:         idm = ps.get("identificationModule") or {}
+ 286:         arms = ((ps.get("armsInterventionsModule") or {}).get("armGroups") or [])
+ 287:         if cnt:
+ 288:             t["registration_enrolment"] = cnt
+ 289:             if arms:
+ 290:                 t["registration_arm_count"] = len(arms)
+ 291:             t["registration_brief_title"] = idm.get("briefTitle")
+ 292:             t["registration_org_study_id"] = (idm.get("orgStudyIdInfo") or {}).get("id")
+ 293:             t["registration_read_utc"] = "2026-08-18"
+ 294:             n += 1
+ 295:     json.dump(obj, open(path, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+ 296:     print("filled registration_enrolment on %d trial(s) in %s" % (n, path))
+ 297:     return 0
+ 298: 
+ 299: 
+ 300: def main() -> int:
+ 301:     if len(sys.argv) < 2 or sys.argv[1] == "--selftest":
+ 302:         return selftest()
+ 303:     if sys.argv[1] == "--fetch":
+ 304:         rc = 0
+ 305:         for p in sys.argv[2:]:
+ 306:             rc |= fetch_into(p)
+ 307:         return rc
+ 308:     worst = 0
+ 309:     for p in sys.argv[1:]:
+ 310:         if not os.path.exists(p):
+ 311:             print("registration_identity: %s does not exist. NOT RUN -- not a pass." % p,
+ 312:                   file=sys.stderr)
+ 313:             worst = max(worst, 2)
+ 314:             continue
+ 315:         v, notes = check(json.load(open(p, encoding="utf-8")))
+ 316:         print("%s" % os.path.basename(p))
+ 317:         for n in notes:
+ 318:             print(n)
+ 319:         print("  -> %s" % v)
+ 320:         worst = max(worst, {"PASS": 0, "REVIEW": 1, "UNCHECKABLE": 2}.get(v, 2))
+ 321:     return worst
+ 322: 
+ 323: 
+ 324: if __name__ == "__main__":
+ 325:     sys.exit(main())
+
+codex
+I found one control-flow defect around declared conflicts and one selector defect around outcome choice. I’m checking the exact return values with minimal inputs so the final answer can stay concrete.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "@'
+from scripts.registration_identity_gate import check
+obj={\"inputs\":{\"trials\":[{\"name\":\"DECL\",\"nct\":\"NCTDECL\",\"identity_conflict\":\"recorded\",\"arms\":[{\"role\":\"treatment\",\"participants\":101},{\"role\":\"control\",\"participants\":102}],\"by_outcome\":{\"primary\":{}},\"registration_enrolment\":246},{\"name\":\"OK\",\"nct\":\"NCTOK\",\"arms\":[{\"role\":\"treatment\",\"participants\":522},{\"role\":\"control\",\"participants\":524}],\"by_outcome\":{\"primary\":{}},\"registration_enrolment\":1046}]},\"results\":{\"by_outcome\":{\"primary\":{\"k\":2}}}}
+print(check(obj)[0])
+for n in check(obj)[1]: print(n)
+'@ | python -" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "@'
+from scripts.registration_identity_gate import check
+obj={\"inputs\":{\"trials\":[{\"name\":\"V1\",\"nct\":\"NCTV1\",\"arms\":[{\"role\":\"treatment\",\"participants\":None},{\"role\":\"control\",\"participants\":None}],\"by_outcome\":{\"primary\":{\"analysed\":{\"treatment\":100,\"control\":100}}},\"registration_enrolment\":200}]},\"results\":{\"by_outcome\":{\"aaa\":{},\"primary\":{}}}}
+print(check(obj)[0])
+for n in check(obj)[1]: print(n)
+'@ | python -" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command 'python scripts/registration_identity_gate.py --selftest > $env:TEMP'"\\reg_gate_selftest.txt; echo "'$LASTEXITCODE' in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "@'
+from scripts.registration_identity_gate import check
+obj={\"inputs\":{\"trials\":[{\"name\":\"ZEROENR\",\"nct\":\"NCT0\",\"arms\":[{\"role\":\"treatment\",\"participants\":100},{\"role\":\"control\",\"participants\":100}],\"by_outcome\":{\"primary\":{}},\"registration_enrolment\":0}]},\"results\":{\"by_outcome\":{\"primary\":{}}}}
+print(check(obj)[0])
+for n in check(obj)[1]: print(n)
+'@ | python -" in F:\rapidmeta-ssot-shell
+ succeeded in 2884ms:
+UNCHECKABLE
+  V1                     NCTV1         UNMEASURED no analysed count on this row
+-> UNMEASURED. No row could be compared, so nothing is established. This is NOT a pass.
+
+ succeeded in 2949ms:
+PASS
+  DECL                   NCTDECL       DECLARED   an identity conflict is recorded on this row
+  OK                     NCTOK         ok         analysed 1046 against registered 1046 = 100.0%
+-> PASS: every checked row's analysed count is consistent with its registration's enrolment. This screens the key, not the trial.
+
+ succeeded in 2947ms:
+UNCHECKABLE
+  ZEROENR                NCT0          UNMEASURED no registration_enrolment stored -- run --fetch. This is not a pass
+-> UNMEASURED. No row could be compared, so nothing is established. This is NOT a pass.
+
+ succeeded in 3126ms:
+0
+
+codex
+There is also a mixed-object path where an unmeasured row is reported in the notes but lost from the verdict. I’m checking that separately because it is a stronger defect than just bad wording.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "@'
+from scripts.registration_identity_gate import check
+obj={\"inputs\":{\"trials\":[{\"name\":\"MISSING\",\"nct\":\"NCTMISS\",\"arms\":[{\"role\":\"treatment\",\"participants\":100},{\"role\":\"control\",\"participants\":100}],\"by_outcome\":{\"primary\":{}}},{\"name\":\"OK\",\"nct\":\"NCTOK\",\"arms\":[{\"role\":\"treatment\",\"participants\":522},{\"role\":\"control\",\"participants\":524}],\"by_outcome\":{\"primary\":{}},\"registration_enrolment\":1046}]},\"results\":{\"by_outcome\":{\"primary\":{\"k\":2}}}}
+print(check(obj)[0])
+for n in check(obj)[1]: print(n)
+'@ | python -" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "@'
+from scripts.registration_identity_gate import check
+obj={\"inputs\":{\"trials\":[{\"name\":\"ZEROAN\",\"nct\":\"NCTZERO\",\"arms\":[{\"role\":\"treatment\",\"participants\":0},{\"role\":\"control\",\"participants\":0}],\"by_outcome\":{\"primary\":{}},\"registration_enrolment\":100},{\"name\":\"OK\",\"nct\":\"NCTOK\",\"arms\":[{\"role\":\"treatment\",\"participants\":522},{\"role\":\"control\",\"participants\":524}],\"by_outcome\":{\"primary\":{}},\"registration_enrolment\":1046}]},\"results\":{\"by_outcome\":{\"primary\":{\"k\":2}}}}
+print(check(obj)[0])
+for n in check(obj)[1]: print(n)
+'@ | python -" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "@'
+from scripts.registration_identity_gate import check
+obj={\"inputs\":{\"trials\":[{\"name\":\"RELY-like\",\"nct\":\"NCT3\",\"registration_arm_count\":3,\"arms\":[{\"role\":\"treatment\",\"participants\":100},{\"role\":\"control\",\"participants\":100}],\"by_outcome\":{\"primary\":{}},\"registration_enrolment\":300}]},\"results\":{\"by_outcome\":{\"primary\":{}}}}
+print(check(obj)[0])
+for n in check(obj)[1]: print(n)
+'@ | python -" in F:\rapidmeta-ssot-shell
+ succeeded in 2259ms:
+PASS
+  MISSING                NCTMISS       UNMEASURED no registration_enrolment stored -- run --fetch. This is not a pass
+  OK                     NCTOK         ok         analysed 1046 against registered 1046 = 100.0%
+-> PASS: every checked row's analysed count is consistent with its registration's enrolment. This screens the key, not the trial.
+
+ succeeded in 2235ms:
+REVIEW
+  RELY-like              NCT3          REVIEW     analysed 200 against registered 300 = 66.7%  -- but the registration has 3 arms and this pool takes 2, which accounts for a shortfall of about this size
+-> REVIEW: 1 row(s) analyse far fewer participants than their registration records. That is legitimate for a per-protocol or efficacy-cutoff population and it is also what a WRONG REGISTRATION looks like. A human decides; this gate does not convict on arithmetic.
+
+ succeeded in 2273ms:
+PASS
+  ZEROAN                 NCTZERO       UNMEASURED no analysed count on this row
+  OK                     NCTOK         ok         analysed 1046 against registered 1046 = 100.0%
+-> PASS: every checked row's analysed count is consistent with its registration's enrolment. This screens the key, not the trial.
+
+codex
+Defects found:
+
+- **STATUS CODE REPORTING THE WRAPPER**: line 167 ignores `unmeasured`, so line 178 returns `PASS`.
+  Input: `{"inputs":{"trials":[{"name":"MISSING","nct":"NCTMISS","arms":[{"role":"treatment","participants":100},{"role":"control","participants":100}],"by_outcome":{"primary":{}}},{"name":"OK","nct":"NCTOK","arms":[{"role":"treatment","participants":522},{"role":"control","participants":524}],"by_outcome":{"primary":{}},"registration_enrolment":1046}]},"results":{"by_outcome":{"primary":{"k":2}}}}`
+  Consequence: a file with a row explicitly reported as “not a pass” exits `PASS`/0 if another row checks cleanly.
+
+- **IDEMPOTENCY GUARD SATISFIED BY ITS OWN MARKER**: line 124 skips `identity_conflict`, and the same line-167/178 verdict path can still return `PASS`.
+  Input: same as above, but replace `MISSING` row with `{"name":"DECL","nct":"NCTDECL","identity_conflict":"recorded","arms":[{"role":"treatment","participants":101},{"role":"control","participants":102}],"by_outcome":{"primary":{}},"registration_enrolment":246}`.
+  Consequence: an object containing a recorded identity conflict can exit cleanly.
+
+- **SELECTOR KEYED TO A FORM THE CORPUS MAY NOT USE**: line 115 chooses `sorted(results)[0]` as the outcome id.
+  Input: `{"inputs":{"trials":[{"name":"V1","nct":"NCTV1","arms":[{"role":"treatment","participants":null},{"role":"control","participants":null}],"by_outcome":{"primary":{"analysed":{"treatment":100,"control":100}}},"registration_enrolment":200}]},"results":{"by_outcome":{"aaa":{},"primary":{}}}}`
+  Consequence: a measurable row is marked `UNCHECKABLE` solely because another result key sorts before `primary`.
+
+- **CHECK THAT CAN PASS WITHOUT CHECKING A TARGET**: line 301 runs selftest when no object path is supplied.
+  Input: `python scripts/registration_identity_gate.py`
+  Consequence: an empty file list or broken glob exits `0` after testing fixtures, not the intended objects.
+
+- **ZERO CONFLATED WITH ABSENT**: line 130 treats stored `registration_enrolment: 0` as missing.
+  Input: `{"inputs":{"trials":[{"name":"ZEROENR","nct":"NCT0","arms":[{"role":"treatment","participants":100},{"role":"control","participants":100}],"by_outcome":{"primary":{}},"registration_enrolment":0}]},"results":{"by_outcome":{"primary":{}}}}`
+  Consequence: an impossible 200-analysed/0-registered row is reported as “no registration_enrolment stored.”
+
+No finding: probe keyed to string a fix removes; different-copy instrumentation; CRLF text comparison; merged-cell/off-by-one tabulation; negation dropped.
+tokens used
+35,164
+Defects found:
+
+- **STATUS CODE REPORTING THE WRAPPER**: line 167 ignores `unmeasured`, so line 178 returns `PASS`.
+  Input: `{"inputs":{"trials":[{"name":"MISSING","nct":"NCTMISS","arms":[{"role":"treatment","participants":100},{"role":"control","participants":100}],"by_outcome":{"primary":{}}},{"name":"OK","nct":"NCTOK","arms":[{"role":"treatment","participants":522},{"role":"control","participants":524}],"by_outcome":{"primary":{}},"registration_enrolment":1046}]},"results":{"by_outcome":{"primary":{"k":2}}}}`
+  Consequence: a file with a row explicitly reported as “not a pass” exits `PASS`/0 if another row checks cleanly.
+
+- **IDEMPOTENCY GUARD SATISFIED BY ITS OWN MARKER**: line 124 skips `identity_conflict`, and the same line-167/178 verdict path can still return `PASS`.
+  Input: same as above, but replace `MISSING` row with `{"name":"DECL","nct":"NCTDECL","identity_conflict":"recorded","arms":[{"role":"treatment","participants":101},{"role":"control","participants":102}],"by_outcome":{"primary":{}},"registration_enrolment":246}`.
+  Consequence: an object containing a recorded identity conflict can exit cleanly.
+
+- **SELECTOR KEYED TO A FORM THE CORPUS MAY NOT USE**: line 115 chooses `sorted(results)[0]` as the outcome id.
+  Input: `{"inputs":{"trials":[{"name":"V1","nct":"NCTV1","arms":[{"role":"treatment","participants":null},{"role":"control","participants":null}],"by_outcome":{"primary":{"analysed":{"treatment":100,"control":100}}},"registration_enrolment":200}]},"results":{"by_outcome":{"aaa":{},"primary":{}}}}`
+  Consequence: a measurable row is marked `UNCHECKABLE` solely because another result key sorts before `primary`.
+
+- **CHECK THAT CAN PASS WITHOUT CHECKING A TARGET**: line 301 runs selftest when no object path is supplied.
+  Input: `python scripts/registration_identity_gate.py`
+  Consequence: an empty file list or broken glob exits `0` after testing fixtures, not the intended objects.
+
+- **ZERO CONFLATED WITH ABSENT**: line 130 treats stored `registration_enrolment: 0` as missing.
+  Input: `{"inputs":{"trials":[{"name":"ZEROENR","nct":"NCT0","arms":[{"role":"treatment","participants":100},{"role":"control","participants":100}],"by_outcome":{"primary":{}},"registration_enrolment":0}]},"results":{"by_outcome":{"primary":{}}}}`
+  Consequence: an impossible 200-analysed/0-registered row is reported as “no registration_enrolment stored.”
+
+No finding: probe keyed to string a fix removes; different-copy instrumentation; CRLF text comparison; merged-cell/off-by-one tabulation; negation dropped.

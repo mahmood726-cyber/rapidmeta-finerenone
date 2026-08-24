@@ -1,0 +1,907 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a03146-5f9e-7fb0-9f62-e6d7c79aff62
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/audit_p46_limbs_reach_a_reader.py
+
+--- THE FILE, IN FULL ---
+"""For every limb P46 scores, does the thing it scores REACH A READER?
+
+THE GENERAL FORM OF CLASS 83, WHICH WAS FOUND THREE TIMES IN ONE NIGHT IN THREE DIFFERENT
+VOCABULARIES BEFORE ANYBODY ASKED THE GENERAL QUESTION:
+
+    limb 3   applier wrote `title`/`agreement`     projector read `citation`/`how_it_differs`
+             -> 16 rows across 13 topics rendered a PMID and four blank cells
+    limb 4   applier wrote `model_output.verbatim` projector read `by_outcome.*.r_output`
+             -> the manuscript refused "no analysis output is stored on this object"
+    limb 4   applier wrote `model_output.verbatim` SCORER read `by_outcome.*.r_output`
+             -> p46_queue returned ABSENT and two topics were REPORTED AS 4 OF 4 AT 3 OF 4
+
+`p46_queue.score()` reads the OBJECT. It answers "does this topic possess the limb". It has
+never answered "can a reader open a page and find it", and every P46 count reported so far
+has meant the first while being heard as the second. THAT IS THE PRECISE DEFINITION OF
+"objects built is not topics a reader can open", committed by the people who wrote it down.
+
+HOW THIS DECIDES "RENDERS", AND WHY IT IS THE ONLY TEST THAT CANNOT BE FOOLED. It takes a
+PROBE STRING OUT OF THE STORED LIMB ITSELF -- never typed here -- and looks for it in the
+DELIVERED BYTES of the topic's page. Not in the object. Not in the projector's source. Not in
+a list of section names. If the sentence the object stores is not in the file a reader
+downloads, the limb does not reach a reader, whatever anything else says.
+
+    probe = the longest run of HTML-safe characters in the stored limb, >= 40 chars
+
+Quotes, ampersands and angle brackets are escaped on the way out, so a probe containing them
+would report a false absence. The probe is chosen to avoid them rather than the comparison
+being loosened -- a check that can only report "renders" is not a check.
+
+SCORES ARE NEVER INVENTED HERE. `held` comes from importing p46_queue.score, so there is ONE
+definition of held in the repo and this file cannot drift from it.
+
+FOUR STATES PER LIMB:
+    HELD+RENDERS   the object carries it and a reader can find it
+    HELD ONLY      the object carries it and the delivered page does not show it  <- class 83
+    NO PAGE        the topic has no page in PAGE_MAP, so nothing can be delivered
+    not held       p46_queue says REFUSED or ABSENT; delivery is not asked
+"""
+import glob
+import importlib.util
+import io
+import json
+import os
+import re
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from instrument_controls import require_controls          # noqa: E402
+
+_spec = importlib.util.spec_from_file_location(
+    "p46_queue", os.path.join(REPO, "scripts", "p46_queue.py"))
+p46 = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(p46)
+
+LIMBS = ["rob_per_result", "grade_per_pool", "comparison_denominator",
+         "model_output_verbatim"]
+
+# THE MANUSCRIPT SECTION EACH LIMB IS PROJECTED INTO, by its rendered heading. Used ONLY for
+# refused limbs: the projector generates its own refusal wording rather than projecting the
+# object's, so a probe taken from the object cannot match, and the testable property is
+# narrower -- IS THE REFUSAL NAMED IN THIS LIMB'S OWN SECTION. Reported as REFUSED+NAMED, a
+# deliberately weaker claim than HELD+RENDERS.
+SECTION_HEADING = {
+    "rob_per_result": "Risk of bias in the included results",
+    "grade_per_pool": "Certainty of the evidence",
+    "comparison_denominator": "Comparison with published syntheses",
+    # THE HEADING THIS LIMB IS PROJECTED UNDER MOVED, AND THE PROBE HAS TO SURVIVE THAT.
+    #
+    # On 2026-08-21 the manuscript was reordered to F1000's canonical structure and this
+    # section became `Extended data: statistical output, quoted verbatim` -- the venue's own
+    # words for material supporting the key claims but not part of the main body. The old
+    # value was matched with `re.escape` against the raw page, so it stopped matching on TWO
+    # counts at once: a new prefix, and `Statistical` becoming lowercase `statistical`.
+    #
+    # A heading match that fails reports `the section heading is not on the page at all`,
+    # which the audit scores as REFUSAL LOST. So a purely cosmetic rename would have been
+    # reported as P46 limb 4 ceasing to reach readers on every topic that refuses it. That is
+    # the SEVENTEENTH lookup in this run to under-count by reading one spelling of a thing the
+    # corpus writes two ways, and the fifth to do it in a direction that reads as ABSENCE.
+    #
+    # Fixed at the resolver: the value is the STABLE TAIL of the heading and the search is
+    # case-insensitive, so a prefix the venue requires cannot blind the probe again.
+    "model_output_verbatim": "statistical output, quoted verbatim",
+}
+
+
+def refusal_named_in_section(page_text, heading):
+    """Does a `Refused:` block appear inside this section on the delivered page?
+
+    The section runs from the LAST occurrence of its heading (the first is the in-page
+    navigation strip) to the next heading-like marker after it.
+
+    MATCHED AS A HEADING ELEMENT, not as a bare substring, and case-insensitively.
+
+    THE FIRST ATTEMPT AT THIS FIX BROKE FOUR TOPICS AND THE MEASUREMENT CAUGHT IT. Making a
+    bare-substring search case-insensitive moved 4 topics from REFUSED+NAMED to REFUSED, NOT
+    NAMED, because this function is shared by all four limbs and `hits[-1]` assumes the LAST
+    mention is the heading. That assumption was being held up by capitalisation: `Risk of bias
+    in the included results` as a heading, `risk of bias in the included results` in prose
+    further down. Drop the case and the prose mention wins the `[-1]`, the span starts after
+    the real section, and a refusal that renders perfectly is reported missing.
+
+    So the loosening is confined to where it belongs. Prose cannot appear inside an `<h2>`,
+    `<h3>` or `<h4>`, so anchoring on the element is immune to both failure modes at once: a
+    venue-required prefix cannot blind it, and a lowercase prose mention cannot steal it. It
+    also closes a defect the strict version already had -- a prose mention at the start of a
+    sentence is capitalised, and would have stolen the `[-1]` on any page that had one.
+    """
+    pat = r"(?is)<h[234][^>]*>[^<]*%s[^<]*</h[234]>" % re.escape(heading)
+    hits = [m.end() for m in re.finditer(pat, page_text)]
+    if not hits:
+        return False, "the section heading is not on the page at all"
+    start = hits[-1]
+    nxt = page_text.find("<h3", start)
+    span = page_text[start:nxt if nxt > start else start + 6000]
+    # TWO WAYS A REFUSAL REACHES A READER, AND ONLY ONE WAS RECOGNISED.
+    #
+    # The projector emits a `Refused:` block when it has NO field to project. But an object
+    # that refuses a limb DELIBERATELY -- storing state / why / what_would_close_it -- now has
+    # those projected as PROSE, which is a better refusal, not a missing one. Counting only
+    # the marker reported apixaban-vte-prophylaxis as REFUSAL LOST minutes after its refusal
+    # started rendering in full. A check that recognises one of two correct forms manufactures
+    # a defect out of an improvement.
+    named = ("Refused:" in span) or ("This limb is REFUSED" in span)
+    return named, ("a refusal is named in this section" if named
+                   else "the section renders with no refusal in it")
+
+
+def probe_is_distinctive(probe, page, other_pages):
+    """A probe found on OTHER topics' pages is boilerplate and proves nothing here.
+
+    THE SECOND STATED LIMIT, CLOSED. A short or generic stored sentence can be shared across
+    objects -- house-rule wording, a ceiling statement, a standard refusal. Finding it in
+    this page would then say nothing about THIS limb reaching a reader. A probe that appears
+    on a page belonging to a different topic is reported WEAK rather than counted.
+    """
+    for p in other_pages:
+        if probe in p:
+            return False
+    return True
+
+# Characters the renderer escapes on the way out. A probe containing one of these would be
+# looked for in a form the page never carries, and would report a false ABSENT.
+UNSAFE = re.compile(r"[<>&\"'‘’“”]")
+
+
+def probe_from(text, minimum=40):
+    """The longest HTML-safe run in `text`, or None if nothing long enough survives."""
+    if not isinstance(text, str):
+        return None
+    runs = [r.strip() for r in UNSAFE.split(text)]
+    runs = [r for r in runs if len(r) >= minimum]
+    return max(runs, key=len) if runs else None
+
+
+def strings_under(node, depth=0):
+    """Every string leaf under `node`, longest first, skipping bookkeeping keys."""
+    out = []
+    if isinstance(node, str):
+        out.append(node)
+    elif isinstance(node, dict):
+        for k, v in node.items():
+            if str(k).startswith("_") or str(k).upper().startswith("SUPERSEDED"):
+                continue
+            out.extend(strings_under(v, depth + 1))
+    elif isinstance(node, list):
+        for v in node:
+            out.extend(strings_under(v, depth + 1))
+    return out
+
+
+def limb_probe(obj, limb):
+    """A string the renderer should emit for this limb, taken out of the object."""
+    if limb == "rob_per_result":
+        node = (obj.get("risk_of_bias") or {}).get("by_outcome")
+    elif limb == "grade_per_pool":
+        node = (obj.get("grade") or {}).get("by_outcome")
+        if not node:
+            node = [blk.get("grade") for _, blk in p46.pooled_outcomes(obj)]
+    elif limb == "comparison_denominator":
+        node = obj.get("published_comparison")
+    else:
+        # PROBE THE VERBATIM, WHICH IS THE THING THE LIMB SCORES.
+        #
+        # The first version of this function EXCLUDED `verbatim` and probed the prose fields
+        # around it -- what_it_is, interval_method, reproduction_of_the_previous_value -- on
+        # the reasoning that machine output is full of quotes. It reported HELD ONLY for
+        # eleven topics INCLUDING one whose R output I had confirmed on the public host an
+        # hour earlier. The prose fields genuinely do not render (the projector emits only
+        # environment, call and verbatim), but that is a different finding, and reporting it
+        # as "limb 4 reaches no reader" would have been false.
+        #
+        # A probe must come from the thing the limb scores. `p46_queue` scores
+        # `r_output.verbatim`; so does this. Class 77 in my own instrument, again.
+        node = [str((blk.get("r_output") or {}).get("verbatim") or "")
+                for _, blk in p46.pooled_outcomes(obj)]
+        node = [s for s in node if s] or None
+    if not node:
+        return []
+    out = []
+    for s in sorted(strings_under(node), key=len, reverse=True):
+        p = probe_from(s)
+        if p and p not in out:
+            out.append(p)
+        if len(out) >= 12:
+            break
+    return out
+
+
+# WHY A LIST AND NOT THE LONGEST STRING -- THE THIRD PROBE-DESIGN CORRECTION IN THIS FILE.
+#
+# The first version returned the single longest HTML-safe run under the limb. That is not the
+# same as "a sentence the renderer emits", and for risk of bias it is systematically the wrong
+# one: the projector deliberately renders the OVERALL reason and the reasons for HIGH,
+# SOME_CONCERNS and LOW domains, and deliberately SKIPS NO_INFORMATION reasons -- which are
+# the longest strings in the block, because they carry the standing explanation of what this
+# review did not retrieve.
+#
+# So alirocumab, bempedoic-acid and iv-iron-hf were reported HELD ONLY on the strength of a
+# probe drawn from the one field guaranteed not to render. Twelve candidates now, and the
+# limb counts as reaching a reader if ANY of them is found. If none of twelve stored
+# sentences appears in the delivered bytes, the limb genuinely does not reach a reader.
+
+
+def page_map():
+    m = json.load(io.open(os.path.join(REPO, "ssot", "PAGE_MAP.json"), encoding="utf-8"))
+    rev = {}
+    for page, objpath in m.items():
+        rev.setdefault(os.path.basename(os.path.dirname(objpath)), []).append(page)
+    return rev
+
+
+# Pages from OTHER topics, used to test that a probe is distinctive rather than boilerplate.
+# Chosen to span builders and eras: an authored docmodel, an antibiotic pool, a lipid pool.
+CONTROL_PAGES = ["ARNI_HF_REVIEW.html", "LEFAMULIN_CABP_AUTO_FULL_REVIEW.html",
+                 "INCLISIRAN_LIPID_KIDNEY_AUTO_FULL_REVIEW.html", "ATTR_CM_REVIEW.html"]
+
+
+def main():
+    rev = page_map()
+    cache = {}
+
+    def delivered(page):
+        if page not in cache:
+            p = os.path.join(REPO, page)
+            cache[page] = io.open(p, encoding="utf-8", errors="replace").read() \
+                if os.path.isfile(p) else None
+        return cache[page]
+
+    # ---- CONTROLS. The positive is a limb VERIFIED ON THE PUBLIC HOST earlier tonight; the
+    # negative is a sentence of the right shape that is in no object at all.
+    cab = json.load(io.open(os.path.join(
+        REPO, "ssot", "cab-prep-hiv-review", "cab-prep-hiv-review.json"), encoding="utf-8"))
+    pos_probe = (limb_probe(cab, "comparison_denominator") or [None])[0]
+    pos_page = delivered("CAB_PREP_HIV_REVIEW.html") or ""
+    require_controls(
+        "audit_p46_limbs_reach_a_reader",
+        positive=("cab-prep-hiv-review's comparison probe, confirmed on the public host at "
+                  "2026-08-21, is found in the delivered bytes",
+                  bool(pos_probe) and pos_probe in pos_page, True),
+        negative=("a sentence of the right shape that no object contains is reported as "
+                  "rendering",
+                  "THIS SENTENCE IS IN NO OBJECT AND MUST NOT BE FOUND ANYWHERE" in pos_page,
+                  True))
+
+    rows = []
+    for p in sorted(glob.glob(os.path.join(REPO, "ssot", "*", "*.json"))):
+        topic = os.path.basename(os.path.dirname(p))
+        if os.path.basename(p) != topic + ".json":
+            continue
+        try:
+            obj = json.load(io.open(p, encoding="utf-8"))
+        except ValueError:
+            continue
+        if not p46.pooled_outcomes(obj):
+            continue
+        sc = p46.score(obj)
+        pages = rev.get(topic) or []
+        row = {"topic": topic, "pages": pages, "limbs": {}}
+        for limb in LIMBS:
+            state = sc.get(limb, ("ABSENT", ""))[0]
+            if state == "ABSENT":
+                row["limbs"][limb] = ("not held", state)
+                continue
+            if not pages:
+                row["limbs"][limb] = ("NO PAGE", "topic absent from PAGE_MAP")
+                continue
+
+            # A REFUSED LIMB IS A COMPLETED OUTCOME UNDER P46 AND ITS DELIVERY IS ASKED TOO.
+            # The claim is narrower and labelled as such: the projector generates its own
+            # refusal wording, so what can be tested is that the refusal is NAMED IN THIS
+            # LIMB'S OWN SECTION, not that the object's reason was projected.
+            if state == "REFUSED":
+                named, why = False, "no section mapped for this limb"
+                for pg in pages:
+                    named, why = refusal_named_in_section(delivered(pg) or "",
+                                                          SECTION_HEADING[limb])
+                    if named:
+                        break
+                row["limbs"][limb] = (("REFUSED+NAMED", why) if named
+                                      else ("REFUSED, NOT NAMED", why))
+                continue
+
+            prs = limb_probe(obj, limb)
+            if not prs:
+                row["limbs"][limb] = ("UNPROBEABLE", "no HTML-safe run of 40+ chars stored")
+                continue
+            hit, pr = [], None
+            for cand in prs:
+                hit = [pg for pg in pages if cand in (delivered(pg) or "")]
+                if hit:
+                    pr = cand
+                    break
+            if not hit:
+                row["limbs"][limb] = ("HELD ONLY", "none of %d stored sentence(s) is in %s"
+                                                   % (len(prs), ", ".join(pages)))
+                continue
+            others = [delivered(pg) or "" for pg in CONTROL_PAGES if pg not in pages]
+            if not probe_is_distinctive(pr, delivered(hit[0]) or "", others):
+                row["limbs"][limb] = ("WEAK PROBE", "the probe also appears on another "
+                                                    "topic's page, so it is boilerplate and "
+                                                    "proves nothing about this limb")
+                continue
+            row["limbs"][limb] = ("HELD+RENDERS", hit[0])
+        rows.append(row)
+
+    print("")
+    print("TOPICS WITH AT LEAST ONE POOLED OUTCOME: %d" % len(rows))
+    print("")
+    hdr = ("topic", "RoB", "GRADE", "compare", "output")
+    print("%-42s %-13s %-13s %-13s %-13s" % hdr)
+    tally = dict((s, 0) for s in
+                 ("HELD+RENDERS", "HELD ONLY", "REFUSED+NAMED", "REFUSED, NOT NAMED",
+                  "NO PAGE", "UNPROBEABLE", "WEAK PROBE", "not held"))
+    both = held_only_topics = []
+    both, held_only_topics = [], []
+    for r in sorted(rows, key=lambda x: x["topic"]):
+        cells = []
+        for limb in LIMBS:
+            st = r["limbs"][limb][0]
+            tally[st] += 1
+            cells.append({"HELD+RENDERS": "renders", "HELD ONLY": "HELD-ONLY",
+                          "REFUSED+NAMED": "refusal shown",
+                          "REFUSED, NOT NAMED": "REFUSAL LOST",
+                          "NO PAGE": "no page", "UNPROBEABLE": "unprobeable",
+                          "WEAK PROBE": "WEAK PROBE", "not held": "-"}[st])
+        states = [r["limbs"][l][0] for l in LIMBS]
+        # DELIVERED means every limb reached a reader in the state P46 scored it: a held limb
+        # found in the bytes, or a refusal named in its own section.
+        if all(s in ("HELD+RENDERS", "REFUSED+NAMED") for s in states):
+            both.append(r["topic"])
+        if any(s == "HELD ONLY" for s in states):
+            held_only_topics.append(r["topic"])
+        if set(states) != {"not held"}:
+            print("%-42s %-13s %-13s %-13s %-13s" % tuple([r["topic"][:42]] + cells))
+
+    print("")
+    print("LIMB-INSTANCES, over %d topics x 4 limbs = %d:" % (len(rows), len(rows) * 4))
+    for k in ("HELD+RENDERS", "HELD ONLY", "REFUSED+NAMED", "REFUSED, NOT NAMED",
+              "NO PAGE", "UNPROBEABLE", "WEAK PROBE", "not held"):
+        print("   %-14s %d" % (k, tally[k]))
+    print("")
+    print("TOPICS WHERE ALL FOUR LIMBS BOTH HOLD AND RENDER: %d" % len(both))
+    for t in both:
+        print("   %s" % t)
+    print("")
+    print("TOPICS CARRYING AT LEAST ONE LIMB THAT IS HELD AND DOES NOT RENDER: %d"
+          % len(held_only_topics))
+    for t in held_only_topics:
+        print("   %s" % t)
+    print("")
+    print("A LIMB THAT DOES NOT REACH A READER IS NOT A DELIVERED LIMB. p46_queue scores "
+          "POSSESSION;\nthis file scores DELIVERY, and the second number is the one a reader "
+          "experiences.")
+
+
+if __name__ == "__main__":
+    main()
+
+codex
+I’ll keep this to the pasted record and line-specific defects, not a general review. I’m just pinning line numbers so the findings are exact.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "if (Test-Path 'F:\\ProjectIndex\\INDEX.md') { Get-Content -Path 'F:\\ProjectIndex\\INDEX.md' -TotalCount 20 } else { 'MISSING F:\\ProjectIndex\\INDEX.md' }" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "if (Test-Path 'F:\\E156\\rewrite-workbook.txt') { Get-Content -Path 'F:\\E156\\rewrite-workbook.txt' -TotalCount 20 } else { 'MISSING F:\\E156\\rewrite-workbook.txt' }" in F:\rapidmeta-ssot-shell
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=0; Get-Content -Path '"'scripts\\audit_p46_limbs_reach_a_reader.py' | ForEach-Object { "'$i++; '"'{0,4}: {1}' -f "'$i, $_ }' in F:\rapidmeta-ssot-shell
+ succeeded in 3272ms:
+<!-- sentinel:skip-file - portfolio registry; absolute paths ARE the data -->
+# C: Drive Project Index
+> **Last updated**: 2026-05-14 (C:\HTML apps focused repair batch continued: hub shell launch fix, static contracts across ten HTML app repos, NMA/living-meta/nma-dose-response landing and asset-link repairs, and NMA doc hardcoded-path cleanup. Prior SheafNMA v0.2.0, D-drive legacy smoke-contract continuation, CardioOracle lifecycle status freeze, C-drive model/project smoke-contract continuation, mahmood789 consolidation, Sentinel/Overmind JSONL and verification repair, C-drive reproducibility audit continuation, C-drive verification repair, D-drive repair batch, superapp, C-drive sweep, home-folder hardening, Trial Truthfulness Atlas, and portfolio notes retained below.)
+
+### C:\HTML apps focused repair batch (2026-05-14)
+> - `C:\HTML apps\hub\`: added a launchable `index.html` shell and static contract tests for required registry/runtime wiring; fixed `app.js` local `file://` launch resolution so the hub opened from `hub\index.html` links sibling apps from the parent HTML-apps directory instead of nesting paths under `hub`. Verification: `pytest -q -p no:cacheprovider` -> `3 passed`; `node --check app.js && node --check projects.js` -> PASS; headless Chrome smoke on `file:///mnt/c/HTML%20apps/hub/index.html` confirmed the page title and sibling app links. GitHub pushed: `mahmood726-cyber/hub` main `c1a6725`.
+> - `C:\HTML apps\evidence-board\`, `C:\HTML apps\focus-studio\`, `C:\HTML apps\kanban-lab\`: added pytest-visible static app shell contracts covering title/description, localStorage persistence hooks, key controls, and absence of unresolved templates or hardcoded local drive paths; added repo `.gitignore` entries for Python caches and `PROGRESS.md`. Verification: each `pytest -q -p no:cacheprovider` -> `2 passed` with the existing pytest `cache_dir` warning; scoped `git diff --check` -> PASS. GitHub pushed: `evidence-board` master `9a87c8b`, `focus-studio` master `0fa728b`, `kanban-lab` master `81cad38`.
+> - `C:\HTML apps\nma-pro-v2\`: fixed the landing page's broken app links from absent v6/v7 asset filenames to the current `e156-submission/assets/nma-pro-v8.0.html`, added static link-resolution contracts, and removed Sentinel P0 hardcoded local OneDrive paths from legacy docs. Verification: `pytest -q -p no:cacheprovider tests/test_smoke.py tests/test_static_links.py` -> `3 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=1 INFO=302` (pre-existing tracked autogen warning plus HTML a11y INFO). GitHub pushed: master `a2834e7` for the link fix and master `a74e385` for the P0 doc cleanup.
+> - `C:\HTML apps\IPD-Meta-Pro\` and `C:\HTML apps\Truthcert1\`: added static link-resolution contracts for landing-page local assets and canonical app entrypoints. Verification: `IPD-Meta-Pro` `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; `Truthcert1` same command -> `2 passed` with existing pytest `cache_dir` warning. GitHub pushed: `IPD-Meta-Pro` master `b26ee09`, `Truthcert1` master `81eddd3`.
+> - `C:\HTML apps\living-meta\`: repaired landing-page validation links that pointed to a missing HTML asset and an out-of-repo sibling path; linked the existing validation and limitations docs instead, and added a static link-resolution contract. Verification: `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=8` (pre-existing HTML a11y INFO). GitHub pushed: master `c3c8a9b`.
+> - `C:\HTML apps\Pairwiseai\`: added a static landing-page contract covering local link resolution, absence of unresolved templates/local drive paths, and the key app entrypoints under `e156-submission/assets`. Verification: `pytest -q -p no:cacheprovider tests/test_static_links.py` -> `2 passed`; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=1731` (pre-existing HTML a11y INFO). GitHub pushed: master `2ade493`.
+> - `C:\HTML apps\nma-dose-response-app\`: pushed the existing smoke-blocker commit and added an E156 asset-bundle repair so `e156-submission\assets\index*.html` resolves its JS runtime dependencies from inside the assets folder; added a static link-resolution contract covering root and E156 app entrypoints. Verification: `pytest -q -p no:cacheprovider tests/test_smoke.py tests/test_static_links.py` -> `4 passed` with the existing pytest `cache_dir` warning; manual Sentinel scan on the clean push clone -> `BLOCK=0 WARN=0 INFO=442` (pre-existing HTML a11y INFO). GitHub pushed: master `e95fae0` and `96594b6`.
+> - Push gate: Windows Git credential path succeeded after WSL Git lacked HTTPS credentials. Sentinel pre-push/manual scan verdicts were BLOCK=0; evidence-board INFO=18, focus-studio INFO=10, kanban-lab INFO=10, living-meta INFO=8, Pairwiseai INFO=1731, nma-dose-response-app INFO=442 (pre-existing P2 HTML accessibility notes); hub push emitted no Sentinel findings.
+> - Existing unrelated dirty files were left unstaged in these repos, mainly protocol/license/doc edits and untracked `paper\` outputs in the three app repos, plus pre-existing hub metadata/submission/style edits.
+
+### SheafNMA (2026-05-12; v0.2.0 real-NMA-corpus validation + 36-cell Ã— 1000-rep simulation + methods paper draft)
+> - `C:\Models\SheafNMA\` â€” cellular-sheaf inconsistency localization for network meta-analysis. v0.1.0 (2026-04-07) was math + single-file HTML dashboard + E156 #153 micro-paper on a synthetic 12-contrast network. v0.2.0 refactored the 457-LOC `generate_figures.py` into a `sheafnma/` package (`core`, `io`, `simulate`, `comparators`, `r_bridge`), validated on 13 R-netmeta built-in NMAs, and shipped a methods-paper draft for Research Synthesis Methods.
+> - Method: precision-weighted coboundary `F[e, treat1] = -1/SE_e, F[e, treat2] = +1/SE_e`; sheaf Laplacian `L = Fáµ€F` (symmetric PSD); WLS-solve node estimates with node 0 anchored; per-edge residuals `r_e = dÌƒ_e âˆ’ (F x*)_e` localize inconsistency; **Global Inconsistency Index** `GII = Î£ rÂ²` is the global statistic. One algebraic object yields both global + per-edge â€” complements (not replaces) node-splitting.
+> - Real-corpus headline: across **13 R-netmeta built-in NMAs** (Senn 2013 diabetes, Dias smokingcessation, Dong 2013 thrombolytics, Linde 2015/2016 acupuncture, Salanti antimanic, Baker, Dogliotti, Franchini, Gurusamy, Stowe, Woods, dietaryfat, parkinson) the global design-by-treatment Ï‡Â² (Higgins 2012) failed to reject in all 13. **SheafNMA flagged â‰¥1 localized inconsistency edge in 5 of those 13 (38.5%)** at the Youden-frozen threshold of **2.6912** â€” networks that look globally consistent harbor at least one inconsistent edge the global test misses.
+> - Simulation rigor: 36-cell grid (n_treatments âˆˆ {4,6,8} Ã— n_studies_per_edge âˆˆ {3,5,10} Ã— Ï„_inc âˆˆ {0,0.2,0.5,1.0}) Ã— **1000 replications per cell**, held-out training cell at (6,5,0.5) for Youden's-J threshold selection (frozen before evaluating remaining 35 cells). Type-I error at Ï„_inc=0 was **0.000 across all cells**. Mean per-edge sensitivity 0.981 / specificity 0.945 at Ï„_inc=0.5.
+
+ succeeded in 3473ms:
+   1: """For every limb P46 scores, does the thing it scores REACH A READER?
+   2: 
+   3: THE GENERAL FORM OF CLASS 83, WHICH WAS FOUND THREE TIMES IN ONE NIGHT IN THREE DIFFERENT
+   4: VOCABULARIES BEFORE ANYBODY ASKED THE GENERAL QUESTION:
+   5: 
+   6:     limb 3   applier wrote `title`/`agreement`     projector read `citation`/`how_it_differs`
+   7:              -> 16 rows across 13 topics rendered a PMID and four blank cells
+   8:     limb 4   applier wrote `model_output.verbatim` projector read `by_outcome.*.r_output`
+   9:              -> the manuscript refused "no analysis output is stored on this object"
+  10:     limb 4   applier wrote `model_output.verbatim` SCORER read `by_outcome.*.r_output`
+  11:              -> p46_queue returned ABSENT and two topics were REPORTED AS 4 OF 4 AT 3 OF 4
+  12: 
+  13: `p46_queue.score()` reads the OBJECT. It answers "does this topic possess the limb". It has
+  14: never answered "can a reader open a page and find it", and every P46 count reported so far
+  15: has meant the first while being heard as the second. THAT IS THE PRECISE DEFINITION OF
+  16: "objects built is not topics a reader can open", committed by the people who wrote it down.
+  17: 
+  18: HOW THIS DECIDES "RENDERS", AND WHY IT IS THE ONLY TEST THAT CANNOT BE FOOLED. It takes a
+  19: PROBE STRING OUT OF THE STORED LIMB ITSELF -- never typed here -- and looks for it in the
+  20: DELIVERED BYTES of the topic's page. Not in the object. Not in the projector's source. Not in
+  21: a list of section names. If the sentence the object stores is not in the file a reader
+  22: downloads, the limb does not reach a reader, whatever anything else says.
+  23: 
+  24:     probe = the longest run of HTML-safe characters in the stored limb, >= 40 chars
+  25: 
+  26: Quotes, ampersands and angle brackets are escaped on the way out, so a probe containing them
+  27: would report a false absence. The probe is chosen to avoid them rather than the comparison
+  28: being loosened -- a check that can only report "renders" is not a check.
+  29: 
+  30: SCORES ARE NEVER INVENTED HERE. `held` comes from importing p46_queue.score, so there is ONE
+  31: definition of held in the repo and this file cannot drift from it.
+  32: 
+  33: FOUR STATES PER LIMB:
+  34:     HELD+RENDERS   the object carries it and a reader can find it
+  35:     HELD ONLY      the object carries it and the delivered page does not show it  <- class 83
+  36:     NO PAGE        the topic has no page in PAGE_MAP, so nothing can be delivered
+  37:     not held       p46_queue says REFUSED or ABSENT; delivery is not asked
+  38: """
+  39: import glob
+  40: import importlib.util
+  41: import io
+  42: import json
+  43: import os
+  44: import re
+  45: import sys
+  46: 
+  47: REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+  48: sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+  49: from instrument_controls import require_controls          # noqa: E402
+  50: 
+  51: _spec = importlib.util.spec_from_file_location(
+  52:     "p46_queue", os.path.join(REPO, "scripts", "p46_queue.py"))
+  53: p46 = importlib.util.module_from_spec(_spec)
+  54: _spec.loader.exec_module(p46)
+  55: 
+  56: LIMBS = ["rob_per_result", "grade_per_pool", "comparison_denominator",
+  57:          "model_output_verbatim"]
+  58: 
+  59: # THE MANUSCRIPT SECTION EACH LIMB IS PROJECTED INTO, by its rendered heading. Used ONLY for
+  60: # refused limbs: the projector generates its own refusal wording rather than projecting the
+  61: # object's, so a probe taken from the object cannot match, and the testable property is
+  62: # narrower -- IS THE REFUSAL NAMED IN THIS LIMB'S OWN SECTION. Reported as REFUSED+NAMED, a
+  63: # deliberately weaker claim than HELD+RENDERS.
+  64: SECTION_HEADING = {
+  65:     "rob_per_result": "Risk of bias in the included results",
+  66:     "grade_per_pool": "Certainty of the evidence",
+  67:     "comparison_denominator": "Comparison with published syntheses",
+  68:     # THE HEADING THIS LIMB IS PROJECTED UNDER MOVED, AND THE PROBE HAS TO SURVIVE THAT.
+  69:     #
+  70:     # On 2026-08-21 the manuscript was reordered to F1000's canonical structure and this
+  71:     # section became `Extended data: statistical output, quoted verbatim` -- the venue's own
+  72:     # words for material supporting the key claims but not part of the main body. The old
+  73:     # value was matched with `re.escape` against the raw page, so it stopped matching on TWO
+  74:     # counts at once: a new prefix, and `Statistical` becoming lowercase `statistical`.
+  75:     #
+  76:     # A heading match that fails reports `the section heading is not on the page at all`,
+  77:     # which the audit scores as REFUSAL LOST. So a purely cosmetic rename would have been
+  78:     # reported as P46 limb 4 ceasing to reach readers on every topic that refuses it. That is
+  79:     # the SEVENTEENTH lookup in this run to under-count by reading one spelling of a thing the
+  80:     # corpus writes two ways, and the fifth to do it in a direction that reads as ABSENCE.
+  81:     #
+  82:     # Fixed at the resolver: the value is the STABLE TAIL of the heading and the search is
+  83:     # case-insensitive, so a prefix the venue requires cannot blind the probe again.
+  84:     "model_output_verbatim": "statistical output, quoted verbatim",
+  85: }
+  86: 
+  87: 
+  88: def refusal_named_in_section(page_text, heading):
+  89:     """Does a `Refused:` block appear inside this section on the delivered page?
+  90: 
+  91:     The section runs from the LAST occurrence of its heading (the first is the in-page
+  92:     navigation strip) to the next heading-like marker after it.
+  93: 
+  94:     MATCHED AS A HEADING ELEMENT, not as a bare substring, and case-insensitively.
+  95: 
+  96:     THE FIRST ATTEMPT AT THIS FIX BROKE FOUR TOPICS AND THE MEASUREMENT CAUGHT IT. Making a
+  97:     bare-substring search case-insensitive moved 4 topics from REFUSED+NAMED to REFUSED, NOT
+  98:     NAMED, because this function is shared by all four limbs and `hits[-1]` assumes the LAST
+  99:     mention is the heading. That assumption was being held up by capitalisation: `Risk of bias
+ 100:     in the included results` as a heading, `risk of bias in the included results` in prose
+ 101:     further down. Drop the case and the prose mention wins the `[-1]`, the span starts after
+ 102:     the real section, and a refusal that renders perfectly is reported missing.
+ 103: 
+ 104:     So the loosening is confined to where it belongs. Prose cannot appear inside an `<h2>`,
+ 105:     `<h3>` or `<h4>`, so anchoring on the element is immune to both failure modes at once: a
+ 106:     venue-required prefix cannot blind it, and a lowercase prose mention cannot steal it. It
+ 107:     also closes a defect the strict version already had -- a prose mention at the start of a
+ 108:     sentence is capitalised, and would have stolen the `[-1]` on any page that had one.
+ 109:     """
+ 110:     pat = r"(?is)<h[234][^>]*>[^<]*%s[^<]*</h[234]>" % re.escape(heading)
+ 111:     hits = [m.end() for m in re.finditer(pat, page_text)]
+ 112:     if not hits:
+ 113:         return False, "the section heading is not on the page at all"
+ 114:     start = hits[-1]
+ 115:     nxt = page_text.find("<h3", start)
+ 116:     span = page_text[start:nxt if nxt > start else start + 6000]
+ 117:     # TWO WAYS A REFUSAL REACHES A READER, AND ONLY ONE WAS RECOGNISED.
+ 118:     #
+ 119:     # The projector emits a `Refused:` block when it has NO field to project. But an object
+ 120:     # that refuses a limb DELIBERATELY -- storing state / why / what_would_close_it -- now has
+ 121:     # those projected as PROSE, which is a better refusal, not a missing one. Counting only
+ 122:     # the marker reported apixaban-vte-prophylaxis as REFUSAL LOST minutes after its refusal
+ 123:     # started rendering in full. A check that recognises one of two correct forms manufactures
+ 124:     # a defect out of an improvement.
+ 125:     named = ("Refused:" in span) or ("This limb is REFUSED" in span)
+ 126:     return named, ("a refusal is named in this section" if named
+ 127:                    else "the section renders with no refusal in it")
+ 128: 
+ 129: 
+ 130: def probe_is_distinctive(probe, page, other_pages):
+ 131:     """A probe found on OTHER topics' pages is boilerplate and proves nothing here.
+ 132: 
+ 133:     THE SECOND STATED LIMIT, CLOSED. A short or generic stored sentence can be shared across
+ 134:     objects -- house-rule wording, a ceiling statement, a standard refusal. Finding it in
+ 135:     this page would then say nothing about THIS limb reaching a reader. A probe that appears
+ 136:     on a page belonging to a different topic is reported WEAK rather than counted.
+ 137:     """
+ 138:     for p in other_pages:
+ 139:         if probe in p:
+ 140:             return False
+ 141:     return True
+ 142: 
+ 143: # Characters the renderer escapes on the way out. A probe containing one of these would be
+ 144: # looked for in a form the page never carries, and would report a false ABSENT.
+ 145: UNSAFE = re.compile(r"[<>&\"'â€˜â€™â€œâ€]")
+ 146: 
+ 147: 
+ 148: def probe_from(text, minimum=40):
+ 149:     """The longest HTML-safe run in `text`, or None if nothing long enough survives."""
+ 150:     if not isinstance(text, str):
+ 151:         return None
+ 152:     runs = [r.strip() for r in UNSAFE.split(text)]
+ 153:     runs = [r for r in runs if len(r) >= minimum]
+ 154:     return max(runs, key=len) if runs else None
+ 155: 
+ 156: 
+ 157: def strings_under(node, depth=0):
+ 158:     """Every string leaf under `node`, longest first, skipping bookkeeping keys."""
+ 159:     out = []
+ 160:     if isinstance(node, str):
+ 161:         out.append(node)
+ 162:     elif isinstance(node, dict):
+ 163:         for k, v in node.items():
+ 164:             if str(k).startswith("_") or str(k).upper().startswith("SUPERSEDED"):
+ 165:                 continue
+ 166:             out.extend(strings_under(v, depth + 1))
+ 167:     elif isinstance(node, list):
+ 168:         for v in node:
+ 169:             out.extend(strings_under(v, depth + 1))
+ 170:     return out
+ 171: 
+ 172: 
+ 173: def limb_probe(obj, limb):
+ 174:     """A string the renderer should emit for this limb, taken out of the object."""
+ 175:     if limb == "rob_per_result":
+ 176:         node = (obj.get("risk_of_bias") or {}).get("by_outcome")
+ 177:     elif limb == "grade_per_pool":
+ 178:         node = (obj.get("grade") or {}).get("by_outcome")
+ 179:         if not node:
+ 180:             node = [blk.get("grade") for _, blk in p46.pooled_outcomes(obj)]
+ 181:     elif limb == "comparison_denominator":
+ 182:         node = obj.get("published_comparison")
+ 183:     else:
+ 184:         # PROBE THE VERBATIM, WHICH IS THE THING THE LIMB SCORES.
+ 185:         #
+ 186:         # The first version of this function EXCLUDED `verbatim` and probed the prose fields
+ 187:         # around it -- what_it_is, interval_method, reproduction_of_the_previous_value -- on
+ 188:         # the reasoning that machine output is full of quotes. It reported HELD ONLY for
+ 189:         # eleven topics INCLUDING one whose R output I had confirmed on the public host an
+ 190:         # hour earlier. The prose fields genuinely do not render (the projector emits only
+ 191:         # environment, call and verbatim), but that is a different finding, and reporting it
+ 192:         # as "limb 4 reaches no reader" would have been false.
+ 193:         #
+ 194:         # A probe must come from the thing the limb scores. `p46_queue` scores
+ 195:         # `r_output.verbatim`; so does this. Class 77 in my own instrument, again.
+ 196:         node = [str((blk.get("r_output") or {}).get("verbatim") or "")
+ 197:                 for _, blk in p46.pooled_outcomes(obj)]
+ 198:         node = [s for s in node if s] or None
+ 199:     if not node:
+ 200:         return []
+ 201:     out = []
+ 202:     for s in sorted(strings_under(node), key=len, reverse=True):
+ 203:         p = probe_from(s)
+ 204:         if p and p not in out:
+ 205:             out.append(p)
+ 206:         if len(out) >= 12:
+ 207:             break
+ 208:     return out
+ 209: 
+ 210: 
+ 211: # WHY A LIST AND NOT THE LONGEST STRING -- THE THIRD PROBE-DESIGN CORRECTION IN THIS FILE.
+ 212: #
+ 213: # The first version returned the single longest HTML-safe run under the limb. That is not the
+ 214: # same as "a sentence the renderer emits", and for risk of bias it is systematically the wrong
+ 215: # one: the projector deliberately renders the OVERALL reason and the reasons for HIGH,
+ 216: # SOME_CONCERNS and LOW domains, and deliberately SKIPS NO_INFORMATION reasons -- which are
+ 217: # the longest strings in the block, because they carry the standing explanation of what this
+ 218: # review did not retrieve.
+ 219: #
+ 220: # So alirocumab, bempedoic-acid and iv-iron-hf were reported HELD ONLY on the strength of a
+ 221: # probe drawn from the one field guaranteed not to render. Twelve candidates now, and the
+ 222: # limb counts as reaching a reader if ANY of them is found. If none of twelve stored
+ 223: # sentences appears in the delivered bytes, the limb genuinely does not reach a reader.
+ 224: 
+ 225: 
+ 226: def page_map():
+ 227:     m = json.load(io.open(os.path.join(REPO, "ssot", "PAGE_MAP.json"), encoding="utf-8"))
+ 228:     rev = {}
+ 229:     for page, objpath in m.items():
+ 230:         rev.setdefault(os.path.basename(os.path.dirname(objpath)), []).append(page)
+ 231:     return rev
+ 232: 
+ 233: 
+ 234: # Pages from OTHER topics, used to test that a probe is distinctive rather than boilerplate.
+ 235: # Chosen to span builders and eras: an authored docmodel, an antibiotic pool, a lipid pool.
+ 236: CONTROL_PAGES = ["ARNI_HF_REVIEW.html", "LEFAMULIN_CABP_AUTO_FULL_REVIEW.html",
+ 237:                  "INCLISIRAN_LIPID_KIDNEY_AUTO_FULL_REVIEW.html", "ATTR_CM_REVIEW.html"]
+ 238: 
+ 239: 
+ 240: def main():
+ 241:     rev = page_map()
+ 242:     cache = {}
+ 243: 
+ 244:     def delivered(page):
+ 245:         if page not in cache:
+ 246:             p = os.path.join(REPO, page)
+ 247:             cache[page] = io.open(p, encoding="utf-8", errors="replace").read() \
+ 248:                 if os.path.isfile(p) else None
+ 249:         return cache[page]
+ 250: 
+ 251:     # ---- CONTROLS. The positive is a limb VERIFIED ON THE PUBLIC HOST earlier tonight; the
+ 252:     # negative is a sentence of the right shape that is in no object at all.
+ 253:     cab = json.load(io.open(os.path.join(
+ 254:         REPO, "ssot", "cab-prep-hiv-review", "cab-prep-hiv-review.json"), encoding="utf-8"))
+ 255:     pos_probe = (limb_probe(cab, "comparison_denominator") or [None])[0]
+ 256:     pos_page = delivered("CAB_PREP_HIV_REVIEW.html") or ""
+ 257:     require_controls(
+ 258:         "audit_p46_limbs_reach_a_reader",
+ 259:         positive=("cab-prep-hiv-review's comparison probe, confirmed on the public host at "
+ 260:                   "2026-08-21, is found in the delivered bytes",
+ 261:                   bool(pos_probe) and pos_probe in pos_page, True),
+ 262:         negative=("a sentence of the right shape that no object contains is reported as "
+ 263:                   "rendering",
+ 264:                   "THIS SENTENCE IS IN NO OBJECT AND MUST NOT BE FOUND ANYWHERE" in pos_page,
+ 265:                   True))
+ 266: 
+ 267:     rows = []
+ 268:     for p in sorted(glob.glob(os.path.join(REPO, "ssot", "*", "*.json"))):
+ 269:         topic = os.path.basename(os.path.dirname(p))
+ 270:         if os.path.basename(p) != topic + ".json":
+ 271:             continue
+ 272:         try:
+ 273:             obj = json.load(io.open(p, encoding="utf-8"))
+ 274:         except ValueError:
+ 275:             continue
+ 276:         if not p46.pooled_outcomes(obj):
+ 277:             continue
+ 278:         sc = p46.score(obj)
+ 279:         pages = rev.get(topic) or []
+ 280:         row = {"topic": topic, "pages": pages, "limbs": {}}
+ 281:         for limb in LIMBS:
+ 282:             state = sc.get(limb, ("ABSENT", ""))[0]
+ 283:             if state == "ABSENT":
+ 284:                 row["limbs"][limb] = ("not held", state)
+ 285:                 continue
+ 286:             if not pages:
+ 287:                 row["limbs"][limb] = ("NO PAGE", "topic absent from PAGE_MAP")
+ 288:                 continue
+ 289: 
+ 290:             # A REFUSED LIMB IS A COMPLETED OUTCOME UNDER P46 AND ITS DELIVERY IS ASKED TOO.
+ 291:             # The claim is narrower and labelled as such: the projector generates its own
+ 292:             # refusal wording, so what can be tested is that the refusal is NAMED IN THIS
+ 293:             # LIMB'S OWN SECTION, not that the object's reason was projected.
+ 294:             if state == "REFUSED":
+ 295:                 named, why = False, "no section mapped for this limb"
+ 296:                 for pg in pages:
+ 297:                     named, why = refusal_named_in_section(delivered(pg) or "",
+ 298:                                                           SECTION_HEADING[limb])
+ 299:                     if named:
+ 300:                         break
+ 301:                 row["limbs"][limb] = (("REFUSED+NAMED", why) if named
+ 302:                                       else ("REFUSED, NOT NAMED", why))
+ 303:                 continue
+ 304: 
+ 305:             prs = limb_probe(obj, limb)
+ 306:             if not prs:
+ 307:                 row["limbs"][limb] = ("UNPROBEABLE", "no HTML-safe run of 40+ chars stored")
+ 308:                 continue
+ 309:             hit, pr = [], None
+ 310:             for cand in prs:
+ 311:                 hit = [pg for pg in pages if cand in (delivered(pg) or "")]
+ 312:                 if hit:
+ 313:                     pr = cand
+ 314:                     break
+ 315:             if not hit:
+ 316:                 row["limbs"][limb] = ("HELD ONLY", "none of %d stored sentence(s) is in %s"
+ 317:                                                    % (len(prs), ", ".join(pages)))
+ 318:                 continue
+ 319:             others = [delivered(pg) or "" for pg in CONTROL_PAGES if pg not in pages]
+ 320:             if not probe_is_distinctive(pr, delivered(hit[0]) or "", others):
+ 321:                 row["limbs"][limb] = ("WEAK PROBE", "the probe also appears on another "
+ 322:                                                     "topic's page, so it is boilerplate and "
+ 323:                                                     "proves nothing about this limb")
+ 324:                 continue
+ 325:             row["limbs"][limb] = ("HELD+RENDERS", hit[0])
+ 326:         rows.append(row)
+ 327: 
+ 328:     print("")
+ 329:     print("TOPICS WITH AT LEAST ONE POOLED OUTCOME: %d" % len(rows))
+ 330:     print("")
+ 331:     hdr = ("topic", "RoB", "GRADE", "compare", "output")
+ 332:     print("%-42s %-13s %-13s %-13s %-13s" % hdr)
+ 333:     tally = dict((s, 0) for s in
+ 334:                  ("HELD+RENDERS", "HELD ONLY", "REFUSED+NAMED", "REFUSED, NOT NAMED",
+ 335:                   "NO PAGE", "UNPROBEABLE", "WEAK PROBE", "not held"))
+ 336:     both = held_only_topics = []
+ 337:     both, held_only_topics = [], []
+ 338:     for r in sorted(rows, key=lambda x: x["topic"]):
+ 339:         cells = []
+ 340:         for limb in LIMBS:
+ 341:             st = r["limbs"][limb][0]
+ 342:             tally[st] += 1
+ 343:             cells.append({"HELD+RENDERS": "renders", "HELD ONLY": "HELD-ONLY",
+ 344:                           "REFUSED+NAMED": "refusal shown",
+ 345:                           "REFUSED, NOT NAMED": "REFUSAL LOST",
+ 346:                           "NO PAGE": "no page", "UNPROBEABLE": "unprobeable",
+ 347:                           "WEAK PROBE": "WEAK PROBE", "not held": "-"}[st])
+ 348:         states = [r["limbs"][l][0] for l in LIMBS]
+ 349:         # DELIVERED means every limb reached a reader in the state P46 scored it: a held limb
+ 350:         # found in the bytes, or a refusal named in its own section.
+ 351:         if all(s in ("HELD+RENDERS", "REFUSED+NAMED") for s in states):
+ 352:             both.append(r["topic"])
+ 353:         if any(s == "HELD ONLY" for s in states):
+ 354:             held_only_topics.append(r["topic"])
+ 355:         if set(states) != {"not held"}:
+ 356:             print("%-42s %-13s %-13s %-13s %-13s" % tuple([r["topic"][:42]] + cells))
+ 357: 
+ 358:     print("")
+ 359:     print("LIMB-INSTANCES, over %d topics x 4 limbs = %d:" % (len(rows), len(rows) * 4))
+ 360:     for k in ("HELD+RENDERS", "HELD ONLY", "REFUSED+NAMED", "REFUSED, NOT NAMED",
+ 361:               "NO PAGE", "UNPROBEABLE", "WEAK PROBE", "not held"):
+ 362:         print("   %-14s %d" % (k, tally[k]))
+ 363:     print("")
+ 364:     print("TOPICS WHERE ALL FOUR LIMBS BOTH HOLD AND RENDER: %d" % len(both))
+ 365:     for t in both:
+ 366:         print("   %s" % t)
+ 367:     print("")
+ 368:     print("TOPICS CARRYING AT LEAST ONE LIMB THAT IS HELD AND DOES NOT RENDER: %d"
+ 369:           % len(held_only_topics))
+ 370:     for t in held_only_topics:
+ 371:         print("   %s" % t)
+ 372:     print("")
+ 373:     print("A LIMB THAT DOES NOT REACH A READER IS NOT A DELIVERED LIMB. p46_queue scores "
+ 374:           "POSSESSION;\nthis file scores DELIVERY, and the second number is the one a reader "
+ 375:           "experiences.")
+ 376: 
+ 377: 
+ 378: if __name__ == "__main__":
+ 379:     main()
+
+ succeeded in 3551ms:
+E156 REWRITE WORKBOOK
+sentinel:skip-file
+sentinel:claim-language-allow
+(Sentinel markers above:
+ - sentinel:skip-file: this workbook intentionally contains C:\Users\... PATH:
+   lines pointing to each project's local source directory â€” they're metadata,
+   not code. The marker keeps Sentinel from emitting ~16 P0 hardcoded-path
+   BLOCKs every push.
+ - sentinel:claim-language-allow: CURRENT BODY entries are the AI-drafted
+   summaries that students rewrite into hedged language â€” flagging overclaim
+   words IN those drafts is the whole pedagogical point, not a defect.
+   File-scope marker here suppresses the ~1293 claim-language WARNs on the
+   CURRENT BODY entries; the YOUR REWRITE entries are where the hedging
+   discipline matters and remains lintable in the rendered student board.)
+
+DENOMINATOR CONVENTION (added 2026-05-06 after review-findings P1-5):
+  Each entry header is `[N/total]` where N = ordinal insertion index and
+  `total` = current portfolio size as of the most recent reconcile sweep.
+  Older entries are back-rewritten on milestone boundaries (rather than
+  preserving their insertion-time denominator) to keep
+
+codex
+- **NEGATION DROPPED**: line 265.  
+  Exact input: `pos_probe = "P"*40`; `pos_page = "P"*40 + " THIS SENTENCE IS IN NO OBJECT AND MUST NOT BE FOUND ANYWHERE"`.  
+  Consequence: the negative control is satisfied when the forbidden sentence is present, so the guard is inverted.
+
+- **SELECTOR KEYED TO WRONG FORM**: line 110.  
+  Exact input: `refusal_named_in_section('<h3><span>Certainty of the evidence</span></h3><p>Refused:</p>', 'Certainty of the evidence')`.  
+  Consequence: a refusal under a real heading with inline markup is reported as “the section heading is not on the page at all.”
+
+- **SECTION BOUNDARY SELECTOR MATCHES TOO LITTLE**: line 115.  
+  Exact input: `refusal_named_in_section('<h2>Certainty of the evidence</h2><p>No refusal here.</p><h2>Next section</h2><p>Refused:</p>', 'Certainty of the evidence')`.  
+  Consequence: `Refused:` from the next `<h2>` section is counted as belonging to the prior limb section.
+
+- **TEXT COMPARED RAW ACROSS LINE-ENDINGS**: line 311.  
+  Exact input: `cand = "A"*40 + "\r\n" + "B"*40`; delivered page text contains `"A"*40 + "\n" + "B"*40`.  
+  Consequence: equal rendered content is reported `HELD ONLY` because CRLF/LF normalization is absent.
+
+- **CHECK CANNOT FAIL CLOSED**: lines 272-275.  
+  Exact input: `ssot/bad/bad.json` containing `{` with basename matching topic directory.  
+  Consequence: malformed SSOT input is silently dropped from the denominator instead of failing the audit.
+
+No proven defect found in the pasted file for: idempotency guard satisfied by own comment, different-copy instrumentation, merged-cell tabulation, zero conflated with absent, or count read from a negated sentence.
+tokens used
+26,184
+- **NEGATION DROPPED**: line 265.  
+  Exact input: `pos_probe = "P"*40`; `pos_page = "P"*40 + " THIS SENTENCE IS IN NO OBJECT AND MUST NOT BE FOUND ANYWHERE"`.  
+  Consequence: the negative control is satisfied when the forbidden sentence is present, so the guard is inverted.
+
+- **SELECTOR KEYED TO WRONG FORM**: line 110.  
+  Exact input: `refusal_named_in_section('<h3><span>Certainty of the evidence</span></h3><p>Refused:</p>', 'Certainty of the evidence')`.  
+  Consequence: a refusal under a real heading with inline markup is reported as “the section heading is not on the page at all.”
+
+- **SECTION BOUNDARY SELECTOR MATCHES TOO LITTLE**: line 115.  
+  Exact input: `refusal_named_in_section('<h2>Certainty of the evidence</h2><p>No refusal here.</p><h2>Next section</h2><p>Refused:</p>', 'Certainty of the evidence')`.  
+  Consequence: `Refused:` from the next `<h2>` section is counted as belonging to the prior limb section.
+
+- **TEXT COMPARED RAW ACROSS LINE-ENDINGS**: line 311.  
+  Exact input: `cand = "A"*40 + "\r\n" + "B"*40`; delivered page text contains `"A"*40 + "\n" + "B"*40`.  
+  Consequence: equal rendered content is reported `HELD ONLY` because CRLF/LF normalization is absent.
+
+- **CHECK CANNOT FAIL CLOSED**: lines 272-275.  
+  Exact input: `ssot/bad/bad.json` containing `{` with basename matching topic directory.  
+  Consequence: malformed SSOT input is silently dropped from the denominator instead of failing the audit.
+
+No proven defect found in the pasted file for: idempotency guard satisfied by own comment, different-copy instrumentation, merged-cell tabulation, zero conflated with absent, or count read from a negated sentence.

@@ -1,0 +1,24 @@
+A prior audit classified this repository's refusal gates by whether they
+could cover the output of `generate_living_ma_v13.py`, which writes HTML into sibling
+`*_LivingMeta` directories and does NOT write ssot/**/*.json. Most were classed
+STRUCTURALLY CANNOT.
+
+For EACH of the 3 gates below, read it in the repository and answer ONE question:
+
+    What would it take to make this gate cover v13's HTML output -- or is that impossible,
+    and why exactly?
+
+Answer in one of exactly three forms per gate:
+   EXTENDABLE  -- name the concrete change: the glob to add, the field to read from HTML
+                  instead of JSON, the predicate that would still hold
+   IMPOSSIBLE  -- name the property of v13 output that makes the gate's subject absent
+                  from it. "It reads JSON" is not an answer; say what the gate is ABOUT and
+                  why v13 pages cannot have it.
+   ALREADY     -- it already reads files v13 writes; say which.
+
+THE GATES:
+  scripts/sweep_rendered_interval_is_the_house_interval.py
+  scripts/verdict_gate.py
+  scripts/withdrawal_reason_gate.py
+
+Be concrete and be short: two or three sentences each. Do not modify any file.

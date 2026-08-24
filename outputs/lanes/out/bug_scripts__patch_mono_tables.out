@@ -1,0 +1,451 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a03208-a5d4-78a1-843e-566ba4a9b488
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/patch_mono_tables.py
+
+--- THE FILE, IN FULL ---
+import io, sys
+
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+P = r"F:\rapidmeta-ssot-shell\ssot\make_docx.py"
+s = open(P, encoding="utf-8").read()
+
+# 1. the REAL renderer learns monospace cells
+old = '''def table(doc, caption, headers, rows):
+    global TBL
+    TBL += 1
+    c = doc.add_paragraph("Table %d. %s" % (TBL, caption))
+    c.runs[0].bold = True
+    t = doc.add_table(rows=1, cols=len(headers))
+    t.style = "Light Grid Accent 1"
+    t.alignment = WD_TABLE_ALIGNMENT.CENTER
+    for i, h in enumerate(headers):
+        cell = t.rows[0].cells[i]
+        cell.text = ""
+        run = cell.paragraphs[0].add_run(h)
+        run.bold = True
+    for r in rows:
+        cells = t.add_row().cells
+        for i, v in enumerate(r):
+            cells[i].text = n(v)
+    doc.add_paragraph()
+    return t'''
+new = '''def table(doc, caption, headers, rows, mono_cols=()):
+    """Render a table. `mono_cols` are column indices holding VERBATIM text.
+
+    Quoted evidence belongs in a table with its context -- what result it belongs
+    to, the call, the estimate -- not as a free-standing block a reader has to
+    match up by eye. But a metafor table whose columns stop lining up is a
+    misquotation, so the monospace and the line breaks are preserved INSIDE the
+    cell: one paragraph per line, Consolas, zero space-after.
+    """
+    global TBL
+    TBL += 1
+    c = doc.add_paragraph("Table %d. %s" % (TBL, caption))
+    c.runs[0].bold = True
+    t = doc.add_table(rows=1, cols=len(headers))
+    t.style = "Light Grid Accent 1"
+    t.alignment = WD_TABLE_ALIGNMENT.CENTER
+    for i, h in enumerate(headers):
+        cell = t.rows[0].cells[i]
+        cell.text = ""
+        run = cell.paragraphs[0].add_run(h)
+        run.bold = True
+    for r in rows:
+        cells = t.add_row().cells
+        for i, v in enumerate(r):
+            if i in mono_cols:
+                cell = cells[i]
+                cell.text = ""
+                lines = str(v if v is not None else "").split("\\n")
+                for j, line in enumerate(lines):
+                    para = cell.paragraphs[0] if j == 0 else cell.add_paragraph()
+                    para.paragraph_format.space_after = Pt(0)
+                    run = para.add_run(line)
+                    run.font.name = "Consolas"
+                    run.font.size = Pt(7.5)
+            else:
+                cells[i].text = n(v)
+    doc.add_paragraph()
+    return t'''
+assert s.count(old) == 1
+s = s.replace(old, new)
+
+# 2. the RECORDER carries mono_cols into the docmodel so the page matches
+old2 = '''def table(doc, caption, headers, rows):
+    global TBL
+    TBL += 1
+    DOCMODEL.append({"kind": "table", "n": TBL, "caption": caption,
+                     "headers": [str(h) for h in headers],
+                     "rows": [[n(v) for v in r] for r in rows]})
+    if _DEFER_ON:
+        _DEFERRED_T.append((TBL, caption, headers, rows))
+        return None
+    return _real_table(doc, caption, headers, rows)'''
+new2 = '''def table(doc, caption, headers, rows, mono_cols=()):
+    global TBL
+    TBL += 1
+    # mono_cols travels in the block so the page renders the same cells verbatim.
+    # A quotation that is monospaced in one surface and reflowed in the other is
+    # two different quotations, which the alignment gate would then have to call
+    # a divergence.
+    DOCMODEL.append({"kind": "table", "n": TBL, "caption": caption,
+                     "headers": [str(h) for h in headers],
+                     "mono_cols": list(mono_cols),
+                     "rows": [[(v if i in mono_cols else n(v))
+                               for i, v in enumerate(r)] for r in rows]})
+    if _DEFER_ON:
+        _DEFERRED_T.append((TBL, caption, headers, rows, tuple(mono_cols)))
+        return None
+    return _real_table(doc, caption, headers, rows, mono_cols)'''
+assert s.count(old2) == 1
+s = s.replace(old2, new2)
+
+# 3. deferred emission passes it through
+old3 = '''    for _n, _cap, _hd, _rw in _DEFERRED_T:
+        TBL = _n - 1
+        _real_table(doc, _cap, _hd, _rw)'''
+new3 = '''    for _n, _cap, _hd, _rw, _mc in _DEFERRED_T:
+        TBL = _n - 1
+        _real_table(doc, _cap, _hd, _rw, _mc)'''
+assert s.count(old3) == 1
+s = s.replace(old3, new3)
+
+# 4. R output section becomes ONE table instead of loose pre blocks
+old4 = '''    for _bid, _b in _RO["blocks"].items():
+        doc.add_heading(_b.get("label", _bid), 2)
+        doc.add_paragraph("Call: %s" % _b.get("call", ""))
+        verbatim(doc, _b.get("output", ""))'''
+new4 = '''    table(doc, "Statistical output quoted verbatim, with the call that produced it",
+          ["Result", "Call", "Verbatim output"],
+          [[_b.get("label", _bid), _b.get("call", ""), _b.get("output", "")]
+           for _bid, _b in _RO["blocks"].items()],
+          mono_cols=(2,))'''
+assert s.count(old4) == 1
+s = s.replace(old4, new4)
+
+# 5. the comparison section's quoted evidence becomes a table too
+old5 = '''        doc.add_heading("Quoted evidence for each check", 2)
+        for c in _ck:
+            _q = c.get("quote")
+            doc.add_paragraph("%s -- %s. %s"
+                              % (c.get("verdict", ""), c.get("what", ""),
+                                 ("Quoted from %s: \\u201c%s\\u201d"
+                                  % (c.get("location", ""), _q)) if _q else
+                                 ("Checked at %s; nothing to quote because the "
+                                  "item is absent from the paper."
+                                  % c.get("location", ""))))'''
+new5 = '''        # Claim, verbatim quotation, location, adjudication -- in that order,
+        # because that is the order a reader checks us in.
+        table(doc, "Quoted evidence for each check, with its location and our "
+                   "adjudication",
+              ["Claim checked", "Verbatim quotation", "Location", "Adjudication"],
+              [[c.get("what", ""),
+                (c.get("quote") or
+                 "[nothing to quote: the item is absent from the paper]"),
+                c.get("location", ""),
+                "%s%s" % (c.get("verdict", ""),
+                          (" (%s)" % c["severity"]) if c.get("severity") else "")]
+               for c in _ck],
+              mono_cols=())'''
+assert s.count(old5) == 1
+s = s.replace(old5, new5)
+
+open(P, "w", encoding="utf-8").write(s)
+print("make_docx: mono_cols tables; R output and quoted evidence now tabular")
+
+# ---------------------------------------------------------------- wysiwyg
+W = r"F:\rapidmeta-ssot-shell\ssot\wysiwyg.py"
+w = open(W, encoding="utf-8").read()
+oldw = '''def _table(b):
+    head = "".join("<th>%s</th>" % e(str(h)) for h in b.get("headers", []))
+    body = ""
+    for r in b.get("rows", []):
+        body += ("      <tr>%s</tr>%s"
+                 % ("".join("<td>%s</td>" % e(str(v)) for v in r), NL))'''
+neww = '''def _table(b):
+    head = "".join("<th>%s</th>" % e(str(h)) for h in b.get("headers", []))
+    body = ""
+    mono = set(b.get("mono_cols") or [])
+    for r in b.get("rows", []):
+        # A verbatim cell keeps its own line breaks and column alignment. Without
+        # this the page reflows a metafor table that the Word file preserves, and
+        # the two surfaces would be showing different quotations.
+        body += ("      <tr>%s</tr>%s"
+                 % ("".join(("<td><pre class='cellpre'>%s</pre></td>"
+                             if i in mono else "<td>%s</td>")
+                            % e(str(v)) for i, v in enumerate(r)), NL))'''
+assert w.count(oldw) == 1
+w = w.replace(oldw, neww)
+oldc = " .doc pre{font-family:Consolas,'SF Mono',Menlo,monospace;font-size:.76rem;"
+newc = (" .doc pre.cellpre{margin:0;padding:.2rem .25rem;border:0;background:none;\n"
+        "      font-size:.66rem;line-height:1.25;white-space:pre;overflow-x:auto}\n"
+        " .doc pre{font-family:Consolas,'SF Mono',Menlo,monospace;font-size:.76rem;")
+assert w.count(oldc) == 1
+w = w.replace(oldc, newc)
+open(W, "w", encoding="utf-8").write(w)
+print("wysiwyg: verbatim table cells render as <pre>")
+
+codex
+I’ll verify the pasted module’s line numbers against the local file, then I’ll keep the response to defects only.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$i=1; Get-Content -Path .'"\\scripts\\patch_mono_tables.py | ForEach-Object { '{0,4}: {1}' -f "'$i, $_; $i++ }' in F:\rapidmeta-ssot-shell
+ succeeded in 1626ms:
+   1: import io, sys
+   2: 
+   3: sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+   4: P = r"F:\rapidmeta-ssot-shell\ssot\make_docx.py"
+   5: s = open(P, encoding="utf-8").read()
+   6: 
+   7: # 1. the REAL renderer learns monospace cells
+   8: old = '''def table(doc, caption, headers, rows):
+   9:     global TBL
+  10:     TBL += 1
+  11:     c = doc.add_paragraph("Table %d. %s" % (TBL, caption))
+  12:     c.runs[0].bold = True
+  13:     t = doc.add_table(rows=1, cols=len(headers))
+  14:     t.style = "Light Grid Accent 1"
+  15:     t.alignment = WD_TABLE_ALIGNMENT.CENTER
+  16:     for i, h in enumerate(headers):
+  17:         cell = t.rows[0].cells[i]
+  18:         cell.text = ""
+  19:         run = cell.paragraphs[0].add_run(h)
+  20:         run.bold = True
+  21:     for r in rows:
+  22:         cells = t.add_row().cells
+  23:         for i, v in enumerate(r):
+  24:             cells[i].text = n(v)
+  25:     doc.add_paragraph()
+  26:     return t'''
+  27: new = '''def table(doc, caption, headers, rows, mono_cols=()):
+  28:     """Render a table. `mono_cols` are column indices holding VERBATIM text.
+  29: 
+  30:     Quoted evidence belongs in a table with its context -- what result it belongs
+  31:     to, the call, the estimate -- not as a free-standing block a reader has to
+  32:     match up by eye. But a metafor table whose columns stop lining up is a
+  33:     misquotation, so the monospace and the line breaks are preserved INSIDE the
+  34:     cell: one paragraph per line, Consolas, zero space-after.
+  35:     """
+  36:     global TBL
+  37:     TBL += 1
+  38:     c = doc.add_paragraph("Table %d. %s" % (TBL, caption))
+  39:     c.runs[0].bold = True
+  40:     t = doc.add_table(rows=1, cols=len(headers))
+  41:     t.style = "Light Grid Accent 1"
+  42:     t.alignment = WD_TABLE_ALIGNMENT.CENTER
+  43:     for i, h in enumerate(headers):
+  44:         cell = t.rows[0].cells[i]
+  45:         cell.text = ""
+  46:         run = cell.paragraphs[0].add_run(h)
+  47:         run.bold = True
+  48:     for r in rows:
+  49:         cells = t.add_row().cells
+  50:         for i, v in enumerate(r):
+  51:             if i in mono_cols:
+  52:                 cell = cells[i]
+  53:                 cell.text = ""
+  54:                 lines = str(v if v is not None else "").split("\\n")
+  55:                 for j, line in enumerate(lines):
+  56:                     para = cell.paragraphs[0] if j == 0 else cell.add_paragraph()
+  57:                     para.paragraph_format.space_after = Pt(0)
+  58:                     run = para.add_run(line)
+  59:                     run.font.name = "Consolas"
+  60:                     run.font.size = Pt(7.5)
+  61:             else:
+  62:                 cells[i].text = n(v)
+  63:     doc.add_paragraph()
+  64:     return t'''
+  65: assert s.count(old) == 1
+  66: s = s.replace(old, new)
+  67: 
+  68: # 2. the RECORDER carries mono_cols into the docmodel so the page matches
+  69: old2 = '''def table(doc, caption, headers, rows):
+  70:     global TBL
+  71:     TBL += 1
+  72:     DOCMODEL.append({"kind": "table", "n": TBL, "caption": caption,
+  73:                      "headers": [str(h) for h in headers],
+  74:                      "rows": [[n(v) for v in r] for r in rows]})
+  75:     if _DEFER_ON:
+  76:         _DEFERRED_T.append((TBL, caption, headers, rows))
+  77:         return None
+  78:     return _real_table(doc, caption, headers, rows)'''
+  79: new2 = '''def table(doc, caption, headers, rows, mono_cols=()):
+  80:     global TBL
+  81:     TBL += 1
+  82:     # mono_cols travels in the block so the page renders the same cells verbatim.
+  83:     # A quotation that is monospaced in one surface and reflowed in the other is
+  84:     # two different quotations, which the alignment gate would then have to call
+  85:     # a divergence.
+  86:     DOCMODEL.append({"kind": "table", "n": TBL, "caption": caption,
+  87:                      "headers": [str(h) for h in headers],
+  88:                      "mono_cols": list(mono_cols),
+  89:                      "rows": [[(v if i in mono_cols else n(v))
+  90:                                for i, v in enumerate(r)] for r in rows]})
+  91:     if _DEFER_ON:
+  92:         _DEFERRED_T.append((TBL, caption, headers, rows, tuple(mono_cols)))
+  93:         return None
+  94:     return _real_table(doc, caption, headers, rows, mono_cols)'''
+  95: assert s.count(old2) == 1
+  96: s = s.replace(old2, new2)
+  97: 
+  98: # 3. deferred emission passes it through
+  99: old3 = '''    for _n, _cap, _hd, _rw in _DEFERRED_T:
+ 100:         TBL = _n - 1
+ 101:         _real_table(doc, _cap, _hd, _rw)'''
+ 102: new3 = '''    for _n, _cap, _hd, _rw, _mc in _DEFERRED_T:
+ 103:         TBL = _n - 1
+ 104:         _real_table(doc, _cap, _hd, _rw, _mc)'''
+ 105: assert s.count(old3) == 1
+ 106: s = s.replace(old3, new3)
+ 107: 
+ 108: # 4. R output section becomes ONE table instead of loose pre blocks
+ 109: old4 = '''    for _bid, _b in _RO["blocks"].items():
+ 110:         doc.add_heading(_b.get("label", _bid), 2)
+ 111:         doc.add_paragraph("Call: %s" % _b.get("call", ""))
+ 112:         verbatim(doc, _b.get("output", ""))'''
+ 113: new4 = '''    table(doc, "Statistical output quoted verbatim, with the call that produced it",
+ 114:           ["Result", "Call", "Verbatim output"],
+ 115:           [[_b.get("label", _bid), _b.get("call", ""), _b.get("output", "")]
+ 116:            for _bid, _b in _RO["blocks"].items()],
+ 117:           mono_cols=(2,))'''
+ 118: assert s.count(old4) == 1
+ 119: s = s.replace(old4, new4)
+ 120: 
+ 121: # 5. the comparison section's quoted evidence becomes a table too
+ 122: old5 = '''        doc.add_heading("Quoted evidence for each check", 2)
+ 123:         for c in _ck:
+ 124:             _q = c.get("quote")
+ 125:             doc.add_paragraph("%s -- %s. %s"
+ 126:                               % (c.get("verdict", ""), c.get("what", ""),
+ 127:                                  ("Quoted from %s: \\u201c%s\\u201d"
+ 128:                                   % (c.get("location", ""), _q)) if _q else
+ 129:                                  ("Checked at %s; nothing to quote because the "
+ 130:                                   "item is absent from the paper."
+ 131:                                   % c.get("location", ""))))'''
+ 132: new5 = '''        # Claim, verbatim quotation, location, adjudication -- in that order,
+ 133:         # because that is the order a reader checks us in.
+ 134:         table(doc, "Quoted evidence for each check, with its location and our "
+ 135:                    "adjudication",
+ 136:               ["Claim checked", "Verbatim quotation", "Location", "Adjudication"],
+ 137:               [[c.get("what", ""),
+ 138:                 (c.get("quote") or
+ 139:                  "[nothing to quote: the item is absent from the paper]"),
+ 140:                 c.get("location", ""),
+ 141:                 "%s%s" % (c.get("verdict", ""),
+ 142:                           (" (%s)" % c["severity"]) if c.get("severity") else "")]
+ 143:                for c in _ck],
+ 144:               mono_cols=())'''
+ 145: assert s.count(old5) == 1
+ 146: s = s.replace(old5, new5)
+ 147: 
+ 148: open(P, "w", encoding="utf-8").write(s)
+ 149: print("make_docx: mono_cols tables; R output and quoted evidence now tabular")
+ 150: 
+ 151: # ---------------------------------------------------------------- wysiwyg
+ 152: W = r"F:\rapidmeta-ssot-shell\ssot\wysiwyg.py"
+ 153: w = open(W, encoding="utf-8").read()
+ 154: oldw = '''def _table(b):
+ 155:     head = "".join("<th>%s</th>" % e(str(h)) for h in b.get("headers", []))
+ 156:     body = ""
+ 157:     for r in b.get("rows", []):
+ 158:         body += ("      <tr>%s</tr>%s"
+ 159:                  % ("".join("<td>%s</td>" % e(str(v)) for v in r), NL))'''
+ 160: neww = '''def _table(b):
+ 161:     head = "".join("<th>%s</th>" % e(str(h)) for h in b.get("headers", []))
+ 162:     body = ""
+ 163:     mono = set(b.get("mono_cols") or [])
+ 164:     for r in b.get("rows", []):
+ 165:         # A verbatim cell keeps its own line breaks and column alignment. Without
+ 166:         # this the page reflows a metafor table that the Word file preserves, and
+ 167:         # the two surfaces would be showing different quotations.
+ 168:         body += ("      <tr>%s</tr>%s"
+ 169:                  % ("".join(("<td><pre class='cellpre'>%s</pre></td>"
+ 170:                              if i in mono else "<td>%s</td>")
+ 171:                             % e(str(v)) for i, v in enumerate(r)), NL))'''
+ 172: assert w.count(oldw) == 1
+ 173: w = w.replace(oldw, neww)
+ 174: oldc = " .doc pre{font-family:Consolas,'SF Mono',Menlo,monospace;font-size:.76rem;"
+ 175: newc = (" .doc pre.cellpre{margin:0;padding:.2rem .25rem;border:0;background:none;\n"
+ 176:         "      font-size:.66rem;line-height:1.25;white-space:pre;overflow-x:auto}\n"
+ 177:         " .doc pre{font-family:Consolas,'SF Mono',Menlo,monospace;font-size:.76rem;")
+ 178: assert w.count(oldc) == 1
+ 179: w = w.replace(oldc, newc)
+ 180: open(W, "w", encoding="utf-8").write(w)
+ 181: print("wysiwyg: verbatim table cells render as <pre>")
+
+codex
+Defects found:
+
+- **Instrument reading a DIFFERENT COPY** — line 4. Exact input: run `py C:\rapidmeta-ssot-shell\scripts\patch_mono_tables.py` intending to patch `C:\rapidmeta-ssot-shell`, while `F:\rapidmeta-ssot-shell\ssot\make_docx.py` exists. Consequence: it reads/writes the F: copy, not the invoked worktree.
+
+- **Instrument reading a DIFFERENT COPY** — line 152. Exact input: same invocation, intending to patch `C:\rapidmeta-ssot-shell\ssot\wysiwyg.py`. Consequence: the WYSIWYG patch lands in F:, so the intended copy can remain unchanged.
+
+- **Probe keyed to the STRING A FIX REMOVES** — lines 65, 95, 105, 118, 145, 172, 178. Exact input: run `py scripts\patch_mono_tables.py` twice from the expected unpatched state. Consequence: the second run fails because success removed every `old*` probe string, so the check cannot distinguish “already fixed” from “wrong”.
+
+- **STATUS CODE REPORTING THE WRAPPER / check cannot fail under `-O`** — lines 65, 95, 105, 118, 145, 172, 178, with success prints at 149 and 181. Exact input: `py -O scripts\patch_mono_tables.py` when the target files contain none of the `old*` strings. Consequence: assertions are stripped, replacements are no-ops, files are still written, and the script exits 0 while printing success.
+
+- **ZERO CONFLATED WITH ABSENT** — line 138. Exact input in `_ck`: `{"what":"x","quote":0,"location":"L","verdict":"PASS"}`. Consequence: a real zero value is rendered as `[nothing to quote: the item is absent from the paper]`.
+
+COULD NOT DETERMINE selector-keyed-to-unused-corpus-form: missing current contents/corpus of `ssot/make_docx.py` and `ssot/wysiwyg.py`.
+
+None found in this packet: own-comment idempotency guard, CRLF/LF text comparison, negation dropped.
+tokens used
+22,092
+Defects found:
+
+- **Instrument reading a DIFFERENT COPY** — line 4. Exact input: run `py C:\rapidmeta-ssot-shell\scripts\patch_mono_tables.py` intending to patch `C:\rapidmeta-ssot-shell`, while `F:\rapidmeta-ssot-shell\ssot\make_docx.py` exists. Consequence: it reads/writes the F: copy, not the invoked worktree.
+
+- **Instrument reading a DIFFERENT COPY** — line 152. Exact input: same invocation, intending to patch `C:\rapidmeta-ssot-shell\ssot\wysiwyg.py`. Consequence: the WYSIWYG patch lands in F:, so the intended copy can remain unchanged.
+
+- **Probe keyed to the STRING A FIX REMOVES** — lines 65, 95, 105, 118, 145, 172, 178. Exact input: run `py scripts\patch_mono_tables.py` twice from the expected unpatched state. Consequence: the second run fails because success removed every `old*` probe string, so the check cannot distinguish “already fixed” from “wrong”.
+
+- **STATUS CODE REPORTING THE WRAPPER / check cannot fail under `-O`** — lines 65, 95, 105, 118, 145, 172, 178, with success prints at 149 and 181. Exact input: `py -O scripts\patch_mono_tables.py` when the target files contain none of the `old*` strings. Consequence: assertions are stripped, replacements are no-ops, files are still written, and the script exits 0 while printing success.
+
+- **ZERO CONFLATED WITH ABSENT** — line 138. Exact input in `_ck`: `{"what":"x","quote":0,"location":"L","verdict":"PASS"}`. Consequence: a real zero value is rendered as `[nothing to quote: the item is absent from the paper]`.
+
+COULD NOT DETERMINE selector-keyed-to-unused-corpus-form: missing current contents/corpus of `ssot/make_docx.py` and `ssot/wysiwyg.py`.
+
+None found in this packet: own-comment idempotency guard, CRLF/LF text comparison, negation dropped.

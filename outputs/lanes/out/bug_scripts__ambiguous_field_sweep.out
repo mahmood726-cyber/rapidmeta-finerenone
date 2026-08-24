@@ -1,0 +1,271 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a03129-74ee-7fe2-8649-7680bfb53201
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/ambiguous_field_sweep.py
+
+--- THE FILE, IN FULL ---
+"""Sweep for fields whose NAME maps to more than one standard definition.
+
+THE CLASS, named after the ARNI I-squared finding: an ambiguous label on an unambiguous
+number. Every value can be correct and the object still defective, because a reader who
+recomputes the quantity from the definition the name implies will conclude we are wrong --
+and that reader is behaving exactly as we want readers to behave. IT IS SPECIFICALLY A
+DEFECT AGAINST THE ONLY READER WE CLAIM TO SERVE.
+
+Measured, not assumed: `alirocumab-lipid` carries Higgins (Q-df)/Q = 87.9 and `arni-hfref`
+carries the metafor/REML tau2/(tau2+s2) = 32.89, both in a field named `i2`, on the same
+corpus, in opposite directions.
+
+THREE QUESTIONS, because the estimator finding changed the shape of this sweep:
+
+  1. WHICH OBJECTS DECLARE AN ESTIMATOR AND WHICH DO NOT. Proved load-bearing: ignoring
+     three objects' declared DerSimonian-Laird produced a false accusation against four
+     named live pages. An object carrying a random-effects pool and NO declared estimator
+     cannot be re-derived by anyone, including us.
+  2. WHICH I-SQUARED DEFINITION EACH CARRIES. Decided by recomputing both from the object's
+     own per-trial inputs and seeing which one the stored value matches.
+  3. WHICH OTHER FIELD NAMES ARE AMBIGUOUS -- tau2 estimator, interval method, "response
+     rate", and anything else a recomputation would need to know and cannot infer.
+
+THIS REPORTS. It changes nothing. The fix belongs in the projector so it cannot drift, and
+under `display_change_announced` because the meaning is being made explicit even though no
+value moves.
+"""
+from __future__ import annotations
+import io
+import json
+import math
+import os
+import sys
+
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+Z = 1.959963985
+RATIO = {"HR", "RR", "OR", "IRR", "RATE_RATIO", "RISK_RATIO", "ODDS_RATIO",
+         "HAZARD_RATIO"}
+
+# name -> the competing standard definitions a reader could reasonably assume
+AMBIGUOUS = {
+    "i2": "Higgins (Q-df)/Q  OR  metafor/REML tau2/(tau2+s2)",
+    "i_squared": "Higgins (Q-df)/Q  OR  metafor/REML tau2/(tau2+s2)",
+    "tau2": "DerSimonian-Laird  OR  REML  OR  Paule-Mandel  OR  Empirical Bayes",
+    "ci_low": "normal-theory z  OR  Hartung-Knapp t  OR  profile-likelihood",
+    "ci_high": "normal-theory z  OR  Hartung-Knapp t  OR  profile-likelihood",
+    "response_rate": "responders/randomised  OR  responders/evaluable  OR  best overall",
+    "cure_rate": "test-of-cure  OR  end-of-treatment  OR  clinical vs microbiological",
+    "prediction_interval": "t_{k-1} (Handbook 6.5)  OR  t_{k-2} (IntHout 2016)",
+}
+
+
+def both_i2(blk, measure):
+    """Recompute Higgins and metafor I2 from the object's own per-trial inputs."""
+    pt = blk.get("per_trial") or []
+    log = (measure or "").upper() in RATIO
+    v = []
+    for t in pt:
+        p, lo, hi = t.get("point"), t.get("ci_low"), t.get("ci_high")
+        ls = t.get("log_se") or t.get("se") or t.get("se_log_rr")
+        if ls:
+            v.append(ls * ls)
+        elif None not in (p, lo, hi):
+            if log and min(p, lo, hi) > 0:
+                v.append(((math.log(hi) - math.log(lo)) / (2 * Z)) ** 2)
+            elif not log:
+                v.append(((hi - lo) / (2 * Z)) ** 2)
+            else:
+                return None
+        else:
+            return None
+    k = len(v)
+    het = blk.get("heterogeneity") or {}
+    q, t2 = het.get("q"), het.get("tau2")
+    if k < 2 or q in (None, 0) or t2 is None:
+        return None
+    W = [1 / x for x in v]
+    SW = sum(W)
+    SW2 = sum(x * x for x in W)
+    denom = SW * SW - SW2
+    if denom <= 0:
+        return None
+    s2 = (k - 1) * SW / denom
+    return ((q - (k - 1)) / q * 100, t2 / (t2 + s2) * 100 if (t2 + s2) else 0.0)
+
+
+def main() -> int:
+    ss = os.path.join(REPO, "ssot")
+    no_est, est_kinds, i2_kind, amb = [], {}, {"higgins": [], "metafor": [],
+                                               "neither": [], "undecidable": []}, {}
+    pooled_n = 0
+    for d in sorted(os.listdir(ss)):
+        f = os.path.join(ss, d, d + ".json")
+        if not os.path.exists(f):
+            continue
+        try:
+            o = json.load(io.open(f, encoding="utf-8"))
+        except Exception:
+            continue
+        for name, blk in ((o.get("results") or {}).get("by_outcome") or {}).items():
+            if not isinstance(blk, dict):
+                continue
+            pl = blk.get("pooled") or {}
+            if pl.get("point") is None:
+                continue
+            pooled_n += 1
+            est = blk.get("estimator") or blk.get("estimator_used")
+            if not est:
+                no_est.append("%s :: %s" % (d, name))
+            else:
+                key = ("DL" if "dersimonian" in str(est).lower()
+                       else "REML" if "reml" in str(est).lower() else str(est)[:26])
+                est_kinds[key] = est_kinds.get(key, 0) + 1
+            het = blk.get("heterogeneity") or {}
+            stored = het.get("i2") or het.get("i2_percent")
+            if stored is not None:
+                got = both_i2(blk, pl.get("measure") or blk.get("measure"))
+                if not got:
+                    i2_kind["undecidable"].append("%s :: %s" % (d, name))
+                else:
+                    hg, mf = got
+                    # AT I2 = 0 THE TWO DEFINITIONS ARE INDISTINGUISHABLE. Where Q < df,
+                    # Higgins is negative and clamped to 0 while metafor is exactly 0, so
+                    # both match a stored 0.00 and the object CANNOT be classified. The
+                    # first version of this sweep assigned all six such objects to
+                    # "metafor" and would have reported a 10-7 split where the real,
+                    # decidable split is 10-1.
+                    if abs(stored) < 0.05 and abs(hg - mf) < 0.05 or stored == 0.0:
+                        i2_kind["undecidable"].append(
+                            "%s (i2=0, Q=%.4f < df -- both definitions give 0)"
+                            % (d, (blk.get("heterogeneity") or {}).get("q") or 0))
+                    elif abs(stored - hg) < 0.05:
+                        i2_kind["higgins"].append("%s (%.2f)" % (d, stored))
+                    elif abs(stored - mf) < 0.05:
+                        i2_kind["metafor"].append("%s (%.2f)" % (d, stored))
+                    else:
+                        i2_kind["neither"].append(
+                            "%s stored=%.2f higgins=%.2f metafor=%.2f"
+                            % (d, stored, hg, mf))
+            for fld in list(blk.keys()) + list(het.keys()) + list(pl.keys()):
+                if fld in AMBIGUOUS:
+                    amb.setdefault(fld, set()).add(d)
+
+    print("outcome blocks carrying a pooled point: %d" % pooled_n)
+    print()
+    print("=== 1. ESTIMATOR DECLARED?")
+    for k, n in sorted(est_kinds.items(), key=lambda x: -x[1]):
+        print("    declared %-26s %d" % (k, n))
+    print("    NOT DECLARED                %d" % len(no_est))
+    for x in no_est[:14]:
+        print("        %s" % x[:76])
+    print()
+    print("=== 2. WHICH I-SQUARED DEFINITION")
+    for k in ["higgins", "metafor", "neither", "undecidable"]:
+        rows = i2_kind[k]
+        print("    %-12s %d" % (k, len(rows)))
+        for x in rows[:8]:
+            print("        %s" % x[:76])
+    print()
+    print("=== 3. AMBIGUOUS FIELD NAMES PRESENT IN THE CORPUS")
+    for fld, topics in sorted(amb.items(), key=lambda x: -len(x[1])):
+        print("    %-22s %3d objects   competing: %s" % (fld, len(topics), AMBIGUOUS[fld]))
+    print()
+    print("NOTHING HAS BEEN CHANGED. The fix belongs in the projector, under "
+          "display_change_announced, because the meaning is made explicit while no value "
+          "moves.")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+
+codex
+I’ll treat the pasted packet as the whole record and only call defects that are directly demonstrable from these lines. I’m numbering from the first line of the pasted file.
+codex
+Defects found:
+
+- **ZERO CONFLATED WITH ABSENT**: line 118, `stored = het.get("i2") or het.get("i2_percent")`.  
+  Exact input at `ssot/x/x.json`: `{"results":{"by_outcome":{"o":{"pooled":{"point":1,"measure":"MD"},"per_trial":[{"se":1},{"se":1}],"heterogeneity":{"i2":0.0,"q":0.5,"tau2":0.0}}}}}`  
+  Consequence: a real stored `i2: 0.0` is treated as absent and never classified in section 2.
+
+- **A check that CANNOT FAIL / STATUS CODE REPORTING THE WRAPPER**: lines 101-102 plus line 170.  
+  Exact input at `ssot/bad/bad.json`: `{`  
+  Consequence: malformed corpus JSON is silently skipped and the script still exits `0`, so a broken input file can report as a successful sweep.
+
+- **ZERO VALUE MAKES THE CONTROL VACUOUS**: line 131, `or stored == 0.0`.  
+  Exact input at `ssot/x/x.json`: `{"results":{"by_outcome":{"o":{"pooled":{"point":1,"measure":"MD"},"per_trial":[{"se":1},{"se":1}],"heterogeneity":{"i2_percent":0.0,"q":10.0,"tau2":1.0}}}}}`  
+  Consequence: computed Higgins is `90.0` and metafor is `50.0`, but stored zero is still forced to `undecidable` instead of `neither`.
+
+- **SELECTOR KEYED TO A FORM THE CORPUS NEED NOT USE**: line 143 only scans `blk`, `het`, and `pl` keys, not `per_trial` keys.  
+  Exact input at `ssot/x/x.json`: `{"results":{"by_outcome":{"o":{"pooled":{"point":1},"per_trial":[{"point":1,"ci_low":0.5,"ci_high":1.5}]}}}}`  
+  Consequence: `ci_low` and `ci_high` are present in the corpus but absent from section 3’s ambiguous-field report.
+
+No proven defect found here for: probe keyed to string a fix removes; idempotency guard satisfied by own comment/marker; CRLF/LF text comparison; merged-cell/off-by-one tabulation; negation dropped.
+
+COULD NOT DETERMINE: instrument reading a different copy, because the caller/invocation target is not in the packet.
+tokens used
+14,434
+Defects found:
+
+- **ZERO CONFLATED WITH ABSENT**: line 118, `stored = het.get("i2") or het.get("i2_percent")`.  
+  Exact input at `ssot/x/x.json`: `{"results":{"by_outcome":{"o":{"pooled":{"point":1,"measure":"MD"},"per_trial":[{"se":1},{"se":1}],"heterogeneity":{"i2":0.0,"q":0.5,"tau2":0.0}}}}}`  
+  Consequence: a real stored `i2: 0.0` is treated as absent and never classified in section 2.
+
+- **A check that CANNOT FAIL / STATUS CODE REPORTING THE WRAPPER**: lines 101-102 plus line 170.  
+  Exact input at `ssot/bad/bad.json`: `{`  
+  Consequence: malformed corpus JSON is silently skipped and the script still exits `0`, so a broken input file can report as a successful sweep.
+
+- **ZERO VALUE MAKES THE CONTROL VACUOUS**: line 131, `or stored == 0.0`.  
+  Exact input at `ssot/x/x.json`: `{"results":{"by_outcome":{"o":{"pooled":{"point":1,"measure":"MD"},"per_trial":[{"se":1},{"se":1}],"heterogeneity":{"i2_percent":0.0,"q":10.0,"tau2":1.0}}}}}`  
+  Consequence: computed Higgins is `90.0` and metafor is `50.0`, but stored zero is still forced to `undecidable` instead of `neither`.
+
+- **SELECTOR KEYED TO A FORM THE CORPUS NEED NOT USE**: line 143 only scans `blk`, `het`, and `pl` keys, not `per_trial` keys.  
+  Exact input at `ssot/x/x.json`: `{"results":{"by_outcome":{"o":{"pooled":{"point":1},"per_trial":[{"point":1,"ci_low":0.5,"ci_high":1.5}]}}}}`  
+  Consequence: `ci_low` and `ci_high` are present in the corpus but absent from section 3’s ambiguous-field report.
+
+No proven defect found here for: probe keyed to string a fix removes; idempotency guard satisfied by own comment/marker; CRLF/LF text comparison; merged-cell/off-by-one tabulation; negation dropped.
+
+COULD NOT DETERMINE: instrument reading a different copy, because the caller/invocation target is not in the packet.

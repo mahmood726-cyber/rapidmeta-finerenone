@@ -1,0 +1,258 @@
+OpenAI Codex v0.146.1
+--------
+workdir: F:\rapidmeta-ssot-shell
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a03138-9dc2-78d2-a0d4-25cb148ae0c5
+--------
+user
+You are hunting for defects. Do not summarise what the code does, do not assess
+quality, and do not tell me you agree with it. Assume there is a defect and find it.
+
+PACKET COMPLETENESS, ASSERTED: the file below is pasted IN FULL, start to end, unabridged.
+Nothing is withheld. If something you need is genuinely not here -- another module, a data
+file, a caller -- say COULD NOT DETERMINE and NAME what is missing. Do NOT call anything
+fabricated or absent from the record: an earlier blinded read of a partial packet returned
+six confident accusations of fabrication, and all six were facts present in the record and
+missing from the packet.
+
+Answer in under 500 words. For each defect: the exact line, the exact input that
+demonstrates it, and one sentence of consequence. If you find none of a shape, say so for
+that shape in one line rather than inventing an objection -- a false positive costs as much
+here as a miss.
+
+The defect shapes PROVEN to recur in this repository. Hunt these by name:
+
+  - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
+    nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
+  - a probe keyed to the STRING A FIX REMOVES, so success makes the control vacuous
+  - an idempotency guard satisfied by its OWN comment or marker rather than by the work
+  - an instrument reading a DIFFERENT COPY than the one being changed: worktree vs HEAD vs
+    origin/main vs served; the module vs the call site; a name vs its binding
+  - a SELECTOR KEYED TO A FORM THE CORPUS DOES NOT USE -- a regex, key name or field path
+    that looks right and matches far less than intended
+  - values compared AS TEXT where line endings differ (CRLF vs LF), so equal content reads
+    as changed or changed content reads as equal
+  - merged-cell and OFF-BY-ONE errors in any tabulation or count
+  - ZERO CONFLATED WITH ABSENT: `or {}`, `or 0`, truthiness tests that drop a real 0.0
+  - a NEGATION DROPPED: a pattern matching "not randomised" as "randomised", or a count
+    read out of a sentence that denies it
+  - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
+    subprocess return ignored, a gate that prints PASS without asserting anything
+
+THE MODULE UNDER REVIEW: scripts/audit_completeness_2026_08_19.py
+
+--- THE FILE, IN FULL ---
+#!/usr/bin/env python3
+"""AUDIT WHAT WE ALREADY CALL COMPLETE against Mahmood's definition of done.
+
+THE DEFINITION, stated before it is measured. A topic is complete when:
+
+  * every one of its EIGHT TABS either holds content or REFUSES WITH A STATED REASON A READER
+    CAN SEE -- protocol, search, screen, extract, analysis, statistics, report, paper;
+  * its ANALYSIS is present with the model output quoted verbatim, or its refusal to pool is
+    stated with its estimand reasoning;
+  * its MANUSCRIPT is rendered from the object with every section traced to the field it came
+    from, refusing by name anything the object cannot support.
+
+Not a property list that mostly passes. And the refusals must be GENUINE OUTCOMES rather than
+gaps.
+
+THE DISTINCTION THIS AUDIT EXISTS TO DRAW, and it is the whole point:
+
+    A REFUSAL is "no screening log is recorded for this review, because the included set was
+    carried from the page and no screen was run" -- a true statement about the evidence.
+
+    A GAP is the same sentence on a topic whose screening log EXISTS IN THE EVIDENCE DIRECTORY.
+    It reads identically to a reader and it is false.
+
+So each refusing tab is checked against whether the material it refuses actually exists
+elsewhere in this repository. A refusal contradicted by an artefact on disk is a GAP.
+
+USAGE
+    python scripts/audit_completeness_2026_08_19.py [--apply]
+"""
+import glob
+import io
+import json
+import os
+import re
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+EV = os.path.join(REPO, "evidence", "2026-08-19-batch1")
+OUT = os.path.join(EV, "completeness_audit.json")
+
+TABS = ["pn-protocol", "pn-search", "pn-screen", "pn-extract", "pn-analysis",
+        "pn-statistics", "pn-report", "pn-paper"]
+NOT_HELD = re.compile(r"^\s*Not held in this object", re.I)
+
+CARDIO = ("statin", "pcsk9", "sglt2", "arni", "sacubitril", "apixaban", "rivaroxaban",
+          "edoxaban", "dabigatran", "warfarin", "clopidogrel", "ticagrelor", "aspirin",
+          "heart", "cardi", "coronar", "atrial", "-af", "af-", "stroke", "-hf", "hf-",
+          "hypertens", "lipid", "cholester", "angina", "infarct", "ablation", "anticoag",
+          "antiplatelet", "amiodarone", "valve", "aortic", "pah", "colchicine", "finerenone",
+          "empagliflozin", "dapagliflozin", "evolocumab", "alirocumab", "inclisiran",
+          "bempedoic", "icosapent", "omecamtiv", "mavacamten", "vericiguat", "tafamidis",
+          "bosentan", "sotatercept", "azilsartan", "fcm", "iron", "vte", "doac",
+          "fondaparinux", "bococizumab", "attr", "etripamil", "lenacapavir-prep")
+
+
+def sections(html):
+    out = {}
+    for tab in TABS:
+        m = re.search(r'<section[^>]*id="%s".*?</section>' % tab, html, re.S)
+        if not m:
+            out[tab] = None
+            continue
+        body = m.group(0)
+        txt = re.sub(r"\s+", " ", re.sub("<[^>]+>", " ", body)).strip()
+        out[tab] = {"chars": len(txt), "text": txt[:400], "refusing": bool(NOT_HELD.match(txt))}
+    return out
+
+
+def evidence_exists(topic, kind):
+    """Does the material a tab refuses actually exist somewhere on disk?"""
+    pats = {
+        "pn-search": ["*%s*search*.json" % topic.split("-")[0], "*%s*search*.json" % topic],
+        "pn-screen": ["*%s*screen*.json" % topic.split("-")[0], "*%s*screen*.json" % topic],
+        "pn-statistics": [],
+        "pn-report": [],
+    }.get(kind, [])
+    hits = []
+    for p in pats:
+        hits += [os.path.relpath(x, REPO).replace(os.sep, "/")
+                 for x in glob.glob(os.path.join(EV, p))]
+    return sorted(set(hits))
+
+
+def run(apply_it):
+    pmap = json.load(io.open(os.path.join(REPO, "ssot", "PAGE_MAP.json"), encoding="utf-8"))
+    rows = []
+    for page, rel in sorted(pmap.items()):
+        topic = rel.rsplit("/", 2)[-2]
+        if not any(k in topic.lower() for k in CARDIO):
+            continue
+        p = os.path.join(REPO, page)
+        if not os.path.exists(p):
+            continue
+        with io.open(p, "rb") as fh:
+            html = fh.read().decode("utf-8", "replace")
+        secs = sections(html)
+        if all(v is None for v in secs.values()):
+            continue  # not a tabbed page
+        held = [t for t, v in secs.items() if v and not v["refusing"] and v["chars"] > 120]
+        refusing = [t for t, v in secs.items() if v and v["refusing"]]
+        missing = [t for t, v in secs.items() if v is None]
+        thin = [t for t, v in secs.items()
+                if v and not v["refusing"] and v["chars"] <= 120]
+        gaps = []
+        for t in refusing:
+            ev = evidence_exists(topic, t)
+            if ev:
+                gaps.append({"tab": t, "refuses": (secs[t]["text"] or "")[:130],
+                             "but_this_exists_on_disk": ev[:4]})
+        paper = secs.get("pn-paper")
+        rows.append({
+            "topic": topic, "page": page,
+            "tabs_held": len(held), "tabs_refusing_with_a_reason": len(refusing),
+            "tabs_missing_entirely": len(missing), "tabs_thin": len(thin),
+            "held": held, "refusing": refusing, "missing": missing, "thin": thin,
+            "paper_exists": bool(paper and not paper["refusing"] and paper["chars"] > 400),
+            "paper_chars": (paper or {}).get("chars", 0),
+            "refusals_that_are_actually_gaps": gaps,
+        })
+
+    print("%-40s %-5s %-5s %-5s %-6s %s" % ("topic", "held", "refus", "miss", "paper", "GAPS"))
+    for r in sorted(rows, key=lambda x: (-x["tabs_held"], x["topic"])):
+        print("%-40s %-5d %-5d %-5d %-6s %s"
+              % (r["topic"][:40], r["tabs_held"], r["tabs_refusing_with_a_reason"],
+                 r["tabs_missing_entirely"], "yes" if r["paper_exists"] else "NO",
+                 ",".join(g["tab"].replace("pn-", "") for g in
+                          r["refusals_that_are_actually_gaps"]) or "-"))
+
+    n = len(rows)
+    full = [r for r in rows if r["tabs_held"] + r["tabs_refusing_with_a_reason"] == 8]
+    papers = [r for r in rows if r["paper_exists"]]
+    gapped = [r for r in rows if r["refusals_that_are_actually_gaps"]]
+    print("\n  cardiology topics with a tabbed page      : %d" % n)
+    print("  all 8 tabs resolved (held or refusing)    : %d" % len(full))
+    print("  manuscript rendered                       : %d" % len(papers))
+    print("  carrying a refusal that is actually a GAP : %d" % len(gapped))
+
+    doc = {"audited_utc": "2026-08-19",
+           "definition_of_done": (
+               "Every one of eight tabs holds content or refuses with a stated reason a reader "
+               "can see; the analysis is present with model output quoted verbatim or its "
+               "refusal to pool carries its estimand reasoning; the manuscript is rendered from "
+               "the object with every section traced to its field."),
+           "what_a_GAP_is": (
+               "A refusal whose material EXISTS ON DISK. It reads identically to a genuine "
+               "refusal and it is false."),
+           "counts": {"topics": n, "all_eight_resolved": len(full),
+                      "manuscript_rendered": len(papers), "with_gaps": len(gapped)},
+           "rows": rows}
+    if apply_it:
+        with io.open(OUT, "w", encoding="utf-8", newline="") as fh:
+            fh.write(json.dumps(doc, indent=1, ensure_ascii=False))
+        print("\nwrote %s" % os.path.relpath(OUT, REPO))
+    return 0
+
+
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    sys.exit(run("--apply" in sys.argv))
+
+codex
+COULD NOT DETERMINE actual corpus prevalence: `ssot/PAGE_MAP.json`, rendered HTML pages, and `evidence/2026-08-19-batch1/*` are not in the packet.
+
+- **Check that cannot fail / status code reports wrapper**: line 151.  
+  Exact input: `PAGE_MAP.json = {"pages/statin-x.html":"site/statin-x/index.html"}`, `pages/statin-x.html = <section id="pn-search">Not held in this object because no search was run.</section>`, and `evidence/2026-08-19-batch1/statin-x-search.json` exists.  
+  Consequence: the script detects a gap but still exits `0`, so any CI/pre-push gate passes.
+
+- **Check that cannot fail**: lines 71-72.  
+  Exact input: `evidence_exists("statin-x", "pn-statistics")` while `evidence/2026-08-19-batch1/statin-x-statistics.json` exists; same for `"pn-report"` with `statin-x-report.json`.  
+  Consequence: statistics/report refusals can never be contradicted by disk evidence because their patterns are empty.
+
+- **Probe keyed to the string a fix removes / selector matches too little**: lines 41, 97, 102.  
+  Exact input: `<section id="pn-screen">No screening log is recorded for this review, because the included set was carried from the page and no screen was run; the evidence table is therefore intentionally absent from this object.</section>` plus `evidence/2026-08-19-batch1/statin-x-screen.json`.  
+  Consequence: this visible refusal is not treated as refusing, so the gap probe is skipped.
+
+- **Idempotency guard satisfied by its own marker**: lines 41, 62, 97.  
+  Exact input: `<section id="pn-search">Not held in this object</section>`.  
+  Consequence: a bare marker with no stated reason increments `tabs_refusing_with_a_reason`.
+
+No packet-level finding for different-copy instrumentation.  
+No packet-level finding for CRLF/LF text comparison.  
+No packet-level finding for merged-cell/off-by-one tabulation.  
+No packet-level finding for zero conflated with absent.  
+No packet-level finding for negation dropped.
+tokens used
+15,280
+COULD NOT DETERMINE actual corpus prevalence: `ssot/PAGE_MAP.json`, rendered HTML pages, and `evidence/2026-08-19-batch1/*` are not in the packet.
+
+- **Check that cannot fail / status code reports wrapper**: line 151.  
+  Exact input: `PAGE_MAP.json = {"pages/statin-x.html":"site/statin-x/index.html"}`, `pages/statin-x.html = <section id="pn-search">Not held in this object because no search was run.</section>`, and `evidence/2026-08-19-batch1/statin-x-search.json` exists.  
+  Consequence: the script detects a gap but still exits `0`, so any CI/pre-push gate passes.
+
+- **Check that cannot fail**: lines 71-72.  
+  Exact input: `evidence_exists("statin-x", "pn-statistics")` while `evidence/2026-08-19-batch1/statin-x-statistics.json` exists; same for `"pn-report"` with `statin-x-report.json`.  
+  Consequence: statistics/report refusals can never be contradicted by disk evidence because their patterns are empty.
+
+- **Probe keyed to the string a fix removes / selector matches too little**: lines 41, 97, 102.  
+  Exact input: `<section id="pn-screen">No screening log is recorded for this review, because the included set was carried from the page and no screen was run; the evidence table is therefore intentionally absent from this object.</section>` plus `evidence/2026-08-19-batch1/statin-x-screen.json`.  
+  Consequence: this visible refusal is not treated as refusing, so the gap probe is skipped.
+
+- **Idempotency guard satisfied by its own marker**: lines 41, 62, 97.  
+  Exact input: `<section id="pn-search">Not held in this object</section>`.  
+  Consequence: a bare marker with no stated reason increments `tabs_refusing_with_a_reason`.
+
+No packet-level finding for different-copy instrumentation.  
+No packet-level finding for CRLF/LF text comparison.  
+No packet-level finding for merged-cell/off-by-one tabulation.  
+No packet-level finding for zero conflated with absent.  
+No packet-level finding for negation dropped.
