@@ -3417,6 +3417,36 @@ def project(obj, journal="generic", length="standard"):
     if length == "concise":
         for sec in secs:
             sec.paras = sec.paras[:2]
+
+    # TWO REFUSALS FOR ONE ABSENCE IS ONE REFUSAL TOO MANY, AND I CAUSED THIS ONE.
+    #
+    # Naming the section when the caller hands `add` an empty string was the right fix for
+    # the bare "Refused:" that shipped on 145 pages. But where the caller ALSO appends its
+    # own, more specific refusal for the same field, the reader now meets both:
+    #
+    #     Refused: the keywords section -- nothing on this object composes it
+    #     Refused: the keyword list -- a content gap; no keywords are recorded and
+    #              inventing them would be indexing this review under terms nobody chose
+    #
+    # The second says everything the first does and says why. Same absence, same field,
+    # twice, and the density of refusals on these pages is already what makes them hard to
+    # read. Keyed on the field set, keeping the longest text, because the specific one is
+    # always the longer.
+    for sec in secs:
+        best = {}
+        for what, missing in sec.refusals:
+            key = tuple(sorted(missing))
+            if key not in best or len(what) > len(best[key][0]):
+                best[key] = (what, missing)
+        if len(best) < len(sec.refusals):
+            seen, kept = set(), []
+            for what, missing in sec.refusals:
+                key = tuple(sorted(missing))
+                if key in seen:
+                    continue
+                seen.add(key)
+                kept.append(best[key])
+            sec.refusals = kept
     return _in_reading_order(secs)
 
 
