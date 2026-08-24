@@ -1670,7 +1670,19 @@ def project(obj, journal="generic", length="standard"):
             txt += " " + d["DEFECT_FOUND"]
         s.paras.append((txt, ["search.databases[%d]" % i]))
     if not dbs:
-        s.refusals.append(("the entire search description", ["search.databases"]))
+        # WORDING, NOT LOGIC. "Refused: the entire search description" sat on 129 pages
+        # directly beneath a bookkeeping paragraph that had just described how the trials
+        # were found -- "No bibliographic search was run. The 2 included trials were
+        # identified by reading named registrations on 2026-08-18." A reader meets a
+        # description of the search followed by a refusal to describe it.
+        #
+        # THE REFUSAL IS NOT SUPPRESSED, DELIBERATELY. The comment below records that
+        # letting a bookkeeping line decide the section has content cost six topics a
+        # refusal that was TRUE. So the logic is untouched and only the claim is narrowed
+        # to what is actually absent: the database-search record, not the description.
+        s.refusals.append(("the database-search record -- `search.databases` holds no "
+                           "executed query, so no query, date or yield can be shown",
+                           ["search.databases"]))
     # AFTER the refusal decision, never before it. Placed at the top of the
     # section this line made `s.paras` non-empty, the `if not (s.paras or
     # s.tables)` refusal stopped firing, and six topics lost a refusal that was
@@ -2898,10 +2910,14 @@ def project(obj, journal="generic", length="standard"):
         # drafts still beneath it so he can see what they said. A topic he has not touched
         # reads as a full draft he can dictate over rather than an empty refusal.
         if not _has and not _drafted(obj, heading):
+            # "a conclusions written by the renderer" -- the heading is spliced after an
+            # article, and "Conclusions" is plural, so 118 pages carried the disagreement.
+            # The heading is already named at the start of this sentence, so the second
+            # mention was redundant as well as ungrammatical.
             s.refusals.append(("the %s -- this is a CONTENT gap. The object records no "
-                               "interpretive text, and none is generated here: a %s "
+                               "interpretive text, and none is generated here: text "
                                "written by the renderer would be an argument no field "
-                               "supports" % (heading, heading.lower()), [field]))
+                               "supports" % (heading,), [field]))
         _add_drafts(s, obj, heading)
         secs.append(s)
 
@@ -3282,10 +3298,17 @@ def project(obj, journal="generic", length="standard"):
                 why = ("%d per-trial row(s) carry a plottable estimate and the generator "
                        "still declined: on a log scale an interval bound at or below zero "
                        "cannot be placed on the axis." % len(usable))
+            # A CAPTION MUST NOT DESCRIBE A PICTURE THAT IS NOT THERE. Refusing in place
+            # is right and is P47's principle; describing the refused figure as though it
+            # were drawn is not. "Each contributing trial's stored estimate and interval,
+            # with the pooled result" sat under a slot reading "Figure 1 not drawn" on 126
+            # pages, several of them at k = 0 with the estimate withdrawn. When the figure
+            # is refused the caption names it and the reason carries the rest.
             s.add_figure(
                 obj,
-                "Forest plot -- %s. Each contributing trial's stored estimate and interval, "
-                "with the pooled result. k = %s." % (name, kw),
+                ("Forest plot -- %s. k = %s." % (name, kw)) if why else
+                ("Forest plot -- %s. Each contributing trial's stored estimate and interval, "
+                 "with the pooled result. k = %s." % (name, kw)),
                 svg, src, refusal=why)
 
             # -- FUNNEL ------------------------------------------------------------------
@@ -3299,7 +3322,7 @@ def project(obj, journal="generic", length="standard"):
                 fwhy = ("k = %s. A funnel plot and its asymmetry tests have almost no power "
                         "below about ten trials (Cochrane Handbook 13.3.5.4), so a funnel "
                         "drawn here would invite a reading of asymmetry this evidence "
-                        "cannot support. IT IS DECLINED RATHER THAN DRAWN, and this slot "
+                        "cannot support. It is declined rather than drawn, and this slot "
                         "says so where the plot would have been." % kw)
             elif not fpan:
                 fwhy = ("k = %s meets the threshold, but no funnel panel is stored on this "
@@ -3321,10 +3344,14 @@ def project(obj, journal="generic", length="standard"):
                     fsvg, fwhy = "", ("the stored funnel panel could not be plotted (%s). A "
                                       "broken instrument is reported, never shown as an "
                                       "absent figure." % type(_exc).__name__)
+            # Same as the forest caption above: "with the pseudo-confidence funnel drawn
+            # from the pooled estimate" described a funnel on 147 pages where the slot
+            # immediately above said the funnel was declined and not drawn.
             s.add_figure(
                 obj,
-                "Funnel plot -- %s. Standard error against effect, with the pseudo-"
-                "confidence funnel drawn from the pooled estimate. k = %s." % (name, kw),
+                ("Funnel plot -- %s. k = %s." % (name, kw)) if fwhy else
+                ("Funnel plot -- %s. Standard error against effect, with the pseudo-"
+                 "confidence funnel drawn from the pooled estimate. k = %s." % (name, kw)),
                 fsvg, src, refusal=fwhy)
     secs.append(s)
 
