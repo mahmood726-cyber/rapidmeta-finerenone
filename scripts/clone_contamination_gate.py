@@ -240,18 +240,42 @@ def _realdata_block(src):
     and would launder the contamination into the subject basis (observed: the
     base's `"SGLT2 inhibitor therapy (dapagliflozin...)"` i18n key made a
     vaccine app look like an SGLT2i app, silencing the AE check)."""
+    # CLAIM 4, cold lane, CONFIRMED and LATENT. The scan counted braces without knowing
+    # which were inside string literals, so a `{` in a trial name -- `"MVA-BN { brace"`
+    # -- moved the block boundary and pulled the sibling KNOWN_TRIAL_ALIASES registry
+    # into the app's OWN NCT set. A foreign registry laundered into the subject basis is
+    # the precise failure this function's docstring says it exists to prevent.
+    #
+    # APPLIED BECAUSE THE EQUIVALENCE WAS MEASURED, NOT ASSUMED. This function decides
+    # `which trials are mine` for the whole contamination check, so changing it moves
+    # everything downstream. Quote-aware against current, over all 1,473 delivered
+    # pages: 1,473 blocks byte-identical, 0 boundaries moved, 0 NCTs gained or lost.
+    # That is a corpus-wide equivalence proof rather than a fixture -- which is exactly
+    # what the two remedies declined on this same gate did NOT have.
     m = re.search(r"realData\s*:\s*\{", src)
     if not m:
         return ""
     o = src.index("{", m.start())
     depth = 0
-    for j in range(o, len(src)):
-        if src[j] == "{":
+    quote = None
+    j = o
+    while j < len(src):
+        ch = src[j]
+        if quote:
+            if ch == "\\":
+                j += 2
+                continue
+            if ch == quote:
+                quote = None
+        elif ch in "\"'`":
+            quote = ch
+        elif ch == "{":
             depth += 1
-        elif src[j] == "}":
+        elif ch == "}":
             depth -= 1
             if depth == 0:
                 return src[o:j + 1]
+        j += 1
     return ""
 
 
@@ -613,8 +637,24 @@ def inherited_verdict(src, base_src):
     verdict share their payload with at least one other app; one single payload
     is shared by 436 apps. That is a corpus-wide debt, not something a per-clone
     gate can fix - but it must never be silently normalised."""
+    # CLAIM 5, cold lane, CONFIRMED and LATENT. This compared two payloads AS TEXT, so
+    # a clone written LF against a base written CRLF failed byte-identity and its
+    # INHERITED green badge was counted as recomputed. A provenance failure inside a
+    # provenance gate, defeated by a line ending.
+    #
+    # Latent today -- 78 distinct payloads compared as bytes, 78 compared normalised,
+    # so no group is split right now. Not latent for long: this corpus already ships
+    # 902 CRLF pages beside 571 LF ones, and the defect arms itself the moment a clone
+    # is written with the other ending from its base.
+    #
+    # Normalising can only MERGE groups, never split them, so this can only make the
+    # gate stricter -- it cannot manufacture a false inheritance finding.
+    def _content(x):
+        return (x or "").replace("\r\n", "\n").replace("\r", "\n")
+
     p = verdict_payload(src)
-    return bool(p) and p == verdict_payload(base_src) and is_green_verdict(p)
+    return (bool(p) and _content(p) == _content(verdict_payload(base_src))
+            and is_green_verdict(p))
 
 
 # ---------------------------------------------------------------------------
