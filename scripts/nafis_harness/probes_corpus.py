@@ -74,6 +74,36 @@ def _se_from_counts(a: int, n1: int, b: int, n2: int) -> float:
     return math.sqrt(sum(1.0 / c for c in cells))
 
 
+def _ci_high_that_must_break(p: Mapping[str, Any]) -> float:
+    """A `ci_high` guaranteed to move CHK016's verdict, if the check reads it at all.
+
+    A MUTANT THAT CANNOT FLIP THE VERDICT PROVES NOTHING ABOUT THE CHECK. The term was
+    mutated by a flat `ci_high * 4`, and on a row with an already-wide interval that is not
+    enough: `finerenone-review`'s NULLED:NCT01874431 row sits at ratio 1.000 and reaches only
+    1.305 at four times its upper bound, inside the 1.5 threshold. The PASS survived, and the
+    gate correctly reported the term as vacuous -- but the fault was in the MUTATION, not in
+    the check, which reads `ci_high` perfectly well.
+
+    Adding an interval multiplier is the same class of error as the `sorted(p["row"])[0]`
+    mutator recorded in `check.py`: coverage that depends on an accident of the data rather
+    than on the property being tested. So the target is derived instead of assumed -- widen
+    the interval until the CI-implied SE is comfortably past the threshold the check
+    adjudicates. If the counts are unavailable the check returns INVALID before it reads the
+    interval anyway, and the old multiplier is a harmless fallback.
+    """
+    lo, hi = p.get("ci_low"), p.get("ci_high")
+    try:
+        se_n = _se_from_counts(int(p["events_t"]), int(p["n_t"]),
+                               int(p["events_c"]), int(p["n_c"]))
+    except (KeyError, TypeError, ValueError):
+        se_n = float("nan")
+    if not (lo and hi) or lo <= 0 or hi <= 0 or not (se_n == se_n) or se_n <= 0:
+        return (hi or 1.0) * 4
+    thr = float(p.get("ratio_threshold", 1.5))
+    se_target = se_n * thr * 1.5          # 50% past the boundary, not on it
+    return float(lo) * math.exp(2 * Z * se_target)
+
+
 def _precision_sample_mismatch(p: Mapping[str, Any]) -> Result:
     cid, inst = "CHK016_PRECISION_SAMPLE_MISMATCH", "interval-vs-sample"
 
@@ -160,7 +190,7 @@ CHK016 = Check(
                    "0.6677 is the exact geometric mean of its own bounds. A real "
                    "row with a real interval that COULD have fired and does not.")],
     observation_terms={
-        "ci_high": lambda p: _mut(p, ci_high=p["ci_high"] * 4),
+        "ci_high": lambda p: _mut(p, ci_high=_ci_high_that_must_break(p)),
         "n_t": lambda p: _mut(p, n_t=p["n_t"] * 20, n_c=p["n_c"] * 20,
                               events_t=p["events_t"] * 20,
                               events_c=p["events_c"] * 20),
@@ -408,7 +438,13 @@ CHK017 = Check(
 # and IRR are. `iv-iron-hf` -- the only object in the corpus using either -- stores
 # `stored_scale: log` and `back_transform: exp` for all of them, which is correct practice and
 # is precisely what CHK021 exists to CONFIRM rather than assume.
-_RATIO_MEASURES = {"OR", "RR", "HR", "IRR", "RATE_RATIO", "WIN_RATIO"}
+# `ratio-type-not-named-in-source` is the corpus's honest declaration that the source gave a
+# ratio without saying WHICH ratio. It belongs here for the same reason: the scale rule
+# CHK021 adjudicates -- pooled on the log scale, back-transformed with exp -- is identical
+# for every ratio measure and does not depend on knowing which one it is. Left out, it was a
+# third route to a PASS that read nothing, on malaria-vaccines.
+_RATIO_MEASURES = {"OR", "RR", "HR", "IRR", "RATE_RATIO", "WIN_RATIO",
+                   "ratio-type-not-named-in-source"}
 _DIFF_MEASURES = {"MD", "SMD", "RD"}
 
 
