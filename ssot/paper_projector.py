@@ -972,6 +972,37 @@ _ROB_WORDS = {
 }
 
 
+def _grade_derivation_words(text):
+    """A stored GRADE derivation, in English. Never invents a reason not in the string.
+
+    The stored form is the arithmetic of the rating, in field names, with an ASCII arrow:
+    "start high; risk_of_bias serious (-1), imprecision serious (-1); total -2 -> low".
+    That is a codebook note, and both blind reader families said so of an earlier draft
+    that printed it verbatim. The reasons are what a reader needs; the arrow is not.
+
+    ONLY THE REASONS THE STRING NAMES. An earlier version of this mapping in a prototype
+    glossed "imprecision" as "imprecision -- the intervals remain wide", and three reviewers
+    disputed it against HR 0.72 (0.62 to 0.82) because it was a characterisation nobody had
+    recorded. For an audience that cannot tell our additions from the trials' own findings,
+    an unsourced gloss is worse than terse.
+    """
+    t = str(text or "").lower()
+    if not t.strip():
+        return ""
+    named = []
+    for key, english in (("risk_of_bias", "risk of bias"), ("risk of bias", "risk of bias"),
+                         ("imprecision", "imprecision"),
+                         ("inconsistency", "inconsistency"),
+                         ("indirectness", "indirectness"),
+                         ("publication_bias", "publication bias"),
+                         ("publication bias", "publication bias")):
+        if key in t and english not in named:
+            named.append(english)
+    if not named:
+        return ""
+    return "rated down for " + _and_list(named)
+
+
 def _title_reference(obj):
     """A short way to refer back to a title too long to repeat, or None.
 
@@ -3378,6 +3409,41 @@ def project(obj, journal="generic", length="standard"):
     # ---- CERTAINTY OF THE EVIDENCE (GRADE) ---------------------------------------------
     s = Section("certainty", "Certainty of the evidence")
     g = get(obj, "grade") or {}
+    # GRADE LIVES IN TWO PLACES AND THIS SECTION KNEW ABOUT ONE OF THEM.
+    #
+    # Most topics record it at object level as `grade.by_outcome`. sotagliflozin-hf records
+    # it on each OUTCOME BLOCK as `results.by_outcome.<oid>.grade`. The Methods section
+    # reads the block form, so the same document said "3 outcome(s) carry a rating ... LOW,
+    # LOW, LOW" in one section and "no GRADE record is held" in another. A blind reader
+    # given the med-student brief found it immediately and named exactly what a novice
+    # would do with it: "A novice will report LOW because it is a concrete answer that fits
+    # their template" -- resolving a contradiction by picking the half that is easier to
+    # write up, with no way of knowing which half is true.
+    #
+    # This is the SAME key-location error that made a prototype of this work announce "No
+    # certainty rating is held for these outcomes" on a topic that rated every outcome. A
+    # projection that looks in one of two places does not find nothing; it asserts nothing
+    # is there.
+    _blk_grade = {}
+    for _oid, _b in (get(obj, "results.by_outcome") or {}).items():
+        if isinstance(_b, dict) and isinstance(_b.get("grade"), dict) \
+                and _b["grade"].get("certainty"):
+            _blk_grade[_oid] = _b["grade"]
+    # AND THE CITATION HAS TO NAME WHERE IT CAME FROM, NOT WHERE IT USUALLY LIVES.
+    # `add_table` refuses any table citing a field that does not resolve, which is right
+    # and which caught the first version of this merge: it pulled the ratings from the
+    # outcome blocks and then cited `grade.by_outcome.<oid>`, a path absent on exactly the
+    # object the merge existed to serve. A student told to check a claim against a field
+    # that is not there learns nothing except that the document cannot be trusted.
+    _grade_field = {}
+    if _blk_grade:
+        merged = dict(g.get("by_outcome") or {})
+        for _oid, _gr in _blk_grade.items():
+            if _oid not in merged:            # object level wins where both exist
+                merged[_oid] = _gr
+                _grade_field[_oid] = "results.by_outcome.%s.grade" % _oid
+        g = dict(g)
+        g["by_outcome"] = merged
     if g.get("approach"):
         s.add(obj, "Certainty was rated with %s. %s"
               % (g.get("approach"), g.get("starting_point") or ""), ["grade.approach"])
@@ -3390,17 +3456,35 @@ def project(obj, journal="generic", length="standard"):
         # THE OUTCOME'S NAME AND WORDED STEPS. This row used to begin with the estimand
         # key and end with a Python dict repr. The key is still reachable -- it is in this
         # section's source list, as `grade.by_outcome.<oid>`.
+        # "NO DOWNGRADE RECORDED" WAS FALSE ON EVERY BLOCK-LEVEL RATING.
+        #
+        # The object-level form records `steps`. The block-level form records the working as
+        # one string in `certainty_derivation`: "start high; risk_of_bias serious (-1),
+        # imprecision serious (-1); total -2 -> low". Reading only `steps` produced a table
+        # asserting NO DOWNGRADE beside a rating of LOW -- not merely incomplete, but telling
+        # a reader the rating came from nowhere. A student correcting this draft would have
+        # had to invent a justification for a LOW rating whose two reasons were recorded all
+        # along, one field away. Same shape as every other defect found tonight: the value
+        # was held, and the projection looked in one place.
+        _steps = "; ".join(_grade_step_words(x) for x in (blk.get("steps") or []))
+        if not _steps:
+            _steps = _grade_derivation_words(blk.get("certainty_derivation"))
+        _k = blk.get("k")
+        if _k in (None, ""):
+            _k = ((get(obj, "results.by_outcome") or {}).get(oid) or {}).get("k")
+        _start = blk.get("started_at") or ("high" if blk.get("randomised") else "")
         rows.append([_outcome_words(obj, oid), str(blk.get("certainty") or "not rated"),
-                     str(blk.get("k", "?")), str(blk.get("started_at") or ""),
-                     "; ".join(_grade_step_words(x) for x in (blk.get("steps") or []))
-                     or "no downgrade recorded"])
-        fields.append("grade.by_outcome.%s" % oid)
+                     str(_k if _k not in (None, "") else "?"), str(_start),
+                     _steps or "no downgrade recorded"])
+        fields.append(_grade_field.get(oid, "grade.by_outcome.%s" % oid))
     s.add_table(obj, "Certainty of the evidence, by outcome, with every rating step",
                 ["Outcome", "Certainty", "k", "Started at", "Rating steps"], rows,
                 fields or ["grade.by_outcome"])
     for oid, blk in sorted((g.get("by_outcome") or {}).items()):
         if isinstance(blk, dict) and blk.get("summary"):
-            s.add(obj, str(blk["summary"]), ["grade.by_outcome.%s.summary" % oid])
+            s.add(obj, str(blk["summary"]),
+                  [_grade_field.get(oid, "grade.by_outcome.%s" % oid) + ".summary"
+                   if oid in _grade_field else "grade.by_outcome.%s.summary" % oid])
     if not (s.paras or s.tables):
         s.refusals.append(("the certainty assessment -- no GRADE record is held, so the "
                            "certainty column elsewhere on this page is an em dash rather "
