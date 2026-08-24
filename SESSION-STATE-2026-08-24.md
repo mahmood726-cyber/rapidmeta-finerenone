@@ -7,21 +7,28 @@ below was verified in the session that wrote it; where it was not, it says so.
 
 ## 1. The one line that matters most
 
-**`origin/main` is at `8a8f12bf4`. This branch is 13 commits ahead. The deploy ref is
-`main`. Nothing from this session is live.**
+**MERGED AND LIVE.** `main` fast-forwarded `8a8f12bf4..f615af55a`, 14 commits, 56 files,
+10 delivered pages. Verified on SERVED bytes after the Pages deploy, not on the worktree.
 
-Verified on served bytes, not on the worktree — fetched
-`https://mahmood726-cyber.github.io/rapidmeta-finerenone/AMOXICILLIN_AOM_AUTO_FULL_REVIEW.html`
-(HTTP 200, 487,636 bytes):
+The acceptance test was stated before the push and met after it, on the same URL:
 
-| | served | local worktree |
+| `AMOXICILLIN_AOM_AUTO_FULL_REVIEW.html` | before | after |
 |---|---|---|
-| `...at any rank on the clinical quantity this page pools` | 5 | 7 |
+| `...at any rank on the clinical quantity this page pools` | 5 | **7** |
 | `...register no clinical endpoint at any rank.` (unbounded) | **2** | **0** |
+| served size | 487,636 | 489,343 |
 
-The served page still makes the unbounded claim twice. The repair is committed and not
-deployed. **Merging to `main` and re-verifying on served bytes is the first owed action.**
+All ten pages checked in BOTH directions -- the bounded form present at the same count
+as the local file, AND the unbounded form absent. **10 of 10 LIVE. Non-movers: none.**
+The deploy took four polls at 30-second intervals to appear; the first three served the
+old bytes, which is why this is measured by polling to a stated condition rather than by
+waiting a guessed interval and asserting.
 
+*This section previously read `nothing from this session is live`. That was true when
+written and false thirty minutes later. It is rewritten rather than annotated, because a
+sentence that was true once and is now false -- with nothing in it saying which half aged
+-- is precisely the decayed-citation class recorded in section 3, and a document that
+commits that error while defining it is worth less than no document.*
 ---
 
 ## 2. What was established, with its evidence
@@ -110,6 +117,45 @@ stripper eating 49% of each minified page at the first `https://`), **745 pages*
 reads it correctly), **8 of 156** and **7 of 156** from the truncation checks. Every time the
 implausibility was the tell, not the arithmetic.
 
+### Verification theatre, and its subtler twin
+
+**`check_38_nesting_via_template_literal` is the cleanest instance anyone has produced.**
+A P0 docstring, a loop, a counter — and **zero reachable appends**. It returns `[]` on
+every input that has ever existed, and has been counted among "40 checks" ever since.
+Its own comments say exactly why: the real test is *hard*, the cheap proxy *too noisy*,
+so the author stopped. **Nobody lied. The artefact lied by remaining.** That is the whole
+mechanism of verification theatre — it does not require an author who intended to
+deceive, only an author who stopped and a reader who never opened the function.
+
+**`check_14_invalid_pmid_format` is the subtler twin.** Its body tests
+`if v and not v.isdigit()` — correct logic, unreachable, because `PMID_RE` captured
+`\d*`. **A check written for a wider input than it was given.** Its docstring promises
+to catch `pmid: 'NaN'`.
+
+The pairing matters more than either alone: **from outside they are indistinguishable.**
+Both have a docstring naming a real defect, both run, both return `[]`, both are counted.
+Only reading the call site separates *never implemented* from *implemented against a
+narrower feed*. A count of checks is not a count of coverage, and neither can be audited
+from a list of names.
+
+The output shape is the remedy for the first: `NOT_IMPLEMENTED` across 1,510 pages in
+its own severity row — **neither a finding nor a pass**. That is the third time in this
+session a gate has been made to say *I cannot tell*, after the double-escape `NOTE` and
+the packet-transport refusal. Three states in a gate's output, not in a report about it.
+
+### A control that fails for an unrelated reason is worse than no control
+
+My own verification harness scored **three verdicts wrong** before I caught it. The
+checks take a `Path` and read `p.name`; I passed the string `"x.html"`; the
+`AttributeError` was swallowed by my own `try/except`; the wrapper returned `None`; and
+**the harness scored `None` as CONFIRMED**.
+
+It produced confident verdicts about nothing. One of them made a real defect read
+COULD NOT DETERMINE — the dismissing direction, which is the expensive one, because it
+retires a true finding instead of adding a false one. A control that can fail for a
+reason unrelated to the property under test is not a weak control; it is an instrument
+reporting on its own plumbing in the vocabulary of the thing it was pointed at.
+
 ### Act on a claim only with a MEASURED equivalence
 The procedure that decides apply-vs-decline. Same gate, same night: quote-aware
 `_realdata_block` **applied** on a corpus-wide proof (1,473 blocks byte-identical, 0
@@ -155,7 +201,8 @@ looked at* to *known and accepted* — the SKIP-as-pass shape. The ratchet is un
 
 ## 6. Owed, in order
 
-1. **Merge to `main`, push, verify on served bytes.** 13 commits. Nothing is live.
+1. ~~Merge to `main`, push, verify on served bytes.~~ **DONE** — `8a8f12bf4..f615af55a`,
+   10 of 10 pages verified live on served bytes, non-movers none. See section 1.
 2. **The canary**, when agy's window reopens — an early and a late marker either side of
    191,581 bytes, both requested back. Settles §5's first item.
 3. **RoB 2's two items**, when the other lane hands over:
