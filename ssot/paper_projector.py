@@ -4401,7 +4401,33 @@ def project(obj, journal="generic", length="standard"):
             usable = [r for r in pt
                       if r.get("point") is not None and r.get("ci_low") is not None
               and r.get("ci_high") is not None]
-            if not pt:
+
+            # A WITHDRAWN POOL IS NOT DRAWN. Found by a blind editor in round 2 of the
+            # multi-persona review, and it is the sharpest kind of defect: the page said one
+            # thing in prose and the opposite in a picture.
+            #
+            #   text:   the four-trial pool "mixed the two definitions" and "remains withdrawn"
+            #   figure: "Figure 1. Forest plot -- cardiovascular death or a worsening heart
+            #            failure event, whichever comes first, as a hazard ratio. k = 4."
+            #
+            # The editor's words: "That is not review-ready." A forest plot IS the pooled
+            # claim -- a diamond under four rows asserts exactly the combination the text
+            # retracted -- so drawing it re-published a retraction in the one form a reader
+            # trusts most and reads first.
+            #
+            # Prose already refused to re-publish the components of a retracted pool. Figures
+            # were never taught the same rule, which is what happens when a fix is applied
+            # where the defect was noticed rather than everywhere the property must hold.
+            _wd = res.get("pooled") or {}
+            if _wd.get("withdrawn") or _wd.get("withdrawn_reason"):
+                pt, usable = [], []
+                svg = ""
+
+            if _wd.get("withdrawn") or _wd.get("withdrawn_reason"):
+                why = ("this pool was withdrawn, and the reason is given in Results. A forest "
+                       "plot is the pooled claim in picture form, so drawing one here would "
+                       "restate the very combination this review retracted.")
+            elif not pt:
                 why = ("no per-trial estimates are stored for this outcome, so there are no "
                        "rows to plot. The pooled value alone is a point, not a forest.")
             elif not usable:
@@ -4462,6 +4488,13 @@ def project(obj, journal="generic", length="standard"):
             # Same as the forest caption above: "with the pseudo-confidence funnel drawn
             # from the pooled estimate" described a funnel on 147 pages where the slot
             # immediately above said the funnel was declined and not drawn.
+            # THE FUNNEL IS THE SAME CLAIM, and it draws its pseudo-confidence bounds FROM
+            # the pooled estimate -- so on a withdrawn pool it is not merely a picture of
+            # retracted data, it is a picture built out of the retracted number itself.
+            if _wd.get("withdrawn") or _wd.get("withdrawn_reason"):
+                fsvg, fwhy = "", ("this pool was withdrawn. The funnel's bounds are drawn "
+                                  "from the pooled estimate, so there is no pooled value "
+                                  "left for it to be drawn around.")
             s.add_figure(
                 obj,
                 ("Funnel plot -- %s. k = %s." % (name, kw)) if fwhy else
