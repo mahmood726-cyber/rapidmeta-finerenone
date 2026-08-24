@@ -564,8 +564,9 @@ _prose_has_value = _lead_in_has_value
 _SENTINEL_TAIL = ("not recorded", "not available", "not stated", "no record",
                   "not established", "not captured")
 _SPLICED_SENTINEL = re.compile(
-    r"[a-z0-9,;:)\]]\x20+(?:%s)\x20+on the page this object was (?:extracted|built) from"
-    % "|".join(_SENTINEL_TAIL), re.I)
+    r"[a-z0-9,;:.)\]–—\"'”’-][\x20\u00a0]*(?:not recorded|not available|not stated|no record|"
+    r"not established|not captured)[\x20\u00a0]+on the page this object was "
+    r"(?:extracted|built) from", re.I)
 
 
 def _splices_a_sentinel(text):
@@ -944,6 +945,17 @@ class Section(object):
         Refuses on the same terms as `add`: every field cited must resolve, and a table
         with no rows is a refusal rather than an empty frame with a caption on it.
         """
+        # A TABLE IS PROSE TOO, AND `add` GOT THIS GUARD WHILE `add_table` DID NOT.
+        # I put the structural sentinel check in `Section.add` and called the class closed;
+        # an adversarial sweep pointed out this method sits beside it, refuses on the same
+        # terms, and has no such check. A caption composed around an absence marker is the
+        # same defect as a paragraph composed around one, and a table asserts MORE than a
+        # sentence because it is read with more trust.
+        if _splices_a_sentinel(caption):
+            self.refusals.append(
+                ("a table whose caption would have been composed around an absence marker",
+                 list(fields)))
+            return False
         missing = [f for f in fields if get(obj, f) is None]
         if missing:
             self.refusals.append((_tidy(caption), missing))
@@ -2176,9 +2188,24 @@ def project(obj, journal="generic", length="standard"):
                                "text is held" % oid, ["outcomes[id=%s].name" % oid]))
             continue
         if reason:
-            s.paras.append(("%s. These %s trials are NOT pooled, and the reason is stated "
-                            "rather than the outcome being quietly omitted: %s"
-                            % (name[0].upper() + name[1:], blk.get("k", "?"), reason),
+            # "THESE 0 TRIALS ARE NOT POOLED" IS NOT A SENTENCE ANYONE CAN READ, and on a
+            # page that has already said "The 2 included trials were identified by reading
+            # named registrations" it reads as a flat self-contradiction. A blind reviewer
+            # quoted both halves back as the document contradicting itself.
+            #
+            # BOTH NUMBERS ARE CORRECT AND THEY COUNT DIFFERENT THINGS: `k` is how many
+            # trials contribute an ESTIMATE for THIS OUTCOME, and the 2 is how many trials
+            # the review includes. The defect is the wording collapsing that distinction,
+            # not the arithmetic -- so the k = 0 case says what it means instead.
+            _k = blk.get("k")
+            if _k in (0, "0"):
+                lead = ("%s. No trial on this review contributes an estimate for this "
+                        "outcome, so nothing is pooled" % (name[0].upper() + name[1:]))
+            else:
+                lead = ("%s. These %s trials are not pooled"
+                        % (name[0].upper() + name[1:], _k if _k is not None else "?"))
+            s.paras.append(("%s, and the reason is stated rather than the outcome being "
+                            "quietly omitted: %s" % (lead, reason),
                             ["outcomes[id=%s].name" % oid] + _fields))
         else:
             s.refusals.append(("the reason the pool over %s is declined -- NEITHER "

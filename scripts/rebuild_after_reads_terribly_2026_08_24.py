@@ -1,8 +1,11 @@
 """Rebuild every PAGE_MAP page after the reads-terribly repair, one at a time, and gate it.
 
-SEQUENTIAL BY INSTRUCTION. Another lane is reclaiming disk and C: was full this morning, so
-this runs one build at a time and writes nothing to C:. A parallel fan-out here would race
-that lane for space during a 157-page run.
+CONCURRENCY IS A DIAL, DEFAULT 1, AND THE REASON IT MOVED IS ON THE RECORD. This ran
+strictly sequentially while C: was full and another lane was reclaiming disk -- a parallel
+fan-out would have raced it for space across a 157-page run. C: is back to ~34 GB and the
+papers are now the machine's stated priority, so `--workers N` exists. Each build spawns
+Chrome to rasterise figures, so N is small and the run REPORTS DISK before and after; a
+worker count that starves C: is worse than a slow run.
 
 EACH PAGE IS GATED IMMEDIATELY AFTER IT IS WRITTEN, not at the end. A 100-minute run that
 discovers at minute 95 that the first page regressed is the same failure as a four-hour
@@ -30,6 +33,19 @@ LEDGER = os.path.join(REPO, "outputs", "reads_terribly_rebuild_2026_08_24.json")
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import gate_paper_reads_terribly_2026_08_24 as GATE
+
+
+def _fmt(row):
+    if row["state"] == "BUILD_FAILED":
+        return "BUILD FAILED"
+    return ("%2d -> %2d  %s" % (len(row.get("before") or []), len(row.get("after") or []),
+                                "clean" if not row.get("after")
+                                else ",".join(row["after"])))
+
+
+def _flush(path, t0, rows):
+    with io.open(path, "w", encoding="utf-8") as fh:
+        json.dump({"elapsed_s": round(time.time() - t0), "rows": rows}, fh, indent=2)
 
 
 def main():
@@ -60,9 +76,15 @@ def main():
                  % (len(unresolved), len(pages), "\n    ".join(unresolved)))
     print("  precondition: all %d pages resolve to an object on disk." % len(pages))
 
-    rows = []
-    t0 = time.time()
-    for i, page in enumerate(pages, 1):
+    workers = 1
+    for a in sys.argv[1:]:
+        if a.startswith("--workers"):
+            workers = max(1, int(a.split("=")[1]) if "=" in a else 1)
+    print("  free on C: %.1f GB   F: %.1f GB   workers=%d"
+          % (shutil.disk_usage("C:\\").free / 2**30,
+             shutil.disk_usage(REPO).free / 2**30, workers))
+
+    def one(page):
         obj = os.path.join(REPO, page_map[page].replace("/", os.sep))
         dst = os.path.join(REPO, page)
         if os.path.exists(dst):
@@ -72,19 +94,29 @@ def main():
         r = subprocess.run([sys.executable, "build_tabbed.py", obj, dst],
                            cwd=SSOT, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         if r.returncode != 0:
-            rows.append({"page": page, "state": "BUILD_FAILED",
-                         "tail": r.stdout.decode("utf-8", "replace")[-400:]})
-            print("  [%3d/%d] %-52s BUILD FAILED" % (i, len(pages), page))
-            continue
+            return {"page": page, "state": "BUILD_FAILED",
+                    "tail": r.stdout.decode("utf-8", "replace")[-400:]}
         after = GATE.findings_for(dst, open(dst, encoding="utf-8", errors="replace").read(),
                                   GATE.slugs_of(page))
-        rows.append({"page": page, "state": "OK" if not after else "STILL_BLOCKED",
-                     "before": [c for c, _ in before], "after": [c for c, _ in after]})
-        print("  [%3d/%d] %-52s %2d -> %2d  %s"
-              % (i, len(pages), page, len(before), len(after),
-                 "clean" if not after else ",".join(c for c, _ in after)))
-        with io.open(LEDGER, "w", encoding="utf-8") as fh:
-            json.dump({"elapsed_s": round(time.time() - t0), "rows": rows}, fh, indent=2)
+        return {"page": page, "state": "OK" if not after else "STILL_BLOCKED",
+                "before": [c for c, _ in before], "after": [c for c, _ in after]}
+
+    rows = []
+    t0 = time.time()
+    if workers == 1:
+        it = ((p, one(p)) for p in pages)
+        for i, (page, row) in enumerate(it, 1):
+            rows.append(row)
+            print("  [%3d/%d] %-52s %s" % (i, len(pages), page, _fmt(row)))
+            _flush(LEDGER, t0, rows)
+    else:
+        from concurrent.futures import ThreadPoolExecutor
+        with ThreadPoolExecutor(max_workers=workers) as ex:
+            for i, row in enumerate(ex.map(one, pages), 1):
+                rows.append(row)
+                print("  [%3d/%d] %-52s %s" % (i, len(pages), row["page"], _fmt(row)))
+                _flush(LEDGER, t0, rows)
+    print("  free on C: %.1f GB after the run" % (shutil.disk_usage("C:\\").free / 2**30))
 
     ok = sum(1 for r in rows if r["state"] == "OK")
     still = [r for r in rows if r["state"] == "STILL_BLOCKED"]

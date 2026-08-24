@@ -804,11 +804,18 @@ def _projected_paper_html(canon):
     if not any(s.state == ppj.WRITTEN for s in secs):
         return ""
     out = ["<div class='card'>", "<h2>Paper</h2>",
-           "<p class='muted'>Every statement below is projected from a field of this "
-           "object. The superscripts are sources: each section ends with the fields its "
-           "statements came from, in order. <strong>A section with no field behind it is "
-           "not written</strong> &mdash; it is refused, by name, so a reader can tell an "
-           "absent procedure from an unmentioned one.</p>"]
+           # RENDERER METADATA ADDRESSED TO A CLINICAL READER. Three of four blind
+           # reviewers shown this page named this paragraph among its three worst passages:
+           # "This is not paper prose. It is renderer metadata. 'Projected from a field of
+           # this object' is jargon a clinical reader cannot parse, and it foregrounds
+           # implementation logic instead of the review." They were right. What it SAYS is
+           # worth saying -- every statement is sourced, and an absence is named rather
+           # than dropped -- so the meaning is kept and the data-model vocabulary is not.
+           "<p class='muted'>Each statement below cites the record it came from; those "
+           "sources are listed at the end of every section. <strong>Where the record holds "
+           "nothing, the section says so by name</strong> rather than being left out, so a "
+           "procedure that was not carried out can be told from one that simply was never "
+           "mentioned.</p>"]
     for s in secs:
         out.append("<h3>%s</h3>" % e(s.heading))
         # THE PROVENANCE COLUMN. Every paragraph, table and refusal in this section used to

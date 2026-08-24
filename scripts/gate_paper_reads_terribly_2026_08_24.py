@@ -98,9 +98,9 @@ FOREIGN_EXAMPLES = (
 # cell or sentence is left alone: that is the whole distinction, and 366 legitimate own-slot
 # uses depend on it.
 SENTINEL_SPLICE = re.compile(
-    r"[a-z0-9,;:)\]] +(?:not recorded|not available|not stated|no record|"
-    r"not established|not captured) +on the page this object was "
-    r"(?:extracted|built) from")
+    r"[a-z0-9,;:.)\]–—\"'”’-][\x20\u00a0]*(?:not recorded|not available|not stated|no record|"
+    r"not established|not captured)[\x20\u00a0]+on the page this object was "
+    r"(?:extracted|built) from", re.I)
 
 EMPTY_REFUSAL = re.compile(r"<strong>\s*Refused:\s*</strong>(?:\s|&nbsp;|&#160;| )*"
                            r"(?:<sup[^>]*>.*?</sup>)?(?:\s|&nbsp;|&#160;| )*"
