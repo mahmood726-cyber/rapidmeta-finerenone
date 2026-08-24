@@ -378,6 +378,99 @@ def make_the_honest_path_the_only_path(callable_name, required_args, defaulted_a
         % (callable_name, ", ".join(bad), what))
 
 
+def completeness_is_earned_not_stated(packet_fields, artefact_fields, what):
+    """AN ASSERTION OF COMPLETENESS MUST BE EARNED. A FALSE ASSURANCE IS WORSE THAN NONE.
+
+    A blinded-review packet was built from a FIXED LIST of fields, and the prompt then told
+    the reviewer that nothing was withheld. Eleven agy lanes returned REJECT on reasoning of
+    the form "the provided evidence contains none of these registry strings" -- and the
+    strings were on the object, outside the field list.
+
+        THE REVIEWER WAS NOT WRONG. It reasoned correctly from a premise I had certified,
+        and reached a wrong verdict with full confidence because the certificate was false.
+        With NO guarantee it would have hedged and said COULD NOT DETERMINE. With a false
+        one it convicted sound work.
+
+    That is a failure class distinct from every other one in this file. The others are
+    checks that cannot fail, or that are accurate about the wrong subject. This is a check
+    MISLED BY A TRUE-SOUNDING GUARANTEE -- the instrument is fine and the input to it lies.
+
+    FREE PROSE QUOTES WHATEVER IT NEEDS, so no fixed field list can be provably sufficient
+    for a review of prose. The only honest completeness claim over an object is THE WHOLE
+    OBJECT, EVERY FIELD AT EVERY DEPTH -- and the prompt must say so, which turns "not in
+    the packet" from a trap into a strong statement a reviewer can rely on.
+
+    Raises when a packet claims completeness it cannot support.
+    """
+    missing = sorted(set(artefact_fields) - set(packet_fields))
+    if missing:
+        raise ControlFailed(
+            "REFUSED: this packet asserts completeness and omits %d field(s) the artefact "
+            "holds (%s%s). A reviewer told nothing is withheld will convict sound work by "
+            "reasoning correctly from your certificate. Ship the whole artefact, or state "
+            "exactly what the packet is NOT and instruct COULD NOT DETERMINE. -- %s"
+            % (len(missing), ", ".join(missing[:6]),
+               "" if len(missing) <= 6 else ", ...", what))
+
+
+def probe_the_layer_the_work_uses(layer_probed, layer_needed, what):
+    """A PROBE THAT TESTS A DIFFERENT LAYER THAN THE ONE YOU NEED WILL BE CONFIDENTLY WRONG.
+
+    Probing a third machine for offload, `ping` reported 100% packet loss and it was very
+    nearly recorded as unreachable. ICMP is blocked there. TCP 22 WAS OPEN. A status line
+    said "online", the ping said "dead", and neither was the answer -- only opening the
+    transport the work would actually use was.
+
+    REACHABLE AND USABLE ARE DIFFERENT QUESTIONS, and so is every layer between them. Probe
+    each separately and name which one fails, in three states that must never substitute
+    for one another:
+
+        network      open the PORT the work uses, never ICMP
+        shell        a command that RETURNS A VALUE, never an exit status
+        vendor CLI   a real completion that echoes its own model name
+
+    On that machine: network WORKS, shell FAILS on auth, vendor CLI NOT ASSESSABLE -- and
+    "not assessable" was reported as itself rather than as either neighbour, because a
+    layer you could not reach is not a layer that failed.
+
+    Same family as verifying a build by importing its module, and as a login-status line
+    claiming a seat is alive. Raises when the probed layer is not the layer needed.
+    """
+    if layer_probed != layer_needed:
+        raise ControlFailed(
+            "REFUSED: this probes the %s layer while the work runs on the %s layer. A pass "
+            "here is not evidence and a failure here is not a verdict. -- %s"
+            % (layer_probed, layer_needed, what))
+
+
+def a_claim_is_not_a_finding(claims, verified_against_artefact, what):
+    """NOTHING BECOMES A FINDING UNTIL IT HAS BEEN CHECKED AGAINST THE ARTEFACT.
+
+    Six of eight findings from one blinded cold read were PACKET ARTEFACTS: specific,
+    quotable accusations that named facts had been fabricated, when every one was on the
+    object and missing only from the packet. A harvester that promoted claims to findings
+    would have manufactured six defects that do not exist, in the most convincing form
+    available -- an accusation of fabrication, with a field name attached.
+
+    So a returned lane's claim is UNVERIFIED by construction, and the harvester says so in
+    its own output. THE HARVESTER MUST NEVER BE THE THING THAT VERIFIES, because then it
+    would be grading its own inputs.
+
+    NO_ANSWER IS NOT CLEAN. Four passes returned bytes with no verdict in them; counting
+    those as clean is the worst error available here.
+
+    AND THE TELL: a distribution with no CLEAN and no COULD_NOT_DETERMINE in it is a
+    symptom, not a result. One classifier matched a section heading its own prompt
+    guaranteed and read 100% defect. A classifier keyed to a string its own prompt supplies
+    measures the prompt, not the answer.
+    """
+    if verified_against_artefact and claims:
+        raise ControlFailed(
+            "REFUSED: %d claim(s) are being reported as verified by the same instrument "
+            "that collected them. Verification is a separate read of the artefact. -- %s"
+            % (len(claims), what))
+
+
 def accurate_about_the_wrong_thing(instrument, question_answered, question_asked, what):
     """A CHECK CAN BE ACCURATE AND STILL WORTHLESS IF IT IS ACCURATE ABOUT THE WRONG THING --
     and that failure is invisible precisely because NOTHING IS WRONG WITH THE CHECK.
