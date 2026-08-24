@@ -607,9 +607,15 @@ for _marker, _sig in (("arni_hf_protocol", "wrong_protocol_link"),):
         print("    otherwise. Either the marker is stale or the check is.")
 
 # Save raw
-Path("/tmp/regression_results.json").write_text(json.dumps({k: v for k, v in signals.items()}, default=str), encoding='utf-8')
+# PER-PROCESS, BECAUSE /tmp IS SHARED. On this machine `/tmp` resolves to F:/claude-temp,
+# which every agent lane writes into -- 31,531 loose files. This hook runs on EVERY push
+# from EVERY lane, so a fixed name means two concurrent pushes overwrite each other's
+# results and whoever opens the file afterwards reads the wrong run. Nothing reads it back,
+# so no verdict was ever wrong; a human comparing runs would simply have been misled.
+_raw = Path("/tmp/regression_results_%d.json" % os.getpid())
+_raw.write_text(json.dumps({k: v for k, v in signals.items()}, default=str), encoding='utf-8')
 print()
-print("Raw JSON saved to /tmp/regression_results.json")
+print("Raw JSON saved to %s" % _raw)
 
 # THE SETTLE PROFILE, KEPT AS DATA. Not collapsed into the verdict, because
 # "how long before a reader sees this review's included studies" is a
