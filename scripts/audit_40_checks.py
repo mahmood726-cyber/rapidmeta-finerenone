@@ -29,10 +29,24 @@ OUT = HERE / "outputs" / "audit40"
 OUT.mkdir(parents=True, exist_ok=True)
 
 NCT_RE = re.compile(r"NCT\d{7,8}")
-PMID_RE = re.compile(r"pmid:\s*['\"](\d*)['\"]")
+# CLAIM 2, cold lane, CONFIRMED. This captured `\d*`, so check_14's own test --
+# `if v and not v.isdigit()` -- could never be true. The check was written for a
+# wider pattern than the one it was given: a branch that reads like a working
+# check and is unreachable. Its docstring promises to catch pmid: 'NaN'.
+#
+# Widened after a CAPTURE-LEVEL equivalence check, not a count: across 1,473
+# delivered pages the two patterns return identical capture lists on every page,
+# 0 differing. PMID_RE is read by three call sites, so counts alone would not have
+# been enough.
+PMID_RE = re.compile(r"pmid:\s*['\"]([^'\"]*)['\"]")
 PMID_LINK_RE = re.compile(r"https://pubmed\.ncbi\.nlm\.nih\.gov/(\d+)/")
 NCT_LINK_RE = re.compile(r"https://clinicaltrials\.gov/study/(NCT\d{7,8})")
-HREF_RE = re.compile(r'href="([^"#?]+\.(?:html|md|json|csv))"', re.IGNORECASE)
+# CLAIM 3, cold lane, CONFIRMED. The extension had to sit immediately before the
+# closing quote, so `href="missing.html#top"` was invisible and a broken local
+# link carrying a fragment or query was never checked. Identical captures across
+# all 1,473 pages, 0 differing.
+HREF_RE = re.compile(r'href="([^"#?]+\.(?:html|md|json|csv))(?:[#?][^"]*)?"',
+                     re.IGNORECASE)
 ID_ATTR_RE = re.compile(r'\bid="([^"]+)"')
 TRIAL_BLOCK_RE = re.compile(
     r"'(NCT\d{7,8})':\s*\{(?P<body>(?:[^{}]|\{[^{}]*\}){0,4000})\}",
@@ -138,7 +152,11 @@ def check_05_broken_local_links(p, txt, ctx):
 def check_06_unpopulated_placeholders(p, txt, ctx):
     """P1: literal {{token}} / __PLACEHOLDER__ / REPLACE_ME / $$$ leaked through."""
     out = []
-    patterns = [r"\{\{[A-Z_][A-Z0-9_]*\}\}", r"__[A-Z_]+__", r"\bREPLACE_ME\b",
+    # CLAIM 4, cold lane, CONFIRMED. The docstring promises to catch a literal
+    # `{{token}}` and the pattern accepted UPPERCASE only, so the exact example it
+    # names went unmatched. Delta across 1,473 pages: 0.
+    patterns = [r"\{\{[A-Za-z_][A-Za-z0-9_]*\}\}", r"__[A-Z_]+__",
+                r"\bREPLACE_ME\b",
                 r"<<<<+\s", r"\$\$\$+", r"\bTODO_FIXME\b"]
     for pat in patterns:
         for m in re.finditer(pat, txt):
@@ -546,6 +564,26 @@ def check_37_inconsistent_drug_name(p, txt, ctx):
 def check_38_nesting_via_template_literal(p, txt, ctx):
     """P0: backtick template literal containing `${` but missing closing brace."""
     # Cheap heuristic: dollar-brace count balance in script content.
+    # CLAIM 1, cold lane, CONFIRMED, AND THE MOST SERIOUS OF THE EIGHT.
+    #
+    # This function has a P0 docstring, a loop, a counter -- and ZERO reachable appends.
+    # `out` is returned empty on every input that has ever existed. Its own comments say
+    # why: the real test is "hard" and the cheap proxy is "too noisy", so the author
+    # stopped, and what remained looks exactly like a working check from the outside. It
+    # has been counted among "40 checks" ever since.
+    #
+    # A CHECK THAT CANNOT FAIL IS NOT A CHECK, AND SILENTLY RETURNING [] IS THE WORST OF
+    # THE THREE POSSIBLE ANSWERS: it is indistinguishable from "I looked and this page is
+    # clean". It now says what is true -- that it is not implemented -- so the caller can
+    # count it as NOT ASSESSED rather than as a pass. Implementing it properly needs a
+    # real template-literal parser and is not attempted here.
+    return [{"check": "38_nesting_via_template_literal", "severity": "NOT_IMPLEMENTED",
+             "file": p.name,
+             "detail": "declared P0 but never implemented: this check has no reachable "
+                       "finding and reports nothing about this page"}]
+
+
+def _check_38_unimplemented_body(p, txt, ctx):
     out = []
     for m in re.finditer(r"<script\b[^>]*>([\s\S]*?)</script>", txt):
         body = m.group(1)
