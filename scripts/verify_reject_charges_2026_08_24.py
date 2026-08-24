@@ -23,7 +23,28 @@ that do not require judgement:
     DOES THE OBJECT ITSELF CARRY A NARROWER FORM?    A scope phrase, or a
         `what_this_verdict_does_not_establish`, saying the same thing bounded.
 
-FOUR VERDICTS AND NO FIFTH. CONFIRMED needs both: the sentence is in the notice AND the
+A VERDICT PER REASON A CHARGE CAN FAIL, AND THE LIST GREW TWICE BY DISCOVERY.
+
+It began as four. RESTATES_KNOWN_GUARD split out when 27 of 34 'confirmations' turned
+out to rest on a property true of 68 objects regardless of the charge -- one finding
+restated once per lane, each restatement counted as new. ELSEWHERE_IN_OBJECT split out
+when 23 of 51 NOT_IN_NOTICE verdicts proved to be about my locator, not the charge.
+
+CORRECT_BUT_REMEDY_REGRESSES is the newest and comes from a different direction: not a
+charge that fails, but a charge that HOLDS whose proposed fix would make things worse.
+A cold lane observed that a corpus-loop pattern matching a bare `pages` would also match
+a LOCAL variable sharing the name, and proposed requiring a real iteration source. True
+of the regex. Applied, it drops 36 entries, and every one sampled is a genuine corpus
+pass. The reviewer was RIGHT ABOUT THE CODE AND WRONG ABOUT WHAT TO DO, and only
+sampling the 36 showed it.
+
+It gets its own verdict so it can never be summed with the charges that were
+straightforwardly true. Counted as CONFIRMED it inflates the yield; counted as refuted
+it discards a correct reading of the code. Neither is what happened. This is
+`make_the_honest_path_the_only_path` applied to a taxonomy: when the only verdicts are
+upheld and not-upheld, an honest reviewer is forced to misfile.
+
+SIX VERDICTS AND NO SEVENTH, UNTIL THE SEVENTH IS EARNED THE SAME WAY. CONFIRMED needs both: the sentence is in the notice AND the
 object holds a narrower form the notice drops. NOT_IN_NOTICE is a statement about the
 charge. NO_NARROWER_FORM means the notice may still overstate but the object does not
 supply the correction, which is a judgement and is not made here. COULD_NOT_DETERMINE is
@@ -48,6 +69,12 @@ SCOPES = ("on the clinical quantity this page pools", "the pooled quantity",
           "the quantity this page pools", "that this page pools",
           "not pre-specified", "as this page pools it")
 GUARD = "what_this_verdict_does_not_establish"
+
+# THE PRINTED ORDER, NAMED ONCE. A verdict the judge can return but the report does not
+# print would leave the total disagreeing with the rows, silently.
+ORDER = ("CONFIRMED_SCOPE_DROPPED", "CORRECT_BUT_REMEDY_REGRESSES",
+         "RESTATES_KNOWN_GUARD", "ELSEWHERE_IN_OBJECT", "NOT_IN_OBJECT",
+         "NO_NARROWER_FORM", "COULD_NOT_DETERMINE")
 
 
 def load_object(topic):
@@ -171,10 +198,10 @@ def main():
     print("")
     print("REJECT CHARGES, over %d live REJECT lanes" % len(live))
     print("")
-    for k in ("CONFIRMED_SCOPE_DROPPED", "RESTATES_KNOWN_GUARD",
-              "ELSEWHERE_IN_OBJECT", "NOT_IN_OBJECT", "NO_NARROWER_FORM",
-              "COULD_NOT_DETERMINE"):
+    for k in ORDER:
         print("   %-22s %4d" % (k, tally.get(k, 0)))
+    unprinted = sorted(set(tally) - set(ORDER))
+    assert not unprinted, "verdict(s) tallied but never printed: %s" % unprinted
     tot = sum(tally.values())
     print("   %-22s %4d   == every charge extracted" % ("total", tot))
     if tot:

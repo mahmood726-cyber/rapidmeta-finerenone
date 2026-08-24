@@ -503,7 +503,12 @@ def scan(src, path):
 _VERDICT = re.compile(r"window\.__verdict\s*=\s*", re.I)
 _GREEN = ("stable", "pass", "clean", "ok", "green", "verified")
 # `RapidMeta.foo(` reached from an inline HTML event-handler attribute.
-_HANDLER_ATTR = re.compile(r"\son[a-z]+\s*=\s*\"([^\"]{1,400})\"", re.I)
+# CLAIM 1, cold lane, CONFIRMED and LATENT. The pattern read double-quoted inline
+# handlers only, so `onclick='RapidMeta.switchTab(...)'` was invisible and a dead
+# control written that way would have passed unseen. Both forms are valid HTML. The
+# corpus writes 108,926 double-quoted handlers and ZERO single-quoted ones, so this
+# moves no number today; it is closed because the hole is real and costs nothing.
+_HANDLER_ATTR = re.compile(r"\son[a-z]+\s*=\s*(?:\"([^\"]{1,400})\"|'([^']{1,400})')", re.I)
 _RM_CALL = re.compile(r"RapidMeta\.([A-Za-z_$][\w$]*)\s*\(")
 # Anything that plausibly DEFINES `name`: method shorthand, `name: function`,
 # `name: (`, or `X.name = function/(`. Deliberately permissive - a definition we
@@ -535,7 +540,32 @@ def _scan_app_integrity(src, fn):
 
     handler_targets = set()
     for m in _HANDLER_ATTR.finditer(src):
-        handler_targets |= set(_RM_CALL.findall(m.group(1)))
+        # group(1) is the double-quoted body, group(2) the single-quoted one. Reading
+        # group(1) alone after widening the pattern would have made every
+        # single-quoted handler match and then contribute nothing -- a fix that
+        # appears to work and changes no behaviour.
+        handler_targets |= set(_RM_CALL.findall(m.group(1) or m.group(2) or ""))
+    # CLAIMS 2 AND 3, cold lane, CONFIRMED AS MECHANISM AND MEASURED AT ZERO.
+    #
+    # `defined` is a set of NAMES. A name defined inside a comment satisfies it, and so
+    # does a bare local that is not a member of RapidMeta -- both proven on fixtures.
+    # The obvious remedy is to require the name be bound to RapidMeta by assignment or
+    # as an object-literal member. IT IS NOT APPLIED, for two measured reasons.
+    #
+    # First, it would change nothing: across 11,728 handler targets in the delivered
+    # corpus, ZERO are unbound from RapidMeta. Second, and the reason it stays out:
+    # writing that check means putting a JavaScript-definition regex into a gate that
+    # blocks pushes, and MY version of that regex was wrong twice while measuring this
+    # very question. It first reported 11,024 of 11,728 targets `defined only in a
+    # comment` -- 94%, which was a `//` stripper eating 49% of each minified page at
+    # the first https:// URL. Corrected, it reported 745 pages calling a handler bound
+    # nowhere -- which was a shorthand method written `,async importReviewPack(event){`
+    # that the pattern could not read, though the gate's own _DEFS reads it correctly.
+    #
+    # A stricter check whose strictness rests on a regex that produced two large false
+    # numbers in one sitting would convert a latent hole into live false failures across
+    # 745 pages. The hole is recorded here; closing it needs a definition reader that
+    # has been proven against this corpus, not another pattern written from a fixture.
     if handler_targets:
         defined = {g for m in _DEFS.finditer(src) for g in m.groups() if g}
         dead = sorted(handler_targets - defined)
