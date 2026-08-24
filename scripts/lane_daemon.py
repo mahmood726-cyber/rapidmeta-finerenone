@@ -23,6 +23,7 @@ from __future__ import annotations
 import io
 import json
 import os
+import re
 import subprocess
 import sys
 import time
@@ -47,6 +48,19 @@ OUT = os.path.join(LANES, "out")
 STATUS = os.path.join(LANES, "status.json")
 
 MAX = {"codex": 4, "agy": 2}
+# AN ENGINE THAT SAYS "QUOTA" MUST BE LEFT ALONE, NOT RETRIED.
+#
+# agy hit its individual quota and the daemon did exactly the wrong thing: it kept
+# feeding the pool, each lane came back in seconds with the same error, and the whole
+# agy queue was consumed against a dead quota. Requeuing them made it worse -- they were
+# re-picked immediately and burned again. 11 lanes lost that way, and had the queue been
+# larger it would have been all of them.
+#
+# A RESUME THAT FIRES INTO A CLOSED WINDOW IS NOT A RESUME. The vendor states its own
+# reset interval in the error text, so that is what is honoured rather than a guess.
+COOLDOWN = {}          # engine -> unix time before which it must not be started
+QUOTA_RE = re.compile(r"quota reached.*?Resets in\s*(?:(\d+)h)?\s*(?:(\d+)m)?"
+                      r"\s*(?:(\d+)s)?", re.I | re.S)
 TICK = 10
 # A lane that has produced no bytes for this long is hung, not thinking.
 STALL_SECONDS = 2400
@@ -159,6 +173,27 @@ def main():
             rc = r["proc"].returncode
             if rc != 0:
                 failed += 1
+            # A QUOTA REFUSAL IS NOT A RESULT. The lane never ran, so its task goes back
+            # on the queue and the engine is stood down for the interval the vendor
+            # itself names -- plus a minute, because a reset reported to the second is
+            # not a promise about the second.
+            try:
+                tail = io.open(r["out"], encoding="utf-8",
+                               errors="replace").read()[:400]
+            except OSError:
+                tail = ""
+            m = QUOTA_RE.search(tail)
+            if m:
+                h, mi, sec = (int(x) if x else 0 for x in m.groups())
+                COOLDOWN[r["engine"]] = time.time() + h * 3600 + mi * 60 + sec + 60
+                try:
+                    os.replace(r["task"], os.path.join(QUEUE,
+                                                       os.path.basename(r["task"])))
+                    os.remove(r["out"])
+                except OSError:
+                    pass
+                running.pop(name)
+                continue
             # THE DAEMON MUST SURVIVE ITS OWN DIRECTORIES BEING EDITED WHILE IT RUNS.
             #
             # That is not an edge case, it is the DESIGN: the queue is a directory so
@@ -179,6 +214,8 @@ def main():
 
         # --- fill
         for engine in ("codex", "agy"):
+            if time.time() < COOLDOWN.get(engine, 0):
+                continue          # stood down; its work stays queued
             live = sum(1 for r in running.values() if r["engine"] == engine)
             while live < MAX[engine]:
                 nxt = None
@@ -233,6 +270,8 @@ def main():
             "running": len(running), "queued": queued,
             "uptime_s": int(time.time() - started),
             "requeued_orphans_at_start": orphans,
+            "cooldown_remaining_s": {e: max(0, int(t - time.time()))
+                                    for e, t in COOLDOWN.items()},
             "by_engine": {e: sum(1 for r in running.values() if r["engine"] == e)
                           for e in MAX},
             "live": sorted((n, int(time.time() - r["started"]),

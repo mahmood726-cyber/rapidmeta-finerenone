@@ -51,9 +51,22 @@ def violations_in(txt: str) -> list[str]:
     # R-REML-primary: must have tau2_reml AND must select it as primary
     has_dl = "tau2_dl" in txt
     has_reml = "tau2_reml" in txt
+    # KEYED TO THE PROPERTY, NOT TO THE REFERENCE PAGE'S PUNCTUATION.
+    #
+    # Both alternatives below required a form the corpus does not write. The first wanted
+    # PARENTHESES around the condition -- `const tau2 = (k>=2) ? ...` -- and every one of
+    # 745 pages writes `const tau2=k>=2?tau2_reml:tau2_dl` with no parentheses at all. The
+    # second wanted `tau2 = tau2_reml` directly adjacent, which a ternary never produces.
+    #
+    # So `selects_reml` computed False on 745 pages that select REML CORRECTLY, and the
+    # branch below then flagged every one of them. THE PUBLISHED ARTEFACT SAYS "Violating:
+    # 301" AND ACCUSES ALL 301 OF THIS RULE, WRONGLY. An audit that cries wolf at 301 pages
+    # gets switched off, and is then worth nothing on the day it is right.
+    #
+    # The property is "the ternary selects tau2_reml over tau2_dl", however it is spaced.
     selects_reml = bool(
-        re.search(r"const\s+tau2\s*=\s*\([^)]*k\s*>=?\s*2[^)]*\)\s*\?\s*tau2_reml\s*:\s*tau2_dl", txt)
-        or re.search(r"tau2\s*=\s*tau2_reml", txt)
+        re.search(r"tau2\s*=\s*[^;]{0,80}\?\s*tau2_reml\s*:\s*tau2_dl", txt)
+        or re.search(r"tau2\s*=\s*tau2_reml\b", txt)
     )
     if has_dl and not has_reml:
         out.append("R-REML-primary")

@@ -33,7 +33,14 @@ TABS = (
     ("analysis", "5. Analysis Suite", ("network",),
      ("headline", "forest", "figures", "countfigs", "hb", "sens", "dissent",
       "subgroups", "note")),
-    ("report", "6. Scientific Output", ("output", "recon", "removal"), ("grade",)),
+    # `otherquals` IS LISTED HERE OR IT IS NOT RENDERED AT ALL.
+    #
+    # A key set on the part dict but absent from this tuple is dropped in silence -- which
+    # is precisely the defect the other-qualifications card exists to fix, and it very
+    # nearly consumed its own fix. The card is per-PAGE rather than per-outcome, so it sits
+    # in the object-level group (the third element) beside `output`.
+    ("report", "6. Scientific Output",
+     ("output", "otherquals", "recon", "removal"), ("grade",)),
     ("paper", "7. Paper Studio", ("paper",), ()),
     ("statistics", "Statistics", (),
      ("stats", "counttabs", "crossengine", "panels")),

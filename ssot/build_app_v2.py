@@ -378,6 +378,20 @@ def build(canon: dict) -> str:
     return _page(canon, sections, p, e)
 
 
+def _verdict_scope(res, pooled, canon):
+    """`what_this_verdict_does_not_establish`, wherever this corpus puts it.
+
+    Three levels hold it across the corpus -- the outcome block, the pooled block and the
+    object root -- so all three are read. Reading one of three is exactly how seventeen
+    pages printed "No reason recorded." over a reason they held.
+    """
+    k = "what_this_verdict_does_not_establish"
+    for src in (res, pooled, canon):
+        if isinstance(src, dict) and src.get(k):
+            return src[k]
+    return None
+
+
 def _previous_values_text(pooled):
     """What this withdrawal supersedes, from either recorded shape.
 
@@ -725,6 +739,27 @@ def _outcome_section(canon, oid, p, e):
             # drift, so nothing lists spellings here.
             + p(_aliases.get(pooled, "withdrawal_reason") or "No reason recorded.")
             + "</div>" + NL
+            # WHAT THIS VERDICT DOES NOT ESTABLISH -- HELD ON 68 OBJECTS, RENDERED ON NONE.
+            #
+            # This field exists for exactly one purpose: to stop a reader taking a
+            # statement about a REGISTRATION as a statement about a TRIAL. amoxicillin-aom
+            # holds "THIS IS A STATEMENT ABOUT THE REGISTRATION, NOT ABOUT THE TRIAL. It
+            # does NOT establish that clinical outcomes were not measured" -- and its page
+            # opened with "All 2 of 2 seeded registrations register no clinical endpoint at
+            # any rank", which is false of those two trials and which the guard was written
+            # to prevent. A field that exists to prevent a misreading and is not projected
+            # is the estimand-caveat diagnosis again, on a second field.
+            #
+            # EVERY OTHER GUARD HERE POINTS AT OVERCLAIMING A RESULT. This one points at
+            # overclaiming a CRITICISM, which is a fabrication in the direction that reads
+            # as rigour: an overstated result gets caught by a reader who knows the trial,
+            # an overstated refusal does not. Being unfairly harsh is a fabrication too.
+            #
+            # Rendered inside the withdrawal notice, immediately after the reason, because
+            # anywhere else is a place the reader has already stopped.
+            + ("  <p><small><strong>What this does not establish.</strong> "
+               + p(str(_verdict_scope(res, pooled, canon))) + "</small></p>" + NL
+               if _verdict_scope(res, pooled, canon) else "")
             + ("  <p><small>" + p(pooled["withdrawn_note"]) + "</small></p>" + NL
                if pooled.get("withdrawn_note") else "")
             # BOTH SHAPES, AND NEVER A SILENT "n/a".

@@ -54,6 +54,7 @@ def _round_base_fmt():
 _round_base_fmt()
 import projectors as pj
 import grade_authority as ga          # noqa: E402  THE ONE PLACE CERTAINTY IS RESOLVED
+import qualification_fields as qf     # noqa: E402  THE SAME PREDICATE THE AUDIT USES
 import paper_projector as _pp           # noqa: E402
 import projectors2 as p2
 import paper as pp
@@ -430,6 +431,53 @@ def panels_card(res, p):
             "<th>Why</th></tr>%s%s  </table>%s</div>%s"
             % (NL, NL, NL, NL, rows, NL, NL))
 
+
+
+# FIELDS THAT ALREADY HAVE A BESPOKE PLACE ON THE PAGE. Listed so the generic block does
+# not say a thing twice, and listed HERE rather than inferred, because inferring it from
+# the rendered HTML would make the block's content depend on the order cards are built.
+_QUAL_RENDERED_ELSEWHERE = frozenset((
+    "estimand_established_does_not_cover_the_contrast_2026_08_20",
+    "what_this_verdict_does_not_establish",
+    "what_is_not_claimed",
+    "known_limitation",
+    "which_limbs_this_review_refuses",
+    "whether_this_review_was_prospectively_registered",
+    "that_two_assessors_disagreed_and_where",
+    "the_search_its_date_and_its_databases",
+))
+
+
+def other_qualifications_card(canon, p):
+    """Every qualification this object records that no other card shows.
+
+    WHY GENERIC AND NOT A WHITELIST. Measured across the corpus: a qualification held on
+    50+ objects reaches a reader 73% of the time; one held on exactly ONE object, 30%.
+    261 of 338 distinct qualifying fields exist on a single object and 182 of those reach
+    nobody. The corpus PROJECTS ITS SCHEMA AND DOES NOT PROJECT ITS ONE-OFFS -- projection
+    is schema-driven while findings are written ad hoc, so the moment an author invents a
+    field name to hold something important they have written it where no page looks.
+
+    A whitelist would fight the thing that makes this corpus good. The asymmetry settles
+    it: an unrendered qualification is INVISIBLE, a generically rendered one is merely
+    UNTIDY. Some internal bookkeeping will surface here that was never meant for a reader;
+    that is a tuning problem and a better one than the alternative.
+
+    The predicate is imported from ssot/qualification_fields.py -- the SAME one the audit
+    counts with, so the audit's number moving is evidence this worked rather than evidence
+    that two rules disagree.
+    """
+    items = qf.qualifying_items(canon, skip=_QUAL_RENDERED_ELSEWHERE)
+    if not items:
+        return ""
+    rows = "".join(
+        "    <tr><th>%s</th><td>%s</td></tr>%s" % (p(qf.human(k)), p(v), NL)
+        for k, v in items)
+    return ("<div class='card'>%s  <h3>Other recorded qualifications</h3>%s"
+            "  <p><small>Statements this review records about the limits of what it establishes, "
+            "which are not shown elsewhere on this page. They are reproduced from the object "
+            "verbatim and are not summarised.</small></p>%s  <table>%s%s  </table>%s</div>%s"
+            % (NL, NL, NL, NL, rows, NL, NL))
 
 def output_card(canon, p):
     sof = ""
@@ -1362,6 +1410,15 @@ def build(canon):
         "network": p2.outcomes_card(canon, p),
         "recon": p2.published_comparison_card(canon, p), "removal": "",
         "output": output_card(canon, p),
+        # OBJECT-LEVEL, SO IT GOES ON `page` AND NOT ON A PART.
+        #
+        # It was first set on the per-outcome dict, which the tab renderer reads via
+        # `out_keys` -- the FOURTH element of the TABS tuple -- while I had listed the
+        # key in the THIRD, which reads from `page`. Set in one place and looked for in
+        # another, it rendered nowhere: the card written to fix "the projector never
+        # learned to look here" was itself written where the projector does not look.
+        # Caught by building a page that holds 34 one-offs and finding none of them.
+        "otherquals": other_qualifications_card(canon, p),
         # WYSIWYG ONLY. The panel used to render the manuscript THREE times: the
         # document view, then manuscript_section's card version, then
         # paper_studio's draft. Fifteen headings appeared twice -- two Abstracts,

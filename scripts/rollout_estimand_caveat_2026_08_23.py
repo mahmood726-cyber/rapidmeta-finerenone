@@ -61,17 +61,65 @@ def targets():
     return out
 
 
+# THE GENERATOR FILES THIS RUN'S OUTPUT DEPENDS ON. Kept in step with
+# build_tabbed._generator_stamp, which stamps each page with the last commit to touch
+# any of them.
+GENERATOR = ("ssot/projectors.py", "ssot/projectors2.py", "ssot/build_tabbed.py",
+             "ssot/build_app_v2.py", "ssot/wysiwyg.py", "ssot/paper.py",
+             "ssot/qualification_fields.py", "ssot/grade_authority.py")
+
+
+def pin_or_refuse():
+    """Pin the commit this run builds from, or refuse to start.
+
+    A CONTINUOUSLY-RUNNING ROLLOUT AND A GENERATOR UNDER EDIT PRODUCE PAGES STAMPED WITH
+    UNCOMMITTED CODE. That happened tonight: the rollout rebuilt IV_IRON_HF_REVIEW.html
+    while generator changes were still in the working tree, the stamp gate refused the
+    next commit, and the page had to be restored and the sequence redone by hand.
+
+    Two ways to stop it, and only one is the right way round. FENCING EDITS stops the
+    writing to protect the rollout; PINNING stops the rollout, and the rollout is the
+    cheap thing to restart. So: one check at launch. If any generator file is dirty this
+    refuses by name; otherwise it records the SHA every page in the run will carry.
+
+    WHAT THIS BUYS BEYOND TIDINESS: every page produced by a run becomes reproducible
+    from ONE commit. That is the claim the reproducibility artefact on each page has
+    been making all along without being able to support it -- a run spanning three
+    generator states stamps three different commits and no single checkout rebuilds it.
+    """
+    dirty = subprocess.run(["git", "-C", REPO, "status", "--porcelain", "--",
+                            *GENERATOR], capture_output=True).stdout.decode(
+        "utf-8", "replace").strip()
+    if dirty:
+        sys.exit(
+            "REFUSED: the generator is dirty, so every page this run builds would carry\n"
+            "a stamp naming a commit that does not contain the code that built it.\n\n"
+            "%s\n\n"
+            "Commit the generator, then start the rollout. The rollout is the cheap thing\n"
+            "to restart; a page stamped with uncommitted code is not reproducible by\n"
+            "anyone, including us." % dirty)
+    sha = subprocess.run(["git", "-C", REPO, "log", "-1", "--format=%h", "--",
+                          *GENERATOR], capture_output=True).stdout.decode(
+        "utf-8", "replace").strip()
+    if not sha:
+        sys.exit("REFUSED: could not read a generator commit to pin to.")
+    return sha
+
+
 def main():
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
     limit = None
     for a in sys.argv[1:]:
         if a.startswith("--limit="):
             limit = int(a.split("=", 1)[1])
+    pinned = pin_or_refuse()
     tg = targets()
     if limit:
         tg = tg[:limit]
     print("")
     print("ROLLOUT: pages whose object holds the estimand-contrast caveat = %d" % len(tg))
+    print("   pinned to generator commit %s -- every page in this run carries it"
+          % pinned)
     print("")
     already = built = frozen_n = refused = missing = 0
     fails, refusals = [], []

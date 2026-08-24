@@ -378,6 +378,65 @@ def make_the_honest_path_the_only_path(callable_name, required_args, defaulted_a
         % (callable_name, ", ".join(bad), what))
 
 
+def a_control_must_not_measure_what_the_work_moves(control_reads, work_changes, what):
+    """A CONTROL MUST NEVER MEASURE THE QUANTITY THE WORK IS DESIGNED TO MOVE.
+
+    The seventh instance of this in one project, and the clearest statement of it yet. An
+    audit of which qualifications reach a reader keyed its positive control to
+    "`what_this_verdict_does_not_establish` is held on 68 objects and rendered on ZERO" --
+    both numbers read by hand hours earlier. It refused on the next run, correctly: the
+    corpus holds it on 88, and the rendered count had already moved 0 -> 1 because the
+    rollout was rebuilding pages against the projector fix that renders it.
+
+        THE CONTROL WAS MEASURING THE FINDING. Every page rebuilt made the control more
+        likely to fail, so complete success would have looked exactly like a broken
+        instrument, and there is no reading of the output that distinguishes them.
+
+    The earlier form of this lesson -- a control keyed to the defect you are removing dies
+    when you succeed -- is the same thing seen from the defect's side. This is the general
+    form: whatever number the work is FOR, that number is the finding and cannot also be the
+    evidence the instrument is sound.
+
+    Key the control to something the work does not touch: a fixture built in the file, a
+    pinned revision, a property of the instrument, or -- as here -- a neighbouring fact that
+    stays true either way. This audit now asserts only that the field EXISTS and is held
+    widely, which no amount of rendering changes.
+    """
+    if control_reads == work_changes:
+        raise ControlFailed(
+            "REFUSED: the control reads %r and the work is designed to move %r. They are "
+            "the same quantity, so complete success and a broken instrument produce the "
+            "same output and nothing distinguishes them. -- %s"
+            % (control_reads, work_changes, what))
+
+
+def does_this_check_match_its_own_trigger(trigger_pattern, evidence_pattern, sample, what):
+    """A CHECK THAT MATCHES THE TRIGGER IT IS TESTING IS CIRCULAR AND ALWAYS AGREES.
+
+    A rule flags pages carrying `chip-robme` that have no RoB-ME IMPLEMENTATION. The check
+    written to test that rule searched for `robme` case-insensitively -- which matches
+    `chip-robme` itself. Every flagged page therefore looked like a false positive, the rule
+    looked 100% wrong, and it was one edit from being suppressed across 301 pages.
+
+        THE CHECK FOUND THE THING THAT CAUSED THE FLAG. That is not evidence about the rule;
+        it is the rule's input read back. And the consequence points the dangerous way: it
+        would have DELETED a true finding, which leaves nothing behind to notice.
+
+    Ask of any verifier: could this pattern match the very thing that caused the flag? If
+    yes, it cannot speak to whether the flag was right.
+    """
+    if trigger_pattern and evidence_pattern and sample:
+        import re as _re
+        if _re.search(evidence_pattern, sample, _re.I) and _re.search(trigger_pattern,
+                                                                     sample, _re.I):
+            if _re.search(evidence_pattern, trigger_pattern, _re.I):
+                raise ControlFailed(
+                    "REFUSED: the evidence pattern %r matches the TRIGGER %r itself, so it "
+                    "agrees with every flagged case by construction and says nothing about "
+                    "whether the flag was correct. -- %s"
+                    % (evidence_pattern, trigger_pattern, what))
+
+
 def completeness_is_earned_not_stated(packet_fields, artefact_fields, what):
     """AN ASSERTION OF COMPLETENESS MUST BE EARNED. A FALSE ASSURANCE IS WORSE THAN NONE.
 

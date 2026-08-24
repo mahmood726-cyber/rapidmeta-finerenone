@@ -24,7 +24,10 @@ LANES = os.path.join(REPO, "outputs", "lanes")
 QUEUE = os.path.join(LANES, "queue")
 PROMPTS = os.path.join(LANES, "prompts")
 
-RECURRING = """The defect shapes PROVEN to recur in this repository. Hunt these by name:
+# RAW, because this string now quotes a regex. Written non-raw it produced an invalid
+# escape `\.` -- which works by accident today and becomes a SyntaxError -- and
+# lint_escape_hazards refused the commit for it, correctly.
+RECURRING = r"""The defect shapes PROVEN to recur in this repository. Hunt these by name:
 
   - a check that CANNOT FAIL: no reachable non-zero exit, or a predicate that matches
     nothing in this corpus, so its zero means "the marker cannot fire" not "nothing is wrong"
@@ -42,6 +45,26 @@ RECURRING = """The defect shapes PROVEN to recur in this repository. Hunt these 
     read out of a sentence that denies it
   - a STATUS CODE REPORTING THE WRAPPER rather than the work: $? through a pipe, a
     subprocess return ignored, a gate that prints PASS without asserting anything
+  - a VERIFIER THAT PRODUCES FALSE NEGATIVES -- a checker whose pattern cannot represent
+    the thing it checks, so it REFUTES a true finding. `sys.exit(main())` matched against
+    `sys\.exit\(([^)]*)\)` captures "main(" because the class stops at the first
+    close-paren, and the check reports "not as claimed" against a claim that is correct.
+    THIS IS THE WORST OF THE SHAPES HERE and it is the one nobody looks for: a false
+    POSITIVE gets investigated and dies, a false NEGATIVE buries a real finding in silence.
+    Same asymmetry as a wrapper reporting success. Look hardest at any pattern with nested
+    delimiters, any regex over code, and any check whose CLEAN result nobody re-derived.
+  - a CHECK THAT MATCHES THE TRIGGER IT IS TESTING -- circular, and it reports PASS on
+    everything it fires on. A rule flagged pages carrying `chip-robme` but no RoB-ME
+    IMPLEMENTATION; the check written to test it searched for `robme` case-insensitively,
+    which matches `chip-robme` itself. Every flagged page looked like a false positive and
+    the rule was one edit from being suppressed across 301 pages. Ask of any verifier: could
+    this pattern match the very thing that CAUSED the flag?
+  - a CHECK THAT ACCUSES CORRECT WORK. Not "can this check fail" -- whether it fails on
+    work that is RIGHT. A rule required `const tau2 = (k>=2) ? ...` with parentheses the
+    corpus never writes, so it accused 301 pages of a statistical-engine violation they did
+    not have. AN AUDIT THAT CRIES WOLF AT 301 PAGES GETS SWITCHED OFF, AND IS THEN WORTH
+    NOTHING ON THE DAY IT IS RIGHT. For any rule, find work that satisfies the PROPERTY and
+    check the rule stays quiet.
 """
 
 HEAD = """You are hunting for defects. Do not summarise what the code does, do not assess
