@@ -159,7 +159,22 @@ def main():
             rc = r["proc"].returncode
             if rc != 0:
                 failed += 1
-            os.replace(r["task"], os.path.join(DONE, os.path.basename(r["task"])))
+            # THE DAEMON MUST SURVIVE ITS OWN DIRECTORIES BEING EDITED WHILE IT RUNS.
+            #
+            # That is not an edge case, it is the DESIGN: the queue is a directory so
+            # that work can be added and withdrawn without stopping anything. Tonight I
+            # withdrew 95 agy tasks to rebuild their packets and deleted the .task files
+            # of lanes that were still in flight. The reap called os.replace on one, got
+            # FileNotFoundError, and the whole daemon died -- eleven minutes of both
+            # pools idle, with a stale status file that read as current.
+            #
+            # A supervisor that dies because one bookkeeping file vanished is not a
+            # supervisor. Losing the record of a finished lane costs a re-run; losing the
+            # daemon costs the night.
+            try:
+                os.replace(r["task"], os.path.join(DONE, os.path.basename(r["task"])))
+            except OSError:
+                pass
             running.pop(name)
 
         # --- fill
@@ -175,7 +190,12 @@ def main():
                 # backup. What is meant is that the file IS a task, and that is now what is
                 # written.
                 for f in sorted(x for x in os.listdir(QUEUE) if x.endswith(".task")):
-                    t = json.load(io.open(os.path.join(QUEUE, f), encoding="utf-8"))
+                    # Same reason: a task can be withdrawn between the listing and the
+                    # read. Skip it rather than fall over.
+                    try:
+                        t = json.load(io.open(os.path.join(QUEUE, f), encoding="utf-8"))
+                    except (OSError, ValueError):
+                        continue
                     if t.get("engine") == engine:
                         nxt = (f, t)
                         break
@@ -194,7 +214,12 @@ def main():
                 # MOVED OUT OF THE QUEUE AT SPAWN. This is the fix: QUEUE now means
                 # pending and only pending, so the fill loop cannot re-pick a live lane.
                 task_running = os.path.join(RUNNING, f)
-                os.replace(os.path.join(QUEUE, f), task_running)
+                try:
+                    os.replace(os.path.join(QUEUE, f), task_running)
+                except OSError:
+                    # Withdrawn under us between the read and the move; the lane is
+                    # already spawned, so let it run and record it where it now is.
+                    task_running = os.path.join(RUNNING, f)
                 running[name] = {"engine": engine, "proc": proc, "fh": fh,
                                  "out": out_path, "size": 0, "last": time.time(),
                                  "task": task_running,
