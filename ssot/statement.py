@@ -180,6 +180,11 @@ def _what_would_change_it(obj):
     if "participants" in limb or "population" in limb:
         return ("A pooled result becomes possible if trials in a common population are "
                 "identified, or if the question is narrowed to one of the populations here.")
+    if not trials:
+        # "A SECOND eligible trial" is wrong when the first was never found. The sentence
+        # has to match the state it describes, or it quietly asserts that one trial exists.
+        return ("A pooled result becomes possible when eligible trials reporting a shared "
+                "outcome are identified for this question.")
     if "k=1" in limb or (len(trials) < 2):
         return ("A pooled result becomes possible when a second eligible trial reporting "
                 "the same outcome is published.")
@@ -213,6 +218,24 @@ def statement_html(obj, e):
     change = _what_would_change_it(obj)
 
     out = ["<div class='card'>", "<h2>Summary</h2>"]
+
+    # A TOPIC WITH NO TRIALS AT ALL IS AN ABSENCE, AND MUST DECLARE ITSELF AS ONE.
+    #
+    # Four objects -- caspofungin-fungal, emtricitabine-hiv, etesevimab-covid, men-acwy --
+    # record ZERO trials. The statement rendered honest prose for them, but the corpus
+    # regression signal `ssot_empty_panel` refused it, and rightly: a panel that merely
+    # reads thin is indistinguishable from one that failed to populate. The property this
+    # project holds is that an absence DECLARES itself with a reason, in the markup a
+    # reader's eye and a checker both recognise, rather than being inferred from a short
+    # page. Same content; stated as what it is.
+    if not trials:
+        out.append(
+            "<div class='absent-state' role='note'><strong>No trial was identified for "
+            "this question.</strong> This review holds no contributing trial, so there is "
+            "no evidence here to summarise, pool or assess. What was checked and when is "
+            "given below, so that this is read as a search that found nothing rather than "
+            "as a page that failed to load.</div>")
+
     if question:
         out.append("<p><strong>Question.</strong> %s</p>" % e(question))
     if searched:
