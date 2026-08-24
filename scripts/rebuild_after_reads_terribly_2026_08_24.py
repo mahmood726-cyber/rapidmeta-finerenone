@@ -25,7 +25,19 @@ import sys
 import time
 
 if __name__ == "__main__":
-    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    # write_through=True, AND THE REASON IS THAT `-u` DOES NOT REACH THIS WRAPPER.
+    #
+    # `python -u` makes PYTHON'S OWN stdout unbuffered. This line then REPLACES that stdout
+    # with a wrapper of its own, and a TextIOWrapper around a pipe is block-buffered by
+    # default -- so a 163-page run launched with `-u` wrote a 0-BYTE LOG for 47 minutes
+    # while it was working normally. Another lane read the empty log, could not see the
+    # denominator, divided the correct rate by 1,473 instead of 163, and reported a 15.7
+    # hour ETA for a 90 minute job.
+    #
+    # A LONG JOB THAT CANNOT SAY WHERE IT IS, IS A JOB NOBODY CAN VERIFY -- and the failure
+    # is silent, because the work is fine and only the reporting is gone.
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8",
+                                  errors="replace", write_through=True)
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SSOT = os.path.join(REPO, "ssot")
 BACKUP = os.path.join(REPO, "outputs", "reads_terribly_backup_2026_08_24")
@@ -43,9 +55,24 @@ def _fmt(row):
                                 else ",".join(row["after"])))
 
 
-def _flush(path, t0, rows):
+def _flush(path, t0, rows, total=None):
+    """Write the ledger, and put the progress line INSIDE it.
+
+    During the run this file was the only thing that could answer "where is it?", because
+    stdout was silently swallowed. A progress summary belongs where the durable record is,
+    not only in a stream that can be lost.
+    """
+    el = time.time() - t0
+    done = len(rows)
+    rate = (done / el * 60) if el > 0 else 0
+    left = (total - done) if total else None
     with io.open(path, "w", encoding="utf-8") as fh:
-        json.dump({"elapsed_s": round(time.time() - t0), "rows": rows}, fh, indent=2)
+        json.dump({"elapsed_s": round(el),
+                   "progress": "%d of %s pages, %.1f/min, ETA %s"
+                               % (done, total if total else "?", rate,
+                                  ("%.0f min" % (left / rate)) if (left and rate) else "?"),
+                   "total_pages": total,
+                   "rows": rows}, fh, indent=2)
 
 
 def main():
@@ -56,6 +83,38 @@ def main():
     os.makedirs(BACKUP, exist_ok=True)
     only = [a for a in sys.argv[1:] if not a.startswith("-")]
     pages = sorted(only) if only else sorted(page_map)
+
+    # --stale: only pages OLDER than the inputs that produce them.
+    #
+    # Objects and generator code both changed repeatedly while a 163-page run was in
+    # flight, so a page built at minute 5 does not carry a fix committed at minute 40.
+    # Re-running the whole corpus to catch that is hours; asking which pages are actually
+    # behind their inputs is seconds. mtime is the right comparison here because every
+    # writer in this repo writes through os.replace, so a page's mtime is the moment its
+    # bytes were produced.
+    if "--stale" in sys.argv:
+        gen = max(os.path.getmtime(os.path.join(SSOT, f))
+                  for f in ("paper_projector.py", "build_app_v2.py", "build_tabbed.py"))
+        def _is_current(pg):
+            """A page is CURRENT when its bytes are at least as new as everything that
+            produces them. Stated as the positive property on purpose: `if not
+            os.path.exists(dst): continue` inside the loop is the shape
+            `audit_exclusion_by_absence.py` refuses, and it is right to -- a per-item
+            absence test reads as "skip this one" where what the caller needs to know is
+            "which pages are behind their inputs".
+            """
+            dst = os.path.join(REPO, pg)
+            src = os.path.join(REPO, page_map[pg].replace("/", os.sep))
+            newest_input = max(gen, os.path.getmtime(src)) if os.path.exists(src) else gen
+            return os.path.exists(dst) and os.path.getmtime(dst) >= newest_input
+
+        stale = [pg for pg in pages if not _is_current(pg)]
+        print("  --stale: %d of %d pages are older than their object or the generator"
+              % (len(stale), len(pages)))
+        pages = stale
+        if not pages:
+            print("  nothing stale. Every page is at least as new as its inputs.")
+            return 0
 
     # THE POSITIVE PROPERTY, ASSERTED ONCE, BEFORE THE LOOP.
     #
@@ -108,14 +167,26 @@ def main():
         for i, (page, row) in enumerate(it, 1):
             rows.append(row)
             print("  [%3d/%d] %-52s %s" % (i, len(pages), page, _fmt(row)))
-            _flush(LEDGER, t0, rows)
+            _flush(LEDGER, t0, rows, len(pages))
     else:
-        from concurrent.futures import ThreadPoolExecutor
+        # as_completed, NOT map. `ex.map` yields IN SUBMISSION ORDER, so one slow item
+        # holds back every result behind it: MALARIA_VACCINES_REVIEW is a 7.5 MB page that
+        # took over 30 minutes, and while it ran the ledger sat frozen at 109 of 163 even
+        # though three other workers had raced on to the R's. A progress file that stalls
+        # for half an hour on a healthy job is indistinguishable from a hung one -- which
+        # is the same failure as the 0-byte log, in a second place.
+        from concurrent.futures import ThreadPoolExecutor, as_completed
         with ThreadPoolExecutor(max_workers=workers) as ex:
-            for i, row in enumerate(ex.map(one, pages), 1):
+            futs = {ex.submit(one, pg): pg for pg in pages}
+            for i, fut in enumerate(as_completed(futs), 1):
+                try:
+                    row = fut.result()
+                except Exception as exc:                       # noqa: BLE001
+                    row = {"page": futs[fut], "state": "BUILD_FAILED",
+                           "tail": "driver exception: %r" % (exc,)}
                 rows.append(row)
                 print("  [%3d/%d] %-52s %s" % (i, len(pages), row["page"], _fmt(row)))
-                _flush(LEDGER, t0, rows)
+                _flush(LEDGER, t0, rows, len(pages))
     print("  free on C: %.1f GB after the run" % (shutil.disk_usage("C:\\").free / 2**30))
 
     ok = sum(1 for r in rows if r["state"] == "OK")

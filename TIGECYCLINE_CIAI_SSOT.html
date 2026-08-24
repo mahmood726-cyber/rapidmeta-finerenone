@@ -676,16 +676,19 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 </div>
   </section>
 <!--end-analysis-->  <section class="panel" id="pn-report"><span id="report"></span>
-  <div class="absent-state" role="note"><strong>Partially held.</strong> Part of the reporting record is held and is shown below. No GRADE certainty rating is carried, so the certainty column is left as an em dash rather than guessed.</div>
-  <p class='toc'><strong>In this section:</strong> <a href="#report-summary-of-findings">Summary of findings</a> &middot; <a href="#report-reproducibility-artifact">Reproducibility artifact</a></p>
+  <p class='toc'><strong>In this section:</strong> <a href="#report-summary-of-findings">Summary of findings</a> &middot; <a href="#report-reproducibility-artifact">Reproducibility artifact</a> &middot; <a href="#report-other-recorded-qualifications">Other recorded qualifications</a></p>
 <div class='card'>
   <h3 id="report-summary-of-findings">Summary of findings</h3>
   <div class='tscroll'><table>
     <caption>Table 11. Summary of findings</caption>
 
     <tr><th>Outcome</th><th>k</th><th>Pooled effect</th><th>Certainty</th></tr>
-    <tr><td>Clinical cure at the test-of-cure visit</td><td class='num'>3</td><td class='num'>RR 0.935 (0.888 to 0.984)</td><td>&mdash;</td></tr>
+    <tr><td>Clinical cure at the test-of-cure visit</td><td class='num'>3</td><td class='num'>RR 0.935 (0.888 to 0.984)</td><td>Very low<sup>1</sup><sup>2</sup></td></tr>
   </table></div>
+  <ol class='sof-notes' style='font-size:0.86em;margin:0.6em 0 0 1.2em;'>
+    <li>Rated Very low. The record does not carry which domains were downgraded, and none is inferred here.</li>
+    <li>Read this beside `estimand_established`. That flag records that every contributing trial measures the same quantity. It records nothing about what that quantity was measured against -- whether the comparators are of one kind, whether each comparison was randomised, whether it was concurrent. The two questions were never separated. Named as P48 in PAGE-STANDARD.md v1.21.0 and swept by scripts/audit_mixed_contrast_pools.py.</li>
+  </ol>
 </div>
 <div class='card'>
   <h3 id="report-reproducibility-artifact">Reproducibility artifact</h3>
@@ -696,17 +699,47 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
     <tr><th scope='col'>Registered at</th><td><code>—</code> —</td></tr>
     <tr><th scope='col'>Schema</th><td>2</td></tr>
     <tr><th scope='col'>Object last updated</th><td>2026-08-09</td></tr>
-    <tr><th scope='col'>Page generated</th><td>2026-08-23 16:43 UTC</td></tr>
-    <tr><th scope='col'>Generator build</th><td><code>f1abd38ce</code>. The standard this page was built to is NOT ESTABLISHED: this object carries no <code>build_stamp</code>, so the version above is the standard that exists now, not the one this page was built against.</td></tr>
+    <tr><th scope='col'>Page generated</th><td>2026-08-24 11:53 UTC</td></tr>
+    <tr><th scope='col'>Generator build</th><td><code>fd88f9751</code>. The standard this page was built to is NOT ESTABLISHED: this object carries no <code>build_stamp</code>, so the version above is the standard that exists now, not the one this page was built against.</td></tr>
   </table></div>
   <p><small>Everything a third party needs to rebuild this page. Each figure on the Analysis tab downloads as an SVG carrying exactly the values shown.</small></p>
+</div>
+<div class='card'>
+  <h3 id="report-other-recorded-qualifications">Other recorded qualifications</h3>
+  <p><small>Statements this review records about the limits of what it establishes, which are not shown elsewhere on this page. They are reproduced from the object verbatim and are not summarised.</small></p>
+  <div class='tscroll'><table>
+    <caption>Table 13. Other recorded qualifications</caption>
+
+    <tr><th>Analysed scope</th><td>the microbiologically evaluable participants assessed at the test-of-cure visit. This is an evaluable population, not the randomised one.</td></tr>
+    <tr><th>A this pool crosses analysis populations</th><td>The analysis population is part of the estimand and this pool crosses it. Read from the registrations on 2026-08-21: NCT00081744 registers &#x27;no primary outcome is recorded on this registration&#x27; (population: None recorded); NCT00136201 registers &#x27;Clinical response for all microbiologically evaluable and microbiologically modified intent-to-treat subjects&#x27; (population: ME and m-mITT); NCT01721408 registers &#x27;Clinical Response at the Test-of-Cure (TOC) Assessment Within the Clinically Evaluable (CE) Population&#x27; (population: CE). The populations pooled are CE and ME and m-mITT.</td></tr>
+    <tr><th>C what is not claimed</th><td>Not that the arithmetic is wrong. Not that the direction would reverse -- that would need the per-population counts and is not established. And not that these are non-inferiority trials: The registrations fetched do not use that word, so the design question is unresolved from the registry rather than assumed.</td></tr>
+    <tr><th>A a fifteen study network finds no difference where this pool finds inferiority</th><td>A published network meta-analysis of fifteen studies and 6,745 participants concludes: &#x27;No differences in clinical and microbiological outcomes were observed between different carbapenems and TGC&#x27; (Yu et al., Medicine 2019, PMID 31577763). This pool reports RR 0.9351 (0.8885 to 0.9842) on three trials -- an interval that excludes no difference, read as tigecycline being inferior on clinical cure.</td></tr>
+    <tr><th>B and our own small sample correction agrees with them</th><td>The inferiority conclusion does not survive this object&#x27;s own adjustment. The Hartung-Knapp interval at k = 3 is 0.8327 to 1.0501 on t = 4.3027 with 2 degrees of freedom, and it includes no difference. A reader taking inferiority from this page is reading the unadjusted interval only.</td></tr>
+    <tr><th>C the evidence base here is weaker than the interval suggests</th><td>One contributing trial is OPEN-LABEL (NCT00136201 registers masking none) on an assessed clinical-response endpoint; one registers no primary outcome at all (NCT00081744, open item O0a) so its result cannot be checked against anything; and the three define their primary in different analysis populations. GRADE certainty is very LOW.</td></tr>
+    <tr><th>D what is not established</th><td>Which twelve studies the network carries that this object does not. The abstract names none and no included-study table was read, so the gap is counted and not identified.</td></tr>
+    <tr><th>E the inferiority reading does not survive this project s own adjustment</th><td>Read this before the interval above. The estimate is 0.9351 (0.8885 to 0.9842), which excludes no difference and reads as tigecycline being inferior on clinical cure. This project&#x27;s own hartung-knapp interval at k = 3 IS 0.8327 to 1.0501, on a t critical value of 4.3027 with 2 degrees of freedom, and it includes no difference. The house rule already requires the adjusted interval to be shown beside the unadjusted one where k is small, because that is the honest width; on this pool the two disagree about the conclusion.</td></tr>
+    <tr><th>F and a fifteen study network reached the same conclusion as the adjusted interval</th><td>Yu et al., Medicine 2019, PMID 31577763, a Bayesian network meta-analysis of fifteen studies and 6,745 participants, concluded: &#x27;No differences in clinical and microbiological outcomes were observed between different carbapenems and TGC.&#x27; the adjusted interval and the larger literature agree with each other and not with the unadjusted reading.</td></tr>
+    <tr><th>A this page never mentions the mortality warning</th><td>Read this beside the estimate. This review pools cure rates for tigecycline in complicated intra-abdominal infection and says nothing, anywhere, about all-cause mortality. Tigecycline carries an FDA boxed warning for increased all-cause mortality, and complicated intra-abdominal infection is among the indications it was drawn from. Independently of the label, one of the three pooled registrations posts an asymmetry of its own: NCT01721408 reports serious adverse events in 32 of 232 on tigecycline against 16 of 232 on imipenem/cilastatin, read from its own posted results. A cure-rate estimate for this drug, in this indication, presented without that, is the smaller half of the story.</td></tr>
+    <tr><th>B a reported missing trial was checked and the exclusion is correct</th><td>A cross-lane check reported that this pool carries three of four trials and that the omitted one is the only one favouring the drug. The fourth registration is NCT00230971, and its comparator is ceftriaxone plus metronidazole, not imipenem/cilastatin. Adding it would combine two comparators in one estimate. The exclusion stands; it is now recorded, which it was not before.</td></tr>
+    <tr><th>C the house sensitivity interval already includes no difference</th><td>This object&#x27;s own sensitivity analyses are the place to read this estimate against. Changing the summary statistic to an odds ratio gives 0.4987 (0.1955 to 1.2722) and reversing which category counts as the event gives 1.8683 (0.7784 to 4.4844) -- both include no difference. An inferiority reading taken from 0.9351 (0.8885 to 0.9842) does not survive this object&#x27;s own robustness checks, and that is recorded here rather than left for a reader to assemble.</td></tr>
+    <tr><th>Access limitation</th><td>Both syntheses are open access and both full texts were retrieved from PubMed Central and read, so the statements below are taken from methods sections and reference lists rather than from abstracts. An earlier version of this block said neither full text was retrievable. That was false, and it was false in the worst way available: no attempt had been made, while the PMC identifier for each sat in this object&#x27;s own staged PubMed record. A reviewer read the staged record and found them. What remains genuinely unresolved is narrower and is stated below.</td></tr>
+    <tr><th>Why this is not an adjudicated dispute</th><td>A blind second assessor from a different model family disagreed with this domain on 89% of judgements across 22 topics. That would ordinarily be a dispute to adjudicate. It is not one: the tool&#x27;s own text names this exact evidential situation -- a bare statement that a study was randomised -- and prescribes the answer. The second assessor is not being deferred to; the guidance is being applied.</td></tr>
+    <tr><th>What the registry gives and does not</th><td>A ClinicalTrials.gov design module records `allocation: Randomized`. It carries no sequence-generation method and no allocation-concealment mechanism. The original judgement&#x27;s own note said so before scoring LOW.</td></tr>
+    <tr><th>How this maps to the tool s algorithm</th><td>The tool maps &#x27;No information&#x27; on 1.1 and 1.2 with no baseline concern to a domain judgement of some concerns. This project writes NO_INFORMATION on the domain when it could not be judged from the sources read, and caps the overall at SOME_CONCERNS. Same place, and it keeps &#x27;we could not judge this&#x27; distinguishable from &#x27;we judged it and had concerns&#x27;.</td></tr>
+    <tr><th>What does not change</th><td>No overall rating and no GRADE CERTAINTY moves. All 51 judgements were already capped at SOME_CONCERNS or HIGH by another NO_INFORMATION domain.</td></tr>
+    <tr><th>And it bounds a finding of ours</th><td>Class 94 records assessor 2 saying NO_INFORMATION on D1/D2/D3 `100 of 100`. Measured across all 23 topics now stored that is 239 of 243, and all four exceptions are D1=SOME_CONCERNS on `agyw-hiv-prep-review` and `cab-prep-hiv-review` -- two of the three topics asked under the earlier prompt build, the one whose reply ids are bare NCTs. Under that build it is 4 of 6; under the later build 0 of 75. The 100% was measured on the later build&#x27;s topics. The two-defaults mechanism stands; its universality does not, and what varies with it is the prompt.</td></tr>
+    <tr><th>The rate is still conditional on the same allow list</th><td>Both numbers are conditional on the fact list in THE_ALLOW_LIST_THE_RATE_IS_CONDITIONAL_ON above. Neither is a rate of agreement between assessors in general.</td></tr>
+    <tr><th>Scope</th><td>clinical treatment success and microbiological treatment success, plus adverse events and mortality</td></tr>
+    <tr><th>The finding of this comparison</th><td>A published network meta-analysis of fifteen studies and 6,745 participants concludes: &#x27;No differences in clinical and microbiological outcomes were observed between different carbapenems and TGC&#x27; (Yu et al., Medicine 2019, PMID 31577763). This pool reports RR 0.9351 (0.8885 to 0.9842) on three trials -- an interval that excludes no difference, read as tigecycline being inferior on clinical cure. The inferiority conclusion does not survive this object&#x27;s own adjustment. The Hartung-Knapp interval at k = 3 is 0.8327 to 1.0501 on t = 4.3027 with 2 degrees of freedom, and it includes no difference. A reader taking inferiority from this page is reading the unadjusted interval only. One contributing trial is OPEN-LABEL (NCT00136201 registers masking none) on an assessed clinical-response endpoint; one registers no primary outcome at all (NCT00081744, open item O0a) so its result cannot be checked against anything; and the three define their primary in different analysis populations. GRADE certainty is very LOW. Which twelve studies the network carries that this object does not. The abstract names none and no included-study table was read, so the gap is counted and not identified.</td></tr>
+    <tr><th>Which risk of bias domains drove the rating</th><td>Where a result is rated worse than LOW overall, the domain carrying that judgement is: D4 on 3 result(s). The overall rating is the worst domain, so these are the domains that determine it.</td></tr>
+  </table></div>
 </div>
   </section>
 <!--end-report-->  <section class="panel" id="pn-paper"><span id="paper"></span>
   <p class='toc'><strong>In this section:</strong> <a href="#paper-paper">Paper</a> &middot; <a href="#paper-title-and-review-question">Title and review question</a> &middot; <a href="#paper-abstract">Abstract</a> &middot; <a href="#paper-keywords">Keywords</a> &middot; <a href="#paper-introduction">Introduction</a> &middot; <a href="#paper-methods-search">Methods — search</a> &middot; <a href="#paper-methods-eligibility-criteria">Methods — eligibility criteria</a> &middot; <a href="#paper-methods-how-many-studies-at-each-stage">Methods — how many studies at each stage</a> &middot; <a href="#paper-methods-outcomes-sought-at-every-registere">Methods — outcomes sought at every registered rank</a> &middot; <a href="#paper-methods-synthesis">Methods — synthesis</a> &middot; <a href="#paper-results">Results</a> &middot; <a href="#paper-risk-of-bias-in-the-included-results">Risk of bias in the included results</a> &middot; <a href="#paper-certainty-of-the-evidence">Certainty of the evidence</a> &middot; <a href="#paper-discussion">Discussion</a> &middot; <a href="#paper-comparison-with-published-syntheses">Comparison with published syntheses</a> &middot; <a href="#paper-disagreements-between-sources">Disagreements between sources</a> &middot; <a href="#paper-limitations">Limitations</a> &middot; <a href="#paper-conclusions">Conclusions</a> &middot; <a href="#paper-data-availability">Data availability</a> &middot; <a href="#paper-software-availability">Software availability</a> &middot; <a href="#paper-reporting-guidelines">Reporting guidelines</a> &middot; <a href="#paper-author-contributions">Author contributions</a> &middot; <a href="#paper-competing-interests">Competing interests</a> &middot; <a href="#paper-grant-information">Grant information</a> &middot; <a href="#paper-funding-and-conflicts-of-interest">Funding and conflicts of interest</a> &middot; <a href="#paper-note-on-registration">Note on registration</a> &middot; <a href="#paper-registration">Registration</a> &middot; <a href="#paper-references">References</a> &middot; <a href="#paper-figure-legends">Figure legends</a> &middot; <a href="#paper-figures">Figures</a> &middot; <a href="#paper-trial-characteristics">Trial characteristics</a> &middot; <a href="#paper-extended-data-statistical-output-quoted-ve">Extended data: statistical output, quoted verbatim</a> &middot; <a href="#paper-submission-conformance">Submission conformance</a> &middot; <a href="#paper-notes-on-this-record-sections-not-written-">Notes on this record — sections not written, and why</a></p>
 <div class='card'>
 <h2 id="paper-paper">Paper</h2>
-<p class='muted'>Every statement below is projected from a field of this object. The superscripts are sources: each section ends with the fields its statements came from, in order. <strong>A section with no field behind it is not written</strong> &mdash; it is refused, by name, so a reader can tell an absent procedure from an unmentioned one.</p>
+<p class='muted'>Each statement below cites the record it came from; those sources are listed at the end of every section. <strong>Where the record holds nothing, the section says so by name</strong> rather than being left out, so a procedure that was not carried out can be told from one that simply was never mentioned.</p>
 <h3 id="paper-title-and-review-question">Title and review question</h3>
 <p>Tigecycline versus imipenem/cilastatin for complicated intra-abdominal infection: clinical cure at test-of-cure<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
 <p>Among trials randomising adults with complicated intra-abdominal infection to tigecycline or to imipenem/cilastatin, how does the proportion cured at the test-of-cure visit compare, and does that comparison survive the choices made in reaching it?<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
@@ -728,10 +761,8 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <li><code>manuscript.abstract.Conclusions</code></li>
 </ol></details>
 <h3 id="paper-keywords">Keywords</h3>
-<div class='absent-state' role='note'><strong>Refused:</strong> <sup class='prov-ref' title='source 1 for this section'>1</sup></div>
-<div class='absent-state' role='note'><strong>Refused:</strong> the keyword list -- a content gap; no keywords are recorded and inventing them would be indexing this review under terms nobody chose<sup class='prov-ref' title='source 2 for this section'>2</sup></div>
-<details class='prov-block'><summary class='prov-title'>Sources for this section (2)</summary><ol class='prov-list'>
-<li><code>keywords</code></li>
+<div class='absent-state' role='note'><strong>Refused:</strong> the keyword list -- a content gap; no keywords are recorded and inventing them would be indexing this review under terms nobody chose<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (1)</summary><ol class='prov-list'>
 <li><code>keywords</code></li>
 </ol></details>
 <h3 id="paper-introduction">Introduction</h3>
@@ -749,7 +780,7 @@ The outcome pooled is Clinical cure at the test-of-cure visit.</p>
 </ol></details>
 <h3 id="paper-methods-search">Methods — search</h3>
 <p>Primary trials. No bibliographic search for primary trials was run. The 3 included trials were identified by reading named registrations on the dates recorded on each entry. Published syntheses. PubMed E-utilities esearch + esummary, executed 2026-08-21. Query as executed: (tigecycline[tiab]) and (&quot;intra-abdominal&quot;[tiab] OR cIAI[tiab]) and (meta-analysis[pt] OR &quot;systematic review&quot;[pt] OR meta-analysis[tiab] OR &quot;pooled&quot;[tiab]). It matched 22 record(s), of which 22 were retrieved and 22 read; 1 appraised.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
-<div class='absent-state' role='note'><strong>Refused:</strong> the entire search description<sup class='prov-ref' title='source 2 for this section'>2</sup></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the database-search record -- `search.databases` holds no executed query, so no query, date or yield can be shown<sup class='prov-ref' title='source 2 for this section'>2</sup></div>
 <details class='prov-block'><summary class='prov-title'>Sources for this section (2)</summary><ol class='prov-list'>
 <li><code>bookkeeping_2026_08_21.the_search_its_date_and_its_databases</code></li>
 <li><code>search.databases</code></li>
@@ -805,7 +836,7 @@ The outcome pooled is Clinical cure at the test-of-cure visit.</p>
 <p>Risk of bias was assessed with RoB 2 (Cochrane risk-of-bias tool for randomized trials). The unit of assessment is a result<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
 <p>A domain that cannot be judged from the sources read is NO_INFORMATION, never LOW. Low-by-default asserts a fact; high-by-default invents a defect.<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
 <p>A second, independent assessment was obtained from: gpt-5 Codex (openai family), via `codex exec`<sup class='prov-ref' title='source 3 for this section'>3</sup></p>
-<p>The assessment above was made by: Claude Opus 5 (anthropic family) -- the assessment above<sup class='prov-ref' title='source 4 for this section'>4</sup></p>
+<p>The assessment above was made by: Claude Opus 5 (anthropic family)<sup class='prov-ref' title='source 4 for this section'>4</sup></p>
 <p>How the second assessor was asked: Blind, from scripts/second_assessor_prompt.py, which assembles the prompt from an ALLOW-LIST of registry-sourced factual fields and refuses to send it if any RoB 2 verdict word appears in the assembled text. The second assessor was not shown this assessment and was not asked whether it agreed. It was given this project&#x27;s NO_INFORMATION-never-LOW rule so the comparison measures judgement rather than house dialect.<sup class='prov-ref' title='source 5 for this section'>5</sup></p>
 <p>The disagreement rate, reported as disagreement because agreement between two assessors given the same facts authenticates nothing: 11 of 18 judgements -- 61.1%. Reported as disagreement: agreement between two assessors given the same facts authenticates nothing.<sup class='prov-ref' title='source 6 for this section'>6</sup></p>
 <p>Where they disagree, by domain: D1 3 of 3 disagree, D2 0 of 3 disagree, D3 0 of 3 disagree, D4 3 of 3 disagree, D5 2 of 3 disagree and overall 3 of 3 disagree.<sup class='prov-ref' title='source 7 for this section'>7</sup></p>
@@ -940,10 +971,8 @@ The outcome pooled is Clinical cure at the test-of-cure visit.</p>
 <li><code>manuscript.funding_statement</code></li>
 </ol></details>
 <h3 id="paper-funding-and-conflicts-of-interest">Funding and conflicts of interest</h3>
-<div class='absent-state' role='note'><strong>Refused:</strong> <sup class='prov-ref' title='source 1 for this section'>1</sup></div>
-<div class='absent-state' role='note'><strong>Refused:</strong> the funding and conflict-of-interest statement -- a content gap. A submission requires it and this object does not carry it; it is not inferable from anything held here<sup class='prov-ref' title='source 2 for this section'>2</sup></div>
-<details class='prov-block'><summary class='prov-title'>Sources for this section (2)</summary><ol class='prov-list'>
-<li><code>funding</code></li>
+<div class='absent-state' role='note'><strong>Refused:</strong> the funding and conflict-of-interest statement -- a content gap. A submission requires it and this object does not carry it; it is not inferable from anything held here<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (1)</summary><ol class='prov-list'>
 <li><code>funding</code></li>
 </ol></details>
 <h3 id="paper-note-on-registration">Note on registration</h3>
@@ -1027,11 +1056,11 @@ The outcome pooled is Clinical cure at the test-of-cure visit.</p>
   <text x="8" y="136" font-size="15" font-weight="700" fill="currentColor">Pooled (RR)</text>
 
 </svg>
-<figcaption>Figure 1. Forest plot -- clinical cure at the test-of-cure visit. Each contributing trial&#x27;s stored estimate and interval, with the pooled result. k = 3.<sup class='prov-ref' title='source 1 for this section'>1</sup></figcaption>
+<figcaption>Figure 1. Forest plot -- clinical cure at the test-of-cure visit. k = 3.<sup class='prov-ref' title='source 1 for this section'>1</sup></figcaption>
 </figure>
 <figure>
-<div class='absent-state' role='note'><strong>Figure 2 not drawn.</strong> k = 3. A funnel plot and its asymmetry tests have almost no power below about ten trials (Cochrane Handbook 13.3.5.4), so a funnel drawn here would invite a reading of asymmetry this evidence cannot support. IT IS DECLINED RATHER THAN DRAWN, and this slot says so where the plot would have been.</div>
-<figcaption>Figure 2. Funnel plot -- clinical cure at the test-of-cure visit. Standard error against effect, with the pseudo-confidence funnel drawn from the pooled estimate. k = 3.<sup class='prov-ref' title='source 2 for this section'>2</sup></figcaption>
+<div class='absent-state' role='note'><strong>Figure 2 not drawn.</strong> k = 3. A funnel plot and its asymmetry tests have almost no power below about ten trials (Cochrane Handbook 13.3.5.4), so a funnel drawn here would invite a reading of asymmetry this evidence cannot support. It is declined rather than drawn, and this slot says so where the plot would have been.</div>
+<figcaption>Figure 2. Funnel plot -- clinical cure at the test-of-cure visit. k = 3.<sup class='prov-ref' title='source 2 for this section'>2</sup></figcaption>
 </figure>
 <details class='prov-block'><summary class='prov-title'>Sources for this section (2)</summary><ol class='prov-list'>
 <li><code>results.by_outcome.cure_toc_me.per_trial, results.by_outcome.cure_toc_me.pooled</code></li>

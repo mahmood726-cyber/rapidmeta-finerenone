@@ -98,7 +98,7 @@ FOREIGN_EXAMPLES = (
 # cell or sentence is left alone: that is the whole distinction, and 366 legitimate own-slot
 # uses depend on it.
 SENTINEL_SPLICE = re.compile(
-    r"[a-z0-9,;:.)\]–—\"'”’-][\x20\u00a0]*(?:not recorded|not available|not stated|no record|"
+    r"[a-z0-9,;:.)\]–—-][\x20\u00a0]*(?:not recorded|not available|not stated|no record|"
     r"not established|not captured)[\x20\u00a0]+on the page this object was "
     r"(?:extracted|built) from", re.I)
 
@@ -219,6 +219,16 @@ CONTROLS = (
     ("SENTINEL_SPLICE", True,
      "<p>Known limitation of the screen: not recorded on the page this object was "
      "extracted from</p>"),
+    # USE vs MENTION. ROSUVASTATIN legitimately QUOTES the marker while explaining that
+    # "checked and failed" is a different state from "never recorded" -- a true and useful
+    # distinction -- and an earlier separator class that included quote characters blocked
+    # the page for saying it. A gate that blocks a correct page is a gate people learn to
+    # bypass, so the quote characters came back out and this is the control that keeps them
+    # out. The bypass they were added for was enumerated but never observed; this false
+    # positive was observed.
+    ("SENTINEL_SPLICE", False,
+     "<p>Checked on 2026-08-20 and failed, which is a different state from the "
+     "'not recorded on the page this object was extracted from' this object carries.</p>"),
     ("SENTINEL_SPLICE", False,
      "<td>not recorded on the page this object was extracted from</td>"),
     # THE FALSE POSITIVE THE FIRST DRAFT PRODUCED, KEPT AS A CONTROL. A header cell and its

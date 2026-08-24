@@ -564,7 +564,7 @@ _prose_has_value = _lead_in_has_value
 _SENTINEL_TAIL = ("not recorded", "not available", "not stated", "no record",
                   "not established", "not captured")
 _SPLICED_SENTINEL = re.compile(
-    r"[a-z0-9,;:.)\]–—\"'”’-][\x20\u00a0]*(?:not recorded|not available|not stated|no record|"
+    r"[a-z0-9,;:.)\]–—-][\x20\u00a0]*(?:not recorded|not available|not stated|no record|"
     r"not established|not captured)[\x20\u00a0]+on the page this object was "
     r"(?:extracted|built) from", re.I)
 

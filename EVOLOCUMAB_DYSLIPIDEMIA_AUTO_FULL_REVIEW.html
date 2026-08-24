@@ -280,7 +280,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class="absent-state" role="note"><strong>Not held in this object.</strong> No screening log is recorded for this review. The included set was reconciled against published syntheses rather than screened from a search, so no records-identified, excluded-with-reason or dual-screening counts exist.</div>
  </section>
 <!--end-screen-->  <section class="panel" id="pn-extract"><span id="extract"></span>
-  <p class='toc'><strong>In this section:</strong> <a href="#extract-extracted-values-and-where-each-came-fro">Extracted values, and where each came from</a> &middot; <a href="#extract-sources">Sources</a> &middot; <a href="#extract-a-cardiovascular-composite-in-one-trial-">A cardiovascular composite in one trial and adverse events in the other</a> &middot; <a href="#extract-a-cardiovascular-composite-in-one-trial--2">A cardiovascular composite in one trial and adverse events in the other</a> &middot; <a href="#extract-what-was-measured">What was measured</a> &middot; <a href="#extract-pooled-result">Pooled result</a> &middot; <a href="#extract-contributing-trials">Contributing trials</a> &middot; <a href="#extract-endpoint-definitions-read-from-the-regis">Endpoint definitions, read from the registry</a> &middot; <a href="#extract-the-methods-rule-governing-this-decision">The methods rule governing this decision</a></p>
+  <p class='toc'><strong>In this section:</strong> <a href="#extract-extracted-values-and-where-each-came-fro">Extracted values, and where each came from</a> &middot; <a href="#extract-sources">Sources</a> &middot; <a href="#extract-a-cardiovascular-composite-in-one-trial-">A cardiovascular composite in one trial and adverse events in the other</a> &middot; <a href="#extract-a-cardiovascular-composite-in-one-trial--2">A cardiovascular composite in one trial and adverse events in the other</a> &middot; <a href="#extract-what-was-measured">What was measured</a> &middot; <a href="#extract-pooled-result">Pooled result</a> &middot; <a href="#extract-contributing-trials">Contributing trials</a> &middot; <a href="#extract-endpoint-definitions-read-from-the-regis">Endpoint definitions, read from the registry</a></p>
 <div class='card'>
   <h2 id="extract-extracted-values-and-where-each-came-fro">Extracted values, and where each came from</h2>
   <p>One row per extracted value. Every row carries the value, the verbatim sentence it was read from, a resolvable link to the source, and whether the number was read or derived. Where any of those is absent the row says so rather than omitting the value.</p>
@@ -350,12 +350,6 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 Time to cardiovascular death, myocardial infarction, stroke, hospitalization for unstable angina, or coronary revascularization was defined as the time from randomization to the first occurrence of any component of the composite endpoint and was analyzed using Kaplan-Meier (KM) survival analysis. KM estimates of the percentage of participants with an event are reported. Participants with no event were censored based on last non-fatal potential endpoint collection date.</td><td>Time to first occurrence, median follow-up 26 months. Note: the counts stored on this page, 429 and 378, are not this trial&#x27;s primary-composite counts, which are 1,344 and 1,563. And the arm sizes are the wrong way round: 13,784 is the evolocumab arm and 13,780 the placebo arm.</td></tr>
     <tr><td><strong>OSLER-2</strong><br><small><a href="https://clinicaltrials.gov/study/NCT01854918" rel="noopener">NCT01854918</a></small></td><td>PRIMARY -- primaryOutcomes[0] on this registration</td><td>Number of Participants With Adverse Events</td><td>Adverse event (AE) severity assessments were made using National Cancer Institute Common Terminology Criteria for Adverse Events (ctcae) grading, version 4.0, where grade 1 = mild AE, grade 2 = moderate AE, Grade 3 = severe AE, grade 4 = life-threatening AE and Grade 5 = death due to AE.</td><td>An open-label extension study. Its arm sizes here, 1,227 against 2,454, are a 1:2 allocation, not the 1:1 the other trial has.</td></tr>
   </table></div>
-</div>
-<div class='card'>
-  <h3 id="extract-the-methods-rule-governing-this-decision">The methods rule governing this decision</h3>
-  <p><strong>Decision:</strong> not recorded on the page this object was built from</p>
-  <p><strong>Cochrane Handbook sections:</strong> </p>
-  <p>not recorded on the page this object was built from</p>
 </div>
 </section>
   </section>
@@ -428,17 +422,18 @@ Time to cardiovascular death, myocardial infarction, stroke, hospitalization for
 </div>
   </section>
 <!--end-analysis-->  <section class="panel" id="pn-report"><span id="report"></span>
-  <p class='toc'><strong>In this section:</strong> <a href="#report-summary-of-findings">Summary of findings</a> &middot; <a href="#report-reproducibility-artifact">Reproducibility artifact</a></p>
+  <p class='toc'><strong>In this section:</strong> <a href="#report-summary-of-findings">Summary of findings</a> &middot; <a href="#report-reproducibility-artifact">Reproducibility artifact</a> &middot; <a href="#report-other-recorded-qualifications">Other recorded qualifications</a></p>
 <div class='card'>
   <h3 id="report-summary-of-findings">Summary of findings</h3>
   <div class='tscroll'><table>
     <caption>Table 7. Summary of findings</caption>
 
     <tr><th>Outcome</th><th>k</th><th>Pooled effect</th><th>Certainty</th></tr>
-    <tr><td>A cardiovascular composite in one trial and adverse events in the other</td><td class='num'>2</td><td class='num'>not pooled</td><td>See comment<sup>1</sup></td></tr>
+    <tr><td>A cardiovascular composite in one trial and adverse events in the other</td><td class='num'>2</td><td class='num'>not pooled</td><td>See comment<sup>1</sup><sup>2</sup></td></tr>
   </table></div>
   <ol class='sof-notes' style='font-size:0.86em;margin:0.6em 0 0 1.2em;'>
     <li>The pooled estimate for this outcome has been WITHDRAWN, so there is no estimate for a certainty rating to be about. Any rating this object still carries for this outcome was made about the withdrawn estimate and is not shown beside it.</li>
+    <li>Read this beside `estimand_established`. That flag records that every contributing trial measures the same quantity. It records nothing about what that quantity was measured against -- whether the comparators are of one kind, whether each comparison was randomised, whether it was concurrent. The two questions were never separated. Named as P48 in PAGE-STANDARD.md v1.21.0 and swept by scripts/audit_mixed_contrast_pools.py.</li>
   </ol>
 </div>
 <div class='card'>
@@ -450,17 +445,29 @@ Time to cardiovascular death, myocardial infarction, stroke, hospitalization for
     <tr><th scope='col'>Registered at</th><td><code>—</code> —</td></tr>
     <tr><th scope='col'>Schema</th><td>2-authored-from-source</td></tr>
     <tr><th scope='col'>Object last updated</th><td>2026-08-18T00:00Z</td></tr>
-    <tr><th scope='col'>Page generated</th><td>2026-08-23 19:55 UTC</td></tr>
-    <tr><th scope='col'>Generator build</th><td><code>d48b4de31</code>. The standard this page was built to is NOT ESTABLISHED: this object carries no <code>build_stamp</code>, so the version above is the standard that exists now, not the one this page was built against.</td></tr>
+    <tr><th scope='col'>Page generated</th><td>2026-08-24 10:50 UTC</td></tr>
+    <tr><th scope='col'>Generator build</th><td><code>fd88f9751</code>. The standard this page was built to is NOT ESTABLISHED: this object carries no <code>build_stamp</code>, so the version above is the standard that exists now, not the one this page was built against.</td></tr>
   </table></div>
   <p><small>Everything a third party needs to rebuild this page. Each figure on the Analysis tab downloads as an SVG carrying exactly the values shown.</small></p>
+</div>
+<div class='card'>
+  <h3 id="report-other-recorded-qualifications">Other recorded qualifications</h3>
+  <p><small>Statements this review records about the limits of what it establishes, which are not shown elsewhere on this page. They are reproduced from the object verbatim and are not summarised.</small></p>
+  <div class='tscroll'><table>
+    <caption>Table 9. Other recorded qualifications</caption>
+
+    <tr><th>Components as the registry states them</th><td>cardiovascular death; myocardial infarction; stroke; hospitalisation for unstable angina; Coronary revascularization. An efficacy composite.</td></tr>
+    <tr><th>Analysis set as the registry states it</th><td>Time to first occurrence, median follow-up 26 months. Note: the counts stored on this page, 429 and 378, are not this trial&#x27;s primary-composite counts, which are 1,344 and 1,563. And the arm sizes are the wrong way round: 13,784 is the evolocumab arm and 13,780 the placebo arm.</td></tr>
+    <tr><th>Components as the registry states them</th><td>Number of participants with adverse events. That is the whole of the registered primary. There is no cardiovascular component, no efficacy component, and no composite.</td></tr>
+    <tr><th>Analysis set as the registry states it</th><td>An open-label extension study. Its arm sizes here, 1,227 against 2,454, are a 1:2 allocation, not the 1:1 the other trial has.</td></tr>
+  </table></div>
 </div>
   </section>
 <!--end-report-->  <section class="panel" id="pn-paper"><span id="paper"></span>
   <p class='toc'><strong>In this section:</strong> <a href="#paper-paper">Paper</a> &middot; <a href="#paper-title-and-review-question">Title and review question</a> &middot; <a href="#paper-abstract">Abstract</a> &middot; <a href="#paper-keywords">Keywords</a> &middot; <a href="#paper-introduction">Introduction</a> &middot; <a href="#paper-methods-search">Methods — search</a> &middot; <a href="#paper-methods-eligibility-criteria">Methods — eligibility criteria</a> &middot; <a href="#paper-methods-how-many-studies-at-each-stage">Methods — how many studies at each stage</a> &middot; <a href="#paper-methods-outcomes-sought-at-every-registere">Methods — outcomes sought at every registered rank</a> &middot; <a href="#paper-methods-synthesis">Methods — synthesis</a> &middot; <a href="#paper-results">Results</a> &middot; <a href="#paper-risk-of-bias-in-the-included-results">Risk of bias in the included results</a> &middot; <a href="#paper-certainty-of-the-evidence">Certainty of the evidence</a> &middot; <a href="#paper-discussion">Discussion</a> &middot; <a href="#paper-comparison-with-published-syntheses">Comparison with published syntheses</a> &middot; <a href="#paper-disagreements-between-sources">Disagreements between sources</a> &middot; <a href="#paper-limitations">Limitations</a> &middot; <a href="#paper-conclusions">Conclusions</a> &middot; <a href="#paper-data-availability">Data availability</a> &middot; <a href="#paper-software-availability">Software availability</a> &middot; <a href="#paper-reporting-guidelines">Reporting guidelines</a> &middot; <a href="#paper-author-contributions">Author contributions</a> &middot; <a href="#paper-competing-interests">Competing interests</a> &middot; <a href="#paper-grant-information">Grant information</a> &middot; <a href="#paper-funding-and-conflicts-of-interest">Funding and conflicts of interest</a> &middot; <a href="#paper-note-on-registration">Note on registration</a> &middot; <a href="#paper-registration">Registration</a> &middot; <a href="#paper-references">References</a> &middot; <a href="#paper-figure-legends">Figure legends</a> &middot; <a href="#paper-figures">Figures</a> &middot; <a href="#paper-trial-characteristics">Trial characteristics</a> &middot; <a href="#paper-extended-data-statistical-output-quoted-ve">Extended data: statistical output, quoted verbatim</a> &middot; <a href="#paper-submission-conformance">Submission conformance</a> &middot; <a href="#paper-notes-on-this-record-sections-not-written-">Notes on this record — sections not written, and why</a></p>
 <div class='card'>
 <h2 id="paper-paper">Paper</h2>
-<p class='muted'>Every statement below is projected from a field of this object. The superscripts are sources: each section ends with the fields its statements came from, in order. <strong>A section with no field behind it is not written</strong> &mdash; it is refused, by name, so a reader can tell an absent procedure from an unmentioned one.</p>
+<p class='muted'>Each statement below cites the record it came from; those sources are listed at the end of every section. <strong>Where the record holds nothing, the section says so by name</strong> rather than being left out, so a procedure that was not carried out can be told from one that simply was never mentioned.</p>
 <h3 id="paper-title-and-review-question">Title and review question</h3>
 <p>Evolocumab in dyslipidaemia<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
 <p>What did these two trials measure? One registers a cardiovascular composite and the other registers adverse events.<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
@@ -470,22 +477,20 @@ Time to cardiovascular death, myocardial infarction, stroke, hospitalization for
 </ol></details>
 <h3 id="paper-abstract">Abstract</h3>
 <p>Question. What did these two trials measure? One registers a cardiovascular composite and the other registers adverse events.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
-<p>Methods. eligibility was not recorded on the page this object was built from.<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
-<div class='absent-state' role='note'><strong>Refused:</strong> the Background sentence of the abstract. Background is argument -- why this question matters -- and no arrangement of the quantities this object holds yields it. It is emitted only from an authored field and there is no composition path for it here<sup class='prov-ref' title='source 3 for this section'>3</sup></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the Background sentence of the abstract. Background is argument -- why this question matters -- and no arrangement of the quantities this object holds yields it. It is emitted only from an authored field and there is no composition path for it here<sup class='prov-ref' title='source 2 for this section'>2</sup></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the Methods sentence of the abstract. None of the method facts this would be composed from -- databases searched, eligibility, pooling model, risk-of-bias tool, certainty approach -- is recorded on this object<sup class='prov-ref' title='source 3 for this section'>3</sup></div>
 <div class='absent-state' role='note'><strong>Refused:</strong> the Results sentence of the abstract -- no outcome on this object carries a pooled point estimate, so there is nothing to report and none is manufactured here. The reason each pool is declined is given in Results<sup class='prov-ref' title='source 4 for this section'>4</sup></div>
 <div class='absent-state' role='note'><strong>Refused:</strong> the Conclusions sentence of the abstract. A conclusion is argument -- what a reader should now believe -- and it is emitted only from an authored field. Composing one from the estimate would be this renderer telling the reader what to conclude, which no field supports<sup class='prov-ref' title='source 5 for this section'>5</sup></div>
 <details class='prov-block'><summary class='prov-title'>Sources for this section (5)</summary><ol class='prov-list'>
 <li><code>question</code></li>
-<li><code>screening.eligibility</code></li>
 <li><code>manuscript.abstract.Background</code></li>
+<li><code>search.databases, risk_of_bias.tool, grade.approach</code></li>
 <li><code>results.by_outcome.primary.pooled.point</code></li>
 <li><code>manuscript.abstract.Conclusions</code></li>
 </ol></details>
 <h3 id="paper-keywords">Keywords</h3>
-<div class='absent-state' role='note'><strong>Refused:</strong> <sup class='prov-ref' title='source 1 for this section'>1</sup></div>
-<div class='absent-state' role='note'><strong>Refused:</strong> the keyword list -- a content gap; no keywords are recorded and inventing them would be indexing this review under terms nobody chose<sup class='prov-ref' title='source 2 for this section'>2</sup></div>
-<details class='prov-block'><summary class='prov-title'>Sources for this section (2)</summary><ol class='prov-list'>
-<li><code>keywords</code></li>
+<div class='absent-state' role='note'><strong>Refused:</strong> the keyword list -- a content gap; no keywords are recorded and inventing them would be indexing this review under terms nobody chose<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (1)</summary><ol class='prov-list'>
 <li><code>keywords</code></li>
 </ol></details>
 <h3 id="paper-introduction">Introduction</h3>
@@ -499,7 +504,7 @@ The outcome sought is A cardiovascular composite in one trial and adverse events
 </ol></details>
 <h3 id="paper-methods-search">Methods — search</h3>
 <p>Primary trials. No bibliographic search for primary trials was run. The 2 included trials were identified by reading named registrations on the dates recorded on each entry. This object&#x27;s verification rests on ClinicalTrials.gov protocol records, read 2026-08-18. This review does not claim that any per-trial count was checked against a results record. The bar this object had to clear is not recorded.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
-<div class='absent-state' role='note'><strong>Refused:</strong> the entire search description<sup class='prov-ref' title='source 2 for this section'>2</sup></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the database-search record -- `search.databases` holds no executed query, so no query, date or yield can be shown<sup class='prov-ref' title='source 2 for this section'>2</sup></div>
 <details class='prov-block'><summary class='prov-title'>Sources for this section (2)</summary><ol class='prov-list'>
 <li><code>bookkeeping_2026_08_21.the_search_its_date_and_its_databases</code></li>
 <li><code>search.databases</code></li>
@@ -520,14 +525,12 @@ The outcome sought is A cardiovascular composite in one trial and adverse events
 <li><code>inputs.trials[].all_ranks_read_utc</code></li>
 </ol></details>
 <h3 id="paper-methods-synthesis">Methods — synthesis</h3>
-<p>Methodological decisions follow not recorded on the page this object was built from, version not recorded on the page this object was built from, and the sections relied on are listed in the object rather than cited generically.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
-<div class='absent-state' role='note'><strong>Refused:</strong> the model/estimator sentence for a cardiovascular composite in one trial and adverse events in the other -- no pooled estimate was produced for this outcome, so no model was fitted and none is described<sup class='prov-ref' title='source 2 for this section'>2</sup></div>
-<div class='absent-state' role='note'><strong>Refused:</strong> the claim that records were screened in duplicate by two independent reviewers<sup class='prov-ref' title='source 3 for this section'>3</sup></div>
-<div class='absent-state' role='note'><strong>Refused:</strong> the claim that risk of bias was assessed with a named tool<sup class='prov-ref' title='source 4 for this section'>4</sup></div>
-<div class='absent-state' role='note'><strong>Refused:</strong> the claim that certainty of evidence was graded<sup class='prov-ref' title='source 5 for this section'>5</sup></div>
-<div class='absent-state' role='note'><strong>Refused:</strong> the claim that the review methods were prespecified before data collection<sup class='prov-ref' title='source 6 for this section'>6</sup></div>
-<details class='prov-block'><summary class='prov-title'>Sources for this section (6)</summary><ol class='prov-list'>
-<li><code>methodological_authority.reference</code></li>
+<div class='absent-state' role='note'><strong>Refused:</strong> the model/estimator sentence for a cardiovascular composite in one trial and adverse events in the other -- no pooled estimate was produced for this outcome, so no model was fitted and none is described<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the claim that records were screened in duplicate by two independent reviewers<sup class='prov-ref' title='source 2 for this section'>2</sup></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the claim that risk of bias was assessed with a named tool<sup class='prov-ref' title='source 3 for this section'>3</sup></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the claim that certainty of evidence was graded<sup class='prov-ref' title='source 4 for this section'>4</sup></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the claim that the review methods were prespecified before data collection<sup class='prov-ref' title='source 5 for this section'>5</sup></div>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (5)</summary><ol class='prov-list'>
 <li><code>results.by_outcome.primary.estimator_used</code></li>
 <li><code>screening.duplicate_screening</code></li>
 <li><code>risk_of_bias.tool</code></li>
@@ -537,7 +540,7 @@ The outcome sought is A cardiovascular composite in one trial and adverse events
 <h3 id="paper-results">Results</h3>
 <p>A cardiovascular composite in one trial and adverse events in the other. These 2 trials are not pooled, and the reason is stated rather than the outcome being quietly omitted: One trial registers a cardiovascular composite and the other registers adverse events, and the registry says so in four words. OSLER-2&#x27;s registered primary outcome is, verbatim and in its entirety, &#x27;Number of Participants With Adverse Events&#x27;. Fourier&#x27;s is a five-component composite of cardiovascular death, myocardial infarction, stroke, hospitalisation for unstable angina and coronary revascularization. An adverse-event tally and an efficacy composite are not the same event, they are not measured for the same purpose, and for a lipid-lowering drug they do not move together. Separately, and it sharpens the original reason: the counts this page holds for fourier, 429 and 378, are not its primary-composite counts, which are 1,344 and 1,563. And the arm sizes are inverted -- 13,784 is fourier&#x27;s evolocumab arm and 13,780 its placebo arm, and this page has them the other way round. So the row is wrong in its numerator, its denominator assignment and its endpoint at once.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
 <details class='prov-block'><summary class='prov-title'>Sources for this section (1)</summary><ol class='prov-list'>
-<li><code>outcomes[id=primary].name, results.by_outcome.primary.poolable_reason</code></li>
+<li><code>outcomes[id=primary].name, results.by_outcome.primary.pooled.withdrawn_reason</code></li>
 </ol></details>
 <h3 id="paper-risk-of-bias-in-the-included-results">Risk of bias in the included results</h3>
 <p>No second, independent risk-of-bias assessment is recorded for this topic. The judgements were made once. Stated so that single assessment is not mistaken for agreement between two.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
@@ -554,7 +557,7 @@ The outcome sought is A cardiovascular composite in one trial and adverse events
 <li><code>grade</code></li>
 </ol></details>
 <h3 id="paper-discussion">Discussion</h3>
-<div class='absent-state' role='note'><strong>Refused:</strong> the Discussion -- this is a content gap. The object records no interpretive text, and none is generated here: a discussion written by the renderer would be an argument no field supports<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the Discussion -- this is a content gap. The object records no interpretive text, and none is generated here: text written by the renderer would be an argument no field supports<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
 <details class='prov-block'><summary class='prov-title'>Sources for this section (1)</summary><ol class='prov-list'>
 <li><code>discussion</code></li>
 </ol></details>
@@ -571,16 +574,14 @@ The outcome sought is A cardiovascular composite in one trial and adverse events
 <li><code>reconciliation.clean_because</code></li>
 </ol></details>
 <h3 id="paper-limitations">Limitations</h3>
-<p>Known limitation of the screen: not recorded on the page this object was built from<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
-<p>Eligible trials that do not contribute: All included registrations carry a row in this object.<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
-<p>This review does not claim that any per-trial count was checked against a results record.<sup class='prov-ref' title='source 3 for this section'>3</sup></p>
-<details class='prov-block'><summary class='prov-title'>Sources for this section (3)</summary><ol class='prov-list'>
-<li><code>screening.known_limitation</code></li>
+<p>Eligible trials that do not contribute: All included registrations carry a row in this object.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
+<p>This review does not claim that any per-trial count was checked against a results record.<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (2)</summary><ol class='prov-list'>
 <li><code>eligible_but_not_contributing.note</code></li>
 <li><code>verification_basis.what_is_not_claimed</code></li>
 </ol></details>
 <h3 id="paper-conclusions">Conclusions</h3>
-<div class='absent-state' role='note'><strong>Refused:</strong> the Conclusions -- this is a content gap. The object records no interpretive text, and none is generated here: a conclusions written by the renderer would be an argument no field supports<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the Conclusions -- this is a content gap. The object records no interpretive text, and none is generated here: text written by the renderer would be an argument no field supports<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
 <details class='prov-block'><summary class='prov-title'>Sources for this section (1)</summary><ol class='prov-list'>
 <li><code>conclusions</code></li>
 </ol></details>
@@ -615,10 +616,8 @@ The outcome sought is A cardiovascular composite in one trial and adverse events
 <li><code>manuscript.funding_statement</code></li>
 </ol></details>
 <h3 id="paper-funding-and-conflicts-of-interest">Funding and conflicts of interest</h3>
-<div class='absent-state' role='note'><strong>Refused:</strong> <sup class='prov-ref' title='source 1 for this section'>1</sup></div>
-<div class='absent-state' role='note'><strong>Refused:</strong> the funding and conflict-of-interest statement -- a content gap. A submission requires it and this object does not carry it; it is not inferable from anything held here<sup class='prov-ref' title='source 2 for this section'>2</sup></div>
-<details class='prov-block'><summary class='prov-title'>Sources for this section (2)</summary><ol class='prov-list'>
-<li><code>funding</code></li>
+<div class='absent-state' role='note'><strong>Refused:</strong> the funding and conflict-of-interest statement -- a content gap. A submission requires it and this object does not carry it; it is not inferable from anything held here<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (1)</summary><ol class='prov-list'>
 <li><code>funding</code></li>
 </ol></details>
 <h3 id="paper-note-on-registration">Note on registration</h3>
@@ -658,11 +657,11 @@ The outcome sought is A cardiovascular composite in one trial and adverse events
 <h3 id="paper-figures">Figures</h3>
 <figure>
 <div class='absent-state' role='note'><strong>Figure 1 not drawn.</strong> no per-trial estimates are stored for this outcome, so there are no rows to plot. The pooled value alone is a point, not a forest.</div>
-<figcaption>Figure 1. Forest plot -- a cardiovascular composite in one trial and ADVERSE EVENTS in the other. Each contributing trial&#x27;s stored estimate and interval, with the pooled result. k = 2.<sup class='prov-ref' title='source 1 for this section'>1</sup></figcaption>
+<figcaption>Figure 1. Forest plot -- a cardiovascular composite in one trial and ADVERSE EVENTS in the other. k = 2.<sup class='prov-ref' title='source 1 for this section'>1</sup></figcaption>
 </figure>
 <figure>
-<div class='absent-state' role='note'><strong>Figure 2 not drawn.</strong> k = 2. A funnel plot and its asymmetry tests have almost no power below about ten trials (Cochrane Handbook 13.3.5.4), so a funnel drawn here would invite a reading of asymmetry this evidence cannot support. IT IS DECLINED RATHER THAN DRAWN, and this slot says so where the plot would have been.</div>
-<figcaption>Figure 2. Funnel plot -- a cardiovascular composite in one trial and ADVERSE EVENTS in the other. Standard error against effect, with the pseudo-confidence funnel drawn from the pooled estimate. k = 2.<sup class='prov-ref' title='source 2 for this section'>2</sup></figcaption>
+<div class='absent-state' role='note'><strong>Figure 2 not drawn.</strong> k = 2. A funnel plot and its asymmetry tests have almost no power below about ten trials (Cochrane Handbook 13.3.5.4), so a funnel drawn here would invite a reading of asymmetry this evidence cannot support. It is declined rather than drawn, and this slot says so where the plot would have been.</div>
+<figcaption>Figure 2. Funnel plot -- a cardiovascular composite in one trial and ADVERSE EVENTS in the other. k = 2.<sup class='prov-ref' title='source 2 for this section'>2</sup></figcaption>
 </figure>
 <details class='prov-block'><summary class='prov-title'>Sources for this section (2)</summary><ol class='prov-list'>
 <li><code>results.by_outcome.primary.pooled</code></li>
