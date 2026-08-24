@@ -136,7 +136,24 @@ def _english_properties(text):
         # the rule. This was the ninth.
         out = re.sub(r"(?<![\w-])%s(?![\w-])" % re.escape(key),
                      _PROPERTY_ENGLISH[key], out, flags=re.I)
-    return out
+
+    # AND THEN BY SHAPE, because the map is a vocabulary and the corpus writes identifiers.
+    #
+    # Every key above is a SPACE-SEPARATED PHRASE -- "rob per result", "k cascade" -- while
+    # the objects store `P18_restatement_is_reproducible`, `P6_analysis_output`,
+    # `P7_published_comparison`. The map therefore matched none of them, `_english_properties`
+    # returned its input untouched, and five pages published a list of our own build-property
+    # identifiers as manuscript prose. A blind editor desk-rejected one of them for
+    # unreadability and quoted an identifier back.
+    #
+    # The map handles the names we knew about; this handles the ones we did not, which is the
+    # only way a translator survives a corpus that adds properties. `P18_` prefix off,
+    # underscores to spaces -- a shape, not a list.
+    def _shape(m):
+        words = m.group("name").replace("_", " ").strip()
+        return _PROPERTY_ENGLISH.get(words.lower(), words)
+
+    return re.sub(r"(?<![\w-])P\d+_(?P<name>[A-Za-z][A-Za-z0-9_]*)(?![\w-])", _shape, out)
 
 
 def _add_bookkeeping(s, obj, field):
@@ -4465,8 +4482,21 @@ def project(obj, journal="generic", length="standard"):
               ["build_stamp.page_standard_version"])
     held = bs.get("held")
     if isinstance(held, list) and held:
-        s.add(obj, "Properties held: %d, by name -- %s."
-              % (len(held), ", ".join(str(x) for x in held)), ["build_stamp.held"])
+        # THE COUNT REACHES THE READER; THE INTERNAL NAMES DO NOT.
+        #
+        # This line used to print every property identifier verbatim --
+        # "P19_promotion_reaches_derived_blocks, P1_executed_search, P2_k_cascade,
+        # P20_cascade_reconciles..." -- into the manuscript. A blind editor desk-rejected the
+        # page for unreadability and quoted `k_cascade` back as an example of "bizarre text".
+        # They were right about this one: it is a list of OUR OWN build-property names, it
+        # means nothing to a clinical reader, and it is the software talking about itself in
+        # a document about trials.
+        #
+        # The count is a real claim and stays. The identifiers are build metadata and belong
+        # with the build, not in the paper. Verified count, no vocabulary.
+        s.add(obj, "%d machine-checked properties were verified for this page before it was "
+                   "published; the checks and their names are recorded with the build rather "
+                   "than here." % len(held), ["build_stamp.held"])
     if not s.paras:
         s.refusals.append(("the submission conformance statement", ["build_stamp"]))
     secs.append(s)

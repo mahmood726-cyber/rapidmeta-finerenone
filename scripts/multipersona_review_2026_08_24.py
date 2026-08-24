@@ -121,6 +121,30 @@ def extract_paper(path):
     if not m:
         return None
     seg = re.sub(r"(?is)<(script|style)\b.*?</\1>", " ", m.group(1))
+
+    # COLLAPSED CONTENT MUST REACH THE REVIEWER COLLAPSED, and getting this wrong produced a
+    # false finding I nearly acted on.
+    #
+    # Round 1's editor desk-rejected the page over "completely unreadable strings such as
+    # results.by_outcome.harmonised_cvdeath_or_hhf.POOL_FINDINGS_2026_08_21". That string is
+    # inside a <details class='prov-block'> element -- collapsed, behind a one-line summary,
+    # and a reader never meets it unless they choose to open it. The editor met it because
+    # THIS EXTRACTOR FLATTENED THE DISCLOSURE and handed them a document no reader sees.
+    #
+    # The proposed fix would have been to strip the provenance apparatus -- the exact
+    # feature the student, the sceptic and the methodologist each named as the reason they
+    # trusted the page over a published Lancet paper. A payload defect would have deleted
+    # the page's best property.
+    #
+    # So a disclosure is rendered AS a disclosure: the reviewer is told it exists and how
+    # much is behind it, and does not have its contents poured into the reading flow.
+    seg = re.sub(
+        r"(?is)<details[^>]*>\s*<summary[^>]*>(.*?)</summary>(.*?)</details>",
+        lambda md: "\n[%s -- collapsed on the page; %d entries behind a disclosure the "
+                   "reader may open]\n"
+                   % (" ".join(re.sub(r"<[^>]+>", " ", md.group(1)).split()),
+                      len(re.findall(r"<li\b", md.group(2)))),
+        seg)
     seg = re.sub(r"(?i)<h([1-6])[^>]*>", "\n\n## ", seg)
     seg = re.sub(r"(?i)</h[1-6]>", "\n", seg)
     seg = re.sub(r"(?i)<(p|tr|li|div)\b[^>]*>", "\n", seg)
