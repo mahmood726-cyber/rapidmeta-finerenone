@@ -19,6 +19,15 @@ obtained and then discarded:
 | the review's own text | not stated | **315 of 331 name none — 95%** |
 | the underlying paper's record | not indexed | **137 of 220 modern RCTs carry none** |
 
+And below all three, the constraint that binds even when the identifier *is* recovered:
+
+| | measured |
+|---|---|
+| registered trials with no results posted to the registry | **532 of 860 — 62%** |
+| per-trial data we could furnish, of a review's own included trials | **~1 in 20** |
+
+**The registry's coverage, not anyone's retrieval, is the ceiling on the open-data route.**
+
 Each was measured separately, on its own sample, with its own denominator. None is derived
 from another, and no rates are multiplied.
 
@@ -300,6 +309,10 @@ as a consistently right one.
 | the schema has no registration field | `FINDING_COCHRANE_EXTRACTION_HAS_NO_REGISTRATION_FIELD.md` |
 | identification vs retrieval | `FINDING_THE_JOIN_FAILS_AT_IDENTIFICATION_NOT_RETRIEVAL.md` |
 | title search is not a substitute | `FINDING_TITLE_SEARCH_IS_NOT_A_SUBSTITUTE_FOR_A_REGISTRATION.md` |
+| recovery against the answer key | `FINDING_RECOVERY_AGAINST_THE_KEY_2026-08-25.md` |
+| out-of-sample replication at 8,651 labels | `outputs/join_replication_2026_08_25.json` |
+| what could be furnished per review | `outputs/exceeding_per_review_2026_08_25.json` |
+| single-draw status of every panel figure | `ADJUDICATION_DRAW_INVENTORY_2026-08-25.md` |
 
 Every figure in this document is produced by executing code against data, not by a model
 judgement. None of it is affected by the k=3 adjudication specification
