@@ -76,14 +76,25 @@ def jaccard(a, b):
 
 
 def get(url, key):
+    """Cached fetch that distinguishes NO PAYLOAD from A PAYLOAD SAYING ZERO.
+
+    The first version required len(body) > 30. A genuine empty result from this API is
+    {"studies":[]} -- SIXTEEN bytes -- so every trial that simply is not in the registry
+    failed the guard, retried three times, and was recorded as SEARCH FAILED. The headline
+    would then have been "most searches failed" rather than "most trials were not found",
+    which is a different claim and an unanswerable one.
+
+    A zero has two readings and only one of them is about the world. The marker, not the
+    length, decides whether a payload arrived.
+    """
     os.makedirs(CACHE, exist_ok=True)
     fp = os.path.join(CACHE, re.sub(r"[^A-Za-z0-9]+", "_", key)[:110] + ".json")
-    if os.path.exists(fp) and os.path.getsize(fp) > 30:
+    if os.path.exists(fp) and os.path.getsize(fp) > 8:
         return io.open(fp, encoding="utf-8", errors="replace").read()
     for attempt in (1, 2, 3):
         r = subprocess.run(["curl", "-sSL", "-g", "--max-time", "90", url], capture_output=True)
         body = (r.stdout or b"").decode("utf-8", "replace")
-        if "studies" in body and len(body) > 30:
+        if body.lstrip().startswith("{") and '"studies"' in body:
             io.open(fp, "w", encoding="utf-8").write(body)
             return body
         time.sleep(2 * attempt)
