@@ -73,7 +73,10 @@ rate is not a reader who rejects everything. The student calls the published pap
 68 times out of 149 — so a 76% safe rate is not a reader who accepts everything.
 
 **On full manuscripts, our pages mislead a novice less than a Lancet meta-analysis — 76.0%
-against 54.4% — and one of fifty clears an editor.** That one is ARNI, the authored page.
+against 54.4% — and one of fifty was sent to review.** That one was ARNI, on a single draw
+that **does not replicate** — see the ARNI section below, where 24 replicated jobs return
+DESK-REJECT 10 times out of 12. Read the 1/50 as "one page got a favourable draw", not as
+"one page cleared the bar".
 
 Note what the split does *not* show: the student's safe rate is the same for notes as for
 manuscripts (73.7% against 76.0%). A one-paragraph note is safe because there is nothing in
@@ -174,57 +177,57 @@ firing, so the zero is a measurement rather than a broken instrument's silence.
 
 ---
 
-## ARNI as an internal anchor
+## ARNI as an internal anchor — and the round-1 result does NOT replicate
 
-Mahmood's suggestion, and it earns its place: ARNI is the one authored manuscript in the
-corpus, and it is the counter-example that stops the 2.0% review rate being read as a ceiling.
-It is also the ONLY full manuscript of the fifty that an editor sent to review; the other
-three REVIEW verdicts all went to notes of about 1,100-1,400 characters.
+Mahmood asked for ARNI to be run against the published comparators, on the reasoning that if
+our best page scores like Zelniker, that is the achievable target for the manuscript layer.
 
-| | ARNI | Zelniker |
+**It does not score like Zelniker, and the round-1 finding that it did was noise.**
+
+Round 1 put ARNI against one anchor, once per persona, in one position, each job going to one
+family. The editor sent ARNI to REVIEW and desk-rejected Zelniker, and I reported that as
+"an authored page in this house style can clear an editor". That was one draw.
+
+Replicated properly — three published anchors, two personas, two families, **both orderings**,
+24 jobs, all 24 returning:
+
+| | ARNI | anchor |
 |---|---|---|
-| editor | **REVIEW** | DESK-REJECT |
-| student | MISLEADING | SAFE |
+| editor, vs Zelniker (*Lancet* 2019) | **DESK-REJECT 4/4** | REVIEW 4/4 |
+| editor, vs Zannad (*Lancet* 2020) | DESK-REJECT 3/4 | REVIEW 3/4 |
+| editor, vs Tromp (*JACC HF* 2021) | DESK-REJECT 3/4 | REVIEW 4/4 |
+| student, all three | SAFE 7/12 | SAFE 4/12 |
 
-The editor preferred our authored page **over the published Lancet paper**, and desk-rejected
-the latter:
+Against Zelniker specifically the result is **the exact inverse of round 1**: 4 of 4
+desk-rejections where round 1 recorded a review. Eleven of the twelve editor cells and every
+student cell are **position-dependent** — the verdict changes with which slot ARNI occupies —
+and five of six cells show the two families disagreeing, with Codex consistently harsher than
+Gemini on this page.
 
-> "I desk-reject for an unsound method because it presents opaque, naked numbers, asserting
-> 'SGLT2i reduced major adverse cardiovascular events by 11%' without reporting heterogeneity
-> or robustness checks."
+So the honest answer to the question as posed: **the manuscript layer has no demonstrated
+exemplar.** ARNI is desk-rejected like the rest of the corpus. That is a harder place to
+start from than yesterday's reading, and it is where we actually are.
 
-> "Document A prioritizes rigorous data provenance and exposes its own fragility, whereas
-> Document B conceals its internal variance behind a polished but unverifiable narrative."
+**What this does and does not undermine.** It does not undermine the corpus-wide rates. Round
+2 re-read 41 page-role pairs with *both* families and they agree on 34 of them — 83 per cent
+— with the seven disagreements running symmetrically in both directions (4 one way, 3 the
+other) and no family systematically more lenient: student SAFE 72.7% for Codex against 65.0%
+for Gemini, editor REVIEW 0% for both. Aggregate rates over 149 pages are sound.
 
-**An authored page in this house style can clear an editor. The projected pages are not
-failing because of the standard; they are failing because of what they have to disclose.**
+What it undermines is **any single page's verdict**, which is one draw with roughly a 1-in-6
+chance of flipping on family alone before position is considered. ARNI's round-1 REVIEW was
+that draw. No individual page verdict in this record should be quoted without replication.
 
-And the student caught ARNI on something real, which is the whole reason to keep it:
+And the student's finding about ARNI stands independently of any of this, because it was
+adjudicated against the object rather than voted on:
 
 > "It confidently summarizes incomplete assessment as certainty: 'No risk-of-bias domain was
 > rated high,' while the risk-of-bias tables assess only three trials in a four-trial
 > synthesis."
 
-Verified on the object: `risk_of_bias.by_outcome` holds `paradigm-hf`, `parallel-hf`,
-`parachute-hf` — three — and the conclusion reads "Across 4 randomised trials". The sentence
-sits immediately before that conclusion, so a reader takes it as covering all four. It is the
-same family as every other defect this week: **an absence stated as a clean result.** The
-sentence now names its denominator and says the fourth trial was not assessed.
-
-That is a fourth ARNI defect, found by a reader and not by us, on the page we hold up as the
-standard.
-
----
-
-## Denominators, stated
-
-- 149 pages carry a Paper Studio panel; 14 pages in `PAGE_MAP` do not.
-- 298 of 298 panel jobs returned. All 149 pages have both personas. No page unread.
-- **99 of the 149 are notes under 3,000 characters, not manuscripts.** Corpus-wide rates mix
-  the two; the manuscripts-only column is the comparable one.
-- 0 jobs recorded a verdict without output. A job that produced nothing is recorded MISSING,
-  never as a clean page.
-- Rates above are final for this reading. They will move if the pages change.
+Verified: `risk_of_bias.by_outcome` holds `paradigm-hf`, `parallel-hf`, `parachute-hf` —
+three — and the conclusion reads "Across 4 randomised trials". The sentence now names its
+denominator.
 
 ---
 

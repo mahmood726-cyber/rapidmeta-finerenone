@@ -2908,17 +2908,51 @@ def project(obj, journal="generic", length="standard"):
     # GRADE -- rated only where a pool exists.
     gr = get(obj, "grade")
     if isinstance(gr, dict) and gr.get("approach"):
-        rated = [o for o, v in (gr.get("by_outcome") or {}).items() if v.get("rated")]
-        notr = [o for o, v in (gr.get("by_outcome") or {}).items() if not v.get("rated")]
+        # AN OUTCOME THAT CARRIES A GRADE CERTAINTY HAS BEEN RATED.
+        #
+        # This counted only blocks with a truthy `rated` FLAG. Across the 30 objects holding
+        # grade.by_outcome, 13 blocks carry a `certainty` value and NO `rated` key at all --
+        # so 13 pages published "0 pooled outcome(s) were rated" beside an abstract correctly
+        # reporting "certainty of the evidence was low", drawn from that same certainty.
+        #
+        # THE ABSTRACT WAS RIGHT AND THE BODY WAS WRONG, which is the opposite of the shape
+        # we have been finding all week, and I nearly fixed the abstract. What settled it was
+        # reading the object: AGYW_HIV_PREP holds pooled {point 0.703, CI 0.566 to 0.873, RR}
+        # with k=2 and certainty LOW. A real pool, really rated.
+        _by = gr.get("by_outcome") or {}
+        rated = [o for o, v in _by.items()
+                 if isinstance(v, dict) and (v.get("rated") or v.get("certainty"))]
+        notr = [o for o in _by if o not in rated]
         txt = ("Certainty of evidence was rated with %s, following %s. %s %d pooled outcome(s) "
                "were rated. %s" % (gr["approach"], gr.get("handbook_chapter", ""),
                                    gr.get("starting_point", ""), len(rated),
                                    gr.get("not_rated_up", "")))
         if notr:
-            txt += (" %d outcome(s) were NOT rated because their pool is declined or "
-                    "withdrawn: there is no effect estimate to rate the certainty of, and "
-                    "rating one would be certainty about a number this review refused to "
-                    "publish." % len(notr))
+            # AND THE REASON IS CHECKED, NOT ASSERTED. This attributed "their pool is
+            # declined or withdrawn" to every unrated outcome without ever looking at the
+            # result block. On the 13 pages above the pool was neither -- so the sentence
+            # stated a count that was wrong AND a reason that was invented, and the invented
+            # reason is what made the wrong count sound considered.
+            _res = get(obj, "results.by_outcome") or {}
+            _confirmed = []
+            for _o in notr:
+                _b = _res.get(_o) or {}
+                _pool = _b.get("pooled") if isinstance(_b, dict) else None
+                _declined = (not isinstance(_pool, dict)
+                             or _pool.get("point") is None
+                             or bool(_pool.get("withdrawn"))
+                             or _b.get("poolable") is False)
+                if _declined:
+                    _confirmed.append(_o)
+            if _confirmed:
+                txt += (" %d outcome(s) were NOT rated because their pool is declined or "
+                        "withdrawn: there is no effect estimate to rate the certainty of, "
+                        "and rating one would be certainty about a number this review "
+                        "refused to publish." % len(_confirmed))
+            _other = len(notr) - len(_confirmed)
+            if _other:
+                txt += (" %d further outcome(s) carry no certainty rating, and this review "
+                        "does not record why." % _other)
         s.paras.append((txt, ["grade.approach", "grade.by_outcome"]))
     else:
         # A GRADE RATING CAN LIVE PER POOLED OUTCOME AND NOT AT THE OBJECT ROOT, and this
