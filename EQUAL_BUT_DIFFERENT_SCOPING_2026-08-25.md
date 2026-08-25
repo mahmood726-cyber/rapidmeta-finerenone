@@ -126,7 +126,27 @@ possible.
 ([DOI](https://doi.org/10.1370/afm.2995)).*
 
 ---
-## 7. FINDING: 95% of published reviews cannot be audited for trial identity
+## 7. THE AUDITABILITY PAIR
+
+**Two independent, sufficient reasons a published review cannot be checked.** Either alone
+stops an audit; a review could fix one and remain uncheckable, which is why they are reported
+together.
+
+| | general literature | Cochrane | pooled |
+|---|---|---|---|
+| **names no trial registration** | 260 / 270 (96%) | 55 / 61 (90%) | **315 / 331 (95%)** |
+| **prints no per-trial outcome table** | 185 / 270 (69%) | **NOT MEASURABLE** | 246 / 331 (74%) |
+
+**`NOT MEASURABLE` is stated here, not in a footnote.** Cochrane reviews do publish per-trial
+data — Characteristics of Included Studies, and an Analysis table under every comparison.
+Those tables are **not in the PMC deposit**, which carries 0–2 tables and no captions for
+those records. A measured "0 of 61" would have been a property of the deposit, not of
+Cochrane, and it is not reported as a rate.
+
+Denominators throughout are **full text only**: 500 records examined, 331 full text, 169 thin
+PMC stubs excluded rather than counted as reviews printing nothing, 0 fetch failures.
+
+## 7a. FINDING: 95% of published reviews cannot be audited for trial identity
 
 **315 of 331 full-text reviews (95%) name no trial registration**, across two frames.
 
