@@ -676,6 +676,38 @@ if _waived_pairs:
     print("\n%d signal(s) waived under STANDARD_EXCEPTIONS.json -- these pages "
           "are BELOW STANDARD and say so on their face. Waived is not fixed and the "
           "register is the backlog." % _waived_pairs)
+# CONTROL: THIS GATE MUST BE ABLE TO BLOCK, AND IT HAD NEVER DEMONSTRATED THAT.
+#
+# This is the pre-push regression gate. Its "Regression check PASS on N page(s)" line has
+# been quoted in status reports after every push, and until now nothing established that the
+# line could ever have said anything else. A check that has not shown it can fail is a source
+# of unearned confidence, and an audit of this repository found 55 more like it.
+#
+# THE CONTROL IS SYNTHETIC ON PURPOSE. A live control -- pointing at a page that currently
+# carries a defect -- stops holding the day that page is fixed, and the instrument retires
+# itself at the moment of success. A planted signal is constructed here, cannot be fixed
+# away, and tests exactly the property the exit logic asserts: a non-OK signal with entries
+# must produce a blocking verdict.
+#
+# It also pins the inverse, which is the failure that has actually shipped elsewhere in this
+# repository: `_OK_KEYS` must not be able to swallow a real finding. Adding a blocking
+# signal's name to that set would make this gate report clean while a finding stands.
+_probe_key = "__control_planted_defect__"
+assert _probe_key not in _OK_KEYS, "the control's own key must not be exempt"
+_probe = dict(signals)
+_probe[_probe_key] = [("CONTROL", "a planted finding that must block")]
+if not {k: v for k, v in _probe.items() if v and k not in _OK_KEYS}:
+    print("REFUSED: this gate cannot block. A planted blocking signal produced a clean "
+          "verdict, so every PASS it has ever printed is unearned. Fix the exit logic "
+          "before trusting any run of this check.")
+    sys.exit(2)
+if _OK_KEYS - {"fully_ok"}:
+    print("REFUSED: _OK_KEYS has grown beyond 'fully_ok' (%s). Exempting a signal from the "
+          "blocking set is how a gate reports clean while a finding stands."
+          % sorted(_OK_KEYS))
+    sys.exit(2)
+print("CONTROL: a planted blocking signal is refused by this gate -> True")
+
 _fail = {k: v for k, v in signals.items() if v and k not in _OK_KEYS}
 if _fail:
     print()

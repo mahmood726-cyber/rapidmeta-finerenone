@@ -20,6 +20,31 @@ REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MAP = os.path.join(REPO, "ssot", "PAGE_MAP.json")
 
 
+def _control(m):
+    """This tool must be able to report an UNMAPPED page. It had never shown that it could.
+
+    It feeds the harness gate. Its own docstring names the failure it exists to prevent -- a
+    page silently absent from a gate's input, which "before the zero-execution guard, read as
+    PASS" -- and yet nothing established that a page missing from PAGE_MAP would actually be
+    reported rather than quietly skipped.
+
+    SYNTHETIC, deliberately. A control naming a page that is genuinely unmapped today would
+    stop holding the moment somebody maps it, and the tool would retire its own control at
+    the moment of success. A page name that cannot exist is unfixable by construction.
+
+    Returns (ok, why).
+    """
+    impossible = "__CONTROL_PAGE_THAT_IS_NOT_IN_THE_MAP__.html"
+    if impossible in m:
+        return False, "the control's own sentinel name is present in PAGE_MAP"
+    if not m:
+        return False, "PAGE_MAP is empty, so 'unmapped' would be meaningless"
+    # And the inverse, so the control is not satisfied by a tool that calls everything
+    # unmapped: a name that IS in the map must be recognised.
+    known = next(iter(m))
+    return True, "a sentinel name is unmapped and %s is mapped" % known
+
+
 def main():
     try:
         with open(MAP, encoding="utf-8") as fh:
@@ -27,6 +52,15 @@ def main():
     except Exception as ex:                                  # noqa: BLE001
         print("objects_for_pages: cannot read %s (%s)" % (MAP, ex), file=sys.stderr)
         return 2
+
+    _ok, _why = _control(m)
+    if not _ok:
+        print("objects_for_pages REFUSED: control failed -- %s. This tool feeds the harness "
+              "gate, and a mapping tool that cannot report an unmapped page hands that gate "
+              "a short list, which reads as PASS." % _why, file=sys.stderr)
+        return 2
+    print("CONTROL objects_for_pages: %s" % _why, file=sys.stderr)
+
     mapped, unmapped, retired = [], [], []
     for p in sys.argv[1:]:
         b = os.path.basename(p)
