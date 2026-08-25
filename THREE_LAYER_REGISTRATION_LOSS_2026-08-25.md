@@ -16,7 +16,7 @@ obtained and then discarded:
 | layer | what a third party receives | measured |
 |---|---|---|
 | the structured extraction | no field to hold it | **0 of 27 columns** |
-| the review's own text | not stated | **58 of 60 name none** |
+| the review's own text | not stated | **315 of 331 name none — 95%** |
 | the underlying paper's record | not indexed | **137 of 220 modern RCTs carry none** |
 
 Each was measured separately, on its own sample, with its own denominator. None is derived
@@ -107,7 +107,44 @@ the record because the method forced the lookup — and exists *only* there. Acr
 
 ### Layer 2 — the review does not name them
 
-Of 60 reviews examined, **58 name no trial registration at all**. Two do.
+**315 of 331 full-text reviews (95%) name no trial registration**, measured across two
+sampling frames:
+
+| frame | retrieved | **full text** | names ≥1 NCT | names none |
+|---|---|---|---|---|
+| general literature | 300 | 270 | 10 (4%) | **260 — 96%** |
+| **Cochrane Reviews** | 200 | **61** | 6 (10%) | **55 — 90%** |
+| pooled | 500 | 331 | 16 (5%) | **315 — 95%** |
+
+**Cochrane is better than the general literature at this, and saying so is part of being
+believed.** 10% of full-text Cochrane Reviews name at least one registration against 4%
+elsewhere. Better — and still 90% unauditable.
+
+**The denominator is full text, not records retrieved, and the correction matters.** A first
+reading of the Cochrane frame gave 194 of 200 (97%). But **139 of those 200 are thin PMC
+stubs** — median 20,629 bytes against 121,398 for real full text — and every one names no
+registration *because it is not the article*. Counting them would have manufactured seven
+percentage points out of a retrieval artefact. Only records carrying a reference list are
+counted; 169 stubs are excluded rather than scored as reviews printing nothing.
+
+#### The pair, and why both are reported
+
+Naming no registration is one sufficient reason a review cannot be checked. There is a second,
+independent one:
+
+| | general | Cochrane | pooled |
+|---|---|---|---|
+| **names no trial registration** | 260 / 270 — 96% | 55 / 61 — 90% | **315 / 331 — 95%** |
+| **prints no per-trial outcome table** | 185 / 270 — 69% | **NOT MEASURABLE** | **246 / 331 — 74%** |
+
+Either alone stops an audit. A review could fix one and remain uncheckable, which is why they
+are never reported separately.
+
+**`NOT MEASURABLE` is in the table, not in a footnote.** Cochrane reviews *do* publish
+per-trial data — Characteristics of Included Studies, and an Analysis table under every
+comparison. Those tables are **not in the PMC deposit**, which carries 0–2 tables and no
+captions for these records. A measured "0 of 61" would have been a property of the deposit and
+not of Cochrane, so no rate is reported for that cell.
 
 ---
 
@@ -153,13 +190,42 @@ record does not capture it. What is measurable is that a third party working fro
 record cannot get from a meta-analysis row to the trial's registration, and therefore cannot
 mechanically check whether the row is about the trial it says it is.
 
-**Limits.** The extraction package examined is a third-party extraction of Cochrane data, not
-Cochrane's own publication; what Cochrane holds internally in RevMan is not visible here and
-may well include registrations. The claim is about *the structured data that reaches third
-parties*, which is what determines whether anyone outside can audit. Sampling rules were fixed
-before each run and are recorded with each figure. The registry search covers
-ClinicalTrials.gov only; trials registered in other WHO primary registries are invisible to
-it, which makes 33% a floor rather than a ceiling on what some combined search might achieve.
+**Limits.**
+
+**PMC is not the literature.** Every full-text measurement here runs on PubMed Central
+deposits. PMC is a subset of what is published, its deposits are not always the complete
+article, and what a publisher deposits varies by publisher. Any figure derived from it
+describes *the public deposit*, which is precisely the object an external auditor would have —
+but it is not the same object as the published paper.
+
+**Cochrane's own reviews are largely absent from it.** Of 200 Cochrane records retrieved, only
+**61 carried full text**; the other 139 are thin stubs. Cochrane's per-trial tables do not
+appear in the deposit at all. This cuts both ways and both are stated: it is why the per-trial
+cell is `NOT MEASURABLE` rather than zero, and it is why the Cochrane frame's denominator is 61
+rather than 200.
+
+**A third-party extraction, not Cochrane's publication.** The schema examined is a public
+extraction package. What Cochrane holds internally in RevMan is not visible here and may well
+include registrations. The claim is about *the structured data that reaches third parties*,
+which is what determines whether anyone outside can audit.
+
+**The registry search covers ClinicalTrials.gov only.** Trials registered in ISRCTN, ANZCTR,
+ChiCTR or another WHO primary registry are invisible to it, which makes 33% a floor rather
+than a ceiling on what some combined search might achieve.
+
+**Every panel figure this project holds is a single draw.** Counted from the ledgers: 298, 184
+and 123 verdicts, all k=1, plus 38 adjudications of which 36 are k=1 and none records the SHA
+of the artefact judged. The adopted specification is three independent adjudications by
+majority vote against a pinned artefact — one draw is 91% reproducible, three are 99%. **No
+figure in this document is a panel figure**; every number here is produced by executing code
+against data. That separation is the reason this material is publishable while the panel
+material is not yet.
+
+**And reproducibility is not accuracy.** Where model judgements are used elsewhere in this
+project, no ground truth exists for them: a consistently wrong panel is exactly as reproducible
+as a consistently right one.
+
+**Sampling rules were fixed before each run** and are recorded with each figure.
 
 ---
 
