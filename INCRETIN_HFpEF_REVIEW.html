@@ -309,7 +309,8 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <div class='tscroll'><table>
     <caption>Table 4. What was measured</caption>
 
-    <tr><th>Estimand</th><td>first event &mdash; </td></tr>
+    <tr><th>Comparator</th><td>placebo</td></tr>
+    <tr><th>Estimand</th><td>first event &mdash; random-effects</td></tr>
     <tr><th>Effect scale</th><td>reported on the log scale; nothing is pooled on this outcome</td></tr>
   </table></div>
 </div>
@@ -329,10 +330,10 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
     <tr><th>Trial</th><th>Analysed<br><small>treatment / control</small></th>
         <th>OR (interval, at each row's own level), or events</th>
         <th>Source of this cell</th></tr>
-    <tr><td><br><small>NCT04916470</small></td><td class='num'>310 / 306</td><td class='num'>not stated (not stated to not stated)</td><td><small><a href='https://clinicaltrials.gov/study/NCT04916470'></a>: </small></td></tr>
-    <tr><td><br><small>NCT04847557</small></td><td class='num'>364 / 367</td><td class='num'>not stated (not stated to not stated)</td><td><small><a href='https://clinicaltrials.gov/study/NCT04847557'></a>: </small></td></tr>
+    <tr><td>STEP-HFpEF DM<br><small>NCT04916470</small></td><td class='num'>310 / 306</td><td class='num'>not stated (not stated to not stated)</td><td><small><a href='https://clinicaltrials.gov/study/NCT04916470'></a>: </small></td></tr>
+    <tr><td>Summit<br><small>NCT04847557</small></td><td class='num'>364 / 367</td><td class='num'>not stated (not stated to not stated)</td><td><small><a href='https://clinicaltrials.gov/study/NCT04847557'></a>: </small></td></tr>
   </table></div>
-  <p><small>The outcome name inherited from the converter says &#x27;Change in KCCQ-CSS&#x27; while the stored measure is an odds ratio over event counts -- the name and the measure describe different quantities.</small></p>
+  <p><small>Authored from source. The outcome name inherited from the converter says &#x27;Change in KCCQ-CSS&#x27; while the stored measure is an odds ratio over event counts -- the name and the measure describe different quantities.</small></p>
 </div>
 <div class="card">
   <h3 id="extract-endpoint-definitions-read-from-the-regis">Endpoint definitions, read from the registry</h3>
@@ -376,20 +377,21 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <div class='tscroll'><table>
     <caption>Table 8. What was measured</caption>
 
-    <tr><th>Estimand</th><td>mean change from baseline &mdash; </td></tr>
+    <tr><th>Comparator</th><td>placebo</td></tr>
+    <tr><th>Estimand</th><td>mean change from baseline &mdash; random-effects</td></tr>
     <tr><th>Effect scale</th><td>pooled on the natural scale</td></tr>
   </table></div>
 </div>
 <div class='card'>
   <h2 id="extract-pooled-result-2">Pooled result</h2>
   <p class='num'>MD 7.43 (5.09 to 9.77), 95% interval</p>
-  <p>Change in KCCQ clinical summary score. , estimator REML random-effects, inverse-variance (tau-squared estimated as zero), k = 2.</p>
+  <p>Change in KCCQ clinical summary score. random-effects, estimator REML random-effects, inverse-variance (tau-squared estimated as zero), k = 2.</p>
   <p><small>&tau;&sup2; not stated &middot; I&sup2; 0% &middot; Q 0.1375 on 1 df</small></p>
   <p><strong>Favours: the intervention (lower is better)</strong></p>
   <p><small>Q = 0.1375 on 1 df, I-squared 0 per cent. At k=2 that means the two trials agree, not that the finding generalises.</small></p>
   <p>This is a replacement, not a correction. The withdrawn estimate on this page was an odds ratio over event counts, and two of the three included trials register only continuous co-primaries. But all three register the same continuous outcome -- change in the KCCQ clinical summary score -- so a symptom-benefit analysis needs no estimand judgement at all. It is pooled at k=2, not k=3, and that is the honest number. STEP-HFpEF DM&#x27;s ClinicalTrials.gov record carries no results section, so this project has no registry-sourced value for it. Its published KCCQ difference exists in the literature and is not used here, because every value on this page is read from a registry results record and importing one from elsewhere would break that guarantee for the sake of a third data point. The two values are the registry&#x27;s own: step-HFpEF 7.8 (4.8 to 10.9) over 243 against 237, and summit 6.9 (3.3 to 10.6) over 301 against 313. Pooled: MD 7.43 (5.09 to 9.77) points on the KCCQ clinical summary score, k=2, 1,094 participants. Q = 0.14 on 1 degree of freedom, I-squared 0 per cent -- the two trials agree almost exactly.</p>
   <div class='absent-state' role='note'><strong>Why this pool stands.</strong> This is a replacement, not a correction. The withdrawn estimate on this page was an odds ratio over event counts, and two of the three included trials register only continuous co-primaries. But all three register the same continuous outcome -- change in the KCCQ clinical summary score -- so a symptom-benefit analysis needs no estimand judgement at all. It is pooled at k=2, not k=3, and that is the honest number. STEP-HFpEF DM&#x27;s ClinicalTrials.gov record carries no results section, so this project has no registry-sourced value for it. Its published KCCQ difference exists in the literature and is not used here, because every value on this page is read from a registry results record and importing one from elsewhere would break that guarantee for the sake of a third data point. The two values are the registry&#x27;s own: step-HFpEF 7.8 (4.8 to 10.9) over 243 against 237, and summit 6.9 (3.3 to 10.6) over 301 against 313. Pooled: MD 7.43 (5.09 to 9.77) points on the KCCQ clinical summary score, k=2, 1,094 participants. Q = 0.14 on 1 degree of freedom, I-squared 0 per cent -- the two trials agree almost exactly.</div>
-  <p><small>What a reader should know. (1) k=2 and the interval shown is the wald one. At two studies a Hartung-Knapp interval uses a t-distribution on one degree of freedom. This project&#x27;s interval is -7.74 TO 22.60 and it includes no effect. An earlier version of this sentence gave 1.80 to 13.06 and said the interval still excluded no effect; those figures are metafor&#x27;s raw unfloored knha output, not this project&#x27;s, and the conclusion drawn from them was wrong. The raw inflation factor here is 0.3708, so the unfloored adjustment narrows rather than widens -- the instability the house floor exists to prevent. (2) heterogeneity is zero here, which at k=2 means the two trials agree, not that the finding is general. (3) the third trial is missing for a provenance reason, not a clinical one. STEP-HFpEF DM would very likely move this estimate very little; it is left out because its registry record has no results, and that is a rule about where numbers may come from rather than a judgement about the trial. (4) summit&#x27;s registry record labels its contrast &#x27;Median Difference (Net)&#x27; while its arm values are least-squares means whose difference is 6.83. The label and the quantity disagree in the registry. The reported value is used and the discrepancy is stated rather than resolved. (5) a seven-point KCCQ difference is a symptom benefit, not an event reduction. Five points is the usual threshold for a clinically meaningful within-patient change. Nothing here estimates an effect on death or hospitalisation -- summit registers a heart-failure event co-primary and this analysis does not use it.</small></p>
+  <p><small>What a reader should know. (1) k=2 and the interval shown is the wald one. At two studies a Hartung-Knapp interval uses a t-distribution on one degree of freedom. This project&#x27;s interval is -7.74 TO 22.60 and it includes no effect. An earlier version of this sentence gave 1.80 to 13.06 and said the interval still excluded no effect; those figures are metafor&#x27;s raw unfloored knha output, not this project&#x27;s, and the conclusion drawn from them was wrong. The raw inflation factor here is 0.3708, so the unfloored adjustment narrows rather than widens -- the instability the house floor exists to prevent. Both are recorded. (2) heterogeneity is zero here, which at k=2 means the two trials agree, not that the finding is general. (3) the third trial is missing for a provenance reason, not a clinical one. STEP-HFpEF DM would very likely move this estimate very little; it is left out because its registry record has no results, and that is a rule about where numbers may come from rather than a judgement about the trial. (4) summit&#x27;s registry record labels its contrast &#x27;Median Difference (Net)&#x27; while its arm values are least-squares means whose difference is 6.83. The label and the quantity disagree in the registry. The reported value is used and the discrepancy is stated rather than resolved. (5) a seven-point KCCQ difference is a symptom benefit, not an event reduction. Five points is the usual threshold for a clinically meaningful within-patient change. Nothing here estimates an effect on death or hospitalisation -- summit registers a heart-failure event co-primary and this analysis does not use it.</small></p>
   <div class='absent-state' role='alert'><p><strong>Correction, and it reverses what this page said about its own sensitivity analysis. The caveat on this pool stated that the Hartung-Knapp interval &#x27;gives 1.80 to 13.06 -- far wider, and arguably the honest interval at this k. It still excludes no effect.&#x27; the figures 1.80 TO 13.06 ARE metafor&#x27;s raw unfloored knha output. This project&#x27;s interval is -7.7429 TO 22.6028, and it includes no effect.</strong></p><p>The raw variance-inflation factor on this pool is 0.3708 -- metafor&#x27;s Hartung-Knapp standard error is barely a third of the random-effects one -- so the unfloored adjustment narrows the interval instead of widening it. That is the exact instability this project&#x27;s floor exists to prevent, and it is why the raw figures looked reassuringly wide next to the Wald interval while being the product of a correction pointing the wrong way.</p><p>The point estimate and its wald interval are unchanged: MD 7.43 (5.09 to 9.77) points on the KCCQ clinical summary score, k = 2, 1,094 participants. What changes is a sentence about what the sensitivity analysis showed, which said the opposite of what it shows. A seven-point KCCQ difference remains a symptom benefit and this page still estimates nothing about death or hospitalisation.</p></div>
   <h3 id="extract-what-this-pool-holds-constant">What this pool holds constant</h3>
   <div class='tscroll'><table>
@@ -409,9 +411,9 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
     <tr><th>Trial</th><th>Analysed<br><small>treatment / control</small></th>
         <th>MD (95% CI), or events</th>
         <th>Source of this cell</th></tr>
-    <tr><td><br><small>NCT04847557</small></td><td class='num'>301 / 313</td><td class='num'>6.9 (3.3 to 10.6)</td><td><small><a href='https://clinicaltrials.gov/study/NCT04847557'></a>: </small></td></tr>
+    <tr><td>Summit<br><small>NCT04847557</small></td><td class='num'>301 / 313</td><td class='num'>6.9 (3.3 to 10.6)</td><td><small><a href='https://clinicaltrials.gov/study/NCT04847557'></a>: </small></td></tr>
   </table></div>
-  <p><small>The withdrawn odds-ratio outcome is kept on this object so a reader can see what was retracted.</small></p>
+  <p><small>The replacement outcome. The withdrawn odds-ratio outcome is kept on this object so a reader can see what was retracted.</small></p>
 </div>
 <div class="card">
   <h3 id="extract-endpoint-definitions-read-from-the-regis-2">Endpoint definitions, read from the registry</h3>
@@ -443,7 +445,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <h3 id="extract-the-methods-rule-governing-this-decision">The methods rule governing this decision</h3>
   <p><strong>Decision:</strong> Cochrane Handbook 6.5.1 s10.10.4.4: REML is preferred to DerSimonian-Laird for the between-study variance, and is the RevMan default.</p>
   <p><strong>Cochrane Handbook sections:</strong> 10.10.4.4</p>
-  <p></p>
+  <p>followed</p>
 </div>
 </section>
   </section>
@@ -650,8 +652,8 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
     <caption>Table 13. Summary of findings</caption>
 
     <tr><th>Outcome</th><th>k</th><th>Pooled effect</th><th>Certainty</th></tr>
-    <tr><td>Registered as continuous in two trials -- and pooled here as an event count</td><td class='num'>2</td><td class='num'>not pooled</td><td><sup>1</sup><sup>2</sup></td></tr>
-    <tr><td>Change in KCCQ clinical summary score</td><td class='num'>2</td><td class='num'>MD 7.43 (5.09 to 9.77)</td><td><sup>3</sup><sup>2</sup></td></tr>
+    <tr><td>Registered as continuous in two trials -- and pooled here as an event count</td><td class='num'>2</td><td class='num'>not pooled</td><td>See comment<sup>1</sup><sup>2</sup></td></tr>
+    <tr><td>Change in KCCQ clinical summary score</td><td class='num'>2</td><td class='num'>MD 7.43 (5.09 to 9.77)</td><td>See comment<sup>3</sup><sup>2</sup></td></tr>
   </table></div>
   <ol class='sof-notes' style='font-size:0.86em;margin:0.6em 0 0 1.2em;'>
     <li>The pooled estimate for this outcome has been WITHDRAWN, so there is no estimate for a certainty rating to be about. Any rating this object still carries for this outcome was made about the withdrawn estimate and is not shown beside it.</li>
@@ -668,8 +670,8 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
     <tr><th scope='col'>Registered at</th><td><code>—</code> —</td></tr>
     <tr><th scope='col'>Schema</th><td>2-authored-from-source</td></tr>
     <tr><th scope='col'>Object last updated</th><td>2026-08-18T00:00Z</td></tr>
-    <tr><th scope='col'>Page generated</th><td>2026-08-24 23:16 UTC</td></tr>
-    <tr><th scope='col'>Generator build</th><td><code>3c535b79c</code>. The standard this page was built to is NOT ESTABLISHED: this object carries no <code>build_stamp</code>, so the version above is the standard that exists now, not the one this page was built against.</td></tr>
+    <tr><th scope='col'>Page generated</th><td>2026-08-25 06:19 UTC</td></tr>
+    <tr><th scope='col'>Generator build</th><td><code>83c8f939f</code>. The standard this page was built to is NOT ESTABLISHED: this object carries no <code>build_stamp</code>, so the version above is the standard that exists now, not the one this page was built against.</td></tr>
   </table></div>
   <p><small>Everything a third party needs to rebuild this page. Each figure on the Analysis tab downloads as an SVG carrying exactly the values shown.</small></p>
 </div>
@@ -686,16 +688,16 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
     <tr><th>A a published synthesis carried more trials than this pool</th><td>A published synthesis of this question included 4 trials where this pool carries 2. Source: Musa &amp; Musa, BMC Cardiovascular Disorders 2026, PMID 41906074, a prospectively registered systematic review (CRD420251237462).</td></tr>
     <tr><th>B whether the extra trials can be named</th><td>Which trials are ABSENT is not established. The published abstract names none of its included studies and no included-study table was read, so this is a difference in stated counts and nothing more. It is not a claim that 2 specific trials were missed, and nobody here has identified them.</td></tr>
     <tr><th>C what this means for the estimate above</th><td>The estimate above is computed from the trials this object carries and is not withdrawn or altered by this note. What a reader is owed is the scope: a larger evidence base on this question exists in the literature, and whether this review&#x27;s search should be widened is a decision that has not been made.</td></tr>
-    <tr><th></th><td>What a reader should know. (1) k=2 and the interval shown is the wald one. At two studies a Hartung-Knapp interval uses a t-distribution on one degree of freedom. This project&#x27;s interval is -7.74 TO 22.60 and it includes no effect. An earlier version of this sentence gave 1.80 to 13.06 and said the interval still excluded no effect; those figures are metafor&#x27;s raw unfloored knha output, not this project&#x27;s, and the conclusion drawn from them was wrong. The raw inflation factor here is 0.3708, so the unfloored adjustment narrows rather than widens -- the instability the house floor exists to prevent. (2) heterogeneity is zero here, which at k=2 means the two trials agree, not that the finding is general. (3) the third trial is missing for a provenance reason, not a clinical one. STEP-HFpEF DM would very likely move this estimate very little; it is left out because its registry record has no results, and that is a rule about where numbers may come from rather than a judgement about the trial. (4) summit&#x27;s registry record labels its contrast &#x27;Median Difference (Net)&#x27; while its arm values are least-squares means whose difference is 6.83. The label and the quantity disagree in the registry. The reported value is used and the discrepancy is stated rather than resolved. (5) a seven-point KCCQ difference is a symptom benefit, not an event reduction. Five points is the usual threshold for a clinically meaningful within-patient change. Nothing here estimates an effect on death or hospitalisation -- summit registers a heart-failure event co-primary and this analysis does not use it.</td></tr>
+    <tr><th>Caveats</th><td>What a reader should know. (1) k=2 and the interval shown is the wald one. At two studies a Hartung-Knapp interval uses a t-distribution on one degree of freedom. This project&#x27;s interval is -7.74 TO 22.60 and it includes no effect. An earlier version of this sentence gave 1.80 to 13.06 and said the interval still excluded no effect; those figures are metafor&#x27;s raw unfloored knha output, not this project&#x27;s, and the conclusion drawn from them was wrong. The raw inflation factor here is 0.3708, so the unfloored adjustment narrows rather than widens -- the instability the house floor exists to prevent. Both are recorded. (2) heterogeneity is zero here, which at k=2 means the two trials agree, not that the finding is general. (3) the third trial is missing for a provenance reason, not a clinical one. STEP-HFpEF DM would very likely move this estimate very little; it is left out because its registry record has no results, and that is a rule about where numbers may come from rather than a judgement about the trial. (4) summit&#x27;s registry record labels its contrast &#x27;Median Difference (Net)&#x27; while its arm values are least-squares means whose difference is 6.83. The label and the quantity disagree in the registry. The reported value is used and the discrepancy is stated rather than resolved. (5) a seven-point KCCQ difference is a symptom benefit, not an event reduction. Five points is the usual threshold for a clinically meaningful within-patient change. Nothing here estimates an effect on death or hospitalisation -- summit registers a heart-failure event co-primary and this analysis does not use it.</td></tr>
     <tr><th>Why the earlier refusal does not carry</th><td>This figure was refused earlier, on the ground that every number in this object was registry-sourced and breaking that for one data point costs the guarantee that makes the rest checkable. That reasoning was about an unsourced import. The source is now identified, quotable and tiered, and the mixed provenance is declared per trial rather than hidden. The refusal was right about an unsourced number and does not extend to a sourced one.</td></tr>
     <tr><th>What this does not establish</th><td>Not that the two trials are free of bias -- no RoB-2 assessment is recorded. Not that tirzepatide and semaglutide are interchangeable: this pools two different incretin agents against placebo on one instrument, which is a decision about the question being asked and is visible on the face of the topic. Not that the abstract figure equals the full-text table figure.</td></tr>
     <tr><th>Why the test is the title and not the disclosure</th><td>Disclosure does not make an incoherent pool coherent. Four cardiology topics closed on exactly this point -- not whether the combination was disclosed, but whether the question the page asks is the question the pool answers. Had this been titled for one agent, declaring the second would not have fixed it; the title would have had to change, as azilsartan&#x27;s did.</td></tr>
     <tr><th>What the pool does not establish about the class</th><td>It does not establish that the class is homogeneous. I-squared is 0% and tau-squared is zero, and AT k=2 that is weak evidence of agreement rather than strong evidence of it: with two studies a heterogeneity statistic cannot distinguish genuine similarity from insufficient data to detect a difference. The two point estimates (6.83 and 7.30) are close, which is consistent with a class effect and does not demonstrate one. A reader should take this as a class-level estimate of two agents, not as evidence that incretins behave alike on this instrument.</td></tr>
-    <tr><th>What it does do for our identity check</th><td>The registration identity was previously checked in one direction only -- from the registry to the trial -- because the nejm paper could not be opened. This paper prints, in its own abstract, that STEP-HFpEF DM is registered as NCT04916470. That is an independent published source tying the trial name to the registration, which strengthens the identity materially. It is still not the check that was wanted: it does not establish which NCT is printed on the nejm paper the 7.3-point figure was quoted .</td></tr>
+    <tr><th>What it does do for our identity check</th><td>The registration identity was previously checked in one direction only -- from the registry to the trial -- because the nejm paper could not be opened. This paper prints, in its own abstract, that STEP-HFpEF DM is registered as NCT04916470. That is an independent published source tying the trial name to the registration, which strengthens the identity materially. It is still not the check that was wanted: it does not establish which NCT is printed on the nejm paper the 7.3-point figure was quoted . That remains unverified.</td></tr>
     <tr><th>What this comparison does not establish</th><td>Not that our pooled KCCQ estimate is right or wrong -- their paper does not report the quantity we pool. Not that semaglutide and tirzepatide behave alike on heart-failure events; their analysis contains no tirzepatide. Not that a symptom-score benefit implies an event benefit, or the reverse: that inference is not licensed by either synthesis and neither paper claims it.</td></tr>
     <tr><th>A the sensitivity interval this page quoted was not this project s</th><td>Correction, and it reverses what this page said about its own sensitivity analysis. The caveat on this pool stated that the Hartung-Knapp interval &#x27;gives 1.80 to 13.06 -- far wider, and arguably the honest interval at this k. It still excludes no effect.&#x27; the figures 1.80 TO 13.06 ARE metafor&#x27;s raw unfloored knha output. This project&#x27;s interval is -7.7429 TO 22.6028, and it includes no effect.</td></tr>
     <tr><th>B why the raw interval is the wrong one here specifically</th><td>The raw variance-inflation factor on this pool is 0.3708 -- metafor&#x27;s Hartung-Knapp standard error is barely a third of the random-effects one -- so the unfloored adjustment narrows the interval instead of widening it. That is the exact instability this project&#x27;s floor exists to prevent, and it is why the raw figures looked reassuringly wide next to the Wald interval while being the product of a correction pointing the wrong way.</td></tr>
-    <tr><th></th><td>primary: first heart-failure hospitalisation. Secondary: KCCQ clinical summary score, six-minute walk distance, weight, all-cause mortality.</td></tr>
+    <tr><th>Scope</th><td>primary: first heart-failure hospitalisation. Secondary: KCCQ clinical summary score, six-minute walk distance, weight, all-cause mortality.</td></tr>
     <tr><th>The finding of this comparison</th><td>They pooled where we declined, which is the opposite of class 76. This topic was named in advance as a predicted class-76 instance on the grounds that it pools two different drugs -- semaglutide and tirzepatide. The published synthesis pools that same class mix across more trials, in a prospectively registered review, and pools the first-heart-failure-hospitalisation outcome that this object declares primary and leaves unpooled. The prediction was wrong and is recorded as wrong. Whether this object should pool its primary is a content decision and is not made here.</td></tr>
     <tr><th>What this review does not publish</th><td>What this review does not publish. This review also examined one outcome for which no pooled estimate is published: Registered as continuous in two trials -- and pooled here as an event count (k=2) -- two of the three trials on this page register only continuous primary outcomes, and this P. Each of those outcomes is recorded on this review with the reason it was not pooled, and none of them contributes to the estimate reported above (7.43 at k=2). A reader meeting the pooled result should not take it as covering every outcome, or every trial, this review examined. This sentence exists because a second, independent reading -- by a different model family, given the object and the abstract and none of our conclusions -- found that a reader would reasonably conclude the review pools all relevant trials, and that the object does not support that. The withdrawals were already recorded beside the outcomes they concern; they were invisible from the abstract, which is where the impression forms.</td></tr>
   </table></div>
@@ -714,16 +716,16 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <li><code>REGISTRATION_DISCREPANCY_2026_08_21</code></li>
 </ol></details>
 <h3 id="paper-abstract">Abstract</h3>
-<p>This page published a pooled odds ratio and had no card on the index at all. Two of its three trials register only continuous primaries.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
-<p>estimates were pooled under a random-effects with the REML random-effects, inverse-variance (tau-squared estimated as zero) estimator.<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
-<p>Change in KCCQ clinical summary score: mean difference 7.43 (5.09 to 9.77) across 2 trials; 2 of these pooled outcome(s) carry a stated qualification -- a referral or a recorded finding -- given in full in Results and not reproduced here; and the trials agreed closely (I-squared 0%).<sup class='prov-ref' title='source 3 for this section'>3</sup></p>
+<p>Question. This page published a pooled odds ratio and had no card on the index at all. Two of its three trials register only continuous primaries.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
+<p>Methods. estimates were pooled under a random-effects with the REML random-effects, inverse-variance (tau-squared estimated as zero) estimator.<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
+<p>Results. Change in KCCQ clinical summary score: mean difference 7.43 (5.09 to 9.77) across 2 trials; 2 of these pooled outcome(s) carry a stated qualification -- a referral or a recorded finding -- given in full in Results and not reproduced here; and the trials agreed closely (I-squared 0%).<sup class='prov-ref' title='source 3 for this section'>3</sup></p>
 <details class='prov-block'><summary class='prov-title'>Sources for this section (3)</summary><ol class='prov-list'>
 <li><code>question</code></li>
 <li><code>results.by_outcome</code></li>
 <li><code>results.by_outcome</code></li>
 </ol></details>
 <h3 id="paper-introduction">Introduction</h3>
-<p>This review asks: This page published a pooled odds ratio and had no card on the index at all. Two of its three trials register only continuous primaries. It pools 2 randomised trials, against placebo. The outcomes pooled are Registered as continuous in two trials -- and pooled here as an event count; Change in KCCQ clinical summary score.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
+<p>Background. This review asks: This page published a pooled odds ratio and had no card on the index at all. Two of its three trials register only continuous primaries. It pools 2 randomised trials, against placebo. The outcomes pooled are Registered as continuous in two trials -- and pooled here as an event count; Change in KCCQ clinical summary score.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
 <details class='prov-block'><summary class='prov-title'>Sources for this section (1)</summary><ol class='prov-list'>
 <li><code>manuscript.introduction</code></li>
 </ol></details>
@@ -760,7 +762,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <li><code>results.by_outcome</code></li>
 </ol></details>
 <h3 id="paper-comparison-with-published-syntheses">Comparison with published syntheses</h3>
-<p>Published syntheses were identified as follows. Query, counts and per-record disposition in ssot/incretin-hfpef-review/appraisal/the screen of published syntheses.json.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
+<p>Published syntheses were identified as follows. PubMed E-utilities, executed 2026-08-20. Query, counts and per-record disposition in ssot/incretin-hfpef-review/appraisal/the screen of published syntheses.json.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
 <details class='prov-block'><summary class='prov-title'>Sources for this section (1)</summary><ol class='prov-list'>
 <li><code>published_comparison._how_identified</code></li>
 </ol></details>
@@ -794,12 +796,12 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 </table></div>
 <div class='tscroll'><table><caption>Published syntheses this review was compared against<sup class='prov-ref' title='source 2 for this section'>2</sup></caption>
 <tr><th>Citation</th><th>Identifier</th></tr>
-<tr><td>GLP-1 and dual GIP/GLP-1 agonists in obese patients with HFpEF: a systematic review and meta-analysis of RCTs.</td><td>PMID: 41906074</td></tr>
+<tr><td>GLP-1 and dual GIP/GLP-1 agonists in obese patients with HFpEF: a systematic review and meta-analysis of RCTs. BMC Cardiovascular Disorders. 2026.</td><td>PMID: 41906074</td></tr>
 </table></div>
 <div class='tscroll'><table><caption>Methods guidance and software, with what each is cited for<sup class='prov-ref' title='source 3 for this section'>3</sup></caption>
 <tr><th>Cited for</th><th>Reference</th></tr>
-<tr><td>the model fitted, as R 4.6.0 with metafor 5.0.1</td><td>Conducting meta-analyses in R with the metafor package.</td></tr>
-<tr><td>the reporting guideline this manuscript is written against</td><td>Page MJ, McKenzie JE, Bossuyt PM, et al. The PRISMA 2020 statement: an updated guideline for reporting systematic reviews.</td></tr>
+<tr><td>the model fitted, as R 4.6.0 with metafor 5.0.1</td><td>Viechtbauer W. Conducting meta-analyses in R with the metafor package. J Stat Softw. 2010;36(3):1-48. doi:10.18637/jss.v036.i03</td></tr>
+<tr><td>the reporting guideline this manuscript is written against</td><td>Page MJ, McKenzie JE, Bossuyt PM, et al. The PRISMA 2020 statement: an updated guideline for reporting systematic reviews. BMJ. 2021;372:n71. doi:10.1136/bmj.n71</td></tr>
 </table></div>
 <details class='prov-block'><summary class='prov-title'>Sources for this section (3)</summary><ol class='prov-list'>
 <li><code>manuscript.references</code></li>
@@ -867,7 +869,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <tr><td>Methods — synthesis</td><td>The claim that risk of bias was assessed with a named tool</td><td>No further reason is recorded.</td></tr>
 <tr><td>Methods — synthesis</td><td>The claim that certainty of evidence was graded</td><td>No further reason is recorded.</td></tr>
 <tr><td>Methods — synthesis</td><td>The claim that the review methods were prespecified before data collection</td><td>No further reason is recorded.</td></tr>
-<tr><td>Note on registration</td><td>An unnamed item</td><td>No reason was recorded with this refusal.</td></tr>
+<tr><td>Note on registration</td><td>The registration note</td><td>No further reason is recorded.</td></tr>
 </table></div>
 </div>  </section>
 <!--end-paper--> <section class="panel" id="pn-statistics">

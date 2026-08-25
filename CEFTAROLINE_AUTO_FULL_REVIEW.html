@@ -290,7 +290,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card'>
   <h2 id="extract-pooled-result">Pooled result</h2>
   <p class='num'>RR 1.105 (1.049 to 1.163), 95% interval</p>
-  <p>clinical cure at test-of-cure. , estimator , k = 3.</p>
+  <p>clinical cure at test-of-cure. random-effects, estimator REML, k = 3.</p>
   <p><small>&tau;&sup2; 0 &middot; I&sup2; 0% &middot; Q 0.6562 on 2 df</small></p>
   <div class='absent-state' role='alert'><p><strong>The analysis population is part of the estimand and this pool crosses it. Read from the registrations on 2026-08-21: NCT00509106 registers &#x27;Clinical Cure Rate for Ceftaroline Compared to That for Ceftriaxone at the Test of Cure (TOC) in the Modified &#x27; (population: Mitte); NCT00621504 registers &#x27;Clinical Cure Rate at Test-of-Cure (TOC) in the Modified Intent-to-Treat Efficacy (mitte) Populations&#x27; (population: Mitte); NCT01371838 registers &#x27;Clinical Cure Rate for Ceftaroline Compared to That for Ceftriaxone at Test of Cure (TOC) in CE Population&#x27; (population: CE). The populations pooled are CE and mitte.</strong></p><p>A clinically evaluable population excludes protocol violators and indeterminate responses, and microbiologically-defined populations exclude patients without a qualifying pathogen. Those are selected subsets of the modified intent-to-treat population and systematically yield higher cure rates. A cure-rate ratio computed in one is not an estimate of the same quantity as one computed in another, so this pooled value depends on which trial registered which population.</p><p>Not that the arithmetic is wrong. Not that the direction would reverse -- that would need the per-population counts and is not established. And not that these are non-inferiority trials: The registrations fetched do not use that word, so the design question is unresolved from the registry rather than assumed.</p><p>This screen found no published synthesis pooling these three trials. The nearest relevant record is a network meta-analysis across many community-acquired pneumonia regimens (PMID 34540732), which answers a different question from a ceftaroline-versus-ceftriaxone pool. 42 records matched, 42 read, 18 flagged by title, one appraised; the rest were not read, so absence here is absence from this screen and not from the literature.</p><p>Two contributing trials register the primary in the mitte population and one in the CE population. CE excludes protocol violators and indeterminate responses and systematically yields higher cure rates, so this ratio is assembled across quantities that are not the same quantity. GRADE indirectness is downgraded for it.</p><p>Unlike tigecycline, ceftaroline&#x27;s result holds under adjustment: the Hartung-Knapp interval at k = 3 is 1.0356 to 1.1787 on t = 4.3027 with 2 df, and it still excludes no difference. Recorded because the two topics separate on exactly this.</p></div>
 </div>
@@ -313,7 +313,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
     <caption>Table 4. Does the answer depend on the pooling method?</caption>
 
     <tr><th>Interval</th><th>Method</th><th>Summary (95% CI)</th></tr>
-    <tr><td>as published</td><td></td><td class='num'>1.1048 (1.0494 to 1.1633)</td></tr>
+    <tr><td>as published</td><td>REML</td><td class='num'>1.1048 (1.0494 to 1.1633)</td></tr>
     <tr><td>sensitivity (Handbook 10.10.4.5)</td><td>REML with Hartung-Knapp, t on k-1 = 2 degree(s) of freedom (t = 4.3027)</td><td class='num'>1.1048 (0.9868 to 1.2371)</td></tr>
   </table></div>
   <p><small>The published point is 1.1049 and the house-rule point is 1.1048. The number a reader remembers does not move; what differs is the precision claim. That is why nothing downstream catches this -- every memorable quantity survives.</small></p>
@@ -566,10 +566,10 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
     <caption>Table 5. Summary of findings</caption>
 
     <tr><th>Outcome</th><th>k</th><th>Pooled effect</th><th>Certainty</th></tr>
-    <tr><td>clinical cure at test-of-cure</td><td class='num'>3</td><td class='num'>RR 1.1 (1.05 to 1.16)</td><td><sup>1</sup></td></tr>
+    <tr><td>clinical cure at test-of-cure</td><td class='num'>3</td><td class='num'>RR 1.1 (1.05 to 1.16)</td><td>Low<sup>1</sup></td></tr>
   </table></div>
   <ol class='sof-notes' style='font-size:0.86em;margin:0.6em 0 0 1.2em;'>
-    <li>The record does not carry which domains were downgraded, and none is inferred here.</li>
+    <li>Rated Low. The record does not carry which domains were downgraded, and none is inferred here.</li>
   </ol>
 </div>
 <div class='card'>
@@ -581,8 +581,8 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
     <tr><th scope='col'>Registered at</th><td><code>—</code> —</td></tr>
     <tr><th scope='col'>Schema</th><td>2</td></tr>
     <tr><th scope='col'>Object last updated</th><td>2026-08-18</td></tr>
-    <tr><th scope='col'>Page generated</th><td>2026-08-24 23:15 UTC</td></tr>
-    <tr><th scope='col'>Generator build</th><td><code>3c535b79c</code>. The standard this page was built to is NOT ESTABLISHED: this object carries no <code>build_stamp</code>, so the version above is the standard that exists now, not the one this page was built against.</td></tr>
+    <tr><th scope='col'>Page generated</th><td>2026-08-25 06:18 UTC</td></tr>
+    <tr><th scope='col'>Generator build</th><td><code>83c8f939f</code>. The standard this page was built to is NOT ESTABLISHED: this object carries no <code>build_stamp</code>, so the version above is the standard that exists now, not the one this page was built against.</td></tr>
   </table></div>
   <p><small>Everything a third party needs to rebuild this page. Each figure on the Analysis tab downloads as an SVG carrying exactly the values shown.</small></p>
 </div>
@@ -610,7 +610,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 </div>
   </section>
 <!--end-report-->  <section class="panel" id="pn-paper"><span id="paper"></span>
-  <p class='toc'><strong>In this section:</strong> <a href="#paper-paper">Paper</a> &middot; <a href="#paper-title">Title</a> &middot; <a href="#paper-abstract">Abstract</a> &middot; <a href="#paper-introduction">Introduction</a> &middot; <a href="#paper-methods-search">Methods — search</a> &middot; <a href="#paper-methods-synthesis">Methods — synthesis</a> &middot; <a href="#paper-results">Results</a> &middot; <a href="#paper-risk-of-bias-in-the-included-results">Risk of bias in the included results</a> &middot; <a href="#paper-certainty-of-the-evidence">Certainty of the evidence</a> &middot; <a href="#paper-discussion">Discussion</a> &middot; <a href="#paper-comparison-with-published-syntheses">Comparison with published syntheses</a> &middot; <a href="#paper-limitations">Limitations</a> &middot; <a href="#paper-note-on-registration">Note on registration</a> &middot; <a href="#paper-references">References</a> &middot; <a href="#paper-figures">Figures</a> &middot; <a href="#paper-trial-characteristics">Trial characteristics</a> &middot; <a href="#paper-not-reported">Not reported in this record</a></p>
+  <p class='toc'><strong>In this section:</strong> <a href="#paper-paper">Paper</a> &middot; <a href="#paper-title">Title</a> &middot; <a href="#paper-abstract">Abstract</a> &middot; <a href="#paper-introduction">Introduction</a> &middot; <a href="#paper-methods-search">Methods — search</a> &middot; <a href="#paper-methods-synthesis">Methods — synthesis</a> &middot; <a href="#paper-results">Results</a> &middot; <a href="#paper-risk-of-bias-in-the-included-results">Risk of bias in the included results</a> &middot; <a href="#paper-certainty-of-the-evidence">Certainty of the evidence</a> &middot; <a href="#paper-comparison-with-published-syntheses">Comparison with published syntheses</a> &middot; <a href="#paper-limitations">Limitations</a> &middot; <a href="#paper-note-on-registration">Note on registration</a> &middot; <a href="#paper-references">References</a> &middot; <a href="#paper-figures">Figures</a> &middot; <a href="#paper-trial-characteristics">Trial characteristics</a> &middot; <a href="#paper-not-reported">Not reported in this record</a></p>
 <div class='card'>
 <h2 id="paper-paper">Paper</h2>
 <p class='muted'>Each statement below cites the record it came from; those sources are listed at the end of every section. <strong>Where the record holds nothing, the section says so by name</strong> rather than being left out, so a procedure that was not carried out can be told from one that simply was never mentioned.</p>
@@ -620,21 +620,21 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <li><code>title</code></li>
 </ol></details>
 <h3 id="paper-abstract">Abstract</h3>
-<p>In Ceftaroline fosamil versus ceftriaxone in bacterial pneumonia, what is the effect on versus intravenous ceftriaxone on clinical cure at test-of-cure?<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
-<p>estimates were pooled under a random-effects with the REML estimator; risk of bias was assessed with RoB 2 (Cochrane risk-of-bias tool for randomized trials); and certainty was rated with GRADE, following the Cochrane Handbook chapter 14. Randomised evidence starts HIGH and is rated down with reasons.<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
-<p>Clinical cure at test-of-cure: risk ratio 1.1 (1.05 to 1.16) across 3 trials; 1 of these pooled outcome(s) carries a stated qualification -- a referral or a recorded finding -- given in full in Results and not reproduced here; the trials agreed closely (I-squared 0%); and certainty of the evidence was low.<sup class='prov-ref' title='source 3 for this section'>3</sup></p>
+<p>Question. In Ceftaroline fosamil versus ceftriaxone in bacterial pneumonia, what is the effect on versus intravenous ceftriaxone on clinical cure at test-of-cure?<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
+<p>Methods. estimates were pooled under a random-effects with the REML estimator; risk of bias was assessed with RoB 2 (Cochrane risk-of-bias tool for randomized trials); and certainty was rated with GRADE, following the Cochrane Handbook chapter 14. Randomised evidence starts HIGH and is rated down with reasons.<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
+<p>Results. Clinical cure at test-of-cure: risk ratio 1.1 (1.05 to 1.16) across 3 trials; 1 of these pooled outcome(s) carries a stated qualification -- a referral or a recorded finding -- given in full in Results and not reproduced here; the trials agreed closely (I-squared 0%); and certainty of the evidence was low.<sup class='prov-ref' title='source 3 for this section'>3</sup></p>
 <details class='prov-block'><summary class='prov-title'>Sources for this section (3)</summary><ol class='prov-list'>
 <li><code>question</code></li>
 <li><code>results.by_outcome, risk_of_bias.by_outcome, grade.by_outcome</code></li>
 <li><code>grade.by_outcome, results.by_outcome</code></li>
 </ol></details>
 <h3 id="paper-introduction">Introduction</h3>
-<p>This review asks: In Ceftaroline fosamil versus ceftriaxone in bacterial pneumonia, what is the effect on versus intravenous ceftriaxone on clinical cure at test-of-cure? It pools 3 randomised trials, against intravenous ceftriaxone. The outcome pooled is clinical cure at test-of-cure. Every count and denominator behind those estimates is read as follows. Every count and denominator read from ClinicalTrials.gov posted results.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
+<p>Background. This review asks: In Ceftaroline fosamil versus ceftriaxone in bacterial pneumonia, what is the effect on versus intravenous ceftriaxone on clinical cure at test-of-cure? It pools 3 randomised trials, against intravenous ceftriaxone. The outcome pooled is clinical cure at test-of-cure. Every count and denominator behind those estimates is read as follows. Registry throughout. Every count and denominator read from ClinicalTrials.gov posted results.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
 <details class='prov-block'><summary class='prov-title'>Sources for this section (1)</summary><ol class='prov-list'>
 <li><code>manuscript.introduction</code></li>
 </ol></details>
 <h3 id="paper-methods-search">Methods — search</h3>
-<p>No bibliographic search for primary trials was run. The 3 included trials were identified by reading named registrations on 2026-08-18. All four seeded registrations read on 2026-08-18; three pooled, one excluded on the grounds stated in the analysis block. PubMed E-utilities esearch + esummary, executed 2026-08-21. Query as executed: (ceftaroline[tiab]) and (pneumonia[tiab] or cabp[tiab] or cap[tiab]) and (meta-analysis[pt] OR &quot;systematic review&quot;[pt] OR meta-analysis[tiab] OR &quot;pooled&quot;[tiab] or focus[tiab]). It matched 42 record(s), of which 42 were retrieved and 42 read; 1 appraised.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
+<p>Primary trials. No bibliographic search for primary trials was run. The 3 included trials were identified by reading named registrations on 2026-08-18. All four seeded registrations read on 2026-08-18; three pooled, one excluded on the grounds stated in the analysis block. Published syntheses. PubMed E-utilities esearch + esummary, executed 2026-08-21. Query as executed: (ceftaroline[tiab]) and (pneumonia[tiab] or cabp[tiab] or cap[tiab]) and (meta-analysis[pt] OR &quot;systematic review&quot;[pt] OR meta-analysis[tiab] OR &quot;pooled&quot;[tiab] or focus[tiab]). It matched 42 record(s), of which 42 were retrieved and 42 read; 1 appraised.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
 <details class='prov-block'><summary class='prov-title'>Sources for this section (1)</summary><ol class='prov-list'>
 <li><code>bookkeeping_2026_08_21.the_search_its_date_and_its_databases</code></li>
 </ol></details>
@@ -670,7 +670,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <h3 id="paper-certainty-of-the-evidence">Certainty of the evidence</h3>
 <p>Certainty was rated with GRADE, following the Cochrane Handbook chapter 14. Randomised evidence starts HIGH and is rated down with reasons..<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
 <p>No domain is rated UP; these are randomised trials starting HIGH.<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
-<p>Downgraded once for non-uniform masking with two unjudgeable domains, and once because the pool combines results defined in different analysis populations. Not downgraded for inconsistency or imprecision, neither of which the fit supports.<sup class='prov-ref' title='source 3 for this section'>3</sup></p>
+<p>LOW certainty. Downgraded once for non-uniform masking with two unjudgeable domains, and once because the pool combines results defined in different analysis populations. Not downgraded for inconsistency or imprecision, neither of which the fit supports.<sup class='prov-ref' title='source 3 for this section'>3</sup></p>
 <p>Where a result is rated worse than LOW overall, the domain carrying that judgement is: measurement of the outcome on 3 result(s), selection of the reported result on 3 result(s). The overall rating is the worst domain, so these are the domains that determine it.<sup class='prov-ref' title='source 4 for this section'>4</sup></p>
 <div class='tscroll'><table><caption>Certainty of the evidence, by outcome, with every rating step<sup class='prov-ref' title='source 5 for this section'>5</sup></caption>
 <tr><th>Outcome</th><th>Certainty</th><th>k</th><th>Started at</th><th>Rating steps</th></tr>
@@ -683,13 +683,8 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <li><code>bookkeeping_2026_08_21.which_risk_of_bias_domains_drove_the_rating</code></li>
 <li><code>grade.by_outcome.primary</code></li>
 </ol></details>
-<h3 id="paper-discussion">Discussion</h3>
-<p>No bibliographic search for primary trials was run. The 3 included trials were identified by reading named registrations on 2026-08-18; All four seeded registrations read on 2026-08-18; three pooled, one excluded on the grounds stated in the analysis block. PubMed E-utilities esearch + esummary, executed 2026-08-21. Query as executed: (ceftaroline[tiab]) and (pneumonia[tiab] or cabp[tiab] or cap[tiab]) and (meta-analysis[pt] OR &quot;systematic review&quot;[pt] OR meta-analysis[tiab] OR &quot;pooled&quot;[tiab] or focus[tiab]). It matched 42 record(s), of which 42 were retrieved and 42 read; 1 appraised. Whether that is broad enough for the claim this review makes is the author&#x27;s judgement.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
-<details class='prov-block'><summary class='prov-title'>Sources for this section (1)</summary><ol class='prov-list'>
-<li><code>manuscript_draft_2026_08_21.claims.was_the_search_broad_enough.draft</code></li>
-</ol></details>
 <h3 id="paper-comparison-with-published-syntheses">Comparison with published syntheses</h3>
-<p>Published syntheses were identified as follows. Query, counts and per-record disposition in ssot/ceftaroline-auto-full-review/appraisal/the screen of published syntheses.json.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
+<p>Published syntheses were identified as follows. PubMed E-utilities, executed 2026-08-21. Query, counts and per-record disposition in ssot/ceftaroline-auto-full-review/appraisal/the screen of published syntheses.json.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
 <details class='prov-block'><summary class='prov-title'>Sources for this section (1)</summary><ol class='prov-list'>
 <li><code>published_comparison._how_identified</code></li>
 </ol></details>
@@ -712,13 +707,13 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 </table></div>
 <div class='tscroll'><table><caption>Published syntheses this review was compared against<sup class='prov-ref' title='source 2 for this section'>2</sup></caption>
 <tr><th>Citation</th><th>Identifier</th></tr>
-<tr><td>Comparing Several Treatments with Antibiotics for Community-Acquired Pneumonia: A Systematic Review and Network Meta-Analysis. (indexed 2021; journal not extracted).</td><td>PMID: 34540732</td></tr>
+<tr><td>Comparing Several Treatments with Antibiotics for Community-Acquired Pneumonia: A Systematic Review and Network Meta-Analysis. (indexed 2021; journal not extracted). 2021.</td><td>PMID: 34540732</td></tr>
 </table></div>
 <div class='tscroll'><table><caption>Methods guidance and software, with what each is cited for<sup class='prov-ref' title='source 3 for this section'>3</sup></caption>
 <tr><th>Cited for</th><th>Reference</th></tr>
-<tr><td>risk of bias in the included results</td><td>Sterne JAC, Savovic J, Page MJ, et al. RoB 2: a revised tool for assessing risk of bias in randomised trials.</td></tr>
-<tr><td>certainty of the evidence</td><td>Schunemann HJ, Higgins JPT, Vist GE, et al. Chapter 14: Completing &#x27;Summary of findings&#x27; tables and grading the certainty of the evidence. In: Cochrane Handbook for Systematic Reviews of Interventions version 6.5.</td></tr>
-<tr><td>the reporting guideline this manuscript is written against</td><td>Page MJ, McKenzie JE, Bossuyt PM, et al. The PRISMA 2020 statement: an updated guideline for reporting systematic reviews.</td></tr>
+<tr><td>risk of bias in the included results</td><td>Sterne JAC, Savovic J, Page MJ, et al. RoB 2: a revised tool for assessing risk of bias in randomised trials. BMJ. 2019;366:l4898. doi:10.1136/bmj.l4898</td></tr>
+<tr><td>certainty of the evidence</td><td>Schunemann HJ, Higgins JPT, Vist GE, et al. Chapter 14: Completing &#x27;Summary of findings&#x27; tables and grading the certainty of the evidence. In: Cochrane Handbook for Systematic Reviews of Interventions version 6.5. Cochrane; 2024.</td></tr>
+<tr><td>the reporting guideline this manuscript is written against</td><td>Page MJ, McKenzie JE, Bossuyt PM, et al. The PRISMA 2020 statement: an updated guideline for reporting systematic reviews. BMJ. 2021;372:n71. doi:10.1136/bmj.n71</td></tr>
 </table></div>
 <details class='prov-block'><summary class='prov-title'>Sources for this section (3)</summary><ol class='prov-list'>
 <li><code>manuscript.references</code></li>
@@ -778,8 +773,8 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <tr><td>Abstract</td><td>The Background sentence of the abstract</td><td>Background is argument -- why this question matters -- and no arrangement of the quantities this object holds yields it. It is emitted only from an authored field and there is no composition path for it here</td></tr>
 <tr><td>Abstract</td><td>The Conclusions sentence of the abstract</td><td>A conclusion is argument -- what a reader should now believe -- and it is emitted only from an authored field. Composing one from the estimate would be this renderer telling the reader what to conclude, which no field supports</td></tr>
 <tr><td>Methods — search</td><td>A database search for primary trials, which was not carried out for this review; the included trials were identified from named registrations</td><td>No further reason is recorded.</td></tr>
-<tr><td>Methods — eligibility criteria</td><td>An unnamed item</td><td>No reason was recorded with this refusal.</td></tr>
-<tr><td>Methods — how many studies at each stage</td><td>An unnamed item</td><td>No reason was recorded with this refusal.</td></tr>
+<tr><td>Methods — eligibility criteria</td><td>The eligibility criteria</td><td>No further reason is recorded.</td></tr>
+<tr><td>Methods — how many studies at each stage</td><td>The k cascade</td><td>No further reason is recorded.</td></tr>
 <tr><td>Methods — outcomes sought at every registered rank</td><td>The statement that outcomes were sought below the primary</td><td>No further reason is recorded.</td></tr>
 <tr><td>Methods — synthesis</td><td>The claim that records were screened in duplicate by two independent reviewers</td><td>No further reason is recorded.</td></tr>
 <tr><td>Methods — synthesis</td><td>The claim that the review methods were prespecified before data collection</td><td>No further reason is recorded.</td></tr>
@@ -789,9 +784,9 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <tr><td>Reporting guidelines</td><td>The reporting-guideline compliance statement</td><td>PRISMA 2020 is the guideline for a completed systematic review, and this object carries no screening record, so a claim of compliance would be asserted rather than shown. It is refused rather than written, because a false statement in a compliance section is worse than an absent one</td></tr>
 <tr><td>Author contributions</td><td>The author-contributions statement</td><td>Who did what is a fact about people, and this object records none</td></tr>
 <tr><td>Competing interests</td><td>The competing-interests declaration</td><td>F1000Research requires this section on every article, and requires explicit text where there is nothing to declare. It is a statement about the author and not about the evidence: no field of this object implies it and none is invented here</td></tr>
-<tr><td>Grant information</td><td>The venue requires each funder&#x27;s name, the grant number where applicable, and the person the grant was assigned</td><td>None of that is derivable from a synthesis</td></tr>
+<tr><td>Grant information</td><td>The grant information</td><td>The venue requires each funder&#x27;s name, the grant number where applicable, and the person the grant was assigned . None of that is derivable from a synthesis</td></tr>
 <tr><td>Funding and conflicts of interest</td><td>The funding and conflict-of-interest statement -- a content gap</td><td>A submission requires it and this object does not carry it; it is not inferable from anything held here</td></tr>
-<tr><td>Note on registration</td><td>An unnamed item</td><td>No reason was recorded with this refusal.</td></tr>
+<tr><td>Note on registration</td><td>The registration note</td><td>No further reason is recorded.</td></tr>
 <tr><td>Registration</td><td>A registration statement: no prospective registration is recorded for this review, and whether one exists elsewhere has not been established</td><td>No further reason is recorded.</td></tr>
 <tr><td>Submission conformance</td><td>The submission conformance statement</td><td>No further reason is recorded.</td></tr>
 </table></div>

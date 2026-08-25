@@ -298,8 +298,8 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
     <caption>Table 3. Sources</caption>
 
     <tr><th>Layer</th><th>Source</th><th>How it was obtained</th></tr>
-    <tr><td></td><td>ClinicalTrials.gov NCT02540993 (FIDELIO-DKD)<br><small>https://clinicaltrials.gov/study/NCT02540993</small></td><td><small></small></td></tr>
-    <tr><td></td><td>ClinicalTrials.gov NCT02545049 (FIGARO-DKD)<br><small>https://clinicaltrials.gov/study/NCT02545049</small></td><td><small></small></td></tr>
+    <tr><td>registry</td><td>ClinicalTrials.gov NCT02540993 (FIDELIO-DKD)<br><small>https://clinicaltrials.gov/study/NCT02540993</small></td><td><small></small></td></tr>
+    <tr><td>registry</td><td>ClinicalTrials.gov NCT02545049 (FIGARO-DKD)<br><small>https://clinicaltrials.gov/study/NCT02545049</small></td><td><small></small></td></tr>
   </table></div>
 </div>
 <h2 id="extract-first-occurrence-of-the-composite-of-car">First occurrence of the composite of cardiovascular death, non-fatal myocardial infarction, non-fatal stroke, or hospitalisation for heart failure</h2>
@@ -310,18 +310,19 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <div class='tscroll'><table>
     <caption>Table 4. What was measured</caption>
 
-    <tr><th>Estimand</th><td>time_to_first &mdash; </td></tr>
+    <tr><th>Comparator</th><td>placebo</td></tr>
+    <tr><th>Estimand</th><td>time_to_first &mdash; proportional hazards</td></tr>
     <tr><th>Effect scale</th><td>combined on the log scale; ESTIMAND UNIFORMITY NOT ESTABLISHED -- the contributing trials have not been shown to measure the same quantity</td></tr>
   </table></div>
 </div>
 <div class='card'>
   <h2 id="extract-pooled-result">Pooled result</h2>
   <p class='num'>HR 0.8655 (0.7877 to 0.951), 95% interval</p>
-  <p>First occurrence of the composite of cardiovascular death, non-fatal myocardial infarction, non-fatal stroke, or hospitalisation for heart failure. , estimator , k = 2.</p>
+  <p>First occurrence of the composite of cardiovascular death, non-fatal myocardial infarction, non-fatal stroke, or hospitalisation for heart failure. random, estimator REML, k = 2.</p>
   <p><small>&tau;&sup2; 0 &middot; I&sup2; 0% &middot; Q 0.01432 on 1 df</small></p>
   <p><strong>Favours: the intervention (lower is better)</strong></p>
   <p><small>Q = 0.0143 on 1 df: the two trials agree closely, which is what the same endpoint in one programme should look like.</small></p>
-  <p>Both trials report the same composite with the same four components in the same order, in CKD with type 2 diabetes, against placebo.</p>
+  <p>Both trials report the same composite with the same four components in the same order, in CKD with type 2 diabetes, against placebo. Q = 0.0143 on 1 df.</p>
   <div class='absent-state' role='alert'><p><strong>Read this beside the estimate. FIDELIO-DKD (NCT02540993) registers the kidney composite as its primary outcome and the cardiovascular composite -- the one pooled here -- as the first of five secondaries. FIGARO-DKD (NCT02545049) registers them the other way round. The quantity is identical on both, word for word, so this is a question about which rank was selected and not about what was measured.</strong></p><p>The unadjusted interval is HR 0.8655 (0.7877 to 0.9510) and excludes no effect. This project&#x27;s floored Hartung-Knapp interval at k = 2 is 0.4699 to 1.5940 and includes it. At k = 2 the t critical value is 12.7062 and almost nothing survives, so this is weaker evidence against the result than the same crossing would be at larger k. Note that metafor&#x27;s RAW interval here, 0.8045 to 0.9311, is narrower than the unadjusted one -- which is what the house floor exists to prevent, and it is not cited as ours.</p></div>
   <h3 id="extract-what-this-pool-holds-constant">What this pool holds constant</h3>
   <div class='tscroll'><table>
@@ -341,8 +342,8 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
     <tr><th>Trial</th><th>Analysed<br><small>treatment / control</small></th>
         <th>HR (95% CI), or events</th>
         <th>Source of this cell</th></tr>
-    <tr><td><br><small>NCT02540993</small></td><td class='num'>2833 / 2841<br><small><em>All randomised participants, as posted by the registry.</em></small></td><td class='num'>0.86 (0.747 to 0.989)<br><small>on the log scale: -0.1508 (standard error 0.07159)</small></td><td><small><a href='https://clinicaltrials.gov/study/NCT02540993'></a>: <br><q>The First Occurrence of the Composite Endpoint of Cardiovascular Death, Non-fatal Myocardial Infarction, Non-fatal Stroke, or Hospitalization for Heart Failure</q></small></td></tr>
-    <tr><td><br><small>NCT02545049</small></td><td class='num'>3686 / 3666<br><small><em>All randomised participants, as posted by the registry.</em></small></td><td class='num'>0.87 (0.76 to 0.98)<br><small>on the log scale: -0.1393 (standard error 0.06486)</small></td><td><small><a href='https://clinicaltrials.gov/study/NCT02545049'></a>: <br><q>The First Occurrence of the Composite Endpoint of Cardiovascular Death, Non Fatal Myocardial Infarction, Non Fatal Stroke, or Hospitalization for Heart Failure.</q></small></td></tr>
+    <tr><td>FIDELIO-DKD<br><small>NCT02540993</small></td><td class='num'>2833 / 2841<br><small><em>All randomised participants, as posted by the registry.</em></small></td><td class='num'>0.86 (0.747 to 0.989)<br><small>on the log scale: -0.1508 (standard error 0.07159)</small></td><td><small><a href='https://clinicaltrials.gov/study/NCT02540993'></a>: <br><q>The First Occurrence of the Composite Endpoint of Cardiovascular Death, Non-fatal Myocardial Infarction, Non-fatal Stroke, or Hospitalization for Heart Failure</q></small></td></tr>
+    <tr><td>FIGARO-DKD<br><small>NCT02545049</small></td><td class='num'>3686 / 3666<br><small><em>All randomised participants, as posted by the registry.</em></small></td><td class='num'>0.87 (0.76 to 0.98)<br><small>on the log scale: -0.1393 (standard error 0.06486)</small></td><td><small><a href='https://clinicaltrials.gov/study/NCT02545049'></a>: <br><q>The First Occurrence of the Composite Endpoint of Cardiovascular Death, Non Fatal Myocardial Infarction, Non Fatal Stroke, or Hospitalization for Heart Failure.</q></small></td></tr>
   </table></div>
   <p><small>Verified word for word against both registry entries. FIDELIO writes &#x27;Non-fatal&#x27; and FIGARO &#x27;Non Fatal&#x27;, and FIGARO&#x27;s title carries a trailing full stop; the four components, their order and the first-occurrence construction are identical.</small></p>
 </div>
@@ -366,7 +367,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <h3 id="extract-the-methods-rule-governing-this-decision">The methods rule governing this decision</h3>
   <p><strong>Decision:</strong> Pool: one common outcome, same four components, same population frame</p>
   <p><strong>Cochrane Handbook sections:</strong> 10.3, 10.10.1</p>
-  <p></p>
+  <p>Cochrane Handbook 6.5</p>
 </div>
 <div class='card'>
   <h3 id="extract-does-the-answer-depend-on-the-pooling-me">Does the answer depend on the pooling method?</h3>
@@ -375,7 +376,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
     <caption>Table 8. Does the answer depend on the pooling method?</caption>
 
     <tr><th>Interval</th><th>Method</th><th>Summary (95% CI)</th></tr>
-    <tr><td>as published</td><td></td><td class='num'>0.8655 (0.7877 to 0.951)</td></tr>
+    <tr><td>as published</td><td>REML</td><td class='num'>0.8655 (0.7877 to 0.951)</td></tr>
     <tr><td>sensitivity (Handbook 10.10.4.5)</td><td>REML with Hartung-Knapp, t on k-1 = 1 degree(s) of freedom (t = 12.7062)</td><td class='num'>0.8655 (0.4699 to 1.594)</td></tr>
   </table></div>
   <p><small>The published point is 0.8655 and the house-rule point is 0.8655. The number a reader remembers does not move; what differs is the precision claim. That is why nothing downstream catches this -- every memorable quantity survives.</small></p>
@@ -616,10 +617,10 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
     <caption>Table 9. Summary of findings</caption>
 
     <tr><th>Outcome</th><th>k</th><th>Pooled effect</th><th>Certainty</th></tr>
-    <tr><td>First occurrence of the composite of cardiovascular death, non-fatal myocardial infarction, non-fatal stroke, or hospitalisation for heart failure</td><td class='num'>2</td><td class='num'>HR 0.866 (0.788 to 0.951)</td><td><sup>1</sup><sup>2</sup></td></tr>
+    <tr><td>First occurrence of the composite of cardiovascular death, non-fatal myocardial infarction, non-fatal stroke, or hospitalisation for heart failure</td><td class='num'>2</td><td class='num'>HR 0.866 (0.788 to 0.951)</td><td>Moderate<sup>1</sup><sup>2</sup></td></tr>
   </table></div>
   <ol class='sof-notes' style='font-size:0.86em;margin:0.6em 0 0 1.2em;'>
-    <li>The record does not carry which domains were downgraded, and none is inferred here.</li>
+    <li>Rated Moderate. The record does not carry which domains were downgraded, and none is inferred here.</li>
     <li>Read this beside `estimand_established`. That flag records that every contributing trial measures the same quantity. It records nothing about what that quantity was measured against -- whether the comparators are of one kind, whether each comparison was randomised, whether it was concurrent. The two questions were never separated. Named as P48 in PAGE-STANDARD.md v1.21.0 and swept by scripts/audit_mixed_contrast_pools.py.</li>
   </ol>
 </div>
@@ -632,8 +633,8 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
     <tr><th scope='col'>Registered at</th><td><code>—</code> —</td></tr>
     <tr><th scope='col'>Schema</th><td>2-rebuilt-from-source</td></tr>
     <tr><th scope='col'>Object last updated</th><td>2026-08-17T16:40Z</td></tr>
-    <tr><th scope='col'>Page generated</th><td>2026-08-24 23:16 UTC</td></tr>
-    <tr><th scope='col'>Generator build</th><td><code>3c535b79c</code>. The standard this page was built to is NOT ESTABLISHED: this object carries no <code>build_stamp</code>, so the version above is the standard that exists now, not the one this page was built against.</td></tr>
+    <tr><th scope='col'>Page generated</th><td>2026-08-25 06:19 UTC</td></tr>
+    <tr><th scope='col'>Generator build</th><td><code>83c8f939f</code>. The standard this page was built to is NOT ESTABLISHED: this object carries no <code>build_stamp</code>, so the version above is the standard that exists now, not the one this page was built against.</td></tr>
   </table></div>
   <p><small>Everything a third party needs to rebuild this page. Each figure on the Analysis tab downloads as an SVG carrying exactly the values shown.</small></p>
 </div>
@@ -643,10 +644,10 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <div class='tscroll'><table>
     <caption>Table 11. Other recorded qualifications</caption>
 
-    <tr><th></th><td>Published as DerSimonian-Laird. The house-rule interval is recorded alongside rather than replacing it, so the difference is visible instead of silently resolved.</td></tr>
+    <tr><th>Estimator note 2026 08 18 superseded</th><td>Published as DerSimonian-Laird. The house-rule interval is recorded alongside rather than replacing it, so the difference is visible instead of silently resolved.</td></tr>
     <tr><th>A the pooled result is one trial s primary and the other s secondary</th><td>Read this beside the estimate. FIDELIO-DKD (NCT02540993) registers the kidney composite as its primary outcome and the cardiovascular composite -- the one pooled here -- as the first of five secondaries. FIGARO-DKD (NCT02545049) registers them the other way round. The quantity is identical on both, word for word, so this is a question about which rank was selected and not about what was measured.</td></tr>
     <tr><th>B the effect does not survive the small sample adjustment</th><td>The unadjusted interval is HR 0.8655 (0.7877 to 0.9510) and excludes no effect. This project&#x27;s floored Hartung-Knapp interval at k = 2 is 0.4699 to 1.5940 and includes it. At k = 2 the t critical value is 12.7062 and almost nothing survives, so this is weaker evidence against the result than the same crossing would be at larger k. Note that metafor&#x27;s RAW interval here, 0.8045 to 0.9311, is narrower than the unadjusted one -- which is what the house floor exists to prevent, and it is not cited as ours.</td></tr>
-    <tr><th></th><td>composite of cardiovascular death, non-fatal myocardial infarction, non-fatal stroke or hospitalisation for heart failure -- the same composite this object pools</td></tr>
+    <tr><th>Scope</th><td>composite of cardiovascular death, non-fatal myocardial infarction, non-fatal stroke or hospitalisation for heart failure -- the same composite this object pools</td></tr>
     <tr><th>The finding of this comparison</th><td>This is the control case for class 76 and it was predicted before the screen ran. Four topics have now been found where the published synthesis chose a better-defined target than this corpus did. Here it did not: an aggregate-data pool of two trials reproduces a prespecified individual-patient-data analysis of the same two trials to three significant figures. The pool was feasible -- one drug, one programme, complementary populations by design, pooling prespecified by the trialists -- and where the pool is feasible the method holds. That makes class 76 a finding about feasibility rather than about arithmetic, and it is the reason a pattern needs a case where it does not fire.</td></tr>
     <tr><th>What is not established</th><td>The concealment mechanism is not on the registry and no publication was read.</td></tr>
     <tr><th>Why this is not an adjudicated dispute</th><td>A blind second assessor from a different model family disagreed with this domain on 89% of judgements across 22 topics. That would ordinarily be a dispute to adjudicate. It is not one: the tool&#x27;s own text names this exact evidential situation -- a bare statement that a study was randomised -- and prescribes the answer. The second assessor is not being deferred ; the guidance is being applied.</td></tr>
@@ -663,33 +664,33 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 </div>
   </section>
 <!--end-report-->  <section class="panel" id="pn-paper"><span id="paper"></span>
-  <p class='toc'><strong>In this section:</strong> <a href="#paper-paper">Paper</a> &middot; <a href="#paper-title">Title</a> &middot; <a href="#paper-abstract">Abstract</a> &middot; <a href="#paper-introduction">Introduction</a> &middot; <a href="#paper-methods-search">Methods — search</a> &middot; <a href="#paper-methods-eligibility-criteria">Methods — eligibility criteria</a> &middot; <a href="#paper-methods-synthesis">Methods — synthesis</a> &middot; <a href="#paper-results">Results</a> &middot; <a href="#paper-risk-of-bias-in-the-included-results">Risk of bias in the included results</a> &middot; <a href="#paper-certainty-of-the-evidence">Certainty of the evidence</a> &middot; <a href="#paper-discussion">Discussion</a> &middot; <a href="#paper-comparison-with-published-syntheses">Comparison with published syntheses</a> &middot; <a href="#paper-limitations">Limitations</a> &middot; <a href="#paper-data-availability">Data availability</a> &middot; <a href="#paper-software-availability">Software availability</a> &middot; <a href="#paper-note-on-registration">Note on registration</a> &middot; <a href="#paper-references">References</a> &middot; <a href="#paper-figures">Figures</a> &middot; <a href="#paper-trial-characteristics">Trial characteristics</a> &middot; <a href="#paper-not-reported">Not reported in this record</a></p>
+  <p class='toc'><strong>In this section:</strong> <a href="#paper-paper">Paper</a> &middot; <a href="#paper-title">Title</a> &middot; <a href="#paper-abstract">Abstract</a> &middot; <a href="#paper-introduction">Introduction</a> &middot; <a href="#paper-methods-search">Methods — search</a> &middot; <a href="#paper-methods-eligibility-criteria">Methods — eligibility criteria</a> &middot; <a href="#paper-methods-synthesis">Methods — synthesis</a> &middot; <a href="#paper-results">Results</a> &middot; <a href="#paper-risk-of-bias-in-the-included-results">Risk of bias in the included results</a> &middot; <a href="#paper-certainty-of-the-evidence">Certainty of the evidence</a> &middot; <a href="#paper-comparison-with-published-syntheses">Comparison with published syntheses</a> &middot; <a href="#paper-disagreements-between-sources">Disagreements between sources</a> &middot; <a href="#paper-limitations">Limitations</a> &middot; <a href="#paper-data-availability">Data availability</a> &middot; <a href="#paper-software-availability">Software availability</a> &middot; <a href="#paper-reporting-guidelines">Reporting guidelines</a> &middot; <a href="#paper-note-on-registration">Note on registration</a> &middot; <a href="#paper-references">References</a> &middot; <a href="#paper-figures">Figures</a> &middot; <a href="#paper-trial-characteristics">Trial characteristics</a> &middot; <a href="#paper-not-reported">Not reported in this record</a></p>
 <div class='card'>
 <h2 id="paper-paper">Paper</h2>
 <p class='muted'>Each statement below cites the record it came from; those sources are listed at the end of every section. <strong>Where the record holds nothing, the section says so by name</strong> rather than being left out, so a procedure that was not carried out can be told from one that simply was never mentioned.</p>
 <h3 id="paper-title">Title</h3>
 <p>Finerenone against placebo in chronic kidney disease with type 2 diabetes: the cardiovascular composite, pooled from the two pivotal trials<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
-<p>Two trial acronyms were transposed and are corrected. This object recorded NCT02545049 as FIDELIO-DKD. It is figaro-dkd. Read from ClinicalTrials.gov API v2 on 2026-08-21: NCT02540993 carries acronym FIDELIO-DKD, NCT02545049 carries acronym FIGARO-DKD. The two trials differ in their registered primary -- FIDELIO-DKD&#x27;s is the kidney composite, FIGARO-DKD&#x27;s the cardiovascular one -- so naming them the wrong way round is not a typographical matter: it attributes each trial&#x27;s design to the other. No estimate moves; the estimates were keyed to the registration numbers, which were right throughout.<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
+<p>Two trial acronyms were transposed and are corrected. This object recorded NCT02545049 as FIDELIO-DKD. It is figaro-dkd. Read from ClinicalTrials.gov API v2 on 2026-08-21: NCT02540993 carries acronym FIDELIO-DKD, NCT02545049 carries acronym FIGARO-DKD. The two trials differ in their registered primary -- FIDELIO-DKD&#x27;s is the kidney composite, FIGARO-DKD&#x27;s the cardiovascular one -- so naming them the wrong way round is not a typographical matter: it attributes each trial&#x27;s design to the other. No estimate moves; the estimates were keyed to the registration numbers, which were right throughout. 2 label(s) corrected.<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
 <details class='prov-block'><summary class='prov-title'>Sources for this section (2)</summary><ol class='prov-list'>
 <li><code>title</code></li>
 <li><code>ACRONYMS_CORRECTED_2026_08_21</code></li>
 </ol></details>
 <h3 id="paper-abstract">Abstract</h3>
-<p>In adults with chronic kidney disease and type 2 diabetes, does finerenone reduce the first occurrence of the composite of cardiovascular death, non-fatal myocardial infarction, non-fatal stroke, or hospitalisation for heart failure, against placebo?<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
-<p>estimates were pooled under a random-effects model with the REML estimator; risk of bias was assessed with RoB 2 (Cochrane risk-of-bias tool for randomized trials); and certainty was rated with GRADE, following the Cochrane Handbook chapter 14. Randomised evidence starts HIGH and is rated down with reasons.<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
-<p>First occurrence of the composite of cardiovascular death, non-fatal myocardial infarction, non-fatal stroke, or hospitalisation for heart failure: hazard ratio 0.866 (0.788 to 0.951) across 2 trials; 1 of these pooled outcome(s) carries a stated qualification -- a referral or a recorded finding -- given in full in Results and not reproduced here; the trials agreed closely (I-squared 0%); and certainty of the evidence was moderate.<sup class='prov-ref' title='source 3 for this section'>3</sup></p>
+<p>Question. In adults with chronic kidney disease and type 2 diabetes, does finerenone reduce the first occurrence of the composite of cardiovascular death, non-fatal myocardial infarction, non-fatal stroke, or hospitalisation for heart failure, against placebo?<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
+<p>Methods. estimates were pooled under a random-effects model with the REML estimator; risk of bias was assessed with RoB 2 (Cochrane risk-of-bias tool for randomized trials); and certainty was rated with GRADE, following the Cochrane Handbook chapter 14. Randomised evidence starts HIGH and is rated down with reasons.<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
+<p>Results. First occurrence of the composite of cardiovascular death, non-fatal myocardial infarction, non-fatal stroke, or hospitalisation for heart failure: hazard ratio 0.866 (0.788 to 0.951) across 2 trials; 1 of these pooled outcome(s) carries a stated qualification -- a referral or a recorded finding -- given in full in Results and not reproduced here; the trials agreed closely (I-squared 0%); and certainty of the evidence was moderate.<sup class='prov-ref' title='source 3 for this section'>3</sup></p>
 <details class='prov-block'><summary class='prov-title'>Sources for this section (3)</summary><ol class='prov-list'>
 <li><code>question</code></li>
 <li><code>results.by_outcome, risk_of_bias.by_outcome, grade.by_outcome</code></li>
 <li><code>grade.by_outcome, results.by_outcome</code></li>
 </ol></details>
 <h3 id="paper-introduction">Introduction</h3>
-<p>This review asks: In adults with chronic kidney disease and type 2 diabetes, does finerenone reduce the first occurrence of the composite of cardiovascular death, non-fatal myocardial infarction, non-fatal stroke, or hospitalisation for heart failure, against placebo? It pools 2 randomised trials, against placebo. The outcome pooled is First occurrence of the composite of cardiovascular death, non-fatal myocardial infarction, non-fatal stroke, or hospitalisation for heart failure.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
+<p>Background. This review asks: In adults with chronic kidney disease and type 2 diabetes, does finerenone reduce the first occurrence of the composite of cardiovascular death, non-fatal myocardial infarction, non-fatal stroke, or hospitalisation for heart failure, against placebo? It pools 2 randomised trials, against placebo. The outcome pooled is First occurrence of the composite of cardiovascular death, non-fatal myocardial infarction, non-fatal stroke, or hospitalisation for heart failure.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
 <details class='prov-block'><summary class='prov-title'>Sources for this section (1)</summary><ol class='prov-list'>
 <li><code>manuscript.introduction</code></li>
 </ol></details>
 <h3 id="paper-methods-search">Methods — search</h3>
-<p>No bibliographic search for primary trials was run. The 2 included trials were identified by reading named registrations on the dates recorded on each entry. The basis on which this object was verified is not recorded. What this object does not claim is not recorded. The bar this object had to clear is not recorded. PubMed E-utilities esearch + esummary, executed 2026-08-20. Query as executed: (finerenone[tiab]) and (FIDELIO[tiab] or FIGARO[tiab] or FIDELITY[tiab] OR meta-analysis[pt] OR &quot;systematic review&quot;[pt] OR meta-analysis[tiab] OR &quot;pooled analysis&quot;[tiab]). It matched 252 record(s), of which 252 were retrieved and 252 read; 1 appraised.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
+<p>Primary trials. No bibliographic search for primary trials was run. The 2 included trials were identified by reading named registrations on the dates recorded on each entry. The basis on which this object was verified is not recorded. What this object does not claim is not recorded. The bar this object had to clear is not recorded. Published syntheses. PubMed E-utilities esearch + esummary, executed 2026-08-20. Query as executed: (finerenone[tiab]) and (FIDELIO[tiab] or FIGARO[tiab] or FIDELITY[tiab] OR meta-analysis[pt] OR &quot;systematic review&quot;[pt] OR meta-analysis[tiab] OR &quot;pooled analysis&quot;[tiab]). It matched 252 record(s), of which 252 were retrieved and 252 read; 1 appraised.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
 <details class='prov-block'><summary class='prov-title'>Sources for this section (1)</summary><ol class='prov-list'>
 <li><code>bookkeeping_2026_08_21.the_search_its_date_and_its_databases</code></li>
 </ol></details>
@@ -713,7 +714,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <p>The pooled hazard ratio for first occurrence of the composite of cardiovascular death, non-fatal myocardial infarction, non-fatal stroke, or hospitalisation for heart failure was 0.866 (0.788 to 0.951) across 2 trials, against placebo.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
 <p>Noted on this pool. Read this beside the estimate. FIDELIO-DKD (NCT02540993) registers the kidney composite as its primary outcome and the cardiovascular composite -- the one pooled here -- as the first of five secondaries. FIGARO-DKD (NCT02545049) registers them the other way round. The quantity is identical on both, word for word, so this is a question about which rank was selected and not about what was measured. The unadjusted interval is HR 0.8655 (0.7877 to 0.9510) and excludes no effect. This project&#x27;s floored Hartung-Knapp interval at k = 2 is 0.4699 to 1.5940 and includes it. At k = 2 the t critical value is 12.7062 and almost nothing survives, so this is weaker evidence against the result than the same crossing would be at larger k. Note that metafor&#x27;s RAW interval here, 0.8045 to 0.9311, is narrower than the unadjusted one -- which is what the house floor exists to prevent, and it is not cited as ours.<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
 <p>The trials&#x27; results were closely consistent with one another: I-squared, the share of the variation between them that is more than chance alone would produce, was 0%; the estimated variance of the true effects between trials (tau-squared) was 0, the heterogeneity test statistic Q was 0.0143, on degrees of freedom 1. Q = 0.0143 on 1 df: the two trials agree closely, which is what the same endpoint in one programme should look like.<sup class='prov-ref' title='source 3 for this section'>3</sup></p>
-<p>The grounds for pooling are recorded as: Both trials report the same composite with the same four components in the same order, in CKD with type 2 diabetes, against placebo. Where a later pool on this page rests on the same grounds, they are not restated.<sup class='prov-ref' title='source 4 for this section'>4</sup></p>
+<p>The grounds for pooling are recorded as: Both trials report the same composite with the same four components in the same order, in CKD with type 2 diabetes, against placebo. Q = 0.0143 on 1 df. Where a later pool on this page rests on the same grounds, they are not restated.<sup class='prov-ref' title='source 4 for this section'>4</sup></p>
 <p>The full model output for every pooled outcome -- the call, the estimator, the heterogeneity statistics and the back-transformed interval -- is reproduced verbatim as Extended data at the end of this article, so every number above can be checked against the software that produced it.<sup class='prov-ref' title='source 5 for this section'>5</sup></p>
 <details class='prov-block'><summary class='prov-title'>Sources for this section (5)</summary><ol class='prov-list'>
 <li><code>outcomes[id=cv_composite_first].name, results.by_outcome.cv_composite_first.pooled, outcomes[id=cv_composite_first].comparator</code></li>
@@ -729,11 +730,11 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 </ol></details>
 <h3 id="paper-certainty-of-the-evidence">Certainty of the evidence</h3>
 <p>Certainty was rated with GRADE, following the Cochrane Handbook chapter 14. Randomised evidence starts HIGH and is rated down with reasons..<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
-<p>The two trials agree almost exactly, both are quadruple-masked, and the pooled composite is defined identically on both registrations -- so the single downgrade is for the unread deviation and missing-data domains and for the pooled result being FIDELIO&#x27;s registered secondary rather than its primary.<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
+<p>MODERATE certainty. The two trials agree almost exactly, both are quadruple-masked, and the pooled composite is defined identically on both registrations -- so the single downgrade is for the unread deviation and missing-data domains and for the pooled result being FIDELIO&#x27;s registered secondary rather than its primary.<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
 <p>Where a result is rated worse than LOW overall, the domain carrying that judgement is: selection of the reported result on 1 result(s). The overall rating is the worst domain, so these are the domains that determine it.<sup class='prov-ref' title='source 3 for this section'>3</sup></p>
 <div class='tscroll'><table><caption>Certainty of the evidence, by outcome, with every rating step<sup class='prov-ref' title='source 4 for this section'>4</sup></caption>
 <tr><th>Outcome</th><th>Certainty</th><th>k</th><th>Started at</th><th>Rating steps</th></tr>
-<tr><td>first occurrence of the composite of cardiovascular death, non-fatal myocardial infarction, non-fatal stroke, or hospitalisation for heart failure</td><td>MODERATE</td><td>2</td><td></td><td>risk of bias -- Both contributing results are some concerns. the randomisation process and measurement of the outcome are LOW on read registrations -- randomised, quadruple masking including the outcomes assessor on both -- and selection of the reported result is LOW on FIGARO and some concerns on FIDELIO, where the pooled cardiovascular composite is the first of five registered secondaries. deviations from the intended intervention and missing outcome data are no information on both. (move: HIGH to MODERATE, down 1 level(s)); inconsistency -- tau-squared is exactly zero, Q 0.0143 on 1 df, p = 0.9047, I-squared 0.00%. The two estimates are 0.86 (0.747 to 0.989) and 0.87 (0.76 to 0.98) -- as close as two trials get. Downgrading would manufacture a caution the numbers contradict. (move: no downgrade); indirectness -- the quantity is the same quantity. Both registrations define the composite in the same words -- cardiovascular death, non-fatal myocardial infarction, non-fatal stroke, or hospitalisation for heart failure. Recorded and deliberately not converted into a rating: it is FIGARO&#x27;s registered primary and FIDELIO&#x27;s registered first secondary. That is a selection question, which selection of the reported result already carries; rating it again here would count one fact as two defects. (move: no downgrade); imprecision -- k = 2. This project&#x27;s floored Hartung-Knapp interval is 0.4699 to 1.5940 on t = 12.7062 with 1 degree of freedom and it includes no effect, where the unadjusted interval 0.7877 to 0.9510 excludes it. It is not applied for the reason this project applies consistently at k = 2: the t critical value is 12.7062 and almost nothing survives, so the crossing is weak evidence in either direction. What is not used: metafor&#x27;s RAW unfloored interval here is 0.8045 to 0.9311 -- narrower than the unadjusted interval, which is exactly what the house floor exists to prevent, and it is not this project&#x27;s interval. (move: MODERATE to LOW -- warranted and not applied, see reason); publication bias -- k = 2. (move: Not assessable -- no rating applied)</td></tr>
+<tr><td>first occurrence of the composite of cardiovascular death, non-fatal myocardial infarction, non-fatal stroke, or hospitalisation for heart failure</td><td>MODERATE</td><td>2</td><td></td><td>risk of bias -- Both contributing results are some concerns. the randomisation process and measurement of the outcome are LOW on read registrations -- randomised, quadruple masking including the outcomes assessor on both -- and selection of the reported result is LOW on FIGARO and some concerns on FIDELIO, where the pooled cardiovascular composite is the first of five registered secondaries. deviations from the intended intervention and missing outcome data are no information on both. (move: HIGH to MODERATE, down 1 level(s)); inconsistency -- tau-squared is exactly zero, Q 0.0143 on 1 df, p = 0.9047, I-squared 0.00%. The two estimates are 0.86 (0.747 to 0.989) and 0.87 (0.76 to 0.98) -- as close as two trials get. Downgrading would manufacture a caution the numbers contradict. (move: no downgrade); indirectness -- the quantity is the same quantity. Both registrations define the composite in the same words -- cardiovascular death, non-fatal myocardial infarction, non-fatal stroke, or hospitalisation for heart failure. Recorded and deliberately not converted into a rating: it is FIGARO&#x27;s registered primary and FIDELIO&#x27;s registered first secondary. That is a selection question, which selection of the reported result already carries; rating it again here would count one fact as two defects. (move: no downgrade); imprecision -- k = 2. This project&#x27;s floored Hartung-Knapp interval is 0.4699 to 1.5940 on t = 12.7062 with 1 degree of freedom and it includes no effect, where the unadjusted interval 0.7877 to 0.9510 excludes it. It is not applied for the reason this project applies consistently at k = 2: the t critical value is 12.7062 and almost nothing survives, so the crossing is weak evidence in either direction. What is not used: metafor&#x27;s RAW unfloored interval here is 0.8045 to 0.9311 -- narrower than the unadjusted interval, which is exactly what the house floor exists to prevent, and it is not this project&#x27;s interval. (move: MODERATE to LOW -- warranted and not applied, see reason); publication bias -- k = 2. Handbook 13.3.5.4. (move: Not assessable -- no rating applied)</td></tr>
 </table></div>
 <details class='prov-block'><summary class='prov-title'>Sources for this section (4)</summary><ol class='prov-list'>
 <li><code>grade.approach</code></li>
@@ -741,15 +742,17 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <li><code>bookkeeping_2026_08_21.which_risk_of_bias_domains_drove_the_rating</code></li>
 <li><code>grade.by_outcome.cv_composite_first</code></li>
 </ol></details>
-<h3 id="paper-discussion">Discussion</h3>
-<p>No bibliographic search for primary trials was run. The 2 included trials were identified by reading named registrations on the dates recorded on each entry; The basis on which this object was verified is not recorded. What this object does not claim is not recorded. The bar this object had to clear is not recorded.. PubMed E-utilities esearch + esummary, executed 2026-08-20. Query as executed: (finerenone[tiab]) and (FIDELIO[tiab] or FIGARO[tiab] or FIDELITY[tiab] OR meta-analysis[pt] OR &quot;systematic review&quot;[pt] OR meta-analysis[tiab] OR &quot;pooled analysis&quot;[tiab]). It matched 252 record(s), of which 252 were retrieved and 252 read; 1 appraised. Whether that is broad enough for the claim this review makes is the author&#x27;s judgement.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
-<details class='prov-block'><summary class='prov-title'>Sources for this section (1)</summary><ol class='prov-list'>
-<li><code>manuscript_draft_2026_08_21.claims.was_the_search_broad_enough.draft</code></li>
-</ol></details>
 <h3 id="paper-comparison-with-published-syntheses">Comparison with published syntheses</h3>
-<p>Published syntheses were identified as follows. Query, counts and per-record disposition in ssot/finerenone-cv/appraisal/the screen of published syntheses.json.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
+<p>Published syntheses were identified as follows. PubMed E-utilities, executed 2026-08-20. Query, counts and per-record disposition in ssot/finerenone-cv/appraisal/the screen of published syntheses.json.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
 <details class='prov-block'><summary class='prov-title'>Sources for this section (1)</summary><ol class='prov-list'>
 <li><code>published_comparison._how_identified</code></li>
+</ol></details>
+<h3 id="paper-disagreements-between-sources">Disagreements between sources</h3>
+<p>not recorded on the page this object was extracted from<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
+<p>not recorded on the page this object was extracted from<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (2)</summary><ol class='prov-list'>
+<li><code>reconciliation.why_this_step_exists</code></li>
+<li><code>reconciliation.clean_because</code></li>
 </ol></details>
 <h3 id="paper-limitations">Limitations</h3>
 <p>What this review does not give a clinician: the number of events in each arm, any absolute effect or number needed to treat and any measure of harm. A relative effect cannot be turned into the benefit or the risk facing one patient without them, so this review can support a judgement about what these trials found and not a judgement about what to do.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
@@ -766,6 +769,11 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <details class='prov-block'><summary class='prov-title'>Sources for this section (1)</summary><ol class='prov-list'>
 <li><code>results.by_outcome</code></li>
 </ol></details>
+<h3 id="paper-reporting-guidelines">Reporting guidelines</h3>
+<p>This review reports against PRISMA 2020. A screening record is held on this object and the flow it supports is shown in the Methods. The completed PRISMA checklist and FLOW diagram are not held here: the venue requires them deposited in an approved repository with a DOI cited in the Data Availability Statement, and minting that DOI is an author action rather than a build step.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (1)</summary><ol class='prov-list'>
+<li><code>screening</code></li>
+</ol></details>
 <h3 id="paper-note-on-registration">Note on registration</h3>
 <p>No PROSPERO registration or protocol record is held on this object. That is not the same as knowing this review was not registered, and neither claim is made. It is recorded here as an absence so that a reader does not have to infer it from silence.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
 <details class='prov-block'><summary class='prov-title'>Sources for this section (1)</summary><ol class='prov-list'>
@@ -779,14 +787,14 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 </table></div>
 <div class='tscroll'><table><caption>Published syntheses this review was compared against<sup class='prov-ref' title='source 2 for this section'>2</sup></caption>
 <tr><th>Citation</th><th>Identifier</th></tr>
-<tr><td>Cardiovascular and kidney outcomes with finerenone in patients with type 2 diabetes and chronic kidney disease: the FIDELITY pooled analysis.</td><td>PMID: 35023547</td></tr>
+<tr><td>Cardiovascular and kidney outcomes with finerenone in patients with type 2 diabetes and chronic kidney disease: the FIDELITY pooled analysis. European Heart Journal. 2022.</td><td>PMID: 35023547</td></tr>
 </table></div>
 <div class='tscroll'><table><caption>Methods guidance and software, with what each is cited for<sup class='prov-ref' title='source 3 for this section'>3</sup></caption>
 <tr><th>Cited for</th><th>Reference</th></tr>
-<tr><td>risk of bias in the included results</td><td>Sterne JAC, Savovic J, Page MJ, et al. RoB 2: a revised tool for assessing risk of bias in randomised trials.</td></tr>
-<tr><td>certainty of the evidence</td><td>Schunemann HJ, Higgins JPT, Vist GE, et al. Chapter 14: Completing &#x27;Summary of findings&#x27; tables and grading the certainty of the evidence. In: Cochrane Handbook for Systematic Reviews of Interventions version 6.5.</td></tr>
-<tr><td>the model fitted, as R 4.6.0 with metafor 5.0.1</td><td>Conducting meta-analyses in R with the metafor package.</td></tr>
-<tr><td>the reporting guideline this manuscript is written against</td><td>Page MJ, McKenzie JE, Bossuyt PM, et al. The PRISMA 2020 statement: an updated guideline for reporting systematic reviews.</td></tr>
+<tr><td>risk of bias in the included results</td><td>Sterne JAC, Savovic J, Page MJ, et al. RoB 2: a revised tool for assessing risk of bias in randomised trials. BMJ. 2019;366:l4898. doi:10.1136/bmj.l4898</td></tr>
+<tr><td>certainty of the evidence</td><td>Schunemann HJ, Higgins JPT, Vist GE, et al. Chapter 14: Completing &#x27;Summary of findings&#x27; tables and grading the certainty of the evidence. In: Cochrane Handbook for Systematic Reviews of Interventions version 6.5. Cochrane; 2024.</td></tr>
+<tr><td>the model fitted, as R 4.6.0 with metafor 5.0.1</td><td>Viechtbauer W. Conducting meta-analyses in R with the metafor package. J Stat Softw. 2010;36(3):1-48. doi:10.18637/jss.v036.i03</td></tr>
+<tr><td>the reporting guideline this manuscript is written against</td><td>Page MJ, McKenzie JE, Bossuyt PM, et al. The PRISMA 2020 statement: an updated guideline for reporting systematic reviews. BMJ. 2021;372:n71. doi:10.1136/bmj.n71</td></tr>
 </table></div>
 <div class='tscroll'><table><caption>Sources this review reads, with the layer each was read at<sup class='prov-ref' title='source 4 for this section'>4</sup></caption>
 <tr><th>Id</th><th>Layer</th><th>Source</th><th>Location</th></tr>
@@ -847,15 +855,15 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <tr><td>Abstract</td><td>The Background sentence of the abstract</td><td>Background is argument -- why this question matters -- and no arrangement of the quantities this object holds yields it. It is emitted only from an authored field and there is no composition path for it here</td></tr>
 <tr><td>Abstract</td><td>The Conclusions sentence of the abstract</td><td>A conclusion is argument -- what a reader should now believe -- and it is emitted only from an authored field. Composing one from the estimate would be this renderer telling the reader what to conclude, which no field supports</td></tr>
 <tr><td>Methods — search</td><td>A database search for primary trials, which was not carried out for this review; the included trials were identified from named registrations</td><td>No further reason is recorded.</td></tr>
-<tr><td>Methods — how many studies at each stage</td><td>An unnamed item</td><td>No reason was recorded with this refusal.</td></tr>
+<tr><td>Methods — how many studies at each stage</td><td>The k cascade</td><td>No further reason is recorded.</td></tr>
 <tr><td>Methods — outcomes sought at every registered rank</td><td>The statement that outcomes were sought below the primary</td><td>No further reason is recorded.</td></tr>
 <tr><td>Methods — synthesis</td><td>The claim that records were screened in duplicate by two independent reviewers</td><td>No further reason is recorded.</td></tr>
 <tr><td>Methods — synthesis</td><td>The claim that the review methods were prespecified before data collection</td><td>No further reason is recorded.</td></tr>
 <tr><td>Author contributions</td><td>The author-contributions statement</td><td>Who did what is a fact about people, and this object records none</td></tr>
 <tr><td>Competing interests</td><td>The competing-interests declaration</td><td>F1000Research requires this section on every article, and requires explicit text where there is nothing to declare. It is a statement about the author and not about the evidence: no field of this object implies it and none is invented here</td></tr>
-<tr><td>Grant information</td><td>The venue requires each funder&#x27;s name, the grant number where applicable, and the person the grant was assigned</td><td>None of that is derivable from a synthesis</td></tr>
+<tr><td>Grant information</td><td>The grant information</td><td>The venue requires each funder&#x27;s name, the grant number where applicable, and the person the grant was assigned . None of that is derivable from a synthesis</td></tr>
 <tr><td>Funding and conflicts of interest</td><td>The funding and conflict-of-interest statement -- a content gap</td><td>A submission requires it and this object does not carry it; it is not inferable from anything held here</td></tr>
-<tr><td>Note on registration</td><td>An unnamed item</td><td>No reason was recorded with this refusal.</td></tr>
+<tr><td>Note on registration</td><td>The registration note</td><td>No further reason is recorded.</td></tr>
 <tr><td>Registration</td><td>A registration statement: no prospective registration is recorded for this review, and whether one exists elsewhere has not been established</td><td>No further reason is recorded.</td></tr>
 <tr><td>Submission conformance</td><td>The submission conformance statement</td><td>No further reason is recorded.</td></tr>
 </table></div>
