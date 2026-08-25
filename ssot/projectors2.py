@@ -551,9 +551,23 @@ def screening_cards(canon, p):
         # about our schema, not about whether a trial was included -- so where no decision
         # can be read the card says so, rather than choosing the reassuring answer. Same
         # rule as a SKIP that must not be counted as a PASS.
+        # NOT THROUGH `p`. A DECISION IS A CONTROLLED VALUE, NOT PROSE.
+        #
+        # `p` applies `_tidy`, which is a PROSE cleaner and drops short fragments: it returns
+        # '' for "excluded", '' for "needs adjudication", '' for "included", and keeps
+        # "eligible no results yet" only because it is four words. Routing the verdict
+        # through it replaced 501 of 551 wrong decisions with 501 BLANK ones -- a different
+        # defect, not a fix.
+        #
+        # The old code never hit this because its fallback returned the bare literal
+        # "included" without calling `p` at all; only the `disposition` branch was escaped.
+        # So the bug and its camouflage were the same line.
+        #
+        # These values come from our own enum -- letters and underscores -- so they are
+        # HTML-safe by construction, and they are rendered as themselves.
         _verdict = str(r.get("verdict") or "").strip()
         if _verdict:
-            decided = p(_verdict.replace("_", " ").lower())
+            decided = re.sub(r"[^A-Za-z0-9 ]", "", _verdict.replace("_", " ")).lower()
         elif r.get("disposition"):
             decided = p(str(r["disposition"]))
         elif r.get("criteria_failed"):
