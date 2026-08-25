@@ -83,29 +83,53 @@ _GENERIC = {"patients", "patient", "adult", "adults", "study", "trial", "trials"
 
 
 def registry_pairs(rec, hint):
-    """(events, n) pairs from the matching adverse-event term, per group.
+    """(events, n) pairs for the concept, SUMMING sibling MedDRA terms.
 
-    The hint must name the CONDITION, not the population. Generic title words are dropped,
-    and an outcome must share a surviving token to be paired at all.
+    THE PREVIOUS VERSION MATCHED ONE TERM AT A TIME and that is why the comparison came back
+    muddy. A registry records "Cardiac failure", "Cardiac failure congestive" and "Cardiac
+    failure acute" as SEPARATE terms; a review extracting "heart failure events" sums them.
+    Comparing one registry term against a summed publication figure produces a difference of
+    the size a missing sibling makes -- ratios of 0.84 to 1.25, five up and five down, which
+    is exactly what was observed and exactly what a granularity artefact looks like.
+
+    So sibling terms are summed per group before comparison. The denominator is NOT summed:
+    numAtRisk is the same safety population for every term in a group, and adding it once per
+    term would multiply it.
+
+    Where several terms exist, this returns ONE synthetic row labelled with how many were
+    summed, so a reader can see that the figure is a sum rather than a reading.
     """
-    # A PHRASE, NOT A BAG OF WORDS. Dropping generic tokens still left "heart" and "failure"
-    # matching separately, which paired the review's heart-failure counts against "Changes
-    # From Baseline in HEART Rate" and "Time to Initial Treatment FAILURE". The condition is a
-    # phrase and has to be matched as one, together with the MedDRA form the registry uses:
-    # a review says "heart failure", the registry says "cardiac failure".
     low = (hint or "").lower()
     phrases = []
-    for concept, forms in _CONCEPTS.items():
+    for _concept, forms in _CONCEPTS.items():
         if any(f in low for f in forms):
             phrases.extend(forms)
     if not phrases:
         return []
-    out = []
+
+    per_group_events = collections.defaultdict(float)
+    per_group_atrisk = {}
+    terms = []
     for o in rec["outcomes"]:
         if not any(f in o["title"].lower() for f in phrases):
             continue
-        got = []
-        for _gid, vals in sorted(o["values"].items()):
+        if not o["title"].startswith("AE: "):
+            # A posted OUTCOME MEASURE is already the review's quantity and must not be
+            # added to adverse-event counts; it is returned on its own.
+            got = []
+            for _gid, vals in sorted(o["values"].items()):
+                nums = []
+                for x in vals:
+                    try:
+                        nums.append(float(x))
+                    except ValueError:
+                        pass
+                if len(nums) >= 2:
+                    got.append((nums[0], nums[1]))
+            if len(got) >= 2:
+                terms.append((o["title"], got[:2]))
+            continue
+        for gid, vals in o["values"].items():
             nums = []
             for x in vals:
                 try:
@@ -113,10 +137,17 @@ def registry_pairs(rec, hint):
                 except ValueError:
                     pass
             if len(nums) >= 2:
-                got.append((nums[0], nums[1]))
-        if len(got) >= 2:
-            out.append((o["title"], got[:2]))
-    return out
+                per_group_events[gid] += nums[0]
+                per_group_atrisk.setdefault(gid, nums[1])
+
+    if len(per_group_events) >= 2:
+        gids = sorted(per_group_events)[:2]
+        summed = [(per_group_events[g], per_group_atrisk.get(g, 0)) for g in gids]
+        n_terms = sum(1 for o in rec["outcomes"]
+                      if o["title"].startswith("AE: ")
+                      and any(f in o["title"].lower() for f in phrases))
+        terms.insert(0, ("AE SUM of %d sibling term(s)" % n_terms, summed))
+    return terms
 
 
 def compare(pub, reg):
