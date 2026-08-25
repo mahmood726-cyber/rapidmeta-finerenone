@@ -163,7 +163,18 @@ def _field_names_to_english(text):
             return tok
         if tok in _FIELD_ENGLISH:
             return _FIELD_ENGLISH[tok]
-        return tok.replace("_", " ")
+        # SPLITTING ON UNDERSCORES MAKES WORDS, AND SOME OF THOSE WORDS ARE ACRONYMS.
+        #
+        # `kccq_css_change` became "kccq css change", putting a lowercased KCCQ into reader
+        # prose -- a NEW instance of the very class this function exists to reduce. The
+        # corpus-wide count of lowercased clinical acronyms went 1 -> 2 on the rebuild that
+        # shipped it, which is how it was caught: a count going UP after a fix is the fix's
+        # problem until proved otherwise.
+        #
+        # Two rules, each correct alone, meeting at a boundary. The words coming out of the
+        # split are checked against the acronym set before a reader sees them.
+        return " ".join(w.upper() if w.upper() in _KEEP_CAPS else w
+                        for w in tok.split("_"))
 
     return _FIELD_TOKEN.sub(sub, str(text))
 
