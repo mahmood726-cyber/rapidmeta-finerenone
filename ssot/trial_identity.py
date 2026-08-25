@@ -146,8 +146,44 @@ def matches_as_component(pattern, intervention_name):
     return len(_agents(intervention_name)) > 1
 
 
+# AN INTERVENTION NAMED AFTER THE DRUG IT MIMICS IS NOT THE DRUG.
+#
+# This is the single most dangerous thing in this module and it was missing. Registries name
+# placebos after their target:
+#
+#     "Drug: Placebo (for alirocumab)"        NCT01507831
+#     "Drug: Apixaban-matching placebo"       NCT00423319, a double-dummy design
+#     "Biological: Bococizumab 150mg placebo" NCT02458287
+#
+# A substring match counts those as the drug being present. In a double-dummy trial the drug
+# then appears in EVERY arm, and the background-therapy rule fires -- so the rule reported
+# that alirocumab is background therapy in its own pivotal trials. Six pages were about to be
+# escalated to "a wrong trial contributes to a published estimate", which would have been a
+# false accusation of the most serious kind we have.
+#
+# Caught because 6 of 6 ALIROCUMAB trials coming back as background is not a finding, it is a
+# statement about the instrument.
+#
+# WRITTEN BY BUILDING THE ESCAPE FROM A CHARACTER CODE, NOT TYPED THROUGH A HEREDOC.
+# The first version of this line went in through a shell heredoc and its word-boundary
+# escapes arrived as literal BACKSPACE BYTES -- r"<BS>placebo<BS>|..." -- which matches
+# nothing. is_placebo_name then returned False for "Drug: Placebo (for alirocumab)", the
+# placebo exclusion did nothing, and the six false accusations this was written to remove
+# survived the fix meant to remove them. Invisible in an editor view; visible only to
+# `cat -A`. This exact failure is in the operating rules as "never write a regex through a
+# heredoc -- use the editor", and it still happened.
+_PLACEBO_NAME = re.compile(
+    r"\bplacebo\b|\bdummy\b|\bsham\b|matching placebo|placebo[- ]matching", re.I)
+
+
+def is_placebo_name(name):
+    return bool(_PLACEBO_NAME.search(strip_type(name)))
+
+
 def _matches(pattern, name):
-    """The pattern names this intervention, and not a CONFLICTING combination."""
+    """The pattern names this intervention: not a placebo of it, not a conflicting combo."""
+    if is_placebo_name(name):
+        return False
     if not norm(pattern) or norm(pattern) not in norm(name):
         return False
     return not conflicting_combination(pattern, name)
@@ -179,10 +215,20 @@ def studies_subject(drug_patterns, arm_groups):
                 if any(_matches(p, n) for p in pats for n in names)]
 
     if not hit_arms:
+        # THE CONFLICT CHECK MUST NOT REQUIRE SUBSTRING CONTAINMENT.
+        #
+        # A topic pattern writes a combination with a SPACE ("cefepime tazobactam"); the
+        # registry writes it with a slash ("Cefepime/VNRX-5133"). Neither contains the other
+        # as a substring, so gating the conflict test on `norm(p) in norm(n)` meant the
+        # original defect -- the case this whole module exists for -- came back UNDECIDABLE.
+        # `conflicting_combination` already decides on shared and differing AGENTS, so it is
+        # asked directly.
         for _t, names in arms:
             for n in names:
+                if is_placebo_name(n):
+                    continue
                 for p in pats:
-                    if norm(p) and norm(p) in norm(n) and conflicting_combination(p, n):
+                    if conflicting_combination(p, n):
                         return False, ("the topic names a different combination: %r"
                                        % strip_type(n))
         # NO ARM NAME MATCHES IS NOT "NOT STUDIED". It is "this method cannot tell".
@@ -211,9 +257,12 @@ def studies_subject(drug_patterns, arm_groups):
         return False, ("present in all %d arms, so it is background therapy and not the "
                        "randomised contrast" % len(arms))
 
-    # The drug is only in placebo/no-intervention/sham arms.
-    if all(arms[i][0] in _INERT_ARM for i in hit_arms):
-        return False, "appears only in a placebo or no-intervention arm"
+    # ARM TYPE IS NOT RELIABLE for this. HOPE-3 (NCT00468923) registers its REAL
+    # rosuvastatin arm as PLACEBO_COMPARATOR -- a 2x2 factorial labelled from the other
+    # factor's point of view. Keying on the type accused rosuvastatin of appearing only in a
+    # placebo arm of its own trial. `_matches` already excludes placebo-NAMED interventions,
+    # which is the check that actually works, so a name that survived it is a real
+    # administration of the drug whatever the arm is labelled.
 
     # HEAD-TO-HEAD. No arm is EXPERIMENTAL and the drug holds one of the active arms.
     # Requiring EXPERIMENTAL here would reject RAMBLE, PLATO's comparator side, and every
@@ -225,5 +274,24 @@ def studies_subject(drug_patterns, arm_groups):
     if any(arms[i][0] == "EXPERIMENTAL" for i in hit_arms):
         return True, "experimental arm"
 
-    return False, ("appears only in the comparator arm while a different intervention holds "
-                   "the experimental arm")
+    # COMPARATOR-ONLY IS NOT DECIDABLE FROM THE ARM TYPE LABEL, because the label lies.
+    #
+    #   NCT00423319  EXPERIMENTAL       Enoxaparin + Apixaban-matching placebo
+    #                ACTIVE_COMPARATOR  Apixaban + Enoxaparin-matching placebo
+    #   The title is "Study of an Investigational Drug for the Prevention of
+    #   Thromboembolism" and the investigational drug is APIXABAN -- registered in the arm
+    #   labelled ACTIVE_COMPARATOR.
+    #
+    #   NCT00468923  HOPE-3 registers its real rosuvastatin arm as PLACEBO_COMPARATOR,
+    #   labelling a 2x2 factorial from the other factor's point of view.
+    #
+    # Two registrations, two different ways the label fails to say which drug is under test.
+    # PLATO labels it correctly, so the field is right sometimes -- which is worse than
+    # always wrong, because it invites exactly this kind of rule.
+    #
+    # So this returns UNDECIDABLE. It costs 16 verdicts and keeps the one class that needs no
+    # label at all: a drug present in EVERY arm is background therapy whatever the arms are
+    # called. Accusing a page on a field that is demonstrably unreliable is how a wrong number
+    # gets onto a page and becomes the reader's problem.
+    return None, ("the drug is in a non-experimental arm, but registry arm-type labels are "
+                  "not reliable enough to call this -- see NCT00423319 and NCT00468923")

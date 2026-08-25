@@ -94,8 +94,23 @@ NAMED = [
      ["wck 4282"], "NCT03630081", True),
     ("ordinary case -- PLATO's experimental arm",
      ["ticagrelor"], "NCT00391872", True),
-    ("COMPARATOR -- clopidogrel holds only PLATO's control arm",
-     ["clopidogrel"], "NCT00391872", False),
+    # EXPECTATION CHANGED 2026-08-25, second time, and again with the reason inline.
+    #
+    # This expected False: clopidogrel sits in PLATO's ACTIVE_COMPARATOR arm, so it is not
+    # what PLATO tests. That reading is correct for PLATO and unsafe as a RULE, because the
+    # arm-type label demonstrably does not track which drug is under test:
+    #
+    #   NCT00423319  labels the ENOXAPARIN arm EXPERIMENTAL and the APIXABAN arm
+    #                ACTIVE_COMPARATOR, on a trial whose title calls apixaban the
+    #                investigational drug.
+    #   NCT00468923  HOPE-3 labels its real rosuvastatin arm PLACEBO_COMPARATOR.
+    #
+    # The field is right sometimes, which is worse than always wrong because it invites a
+    # rule like the one I wrote. Comparator-only is now UNDECIDABLE: 16 verdicts given up to
+    # avoid accusing a page on a field that lies. The one class needing no label survives --
+    # a drug in EVERY arm is background whatever the arms are called.
+    ("COMPARATOR -- unsafe to call from arm type, so UNDECIDABLE not False",
+     ["clopidogrel"], "NCT00391872", None),
 ]
 
 
@@ -104,7 +119,7 @@ def main():
     failed = []
     for label, pats, nct, want in NAMED:
         got, why = T.studies_subject(pats, arms(nct))
-        ok = (got == want)
+        ok = (got is None) if want is None else (got == want)
         print("  %-4s %-58s %s" % ("PASS" if ok else "FAIL", label, why[:56]))
         if not ok:
             failed.append(label)
