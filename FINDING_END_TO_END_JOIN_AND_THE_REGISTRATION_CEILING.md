@@ -95,6 +95,34 @@ D5 justifications — and then discarded at every layer below it.
 
 ---
 
+## The resolution step is corroborated by a second database
+
+"Exactly one reference matched" is a statement about the matcher. A matcher that agrees with
+itself proves nothing — *consistency does not authenticate a row*. So the resolutions were
+checked against an independent source.
+
+Matching used **Crossref's** author field, carried in the review's own reference list. PubMed
+indexes the same papers separately with its own `<LastName>`. Two databases, two population
+processes:
+
+| | |
+|---|---|
+| surname resolutions checkable against PubMed | 584 |
+| **PubMed's own first author agrees with the Cochrane label** | **583 / 584 — 99.8%** |
+| disagrees | 1 — `Høj 2005`, an ASCII-folding limit, not a wrong match |
+| **null** — agrees with a *different* label's token | 36 / 584 — 6.2% |
+
+The null is 6.2% rather than near zero because Cochrane labels repeat surnames inside one
+review (`Legare 2008a`, `Legare 2011`, `Legare 2012`), so a shifted pairing is not a hard
+test. That is precisely why it is reported rather than assumed away.
+
+**Accent folding is load-bearing, not cosmetic.** Cochrane labels are ASCII while PubMed holds
+the accented form. Compared raw, 21 correct resolutions score as disagreements — a 4% error
+rate invented entirely by character encoding, and one that would have been reported as a
+property of the join.
+
+---
+
 ## Limits, stated
 
 - **Sample rule fixed before the run:** every 15th of the 595 `.rda` files in
