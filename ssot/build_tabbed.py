@@ -1026,12 +1026,35 @@ def _paper_panel(canon):
     a fixed path, rendered it, and every check passed because a manuscript was
     present -- just not this page's.
     """
-    projected = _projected_paper_html(canon)
-    if projected:
-        return projected
+    # AN AUTHORED MANUSCRIPT OUTRANKS A GENERATED ONE. THIS ORDER WAS BACKWARDS.
+    #
+    # The projector was tried first, and a page fell back to its authored docmodel only when
+    # the projector produced nothing. That held while ARNI's object did not satisfy the
+    # projector. This week's projector fixes made it satisfy the projector, so an ARNI
+    # rebuild began replacing 100,825 characters and 26 authored sections with 29,462
+    # characters and 1 generated one -- exiting 0, because a build that produces A
+    # manuscript looks exactly like a build that produces the RIGHT one.
+    #
+    # The shrink guard exists for precisely this and caught it. I then overrode it with
+    # RM_ALLOW_MANUSCRIPT_SHRINK=1, carried in from a corpus rebuild where that flag was
+    # appropriate, and destroyed the page anyway. Restored from git.
+    #
+    # A guard that must win every time an unrelated flag is set is not the fix. The fix is
+    # that the PREFERENCE states the intent: where a human-authored manuscript exists for
+    # THIS object, it is the manuscript, and the generator does not replace it. The projector
+    # still serves every page without an authored document -- 148 of 149.
+    #
+    # `_doc_dir_for` is object-scoped with NO fallback, which is the 2026-08-16 contamination
+    # fix, so preferring it cannot serve another review's document.
     d = _doc_dir_for(canon)
     app = (canon.get("app_id") or "unknown")
     model = os.path.join(d, "manuscript_docmodel.json") if d else None
+    if model and os.path.exists(model):
+        return wy.render(model, _downloads_html(canon))
+
+    projected = _projected_paper_html(canon)
+    if projected:
+        return projected
     if not model or not os.path.exists(model):
         return ("<div class='card'>%s  <h2>Paper Studio</h2>%s"
                 "  <div class='absent-state' role='note'><strong>Not held in this "
