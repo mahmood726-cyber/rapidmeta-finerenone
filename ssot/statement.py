@@ -363,6 +363,50 @@ def _searched(obj):
     return basis
 
 
+def _identity_check_sentence(obj):
+    """What the trial-identity check could and could not decide, in the page's own words.
+
+    MAHMOOD: "A page whose trials are undecidable should say so rather than implying they
+    were checked and passed. Undecidable is a third state on the page as well as in the
+    code."
+
+    Silence here is the defect. A page that lists its trials and says nothing about whether
+    they study its subject reads as though they were verified -- and on 113 of 420 records
+    across the corpus, they were not. The check could not decide, because registered arm
+    names are paraphrases: NCT00643188 registers "Procedure: Radiofrequency ablation" for a
+    review that says "catheter ablation".
+
+    Returns None where no check has been recorded, because a page must not claim a check that
+    never ran either.
+    """
+    blk = obj.get("trial_identity_check")
+    if not isinstance(blk, dict):
+        return None
+    ns, nn, nu = (blk.get("n_studied") or 0, blk.get("n_not_studied") or 0,
+                  blk.get("n_undecidable") or 0)
+    total = ns + nn + nu
+    if not total:
+        return None
+    # The heading already asks the question, so the sentence answers it rather than
+    # restating it -- "Whether these trials study this subject. Whether each trial studies
+    # the subject..." was the first version, and read like a stutter.
+    bits = ["Checked against each registration's arm structure on %s."
+            % (blk.get("checked_utc") or "an unrecorded date")]
+    if ns:
+        bits.append("%d of %d %s confirmed: the drug is part of the randomised comparison."
+                    % (ns, total, "trial was" if ns == 1 else "trials were"))
+    if nn:
+        bits.append("%d %s given in every arm, so %s background therapy rather than what the "
+                    "trial randomised." % (nn, "trial was" if nn == 1 else "trials were",
+                                           "it is" if nn == 1 else "they are"))
+    if nu:
+        bits.append("%d could NOT be decided this way, because the registered arm names do "
+                    "not name the intervention the way this review does. That is not a pass: "
+                    "%s unverified, and no other check has looked."
+                    % (nu, "it remains" if nu == 1 else "they remain"))
+    return " ".join(bits)
+
+
 def statement_html(obj, e):
     """The whole statement. `e` escapes; every value here is object text."""
     title = (obj.get("title") or "").strip()
@@ -371,6 +415,7 @@ def statement_html(obj, e):
     trials = _trials(obj)
     why = _why_not_pooled(obj)
     change = _what_would_change_it(obj)
+    identity = _identity_check_sentence(obj)
 
     out = ["<div class='card'>", "<h2>Summary</h2>"]
 
@@ -448,6 +493,11 @@ def statement_html(obj, e):
                % e(why or "The trials identified do not report a shared, comparably "
                           "measured outcome, so combining them would answer no single "
                           "question."))
+    # BEFORE "what would change this", because a reader deciding whether to trust the trial
+    # list needs to know what was verified about it before being told what would change.
+    if identity:
+        out.append("<p><strong>Whether these trials study this subject.</strong> %s</p>"
+                   % e(identity))
     out.append("<p><strong>What would change this.</strong> %s</p>" % e(change))
     out.append("<p><small>No pooled estimate, risk-of-bias assessment or certainty rating "
                "is published for this question, because there is no combined result for "

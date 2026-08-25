@@ -2475,5 +2475,36 @@
     "the_judgement_that_is_the_authors": "This sentence is the author's judgement and is not derivable from any field here."
    }
   }
+ },
+ "trial_identity_check": {
+  "checked_utc": "2026-08-25",
+  "source": "ClinicalTrials.gov API v2 armsInterventionsModule",
+  "method": "the drug pattern from the matcher's own TOPICS list, compared against the registered arm structure",
+  "by_trial": {
+   "NCT00457002": {
+    "state": "studied",
+    "why": "experimental arm"
+   },
+   "NCT00423319": {
+    "state": "undecidable",
+    "why": "the drug is in a non-experimental arm, but registry arm-type labels are not reliable enough to call this -- see NCT00423319 and NCT00468923"
+   },
+   "NCT00371683": {
+    "state": "undecidable",
+    "why": "no arm name matches the pattern, and arm names are paraphrases -- this method cannot decide identity for this trial"
+   },
+   "NCT00452530": {
+    "state": "studied",
+    "why": "experimental arm"
+   },
+   "NCT02366871": {
+    "state": "studied",
+    "why": "experimental arm"
+   }
+  },
+  "n_studied": 3,
+  "n_not_studied": 0,
+  "n_undecidable": 2,
+  "what_undecidable_means": "The registered arm names do not name this intervention the way the review does, or the drug sits outside the experimental arm and registry arm-type labels are not reliable enough to judge on. It is NOT a pass and NOT a failure: this check could not decide, and no other check has looked."
  }
 }
