@@ -21,6 +21,7 @@ lint_subprocess_decode work and `substring-is-not-identity` unlintable.
 """
 import io
 import os
+import subprocess
 import sys
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -71,11 +72,46 @@ def main():
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
     total = 0
     excluded = []
+    # SCAN WHAT GIT TRACKS, NOT THE WORKTREE.
+    #
+    # This walked every file under the repo, so an UNTRACKED scratch artefact blocked an
+    # unrelated commit: outputs/_false_refusal_working_table.txt, written UTF-16 by a hunt
+    # agent, whose NUL bytes are its ENCODING and not corruption. The file was never staged
+    # and never tracked, and it refused a commit of 149 rebuilt pages.
+    #
+    # That is worse than a missed defect. A gate that blocks on things outside its stated
+    # scope teaches people to bypass it, and this gate's whole value is that it is not
+    # bypassed -- it is the mechanical form of a rule that failed six times as advice.
+    # Its own docstring already says "a C0 control character in a TRACKED text file", so
+    # this is the code being brought back to the contract it documents.
+    # THE SPLIT DELIMITER IS BUILT WITH chr(0), NOT TYPED.
+    #
+    # Writing `.split("\0")` through a heredoc put a LITERAL NUL BYTE into this file --
+    # inside the very guard that exists to refuse literal NUL bytes. It would have refused
+    # itself on the next run, which is the only reason it was noticed within a minute rather
+    # than a week. Third heredoc mangling of the day, in the file written to stop them.
+    tracked = set()
+    try:
+        r = subprocess.run(["git", "ls-files", "-z"], capture_output=True, cwd=REPO,
+                           timeout=60)
+        if r.returncode == 0:
+            tracked = {os.path.normcase(os.path.join(REPO, x))
+                       for x in r.stdout.decode("utf-8", "replace").split(chr(0)) if x}
+    except Exception:
+        tracked = set()
+    if not tracked:
+        print("REFUSED: `git ls-files` returned nothing, so the set of tracked files could "
+              "not be established. Scanning the whole worktree instead would block on "
+              "untracked scratch files; scanning nothing would pass everything. NO VERDICT.")
+        return 2
+
     for root, dirs, files in os.walk(REPO):
         dirs[:] = [d for d in dirs if d not in SKIP_DIRS]
         for fn in files:
             if not fn.endswith(TEXT_EXT):
                 continue
+            if os.path.normcase(os.path.join(root, fn)) not in tracked:
+                continue          # untracked: not ours to refuse a commit over
             if fn.endswith(EXTRACTED_SUFFIX) and os.path.basename(root) == "sources":
                 excluded.append(os.path.relpath(os.path.join(root, fn), REPO))
                 continue
