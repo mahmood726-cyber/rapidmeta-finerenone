@@ -51,6 +51,21 @@ Run on 886 real Cochrane labels from 40 reviews, its yield stratifies like this:
 **Trial registration became a condition of publication under the ICMJE policy in 2005.** The
 pipeline was never told that. It reproduces the discontinuity exactly.
 
+**Replicated out of sample at ten times the scale.** The same rule applied at offsets 0–9 of
+the same every-15th selection gives 400 reviews and 8,651 labels, of which **360 reviews and
+7,765 labels are held out** — never seen when the original result was formed. Criteria were
+fixed before the widened artefact existed:
+
+| held-out 360 reviews, 7,765 labels | criterion | result |
+|---|---|---|
+| resolution to one reference | 66–86% | **74%** |
+| pre-2005 labels carrying a registration | ≤2% | **0 of 1,688 — 0.0%** |
+| null, resolved in another review's bibliography | ≤2% | **0.3%** |
+
+**Zero of one thousand six hundred and eighty-eight.** Across three pre-2005 eras, not one
+label in the held-out set resolves to a registration; from 2005 the rate is 8%, then 14%, then
+17%. The discontinuity is not a small-sample artefact.
+
 That is checkable by a reader in under a minute, and it is stronger evidence that the route
 measures what it claims than any pass rate could be: a broken pipeline has no reason to place
 its step in the right year.
