@@ -41,7 +41,23 @@ from instrument_controls import require_controls
 # A dict or list repr as it lands in HTML. Deliberately narrow: a quoted key followed by a
 # colon inside braces is not something English produces.
 REPR_IN_TEXT = re.compile(
-    r"\{&#x27;|\{'|&#x27;: &#x27;|': '|\[\{|&quot;: &quot;|\{&quot;\w+&quot;: ")
+    r"\{&#x27;|\{'|&#x27;: &#x27;|': '|\[\{|&quot;: &quot;|\{&quot;\w+&quot;: "
+    # A PLAIN LIST OF STRINGS WAS NOT IN THE LIST OF MARKERS.
+    #
+    # Everything above enumerates DICT reprs, plus `[{` for a list of dicts. A list of plain
+    # strings -- `['harmonised_cvdeath_or_hhf', 'threecomp_cvdeath_hhf_urgent']` -- matches
+    # none of them, and an overnight adversarial hunt found exactly that in reader prose on
+    # SGLT2_HF_REVIEW while this lint returned [] for the page.
+    #
+    # That is this lint committing the failure it exists to catch. Its docstring says "a
+    # Python data structure rendered onto a delivered page"; its implementation was a list of
+    # the four shapes somebody had happened to see. A vocabulary, not a property -- the same
+    # error as a hollow-prose gate resting on seven literal phrases, and the same reason a
+    # 20-page defect sat behind that one all day.
+    #
+    # The property is: a BRACKETED SEQUENCE OF QUOTED STRINGS. Two or more, so an ordinary
+    # sentence quoting one term in brackets is not accused.
+    r"|\[(?:&#x27;|&quot;|')[^\]]{0,400}?,\s*(?:&#x27;|&quot;|')")
 # ...but a JSON block inside <script>, <pre class="json"> or a code sample is legitimate.
 STRIP = (re.compile(r"(?is)<script.*?</script>"),
          re.compile(r"(?is)<style.*?</style>"),

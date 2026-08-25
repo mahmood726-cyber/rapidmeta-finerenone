@@ -11,6 +11,28 @@ import os
 import re
 import sys
 
+def _names(seq):
+    """A sequence as English, never as a Python repr.
+
+    An overnight adversarial hunt found `[&#x27;harmonised_cvdeath_or_hhf&#x27;,
+    &#x27;threecomp_cvdeath_hhf_urgent&#x27;]` in reader prose on SGLT2_HF_REVIEW -- the very
+    page Mahmood had just called "not that bad" -- produced by `f"call: {sorted(existing)}"`.
+    An f-string interpolating a list renders its REPR: brackets, quotes and commas included.
+
+    `lint_container_repr_on_a_page` exists to catch exactly this and returned [] for that
+    page, because its patterns enumerate DICT markers plus one list-of-dicts marker and a
+    plain list of strings matches none of them. Both halves are fixed: the lint now tests a
+    property, and the emission sites no longer produce a repr for it to catch.
+    """
+    items = [str(x) for x in seq]
+    if not items:
+        return "none"
+    if len(items) == 1:
+        return items[0]
+    return ", ".join(items[:-1]) + " and " + items[-1]
+
+
+
 # Compiled ONCE, at module level, and never written inline again. An inline \b in this
 # pattern has now been destroyed twice by shell-heredoc round-tripping -- it became a literal
 # BACKSPACE byte (0x08), the regex still compiled, the guard still ran, and it could never
@@ -739,7 +761,7 @@ def build(topic):
             f"PRISMA counts or cascade. Record {topic}'s OWN executed search first -- "
             f"attributing one topic's search to another is a fabricated provenance record on "
             f"the property whose whole purpose is provenance. Topics on file: "
-            f"{sorted(TOPIC_DATA)}")
+            f"{_names(sorted(TOPIC_DATA))}")
     path = os.path.join(ROOT, topic, f"{topic}.json")
     with open(path, "rb") as fh:
         original = fh.read()
@@ -908,7 +930,7 @@ def build(topic):
     if existing:
         props["P6_analysis_output"] = prop(
             HELD, f"{len(existing)} pool(s) carry verbatim model output with environment and "
-                  f"call: {sorted(existing)}. Nothing is summarised in place of a quotation.")
+                  f"call: {_names(sorted(existing))}. Nothing is summarised in place of a quotation.")
     else:
         _p6_refuse(obj, spec, props)
 
@@ -1216,7 +1238,7 @@ def _p18_p19_p20(obj):
         for m in re.finditer(r"\bk\s*=\s*(\d+)", text):
             if ks and int(m.group(1)) not in set(ks.values()):
                 disagree.append(f"published_comparison{path_} says k={m.group(1)}; the "
-                                f"pooled outcome(s) declare {sorted(set(ks.values()))}")
+                                f"pooled outcome(s) declare {_names(sorted(set(ks.values())))}")
     if disagree:
         out["P19_promotion_reaches_derived_blocks"] = prop(
             REFUSING,
@@ -1588,10 +1610,10 @@ def _finish(obj, path, original, before_keys, props, topic=None):
     if unexplained:
         with open(path, "wb") as fh:
             fh.write(original)
-        raise SystemExit(f"ABORTED: would remove {sorted(unexplained)[:6]}. Original restored.")
+        raise SystemExit(f"ABORTED: would remove {_names(sorted(unexplained)[:6])}. Original restored.")
     if lost:
         print(f"[moved, verified] {len(lost)} path(s) relocated under declared moves "
-              f"{list(moves.values())}; content confirmed present at the new location.")
+              f"{_names(list(moves.values()))}; content confirmed present at the new location.")
 
     # IDENTICAL-OUTPUT ALARM, ON EVERY BUILD. It has caught three distinct defects tonight on
     # three kinds of artefact, and the fifth contamination route -- literal counts overriding a

@@ -526,8 +526,40 @@ def screening_cards(canon, p):
             e(str(r.get("nct") or "")),
             ("PMID %s" % e(str(r["pmid"]))) if r.get("pmid") else ""]))
         crit = "".join("<li>%s</li>" % p(c) for c in (r.get("criteria_failed") or []))
-        decided = (p(str(r["disposition"])) if r.get("disposition")
-                   else ("excluded" if r.get("criteria_failed") else "included"))
+        # THE DECISION IS READ, AND IT NEVER DEFAULTS TO "included".
+        #
+        # This chain was: `disposition`, else "excluded" if `criteria_failed`, else
+        # "included". Both are the OLD decision vocabulary. Records written since carry
+        # their decision in `verdict`, have neither legacy field, and so fell through to the
+        # final else -- so a page told a reader:
+        #
+        #     "This review's decision: included."
+        #     "All limbs: Population holds, comparator fails, intervention holds,
+        #      estimand fails."
+        #
+        # on a record whose stored verdict is EXCLUDED, with its own exclusion reasons
+        # printed directly underneath. Found by an overnight adversarial hunt briefed to
+        # look for a category error at a join, and verified by hand against
+        # EARLY_RHYTHM_CONTROL_AF / NCT00184249 before anything was changed.
+        #
+        # 695 of 799 screening records across 3 topics: 225 stored EXCLUDED, 383
+        # NEEDS_ADJUDICATION, 71 ELIGIBLE_NO_RESULTS_YET. A systematic review's screening
+        # decision IS the review, and every one of these errs in the direction that inflates
+        # the evidence base.
+        #
+        # A MISSING FIELD IS NOT A DECISION. The absence of an old-shape key is evidence
+        # about our schema, not about whether a trial was included -- so where no decision
+        # can be read the card says so, rather than choosing the reassuring answer. Same
+        # rule as a SKIP that must not be counted as a PASS.
+        _verdict = str(r.get("verdict") or "").strip()
+        if _verdict:
+            decided = p(_verdict.replace("_", " ").lower())
+        elif r.get("disposition"):
+            decided = p(str(r["disposition"]))
+        elif r.get("criteria_failed"):
+            decided = "excluded"
+        else:
+            decided = "not recorded on this record"
         out += ("<div class='card rec'>%s  <h3>%s <small>%s</small></h3>%s"
                 "  <p><strong>This review's decision: %s.</strong></p>%s"
                 % (NL, p(str(r.get("trial", ""))), ident, NL, decided, NL)
