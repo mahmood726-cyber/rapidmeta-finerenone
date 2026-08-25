@@ -126,12 +126,26 @@ possible.
 ([DOI](https://doi.org/10.1370/afm.2995)).*
 
 ---
-## 7. FINDING: 97% of published reviews cannot be audited for trial identity
+## 7. FINDING: 95% of published reviews cannot be audited for trial identity
 
-**n = 300, and the number did not move from n = 60.** 290 of 300 (97%) name no trial
-registration; at n=60 it was 58 of 60 (97%). Reference lists were retrievable in 270 of 300
-and tables in 252 of 300, so **this is not a retrieval artefact** — the documents were read
-in full and the registrations are genuinely not there.
+**315 of 331 full-text reviews (95%) name no trial registration**, across two frames.
+
+| frame | retrieved | **full text** | name ≥1 NCT | name none |
+|---|---|---|---|---|
+| general literature | 300 | 270 | 10 (4%) | **260 (96%)** |
+| **Cochrane Reviews** | 200 | **61** | 6 (10%) | **55 (90%)** |
+| pooled | 500 | 331 | 16 (5%) | **315 (95%)** |
+
+**The denominator is full text, not records retrieved, and that correction matters.** A first
+reading of the Cochrane frame gave 194 of 200 (97%) — but **139 of those 200 are thin PMC
+stubs**, median 20,629 bytes against 121,398 for real full text, and every one of them names
+no NCT *because it is not the article*. Counting them would have manufactured 7 percentage
+points out of a retrieval artefact. Records with a reference list (>5 refs) are the only ones
+counted.
+
+**Cochrane is better than the general literature at this**, and saying so is part of being
+believed: 10% of full-text Cochrane Reviews name at least one trial registration against 4%
+elsewhere. Better, and still 90% unauditable.
 
 ### The finding is not that these reviews are careless
 
@@ -171,9 +185,16 @@ is undetectable by construction. A fact about the artefacts, not a judgement abo
 
 What a sceptic should say, each a real limit:
 
-- **PMC open access is not the literature, and Cochrane Reviews are largely not in PMC** —
-  Cochrane being the comparator this programme measures itself against. **The sample does not
-  contain the thing we are comparing ourselves to.** The biggest limit, and not fixable from PMC.
+- **PMC open access is not all of the literature**, and this frame's query does not select
+  Cochrane Reviews — the comparator this programme measures itself against. **The general
+  sample does not contain the thing we are comparing ourselves to**, which is why a second
+  frame targets Cochrane directly (section 8).
+
+  > **CORRECTION.** This limit was first written as "Cochrane Reviews are largely not in
+  > PMC". **That is false.** PMC holds **13,628** `Cochrane Database Syst Rev` records, and
+  > Crossref returns their reference lists too (88 and 254 refs on two tested DOIs). The
+  > comparator was reachable the whole time and simply had not been asked for. The limit is
+  > real but much narrower than stated: it is about *this query*, not about PMC's holdings.
 - PMC relevance order is not random; the same query another day may differ.
 - Requiring both phrases *in the title* selects a reporting style.
 - No specialty stratification. The subsample spans ~25 journals, led by *Knee Surgery Sports

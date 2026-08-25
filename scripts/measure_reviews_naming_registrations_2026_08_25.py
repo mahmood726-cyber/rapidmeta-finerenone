@@ -42,9 +42,23 @@ ESEARCH = ("https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pmc"
            "&retmax=%d&retmode=json&term=%s")
 EFETCH = ("https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=pmc"
           "&id=%s&retmode=xml")
-CACHE = os.path.join(REPO, "outputs", "review_registration_naming_2026_08_25.jsonl")
-TERM = ("%22systematic+review%22%5BTitle%5D+AND+%22meta-analysis%22%5BTitle%5D"
-        "+AND+2023%3A2026%5Bpdat%5D")
+# TWO FRAMES, because the first one did not contain the comparator.
+#
+# The original sample was PMC open access with "systematic review" and "meta-analysis" in
+# the title, and it was reported with the limit "Cochrane Reviews are largely not in PMC".
+# THAT LIMIT WAS FALSE: PMC holds 13,628 Cochrane Database Syst Rev records. The comparator
+# this programme measures itself against was reachable the whole time and simply was not
+# asked for. Run with `cochrane` as the second argument to sample it directly.
+FRAMES = {
+    "general": ("%22systematic+review%22%5BTitle%5D+AND+%22meta-analysis%22%5BTitle%5D"
+                "+AND+2023%3A2026%5Bpdat%5D",
+                "review_registration_naming_2026_08_25.jsonl"),
+    "cochrane": ("%22Cochrane+Database+Syst+Rev%22%5BJournal%5D+AND+2020%3A2026%5Bpdat%5D",
+                 "cochrane_registration_naming_2026_08_25.jsonl"),
+}
+FRAME = sys.argv[2] if len(sys.argv) > 2 else "general"
+TERM, _CACHE_NAME = FRAMES[FRAME]
+CACHE = os.path.join(REPO, "outputs", _CACHE_NAME)
 
 NCT = re.compile(r"NCT\d{8}")
 REF = re.compile(r"<ref\b")
@@ -126,7 +140,8 @@ def main():
         raw.write(s + "\n")
         raw.flush()
 
-    log("systematic reviews / meta-analyses found (2023-2026, PMC): %d" % len(ids))
+    log("FRAME: %s" % FRAME)
+    log("reviews found in PMC for this frame: %d" % len(ids))
     rows, failed = [], []
     for i, pid in enumerate(ids, 1):
         if pid in done and done[pid].get("status") == "ok":

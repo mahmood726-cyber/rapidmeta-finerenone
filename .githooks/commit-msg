@@ -1,0 +1,6 @@
+#!/bin/sh
+# Claims a commit message makes about files are executed against the files.
+# See scripts/lint_commit_claims_verified.py for why this exists.
+R="$(git rev-parse --show-toplevel)"
+python "$R/scripts/lint_commit_claims_verified.py" "$1" || exit 1
+exit 0
