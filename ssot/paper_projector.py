@@ -121,6 +121,53 @@ _PROPERTY_ENGLISH = {
 }
 
 
+# FIELD NAMES THAT REACH READER PROSE FROM STORED TEXT, and what they mean.
+#
+# These are not emitted by this projector -- they are written into the objects' own prose,
+# 29 objects saying "metafor 5.0.1 run_utc 2026-08-21", 7 saying "see poolable_reason". So
+# they cannot be fixed at a composition site, and rewriting the stored sentences would mutate
+# records to solve a rendering problem. Translated on the way out instead, which is the same
+# choice `_english_properties` and `_enums_to_english` already make.
+#
+# A CURATED PHRASE WHERE ONE IS NEEDED, AND UNDERSCORE-TO-SPACE AS THE SHAPE RULE FOR THE
+# REST -- vocabulary for the cases we know, a property for the ones we do not, which is the
+# ordering that stopped `_english_properties` going blind to `P18_restatement_is_reproducible`.
+_FIELD_ENGLISH = {
+    "poolable_reason": "the recorded reason this pool was declined",
+    "run_utc": "run at",
+    "derivation_note": "its recorded note on how the value was derived",
+    "label_correction_note": "the recorded note on the label correction",
+    "label_corrected_because": "the recorded reason the label was corrected",
+    "label_corrected": "the recorded label correction",
+    "estimand_established": "whether the estimand was established",
+    "what_is_not_claimed": "what this review does not claim",
+    "what_verifies_this_object": "what this review was verified against",
+}
+
+# A bare field token in prose. NOT one followed by `=`, because that is the executed search
+# query quoted verbatim -- `study_type=interventional; page_size=100` is evidence a reader can
+# check against the registry, and rewriting a quotation to read more smoothly would falsify it.
+_FIELD_TOKEN = re.compile(r"(?<![\w./-])([a-z][a-z0-9]*(?:_[a-z0-9]+)+)(?![\w/-])(?!\s*=)")
+
+_FIELD_KEEP = {"risk_of_bias", "p_value", "follow_up"}
+
+
+def _field_names_to_english(text):
+    """Bare field names in prose, as a reader would say them. Quoted queries untouched."""
+    if not text:
+        return text
+
+    def sub(m):
+        tok = m.group(1)
+        if tok in _FIELD_KEEP:
+            return tok
+        if tok in _FIELD_ENGLISH:
+            return _FIELD_ENGLISH[tok]
+        return tok.replace("_", " ")
+
+    return _FIELD_TOKEN.sub(sub, str(text))
+
+
 def _english_properties(text):
     """Replace internal property identifiers with what they mean, longest first."""
     if not text:
@@ -1347,6 +1394,7 @@ def _tidy(text, protect=()):
         text = str(text)
     text = _SELF_NARRATION.sub(" ", text)
     text = _enums_to_english(text)
+    text = _field_names_to_english(text)
     text = strip_citation_keys(text)
     if protect:
         _KEEP_CAPS.update(protect)
@@ -2642,8 +2690,20 @@ def project(obj, journal="generic", length="standard"):
     else:
         s.refusals.append(("the k cascade", ["k_cascade"]))
     if get(obj, "prisma_flow"):
-        s.paras.append(("The PRISMA 2020 flow counts are recorded in `prisma_flow` and "
-                        "reconcile with the executed searches above.", ["prisma_flow"]))
+        # NOT "recorded in `prisma_flow`". A READER DOES NOT KNOW WHAT prisma_flow IS.
+        #
+        # 12 delivered pages -- the largest single instance of the class a blind editor
+        # desk-rejected this corpus for -- told a clinical reader that counts are "recorded
+        # in `prisma_flow`", which names a key in our schema and says nothing a reader can
+        # act on. What they need is that the counts exist, that they reconcile, and where to
+        # look, which is this page.
+        #
+        # The provenance is NOT removed: the field is still cited in this section's sources
+        # list, which is where a reader who wants the key can find it. The rule is that a
+        # field path may be REACHABLE and must not appear inside a sentence.
+        s.paras.append(("The PRISMA 2020 flow counts are held for this review and reconcile "
+                        "with the executed searches above; they are set out in the flow "
+                        "figure and its accompanying counts.", ["prisma_flow"]))
     rem = kc.get("k_unscreened_remainder")
     if rem is not None:
         s.paras.append(("The unscreened remainder is %d." % rem,

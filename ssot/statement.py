@@ -264,8 +264,27 @@ def _what_would_change_it(obj):
 
 
 def _searched(obj):
-    """What was checked and when, in one sentence, or None if nothing is recorded."""
-    basis = _reader_safe(_sentence_case(str(obj.get("verification_basis") or "")))
+    """What was checked and when, in one sentence, or None if nothing is recorded.
+
+    `verification_basis` HAS TWO SHAPES AND `str()` BETRAYED ONE OF THEM. On most objects it
+    is a sentence. On six it is a DICT -- {'what_verifies_this_object': ...,
+    'what_is_not_claimed': ..., 'families': [...]} -- and `str(a_dict)` is its REPR, so six
+    delivered pages carried
+
+        What was checked. {'what_verifies_this_object': 'ClinicalTrials.gov protocol records
+        read 2026-08-19 at every registered rank.', 'what_is_not_claimed': 'That any event
+        co...
+
+    into the sentence a reader meets first. That is a container repr in prose AND two field
+    names in prose, from one `str()` on a value whose type nobody checked.
+
+    The dict holds the sentence; it just holds it under a key. Read the key.
+    """
+    _vb = obj.get("verification_basis")
+    if isinstance(_vb, dict):
+        _vb = (_vb.get("what_verifies_this_object")
+               or _vb.get("basis") or _vb.get("what_was_checked") or "")
+    basis = _reader_safe(_sentence_case(str(_vb or "")))
     dates = sorted({str(t.get("read_utc") or t.get("all_ranks_read_utc") or "")[:10]
                     for t in ((obj.get("inputs") or {}).get("trials") or [])
                     if isinstance(t, dict)} - {""})
