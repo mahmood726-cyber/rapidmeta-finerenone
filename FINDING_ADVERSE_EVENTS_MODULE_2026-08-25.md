@@ -1,7 +1,29 @@
-# The data is in ClinicalTrials.gov. It is just not where people look.
+# The data is more available than the field believes — and here is exactly how it differs
 
 **A finding worth giving away, because it costs us nothing and it is actionable for anyone
 doing evidence synthesis.**
+
+## Why this document exists
+
+The useful claim is **not** "you don't need full texts". That claim is easy to knock down and
+it would deserve to be.
+
+The claim is narrower and harder to argue with: **a large class of outcome data is in
+ClinicalTrials.gov, most people query the wrong section for it, and where it exists it differs
+from a publication's figure in a specific and predictable way.** Both halves are needed. The
+first without the second invites a team to substitute registry numbers for published ones and
+report a difference they cannot explain.
+
+**The difference, stated first because it is the point:** the registry reports
+**investigator-reported** adverse-event terms. A publication frequently reports **adjudicated**
+events — reviewed by a blinded endpoint committee against a protocol definition. These are
+different quantities. They are usually close and they are not the same, and adjudication
+generally *reduces* the count by rejecting events that do not meet the definition.
+
+So a number recovered this way is **the trial's investigator-reported count**, and should be
+labelled as such wherever it is used. It is not a defective version of the published number;
+it is a different measurement of the same events, and which one a review should want depends
+on what the review is asking.
 
 ## The claim
 
@@ -81,10 +103,9 @@ For anyone extracting from ClinicalTrials.gov, three concrete points:
   effect will be smaller where trials post no results at all.
 - `adverseEventsModule` exists only for trials that posted results. Where a trial posted
   nothing, neither section helps.
-- Adverse-event counts are **not** always identical to a publication's adjudicated counts —
-  the registry reports investigator-reported terms, and a review using adjudicated events may
-  legitimately differ. **A recovered number is not automatically the same number**, and that
-  distinction belongs in any extraction that uses this route.
+- The investigator-reported versus adjudicated distinction is set out at the top of this
+  document rather than here, because it is the reason the document exists and not a
+  limitation on it.
 
 ## How we found it
 
