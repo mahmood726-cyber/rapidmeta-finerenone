@@ -37,7 +37,18 @@ import sys
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(REPO, "scripts"))
+import subprocess
+
 import instrument_controls
+
+# The last commit at which the DELIVERED pages still carried this defect.
+#
+# The control was first anchored to the live worktree page, and the moment the
+# projector fix was rebuilt it stopped detecting anything and REFUSED to print a
+# count -- a control that retires itself the instant its defect is fixed, which is
+# the second time that has happened in this repository. A page in git history
+# cannot be repaired out from under its own control.
+PRE_FIX = "ed9fc4416"
 
 PAPER = re.compile(r'id="pn-paper"(.*?)(?:id="pn-[a-z]|<!--\s*end-paper)', re.S)
 ABSTRACT = re.compile(r"(?is)>\s*Abstract\s*<.{0,24000}")
@@ -57,6 +68,11 @@ DENIES_SEARCH = re.compile(
     r"no bibliographic search[^.]{0,60}(was|were)?\s*run"
     r"|no bibliographic search for primary trials", re.I)
 
+
+# The abstract DISCLOSING that a source was not searched, which is correct behaviour.
+DISCLAIMS = re.compile(
+    r"no search was executed against|was not searched|were not searched|"
+    r"no bibliographic search", re.I)
 
 def text_of(frag):
     frag = re.sub(r"(?is)<(script|style)[^>]*>.*?</\1>", " ", frag)
@@ -115,9 +131,20 @@ def examine(html, objpath=None):
     low = abstract.lower()
     for nm in never:
         tok = _first_word(nm)
-        if len(tok) > 3 and tok in low:
-            i = low.find(tok)
-            return True, abstract[max(0, i - 90):i + 60].strip(),                 "the object records %r as never searched" % nm
+        if len(tok) <= 3 or tok not in low:
+            continue
+        i = low.find(tok)
+        # A NAME INSIDE THE DISCLAIMER IS THE FIX, NOT THE DEFECT.
+        #
+        # After the projector was corrected, COLCHICINE_CVD_CORONARY reads "...PubMed were
+        # searched; and no search was executed against anzctr." That names anzctr precisely
+        # BECAUSE it is disclosing the absence -- which is the behaviour we just built. The
+        # detector flagged it anyway, because it only asked whether the name appeared. An
+        # instrument that cannot tell a claim from a disclaimer will accuse every page that
+        # discloses properly, which would punish exactly the pages that got it right.
+        if DISCLAIMS.search(low[max(0, i - 90):i + len(tok) + 10]):
+            continue
+        return True, abstract[max(0, i - 90):i + 60].strip(),             "the object records %r as never searched" % nm
     return False, "", ""
 
 
@@ -125,12 +152,13 @@ def control():
     """Positive is the adjudicated page WITH its object. Negatives are the two true shapes."""
     pmap = json.load(io.open(os.path.join(REPO, "ssot", "PAGE_MAP.json"), encoding="utf-8"))
     page = "AZILSARTAN_CLD_VS_OLM_HCTZ_REVIEW.html"
-    ppath = os.path.join(REPO, page)
-    if not (os.path.exists(ppath) and page in pmap):
+    r = subprocess.run(["git", "show", "%s:%s" % (PRE_FIX, page)],
+                       capture_output=True, cwd=REPO)
+    if r.returncode != 0 or page not in pmap:
         raise instrument_controls.ControlFailed(
-            "REFUSED: the control page or its object is missing, so the positive control "
-            "could not run. NO COUNT IS PRINTED.")
-    real = examine(io.open(ppath, encoding="utf-8", errors="replace").read(),
+            "REFUSED: the control page %s:%s could not be read, so the positive control did "
+            "not run. NO COUNT IS PRINTED." % (PRE_FIX, page))
+    real = examine(r.stdout.decode("utf-8", "replace"),
                    os.path.join(REPO, pmap[page]))[0]
 
     # THE SHAPE THE PROSE-ONLY VERSION GOT WRONG: named PubMed, and really ran it.
@@ -141,10 +169,23 @@ def control():
             io.open(os.path.join(REPO, neg_page), encoding="utf-8", errors="replace").read(),
             os.path.join(REPO, pmap[neg_page]))[0]
 
+    # THE SHAPE THE FIX ITSELF PRODUCES. A page that correctly discloses "no search was
+    # executed against anzctr" must never be accused of claiming anzctr was searched.
+    _disc = examine(
+        '<div id="pn-paper"><h2>Abstract</h2><p>Methods. ClinicalTrials.gov API v2 and '
+        'PubMed were searched; and no search was executed against anzctr.</p></div>'
+        '<div id="pn-other">', None)[0]
+    if _disc:
+        raise instrument_controls.ControlFailed(
+            "REFUSED: this instrument flags an abstract that correctly DISCLOSES an "
+            "unsearched source. That is the behaviour the projector fix produces, so "
+            "accusing it would punish the pages that got it right. NO COUNT IS PRINTED.")
+    print("CONTROL (negative) an abstract disclosing an unsearched source -> clean")
+
     instrument_controls.require_controls(
         "abstract-claims-a-search-the-object-says-never-ran",
-        ("AZILSARTAN_CLD_VS_OLM_HCTZ_REVIEW.html, adjudicated CONFIRMED/HIGH against "
-         "the object by a second family", real, True),
+        ("AZILSARTAN_CLD_VS_OLM_HCTZ_REVIEW.html AS COMMITTED AT %s, adjudicated "
+         "CONFIRMED/HIGH against the object by a second family" % PRE_FIX, real, True),
         ("APIXABAN_VTE_PROPHYLAXIS_REVIEW.html, which names PubMed and really ran it",
          neg_real, True))
     return True
