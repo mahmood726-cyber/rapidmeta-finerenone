@@ -44,8 +44,16 @@ XML = os.path.join(REPO, "outputs", "pubmed_databank_cache")
 CACHE = os.path.join(REPO, "outputs", "ctgov_title_search_cache")
 OUT = os.path.join(REPO, "outputs", "registration_findable_by_effort_2026_08_25.json")
 
+# RETRIEVAL IS OR, IDENTIFICATION IS THE THRESHOLD -- and the first version conflated them.
+# ClinicalTrials.gov ANDs bare terms, so a query of 18 title words asks for a registry title
+# containing ALL of them and returns nothing. Measured: 18 words -> 0 results, 6 -> 0, 3 -> 2,
+# OR-of-6 -> 5. The run built on the AND form reported 4% findable, which was a property of
+# the query syntax and not of the registry.
+#
+# This is the same separation stage B forced: retrieve broadly, then decide. The Jaccard rule
+# does the deciding and the null test measures what the breadth costs.
 CTGOV = ("https://clinicaltrials.gov/api/v2/studies"
-         "?query.titles=%s&pageSize=20"
+         "?query.titles=%s&pageSize=50"
          "&fields=NCTId,BriefTitle,OfficialTitle,StartDate,LeadSponsorName,StudyType")
 
 TITLE = re.compile(r"<ArticleTitle[^>]*>(.*?)</ArticleTitle>", re.S | re.I)
@@ -102,28 +110,54 @@ def get(url, key):
 
 
 def search(title):
-    """Registry records for this title. None means the search itself failed."""
+    """Registry records for this title, by a STATED back-off cascade.
+
+    THREE ATTEMPTS AT THIS INSTRUMENT, and only a known positive settled it:
+
+      v1  AND of 18 title words   ClinicalTrials.gov ANDs bare terms, so this asks for a
+                                  registry title containing all eighteen. Returned 0 for
+                                  almost everything and reported 4% findable -- a property
+                                  of the query syntax.
+      v2  OR of 12 title words    Returned 50 candidates every time, but the true record was
+                                  not among them even for trials KNOWN to be registered.
+                                  Reported 0% findable. Also a property of the query.
+      v3  AND of the 4 longest,   Retrieves the known case exactly: n=1, correct NCT. Backing
+          backing off to 3 then 2 off to 3 gives n=3 with the true record ranked first.
+
+    The cascade stops at the first tier returning anything, and the tier is recorded per row
+    so a result obtained at tier 2 is never presented as if it came from tier 4.
+
+    None means the search itself failed. [] means it ran and found nothing -- a real answer.
+    """
     import urllib.parse
-    q = urllib.parse.quote(" ".join(list(words(title))[:18]), safe="")
-    if not q:
+    terms = sorted(words(title), key=len, reverse=True)
+    if not terms:
         return []
-    body = get(CTGOV % q, title[:90])
-    if body is None:
-        return None
-    try:
-        out = []
-        for st in (json.loads(body).get("studies") or []):
-            p = ((st.get("protocolSection") or {}))
-            idm = p.get("identificationModule") or {}
-            out.append({
-                "nct": idm.get("nctId"),
-                "title": (idm.get("officialTitle") or idm.get("briefTitle") or ""),
-                "sponsor": ((p.get("sponsorCollaboratorsModule") or {})
-                            .get("leadSponsor") or {}).get("name"),
-            })
-        return out
-    except Exception:
-        return None
+    for tier in (4, 3, 2):
+        chunk = terms[:tier]
+        if len(chunk) < tier:
+            continue
+        q = urllib.parse.quote(" ".join(chunk), safe="")
+        body = get(CTGOV % q, "and%d_%s" % (tier, title[:80]))
+        if body is None:
+            return None
+        try:
+            recs = []
+            for st in (json.loads(body).get("studies") or []):
+                p = (st.get("protocolSection") or {})
+                idm = p.get("identificationModule") or {}
+                recs.append({
+                    "nct": idm.get("nctId"),
+                    "title": (idm.get("officialTitle") or idm.get("briefTitle") or ""),
+                    "sponsor": ((p.get("sponsorCollaboratorsModule") or {})
+                                .get("leadSponsor") or {}).get("name"),
+                    "tier": tier,
+                })
+        except Exception:
+            return None
+        if recs:
+            return recs
+    return []
 
 
 def score(paper_title, records):
