@@ -28,6 +28,14 @@ output is recorded as MISSING, never as a verdict, and never as a clean page.
 PAYLOADS ARE VERIFIED BEFORE ANY VERDICT IS DRAWN. Truncated text, leaked markup and flattened
 disclosures have each produced confident findings about documents no reader sees.
 """
+# collinearity-checked: NOT IDENTIFIED, and recorded here rather than fixed. Family is
+# chosen as ("openai","google")[(idx + role_offset) % 2], so student and editor on the
+# same page are ALWAYS different families. Marginals are ~50/50 -- the design is
+# balanced and still confounded on every page. No page-level role comparison from this
+# ledger separates role from family; the student-vs-editor tension first drawn from it
+# was withdrawn on that ground and re-established only on the four-family panel, where
+# every family reads every (page, role). Round 2 crosses the factors properly.
+
 import concurrent.futures as cf
 import html as H
 import io

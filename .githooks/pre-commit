@@ -210,3 +210,5 @@ python "$R/scripts/audit_procedural_constants_all_surfaces_2026_08_23.py" >/dev/
 # AN EIGHTH SPELLING OF A FROZEN CONCEPT. `absent_reason` beside `withdrawn_reason` meant 17
 # pages printed "No reason recorded." while holding a substantive reason.
 python "$R/scripts/gate_no_new_schema_synonym_2026_08_23.py" >/dev/null || { echo "REFUSED: a new spelling of a concept that already has one (scripts/gate_no_new_schema_synonym_2026_08_23.py)"; exit 1; }
+
+python "$R/scripts/lint_collinear_protocol.py" >/dev/null || { echo "REFUSED: undeclared collinearity risk (scripts/lint_collinear_protocol.py)"; exit 1; }

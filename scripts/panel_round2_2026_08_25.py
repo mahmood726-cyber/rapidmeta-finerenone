@@ -25,6 +25,12 @@ EVERY STANDING CONDITION APPLIES, and at this volume each has already failed onc
   * payloads verified before any verdict is drawn
   * resumable: a completed (page, role, family) is never re-run
 """
+# collinearity-checked: every (page, role) goes to BOTH families, so family is crossed
+# with role rather than confounded with it. Role and family are separately identified.
+# Contrast round 1, where family = (openai, google)[(idx + role_offset) % 2] made student
+# and editor on the same page ALWAYS different families -- balanced in aggregate, and every
+# page-level role comparison simultaneously a family comparison.
+
 import concurrent.futures as cf
 import io
 import json

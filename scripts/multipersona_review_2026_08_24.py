@@ -38,6 +38,10 @@ PAYLOADS ARE VERIFIED BEFORE ANY VERDICT IS BELIEVED. `verify_payload` refuses t
 truncated, carries markup, leaks an element id, or is implausibly short. A verdict about a
 broken payload is worse than no verdict, because it is specific and confident.
 """
+# collinearity-checked: this runs personas over one page rather than assigning raters across
+# a corpus, so there is no rater-by-unit design to confound. The 'only' the linter matched is
+# prose, not an assignment rule.
+
 import io
 import json
 import os

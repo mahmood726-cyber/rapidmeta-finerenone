@@ -31,6 +31,11 @@ STANDING CONDITIONS, and they matter more at this volume: output bytes verified 
 per-lane scratch paths so no two lanes share a prompt file, three attempts then MISSING, and
 a job that produces nothing is never counted as a verdict.
 """
+# collinearity-checked: all four families read every (page, role). No exclusion rule is
+# applied, so role, family and page vary independently and each is identified. This is the
+# only panel design in the repo that can separate role from family, and it satisfies that
+# by accident rather than by choice -- see 'every rater sees every item' in the handover.
+
 import concurrent.futures as cf
 import io
 import json
