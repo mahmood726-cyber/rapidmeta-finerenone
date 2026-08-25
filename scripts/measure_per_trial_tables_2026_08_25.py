@@ -186,6 +186,29 @@ def main():
     for frame in sorted({r["frame"] for r in full}):
         sub = [r for r in full if r["frame"] == frame]
         sy = [r for r in sub if r["per_trial"]]
+        med_tables = sorted(r.get("tables", 0) for r in sub)[len(sub) // 2] if sub else 0
+        # THE COCHRANE ZERO IS AN ARTEFACT AND MUST NOT BE PRINTED AS A RATE.
+        #
+        # 0 of 61 Cochrane reviews appeared to print a per-trial table. Cochrane reviews
+        # certainly do -- Characteristics of Included Studies, and Analysis tables under
+        # every comparison. Those are NOT in the PMC deposit: sampled Cochrane records carry
+        # 0 to 2 tables, with no captions, against a median of many for the general frame.
+        # The property is not measurable from this source for this publisher.
+        #
+        # This is the rule from earlier today applied to its author within the hour: a zero
+        # from a measurement whose precondition is absent is the most dangerous number we
+        # produce. It would also have been unfair to the party that comes out BETTER on the
+        # other half of the pair.
+        # THE GUARD MUST NOT FIRE ON A FRAME THAT DEMONSTRABLY WORKS. A first version keyed
+        # only on median table count and marked the GENERAL frame unmeasurable too -- a frame
+        # that yields 85 detections. If the instrument finds tables in a frame, the frame is
+        # measurable; unmeasurable means it found NONE and there were none to find.
+        if not sy and med_tables < 3:
+            print("   %-10s NOT MEASURABLE -- median %d tables per record in this source;"
+                  % (frame, med_tables))
+            print("   %-10s the publisher's per-trial tables are not in the PMC deposit."
+                  % "")
+            continue
         print("   %-10s %3d of %3d (%.0f%%)" % (frame, len(sy), len(sub),
                                                 100.0*len(sy)/max(len(sub), 1)))
     return 0
