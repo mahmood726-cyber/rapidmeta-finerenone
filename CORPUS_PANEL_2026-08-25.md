@@ -36,6 +36,28 @@ not carry the disclosure that sinks the pages that do.
 So the corpus-wide rates below are real but they are not what they look like, and the honest
 comparison is the manuscripts-only row.
 
+**And the 99 notes are correct behaviour, not a rendering failure** — which took a fourth
+over-flag today to establish. A first count said 97 of the 99 short pages held a pooled
+estimate on the object while rendering ~1,100 characters, which would have been a large
+rendering defect. It counted any populated result block as a pool. BEMPEDOIC_ACID is typical:
+`k: 1`, `model: "single study"`, `poolable: false`, and the page correctly reports that one
+trial's own HR with the reason nothing is combined. Re-measured on the thing actually meant —
+two or more trials **and** the object marking the outcome poolable — **0 of the 99 short pages
+hide a real pool.** The short page is what an honest projection of a single-trial or
+no-result topic looks like.
+
+What the corpus actually contains, by what the objects hold:
+
+| | pages |
+|---|---|
+| a pooled synthesis written up | **22** |
+| a long argument for why this topic does not pool (≥3,000 chars, no poolable outcome) | 28 |
+| a short note: one trial, or no results at all | 99 |
+
+69 objects have no result recorded on any outcome; 21 have exactly one trial. That is 90 of
+149 topics on which no meta-analysis is possible, and on which the page says so. **The answer
+to "are the papers finished" starts by conceding that there are 22 papers, not 149.**
+
 ---
 
 ## The result, split by whether there is a paper there
