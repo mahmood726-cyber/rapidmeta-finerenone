@@ -242,8 +242,20 @@ def _footnote(lvl, s_blk, t_blk, both):
     down = [st for st in steps
             if isinstance(st, dict) and (st.get("levels") or 0) < 0]
     if down:
+        # NOT `("started_at", "HIGH")`. A DEFAULT STARTING LEVEL IS A CERTAINTY CLAIM.
+        #
+        # 28 of 48 GRADE blocks across 17 topics record no starting level, and this line
+        # asserted "Rated down from HIGH" on every one of them -- telling a reader the
+        # evidence began at high certainty when nobody recorded that. GRADE's convention is
+        # that randomised evidence starts high, but a convention WE applied is not a value
+        # THIS REVIEW recorded, and the sentence gave a reader no way to tell them apart.
+        #
+        # Found by sweeping deliberately for flatter-by-default fallbacks after the
+        # screening defect, rather than waiting to trip over a third one. Same species as
+        # `else "included"`: a missing field becomes the answer that flatters.
         bits.append("Rated down from %s for %s."
-                    % (s_blk.get("started_at", "HIGH"),
+                    % (s_blk.get("started_at")
+                       or "a starting level this review does not record",
                        ", ".join(str(st.get("domain", "?")).replace("_", " ")
                                  for st in down)))
     if t_blk.get("certainty_derivation"):

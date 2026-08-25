@@ -1,0 +1,976 @@
+FALLBACKS WHOSE DEFAULT ASSERTS SOMETHING: 485
+
+Each is a LEAD, not a verdict. The question for every one is whether a missing
+value here produces a claim the data does not support -- a decision, a count, a
+status or a judgement -- rather than an explicit absence.
+
+  scripts\_ctgov_extract.py:43  default='0'
+      ...et("measurements", []): v = _num(m.get("value")) if v is not None: out[m["groupId"]] = out.get(m["groupId"], 0) + v return out
+  scripts\_ctgov_extract.py:101  default='0'
+      ...tN, cN = ns.get(tgid), ns.get(cgid) if not tN or not cN: continue if is_pct: tE = round(es.get(tgid, 0) / 100.0 * tN) if tg
+  scripts\_ctgov_extract.py:102  default='0'
+      ...continue if is_pct: tE = round(es.get(tgid, 0) / 100.0 * tN) if tgid in es else None cE = round(es.get(cgid, 0) / 100.0 * cN) if cg
+  scripts\_lh_perf_byte_weight.py:18  default='0'
+      ...ems = a.get("details", {}).get("items", []) if not items: continue print(f"\n=== {jf.stem} === total transfer: {a.get('numericValue', 0)/1024:.0f} KB")
+  scripts\_lh_perf_byte_weight.py:21  default='0'
+      ...tal transfer: {a.get('numericValue', 0)/1024:.0f} KB") for it in items[:8]: url = it.get("url", "?") size = it.get("totalBytes", 0) print(f" {
+  scripts\aact_cross_check.py:326  default='0'
+      ...(findings) # Summary by_verdict: dict[str, int] = {} for f in findings: by_verdict[f["verdict"]] = by_verdict.get(f["verdict"], 0) + 1 print(f"\n
+  scripts\aact_cross_check_v2.py:322  default='OK'
+      ...if not title_ok: verdicts.append("TITLE_LOW_OVERLAP") verdict = "+".join(verdicts) if verdicts else "OK" findin
+  scripts\aact_cross_check_v2.py:347  default='0'
+      ...w.writerows(findings) by_verdict: dict[str, int] = {} for f in findings: by_verdict[f["verdict"]] = by_verdict.get(f["verdict"], 0) + 1 print(f"===
+  scripts\aact_outcome_concordance_check.py:195  default='0'
+      ...header() w.writerows(findings) by_v: dict[str, int] = {} for r in findings: by_v[r["verdict"]] = by_v.get(r["verdict"], 0) + 1 print(f"\n=
+  scripts\absence_reason_gate.py:85  default='PASS'
+      ...% (tab, "authored" if is_conv else "converted", right_name, s[:70])) return ("FAIL" if bad else "PASS"), bad or ["absence
+  scripts\add_lsmd_disclaimer.py:115  default='0'
+      ...path = ROOT / name if not path.exists(): print(f" MISSING: {name}") counts["missing"] = counts.get("missing", 0) + 1 con
+  scripts\add_lsmd_disclaimer.py:118  default='0'
+      ....get("missing", 0) + 1 continue r = patch_one(path, dry_run=args.dry_run) counts[r["status"]] = counts.get(r["status"], 0) + 1 print(f
+  scripts\add_nonpoolable_banner.py:44  default='0'
+      ...def is_nonpoolable(html): counts = {} for m in _SL_RE.finditer(html): k = m.group(2) counts[k] = counts.get(k, 0) + 1 if not coun
+  scripts\add_topic_autodiscover.py:5369  default='False'
+      ...ted (completed).""" score = 0 if phase_by_nct.get(nct, "") in LATE_PHASES: score += 2 if results_posted_by_nct.get(nct, False): score += 1
+  scripts\add_topic_autodiscover.py:5399  default='0'
+      ...A: pivotal score first, enrollment within tier, NCT tie-break. matches.sort(key=lambda n: (-_pivotal_score(n), -enroll_by_nct.get(n, 0), n)) return mat
+  scripts\add_visual_abstract.py:143  default='1'
+      ..._total else None, pooled.get("measure", ""), pooled["point"], pooled.get("ci_low"), pooled.get("ci_high"), outcome.get("null_value", 1), g.get("cer
+  scripts\adjudicate_apixaban_split_2026_08_19.py:177  default='0'
+      ... (T, P): base = scr[topic]["tally"]["ELIGIBLE_POOLABLE_NOT_INCLUDED"] added = out["topics"][topic]["tally"].get("ELIGIBLE_POOLABLE_NOT_INCLUDED", 0) out["topics
+  scripts\adjudicate_merge_pairs_2026_08_19.py:122  default='0'
+      ...): if p.get("state") != "READ": return -1 return (sum(1 for k in RICHNESS_KEYS if p.get(k)) * 1000 + p.get("n_outcomes", 0) * 100 +
+  scripts\adjudicate_merge_pairs_2026_08_19.py:123  default='0'
+      ...return -1 return (sum(1 for k in RICHNESS_KEYS if p.get(k)) * 1000 + p.get("n_outcomes", 0) * 100 + p.get("n_corrections", 0) * 50 +
+  scripts\adjudicate_merge_pairs_2026_08_19.py:124  default='0'
+      ...S_KEYS if p.get(k)) * 1000 + p.get("n_outcomes", 0) * 100 + p.get("n_corrections", 0) * 50 + p.get("has_superseded_blocks", 0) * 10 +
+  scripts\adjudicate_merge_pairs_2026_08_19.py:125  default='0'
+      ...comes", 0) * 100 + p.get("n_corrections", 0) * 50 + p.get("has_superseded_blocks", 0) * 10 + p.get("n_provenance_blocks", 0) + p.get
+  scripts\adjudicate_merge_pairs_2026_08_19.py:126  default='0'
+      ...tions", 0) * 50 + p.get("has_superseded_blocks", 0) * 10 + p.get("n_provenance_blocks", 0) + p.get("leaf_count", 0) // 100) # THE AUT
+  scripts\aggregate_8agent_findings.py:81  default='0'
+      ...all_findings if f.get("severity") == "HIGH") print(f"\nFindings total: {len(all_findings)}") print(f"Severity: HIGH={sev_counts.get('HIGH',0)} MED={sev_counts.g
+  scripts\aggregate_8agent_findings.py:81  default='0'
+      ...gs total: {len(all_findings)}") print(f"Severity: HIGH={sev_counts.get('HIGH',0)} MED={sev_counts.get('MED',0)} LOW={sev_counts.get('LOW',0)}") print(f"\nHIGH c
+  scripts\aggregate_8agent_findings.py:81  default='0'
+      ...y") == "HIGH") print(f"\nFindings total: {len(all_findings)}") print(f"Severity: HIGH={sev_counts.get('HIGH',0)} MED={sev_counts.get('MED',0)} LOW={sev_counts.g
+  scripts\aggregate_8agent_findings.py:228  default='0'
+      ...erified_chunks, "hmac_sig_issues": sig_mismatches, "total_findings": len(all_findings), "high": sev_counts.get("HIGH", 0), "med": sev
+  scripts\aggregate_8agent_findings.py:229  default='0'
+      ...sig_mismatches, "total_findings": len(all_findings), "high": sev_counts.get("HIGH", 0), "med": sev_counts.get("MED", 0), "low": sev
+  scripts\aggregate_8agent_findings.py:230  default='0'
+      ...: len(all_findings), "high": sev_counts.get("HIGH", 0), "med": sev_counts.get("MED", 0), "low": sev_counts.get("LOW", 0), "high_cate
+  scripts\aggregate_multi_agent.py:54  default='LOW'
+      ...in agents.items(): for f in findings: i = f["id"] by_id[i]["flags"][agent_name] = { "severity": f.get("severity", "LOW"), "categ
+  scripts\aggregate_multi_agent.py:60  default='LOW'
+      ...e": f.get("confidence", 0.5), "ground_truth_hint": f.get("ground_truth_hint"), } rank = SEV_RANK.get(f.get("severity", "LOW"), 1) if rank
+  scripts\aggregate_multi_agent.py:63  default='LOW'
+      ...if rank > by_id[i]["max_severity_rank"]: by_id[i]["max_severity_rank"] = rank by_id[i]["max_severity"] = f.get("severity", "LOW") # Decorate with tr
+  scripts\aggregate_multi_agent.py:89  default='0'
+      ...nsensus_level desc, max_severity_rank desc) consensus_records.sort(key=lambda r: ( -len(r["agents_flagged"]), -SEV_RANK.get(r["max_severity"], 0), r["id"], )) #
+  scripts\aggregate_multi_agent_r2.py:34  default='LOW'
+      ...in agents.items(): for f in findings: i = f["id"] by_id[i]["flags"][agent_name] = { "severity": f.get("severity", "LOW"), "categ
+  scripts\aggregate_multi_agent_r2.py:40  default='LOW'
+      ...e": f.get("confidence", 0.5), "ground_truth_hint": f.get("ground_truth_hint"), } rank = SEV_RANK.get(f.get("severity", "LOW"), 1) if rank
+  scripts\aggregate_multi_agent_r2.py:43  default='LOW'
+      ...if rank > by_id[i]["max_severity_rank"]: by_id[i]["max_severity_rank"] = rank by_id[i]["max_severity"] = f.get("severity", "LOW") records = [] for i
+  scripts\aggregate_multi_agent_r2.py:57  default='0'
+      ...ails": rec["flags"], "tier": trial.get("tier"), }) records.sort(key=lambda r: (-len(r["agents_flagged"]), -SEV_RANK.get(r["max_severity"], 0), r["id"])) n_total
+  scripts\aggregate_multi_agent_r3.py:29  default='LOW'
+      ...in agents.items(): for f in findings: i = f["id"] by_id[i]["flags"][agent_name] = { "severity": f.get("severity", "LOW"), "categ
+  scripts\aggregate_multi_agent_r3.py:35  default='LOW'
+      ...e": f.get("confidence", 0.5), "ground_truth_hint": f.get("ground_truth_hint"), } rank = SEV_RANK.get(f.get("severity", "LOW"), 1) if rank
+  scripts\aggregate_multi_agent_r3.py:38  default='LOW'
+      ...if rank > by_id[i]["max_severity_rank"]: by_id[i]["max_severity_rank"] = rank by_id[i]["max_severity"] = f.get("severity", "LOW") records = [] for i
+  scripts\aggregate_multi_agent_r3.py:52  default='0'
+      ...ails": rec["flags"], "tier": trial.get("tier"), }) records.sort(key=lambda r: (-len(r["agents_flagged"]), -SEV_RANK.get(r["max_severity"], 0), r["id"])) n_total
+  scripts\aggregate_multi_agent_r3.py:78  default='0'
+      ...rity_HIGH": n_high, "max_severity_MED": n_med, "max_severity_LOW": n_low, "tier_breakdown": {t: {**v, "of": total_per_tier.get(t, 0)} for t, v in tier_b
+  scripts\aggregate_multi_agent_r3.py:93  default='0'
+      ...(flagged / total):") for t in ["A", "B", "C"]: tb = tier_breakdown.get(t, {"flagged": 0, "high": 0}) tot = total_per_tier.get(t, 0) print(f" Tier
+  scripts\alignment_gate.py:334  default='PASS'
+      ...good = got == want_fail ok &= good print(" %-52s %s expected=%s %s" % (name, "FAIL" if got else "PASS", "
+  scripts\alignment_gate.py:335  default='PASS'
+      ...print(" %-52s %s expected=%s %s" % (name, "FAIL" if got else "PASS", "FAIL" if want_fail else "PASS", "correct" if good
+  scripts\alignment_gate.py:343  default='PASS'
+      ...good = got == want_fail ok &= good print(" %-52s %s expected=%s %s" % (name, "FAIL" if got else "PASS", "
+  scripts\alignment_gate.py:344  default='PASS'
+      ...print(" %-52s %s expected=%s %s" % (name, "FAIL" if got else "PASS", "FAIL" if want_fail else "PASS", "correct" if good
+  scripts\ambiguous_field_sweep.py:116  default='0'
+      ...() else "REML" if "reml" in str(est).lower() else str(est)[:26]) est_kinds[key] = est_kinds.get(key, 0) + 1 het
+  scripts\append_trial_to_config.py:32  default='0'
+      ...l_block(t): hr = t.get('publishedHR'); lci = t.get('hrLCI'); uci = t.get('hrUCI') est = t.get('estimand', 'RR') tE = t.get('tE', 0); tN = t.get('tN', 0
+  scripts\append_trial_to_config.py:32  default='0'
+      ...t.get('publishedHR'); lci = t.get('hrLCI'); uci = t.get('hrUCI') est = t.get('estimand', 'RR') tE = t.get('tE', 0); tN = t.get('tN', 0) cE = t.get('cE'
+  scripts\append_trial_to_config.py:33  default='0'
+      ...ci = t.get('hrUCI') est = t.get('estimand', 'RR') tE = t.get('tE', 0); tN = t.get('tN', 0) cE = t.get('cE', 0); cN = t.get('cN', 0) out_label = t.g
+  scripts\append_trial_to_config.py:33  default='0'
+      ...i = t.get('hrLCI'); uci = t.get('hrUCI') est = t.get('estimand', 'RR') tE = t.get('tE', 0); tN = t.get('tN', 0) cE = t.get('cE', 0); cN = t.get('cN', 0
+  scripts\append_trial_to_nma_config.py:31  default='0'
+      ...l_block(t): hr = t.get('publishedHR'); lci = t.get('hrLCI'); uci = t.get('hrUCI') est = t.get('estimand', 'RR') tE = t.get('tE', 0); tN = t.get('tN', 0
+  scripts\append_trial_to_nma_config.py:31  default='0'
+      ...t.get('publishedHR'); lci = t.get('hrLCI'); uci = t.get('hrUCI') est = t.get('estimand', 'RR') tE = t.get('tE', 0); tN = t.get('tN', 0) cE = t.get('cE'
+  scripts\append_trial_to_nma_config.py:32  default='0'
+      ...ci = t.get('hrUCI') est = t.get('estimand', 'RR') tE = t.get('tE', 0); tN = t.get('tN', 0) cE = t.get('cE', 0); cN = t.get('cN', 0) out_label = t.g
+  scripts\append_trial_to_nma_config.py:32  default='0'
+      ...i = t.get('hrLCI'); uci = t.get('hrUCI') est = t.get('estimand', 'RR') tE = t.get('tE', 0); tN = t.get('tN', 0) cE = t.get('cE', 0); cN = t.get('cN', 0
+  scripts\arni_four_checks.py:151  default='0'
+      ..., d1 = c1(v, obj) v2, d2 = c2(v) v3, d3 = c3(v, obj) for k in (v1, v2, v3): counts[k] = counts.get(k, 0) + 1 rows.ap
+  scripts\audit_12methods.py:305  default='n/a'
+      ...als)") print() print(f"Benford (M09): n={n_b}, χ²(8 df) = {chi2:.2f} (p≈{'<0.01' if chi2 and chi2>20 else '>0.05' if chi2 else 'n/a'})") print()
+  scripts\audit_analysis_population_estimand.py:116  default='0'
+      ...if not rec or rec.get("not_returned"): unread.append((topic, n)) continue if rec.get("n_primaries", 0) == 0:
+  scripts\audit_are_our_lessons_enforced_2026_08_23.py:184  default='0'
+      ...lines", "lesson_enforcement_baseline.json") if os.path.isfile(base): prev = json.load(io.open(base, encoding="utf-8")).get("enforced", 0) else: p
+  scripts\audit_arni_manuscript_assertions.py:135  default='NO'
+      ...%-56s %s" % (t, path or "<<NO PATH DECLARED>>", ("yes -> %r" % (val,))[:44] if val is not None else "NO")) print() i
+  scripts\audit_citation_consistency.py:198  default='0'
+      ...""" cache_key = f"esummary_{pmid}" now = int(time.time()) cached = cache.get(cache_key) if cached and now - cached.get("_t", 0) < CACHE_TTL_SEC:
+  scripts\audit_citation_consistency.py:363  default='0'
+      ...ummary_{pmid}" cached = cache.get(cache_key) now = int(time.time()) if cached and now - cached.get("_t", 0) < CACHE_TTL_SEC:
+  scripts\audit_citation_consistency.py:394  default='0'
+      ...= {} for r in rows: for c in (r["issues"] or "").split(";"): if c: by_class[c] = by_class.get(c, 0) + 1 # HIGH-CON
+  scripts\audit_citation_consistency.py:407  default='0'
+      ...D", "AUTHOR_MISMATCH", "YEAR_MISMATCH", "PAGE_MISMATCH", "JOURNAL_MISMATCH"]: print(f" {cls:18} {by_class.get(cls, 0)}") print(f"\nCS
+  scripts\audit_citation_decay_2026_08_24.py:143  default='0'
+      ...= sentences_with_citations() tally = {} for r in rows: r["state"] = state_of(r) tally[r["state"]] = tally.get(r["state"], 0) + 1 print("")
+  scripts\audit_citation_decay_2026_08_24.py:152  default='0'
+      ...ny of them.") print("") for k in ("LIVE_SOURCE", "SOURCE_GONE", "NO_PATH_CITED"): print(" %-16s %4d" % (k, tally.get(k, 0))) print(" %-1
+  scripts\audit_class_mechanisation.py:217  default='NO'
+      ...or cls, name, cmd, cf, hk, fr, state, note in rows: print("%-4s %-6s %-9s %-7s %-7s %s" % (cls, "yes" if cf else "NO", "yes" if hk else "
+  scripts\audit_class_mechanisation.py:217  default='no'
+      ...hk, fr, state, note in rows: print("%-4s %-6s %-9s %-7s %-7s %s" % (cls, "yes" if cf else "NO", "yes" if hk else "no", "
+  scripts\audit_class_mechanisation.py:218  default='no'
+      ...nt("%-4s %-6s %-9s %-7s %-7s %s" % (cls, "yes" if cf else "NO", "yes" if hk else "no", "yes" if fr else "no", state, cmd or "(no
+  scripts\audit_class_mechanisation.py:225  default='0'
+      ...name) if note: print(" -- %s" % note) counts = {} for r in rows: counts[r[6]] = counts.get(r[6], 0) + 1 print("")
+  scripts\audit_class_mechanisation.py:227  default='0'
+      ...{} for r in rows: counts[r[6]] = counts.get(r[6], 0) + 1 print("") print("MECHANISED AND PROVEN %d" % counts.get("PROVEN", 0)) print("MECHANI
+  scripts\audit_class_mechanisation.py:228  default='0'
+      ...1 print("") print("MECHANISED AND PROVEN %d" % counts.get("PROVEN", 0)) print("MECHANISED AND UNPROVEN %d" % counts.get("UNPROVEN", 0)) print("DOCUMEN
+  scripts\audit_class_mechanisation.py:229  default='0'
+      ...("PROVEN", 0)) print("MECHANISED AND UNPROVEN %d" % counts.get("UNPROVEN", 0)) print("DOCUMENTED ONLY %d" % counts.get("DOCUMENTED", 0)) print("")
+  scripts\audit_completeness_2026_08_19.py:117  default='0'
+      ..."paper_exists": bool(paper and not paper["refusing"] and paper["chars"] > 400), "paper_chars": (paper or {}).get("chars", 0), "refus
+  scripts\audit_completeness_2026_08_19.py:125  default='NO'
+      ...][:40], r["tabs_held"], r["tabs_refusing_with_a_reason"], r["tabs_missing_entirely"], "yes" if r["paper_exists"] else "NO", "
+  scripts\audit_data_integrity.py:56  default='0'
+      ...ds = re.findall(r'\b(\w+)\s*:\s*[\'\[\{\dntfu-]', header) seen = {} dupes = [] for f in fields: seen[f] = seen.get(f, 0) + 1 for f, n in
+  scripts\audit_data_integrity.py:128  default='0'
+      ...nct_acronyms(src) # 1. Duplicate NCT keys nct_counts = {} for e in entries: nct_counts[e['nct']] = nct_counts.get(e['nct'], 0) + 1 for nct, n
+  scripts\audit_data_integrity.py:191  default='0'
+      ...s: issue['file'] = fname all_issues.append(issue) by_severity[issue['severity']] = by_severity.get(issue['severity'], 0) + 1 if args.js
+  scripts\audit_default_outcome.py:28  default='0'
+      ...1)[0][0] return dict(path=os.path.basename(path),default=default,ok=ok,proposed=proposed, n_with_proposed=allc.get(proposed,0),n_primary=sum(pri.v
+  scripts\audit_derived_artefact_staleness.py:156  default='no'
+      ...], r["n_consumers"], "yes" if r["carries_a_date"] else "-", "YES" if r["carries_a_fingerprint"] else "no", mark)) print("
+  scripts\audit_exclusion_by_absence.py:260  default='0'
+      ...a guard the guard. """ seen = {} out = [] for h in subset: base = "%s::%s" % (h[0], h[3]) n = seen.get(base, 0) seen[base]
+  scripts\audit_extraction.py:94  default='0'
+      ...is_binary(trial) -> bool: keys = ("tE", "tN", "cE", "cN") return all(is_finite_num(trial.get(k)) for k in keys) and trial.get("tN", 0) > 0 and trial.get("
+  scripts\audit_extraction.py:94  default='0'
+      ...keys = ("tE", "tN", "cE", "cN") return all(is_finite_num(trial.get(k)) for k in keys) and trial.get("tN", 0) > 0 and trial.get("cN", 0) > 0 def collect_f
+  scripts\audit_extraction.py:272  default='0'
+      ..._counts = {k: 0 for k in ("P0", "P1", "P2", "INFO")} for f in findings: sev_counts[f["severity"]] = sev_counts.get(f["severity"], 0) + 1 summary
+  scripts\audit_extraction.py:301  default='0'
+      ...s by_code: dict[str, int] = {} by_sev: dict[str, int] = {} for f in all_findings: by_code[f["code"]] = by_code.get(f["code"], 0) + 1 by_sev[
+  scripts\audit_extraction.py:302  default='0'
+      ...= {} for f in all_findings: by_code[f["code"]] = by_code.get(f["code"], 0) + 1 by_sev[f["severity"]] = by_sev.get(f["severity"], 0) + 1 print(f"Re
+  scripts\audit_extraction.py:310  default='0'
+      ...len(all_findings)}") print() print("By severity:") for k in ("P0", "P1", "P2", "INFO"): print(f" {k}: {by_sev.get(k, 0)}") print()
+  scripts\audit_first_poolability_triage.py:221  default='0'
+      ...pages: verdict, ids, shared, detail = triage(p, cache) head = verdict.split(" -- ")[0] tally[head] = tally.get(head, 0) + 1 rows.ap
+  scripts\audit_first_round2.py:189  default='0'
+      ...%d trials share a registered primary of family '%s'" % (len(best[1]), best[0])) tally[v] = tally.get(v, 0) + 1 rows.ap
+  scripts\audit_nma_config.py:136  default='0'
+      ...{} for r in rows: for tag in r["verdict"].split(";"): tag = tag.split("(")[0] by_v[tag] = by_v.get(tag, 0) + 1 print(f"\n
+  scripts\audit_no_review_done_bucket_is_shape_bound_2026_08_23.py:186  default='0'
+      ...PO, n) if not os.path.isfile(p): rows[n] = {"verdict": "NOT_ON_DISK"} tally["NOT_ON_DISK"] = tally.get("NOT_ON_DISK", 0) + 1 con
+  scripts\audit_no_review_done_bucket_is_shape_bound_2026_08_23.py:192  default='0'
+      ...v = verdict(s) rows[n] = {"verdict": v, "shape_agnostic": s, "original_probe": original_probe(t)} tally[v] = tally.get(v, 0) + 1 print("")
+  scripts\audit_no_review_done_bucket_is_shape_bound_2026_08_23.py:201  default='0'
+      ..._KEYED_BY_PMID", "HOLDS_IDENTIFIERS_ONLY", "HOLDS_NOTHING", "NOT_ON_DISK"): print(" %-40s %5d" % (v, tally.get(v, 0))) print(" %-4
+  scripts\audit_null_cursor_evidence.py:160  default='0'
+      ...ge": False}) return rows def run(): rows = collect() tally = {} for r in rows: tally[r["state"]] = tally.get(r["state"], 0) + 1 unproven =
+  scripts\audit_or_vs_rr.py:81  default='None'
+      ...h = 'RR-labeled but value is OR' elif not matches_rr and not matches_or: or_str = f'{or_:.2f}' if or_ else 'None' mis
+  scripts\audit_rob2_completeness.py:94  default='0'
+      ...())) w.writeheader() w.writerows(rows) counts = {} for r in rows: counts[r["rob_class"]] = counts.get(r["rob_class"], 0) + 1 print(f"\n=
+  scripts\audit_standing_instructions.py:150  default='0'
+      ...else: state, detail = "COINCIDENT", "%s can fail but is in no hook" % cmd tally[state] = tally.get(state, 0) + 1 print("
+  scripts\audit_standing_instructions.py:157  default='0'
+      ...%s" % note) print("") print("ENFORCED %d a command refuses the breach and a hook runs it" % tally.get("ENFORCED", 0)) print("COINCID
+  scripts\audit_standing_instructions.py:159  default='0'
+      ...ENFORCED", 0)) print("COINCIDENT %d something refuses it, written for another purpose or wired " "nowhere" % tally.get("COINCIDENT", 0)) print("CONVENT
+  scripts\audit_standing_instructions.py:161  default='0'
+      ...tally.get("COINCIDENT", 0)) print("CONVENTION %d nothing refuses it; it holds because a person remembers" % tally.get("CONVENTION", 0)) print("MISSING
+  scripts\audit_standing_instructions.py:163  default='0'
+      ...s" % tally.get("CONVENTION", 0)) print("MISSING %d the row names a command that is not there" % tally.get("MISSING", 0)) print("")
+  scripts\audit_templated_questions.py:83  default='0'
+      ...ecognised as retired and fell through to the live path. if R.is_retired(o): tally["RETIRED_TOMBSTONE"] = tally.get("RETIRED_TOMBSTONE", 0) + 1 con
+  scripts\audit_templated_questions.py:86  default='0'
+      ...STONE"] = tally.get("RETIRED_TOMBSTONE", 0) + 1 continue state, why = classify(o) tally[state] = tally.get(state, 0) + 1 rows.ap
+  scripts\audit_templated_questions.py:91  default='0'
+      ...n": (o.get("question") or "")[:220]}) live = sum(v for k, v in tally.items() if k != "RETIRED_TOMBSTONE") stating = tally.get("STATES_A_QUESTION", 0) out = {
+  scripts\audit_templated_questions.py:128  default='0'
+      ...ps(out, indent=1, ensure_ascii=False)) print("LIVE TOPICS: %d (retired tombstones excluded: %d)\n" % (live, tally.get("RETIRED_TOMBSTONE", 0))) for k in sort
+  scripts\audit_templated_questions.py:165  default='0'
+      ...question", out["topics_that_actually_state_a_question"] > 0, True) ck("and at least one is templated", out["by_state"].get("TEMPLATED", 0) > 0, True) pri
+  scripts\audit_templated_questions.py:168  default='0'
+      ...nt("\n3. RETIRED TOMBSTONES ARE EXCLUDED FROM THE DENOMINATOR:") ck("tombstones counted separately", out["by_state"].get("RETIRED_TOMBSTONE", 0) >= 10, True) ck
+  scripts\audit_written_tonight_is_read_by_something.py:112  default='NO'
+      ...eads(name, consumer_paths) s = reads(name, SCORERS) print("%-58s %-22s %s" % (name[:58], "yes (%d)" % len(r) if r else "NO",
+  scripts\audit_written_tonight_is_read_by_something.py:113  default='NO'
+      ...int("%-58s %-22s %s" % (name[:58], "yes (%d)" % len(r) if r else "NO", "yes (%d)" % len(s) if s else "NO")) print("
+  scripts\auto_populate_evidence_from_aact.py:257  default='0'
+      ...w.writerows(log_rows) by_action: dict[str, int] = {} for r in log_rows: by_action[r["action"]] = by_action.get(r["action"], 0) + 1 print(f"\n
+  scripts\backfill_continuous.py:123  default='0'
+      ...w_obj, 1) trials_filled += 1 kind = str(info.get("kind", "?")).upper() by_kind[kind] = by_kind.get(kind, 0) + 1 app
+  scripts\backfill_published_hr.py:271  default='0'
+      ...ntinue stats["extractions_made"] += 1 t = best["type"] stats["by_type"][t] = stats["by_type"].get(t, 0) + 1 sta
+  scripts\backfill_published_hr.py:273  default='0'
+      ...(t, 0) + 1 stats["by_source"] = stats.get("by_source", {}) stats["by_source"][source] = stats["by_source"].get(source, 0) + 1 #
+  scripts\benchmark_served_as_own_result_sweep.py:276  default='0'
+      ...= "NO_BENCHMARK" else: v = classify(parse_card(cards[page]), object_pool(obj), bench) tally[v] = tally.get(v, 0) + 1 reg = p
+  scripts\benchmark_served_as_own_result_sweep.py:281  default='0'
+      ...o object") if bench and obj is not None: rv, rwhy = benchmark_reconciles(bench, obj) recon[rv] = recon.get(rv, 0) + 1 rows.ap
+  scripts\benchmark_served_as_own_result_sweep.py:316  default='0'
+      ...er-trial estimates carry an interval" if "fewer than two" in w else "other") out_reasons[tag] = out_reasons.get(tag, 0) + 1 print("
+  scripts\build_binary_sidecar.py:407  default='0'
+      ...ts": 0, "insufficient_k": 0} for i, p in enumerate(targets, 1): r = emit_sidecar(p) stats[r["status"]] = stats.get(r["status"], 0) + 1 if i %
+  scripts\build_continuous_sidecar.py:264  default='0'
+      ...ent_k": 0, "pool_failed": 0} for i, p in enumerate(targets, 1): r = emit_sidecar(p) stats[r["status"]] = stats.get(r["status"], 0) + 1 if i %
+  scripts\build_dabigatran_split_pages_2026_08_19.py:137  default='0'
+      ...and " "<em>nothing shared at any rank</em>.</li>" % (esc(r["comparator_family"]), r.get("k_with_posted_results", 0))) conti
+  scripts\build_dabigatran_split_pages_2026_08_19.py:147  default='0'
+      ...tered rank:<ul>%s</ul>" "<span class='sub'>%s</span></li>" % (esc(r["comparator_family"]), r.get("k_with_posted_results", 0),
+  scripts\build_dabigatran_split_pages_2026_08_19.py:148  default='0'
+      ...sub'>%s</span></li>" % (esc(r["comparator_family"]), r.get("k_with_posted_results", 0), r.get("n_endpoints_shared_at_any_rank", 0), items,
+  scripts\build_paper_bookkeeping_2026_08_21.py:554  default='NO'
+      ...named as owed."), }) print("%-44s refs %-3s intro %-3s bookkeeping %d" % (topic[:44], "yes" if refs else "NO", "yes" if intro els
+  scripts\build_paper_bookkeeping_2026_08_21.py:554  default='NO'
+      ...}) print("%-44s refs %-3s intro %-3s bookkeeping %d" % (topic[:44], "yes" if refs else "NO", "yes" if intro else "NO", len(bk) - 1))
+  scripts\build_portfolio_pools_dashboard.py:61  default='0'
+      ...loads(p.read_text(encoding="utf-8")) except json.JSONDecodeError: continue stem = p.stem k = d.get("k", 0) if not k: c
+  scripts\build_portfolio_pools_dashboard.py:76  default='False'
+      ...d.get("PI_low_OR"), "pi_uci": d.get("PI_high_OR"), "tau2": d.get("tau2"), "hksj_floor": bool(d.get("hksj_floor_applied", False)), "page
+  scripts\build_portfolio_pools_dashboard.py:92  default='0'
+      ...loads(p.read_text(encoding="utf-8")) except json.JSONDecodeError: continue stem = p.stem k = d.get("k", 0) if not k: c
+  scripts\build_portfolio_pools_dashboard.py:112  default='False'
+      ..._lci": d.get("PI_lci"), "pi_uci": d.get("PI_uci"), "tau2": d.get("tau2"), "hksj_floor": bool(d.get("hksj_floor_applied", False)), "page
+  scripts\build_review_index.py:145  default='0'
+      ...mary-row"> <div class="summary-card" style="border-left:3px solid {BAND_COLORS["OK"]["bg"]};"> <div class="num">{band_counts.get("OK",0)}</div> <div cla
+  scripts\build_review_index.py:149  default='0'
+      ... <div class="summary-card" style="border-left:3px solid {BAND_COLORS["LOW_CONCERN"]["bg"]};"> <div class="num">{band_counts.get("LOW_CONCERN",0)}</div> <div cla
+  scripts\build_review_index.py:153  default='0'
+      ...v class="summary-card" style="border-left:3px solid {BAND_COLORS["MANUAL_REVIEW"]["bg"]};"> <div class="num">{band_counts.get("MANUAL_REVIEW",0)}</div> <div cla
+  scripts\build_review_index.py:157  default='0'
+      ...v> <div class="summary-card" style="border-left:3px solid {BAND_COLORS["QUARANTINE"]["bg"]};"> <div class="num">{band_counts.get("QUARANTINE",0)}</div> <div cla
+  scripts\build_truthcert_manifests.py:121  default='False'
+      ..."score"], "n_trials": r["n_trials"], "score_components": r.get("components", {}), "already_quarantined": r.get("already_quarantined", False), "audit_rou
+  scripts\build_what_changed_page.py:74  default='0'
+      ...cation_risk_scores.json").read_text(encoding="utf-8")) bc = Counter(r["classification"] for r in scores) total_fixes = sum(r.get("fixes", 0) for r in ROUNDS) to
+  scripts\build_what_changed_page.py:75  default='0'
+      ...unter(r["classification"] for r in scores) total_fixes = sum(r.get("fixes", 0) for r in ROUNDS) total_flagged = sum(r.get("fixes_flagged", 0) for r in ROUNDS) #
+  scripts\build_what_changed_page.py:83  default='0'
+      ...al_identity_score.json").read_text(encoding="utf-8")) id_buckets = id_scores.get("buckets", {}) def round_card(r): fixes = r.get("fixes", 0) flagged = r.get
+  scripts\build_what_changed_page.py:84  default='0'
+      ...xt(encoding="utf-8")) id_buckets = id_scores.get("buckets", {}) def round_card(r): fixes = r.get("fixes", 0) flagged = r.get("fixes_flagged", 0) label = r["labe
+  scripts\build_what_changed_page.py:145  default='0'
+      ...ssification band</h2> <div class="top-stats"> <div class="stat" style="border-left:3px solid #16a34a;"> <div class="num">{bc.get("OK",0)}</div><div class="l
+  scripts\build_what_changed_page.py:148  default='0'
+      ...lab">Trustworthy (&lt;0.30)</div> </div> <div class="stat" style="border-left:3px solid #ca8a04;"> <div class="num">{bc.get("LOW_CONCERN",0)}</div><div class="l
+  scripts\build_what_changed_page.py:151  default='0'
+      ...">Low concern (0.30-0.50)</div> </div> <div class="stat" style="border-left:3px solid #ea580c;"> <div class="num">{bc.get("MANUAL_REVIEW",0)}</div><div class="l
+  scripts\build_what_changed_page.py:154  default='0'
+      ...b">Manual review (0.50-0.70)</div> </div> <div class="stat" style="border-left:3px solid #7f1d1d;"> <div class="num">{bc.get("QUARANTINE",0)}</div><div class="l
+  scripts\bulk_clone_audit_first.py:427  default='0'
+      ...str(out_html), str(json_p)) if v: seen = {} for tok, _o, _c in v: seen[tok] = seen.get(tok, 0) + 1 rea
+  scripts\check_card_object_consistency.py:206  default='0'
+      ...per_app.values()) by_class = {} for v in per_app.values(): for x in v: by_class[x["class"]] = by_class.get(x["class"], 0) + 1 if args.jso
+  scripts\classify_nma_drops.py:113  default='0'
+      ...s[0].keys())) w.writeheader() w.writerows(rows) by_a = {} for r in rows: by_a[r["action"]] = by_a.get(r["action"], 0) + 1 print(f"===
+  scripts\compare_to_published_mas.py:353  default='0'
+      ...header() w.writerows(findings) by_v: dict[str, int] = {} for f in findings: by_v[f["verdict"]] = by_v.get(f["verdict"], 0) + 1 n_gt = len(
+  scripts\compute_verdict_badges.py:135  default='0'
+      ...s)") if c["P0_aact_nct_missing"]: reasons.append(f"{c['P0_aact_nct_missing']} AACT NCT issue(s)") if c.get("P2_aact_advisory", 0): reason
+  scripts\consolidate_ablation_medical_screen_2026_08_19.py:111  default='0'
+      ...])) return 1 print("\nFINAL DISPOSITIONS") for k in (E, ENP, ENR, EPNI): print(" %-32s %4d" % (k, tally.get(k, 0))) print(" %-3
+  scripts\consolidate_ablation_medical_screen_2026_08_19.py:127  default='0'
+      ...ation-af-medical-therapy", "consolidated_utc": "2026-08-19", "remainder": len(remainder), "tally": {k: tally.get(k, 0) for k in (E, ENP, E
+  scripts\consolidate_ablation_medical_screen_2026_08_19.py:138  default='0'
+      ..."direction that changes the review.")}, "eligible_poolable_not_included": { "n": tally.get(EPNI, 0), "co
+  scripts\corpus\corpus_detectors.py:90  default='clean'
+      ...plicable: return f"{self.det:10s} n/a {self.evidence[:70]}" return f"{self.det:10s} {'FIRES' if self.fired else 'clean':5s} {self.evidence
+  scripts\corpus\corpus_wave.py:1146  default='True'
+      ...] for r in bad: print(f"\n DISCARDED {r.path.name}") g = r.guard if not g.get("rendered_numbers", {}).get("identical", True): print(
+  scripts\corpus\corpus_wave.py:1149  default='True'
+      ...endered_numbers']['lost']} " f"gained={g['rendered_numbers']['gained']}") if not g.get("data_spans", {}).get("identical", True): print(
+  scripts\corpus\corpus_wave.py:1151  default='True'
+      ...True): print(" per-page data spans changed -- this must never happen") if not g.get("script_numbers", {}).get("attributed", True): print(
+  scripts\corpus\corpus_wave.py:1153  default='True'
+      ...print(f" unattributed script numbers: {g['script_numbers']['actual_delta']}") if not g.get("div_balance", {}).get("balanced", True): print(
+  scripts\corpus\run_rollout.py:214  default='0'
+      ...f"{b['discarded_guard']} | {b['discarded_render']} | {b['aborted']} | " f"{b['applied']} | {b['skipped']} | {b.get('minutes', 0):.1f} |") L.appe
+  scripts\corpus\run_rollout.py:266  default='0'
+      ...stats["skipped"] += len(r.skipped) for x in r.applied: st["class_counts"][x["anchor"]] = st["class_counts"].get(x["anchor"], 0) + 1 for x i
+  scripts\corpus\run_rollout.py:275  default='True'
+      ...stats["discarded_guard"] += 1 g = r.guard why = [] if not g.get("rendered_numbers", {}).get("identical", True): wh
+  scripts\corpus\run_rollout.py:278  default='True'
+      ...rs']['lost']} " f"gained={g['rendered_numbers']['gained']}") if not g.get("data_spans", {}).get("identical", True): wh
+  scripts\corpus\run_rollout.py:280  default='True'
+      ...).get("identical", True): why.append("per-page data spans changed") if not g.get("script_numbers", {}).get("attributed", True): wh
+  scripts\corpus\run_rollout.py:282  default='True'
+      ...why.append(f"unattributed numbers {g['script_numbers']['actual_delta']}") if not g.get("js_syntax", {}).get("clean", True): wh
+  scripts\corpus\run_rollout.py:284  default='True'
+      ...).get("clean", True): why.append(f"js syntax {g['js_syntax']['new']}") if not g.get("div_balance", {}).get("balanced", True): wh
+  scripts\corpus\run_wave_num.py:143  default='True'
+      ...bad: print(f" !! {r.status} {r.path.name}") g = r.guard if not g.get("rendered_numbers", {}).get("identical", True): pr
+  scripts\corpus\run_wave_num.py:146  default='True'
+      ..._numbers']['lost']} " f"gained={g['rendered_numbers']['gained']}") if not g.get("js_syntax", {}).get("clean", True): pr
+  scripts\corpus_marker_count_2026_08_24.py:51  default='0'
+      ...ATE.slugs_of(page)) if f: blocked += 1 for cls, _ in f: per_class[cls] = per_class.get(cls, 0) + 1 return len(
+  scripts\corpus_marker_count_2026_08_24.py:82  default='0'
+      ...%8s" % ("class", "before", "after")) for cls in sorted(set(b_cls) | set(a_cls)): print(" %-22s %8d %8d" % (cls, b_cls.get(cls, 0), a_cls.get(cls, 0))
+  scripts\corpus_marker_count_2026_08_24.py:82  default='0'
+      ...efore", "after")) for cls in sorted(set(b_cls) | set(a_cls)): print(" %-22s %8d %8d" % (cls, b_cls.get(cls, 0), a_cls.get(cls, 0))) # Also count
+  scripts\create_colchicine_coronary_2026_08_19.py:293  default='0'
+      ..."k4_contributing_an_estimate": 3, "k5_pooled": 0, "kNA_not_assessable": screen["dispositions"].get("NOT_ASSESSABLE", 0), "arm_r
+  scripts\ctgov_cross_check.py:297  default='0'
+      ...riterows(swap_candidates) # Summary cats: dict[str, int] = {} for fi in findings: cats[fi["category"]] = cats.get(fi["category"], 0) + 1 print("\n==
+  scripts\dashboard_serves_withdrawn_estimates.py:98  default='0'
+      ...ue numeric += 1 page = r.get("file") state, extra = classify(page, val, pmap) tally[state] = tally.get(state, 0) + 1 if stat
+  scripts\dashboard_serves_withdrawn_estimates.py:104  default='0'
+      ...y": extra, "ci": [r.get("ci_low"), r.get("ci_high")], "k": r.get("k")}) served_wrongly = sum(tally.get(s, 0) for s in ("WITHDRAW
+  scripts\double_escape_gate.py:108  default='0'
+      ...= 1 else "ies"), []) return "PASS", "no doubly-encoded entity", [] seen = {} for h in hits: seen[h] = seen.get(h, 0) + 1 return ("FA
+  scripts\durable_artefact_gate.py:104  default='PASS'
+      ...ate = "ok" rows.append((path, state, what, source)) bad = [r for r in rows if r[1] != "ok"] return ("FAIL" if bad else "PASS"), rows def sweep_
+  scripts\enumerate_converter_derived_effects_2026_08_24.py:215  default='0'
+      ...fore the corpus.") return 1 def tally(key): out = {} for rec in recs: out[rec[key]] = out.get(rec[key], 0) + 1 return
+  scripts\enumerate_converter_derived_effects_2026_08_24.py:224  default='0'
+      ...for k in (A1_POINT_OURS, A1_INTERVAL_OURS, A1_PRINTED, A1_CND_UNMATCHED, A1_CND_ABSENT): print(" %-52s %4d" % (k, a1.get(k, 0))) print(" %-5
+  scripts\enumerate_converter_derived_effects_2026_08_24.py:230  default='0'
+      ...S 2 -- WHOSE CHOICE WAS IT. denominator %d" % n) for k in (A2_OURS, A2_THEIRS, A2_CND): print(" %-52s %4d" % (k, a2.get(k, 0))) print() n
+  scripts\estimand_definition_gate.py:747  default='1'
+      ...ver-match this repository has now # committed three times. return {"PASS": 0, "FAIL": 1, "UNCHECKABLE": 2, "WITHDRAWN": 3}.get(v, 1) if __name__ == "_
+  scripts\estimand_screen_dabigatran_vte_2026_08_19.py:285  default='0'
+      ...v = assess_reading(name, rows) out["readings"][name] = v print("\n== %-10s %d eligible read -> %s" % (name, v.get("n_trials_read", 0),
+  scripts\evidence_completeness_audit.py:112  default='0'
+      ...mmary total = len(findings) by_score: dict[int, int] = {} for f in findings: by_score[f["score_3"]] = by_score.get(f["score_3"], 0) + 1 print(f"==
+  scripts\extend_alignment_gate.py:153  default='PASS'
+      ...good = got == want_fail ok &= good print(" %-52s %s expected=%s %s" % (name, "FAIL" if got else "PASS", "
+  scripts\extend_alignment_gate.py:154  default='PASS'
+      ...print(" %-52s %s expected=%s %s" % (name, "FAIL" if got else "PASS", "FAIL" if want_fail else "PASS", "correct" if good
+  scripts\externalize_plotly_inline.py:97  default='0'
+      ...: 0} for i, p in enumerate(targets, 1): ok, reason = patch_file(p) counts[reason if not ok else "ok"] = counts.get(reason if not ok else "ok", 0) + 1 if i %
+  scripts\externalize_plotly_inline.py:97  default='ok'
+      ...iled (kept inline)": 0} for i, p in enumerate(targets, 1): ok, reason = patch_file(p) counts[reason if not ok else "ok"] = counts.get(reaso
+  scripts\externalize_plotly_inline.py:97  default='ok'
+      ...numerate(targets, 1): ok, reason = patch_file(p) counts[reason if not ok else "ok"] = counts.get(reason if not ok else "ok", 0) + 1 if
+  scripts\extract_apixaban_treatment_2026_08_19.py:73  default='0'
+      ...rows.append({"nct": nct, "state": "NOT_ASSESSABLE", "detail": str(detail)[:160]}) tally["NOT_ASSESSABLE"] = tally.get("NOT_ASSESSABLE", 0) + 1 con
+  scripts\extract_apixaban_treatment_2026_08_19.py:98  default='0'
+      ...lse "HAS_RESULTS_PRIMARY_NOT_MATCHED" if has else "NO_RESULTS_POSTED") tally[disp] = tally.get(disp, 0) + 1 rows.ap
+  scripts\fabrication_risk_classifier.py:103  default='0'
+      ...k, v in trials if _trial_at_risk(k, v)) n_nulled_nct = sum(1 for k, v in trials if k.startswith("NULLED:")) n_cross = m10.get(rv, 0) n_single_arm =
+  scripts\fabrication_risk_classifier.py:132  default='0'
+      ...nue n_with_abstract += 1 if v.get("publishedHR") is None: n_unverifiable += 1 e_score = m11_no_ev.get(rv, 0) / tot p_score =
+  scripts\fabrication_risk_classifier.py:135  default='0'
+      ...e = m11_no_ev.get(rv, 0) / tot p_score = n_null_pmid / tot n_score = n_nulled_nct / tot a_score = min(1.0, agent_flags.get(rv, 0) / (tot * 3)) c_
+  scripts\fabrication_risk_classifier.py:160  default='OK'
+      ...if score >= 0.70 else "MANUAL_REVIEW" if score >= 0.50 else "LOW_CONCERN" if score >= 0.30 else "OK") # Reviews that
+  scripts\fabrication_risk_classifier.py:186  default='0'
+      ..., "M_unverifiable_published": round(m_score, 3), }, "raw_counts": { "m11_no_ev": m11_no_ev.get(rv, 0), "null_
+  scripts\fabrication_risk_classifier.py:192  default='0'
+      ..."single_arm_with_HR": n_single_arm, "generic_names": n_generic_name, "agent_flag_weight": agent_flags.get(rv, 0), "trial
+  scripts\fabrication_risk_classifier.py:223  default='0'
+      ...ounter(r["classification"] for r in results) for k in ["QUARANTINE", "MANUAL_REVIEW", "LOW_CONCERN", "OK"]: print(f" {k}: {cc.get(k, 0)}") print() print("
+  scripts\fix_empty_reviews.py:58  default='0'
+      ...Never-extracted: {len(never_extracted)}") def make_notice(category, info): if category == "cleanup_zeroed": n = info.get("total", 0); k = info.get("null
+  scripts\fix_empty_reviews.py:58  default='0'
+      ...r_extracted)}") def make_notice(category, info): if category == "cleanup_zeroed": n = info.get("total", 0); k = info.get("nulled", 0) return f'''
+  scripts\fix_lsmd_disclaimer_apostrophe.py:62  default='0'
+      ...patch_one(path, dry_run=args.dry_run) if r["status"] == "no_op": continue counts[r["status"]] = counts.get(r["status"], 0) + 1 print(f
+  scripts\fix_review_title_template.py:103  default='0'
+      ...hp.read_text(encoding="utf-8", errors="replace") new_text, status, old, new = patch(text) counts[status] = counts.get(status, 0) + 1 if stat
+  scripts\fragility_index_check.py:220  default='0'
+      ...header() w.writerows(findings) by_v: dict[str, int] = {} for r in findings: by_v[r["verdict"]] = by_v.get(r["verdict"], 0) + 1 print(f"\n=
+  scripts\gate_certainty_column_four_states_2026_08_23.py:113  default='0'
+      ...: continue pools += 1 r = ga.resolve(obj, oid) by_state[r["state"]] = by_state.get(r["state"], 0) + 1 if
+  scripts\gate_no_prose_bypasses_the_tidy_2026_08_23.py:121  default='NO'
+      ...RENDER LOOPS: %d" % len(RENDER_LOOP.findall(src))) print("TRANSFORM APPLIED AT THE RENDER: %s" % ("yes" if ok else "NO")) print("")
+  scripts\gate_paper_reads_terribly_2026_08_24.py:284  default='0'
+      ...n(blocked))) by_class = {} for name, fs in blocked.items(): for cls, _ in fs: by_class[cls] = by_class.get(cls, 0) + 1 for cls in
+  scripts\generate_pmid_verification_cards.py:173  default='0'
+      ...y_status: dict[str, int] = {} by_dashboard: dict[str, int] = {} for r in cards: by_status[r['status']] = by_status.get(r['status'], 0) + 1 by_dash
+  scripts\generate_pmid_verification_cards.py:174  default='0'
+      ...r in cards: by_status[r['status']] = by_status.get(r['status'], 0) + 1 by_dashboard[r['dashboard']] = by_dashboard.get(r['dashboard'], 0) + 1 md.append("
+  scripts\generate_topic_html.py:218  default='0'
+      ...svg.append(f'<text x="{margin_l + plot_w + 4}" y="{y+4}" fill="#cbd5e1" font-size="10">{label}</text>') if pool and pool.get("k", 0) >= 1: y = h
+  scripts\generate_topic_html.py:301  default='0'
+      ...()): continue for g, ok in t["gates"].items(): if not ok: by_gate_failure[g] = by_gate_failure.get(g, 0) + 1
+  scripts\generate_topic_html.py:431  default='0'
+      ...fbbf24;font-size:12px;">{pool_str}</p>' if pool_str else ''} </div>""") # Panel 1: Heterogeneity if pool and pool.get("k", 0) >= 2: I2 =
+  scripts\generate_topic_html.py:432  default='0'
+      ...p>' if pool_str else ''} </div>""") # Panel 1: Heterogeneity if pool and pool.get("k", 0) >= 2: I2 = pool.get("I2_pct", 0) tau2 = pool
+  scripts\generate_topic_html.py:433  default='0'
+      ...v>""") # Panel 1: Heterogeneity if pool and pool.get("k", 0) >= 2: I2 = pool.get("I2_pct", 0) tau2 = pool.get("tau2", 0) Q = pool.ge
+  scripts\generate_topic_html.py:434  default='0'
+      ...eity if pool and pool.get("k", 0) >= 2: I2 = pool.get("I2_pct", 0) tau2 = pool.get("tau2", 0) Q = pool.get("Q", 0) df = pool["
+  scripts\generate_topic_html.py:453  default='0'
+      ...>Requires k≥2 trials with event data.</p></div>') # Panel 2: Prediction interval (Cochrane v6.5 t_{k-1}) if pool and pool.get("k", 0) >= 3: impor
+  scripts\generate_topic_html.py:538  default='0'
+      ...= [] if pool and pool["k"] < 5: cert = "Low"; cert_reasons.append(f"k={pool['k']} (imprecision)") if pool and pool.get("I2_pct", 0) > 75: cert
+  scripts\generate_topic_html.py:719  default='0'
+      ...ead_text(encoding="utf-8")) except: continue stem = doc["topic"]["stem"] verdict = doc.get("verdict") n_pass = doc.get("n_pass_all", 0) # Regenerate wh
+  scripts\grade_assess_2026_08_19.py:82  default='0'
+      ...d) or {} if not per: return None, {} tally = {} for rec in per.values(): tally[rec["overall"]] = tally.get(rec["overall"], 0) + 1 return per,
+  scripts\grade_assess_2026_08_19.py:124  default='0'
+      ...down one level " "because unassessed is not low.", steps) else: ni = tally.get("NO_INFORMATION", 0) low
+  scripts\grade_assess_2026_08_19.py:125  default='0'
+      ...unassessed is not low.", steps) else: ni = tally.get("NO_INFORMATION", 0) low = tally.get("LOW", 0) cur
+  scripts\grade_assess_2026_08_19.py:156  default='n/a'
+      ...efinitions, which is done under indirectness." % (("%.4g" % float(i2)) if i2 is not None else "n/a", k))})
+  scripts\grade_assess_2026_08_19.py:222  default='n/a'
+      ...print("%-28s %-34s %-9s k=%-2s I2=%-6s %s" % (topic, oid[:34], cur, k, ("%.4g" % float(i2)) if i2 is not None else "n/a",
+  scripts\grade_assess_2026_08_19.py:229  default='0'
+      ...per.items(): key = r.get("certainty") if r.get("rated") else "NOT_RATED_declined_pool" tally[key] = tally.get(key, 0) + 1 print("\nCE
+  scripts\headline_reproducible_corpus.py:78  default='0'
+      ...doc = json.load(open(p, encoding="utf-8", errors="replace")) except Exception: tally["UNREADABLE"] = tally.get("UNREADABLE", 0) + 1 con
+  scripts\headline_reproducible_corpus.py:82  default='0'
+      ...BLE", 0) + 1 continue obj = adapt(doc) if obj is None: tally["NO_COMPARABLE_DATA"] = tally.get("NO_COMPARABLE_DATA", 0) + 1 con
+  scripts\headline_reproducible_corpus.py:88  default='0'
+      ...) except Exception as ex: v, notes = "UNCHECKABLE", ["raised %s" % type(ex).__name__] tally[v] = tally.get(v, 0) + 1 if v in
+  scripts\headline_reproducible_corpus.py:98  default='0'
+      ..."NO_COMPARABLE_DATA", "UNREADABLE"): if tally.get(k): print(" %-20s %d" % (k, tally[k])) d = tally.get("REPRODUCED", 0) + tally.get("POINT_
+  scripts\headline_reproducible_corpus.py:98  default='0'
+      ..."UNREADABLE"): if tally.get(k): print(" %-20s %d" % (k, tally[k])) d = tally.get("REPRODUCED", 0) + tally.get("POINT_ONLY", 0) + tally.get("NOT_RE
+  scripts\headline_reproducible_corpus.py:98  default='0'
+      ...ly.get(k): print(" %-20s %d" % (k, tally[k])) d = tally.get("REPRODUCED", 0) + tally.get("POINT_ONLY", 0) + tally.get("NOT_REPRODUCED", 0) if d: p
+  scripts\headline_reproducible_corpus.py:102  default='0'
+      ...headline follows from the page's own per-trial numbers : %d (%.1f%%)" % (tally.get("REPRODUCED", 0), 100.0 * tally.get("REPRODUCED", 0) / d)) print
+  scripts\headline_reproducible_corpus.py:102  default='0'
+      ...on %d pages:" % d) print(" headline follows from the page's own per-trial numbers : %d (%.1f%%)" % (tally.get("REPRODUCED", 0), 100.0 * tally.get(
+  scripts\headline_reproducible_corpus.py:104  default='0'
+      ...RODUCED", 0) / d)) print(" point follows, interval does not : %d (%.1f%%)" % (tally.get("POINT_ONLY", 0), 100.0 * tally.get(
+  scripts\headline_reproducible_corpus.py:104  default='0'
+      ...point follows, interval does not : %d (%.1f%%)" % (tally.get("POINT_ONLY", 0), 100.0 * tally.get("POINT_ONLY", 0) / d)) print
+  scripts\headline_reproducible_corpus.py:106  default='0'
+      ...NT_ONLY", 0) / d)) print(" NO combination reproduces it : %d (%.1f%%)" % (tally.get("NOT_REPRODUCED", 0), 100.0 * tally.get(
+  scripts\headline_reproducible_corpus.py:106  default='0'
+      ...combination reproduces it : %d (%.1f%%)" % (tally.get("NOT_REPRODUCED", 0), 100.0 * tally.get("NOT_REPRODUCED", 0) / d)) print("\n
+  scripts\headline_reproducible_gate.py:328  default='0'
+      ...except Exception as ex: v, notes = "UNCHECKABLE", [" raised %s" % type(ex).__name__] tally[v] = tally.get(v, 0) + 1 if v in
+  scripts\headline_reproducible_gate.py:340  default='0'
+      ...PRODUCED", "POINT_ONLY", "NOT_REPRODUCED", "UNCHECKABLE", "SKIPPED"): print(" %-16s %d" % (k, tally.get(k, 0))) d = tally
+  scripts\headline_reproducible_gate.py:341  default='0'
+      ..."SKIPPED"): print(" %-16s %d" % (k, tally.get(k, 0))) d = tally.get("REPRODUCED", 0) + tally.get("NOT_REPRODUCED", 0) if d:
+  scripts\headline_reproducible_gate.py:341  default='0'
+      ...REPRODUCED", "UNCHECKABLE", "SKIPPED"): print(" %-16s %d" % (k, tally.get(k, 0))) d = tally.get("REPRODUCED", 0) + tally.get("NOT_RE
+  scripts\headline_reproducible_gate.py:344  default='0'
+      ...print(" reproduced among the %d objects where the question could be asked: " "%.1f%%" % (d, 100.0 * tally.get("REPRODUCED", 0) / d)) print
+  scripts\id_triage.py:178  default='0'
+      ...[1])) v = "POOL POSSIBLE" why = "%d share '%s'" % (len(best[1]), best[0]) tally[v] = tally.get(v, 0) + 1 print("
+  scripts\identity_by_registration_gate.py:73  default='PASS'
+      ...ct, "PASS", "%s = %r" % (nct, name or "(unnamed)"))) verdict = ("FAIL" if any(v == "FAIL" for _, v, _ in rows) else "PASS" if any(v == "PASS"
+  scripts\index_markup_gate.py:102  default='PASS'
+      ...faults, unclosed = nesting_faults(html) dead = dead_cards(html, root) verdict = "FAIL" if (faults or unclosed or dead) else "PASS" return verdict,
+  scripts\inject_attestation_badges.py:83  default='0'
+      ...text = hp.read_text(encoding="utf-8", errors="replace") new_text, status = patch(text) counts[status] = counts.get(status, 0) + 1 if stat
+  scripts\inject_classification_badges.py:58  default='0'
+      ...f components: # Visual breakdown bar bars = [] for label, val in [ ("evidence-gap", components.get("E_no_evidence", 0)), ("nul
+  scripts\inject_classification_badges.py:59  default='0'
+      ...for label, val in [ ("evidence-gap", components.get("E_no_evidence", 0)), ("null-PMID", components.get("P_null_pmid", 0)), ("nul
+  scripts\inject_classification_badges.py:60  default='0'
+      ...ponents.get("E_no_evidence", 0)), ("null-PMID", components.get("P_null_pmid", 0)), ("null-NCT", components.get("N_nulled_nct", 0)), ("age
+  scripts\inject_classification_badges.py:61  default='0'
+      ...onents.get("P_null_pmid", 0)), ("null-NCT", components.get("N_nulled_nct", 0)), ("agent-flags", components.get("A_agent_flag_density", 0)), ]:
+  scripts\inject_credit_block.py:65  default='0'
+      ...text = hp.read_text(encoding="utf-8", errors="replace") new_text, status = patch(text) counts[status] = counts.get(status, 0) + 1 if stat
+  scripts\inject_living_review.py:76  default='0'
+      ...text = hp.read_text(encoding="utf-8", errors="replace") new_text, status = patch(text) counts[status] = counts.get(status, 0) + 1 if stat
+  scripts\inject_outcome_switching.py:66  default='0'
+      ...text = hp.read_text(encoding="utf-8", errors="replace") new_text, status = patch(text) counts[status] = counts.get(status, 0) + 1 if stat
+  scripts\inject_prisma_flow.py:67  default='0'
+      ...text = hp.read_text(encoding="utf-8", errors="replace") new_text, status = patch(text) counts[status] = counts.get(status, 0) + 1 if stat
+  scripts\inject_protocol_registry_row.py:54  default='0'
+      ...text = hp.read_text(encoding="utf-8", errors="replace") new_text, status = patch(text) counts[status] = counts.get(status, 0) + 1 if stat
+  scripts\inject_rob2_autofill.py:59  default='0'
+      ...text = hp.read_text(encoding="utf-8", errors="replace") new_text, status = patch(text) counts[status] = counts.get(status, 0) + 1 if stat
+  scripts\inject_rob2_widget.py:63  default='0'
+      ...text = hp.read_text(encoding="utf-8", errors="replace") new_text, status = patch(text) counts[status] = counts.get(status, 0) + 1 if stat
+  scripts\inject_robnma_transitivity.py:73  default='0'
+      ...text = hp.read_text(encoding="utf-8", errors="replace") new_text, status = patch(text) counts[status] = counts.get(status, 0) + 1 if stat
+  scripts\inject_tier3_nma.py:166  default='0'
+      ...text = hp.read_text(encoding="utf-8", errors="replace") new_text, status = patch(text) counts[status] = counts.get(status, 0) + 1 if stat
+  scripts\internal_consistency_check.py:229  default='0'
+      ...er() w.writerows(findings) by_v = {"OK": 0, "DEFECT": 0} for r in findings: by_v[r["verdict"]] = by_v.get(r["verdict"], 0) + 1 print(f"\n=
+  scripts\internal_consistency_check.py:232  default='0'
+      ...print(f"\n=== Internal-consistency results ===") print(f" Trial-rows analysed: {len(findings)}") print(f" OK: {by_v.get('OK', 0)}") print(f" DE
+  scripts\internal_consistency_check.py:233  default='0'
+      ...lts ===") print(f" Trial-rows analysed: {len(findings)}") print(f" OK: {by_v.get('OK', 0)}") print(f" DEFECT: {by_v.get('DEFECT', 0)}") # Categoris
+  scripts\internal_consistency_check.py:242  default='0'
+      ...for iss in r["issues"].split(";"): cat = iss.split("(")[0].strip() issue_buckets[cat] = issue_buckets.get(cat, 0) + 1 print(f"\n=
+  scripts\internal_consistency_triage.py:131  default='0'
+      ...continue counts = {} for fs in members.values(): for f in fs: counts[f] = counts.get(f, 0) + 1 # ONLY
+  scripts\k_consistency_gate.py:335  default='PASS'
+      ...good = got == expect_fail ok &= good print(" %-52s %s expected=%s %s" % (name, "FAIL" if got else "PASS", "
+  scripts\k_consistency_gate.py:336  default='PASS'
+      ...print(" %-52s %s expected=%s %s" % (name, "FAIL" if got else "PASS", "FAIL" if expect_fail else "PASS", "
+  scripts\lane_daemon.py:217  default='0'
+      ...ss running.pop(name) # --- fill for engine in ("codex", "agy"): if time.time() < COOLDOWN.get(engine, 0): co
+  scripts\lane_harvest.py:100  default='0'
+      ...carries the verdict. v = classify(t[-6000:]) rows[f[:-4]] = {"state": v, "bytes": len(t)} tally[v] = tally.get(v, 0) + 1 st = {}
+  scripts\lane_harvest.py:119  default='0'
+      ...r k in ("INPUT_TRUNCATED", "CLAIMS_DEFECT", "CLEAN", "COULD_NOT_DETERMINE", "NO_ANSWER"): print(" %-22s %5d" % (k, tally.get(k, 0))) print("")
+  scripts\lint_hr_between_or_and_rr.py:67  default='0'
+      ...if len(tr) != 1 or len(ct) != 1: skipped["not a two-arm contrast on arms[]"] = \ skipped.get("not a two-arm contrast on arms[]", 0) + 1
+  scripts\lint_hr_between_or_and_rr.py:73  default='0'
+      ...(0 < a < na) or not (0 < c < nc): skipped["arms[] carries no usable event counts"] = \ skipped.get("arms[] carries no usable event counts", 0) + 1
+  scripts\lint_hr_between_or_and_rr.py:83  default='0'
+      ...": key = ("effect declares %s, not HR" % (measure or "no measure")) skipped[key] = skipped.get(key, 0) + 1
+  scripts\lint_no_false_allclear.py:24  default='0'
+      ... is why this is lintable rather than a policy: the coercion is almost always written as a DEFAULT ON A READ. obj.get("k_unscreened_remainder", 0) # absent -> 0.
+  scripts\lint_no_false_allclear.py:80  default='0'
+      ...fault.value == 0: if line_ok(node): out.append((node.lineno, key.value, "`.get(%r, 0)` turns ABSENT into
+  scripts\lint_paper_reads_as_prose.py:167  default='0'
+      ...hits.append("identifier") if hits: bad += 1 for h in hits: why[h] = why.get(h, 0) + 1 return len(
+  scripts\lint_paper_reads_as_prose.py:188  default='0'
+      ...continue n, b, w = score(text) tot += n mach += b for k, v in w.items(): why[k] = why.get(k, 0) + v if any(
+  scripts\lint_restraint.py:219  default='0'
+      ...BASELINE_PATH): try: with io.open(BASELINE_PATH, encoding="utf-8") as fh: base = json.load(fh).get("count", 0) except (Val
+  scripts\literature_limb_remaining_readings_2026_08_19.py:126  default='0'
+      ...rows.append(r) total[st] += 1 c = {} for r in rows: c[r["publication_state"]] = c.get(r["publication_state"], 0) + 1 doc["re
+  scripts\measure_rob_summary_defect_2026_08_24.py:114  default='0'
+      ...IGH") counted = collections.Counter(m.lower() for m in _VERDICT_RE.findall(prose_of(obj))) reported_high = counted.get("high risk of bias", 0) if (stored_
+  scripts\nafis_harness\ledger.py:621  default='0'
+      ...dict[str, int] = {} by_mech: dict[str, int] = {} for r in rows: st = states[r.id] by_state[st] = by_state.get(st, 0) + 1 by_scop
+  scripts\nafis_harness\ledger.py:622  default='0'
+      ...for r in rows: st = states[r.id] by_state[st] = by_state.get(st, 0) + 1 by_scope[r.fix_scope] = by_scope.get(r.fix_scope, 0) + 1 by_mech
+  scripts\nafis_harness\ledger.py:623  default='0'
+      ...= by_state.get(st, 0) + 1 by_scope[r.fix_scope] = by_scope.get(r.fix_scope, 0) + 1 by_mech[r.mechanism] = by_mech.get(r.mechanism, 0) + 1 wired = by
+  scripts\nafis_harness\ledger.py:625  default='0'
+      ...fix_scope] = by_scope.get(r.fix_scope, 0) + 1 by_mech[r.mechanism] = by_mech.get(r.mechanism, 0) + 1 wired = by_state.get(WIRED, 0) available = by_
+  scripts\nafis_harness\ledger.py:626  default='0'
+      ...0) + 1 by_mech[r.mechanism] = by_mech.get(r.mechanism, 0) + 1 wired = by_state.get(WIRED, 0) available = by_state.get(AVAILABLE, 0) none = by_state
+  scripts\nafis_harness\ledger.py:627  default='0'
+      ...by_mech.get(r.mechanism, 0) + 1 wired = by_state.get(WIRED, 0) available = by_state.get(AVAILABLE, 0) none = by_state.get(NONE, 0) class_scoped =
+  scripts\nafis_harness\probes.py:713  default='0'
+      ..."denominator is a maintained counter rather than a typed " "literal.") num = p.get("numerator", 0) if p.get("claim
+  scripts\numbers_pack_absent_is_not_zero_2026_08_19.py:155  default='0'
+      ...ADLINE FRACTION ------------------------------------ disp = {} for r in scr["rows"]: disp[r["disposition"]] = disp.get(r["disposition"], 0) + 1 completed_u
+  scripts\p46_queue.py:95  default='HELD'
+      ...("HELD", "%d of %d pooled outcome(s)" % (len(held), len(pools))) else: res["grade_per_pool"] = ("REFUSED" if not held else "HELD",
+  scripts\p46_queue.py:125  default='HELD'
+      ...% (len(held), len(pools))) else: res["model_output_verbatim"] = ("REFUSED" if not held else "HELD",
+  scripts\page_family_and_emptiness.py:86  default='0'
+      ...io.open(os.path.join(REPO, p), encoding="utf-8", errors="replace").read() fam, d = classify(html) fams[fam] = fams.get(fam, 0) + 1 if d["e
+  scripts\page_family_and_emptiness.py:99  default='0'
+      ...(" %-12s %4d" % (k, v)) print() print("=== EMPTY, within V2_SHELL only") print(" V2 pages: %d" % fams.get("V2_SHELL", 0)) print(" of
+  scripts\pi_gap_check.py:221  default='0'
+      ...header() w.writerows(findings) by_v: dict[str, int] = {} for r in findings: by_v[r["verdict"]] = by_v.get(r["verdict"], 0) + 1 print(f"\n=
+  scripts\pilot_pmc_fetch.py:118  default='no'
+      ...e.sleep(0.4) if not pmcid: pmc_unavailable += 1 print(f"PMID {pmid}: abstract={'YES' if abst_best else 'no'} PMC=unavailable")
+  scripts\pilot_pmc_fetch.py:124  default='no'
+      ...if not pmc_text: pmc_unavailable += 1 print(f"PMID {pmid} ({pmcid}): abstract={'YES' if abst_best else 'no'} PMC=fetch-failed"
+  scripts\pilot_pmc_fetch.py:130  default='no'
+      ...if not abst_best: pmc_new_hits += 1 print(f"PMID {pmid} ({pmcid}, {len(pmc_text):,}c): abstract={'YES' if abst_best else 'no'} "
+  scripts\pilot_pmc_fetch.py:134  default='no'
+      ...per']}] via {pmc_src}") else: print(f"PMID {pmid} ({pmcid}, {len(pmc_text):,}c): abstract={'YES' if abst_best else 'no'} PMC=no-extraction
+  scripts\plant_converter_derived_enumeration_2026_08_24.py:60  default='0'
+      ...ncoding="utf-8") as fh: d = json.load(fh) return {"rows": d["rows"], "point_ours": d["axis1_whose_number"].get("POINT_COMPUTED_HERE", 0), "inter
+  scripts\plant_converter_derived_enumeration_2026_08_24.py:61  default='0'
+      ...t_ours": d["axis1_whose_number"].get("POINT_COMPUTED_HERE", 0), "interval_ours": d["axis1_whose_number"].get( "POINT_PRINTED_INTERVAL_COMPUTED_HERE", 0), "as_pr
+  scripts\plant_converter_derived_enumeration_2026_08_24.py:63  default='0'
+      ..._whose_number"].get( "POINT_PRINTED_INTERVAL_COMPUTED_HERE", 0), "as_printed": d["axis1_whose_number"].get("AS_PRINTED", 0), "cnd_n
+  scripts\plant_converter_derived_enumeration_2026_08_24.py:64  default='0'
+      ... "as_printed": d["axis1_whose_number"].get("AS_PRINTED", 0), "cnd_no_field": d["axis1_whose_number"].get( "COULD_NOT_DETERMINE__no_provenance_field", 0), "cnd_u
+  scripts\plant_converter_derived_enumeration_2026_08_24.py:66  default='0'
+      ..."].get( "COULD_NOT_DETERMINE__no_provenance_field", 0), "cnd_unmatched": d["axis1_whose_number"].get( "COULD_NOT_DETERMINE__prose_present_unmatched", 0), "selec
+  scripts\plant_converter_derived_enumeration_2026_08_24.py:68  default='0'
+      ...r"].get( "COULD_NOT_DETERMINE__prose_present_unmatched", 0), "selection_ours": d["axis2_whose_choice"].get("SELECTION_BY_THIS_REVIEW", 0), "prima
+  scripts\plant_converter_derived_enumeration_2026_08_24.py:69  default='0'
+      ...selection_ours": d["axis2_whose_choice"].get("SELECTION_BY_THIS_REVIEW", 0), "primary_theirs": d["axis2_whose_choice"].get("TRIALS_OWN_PRIMARY", 0), "cnd_n
+  scripts\plant_converter_derived_enumeration_2026_08_24.py:70  default='0'
+      ...theirs": d["axis2_whose_choice"].get("TRIALS_OWN_PRIMARY", 0), "cnd_no_rank": d["axis2_whose_choice"].get( "COULD_NOT_DETERMINE__no_rank_field", 0)} def load():
+  scripts\populate_pmids.py:272  default='NONE'
+      ...st or {}).get("citedByCount"), "score": best_score if best else None, "confidence": _classify(best_score) if best else "NONE", "reasons":
+  scripts\populate_pmids.py:335  default='0'
+      ...skipped_has_pmid"] += 1 continue look = lookup["by_nct"].get(nct) if not look or CONF_RANK.get(look["confidence"], 0) < bar:
+  scripts\project_dashboard_index.py:128  default='0'
+      ...): continue page = r.get("file") state, detail = object_state(page, pmap) tally[state] = tally.get(state, 0) + 1 r["ssot
+  scripts\propose_pmid_corrections.py:78  default='0'
+      ...def cache_get(cache: dict, key: str): rec = cache.get(key) if not rec: return None if int(time.time()) - rec.get("_t", 0) > CACHE_TTL_SEC:
+  scripts\propose_pmid_corrections.py:396  default='0'
+      ....writeheader() w.writerows(out_rows) by_status = {} for r in out_rows: by_status[r["status"]] = by_status.get(r["status"], 0) + 1 print()
+  scripts\prose_claim_gate.py:280  default='0'
+      ...come") or {}).get("acm") p = (blk or {}).get("pooled") or {} if blk is not None and p.get("ci_low", 9) <= 1.0 <= p.get("ci_high", 0): blk["i
+  scripts\protocol_subject_gate.py:283  default='0'
+      ...except Exception: continue v, why, findings = check(p, canon) tally[v] = tally.get(v, 0) + 1 if
+  scripts\prove_criteria_fingerprint.py:129  default='NO'
+      ...) as fh: restored = fh.read() == real_bytes print("\n restore verified byte-for-byte %s" % ("YES" if restored else "NO")) if not restor
+  scripts\prove_guard_fixes.py:33  default='PASS'
+      ...) r = G.check(o, led) fired = r["verdict"] != "PASS" ok = fired == expect_fail rows.append((name, "FAIL" if fired else "PASS", "
+  scripts\prove_guard_fixes.py:34  default='PASS'
+      ...= fired == expect_fail rows.append((name, "FAIL" if fired else "PASS", "expected " + ("FAIL" if expect_fail else "PASS"),
+  scripts\prove_never_fired_by_graft.py:52  default='0'
+      ...j):", " cascade = obj.get('k_cascade') or {}", " return {", " 'surfaced': cascade.get('k0_surfaced', 0),", "
+  scripts\prove_never_fired_by_graft.py:53  default='0'
+      ..." return {", " 'surfaced': cascade.get('k0_surfaced', 0),", " 'unscreened': cascade.get('k_unscreened_remainder', 0),", "
+  scripts\prove_regate_guards.py:150  default='clean'
+      ...print(" lint exit code %d" % lrc) print(" lint verdict %s" % ("REFUSED" if lrc else "clean")) proved =
+  scripts\prove_regate_guards.py:171  default='NO'
+      ...estored = md5(OBJ_ABS) == before print() print(" restore verified by md5 %s (%s)" % ("YES" if restored else "NO", before)) if no
+  scripts\prove_the_never_fired.py:50  default='0'
+      ...us(topics, counts):", " rows = []", " for t in topics:", " rows.append((t, counts.get(t, 0)))", "
+  scripts\prove_the_never_fired.py:120  default='0'
+      ...t = graft_no_false_allclear() results.append(( "44 lint_no_false_allclear", code, "a census site doing counts.get(topic, 0) on an uncounted top
+  scripts\published_synthesis_screen.py:60  default='0'
+      ...on&retmax=%d&term=%s" % ( retmax, urllib.parse.quote(query)) d = json.loads(_get(u))["esearchresult"] return int(d.get("count", 0)), d.get("idlist", [
+  scripts\published_synthesis_screen.py:136  default='0'
+      ...ttps://pubmed.ncbi.nlm.nih.gov/%s/" % pmid, }) tally = {} for row in rows: tally[row["decision"]] = tally.get(row["decision"], 0) + 1 out = {
+  scripts\pubmed_cross_check.py:199  default='OK'
+      ...p == 0: verdict_parts.append("TRIAL_PMID_MISALIGNED") verdict = "+".join(verdict_parts) if verdict_parts else "OK" findings.a
+  scripts\pubmed_cross_check.py:225  default='0'
+      ...w.writerows(findings) by_verdict: dict[str, int] = {} for f in findings: by_verdict[f["verdict"]] = by_verdict.get(f["verdict"], 0) + 1 print(f"\n
+  scripts\pubmed_cross_check_v2.py:143  default='NO'
+      ...") out_rows.append({ **r, "v2_verdict": v2_verdict, "topic_match": "YES" if topic_ok else "NO", "v2_no
+  scripts\pubmed_cross_check_v2.py:155  default='0'
+      ...ader() w.writerows(out_rows) by_v2: dict[str, int] = {} for r in out_rows: by_v2[r["v2_verdict"]] = by_v2.get(r["v2_verdict"], 0) + 1 print(f"\n=
+  scripts\pubmed_cross_check_v3.py:118  default='0'
+      ...if shared_count == 0: # Author check as last-resort safeguard authors_in_snip = int(r.get("authors_in_snippet", "0") or "0")
+  scripts\pubmed_cross_check_v3.py:146  default='0'
+      ...ader() w.writerows(out_rows) by_v3: dict[str, int] = {} for r in out_rows: by_v3[r["v3_verdict"]] = by_v3.get(r["v3_verdict"], 0) + 1 print(f"\n=
+  scripts\pubmed_nct_linkage_check.py:175  default='0'
+      ...riteheader() w.writerows(findings) by_v: dict[str, int] = {} for f in findings: by_v[f["verdict"]] = by_v.get(f["verdict"], 0) + 1 print(f"\n=
+  scripts\r31_33_polish.py:62  default='0'
+      ...-digit observations") print(f"{'d':>3} {'obs':>6} {'obs%':>6} {'expected%':>10}") for d in range(1, 10): obs = first_digits.get(d, 0) exp = expected[
+  scripts\r31_33_polish.py:143  default='0'
+      ...)}") for k in ["80-100 (excellent)", "60-79 (good)", "40-59 (caution)", "20-39 (poor)", "0-19 (bad)"]: print(f" {k}: {buckets.get(k, 0)}") # Write outputs
+  scripts\r5_fidelity_v2_outcome_aware.py:206  default='0'
+      ...ome": res.get("outcome"), "ref": res.get("ref"), "verdict": res.get("verdict"), "matches": res.get("matches", 0), "misma
+  scripts\r5_fidelity_v2_outcome_aware.py:207  default='0'
+      ...get("ref"), "verdict": res.get("verdict"), "matches": res.get("matches", 0), "mismatches": res.get("mismatches", 0), "field
+  scripts\r5_fidelity_v2_outcome_aware.py:208  default='0'
+      ..."matches": res.get("matches", 0), "mismatches": res.get("mismatches", 0), "fields_compared": res.get("fields_compared", 0), "delta
+  scripts\r5_fidelity_v2_outcome_aware.py:235  default='0'
+      ...print(f" {fld}: extracted={d.get('extracted')} published={d.get('published')} Δ={d.get('delta', d.get('extracted', 0) - d.get('published', 0))}")
+  scripts\r5_fidelity_v2_outcome_aware.py:235  default='0'
+      ...t("match"): print(f" {fld}: extracted={d.get('extracted')} published={d.get('published')} Δ={d.get('delta', d.get('extracted', 0) - d.get('published'
+  scripts\r5_fidelity_vs_published.py:279  default='n/a'
+      ...(): if not d["match"]: print(f" {fld}: extracted={d['extracted']} published={d['published']} Δ={d.get('abs_delta', 'n/a')}")
+  scripts\r5b_pool_vs_published_extended.py:222  default='0'
+      ...*60}\nR5b extended summary:") for k, v in verdict_counts.most_common(): print(f" {k}: {v}") within_floor = sum(verdict_counts.get(k, 0) for k in ["EXCELLEN
+  scripts\r_validate_dta.py:112  default='0'
+      ...sult['k']} Se={result['sens_pool']:.3f} " f"Sp={result['spec_pool']:.3f} DOR={result['dor']:.1f} AUC={result.get('auc',0):.3f}")
+  scripts\read_unclassified_skipped_pages.py:94  default='no'
+      ...key=lambda x: -x["bytes"]): print("%-52s %9d %6s %6s %s" % (r["page"][:52], r["bytes"], "yes" if r["stamp"] else "no", "
+  scripts\read_unclassified_skipped_pages.py:95  default='no'
+      ...6s %6s %s" % (r["page"][:52], r["bytes"], "yes" if r["stamp"] else "no", "yes" if r["paper_panel"] else "no", r["object"]))
+  scripts\reclassify_pmid_audit.py:210  default='0'
+      ...G_PMID": 0, "NOT_FOUND": 0} out = [] for r in rows: new_status = reclassify(r) counts[new_status] = counts.get(new_status, 0) + 1 r["stat
+  scripts\reclassify_pmid_audit.py:225  default='0'
+      ...sorted(counts.items(), key=lambda x: -x[1]): print(f" {k:18s} {v:4d} ({100*v/total:.1f}%)") n_truly_wrong = counts.get("WRONG_PMID", 0) print(f"\n Tot
+  scripts\reclassify_pmid_v3.py:121  default='0'
+      ...s)} rows ...") counts = {} for r in rows: new_status = classify(r, group_idx) counts[new_status] = counts.get(new_status, 0) + 1 r["stat
+  scripts\reclassify_pmid_v3.py:135  default='0'
+      ..., v in sorted(counts.items(), key=lambda x: -x[1]): print(f" {k:18s} {v:4d} ({100*v/total:.1f}%)") n_wrong = counts.get("WRONG_PMID", 0) print(f"\n Tot
+  scripts\record_duplicate_screening_2026_08_19.py:124  default='n/a'
+      ...e += 1 print("%-28s DUPLICATE SCREENING RECORDED both=%s single=%s code=%s%%" % (topic, both, single, rec.get("code_agreement_pct", "n/a"))) for t in OWE
+  scripts\regate_across_revisions.py:125  default='no'
+      ...% (rev, t["k3_experimental"], t["k4_comparator"], t["k5_background"], t["kNA_not_assessable"], "YES" if same else "no")) print("
+  scripts\regate_cascade_2026_08_19.py:273  default='NONE'
+      ...c_not_surfaced}") print(f" INCLUDED trials whose role changed: " f"{changed_included if changed_included else 'NONE'}") print()
+  scripts\regate_cascade_2026_08_19.py:288  default='NONE'
+      ...rint() print("SUMMARY") print(f" topics whose cascade MOVED under the repaired classifier: " f"{moved if moved else 'NONE'}") print(f" to
+  scripts\regate_cascade_2026_08_19.py:290  default='NONE'
+      ...f"{moved if moved else 'NONE'}") print(f" topics whose k0 drifted since the stored search: " f"{drifted if drifted else 'NONE'}") print(" A m
+  scripts\regate_sglt2_three_revisions.py:108  default='no'
+      ...'k5_background']:>5}{t['kNA_not_assessable']:>5} " f"{'YES -- this is the revision the page was built to' if same else 'no'}") print(f"
+  scripts\regression_check.py:458  default='0'
+      ...of its two readings it is. if "arni_hf_protocol" in proto_href: marker_seen["arni_hf_protocol"] = marker_seen.get("arni_hf_protocol", 0) + 1 if a !=
+  scripts\regression_guard.py:146  default='0'
+      ..."citations", "screened"): a[f] = sorted(set(a[f]) | st[f]) for k, v in st["k"].items(): a["k"][k] = max(a["k"].get(k, 0), v) # high-wate
+  scripts\regression_guard.py:228  default='PASS'
+      ...e: changed[k] = "%s -> %s" % (was, now) if changed: lost["values"] = changed verdict = "FAIL" if lost else "PASS" return {"verdic
+  scripts\repair_paper_reads_terribly_2026_08_24.py:201  default='0'
+      ...lean_topic = repair(obj, slug) if not changes: continue for c in changes: tally[c] = tally.get(c, 0) + 1 touched
+  scripts\resolve_primary_publications.py:87  default='0'
+      ...et("citation") or "")[:280]} for r in refs] by_type = {} for c in cands: by_type[c["type"]] = by_type.get(c["type"], 0) + 1 return {
+  scripts\resolve_primary_publications.py:122  default='0'
+      ...% (r.get("registration"), (r.get("name") or "")[:26], r["state"], ("%d candidate(s) %s" % (r.get("n_candidates", 0),
+  scripts\rob2_assess_2026_08_19.py:115  default='NO'
+      ..."control"] pct = 100.0 * (rand - tot) / float(rand) q["data_available_for_all_randomised"] = "YES" if tot >= rand else "NO" ev.append("
+  scripts\rob2_assess_2026_08_19.py:376  default='0'
+      ...values()) for oid, per in r.items(): for _i, rec in per.items(): tally[rec["overall"]] = tally.get(rec["overall"], 0) + 1
+  scripts\rob2_assess_2026_08_19.py:378  default='0'
+      ...rall"], 0) + 1 for dn, dv in rec["domains"].items(): tally[dn + ":" + dv["judgement"]] = tally.get(dn + ":" + dv["judgement"], 0) + 1 print("
+  scripts\rob2_assess_2026_08_19.py:382  default='0'
+      ...("\nOVERALL, ACROSS ALL RESULT-LEVEL ASSESSMENTS") for k in (LOW, SOME, HIGH, NOINFO): print(" %-16s %d" % (k, tally.get(k, 0))) print("\nPER
+  scripts\rob2_assess_2026_08_19.py:388  default='0'
+      ...f_result"): row = " %-26s" % d for k in (LOW, SOME, HIGH, NOINFO): row += " %s=%-3d" % (k[:4], tally.get(d + ":" + k, 0)) print(row)
+  scripts\scan_stat_engine_violations.py:145  default='0'
+      ...olations_in(txt) if v: per_file[p.name] = v for r in v: rule_count[r] = rule_count.get(r, 0) + 1 print(f"\n
+  scripts\screen_ablation_hf_remainder_2026_08_19.py:287  default='0'
+      ...(len(extra), extra)) return 1 tally = {} for _n, verdict, _a, _c, _f, _r in ROWS: tally[verdict] = tally.get(verdict, 0) + 1 tally.setde
+  scripts\screen_ablation_hf_remainder_2026_08_19.py:292  default='0'
+      ...tally.setdefault(EPNI, 0) print("\nDISPOSITIONS") for k in (E, ENP, ENR, EPNI): print(" %-32s %3d" % (k, tally.get(k, 0))) print(" %-3
+  scripts\screen_ablation_hf_remainder_2026_08_19.py:299  default='0'
+      ...der) by_limb = {} for _n, verdict, _a, crit, _f, _r in ROWS: if verdict == E: by_limb[crit] = by_limb.get(crit, 0) + 1 print("\nEX
+  scripts\screen_ablation_hf_remainder_2026_08_19.py:310  default='0'
+      ..."into three reviews. predefined: false."), "remainder": len(remainder), "tally": {k: tally.get(k, 0) for k in (E, ENP, E
+  scripts\screen_ablation_medical_remainder_2026_08_19.py:305  default='0'
+      ..."TRANSPORT", "criterion": "UNREACHABLE", "reason": "%s: %s" % (st, det)}) tally[ADJ] = tally.get(ADJ, 0) + 1 con
+  scripts\screen_ablation_medical_remainder_2026_08_19.py:315  default='0'
+      ..."outcomesModule (every rank) + statusModule", "reason": reason}) tally[v] = tally.get(v, 0) + 1 if v ==
+  scripts\screen_ablation_medical_remainder_2026_08_19.py:317  default='0'
+      ..."reason": reason}) tally[v] = tally.get(v, 0) + 1 if v == E: by_limb[crit] = by_limb.get(crit, 0) + 1 if i %
+  scripts\screen_ablation_medical_remainder_2026_08_19.py:323  default='0'
+      ...(i, len(remainder))) print("\nDISPOSITIONS") for k in (E, ENP, ENR, EPNI, ADJ): print(" %-32s %4d" % (k, tally.get(k, 0))) print(" %-3
+  scripts\screen_ablation_medical_remainder_2026_08_19.py:336  default='0'
+      ...JUDICATION and is listed, never guessed and " "never defaulted to EXCLUDED."), "tally": {k: tally.get(k, 0) for k in (E, ENP, E
+  scripts\screen_ablation_medical_remainder_2026_08_19.py:342  default='0'
+      ...pen(DEST, "w", encoding="utf-8") as fh: fh.write(json.dumps(out, indent=1)) print("\nwrote %s" % DEST) adj = tally.get(ADJ, 0) epni = tally.ge
+  scripts\screen_ablation_medical_remainder_2026_08_19.py:343  default='0'
+      ...8") as fh: fh.write(json.dumps(out, indent=1)) print("\nwrote %s" % DEST) adj = tally.get(ADJ, 0) epni = tally.get(EPNI, 0) print("\nNEEDS_
+  scripts\screen_alirocumab_remainder.py:134  default='0'
+      ...= json.load(fh) rows, tally = [], {} for t in rem: v, axis, crit, field, why = decide(t) tally[v] = tally.get(v, 0) + 1 rows.ap
+  scripts\screen_apixaban_split_2026_08_19.py:198  default='0'
+      ..."limbs": limbs, "status": status, "primaryPurpose": purpose, "reason": why}) tally[v] = tally.get(v, 0) + 1 out[top
+  scripts\screen_apixaban_split_2026_08_19.py:201  default='0'
+      ...ol": len(candidates), "included": inc, "remainder": len(remainder), "tally": {k: tally.get(k, 0) for k in (E, ENP, E
+  scripts\screen_apixaban_split_2026_08_19.py:207  default='0'
+      ...len(remainder))) for k in (E, ENP, ENR, EPNI, ADJ): print(" %-32s %3d" % (k, tally.get(k, 0))) print("
+  scripts\screen_apixaban_split_2026_08_19.py:209  default='NO'
+      ...k, tally.get(k, 0))) print(" EVERY DISPOSITION REACHED? " + ", ".join( "%s:%s" % (k, "yes" if tally.get(k) else "NO") for k in (E, ENP,
+  scripts\screen_attrcm_remainder.py:97  default='0'
+      ...= json.load(fh) rows, tally = [], {} for t in rem: v, axis, crit, field, why = decide(t) tally[v] = tally.get(v, 0) + 1 rows.ap
+  scripts\screen_azilsartan_2026_08_19.py:217  default='0'
+      ...NOT_ASSESSABLE", "why": "transport: %s" % str(detail)[:140]}) tally["NOT_ASSESSABLE"] = tally.get("NOT_ASSESSABLE", 0) + 1 cas
+  scripts\screen_azilsartan_2026_08_19.py:231  default='0'
+      ..."why": "; ".join("%s: %s" % f for f in fails) or ev["estimand"], "evidence": ev}) tally[disp] = tally.get(disp, 0) + 1 print("SUR
+  scripts\screen_azilsartan_2026_08_19.py:239  default='0'
+      ...["disposition"], r["why"][:80])) print(" ... %d EXCLUDED, every one with its failing limb(s) in the record" % tally.get("EXCLUDED", 0)) print("\nTALLY
+  scripts\screen_bococizumab_2026_08_19.py:266  default='0'
+      ...NOT_ASSESSABLE", "why": "transport: %s" % str(detail)[:140]}) tally["NOT_ASSESSABLE"] = tally.get("NOT_ASSESSABLE", 0) + 1 cas
+  scripts\screen_bococizumab_2026_08_19.py:282  default='0'
+      ..."why": "; ".join("%s: %s" % f for f in fails) or ev["estimand"], "evidence": ev}) tally[disp] = tally.get(disp, 0) + 1 # THE WITH
+  scripts\screen_colchicine_split_2026_08_19.py:511  default='0'
+      ...= {} for r in rows: k = (r.get("evidence") or {}).get("arm_role") or "unreadable_record" cascade[k] = cascade.get(k, 0) + 1 by = {}
+  scripts\screen_colchicine_split_2026_08_19.py:520  default='0'
+      ...b["records"] += 1 b["ncts"].append(r["nct"]) d = r["disposition"] b["dispositions"][d] = b["dispositions"].get(d, 0) + 1 if d.st
+  scripts\screen_colchicine_split_2026_08_19.py:528  default='0'
+      ...H_RESULTS": b["with_results"] += 1 disp_all = {} for r in rows: disp_all[r["disposition"]] = disp_all.get(r["disposition"], 0) + 1 # ---- rec
+  scripts\screen_dabigatran_vte_2026_08_19.py:195  default='0'
+      ...] = \ casc.get((r.get("evidence") or {}).get("arm_role") or "unreadable", 0) + 1 disp[r["disposition"]] = disp.get(r["disposition"], 0) + 1 b = by.
+  scripts\screen_rhythm_control_remainder_2026_08_19.py:216  default='0'
+      ..."TRANSPORT", "criterion": "UNREACHABLE", "reason": "%s: %s" % (st, det)}) tally[ADJ] = tally.get(ADJ, 0) + 1 con
+  scripts\screen_rhythm_control_remainder_2026_08_19.py:226  default='0'
+      ...very " "rank) + statusModule", "reason": reason}) tally[v] = tally.get(v, 0) + 1 if v ==
+  scripts\screen_rhythm_control_remainder_2026_08_19.py:228  default='0'
+      ..."reason": reason}) tally[v] = tally.get(v, 0) + 1 if v == E: by_limb[crit] = by_limb.get(crit, 0) + 1 if i %
+  scripts\screen_rhythm_control_remainder_2026_08_19.py:234  default='0'
+      ...(i, len(remainder))) print("\nDISPOSITIONS") for k in (E, ENP, ENR, EPNI, ADJ): print(" %-32s %4d" % (k, tally.get(k, 0))) print(" %-3
+  scripts\screen_rhythm_control_remainder_2026_08_19.py:252  default='0'
+      ...t means different " "things to the two reviews, which is why they are two reviews."), "tally": {k: tally.get(k, 0) for k in (E, ENP, E
+  scripts\screen_rhythm_control_remainder_2026_08_19.py:258  default='0'
+      ...wrote %s" % DEST) print("\nNEEDS_ADJUDICATION %d -- NOT screened; the remainder is NOT zero until they are." % tally.get(ADJ, 0)) return 0 if
+  scripts\search_recall_gate.py:51  default='PASS'
+      ..."?", nct or "(no id)", by_id, by_name, by_id or by_name)) missed = [r for r in rows if not r[4]] return ("FAIL" if missed else "PASS"), rows def main()
+  scripts\section_manifest_gate.py:174  default='NO'
+      ...", "HTML", "WORD", "WHY EARNED")) for k, v, ih, iw, why in rows: print("%-24s %-6s %-6s %-6s %s" % (k, v, "yes" if ih else "NO",
+  scripts\section_manifest_gate.py:175  default='NO'
+      ...s: print("%-24s %-6s %-6s %-6s %s" % (k, v, "yes" if ih else "NO", "yes" if iw else "NO", why[:60])) bad
+  scripts\settle_reader_facing_denominator_2026_08_23.py:121  default='0'
+      ...r than the index's own # out-degree, which is exactly the failure that put 579 into circulation. Refuse it. idx_out = hubs.get("index.html", 0) if len(seen) <=
+  scripts\sibling_field_check.py:112  default='0'
+      ...continue counts = {} for fs in members.values(): for f in fs: counts[f] = counts.get(f, 0) + 1 expecte
+  scripts\silent_exclusion_screen.py:140  default='COMPLETE'
+      ...unts", "n": (r["tN"] or 0) + (r["cN"] or 0) or None, "hr": r["hr"]}) return ("DROPPED" if dropped else "COMPLETE", "%d of
+  scripts\sort_claims_by_checkability_2026_08_24.py:111  default='0'
+      ...es: %s" % (not neg_ok), not neg_ok, True)) rows = claims() tally = {} for r in rows: tally[r["axis"]] = tally.get(r["axis"], 0) + 1 print("")
+  scripts\sort_claims_by_checkability_2026_08_24.py:121  default='0'
+      ..."ARTEFACT_STATE", "INSTANCE_JUDGEMENT", "UNCLASSIFIED", "INPUT_TRUNCATED"): print(" %-20s %4d" % (k, tally.get(k, 0))) print(" %-2
+  scripts\standard_manifest.py:258  default='0'
+      ...(_s, _n) in ENFORCEMENT.items(): _st[_k] = (_s, _n) _c = {} for _s, _ in ENFORCEMENT.values(): _c[_s] = _c.get(_s, 0) + 1 print("ENFO
+  scripts\standard_version_agreement_gate.py:120  default='NONE'
+      ...1) if d else "NOTHING")) logs = LOG_RE.findall(read(DOC)) print("newest version-log entry %s" % (logs[0] if logs else "NONE")) print("proper
+  scripts\subject_match_gate.py:83  default='0'
+      ...acro = re.findall(r"\b([A-Z][A-Z0-9]{3,}(?:-[A-Z0-9]+)*)\b", v) counts = {} for a in acro: counts[a] = counts.get(a, 0) + 1 allow = {a.
+  scripts\subject_match_gate.py:104  default='PASS'
+      ...ated build carried four foreign # ones. Detection rests on the identifier, not the name. verdict = "FAIL" if foreign_ncts else "PASS" return verdict,
+  scripts\sweep_grade_authority_shapes_2026_08_23.py:35  default='0'
+      ..."results" if isinstance(res, dict) else "no-results", o.get("state") or "live") shapes[shape] = shapes.get(shape, 0) + 1 for oid, b
+  scripts\sweep_mojibake.py:81  default='0'
+      ...xt(text): hits = {} for bad, meant in SIGNATURES: n = text.count(bad) if n: hits[meant] = hits.get(meant, 0) + n return hits
+  scripts\sweep_r_output_labels_reproduce.py:158  default='0'
+      ...d, stored, why=""): nonlocal checked if stored is None: absent[label] = absent.get(label, 0) + 1
+  scripts\sweep_r_output_labels_reproduce.py:169  default='0'
+      ...ch(v) if m: note("k", m.group(1), blk.get("k")) else: absent["k"] = absent.get("k", 0) + 1 fo
+  scripts\sweep_r_output_labels_reproduce.py:176  default='0'
+      ...m: note(label, m.group(1), het(blk, *field)) else: absent[label] = absent.get(label, 0) + 1 m
+  scripts\sweep_r_output_labels_reproduce.py:183  default='0'
+      ...2), het(blk, "q")) note("Q df", m.group(1), het(blk, "df")) else: absent["Q"] = absent.get("Q", 0) + 1 m
+  scripts\sweep_r_output_labels_reproduce.py:196  default='0'
+      ...d the object declares " "another")) else: absent["estimator"] = absent.get("estimator", 0) + 1 m
+  scripts\sweep_r_output_labels_reproduce.py:215  default='0'
+      ...pooled.get("ci_low"), pooled.get("ci_high") if lo is None or hi is None: absent["ci"] = absent.get("ci", 0) + 1
+  scripts\sweep_r_output_labels_reproduce.py:224  default='0'
+      ..."matches NEITHER the Wald nor the Hartung-Knapp line")) else: absent["unadjusted interval"] = absent.get("unadjusted interval", 0) + 1 print("")
+  scripts\sweep_subject_experimental.py:100  default='0'
+      ...als(html) if not subj: print("%-46s SUBJECT TOKEN NOT SET -- not judged" % p[:45]) tally["NOT JUDGED"] = tally.get("NOT JUDGED", 0) + 1 continu
+  scripts\sweep_subject_experimental.py:104  default='0'
+      ...continue if not ids: print("%-46s no registration seeded -- UNRESOLVED" % p[:45]) tally["UNRESOLVED"] = tally.get("UNRESOLVED", 0) + 1 continu
+  scripts\sweep_subject_experimental.py:108  default='0'
+      ...0) + 1 continue studies = {n: fetch(n) for n in ids} v, why, roles = G.assess(subj, studies) tally[v] = tally.get(v, 0) + 1 print("%-46
+  scripts\sweep_synthetic_fixtures.py:160  default='0'
+      ...ned fingerprint counts (k of 5 raw criteria; C1 and C2 are mutually exclusive):") for k in range(6): c = combined_dist.get(k, 0) pct = 100.0
+  scripts\sweep_synthetic_fixtures.py:202  default='0'
+      ...eviews, "trials": n_trials}, "single_counts": dict(single_counts), "combined_distribution": {str(k): combined_dist.get(k, 0) for k in range(6)},
+  scripts\test_partial_state_projector.py:82  default='PASSED'
+      ...g body from an empty one", [f for f in fails if "same label" in f], []) print("\n%s" % ("FAILED: %s" % fails if fails else "PASSED")) return 1 if f
+  scripts\triage_objectless_rows_2026_08_19.py:108  default='0'
+      ...%d\n" % len(rows)) by_area, by_flag, flagged = {}, {}, [] for r in rows: a = area(r) by_area[a] = by_area.get(a, 0) + 1 f = che
+  scripts\triage_objectless_rows_2026_08_19.py:116  default='0'
+      ..."ci_high": r.get("ci_high"), "I2": r.get("I2")}) for x in f: by_flag[x] = by_flag.get(x, 0) + 1 print("BY
+  scripts\triage_objectless_rows_2026_08_19.py:128  default='0'
+      ...ms(), key=lambda kv: -kv[1]): print(" %-34s %4d" % (f, n)) fa = {} for x in flagged: fa[x["area"]] = fa.get(x["area"], 0) + 1 print("\nFL
+  scripts\triage_objectless_rows_2026_08_19.py:131  default='0'
+      ...\nFLAGGED BY AREA") for a, n in sorted(fa.items(), key=lambda kv: -kv[1]): print(" %-26s %4d of %d" % (a, n, by_area.get(a, 0))) print("\nwor
+  scripts\uat_run.py:169  default='0'
+      ...v = a.get("overall", "ERR") rm = "✓" if a.get("state", {}).get("has_RapidMeta") else "✗" nt = a.get("state", {}).get("realData_count", 0) ce = len(r.
+  scripts\v1_coverage_audit.py:160  default='0'
+      ...NOT WIRED HERE", "" else: state, note = run(script, build(obj, page)) tally[state] = tally.get(state, 0) + 1 pri
+  scripts\v1_coverage_audit.py:167  default='0'
+      ...len(CHECKS))) for k in sorted(tally, key=lambda x: -tally[x]): print(" %-16s %d" % (k, tally[k])) blind = tally.get("UNCHECKABLE", 0) + tally.get("NO CHE
+  scripts\v1_coverage_audit.py:167  default='0'
+      ...rted(tally, key=lambda x: -tally[x]): print(" %-16s %d" % (k, tally[k])) blind = tally.get("UNCHECKABLE", 0) + tally.get("NO CHECKER", 0) + \ tally.g
+  scripts\v1_coverage_audit.py:168  default='0'
+      ...print(" %-16s %d" % (k, tally[k])) blind = tally.get("UNCHECKABLE", 0) + tally.get("NO CHECKER", 0) + \ tally.get("NOT WIRED HERE", 0) + tally.get("TIMEOU
+  scripts\v1_coverage_audit.py:168  default='0'
+      ...tally[k])) blind = tally.get("UNCHECKABLE", 0) + tally.get("NO CHECKER", 0) + \ tally.get("NOT WIRED HERE", 0) + tally.get("TIMEOUT", 0) total = sum(tal
+  scripts\vacuity_audit.py:120  default='NO'
+      ...uous_only, unfailable, healthy = [], [], [], [] for c in sorted(stat): s = stat[c] f = "yes" if s["failable"] else "NO" print("%-38
+  scripts\vacuity_sweep.py:191  default='UNKNOWN'
+      ...= [] for item in out: if item not in dedup: dedup.append(item) return ", ".join(dedup[:12]) if dedup else "UNKNOWN" def consumes_from
+  scripts\vacuity_sweep.py:313  default='UNKNOWN'
+      ...reg.get(cid) file, line = object_location(chk.fn) reads = ", ".join(chk.instrument.reads) if chk.instrument.reads else "UNKNOWN" st = stats[
+  scripts\vacuity_sweep.py:400  default='0'
+      ...PASS], "fails": counts[FAIL], "not_assessable": counts[NOT_ASSESSABLE], "assessor_bug": counts.get(C.ASSESSOR_BUG, 0), }
+  scripts\vacuity_sweep.py:921  default='UNKNOWN'
+      ...raises, blocks, name in validate_pass_risks[:20]: risk = row_by_name[name].pass_without_predicate if name in row_by_name else "UNKNOWN" out.append(
+  scripts\verify_reject_charges_2026_08_24.py:193  default='0'
+      ...ncoding="utf-8", errors="replace").read()): verdict, why = judge(c, notice, o, blk) tally[verdict] = tally.get(verdict, 0) + 1 out
+  scripts\verify_reject_charges_2026_08_24.py:202  default='0'
+      ...REJECT CHARGES, over %d live REJECT lanes" % len(live)) print("") for k in ORDER: print(" %-22s %4d" % (k, tally.get(k, 0))) unprinted = s
+  scripts\verify_reject_charges_2026_08_24.py:210  default='0'
+      ...al", tot)) if tot: print("") print(" withdrawn or unupheld: %d of %d (%.0f%%)" % (tot - tally.get("CONFIRMED_SCOPE_DROPPED", 0), tot,
+  scripts\verify_reject_charges_2026_08_24.py:211  default='0'
+      ...ld: %d of %d (%.0f%%)" % (tot - tally.get("CONFIRMED_SCOPE_DROPPED", 0), tot, 100.0 * (tot - tally.get("CONFIRMED_SCOPE_DROPPED", 0)) / tot)) print(
+  scripts\verify_search_record_reconciles.py:174  default='0'
+      ...for k in ("query_as_executed", "query", "pages")): continue v, why, nums = check(doc) tally[v] = tally.get(v, 0) + 1 if v ==
+  scripts\verify_served_bytes_2026_08_23_writer2.py:123  default='no'
+      ...EXTRA: body = pages.get(path) or "" print(" %-52s %-5s %s" % (path[:52], "LIVE" if needle in body else "no", label)) print(
+  scripts\withdraw_dead_audit_rows_2026_08_23.py:177  default='0'
+      ...%d</td><td>%s</td><td>%s</td>" "<td>%s</td><td>%s</td></tr>" % (esc(key), counts["by_event"].get(key, 0), esc(d), esc(why),
+  scripts\withdraw_dead_audit_rows_2026_08_23.py:264  default='0'
+      ...% (len(still), ", ".join(still[:5]))) by_event = {} for w in withdrawn: by_event[w["event"]] = by_event.get(w["event"], 0) + 1 ok_badge =
+  scripts\withdraw_dead_audit_rows_2026_08_23.py:293  default='0'
+      ...%5d" % contam_ok) print("") for key in [K1[0]] + [e[0] for e in EVENTS]: print(" %-28s %5d" % (key, by_event.get(key, 0))) print(" %-2
+  scripts\withdraw_dead_audit_rows_2026_08_23.py:316  default='0'
+      ...tined": "QUARANTINE"} def fix_card(m): band = label_to_band.get(m.group(4)) return m.group(1) + str(surviving.get(band, 0)) + m.group(3) if ba
+  scripts\withdraw_dead_audit_rows_2026_08_23.py:361  default='0'
+      ...PASSED badge, %d of " "them among the contaminated.\n" " </div>\n" "</div>\n" % (len(withdrawn), by_event.get(K1[0], 0),
+  scripts\withdraw_dead_audit_rows_2026_08_23.py:362  default='0'
+      ...contaminated.\n" " </div>\n" "</div>\n" % (len(withdrawn), by_event.get(K1[0], 0), by_event.get("CONTAMINATED_2026_07_06", 0),
+  scripts\withdraw_dead_audit_rows_2026_08_23.py:363  default='0'
+      ...thdrawn), by_event.get(K1[0], 0), by_event.get("CONTAMINATED_2026_07_06", 0), by_event.get("DO2_PIVOTAL_2026_07_07", 0),
+  scripts\withdraw_dead_audit_rows_2026_08_23.py:364  default='0'
+      ...get("CONTAMINATED_2026_07_06", 0), by_event.get("DO2_PIVOTAL_2026_07_07", 0), by_event.get("DO2_SOURCING_2026_07_07", 0),
+  scripts\withdraw_dead_audit_rows_2026_08_23.py:387  default='0'
+      ..."finding outlives the page it is about.\n" "</div>\n" % (len(withdrawn), by_event.get("CONTAMINATED_2026_07_06", 0))) out = out.rep
+  scripts\withdrawal_reason_gate.py:282  default='0'
+      ...p, encoding="utf-8")) except Exception: continue v, why, detail = assess(obj) tally[v] = tally.get(v, 0) + 1 if v in
+  scripts\workflow\diff_findings.py:42  default='unknown'
+      ...r not isinstance(findings, dict): return {} out = {} for rv in findings.get("reviewers", []) or []: out[rv.get("role", "unknown")] = set(rv.get("conc
+  ssot\apply_reml_corpus.py:325  default='1'
+      ...eity", {}) het["tau2"] = new_tau2 het["i2"] = new_i2 het["q"] = new_q het["df"] = nr.get("df", blk.get("k", 1) - 1) het["t
+  ssot\apply_reml_corpus.py:374  default='0'
+      ...s"] = ("t_%d, REML tau-squared, per %s. Before %s this read " "'DerSimonian-Laird tau-squared'." % (nr.get("df", 0), DECISION, TODAY))
+  ssot\apply_reml_corpus.py:777  default='NONE'
+      ...old_het.get("tau2"), new_tau2, old_het.get("i2"), new_i2) ) if moved else "NONE", "what_
+  ssot\apply_screening.py:73  default='0'
+      ...ts": r["mace_at_any_rank"]} for r in rows if r.get("mace_at_any_rank")], "outcome_ranks_searched_total": sum(r.get("outcome_ranks_searched", 0) for r in rows),
+  ssot\assessment.py:376  default='0'
+      ...reports all three.""" out = {PASS: 0, FAIL: 0, NOT_ASSESSABLE: 0} for state, _reason in verdicts: out[state] = out.get(state, 0) + 1 return out
+  ssot\corpus_assess.py:183  default='0'
+      ...unts = collections.Counter(entry["verdicts"][name][0] for entry in topics.values()) out[name] = { PASS: counts.get(PASS, 0), FAIL:
+  ssot\corpus_assess.py:184  default='0'
+      ...cts"][name][0] for entry in topics.values()) out[name] = { PASS: counts.get(PASS, 0), FAIL: counts.get(FAIL, 0), NOT_AS
+  ssot\corpus_assess.py:185  default='0'
+      ...out[name] = { PASS: counts.get(PASS, 0), FAIL: counts.get(FAIL, 0), NOT_ASSESSABLE: counts.get(NOT_ASSESSABLE, 0), ASSESS
+  ssot\corpus_assess.py:186  default='0'
+      ...FAIL: counts.get(FAIL, 0), NOT_ASSESSABLE: counts.get(NOT_ASSESSABLE, 0), ASSESSOR_BUG: counts.get(ASSESSOR_BUG, 0), } retu
+  ssot\corpus_assess.py:258  default='0'
+      ...er ssot; object is ssot/<dir>/<dir>.json", "candidate_directories": len(dirs), "read": object_state_counts.get("READ", 0), "unrea
+  ssot\corpus_assess.py:259  default='0'
+      ...ate_directories": len(dirs), "read": object_state_counts.get("READ", 0), "unreadable": object_state_counts.get("UNREADABLE", 0), "absen
+  ssot\corpus_assess.py:260  default='0'
+      ...unts.get("READ", 0), "unreadable": object_state_counts.get("UNREADABLE", 0), "absent": object_state_counts.get("ABSENT", 0), "absen
+  ssot\corpus_assess.py:278  default='0'
+      ...tems())), "counts_by_source_field": dict(sorted(domain_field_counts.items())), "undeclared": domain_counts.get("undeclared", 0), },
+  ssot\grade_authority.py:246  default='HIGH'
+      ...dict) and (st.get("levels") or 0) < 0] if down: bits.append("Rated down from %s for %s." % (s_blk.get("started_at", "HIGH"),
+  ssot\make_docx.py:757  default='excluded'
+      ...n(filter(None, [r.get("nct", ""), ("PMID " + str(r["pmid"])) if r.get("pmid") else ""])), r.get("disposition", "excluded"), (r.get("re
+  ssot\make_docx.py:799  default='NO'
+      ...ame"]), dm["assessor_1_openai"]["judgement"], dm["assessor_2_google"]["judgement"], "yes" if dm["agreed"] else "NO"] for t i
+  ssot\make_docx.py:805  default='NO'
+      ...].get("judgement", ""), t["overall_assessor_2_google"].get("judgement", ""), "yes" if t["overall_agreed"] else "NO"] for t in rb["trial
+  ssot\make_docx.py:809  default='0'
+      ..."domain judgements agreed (%s%%), and %d of %d overall judgements agreed. %s" % (ag.get("per_domain_agreed", 0), ag.get("per_domain_total", 0), ag.get(
+  ssot\make_docx.py:809  default='0'
+      ...y reconciliation: %d of %d " "domain judgements agreed (%s%%), and %d of %d overall judgements agreed. %s" % (ag.get("per_domain_agreed", 0), ag.get("per_domain
+  ssot\make_docx.py:810  default='0'
+      ...ed. %s" % (ag.get("per_domain_agreed", 0), ag.get("per_domain_total", 0), ag.get("per_domain_rate_pct", ""), ag.get("overall_agreed", 0), ag.get(
+  ssot\make_docx.py:811  default='0'
+      ...reed", 0), ag.get("per_domain_total", 0), ag.get("per_domain_rate_pct", ""), ag.get("overall_agreed", 0), ag.get("overall_total", 0), ag.get("comparison
+  ssot\paper_projector.py:1242  default='0'
+      ..., "domain judgements") if not chosen: return {}, 0, "" counts = {} for v in chosen: counts[v] = counts.get(v, 0) + 1 return coun
+  ssot\projectors.py:327  default='0'
+      ...d) if d <= 0: return "{:,}".format(int(r)) out = ("%.*f" % (d, r)).rstrip("0").rstrip(".") return out if out else "0" e = _html.escape
+  ssot\projectors.py:681  default='1'
+      ...t rows: return "" pooled = res.get("pooled") or {} log = outcome.get("effect_scale") == "log" null_v = outcome.get("null_value", 1) tx = (lambda v:
+  ssot\projectors.py:1806  default='1'
+      ...fell outside it and was clipped -- which is precisely # the silent-clipping this check exists to prevent. _null = outcome.get("null_value", 1) _lo = min([r["c
+  ssot\projectors2.py:531  default='excluded'
+      ...) or [])) # THE DECISION IS READ, AND IT NEVER DEFAULTS TO "included". # # This chain was: `disposition`, else "excluded" if `criteria_failed
+  ssot\projectors2.py:691  default='1'
+      ...art the object can back, from stored values.""" pan = res.get("panels") if not pan: return "" null_v = outcome.get("null_value", 1) # Named on the
+  ssot\projectors2.py:785  default='1'
+      ..._total else None, pooled.get("measure", ""), pooled["point"], pooled.get("ci_low"), pooled.get("ci_high"), outcome.get("null_value", 1), g.get("cer
+  ssot\projectors2.py:1044  default='1'
+      ...""" rb = canon.get("rob2") if not rb or not rb.get("trials"): return "" a = rb["assessors"] f1, f2 = a[0].get("model_family", "1"), a[1].get("model_fa
+  ssot\sweep_addon_arms.py:646  default='none'
+      ...(r.topic, r.nct or r.trial_id, r.name) ): remaining = ", ".join(result.shared_tokens) if result.shared_tokens else "none" lines.a
+  ssot\synthesis_reconcile.py:150  default='0'
+      ...no abstract retrieved'}") def tally(classified): c = collections.Counter(v[0] for v in classified.values()) return {k: c.get(k, 0) for k in CLASSES}
+  ssot\synthesis_reconcile.py:158  default='0'
+      ...' is not a denominator.""" total = sum(counts.values()) if not total: return False, "no records" frac = counts.get("UNCATEGORISED", 0) / total if frac
+  ssot\validate_v2.py:965  default='0'
+      ...me {x!r}") def check_heterogeneity_and_k(canon, rep): for oid, res in canon["results"]["by_outcome"].items(): if res.get("k", 0) >= 2 and res.get("p
+  ssot\validate_v2.py:1038  default='0'
+      ...es") or [] if not cats: rep.block("removal-not-disclosed", "removed_citations records no reasons") counted = sum(c.get("count", 0) for c in cats
+  ssot\validate_v2.py:1044  default='0'
+      ...d reasons account for " f"{counted}; every removal must have a stated reason") if rm.get("retained", 0) + rm.get("removed", 0) != rm.get("total_ci
+  ssot\validate_v2.py:1044  default='0'
+      ...moved')} but the itemised reasons account for " f"{counted}; every removal must have a stated reason") if rm.get("retained", 0) + rm.get("removed",
+  ssot\validate_v2.py:2995  default='0'
+      ...ndbook") if not hb: verb = ("pooling" if res.get("pooled") else "declining to pool" if res.get("k", 0) >= 2
+  ssot\validate_v2.py:3698  default='True'
+      ...!r} is not one " f"of 14.2.2's {sorted(G.DOWNGRADE)}.") elif rating == G.ROBINS_I_ONLY and g.get("randomised", True): re
+  ssot\validate_v2.py:3748  default='True'
+      ...computed, derivation = G.certainty(g.get("starting_point"), domains, randomised=g.get("randomised", True)) if compute
+  ssot\validate_v2.py:3813  default='ok'
+      ...cks) fn(canon, rep) fired = len(rep.blocks) - before if verbose: print(f" [{'BLOCK' if fired else ' ok '}] {name}"

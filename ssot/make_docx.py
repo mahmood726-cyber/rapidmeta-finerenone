@@ -754,7 +754,19 @@ table(doc, "Screening log: every record adjudicated, with its decision and the "
       [[r.get("trial", ""),
         " ".join(filter(None, [r.get("nct", ""),
                                ("PMID " + str(r["pmid"])) if r.get("pmid") else ""])),
-        r.get("disposition", "excluded"),
+        # THE SAME DEFECT AS THE WEB PAGE, DEFAULTING THE OTHER WAY.
+        #
+        # `r.get("disposition", "excluded")` reads only the OLD decision vocabulary, and 711
+        # of 799 screening records carry no `disposition` -- their decision is in `verdict`.
+        # So the exported document labelled 711 records "excluded" while the web page
+        # labelled the same records "included". Two renderers, one missing field, opposite
+        # flattering defaults, both wrong.
+        #
+        # That the DOCX erred conservatively is luck, not design. A missing field is not a
+        # decision in either direction.
+        (str(r.get("verdict") or "").replace("_", " ").lower()
+         or r.get("disposition")
+         or ("excluded" if r.get("criteria_failed") else "not recorded on this record")),
         (r.get("reason") or "")[:400]] for r in (sc.get("records") or [])])
 doc.add_paragraph(
     "This log covers the records the review adjudicated. The object does not "

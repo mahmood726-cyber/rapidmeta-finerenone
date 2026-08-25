@@ -1297,14 +1297,38 @@ def strip_citation_keys(text):
     out = re.sub(r",\s*,+", ",", out)
     out = re.sub(r"\(\s*\)", "", out)
     out = re.sub(r"\s{2,}", " ", out)
-    # Drop sentences left with no substance.
+    # Drop sentences left with no substance -- BUT ONLY WHERE THIS FUNCTION EMPTIED THEM.
+    #
+    # THE RULE WAS RIGHT AND ITS SCOPE WAS NOT. "A sentence whose whole content was a list
+    # of reference labels has nothing to say once the labels are gone" is true, and an
+    # under-four-words test is a fair proxy FOR THAT CASE. Applied to every string reaching
+    # `_tidy`, it deletes any short value that never contained a citation key at all:
+    #
+    #     _tidy("Meropenem")               -> ''   a review title
+    #     _tidy("HIV-1 seroconversion")    -> ''   an outcome name
+    #     _tidy("early clinical response") -> ''   an outcome name
+    #     _tidy("excluded")                -> ''   a screening decision
+    #
+    # Measured by wrapping `_tidy` and projecting the whole corpus: 20 distinct values, 33
+    # occurrences, every one a real value that reached a reader as nothing.
+    # meropenem-auto-full-review renders an EMPTY Title section with no refusal beside it --
+    # and a blank reads as "nothing to report" rather than as an error, so nobody
+    # investigates it. That is what makes this worse than a wrong value.
+    #
+    # It already shipped once at scale: routing a screening verdict through the escaper,
+    # which applies `_tidy`, turned 501 wrong decisions into 501 blank ones.
+    #
+    # So the drop applies only when the input actually carried a citation key. A fragment
+    # this function did not touch is returned as it arrived; it is not this function's to
+    # judge.
+    _had_keys = bool(_CITATION_KEY.search(str(text or "")))
     kept = []
     for part in re.split(r"(?<=[.?!])\s+", out):
         p = part.strip()
         if not p:
             continue
         words = [w for w in re.findall(r"[A-Za-z]{2,}", p)]
-        if len(words) < 4:
+        if len(words) < 4 and _had_keys:
             continue
         kept.append(re.sub(r"\b(with|and|to|against)\s*\.", ".", p))
     return " ".join(kept).strip()
