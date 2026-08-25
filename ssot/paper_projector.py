@@ -3514,6 +3514,39 @@ def project(obj, journal="generic", length="standard"):
         _rparts.append("; ".join(_pooled))
         _rfields.append("results.by_outcome")
     _i2 = _first_by_outcome(obj, ("heterogeneity", "i2"))
+    # AN AGREEMENT STATISTIC ABOUT A POOL THE ABSTRACT DOES NOT PRESENT.
+    #
+    # This was appended whenever the object stored an i2, with no reference to whether any
+    # pooled estimate was being reported. On 25 of 149 pages that produced an abstract whose
+    # only quantitative sentence was "The trials agreed closely (I-squared 0%)" -- above a
+    # body stating those trials are not pooled at all. On FINERENONE the pool had been
+    # WITHDRAWN (2026-08-18); the withdrawal cleared the rows and refused the figures, and
+    # left this sentence standing, so the abstract still reported the agreement of an
+    # analysis the page had retracted.
+    #
+    # Found by the STUDENT persona in the corpus panel, not by any gate we wrote -- and it
+    # is precisely what that persona was briefed to find: a confident sentence a novice
+    # would not question, sitting on top of an analysis that does not exist. Our own checks
+    # read each claim against the object, where the i2 genuinely IS stored, and so could not
+    # see it. The contradiction lives between two sentences, not between a sentence and a
+    # field.
+    #
+    # An i2 is meaningful only beside the estimate it describes. If no pooled estimate is
+    # reported here, neither is its heterogeneity.
+    #
+    # AND NO REFUSAL IS RECORDED FOR IT, which took a second attempt to get right. The first
+    # version appended a refusal citing `results.by_outcome` as the missing field -- but that
+    # container is PRESENT and other sections use it, so `lint_manuscript_whole_document`
+    # refused 16 topics for "refused in abstract and USED in figure_legends + limitations".
+    # The lint was right. Nothing is absent here: the i2 is stored, and withholding it is a
+    # judgement about what it describes, not a gap in the object. Claiming a present field
+    # was missing would have replaced one false sentence with another.
+    #
+    # This is not an absence being quietly deleted to buy words either. The page states, in
+    # the section where the reader has the context, that these trials are not pooled and why.
+    # What is withheld is a statistic with nothing to attach to.
+    if _i2 is not None and not _pooled:
+        _i2 = None
     if _i2 is not None:
         # `_i2_words` RETURNS AN ADVERB -- "closely", "loosely" -- because it was written to
         # complete "the trials agreed closely". Dropped into "heterogeneity was {word}" it
