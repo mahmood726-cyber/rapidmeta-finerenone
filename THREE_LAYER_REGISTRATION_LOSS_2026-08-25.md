@@ -167,9 +167,24 @@ Two alternative explanations were tested and both fail:
 ### The obvious remedy, and the one that does not work
 
 **It cannot be recovered by effort.** The natural response is that a determined third party
-could simply search the registry. Measured against 128 trials whose registration is *known* to
-exist, a title search returns the correct record **42 of 128 times (33%)** and, of the 31
-occasions it declared a confident match, **10 were the wrong trial**.
+could simply search the registry. Measured against trials whose registration is *known* to
+exist — so the answer is available and the only question is whether search finds it:
+
+| | title only | **title + year + sponsor** |
+|---|---|---|
+| known-registered trials searched | 128 | **836, fresh** |
+| true record anywhere in what came back | 42 — 33% | **315 — 38%** |
+| a candidate cleared the rule | 31 — 24% | 211 — 25% |
+| **the record it picked was the right trial** | 21 — 16% | **143 — 17%** |
+| **precision when it declared a match** | 68% | **68%** |
+
+The second column pools candidates across three query breadths, filters on the trial's start
+year, and uses the sponsor to break ties. It was designed after seeing how the first 128
+behaved, so those 128 are excluded from it and the 836 are a set the method had never seen.
+
+**Adding everything a human would actually use moves recall from 33% to 38% and precision not
+at all.** A method that finds under two fifths of what certainly exists, and is wrong a third
+of the time it feels certain, cannot establish that a registration is absent.
 
 A method with 33% recall and 68% precision cannot establish that a registration is absent, and
 cannot substitute for having the identifier. **The identifier is not a convenience that saves
