@@ -165,7 +165,17 @@ def main():
             if "=" in _before or "(" in _before:
                 continue                      # an argument inside a quoted call
             _snake.add(_t)
+        # BOTH NUMBERS, PERMANENTLY. The narrowed count excludes verbatim quotations --
+        # the executed query, the R call, downloadable filenames -- because rewriting a
+        # quotation would falsify it. The unnarrowed count is every token regardless.
+        #
+        # Narrowing a detector is how a defect gets defined away, and no reader of this
+        # table should have to trust that the exclusion was drawn honestly. Printing both
+        # makes the size of the exclusion visible: if the gap ever widens sharply, the
+        # exclusion is doing more work than it should and is the first thing to inspect.
+        _all_snake = {t for t in _SNAKE.findall(txt) if t not in _ALLOW}
         note("snake_case identifier in prose", bool(_snake))
+        note("  ...counting quotations too", bool(_all_snake))
         # COUNTED AGAINST THE OBJECT, not by presence. The first version flagged any card
         # reading "included" and reported 4 pages -- all of which were correct, because
         # those records genuinely store INCLUDED. A detector that cannot tell a true value
@@ -203,6 +213,7 @@ def main():
                 "build-property identifier in prose",
                 "dotted field path in prose",
                 "snake_case identifier in prose",
+                "  ...counting quotations too",
                 "a FALSE 'included' screening card",
                 "an empty decision slot",
                 "'These 1 trials'",
