@@ -126,33 +126,62 @@ possible.
 ([DOI](https://doi.org/10.1370/afm.2995)).*
 
 ---
-
 ## 7. FINDING: 97% of published reviews cannot be audited for trial identity
 
-Measured, not scoped. 60 systematic reviews / meta-analyses published 2023–2026 and available
-in PMC, retrieved in full via `efetch`, 0 fetch failures.
+**n = 300, and the number did not move from n = 60.** 290 of 300 (97%) name no trial
+registration; at n=60 it was 58 of 60 (97%). Reference lists were retrievable in 270 of 300
+and tables in 252 of 300, so **this is not a retrieval artefact** — the documents were read
+in full and the registrations are genuinely not there.
+
+### The finding is not that these reviews are careless
+
+A 40-review subsample was refetched to split two facts that must not be summed:
 
 | | reviews | |
 |---|---|---|
-| name at least one trial registration | **2** | 3% |
-| name none at all | **58** | **97%** |
+| name ≥1 **trial** registration (NCT) | 1 | 2% |
+| non-NCT trial registry id only | 0 | 0% |
+| name a **review** registration (PROSPERO) only | **28** | **70%** |
+| name no registration of any kind | 11 | 28% |
 
-**What this means.** Our instruments key on registrations. So do any instruments anyone else
-might build. A review that identifies its included trials only by author-year **cannot be
-checked** — for trial identity, for background-therapy confusion, for whether the trial it
-cites studies the drug the review is about — by us, by a peer reviewer, or by its own authors.
+**Seventy per cent prospectively register their protocol on PROSPERO.** These are not sloppy
+reviews. Most follow the registration convention that exists — the one Cochrane requires and
+which this project scores **0 of 156** on. They are *better than us* at prospective
+registration.
 
-**What it does not mean.** Not naming a registration is not itself a defect, and this is not
-an accusation. Many included trials predate registration entirely; one review sampled during
-scoping runs from **1993**. The claim is narrowly about **auditability as published**.
+**And 39 of 40 (98%) still name no trial registration.** A PROSPERO id records what a review
+*intended to do*; it does not record *which trials it ended up including*. So it does not make
+the review auditable for trial identity. The two facts point in opposite directions, and
+reporting only the second would have been the flattering half.
 
-**Why it is the strongest form of the different-but-equal argument.** The trial-identity
-defect this project found in its own flagship — a review naming trials of the wrong drug — is
-detectable here *because* the corpus is registration-first. In 97% of published reviews the
-same defect would be undetectable by construction. The difference is not that our reviews are
-better. It is that ours can be checked and theirs cannot.
+### The claim, stated as modestly as it goes
 
-**Limits, stated.** 60 is a modest sample, drawn from PMC open-access reviews with
-"systematic review" and "meta-analysis" in the title, 2023–2026. PMC is not all of the
-literature and open access is not a random slice of it. The direction of the finding is not
-in doubt at 58 of 60, but the exact percentage should not be quoted as the field's rate.
+> **97% of published reviews cannot be checked for this class of defect by anyone — including
+> their own authors and peer reviewers.**
+
+Not that they are wrong. Not that ours are better. Our 29 trial-identity mismatches were
+findable *because our pages name registrations*; in 97% of published reviews the same defect
+is undetectable by construction. A fact about the artefacts, not a judgement about the people.
+
+### Sampling frame, stated so a sceptic can narrow it
+
+- **Source:** PubMed Central, **open-access subset only**
+- **Query:** `"systematic review"[Title] AND "meta-analysis"[Title]`
+- **Dates:** 2023–2026 · **Selection:** PMC relevance order, first N. **Not random, not stratified**
+
+What a sceptic should say, each a real limit:
+
+- **PMC open access is not the literature, and Cochrane Reviews are largely not in PMC** —
+  Cochrane being the comparator this programme measures itself against. **The sample does not
+  contain the thing we are comparing ourselves to.** The biggest limit, and not fixable from PMC.
+- PMC relevance order is not random; the same query another day may differ.
+- Requiring both phrases *in the title* selects a reporting style.
+- No specialty stratification. The subsample spans ~25 journals, led by *Knee Surgery Sports
+  Traumatology Arthroscopy* (4) and *Frontiers in Medicine* (4) — broad, but not by design.
+
+### The ones that do name registrations
+
+Ten at n=300, naming 23 / 15 / 10 / 5 / 2 / 2 / 2 / 1 / 1 / 1 ids; the largest are drug-safety
+and oncology reviews, where naming registrations is closer to convention. They span unrelated
+publishers, so **no journal policy explains the pattern** — on this evidence it is an author's
+choice, which means the lever is a *reporting standard*, not a journal rule.
