@@ -142,8 +142,30 @@ def main():
         note("dotted field path in prose",
              any(not t.endswith((".gov", ".org", ".com", ".html", ".json", ".py"))
                  for t in _PATH.findall(txt)))
-        note("snake_case identifier in prose",
-             bool({t for t in _SNAKE.findall(txt) if t not in _ALLOW}))
+        # AN IDENTIFIER IN A QUOTATION IS NOT AN IDENTIFIER IN PROSE.
+        #
+        # Of the 9 pages this reported, 7 carry only verbatim quotations: the executed
+        # ClinicalTrials.gov query (`study_type=interventional; page_size=100`), the R call
+        # (`rma(yi = log_hr, sei = log_se, ...)`), and the filenames of downloadable extended
+        # data (`canonical_object.json`). Every one of those is evidence a reader can check,
+        # and rewriting them would falsify a quotation.
+        #
+        # Counting them as leakage inflates the number and, worse, would invite a "fix" that
+        # destroys the evidence. The detector now asks whether the token is a BARE WORD IN A
+        # SENTENCE -- not followed by `=`, not a filename, not inside an R call.
+        _snake = set()
+        for _m in _SNAKE.finditer(txt):
+            _t = _m.group(0)
+            if _t in _ALLOW:
+                continue
+            _after = txt[_m.end():_m.end() + 2]
+            if _after.startswith("=") or _after.startswith("."):
+                continue                      # field=value, or a filename
+            _before = txt[max(0, _m.start() - 12):_m.start()]
+            if "=" in _before or "(" in _before:
+                continue                      # an argument inside a quoted call
+            _snake.add(_t)
+        note("snake_case identifier in prose", bool(_snake))
         # COUNTED AGAINST THE OBJECT, not by presence. The first version flagged any card
         # reading "included" and reported 4 pages -- all of which were correct, because
         # those records genuinely store INCLUDED. A detector that cannot tell a true value
