@@ -1,5 +1,21 @@
 # Running our instruments against published reviews — feasibility, before running
 
+> ## CORRECTED 2026-08-25, later the same day
+>
+> **Section 1 below concluded that reference lists are unrecoverable. That was true of the
+> tool, not of the source.** NCBI `efetch` on `db=pmc` returns the full JATS XML with `<ref>`
+> elements and `<table-wrap>` intact — 82 references on the very article the original test
+> called stripped. Measured across 60 reviews: **reference lists present in 54 of 60, tables
+> in 48 of 60.**
+>
+> So **include-list recovery is feasible**, and the Crossref hour in section 6 is probably
+> unnecessary. The original conclusion came from testing one retrieval route and generalising
+> to the question — the same shape as every other instrument error this week.
+>
+> What did NOT change: **NCT ids are almost never present.** That held, and became a finding
+> in its own right — see `outputs/review_registration_naming_2026_08_25.jsonl`.
+
+
 **Asked for: tell me what's feasible before you run it.** This is that answer, with what was
 tested and what it cost. Nothing has been run against a published review yet.
 
@@ -108,3 +124,35 @@ possible.
 ([DOI](https://doi.org/10.1161/JAHA.123.034176)), PMC9124390
 ([DOI](https://doi.org/10.1186/s13045-022-01289-1)), PMC10365865
 ([DOI](https://doi.org/10.1370/afm.2995)).*
+
+---
+
+## 7. FINDING: 97% of published reviews cannot be audited for trial identity
+
+Measured, not scoped. 60 systematic reviews / meta-analyses published 2023–2026 and available
+in PMC, retrieved in full via `efetch`, 0 fetch failures.
+
+| | reviews | |
+|---|---|---|
+| name at least one trial registration | **2** | 3% |
+| name none at all | **58** | **97%** |
+
+**What this means.** Our instruments key on registrations. So do any instruments anyone else
+might build. A review that identifies its included trials only by author-year **cannot be
+checked** — for trial identity, for background-therapy confusion, for whether the trial it
+cites studies the drug the review is about — by us, by a peer reviewer, or by its own authors.
+
+**What it does not mean.** Not naming a registration is not itself a defect, and this is not
+an accusation. Many included trials predate registration entirely; one review sampled during
+scoping runs from **1993**. The claim is narrowly about **auditability as published**.
+
+**Why it is the strongest form of the different-but-equal argument.** The trial-identity
+defect this project found in its own flagship — a review naming trials of the wrong drug — is
+detectable here *because* the corpus is registration-first. In 97% of published reviews the
+same defect would be undetectable by construction. The difference is not that our reviews are
+better. It is that ours can be checked and theirs cannot.
+
+**Limits, stated.** 60 is a modest sample, drawn from PMC open-access reviews with
+"systematic review" and "meta-analysis" in the title, 2023–2026. PMC is not all of the
+literature and open access is not a random slice of it. The direction of the finding is not
+in doubt at 58 of 60, but the exact percentage should not be quoted as the field's rate.
