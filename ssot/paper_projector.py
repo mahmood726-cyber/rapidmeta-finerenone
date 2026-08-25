@@ -1934,7 +1934,22 @@ def _own_sentence(value, limit=600):
 
 
 def _model_words(model):
-    """`random` and `fixed` are half a name. The page read "pooled under random"."""
+    """`random` and `fixed` are half a name. The page read "pooled under random".
+
+    AND THE FIX FOR THAT LEFT A SECOND HALF-NAME BEHIND, on more pages than the first.
+    The branch below for an ALREADY-HYPHENATED value added the article and not the noun, so
+    the corpus's commonest stored value -- `random-effects`, held on 104 outcomes against 13
+    for `random` -- rendered as "pooled under a random-effects", a modifier with nothing to
+    modify. It reached 80 built pages and 0 objects, because it is composed here.
+
+    IT SURVIVED THE GATE WRITTEN FOR EXACTLY THIS DEFECT. `gate_paper_reads_as_prose`'s
+    LOST_TAIL is `\\bpooled under (random|fixed)\\b(?!-|\\s*effects?)`, which cannot match
+    once an article sits between "under" and "random". The gate exits 0 on every one of the
+    80. A vocabulary-bound check does not see the same defect in different words, and the
+    first repair here is what put it into different words.
+
+    So the noun is now REQUIRED on every branch rather than spelled out on some of them.
+    """
     t = (_v_str(model) or "").strip()
     low = t.lower()
     if low in ("random", "random effects", "randomeffects"):
@@ -1942,7 +1957,12 @@ def _model_words(model):
     if low in ("fixed", "fixed effect", "fixed effects", "common", "common effect"):
         return "a fixed-effect model"
     if low.startswith("random-effects") or low.startswith("fixed-effect"):
-        return "a " + t if not t.lower().startswith("a ") else t
+        out = t if low.startswith("a ") else "a " + t
+        # The noun, on the branch that forgot it. Checked rather than appended blindly, so
+        # a value that already carries one ("a random-effects model") is not doubled.
+        if not re.search(r"\b(model|analysis|meta-analysis|synthesis)\b", out, re.I):
+            out += " model"
+        return out
     return t
 
 

@@ -101,7 +101,39 @@ class _TruncRx(object):
 
 
 TRUNCATED = _TruncRx()
-LOST_TAIL = re.compile(r"(?i)\bpooled under (random|fixed)\b(?!-|\s*effects?)")
+# A MODIFIER WITH NOTHING TO MODIFY, in EITHER of the two forms this project has shipped.
+#
+# The first form was "pooled under random" -- the bare adjective, tail lost. This pattern was
+# written for it and caught it. The REPAIR for it then produced the second form,
+# "pooled under a random-effects", which this same pattern could not match because an article
+# now sat between "under" and "random" and because the `(?!\s*effects?)` lookahead was
+# written to EXCLUDE the hyphenated spelling as correct. It is only correct when the noun
+# follows. That second form reached 80 built pages and the gate exited 0 on every one.
+#
+#     A CHECK KEYED TO ONE WORDING DOES NOT SEE THE SAME DEFECT REWORDED, AND THE THING MOST
+#     LIKELY TO REWORD IT IS THE FIX FOR THE FIRST WORDING.
+#
+# So this asks the real question -- is the head noun present -- instead of enumerating the
+# spellings that lack it. Optional article, either spelling of the modifier, and then a
+# REQUIRED noun within a short window; anything else is a lost tail.
+# THE FIRST VERSION OF THIS PATTERN FIRED ON CORRECT PROSE, and only the plant caught it.
+# Written as `(?:random[- ]?effects?|random|...)` with the noun lookahead after it, the engine
+# matched "random-effects" in "a random-effects model", failed the lookahead on " model", then
+# BACKTRACKED INTO THE SHORTER `random` BRANCH -- after which the lookahead saw "-effects" and
+# was satisfied. Every correct page would have been flagged. A widened pattern that over-fires
+# is not a safer error than one that under-fires; it is the accusing direction.
+# The bare branches now refuse to match when a suffix follows, so there is nothing to
+# backtrack into.
+LOST_TAIL = re.compile(
+    r"(?i)\bpooled under\s+(?:a|an|the)?\s*"
+    r"(?:random[- ]?effects?\b|fixed[- ]?effects?\b|common[- ]?effects?\b"
+    r"|random\b(?![- ]?effect)|fixed\b(?![- ]?effect)|common\b(?![- ]?effect))"
+    r"(?!\s+(?:model|analysis|meta-analysis|synthesis)\b)")
+# The `\b` after each `effects?` is load-bearing too, and its absence produced a SECOND
+# false-positive pass: without it `effects?` backtracks to "effect", leaving "s model" for
+# the lookahead, which is not `\s+model`, so the lookahead succeeds and correct prose is
+# flagged. It failed on "random-effects model" and PASSED on "fixed-effect model" -- the
+# asymmetry is the tell, because "fixed-effect" has no trailing "s" to give back.
 ADVERB_SLOT = re.compile(r"(?i)\bwas\s+(closely|loosely|tightly|broadly|narrowly)\s*\(")
 STRAY_REFUSED = re.compile(r"Refused:\s*\d+\s")
 
