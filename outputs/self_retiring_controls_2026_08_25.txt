@@ -1,0 +1,24 @@
+CHECKS DECLARING A CONTROL VIA require_controls: 62
+
+  control built from a SYNTHETIC input (durable)   : 57
+  control pointing at a LIVE corpus instance       : 5
+
+A LIVE control is the strongest evidence a check works on THIS corpus, and the
+most fragile: fix the instance and the control tests a case that no longer exists.
+Each needs a person to ask whether the check then FAILS CLOSED, as the tidy audit
+did, or quietly starts passing.
+
+  scripts\audit_delivered_constructions_2026_08_23.py
+      control delivered_constructions            "delivered_constructions", ("SGLT2_HF_REVIEW carries 'ELIGIBILITY turns' (hand-confirmed by a census lane)", b
+  scripts\audit_p46_limbs_reach_a_reader.py
+      control audit_p46_limbs_reach_a_reader     "cab-prep-hiv-review's comparison probe, confirmed on the public host at " "2026-08-21, is found in the delive
+  scripts\audit_why_six_topics_have_no_page.py
+      control audit_why_six_topics_have_no_page  "cab-prep-hiv-review's own NCTs are found in its own delivered page", bool(cab_ncts) and all(n in cab_html for
+  scripts\lint_container_repr_on_a_page.py
+      control lint_container_repr_on_a_page      "the GRADE cell as it was delivered on 2026-08-20", bool(REPR_IN_TEXT.search(rendered_text(fixture))), True
+  scripts\lint_gate_can_fail.py
+      control  in src
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding= " in src def main(): sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace") bad,
