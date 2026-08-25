@@ -29,9 +29,11 @@ from the arm structure of five real registrations rather than from what a drug l
 
   NCT03840148                EXPERIMENTAL       Cefepime/VNRX-5133 (taniborbactam)
   NCT03630081                EXPERIMENTAL       WCK 4282 (FEP-TAZ) 4 g
-        Two different cefepime combinations. A bare "cefepime" pattern matches both and
-        should match neither; "cefepime tazobactam" should match only the second, and only
-        because WCK 4282 is carried as a synonym.
+        Two different cefepime combinations. "cefepime tazobactam" must match only the
+        second -- the partners differ, tazobactam is not taniborbactam. A BARE "cefepime"
+        specifies no partner and matches both, which is correct behaviour for that pattern
+        and means CEFEPIME_TAZ's real defect is in TOPICS: it supplies the pattern
+        "cefepime" for a topic whose drug is cefepime-tazobactam.
 
   NCT00391872  PLATO         EXPERIMENTAL       Ticagrelor
                              ACTIVE_COMPARATOR  Clopidogrel
@@ -70,33 +72,88 @@ def norm(s):
     return _WS.sub(" ", strip_type(s).lower()).strip()
 
 
-def is_combination_of(pattern, intervention_name):
-    """True where the intervention is a COMBINATION that merely CONTAINS the pattern.
+def _agents(name):
+    """The active agents inside one intervention name, type prefix removed."""
+    return [x for x in (p.strip() for p in _COMBO_JOIN.split(strip_type(name).lower())) if x]
 
-    "cefepime"            vs "Cefepime/VNRX-5133"        -> True   a different drug
-    "cefepime tazobactam" vs "Cefepime/VNRX-5133"        -> False  pattern names a combo too
-    "amoxicillin"         vs "amoxicillin-clavulanate"   -> True
-    "apixaban"            vs "Apixaban"                  -> False  plain match
+
+def _pattern_agents(pattern):
+    """Agents in a TOPIC PATTERN, which also uses a bare space as a combination separator.
+
+    TOPICS writes combinations as "cefepime tazobactam" -- no slash, no plus. `_agents` reads
+    that as ONE agent, so the conflict test returned False and the taniborbactam case, the
+    original defect, passed. Patterns are therefore split on whitespace as well.
+
+    This is safe only because `conflicting_combination` independently requires the TRIAL side
+    to have two or more agents. A procedure pattern like "catheter ablation" does split into
+    two tokens here, but it can only reach a conflict verdict against a trial that is itself a
+    combination AND shares one of those tokens as a whole agent, which does not occur.
     """
+    out = []
+    for part in _agents(pattern):
+        out.extend([w for w in part.split() if w])
+    return out
+
+
+def conflicting_combination(pattern, intervention_name):
+    """True only where the pattern names a combination whose PARTNER differs from the trial's.
+
+    THE FIRST VERSION OF THIS REJECTED ANY COMBINATION CONTAINING THE PATTERN, and it was
+    built from one exemplar -- cefepime against "Cefepime/VNRX-5133". Run over the corpus it
+    rejected 9 of the 12 combination cases WRONGLY, and each wrong rejection would have
+    deleted real evidence:
+
+        sacubitril    vs "Sacubitril/valsartan"      ARNI's own drug
+        ceftolozane   vs "Ceftolozane/tazobactam"    ceftolozane is only marketed this way
+        casirivimab   vs "casirivimab+imdevimab"     casirivimab is only given with imdevimab
+        delamanid     vs "Delamanid + OBR"           OBR is background, delamanid is the drug
+        apixaban      vs "Apixaban + Placebo"        a placebo of the other agent
+        bosentan      vs "Duo-Therapy with Sildenafil"   on a page ABOUT combination therapy
+
+    A combination containing the subject drug IS a trial of that drug. The drug is being
+    given and the trial is measuring what it does.
+
+    What is NOT a trial of the subject is a combination with a DIFFERENT PARTNER from the one
+    the topic specifies. "cefepime tazobactam" against "Cefepime/VNRX-5133" is a conflict:
+    both name a partner and the partners differ -- tazobactam is not taniborbactam. A bare
+    "cefepime" specifies no partner and therefore conflicts with nothing.
+
+    That distinction explains all twelve cases, where "any combination is a different drug"
+    explained one.
+    """
+    pat_agents = _pattern_agents(pattern)
+    if len(pat_agents) < 2:
+        return False                      # no partner specified -- nothing to conflict with
+    trial_agents = _agents(intervention_name)
+    if len(trial_agents) < 2:
+        return False
+    shared = [a for a in pat_agents if any(norm(a) == norm(b) for b in trial_agents)]
+    if not shared:
+        return False                      # not the same drug family at all
+    # Same head agent, different partner set -> a different combination.
+    pat_rest = [a for a in pat_agents if not any(norm(a) == norm(s2) for s2 in shared)]
+    trial_rest = [a for a in trial_agents if not any(norm(a) == norm(s2) for s2 in shared)]
+    if not pat_rest or not trial_rest:
+        return False
+    return not any(norm(a) == norm(b) for a in pat_rest for b in trial_rest)
+
+
+def matches_as_component(pattern, intervention_name):
+    """The pattern appears inside a combination name (whether or not that is a problem)."""
     np_, ni = norm(pattern), norm(intervention_name)
     if not np_ or np_ == ni or np_ not in ni:
         return False
-    parts = [x for x in (p.strip() for p in
-             _COMBO_JOIN.split(strip_type(intervention_name).lower())) if x]
-    if len(parts) < 2:
-        return False
-    if len([x for x in (p.strip() for p in _COMBO_JOIN.split(pattern.lower())) if x]) > 1:
-        return False
-    return any(norm(x) == np_ for x in parts)
+    return len(_agents(intervention_name)) > 1
 
 
 def _matches(pattern, name):
-    return bool(norm(pattern)) and norm(pattern) in norm(name) \
-        and not is_combination_of(pattern, name)
-
+    """The pattern names this intervention, and not a CONFLICTING combination."""
+    if not norm(pattern) or norm(pattern) not in norm(name):
+        return False
+    return not conflicting_combination(pattern, name)
 
 def studies_subject(drug_patterns, arm_groups):
-    """(ok, reason).
+    """(ok, reason) where ok is True, False, or NONE for undecidable.
 
     arm_groups -- [{"type": "EXPERIMENTAL", "interventionNames": [...]}, ...] exactly as
                   ClinicalTrials.gov API v2 returns under
@@ -125,9 +182,29 @@ def studies_subject(drug_patterns, arm_groups):
         for _t, names in arms:
             for n in names:
                 for p in pats:
-                    if norm(p) and norm(p) in norm(n) and is_combination_of(p, n):
-                        return False, "matches only as a component of the combination %r" % n
-        return False, "no arm's intervention matches the drug pattern"
+                    if norm(p) and norm(p) in norm(n) and conflicting_combination(p, n):
+                        return False, ("the topic names a different combination: %r"
+                                       % strip_type(n))
+        # NO ARM NAME MATCHES IS NOT "NOT STUDIED". It is "this method cannot tell".
+        #
+        # Arm names are PARAPHRASES. NCT00643188's experimental arm is
+        # "Procedure: Radiofrequency ablation" and the topic pattern is "catheter ablation"
+        # -- the same thing in different words. NCT01420393 names its arms by STRATEGY
+        # ("Rhythm control") rather than by what is done. Drug arms carry brand names, code
+        # names and formulations. A string match over arm names decides identity only when
+        # the arm happens to name the drug the way the topic does.
+        #
+        # Returning False here produced 92 "not studied" verdicts on a 420-record corpus --
+        # an implausible proportion, which is always a statement about the instrument. Each
+        # one would have accused a page of naming a trial that does not study its subject,
+        # on the evidence that two strings differ.
+        #
+        # This is the "unknown is not no" rule one level deeper, and it costs coverage
+        # rather than correctness: the three failure modes this module CAN decide --
+        # background in every arm, comparator-only, conflicting combination -- all require a
+        # name match first, so they are unaffected.
+        return None, ("no arm name matches the pattern, and arm names are paraphrases -- "
+                      "this method cannot decide identity for this trial")
 
     # BACKGROUND. Present in EVERY arm, so it is not what was randomised. TWILIGHT.
     if len(hit_arms) == len(arms) and len(arms) > 1:

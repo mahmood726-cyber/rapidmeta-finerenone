@@ -168,8 +168,10 @@ def main():
                              "patterns": pats, "pattern_source": psrc})
                 continue
             ok, why = T.studies_subject(pats, rec["armGroups"])
+            verdict = ("UNDECIDABLE" if ok is None
+                       else ("STUDIED" if ok else "NOT STUDIED"))
             rows.append({"page": page, "nct": nct,
-                         "verdict": "STUDIED" if ok else "NOT STUDIED", "why": why,
+                         "verdict": verdict, "why": why,
                          "patterns": pats, "pattern_source": psrc,
                          "sweep_said": (sweep.get((page, nct)) or {}).get("studies_subject"),
                          "sweep_role": (sweep.get((page, nct)) or {}).get("role")})
@@ -182,6 +184,8 @@ def main():
     print("  STUDIED                         : %d" % len(studied))
     print("  NOT STUDIED                     : %d   on %d page(s)"
           % (len(notstud), len(pages_bad)))
+    undec = [r for r in rows if r["verdict"] == "UNDECIDABLE"]
+    print("  UNDECIDABLE (arm names paraphrase): %d   <- not an accusation" % len(undec))
     print("  UNJUDGED (no arm data)          : %d   <- never counted as either" % unjudged)
     print("  skipped, no drug pattern derivable: %d" % no_patterns)
     print()
@@ -193,8 +197,8 @@ def main():
     for k, v in sorted(byreason.items(), key=lambda x: -x[1]):
         print("   %-64s %d" % (k[:64], v))
     print()
-    dis = [r for r in rows if r.get("sweep_said") and
-           ((r["verdict"] == "STUDIED") != (r["sweep_said"] == "YES"))]
+    dis = [r for r in rows if r.get("sweep_said") and r["verdict"] in ("STUDIED", "NOT STUDIED")
+           and ((r["verdict"] == "STUDIED") != (r["sweep_said"] == "YES"))]
     print("WHERE THE SWEEP'S LABEL DISAGREES WITH THE REGISTRATION: %d" % len(dis))
     print("(the registration is the standard; the sweep is the thing being audited)")
     for r in dis[:15]:

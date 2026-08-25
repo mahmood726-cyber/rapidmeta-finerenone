@@ -66,8 +66,28 @@ NAMED = [
      ["apixaban"], "NCT02829957", True),
     ("HEAD-TO-HEAD -- and so is rivaroxaban",
      ["rivaroxaban"], "NCT02829957", True),
-    ("COMBINATION -- bare 'cefepime' must not match cefepime/VNRX-5133",
-     ["cefepime"], "NCT03840148", False),
+    # EXPECTATION CHANGED 2026-08-25, and the reason is recorded because changing a test
+    # until it passes is the easiest way to launder a bad rule.
+    #
+    # This case originally expected False, from a rule that rejected ANY combination
+    # containing the pattern. Run over the corpus that rule rejected 9 of 12 combination
+    # cases WRONGLY -- sacubitril against "Sacubitril/valsartan" (ARNI's own drug),
+    # ceftolozane against "Ceftolozane/tazobactam", casirivimab against
+    # "casirivimab+imdevimab", delamanid against "Delamanid + OBR". Each rejection would
+    # have deleted real evidence.
+    #
+    # The principle that explains all twelve: a combination CONTAINING the subject drug IS a
+    # trial of that drug; what is not is a combination with a DIFFERENT PARTNER from the one
+    # the topic specifies. A bare "cefepime" specifies no partner, so it conflicts with
+    # nothing and correctly matches here.
+    #
+    # CEFEPIME_TAZ's real defect therefore is NOT in this rule. It is in TOPICS, which
+    # supplies the pattern "cefepime" for a topic whose drug is cefepime-TAZOBACTAM. The
+    # next case pins that down, so the defect stays visible rather than being absorbed.
+    ("bare 'cefepime' specifies no partner, so it legitimately matches any cefepime combination",
+     ["cefepime"], "NCT03840148", True),
+    ("...and the CORRECT pattern rejects it, which is why CEFEPIME_TAZ's fault is its TOPICS entry",
+     ["cefepime tazobactam"], "NCT03840148", False),
     ("COMBINATION -- taniborbactam is not tazobactam",
      ["cefepime tazobactam"], "NCT03840148", False),
     ("the CORRECT trial matches through its code name",
