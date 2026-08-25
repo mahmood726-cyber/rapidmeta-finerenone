@@ -1,0 +1,90 @@
+{
+  "generated_by": "codex exec",
+  "gates_examined": [
+    {
+      "gate": "scripts/gate_paper_reads_terribly_2026_08_24.py",
+      "vocabulary_summary": "Matches EMPTY_REFUSAL as an empty <strong>Refused:</strong> block; HOLLOW_NOUNS as the exact phrases 'the clinical quantity this page pools', 'the quantity this page pools', 'the outcome this page reports', and 'the clinical outcome of interest'; VERDICT_IN_TITLE as only NOT POOLABLE, NOT ESTABLISHED, NOT ASSESSABLE, or NOT COMPARABLE in title/H1/review-question; FOREIGN_TOPIC as the exact attr-pn phrase 'patisiran against its own saline placebo' off the attr-pn page; SENTINEL_SPLICE as selected absence markers followed by 'on the page this object was extracted/built from'; and CIRCULAR as 'The outcome/quantity/endpoint/estimand ... is the ... this page/review pools/reports/analyses/analyzes'.",
+      "pages_passing_checked": [
+        "BAMLANIVIMAB_OUTP_AUTO_FULL_REVIEW.html",
+        "BEZLOTOXUMAB_CDIFF_AUTO_FULL_REVIEW.html",
+        "CEFTOLOZANE_TAZ_AUTO_FULL_REVIEW.html",
+        "COVID19_VACCINES_REVIEW.html",
+        "CVNCOV_SARSCOV2_AUTO_FULL_REVIEW.html",
+        "DABIGATRAN_VTE_AUTO_FULL_REVIEW.html",
+        "ERTAPENEM_INFECT_AUTO_FULL_REVIEW.html",
+        "FINERENONE_ARTS_DN_DOSE_RESP_REVIEW.html",
+        "LEFAMULIN_CAP_AUTO_FULL_REVIEW.html",
+        "OLMESARTAN_HTN_AUTO_FULL_REVIEW.html",
+        "OMECAMTIV_HFREF_AUTO_FULL_REVIEW.html",
+        "OMECAMTIV_HF_AUTO_FULL_REVIEW.html",
+        "PCSK9_REVIEW.html",
+        "SACUBITRIL_VALSARTAN_HF_AUTO_FULL_REVIEW.html"
+      ],
+      "unmatched_forms_found": [
+        {
+          "page": "OLMESARTAN_HTN_AUTO_FULL_REVIEW.html",
+          "verbatim_quote": "Olmesartan in hypertension: Retired -- the titled drug is the comparator in all three trials and the intervention in none",
+          "why_same_defect": "This is a page-status/audit verdict occupying the browser title and H1 rather than a clean article identity, the same VERDICT_AS_TITLE defect the gate exists to catch.",
+          "why_gate_misses_it": "VERDICT_IN_TITLE only matches NOT POOLABLE, NOT ESTABLISHED, NOT ASSESSABLE, or NOT COMPARABLE, so the equivalent status word 'Retired' is outside the gate's vocabulary."
+        }
+      ],
+      "verdict": "UNMATCHED_FORM_FOUND"
+    },
+    {
+      "gate": "scripts/gate_paper_reads_as_prose_2026_08_22.py",
+      "vocabulary_summary": "Matches SLOT_FED and SLOT_LONG when a linking verb is followed by a shouted field-like token; TRUNCATED only as a one- or two-letter non-whitelisted fragment before a semicolon; LOST_TAIL only as 'pooled under random' or 'pooled under fixed' not followed by effects; ADVERB_SLOT only as 'was closely/loosely/tightly/broadly/narrowly ('; and STRAY_REFUSED as 'Refused:' followed by a number.",
+      "pages_passing_checked": [
+        "AGYW_HIV_PREP_REVIEW.html",
+        "APIXABAN_VTE_PROPHYLAXIS_REVIEW.html",
+        "AZILSARTAN_CLD_VS_OLM_HCTZ_REVIEW.html",
+        "AZILSARTAN_HTN_AUTO_FULL_REVIEW.html",
+        "BOCOCIZUMAB_LIPID_AUTO_FULL_REVIEW.html",
+        "BOCOCIZUMAB_LIPID_REVIEW.html",
+        "CAB_PREP_HIV_REVIEW.html",
+        "CANGRELOR_PCI_REVIEW.html",
+        "CEFTAROLINE_AUTO_FULL_REVIEW.html",
+        "EMPAGLIFLOZIN_HF_AUTO_FULL_REVIEW.html",
+        "GEPOTIDACIN_URINARY_TRACT_AUTO_FULL_REVIEW.html",
+        "ICOSAPENT_LIPID_AUTO_FULL_REVIEW.html",
+        "INCLISIRAN_LIPID_KIDNEY_AUTO_FULL_REVIEW.html",
+        "LEFAMULIN_CABP_AUTO_FULL_REVIEW.html",
+        "NIRSEVIMAB_INFANT_RSV_REVIEW.html",
+        "ROSUVASTATIN_AUTO_FULL_REVIEW.html",
+        "ROTAVIRUS_VACCINE_AFRICA_REVIEW.html",
+        "ROTAVIRUS_VACCINE_AUTO_FULL_REVIEW.html",
+        "SGLT2_MACE_CVOT_REVIEW.html"
+      ],
+      "unmatched_forms_found": [
+        {
+          "page": "AGYW_HIV_PREP_REVIEW.html",
+          "verbatim_quote": "Methods. estimates were pooled under a random-effects with the REML estimator; risk of bias was assessed with RoB 2 (Cochrane risk-of-bias tool for randomized trials); and certainty was rated with GRADE, following the Cochrane Handbook chapter 14. Randomised evidence starts HIGH and is rated down with reasons.",
+          "why_same_defect": "The method sentence does not parse because 'a random-effects' is missing the noun it modifies, the same lost-tail/grammar defect class the gate documents.",
+          "why_gate_misses_it": "The LOST_TAIL regex only looks for bare 'pooled under random' or 'pooled under fixed', so insertion of the article in 'pooled under a random-effects' avoids every listed check."
+        }
+      ],
+      "verdict": "UNMATCHED_FORM_FOUND"
+    },
+    {
+      "gate": "scripts/gate_no_grammar_seam_in_stored_prose_2026_08_23.py",
+      "vocabulary_summary": "Matches five stored-prose seams in ssot canonical object JSON: semicolon followed by the lead-in openers loaded from ssot/field_lead_ins.json; double full stop; the exact capitalized-opener form 'does not claim [A-Z]'; stranded '; .' or ', .'; and a space before a full stop.",
+      "pages_passing_checked": [
+        "ssot/attr-pn-review/attr-pn-review.json",
+        "ssot/cangrelor-pci-review/cangrelor-pci-review.json",
+        "ssot/dabigatran-vte-cerebral/dabigatran-vte-cerebral.json",
+        "ssot/rosuvastatin-auto-full-review/rosuvastatin-auto-full-review.json",
+        "ssot/sglt2-mace-cvot-review/sglt2-mace-cvot-review.json"
+      ],
+      "unmatched_forms_found": [
+        {
+          "page": "ssot/dabigatran-vte-cerebral/dabigatran-vte-cerebral.json",
+          "verbatim_quote": "The outcome sought is The registered primary of each trial, read verbatim.",
+          "why_same_defect": "It embeds a capitalized sentence opener mid-clause, the same capitalization seam represented by the gate's planted 'does not claim That...' defect.",
+          "why_gate_misses_it": "The gate's capitalized-opener pattern is the literal regex 'does not claim [A-Z]', so a seam after 'is' with the opener 'The' is not in its matched vocabulary."
+        }
+      ],
+      "verdict": "UNMATCHED_FORM_FOUND"
+    }
+  ],
+  "scope_actually_covered": "Ran gate_paper_reads_terribly_2026_08_24.py on 1473 root *_REVIEW.html pages, then scanned the 1470 passing pages' title/H1/review-question slots for status-verdict alternatives and verified OLMESARTAN_HTN_AUTO_FULL_REVIEW.html passes alone. Ran gate_paper_reads_as_prose_2026_08_22.py on 149 assessable root *_REVIEW.html/*_SSOT.html paper panels, then scanned all 144 passing paper panels for the malformed 'pooled under a random-effects' variant and verified AGYW_HIV_PREP_REVIEW.html passes alone. Ran gate_no_grammar_seam_in_stored_prose_2026_08_23.py on all 155 canonical ssot object JSON files, then ran a bounded variant search over the same two fields the gate reads: bookkeeping_2026_08_21 and manuscript. I did not inspect retired/removed directories, e156-submission asset copies, non-canonical ssot sidecars, scripts that would write their own output, or every possible English paraphrase of each defect.",
+  "self_doubt": "The strongest empirical finding is the 19-page 'pooled under a random-effects' miss; the weakest judgment call is treating 'Retired -- ...' in a title as the same verdict-as-title defect, because a project policy could intentionally allow retirement routing text in titles even though this gate's own rationale argues against verdicts there."
+}
