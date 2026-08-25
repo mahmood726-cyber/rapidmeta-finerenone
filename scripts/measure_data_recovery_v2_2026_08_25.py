@@ -216,7 +216,14 @@ def review_rows(pmcid):
         blk = m.group(0)
         cap = re.search(r"<caption>(.*?)</caption>", blk, re.S)
         capt = " ".join(re.sub(r"<[^>]+>", " ", cap.group(1)).split()) if cap else ""
-        if not re.search(r"outcome|event|result", capt, re.I):
+        # THE CAPTION FILTER WAS TOO NARROW. "Exploratory pooled EFFICACY AND SAFETY of
+        # immune checkpoint inhibitors" is a per-trial extraction table with 11 usable rows
+        # and it was skipped because the caption says neither "outcome" nor "event" nor
+        # "result". Reviews name these tables whatever they like. Widened -- and a table
+        # still has to contain rows with four or more numbers to be used, which is the real
+        # filter.
+        if not re.search(r"outcome|event|result|efficacy|safety|pooled|effect|"
+                         r"analysis|data|summary", capt, re.I):
             continue
         for r in re.findall(r"<tr>(.*?)</tr>", blk, re.S):
             cells = [" ".join(re.sub(r"<[^>]+>", " ", c).split())
@@ -224,8 +231,19 @@ def review_rows(pmcid):
             if not cells:
                 continue
             nums = [c for c in cells[1:] if NUM.match(c)]
-            if len(nums) >= 4:
-                rows.append({"label": cells[0], "numbers": nums[:4], "caption": capt})
+            if len(nums) < 4:
+                continue
+            # IS THIS A PER-TRIAL TABLE OR A POOLED-BY-OUTCOME TABLE? PMC13491898's rows are
+            # labelled OS, PFS, ORR, DCR, TRAE -- one row per OUTCOME with pooled numbers, not
+            # one row per trial. Feeding those to a trial resolver produced 0 of 11 resolved,
+            # which reads as a resolution failure and is nothing of the kind: there are no
+            # trials in that column. A per-trial label carries a trial identity -- an NCT, a
+            # year, or a name longer than an acronym for an endpoint.
+            lab = cells[0]
+            looks_like_trial = bool(NCT.search(lab)) or bool(re.search(r"(19|20)\d{2}", lab))                 or len(re.sub(r"[^A-Za-z]", "", lab)) > 8
+            if not looks_like_trial:
+                continue
+            rows.append({"label": lab, "numbers": nums[:4], "caption": capt})
     return title, rows, sorted(set(NCT.findall(x)))
 
 
