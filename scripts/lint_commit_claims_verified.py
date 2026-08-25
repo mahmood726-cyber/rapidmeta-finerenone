@@ -34,6 +34,7 @@ and cheap, not to pretend every sentence can be machine-checked.
 import io
 import os
 import re
+import subprocess
 import sys
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -41,16 +42,36 @@ CLAIM = re.compile(r"^\s*VERIFY:\s*(\S+)\s+(contains|absent)\s+(.+?)\s*$", re.M)
 
 
 def check(path, mode, needle):
-    full = os.path.join(REPO, path)
-    if not os.path.exists(full):
-        return False, "file does not exist"
-    try:
-        body = io.open(full, encoding="utf-8", errors="replace").read()
-    except Exception as e:
-        return False, "unreadable: %s" % type(e).__name__
+    """Verify against THE INDEX -- the bytes that are about to be committed.
+
+    This read the WORKING TREE until 2026-08-25, and on that day it certified three claims
+    about two files that were not in the commit at all: `git add` had reported them ignored
+    by `outputs/*.json`, the commit proceeded with the remaining paths, and the hook happily
+    confirmed the contents by reading disk. A published finding then cited two evidence
+    files that did not exist in the repository.
+
+    A file present on disk and absent from the commit is the exact shape of the failure this
+    hook exists to prevent, so a path not in the index is a FAIL with that reason named --
+    never a pass, and never a silent skip.
+    """
+    rel = path.replace(os.sep, "/")
+    r = subprocess.run(["git", "show", ":" + rel], capture_output=True, cwd=REPO, timeout=60)
+    if r.returncode != 0:
+        # Not staged. It may still be tracked and unmodified, which is a legitimate claim
+        # about existing content -- but an untracked or ignored file is not.
+        h = subprocess.run(["git", "ls-files", "--error-unmatch", rel],
+                           capture_output=True, cwd=REPO, timeout=60)
+        if h.returncode != 0:
+            return False, ("NOT IN THE COMMIT -- the file is untracked or ignored, so this "
+                           "claim would be certified against bytes no one else can read")
+        r = subprocess.run(["git", "show", "HEAD:" + rel], capture_output=True, cwd=REPO,
+                           timeout=60)
+        if r.returncode != 0:
+            return False, "not in the index and not in HEAD"
+    body = (r.stdout or b"").decode("utf-8", "replace")
     found = needle in body
     if mode == "contains":
-        return (found, "found" if found else "NOT FOUND in %d chars" % len(body))
+        return (found, "found" if found else "NOT FOUND in %d chars (as committed)" % len(body))
     return ((not found), "absent" if not found else "PRESENT but claimed absent")
 
 
@@ -72,7 +93,7 @@ def main():
             bad.append((path, mode, needle, why))
     if bad:
         print()
-        print("REFUSED: %d claim(s) in this commit message are not true of the working tree."
+        print("REFUSED: %d claim(s) in this commit message are not true OF THE COMMIT."
               % len(bad))
         print("A commit message asserting a state of a file is checked against the file. This")
         print("has caught two untrue messages already; fix the file or fix the claim.")
