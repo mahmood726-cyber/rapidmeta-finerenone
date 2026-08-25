@@ -45,11 +45,14 @@ REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(REPO, "scripts"))
 SCRATCH = (r"F:\claude-temp\claude\F--rapidmeta-finerenone"
            r"\e2e2a1d5-c19e-44de-90ab-690dbc5235a1\scratchpad\p70")
-LABELS = os.path.join(SCRATCH, "labels.json")
+# argv[1]/argv[2] let the SAME pipeline run the widened sample, so the replication is the
+# same instrument on more data rather than a second instrument that might differ.
+LABELS = (sys.argv[1] if len(sys.argv) > 1 else os.path.join(SCRATCH, "labels.json"))
 CR_CACHE = os.path.join(SCRATCH, "crossref")
 ID_CACHE = os.path.join(SCRATCH, "idconv")
 XML_CACHE = os.path.join(REPO, "outputs", "pubmed_databank_cache")
-OUT = os.path.join(REPO, "outputs", "join_end_to_end_2026_08_25.json")
+OUT = (sys.argv[2] if len(sys.argv) > 2
+       else os.path.join(REPO, "outputs", "join_end_to_end_2026_08_25.json"))
 
 CROSSREF = "https://api.crossref.org/works/%s"
 # The v1.0 path 301s to this one. Without curl -L the old URL returned an HTML
@@ -207,6 +210,12 @@ def run_controls():
         ("two matches would be counted as resolved", len(two) == 1, True))
 
 
+ORIGINAL_40 = set()
+_o = os.path.join(SCRATCH, "sample.txt")
+if os.path.exists(_o):
+    ORIGINAL_40 = {x.strip() for x in io.open(_o, encoding="utf-8") if x.strip()}
+
+
 def main():
     run_controls()
     raw = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace",
@@ -246,7 +255,8 @@ def main():
         for st in (r.get("studies") or []):
             lab = st.get("study") or ""
             parts = split_label(lab)
-            rec = {"review": r["file"], "label": lab}
+            rec = {"review": r["file"], "label": lab,
+                   "held_out": r["file"] not in ORIGINAL_40}
             if parts is None:
                 rec["stage"] = "label not of the form <name> <year>"
                 rows.append(rec)

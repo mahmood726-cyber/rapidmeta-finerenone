@@ -197,6 +197,53 @@ functions: given a registration, the public record answers.
 
 ---
 
+### The layer below: recovering the identifier is necessary and not sufficient
+
+With the validated join supplying an answer key — 866 (review, study) pairs whose registration
+is known — the registry was asked to reproduce what the Cochrane rows claim.
+
+| **Tier A — arm denominators** (unit: trial) | | | **Tier B — event counts** (unit: row) | |
+|---|---|---|---|---|
+| trials | 860 | | rows | 8,427 |
+| **no results posted** | **532 — 62%** | | **no results posted** | **4,899 — 58%** |
+| assessable | 328 | | assessable | 3,528 |
+| recovered exactly | **130 — 40%** | | recovered exactly | **1,535 — 44%** |
+| near (≤2, not recovered) | 39 | | near (≤2, not recovered) | 886 |
+| **null** | **0%** | | **null** | **7%** |
+
+Different units; never summed. **The null does the work**: a pair of arm sizes is highly
+specific (0%), while event counts are small integers that collide (7%), so Tier B's 44% must
+always be read beside its 7% — and neither is subtracted from the other.
+
+**The registry's coverage, not our retrieval, is the binding constraint.** The 40% is real; the 62% is the story. Anyone reading this should take from it exactly how far the open-data route can go: for well over half of the registered trials behind these meta-analyses, there is nothing posted to check against, and no retrieval method however good changes that.
+
+**The dominant fact is not the match rate.** For **532 of 860** registered trials contributing
+to these meta-analyses, ClinicalTrials.gov holds no posted results at all. A non-match, where
+results do exist, is not a disagreement — a different timepoint, outcome definition, subgroup
+or ITT-versus-per-protocol denominator all produce one legitimately. `NO RESULTS POSTED` is
+kept as a third state throughout, because the registry not holding a number is not the registry
+contradicting one.
+
+### And what could be furnished instead, measured against each review's own included set
+
+| of each review's own included-study labels | all 8,651 | post-2005 only (6,349) |
+|---|---|---|
+| resolved to a registration | 11% | **15%** |
+| that registration posted results | 4% | **5%** |
+| the review's arm sizes reproduce from it | 2% | **2%** |
+
+**For 274 of 400 reviews — 68% — not one included trial has posted results.** Among the 126
+where at least one has, the median share is 9%.
+
+**The honest claim is narrower than "we publish what they didn't".** It is: *for the small share of trials where the registry holds anything, we publish it per trial and the review does not.* Narrower, true, and still not something anyone else does.
+
+**This bounds the transparency claim honestly, and downwards.** Publishing per-trial numbers
+recovered from the public registry is something a review could do and largely does not — but
+for these reviews it would cover roughly one included trial in twenty, not most of them. The
+claim is about transparency, not access: every figure comes from a registry anyone may read.
+
+---
+
 ### What this is, and is not
 
 These are **auditability** claims. "No registration identifier in the record" is not "the trial
