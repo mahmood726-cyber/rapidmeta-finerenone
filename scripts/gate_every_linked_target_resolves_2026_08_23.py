@@ -144,7 +144,24 @@ def main():
           " dead link)" % REF)
     print("")
     rows, all_dead, hard_fail = [], {}, []
-    for h in HUBS:
+
+    # ENUMERATED, NOT LISTED. HUBS names seven pages, and an overnight adversarial hunt
+    # briefed to attack the gates asked the obvious question: what about a dead link on a
+    # page that is not one of the seven? Answer: 102 of them, across 49 delivered pages,
+    # invisible to this gate since it was written.
+    #
+    # Most are redirect stubs -- X_AUTO_REVIEW.html doing `location.replace` to an
+    # X_AUTO_FULL_REVIEW.html that does not exist -- so a reader is bounced to a 404 by a
+    # page that has just told them "This page is now the full RapidMeta dashboard".
+    #
+    # A fixed list is a vocabulary. It answers "are the pages I thought of clean?" while
+    # reporting as though it had answered "are the pages clean?". Same shape as a hollow-
+    # prose gate resting on seven literal phrases, and the same reason it produced clean
+    # reports for a year. The seven stay as the FAIL set, because severity still differs;
+    # what changes is that every other root page is now looked at.
+    # `root` is already the set of root-level .html files, read from git at REF.
+    scanned = sorted(set(HUBS) | set(root))
+    for h in scanned:
         r = dead_links(h, files, root)
         if r is None:
             print("   %-24s not present at %s" % (h, REF))
