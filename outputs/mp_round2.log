@@ -1,0 +1,194 @@
+PAYLOAD SGLT2_HF_REVIEW.html: OK  (5363 words)
+PAYLOAD anchor: OK  (393 words)
+
+  editor         family=openai  ours=A  chars=38551
+      2366 bytes in 1 attempt(s)
+  methodologist  family=google  ours=B  chars=38606
+      3285 bytes in 1 attempt(s)
+  sceptic        family=openai  ours=A  chars=38615
+      6497 bytes in 1 attempt(s)
+  specialist     family=google  ours=B  chars=38562
+      4023 bytes in 1 attempt(s)
+  student        family=openai  ours=A  chars=38800
+      4079 bytes in 1 attempt(s)
+
+==============================================================================
+EDITOR  [openai, ours=A]
+**Document A: DESK-REJECT.** Reason: **unsound method and unreadability**.
+
+The question is clear enough, but the review disqualifies itself. It admits: “**No fresh systematic database search was run for this object**” and “**No second independent screen was run for this topic**.” That is not a minor reporting gap for a clinical systematic review. It also says the criteria were “**derived post hoc from the trials**,” then uses those criteria to decide what can be pooled.
+
+There are internal contradictions. It says “**Risk of bias was assessed with RoB 2**,” but the certainty table says “**No result-level RoB 2 assessment exists for this outcome**.” It says the four-trial pool “**mixed the two definitions**” and “**remains withdrawn**,” yet still shows “**Figure 1. Forest plot -- cardiovascular death or a worsening heart failure event... k = 4**.” That is not review-ready.
+
+To move to review: run and report a real reproducible systematic search, add independent duplicate screening/extraction or justify the absence, remove the withdrawn four-trial forest plot, reconcile the risk-of-bias contradictions, provide a normal manuscript structure, and make the GRADE/RoB judgments auditable without self-referential clutter.
+
+**Document B: SEND FOR PEER REVIEW.** Reason: the question and method are clear enough for external review.
+
+It states a defined population, intervention, comparator, outcomes, sources, and dates: “**randomised, placebo-controlled, cardiovascular outcome trials of SGLT2i in patients with type 2 diabetes**” and “**We searched PubMed and Embase for trials published up to Sept 24, 2018**.” It gives usable pooled estimates, event counts, subgroup analyses, and clinical interpretation.
+
+Concerns for reviewers: only three trials, search limited to PubMed and Embase, duplicate extraction is not fully clear because “**discrepancies were resolved by consensus**” does not prove independent extraction, and risk-of-bias methods are absent from this excerpt. But those are peer-review issues, not desk-reject issues.
+
+**Better: B, decisively better.** B is readable, conventionally structured, and methodologically reviewable. A is more transparent about its defects, but those defects are fatal: no fresh systematic search, no duplicate screening, contradictions in risk of bias, and a withdrawn analysis still displayed as a figure.
+==============================================================================
+METHODOLOGIST  [google, ours=B]
+**DOCUMENT A**
+
+ARE THE METHODS SOUND AS REPORTED? No. The methods are functionally absent.
+Document A does not justify its pooling decisions at all; it merely asserts that "Hazard ratios (HRs) with 95% CIs were pooled across trials". There is zero discussion of whether the endpoints in these trials were defined consistently or whether the populations were sufficiently similar to justify combining them. 
+It hides heterogeneity completely. There is no mention of I-squared, tau-squared, any statistical test for variance, or any formal certainty rating applied to the evidence. 
+Uncertainty is entirely hidden, and the numbers are presented with absolute, unearned confidence. It states as fact that "SGLT2i reduced major adverse cardiovascular events by 11% (HR 0.89 [95% CI 0.83-0.96], p=0.0014)". The document claims robust findings without ever disclosing the meta-analytic model used, let alone whether the underlying trials were actually measuring the same quantities.
+
+**DOCUMENT B**
+
+ARE THE METHODS SOUND AS REPORTED? Yes, exceptionally so.
+Document B meticulously justifies its pooling decisions based on exact endpoint definitions verified at the registry level. It explicitly refuses to pool mismatched endpoints, stating: "These 4 trials are not pooled, and the reason is stated rather than the outcome being quietly omitted: The four trials do not share one endpoint... Two trials count an event class the other two do not, so this pool combined quantities that are not the same quantity." Where it does pool, it requires that "The contributing results share one endpoint definition, verified by reading each trial's registered text rather than by comparing names."
+It handles heterogeneity and certainty ratings honestly. It reports full heterogeneity statistics but correctly observes that "A LOW i-squared does not show the trials measure the same thing... coherence is established by reading the definitions". It rates certainty as "LOW" and downgrades for imprecision because "at k = 3 tau-squared is estimated from almost no information and a random-effects interval is optimistic even when it looks tight."
+Uncertainty is represented with brutal honesty. It refuses to draw underpowered plots ("A funnel plot and its asymmetry tests have almost no power below about ten trials... It is declined rather than drawn") and refuses to fake a protocol ("A protocol specified before data collection is a historical fact about the past and cannot be created retrospectively.").
+
+**WHICH IS BETTER?**
+
+Document B is decisively better. 
+
+What separates them is that Document B interrogates the actual scientific constructs being combined, whereas Document A blindly feeds numbers into an undisclosed model. Document B treats trial endpoints as specific, registered definitions that cannot be mixed if they differ, and treats its own statistical tools with appropriate skepticism (recognizing that a small-k random-effects interval is "optimistic even when it looks tight"). Document A completely ignores the fundamental requirement of meta-analysis—that you must prove you are combining apples with apples—and reports the output of an unstated model as absolute truth while hiding all heterogeneity, endpoint harmonization, and methodological uncertainty from the reader.
+==============================================================================
+SCEPTIC  [openai, ours=A]
+**Document A**
+
+What I would attack:
+
+1. The search is not a clean systematic search.
+Already answered: yes. The document admits it directly: “No fresh systematic database search was run for this object, and nothing here should be read as though one had been.” It also admits the narrower ClinicalTrials.gov query “missed an included trial.”  
+Defence: disclosure is strong, but it only defends honesty, not completeness. As a systematic review, this remains a real weakness.
+
+2. No duplicate screening.
+Already answered: yes. It says: “No second independent screen was run for this topic.”  
+Defence: none, except confession. The page correctly calls this “owed.” That is not a methodological defence.
+
+3. Post hoc eligibility and no prospective protocol.
+Already answered: yes. It says: “Eligibility criteria were derived post hoc” and “No PROSPERO registration or protocol record is held on this object.”  
+Defence: partially. It does not pretend otherwise, and says “a protocol specified before data collection is a historical fact about the past and cannot be created retrospectively.” That is good epistemic hygiene, but post hoc criteria still weaken the review.
+
+4. Risk-of-bias handling looks internally awkward.
+Already answered: partially. It says “9 result-level assessments were made,” but the GRADE table then says for both pooled outcomes: “No result-level RoB 2 assessment exists for this outcome.”  
+Defence: weak. It downgrades because “unassessed is not low,” but the page leaves a nasty reader asking why the principal pooled results lack direct RoB 2 assessments.
+
+5. The evidence base is tiny.
+Already answered: yes. For k=3 it says tau-squared is estimated “from almost no information,” and for k=2 it says the same.  
+Defence: good. It rates certainty LOW and does not oversell the precision.
+
+6. Clinical usefulness is limited because there are no absolute effects or harms.
+Already answered: yes. It says: “What this review does not give a clinician: the number of events in each arm, any absolute effect or number needed to treat and any measure of harm.”  
+Defence: honest, but damaging. The document can support relative-effect comparison, not clinical decision-making.
+
+7. The original four-trial composite was invalid.
+Already answered: yes, and well. It says the four trials “do not share one endpoint” and that the k=4 pool “combined quantities that are not the same quantity.”  
+Defence: strong. This is not a good attack anymore because the document withdraws the bad pool rather than hiding it.
+
+8. The exclusion trail is not fully visible in the pasted page.
+Already answered: only asserted. It says “Every screened trial appears with the quantity it reports quoted,” but the shown page gives aggregate counts, not the full row-level exclusion table.  
+Defence: not really on the page as pasted. The claim may be true in the underlying object, but the visible document does not let me audit all 56 records.
+
+Bottom line on A: the main attacks are real but mostly pre-empted. The serious remaining ones are no fresh full systematic search, no duplicate screen, post hoc methods, and imperfect RoB handling.
+
+**Document B**
+
+What I would attack:
+
+1. It is under-described as a systematic review.
+Already answered: barely. It says: “We searched PubMed and Embase for trials published up to Sept 24, 2018.”  
+Defence: inadequate. No exact search string, no flow counts, no exclusions, no registry search, no risk-of-bias method, no certainty rating.
+
+2. Search coverage is too narrow.
+Already answered: yes, but only by admission of what was searched: “PubMed and Embase.”  
+Defence: none on the page. Nothing says ClinicalTrials.gov, CENTRAL, regulatory sources, conference records, or unpublished trial results were searched.
+
+3. The review is date-limited and now stale if read as current.
+Already answered: yes. It states “published up to Sept 24, 2018.”  
+Defence: acceptable only if the claim is historical. The page gives no update mechanism and no warning against current use.
+
+4. Three trials are too few for confident subgroup claims.
+Already answered: no. The page says it included “three identified trials,” then makes subgroup claims by ASCVD, heart failure history, and renal function.  
+Defence: none on the page. The line “benefit only seen in patients with atherosclerotic cardiovascular disease” is too strong when the interaction p value is “0.0501.”
+
+5. “Robust benefits” is overclaiming.
+Already answered: no. The interpretation says SGLT2 inhibitors have “robust benefits” on heart failure hospitalisation and renal progression.  
+Defence: none on the page. There is no GRADE, no RoB table, no heterogeneity statistic, and no sensitivity analysis shown in the provided text.
+
+6. It pools a drug class without showing class-effect justification.
+Already answered: no. It just says “SGLT2i reduced…” across trials.  
+Defence: none. The document does not show whether effects differed by individual drug, trial design, or population.
+
+7. Harms are absent.
+Already answered: no. The methods say “Efficacy outcomes included…” and the findings report only benefits.  
+Defence: none. A prevention review that omits safety on the page is incomplete.
+
+8. Extraction/reviewer process is thin.
+Already answered: partially. It says “Data search and extraction were completed with a standardised data form and any discrepancies were resolved by consensus.”  
+Defence: weak. That does not clearly say independent duplicate screening or extraction.
+
+9. Conflicts are not dealt with.
+Already answered: only funding. It says “Funding. None.”  
+Defence: incomplete. Funding is not the same as author conflicts or trial sponsor influence.
+
+Bottom line on B: the page gives headline results but not enough machinery to defend them. Most obvious attacks are not pre-empted.
+
+**Which Is Better**
+
+A is decisively better.
+
+Not because A is flawless. It is not. It admits serious defects: “No fresh systematic database search,” “No second independent screen,” post hoc eligibility, LOW certainty, no absolute effects, no harms. But it puts those defects on the page and often refuses claims it cannot support.
+
+B is much thinner. It gives attractive effect estimates and strong interpretation language, but the page does not defend the search, exclusions, bias assessment, certainty, subgroup reliability, class-effect assumption, or harms. The separator is auditability: A lets a hostile reviewer see the weak points; B mostly asks the reader to trust the abstract.
+==============================================================================
+SPECIALIST  [google, ours=B]
+### DOCUMENT A
+**IS ANYTHING WRONG?**
+The document is highly misleading by omission because it exclusively reports relative risk reductions—claiming SGLT2i "reduced major adverse cardiovascular events by 11%", "reduced the risk of cardiovascular death or hospitalisation for heart failure by 23%", and "reduced the risk of progression of renal disease by 45%"—while entirely hiding the absolute event rates and absolute risk reductions. For instance, the authors report only "766 renal composite outcomes" out of "34 322 patients," which is a raw event rate of barely 2.2%. Presenting a "45%" relative reduction without this absolute context tricks the reader into believing the clinical benefit is huge, when it is actually minimal for most of this primary prevention population. 
+
+Additionally, the document completely omits any mention of adverse events (such as ketoacidosis, genital mycotic infections, or amputations). A reader would incorrectly conclude that these drugs have absolutely no harms.
+
+The conclusion is also overstated relative to the evidence when it claims "robust benefits on reducing hospitalisation for heart failure and progression of renal disease regardless of existing atherosclerotic cardiovascular disease or a history of heart failure." These were diabetes cardiovascular outcome trials, not dedicated heart failure trials. The subset of patients with a baseline "history of heart failure" was small (around 10-15%), poorly defined by unadjudicated investigator checkboxes, and lacked baseline ejection fraction measurements. Claiming "robust benefits" in established heart failure from this cohort alone drastically overstates what this specific dataset can prove.
+
+### DOCUMENT B
+**IS ANYTHING WRONG?**
+The document actively excludes valid, peer-reviewed data from the DELIVER trial from its primary two-component pool, which is factually misleading and ruins the integrity of the meta-analysis. It justifies this by stating: "DELIVER (NCT03619213) does not post the first-event two-component outcome... Its harmonised value exists in the publication, not the registration. A k=3 pool we can fully vouch for beats A k=4 with one input we cannot". 
+
+This is extreme methodological pedantry that severely distorts the evidence base. DELIVER is a foundational HFpEF trial; by intentionally ignoring its published data simply because it was not in the registry in the desired format, the review fails to reflect the true evidence "across the ejection fraction spectrum" promised in its title. A reader would wrongly conclude that the harmonized endpoint could only be assessed in 3 trials.
+
+Furthermore, it intentionally omits the basic data required for clinical decision-making. It plainly states: "What this review does not give a clinician: the number of events in each arm, any absolute effect or number needed to treat and any measure of harm." Presenting a medical review that completely strips away absolute effects and all measures of harm leaves the reader with a clinically useless document, as they have no way to weigh risk against benefit.
+
+### WHICH IS BETTER, A OR B?
+Document A is decisively better. 
+
+What separates them is that Document A actually synthesizes the included trials to deliver a clinical conclusion, whereas Document B sacrifices the totality of the evidence for methodological rigidity. Document A commits the typical sins of a medical abstract—hyping relative effects and hiding safety data—but it leverages all of its included data. Document B intentionally discards a quarter of the most critical evidence in heart failure (the DELIVER trial) simply because the data was found in the "publication, not the registration." A review that willfully ignores published landmark trial results to satisfy an arbitrary rule about registries fails at the fundamental purpose of evidence synthesis. Document B's outright refusal to provide "any absolute effect or number needed to treat and any measure of harm" further cements its uselessness compared to Document A.
+==============================================================================
+STUDENT  [openai, ours=A]
+**Document A**
+
+Yes, I could improve it without being completely misled, because it repeatedly tells me what not to claim. But it is messy enough that I could still make serious mistakes.
+
+What I would wrongly believe if I skimmed it: that there is a clean four-trial pooled answer “across the ejection fraction spectrum.” The title says “the four randomised outcome trials,” and the introduction says, “It pools 4 randomised trials,” but the results later say: “These 4 trials are not pooled.” That is a trap. I would need to rewrite this so the main message is not accidentally “four trials pooled.”
+
+The worst misleading area is risk of bias. It says: “Risk of bias was assessed with RoB 2 at the level of each reported result. Across the 9 results assessed: 9 at some concerns.” But the certainty table then says: “No result-level RoB 2 assessment exists for this outcome, so risk of bias is not assessed rather than absent.” I would not write “RoB 2 showed some concerns for the pooled outcomes” unless I had the actual result-level judgements in front of me.
+
+I could check the NCT numbers, endpoint definitions, trial eligibility, posted HRs, and whether DAPA-HF/DELIVER used a three-component endpoint while EMPEROR used two components. I could also recalculate the pooled HRs from log HRs and CIs if the extraction table were available. I would have to take on trust the hidden/collapsed source trail, the full screening log, the RoB 2 domain judgements, and the claim that the “unscreened remainder is 0.”
+
+The document mostly protects me from overclaiming. It explicitly says: “No fresh systematic database search was run,” “No second independent screen was run,” and “What this review does not give a clinician: the number of events in each arm, any absolute effect or number needed to treat and any measure of harm.” That is good. But I could still mistakenly turn “hazard ratio 0.764” into a treatment recommendation. The document itself says not to.
+
+**Document B**
+
+I would be much more likely to be misled by this one. It is smooth, confident, and under-documented.
+
+The most dangerous sentence is: “with benefit only seen in patients with atherosclerotic cardiovascular disease.” That is too strong for the quoted interaction result: “p for interaction=0.0501.” A medical student could easily rewrite that as a real subgroup effect, when it is borderline at best and not enough, by itself, to say benefit is “only” in one group.
+
+Another overconfident sentence is: “they have robust benefits on reducing hospitalisation for heart failure and progression of renal disease regardless of existing atherosclerotic cardiovascular disease or a history of heart failure.” The document does not give the subgroup HRs, CIs, heterogeneity, risk of bias, or event counts by subgroup. I would have to trust the authors’ summary.
+
+What I could check myself: identify the three trials, verify the 34,322 total patients, extract the HRs, check whether the renal outcome definitions match, and see whether the PubMed/Embase search could really find all eligible trials up to “Sept 24, 2018.” But the abstract gives no search string, no trial names, no flow diagram, no risk-of-bias assessment, no pooling model, and no heterogeneity statistics. Most of the machinery is invisible.
+
+The title also invites overreach: “primary and secondary prevention” sounds broader than “patients with type 2 diabetes” in “cardiovascular outcome trials.” I would not generalise this to patients without diabetes, to modern heart-failure trials, or to absolute clinical benefit. It gives relative HRs, not absolute risks or NNTs.
+
+**Which Is Better**
+
+A is decisively better for this task. It is uglier and internally confusing in places, but it exposes missing data, withdrawn analyses, post-hoc eligibility, no duplicate screening, no protocol, and no absolute effects.
+
+B is cleaner prose, but that is exactly the danger. It lets strong subgroup claims survive without showing enough of the checks. The separator is transparency: A gives me reasons to doubt it; B mostly asks me to trust it.

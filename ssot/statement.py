@@ -235,10 +235,78 @@ def _why_not_pooled(obj):
     return _reader_safe(_sentence_case(str(obj.get("which_limb_fails") or "")))
 
 
+def _and_list(items):
+    """'a', 'a and b', 'a, b and c'. Defined here because statement.py had no such helper
+    and the first version of the pending-trials sentence called one that does not exist --
+    a NameError that would have fired only on the pages this feature is FOR, which are the
+    pages nobody looks at."""
+    items = [str(x) for x in items if str(x).strip()]
+    if not items:
+        return ""
+    if len(items) == 1:
+        return items[0]
+    return "%s and %s" % (", ".join(items[:-1]), items[-1])
+
+
+def _awaiting_results(obj):
+    """Eligible trials that exist and are registered but have not reported yet.
+
+    THE THIRD HONEST ANSWER, and it was missing. A page that cannot pool had exactly two
+    things it could say: we found the wrong trials, or no eligible trial exists. Neither
+    describes AMOXICILLIN_AOM, where plain-amoxicillin trials in acute otitis media DO exist
+    -- NCT06895135 and NCT07730814 -- and are NOT_YET_RECRUITING, the second not completing
+    until 2031.
+
+    Forcing that into either box misdescribes it, and in opposite directions: "no eligible
+    trial exists" is false and closes a question that is open, while "we matched the wrong
+    trial" implies a fixable error and invites a search that will find nothing usable.
+
+    "A trial exists and will report in 2031" is the useful sentence. A reader can act on it:
+    they know the question is live, they know nothing is being hidden, and they know when to
+    come back. It is also the only one of the three that is true here.
+
+    Read from `awaiting_results`, a list of {nct, status, expected} the object may record.
+    Absent means not recorded -- never inferred, because inferring it would manufacture a
+    trial.
+    """
+    rows = obj.get("awaiting_results")
+    if not isinstance(rows, list):
+        return None
+    out = []
+    for r in rows:
+        if not isinstance(r, dict):
+            continue
+        nct = str(r.get("nct") or "").strip()
+        if not nct:
+            continue
+        out.append((nct, str(r.get("status") or "").strip(),
+                    str(r.get("expected") or "").strip()))
+    return out or None
+
+
 def _what_would_change_it(obj):
     """Derived from WHICH limb failed, so a reader knows whether to come back."""
     limb = str(obj.get("which_limb_fails") or "").lower()
     trials = _trials(obj)
+
+    # NAMED, DATED, AND FIRST -- before any of the generic branches, because when a trial is
+    # already registered and pending, that is the most specific true thing the page can say
+    # and every sentence below it would be vaguer.
+    pending = _awaiting_results(obj)
+    if pending:
+        bits = []
+        for nct, status, expected in pending[:3]:
+            piece = nct
+            if status:
+                piece += " (%s" % status.lower()
+                piece += ", expected %s)" % expected if expected else ")"
+            elif expected:
+                piece += " (expected %s)" % expected
+            bits.append(piece)
+        return ("A pooled result becomes possible when the eligible trials that are already "
+                "registered report their results: %s. They have not been matched to this "
+                "question in error and they have not been overlooked -- they exist and have "
+                "not reported yet." % _and_list(bits))
     if "outcome" in limb:
         return ("A pooled result becomes possible if these trials report a shared clinical "
                 "outcome, or if a trial that registers one is added to this question.")

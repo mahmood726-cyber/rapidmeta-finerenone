@@ -1,0 +1,58 @@
+A/B topics in scope (hold at least one readable estimate): 50
+
+TRIALS ACROSS THOSE TOPICS: 157
+   reachable by registration id                    : 155
+   with NO registration identifier (must be found)  : 2
+   object already shows a registry RESULTS posting   : 124
+   results status not recorded on the object         : 33
+
+TOPICS ALREADY HOLDING ANY ARM-LEVEL COUNT: 5 of 50
+   -- these were extracted by hand, under topic-specific key names, which is
+      evidence the extraction is possible and evidence there is no schema for it.
+
+TRIALS WITH NO REGISTRATION IDENTIFIER (2) -- each needs finding before
+anything can be fetched for it:
+   colchicine-cvd-coronary        LoDoCo2
+   finerenone-review              NULLED:NCT01874431
+
+WHAT EACH OF THE THREE COSTS
+
+FOLLOW-UP DURATION -- the cheapest, and it is not close.
+   Held on 0 of 50 topics. It is a single field on the registration record
+   (`time frame` on the primary outcome, and the study start/completion dates),
+   and every one of these 155 registrations has already been fetched once by this
+   pipeline -- `registration_read_utc` is stamped on them. So this is a re-fetch
+   of an endpoint we already call, plus a field to store. Fully automatable, no
+   reading, no judgement. One pass over 155 registrations.
+
+ARM-LEVEL EVENT COUNTS -- splits sharply in two, and the split is the estimate.
+   For the 124 trials whose object already shows a results posting, the counts are
+   structured data on an endpoint we call today: automatable.
+   For the 33 where no posting is recorded, the numbers exist only in the
+   published report, which means a person opens a paper, finds the outcome table,
+   and transcribes two numerators and two denominators per outcome. That is the
+   irreducible human cost, and it is the bulk of bucket 2.
+   NOTE: 'not recorded' is not 'not posted'. This corpus never asked the question,
+   so the true automatable share is AT LEAST 124 and may be much higher. Probing
+   the results endpoint for all 155 is itself a one-pass automated job, and it
+   should be done BEFORE anyone commits to the manual figure -- costing the manual
+   work against an unknown denominator is how this session already produced one
+   badly wrong estimate.
+
+HARMS -- automatable to fetch, NOT automatable to scope.
+   A registry results posting carries the full adverse-event tables, so retrieval
+   is the same job as the counts above. What cannot be automated is DECIDING WHICH
+   HARMS THIS REVIEW REPORTS: a posting lists every event at every grade, and
+   choosing the ones a reader needs -- serious adverse events, discontinuations,
+   the drug-class harms a clinician asks about -- is a judgement about relevance.
+   That makes harms a bucket-2 fetch with a bucket-3 decision attached, and it is
+   the only one of the three that cannot be finished without an author.
+
+SEQUENCING THAT FALLS OUT OF THIS
+   1. Probe the results endpoint for all 155 reachable registrations. One automated
+      pass. It converts the 33 unknowns into a real number and costs almost
+      nothing. Nothing else should be committed to before it returns.
+   2. Take follow-up duration in the same pass. It is free once the record is open.
+   3. Ingest arm counts for every trial with a posting. Automated.
+   4. Then, and only then, count what is left for manual extraction and price it.
+   5. Harms last, because it needs a rule about what to report before it needs data.

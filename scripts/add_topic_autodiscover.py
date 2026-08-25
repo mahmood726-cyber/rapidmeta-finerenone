@@ -5360,6 +5360,98 @@ def _match_blob(patterns, blob, token_subset=False, synmap=None):
     return False
 
 
+# ── TRIAL IDENTITY: the three judgements a substring gate cannot make ──────────────
+#
+# A corpus-wide sweep on 2026-08-25 read 139 pages and found 29 with a trial that does not
+# study the page's subject -- 42 trial records: 18 where the drug is ABSENT, 23 where it is
+# the COMPARATOR, 1 where it is BACKGROUND therapy. None reached a published pool, so the
+# damage was display-only, and the reason for that is luck: the poolability rules reject on
+# endpoint identity and a mismatched trial set rarely survives them.
+#
+# `find_ncts` matched when a drug pattern was a SUBSTRING of the concatenated intervention
+# names for a trial. That gate cannot distinguish three things, and each produced real
+# mismatches:
+#
+#   COMBINATION   "cefepime" is a substring of "cefepime/VNRX-5133" (taniborbactam), and of
+#                 "cefepime-tazobactam", and of "amoxicillin-clavulanate" for "amoxicillin".
+#                 A combination is a different drug from its components.
+#
+#   COMPARATOR    interventions.txt lists EVERY arm. RAMBLE is "Rivaroxaban vs Apixaban";
+#                 an apixaban topic matches it, and apixaban is the control.
+#
+#   BACKGROUND    TWILIGHT gives ticagrelor to EVERY participant and randomises aspirin.
+#                 A P2Y12 topic matches it, and the trial answers an aspirin question.
+#
+# The role information exists in AACT and this script never loaded it: design_groups.txt
+# carries group_type, design_group_interventions.txt links groups to interventions.
+
+_COMBO_JOIN = re.compile(r"[/+]|\s+(?:plus|and|with)\s+|(?<=[a-z])-(?=[a-z])")
+
+
+def _is_combination_of(pattern, intervention_name):
+    """True where `intervention_name` is a COMBINATION that merely CONTAINS `pattern`.
+
+    "cefepime" against "cefepime/VNRX-5133"      -> True  (different drug)
+    "cefepime tazobactam" against the same       -> False (pattern names a combination too)
+    "apixaban" against "apixaban"                -> False (plain match)
+    "amoxicillin" against "amoxicillin-clavulanate" -> True
+    """
+    np_, ni = _norm(pattern), _norm(intervention_name)
+    if np_ == ni or not np_ or np_ not in ni:
+        return False
+    parts = [x.strip() for x in _COMBO_JOIN.split(intervention_name.lower()) if x.strip()]
+    if len(parts) < 2:
+        return False
+    # The pattern itself naming a combination is not a mismatch.
+    if len([x for x in _COMBO_JOIN.split(pattern.lower()) if x.strip()]) > 1:
+        return False
+    return any(_norm(x) == np_ for x in parts)
+
+
+def _experimental_interventions(nct):
+    """Intervention names in EXPERIMENTAL arms only, or None where roles are unknown.
+
+    None is NOT an empty list. Where AACT has no arm roles for a trial the honest answer is
+    that the role could not be determined, and the caller must not read that as "the drug is
+    not experimental" -- that would silently drop real trials, which is the opposite and
+    worse failure.
+    """
+    groups = exp_intv_by_nct.get(nct)
+    if groups is None:
+        return None
+    return groups
+
+
+def _studies_subject(nct, drug_patterns):
+    """(ok, reason). The three judgements, applied in order."""
+    names = intv_by_nct.get(nct, [])
+    exp = _experimental_interventions(nct)
+    pool = exp if exp else names
+    role_known = exp is not None and len(exp) > 0
+
+    hit = None
+    for p in _expand_syns(drug_patterns, DRUG_SYNS):
+        for nm in pool:
+            if _norm(p) and _norm(p) in _norm(nm):
+                if _is_combination_of(p, nm):
+                    continue
+                hit = (p, nm)
+                break
+        if hit:
+            break
+    if not hit:
+        # Did it match only in a NON-experimental arm, or only as a combination component?
+        for p in _expand_syns(drug_patterns, DRUG_SYNS):
+            for nm in names:
+                if _norm(p) and _norm(p) in _norm(nm):
+                    if _is_combination_of(p, nm):
+                        return False, "matches only as a component of the combination %r" % nm
+                    if role_known:
+                        return False, "matches only outside the experimental arm (%r)" % nm
+        return False, "no intervention matches the drug pattern"
+    return True, "experimental intervention %r" % hit[1]
+
+
 def _pivotal_score(nct):
     """Fix C pivotal-likelihood signal in {0,1,2,3}. Higher = more pivotal:
     +2 late-phase (registrational-capable), +1 results posted (completed)."""
@@ -5379,11 +5471,14 @@ def find_ncts(drug_patterns, condition_patterns, max_per_topic=20):
     (Fix A), ranked by pivotal_score then enrollment (Fix C). Deterministic:
     NCT id is the final tie-break."""
     matches = []
+    rejected_for_identity = []
     for nct, intvs in intv_by_nct.items():
         intv_blob = " | ".join(intvs)
-        # Fix B: drug synonym-aware, punctuation-normalized (dev-codes/brands).
-        if not _match_blob(drug_patterns, intv_blob, token_subset=False,
-                          synmap=DRUG_SYNS):
+        # TRIAL IDENTITY (2026-08-25). Was: a substring gate over ALL arms, which matched
+        # a combination by its component and matched a trial where the drug is the control.
+        _ok, _why = _studies_subject(nct, drug_patterns)
+        if not _ok:
+            rejected_for_identity.append((nct, _why))
             continue
         cond_blob = " | ".join(cond_by_nct.get(nct, []))
         # Fix B: condition synonym + token-subset (MeSH inversion) + hyphen norm.
@@ -5397,6 +5492,11 @@ def find_ncts(drug_patterns, condition_patterns, max_per_topic=20):
         matches.append(nct)
     # Fix C then A: pivotal score first, enrollment within tier, NCT tie-break.
     matches.sort(key=lambda n: (-_pivotal_score(n), -enroll_by_nct.get(n, 0), n))
+    if rejected_for_identity:
+        # NAMED, NOT SILENT. A trial dropped for identity is a decision about the evidence
+        # base and belongs in the record, not in a discarded local.
+        print("  identity gate rejected %d candidate(s); first 5: %s"
+              % (len(rejected_for_identity), rejected_for_identity[:5]))
     return matches[:max_per_topic]
 
 
