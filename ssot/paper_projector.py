@@ -462,6 +462,55 @@ def _num(v, places=1):
     return ("%.*f" % (places, f)).rstrip("0").rstrip(".") or "0"
 
 
+def _search_was_executed(d):
+    """Was a search actually RUN against this source, or is the entry an honest absence?
+
+    The objects in this corpus record a source that was NOT searched as a full entry with the
+    name present and the execution fields marked. AZILSARTAN carries, verbatim:
+
+        'database': 'PubMed (NCBI E-utilities esearch)',
+        'query_as_executed': 'NOT EXECUTED FOR THIS TOPIC',
+        'what_is_unexamined': 'NO PUBMED SEARCH WAS RUN FOR THIS TOPIC. Recorded as an
+                               absence rather than omitted.'
+
+    That is the object being scrupulous. `_source_names` then listed the name like any other
+    and the abstract said "ClinicalTrials.gov API v2 and PubMed were searched" -- on a page
+    whose own Methods section says, two paragraphs later, "No search was executed against
+    PubMed for this topic". The object recorded the absence correctly and the projector threw
+    it away one layer up, turning a disclosure into a false claim.
+
+    Confirmed on 3 of 149 pages by a second family reading the delivered page against the
+    object: AZILSARTAN_HTN, AZILSARTAN_CLD_VS_OLM_HCTZ (PubMed), COLCHICINE_CVD_CORONARY
+    (anzctr). Two further pages named both sources and had genuinely run both.
+    """
+    if not isinstance(d, dict):
+        return True
+    q = str(d.get("query_as_executed") or "")
+    if "NOT EXECUTED" in q.upper():
+        return False
+    for k in ("what_is_unexamined", "note", "status"):
+        if "NO " in str(d.get(k) or "").upper() and "SEARCH WAS RUN" in str(d.get(k) or "").upper():
+            return False
+    return True
+
+
+def _sources_run_and_not_run(dbs):
+    """(names searched, names NOT searched). Both are reported; neither is dropped."""
+    items = dbs.values() if isinstance(dbs, dict) else (dbs or [])
+    ran, notrun = [], []
+    for d in items:
+        nm = d if isinstance(d, str) else (
+            (d.get("database") or d.get("name") or d.get("source") or "")
+            if isinstance(d, dict) else "")
+        nm = str(nm).split("--")[0].strip()
+        if not nm:
+            continue
+        bucket = ran if _search_was_executed(d) else notrun
+        if nm not in bucket:
+            bucket.append(nm)
+    return ran, notrun
+
+
 def _source_names(dbs):
     """Human names of the searched sources. NEVER a dict repr.
 
@@ -3434,9 +3483,17 @@ def project(obj, journal="generic", length="standard"):
     _elig_own = None
     _dbs = get(obj, "search.databases")
     if isinstance(_dbs, (list, dict)) and _dbs:
-        _names = _source_names(_dbs)
-        if _names:
-            _mparts.append("%s were searched" % _and_list(_names))
+        # NAME WHAT RAN AND WHAT DID NOT. Listing every entry regardless of whether its
+        # search executed is what turned an honest object into a false abstract; silently
+        # DROPPING the unexecuted ones would be the other failure -- deleting an absence to
+        # buy a cleaner sentence. Both are said.
+        _ran, _notrun = _sources_run_and_not_run(_dbs)
+        if _ran:
+            _mparts.append("%s %s searched"
+                           % (_and_list(_ran), "were" if len(_ran) > 1 else "was"))
+            _mfields.append("search.databases")
+        if _notrun:
+            _mparts.append("no search was executed against %s" % _and_list(_notrun))
             _mfields.append("search.databases")
     _elig = get(obj, "screening.eligibility")
     if _prose_has_value(_elig):
