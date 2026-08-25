@@ -86,6 +86,48 @@ concluding anything about whether the join is achievable without schema change.
 
 ---
 
+## Stage B′: inside the review, the same label is nearly unique
+
+The label is never used against all of PubMed. It is used inside one review. Measured across
+**61 Cochrane reviews, 4,219 references**:
+
+| | |
+|---|---|
+| references yielding a surname+year at all | **3,171 / 4,219 — 75%** |
+| of those, **unique within their own review** | **3,063 / 3,171 — 97%** |
+| sharing a label with another reference | 108 / 3,171 — 3% |
+
+**The same label form that resolved 0/20 against PubMed resolves 97% of the time inside the
+bibliography that uses it.** The ambiguity was never a property of the label; it was a
+property of the search space we pointed it at.
+
+**This is an upper bound on the ambiguity.** These are whole bibliographies — included
+studies, excluded studies, methods citations — not included trials alone. A label competing
+only against the included studies of its own review faces a smaller field than 3%.
+
+**No end-to-end rate is computed here, deliberately.** Multiplying 75% × 97% × 94% would
+produce a number from three different samples with three different denominators, which is
+the exact error this project has corrected twice this week. An end-to-end figure requires an
+end-to-end run.
+
+### What the route now looks like
+
+```
+Cochrane label "Carter 1970"
+   → resolve within the review's own reference list      97% unique  (n=3,171)
+   → PMID / DOI of that reference
+   → PubMed DataBank field                               32/34, 0 wrong
+   → NCT
+```
+
+Every step is measured, each on its own sample, and none of them is the direct author-year →
+NCT lookup that returned 2%.
+
+**The remedy is still one column.** This route is reconstruction — it works, and it should
+not be necessary. The assessor held the registration at extraction time.
+
+---
+
 ## Limits, stated
 
 - **34 pairs**, from `inputs.trials` across this corpus where a row carries both a PMID and
