@@ -1186,7 +1186,7 @@
     "statin_intolerant_population": false,
     "verdict": "EXCLUDE",
     "failing_limb": "OUTCOME",
-    "reason": "reports no four-component MACE outcome at ANY of its 17 registered ranks (primary, secondary and other all searched). Its registered primary is 'Annualised change in percentage plaque burden (Δ%PB)'. Different quantity, not poolable with the review's estimand."
+    "reason": "reports no four-component MACE outcome at ANY of its 17 registered ranks (primary, secondary and other all searched). Its registered primary is 'Annualised change in percentage plaque burden (\u0394%PB)'. Different quantity, not poolable with the review's estimand."
    },
    {
     "nct": "NCT07508254",
@@ -1465,7 +1465,21 @@
        },
        "evidence": [
         "Allocation concealment and baseline-imbalance data are in neither the registration nor the fields this object holds."
-       ]
+       ],
+       "rob2_algorithm_2026_08_26": {
+        "authority": "RoB 2, Revised Cochrane risk-of-bias tool for randomized trials, Higgins/Savovic/Page/Sterne (eds), RoB2 Development Group, 22 August 2019",
+        "basis": "A: stored signalling answers on this domain",
+        "signalling_responses_used": {
+         "1.1": "NI",
+         "1.2": "NI",
+         "1.3": "NI"
+        },
+        "stored_judgement_at_derivation": "NO_INFORMATION",
+        "this_does_not_replace_the_stored_judgement": "This is the judgement the published algorithm proposes from the signalling responses named here. It does NOT replace the stored `judgement` beside it, and nothing reads it yet. The tool itself says its algorithms \"provide proposed judgements, but users should verify these and change them if they feel this is appropriate\" -- so this is an input to a person, not an output to a reader.",
+        "state": "DERIVED",
+        "derived_judgement": "SOME_CONCERNS",
+        "algorithm": "Table 4: 1.2 = NI AND 1.3 = N/PN/NI -> Some concerns. Table 3 states the same in words: \"There is no information to answer any of the signalling questions\" -> Some concerns"
+       }
       },
       "D2_deviations": {
        "judgement": "NO_INFORMATION",
@@ -1474,7 +1488,25 @@
         "carers_aware": "NO_INFORMATION",
         "appropriate_analysis_used": "NO_INFORMATION"
        },
-       "evidence": []
+       "evidence": [],
+       "rob2_algorithm_2026_08_26": {
+        "authority": "RoB 2, Revised Cochrane risk-of-bias tool for randomized trials, Higgins/Savovic/Page/Sterne (eds), RoB2 Development Group, 22 August 2019",
+        "basis": "A: stored signalling answers on this domain",
+        "signalling_responses_used": {
+         "2.1": "NI",
+         "2.2": "NI",
+         "2.6": "NI",
+         "2.3": "NI",
+         "2.4": "NI",
+         "2.5": "NI",
+         "2.7": "NI"
+        },
+        "stored_judgement_at_derivation": "NO_INFORMATION",
+        "this_does_not_replace_the_stored_judgement": "This is the judgement the published algorithm proposes from the signalling responses named here. It does NOT replace the stored `judgement` beside it, and nothing reads it yet. The tool itself says its algorithms \"provide proposed judgements, but users should verify these and change them if they feel this is appropriate\" -- so this is an input to a person, not an output to a reader.",
+        "state": "DERIVED",
+        "derived_judgement": "HIGH",
+        "algorithm": "effect of ASSIGNMENT variant | Part 1 row 3: 2.3 = NI -> Some concerns | Part 2 row 3: 2.6 = N/PN/NI, 2.7 = Y/PY/NI -> High | domain criteria: the more severe of the two parts -> HIGH"
+       }
       },
       "D3_missing_outcome_data": {
        "judgement": "LOW",
@@ -1527,7 +1559,7 @@
      "registered_arm_count": 2,
      "registered_enrolment": 13970,
      "registered_primary_outcome": "Number of Participants With First Occurrence of Four Component Major Adverse Cardiovascular Events (MACE)",
-     "registered_sites": "Argentina, Australia, Austria, Belgium, Brazil, Bulgaria, Canada, Chile, Colombia, Croatia, Czechia, Denmark, Estonia, Germany, Hungary, India, Latvia, Lithuania, Mexico, Netherlands, New Zealand, Poland, Romania, Russia, Serbia, Slovakia, South Africa, Spain, Turkey (Türkiye), Ukraine, United Kingdom, United States",
+     "registered_sites": "Argentina, Australia, Austria, Belgium, Brazil, Bulgaria, Canada, Chile, Colombia, Croatia, Czechia, Denmark, Estonia, Germany, Hungary, India, Latvia, Lithuania, Mexico, Netherlands, New Zealand, Poland, Romania, Russia, Serbia, Slovakia, South Africa, Spain, Turkey (T\u00fcrkiye), Ukraine, United Kingdom, United States",
      "registry_facts_backfilled_2026_08_21": "READ FROM ClinicalTrials.gov API v2 on 2026-08-21. THE JUDGEMENTS ABOVE WERE NOT REVISITED -- this adds the registry evidence beside a verdict that was made from it and did not record it, so a blind second assessor can be shown the same facts. A second assessment built on fewer facts is not a comparable assessment.",
      "our_selection_declared_not_rated": {
       "assessed_by_rob2": false,
@@ -1535,6 +1567,14 @@
       "state": "COULD_NOT_DETERMINE",
       "statement": "WHICH OF THE TRIAL'S RESULTS THIS ROW USES IS NOT RECORDED ON THIS OBJECT. The field that would say so, `endpoint_rank_in_its_own_trial`, is absent from this result's block. That is a MISSING FIELD, reported as missing. It is not a statement that no selection was made, and no statement about the selection is composed from anything else.",
       "missing_field": "endpoint_rank_in_its_own_trial, absent from BOTH layers that carry it: inputs.trials[].by_outcome[] and results.by_outcome[].per_trial[]"
+     },
+     "rob2_algorithm_2026_08_26": {
+      "authority": "RoB 2, Revised Cochrane risk-of-bias tool for randomized trials, Higgins/Savovic/Page/Sterne (eds), RoB2 Development Group, 22 August 2019",
+      "stored_overall_at_derivation": "NO_INFORMATION",
+      "this_does_not_replace_the_stored_judgement": "This is the judgement the published algorithm proposes from the signalling responses named here. It does NOT replace the stored `judgement` beside it, and nothing reads it yet. The tool itself says its algorithms \"provide proposed judgements, but users should verify these and change them if they feel this is appropriate\" -- so this is an input to a person, not an output to a reader.",
+      "state": "DERIVED",
+      "derived_overall": "HIGH",
+      "algorithm": "Table 1: High risk of bias in at least one domain"
      }
     }
    }
@@ -1567,6 +1607,16 @@
    "review_level_selection_goes_to": "Chapter 13 (assessing risk of bias due to missing results in a synthesis) for the synthesis-level question, and to an explicit DECLARATION beside each affected estimate for the per-result question, which is `our_selection_declared_not_rated` on every record below.",
    "position_withdrawn": "An earlier version of this function implemented the opposite position WITHOUT DECLARING IT: it set signalling question 5.2 to PROBABLY_YES whenever the result used here sat at SECONDARY or OTHER rank, on the ground that the rank was chosen by this review -- while stating in its own evidence text that the selection was 'the reviewers', not the trialists''. That is question 5.2 answered about the reviewers and then attributed to the trial. It reached 4 stored records, all in `iv-iron-hf`, and reached ZERO bytes of any delivered page. It is withdrawn here, and the withdrawal is recorded rather than the code quietly changing under an unchanged docstring.",
    "decided_by": "Mahmood, 2026-08-24, on escalation E1 from the RoB 2 lane."
+  },
+  "rob2_rederivation_2026_08_26": {
+   "what": "Domain judgements recorded as NO_INFORMATION re-derived with the published algorithm and written alongside, never in place.",
+   "authority": "RoB 2, Revised Cochrane risk-of-bias tool for randomized trials, Higgins/Savovic/Page/Sterne (eds), RoB2 Development Group, 22 August 2019",
+   "handbook": "Cochrane Handbook v6.5 section 8.2.3: the domain-level judgements are Low / Some concerns / High; \"No information\" is one of the five signalling-question responses.",
+   "field": "rob2_algorithm_2026_08_26",
+   "derived": 2,
+   "underivable_reported_as_a_data_gap": 0,
+   "the_stored_judgements_are_unchanged": true,
+   "control": "scripts/plant_rob2_algorithm_tables.py -- one case per published table row, plus four negative controls."
   }
  },
  "grade": {

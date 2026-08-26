@@ -920,7 +920,7 @@
       ]
      },
      {
-      "title": "Number of Occurrences After Randomization of the Composite of Sustained ≥50% Decrease in Estimated Glomerular Filtration Rate (eGFR) From Baseline (for ≥30 Days), Chronic Dialysis, Renal Transplant, or Sustained eGFR <15 mL/Min/1.73 m^2 (for ≥30 Days)",
+      "title": "Number of Occurrences After Randomization of the Composite of Sustained \u226550% Decrease in Estimated Glomerular Filtration Rate (eGFR) From Baseline (for \u226530 Days), Chronic Dialysis, Renal Transplant, or Sustained eGFR <15 mL/Min/1.73 m^2 (for \u226530 Days)",
       "type": "SECONDARY",
       "counts": [
        0.5,
@@ -953,7 +953,7 @@
      "Number of Deaths From Cardiovascular Causes",
      "Total Number of Occurrences of CV Death, HHF, Non-fatal Myocardial Infarction and Non-fatal Stroke",
      "Total Number of Occurrences of HHF, Urgent HF Visit, CV Death, and HF While Hospitalized",
-     "Number of Occurrences After Randomization of the Composite of Sustained ≥50% Decrease in Estimated Glomerular Filtration Rate (eGFR) From Baseline (for ≥30 Days), Chronic Dialysis, Renal Transplant, or Sustained eGFR <15 mL/Min/1.73 m^2 (for ≥30 Days)",
+     "Number of Occurrences After Randomization of the Composite of Sustained \u226550% Decrease in Estimated Glomerular Filtration Rate (eGFR) From Baseline (for \u226530 Days), Chronic Dialysis, Renal Transplant, or Sustained eGFR <15 mL/Min/1.73 m^2 (for \u226530 Days)",
      "Number of Deaths From Any Cause",
      "Total Number of Occurrences of CV Death, Non-fatal Myocardial Infarction and Non-fatal Stroke"
     ],
@@ -2182,22 +2182,84 @@
       "D1_randomisation": {
        "judgement": "NO_INFORMATION",
        "reason": "RoB 2's signalling questions for this domain cannot be answered from a trial registration and a published abstract, and this review has not retrieved either trial's protocol or statistical analysis plan. This records WHAT WE REACHED, not a judgement about how the trial was run.",
-       "evidence_on_this_object": "inputs.trials[nct=NCT03521934].design records 'randomised one to one against placebo' and nothing about sequence generation or allocation concealment."
+       "evidence_on_this_object": "inputs.trials[nct=NCT03521934].design records 'randomised one to one against placebo' and nothing about sequence generation or allocation concealment.",
+       "rob2_algorithm_2026_08_26": {
+        "authority": "RoB 2, Revised Cochrane risk-of-bias tool for randomized trials, Higgins/Savovic/Page/Sterne (eds), RoB2 Development Group, 22 August 2019",
+        "basis": "B: the object declares a domain unjudgeable from the sources read to be NO_INFORMATION, so every signalling response is \"No information\" by its own declaration",
+        "signalling_responses_used": {
+         "1.1": "NI",
+         "1.2": "NI",
+         "1.3": "NI"
+        },
+        "stored_judgement_at_derivation": "NO_INFORMATION",
+        "this_does_not_replace_the_stored_judgement": "This is the judgement the published algorithm proposes from the signalling responses named here. It does NOT replace the stored `judgement` beside it, and nothing reads it yet. The tool itself says its algorithms \"provide proposed judgements, but users should verify these and change them if they feel this is appropriate\" -- so this is an input to a person, not an output to a reader.",
+        "state": "DERIVED",
+        "derived_judgement": "SOME_CONCERNS",
+        "algorithm": "Table 4: 1.2 = NI AND 1.3 = N/PN/NI -> Some concerns. Table 3 states the same in words: \"There is no information to answer any of the signalling questions\" -> Some concerns"
+       }
       },
       "D2_deviations": {
        "judgement": "NO_INFORMATION",
        "reason": "RoB 2's signalling questions for this domain cannot be answered from a trial registration and a published abstract, and this review has not retrieved either trial's protocol or statistical analysis plan. This records WHAT WE REACHED, not a judgement about how the trial was run.",
-       "evidence_on_this_object": "inputs.trials[nct=NCT03521934].design records a double-blind design against a matching placebo, and .by_outcome.hfcv_total.analysed_scope records that the analysis set is all randomised patients -- but whether deviations arose from the trial context, and how they were handled, needs the protocol."
+       "evidence_on_this_object": "inputs.trials[nct=NCT03521934].design records a double-blind design against a matching placebo, and .by_outcome.hfcv_total.analysed_scope records that the analysis set is all randomised patients -- but whether deviations arose from the trial context, and how they were handled, needs the protocol.",
+       "rob2_algorithm_2026_08_26": {
+        "authority": "RoB 2, Revised Cochrane risk-of-bias tool for randomized trials, Higgins/Savovic/Page/Sterne (eds), RoB2 Development Group, 22 August 2019",
+        "basis": "B: the object declares a domain unjudgeable from the sources read to be NO_INFORMATION, so every signalling response is \"No information\" by its own declaration",
+        "signalling_responses_used": {
+         "2.1": "NI",
+         "2.2": "NI",
+         "2.3": "NI",
+         "2.4": "NI",
+         "2.5": "NI",
+         "2.6": "NI",
+         "2.7": "NI"
+        },
+        "stored_judgement_at_derivation": "NO_INFORMATION",
+        "this_does_not_replace_the_stored_judgement": "This is the judgement the published algorithm proposes from the signalling responses named here. It does NOT replace the stored `judgement` beside it, and nothing reads it yet. The tool itself says its algorithms \"provide proposed judgements, but users should verify these and change them if they feel this is appropriate\" -- so this is an input to a person, not an output to a reader.",
+        "state": "DERIVED",
+        "derived_judgement": "HIGH",
+        "algorithm": "effect of ASSIGNMENT variant | Part 1 row 3: 2.3 = NI -> Some concerns | Part 2 row 3: 2.6 = N/PN/NI, 2.7 = Y/PY/NI -> High | domain criteria: the more severe of the two parts -> HIGH"
+       }
       },
       "D3_missing_outcome_data": {
        "judgement": "NO_INFORMATION",
        "reason": "RoB 2's signalling questions for this domain cannot be answered from a trial registration and a published abstract, and this review has not retrieved either trial's protocol or statistical analysis plan. This records WHAT WE REACHED, not a judgement about how the trial was run.",
-       "evidence_on_this_object": "BOTH TRIALS WERE STOPPED EARLY because the sponsor withdrew funding (inputs.trials[nct=NCT03521934].design). Early termination bears on precision and is rated there, under GRADE imprecision; whether outcome data were MISSING for randomised participants, and whether missingness depended on the true value, is a different question and this review has not reached the completeness-of-follow-up figures that answer it."
+       "evidence_on_this_object": "BOTH TRIALS WERE STOPPED EARLY because the sponsor withdrew funding (inputs.trials[nct=NCT03521934].design). Early termination bears on precision and is rated there, under GRADE imprecision; whether outcome data were MISSING for randomised participants, and whether missingness depended on the true value, is a different question and this review has not reached the completeness-of-follow-up figures that answer it.",
+       "rob2_algorithm_2026_08_26": {
+        "authority": "RoB 2, Revised Cochrane risk-of-bias tool for randomized trials, Higgins/Savovic/Page/Sterne (eds), RoB2 Development Group, 22 August 2019",
+        "basis": "B: the object declares a domain unjudgeable from the sources read to be NO_INFORMATION, so every signalling response is \"No information\" by its own declaration",
+        "signalling_responses_used": {
+         "3.1": "NI",
+         "3.2": "NI",
+         "3.3": "NI",
+         "3.4": "NI"
+        },
+        "stored_judgement_at_derivation": "NO_INFORMATION",
+        "this_does_not_replace_the_stored_judgement": "This is the judgement the published algorithm proposes from the signalling responses named here. It does NOT replace the stored `judgement` beside it, and nothing reads it yet. The tool itself says its algorithms \"provide proposed judgements, but users should verify these and change them if they feel this is appropriate\" -- so this is an input to a person, not an output to a reader.",
+        "state": "UNDERIVABLE",
+        "reason": "Table 10 defines no row for 3.2 = NI: every row requires 3.2 in {Y/PY, N/PN}. Table 9 cannot be met either. UNDERIVABLE."
+       }
       },
       "D4_measurement": {
        "judgement": "NO_INFORMATION",
        "reason": "RoB 2's signalling questions for this domain cannot be answered from a trial registration and a published abstract, and this review has not retrieved either trial's protocol or statistical analysis plan. This records WHAT WE REACHED, not a judgement about how the trial was run.",
-       "evidence_on_this_object": "inputs.trials[nct=NCT03521934].design records 'double-blind, randomised one to one against placebo', which bears on blinding of outcome assessors, but the remaining signalling questions for this domain need the protocol."
+       "evidence_on_this_object": "inputs.trials[nct=NCT03521934].design records 'double-blind, randomised one to one against placebo', which bears on blinding of outcome assessors, but the remaining signalling questions for this domain need the protocol.",
+       "rob2_algorithm_2026_08_26": {
+        "authority": "RoB 2, Revised Cochrane risk-of-bias tool for randomized trials, Higgins/Savovic/Page/Sterne (eds), RoB2 Development Group, 22 August 2019",
+        "basis": "B: the object declares a domain unjudgeable from the sources read to be NO_INFORMATION, so every signalling response is \"No information\" by its own declaration",
+        "signalling_responses_used": {
+         "4.1": "NI",
+         "4.2": "NI",
+         "4.3": "NI",
+         "4.4": "NI",
+         "4.5": "NI"
+        },
+        "stored_judgement_at_derivation": "NO_INFORMATION",
+        "this_does_not_replace_the_stored_judgement": "This is the judgement the published algorithm proposes from the signalling responses named here. It does NOT replace the stored `judgement` beside it, and nothing reads it yet. The tool itself says its algorithms \"provide proposed judgements, but users should verify these and change them if they feel this is appropriate\" -- so this is an input to a person, not an output to a reader.",
+        "state": "DERIVED",
+        "derived_judgement": "HIGH",
+        "algorithm": "Table 12 row 8: 4.2 = NI, 4.5 = Y/PY/NI -> High"
+       }
       },
       "D5_selection_of_reported_result": {
        "judgement": "LOW",
@@ -2212,8 +2274,15 @@
      "registered_arm_count": 2,
      "registered_enrolment": 1222,
      "registered_primary_outcome": "Number of Total Occurrences of Cardiovascular (CV) Death, Hospitalizations for Heart Failure (HHF) and Urgent Visits for Heart Failure (HF)",
-     "registered_sites": "Argentina, Australia, Austria, Belgium, Brazil, Canada, Chile, Czechia, Denmark, Finland, France, Germany, Greece, Hungary, Israel, Italy, Latvia, Lithuania, Netherlands, New Zealand, Poland, Portugal, Romania, Russia, Slovakia, South Korea, Spain, Sweden, Switzerland, Turkey (Türkiye), United Kingdom, United States",
-     "registry_facts_backfilled_2026_08_21": "READ FROM ClinicalTrials.gov API v2 on 2026-08-21. THE JUDGEMENTS ABOVE WERE NOT REVISITED -- this adds the registry evidence beside a verdict that was made from it and did not record it, so a blind second assessor can be shown the same facts. A second assessment built on fewer facts is not a comparable assessment."
+     "registered_sites": "Argentina, Australia, Austria, Belgium, Brazil, Canada, Chile, Czechia, Denmark, Finland, France, Germany, Greece, Hungary, Israel, Italy, Latvia, Lithuania, Netherlands, New Zealand, Poland, Portugal, Romania, Russia, Slovakia, South Korea, Spain, Sweden, Switzerland, Turkey (T\u00fcrkiye), United Kingdom, United States",
+     "registry_facts_backfilled_2026_08_21": "READ FROM ClinicalTrials.gov API v2 on 2026-08-21. THE JUDGEMENTS ABOVE WERE NOT REVISITED -- this adds the registry evidence beside a verdict that was made from it and did not record it, so a blind second assessor can be shown the same facts. A second assessment built on fewer facts is not a comparable assessment.",
+     "rob2_algorithm_2026_08_26": {
+      "authority": "RoB 2, Revised Cochrane risk-of-bias tool for randomized trials, Higgins/Savovic/Page/Sterne (eds), RoB2 Development Group, 22 August 2019",
+      "stored_overall_at_derivation": "SOME_CONCERNS",
+      "this_does_not_replace_the_stored_judgement": "This is the judgement the published algorithm proposes from the signalling responses named here. It does NOT replace the stored `judgement` beside it, and nothing reads it yet. The tool itself says its algorithms \"provide proposed judgements, but users should verify these and change them if they feel this is appropriate\" -- so this is an input to a person, not an output to a reader.",
+      "state": "UNDERIVABLE",
+      "reason": "Table 1: not reachable -- at least one domain is underivable, and an overall judgement is a statement about all five"
+     }
     },
     "NCT03315143": {
      "trial": "SCORED",
@@ -2223,22 +2292,84 @@
       "D1_randomisation": {
        "judgement": "NO_INFORMATION",
        "reason": "RoB 2's signalling questions for this domain cannot be answered from a trial registration and a published abstract, and this review has not retrieved either trial's protocol or statistical analysis plan. This records WHAT WE REACHED, not a judgement about how the trial was run.",
-       "evidence_on_this_object": "inputs.trials[nct=NCT03315143].design records 'randomised one to one against placebo' and nothing about sequence generation or allocation concealment."
+       "evidence_on_this_object": "inputs.trials[nct=NCT03315143].design records 'randomised one to one against placebo' and nothing about sequence generation or allocation concealment.",
+       "rob2_algorithm_2026_08_26": {
+        "authority": "RoB 2, Revised Cochrane risk-of-bias tool for randomized trials, Higgins/Savovic/Page/Sterne (eds), RoB2 Development Group, 22 August 2019",
+        "basis": "B: the object declares a domain unjudgeable from the sources read to be NO_INFORMATION, so every signalling response is \"No information\" by its own declaration",
+        "signalling_responses_used": {
+         "1.1": "NI",
+         "1.2": "NI",
+         "1.3": "NI"
+        },
+        "stored_judgement_at_derivation": "NO_INFORMATION",
+        "this_does_not_replace_the_stored_judgement": "This is the judgement the published algorithm proposes from the signalling responses named here. It does NOT replace the stored `judgement` beside it, and nothing reads it yet. The tool itself says its algorithms \"provide proposed judgements, but users should verify these and change them if they feel this is appropriate\" -- so this is an input to a person, not an output to a reader.",
+        "state": "DERIVED",
+        "derived_judgement": "SOME_CONCERNS",
+        "algorithm": "Table 4: 1.2 = NI AND 1.3 = N/PN/NI -> Some concerns. Table 3 states the same in words: \"There is no information to answer any of the signalling questions\" -> Some concerns"
+       }
       },
       "D2_deviations": {
        "judgement": "NO_INFORMATION",
        "reason": "RoB 2's signalling questions for this domain cannot be answered from a trial registration and a published abstract, and this review has not retrieved either trial's protocol or statistical analysis plan. This records WHAT WE REACHED, not a judgement about how the trial was run.",
-       "evidence_on_this_object": "inputs.trials[nct=NCT03315143].design records a double-blind design against a matching placebo, and .by_outcome.hfcv_total.analysed_scope records that the analysis set is all randomised patients -- but whether deviations arose from the trial context, and how they were handled, needs the protocol."
+       "evidence_on_this_object": "inputs.trials[nct=NCT03315143].design records a double-blind design against a matching placebo, and .by_outcome.hfcv_total.analysed_scope records that the analysis set is all randomised patients -- but whether deviations arose from the trial context, and how they were handled, needs the protocol.",
+       "rob2_algorithm_2026_08_26": {
+        "authority": "RoB 2, Revised Cochrane risk-of-bias tool for randomized trials, Higgins/Savovic/Page/Sterne (eds), RoB2 Development Group, 22 August 2019",
+        "basis": "B: the object declares a domain unjudgeable from the sources read to be NO_INFORMATION, so every signalling response is \"No information\" by its own declaration",
+        "signalling_responses_used": {
+         "2.1": "NI",
+         "2.2": "NI",
+         "2.3": "NI",
+         "2.4": "NI",
+         "2.5": "NI",
+         "2.6": "NI",
+         "2.7": "NI"
+        },
+        "stored_judgement_at_derivation": "NO_INFORMATION",
+        "this_does_not_replace_the_stored_judgement": "This is the judgement the published algorithm proposes from the signalling responses named here. It does NOT replace the stored `judgement` beside it, and nothing reads it yet. The tool itself says its algorithms \"provide proposed judgements, but users should verify these and change them if they feel this is appropriate\" -- so this is an input to a person, not an output to a reader.",
+        "state": "DERIVED",
+        "derived_judgement": "HIGH",
+        "algorithm": "effect of ASSIGNMENT variant | Part 1 row 3: 2.3 = NI -> Some concerns | Part 2 row 3: 2.6 = N/PN/NI, 2.7 = Y/PY/NI -> High | domain criteria: the more severe of the two parts -> HIGH"
+       }
       },
       "D3_missing_outcome_data": {
        "judgement": "NO_INFORMATION",
        "reason": "RoB 2's signalling questions for this domain cannot be answered from a trial registration and a published abstract, and this review has not retrieved either trial's protocol or statistical analysis plan. This records WHAT WE REACHED, not a judgement about how the trial was run.",
-       "evidence_on_this_object": "BOTH TRIALS WERE STOPPED EARLY because the sponsor withdrew funding (inputs.trials[nct=NCT03315143].design). Early termination bears on precision and is rated there, under GRADE imprecision; whether outcome data were MISSING for randomised participants, and whether missingness depended on the true value, is a different question and this review has not reached the completeness-of-follow-up figures that answer it."
+       "evidence_on_this_object": "BOTH TRIALS WERE STOPPED EARLY because the sponsor withdrew funding (inputs.trials[nct=NCT03315143].design). Early termination bears on precision and is rated there, under GRADE imprecision; whether outcome data were MISSING for randomised participants, and whether missingness depended on the true value, is a different question and this review has not reached the completeness-of-follow-up figures that answer it.",
+       "rob2_algorithm_2026_08_26": {
+        "authority": "RoB 2, Revised Cochrane risk-of-bias tool for randomized trials, Higgins/Savovic/Page/Sterne (eds), RoB2 Development Group, 22 August 2019",
+        "basis": "B: the object declares a domain unjudgeable from the sources read to be NO_INFORMATION, so every signalling response is \"No information\" by its own declaration",
+        "signalling_responses_used": {
+         "3.1": "NI",
+         "3.2": "NI",
+         "3.3": "NI",
+         "3.4": "NI"
+        },
+        "stored_judgement_at_derivation": "NO_INFORMATION",
+        "this_does_not_replace_the_stored_judgement": "This is the judgement the published algorithm proposes from the signalling responses named here. It does NOT replace the stored `judgement` beside it, and nothing reads it yet. The tool itself says its algorithms \"provide proposed judgements, but users should verify these and change them if they feel this is appropriate\" -- so this is an input to a person, not an output to a reader.",
+        "state": "UNDERIVABLE",
+        "reason": "Table 10 defines no row for 3.2 = NI: every row requires 3.2 in {Y/PY, N/PN}. Table 9 cannot be met either. UNDERIVABLE."
+       }
       },
       "D4_measurement": {
        "judgement": "NO_INFORMATION",
        "reason": "RoB 2's signalling questions for this domain cannot be answered from a trial registration and a published abstract, and this review has not retrieved either trial's protocol or statistical analysis plan. This records WHAT WE REACHED, not a judgement about how the trial was run.",
-       "evidence_on_this_object": "inputs.trials[nct=NCT03315143].design records 'double-blind, randomised one to one against placebo', which bears on blinding of outcome assessors, but the remaining signalling questions for this domain need the protocol."
+       "evidence_on_this_object": "inputs.trials[nct=NCT03315143].design records 'double-blind, randomised one to one against placebo', which bears on blinding of outcome assessors, but the remaining signalling questions for this domain need the protocol.",
+       "rob2_algorithm_2026_08_26": {
+        "authority": "RoB 2, Revised Cochrane risk-of-bias tool for randomized trials, Higgins/Savovic/Page/Sterne (eds), RoB2 Development Group, 22 August 2019",
+        "basis": "B: the object declares a domain unjudgeable from the sources read to be NO_INFORMATION, so every signalling response is \"No information\" by its own declaration",
+        "signalling_responses_used": {
+         "4.1": "NI",
+         "4.2": "NI",
+         "4.3": "NI",
+         "4.4": "NI",
+         "4.5": "NI"
+        },
+        "stored_judgement_at_derivation": "NO_INFORMATION",
+        "this_does_not_replace_the_stored_judgement": "This is the judgement the published algorithm proposes from the signalling responses named here. It does NOT replace the stored `judgement` beside it, and nothing reads it yet. The tool itself says its algorithms \"provide proposed judgements, but users should verify these and change them if they feel this is appropriate\" -- so this is an input to a person, not an output to a reader.",
+        "state": "DERIVED",
+        "derived_judgement": "HIGH",
+        "algorithm": "Table 12 row 8: 4.2 = NI, 4.5 = Y/PY/NI -> High"
+       }
       },
       "D5_selection_of_reported_result": {
        "judgement": "HIGH",
@@ -2261,8 +2392,15 @@
      "registered_arm_count": 2,
      "registered_enrolment": 10584,
      "registered_primary_outcome": "Number of Total Occurrences of Cardiovascular (CV) Death, Hospitalizations for Heart Failure (HHF) and Urgent Visits for Heart Failure (HF)",
-     "registered_sites": "Argentina, Australia, Belgium, Brazil, Bulgaria, Canada, Chile, China, Czechia, Denmark, Estonia, France, Georgia, Germany, Greece, Guatemala, Hungary, India, Israel, Italy, Latvia, Lithuania, Mexico, Netherlands, New Zealand, North Macedonia, Norway, Peru, Poland, Portugal, Puerto Rico, Romania, Russia, Serbia, Slovakia, South Africa, South Korea, Spain, Sweden, Switzerland, Taiwan, Turkey (Türkiye), Ukraine, United Kingdom, United States",
-     "registry_facts_backfilled_2026_08_21": "READ FROM ClinicalTrials.gov API v2 on 2026-08-21. THE JUDGEMENTS ABOVE WERE NOT REVISITED -- this adds the registry evidence beside a verdict that was made from it and did not record it, so a blind second assessor can be shown the same facts. A second assessment built on fewer facts is not a comparable assessment."
+     "registered_sites": "Argentina, Australia, Belgium, Brazil, Bulgaria, Canada, Chile, China, Czechia, Denmark, Estonia, France, Georgia, Germany, Greece, Guatemala, Hungary, India, Israel, Italy, Latvia, Lithuania, Mexico, Netherlands, New Zealand, North Macedonia, Norway, Peru, Poland, Portugal, Puerto Rico, Romania, Russia, Serbia, Slovakia, South Africa, South Korea, Spain, Sweden, Switzerland, Taiwan, Turkey (T\u00fcrkiye), Ukraine, United Kingdom, United States",
+     "registry_facts_backfilled_2026_08_21": "READ FROM ClinicalTrials.gov API v2 on 2026-08-21. THE JUDGEMENTS ABOVE WERE NOT REVISITED -- this adds the registry evidence beside a verdict that was made from it and did not record it, so a blind second assessor can be shown the same facts. A second assessment built on fewer facts is not a comparable assessment.",
+     "rob2_algorithm_2026_08_26": {
+      "authority": "RoB 2, Revised Cochrane risk-of-bias tool for randomized trials, Higgins/Savovic/Page/Sterne (eds), RoB2 Development Group, 22 August 2019",
+      "stored_overall_at_derivation": "HIGH",
+      "this_does_not_replace_the_stored_judgement": "This is the judgement the published algorithm proposes from the signalling responses named here. It does NOT replace the stored `judgement` beside it, and nothing reads it yet. The tool itself says its algorithms \"provide proposed judgements, but users should verify these and change them if they feel this is appropriate\" -- so this is an input to a person, not an output to a reader.",
+      "state": "UNDERIVABLE",
+      "reason": "Table 1: not reachable -- at least one domain is underivable, and an overall judgement is a statement about all five"
+     }
     }
    },
    "hfcv_first": {
@@ -2274,17 +2412,63 @@
       "D1_randomisation": {
        "judgement": "NO_INFORMATION",
        "reason": "RoB 2's signalling questions for this domain cannot be answered from a trial registration and a published abstract, and this review has not retrieved either trial's protocol or statistical analysis plan. This records WHAT WE REACHED, not a judgement about how the trial was run.",
-       "evidence_on_this_object": "inputs.trials[nct=NCT03521934].design records 'randomised one to one against placebo' and nothing about sequence generation or allocation concealment."
+       "evidence_on_this_object": "inputs.trials[nct=NCT03521934].design records 'randomised one to one against placebo' and nothing about sequence generation or allocation concealment.",
+       "rob2_algorithm_2026_08_26": {
+        "authority": "RoB 2, Revised Cochrane risk-of-bias tool for randomized trials, Higgins/Savovic/Page/Sterne (eds), RoB2 Development Group, 22 August 2019",
+        "basis": "B: the object declares a domain unjudgeable from the sources read to be NO_INFORMATION, so every signalling response is \"No information\" by its own declaration",
+        "signalling_responses_used": {
+         "1.1": "NI",
+         "1.2": "NI",
+         "1.3": "NI"
+        },
+        "stored_judgement_at_derivation": "NO_INFORMATION",
+        "this_does_not_replace_the_stored_judgement": "This is the judgement the published algorithm proposes from the signalling responses named here. It does NOT replace the stored `judgement` beside it, and nothing reads it yet. The tool itself says its algorithms \"provide proposed judgements, but users should verify these and change them if they feel this is appropriate\" -- so this is an input to a person, not an output to a reader.",
+        "state": "DERIVED",
+        "derived_judgement": "SOME_CONCERNS",
+        "algorithm": "Table 4: 1.2 = NI AND 1.3 = N/PN/NI -> Some concerns. Table 3 states the same in words: \"There is no information to answer any of the signalling questions\" -> Some concerns"
+       }
       },
       "D2_deviations": {
        "judgement": "NO_INFORMATION",
        "reason": "RoB 2's signalling questions for this domain cannot be answered from a trial registration and a published abstract, and this review has not retrieved either trial's protocol or statistical analysis plan. This records WHAT WE REACHED, not a judgement about how the trial was run.",
-       "evidence_on_this_object": "inputs.trials[nct=NCT03521934].design records a double-blind design against a matching placebo, and .by_outcome.hfcv_first.analysed_scope records that the analysis set is all randomised patients -- but whether deviations arose from the trial context, and how they were handled, needs the protocol."
+       "evidence_on_this_object": "inputs.trials[nct=NCT03521934].design records a double-blind design against a matching placebo, and .by_outcome.hfcv_first.analysed_scope records that the analysis set is all randomised patients -- but whether deviations arose from the trial context, and how they were handled, needs the protocol.",
+       "rob2_algorithm_2026_08_26": {
+        "authority": "RoB 2, Revised Cochrane risk-of-bias tool for randomized trials, Higgins/Savovic/Page/Sterne (eds), RoB2 Development Group, 22 August 2019",
+        "basis": "B: the object declares a domain unjudgeable from the sources read to be NO_INFORMATION, so every signalling response is \"No information\" by its own declaration",
+        "signalling_responses_used": {
+         "2.1": "NI",
+         "2.2": "NI",
+         "2.3": "NI",
+         "2.4": "NI",
+         "2.5": "NI",
+         "2.6": "NI",
+         "2.7": "NI"
+        },
+        "stored_judgement_at_derivation": "NO_INFORMATION",
+        "this_does_not_replace_the_stored_judgement": "This is the judgement the published algorithm proposes from the signalling responses named here. It does NOT replace the stored `judgement` beside it, and nothing reads it yet. The tool itself says its algorithms \"provide proposed judgements, but users should verify these and change them if they feel this is appropriate\" -- so this is an input to a person, not an output to a reader.",
+        "state": "DERIVED",
+        "derived_judgement": "HIGH",
+        "algorithm": "effect of ASSIGNMENT variant | Part 1 row 3: 2.3 = NI -> Some concerns | Part 2 row 3: 2.6 = N/PN/NI, 2.7 = Y/PY/NI -> High | domain criteria: the more severe of the two parts -> HIGH"
+       }
       },
       "D3_missing_outcome_data": {
        "judgement": "NO_INFORMATION",
        "reason": "RoB 2's signalling questions for this domain cannot be answered from a trial registration and a published abstract, and this review has not retrieved either trial's protocol or statistical analysis plan. This records WHAT WE REACHED, not a judgement about how the trial was run.",
-       "evidence_on_this_object": "BOTH TRIALS WERE STOPPED EARLY because the sponsor withdrew funding (inputs.trials[nct=NCT03521934].design). Early termination bears on precision and is rated there, under GRADE imprecision; whether outcome data were MISSING for randomised participants, and whether missingness depended on the true value, is a different question and this review has not reached the completeness-of-follow-up figures that answer it."
+       "evidence_on_this_object": "BOTH TRIALS WERE STOPPED EARLY because the sponsor withdrew funding (inputs.trials[nct=NCT03521934].design). Early termination bears on precision and is rated there, under GRADE imprecision; whether outcome data were MISSING for randomised participants, and whether missingness depended on the true value, is a different question and this review has not reached the completeness-of-follow-up figures that answer it.",
+       "rob2_algorithm_2026_08_26": {
+        "authority": "RoB 2, Revised Cochrane risk-of-bias tool for randomized trials, Higgins/Savovic/Page/Sterne (eds), RoB2 Development Group, 22 August 2019",
+        "basis": "B: the object declares a domain unjudgeable from the sources read to be NO_INFORMATION, so every signalling response is \"No information\" by its own declaration",
+        "signalling_responses_used": {
+         "3.1": "NI",
+         "3.2": "NI",
+         "3.3": "NI",
+         "3.4": "NI"
+        },
+        "stored_judgement_at_derivation": "NO_INFORMATION",
+        "this_does_not_replace_the_stored_judgement": "This is the judgement the published algorithm proposes from the signalling responses named here. It does NOT replace the stored `judgement` beside it, and nothing reads it yet. The tool itself says its algorithms \"provide proposed judgements, but users should verify these and change them if they feel this is appropriate\" -- so this is an input to a person, not an output to a reader.",
+        "state": "UNDERIVABLE",
+        "reason": "Table 10 defines no row for 3.2 = NI: every row requires 3.2 in {Y/PY, N/PN}. Table 9 cannot be met either. UNDERIVABLE."
+       }
       },
       "D4_measurement": {
        "judgement": "SOME_CONCERNS",
@@ -2312,8 +2496,15 @@
      "registered_arm_count": 2,
      "registered_enrolment": 1222,
      "registered_primary_outcome": "Number of Total Occurrences of Cardiovascular (CV) Death, Hospitalizations for Heart Failure (HHF) and Urgent Visits for Heart Failure (HF)",
-     "registered_sites": "Argentina, Australia, Austria, Belgium, Brazil, Canada, Chile, Czechia, Denmark, Finland, France, Germany, Greece, Hungary, Israel, Italy, Latvia, Lithuania, Netherlands, New Zealand, Poland, Portugal, Romania, Russia, Slovakia, South Korea, Spain, Sweden, Switzerland, Turkey (Türkiye), United Kingdom, United States",
-     "registry_facts_backfilled_2026_08_21": "READ FROM ClinicalTrials.gov API v2 on 2026-08-21. THE JUDGEMENTS ABOVE WERE NOT REVISITED -- this adds the registry evidence beside a verdict that was made from it and did not record it, so a blind second assessor can be shown the same facts. A second assessment built on fewer facts is not a comparable assessment."
+     "registered_sites": "Argentina, Australia, Austria, Belgium, Brazil, Canada, Chile, Czechia, Denmark, Finland, France, Germany, Greece, Hungary, Israel, Italy, Latvia, Lithuania, Netherlands, New Zealand, Poland, Portugal, Romania, Russia, Slovakia, South Korea, Spain, Sweden, Switzerland, Turkey (T\u00fcrkiye), United Kingdom, United States",
+     "registry_facts_backfilled_2026_08_21": "READ FROM ClinicalTrials.gov API v2 on 2026-08-21. THE JUDGEMENTS ABOVE WERE NOT REVISITED -- this adds the registry evidence beside a verdict that was made from it and did not record it, so a blind second assessor can be shown the same facts. A second assessment built on fewer facts is not a comparable assessment.",
+     "rob2_algorithm_2026_08_26": {
+      "authority": "RoB 2, Revised Cochrane risk-of-bias tool for randomized trials, Higgins/Savovic/Page/Sterne (eds), RoB2 Development Group, 22 August 2019",
+      "stored_overall_at_derivation": "HIGH",
+      "this_does_not_replace_the_stored_judgement": "This is the judgement the published algorithm proposes from the signalling responses named here. It does NOT replace the stored `judgement` beside it, and nothing reads it yet. The tool itself says its algorithms \"provide proposed judgements, but users should verify these and change them if they feel this is appropriate\" -- so this is an input to a person, not an output to a reader.",
+      "state": "UNDERIVABLE",
+      "reason": "Table 1: not reachable -- at least one domain is underivable, and an overall judgement is a statement about all five"
+     }
     },
     "NCT03315143": {
      "trial": "SCORED",
@@ -2323,22 +2514,84 @@
       "D1_randomisation": {
        "judgement": "NO_INFORMATION",
        "reason": "RoB 2's signalling questions for this domain cannot be answered from a trial registration and a published abstract, and this review has not retrieved either trial's protocol or statistical analysis plan. This records WHAT WE REACHED, not a judgement about how the trial was run.",
-       "evidence_on_this_object": "inputs.trials[nct=NCT03315143].design records 'randomised one to one against placebo' and nothing about sequence generation or allocation concealment."
+       "evidence_on_this_object": "inputs.trials[nct=NCT03315143].design records 'randomised one to one against placebo' and nothing about sequence generation or allocation concealment.",
+       "rob2_algorithm_2026_08_26": {
+        "authority": "RoB 2, Revised Cochrane risk-of-bias tool for randomized trials, Higgins/Savovic/Page/Sterne (eds), RoB2 Development Group, 22 August 2019",
+        "basis": "B: the object declares a domain unjudgeable from the sources read to be NO_INFORMATION, so every signalling response is \"No information\" by its own declaration",
+        "signalling_responses_used": {
+         "1.1": "NI",
+         "1.2": "NI",
+         "1.3": "NI"
+        },
+        "stored_judgement_at_derivation": "NO_INFORMATION",
+        "this_does_not_replace_the_stored_judgement": "This is the judgement the published algorithm proposes from the signalling responses named here. It does NOT replace the stored `judgement` beside it, and nothing reads it yet. The tool itself says its algorithms \"provide proposed judgements, but users should verify these and change them if they feel this is appropriate\" -- so this is an input to a person, not an output to a reader.",
+        "state": "DERIVED",
+        "derived_judgement": "SOME_CONCERNS",
+        "algorithm": "Table 4: 1.2 = NI AND 1.3 = N/PN/NI -> Some concerns. Table 3 states the same in words: \"There is no information to answer any of the signalling questions\" -> Some concerns"
+       }
       },
       "D2_deviations": {
        "judgement": "NO_INFORMATION",
        "reason": "RoB 2's signalling questions for this domain cannot be answered from a trial registration and a published abstract, and this review has not retrieved either trial's protocol or statistical analysis plan. This records WHAT WE REACHED, not a judgement about how the trial was run.",
-       "evidence_on_this_object": "inputs.trials[nct=NCT03315143].design records a double-blind design against a matching placebo, and .by_outcome.hfcv_first.analysed_scope records that the analysis set is all randomised patients -- but whether deviations arose from the trial context, and how they were handled, needs the protocol."
+       "evidence_on_this_object": "inputs.trials[nct=NCT03315143].design records a double-blind design against a matching placebo, and .by_outcome.hfcv_first.analysed_scope records that the analysis set is all randomised patients -- but whether deviations arose from the trial context, and how they were handled, needs the protocol.",
+       "rob2_algorithm_2026_08_26": {
+        "authority": "RoB 2, Revised Cochrane risk-of-bias tool for randomized trials, Higgins/Savovic/Page/Sterne (eds), RoB2 Development Group, 22 August 2019",
+        "basis": "B: the object declares a domain unjudgeable from the sources read to be NO_INFORMATION, so every signalling response is \"No information\" by its own declaration",
+        "signalling_responses_used": {
+         "2.1": "NI",
+         "2.2": "NI",
+         "2.3": "NI",
+         "2.4": "NI",
+         "2.5": "NI",
+         "2.6": "NI",
+         "2.7": "NI"
+        },
+        "stored_judgement_at_derivation": "NO_INFORMATION",
+        "this_does_not_replace_the_stored_judgement": "This is the judgement the published algorithm proposes from the signalling responses named here. It does NOT replace the stored `judgement` beside it, and nothing reads it yet. The tool itself says its algorithms \"provide proposed judgements, but users should verify these and change them if they feel this is appropriate\" -- so this is an input to a person, not an output to a reader.",
+        "state": "DERIVED",
+        "derived_judgement": "HIGH",
+        "algorithm": "effect of ASSIGNMENT variant | Part 1 row 3: 2.3 = NI -> Some concerns | Part 2 row 3: 2.6 = N/PN/NI, 2.7 = Y/PY/NI -> High | domain criteria: the more severe of the two parts -> HIGH"
+       }
       },
       "D3_missing_outcome_data": {
        "judgement": "NO_INFORMATION",
        "reason": "RoB 2's signalling questions for this domain cannot be answered from a trial registration and a published abstract, and this review has not retrieved either trial's protocol or statistical analysis plan. This records WHAT WE REACHED, not a judgement about how the trial was run.",
-       "evidence_on_this_object": "BOTH TRIALS WERE STOPPED EARLY because the sponsor withdrew funding (inputs.trials[nct=NCT03315143].design). Early termination bears on precision and is rated there, under GRADE imprecision; whether outcome data were MISSING for randomised participants, and whether missingness depended on the true value, is a different question and this review has not reached the completeness-of-follow-up figures that answer it."
+       "evidence_on_this_object": "BOTH TRIALS WERE STOPPED EARLY because the sponsor withdrew funding (inputs.trials[nct=NCT03315143].design). Early termination bears on precision and is rated there, under GRADE imprecision; whether outcome data were MISSING for randomised participants, and whether missingness depended on the true value, is a different question and this review has not reached the completeness-of-follow-up figures that answer it.",
+       "rob2_algorithm_2026_08_26": {
+        "authority": "RoB 2, Revised Cochrane risk-of-bias tool for randomized trials, Higgins/Savovic/Page/Sterne (eds), RoB2 Development Group, 22 August 2019",
+        "basis": "B: the object declares a domain unjudgeable from the sources read to be NO_INFORMATION, so every signalling response is \"No information\" by its own declaration",
+        "signalling_responses_used": {
+         "3.1": "NI",
+         "3.2": "NI",
+         "3.3": "NI",
+         "3.4": "NI"
+        },
+        "stored_judgement_at_derivation": "NO_INFORMATION",
+        "this_does_not_replace_the_stored_judgement": "This is the judgement the published algorithm proposes from the signalling responses named here. It does NOT replace the stored `judgement` beside it, and nothing reads it yet. The tool itself says its algorithms \"provide proposed judgements, but users should verify these and change them if they feel this is appropriate\" -- so this is an input to a person, not an output to a reader.",
+        "state": "UNDERIVABLE",
+        "reason": "Table 10 defines no row for 3.2 = NI: every row requires 3.2 in {Y/PY, N/PN}. Table 9 cannot be met either. UNDERIVABLE."
+       }
       },
       "D4_measurement": {
        "judgement": "NO_INFORMATION",
        "reason": "RoB 2's signalling questions for this domain cannot be answered from a trial registration and a published abstract, and this review has not retrieved either trial's protocol or statistical analysis plan. This records WHAT WE REACHED, not a judgement about how the trial was run.",
-       "evidence_on_this_object": "inputs.trials[nct=NCT03315143].design records 'double-blind, randomised one to one against placebo', which bears on blinding of outcome assessors, but the remaining signalling questions for this domain need the protocol."
+       "evidence_on_this_object": "inputs.trials[nct=NCT03315143].design records 'double-blind, randomised one to one against placebo', which bears on blinding of outcome assessors, but the remaining signalling questions for this domain need the protocol.",
+       "rob2_algorithm_2026_08_26": {
+        "authority": "RoB 2, Revised Cochrane risk-of-bias tool for randomized trials, Higgins/Savovic/Page/Sterne (eds), RoB2 Development Group, 22 August 2019",
+        "basis": "B: the object declares a domain unjudgeable from the sources read to be NO_INFORMATION, so every signalling response is \"No information\" by its own declaration",
+        "signalling_responses_used": {
+         "4.1": "NI",
+         "4.2": "NI",
+         "4.3": "NI",
+         "4.4": "NI",
+         "4.5": "NI"
+        },
+        "stored_judgement_at_derivation": "NO_INFORMATION",
+        "this_does_not_replace_the_stored_judgement": "This is the judgement the published algorithm proposes from the signalling responses named here. It does NOT replace the stored `judgement` beside it, and nothing reads it yet. The tool itself says its algorithms \"provide proposed judgements, but users should verify these and change them if they feel this is appropriate\" -- so this is an input to a person, not an output to a reader.",
+        "state": "DERIVED",
+        "derived_judgement": "HIGH",
+        "algorithm": "Table 12 row 8: 4.2 = NI, 4.5 = Y/PY/NI -> High"
+       }
       },
       "D5_selection_of_reported_result": {
        "judgement": "HIGH",
@@ -2361,8 +2614,15 @@
      "registered_arm_count": 2,
      "registered_enrolment": 10584,
      "registered_primary_outcome": "Number of Total Occurrences of Cardiovascular (CV) Death, Hospitalizations for Heart Failure (HHF) and Urgent Visits for Heart Failure (HF)",
-     "registered_sites": "Argentina, Australia, Belgium, Brazil, Bulgaria, Canada, Chile, China, Czechia, Denmark, Estonia, France, Georgia, Germany, Greece, Guatemala, Hungary, India, Israel, Italy, Latvia, Lithuania, Mexico, Netherlands, New Zealand, North Macedonia, Norway, Peru, Poland, Portugal, Puerto Rico, Romania, Russia, Serbia, Slovakia, South Africa, South Korea, Spain, Sweden, Switzerland, Taiwan, Turkey (Türkiye), Ukraine, United Kingdom, United States",
-     "registry_facts_backfilled_2026_08_21": "READ FROM ClinicalTrials.gov API v2 on 2026-08-21. THE JUDGEMENTS ABOVE WERE NOT REVISITED -- this adds the registry evidence beside a verdict that was made from it and did not record it, so a blind second assessor can be shown the same facts. A second assessment built on fewer facts is not a comparable assessment."
+     "registered_sites": "Argentina, Australia, Belgium, Brazil, Bulgaria, Canada, Chile, China, Czechia, Denmark, Estonia, France, Georgia, Germany, Greece, Guatemala, Hungary, India, Israel, Italy, Latvia, Lithuania, Mexico, Netherlands, New Zealand, North Macedonia, Norway, Peru, Poland, Portugal, Puerto Rico, Romania, Russia, Serbia, Slovakia, South Africa, South Korea, Spain, Sweden, Switzerland, Taiwan, Turkey (T\u00fcrkiye), Ukraine, United Kingdom, United States",
+     "registry_facts_backfilled_2026_08_21": "READ FROM ClinicalTrials.gov API v2 on 2026-08-21. THE JUDGEMENTS ABOVE WERE NOT REVISITED -- this adds the registry evidence beside a verdict that was made from it and did not record it, so a blind second assessor can be shown the same facts. A second assessment built on fewer facts is not a comparable assessment.",
+     "rob2_algorithm_2026_08_26": {
+      "authority": "RoB 2, Revised Cochrane risk-of-bias tool for randomized trials, Higgins/Savovic/Page/Sterne (eds), RoB2 Development Group, 22 August 2019",
+      "stored_overall_at_derivation": "HIGH",
+      "this_does_not_replace_the_stored_judgement": "This is the judgement the published algorithm proposes from the signalling responses named here. It does NOT replace the stored `judgement` beside it, and nothing reads it yet. The tool itself says its algorithms \"provide proposed judgements, but users should verify these and change them if they feel this is appropriate\" -- so this is an input to a person, not an output to a reader.",
+      "state": "UNDERIVABLE",
+      "reason": "Table 1: not reachable -- at least one domain is underivable, and an overall judgement is a statement about all five"
+     }
     }
    }
   },
@@ -2396,6 +2656,16 @@
     "NCT03521934__hfcv_total OVERALL: assessor 1 SOME_CONCERNS, assessor 2 NO_INFORMATION"
    ],
    "not_resolved_here": "A disagreement is recorded, not adjudicated. The second assessor is NOT an appeal court: where the first assessment is believed right that is written with its reason and both stand."
+  },
+  "rob2_rederivation_2026_08_26": {
+   "what": "Domain judgements recorded as NO_INFORMATION re-derived with the published algorithm and written alongside, never in place.",
+   "authority": "RoB 2, Revised Cochrane risk-of-bias tool for randomized trials, Higgins/Savovic/Page/Sterne (eds), RoB2 Development Group, 22 August 2019",
+   "handbook": "Cochrane Handbook v6.5 section 8.2.3: the domain-level judgements are Low / Some concerns / High; \"No information\" is one of the five signalling-question responses.",
+   "field": "rob2_algorithm_2026_08_26",
+   "derived": 11,
+   "underivable_reported_as_a_data_gap": 4,
+   "the_stored_judgements_are_unchanged": true,
+   "control": "scripts/plant_rob2_algorithm_tables.py -- one case per published table row, plus four negative controls."
   }
  },
  "manuscript": {
