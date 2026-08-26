@@ -105,7 +105,38 @@ HEAD moved off my branch mid-task**, leaving my corrected file staged in their i
 pathspec-less commit would have swept it onto their branch. A branch is not isolation when
 the worktree is shared — a worktree has one HEAD. **Worktree-per-lane is the isolation.**
 
-## 7. Freeze — still on, for its own reason
+## 7. Exit status is not a verdict — a structural rule, not a remembered one
+
+I read `rc=$?` through a pipe **again** today, after writing the rule down twice. A rule that
+lives in prose gets violated; the fix is a shape that cannot be got wrong.
+
+**The rule: every instrument puts its verdict in stdout, never only in its exit status.**
+`ALL CONTROLS HELD` / `n CONTROL(S) FAILED` / `REFUSED: …` survive a pipe. `$?` does not —
+in `cmd | tail`, `$?` is `tail`'s, and `tail` always succeeds. Exit status stays as a
+secondary signal for automation; the human-read verdict is a line of output.
+
+This also covers the four-tool pattern in §5: `git worktree add` returned 0 on a 43% checkout,
+so its status was never the verdict either. **Read the artefact, not the status.**
+
+## 8. The `by_outcome` freeze hazard, watched failing
+
+`scripts/lane_rob/plant_by_outcome_drop.py`, keyed to a real stored assessment
+(`ablation-af-heart-failure`, 5 stored judgements), six controls both directions:
+
+| | case | result |
+|---|---|---|
+| N1 | a stored result **dropped** from the incoming assessment | **REFUSES**, names the result |
+| N2 | a stored judgement **changed** | **REFUSES**, names the domain |
+| P1 | incoming identical to stored | does not refuse |
+| P2 | incoming **adds** a result, changes nothing | does not refuse |
+| P3 | the drop, with the topic in `--allow-overwrite` | does not refuse |
+
+P1 and P2 are what stop "always refuse" passing — the easier of the two failures to ship by
+accident. Store sha256 asserted equal before and after: `1c6bf98b3…`, nothing written.
+
+**This is the evidence for lifting the freeze, not the decision.** Lifting is Mahmood's call.
+
+## 9. Freeze — still on, for its own reason
 
 The regen/merge hazard is `by_outcome` being assigned **wholesale** and exempt from the
 key-loss guard by design and by name. Nothing proven here touches that. Lifting it needs its
