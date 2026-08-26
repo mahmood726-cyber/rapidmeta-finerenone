@@ -266,8 +266,21 @@ def _favoured_arm(res, outcome):
     f = res.get("favours")
     tx = outcome.get("treatment_node") or "the intervention"
     ct = outcome.get("comparator_node") or "the comparator"
-    way = ("higher is better" if outcome.get("direction_of_benefit") == "higher"
-           else "lower is better")
+    # POLARITY IS DERIVED, NEVER DEFAULTED. The previous line tested
+    # `== "higher"` and sent EVERYTHING else to "lower is better" -- so an
+    # outcome storing the full phrase "higher is better" rendered as its own
+    # opposite (KCCQ 0-100, pooled MD +7.43, labelled "lower is better"), and
+    # 21 outcomes recording that the direction was NOT KNOWN rendered as a
+    # confident directional claim. A default is an assertion the object never
+    # made. Unknown polarity must REFUSE, not pick the common case.
+    _POLARITY = {"higher": "higher is better",
+                 "higher is better": "higher is better",
+                 "lower": "lower is better",
+                 "lower is better": "lower is better"}
+    _raw = outcome.get("direction_of_benefit")
+    way = _POLARITY.get(str(_raw).strip().lower()) if _raw is not None else None
+    if way is None:
+        way = "direction of benefit not recorded for this outcome"
     if f == "neither":
         return f"neither arm; the interval spans the null ({way})"
     if f == "treatment":
