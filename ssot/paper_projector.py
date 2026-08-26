@@ -3457,11 +3457,17 @@ def project(obj, journal="generic", length="standard"):
     # prose. A reader of Results should not have to discover that by scrolling.
     if any(((b or {}).get("r_output") or {}).get("verbatim")
            for b in (get(obj, "results.by_outcome") or {}).values()):
+        # THE ARTICLE PROMISED AN "Extended data" SECTION THAT IS NOT ON THE PAGE. The
+        # string appeared exactly once in the delivered build -- in this promise. A
+        # pointer to material a reader cannot reach is worse than no pointer: it reads as
+        # a reproducibility affordance and spends the credit without delivering it. The
+        # sentence now says where the output actually is, which is on the object.
         s.add(obj, "The full model output for every pooled outcome -- the call, the "
                    "estimator, the heterogeneity statistics and the back-transformed "
-                   "interval -- is reproduced verbatim as Extended data at the end of this "
-                   "article, so every number above can be checked against the software that "
-                   "produced it.",
+                   "interval -- is stored verbatim on this review object at "
+                   "`results.by_outcome.<outcome>.r_output.verbatim`. It is NOT reproduced "
+                   "as an Extended data section in this article; an earlier version of "
+                   "this sentence said it was, and no such section exists.",
               ["results.by_outcome"])
     secs.append(s)
 
@@ -3781,8 +3787,23 @@ def project(obj, journal="generic", length="standard"):
         # `_i2_words` RETURNS AN ADVERB -- "closely", "loosely" -- because it was written to
         # complete "the trials agreed closely". Dropped into "heterogeneity was {word}" it
         # produced "heterogeneity was closely (I-squared 0%)", which is not a sentence.
-        _rparts.append("the trials agreed %s (I-squared %s%%)"
-                       % (_i2_words(_i2), _num(_i2)))
+        # "THE TRIALS AGREED CLOSELY" IS A CLAIM THE STATISTIC CANNOT MAKE AT k=2.
+        # I-squared near zero means no heterogeneity was DETECTED, and with two studies
+        # the test has almost no power to detect any -- so the sentence reported the
+        # absence of evidence as evidence of agreement, in the results lead, where the
+        # impression forms. Wording taken from the external review, which put it better
+        # than we did.
+        _k_here = None
+        for _b in (get(obj, "results.by_outcome") or {}).values():
+            if isinstance(_b, dict) and isinstance(_b.get("k"), int):
+                _k_here = max(_k_here or 0, _b["k"])
+        if (_k_here or 0) <= 2:
+            _rparts.append("no statistical heterogeneity was detected (I-squared %s%%), "
+                           "though heterogeneity cannot be reliably assessed with two "
+                           "trials" % _num(_i2))
+        else:
+            _rparts.append("no statistical heterogeneity was detected (I-squared %s%%)"
+                           % _num(_i2))
         _rfields.append("results.by_outcome")
     _cert = _live_certainty(obj)
     if _cert is not None:

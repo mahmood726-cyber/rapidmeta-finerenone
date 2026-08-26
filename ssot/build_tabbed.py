@@ -40,6 +40,19 @@ import build_app_v2 as G          # noqa: E402
 # else. sig()'s own default stays 3 -- the argument in its docstring about false
 # precision is sound and other callers keep it. This is the one place where the
 # displayed number must equal the verified number.
+
+def _trial_acronyms(canon):
+    """All-caps trial labels this object uses, so the prose tidier leaves them alone."""
+    out = set()
+    for t in ((canon.get("inputs") or {}).get("trials") or []):
+        for k in ("name", "acronym", "label", "id", "trial"):
+            v = str((t or {}).get(k) or "").strip()
+            for w in re.split(r"[^A-Za-z0-9\-]+", v):
+                if len(w) >= 3 and w.isupper():
+                    out.add(w)
+    return out
+
+
 def _round_base_fmt():
     import projectors as _pj
     _orig = G.fmt
@@ -1423,7 +1436,16 @@ def build(canon):
         # cells as well as prose, and lowercasing HELD or WITHDRAWN in a verdict column would
         # turn a recorded state into an adjective -- the loss of meaning that scoping this
         # protection was introduced to prevent.
-        return e_(_pp._tidy(G.render(canon, s, scope), protect=_pp._CELL_TOKENS))
+        # AND WITH THIS OBJECT'S OWN TRIAL ACRONYMS PROTECTED. `_tidy` de-shouts any
+        # all-caps word of three or more letters that contains a vowel, so SCORED rendered
+        # as "Scored" everywhere it appeared -- in the risk-of-bias table, in the
+        # contributing-trials table and inside quoted source prose. SOLOIST-WHF escaped
+        # only because its hyphen fails the pattern's word boundary, which is luck.
+        # Renaming a named trial is the same class as the crossed provenance link on this
+        # page: a typed identifier pushed through a text transform. The acronyms are read
+        # off the object rather than listed, so this does not need editing per topic.
+        return e_(_pp._tidy(G.render(canon, s, scope),
+                            protect=_pp._CELL_TOKENS | _trial_acronyms(canon)))
 
     parts = []
     # AN OBJECT WITH NO `results` KEY AT ALL IS NOT A CRASH.
@@ -1497,8 +1519,8 @@ def build(canon):
                         + p2.rob_figure(canon, p)
                         + p2.underpowered_figures(res, p))
         d["countfigs"] = p2.count_figures(res, p)
-        d["grade"] = p2.grade_section(res, p)
-        d["stats"] = statistics_tables(res, p)
+        d["grade"] = p2.grade_section(res, p, canon, oid)
+        d["stats"] = p2.population_card(res, p) + statistics_tables(res, p)
         d["counttabs"] = count_tables(res, p)
         d["crossengine"] = cross_engine_card(res, p)
         d["panels"] = panels_card(res, p)
@@ -1543,9 +1565,10 @@ def build(canon):
         # rendered the numbers only inside prose, with no clickable link anywhere.
         "carried": pj.extraction_provenance_table(canon),
         "considered": "", "components": "",
-        "rob": p2.rob2_card(canon, p),
+        "rob": p2.endpoint_correction_card(canon, p) + p2.rob2_card(canon, p),
         "switching": p2.discrepancies_card(canon, p),
-        "sources_card": ("<div class='card'>%s  <h2>Sources</h2>%s  <table>%s"
+        "sources_card": (p2.bibliography_card(canon, p)
+                         + "<div class='card'>%s  <h2>Sources</h2>%s  <table>%s"
                          "    <tr><th>Layer</th><th>Source</th>"
                          "<th>How it was obtained</th></tr>%s%s  </table>%s</div>%s"
                          % (NL, NL, NL, NL, sources_rows, NL, NL)),

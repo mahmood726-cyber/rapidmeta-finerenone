@@ -15,6 +15,13 @@ from projectors import (NL, e, fmt, kv_card, fig, scatter_svg, rows_svg,
                         not_computable_svg, GRADE_DOMAINS)
 from rob_block import rob_block
 
+# THE ONE PLACE CERTAINTY IS RESOLVED. This module printed the stored level directly and
+# was therefore a seventh consumer outside the module built to be the single answer.
+try:
+    import grade_authority as _ga
+except ImportError:  # pragma: no cover -- package import path
+    from . import grade_authority as _ga
+
 
 # =========================================================================================
 # TABLE 1's PROCEDURAL ROWS, PROJECTED. Each was a hardcoded constant asserting that an act
@@ -649,18 +656,39 @@ def _evidence_basis(eb, p):
             + "  </details>" + NL)
 
 
-def grade_section(res, p):
+def grade_section(res, p, canon=None, oid=None):
     g = res.get("grade")
     if not g:
         return ""
+    # THE SEVENTH CONSUMER READING THE STORED LEVEL DIRECTLY. This card printed
+    # "Certainty: low", the derivation string "start high; risk_of_bias serious (-1),
+    # imprecision serious (-1); total -2 -> low", and the domain ratings that produce it --
+    # on a page whose certainty column and abstract had both stopped publishing a level.
+    # A panel that withholds a rating and prints the arithmetic ending in that rating is
+    # asserting and denying in the same box, and the derivation is the worse half: it
+    # names the withheld level in full.
+    _res = _ga.resolve(canon, oid) if (canon and oid) else None
+    _pending = bool(_res and _res.get("state") == "PENDING")
     rows = ""
     for k in GRADE_DOMAINS:
         d = (g.get("domains") or {}).get(k)
         if not d:
             continue
         basis = str(d.get("basis_in_sources", "")).strip()
+        # ONLY THE DOMAIN THAT IS ACTUALLY UNRESOLVED IS MARKED PENDING. Imprecision and
+        # inconsistency were established independently of the risk-of-bias assessment and
+        # marking them pending would assert something false about them. With the
+        # risk-of-bias cell pending, no reader can total the domains into a rating, which
+        # is the contradiction that needed removing.
+        if _pending and k == "risk_of_bias":
+            rating = ("<strong>pending</strong>")
+            basis = ("This domain is not final: %s Its recorded reasoning is kept with the "
+                     "assessment rather than shown here as a settled judgement."
+                     % _res.get("pending_because", ""))
+        else:
+            rating = p(d["rating"])
         rows += ("    <tr><th scope='col'>%s</th><td>%s</td><td><small>%s</small></td></tr>%s"
-                 % (e(k.replace("_", " ").capitalize()), p(d["rating"]),
+                 % (e(k.replace("_", " ").capitalize()), rating,
                     p(basis) if basis else "&mdash;", NL))
     start = ""
     if g.get("starting_point"):
@@ -669,7 +697,12 @@ def grade_section(res, p):
                  % (p(g["starting_point"]),
                     " &mdash; " + p(because) if because else "", NL))
     deriv = ("  <p><small>%s</small></p>%s" % (p(g["certainty_derivation"]), NL)
-             if g.get("certainty_derivation") else "")
+             if g.get("certainty_derivation") and not _pending else "")
+    if _pending:
+        deriv = ("  <p><small>The stored derivation of this rating is not shown, because "
+                 "it ends in the level this review is withholding. It is held with the "
+                 "assessment and will be published with the adjudicated "
+                 "rating.</small></p>%s" % NL)
     # Whether the completed RoB-2 moved this rating, projected EITHER WAY. A
     # rating that survives an assessment and one that was never tested look
     # identical on the page unless the page says which it is, and the protocol
@@ -696,7 +729,11 @@ def grade_section(res, p):
             "  <p><strong>Certainty: %s</strong></p>%s%s%s  <table>%s"
             "    <tr><th scope='col'>Domain</th><th>Rating</th><th>Why it was rated that way"
             "</th></tr>%s%s  </table>%s</div>%s%s"
-            % (NL, NL, p(g["certainty"]), NL, start, deriv, NL, NL, rows, NL, NL,
+            % (NL, NL,
+               ("<span title=\"%s\">Pending &mdash; not rated</span>"
+                % e(str(_res.get("comment", ""))[:400])) if _pending
+               else p(g["certainty"]),
+               NL, start, deriv, NL, NL, rows, NL, NL,
                effect))
 
 
@@ -1174,6 +1211,39 @@ def rob2_card(canon, p):
     def _j(seq, i):
         return seq[i] if isinstance(seq, list) and i < len(seq) else ""
 
+    # RoB 2 HAS THREE OVERALL CATEGORIES: Low, Some concerns, High. "No information" is a
+    # SIGNALLING-QUESTION response, not an overall judgement -- Handbook 8.2.3 -- and this
+    # table was printing it as one on two of the four results. The domain glyph was fixed
+    # earlier today and the overall row was not covered by that fix, which is the same
+    # miss twice: the search was for places rendering DOMAIN judgements, and this renders
+    # an OVERALL one.
+    #
+    # It is not silently blanked. An assessor who answered NO_INFORMATION reached no
+    # overall judgement, and saying so is a fact about our reach; printing nothing would
+    # read as agreement with the other column.
+    def _ov(v):
+        if str(v or "").strip().upper().replace(" ", "_") == "NO_INFORMATION":
+            return ("<em>no overall judgement reached</em> &mdash; this assessor answered "
+                    "&ldquo;no information&rdquo;, which RoB&nbsp;2 defines as a response "
+                    "to a signalling question and not as one of the three overall "
+                    "categories (low, some concerns, high)")
+        return p(v)
+
+    # A TRIAL ACRONYM IS A TYPED FIELD, NOT PROSE. `p()` runs the prose tidier, which
+    # de-shouts any all-caps word of three or more letters that contains a vowel -- so
+    # SCORED rendered as "Scored" in every row of this table. SOLOIST-WHF escaped only
+    # because its hyphen fails the pattern's boundary, which is luck rather than a rule.
+    # Renaming a named trial in a risk-of-bias table is the same class as the other
+    # identifier defects on this page: a typed value pushed through a text transform.
+    def _trial(v):
+        return e(str(v or ""))
+
+    def _outcome_label(oid):
+        for o in (canon.get("outcomes") or []):
+            if isinstance(o, dict) and o.get("id") == oid:
+                return o.get("name") or oid
+        return oid or ""
+
     # A COLUMN WITH NO DATA IS NOT A COLUMN WITH EMPTY VALUES. `carried` exists on exactly
     # ONE object in 155 -- arni-hfref's native rob2 block. Rendering it for the other 30
     # stores produced a column of blanks, which reads as "nothing was carried" rather than
@@ -1185,15 +1255,22 @@ def rob2_card(canon, p):
             js = dm.get("judgements") or []
             mark = ("yes" if dm.get("agreed") else "<strong>NO</strong>") \
                 if dm.get("agreed") is not None else "one assessor"
-            rows += ("    <tr><td>%s</td><td>%s %s</td><td>%s</td><td>%s</td>"
+            rows += ("    <tr><td>%s</td><td>%s</td><td>%s %s</td><td>%s</td><td>%s</td>"
                      "<td>%s</td>%s</tr>%s"
-                     % (p(t["trial"]), dm.get("domain"), p(dm.get("domain_name")),
+                     % (_trial(t["trial"]), p(_outcome_label(t.get("outcome"))),
+                        dm.get("domain"), p(dm.get("domain_name")),
                         p(_j(js, 0)), p(_j(js, 1)), mark,
                         ("<td>%s</td>" % p(dm.get("carried", ""))) if has_carried else "",
                         NL))
+    # THE RESULT, NOT JUST THE TRIAL. RoB 2 assesses a RESULT, so two rows carrying the
+    # same trial name and different judgements are unreadable without it: this table
+    # showed "SOLOIST-WHF | some concerns | no information" and "SOLOIST-WHF | HIGH |
+    # some concerns" with nothing to say which pool each belonged to. The unit of
+    # assessment is named at the top of the card and was then absent from every row.
     ov = "".join(
-        "    <tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>%s"
-        % (p(t["trial"]), p(_j(t.get("overall"), 0)), p(_j(t.get("overall"), 1)),
+        "    <tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>%s"
+        % (_trial(t["trial"]), p(_outcome_label(t.get("outcome"))),
+           _ov(_j(t.get("overall"), 0)), _ov(_j(t.get("overall"), 1)),
            ("yes" if t.get("overall_agreed") else "<strong>NO</strong>")
            if t.get("overall_agreed") is not None else "one assessor", NL)
         for t in rb["trials"])
@@ -1226,11 +1303,13 @@ def rob2_card(canon, p):
             "  <p><small>Unit assessed: %s</small></p>%s"
             "  <p><small>Assessor 1: %s (%s family). Assessor 2: %s (%s family). "
             "%s</small></p>%s"
-            "  <table>%s    <tr><th scope='col'>Trial</th><th>Domain</th><th>Assessor 1 (%s)</th>"
+            "  <table>%s    <tr><th scope='col'>Trial</th><th>Result assessed</th>"
+            "<th>Domain</th><th>Assessor 1 (%s)</th>"
             "<th>Assessor 2 (%s)</th><th>Agreed</th>%s</tr>%s%s"
             "  </table>%s</div>%s"
             "<div class='card'>%s  <h3>Overall judgement per trial</h3>%s"
-            "  <table>%s    <tr><th scope='col'>Trial</th><th>Assessor 1 (%s)</th>"
+            "  <table>%s    <tr><th scope='col'>Trial</th><th>Result assessed</th>"
+            "<th>Assessor 1 (%s)</th>"
             "<th>Assessor 2 (%s)</th><th>Agreed</th></tr>%s%s  </table>%s</div>%s"
             "<div class='card'>%s  <h3>Inter-assessor agreement</h3>%s  <p>%s</p>%s"
             "  <p>%s</p>%s</div>%s%s%s"
@@ -1408,3 +1487,92 @@ def published_comparison_card(canon, p):
                p(den.get("symmetry", "")), NL,
                NL, NL, rows, NL, NL, NL, revs, NL,
                dd_html, p(pc.get("_how_identified", "")), NL, NL))
+
+def endpoint_correction_card(canon, p):
+    """A correction to what this page said about a named trial's conduct.
+
+    RENDERED, NOT JUST STORED. The correction was written onto the object and did not
+    appear on the page, which is the whole failure repeating: a fact recorded where no
+    reader meets it is not a correction, it is a note to ourselves. Placed at the head of
+    the risk-of-bias card because that is the section whose reasoning rested on the wrong
+    description.
+    """
+    k = next((x for x in sorted(canon) if str(x).startswith("endpoint_history_correction_")
+              and isinstance(canon[x], dict)), None)
+    if not k:
+        return ""
+    c = canon[k]
+    q = "".join("    <li><q>%s</q></li>%s" % (e(str(x)), NL)
+                for x in ((c.get("source") or {}).get("quotes") or []))
+    return ("<div class='card warn'>%s  <h2>Correction &mdash; what this page said about "
+            "the trials&rsquo; endpoint history</h2>%s"
+            "  <p><strong>What this review said.</strong> %s</p>%s"
+            "  <p><strong>What is true.</strong> %s</p>%s"
+            "  <p><small>Source: %s &mdash; <a href='%s' rel='noopener'>%s</a></small></p>%s"
+            "  <ul>%s%s  </ul>%s"
+            "  <p><strong>What this does not change.</strong> %s</p>%s"
+            "  <p><strong>Bearing on the pending adjudication.</strong> %s</p>%s"
+            "  <p><small><strong>Unresolved:</strong> %s</small></p>%s</div>%s"
+            % (NL, NL, p(c.get("what_this_object_said", "")), NL,
+               p(c.get("what_is_true", "")), NL,
+               e(str((c.get("source") or {}).get("layer", ""))),
+               e(str((c.get("source") or {}).get("url", ""))),
+               e(str((c.get("source") or {}).get("staged_as", ""))), NL,
+               NL, q, NL,
+               p(c.get("what_this_does_NOT_change", "")), NL,
+               p(c.get("bearing_on_the_pending_adjudication", "")), NL,
+               p(c.get("unresolved", "")), NL, NL))
+
+
+def population_card(res, p):
+    """Which population this estimate belongs to, beside the estimate itself."""
+    b = res.get("what_population_this_estimate_belongs_to")
+    if not isinstance(b, dict):
+        return ""
+    return ("<div class='card warn'>%s  <h3>What population this estimate belongs to</h3>%s"
+            "  <p>%s</p>%s  <p>%s</p>%s"
+            "  <p><small>%s</small></p>%s  <p><small>%s</small></p>%s</div>%s"
+            % (NL, NL, p(b.get("statement", "")), NL,
+               p(b.get("why_it_matters_here", "")), NL,
+               p(b.get("derived_not_asserted", "")), NL,
+               p(b.get("not_stated_here_because_no_source_is_held", "")), NL, NL))
+
+
+def bibliography_card(canon, p):
+    """The reference list a reader would look up, and what is knowingly missing."""
+    r = ((canon.get("manuscript") or {}).get("references") or {})
+    inc = r.get("included_studies") or []
+    reg = r.get("regulatory_documents") or []
+    met = r.get("methods_and_guidance") or []
+    if not (inc or reg or met):
+        return ""
+
+    def li(items, keys):
+        out = ""
+        for x in items:
+            if not isinstance(x, dict):
+                continue
+            label = next((str(x[k]) for k in keys if x.get(k)), "")
+            url = x.get("publication_url") or x.get("url") or ""
+            out += ("    <li>%s%s</li>%s"
+                    % (e(label),
+                       (" &mdash; <a href='%s' rel='noopener'>%s</a>" % (e(str(url)), e(str(url))))
+                       if url else "", NL))
+        return out
+
+    om = canon.get("known_omitted_analyses") or []
+    omh = ""
+    if om:
+        omh = ("  <h3>Knowingly not included</h3>%s  <ul>%s%s  </ul>%s"
+               % (NL, NL,
+                  "".join("    <li><strong>%s</strong> %s <br><small>%s</small></li>%s"
+                          % (e(str(x.get("status", ""))), p(x.get("what", "")),
+                             p(x.get("why_it_is_not_folded_in", "")), NL)
+                          for x in om if isinstance(x, dict)), NL))
+    return ("<div class='card'>%s  <h2>References</h2>%s"
+            "  <h3>Included studies</h3>%s  <ul>%s%s  </ul>%s"
+            "  <h3>Regulatory documents</h3>%s  <ul>%s%s  </ul>%s"
+            "  <h3>Methods and guidance</h3>%s  <ul>%s%s  </ul>%s%s</div>%s"
+            % (NL, NL, NL, NL, li(inc, ("publication", "label")), NL,
+               NL, NL, li(reg, ("label",)), NL,
+               NL, NL, li(met, ("label",)), NL, omh, NL))

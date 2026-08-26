@@ -391,6 +391,47 @@ def readiness(canon):
         if ks.get("is_lower_bound"):
             limits.append({"label": "k is a lower bound, not a settled count",
                            "detail": ks.get("why", "")})
+    # THE GATE SAID NOT READY FOR THE WRONG REASONS. It named a missing registration and
+    # an unassessable publication-bias domain, and said nothing about the two things that
+    # actually stop this review being submitted: a risk-of-bias assessment that two
+    # readers disagree on with no adjudication, and every certainty rating consequently
+    # withheld. A readiness gate that lists the wrong blockers is worse than a blunt
+    # disclaimer, because it tells a reader exactly which conditions to watch and they
+    # are not the binding ones -- someone clearing them would find the page no readier.
+    #
+    # LAZY IMPORT, DELIBERATELY. `grade_authority` imports ABSENT_STATE from this module,
+    # so importing it at module scope here is a cycle.
+    try:
+        from rob_block import rob_adjudication_state as _ras
+        import grade_authority as _gauth
+    except ImportError:  # pragma: no cover -- package import path
+        from .rob_block import rob_adjudication_state as _ras
+        from . import grade_authority as _gauth
+    _st = _ras(canon)
+    if _st.get("assessed") and _st.get("dual") and not _st.get("adjudicated"):
+        blocking.append({
+            "label": "Risk of bias is assessed but not adjudicated",
+            "detail": ("Two assessors read every contributing result independently, they "
+                       "disagree, and no adjudication is recorded. This review therefore "
+                       "holds no final risk-of-bias judgement for these results, and one "
+                       "cannot be reported until a third reader resolves the "
+                       "disagreements.")})
+    _pend = [o for o in sorted(by_out)
+             if _gauth.resolve(canon, o).get("state") == "PENDING"]
+    if _pend:
+        blocking.append({
+            "label": "Certainty of the evidence is pending on %d outcome(s)" % len(_pend),
+            "detail": ("Each rating reads a risk-of-bias judgement this review has not "
+                       "finalised, so no certainty level is published for any outcome. "
+                       "This clears when the risk-of-bias assessment is adjudicated, not "
+                       "before.")})
+    if not (canon.get("search") or {}).get("strategy"):
+        limits.append({
+            "label": "No systematic search was run",
+            "detail": ("The included set is a named two-trial programme rather than the "
+                       "yield of a database search. Nothing on this page should be read "
+                       "as though a systematic search had been performed.")})
+
     sc = canon.get("screening") or {}
     und = [x for x in (sc.get("records") or [])
            if x.get("disposition") and not x.get("criteria_failed")]
