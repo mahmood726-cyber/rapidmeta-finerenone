@@ -580,6 +580,20 @@ def output_card(canon, p):
         # generated" by two people on the same night, one of whom concluded a page rebuilt
         # minutes earlier was thirteen days stale and relayed it.
         ("Object last updated", _v((canon.get("built", "")))),
+        # THE SOURCE HASH -- the field that makes "is this page current?" a COMPARISON
+        # instead of an inference. `Object last updated` is a value the object states about
+        # itself and can be wrong: on this very page it read 2026-08-10 while the object's
+        # registry and risk-of-bias material were dated the 17th and 21st. A hash of the
+        # object as it was read cannot be wrong in that way. Recompute it from the object
+        # and compare with the page: equal means the page was built from what is on disk
+        # now, different means it was not, and no git archaeology is required to say so.
+        # Measured 2026-08-26: 16 of 155 objects carry a build_stamp at all and 137 of 149
+        # delivered pages carry no standard line, so "is this current" was unanswerable for
+        # 92 percent of the corpus.
+        ("Source object SHA-256",
+         "<code>%s</code>" % e(__import__("hashlib").sha256(
+             __import__("json").dumps(canon, sort_keys=True, separators=(",", ":"),
+                                      ensure_ascii=False).encode("utf-8")).hexdigest()[:16])),
         ("Page generated", _v((_page_generated_utc()))),
         # BUILD STAMP. The generator commit this page was produced from, in the
         # served bytes.
@@ -1690,10 +1704,19 @@ def build(canon):
  /* height:0 rather than display:none -- display:none drops the node from
     document.body.innerText and the invariance detector would see nothing. */
  .fwp{height:0;overflow:hidden}
- #fw-fit:checked~#fwp-fit,#fw-w1:checked~#fwp-w1,
- #fw-w2:checked~#fwp-w2,#fw-w3:checked~#fwp-w3{height:auto;overflow:visible}
- #fw-fit:checked~.fwl[for=fw-fit],#fw-w1:checked~.fwl[for=fw-w1],
- #fw-w2:checked~.fwl[for=fw-w2],#fw-w3:checked~.fwl[for=fw-w3]{
+ /* PAIRED BY data-fw, NOT BY ID. The ids are now unique per outcome (fw-<outcome>-<key>)
+    because one page carries several plots; hardcoding #fw-fit here would have paired the
+    first plot's radio with every plot's panel. The sibling combinator scopes each rule to
+    the card it is in, so this works for any number of plots and any variant keys. */
+ .fwr[data-fw]:checked~.fwp[data-fw]{height:0;overflow:hidden}
+ .fwr[data-fw="fit"]:checked~.fwp[data-fw="fit"],
+ .fwr[data-fw="w1"]:checked~.fwp[data-fw="w1"],
+ .fwr[data-fw="w2"]:checked~.fwp[data-fw="w2"],
+ .fwr[data-fw="w3"]:checked~.fwp[data-fw="w3"]{height:auto;overflow:visible}
+ .fwr[data-fw="fit"]:checked~.fwl[data-fw="fit"],
+ .fwr[data-fw="w1"]:checked~.fwl[data-fw="w1"],
+ .fwr[data-fw="w2"]:checked~.fwl[data-fw="w2"],
+ .fwr[data-fw="w3"]:checked~.fwl[data-fw="w3"]{
        border-color:var(--accent);color:var(--fg);font-weight:600}
  .card{border:1px solid var(--line);border-radius:.5rem;padding:1rem;margin:1rem 0}
  .card.warn{border-color:var(--warnb);background:var(--warnbg)}

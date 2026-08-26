@@ -68,14 +68,18 @@ def main():
         except SyntaxError:
             rows.append((fn, "UNPARSEABLE", set(), set(), [])); continue
         ex = exits(tree)
-        if not ex:                      # not a gate: cannot fail
-            continue
-        doc = ast.get_docstring(tree) or ""
-        head = doc + "\n" + "\n".join(src.splitlines()[:60])
-        claim = set()
-        if SAYS_PAGE.search(head): claim.add("PAGE")
-        if SAYS_OBJ.search(head):  claim.add("OBJECT")
-        rows.append((fn, "gate", layers_read(src), claim, ex))
+        # STATED AS THE POSITIVE PROPERTY: "this module CAN leave non-zero, therefore it
+        # can gate". The previous form was `if not ex: continue` -- a negative guard inside
+        # a loop over the whole scripts/ corpus, which is the shape that has silently
+        # removed live pages from corpus-wide passes in this repository before. The
+        # population is what CAN fail, not what fails to lack an exit.
+        if ex:
+            doc = ast.get_docstring(tree) or ""
+            head = doc + "\n" + "\n".join(src.splitlines()[:60])
+            claim = set()
+            if SAYS_PAGE.search(head): claim.add("PAGE")
+            if SAYS_OBJ.search(head):  claim.add("OBJECT")
+            rows.append((fn, "gate", layers_read(src), claim, ex))
 
     gates = [r for r in rows if r[1] == "gate"]
     print("modules in scripts/ that can exit non-zero (i.e. can gate): %d" % len(gates))

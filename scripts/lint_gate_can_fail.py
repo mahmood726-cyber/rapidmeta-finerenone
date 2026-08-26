@@ -139,12 +139,6 @@ KNOWN_TRIAGE = {
     "audit_class_mechanisation.py":
         "reports the mechanisation table; its --gate limb refuses when a class names a "
         "command that cannot fail.",
-    "audit_gate_layer_vs_defect_layer_2026_08_26.py":
-        "reports which layer each gate READS against which layer its defect LIVES ON. The "
-        "claim-layer is inferred from each module's own docstring, which is a weak "
-        "instrument, so the 59 it names are candidates for reading and not breaches -- its "
-        "own header says the count is a floor. Blocking on an inferred mismatch would refuse "
-        "every push over 59 unverified readings, which is the failure this file documents.",
     "audit_standing_instructions.py":
         "reports which standing instructions are enforced, coincident or convention. There "
         "is nothing to refuse -- a convention is not a violation.",
