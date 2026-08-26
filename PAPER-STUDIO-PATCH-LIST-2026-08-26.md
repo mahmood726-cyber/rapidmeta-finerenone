@@ -196,3 +196,78 @@ blast-radius model that just proved incomplete. Its conditions stand: delete THE
 the sitemap; index cards in the same commit; its own deploy with its own verification;
 post-deletion checksum against the retain-list before committing, because verifying a list
 and shipping a deletion are two artefacts.
+
+
+---
+
+## THE PRUNE — RAN, REFUSED ITSELF, NOT COMMITTED
+
+It executed end to end and **declined to certify its own result**. Nothing committed, tree
+restored, 1,254 files moved back, 0 lost.
+
+    moved 1254  surviving 259  cards 226  dead-cards 74  uncarded 106  sitemap 258  stale 0
+
+**One clean success: the sitemap regenerated to 258 entries with ZERO stale.** Delete-then-
+regenerate works exactly as designed, on what was the highest-risk item on the list — 1,191
+of the old sitemap's 1,309 entries were pages the prune removes, and none survived into the
+new one.
+
+### Blockers — two are bugs in MY code, one is a corpus fact
+
+**1. The card strip is a PATTERN problem, not a coverage problem. DO NOT RE-RUN ASSUMING
+OTHERWISE.** It removed 404 of 478; **74 cards survived pointing at moved files.** The regex
+`<a href="…" class="card…">.*?</a>` does not match every card shape in `index.html`. The
+markup variants must be ENUMERATED before the strip is trusted — 404 of 478 looks like an
+edge case and is actually an unknown number of unmatched shapes.
+
+**2. The byte assertion compared unlike things, and the cause deserves its own name:
+I TREATED A SCRIPT AS ITS FIRST NOUN.** `add_meta_description_and_sitemap.py` does both
+things it says: it regenerates the sitemap **and rewrites pages**, inserting 71,912 bytes of
+meta tags into 52 files — *after* my plan had counted them. A name listing two behaviours,
+read as one. The assertion was right to fire and wrong about why.
+
+**3. 106 retained pages have no card**, and this one is real. Retaining the unclassified
+means retaining pages that cannot be honestly placed in a specialty section, because they
+have no `specialty` and no classification. **That is the price of "when a classifier cannot
+tell, KEEP"**, and it is the correct price — but it must be visible rather than discovered.
+
+### Why it stopped rather than shipped
+
+Four incidents tonight — a partial deletion into another lane's open file handle, a
+classifier that condemned `index.html`, a script that rewrote 52 pages unasked, and a strip
+that missed 74 cards. **Every one was caught by a check or by the orchestrator. None by me.**
+That is a reliable signal about the hour, not about the work. The site has been promising 464
+pages it does not have all day; it is not worse for waiting.
+
+---
+
+## RULES FROM THE LAST HOURS
+
+**A drop list is as dangerous as a retain list, and I only audited one of them.** Every
+classification today checks that what we KEEP is right and never that what we DISCARD is
+wrong. The retained-links check, the chip states, the card counts — all interrogate the
+survivors. Nothing interrogated the condemned, which is how a rule written for review pages
+came to classify the site's front door as legacy: **`Canonical object` is a review-page
+marker, evaluated over every file in the root.** The homepage has no reproducibility table
+because it is not a review, and the rule read that as evidence it was old.
+
+**When a classifier cannot tell, KEEP.** An unknown retained costs bytes; an unknown dropped
+may be a page someone needs, and nobody finds out until a reader does. Measured: retaining
+108 unclassified files cost **6.2 MB of a 605 MB saving — about 1%**. Dropping on uncertainty
+buys almost nothing and is the flattering default in new clothes.
+
+**Derive the allow-list from the build, not from judgement.** Anything named by `pages.yml`,
+`pages_preflight.py` or the sitemap generator is furniture by definition. My own inspection
+produced seven names and **missed two the build names explicitly** — `what_changed.html` and
+`cardiology_mortality_atlas.html`.
+
+**A client-side change cannot be confirmed OR refuted by grepping served bytes.** The badge
+chips are runtime-injected. I read a served card, saw two spans, and reported the chips
+missing; they are appended as a third span at load. My phrase counts were **string literals
+inside the injecting script** — the fingerprint of a script that is present and about to
+populate 532 cards, counted as though it were output. Any sweep over badges, chips or
+indicators needs a browser.
+
+**`writers: 0` means no process is running now, not that no operation is in flight.** A lock
+outlives its process. The quiet check must be: no live writer, no lock, AND stable across a
+re-read after an interval.
