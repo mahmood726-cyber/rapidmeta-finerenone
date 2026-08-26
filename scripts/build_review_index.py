@@ -1,8 +1,17 @@
 """Path i — Build a single-page public review index.
 
-Reads outputs/extraction_audit/fabrication_risk_scores.json + per-review
-metadata and renders ALL 411 reviews into a filterable HTML index at
-index.html (overwrites any existing).
+IT WRITES audit_table.html. IT DOES NOT TOUCH index.html.
+
+This docstring used to say it rendered every review into `index.html (overwrites any
+existing)`. That is FALSE -- the only write in this file is `audit_table.html` on the last
+line -- and it was false in the most dangerous possible direction: anyone who read it and
+wanted a rebuilt index would have run this expecting exactly the destruction it advertised.
+index.html carries hand-injected specialty sections and the three-indicator block; nothing
+here reproduces them. A docstring describing a destructive action the code does not perform
+is worse than either half alone, because it is wrong AND it invites the destruction.
+
+Reads outputs/extraction_audit/fabrication_risk_scores.json + per-review metadata and
+renders a filterable band table at audit_table.html.
 
 Features:
   - Sort/filter by classification band + score
@@ -31,7 +40,10 @@ BAND_COLORS = {
     "QUARANTINE":   {"bg": "#7f1d1d", "border": "#fbbf24"},
 }
 BAND_LABELS = {
-    "OK": "TRUSTWORTHY",
+    # NOT "TRUSTWORTHY". This band means the extraction identifier checks scored below
+    # 0.30 -- PubMed and registry numbers, drug names, whether a cited value can be found.
+    # It says nothing about pooling, risk of bias, certainty or the synthesis.
+    "OK": "IDENTIFIER CHECKS PASSED",
     "LOW_CONCERN": "LOW CONCERN",
     "MANUAL_REVIEW": "MANUAL REVIEW",
     "QUARANTINE": "QUARANTINED",
@@ -143,7 +155,7 @@ html = f'''<!doctype html>
 <div class="summary-row">
   <div class="summary-card" style="border-left:3px solid {BAND_COLORS["OK"]["bg"]};">
     <div class="num">{band_counts.get("OK",0)}</div>
-    <div class="label">Trustworthy</div>
+    <div class="label">Identifier checks passed</div>
   </div>
   <div class="summary-card" style="border-left:3px solid {BAND_COLORS["LOW_CONCERN"]["bg"]};">
     <div class="num">{band_counts.get("LOW_CONCERN",0)}</div>
@@ -164,7 +176,7 @@ html = f'''<!doctype html>
   <input id="search" type="text" placeholder="Filter by review name…" oninput="filterRows()">
   <select id="band-filter" onchange="filterRows()">
     <option value="">All bands</option>
-    <option value="OK">Trustworthy only</option>
+    <option value="OK">Identifier checks passed only</option>
     <option value="LOW_CONCERN">Low concern only</option>
     <option value="MANUAL_REVIEW">Manual review only</option>
     <option value="QUARANTINE">Quarantined only</option>

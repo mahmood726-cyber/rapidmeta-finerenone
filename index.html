@@ -33,8 +33,10 @@ h1.title{font-family:Georgia,serif;font-weight:700;font-size:clamp(2.1rem,5.2vw,
 .integrity-banner .links{display:inline-flex;gap:14px;flex-wrap:wrap}
 .integrity-banner .links a{color:#326891;text-decoration:none}
 .integrity-banner .links a:hover{text-decoration:underline}
-.tier-dot{width:9px;height:9px;border-radius:50%;display:inline-block}
-.tier-OK{background:#1a8d4b}.tier-LOW_CONCERN{background:#caa300}.tier-MANUAL_REVIEW{background:#d97706}.tier-QUARANTINE{background:#c0392b}
+/* the tier-dot vocabulary was removed with the single-badge scheme on 2026-08-26.
+   Leaving the rules behind would let the green dot return silently the moment anything
+   emitted the class again. The word the old badge used is deliberately NOT written here:
+   a comment describing a removed claim should not trip the grep that guards it. */
 /* ---- sticky specialty nav ---- */
 .specnav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.96);backdrop-filter:saturate(160%) blur(6px);border-bottom:1px solid #e4e4e4;margin:34px -28px 0;padding:11px 28px;font-family:system-ui,sans-serif;font-size:.76rem;line-height:2}
 .specnav b{color:#9a6a00;text-transform:uppercase;letter-spacing:.12em;font-size:.66rem;margin-right:10px}
@@ -119,23 +121,46 @@ h2{font-family:system-ui,sans-serif;font-size:.74rem;font-weight:700;letter-spac
 .integrity-banner {
   background:#FFF7E8; border:1px solid #E5CC8A; border-radius:8px;
   padding:.8rem 1rem; margin:1rem 0 1.5rem; font-family:system-ui,sans-serif;
-  font-size:.85rem; color:#5C4310; display:flex; gap:1rem; align-items:center;
-  flex-wrap:wrap;
+  font-size:.85rem; color:#5C4310; line-height:1.5;
 }
-.integrity-banner .stat { background:#fff; padding:.3rem .6rem; border-radius:4px; }
-.integrity-banner .stat strong { color:#1a1a1a; font-size:.95rem; }
-.integrity-banner .links { margin-left:auto; }
-.integrity-banner a { color:#7A5A10; text-decoration:underline; margin-left:.5rem; }
-.tier-dot {
-  display:inline-block; width:8px; height:8px; border-radius:50%;
-  margin-right:6px; vertical-align:middle; flex-shrink:0;
-  box-shadow:0 0 0 1.5px #fff inset;
+.integrity-banner strong { color:#1a1a1a; }
+.integrity-banner .measured { font-variant-numeric:tabular-nums; }
+.integrity-banner .caveat { display:block; margin-top:.45rem; color:#6b5220; }
+.integrity-banner .links { display:block; margin-top:.5rem; }
+.integrity-banner a { color:#7A5A10; text-decoration:underline; margin-right:.75rem; }
+.ind-row {
+  display:flex; flex-wrap:wrap; gap:4px; margin-top:5px;
+  font:11px/1.35 system-ui,sans-serif;
 }
-.tier-OK { background:#16a34a; }
-.tier-LOW_CONCERN { background:#ca8a04; }
-.tier-MANUAL_REVIEW { background:#ea580c; }
-.tier-QUARANTINE { background:#7f1d1d; box-shadow:0 0 0 1.5px #fbbf24 inset; }
-.tier-dot[title] { cursor:help; }
+.ind {
+  display:inline-flex; align-items:center; gap:3px; padding:1px 6px;
+  border-radius:999px; border:1px solid; white-space:nowrap; cursor:help;
+}
+.ind b { font-weight:600; }
+.ind-pass      { background:#dcfce7; border-color:#16a34a; color:#14532d; }
+.ind-flag      { background:#fef3c7; border-color:#ca8a04; color:#713f12; }
+.ind-bad       { background:#fee2e2; border-color:#b91c1c; color:#7f1d1d; }
+/* NOT MEASURED IS NOT NEUTRAL. Hatched so it cannot be read as a quiet pass. */
+.ind-none {
+  background:repeating-linear-gradient(135deg,#f1f5f9,#f1f5f9 4px,#e2e8f0 4px,#e2e8f0 8px);
+  border-color:#94a3b8; border-style:dashed; color:#334155;
+}
+.ind-open      { background:#eef2ff; border-color:#6366f1; color:#312e81; }
+/* A RETIRED REVIEW OUTRANKS ITS OWN GREEN CHIP. Its identifier checks can legitimately
+   pass -- that limb is separately earned and suppressing a true chip because another is
+   red would rebuild the composite this change dismantled. So the chip is not suppressed;
+   it is OUTWEIGHED. Solid fill, white text, first in the row. */
+.ind-retired {
+  background:#7f1d1d; border-color:#7f1d1d; color:#fff; font-weight:700;
+  order:-1; box-shadow:0 0 0 2px #fecaca;
+}
+@media (prefers-color-scheme:dark){
+  .ind-pass{background:#052e16;color:#bbf7d0}
+  .ind-flag{background:#3b2f0a;color:#fde68a}
+  .ind-bad{background:#3f0d0d;color:#fecaca}
+  .ind-open{background:#1e1b4b;color:#c7d2fe}
+  .ind-none{background:repeating-linear-gradient(135deg,#1e293b,#1e293b 4px,#0f172a 4px,#0f172a 8px);color:#cbd5e1}
+}
 </style>
 <!-- integrity-tier-dots-style:end -->
 <meta name="description" content="947 browser-based living meta-analysis apps (781 pairwise + 166 network), R-metafor cross-validated — 617 provenance-verified; each pools registered trials traced to PMID + registry.">
@@ -156,17 +181,40 @@ h2{font-family:system-ui,sans-serif;font-size:.74rem;font-weight:700;letter-spac
   <div class="byline">Mahmood&nbsp;Ahmad &nbsp;&middot;&nbsp; 947 living reviews &middot; 617 provenance-verified &nbsp;&middot;&nbsp; <a href="dashboard.html">Filterable dashboard &rarr;</a></div>
 </div>
 
-  <!-- integrity-banner:begin -->
+    <!-- integrity-banner:begin -->
   <div class="integrity-banner">
-    <span style="font-size:.95rem;">🛡 <strong>Data-integrity audit complete</strong></span>
-    <span class="stat"><span class="tier-dot tier-OK"></span><strong id="ib-ok">823</strong> trustworthy</span>
-    <span class="stat"><span class="tier-dot tier-LOW_CONCERN"></span><strong id="ib-low">86</strong> low concern</span>
-    <span class="stat"><span class="tier-dot tier-MANUAL_REVIEW"></span><strong id="ib-manual">27</strong> manual review</span>
-    <span class="stat"><span class="tier-dot tier-QUARANTINE"></span><strong id="ib-quar">8</strong> quarantined</span>
+    <strong>What has and has not been checked on these reviews.</strong>
+    Three things are tracked separately below, because passing one of them says nothing
+    about the others.
+    <span class="caveat">
+      <strong>Extraction identifier checks</strong> &mdash; run
+      <span class="measured" id="ib-measured">&hellip;</span>, covering
+      <strong id="ib-pass">&hellip;</strong> of <strong id="ib-total">&hellip;</strong>
+      cards, with <strong id="ib-flag">&hellip;</strong> flagged and
+      <strong id="ib-none">&hellip;</strong> not measured at all. These checks read trial
+      identifiers &mdash; PubMed and registry numbers, drug names, whether a cited value can
+      be found. They do not examine pooling, heterogeneity, risk of bias, certainty, or
+      whether the outcome analysed is the one the trial registered.
+    </span>
+    <span class="caveat">
+      <strong>Scientific validity</strong> &mdash; not assessed on any review here. No such
+      assessment exists in this corpus, and none is inferred from the identifier checks
+      above.
+    </span>
+    <span class="caveat">
+      <strong>Submission readiness</strong> &mdash; each page computes its own, and
+      <strong id="ib-ready">&hellip;</strong> of <strong id="ib-total2">&hellip;</strong>
+      currently state they are ready.
+    </span>
+    <span class="caveat">
+      Reviews here are read by AI. Where two readers assessed risk of bias, both readings are
+      shown on the page and no adjudication between them has been recorded.
+      <strong>Nothing here has been verified by a human.</strong>
+    </span>
     <span class="links">
-      <a href="audit_table.html">full table →</a>
-      <a href="portfolio_pools.html">portfolio pools →</a>
-      <a href="what_changed.html">what changed →</a>
+      <a href="audit_table.html">full table &rarr;</a>
+      <a href="portfolio_pools.html">portfolio pools &rarr;</a>
+      <a href="what_changed.html">what changed &rarr;</a>
       <a href="outputs/extraction_audit/FINAL_INTEGRITY_REPORT_V2.md">methodology</a>
     </span>
   </div>
@@ -1073,49 +1121,97 @@ h2{font-family:system-ui,sans-serif;font-size:.74rem;font-weight:700;letter-spac
 <script>
 (function(){
   'use strict';
-  var TIER_LABELS = {
-    OK: "TRUSTWORTHY (score <0.30) — multi-source audit passed",
-    LOW_CONCERN: "LOW CONCERN (0.30-0.50) — some trials had wrong PMID/NCT; spot-check before citing",
-    MANUAL_REVIEW: "MANUAL REVIEW (0.50-0.70) — multiple trials flagged; per-trial re-extract recommended",
-    QUARANTINE: "QUARANTINED (≥0.70 or banner) — do NOT cite until ground-up re-extract"
+  // THREE INDICATORS, EARNED SEPARATELY, NEVER COMBINED. A composite would put this page
+  // back where it was: one mark standing in for questions with different answers.
+  var CHECKS = {
+    CHECKS_PASSED: ["ind-pass", "checks passed",
+      "Extraction identifier checks passed on {d} (risk score {s}, {n} trial(s)). "
+      + "This checks PubMed and registry identifiers, drug names and whether cited values "
+      + "can be found. It does NOT assess pooling, heterogeneity, risk of bias, certainty, "
+      + "or whether the analysed outcome is the registered one."],
+    SOME_FLAGS: ["ind-flag", "checks flagged",
+      "Some trials on this review had identifier problems (risk score {s} on {d}). "
+      + "Spot-check before citing."],
+    MANY_FLAGS: ["ind-bad", "checks flagged",
+      "Multiple trials flagged in the identifier audit (risk score {s} on {d})."],
+    QUARANTINED: ["ind-bad", "quarantined",
+      "Quarantined by the identifier audit (risk score {s} on {d}). Do not cite."],
+    NOT_MEASURED: ["ind-none", "checks not measured",
+      "This review has NO record in the extraction identifier audit. Not measured is not a "
+      + "pass \u2014 nothing has been checked here."]
   };
-  var BAND_COUNTS = {OK:0, LOW_CONCERN:0, MANUAL_REVIEW:0, QUARANTINE:0};
-  function fmt(n) { return n.toLocaleString(); }
-  function applyDots(scoresArr) {
-    var byReview = {};
-    scoresArr.forEach(function(r){
-      byReview[r.review] = r;
-      if (BAND_COUNTS[r.classification] !== undefined) BAND_COUNTS[r.classification]++;
-    });
-    var ibOk = document.getElementById("ib-ok");
-    if (ibOk) ibOk.textContent = fmt(BAND_COUNTS.OK);
-    var ibLow = document.getElementById("ib-low");
-    if (ibLow) ibLow.textContent = fmt(BAND_COUNTS.LOW_CONCERN);
-    var ibMan = document.getElementById("ib-manual");
-    if (ibMan) ibMan.textContent = fmt(BAND_COUNTS.MANUAL_REVIEW);
-    var ibQ = document.getElementById("ib-quar");
-    if (ibQ) ibQ.textContent = fmt(BAND_COUNTS.QUARANTINE);
-    document.querySelectorAll("a.card").forEach(function(a){
-      if (a.dataset.tierDotInjected === "1") return;
-      var href = (a.getAttribute("href") || "").split("/").pop();
-      var stem = href.replace(/\.html$/i, "");
-      var rec = byReview[stem];
-      if (!rec) return;
-      var dot = document.createElement("span");
-      dot.className = "tier-dot tier-" + rec.classification;
-      dot.title = TIER_LABELS[rec.classification] + " (risk score " + rec.score.toFixed(3) + ")"
-                  + (rec.already_quarantined ? " [banner-quarantined]" : "");
-      // Insert before .name child
-      var nameEl = a.querySelector(".name");
-      if (nameEl) { nameEl.insertBefore(dot, nameEl.firstChild); }
-      else { a.insertBefore(dot, a.firstChild); }
-      a.dataset.tierDotInjected = "1";
-    });
+  var READY = {
+    READY: ["ind-pass", "states it is ready"],
+    NOT_READY: ["ind-flag", "not ready"],
+    NOT_YET_DETERMINED: ["ind-none", "readiness undetermined"],
+    NOT_STATED: ["ind-none", "readiness not stated"],
+    RETIRED: ["ind-retired", "RETIRED REVIEW"],
+    TARGET_MISSING: ["ind-bad", "page missing"]
+  };
+  function chip(cls, text, title){
+    var s = document.createElement("span");
+    s.className = "ind " + cls;
+    s.textContent = text;
+    s.title = title;
+    return s;
   }
-  fetch("outputs/extraction_audit/fabrication_risk_scores.json", { cache:"no-cache" })
+  function apply(doc){
+    var cards = doc.cards || {}, total = 0, pass = 0, flag = 0, none = 0, ready = 0;
+    document.querySelectorAll("a.card").forEach(function(a){
+      if (a.dataset.indInjected === "1") return;
+      var stem = (a.getAttribute("href") || "").split("/").pop().replace(/\.html$/i, "");
+      var rec = cards[stem];
+      if (!rec) return;
+      total++;
+      var row = document.createElement("span");
+      row.className = "ind-row";
+
+      var ci = rec.internal || {}, cdef = CHECKS[ci.state] || CHECKS.NOT_MEASURED;
+      if (ci.state === "CHECKS_PASSED") pass++;
+      else if (ci.state === "NOT_MEASURED") none++;
+      else flag++;
+      row.appendChild(chip(cdef[0], cdef[1], cdef[2]
+        .replace("{d}", ci.measured || "an unrecorded date")
+        .replace("{s}", ci.score === null || ci.score === undefined ? "n/a" : ci.score)
+        .replace("{n}", ci.n_trials === null || ci.n_trials === undefined ? "?" : ci.n_trials)));
+
+      // ALWAYS RENDERED. An indicator that disappears when it has nothing to say is
+      // indistinguishable from one nobody added.
+      row.appendChild(chip("ind-open", "validity not assessed",
+        "No scientific-validity assessment exists for this review, or for any review on "
+        + "this site. It is left unpopulated rather than derived from the identifier "
+        + "checks, which measure something else entirely."));
+
+      var rs = (rec.readiness || {}).state, rdef = READY[rs] || READY.NOT_STATED;
+      if (rs === "READY") ready++;
+      row.appendChild(chip(rdef[0], rdef[1],
+        rs === "NOT_STATED"
+          ? "This page does not compute a submission-readiness state."
+          : "The page's own submission-readiness banner reads " + String(rs).replace(/_/g, " ") + "."));
+
+      var pr = rec.process || {};
+      var who = pr.n_ai_readers
+        ? ("Assessed by " + pr.n_ai_readers + " AI readers of different model families; "
+           + (pr.adjudication_recorded ? "adjudication recorded" : "no adjudication recorded")
+           + "; not human-verified.")
+        : "No risk-of-bias assessment is recorded for this review; not human-verified.";
+      row.appendChild(chip("ind-none",
+        pr.n_ai_readers ? (pr.n_ai_readers + " AI readers, not adjudicated") : "not assessed",
+        who));
+
+      var nameEl = a.querySelector(".name");
+      (nameEl && nameEl.parentNode ? a : a).appendChild(row);
+      a.dataset.indInjected = "1";
+    });
+    function set(id, v){ var e = document.getElementById(id); if (e) e.textContent = v; }
+    set("ib-measured", doc._measured || "an unrecorded date");
+    set("ib-pass", pass); set("ib-flag", flag); set("ib-none", none);
+    set("ib-total", total); set("ib-total2", total); set("ib-ready", ready);
+  }
+  fetch("index_indicators.json", { cache:"no-cache" })
     .then(function(r){ return r.ok ? r.json() : null; })
-    .then(function(j){ if (j) applyDots(j); })
-    .catch(function(){ /* silent — banner stays at "…" */ });
+    .then(function(j){ if (j) apply(j); })
+    .catch(function(){ /* silent \u2014 the banner keeps its ellipses rather than a number */ });
 })();
 </script>
 <!-- integrity-tier-dots:end -->

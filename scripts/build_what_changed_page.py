@@ -142,7 +142,7 @@ html = f'''<!doctype html>
 <h2>Current state by classification band</h2>
 <div class="top-stats">
   <div class="stat" style="border-left:3px solid #16a34a;">
-    <div class="num">{bc.get("OK",0)}</div><div class="lab">Trustworthy (&lt;0.30)</div>
+    <div class="num">{bc.get("OK",0)}</div><div class="lab">Identifier checks passed (&lt;0.30)</div>
   </div>
   <div class="stat" style="border-left:3px solid #ca8a04;">
     <div class="num">{bc.get("LOW_CONCERN",0)}</div><div class="lab">Low concern (0.30-0.50)</div>
