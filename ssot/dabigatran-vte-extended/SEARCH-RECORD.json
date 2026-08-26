@@ -1,0 +1,124 @@
+{
+ "_what_this_is": "The executed search for dabigatran-vte-extended, recorded after execution. The protocol registering it was committed, pushed and anchored in a public transparency log BEFORE the first query.",
+ "registration": {
+  "protocol_path": "ssot/dabigatran-vte-extended/PROTOCOL.md",
+  "protocol_commit": "5d621594512ebae31a2dc692747f79f0b1413c8e",
+  "protocol_committed_utc": "2026-08-26T23:19:08+01:00",
+  "protocol_sha256": "8790a7ad5074ec0293dbf27e4b6ee66f8c1628b30b598287ab4099b7b76f4e52",
+  "label": "RETROSPECTIVELY REGISTERED. The object already held trials when the protocol was written. The anchor bounds WHEN the protocol text existed; it cannot show the trials had not already been seen.",
+  "anchor": {
+   "log": "Rekor",
+   "uuid": "108e9186e8c5677a06b7b79718f70c44459a2febc9c01c0c149276200af4e5f19d00f2789c6f8506",
+   "logIndex": 2608402596,
+   "integratedTime_utc": "2026-08-26T22:21:09Z",
+   "how_to_check": "ssot/registration/VERIFY.md",
+   "what_it_proves": "The protocol text existed NO LATER THAN this log time, set by a third party. Not when the commit was made, not that no earlier version existed elsewhere, and not what was already known."
+  }
+ },
+ "ordering": {
+  "protocol_committed_utc": "2026-08-26T23:19:08+01:00",
+  "protocol_anchored_utc": "2026-08-26T22:21:09Z",
+  "first_query_attempted_utc": "2026-08-26T22:22:10.373Z",
+  "first_query_executed_utc": "2026-08-26T22:23:39.390Z",
+  "verdict": "established",
+  "reason": "The protocol was anchored before the first query was attempted. The earliest query time is used, not the first success."
+ },
+ "executed_by": "lane: registration/search (Claude, Anthropic family)",
+ "databases": [
+  {
+   "database": "PubMed (NCBI E-utilities esearch)",
+   "tool": "mcp__plugin_bio-research_pubmed__search_articles",
+   "query_as_executed": "(dabigatran[tiab] OR \"dabigatran etexilate\"[tiab] OR Pradaxa[tiab]) AND (\"venous thromboembolism\"[tiab] OR VTE[tiab] OR \"pulmonary embolism\"[tiab] OR \"deep vein thrombosis\"[tiab]) AND (extended[tiab] OR secondary[tiab] OR recurrence[tiab] OR recurrent[tiab]) AND (randomized controlled trial[pt] OR randomized[tiab] OR randomised[tiab] OR trial[tiab])",
+   "executed_utc": "2026-08-26T22:23:39.390Z",
+   "hit_count": 158,
+   "records_retrieved": 60,
+   "records_not_retrieved": 98,
+   "IMPORTANT": "60 of 158 retrieved. The remaining 98 are UNEXAMINED -- not screened and not excluded. This is a limit on the search, not a residue.",
+   "departure_from_the_registered_string": "NONE. NCBI's returned translation preserved every term of the registered string."
+  },
+  {
+   "database": "ClinicalTrials.gov API v2",
+   "tool": "mcp__plugin_bio-research_c-trials__search_trials",
+   "query_as_executed": "query.intr=dabigatran OR dabigatran etexilate OR Pradaxa; query.cond=venous thromboembolism OR pulmonary embolism OR deep vein thrombosis; count_total=true; page_size=60",
+   "executed_utc": "2026-08-26T22:23:39.390Z",
+   "hit_count": 69,
+   "records_retrieved": 60,
+   "records_not_retrieved": 9
+  }
+ ],
+ "outcome_against_the_pre_specified_readings": {
+  "_which": "(a) AND (b)",
+  "_detail": "BOTH held trials were returned. The registry query also returned many dabigatran trials in venous thromboembolism that the review does not hold, which is expected: the registered query.cond covers venous thromboembolism generally while this review is confined to EXTENDED treatment after a completed course. Those are named below as candidates by the phase of treatment they address.",
+  "held_trials_all_returned": true,
+  "held": [
+   "NCT00329238 RE-MEDY",
+   "NCT00558259 RE-SONATE"
+  ],
+  "candidates_returned_but_not_held": [
+   {
+    "nct": "NCT00291330",
+    "name": "RE-COVER",
+    "provisional_axis": "POPULATION",
+    "basis": "returned registry title",
+    "why": "Six-month treatment of ACUTE symptomatic VTE after initial parenteral therapy -- the acute treatment phase, not extended secondary prevention after a completed course."
+   },
+   {
+    "nct": "NCT00680186",
+    "name": "RE-COVER II",
+    "provisional_axis": "POPULATION",
+    "basis": "returned registry title",
+    "why": "As RE-COVER: the acute treatment phase."
+   },
+   {
+    "nct": "NCT00168818",
+    "name": "RE-NOVATE",
+    "provisional_axis": "POPULATION",
+    "basis": "returned registry title",
+    "why": "Primary prophylaxis after elective hip replacement, not secondary prevention."
+   },
+   {
+    "nct": "NCT00657150",
+    "name": "RE-NOVATE II",
+    "provisional_axis": "POPULATION",
+    "basis": "returned registry title",
+    "why": "Primary prophylaxis after elective hip arthroplasty."
+   },
+   {
+    "nct": "NCT01895777",
+    "name": "DIVERSITY",
+    "provisional_axis": "POPULATION",
+    "basis": "returned registry title",
+    "why": "Children from birth to under 18; this review is in adults."
+   },
+   {
+    "nct": "NCT02197416",
+    "name": "paediatric secondary prevention cohort",
+    "provisional_axis": "POPULATION AND DESIGN",
+    "basis": "returned registry title",
+    "why": "Children, and single-arm open-label rather than randomised."
+   },
+   {
+    "nct": "NCT02913326",
+    "name": "RE-SPECT CVT",
+    "provisional_axis": "POPULATION",
+    "basis": "returned registry title",
+    "why": "Cerebral venous and dural sinus thrombosis."
+   },
+   {
+    "nct": "NCT03240120",
+    "name": "dabigatran in malignancy-associated VTE",
+    "provisional_axis": "POPULATION",
+    "basis": "returned registry title",
+    "why": "Primary treatment of cancer-associated VTE."
+   }
+  ],
+  "THESE_ARE_CANDIDATES_NOT_EXCLUSIONS": "Every axis above is provisional and read from a returned registry TITLE, not from the registered primary outcome measure. Section 7 of the protocol requires the outcome module before an axis is settled. On empagliflozin tonight one of five axes changed when the module was read, so this is a measured risk and not a formality."
+ },
+ "what_this_record_does_not_establish": [
+  "NOT an adequate search. Embase, CENTRAL, Web of Science and Scopus were not searched, as section 4 of the protocol states.",
+  "NOT a full-text screen. Every judgement below is from a registry record or a returned title, and section 7 of the protocol requires the registered primary outcome measure before any axis is settled. A title is not an outcome definition.",
+  "NOT independent screening. One screener, one pass. The protocol requires two cross-family screeners for a release.",
+  "NOT third-party execution times. Those are this lane's clock. Only the two transparency-log entries carry a time set by anyone else.",
+  "NOT prospective registration. This topic already held trials when its protocol was written, the protocol says so, and the anchor bounds WHEN the text existed, never what was already known."
+ ]
+}
