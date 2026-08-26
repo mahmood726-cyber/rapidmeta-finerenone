@@ -1,0 +1,128 @@
+{
+ "_what_this_is": "The executed search for colchicine-pericarditis, recorded after execution. The protocol registering it was committed, pushed and anchored in a public transparency log BEFORE the first query.",
+ "registration": {
+  "protocol_path": "ssot/colchicine-pericarditis/PROTOCOL.md",
+  "protocol_commit": "5fdad197fca99b6dc3a1b619a4438835ff777e4c",
+  "protocol_committed_utc": "2026-08-26T23:16:47+01:00",
+  "protocol_sha256": "b3efa5e75e062db71de06ef7a2984e1bc810809ad149cc2e8d5dc08baba2d6df",
+  "label": "RETROSPECTIVELY REGISTERED. The object already held trials when the protocol was written. The anchor bounds WHEN the protocol text existed; it cannot show the trials had not already been seen.",
+  "anchor": {
+   "log": "Rekor",
+   "uuid": "108e9186e8c5677ac99f1bbd594669e1102e7fb83960a8a2e41819ca6c90546891ef2e0229ee8911",
+   "logIndex": 2608365599,
+   "integratedTime_utc": "2026-08-26T22:19:02Z",
+   "how_to_check": "ssot/registration/VERIFY.md",
+   "what_it_proves": "The protocol text existed NO LATER THAN this log time, set by a third party. Not when the commit was made, not that no earlier version existed elsewhere, and not what was already known."
+  }
+ },
+ "ordering": {
+  "protocol_committed_utc": "2026-08-26T23:16:47+01:00",
+  "protocol_anchored_utc": "2026-08-26T22:19:02Z",
+  "first_query_attempted_utc": "2026-08-26T22:21:37.794Z",
+  "first_query_executed_utc": "2026-08-26T22:22:10.373Z",
+  "verdict": "established",
+  "reason": "The protocol was anchored before the first query was attempted. The earliest query time is used, not the first success."
+ },
+ "executed_by": "lane: registration/search (Claude, Anthropic family)",
+ "databases": [
+  {
+   "database": "PubMed (NCBI E-utilities esearch)",
+   "tool": "mcp__plugin_bio-research_pubmed__search_articles",
+   "query_as_executed": "(colchicine[tiab] OR \"Colchicine\"[MeSH Terms]) AND (pericarditis[tiab] OR \"Pericarditis\"[MeSH Terms] OR \"pericardial effusion\"[tiab]) AND (randomized controlled trial[pt] OR randomized[tiab] OR randomised[tiab] OR trial[tiab])",
+   "executed_utc": "2026-08-26T22:22:10.373Z",
+   "hit_count": 143,
+   "records_retrieved": 60,
+   "records_not_retrieved": 83,
+   "IMPORTANT": "60 of 143 retrieved. The remaining 83 are UNEXAMINED -- not screened and not excluded. This is a limit on the search, not a residue.",
+   "departure_from_the_registered_string": "NONE. NCBI's returned translation preserved every term of the registered string."
+  },
+  {
+   "database": "ClinicalTrials.gov API v2",
+   "tool": "mcp__plugin_bio-research_c-trials__search_trials",
+   "query_as_executed": "query.intr=colchicine; query.cond=pericarditis OR pericardial effusion; count_total=true; page_size=60",
+   "executed_utc": "2026-08-26T22:22:10.373Z",
+   "hit_count": 13,
+   "records_retrieved": 13,
+   "records_not_retrieved": 0
+  }
+ ],
+ "outcome_against_the_pre_specified_readings": {
+  "_which": "(a) AND (b)",
+  "_detail": "ALL FIVE held trials were returned by the registry query, so this is not the FIGARO-DKD failure mode. The query also returned trials the review does not hold, so reading (b) applies as well and each is named below as a CANDIDATE.",
+  "held_trials_all_returned": true,
+  "held": [
+   "NCT00128414 CORP",
+   "NCT00128453 ICAP",
+   "NCT00235079 CORP-2",
+   "NCT01266694 POPE-2",
+   "NCT05805930 anakinra vs steroids"
+  ],
+  "candidates_returned_but_not_held": [
+   {
+    "nct": "NCT00128427",
+    "name": "COPPS",
+    "provisional_axis": "POPULATION",
+    "basis": "returned registry title",
+    "why": "Prevention of postpericardiotomy syndrome after cardiac surgery, not treatment or prevention of recurrence in acute or recurrent pericarditis."
+   },
+   {
+    "nct": "NCT01552187",
+    "name": "COPPS-2",
+    "provisional_axis": "POPULATION",
+    "basis": "returned registry title",
+    "why": "Post-pericardiotomy syndrome and post-operative atrial fibrillation."
+   },
+   {
+    "nct": "NCT06731595",
+    "name": "Post-Ablation Pericarditis Reduction Study",
+    "provisional_axis": "POPULATION",
+    "basis": "returned registry title",
+    "why": "Pericarditis after catheter ablation, a procedural population."
+   },
+   {
+    "nct": "NCT04906720",
+    "name": "Post-Ablation Pericarditis Reduction Study",
+    "provisional_axis": "POPULATION",
+    "basis": "returned registry title",
+    "why": "Same as above -- see the duplicate-registration note."
+   },
+   {
+    "nct": "NCT02260206",
+    "name": "colchicine after post-ablation effusion",
+    "provisional_axis": "OUTCOME/MEASURE",
+    "basis": "returned registry title",
+    "why": "Outcome is arrhythmia recurrence, not pericarditis recurrence."
+   },
+   {
+    "nct": "NCT05737680",
+    "name": "RESTORE",
+    "provisional_axis": "INTERVENTION",
+    "basis": "returned registry title",
+    "why": "Hydroxychloroquine in colchicine-RESISTANT recurrent pericarditis; colchicine is background, not the randomised intervention."
+   },
+   {
+    "nct": "NCT04323280",
+    "name": "Dexa-P",
+    "provisional_axis": "INTERVENTION",
+    "basis": "returned registry title",
+    "why": "Dexamethasone versus NSAIDs; no colchicine arm."
+   },
+   {
+    "nct": "NCT02083510",
+    "name": "ApoC-III mechanism study",
+    "provisional_axis": "OUTCOME/MEASURE",
+    "basis": "returned registry title",
+    "why": "Early-phase translational study of apolipoprotein C-III reduction."
+   }
+  ],
+  "THESE_ARE_CANDIDATES_NOT_EXCLUSIONS": "Every axis above is provisional and read from a returned registry TITLE, not from the registered primary outcome measure. Section 7 of the protocol requires the outcome module before an axis is settled. On empagliflozin tonight one of five axes changed when the module was read, so this is a measured risk and not a formality.",
+  "A_PROBABLE_DUPLICATE_REGISTRATION_IN_THE_REGISTRY": "NCT06731595 and NCT04906720 are returned as two records with the SAME title ('Post-Ablation Pericarditis Reduction Study'), the same sponsor, the same enrolment (248) and the same start and primary completion dates. On the returned fields they appear to be the same trial registered twice. This is recorded because a duplicate registration counted as two trials would inflate any k, and because a search record is the right place to note it -- but it is NOT confirmed here, and confirming it needs the full records rather than the returned summaries."
+ },
+ "what_this_record_does_not_establish": [
+  "NOT an adequate search. Embase, CENTRAL, Web of Science and Scopus were not searched, as section 4 of the protocol states.",
+  "NOT a full-text screen. Every judgement below is from a registry record or a returned title, and section 7 of the protocol requires the registered primary outcome measure before any axis is settled. A title is not an outcome definition.",
+  "NOT independent screening. One screener, one pass. The protocol requires two cross-family screeners for a release.",
+  "NOT third-party execution times. Those are this lane's clock. Only the two transparency-log entries carry a time set by anyone else.",
+  "NOT prospective registration. This topic already held trials when its protocol was written, the protocol says so, and the anchor bounds WHEN the text existed, never what was already known."
+ ]
+}
