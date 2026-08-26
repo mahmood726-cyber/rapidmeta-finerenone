@@ -2,21 +2,45 @@
 
 **Status: REGISTERED BY COMMIT. This document is the registration.**
 
-This protocol is registered as a timestamped commit in a public repository rather
-than in PROSPERO. The commit hash and its committer timestamp are the record: the
-content is immutable under that hash, the timestamp is set by the repository and
-not by the authors, and anyone can verify both without asking us. The claim this
-supports is narrow and it is stated here so it cannot be overstated later — a
-commit proves *when this text entered this repository*. It does not prove that no
-earlier or parallel version existed elsewhere, that the data had not already been
-seen, or anything about the independence of the people who wrote it.
+This protocol is registered as a commit in a public repository rather than in
+PROSPERO. The commit hash is the strong half of that record: the content is
+immutable under it, so this text cannot be altered later without producing a
+different hash, and anyone can check that much without asking us.
 
-**It is written before the search runs.** The ordering test this review will
-publish is that this commit precedes the first executed query. The search lane
-records its own start time independently; both timestamps go into the canonical
-object so a reader can check the sequence. That is the thing PROSPERO records
-cannot demonstrate, because a PROSPERO entry can be edited and its history is not
-public in the same way.
+**The commit timestamp is the weak half, and this document will not pretend
+otherwise.** Both the author and the committer date on a git commit are supplied
+by whoever makes the commit and can be set to any value; GitHub stores and
+displays what it is given, and an unsigned commit carries nothing further. An
+earlier version of this paragraph claimed the timestamp was “set by the
+repository and not by the authors”. That was false, and it is corrected here by
+amendment rather than quietly edited out, because a registration instrument that
+silently revises its own claims is not a registration instrument.
+
+What the mechanism supports, and no more: this exact text is bound to this hash;
+the repository is public, so the text is readable by anyone at that hash; and
+where an entry for the commit exists in a public transparency log, that log’s
+inclusion time is an upper bound on when this text existed, set by a third party
+rather than by us.
+
+What it does not support: it does not prove the commit was made when it says it
+was, it does not prove that no earlier or parallel version existed elsewhere, it
+does not prove the data had not already been seen, and it says nothing about the
+independence of the people who wrote it. Those are claims about conduct, and no
+timestamp can carry them.
+
+**It is written before the search runs.** The ordering test this review publishes
+is that this commit precedes the first executed query — the first *attempt*, not
+the first success, because reporting only the successful execution would move the
+first-query time later and flatter the claim. Both times go into the canonical
+object so a reader can check the sequence.
+
+Both are read from the search lane’s own clock. The databases return hit counts,
+not times, so no part of the ordering is timestamped by a third party unless an
+external anchor is placed on each end. The sequence is therefore auditable and
+internally consistent, and it is not, on its own, independently proven. That is
+still more than a PROSPERO record offers, since a PROSPERO entry can be edited
+and its history is not public in the same way — but it is less than proof, and
+it is recorded here as less.
 
 ---
 
@@ -298,7 +322,19 @@ recorded as an amendment rather than by editing this section.
 
 ## 16 · Amendments
 
-None at the time of this commit. Amendments will be recorded as further commits
+**Amendment 1, recorded at the commit that carries it.** The opening section
+claimed that the commit timestamp is “set by the repository and not by the
+authors”, and that the search lane records its start time “independently”. Both
+claims were false: git author and committer dates are set by whoever makes the
+commit, and every execution time in this review is read from our own clock, not
+returned by the databases. The section has been rewritten to state what the
+mechanism does and does not support. This amendment post-dates the first executed
+query. It is a correction to a method claim and not a change to the method: no
+eligibility criterion, estimand, search string, or analysis choice is altered by
+it. It is recorded here because a protocol that corrects itself silently is worth
+less than one that never claimed too much.
+
+Amendments will be recorded as further commits
 to this file; the full commit history, not only its head, is projected onto the
 review page, because a log that displays only its own head is no better than a
 mutable document.
