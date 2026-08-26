@@ -28,6 +28,13 @@ does not prove the data had not already been seen, and it says nothing about the
 independence of the people who wrote it. Those are claims about conduct, and no
 timestamp can carry them.
 
+**How to check this without us.** The verification recipe, the public half of
+the signing key, and a worked example are at
+[`ssot/registration/VERIFY.md`](../registration/VERIFY.md). It states the
+limitation plainly as well: the log time is independent of us, the key custody is
+not. A stranger can verify the text existed by the log time and that we signed it;
+a stranger cannot verify we did not hold an earlier version.
+
 **It is written before the search runs.** The ordering test this review publishes
 is that this commit precedes the first executed query — the first *attempt*, not
 the first success, because reporting only the successful execution would move the
@@ -333,6 +340,14 @@ query. It is a correction to a method claim and not a change to the method: no
 eligibility criterion, estimand, search string, or analysis choice is altered by
 it. It is recorded here because a protocol that corrects itself silently is worth
 less than one that never claimed too much.
+
+**Amendment 2.** A pointer to `ssot/registration/VERIFY.md` was added to the
+opening section, giving the recipe by which a reader can check an anchor without
+our help, the public half of the signing key, and the statement that the log time
+is independent of us while the key custody is not. This adds no method and
+changes no criterion; it is recorded because a registration instrument that
+revises itself silently is not one, and because the amendment is the second in a
+day and the pattern should be visible rather than smoothed.
 
 Amendments will be recorded as further commits
 to this file; the full commit history, not only its head, is projected onto the
