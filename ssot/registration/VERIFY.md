@@ -41,6 +41,19 @@ held by the project.
 
 ---
 
+## This recipe has been run
+
+It was executed literally, exactly as written below, against both anchors of
+`finerenone-cv` **before** this file was first committed — not described and
+assumed to work. Both log hashes matched the `git show` output at the named
+commits, and the published public key verified a signature over the committed
+bytes.
+
+That distinction matters here more than usual: a verification recipe nobody has
+run is a plausible recipe, and this whole file exists to replace plausibility
+with something checkable. If you run it and it fails, the fault is ours and we
+want to hear about it.
+
 ## The recipe
 
 For any anchored artefact you need three things, all recorded in the review's own
