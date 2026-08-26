@@ -179,6 +179,40 @@ def earliest_query(obj):
     return (min(times) if times else None), imprecise
 
 
+def protocol_link_state(root, topic, obj):
+    """Does the protocol this store points at actually RESOLVE?
+
+    A protocol that exists, is anchored, and 404s to a reader is anchored to
+    nothing anyone can reach. Ten live pages in this corpus cite
+    `protocols/name_protocol_v1.0_2026-04-19.md` -- a template placeholder whose
+    `name` token was never substituted -- and it shipped unnoticed because a 404
+    looks like every other 404. Anchoring makes that worse, not better: it lends
+    a broken link the authority of a log entry.
+
+    Returns 'resolves', 'MISSING: <path>', or 'none recorded'.
+    """
+    refs = []
+    reg = obj.get("registration") or {}
+    for key in ("protocol_path", "path"):
+        v = reg.get(key)
+        if isinstance(v, str) and v.endswith(".md"):
+            refs.append(v)
+    for v in ((obj.get("protocol") or {}).get("path"),):
+        if isinstance(v, str) and v.endswith(".md"):
+            refs.append(v)
+    default = os.path.join(root, topic, "PROTOCOL.md")
+    if os.path.isfile(default):
+        refs.append("ssot/" + topic + "/PROTOCOL.md")
+    if not refs:
+        return "none recorded"
+    repo = os.path.dirname(root)
+    missing = [r for r in dict.fromkeys(refs)
+               if not os.path.isfile(os.path.join(repo, r.replace("/", os.sep)))]
+    if missing:
+        return "MISSING: " + ", ".join(missing)
+    return "resolves"
+
+
 def anchor_state(obj):
     reg = obj.get("registration") or {}
     a = reg.get("anchor") or reg.get("anchors") or {}
@@ -246,15 +280,16 @@ def scan(root):
                             obj = json.load(fh)
                     except Exception as exc:
                         rows.append((name, "REFUSE",
-                                     "unreadable: " + type(exc).__name__, "n/a", False))
+                                     "unreadable: " + type(exc).__name__, "n/a", False, "n/a"))
                     else:
                         verdict, detail = judge(obj)
                         qtime, imprecise = earliest_query(obj)
                         has_search = bool(qtime) or bool(imprecise)
-                        rows.append((name, verdict, detail, anchor_state(obj), has_search))
+                        rows.append((name, verdict, detail, anchor_state(obj), has_search,
+                                     protocol_link_state(root, name, obj)))
                 else:
                     rows.append((name, "NOT_A_STORE",
-                                 "directory holds no " + name + ".json", "n/a", False))
+                                 "directory holds no " + name + ".json", "n/a", False, "n/a"))
             else:
                 loose += 1
     return rows, loose
@@ -278,7 +313,7 @@ def report(rows, label, loose=0):
           + ((" (" + bits + ")") if bits else "")
           + "; not a topic store " + str(len(not_store))
           + "; loose files (not candidates) " + str(loose))
-    for name, _v, detail, _a, _h in not_store:
+    for name, _v, detail, _a, _h, _l in not_store:
         print("    not-a-store  " + name + ": " + detail)
     stores = [r for r in rows if r[1] != "NOT_A_STORE"]
     no_search = [r for r in stores if not r[4]]
@@ -291,12 +326,18 @@ def report(rows, label, loose=0):
           + " stores have NO PROTOCOL COMMIT to order a search against")
     print("    " + str(len(no_search)) + " of " + str(len(stores))
           + " stores hold NO EXECUTED SEARCH at all")
+    broken = [r for r in stores if isinstance(r[5], str) and r[5].startswith("MISSING")]
+    print("    " + str(len(broken)) + " of " + str(len(stores))
+          + " stores point at a protocol file that DOES NOT RESOLVE")
+    for r in broken[:10]:
+        print("        broken link  " + r[0] + ": " + r[5])
     print("  A store may be in one, both or neither. Collapsing them overstates one")
     print("  and hides the other.")
-    for name, _v, detail, _a, _h in refused:
+    for name, _v, detail, _a, _h, _l in refused:
         print("    REFUSED  " + name + ": " + detail)
-    for name, _v, detail, anch, _h in passed:
-        print("    pass     " + name + ": " + detail + "  [anchors: " + anch + "]")
+    for name, _v, detail, anch, _h, link in passed:
+        print("    pass     " + name + ": " + detail + "  [anchors: " + anch
+              + "; protocol link: " + link + "]")
     return len(passed) + len(refused), len(refused)
 
 
@@ -321,6 +362,17 @@ FIXTURES = {
     # midnight would PASS this, which is the entire reason it is here.
     "__control_date_only": (
         _store("2026-01-01T12:00:00Z", "2026-01-01", "date_executed"), "REFUSE"),
+    # MUST REPORT A BROKEN LINK: the store points at a protocol file that is not
+    # there. Without this fixture the link check is VACUOUS -- across the whole
+    # corpus it currently returns "resolves" or "none recorded" and can never fire,
+    # which is indistinguishable from a corpus with no broken links. Ten live pages
+    # in this repository cite a template placeholder that 404s, so the failure mode
+    # is real and unobserved, not hypothetical.
+    "__control_broken_protocol_link": (
+        {"registration": {"protocol_path": "ssot/__control_broken_protocol_link/NOPE.md",
+                          "ordering": {"protocol_committed_utc": "2026-01-01T12:00:00Z"}},
+         "search": {"databases": [
+             {"database": "synthetic", "executed_utc": "2026-01-01T12:01:00Z"}]}}, "PASS"),
     # MUST SKIP: nothing to compare against. A skip must never read as a pass.
     "__control_no_protocol": (
         {"search": {"databases": [
@@ -399,11 +451,17 @@ def self_test():
         ok = True
         print("CONTROLS (synthetic, temp tree, deleted after this run):")
         for name, (_obj, expected) in FIXTURES.items():
-            got = rows.get(name, (name, "MISSING", "fixture not scanned", "n/a"))
+            got = rows.get(name, (name, "MISSING", "fixture not scanned", "n/a", False, "n/a"))
             good = got[1] == expected
+            extra = ""
+            if name == "__control_broken_protocol_link":
+                # the verdict is not what this fixture is for -- the LINK state is.
+                link_ok = isinstance(got[5], str) and got[5].startswith("MISSING")
+                good = good and link_ok
+                extra = "  link=" + str(got[5])
             ok = ok and good
             print("    " + ("ok  " if good else "FAIL") + " " + name
-                  + ": expected " + expected + ", got " + got[1] + " -- " + got[2])
+                  + ": expected " + expected + ", got " + got[1] + " -- " + got[2] + extra)
         return ok, len(FIXTURES)
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
