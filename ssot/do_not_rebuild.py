@@ -40,7 +40,22 @@ PAGES = {
     "ARNI_HF_REVIEW.html": (
         "AUTHORED DOCMODEL MANUSCRIPT. The projector reproduces roughly 26% of it, so a "
         "rebuild replaces written argument with a projection. Standing instruction from "
-        "Mahmood; ssot/manuscript_guard.py is the second line, not the first."),
+        "Mahmood; ssot/manuscript_guard.py is the second line, not the first. "
+        "  WHAT WOULD BE LOST, stated because a do-not-rebuild flag with no named cost is "
+        "an instruction someone eventually overrules: roughly three quarters of this page "
+        "is written argument that exists NOWHERE ELSE -- not on the object, not in any "
+        "other page. It is the corpus's ONLY authored manuscript, and authorship is the "
+        "property the whole programme is trying to acquire. A rebuild trades that for a "
+        "projection. "
+        "  AND IT IS NOT PURELY AUTHORED. Its F1000 prose carries [[certainty]] "
+        "substitution tokens, already resolved and baked in -- a hand-written surface with "
+        "generated holes. So a defect here can appear in prose as well as in a rendered "
+        "cell, and a fix that only corrects the generated-looking surfaces leaves the "
+        "prose asserting what the rest of the page withholds. On 2026-08-27 that was five "
+        "published certainty levels, not the three a gate reading rendered cells found. "
+        "  HOW TO MAINTAIN IT: edit it BY HAND. That is not the edited-not-rebuilt defect "
+        "-- that defect is hand-editing a GENERATED artefact, where the next build "
+        "silently reverts you. Hand-editing a hand-written surface is simply maintenance."),
 }
 
 # RELEASED 2026-08-21, DECIDED BY MAHMOOD, RECORDED HERE RATHER THAN IN A REPORT.
