@@ -896,9 +896,10 @@ def _agreement_statement(rb, ag, two):
         "verdict word, and this review’s own default rule is written in those words, "
         "so the two assessors answered under different rules rather than reading the same "
         "evidence differently. A number computed across %d domain comparison(s) on that "
-        "basis would describe our procedure, not these trials. The per-result judgements "
-        "above are assessor 1’s; assessor 2’s are held and will be reported "
-        "with the adjudication."
+        "basis would describe our procedure, not these trials. <strong>Both assessors’ "
+        "per-result judgements are shown in the table above, unadjudicated, and neither "
+        "is this review’s finding.</strong> No adjudication has been performed, so this "
+        "review holds no final risk-of-bias judgement for these results."
         % n)
 
 

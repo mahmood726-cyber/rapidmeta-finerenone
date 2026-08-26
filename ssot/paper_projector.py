@@ -1300,6 +1300,52 @@ def _trial_population(obj, nct, trial):
     return seen[0] if len(seen) == 1 else " / ".join(seen)
 
 
+def _second_assessor_tally(obj):
+    """(a2_counts, n_disagree, has_adjudication) or (None, 0, False) if single-assessor.
+
+    ASSESSOR 1'S TALLY IS NOT THE REVIEW'S FINDING when a second assessor exists and no
+    adjudication has been performed. On sotagliflozin-hf the stored overalls are
+    {HIGH: 3, SOME_CONCERNS: 1} and assessor 2's are {SOME_CONCERNS: 2, NO_INFORMATION: 2}
+    -- the two agree on ZERO of four -- and the page reported the first tally as what the
+    review assessed while stating on the same page that there is no adjudication.
+    """
+    import collections as _c
+    rb = obj.get("risk_of_bias") or {}
+    sa = None
+    for k, v in rb.items():
+        if k.upper().startswith("SECOND_ASSESSOR") and isinstance(v, dict):
+            sa = v
+            break
+    if not sa:
+        return None, 0, False
+    by = rb.get("by_outcome") or {}
+    sole = list(by.keys())[0] if len(by) == 1 else None
+    a2 = {}
+    for line in str(sa.get("verbatim_reply") or "").splitlines():
+        head = line.split()[0] if line.split() else ""
+        if "__" in head:
+            ident, oc = head.split("__", 1)
+        elif head and sole:
+            ident, oc = head, sole
+        else:
+            continue
+        m = re.search(r"OVERALL=([A-Z_]+)", line)
+        if m:
+            a2[(oc, ident)] = m.group(1)
+    if not a2:
+        return None, 0, False
+    counts = _c.Counter(a2.values())
+    dis = 0
+    for oc, per in by.items():
+        if not isinstance(per, dict):
+            continue
+        for nct, rec in per.items():
+            if isinstance(rec, dict) and a2.get((oc, nct)):
+                if (rec.get("overall") or "") != a2[(oc, nct)]:
+                    dis += 1
+    return counts, dis, bool(rb.get("adjudication"))
+
+
 def _rob_distribution(obj):
     """The stored risk-of-bias verdicts, counted. Returns (counts, n, unit-word).
 
@@ -2513,16 +2559,43 @@ def _fit_to_budget(secs, obj):
                 parts = ", ".join("%d at %s" % (counts[k], _ROB_WORDS[k])
                                   for k in order if counts.get(k))
                 keep_fields = sorted({f for _t, fs in s.paras for f in fs})
-                lead = ("Risk of bias was assessed with RoB 2 at the level of each reported "
-                        "result. Across the %d %s assessed: %s."
-                        % (n_results, unit, parts))
+                # A SINGLE ASSESSOR'S TALLY IS NOT THE REVIEW'S FINDING. Where a second
+                # assessor exists and no adjudication has been performed, this sentence
+                # reported assessor 1's stored overalls as what "the review assessed" --
+                # on a page that simultaneously said no adjudication exists. On
+                # sotagliflozin-hf the two readers agreed on ZERO of four results.
+                #
+                # THE INTERIM WORDING MUST NOT PICK A WINNER. Not assessor 2, not an
+                # average, and not an implicit adjudication by choosing. It states that
+                # two assessors read independently, that they differ, that no adjudication
+                # has been performed, and that the review therefore holds NO FINAL
+                # risk-of-bias judgement for these results. Both readers' judgements are
+                # shown; neither is reported as the review's.
+                _a2, _dis, _adj = _second_assessor_tally(obj)
+                if _a2 and not _adj:
+                    _a2parts = ", ".join(
+                        "%d at %s" % (_a2[k], _ROB_WORDS.get(k, k.lower().replace("_", " ")))
+                        for k in ("HIGH", "SOME_CONCERNS", "NO_INFORMATION", "LOW")
+                        if _a2.get(k))
+                    lead = ("Risk of bias was assessed with RoB 2 at the level of each "
+                            "reported result, by TWO assessors reading independently. "
+                            "Their judgements differ on %d of the %d %s and NO ADJUDICATION "
+                            "HAS BEEN PERFORMED, so this review holds no final "
+                            "risk-of-bias judgement for these results. Assessor 1 recorded: "
+                            "%s. Assessor 2 recorded: %s. Both are shown in the "
+                            "risk-of-bias table; neither is the review's finding."
+                            % (_dis, n_results, unit, parts, _a2parts))
+                else:
+                    lead = ("Risk of bias was assessed with RoB 2 at the level of each "
+                            "reported result. Across the %d %s assessed: %s."
+                            % (n_results, unit, parts))
                 # THE WORST JUDGEMENT LEADS THE LIST, which is why there is no second
                 # sentence restating it. A first draft added "3 of those 4 are at HIGH risk
                 # of bias" after a list already opening "3 at high risk of bias", and on
                 # tigecycline that read "3 at high risk of bias. 3 of those 3 are at HIGH
                 # risk of bias." Emphasis by repetition is the defect five reviewers named in
                 # these papers; ordering carries it without saying anything twice.
-                if counts.get("HIGH") == n_results and n_results > 1:
+                if (not (_a2 and not _adj)) and counts.get("HIGH") == n_results                         and n_results > 1:
                     lead += (" No result escaped that judgement.")
                 lead += (" The per-domain judgements behind them are recorded with the "
                          "extracted data.")
