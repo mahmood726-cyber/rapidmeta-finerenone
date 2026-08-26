@@ -2028,16 +2028,33 @@ def _live_certainty(obj):
     and selecting the first outcome in KEY ORDER without asking whether it is one the review
     publishes. Either alone was enough to put a wrong rating in front of a reader.
     """
+    # AND IT WAS STILL A RAW READ, WHICH IS THE NINTH CONSUMER. The fix above corrected WHICH
+    # outcomes it reads and WHICH field, but it still took the level straight off the object
+    # instead of asking the module built to be the single answer. Measured across every
+    # rendering surface on 2026-08-27: this line put a certainty level on 20 pages whose
+    # other surfaces withhold one, and it is the whole of that 20.
+    #
+    # It also retires an earlier claim of mine. I reported ZERO conflicting levels; that
+    # comparison read the Summary of Findings against the certainty column and no other
+    # surface. Reading all of them finds one page showing two different levels outright --
+    # sglt2-hf, "high" on the GRADE card against "low" here -- and 20 showing a level where
+    # another surface withholds it.
     res = (obj.get("results") or {}).get("by_outcome") or {}
     grade = ((obj.get("grade") or {}).get("by_outcome") or {})
     vals = []
-    for oid, g in sorted(grade.items()):
-        if not isinstance(g, dict) or not g.get("certainty"):
-            continue
+    for oid in sorted(set(grade) | set(res)):
+        g = grade.get(oid)
         pooled = (res.get(oid) or {}).get("pooled")
         if not isinstance(pooled, dict) or pooled.get("point") is None or pooled.get("withdrawn"):
             continue
-        vals.append(str(g["certainty"]).replace("_", " ").lower())
+        r = _ga.resolve(obj, oid)
+        if r["state"] != "RATED" or not r.get("level"):
+            # PENDING, NOT_ASSESSED, WITHDRAWN and DISAGREEMENT all mean the same thing to
+            # this sentence: there is no level to state. Skipping them silently would let a
+            # partial set speak for the whole, so a single withheld outcome suppresses the
+            # summary entirely rather than averaging over what is left.
+            return None
+        vals.append(str(r["level"]).replace("_", " ").lower())
     if not vals:
         return None
     uniq = sorted(set(vals))
