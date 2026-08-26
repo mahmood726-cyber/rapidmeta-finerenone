@@ -1,0 +1,75 @@
+{
+ "_what_this_is": "The executed search for finerenone-cv, recorded after execution. The protocol registering it was committed, pushed and anchored in a public transparency log BEFORE the first query. Both ends are anchored so two third-party times bracket the operation.",
+ "registration": {
+  "protocol_path": "ssot/finerenone-cv/PROTOCOL.md",
+  "protocol_commit": "3872817c06c92bad152cc4d076ea23b2f611012c",
+  "protocol_committed_utc": "2026-08-26T17:57:05Z",
+  "protocol_permalink": "https://github.com/mahmood726-cyber/rapidmeta-finerenone/blob/3872817c06c92bad152cc4d076ea23b2f611012c/ssot/finerenone-cv/PROTOCOL.md",
+  "protocol_sha256": "7220ad588145ee338f936a6799fea6766d4b467f04994dd2198f2ea759fb2633",
+  "anchor": {
+   "log": "Rekor (sigstore public transparency log)",
+   "uuid": "108e9186e8c5677a7cce867949a3bc4fbf2d3382a3c7a592bbe11bb0d3e75fdae0602d38e00f91da",
+   "logIndex": 2604694652,
+   "integratedTime_utc": "2026-08-26T17:59:41Z",
+   "verify": "https://rekor.sigstore.dev/api/v1/log/entries/108e9186e8c5677a7cce867949a3bc4fbf2d3382a3c7a592bbe11bb0d3e75fdae0602d38e00f91da",
+   "what_it_proves": "The protocol text existed NO LATER THAN this log time, which is set by a third party. It does NOT prove when the commit was made, and it does not prove no earlier or parallel version existed elsewhere."
+  }
+ },
+ "ordering": {
+  "protocol_committed_utc": "2026-08-26T17:57:05Z",
+  "protocol_anchored_utc": "2026-08-26T17:59:41Z",
+  "first_query_attempted_utc": "2026-08-26T18:00:30.227Z",
+  "first_query_executed_utc": "2026-08-26T18:00:48.163Z",
+  "verdict": "established",
+  "reason": "The protocol was committed, pushed to the public default branch, and anchored in a public transparency log before the first query was attempted. The earliest query time is used, not the first success. The anchor is the part a stranger can check without us; the commit timestamp alone is author-supplied and forgeable."
+ },
+ "executed_by": "lane: registration/search (Claude, Anthropic family)",
+ "databases": [
+  {
+   "database": "PubMed (NCBI E-utilities esearch)",
+   "tool": "mcp__plugin_bio-research_pubmed__search_articles",
+   "query_as_executed": "(finerenone[tiab] OR \"BAY 94-8862\"[tiab] OR Kerendia[tiab] OR FIDELIO-DKD[tiab] OR FIGARO-DKD[tiab]) AND (\"chronic kidney disease\"[tiab] OR \"diabetic kidney disease\"[tiab] OR CKD[tiab] OR \"kidney disease\"[MeSH Terms] OR \"type 2 diabetes\"[tiab] OR T2D[tiab] OR T2DM[tiab] OR \"Diabetes Mellitus, Type 2\"[MeSH Terms]) AND (placebo[tiab] OR randomized controlled trial[pt] OR randomised[tiab] OR randomized[tiab] OR trial[tiab])",
+   "executed_utc": "2026-08-26T18:00:48.163Z",
+   "hit_count": 334,
+   "records_retrieved": 100,
+   "records_not_retrieved": 234,
+   "IMPORTANT": "100 of 334 were retrieved. The remaining 234 are NOT screened and NOT excluded -- they are UNEXAMINED. Reporting them as excluded would be a substitution.",
+   "DEPARTURE_FROM_THE_REGISTERED_STRING": "NCBI's returned query_translation DROPPED `\"kidney disease\"[MeSH Terms]`, which the registered string contains. 'Kidney Disease' is not a MeSH heading, so the term silently contributed nothing. The string was executed exactly as registered; the SERVICE altered it. Recorded as a departure per section 5 rather than reconciled, and the registered string is not edited after the fact to match what ran.",
+   "query_translation_returned_by_ncbi": "(\"finerenone\"[Title/Abstract] OR \"BAY 94-8862\"[Title/Abstract] OR \"Kerendia\"[Title/Abstract] OR \"FIDELIO-DKD\"[Title/Abstract] OR \"FIGARO-DKD\"[Title/Abstract]) AND (\"chronic kidney disease\"[Title/Abstract] OR \"diabetic kidney disease\"[Title/Abstract] OR \"CKD\"[Title/Abstract] OR \"type 2 diabetes\"[Title/Abstract] OR \"T2D\"[Title/Abstract] OR \"T2DM\"[Title/Abstract] OR \"diabetes mellitus, type 2\"[MeSH Terms]) AND (\"placebo\"[Title/Abstract] OR \"randomized controlled trial\"[Publication Type] OR \"randomised\"[Title/Abstract] OR \"randomized\"[Title/Abstract] OR \"trial\"[Title/Abstract])"
+  },
+  {
+   "database": "ClinicalTrials.gov API v2 -- REGISTERED CONDITION QUERY, AND IT MISSED A PIVOTAL TRIAL",
+   "tool": "mcp__plugin_bio-research_c-trials__search_trials",
+   "query_as_executed": "query.intr=finerenone OR BAY 94-8862 OR Kerendia; query.cond=chronic kidney disease AND type 2 diabetes; filter.overallStatus=COMPLETED|TERMINATED|ACTIVE_NOT_RECRUITING; count_total=true; page_size=100",
+   "executed_utc": "2026-08-26T18:01:14.013Z",
+   "hit_count": 16,
+   "records_retrieved": 16,
+   "records_not_retrieved": 0,
+   "FINDING_OF_THE_SEARCH_NOT_OF_THE_SCREEN": "FIGARO-DKD (NCT02545049) is ABSENT from these 16 results. It is one of the two pivotal trials this review exists to pool, and the registered condition query cannot reach it: FIGARO-DKD registers its condition as 'Diabetic Kidney Disease' ALONE, while its sibling FIDELIO-DKD (NCT02540993) registers 'Chronic Kidney Disease' and was returned. Two trials of the same drug by the same sponsor index their disease differently, and a query naming the condition as the REVIEW frames it reaches only one of them. This is recorded as a property of the search, not corrected out of it.",
+   "nct_ids_returned": [
+    "NCT01807221",
+    "NCT05705271",
+    "NCT07124039",
+    "NCT05703880",
+    "NCT06094920",
+    "NCT05526157",
+    "NCT01955694",
+    "NCT06608212",
+    "NCT05348733",
+    "NCT05013008",
+    "NCT06763146",
+    "NCT02540993",
+    "NCT05640180",
+    "NCT05254002",
+    "NCT07348718",
+    "NCT05552339"
+   ]
+  }
+ ],
+ "what_this_record_does_not_establish": [
+  "NOT that the search was adequate. Embase, CENTRAL, Web of Science and Scopus were not searched, as section 4 of the protocol states.",
+  "NOT that the 334 PubMed records were screened. 100 were retrieved; 234 are unexamined.",
+  "NOT any effect estimate. No screening decision, extraction or pooling is recorded here.",
+  "NOT that the execution timestamps are third-party. They are this lane's clock. Only the two transparency-log entries carry a time set by anyone else."
+ ]
+}
