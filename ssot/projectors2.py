@@ -309,9 +309,19 @@ def protocol_card(canon, p):
         ("Data extraction items", _extraction_items(canon, na)),
         ("Outcomes and prioritisation",
          "; ".join(p(o["name"]) for o in canon.get("outcomes", []))),
-        ("Risk of bias method", p(canon["risk_of_bias_verdict"])
-         if canon.get("risk_of_bias_verdict") else
-         na("no per-domain RoB-2 assessment exists yet")),
+        # KEYED ON THE ASSESSMENT, NOT ON THE PROSE SUMMARY. This row read
+        # `risk_of_bias_verdict` alone, so a store holding a full per-result RoB 2
+        # assessment and no prose summary DENIED ITSELF in the protocol table while the
+        # traffic light rendered below it on the same page. paper_projector.py already
+        # gates the abstract's claim on `risk_of_bias.by_outcome` existing; that fix was
+        # made and never propagated here. A fix applied in one place and not swept for
+        # siblings is a fix with a half-life.
+        ("Risk of bias method",
+         p(canon["risk_of_bias_verdict"]) if canon.get("risk_of_bias_verdict")
+         else ("RoB 2, per result, five domains &mdash; see the risk-of-bias table below"
+               if ((canon.get("risk_of_bias") or {}).get("by_outcome")
+                   or (canon.get("rob2") or {}).get("trials"))
+               else na("no per-domain RoB-2 assessment exists yet"))),
         ("Synthesis methods", _synthesis_methods(canon, na)),
         ("Subgroup analyses", _subgroup_analyses(canon, p, na)),
         ("Meta-bias assessment", _meta_bias(canon, na)),
@@ -857,6 +867,41 @@ def visual_abstract(canon, res, outcome, p):
         _interval_caption(pooled, outcome.get("null_value", 1)))
 
 
+def _agreement_statement(rb, ag, two):
+    """What to say about inter-assessor agreement, which right now is: not the rate.
+
+    SUPPRESSED WITH A REASON, NOT SILENTLY OMITTED. The measured disagreement on these
+    records is not a property of the evidence -- it is an artefact of how the second
+    assessor was asked. The blinding prompt refuses to send any text containing a RoB 2
+    verdict word, and this project's own decision rule ("a domain that cannot be judged
+    from the sources read is NO_INFORMATION, never SOME_CONCERNS") is written in exactly
+    those words. So the rule could not reach assessor 2 by construction, and the two
+    readers answered under different rules. The signature is one-directional disagreement
+    per domain with the sign flipping between D1-D3 and D4-D5 -- 5 of 138 domain
+    disagreements run counter to their own domain's dominant direction.
+
+    A page showing total disagreement with no adjudication publishes a harness artefact as
+    a finding about someone else's trials. Either the adjudication is shown or the rate is
+    withheld; showing the second without the first is the worst of both.
+    """
+    if not two:
+        return ("One assessor. No inter-assessor comparison is available for this "
+                "review, and none is implied by the table above.")
+    n = ag.get("per_domain_total") or 0
+    return (
+        "This assessment is DUAL &mdash; two assessors from different model families, the "
+        "second asked blind. <strong>The agreement rate is withheld pending "
+        "adjudication.</strong> It is not reported because it is not currently "
+        "interpretable: the blinding prompt withholds any text containing a risk-of-bias "
+        "verdict word, and this review’s own default rule is written in those words, "
+        "so the two assessors answered under different rules rather than reading the same "
+        "evidence differently. A number computed across %d domain comparison(s) on that "
+        "basis would describe our procedure, not these trials. The per-result judgements "
+        "above are assessor 1’s; assessor 2’s are held and will be reported "
+        "with the adjudication."
+        % n)
+
+
 def rob_figure(canon, p):
     """Risk-of-bias traffic light, both assessors, from the stored RoB-2 block."""
     # ONE READER FOR BOTH SCHEMAS. This asked for canon["rob2"] while 30 of 31 stores
@@ -1128,6 +1173,11 @@ def rob2_card(canon, p):
     def _j(seq, i):
         return seq[i] if isinstance(seq, list) and i < len(seq) else ""
 
+    # A COLUMN WITH NO DATA IS NOT A COLUMN WITH EMPTY VALUES. `carried` exists on exactly
+    # ONE object in 155 -- arni-hfref's native rob2 block. Rendering it for the other 30
+    # stores produced a column of blanks, which reads as "nothing was carried" rather than
+    # "this review does not record a carry". Omitted when nothing supplies it.
+    has_carried = any(dm.get("carried") for t in rb["trials"] for dm in t["domains"])
     rows = ""
     for t in rb["trials"]:
         for dm in t["domains"]:
@@ -1135,9 +1185,11 @@ def rob2_card(canon, p):
             mark = ("yes" if dm.get("agreed") else "<strong>NO</strong>") \
                 if dm.get("agreed") is not None else "one assessor"
             rows += ("    <tr><td>%s</td><td>%s %s</td><td>%s</td><td>%s</td>"
-                     "<td>%s</td><td>%s</td></tr>%s"
+                     "<td>%s</td>%s</tr>%s"
                      % (p(t["trial"]), dm.get("domain"), p(dm.get("domain_name")),
-                        p(_j(js, 0)), p(_j(js, 1)), mark, p(dm.get("carried", "")), NL))
+                        p(_j(js, 0)), p(_j(js, 1)), mark,
+                        ("<td>%s</td>" % p(dm.get("carried", ""))) if has_carried else "",
+                        NL))
     ov = "".join(
         "    <tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>%s"
         % (p(t["trial"]), p(_j(t.get("overall"), 0)), p(_j(t.get("overall"), 1)),
@@ -1174,25 +1226,21 @@ def rob2_card(canon, p):
             "  <p><small>Assessor 1: %s (%s family). Assessor 2: %s (%s family). "
             "%s</small></p>%s"
             "  <table>%s    <tr><th scope='col'>Trial</th><th>Domain</th><th>Assessor 1 (%s)</th>"
-            "<th>Assessor 2 (%s)</th><th>Agreed</th><th>Carried</th></tr>%s%s"
+            "<th>Assessor 2 (%s)</th><th>Agreed</th>%s</tr>%s%s"
             "  </table>%s</div>%s"
             "<div class='card'>%s  <h3>Overall judgement per trial</h3>%s"
             "  <table>%s    <tr><th scope='col'>Trial</th><th>Assessor 1 (%s)</th>"
             "<th>Assessor 2 (%s)</th><th>Agreed</th></tr>%s%s  </table>%s</div>%s"
-            "<div class='card'>%s  <h3>Inter-assessor agreement, as measured</h3>%s"
-            "  <p>Per-domain: <span class='num'>%s</span> of "
-            "<span class='num'>%s</span> agreed "
-            "(<span class='num'>%s%%</span>). Overall: <span class='num'>%s</span> "
-            "of <span class='num'>%s</span>.</p>%s  <p>%s</p>%s</div>%s%s%s"
+            "<div class='card'>%s  <h3>Inter-assessor agreement</h3>%s  <p>%s</p>%s"
+            "  <p>%s</p>%s</div>%s%s%s"
             % (NL, NL, p(rb.get("assembler_excluded", "")), NL,
                p(rb.get("variant", "")), NL, p(rb.get("unit_of_assessment", "")), NL,
                p(a[0].get("model", "")), p(f1), p(a[1].get("model", "")), p(f2),
                p(rb.get("blinding", "")), NL,
-               NL, p(f1), p(f2), NL, rows, NL, NL,
+               NL, p(f1), p(f2),
+               ("<th>Carried</th>" if has_carried else ""), NL, rows, NL, NL,
                NL, NL, NL, p(f1), p(f2), NL, ov, NL, NL,
-               NL, NL, ag.get("per_domain_agreed", ""), ag.get("per_domain_total", ""),
-               ag.get("per_domain_rate_pct", ""), ag.get("overall_agreed", ""),
-               ag.get("overall_total", ""), NL,
+               NL, NL, _agreement_statement(rb, ag, two), NL,
                p(ag.get("comparison_to_screening", "")), NL, NL, dis, flags))
 
 

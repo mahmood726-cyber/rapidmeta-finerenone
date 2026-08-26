@@ -139,9 +139,19 @@ def rob_block(canon):
            'tool': rb.get('tool'), 'version': rb.get('version'),
            'unit_of_assessment': rb.get('unit_of_assessment'),
            'default_rule': rb.get('default_rule'), 'ceiling': rb.get('ceiling')}
+    # OVERALL AGREEMENT, DERIVED AND LABELLED AS DERIVED. The template consumes
+    # `overall_agreed` and `overall_total`; the per-result stores hold neither, so the
+    # first version of this adapter left both absent and the page rendered "Overall: of ."
+    # -- a template with both operands missing. An absent value must become an omitted
+    # line or an honestly-labelled derivation, never a plausible-looking number.
+    ov_pairs = [t for t in trials if t.get('overall_agreed') is not None]
+    ov_agreed = sum(1 for t in ov_pairs if t['overall_agreed'])
     if pairs:
         out['agreement'] = {'per_domain_agreed': agreed, 'per_domain_total': pairs,
                             'per_domain_rate_pct': round(100.0 * agreed / pairs, 1),
+                            'overall_agreed': ov_agreed if ov_pairs else None,
+                            'overall_total': len(ov_pairs) if ov_pairs else None,
+                            'overall_is_derived': bool(ov_pairs),
                             'recomputed_from_the_stored_judgements': True,
                             'why_recomputed': (
                                 'The stored disagreement tallies were frozen as text and '

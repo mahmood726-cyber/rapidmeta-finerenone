@@ -973,10 +973,21 @@ def points_with_labels(points):
             yield p[0], p[1], ""
 
 
+# FIVE STATES, BECAUSE "NOT ASSESSED" AND "NO INFORMATION REACHED US" ARE DIFFERENT CLAIMS
+# ABOUT DIFFERENT PARTIES. Handbook v6.5 section 8.2.3: the domain-level judgements are
+# Low, Some concerns and High. "No information" is one of five SIGNALLING-QUESTION
+# responses and is not a domain judgement, so it must not render as a verdict. It must not
+# render as NOT ASSESSED either: that says nobody looked, when the truth is we looked and
+# could not reach it. One is a statement about the trial, the other about our retrieval,
+# and collapsing them prints our gap as a fact about someone else's study.
 ROB_GLYPH = {"LOW": ("+", "#15803d", "#dcfce7"),
              "SOME CONCERNS": ("?", "#a16207", "#fef9c3"),
              "HIGH": ("\u2212", "#b91c1c", "#fee2e2"),
+             "NO INFORMATION": ("\u25cb", "#475569", "#e2e8f0"),
              "NOT ASSESSED": ("\u00b7", "#64748b", "#f1f5f9")}
+# stored spellings, so an underscore does not fall through to NOT ASSESSED
+ROB_GLYPH["NO_INFORMATION"] = ROB_GLYPH["NO INFORMATION"]
+ROB_GLYPH["SOME_CONCERNS"] = ROB_GLYPH["SOME CONCERNS"]
 
 
 def visual_abstract_svg(title, question, k, n_total, measure, point, lo, hi,
@@ -1146,7 +1157,9 @@ def rob_traffic_light_svg(trials, domains, assessors, cell):
                   % e(str(assessors[0]) if assessors else 'assessor 1'))
         aria = 'one assessor per cell; this object holds no second assessment'
     body += ('<text x="6" y="%d" font-size="12" fill="currentColor">%s'
-             '+ low, ? some concerns, \u2212 high, \u00b7 not assessed.</text>%s'
+             '+ low, ? some concerns, \u2212 high, \u25cb no information reached us '
+             '(a protocol, statistical analysis plan, registry field or regulatory '
+             'review would close it), \u00b7 not assessed.</text>%s'
              % (ly, legend, NL))
     return ('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 %d %d" '
             'width="100%%" role="img" aria-label="Risk-of-bias traffic light: '
