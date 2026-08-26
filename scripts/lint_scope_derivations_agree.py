@@ -35,7 +35,63 @@ if __name__ == "__main__":
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 STUB_MAX = 20000
-SPECIALTIES = ("sp-cardiology", "sp-infectious-disease")
+# WIDENED 2026-08-26 FROM TWO SPECIALTIES TO ALL OF THEM.
+# Scoped to cardiology and infectious disease this check passed at 104/103 and was read as
+# "the two derivations agree". It agreed about 104 pages out of ~1,500. The corpus has never
+# had an index-versus-pages check at all, which is why 19 pages were already unreachable from
+# index.html before anyone proposed a prune -- nothing had ever asked.
+#
+# A rule scoped to a name narrows silently as the corpus grows; this one is derived from the
+# index itself, so a new specialty section is covered the day it is added.
+SPECIALTIES = None   # None => every id="sp-..." section in index.html
+
+# RATCHET, NOT CLEARANCE. The 33 below are unreachable from index.html TODAY. This is a
+# BASELINE so the gate can enter the hook chain without blocking every commit on a
+# pre-existing backlog -- and it is NOT a clearance: each one is still a page a reader
+# cannot get to from the site's front door.
+#
+# THE RATCHET ASSERTS. A baselined gate that silently accepts a 34th orphan is worse
+# than no gate, so a NEW name raises SystemExit and the count is checked, not merely
+# printed. Removing a name from this list is the ONLY way the number goes down, and
+# that requires linking the page.
+#
+# 10 of these carry `split_provenance`: splitting a topic has never once included
+# linking the children. That class is guarded separately at the artefact.
+ORPHAN_BASELINE = {
+    "ABLATION_AF_HEART_FAILURE_REVIEW.html",
+    "ABLATION_AF_MEDICAL_THERAPY_REVIEW.html",
+    "APIXABAN_VTE_PROPHYLAXIS_REVIEW.html",
+    "APIXABAN_VTE_TREATMENT_REVIEW.html",
+    "ATTR_PN_REVIEW.html",
+    "AZILSARTAN_CLD_VS_OLM_HCTZ_REVIEW.html",
+    "BOCOCIZUMAB_LIPID_REVIEW.html",
+    "BOSENTAN_PAH_CHILDREN_REVIEW.html",
+    "BOSENTAN_PAH_COMBINATION_REVIEW.html",
+    "BOSENTAN_PAH_MONOTHERAPY_REVIEW.html",
+    "BOSENTAN_PH_NOT_GROUP1_REVIEW.html",
+    "COLCHICINE_CVD_CORONARY_REVIEW.html",
+    "COLCHICINE_ICH_REVIEW.html",
+    "COLCHICINE_MIXED_ASCVD_REVIEW.html",
+    "COLCHICINE_PAD_REVIEW.html",
+    "COLCHICINE_PERICARDITIS_REVIEW.html",
+    "COLCHICINE_PERIPROCEDURAL_REVIEW.html",
+    "COLCHICINE_STROKE_REVIEW.html",
+    "COVID19_VACCINES_REVIEW.html",
+    "DABIGATRAN_VTE_CEREBRAL_REVIEW.html",
+    "DABIGATRAN_VTE_EXTENDED_REVIEW.html",
+    "DABIGATRAN_VTE_SURGICAL_REVIEW.html",
+    "DABIGATRAN_VTE_TREATMENT_REVIEW.html",
+    "DORAVIRINE_HIV_REVIEW.html",
+    "EARLY_RHYTHM_CONTROL_AF_REVIEW.html",
+    "EMPAGLIFLOZIN_HF_AUTO_FULL_REVIEW.html",
+    "EVOLOCUMAB_ASCVD_AUTO_2_FULL_REVIEW.html",
+    "FCM_HF_REVIEW.html",
+    "ICOSAPENT_LIPID_AUTO_FULL_REVIEW.html",
+    "NETARSUDIL_OCULAR_HYPERTENSION_AUTO_FULL_REVIEW.html",
+    "ROSUVASTATIN_AUTO_FULL_REVIEW.html",
+    "SOTATERCEPT_PAH_AUTO_2_FULL_REVIEW.html",
+    "TIGECYCLINE_CIAI_SSOT.html",
+}
 
 REFRESH = re.compile(r'http-equiv=["\']refresh["\'][^>]*url=([A-Za-z0-9_\-.]+)', re.I)
 ABSORB  = re.compile(r'name=["\']rapidmeta:absorbed-by["\']\s+content=["\']([A-Za-z0-9_\-]+)', re.I)
@@ -81,7 +137,8 @@ def index_scope(root):
     idx = io.open(os.path.join(root, "index.html"), encoding="utf-8", errors="replace").read()
     ids = re.findall(r'id="(sp-[a-z0-9\-]+)"', idx)
     out = set()
-    for sid in SPECIALTIES:
+    sids = SPECIALTIES if SPECIALTIES is not None else ids
+    for sid in sids:
         if 'id="%s"' % sid not in idx:
             continue
         for p in dict.fromkeys(LINK.findall(section(idx, sid, ids))):
@@ -90,6 +147,20 @@ def index_scope(root):
             r = resolve(root, p)
             if os.path.getsize(os.path.join(root, r)) >= STUB_MAX:
                 out.add(r)
+    return out
+
+
+def corpus_paper_pages(root):
+    """Every delivered page that carries a paper tab, from PAGE_MAP -- independent of the
+    index. This is the population the index is SUPPOSED to describe."""
+    pm = json.load(io.open(os.path.join(root, "ssot", "PAGE_MAP.json"), encoding="utf-8"))
+    out = set()
+    for pg in pm:
+        p = os.path.join(root, pg)
+        if not os.path.exists(p) or os.path.getsize(p) < STUB_MAX:
+            continue
+        if 'id="pn-paper"' in io.open(p, encoding="utf-8", errors="replace").read():
+            out.add(pg)
     return out
 
 
@@ -121,7 +192,13 @@ def run(root):
         p for p in (a - b)
         if 'id="pn-paper"' in io.open(os.path.join(root, p), encoding="utf-8",
                                       errors="replace").read())
-    return a, b, only_index
+    # THE OTHER DIRECTION, WHICH THIS CHECK NEVER LOOKED AT AND WHICH IS THE ORPHAN CLASS.
+    # a - b asks "does the index point at something that isn't a paper page?"
+    # b - a asks "is there a paper page the index points at from nowhere?" -- and nothing in
+    # this repository has ever asked that. 19 pages were unreachable from index.html before
+    # any prune was proposed, and no instrument would have said so.
+    orphans = sorted(corpus_paper_pages(root) - a)
+    return a, b, only_index, orphans
 
 
 def selftest():
@@ -153,16 +230,32 @@ def selftest():
         os.makedirs(os.path.join(tmp, "ssot"))
         io.open(os.path.join(tmp, "ssot", "PAGE_MAP.json"), "w",
                 encoding="utf-8").write('{}')
-        _a, _b, only = run(tmp)
+        _a, _b, only, _orph = run(tmp)
         _only_bad = only
         assert only == ["NEW_REVIEW.html"], (
             "GATE CANNOT FAIL: planted a paper-tab page missing from PAGE_MAP and the "
             "refusal set was %r" % (only,))
         io.open(os.path.join(tmp, "ssot", "PAGE_MAP.json"), "w", encoding="utf-8").write(
             '{"NEW_REVIEW.html": "ssot/x/x.json"}')
-        _a, _b, only = run(tmp)
+        _a, _b, only, _orph = run(tmp)
         _only_ok = only
         assert only == [], "GATE OVER-FLAGS: agreeing populations reported as %r" % (only,)
+        assert _orph == [], "ORPHAN CHECK OVER-FLAGS: linked page called orphaned: %r" % (_orph,)
+
+        # ORPHAN DIRECTION, BOTH WAYS. Plant a paper page in PAGE_MAP that NO section links,
+        # and require it named. Then link it and require silence.
+        io.open(os.path.join(tmp, "ORPHAN_REVIEW.html"), "w", encoding="utf-8").write(
+            "x" * 30000 + '<div id="pn-paper">body</div>')
+        io.open(os.path.join(tmp, "ssot", "PAGE_MAP.json"), "w", encoding="utf-8").write(
+            '{"NEW_REVIEW.html": "ssot/x/x.json", "ORPHAN_REVIEW.html": "ssot/y/y.json"}')
+        _a, _b, _only, orph = run(tmp)
+        assert orph == ["ORPHAN_REVIEW.html"], (
+            "ORPHAN NOT DETECTED: a paper page linked from nowhere reported as %r" % (orph,))
+        io.open(os.path.join(tmp, "index.html"), "w", encoding="utf-8").write(
+            '<h2 id="sp-cardiology">C</h2><a href="OLD_REVIEW.html">x</a>'
+            '<a href="ORPHAN_REVIEW.html">y</a><h2 id="sp-infectious-disease">ID</h2>')
+        _a, _b, _only, orph = run(tmp)
+        assert orph == [], "ORPHAN CHECK STILL FLAGS a now-linked page: %r" % (orph,)
         require_controls(
             "lint_scope_derivations_agree",
             positive=("a paper-tab page present in the index and absent from PAGE_MAP is "
@@ -179,10 +272,29 @@ def selftest():
 
 def main():
     selftest()
-    a, b, only_index = run(REPO)
+    a, b, only_index, orphans = run(REPO)
     print()
     print("index-derived scope (stubs resolved) : %d" % len(a))
     print("PAGE_MAP-derived scope               : %d" % len(b))
+    new_orphans = [p for p in orphans if p not in ORPHAN_BASELINE]
+    healed = sorted(ORPHAN_BASELINE - set(orphans))
+    if healed:
+        print("%d baselined orphan(s) are now linked -- REMOVE them from ORPHAN_BASELINE so "
+              "the ratchet tightens: %s" % (len(healed), ", ".join(healed)))
+    if new_orphans:
+        print()
+        print("REFUSED: %d NEW page(s) unreachable from index.html, above the baseline of %d. "
+              "Splitting or adding a topic must link it: %s"
+              % (len(new_orphans), len(ORPHAN_BASELINE), ", ".join(new_orphans)))
+        raise SystemExit(1)
+    if orphans:
+        print()
+        print("%d page(s) carry a paper tab and are reachable from NO section of "
+              "index.html -- ALL BASELINED, none new. This is NOT a clearance; each is "
+              "still a page a reader cannot reach from the front door:" % len(orphans))
+        for p in orphans[:8]:
+            print("   %s" % p)
+        print("   ... %d total, baseline %d" % (len(orphans), len(ORPHAN_BASELINE)))
     if only_index:
         print()
         print("REFUSED: %d page(s) in the index-derived scope carry a paper tab but are "
