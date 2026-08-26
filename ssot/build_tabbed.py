@@ -1779,6 +1779,11 @@ if __name__ == "__main__":
     # The check belongs where the write happens.
     import do_not_rebuild as _dnr
     _dnr.check(sys.argv[2])
+    # AND THE GENERATOR PIN, IN THE PATH RATHER THAN IN ANYONE'S NOTES. A rebuild from a
+    # generator older than a served renderer fix reverts that fix. Refused before anything
+    # is written, beside the do-not-rebuild refusal, because a rule kept in prose gets
+    # violated -- twice tonight already.
+    _dnr.check_generator_pin()
 
     obj = json.load(open(sys.argv[1], encoding="utf-8"))
     out = sys.argv[2]

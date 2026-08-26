@@ -79,6 +79,64 @@ def check(out_path):
         "  There is no blanket override." % (name, why, name))
 
 
+# ---------------------------------------------------------------------------------------
+# GENERATOR-PIN PRECONDITION. In the path, not in the notes.
+# ---------------------------------------------------------------------------------------
+#
+# A REBUILD CAN REVERT A SERVED FIX, AND ON 2026-08-27 ONE NEARLY DID. IV_IRON_HF was rebuilt
+# from a worktree whose renderer predated 7f18a5da2 ("derive the direction-of-benefit label,
+# never default it"), which rewrote ssot/build_app_v2.py. That commit was already on main and
+# already serving eight render-layer corrections -- one inverted KCCQ label and seven
+# manufactured direction claims. The rebuild did not revert them, but only because none of
+# the eight happened to be on the two pages it touched. Exposure is not damage, and a
+# near-miss explainable only by luck is a finding about the system.
+#
+# THE FIX IS A PRECONDITION, NOT A HABIT. The rule "check the pin before rebuilding" was
+# already known and was not applied, because a rule that lives in prose gets violated -- this
+# project has paid for that twice in one night with the exit-status-through-a-pipe rule. So
+# the check runs where the build cannot avoid it, beside the do-not-rebuild refusal, before
+# anything is written.
+#
+# HOW TO EXTEND IT: add a commit here when a renderer fix must not be reverted by a rebuild.
+# The entry is a promise that the built page will carry that fix.
+REQUIRED_GENERATOR_COMMITS = {
+    "7f18a5da2": ("derive the direction-of-benefit label, never default it -- rewrote "
+                  "ssot/build_app_v2.py and carries eight served render corrections"),
+}
+
+
+def check_generator_pin(repo=None):
+    """Refuse before the build if the working generator lacks a required renderer fix."""
+    import subprocess
+    root = repo or os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    missing = []
+    for sha, why in sorted(REQUIRED_GENERATOR_COMMITS.items()):
+        r = subprocess.run(["git", "merge-base", "--is-ancestor", sha, "HEAD"],
+                           cwd=root, capture_output=True)
+        if r.returncode == 128:
+            # THE COMMIT IS NOT IN THIS REPOSITORY AT ALL. That is not a pass. A check that
+            # treats "cannot evaluate" as "satisfied" is the silent-success failure this
+            # project has now hit in five tools.
+            missing.append((sha, why, "not present in this repository"))
+        elif r.returncode != 0:
+            missing.append((sha, why, "not an ancestor of HEAD"))
+    if not missing:
+        return
+    if os.environ.get("REBUILD_STALE_GENERATOR_ANYWAY", "").strip() == "1":
+        sys.stderr.write(
+            "[generator-pin] OVERRIDDEN. Building against a generator missing: %s\n"
+            % ", ".join(s for s, _, _ in missing))
+        return
+    sys.exit(
+        "REFUSED: this generator is missing a renderer fix that is already SERVED, so the "
+        "rebuilt page would revert it.\n\n"
+        + "".join("  %s  %s\n     %s\n" % (s, st, why) for s, why, st in missing)
+        + "\n  Rebuilding now would ship a reader-facing regression on the way in.\n"
+          "  Merge or rebase onto a commit containing it, then rebuild.\n"
+          "  This check runs BEFORE the build, so nothing has been written.\n"
+          "  Deliberate override for one run:  REBUILD_STALE_GENERATOR_ANYWAY=1 <command>")
+
+
 def _topic_to_page():
     """topic dir name -> delivered page name, from PAGE_MAP."""
     import json
