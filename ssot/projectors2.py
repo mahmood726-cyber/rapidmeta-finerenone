@@ -899,7 +899,16 @@ def visual_abstract(canon, res, outcome, p):
         "{:,}".format(n_total) if n_total else None,
         pooled.get("measure", ""), pooled["point"], pooled.get("ci_low"),
         pooled.get("ci_high"), outcome.get("null_value", 1),
-        g.get("certainty"), outcome.get("name", ""), loo),
+        # THE EIGHTH CONSUMER, AND IT SAT INSIDE A FIGURE. This read `grade.certainty`
+        # straight off the object, so the visual abstract printed "GRADE certainty: low"
+        # on a page whose certainty column, GRADE card and abstract had all stopped
+        # publishing a level. My own verification of that page checked the column, the
+        # card and the abstract -- and not the figure text, which is reach reported as
+        # coverage inside a verification step. A corpus gate reading the DELIVERED page
+        # found it; nothing that read the generator could have.
+        _ga.resolve(canon, outcome.get("id"))["cell"]
+        if outcome.get("id") else g.get("certainty"),
+        outcome.get("name", ""), loo),
         "Visual abstract", "visual-abstract.svg",
         _interval_caption(pooled, outcome.get("null_value", 1)))
 
