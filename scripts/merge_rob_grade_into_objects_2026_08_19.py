@@ -103,8 +103,77 @@ def nest_merge(dst, src):
     return dst
 
 
-def merge(topic, dup, rob, grade):
-    p = os.path.join(REPO, "ssot", topic, topic + ".json")
+def curated_conflicts(existing, incoming):
+    """Stored risk-of-bias JUDGEMENTS that a wholesale assign of `incoming` would destroy.
+
+    Returns [(outcome, result_id, domain, stored, incoming_or_None)]. A CHANGED judgement
+    and a DROPPED result are both destruction; pure ADDITION is not. This reads
+    `judgement` specifically rather than the whole subtree, so re-running to refresh
+    evidence prose stays possible while a verdict cannot move without someone saying so.
+    """
+    out = []
+    if not isinstance(existing, dict):
+        return out
+    for oc, per in existing.items():
+        if not isinstance(per, dict):
+            continue
+        inc_per = (incoming or {}).get(oc)
+        for rid, rec in per.items():
+            if not isinstance(rec, dict):
+                continue
+            inc_rec = (inc_per or {}).get(rid) if isinstance(inc_per, dict) else None
+            for dk, dv in (rec.get("domains") or {}).items():
+                if not isinstance(dv, dict) or "judgement" not in dv:
+                    continue
+                stored = dv.get("judgement")
+                if inc_rec is None:
+                    out.append((oc, rid, dk, stored, None))
+                    continue
+                new = ((inc_rec.get("domains") or {}).get(dk) or {}).get("judgement")
+                if new != stored:
+                    out.append((oc, rid, dk, stored, new))
+    return out
+
+
+def curated_refusal(obj, incoming_by_outcome, topic, allow_overwrite=()):
+    """HARD REFUSAL, not a warning.
+
+    THE KEY-LOSS GUARD BELOW CANNOT SEE THIS, BY ITS OWN DESIGN. It exempts
+    `by_outcome` by name, because a recomputed assessment legitimately replaces itself.
+    That exemption is correct for an assessment this script produced and catastrophic for
+    one a person made: 31 objects hold hand-made per-result judgements, 23 of them with a
+    blind second assessor, and a re-run would have replaced them under preserved curated
+    prose -- leaving an object that still LOOKS hand-made. Watched refusing in
+    scripts/plant_curated_overwrite_guard.py; a guard nobody has seen refuse is a comment.
+    """
+    existing = ((obj.get("risk_of_bias") or {}).get("by_outcome")) or {}
+    if not existing:
+        return None
+    conflicts = curated_conflicts(existing, incoming_by_outcome)
+    if not conflicts:
+        return None
+    if topic in allow_overwrite:
+        sys.stderr.write(
+            "OVERWRITE AUTHORISED for %s: %d stored judgement(s) replaced because "
+            "--allow-overwrite named this topic.\n" % (topic, len(conflicts)))
+        return None
+    lines = ["REFUSED: %s holds %d stored risk-of-bias judgement(s) that this merge "
+             "would change or drop." % (topic, len(conflicts))]
+    for oc, rid, dk, old, new in conflicts[:8]:
+        lines.append("   %s / %s / %s : stored %s -> %s"
+                     % (oc, rid, dk, old,
+                        "DROPPED (result absent from payload)" if new is None else new))
+    if len(conflicts) > 8:
+        lines.append("   ... and %d more" % (len(conflicts) - 8))
+    lines.append("These are INPUTS, not outputs of this script. To replace them, re-run "
+                 "with --allow-overwrite %s and say why in the commit message." % topic)
+    return "\n".join(lines)
+
+
+def merge(topic, dup, rob, grade, root=None, allow_overwrite=()):
+    # `root` exists so the guard can be exercised against a FIXTURE tree rather than the
+    # live corpus. A control keyed to corpus state expires the moment the corpus changes.
+    p = os.path.join(root or os.path.join(REPO, "ssot"), topic, topic + ".json")
     if not os.path.exists(p):
         return "absent"
     with io.open(p, encoding="utf-8") as fh:
@@ -119,6 +188,10 @@ def merge(topic, dup, rob, grade):
 
     r = (rob.get("by_topic") or {}).get(topic)
     if r:
+        # BEFORE the assign, never after: refuse rather than mutate-then-check.
+        _refusal = curated_refusal(obj, r, topic, allow_overwrite)
+        if _refusal:
+            return _refusal
         # NEST-MERGE, NOT REPLACE. The seven keys below are the ones this script derives;
         # anything else the object holds under `risk_of_bias` was put there by other work
         # and is not this script's to discard. `by_outcome` is assigned rather than merged
@@ -175,10 +248,23 @@ def main():
         rob = json.load(fh)
     with io.open(os.path.join(EV, "grade.json"), encoding="utf-8") as fh:
         grade = json.load(fh)
+    # --allow-overwrite must NAME each topic. There is deliberately no --all and no bare
+    # --force: authorising the replacement of hand-made judgements should cost one
+    # argument per topic, so the commit message has to account for each of them.
+    allow, argv = [], sys.argv[1:]
+    while argv:
+        a = argv.pop(0)
+        if a == "--allow-overwrite":
+            if not argv:
+                sys.exit("--allow-overwrite requires a topic name")
+            allow.append(argv.pop(0))
+        else:
+            sys.exit("unknown argument: %s" % a)
+    allow = tuple(allow)
     topics = sorted(set(list(dup.keys()) + list((rob.get("by_topic") or {}).keys())))
     rc = 0
     for t in topics:
-        res = merge(t, dup, rob, grade)
+        res = merge(t, dup, rob, grade, allow_overwrite=allow)
         if res.startswith("REFUSED"):
             rc = 1
         print("%-30s %s" % (t, res))
