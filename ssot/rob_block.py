@@ -188,9 +188,65 @@ def _from_native(native):
                          'judgements': [x for x in js if x is not None],
                          'reason': (d.get(keys[0]) or {}).get('rationale'),
                          'agreed': d.get('agreed')})
-        ovs = [t.get('overall_assessor_1_openai'), t.get('overall_assessor_2_google')]
+        # UNWRAP, AS THE DOMAIN BRANCH SIX LINES ABOVE ALREADY DOES. These hold
+        # {'judgement': ..., 'rationale': ...}, not a string, so this handed the renderer a
+        # dict and arni's build died with "expected string or bytes-like object, got
+        # 'dict'". It never fired because arni was not among the pages rebuilt since this
+        # adapter was written -- a defect on a code path nothing had executed yet, which is
+        # the same category as a gate that has never once been reached: it passes every
+        # audit by never running.
+        def _judge(v):
+            return v.get('judgement') if isinstance(v, dict) else v
+        ovs = [_judge(t.get('overall_assessor_1_openai')),
+               _judge(t.get('overall_assessor_2_google'))]
         out['trials'].append({'trial': t.get('trial'), 'id': t.get('trial'),
                               'outcome': None, 'domains': doms,
                               'overall': [x for x in ovs if x is not None],
                               'overall_agreed': t.get('overall_agreed')})
     return out
+
+
+# ---------------------------------------------------------------------------
+# IS THERE A FINAL RISK-OF-BIAS JUDGEMENT ON THIS OBJECT?
+#
+# ONE PREDICATE, because two surfaces now depend on the answer and they must not drift:
+# the risk-of-bias section says "no adjudication has been performed, so this review holds
+# no final risk-of-bias judgement for these results", and the certainty column has to
+# decide whether a GRADE rating that reads that assessment can be published as final.
+# A page that says both "no final judgement" and "low certainty, rated down for risk of
+# bias" is asserting and withholding the same claim in two sections.
+#
+# WHAT COUNTS AS ADJUDICATED. A named resolution of the two readers' disagreements,
+# recorded on the object. Zero objects hold one today -- checked, not assumed -- so this
+# returns False everywhere and will flip on its own when the first one lands. It is
+# written as a lookup rather than a constant so that it flips by ITSELF: a hardcoded
+# "nothing is adjudicated yet" would be true tonight and silently wrong the first morning
+# after adjudication, which is the worst day for it to be wrong.
+ADJUDICATION_KEYS = ("ADJUDICATION", "ADJUDICATED", "adjudication", "adjudicated_by",
+                     "RESOLUTION_OF_DISAGREEMENTS", "consensus")
+
+
+def rob_adjudication_state(canon):
+    """{'dual','adjudicated','record','n_assessors','results_assessed','outcomes_assessed'}
+
+    `outcomes_assessed` is the set of outcome ids the RoB 2 assessment actually covers.
+    It is returned because it is NOT the same as the set of outcomes GRADE rates: on
+    sotagliflozin-hf, RoB 2 covers two outcomes and GRADE rates three, so the third
+    carries a risk-of-bias downgrade that no risk-of-bias assessment on this object
+    supports. That is a different defect from an unadjudicated one and the two must not
+    be reported in the same words.
+    """
+    b = rob_block(canon)
+    rb = canon.get('risk_of_bias') if isinstance(canon.get('risk_of_bias'), dict) else {}
+    rec = next((rb[k] for k in ADJUDICATION_KEYS if isinstance(rb.get(k), dict)), None)
+    if b is None:
+        return {'dual': False, 'adjudicated': False, 'record': rec, 'n_assessors': 0,
+                'results_assessed': 0, 'outcomes_assessed': set(), 'assessed': False}
+    return {'dual': len(b['assessors']) > 1,
+            'adjudicated': rec is not None,
+            'record': rec,
+            'n_assessors': len(b['assessors']),
+            'results_assessed': len(b['trials']),
+            'outcomes_assessed': {t.get('outcome') for t in b['trials']
+                                  if t.get('outcome')},
+            'assessed': True}

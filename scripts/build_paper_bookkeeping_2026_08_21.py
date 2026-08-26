@@ -343,6 +343,40 @@ def introduction(obj):
         # THE THIRD SURFACE ASSERTING A POOL. "The outcome pooled is ..." on a page that
         # pools nothing is the same defect as the Methods sentence and the "It pools N"
         # clause, in a third place, and it would have survived fixing the other two.
+        #
+        # AND THE FIX ABOVE WAS ALL-OR-NOTHING, WHICH IS THE SAME DEFECT ONE STEP IN.
+        # `_pooled_any` asks "does ANY outcome pool?" and the sentence then calls EVERY
+        # outcome pooled. On a mixed topic that is false of the ones that did not:
+        # sotagliflozin-hf reads "The outcomes pooled are A; B; C" while C is k=1 and the
+        # same page says in three other places that it is not pooled. A topic-level
+        # predicate cannot carry a per-outcome claim, and the previous repair moved the
+        # error from "all topics" to "mixed topics" rather than removing it.
+        def _this_one_pools(o):
+            b = pools.get(o.get("id")) or {}
+            po = b.get("pooled") if isinstance(b.get("pooled"), dict) else {}
+            return po.get("point") is not None and not po.get("withdrawn")
+        _named = [o for o in outs if (o.get("name") or o.get("id"))]
+        _yes = [str(o.get("name") or o.get("id")).strip()
+                for o in _named if _this_one_pools(o)]
+        _no = [str(o.get("name") or o.get("id")).strip()
+               for o in _named if not _this_one_pools(o)]
+        if _yes and _no:
+            # NO SILENT CAP. The list below truncates at six; where it does, the number
+            # dropped is stated rather than the sentence simply ending.
+            def _list(xs):
+                return "; ".join(xs[:6]) + (
+                    " (and %d further outcome(s) not listed here)" % (len(xs) - 6)
+                    if len(xs) > 6 else "")
+            parts.append(
+                "The outcome%s pooled %s %s. %s reported without pooling: %s, and the "
+                "reason is recorded with %s."
+                % ("" if len(_yes) == 1 else "s", "is" if len(_yes) == 1 else "are",
+                   _list(_yes),
+                   "One further outcome is" if len(_no) == 1
+                   else "%d further outcomes are" % len(_no),
+                   _list(_no), "it" if len(_no) == 1 else "each"))
+            names = []
+    if names:
         parts.append(("The outcome%s pooled %s %s." if _pooled_any else
                       "The outcome%s sought %s %s.")
                      # STRIPPED BEFORE JOINING. An outcome name carrying trailing whitespace
@@ -361,6 +395,13 @@ def introduction(obj):
         "authored. The interpretive sentences that follow are marked as drafts and are the "
         "author's to replace.")
     return "\n\n".join(parts)
+
+
+try:
+    from rob_block import rob_block as _rob_block, rob_adjudication_state as _rob_state
+except ImportError:  # pragma: no cover -- path differs when run from the repo root
+    sys.path.insert(0, os.path.join(REPO, "ssot"))
+    from rob_block import rob_block as _rob_block, rob_adjudication_state as _rob_state
 
 
 def bookkeeping(obj, topic):
@@ -467,7 +508,66 @@ def bookkeeping(obj, topic):
                 if isinstance(v, dict) and str(v.get("judgement") or "").upper() == ov:
                     drove[str(k).split("_")[0].upper()] = drove.get(
                         str(k).split("_")[0].upper(), 0) + 1
-    if drove:
+    # THIS WALKS ASSESSOR 1 AND CALLS THE RESULT THE REVIEW'S FINDING.
+    #
+    # `rob["by_outcome"][oid][rid]["overall"]` and `.domains[k].judgement` are the FIRST
+    # assessor's judgements; the second assessor lives in `SECOND_ASSESSOR_*.verbatim_reply`
+    # and is never read here. So on sotagliflozin-hf this printed "the domain carrying that
+    # judgement is D5 on 3 result(s)" -- assessor 1 records D5 HIGH on three results and
+    # assessor 2 records no HIGH at all, on any result, on any domain. The page then said,
+    # two sections apart, "neither is this review's finding" and "the domain carrying that
+    # judgement is D5".
+    #
+    # This is the SAME defect as the risk-of-bias panel and the manuscript sentence, both
+    # repaired earlier today, arriving in a third section. It was missed twice because the
+    # search was for places that RENDER the judgements, and this one renders a COUNT
+    # DERIVED from them -- which does not look like a judgement until you ask where the
+    # number came from.
+    _adj = _rob_state(obj)
+    if drove and _adj.get("dual") and not _adj.get("adjudicated"):
+        # NO_INFORMATION IS NOT A DOMAIN CARRYING A JUDGEMENT. It is this review's reach --
+        # the protocol, the analysis plan and the concealment record were not retrieved --
+        # and counting it here would report our retrieval as a finding against the trials.
+        # A first version of this sentence did exactly that and read "D1 on 4 result(s),
+        # D2 on 4, D3 on 4" for both assessors, which is four results with no protocol
+        # read, dressed as four results at risk. The same distinction the risk-of-bias
+        # section makes in words has to hold in the arithmetic underneath it.
+        _CONCERN = ("HIGH", "SOME_CONCERNS")
+        _b = _rob_block(obj) or {}
+        _per, _reach = {}, {}
+        for _t in _b.get("trials", []):
+            for _i, _ov in enumerate(_t.get("overall") or []):
+                _ovu = str(_ov or "").upper()
+                if _ovu == "NO_INFORMATION":
+                    _reach[_i] = _reach.get(_i, 0) + 1
+                    continue
+                if _ovu not in _CONCERN:
+                    continue
+                for _d in _t.get("domains", []):
+                    _js = _d.get("judgements") or []
+                    if _i < len(_js) and str(_js[_i] or "").upper() == _ovu:
+                        _per.setdefault(_i, {}).setdefault(_d.get("domain"), 0)
+                        _per[_i][_d.get("domain")] += 1
+        _names = [a.get("name") or ("assessor %d" % a.get("n", 0))
+                  for a in _b.get("assessors", [])]
+        _say = []
+        for _i, _nm in enumerate(_names):
+            _dd = _per.get(_i) or {}
+            _txt = ", ".join("%s on %d result(s)" % (k, v)
+                             for k, v in sorted(_dd.items(),
+                                                key=lambda kv: (-kv[1], kv[0])))                 or "no domain carrying a judgement of concern on any result"
+            if _reach.get(_i):
+                _txt += (" (and reaches no overall judgement at all on %d result(s), for "
+                         "want of documents this review did not retrieve)" % _reach[_i])
+            _say.append("%s records %s" % (_nm, _txt))
+        out["which_risk_of_bias_domains_drove_the_rating"] = (
+            "NO DOMAIN IS NAMED AS DRIVING THE RATING, because this review holds no final "
+            "risk-of-bias judgement to be driven: two assessors read every contributing "
+            "result independently and no adjudication has been performed. Both readings "
+            "are given rather than one: %s. Naming a single domain here would publish one "
+            "assessor's count as the review's finding, which the risk-of-bias section of "
+            "this same page explicitly declines to do." % "; ".join(_say))
+    elif drove:
         out["which_risk_of_bias_domains_drove_the_rating"] = (
             "Where a result is rated worse than LOW overall, the domain carrying that "
             "judgement is: %s. The overall rating is the worst domain, so these are the "

@@ -55,6 +55,13 @@ import json
 import math
 import re
 import os
+
+# THE ONE PLACE CERTAINTY IS RESOLVED. This module read the stored certainty directly and
+# was therefore a fifth consumer outside the module built to be the single answer.
+try:
+    import grade_authority as _ga
+except ImportError:  # pragma: no cover -- package import path
+    from . import grade_authority as _ga
 import sys
 
 WRITTEN, REFUSED = "WRITTEN", "REFUSED"
@@ -3058,14 +3065,49 @@ def project(obj, journal="generic", length="standard"):
         # across 155 objects it is the only topic that holds GRADE in that shape alone,
         # so the fix reaches one page -- and the class reaches every projector branch that
         # looks in ONE place and then reports an absence.
-        per = []
+        # THE FIFTH CONSUMER, AND IT NEVER CALLED `resolve`. `grade_authority` says in its
+        # own docstring that every surface calls it; this one reads
+        # `results.by_outcome.<oid>.grade.certainty` straight off the object, so it printed
+        # LOW for outcomes the certainty column had already stopped publishing. A module
+        # built to be the single answer is only the single answer for the consumers that
+        # ask it, and "every surface" was a claim about the four that were known.
+        #
+        # AND "PER POOLED OUTCOME" WAS FALSE OF ITS OWN LIST. sotagliflozin-hf's mace3_first
+        # has one trial, is not pooled, and says so in three other places on the same page --
+        # and it was counted here among the "pooled outcome(s)" carrying a rating. Whether an
+        # outcome pooled is read per outcome now, not asserted over the list.
+        per, pend = [], []
         for oid, blk in (get(obj, "results.by_outcome") or {}).items():
-            g2 = blk.get("grade") if isinstance(blk, dict) else None
-            if isinstance(g2, dict) and g2.get("certainty"):
-                per.append((oid, g2))
+            if not isinstance(blk, dict):
+                continue
+            r = _ga.resolve(obj, oid)
+            if r["state"] == "RATED":
+                per.append((oid, r))
+            elif r["state"] == "PENDING":
+                pend.append((oid, r))
+        _po = get(obj, "results.by_outcome") or {}
+
+        def _pooled(oid):
+            b = (_po.get(oid) or {}).get("pooled")
+            b = b if isinstance(b, dict) else {}
+            return b.get("point") is not None and not b.get("withdrawn")
+        if pend:
+            s.paras.append((
+                "Certainty of evidence is rated per outcome rather than in a single "
+                "review-level block. %d outcome(s) are PENDING and carry no published "
+                "rating: %s. %s"
+                % (len(pend),
+                   "; ".join("%s%s" % (_outcome_label(obj, o)
+                                       or ("the outcome recorded as %s, for which this "
+                                           "object stores no name" % o),
+                                       "" if _pooled(o) else " (not pooled)")
+                             for o, _ in pend),
+                   pend[0][1]["comment"]),
+                ["results.by_outcome.%s.grade" % o for o, _ in pend]
+                + ["risk_of_bias.by_outcome"]))
         if per:
             s.paras.append((
-                "Certainty of evidence was rated per pooled outcome rather than in a single "
+                "Certainty of evidence was rated per outcome rather than in a single "
                 "review-level block, and %d outcome(s) carry a rating: %s. Each rating is "
                 "about its own estimand and about nothing else. %s"
                 # THE OUTCOME'S NAME, NOT ITS IDENTIFIER. This read "3 outcome(s) carry a
@@ -3073,15 +3115,19 @@ def project(obj, journal="generic", length="standard"):
                 # certainty. Where the object stores no name the identifier is shown AND
                 # named as unlabelled, because a missing label is a missing field.
                 % (len(per), "; ".join(
-                    "%s %s" % (_outcome_label(obj, o)
-                               or ("the outcome recorded as %s, for which this object stores "
-                                   "no name" % o),
-                               str(g2.get("certainty")).upper())
-                    for o, g2 in per),
-                   next((str(g2.get("what_this_certainty_is_about")) for _, g2 in per
-                         if g2.get("what_this_certainty_is_about")), "")),
+                    "%s%s %s" % (_outcome_label(obj, o)
+                                 or ("the outcome recorded as %s, for which this object "
+                                     "stores no name" % o),
+                                 "" if _pooled(o) else " (not pooled)",
+                                 str(r["level"]).replace("_", " ").upper())
+                    for o, r in per),
+                   next((str(((_po.get(o) or {}).get("grade") or {})
+                             .get("what_this_certainty_is_about"))
+                         for o, _ in per
+                         if ((_po.get(o) or {}).get("grade") or {})
+                         .get("what_this_certainty_is_about")), "")),
                 ["results.by_outcome.%s.grade" % o for o, _ in per]))
-        else:
+        elif not pend:
             s.refusals.append(("the claim that certainty of evidence was graded",
                                ["grade.approach"]))
 
@@ -3875,10 +3921,32 @@ def project(obj, journal="generic", length="standard"):
         if _k in (None, ""):
             _k = ((get(obj, "results.by_outcome") or {}).get(oid) or {}).get("k")
         _start = blk.get("started_at") or ("high" if blk.get("randomised") else "")
-        rows.append([_outcome_words(obj, oid), str(blk.get("certainty") or "not rated"),
+        # THE SIXTH CONSUMER READING THE STORED LEVEL DIRECTLY. `grade_authority` exists to
+        # be the single answer to "what certainty does this outcome carry", and this table
+        # -- the most prominent certainty surface on the page -- never asked it. So the
+        # Summary of findings column and the abstract stopped publishing a level while
+        # this table went on printing "low" three rows deep, in the same section as the
+        # sentence saying the rating is pending. Every surface that shows a certainty
+        # value has to resolve it, or the withheld ones are simply the ones somebody
+        # remembered.
+        _r = _ga.resolve(obj, oid)
+        _cell = _r["cell"] if _r["state"] != "RATED" else str(blk.get("certainty"))
+        if _r["state"] == "PENDING" and _steps:
+            # THE STEPS STAY, AND THEY ARE LABELLED. Deleting the working would hide that
+            # the assessment was done; printing it unlabelled beside "Pending" reads as a
+            # rating with a caveat. It is the work so far, and it says so.
+            _steps = "the steps taken so far, not a final rating: " + _steps
+        rows.append([_outcome_words(obj, oid), _cell,
                      str(_k if _k not in (None, "") else "?"), str(_start),
                      _steps or "no downgrade recorded"])
         fields.append(_grade_field.get(oid, "grade.by_outcome.%s" % oid))
+    # SAY IT ONCE, ABOVE THE TABLE. A column reading "Pending" with no explanation is a
+    # word, not a statement; the reader has to be told what it is waiting on.
+    _pending = [oid for oid in sorted(g.get("by_outcome") or {})
+                if _ga.resolve(obj, oid)["state"] == "PENDING"]
+    if _pending:
+        s.add(obj, _ga.resolve(obj, _pending[0])["comment"],
+              ["risk_of_bias.by_outcome"])
     s.add_table(obj, "Certainty of the evidence, by outcome, with every rating step",
                 ["Outcome", "Certainty", "k", "Started at", "Rating steps"], rows,
                 fields or ["grade.by_outcome"])

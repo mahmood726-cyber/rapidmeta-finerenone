@@ -71,11 +71,27 @@ try:
 except ImportError:  # imported as a package from outside ssot/
     from .projectors import ABSENT_STATE as _ABSENT
 
+# THE SAME PREDICATE THE RISK-OF-BIAS SECTION USES, imported rather than restated. If this
+# module decided for itself what "adjudicated" means, the two sections could disagree about
+# whether this review holds a final judgement -- which is the exact failure being fixed.
+try:
+    from rob_block import rob_adjudication_state as _rob_state
+except ImportError:
+    from .rob_block import rob_adjudication_state as _rob_state
+
 STRUCTURED = "grade.by_outcome"
 TABLE = "results.by_outcome.<oid>.grade"
 
 # The four cell values a reader can meet, and nothing else.
 CELL_SEE_COMMENT = "See comment"
+# A FIFTH CELL, AND IT IS NOT "See comment". The three non-rated states above all mean
+# NOTHING WAS ASSESSED, and "See comment" says that honestly. This one means the opposite:
+# the work was done, it is on the object, and it is NOT FINAL. Folding it into "See
+# comment" would tell a reader an assessment is missing when what is missing is the
+# adjudication between two that exist -- and it is the difference between "we have not
+# looked" and "two readers looked and disagreed", which is the distinction this review
+# spent the day learning to make.
+CELL_PENDING = "Pending"
 LEVELS = {"HIGH": "High", "MODERATE": "Moderate", "LOW": "Low", "VERY_LOW": "Very low"}
 
 # Cited as instructed. The section's PRINTED TITLE is not held in this object and is not
@@ -95,6 +111,51 @@ WITHDRAWN_TEXT = (
     "The pooled estimate for this outcome has been WITHDRAWN, so there is no estimate for a "
     "certainty rating to be about. Any rating this object still carries for this outcome "
     "was made about the withdrawn estimate and is not shown beside it.")
+
+
+PENDING_TEXT = (
+    "This certainty rating is PENDING, not rated. It rests on a risk-of-bias judgement "
+    "that this review has not finalised: %s Cochrane rates certainty per outcome by "
+    "aggregating the risk-of-bias judgements of the results contributing to it, so a "
+    "certainty rating cannot be more final than the risk-of-bias assessment it reads. "
+    "%s The rating this object currently records, and the steps behind it, are shown "
+    "below as the work so far rather than as this review's answer. No level is published "
+    "for this outcome -- not the recorded one, not a more cautious one, and not a "
+    "midpoint -- because choosing one would be the judgement that has not been made.")
+
+
+def _rob_claim(s_blk, t_blk):
+    """Does this outcome's GRADE make a risk-of-bias claim, and is it a downgrade?
+
+    READ BOTH LOCATIONS AND BOTH SHAPES. The claim can live as a structured `steps` entry,
+    as `domains.risk_of_bias.rating`, or as a FLAT `grade.risk_of_bias` block -- and on
+    sotagliflozin-hf it is the flat one that carries the citation of the assessment
+    ("2 of 2 results are HIGH overall, all of them on domain 5"), while the prose in
+    `domains.risk_of_bias.basis_in_sources` argues from trial-level facts and never
+    mentions an assessor. A check that read only the prose location concluded GRADE was
+    independent of the assessment. It was reading the field where the dependency is not
+    recorded, next to the field where it is.
+    """
+    down, claim, cites = False, False, []
+    for blk in (s_blk or {}), (t_blk or {}):
+        for st in (blk.get("steps") if isinstance(blk.get("steps"), list) else []):
+            if isinstance(st, dict) and str(st.get("domain")) == "risk_of_bias":
+                claim = True
+                if (st.get("levels") or 0) < 0:
+                    down = True
+        d = (blk.get("domains") or {}).get("risk_of_bias")
+        if isinstance(d, dict) and d.get("rating"):
+            claim = True
+            if str(d["rating"]).strip().lower() not in ("not serious", "not assessable"):
+                down = True
+        flat = blk.get("risk_of_bias")
+        if isinstance(flat, dict):
+            claim = True
+            if (flat.get("rated_down") or 0) > 0 or flat.get("severity"):
+                down = True
+            if flat.get("now_supported_by"):
+                cites.append(str(flat["now_supported_by"]).strip())
+    return claim, down, cites
 
 
 def _norm(v):
@@ -208,6 +269,50 @@ def resolve(canon, oid):
         out.update(state="NOT_ASSESSED", cell=CELL_SEE_COMMENT,
                    comment=NOT_ASSESSED_TEXT)
         return out
+
+    # PENDING OUTRANKS RATED, AND ONLY RATED. It sits below WITHDRAWN (no estimate to be
+    # about), below DISAGREEMENT (a louder fault), and below NOT_ASSESSED (nothing was
+    # rated at all) -- it is precisely the case where a level EXISTS and may not yet be
+    # published.
+    claim, down, cites = _rob_claim(s_blk, t_blk)
+    if claim:
+        st = _rob_state(canon)
+        why = None
+        # THE NARROWER CASE FIRST. Both can be true of one outcome -- the topic's
+        # assessment is unadjudicated AND this outcome is not in it -- and "we did not
+        # assess this outcome" is the more specific thing to say. Ordered the other way,
+        # sotagliflozin's mace3_first reported an adjudication problem for an assessment
+        # that never covered it.
+        if st.get("assessed") and oid not in (st.get("outcomes_assessed") or set()):
+            why = ("this review's RoB 2 assessment does not cover this outcome at all -- "
+                   "it assesses %d result(s) across %d other outcome(s) -- so the "
+                   "risk-of-bias domain here rests on no assessment recorded on this "
+                   "object." % (st.get("results_assessed") or 0,
+                                len(st.get("outcomes_assessed") or ())))
+        elif st.get("assessed") and st.get("dual") and not st.get("adjudicated"):
+            why = ("two assessors read every contributing result independently, they "
+                   "disagree, and no adjudication has been performed, so this review "
+                   "holds no final risk-of-bias judgement for these results.")
+        if why:
+            cited = ""
+            if cites:
+                # QUOTE ONLY AS FAR AS THE CLAIM. The stored string continues into a
+                # per-trial list, and the projector that renders this sentence-cases its
+                # input -- which turned SCORED into "Scored" and SOLOIST-WHF into
+                # "soloist-whf" INSIDE QUOTATION MARKS. A quotation that silently
+                # rewrites a trial's name is worse than no quotation; the trial acronyms
+                # add nothing here, and the sentence they were in is on the page already.
+                _q = cites[0].split("Per-result")[0].strip().rstrip(".")
+                cited = ("The dependency is not inferred: this object records the "
+                         "risk-of-bias domain as supported by “%s”, which is one "
+                         "assessor's count of results at HIGH risk of bias -- a count the "
+                         "second assessor's judgements do not contain, on any result. "
+                         % _q)
+            out.update(state="PENDING", cell=CELL_PENDING, level=None,
+                       pending_because=why, recorded_level=lvl,
+                       needs_footnote=True,
+                       comment=PENDING_TEXT % (why, cited))
+            return out
 
     out.update(state="RATED", level=lvl,
                cell=LEVELS.get(lvl, lvl.replace("_", " ").capitalize()),
