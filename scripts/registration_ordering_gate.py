@@ -46,6 +46,32 @@ WHAT A FULL PASS DOES NOT ESTABLISH -- written in advance
       exists because a bare verdict over a mostly-skipped population is precisely
       the defect this repository keeps finding in its own guards.
 
+WHAT THE SKIPPED COUNT MEANS -- READ THIS BEFORE READING THE NUMBER
+    The skipped count is NOT a limitation of this gate. It is the portfolio's first
+    measure of search quality, and until this file existed there was no such
+    measure at all.
+
+    The index carries 80 green TRUSTWORTHY badges. That badge is driven by a
+    fabrication-risk score over identifier hygiene -- null PMIDs, nulled NCTs --
+    and touches nothing about whether a review was searched, how, or when. Nothing
+    in this system previously reported whether a review's search preceded the
+    protocol that registers it, because nothing compared the two.
+
+    So when the scope line says `compared 1; skipped 154`, the 154 is the finding.
+    It says: one hundred and fifty-four reviews carry no registered protocol whose
+    ordering against their search can be checked by anyone.
+
+    TWO DENOMINATORS, AND THEY ANSWER DIFFERENT QUESTIONS. Do not conflate them.
+        no protocol commit recorded   -- reported by THIS gate as `skipped`. The
+                                         review may have been searched; there is
+                                         simply nothing to order the search against.
+        no executed search at all     -- reported separately below. A different and
+                                         larger problem: not "unverifiable ordering"
+                                         but "no search on file".
+    A store can be in one, both, or neither. Collapsing them into a single number
+    would overstate one and hide the other, which is the class of error this
+    repository has spent two days correcting.
+
 EXIT CODES -- because "it passed" and "it never ran" must not look the same
     0  compared at least one store and refused none.
     1  refused at least one store.
@@ -220,13 +246,15 @@ def scan(root):
                             obj = json.load(fh)
                     except Exception as exc:
                         rows.append((name, "REFUSE",
-                                     "unreadable: " + type(exc).__name__, "n/a"))
+                                     "unreadable: " + type(exc).__name__, "n/a", False))
                     else:
                         verdict, detail = judge(obj)
-                        rows.append((name, verdict, detail, anchor_state(obj)))
+                        qtime, imprecise = earliest_query(obj)
+                        has_search = bool(qtime) or bool(imprecise)
+                        rows.append((name, verdict, detail, anchor_state(obj), has_search))
                 else:
                     rows.append((name, "NOT_A_STORE",
-                                 "directory holds no " + name + ".json", "n/a"))
+                                 "directory holds no " + name + ".json", "n/a", False))
             else:
                 loose += 1
     return rows, loose
@@ -250,11 +278,24 @@ def report(rows, label, loose=0):
           + ((" (" + bits + ")") if bits else "")
           + "; not a topic store " + str(len(not_store))
           + "; loose files (not candidates) " + str(loose))
-    for name, _v, detail, _a in not_store:
+    for name, _v, detail, _a, _h in not_store:
         print("    not-a-store  " + name + ": " + detail)
-    for name, _v, detail, _a in refused:
+    stores = [r for r in rows if r[1] != "NOT_A_STORE"]
+    no_search = [r for r in stores if not r[4]]
+    print("")
+    print("  WHAT THESE NUMBERS MEAN -- the skipped count is not a limitation of this")
+    print("  gate, it is the portfolio's first measure of search quality. Until this")
+    print("  file existed nothing compared a search against the protocol registering it.")
+    print("  TWO DENOMINATORS, DIFFERENT QUESTIONS, NOT INTERCHANGEABLE:")
+    print("    " + str(len(skipped)) + " of " + str(len(stores))
+          + " stores have NO PROTOCOL COMMIT to order a search against")
+    print("    " + str(len(no_search)) + " of " + str(len(stores))
+          + " stores hold NO EXECUTED SEARCH at all")
+    print("  A store may be in one, both or neither. Collapsing them overstates one")
+    print("  and hides the other.")
+    for name, _v, detail, _a, _h in refused:
         print("    REFUSED  " + name + ": " + detail)
-    for name, _v, detail, anch in passed:
+    for name, _v, detail, anch, _h in passed:
         print("    pass     " + name + ": " + detail + "  [anchors: " + anch + "]")
     return len(passed) + len(refused), len(refused)
 
