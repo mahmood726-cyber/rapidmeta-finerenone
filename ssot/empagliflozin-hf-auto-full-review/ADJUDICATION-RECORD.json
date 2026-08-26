@@ -1,0 +1,124 @@
+{
+ "_what_this_is": "Independent cross-family adjudication of the five candidates raised by the empagliflozin search. Assessor 1 is Claude (anthropic family), already recorded in SCREENING-RECORD.json. Assessor 2 is Gemini 3.1 Pro (google family), run here.",
+ "adjudicates": {
+  "screening_record_path": "ssot/empagliflozin-hf-auto-full-review/SCREENING-RECORD.json",
+  "screening_record_commit": "7a05d1eb8adaaa4855261798c9c285ba1ab4f51e",
+  "screening_record_sha256": "2a79c88cb59f3f96b36fc3af755f33d2e953403ee83c802ca4e526c72d0ef889",
+  "screening_record_anchor_logIndex": 2605766019,
+  "screening_record_anchored_utc": "2026-08-26T19:24:21Z"
+ },
+ "method": {
+  "assessor_2_model_PINNED": "agy --model gemini-3.1-pro-high. The pin is not cosmetic: this installation's settings.json defaults to 'GPT-OSS 120B (Medium)', which is openai-family. An unpinned run would have produced a second opinion from a different family than intended and, more importantly, one that could be presented as cross-family without being the family anyone chose. Model identity was confirmed by a liveness probe that required the model to name itself; it returned 'Gemini 3.1 Pro (Google)'.",
+  "COLD": "Each candidate was put with the registered population, the registered primary and secondary outcome measures, and the review's own population and estimand. Assessor 1's verdict, axis and reasoning were NOT shown, and no mention was made that another model had already screened them. A prompt carrying the first assessor's conclusion produces an echo, not an independent assessment.",
+  "axis_options_offered": "POPULATION, INTERVENTION, COMPARATOR, MEASURE, NONE -- which is the vocabulary the registered protocol itself declares in section 3."
+ },
+ "results": [
+  {
+   "nct": "NCT04157751",
+   "acronym": "EMPULSE",
+   "assessor_1_anthropic": {
+    "verdict": "EXCLUDED",
+    "axis": "MEASURE"
+   },
+   "assessor_2_google": {
+    "verdict": "OUT-OF-SCOPE",
+    "axis": "MEASURE",
+    "model": "Gemini 3.1 Pro (pinned gemini-3.1-pro-high)",
+    "reply_verbatim": "VERDICT: OUT-OF-SCOPE\nAXIS: MEASURE\nWHY: The registered primary outcome measure is a win ratio composite and the secondary outcome measure reports an incidence rate per 100 patient-years, neither of which can be converted to the required time-to-first-event hazard ratio.",
+    "stdout_bytes": 272
+   },
+   "verdicts_agree": true,
+   "axis_labels_identical": true
+  },
+  {
+   "nct": "NCT03448419",
+   "acronym": "EMPERIAL-Reduced",
+   "assessor_1_anthropic": {
+    "verdict": "EXCLUDED",
+    "axis": "OUTCOME"
+   },
+   "assessor_2_google": {
+    "verdict": "OUT-OF-SCOPE",
+    "axis": "MEASURE",
+    "model": "Gemini 3.1 Pro (pinned gemini-3.1-pro-high)",
+    "reply_verbatim": "VERDICT: OUT-OF-SCOPE\nAXIS: MEASURE\nWHY: The registered primary and secondary outcome measures evaluate exercise capacity and symptom scores, lacking the required cardiovascular-death or heart-failure-hospitalisation endpoint.",
+    "stdout_bytes": 227
+   },
+   "verdicts_agree": true,
+   "axis_labels_identical": false
+  },
+  {
+   "nct": "NCT03448406",
+   "acronym": "EMPERIAL-Preserved",
+   "assessor_1_anthropic": {
+    "verdict": "EXCLUDED",
+    "axis": "OUTCOME"
+   },
+   "assessor_2_google": {
+    "verdict": "OUT-OF-SCOPE",
+    "axis": "MEASURE",
+    "model": "Gemini 3.1 Pro (pinned gemini-3.1-pro-high)",
+    "reply_verbatim": "VERDICT: OUT-OF-SCOPE\nAXIS: MEASURE\nWHY: The registered primary and secondary outcome measures evaluate exercise capacity and symptom scores without including any cardiovascular death or heart failure hospitalisation endpoints. Therefore, the trial cannot supply the required time-to-first-event hazard ratio for the specified estimand.",
+    "stdout_bytes": 337
+   },
+   "verdicts_agree": true,
+   "axis_labels_identical": false
+  },
+  {
+   "nct": "NCT04509674",
+   "acronym": "EMPACT-MI",
+   "assessor_1_anthropic": {
+    "verdict": "EXCLUDED",
+    "axis": "POPULATION AND OUTCOME"
+   },
+   "assessor_2_google": {
+    "verdict": "OUT-OF-SCOPE",
+    "axis": "POPULATION",
+    "model": "Gemini 3.1 Pro (pinned gemini-3.1-pro-high)",
+    "reply_verbatim": "VERDICT: OUT-OF-SCOPE\nAXIS: POPULATION\nWHY: The registered population specifies patients with acute myocardial infarction and explicitly notes that heart failure is not required for entry. This fails the review's requirement for a population of adults with heart failure.",
+    "stdout_bytes": 272
+   },
+   "verdicts_agree": true,
+   "axis_labels_identical": false
+  },
+  {
+   "nct": "NCT03332212",
+   "acronym": "EMPA-VISION",
+   "assessor_1_anthropic": {
+    "verdict": "EXCLUDED",
+    "axis": "OUTCOME"
+   },
+   "assessor_2_google": {
+    "verdict": "OUT-OF-SCOPE",
+    "axis": "MEASURE",
+    "model": "Gemini 3.1 Pro (pinned gemini-3.1-pro-high)",
+    "reply_verbatim": "VERDICT: OUT-OF-SCOPE\nAXIS: MEASURE\nWHY: The trial's only registered outcome is the change in PCr/ATP ratio, which cannot yield the time-to-first-event hazard ratio for cardiovascular death or heart failure hospitalization required by the review.",
+    "stdout_bytes": 247
+   },
+   "verdicts_agree": true,
+   "axis_labels_identical": false
+  }
+ ],
+ "agreement": {
+  "candidates": 5,
+  "verdict_agreement": "5/5",
+  "disagreements_on_verdict": 0,
+  "axis_labels_identical": "1/5"
+ },
+ "THE_CROSS_FAMILY_CHECK_FOUND_A_DEFECT_IN_MY_RECORD_NOT_IN_THE_VERDICTS": "Both assessors returned OUT-OF-SCOPE on all five, so there is NO verdict disagreement to report and none is manufactured here. But the axis labels differ on three of five, and the second assessor is right. The registered protocol declares exactly four axes in section 3 -- POPULATION, INTERVENTION, COMPARATOR, MEASURE. SCREENING-RECORD.json used 'OUTCOME' for EMPERIAL-Reduced, EMPERIAL-Preserved and EMPA-VISION, and 'POPULATION AND OUTCOME' for EMPACT-MI. OUTCOME IS NOT A DECLARED AXIS. I invented a label the protocol does not carry, and a record that classifies against a vocabulary its own protocol does not declare cannot be checked against that protocol. Under the declared scheme those three are MEASURE, and EMPACT-MI is POPULATION AND MEASURE.",
+ "corrected_axes_under_the_declared_vocabulary": {
+  "NCT04157751 EMPULSE": "MEASURE (unchanged)",
+  "NCT03448419 EMPERIAL-Reduced": "MEASURE (was recorded as OUTCOME)",
+  "NCT03448406 EMPERIAL-Preserved": "MEASURE (was recorded as OUTCOME)",
+  "NCT04509674 EMPACT-MI": "POPULATION AND MEASURE (was recorded as POPULATION AND OUTCOME)",
+  "NCT03332212 EMPA-VISION": "MEASURE (was recorded as OUTCOME)"
+ },
+ "WHY_THE_SCREENING_RECORD_IS_NOT_EDITED": "SCREENING-RECORD.json is anchored in the transparency log at logIndex 2605766019. Editing it would break the published hash. The correction is recorded here, in a new file, and the earlier record stands with its error visible. That is the same rule applied to the anchored protocols earlier tonight.",
+ "what_this_does_and_does_not_establish": [
+  "ESTABLISHES that two model families of different vendors, one of them not shown the other's reasoning, independently reached the same verdict on all five candidates. That is a stronger basis for the claim than one assessor.",
+  "DOES NOT establish that the verdicts are correct. Two models can share a wrong reading of the same registered text, and both read the same registry fields.",
+  "DOES NOT establish independence of the EVIDENCE. Both assessors were given the same extracted registry facts by the same lane. Independence is in the judgement, not in the retrieval, and a retrieval error would propagate to both.",
+  "DOES NOT constitute the two-screener process the protocol requires for a release. That requires screening the whole yield, not adjudicating five candidates, and 676 of 776 PubMed records remain unexamined.",
+  "DOES NOT include a human adjudicator. The protocol requires disagreements to be resolved by a named human. There were no verdict disagreements to resolve, so that clause was not exercised -- which is not the same as it having been satisfied."
+ ]
+}

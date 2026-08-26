@@ -1,0 +1,103 @@
+{
+ "_what_this_is": "The executed search for empagliflozin-hf-auto-full-review, recorded after execution. The protocol registering it was committed, pushed and anchored in a public transparency log BEFORE the first query.",
+ "registration": {
+  "protocol_path": "ssot/empagliflozin-hf-auto-full-review/PROTOCOL.md",
+  "protocol_commit": "822ec6b2b08b64823576bf16e5a5c3515986d065",
+  "protocol_committed_utc": "2026-08-26T19:12:31Z",
+  "protocol_sha256": "80019b04d606f07e778fb7c724406e508fb27098cd96cf7c4dd6268df0891f1c",
+  "protocol_permalink": "https://github.com/mahmood726-cyber/rapidmeta-finerenone/blob/822ec6b2b08b64823576bf16e5a5c3515986d065/ssot/empagliflozin-hf-auto-full-review/PROTOCOL.md",
+  "anchor": {
+   "log": "Rekor (sigstore public transparency log)",
+   "uuid": "108e9186e8c5677a4e124db31bc9f25227f19d693178e1b454ac944956936815013d4c9a98270ea0",
+   "logIndex": 2605627307,
+   "integratedTime_utc": "2026-08-26T19:14:44Z",
+   "verify": "https://rekor.sigstore.dev/api/v1/log/entries/108e9186e8c5677a4e124db31bc9f25227f19d693178e1b454ac944956936815013d4c9a98270ea0",
+   "how_to_check": "ssot/registration/VERIFY.md",
+   "what_it_proves": "The protocol text existed NO LATER THAN this log time, set by a third party. NOT when the commit was made, and not that no earlier version existed elsewhere."
+  }
+ },
+ "ordering": {
+  "protocol_committed_utc": "2026-08-26T19:12:31Z",
+  "protocol_anchored_utc": "2026-08-26T19:14:44Z",
+  "first_query_attempted_utc": "2026-08-26T19:14:45.245Z",
+  "first_query_executed_utc": "2026-08-26T19:15:09.929Z",
+  "verdict": "established",
+  "reason": "Protocol committed, pushed to the public default branch and anchored before the first query was attempted. Earliest query time used, not the first success."
+ },
+ "executed_by": "lane: registration/search (Claude, Anthropic family)",
+ "databases": [
+  {
+   "database": "PubMed (NCBI E-utilities esearch)",
+   "tool": "mcp__plugin_bio-research_pubmed__search_articles",
+   "query_as_executed": "(\"empagliflozin\"[tiab] OR \"BI 10773\"[tiab] OR Jardiance[tiab]) AND (\"heart failure\"[MeSH Terms] OR \"heart failure\"[tiab] OR HFrEF[tiab] OR HFpEF[tiab]) AND (placebo[tiab] OR randomized controlled trial[pt] OR randomised[tiab] OR randomized[tiab] OR trial[tiab])",
+   "executed_utc": "2026-08-26T19:15:09.929Z",
+   "hit_count": 776,
+   "records_retrieved": 100,
+   "records_not_retrieved": 676,
+   "IMPORTANT": "100 of 776 retrieved. The other 676 are UNEXAMINED -- not screened and not excluded. Reporting them as excluded would be a substitution.",
+   "departure_from_registered_string": "NONE. NCBI's returned translation preserved every term, including \"heart failure\"[MeSH Terms], which unlike finerenone-cv's \"kidney disease\"[MeSH Terms] is a real MeSH heading. Recorded because the absence of a departure is only meaningful if departures are recorded when they occur."
+  },
+  {
+   "database": "ClinicalTrials.gov API v2",
+   "tool": "mcp__plugin_bio-research_c-trials__search_trials",
+   "query_as_executed": "query.intr=empagliflozin OR BI 10773 OR Jardiance; query.cond=heart failure; filter.overallStatus=COMPLETED|TERMINATED|ACTIVE_NOT_RECRUITING; count_total=true; page_size=100",
+   "executed_utc": "2026-08-26T19:15:45.810Z",
+   "hit_count": 60,
+   "records_retrieved": 60,
+   "records_not_retrieved": 0
+  }
+ ],
+ "outcome_against_the_pre_specified_readings": {
+  "_which": "(b) THE SEARCH RETURNED ADDITIONAL TRIALS THE REVIEW DOES NOT HOLD. Section 5A of the protocol fixed the reading of this before execution: (b) is a finding about the REVIEW, and each additional trial is named and either included or excluded on a stated axis. It is not a finding about the search.",
+  "both_held_trials_were_returned": true,
+  "held_and_returned": [
+   "NCT03057977 EMPEROR-Reduced",
+   "NCT03057951 EMPEROR-Preserved"
+  ],
+  "phase3_empagliflozin_vs_placebo_returned_but_NOT_held": [
+   {
+    "nct": "NCT04157751",
+    "acronym": "EMPULSE",
+    "provisional_axis": "MEASURE",
+    "read_from": "returned registry title",
+    "reason": "Title states the trial evaluates 'Clinical Benefit, Safety and Tolerability'. A hierarchical clinical-benefit win ratio is not a time-to-first-event hazard ratio for CV death or HF hospitalisation. Excluded on the MEASURE axis, not on quality."
+   },
+   {
+    "nct": "NCT03448419",
+    "acronym": "EMPERIAL-Reduced",
+    "provisional_axis": "OUTCOME",
+    "read_from": "returned registry title",
+    "reason": "Title states the primary is exercise ability and heart-failure symptoms."
+   },
+   {
+    "nct": "NCT03448406",
+    "acronym": "EMPERIAL-Preserved",
+    "provisional_axis": "OUTCOME",
+    "read_from": "returned registry title",
+    "reason": "Title states the primary is exercise ability and heart-failure symptoms."
+   },
+   {
+    "nct": "NCT04509674",
+    "acronym": "EMPACT-MI",
+    "provisional_axis": "POPULATION",
+    "read_from": "returned registry title",
+    "reason": "Title states the population is patients with acute myocardial infarction, not adults with heart failure. Its outcome IS HF hospitalisation and mortality, so the exclusion is on population and must not be described as an outcome mismatch."
+   },
+   {
+    "nct": "NCT03332212",
+    "acronym": "EMPA-VISION",
+    "provisional_axis": "OUTCOME",
+    "read_from": "returned registry title",
+    "reason": "Title states it is a mechanistic cardiac magnetic resonance study."
+   }
+  ],
+  "THESE_EXCLUSIONS_ARE_PROVISIONAL": "Every axis above is read from the registry TITLE returned by the search, not from the trial's registered primary outcome measure. A title is not an outcome definition. Each must be confirmed against the outcome module before any of these is reported as a settled exclusion, and until then this record states five candidates with provisional axes, not five exclusions.",
+  "what_this_does_and_does_not_say": "It says the review's two-trial included set is NOT the whole of what a search returns, and that the additional trials appear to differ on population or measure rather than on quality. It does NOT yet say the included set is correct: that requires the outcome-module check above, and the 676 unexamined PubMed records."
+ },
+ "what_this_record_does_not_establish": [
+  "NOT an adequate search. Embase, CENTRAL, Web of Science and Scopus were not searched.",
+  "NOT that 776 PubMed records were screened. 100 retrieved, 676 unexamined.",
+  "NOT any effect estimate, pooling or extraction.",
+  "NOT third-party execution times. Those are this lane's clock; only the two log entries carry a time set by anyone else."
+ ]
+}

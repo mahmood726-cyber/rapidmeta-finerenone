@@ -1,0 +1,81 @@
+{
+ "_what_this_is": "Resolution of the five candidates raised by the executed search. Written as a SEPARATE record and not as an amendment to SEARCH-RECORD.json, because that file is anchored: editing it would break the published hash and its worked example. The search record states what the search returned; this states what screening made of it.",
+ "resolves": {
+  "search_record_path": "ssot/empagliflozin-hf-auto-full-review/SEARCH-RECORD.json",
+  "search_record_commit": "9e65b30aaad98dafd7ad451fc4b8bad11e8e6585",
+  "search_record_sha256": "3ab55d89ef29f28e533a829de725ee08731b335004ee8055a7eb834b80b5a0fb",
+  "search_record_anchor_logIndex": 2605693104,
+  "search_record_anchored_utc": "2026-08-26T19:19:05Z"
+ },
+ "screening_performed_utc": "2026-08-26T19:21:48Z",
+ "method": "Each candidate's REGISTERED PRIMARY OUTCOME MEASURE was read from the ClinicalTrials.gov outcome module via mcp__plugin_bio-research_c-trials__analyze_endpoints. The search record's provisional axes were read from registry TITLES; a title is not an outcome definition, and one of the five turned out to differ from its title-based axis.",
+ "review_estimand": "First occurrence of adjudicated cardiovascular death or adjudicated hospitalisation for heart failure, as a time-to-first-event hazard ratio, in adults with heart failure.",
+ "resolutions": [
+  {
+   "nct": "NCT04157751",
+   "acronym": "EMPULSE",
+   "registered_primary": "Percentage of Pairwise Comparisons With Wins of Clinical Benefit -- a hierarchical composite of death, number of HF events, time to first HF event, and >=5-point change in KCCQ-TSS at 90 days",
+   "provisional_axis_from_title": "MEASURE",
+   "confirmed_axis": "MEASURE",
+   "verdict": "EXCLUDED",
+   "reason": "A win ratio over a hierarchical composite is not a time-to-first-event hazard ratio. Excluded on the measure axis, not on quality.",
+   "NOT_A_SILENT_EXCLUSION": "EMPULSE DOES report this review's outcome concept -- 'Incidence Rate of First Occurrence of Cardiovascular (CV) Death or Heart Failure Event' -- but as a SECONDARY endpoint and as an incidence rate per 100 patient-years, not as a hazard ratio. Recorded so a reader can see the trial was assessed rather than overlooked, and so the exclusion is not mistaken for the trial ignoring the outcome."
+  },
+  {
+   "nct": "NCT03448419",
+   "acronym": "EMPERIAL-Reduced",
+   "registered_primary": "Change from baseline to week 12 in 6-minute walk test distance",
+   "provisional_axis_from_title": "OUTCOME",
+   "confirmed_axis": "OUTCOME",
+   "verdict": "EXCLUDED",
+   "reason": "Exercise capacity, not a clinical event composite. No cardiovascular-death or heart-failure-hospitalisation endpoint appears at primary OR secondary level."
+  },
+  {
+   "nct": "NCT03448406",
+   "acronym": "EMPERIAL-Preserved",
+   "registered_primary": "Change from baseline to week 12 in 6-minute walk test distance",
+   "provisional_axis_from_title": "OUTCOME",
+   "confirmed_axis": "OUTCOME",
+   "verdict": "EXCLUDED",
+   "reason": "Exercise capacity, not a clinical event composite. No cardiovascular-death or heart-failure-hospitalisation endpoint appears at primary OR secondary level."
+  },
+  {
+   "nct": "NCT04509674",
+   "acronym": "EMPACT-MI",
+   "registered_primary": "Composite of Time to First Heart Failure Hospitalisation or ALL-CAUSE Mortality, reported as an incidence rate per 100 patient-years",
+   "provisional_axis_from_title": "POPULATION",
+   "confirmed_axis": "POPULATION AND OUTCOME",
+   "verdict": "EXCLUDED",
+   "THE_TITLE_BASED_AXIS_WAS_INCOMPLETE": "The search record recorded this as a population exclusion alone, read from the title. The outcome module shows a SECOND difference the title does not reveal: the composite is heart-failure hospitalisation or ALL-CAUSE mortality, whereas this review's composite is CARDIOVASCULAR death or heart-failure hospitalisation. Those are different composites. This is the concrete instance of why a title is not an outcome definition, and it is recorded rather than quietly upgraded.",
+   "reason": "Population is patients with acute myocardial infarction, not adults with heart failure; and the registered composite uses all-cause mortality rather than cardiovascular death. Either alone would exclude it."
+  },
+  {
+   "nct": "NCT03332212",
+   "acronym": "EMPA-VISION",
+   "registered_primary": "Change from baseline to week 12 in PCr/ATP ratio at rest, by 31P cardiac magnetic resonance spectroscopy",
+   "provisional_axis_from_title": "OUTCOME",
+   "confirmed_axis": "OUTCOME",
+   "verdict": "EXCLUDED",
+   "reason": "A cardiac energetics biomarker. The trial registers NO secondary endpoints at all, so no clinical event outcome exists on this record."
+  }
+ ],
+ "outcome": {
+  "candidates_raised": 5,
+  "candidates_resolved": 5,
+  "included_after_screening": 0,
+  "excluded_after_screening": 5,
+  "axes_confirmed_as_provisionally_recorded": 4,
+  "axes_that_changed_on_inspection": 1,
+  "the_reviews_included_set_after_this_search": [
+   "NCT03057977 EMPEROR-Reduced",
+   "NCT03057951 EMPEROR-Preserved"
+  ],
+  "STATEMENT": "The registry search returned seven phase-3 empagliflozin-versus-placebo trials. Five differ from this review's estimand on population or measure, each on a stated axis read from the registered outcome module rather than from a title. The two the review already held are the two that report the registered estimand. On these sources, the included set is not a convenience sample: it is a set that has now been searched for and cannot be improved on."
+ },
+ "WHAT_THIS_DOES_NOT_ESTABLISH": [
+  "NOT that the included set is complete. 676 of 776 PubMed records were never retrieved, and a trial reported only in the literature and not registered on ClinicalTrials.gov would not appear in the registry limb at all.",
+  "NOT an adequate search. Embase, CENTRAL, Web of Science and Scopus were not searched.",
+  "NOT a full-text screen. These are registry-record decisions; none of the five was excluded after reading its publication.",
+  "NOT independent screening. One screener, one pass. The protocol requires two cross-family screeners for a release, and that has not happened here."
+ ]
+}
