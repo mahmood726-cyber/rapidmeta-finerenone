@@ -1021,10 +1021,25 @@ def points_with_labels(points):
 # render as NOT ASSESSED either: that says nobody looked, when the truth is we looked and
 # could not reach it. One is a statement about the trial, the other about our retrieval,
 # and collapsing them prints our gap as a fact about someone else's study.
+# AND THE CODE BELOW BROKE THE RULE THE COMMENT ABOVE STATES. "No information" rendered as
+# a filled circle in the same visual vocabulary as +, ? and minus -- a fourth verdict in a
+# three-verdict scale, on a page that already said in words that no such verdict exists.
+# The rule was written down and connected to nothing, one line apart.
+#
+# CHECKED AGAINST THE TOOL WE HOLD, NOT A RECALLED SECTION NUMBER. In
+# `ssot/rob2_algorithm.py` -- this project's transcription of the 22 August 2019 tables --
+# NI appears ONLY as a signalling-question INPUT. Every row maps it to Low, Some concerns
+# or High: "Table 4: 1.2 = NI AND 1.3 = Y/PY -> High", "Table 14 row 3: 5.3 = NI -> Some
+# concerns". No path returns NO_INFORMATION as a domain judgement. The single case that
+# yields nothing is Table 10, where 3.2 = NI selects NO ROW -- "the algorithm does not
+# determine it", which is a third statement again and not a verdict either.
+#
+# So the cell now renders OUTSIDE the verdict scale: an open SQUARE, not a circle, so it
+# cannot be read as a fourth grade in a row of three.
 ROB_GLYPH = {"LOW": ("+", "#15803d", "#dcfce7"),
              "SOME CONCERNS": ("?", "#a16207", "#fef9c3"),
              "HIGH": ("\u2212", "#b91c1c", "#fee2e2"),
-             "NO INFORMATION": ("\u25cb", "#475569", "#e2e8f0"),
+             "NO INFORMATION": ("\u25a1", "#475569", "#e2e8f0"),
              "NOT ASSESSED": ("\u00b7", "#64748b", "#f1f5f9")}
 # stored spellings, so an underscore does not fall through to NOT ASSESSED
 ROB_GLYPH["NO_INFORMATION"] = ROB_GLYPH["NO INFORMATION"]
@@ -1198,9 +1213,11 @@ def rob_traffic_light_svg(trials, domains, assessors, cell):
                   % e(str(assessors[0]) if assessors else 'assessor 1'))
         aria = 'one assessor per cell; this object holds no second assessment'
     body += ('<text x="6" y="%d" font-size="12" fill="currentColor">%s'
-             '+ low, ? some concerns, \u2212 high, \u25cb no information reached us '
-             '(a protocol, statistical analysis plan, registry field or regulatory '
-             'review would close it), \u00b7 not assessed.</text>%s'
+             '+ low, ? some concerns, \u2212 high \u2014 the three domain judgements RoB 2 '
+             'defines. \u25a1 is NOT a fourth judgement: it marks a domain this review '
+             'could not evidence, which is an unassessed domain rather than a verdict '
+             'about the trial (a protocol, statistical analysis plan, registry field or '
+             'regulatory review would close it). \u00b7 not assessed.</text>%s'
              % (ly, legend, NL))
     return ('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 %d %d" '
             'width="100%%" role="img" aria-label="Risk-of-bias traffic light: '

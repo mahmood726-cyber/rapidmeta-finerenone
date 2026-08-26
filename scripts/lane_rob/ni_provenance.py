@@ -20,8 +20,19 @@ it is whether the SOURCE THAT ANSWERS THAT DOMAIN is held:
   D3 missing outcome data                        -> full report / posted results flow.
   D4 measurement of the outcome                  -> registry masking IS informative here, so
      a held registry record with a masking field can support REPORTED_ABSENT.
-  D5 selection of the reported result            -> registry outcome list IS the instrument,
-     so a held registry record supports REPORTED_ABSENT.
+  D5 selection of the reported result            -> PROTOCOL and SAP. Corrected 2026-08-26.
+
+THE D5 ENTRY WAS WRONG AND IT ERRED IN THE FLATTERING DIRECTION. It said the registry
+outcome list is the instrument for selective reporting, so a held registry record made a D5
+absence a finding about the trial. But D5 compares what was REPORTED against what was
+PLANNED, and the plan is in the protocol and the statistical analysis plan. A registry
+record establishes what was registered -- and SCORED's ORIGINAL record (16 October 2017)
+lists outcomes the current record does not, so the registry itself has a version dimension
+this was not reading. Every D5 absence recorded without the protocol was OUR gap published
+as theirs: 10 cases, and the corrected split moves them.
+
+The lesson is about the method, not the number: a discriminator is only as good as its
+inventory of instruments, and an incomplete inventory fails silently toward "their fault".
 
 READ-ONLY. This measures and reports; it writes nothing, because the RoB regen and merge
 are frozen and `by_outcome` is assigned wholesale.
@@ -48,8 +59,42 @@ for f in os.listdir(CACHE):
     if m:
         cached.add(m.group(1))
 
-# which held source can answer each domain
-REGISTRY_ANSWERS = {"D4", "D5"}
+# WHICH HELD SOURCE CAN ANSWER EACH DOMAIN -- and this inventory was WRONG for D5.
+#
+# The first version listed D5 as answerable from the registry, because the registered
+# outcome list is an instrument for selective reporting. It is not a SUFFICIENT one. D5
+# exists to compare what was REPORTED against what was PLANNED, and the plan lives in the
+# protocol and the statistical analysis plan. A registry record alone establishes what was
+# registered, not what the analysis plan specified, and SCORED's ORIGINAL registry record
+# (16 October 2017) lists outcomes the current record does not -- so even the registry has
+# a version dimension we were not reading.
+#
+# The correction moves cases OUT of "about the trials" and INTO "about us", which is the
+# unflattering direction, and it is the direction that was wrong. A D5 absence recorded
+# without the protocol was our gap being published as theirs.
+#
+# D4 keeps the registry as sufficient: registered masking answers its signalling questions
+# about who knew the assignment, which is what that domain turns on.
+REGISTRY_ANSWERS = {"D4"}
+PROTOCOL_ANSWERS = {"D1", "D2", "D3", "D5"}
+
+
+def protocol_held(topic, nct):
+    """Is a PROTOCOL or SAP staged for this trial -- not merely any document?
+
+    The earlier version accepted any staged .pdf/.txt for the trial, which counted a
+    published report as though it answered D5. A report tells you what was reported; only
+    the plan tells you what was planned, and D5 is the comparison between them.
+    """
+    d = os.path.join("ssot", topic, "sources")
+    if not os.path.isdir(d):
+        return False
+    for n in os.listdir(d):
+        low = n.lower()
+        if any(k in low for k in ("protocol", "_sap", "sap_", "analysis_plan",
+                                  "statistical_analysis")):
+            return True
+    return False
 
 
 def paper_held(topic, nct):
@@ -97,9 +142,10 @@ for p in sorted(glob.glob("ssot/*/*.json")):
                     kind = "REPORTED_ABSENT_BY_TRIAL"
                     why = ("the registry record is held and is the instrument for this "
                            "domain; it carries nothing that answers it")
-                elif paper_held(topic, nct):
+                elif dom in PROTOCOL_ANSWERS and protocol_held(topic, nct):
                     kind = "REPORTED_ABSENT_BY_TRIAL"
-                    why = "a full report or protocol is staged for this trial"
+                    why = ("a protocol or statistical analysis plan is staged for this "
+                           "trial and is the instrument for this domain")
                 else:
                     kind = "NOT_RETRIEVED_BY_US"
                     why = ("the document that answers this domain -- protocol, statistical "
