@@ -254,6 +254,33 @@ def _uri(path, mime):
         return "data:%s;base64,%s" % (mime, base64.b64encode(f.read()).decode())
 
 
+VECTOR_BY_CHOICE = "VECTOR_BY_CHOICE"
+
+LINE_ART = {"rob-traffic-light"}
+
+
+def is_line_art(stem):
+    """Figures whose graphic is discrete marks, glyphs and text on a grid.
+
+    THIS EXEMPTION IS A JUDGEMENT, AND IT IS MINE RATHER THAN THE CODEBASE'S. It rests on
+    one property: the risk-of-bias traffic light is sparse vector marks -- circles, four
+    glyphs, row and column labels. A 600 dpi raster of that cost 568 KB to reproduce,
+    losslessly and at any zoom, what the inline SVG beside it already shows. Measured on
+    SGLT2_HF_REVIEW: that one PNG was 8.22x its served size and was the ENTIRE 1.44x
+    growth of the rebuilt page -- every other figure was byte-identical.
+
+    IT MUST NOT BE EXTENDED TO A DATA-DENSE FIGURE WITHOUT SOMEONE MAKING THAT CALL
+    AGAIN. A forest plot, a funnel, a GOSH cloud, a bubble plot or the visual abstract
+    may be worth 600 dpi to a reader building a slide, and nothing argued here bears on
+    them. Adding a stem to LINE_ART is a decision about what a reader loses, not a size
+    optimisation.
+
+    The multiplier that makes it matter: the page renders its content in three views, so
+    any figure that grows, grows threefold.
+    """
+    return stem in LINE_ART
+
+
 def figure_downloads(svg, stem, browser, workdir, outdir):
     """Every offered format for one figure, as (label, filename, href, bytes).
 
@@ -267,6 +294,11 @@ def figure_downloads(svg, stem, browser, workdir, outdir):
     items = [("SVG (vector)", stem + ".svg",
               "data:image/svg+xml;charset=utf-8," + quote(svg, safe=""),
               len(svg.encode("utf-8")))]
+    if is_line_art(stem):
+        # VECTOR ONLY, BY DECISION. Returns the third element as VECTOR_BY_CHOICE rather
+        # than False so downloads_html can say WHY -- claiming a browser was unavailable
+        # when the omission was chosen would be a page lying about its own provenance.
+        return items, sha, VECTOR_BY_CHOICE, written
     png = rasterise(svg, browser, workdir, stem)
     if png:
         w = h = None
@@ -302,16 +334,27 @@ def downloads_html(items, sha, rasterised, e, NL, written=()):
         "<small>%s KB</small>%s"
         % (e(fn), href, e(label), "{:,}".format(max(1, nb // 1024)), NL)
         for label, fn, href, nb in items)
-    note = (("All raster formats were generated at build time from the same SVG "
-             "as the graphic above (SHA-256 %s&hellip;), at %d dpi for a %.0f-inch "
-             "print width, on a white ground. They are not screenshots of the page "
-             "and do not change with the theme you are reading in."
-             % (e(sha[:16]), DPI, PRINT_WIDTH_IN))
-            if rasterised else
-            ("Only the vector format is offered for this figure: no headless "
-             "browser was available at build time, so the rasters were not "
-             "generated. This is stated rather than silently omitted &mdash; the "
-             "SVG is complete and will convert at any resolution."))
+    # THREE STATES, NOT TWO. A figure offered as vector only because the build could not
+    # rasterise, and one offered as vector only because a raster was judged to add weight
+    # without fidelity, are different facts about the page. Collapsing them would have a
+    # page claim a browser was missing when the omission was a decision -- the same class
+    # of self-description defect this project has spent its time removing.
+    if rasterised is VECTOR_BY_CHOICE or rasterised == VECTOR_BY_CHOICE:
+        note = ("Only the vector format is offered for this figure, by choice: it is "
+                "line art &mdash; discrete marks, glyphs and labels &mdash; which SVG "
+                "reproduces exactly at any size, so a raster would add weight without "
+                "adding fidelity. The build was able to rasterise; it was asked not to.")
+    elif rasterised:
+        note = ("All raster formats were generated at build time from the same SVG "
+                "as the graphic above (SHA-256 %s&hellip;), at %d dpi for a %.0f-inch "
+                "print width, on a white ground. They are not screenshots of the page "
+                "and do not change with the theme you are reading in."
+                % (e(sha[:16]), DPI, PRINT_WIDTH_IN))
+    else:
+        note = ("Only the vector format is offered for this figure: no headless "
+                "browser was available at build time, so the rasters were not "
+                "generated. This is stated rather than silently omitted &mdash; the "
+                "SVG is complete and will convert at any resolution.")
     # The journal formats are on disk, not in the page. Saying so -- with the
     # sizes -- is the difference between a reader thinking they are missing and
     # a reader knowing where they are.
