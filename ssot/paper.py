@@ -17,6 +17,7 @@ An unfilled token is treated as a BUILD FAILURE. A manuscript that renders
 build, and the placeholder-leak family has reached readers on this corpus before
 -- 1110 dashboards -- so it is raised, not warned about.
 """
+from rob_block import rob_block
 import re
 
 # THE ONE PLACE CERTAINTY IS RESOLVED. A tolerant import because this module is loaded
@@ -58,7 +59,8 @@ def build_tokens(canon, res, oid):
     sens = res.get("sensitivity") or {}
     reg = canon.get("registration") or {}
     od = reg.get("ordering") or {}
-    rb = canon.get("rob2") or {}
+    # canonical key is `risk_of_bias`; rob_block reads either schema.
+    rb = rob_block(canon) or {}
     ag = rb.get("agreement") or {}
     per = [r for r in (res.get("per_trial") or []) if r.get("point")]
     corpus = (canon.get("screening") or {}).get("corpus") or []

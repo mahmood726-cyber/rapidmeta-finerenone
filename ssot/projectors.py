@@ -1121,7 +1121,12 @@ def rob_traffic_light_svg(trials, domains, assessors, cell):
                  % (y + RH / 2.0 + 4, e(str(tr)), NL))
         for j, dm in enumerate(domains):
             cx = LW + j * CW + CW / 2.0
-            for a, dx in ((0, -13), (1, 13)):
+            # ONE ASSESSOR MEANS ONE CIRCLE. Drawing a second, empty circle beside it
+            # invites the reader to see an independent check that was never made; and
+            # filling it with assessor 1's value would be a false claim of agreement.
+            # malaria-vaccines is the object that has one, and it used to raise here.
+            slots = ((0, -13), (1, 13)) if len(assessors) > 1 else ((0, 0),)
+            for a, dx in slots:
                 v = (cell(tr, dm, a) or "NOT ASSESSED").upper()
                 g, fg, bg = ROB_GLYPH.get(v, ROB_GLYPH["NOT ASSESSED"])
                 body += ('<circle cx="%.1f" cy="%.1f" r="11" fill="%s" '
@@ -1131,14 +1136,22 @@ def rob_traffic_light_svg(trials, domains, assessors, cell):
                          % (cx + dx, y + RH / 2.0, bg, fg, NL,
                             cx + dx, y + RH / 2.0 + 5, fg, e(g), NL))
     ly = TOP + RH * len(trials) + 22
-    body += ('<text x="6" y="%d" font-size="12" fill="currentColor">'
-             'Left circle: %s. Right circle: %s. '
+    if len(assessors) > 1:
+        legend = ('Left circle: %s. Right circle: %s. '
+                  % (e(str(assessors[0])), e(str(assessors[1]))))
+        aria = 'two assessors per cell'
+    else:
+        legend = ('Single circle: %s. THIS OBJECT HOLDS ONE ASSESSOR, so there is no '
+                  'independent second reading to show. '
+                  % e(str(assessors[0]) if assessors else 'assessor 1'))
+        aria = 'one assessor per cell; this object holds no second assessment'
+    body += ('<text x="6" y="%d" font-size="12" fill="currentColor">%s'
              '+ low, ? some concerns, \u2212 high, \u00b7 not assessed.</text>%s'
-             % (ly, e(str(assessors[0])), e(str(assessors[1])), NL))
+             % (ly, legend, NL))
     return ('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 %d %d" '
             'width="100%%" role="img" aria-label="Risk-of-bias traffic light: '
-            'trials (rows) against domains (columns), two assessors per cell">'
-            '%s%s</svg>' % (W, H, NL, body))
+            'trials (rows) against domains (columns), %s">'
+            '%s%s</svg>' % (W, H, aria, NL, body))
 
 
 def prisma_flow_svg(boxes):
@@ -1821,20 +1834,36 @@ def forest_ranged(res, outcome, e, browser=None, workdir=None, outdir=None):
             m = re.search(r"<svg.*?</svg>", base, re.S)
             svg = m.group(0) if m else ""
         variants.append((key, label, svg))
+    # PER-OUTCOME IDS AND ONE RADIO GROUP PER PLOT.
+    # Every call emitted name="fw" with ids fw-fit / fw-w1 / fw-w2. A page with three
+    # outcomes therefore carried each id three times and put all ten controls in ONE radio
+    # group: selecting a range on the third plot deselected the other two, and because all
+    # three carried `checked`, only the LAST rendered as selected. `getElementById` and
+    # `<label for=>` both bind to the first match, so the second and third plots' controls
+    # were unreachable. An external reviewer with a browser found this; fifty reviews of the
+    # rendered TEXT could not, because none of it is text.
+    #
+    # `data-fw` carries the variant key so the stylesheet can pair a radio with its panel
+    # WITHOUT knowing the ids. Previously the CSS hardcoded `#fw-fit:checked~#fwp-fit`, so
+    # making the ids unique without changing the CSS would have silently stopped the panels
+    # switching -- a fix that looks right in the markup and breaks the page.
+    _oid = re.sub(r"[^a-z0-9]+", "-",
+                  str(outcome.get("id") or outcome.get("name") or "o").lower()).strip("-")[:40] or "o"
     for i, (key, label, _svg) in enumerate(variants):
-        radios += ('  <input type="radio" name="fw" id="fw-%s" class="fwr"%s>%s'
-                   % (key, " checked" if i == 0 else "", NL))
+        radios += ('  <input type="radio" name="fw-%s" id="fw-%s-%s" data-fw="%s" '
+                   'class="fwr"%s>%s'
+                   % (_oid, _oid, key, key, " checked" if i == 0 else "", NL))
     for key, label, _svg in variants:
-        radios += ('  <label for="fw-%s" class="fwl">%s</label>%s'
-                   % (key, e(label), NL))
+        radios += ('  <label for="fw-%s-%s" data-fw="%s" class="fwl">%s</label>%s'
+                   % (_oid, key, key, e(label), NL))
     for key, label, svg in variants:
         dl = ""
         if workdir and outdir:
             items, sha, ok, wr = fg.figure_downloads(svg, "forest_%s" % key, br,
                                                  workdir, outdir)
             dl = fg.downloads_html(items, sha, ok, e, NL, wr)
-        panels += ('  <div class="fwp" id="fwp-%s">%s%s%s%s  </div>%s'
-                   % (key, NL, svg, NL, dl, NL))
+        panels += ('  <div class="fwp" id="fwp-%s-%s" data-fw="%s">%s%s%s%s  </div>%s'
+                   % (_oid, key, key, NL, svg, NL, dl, NL))
     return ("<div class='card fwcard'>%s  <h3>Forest plot</h3>%s"
             "  <p><small>Drawn from the same stored estimates the table above "
             "lists. Box area is proportional to inverse-variance weight.</small>"

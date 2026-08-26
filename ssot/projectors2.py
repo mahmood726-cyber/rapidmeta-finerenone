@@ -13,6 +13,7 @@ from projectors import (NL, e, fmt, kv_card, fig, scatter_svg, rows_svg,
                         funnel_svg, rob_traffic_light_svg, prisma_flow_svg,
                         visual_abstract_svg,
                         not_computable_svg, GRADE_DOMAINS)
+from rob_block import rob_block
 
 
 # =========================================================================================
@@ -293,10 +294,16 @@ def protocol_card(canon, p):
             "this object holds no background field, and an introduction generated "
             "without one would be argument that no source in this review supports")),
         ("Eligibility criteria", p(sc["eligibility"]) if sc.get("eligibility") else ""),
-        ("Information sources", "%d source layers, listed on the <a href=\"#extract\">Extraction tab</a>"
+        ("Information sources", "%d source layers, listed on the <a href=\"#pn-extract\">Extraction tab</a>"
          % len(canon.get("sources") or {})),
+        # THE FRAGMENT MUST NAME AN ELEMENT THAT EXISTS. These read "#search" and
+        # "#extract"; the ids on the page are "pn-search"/"pn-extract" (panels) and
+        # "rt-search"/"rt-extract" (the tab radios). 197 dead fragments across 148 of 149
+        # pages, of which 143 were this one. Pointing at the panel makes the link resolve.
+        # HONEST LIMIT: the tab shell is CSS-only and driven by radios, so a fragment cannot
+        # SELECT the tab without script -- this fixes a dead link, not tab activation.
         ("Search strategy", "The executed strings, datetimes, filters and hit "
-                            "counts are on the <a href=\"#search\">Search tab</a>"),
+                            "counts are on the <a href=\"#pn-search\">Search tab</a>"),
         ("Study selection process", _selection_process(canon, p, na)),
         ("Number of screeners", _screener_count(canon, na)),
         ("Data extraction items", _extraction_items(canon, na)),
@@ -759,6 +766,45 @@ def analysis_figures(res, outcome, p):
     return out
 
 
+def _fmt_v(v):
+    """Numbers as the page prints them: no trailing zeros, no scientific notation."""
+    if v is None:
+        return "not recorded"
+    s = ("%.3f" % float(v)).rstrip("0").rstrip(".")
+    return s if s not in ("", "-") else "0"
+
+
+def _interval_caption(pooled, null_value):
+    """THE CAPTION IS A FUNCTION OF THE STORED BOUNDS, not a fixed string.
+
+    The previous caption asserted 'The interval is drawn CROSSING the no-difference line
+    BECAUSE IT DOES' unconditionally. It read no interval at all -- not ci_low, not ci_high,
+    not the null -- so it printed over anything. Measured: 27 of 36 captions sat over an
+    interval that EXCLUDES the null, including HR 0.749 (0.664 to 0.845).
+
+    Replacing it with a better fixed sentence would fix one page and leave the rest wrong AND
+    HARDER TO FIND, because the replacement is defensible wherever it was tested. So the
+    sentence is derived, and when the bounds are missing it says that rather than guessing.
+    """
+    base = ("Projected from the canonical object, so it carries the same k, the same pooled "
+            "estimate and the same interval as the paper and cannot drift from them. ")
+    lo, hi = pooled.get("ci_low"), pooled.get("ci_high")
+    if lo is None or hi is None:
+        return base + ("The interval is not described here because its bounds are not "
+                       "recorded on the object.")
+    nv = null_value if null_value is not None else 1
+    excludes = (lo > nv and hi > nv) or (lo < nv and hi < nv)
+    if excludes:
+        return base + ("The interval is drawn to scale against the no-difference line, which "
+                       "it EXCLUDES: %s to %s, with no difference at %s."
+                       % (_fmt_v(lo), _fmt_v(hi), _fmt_v(nv)))
+    return base + ("The interval is drawn CROSSING the no-difference line because it does: "
+                   "%s to %s spans %s. A graphical abstract travels without its caption, and "
+                   "one showing a favourable point estimate without showing that its interval "
+                   "includes no effect would overstate a null result."
+                   % (_fmt_v(lo), _fmt_v(hi), _fmt_v(nv)))
+
+
 def visual_abstract(canon, res, outcome, p):
     """The graphical abstract, projected. Under the same gates as any figure."""
     pooled = res.get("pooled") or {}
@@ -774,9 +820,32 @@ def visual_abstract(canon, res, outcome, p):
     rows = [a for a in (sens.get("analyses") or []) if isinstance(a, dict)]
     kept = [a for a in rows if a.get("still_excludes_null")]
     if rows:
-        loo = ("Leave-one-out: %d of %d refits still exclude no difference; the "
-               "estimate does not survive removal of the largest trial."
-               % (len(kept), len(rows)))
+        # A SENTENCE ABOUT A NUMBER MUST BE A FUNCTION OF THAT NUMBER.
+        # The previous version appended "the estimate does not survive removal of the
+        # largest trial" unconditionally, reading `kept` for the count and then ignoring it
+        # for the claim. It printed "2 of 2 refits still exclude no difference; the estimate
+        # does not survive removal of the largest trial" -- which is not merely contradictory,
+        # it is false: if every refit excludes the null then the estimate DOES survive.
+        # Measured before the fix: 6 of 12 emitted sentences were self-falsifying.
+        _k = res.get("k") if res.get("k") is not None else len(res.get("per_trial") or [])
+        _n, _tot = len(kept), len(rows)
+        if _k == 2:
+            # GENERALISED TO EVERY k=2 POOL, not special-cased to one topic. With two trials
+            # a leave-one-out refit IS the other trial, so it cannot be robustness evidence
+            # however the arithmetic comes out, and saying so is the honest reading.
+            loo = ("Leave-one-out with two trials: each refit is simply the other trial, so "
+                   "this is not robustness evidence. %d of %d single-trial refits exclude no "
+                   "difference." % (_n, _tot))
+        elif _n == _tot:
+            loo = ("Leave-one-out: all %d refits still exclude no difference; the estimate "
+                   "survives removal of any single trial." % _tot)
+        elif _n == 0:
+            loo = ("Leave-one-out: no refit excludes no difference; the estimate does not "
+                   "survive removal of any single trial." % ())
+        else:
+            loo = ("Leave-one-out: %d of %d refits still exclude no difference; the estimate "
+                   "does not survive removal of every single trial."
+                   % (_n, _tot))
     return fig(visual_abstract_svg(
         canon.get("title", ""), canon.get("question", ""),
         (res["k"] if res.get("k") is not None else len(res.get("per_trial") or [])),
@@ -785,18 +854,20 @@ def visual_abstract(canon, res, outcome, p):
         pooled.get("ci_high"), outcome.get("null_value", 1),
         g.get("certainty"), outcome.get("name", ""), loo),
         "Visual abstract", "visual-abstract.svg",
-        "Projected from the canonical object, so it carries the same k, the same "
-        "pooled estimate and the same interval as the paper and cannot drift "
-        "from them. The interval is drawn CROSSING the no-difference line "
-        "because it does: a graphical abstract travels without its caption, and "
-        "one that showed a favourable point estimate without showing that its "
-        "interval includes no effect would be overstating a null result, which "
-        "is a defect class this review documents in other papers.")
+        _interval_caption(pooled, outcome.get("null_value", 1)))
 
 
 def rob_figure(canon, p):
     """Risk-of-bias traffic light, both assessors, from the stored RoB-2 block."""
-    rb = canon.get("rob2") or {}
+    # ONE READER FOR BOTH SCHEMAS. This asked for canon["rob2"] while 30 of 31 stores
+    # write canon["risk_of_bias"], so 29 of the 30 rendered curated topics printed the
+    # not-computable box below OVER A STORE THAT HELD AN ASSESSMENT. The one topic that
+    # rendered, arni-hfref, is the one object that writes `rob2` -- which is how the
+    # cause was identified rather than guessed. Assessors now come from an ORDERED LIST:
+    # the old `assessor_1_openai` / `assessor_2_google` keys named the wrong labs (the
+    # curated pairs are anthropic + openai) and would have produced a PARTIAL panel,
+    # which is harder to notice than a blank one.
+    rb = rob_block(canon) or {}
     trials = rb.get("trials") or []
     if not trials:
         return fig(not_computable_svg(
@@ -805,8 +876,7 @@ def rob_figure(canon, p):
             "Risk of bias", "rob-traffic-light.svg",
             "Not drawn, because there is nothing to draw it from.")
     doms = [d.get("domain") for d in trials[0].get("domains", [])]
-    a = rb.get("assessors") or [{}, {}]
-    keys = ("assessor_1_openai", "assessor_2_google")
+    a = rb.get("assessors") or [{}]
 
     def cell(trial_name, domain, idx):
         for t in trials:
@@ -814,7 +884,11 @@ def rob_figure(canon, p):
                 continue
             for dd in t.get("domains", []):
                 if dd.get("domain") == domain:
-                    return (dd.get(keys[idx]) or {}).get("judgement")
+                    js = dd.get("judgements") or []
+                    # One assessor means ONE column. Never repeat assessor 1 into the
+                    # second: a panel showing one reader's verdicts twice is a false
+                    # claim of independent agreement.
+                    return js[idx] if idx < len(js) else None
         return None
 
     # EVERY POOLED TRIAL GETS A ROW, assessed or not. RoB-2 here was run before
@@ -829,7 +903,7 @@ def rob_figure(canon, p):
         _id = _t.get("id")
         if _id and _id not in assessed:
             names.append(_id)
-    fams = [x.get("model_family", "assessor %d" % (i + 1))
+    fams = [x.get("model_family") or x.get("name") or "assessor %d" % (i + 1)
             for i, x in enumerate(a)]
     agree = rb.get("agreement")
     return fig(rob_traffic_light_svg(names, doms, fams, cell),
@@ -1037,30 +1111,43 @@ def rob2_card(canon, p):
     are projected, the agreement rate is projected as measured, and the open
     disagreements are projected as open.
     """
-    rb = canon.get("rob2")
+    # Reads either schema through rob_block. The native-only sections below
+    # (`carried`, `disagreements`, `adjudication`) exist on arni-hfref alone and are
+    # gated on the RAW block rather than assumed -- a KeyError here would have taken the
+    # whole page down, and a silent "" would have been the not-computable bug again.
+    raw = canon.get("rob2") or {}
+    rb = rob_block(canon)
     if not rb or not rb.get("trials"):
         return ""
-    a = rb["assessors"]
-    f1, f2 = a[0].get("model_family", "1"), a[1].get("model_family", "2")
+    a = rb.get("assessors") or [{}]
+    f1 = a[0].get("model_family") or a[0].get("name") or "assessor 1"
+    f2 = (a[1].get("model_family") or a[1].get("name")) if len(a) > 1 else None
     ag = rb.get("agreement") or {}
+    two = f2 is not None
+
+    def _j(seq, i):
+        return seq[i] if isinstance(seq, list) and i < len(seq) else ""
+
     rows = ""
     for t in rb["trials"]:
         for dm in t["domains"]:
-            j1 = dm["assessor_1_openai"].get("judgement", "")
-            j2 = dm["assessor_2_google"].get("judgement", "")
-            mark = "yes" if dm["agreed"] else "<strong>NO</strong>"
+            js = dm.get("judgements") or []
+            mark = ("yes" if dm.get("agreed") else "<strong>NO</strong>") \
+                if dm.get("agreed") is not None else "one assessor"
             rows += ("    <tr><td>%s</td><td>%s %s</td><td>%s</td><td>%s</td>"
                      "<td>%s</td><td>%s</td></tr>%s"
-                     % (p(t["trial"]), dm["domain"], p(dm["domain_name"]),
-                        p(j1), p(j2), mark, p(dm["carried"]), NL))
+                     % (p(t["trial"]), dm.get("domain"), p(dm.get("domain_name")),
+                        p(_j(js, 0)), p(_j(js, 1)), mark, p(dm.get("carried", "")), NL))
     ov = "".join(
         "    <tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>%s"
-        % (p(t["trial"]), p(t["overall_assessor_1_openai"].get("judgement", "")),
-           p(t["overall_assessor_2_google"].get("judgement", "")),
-           "yes" if t["overall_agreed"] else "<strong>NO</strong>", NL)
+        % (p(t["trial"]), p(_j(t.get("overall"), 0)), p(_j(t.get("overall"), 1)),
+           ("yes" if t.get("overall_agreed") else "<strong>NO</strong>")
+           if t.get("overall_agreed") is not None else "one assessor", NL)
         for t in rb["trials"])
     dis = ""
-    if rb.get("disagreements"):
+    if raw.get("disagreements"):
+        rb = dict(rb, disagreements=raw["disagreements"],
+                  adjudication=raw.get("adjudication"))
         dis = ("<div class='card warn'>%s  <h3>Open disagreements (%d)</h3>%s"
                "  <table>%s    <tr><th scope='col'>Trial</th><th>Domain</th><th>%s</th>"
                "<th>%s</th><th>Carried</th></tr>%s%s  </table>%s"
