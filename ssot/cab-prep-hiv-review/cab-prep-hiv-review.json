@@ -90,7 +90,7 @@
       "ci_high": 0.623,
       "se_log_rr": 0.318884,
       "derived_here": true,
-      "how": "RR = (e1/n1)/(e2/n2); SE(log RR) = sqrt(1/e1 - 1/n1 + 1/e2 - 1/n2), Handbook 6.5 section 6.4.1. Counts read from the registry; the arithmetic is ours and the formula is shown.",
+      "how": "RR = (e1/n1)/(e2/n2); SE(log RR) = sqrt(1/e1 - 1/n1 + 1/e2 - 1/n2). The RR formula is Cochrane Handbook v6.5 section 6.4.1, Box 6.4.a. The standard error formula is NOT in the Handbook -- chapter 6 defers it to the RevMan statistical algorithms (Statistical algorithms and calculations used in Review Manager), and that is its source here. Checked against the live Handbook on 2026-08-26. Counts read from the registry; the arithmetic is ours and the formula is shown.",
       "registered_conditions": "HIV Infections",
       "registered_eligibility": "Inclusion Criteria: * MSM and TGW, 18 years or older at the time of screening (male at birth) * Willing to provide informed consent for the study * At high risk for sexually acquiring HIV infection based on self-report of at least one of the following: * Any condomless receptive anal intercourse in the 6 months prior to enrollment (condomless anal intercourse within a monogamous HIV seronegative concordant relationship does not meet this criterion) * More than five partners in the 6 months prior to enrollment (regardless of condom use and HIV serostatus, as reported by the enrollee) * Any stimulant drug use in the 6 months prior to enrollment * Rectal or urethral gonorrhea or chlamydia or incident syphilis in the 6 months prior to enrollment * SexPro score of less than or equal to 16 (U.S. sites only) * In general good health, as evidenced by the following laboratory values, which must be from specimens obtained within 45 days prior to study enrollment: * Non-reactive / negative HIV test results. More information on this criterion can be found in the protocol. * Hemoglobin greater than 11 g/dL, * Absolute neutrophil count greater than 750 cells/mm\\^3 * Platelet count greater than o",
       "registered_population_basis": "Quoted from this trial's ClinicalTrials.gov protocol record, read 2026-08-24. It is the registry's own wording, not a summary written here: a one-line population a reader cannot distinguish from a quotation is the failure this corpus is trying to avoid."
@@ -116,7 +116,7 @@
       "ci_high": 0.3107,
       "se_log_rr": 0.525868,
       "derived_here": true,
-      "how": "RR = (e1/n1)/(e2/n2); SE(log RR) = sqrt(1/e1 - 1/n1 + 1/e2 - 1/n2), Handbook 6.5 section 6.4.1. Counts read from the registry; the arithmetic is ours and the formula is shown.",
+      "how": "RR = (e1/n1)/(e2/n2); SE(log RR) = sqrt(1/e1 - 1/n1 + 1/e2 - 1/n2). The RR formula is Cochrane Handbook v6.5 section 6.4.1, Box 6.4.a. The standard error formula is NOT in the Handbook -- chapter 6 defers it to the RevMan statistical algorithms (Statistical algorithms and calculations used in Review Manager), and that is its source here. Checked against the live Handbook on 2026-08-26. Counts read from the registry; the arithmetic is ours and the formula is shown.",
       "registered_conditions": "HIV Infections",
       "registered_eligibility": "Inclusion Criteria: * Born female * 18-45 years at the time of screening * Willing and able to provide informed consent * Willing and able to undergo all required study procedures * Non-reactive HIV test results at Screening and Enrollment. Note: HIV-uninfected, based on HIV test results obtained at Screening and just prior to randomization at the Enrollment visit. All HIV test results from the Screening visit must be obtained and must all be negative/non-reactive. This includes testing for acute HIV infection, which must be performed within 14 days of Enrollment. In addition, at least one HIV test result using blood drawn at the Enrollment visit must be obtained prior to randomization into the study and must be negative/non-reactive. Individuals who have one or more reactive or positive HIV test result(s) will not be enrolled, even if subsequent confirmatory testing indicates that they are not HIV-infected (see SSP Manual). Those with any enrollment HIV test result positive will proceed through the HIV algorithm per the SSP but will not be able to receive study product regardless of subsequent test results. * Sexually active (i.e., vaginal intercourse on a minimum of two separate ",
       "registered_population_basis": "Quoted from this trial's ClinicalTrials.gov protocol record, read 2026-08-24. It is the registry's own wording, not a summary written here: a one-line population a reader cannot distinguish from a quotation is the failure this corpus is trying to avoid."
@@ -389,17 +389,63 @@
         "how_this_maps_to_the_tool_s_algorithm": "The tool maps 'No information' on 1.1 and 1.2 with no baseline concern to a DOMAIN judgement of SOME CONCERNS. This project writes NO_INFORMATION on the domain when it could not be judged from the sources read, and caps the OVERALL at SOME_CONCERNS. Same place, and it keeps 'we could not judge this' distinguishable from 'we judged it and had concerns'.",
         "what_does_not_change": "NO OVERALL RATING AND NO GRADE CERTAINTY MOVES. All 51 judgements were already capped at SOME_CONCERNS or HIGH by another NO_INFORMATION domain.",
         "what_would_close_it_properly": "The trial publications or protocols, which carry sequence generation and concealment. Neither was read. Until one is, LOW is not available on this domain for any result in this corpus."
+       },
+       "rob2_algorithm_2026_08_26": {
+        "authority": "RoB 2, Revised Cochrane risk-of-bias tool for randomized trials, Higgins/Savovic/Page/Sterne (eds), RoB2 Development Group, 22 August 2019",
+        "basis": "B: the object declares a domain unjudgeable from the sources read to be NO_INFORMATION, so every signalling response is \"No information\" by its own declaration",
+        "signalling_responses_used": {
+         "1.1": "NI",
+         "1.2": "NI",
+         "1.3": "NI"
+        },
+        "stored_judgement_at_derivation": "NO_INFORMATION",
+        "this_does_not_replace_the_stored_judgement": "This is the judgement the published algorithm proposes from the signalling responses named here. It does NOT replace the stored `judgement` beside it, and nothing reads it yet. The tool itself says its algorithms \"provide proposed judgements, but users should verify these and change them if they feel this is appropriate\" -- so this is an input to a person, not an output to a reader.",
+        "state": "DERIVED",
+        "derived_judgement": "SOME_CONCERNS",
+        "algorithm": "Table 4: 1.2 = NI AND 1.3 = N/PN/NI -> Some concerns. Table 3 states the same in words: \"There is no information to answer any of the signalling questions\" -> Some concerns"
        }
       },
       "D2_deviations_from_intended_intervention": {
        "judgement": "NO_INFORMATION",
        "basis": "NOT ESTABLISHED -- THE REGISTRY DOES NOT CARRY THE FIELD",
-       "reason": "Deviations from the intended intervention, and the analysis population actually used, are not on the registration. ADHERENCE IS THE WHOLE STORY IN PrEP TRIALS and it is exactly what this domain would test, so the absence matters more here than on most topics."
+       "reason": "Deviations from the intended intervention, and the analysis population actually used, are not on the registration. ADHERENCE IS THE WHOLE STORY IN PrEP TRIALS and it is exactly what this domain would test, so the absence matters more here than on most topics.",
+       "rob2_algorithm_2026_08_26": {
+        "authority": "RoB 2, Revised Cochrane risk-of-bias tool for randomized trials, Higgins/Savovic/Page/Sterne (eds), RoB2 Development Group, 22 August 2019",
+        "basis": "B: the object declares a domain unjudgeable from the sources read to be NO_INFORMATION, so every signalling response is \"No information\" by its own declaration",
+        "signalling_responses_used": {
+         "2.1": "NI",
+         "2.2": "NI",
+         "2.3": "NI",
+         "2.4": "NI",
+         "2.5": "NI",
+         "2.6": "NI",
+         "2.7": "NI"
+        },
+        "stored_judgement_at_derivation": "NO_INFORMATION",
+        "this_does_not_replace_the_stored_judgement": "This is the judgement the published algorithm proposes from the signalling responses named here. It does NOT replace the stored `judgement` beside it, and nothing reads it yet. The tool itself says its algorithms \"provide proposed judgements, but users should verify these and change them if they feel this is appropriate\" -- so this is an input to a person, not an output to a reader.",
+        "state": "DERIVED",
+        "derived_judgement": "HIGH",
+        "algorithm": "effect of ASSIGNMENT variant | Part 1 row 3: 2.3 = NI -> Some concerns | Part 2 row 3: 2.6 = N/PN/NI, 2.7 = Y/PY/NI -> High | domain criteria: the more severe of the two parts -> HIGH"
+       }
       },
       "D3_missing_outcome_data": {
        "judgement": "NO_INFORMATION",
        "basis": "NOT ESTABLISHED -- THE REGISTRY DOES NOT CARRY THE FIELD",
-       "reason": "Neither registration states how many participants were missing from the analysed population or how they were handled. The posted-results counts this object pools are 3 to 9 lower than registered enrolment on three of the four trials, and nothing read explains the difference."
+       "reason": "Neither registration states how many participants were missing from the analysed population or how they were handled. The posted-results counts this object pools are 3 to 9 lower than registered enrolment on three of the four trials, and nothing read explains the difference.",
+       "rob2_algorithm_2026_08_26": {
+        "authority": "RoB 2, Revised Cochrane risk-of-bias tool for randomized trials, Higgins/Savovic/Page/Sterne (eds), RoB2 Development Group, 22 August 2019",
+        "basis": "B: the object declares a domain unjudgeable from the sources read to be NO_INFORMATION, so every signalling response is \"No information\" by its own declaration",
+        "signalling_responses_used": {
+         "3.1": "NI",
+         "3.2": "NI",
+         "3.3": "NI",
+         "3.4": "NI"
+        },
+        "stored_judgement_at_derivation": "NO_INFORMATION",
+        "this_does_not_replace_the_stored_judgement": "This is the judgement the published algorithm proposes from the signalling responses named here. It does NOT replace the stored `judgement` beside it, and nothing reads it yet. The tool itself says its algorithms \"provide proposed judgements, but users should verify these and change them if they feel this is appropriate\" -- so this is an input to a person, not an output to a reader.",
+        "state": "UNDERIVABLE",
+        "reason": "Table 10 defines no row for 3.2 = NI: every row requires 3.2 in {Y/PY, N/PN}. Table 9 cannot be met either. UNDERIVABLE."
+       }
       },
       "D4_measurement_of_the_outcome": {
        "judgement": "LOW",
@@ -413,7 +459,14 @@
       }
      },
      "overall": "SOME_CONCERNS",
-     "overall_reason": "D1, D4 and D5 LOW on read registrations; D2 and D3 NO_INFORMATION. The unjudgeable domains are adherence and attrition, and in a trial whose whole premise is that an INJECTION is adhered to better than a DAILY PILL, the adherence domain is not a formality -- it is the mechanism of the effect."
+     "overall_reason": "D1, D4 and D5 LOW on read registrations; D2 and D3 NO_INFORMATION. The unjudgeable domains are adherence and attrition, and in a trial whose whole premise is that an INJECTION is adhered to better than a DAILY PILL, the adherence domain is not a formality -- it is the mechanism of the effect.",
+     "rob2_algorithm_2026_08_26": {
+      "authority": "RoB 2, Revised Cochrane risk-of-bias tool for randomized trials, Higgins/Savovic/Page/Sterne (eds), RoB2 Development Group, 22 August 2019",
+      "stored_overall_at_derivation": "SOME_CONCERNS",
+      "this_does_not_replace_the_stored_judgement": "This is the judgement the published algorithm proposes from the signalling responses named here. It does NOT replace the stored `judgement` beside it, and nothing reads it yet. The tool itself says its algorithms \"provide proposed judgements, but users should verify these and change them if they feel this is appropriate\" -- so this is an input to a person, not an output to a reader.",
+      "state": "UNDERIVABLE",
+      "reason": "Table 1: not reachable -- at least one domain is underivable, and an overall judgement is a statement about all five"
+     }
     },
     "NCT03164564": {
      "nct": "NCT03164564",
@@ -439,17 +492,63 @@
         "how_this_maps_to_the_tool_s_algorithm": "The tool maps 'No information' on 1.1 and 1.2 with no baseline concern to a DOMAIN judgement of SOME CONCERNS. This project writes NO_INFORMATION on the domain when it could not be judged from the sources read, and caps the OVERALL at SOME_CONCERNS. Same place, and it keeps 'we could not judge this' distinguishable from 'we judged it and had concerns'.",
         "what_does_not_change": "NO OVERALL RATING AND NO GRADE CERTAINTY MOVES. All 51 judgements were already capped at SOME_CONCERNS or HIGH by another NO_INFORMATION domain.",
         "what_would_close_it_properly": "The trial publications or protocols, which carry sequence generation and concealment. Neither was read. Until one is, LOW is not available on this domain for any result in this corpus."
+       },
+       "rob2_algorithm_2026_08_26": {
+        "authority": "RoB 2, Revised Cochrane risk-of-bias tool for randomized trials, Higgins/Savovic/Page/Sterne (eds), RoB2 Development Group, 22 August 2019",
+        "basis": "B: the object declares a domain unjudgeable from the sources read to be NO_INFORMATION, so every signalling response is \"No information\" by its own declaration",
+        "signalling_responses_used": {
+         "1.1": "NI",
+         "1.2": "NI",
+         "1.3": "NI"
+        },
+        "stored_judgement_at_derivation": "NO_INFORMATION",
+        "this_does_not_replace_the_stored_judgement": "This is the judgement the published algorithm proposes from the signalling responses named here. It does NOT replace the stored `judgement` beside it, and nothing reads it yet. The tool itself says its algorithms \"provide proposed judgements, but users should verify these and change them if they feel this is appropriate\" -- so this is an input to a person, not an output to a reader.",
+        "state": "DERIVED",
+        "derived_judgement": "SOME_CONCERNS",
+        "algorithm": "Table 4: 1.2 = NI AND 1.3 = N/PN/NI -> Some concerns. Table 3 states the same in words: \"There is no information to answer any of the signalling questions\" -> Some concerns"
        }
       },
       "D2_deviations_from_intended_intervention": {
        "judgement": "NO_INFORMATION",
        "basis": "NOT ESTABLISHED -- THE REGISTRY DOES NOT CARRY THE FIELD",
-       "reason": "Deviations from the intended intervention, and the analysis population actually used, are not on the registration. ADHERENCE IS THE WHOLE STORY IN PrEP TRIALS and it is exactly what this domain would test, so the absence matters more here than on most topics."
+       "reason": "Deviations from the intended intervention, and the analysis population actually used, are not on the registration. ADHERENCE IS THE WHOLE STORY IN PrEP TRIALS and it is exactly what this domain would test, so the absence matters more here than on most topics.",
+       "rob2_algorithm_2026_08_26": {
+        "authority": "RoB 2, Revised Cochrane risk-of-bias tool for randomized trials, Higgins/Savovic/Page/Sterne (eds), RoB2 Development Group, 22 August 2019",
+        "basis": "B: the object declares a domain unjudgeable from the sources read to be NO_INFORMATION, so every signalling response is \"No information\" by its own declaration",
+        "signalling_responses_used": {
+         "2.1": "NI",
+         "2.2": "NI",
+         "2.3": "NI",
+         "2.4": "NI",
+         "2.5": "NI",
+         "2.6": "NI",
+         "2.7": "NI"
+        },
+        "stored_judgement_at_derivation": "NO_INFORMATION",
+        "this_does_not_replace_the_stored_judgement": "This is the judgement the published algorithm proposes from the signalling responses named here. It does NOT replace the stored `judgement` beside it, and nothing reads it yet. The tool itself says its algorithms \"provide proposed judgements, but users should verify these and change them if they feel this is appropriate\" -- so this is an input to a person, not an output to a reader.",
+        "state": "DERIVED",
+        "derived_judgement": "HIGH",
+        "algorithm": "effect of ASSIGNMENT variant | Part 1 row 3: 2.3 = NI -> Some concerns | Part 2 row 3: 2.6 = N/PN/NI, 2.7 = Y/PY/NI -> High | domain criteria: the more severe of the two parts -> HIGH"
+       }
       },
       "D3_missing_outcome_data": {
        "judgement": "NO_INFORMATION",
        "basis": "NOT ESTABLISHED -- THE REGISTRY DOES NOT CARRY THE FIELD",
-       "reason": "Neither registration states how many participants were missing from the analysed population or how they were handled. The posted-results counts this object pools are 3 to 9 lower than registered enrolment on three of the four trials, and nothing read explains the difference."
+       "reason": "Neither registration states how many participants were missing from the analysed population or how they were handled. The posted-results counts this object pools are 3 to 9 lower than registered enrolment on three of the four trials, and nothing read explains the difference.",
+       "rob2_algorithm_2026_08_26": {
+        "authority": "RoB 2, Revised Cochrane risk-of-bias tool for randomized trials, Higgins/Savovic/Page/Sterne (eds), RoB2 Development Group, 22 August 2019",
+        "basis": "B: the object declares a domain unjudgeable from the sources read to be NO_INFORMATION, so every signalling response is \"No information\" by its own declaration",
+        "signalling_responses_used": {
+         "3.1": "NI",
+         "3.2": "NI",
+         "3.3": "NI",
+         "3.4": "NI"
+        },
+        "stored_judgement_at_derivation": "NO_INFORMATION",
+        "this_does_not_replace_the_stored_judgement": "This is the judgement the published algorithm proposes from the signalling responses named here. It does NOT replace the stored `judgement` beside it, and nothing reads it yet. The tool itself says its algorithms \"provide proposed judgements, but users should verify these and change them if they feel this is appropriate\" -- so this is an input to a person, not an output to a reader.",
+        "state": "UNDERIVABLE",
+        "reason": "Table 10 defines no row for 3.2 = NI: every row requires 3.2 in {Y/PY, N/PN}. Table 9 cannot be met either. UNDERIVABLE."
+       }
       },
       "D4_measurement_of_the_outcome": {
        "judgement": "LOW",
@@ -463,7 +562,14 @@
       }
      },
      "overall": "SOME_CONCERNS",
-     "overall_reason": "D1, D4 and D5 LOW on read registrations; D2 and D3 NO_INFORMATION. The unjudgeable domains are adherence and attrition, and in a trial whose whole premise is that an INJECTION is adhered to better than a DAILY PILL, the adherence domain is not a formality -- it is the mechanism of the effect."
+     "overall_reason": "D1, D4 and D5 LOW on read registrations; D2 and D3 NO_INFORMATION. The unjudgeable domains are adherence and attrition, and in a trial whose whole premise is that an INJECTION is adhered to better than a DAILY PILL, the adherence domain is not a formality -- it is the mechanism of the effect.",
+     "rob2_algorithm_2026_08_26": {
+      "authority": "RoB 2, Revised Cochrane risk-of-bias tool for randomized trials, Higgins/Savovic/Page/Sterne (eds), RoB2 Development Group, 22 August 2019",
+      "stored_overall_at_derivation": "SOME_CONCERNS",
+      "this_does_not_replace_the_stored_judgement": "This is the judgement the published algorithm proposes from the signalling responses named here. It does NOT replace the stored `judgement` beside it, and nothing reads it yet. The tool itself says its algorithms \"provide proposed judgements, but users should verify these and change them if they feel this is appropriate\" -- so this is an input to a person, not an output to a reader.",
+      "state": "UNDERIVABLE",
+      "reason": "Table 1: not reachable -- at least one domain is underivable, and an overall judgement is a statement about all five"
+     }
     }
    }
   },
@@ -515,6 +621,16 @@
     "and_it_bounds_a_finding_of_ours": "Class 94 records assessor 2 saying NO_INFORMATION on D1/D2/D3 `100 of 100`. Measured across all 23 topics now stored that is 239 of 243, and ALL FOUR exceptions are D1=SOME_CONCERNS on `agyw-hiv-prep-review` and `cab-prep-hiv-review` -- two of the three topics asked under the EARLIER prompt build, the one whose reply ids are bare NCTs. Under that build it is 4 of 6; under the later build 0 of 75. The 100% was measured on the later build's topics. The two-defaults mechanism stands; its universality does not, and what varies with it is the PROMPT.",
     "the_rate_is_still_conditional_on_the_same_allow_list": "Both numbers are conditional on the fact list in THE_ALLOW_LIST_THE_RATE_IS_CONDITIONAL_ON above. Neither is a rate of agreement between assessors in general."
    }
+  },
+  "rob2_rederivation_2026_08_26": {
+   "what": "Domain judgements recorded as NO_INFORMATION re-derived with the published algorithm and written alongside, never in place.",
+   "authority": "RoB 2, Revised Cochrane risk-of-bias tool for randomized trials, Higgins/Savovic/Page/Sterne (eds), RoB2 Development Group, 22 August 2019",
+   "handbook": "Cochrane Handbook v6.5 section 8.2.3: the domain-level judgements are Low / Some concerns / High; \"No information\" is one of the five signalling-question responses.",
+   "field": "rob2_algorithm_2026_08_26",
+   "derived": 4,
+   "underivable_reported_as_a_data_gap": 2,
+   "the_stored_judgements_are_unchanged": true,
+   "control": "scripts/plant_rob2_algorithm_tables.py -- one case per published table row, plus four negative controls."
   }
  },
  "grade": {
