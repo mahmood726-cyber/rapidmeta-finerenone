@@ -164,3 +164,12 @@ build-artefacts/
 .ctgov-raw-cache/
 outputs/pubmed_databank_cache/
 outputs/pubmed_esearch_cache/
+
+# Regenerated figure exports. ssot/figures.py:243 writes these from the PNG
+# raster on every build (PIL, compression=None -- 20 files, 275 MB). They are
+# a by-product, not a source: untracked and unignored until now, so they sat
+# in every `git status`. Ignoring the TIFFs only; the rest of figs/ (eps, svg,
+# png, html, _raster_cache) is still undecided -- see TOOLING-QUEUE.md, which
+# asks whether the export set is an artefact or a by-product and says not to
+# resolve it by committing the current files.
+figs/*.tiff

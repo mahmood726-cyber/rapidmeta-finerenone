@@ -1,0 +1,6 @@
+#!/bin/sh
+R="$(git rev-parse --show-toplevel)"
+python "$R/scripts/lint_collinear_protocol.py" >/dev/null || {
+  echo "REFUSED: a rater-assignment protocol contains an exclusion with no stated"
+  echo "justification (scripts/lint_collinear_protocol.py). Run it for the detail."; exit 1; }
+exit 0
