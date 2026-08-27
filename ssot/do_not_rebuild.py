@@ -152,6 +152,21 @@ REQUIRED_GENERATOR_COMMITS = {
         "are unpopulated shells wearing the full apparatus of a review takes a census and 58 "
         "pages opened by hand, and three checks stay unbuildable because no page links a "
         "stated number to the pool it came from"),
+
+    # ADDED 2026-08-27 AFTER CHECKING RATHER THAN ASSUMING. Asked to prove a rebuild could
+    # not revert the five served fixes of 08-26, I found the ledger did not guard four of
+    # them at all. They are ancestors of THIS head, so a rebuild from here keeps them -- but
+    # that is a property of my base, not of the ledger, and the ledger is what the next lane
+    # relies on. The fifth (b2afcce50, 47 orphan stubs) is a file-deletion fix a page
+    # rebuild cannot reintroduce: 47 removed, 0 present in this tree.
+    "463c6d6250cef7898f6a528684998324d81ff471": (
+        "the KCCQ forest plot said lower-is-better on a 0-100 score where higher is better. A rebuilt page without it reasserts a reversed direction on a patient-reported outcome"),
+    "048cf178b1aa19139615afb273e3cf6d71d79a66": (
+        "five pages asserted a direction of benefit and refuted it in the same sentence -- part one of the eight manufactured direction claims"),
+    "424e8aa0ddbda4fcb76a8c0a52c58d77d1f76882": (
+        "three more pages asserted a direction the object never recorded -- part two of the eight. Independent of 7f18a5da2, which landed EARLIER and does not contain these despite its ledger entry describing eight corrections"),
+    "36ae41332611a33a37ff041d158683f6dd8698a3": (
+        "per-outcome participant counts, the withdrawn-state fallthrough, and a gate that was passing an empty set. Without it a rebuilt page restates a review-level denominator against an outcome that did not use it"),
 }
 
 
