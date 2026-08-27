@@ -60,54 +60,88 @@ def topic_of(raw_bytes, known):
 def scan(pages=None):
     known = {os.path.basename(os.path.dirname(p)) for p in glob.glob("ssot/*/*.json")
              if os.path.basename(p) == os.path.basename(os.path.dirname(p)) + ".json"}
-    out = []
+    out, unattributable = [], []
     for page in sorted(pages or glob.glob("*.html")):
         try:
             raw = open(page, "rb").read()
         except OSError:
             continue
+        # A PAGE THIS GATE CANNOT ATTRIBUTE IS NOT A PAGE THAT PASSES.
+        #
+        # topic_of() reads provenance strings out of the page. SGLT2_HF_REVIEW carries NONE
+        # -- zero `ssot/sglt2-hf/` markers -- so it was silently dropped, and the gate then
+        # reported "0 pages rendering a level" over a denominator of 0 while that page was
+        # publishing "Certainty: high" for a WITHDRAWN pool. A skip that shrinks the
+        # denominator instead of appearing in it is the same defect this project has now
+        # met in a dozen instruments, here in the one written to catch it.
+        #
+        # FALLBACK, NAMED AS A FALLBACK: try the filename convention. If that fails too the
+        # page is reported UNATTRIBUTABLE and counted, never quietly excluded.
         topic = topic_of(raw, known)
         if not topic:
+            guess = os.path.basename(page)[:-5].lower().replace("_", "-")
+            for cand in (guess, guess.replace("-review", ""), guess + "-review"):
+                if cand in known:
+                    topic = cand
+                    break
+        if not topic:
+            unattributable.append(page)
             continue
         obj_path = os.path.join("ssot", topic, topic + ".json")
         if not os.path.isfile(obj_path):
+            unattributable.append(page)
             continue
         try:
             obj = json.load(io.open(obj_path, encoding="utf-8"))
         except Exception:
             continue
+        # KEYED ON THE RESOLVED STATE, NOT ON "PENDING". This gate keyed on one named
+        # state while the renderer it guards fell through on the others -- a
+        # consumer-shaped fix and a consumer-shaped gate, made by the same hand in the same
+        # hour. sglt2-hf published "Certainty: high" for a WITHDRAWN pool and this gate
+        # passed it. Anything the resolver does not call RATED has no level to publish, so
+        # a state added later is guarded on arrival instead of waiting for a reviewer.
         pend = {oid for oid in ((obj.get("results") or {}).get("by_outcome") or {})
-                if ga.resolve(obj, oid).get("state") == "PENDING"}
+                if ga.resolve(obj, oid).get("state") != "RATED"}
         if not pend:
             continue
         text = rendered(raw.decode("utf-8", "replace"))
         levels = LEVEL.findall(text)
         derivs = DERIV.findall(text)
-        out.append({"page": page, "topic": topic, "pending_outcomes": len(pend),
+        out.append({"page": page, "topic": topic, "withheld_outcomes": len(pend),
                     "levels_rendered": len(levels), "derivations_rendered": len(derivs),
                     "pending_rendered": len(PENDING.findall(text)),
                     "violating": bool(levels or derivs)})
-    return out
+    return out, unattributable
 
 
 def main():
     argv = [a for a in sys.argv[1:] if not a.startswith("-")]
-    rows = scan(argv or None)
+    rows, unattributable = scan(argv or None)
     bad = [r for r in rows if r["violating"]]
     print("")
     print("GATE -- no certainty level over an unadjudicated risk-of-bias assessment")
     print("")
-    print("  pages examined that have >=1 PENDING outcome   %4d  == the denominator"
+    print("  pages with >=1 outcome whose level is withheld   %4d  == the denominator"
           % len(rows))
     print("  pages rendering a certainty LEVEL anyway       %4d" % len(bad))
+    print("  pages this gate COULD NOT ATTRIBUTE            %4d   <- not a pass"
+          % len(unattributable))
+    for u in unattributable[:10]:
+        print("       unattributable: %s" % u)
     print("")
     for r in sorted(rows, key=lambda x: (-x["levels_rendered"], x["page"]))[:24]:
-        print("   %-9s %-42s pending %d  levels %d  derivations %d"
+        print("   %-9s %-42s withheld %d  levels %d  derivations %d"
               % ("REFUSE" if r["violating"] else "ok", r["page"][:41],
-                 r["pending_outcomes"], r["levels_rendered"], r["derivations_rendered"]))
+                 r["withheld_outcomes"], r["levels_rendered"], r["derivations_rendered"]))
     if len(rows) > 24:
         print("   ... and %d more" % (len(rows) - 24))
     print("")
+    if unattributable:
+        print("VERDICT: REFUSED. %d page(s) could not be attributed to a store, so this "
+              "gate has no opinion on them and must not be read as clearing them."
+              % len(unattributable))
+        return 1
     if bad:
         print("VERDICT: REFUSED. %d page(s) publish a certainty level while the risk-of-bias "
               "assessment behind it is unadjudicated." % len(bad))

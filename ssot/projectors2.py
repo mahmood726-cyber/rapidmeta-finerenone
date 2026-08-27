@@ -668,6 +668,14 @@ def grade_section(res, p, canon=None, oid=None):
     # asserting and denying in the same box, and the derivation is the worse half: it
     # names the withheld level in full.
     _res = _ga.resolve(canon, oid) if (canon and oid) else None
+    # KEYED ON THE RESOLVED STATE, NOT ON A NAMED SUBSET OF IT. This read
+    # `state == "PENDING"` and fell through to the stored value for every other non-RATED
+    # state -- so sglt2-hf rendered "Certainty: high" for a WITHDRAWN pool, publishing a
+    # rating about an estimate that has been taken down. That is the same false-claim
+    # family as the pending case, left standing beside the fix for it, by the same hand in
+    # the same hour. Anything the resolver does not call RATED has no level to publish, and
+    # a state added later arrives guarded instead of unguarded.
+    _withheld = bool(_res and _res.get("state") != "RATED")
     _pending = bool(_res and _res.get("state") == "PENDING")
     rows = ""
     for k in GRADE_DOMAINS:
@@ -680,7 +688,7 @@ def grade_section(res, p, canon=None, oid=None):
         # marking them pending would assert something false about them. With the
         # risk-of-bias cell pending, no reader can total the domains into a rating, which
         # is the contradiction that needed removing.
-        if _pending and k == "risk_of_bias":
+        if _withheld and _pending and k == "risk_of_bias":
             rating = ("<strong>pending</strong>")
             basis = ("This domain is not final: %s Its recorded reasoning is kept with the "
                      "assessment rather than shown here as a settled judgement."
@@ -697,8 +705,8 @@ def grade_section(res, p, canon=None, oid=None):
                  % (p(g["starting_point"]),
                     " &mdash; " + p(because) if because else "", NL))
     deriv = ("  <p><small>%s</small></p>%s" % (p(g["certainty_derivation"]), NL)
-             if g.get("certainty_derivation") and not _pending else "")
-    if _pending:
+             if g.get("certainty_derivation") and not _withheld else "")
+    if _withheld:
         deriv = ("  <p><small>The stored derivation of this rating is not shown, because "
                  "it ends in the level this review is withholding. It is held with the "
                  "assessment and will be published with the adjudicated "
@@ -730,8 +738,9 @@ def grade_section(res, p, canon=None, oid=None):
             "    <tr><th scope='col'>Domain</th><th>Rating</th><th>Why it was rated that way"
             "</th></tr>%s%s  </table>%s</div>%s%s"
             % (NL, NL,
-               ("<span title=\"%s\">Pending &mdash; not rated</span>"
-                % e(str(_res.get("comment", ""))[:400])) if _pending
+               ("<span title=\"%s\">%s</span>"
+                % (e(str(_res.get("comment", ""))[:400]),
+                   e(str(_res.get("cell") or "not rated")))) if _withheld
                else p(g["certainty"]),
                NL, start, deriv, NL, NL, rows, NL, NL,
                effect))
@@ -852,15 +861,71 @@ def _interval_caption(pooled, null_value):
                    % (_fmt_v(lo), _fmt_v(hi), _fmt_v(nv)))
 
 
+
+def _analysed_n_for_outcome(canon, res):
+    """(total, matched, wanted) analysed participants for THIS outcome's trials only.
+
+    Keyed on registration id. Returns the counts so the caller can refuse when a
+    contributing trial could not be matched, rather than publishing a partial sum.
+    """
+    # ONE ENTRY PER CONTRIBUTING TRIAL, NOT PER IDENTIFIER STRING. The first version
+    # collected every id on every per_trial row into one set, so a two-trial pool carrying
+    # both `nct` and `trial_id` produced FOUR "wanted" ids, matched two, and tripped the
+    # caller's refusal on every outcome in the corpus. A guard that fires everywhere is as
+    # useless as one that never fires, and this one would have blanked a number that was
+    # finally correct.
+    wanted = []
+    for r in (res.get("per_trial") or []):
+        if not isinstance(r, dict):
+            continue
+        ids = {str(r[k]).strip() for k in ("nct", "trial_id", "id") if r.get(k)}
+        if ids:
+            wanted.append(ids)
+    if not wanted:
+        return 0, 0, 0
+    trials = [t for t in ((canon.get("inputs") or {}).get("trials") or [])
+              if isinstance(t, dict)]
+    total, matched = 0, 0
+    for ids in wanted:
+        for t in trials:
+            keys = {str(t.get(k)).strip() for k in ("nct", "id", "name") if t.get(k)}
+            if keys & ids:
+                matched += 1
+                for a in (t.get("arms") or []):
+                    if isinstance(a, dict):
+                        total += a.get("participants") or 0
+                break
+    return total, matched, len(wanted)
+
+
 def visual_abstract(canon, res, outcome, p):
     """The graphical abstract, projected. Under the same gates as any figure."""
     pooled = res.get("pooled") or {}
     if pooled.get("point") is None:
         return ""
-    n_total = 0
-    for t in (canon.get("inputs") or {}).get("trials", []):
-        for a in (t.get("arms") or []):
-            n_total += a.get("participants") or 0
+    # THE PARTICIPANT COUNT BELONGED TO THE PAGE, NOT TO THE POOL, AND IT TRAVELLED.
+    #
+    # This summed arms across EVERY trial on the object. On iv-iron-hf all four visual
+    # abstracts read "2 trials, 6,716 participants" -- 6,716 being the sum over all six
+    # pools (2,245 + 1,105 + 0 + 0 + 3,065 + 301), while the two-trial pool each abstract
+    # names holds 2,245. The total silently absorbed HEART-FID's 3,065 and CONFIRM-HF's
+    # 301, single-trial pools for entirely different outcomes. So it told a reader a
+    # two-trial result rested on three times the evidence it does, four times over, and it
+    # refuted itself on its own face: AFFIRM-AHF plus IRONMAN is 2,245.
+    #
+    # A visual abstract is a STANDALONE graphic. It travels without the page that would
+    # have corrected it, which makes a wrong number here worse than the same number in
+    # prose.
+    #
+    # JOINED ON THE REGISTRATION ID, not the trial name. per_trial rows carry `nct` and
+    # `trial_id`; matching on acronym is the bad-key failure that gave three parties three
+    # different answers on the KCCQ outcome.
+    n_total, _n_matched, _n_wanted = _analysed_n_for_outcome(canon, res)
+    if _n_wanted and _n_matched != _n_wanted:
+        # AND IT REFUSES RATHER THAN UNDERSTATING. If a contributing trial cannot be
+        # matched to an arm count, the sum is not this pool's total and must not be shown
+        # as one -- a quietly smaller wrong number is not an improvement on a larger one.
+        n_total = 0
     g = res.get("grade") or {}
     sens = res.get("sensitivity") or {}
     loo = ""
