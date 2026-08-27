@@ -137,6 +137,14 @@ REQUIRED_GENERATOR_COMMITS = {
         "it failed at BUILD time, so the honest sentence was never written and affected "
         "pages stayed frozen at whatever they last said, including four whose fix was "
         "already on main and could not reach a reader"),
+    # FULL sha, per the note above: this repository carries several thousand branches.
+    "95bddba58a75b06793c0655f60091244c941cc6e": (
+        "emit the store path in the served bytes -- <html data-store=\"ssot/<id>/<id>.json\">. "
+        "Without it a rebuilt page states the generator that made it and not the object it "
+        "is about: measured 2026-08-27, 31 of 144 pages declared their object and 138 "
+        "declared their generator, which is why attribution was forensic rather than a "
+        "lookup. The same commit stops lane_rob/provenance.py counting untracked build "
+        "output as dirt, which had pinned git_dirty true on every record that lane wrote"),
 }
 
 
