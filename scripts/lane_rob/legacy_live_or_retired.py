@@ -170,6 +170,10 @@ def main():
             print("     %s" % r["page"])
     json.dump(rows, io.open(r"F:\claude-temp\pend\legacy_live_or_retired.json", "w",
                             encoding="utf-8"), indent=1)
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    import provenance as _pv
+    print("  provenance -> %s" % os.path.basename(_pv.stamp(
+        r"F:\claude-temp\pend\legacy_live_or_retired.json", inputs=["ssot/PAGE_MAP.json", "index.html", r"F:\claude-temp\pend\page_attribution.json"])))
     print("")
     print("  detail -> legacy_live_or_retired.json")
     print("  NOTHING RETIRED HERE. This assigns the attribute; the decision is Mahmood's.")

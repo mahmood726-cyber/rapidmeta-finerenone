@@ -79,23 +79,59 @@ def page_map():
     return out
 
 
-def classify(page, raw, known, mapped=None):
-    # THE STATED MAPPING WINS OVER ANY INFERENCE FROM THE BYTES.
-    if mapped and os.path.basename(page) in mapped:
-        return "HAS_STORE", mapped[os.path.basename(page)]
+SUFFIX = re.compile(
+    r"[-_](auto[-_]full[-_]review|auto[-_]review|full[-_]review|review|ssot|auto[-_]2|"
+    r"living[-_]ma|ma)$", re.I)
+
+
+def norm(name):
+    """Strip generation suffixes repeatedly, BOTH SIDES, then compare.
+
+    The suffix blind spot has now produced two separate defects. It made the first subject
+    join agree only 35.1% until the same suffix was stripped from page keys and store
+    directory names alike; and it is why ANTIMALARIAL_ACT_SSOT, CRYPTOCOCCAL_MENINGITIS_SSOT
+    and PREVNAR15_PNEUMO_SSOT -- all three populated -- were reported as having no object.
+    Fixed once, here, rather than a third time somewhere else.
+    """
+    k = str(name).lower().replace("_", "-").strip("-")
+    prev = None
+    while prev != k:
+        prev = k
+        k = SUFFIX.sub("", k)
+    return k
+
+
+def classify(page, raw, known, mapped=None, nknown=None):
+    # THE SHARED DEFINITION, AND IT IS THE OTHER LANE'S: a page has a canonical object when it
+    # DECLARES that object's identity in its served bytes. That is evidence a reader receives,
+    # not a directory convention either side happens to follow. My previous version made
+    # PAGE_MAP the authority -- a claim ABOUT a page rather than a claim BY it -- and that is
+    # exactly the 13 pages I called HAS_STORE that the served side calls a stub and the 14 it
+    # calls current-generation-with-no-store. A map entry is a promise; the bytes are evidence.
     c = collections.Counter(m.group(1).decode("ascii", "ignore")
                             for m in TOPIC_IN_PAGE.finditer(raw))
     for name, _ in c.most_common():
         if name in known:
             return "HAS_STORE", name
-    stem = os.path.basename(page)[:-5].lower().replace("_", "-")
-    for cand in (stem, stem.replace("-review", ""), stem + "-review"):
-        if cand in known:
-            return "HAS_STORE", cand
+    # SYMMETRIC SUFFIX STRIPPING on the page's OWN NAME, which is the page naming itself
+    # rather than a third party asserting something about it, so it stays on this side of
+    # the line the shared definition draws.
+    # WHAT THE PAGE IS COMES BEFORE WHAT ITS NAME RESEMBLES. Putting the normalised-name
+    # match ahead of these checks promoted 85 redirect stubs to HAS_STORE in one run: a stub
+    # called X_AUTO_FULL_REVIEW.html normalises onto the store `x` and was declared an object
+    # it merely points at. A stub is a pointer, and a pointer declares nothing -- which is the
+    # shared definition doing real work rather than being restated.
     if len(raw) < 8000 and REDIRECT.search(raw):
         return "REDIRECT_STUB", None
     if TOMB.search(raw[:20000]):
         return "RETIRED_TOMBSTONE", None
+    ns = norm(os.path.basename(page)[:-5])
+    if nknown and ns in nknown:
+        return "HAS_STORE", nknown[ns]
+    # PAGE_MAP NAMES IT BUT THE BYTES DO NOT DECLARE IT. Its own kind, not promoted to
+    # HAS_STORE: a reader receiving this page gets no provenance from it at all.
+    if mapped and os.path.basename(page) in mapped:
+        return "MAPPED_NOT_DECLARED", mapped[os.path.basename(page)]
     if TOOLISH.search(os.path.basename(page)[:-5]):
         return "INDEX_OR_TOOL", None
     return "NO_STORE_REVIEW", None
@@ -104,6 +140,9 @@ def classify(page, raw, known, mapped=None):
 def main():
     known = known_topics()
     mapped = page_map()
+    nknown = {}
+    for t in known:                       # normalised store name -> real store name
+        nknown.setdefault(norm(t), t)
     pages = sorted(glob.glob("*.html"))
     rows = []
     for p in pages:
@@ -112,7 +151,7 @@ def main():
         except OSError:
             rows.append((p, "UNREADABLE", None, 0))
             continue
-        kind, topic = classify(p, raw, known, mapped)
+        kind, topic = classify(p, raw, known, mapped, nknown)
         rows.append((p, kind, topic, len(raw)))
 
     print("=" * 88)
@@ -144,9 +183,15 @@ def main():
         print("  examples, %s:" % k)
         for e in ex:
             print("     %s" % e)
+    out = r"F:\claude-temp\pend\page_attribution.json"
     json.dump([{"page": p, "kind": k, "topic": t, "bytes": n} for p, k, t, n in rows],
-              io.open(r"F:\claude-temp\pend\page_attribution.json", "w", encoding="utf-8"),
-              indent=1)
+              io.open(out, "w", encoding="utf-8"), indent=1)
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    import provenance as _pv
+    side = _pv.stamp(out, inputs=["ssot/PAGE_MAP.json", "index.html"],
+                     note="page attribution under the shared definition: a page has a "
+                          "canonical object when its served bytes declare that object")
+    print("  provenance -> %s" % os.path.basename(side))
     print("")
     print("  detail -> page_attribution.json")
     print("  ESTABLISHED, NOT ASSESSED: this says what these pages ARE, not whether they")

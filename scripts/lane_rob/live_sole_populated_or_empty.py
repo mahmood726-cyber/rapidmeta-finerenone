@@ -152,6 +152,10 @@ def main():
             print("     %s" % os.path.basename(c["page"]))
     json.dump(allc, io.open(r"F:\claude-temp\pend\live_sole_populated.json", "w",
                             encoding="utf-8"), indent=1)
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    import provenance as _pv
+    print("  provenance -> %s" % os.path.basename(_pv.stamp(
+        r"F:\claude-temp\pend\live_sole_populated.json", inputs=[r"F:\claude-temp\pend\legacy_live_or_retired.json"])))
     print("")
     print("  detail -> live_sole_populated.json")
 
