@@ -38,6 +38,7 @@ import time
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(REPO, "scripts"))
+import rebuild_batch_2026_08_27 as RB
 SCRATCH = (r"F:\claude-temp\claude\F--rapidmeta-finerenone"
            r"\e2e2a1d5-c19e-44de-90ab-690dbc5235a1\scratchpad\classify")
 BUILT = (r"F:\claude-temp\claude\F--rapidmeta-finerenone"
@@ -159,11 +160,22 @@ def main():
         if not (os.path.exists(sp) and os.path.exists(bp)):
             say("  %-46s SKIP (missing served or built copy)" % p[:46])
             continue
-        for i, r in enumerate(regions(io.open(sp, encoding="utf-8", errors="replace").read(),
-                                      io.open(bp, encoding="utf-8", errors="replace").read())):
-            if r["kind"] == "insert":
-                continue          # inserts are catch-up by construction; deletes and
-            for fam in FAMILIES:  # replaces are what need a judgement
+        served_html = io.open(sp, encoding="utf-8", errors="replace").read()
+        built_html = io.open(bp, encoding="utf-8", errors="replace").read()
+        built_text = RB.norm(RB.rendered(built_html))
+        for i, r in enumerate(regions(served_html, built_html)):
+            # ONLY THE UNMATCHED DELETES. Inserts are catch-up by construction. Replaces
+            # were judged wholesale in the first run and produced mostly agreement. And a
+            # delete the whitelist ALREADY released must not be re-judged: the panel does
+            # not know eafa9445c retracted that sentence deliberately, so it calls it a
+            # REGRESSION every time -- 1,292 jobs of which the loudest signal was an answer
+            # we had already settled by identity. Judging what is already decided does not
+            # add a second opinion; it manufactures a contradiction.
+            if r["kind"] != "delete":
+                continue
+            if RB.known_retraction(r["removed"], built_text):
+                continue
+            for fam in FAMILIES:
                 jobs.append((p, i, r, fam))
 
     say("judgement jobs (deletes and replaces x 2 families): %d" % len(jobs))
