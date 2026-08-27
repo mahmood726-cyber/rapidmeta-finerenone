@@ -39,6 +39,31 @@ about other people's trials, each one looking exactly like a finding. The instru
 and its error rate is not measured; it is reported as a candidate list for reading, never as a
 verdict. On this sample, after reading: no evidence of outcome switching in any of the 9.
 
+PASS 4 -- THE JOURNAL ROUTE, WHICH IS THE ONLY ONE LEFT. Per trial, not per topic:
+
+  SPIRE, 6 trials (bococizumab-lipid-review). Primary reports are NEJM 2017 --
+  10.1056/NEJMoa1614062 and 10.1056/NEJMoa1701488 -- and there is a DESIGN AND RATIONALE
+  paper in American Heart Journal 2016, 10.1016/j.ahj.2016.05.010. That design paper is the
+  best D5 instrument that exists for these trials: it states the pre-specified endpoints and
+  was published BEFORE results, so it is a plan rather than a report. NONE of the three has a
+  PMCID. All are behind a publisher, so this lane cannot retrieve any of them, and the
+  bococizumab store records no PMID or DOI for any of its six trials at all.
+
+  Tigecycline, 3 trials (tigecycline-ciai). All three primary reports ARE open access in PMC
+  -- PMC1277826, PMC2920872, PMC6281154 -- and the store already records their PMIDs. Reading
+  one in full (10.1186/1471-2334-10-217, PubMed): it names the co-primary endpoints, defines
+  every analysis population, and EXPLICITLY labels a Cochran-Mantel-Haenszel analysis as
+  post-hoc. That transparency answers part of D5 and is a point in the trial's favour.
+
+WHAT THE JOURNAL ROUTE STILL DOES NOT GIVE, and the distinction is the whole domain. A report
+that names its primary endpoint is still the REPORT. D5's hard question -- were several
+eligible analyses run and the reported one chosen on its result -- is answerable only from the
+plan. No protocol or SAP was located for any of the 9.
+
+AND ONE THING I COULD NOT CHECK, said rather than assumed: the PMC open-access package
+endpoint returned 404 for all three tigecycline records, so whether supplementary files are
+deposited alongside them is UNKNOWN, not absent. A failed probe is not a negative result.
+
 NET D5 RESULT: 10 gaps, 0 closed, 0 findings manufactured, and the reason each remains open is
 now recorded as a fact about our retrieval rather than a fact about the trials.
 """
