@@ -34,6 +34,45 @@ _NOT_RECORDED_PREFIXES = ("not recorded", "not available", "not stated", "no rec
                           "not established", "not captured")
 
 
+
+_SCALE_WORDS = {"log": "log", "natural": "natural", "linear": "linear", "none": "none"}
+_RATIO_MEASURES = {"HR", "OR", "RR", "IRR", "SHR", "SMR"}
+
+
+def _esc(x):
+    """Same semantics as the nested `e` at line ~436, which is not in scope here."""
+    return html.escape("—" if x is None else str(x))
+
+
+def _scale_phrase(outcome, res):
+    """The effect scale, DERIVED OR REFUSED -- never guessed.
+
+    A ratio measure with no recorded scale is an object defect. It is named as one here
+    rather than smoothed over, because the previous default rendered the minority value
+    ('natural', stored on 10 outcomes against 'log' on 70) as though it were recorded.
+    """
+    raw = outcome.get("effect_scale")
+    scale = _SCALE_WORDS.get(str(raw).strip().lower()) if raw is not None else None
+    if scale is None:
+        measure = str((res.get("pooled") or {}).get("measure")
+                      or outcome.get("measure") or "").strip().upper()
+        if measure in _RATIO_MEASURES:
+            phrase = ("on a scale this object does not record &mdash; and %s is a ratio "
+                      "measure, which is combined on the log scale, so the missing field "
+                      "is a gap in this object rather than a property of the result"
+                      % _esc(measure))
+        else:
+            phrase = "on a scale this object does not record"
+    else:
+        phrase = "on the %s scale" % _esc(scale)
+    if res.get("estimand_established") is True:
+        return "pooled " + phrase
+    if res.get("source_page_pooled") or res.get("poolable"):
+        return ("combined " + phrase + "; ESTIMAND UNIFORMITY NOT ESTABLISHED -- the "
+                "contributing trials have not been shown to measure the same quantity")
+    return "reported " + phrase + "; nothing is pooled on this outcome"
+
+
 def _recorded(v):
     """False for None, blank, and any string that opens with an absence marker."""
     if v is None:
@@ -123,7 +162,13 @@ def _house_rule_table(res, p, e):
     for label, est, lo, hi in (
             ("as published", pub.get("estimator") or "as stored",
              pub.get("ci_low"), pub.get("ci_high")),
-            ("sensitivity (Handbook 10.10.4.5)", hr.get("estimator") or "Hartung-Knapp",
+            # A METHOD NAME ASSERTED FROM ABSENCE IS A CLAIM. Latent -- 18 served
+            # pages render this table and none labels a row "Hartung-Knapp", so the
+            # default has never fired on a delivered page -- but it is one missing field
+            # away from naming a method nobody chose. Its neighbour on the line below,
+            # `pub.get("estimator") or "as stored"`, was already honest.
+            ("sensitivity (Handbook 10.10.4.5)",
+             hr.get("estimator") or "an estimator this object does not name",
              hr.get("ci_low"), hr.get("ci_high"))):
         if lo is None or hi is None:
             continue
@@ -1122,9 +1167,22 @@ def _outcome_section(canon, oid, p, e):
         # stratifies by anything else would have had its strata announced as
         # age groups. The object says what its strata are; the default is the
         # wording the first object to carry strata already ships.
-        sg_head = res.get("subgroup_heading", "By age stratum")
+        # A HEADING THAT NAMES A STRATIFICATION THE OBJECT NEVER DECLARED. This
+        # defaulted to "By age stratum", and prevnar15-pneumo renders it over a subgroup
+        # table on an object that carries no subgroup_heading. It is accurate there BY
+        # LUCK -- the strata happen to be age bands -- and exactly one object in the
+        # corpus carries the field at all. The next page to lack it gets the same heading
+        # whether or not it is about age. Refuse rather than name it.
+        sg_head = res.get("subgroup_heading")
         sg_foot = res.get("subgroup_footnote")
-        subgroups = (f"<div class='card'>\n  <h2>{e(sg_head)}</h2>\n  <table>\n"
+        # AND THE HEADING IS OMITTED WHEN THE OBJECT DOES NOT DECLARE IT, not filled with
+        # a placeholder. `e(None)` would print "None" over a real table, which is the same
+        # class of defect one step worse. A table with no heading is honest; a table headed
+        # with a stratification nobody declared is not.
+        _sg_h2 = f"  <h2>{e(sg_head)}</h2>\n" if sg_head else (
+            "  <p><small>This object does not record what these strata are grouped by, so "
+            "no heading is given for them.</small></p>\n")
+        subgroups = (f"<div class='card'>\n{_sg_h2}  <table>\n"
                      f"    <tr><th>Stratum</th><th>Trials</th>"
                      f"<th>{e(outcome.get('measure'))} (95% CI)</th><th>I&sup2;</th>"
                      f"<th>What this stratum mixes</th></tr>\n{srows}  </table>\n"
@@ -1358,15 +1416,22 @@ def _outcome_section(canon, oid, p, e):
             # patient global assessment. The object was honest; the renderer read the
             # wrong field. FIFTH instance of the generator class -- prose asserting a
             # property the generator never verified against the object.
-            + row("Effect scale",
-                  (f"pooled on the {e(outcome.get('effect_scale', 'natural'))} scale"
-                   if res.get("estimand_established") is True else
-                   (f"combined on the {e(outcome.get('effect_scale', 'natural'))} scale; "
-                    f"ESTIMAND UNIFORMITY NOT ESTABLISHED -- the contributing trials have "
-                    f"not been shown to measure the same quantity"
-                    if res.get("source_page_pooled") or res.get("poolable") else
-                    f"reported on the {e(outcome.get('effect_scale', 'natural'))} "
-                    f"scale; nothing is pooled on this outcome")))
+            # SIXTH INSTANCE, AND THE DEFAULT GUESSED THE MINORITY VALUE. `effect_scale`
+            # defaulted to 'natural', so sglt2-hf's harmonised_cvdeath_or_hhf -- which
+            # stores measure "HR" and NO scale -- rendered "reported on the natural
+            # scale". A hazard ratio is a log-scale quantity, and both sibling outcomes on
+            # that same page store 'log', so the page contradicted itself across three
+            # rows for anyone who read them.
+            #
+            # Corpus-wide the field stores log 70, natural 10, linear 2, none 1. The
+            # default was the LESS likely truth, which is the worst available choice for a
+            # statistical claim: absence rendered as the minority value with the same
+            # confidence as a recorded one.
+            #
+            # Derive or refuse, as _favoured_arm now does. 91 of 174 outcomes record no
+            # effect_scale at all, and that is an OBJECT defect to be surfaced rather than
+            # papered over here.
+            + row("Effect scale", _scale_phrase(outcome, res))
             + "  </table>" + NL + "</div>" + NL)
 
     # THE COLUMN HEADER MUST NOT NAME AN INTERVAL LEVEL THE ROWS DO NOT CARRY.

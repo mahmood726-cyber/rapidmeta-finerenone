@@ -31,6 +31,34 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="repla
 Z = {90: 1.644853627, 95: 1.959963985, 97.5: 2.241402728, 99: 2.575829304}
 
 
+
+# TWO DEFAULTS THAT DISAGREE MEAN A MISSING FIELD MAKES THE VALIDATOR CONTRADICT ITSELF --
+# and the contradiction surfaces as a finding against the OBJECT, not against the validator.
+# One path assumed DerSimonian-Laird for an absent `estimator_used` and another assumed
+# REML, so where the field is missing the two recomputations could disagree and the object
+# got blamed for the difference. That is the accusatory-failure pattern living inside an
+# instrument, which is the worst place for it: a validator that manufactures a finding when
+# the corpus is merely silent.
+#
+# ONE RESOLVER, AND IT REFUSES. A missing estimator blocks recomputation instead of
+# silently choosing one, because choosing one is the thing that produced the false finding.
+class EstimatorNotRecorded(Exception):
+    pass
+
+
+def resolve_estimator(res, where=""):
+    """The estimator this result was fitted with, or a refusal. Never a default."""
+    v = (res or {}).get("estimator_used")
+    if v is None or not str(v).strip():
+        raise EstimatorNotRecorded(
+            "REFUSED: this result records no `estimator_used`%s, so it cannot be "
+            "recomputed. Two code paths here previously assumed different defaults "
+            "(DerSimonian-Laird and REML), which made a silent object gap look like a "
+            "disagreement the object was blamed for."
+            % ((" at " + where) if where else ""))
+    return str(v).strip()
+
+
 def _declared_outcome(canon, oid):
     """The outcomes[] entry for a results block, or a NAMED error.
 
