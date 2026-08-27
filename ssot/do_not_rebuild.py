@@ -112,6 +112,25 @@ def check(out_path):
 # the check runs where the build cannot avoid it, beside the do-not-rebuild refusal, before
 # anything is written.
 #
+# ADMISSION CRITERION -- AN ENTRY MAY ONLY REGISTER A COMMIT THAT CHANGED THE GENERATOR.
+# A hand-edit to served HTML cannot be guaranteed by an ancestry check BY CONSTRUCTION: the
+# rebuild regenerates the file from the object and overwrites it, so the commit stays an
+# ancestor forever while the fix is gone. On 2026-08-27 three such commits were registered
+# here and then removed -- 463c6d625, 048cf178b and 424e8aa0d changed nine served .html files
+# and zero .py and zero .json between them. Checked by rebuilding, one of the nine came back
+# with the pre-edit text.
+#
+# A LEDGER ENTRY THAT CANNOT BE KEPT IS WORSE THAN A MISSING ONE. A missing entry prompts a
+# question; a false one closes it.
+#
+# Before adding a commit, run:  git show --name-only --format= <sha> | grep -E '\.(py)$'
+# If that is empty, the commit changed no generator and DOES NOT BELONG HERE. Record it in
+# the handover instead, where a claim does not carry a guarantee.
+#
+# And the description is never the evidence. 7f18a5da2's entry says it "carries eight served
+# render corrections"; it landed 23:43 and those corrections landed 23:55, 00:24 and 00:30,
+# none of them its ancestor. Ancestry is the evidence. Prose is a label.
+#
 # HOW TO EXTEND IT: add a commit here when a renderer fix must not be reverted by a rebuild.
 # The entry is a promise that the built page will carry that fix.
 # THE ENTRY IS ADDED IN A SEPARATE COMMIT FROM THE FIX IT NAMES, AND THAT IS DELIBERATE.
@@ -159,12 +178,6 @@ REQUIRED_GENERATOR_COMMITS = {
     # that is a property of my base, not of the ledger, and the ledger is what the next lane
     # relies on. The fifth (b2afcce50, 47 orphan stubs) is a file-deletion fix a page
     # rebuild cannot reintroduce: 47 removed, 0 present in this tree.
-    "463c6d6250cef7898f6a528684998324d81ff471": (
-        "the KCCQ forest plot said lower-is-better on a 0-100 score where higher is better. A rebuilt page without it reasserts a reversed direction on a patient-reported outcome"),
-    "048cf178b1aa19139615afb273e3cf6d71d79a66": (
-        "five pages asserted a direction of benefit and refuted it in the same sentence -- part one of the eight manufactured direction claims"),
-    "424e8aa0ddbda4fcb76a8c0a52c58d77d1f76882": (
-        "three more pages asserted a direction the object never recorded -- part two of the eight. Independent of 7f18a5da2, which landed EARLIER and does not contain these despite its ledger entry describing eight corrections"),
     "36ae41332611a33a37ff041d158683f6dd8698a3": (
         "per-outcome participant counts, the withdrawn-state fallthrough, and a gate that was passing an empty set. Without it a rebuilt page restates a review-level denominator against an outcome that did not use it"),
 }
