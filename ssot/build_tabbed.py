@@ -561,9 +561,15 @@ def output_card(canon, p):
         pl = r.get("pooled") or {}
         g = r.get("grade") or {}
         ks = r.get("k_status") or {}
-        sof += ("    <tr><td>%s</td><td class='num'>%s%s</td><td class='num'>%s</td>"
+        # data-pool ON THE ROW, NOT ON EACH CELL. Every number in this row -- the k, the
+        # pooled point and its interval -- comes from the SAME pool, so the row is the
+        # honest unit. The pool's id is the object's own key under results.by_outcome;
+        # there is no separate pool_id field, and inventing one here would create a second
+        # name for a thing that already has one.
+        sof += ("    <tr data-pool=\"%s\"><td>%s</td><td class='num'>%s%s</td>"
+                "<td class='num'>%s</td>"
                 "<td>%s</td></tr>%s"
-                % (p(o["name"]), pj.fmt(r.get("k")),
+                % (p(oid), p(o["name"]), pj.fmt(r.get("k")),
                    " (lower bound)" if ks.get("is_lower_bound") else "",
                    ("%s %s (%s to %s)" % (_v((pl.get("measure", ""))),
                                           pj.fmt(pl["point"]),
@@ -1389,7 +1395,59 @@ def _standard_block(canon, e_):
            _v(_pp._tidy(stamp.get("_ratchet", "")))))
 
 
-def build(canon):
+def _artefact_kind(canon):
+    """review | tool -- what KIND of thing this page is, decided from the object.
+
+    WHY. Establishing what 1,463 served pages ARE took a census, a structural-signature
+    classifier, live sampling, a cross-lane join and 58 pages opened by hand. 744 of them
+    present the full apparatus of a systematic review -- PRISMA, GRADE, AMSTAR-2, RoB-2 --
+    with `--` in every result slot, at URLs ending `_REVIEW.html`. A reader is invited to
+    run them and the URL says they are invited to believe them. One attribute answers it.
+
+    THE RULE IS THE POPULATED OUTCOME, NOT THE APPARATUS. A shell carries every table a
+    review carries; what it does not carry is a result. Measured 2026-08-27 over PAGE_MAP:
+    149 objects hold at least one outcome with a pooled estimate, an effect or a k, and 14
+    hold none -- which reproduces the census's own "14 current-generation without a store".
+
+    THIS GENERATOR EMITS TWO OF THE FOUR KINDS. `redirect` and `landing` are produced
+    elsewhere and are NOT claimed here; a page built by this function is never one of them,
+    so asserting the vocabulary's other half from here would be a guess.
+    """
+    by = (canon.get("results") or {}).get("by_outcome") or {}
+    for v in by.values():
+        if isinstance(v, dict) and (v.get("pooled") or v.get("effect") or v.get("k")):
+            return "review"
+    return "tool"
+
+
+def _store_declaration(canon):
+    """The page's own object path, for the served bytes. Derives, VERIFIES, or refuses.
+
+    WHY THIS EXISTS. Measured across the corpus on 2026-08-27: only 31 of 144 pages declare
+    their object's identity in their served bytes, while 138 declare the generator that
+    built them. The corpus records HOW a page was made and not WHAT IT IS ABOUT -- which is
+    why attributing a page to its object has been forensic rather than a lookup, and why six
+    separate defects in one night were all attribution guesses.
+
+    DERIVE-AND-VERIFY, NOT DERIVE. `ssot/<app_id>/<app_id>.json` reproduces the PAGE_MAP
+    entry for 163 of 163 objects, so derivation is currently exact. It is still checked
+    against the filesystem before being asserted, because PAGE_MAP existing at all is
+    evidence the convention has not always held, and a convention is not a contract. An
+    object whose derived path does not resolve gets an explicit refusal rather than a path
+    that is merely plausible -- a wrong store path is worse than none, because a reader or a
+    check would follow it.
+    """
+    app = canon.get("app_id")
+    if not app or not isinstance(app, str):
+        return None, "object records no app_id"
+    rel = "ssot/%s/%s.json" % (app, app)
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    if not os.path.exists(os.path.join(root, rel)):
+        return None, "derived store path does not resolve: %s" % rel
+    return rel, None
+
+
+def build(canon, store_path=None):
     # AN OBJECT WITH NO TITLE AND NO RESULTS IS NOT A PAPER, AND THIS SAYS SO ONCE.
     #
     # 14 topics are empty shells -- no `results` key, no `title`. Building them produced a
@@ -1608,8 +1666,17 @@ def build(canon):
     # property a reader cannot see is not a property the page has.
     body += _standard_block(canon, e_)
     body = _caption_tables(body)
+    _store, _store_why = (store_path, None) if store_path else _store_declaration(canon)
+    # ON <html>, NOT IN A COMMENT. A page must be able to state what it is about in bytes a
+    # grep can read, which is the whole point -- and this is the element `data-artefact` is
+    # proposed for, so the two declarations sit together rather than in two conventions.
+    _store_attr = (' data-store="%s"' % e_(_store) if _store
+                   else ' data-store="" data-store-absent="%s"' % e_(_store_why or "unknown"))
+    # SAME ELEMENT AS data-store, deliberately: one declared surface rather than two
+    # conventions a reader of this code has to learn separately.
+    _store_attr += ' data-artefact="%s"' % e_(_artefact_kind(canon))
     return """<!doctype html>
-<html lang="en">
+<html lang="en"%s>""" % _store_attr + """
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>%s</title>

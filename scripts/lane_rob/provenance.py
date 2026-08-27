@@ -56,7 +56,22 @@ def stamp(out_path, inputs=(), repo=None, note=None):
         "produced_by": os.path.basename(sys.argv[0]) or "<interactive>",
         "produced_by_path": os.path.abspath(sys.argv[0]) if sys.argv and sys.argv[0] else None,
         "git_commit": _git(["rev-parse", "HEAD"], root),
-        "git_dirty": bool(_git(["status", "--porcelain"], root)),
+        # A CLEANLINESS CHECK THAT COUNTS UNTRACKED BUILD OUTPUT CAN NEVER RETURN CLEAN IN
+        # A REPO THAT BUILDS. This read `git status --porcelain` with no
+        # --untracked-files=no, so 27 unignored, regenerable figure exports made git_dirty
+        # true on EVERY record this lane wrote, permanently -- and a stamp that is always
+        # dirty carries no information at all. Ignoring those particular files fixed the
+        # instance; this fixes the class, so the next unignored artefact does not reproduce
+        # it.
+        #
+        # Both facts are reported rather than one verdict: modified TRACKED files are a
+        # statement about the source the artefact was built from, which is what provenance
+        # is for. Untracked files are a statement about the working directory, which is
+        # usually build output. They are different claims and are no longer summed.
+        "git_dirty": bool(_git(["status", "--porcelain", "--untracked-files=no"], root)),
+        "git_untracked": len([ln for ln in
+                              (_git(["status", "--porcelain", "--untracked-files=all"], root)
+                               or "").splitlines() if ln.startswith("??")]),
         "inputs": [_facts(p) for p in inputs],
         "note": note,
     }

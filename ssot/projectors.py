@@ -1204,17 +1204,23 @@ def rob_traffic_light_svg(trials, domains, assessors, cell):
                             cx + dx, y + RH / 2.0 + 5, fg, e(g), NL))
     ly = TOP + RH * len(trials) + 22
     if len(assessors) > 1:
-        legend = ('Left circle: %s. Right circle: %s. '
+        # NOT "circle". A cell is a circle when it carries one of the three RoB 2
+        # judgements and an OPEN SQUARE when the domain is rendered outside that scale --
+        # the distinction 948cec5ef introduced so an invalid non-judgement stops looking
+        # like a verdict. This legend still said "circle" for both, so a rebuilt page
+        # labelled squares as circles: the glyph fix was right and the legend was stale.
+        legend = ('Left mark in each cell: %s. Right mark: %s. '
                   % (e(str(assessors[0])), e(str(assessors[1]))))
         aria = 'two assessors per cell'
     else:
-        legend = ('Single circle: %s. THIS OBJECT HOLDS ONE ASSESSOR, so there is no '
+        legend = ('Single mark per cell: %s. THIS OBJECT HOLDS ONE ASSESSOR, so there is no '
                   'independent second reading to show. '
                   % e(str(assessors[0]) if assessors else 'assessor 1'))
         aria = 'one assessor per cell; this object holds no second assessment'
     body += ('<text x="6" y="%d" font-size="12" fill="currentColor">%s'
-             '+ low, ? some concerns, \u2212 high \u2014 the three domain judgements RoB 2 '
-             'defines. \u25a1 is NOT a fourth judgement: it marks a domain this review '
+             'A \u25cb carries one of the three domain judgements RoB 2 defines: '
+             '+ low, ? some concerns, \u2212 high. '
+             'A \u25a1 is NOT a fourth judgement: it marks a domain this review '
              'could not evidence, which is an unassessed domain rather than a verdict '
              'about the trial (a protocol, statistical analysis plan, registry field or '
              'regulatory review would close it). \u00b7 not assessed.</text>%s'

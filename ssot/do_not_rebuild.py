@@ -112,6 +112,25 @@ def check(out_path):
 # the check runs where the build cannot avoid it, beside the do-not-rebuild refusal, before
 # anything is written.
 #
+# ADMISSION CRITERION -- AN ENTRY MAY ONLY REGISTER A COMMIT THAT CHANGED THE GENERATOR.
+# A hand-edit to served HTML cannot be guaranteed by an ancestry check BY CONSTRUCTION: the
+# rebuild regenerates the file from the object and overwrites it, so the commit stays an
+# ancestor forever while the fix is gone. On 2026-08-27 three such commits were registered
+# here and then removed -- 463c6d625, 048cf178b and 424e8aa0d changed nine served .html files
+# and zero .py and zero .json between them. Checked by rebuilding, one of the nine came back
+# with the pre-edit text.
+#
+# A LEDGER ENTRY THAT CANNOT BE KEPT IS WORSE THAN A MISSING ONE. A missing entry prompts a
+# question; a false one closes it.
+#
+# Before adding a commit, run:  git show --name-only --format= <sha> | grep -E '\.(py)$'
+# If that is empty, the commit changed no generator and DOES NOT BELONG HERE. Record it in
+# the handover instead, where a claim does not carry a guarantee.
+#
+# And the description is never the evidence. 7f18a5da2's entry says it "carries eight served
+# render corrections"; it landed 23:43 and those corrections landed 23:55, 00:24 and 00:30,
+# none of them its ancestor. Ancestry is the evidence. Prose is a label.
+#
 # HOW TO EXTEND IT: add a commit here when a renderer fix must not be reverted by a rebuild.
 # The entry is a promise that the built page will carry that fix.
 # THE ENTRY IS ADDED IN A SEPARATE COMMIT FROM THE FIX IT NAMES, AND THAT IS DELIBERATE.
@@ -137,6 +156,33 @@ REQUIRED_GENERATOR_COMMITS = {
         "it failed at BUILD time, so the honest sentence was never written and affected "
         "pages stayed frozen at whatever they last said, including four whose fix was "
         "already on main and could not reach a reader"),
+    # FULL sha, per the note above: this repository carries several thousand branches.
+    "95bddba58a75b06793c0655f60091244c941cc6e": (
+        "emit the store path in the served bytes -- <html data-store=\"ssot/<id>/<id>.json\">. "
+        "Without it a rebuilt page states the generator that made it and not the object it "
+        "is about: measured 2026-08-27, 31 of 144 pages declared their object and 138 "
+        "declared their generator, which is why attribution was forensic rather than a "
+        "lookup. The same commit stops lane_rob/provenance.py counting untracked build "
+        "output as dirt, which had pinned git_dirty true on every record that lane wrote"),
+    "767a8de9affbc091ecd6c1c8c2649d65fe5b09ac": (
+        "declare what the page IS and which pool each number came from -- "
+        "<html data-artefact=\"review|tool\"> and <tr data-pool=\"<outcome_id>\"> on the "
+        "summary-of-findings row. Without it, establishing that 744 of 1,463 served pages "
+        "are unpopulated shells wearing the full apparatus of a review takes a census and 58 "
+        "pages opened by hand, and three checks stay unbuildable because no page links a "
+        "stated number to the pool it came from"),
+
+    # ADDED 2026-08-27 AFTER CHECKING RATHER THAN ASSUMING. Asked to prove a rebuild could
+    # not revert the five served fixes of 08-26, I found the ledger did not guard four of
+    # them at all. They are ancestors of THIS head, so a rebuild from here keeps them -- but
+    # that is a property of my base, not of the ledger, and the ledger is what the next lane
+    # relies on. The fifth (b2afcce50, 47 orphan stubs) is a file-deletion fix a page
+    # rebuild cannot reintroduce: 47 removed, 0 present in this tree.
+    "36ae41332611a33a37ff041d158683f6dd8698a3": (
+        "per-outcome participant counts, the withdrawn-state fallthrough, and a gate that was passing an empty set. Without it a rebuilt page restates a review-level denominator against an outcome that did not use it"),
+
+    "509dde275afa81c877332ad930d783b954de3fde": (
+        "the risk-of-bias traffic-light legend, after 948cec5ef made an out-of-scale domain draw as an open square. Without it a rebuilt page labels nine squares as circles and contradicts itself; reverting the glyph instead would return No information as a fourth RoB 2 judgement, which is the defect 948cec5ef removed"),
 }
 
 
