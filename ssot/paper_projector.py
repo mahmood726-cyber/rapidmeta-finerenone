@@ -1230,12 +1230,28 @@ def _clinical_gaps(obj):
     def any_key(dicts, keys):
         return any(d.get(k) not in (None, "", [], {}) for d in dicts for k in keys)
 
+    # WHICH QUANTITIES THIS OUTCOME TYPE CAN EVEN HAVE. A mean difference in mmHg
+    # has no events in each arm and no number needed to treat -- a mean difference
+    # IS an absolute effect. Asking for them named an absence that cannot be
+    # filled, which is the same defect as a claimed absence that is not real, in
+    # the other direction: it tells a clinician the review is missing something
+    # the outcome type never had. Measured from the pooled measures, so a page
+    # carrying both a hazard ratio and a mean difference still asks for events.
+    _measures = {str((b.get("pooled") or {}).get("measure") or "").upper()
+                 for b in blks if isinstance(b.get("pooled"), dict)}
+    _measures |= {str(r.get("measure") or "").upper() for r in rows}
+    _measures.discard("")
+    _COUNTABLE = {"HR", "RR", "OR", "IRR", "RD", "PETO OR", "RATE RATIO", "RATIO"}
+    _has_countable = bool(_measures & _COUNTABLE) or not _measures
+
     gaps = []
-    if not any_key(rows, ("events_int", "events_ctrl", "e_int", "e_ctrl", "events",
-                          "n_events", "treatment_evaluable", "control_evaluable")):
+    if _has_countable and not any_key(rows, ("events_int", "events_ctrl", "e_int", "e_ctrl",
+                                             "events", "n_events", "treatment_evaluable",
+                                             "control_evaluable")):
         gaps.append("the number of events in each arm")
-    if not any_key(blks, ("absolute", "risk_difference", "nnt", "absolute_effect",
-                          "control_risk", "baseline_risk", "cer")):
+    if _has_countable and not any_key(blks, ("absolute", "risk_difference", "nnt",
+                                             "absolute_effect", "control_risk",
+                                             "baseline_risk", "cer")):
         # A LIST ITEM CANNOT CARRY ITS OWN "and so" -- inside `_and_list` it rendered as
         # "any absolute effect, and so no number needed to treat, how long participants
         # were followed and any measure of harm", which reads as four items or five
