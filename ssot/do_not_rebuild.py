@@ -145,6 +145,13 @@ REQUIRED_GENERATOR_COMMITS = {
         "declared their generator, which is why attribution was forensic rather than a "
         "lookup. The same commit stops lane_rob/provenance.py counting untracked build "
         "output as dirt, which had pinned git_dirty true on every record that lane wrote"),
+    "767a8de9affbc091ecd6c1c8c2649d65fe5b09ac": (
+        "declare what the page IS and which pool each number came from -- "
+        "<html data-artefact=\"review|tool\"> and <tr data-pool=\"<outcome_id>\"> on the "
+        "summary-of-findings row. Without it, establishing that 744 of 1,463 served pages "
+        "are unpopulated shells wearing the full apparatus of a review takes a census and 58 "
+        "pages opened by hand, and three checks stay unbuildable because no page links a "
+        "stated number to the pool it came from"),
 }
 
 
