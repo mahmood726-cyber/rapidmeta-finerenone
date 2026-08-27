@@ -87,6 +87,36 @@ def _page_generated_utc():
     return datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
 
 
+def _repro_note(reg, c0):
+    """The reproducibility promise, DERIVED from whether it is true on this page.
+
+    THE LARGEST SINGLE CLASS IN THE REVIEW REGISTER: 130 findings across 126
+    pages, one string. "Everything a third party needs to rebuild this page" was
+    printed unconditionally, including on pages whose Canonical object cell is an
+    em dash. A reader cannot rebuild a page from an object that is not recorded,
+    so there the sentence is not a weak claim but a false one -- and it is the
+    worst kind available here: a promise of VERIFIABILITY made by a page that
+    cannot be verified.
+
+    DERIVE OR REFUSE, AND REFUSE ONLY THE HALF THAT IS FALSE. The figures really
+    do download carrying exactly the values shown whatever the object situation,
+    so that sentence survives every branch. Dropping it too would substitute a
+    softer claim in the other direction, and saying less than is true is also not
+    saying what is true.
+    """
+    figures = ("Each figure on the Analysis tab downloads as an SVG carrying exactly "
+               "the values shown.")
+    missing = []
+    if not (reg or {}).get("path"):
+        missing.append("no canonical object is recorded")
+    if not (c0 or {}).get("sha"):
+        missing.append("no registered commit is recorded")
+    if not missing:
+        return "Everything a third party needs to rebuild this page. " + figures
+    return ("This page CANNOT be rebuilt from what is recorded here: %s. %s"
+            % (" and ".join(missing), figures))
+
+
 def _v(x, absent="—", limit=None):
     """Escape a value for HTML, rendering ABSENCE as a dash rather than as the word "None".
 
@@ -654,8 +684,7 @@ def output_card(canon, p):
           "that exists now, not the one this page was built against."
           % (e(_generator_stamp()[0]), e(_generator_stamp()[1])))),
         ("Statistical engine", p((first.get("cross_engine") or {}).get("engine", ""))),
-    ], "Everything a third party needs to rebuild this page. Each figure on the "
-       "Analysis tab downloads as an SVG carrying exactly the values shown.")
+    ], _repro_note(reg, c0))
     # THE FOOTNOTES ARE NOT DECORATION. A downgrade with its reason removed is a letter,
     # and "See comment" with no comment is worse than the dash it replaced. Every superscript
     # emitted above resolves to one of these, and the table refuses to render if one does not.
