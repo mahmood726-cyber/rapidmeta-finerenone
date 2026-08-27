@@ -153,7 +153,7 @@ def main():
                      r"[-−]?\d{1,4}(?:\.\d+)?\s*(?:to|–|—|-|,)\s*"
                      r"[-−]?\d{1,4}(?:\.\d+)?\s*\)")
     OLD_MARK = re.compile(
-        r"(withdraw|supersed|corrected|replac|previously|formerly|was|no longer|"
+        r"(withdraw|supersed|corrected|replac|previously|formerly|was\b|no longer|"
         r"→|->|&rarr;|retract|earlier)", re.I)
     carded = {(r["point"], r["lo"], r["hi"]) for r in rows}
     prose = collections.Counter()

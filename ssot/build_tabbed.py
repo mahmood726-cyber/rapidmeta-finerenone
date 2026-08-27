@@ -1389,7 +1389,34 @@ def _standard_block(canon, e_):
            _v(_pp._tidy(stamp.get("_ratchet", "")))))
 
 
-def build(canon):
+def _store_declaration(canon):
+    """The page's own object path, for the served bytes. Derives, VERIFIES, or refuses.
+
+    WHY THIS EXISTS. Measured across the corpus on 2026-08-27: only 31 of 144 pages declare
+    their object's identity in their served bytes, while 138 declare the generator that
+    built them. The corpus records HOW a page was made and not WHAT IT IS ABOUT -- which is
+    why attributing a page to its object has been forensic rather than a lookup, and why six
+    separate defects in one night were all attribution guesses.
+
+    DERIVE-AND-VERIFY, NOT DERIVE. `ssot/<app_id>/<app_id>.json` reproduces the PAGE_MAP
+    entry for 163 of 163 objects, so derivation is currently exact. It is still checked
+    against the filesystem before being asserted, because PAGE_MAP existing at all is
+    evidence the convention has not always held, and a convention is not a contract. An
+    object whose derived path does not resolve gets an explicit refusal rather than a path
+    that is merely plausible -- a wrong store path is worse than none, because a reader or a
+    check would follow it.
+    """
+    app = canon.get("app_id")
+    if not app or not isinstance(app, str):
+        return None, "object records no app_id"
+    rel = "ssot/%s/%s.json" % (app, app)
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    if not os.path.exists(os.path.join(root, rel)):
+        return None, "derived store path does not resolve: %s" % rel
+    return rel, None
+
+
+def build(canon, store_path=None):
     # AN OBJECT WITH NO TITLE AND NO RESULTS IS NOT A PAPER, AND THIS SAYS SO ONCE.
     #
     # 14 topics are empty shells -- no `results` key, no `title`. Building them produced a
@@ -1608,8 +1635,14 @@ def build(canon):
     # property a reader cannot see is not a property the page has.
     body += _standard_block(canon, e_)
     body = _caption_tables(body)
+    _store, _store_why = (store_path, None) if store_path else _store_declaration(canon)
+    # ON <html>, NOT IN A COMMENT. A page must be able to state what it is about in bytes a
+    # grep can read, which is the whole point -- and this is the element `data-artefact` is
+    # proposed for, so the two declarations sit together rather than in two conventions.
+    _store_attr = (' data-store="%s"' % e_(_store) if _store
+                   else ' data-store="" data-store-absent="%s"' % e_(_store_why or "unknown"))
     return """<!doctype html>
-<html lang="en">
+<html lang="en"%s>""" % _store_attr + """
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>%s</title>
