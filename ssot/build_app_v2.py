@@ -343,6 +343,48 @@ def fmt(x):
     return str(x)
 
 
+def held(d, key):
+    """Read a field that MAY be absent, returning None rather than raising.
+
+    A direct subscript here crashed the build on 57 of 141 objects in this
+    corpus, at four keys: 'target_source_id', 'search_note', 'known_limitation',
+    and -- the instructive one -- the literal string 'not recorded on the page
+    this object was extracted from', which an object stores AS a source id and
+    which was then used as a dict key.
+
+    The crash was the generator failing SAFE: it refused to render rather than
+    asserting something the object does not hold. But it failed at BUILD time,
+    so the honest sentence never got written and every affected page stayed
+    frozen at whatever it last said -- including four pages whose fix was
+    already on main and could not reach a reader.
+
+    Deliberately absence handling, not try/except: the caller must decide what
+    to SAY when a field is missing, and saying it is the point.
+    """
+    if not isinstance(d, dict):
+        return None
+    v = d.get(key)
+    if v is None:
+        return None
+    if isinstance(v, str) and not v.strip():
+        return None
+    return v
+
+
+def source_name(srcs, sid):
+    """The name of a registered source, or None if it is not registered.
+
+    `sid` is frequently an absence sentinel rather than an id. Looking that up
+    as a dict key is what produced 20 of the 57 build failures.
+    """
+    if not isinstance(srcs, dict) or not isinstance(sid, str):
+        return None
+    rec = srcs.get(sid)
+    if not isinstance(rec, dict):
+        return None
+    return held(rec, "name")
+
+
 def _interval(eff, p=lambda s: s):
     """Render a point with its interval, or a point that HAS no interval.
 
@@ -1542,10 +1584,10 @@ def _page(canon, sections, p, e):
             for x in sc.get("excluded", []))
         screening = (
             f"<div class='card'>\n  <h2>What the search found, and what was kept</h2>\n"
-            f"  <p>{p(sc['search_note'])}</p>\n"
-            f"  <p><strong>Eligible:</strong> {p(sc['eligibility'])}</p>\n"
+            f"  <p>{p(held(sc, 'search_note') or 'This object does not record how its search was run.')}</p>\n"
+            f"  <p><strong>Eligible:</strong> {p(held(sc, 'eligibility') or 'not recorded in this object')}</p>\n"
             f"  <h3>Excluded, with reasons</h3>\n  <ul>\n{xs}  </ul>\n"
-            f"  <p><small>{p(sc['known_limitation'])}</small></p>\n</div>\n")
+            f"  <p><small>{p(held(sc, 'known_limitation') or 'This object records no known limitation of its search.')}</small></p>\n</div>\n")
 
     # RESULTS THE OBJECT READ AND DID NOT USE. The screening block answers which
     # TRIALS are here. It has never answered which ROWS are in which pool, and an
@@ -1654,8 +1696,8 @@ def _page(canon, sections, p, e):
         recon = (
             "<div class='card'>\n  <h2>Reconciliation against the published "
             "synthesis of the same literature</h2>\n"
-            f"  <p>{p(srcs[r['target_source_id']]['name'])}</p>\n"
-            f"  <p class='warn'><small>{p(r['access_limitation'])}</small></p>\n"
+            f"  <p>{p(source_name(srcs, held(r, 'target_source_id')) or 'The synthesis reconciled against is not registered as a source in this object.')}</p>\n"
+            f"  <p class='warn'><small>{p(held(r, 'access_limitation') or 'No access limitation is recorded for this comparison.')}</small></p>\n"
             + block("What matches", r.get("matches"), ["item", "detail"])
             + block("What this object corrects", r.get("corrections"),
                     ["item", "review_reports", "this_object"])
@@ -1672,9 +1714,10 @@ def _page(canon, sections, p, e):
     ma = canon.get("methodological_authority")
     if ma:
         arows = "".join(
-            f"    <tr><td class='num'>{e(s['section'])}</td>"
-            f"<td>{p(s['title'])}</td><td><small>{p(s['used_for'])}</small></td></tr>\n"
-            for s in ma["sections_relied_on"])
+            f"    <tr><td class='num'>{e(held(s, 'section') or '&mdash;')}</td>"
+            f"<td>{p(held(s, 'title') or 'not recorded')}</td>"
+            f"<td><small>{p(held(s, 'used_for') or 'not recorded')}</small></td></tr>\n"
+            for s in (held(ma, "sections_relied_on") or []) if isinstance(s, dict))
         authority = (
             f"<div class='card'>\n  <h2>The methods authority these decisions rest "
             f"on</h2>\n  <p>{p(ma['reference'])}<br><small>{e(ma['url'])}</small></p>\n"
@@ -1722,10 +1765,27 @@ def _page(canon, sections, p, e):
                if net.get("multi_arm_covariance_note") else "")
             + "</div>" + NL)
 
+    # A source record is occasionally a bare STRING rather than a dict -- an
+    # absence sentinel stored where a record belongs. Calling .get() on it raised
+    # AttributeError and killed the build on 10 objects. Malformed records are
+    # RENDERED, not skipped: dropping them would shrink the source count a reader
+    # sees without saying so, which is the denominator defect one layer down.
+    # Partitioned by the POSITIVE property -- "is a record" -- rather than by a
+    # negative guard, so neither arm is defined by an absence and neither can
+    # silently swallow the other. Both arms are rendered; nothing is excluded.
+    _recs, _bad = [], []
+    for _v in srcs.values():
+        (_recs if isinstance(_v, dict) else _bad).append(_v)
     sources = "".join(
-        f"    <tr><td>{p(v['layer'])}</td><td>{p(v['name'])}<br>"
-        f"<small>{e(v['url'])}</small></td><td><small>{p(v['access_note'])}</small></td></tr>\n"
-        for v in sorted(srcs.values(), key=lambda x: x.get("layer_rank", 99)))
+        f"    <tr><td>{p(held(v, 'layer') or 'not recorded')}</td>"
+        f"<td>{p(held(v, 'name') or 'not recorded')}<br>"
+        f"<small>{e(held(v, 'url') or '')}</small></td>"
+        f"<td><small>{p(held(v, 'access_note') or 'not recorded')}</small></td></tr>\n"
+        for v in sorted(_recs, key=lambda x: x.get("layer_rank", 99)))
+    sources += "".join(
+        "    <tr><td>not recorded</td><td>This source is stored as plain text rather "
+        f"than as a record: {p(str(v)[:120])}</td><td><small>not recorded</small></td></tr>\n"
+        for v in _bad)
 
     return f"""<meta charset="utf-8">
 <title>{p(canon['title'])}</title>
