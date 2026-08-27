@@ -126,6 +126,17 @@ REQUIRED_GENERATOR_COMMITS = {
     "561ebb9dd": ("derive or refuse the effect scale, the subgroup heading and the "
                   "estimator name -- without it a rebuilt page can state 'on the natural "
                   "scale' for a ratio measure, which is a log-scale quantity"),
+    # FULL sha deliberately. The two above are nine characters, which git resolves today;
+    # this repository carries several thousand branches and an abbreviation that is unique
+    # now need not stay unique, and an ambiguous rev makes this gate fail in the direction
+    # of refusing a build it cannot name a reason for.
+    "c5409eaa1f32461e4ab1bfb57855bac5fb63f1e4": (
+        "absence handling in build_app_v2 -- a direct subscript on a field that may be "
+        "absent crashed the build on 57 of 141 objects at four keys, one of which is the "
+        "literal sentence an object stores AS a source id. The generator failed SAFE but "
+        "it failed at BUILD time, so the honest sentence was never written and affected "
+        "pages stayed frozen at whatever they last said, including four whose fix was "
+        "already on main and could not reach a reader"),
 }
 
 
