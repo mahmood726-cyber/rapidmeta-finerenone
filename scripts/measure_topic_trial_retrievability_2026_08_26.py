@@ -42,7 +42,19 @@ REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(REPO, "scripts"))
 csv.field_size_limit(10 ** 8)
 
-NCT = re.compile(r"^NCT\d{8}$")
+# POSITIVE PROPERTY, from the shared module. This file previously carried
+# `if not NCT.match(n): continue` -- an ABSENCE where `is a registered trial` was meant,
+# which would drop every ISRCTN, EudraCT, ACTRN, ChiCTR, CTRI, JPRN, IRCT and PACTR
+# registrant from every denominator below, silently. Measured 2026-08-27: 403 of 403
+# identifiers are NCT, so the exclusion was empirically empty -- and unsafe in general.
+#
+# AND THE REWIRING ITSELF BROKE TWICE, which is why it is recorded here. A blanket text
+# replace fixed one call site and left a second bare `NCT.match(n)` with no `NCT` in scope --
+# NameError on the next run. The same replace also rewrote THIS COMMENT, so the file briefly
+# described its own fix as the defect it fixed. Both caught by running it, neither by reading
+# it.
+sys.path.insert(0, os.path.join(REPO, "ssot"))
+from registration_identifiers import is_registration_id  # noqa: E402
 
 
 def aact_root():
@@ -81,6 +93,7 @@ def population():
     """Every (topic, trial) pair the corpus holds, with whether THAT TOPIC uses it."""
     ssot = os.path.join(REPO, "ssot")
     pairs = {}
+    unidentified = []
     for t in sorted(os.listdir(ssot)):
         p = os.path.join(ssot, t, t + ".json")
         if not os.path.isdir(os.path.join(ssot, t)) or not os.path.exists(p):
@@ -93,21 +106,28 @@ def population():
         held, used = set(), set()
         for tr in trials:
             n = (tr.get("nct") or "").strip()
-            if not NCT.match(n):
-                continue
-            held.add(n)
-            for _oid, b in (tr.get("by_outcome") or {}).items():
-                if ((b or {}).get("effect") or {}).get("point") is not None:
-                    used.add(n)
+            # POSITIVE CONTROL FLOW, not `if not ...: continue`. The predicate names the
+            # property -- IS a registration identifier -- and the trials that fail it are
+            # COUNTED rather than skipped in silence, because a trial dropped without a
+            # message is exactly what `audit_exclusion_by_absence` exists to prevent and
+            # exactly what this file did an hour ago. Measured: 4 trials corpus-wide carry
+            # no identifier field at all, and they are now reported instead of vanishing.
+            if is_registration_id(n):
+                held.add(n)
+                for _oid, b in (tr.get("by_outcome") or {}).items():
+                    if ((b or {}).get("effect") or {}).get("point") is not None:
+                        used.add(n)
+            else:
+                unidentified.append((t, repr(tr.get("nct"))[:40]))
         for _oid, b in ((obj.get("results") or {}).get("by_outcome") or {}).items():
             for r in ((b or {}).get("per_trial") or []):
                 if isinstance(r, dict) and r.get("point") is not None:
                     n = (r.get("nct") or "").strip()
-                    if NCT.match(n):
+                    if is_registration_id(n):
                         used.add(n)
         for n in held:
             pairs[(t, n)] = (n in used)
-    return pairs
+    return pairs, unidentified
 
 
 def aact_capability(ncts, root):
@@ -153,7 +173,7 @@ def main():
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
     root = aact_root()
     print("AACT root, RESOLVED BY CALLING THE RESOLVER: %s" % root)
-    pairs = population()
+    pairs, unidentified = population()
     topics = sorted({t for t, _ in pairs})
     ncts = {n for _, n in pairs}
     unused_pairs = {k for k, used in pairs.items() if not used}
@@ -164,6 +184,8 @@ def main():
 
     print()
     print("POPULATION ON THE (TOPIC, TRIAL) KEY")
+    print("   trials carrying NO registration identifier %2d  <- counted, not dropped"
+          % len(unidentified))
     print("   topics with >=1 trial            %4d" % len(topics))
     print("   distinct trials (NCT)            %4d" % len(ncts))
     print("   (topic, trial) PAIRS             %4d" % len(pairs))

@@ -38,13 +38,14 @@ SSOT = os.path.join(REPO, "ssot")
 BASELINE = os.path.join(REPO, "scripts", "baselines",
                         "screening_row_no_id_baseline.json")
 
-NCT = re.compile(r"NCT\d{8}")
-# Other registries this corpus cites. An ISRCTN or EudraCT number identifies a trial just as
-# well as an NCT; a rule that accepted only NCT would manufacture failures on the trials this
-# review reaches through other registers, which is the narrow-vocabulary defect this repo has
-# hit repeatedly.
-OTHER_ID = re.compile(r"\b(ISRCTN\d{6,8}|EudraCT\s*\d{4}-\d{6}-\d{2}|NTR\d{3,5}|"
-                      r"ACTRN\d{14}|ChiCTR[-\w]*\d{6,})\b", re.I)
+# THE PATTERNS LIVE IN ONE PLACE NOW -- ssot/registration_identifiers.py.
+# They were duplicated here and, hours later, written NARROWLY AGAIN in
+# scripts/measure_topic_trial_retrievability_2026_08_26.py by the same hand on the same
+# night, with the corrected version in this very file. A rule that fails at a range of
+# twelve inches is not closed by documentation; it is closed by a shared constant.
+sys.path.insert(0, os.path.join(REPO, "ssot"))
+from registration_identifiers import NCT, OTHER_REGISTRY as OTHER_ID  # noqa: E402
+
 VERDICT_KEY = ("verdict", "decision", "screening_verdict", "inclusion", "eligibility_verdict")
 ANCESTOR_DEPTH = 3
 
