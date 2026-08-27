@@ -1047,7 +1047,7 @@ ROB_GLYPH["SOME_CONCERNS"] = ROB_GLYPH["SOME CONCERNS"]
 
 
 def visual_abstract_svg(title, question, k, n_total, measure, point, lo, hi,
-                        null_v, certainty, outcome_name, loo_note=""):
+                        null_v, certainty, outcome_name, loo_note="", n_total_note=""):
     """A graphical abstract PROJECTED from the object, never hand-drawn.
 
     IT MUST NOT IMPLY BENEFIT. The pooled estimate here is 0.872 with an
@@ -1147,8 +1147,21 @@ def visual_abstract_svg(title, question, k, n_total, measure, point, lo, hi,
                "The interval excludes no difference.")
     v1, vy2 = wrap(verdict, 96, 28, vy, 15, 20, "700")
     body += v1
-    facts = "%s trials, %s participants. Outcome: %s. GRADE certainty: %s." % (
-        fmt(k), n_total or "n/a", outcome_name, certainty or "not rated")
+    # THE REFUSAL KEPT ITS REASON. The caller sets the total to zero on purpose
+    # when a contributing trial cannot be matched to a registered arm count,
+    # because a quietly smaller number is not an improvement on a larger one.
+    # That refusal used to arrive here as a falsy value and render as "n/a",
+    # which reads as "not applicable" and loses the reason -- a softer claim
+    # substituted for a refusal, on the one artefact that travels without the
+    # page that would explain it.
+    if n_total:
+        _n_clause = "%s trials, %s participants." % (fmt(k), n_total)
+    else:
+        _n_clause = ("%s trials; the participant total is not shown%s."
+                     % (fmt(k), (" -- " + n_total_note) if n_total_note else
+                        " because it could not be established from this object"))
+    facts = "%s Outcome: %s. GRADE certainty: %s." % (
+        _n_clause, outcome_name, certainty or "not rated")
     f1, vy3 = wrap(facts, 104, 28, vy2 + 8, 13, 18, "400", ".9")
     body += f1
     if loo_note:
