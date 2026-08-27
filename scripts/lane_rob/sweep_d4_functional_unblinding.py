@@ -61,6 +61,8 @@ def text_of(*vals):
 
 
 rows = []
+no_perceptible_drug = []
+objective_outcomes = 0
 for p in sorted(glob.glob("ssot/*/*.json")):
     topic = os.path.basename(os.path.dirname(p))
     if os.path.basename(p) != topic + ".json":
@@ -70,8 +72,12 @@ for p in sorted(glob.glob("ssot/*/*.json")):
     except Exception:
         continue
     blob = json.dumps(obj, ensure_ascii=False)
+    # BOTH ARMS. Topics whose intervention has no perceptible effect are the majority and
+    # are why this sweep returns six; counting them makes the six a rate rather than a
+    # bare number.
     drug_hit = PERCEPTIBLE.search(topic) or PERCEPTIBLE.search(blob[:40000])
-    if not drug_hit:
+    if drug_hit is None:
+        no_perceptible_drug.append(topic)
         continue
     for o in (obj.get("outcomes") or []):
         if not isinstance(o, dict):
@@ -79,7 +85,8 @@ for p in sorted(glob.glob("ssot/*/*.json")):
         name = text_of(o.get("name"), o.get("id"),
                        (o.get("estimand") or {}).get("case_definition"))
         m = SUBJECTIVE.search(name)
-        if not m:
+        if m is None:
+            objective_outcomes += 1
             continue
         oid = o.get("id")
         # what does D4 currently say for this outcome, per result?
@@ -109,6 +116,8 @@ print("D4 FUNCTIONAL-UNBLINDING EXPOSURE: subjective outcome + perceptible inter
 print("=" * 94)
 print("  topics scanned                                 %4d"
       % len({os.path.basename(os.path.dirname(p)) for p in glob.glob("ssot/*/*.json")}))
+print("  topics with no perceptible intervention        %4d" % len(no_perceptible_drug))
+print("  outcomes that are not patient-reported         %4d" % objective_outcomes)
 print("  flagged outcome(s)                             %4d  <- A LOWER BOUND" % len(rows))
 print("  distinct topics flagged                        %4d"
       % len({r["topic"] for r in rows}))

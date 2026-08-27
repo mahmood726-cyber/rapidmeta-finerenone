@@ -1408,7 +1408,10 @@ def rob2_card(canon, p):
             "  <p>%s</p>%s</div>%s%s%s"
             % (NL, NL, p(rb.get("assembler_excluded", "")), NL,
                p(rb.get("variant", "")), NL, p(rb.get("unit_of_assessment", "")), NL,
-               p(a[0].get("model", "")), p(f1), p(a[1].get("model", "")), p(f2),
+               p(a[0].get("model", "")), p(f1),
+               p(a[1].get("model", "")) if len(a) > 1 else
+               e("no second assessor is recorded for this review"),
+               p(f2) if f2 else e("none"),
                p(rb.get("blinding", "")), NL,
                NL, p(f1), p(f2),
                ("<th>Carried</th>" if has_carried else ""), NL, rows, NL, NL,

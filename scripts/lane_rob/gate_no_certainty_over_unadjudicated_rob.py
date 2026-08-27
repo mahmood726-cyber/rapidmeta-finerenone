@@ -60,7 +60,7 @@ def topic_of(raw_bytes, known):
 def scan(pages=None):
     known = {os.path.basename(os.path.dirname(p)) for p in glob.glob("ssot/*/*.json")
              if os.path.basename(p) == os.path.basename(os.path.dirname(p)) + ".json"}
-    out, unattributable = [], []
+    out, unattributable, fully_rated = [], [], []
     for page in sorted(pages or glob.glob("*.html")):
         try:
             raw = open(page, "rb").read()
@@ -103,7 +103,12 @@ def scan(pages=None):
         # a state added later is guarded on arrival instead of waiting for a reviewer.
         pend = {oid for oid in ((obj.get("results") or {}).get("by_outcome") or {})
                 if ga.resolve(obj, oid).get("state") != "RATED"}
-        if not pend:
+        # PARTITION, BOTH ARMS RENDERED. `if not pend: continue` defined an arm by an
+        # absence and dropped it, so a page whose outcomes are ALL rated vanished from the
+        # denominator instead of appearing in it as "nothing withheld here". Same shape as
+        # the unattributable pages this gate already learned to count.
+        if len(pend) == 0:
+            fully_rated.append(page)
             continue
         text = rendered(raw.decode("utf-8", "replace"))
         levels = LEVEL.findall(text)
@@ -112,12 +117,12 @@ def scan(pages=None):
                     "levels_rendered": len(levels), "derivations_rendered": len(derivs),
                     "pending_rendered": len(PENDING.findall(text)),
                     "violating": bool(levels or derivs)})
-    return out, unattributable
+    return out, unattributable, fully_rated
 
 
 def main():
     argv = [a for a in sys.argv[1:] if not a.startswith("-")]
-    rows, unattributable = scan(argv or None)
+    rows, unattributable, fully_rated = scan(argv or None)
     bad = [r for r in rows if r["violating"]]
     print("")
     print("GATE -- no certainty level over an unadjudicated risk-of-bias assessment")
@@ -125,6 +130,8 @@ def main():
     print("  pages with >=1 outcome whose level is withheld   %4d  == the denominator"
           % len(rows))
     print("  pages rendering a certainty LEVEL anyway       %4d" % len(bad))
+    print("  pages where every outcome IS rated             %4d   (nothing withheld)"
+          % len(fully_rated))
     print("  pages this gate COULD NOT ATTRIBUTE            %4d   <- not a pass"
           % len(unattributable))
     for u in unattributable[:10]:

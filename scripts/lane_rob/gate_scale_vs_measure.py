@@ -53,14 +53,18 @@ def rendered(raw):
 
 
 def scan(pages):
-    bad, seen = [], 0
+    bad, seen, no_phrase = [], 0, 0
     for p in sorted(pages):
         try:
             t = rendered(open(p, "rb").read().decode("utf-8", "replace"))
         except OSError:
             continue
+        # BOTH ARMS COUNTED. Pages with no natural-scale phrase are the overwhelming
+        # majority and are the reason this gate is quiet; dropping them silently made the
+        # quiet look like coverage.
         hits = list(NATURAL.finditer(t))
-        if not hits:
+        if len(hits) == 0:
+            no_phrase += 1
             continue
         seen += 1
         for m in hits:
@@ -69,19 +73,20 @@ def scan(pages):
             found = sorted(set(MEASURE_NEAR.findall(window)))
             if found:
                 bad.append((p, "/".join(found), re.sub(r"\s+", " ", window[-170:])))
-    return seen, bad
+    return seen, bad, no_phrase
 
 
 def main():
     argv = [a for a in sys.argv[1:] if not a.startswith("-")]
     pages = argv or glob.glob("*.html")
-    seen, bad = scan(pages)
+    seen, bad, no_phrase = scan(pages)
     print("")
     print("GATE -- a ratio measure rendered 'on the natural scale'")
     print("")
     print("  pages examined                                %4d  == the denominator"
           % len(pages))
     print("  pages saying 'on the natural scale' at all    %4d" % seen)
+    print("  pages that never say it                       %4d" % no_phrase)
     print("  of those, beside a ratio measure              %4d" % len({p for p, _, _ in bad}))
     print("")
     for p, meas, ctx in bad[:20]:

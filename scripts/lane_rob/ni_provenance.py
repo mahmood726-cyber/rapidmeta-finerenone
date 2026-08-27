@@ -114,6 +114,7 @@ def paper_held(topic, nct):
 
 
 rows = []
+no_rob_block = []
 for p in sorted(glob.glob("ssot/*/*.json")):
     topic = os.path.basename(os.path.dirname(p))
     if os.path.basename(p) != topic + ".json":
@@ -122,8 +123,11 @@ for p in sorted(glob.glob("ssot/*/*.json")):
         obj = json.load(io.open(p, encoding="utf-8"))
     except Exception:
         continue
+    # BOTH ARMS. A topic with no risk-of-bias block is not noise to be skipped -- it is
+    # the largest category in this corpus and belongs in the denominator.
     b = rob_block(obj)
-    if not b:
+    if b is None:
+        no_rob_block.append(topic)
         continue
     for tr in b["trials"]:
         nct = None
@@ -157,6 +161,7 @@ for p in sorted(glob.glob("ssot/*/*.json")):
 print("=" * 92)
 print("NO_INFORMATION JUDGEMENTS, SPLIT BY WHOSE GAP IT IS")
 print("=" * 92)
+print("  topics carrying NO risk-of-bias block at all  %4d" % len(no_rob_block))
 print("  NO_INFORMATION domain judgements          %4d  == the denominator" % len(rows))
 c = collections.Counter(r["kind"] for r in rows)
 for k, v in c.most_common():
