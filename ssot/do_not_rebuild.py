@@ -114,9 +114,18 @@ def check(out_path):
 #
 # HOW TO EXTEND IT: add a commit here when a renderer fix must not be reverted by a rebuild.
 # The entry is a promise that the built page will carry that fix.
+# THE ENTRY IS ADDED IN A SEPARATE COMMIT FROM THE FIX IT NAMES, AND THAT IS DELIBERATE.
+# A commit cannot contain its own SHA, so registering a fix in the same commit would mean
+# either a placeholder or a rewritten hash -- and the entry would then be an assertion about
+# itself rather than a checkable fact. Two commits keeps the ledger VERIFIABLE: every SHA
+# here names a commit that already exists and can be resolved. Do not "simplify" this into
+# one commit; it quietly breaks that property.
 REQUIRED_GENERATOR_COMMITS = {
     "7f18a5da2": ("derive the direction-of-benefit label, never default it -- rewrote "
                   "ssot/build_app_v2.py and carries eight served render corrections"),
+    "561ebb9dd": ("derive or refuse the effect scale, the subgroup heading and the "
+                  "estimator name -- without it a rebuilt page can state 'on the natural "
+                  "scale' for a ratio measure, which is a log-scale quantity"),
 }
 
 
