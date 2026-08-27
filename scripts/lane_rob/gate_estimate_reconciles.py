@@ -59,7 +59,7 @@ def main():
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace",
                                   line_buffering=True)
     tot = 0
-    checkable, bad, ok, partial = [], [], [], []
+    checkable, bad, ok, partial, unreachable = [], [], [], [], []
     for p in sorted(glob.glob("ssot/*/*.json")):
         t = os.path.basename(os.path.dirname(p))
         if os.path.basename(p) != t + ".json":
@@ -74,15 +74,35 @@ def main():
                 et, ec = first(r, T_EV), first(r, C_EV)
                 nt, nc = first(r, T_N), first(r, C_N)
                 pt = r.get("point")
-                if None in (et, ec, nc) or not isinstance(pt, (int, float)):
-                    if et is not None or ec is not None:
-                        partial.append((t, oid, r.get("nct"),
-                                        [k for k in (T_EV + C_EV + T_N + C_N) if k in r]))
+
+                # THE POSITIVE PROPERTY, STATED ONCE. A record is RECOMPUTABLE when it
+                # stores all four cells and a numeric point estimate. The first version
+                # enumerated ways a record could fail that -- `if None in (et, ec, nc)`
+                # then `if nt is None` -- which is the same property written as two
+                # absences, and it needed a reader to reassemble what was meant from what
+                # was excluded. Naming the property directly is shorter, and it is the form
+                # the exclusion audit asks for because absence-shaped guards are how a
+                # denominator quietly shrinks.
+                cells = [("treatment events", et), ("control events", ec),
+                         ("treatment N", nt), ("control N", nc)]
+                held = [name for name, v in cells if isinstance(v, float)]
+                numeric_point = isinstance(pt, (int, float)) and pt is not True and pt is not False
+                recomputable = (len(held) == 4) and numeric_point
+
+                # EVERY RECORD LANDS IN EXACTLY ONE ARM, and each arm renders what it
+                # excluded and why. The earlier shape could put one record in BOTH
+                # `checkable` and `partial` -- a measure it could not recompute was counted
+                # as recomputable and as partial at once -- so the three arms did not sum
+                # to the population by construction, only by luck of the data.
+                if recomputable is False:
+                    why = "holds %d of 4 cells (%s)" % (
+                        len(held), ", ".join(held) if held else "none")
+                    if numeric_point is False:
+                        why += "; point estimate is not numeric"
+                    (partial if held else unreachable).append(
+                        (t, oid, r.get("nct"), why))
                     continue
-                if nt is None:
-                    partial.append((t, oid, r.get("nct"), "events present, treatment N absent"))
-                    continue
-                checkable.append((t, oid, r.get("nct")))
+
                 meas = str(r.get("measure") or "").upper()
                 try:
                     if meas == "OR":
@@ -90,10 +110,12 @@ def main():
                     elif meas in ("RR", "RATE_RATIO"):
                         calc = (et / nt) / (ec / nc)
                     else:
-                        partial.append((t, oid, r.get("nct"), "measure %s not recomputable" % meas))
+                        partial.append((t, oid, r.get("nct"),
+                                        "all four cells held; measure %s is not a ratio this "
+                                        "gate can recompute" % meas))
                         continue
                 except ZeroDivisionError:
-                    partial.append((t, oid, r.get("nct"), "a zero cell"))
+                    partial.append((t, oid, r.get("nct"), "a zero denominator cell"))
                     continue
                 # A ZERO EVENT COUNT MAKES THE RATIO ZERO, AND log(0) IS NOT AN ERROR TO
                 # SWALLOW. It is a real state -- a zero cell -- and it gets its own arm
@@ -101,8 +123,12 @@ def main():
                 if calc <= 0 or float(pt) <= 0:
                     partial.append((t, oid, r.get("nct"),
                                     "a zero cell: ratio %s, stored point %s" % (calc, pt)))
-                    checkable.pop()
                     continue
+                # RECORDED HERE AND NOWHERE EARLIER. Appending to `checkable` before the
+                # zero-cell test put that record in `checkable` AND in `partial`, and the
+                # arms summed to 179 against a population of 178. The sum line above caught
+                # it on its first run, which is the whole argument for printing it.
+                checkable.append((t, oid, r.get("nct")))
                 rel = abs(math.log(calc) - math.log(float(pt)))
                 (ok if rel < 0.02 else bad).append(
                     (t, oid, r.get("nct"), meas, float(pt), calc, rel))
@@ -115,8 +141,11 @@ def main():
           % (len(checkable), 100.0 * len(checkable) / tot if tot else 0))
     print("  storing SOME counts but not enough        %4d" % len(partial))
     print("  storing no counts at all -- UNREACHABLE   %4d   %5.1f%%"
-          % (tot - len(checkable) - len(partial),
-             100.0 * (tot - len(checkable) - len(partial)) / tot if tot else 0))
+          % (len(unreachable), 100.0 * len(unreachable) / tot if tot else 0))
+    print("  arms sum to the population                %4d   %s"
+          % (len(checkable) + len(partial) + len(unreachable),
+             "yes" if len(checkable) + len(partial) + len(unreachable) == tot
+             else "NO -- a record is in two arms or none"))
     print("")
     print("  of the recomputable ones:")
     print("     reconciles with its counts             %4d" % len(ok))
@@ -126,7 +155,7 @@ def main():
               % (t[:28], str(oid)[:16], nct, meas, pt, calc))
     print("")
     print("  THE UNREACHABLE %d ARE NOT PASSING. The corpus does not store the inputs to its"
-          % (tot - len(checkable) - len(partial)))
+          % len(unreachable))
     print("  own arithmetic: each estimate carries a prose `derivation` and no field from")
     print("  which it could be recomputed. A prose derivation is a claim ABOUT a calculation;")
     print("  stored counts would BE the calculation. One can be checked, the other believed.")
