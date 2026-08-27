@@ -1,0 +1,363 @@
+{
+ "_what_this_is": "Batch 1 of the review-question authoring: ten topics whose stored questions could not be registered as written. Two families authored COLD from identical schema-derived material; a third family adjudicated.",
+ "authored_utc": "2026-08-27T04:00:43Z",
+ "RETROSPECTIVE_WITHOUT_EXCEPTION": "All ten topics already held trials when these questions were authored. Every question here is therefore written AFTER its evidence was assembled, and every protocol built on one is a RETROSPECTIVELY registered protocol. An anchor bounds WHEN a text existed; it can never show what was already known. This is a property of the whole corpus and not of this batch: of the 45 live blocked topics, 45 hold trials and 0 do not.",
+ "method": {
+  "authors": {
+   "openai": "codex exec, default model",
+   "google": "agy --model gemini-3.1-pro-high, PINNED on the command line because this installation defaults to GPT-OSS 120B, which is openai-family"
+  },
+  "adjudicator": "Claude (anthropic), shown both finished drafts, not one plus a reaction",
+  "cold": "The defective stored question was NOT shown to either author. Showing it would anchor both to the defect being repaired.",
+  "material": "Schema-derived: the union of keys present on trial records across the corpus, 142 distinct. The material declares its own completeness -- which keys each trial carries, which it does not, and every truncated value -- so a refusal for want of EVIDENCE can be told from a refusal for want of a coherent QUESTION."
+ },
+ "TWO AGREEMENT RATES, REPORTED SEPARATELY BECAUSE THEY MEAN DIFFERENT THINGS": {
+  "agreement_on_answerability": "7 of 10",
+  "agreement_on_the_facts": "10 of 10",
+  "_why_both": "In all three splits the two families identified IDENTICAL defects and differed only on whether the defect disqualifies. There are zero factual disagreements. A factual disagreement means someone is wrong; a threshold disagreement means the protocol has not said where the line is -- and only the second is ours to fix. Quoting one number would misreport both.",
+  "all_three_splits_ran_the_same_direction": "openai refused where google authored, in 3 of 3. That is a systematic family-level difference in disposition, not noise. A cross-family gate on a threshold question measures the families' dispositions rather than the evidence, so the adjudicator's job on a threshold split is to SET THE THRESHOLD, not to pick a side.",
+  "confidence_signal": "CONCERNS: NONE was returned by openai 0 times in 10 and by google 2 times in 10. On attr-cm google flagged the transplant/CMAD bundling in a sparser round and dropped it to NONE in a richer one -- more context produced a more confident and less careful answer. Where a richer round drops a caveat the sparser round raised, the caveat is weighted. A 'no concerns' answer is not evidence of no concerns."
+ },
+ "OUTCOME_CHOICE_RULE_DERIVED_FROM_THIS_BATCH": "Where the two families chose different outcomes, one picked a CONTINUOUS measure both trials share and the other a CATEGORICAL or COMPONENT endpoint -- three instances (attr-cm, pitavastatin, and the shape of cangrelor). The rule that resolves them: USE THE SHARED REGISTERED PRIMARY. Descend to a secondary only where no shared primary exists. pitavastatin has percent change in LDL-C as the registered primary in BOTH trials, so a categorical secondary is wrong there; attr-cm has two hierarchical primaries of different arity, so no shared primary exists and a secondary is legitimate -- provided its definitions are equivalent, which had to be checked by hand and was not equivalent for all-cause mortality.",
+ "adjudications": [
+  {
+   "topic": "attr-cm-review",
+   "SUPERSEDED_QUESTION": {
+    "text": "Both trials register HIERARCHICAL endpoints analysed by win ratio, and the two hierarchies are not the same hierarchy.",
+    "status": "SUPERSEDED, NOT DELETED",
+    "superseded_utc": "2026-08-27T04:00:43Z",
+    "_why_kept": "Any claim about a store is a claim about a VERSION. The prior question is the record of what was asked before and why it could not be registered; deleting it would destroy the evidence that a change happened.",
+    "why_it_could_not_be_registered": [
+     "QUESTION NAMES OR LIMITS ITS OWN INCLUDED SET: 'Both trials' -- a search against it tests nothing until the question is reframed, which is a scientific decision and not a rewording.",
+     "QUESTION STATES NO COMPARATOR",
+     "NOT A QUESTION: the field holds a statement, so there is nothing to frame a protocol around"
+    ]
+   },
+   "NEW_QUESTION": {
+    "text": "In patients with transthyretin amyloid cardiomyopathy, do tafamidis or acoramidis compared with placebo improve change from baseline in 6-minute walk test distance at Month 30?",
+    "authored_utc": "2026-08-27T04:00:43Z"
+   },
+   "verdict": "AUTHORED",
+   "adjudicated_from": "openai",
+   "reasoning": "Both trials register 6MWT change at Month 30 with EQUIVALENT definitions. Their all-cause-mortality entries are NOT equivalent -- ATTRibute-CM's bundles death, heart transplant and mechanical assist device, ATTR-ACT's does not. Neither registered primary is usable: they are hierarchical Finkelstein-Schoenfeld combinations of different arity (2 components vs 4), so no shared primary exists and descending to a secondary is legitimate here.",
+   "drafts_as_submitted": {
+    "openai": {
+     "question": "In patients with transthyretin amyloid cardiomyopathy, do tafamidis or acoramidis compared with placebo improve change from baseline in 6-minute walk test distance at Month 30?",
+     "outcome": "Change from baseline in 6-minute walk test distance at Month 30",
+     "concerns": "ATTR-ACT arm details are incomplete because the registry lists tafamidis 20 mg and 80 mg but the supplied arm object carries only \"Tafamidis - 20 mg\"; age eligibility and fully verified arm labels are listed as not carried."
+    },
+    "google": {
+     "question": "In patients with transthyretin amyloid cardiomyopathy, does tafamidis or acoramidis reduce all-cause mortality compared to placebo?",
+     "outcome": "all-cause mortality",
+     "concerns": "NONE"
+    }
+   },
+   "label": "RETROSPECTIVE -- the object held trials before this question was written"
+  },
+  {
+   "topic": "pitavastatin-auto-full-review",
+   "SUPERSEDED_QUESTION": {
+    "text": "In adults with hypercholesterolemia, does pitavastatin compared with the comparator each trial randomised affect the outcome each trial registered as its primary, which differ across the 2 trials here?",
+    "status": "SUPERSEDED, NOT DELETED",
+    "superseded_utc": "2026-08-27T04:00:43Z",
+    "_why_kept": "Any claim about a store is a claim about a VERSION. The prior question is the record of what was asked before and why it could not be registered; deleting it would destroy the evidence that a change happened.",
+    "why_it_could_not_be_registered": [
+     "QUESTION NAMES OR LIMITS ITS OWN INCLUDED SET: 'the 2 trials' -- a search against it tests nothing until the question is reframed, which is a scientific decision and not a rewording.",
+     "OUTCOME DEFERRED TO THE TRIALS: the estimand is defined as whatever each included trial registered, so no estimand can be pre-specified"
+    ]
+   },
+   "NEW_QUESTION": {
+    "text": "In adults with hypercholesterolemia, what is the effect of pitavastatin compared with simvastatin 40 mg on percent change from baseline in LDL-C at 12 weeks?",
+    "authored_utc": "2026-08-27T04:00:43Z"
+   },
+   "verdict": "AUTHORED",
+   "adjudicated_from": "openai",
+   "reasoning": "Percent change from baseline in LDL-C is the REGISTERED PRIMARY in BOTH trials. NCEP target attainment is a secondary in both. Where a shared registered primary exists it is used; descending to a secondary is only legitimate when no shared primary does, as on attr-cm.",
+   "drafts_as_submitted": {
+    "openai": {
+     "question": "In adults with hypercholesterolemia, what is the effect of pitavastatin compared with simvastatin 40 mg on percent change from baseline in LDL-C at 12 weeks?",
+     "outcome": "Percent change from baseline in LDL-C at 12 weeks",
+     "concerns": "Pitavastatin dose differs across the material; age eligibility and administration details are not carried."
+    },
+    "google": {
+     "question": "In adults with hypercholesterolemia, what is the effect of pitavastatin compared to simvastatin 40 mg on NCEP LDL-C target attainment?",
+     "outcome": "NCEP LDL-C target attainment",
+     "concerns": "The trials evaluate different doses of pitavastatin (2 mg and 4 mg)."
+    }
+   },
+   "label": "RETROSPECTIVE -- the object held trials before this question was written"
+  },
+  {
+   "topic": "azilsartan-chlorthalidone-vs-olmesartan-hctz",
+   "SUPERSEDED_QUESTION": {
+    "text": "In Azilsartan medoxomil plus chlorthalidone against olmesartan medoxomil plus hydrochlorothiazide on change in clinic systolic blood pressure: the two trials that share both arms, what is the effect on mmHg change from baseline in trough, sitting, clinic systolic blood pressure?",
+    "status": "SUPERSEDED, NOT DELETED",
+    "superseded_utc": "2026-08-27T04:00:43Z",
+    "_why_kept": "Any claim about a store is a claim about a VERSION. The prior question is the record of what was asked before and why it could not be registered; deleting it would destroy the evidence that a change happened.",
+    "why_it_could_not_be_registered": [
+     "QUESTION NAMES OR LIMITS ITS OWN INCLUDED SET: 'the two trials' -- a search against it tests nothing until the question is reframed, which is a scientific decision and not a rewording."
+    ]
+   },
+   "NEW_QUESTION": {
+    "text": "What is the effect of azilsartan medoxomil plus chlorthalidone compared to olmesartan medoxomil plus hydrochlorothiazide on the change from baseline in trough, sitting, clinic systolic blood pressure?",
+    "authored_utc": "2026-08-27T04:00:43Z"
+   },
+   "verdict": "AUTHORED",
+   "adjudicated_from": "google",
+   "reasoning": "A THRESHOLD split, not a factual one: both families identified the same two defects -- population not carried, and Week 8 against Week 12 timeframes. The outcome QUANTITY is identical in both trials and only the timing differs. A timeframe mismatch is a declarable limitation, not a disqualifier, and declaring it is strictly more informative than refusing.",
+   "drafts_as_submitted": {
+    "openai": {
+     "question": "UNANSWERABLE",
+     "outcome": "Change from baseline in trough, sitting, clinic systolic blood pressure",
+     "concerns": "The patient population is not carried; the outcome timing is not fully settled because one record specifies Week 8 while the other listed primary timeframe is Baseline and Week 12."
+    },
+    "google": {
+     "question": "What is the effect of azilsartan medoxomil plus chlorthalidone compared to olmesartan medoxomil plus hydrochlorothiazide on the change from baseline in trough, sitting, clinic systolic blood pressure?",
+     "outcome": "Change from baseline in trough, sitting, clinic systolic blood pressure",
+     "concerns": "The specific patient population characteristics are missing from the provided fields, and the trials report differing primary timeframes (Week 8 for NCT00846365 versus Week 12 for NCT01033071)."
+    }
+   },
+   "label": "RETROSPECTIVE -- the object held trials before this question was written"
+  },
+  {
+   "topic": "covid19-vaccines",
+   "SUPERSEDED_QUESTION": {
+    "text": "For each COVID-19 vaccine whose trial data could be sourced here, what was the risk of symptomatic laboratory-confirmed COVID-19 relative to placebo in its own trial? This is a per-vaccine snapshot of the sourceable trials. It is NOT a systematic review of COVID-19 vaccine evidence, and it does not combine vaccines. Most vaccines absent from it are absent because their counts could not be sourced here rather than because they were assessed and excluded. Two removals are not that: a registration carrying counts that belong to a pooled analysis of several trials, and a trial of a different disease. Both are itemised below.",
+    "status": "SUPERSEDED, NOT DELETED",
+    "superseded_utc": "2026-08-27T04:00:43Z",
+    "_why_kept": "Any claim about a store is a claim about a VERSION. The prior question is the record of what was asked before and why it could not be registered; deleting it would destroy the evidence that a change happened.",
+    "why_it_could_not_be_registered": [
+     "QUESTION NAMES OR LIMITS ITS OWN INCLUDED SET: 'could be sourced here' -- a search against it tests nothing until the question is reframed, which is a scientific decision and not a rewording."
+    ]
+   },
+   "NEW_QUESTION": {
+    "text": "In trial participants receiving COVID-19 vaccination, how does each vaccine regimen compare with placebo or alum-only control for the incidence of symptomatic COVID-19?",
+    "authored_utc": "2026-08-27T04:00:43Z"
+   },
+   "verdict": "AUTHORED",
+   "adjudicated_from": "both agreed",
+   "reasoning": "Both families independently chose incidence of symptomatic COVID-19.",
+   "drafts_as_submitted": {
+    "openai": {
+     "question": "In trial participants receiving COVID-19 vaccination, how does each vaccine regimen compare with placebo or alum-only control for the incidence of symptomatic COVID-19?",
+     "outcome": "Incidence of symptomatic COVID-19",
+     "concerns": "Age eligibility and detailed population criteria are not carried; HB02 denominators are randomisation group sizes, not per-arm efficacy-analysis denominators."
+    },
+    "google": {
+     "question": "What is the efficacy of COVID-19 vaccines compared to placebo or alum-only control in preventing symptomatic COVID-19 in human populations?",
+     "outcome": "incidence of symptomatic COVID-19",
+     "concerns": "The material does not carry age_eligibility or other demographic fields to define the population specifically, and one record uses an alum-only control despite the topic title specifying placebo."
+    }
+   },
+   "label": "RETROSPECTIVE -- the object held trials before this question was written"
+  },
+  {
+   "topic": "evolocumab-mixed-dyslipidemia-auto-full-review",
+   "SUPERSEDED_QUESTION": {
+    "text": "In adults with mixed dyslipidemia, does Evolocumab compared with placebo affect the outcome each trial registered as its primary, which differ across the 2 trials here?",
+    "status": "SUPERSEDED, NOT DELETED",
+    "superseded_utc": "2026-08-27T04:00:43Z",
+    "_why_kept": "Any claim about a store is a claim about a VERSION. The prior question is the record of what was asked before and why it could not be registered; deleting it would destroy the evidence that a change happened.",
+    "why_it_could_not_be_registered": [
+     "QUESTION NAMES OR LIMITS ITS OWN INCLUDED SET: 'the 2 trials' -- a search against it tests nothing until the question is reframed, which is a scientific decision and not a rewording.",
+     "OUTCOME DEFERRED TO THE TRIALS: the estimand is defined as whatever each included trial registered, so no estimand can be pre-specified"
+    ]
+   },
+   "NEW_QUESTION": {
+    "text": "In adults with mixed dyslipidemia receiving background statin therapy, does evolocumab compared with placebo or statin-only control reduce percent change from baseline in LDL-C at the mean of weeks 10 and 12?",
+    "authored_utc": "2026-08-27T04:00:43Z"
+   },
+   "verdict": "AUTHORED",
+   "adjudicated_from": "both agreed",
+   "reasoning": "Both families independently chose percent change from baseline in LDL-C.",
+   "drafts_as_submitted": {
+    "openai": {
+     "question": "In adults with mixed dyslipidemia receiving background statin therapy, does evolocumab compared with placebo or statin-only control reduce percent change from baseline in LDL-C at the mean of weeks 10 and 12?",
+     "outcome": "Percent change from baseline in LDL-C at the mean of weeks 10 and 12",
+     "concerns": "The arm-pair objects contain crossed dosing-frequency comparisons and role inconsistencies; age eligibility and full verbatim arm checks are not carried."
+    },
+    "google": {
+     "question": "In adults with mixed dyslipidemia, what is the effect of evolocumab compared with placebo on the percent change from baseline in LDL-C at the mean of weeks 10 and 12?",
+     "outcome": "percent change from baseline in LDL-C at the mean of weeks 10 and 12",
+     "concerns": "Both trial records pair a fortnightly (Q2W) control arm with a monthly (QM) evolocumab arm, which crosses dosing frequencies and represents a comparison that was neither registered nor performed; additionally, the treatment and control roles are inverted or inconsistent across the two trial records."
+    }
+   },
+   "label": "RETROSPECTIVE -- the object held trials before this question was written"
+  },
+  {
+   "topic": "lenacapavir-prep",
+   "SUPERSEDED_QUESTION": {
+    "text": "In the two phase 3 lenacapavir prevention trials, what is the incidence of HIV acquisition with lenacapavir relative to the randomised oral active control, and separately relative to the background incidence estimated in the screened population?",
+    "status": "SUPERSEDED, NOT DELETED",
+    "superseded_utc": "2026-08-27T04:00:43Z",
+    "_why_kept": "Any claim about a store is a claim about a VERSION. The prior question is the record of what was asked before and why it could not be registered; deleting it would destroy the evidence that a change happened.",
+    "why_it_could_not_be_registered": [
+     "QUESTION NAMES OR LIMITS ITS OWN INCLUDED SET: 'the two phase 3 lenacapavir prevention trials' -- a search against it tests nothing until the question is reframed, which is a scientific decision and not a rewording."
+    ]
+   },
+   "NEW_QUESTION": {
+    "text": "In HIV-negative adolescent girls and young women, cisgender men, and transgender or gender-diverse persons, does lenacapavir reduce HIV-1 incidence per 100 person-years compared with F/TDF?",
+    "authored_utc": "2026-08-27T04:00:43Z"
+   },
+   "verdict": "AUTHORED",
+   "adjudicated_from": "both agreed",
+   "reasoning": "Both families independently chose HIV-1 incidence per 100 person-years.",
+   "drafts_as_submitted": {
+    "openai": {
+     "question": "In HIV-negative adolescent girls and young women, cisgender men, and transgender or gender-diverse persons, does lenacapavir reduce HIV-1 incidence per 100 person-years compared with F/TDF?",
+     "outcome": "HIV-1 incidence per 100 person-years",
+     "concerns": "Age eligibility, administration details, and some registry arm-label provenance fields are not carried; PURPOSE 1 also includes F/TAF as a separate investigational arm that should not be combined with F/TDF."
+    },
+    "google": {
+     "question": "In people at risk of HIV acquisition, what is the effect of lenacapavir compared with F/TDF on HIV-1 incidence per 100 person-years?",
+     "outcome": "HIV-1 incidence per 100 person-years",
+     "concerns": "NONE"
+    }
+   },
+   "label": "RETROSPECTIVE -- the object held trials before this question was written"
+  },
+  {
+   "topic": "apixaban-af-review",
+   "SUPERSEDED_QUESTION": {
+    "text": "Does apixaban reduce stroke and systemic embolism in atrial fibrillation? The four trials on this page do not answer one question: two register an efficacy endpoint and two register bleeding.",
+    "status": "SUPERSEDED, NOT DELETED",
+    "superseded_utc": "2026-08-27T04:00:43Z",
+    "_why_kept": "Any claim about a store is a claim about a VERSION. The prior question is the record of what was asked before and why it could not be registered; deleting it would destroy the evidence that a change happened.",
+    "why_it_could_not_be_registered": [
+     "QUESTION NAMES OR LIMITS ITS OWN INCLUDED SET: 'The four trials' -- a search against it tests nothing until the question is reframed, which is a scientific decision and not a rewording.",
+     "QUESTION STATES NO COMPARATOR"
+    ]
+   },
+   "NEW_QUESTION": {
+    "text": null,
+    "_why_none": "see verdict"
+   },
+   "verdict": "SCOPING FINDING -- NOT ONE REVIEW",
+   "adjudicated_from": "both agreed",
+   "reasoning": "Both families said UNANSWERABLE across four rounds, on complementary and independently verified grounds. AVERROES compares apixaban with acetylsalicylic acid; RENAL-AF with warfarin; ARISTOTLE's arms are stored as '1' and '2' with no drug identity; and PACIFIC-AF tests BAY2433334 USING APIXABAN AS THE CONTROL ARM. This is at least two reviews split by comparator, and in one of them apixaban is not the intervention. Stable across every round, so not a round-one artefact.",
+   "drafts_as_submitted": {
+    "openai": {
+     "question": "UNANSWERABLE",
+     "outcome": "No single named quantity supported coherently across all records",
+     "concerns": "A single searchable PICO question cannot be formed because the intervention/comparator structure is inconsistent and the shared outcome is missing; ARISTOTLE arm labels are coded as \u201c1\u201d and \u201c2\u201d rather than named treatments."
+    },
+    "google": {
+     "question": "UNANSWERABLE",
+     "outcome": "Not applicable",
+     "concerns": "The material cannot support a single coherent question because the trials share no common comparator. AVERROES compares apixaban to acetylsalicylic acid, RENAL-AF compares it to warfarin, ARISTOTLE compares it to an unspecified \"control\", and PACIFIC-AF tests a different experimental drug (BAY2433334) using apixaban as the control arm."
+    }
+   },
+   "label": "RETROSPECTIVE -- the object held trials before this question was written"
+  },
+  {
+   "topic": "cangrelor-pci-review",
+   "SUPERSEDED_QUESTION": {
+    "text": "Does cangrelor reduce ischaemic events at PCI? The three CHAMPION trials answer versions of this, and the numbers this page used were not the ones they answered it with.",
+    "status": "SUPERSEDED, NOT DELETED",
+    "superseded_utc": "2026-08-27T04:00:43Z",
+    "_why_kept": "Any claim about a store is a claim about a VERSION. The prior question is the record of what was asked before and why it could not be registered; deleting it would destroy the evidence that a change happened.",
+    "why_it_could_not_be_registered": [
+     "QUESTION NAMES OR LIMITS ITS OWN INCLUDED SET: 'The three CHAMPION trials' -- a search against it tests nothing until the question is reframed, which is a scientific decision and not a rewording.",
+     "QUESTION STATES NO COMPARATOR"
+    ]
+   },
+   "NEW_QUESTION": {
+    "text": null,
+    "_why_none": "see verdict"
+   },
+   "verdict": "SCOPING FINDING -- NO SHARED OUTCOME",
+   "adjudicated_from": "openai",
+   "reasoning": "A threshold split resolved toward refusal. The registered primaries genuinely differ: CHAMPION-PHOENIX adds stent thrombosis to the three-part composite used by CHAMPION-PCI and CHAMPION-PLATFORM. A composite that is not the same composite is not a shared outcome. The proposed workaround -- all-cause mortality at 48 hours -- is a component of differing composites, the same shape that required hand-checking on attr-cm, and it is not adopted without a definitional-equivalence check.",
+   "drafts_as_submitted": {
+    "openai": {
+     "question": "UNANSWERABLE",
+     "outcome": "Composite incidence of all-cause mortality, myocardial infarction, ischemia-driven revascularization, and stent thrombosis",
+     "concerns": "The material supports a common intervention and comparator, but not one common outcome: CHAMPION-PCI and CHAMPION-PLATFORM use all-cause mortality, MI, and IDR, while CHAMPION-PHOENIX adds stent thrombosis."
+    },
+    "google": {
+     "question": "In patients requiring percutaneous coronary intervention, does cangrelor reduce the incidence of all-cause mortality at 48 hours compared to clopidogrel?",
+     "outcome": "All-cause mortality at 48 hours",
+     "concerns": "The trials do not share a common primary composite outcome (CHAMPION-PHOENIX adds stent thrombosis to the 3-part composite used in CHAMPION-PCI and CHAMPION-PLATFORM)."
+    }
+   },
+   "label": "RETROSPECTIVE -- the object held trials before this question was written"
+  },
+  {
+   "topic": "rosuvastatin-auto-full-review",
+   "SUPERSEDED_QUESTION": {
+    "text": "In adults with stroke, does Rosuvastatin compared with placebo affect the outcome each trial registered as its primary, which differ across the 2 trials here?",
+    "status": "SUPERSEDED, NOT DELETED",
+    "superseded_utc": "2026-08-27T04:00:43Z",
+    "_why_kept": "Any claim about a store is a claim about a VERSION. The prior question is the record of what was asked before and why it could not be registered; deleting it would destroy the evidence that a change happened.",
+    "why_it_could_not_be_registered": [
+     "QUESTION NAMES OR LIMITS ITS OWN INCLUDED SET: 'the 2 trials' -- a search against it tests nothing until the question is reframed, which is a scientific decision and not a rewording.",
+     "OUTCOME DEFERRED TO THE TRIALS: the estimand is defined as whatever each included trial registered, so no estimand can be pre-specified"
+    ]
+   },
+   "NEW_QUESTION": {
+    "text": null,
+    "_why_none": "see verdict"
+   },
+   "verdict": "SCOPING FINDING -- NO SHARED OUTCOME",
+   "adjudicated_from": "both agreed",
+   "reasoning": "Both families said UNANSWERABLE independently.",
+   "drafts_as_submitted": {
+    "openai": {
+     "question": "UNANSWERABLE",
+     "outcome": "Time to major cardiovascular event",
+     "concerns": "The material does not carry population eligibility supporting adults with stroke, and the HOPE-3 object has a recorded comparator of Candesartan/HCT rather than placebo, so it cannot support a single coherent rosuvastatin-versus-placebo question."
+    },
+    "google": {
+     "question": "UNANSWERABLE",
+     "outcome": "UNANSWERABLE",
+     "concerns": "The material cannot support a single coherent question because the trials share no common comparator: JUPITER compares rosuvastatin against placebo, while the provided HOPE-3 record compares it against Candesartan/HCT. Additionally, the material does not define the extracted 'primary' outcome as a single named quantity shared across both records."
+    }
+   },
+   "label": "RETROSPECTIVE -- the object held trials before this question was written"
+  },
+  {
+   "topic": "finerenone-review",
+   "SUPERSEDED_QUESTION": {
+    "text": "In adults with heart failure, does Finerenone (BAY94-8862) compared with placebo affect the outcome each trial registered as its primary, which differ across the 3 trials here?",
+    "status": "SUPERSEDED, NOT DELETED",
+    "superseded_utc": "2026-08-27T04:00:43Z",
+    "_why_kept": "Any claim about a store is a claim about a VERSION. The prior question is the record of what was asked before and why it could not be registered; deleting it would destroy the evidence that a change happened.",
+    "why_it_could_not_be_registered": [
+     "QUESTION NAMES OR LIMITS ITS OWN INCLUDED SET: 'the 3 trials' -- a search against it tests nothing until the question is reframed, which is a scientific decision and not a rewording.",
+     "QUESTION CONTRADICTS THE OBJECT: says 3 trials, object holds 4",
+     "OUTCOME DEFERRED TO THE TRIALS: the estimand is defined as whatever each included trial registered, so no estimand can be pre-specified"
+    ]
+   },
+   "NEW_QUESTION": {
+    "text": null,
+    "_why_none": "see verdict"
+   },
+   "verdict": "BLOCKED ON THE OBJECT -- NOT A METHODOLOGICAL VERDICT",
+   "adjudicated_from": null,
+   "reasoning": "RECLASSIFIED. This is not UNANSWERABLE. The topic's stored question says THREE trials and the object holds FOUR, so a question cannot be written because the object contradicts itself -- not because the topic cannot carry one. Those are different findings with different owners: this one goes to whoever fixes the store, and it must not be folded into a methodological verdict, because that is how a fixable problem acquires a permanent label.",
+   "drafts_as_submitted": {
+    "openai": {
+     "question": "UNANSWERABLE",
+     "outcome": "Cardiovascular death and heart failure events",
+     "concerns": "The material does not support a single coherent question: population details are not carried, one record has only generic intervention/control labels and no named outcome, and the named outcomes are not common across all records."
+    },
+    "google": {
+     "question": "Does finerenone reduce all-cause mortality compared to placebo in adults with heart failure?",
+     "outcome": "All-cause mortality",
+     "concerns": "The trial records do not carry population characteristics (such as age_eligibility) to verify if the participants match the topic title's population, and the record for NULLED:NCT01874431 lacks explicit intervention, comparator, and outcome labels."
+    }
+   },
+   "label": "RETROSPECTIVE -- the object held trials before this question was written"
+  }
+ ],
+ "counts": {
+  "topics": 10,
+  "questions authored": 6,
+  "scoping findings (topic cannot carry one question)": 3,
+  "blocked on the object (a data defect, not a verdict)": 1,
+  "carrying the retrospective label": 10,
+  "held, not authored": {
+   "sotagliflozin-hf": "under another lane's active review and Mahmood's question-reframe decision"
+  }
+ }
+}
