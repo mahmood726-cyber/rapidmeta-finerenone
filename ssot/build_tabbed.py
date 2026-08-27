@@ -561,9 +561,15 @@ def output_card(canon, p):
         pl = r.get("pooled") or {}
         g = r.get("grade") or {}
         ks = r.get("k_status") or {}
-        sof += ("    <tr><td>%s</td><td class='num'>%s%s</td><td class='num'>%s</td>"
+        # data-pool ON THE ROW, NOT ON EACH CELL. Every number in this row -- the k, the
+        # pooled point and its interval -- comes from the SAME pool, so the row is the
+        # honest unit. The pool's id is the object's own key under results.by_outcome;
+        # there is no separate pool_id field, and inventing one here would create a second
+        # name for a thing that already has one.
+        sof += ("    <tr data-pool=\"%s\"><td>%s</td><td class='num'>%s%s</td>"
+                "<td class='num'>%s</td>"
                 "<td>%s</td></tr>%s"
-                % (p(o["name"]), pj.fmt(r.get("k")),
+                % (p(oid), p(o["name"]), pj.fmt(r.get("k")),
                    " (lower bound)" if ks.get("is_lower_bound") else "",
                    ("%s %s (%s to %s)" % (_v((pl.get("measure", ""))),
                                           pj.fmt(pl["point"]),
@@ -1389,6 +1395,31 @@ def _standard_block(canon, e_):
            _v(_pp._tidy(stamp.get("_ratchet", "")))))
 
 
+def _artefact_kind(canon):
+    """review | tool -- what KIND of thing this page is, decided from the object.
+
+    WHY. Establishing what 1,463 served pages ARE took a census, a structural-signature
+    classifier, live sampling, a cross-lane join and 58 pages opened by hand. 744 of them
+    present the full apparatus of a systematic review -- PRISMA, GRADE, AMSTAR-2, RoB-2 --
+    with `--` in every result slot, at URLs ending `_REVIEW.html`. A reader is invited to
+    run them and the URL says they are invited to believe them. One attribute answers it.
+
+    THE RULE IS THE POPULATED OUTCOME, NOT THE APPARATUS. A shell carries every table a
+    review carries; what it does not carry is a result. Measured 2026-08-27 over PAGE_MAP:
+    149 objects hold at least one outcome with a pooled estimate, an effect or a k, and 14
+    hold none -- which reproduces the census's own "14 current-generation without a store".
+
+    THIS GENERATOR EMITS TWO OF THE FOUR KINDS. `redirect` and `landing` are produced
+    elsewhere and are NOT claimed here; a page built by this function is never one of them,
+    so asserting the vocabulary's other half from here would be a guess.
+    """
+    by = (canon.get("results") or {}).get("by_outcome") or {}
+    for v in by.values():
+        if isinstance(v, dict) and (v.get("pooled") or v.get("effect") or v.get("k")):
+            return "review"
+    return "tool"
+
+
 def _store_declaration(canon):
     """The page's own object path, for the served bytes. Derives, VERIFIES, or refuses.
 
@@ -1641,6 +1672,9 @@ def build(canon, store_path=None):
     # proposed for, so the two declarations sit together rather than in two conventions.
     _store_attr = (' data-store="%s"' % e_(_store) if _store
                    else ' data-store="" data-store-absent="%s"' % e_(_store_why or "unknown"))
+    # SAME ELEMENT AS data-store, deliberately: one declared surface rather than two
+    # conventions a reader of this code has to learn separately.
+    _store_attr += ' data-artefact="%s"' % e_(_artefact_kind(canon))
     return """<!doctype html>
 <html lang="en"%s>""" % _store_attr + """
 <meta charset="utf-8">
