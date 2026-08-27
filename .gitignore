@@ -173,3 +173,14 @@ outputs/pubmed_esearch_cache/
 # asks whether the export set is an artefact or a by-product and says not to
 # resolve it by committing the current files.
 figs/*.tiff
+
+# figs/ export by-products -- 2026-08-27, same fix as lane/rob-retrieval carries.
+# My own scratch rebuilds recreated figs/_raster_cache/ in this worktree, which is the
+# pollution I had just fixed on another branch -- the .gitignore fix was committed there
+# and this branch never had it. Regenerable by ssot/figures.py; untracked AND unignored is
+# what makes `git status --porcelain` permanently non-empty.
+figs/*.eps
+figs/*.png
+figs/*.tiff
+figs/*_src.svg
+figs/_raster_cache/
