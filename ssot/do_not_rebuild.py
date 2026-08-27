@@ -180,6 +180,9 @@ REQUIRED_GENERATOR_COMMITS = {
     # rebuild cannot reintroduce: 47 removed, 0 present in this tree.
     "36ae41332611a33a37ff041d158683f6dd8698a3": (
         "per-outcome participant counts, the withdrawn-state fallthrough, and a gate that was passing an empty set. Without it a rebuilt page restates a review-level denominator against an outcome that did not use it"),
+
+    "509dde275afa81c877332ad930d783b954de3fde": (
+        "the risk-of-bias traffic-light legend, after 948cec5ef made an out-of-scale domain draw as an open square. Without it a rebuilt page labels nine squares as circles and contradicts itself; reverting the glyph instead would return No information as a fourth RoB 2 judgement, which is the defect 948cec5ef removed"),
 }
 
 
