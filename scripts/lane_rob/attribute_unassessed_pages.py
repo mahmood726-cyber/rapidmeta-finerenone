@@ -49,7 +49,40 @@ def known_topics():
     return out
 
 
-def classify(page, raw, known):
+def page_map():
+    """The AUTHORITATIVE page -> store map, which this classifier did not consult.
+
+    The first version attributed a page by scanning its bytes for `ssot/<topic>/` and by
+    matching its filename stem against store directory names. Both are inferences. The
+    repository ships ssot/PAGE_MAP.json, which STATES the mapping, and 63 pages it maps to a
+    store that exists on disk were classified here as legacy -- so a page with an object was
+    reported as a page with none, and every downstream count inherited it.
+
+    That is the same failure as every other denominator defect this week: the classifier
+    reported where it looked. It looked at page bytes and filenames and not at the file whose
+    entire purpose is to answer the question being asked.
+    """
+    import json as _json
+    f = os.path.join("ssot", "PAGE_MAP.json")
+    if not os.path.exists(f):
+        return {}
+    try:
+        m = _json.load(io.open(f, encoding="utf-8"))
+    except Exception:
+        return {}
+    out = {}
+    for page, store in m.items():
+        if not isinstance(store, str):
+            continue
+        if os.path.exists(store):                      # a map entry is not a store
+            out[os.path.basename(page)] = os.path.basename(os.path.dirname(store))
+    return out
+
+
+def classify(page, raw, known, mapped=None):
+    # THE STATED MAPPING WINS OVER ANY INFERENCE FROM THE BYTES.
+    if mapped and os.path.basename(page) in mapped:
+        return "HAS_STORE", mapped[os.path.basename(page)]
     c = collections.Counter(m.group(1).decode("ascii", "ignore")
                             for m in TOPIC_IN_PAGE.finditer(raw))
     for name, _ in c.most_common():
@@ -70,6 +103,7 @@ def classify(page, raw, known):
 
 def main():
     known = known_topics()
+    mapped = page_map()
     pages = sorted(glob.glob("*.html"))
     rows = []
     for p in pages:
@@ -78,13 +112,14 @@ def main():
         except OSError:
             rows.append((p, "UNREADABLE", None, 0))
             continue
-        kind, topic = classify(p, raw, known)
+        kind, topic = classify(p, raw, known, mapped)
         rows.append((p, kind, topic, len(raw)))
 
     print("=" * 88)
     print("ATTRIBUTING THE PAGES NO INSTRUMENT COULD SEE")
     print("=" * 88)
     print("  stores on disk                              %4d" % len(known))
+    print("  pages named by PAGE_MAP with a live store   %4d" % len(mapped))
     print("  delivered pages                             %4d  == the denominator" % len(rows))
     print("")
     c = collections.Counter(k for _, k, _, _ in rows)
