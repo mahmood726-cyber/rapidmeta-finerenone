@@ -40,8 +40,12 @@ import os
 import re
 import sys
 
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace",
-                              line_buffering=True)
+# GUARDED. A module-level stdout reassignment closes the CALLER's stdout the moment
+# this file is imported, and every script here is now importable -- three separate
+# checks of this lane's own output died that way before it was fixed at the source.
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8",
+                                  errors="replace", line_buffering=True)
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(os.path.dirname(HERE))
 os.chdir(REPO)

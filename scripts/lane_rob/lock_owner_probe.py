@@ -25,8 +25,12 @@ import sys
 import time
 import hashlib
 
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace",
-                              line_buffering=True)
+# GUARDED. A module-level stdout reassignment closes the CALLER's stdout the moment
+# this file is imported, and every script here is now importable -- three separate
+# checks of this lane's own output died that way before it was fixed at the source.
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8",
+                                  errors="replace", line_buffering=True)
 LOCK = r"F:\rapidmeta-finerenone\.git\worktrees\rapidmeta-ssot-shell\index.lock"
 
 
