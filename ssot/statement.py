@@ -331,6 +331,50 @@ def _what_would_change_it(obj):
             "measured outcome are available.")
 
 
+
+def _published_assessments(obj):
+    """Which of (risk-of-bias, certainty) this object ACTUALLY publishes.
+
+    Keyed on by_outcome entries that contain something, NOT on the presence of
+    the parent block or of a verdict field. Two traps sit here and both were
+    live:
+
+      * amoxicillin-aom carries a truthy `risk_of_bias_verdict` whose value
+        states the DOMAIN RULE ("RoB 2 domain 5 (Handbook 6.5 section 8.7)..."),
+        not a judgement about any trial.
+      * attr-cm-review carries a `certainty` block with six scaffolding keys
+        and an EMPTY by_outcome, so the block is truthy and publishes nothing.
+
+    Membership is not the property. Reading either field as a boolean would
+    have produced the same sentence this function exists to stop.
+    """
+    rb = ((obj.get("risk_of_bias") or {}).get("by_outcome") or {})
+    has_rob = any(isinstance(v, dict) and v for v in rb.values())
+    ce = ((obj.get("certainty") or {}).get("by_outcome") or {})
+    has_cert = any(isinstance(v, dict) and v for v in ce.values())
+    return has_rob, has_cert
+
+
+def _nothing_published_note(obj):
+    """The closing note, stating only what the object actually withholds."""
+    has_rob, has_cert = _published_assessments(obj)
+    because = " because there is no combined result for them to describe."
+    if not has_rob and not has_cert:
+        return ("No pooled estimate, risk-of-bias assessment or certainty rating "
+                "is published for this question," + because)
+    also = ("A risk-of-bias assessment and a certainty rating are"
+            if has_rob and has_cert else
+            "A risk-of-bias assessment is" if has_rob else
+            "A certainty rating is")
+    withheld = ("No pooled estimate is published for this question,"
+                if has_rob and has_cert else
+                "No pooled estimate or certainty rating is published for this question,"
+                if has_rob else
+                "No pooled estimate or risk-of-bias assessment is published for this "
+                "question,")
+    return ("%s%s %s published below and describe%s the trials, not a combined result."
+            % (withheld, because, also, "" if (has_rob and has_cert) else "s"))
+
 def _searched(obj):
     """What was checked and when, in one sentence, or None if nothing is recorded.
 
@@ -521,8 +565,10 @@ def statement_html(obj, e):
         out.append("<p><strong>Whether these trials study this subject.</strong> %s</p>"
                    % e(identity))
     out.append("<p><strong>What would change this.</strong> %s</p>" % e(change))
-    out.append("<p><small>No pooled estimate, risk-of-bias assessment or certainty rating "
-               "is published for this question, because there is no combined result for "
-               "them to describe.</small></p>")
+    # This sentence was emitted unconditionally on 15 pages. On two of them --
+    # attr-cm-review and early-rhythm-control-af -- the page displays an
+    # assessor-column risk-of-bias table a few sections further down, so the
+    # page denied publishing something it was publishing. Derived now.
+    out.append("<p><small>%s</small></p>" % e(_nothing_published_note(obj)))
     out.append("</div>")
     return "\n".join(out)
