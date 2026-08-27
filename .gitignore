@@ -173,3 +173,18 @@ outputs/pubmed_esearch_cache/
 # asks whether the export set is an artefact or a by-product and says not to
 # resolve it by committing the current files.
 figs/*.tiff
+
+# figs/ export by-products -- 2026-08-27
+# Regenerable by ssot/figures.py on demand and consumed only by the F1000 submission
+# path, so nothing is lost by not tracking them. They were untracked AND unignored,
+# which made `git status --porcelain` non-empty permanently -- and
+# scripts/lane_rob/provenance.py:59 calls that WITHOUT --untracked-files=no, so every
+# provenance record the lane wrote carried git_dirty=true because of these files.
+# The structural fix (per-topic figure directories instead of one shared mutable name
+# across 53 topics) remains open in TOOLING-QUEUE.md; this only stops the by-products
+# poisoning the build stamp.
+figs/*.eps
+figs/*.png
+figs/*.tiff
+figs/*_src.svg
+figs/_raster_cache/
