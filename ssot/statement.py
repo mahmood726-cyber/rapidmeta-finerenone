@@ -353,13 +353,35 @@ def _searched(obj):
         _vb = (_vb.get("what_verifies_this_object")
                or _vb.get("basis") or _vb.get("what_was_checked") or "")
     basis = _reader_safe(_sentence_case(str(_vb or "")))
-    dates = sorted({str(t.get("read_utc") or t.get("all_ranks_read_utc") or "")[:10]
-                    for t in ((obj.get("inputs") or {}).get("trials") or [])
-                    if isinstance(t, dict)} - {""})
+    # "READ IN FULL" IS A CLAIM ABOUT DEPTH, AND ONLY ONE FIELD WARRANTS IT.
+    # `all_ranks_read_utc` records that every registered rank was read; `read_utc`
+    # records only that a read happened. The sentence asserted the stronger claim
+    # whenever EITHER was present -- and the `or` preferred the weaker field, so a
+    # page could cite the shallower timestamp while claiming the deeper reading.
+    # Across the corpus 82 objects have all_ranks on every trial, 40 have only
+    # read_utc, and 1 has it on some: 41 objects were told they had been read in
+    # full on the strength of a timestamp that does not say so.
+    #
+    # DERIVE OR REFUSE: say "read in full" where every registration warrants it,
+    # say what was actually done where it does not, and name the split where the
+    # object is mixed rather than rounding it to either end.
+    _tr = [t for t in ((obj.get("inputs") or {}).get("trials") or []) if isinstance(t, dict)]
+    _full = [t for t in _tr if t.get("all_ranks_read_utc")]
+    dates = sorted({str(t.get("all_ranks_read_utc") or t.get("read_utc") or "")[:10]
+                    for t in _tr} - {""})
     registries = sorted({r for _, _, r in _trials(obj) if r})
     if registries and dates:
-        return ("Every registration listed below was read in full on %s from %s."
-                % (dates[-1], " and ".join(registries)))
+        if _tr and len(_full) == len(_tr):
+            what = "was read in full"
+        elif _full:
+            what = ("was read in full for %d of the %d registrations below, and retrieved "
+                    "without a recorded rank-by-rank read for the rest"
+                    % (len(_full), len(_tr)))
+        else:
+            what = ("was retrieved -- this object records no rank-by-rank read, so it does "
+                    "not establish that every registered outcome was examined")
+        return ("Every registration listed below %s on %s from %s."
+                % (what, dates[-1], " and ".join(registries)))
     return basis
 
 
