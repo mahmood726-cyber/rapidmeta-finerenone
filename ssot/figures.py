@@ -346,7 +346,8 @@ def downloads_html(items, sha, rasterised, e, NL, written=()):
                 "adding fidelity. The build was able to rasterise; it was asked not to.")
     elif rasterised:
         note = ("All raster formats were generated at build time from the same SVG "
-                "as the graphic above (SHA-256 %s&hellip;), at %d dpi for a %.0f-inch "
+                "as the graphic above (SHA-256, first 16 hex characters: %s), at %d dpi "
+                "for a %.0f-inch "
                 "print width, on a white ground. They are not screenshots of the page "
                 "and do not change with the theme you are reading in."
                 % (e(sha[:16]), DPI, PRINT_WIDTH_IN))

@@ -639,7 +639,13 @@ def output_card(canon, p):
         # Measured 2026-08-26: 16 of 155 objects carry a build_stamp at all and 137 of 149
         # delivered pages carry no standard line, so "is this current" was unanswerable for
         # 92 percent of the corpus.
-        ("Source object SHA-256",
+        # A 16-character value cannot be labelled "SHA-256": the digest is 64 hex
+        # characters and this is the first 16 of them. The label now says what is
+        # actually shown, so a reader can reproduce it exactly. The value is left
+        # alone deliberately -- scripts/figure_detectors.py matches [0-9a-f]{16}
+        # against it, and widening the field would have it capture a prefix and
+        # call it the whole digest, which is the same defect one layer down.
+        ("Source object SHA-256, first 16 hex characters",
          "<code>%s</code>" % e(__import__("hashlib").sha256(
              __import__("json").dumps(canon, sort_keys=True, separators=(",", ":"),
                                       ensure_ascii=False).encode("utf-8")).hexdigest()[:16])),
