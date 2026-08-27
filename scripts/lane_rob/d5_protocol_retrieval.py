@@ -12,7 +12,20 @@ THREE PASSES, each with its own denominator.
      bococizumab-lipid-review (6) and tigecycline-ciai (4). Small enough to do exhaustively,
      which is why D5 was worth taking before the larger domains: D1 126, D2 139, D3 132.
 
-  2. IS THE INSTRUMENT POSTED? 0 of 9. No trial behind any D5 gap has a protocol or a
+  2. IS THE INSTRUMENT POSTED? 0 of 9 -- established twice, by two different routes, after
+     the first route turned out to be the wrong place to look. The API v2 record's
+     documentSection.largeDocumentModule is empty for all nine, but that field is empty for
+     trials whose protocol IS served: NCT01975376 and NCT01975389 both return a 168- and
+     167-page protocol from the CDN while their API records list no documents at all. So the
+     first pass established "nothing in the field I read", which is a weaker claim than it
+     appeared. Re-probed against the CDN path that demonstrably works, all nine still have no
+     protocol and no SAP, and THAT negative is strong because the route has been shown to
+     return a document for trials in the same programme.
+
+     PROBE WITH A PLAIN GET, NEVER A RANGED ONE. `Range: 0-0` returns 206 for every filename
+     including ones that cannot exist -- ICF_000.pdf, Prot_SAP_001.pdf -- so a ranged probe is
+     an instrument that can only say "present", which is not a check. A plain GET
+     discriminates: 200/application/pdf against 404/text/html. No trial behind any D5 gap has a protocol or a
      statistical analysis plan posted on the registry -- not one document of any kind, though
      7 of 9 have posted results. So the registry route is EXHAUSTED, with evidence, and all
      10 judgements stay NOT_RETRIEVED_BY_US. This is not "no protocol exists": SPIRE and the
@@ -96,13 +109,28 @@ def main():
     ncts = tg["ncts"]
     os.makedirs(os.path.join(PEND, "ctg"), exist_ok=True)
 
+    # THE CDN PATH, WHICH IS WHERE A PROTOCOL ACTUALLY LIVES. Filenames are conventional;
+    # this is the set observed to exist across this corpus's trials.
+    CDN = "https://cdn.clinicaltrials.gov/large-docs/%s/%s/%s"
+    DOCS = ("Prot_000.pdf", "Prot_001.pdf", "SAP_000.pdf", "Prot_SAP_000.pdf")
+
+    def cdn_has(nct, fname):
+        """200 with a PDF content type, or nothing. Plain GET -- see the note above."""
+        r = subprocess.run(
+            ["curl", "-s", "-o", os.devnull, "-w", "%{http_code}|%{content_type}",
+             "--max-time", "60", "-L", CDN % (nct[-2:], nct, fname)],
+            capture_output=True, timeout=120)
+        out = r.stdout.decode("ascii", "replace")
+        return out.startswith("200") and "pdf" in out
+
     posted = []
     for n in ncts:
         d = fetch("https://clinicaltrials.gov/api/v2/studies/%s" % n,
                   os.path.join(PEND, "ctg", "%s.json" % n)) or {}
         ld = (((d.get("documentSection") or {}).get("largeDocumentModule") or {})
               .get("largeDocs") or [])
-        posted.append({"nct": n, "docs": len(ld),
+        cdn = [f for f in DOCS if cdn_has(n, f)]
+        posted.append({"nct": n, "docs": len(ld), "cdn_docs": cdn,
                        "protocol": any(x.get("hasProtocol") for x in ld),
                        "sap": any(x.get("hasSap") for x in ld),
                        "has_results": bool(d.get("hasResults"))})
@@ -117,7 +145,10 @@ def main():
     print("")
     print("  PROTOCOL posted on the registry             %4d" % sum(1 for p in posted if p["protocol"]))
     print("  SAP posted on the registry                  %4d" % sum(1 for p in posted if p["sap"]))
-    print("  no document of any kind posted              %4d" % sum(1 for p in posted if not p["docs"]))
+    print("  no document in the API record               %4d" % sum(
+        1 for p in posted if p["docs"] == 0))
+    print("  no document on the CDN either               %4d  <- the strong negative" % sum(
+        1 for p in posted if not p["cdn_docs"]))
     print("  ...of which HAVE posted results             %4d" % sum(
         1 for p in posted if not p["docs"] and p["has_results"]))
     print("")
