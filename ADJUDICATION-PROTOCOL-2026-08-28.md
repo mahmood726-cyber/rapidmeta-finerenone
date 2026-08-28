@@ -372,3 +372,82 @@ Switching to RoB 1 would let every unreachable domain be marked *unclear* and cl
 converts a retrieval failure into a methodological judgement and hides it.** Keep RoB 2, and
 keep the honest fourth state — **`blocked — document needed`, naming the document.** A work
 queue, not a dead end.
+
+---
+
+## 10. Family allocation — and why `agy`'s biggest limitation is what makes Stage 0 possible
+
+Added 2026-08-28. Capacity: Claude direct 5% (resets in 17h), Codex 77% (resets 3 Sep), `agy`
+carrying three families including **a separate Claude allocation**. That is the first time this
+project has had three *properly pinnable* families at once, which is exactly what a
+two-readers-plus-adjudicator design requires and has never cleanly had.
+
+| role | worker | family |
+|---|---|---|
+| Reader A | Codex | openai |
+| Reader B | `agy --model gemini-3.1-pro-high` | google |
+| Adjudicator (class D only) | third family — `agy`'s Claude allocation | anthropic |
+| Rulings only | Claude direct | — |
+
+### ⭐ The limitation that is actually the enabling constraint
+
+**`agy` works on indexed text and fails on fetch, and a denial returns nothing.**
+
+Read as a capability gap that is a problem. Read against §1 it is the opposite: **a reader that
+fetches its own evidence can never be shown to have parity with another reader.** Two readers
+that each go and get their own material have no common bundle, no shared hash, and therefore no
+adjudicable disagreement — *which is precisely how the 90.3%-abstention run happened.*
+
+⇒ **A reader that must be HANDED its evidence is a reader whose evidence set is knowable.**
+So Stage 0 stops being an aspiration and becomes mechanical:
+
+1. Codex fetches and extracts — it is the only worker permitted to retrieve.
+2. The bundle is frozen and hashed **once**.
+3. **The same bytes** are handed inline to Reader A and Reader B.
+4. The hash is recorded on both assessments.
+
+**Evidence parity is not enforced by discipline; it is enforced by the fact that neither reader
+can obtain anything else.** That is the strongest form of a gate this project has: not a check
+that the rule was followed, but an arrangement in which breaking it is not possible.
+
+### ⚠️ The pin is a measurement, not a setting
+
+**`agy`'s default is gpt-oss — the same family as Codex.** An unpinned Reader B silently
+collapses a cross-family design into a single family, and **every agreement rate computed from
+it becomes meaningless while continuing to look exactly like a number.** Same shape as the
+adjudicator that could only say "present", and as `login status` reporting a dead seat as live.
+
+**Two requirements, and the second is the one that bites:**
+
+- Pin explicitly: `--model gemini-3.1-pro-high`.
+- ⛔ **Verify from the CLI log, never from a self-claim:**
+  `grep 'Propagating selected model override to backend: label=' <log>`
+  A model asked which model it is will answer confidently and may be wrong; the backend log is
+  the record of what was actually routed.
+
+**And record the family on every assessment as a stored field.** Then make the agreement
+computation **refuse** when two readers share a family — a rate across one family is not an
+inter-rater rate, and the refusal must name the two workers rather than silently averaging
+them. **An unverifiable family is the same as a shared one: both are recorded as `UNKNOWN` and
+both block the rate.**
+
+### The pipeline, end to end
+
+```
+Codex          fetch + extract         -> evidence bundle, frozen, sha256 recorded
+Codex          Reader A, cold + blind  -> signalling responses + evidence + family=openai
+agy/gemini     Reader B, cold + blind  -> signalling responses + evidence + family=google
+Stage 1        mechanical triage       -> A re-ask | B re-derive | C algorithm | D adjudicate
+                                          E external reference, scored first
+agy/claude     adjudicator, class D    -> criterion + bundle, NOT the two verdicts
+Claude direct  rulings only            -> factual divergence; never a threshold split
+```
+
+**Claude direct never reads a trial.** Threshold splits are the algorithm's; class E is scored
+against the published panel; only a *factual* divergence — two readers, same bundle, different
+signalling responses — is worth a ruling.
+
+⚠️ **Everything above is conditional on the re-ask.** Reader B currently returns verdict letters
+and no signalling responses, so classes B, C and D are empty by construction and the pipeline
+has no input. **The re-ask is not the first task in the queue; it is the precondition for the
+queue existing.**
