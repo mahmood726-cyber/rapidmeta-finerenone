@@ -51,6 +51,7 @@ commit. Site: `https://mahmood726-cyber.github.io/rapidmeta-finerenone/`
 | Trial name swaps (Ring/ASPIRE, FOCUS 1/2) | all 4 pair with the correct NCT, 0 wrong | 18:27 |
 | Read-through to `as_posted` on 13 trials / 6 pages | "read through to this object" renders | 19:36 |
 | Protocols + SAPs for 29 trials (58 docs, 94.4 MB) | `out/registry_documents_2026_08_28.json` | stored 22:10 |
+| **Two indexed pages stopped asserting a robustness result they had not computed** | tigecycline now "1 of 3 refits"; apixaban "none of the 3"; old claim = **0** on both | 22:40 |
 
 ---
 
@@ -88,6 +89,29 @@ No new search was run for any of it.
 45 of 50 have **no second copy at all**; 4 have `as_posted` only; 1 has `pmid_groups` only;
 **0 have both**. A repair cannot land on one of two copies where only one exists. Corpus-wide,
 only two trials carry both sides with numeric values.
+
+---
+
+## THE LAST FIX OF THE NIGHT, AND IT WAS BIGGER THAN REPORTED
+
+`tigecycline-ciai` served **"no refit excludes no difference"**. Hand-derived from the
+intervals its own object carries, the truth is **1 of 3**. Two errors made that one sentence:
+
+1. **Absent was read as negative.** The count read a truthy `still_excludes_null` that is
+   absent from all eight rows, so `0` meant *not computed* and was published as *computed and
+   none excluded*.
+2. **Five of the eight rows are not leave-one-out at all** — they change the summary
+   statistic, the model, the event definition or the analysis population. A leave-one-out
+   sentence was being computed from rows that remove no trial.
+
+The generator now selects refits by what they *changed*, derives exclusion from the interval
+when the flag is absent (honouring the outcome's own `null_value`), returns `None` never
+`False`, and emits **NOT ESTABLISHED** rather than a claim when nothing is decidable.
+
+**`apixaban-vte-treatment` is the instructive one:** its wording barely moved and its meaning
+changed completely — it now derives from three intervals that all span the null instead of
+from a field absent on every row. It was the right answer for the wrong reason, which no
+check comparing output strings would have caught.
 
 ---
 
@@ -156,7 +180,20 @@ carry `verdict: RULED_IN` with `criterion_result: FAIL` and the failing leg name
 
 ---
 
-## STATE
+## STATE AT STOP
 
-`main` at `c14e97684`. Working tree clean, nothing half-applied, no plant left in place.
-Every class-wide change in this report was either completed or not started.
+`main` at `53e1a0305`, **read back from the remote ref**, matching local HEAD.
+
+Four assertions before stopping:
+- **tree clean** — one build artefact (`figs/visual-abstract.html`) was modified by the
+  rebuild and is committed with it. Checked by RENDERED-TEXT hash rather than bytes, and it
+  genuinely carries the corrected sentence, so committing was right and reverting would have
+  left the figure asserting the false claim the page no longer makes.
+- **no plant in place.**
+- **nothing half-applied** — every class-wide change here was completed or not started. The
+  other two generator classes touch 0 of the indexed set and were deliberately NOT begun.
+- **shared artefacts** — `evidence/acquisition/` holds 303 documents; every one carries its
+  route, retrieval date and sha256.
+
+Untracked and not mine: a `fulltext/` directory in the repo root, which appears to be another
+lane's retriever writing outside `out/`. Left alone and flagged.
