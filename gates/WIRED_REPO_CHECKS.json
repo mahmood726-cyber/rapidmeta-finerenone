@@ -138,62 +138,86 @@
   {
    "script": "scripts/arm_identity_gate.py",
    "exit": 1,
-   "secs": 0.3
+   "secs": 0.3,
+   "kind": "MY-HARNESS-ERROR",
+   "what_it_says": "needs a glob argument; my triage ran it with none (IndexError on sys.argv[1])"
   },
   {
    "script": "scripts/audit_analysis_population_estimand.py",
    "exit": 2,
-   "secs": 0.3
+   "secs": 0.3,
+   "kind": "NOT_ASSESSABLE",
+   "what_it_says": "no registered-primary cache at outputs/nct_primaries.json -- an honest abstention, exit 2, not a failure"
   },
   {
    "script": "scripts/audit_grade_per_pool_2026_08_23.py",
    "exit": 1,
-   "secs": 4.1
+   "secs": 4.1,
+   "kind": "REAL-FINDING",
+   "what_it_says": "sglt2-hf rates an outcome it did NOT pool while its pooled outcomes carry no rating in that location"
   },
   {
    "script": "scripts/audit_mixed_contrast_pools.py",
    "exit": 1,
-   "secs": 2.3
+   "secs": 2.3,
+   "kind": "CONTROL-CANNOT-LOAD",
+   "what_it_says": "'the positive control was not read. No count.' It refuses correctly rather than reporting."
   },
   {
    "script": "scripts/audit_refusal_overclaim_2026_08_24.py",
    "exit": 1,
-   "secs": 4.3
+   "secs": 4.3,
+   "kind": "REAL-FINDING",
+   "what_it_says": "10 notices overclaim beyond the object's own scoped wording -- 'an overclaimed criticism reads as rigour'"
   },
   {
    "script": "scripts/audit_skipped_but_current.py",
    "exit": 2,
-   "secs": 0.3
+   "secs": 0.3,
+   "kind": "NOT_ASSESSABLE",
+   "what_it_says": "the log names no skipped page -- honest abstention"
   },
   {
    "script": "scripts/gate_paper_reads_as_prose_2026_08_22.py",
    "exit": 1,
-   "secs": 13.0
+   "secs": 13.0,
+   "kind": "REAL-FINDING",
+   "what_it_says": "6 papers carry a sentence that does not parse"
   },
   {
    "script": "scripts/gate_paper_reads_terribly_2026_08_24.py",
    "exit": 1,
-   "secs": 74.8
+   "secs": 74.8,
+   "kind": "REAL-FINDING",
+   "what_it_says": "empty refusals naming nothing; VERDICT_AS_TITLE on MAVACAMTEN_OHCM"
   },
   {
    "script": "scripts/lint_container_repr_on_a_page.py",
    "exit": 1,
-   "secs": 35.4
+   "secs": 35.4,
+   "kind": "REAL-FINDING",
+   "what_it_says": "a raw Python dict repr is rendered onto a delivered page -- reader-facing"
   },
   {
    "script": "scripts/lint_scope_derivations_agree.py",
    "exit": 1,
-   "secs": 10.4
+   "secs": 10.4,
+   "kind": "REAL-FINDING",
+   "what_it_says": "MALARIA_VACCINES_REVIEW.html is in the index-derived scope and absent from the PAGE_MAP-derived one"
   },
   {
    "script": "scripts/precision_sample_gate.py",
    "exit": 2,
-   "secs": 0.3
+   "secs": 0.3,
+   "kind": "MY-HARNESS-ERROR",
+   "what_it_says": "requires --glob or --selftest; my triage supplied neither"
   },
   {
    "script": "scripts/vacuity_sweep.py",
    "exit": 1,
-   "secs": 1.5
+   "secs": 1.5,
+   "kind": "BROKEN-CODE",
+   "what_it_says": "AttributeError: 'Report' object has no attribute 'blocks' (should be 'block'). The check cannot run."
   }
  ],
  "timeout_needs_scoping": [
@@ -209,5 +233,13 @@
   {
    "script": "scripts/staleness_gate.py"
   }
- ]
+ ],
+ "correction_2026_08_28": "The 12 non-zero exits were first reported as 'fails on the corpus as it stands'. Reading their output shows FOUR kinds, and two of the twelve were MY OWN harness error -- the triage ran every script with no arguments, and two require one. Six are REAL FINDINGS in checks nobody was running. Counting a non-zero exit as a finding is the same shape as counting a bucket label as a measurement, one level up.",
+ "red_kinds": {
+  "MY-HARNESS-ERROR": 2,
+  "NOT_ASSESSABLE": 2,
+  "REAL-FINDING": 6,
+  "CONTROL-CANNOT-LOAD": 1,
+  "BROKEN-CODE": 1
+ }
 }

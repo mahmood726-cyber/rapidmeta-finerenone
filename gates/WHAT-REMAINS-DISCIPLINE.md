@@ -119,6 +119,51 @@ workflow runs all eight plus the meta-gate on every branch.
 
 Every run prints both numbers. **The discipline is not letting the frozen list be read as zero.**
 
+## 12. The 156 uncalled checks — 24 wired, 132 not — **partly closed**
+
+Measured by running, not by labelling: **24 GREEN and FAST** (wired to pre-push, 21.4s total),
+8 GREEN but SLOW (CI only), 4 TIMEOUT, and 12 non-zero. The 132 not wired remain discipline,
+and the A\* / D buckets (30 mutating, 59 unclear) have not been opened at all.
+
+## 13. Six real findings are now known and unfixed — **discipline until routed**
+
+A raw Python dict repr on a delivered page; 10 overclaimed refusal notices; 6 unparseable
+sentences; empty refusals and a verdict-as-title; a GRADE rating on an unpooled outcome; two
+scope derivations disagreeing. All escalated, none fixed here — they belong to other lanes.
+**An escalation is not a fix, and this list is where that stays visible.**
+
+## 14. `arm_identity_gate` and `precision_sample_gate` need arguments — **not yet runnable as gates**
+
+Both require a glob. Until someone decides what they should be pointed at on every build, they
+cannot be wired. `vacuity_sweep.py` has a one-character bug (`blocks` for `block`) and cannot
+run at all; not fixed here because a wrong guess silently changes what it measures.
+
+---
+
+## Register entries — earned 2026-08-28
+
+> **AN ARITHMETIC EXPECTATION IS AN INSTRUMENT.** `+229/-174` for a fifty-line change exposed
+> 22 files silently converted LF→CRLF, including a shared script. Eight gates did not catch it;
+> knowing roughly what the diff should be did. **The CRLF phantom diff is a recurrence — we have
+> met it before.** Carry an expectation into every count and challenge the result.
+>
+> **A CHECK'S OWN FALSE POSITIVE IS A FINDING ABOUT THE CHECK.** Normalising line endings shrank
+> an append-only log by 24 bytes and the shrink assertion — written two hours earlier for that
+> file — accused a routine `>` of destroying records. The contract for an append-only log is
+> RECORDS, never bytes. A check wrong in the accusing direction reads as the check working.
+>
+> **COUNTING A NON-ZERO EXIT AS A FINDING IS COUNTING A LABEL AS A MEASUREMENT, ONE LEVEL UP.**
+> I replaced bucket labels with exit codes, then read the exit codes as meaning. Of 12
+> "failures", 6 were real findings, 2 were honest NOT_ASSESSABLE abstentions, 1 was a check
+> correctly refusing because its control would not load, 1 was broken code — and **2 were my own
+> harness running scripts that require an argument with none.** An exit code is an observation
+> about an invocation, and the invocation was mine.
+>
+> **TWO CONVENTIONS FOR ONE CONCEPT, COMMITTED BY THE PERSON BUILDING THE GATE AGAINST IT.**
+> `scripts/instrument_controls.py::require_controls` already existed and was used by 105 checks.
+> All nine gates here were invisible to it, and to the audit for the very rule this lane
+> recorded as newly earned. The harness now routes through it.
+
 ---
 
 ## Register entry — earned 2026-08-28, twice, inside gates written to enforce rules
