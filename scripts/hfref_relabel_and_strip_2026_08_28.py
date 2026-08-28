@@ -230,6 +230,17 @@ def main():
         'rather than relabelled.</div></div>', body)
     say("   NNT chart card removed whole: %d" % n)
 
+    # ---- 4b. the feature table must not advertise what was just removed -------------
+    # Found by RENDERING the page after the edit, not by reading the source: the capability
+    # table still listed "NNT / Clinical Utility" and "Patient Mode" as features of a page
+    # that no longer has them. A stale capability claim is a small lie in the same direction
+    # as the big one.
+    for label in ("NNT / Clinical Utility", "Patient Mode"):
+        rx = re.compile(r'<tr><td class="p-3 font-bold text-slate-400">'
+                        + re.escape(label) + r'</td>.*?</tr>', re.S)
+        body, n = rx.subn("", body)
+        say("   feature row %-24s removed: %d" % (label, n))
+
     # ---- 5. the relabel, above the analysis panel -----------------------------------
     span = element_span(body, "tab-analysis")
     if not span:
