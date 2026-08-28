@@ -143,5 +143,18 @@
   "A git commit timestamp is author-supplied and forgeable. Only the two transparency-log times are independent of us."
  ],
  "executed_by": "run_topic.py",
- "written_utc": "2026-08-28T22:51:23.620Z"
+ "written_utc": "2026-08-28T22:51:23.620Z",
+ "retries": [
+  {
+   "source": "europepmc",
+   "retry_of": "the FAILED attempt in SEARCH-RECORD.json",
+   "attempted_utc": "2026-08-28T23:04:30.035Z",
+   "query": "Bococizumab cholesterol measure corrected",
+   "http": 200,
+   "n_records": 6,
+   "outcome": "EXECUTED",
+   "executed_utc": "2026-08-28T23:04:30.846Z"
+  }
+ ],
+ "_retry_note": "A source that FAILED was queried again. The original FAILED entry in 'databases' is left exactly as it was: the failure is a fact about this search and is not erased by a later success. Both attempts carry their own timestamp. The retry happened AFTER this record was first anchored, so the retry is covered by the anchor of the amended record, not the first one."
 }
