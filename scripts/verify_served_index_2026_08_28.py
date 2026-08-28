@@ -151,17 +151,21 @@ def main():
     say("STANDING ORDER: the dated not-ready flags must not be deleted")
     n_flag = 0
     try:
-        cards = (json.loads(bodies.get("index_indicators.json") or "{}")
-                 or {}).get("cards") or {}
+        doc = json.loads(bodies.get("index_indicators.json") or "{}") or {}
     except ValueError:
-        cards = {}
+        doc = {}
+    cards = doc.get("cards") or {}
+    # The date is the FILE's _measured. `readiness` carries only a state, and
+    # internal.measured dates the identifier audit -- a different measurement. The first
+    # version of this check demanded readiness.measured, a field that does not exist, and
+    # so reported 0 of 19 and accused a healthy file of having lost its flags.
+    when = doc.get("_measured")
     for k, v in cards.items():
         if not isinstance(v, dict):
             continue
         if (k + ".html") not in keep:
             continue
-        r = v.get("readiness") or {}
-        if r.get("state") and r.get("measured"):
+        if (v.get("readiness") or {}).get("state") and when:
             n_flag += 1
     say("   KEEP cards carrying a DATED readiness state: %d (floor %d)"
         % (n_flag, READINESS_FLOOR))

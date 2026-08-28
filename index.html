@@ -816,13 +816,19 @@ h2{font-family:system-ui,sans-serif;font-size:.74rem;font-weight:700;letter-spac
       // reports whether a review is ready to PUBLISH -- and it is not. Removing these flags
       // without a real readiness assessment to replace them would be fabrication by
       // deletion. Do not tidy them away because they look untidy.
-      var rwhen = (rec.readiness || {}).measured;
-      row.appendChild(chip(rdef[0], rdef[1] + (rwhen ? " · assessed " + rwhen : ""),
+      // The date is the INDICATOR FILE's own _measured. The readiness object carries only a
+      // state, and internal.measured dates the identifier audit -- a different measurement,
+      // so borrowing it would stamp this judgement with another one's timestamp. Checked
+      // against the record rather than assumed: the first version of this line read
+      // (rec.readiness||{}).measured, a field that does not exist, and silently rendered no
+      // date at all while reporting success.
+      var rwhen = doc._measured;
+      row.appendChild(chip(rdef[0], rdef[1] + (rwhen ? " · recorded " + rwhen : ""),
         rs === "NOT_STATED"
           ? "This page does not compute a submission-readiness state."
           : "The page's own submission-readiness banner reads "
             + String(rs).replace(/_/g, " ")
-            + (rwhen ? ", assessed " + rwhen + "." : ".")
+            + (rwhen ? ", recorded " + rwhen + "." : ".")
             + " This judges readiness to PUBLISH, which is a different question from"
             + " whether the review carries a pooled result -- the property this index"
             + " selects on."));
