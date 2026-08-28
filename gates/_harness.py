@@ -251,6 +251,70 @@ def topic_id(path):
     return os.path.basename(os.path.dirname(path))
 
 
+# ---------------------------------------------------------------------------
+# SHARED APPEND-ONLY ARTEFACTS
+# ---------------------------------------------------------------------------
+APPEND_ONLY = ("out/ESCALATIONS.jsonl",)
+
+
+def append_only(path, lines):
+    """Append to a shared log and REFUSE to truncate it.
+
+    WHY THIS EXISTS. On 2026-08-28 this lane wrote `cat > out/ESCALATIONS.jsonl` instead of
+    `>>` and destroyed 18 records written by other lanes. It was recovered from git and caught
+    only because `git status` said MODIFIED rather than ADDED -- luck, not a gate. It was the
+    THIRD shared artefact silently damaged by a routine operation that night.
+
+    A shared append-only log is exactly the file a lane will clobber, because every lane
+    creates it the same way on first use and `>` is one character from `>>`.
+    """
+    before = os.path.getsize(path) if os.path.exists(path) else 0
+    with open(path, "a", encoding="utf-8") as fh:
+        for line in lines:
+            fh.write(line.rstrip(chr(10)) + chr(10))
+    after = os.path.getsize(path)
+    if after < before:
+        raise IOError("%s SHRANK from %d to %d bytes on an append. Refusing to continue."
+                      % (path, before, after))
+    return before, after
+
+
+def assert_append_only_intact(gate, repo=None):
+    """A shared append-only artefact must never be smaller than its committed version.
+
+    Compares bytes AND lines against HEAD. Cheap, mechanical, and it would have caught the
+    truncation the moment it happened rather than at `git add` time.
+    """
+    import subprocess
+    repo = repo or repo_root()
+    for rel in APPEND_ONLY:
+        full = os.path.join(repo, rel)
+        if not os.path.exists(full):
+            gate.note("append-only artefact %s is absent; nothing to compare." % rel)
+            continue
+        now_bytes = os.path.getsize(full)
+        with open(full, "r", encoding="utf-8", errors="replace") as fh:
+            now_lines = sum(1 for _ in fh)
+        try:
+            head = subprocess.run(["git", "show", "HEAD:" + rel], cwd=repo,
+                                  capture_output=True, check=True).stdout
+        except Exception:
+            gate.note("%s is not in HEAD yet; no baseline to compare." % rel)
+            continue
+        head_bytes = len(head)
+        head_lines = head.decode("utf-8", "replace").count(chr(10))
+        if now_bytes < head_bytes or now_lines < head_lines:
+            gate.finding("SHARED-ARTEFACT-SHRANK",
+                         "%s is %d bytes / %d lines against %d / %d at HEAD. An append-only "
+                         "artefact shrank, which means a routine `>` destroyed another lane's "
+                         "records. Recover with: git show HEAD:%s"
+                         % (rel, now_bytes, now_lines, head_bytes, head_lines, rel),
+                         numerator=now_lines, denominator=head_lines)
+        else:
+            gate.note("append-only intact: %s %d lines (HEAD %d), %d bytes (HEAD %d)"
+                      % (rel, now_lines, head_lines, now_bytes, head_bytes))
+
+
 def ratchet(gate, name, keys, what, escalated=None):
     """Freeze what exists; refuse what is new. Returns the NEW keys only.
 

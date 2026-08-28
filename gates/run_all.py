@@ -35,6 +35,7 @@ GATES = [
     ("gate5_absence_defined_set", "no irreversible action on an absence", "slow"),
     ("gate6_nct_beside_name", "NCT beside every trial name", "slow"),
     ("gate7_blast_radius", "blast radius counted before a class-wide edit", "fast"),
+    ("gate8_caller_and_wiring", "every gate has a caller; every removal a precondition", "fast"),
 ]
 
 

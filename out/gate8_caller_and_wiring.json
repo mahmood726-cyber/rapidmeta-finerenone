@@ -1,0 +1,39 @@
+{
+ "gate": {
+  "gate": "8  CALLER AND WIRING",
+  "what": "a gate with no caller cannot fail; a removal path with no precondition must not run",
+  "kinds": {
+   "gates/ module that is a library, not a gate": 15,
+   "gate module with a main()": 10,
+   "  named by a caller": 10,
+   "not removal-shaped": 908,
+   "removal-shaped script": 17,
+   "  registered: NOT-A-CORPUS-REMOVAL": 14,
+   "  registered: HISTORICAL": 2,
+   "  registered: WIRED": 1
+  },
+  "expected_cases": {
+   "absence-is-called": "gates/absence.py is invoked by the live retirement path",
+   "a-gate-has-a-caller": "at least one gate module is named by the hook or CI"
+  },
+  "cases_seen": [
+   "a-gate-has-a-caller",
+   "absence-is-called"
+  ],
+  "cases_not_seen": [],
+  "control": {
+   "negatives": 5,
+   "false_positives": 0,
+   "fp_rate": 0.0,
+   "examples": []
+  },
+  "notes": [
+   "append-only intact: out/ESCALATIONS.jsonl 27 lines (HEAD 21), 17785 bytes (HEAD 10840)",
+   "KNOWN BLIND SPOT, stated every run: a removal performed by os.replace/os.rename into a VARIABLE destination is not detected. prune_legacy_corpus_2026_08_26.py is exactly that shape and is covered by name in the registry, not by the detector. A NEW script of that shape would pass this gate."
+  ],
+  "findings": []
+ },
+ "uncalled_gates": [],
+ "unregistered_removal_paths": [],
+ "mis_declared": []
+}
