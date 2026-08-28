@@ -214,5 +214,39 @@ AMSTAR-2 has 16 items; the **8 critical domains** most load-bearing for the jour
 
 ## Changelog
 
+- **v1.2** (2026-08-28) -- Amendment 1: five-source search executed under this protocol; protocol anchored before the first query and the search record anchored after. See Amendment 1.
 - **v1.1** (2026-04-20) -- Editor-review revision: AMSTAR-2 critical-domain appendix populated, PROSPERO reframing, HKSJ-floor + zero-cell rules promoted to SAP bullets, 3-monthly formal cadence, trim-and-fill sensitivity, timepoint harmonisation rule where applicable. Pre-registered at canonical-URL freeze.
 - **v1.0** (2026-04-19T00:00:00Z) — Initial protocol registration frozen at portfolio expansion of 2026-04-19.
+
+## Amendment 1 -- 2026-08-28 -- five-source search executed under this protocol
+
+**This protocol governs the search for topic `iv-iron-hf`. It is amended here, not replaced.**
+
+Under Mahmood's ruling of 2026-08-28, an auto-generated protocol specifies nothing --
+1,093 of them share a single byte-identical statistical-methods text -- and so cannot
+govern a search. This file is **not** one of those 1,093, so it governs, and a draft
+written later does not displace it.
+
+**What is being done under it.** A search of five sources -- PubMed, Europe PMC,
+ClinicalTrials.gov, an ICTRP route (ISRCTN), and guideline bodies as a source class --
+executed on 2026-08-28, recorded in `ssot/iv-iron-hf/SEARCH-RECORD.json`, with each source
+carrying one of exactly three outcomes: EXECUTED, EMPTY, or FAILED. A non-200 is FAILED
+and never carries a record count of zero.
+
+**Ordering.** This file is committed and anchored in a public transparency log before the
+first query for this topic is attempted, and the search record is anchored after it. Two
+times supplied by a third party bracket the operation. The git commit timestamp is not
+one of them: both dates on a git commit are supplied by whoever makes the commit and are
+forgeable, which was demonstrated rather than assumed.
+
+**What this protocol does not specify, stated so the record is not read as stronger than
+it is.** Its substantive methods prose is shared with up to 40 other protocols in this
+repository, including analysis-constraining statements such as the HKSJ variance-inflation
+floor `max(1, Q/(k-1))`. It is a house-standard document with topic-specific headers, not
+an individually reasoned protocol. It governs because it is not one of the 1,093 AUTO
+templates -- which is the test the ruling set, and a lower bar than "bespoke".
+
+**Guideline coverage is a fraction, never a checkmark.** GIN lists 136 bodies. The search
+record states how many were queried, how many were reached and refused by a named
+obstacle, and how many were never resolved to a queryable endpoint. "All guideline
+bodies" is not a claim this search supports.
