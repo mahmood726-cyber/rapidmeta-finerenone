@@ -1,0 +1,152 @@
+==============================================================================
+RANKED REMEDIATION PLAN -- 46 of 141 topics carry at least one defect
+==============================================================================
+
+REBUILDABILITY -- MEASURED by running the generator, not inferred from the stamp.
+  This decides SEQUENCING. Severity decides ORDER WITHIN what can be shipped.
+  corpus-wide      : 84 of 141 topics rebuild with main's build_app_v2.py; 57 crash
+  of the 46 defect-carrying topics:
+    stamp names a resolvable on-main generator : 42
+    ...but only these actually REBUILD          : 17
+    generator CRASHES on the object             : 29
+    ...of which need a GENERATOR fix to be fixed: 29   <-- BLOCKED TWICE
+  A resolvable stamp is NECESSARY, not SUFFICIENT: commit 463c6d625 records that
+  build_app_v2.py could not rebuild INCRETIN_HFpEF and the fix went in at the render
+  layer instead. A generator fix cannot reach a page that will not rebuild, so
+  unblocking the build is ITEM 0, ahead of every severity ranking below.
+
+WORK BY CLASS (one generator change clears every page in its row)
+  kind       check                  topics  what it is
+  GENERATOR  self_refuting_claim         4  states a value and denies it in the same passage
+  GENERATOR  scale_vs_measure            1  a ratio measure declared on the natural scale
+  DATA       va_denominator              2  visual abstract states a page-level total, not its own pool's N
+  DATA       availability                3  source marked abstract-only whose full text is open
+  GENERATOR  rob_no_information         21  'No information' rendered as a RoB 2 domain judgement
+  DATA       three_surfaces              3  contributing trial carries no displayed input
+  DATA       nct_links                   2  NCT label links somewhere other than the registry
+  GENERATOR  falsy_render               21  empty link, empty link + colon, or '?' as a value
+  GENERATOR  default_asserted            6  page renders a direction the object does not hold
+  GENERATOR  method_label                4  floored HKSJ under a bare HKSJ row label
+  GENERATOR  rob_outcome_column         21  RoB table lacks the result/outcome column
+  GENERATOR  page_stamped                4  no SHA-256 source stamp and no generation stamp
+
+TOP 25 TOPICS, ranked
+
+ 1. icosapent-lipid-auto-full-review            sev 100  4 defect(s)  gen:4 data:0  [BLOCKED: GENERATOR CRASHES ON THIS OBJECT]
+      [GENERATOR FAIL     ] 1 passage(s) state a value and then state it was never recorded
+      [GENERATOR FAIL     ] 'No information' used as a domain/overall judgement in 12 cell(s): row 'Marine' col 'Assessor 1 
+      [GENERATOR FLAG     ] page renders 1 direction claim(s) while the object records no direction for 1 of 1 outcomes (pri
+      [GENERATOR FAIL     ] 1 RoB table(s) lack a result/outcome column: trial | domain | assessor 1 (anthropic) | assessor 
+
+ 2. rosuvastatin-auto-full-review               sev 100  2 defect(s)  gen:2 data:0  [BLOCKED: GENERATOR CRASHES ON THIS OBJECT]
+      [GENERATOR FAIL     ] 1 passage(s) state a value and then state it was never recorded
+      [GENERATOR FLAG     ] page renders 1 direction claim(s) while the object records no direction for 1 of 1 outcomes (pri
+
+ 3. rotavirus-vaccine-africa-review             sev 100  2 defect(s)  gen:2 data:0  [BLOCKED: GENERATOR CRASHES ON THIS OBJECT]
+      [GENERATOR FAIL     ] 1 passage(s) state a value and then state it was never recorded
+      [GENERATOR FLAG     ] page renders 1 direction claim(s) while the object records no direction for 1 of 1 outcomes (pri
+
+ 4. sglt2-mace-cvot-review                      sev 100  2 defect(s)  gen:2 data:0  [BLOCKED: GENERATOR CRASHES ON THIS OBJECT]
+      [GENERATOR FAIL     ] 1 passage(s) state a value and then state it was never recorded
+      [GENERATOR FLAG     ] page renders 1 direction claim(s) while the object records no direction for 1 of 1 outcomes (pri
+
+ 5. sglt2-hf                                    sev  98  4 defect(s)  gen:4 data:0
+      [GENERATOR FAIL     ] page states a value is 'on the natural scale' while 1 ratio-measured outcome(s) carry no stored 
+      [GENERATOR FAIL     ] 'No information' used as a domain/overall judgement in 42 cell(s): row 'DAPA-HF' col 'Assessor 1
+      [GENERATOR QUALIFIED] pool 0: row labelled 'Hartung-Knapp-Sidik-Jonkman (HKSJ)' is the q-FLOORED variant (0.7007-0.864
+      [GENERATOR FAIL     ] 1 RoB table(s) lack a result/outcome column: trial | domain | assessor 1 (anthropic) | assessor 
+
+ 6. iv-iron-hf                                  sev  96  7 defect(s)  gen:4 data:3
+      [DATA      FAIL     ] 4 visual abstracts each state 6,716 (page-level total); the 2-trial pool holds 2,245
+      [DATA      FAIL     ] 2 source(s) marked abstract-only whose full text is open in PMC
+      [GENERATOR FAIL     ] 'No information' used as a domain/overall judgement in 38 cell(s): row 'AFFIRM-AHF' col 'Assesso
+      [DATA      FAIL     ] 1 NCT link(s) do not point to ClinicalTrials.gov: NCT01453608 -> https://pubmed.ncbi.nlm.nih.gov
+
+ 7. bococizumab-lipid-review                    sev  96  5 defect(s)  gen:3 data:2  [BLOCKED: GENERATOR CRASHES ON THIS OBJECT]
+      [DATA      FLAG     ] VA 4,252 vs 3,969 analysed; randomised-vs-analysed undetermined
+      [GENERATOR FAIL     ] 'No information' used as a domain/overall judgement in 42 cell(s): row 'SPIRE-HR' col 'Assessor 
+      [DATA      FAIL     ] pool 1: 6 trials in the contributing table but 0 carry displayed inputs; no displayed input for 
+      [GENERATOR FAIL     ] empty link followed by a colon x8; empty link text x8
+
+ 8. sotagliflozin-hf                            sev  88  4 defect(s)  gen:2 data:2
+      [DATA      FAIL     ] 1 source(s) marked abstract-only whose full text is open in PMC
+      [GENERATOR FAIL     ] 'No information' used as a domain/overall judgement in 29 cell(s): row 'SOLOIST-WHF' col 'Assess
+      [DATA      FAIL     ] 3 NCT link(s) do not point to ClinicalTrials.gov: NCT03521934 -> https://www.accessdata.fda.gov/
+      [GENERATOR QUALIFIED] pool 0: row labelled 'Hartung-Knapp-Sidik-Jonkman (HKSJ)' is the q-FLOORED variant (0.2928-1.756
+
+ 9. covid19-vaccines                            sev  88  1 defect(s)  gen:0 data:1
+      [DATA      FAIL     ] 4 source(s) marked abstract-only whose full text is open in PMC
+
+10. inclisiran-lipid-kidney-auto-full-review    sev  86  4 defect(s)  gen:3 data:1  [BLOCKED: GENERATOR CRASHES ON THIS OBJECT]
+      [GENERATOR FAIL     ] 'No information' used as a domain/overall judgement in 18 cell(s): row 'ORION-9' col 'Assessor 1
+      [DATA      FAIL     ] pool 0: 3 trials in the contributing table but 0 carry displayed inputs; no displayed input for 
+      [GENERATOR FLAG     ] page renders 1 direction claim(s) while the object records no direction for 1 of 1 outcomes (pri
+      [GENERATOR FAIL     ] 1 RoB table(s) lack a result/outcome column: trial | domain | assessor 1 (anthropic) | assessor 
+
+11. tigecycline-ciai                            sev  86  4 defect(s)  gen:3 data:1
+      [GENERATOR FAIL     ] 'No information' used as a domain/overall judgement in 23 cell(s): row 'study 301' col 'Assessor
+      [DATA      FAIL     ] pool 0: 3 trials in the contributing table but 0 carry displayed inputs; no displayed input for 
+      [GENERATOR FAIL     ] bare '?' rendered as a value x1
+      [GENERATOR FAIL     ] 1 RoB table(s) lack a result/outcome column: trial | domain | assessor 1 (anthropic) | assessor 
+
+12. attr-cm-review                              sev  86  3 defect(s)  gen:3 data:0  [BLOCKED: GENERATOR CRASHES ON THIS OBJECT]
+      [GENERATOR FAIL     ] 'No information' used as a domain/overall judgement in 12 cell(s): row 'ATTR-ACT' col 'Assessor 
+      [GENERATOR FAIL     ] empty link followed by a colon x2; empty link text x2
+      [GENERATOR FAIL     ] 1 RoB table(s) lack a result/outcome column: trial | domain | assessor 1 (anthropic) | assessor 
+
+13. bempedoic-acid-review                       sev  86  3 defect(s)  gen:3 data:0  [BLOCKED: GENERATOR CRASHES ON THIS OBJECT]
+      [GENERATOR FAIL     ] 'No information' used as a domain/overall judgement in 5 cell(s): row 'Clear Outcomes' col 'Asse
+      [GENERATOR FAIL     ] empty link followed by a colon x1; empty link text x1
+      [GENERATOR FAIL     ] 1 RoB table(s) lack a result/outcome column: trial | domain | assessor 1 (anthropic) | assessor 
+
+14. empagliflozin-hf-auto-full-review           sev  86  3 defect(s)  gen:3 data:0  [BLOCKED: GENERATOR CRASHES ON THIS OBJECT]
+      [GENERATOR FAIL     ] 'No information' used as a domain/overall judgement in 10 cell(s): row 'EMPEROR-Reduced' col 'As
+      [GENERATOR FLAG     ] page renders 1 direction claim(s) while the object records no direction for 1 of 1 outcomes (pri
+      [GENERATOR FAIL     ] 1 RoB table(s) lack a result/outcome column: trial | domain | assessor 1 (anthropic) | assessor 
+
+15. finerenone-cv                               sev  86  3 defect(s)  gen:3 data:0  [BLOCKED: GENERATOR CRASHES ON THIS OBJECT]
+      [GENERATOR FAIL     ] 'No information' used as a domain/overall judgement in 12 cell(s): row 'FIDELIO-DKD' col 'Assess
+      [GENERATOR FAIL     ] empty link followed by a colon x2; empty link text x2
+      [GENERATOR FAIL     ] 1 RoB table(s) lack a result/outcome column: trial | domain | assessor 1 (anthropic) | assessor 
+
+16. ablation-af-heart-failure                   sev  86  2 defect(s)  gen:2 data:0  [BLOCKED: GENERATOR CRASHES ON THIS OBJECT]
+      [GENERATOR FAIL     ] 'No information' used as a domain/overall judgement in 8 cell(s): row 'CASTLE-AF' col 'Assessor 
+      [GENERATOR FAIL     ] 1 RoB table(s) lack a result/outcome column: trial | domain | assessor 1 (anthropic) | assessor 
+
+17. ablation-af-medical-therapy                 sev  86  2 defect(s)  gen:2 data:0  [BLOCKED: GENERATOR CRASHES ON THIS OBJECT]
+      [GENERATOR FAIL     ] 'No information' used as a domain/overall judgement in 12 cell(s): row 'CASTLE-AF' col 'Assessor
+      [GENERATOR FAIL     ] 1 RoB table(s) lack a result/outcome column: trial | domain | assessor 1 (anthropic) | assessor 
+
+18. agyw-hiv-prep-review                        sev  86  2 defect(s)  gen:2 data:0
+      [GENERATOR FAIL     ] 'No information' used as a domain/overall judgement in 10 cell(s): row 'Aspire / MTN-020' col 'A
+      [GENERATOR FAIL     ] 1 RoB table(s) lack a result/outcome column: trial | domain | assessor 1 (anthropic) | assessor 
+
+19. apixaban-vte-treatment                      sev  86  2 defect(s)  gen:2 data:0  [BLOCKED: GENERATOR CRASHES ON THIS OBJECT]
+      [GENERATOR FAIL     ] 'No information' used as a domain/overall judgement in 18 cell(s): row '(Japanese acute DVT/PE s
+      [GENERATOR FAIL     ] 1 RoB table(s) lack a result/outcome column: trial | domain | assessor 1 (anthropic) | assessor 
+
+20. cab-prep-hiv-review                         sev  86  2 defect(s)  gen:2 data:0
+      [GENERATOR FAIL     ] 'No information' used as a domain/overall judgement in 10 cell(s): row 'HPTN 083' col 'Assessor 
+      [GENERATOR FAIL     ] 1 RoB table(s) lack a result/outcome column: trial | domain | assessor 1 (anthropic) | assessor 
+
+21. ceftaroline-auto-full-review                sev  86  2 defect(s)  gen:2 data:0
+      [GENERATOR FAIL     ] 'No information' used as a domain/overall judgement in 18 cell(s): row 'FOCUS-style trial, IV ce
+      [GENERATOR FAIL     ] 1 RoB table(s) lack a result/outcome column: trial | domain | assessor 1 (anthropic) | assessor 
+
+22. early-rhythm-control-af                     sev  86  2 defect(s)  gen:2 data:0  [BLOCKED: GENERATOR CRASHES ON THIS OBJECT]
+      [GENERATOR FAIL     ] 'No information' used as a domain/overall judgement in 4 cell(s): row 'EAST-AFNET 4' col 'Assess
+      [GENERATOR FAIL     ] 1 RoB table(s) lack a result/outcome column: trial | domain | assessor 1 (anthropic) | assessor 
+
+23. gepotidacin-urinary-tract-auto-full-review  sev  86  2 defect(s)  gen:2 data:0
+      [GENERATOR FAIL     ] 'No information' used as a domain/overall judgement in 12 cell(s): row 'EAGLE-2' col 'Assessor 1
+      [GENERATOR FAIL     ] 1 RoB table(s) lack a result/outcome column: trial | domain | assessor 1 (anthropic) | assessor 
+
+24. lefamulin-cabp-auto-full-review             sev  86  2 defect(s)  gen:2 data:0
+      [GENERATOR FAIL     ] 'No information' used as a domain/overall judgement in 12 cell(s): row 'Leap 1' col 'Assessor 1 
+      [GENERATOR FAIL     ] 1 RoB table(s) lack a result/outcome column: trial | domain | assessor 1 (anthropic) | assessor 
+
+25. nirsevimab-infant-rsv-review                sev  86  2 defect(s)  gen:2 data:0
+      [GENERATOR FAIL     ] 'No information' used as a domain/overall judgement in 12 cell(s): row 'Phase 2b (MEDI8897 50 mg
+      [GENERATOR FAIL     ] 1 RoB table(s) lack a result/outcome column: trial | domain | assessor 1 (anthropic) | assessor 
+
+wrote out/remediation_plan.json  (46 topics)

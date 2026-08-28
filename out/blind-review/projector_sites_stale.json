@@ -1,0 +1,299 @@
+{
+ "sites": [
+  {
+   "file": "apply_breadth_and_tigecycline_disclosure.py",
+   "line": 183,
+   "kind": "GET-DEFAULT-CLAIM",
+   "field": "ci_low",
+   "detail": "get('ci_low', '0.8327'): absence renders as the claim '0.8327'",
+   "source": "% (\"tigecycline-ciai\", hk.get(\"ci_low\", \"0.8327\"), hk.get(\"ci_high\", \"1.0501\")))"
+  },
+  {
+   "file": "apply_breadth_and_tigecycline_disclosure.py",
+   "line": 183,
+   "kind": "GET-DEFAULT-CLAIM",
+   "field": "ci_high",
+   "detail": "get('ci_high', '1.0501'): absence renders as the claim '1.0501'",
+   "source": "% (\"tigecycline-ciai\", hk.get(\"ci_low\", \"0.8327\"), hk.get(\"ci_high\", \"1.0501\")))"
+  },
+  {
+   "file": "apply_reml_corpus.py",
+   "line": 335,
+   "kind": "OR-DEFAULT-CLAIM",
+   "field": "environment",
+   "detail": "get('environment') or 'R version 4.6.0 (2026-04-24 ucrt); metafor 5.0.1': absence AND every falsy value render as the claim 'R version 4.6.0 (2026-04-24 ucrt); metafor 5.0.1'",
+   "source": "% (fit.get(\"environment\") or \"R version 4.6.0 (2026-04-24 ucrt); metafor 5.0.1\"))"
+  },
+  {
+   "file": "apply_reml_corpus.py",
+   "line": 382,
+   "kind": "OR-DEFAULT-CLAIM",
+   "field": "environment",
+   "detail": "get('environment') or 'R version 4.6.0 (2026-04-24 ucrt); metafor 5.0.1': absence AND every falsy value render as the claim 'R version 4.6.0 (2026-04-24 ucrt); metafor 5.0.1'",
+   "source": "\"environment\": fit.get(\"environment\") or \"R version 4.6.0 (2026-04-24 ucrt); metafor 5.0.1\","
+  },
+  {
+   "file": "build_app_v2.py",
+   "line": 124,
+   "kind": "OR-DEFAULT-CLAIM",
+   "field": "estimator",
+   "detail": "get('estimator') or 'as stored': absence AND every falsy value render as the claim 'as stored'",
+   "source": "(\"as published\", pub.get(\"estimator\") or \"as stored\","
+  },
+  {
+   "file": "build_app_v2.py",
+   "line": 126,
+   "kind": "OR-DEFAULT-CLAIM",
+   "field": "estimator",
+   "detail": "get('estimator') or 'Hartung-Knapp': absence AND every falsy value render as the claim 'Hartung-Knapp'",
+   "source": "(\"sensitivity (Handbook 10.10.4.5)\", hr.get(\"estimator\") or \"Hartung-Knapp\","
+  },
+  {
+   "file": "build_app_v2.py",
+   "line": 267,
+   "kind": "OR-DEFAULT-CLAIM",
+   "field": "treatment_node",
+   "detail": "get('treatment_node') or 'the intervention': absence AND every falsy value render as the claim 'the intervention'",
+   "source": "tx = outcome.get(\"treatment_node\") or \"the intervention\""
+  },
+  {
+   "file": "build_app_v2.py",
+   "line": 268,
+   "kind": "OR-DEFAULT-CLAIM",
+   "field": "comparator_node",
+   "detail": "get('comparator_node') or 'the comparator': absence AND every falsy value render as the claim 'the comparator'",
+   "source": "ct = outcome.get(\"comparator_node\") or \"the comparator\""
+  },
+  {
+   "file": "build_app_v2.py",
+   "line": 269,
+   "kind": "EXACT-TOKEN-ELSE-CLAIM",
+   "field": "direction_of_benefit",
+   "detail": "tests 'direction_of_benefit' == 'higher'; the else branch asserts 'lower is better' to a reader, so every other stored value -- including a recorded absence -- renders as that assertion",
+   "source": "way = (\"higher is better\" if outcome.get(\"direction_of_benefit\") == \"higher\"            else \"lower is better\")"
+  },
+  {
+   "file": "build_app_v2.py",
+   "line": 488,
+   "kind": "OR-DEFAULT-CLAIM",
+   "field": "what_this_costs_the_pool",
+   "detail": "get('what_this_costs_the_pool') or 'The quantity pooled from this trial appears only in its publication.': absence AND every falsy value render as the claim 'The quantity pooled from this trial appears only in its publication.'",
+   "source": "% p(src.get(\"what_this_costs_the_pool\")                          or \"The quantity pooled from this trial appears only in \"                             \"its publication.\"))"
+  },
+  {
+   "file": "build_app_v2.py",
+   "line": 1112,
+   "kind": "GET-DEFAULT-CLAIM",
+   "field": "subgroup_heading",
+   "detail": "get('subgroup_heading', 'By age stratum'): absence renders as the claim 'By age stratum'",
+   "source": "sg_head = res.get(\"subgroup_heading\", \"By age stratum\")"
+  },
+  {
+   "file": "build_app_v2.py",
+   "line": 1349,
+   "kind": "GET-DEFAULT-CLAIM",
+   "field": "effect_scale",
+   "detail": "get('effect_scale', 'natural'): absence renders as the claim 'natural'",
+   "source": "(f\"pooled on the {e(outcome.get('effect_scale', 'natural'))} scale\""
+  },
+  {
+   "file": "build_app_v2.py",
+   "line": 1351,
+   "kind": "GET-DEFAULT-CLAIM",
+   "field": "effect_scale",
+   "detail": "get('effect_scale', 'natural'): absence renders as the claim 'natural'",
+   "source": "(f\"combined on the {e(outcome.get('effect_scale', 'natural'))} scale; \""
+  },
+  {
+   "file": "build_app_v2.py",
+   "line": 1355,
+   "kind": "GET-DEFAULT-CLAIM",
+   "field": "effect_scale",
+   "detail": "get('effect_scale', 'natural'): absence renders as the claim 'natural'",
+   "source": "f\"reported on the {e(outcome.get('effect_scale', 'natural'))} \""
+  },
+  {
+   "file": "build_tabbed.py",
+   "line": 1165,
+   "kind": "EXACT-TOKEN-ELSE-CLAIM",
+   "field": "state",
+   "detail": "tests 'state' == 'HELD'; the else branch asserts 'warn' to a reader, so every other stored value -- including a recorded absence -- renders as that assertion",
+   "source": "cls = \"ok\" if prop.get(\"state\") == \"HELD\" else \"warn\""
+  },
+  {
+   "file": "ctgov_transport.py",
+   "line": 49,
+   "kind": "GET-DEFAULT-CLAIM",
+   "field": "RM_CTGOV_CACHE",
+   "detail": "get('RM_CTGOV_CACHE', '.ctgov-raw-cache'): absence renders as the claim '.ctgov-raw-cache'",
+   "source": "CACHE_DIR = os.environ.get(\"RM_CTGOV_CACHE\", \".ctgov-raw-cache\")"
+  },
+  {
+   "file": "grade_authority.py",
+   "line": 362,
+   "kind": "OR-DEFAULT-CLAIM",
+   "field": "started_at",
+   "detail": "get('started_at') or 'a starting level this review does not record': absence AND every falsy value render as the claim 'a starting level this review does not record'",
+   "source": "% (s_blk.get(\"started_at\")                        or \"a starting level this review does not record\","
+  },
+  {
+   "file": "known_answer_placebo_naming.py",
+   "line": 70,
+   "kind": "GET-DEFAULT-CLAIM",
+   "field": "RM_CTGOV_CACHE",
+   "detail": "get('RM_CTGOV_CACHE', 'F:/claude-temp/claude/F--rapidmeta-ssot-shell/eb4d84e5-8a24-4c3b-afe2-34bd91c20bc7/scratchpad/.ctgov-raw-cache'): absence renders as the claim 'F:/claude-temp/claude/F--rapidmeta-ssot-shell/eb4d84e5-8a24-4c3b-afe2-34bd91c20bc7/scratchpad/.ctgov-raw-cache'",
+   "source": "CACHE = os.environ.get(     \"RM_CTGOV_CACHE\",     \"F:/claude-temp/claude/F--rapidmeta-ssot-shell/\"     \"eb4d84e5-8a24-4c3b-afe2-34bd91c20bc7/scratchpad/.ctgov-raw-cache\")"
+  },
+  {
+   "file": "make_docx.py",
+   "line": 918,
+   "kind": "OR-DEFAULT-CLAIM",
+   "field": "quote",
+   "detail": "get('quote') or '[nothing to quote: the item is absent from the paper]': absence AND every falsy value render as the claim '[nothing to quote: the item is absent from the paper]'",
+   "source": "(c.get(\"quote\") or                  \"[nothing to quote: the item is absent from the paper]\"),"
+  },
+  {
+   "file": "make_docx.py",
+   "line": 1041,
+   "kind": "OR-DEFAULT-CLAIM",
+   "field": "persistent_identifier",
+   "detail": "get('persistent_identifier') or '[persistent identifier not yet minted]': absence AND every falsy value render as the claim '[persistent identifier not yet minted]'",
+   "source": "_ed.get(\"persistent_identifier\")                   or (\"[persistent identifier not yet minted]\")))"
+  },
+  {
+   "file": "paper_projector.py",
+   "line": 1869,
+   "kind": "OR-DEFAULT-CLAIM",
+   "field": "state",
+   "detail": "get('state') or 'REFERRED': absence AND every falsy value render as the claim 'REFERRED'",
+   "source": "state = str(r.get(\"state\") or \"REFERRED\").strip()"
+  },
+  {
+   "file": "paper_projector.py",
+   "line": 2305,
+   "kind": "OR-DEFAULT-CLAIM",
+   "field": "name",
+   "detail": "get('name') or '(unnamed record)': absence AND every falsy value render as the claim '(unnamed record)'",
+   "source": "unjoinable.append(t.get(\"name\") or \"(unnamed record)\")"
+  },
+  {
+   "file": "paper_projector.py",
+   "line": 3199,
+   "kind": "GET-DEFAULT-CLAIM",
+   "field": "k",
+   "detail": "get('k', 'an unstated number of'): absence renders as the claim 'an unstated number of'",
+   "source": "blk.get(\"k\", \"an unstated number of\"))"
+  },
+  {
+   "file": "paper_projector.py",
+   "line": 3600,
+   "kind": "GET-DEFAULT-CLAIM",
+   "field": "k",
+   "detail": "get('k', 'an unstated number of'): absence renders as the claim 'an unstated number of'",
+   "source": "blk.get(\"k\", \"an unstated number of\")))"
+  },
+  {
+   "file": "paper_projector.py",
+   "line": 3996,
+   "kind": "OR-DEFAULT-CLAIM",
+   "field": "unit_of_assessment",
+   "detail": "get('unit_of_assessment') or 'a result': absence AND every falsy value render as the claim 'a result'",
+   "source": "% (rob.get(\"tool\"), rob.get(\"unit_of_assessment\") or \"a result\"),"
+  },
+  {
+   "file": "paper_projector.py",
+   "line": 4883,
+   "kind": "OR-DEFAULT-CLAIM",
+   "field": "measure",
+   "detail": "get('measure') or 'Effect': absence AND every falsy value render as the claim 'Effect'",
+   "source": "measure=str((res.get(\"pooled\") or {}).get(\"measure\") or \"Effect\"),"
+  },
+  {
+   "file": "preconditions.py",
+   "line": 256,
+   "kind": "OR-DEFAULT-CLAIM",
+   "field": "id",
+   "detail": "get('id') or '<unnamed>': absence AND every falsy value render as the claim '<unnamed>'",
+   "source": "silent = [o.get(\"id\") or \"<unnamed>\" for o in outcomes"
+  },
+  {
+   "file": "projectors.py",
+   "line": 791,
+   "kind": "OR-DEFAULT-CLAIM",
+   "field": "measure",
+   "detail": "get('measure') or 'Effect': absence AND every falsy value render as the claim 'Effect'",
+   "source": "_meas = str((res.get(\"pooled\") or {}).get(\"measure\") or \"Effect\")"
+  },
+  {
+   "file": "projectors2.py",
+   "line": 615,
+   "kind": "GET-DEFAULT-CLAIM",
+   "field": "source_tier",
+   "detail": "get('source_tier', 'source'): absence renders as the claim 'source'",
+   "source": "% (e(r[\"source_url\"]), e(str(r.get(\"source_tier\", \"source\"))),"
+  },
+  {
+   "file": "projectors2.py",
+   "line": 649,
+   "kind": "GET-DEFAULT-CLAIM",
+   "field": "level",
+   "detail": "get('level', 'evidence basis'): absence renders as the claim 'evidence basis'",
+   "source": "% (p(str(eb.get(\"level\", \"evidence basis\"))), NL, NL, rows, NL)"
+  },
+  {
+   "file": "projectors2.py",
+   "line": 748,
+   "kind": "OR-DEFAULT-CLAIM",
+   "field": "measure",
+   "detail": "get('measure') or 'Effect': absence AND every falsy value render as the claim 'Effect'",
+   "source": "_meas = str(((res.get(\"pooled\") or {}).get(\"measure\")) or \"Effect\")"
+  },
+  {
+   "file": "rob_block.py",
+   "line": 133,
+   "kind": "OR-DEFAULT-CLAIM",
+   "field": "assessor_1",
+   "detail": "get('assessor_1') or 'assessor 1': absence AND every falsy value render as the claim 'assessor 1'",
+   "source": "assessors = [{'n': 1, 'name': (sa or {}).get('assessor_1') or 'assessor 1',"
+  },
+  {
+   "file": "statement.py",
+   "line": 394,
+   "kind": "OR-DEFAULT-CLAIM",
+   "field": "checked_utc",
+   "detail": "get('checked_utc') or 'an unrecorded date': absence AND every falsy value render as the claim 'an unrecorded date'",
+   "source": "% (blk.get(\"checked_utc\") or \"an unrecorded date\")]"
+  },
+  {
+   "file": "validate_v2.py",
+   "line": 1834,
+   "kind": "GET-DEFAULT-CLAIM",
+   "field": "estimator_used",
+   "detail": "get('estimator_used', 'DerSimonian-Laird'): absence renders as the claim 'DerSimonian-Laird'",
+   "source": "res.get(\"estimator_used\", \"DerSimonian-Laird\"),"
+  },
+  {
+   "file": "validate_v2.py",
+   "line": 1839,
+   "kind": "GET-DEFAULT-CLAIM",
+   "field": "estimator_used",
+   "detail": "get('estimator_used', 'DerSimonian-Laird'): absence renders as the claim 'DerSimonian-Laird'",
+   "source": "res.get(\"estimator_used\", \"DerSimonian-Laird\"),"
+  },
+  {
+   "file": "validate_v2.py",
+   "line": 3564,
+   "kind": "OR-DEFAULT-CLAIM",
+   "field": "estimator_used",
+   "detail": "get('estimator_used') or 'REML': absence AND every falsy value render as the claim 'REML'",
+   "source": ""
+  }
+ ],
+ "kinds": {
+  "GET-DEFAULT-CLAIM": 14,
+  "OR-DEFAULT-CLAIM": 20,
+  "EXACT-TOKEN-ELSE-CLAIM": 2
+ },
+ "files_scanned": 114,
+ "unparseable": []
+}
