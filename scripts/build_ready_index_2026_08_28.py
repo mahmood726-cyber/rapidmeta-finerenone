@@ -50,10 +50,29 @@ EXCLUDED_SUBSTRINGS = {
     "GEPOTIDACIN":
         "three open findings and unverified trial labels -- held out deliberately, not a "
         "failure to qualify",
-    "HFREF_NMA":
-        "publishes an omnibus RR 0.86 averaging fifteen different comparisons, with an NNT, "
-        "a ranking, a patient-facing summary and integrity 100/100 over placeholder RoB. "
-        "The arithmetic is right and the quantity has no estimand -- held out by name",
+    # HFREF_NMA WAS HERE AND THE RULING SUPERSEDED IT. It was excluded on 2026-08-28 for
+    # publishing an omnibus RR 0.86 with an NNT, a ranking, a patient-facing summary and
+    # integrity 100/100 over placeholder risk-of-bias. Every one of those has since been
+    # stripped from the served bytes and 0.8619 carries its true ACEI-versus-Placebo label,
+    # so the ground for exclusion is gone. Mahmood ruled it back in; it now appears in
+    # ADMITTED_BY_RULING with the leg it still fails (no store object) stated there.
+    # Leaving it in BOTH lists would have printed a page as excluded and indexed it.
+}
+
+
+# ADMITTED BY RULING, each with the leg it fails and why the ruling stands anyway. A page
+# admitted without its failure named would read as one that passed.
+ADMITTED_BY_RULING = {
+    "ARNI_HF_REVIEW.html": (
+        "leg 4: stamp fa7ef6686 predates all seven required generator commits",
+        "Mahmood: ARNI is a flagship. It is the corpus's ONLY hand-authored manuscript and it "
+        "CANNOT be rebuilt to pass honestly -- measured, a rebuild reproduces just 10.5% of "
+        "the served text and would replace 89.6% with projection. Indexed as-is, with the "
+        "older build stated on the card rather than concealed."),
+    "HFREF_NMA_AUTO_FULL_REVIEW.html": (
+        "leg 1: no store object in PAGE_MAP",
+        "Mahmood: index it now that the patient-facing claims, the NNT, the ranking and the "
+        "integrity score are stripped and 0.8619 carries its true ACEI-versus-Placebo label."),
 }
 
 
@@ -140,6 +159,29 @@ def main():
     say("")
 
     keep, rejected, excluded, excluded_not_in_pagemap = [], [], [], []
+    admitted = []
+
+    def admit(page):
+        """A ruling admits a page; it does not make the page pass."""
+        fails, why = ADMITTED_BY_RULING[page]
+        served = os.path.join(REPO, page)
+        if not os.path.exists(served):
+            return None
+        body = io.open(served, encoding="utf-8", errors="replace").read()
+        m = STAMP.search(body)
+        rel = pm.get(page)
+        obj = None
+        if rel and os.path.exists(os.path.join(REPO, rel)):
+            obj = json.load(io.open(os.path.join(REPO, rel), encoding="utf-8"))
+        live = []
+        if obj:
+            by = (obj.get("results") or {}).get("by_outcome") or {}
+            live = [oid for oid, blk in by.items() if outcome_is_live(blk)]
+        admitted.append({"page": page, "fails": fails, "ruling": why})
+        return {"page": page, "object": rel, "outcomes": live,
+                "stamp": m.group(1) if m else "none",
+                "title": title_of(body) or page,
+                "admitted_by_ruling": why, "fails": fails}
     for page, rel in sorted(pm.items()):
         why_excl = excluded_reason(page)
         if why_excl:
@@ -178,6 +220,36 @@ def main():
         keep.append({"page": page, "object": rel, "outcomes": live,
                      "stamp": m.group(1), "title": title_of(body) or page})
 
+    for page in ADMITTED_BY_RULING:
+        rec = admit(page)
+        if rec is None:
+            say("REFUSED: %r is admitted by ruling but is not served on disk." % page)
+            return 2
+        keep.append(rec)
+
+    # ONE REVIEW, ONE CARD. PAGE_MAP maps several page names onto the SAME object file, so
+    # the index listed one review twice: ROTAVIRUS_VACCINE_AFRICA_REVIEW and
+    # ROTAVIRUS_VACCINE_AUTO_FULL_REVIEW resolve to the identical object (same sha256, same
+    # three NCTs) and therefore carried identical numbers to four decimals -- which a reader
+    # can only read as two studies agreeing exactly. Deduplicated by OBJECT, not by page
+    # name, keeping the page whose name matches the object's own slug. Both keep serving.
+    by_object = {}
+    for rec in keep:
+        by_object.setdefault(rec.get("object"), []).append(rec)
+    deduped, dropped = [], []
+    for objpath, recs in by_object.items():
+        if objpath is None or len(recs) == 1:
+            deduped.extend(recs)
+            continue
+        slug = os.path.basename(os.path.dirname(objpath)).replace("-", "").lower()
+        recs.sort(key=lambda r: (0 if r["page"].replace("_", "").replace(".html", "").lower()
+                                 .startswith(slug[:18]) else 1, len(r["page"])))
+        deduped.append(recs[0])
+        for r in recs[1:]:
+            dropped.append({"page": r["page"], "duplicate_of": recs[0]["page"],
+                            "object": objpath})
+    keep = deduped
+
     # A by-name exclusion that matches nothing is a no-op wearing the clothes of a decision.
     # It is checked against pages that EXIST ON DISK, not against PAGE_MAP: a page can be
     # ineligible for two independent reasons at once, and a page held out by name for a
@@ -194,6 +266,15 @@ def main():
         if not any(frag in p.upper() for p in excluded):
             excluded_not_in_pagemap.append((frag, sorted(hits)[0]))
 
+    if dropped:
+        say("DEDUPLICATED BY OBJECT -- same object, two page names")
+        for d in dropped:
+            say("   %-44s duplicate of %s" % (d["page"][:44], d["duplicate_of"]))
+        say("")
+    say("ADMITTED BY RULING -- these do NOT pass, they are ruled in")
+    for a in admitted:
+        say("   %-44s fails %s" % (a["page"][:44], a["fails"]))
+    say("")
     say("KEEP  %d" % len(keep))
     say("held  %d" % len(rejected))
     say("")
@@ -217,6 +298,8 @@ def main():
     json.dump({"head": head, "keep": keep, "n_keep": len(keep),
                "excluded_by_name": {p: excluded_reason(p) for p in excluded},
                "excluded_by_name_no_store": dict(excluded_not_in_pagemap),
+               "admitted_by_ruling": admitted,
+               "deduplicated_by_object": dropped,
                "held": [{"page": p, "why": w} for p, w in rejected],
                "selector": "POSITIVE keep-list: store object + pooled.point with per_trial "
                            "rows + no refusal + a generator stamp on the served page"},
