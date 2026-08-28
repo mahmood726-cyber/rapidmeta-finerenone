@@ -12,6 +12,9 @@ could not see is more dangerous than one that saw and objected, because it reads
   2 VACUOUS  at least one gate never reached a case it was built to find
   3 BROKEN   at least one gate could not run
 
+`--tier2` runs the corpus-planting regression instead (see tier2_corpus_plants.py);
+it mutates tracked files, so it is opt-in and never runs from a hook.
+
 `--fast` skips the gates that read all 1,426 delivered pages (5 and 6), for use where a
 sub-minute check is wanted. It prints WHICH gates it skipped, because a scoped pass that does
 not name its scope is how "53 apps" turned out to be 1,522.
@@ -37,10 +40,18 @@ GATES = [
     ("gate7_blast_radius", "blast radius counted before a class-wide edit", "fast"),
     ("gate8_caller_and_wiring", "every gate has a caller; every removal a precondition", "fast"),
     ("gate9_shared_scratch", "the shared-scratch lint actually runs", "fast"),
+    ("gate10_planted_regression", "every defect class we found is still found", "fast"),
 ]
 
 
 def main(argv):
+    if "--tier2" in argv:
+        # TIER 2: plant the real corpus, gate it, restore, assert the restoration. Mutates
+        # tracked files, so it is opt-in and never runs from a hook. It refuses on a dirty
+        # tree or a shared branch rather than warning.
+        return subprocess.call([sys.executable,
+                                os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                             "tier2_corpus_plants.py"), "--run"])
     fast = "--fast" in argv
     only = None
     if "--only" in argv:
