@@ -15,6 +15,7 @@ Acceptance test: the emitted page against
 """
 import html as _html
 import math
+import os
 import re
 from urllib.parse import quote
 
@@ -45,6 +46,66 @@ TABS = (
     ("statistics", "Statistics", (),
      ("stats", "counttabs", "crossengine", "panels")),
 )
+
+# ---------------------------------------------------------------------------
+# THREE STATES FOR THE PROTOCOL TAB, NOT TWO.
+#
+# Measured 2026-08-28 across 155 objects: 1 page had a protocol on disk AND
+# linked it, 91 had one on disk and DENIED that any existed, 3 had one and were
+# silent, 36 correctly said none exists, 1 had none and was silent, 23 were not
+# assessable. A two-state fix -- "start linking it" -- repairs the 91 and turns
+# the 36 correct denials into false affirmations. So the state has to be
+# resolved per topic, not asserted either way.
+#
+# The old text did not merely say the OBJECT held no protocol, which was true.
+# It said the review "was assembled from named sources rather than from a
+# pre-registered protocol", which is a claim about the world, and for 91 pages
+# a protocol for that exact topic was sitting in the repository.
+# ---------------------------------------------------------------------------
+_PROTO_RX = re.compile(r"^(.+?)_(?:auto_)?protocol_v[\d.]+_(\d{4}-\d\d-\d\d)\.md$")
+
+
+def _protocol_dir():
+    here = os.path.dirname(os.path.abspath(__file__))
+    return os.path.join(os.path.dirname(here), "protocols")
+
+
+def protocol_on_disk(canon):
+    """The protocol file for this topic, or None. Newest version wins."""
+    slug = str((canon or {}).get("app_id") or (canon or {}).get("slug") or "").lower()
+    if not slug:
+        return None
+    cands = {slug, slug.replace("-", "_"),
+             re.sub(r"[-_](auto[-_]full[-_]review|review|auto)$", "",
+                    slug.replace("-", "_"))}
+    d = _protocol_dir()
+    try:
+        names = os.listdir(d)
+    except OSError:
+        return None
+    hits = []
+    for f in names:
+        m = _PROTO_RX.match(f)
+        if m and m.group(1).lower() in cands:
+            hits.append((m.group(2), f))
+    if not hits:
+        return None
+    return sorted(hits)[-1][1]
+
+
+def protocol_state_note(canon, default_note):
+    """One of three statements, resolved from disk rather than assumed."""
+    f = protocol_on_disk(canon)
+    if not f:
+        # Genuinely none. The default text stands -- it is correct here.
+        return default_note
+    return ("A protocol for this topic IS held in the repository, at "
+            "<code>protocols/%s</code>. This object does not record it, so no "
+            "registration, amendment history or prospective estimand declaration is "
+            "projected here, and the page cannot show that the review followed it. "
+            "The file's date is an AUTHORSHIP date: it was first committed to this "
+            "repository later, so it is not evidence of prospective registration." % f)
+
 # TRACK D: a tab with no source renders an HONEST STATE, never empty and never
 # silently merged into its neighbour. Silent merge is how a page becomes a flat
 # scroll while still claiming to be a review: the reader sees no gap, so the
@@ -375,8 +436,24 @@ def readiness(canon):
             limits.append({"label": "Registration is not prospective",
                            "detail": o.get("reason", "")})
     else:
-        blocking.append({"label": "No registration evidence",
-                         "detail": "This object records no protocol registration."})
+        # THREE STATES. "This object records no protocol registration" is true --
+        # and on 91 of 155 topics a protocol for that exact topic is sitting in
+        # protocols/ while this line reads as "there isn't one". A reader hears
+        # the label, not the scope of the noun.
+        _pf = protocol_on_disk(canon)
+        if _pf:
+            blocking.append({
+                "label": "A protocol exists but this object does not record it",
+                "detail": ("A protocol for this topic is held at protocols/%s. This object "
+                           "records no registration, so the page cannot show that the review "
+                           "followed it, and no amendment history or prospective estimand "
+                           "declaration can be projected. The file's date is an AUTHORSHIP "
+                           "date -- it was first committed to this repository later -- so it "
+                           "is not evidence of prospective registration." % _pf)})
+        else:
+            blocking.append({"label": "No registration evidence",
+                             "detail": "This object records no protocol registration, and no "
+                                       "protocol for this topic is held in the repository."})
     for oid, r in by_out.items():
         pb = (((r.get("grade") or {}).get("domains") or {})
               .get("publication_bias") or {})
@@ -1743,6 +1820,8 @@ def tabbed_body(canon, parts, page):
             else:
                 _label = "Not held in this object."
                 note = _tbl.get(tid, "No content is held in this object for this section.")
+                if tid == "protocol":
+                    note = protocol_state_note(canon, note)
             # THE MANUSCRIPT IS THE TAB A READER ARRIVES FOR, SO IT IS THE ONE THAT OPENS.
             #
             # The tabs work: `.panel{height:0;overflow:hidden}` and only the checked radio's
