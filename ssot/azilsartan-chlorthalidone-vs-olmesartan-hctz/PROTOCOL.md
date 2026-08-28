@@ -6,12 +6,6 @@
 > wording is shared with other protocols in this repository. This is stated because a
 > protocol that does not distinguish the two reads as more particular than it is.
 
-> ## ⚠ THIS IS AN UNANCHORED DRAFT. IT IS NOT A REGISTRATION.
->
-> It becomes a registration when it is committed, pushed to a public branch, and
-> anchored in a public transparency log - and only then, and only before the first
-> query for this topic is attempted. The pipeline removes this banner at that point.
-
 ## 1 - Review question
 
 The question recorded on this topic, quoted exactly:
@@ -48,8 +42,8 @@ which is the only identity key used:**
 
 **Eligible but not contributing:**
 
-- studies
-- converted_note
+- [{"nct": "NCT00591578", "reason": "Azilsartan medoxomil against VALSARTAN -- a different comparator, so not the contrast this page answers."}, {"nct": "NCT00818883", "reason": "Azilsartan + chlorthalidone against azilsartan + hydrochlorothiazide -- the drug against ITSELF on a different partner diur
+- Held a LIST where the generator reads blk.get("studies") -- a mapping with a studies sequence. Entries preserved unchanged under studies. A SHAPE THE CONSUMER CANNOT READ IS THE SAME DEFECT AS A FIELD IT CANNOT FIND.
 
 **Populations present in a trial but deliberately not pooled here:**
 

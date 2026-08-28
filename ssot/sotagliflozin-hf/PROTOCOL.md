@@ -6,12 +6,6 @@
 > wording is shared with other protocols in this repository. This is stated because a
 > protocol that does not distinguish the two reads as more particular than it is.
 
-> ## ⚠ THIS IS AN UNANCHORED DRAFT. IT IS NOT A REGISTRATION.
->
-> It becomes a registration when it is committed, pushed to a public branch, and
-> anchored in a public transparency log - and only then, and only before the first
-> query for this topic is attempted. The pipeline removes this banner at that point.
-
 ## 1 - Review question
 
 The question recorded on this topic, quoted exactly:
@@ -40,11 +34,11 @@ which is the only identity key used:**
 
 **Scope decisions recorded on this topic:**
 
-- SCOPE:three-estimands-never-merged
-- SCOPE:the-label-on-the-quantity-is-not-the-quantity
-- SCOPE:publication-two-component-first-event-composite
-- SCOPE:drug-wide-pivotal-not-heart-failure
-- SCOPE:no-number-needed-to-treat
+- **SCOPE:three-estimands-never-merged** - {"decision": "The total-occurrence composite, the time-to-first analysis of that same composite, and the three-component first-occurrence endpoint are three separate outcomes, each with its own result block and its own certainty rating, and no value crosses between them. TWO of them are pooled; the 
+- **SCOPE:the-label-on-the-quantity-is-not-the-quantity** - {"decision": "A value is filed by what the analysis DID, never by what the source called it. Both trials' primary endpoints are recurrent-event analyses reported as hazard ratios by the journal, the registry and the regulator alike, and they are filed as total-occurrence estimands.", "sections": ["1
+- **SCOPE:publication-two-component-first-event-composite** - {"decision": "The larger trial's publication reports a first-occurrence composite of cardiovascular death OR hospitalization for heart failure -- TWO components, without urgent heart failure visits. This object does not use it for the time-to-first estimand and stores no value from it. The time-to-f
+- **SCOPE:drug-wide-pivotal-not-heart-failure** - {"decision": "The question is the drug across its pivotal programme, so both trials are in and the pooled value spans a heart-failure population and a diabetes-and-kidney-disease population. The heart-failure-only result is a labelled SUBGROUP -- one trial's own row -- and never the headline.", "sec
+- **SCOPE:no-number-needed-to-treat** - {"decision": "No absolute risk reduction and no number needed to treat is computed or displayed anywhere in this object, on any outcome.", "sections": ["10.8", "10.9"], "conformance": "On the total-occurrence outcome the arithmetic is not merely unhelpful, it has no meaning in the usual sense: the d
 
 **Populations or arms explicitly excluded:**
 
@@ -52,8 +46,8 @@ which is the only identity key used:**
 
 **Eligible but not contributing:**
 
-- note
-- studies
+- No trial is in this category. Both pivotal trials contribute to every estimand they report, and the one further programme trial screened is in the screening log because it reports none of them. This field is present and empty rather than absent, so a reader can tell the category was considered.
+- []
 
 **Populations present in a trial but deliberately not pooled here:**
 

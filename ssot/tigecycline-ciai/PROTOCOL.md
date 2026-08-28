@@ -6,12 +6,6 @@
 > wording is shared with other protocols in this repository. This is stated because a
 > protocol that does not distinguish the two reads as more particular than it is.
 
-> ## ⚠ THIS IS AN UNANCHORED DRAFT. IT IS NOT A REGISTRATION.
->
-> It becomes a registration when it is committed, pushed to a public branch, and
-> anchored in a public transparency log - and only then, and only before the first
-> query for this topic is attempted. The pipeline removes this banner at that point.
-
 ## 1 - Review question
 
 The question recorded on this topic, quoted exactly:
@@ -41,21 +35,21 @@ which is the only identity key used:**
 
 **Scope decisions recorded on this topic:**
 
-- SCOPE:indication-intra-abdominal-only
-- SCOPE:comparator-imipenem-cilastatin-only
-- SCOPE:pooled-report-not-a-source-for-one-arm
-- MEASURE:risk-ratio-of-cure
-- POPULATION:microbiologically-evaluable
+- **SCOPE:indication-intra-abdominal-only** - {"decision": "Restrict to complicated intra-abdominal infection, and exclude the other licensed indication", "sections": ["3.2.1"], "conformance": "Section 3.2.1 asks for participant criteria broad enough to encompass the likely diversity of studies but narrow enough that a meaningful answer is obta
+- **SCOPE:comparator-imipenem-cilastatin-only** - {"decision": "Restrict to trials whose control arm is imipenem/cilastatin", "sections": ["3.2.3"], "conformance": "Section 3.2.3 distinguishes the comparisons a review makes, and a trial of this drug against a different active regimen is a different comparison rather than another instance of this on
+- **SCOPE:pooled-report-not-a-source-for-one-arm** - {"decision": "Hold the second registrational trial as eligible and contributing no data; do not reconstruct its arms", "sections": ["4.6.1", "4.6.3"], "conformance": "Section 4.6.1 makes the STUDY, not the report, the unit of interest, which is why using the pooled figure beside a study already held
+- **MEASURE:risk-ratio-of-cure** - {"decision": "Use the risk ratio with CURE as the event, and report the odds ratio and the risk ratio of failure beside it", "sections": ["10.4.3", "10.14"], "conformance": "Section 10.4.3 recommends risk ratios or odds ratios and asks for care over which category is classified as the event. Cure is
+- **POPULATION:microbiologically-evaluable** - {"decision": "Analyse the microbiologically evaluable population, and declare it as a departure from the randomised one", "sections": ["10.12.1", "10.14"], "conformance": "It is the only population for which all three trials publish a MICROBIOLOGICALLY evaluable result for this outcome. An earlier v
 
 **Populations or arms explicitly excluded:**
 
-- note
-- studies
+- Named so the boundary of this review is visible rather than implied by silence.
+- [{"what": "the two registrational trials in the other licensed indication, complicated skin and skin-structure infection, against vancomycin plus aztreonam", "why": "a different population AND a different comparator", "sections": ["3.2.1", "3.2.3"], "claim_made_by": "the earlier app this object repl
 
 **Eligible but not contributing:**
 
-- note
-- studies
+- This registrational trial meets every eligibility criterion and is NOT excluded. Its per-arm figures appear only inside a report that pools it with a trial this object already holds separately, and that report is behind a paywall. No paywall was bypassed.
+- [{"study_id": "3074A1-306", "nct": null, "registration_note": "No registration for this trial was found in ClinicalTrials.gov; it ran before registration became a condition of publication.", "reason_no_data": "the accessible record publishes its clinical cure figures only POOLED with study 3074A1-30
 
 **Populations present in a trial but deliberately not pooled here:**
 

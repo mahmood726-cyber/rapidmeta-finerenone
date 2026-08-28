@@ -6,12 +6,6 @@
 > wording is shared with other protocols in this repository. This is stated because a
 > protocol that does not distinguish the two reads as more particular than it is.
 
-> ## ⚠ THIS IS AN UNANCHORED DRAFT. IT IS NOT A REGISTRATION.
->
-> It becomes a registration when it is committed, pushed to a public branch, and
-> anchored in a public transparency log - and only then, and only before the first
-> query for this topic is attempted. The pipeline removes this banner at that point.
-
 ## 1 - Review question
 
 The question recorded on this topic, quoted exactly:
@@ -40,11 +34,11 @@ which is the only identity key used:**
 
 **Scope decisions recorded on this topic:**
 
-- SCOPE:three-estimands-never-merged
-- SCOPE:the-label-on-the-quantity-is-not-the-quantity
-- SCOPE:publication-two-component-first-event-composite
-- SCOPE:drug-wide-pivotal-not-heart-failure
-- SCOPE:no-number-needed-to-treat
+- **SCOPE:three-estimands-never-merged** - {"decision": "not recorded on the page this object was extracted from", "sections": [], "conformance": "not recorded on the page this object was extracted from"}
+- **SCOPE:the-label-on-the-quantity-is-not-the-quantity** - {"decision": "not recorded on the page this object was extracted from", "sections": [], "conformance": "not recorded on the page this object was extracted from"}
+- **SCOPE:publication-two-component-first-event-composite** - {"decision": "not recorded on the page this object was extracted from", "sections": [], "conformance": "not recorded on the page this object was extracted from"}
+- **SCOPE:drug-wide-pivotal-not-heart-failure** - {"decision": "not recorded on the page this object was extracted from", "sections": [], "conformance": "not recorded on the page this object was extracted from"}
+- **SCOPE:no-number-needed-to-treat** - {"decision": "not recorded on the page this object was extracted from", "sections": [], "conformance": "not recorded on the page this object was extracted from"}
 
 **Populations or arms explicitly excluded:**
 
@@ -52,8 +46,8 @@ which is the only identity key used:**
 
 **Eligible but not contributing:**
 
-- note
-- studies
+- not recorded on the page this object was extracted from
+- []
 
 **Populations present in a trial but deliberately not pooled here:**
 
