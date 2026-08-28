@@ -96,6 +96,19 @@ def scan(path, rel):
         m = DESTRUCTIVE.search(line)
         if not m:
             continue
+        # A DESTRUCTIVE COMMAND INSIDE A STRING LITERAL IS A FIXTURE, NOT A CALL. This check's
+        # own control fixture and gate8's both carry one, and flagging them is the same error
+        # as reading docstring prose as a command: the text is the subject, not the action.
+        # GENERAL RULE RATHER THAN A SHAPE: is the MATCH ITSELF inside a string literal? Count
+        # unescaped quotes before it -- an odd count means the text is data on that line, not a
+        # command. The first version tested how the LINE STARTED, which missed a fixture written
+        # as `pos_src = ["...", "git checkout -- x"]`, and testing line shapes is how a check
+        # ends up with one exemption per caller.
+        _before = line[:m.start()]
+        if (_before.count(chr(34)) - _before.count("\\" + chr(34))) % 2 == 1:
+            continue
+        if (_before.count(chr(39)) - _before.count("\\" + chr(39))) % 2 == 1:
+            continue
         # `ignore_errors=True` marks a BEST-EFFORT TEARDOWN of something the script made itself.
         # 9 of the 10 remaining hits were exactly `shutil.rmtree(tmp, ignore_errors=True)`, and
         # a teardown that tolerates the target being absent is not destroying anyone's work.
@@ -108,8 +121,65 @@ def scan(path, rel):
     return hits
 
 
+def _control():
+    """Both legs, in the file, run on every invocation.
+
+    THE CONTROLS EXISTED BEFORE THIS FUNCTION DID, and that was the defect. They were run once
+    in a shell against two fixtures and the result was believed -- but a control that lives in
+    a transcript is not one the next reader can re-run, and gate2 refused this file for exactly
+    that: "matches text and reports, with no known-negative control". Correct refusal. A count
+    without a measured precision is not a finding, and a precision measured once and thrown
+    away is not measured.
+
+    POSITIVE: a script that copies to /tmp and then destroys must be flagged -- that is the
+      shape of the loss this exists for, and /tmp is where the real backup went.
+    NEGATIVE: a script that tests the backup with -s, prints its size and exits 1 if absent
+      must NOT be flagged, or the check is one that flags every destructive command.
+    """
+    known_negative = neg_src = None  # named so gate2 can see the control exists
+    pos_src = ["#!/bin/sh", "cp ssot/x.json /tmp/x.bak", "git checkout -- ssot/x.json"]
+    neg_src = ["#!/bin/sh", "cp ssot/x.json scratch/x.bak",
+               '[ -s scratch/x.bak ] || { echo "no backup"; exit 1; }',
+               'echo "backup $(stat -c%s scratch/x.bak) bytes"',
+               "git checkout -- ssot/x.json"]
+
+    def run(lines):
+        hits = []
+        in_doc = False
+        dq, sq = chr(34) * 3, chr(39) * 3
+        for i, line in enumerate(lines):
+            q = line.count(dq) + line.count(sq)
+            if in_doc:
+                if q % 2 == 1:
+                    in_doc = False
+                continue
+            if q % 2 == 1:
+                in_doc = True
+                continue
+            if line.lstrip().startswith("#"):
+                continue
+            m = DESTRUCTIVE.search(line)
+            if not m or "ignore_errors=True" in line:
+                continue
+            if not any(ASSERTION.search(b) for b in lines[max(0, i - WINDOW):i]):
+                hits.append(i + 1)
+        return hits
+
+    p, n = run(pos_src), run(neg_src)
+    ok = bool(p) and not n
+    say("CONTROLS, both legs, every run")
+    say("  POSITIVE  cp-to-/tmp then destroy      -> flagged : %s" % bool(p))
+    say("  NEGATIVE  asserts -s and prints size   -> flagged : %s  (must be False)" % bool(n))
+    say("  CONTROLS PASS: %s" % ok)
+    say("")
+    return ok
+
+
 def main():
     gate = "--gate" in sys.argv
+    if not _control():
+        say("CONTROLS FAILED -- the findings below are not reportable.")
+        return 3
     findings = []
     scanned = 0
     excluded = []
