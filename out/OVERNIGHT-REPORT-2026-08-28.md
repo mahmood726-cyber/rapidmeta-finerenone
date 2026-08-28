@@ -50,6 +50,7 @@ commit. Site: `https://mahmood726-cyber.github.io/rapidmeta-finerenone/`
 | Arm metadata repaired on 5 trials | INVERTED 5 → **0 of 168** | 18:15 |
 | Trial name swaps (Ring/ASPIRE, FOCUS 1/2) | all 4 pair with the correct NCT, 0 wrong | 18:27 |
 | Read-through to `as_posted` on 13 trials / 6 pages | "read through to this object" renders | 19:36 |
+| Protocols + SAPs for 29 trials (58 docs, 94.4 MB) | `out/registry_documents_2026_08_28.json` | stored 22:10 |
 
 ---
 
@@ -117,9 +118,13 @@ carry `verdict: RULED_IN` with `criterion_result: FAIL` and the failing leg name
 
 ## BLOCKED, AND BY WHAT
 
-- **FDA/EMA review documents and protocols/SAPs** — not yet attempted. These are this lane's
-  two remaining routes and are where the 29 abstract-level trials most plausibly close.
-  Not blocked by anything; simply not yet run.
+- **Protocols and SAPs — DONE, and it closed half the full-text gap for D1–D3.**
+  29 of 74 registrations declare documents; **all 29 retrieved, 58 documents, 94.4 MB —
+  29 protocols and 29 SAPs.** 45 declare none, which is a real absence: the field path was
+  validated against a known positive first. **14 of the 29 trials with no full text now hold
+  a protocol or SAP** — the documents D1–D3 actually need, from the one route no index
+  gatekeeps.
+- **FDA/EMA review documents** — the only route still unattempted.
 - **`NCT01780987` has no PMID at all** — none stored, none on its registration. Registration
   only.
 - **Coordination with the RoB lane — CHECKED, and it is settled.** Its harvest ran (317 rows,
