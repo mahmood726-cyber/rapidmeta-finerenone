@@ -1,0 +1,202 @@
+{
+ "_what_this_is": "The executed search for this topic, written after execution and anchored so its time is fixed by a third party.",
+ "topic": "apixaban-vte-prophylaxis",
+ "governing_protocol": "ssot/apixaban-vte-prophylaxis/PROTOCOL.md",
+ "registration": {
+  "protocol_commit": "586618b01c6ec10b95affb7a50c239523abef576",
+  "protocol_anchor_logIndex": 2630224918,
+  "protocol_anchored_utc": "2026-08-28T22:48:45Z"
+ },
+ "query_text": "Apixaban thromboprophylaxis four four",
+ "databases": [
+  {
+   "source": "pubmed",
+   "url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&retmode=json&retmax=100&term=Apixaban+thromboprophylaxis+four+four",
+   "params": {
+    "db": "pubmed",
+    "retmode": "json",
+    "retmax": 100,
+    "term": "Apixaban thromboprophylaxis four four"
+   },
+   "attempted_utc": "2026-08-28T22:48:46.851Z",
+   "completed_utc": "2026-08-28T22:48:47.206Z",
+   "http_status": 200,
+   "response_bytes": 716,
+   "n_records": 23,
+   "ids": [
+    "42032668",
+    "39600102",
+    "39198152",
+    "39005732",
+    "37791549",
+    "36902328",
+    "34622445",
+    "32969580",
+    "31190408",
+    "28762617",
+    "28579855",
+    "27900627",
+    "27704588",
+    "27403193",
+    "26370208",
+    "25295718",
+    "24504768",
+    "23946671",
+    "23488672",
+    "23258202",
+    "22882859",
+    "22398784",
+    "20206776"
+   ],
+   "outcome": "EXECUTED"
+  },
+  {
+   "source": "europepmc",
+   "url": "https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=Apixaban+thromboprophylaxis+four+four&format=json&pageSize=25",
+   "params": {
+    "query": "Apixaban thromboprophylaxis four four",
+    "format": "json",
+    "pageSize": 25
+   },
+   "attempted_utc": "2026-08-28T22:48:47.206Z",
+   "completed_utc": "2026-08-28T22:48:50.258Z",
+   "http_status": 200,
+   "response_bytes": 22467,
+   "n_records": 1258,
+   "ids": [
+    "41872895",
+    "41853582",
+    "42026656",
+    "41663803",
+    "41949434",
+    "42032668",
+    "42292633",
+    "41703478",
+    "40769181",
+    "41818268",
+    "41384379",
+    "PMC13300970",
+    "42057843",
+    "41590511",
+    "41751895",
+    "41246719",
+    "PMC13299122",
+    "40880878",
+    "41079496",
+    "42163826",
+    "42022827",
+    "41262181",
+    "41293602",
+    "41800086",
+    "41411660"
+   ],
+   "outcome": "EXECUTED"
+  },
+  {
+   "source": "ctgov",
+   "url": "https://clinicaltrials.gov/api/v2/studies?query.term=Apixaban+thromboprophylaxis+four+four&pageSize=50&countTotal=true",
+   "params": {
+    "query.term": "Apixaban thromboprophylaxis four four",
+    "pageSize": 50,
+    "countTotal": "true"
+   },
+   "attempted_utc": "2026-08-28T22:48:50.258Z",
+   "completed_utc": "2026-08-28T22:48:50.395Z",
+   "http_status": 200,
+   "response_bytes": 31,
+   "n_records": 0,
+   "ids": [],
+   "outcome": "EMPTY",
+   "WHY_EMPTY_IS_A_RESULT": "HTTP 200 and a readable count of zero. The server answered and the literature is what is empty. This is a finding; a FAILED is not."
+  },
+  {
+   "source": "isrctn",
+   "url": "https://www.isrctn.com/api/query/format/default?q=apixaban",
+   "params": {
+    "q": "apixaban"
+   },
+   "attempted_utc": "2026-08-28T22:48:50.395Z",
+   "ictrp_route": "ISRCTN free XML API, used as the programmatic stopgap for ICTRP. The WHO ICTRP bulk-crawling service is unavailable; the WHO portal itself was NOT searched by this query.",
+   "completed_utc": "2026-08-28T22:48:50.637Z",
+   "http_status": 200,
+   "response_bytes": 221098,
+   "n_records": 47,
+   "ids": [
+    "ISRCTN10133544",
+    "ISRCTN11391276",
+    "ISRCTN29145021",
+    "ISRCTN16600368",
+    "ISRCTN80601124",
+    "ISRCTN49499065",
+    "ISRCTN74292348",
+    "ISRCTN14321370",
+    "ISRCTN13146458",
+    "ISRCTN63161604"
+   ],
+   "outcome": "EXECUTED"
+  },
+  {
+   "source": "guideline_bodies",
+   "attempted_utc": "2026-08-28T22:48:50.642Z",
+   "registry_used_to_enumerate": {
+    "registry": "Guidelines International Network (GIN)",
+    "endpoint": "https://g-i-n.net/wp-json/wp/v2/organisation",
+    "x_wp_total": 136,
+    "retrieved_utc": "2026-08-28T10:32:09Z",
+    "records_bulk_modified_gmt": "2026-08-27T11:45:02..03"
+   },
+   "AN_INDEX_IS_NOT_A_SOURCE": "GIN enumerates WHO the bodies are and carries no external URL on any of its 136 records, so it cannot itself be queried for guidance.",
+   "queried": [
+    {
+     "body": "FDA (openFDA drug label API)",
+     "http": 200,
+     "n_records": 337,
+     "outcome": "EXECUTED"
+    }
+   ],
+   "unreachable": [
+    {
+     "body": "WHO IRIS",
+     "obstacle": "HTTP 403 on its REST search endpoint"
+    },
+    {
+     "body": "NICE",
+     "obstacle": "HTTP 401 -- syndication API requires a key"
+    },
+    {
+     "body": "TRIP",
+     "obstacle": "HTTP 200 but a Cloudflare challenge page; the query term appears zero times. A 200 is not a result."
+    },
+    {
+     "body": "Epistemonikos",
+     "obstacle": "HTTP 405 on the documented API path; site search is HTML only"
+    }
+   ],
+   "coverage_fraction": {
+    "registry_lists": 136,
+    "queried": 1,
+    "unreachable_named": 4,
+    "not_yet_resolved_to_an_endpoint": 131,
+    "STATEMENT": "Of the 136 bodies GIN lists, 1 were queried, 4 were reached and refused or blocked by a named obstacle, and 131 have not been resolved to a queryable endpoint at all. This is a coverage fraction, not a checkmark, and 'all guideline bodies' is NOT a claim this supports."
+   }
+  }
+ ],
+ "three_counts": {
+  "EXECUTED": 4,
+  "EMPTY": 1,
+  "FAILED": 0
+ },
+ "ordering": {
+  "protocol_anchored_utc": "2026-08-28T22:48:45Z",
+  "first_query_attempted_utc": "2026-08-28T22:48:46.851Z",
+  "holds": true
+ },
+ "what_this_record_does_not_establish": [
+  "It does not establish that the search was COMPLETE. It records which sources were queried and what each returned, nothing wider.",
+  "It does not establish that guideline evidence was covered. Source 5 reports a fraction against the GIN denominator and most bodies remain unresolved.",
+  "The ICTRP leg is served by ISRCTN, which is a ROUTE to some ICTRP-registered trials and is not ICTRP. It is recorded under its own name for that reason.",
+  "A git commit timestamp is author-supplied and forgeable. Only the two transparency-log times are independent of us."
+ ],
+ "executed_by": "run_topic.py",
+ "written_utc": "2026-08-28T22:48:52.531Z"
+}
