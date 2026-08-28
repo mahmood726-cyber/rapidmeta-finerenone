@@ -1,0 +1,185 @@
+{
+ "_what_this_is": "The executed search for this topic, written after execution and anchored so its time is fixed by a third party.",
+ "topic": "nirsevimab-infant-rsv-review",
+ "governing_protocol": "protocols/nirsevimab_infant_rsv_protocol_v1.1_2026-04-20.md",
+ "registration": {
+  "protocol_commit": "1cebb9fda56078808b215cc6270591f8ea6af5b4",
+  "protocol_anchor_logIndex": 2630313770,
+  "protocol_anchored_utc": "2026-08-28T22:57:52Z"
+ },
+ "query_text": "Nirsevimab placebo medically attended",
+ "databases": [
+  {
+   "source": "pubmed",
+   "url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&retmode=json&retmax=100&term=Nirsevimab+placebo+medically+attended",
+   "params": {
+    "db": "pubmed",
+    "retmode": "json",
+    "retmax": 100,
+    "term": "Nirsevimab placebo medically attended"
+   },
+   "attempted_utc": "2026-08-28T22:57:53.361Z",
+   "completed_utc": "2026-08-28T22:57:53.559Z",
+   "http_status": 200,
+   "response_bytes": 3116,
+   "n_records": 11,
+   "ids": [
+    "41919667",
+    "40557197",
+    "39656748",
+    "39466029",
+    "38654469",
+    "38219024",
+    "37468530",
+    "37082704",
+    "36634694",
+    "35235726",
+    "32726528"
+   ],
+   "outcome": "EXECUTED"
+  },
+  {
+   "source": "europepmc",
+   "url": "https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=Nirsevimab+placebo+medically+attended&format=json&pageSize=25",
+   "params": {
+    "query": "Nirsevimab placebo medically attended",
+    "format": "json",
+    "pageSize": 25
+   },
+   "attempted_utc": "2026-08-28T22:57:53.559Z",
+   "completed_utc": "2026-08-28T22:58:03.190Z",
+   "http_status": 200,
+   "response_bytes": 23081,
+   "n_records": 204,
+   "ids": [
+    "PPR1255348",
+    "41919667",
+    "42267066",
+    "41897044",
+    "42339311",
+    "42188782",
+    "39656748",
+    "PMC13300439",
+    "42348792",
+    "41746506",
+    "41893769",
+    "42148106",
+    "40880502",
+    "40718547",
+    "40907578",
+    "42048598",
+    "41104031",
+    "41439076",
+    "41685002",
+    "40557197",
+    "40432081",
+    "40313952",
+    "40555690",
+    "41743135",
+    "40699528"
+   ],
+   "outcome": "EXECUTED"
+  },
+  {
+   "source": "ctgov",
+   "url": "https://clinicaltrials.gov/api/v2/studies?query.term=Nirsevimab+placebo+medically+attended&pageSize=50&countTotal=true",
+   "params": {
+    "query.term": "Nirsevimab placebo medically attended",
+    "pageSize": 50,
+    "countTotal": "true"
+   },
+   "attempted_utc": "2026-08-28T22:58:03.191Z",
+   "completed_utc": "2026-08-28T22:58:03.341Z",
+   "http_status": 200,
+   "response_bytes": 48028,
+   "n_records": 3,
+   "ids": [
+    "NCT05743881",
+    "NCT06185647",
+    "NCT05110261"
+   ],
+   "outcome": "EXECUTED"
+  },
+  {
+   "source": "isrctn",
+   "url": "https://www.isrctn.com/api/query/format/default?q=nirsevimab",
+   "params": {
+    "q": "nirsevimab"
+   },
+   "attempted_utc": "2026-08-28T22:58:03.341Z",
+   "ictrp_route": "ISRCTN free XML API, used as the programmatic stopgap for ICTRP. The WHO ICTRP bulk-crawling service is unavailable; the WHO portal itself was NOT searched by this query.",
+   "completed_utc": "2026-08-28T22:58:03.566Z",
+   "http_status": 200,
+   "response_bytes": 33895,
+   "n_records": 2,
+   "ids": [
+    "ISRCTN66014475",
+    "ISRCTN28027532"
+   ],
+   "outcome": "EXECUTED"
+  },
+  {
+   "source": "guideline_bodies",
+   "attempted_utc": "2026-08-28T22:58:03.567Z",
+   "registry_used_to_enumerate": {
+    "registry": "Guidelines International Network (GIN)",
+    "endpoint": "https://g-i-n.net/wp-json/wp/v2/organisation",
+    "x_wp_total": 136,
+    "retrieved_utc": "2026-08-28T10:32:09Z",
+    "records_bulk_modified_gmt": "2026-08-27T11:45:02..03"
+   },
+   "AN_INDEX_IS_NOT_A_SOURCE": "GIN enumerates WHO the bodies are and carries no external URL on any of its 136 records, so it cannot itself be queried for guidance.",
+   "queried": [
+    {
+     "body": "FDA (openFDA drug label API)",
+     "http": 200,
+     "n_records": 2,
+     "outcome": "EXECUTED"
+    }
+   ],
+   "unreachable": [
+    {
+     "body": "WHO IRIS",
+     "obstacle": "HTTP 403 on its REST search endpoint"
+    },
+    {
+     "body": "NICE",
+     "obstacle": "HTTP 401 -- syndication API requires a key"
+    },
+    {
+     "body": "TRIP",
+     "obstacle": "HTTP 200 but a Cloudflare challenge page; the query term appears zero times. A 200 is not a result."
+    },
+    {
+     "body": "Epistemonikos",
+     "obstacle": "HTTP 405 on the documented API path; site search is HTML only"
+    }
+   ],
+   "coverage_fraction": {
+    "registry_lists": 136,
+    "queried": 1,
+    "unreachable_named": 4,
+    "not_yet_resolved_to_an_endpoint": 131,
+    "STATEMENT": "Of the 136 bodies GIN lists, 1 were queried, 4 were reached and refused or blocked by a named obstacle, and 131 have not been resolved to a queryable endpoint at all. This is a coverage fraction, not a checkmark, and 'all guideline bodies' is NOT a claim this supports."
+   }
+  }
+ ],
+ "three_counts": {
+  "EXECUTED": 5,
+  "EMPTY": 0,
+  "FAILED": 0
+ },
+ "ordering": {
+  "protocol_anchored_utc": "2026-08-28T22:57:52Z",
+  "first_query_attempted_utc": "2026-08-28T22:57:53.361Z",
+  "holds": true
+ },
+ "what_this_record_does_not_establish": [
+  "It does not establish that the search was COMPLETE. It records which sources were queried and what each returned, nothing wider.",
+  "It does not establish that guideline evidence was covered. Source 5 reports a fraction against the GIN denominator and most bodies remain unresolved.",
+  "The ICTRP leg is served by ISRCTN, which is a ROUTE to some ICTRP-registered trials and is not ICTRP. It is recorded under its own name for that reason.",
+  "A git commit timestamp is author-supplied and forgeable. Only the two transparency-log times are independent of us."
+ ],
+ "executed_by": "run_topic.py",
+ "written_utc": "2026-08-28T22:58:05.169Z"
+}
