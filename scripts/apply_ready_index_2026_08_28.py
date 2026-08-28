@@ -255,6 +255,8 @@ def result_line(page, pm):
     SOTAGLIFLOZIN already did the right thing -- "Pooled: HR 0.7171 (0.6246 to 0.8234), k=2"
     -- so this extends that pattern rather than inventing one.
     """
+    if page not in pm:
+        return from_served_page(page)[1]
     obj = json.load(io.open(os.path.join(REPO, pm[page]), encoding="utf-8"))
     by = (obj.get("results") or {}).get("by_outcome") or {}
     best = None
@@ -268,10 +270,16 @@ def result_line(page, pm):
             continue
         meas = pooled.get("measure") or "estimate"
         lo, hi, k = pooled.get("ci_low"), pooled.get("ci_high"), blk.get("k")
+        # A POOL OF ONE IS NOT A POOL. bempedoic-acid holds exactly one trial
+        # (NCT02993406) and read "Pooled: HR 0.87 (0.79 to 0.96), k=1", which presents a
+        # single trial as a meta-analysis. The word is the whole defect: the number is
+        # right and only its description overstates what produced it.
+        lead = "Single trial" if k in (1, "1") else "Pooled"
         if lo is not None and hi is not None:
-            best = "Pooled: %s %.4g (%.4g to %.4g), k=%s" % (meas, pooled["point"], lo, hi, k)
+            best = "%s: %s %.4g (%.4g to %.4g), k=%s" % (lead, meas, pooled["point"],
+                                                         lo, hi, k)
         else:
-            best = "Pooled: %s %.4g, k=%s" % (meas, pooled["point"], k)
+            best = "%s: %s %.4g, k=%s" % (lead, meas, pooled["point"], k)
         break
     # A page in KEEP has a live pooled outcome by construction -- leg 2 required it. If this
     # cannot find one, the keep list and this function disagree and that must be visible.
@@ -293,6 +301,37 @@ def retitle_cards(keep, reviews, pm, log):
         if not line:
             unresolved.append(page)
             return inner
+        # retitle runs AFTER add_to_index and rewrites the description, so it must carry the
+        # ruling note too -- otherwise it silently strips the one sentence that says a card
+        # is here by ruling rather than by passing.
+        note = ruling_note(page)
+        if note and "indexed by ruling" not in line:
+            line += " · indexed by ruling; %s" % note
+
+        # THE NAME COMES FROM THE OBJECT TOO. Card names were hand-written strings living
+        # only in index.html -- a second copy of the trial identity, reconciled with nothing.
+        # One of them published a REAL result under the names of trials that did not produce
+        # it: "HIV PrEP for AGYW in sub-Saharan Africa (HPTN 082 + FACTS-001)" sat above
+        # RR 0.703, which is the DAPIVIRINE RING result from The Ring Study and ASPIRE. The
+        # object was entirely correct -- right title, right two NCTs, zero mentions of HPTN
+        # or FACTS anywhere in it. Only the card lied.
+        #
+        # Two others named trials their objects do not contain (VERTIS on a k=2 SGLT2 pool)
+        # or asserted a design the object does not support ("NMA" on a pairwise pool).
+        # Deriving the name removes the whole class rather than the three instances.
+        try:
+            if page in pm:
+                obj = json.load(io.open(os.path.join(REPO, pm[page]), encoding="utf-8"))
+                title = short_title((obj.get("title") or "").strip())
+            else:
+                title = from_served_page(page)[0] or ""
+        except (OSError, ValueError, KeyError):
+            title = ""
+        if title:
+            inner, _ = re.subn(r'(<span class="name">)(.*?)(</span>)',
+                               lambda mm: mm.group(1) + esc(title) + mm.group(3),
+                               inner, count=1, flags=re.S)
+
         new_inner, n = re.subn(r'(<span class="pub">)(.*?)(</span>)',
                                lambda mm: mm.group(1) + esc(line) + mm.group(3),
                                inner, count=1, flags=re.S)
@@ -311,13 +350,65 @@ def retitle_cards(keep, reviews, pm, log):
     return changed[0], unresolved
 
 
+def from_served_page(page):
+    """(title, result) for a page with NO store object, read from the served bytes.
+
+    HFREF_NMA_AUTO_FULL_REVIEW has no PAGE_MAP entry -- that IS its leg-1 failure -- so
+    there is no object to derive a card from. Rather than hardcode its numbers here, which
+    would create yet another copy of a fact, this reads the page's own relabel block: the
+    one that states ACEI versus Placebo and the interval, written when the omnibus framing
+    was stripped. If the page stops saying it, this stops claiming it.
+    """
+    fp = os.path.join(REPO, page)
+    if not os.path.exists(fp):
+        return None, None
+    body = read_text(fp)
+    # STRIP THE SITE BRANDING. A <title> is written for a browser tab and carries the site
+    # name; on a card the reader already knows the site, and "RapidMeta Cardiology | HFrEF
+    # GDMT network" wastes the half of the label that identifies the review.
+    t = re.search(r"<title>(.*?)</title>", body, re.S | re.I)
+    raw_title = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", "", t.group(1))).strip() if t else page
+    if "|" in raw_title:
+        raw_title = raw_title.split("|", 1)[1].strip() or raw_title
+    title = short_title(raw_title)
+    m = re.search(r"headline estimate is\s*<strong>(.*?)</strong>", body, re.S | re.I)
+    result = None
+    if m:
+        result = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", "", m.group(1))).strip()
+        result = result.replace("&mdash;", "--")
+    return title, result
+
+
+def ruling_note(page):
+    """The honest note a ruled-in page carries, read from the keep artefact, not invented."""
+    try:
+        d = json.load(io.open(os.path.join(REPO, "outputs",
+                                           "ready_index_2026_08_28.json"), encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    for a in d.get("admitted_by_ruling") or []:
+        if a.get("page") == page:
+            return a.get("fails")
+    return None
+
+
 def card_for(page, pm):
-    """Title and a one-line result, both read from the store object."""
+    """Title and a one-line result, both read from the store object where one exists."""
+    if page not in pm:
+        title, result = from_served_page(page)
+        return CARD % {"page": page,
+                       "title": esc(title or page),
+                       "sub": esc((result or "no store object; see the page")
+                                  + ((" · indexed by ruling; " + ruling_note(page))
+                                     if ruling_note(page) else ""))}
     obj = json.load(io.open(os.path.join(REPO, pm[page]), encoding="utf-8"))
     title = short_title((obj.get("title") or obj.get("topic")
                          or page.replace("_", " ")).strip())
     by = (obj.get("results") or {}).get("by_outcome") or {}
     sub = result_line(page, pm) or "Pooled result with per-trial evidence"
+    note = ruling_note(page)
+    if note:
+        sub += " · indexed by ruling; %s" % note
     return CARD % {"page": page, "title": esc(title[:120]), "sub": esc(sub)}
 
 
