@@ -38,7 +38,11 @@ SCRATCH = (r"F:\claude-temp\claude\F--rapidmeta-finerenone"
 ESC = os.path.join(REPO, "out", "ESCALATIONS.jsonl")
 LEDGER = os.path.join(REPO, "outputs", "rebuild_log_2026_08_27.jsonl")
 
-NEVER_REBUILD = {"ARNI_HF_REVIEW.html", "SOTAGLIFLOZIN_HF_REVIEW.html"}
+# SOTAGLIFLOZIN was held OUT OF EARLY BATCHES, not permanently: its stamp named a commit
+# that did not build it (a dirty-tree build), and a rebuild from a clean tree is exactly
+# what repairs that. ARNI stays forbidden -- it is the corpus's only authored manuscript
+# and a rebuild destroys the one instance of the property we are trying to acquire.
+NEVER_REBUILD = {"ARNI_HF_REVIEW.html"}
 
 SCRIPT = re.compile(r"<script\b.*?</script>", re.S | re.I)
 STYLE = re.compile(r"<style\b.*?</style>", re.S | re.I)
@@ -137,6 +141,17 @@ ADJUDICATED = {
         "honest sentence 'does not record what these strata are grouped by' 0 -> 4. Every "
         "subgroup row survives. The presence rule stopped it because a TOKEN reached zero "
         "while no DATA did -- the rule's known limit, failing in the safe direction",
+    "ROSUVASTATIN_AUTO_FULL_REVIEW.html": "the Figure legends section is removed BY DESIGN "
+        "at acfb3ff5f, named by construction in 8 builds narrowing 421 commits to one: "
+        "'113 topics that hold no poolable evidence now publish a statement, not a "
+        "manuscript ... no section renders solely to decline'. Blast radius verified 0 of "
+        "145 served pages. The page keeps its manuscript (27,959 -> 27,251); it loses one "
+        "section, not a conversion",
+    "SOTAGLIFLOZIN_HF_REVIEW.html": "the phrase 'not rated' drops 8 -> 5 because the "
+        "pending-certainty notice is CONSOLIDATED, not removed. Verified in rendered text: "
+        "Certainty 21 -> 21, GRADE 18 -> 18, unadjudicated 3 -> 3, risk of bias 19 -> 19. "
+        "The served page repeats the notice per outcome; the rebuild states it once and adds "
+        "what would clear it. Every certainty concept survives at identical count",
     "FINERENONE_CV_REVIEW.html": "the served section is a FABRICATED CITATION TRAIL: it "
         "renders the placeholder 'not recorded on the page this object was extracted from' "
         "TWICE, attaches footnote markers to both, and then states 'Sources for this section "
