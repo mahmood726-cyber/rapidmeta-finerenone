@@ -154,7 +154,19 @@ def main(argv):
                             cwd=REPO).returncode
         print("gate suite over the PLANTED corpus returned %d "
               "(0 PASS / 1 FAIL / 2 VACUOUS / 3 BROKEN)" % rc)
-        print("A PASS HERE IS THE FINDING: %d planted defects and nothing objected." % planted)
+        # The verdict is reported as what it is. An unconditional sentence here would have
+        # printed "nothing objected" on a run where three gates DID object -- a claim
+        # contradicting the number beside it, which is the shape of defect this suite exists
+        # to catch, arriving in the suite itself.
+        if rc == 0:
+            print("A PASS IS THE FINDING: %d planted defects and NOTHING objected." % planted)
+        elif rc == 1:
+            print("%d planted defects; at least one gate objected. Read the summary above for "
+                  "WHICH -- a suite-level FAIL does not say the other classes were seen."
+                  % planted)
+        else:
+            print("%d planted defects and the suite could not decide (%s). Not a clean result."
+                  % (planted, {2: "VACUOUS", 3: "BROKEN"}.get(rc, rc)))
     finally:
         bad = []
         for rel, rec in manifest.items():
