@@ -1244,10 +1244,27 @@ def _clinical_gaps(obj):
     _COUNTABLE = {"HR", "RR", "OR", "IRR", "RD", "PETO OR", "RATE RATIO", "RATIO"}
     _has_countable = bool(_measures & _COUNTABLE) or not _measures
 
+    # THE ARMS ARE THE OTHER PLACE EVENT COUNTS LIVE, and probing only `per_trial` walked this
+    # function into the exact failure its own docstring warns about: it probed the wrong key.
+    #
+    # Measured 2026-08-28 at origin/main e3a9c964b: of 141 objects carrying a results block,
+    # 38 hold arm-level event counts at inputs.trials[*].arms[*].events while holding none of
+    # the per_trial keys below -- so each was telling a clinician "this review does not give
+    # you the number of events in each arm" on a page that gives exactly that. On
+    # ablation-af-medical-therapy all 3 of 3 trials carry them: CASTLE-AF 51/179 vs 82/184,
+    # CABANA 89/1108 vs 101/1096, RAFT-AF 50/214 vs 64/197.
+    #
+    # A FALSE DENIAL IS THE HARDER HALF TO SEE. Every detector here looks for a page claiming
+    # too much; a page claiming too LITTLE reads as modesty and passes. This clause was
+    # generating that defect rather than catching it.
+    _arm_events = any(a.get("events") is not None
+                      for t in trials for a in (t.get("arms") or [])
+                      if isinstance(a, dict))
     gaps = []
-    if _has_countable and not any_key(rows, ("events_int", "events_ctrl", "e_int", "e_ctrl",
-                                             "events", "n_events", "treatment_evaluable",
-                                             "control_evaluable")):
+    if _has_countable and not _arm_events and not any_key(
+            rows, ("events_int", "events_ctrl", "e_int", "e_ctrl",
+                   "events", "n_events", "treatment_evaluable",
+                   "control_evaluable")):
         gaps.append("the number of events in each arm")
     if _has_countable and not any_key(blks, ("absolute", "risk_difference", "nnt",
                                              "absolute_effect", "control_risk",
