@@ -2,6 +2,10 @@
 
 **Status: RETROSPECTIVELY REGISTERED BY COMMIT. This document is the retrospective registration.**
 
+> **This topic's prospective ordering is spent. See Amendment 1 in section 16.** Its
+> anchor attests a stale commit that declared itself an unanchored draft; the search ran
+> after it. This topic must not be counted as prospectively registered.
+
 This protocol is registered as a commit in a public repository rather than in
 PROSPERO. The commit hash is the strong half of that record: the content is
 immutable under it, so this text cannot be altered later without producing a
@@ -468,7 +472,42 @@ recorded as an amendment rather than by editing this section.
 
 ## 16 - Amendments
 
-None at this registration commit.
+**Amendment 1 - 2026-08-28 - THE PROSPECTIVE ORDERING FOR THIS TOPIC IS SPENT AND
+CANNOT BE RECOVERED.**
+
+This is recorded on the topic itself, not only in a run report, because a defect that
+lives in a report is a defect the next reader of this protocol will not see.
+
+What happened, in order:
+
+1. A background run removed the "UNANCHORED DRAFT" banner from this file and exited
+   **before committing**. The change was left half-applied.
+2. The next run read the working tree, saw no banner, and concluded no commit was
+   needed. It therefore anchored the **stale HEAD** - commit `47a091561`, whose copy of
+   this file still read *"THIS IS AN UNANCHORED DRAFT. IT IS NOT A REGISTRATION."*
+3. Rekor entry **logIndex 2629258934** consequently attests a document whose own text
+   denies being a registration.
+4. The five-source search for this topic then executed as though a registration existed.
+
+**Why it cannot be repaired.** Anchoring the correct bytes now would produce a log time
+later than the search it is meant to precede. The ordering claim depends on two
+independent times bracketing the operation in one direction only; that direction is now
+lost for this topic. Re-anchoring would produce a document that *looks* registered and
+is not, which is worse than the honest record.
+
+**What was deliberately not done.** Rekor `2629258934` has not been deleted, re-pointed,
+or quietly superseded. It stands as the evidence that this occurred.
+
+**Consequence for use.** This topic's search is **retrospective**. It may be reported as
+a search; it may **not** be reported as prospectively registered, and it must not be
+counted in any numerator of prospectively-registered topics.
+
+**How it was caught, since the method generalises.** Not by re-reading the file - I had
+read it and seen nothing wrong. By comparing three hashes: the anchored digest, the
+committed blob, and the working tree. They disagreed, and the disagreement was the
+finding. The guard now on the pipeline refuses to anchor unless the committed blob equals
+the working tree and carries no draft banner, and it sits on the **resume** path, which
+is where the defect actually lived.
 
 Amendments will be recorded as further commits to this file; the full commit
 history, not only its head, is projected onto the review page, because a log that
