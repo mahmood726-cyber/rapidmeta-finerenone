@@ -114,6 +114,23 @@ def main():
             bad.append((path, "%d entries outside KEEP" % len(outside)))
         time.sleep(0.4)
 
+    # A BYTE MATCH ON AN UNCHANGED PAGE PROVES NOTHING. This asserts a string that did not
+    # exist on the live site before today's change, so a stale CDN copy, a cached response,
+    # or a site served from somewhere else all fail it. It also settles the origin question
+    # by construction: only bytes built from this repository can carry this.
+    say("")
+    say("CHANGED-TODAY MARKERS -- a stale or foreign copy cannot carry these")
+    markers = [("index.html", "ready-index-note", "the banner added today"),
+               ("index.html", "Pooled: HR 0.7636", "SGLT2_HF card description, "
+                                                   "rewritten today from its withdrawal text")]
+    for path, needle, what in markers:
+        body, code = fetch(path)
+        present = bool(body) and needle in body
+        say("   %-22s %-22s %s   (%s)" % (path, needle, "PRESENT" if present else "ABSENT",
+                                          what))
+        if not present:
+            bad.append((path, "changed-today marker %r absent from the live bytes" % needle))
+
     # nothing was deleted: pages dropped from the indexes must still serve
     say("")
     say("UNINDEXED PAGES MUST STILL SERVE -- this is the promise to anyone holding a link")
