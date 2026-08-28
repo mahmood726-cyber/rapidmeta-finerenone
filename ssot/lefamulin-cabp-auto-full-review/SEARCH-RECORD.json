@@ -1,0 +1,193 @@
+{
+ "_what_this_is": "The executed search for this topic, written after execution and anchored so its time is fixed by a third party.",
+ "topic": "lefamulin-cabp-auto-full-review",
+ "governing_protocol": "ssot/lefamulin-cabp-auto-full-review/PROTOCOL.md",
+ "registration": {
+  "protocol_commit": "6483f7ead63f68e13dc75cc958cef86d6d3ba817",
+  "protocol_anchor_logIndex": 2630307379,
+  "protocol_anchored_utc": "2026-08-28T22:57:00Z"
+ },
+ "query_text": "Lefamulin moxifloxacin community-acquired bacterial",
+ "databases": [
+  {
+   "source": "pubmed",
+   "url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&retmode=json&retmax=100&term=Lefamulin+moxifloxacin+community-acquired+bacterial",
+   "params": {
+    "db": "pubmed",
+    "retmode": "json",
+    "retmax": 100,
+    "term": "Lefamulin moxifloxacin community-acquired bacterial"
+   },
+   "attempted_utc": "2026-08-28T22:57:01.870Z",
+   "completed_utc": "2026-08-28T22:57:02.076Z",
+   "http_status": 200,
+   "response_bytes": 1153,
+   "n_records": 22,
+   "ids": [
+    "41823576",
+    "40964629",
+    "37039613",
+    "34943700",
+    "34788694",
+    "34425035",
+    "33964925",
+    "33731270",
+    "33528794",
+    "33512346",
+    "33247830",
+    "32834786",
+    "32702892",
+    "32617376",
+    "32493034",
+    "32462049",
+    "32066155",
+    "31599865",
+    "31560372",
+    "30722059",
+    "30513017",
+    "30019769"
+   ],
+   "outcome": "EXECUTED"
+  },
+  {
+   "source": "europepmc",
+   "url": "https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=Lefamulin+moxifloxacin+community-acquired+bacterial&format=json&pageSize=25",
+   "params": {
+    "query": "Lefamulin moxifloxacin community-acquired bacterial",
+    "format": "json",
+    "pageSize": 25
+   },
+   "attempted_utc": "2026-08-28T22:57:02.076Z",
+   "completed_utc": "2026-08-28T22:57:34.705Z",
+   "http_status": 200,
+   "response_bytes": 21800,
+   "n_records": 207,
+   "ids": [
+    "41823576",
+    "41496961",
+    "41594094",
+    "40964629",
+    "42160795",
+    "42353704",
+    "41975132",
+    "41322431",
+    "41760492",
+    "41918849",
+    "41918854",
+    "41918853",
+    "39670749",
+    "41059697",
+    "38693426",
+    "39525637",
+    "41608681",
+    "40071252",
+    "42255843",
+    "41379380",
+    "41983107",
+    "40384760",
+    "41141110",
+    "41620798",
+    "40105039"
+   ],
+   "outcome": "EXECUTED"
+  },
+  {
+   "source": "ctgov",
+   "url": "https://clinicaltrials.gov/api/v2/studies?query.term=Lefamulin+moxifloxacin+community-acquired+bacterial&pageSize=50&countTotal=true",
+   "params": {
+    "query.term": "Lefamulin moxifloxacin community-acquired bacterial",
+    "pageSize": 50,
+    "countTotal": "true"
+   },
+   "attempted_utc": "2026-08-28T22:57:34.707Z",
+   "completed_utc": "2026-08-28T22:57:34.908Z",
+   "http_status": 200,
+   "response_bytes": 118337,
+   "n_records": 2,
+   "ids": [
+    "NCT02813694",
+    "NCT02559310"
+   ],
+   "outcome": "EXECUTED"
+  },
+  {
+   "source": "isrctn",
+   "url": "https://www.isrctn.com/api/query/format/default?q=lefamulin",
+   "params": {
+    "q": "lefamulin"
+   },
+   "attempted_utc": "2026-08-28T22:57:34.911Z",
+   "ictrp_route": "ISRCTN free XML API, used as the programmatic stopgap for ICTRP. The WHO ICTRP bulk-crawling service is unavailable; the WHO portal itself was NOT searched by this query.",
+   "completed_utc": "2026-08-28T22:57:35.014Z",
+   "http_status": 200,
+   "response_bytes": 77,
+   "n_records": 0,
+   "ids": [],
+   "outcome": "EMPTY",
+   "WHY_EMPTY_IS_A_RESULT": "HTTP 200 and a readable count of zero. The server answered and the literature is what is empty. This is a finding; a FAILED is not."
+  },
+  {
+   "source": "guideline_bodies",
+   "attempted_utc": "2026-08-28T22:57:35.014Z",
+   "registry_used_to_enumerate": {
+    "registry": "Guidelines International Network (GIN)",
+    "endpoint": "https://g-i-n.net/wp-json/wp/v2/organisation",
+    "x_wp_total": 136,
+    "retrieved_utc": "2026-08-28T10:32:09Z",
+    "records_bulk_modified_gmt": "2026-08-27T11:45:02..03"
+   },
+   "AN_INDEX_IS_NOT_A_SOURCE": "GIN enumerates WHO the bodies are and carries no external URL on any of its 136 records, so it cannot itself be queried for guidance.",
+   "queried": [
+    {
+     "body": "FDA (openFDA drug label API)",
+     "http": 200,
+     "n_records": 2,
+     "outcome": "EXECUTED"
+    }
+   ],
+   "unreachable": [
+    {
+     "body": "WHO IRIS",
+     "obstacle": "HTTP 403 on its REST search endpoint"
+    },
+    {
+     "body": "NICE",
+     "obstacle": "HTTP 401 -- syndication API requires a key"
+    },
+    {
+     "body": "TRIP",
+     "obstacle": "HTTP 200 but a Cloudflare challenge page; the query term appears zero times. A 200 is not a result."
+    },
+    {
+     "body": "Epistemonikos",
+     "obstacle": "HTTP 405 on the documented API path; site search is HTML only"
+    }
+   ],
+   "coverage_fraction": {
+    "registry_lists": 136,
+    "queried": 1,
+    "unreachable_named": 4,
+    "not_yet_resolved_to_an_endpoint": 131,
+    "STATEMENT": "Of the 136 bodies GIN lists, 1 were queried, 4 were reached and refused or blocked by a named obstacle, and 131 have not been resolved to a queryable endpoint at all. This is a coverage fraction, not a checkmark, and 'all guideline bodies' is NOT a claim this supports."
+   }
+  }
+ ],
+ "three_counts": {
+  "EXECUTED": 4,
+  "EMPTY": 1,
+  "FAILED": 0
+ },
+ "ordering": {
+  "protocol_anchored_utc": "2026-08-28T22:57:00Z",
+  "first_query_attempted_utc": "2026-08-28T22:57:01.870Z",
+  "holds": true
+ },
+ "what_this_record_does_not_establish": [
+  "It does not establish that the search was COMPLETE. It records which sources were queried and what each returned, nothing wider.",
+  "It does not establish that guideline evidence was covered. Source 5 reports a fraction against the GIN denominator and most bodies remain unresolved.",
+  "The ICTRP leg is served by ISRCTN, which is a ROUTE to some ICTRP-registered trials and is not ICTRP. It is recorded under its own name for that reason.",
+  "A git commit timestamp is author-supplied and forgeable. Only the two transparency-log times are independent of us."
+ ],
+ "executed_by": "run_topic.py",
+ "written_utc": "2026-08-28T22:57:36.642Z"
+}
