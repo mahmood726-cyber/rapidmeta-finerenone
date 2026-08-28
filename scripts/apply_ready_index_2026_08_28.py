@@ -47,6 +47,8 @@ REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(REPO, "outputs", "index_apply_2026_08_28.json")
 
 SITE = "https://mahmood726-cyber.github.io/rapidmeta-finerenone/"
+REFUSAL_FIELDS = ("withdrawn_reason", "withdrawn_note", "not_poolable_reason",
+                  "absent_reason")
 BANNER_ID = "ready-index-note"
 BANNER = (
     '<div id="' + BANNER_ID + '" style="margin:0 0 1.2rem;padding:.85rem 1.1rem;'
@@ -89,18 +91,32 @@ def html_entries(body, reviews):
     return hit & reviews
 
 
+def as_page(v, reviews):
+    """Normalise either key format to the page name, or None."""
+    if not isinstance(v, str):
+        return None
+    if v in reviews:
+        return v
+    if (v + ".html") in reviews:
+        return v + ".html"
+    return None
+
+
 def json_entries(x, reviews, acc=None):
     acc = set() if acc is None else acc
     if isinstance(x, dict):
         for k, v in x.items():
-            if isinstance(k, str) and k in reviews:
-                acc.add(k)
+            p = as_page(k, reviews)
+            if p:
+                acc.add(p)
             json_entries(v, reviews, acc)
     elif isinstance(x, list):
         for v in x:
             json_entries(v, reviews, acc)
-    elif isinstance(x, str) and x in reviews:
-        acc.add(x)
+    else:
+        p = as_page(x, reviews)
+        if p:
+            acc.add(p)
     return acc
 
 
@@ -171,14 +187,35 @@ def strip_json(rel, keep, reviews, log):
     removed = [0]
 
     def dead(v):
-        return isinstance(v, str) and v in reviews and v not in keep
+        """A page name, in EITHER format. index_indicators.json keys its cards WITHOUT the
+        .html extension -- BALANCED_CRYSTALLOIDS_ICU_REVIEW -- so a test that only knows
+        'NAME.html' matched none of its 532 keys, left every one in place, and then reported
+        '20 entries, 0 outside KEEP' because the verifier could not see them either."""
+        if not isinstance(v, str):
+            return False
+        if v in reviews:
+            return v not in keep
+        if (v + ".html") in reviews:
+            return (v + ".html") not in keep
+        return False
 
     def clean(x):
         if isinstance(x, dict):
             if any(dead(v) for v in x.values()):
                 removed[0] += 1
                 return None
-            return dict((k, clean(v)) for k, v in x.items() if not dead(k))
+            out = {}
+            for k, v in x.items():
+                if dead(k):
+                    removed[0] += 1
+                    continue
+                cv = clean(v)
+                # drop the key outright; nulling it leaves 506 dead keys behind and makes
+                # the client do a lookup that can return null
+                if cv is None and isinstance(v, (dict, list)):
+                    continue
+                out[k] = cv
+            return out
         if isinstance(x, list):
             out = []
             for v in x:
@@ -197,27 +234,83 @@ def strip_json(rel, keep, reviews, log):
                 "after": len(json_entries(d2, reviews)), "removed": removed[0]})
 
 
+def result_line(page, pm):
+    """The card's description: the RESULT, never the provenance narrative.
+
+    THIS IS WHAT MAHMOOD IS ACTUALLY LOOKING AT. The index cards drew their description from
+    the withdrawal reasoning, so card after card opened "Estimate withdrawn -- the trials do
+    not share one endpoint...". The most prominent sentence on every card was our explanation
+    for NOT having an answer, which is why the site reads as a wall of withdrawals. Filtering
+    to the READY set does not fix that on its own: SGLT2_HF and CANGRELOR_PCI are both READY
+    -- each has a live pooled outcome -- and BOTH still led with a withdrawal sentence for a
+    DIFFERENT outcome on the same page.
+
+    SOTAGLIFLOZIN already did the right thing -- "Pooled: HR 0.7171 (0.6246 to 0.8234), k=2"
+    -- so this extends that pattern rather than inventing one.
+    """
+    obj = json.load(io.open(os.path.join(REPO, pm[page]), encoding="utf-8"))
+    by = (obj.get("results") or {}).get("by_outcome") or {}
+    best = None
+    for oid, blk in by.items():
+        if not isinstance(blk, dict):
+            continue
+        pooled = blk.get("pooled") or {}
+        if pooled.get("point") is None or not (blk.get("per_trial") or []):
+            continue
+        if any(blk.get(f) for f in REFUSAL_FIELDS):
+            continue
+        meas = pooled.get("measure") or "estimate"
+        lo, hi, k = pooled.get("ci_low"), pooled.get("ci_high"), blk.get("k")
+        if lo is not None and hi is not None:
+            best = "Pooled: %s %.4g (%.4g to %.4g), k=%s" % (meas, pooled["point"], lo, hi, k)
+        else:
+            best = "Pooled: %s %.4g, k=%s" % (meas, pooled["point"], k)
+        break
+    # A page in KEEP has a live pooled outcome by construction -- leg 2 required it. If this
+    # cannot find one, the keep list and this function disagree and that must be visible.
+    return best
+
+
+def retitle_cards(keep, reviews, pm, log):
+    """Rewrite the description of every KEEP card to its result."""
+    fp = os.path.join(REPO, "index.html")
+    original = read_text(fp)
+    body = original
+    changed, unresolved = [0], []
+
+    def fix(m):
+        page, inner = m.group(1), m.group(0)
+        if page not in keep:
+            return inner
+        line = result_line(page, pm)
+        if not line:
+            unresolved.append(page)
+            return inner
+        new_inner, n = re.subn(r'(<span class="pub">)(.*?)(</span>)',
+                               lambda mm: mm.group(1) + esc(line) + mm.group(3),
+                               inner, count=1, flags=re.S)
+        sys.stderr.write("DBG %s n=%s diff=%s%s" % (page[:26], n, new_inner != inner,
+                                                    chr(10)))
+        if n and new_inner != inner:
+            changed[0] += 1
+            return new_inner
+        return inner
+
+    body = re.sub(r'<a\s[^>]*href="([A-Za-z0-9_.\-]+\.html)"[^>]*class="card[^"]*"[^>]*>'
+                  r'.*?</a>', fix, body, flags=re.S | re.I)
+    write_if_changed(fp, body, original)
+    log.append({"surface": "index.html (card text)", "kind": "retitle",
+                "before": None, "after": changed[0], "removed": 0})
+    return changed[0], unresolved
+
+
 def card_for(page, pm):
     """Title and a one-line result, both read from the store object."""
     obj = json.load(io.open(os.path.join(REPO, pm[page]), encoding="utf-8"))
     title = short_title((obj.get("title") or obj.get("topic")
                          or page.replace("_", " ")).strip())
     by = (obj.get("results") or {}).get("by_outcome") or {}
-    sub = "Pooled result with per-trial evidence"
-    for oid, blk in by.items():
-        if not isinstance(blk, dict):
-            continue
-        p = blk.get("pooled") or {}
-        if p.get("point") is None or not (blk.get("per_trial") or []):
-            continue
-        meas = p.get("measure") or "estimate"
-        lo, hi = p.get("ci_low"), p.get("ci_high")
-        k = blk.get("k")
-        if lo is not None and hi is not None:
-            sub = "Pooled: %s %.3g (%.3g to %.3g), k=%s" % (meas, p["point"], lo, hi, k)
-        else:
-            sub = "Pooled: %s %.3g, k=%s" % (meas, p["point"], k)
-        break
+    sub = result_line(page, pm) or "Pooled result with per-trial evidence"
     return CARD % {"page": page, "title": esc(title[:120]), "sub": esc(sub)}
 
 
@@ -315,6 +408,12 @@ def main():
             strip_html(rel, keep, reviews, log)
     add_to_index(keep, reviews, pm, log)
     add_to_sitemap(keep, reviews, log)
+    n_retitled, unresolved = retitle_cards(keep, reviews, pm, log)
+    say("card descriptions rewritten to their RESULT: %d" % n_retitled)
+    if unresolved:
+        say("REFUSED to invent a description for %d card(s): %s"
+            % (len(unresolved), ", ".join(unresolved[:5])))
+    say("")
 
     say("%-40s %8s %8s %9s" % ("surface AFTER", "before", "after", "removed"))
     for e in log:

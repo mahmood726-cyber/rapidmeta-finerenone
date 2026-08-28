@@ -15,7 +15,8 @@ FOUR POSITIVE PROPERTIES, ALL REQUIRED, each read from source at the moment of u
     1. the page has a store object in PAGE_MAP, and that file opens
     2. some outcome carries pooled.point that is not None AND per_trial rows behind it
     3. the object does not carry a refusal or withdrawal on that outcome
-    4. the served page carries the CURRENT generator stamp
+    4. the stamped build CONTAINS every required generator commit as an ancestor --
+       not merely that a stamp is present, which is what the first version checked
 
 Property 2 is stated as "a number AND evidence behind it" on purpose. This project has
 conflated "has a point" with "has a pool" before, and a point with no per-trial rows is the
@@ -49,6 +50,10 @@ EXCLUDED_SUBSTRINGS = {
     "GEPOTIDACIN":
         "three open findings and unverified trial labels -- held out deliberately, not a "
         "failure to qualify",
+    "HFREF_NMA":
+        "publishes an omnibus RR 0.86 averaging fifteen different comparisons, with an NNT, "
+        "a ranking, a patient-facing summary and integrity 100/100 over placeholder RoB. "
+        "The arithmetic is right and the quantity has no estimand -- held out by name",
 }
 
 
@@ -65,6 +70,27 @@ REFUSAL = ("withdrawn_reason", "withdrawn_note", "not_poolable_reason", "absent_
 def current_stamp():
     return subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True,
                           cwd=REPO).stdout.decode().strip()
+
+
+def missing_ancestors(stamp):
+    """Which REQUIRED generator commits the stamped build does NOT contain.
+
+    LEG 4 WAS A STRING CHECK AND THAT IS NOT THE PROPERTY. The first version of this file
+    accepted any page carrying `Generator build</th><td><code>...`, which is a claim that a
+    stamp EXISTS, not a claim that the code which built the page contains the fixes we
+    require. ARNI_HF_REVIEW passed it while stamped fa7ef6686 -- a commit that contains NONE
+    of the seven required generator commits. A stamp naming the wrong commit passes a string
+    check and fails the property the check exists to establish.
+    """
+    sys.path.insert(0, os.path.join(REPO, "ssot"))
+    import do_not_rebuild
+    out = []
+    for sha in sorted(do_not_rebuild.REQUIRED_GENERATOR_COMMITS):
+        r = subprocess.run(["git", "merge-base", "--is-ancestor", sha, stamp],
+                           capture_output=True, cwd=REPO)
+        if r.returncode != 0:
+            out.append(sha)
+    return out
 
 
 def outcome_is_live(blk):
@@ -113,7 +139,7 @@ def main():
     say("pages in PAGE_MAP: %d" % len(pm))
     say("")
 
-    keep, rejected, excluded = [], [], []
+    keep, rejected, excluded, excluded_not_in_pagemap = [], [], [], []
     for page, rel in sorted(pm.items()):
         why_excl = excluded_reason(page)
         if why_excl:
@@ -143,15 +169,30 @@ def main():
         if not m:
             rejected.append((page, "4. no generator stamp on the served page"))
             continue
+        missing = missing_ancestors(m.group(1))
+        if missing:
+            rejected.append((page, "4. stamp %s is missing %d required generator commit(s): "
+                                   "%s" % (m.group(1), len(missing),
+                                           ",".join(x[:9] for x in missing))))
+            continue
         keep.append({"page": page, "object": rel, "outcomes": live,
                      "stamp": m.group(1), "title": title_of(body) or page})
 
     # A by-name exclusion that matches nothing is a no-op wearing the clothes of a decision.
+    # It is checked against pages that EXIST ON DISK, not against PAGE_MAP: a page can be
+    # ineligible for two independent reasons at once, and a page held out by name for a
+    # safety reason must still be named even when it also lacks a store object. HFREF_NMA
+    # is exactly that case -- it has no store, so it could never reach KEEP, and it is
+    # still recorded as deliberately excluded so nobody reads its absence as an oversight.
+    on_disk = set(p.upper() for p in os.listdir(REPO) if p.endswith(".html"))
     for frag in EXCLUDED_SUBSTRINGS:
-        if not any(frag in p.upper() for p in excluded):
-            say("REFUSED: the exclusion %r matched NO page in PAGE_MAP. Either the page is "
-                "gone or the name is wrong; both need a person." % frag)
+        hits = [p for p in on_disk if frag in p]
+        if not hits:
+            say("REFUSED: the exclusion %r matched NO page on disk. Either the page is gone "
+                "or the name is wrong; both need a person." % frag)
             return 2
+        if not any(frag in p.upper() for p in excluded):
+            excluded_not_in_pagemap.append((frag, sorted(hits)[0]))
 
     say("KEEP  %d" % len(keep))
     say("held  %d" % len(rejected))
@@ -162,11 +203,20 @@ def main():
     for page, why in rejected:
         if why.startswith("EXCLUDED BY NAME"):
             say("  EXCLUDED  %-44s %s" % (page[:44], why[18:]))
+    for frag, page in excluded_not_in_pagemap:
+        say("  EXCLUDED  %-44s by name AND has no store object -- ineligible twice"
+            % page[:44])
+    say("")
+    say("LEG 4 REJECTIONS (stamp does not contain the required generator commits)")
+    for page, why in rejected:
+        if why.startswith("4. stamp"):
+            say("  %-46s %s" % (page[:46], why[3:]))
 
     io.open(KEEP, "w", encoding="utf-8").write(
         "".join(k["page"] + chr(10) for k in keep))
     json.dump({"head": head, "keep": keep, "n_keep": len(keep),
                "excluded_by_name": {p: excluded_reason(p) for p in excluded},
+               "excluded_by_name_no_store": dict(excluded_not_in_pagemap),
                "held": [{"page": p, "why": w} for p, w in rejected],
                "selector": "POSITIVE keep-list: store object + pooled.point with per_trial "
                            "rows + no refusal + a generator stamp on the served page"},
