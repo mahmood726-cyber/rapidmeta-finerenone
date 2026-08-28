@@ -1,0 +1,147 @@
+{
+ "_what_this_is": "The executed search for this topic, written after execution and anchored so its time is fixed by a third party.",
+ "topic": "bococizumab-lipid-review",
+ "governing_protocol": "ssot/bococizumab-lipid-review/PROTOCOL.md",
+ "registration": {
+  "protocol_commit": "ff7a3aaa284a0cf61d93b9a3073cb0f6a1e224e7",
+  "protocol_anchor_logIndex": 2630246675,
+  "protocol_anchored_utc": "2026-08-28T22:50:47Z"
+ },
+ "query_text": "Bococizumab cholesterol measure corrected",
+ "databases": [
+  {
+   "source": "pubmed",
+   "url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&retmode=json&retmax=100&term=Bococizumab+cholesterol+measure+corrected",
+   "params": {
+    "db": "pubmed",
+    "retmode": "json",
+    "retmax": 100,
+    "term": "Bococizumab cholesterol measure corrected"
+   },
+   "attempted_utc": "2026-08-28T22:50:48.785Z",
+   "completed_utc": "2026-08-28T22:50:49.002Z",
+   "http_status": 200,
+   "response_bytes": 2934,
+   "n_records": 0,
+   "ids": [],
+   "outcome": "EMPTY",
+   "WHY_EMPTY_IS_A_RESULT": "HTTP 200 and a readable count of zero. The server answered and the literature is what is empty. This is a finding; a FAILED is not."
+  },
+  {
+   "source": "europepmc",
+   "url": "https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=Bococizumab+cholesterol+measure+corrected&format=json&pageSize=25",
+   "params": {
+    "query": "Bococizumab cholesterol measure corrected",
+    "format": "json",
+    "pageSize": 25
+   },
+   "attempted_utc": "2026-08-28T22:50:49.002Z",
+   "completed_utc": "2026-08-28T22:51:21.661Z",
+   "http_status": 200,
+   "response_bytes": 17,
+   "outcome": "FAILED",
+   "n_records": null,
+   "ids": [],
+   "failure": "MALFORMED 200: the count field this source uses was not present or not readable. NOT coerced to zero."
+  },
+  {
+   "source": "ctgov",
+   "url": "https://clinicaltrials.gov/api/v2/studies?query.term=Bococizumab+cholesterol+measure+corrected&pageSize=50&countTotal=true",
+   "params": {
+    "query.term": "Bococizumab cholesterol measure corrected",
+    "pageSize": 50,
+    "countTotal": "true"
+   },
+   "attempted_utc": "2026-08-28T22:51:21.661Z",
+   "completed_utc": "2026-08-28T22:51:22.097Z",
+   "http_status": 200,
+   "response_bytes": 348775,
+   "n_records": 3,
+   "ids": [
+    "NCT01342211",
+    "NCT01435382",
+    "NCT01350141"
+   ],
+   "outcome": "EXECUTED"
+  },
+  {
+   "source": "isrctn",
+   "url": "https://www.isrctn.com/api/query/format/default?q=bococizumab",
+   "params": {
+    "q": "bococizumab"
+   },
+   "attempted_utc": "2026-08-28T22:51:22.111Z",
+   "ictrp_route": "ISRCTN free XML API, used as the programmatic stopgap for ICTRP. The WHO ICTRP bulk-crawling service is unavailable; the WHO portal itself was NOT searched by this query.",
+   "completed_utc": "2026-08-28T22:51:22.203Z",
+   "http_status": 200,
+   "response_bytes": 77,
+   "n_records": 0,
+   "ids": [],
+   "outcome": "EMPTY",
+   "WHY_EMPTY_IS_A_RESULT": "HTTP 200 and a readable count of zero. The server answered and the literature is what is empty. This is a finding; a FAILED is not."
+  },
+  {
+   "source": "guideline_bodies",
+   "attempted_utc": "2026-08-28T22:51:22.204Z",
+   "registry_used_to_enumerate": {
+    "registry": "Guidelines International Network (GIN)",
+    "endpoint": "https://g-i-n.net/wp-json/wp/v2/organisation",
+    "x_wp_total": 136,
+    "retrieved_utc": "2026-08-28T10:32:09Z",
+    "records_bulk_modified_gmt": "2026-08-27T11:45:02..03"
+   },
+   "AN_INDEX_IS_NOT_A_SOURCE": "GIN enumerates WHO the bodies are and carries no external URL on any of its 136 records, so it cannot itself be queried for guidance.",
+   "queried": [
+    {
+     "body": "FDA (openFDA)",
+     "http": 404,
+     "n_records": null,
+     "outcome": "FAILED"
+    }
+   ],
+   "unreachable": [
+    {
+     "body": "WHO IRIS",
+     "obstacle": "HTTP 403 on its REST search endpoint"
+    },
+    {
+     "body": "NICE",
+     "obstacle": "HTTP 401 -- syndication API requires a key"
+    },
+    {
+     "body": "TRIP",
+     "obstacle": "HTTP 200 but a Cloudflare challenge page; the query term appears zero times. A 200 is not a result."
+    },
+    {
+     "body": "Epistemonikos",
+     "obstacle": "HTTP 405 on the documented API path; site search is HTML only"
+    }
+   ],
+   "coverage_fraction": {
+    "registry_lists": 136,
+    "queried": 1,
+    "unreachable_named": 4,
+    "not_yet_resolved_to_an_endpoint": 131,
+    "STATEMENT": "Of the 136 bodies GIN lists, 1 were queried, 4 were reached and refused or blocked by a named obstacle, and 131 have not been resolved to a queryable endpoint at all. This is a coverage fraction, not a checkmark, and 'all guideline bodies' is NOT a claim this supports."
+   }
+  }
+ ],
+ "three_counts": {
+  "EXECUTED": 1,
+  "EMPTY": 2,
+  "FAILED": 2
+ },
+ "ordering": {
+  "protocol_anchored_utc": "2026-08-28T22:50:47Z",
+  "first_query_attempted_utc": "2026-08-28T22:50:48.785Z",
+  "holds": true
+ },
+ "what_this_record_does_not_establish": [
+  "It does not establish that the search was COMPLETE. It records which sources were queried and what each returned, nothing wider.",
+  "It does not establish that guideline evidence was covered. Source 5 reports a fraction against the GIN denominator and most bodies remain unresolved.",
+  "The ICTRP leg is served by ISRCTN, which is a ROUTE to some ICTRP-registered trials and is not ICTRP. It is recorded under its own name for that reason.",
+  "A git commit timestamp is author-supplied and forgeable. Only the two transparency-log times are independent of us."
+ ],
+ "executed_by": "run_topic.py",
+ "written_utc": "2026-08-28T22:51:23.620Z"
+}
