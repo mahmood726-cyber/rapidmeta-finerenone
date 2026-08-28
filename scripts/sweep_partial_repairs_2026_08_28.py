@@ -35,6 +35,8 @@ import re
 import sys
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(REPO, "ssot"))
+from paper_projector import _as_posted_pairs        # noqa: E402  one parser, both callers
 OUT = os.path.join(REPO, "outputs", "partial_repairs_2026_08_28.json")
 TOL = 1.0
 MARKER = re.compile(r"RECOVERED|REPAIRED|CORRECTED|repaired_|corrected_|_repair")
@@ -52,7 +54,13 @@ def compare(trial, ap):
     # sweep report "0 divergences" off a reach of 2 -- the same reach-for-coverage error
     # this project keeps making.
     if not arms:
-        if ap.get("intervention_n") is not None or ap.get("comparator_n") is not None:
+        # ONE FUNCTION, BOTH CALLERS. This asked `ap.get("intervention_n")` directly and so
+        # recognised two of the EIGHT as_posted schemas in this corpus: the six arm-named
+        # variants (ceftaroline_, dapivirine_ring_, cabotegravir_, cangrelor_, iv_iron_,
+        # nirsevimab_) fell through to "neither copy carries arms" and the recoverable
+        # population read 4 when it is 13. The renderer handled all eight; the sweep handled
+        # two. Both now route through the same parser, so they cannot disagree again.
+        if _as_posted_pairs(ap):
             return ("ONLY ONE COPY EXISTS",
                     "as_posted carries counts and inputs.trials[].arms is empty")
         return "NOT COMPARABLE", "neither copy carries arms"
@@ -172,11 +180,12 @@ def main():
                    "why_it_matters": "Different scopes and different denominators. Both are "
                                      "true. Averaging or summing them produces a number that "
                                      "describes neither, and the two 2s are not the same 2."},
-               "schemas_this_sweep_handles": "as_posted appears in at least THREE shapes -- "
-                                             "intervention/comparator with percentages, "
-                                             "experimental/comparator with events, and keys "
-                                             "named after the arm. A comparator written "
-                                             "against one encodes that one.",
+               "schemas": "as_posted appears in EIGHT shapes across 19 populated "
+                          "records: intervention/comparator with percentages, "
+                          "experimental/comparator with events, and SIX arm-named variants "
+                          "(ceftaroline_, dapivirine_ring_, cabotegravir_, cangrelor_, "
+                          "iv_iron_, nirsevimab_). Enumerated, not met: the first report of "
+                          "this said THREE, which was the number this lane had encountered.",
                "for_the_gates_lane": "any arm-role baseline taken before 2026-08-28 may encode "
                                      "an unrepaired label -- four hepatitis-b entries were "
                                      "baselined as live defects and were artefacts of exactly "
