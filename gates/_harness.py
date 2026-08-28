@@ -280,39 +280,56 @@ def append_only(path, lines):
 
 
 def assert_append_only_intact(gate, repo=None):
-    """A shared append-only artefact must never be smaller than its committed version.
+    """A shared append-only artefact must never hold FEWER RECORDS than its committed version.
 
-    Compares bytes AND lines against HEAD. Cheap, mechanical, and it would have caught the
-    truncation the moment it happened rather than at `git add` time.
+    LINES ARE THE CONTRACT; BYTES ARE ONLY A SIGNAL. The first version compared raw bytes and
+    immediately false-positived on this very file: normalising CRLF to LF removed 24 bytes
+    while the record count stayed at 27, and the gate reported "an append-only artefact
+    shrank, which means a routine `>` destroyed another lane's records". That is a false
+    accusation, and it ran in the direction of ACCUSING THE SUBJECT -- the dangerous
+    direction, because a check that is wrong toward "you broke something" reads as the check
+    working.
+
+    So: the record count must never fall, and bytes are compared only after normalising line
+    endings on BOTH sides, where a drop is a NOTE rather than a finding.
     """
     import subprocess
+    crlf = (chr(13) + chr(10)).encode()
+    lf = chr(10).encode()
     repo = repo or repo_root()
     for rel in APPEND_ONLY:
         full = os.path.join(repo, rel)
         if not os.path.exists(full):
             gate.note("append-only artefact %s is absent; nothing to compare." % rel)
             continue
-        now_bytes = os.path.getsize(full)
-        with open(full, "r", encoding="utf-8", errors="replace") as fh:
-            now_lines = sum(1 for _ in fh)
+        with open(full, "rb") as fh:
+            now_norm = fh.read().replace(crlf, lf)
+        now_lines = len([x for x in now_norm.split(lf) if x.strip()])
         try:
-            head = subprocess.run(["git", "show", "HEAD:" + rel], cwd=repo,
-                                  capture_output=True, check=True).stdout
+            head_raw = subprocess.run(["git", "show", "HEAD:" + rel], cwd=repo,
+                                      capture_output=True, check=True).stdout
         except Exception:
             gate.note("%s is not in HEAD yet; no baseline to compare." % rel)
             continue
-        head_bytes = len(head)
-        head_lines = head.decode("utf-8", "replace").count(chr(10))
-        if now_bytes < head_bytes or now_lines < head_lines:
-            gate.finding("SHARED-ARTEFACT-SHRANK",
-                         "%s is %d bytes / %d lines against %d / %d at HEAD. An append-only "
-                         "artefact shrank, which means a routine `>` destroyed another lane's "
-                         "records. Recover with: git show HEAD:%s"
-                         % (rel, now_bytes, now_lines, head_bytes, head_lines, rel),
+        head_norm = head_raw.replace(crlf, lf)
+        head_lines = len([x for x in head_norm.split(lf) if x.strip()])
+
+        if now_lines < head_lines:
+            gate.finding("SHARED-ARTEFACT-LOST-RECORDS",
+                         "%s holds %d records against %d at HEAD. An append-only artefact "
+                         "lost records, which means a routine `>` destroyed another lane's "
+                         "work. Recover with: git show HEAD:%s"
+                         % (rel, now_lines, head_lines, rel),
                          numerator=now_lines, denominator=head_lines)
+        elif len(now_norm) < len(head_norm):
+            gate.note("append-only %s: %d records (HEAD %d) -- record count intact, but %d "
+                      "fewer bytes after newline normalisation. Content was rewritten, not "
+                      "lost; read the diff."
+                      % (rel, now_lines, head_lines, len(head_norm) - len(now_norm)))
         else:
-            gate.note("append-only intact: %s %d lines (HEAD %d), %d bytes (HEAD %d)"
-                      % (rel, now_lines, head_lines, now_bytes, head_bytes))
+            gate.note("append-only intact: %s %d records (HEAD %d), %d bytes normalised "
+                      "(HEAD %d)" % (rel, now_lines, head_lines, len(now_norm),
+                                     len(head_norm)))
 
 
 def ratchet(gate, name, keys, what, escalated=None):
