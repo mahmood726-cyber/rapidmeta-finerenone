@@ -310,16 +310,65 @@ def paper_studio(canon, res, p):
               % (NL, NL, NL, NL, chips, NL, NL, NL))
 
 
+
+# t_{k-1, .975} against the normal quantile. A prediction interval's width is
+# t * sqrt(tau2 + se^2); when t is much larger than z, almost all of that width
+# is the SMALL-SAMPLE CORRECTION rather than the estimated heterogeneity, and
+# the interval stops describing where a future study would land.
+_T_CRIT = {2: 12.70620, 3: 4.302653, 4: 3.182446, 5: 2.776445, 6: 2.570582,
+           7: 2.446912, 8: 2.364624, 9: 2.306004, 10: 2.262157}
+_Z_CRIT = 1.959963985
+
+
+def _pi_is_informative(k):
+    """Show a prediction interval only where the data, not t, sets its width.
+
+    THE THRESHOLD IS DERIVED, NOT CHOSEN. Show when t_{k-1} < 2z:
+
+        k = 2   t = 12.706   6.48x z   the interval is the critical value
+        k = 3   t =  4.303   2.20x z   still dominated by it
+        k = 4   t =  3.182   1.62x z   data-dominated  <- first k that qualifies
+        k = 10  t =  2.262   1.15x z
+
+    Correcting the arithmetic of a k=2 interval is not enough. sglt2-hf's
+    corrected interval runs 0.358 to 1.715 -- honest, and close to
+    uninformative. Derive-or-refuse applies to what the interval is FOR, not
+    only to how it was computed.
+    """
+    if not isinstance(k, int) or k < 2:
+        return False, ("no prediction interval is shown: one is undefined below two "
+                       "studies.")
+    t = _T_CRIT.get(k)
+    if t is None:
+        return (True, "") if k > 10 else (False, "")
+    if t < 2 * _Z_CRIT:
+        return True, ""
+    return False, ("No prediction interval is shown for this pool. At k = %d the "
+                   "t critical value is %.3f against a normal quantile of %.3f, so "
+                   "%.1f times the interval's width would be the small-sample "
+                   "correction rather than the estimated heterogeneity -- it would "
+                   "describe the critical value, not where a future study is likely "
+                   "to fall. An interval is shown from k = 4, where that factor "
+                   "drops below two." % (k, t, _Z_CRIT, t / _Z_CRIT))
+
 def statistics_tables(res, p):
     pan = res.get("panels") or {}
     cp = res.get("count_panels") or {}
     out, rows = "", ""
     pr = pan.get("prediction")
     if pr:
-        rows += ("    <tr><th>Prediction interval</th><td class='num'>%s to %s</td>"
-                 "<td><small>%s</small></td></tr>%s"
-                 % (pj.fmt(pr["pi_low"]), pj.fmt(pr["pi_high"]),
-                    p(pr.get("convention", "")), NL))
+        _k = res.get("k")
+        if _k is None:
+            _k = len([r for r in (res.get("per_trial") or []) if isinstance(r, dict)])
+        _ok, _why = _pi_is_informative(_k)
+        if _ok:
+            rows += ("    <tr><th>Prediction interval</th><td class='num'>%s to %s</td>"
+                     "<td><small>%s</small></td></tr>%s"
+                     % (pj.fmt(pr["pi_low"]), pj.fmt(pr["pi_high"]),
+                        p(pr.get("convention", "")), NL))
+        else:
+            rows += ("    <tr><th>Prediction interval</th><td class='num'>not shown</td>"
+                     "<td><small>%s</small></td></tr>%s" % (p(_why), NL))
     tc = pan.get("tau2_ci")
     if tc:
         rows += ("    <tr><th>Between-study variance</th><td class='num'>%s (%s to "

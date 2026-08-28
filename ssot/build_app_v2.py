@@ -39,6 +39,56 @@ _SCALE_WORDS = {"log": "log", "natural": "natural", "linear": "linear", "none": 
 _RATIO_MEASURES = {"HR", "OR", "RR", "IRR", "SHR", "SMR"}
 
 
+
+_PI_T = {2: 12.70620, 3: 4.302653, 4: 3.182446, 5: 2.776445, 6: 2.570582,
+         7: 2.446912, 8: 2.364624, 9: 2.306004, 10: 2.262157}
+_PI_Z = 1.959963985
+
+
+def _pi_informative(k):
+    """(show?, reason). THE THRESHOLD IS DERIVED: show when t_{k-1} < 2z.
+
+        k=2  t=12.706  6.48x z   the interval IS the critical value
+        k=3  t= 4.303  2.20x z   still dominated by it
+        k=4  t= 3.182  1.62x z   data-dominated  <- first k that qualifies
+
+    Correcting a k=2 interval's arithmetic is not enough. sglt2-hf corrected to
+    0.358-1.715: honest, and close to uninformative. Derive-or-refuse applies to
+    what the interval is FOR, not only to how it was computed.
+    """
+    if not isinstance(k, int) or k < 2:
+        return False, ("No prediction interval is shown: one is undefined below two "
+                       "studies.")
+    t = _PI_T.get(k)
+    if t is None:
+        return (True, "") if k > 10 else (False, "")
+    if t < 2 * _PI_Z:
+        return True, ""
+    return False, ("No prediction interval is shown for this pool. At k = %d the t "
+                   "critical value is %.3f against a normal quantile of %.3f, so %.1f "
+                   "times the interval's width would be the small-sample correction "
+                   "rather than the estimated heterogeneity -- it would describe the "
+                   "critical value rather than where a future study is likely to fall. "
+                   "An interval is shown from k = 4, where that factor drops below two."
+                   % (k, t, _PI_Z, t / _PI_Z))
+
+
+def _pi_block(res, fmt, p, NL):
+    """The prediction-interval row, shown or refused with its reason."""
+    pi = res.get("prediction_interval") or {}
+    k = res.get("k")
+    if not isinstance(k, int):
+        k = len([r for r in (res.get("per_trial") or []) if isinstance(r, dict)])
+    ok, why = _pi_informative(k)
+    if not ok:
+        return ("  <p class='num'>Prediction interval not shown</p>" + NL
+                + "  <p><small>" + p(why) + "</small></p>" + NL)
+    out = ("  <p class='num'>Prediction interval " + fmt(pi["low"]) + " to "
+           + fmt(pi["high"]) + "</p>" + NL)
+    if pi.get("what_it_says"):
+        out += "  <p><small>" + p(pi["what_it_says"]) + "</small></p>" + NL
+    return out
+
 def _esc(x):
     """Same semantics as the nested `e` at line ~436, which is not in scope here."""
     return html.escape("—" if x is None else str(x))
@@ -1079,12 +1129,12 @@ def _outcome_section(canon, oid, p, e):
             # "what would a new trial show", which here is three times wider. It
             # was held in the object and rendered nowhere, so the only interval
             # on the headline card was the one that understates the spread.
-            + ((f"  <p class='num'>Prediction interval "
-                f"{fmt(res['prediction_interval']['low'])} to "
-                f"{fmt(res['prediction_interval']['high'])}</p>" + NL
-                + ((f"  <p><small>{p(res['prediction_interval']['what_it_says'])}"
-                    f"</small></p>" + NL)
-                   if res["prediction_interval"].get("what_it_says") else ""))
+            # AND IT IS SHOWN ONLY WHERE IT INFORMS -- see _pi_informative.
+            # At k = 2, t = 12.706 against z = 1.960, so the interval describes
+            # the critical value rather than the data. The refusal states the
+            # threshold so a reader can check it, and the same pool crosses back
+            # to shown as it grows.
+            + (_pi_block(res, fmt, p, NL)
                if isinstance(res.get("prediction_interval"), dict)
                and res["prediction_interval"].get("low") is not None else "")
             # AND THE ESTIMATOR CAVEAT, WHERE THE ESTIMATOR IS NAMED. A page that
