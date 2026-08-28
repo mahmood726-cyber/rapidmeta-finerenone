@@ -575,3 +575,54 @@ NIH-funded and therefore deposited; the Ring Study was industry-funded and is no
 cells are not distributed by domain or by difficulty — they are distributed by who paid for the
 trial.** That is worth measuring corpus-wide before any retrieval programme is scoped, because
 it predicts which gaps will close and which will not.
+
+---
+
+## 13. Funder versus retrievability, corpus-wide — the hypothesis is REFUTED
+
+353 of 353 trials with a lead-sponsor class probed on **both** retrieval routes.
+
+| funder | n | inPMC | isOA | **reachable** | efetch-ONLY |
+|---|---|---|---|---|---|
+| INDUSTRY | 214 | 205 | 198 | **205 — 96%** | 22 |
+| OTHER | 121 | 97 | 92 | **97 — 80%** | 18 |
+| NIH | 7 | 6 | 6 | 6 — 86% | 2 |
+| FED | 5 | 5 | 5 | 5 — 100% | 1 |
+| OTHER_GOV | 4 | 2 | 2 | 2 — 50% | 0 |
+| NETWORK | 2 | 2 | 2 | 2 — 100% | 0 |
+| **ALL** | **353** | — | 305 | **317 — 90%** | **43** |
+
+**Industry-funded trials are MORE reachable, not less — 96% against 80%, a ratio of 1.19 in the
+opposite direction to the prediction.** The eight trials with no local registration record are
+excluded from every row and counted as their own kind.
+
+⇒ **The dapivirine pair does not generalise.** ASPIRE-deposited / Ring-Study-paywalled was a
+real observation about two trials and a **false inference about a population**. Two cases, one
+per arm, produced a story with a mechanism and a policy implication, and the corpus says the
+effect runs the other way.
+
+### ⚠️ What "reachable" means here, and why the refutation is narrower than it looks
+
+This probe asks: **does Europe PMC's NCT search return ANY linked paper whose full text one of
+the two routes will serve?** That is **not** "is the primary report retrievable", which is the
+question the dapivirine case actually turned on.
+
+**Industry trials attract many secondary papers** — post-hoc analyses, pooled safety, economic
+models — and any one of them satisfies this criterion while the primary report stays behind a
+paywall. So this measurement refutes the hypothesis **as I operationalised it** and leaves the
+sharper version open: *is the PRIMARY report reachable, by funder?* That needs an
+NCT-to-primary-publication link this corpus does not yet hold for most trials.
+
+**Stated plainly: a 96% reachability figure must not be quoted as 96% of trials being
+assessable.** Reachable means a document arrived. Whether it answers D1, D2 and D3 is the
+separate question §12 measured on one trial and found to be 4 of 5.
+
+### ⭐ The finding that survives, and it runs in our favour
+
+**43 of the 317 reachable trials — 14% — are reachable ONLY via NCBI `efetch`.** Europe PMC
+alone would have recorded every one of them as unavailable.
+
+⇒ **A single-index retrieval understates our reach by an eighth.** Every "abstract only" and
+"no full text" record in this corpus that was decided on one index is suspect and should be
+re-tested. **`inPMC`, `isOpenAccess` and machine-retrievable are three properties**, and the
+route that succeeded is now recorded per trial rather than collapsed into one flag.
