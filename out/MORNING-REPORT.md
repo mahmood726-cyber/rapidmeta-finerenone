@@ -110,3 +110,8 @@ and one on an outcome never assessed at all. Recorded as `L6` in `out/ESCALATION
 
 Whether a GRADE certainty may be shown while its RoB domain is unadjudicated is a
 **methodological ruling, not a code fix**, and it needs to be Mahmood's.
+
+**AND IT IS NOT STARTED.** Nineteen of twenty-nine indexed pages, with planted-error recall
+measured at zero and no capacity left to supervise a staged rollout, is precisely the change not
+to begin. **It waits for the reset.** The investigation is complete in `out/cw/ALL.json` and the
+refusal reasoning is `L6`; whoever picks it up starts from a decision, not from scratch.
