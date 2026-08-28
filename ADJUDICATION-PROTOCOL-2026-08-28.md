@@ -260,3 +260,115 @@ Stated plainly, because an unstated limit becomes a claim.
    `HIGH`, which changes GRADE, so they are third-party-facing and get a human read per
    standing orders §0.
 3. **Then**, and only then, run Stage 2 on whatever lands in class D.
+
+---
+
+## 9. Worked example against a KNOWN answer — the dapivirine ring
+
+Added 2026-08-28 after Mahmood's ruling that prior published reviews supply the validation set
+this protocol was missing. **This is the first accuracy measurement this project has ever had**
+— our readers scored against a human expert panel rather than against each other.
+
+### The reference standard, and its exact provenance
+
+`agyw-hiv-prep-review` holds both ring trials: **NCT01539226** (The Ring Study / IPM 027) and
+**NCT01617096** (ASPIRE / MTN-020).
+
+The published assessment is Cochrane's, reported per domain in *A Review and Economic Analysis
+of the Dapivirine Vaginal Ring as HIV Pre-Exposure Prophylaxis for Women, to Inform South
+African Public-Sector Guidelines* (JAIDS 2024, PMC11458098,
+[10.1097/QAI.0000000000003496](https://doi.org/10.1097/QAI.0000000000003496)), retrieved via
+Europe PMC. According to that source, quoting the Cochrane review: *"Cochrane reviewers
+assessed the 2 RCTs as low risk of bias"*, with every domain **low risk**.
+
+⚠️ **Two provenance facts that must travel with every use of this comparison:**
+
+1. **It is a secondary report of Cochrane's table, not the Cochrane review itself.** Under §6b's
+   tier order a prior-meta table is already an unverified tier; a second review *citing* that
+   table is one step further removed. **The primary read is still owed.**
+2. ⛔ **Cochrane used RoB 1, not RoB 2.** The domains listed are random sequence generation,
+   allocation concealment, blinding of participants and personnel, blinding of outcome
+   assessment, incomplete outcome data, and selective reporting. **There is no exact mapping to
+   RoB 2**, and the conventional approximate one is used here and labelled as approximate:
+
+   | RoB 1 domain(s) | ≈ RoB 2 | exactness |
+   |---|---|---|
+   | random sequence generation + allocation concealment | D1 | close |
+   | blinding of participants and personnel | D2 | **loose** — D2 is deviations *and* analysis, wider than blinding |
+   | incomplete outcome data | D3 | close |
+   | blinding of outcome assessment | D4 | close |
+   | selective reporting | D5 | close |
+
+### The comparison — 2 trials × 5 domains = 10 cells per reader
+
+Both trials carry identical judgements from every party, so one row states both.
+
+| ≈domain | Cochrane (RoB 1) | our reader 1 | our reader 2 | agree? |
+|---|---|---|---|---|
+| D1 | **low** | `NO_INFORMATION` | `SOME_CONCERNS` | ✗ ✗ |
+| D2 | **low** | `NO_INFORMATION` | `NO_INFORMATION` | ✗ ✗ |
+| D3 | **low** | `NO_INFORMATION` | `NO_INFORMATION` | ✗ ✗ |
+| D4 | **low** | `LOW` | `LOW` | ✓ ✓ |
+| D5 | **low** | `LOW` | `LOW` | ✓ ✓ |
+| overall | **low** | `SOME_CONCERNS` | `SOME_CONCERNS` | ✗ ✗ |
+
+**Agreement with the published panel: 4 of 10 domain cells for each reader (2 of 5 per trial).**
+Reported as a raw fraction with its n, per §4 — 10 cells is not a rate.
+
+### ⭐ What the disagreements are, and this is the finding
+
+**Every single disagreement is a cell where our reader recorded `NO_INFORMATION` (or, for
+reader 2 on D1, `SOME_CONCERNS` on partial registry evidence) and Cochrane recorded a verdict
+from the papers.** Not one is a case of two parties reading the same evidence differently.
+
+Split by whether the domain is answerable from what we actually hold:
+
+| | cells | agreement with Cochrane |
+|---|---|---|
+| **D4, D5** — answerable from the registry we hold | 4 | **4 of 4 — 100%** |
+| **D1, D2, D3** — need the paper, which we do not hold | 6 | **0 of 6 — 0%** |
+
+⇒ **Our readers agree with a human expert panel on every domain where they had the evidence,
+and on none where they did not.** That is the same document boundary as §0's step function,
+arriving from a completely independent direction — a human reference standard instead of a
+between-model comparison.
+
+⇒ **It also settles what the 40.3% disagreement rate measures.** It is not reader quality. **The
+readers are accurate where they can see and silent where they cannot**, and the silence is
+correctly placed.
+
+### What this worked example does NOT establish
+
+- **n = 2 trials, one topic, and both trials received identical judgements from every party** —
+  so this is effectively **one** independent comparison, not ten. It is a demonstration of the
+  method, not an accuracy estimate.
+- **It cannot distinguish "our reader was right to abstain" from "our reader would have been
+  wrong had it answered."** Abstention is neither correct nor incorrect against a verdict; it
+  is a different kind of output. **Scoring abstention as disagreement is generous to Cochrane
+  and harsh to us, and that is the right direction for a self-assessment.**
+- **A cross-tool comparison cannot be exact.** RoB 1 "low" on blinding of participants does not
+  entail RoB 2 "Low" on D2, which also asks whether an appropriate analysis was used.
+- **Cochrane could be wrong.** Where we later disagree *with the paper in hand*, that is a
+  publishable position — **disagreeing with a stated reason is stronger than agreeing
+  silently** — but nothing here is evidence of that yet, because we have not read the papers.
+
+### What it changes in the protocol
+
+**Add a fifth triage class, ahead of the adjudicator:**
+
+> **E EXTERNAL_REFERENCE** — a published review has assessed this trial. Record its judgement,
+> its tool, its provenance tier, and the mapping used. **Score our readers against it before
+> any model adjudicates anything**, and where we differ *with evidence in hand*, publish the
+> disagreement with its reason.
+
+**And it re-orders the queue.** The re-ask (§8.1) is still first, but the retrieval it
+implies is now cheaper than assumed: **for these two trials the papers are open**, and D1/D2/D3
+are answerable from them today. **The binding constraint was never adjudication capacity — it
+is six unread documents.**
+
+### ⛔ On RoB 1, for the record
+
+Switching to RoB 1 would let every unreachable domain be marked *unclear* and closed. **That
+converts a retrieval failure into a methodological judgement and hides it.** Keep RoB 2, and
+keep the honest fourth state — **`blocked — document needed`, naming the document.** A work
+queue, not a dead end.
