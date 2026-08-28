@@ -1,0 +1,130 @@
+# -*- coding: utf-8 -*-
+"""The multi-route retriever, and the only sanctioned way to record document access.
+
+WHY THIS REPLACES SINGLE-INDEX LOOKUPS. Europe PMC reports the ASPIRE deposit as
+`isOpenAccess=N` and its `fullTextXML` endpoint returns 404. NCBI `efetch` served the same
+record in full -- 44,181 rendered characters. **Two indexes over one deposit disagreed about
+whether it exists and the pessimistic one was wrong.** Corpus-wide, 43 of 317 reachable trials
+(14%) are reachable ONLY via `efetch`, so a single-index retrieval understates our reach by an
+eighth and reports paywalls that are not there.
+
+⚠️ THREE PROPERTIES, NOT ONE FIELD. `inPMC`, `isOpenAccess` and MACHINE-RETRIEVABLE are
+different things. A record may be in PMC, not in the open-access subset, and still served in
+full by a different endpoint. Collapsing them into one boolean is what produced the false
+"abstract only" claims.
+
+THE CONTRACT. `retrieve()` tries every route in order and returns which one succeeded. It never
+returns a bare "inaccessible": it returns the list of routes attempted with each one's status,
+so a later reader can tell "we tried four things" from "we asked one API". A document is
+recorded as unreachable only when EVERY route has been tried and named.
+"""
+import io
+import json
+import os
+import re
+import subprocess
+
+UA = "rapidmeta-rob-lane/1.0 (+research use; contact via repository)"
+
+
+def _curl(url, dest, timeout=45):
+    try:
+        r = subprocess.run(
+            ["curl", "-s", "-L", "-A", UA, "--max-time", str(timeout), "-o", dest,
+             "-w", "%{http_code}|%{size_download}|%{content_type}"],
+            capture_output=True, timeout=timeout + 30, input=None) if False else \
+            subprocess.run(
+                ["curl", "-s", "-L", "-A", UA, "--max-time", str(timeout), "-o", dest,
+                 "-w", "%{http_code}|%{size_download}|%{content_type}", url],
+                capture_output=True, timeout=timeout + 30)
+        parts = r.stdout.decode("ascii", "replace").split("|")
+        code = parts[0].strip() if parts else "ERR"
+        size = int(parts[1]) if len(parts) > 1 and parts[1].strip().isdigit() else 0
+        ctype = parts[2].strip() if len(parts) > 2 else ""
+        return code, size, ctype
+    except Exception as e:
+        return "ERR:%s" % type(e).__name__, 0, ""
+
+
+def _rendered(path):
+    """Characters of actual text, not bytes of markup -- a 404 HTML page is large and empty."""
+    try:
+        raw = io.open(path, encoding="utf-8", errors="replace").read()
+    except OSError:
+        return 0
+    t = re.sub(r"(?is)<(script|style).*?</\1>", " ", raw)
+    return len(re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", t)).strip())
+
+
+# MINIMUM RENDERED TEXT FOR A HIT. An error page from a publisher is typically 1-3k rendered
+# characters of navigation; a full text is tens of thousands. 4000 is deliberately generous
+# and every borderline result keeps its measured size so the threshold can be re-argued.
+MIN_TEXT = 4000
+
+
+def routes_for(pmcid=None, pmid=None, doi=None):
+    """Ordered routes. Europe PMC first because it is cheapest, publisher last."""
+    r = []
+    if pmcid:
+        p = str(pmcid).replace("PMC", "")
+        r.append(("europepmc",
+                  "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC%s/fullTextXML" % p))
+        r.append(("ncbi_efetch",
+                  "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi"
+                  "?db=pmc&id=%s&rettype=xml" % p))
+        r.append(("pmc_direct", "https://pmc.ncbi.nlm.nih.gov/articles/PMC%s/" % p))
+    if pmid:
+        r.append(("europepmc_by_pmid",
+                  "https://www.ebi.ac.uk/europepmc/webservices/rest/MED/%s/fullTextXML" % pmid))
+    if doi:
+        r.append(("doi_resolver", "https://doi.org/%s" % doi))
+    return r
+
+
+def retrieve(pmcid=None, pmid=None, doi=None, out_dir=None, save_as=None):
+    """Try every route in order. Return a record naming EVERY attempt and its status.
+
+    Never returns a bare inaccessible: `attempts` lists each route with its HTTP code and the
+    rendered-character count, so "we tried four things" is distinguishable from "we asked one
+    API" by anyone reading the record later.
+    """
+    out_dir = out_dir or os.environ.get("TEMP", ".")
+    tmp = os.path.join(out_dir, "_mr_tmp")
+    rec = {"pmcid": pmcid, "pmid": pmid, "doi": doi, "attempts": [],
+           "route": None, "rendered_chars": 0, "saved_to": None}
+    for name, url in routes_for(pmcid, pmid, doi):
+        code, size, ctype = _curl(url, tmp)
+        chars = _rendered(tmp) if code == "200" and size else 0
+        rec["attempts"].append({"route": name, "http": code, "bytes": size,
+                                "content_type": ctype[:40], "rendered_chars": chars})
+        if code == "200" and chars >= MIN_TEXT:
+            rec["route"] = name
+            rec["rendered_chars"] = chars
+            if save_as:
+                try:
+                    with io.open(tmp, "rb") as s, io.open(save_as, "wb") as d:
+                        d.write(s.read())
+                    rec["saved_to"] = save_as
+                except OSError:
+                    pass
+            return rec
+    return rec
+
+
+def summarise(rec):
+    """One honest sentence about a retrieval, for a store field or a log line."""
+    if rec.get("route"):
+        return ("retrieved via %s, %d rendered characters, after %d route(s) tried"
+                % (rec["route"], rec["rendered_chars"], len(rec["attempts"])))
+    tried = ", ".join("%s=%s" % (a["route"], a["http"]) for a in rec["attempts"])
+    return ("NOT retrieved. Every route was tried and named: %s. This is a statement about "
+            "these routes, not about whether the document exists." % (tried or "none available"))
+
+
+if __name__ == "__main__":
+    import sys
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    a = dict(x.split("=", 1) for x in sys.argv[1:] if "=" in x)
+    r = retrieve(pmcid=a.get("pmcid"), pmid=a.get("pmid"), doi=a.get("doi"))
+    print(json.dumps(r, indent=1))
+    print(summarise(r))
