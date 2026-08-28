@@ -8,7 +8,11 @@
    "A VERSIONED   -- hash, verbatim snapshot or commit; exactly re-checkable": 40,
    "B TIMESTAMPED -- when it was read, not what was read": 1397,
    "C IDENTIFIER  -- names a mutable subject, pins no version": 868,
-   "D NOTHING     -- no reference to what was judged": 484
+   "D NOTHING     -- no reference to what was judged": 484,
+   "writes a judgement but does not persist it to ssot/": 51,
+   "persists a judgement into ssot/": 56,
+   "  BYPASSES the stamped writer -- its judgements reference nothing": 39,
+   "  through the STAMPED writer": 17
   },
   "expected_cases": {
    "probe:A": "the classifier still recognises A VERSIONED",
@@ -36,6 +40,8 @@
    "    C IDENTIFIER  -- names a mutable subject, pins no version      -> NOT-CHECKABLE",
    "    D NOTHING     -- no reference to what was judged               -> NOT-CHECKABLE",
    "kind-D backlog: 484 frozen, 484 now, 0 retired, 0 NEW",
+   "ratchet: 39 frozen, 39 now, 0 retired, 0 NEW. A PASS means no new instances, not a clean corpus.",
+   "the stamp is wired at ssot/atomic_write.py::write_json (blast radius 155, acknowledged) and fires on ssot/<topic>/<topic>.json only.",
    "exactly re-checkable: 40/2789 = 1.4% of stored judgements. The remainder are believed, not checked.",
    "the fix is one field at the point of writing: block['subject_ref'] = subject_ref({the values judged})"
   ],

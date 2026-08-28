@@ -36,6 +36,7 @@ GATES = [
     ("gate6_nct_beside_name", "NCT beside every trial name", "slow"),
     ("gate7_blast_radius", "blast radius counted before a class-wide edit", "fast"),
     ("gate8_caller_and_wiring", "every gate has a caller; every removal a precondition", "fast"),
+    ("gate9_shared_scratch", "the shared-scratch lint actually runs", "fast"),
 ]
 
 
