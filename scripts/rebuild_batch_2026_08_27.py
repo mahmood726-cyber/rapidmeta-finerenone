@@ -130,6 +130,13 @@ ADJUDICATED = {
     "EMPAGLIFLOZIN_HF_AUTO_FULL_REVIEW.html": "same: placeholder-only 'Data availability' row",
     "GEPOTIDACIN_URINARY_TRACT_AUTO_FULL_REVIEW.html": "same: placeholder-only row",
     "INCLISIRAN_LIPID_KIDNEY_AUTO_FULL_REVIEW.html": "same: placeholder-only row",
+    "PREVNAR15_PNEUMO_AUTO_FULL_REVIEW.html": "the token 'By age stratum' goes 12 -> 0 "
+        "but NOTHING IS LOST: it was a HARD-CODED DEFAULT HEADING the generator now refuses "
+        "because the object does not declare its stratification. Verified in rendered text -- "
+        "Stratum header 4 -> 4, 'Adults' 33 -> 33, 'Infants and children' 4 -> 4, and the "
+        "honest sentence 'does not record what these strata are grouped by' 0 -> 4. Every "
+        "subgroup row survives. The presence rule stopped it because a TOKEN reached zero "
+        "while no DATA did -- the rule's known limit, failing in the safe direction",
     "FINERENONE_CV_REVIEW.html": "the served section is a FABRICATED CITATION TRAIL: it "
         "renders the placeholder 'not recorded on the page this object was extracted from' "
         "TWICE, attaches footnote markers to both, and then states 'Sources for this section "
