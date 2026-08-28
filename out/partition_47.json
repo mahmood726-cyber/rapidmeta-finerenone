@@ -1,0 +1,616 @@
+{
+ "safe": [
+  {
+   "key": "of trial s verified live against the registry",
+   "page": "COLCHICINE_CVD_CORONARY_REVIEW.html",
+   "topics": [
+    "colchicine-cvd-coronary"
+   ],
+   "cls": "identifier",
+   "why": "Missing held trial identifier",
+   "examples": [
+    "One contributing trial is displayed without a ClinicalTrials.gov identifier in the extraction and contributing-trials tables, and the page elsewhere says it is not assessable by this method."
+   ]
+  },
+  {
+   "key": "all eight are named on this page with their status and enrolment",
+   "page": "BOSENTAN_PH_NOT_GROUP1_REVIEW.html",
+   "topics": [
+    "bosentan-ph-not-group1"
+   ],
+   "cls": "rebuildability",
+   "why": "Displayed rows lack claimed fields",
+   "examples": [
+    "The displayed eight-row summary gives only registration identifiers and truncated trial titles; it does not display status or enrolment for any trial."
+   ]
+  },
+  {
+   "key": "the prisma flow counts are held for this review and reconcile with the executed searches above",
+   "page": "ABLATION_AF_HEART_FAILURE_REVIEW.html",
+   "topics": [
+    "ablation-af-heart-failure"
+   ],
+   "cls": "rebuildability",
+   "why": "Screening-count contradiction",
+   "examples": [
+    "The page also states that no screening log exists and displays empty screening and per-trial disposition tables. The asserted screening counts and zero remainder cannot be audited from the reader-facing evidence."
+   ]
+  }
+ ],
+ "readjudicate": [
+  {
+   "key": "fair hf is excluded on outcome",
+   "page": "IV_IRON_HF_REVIEW.html",
+   "topics": [
+    "iv-iron-hf"
+   ],
+   "cls": "scope",
+   "direction": "reader-facing-falsehood",
+   "why": "Internal eligibility contradiction",
+   "examples": [
+    "The same page later says FAIR-HF passes the outcome criterion and that \"ELIGIBLE AND NOT POOLED is the correct reading.\" Its reader-facing disposition contradicts the page's own stated eligibility rule.",
+    "The page later says the opposite: FAIR-HF meets the population, intervention and comparator criteria and its regulator-relied functional primary passes the outcome criterion, making it eligible but not poolable. The page"
+   ]
+  },
+  {
+   "key": "four trials meet this review s population intervention and comparator criteria",
+   "page": "IV_IRON_HF_REVIEW.html",
+   "topics": [
+    "iv-iron-hf"
+   ],
+   "cls": "scope",
+   "direction": "reader-facing-falsehood",
+   "why": "displayed PICO mismatch",
+   "examples": [
+    "At least two of those four fail the stated PICO: NCT05759078 enrolls recent acute-myocardial-infarction patients rather than a heart-failure population, and NCT07467668 randomizes notification versus no notification rath",
+    "The repeated eligible-but-not-contributing tables do not list trial names or NCT IDs; they render “?” and “—”, so a reader cannot audit which eligible non-contributing trials are being counted."
+   ]
+  },
+  {
+   "key": "no quotable model output exists",
+   "page": "APIXABAN_VTE_TREATMENT_REVIEW.html",
+   "topics": [
+    "apixaban-vte-treatment"
+   ],
+   "cls": "interpretation",
+   "direction": "reader-facing-falsehood",
+   "why": "quoted output exists",
+   "examples": [
+    "The same page reproduces an R/metafor call and extensive model output under \"Analysis output — recurrent_vte (quoted verbatim),\" while the Results section also claims the full output is reproduced verbatim."
+   ]
+  },
+  {
+   "key": "the number of events in each arm",
+   "page": "ABLATION_AF_MEDICAL_THERAPY_REVIEW.html",
+   "topics": [
+    "ablation-af-medical-therapy"
+   ],
+   "cls": "interpretation",
+   "direction": "reader-facing-falsehood",
+   "why": "displayed counts incomplete",
+   "examples": [
+    "Arm-level event counts are displayed for CASTLE-AF and RAFT-AF, although they are absent for CABANA. The accurate limitation is that event counts are incomplete, not wholly absent."
+   ]
+  },
+  {
+   "key": "the stored refit gives i squared",
+   "page": "TIGECYCLINE_CIAI_SSOT.html",
+   "topics": [
+    "tigecycline-ciai"
+   ],
+   "cls": "interpretation",
+   "direction": "reader-facing-falsehood",
+   "why": "Q statistic validates value",
+   "examples": [
+    "These are incompatible values for the same three-trial fit. The accompanying Q of about 2.156 on 2 degrees of freedom agrees with approximately 7.3%, not 1.16%."
+   ]
+  },
+  {
+   "key": "it sits in a review about ablation",
+   "page": "EARLY_RHYTHM_CONTROL_AF_REVIEW.html",
+   "topics": [
+    "early-rhythm-control-af"
+   ],
+   "cls": "scope",
+   "direction": "reader-facing-falsehood",
+   "why": "title PICO contradiction",
+   "examples": [
+    "The page's title and PICO define a review of an early rhythm-control strategy comprising antiarrhythmic drugs or ablation, not a review specifically about ablation; the qualification is stale and contradicts the current "
+   ]
+  },
+  {
+   "key": "there is no effect estimate to rate",
+   "page": "IV_IRON_HF_REVIEW.html",
+   "topics": [
+    "iv-iron-hf"
+   ],
+   "cls": "interpretation",
+   "direction": "reader-facing-falsehood",
+   "why": "displayed estimates exist",
+   "examples": [
+    "No outcome has a final certainty rating: all six are shown as Pending. The two single-trial outcomes also do have displayed estimates—win ratio 1.10 and mean difference 33 m—so the stated reason for not rating them is fa"
+   ]
+  },
+  {
+   "key": "medical rate or rhythm control therapy",
+   "page": "ABLATION_AF_HEART_FAILURE_REVIEW.html",
+   "topics": [
+    "ablation-af-heart-failure"
+   ],
+   "cls": "scope",
+   "direction": "reader-facing-falsehood",
+   "why": "comparator details held",
+   "examples": [
+    "RAFT-AF permitted rate control using medical therapy and/or atrioventricular-junction ablation with pacemaker treatment, so the included comparator was not exclusively medical therapy."
+   ]
+  },
+  {
+   "key": "against the comparator that trial randomised",
+   "page": "COLCHICINE_PERIPROCEDURAL_REVIEW.html",
+   "topics": [
+    "colchicine-periprocedural"
+   ],
+   "cls": "scope",
+   "direction": "reader-facing-falsehood",
+   "why": "Held comparator records mismatch",
+   "examples": [
+    "The page includes trials whose registry intervention summaries do not show a randomized colchicine comparator in the supplied record, including single-intervention entries such as NCT02122484 and NCT02260206."
+   ]
+  },
+  {
+   "key": "adults with heart failure and iron deficiency",
+   "page": "IV_IRON_HF_REVIEW.html",
+   "topics": [
+    "iv-iron-hf"
+   ],
+   "cls": "scope",
+   "direction": "reader-facing-falsehood",
+   "why": "Held population mismatch",
+   "examples": [
+    "INFERRCT is registered for people with recent acute myocardial infarction, not a heart-failure population. Its supplied registry record lists only “Myocardial Infarction, Acute” as the condition, so it falls outside the "
+   ]
+  },
+  {
+   "key": "counts pairs rather than participants or events",
+   "page": "IV_IRON_HF_REVIEW.html",
+   "topics": [
+    "iv-iron-hf"
+   ],
+   "cls": "interpretation",
+   "direction": "reader-facing-falsehood",
+   "why": "Statistical rationale is wrong",
+   "examples": [
+    "Those features do not inherently prevent synthesis. Compatible win ratios can be combined on the log scale after aligning direction, and an interval reported at another confidence level can be converted to its standard e"
+   ]
+  },
+  {
+   "key": "adults with atrial fibrillation and heart failure",
+   "page": "ABLATION_AF_HEART_FAILURE_REVIEW.html",
+   "topics": [
+    "ablation-af-heart-failure"
+   ],
+   "cls": "scope",
+   "direction": "incompleteness",
+   "why": "Population limits already displayed",
+   "examples": [
+    "The two contributing populations were materially narrower: CASTLE-AF involved heart failure with an implanted defibrillator, while RAFT-AF involved heart failure with high-burden atrial fibrillation. These restrictions a"
+   ]
+  },
+  {
+   "key": "no statistical heterogeneity was detected i squared",
+   "page": "SGLT2_HF_REVIEW.html",
+   "topics": [
+    "sglt2-hf"
+   ],
+   "cls": "interpretation",
+   "direction": "reader-facing-falsehood",
+   "why": "Wrong heterogeneity value",
+   "examples": [
+    "I-squared is 0% only for the three-trial two-component pool; the two-trial three-component pool displays I-squared 22.5%."
+   ]
+  },
+  {
+   "key": "the cleanest available form of this review s question",
+   "page": "ABLATION_AF_MEDICAL_THERAPY_REVIEW.html",
+   "topics": [
+    "ablation-af-medical-therapy"
+   ],
+   "cls": "scope",
+   "direction": "reader-facing-falsehood",
+   "why": "Comparator mismatch already visible",
+   "examples": [
+    "A sham procedure is not the stated comparator of medical rate- or rhythm-control therapy. These trials may answer an efficacy-versus-sham question, but they do not directly instantiate the page's stated comparison."
+   ]
+  },
+  {
+   "key": "no result level rob assessment exists for this outcome",
+   "page": "SGLT2_HF_REVIEW.html",
+   "topics": [
+    "sglt2-hf"
+   ],
+   "cls": "interpretation",
+   "direction": "reader-facing-falsehood",
+   "why": "Assessments already displayed",
+   "examples": [
+    "Tables 6 and 7 display result-level RoB 2 assessments for the two-component and three-component outcomes. Those assessments are unadjudicated, not nonexistent."
+   ]
+  },
+  {
+   "key": "cardiovascular death or a worsening heart failure event",
+   "page": "SGLT2_HF_REVIEW.html",
+   "topics": [
+    "sglt2-hf"
+   ],
+   "cls": "scope",
+   "direction": "reader-facing-falsehood",
+   "why": "Published pools already differ",
+   "examples": [
+    "The four-trial synthesis is withdrawn because its trials do not share one endpoint. The page actually publishes a three-trial two-component pool and a two-trial three-component pool."
+   ]
+  },
+  {
+   "key": "of these pooled outcome s carries a stated qualification",
+   "page": "IV_IRON_HF_REVIEW.html",
+   "topics": [
+    "iv-iron-hf"
+   ],
+   "cls": "interpretation",
+   "direction": "reader-facing-falsehood",
+   "why": "Page caveat count conflicts",
+   "examples": [
+    "The page itself says four pooled outcomes carry the fixed-effect-interval qualification, so the abstract underreports the page's own caveat."
+   ]
+  },
+  {
+   "key": "figure forest plot symptomatic laboratory confirmed covid k",
+   "page": "COVID19_VACCINES_REVIEW.html",
+   "topics": [
+    "covid19-vaccines"
+   ],
+   "cls": "rendering",
+   "direction": "reader-facing-falsehood",
+   "why": "Rendered plot count mismatch",
+   "examples": [
+    "The forest plot displays only two effect estimates and two labels. NCT04510207 has no computed ratio and is absent from the plot, so describing this rendered figure as k = 3 overstates the number of plotted trials."
+   ]
+  },
+  {
+   "key": "figure not drawn a forest plot is the pooled claim in picture form",
+   "page": "ABLATION_AF_HEART_FAILURE_REVIEW.html",
+   "topics": [
+    "ablation-af-heart-failure"
+   ],
+   "cls": "rendering",
+   "direction": "reader-facing-falsehood",
+   "why": "internal rendering contradiction",
+   "examples": [
+    "The Analysis Suite visibly displays a forest plot of the two unpooled trial estimates and offers SVG and PNG downloads. The paper section therefore contradicts another reader-facing part of the same page."
+   ]
+  },
+  {
+   "key": "table every trial with its reason registration verdict limb reason",
+   "page": "IV_IRON_HF_REVIEW.html",
+   "topics": [
+    "iv-iron-hf"
+   ],
+   "cls": "rendering",
+   "direction": "missing-evidence",
+   "why": "held screening cells omitted",
+   "examples": [
+    "Those tables render with blank/dash content rather than the per-trial screening dispositions, preventing a reader from checking the 47-record cascade against the candidate list."
+   ]
+  },
+  {
+   "key": "the form of the quantity would prevent pooling even if a second did",
+   "page": "IV_IRON_HF_REVIEW.html",
+   "topics": [
+    "iv-iron-hf"
+   ],
+   "cls": "interpretation",
+   "direction": "reader-facing-falsehood",
+   "why": "methodological correction from estimate",
+   "examples": [
+    "Those features do not intrinsically prevent synthesis with another compatible win-ratio estimate: the page already derives a log estimate and standard error from the 99% interval. The valid current reason for no synthesi"
+   ]
+  },
+  {
+   "key": "a named two trial programme rather than the yield of a database search",
+   "page": "SGLT2_HF_REVIEW.html",
+   "topics": [
+    "sglt2-hf"
+   ],
+   "cls": "scope",
+   "direction": "reader-facing-falsehood",
+   "why": "internal scope mismatch",
+   "examples": [
+    "The page includes four unique trials, publishes pools of three and two trials, and later reports three executed registry/PubMed searches."
+   ]
+  },
+  {
+   "key": "the analysis population is part of the estimand and this pool crosses it",
+   "page": "TIGECYCLINE_CIAI_SSOT.html",
+   "topics": [
+    "tigecycline-ciai"
+   ],
+   "cls": "scope",
+   "direction": "reader-facing-falsehood",
+   "why": "internal estimand contradiction",
+   "examples": [
+    "The displayed inputs are all microbiologically evaluable results: 199/247 and 210/255 for NCT00081744, 45/52 and 47/48 for NCT00136201, and the explicitly labelled ME result for NCT01721408. The page itself elsewhere say"
+   ]
+  },
+  {
+   "key": "why no result is pooled k and the second trial belongs to a different drug",
+   "page": "FONDAPARINUX_AUTO_FULL_REVIEW.html",
+   "topics": [
+    "fondaparinux-vte"
+   ],
+   "cls": "identifier",
+   "direction": "incompleteness",
+   "why": "identifier already held",
+   "examples": [
+    "The phrase \"the second trial\" stands in for a trial identity where the NCT identifier belongs in that sentence, even though NCT01857583 appears elsewhere on the page."
+   ]
+  },
+  {
+   "key": "pool four trials reporting the same effect measure for the same outcome concept",
+   "page": "SGLT2_HF_REVIEW.html",
+   "topics": [
+    "sglt2-hf"
+   ],
+   "cls": "interpretation",
+   "direction": "reader-facing-falsehood",
+   "why": "stale contradictory decision text",
+   "examples": [
+    "The page's current conclusion is that those four quantities should not be pooled because two trials include urgent heart-failure visits and two do not. The retained decision text is stale and contradicts the withdrawal."
+   ]
+  },
+  {
+   "key": "the question is about intravenous iron in adults with heart failure and iron deficiency",
+   "page": "IV_IRON_HF_REVIEW.html",
+   "topics": [
+    "iv-iron-hf"
+   ],
+   "cls": "scope",
+   "direction": "reader-facing-falsehood",
+   "why": "Headline scope overstates eligibility",
+   "examples": [
+    "The implemented eligibility criterion is narrower: only ferric carboxymaltose or ferric derisomaltose. The page excludes intravenous iron sucrose trials as outside scope, so the headline question overstates the intervent"
+   ]
+  },
+  {
+   "key": "no adjudication has been performed so this review holds no final risk of bias judgement",
+   "page": "TIGECYCLINE_CIAI_SSOT.html",
+   "topics": [
+    "tigecycline-ciai"
+   ],
+   "cls": "interpretation",
+   "direction": "reader-facing-falsehood",
+   "why": "Adjudication contradiction",
+   "examples": [
+    "The GRADE rating nevertheless treats the disputed assessor-1 HIGH measurement judgement as settled and downgrades two levels on that basis, without an adjudicated review-level judgement."
+   ]
+  },
+  {
+   "key": "in edoxaban in venous thromboembolism what is the effect on venous thromboembolism events",
+   "page": "EDOXABAN_CANCER_VTE_AUTO_FULL_REVIEW.html",
+   "topics": [
+    "edoxaban-vte"
+   ],
+   "cls": "scope",
+   "direction": "incompleteness",
+   "why": "Incoherent held trial scope",
+   "examples": [
+    "The actual included trials are not one coherent population or question: NCT01181102 is adult post-knee-arthroplasty VTE prophylaxis against enoxaparin, while NCT02798471 is pediatric treatment of confirmed VTE against st"
+   ]
+  },
+  {
+   "key": "leave one out no refit excludes no difference the estimate does not survive removal of any single trial",
+   "page": "TIGECYCLINE_CIAI_SSOT.html",
+   "topics": [
+    "tigecycline-ciai"
+   ],
+   "cls": "rendering",
+   "direction": "reader-facing-falsehood",
+   "why": "Displayed leave-one-out table resolves it",
+   "examples": [
+    "Removing study 301 still produces an interval excluding the null; only the other two leave-one-out analyses include it."
+   ]
+  },
+  {
+   "key": "outcome s were not rated because their pool is declined or withdrawn there is no effect estimate to rate",
+   "page": "IV_IRON_HF_REVIEW.html",
+   "topics": [
+    "iv-iron-hf"
+   ],
+   "cls": "interpretation",
+   "direction": "reader-facing-falsehood",
+   "why": "Displayed estimates already exist",
+   "examples": [
+    "Both unpooled outcomes have displayed single-trial effect estimates, and their certainty is shown as Pending, so the statement that there is no effect estimate to rate is false as written."
+   ]
+  },
+  {
+   "key": "the pooled benefit depends on no single trial every leave one out fit keeps the null outside its interval",
+   "page": "SGLT2_HF_REVIEW.html",
+   "topics": [
+    "sglt2-hf"
+   ],
+   "cls": "interpretation",
+   "direction": "reader-facing-falsehood",
+   "why": "Withdrawn analysis cannot support claim",
+   "examples": [
+    "That leave-one-out analysis uses the withdrawn four-trial mixture of non-identical endpoints. It cannot support a current clinical robustness claim about either of the two valid endpoint-specific pools."
+   ]
+  },
+  {
+   "key": "the registrations fetched do not use non inferiority so the design question is unresolved from the registry",
+   "page": "TIGECYCLINE_CIAI_SSOT.html",
+   "topics": [
+    "tigecycline-ciai"
+   ],
+   "cls": "interpretation",
+   "direction": "reader-facing-falsehood",
+   "why": "Registry field already displayed",
+   "examples": [
+    "The displayed NCT01721408 registry result explicitly records a non-inferiority analysis and its −15% margin."
+   ]
+  },
+  {
+   "key": "in fondaparinux in venous thromboembolism what is the effect on venous thromboembolism and major bleeding events",
+   "page": "FONDAPARINUX_AUTO_FULL_REVIEW.html",
+   "topics": [
+    "fondaparinux-vte"
+   ],
+   "cls": "scope",
+   "direction": "reader-facing-falsehood",
+   "why": "Displayed trial set narrows scope",
+   "examples": [
+    "The page actually holds one confirmed fondaparinux trial in coronary bypass surgery prophylaxis and one edoxaban trial where fondaparinux is the comparator, so the displayed trial set does not represent the broad populat"
+   ]
+  },
+  {
+   "key": "icap s published primary is incessant or recurrent pericarditis it counts incessant disease which corp and corp do not",
+   "page": "COLCHICINE_PERICARDITIS_REVIEW.html",
+   "topics": [
+    "colchicine-pericarditis"
+   ],
+   "cls": "identifier",
+   "direction": "incompleteness",
+   "why": "identifiers already held",
+   "examples": [
+    "The text uses trial descriptors inconsistently instead of resolvable identifiers at the point of comparison; ICAP is elsewhere identifiable as NCT00128453, CORP as NCT00128414, and CORP-2 as NCT00235079, but this sentenc"
+   ]
+  },
+  {
+   "key": "no systematic search was run the included set is a named two trial programme rather than the yield of a database search",
+   "page": "IV_IRON_HF_REVIEW.html",
+   "topics": [
+    "iv-iron-hf"
+   ],
+   "cls": "scope",
+   "direction": "reader-facing-falsehood",
+   "why": "page contradicts search record",
+   "examples": [
+    "The page elsewhere reports ClinicalTrials.gov searches and five included trials; the “named two-trial programme” language is stale or false for this page."
+   ]
+  },
+  {
+   "key": "the review asks about catheter ablation versus medical rate or rhythm control therapy on death stroke and hospitalisation",
+   "page": "ABLATION_AF_MEDICAL_THERAPY_REVIEW.html",
+   "topics": [
+    "ablation-af-medical-therapy"
+   ],
+   "cls": "scope",
+   "direction": "reader-facing-falsehood",
+   "why": "analysis mismatches stated outcome",
+   "examples": [
+    "The displayed analysis instead evaluates each trial's different primary composite. CASTLE-AF omits stroke, CABANA includes serious bleeding and cardiac arrest but not hospitalisation, and RAFT-AF includes outpatient hear"
+   ]
+  },
+  {
+   "key": "checked against each registration s arm structure on of trials were confirmed the drug is part of the randomised comparison",
+   "page": "BOSENTAN_PH_NOT_GROUP1_REVIEW.html",
+   "topics": [
+    "bosentan-ph-not-group1"
+   ],
+   "cls": "interpretation",
+   "direction": "reader-facing-falsehood",
+   "why": "preconditions contradict confirmation claim",
+   "examples": [
+    "The page's own preconditions say all eight trials lack readable arm roles and that contribution of a randomized contrast is not assessable."
+   ]
+  },
+  {
+   "key": "in adults with acute or recurrent pericarditis does colchicine reduce recurrence against the comparator each trial randomised",
+   "page": "COLCHICINE_PERICARDITIS_REVIEW.html",
+   "topics": [
+    "colchicine-pericarditis"
+   ],
+   "cls": "scope",
+   "direction": "reader-facing-falsehood",
+   "why": "included trial violates scope",
+   "examples": [
+    "The named trial set includes CREATE, a pediatric colchicine-resistant pericarditis trial randomising anakinra versus prednisone, not colchicine versus a control in adults."
+   ]
+  },
+  {
+   "key": "whether these trials study this subject checked against each registration s arm structure on of trials were confirmed could not be decided this way",
+   "page": "COLCHICINE_MIXED_ASCVD_REVIEW.html",
+   "topics": [
+    "colchicine-mixed-ascvd"
+   ],
+   "cls": "identifier",
+   "direction": "incompleteness",
+   "why": "unidentified held trial",
+   "examples": [
+    "The page refers to one unverified trial only as \"1\" and does not identify which registered trial failed arm-structure verification."
+   ]
+  },
+  {
+   "key": "six of six contributing values are therefore confirmed against their registry records the only topic in this lane where the trial by trial check is complete",
+   "page": "ALIROCUMAB_LIPID_AUTO_FULL_REVIEW.html",
+   "topics": [
+    "alirocumab-lipid"
+   ],
+   "cls": "interpretation",
+   "direction": "reader-facing-falsehood",
+   "why": "incomplete held trial check",
+   "examples": [
+    "The pooled analysis contains eight trials. The displayed comparison checks only six and omits NCT02289963 and NCT02585778, so the trial-by-trial check shown to the reader is not complete."
+   ]
+  },
+  {
+   "key": "where a result is rated worse than low overall the domain carrying that judgement is deviations from the intended intervention on result s selection of the repo",
+   "page": "ABLATION_AF_HEART_FAILURE_REVIEW.html",
+   "topics": [
+    "ablation-af-heart-failure"
+   ],
+   "cls": "interpretation",
+   "direction": "reader-facing-falsehood",
+   "why": "risk-judgement contradiction",
+   "examples": [
+    "The page says no final risk-of-bias judgement exists, and its displayed D2 deviations judgements are \"no information\" for both assessors and both trials. The asserted two deviations-based ratings do not match the page's "
+   ]
+  },
+  {
+   "key": "in adults undergoing a cardiac procedure does peri procedural colchicine reduce the complication each trial registered as its primary outcome against the compar",
+   "page": "COLCHICINE_PERIPROCEDURAL_REVIEW.html",
+   "topics": [
+    "colchicine-periprocedural"
+   ],
+   "cls": "scope",
+   "direction": "reader-facing-falsehood",
+   "why": "Displayed trials contradict scope",
+   "examples": [
+    "The included set contains trials that do not obviously enroll adults undergoing a cardiac procedure as their core population, including thoracic-surgery and non-cardiac-surgery studies."
+   ]
+  },
+  {
+   "key": "in adults with cerebral venous or dural sinus thrombosis does dabigatran compare favourably with the comparator each trial actually randomised against on the en",
+   "page": "DABIGATRAN_VTE_CEREBRAL_REVIEW.html",
+   "topics": [
+    "dabigatran-vte-cerebral"
+   ],
+   "cls": "scope",
+   "direction": "reader-facing-falsehood",
+   "why": "Known trials outside scope",
+   "examples": [
+    "The page also names orthopedic hip/knee arthroplasty VTE prophylaxis trials, which are outside cerebral venous or dural sinus thrombosis: NCT00152971, NCT00168818 and NCT00657150."
+   ]
+  },
+  {
+   "key": "moderate certainty the two trials agree almost exactly both are quadruple masked so the single downgrade is for the unread deviation and missing data domains an",
+   "page": "FINERENONE_CV_REVIEW.html",
+   "topics": [
+    "finerenone-cv"
+   ],
+   "cls": "interpretation",
+   "direction": "reader-facing-falsehood",
+   "why": "Certainty contradicts RoB status",
+   "examples": [
+    "The page says no final risk-of-bias judgement exists, while the certainty text relies on risk-of-bias judgements and unread domains to justify a downgrade."
+   ]
+  }
+ ]
+}
