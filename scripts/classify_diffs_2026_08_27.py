@@ -104,6 +104,17 @@ def ask(family, prompt, tag):
         if len(body) > 40:
             io.open(cache, "w", encoding="utf-8").write(body)
             return body, attempt
+        # A QUOTA ERROR IS NOT AN EMPTY RESPONSE AND MUST NOT BE RETRIED.
+        #
+        # Measured 2026-08-28: 417 of 417 MISSING jobs were agy; codex returned 700 ok and 0
+        # missing. A per-vendor rate of 0% for one and high for the other is a harness signal.
+        # The cause was `Individual quota reached ... Resets in 23m30s` -- capacity, not
+        # payload size, so it does not correlate with page complexity. But ask() treated the
+        # error as an empty body and retried three times with backoff, spending ~9s per job
+        # re-hitting a limit that resets in minutes.
+        err = ((p.stderr or b"").decode("utf-8", "replace") + " " + body).lower()
+        if "quota" in err or "rate limit" in err or "429" in err:
+            return None, -1        # -1 marks EXHAUSTED, distinct from a failed job
         time.sleep(3 * attempt)
     return None, 3
 
@@ -186,8 +197,8 @@ def main():
         tag = "%s__%d" % (re.sub(r"[^A-Za-z0-9]+", "_", page)[:60], idx)
         body, att = ask(fam, PROMPT % r, tag)
         if body is None:
-            return {"page": page, "region": idx, "family": fam, "status": "MISSING",
-                    "attempts": att}
+            return {"page": page, "region": idx, "family": fam,
+                    "status": "EXHAUSTED" if att == -1 else "MISSING", "attempts": att}
         m, mo, w = VERDICT.search(body), MODEL.search(body), WHY.search(body)
         return {"page": page, "region": idx, "family": fam, "kind": r["kind"],
                 "status": "ok" if m else "unparsed",
