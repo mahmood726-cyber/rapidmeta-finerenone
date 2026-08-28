@@ -168,7 +168,7 @@ h2{font-family:system-ui,sans-serif;font-size:.74rem;font-weight:700;letter-spac
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"MedicalScholarlyArticle","headline":"RapidMeta Cardiology — Living Meta-Analysis Portfolio","name":"RapidMeta Cardiology — Living Meta-Analysis Portfolio","url":"https://mahmood726-cyber.github.io/rapidmeta-finerenone/","datePublished":"2026-05-24","dateModified":"2026-05-24","inLanguage":"en","author":{"@type":"Person","name":"Mahmood Ahmad","identifier":"https://orcid.org/"},"publisher":{"@type":"Organization","name":"RapidMeta","url":"https://mahmood726-cyber.github.io/rapidmeta-finerenone/"},"isAccessibleForFree":true,"keywords":"meta-analysis, living review, RapidMeta","description":"947 browser-based living meta-analysis apps (781 pairwise + 166 network), R-metafor cross-validated; 617 provenance-verified, each pooling registered trials traced to PMID + registry."}</script>
 <!-- jsonld:end -->
 </head>
-<body><div id="ready-index-note" style="margin:0 0 1.2rem;padding:.85rem 1.1rem;border-left:4px solid #1d4ed8;background:#EFF6FF;font-size:.9rem;line-height:1.55"><strong>These 28 reviews each carry a pooled result with the per-trial evidence behind it.</strong> Other topics in this project are still published at their own addresses and nothing has been deleted &mdash; they are not listed here because their estimate was withdrawn, was never poolable, or is unfinished, and routing readers through them made the finished reviews hard to find.</div><div id="corrected-today" style="margin:1rem 0;padding:.7rem 1rem;border-left:4px solid #059669;background:#F0FDF4;font-size:.85rem"><strong>Corrected 2026-08-16</strong> &mdash; : card k 3&rarr;4, HR 0.84 (0.77&ndash;0.91)&rarr;0.872 (0.746&ndash;1.02); table column layout. <a href="SGLT2_HF_REVIEW.html">SGLT2i in HF</a>: <strong>this correction is itself withdrawn, 2026-08-22.</strong> It announced HR 0.7785 (0.7296&ndash;0.8306) at k=4. No object in this corpus holds 0.7785, and the k=4 outcome it corrected to has since been withdrawn by its own object. The live pooled results for SGLT2i in HF are <strong>0.7636 (0.7062&ndash;0.8258) at k=3</strong> on the harmonised composite and <strong>0.7835 (0.7090&ndash;0.8659) at k=2</strong> on the three-component composite. The wrong figure is left stated above rather than deleted: it was published, and a reader who acted on it is entitled to see it corrected rather than to find it gone. <span style="color:#555">Prior versions archived; before/after ledger retained.</span></div>
+<body><div id="ready-index-note" style="margin:0 0 1.2rem;padding:.85rem 1.1rem;border-left:4px solid #1d4ed8;background:#EFF6FF;font-size:.9rem;line-height:1.55"><strong>What this list selects:</strong> each of these 27 reviews carries a pooled result with the per-trial data behind it. <strong>That is the only property claimed here.</strong> It does not mean a review is complete, and it does not mean it is ready to cite &mdash; most carry a dated <em>not ready</em> flag, and no review on this site has a scientific-validity assessment. Other topics are still published at their own addresses and nothing has been deleted; they are unlisted because their estimate was withdrawn, was never poolable, or is unfinished, and routing readers through them made the ones carrying a result hard to find.</div><div id="corrected-today" style="margin:1rem 0;padding:.7rem 1rem;border-left:4px solid #059669;background:#F0FDF4;font-size:.85rem"><strong>Corrected 2026-08-16</strong> &mdash; : card k 3&rarr;4, HR 0.84 (0.77&ndash;0.91)&rarr;0.872 (0.746&ndash;1.02); table column layout. <a href="SGLT2_HF_REVIEW.html">SGLT2i in HF</a>: <strong>this correction is itself withdrawn, 2026-08-22.</strong> It announced HR 0.7785 (0.7296&ndash;0.8306) at k=4. No object in this corpus holds 0.7785, and the k=4 outcome it corrected to has since been withdrawn by its own object. The live pooled results for SGLT2i in HF are <strong>0.7636 (0.7062&ndash;0.8258) at k=3</strong> on the harmonised composite and <strong>0.7835 (0.7090&ndash;0.8659) at k=2</strong> on the three-component composite. The wrong figure is left stated above rather than deleted: it was published, and a reader who acted on it is entitled to see it corrected rather than to find it gone. <span style="color:#555">Prior versions archived; before/after ledger retained.</span></div>
 <!-- a11y-skiplink:begin -->
 <a href="#main" class="rm-a11y-skiplink" style="position:absolute;left:-999px;top:auto;width:1px;height:1px;overflow:hidden;z-index:9999;background:#0b1220;color:#fff;padding:8px 12px;border-radius:0 0 6px 0;text-decoration:none;font-family:system-ui,-apple-system,sans-serif;font-size:14px;" onfocus="this.style.left='0';this.style.top='0';this.style.width='auto';this.style.height='auto';" onblur="this.style.left='-999px';">Skip to main content</a>
 <!-- a11y-skiplink:end -->
@@ -808,10 +808,24 @@ h2{font-family:system-ui,sans-serif;font-size:.74rem;font-weight:700;letter-spac
 
       var rs = (rec.readiness || {}).state, rdef = READY[rs] || READY.NOT_STATED;
       if (rs === "READY") ready++;
-      row.appendChild(chip(rdef[0], rdef[1],
+      // DATED, BECAUSE AN UNDATED JUDGEMENT IS A CLAIM ABOUT TODAY. The date is read from
+      // the record and never assumed.
+      //
+      // AND THIS FLAG STAYS. "Ready" carries two meanings on this page and they must not
+      // collide: the index selects reviews that carry a POOLED RESULT, while this flag
+      // reports whether a review is ready to PUBLISH -- and it is not. Removing these flags
+      // without a real readiness assessment to replace them would be fabrication by
+      // deletion. Do not tidy them away because they look untidy.
+      var rwhen = (rec.readiness || {}).measured;
+      row.appendChild(chip(rdef[0], rdef[1] + (rwhen ? " · assessed " + rwhen : ""),
         rs === "NOT_STATED"
           ? "This page does not compute a submission-readiness state."
-          : "The page's own submission-readiness banner reads " + String(rs).replace(/_/g, " ") + "."));
+          : "The page's own submission-readiness banner reads "
+            + String(rs).replace(/_/g, " ")
+            + (rwhen ? ", assessed " + rwhen + "." : ".")
+            + " This judges readiness to PUBLISH, which is a different question from"
+            + " whether the review carries a pooled result -- the property this index"
+            + " selects on."));
 
       var pr = rec.process || {};
       var who = pr.n_ai_readers

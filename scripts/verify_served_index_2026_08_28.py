@@ -31,6 +31,10 @@ OUT = os.path.join(REPO, "outputs", "served_index_2026_08_28.json")
 SURFACES = ["index.html", "sitemap.xml", "audit_table.html", "portfolio_pools.html",
             "auto-gallery.html", "index_indicators.json", "outputs/portfolio_index.json"]
 
+# How many KEEP cards carried a DATED readiness state when this floor was set, 2026-08-28.
+# Raise it if a real assessment adds more; never lower it to make a check pass.
+READINESS_FLOOR = 19
+
 
 def fetch(path):
     url = SITE + path + ("&" if "?" in path else "?") + "cb=%d" % int(time.time())
@@ -97,9 +101,10 @@ def main():
     say("")
     say("%-34s %5s %8s %9s %9s" % ("surface (live)", "http", "entries", "in KEEP", "outside"))
 
-    rows, bad = [], []
+    rows, bad, bodies = [], [], {}
     for path in SURFACES:
         body, code = fetch(path)
+        bodies[path] = body
         if code != 200 or body is None:
             say("%-34s %5s   FETCH FAILED" % (path[:34], code))
             bad.append((path, "http %s" % code))
@@ -130,6 +135,41 @@ def main():
                                           what))
         if not present:
             bad.append((path, "changed-today marker %r absent from the live bytes" % needle))
+
+    # THE not-ready FLAGS MUST SURVIVE. This is a standing order expressed as a CHECK,
+    # because a convention that depends on someone remembering gets broken by the next
+    # person in a hurry and fails silently.
+    #
+    # "Ready" carries two meanings here. This index selects reviews that carry a POOLED
+    # RESULT. The card flag reports readiness to PUBLISH, and these reviews are not ready --
+    # seven external reviews on 2026-08-28 scored them between 23 and 40 out of 100. An
+    # index that implied they were finished would be the worst thing on the site.
+    #
+    # So removing these flags without a real readiness assessment to replace them would be
+    # FABRICATION BY DELETION, and this fails if the count drops.
+    say("")
+    say("STANDING ORDER: the dated not-ready flags must not be deleted")
+    n_flag = 0
+    try:
+        cards = (json.loads(bodies.get("index_indicators.json") or "{}")
+                 or {}).get("cards") or {}
+    except ValueError:
+        cards = {}
+    for k, v in cards.items():
+        if not isinstance(v, dict):
+            continue
+        if (k + ".html") not in keep:
+            continue
+        r = v.get("readiness") or {}
+        if r.get("state") and r.get("measured"):
+            n_flag += 1
+    say("   KEEP cards carrying a DATED readiness state: %d (floor %d)"
+        % (n_flag, READINESS_FLOOR))
+    if n_flag < READINESS_FLOOR:
+        bad.append(("index_indicators.json",
+                    "readiness flags dropped to %d, below the floor of %d -- removing them "
+                    "without a replacement assessment is fabrication by deletion"
+                    % (n_flag, READINESS_FLOOR)))
 
     # nothing was deleted: pages dropped from the indexes must still serve
     say("")

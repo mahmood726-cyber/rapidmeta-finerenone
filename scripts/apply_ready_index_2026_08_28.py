@@ -50,14 +50,21 @@ SITE = "https://mahmood726-cyber.github.io/rapidmeta-finerenone/"
 REFUSAL_FIELDS = ("withdrawn_reason", "withdrawn_note", "not_poolable_reason",
                   "absent_reason")
 BANNER_ID = "ready-index-note"
+# NAME THE PROPERTY, NOT THE SET. "Ready" means two different things here and an index that
+# implied these were finished would be the worst thing on the site: the criterion selects
+# reviews that carry a POOLED RESULT, while the card flags report readiness to PUBLISH, which
+# these do not have. The banner says which one it is claiming, and says the other plainly.
 BANNER = (
     '<div id="' + BANNER_ID + '" style="margin:0 0 1.2rem;padding:.85rem 1.1rem;'
     'border-left:4px solid #1d4ed8;background:#EFF6FF;font-size:.9rem;line-height:1.55">'
-    '<strong>These %d reviews each carry a pooled result with the per-trial evidence behind '
-    'it.</strong> Other topics in this project are still published at their own addresses '
-    'and nothing has been deleted &mdash; they are not listed here because their estimate '
-    'was withdrawn, was never poolable, or is unfinished, and routing readers through them '
-    'made the finished reviews hard to find.</div>')
+    '<strong>What this list selects:</strong> each of these %d reviews carries a pooled '
+    'result with the per-trial data behind it. <strong>That is the only property claimed '
+    'here.</strong> It does not mean a review is complete, and it does not mean it is ready '
+    'to cite &mdash; most carry a dated <em>not ready</em> flag, and no review on this site '
+    'has a scientific-validity assessment. Other topics are still published at their own '
+    'addresses and nothing has been deleted; they are unlisted because their estimate was '
+    'withdrawn, was never poolable, or is unfinished, and routing readers through them made '
+    'the ones carrying a result hard to find.</div>')
 
 # index.html's own listing unit, taken from the page rather than assumed
 CARD = ('<a href="%(page)s" class="card ready"><span class="name">%(title)s</span>'
