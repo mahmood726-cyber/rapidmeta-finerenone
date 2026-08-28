@@ -678,7 +678,7 @@ def _not_contributing(canon, p, e):
     rows = ""
     for st in studies:
         link = st.get("source_url")
-        reg = st.get("id") or ""
+        reg = st.get("id") or st.get("nct") or st.get("registration") or ""
         linkhtml = ('<a href="%s" rel="noopener">%s</a>' % (e(link), e(reg))
                     if link else e(reg) or "—")
         rows += ("    <tr><td><strong>%s</strong><br><small>%s</small></td>"
