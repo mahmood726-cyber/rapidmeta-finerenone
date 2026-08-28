@@ -246,7 +246,7 @@ h2{font-family:system-ui,sans-serif;font-size:.74rem;font-weight:700;letter-spac
     <a href="BEMPEDOIC_ACID_REVIEW.html" class="card lipid"><span class="name">Bempedoic acid and major cardiovascular events</span><span class="pub">Single trial: HR 0.87 (0.79 to 0.96), k=1</span></a>
     
     
-    <a href="CANGRELOR_PCI_REVIEW.html" class="card cad"><span class="name">Cangrelor versus clopidogrel at percutaneous coronary intervention</span><span class="pub">Pooled: estimate 0.9646 (0.8132 to 1.144), k=2</span></a>
+    <a href="CANGRELOR_PCI_REVIEW.html" class="card cad"><span class="name">Cangrelor versus clopidogrel at percutaneous coronary intervention</span><span class="pub">Pooled: RR 0.9646 (0.8132 to 1.144), k=2</span></a>
     
     
     
@@ -760,9 +760,23 @@ h2{font-family:system-ui,sans-serif;font-size:.74rem;font-weight:700;letter-spac
       "Multiple trials flagged in the identifier audit (risk score {s} on {d})."],
     QUARANTINED: ["ind-bad", "quarantined",
       "Quarantined by the identifier audit (risk score {s} on {d}). Do not cite."],
-    NOT_MEASURED: ["ind-none", "checks not measured",
-      "This review has NO record in the extraction identifier audit. Not measured is not a "
-      + "pass \u2014 nothing has been checked here."]
+    // SAY WHY IT WAS NOT MEASURED. "checks not measured" reads as a finding about the
+    // review; it is a finding about the AUDIT. Established 2026-08-28 by reading the
+    // records: every unmeasured page has score, n_trials and measured ALL NULL -- the audit
+    // never ran on it -- and every one is an auto-built page, while the eleven measured are
+    // the curated set. So the audit covered the curated pages on 2026-08-11 and was never
+    // extended. That is a coverage gap with a date, not a defect in these reviews.
+    //
+    // It still is NOT a pass, and the wording keeps saying so. Naming the cause must not
+    // become excusing the absence.
+    NOT_MEASURED: ["ind-none", "audit never run",
+      "This review has NO record in the extraction identifier audit, which last ran on "
+      + "2026-08-11 and covered the curated reviews only \u2014 every page without a record "
+      + "is an auto-built one, and its score, trial count and date are all empty rather than "
+      + "poor. So this says nothing bad about the review and nothing good either: NOT "
+      + "MEASURED IS NOT A PASS, and nothing here has been checked. The audit also measures "
+      + "only extraction identifiers and, in its own file's words, \u2018measures nothing "
+      + "about the synthesis\u2019."]
   };
   var READY = {
     READY: ["ind-pass", "states it is ready"],

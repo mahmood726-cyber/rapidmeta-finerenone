@@ -268,7 +268,15 @@ def result_line(page, pm):
             continue
         if any(blk.get(f) for f in REFUSAL_FIELDS):
             continue
-        meas = pooled.get("measure") or "estimate"
+        # THE MEASURE IS NOT ALWAYS ON `pooled`. cangrelor's live outcome
+        # (corrected_composite_3component) carries no pooled.measure at all: the measure is
+        # on the BLOCK as "RR", and a third copy sits in measure_recovered_2026_08_21. The
+        # card therefore read "Pooled: estimate 0.9646" -- a real number with its measure
+        # replaced by a placeholder, which tells a reader nothing about what 0.9646 IS.
+        # Fallback order is most-specific first; "estimate" survives only as a last resort
+        # and is now reported rather than shipped silently.
+        meas = (pooled.get("measure") or blk.get("measure")
+                or pooled.get("measure_recovered_2026_08_21") or "estimate")
         lo, hi, k = pooled.get("ci_low"), pooled.get("ci_high"), blk.get("k")
         # A POOL OF ONE IS NOT A POOL. bempedoic-acid holds exactly one trial
         # (NCT02993406) and read "Pooled: HR 0.87 (0.79 to 0.96), k=1", which presents a
