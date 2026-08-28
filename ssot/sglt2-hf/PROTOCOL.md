@@ -1,5 +1,16 @@
 # Protocol - SGLT2 inhibitors against placebo in chronic heart failure across the ejection fraction spectrum: the four randomised outcome trials that report cardiovascular death or a worsening heart failure event as a time-to-first hazard ratio
 
+> ## THIS DRAFT DOES NOT GOVERN. The registration for this topic is `protocols/sglt2_hf_protocol_v1.0_2026-04-19.md`.
+>
+> Under the ruling of 2026-08-28 an existing curated protocol governs and is amended
+> rather than replaced. That file is the registration, it was committed and anchored
+> before this topic's search, and its Amendment 1 records that search.
+>
+> This draft is kept because it was written, not because it applies. It keeps its
+> unanchored-draft banner below, which is accurate about ITSELF and must not be read
+> as saying the topic is unregistered - a reader finding a bannered file here would
+> reasonably conclude exactly that, which is why this note exists.
+
 > ## ⚠ THIS IS AN UNANCHORED DRAFT. IT IS NOT A REGISTRATION.
 >
 > Drafted 2026-08-27 and committed **only so the work is preserved** when the
