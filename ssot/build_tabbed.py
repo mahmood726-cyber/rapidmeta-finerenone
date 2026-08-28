@@ -87,6 +87,36 @@ def _page_generated_utc():
     return datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
 
 
+def _repro_note(reg, c0):
+    """The reproducibility promise, DERIVED from whether it is true on this page.
+
+    THE LARGEST SINGLE CLASS IN THE REVIEW REGISTER: 130 findings across 126
+    pages, one string. "Everything a third party needs to rebuild this page" was
+    printed unconditionally, including on pages whose Canonical object cell is an
+    em dash. A reader cannot rebuild a page from an object that is not recorded,
+    so there the sentence is not a weak claim but a false one -- and it is the
+    worst kind available here: a promise of VERIFIABILITY made by a page that
+    cannot be verified.
+
+    DERIVE OR REFUSE, AND REFUSE ONLY THE HALF THAT IS FALSE. The figures really
+    do download carrying exactly the values shown whatever the object situation,
+    so that sentence survives every branch. Dropping it too would substitute a
+    softer claim in the other direction, and saying less than is true is also not
+    saying what is true.
+    """
+    figures = ("Each figure on the Analysis tab downloads as an SVG carrying exactly "
+               "the values shown.")
+    missing = []
+    if not (reg or {}).get("path"):
+        missing.append("no canonical object is recorded")
+    if not (c0 or {}).get("sha"):
+        missing.append("no registered commit is recorded")
+    if not missing:
+        return "Everything a third party needs to rebuild this page. " + figures
+    return ("This page CANNOT be rebuilt from what is recorded here: %s. %s"
+            % (" and ".join(missing), figures))
+
+
 def _v(x, absent="—", limit=None):
     """Escape a value for HTML, rendering ABSENCE as a dash rather than as the word "None".
 
@@ -280,16 +310,65 @@ def paper_studio(canon, res, p):
               % (NL, NL, NL, NL, chips, NL, NL, NL))
 
 
+
+# t_{k-1, .975} against the normal quantile. A prediction interval's width is
+# t * sqrt(tau2 + se^2); when t is much larger than z, almost all of that width
+# is the SMALL-SAMPLE CORRECTION rather than the estimated heterogeneity, and
+# the interval stops describing where a future study would land.
+_T_CRIT = {2: 12.70620, 3: 4.302653, 4: 3.182446, 5: 2.776445, 6: 2.570582,
+           7: 2.446912, 8: 2.364624, 9: 2.306004, 10: 2.262157}
+_Z_CRIT = 1.959963985
+
+
+def _pi_is_informative(k):
+    """Show a prediction interval only where the data, not t, sets its width.
+
+    THE THRESHOLD IS DERIVED, NOT CHOSEN. Show when t_{k-1} < 2z:
+
+        k = 2   t = 12.706   6.48x z   the interval is the critical value
+        k = 3   t =  4.303   2.20x z   still dominated by it
+        k = 4   t =  3.182   1.62x z   data-dominated  <- first k that qualifies
+        k = 10  t =  2.262   1.15x z
+
+    Correcting the arithmetic of a k=2 interval is not enough. sglt2-hf's
+    corrected interval runs 0.358 to 1.715 -- honest, and close to
+    uninformative. Derive-or-refuse applies to what the interval is FOR, not
+    only to how it was computed.
+    """
+    if not isinstance(k, int) or k < 2:
+        return False, ("no prediction interval is shown: one is undefined below two "
+                       "studies.")
+    t = _T_CRIT.get(k)
+    if t is None:
+        return (True, "") if k > 10 else (False, "")
+    if t < 2 * _Z_CRIT:
+        return True, ""
+    return False, ("No prediction interval is shown for this pool. At k = %d the "
+                   "t critical value is %.3f against a normal quantile of %.3f, so "
+                   "%.1f times the interval's width would be the small-sample "
+                   "correction rather than the estimated heterogeneity -- it would "
+                   "describe the critical value, not where a future study is likely "
+                   "to fall. An interval is shown from k = 4, where that factor "
+                   "drops below two." % (k, t, _Z_CRIT, t / _Z_CRIT))
+
 def statistics_tables(res, p):
     pan = res.get("panels") or {}
     cp = res.get("count_panels") or {}
     out, rows = "", ""
     pr = pan.get("prediction")
     if pr:
-        rows += ("    <tr><th>Prediction interval</th><td class='num'>%s to %s</td>"
-                 "<td><small>%s</small></td></tr>%s"
-                 % (pj.fmt(pr["pi_low"]), pj.fmt(pr["pi_high"]),
-                    p(pr.get("convention", "")), NL))
+        _k = res.get("k")
+        if _k is None:
+            _k = len([r for r in (res.get("per_trial") or []) if isinstance(r, dict)])
+        _ok, _why = _pi_is_informative(_k)
+        if _ok:
+            rows += ("    <tr><th>Prediction interval</th><td class='num'>%s to %s</td>"
+                     "<td><small>%s</small></td></tr>%s"
+                     % (pj.fmt(pr["pi_low"]), pj.fmt(pr["pi_high"]),
+                        p(pr.get("convention", "")), NL))
+        else:
+            rows += ("    <tr><th>Prediction interval</th><td class='num'>not shown</td>"
+                     "<td><small>%s</small></td></tr>%s" % (p(_why), NL))
     tc = pan.get("tau2_ci")
     if tc:
         rows += ("    <tr><th>Between-study variance</th><td class='num'>%s (%s to "
@@ -609,7 +688,13 @@ def output_card(canon, p):
         # Measured 2026-08-26: 16 of 155 objects carry a build_stamp at all and 137 of 149
         # delivered pages carry no standard line, so "is this current" was unanswerable for
         # 92 percent of the corpus.
-        ("Source object SHA-256",
+        # A 16-character value cannot be labelled "SHA-256": the digest is 64 hex
+        # characters and this is the first 16 of them. The label now says what is
+        # actually shown, so a reader can reproduce it exactly. The value is left
+        # alone deliberately -- scripts/figure_detectors.py matches [0-9a-f]{16}
+        # against it, and widening the field would have it capture a prefix and
+        # call it the whole digest, which is the same defect one layer down.
+        ("Source object SHA-256, first 16 hex characters",
          "<code>%s</code>" % e(__import__("hashlib").sha256(
              __import__("json").dumps(canon, sort_keys=True, separators=(",", ":"),
                                       ensure_ascii=False).encode("utf-8")).hexdigest()[:16])),
@@ -654,8 +739,7 @@ def output_card(canon, p):
           "that exists now, not the one this page was built against."
           % (e(_generator_stamp()[0]), e(_generator_stamp()[1])))),
         ("Statistical engine", p((first.get("cross_engine") or {}).get("engine", ""))),
-    ], "Everything a third party needs to rebuild this page. Each figure on the "
-       "Analysis tab downloads as an SVG carrying exactly the values shown.")
+    ], _repro_note(reg, c0))
     # THE FOOTNOTES ARE NOT DECORATION. A downgrade with its reason removed is a letter,
     # and "See comment" with no comment is worse than the dash it replaced. Every superscript
     # emitted above resolves to one of these, and the table refuses to render if one does not.

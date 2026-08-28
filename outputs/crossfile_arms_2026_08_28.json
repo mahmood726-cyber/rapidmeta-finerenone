@@ -1,0 +1,84 @@
+{
+ "question": "does as_posted agree with findings/pmid_groups.json, arm by arm",
+ "improvement_over_the_prior_sweep": "positional, not sorted -- so it names WHICH arm differs, not only THAT the copies differ",
+ "schemas": "routes through the shared _as_posted_pairs, which handles all eight as_posted shapes; the prior sweep missed the percentage shape and so never examined hepatitis-b-taf-tdf",
+ "delta_meaning": {
+  "~0.5": "continuity correction -- same quantity, two states",
+  "large": "different population -- interim micro-ITT against ITT. Never sum the two kinds."
+ },
+ "counts": {
+  "page has NO topic object": 74,
+  "object has NO as_posted": 7,
+  "DIFFERENT POPULATION SHAPE": 2
+ },
+ "real_denominator": 2,
+ "rows": [
+  {
+   "page": "GEPOTIDACIN_URINARY_TRACT_AUTO_FULL_REVIEW.html",
+   "nct": "NCT04020341",
+   "pmid": "34978887",
+   "kind": "DIFFERENT POPULATION SHAPE",
+   "largest_delta": 477.0,
+   "which_arms_differ": [
+    {
+     "field": "treatment events",
+     "as_posted": 162.0,
+     "pmid_groups": 174.0,
+     "delta": 12.0
+    },
+    {
+     "field": "treatment n",
+     "as_posted": 320.0,
+     "pmid_groups": 767.0,
+     "delta": 447.0
+    },
+    {
+     "field": "control events",
+     "as_posted": 135.0,
+     "pmid_groups": 158.0,
+     "delta": 23.0
+    },
+    {
+     "field": "control n",
+     "as_posted": 287.0,
+     "pmid_groups": 764.0,
+     "delta": 477.0
+    }
+   ]
+  },
+  {
+   "page": "GEPOTIDACIN_URINARY_TRACT_AUTO_FULL_REVIEW.html",
+   "nct": "NCT04187144",
+   "pmid": "34978887",
+   "kind": "DIFFERENT POPULATION SHAPE",
+   "largest_delta": 536.0,
+   "which_arms_differ": [
+    {
+     "field": "treatment events",
+     "as_posted": 162.0,
+     "pmid_groups": 549.0,
+     "delta": 387.0
+    },
+    {
+     "field": "treatment n",
+     "as_posted": 277.0,
+     "pmid_groups": 805.0,
+     "delta": 528.0
+    },
+    {
+     "field": "control events",
+     "as_posted": 115.0,
+     "pmid_groups": 517.0,
+     "delta": 402.0
+    },
+    {
+     "field": "control n",
+     "as_posted": 264.0,
+     "pmid_groups": 800.0,
+     "delta": 536.0
+    }
+   ]
+  }
+ ],
+ "not_written": "which population a page should report is a published-number decision"
+}

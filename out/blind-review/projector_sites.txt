@@ -1,0 +1,15 @@
+python files scanned : 113
+unparseable          : 0 []
+
+SITE KINDS (a site is not yet a defect):
+   OR-DEFAULT-CLAIM         20
+   GET-DEFAULT-CLAIM        14
+   EXACT-TOKEN-ELSE-CLAIM   1
+
+total sites: 35
+
+--- EXACT-TOKEN-ELSE-CLAIM (the _favoured_arm shape) ---
+  build_tabbed.py:1165  field='state'
+      tests 'state' == 'HELD'; the else branch asserts 'warn' to a reader, so every other stored value -- including a recorded absence -- renders as that assertion
+
+wrote out/projector_sites.json

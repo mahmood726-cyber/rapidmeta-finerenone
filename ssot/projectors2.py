@@ -921,11 +921,54 @@ def visual_abstract(canon, res, outcome, p):
     # `trial_id`; matching on acronym is the bad-key failure that gave three parties three
     # different answers on the KCCQ outcome.
     n_total, _n_matched, _n_wanted = _analysed_n_for_outcome(canon, res)
+    _n_total_note = ""
+    # THE DISAGREEING INTERVAL, wherever it is stored. Hartung-Knapp intervals
+    # live under at least eight different keys in this corpus; reading one of
+    # them found 2 pools and reading all of them found 6.
+    def _hk(node, depth=0):
+        import re as _re
+        if depth > 6:
+            return None
+        if isinstance(node, dict):
+            for k, v in node.items():
+                if _re.search(r"hartung|knapp|hksj|knha", str(k), _re.I)                         and isinstance(v, dict) and v.get("ci_low") is not None                         and v.get("ci_high") is not None:
+                    return (v["ci_low"], v["ci_high"])
+                got = _hk(v, depth + 1)
+                if got:
+                    return got
+        elif isinstance(node, list):
+            for v in node[:40]:
+                got = _hk(v, depth + 1)
+                if got:
+                    return got
+        return None
+    _alt_iv = _hk(res)
+    if not n_total:
+        # NAME THE REASON, DO NOT JUST WITHHOLD THE NUMBER. On alirocumab-lipid
+        # two trials recovered on 2026-08-19 carry `enrolled` but no `arms`, so
+        # the ANALYSED total cannot be summed even though enrolment can. The old
+        # rendering ("n/a participants") invited the reading that no count
+        # existed anywhere, when 4,431 enrolled is recorded on the object and is
+        # simply a different quantity.
+        _cn = {str(x.get("nct") or x.get("trial_id")) for x in (res.get("per_trial") or [])
+               if isinstance(x, dict)}
+        _tr = [t for t in ((canon.get("inputs") or {}).get("trials") or [])
+               if isinstance(t, dict) and str(t.get("nct") or t.get("id")) in _cn]
+        _no_arms = [t for t in _tr if not t.get("arms")]
+        if _no_arms and _tr:
+            _enr = sum(int(t.get("enrolled") or 0) for t in _tr)
+            _n_total_note = ("%d of %d contributing trials record no analysed arm counts"
+                             % (len(_no_arms), len(_tr)))
+            if _enr and all(t.get("enrolled") for t in _tr):
+                _n_total_note += ("; %s were enrolled across all %d, but enrolment is not "
+                                  "the analysed total" % ("{:,}".format(_enr), len(_tr)))
     if _n_wanted and _n_matched != _n_wanted:
         # AND IT REFUSES RATHER THAN UNDERSTATING. If a contributing trial cannot be
         # matched to an arm count, the sum is not this pool's total and must not be shown
         # as one -- a quietly smaller wrong number is not an improvement on a larger one.
         n_total = 0
+        _n_total_note = ("%d of %d contributing trials could not be matched to a "
+                         "registered arm count" % (_n_wanted - _n_matched, _n_wanted))
     g = res.get("grade") or {}
     sens = res.get("sensitivity") or {}
     loo = ""
@@ -973,7 +1016,7 @@ def visual_abstract(canon, res, outcome, p):
         # found it; nothing that read the generator could have.
         _ga.resolve(canon, outcome.get("id"))["cell"]
         if outcome.get("id") else g.get("certainty"),
-        outcome.get("name", ""), loo),
+        outcome.get("name", ""), loo, _n_total_note, _alt_iv),
         "Visual abstract", "visual-abstract.svg",
         _interval_caption(pooled, outcome.get("null_value", 1)))
 

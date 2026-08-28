@@ -1624,7 +1624,33 @@
     "found_by_independent_review": "Identified by Gemini 3.1 Pro (Google), given the four registry primaries and our withdrawal reasoning SEPARATELY and asked whether the conclusion followed. It answered that the observation was right and the response disproportionate, and named the harmonised secondary as the fix. ATTRIBUTED BECAUSE THAT IS THE STANDARD WE APPLY TO EVERY PUBLISHED SYNTHESIS WE EXAMINE.",
     "the_three_values_are_concordant": "0.75, 0.75 and 0.79. The estimate was recoverable AND consistent. That makes the disproportion the finding rather than a footnote.",
     "why_k_equals_3_and_not_4": "DELIVER (NCT03619213) does NOT post the first-event two-component outcome. Its registry secondaries are RECURRENT-EVENT composites (HR 0.77), which is a different quantity again. Its harmonised value exists in the publication, not the registration. A k=3 POOL WE CAN FULLY VOUCH FOR BEATS A k=4 WITH ONE INPUT WE CANNOT -- the same call made for INCRETIN_HFpEF.",
-    "owed_retrieval": "OWED, NOT A PERMANENT GAP: the DELIVER publication's first-event CV death or HF hospitalisation hazard ratio with its interval. One trial, one number, one table. Adding it makes this k=4 and requires the mixed-provenance declaration this corpus gives INCRETIN_HFpEF.",
+    "owed_retrieval": {
+     "previous_text": "OWED, NOT A PERMANENT GAP: the DELIVER publication's first-event CV death or HF hospitalisation hazard ratio with its interval. One trial, one number, one table. Adding it makes this k=4 and requires the mixed-provenance declaration this corpus gives INCRETIN_HFpEF.",
+     "what_is_missing": "DELIVER's harmonised CV death or first HF hospitalisation hazard ratio -- the TWO-component composite, excluding urgent heart-failure visits.",
+     "why_it_is_not_unknowable": "It is reported at trial level in a published synthesis. Naming the source turns an open-ended 'owed' into a retrieval with an address. An unnamed gap reads as unknowable; this one is not.",
+     "named_source": {
+      "citation": "Vaduganathan M et al. SGLT-2 inhibitors in patients with heart failure: a comprehensive meta-analysis of five randomised controlled trials. Lancet 2022;400:757.",
+      "pmid": "36041474",
+      "doi": "10.1016/S0140-6736(22)01429-5",
+      "why_this_source": "its stated method is trial-level data with HARMONISED endpoint definitions, and its primary endpoint is exactly this composite"
+     },
+     "primary_read_attempted_2026_08_28": {
+      "deliver_primary_publication": {
+       "pmid": "36027570",
+       "doi": "10.1056/NEJMoa2206286"
+      },
+      "what_the_primary_abstract_gives": "the THREE-component primary: worsening heart failure (unplanned HF hospitalisation or urgent HF visit) or cardiovascular death -- 512/3131 vs 610/3132, HR 0.82 (0.73 to 0.92). Also worsening HF alone 368 vs 455, HR 0.79 (0.69-0.91), and cardiovascular death 231 vs 261, HR 0.88 (0.74-1.05).",
+      "what_it_does_NOT_give": "the two-component composite. The harmonised value is in neither abstract.",
+      "blocker": "Neither publication is in PubMed Central -- no PMC identifier on either record -- so the trial-level figure carrying the harmonised DELIVER row cannot be read from an open source by this process.",
+      "what_would_resolve_it": "the Vaduganathan trial-level forest plot or its appendix, read directly; then this pool becomes k=4."
+     },
+     "value_offered_by_an_external_review_NOT_INSERTED": {
+      "value": "HR 0.80 (0.71 to 0.91), 475/3131 vs 577/3132",
+      "why_not_inserted": "It is consistent -- the denominators 3131/3132 match the primary publication exactly, and 475 < 512 and 577 < 610 are what removing urgent visits should do. But consistency is not sourcing. It appears in neither abstract I read, so inserting it would put an unverified number into a headline pool.",
+      "status": "admissible under 'open sources supply the values' ONCE READ AT ITS SOURCE"
+     },
+     "cost_of_the_gap_MEASURED": "This pool holds 14,462 of 20,725 randomised participants across the four trials. DELIVER's 6,263 is 30.2% of the evidence base, absent from a headline result. If added at the value above the pool becomes k=4, HR 0.7738 (0.7243 to 0.8268), I-squared 0% -- computed here from the four trial-level estimates. The conclusion barely moves; the completeness does."
+    },
     "what_this_does_not_establish": "NOT that the original four-trial pool was acceptable -- it combined quantities that were not the same quantity, and that withdrawal stands on this page with its reason. NOT that these three trials are free of bias; no risk-of-bias assessment is recorded. NOT a result for DELIVER's population, which is absent here.",
     "house_rule_interval_2026_08_18": {
      "estimator": "REML with Hartung-Knapp, t on k-1 = 2 degree(s) of freedom (t = 4.3027)",
@@ -1648,7 +1674,8 @@
      "verbatim": "A. CARDIOVASCULAR DEATH OR HOSPITALISATION FOR HEART FAILURE (two-component), k=3\n==============================================================================\ntrials: NCT03036124 DAPA-HF (secondary), NCT03057977 EMPEROR-Reduced (primary), NCT03057951 EMPEROR-Preserved (primary) \n\n\nRandom-Effects Model (k = 3; tau^2 estimator: REML)\n\ntau^2 (estimated amount of total heterogeneity): 0 (SE = 0.0048)\ntau (square root of estimated tau^2 value):      0\nI^2 (total heterogeneity / total variability):   0.00%\nH^2 (total variability / sampling variability):  1.00\n\nTest for Heterogeneity:\nQ(df = 2) = 0.3837, p-val = 0.8254\n\nModel Results:\n\nestimate      se     zval    pval    ci.lb    ci.ub      \n -0.2697  0.0399  -6.7532  <.0001  -0.3479  -0.1914  *** \n\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n\nBack-transformed to the hazard-ratio scale:\n\n   pred  ci.lb  ci.ub  pi.lb  pi.ub \n 0.7636 0.7062 0.8258 0.7062 0.8258",
      "call": "rma(yi = log(hr), sei = (log(hi)-log(lo))/(2*qnorm(0.975)), method = \"REML\")",
      "script": "ssot/sglt2_pools.R",
-     "reproduces_the_stored_value": "The stored pooled value was HR 0.7636 (0.7062 to 0.8258). This run reproduces it EXACTLY -- an independent confirmation of a number that was already on the page."
+     "reproduces_the_stored_value": "The stored pooled value was HR 0.7636 (0.7062 to 0.8258). This run reproduces it EXACTLY -- an independent confirmation of a number that was already on the page.",
+     "prediction_interval_on_t_k_minus_1_2026_08_28": "This transcript is quoted verbatim and is NOT edited. metafor's predict() takes its quantile from the FIT, and a default rma() is test=\"z\", so the pi.lb/pi.ub printed above are normal-quantile bounds. The Handbook interval for the same fit, on t_{k-1}, is given here beside it rather than in place of it."
     },
     "POOL_FINDINGS_2026_08_21": {
      "a_one_of_these_three_trials_is_not_contributing_its_registered_primary": "READ THIS BESIDE THE ESTIMATE. This outcome is the HARMONISED two-component composite -- cardiovascular death or hospitalisation for heart failure. That is the registered primary of EMPEROR-Reduced and EMPEROR-Preserved. IT IS NOT DAPA-HF'S: NCT03036124 registers a THREE-component primary that also counts an URGENT HEART-FAILURE VISIT. The harmonisation is disclosed in this outcome's own name; what follows from it for risk of bias is recorded per result.",
@@ -1708,15 +1735,25 @@
      "i2_definition": "REML/metafor I-squared as printed by rma()"
     },
     "prediction_interval": {
-     "low": 0.6945,
-     "high": 0.884,
-     "note": "metafor predict() pi.lb/pi.ub; at k=2 a prediction interval is extremely weakly determined and is reported because it was computed, not because it is informative."
+     "low": 0.358,
+     "high": 1.7149,
+     "note": "metafor predict() pi.lb/pi.ub; at k=2 a prediction interval is extremely weakly determined and is reported because it was computed, not because it is informative.",
+     "superseded_2026_08_28": {
+      "low": 0.6945,
+      "high": 0.884,
+      "why": "built with a normal quantile",
+      "note": "Recomputed on t_{k-1}, the quantile this object's own GRADE imprecision step already uses (t = 12.7062 on 1 df at k = 2). The superseded bounds were built with a normal quantile, which at small k is not a small difference: at k = 2 it is a factor of 6.5 and can make the interval exclude no difference where the correct one spans it."
+     },
+     "quantile": "t_{k-1}",
+     "t_critical": 12.7062,
+     "recomputed_2026_08_28": "Recomputed on t_{k-1}, the quantile this object's own GRADE imprecision step already uses (t = 12.7062 on 1 df at k = 2). The superseded bounds were built with a normal quantile, which at small k is not a small difference: at k = 2 it is a factor of 6.5 and can make the interval exclude no difference where the correct one spans it."
     },
     "r_output": {
      "_environment": "R version 4.6.0 (2026-04-24 ucrt); metafor 5.0.1",
      "verbatim": "B. CV DEATH, HOSPITALISATION FOR HF, OR URGENT HF VISIT (three-component), k=2\n==============================================================================\ntrials: NCT03036124 DAPA-HF (primary), NCT03619213 DELIVER (primary) \n\n\nRandom-Effects Model (k = 2; tau^2 estimator: REML)\n\ntau^2 (estimated amount of total heterogeneity): 0.0012 (SE = 0.0075)\ntau (square root of estimated tau^2 value):      0.0344\nI^2 (total heterogeneity / total variability):   22.51%\nH^2 (total variability / sampling variability):  1.29\n\nTest for Heterogeneity:\nQ(df = 1) = 1.2904, p-val = 0.2560\n\nModel Results:\n\nestimate      se     zval    pval    ci.lb    ci.ub      \n -0.2439  0.0510  -4.7836  <.0001  -0.3439  -0.1440  *** \n\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n\nBack-transformed to the hazard-ratio scale:\n\n   pred  ci.lb  ci.ub  pi.lb  pi.ub \n 0.7835 0.7090 0.8659 0.6945 0.8840",
      "call": "rma(yi = log(hr), sei = (log(hi)-log(lo))/(2*qnorm(0.975)), method = \"REML\")",
-     "script": "ssot/sglt2_pools.R"
+     "script": "ssot/sglt2_pools.R",
+     "prediction_interval_on_t_k_minus_1_2026_08_28": "This transcript is quoted verbatim and is NOT edited. metafor's predict() takes its quantile from the FIT, and a default rma() is test=\"z\", so the pi.lb/pi.ub printed above are normal-quantile bounds. The Handbook interval for the same fit, on t_{k-1}, is given here beside it rather than in place of it."
     },
     "relationship_to_the_other_pools": "This does NOT supersede the two-component pool and is not superseded by it. They estimate the effect on DIFFERENT composite endpoints. The k=4 pool that mixed the two definitions remains withdrawn."
    }
@@ -2042,6 +2079,40 @@
     "10.14"
    ],
    "conformance": "The molecule is a documented crossed dimension in the uniformity table under section 10.10.1, and the leave-one-out analysis run under section 10.14 is what lets a reader see how little the average moves when any one trial is removed. Both are reported; neither is offered as a subgroup analysis, because this object holds no test for a difference between the molecules and does not imply one."
+  },
+  "MIXED_POPULATION_RULE_2026_08_28": {
+   "rule": "A trial belongs to the CHRONIC population if recent decompensation is NOT AN ENTRY REQUIREMENT. The distinction is not what proportion happened to be recently hospitalised -- it is whether a qualifying acute event was REQUIRED to enter.",
+   "retrospective": "WRITTEN AFTER THE TRIALS WERE KNOWN. This is a retrospective criterion like every other in this corpus. It is defensible on its logic; presenting it as prespecified would not be. Say so wherever it is applied.",
+   "why_design_not_percentage": "A proportion is an accident of recruitment and varies between trials testing the same question. An entry criterion is a property of the trial and is checkable from the registration and protocol. A percentage threshold would also have to be defended as a number, and there is nothing to defend one with.",
+   "applied_here": {
+    "SOLOIST-WHF (NCT03521934)": "EXCLUDED ON DESIGN -- a recent worsening-HF event is its entry criterion. This object already excluded it on population with design-based reasoning; the rule confirms that call and does not change the included set.",
+    "DELIVER (NCT03619213)": "INCLUDED ON DESIGN -- chronic HF enrolment that PERMITTED randomisation during or within 30 days of discharge. 654 of 6,263 participants, 10.4%, were randomised that way. Disclosed here because a reader should see the mixture rather than infer homogeneity."
+   },
+   "full_rule": "carried in full here rather than in a new top-level decisions/ directory -- the repo's staging guard refused that path and creating a new top-level directory to satisfy my own convenience is not a change I should make unilaterally. A working copy also sits in the review workspace.",
+   "secondary_safeguard": "PROJECT CONVENTION, NOT A COCHRANE THRESHOLD: where permitted but not required, include at >= 80% chronic, or use the chronic subgroup where separately extractable.",
+   "mandatory_disclosure": "The permitted proportion is reported for EVERY included trial, in the review and not only in the object.",
+   "AMENDED_2026_08_28": {
+    "why_amended": "The rule's author checked it against the Handbook and corrected two things. Recorded here rather than silently applied.",
+    "correction_1_the_threshold_is_ours": "THE 80% IS A PROJECT CONVENTION, NOT A COCHRANE THRESHOLD. The Handbook specifies no threshold for partially-eligible populations. Presenting the number as though it carried Handbook authority would be the 'value where a pointer belongs' error -- a figure quoted without its source, inside a rule about rigour.",
+    "correction_2_what_the_handbook_requires": "A MECHANISM, NOT A THRESHOLD. So the rule's CONTENT is compatible: the Handbook leaves the criterion to the review and requires only that one exists and is stated in advance. Design-based eligibility under a PICO-defined population is legitimate.",
+    "correction_3_it_fails_on_timing": "The requirement is PRESPECIFICATION and this rule was written after the trials were known. It is defensible on its logic AND retrospective in its provenance, and both belong in the same sentence wherever it is applied -- the caveat shares the sentence with the claim rather than trailing it. The same applies to the subgroup arm: subgroup analyses are to be planned a priori and stated as a secondary objective in the protocol.",
+    "citation_VERIFIED_AT_APPLY_TIME": {
+     "verified_utc": "2026-08-28",
+     "how": "fetched training.cochrane.org/handbook/current/chapter-03, which redirects to cochrane.org/authors/handbooks-and-manuals/handbook/current/chapter-03",
+     "section": "3.2.1 -- Defining types of participants: which people and populations?",
+     "instrument": "MECIR Box 3.2.a, item C6 -- Predefining a strategy for studies with a subset of eligible participants",
+     "quoted": "Define in advance how studies that include only a subset of relevant participants will be addressed.",
+     "grading": "HIGHLY DESIRABLE, not Mandatory. This matters and is recorded rather than rounded up: our departure is from a highly-desirable standard, not a mandatory one. Overstating the breach would be as inaccurate as hiding it.",
+     "what_was_NOT_verified": "the rule was handed to me citing 'Chapter 3' with the subsection unconfirmed. The subsection is now confirmed as 3.2.1. This verification is a single fetch of the Handbook's own page, quoted rather than paraphrased; it is evidence, not certainty."
+    },
+    "amended_rule_text": {
+     "primary_design": "A trial is in the chronic population if recent decompensation is NOT an entry requirement. SOLOIST-WHF excluded on design; DELIVER included on design.",
+     "secondary_composition": "PROJECT CONVENTION, NOT A COCHRANE THRESHOLD: where permitted but not required, include at >= 80% chronic, or use the chronic subgroup where separately extractable.",
+     "disclosure": "Report the permitted proportion for every included trial. DELIVER 10.4%.",
+     "provenance": "Written after the trials were known. RETROSPECTIVE, and labelled so at every point of application.",
+     "basis": "Cochrane Handbook section 3.2.1 (MECIR Box 3.2.a, C6, Highly desirable) requires a prespecified mechanism for partially-eligible populations and specifies NO threshold. This rule supplies the mechanism and does not meet the prespecification requirement."
+    }
+   }
   }
  },
  "topic_state": "WITHDRAWAL SUPERSEDED -- harmonised pool built, k=3, registry-sourced; the original mismatched pool remains withdrawn with its reason",

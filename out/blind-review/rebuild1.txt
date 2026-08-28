@@ -1,0 +1,13 @@
+Traceback (most recent call last):
+  File "F:\claude-temp\blind-review\mainsrc\ssot\build_app_v2.py", line 1709, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "F:\claude-temp\blind-review\mainsrc\ssot\build_app_v2.py", line 1703, in main
+    out.write_text(build(canon), encoding="utf-8")
+                   ~~~~~^^^^^^^
+  File "F:\claude-temp\blind-review\mainsrc\ssot\build_app_v2.py", line 403, in build
+    return _page(canon, sections, p, e)
+  File "F:\claude-temp\blind-review\mainsrc\ssot\build_app_v2.py", line 1592, in _page
+    f"  <p>{p(srcs[r['target_source_id']]['name'])}</p>\n"
+              ~~~~^^^^^^^^^^^^^^^^^^^^^^^
+KeyError: 'not recorded on the page this object was extracted from'
