@@ -41,6 +41,7 @@ GATES = [
     ("gate8_caller_and_wiring", "every gate has a caller; every removal a precondition", "fast"),
     ("gate9_shared_scratch", "the shared-scratch lint actually runs", "fast"),
     ("gate10_planted_regression", "every defect class we found is still found", "fast"),
+    ("gate11_no_plant_leaks", "no plant fixture has reached a corpus file", "fast"),
 ]
 
 
