@@ -517,3 +517,61 @@ part of its production, and they were not stored.
 ⇒ Fixed at the source: `provenance.py` now records `argv`. **Same shape as a page naming its
 generator and not its object** — a provenance record that cannot distinguish two runs of the
 same script over different populations is not yet provenance.
+
+---
+
+## 12. Closing the six blind cells — the regulators were not the route
+
+Tested 2026-08-28 on the same two trials. **Answer: the regulatory documents answered ZERO of
+the six, because no regulatory document was reachable at all. Three of six were closed by a
+different route.**
+
+### What was tried, named
+
+| route | result |
+|---|---|
+| **FDA** | **not applicable** — the US application for the ring was withdrawn, so no FDA review exists |
+| **EMA** EPAR page | `404` on the medicine slug |
+| **EMA** site search | `403` — bot-blocked |
+| **Europe PMC** OA full text, ASPIRE | `404` — `inPMC=Y` but **not in the open-access subset** |
+| ⭐ **NCBI efetch**, same deposit | **`200`, 44,181 rendered characters** |
+| **Europe PMC**, Ring Study | **not in PMC, not open access** — paywalled |
+
+⚠️ **`inPMC=Y` is not `isOpenAccess=Y` is not "machine-retrievable".** Europe PMC's OA endpoint
+refused the ASPIRE deposit; NCBI's `efetch` served the same record. **Two indexes over one
+deposit disagreed about whether it exists, and the pessimistic one was wrong.** A retrieval
+that stops at the first index reports a paywall that is not there.
+
+### What the accessible paper answers — ASPIRE, `NCT01617096`
+
+| signalling question | in the manuscript? |
+|---|---|
+| 1.1 sequence generation | **yes** — *"assigned in a 1:1 ratio, with the use of fixed-size block randomization, stratified according to site"* |
+| 1.2 allocation concealment | **no** — not reported |
+| 2.1 blinding of participants | **yes** — *"phase 3, randomized, double-blind, placebo-controlled"* |
+| 2.6 appropriate analysis | **yes** — *"performed according to the intention-to-treat principle"* |
+| 3.1 data for all randomised | **yes** — discontinuation and follow-up reported |
+
+**4 of 5.** The one gap is **allocation concealment, and that is a finding about the trial, not
+about our retrieval** — a great many trials never report it. It is the honest `NO_INFORMATION`
+that RoB 2 signalling responses exist to carry.
+
+### The six cells, resolved
+
+| trial | D1 | D2 | D3 | |
+|---|---|---|---|---|
+| **ASPIRE** `NCT01617096` | now answerable | now answerable | now answerable | **3 of 3 closed** |
+| **Ring Study** `NCT01539226` | blocked | blocked | blocked | **0 of 3** — paywalled |
+
+**3 of 6.** Not by a regulator, and not by a Cochrane table — **by an NIH author-manuscript
+deposit, reached only after the first index said it was not there.**
+
+⚠️ **"Answerable" is not "answered".** This establishes that the document contains the material.
+It does not assign a domain judgement — that is a reading task for Reader A and Reader B on the
+frozen bundle, and it is now unblocked for one trial of two.
+
+⇒ **And the split is itself the finding: the funder decides the retrieval.** ASPIRE was
+NIH-funded and therefore deposited; the Ring Study was industry-funded and is not. **Our blind
+cells are not distributed by domain or by difficulty — they are distributed by who paid for the
+trial.** That is worth measuring corpus-wide before any retrieval programme is scoped, because
+it predicts which gaps will close and which will not.
