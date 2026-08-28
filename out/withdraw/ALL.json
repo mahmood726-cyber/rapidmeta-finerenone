@@ -1,0 +1,416 @@
+[
+ {
+  "topic": "ceftazidime-avibactam-auto-full-review",
+  "key": "canonical object and registered at",
+  "before_sentence": "This page CANNOT be rebuilt from what is recorded here: no canonical object is recorded and no registered commit is recorded.",
+  "after_sentence": "ESCALATED_CLASS_WIDE: the object supports a canonical store path at ssot/ceftazidime-avibactam-auto-full-review/ceftazidime-avibactam-auto-full-review.json and holds NCT02475733 and NCT02497781, but the reproducibility sentence is generated in ssot/build_tabbed.py, which is off limits for this slice.",
+  "evidence_read_at": "out/withdraw/probe_ceftazidime.html:2 and :428; ssot/ceftazidime-avibactam-auto-full-review/ceftazidime-avibactam-auto-full-review.json: app_id, inputs.trials[0:2], trial_identity_check; class-wide source located in ssot/build_tabbed.py _repro_note/build path.",
+  "state": "ESCALATED_CLASS_WIDE",
+  "plant": {
+   "not_landed": true,
+   "probe_build": "out/withdraw/probe_ceftazidime.html",
+   "supported_store_path_visible_in_served_bytes": true,
+   "unsupported_rebuild_sentence_visible_in_served_bytes": true,
+   "blast_radius_count": 119,
+   "blast_radius_command": "rg -l \"This page CANNOT be rebuilt from what is recorded here: no canonical object is recorded\" -g \"*_REVIEW.html\" . --no-messages | Measure-Object | Select-Object -ExpandProperty Count",
+   "patch_text": "In ssot/build_tabbed.py, derive the Canonical object row and the no-canonical-object limb of _repro_note from the verified store declaration used for the html data-store attribute, not from registration.path. Keep the registered-commit limb tied to registration.commits. A minimal patch would move the _store_declaration(canon) call before body construction, pass the resulting store path into the reproducibility card, and make _repro_note say no canonical object is recorded only when that store path is absent."
+  },
+  "reason": "A store object exists and the served HTML already exposes data-store plus both NCTs, so the no-canonical-object limb is unsupported. The fix belongs to an off-limits class-wide generator."
+ },
+ {
+  "topic": "rotavirus-vaccine-africa-review",
+  "key": "the page states that a random effects reml model was fitted and that analyses were computed under r with metafor",
+  "before_sentence": "model output evidence absent",
+  "after_sentence": "The model-output blocker is withdrawn: results.by_outcome.primary.r_output is PRESENT and stores the Rscript call, the R 4.6.0 with metafor 5.0.1 environment, and the verbatim REML output.",
+  "evidence_read_at": "ssot/rotavirus-vaccine-africa-review/rotavirus-vaccine-africa-review.json: results.by_outcome.primary.r_output; ROTAVIRUS_VACCINE_AFRICA_REVIEW.html:643 and :662; out/withdraw/ROTAVIRUS_VACCINE_AFRICA_REVIEW.current.html:643 and :662.",
+  "state": "FIXED",
+  "plant": {
+   "not_applicable_no_source_change": true,
+   "current_served_page": "ROTAVIRUS_VACCINE_AFRICA_REVIEW.html",
+   "probe_build": "out/withdraw/ROTAVIRUS_VACCINE_AFRICA_REVIEW.current.html",
+   "result_1_before_absent_in_fixed": true,
+   "result_2_after_present_in_fixed": true,
+   "result_3_before_returns_when_replanted": "not_applicable_no_source_change",
+   "result_4_before_absent_after_restore": true,
+   "result_5_restore_byte_identical_to_fixed": "not_applicable_no_source_change"
+  },
+  "reason": "The checked store field directly contains the model-output evidence, so the evidence-blocked label was the unsupported claim. No source edit was required."
+ },
+ {
+  "topic": "covid19-vaccines",
+  "key": "the page labels its review question review question pico",
+  "before_sentence": "Review question (PICO)",
+  "after_sentence": "ESCALATED_CLASS_WIDE: this should be labelled as a scope/question row, because the object says it is a per-vaccine snapshot and not a systematic review, and no screening or eligibility block is recorded.",
+  "evidence_read_at": "COVID19_VACCINES_REVIEW.html:261; out/withdraw/probe_covid.html:261; ssot/covid19-vaccines/covid19-vaccines.json: question and manuscript.introduction; class-wide source located at ssot/projectors2.py:299.",
+  "state": "ESCALATED_CLASS_WIDE",
+  "plant": {
+   "not_landed": true,
+   "probe_build": "out/withdraw/probe_covid.html",
+   "unsupported_label_visible_in_served_bytes": true,
+   "supported_scope_sentence_visible_in_served_bytes": true,
+   "blast_radius_count": 432,
+   "blast_radius_command": "rg -l \"Review question \\(PICO\\)\" -g \"*_REVIEW.html\" . --no-messages | Measure-Object | Select-Object -ExpandProperty Count",
+   "patch_text": "diff --git a/ssot/projectors2.py b/ssot/projectors2.py\n@@\n- (\"Review question (PICO)\", p(canon[\"question\"])),\n+ (\"Review question / scope\", p(canon[\"question\"])),"
+  },
+  "reason": "The object expressly refuses systematic-review scope, while the rendered table imposes a PICO label from an off-limits class-wide projector."
+ },
+ {
+  "topic": "bosentan-ph-not-group1",
+  "key": "sarcoidosis interstitial lung disease diastolic heart failure sickle cell disease twice idiopathic pulmonary fibrosis and a treatment regimen comparison",
+  "before_sentence": "EIGHT TRIALS ARE ELIGIBLE AND NOT ONE HAS POSTED A RESULT. Sarcoidosis, interstitial lung disease, diastolic heart failure, sickle-cell disease twice, idiopathic pulmonary fibrosis, and a treatment-regimen comparison. Six of the eight register a walk-distance endpoint and three a clinical-worsening outcome, SO THE SHARED ESTIMAND EXISTS ON PAPER AND IN NO DATABASE. Two are TERMINATED at n=14 and n=12 and one was WITHDRAWN at n=0.",
+  "after_sentence": "EIGHT ELIGIBLE REGISTRATIONS ARE RECORDED, AND k_cascade.k_with_posted_results IS 0. The object names the eight registrations and their trial titles in inputs.trials and withholding_question.per_trial. The PubMed row at search.databases[1] is marked NOT EXECUTED, so this page does not claim that no publication or result exists outside ClinicalTrials.gov; it claims only that no ClinicalTrials.gov posted result is recorded here. Six of the eight register a walk-distance endpoint and three a clinical-worsening outcome, so the shared outcome concept exists on paper but no posted CT.gov results are held for it. Two registrations are terminated at n=14 and n=12 and one was withdrawn at n=0.",
+  "evidence_read_at": "ssot/bosentan-ph-not-group1/bosentan-ph-not-group1.json: inputs.trials, withholding_question.per_trial, search.databases[1], k_cascade.k_with_posted_results; out/withdraw/BOSENTAN_PH_NOT_GROUP1_REVIEW.fixed.det.html:496 and :544.",
+  "state": "FIXED",
+  "plant": {
+   "fixed_build": "out/withdraw/BOSENTAN_PH_NOT_GROUP1_REVIEW.fixed.det.html",
+   "replant_build": "out/withdraw/BOSENTAN_PH_NOT_GROUP1_REVIEW.replant.det.html",
+   "restore_build": "out/withdraw/BOSENTAN_PH_NOT_GROUP1_REVIEW.restore.det.html",
+   "result_1_before_absent_in_fixed": true,
+   "result_2_after_present_in_fixed": true,
+   "result_3_before_returns_when_replanted": true,
+   "result_4_before_absent_after_restore": true,
+   "result_5_restore_byte_identical_to_fixed": true,
+   "fixed_sha256": "0d419c32260238902702ecd2ca6734beadefc021b9e0ba3b84188bf307b9e15e",
+   "restore_sha256": "0d419c32260238902702ecd2ca6734beadefc021b9e0ba3b84188bf307b9e15e",
+   "deterministic_page_generated_utc": "2000-01-01 00:00 UTC"
+  },
+  "reason": "The descriptor-only disease-area list was replaced with the stored NCT-backed registration statement and the explicit reason that PubMed was not executed."
+ },
+ {
+  "topic": "lenacapavir-prep",
+  "key": "this review has been retired it held the same trials as lenacapavir prep and that review now answers this question",
+  "before_sentence": "No new analysis evidence is needed.",
+  "after_sentence": "This review has been retired. It held the same trials as lenacapavir-prep, which records more of how the review was built. Trial IDs: NCT04925752, NCT04994509.",
+  "evidence_read_at": "LENACAPAVIR_PREP_REVIEW.html:29-42; ssot/lenacapavir-prep/lenacapavir-prep.json: absorbed_topics.lenacapavir-prep-review.retired_utc, why, and THE_WHOLE_OBJECT_VERBATIM.inputs.trials.",
+  "state": "FIXED",
+  "plant": {
+   "not_applicable_no_source_change": true,
+   "current_served_page": "LENACAPAVIR_PREP_REVIEW.html",
+   "served_tombstone_present": true,
+   "retirement_reason_present": true,
+   "trial_ids_present": true,
+   "absorbed_topics_present_in_store": true,
+   "result_1_before_absent_in_fixed": true,
+   "result_2_after_present_in_fixed": true,
+   "result_3_before_returns_when_replanted": "not_applicable_no_source_change",
+   "result_4_before_absent_after_restore": true,
+   "result_5_restore_byte_identical_to_fixed": "not_applicable_no_source_change"
+  },
+  "reason": "The tombstone and surviving object already record the duplicate-retirement reason and both trial IDs; the evidence-blocked label was withdrawn without adding a new result claim."
+ },
+ {
+  "topic": "pediatric-hiv-art",
+  "key": "the effect on each trial s own registered primary outcome",
+  "before_sentence": "In Pediatric HIV Art, what is the effect on each trial's own registered primary outcome?",
+  "after_sentence": "For Pediatric HIV Art, this object carries one ClinicalTrials.gov registration, NCT02259127, read on 2026-08-18; it reports the registration rather than a pooled effect because k=1.",
+  "evidence_read_at": "ssot/pediatric-hiv-art/pediatric-hiv-art.json: inputs.trials[0].nct, inputs.trials[0].read_utc, results.by_outcome.primary.poolable_reason, results.by_outcome.primary.pooled.withdrawn; out/withdraw/PEDIATRIC_HIV_ART_REVIEW.fixed.det.html:231 and :261.",
+  "state": "FIXED",
+  "plant": {
+   "fixed_build": "out/withdraw/PEDIATRIC_HIV_ART_REVIEW.fixed.det.html",
+   "replant_build": "out/withdraw/PEDIATRIC_HIV_ART_REVIEW.replant.det.html",
+   "restore_build": "out/withdraw/PEDIATRIC_HIV_ART_REVIEW.restore.det.html",
+   "result_1_before_absent_in_fixed": true,
+   "result_2_after_present_in_fixed": true,
+   "result_3_before_returns_when_replanted": true,
+   "result_4_before_absent_after_restore": true,
+   "result_5_restore_byte_identical_to_fixed": true,
+   "fixed_sha256": "55a6dfe1c454daf739c6d3504f016d562a0e884f5b6fa432723b25bb533a94dd",
+   "restore_sha256": "55a6dfe1c454daf739c6d3504f016d562a0e884f5b6fa432723b25bb533a94dd",
+   "deterministic_page_generated_utc": "2000-01-01 00:00 UTC"
+  },
+  "reason": "The page no longer asks for an effect it does not hold; it states the stored registration, read date, and k=1 reason no pooled effect is reported."
+ },
+ {
+  "topic": "bosentan-ph-not-group1",
+  "key": "a whole set of disease areas in which this drug was tried and nothing was ever reported",
+  "before_sentence": "Here it means something sharper: A WHOLE SET OF DISEASE AREAS IN WHICH THIS DRUG WAS TRIED AND NOTHING WAS EVER REPORTED.",
+  "after_sentence": "Here the recorded finding is narrower: this object holds eight eligible ClinicalTrials.gov registrations and k_with_posted_results is 0. The PubMed row is marked NOT EXECUTED, so this page does not claim that nothing was ever reported outside the registry. All eight are named on this page with their status and enrolment, because naming the registry records is the result.",
+  "evidence_read_at": "ssot/bosentan-ph-not-group1/bosentan-ph-not-group1.json: results.by_outcome.exercise_or_worsening.and_this_page_is_a_finding_and_not_a_gap, search.databases[1], k_cascade.k_with_posted_results; out/withdraw/BOSENTAN_PH_NOT_GROUP1_REVIEW.fixed.det.html:470, :472, and :544.",
+  "state": "FIXED",
+  "plant": {
+   "fixed_build": "out/withdraw/BOSENTAN_PH_NOT_GROUP1_REVIEW.fixed.det.html",
+   "replant_build": "out/withdraw/BOSENTAN_PH_NOT_GROUP1_REVIEW.replant.det.html",
+   "restore_build": "out/withdraw/BOSENTAN_PH_NOT_GROUP1_REVIEW.restore.det.html",
+   "result_1_before_absent_in_fixed": true,
+   "result_2_after_present_in_fixed": true,
+   "result_3_before_returns_when_replanted": true,
+   "result_4_before_absent_after_restore": true,
+   "result_5_restore_byte_identical_to_fixed": true,
+   "fixed_sha256": "0d419c32260238902702ecd2ca6734beadefc021b9e0ba3b84188bf307b9e15e",
+   "restore_sha256": "0d419c32260238902702ecd2ca6734beadefc021b9e0ba3b84188bf307b9e15e",
+   "deterministic_page_generated_utc": "2000-01-01 00:00 UTC"
+  },
+  "reason": "The outside-registry overclaim was withdrawn and replaced with the narrower stored fact: eight eligible CT.gov registrations, zero posted CT.gov results, and PubMed not executed."
+ },
+ {
+  "topic": "sotagliflozin-hf",
+  "key": "the page supplies a clinical evidence assessment for its three outcomes",
+  "before_sentence": "Certainty of evidence is rated per outcome rather than in a single review-level block. 3 outcome(s) are pending and carry no published rating.",
+  "after_sentence": "Proposed class-wide patch text: when results.by_outcome.<id>.grade.certainty is held and bookkeeping_2026_08_21.which_limbs_this_review_refuses says grade per pool is held, render the recorded GRADE level with its recorded grounds instead of overriding it to pending solely from an unadjudicated risk-of-bias object.",
+  "evidence_read_at": "SOTAGLIFLOZIN_HF_REVIEW.html:1870 and :1905; ssot/sotagliflozin-hf/sotagliflozin-hf.json:1167,1486,1664,2950; ssot/grade_authority.py:273-315",
+  "state": "ESCALATED_CLASS_WIDE",
+  "plant": {
+   "not_run": true,
+   "why": "The displayed pending-certainty sentence is generated by ssot/grade_authority.py, which is class-wide and off limits for this slice.",
+   "blast_radius_count": 20
+  },
+  "reason": "The store records low certainty for all 3/3 outcomes and says grade per pool is held, but the class-wide certainty resolver renders the same three outcomes as pending. Fixing that renderer has a 20-page corpus blast radius."
+ },
+ {
+  "topic": "doravirine-hiv",
+  "key": "every registration on this page was read on at all three ranks primary secondary and other outcome measures from clinicaltrials gov",
+  "before_sentence": "All 2 of 2 seeded registrations register no clinical endpoint at any rank. Every registration on this page was read on 2026-08-18 at all three ranks -- primary, secondary and other outcome measures -- from ClinicalTrials.gov. Registrations read: NCT02397096, NCT02652260.",
+  "after_sentence": "All 2 of 2 seeded registrations register no clinical endpoint at any rank. Every registration on this page was read on 2026-08-18 at all three ranks -- primary, secondary and other outcome measures -- from ClinicalTrials.gov. Registrations read: NCT02397096, NCT02652260. The reason is recorded on the trial rows: both have clinical_endpoint_at_any_rank=false, with NCT02397096 registering virologic, lipid, CD4 and adverse-event measures, and NCT02652260 registering CNS-toxicity, lipid, virologic, CD4 and adverse-event measures rather than the clinical endpoint this page set out to pool.",
+  "evidence_read_at": "DORAVIRINE_HIV_REVIEW.html:316; ssot/doravirine-hiv/doravirine-hiv.json:31,48,69,94,116,122,158",
+  "state": "FIXED",
+  "plant": {
+   "fixed_old_gone": true,
+   "fixed_new_present": true,
+   "replant_old_returns": true,
+   "restored_old_gone": true,
+   "restored_new_present": true,
+   "restored_byte_identical_to_fixed": true,
+   "fixed": "out/withdraw/slice1_doravirine-hiv.fixed.plant.html",
+   "replanted": "out/withdraw/slice1_doravirine-hiv.replanted.plant.html",
+   "restored": "out/withdraw/slice1_doravirine-hiv.restored.plant.html",
+   "sha256": "e9cdf85e76212215300b424f93cbfc6e3188d964c627c63f08063a234aa917b4"
+  },
+  "reason": "The page already named 2/2 registrations and the all-rank read date, but not why the smaller no-clinical-endpoint claim follows. The replacement states the supporting trial-row fields instead of relying on an undisplayed endpoint table."
+ },
+ {
+  "topic": "apixaban-vte-treatment",
+  "key": "the headline and cascade state that eight trials reported a recurrent vte outcome and that the noncontributing trials are each named",
+  "before_sentence": "It did not buy poolability: eight trials answered yes and five of the eight still do not pool, each for a named reason.",
+  "after_sentence": "It did not buy poolability: eight trials answered yes and five of the eight still do not pool; the coherence_screen records why: NCT00643201 and NCT00633893 have no recurrent-VTE measure without a death term, NCT04168203 and NCT03196349 are extended-anticoagulation trials rather than acute-treatment trials, and NCT02744092 posts a percentage for a drug-class contrast rather than an arm-level apixaban count.",
+  "evidence_read_at": "APIXABAN_VTE_TREATMENT_REVIEW.html:1164,1262,1496; ssot/apixaban-vte-treatment/apixaban-vte-treatment.json:51,52,635",
+  "state": "FIXED",
+  "plant": {
+   "fixed_old_gone": true,
+   "fixed_new_present": true,
+   "replant_old_returns": true,
+   "restored_old_gone": true,
+   "restored_new_present": true,
+   "restored_byte_identical_to_fixed": true,
+   "fixed": "out/withdraw/slice1_apixaban-vte-treatment.fixed.plant.html",
+   "replanted": "out/withdraw/slice1_apixaban-vte-treatment.replanted.plant.html",
+   "restored": "out/withdraw/slice1_apixaban-vte-treatment.restored.plant.html",
+   "sha256": "f1116f60d7ccd53802c0b8aaede426bddf161e4971c72fec2fe883f4cf982452"
+  },
+  "reason": "The object supports 8/8 posted-results trials with a recurrent-VTE-named outcome and 5/8 not pooling; the rendered generated table was empty, so the store-authored sentence now carries the object-held names and reasons directly."
+ },
+ {
+  "topic": "covid19-vaccines",
+  "key": "two removals are not that a registration carrying counts that belong to a pooled analysis of several trials and a trial of a different disease both are itemised",
+  "before_sentence": "Two removals are not that: a registration carrying counts that belong to a pooled analysis of several trials, and a trial of a different disease. Both are itemised below.",
+  "after_sentence": "Two removals are not that: NCT04324606 is recorded under removed_citations.categories as a units-of-analysis error because its counts belong to a pooled analysis of several trials, and NCT04627298 is recorded there as a wrong-disease-area trial.",
+  "evidence_read_at": "COVID19_VACCINES_REVIEW.html:231,283,517,522; ssot/covid19-vaccines/covid19-vaccines.json:619-663,700",
+  "state": "FIXED",
+  "plant": {
+   "fixed_old_gone": true,
+   "fixed_new_present": true,
+   "replant_old_returns": true,
+   "restored_old_gone": true,
+   "restored_new_present": true,
+   "restored_byte_identical_to_fixed": true,
+   "fixed": "out/withdraw/slice1_covid19-vaccines.fixed.plant.html",
+   "replanted": "out/withdraw/slice1_covid19-vaccines.replanted.plant.html",
+   "restored": "out/withdraw/slice1_covid19-vaccines.restored.plant.html",
+   "sha256": "d7989cf4863e16447eace078126763ec9e42cd72889157a05619054d2ac94d79"
+  },
+  "reason": "The page promised itemisation below, but no removal table was visible. The store holds 2/2 identities and reasons, so the reader-facing sentence now names both directly."
+ },
+ {
+  "topic": "anidulafungin-fungal-auto-full-review",
+  "key": "neutropenia is not a co label it changes both the infection and the outcome the host response that clears candidaemia is the response neutropenia removes so glo",
+  "before_sentence": "Neutropenia is not a co-label, it changes both the infection and the outcome: the host response that clears candidaemia is the response neutropenia removes, so 'global response' does not mean the same thing in the two trials.",
+  "after_sentence": "The object supports the population and unit differences just stated; it does not hold clinical evidence establishing the stronger mechanism claim that neutropenia changes the biological meaning of global response, so that claim is not made.",
+  "evidence_read_at": "ANIDULAFUNGIN_FUNGAL_AUTO_FULL_REVIEW.html:316; ssot/anidulafungin-fungal-auto-full-review/anidulafungin-fungal-auto-full-review.json:59,65",
+  "state": "FIXED",
+  "plant": {
+   "fixed_old_gone": true,
+   "fixed_new_present": true,
+   "replant_old_returns": true,
+   "restored_old_gone": true,
+   "restored_new_present": true,
+   "restored_byte_identical_to_fixed": true,
+   "fixed": "out/withdraw/slice1_anidulafungin-fungal-auto-full-review.fixed.plant.html",
+   "replanted": "out/withdraw/slice1_anidulafungin-fungal-auto-full-review.replanted.plant.html",
+   "restored": "out/withdraw/slice1_anidulafungin-fungal-auto-full-review.restored.plant.html",
+   "sha256": "4a19d9aa73ae82ad5e39e1062f9957ab6ceea7f15bacfe57a46642f288c3a15f"
+  },
+  "reason": "The object supports the trial population/unit differences for 2/2 held trials, but not the mechanistic claim about host response. The replacement states that limit instead of making a softer unsupported biological claim."
+ },
+ {
+  "topic": "emtricitabine-hiv-auto-full-review",
+  "key": "what was found no registered trial was identified for this question",
+  "before_sentence": "What was found. No registered trial was identified for this question.",
+  "after_sentence": "Proposed class-wide patch text: for zero-trial objects with no search record or screening log, render 'What was found. No trial records are held in this object. No search or screening record is held either, so this page cannot conclude that no registered trial exists.'",
+  "evidence_read_at": "EMTRICITABINE_HIV_AUTO_FULL_REVIEW.html:226,282,285,421,424; ssot/emtricitabine-hiv-auto-full-review/emtricitabine-hiv-auto-full-review.json:15,46,54,60; ssot/statement.py:499-519",
+  "state": "ESCALATED_CLASS_WIDE",
+  "plant": {
+   "not_run": true,
+   "why": "The exact What-was-found sentence is generated by ssot/statement.py, which is class-wide and off limits for this slice.",
+   "blast_radius_count": 4
+  },
+  "reason": "The store holds 0 trial records and says 'WE NEVER LOOKED'; the page's no-registered-trial conclusion is generated for 4/4 zero-trial corpus pages by a class-wide statement branch."
+ },
+ {
+  "topic": "olmesartan-htn",
+  "key": "it is not a topic with a defect there is no honest version of the page because no poolable result is possible for the question the title asks nothing is lost by",
+  "before_sentence": "It is not a topic with a defect; there is no honest version of the page, because no poolable result is possible for the question the title asks. Nothing is lost by retiring it.",
+  "after_sentence": "The supported conclusion is limited to this object: these three held trials cannot supply a poolable olmesartan-as-intervention result for the question the title asks. This object does not establish that no other olmesartan intervention trial exists or that nothing is lost outside this held set.",
+  "evidence_read_at": "OLMESARTAN_HTN_AUTO_FULL_REVIEW.html:286,321; ssot/olmesartan-htn/olmesartan-htn.json:8,153,154,160,164",
+  "state": "FIXED",
+  "plant": {
+   "fixed_old_gone": true,
+   "fixed_new_present": true,
+   "replant_old_returns": true,
+   "restored_old_gone": true,
+   "restored_new_present": true,
+   "restored_byte_identical_to_fixed": true,
+   "fixed": "out/withdraw/slice1_olmesartan-htn.fixed.plant.html",
+   "replanted": "out/withdraw/slice1_olmesartan-htn.replanted.plant.html",
+   "restored": "out/withdraw/slice1_olmesartan-htn.restored.plant.html",
+   "sha256": "5a451b94c5e0a0e2b16bde02d96791ca5b06c2dd03e4a84142013a9f4a06457f"
+  },
+  "reason": "The store supports the role finding for 3/3 held trials, but not a corpus-wide impossibility or no-loss claim. The replacement keeps the held arm-role result and states the boundary."
+ },
+ {
+  "topic": "intensive-bp-review",
+  "key": "this withdrawal is about what this page can show not about whether intensive blood pressure lowering works",
+  "before_sentence": "And the external evidence supports the underlying claim. Both independent syntheses find intensive targets better, and the withdrawn 0.79 sits between them. This withdrawal is about what this page can show, not about whether intensive blood-pressure lowering works.",
+  "after_sentence": "This withdrawal is about what this page can show. The object does not use those benchmark records to validate the page's withdrawn HR 0.79, because this page holds an effect for exactly one trial and its six registered composites do not define one common estimand.",
+  "evidence_read_at": "ssot/intensive-bp-review/intensive-bp-review.json: results.by_outcome.primary.pooled.withdrawn_note; served INTENSIVE_BP_REVIEW.html withdrawal-note paragraph",
+  "state": "FIXED",
+  "plant": {
+   "fixed_build": "out/withdraw/INTENSIVE_BP_REVIEW.fixed.det.html",
+   "fixed_old_claim_gone": true,
+   "fixed_new_sentence_present": true,
+   "replant_build": "out/withdraw/INTENSIVE_BP_REVIEW.replant.det.html",
+   "replant_old_claim_returns": true,
+   "restore_build": "out/withdraw/INTENSIVE_BP_REVIEW.restore.det.html",
+   "restore_old_claim_gone": true,
+   "restore_new_sentence_present": true,
+   "restore_byte_identical_to_fixed": true,
+   "fixed_sha256": "95532014a5c8514335196820c1f1a83e6328309af8a9aa4ef2c2b6a97346095a",
+   "restore_sha256": "95532014a5c8514335196820c1f1a83e6328309af8a9aa4ef2c2b6a97346095a",
+   "deterministic_page_generated_utc": "2000-01-01 00:00 UTC"
+  },
+  "reason": "Withdrew the unsupported treatment-effect reassurance and retained the supported page-support reason: the object holds one embedded trial effect and divergent registered composites."
+ },
+ {
+  "topic": "agyw-hiv-prep-review",
+  "key": "no participant under was eligible for either trial",
+  "before_sentence": "Neither trial enrolled anyone under 18.",
+  "after_sentence": "Both registrations set minimum eligibility at 18, and the object does not hold enrolled-age distributions.",
+  "evidence_read_at": "ssot/agyw-hiv-prep-review/agyw-hiv-prep-review.json: inputs.trials[].registered_eligibility; manuscript analysis grade indirectness and summary",
+  "state": "FIXED",
+  "plant": {
+   "fixed_build": "out/withdraw/AGYW_HIV_PREP_REVIEW.fixed.det.html",
+   "fixed_old_claim_gone": true,
+   "fixed_new_sentence_present": true,
+   "replant_build": "out/withdraw/AGYW_HIV_PREP_REVIEW.replant.det.html",
+   "replant_old_claim_returns": true,
+   "restore_build": "out/withdraw/AGYW_HIV_PREP_REVIEW.restore.det.html",
+   "restore_old_claim_gone": true,
+   "restore_new_sentence_present": true,
+   "restore_byte_identical_to_fixed": true,
+   "fixed_sha256": "83e05f84a6bc9cdf8b5c9b1df6b9bdf40dedcb3076774425b76036be2c5d4686",
+   "restore_sha256": "83e05f84a6bc9cdf8b5c9b1df6b9bdf40dedcb3076774425b76036be2c5d4686",
+   "deterministic_page_generated_utc": "2000-01-01 00:00 UTC"
+  },
+  "reason": "Withdrew the enrollment claim. The object supports registered eligibility minimum age 18, but not participant-level enrolled ages."
+ },
+ {
+  "topic": "anidulafungin-candida-auto-full-review",
+  "key": "neutropenia changes both the infection and the outcome because the host response that clears candidaemia is the response neutropenia removes",
+  "before_sentence": "That does not rescue it -- neutropenia changes both the infection and the outcome, because the host response that clears candidaemia is the response neutropenia removes.",
+  "after_sentence": "THAT DOES NOT RESCUE IT: this object holds no clinical source or subgroup result showing that neutropenia changes candidaemia outcomes. The withdrawal rests on the recorded heterogeneity it does hold -- an adverse-events primary in NCT00761267, global-response primaries in the other two trials, and a neutropenia condition on NCT00806351 -- not on an unsupported mechanism.",
+  "evidence_read_at": "ssot/anidulafungin-candida-auto-full-review/anidulafungin-candida-auto-full-review.json: inputs.trials[2].registered_conditions; results.by_outcome.primary.poolable_reason and pooled.withdrawn_reason",
+  "state": "FIXED",
+  "plant": {
+   "fixed_build": "out/withdraw/ANIDULAFUNGIN_CANDIDA_AUTO_FULL_REVIEW.fixed.det.html",
+   "fixed_old_claim_gone": true,
+   "fixed_new_sentence_present": true,
+   "replant_build": "out/withdraw/ANIDULAFUNGIN_CANDIDA_AUTO_FULL_REVIEW.replant.det.html",
+   "replant_old_claim_returns": true,
+   "restore_build": "out/withdraw/ANIDULAFUNGIN_CANDIDA_AUTO_FULL_REVIEW.restore.det.html",
+   "restore_old_claim_gone": true,
+   "restore_new_sentence_present": true,
+   "restore_byte_identical_to_fixed": true,
+   "fixed_sha256": "9531256e0ab1cb308861e8f3bc26a995609bc1f2f5dbf9554f0cbf130664575c",
+   "restore_sha256": "9531256e0ab1cb308861e8f3bc26a995609bc1f2f5dbf9554f0cbf130664575c",
+   "deterministic_page_generated_utc": "2000-01-01 00:00 UTC"
+  },
+  "reason": "Withdrew the unsupported clinical mechanism. The object supports endpoint heterogeneity and a registered neutropenia condition, not a causal host-response claim."
+ },
+ {
+  "topic": "etripamil-psvt",
+  "key": "this is the closest of the seven to poolable",
+  "before_sentence": "This is the closest of the seven to poolable, and it still is not.",
+  "after_sentence": "This page holds two trials, and they still are not poolable. The object does not hold a seven-topic comparison set or a relative poolability ranking, so no 'closest of seven' claim is made here.",
+  "evidence_read_at": "ssot/etripamil-psvt/etripamil-psvt.json: inputs.trials; results.by_outcome.primary.poolable_reason and pooled.withdrawn_reason",
+  "state": "FIXED",
+  "plant": {
+   "fixed_build": "out/withdraw/ETRIPAMIL_PAROXYSMAL_SUPRAVENTRICU_AUTO_FULL_REVIEW.fixed.det.html",
+   "fixed_old_claim_gone": true,
+   "fixed_new_sentence_present": true,
+   "replant_build": "out/withdraw/ETRIPAMIL_PAROXYSMAL_SUPRAVENTRICU_AUTO_FULL_REVIEW.replant.det.html",
+   "replant_old_claim_returns": true,
+   "restore_build": "out/withdraw/ETRIPAMIL_PAROXYSMAL_SUPRAVENTRICU_AUTO_FULL_REVIEW.restore.det.html",
+   "restore_old_claim_gone": true,
+   "restore_new_sentence_present": true,
+   "restore_byte_identical_to_fixed": true,
+   "fixed_sha256": "62e6919577a9227cb67e1d1f66d4f07c33376bb72bd5a18697c6d5a0f0410d18",
+   "restore_sha256": "62e6919577a9227cb67e1d1f66d4f07c33376bb72bd5a18697c6d5a0f0410d18",
+   "deterministic_page_generated_utc": "2000-01-01 00:00 UTC"
+  },
+  "reason": "Withdrew the unsupported comparative ranking. The object holds two trials and their registered primary mismatch, but no seven-member comparison set."
+ },
+ {
+  "topic": "bosentan-pah-combination",
+  "key": "database queries recorded verbatim with dates and counts prisma arithmetic reconciles",
+  "before_sentence": "2 database queries recorded verbatim with dates and counts; PRISMA arithmetic reconciles and the 0-trial unscreened remainder is stated as a number rather than omitted.",
+  "after_sentence": "The two search records do not establish an executed two-database search or PRISMA reconciliation: the ClinicalTrials.gov query is executed and counted, the PubMed record says NOT EXECUTED with no records_returned or total_reported, and no screening log is recorded. The object therefore does not hold dates, counts and dispositions for a reconciled PRISMA flow.",
+  "evidence_read_at": "ssot/bosentan-pah-combination/bosentan-pah-combination.json: search.databases; screening; build_stamp.properties.P1_executed_search",
+  "state": "FIXED",
+  "plant": {
+   "fixed_build": "out/withdraw/BOSENTAN_PAH_COMBINATION_REVIEW.fixed.det.html",
+   "fixed_old_claim_gone": true,
+   "fixed_new_sentence_present": true,
+   "replant_build": "out/withdraw/BOSENTAN_PAH_COMBINATION_REVIEW.replant.det.html",
+   "replant_old_claim_returns": true,
+   "restore_build": "out/withdraw/BOSENTAN_PAH_COMBINATION_REVIEW.restore.det.html",
+   "restore_old_claim_gone": true,
+   "restore_new_sentence_present": true,
+   "restore_byte_identical_to_fixed": true,
+   "fixed_sha256": "530ccd858052189302e94dfe3da2745b5915f57b77302f3df4b7d5668a42112f",
+   "restore_sha256": "530ccd858052189302e94dfe3da2745b5915f57b77302f3df4b7d5668a42112f",
+   "deterministic_page_generated_utc": "2000-01-01 00:00 UTC"
+  },
+  "reason": "Withdrew the P1 pass/reconciliation claim. The object records one executed CT.gov query, one PubMed non-query, and no screening log."
+ },
+ {
+  "topic": "covid-oral-antivirals",
+  "key": "molnupiravir and pf ritonavir in non hospitalized adults with covid versus placebo",
+  "before_sentence": "In Molnupiravir and PF-07321332/ritonavir in non-hospitalized adults with COVID-19 versus placebo, what is the effect on each trial's own registered primary outcome?",
+  "after_sentence": "For Molnupiravir and PF-07321332/ritonavir in non-hospitalized adults with COVID-19 versus placebo, this object asks whether the held trials can be pooled on their registered primary outcomes; it holds no per-trial effect estimates.",
+  "evidence_read_at": "ssot/covid-oral-antivirals/covid-oral-antivirals.json: results.by_outcome.primary.per_trial, question, manuscript.introduction",
+  "state": "FIXED",
+  "plant": {
+   "fixed_build": "out/withdraw/COVID_ORAL_ANTIVIRALS_REVIEW.fixed.det.html",
+   "fixed_old_claim_gone": true,
+   "fixed_new_sentence_present": true,
+   "replant_build": "out/withdraw/COVID_ORAL_ANTIVIRALS_REVIEW.replant.det.html",
+   "replant_old_claim_returns": true,
+   "restore_build": "out/withdraw/COVID_ORAL_ANTIVIRALS_REVIEW.restore.det.html",
+   "restore_old_claim_gone": true,
+   "restore_new_sentence_present": true,
+   "restore_byte_identical_to_fixed": true,
+   "fixed_sha256": "a6b5238c1762924e313bbef14086244d90db2c3736bfd67338dba877df0d4d09",
+   "restore_sha256": "a6b5238c1762924e313bbef14086244d90db2c3736bfd67338dba877df0d4d09",
+   "deterministic_page_generated_utc": "2000-01-01 00:00 UTC"
+  },
+  "reason": "Withdrew the promise to report an effect. The object has an empty per_trial list and a withdrawal reason saying the two registered primary outcome families are not common."
+ }
+]

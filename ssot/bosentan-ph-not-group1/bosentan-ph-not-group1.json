@@ -240,14 +240,14 @@
     "estimator_used": "not applicable",
     "comparator_type": "placebo",
     "poolable": false,
-    "poolable_reason": "EIGHT TRIALS ARE ELIGIBLE AND NOT ONE HAS POSTED A RESULT. Sarcoidosis, interstitial lung disease, diastolic heart failure, sickle-cell disease twice, idiopathic pulmonary fibrosis, and a treatment-regimen comparison. Six of the eight register a walk-distance endpoint and three a clinical-worsening outcome, SO THE SHARED ESTIMAND EXISTS ON PAPER AND IN NO DATABASE. Two are TERMINATED at n=14 and n=12 and one was WITHDRAWN at n=0.",
+    "poolable_reason": "EIGHT ELIGIBLE REGISTRATIONS ARE RECORDED, AND k_cascade.k_with_posted_results IS 0. The object names the eight registrations and their trial titles in inputs.trials and withholding_question.per_trial. The PubMed row at search.databases[1] is marked NOT EXECUTED, so this page does not claim that no publication or result exists outside ClinicalTrials.gov; it claims only that no ClinicalTrials.gov posted result is recorded here. Six of the eight register a walk-distance endpoint and three a clinical-worsening outcome, so the shared outcome concept exists on paper but no posted CT.gov results are held for it. Two registrations are terminated at n=14 and n=12 and one was withdrawn at n=0.",
     "pooled": {
      "withdrawn": true,
      "point": null,
      "withdrawn_because": "see poolable_reason"
     },
     "heterogeneity_status": "NOT_ASSESSABLE -- nothing was pooled",
-    "and_this_page_is_a_finding_and_not_a_gap": "Under the remainder reading in PAGE-STANDARD.md, a body of eligible-but-unreported trials means the query is well aimed and THE FIELD IS STILL IN FLIGHT. Here it means something sharper: A WHOLE SET OF DISEASE AREAS IN WHICH THIS DRUG WAS TRIED AND NOTHING WAS EVER REPORTED. All eight are named on this page with their status and enrolment, because naming them is the result.",
+    "and_this_page_is_a_finding_and_not_a_gap": "Under the remainder reading in PAGE-STANDARD.md, a body of eligible-but-unreported trials means the query is well aimed and the field is still in flight. Here the recorded finding is narrower: this object holds eight eligible ClinicalTrials.gov registrations and k_with_posted_results is 0. The PubMed row is marked NOT EXECUTED, so this page does not claim that nothing was ever reported outside the registry. All eight are named on this page with their status and enrolment, because naming the registry records is the result.",
     "r_output": {
      "state": "ABSENT_AND_THAT_IS_THE_FINDING",
      "_why_absent": "k=8 and nothing was pooled, so there is NO model call to quote, NO pooled estimate, NO heterogeneity and NO package version. This is not a missing artefact; it is the correct state for a topic with no synthesis.",
@@ -340,7 +340,7 @@
   "k_pooled": 0,
   "k_unscreened_remainder": 0,
   "reproduced_by": "scripts/screen_bosentan_split_2026_08_19.py and scripts/estimand_bosentan_readings_2026_08_19.py.",
-  "why_k_pooled_is_ZERO_AND_WHY_THAT_IS_A_FINDING": "EIGHT ELIGIBLE TRIALS AND NOT ONE POSTED RESULT. Sarcoidosis, interstitial lung disease, diastolic heart failure, sickle-cell disease twice, idiopathic pulmonary fibrosis, and a treatment-regimen comparison. Two are TERMINATED at n=14 and n=12 and one was WITHDRAWN at n=0. Under the remainder reading in PAGE-STANDARD.md a body of eligible-but-unreported trials means the QUERY IS WELL AIMED AND THE FIELD IS STILL IN FLIGHT -- and here it means something sharper: a whole disease area in which this drug was tried and nothing was ever reported. THIS PAGE IS A FINDING ABOUT A LITERATURE, NOT A GAP IN THIS REVIEW.",
+  "why_k_pooled_is_ZERO_AND_WHY_THAT_IS_A_FINDING": "EIGHT ELIGIBLE REGISTRATIONS ARE RECORDED, AND k_with_posted_results IS 0. Two are terminated at n=14 and n=12 and one was withdrawn at n=0. Under the remainder reading in PAGE-STANDARD.md, a body of eligible-but-unreported trials means the query is well aimed and the field is still in flight. The PubMed row at search.databases[1] is marked NOT EXECUTED, so this page does not claim that nothing was ever reported outside ClinicalTrials.gov; it claims only that no ClinicalTrials.gov posted result is recorded here. This page is a finding about registry records, not a gap in this review.",
   "and_the_coded_condition_hid_two_of_them": "ASSET-1 and ASSET-2 (NCT00310830, NCT00313196) declare `conditions: ['Pulmonary Hypertension']` and are titled '...in Sickle Cell Disease (SCD) Patients'. The coded field is TRUE and names the SYNDROME where this reading needs the CAUSE. Read literally, both sickle-cell trials were assigned to the WHO-group-1 monotherapy reading. P42.",
   "_why": "k is never one number. Each stage is what the instrument at that stage could actually decide.",
   "keyed_on": "registration id"

@@ -1,0 +1,128 @@
+[
+ {
+  "topic": "ceftazidime-avibactam-auto-full-review",
+  "key": "canonical object and registered at",
+  "checked_field": "ssot/ceftazidime-avibactam-auto-full-review/ceftazidime-avibactam-auto-full-review.json: app_id; inputs.trials[]; trial_identity_check",
+  "field_holds": "app_id is present; inputs.trials holds NCT02475733 and NCT02497781 with ClinicalTrials.gov source URLs and read_utc 2026-08-18; trial_identity_check marks both studied.",
+  "blocker_named": "No new evidence is needed: the class blocker 'Canonical object missing' should be withdrawn because the canonical store object exists and names both registrations.",
+  "state": "RELABEL_Q2_WITHDRAWABLE",
+  "why": "The object contradicts the blocker directly; this is an unsupported blocker label, not an evidence gap."
+ },
+ {
+  "topic": "sotagliflozin-hf",
+  "key": "the page supplies a clinical evidence assessment for its three outcomes",
+  "checked_field": "ssot/sotagliflozin-hf/sotagliflozin-hf.json: results.by_outcome.{hfcv_total,hfcv_first,mace3_first}.grade; bookkeeping_2026_08_21.which_limbs_this_review_refuses",
+  "field_holds": "Each of the three outcomes has a grade object with certainty 'low'; bookkeeping says all four completion properties are held, including grade per pool.",
+  "blocker_named": "No new evidence is needed: the 'unperformed certainty assessment' blocker should be withdrawn because the store object now holds a GRADE assessment for all three outcomes.",
+  "state": "RELABEL_Q2_WITHDRAWABLE",
+  "why": "The checked fields directly discharge the class blocker."
+ },
+ {
+  "topic": "intensive-bp-review",
+  "key": "this withdrawal is about what this page can show not about whether intensive blood pressure lowering works",
+  "checked_field": "ssot/intensive-bp-review/intensive-bp-review.json: results.by_outcome.primary.pooled.withdrawn_note",
+  "field_holds": "withdrawn_note says the included landmark trials are correct, SPRINT's row is sound, and external syntheses support the underlying claim; it frames the withdrawal as a page-support problem, not a treatment-effect claim.",
+  "blocker_named": "No new evidence is needed to fix this blocker if the concern is unsupported reassurance about the underlying intervention: withdraw that contextual claim rather than treating it as an evidence precondition for the page withdrawal.",
+  "state": "RELABEL_Q2_WITHDRAWABLE",
+  "why": "The actionable fix is content withdrawal/qualification, not obtaining a trial value to support the already-withdrawn page estimate."
+ },
+ {
+  "topic": "rotavirus-vaccine-africa-review",
+  "key": "the page states that a random effects reml model was fitted and that analyses were computed under r with metafor",
+  "checked_field": "ssot/rotavirus-vaccine-africa-review/rotavirus-vaccine-africa-review.json: results.by_outcome.primary.r_output",
+  "field_holds": "r_output.state is PRESENT; it holds the call 'Rscript ssot/fit_from_per_trial.R rotavirus-vaccine-africa-review primary', environment 'R 4.6.0 with metafor 5.0.1', and verbatim REML output.",
+  "blocker_named": "No new evidence is needed: the 'model output evidence absent' blocker should be withdrawn because the REML/metafor output is stored verbatim.",
+  "state": "RELABEL_Q2_WITHDRAWABLE",
+  "why": "The checked field directly contains the requested model-output evidence."
+ },
+ {
+  "topic": "doravirine-hiv",
+  "key": "every registration on this page was read on at all three ranks primary secondary and other outcome measures from clinicaltrials gov",
+  "checked_field": "ssot/doravirine-hiv/doravirine-hiv.json: inputs.trials[].registered_primaries; inputs.trials[].registered_secondaries; all_ranks_captured_2026_08_18",
+  "field_holds": "NCT02397096 and NCT02652260 have registered primary and secondary outcome arrays; all_ranks_captured_2026_08_18 records primary, secondary and other outcomes re-read on 2026-08-18.",
+  "blocker_named": "No new evidence is needed at the store-object layer: the endpoint enumeration exists for the two doravirine registrations and the every-rank read is dated.",
+  "state": "RELABEL_Q2_WITHDRAWABLE",
+  "why": "The class blocker 'endpoint enumeration not displayed' is not supported by the checked object fields."
+ },
+ {
+  "topic": "agyw-hiv-prep-review",
+  "key": "no participant under was eligible for either trial",
+  "checked_field": "results.by_outcome.primary.per_trial[].registered_eligibility",
+  "field_holds": "NCT01539226 eligibility says women >18 and <45 at screening; NCT01617096 eligibility says age 18 through 45 inclusive; no participant-level enrolled ages or adolescence-definition field is held.",
+  "blocker_named": "No new evidence is needed to withdraw the unsupported enrollment claim. The object supports an eligibility statement about NCT01539226 and NCT01617096, but it does not prove that no adolescent was actually enrolled.",
+  "state": "RELABEL_Q2_WITHDRAWABLE",
+  "why": "The fix is to withdraw or narrow the overclaim from enrollment to eligibility; supplying participant-level ages is not required to remove the false implication."
+ },
+ {
+  "topic": "covid19-vaccines",
+  "key": "the page labels its review question review question pico",
+  "checked_field": "question and screening/eligibility fields",
+  "field_holds": "question describes a per-vaccine snapshot of sourceable trials and explicitly says it is not a systematic review; no screening or eligibility-criteria field is present.",
+  "blocker_named": "No new evidence is needed to withdraw the PICO/review-question label. The object should be relabelled as a sourceable per-vaccine snapshot unless a real review-level eligibility block is added.",
+  "state": "RELABEL_Q2_WITHDRAWABLE",
+  "why": "The problem is a label/claim mismatch, not a missing trial result."
+ },
+ {
+  "topic": "apixaban-vte-treatment",
+  "key": "the headline and cascade state that eight trials reported a recurrent vte outcome and that the noncontributing trials are each named",
+  "checked_field": "withholding_question.per_trial_ranks_read, results.by_outcome.recurrent_vte.coherence_screen, and results.by_outcome.recurrent_vte.per_trial",
+  "field_holds": "withholding_question records nine trials with recurrent-VTE ranks read and says eight had posted results; results.per_trial lists the three pooled trials; coherence_screen names and classifies NCT00643201, NCT00633893, NCT03045406, NCT03266783, NCT01780987, NCT04168203, NCT03196349, and NCT02744092, with failing axes for nonpooled trials.",
+  "blocker_named": "No new evidence is needed to withdraw or relabel the display-level finding: the store object already holds the recurrent-VTE mapping and nonpooled-trial reasons. If the page cannot display that mapping, the unsupported headline count should be withdrawn.",
+  "state": "RELABEL_Q2_WITHDRAWABLE",
+  "why": "At the store-object layer this is not evidence-blocked; the instance mapping exists under coherence_screen."
+ },
+ {
+  "topic": "anidulafungin-candida-auto-full-review",
+  "key": "neutropenia changes both the infection and the outcome because the host response that clears candidaemia is the response neutropenia removes",
+  "checked_field": "inputs.trials[2].registered_conditions and results.by_outcome.primary.poolable_reason",
+  "field_holds": "inputs.trials[2] is NCT00806351 and includes registered condition Neutropenia; results.by_outcome.primary.poolable_reason repeats the clinical causal assertion, while sources is {} and no subgroup or clinical source field supports it.",
+  "blocker_named": "No new evidence is needed to withdraw the unsupported mechanistic assertion. The object can say NCT00806351 enrolled neutropenic patients, but it should not assert that neutropenia changes the outcome without a cited clinical source or subgroup result.",
+  "state": "RELABEL_Q2_WITHDRAWABLE",
+  "why": "The actionable fix is to remove the causal overclaim; the trial condition alone does not support it."
+ },
+ {
+  "topic": "bosentan-ph-not-group1",
+  "key": "sarcoidosis interstitial lung disease diastolic heart failure sickle cell disease twice idiopathic pulmonary fibrosis and a treatment regimen comparison",
+  "checked_field": "inputs.trials, withholding_question.per_trial, and registration_identity.trials",
+  "field_holds": "inputs.trials and registration_identity name the eight NCTs: NCT00310830, NCT00313196, NCT00581607, NCT00625469, NCT00637065, NCT00820352, NCT00926627, and NCT01449253; withholding_question.per_trial also maps these trials to names and rank/result status.",
+  "blocker_named": "No new evidence is needed to withdraw the descriptor-only sentence or replace it with the stored NCT mapping. The object already names the trials behind the descriptors.",
+  "state": "RELABEL_Q2_WITHDRAWABLE",
+  "why": "The store object resolves the trial identities; the blocker is a display/prose problem, not absent evidence."
+ },
+ {
+  "topic": "covid19-vaccines",
+  "key": "two removals are not that a registration carrying counts that belong to a pooled analysis of several trials and a trial of a different disease both are itemised",
+  "checked_field": "removed_citations.categories and completeness_statement",
+  "field_holds": "removed_citations.categories itemizes NCT04324606 as a units-of-analysis error with sources NCT04324606.ctgov.json and PMID33306989.pubmed.xml, and NCT04627298 as wrong disease area; completeness_statement says both are itemised in the removal table.",
+  "blocker_named": "No new evidence is needed to withdraw or relabel the display-level finding: the store object already itemizes the two removals as NCT04324606 and NCT04627298. If the page cannot render the removal table, the 'itemised below' claim should be withdrawn.",
+  "state": "RELABEL_Q2_WITHDRAWABLE",
+  "why": "At the store-object layer the removal identities and reasons are present, so the class blocker is not terminal evidence absence."
+ },
+ {
+  "topic": "etripamil-psvt",
+  "key": "this is the closest of the seven to poolable",
+  "checked_field": "results.by_outcome.primary.poolable_reason; inputs.trials",
+  "field_holds": "poolable_reason asserts 'closest of the seven' but inputs.trials only holds NCT02296190 and NCT03464019; no field lists the seven-member comparison set or their relative poolability ranking.",
+  "blocker_named": "No new evidence is needed to support the nonpoolability decision. Withdraw the unsupported comparative phrase 'closest of the seven' unless a separate comparison-set ledger is supplied.",
+  "state": "RELABEL_Q2_WITHDRAWABLE",
+  "why": "The actionable fix is to remove an unsupported comparative claim; the two-trial endpoint mismatch is already named in the object."
+ },
+ {
+  "topic": "lenacapavir-prep",
+  "key": "this review has been retired it held the same trials as lenacapavir prep and that review now answers this question",
+  "checked_field": "absorbed_topics.lenacapavir-prep-review",
+  "field_holds": "absorbed_topics.lenacapavir-prep-review holds retired_utc=2026-08-19, says the trial set is identical, and stores the retired object's two registrations NCT04925752 and NCT04994509 inside THE_WHOLE_OBJECT_VERBATIM.",
+  "blocker_named": "No new analysis evidence is needed. The actionable fix is to keep the duplicate retired/absorbed rather than demand another value from the retired review.",
+  "state": "RELABEL_Q2_WITHDRAWABLE",
+  "why": "This is a retirement/duplicate-withdrawal bookkeeping claim, not an evidence gap needing a new result value."
+ },
+ {
+  "topic": "anidulafungin-fungal-auto-full-review",
+  "key": "neutropenia is not a co label it changes both the infection and the outcome the host response that clears candidaemia is the response neutropenia removes so glo",
+  "checked_field": "inputs.trials; results.by_outcome.primary.poolable_reason; topic_state",
+  "field_holds": "inputs.trials holds NCT00805740 and NCT00806351 with distinct registered primaries; poolable_reason says NCT00805740 enrols candidiasis/fungemia and posts percentages, while NCT00806351 enrols fungemia with neutropenia and posts counts; topic_state is NOT POOLABLE.",
+  "blocker_named": "No new evidence is needed to supply a pooled value. The false pooled claim should stay withdrawn because the object already names the two trials, populations, outcome units, denominators, and source date.",
+  "state": "RELABEL_Q2_WITHDRAWABLE",
+  "why": "The finding is not terminally evidence-blocked; the supported action is withdrawal of an incommensurable pool."
+ }
+]

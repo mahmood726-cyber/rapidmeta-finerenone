@@ -1,0 +1,92 @@
+[
+ {
+  "topic": "etesevimab-covid-auto-full-review",
+  "key": "etesevimab covid is a pooled estimate possible",
+  "checked_field": "ssot/etesevimab-covid-auto-full-review/etesevimab-covid-auto-full-review.json: inputs.trials; results.by_outcome.primary.why_no_registration_is_seeded",
+  "field_holds": "inputs.trials is an empty array; why_no_registration_is_seeded says 'WE NEVER LOOKED' and describes the absence as an assembly gap.",
+  "blocker_named": "The object lists no trial records at all, so the missing pooled-estimate item cannot be named at trial level from this object.",
+  "state": "CANNOT_NAME",
+  "why": "Naming an etesevimab trial or outcome would require an external search; the store object itself supplies no instance."
+ },
+ {
+  "topic": "amoxicillin-aom",
+  "key": "the review question is presented as a review question pico",
+  "checked_field": "ssot/amoxicillin-aom/amoxicillin-aom.json: question; outcomes[0]; inputs.trials[]; top-level pico key",
+  "field_holds": "question is a prose sentence; outcomes[0] says 'a clinical endpoint that no registration declares'; inputs.trials holds NCT00377260 and NCT03818815 with different registered outcome sets; no top-level pico key is present.",
+  "blocker_named": "The object has no structured PICO field, and its two trial records do not identify one shared clinical endpoint or comparator that can be named as the missing PICO value from the object alone.",
+  "state": "CANNOT_NAME",
+  "why": "A structured PICO would require authoring or a protocol source; deriving it from the current object would invent at least the comparator/outcome axis."
+ },
+ {
+  "topic": "etesevimab-covid-auto-full-review",
+  "key": "the page reports that registered outcome measures were checked at every rank on",
+  "checked_field": "ssot/etesevimab-covid-auto-full-review/etesevimab-covid-auto-full-review.json: inputs.trials; results.by_outcome.primary.withholding_check; results.by_outcome.primary.why_no_registration_is_seeded",
+  "field_holds": "inputs.trials is empty; withholding_check says every seeded registration was read at every rank, but why_no_registration_is_seeded says no registration was seeded and 'WE NEVER LOOKED'.",
+  "blocker_named": "The object lists no seeded registration, so an every-rank registry check cannot be named at trial level from this object.",
+  "state": "CANNOT_NAME",
+  "why": "The field is internally non-actionable: with zero trial records, there is no NCT/outcome-rank instance to check."
+ },
+ {
+  "topic": "doac-af-review",
+  "key": "methods eligibility criteria not recorded on the page this object was extracted from",
+  "checked_field": "ssot/doac-af-review/doac-af-review.json: screening.eligibility; screening.records; absent_from_source.screening",
+  "field_holds": "screening.eligibility is 'not recorded on the page this object was extracted from'; screening.records is empty; absent_from_source.screening says no screening log was recoverable.",
+  "blocker_named": "The object contains no eligibility records, so the missing eligibility item cannot be named at trial level from this object.",
+  "state": "CANNOT_NAME",
+  "why": "There is no trial-level screening row to refine; a protocol or screening log would have to be supplied first."
+ },
+ {
+  "topic": "bosentan-pah-children",
+  "key": "the page discusses individual trials using labels such as early compass future of trial and trial",
+  "checked_field": "ssot/bosentan-pah-children/bosentan-pah-children.json: split_provenance.why_split; k_cascade.and_the_paediatric_boundary_was_wrong_first_time; search.databases[0].recall_on_included_set",
+  "field_holds": "The object names FUTURE-2 and gives NCT00319020, and names FUTURE-3 as NCT01223352; it mentions EARLY and COMPASS-2 only as labels admitting adolescents from 12, without NCT identifiers in this child object.",
+  "blocker_named": "The child-store object does not hold the NCT identifiers for EARLY and COMPASS-2, so those label-level missing identifiers cannot be named from this object alone.",
+  "state": "CANNOT_NAME",
+  "why": "The object partly resolves FUTURE labels but does not provide the EARLY/COMPASS-2 instances the finding asks about."
+ },
+ {
+  "topic": "bamlanivimab-covid",
+  "key": "the page asks for the effect of bamlanivimab versus placebo on each trial s registered primary outcome",
+  "checked_field": "inputs.trials[0].registered_primaries, inputs.trials[0].arms_as_registered, and results.by_outcome.primary",
+  "field_holds": "NCT04427501 has seven registered primary measures and five registered arm groups, including bamlanivimab-alone, bamlanivimab/etesevimab, pediatric addendum, bebtelovimab, and placebo; results.by_outcome.primary has no selected arm comparison, no selected primary measure, and no per_trial result.",
+  "blocker_named": "The exact missing value cannot be named from the object: it names NCT04427501 but does not identify which registered primary measure and which bamlanivimab-versus-placebo arm comparison should answer the stated question. Source that would settle it: NCT04427501 CT.gov results or publication plus an explicit estimand selection.",
+  "state": "CANNOT_NAME",
+  "why": "Naming a single trial value would require choosing among multiple primary measures and arm structures that the object itself does not select."
+ },
+ {
+  "topic": "prevnar15-pneumo",
+  "key": "a published synthesis of these vaccines covers this stratum and pools more trials than this object carries",
+  "checked_field": "results.by_outcome.injection_site_pain.subgroups[0].note and published_comparison/manuscript references",
+  "field_holds": "the result note asserts that a published synthesis covers the stratum and pools more trials, but the object does not name or cite the synthesis or provide an included-set mapping for it.",
+  "blocker_named": "The exact synthesis cannot be named from the object: it asserts an external published synthesis but supplies no citation, identifier, or included-trial set. Source that would settle it: the named synthesis citation and its included-trial registration mapping.",
+  "state": "CANNOT_NAME",
+  "why": "The object gives only an unnamed external-source class, so an instance-level blocker would require inventing a synthesis identity."
+ },
+ {
+  "topic": "men-acwy-auto-full-review",
+  "key": "review question pico men acwy is a pooled estimate possible",
+  "checked_field": "inputs.trials; results.by_outcome.primary.poolable_reason; which_limb_fails",
+  "field_holds": "inputs.trials is absent/empty; which_limb_fails is 'NO REGISTRATION'; poolable_reason says 'THIS PAGE SEEDS NO REGISTRATION AT ALL.'",
+  "blocker_named": "The object lists no trial records at all, so the missing item cannot be named at trial level from this store object. A terminal blocker would require at least one MenACWY registration ID and its PICO fields.",
+  "state": "CANNOT_NAME",
+  "why": "No trial instance exists in the object to attach a named missing value or source to."
+ },
+ {
+  "topic": "incretin-hfpef",
+  "key": "step hfpef dm would very likely move this estimate very little",
+  "checked_field": "ssot/incretin-hfpef/incretin-hfpef.json",
+  "field_holds": "The exact store object path does not exist.",
+  "blocker_named": "The object for topic 'incretin-hfpef' is absent, so the missing STEP-HFpEF DM item cannot be named from the required store layer without switching topics.",
+  "state": "CANNOT_NAME",
+  "why": "The task requires ssot/<topic>/<topic>.json; that file is absent for this topic."
+ },
+ {
+  "topic": "colchicine-pericarditis",
+  "key": "published reports of four of the five trials read cell by cell with each number s quote and location recorded",
+  "checked_field": "inputs.trials; sources.literature_extraction; results.by_outcome.primary.per_trial",
+  "field_holds": "inputs.trials lists five registrations (NCT00128414, NCT00128453, NCT00235079, NCT01266694, NCT05805930); sources.literature_extraction holds only the path evidence/2026-08-19-batch1/pericarditis_publication_extraction.json; results.by_outcome.primary.per_trial is absent/empty in the store object.",
+  "blocker_named": "The object does not identify which four of the five trials have published cell-by-cell extraction, so the missing item cannot be named at the promised four-trial level from this store object. A terminal blocker would need the four trial IDs plus each cell's quoted number and publication location.",
+  "state": "CANNOT_NAME",
+  "why": "The store layer lists five candidate trials and an external extraction-file path, but not the four trial instances or their quoted cells."
+ }
+]
