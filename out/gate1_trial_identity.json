@@ -1,0 +1,167 @@
+{
+ "gate": {
+  "gate": "1  TRIAL IDENTITY",
+  "what": "a label beside a registration must not name a different pinned trial",
+  "kinds": {
+   "topic object (ssot/<t>/<t>.json)": 155,
+   "other json under ssot/<t>/": 6,
+   "label beside a pinned registration": 12,
+   "  of those, CONFIRMED (names its own trial)": 4,
+   "  of those, SWAPPED (names a different pinned trial)": 6,
+   "  of those, DESCRIPTOR (names no pinned trial) -- not assessable": 2
+  },
+  "expected_cases": {
+   "NCT01539226": "The Ring Study -- ClinicalTrials.gov NCT01539226, read 2026-08-28",
+   "NCT01617096": "ASPIRE -- ClinicalTrials.gov NCT01617096, read 2026-08-28",
+   "NCT00509106": "FOCUS 1 -- ClinicalTrials.gov NCT00509106 -- ceftaroline registrational programme, first of the two CAP trials (FOCUS 1).",
+   "NCT00621504": "FOCUS 2 -- ClinicalTrials.gov NCT00621504 -- ceftaroline registrational programme, second of the two CAP trials (FOCUS 2)."
+  },
+  "cases_seen": [
+   "NCT00509106",
+   "NCT00621504",
+   "NCT01539226",
+   "NCT01617096"
+  ],
+  "cases_not_seen": [],
+  "control": {
+   "negatives": 12,
+   "false_positives": 0,
+   "fp_rate": 0.0,
+   "examples": []
+  },
+  "notes": [
+   "ratchet: 6 frozen, 6 now, 0 retired, 0 NEW. A PASS means no new instances, not a clean corpus."
+  ],
+  "findings": []
+ },
+ "rows": [
+  {
+   "topic": "agyw-hiv-prep-review",
+   "path": ".inputs.trials[0].label",
+   "nct": "NCT01539226",
+   "label": "ASPIRE / MTN-020",
+   "verdict": "SWAPPED",
+   "names": [
+    "NCT01617096"
+   ],
+   "expected": "The Ring Study"
+  },
+  {
+   "topic": "agyw-hiv-prep-review",
+   "path": ".inputs.trials[1].label",
+   "nct": "NCT01617096",
+   "label": "The Ring Study",
+   "verdict": "SWAPPED",
+   "names": [
+    "NCT01539226"
+   ],
+   "expected": "ASPIRE"
+  },
+  {
+   "topic": "agyw-hiv-prep-review",
+   "path": ".results.by_outcome.primary.per_trial[0].label",
+   "nct": "NCT01539226",
+   "label": "ASPIRE / MTN-020",
+   "verdict": "SWAPPED",
+   "names": [
+    "NCT01617096"
+   ],
+   "expected": "The Ring Study"
+  },
+  {
+   "topic": "agyw-hiv-prep-review",
+   "path": ".results.by_outcome.primary.per_trial[1].label",
+   "nct": "NCT01617096",
+   "label": "The Ring Study",
+   "verdict": "SWAPPED",
+   "names": [
+    "NCT01539226"
+   ],
+   "expected": "ASPIRE"
+  },
+  {
+   "topic": "agyw-hiv-prep-review",
+   "path": ".risk_of_bias.by_outcome.primary.NCT01539226.trial",
+   "nct": "NCT01539226",
+   "label": "ASPIRE / MTN-020",
+   "verdict": "SWAPPED",
+   "names": [
+    "NCT01617096"
+   ],
+   "expected": "The Ring Study"
+  },
+  {
+   "topic": "agyw-hiv-prep-review",
+   "path": ".risk_of_bias.by_outcome.primary.NCT01617096.trial",
+   "nct": "NCT01617096",
+   "label": "The Ring Study",
+   "verdict": "SWAPPED",
+   "names": [
+    "NCT01539226"
+   ],
+   "expected": "ASPIRE"
+  },
+  {
+   "topic": "ceftaroline-auto-full-review",
+   "path": ".inputs.trials[0].label",
+   "nct": "NCT00509106",
+   "label": "FOCUS 1",
+   "verdict": "CONFIRMED",
+   "names": [
+    "NCT00509106"
+   ],
+   "expected": "FOCUS 1"
+  },
+  {
+   "topic": "ceftaroline-auto-full-review",
+   "path": ".inputs.trials[1].label",
+   "nct": "NCT00621504",
+   "label": "FOCUS 2",
+   "verdict": "CONFIRMED",
+   "names": [
+    "NCT00621504"
+   ],
+   "expected": "FOCUS 2"
+  },
+  {
+   "topic": "ceftaroline-auto-full-review",
+   "path": ".results.by_outcome.primary.per_trial[0].label",
+   "nct": "NCT00509106",
+   "label": "FOCUS 1",
+   "verdict": "CONFIRMED",
+   "names": [
+    "NCT00509106"
+   ],
+   "expected": "FOCUS 1"
+  },
+  {
+   "topic": "ceftaroline-auto-full-review",
+   "path": ".results.by_outcome.primary.per_trial[1].label",
+   "nct": "NCT00621504",
+   "label": "FOCUS 2",
+   "verdict": "CONFIRMED",
+   "names": [
+    "NCT00621504"
+   ],
+   "expected": "FOCUS 2"
+  },
+  {
+   "topic": "ceftaroline-auto-full-review",
+   "path": ".risk_of_bias.by_outcome.primary.NCT00509106.trial",
+   "nct": "NCT00509106",
+   "label": "FOCUS-style trial, IV ceftriaxone comparator",
+   "verdict": "DESCRIPTOR",
+   "names": [],
+   "expected": "FOCUS 1"
+  },
+  {
+   "topic": "ceftaroline-auto-full-review",
+   "path": ".risk_of_bias.by_outcome.primary.NCT00621504.trial",
+   "nct": "NCT00621504",
+   "label": "second registrational trial, IV ceftriaxone comparator",
+   "verdict": "DESCRIPTOR",
+   "names": [],
+   "expected": "FOCUS 2"
+  }
+ ]
+}
