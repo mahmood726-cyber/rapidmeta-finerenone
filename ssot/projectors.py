@@ -1124,7 +1124,8 @@ ROB_GLYPH["SOME_CONCERNS"] = ROB_GLYPH["SOME CONCERNS"]
 
 
 def visual_abstract_svg(title, question, k, n_total, measure, point, lo, hi,
-                        null_v, certainty, outcome_name, loo_note="", n_total_note=""):
+                        null_v, certainty, outcome_name, loo_note="", n_total_note="",
+                        alt_interval=None):
     """A graphical abstract PROJECTED from the object, never hand-drawn.
 
     IT MUST NOT IMPLY BENEFIT. The pooled estimate here is 0.872 with an
@@ -1219,9 +1220,26 @@ def visual_abstract_svg(title, question, k, n_total, measure, point, lo, hi,
 
     # --- the verdict, stated in the direction the data supports -------------
     vy = ax_y + 66
+    # BOTH INTERVALS IN ONE SENTENCE, NOT ONE BELOW THE OTHER. A visual abstract
+    # travels without its page, so a caveat placed underneath does not travel
+    # with the claim -- it has to share the sentence or it does not exist for a
+    # reader who sees only the graphic. Measured 2026-08-28: 6 pools on 5 topics
+    # state that the interval excludes no difference while a Hartung-Knapp
+    # interval stored on the SAME pool spans it. On ceftaroline the headline
+    # reads as harm, which is the highest-cost direction for a named drug.
+    _alt = ""
+    if alt_interval and not crosses:
+        try:
+            _a, _b = float(alt_interval[0]), float(alt_interval[1])
+            if _a < null_v < _b:
+                _alt = (" -- but this review's own Hartung-Knapp interval, %s to %s, "
+                        "does include it, so the exclusion is not robust to the "
+                        "estimator." % (fmt(_a), fmt(_b)))
+        except (TypeError, ValueError, IndexError):
+            _alt = ""
     verdict = ("The interval INCLUDES no difference: this pooled estimate is "
                "compatible with no effect." if crosses else
-               "The interval excludes no difference.")
+               "The interval excludes no difference" + (_alt or "."))
     v1, vy2 = wrap(verdict, 96, 28, vy, 15, 20, "700")
     body += v1
     # THE REFUSAL KEPT ITS REASON. The caller sets the total to zero on purpose

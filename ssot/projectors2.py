@@ -922,6 +922,27 @@ def visual_abstract(canon, res, outcome, p):
     # different answers on the KCCQ outcome.
     n_total, _n_matched, _n_wanted = _analysed_n_for_outcome(canon, res)
     _n_total_note = ""
+    # THE DISAGREEING INTERVAL, wherever it is stored. Hartung-Knapp intervals
+    # live under at least eight different keys in this corpus; reading one of
+    # them found 2 pools and reading all of them found 6.
+    def _hk(node, depth=0):
+        import re as _re
+        if depth > 6:
+            return None
+        if isinstance(node, dict):
+            for k, v in node.items():
+                if _re.search(r"hartung|knapp|hksj|knha", str(k), _re.I)                         and isinstance(v, dict) and v.get("ci_low") is not None                         and v.get("ci_high") is not None:
+                    return (v["ci_low"], v["ci_high"])
+                got = _hk(v, depth + 1)
+                if got:
+                    return got
+        elif isinstance(node, list):
+            for v in node[:40]:
+                got = _hk(v, depth + 1)
+                if got:
+                    return got
+        return None
+    _alt_iv = _hk(res)
     if not n_total:
         # NAME THE REASON, DO NOT JUST WITHHOLD THE NUMBER. On alirocumab-lipid
         # two trials recovered on 2026-08-19 carry `enrolled` but no `arms`, so
@@ -995,7 +1016,7 @@ def visual_abstract(canon, res, outcome, p):
         # found it; nothing that read the generator could have.
         _ga.resolve(canon, outcome.get("id"))["cell"]
         if outcome.get("id") else g.get("certainty"),
-        outcome.get("name", ""), loo, _n_total_note),
+        outcome.get("name", ""), loo, _n_total_note, _alt_iv),
         "Visual abstract", "visual-abstract.svg",
         _interval_caption(pooled, outcome.get("null_value", 1)))
 
