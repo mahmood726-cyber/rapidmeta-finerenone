@@ -1,0 +1,202 @@
+{
+ "_what_this_is": "The executed search for this topic, written after execution and anchored so its time is fixed by a third party.",
+ "topic": "iv-iron-hf",
+ "governing_protocol": "protocols/iv_iron_hf_protocol_v1.0_2026-04-19.md",
+ "registration": {
+  "protocol_commit": "40662ac7c5d143a58a51bc1e01c715639ce58af5",
+  "protocol_anchor_logIndex": 2630300021,
+  "protocol_anchored_utc": "2026-08-28T22:56:12Z"
+ },
+ "query_text": "Intravenous iron placebo usual",
+ "databases": [
+  {
+   "source": "pubmed",
+   "url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&retmode=json&retmax=100&term=Intravenous+iron+placebo+usual",
+   "params": {
+    "db": "pubmed",
+    "retmode": "json",
+    "retmax": 100,
+    "term": "Intravenous iron placebo usual"
+   },
+   "attempted_utc": "2026-08-28T22:56:13.607Z",
+   "completed_utc": "2026-08-28T22:56:13.964Z",
+   "http_status": 200,
+   "response_bytes": 1061,
+   "n_records": 7,
+   "ids": [
+    "40753604",
+    "36253838",
+    "35101083",
+    "34003690",
+    "31811820",
+    "28292532",
+    "22297124"
+   ],
+   "outcome": "EXECUTED"
+  },
+  {
+   "source": "europepmc",
+   "url": "https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=Intravenous+iron+placebo+usual&format=json&pageSize=25",
+   "params": {
+    "query": "Intravenous iron placebo usual",
+    "format": "json",
+    "pageSize": 25
+   },
+   "attempted_utc": "2026-08-28T22:56:13.965Z",
+   "completed_utc": "2026-08-28T22:56:40.398Z",
+   "http_status": 200,
+   "response_bytes": 22980,
+   "n_records": 2358,
+   "ids": [
+    "PMC13297121",
+    "40753604",
+    "42182770",
+    "42027301",
+    "41811612",
+    "41711213",
+    "42285569",
+    "41984824",
+    "42146980",
+    "41371637",
+    "41387802",
+    "41975552",
+    "40771308",
+    "40857084",
+    "41778534",
+    "40075788",
+    "41127714",
+    "39555460",
+    "42194897",
+    "40657707",
+    "40582343",
+    "39598331",
+    "40576086",
+    "39773062",
+    "39938943"
+   ],
+   "outcome": "EXECUTED"
+  },
+  {
+   "source": "ctgov",
+   "url": "https://clinicaltrials.gov/api/v2/studies?query.term=Intravenous+iron+placebo+usual&pageSize=50&countTotal=true",
+   "params": {
+    "query.term": "Intravenous iron placebo usual",
+    "pageSize": 50,
+    "countTotal": "true"
+   },
+   "attempted_utc": "2026-08-28T22:56:40.400Z",
+   "completed_utc": "2026-08-28T22:56:41.139Z",
+   "http_status": 200,
+   "response_bytes": 2251078,
+   "n_records": 16,
+   "ids": [
+    "NCT01887600",
+    "NCT01548612",
+    "NCT04343170",
+    "NCT07359599",
+    "NCT02937454",
+    "NCT01922479",
+    "NCT04786769",
+    "NCT04206228",
+    "NCT06322394",
+    "NCT04608539",
+    "NCT01036022",
+    "NCT05407987",
+    "NCT00940602",
+    "NCT02310763",
+    "NCT01690585",
+    "NCT02907619"
+   ],
+   "outcome": "EXECUTED"
+  },
+  {
+   "source": "isrctn",
+   "url": "https://www.isrctn.com/api/query/format/default?q=iv",
+   "params": {
+    "q": "iv"
+   },
+   "attempted_utc": "2026-08-28T22:56:41.177Z",
+   "ictrp_route": "ISRCTN free XML API, used as the programmatic stopgap for ICTRP. The WHO ICTRP bulk-crawling service is unavailable; the WHO portal itself was NOT searched by this query.",
+   "completed_utc": "2026-08-28T22:56:41.412Z",
+   "http_status": 200,
+   "response_bytes": 192195,
+   "n_records": 3303,
+   "ids": [
+    "ISRCTN65709956",
+    "ISRCTN14596554",
+    "ISRCTN86996855",
+    "ISRCTN18155743",
+    "ISRCTN99067257",
+    "ISRCTN19391899",
+    "ISRCTN58429086",
+    "ISRCTN78581753",
+    "ISRCTN76569516",
+    "ISRCTN31929591"
+   ],
+   "outcome": "EXECUTED"
+  },
+  {
+   "source": "guideline_bodies",
+   "attempted_utc": "2026-08-28T22:56:41.427Z",
+   "registry_used_to_enumerate": {
+    "registry": "Guidelines International Network (GIN)",
+    "endpoint": "https://g-i-n.net/wp-json/wp/v2/organisation",
+    "x_wp_total": 136,
+    "retrieved_utc": "2026-08-28T10:32:09Z",
+    "records_bulk_modified_gmt": "2026-08-27T11:45:02..03"
+   },
+   "AN_INDEX_IS_NOT_A_SOURCE": "GIN enumerates WHO the bodies are and carries no external URL on any of its 136 records, so it cannot itself be queried for guidance.",
+   "queried": [
+    {
+     "body": "FDA (openFDA drug label API)",
+     "http": 200,
+     "n_records": 33433,
+     "outcome": "EXECUTED"
+    }
+   ],
+   "unreachable": [
+    {
+     "body": "WHO IRIS",
+     "obstacle": "HTTP 403 on its REST search endpoint"
+    },
+    {
+     "body": "NICE",
+     "obstacle": "HTTP 401 -- syndication API requires a key"
+    },
+    {
+     "body": "TRIP",
+     "obstacle": "HTTP 200 but a Cloudflare challenge page; the query term appears zero times. A 200 is not a result."
+    },
+    {
+     "body": "Epistemonikos",
+     "obstacle": "HTTP 405 on the documented API path; site search is HTML only"
+    }
+   ],
+   "coverage_fraction": {
+    "registry_lists": 136,
+    "queried": 1,
+    "unreachable_named": 4,
+    "not_yet_resolved_to_an_endpoint": 131,
+    "STATEMENT": "Of the 136 bodies GIN lists, 1 were queried, 4 were reached and refused or blocked by a named obstacle, and 131 have not been resolved to a queryable endpoint at all. This is a coverage fraction, not a checkmark, and 'all guideline bodies' is NOT a claim this supports."
+   }
+  }
+ ],
+ "three_counts": {
+  "EXECUTED": 5,
+  "EMPTY": 0,
+  "FAILED": 0
+ },
+ "ordering": {
+  "protocol_anchored_utc": "2026-08-28T22:56:12Z",
+  "first_query_attempted_utc": "2026-08-28T22:56:13.607Z",
+  "holds": true
+ },
+ "what_this_record_does_not_establish": [
+  "It does not establish that the search was COMPLETE. It records which sources were queried and what each returned, nothing wider.",
+  "It does not establish that guideline evidence was covered. Source 5 reports a fraction against the GIN denominator and most bodies remain unresolved.",
+  "The ICTRP leg is served by ISRCTN, which is a ROUTE to some ICTRP-registered trials and is not ICTRP. It is recorded under its own name for that reason.",
+  "A git commit timestamp is author-supplied and forgeable. Only the two transparency-log times are independent of us."
+ ],
+ "executed_by": "run_topic.py",
+ "written_utc": "2026-08-28T22:56:43.526Z"
+}
