@@ -1,5 +1,32 @@
 # Overnight report — genstore lane — 2026-08-28
 
+## THE NIGHT'S DIAGNOSIS, ONE MORE TIME: THE IDENTIFIERS WERE ALWAYS THERE
+
+We recorded documents as unreachable while holding the keys to them.
+
+- **55 of 74 PMIDs came from the registration.** Only 18 were stored on objects.
+- **All 74 DOIs and 36 PMCIDs came from documents we already held.**
+- **No new search was run for any of it.**
+
+Knowledge recorded, connected to nothing — the same diagnosis as every other defect tonight,
+and this time it cost roughly a third of our full texts.
+
+## AND THE SAME TRAP CAUGHT ME FROM THE OTHER SIDE, FOUR HOURS LATER
+
+Reading identifiers out of stored records, I took the FIRST doi/pmcid in each — and in a
+PubMed record that can be a RELATED ARTICLE rather than the trial's own report. **19 of 74
+trials carry an identifier shared with another trial.** Two of the colliding DOIs are provably
+not trial reports: `10.1002/14651858.cd011748.pub3` is a Cochrane review, and
+`10.1007/s40256-022-00524-x` is the apixaban-in-obesity review **this project identified today
+as a CT.gov `DERIVED` reference** — the exact class I refuted a bulk-deletion rule over this
+evening, then used as a key.
+
+**So this lane's full-text claim is corrected downward: 45/74 (61%) → 40/74 (54%) defensible.**
+Five documents are quarantined, not deleted. Corpus coverage is unaffected: the RoB lane holds
+full text for all 29 trials this lane lacked.
+
+---
+
 Written to be true rather than encouraging. Every number carries its denominator. Where a
 result is smaller or later than it looks, it says so here rather than in a footnote.
 
@@ -47,7 +74,7 @@ reading, importing or running the script: `my_pass=27, artefact_pass=27, disagre
 |---|---|---|
 | holds the registration | 74 / 74 | 74 / 74 |
 | holds a PubMed record | 73 / 74 | 73 / 74 |
-| **holds FULL TEXT** | **24 / 74 (32%)** | **45 / 74 (61%)** |
+| **holds FULL TEXT** | **24 / 74 (32%)** | **40 / 74 (54%) defensible** |
 
 245 documents, 19.1 MB, each stored with its route, retrieval date and sha256.
 Newly recovered by route: `ncbi_efetch` 11, `doi_resolver` 9, `pmc_direct` 1.
@@ -95,10 +122,16 @@ carry `verdict: RULED_IN` with `criterion_result: FAIL` and the failing leg name
   Not blocked by anything; simply not yet run.
 - **`NCT01780987` has no PMID at all** — none stored, none on its registration. Registration
   only.
-- **Possible duplication with the RoB lane.** It landed `overnight_fulltext_harvest.py` after
-  this lane's full-text sweep. Both may now be harvesting the same trials. Worth one check
-  before either runs again — two harvests produce two access records and no way to tell which
-  a page used.
+- **Coordination with the RoB lane — CHECKED, and it is settled.** Its harvest ran (317 rows,
+  22:33 UTC) and this lane's 74 trials are a strict SUBSET of its 317. Complement computed:
+  it holds full text for **all 29** trials this lane lacks, so the corpus reaches **74/74** and
+  this lane should not re-fetch any of them.
+- **19 route disagreements between the two manifests, reported not reconciled.** Every one is
+  the same direction — theirs `europepmc`, mine `efetch`/`doi`/`pmc`. The cause is that the
+  route recorded depends on WHICH IDENTIFIERS THE CALLER SUPPLIES, not only on the retriever.
+  **The sanctioned retriever is not the whole access record; the identifier set is part of it.**
+  On several of those the character counts differ four- to thirteen-fold, meaning we do not
+  hold the same document at all.
 
 ---
 
