@@ -2108,13 +2108,22 @@
      "what_changed_from_k6": "k=6 rows were DL 47.42/87.9 and REML 71.22/91.6 with HKSJ -64.13 to -44.53. Two more trials RAISED the DL tau-squared (47.42 -> 50.04) and LOWERED the REML one (71.22 -> 61.44), because REML's penalty for few studies eases as k grows. Both intervals narrowed."
     },
     "prediction_interval": {
-     "low": -71.18,
-     "high": -38.26,
+     "low": -74.5748,
+     "high": -34.8652,
      "basis": "t_7, REML tau-squared, per DECISIONS-COCHRANE-2026-08-18.md section 1, on Cochrane Handbook 6.5 section 10.10.4.4: \"Decision: REML, everywhere.\". Before 2026-08-20 this read 'DerSimonian-Laird tau-squared'.",
      "recomputed_by": "scripts/recompute_alirocumab_k8.py, gate: the stored k=8 headline reproduces from the object's own per-trial values before anything derived is written",
      "what_it_says": "THIS IS THE NUMBER TO QUOTE, and it is not the headline. The confidence interval -60.62 to -48.82 is about where the AVERAGE lies. The prediction interval -71.18 to -38.26 is about where the effect in a NEW trial of this drug would lie, and it is over three times wider. The eight trials range from -39.1 to -64.1 with tight intervals of their own, so the spread is real and not sampling noise: dose regimen differs, as do population and background statin therapy. A single number for 'how much does alirocumab lower LDL' conceals a 25-point range.  [RESTATED 2026-08-20: this paragraph quoted the confidence interval and the prediction interval TO ONE DECIMAL, and the number guard on this pass generates two-, three- and four-decimal forms only, so a one-decimal quotation walks past it. Widening the guard to one decimal would fire on most sentences in the corpus; this is restated by hand instead, and the gap is named rather than closed. Found on the rendered page after both guards passed.]",
      "what_changed_from_k6": "The k=6 interval was -74.08 to -35.23 on t_5. At k=8 it is -72.77 to -36.87 on t_7 -- NARROWER BY 3.0 POINTS, and almost all of that is the t multiplier falling from 2.5706 to 2.3646 as the degrees of freedom rise. tau-squared went UP (47.42 to 50.04). So the prediction interval narrowed while the estimated between-trial variance grew, and reporting only the narrowing would suggest the evidence became more consistent when it did not.",
-     "what_it_says_superseded_2026_08_20": "THIS IS THE NUMBER TO QUOTE, and it is not the headline. The confidence interval -60.2 to -49.4 is about where the AVERAGE lies. The prediction interval -72.8 to -36.9 is about where the effect in a NEW trial of this drug would lie, and it is over three times wider. The eight trials range from -39.1 to -64.1 with tight intervals of their own, so the spread is real and not sampling noise: dose regimen differs, as do population and background statin therapy. A single number for 'how much does alirocumab lower LDL' conceals a 25-point range."
+     "what_it_says_superseded_2026_08_20": "THIS IS THE NUMBER TO QUOTE, and it is not the headline. The confidence interval -60.2 to -49.4 is about where the AVERAGE lies. The prediction interval -72.8 to -36.9 is about where the effect in a NEW trial of this drug would lie, and it is over three times wider. The eight trials range from -39.1 to -64.1 with tight intervals of their own, so the spread is real and not sampling noise: dose regimen differs, as do population and background statin therapy. A single number for 'how much does alirocumab lower LDL' conceals a 25-point range.",
+     "superseded_2026_08_28": {
+      "low": -71.18,
+      "high": -38.26,
+      "why": "built with a normal quantile",
+      "note": "Recomputed on t_{k-1}, the quantile this object's own GRADE imprecision step already uses (t = 12.7062 on 1 df at k = 2). The superseded bounds were built with a normal quantile, which at small k is not a small difference: at k = 2 it is a factor of 6.5 and can make the interval exclude no difference where the correct one spans it."
+     },
+     "quantile": "t_{k-1}",
+     "t_critical": 2.364624,
+     "recomputed_2026_08_28": "Recomputed on t_{k-1}, the quantile this object's own GRADE imprecision step already uses (t = 12.7062 on 1 df at k = 2). The superseded bounds were built with a normal quantile, which at small k is not a small difference: at k = 2 it is a factor of 6.5 and can make the interval exclude no difference where the correct one spans it."
     },
     "source_page_pooled": true,
     "poolable_DEPRECATED_note": "`poolable` MEANT ONLY 'the source page pooled these trials'. It was never a judgement that the pool was sound, and the renderer read it as permission to assert 'pooled on the X scale'. RENAMED to source_page_pooled, which is what it says. `poolable` is retained so nothing breaks, and it is DEPRECATED: read source_page_pooled for what the source did, and estimand_established for whether the pool is defensible. A PAGE SHOULD DISPLAY A POOLED ESTIMATE BECAUSE ITS ESTIMAND WAS ESTABLISHED, NOT BECAUSE SOMEONE ONCE POOLED IT.",
