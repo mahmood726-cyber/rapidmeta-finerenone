@@ -589,7 +589,34 @@
      "content_type": "text/xml; charset=UTF-8",
      "rendered_chars": 9735
     }
-   ]
+   ],
+   "SUSPECT_2026_08_28": {
+    "verdict": "QUARANTINED -- do not use as this trial's document",
+    "why": "the identifier used to fetch it is shared with another trial, so this document may be a different trial's paper or a review that merely cites this one",
+    "shared_identifiers": [
+     {
+      "field": "doi",
+      "value": "10.1002/14651858.cd011748.pub3",
+      "also_used_by": [
+       "NCT02585778"
+      ]
+     },
+     {
+      "field": "pmcid",
+      "value": "PMC8094613",
+      "also_used_by": [
+       "NCT02585778"
+      ]
+     },
+     {
+      "field": "pmid",
+      "value": "33078867",
+      "also_used_by": [
+       "NCT02585778"
+      ]
+     }
+    ]
+   }
   },
   {
    "nct": "NCT02366871",
@@ -737,7 +764,34 @@
      "content_type": "text/xml; charset=UTF-8",
      "rendered_chars": 9735
     }
-   ]
+   ],
+   "SUSPECT_2026_08_28": {
+    "verdict": "QUARANTINED -- do not use as this trial's document",
+    "why": "the identifier used to fetch it is shared with another trial, so this document may be a different trial's paper or a review that merely cites this one",
+    "shared_identifiers": [
+     {
+      "field": "doi",
+      "value": "10.1002/14651858.cd011748.pub3",
+      "also_used_by": [
+       "NCT02289963"
+      ]
+     },
+     {
+      "field": "pmcid",
+      "value": "PMC8094613",
+      "also_used_by": [
+       "NCT02289963"
+      ]
+     },
+     {
+      "field": "pmid",
+      "value": "33078867",
+      "also_used_by": [
+       "NCT02289963"
+      ]
+     }
+    ]
+   }
   },
   {
    "nct": "NCT02642562",
@@ -1085,7 +1139,29 @@
      "content_type": "text/html; charset=utf-8",
      "rendered_chars": 47126
     }
-   ]
+   ],
+   "SUSPECT_2026_08_28": {
+    "verdict": "QUARANTINED -- do not use as this trial's document",
+    "why": "the identifier used to fetch it is shared with another trial, so this document may be a different trial's paper or a review that merely cites this one",
+    "shared_identifiers": [
+     {
+      "field": "doi",
+      "value": "10.1681/asn.0000001006",
+      "also_used_by": [
+       "NCT03399370",
+       "NCT03400800"
+      ]
+     },
+     {
+      "field": "pmid",
+      "value": "41604274",
+      "also_used_by": [
+       "NCT03399370",
+       "NCT03400800"
+      ]
+     }
+    ]
+   }
   },
   {
    "nct": "NCT03399370",
@@ -1109,7 +1185,29 @@
      "content_type": "text/html; charset=utf-8",
      "rendered_chars": 47126
     }
-   ]
+   ],
+   "SUSPECT_2026_08_28": {
+    "verdict": "QUARANTINED -- do not use as this trial's document",
+    "why": "the identifier used to fetch it is shared with another trial, so this document may be a different trial's paper or a review that merely cites this one",
+    "shared_identifiers": [
+     {
+      "field": "doi",
+      "value": "10.1681/asn.0000001006",
+      "also_used_by": [
+       "NCT03397121",
+       "NCT03400800"
+      ]
+     },
+     {
+      "field": "pmid",
+      "value": "41604274",
+      "also_used_by": [
+       "NCT03397121",
+       "NCT03400800"
+      ]
+     }
+    ]
+   }
   },
   {
    "nct": "NCT03400800",
@@ -1133,7 +1231,29 @@
      "content_type": "text/html; charset=utf-8",
      "rendered_chars": 47126
     }
-   ]
+   ],
+   "SUSPECT_2026_08_28": {
+    "verdict": "QUARANTINED -- do not use as this trial's document",
+    "why": "the identifier used to fetch it is shared with another trial, so this document may be a different trial's paper or a review that merely cites this one",
+    "shared_identifiers": [
+     {
+      "field": "doi",
+      "value": "10.1681/asn.0000001006",
+      "also_used_by": [
+       "NCT03397121",
+       "NCT03399370"
+      ]
+     },
+     {
+      "field": "pmid",
+      "value": "41604274",
+      "also_used_by": [
+       "NCT03397121",
+       "NCT03399370"
+      ]
+     }
+    ]
+   }
   },
   {
    "nct": "NCT03521934",
@@ -1305,5 +1425,12 @@
   }
  ],
  "retriever": "scripts/lane_rob/multiroute_retrieve.py -- the sanctioned module; this lane supplied identifiers and storage only",
- "identifiers": "74 DOIs and 36 PMCIDs extracted from documents this lane already held; none required a new search"
+ "identifiers": "74 DOIs and 36 PMCIDs extracted from documents this lane already held; none required a new search",
+ "CORRECTION_2026_08_28": {
+  "reported": "45 / 74 full text (61%)",
+  "defensible": "40 / 74 (54%)",
+  "why": "5 of the 21 newly recovered documents were fetched using an identifier shared with another trial. My extraction took the FIRST doi/pmcid in each stored record, and in PubMed records that first identifier can be a RELATED ARTICLE rather than the trial's own report. Two of the colliding DOIs are provably not trial reports: 10.1002/14651858.cd011748.pub3 is a Cochrane review, and 10.1007/s40256-022-00524-x is the apixaban-in-obesity review that this project already identified today as a CT.gov DERIVED reference.",
+  "the_irony_recorded": "This lane refuted a rule earlier tonight on the grounds that a CT.gov DERIVED reference is not a trial's report -- and then used DERIVED references as identifiers. The same trap from the other side, four hours apart.",
+  "coverage_impact": "None for the corpus: the RoB lane's harvest holds full text for all 29 trials this lane lacked, resolved from its own identifiers. The correction is to THIS lane's claim, not to what the project holds."
+ }
 }
