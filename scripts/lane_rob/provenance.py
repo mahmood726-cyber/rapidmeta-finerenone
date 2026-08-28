@@ -54,6 +54,14 @@ def stamp(out_path, inputs=(), repo=None, note=None):
     rec = {
         "artefact": _facts(out_path),
         "produced_by": os.path.basename(sys.argv[0]) or "<interactive>",
+        # THE ARGUMENTS ARE PART OF THE PRODUCTION AND WERE NOT RECORDED. A scoped run of
+        # adjudication_triage.py (one topic) overwrote the corpus-wide artefact, and this
+        # sidecar reported it UNCHANGED and VALID -- correctly, by its own definition, since
+        # the file matched its own hash and its inputs had not moved. A cost model built on
+        # it understated disagreements by 22x before the regeneration caught it. Same defect
+        # as a page naming its generator and not its object: the record described how the
+        # artefact was made and not what it was made ABOUT.
+        "argv": list(sys.argv[1:]),
         "produced_by_path": os.path.abspath(sys.argv[0]) if sys.argv and sys.argv[0] else None,
         "git_commit": _git(["rev-parse", "HEAD"], root),
         # A CLEANLINESS CHECK THAT COUNTS UNTRACKED BUILD OUTPUT CAN NEVER RETURN CLEAN IN

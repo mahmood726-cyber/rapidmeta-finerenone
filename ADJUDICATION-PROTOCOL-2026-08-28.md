@@ -451,3 +451,69 @@ signalling responses — is worth a ruling.
 and no signalling responses, so classes B, C and D are empty by construction and the pipeline
 has no input. **The re-ask is not the first task in the queue; it is the precondition for the
 queue existing.**
+
+---
+
+## 11. Cost, and the fallback allocation is the DEARER one
+
+Added 2026-08-28. `agy` is a £20/month seat with unknown limits, so it is a **judgement
+resource, not an extraction one**: Codex fetches, extracts, assembles the bundle and reads as
+Reader A; `agy` is spent only where a second or third *family* is the point.
+
+### Family assignment is a parameter, not a hardcode
+
+```python
+FAMILY_ASSIGNMENT = {
+    "reader_a":    {"worker": "codex", "family": "openai"},
+    "reader_b":    {"worker": "agy",   "family": "google",
+                    "pin": "gemini-3.1-pro-high"},
+    "adjudicator": {"worker": "agy",   "family": "anthropic"},
+}
+```
+
+A limit then changes a setting rather than a design. **Two constraints on any assignment**, and
+they are checks rather than conventions: no two roles may share a `family`, and a `family` that
+cannot be verified from the CLI log is recorded `UNKNOWN` and **blocks the agreement rate** the
+same way a shared family does.
+
+### ⭐ The measured call counts — and they invert the fallback's premise
+
+The fallback was proposed as *"one call per disagreement instead of one per domain"*. **Reading
+is not billed per domain.** Reader B answers all five domains for a trial-outcome record in one
+call, exactly as the current reader-2 prompt does. So the units are **per trial-outcome record**
+for reading and **per disagreement** for adjudicating, and on this corpus the second is larger:
+
+| | unit | total | per topic |
+|---|---|---|---|
+| **Allocation 1** — `agy` reads (Reader B) | trial-outcome record | 75 | **3.3** |
+| **Allocation 2** — `agy` adjudicates only | disagreement | 133 | **5.8** |
+
+**Ratio 1.77× — the "cheaper" fallback costs 77% more `agy` calls**, and it is dearer on
+**12 of 23 topics**. Projected to the 155 stored topics at these means: **505 calls for
+allocation 1 against 896 for allocation 2.**
+
+⇒ **The crossover rule: adjudication-only is cheaper only where a topic has fewer disagreements
+than trial-outcome records.** With a 40.3% disagreement rate over five domains, that is the
+minority case. **If `agy` turns out to be tight, the answer is not to move it to adjudication —
+it is to keep it reading and shrink the disagreement rate**, which the re-ask and the parity
+gate do directly.
+
+⚠️ **These are CALL counts, not token counts and not money.** `agy` has not been run for this
+protocol, so no per-topic token cost has been measured and none is stated here. Calls are the
+unit that is exactly derivable today; the token rate must be measured on the first real batch
+and reported beside these numbers before any corpus-wide commitment.
+
+### The stale artefact this measurement produced, and the provenance gap behind it
+
+The first cost run read `adjudication_triage.json` left behind by a **scoped** run of one topic,
+so it counted **6** disagreements instead of **133** and put allocation 2 at 0.3 calls per topic
+— a 22× understatement, in the direction that would have made the fallback look free.
+
+**The provenance sidecar reported that file `True`, unchanged and valid** — correctly, by its
+own definition: the artefact matched its own hash and its inputs had not moved. **It recorded
+how the artefact was produced and not what it was produced ABOUT.** The command's arguments are
+part of its production, and they were not stored.
+
+⇒ Fixed at the source: `provenance.py` now records `argv`. **Same shape as a page naming its
+generator and not its object** — a provenance record that cannot distinguish two runs of the
+same script over different populations is not yet provenance.
