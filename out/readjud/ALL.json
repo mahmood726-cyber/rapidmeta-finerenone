@@ -1,0 +1,761 @@
+[
+ {
+  "page": "SGLT2_HF_REVIEW.html",
+  "key": "no statistical heterogeneity was detected i squared",
+  "touches_number_or_named_trial": true,
+  "readjudicated_label": "Q2",
+  "evidence_held_at": "ssot/sglt2-hf/sglt2-hf.json: results.by_outcome.harmonised_cvdeath_or_hhf.heterogeneity.i2 = 0.0; results.by_outcome.threecomp_cvdeath_hhf_urgent.heterogeneity.i2 = 22.51",
+  "state": "ESCALATED_CLASS_WIDE",
+  "blocker": "The bad manuscript Results sentence is emitted by prohibited class-wide ssot/paper_projector.py, not by a per-object field.",
+  "fix_site": "ssot/paper_projector.py: manuscript Results heterogeneity sentence",
+  "plant": {
+   "fails_before": true,
+   "passes_after": null,
+   "fails_on_replant": null,
+   "passes_after_restore": null,
+   "byte_identical": null,
+   "not_run_reason": "Escalated only; prohibited class-wide source was not edited by this lane."
+  },
+  "blast_radius": {
+   "would_touch_objects": 1,
+   "denominator_objects": 155,
+   "count_rule": "canonical ssot/<topic>/<topic>.json objects with more than one live pooled result and distinct held I-squared values"
+  },
+  "proposed_patch": "In ssot/paper_projector.py, before appending the single no-statistical-heterogeneity sentence, derive live pooled outcomes and their own heterogeneity.i2 values. If more than one live pooled outcome has distinct I-squared values, emit per-outcome heterogeneity instead of one global I-squared sentence; otherwise keep the existing single-outcome branch.",
+  "reason": "Q2 by evidence: both I-squared values are held in the object. Not landed because the emitting code is class-wide and prohibited for this lane."
+ },
+ {
+  "page": "SGLT2_HF_REVIEW.html",
+  "key": "no result level rob assessment exists for this outcome",
+  "touches_number_or_named_trial": false,
+  "readjudicated_label": "n/a",
+  "evidence_held_at": "ssot/sglt2-hf/sglt2-hf.json: risk_of_bias.by_outcome.harmonised_cvdeath_or_hhf; risk_of_bias.by_outcome.threecomp_cvdeath_hhf_urgent",
+  "state": "FIXED",
+  "blocker": null,
+  "fix_site": "ssot/sglt2-hf/sglt2-hf.json: grade.by_outcome.harmonised_cvdeath_or_hhf.steps[0].reason; grade.by_outcome.threecomp_cvdeath_hhf_urgent.steps[0].reason",
+  "plant": {
+   "fails_before": true,
+   "passes_after": true,
+   "fails_on_replant": true,
+   "passes_after_restore": true,
+   "byte_identical": true
+  },
+  "reason": "The fix removes the false denial of result-level RoB 2 assessment and states that recorded assessments exist and are not low risk of bias."
+ },
+ {
+  "page": "SGLT2_HF_REVIEW.html",
+  "key": "cardiovascular death or a worsening heart failure event",
+  "touches_number_or_named_trial": true,
+  "readjudicated_label": "Q2",
+  "evidence_held_at": "ssot/sglt2-hf/sglt2-hf.json: results.by_outcome.cvdeath_or_whf_first.poolable = false; results.by_outcome.cvdeath_or_whf_first.pooled.withdrawn = true; results.by_outcome.harmonised_cvdeath_or_hhf.k = 3; results.by_outcome.threecomp_cvdeath_hhf_urgent.k = 2",
+  "state": "FIXED",
+  "blocker": null,
+  "fix_site": "ssot/sglt2-hf/sglt2-hf.json: manuscript.introduction",
+  "plant": {
+   "fails_before": true,
+   "passes_after": true,
+   "fails_on_replant": true,
+   "passes_after_restore": true,
+   "byte_identical": true
+  },
+  "reason": "The introduction now says the review includes four trials, publishes the two coherent pooled outcomes, and examines but does not pool the broader four-trial outcome because the endpoint is not shared."
+ },
+ {
+  "page": "SGLT2_HF_REVIEW.html",
+  "key": "a named two trial programme rather than the yield of a database search",
+  "touches_number_or_named_trial": true,
+  "readjudicated_label": "Q2",
+  "evidence_held_at": "ssot/sglt2-hf/sglt2-hf.json: search.databases[0..2]; search.databases[1].covers_all_included = true; k_cascade.k_included_in_object = 4",
+  "state": "ESCALATED_CLASS_WIDE",
+  "blocker": "The bad limitation bullet is emitted by prohibited class-wide ssot/projectors.py when search.strategy is absent, even if search.databases records executed searches.",
+  "fix_site": "ssot/projectors.py: readiness/limitations search branch",
+  "plant": {
+   "fails_before": true,
+   "passes_after": null,
+   "fails_on_replant": null,
+   "passes_after_restore": null,
+   "byte_identical": null,
+   "not_run_reason": "Escalated only; prohibited class-wide source was not edited by this lane."
+  },
+  "blast_radius": {
+   "would_touch_objects": 16,
+   "denominator_objects": 155,
+   "count_rule": "canonical objects with executed search.databases records, no search.strategy field, and at least one executed database limb"
+  },
+  "proposed_patch": "In ssot/projectors.py, change the no-search limitation branch to test executed search.databases separately from search.strategy. Only emit \"No systematic search was run\" when neither search.strategy nor executed database records are held. When executed database records are held but search.strategy is absent, emit a limitation that the search is recorded as executed database limbs rather than as a normalized strategy field.",
+  "reason": "Q2 by evidence: the SGLT2 object holds executed ClinicalTrials.gov and PubMed search records and a four-trial included set. Not landed because the emitting code is class-wide and prohibited for this lane."
+ },
+ {
+  "page": "SGLT2_HF_REVIEW.html",
+  "key": "pool four trials reporting the same effect measure for the same outcome concept",
+  "touches_number_or_named_trial": true,
+  "readjudicated_label": "Q2",
+  "evidence_held_at": "ssot/sglt2-hf/sglt2-hf.json: results.by_outcome.cvdeath_or_whf_first.poolable = false; results.by_outcome.cvdeath_or_whf_first.poolable_reason; results.by_outcome.cvdeath_or_whf_first.pooled.withdrawn = true",
+  "state": "FIXED",
+  "blocker": null,
+  "fix_site": "ssot/sglt2-hf/sglt2-hf.json: results.by_outcome.cvdeath_or_whf_first.handbook.decision",
+  "plant": {
+   "fails_before": true,
+   "passes_after": true,
+   "fails_on_replant": true,
+   "passes_after_restore": true,
+   "byte_identical": true
+  },
+  "reason": "The methods decision now says not to pool the four-trial outcome and points to separately recorded split two-trial pools, matching the held withdrawn/poolable fields."
+ },
+ {
+  "page": "SGLT2_HF_REVIEW.html",
+  "key": "the pooled benefit depends on no single trial every leave one out fit keeps the null outside its interval",
+  "touches_number_or_named_trial": true,
+  "readjudicated_label": "Q2",
+  "evidence_held_at": "ssot/sglt2-hf/sglt2-hf.json: results.by_outcome.cvdeath_or_whf_first.pooled.withdrawn = true; results.by_outcome.cvdeath_or_whf_first.poolable = false; results.by_outcome.cvdeath_or_whf_first.sensitivity",
+  "state": "FIXED",
+  "blocker": null,
+  "fix_site": "ssot/sglt2-hf/sglt2-hf.json: results.by_outcome.cvdeath_or_whf_first.sensitivity.decision_under_test; results.by_outcome.cvdeath_or_whf_first.sensitivity.leave_one_out_finding",
+  "plant": {
+   "fails_before": true,
+   "passes_after": true,
+   "fails_on_replant": true,
+   "passes_after_restore": true,
+   "byte_identical": true
+  },
+  "reason": "The leave-one-out text now labels the rows as an audit trail for a withdrawn calculation, not robustness evidence for a live full pool."
+ },
+ {
+  "page": "COLCHICINE_CVD_CORONARY_REVIEW.html",
+  "key": "of trial s verified live against the registry",
+  "touches_number_or_named_trial": true,
+  "readjudicated_label": "Q2",
+  "evidence_held_at": "ssot/colchicine-cvd-coronary/colchicine-cvd-coronary.json: registration_identity.trials[0].verified = true; registration_identity.trials[1].verified = NOT_ASSESSABLE with registration_id ACTRN12614000093684; registration_identity.trials[2].verified = true",
+  "state": "FIXED",
+  "blocker": null,
+  "fix_site": "ssot/colchicine-cvd-coronary/colchicine-cvd-coronary.json: build_stamp.properties.P8_registration_identity",
+  "plant": {
+   "fails_before": true,
+   "passes_after": true,
+   "fails_on_replant": true,
+   "passes_after_restore": true,
+   "byte_identical": true
+  },
+  "reason": "The property row now refuses the all-verified claim and reports 2 of 3 verified by the ClinicalTrials.gov method, with the remaining trial not assessable by that method."
+ },
+ {
+  "page": "IV_IRON_HF_REVIEW.html",
+  "key": "fair hf is excluded on outcome",
+  "touches_number_or_named_trial": true,
+  "readjudicated_label": "Q2",
+  "evidence_held_at": "ssot/iv-iron-hf/iv-iron-hf.json: screening.records[trial='FAIR-HF']; k_cascade.remainder_dispositions; screening_of_remainder.iv_iron_2026_08_19.trials[nct='NCT00520780']",
+  "state": "FIXED",
+  "blocker": null,
+  "fix_site": "ssot/iv-iron-hf/iv-iron-hf.json: changed FAIR-HF remainder disposition from ELIGIBLE_NOT_POOLABLE/POOLABILITY to EXCLUDED/OUTCOME, changed remainder counts to EXCLUDED 14, ELIGIBLE_NOT_POOLABLE 5, ELIGIBLE_NO_RESULTS_YET 10, and replaced the contradictory notable_eligible_not_poolable text with notable_excluded_on_outcome.",
+  "plant": {
+   "temp_fixed": "out/readjud/tmp/IV.fixed2.html",
+   "fixed_checks": {
+    "ELIGIBLE AND NOT POOLED absent": true,
+    "PASSES the outcome criterion absent": true
+   },
+   "replanted_in_real_source": "git apply -R out/readjud/tmp/iv.diff",
+   "temp_replanted": "out/readjud/tmp/IV.replanted2.html",
+   "replanted_checks": {
+    "ELIGIBLE AND NOT POOLED returned": true,
+    "PASSES the outcome criterion returned": true
+   },
+   "restored_in_real_source": "git apply out/readjud/tmp/iv.diff",
+   "temp_restored": "out/readjud/tmp/IV.restored2.html",
+   "restored_checks": {
+    "ELIGIBLE AND NOT POOLED absent": true,
+    "PASSES the outcome criterion absent": true
+   },
+   "byte_identical_fixed_vs_restored": true,
+   "fixed_sha256": "86ff783ebe8445b4d1867bf33da605399c3d4a429209598d1bc108862bc7b4c7",
+   "restored_sha256": "86ff783ebe8445b4d1867bf33da605399c3d4a429209598d1bc108862bc7b4c7"
+  },
+  "blast_radius": null,
+  "reason": "The object itself held the FAIR-HF exclusion basis: it says FAIR-HF has eligible P/I, but fails OUTCOME because registered primaries are Patient Global Assessment and NYHA class, no clinical-event endpoint is designated, and the staged abstract has no extractable walk-distance cell. The contradictory remainder fields were rederived to 14 + 5 + 10 = 29, with eligible remainder 5 + 10 = 15 of 29."
+ },
+ {
+  "page": "IV_IRON_HF_REVIEW.html",
+  "key": "there is no effect estimate to rate",
+  "touches_number_or_named_trial": true,
+  "readjudicated_label": "Q2",
+  "evidence_held_at": "ssot/iv-iron-hf/iv-iron-hf.json: results.by_outcome.hierarchical_primary.per_trial[0]; results.by_outcome.hierarchical_primary.grade; results.by_outcome.six_min_walk_24w.per_trial[0]; results.by_outcome.six_min_walk_24w.grade; grade.by_outcome.hierarchical_primary; grade.by_outcome.six_min_walk_24w",
+  "state": "FIXED",
+  "blocker": null,
+  "fix_site": "ssot/iv-iron-hf/iv-iron-hf.json: removed the two false top-level grade.by_outcome entries for hierarchical_primary and six_min_walk_24w that said their pools were declined/withdrawn with no effect estimate. The held single-trial estimates and per-outcome grade blocks remain under results.by_outcome.",
+  "plant": {
+   "temp_fixed": "out/readjud/tmp/IV.fixed2.html",
+   "fixed_checks": {
+    "there is no effect estimate to rate absent": true
+   },
+   "replanted_in_real_source": "git apply -R out/readjud/tmp/iv.diff",
+   "temp_replanted": "out/readjud/tmp/IV.replanted2.html",
+   "replanted_checks": {
+    "there is no effect estimate to rate returned": true
+   },
+   "restored_in_real_source": "git apply out/readjud/tmp/iv.diff",
+   "temp_restored": "out/readjud/tmp/IV.restored2.html",
+   "restored_checks": {
+    "there is no effect estimate to rate absent": true
+   },
+   "byte_identical_fixed_vs_restored": true,
+   "fixed_sha256": "86ff783ebe8445b4d1867bf33da605399c3d4a429209598d1bc108862bc7b4c7",
+   "restored_sha256": "86ff783ebe8445b4d1867bf33da605399c3d4a429209598d1bc108862bc7b4c7"
+  },
+  "blast_radius": null,
+  "reason": "The fix changes a reader-facing count/statement, so it was re-adjudicated. The object holds WIN_RATIO 1.1 (99% CI 0.99 to 1.23) for hierarchical_primary and MD 33 (95% CI 11.4404 to 54.5596) for six_min_walk_24w, each with its own results.by_outcome grade. The top-level false no-estimate entries were deleted rather than replaced with a softer falsehood."
+ },
+ {
+  "page": "IV_IRON_HF_REVIEW.html",
+  "key": "of these pooled outcome s carries a stated qualification",
+  "touches_number_or_named_trial": true,
+  "readjudicated_label": "Q2",
+  "evidence_held_at": "ssot/iv-iron-hf/iv-iron-hf.json: results.by_outcome.hfh_cvd_recurrent.POOL_FINDINGS_2026_08_21.f_tau_squared_is_exactly_zero_so_this_is_a_fixed_effect_interval",
+  "state": "FIXED",
+  "blocker": null,
+  "fix_site": "ssot/iv-iron-hf/iv-iron-hf.json: copied the held POOL_FINDINGS_2026_08_21 qualification onto results.by_outcome.hfh_cvd_first, results.by_outcome.hfh_recurrent, and results.by_outcome.acm, where the held text says the same finding applies.",
+  "plant": {
+   "temp_fixed": "out/readjud/tmp/IV.fixed2.html",
+   "fixed_checks": {
+    "1 of these pooled outcome(s) carries a stated qualification absent": true,
+    "4 of these pooled outcome(s) carry present": true
+   },
+   "replanted_in_real_source": "git apply -R out/readjud/tmp/iv.diff",
+   "temp_replanted": "out/readjud/tmp/IV.replanted2.html",
+   "replanted_checks": {
+    "1 of these pooled outcome(s) carries a stated qualification returned": true
+   },
+   "restored_in_real_source": "git apply out/readjud/tmp/iv.diff",
+   "temp_restored": "out/readjud/tmp/IV.restored2.html",
+   "restored_checks": {
+    "1 of these pooled outcome(s) carries a stated qualification absent": true,
+    "4 of these pooled outcome(s) carry present": true
+   },
+   "byte_identical_fixed_vs_restored": true,
+   "fixed_sha256": "86ff783ebe8445b4d1867bf33da605399c3d4a429209598d1bc108862bc7b4c7",
+   "restored_sha256": "86ff783ebe8445b4d1867bf33da605399c3d4a429209598d1bc108862bc7b4c7"
+  },
+  "blast_radius": null,
+  "reason": "The existing qualification text explicitly names four affected pools and their values: hfh_cvd_recurrent RATE_RATIO 0.8066, hfh_cvd_first HR 0.7957, hfh_recurrent RATE_RATIO 0.7645, and acm HR 0.978. The renderer counts outcomes carrying a qualification, so the safe object fix was additive on the three empty affected outcome blocks."
+ },
+ {
+  "page": "IV_IRON_HF_REVIEW.html",
+  "key": "outcome s were not rated because their pool is declined or withdrawn there is no effect estimate to rate",
+  "touches_number_or_named_trial": true,
+  "readjudicated_label": "Q2",
+  "evidence_held_at": "ssot/iv-iron-hf/iv-iron-hf.json: results.by_outcome.hierarchical_primary.per_trial[0]; results.by_outcome.hierarchical_primary.grade; results.by_outcome.six_min_walk_24w.per_trial[0]; results.by_outcome.six_min_walk_24w.grade; grade.by_outcome.hierarchical_primary; grade.by_outcome.six_min_walk_24w",
+  "state": "FIXED",
+  "blocker": null,
+  "fix_site": "Same source repair as key 'there is no effect estimate to rate': removed the two false top-level no-estimate grade entries from ssot/iv-iron-hf/iv-iron-hf.json.",
+  "plant": {
+   "temp_fixed": "out/readjud/tmp/IV.fixed2.html",
+   "fixed_checks": {
+    "there is no effect estimate to rate absent": true
+   },
+   "replanted_in_real_source": "git apply -R out/readjud/tmp/iv.diff",
+   "temp_replanted": "out/readjud/tmp/IV.replanted2.html",
+   "replanted_checks": {
+    "there is no effect estimate to rate returned": true
+   },
+   "restored_in_real_source": "git apply out/readjud/tmp/iv.diff",
+   "temp_restored": "out/readjud/tmp/IV.restored2.html",
+   "restored_checks": {
+    "there is no effect estimate to rate absent": true
+   },
+   "byte_identical_fixed_vs_restored": true,
+   "fixed_sha256": "86ff783ebe8445b4d1867bf33da605399c3d4a429209598d1bc108862bc7b4c7",
+   "restored_sha256": "86ff783ebe8445b4d1867bf33da605399c3d4a429209598d1bc108862bc7b4c7"
+  },
+  "blast_radius": null,
+  "reason": "Duplicate defect with a broader quote. The object holds k=1 Pending display rows and concrete single-trial estimates, so the false no-estimate top-level grade entries were deleted."
+ },
+ {
+  "page": "IV_IRON_HF_REVIEW.html",
+  "key": "no systematic search was run the included set is a named two trial programme rather than the yield of a database search",
+  "touches_number_or_named_trial": true,
+  "readjudicated_label": "Q2",
+  "evidence_held_at": "ssot/iv-iron-hf/iv-iron-hf.json: search.databases[0]; search.databases[1]; screening.search_note; screening.known_limitation; prisma_flow.identification",
+  "state": "FIXED",
+  "blocker": null,
+  "fix_site": "ssot/iv-iron-hf/iv-iron-hf.json: added search.strategy derived from the held ClinicalTrials.gov API v2 searches, including query 2 returning 47 of 47 records with 5 of 5 recall on the included set, and query 1 returning 16 of 16 with 3 of 5 recall.",
+  "plant": {
+   "temp_fixed": "out/readjud/tmp/IV.fixed2.html",
+   "fixed_checks": {
+    "No systematic search was run absent": true,
+    "The included set is a named two-trial programme absent": true
+   },
+   "replanted_in_real_source": "git apply -R out/readjud/tmp/iv.diff",
+   "temp_replanted": "out/readjud/tmp/IV.replanted2.html",
+   "replanted_checks": {
+    "No systematic search was run returned": true,
+    "The included set is a named two-trial programme returned": true
+   },
+   "restored_in_real_source": "git apply out/readjud/tmp/iv.diff",
+   "temp_restored": "out/readjud/tmp/IV.restored2.html",
+   "restored_checks": {
+    "No systematic search was run absent": true,
+    "The included set is a named two-trial programme absent": true
+   },
+   "byte_identical_fixed_vs_restored": true,
+   "fixed_sha256": "86ff783ebe8445b4d1867bf33da605399c3d4a429209598d1bc108862bc7b4c7",
+   "restored_sha256": "86ff783ebe8445b4d1867bf33da605399c3d4a429209598d1bc108862bc7b4c7"
+  },
+  "blast_radius": null,
+  "reason": "The object held an executed ClinicalTrials.gov search but lacked the `search.strategy` field that the readiness projector uses. The added strategy is derived only from held fields; it does not claim a multi-database systematic search."
+ },
+ {
+  "page": "BOSENTAN_PH_NOT_GROUP1_REVIEW.html",
+  "key": "all eight are named on this page with their status and enrolment",
+  "touches_number_or_named_trial": true,
+  "readjudicated_label": "Q2",
+  "evidence_held_at": "ssot/bosentan-ph-not-group1/bosentan-ph-not-group1.json: inputs.trials[*].nct; inputs.trials[*].name; inputs.trials[*].design; inputs.trials[*].enrolled",
+  "state": "ESCALATED_CLASS_WIDE",
+  "blocker": "The required visible table change belongs in forbidden class-wide file ssot/statement.py, not in a per-object SSOT value or page file.",
+  "fix_site": "ESCALATE ssot/statement.py statement_html registered-trial summary table. Proposed patch text: add helper `_trial_meta_by_nct(obj)` and `_present_count(v)`; in `statement_html`, before rendering the `What was found` table, compute `meta = _trial_meta_by_nct(obj)`; change the header from `<th>Registration</th><th>Trial</th>` to `<th>Registration</th><th>Trial</th><th>Status</th><th>Enrolment</th>`; inside the trial loop, read `m = meta.get(nct, {})`, `status = m.get('design') or m.get('status') or 'not recorded'`, and `enrolment = _present_count(m.get('enrolled'))`, then emit four cells. `_present_count` must treat numeric 0 as present, not as falsy.",
+  "plant": null,
+  "blast_radius": {
+   "objects_touched_numerator": 95,
+   "objects_touched_denominator": 113,
+   "denominator_description": "113 PAGE_MAP objects currently satisfy statement.holds_no_poolable_evidence(obj); 95 of those have at least one inputs.trials row and would receive the additional Status and Enrolment columns.",
+   "portfolio_denominator": 163,
+   "trial_rows_touched_numerator": 270,
+   "count_method": "Imported ssot/statement.py read-only, loaded ssot/PAGE_MAP.json, counted objects where holds_no_poolable_evidence(obj) is true and inputs.trials is non-empty."
+  },
+  "reason": "The evidence is held for all 8 of 8 bosentan trials, including the zero-enrolment withdrawn trial, but the renderer that omits the status/enrolment columns is class-wide and forbidden for this slice. No page file was edited."
+ },
+ {
+  "page": "BOSENTAN_PH_NOT_GROUP1_REVIEW.html",
+  "key": "checked against each registration s arm structure on of trials were confirmed the drug is part of the randomised comparison",
+  "touches_number_or_named_trial": true,
+  "readjudicated_label": "Q2",
+  "evidence_held_at": "ssot/bosentan-ph-not-group1/bosentan-ph-not-group1.json: inputs.trials[*].arms; precondition_verdict.verdicts.arm_role_resolved; precondition_verdict.verdicts.contributes_a_randomised_contrast; trial_identity_check",
+  "state": "FIXED",
+  "blocker": null,
+  "fix_site": "ssot/bosentan-ph-not-group1/bosentan-ph-not-group1.json: changed trial_identity_check.by_trial[*].state from studied to undecidable, changed n_studied/n_not_studied/n_undecidable from 8/0/0 to 0/0/8, and replaced the undecidable explanation with the held no-readable-arm-roles basis.",
+  "plant": {
+   "temp_fixed": "out/readjud/tmp/BOS.fixed2.html",
+   "fixed_checks": {
+    "8 of 8 trials were confirmed absent": true,
+    "8 could NOT be decided this way present": true
+   },
+   "replanted_in_real_source": "git apply -R out/readjud/tmp/bos.diff",
+   "temp_replanted": "out/readjud/tmp/BOS.replanted2.html",
+   "replanted_checks": {
+    "8 of 8 trials were confirmed returned": true,
+    "the drug is part of the randomised comparison returned": true
+   },
+   "restored_in_real_source": "git apply out/readjud/tmp/bos.diff",
+   "temp_restored": "out/readjud/tmp/BOS.restored2.html",
+   "restored_checks": {
+    "8 of 8 trials were confirmed absent": true,
+    "8 could NOT be decided this way present": true
+   },
+   "byte_identical_fixed_vs_restored": true,
+   "fixed_sha256": "96da452dc3d27e1b9331296f3cab4e399bf626461fd1787e311adbd3a6005bd2",
+   "restored_sha256": "96da452dc3d27e1b9331296f3cab4e399bf626461fd1787e311adbd3a6005bd2"
+  },
+  "blast_radius": null,
+  "reason": "The object holds 8 of 8 trials with empty arms arrays, and the randomised-contrast precondition says NOT-ASSESSABLE because 8 of 8 trial(s) carry no readable arm roles. The trial identity claim was therefore not evidence-blocked; it was contradicted by held evidence and was corrected to undecidable."
+ },
+ {
+  "page": "TIGECYCLINE_CIAI_SSOT.html",
+  "key": "the stored refit gives i squared",
+  "touches_number_or_named_trial": true,
+  "readjudicated_label": "Q2",
+  "evidence_held_at": "$.results.by_outcome.cure_toc_me.heterogeneity.i2 = 7.2866; $.results.by_outcome.cure_toc_me.heterogeneity.i2_definition_evidence gives Higgins 7.2872 and REML/metafor 1.1684; $.results.by_outcome.cure_toc_me.r_output.verbatim prints I^2 1.16%",
+  "state": "FIXED",
+  "blocker": null,
+  "fix_site": "ssot/tigecycline-ciai/tigecycline-ciai.json $.grade.by_outcome.cure_toc_me.steps[1].reason",
+  "plant": {
+   "initial_defect_present": {
+    "file": "out/readjud/probe_tige.html",
+    "defect_count": 1
+   },
+   "fixed_build": {
+    "file": "out/readjud/slice2_tige_fixed_i2_ref.html",
+    "defect_count": 0,
+    "replacement_count": 1,
+    "sha256": "6c86feb4dc629b2f59c56c5328c5b5ab5ea03e0424522a939ecc9da20dc1d7bb"
+   },
+   "replanted": {
+    "file": "out/readjud/slice2_tige_replant_i2b.html",
+    "defect_count": 1,
+    "replacement_count": 0,
+    "sha256": "0772584e2682e27161055dc1a977535896f3ed3a77e5b3f61e0c5bda498793ca"
+   },
+   "restored": {
+    "file": "out/readjud/slice2_tige_restore_i2b.html",
+    "defect_count": 0,
+    "replacement_count": 1,
+    "sha256": "6c86feb4dc629b2f59c56c5328c5b5ab5ea03e0424522a939ecc9da20dc1d7bb"
+   },
+   "byte_identical_to_fixed": true
+  },
+  "blast_radius": null,
+  "reason": "The fix changes the way two reader-facing I-squared values are identified, so it was re-adjudicated. The store holds both definitions and the verbatim metafor output; the corrected sentence distinguishes REML/metafor I-squared from the displayed Higgins I-squared instead of implying the same value."
+ },
+ {
+  "page": "TIGECYCLINE_CIAI_SSOT.html",
+  "key": "the analysis population is part of the estimand and this pool crosses it",
+  "touches_number_or_named_trial": false,
+  "readjudicated_label": "n/a",
+  "evidence_held_at": null,
+  "state": "FIXED",
+  "blocker": null,
+  "fix_site": "ssot/tigecycline-ciai/tigecycline-ciai.json $.results.by_outcome.cure_toc_me.poolable_reason",
+  "plant": {
+   "initial_defect_present": {
+    "file": "out/readjud/probe_tige.html",
+    "defect_count": 2
+   },
+   "fixed_build": {
+    "file": "out/readjud/slice2_tige_fixed_pool_ref.html",
+    "defect_count": 0,
+    "replacement_count": 2,
+    "sha256": "7e1138cb0e68b8e40be8e132e696de21a8ad73390853ceab0060adf4c56469d8"
+   },
+   "replanted": {
+    "file": "out/readjud/slice2_tige_replant_pool.html",
+    "defect_count": 2,
+    "replacement_count": 0,
+    "sha256": "db46ecb001ff11b66855683ade63660c4db6e6b4c08af1f8dfa5a5dfa3175e5a"
+   },
+   "restored": {
+    "file": "out/readjud/slice2_tige_restore_pool.html",
+    "defect_count": 0,
+    "replacement_count": 2,
+    "sha256": "7e1138cb0e68b8e40be8e132e696de21a8ad73390853ceab0060adf4c56469d8"
+   },
+   "byte_identical_to_fixed": true
+  },
+  "blast_radius": null,
+  "reason": "This was a wording contradiction in the per-outcome poolability reason. The corrected text no longer declares analysis population identical, and points to the same store's finding block that records the crossed populations."
+ },
+ {
+  "page": "TIGECYCLINE_CIAI_SSOT.html",
+  "key": "no adjudication has been performed so this review holds no final risk of bias judgement",
+  "touches_number_or_named_trial": false,
+  "readjudicated_label": "n/a",
+  "evidence_held_at": null,
+  "state": "FIXED",
+  "blocker": null,
+  "fix_site": "ssot/tigecycline-ciai/tigecycline-ciai.json $.grade.by_outcome.cure_toc_me.summary",
+  "plant": {
+   "initial_defect_present": {
+    "file": "out/readjud/probe_tige.html",
+    "defect_count": 1
+   },
+   "fixed_build": {
+    "file": "out/readjud/slice2_tige_fixed_grade_ref2.html",
+    "defect_count": 0,
+    "replacement_count": 1,
+    "sha256": "fd3d73163dc6c9db2102821b39fd087d60030791ce5818b6e9db727dc36c8111"
+   },
+   "replanted": {
+    "file": "out/readjud/slice2_tige_replant_grade.html",
+    "defect_count": 1,
+    "replacement_count": 0,
+    "sha256": "4d7ff6285f0a8a10c72ef675c6530d9525c0d8f01a8227990a41a270970a8d51"
+   },
+   "restored": {
+    "file": "out/readjud/slice2_tige_restore_grade2.html",
+    "defect_count": 0,
+    "replacement_count": 1,
+    "sha256": "fd3d73163dc6c9db2102821b39fd087d60030791ce5818b6e9db727dc36c8111"
+   },
+   "byte_identical_to_fixed": true
+  },
+  "blast_radius": null,
+  "reason": "The resolver withholds a final certainty level pending risk-of-bias adjudication, but the per-object summary still read as a final Very LOW certainty statement. The summary now says no final level is published and keeps the recorded work-so-far as non-final."
+ },
+ {
+  "page": "TIGECYCLINE_CIAI_SSOT.html",
+  "key": "leave one out no refit excludes no difference the estimate does not survive removal of any single trial",
+  "touches_number_or_named_trial": true,
+  "readjudicated_label": "Q2",
+  "evidence_held_at": "$.results.by_outcome.cure_toc_me.sensitivity.analyses[5].result.ci_low/.ci_high and verdict; $.results.by_outcome.cure_toc_me.sensitivity.analyses[6].result.ci_low/.ci_high and verdict; $.results.by_outcome.cure_toc_me.sensitivity.analyses[7].result.ci_low/.ci_high and verdict; outcome null value is 1",
+  "state": "ESCALATED_CLASS_WIDE",
+  "blocker": null,
+  "fix_site": "ssot/projectors2.py visual_abstract_fig leave-one-out sentence",
+  "plant": null,
+  "blast_radius": {
+   "corpus_denominator": "163 PAGE_MAP entries",
+   "affected_pages": 1,
+   "affected_outcomes": 1,
+   "affected_examples": [
+    [
+     "TIGECYCLINE_CIAI_SSOT.html",
+     "cure_toc_me",
+     "old_count 0/8",
+     "derived_leave_one_out_count 1/3"
+    ]
+   ]
+  },
+  "proposed_patch_text": "In ssot/projectors2.py, change the visual_abstract_fig leave-one-out block to build rows from analyses whose id starts with 'leave-out' or whose changed text contains 'removing ', derive still-excludes-null from explicit still_excludes_null when present otherwise from result.ci_low/result.ci_high against outcome.null_value, and use that leave-one-out denominator in the emitted sentence. Do not count non-leave-one-out sensitivity rows in a sentence about removing single trials.",
+  "reason": "The needed values are held, but the defect is caused by class-wide renderer logic: it counts all sensitivity rows and only recognizes an optional still_excludes_null boolean. The permitted lane cannot edit projectors*.py, so the class-wide patch is escalated with measured blast radius."
+ },
+ {
+  "page": "TIGECYCLINE_CIAI_SSOT.html",
+  "key": "the registrations fetched do not use non inferiority so the design question is unresolved from the registry",
+  "touches_number_or_named_trial": true,
+  "readjudicated_label": "Q2",
+  "evidence_held_at": "$.inputs.trials[2].by_outcome.cure_toc_me.provenance.source_quotes[0]; ssot/tigecycline-ciai/sources/NCT01721408.ctgov.json result analyses contain nonInferiorityType and nonInferiorityComment; NCT00081744 and NCT00136201 source files contain no nonInferiority field",
+  "state": "FIXED",
+  "blocker": null,
+  "fix_site": "ssot/tigecycline-ciai/tigecycline-ciai.json $.results.by_outcome.cure_toc_me.POOL_FINDINGS_2026_08_21.c_what_is_not_claimed",
+  "plant": {
+   "initial_defect_present": {
+    "file": "out/readjud/probe_tige.html",
+    "defect_count_case_insensitive": 3
+   },
+   "fixed_build": {
+    "file": "out/readjud/slice2_tige_fixed_ni_ref.html",
+    "defect_count_case_insensitive": 0,
+    "replacement_count_case_insensitive": 3,
+    "sha256": "fe809d5a35c805033d1803f25f4865045cac54dfe49ded47b61a6c65ba474bbf"
+   },
+   "replanted": {
+    "file": "out/readjud/slice2_tige_replant_ni.html",
+    "defect_count_case_insensitive": 3,
+    "replacement_count_case_insensitive": 0,
+    "sha256": "1f3bca4a2e0c53e00a540aed1d57bf0ed1a0e6593a9cf34bf8470a4b596b2914"
+   },
+   "restored": {
+    "file": "out/readjud/slice2_tige_restore_ni.html",
+    "defect_count_case_insensitive": 0,
+    "replacement_count_case_insensitive": 3,
+    "sha256": "fe809d5a35c805033d1803f25f4865045cac54dfe49ded47b61a6c65ba474bbf"
+   },
+   "byte_identical_to_fixed": true
+  },
+  "blast_radius": null,
+  "reason": "The fix alters a named-trial/design statement and a -15% criterion, so it was re-adjudicated. NCT01721408's held ClinicalTrials.gov result block contains the non-inferiority type and criterion; the source now refuses only the overbroad claim that every contributing registration establishes that design."
+ },
+ {
+  "page": "COVID19_VACCINES_REVIEW.html",
+  "key": "figure forest plot symptomatic laboratory confirmed covid k",
+  "touches_number_or_named_trial": true,
+  "readjudicated_label": "Q2",
+  "evidence_held_at": "$.results.by_outcome.symptomatic_covid.k = 3; $.results.by_outcome.symptomatic_covid.per_trial[0].point/.ci_low/.ci_high; $.results.by_outcome.symptomatic_covid.per_trial[1].point/.ci_low/.ci_high; $.results.by_outcome.symptomatic_covid.per_trial[2].not_computed_reason",
+  "state": "ESCALATED_CLASS_WIDE",
+  "blocker": null,
+  "fix_site": "ssot/paper_projector.py figure caption construction for forest plots",
+  "plant": null,
+  "blast_radius": {
+   "corpus_denominator": "163 PAGE_MAP entries",
+   "affected_pages": 2,
+   "affected_outcomes": 3,
+   "affected_examples": [
+    [
+     "COVID19_VACCINES_REVIEW.html",
+     "symptomatic_covid",
+     "stored k 3",
+     "plotted rows 2"
+    ],
+    [
+     "LENACAPAVIR_PREP_SSOT.html",
+     "len_vs_ftdf",
+     "stored k 2",
+     "plotted rows 1"
+    ],
+    [
+     "LENACAPAVIR_PREP_SSOT.html",
+     "len_vs_background",
+     "stored k 2",
+     "plotted rows 1"
+    ]
+   ]
+  },
+  "proposed_patch_text": "In ssot/paper_projector.py around the forest-figure caption, compute plotted_k from the same plottability predicate used by projectors.forest_svg, then render the caption as 'plotted k = <plotted_k> of <stored k> stored trial rows' when plotted_k differs from stored k. Keep the existing k caption when plotted_k equals stored k, and cite results.by_outcome.<oid>.per_trial as the source field.",
+  "reason": "The store legitimately holds three trial rows, one of which has no computed risk ratio, and the renderer legitimately plots two rows. The contradiction is the class-wide manuscript caption using stored k as if it were plotted k. The safe fix is in a forbidden class-wide file, so it is escalated with blast radius."
+ },
+ {
+  "page": "APIXABAN_VTE_TREATMENT_REVIEW.html",
+  "key": "no quotable model output exists",
+  "touches_number_or_named_trial": false,
+  "readjudicated_label": "n/a",
+  "evidence_held_at": null,
+  "state": "FIXED",
+  "blocker": null,
+  "fix_site": "ssot/apixaban-vte-treatment/apixaban-vte-treatment.json $.build_stamp.properties.P6_analysis_output, $.build_stamp.held, $.build_stamp.refusing",
+  "plant": {
+   "initial_defect_present": {
+    "file": "out/readjud/probe_apix.html",
+    "defect_count": 1
+   },
+   "fixed_build": {
+    "file": "out/readjud/slice2_apix_fixed_p6_ref.html",
+    "defect_count": 0,
+    "replacement_count": 1,
+    "sha256": "51c17c03e778231fe7c22fcf806cee90646bfab9a8475b75ef272a01cc661adf"
+   },
+   "replanted": {
+    "file": "out/readjud/slice2_apix_replant_p6.html",
+    "defect_count": 1,
+    "replacement_count": 0,
+    "sha256": "e913de3e540ca905da844608e4be28c7742a729585ec22de1aad9682873b0d74"
+   },
+   "restored": {
+    "file": "out/readjud/slice2_apix_restore_p6.html",
+    "defect_count": 0,
+    "replacement_count": 1,
+    "sha256": "51c17c03e778231fe7c22fcf806cee90646bfab9a8475b75ef272a01cc661adf"
+   },
+   "byte_identical_to_fixed": true
+  },
+  "blast_radius": null,
+  "reason": "The refusal was stale. The same object now holds quotable REML/metafor output at results.by_outcome.recurrent_vte.r_output.verbatim, so P6 is marked HELD and moved from build_stamp.refusing to build_stamp.held."
+ },
+ {
+  "page": "ABLATION_AF_MEDICAL_THERAPY_REVIEW.html",
+  "key": "the number of events in each arm",
+  "touches_number_or_named_trial": false,
+  "readjudicated_label": "n/a",
+  "evidence_held_at": null,
+  "state": "FIXED",
+  "blocker": null,
+  "fix_site": "No new source edit in this turn. Current generator logic in ssot/paper_projector.py:_clinical_gaps reads held arm events from ssot/ablation-af-medical-therapy/ablation-af-medical-therapy.json:inputs.trials[*].arms[*].events.",
+  "plant": {
+   "fixed_temp": "out/readjud/ablation-af-medical-therapy.ablation_med_arm_events.fixed.html",
+   "fixed_defect_gone": true,
+   "replant_temp": "out/readjud/ablation-af-medical-therapy.ablation_med_arm_events.replant.html",
+   "replant_defect_returned": true,
+   "restore_temp": "out/readjud/ablation-af-medical-therapy.ablation_med_arm_events.restore.html",
+   "restore_defect_gone": true,
+   "restore_byte_identical_to_fixed_after_page_generated_normalization": true
+  },
+  "blast_radius": null,
+  "reason": "The proposed fix does not change a reader-facing number or add/alter a named-trial statement. A fresh temp build omits the false denial because the object holds arm-event counts for all 3 of 3 trials: CASTLE-AF, CABANA, and RAFT-AF."
+ },
+ {
+  "page": "ABLATION_AF_MEDICAL_THERAPY_REVIEW.html",
+  "key": "the cleanest available form of this review s question",
+  "touches_number_or_named_trial": true,
+  "readjudicated_label": "Q2",
+  "evidence_held_at": "ssot/ablation-af-medical-therapy/ablation-af-medical-therapy.json:question; outcomes[0].comparator; k_cascade.remainder_dispositions.what_would_change_this_answer",
+  "state": "FIXED",
+  "blocker": null,
+  "fix_site": "ssot/ablation-af-medical-therapy/ablation-af-medical-therapy.json:k_cascade.remainder_dispositions.what_would_change_this_answer",
+  "plant": {
+   "fixed_temp": "out/readjud/ablation-af-medical-therapy.ablation_med_cleanest.rerun.fixed.html",
+   "fixed_defect_gone": true,
+   "replant_temp": "out/readjud/ablation-af-medical-therapy.ablation_med_cleanest.rerun.replant.html",
+   "replant_defect_returned": true,
+   "restore_temp": "out/readjud/ablation-af-medical-therapy.ablation_med_cleanest.rerun.restore.html",
+   "restore_defect_gone": true,
+   "restore_byte_identical_to_fixed_after_page_generated_normalization": true
+  },
+  "blast_radius": null,
+  "reason": "Q2 confirmed. The store itself holds the active-comparator review question and comparator, while the disputed field calls four NCTs sham-controlled. I changed only the comparator claim from 'the cleanest available form of this review's question' to a separate sham-comparator question."
+ },
+ {
+  "page": "ABLATION_AF_MEDICAL_THERAPY_REVIEW.html",
+  "key": "the review asks about catheter ablation versus medical rate or rhythm control therapy on death stroke and hospitalisation",
+  "touches_number_or_named_trial": true,
+  "readjudicated_label": "Q2",
+  "evidence_held_at": "ssot/ablation-af-medical-therapy/ablation-af-medical-therapy.json:question_provenance; outcomes[0].name; outcomes[0].definition_note; results.by_outcome.primary.poolable_reason; inputs.trials[*].registered_primaries",
+  "state": "FIXED",
+  "blocker": null,
+  "fix_site": "ssot/ablation-af-medical-therapy/ablation-af-medical-therapy.json:question and manuscript.introduction",
+  "plant": {
+   "fixed_temp": "out/readjud/ablation-af-medical-therapy.ablation_med_question_outcome.fixed.html",
+   "fixed_defect_gone": true,
+   "replant_temp": "out/readjud/ablation-af-medical-therapy.ablation_med_question_outcome.replant.html",
+   "replant_defect_returned": true,
+   "restore_temp": "out/readjud/ablation-af-medical-therapy.ablation_med_question_outcome.restore.html",
+   "restore_defect_gone": true,
+   "restore_byte_identical_to_fixed_after_page_generated_normalization": true
+  },
+  "blast_radius": null,
+  "reason": "Q2 confirmed. The object repeatedly states that the outcome is each trial's own registered primary composite and that the three composites differ. I aligned the root question and stored manuscript introduction to that held outcome instead of inventing a harmonised death/stroke/hospitalisation endpoint."
+ },
+ {
+  "page": "ABLATION_AF_HEART_FAILURE_REVIEW.html",
+  "key": "the prisma flow counts are held for this review and reconcile with the executed searches above",
+  "touches_number_or_named_trial": false,
+  "readjudicated_label": "n/a",
+  "evidence_held_at": null,
+  "state": "ESCALATED_CLASS_WIDE",
+  "blocker": null,
+  "fix_site": "ESCALATE patch text only, not landed: in ssot/projectors.py, before the generic screen absent-state branch, handle tid == 'screen' and (canon.get('prisma_flow') or canon.get('k_cascade')) as partially held, with note 'Screening counts are held in this object and shown in the PRISMA/cascade panels; the per-record screening log is not held unless records are listed below.'",
+  "plant": {
+   "performed": false,
+   "reason": "No class-wide file may be edited by this lane."
+  },
+  "blast_radius": {
+   "objects": 10,
+   "pages": 10,
+   "count_basis": "Corpus count of ssot/*/*.json with prisma_flow or k_cascade held and no nonempty screening.records list.",
+   "affected_pages": [
+    "ABLATION_AF_HEART_FAILURE_REVIEW.html",
+    "ABLATION_AF_MEDICAL_THERAPY_REVIEW.html",
+    "ALIROCUMAB_LIPID_AUTO_FULL_REVIEW.html",
+    "ATTR_CM_REVIEW.html",
+    "BEMPEDOIC_ACID_REVIEW.html",
+    "BOSENTAN_PAH_CHILDREN_REVIEW.html",
+    "BOSENTAN_PAH_COMBINATION_REVIEW.html",
+    "BOSENTAN_PAH_MONOTHERAPY_REVIEW.html",
+    "BOSENTAN_PH_NOT_GROUP1_REVIEW.html",
+    "COLCHICINE_CVD_CORONARY_REVIEW.html"
+   ]
+  },
+  "reason": "The fix belongs in the shared tab absent-state renderer, not in this one page. The object already holds prisma_flow and k_cascade, so deleting those counts would destroy held evidence; the false denial comes from class-wide empty-screen wording."
+ },
+ {
+  "page": "ABLATION_AF_HEART_FAILURE_REVIEW.html",
+  "key": "where a result is rated worse than low overall the domain carrying that judgement is deviations from the intended intervention on result s selection of the repo",
+  "touches_number_or_named_trial": true,
+  "readjudicated_label": "Q2",
+  "evidence_held_at": "ssot/ablation-af-heart-failure/ablation-af-heart-failure.json:risk_of_bias.SECOND_ASSESSOR_2026_08_21.DISAGREEMENT_RATE; risk_of_bias.SECOND_ASSESSOR_2026_08_21.PER_DOMAIN; risk_of_bias.by_outcome.primary.*.overall_note",
+  "state": "FIXED",
+  "blocker": null,
+  "fix_site": "ssot/ablation-af-heart-failure/ablation-af-heart-failure.json:bookkeeping_2026_08_21.which_risk_of_bias_domains_drove_the_rating",
+  "plant": {
+   "fixed_temp": "out/readjud/ablation-af-heart-failure.ablation_hf_rob_domains.rerun.fixed.html",
+   "fixed_defect_gone": true,
+   "replant_temp": "out/readjud/ablation-af-heart-failure.ablation_hf_rob_domains.rerun.replant.html",
+   "replant_defect_returned": true,
+   "restore_temp": "out/readjud/ablation-af-heart-failure.ablation_hf_rob_domains.rerun.restore.html",
+   "restore_defect_gone": true,
+   "restore_byte_identical_to_fixed_after_page_generated_normalization": true
+  },
+  "blast_radius": null,
+  "reason": "Q2 confirmed. The object holds 8 of 12 dual-assessor judgements disagreeing, OVERALL 2 of 2 disagreeing, and per-result notes saying no overall judgement is synthesised. I replaced the false domain-driver sentence with that unresolved final-judgement state."
+ },
+ {
+  "page": "FINERENONE_CV_REVIEW.html",
+  "key": "moderate certainty the two trials agree almost exactly both are quadruple masked so the single downgrade is for the unread deviation and missing data domains an",
+  "touches_number_or_named_trial": true,
+  "readjudicated_label": "Q3",
+  "evidence_held_at": null,
+  "state": "EVIDENCE_BLOCKED",
+  "blocker": "Trial/value: FIDELIO-DKD NCT02540993 and FIGARO-DKD NCT02545049, cv_composite_first certainty level. Needed value: a final adjudicated risk-of-bias judgement that can license publishing a GRADE certainty level. Source that would settle it: a third-reader/adjudicator record in risk_of_bias resolving the remaining D5 and OVERALL disagreements, or source documents sufficient to adjudicate those RoB domains. The current store records a MODERATE GRADE block, but also records unresolved dual-assessor disagreement and no final RoB adjudication.",
+  "fix_site": null,
+  "plant": {
+   "performed": false,
+   "reason": "Evidence blocked under the binding re-adjudication rule."
+  },
+  "blast_radius": null,
+  "reason": "NOT HELD. The current authority resolver correctly marks certainty pending when a risk-of-bias-dependent GRADE level rests on unadjudicated dual-assessor disagreements. Removing either the pending warning or the MODERATE summary would decide a named-trial certainty state without the adjudication record."
+ },
+ {
+  "page": "ALIROCUMAB_LIPID_AUTO_FULL_REVIEW.html",
+  "key": "six of six contributing values are therefore confirmed against their registry records the only topic in this lane where the trial by trial check is complete",
+  "touches_number_or_named_trial": true,
+  "readjudicated_label": "Q2",
+  "evidence_held_at": "ssot/alirocumab-lipid/alirocumab-lipid.json:inputs.trials; results.by_outcome.ldlc_pct_change_wk24.k; results.by_outcome.ldlc_pct_change_wk24.per_trial; published_comparison.checks[id=ldl-values-vs-registry-6].detail; build_stamp.properties.P7_published_comparison.reason; build_stamp.properties.P8_registration_identity.reason",
+  "state": "FIXED",
+  "blocker": null,
+  "fix_site": "ssot/alirocumab-lipid/alirocumab-lipid.json:published_comparison.checks[id=ldl-values-vs-registry-6].detail",
+  "plant": {
+   "fixed_temp": "out/readjud/alirocumab-lipid.alirocumab_six_of_six.fixed.html",
+   "fixed_defect_gone": true,
+   "replant_temp": "out/readjud/alirocumab-lipid.alirocumab_six_of_six.replant.html",
+   "replant_defect_returned": true,
+   "restore_temp": "out/readjud/alirocumab-lipid.alirocumab_six_of_six.restore.html",
+   "restore_defect_gone": true,
+   "restore_byte_identical_to_fixed_after_page_generated_normalization": true
+  },
+  "blast_radius": null,
+  "reason": "Q2 confirmed. The store holds 8 pooled trials and names NCT02289963 and NCT02585778 as recovered contributors; the six-row registry-value table is therefore not complete over the pooled set. I changed only the row-level completeness sentence."
+ }
+]
