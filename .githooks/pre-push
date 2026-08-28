@@ -260,5 +260,48 @@ fi
 # the page -- not a fixture written by whoever wrote the fix.
 python "$(git rev-parse --show-toplevel)/scripts/lint_field_name_in_reader_prose_2026_08_23.py" >/dev/null || { echo "[pre-push] REFUSED: a schema identifier reaches reader-facing prose (scripts/lint_field_name_in_reader_prose_2026_08_23.py)"; exit 1; }
 
+# ---------------------------------------------------------------------------
+# EXECUTABLE-RULE GATES, added 2026-08-28. gates/run_all.py --fast
+#
+# WHY THESE EXIST AT ALL. Every rule they enforce was already written down, owned, and broken
+# anyway. `prune_legacy_corpus_2026_08_26.py` says in its own docstring "never delete what you
+# merely failed to recognise", and a sibling script selected 763 pages by absence two days
+# later. `field_aliases.py` exists specifically to stop one concept being read under several
+# names, and the two spellings actually in use were not in it. A rule fires only when its
+# author already knows which rule applies, which is the part that goes wrong.
+#
+# --fast RUNS FOUR OF THE SEVEN. Gates 2, 5 and 6 read all 1,426 delivered pages and take
+# about 70 seconds; they run in CI and by hand, not on every push. The runner PRINTS which
+# gates it skipped, because a scoped pass that does not name its scope is how "53 apps" turned
+# out to be 1,522.
+#
+# EXIT 2 IS VACUOUS AND IT BLOCKS. A gate that never reached the case it was built to find is
+# more dangerous than one that objected, because it reads as a pass. This hook treats it as a
+# failure, deliberately.
+# ---------------------------------------------------------------------------
+GATES="$REPO_ROOT/gates/run_all.py"
+if [ ! -f "$GATES" ]; then
+    echo "[pre-push] gates/run_all.py is missing." >&2
+    echo "[pre-push] Refusing to pass a check that is not present." >&2
+    exit 1
+fi
+set +e
+python "$GATES" --fast
+GATE_STATUS=$?
+set -e
+if [ "$GATE_STATUS" -eq 2 ]; then
+    echo ""
+    echo "[pre-push] A gate went VACUOUS: it never reached a case it was built to find."
+    echo "[pre-push] That is a filter hiding the motivating case, not a clean run."
+    exit 1
+fi
+if [ "$GATE_STATUS" -ne 0 ]; then
+    echo ""
+    echo "[pre-push] Executable-rule gates FAILED (exit $GATE_STATUS)."
+    echo "[pre-push] Run: python gates/run_all.py     This gate has no override."
+    exit 1
+fi
+echo "[pre-push] Executable-rule gates PASS (4 of 7; 2, 5 and 6 are CI-only, see above)."
+
 echo "[pre-push] Regression check PASS on $COUNT page(s). Proceeding with push."
 exit 0
