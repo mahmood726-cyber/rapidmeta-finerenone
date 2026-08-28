@@ -61,6 +61,31 @@ def _rendered(path):
 # and every borderline result keeps its measured size so the threshold can be re-argued.
 MIN_TEXT = 4000
 
+# ⛔ A 200 IS NOT A DOCUMENT, AND A 000 IS NOT A PAYWALL.
+#
+# Both halves were learned the hard way. NCBI efetch returns 200 for a PMCID that cannot
+# exist, so a status-code check records a fabricated document as retrieved -- the rendered-text
+# floor is what rejects it. And curl returns 000 when there is NO NETWORK AT ALL: Codex jobs
+# have none, and `curl.exe` there yields status=000 for every URL. A 000 written into an
+# attempts list is indistinguishable from a genuine refusal, so a script run inside such a job
+# would record the whole corpus as unreachable and the number would be wrong in the direction
+# we least want -- understating our access, and looking like a paywall finding.
+#
+# THE SAME SCRIPT RUN IN TWO PLACES IS TWO DIFFERENT INSTRUMENTS. So a network absence gets its
+# own status, never counts as a route failure, and every record says where it executed.
+NETWORK_ABSENT = ("000", "0", "ERR")
+
+
+def _absent(code):
+    return str(code).startswith("ERR") or str(code) in NETWORK_ABSENT
+
+
+def _where():
+    """Where this fetch executed. A record without it cannot be compared with another."""
+    import socket
+    return {"host": socket.gethostname(),
+            "context": os.environ.get("LANE_CONTEXT") or "unrecorded"}
+
 
 def routes_for(pmcid=None, pmid=None, doi=None):
     """Ordered routes. Europe PMC first because it is cheapest, publisher last."""
@@ -98,7 +123,7 @@ def retrieve(pmcid=None, pmid=None, doi=None, out_dir=None, save_as=None):
     rec = {"pmcid": pmcid, "pmid": pmid, "doi": doi, "attempts": [],
            "route": None, "rendered_chars": 0, "saved_to": None,
            "document_id": pmcid or (("PMID:" + str(pmid)) if pmid else doi),
-           "sha256": None}
+           "sha256": None, "executed_at": _where(), "network_absent": False}
     for name, url in routes_for(pmcid, pmid, doi):
         code, size, ctype = _curl(url, tmp)
         chars = _rendered(tmp) if code == "200" and size else 0
@@ -120,6 +145,11 @@ def retrieve(pmcid=None, pmid=None, doi=None, out_dir=None, save_as=None):
                 except OSError:
                     pass
             return rec
+    # EVERY ROUTE FAILED -- but WHY decides what this record means. If every attempt returned a
+    # network-absence code, nothing was learned about the document and the result is
+    # INDETERMINATE, not negative.
+    att = rec["attempts"]
+    rec["network_absent"] = bool(att) and all(_absent(a["http"]) for a in att)
     return rec
 
 
@@ -129,6 +159,10 @@ def summarise(rec):
         return ("retrieved via %s, %d rendered characters, after %d route(s) tried"
                 % (rec["route"], rec["rendered_chars"], len(rec["attempts"])))
     tried = ", ".join("%s=%s" % (a["route"], a["http"]) for a in rec["attempts"])
+    if rec.get("network_absent"):
+        return ("INDETERMINATE -- every route returned a network-absence code (%s). Nothing "
+                "was learned about this document; this run had no network. NOT a paywall and "
+                "NOT a refusal, and it must not be recorded as either." % tried)
     return ("NOT retrieved. Every route was tried and named: %s. This is a statement about "
             "these routes, not about whether the document exists." % (tried or "none available"))
 
