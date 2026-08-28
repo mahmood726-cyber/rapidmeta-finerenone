@@ -972,9 +972,53 @@ def visual_abstract(canon, res, outcome, p):
     g = res.get("grade") or {}
     sens = res.get("sensitivity") or {}
     loo = ""
-    rows = [a for a in (sens.get("analyses") or []) if isinstance(a, dict)]
-    kept = [a for a in rows if a.get("still_excludes_null")]
-    if rows:
+    _all_sens = [a for a in (sens.get("analyses") or []) if isinstance(a, dict)]
+
+    # A LEAVE-ONE-OUT SENTENCE MUST COUNT LEAVE-ONE-OUT REFITS, AND NOTHING ELSE.
+    # tigecycline-ciai/cure_toc_me holds EIGHT sensitivity rows and only THREE remove a study;
+    # the other five change the summary statistic, the event definition, the model or the
+    # analysis population. Counting all eight made the denominator wrong, and because none of
+    # the eight carries `still_excludes_null` the numerator came out 0 -- so the page said "no
+    # refit excludes no difference; the estimate does not survive removal of any single trial"
+    # while its own leave-one-out table showed removal of study-3xx still excluding the null.
+    #
+    # THE SELECTOR MUST ACCEPT BOTH CONVENTIONS. Selecting on `id` alone is the obvious fix and
+    # is unsafe class-wide: only 1 of 13 page-outcomes with sensitivity rows uses leave-out ids,
+    # and 12 of 13 use a legacy non-empty `omitted`. Dropping those would delete a true sentence
+    # from twelve pages to fix one.
+    def _is_leave_one_out(a):
+        return (str(a.get("id") or "").startswith("leave-out")
+                or a.get("omitted") not in (None, "")
+                or " by removing " in str(a.get("changed") or "").lower())
+
+    # DERIVE THE VERDICT WHERE THE BOOLEAN IS ABSENT, AND REFUSE WHERE IT CANNOT BE DERIVED.
+    # `still_excludes_null` is honoured when stored. Otherwise it is read off the stored
+    # interval against this outcome's null -- 1 for a ratio, 0 for a difference. A row that
+    # supplies neither is UNDECIDABLE and must not be silently counted as "does not exclude",
+    # which is how a missing field became a false claim about robustness in the first place.
+    _measure = str((res.get("pooled") or {}).get("measure")
+                   or res.get("measure") or outcome.get("measure") or "").upper()
+    _null = 0.0 if _measure in ("MD", "SMD", "RD", "WMD") else 1.0
+
+    def _excludes_null(a):
+        if isinstance(a.get("still_excludes_null"), bool):
+            return a["still_excludes_null"]
+        r = a.get("result") or a.get("refit") or {}
+        lo, hi = r.get("ci_low"), r.get("ci_high")
+        if isinstance(lo, (int, float)) and isinstance(hi, (int, float)):
+            return not (lo <= _null <= hi)
+        return None
+
+    rows = [a for a in _all_sens if _is_leave_one_out(a)]
+    _verdicts = [_excludes_null(a) for a in rows]
+    _undecidable = [v for v in _verdicts if v is None]
+    kept = [a for a, v in zip(rows, _verdicts) if v is True]
+    if rows and _undecidable:
+        loo = ("Leave-one-out: %d refit%s cannot be read here, because %d of them store "
+               "neither an exclusion verdict nor an interval. No count is given rather than "
+               "one that treats an unreadable refit as a refit that failed."
+               % (len(rows), "" if len(rows) == 1 else "s", len(_undecidable)))
+    elif rows:
         # A SENTENCE ABOUT A NUMBER MUST BE A FUNCTION OF THAT NUMBER.
         # The previous version appended "the estimate does not survive removal of the
         # largest trial" unconditionally, reading `kept` for the count and then ignoring it
