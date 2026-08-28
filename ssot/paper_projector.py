@@ -4896,11 +4896,35 @@ def project(obj, journal="generic", length="standard"):
             # with the pooled result" sat under a slot reading "Figure 1 not drawn" on 126
             # pages, several of them at k = 0 with the estimate withdrawn. When the figure
             # is refused the caption names it and the reason carries the rest.
+            # THE CAPTION MUST COUNT WHAT THE FIGURE DRAWS, NOT WHAT THE OBJECT HOLDS.
+            #
+            # COVID19_VACCINES stores three trial rows and the plot draws two: NCT04510207 has
+            # no computed risk ratio, so it cannot be placed on the axis. The caption said
+            # "k = 3" over a figure showing two effects and two labels -- an overstatement of
+            # the evidence in the one place a reader counts it, and the store was right both
+            # times. `usable` is the set actually drawn, a few lines above.
+            #
+            # THREE STATES, because "k" answers a two-state question that has three answers:
+            #   stored k equals the rows drawn      -> "k = n" is true, keep it
+            #   stored k exceeds the rows drawn     -> say BOTH numbers; one k cannot carry it
+            #   nothing drawable, or pool withdrawn -> the refusal caption already handles it,
+            #                                          and must not describe a figure as drawn
+            _stored_k = k if isinstance(k, int) else None
+            _drawn = len(usable)
+            if _drawn and _stored_k is not None and _drawn != _stored_k:
+                # NO HTML ENTITY HERE. This string is escaped downstream, so "&mdash;"
+                # arrives at the reader as the literal text "&mdash;" -- caught by reading the
+                # served bytes rather than trusting the marker to mean the caption was right.
+                _kcap = ("%d plotted rows against %d stored trial rows, the difference being "
+                         "trials this object holds without an estimate that can be placed "
+                         "on the axis" % (_drawn, _stored_k))
+            else:
+                _kcap = "k = %s" % kw
             s.add_figure(
                 obj,
-                ("Forest plot -- %s. k = %s." % (name, kw)) if why else
+                ("Forest plot -- %s. %s." % (name, _kcap)) if why else
                 ("Forest plot -- %s. Each contributing trial's stored estimate and interval, "
-                 "with the pooled result. k = %s." % (name, kw)),
+                 "with the pooled result. %s." % (name, _kcap)),
                 svg, src, refusal=why)
 
             # -- FUNNEL ------------------------------------------------------------------

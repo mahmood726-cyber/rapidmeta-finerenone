@@ -1,0 +1,704 @@
+[
+ {
+  "item": "SGLT2_HF_REVIEW.html :: no statistical heterogeneity was detected i squared",
+  "site": "ssot/paper_projector.py:3802-3857",
+  "code_quoted": [
+   "3802:     _i2 = _first_by_outcome(obj, (\"heterogeneity\", \"i2\"))",
+   "3834:     if _i2 is not None and not _pooled:",
+   "3835:         _i2 = None",
+   "3836:     if _i2 is not None:",
+   "3846:         _k_here = None",
+   "3847:         for _b in (get(obj, \"results.by_outcome\") or {}).values():",
+   "3848:             if isinstance(_b, dict) and isinstance(_b.get(\"k\"), int):",
+   "3849:                 _k_here = max(_k_here or 0, _b[\"k\"])",
+   "3850:         if (_k_here or 0) <= 2:",
+   "3851:             _rparts.append(\"no statistical heterogeneity was detected (I-squared %s%%), \"",
+   "3852:                            \"though heterogeneity cannot be reliably assessed with two \"",
+   "3853:                            \"trials\" % _num(_i2))",
+   "3854:         else:",
+   "3855:             _rparts.append(\"no statistical heterogeneity was detected (I-squared %s%%)\"",
+   "3856:                            % _num(_i2))",
+   "3857:         _rfields.append(\"results.by_outcome\")"
+  ],
+  "radius_file": {
+   "count": "155/155 topic objects",
+   "gate7_file": "ssot/paper_projector.py",
+   "gate7_why": "in the build closure: every topic is built through it (it also special-cases 21 topic ids, which does not narrow it)"
+  },
+  "radius_file_source": "Ran `python gates/gate7_blast_radius.py` in a throwaway temp root with `ssot` junctioned to F:/fixwt/live/ssot so the repo artifact was not rewritten. Gate output: denominator examined: 620 files under ssot/; 0 in this change. RADIUS_ENTRY ssot/paper_projector.py {\"radius\": 155, \"why\": \"in the build closure: every topic is built through it (it also special-cases 21 topic ids, which does not narrow it)\"}.",
+  "radius_behaviour": {
+   "topic_objects": "1/155 topic objects",
+   "page_map_pages": "1/163 PAGE_MAP pages",
+   "live_pooled_outcomes_in_triggering_object": "2/33 live pooled outcomes carry the conflicting I-squared values on the triggering object"
+  },
+  "radius_behaviour_how": "Read all 155 canonical ssot/<topic>/<topic>.json objects and counted objects with more than one live pooled outcome, each with heterogeneity.i2, where the distinct I-squared set had size >1. Result: ssot/sglt2-hf/sglt2-hf.json only; outcomes harmonised_cvdeath_or_hhf i2=0.0 and threecomp_cvdeath_hhf_urgent i2=22.51.",
+  "kinds": {
+   "live generated review pages": "1/1 behaviour pages: SGLT2_HF_REVIEW.html",
+   "retired tombstones": "0/1 behaviour pages",
+   "redirect stubs": "0/1 behaviour pages",
+   "frozen_gepotidacin": "0/1 behaviour pages",
+   "excluded_hfref_nma": "0/1 behaviour pages"
+  },
+  "intersects_must_not_break": {
+   "count": "1/29 indexed pages",
+   "pages": [
+    "SGLT2_HF_REVIEW.html"
+   ]
+  },
+  "patch_old": [
+   "    _i2 = _first_by_outcome(obj, (\"heterogeneity\", \"i2\"))",
+   "    if _i2 is not None and not _pooled:",
+   "        _i2 = None",
+   "    if _i2 is not None:",
+   "        _k_here = None",
+   "        for _b in (get(obj, \"results.by_outcome\") or {}).values():",
+   "            if isinstance(_b, dict) and isinstance(_b.get(\"k\"), int):",
+   "                _k_here = max(_k_here or 0, _b[\"k\"])",
+   "        if (_k_here or 0) <= 2:",
+   "            _rparts.append(\"no statistical heterogeneity was detected (I-squared %s%%), \"",
+   "                           \"though heterogeneity cannot be reliably assessed with two \"",
+   "                           \"trials\" % _num(_i2))",
+   "        else:",
+   "            _rparts.append(\"no statistical heterogeneity was detected (I-squared %s%%)\"",
+   "                           % _num(_i2))",
+   "        _rfields.append(\"results.by_outcome\")"
+  ],
+  "patch_new": [
+   "    _live_i2 = []",
+   "    for _oid, _b in sorted((get(obj, \"results.by_outcome\") or {}).items()):",
+   "        if not isinstance(_b, dict):",
+   "            continue",
+   "        _p = _b.get(\"pooled\") or {}",
+   "        if not isinstance(_p, dict) or _p.get(\"point\") is None or _p.get(\"withdrawn\"):",
+   "            continue",
+   "        _i2_each = (_b.get(\"heterogeneity\") or {}).get(\"i2\")",
+   "        if _i2_each is not None:",
+   "            _live_i2.append((_oid, _i2_each, _b.get(\"k\")))",
+   "    if len(_live_i2) > 1 and len({str(_v) for _, _v, _ in _live_i2}) > 1:",
+   "        _bits = []",
+   "        for _oid, _i2_each, _k_each in _live_i2:",
+   "            _label = _lc_first(outcome_text(obj, _oid) or _oid.replace(\"_\", \" \"))",
+   "            if isinstance(_k_each, int) and _k_each <= 2:",
+   "                _bits.append(\"%s: I-squared %s%% (not reliably assessed with two trials)\"",
+   "                             % (_label, _num(_i2_each)))",
+   "            else:",
+   "                _bits.append(\"%s: I-squared %s%%\" % (_label, _num(_i2_each)))",
+   "        _rparts.append(\"CW0_HET_BRANCH_9F3B2A71C6_MARK; heterogeneity is outcome-specific in this review; \" + \"; \".join(_bits))",
+   "        _rfields.append(\"results.by_outcome\")",
+   "    else:",
+   "        _i2 = _live_i2[0][1] if _live_i2 else None",
+   "        _k_here = _live_i2[0][2] if _live_i2 else None",
+   "        if _i2 is not None:",
+   "            if isinstance(_k_here, int) and _k_here <= 2:",
+   "                _rparts.append(\"no statistical heterogeneity was detected (I-squared %s%%), \"",
+   "                               \"though heterogeneity cannot be reliably assessed with two \"",
+   "                               \"trials\" % _num(_i2))",
+   "            else:",
+   "                _rparts.append(\"no statistical heterogeneity was detected (I-squared %s%%)\"",
+   "                               % _num(_i2))",
+   "            _rfields.append(\"results.by_outcome\")"
+  ],
+  "three_states": [
+   "0/155 or 1/155 live pooled outcome with i2: one heterogeneity sentence can describe the one reported pool.",
+   "Multiple live pooled outcomes with the same recorded i2: one shared heterogeneity sentence may be safe if it says the value is shared.",
+   "Multiple live pooled outcomes with distinct recorded i2 values: one global sentence is false by compression; emit per-outcome heterogeneity."
+  ],
+  "marker": "CW0_HET_BRANCH_9F3B2A71C6_MARK",
+  "marker_absent_verified": "Verified before writing this output using an in-memory constructed `rg -F --files-with-matches -- <marker> .`; rg exit 1, hits 0.",
+  "obvious_fix": "One-line version: change `if _i2 is not None:` to `if _i2 is not None and len(_pooled) == 1:`.",
+  "obvious_fix_would_fire": true,
+  "notes": "The obvious fix would suppress the bad sentence on 1/1 affected object, but it is a two-state branch that drops heterogeneity entirely for multi-pool pages rather than answering the distinct-i2 case. No gepotidacin page and no HFREF_NMA_AUTO_FULL_REVIEW.html page is in this behaviour set."
+ },
+ {
+  "item": "COVID19_VACCINES_REVIEW.html :: figure forest plot symptomatic laboratory confirmed covid k",
+  "site": "ssot/paper_projector.py:4831-4832 and ssot/paper_projector.py:4901-4904",
+  "code_quoted": [
+   "4831:             k = res.get(\"k\")",
+   "4832:             kw = k if isinstance(k, int) else \"not recorded\"",
+   "4901:                 (\"Forest plot -- %s. k = %s.\" % (name, kw)) if why else",
+   "4902:                 (\"Forest plot -- %s. Each contributing trial's stored estimate and interval, \"",
+   "4903:                  \"with the pooled result. k = %s.\" % (name, kw)),",
+   "4904:                 svg, src, refusal=why)"
+  ],
+  "radius_file": {
+   "count": "155/155 topic objects",
+   "gate7_file": "ssot/paper_projector.py",
+   "gate7_why": "in the build closure: every topic is built through it (it also special-cases 21 topic ids, which does not narrow it)"
+  },
+  "radius_file_source": "Ran `python gates/gate7_blast_radius.py` in a throwaway temp root with `ssot` junctioned to F:/fixwt/live/ssot so the repo artifact was not rewritten. Gate output: denominator examined: 620 files under ssot/; 0 in this change. RADIUS_ENTRY ssot/paper_projector.py {\"radius\": 155, \"why\": \"in the build closure: every topic is built through it (it also special-cases 21 topic ids, which does not narrow it)\"}.",
+  "radius_behaviour": {
+   "outcome_rows": "3/175 results.by_outcome rows",
+   "page_map_pages": "2/163 PAGE_MAP pages",
+   "topic_objects": "2/155 topic objects"
+  },
+  "radius_behaviour_how": "Used the same plottability predicate as ssot/projectors.py::forest_svg: require point, ci_low and ci_high; on log scale reject point <= 0 or ci_low <= 0; reject nulled rows and rows whose trial_id/nct starts with NULLED:. Counted rows where stored integer k differs from plottable rows and at least one row is plottable. Results: COVID19_VACCINES_REVIEW.html symptomatic_covid stored k 3, plotted 2; LENACAPAVIR_PREP_SSOT.html len_vs_ftdf stored k 2, plotted 1; LENACAPAVIR_PREP_SSOT.html len_vs_background stored k 2, plotted 1.",
+  "kinds": {
+   "live generated review pages": "2/2 behaviour pages: COVID19_VACCINES_REVIEW.html, LENACAPAVIR_PREP_SSOT.html",
+   "retired tombstones": "0/2 behaviour pages",
+   "redirect stubs": "0/2 behaviour pages",
+   "frozen_gepotidacin": "0/2 behaviour pages",
+   "excluded_hfref_nma": "0/2 behaviour pages"
+  },
+  "intersects_must_not_break": {
+   "count": "0/29 indexed pages",
+   "pages": []
+  },
+  "patch_old": [
+   "            k = res.get(\"k\")",
+   "            kw = k if isinstance(k, int) else \"not recorded\"",
+   "            s.add_figure(",
+   "                obj,",
+   "                (\"Forest plot -- %s. k = %s.\" % (name, kw)) if why else",
+   "                (\"Forest plot -- %s. Each contributing trial's stored estimate and interval, \"",
+   "                 \"with the pooled result. k = %s.\" % (name, kw)),",
+   "                svg, src, refusal=why)"
+  ],
+  "patch_new": [
+   "            k = res.get(\"k\")",
+   "            stored_k = k if isinstance(k, int) else None",
+   "            kw = stored_k if stored_k is not None else \"not recorded\"",
+   "            plotted_k = len(usable)",
+   "            if plotted_k and stored_k is not None and plotted_k != stored_k:",
+   "                k_caption = \"CW0_FOREST_K_BRANCH_1E6D5C92B8_MARK; plotted rows: %d of %d stored trial rows\" % (plotted_k, stored_k)",
+   "            else:",
+   "                k_caption = \"k = %s\" % kw",
+   "            s.add_figure(",
+   "                obj,",
+   "                (\"Forest plot -- %s. %s.\" % (name, k_caption)) if why else",
+   "                (\"Forest plot -- %s. Each contributing trial's stored estimate and interval, \"",
+   "                 \"with the pooled result. %s.\" % (name, k_caption)),",
+   "                svg, src, refusal=why)"
+  ],
+  "three_states": [
+   "Stored k equals plottable rows: the existing `k = n` caption is true.",
+   "Stored k exceeds plottable rows but at least one row plots: state plotted rows and stored rows, not one naked k.",
+   "No row is plottable or the pool is withdrawn: keep the refusal caption/reason and do not describe an absent forest plot as drawn."
+  ],
+  "marker": "CW0_FOREST_K_BRANCH_1E6D5C92B8_MARK",
+  "marker_absent_verified": "Verified before writing this output using an in-memory constructed `rg -F --files-with-matches -- <marker> .`; rg exit 1, hits 0.",
+  "obvious_fix": "One-line version: replace `kw = k if isinstance(k, int) else \"not recorded\"` with `kw = len(res.get(\"per_trial\") or [])`.",
+  "obvious_fix_would_fire": false,
+  "notes": "Tested against the 3/3 affected outcome rows: len(per_trial) equals stored k for all 3/3, so the one-line fix would leave every affected caption unchanged. No gepotidacin page and no HFREF_NMA_AUTO_FULL_REVIEW.html page is in this behaviour set."
+ },
+ {
+  "item": "sotagliflozin-hf :: the page supplies a clinical evidence assessment for its three outcomes",
+  "site": "ssot/grade_authority.py:277-315, emitted by ssot/paper_projector.py:4016-4020",
+  "code_quoted": [
+   "277:     claim, down, cites = _rob_claim(s_blk, t_blk)",
+   "278:     if claim:",
+   "279:         st = _rob_state(canon)",
+   "280:         why = None",
+   "286:         if st.get(\"assessed\") and oid not in (st.get(\"outcomes_assessed\") or set()):",
+   "287:             why = (\"this review's RoB 2 assessment does not cover this outcome at all -- \"",
+   "292:         elif st.get(\"assessed\") and st.get(\"dual\") and not st.get(\"adjudicated\"):",
+   "293:             why = (\"two assessors read every contributing result independently, they \"",
+   "294:                    \"disagree, and no adjudication has been performed, so this review \"",
+   "295:                    \"holds no final risk-of-bias judgement for these results.\")",
+   "296:         if why:",
+   "305:                 _q = cites[0].split(\"Per-result\")[0].strip().rstrip(\".\")",
+   "306:                 cited = (\"The dependency is not inferred: this object records the \"",
+   "307:                          \"risk-of-bias domain as supported by \\u201c%s\\u201d, which is one \"",
+   "308:                          \"assessor's count of results at HIGH risk of bias -- a count the \"",
+   "309:                          \"second assessor's judgements do not contain, on any result. \"",
+   "310:                          % _q)",
+   "311:             out.update(state=\"PENDING\", cell=CELL_PENDING, level=None,",
+   "312:                        pending_because=why, recorded_level=lvl,",
+   "313:                        needs_footnote=True,",
+   "314:                        comment=PENDING_TEXT % (why, cited))",
+   "315:             return out",
+   "4016:     _pending = [oid for oid in sorted(g.get(\"by_outcome\") or {})",
+   "4017:                 if _ga.resolve(obj, oid)[\"state\"] == \"PENDING\"]",
+   "4018:     if _pending:",
+   "4019:         s.add(obj, _ga.resolve(obj, _pending[0])[\"comment\"],",
+   "4020:               [\"risk_of_bias.by_outcome\"])"
+  ],
+  "radius_file": {
+   "count": "3/155 topic objects by gate7 derivation",
+   "gate7_file": "ssot/grade_authority.py",
+   "gate7_why": "outside the build closure, names 3 topic id(s)",
+   "gate7_topics": [
+    "iv-iron-hf",
+    "sglt2-hf",
+    "sotagliflozin-hf"
+   ]
+  },
+  "radius_file_source": "Ran `python gates/gate7_blast_radius.py` in a throwaway temp root with `ssot` junctioned to F:/fixwt/live/ssot so the repo artifact was not rewritten. Gate output: denominator examined: 620 files under ssot/; 0 in this change. RADIUS_ENTRY ssot/grade_authority.py {\"radius\": 3, \"why\": \"outside the build closure, names 3 topic id(s)\", \"topics\": [\"iv-iron-hf\", \"sglt2-hf\", \"sotagliflozin-hf\"]}. Note: the gate's build_closure output listed `ssot\\\\grade_authority.py`, but the radius map key used forward slashes and therefore derived 3 rather than class-wide; per instruction this reports the gate derivation, not an estimate.",
+  "radius_behaviour": {
+   "page_map_pages_raw": "20/163 PAGE_MAP pages",
+   "topic_objects_raw": "19/155 topic objects",
+   "live_pooled_outcomes_raw": "24/33 live pooled outcomes",
+   "page_map_pages_after_frozen_excluded_reporting": "19/163 PAGE_MAP pages if the frozen gepotidacin page is not allowed to change; HFREF_NMA_AUTO_FULL_REVIEW.html contributes 0/1 excluded page"
+  },
+  "radius_behaviour_how": "Imported ssot/grade_authority.py read-only, loaded all 155 canonical topic objects, and counted live pooled outcomes where `_ga.resolve(obj, oid)` returns state PENDING with a recorded_level while the object's bookkeeping_2026_08_21.which_limbs_this_review_refuses says grade per pool is held. Raw result: 24 outcomes on 19 topic objects, delivered as 20 PAGE_MAP pages because bococizumab-lipid-review has two mapped pages.",
+  "kinds": {
+   "live generated review pages": "19/20 raw behaviour pages",
+   "live authored protected review pages": "1/20 raw behaviour pages: ARNI_HF_REVIEW.html",
+   "retired tombstones": "0/20 raw behaviour pages",
+   "redirect stubs": "0/20 raw behaviour pages",
+   "frozen_gepotidacin": "1/20 raw behaviour pages: GEPOTIDACIN_URINARY_TRACT_AUTO_FULL_REVIEW.html",
+   "excluded_hfref_nma": "0/20 raw behaviour pages"
+  },
+  "intersects_must_not_break": {
+   "count": "19/29 indexed pages",
+   "pages": [
+    "AGYW_HIV_PREP_REVIEW.html",
+    "ALIROCUMAB_LIPID_AUTO_FULL_REVIEW.html",
+    "APIXABAN_VTE_TREATMENT_REVIEW.html",
+    "ARNI_HF_REVIEW.html",
+    "BEMPEDOIC_ACID_REVIEW.html",
+    "BOCOCIZUMAB_LIPID_AUTO_FULL_REVIEW.html",
+    "BOCOCIZUMAB_LIPID_REVIEW.html",
+    "CAB_PREP_HIV_REVIEW.html",
+    "CEFTAROLINE_AUTO_FULL_REVIEW.html",
+    "EMPAGLIFLOZIN_HF_AUTO_FULL_REVIEW.html",
+    "FINERENONE_CV_REVIEW.html",
+    "ICOSAPENT_LIPID_AUTO_FULL_REVIEW.html",
+    "INCLISIRAN_LIPID_KIDNEY_AUTO_FULL_REVIEW.html",
+    "IV_IRON_HF_REVIEW.html",
+    "LEFAMULIN_CABP_AUTO_FULL_REVIEW.html",
+    "NIRSEVIMAB_INFANT_RSV_REVIEW.html",
+    "SGLT2_HF_REVIEW.html",
+    "SOTAGLIFLOZIN_HF_REVIEW.html",
+    "TIGECYCLINE_CIAI_SSOT.html"
+   ]
+  },
+  "patch_old": [
+   "    claim, down, cites = _rob_claim(s_blk, t_blk)",
+   "    if claim:",
+   "        st = _rob_state(canon)",
+   "        why = None",
+   "        if st.get(\"assessed\") and oid not in (st.get(\"outcomes_assessed\") or set()):",
+   "            why = (\"this review's RoB 2 assessment does not cover this outcome at all -- \"",
+   "                   \"it assesses %d result(s) across %d other outcome(s) -- so the \"",
+   "                   \"risk-of-bias domain here rests on no assessment recorded on this \"",
+   "                   \"object.\" % (st.get(\"results_assessed\") or 0,",
+   "                                len(st.get(\"outcomes_assessed\") or ())))",
+   "        elif st.get(\"assessed\") and st.get(\"dual\") and not st.get(\"adjudicated\"):",
+   "            why = (\"two assessors read every contributing result independently, they \"",
+   "                   \"disagree, and no adjudication has been performed, so this review \"",
+   "                   \"holds no final risk-of-bias judgement for these results.\")",
+   "        if why:",
+   "            cited = \"\"",
+   "            if cites:",
+   "                _q = cites[0].split(\"Per-result\")[0].strip().rstrip(\".\")",
+   "                cited = (\"The dependency is not inferred: this object records the \"",
+   "                         \"risk-of-bias domain as supported by \\u201c%s\\u201d, which is one \"",
+   "                         \"assessor's count of results at HIGH risk of bias -- a count the \"",
+   "                         \"second assessor's judgements do not contain, on any result. \"",
+   "                         % _q)",
+   "            out.update(state=\"PENDING\", cell=CELL_PENDING, level=None,",
+   "                       pending_because=why, recorded_level=lvl,",
+   "                       needs_footnote=True,",
+   "                       comment=PENDING_TEXT % (why, cited))",
+   "            return out"
+  ],
+  "patch_new": [
+   "    claim, down, cites = _rob_claim(s_blk, t_blk)",
+   "    per_pool_held = \"grade per pool\" in str(((canon.get(\"bookkeeping_2026_08_21\") or {})",
+   "                                             .get(\"which_limbs_this_review_refuses\") or \"\")).lower()",
+   "    table_level_held = bool(t_lvl)",
+   "    if claim and not (per_pool_held and table_level_held):",
+   "        st = _rob_state(canon)",
+   "        why = None",
+   "        if st.get(\"assessed\") and oid not in (st.get(\"outcomes_assessed\") or set()):",
+   "            why = (\"this review's RoB 2 assessment does not cover this outcome at all -- \"",
+   "                   \"it assesses %d result(s) across %d other outcome(s) -- so the \"",
+   "                   \"risk-of-bias domain here rests on no assessment recorded on this \"",
+   "                   \"object.\" % (st.get(\"results_assessed\") or 0,",
+   "                                len(st.get(\"outcomes_assessed\") or ())))",
+   "        elif st.get(\"assessed\") and st.get(\"dual\") and not st.get(\"adjudicated\"):",
+   "            why = (\"two assessors read every contributing result independently, they \"",
+   "                   \"disagree, and no adjudication has been performed, so this review \"",
+   "                   \"holds no final risk-of-bias judgement for these results.\")",
+   "        if why:",
+   "            cited = \"\"",
+   "            if cites:",
+   "                _q = cites[0].split(\"Per-result\")[0].strip().rstrip(\".\")",
+   "                cited = (\"The dependency is not inferred: this object records the \"",
+   "                         \"risk-of-bias domain as supported by \\u201c%s\\u201d, which is one \"",
+   "                         \"assessor's count of results at HIGH risk of bias -- a count the \"",
+   "                         \"second assessor's judgements do not contain, on any result. \"",
+   "                         % _q)",
+   "            out.update(state=\"PENDING\", cell=CELL_PENDING, level=None,",
+   "                       pending_because=why, recorded_level=lvl,",
+   "                       needs_footnote=True,",
+   "                       comment=PENDING_TEXT % (why, cited))",
+   "            return out",
+   "    if claim and per_pool_held and table_level_held:",
+   "        out[\"comment_marker\"] = \"CW0_GRADE_BRANCH_6A49D18F27_MARK; recorded GRADE level is shown because per-pool certainty is held\""
+  ],
+  "three_states": [
+   "No defined GRADE level is held: NOT_ASSESSED/See comment, never a guessed level.",
+   "A defined GRADE level is held and no unresolved dependency blocks it: RATED, with the recorded level and grounds.",
+   "A defined per-pool GRADE level is held but risk-of-bias adjudication is unresolved: this is not the same as no assessment; the landing decision must choose whether to show the recorded level with its grounds plus pending-RoB disclosure, or keep PENDING as a distinct state. The current two-state branch collapses held-but-unadjudicated into not-published."
+  ],
+  "marker": "CW0_GRADE_BRANCH_6A49D18F27_MARK",
+  "marker_absent_verified": "Verified before writing this output using an in-memory constructed `rg -F --files-with-matches -- <marker> .`; rg exit 1, hits 0.",
+  "obvious_fix": "One-line version: remove the pending override by changing `if claim:` to `if claim and False:` or otherwise directly return the recorded `lvl` whenever it exists.",
+  "obvious_fix_would_fire": true,
+  "notes": "The obvious fix would fire on 24/33 live pooled outcomes across 20/163 PAGE_MAP pages, but it is too blunt: it would also touch frozen GEPOTIDACIN_URINARY_TRACT_AUTO_FULL_REVIEW.html. HFREF_NMA_AUTO_FULL_REVIEW.html was checked and contributes 0/20 behaviour pages. Because gepotidacin is frozen, this class-wide landing needs an explicit exclusion or separate authorization before any generator edit."
+ },
+ {
+  "item": "SGLT2_HF_REVIEW.html / search limitation says no systematic search despite dated executed database limbs",
+  "site": "ssot/projectors.py:505-510",
+  "code_quoted": "    if not (canon.get(\"search\") or {}).get(\"strategy\"):\n        limits.append({\n            \"label\": \"No systematic search was run\",\n            \"detail\": (\"The included set is a named two-trial programme rather than the \"\n                       \"yield of a database search. Nothing on this page should be read \"\n                       \"as though a systematic search had been performed.\")})",
+  "radius_file": {
+   "label": "Gate-7 file radius",
+   "count": 1,
+   "denominator": "620 files under ssot/; 1 in this change",
+   "why": "outside the build closure, names 1 topic id(s)",
+   "topics": [
+    "malaria-vaccines"
+   ]
+  },
+  "radius_file_source": "Ran `python gates/gate7_blast_radius.py --files ssot/projectors.py` in an isolated temp copy of the current F:/fixwt/live tree to avoid rewriting live out/gate7_blast_radius.json. Gate output for the file: `\"ssot/projectors.py\": { \"radius\": 1, \"why\": \"outside the build closure, names 1 topic id(s)\", \"topics\": [\"malaria-vaccines\"] }`. The same run reported: `denominator examined: 620 files under ssot/; 1 in this change`; `VERDICT: PASS`.",
+  "radius_behaviour": {
+   "label": "Behaviour-change count, not Gate-7 radius",
+   "objects": 16,
+   "denominator_objects": 155,
+   "served_pages": 18,
+   "denominator_page_map_entries": 163,
+   "current_bad_string_hits": "18/18 served pages contain `No systematic search was run`"
+  },
+  "radius_behaviour_how": "Counted canonical objects where `ssot/<topic>/<topic>.json` exists, `search.strategy` is absent/false, and at least one `search.databases[]` dict has `date_executed`. That is 16/155 objects. Mapped those objects through `ssot/PAGE_MAP.json`, yielding 18/163 served page entries because azilsartan and bococizumab each have two mapped pages. Served-byte check found the current bad label in 18/18 affected pages.",
+  "kinds": {
+   "live pages": {
+    "count": 18,
+    "denominator": 18,
+    "pages": [
+     "ABLATION_AF_HEART_FAILURE_REVIEW.html",
+     "ABLATION_AF_MEDICAL_THERAPY_REVIEW.html",
+     "ALIROCUMAB_LIPID_AUTO_FULL_REVIEW.html",
+     "APIXABAN_VTE_PROPHYLAXIS_REVIEW.html",
+     "APIXABAN_VTE_TREATMENT_REVIEW.html",
+     "ATTR_CM_REVIEW.html",
+     "AZILSARTAN_CLD_VS_OLM_HCTZ_REVIEW.html",
+     "AZILSARTAN_HTN_AUTO_FULL_REVIEW.html",
+     "BEMPEDOIC_ACID_REVIEW.html",
+     "BOCOCIZUMAB_LIPID_AUTO_FULL_REVIEW.html",
+     "BOCOCIZUMAB_LIPID_REVIEW.html",
+     "BOSENTAN_PAH_CHILDREN_REVIEW.html",
+     "BOSENTAN_PAH_COMBINATION_REVIEW.html",
+     "BOSENTAN_PAH_MONOTHERAPY_REVIEW.html",
+     "BOSENTAN_PH_NOT_GROUP1_REVIEW.html",
+     "COLCHICINE_CVD_CORONARY_REVIEW.html",
+     "EARLY_RHYTHM_CONTROL_AF_REVIEW.html",
+     "SGLT2_HF_REVIEW.html"
+    ]
+   },
+   "retired tombstones": {
+    "count": 0,
+    "denominator": 18,
+    "pages": []
+   },
+   "redirect stubs": {
+    "count": 0,
+    "denominator": 18,
+    "pages": []
+   },
+   "classification_how": "For each PAGE_MAP served page, classified root HTML as redirect if it contained refresh/window.location/moved-page redirect markers, tombstone if the title started `Retired --` or tombstone classes were present, otherwise live. All 18 affected served pages are live."
+  },
+  "intersects_must_not_break": [
+   "ALIROCUMAB_LIPID_AUTO_FULL_REVIEW.html",
+   "APIXABAN_VTE_PROPHYLAXIS_REVIEW.html",
+   "APIXABAN_VTE_TREATMENT_REVIEW.html",
+   "AZILSARTAN_CLD_VS_OLM_HCTZ_REVIEW.html",
+   "AZILSARTAN_HTN_AUTO_FULL_REVIEW.html",
+   "BEMPEDOIC_ACID_REVIEW.html",
+   "BOCOCIZUMAB_LIPID_AUTO_FULL_REVIEW.html",
+   "BOCOCIZUMAB_LIPID_REVIEW.html",
+   "SGLT2_HF_REVIEW.html"
+  ],
+  "patch_old": "    if not (canon.get(\"search\") or {}).get(\"strategy\"):\n        limits.append({\n            \"label\": \"No systematic search was run\",\n            \"detail\": (\"The included set is a named two-trial programme rather than the \"\n                       \"yield of a database search. Nothing on this page should be read \"\n                       \"as though a systematic search had been performed.\")})",
+  "patch_new": "    _search = canon.get(\"search\") or {}\n    _executed_dbs = [d for d in (_search.get(\"databases\") or [])\n                     if isinstance(d, dict) and d.get(\"date_executed\")]\n    if not _search.get(\"strategy\") and not _executed_dbs:\n        limits.append({\n            \"label\": \"No systematic search was run\",\n            \"detail\": (\"The included set is a named two-trial programme rather than the \"\n                       \"yield of a database search. Nothing on this page should be read \"\n                       \"as though a systematic search had been performed.\")})\n    elif not _search.get(\"strategy\") and _executed_dbs:\n        limits.append({\n            \"label\": \"Search recorded as executed database limbs\",\n            \"detail\": (\"Dated database-search limbs are held; no normalized strategy field is held. \"\n                       \"Read the Search tab for the exact database, query, date, and yield \"\n                       \"records; do not treat the missing strategy field as evidence that no \"\n                       \"systematic search was run.\")})",
+  "three_states": [
+   "No search evidence held: no `search.strategy` and no dated executed `search.databases[]` limb; the existing `No systematic search was run` limitation may still be true.",
+   "Normalized search strategy held: `search.strategy` exists; do not emit either no-search or third-state limitation.",
+   "Executed database limbs held but no normalized strategy: at least one `search.databases[]` entry has `date_executed`; emit the third-state limitation instead of denying the search. This is the affected 16/155-object state."
+  ],
+  "marker": "Dated database-search limbs are held; no normalized strategy field is held.",
+  "marker_absent_verified": "Verified before writing this report with fixed-string grep via a temporary pattern file: `rg -n -F -f <temp-pattern-file> .` returned exit 1 and the wrapper printed `ABSENT 0 hits for 2 markers`. This marker had 0 hits anywhere under F:/fixwt/live at verification time.",
+  "obvious_fix": "One-line version: change the condition to `if not (canon.get(\"search\") or {}).get(\"strategy\") and not (canon.get(\"search\") or {}).get(\"databases\"):` and leave the rest unchanged.",
+  "obvious_fix_would_fire": "No for the affected set: tested over the 16 dated-database/no-strategy objects, and that one-line condition fired 0/16 because all 16 affected objects have nonempty `search.databases`. It would suppress the bad denial on 16/16, but it would not emit the required third-state served marker and would also treat undated database records as enough to suppress the old limitation.",
+  "notes": "The slice's 16-object count is reproducible only when `executed` means a database limb with `date_executed`; a broader nonempty-database predicate returns 17/155 by including ARNI, whose database records lack `date_executed`. Checked frozen/excluded objects: gepotidacin and HFREF-like objects did not match this predicate. No edits made to `ssot/projectors.py`; proposed patch only."
+ },
+ {
+  "item": "ABLATION_AF_HEART_FAILURE_REVIEW.html / screen tab says no screening log although PRISMA/cascade counts are held",
+  "site": "ssot/projectors.py:122-124 and ssot/projectors.py:1821-1840",
+  "code_quoted": "ABSENT_STATE screen text at 122-124:\n \"screen\":   (\"No screening log is recorded for this review. The included set was reconciled \"\n              \"against published syntheses rather than screened from a search, so no \"\n              \"records-identified, excluded-with-reason or dual-screening counts exist.\"),\n\nAbsent/partial branch at 1821-1840:\n        if len(text) < FLOOR_CHARS or (data < 1 and not prose_tab):\n            skipped.append((tid, len(text), data))\n            # Emit the tab with an honest state instead of dropping it. Any thin\n            # body it did carry is shown beneath the statement rather than being\n            # merged invisibly into the previous panel.\n            _tbl = (ABSENT_STATE_CONVERTED\n                    if (canon.get(\"build_mode\") == \"CONVERTED\") else ABSENT_STATE)\n            # THREE STATES, NOT TWO. If the thin body carries something real, the page says\n            # which part is held rather than denying the whole and then printing it.\n            _carries_something = bool(re.search(r\"<(?:pre|table|svg|li|dl)[ >/]\", body))                 or len(re.sub(r\"<[^>]+>\", \" \", body).strip()) > 80\n            if _carries_something and tid in PARTIAL_STATE:\n                _label = \"Partially held.\"\n                # COMPUTED WHERE IT CAN BE, RECITED ONLY WHERE IT CANNOT. The screen\n                # tab's note names counts it can read off the panel; if it cannot read\n                # them it returns None and the constant stands.\n                note = (screen_partial_note(body) if tid == \"screen\" else None) \\\n                    or PARTIAL_STATE[tid]\n            else:\n                _label = \"Not held in this object.\"\n                note = _tbl.get(tid, \"No content is held in this object for this section.\")",
+  "radius_file": {
+   "label": "Gate-7 file radius",
+   "count": 1,
+   "denominator": "620 files under ssot/; 1 in this change",
+   "why": "outside the build closure, names 1 topic id(s)",
+   "topics": [
+    "malaria-vaccines"
+   ]
+  },
+  "radius_file_source": "Ran `python gates/gate7_blast_radius.py --files ssot/projectors.py` in an isolated temp copy of the current F:/fixwt/live tree to avoid rewriting live out/gate7_blast_radius.json. Gate output for the file: `\"ssot/projectors.py\": { \"radius\": 1, \"why\": \"outside the build closure, names 1 topic id(s)\", \"topics\": [\"malaria-vaccines\"] }`. The same run reported: `denominator examined: 620 files under ssot/; 1 in this change`; `VERDICT: PASS`.",
+  "radius_behaviour": {
+   "label": "Behaviour-change count, not Gate-7 radius",
+   "objects": 10,
+   "denominator_objects": 155,
+   "served_pages": 10,
+   "denominator_page_map_entries": 163,
+   "current_bad_string_hits": "10/10 served pages contain `No screening log is recorded for this review`"
+  },
+  "radius_behaviour_how": "Counted canonical objects where `ssot/<topic>/<topic>.json` exists, either `prisma_flow` or `k_cascade` is held, and `screening.records` is absent/empty. That is 10/155 objects. Mapped those objects through `ssot/PAGE_MAP.json`, yielding 10/163 served page entries. Served-byte check found the current bad screen absence sentence in 10/10 affected pages.",
+  "kinds": {
+   "live pages": {
+    "count": 10,
+    "denominator": 10,
+    "pages": [
+     "ABLATION_AF_HEART_FAILURE_REVIEW.html",
+     "ABLATION_AF_MEDICAL_THERAPY_REVIEW.html",
+     "ALIROCUMAB_LIPID_AUTO_FULL_REVIEW.html",
+     "ATTR_CM_REVIEW.html",
+     "BEMPEDOIC_ACID_REVIEW.html",
+     "BOSENTAN_PAH_CHILDREN_REVIEW.html",
+     "BOSENTAN_PAH_COMBINATION_REVIEW.html",
+     "BOSENTAN_PAH_MONOTHERAPY_REVIEW.html",
+     "BOSENTAN_PH_NOT_GROUP1_REVIEW.html",
+     "COLCHICINE_CVD_CORONARY_REVIEW.html"
+    ]
+   },
+   "retired tombstones": {
+    "count": 0,
+    "denominator": 10,
+    "pages": []
+   },
+   "redirect stubs": {
+    "count": 0,
+    "denominator": 10,
+    "pages": []
+   },
+   "classification_how": "For each PAGE_MAP served page, classified root HTML as redirect if it contained refresh/window.location/moved-page redirect markers, tombstone if the title started `Retired --` or tombstone classes were present, otherwise live. All 10 affected served pages are live."
+  },
+  "intersects_must_not_break": [
+   "ALIROCUMAB_LIPID_AUTO_FULL_REVIEW.html",
+   "BEMPEDOIC_ACID_REVIEW.html"
+  ],
+  "patch_old": "            if _carries_something and tid in PARTIAL_STATE:\n                _label = \"Partially held.\"\n                # COMPUTED WHERE IT CAN BE, RECITED ONLY WHERE IT CANNOT. The screen\n                # tab's note names counts it can read off the panel; if it cannot read\n                # them it returns None and the constant stands.\n                note = (screen_partial_note(body) if tid == \"screen\" else None) \\\n                    or PARTIAL_STATE[tid]\n            else:\n                _label = \"Not held in this object.\"\n                note = _tbl.get(tid, \"No content is held in this object for this section.\")\n                if tid == \"protocol\":\n                    note = protocol_state_note(canon, note)",
+  "patch_new": "            _screen_counts_held = (tid == \"screen\"\n                                   and (canon.get(\"prisma_flow\") or canon.get(\"k_cascade\")))\n            if _screen_counts_held:\n                _label = \"Partially held.\"\n                note = (\"Aggregate PRISMA counts are held; row-level screening decisions are absent. \"\n                        \"Screening counts are held in this object and shown in the PRISMA/cascade \"\n                        \"panels; the per-record screening log is not held unless records are \"\n                        \"listed below.\")\n            elif _carries_something and tid in PARTIAL_STATE:\n                _label = \"Partially held.\"\n                # COMPUTED WHERE IT CAN BE, RECITED ONLY WHERE IT CANNOT. The screen\n                # tab's note names counts it can read off the panel; if it cannot read\n                # them it returns None and the constant stands.\n                note = (screen_partial_note(body) if tid == \"screen\" else None) \\\n                    or PARTIAL_STATE[tid]\n            else:\n                _label = \"Not held in this object.\"\n                note = _tbl.get(tid, \"No content is held in this object for this section.\")\n                if tid == \"protocol\":\n                    note = protocol_state_note(canon, note)",
+  "three_states": [
+   "No screening evidence held: no per-record `screening.records` and no aggregate `prisma_flow`/`k_cascade`; use the absent-state wording.",
+   "Aggregate screening counts held but row-level log absent: `prisma_flow` or `k_cascade` exists, while `screening.records` is empty; emit the third-state note. This is the affected 10/155-object state.",
+   "Per-record screening log held: `screening.records` is nonempty; let `screen_partial_note(body)` compute which count limbs are held/missing from the actual screen panel."
+  ],
+  "marker": "Aggregate PRISMA counts are held; row-level screening decisions are absent.",
+  "marker_absent_verified": "Verified before writing this report with fixed-string grep via a temporary pattern file: `rg -n -F -f <temp-pattern-file> .` returned exit 1 and the wrapper printed `ABSENT 0 hits for 2 markers`. This marker had 0 hits anywhere under F:/fixwt/live at verification time.",
+  "obvious_fix": "One-line version: change `_carries_something` to also be true when `tid == \"screen\" and (canon.get(\"prisma_flow\") or canon.get(\"k_cascade\"))`, leaving the existing `screen_partial_note(body) or PARTIAL_STATE[tid]` note selection unchanged.",
+  "obvious_fix_would_fire": "Yes, but incompletely: tested over the 10 aggregate-count/no-record objects, that one-line condition would fire for 10/10 because every affected object has `prisma_flow` or `k_cascade`. It would route them to the generic PARTIAL_STATE screen note, not the safer specific sentence that aggregate counts are in PRISMA/cascade while row-level screening decisions are absent.",
+  "notes": "The item from the slice is reproduced exactly at 10/155 canonical objects and 10/163 PAGE_MAP pages. Checked frozen/excluded objects: gepotidacin and HFREF-like objects did not match this predicate. No edits made to `ssot/projectors.py`; proposed patch only."
+ },
+ {
+  "item": "BOSENTAN_PH_NOT_GROUP1_REVIEW.html / registered-trial summary table omits status and enrolment",
+  "site": {
+   "emitter": "ssot/statement.py:534-540",
+   "source_tuple": "ssot/statement.py:145-168",
+   "caller": "ssot/build_tabbed.py:941-944"
+  },
+  "code_quoted": "ssot/statement.py:145-168\n145:def _trials(obj):\n146:    out = []\n147:    for t in (obj.get(\"inputs\") or {}).get(\"trials\") or []:\n148:        if not isinstance(t, dict):\n149:            continue\n150:        nct = str(t.get(\"nct\") or t.get(\"registration\") or \"\").strip()\n151:        if nct:\n152:            # `label` FIRST WAS THE WRONG FIELD. This corpus stores the trial's name under\n153:            # `name` -- SOLOIST-WHF, SPRINT, CLEAR-Outcomes -- and `label` is mostly absent,\n154:            # so 74 trials across 19 pages rendered the fallback \"title not recorded in the\n155:            # registry read\". That fallback is not merely blank, it is a false claim ABOUT\n156:            # THE REGISTRY: it tells a reader the registration carried no title when in fact\n157:            # we read the wrong key. `registration_brief_title` is the registry's own words\n158:            # and is taken before giving up.\n159:            #\n160:            # The identical mistake was made twice more in one evening -- a prototype report\n161:            # reading `label`, and a field census guessing `n_randomised` for `enrolled` --\n162:            # so the rule earned here is: when a value looks absent corpus-wide, print the\n163:            # observed key list before believing it.\n164:            name = (str(t.get(\"name\") or \"\").strip()\n165:                    or str(t.get(\"label\") or \"\").strip()\n166:                    or str(t.get(\"registration_brief_title\") or \"\").strip())\n167:            out.append((nct, name, str(t.get(\"registry\") or \"\").strip()))\n168:    return out\n\nssot/statement.py:534-540\n534:    if trials:\n535:        out.append(\"<p><strong>What was found.</strong> %d registered trial%s:</p>\"\n536:                   % (len(trials), \"\" if len(trials) == 1 else \"s\"))\n537:        out.append(\"<table><tr><th>Registration</th><th>Trial</th></tr>\")\n538:        for nct, label, _reg in trials:\n539:            out.append(\"<tr><td>%s</td><td>%s</td></tr>\"\n540:                       % (e(nct), e(label or \"title not recorded in the registry read\")))\n\nssot/build_tabbed.py:941-944\n941:    try:\n942:        import statement as _stmt\n943:        if _stmt.holds_no_poolable_evidence(canon):\n944:            return _stmt.statement_html(canon, e)",
+  "radius_file": "6/155 topic objects by gate7 radius_map for ssot/statement.py",
+  "radius_file_source": "Read-only gate7 derivation: imported gates/gate7_blast_radius.py and called radius_map(repo, gate). It returned {\"radius\": 6, \"why\": \"outside the build closure, names 6 topic id(s)\", \"topics\": [\"amoxicillin-aom\", \"antimalarial-act\", \"attr-cm-review\", \"bempedoic-acid-review\", \"early-rhythm-control-af\", \"intensive-bp-review\"]}. I did not invoke gate7 main because python gates/gate7_blast_radius.py writes out/gate7_blast_radius.json, which conflicts with this task's write-only out/cw/slice2.json rule.",
+  "radius_behaviour": "95/113 PAGE_MAP entries that satisfy statement.holds_no_poolable_evidence(obj) have at least one inputs.trials row and would receive the added Status and Enrolment columns; this is 95/163 PAGE_MAP entries overall. Deduped object count is 89/107 unique no-poolable SSOT objects, 89/152 unique PAGE_MAP objects overall. Trial-row cells affected: 270 duplicate-aware PAGE_MAP trial rows, or 257 deduped unique-object trial rows.",
+  "radius_behaviour_how": "Imported ssot/statement.py read-only, loaded ssot/PAGE_MAP.json, evaluated holds_no_poolable_evidence(obj), counted objects/pages with non-empty dict rows under inputs.trials. Duplicate-aware counts iterate PAGE_MAP page entries; deduped counts iterate set(PAGE_MAP.values()). Frozen gepotidacin and excluded HFREF_NMA_AUTO_FULL_REVIEW.html were checked and are 0/95 in this behaviour set.",
+  "kinds": {
+   "denominator": "95 PAGE_MAP entries in the statement-table behaviour set",
+   "live pages": {
+    "count": "94/95",
+    "how": "served HTML exists, is not a redirect by refresh/window.location/redirect text, and title/tombstone markers do not mark it retired"
+   },
+   "retired tombstones": {
+    "count": "1/95",
+    "pages": [
+     "OLMESARTAN_HTN_AUTO_FULL_REVIEW.html"
+    ]
+   },
+   "redirect stubs": {
+    "count": "0/95",
+    "pages": []
+   },
+   "missing served html": {
+    "count": "0/95",
+    "pages": []
+   }
+  },
+  "intersects_must_not_break": {
+   "count": "1/29",
+   "pages": [
+    "BEMPEDOIC_ACID_REVIEW.html"
+   ]
+  },
+  "patch_old": "def _trials(obj):\n    out = []\n    for t in (obj.get(\"inputs\") or {}).get(\"trials\") or []:\n        if not isinstance(t, dict):\n            continue\n        nct = str(t.get(\"nct\") or t.get(\"registration\") or \"\").strip()\n        if nct:\n            name = (str(t.get(\"name\") or \"\").strip()\n                    or str(t.get(\"label\") or \"\").strip()\n                    or str(t.get(\"registration_brief_title\") or \"\").strip())\n            out.append((nct, name, str(t.get(\"registry\") or \"\").strip()))\n    return out\n\n    if trials:\n        out.append(\"<p><strong>What was found.</strong> %d registered trial%s:</p>\"\n                   % (len(trials), \"\" if len(trials) == 1 else \"s\"))\n        out.append(\"<table><tr><th>Registration</th><th>Trial</th></tr>\")\n        for nct, label, _reg in trials:\n            out.append(\"<tr><td>%s</td><td>%s</td></tr>\"\n                       % (e(nct), e(label or \"title not recorded in the registry read\")))\n        out.append(\"</table>\")",
+  "patch_new": "def _trials(obj):\n    out = []\n    for t in (obj.get(\"inputs\") or {}).get(\"trials\") or []:\n        if not isinstance(t, dict):\n            continue\n        nct = str(t.get(\"nct\") or t.get(\"registration\") or \"\").strip()\n        if nct:\n            name = (str(t.get(\"name\") or \"\").strip()\n                    or str(t.get(\"label\") or \"\").strip()\n                    or str(t.get(\"registration_brief_title\") or \"\").strip())\n            out.append((nct, name, str(t.get(\"registry\") or \"\").strip()))\n    return out\n\n\ndef _trial_meta_by_nct(obj):\n    out = {}\n    for t in (obj.get(\"inputs\") or {}).get(\"trials\") or []:\n        if not isinstance(t, dict):\n            continue\n        nct = str(t.get(\"nct\") or t.get(\"registration\") or \"\").strip()\n        if nct:\n            out[nct] = t\n    return out\n\n\ndef _present_count(v):\n    if v is None or v == \"\":\n        return \"not recorded\"\n    return str(v)\n\n    meta = _trial_meta_by_nct(obj)\n    if trials:\n        out.append(\"<p><strong>What was found.</strong> %d registered trial%s:</p>\"\n                   % (len(trials), \"\" if len(trials) == 1 else \"s\"))\n        out.append(\"<table data-cw-marker='cw-slice2-statement-trial-status-enrolment-marker-20260828'><tr><th>Registration</th><th>Trial</th><th>Status</th><th>Enrolment</th></tr>\")\n        for nct, label, _reg in trials:\n            m = meta.get(nct, {})\n            status = str(m.get(\"design\") or m.get(\"status\") or \"not recorded\").strip() or \"not recorded\"\n            enrolment = _present_count(m.get(\"enrolled\"))\n            out.append(\"<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>\"\n                       % (e(nct), e(label or \"title not recorded in the registry read\"),\n                          e(status), e(enrolment)))\n        out.append(\"</table>\")",
+  "three_states": "Enrolment is a three-state field: absent/null/blank means not recorded, numeric 0 means known zero enrolled, and positive numeric means known positive enrolment. The obvious two-state truthiness test collapses known zero into absent. Measured over the behaviour set: 1/270 duplicate-aware trial rows has enrolled == 0 (BOSENTAN_PH_NOT_GROUP1_REVIEW.html / NCT00625469), 28/270 have positive numeric enrolled, and 241/270 are missing/blank/null.",
+  "marker": "cw-slice2-statement-trial-status-enrolment-marker-20260828",
+  "marker_absent_verified": "Verified before writing this JSON: PowerShell set $m to the marker, then ran rg -n --fixed-strings $m ssot and rg -n --fixed-strings $m -g '*.html' .; both returned RG_EXIT=1 / no matches. Full-tree marker checks were avoided because out/cw/log2.txt records command lines and contaminates grep with the marker text.",
+  "obvious_fix": "One-line version: add an Enrolment cell with str(m.get(\"enrolled\") or \"not recorded\") and a Status cell with m.get(\"design\") or m.get(\"status\") or \"not recorded\".",
+  "obvious_fix_would_fire": "It would fire partially but is not safe: tested over 270/270 duplicate-aware behaviour-set trial rows, the truthiness expression would render 242/270 as not recorded; 1/270 of those is a known zero-enrolment trial (BOSENTAN_PH_NOT_GROUP1_REVIEW.html / NCT00625469) that must render 0, not not recorded.",
+  "notes": "The bosentan object itself holds all 8/8 trial NCTs, design values, and enrolled counts, including NCT00625469 with design WITHDRAWN and enrolled 0. The per-page worker was right not to land this in a page file; the emitting table is class-wide."
+ },
+ {
+  "item": "ceftazidime-avibactam-auto-full-review / canonical object exists via data-store but reproducibility card says no canonical object is recorded",
+  "site": {
+   "repro_note_emitter": "ssot/build_tabbed.py:90-117",
+   "repro_card_fields_and_call": "ssot/build_tabbed.py:667-742",
+   "verified_store_source": "ssot/build_tabbed.py:1507-1531 and 1753-1758"
+  },
+  "code_quoted": "ssot/build_tabbed.py:90-117\n90:def _repro_note(reg, c0):\n91:    \"\"\"The reproducibility promise, DERIVED from whether it is true on this page.\n92:\n93:    THE LARGEST SINGLE CLASS IN THE REVIEW REGISTER: 130 findings across 126\n94:    pages, one string. \"Everything a third party needs to rebuild this page\" was\n95:    printed unconditionally, including on pages whose Canonical object cell is an\n96:    em dash. A reader cannot rebuild a page from an object that is not recorded,\n97:    so there the sentence is not a weak claim but a false one -- and it is the\n98:    worst kind available here: a promise of VERIFIABILITY made by a page that\n99:    cannot be verified.\n100:\n101:    DERIVE OR REFUSE, AND REFUSE ONLY THE HALF THAT IS FALSE. The figures really\n102:    do download carrying exactly the values shown whatever the object situation,\n103:    so that sentence survives every branch. Dropping it too would substitute a\n104:    softer claim in the other direction, and saying less than is true is also not\n105:    saying what is true.\n106:    \"\"\"\n107:    figures = (\"Each figure on the Analysis tab downloads as an SVG carrying exactly \"\n108:               \"the values shown.\")\n109:    missing = []\n110:    if not (reg or {}).get(\"path\"):\n111:        missing.append(\"no canonical object is recorded\")\n112:    if not (c0 or {}).get(\"sha\"):\n113:        missing.append(\"no registered commit is recorded\")\n114:    if not missing:\n115:        return \"Everything a third party needs to rebuild this page. \" + figures\n116:    return (\"This page CANNOT be rebuilt from what is recorded here: %s. %s\"\n117:            % (\" and \".join(missing), figures))\n\nssot/build_tabbed.py:667-676 and 742\n667:    reg = canon.get(\"registration\") or {}\n668:    c0 = (reg.get(\"commits\") or [{}])[0]\n669:    first = next(iter(((canon.get(\"results\") or {}).get(\"by_outcome\") or {}).values()), {})\n670:    repro = pj.kv_card(\"Reproducibility artifact\", [\n671:        (\"Canonical object\", \"<code>%s</code>\" % _v((reg.get(\"path\", \"\")))),\n672:        (\"Registered at\", \"<code>%s</code> %s\" % (_v(c0.get(\"sha\", \"\"), limit=12),\n673:                                                  _v((c0.get(\"committed_utc\", \"\"))))),\n674:        (\"Permalink\", (\"<a href='%s'>%s</a>\" % (e(c0[\"permalink\"]), e(c0[\"permalink\"])))\n675:         if c0.get(\"permalink\") else \"\"),\n676:        (\"Schema\", _v((canon.get(\"schema_version\", \"\")))),\n742:    ], _repro_note(reg, c0))\n\nssot/build_tabbed.py:1507-1531 and 1753-1758\n1507:def _store_declaration(canon):\n1524:    app = canon.get(\"app_id\")\n1525:    if not app or not isinstance(app, str):\n1526:        return None, \"object records no app_id\"\n1527:    rel = \"ssot/%s/%s.json\" % (app, app)\n1528:    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))\n1529:    if not os.path.exists(os.path.join(root, rel)):\n1530:        return None, \"derived store path does not resolve: %s\" % rel\n1531:    return rel, None\n1753:    _store, _store_why = (store_path, None) if store_path else _store_declaration(canon)\n1757:    _store_attr = (' data-store=\"%s\"' % e_(_store) if _store\n1758:                   else ' data-store=\"\" data-store-absent=\"%s\"' % e_(_store_why or \"unknown\"))",
+  "radius_file": "155/155 topic objects by gate7 radius_map for ssot/build_tabbed.py",
+  "radius_file_source": "Read-only gate7 derivation: imported gates/gate7_blast_radius.py and called radius_map(repo, gate). It returned {\"radius\": 155, \"why\": \"in the build closure: every topic is built through it (it also special-cases 6 topic ids, which does not narrow it)\"}. I did not invoke gate7 main because python gates/gate7_blast_radius.py writes out/gate7_blast_radius.json, which conflicts with this task's write-only out/cw/slice2.json rule.",
+  "radius_behaviour": "Source-level old/new behaviour for the proposed reproducibility-card patch: 148/163 PAGE_MAP entries are non-redirect full pages with missing registration.path but a verified _store_declaration(canon) path, so the Canonical object cell and _repro_note canonical-object limb would change on rebuild. Excluding frozen gepotidacin leaves 147/162 non-frozen PAGE_MAP entries. The wider source condition is 162/163 PAGE_MAP entries with missing registration.path and verified store; 14/162 are current redirect stubs produced elsewhere and do not receive this build() card. The currently served exact no-canonical sentence appears on 123/163 PAGE_MAP entries; that is a served-bytes symptom count, not the generator behaviour radius.",
+  "radius_behaviour_how": "Imported ssot/build_tabbed.py read-only, loaded ssot/PAGE_MAP.json, called _store_declaration(canon), and counted entries where registration.path is absent but the derived store path resolves. Current served-page kind was classified from HTML refresh/window.location/redirect text and Retired-title/tombstone markers. ssot/build_tabbed.py itself states at lines 1496-1498 that redirect and landing pages are produced elsewhere, so redirect stubs are reported but not counted as receiving the build() reproducibility card. HFREF_NMA_AUTO_FULL_REVIEW.html is excluded and is 0/163 in PAGE_MAP; gepotidacin is frozen and is 1/148 of the non-redirect source behaviour set, so the landable in-scope count is 147/148 after excluding it.",
+  "kinds": {
+   "denominator": "148 non-redirect PAGE_MAP entries with missing registration.path and verified _store_declaration path; 147/148 are in scope after excluding gepotidacin",
+   "live pages": {
+    "count_raw": "147/148",
+    "count_in_scope_excluding_gepotidacin": "146/147"
+   },
+   "retired tombstones": {
+    "count_raw": "1/148",
+    "count_in_scope_excluding_gepotidacin": "1/147",
+    "pages": [
+     "OLMESARTAN_HTN_AUTO_FULL_REVIEW.html"
+    ]
+   },
+   "redirect stubs_reported_not_in_build_card_behaviour": {
+    "count": "14/162 wider source-condition entries",
+    "pages": [
+     "BAMLANIVIMAB_OUTP_AUTO_FULL_REVIEW.html",
+     "BEZLOTOXUMAB_CDIFF_AUTO_FULL_REVIEW.html",
+     "CEFTOLOZANE_TAZ_AUTO_FULL_REVIEW.html",
+     "CVNCOV_SARSCOV2_AUTO_FULL_REVIEW.html",
+     "DABIGATRAN_VTE_AUTO_FULL_REVIEW.html",
+     "ERTAPENEM_INFECT_AUTO_FULL_REVIEW.html",
+     "LEFAMULIN_CAP_AUTO_FULL_REVIEW.html",
+     "LENACAPAVIR_PREP_REVIEW.html",
+     "MAVACAMTEN_OHCM_AUTO_FULL_REVIEW.html",
+     "OMECAMTIV_HFREF_AUTO_FULL_REVIEW.html",
+     "OMECAMTIV_HF_AUTO_FULL_REVIEW.html",
+     "PCSK9_REVIEW.html",
+     "SACUBITRIL_VALSARTAN_HF_AUTO_FULL_REVIEW.html",
+     "SOTATERCEPT_PAH_AUTO_2.html"
+    ]
+   }
+  },
+  "intersects_must_not_break": {
+   "count": "27/29",
+   "pages": [
+    "AGYW_HIV_PREP_REVIEW.html",
+    "ALIROCUMAB_LIPID_AUTO_FULL_REVIEW.html",
+    "APIXABAN_VTE_PROPHYLAXIS_REVIEW.html",
+    "APIXABAN_VTE_TREATMENT_REVIEW.html",
+    "AZILSARTAN_CLD_VS_OLM_HCTZ_REVIEW.html",
+    "AZILSARTAN_HTN_AUTO_FULL_REVIEW.html",
+    "BEMPEDOIC_ACID_REVIEW.html",
+    "BOCOCIZUMAB_LIPID_AUTO_FULL_REVIEW.html",
+    "BOCOCIZUMAB_LIPID_REVIEW.html",
+    "CAB_PREP_HIV_REVIEW.html",
+    "CANGRELOR_PCI_REVIEW.html",
+    "CEFTAROLINE_AUTO_FULL_REVIEW.html",
+    "EMPAGLIFLOZIN_HF_AUTO_FULL_REVIEW.html",
+    "FINERENONE_CV_REVIEW.html",
+    "ICOSAPENT_LIPID_AUTO_FULL_REVIEW.html",
+    "INCLISIRAN_LIPID_KIDNEY_AUTO_FULL_REVIEW.html",
+    "INCRETIN_HFpEF_REVIEW.html",
+    "IV_IRON_HF_REVIEW.html",
+    "LEFAMULIN_CABP_AUTO_FULL_REVIEW.html",
+    "NIRSEVIMAB_INFANT_RSV_REVIEW.html",
+    "ROSUVASTATIN_AUTO_FULL_REVIEW.html",
+    "ROTAVIRUS_VACCINE_AFRICA_REVIEW.html",
+    "ROTAVIRUS_VACCINE_AUTO_FULL_REVIEW.html",
+    "SGLT2_HF_REVIEW.html",
+    "SGLT2_MACE_CVOT_REVIEW.html",
+    "SOTAGLIFLOZIN_HF_REVIEW.html",
+    "TIGECYCLINE_CIAI_SSOT.html"
+   ],
+   "not_touched": [
+    "ARNI_HF_REVIEW.html",
+    "HFREF_NMA_AUTO_FULL_REVIEW.html"
+   ]
+  },
+  "patch_old": "def _repro_note(reg, c0):\n    figures = (\"Each figure on the Analysis tab downloads as an SVG carrying exactly \"\n               \"the values shown.\")\n    missing = []\n    if not (reg or {}).get(\"path\"):\n        missing.append(\"no canonical object is recorded\")\n    if not (c0 or {}).get(\"sha\"):\n        missing.append(\"no registered commit is recorded\")\n    if not missing:\n        return \"Everything a third party needs to rebuild this page. \" + figures\n    return (\"This page CANNOT be rebuilt from what is recorded here: %s. %s\"\n            % (\" and \".join(missing), figures))\n\n    reg = canon.get(\"registration\") or {}\n    c0 = (reg.get(\"commits\") or [{}])[0]\n    first = next(iter(((canon.get(\"results\") or {}).get(\"by_outcome\") or {}).values()), {})\n    repro = pj.kv_card(\"Reproducibility artifact\", [\n        (\"Canonical object\", \"<code>%s</code>\" % _v((reg.get(\"path\", \"\")))),\n...\n    ], _repro_note(reg, c0))\n...\n    _store, _store_why = (store_path, None) if store_path else _store_declaration(canon)",
+  "patch_new": "def _repro_note(reg, c0, canonical_store=None):\n    figures = (\"Each figure on the Analysis tab downloads as an SVG carrying exactly \"\n               \"the values shown.\")\n    if canonical_store and not (reg or {}).get(\"path\"):\n        figures = (\"Canonical object recorded via data-store attribute. \" + figures)\n    missing = []\n    if not ((reg or {}).get(\"path\") or canonical_store):\n        missing.append(\"no canonical object is recorded\")\n    if not (c0 or {}).get(\"sha\"):\n        missing.append(\"no registered commit is recorded\")\n    if not missing:\n        return \"Everything a third party needs to rebuild this page. \" + figures\n    return (\"This page CANNOT be rebuilt from what is recorded here: %s. %s\"\n            % (\" and \".join(missing), figures))\n\n    reg = canon.get(\"registration\") or {}\n    c0 = (reg.get(\"commits\") or [{}])[0]\n    _store_for_repro, _store_why_for_repro = ((store_path, None) if store_path\n                                              else _store_declaration(canon))\n    canonical_path = reg.get(\"path\") or _store_for_repro or \"\"\n    first = next(iter(((canon.get(\"results\") or {}).get(\"by_outcome\") or {}).values()), {})\n    repro = pj.kv_card(\"Reproducibility artifact\", [\n        (\"Canonical object\", \"<code data-cw-marker='cw-slice2-build-tabbed-canonical-store-marker-20260828'>%s</code>\" % _v(canonical_path)),\n...\n    ], _repro_note(reg, c0, _store_for_repro))\n...\n    _store, _store_why = _store_for_repro, _store_why_for_repro",
+  "three_states": "Canonical object availability is a three-state question: registration.path explicitly records the canonical object; registration.path is absent but _store_declaration(canon) derives and verifies ssot/<app_id>/<app_id>.json; or neither a recorded nor verified derived path exists. Current _repro_note answers only two states because it tests registration.path truthiness, so ceftazidime is incorrectly grouped with truly unrecorded canonical objects even though _store_declaration returns ssot/ceftazidime-avibactam-auto-full-review/ceftazidime-avibactam-auto-full-review.json. Registered commit is a separate state and remains absent for 162/162 wider source-condition entries.",
+  "marker": "cw-slice2-build-tabbed-canonical-store-marker-20260828",
+  "marker_absent_verified": "Verified before writing this JSON: PowerShell set $m to the marker, then ran rg -n --fixed-strings $m ssot and rg -n --fixed-strings $m -g '*.html' .; both returned RG_EXIT=1 / no matches. Full-tree marker checks were avoided because out/cw/log2.txt records command lines and contaminates grep with the marker text.",
+  "obvious_fix": "One-line version: change only the Canonical object row to use reg.get(\"path\") or _store_declaration(canon)[0].",
+  "obvious_fix_would_fire": "It would fire only on the table cell and would not fix the defect sentence. Tested over the 162/163 wider source-condition PAGE_MAP entries: a card-only fallback would change 162/162 Canonical object cells, but current _repro_note(reg, c0) still returns a string containing no canonical object is recorded for 162/162 because _repro_note receives only reg and c0.",
+  "notes": "This item is reported, not landable in this pass, because ssot/build_tabbed.py is explicitly out of scope and taken last separately. Ceftazidime evidence checked: ssot/ceftazidime-avibactam-auto-full-review/ceftazidime-avibactam-auto-full-review.json has app_id ceftazidime-avibactam-auto-full-review and trials NCT02475733 and NCT02497781; served CEFTAZIDIME_AVIBACTAM_AUTO_FULL_REVIEW.html has data-store and both NCTs, but also the no-canonical/no-commit reproducibility sentence. Frozen gepotidacin is excluded from the in-scope count; HFREF_NMA_AUTO_FULL_REVIEW.html is excluded and is not present in PAGE_MAP."
+ },
+ {
+  "item": "TIGECYCLINE_CIAI_SSOT.html leave-one-out visual abstract counts all sensitivity rows and ignores CI-derived exclusion status",
+  "site": "ssot/projectors2.py:973-1003, inside visual_abstract(canon, res, outcome, p)",
+  "code_quoted": "973:     sens = res.get(\"sensitivity\") or {}\n974:     loo = \"\"\n975:     rows = [a for a in (sens.get(\"analyses\") or []) if isinstance(a, dict)]\n976:     kept = [a for a in rows if a.get(\"still_excludes_null\")]\n977:     if rows:\n978:         # A SENTENCE ABOUT A NUMBER MUST BE A FUNCTION OF THAT NUMBER.\n979:         # The previous version appended \"the estimate does not survive removal of the\n980:         # largest trial\" unconditionally, reading `kept` for the count and then ignoring it\n981:         # for the claim. It printed \"2 of 2 refits still exclude no difference; the estimate\n982:         # does not survive removal of the largest trial\" -- which is not merely contradictory,\n983:         # it is false: if every refit excludes the null then the estimate DOES survive.\n984:         # Measured before the fix: 6 of 12 emitted sentences were self-falsifying.\n985:         _k = res.get(\"k\") if res.get(\"k\") is not None else len(res.get(\"per_trial\") or [])\n986:         _n, _tot = len(kept), len(rows)\n987:         if _k == 2:\n988:             # GENERALISED TO EVERY k=2 POOL, not special-cased to one topic. With two trials\n989:             # a leave-one-out refit IS the other trial, so it cannot be robustness evidence\n990:             # however the arithmetic comes out, and saying so is the honest reading.\n991:             loo = (\"Leave-one-out with two trials: each refit is simply the other trial, so \"\n992:                    \"this is not robustness evidence. %d of %d single-trial refits exclude no \"\n993:                    \"difference.\" % (_n, _tot))\n994:         elif _n == _tot:\n995:             loo = (\"Leave-one-out: all %d refits still exclude no difference; the estimate \"\n996:                    \"survives removal of any single trial.\" % _tot)\n997:         elif _n == 0:\n998:             loo = (\"Leave-one-out: no refit excludes no difference; the estimate does not \"\n999:                    \"survive removal of any single trial.\" % ())\n1000:         else:\n1001:             loo = (\"Leave-one-out: %d of %d refits still exclude no difference; the estimate \"\n1002:                    \"does not survive removal of every single trial.\"\n1003:                    % (_n, _tot))",
+  "radius_file": "4/620 files under ssot, for ssot/projectors2.py as derived by Gate 7 with --files ssot/projectors2.py",
+  "radius_file_source": "Command run: python gates/gate7_blast_radius.py --files ssot/projectors2.py. Gate 7 finding quoted: \"ssot/projectors2.py is built through by 4 topics (outside the build closure, names 4 topic id(s)). This change touches it and no acknowledgement was recorded. Verifying it on one object is a claim about 1/4.\" Gate kinds quoted: 85 one-off module naming specific topics; 38 shared non-module file; 26 module outside the build closure; 3 CLASS-WIDE module (in the build closure); 468 topic-owned file (radius 1); 1 files in this change under ssot. Gate also notes the widest class-wide build roots separately: paper_projector.py(155), build_tabbed.py(155), build_app_v2.py(155).",
+  "radius_behaviour": "1/157 result outcomes represented in PAGE_MAP would change; 1/149 PAGE_MAP served pages with result outcomes would change; 1/163 PAGE_MAP entries if counted against all mapped pages.",
+  "radius_behaviour_how": "Read ssot/PAGE_MAP.json, grouped aliases by object path, loaded each mapped SSOT object, and applied the current visual_abstract predicate to results.by_outcome.*.sensitivity.analyses. Proposed behaviour recognizes leave-one-out rows when id starts with 'leave-out', changed text starts with 'removing ' or contains ' by removing ', or the legacy row has a non-empty omitted field. still_excludes_null is read when boolean, otherwise derived from ci_low/ci_high under row.result or the row itself against outcome.null_value. Counted old/new emitted sentence strings. Denominators: 157 result outcomes on mapped objects, 149 mapped served pages with result outcomes, 163 total PAGE_MAP entries.",
+  "kinds": {
+   "behaviour_set": {
+    "live page": "1/1",
+    "retired tombstone": "0/1",
+    "redirect stub": "0/1"
+   },
+   "affected_pages": [
+    "TIGECYCLINE_CIAI_SSOT.html"
+   ],
+   "supporting_counts": "12 unique result-outcomes currently have sensitivity analyses; 39 sensitivity rows total; 34/39 rows are recognized as true leave-one-out after including legacy omitted rows; only tigecycline-ciai/cure_toc_me changes because its 8 sensitivity rows contain 3 true leave-one-out rows and no still_excludes_null booleans."
+  },
+  "intersects_must_not_break": [
+   "TIGECYCLINE_CIAI_SSOT.html"
+  ],
+  "patch_old": "    sens = res.get(\"sensitivity\") or {}\n    loo = \"\"\n    rows = [a for a in (sens.get(\"analyses\") or []) if isinstance(a, dict)]\n    kept = [a for a in rows if a.get(\"still_excludes_null\")]\n    if rows:\n        # A SENTENCE ABOUT A NUMBER MUST BE A FUNCTION OF THAT NUMBER.\n        # The previous version appended \"the estimate does not survive removal of the\n        # largest trial\" unconditionally, reading `kept` for the count and then ignoring it\n        # for the claim. It printed \"2 of 2 refits still exclude no difference; the estimate\n        # does not survive removal of the largest trial\" -- which is not merely contradictory,\n        # it is false: if every refit excludes the null then the estimate DOES survive.\n        # Measured before the fix: 6 of 12 emitted sentences were self-falsifying.\n        _k = res.get(\"k\") if res.get(\"k\") is not None else len(res.get(\"per_trial\") or [])\n        _n, _tot = len(kept), len(rows)\n        if _k == 2:\n            # GENERALISED TO EVERY k=2 POOL, not special-cased to one topic. With two trials\n            # a leave-one-out refit IS the other trial, so it cannot be robustness evidence\n            # however the arithmetic comes out, and saying so is the honest reading.\n            loo = (\"Leave-one-out with two trials: each refit is simply the other trial, so \"\n                   \"this is not robustness evidence. %d of %d single-trial refits exclude no \"\n                   \"difference.\" % (_n, _tot))\n        elif _n == _tot:\n            loo = (\"Leave-one-out: all %d refits still exclude no difference; the estimate \"\n                   \"survives removal of any single trial.\" % _tot)\n        elif _n == 0:\n            loo = (\"Leave-one-out: no refit excludes no difference; the estimate does not \"\n                   \"survive removal of any single trial.\" % ())\n        else:\n            loo = (\"Leave-one-out: %d of %d refits still exclude no difference; the estimate \"\n                   \"does not survive removal of every single trial.\"\n                   % (_n, _tot))",
+  "patch_new": "    sens = res.get(\"sensitivity\") or {}\n    loo = \"\"\n    rows_all = [a for a in (sens.get(\"analyses\") or []) if isinstance(a, dict)]\n\n    def _is_leave_one_out(a):\n        _id = str(a.get(\"id\") or \"\")\n        _changed = str(a.get(\"changed\") or \"\").lower()\n        return (_id.startswith(\"leave-out\")\n                or _changed.startswith(\"removing \")\n                or \" by removing \" in _changed\n                or a.get(\"omitted\") not in (None, \"\"))\n\n    def _still_excludes_null(a):\n        if isinstance(a.get(\"still_excludes_null\"), bool):\n            return a[\"still_excludes_null\"]\n        _node = a.get(\"result\") if isinstance(a.get(\"result\"), dict) else a\n        try:\n            _lo = float(_node.get(\"ci_low\"))\n            _hi = float(_node.get(\"ci_high\"))\n            _null = float(outcome.get(\"null_value\", 1))\n        except (TypeError, ValueError, AttributeError):\n            return None\n        return _hi < _null or _lo > _null\n\n    rows = [a for a in rows_all if _is_leave_one_out(a)]\n    kept_flags = [_still_excludes_null(a) for a in rows]\n    if rows and any(x is None for x in kept_flags):\n        loo = (\"Leave-one-out: not summarised because at least one leave-one-out refit \"\n               \"does not record either still_excludes_null or numeric ci_low/ci_high.\")\n    elif rows:\n        _k = res.get(\"k\") if res.get(\"k\") is not None else len(res.get(\"per_trial\") or [])\n        _n, _tot = sum(1 for x in kept_flags if x), len(rows)\n        if _k == 2:\n            loo = (\"Leave-one-out with two trials: each refit is simply the other trial, so \"\n                   \"this is not robustness evidence. %d of %d single-trial refits exclude no \"\n                   \"difference.\" % (_n, _tot))\n        elif _n == _tot:\n            loo = (\"Leave-one-out: all %d refits still exclude no difference; the estimate \"\n                   \"survives removal of any single trial.\" % _tot)\n        elif _n == 0:\n            loo = (\"Leave-one-out: no refit excludes no difference; the estimate does not \"\n                   \"survive removal of any single trial.\")\n        else:\n            loo = (\"Leave-one-out: %d of %d refits still exclude no difference; the estimate \"\n                   \"does not survive removal of every single trial.\"\n                   % (_n, _tot))",
+  "three_states": [
+   "No sensitivity analyses: emit no leave-one-out sentence.",
+   "Sensitivity analyses exist but none are leave-one-out refits: emit no leave-one-out sentence from this visual-abstract slot.",
+   "Leave-one-out refits exist: summarize only those rows, deriving exclusion from explicit still_excludes_null or CI bounds against the outcome null; fail closed with a visible refusal if that derivation is impossible."
+  ],
+  "marker": "Leave-one-out: 1 of 3 refits still exclude no difference",
+  "marker_absent_verified": "Verified absent before writing this JSON with: $m = 'Leave-one-out: 1 of 3 refits still exclude no difference'; rg -F --no-messages -g '!out/cw/log*.txt' -- \"$m\" . ; exit code 1 and no matches. The out/cw/log*.txt exclusion avoids matching this investigation transcript, which had already logged earlier marker probes.",
+  "obvious_fix": "One-line version: filter rows by id only, e.g. rows = [a for a in rows if str(a.get(\"id\") or \"\").startswith(\"leave-out\")].",
+  "obvious_fix_would_fire": "Yes for Tigecycline: it selects 3/8 sensitivity rows on tigecycline-ciai/cure_toc_me. It is unsafe class-wide: only 1/13 PAGE_MAP page-outcomes with sensitivity rows has leave-out ids, while 12/13 use legacy non-empty omitted rows and would lose a valid leave-one-out sentence.",
+  "notes": "gepotidacin is frozen and is not in the behaviour set. HFREF_NMA_AUTO_FULL_REVIEW.html is excluded and is not in PAGE_MAP for this count. ssot/build_tabbed.py is out of scope and was not edited."
+ },
+ {
+  "item": "COVID19_VACCINES_REVIEW.html labels a non-systematic per-vaccine snapshot as 'Review question (PICO)'",
+  "site": "ssot/projectors2.py:297-299, inside protocol_card(canon, p)",
+  "code_quoted": "297:     pairs = [\n298:         (\"Review title\", p(canon[\"title\"])),\n299:         (\"Review question (PICO)\", p(canon[\"question\"])),",
+  "radius_file": "4/620 files under ssot, for ssot/projectors2.py as derived by Gate 7 with --files ssot/projectors2.py",
+  "radius_file_source": "Command run: python gates/gate7_blast_radius.py --files ssot/projectors2.py. Gate 7 finding quoted: \"ssot/projectors2.py is built through by 4 topics (outside the build closure, names 4 topic id(s)). This change touches it and no acknowledgement was recorded. Verifying it on one object is a claim about 1/4.\" Gate kinds quoted: 85 one-off module naming specific topics; 38 shared non-module file; 26 module outside the build closure; 3 CLASS-WIDE module (in the build closure); 468 topic-owned file (radius 1); 1 files in this change under ssot. Gate also notes the widest class-wide build roots separately: paper_projector.py(155), build_tabbed.py(155), build_app_v2.py(155).",
+  "radius_behaviour": "1/163 PAGE_MAP entries would change under the safe conditional; 1/155 SSOT topic objects matches the explicit non-systematic-review/snapshot predicate.",
+  "radius_behaviour_how": "Loaded all ssot/<topic>/<topic>.json topic objects and PAGE_MAP entries. Matched only objects whose question/introduction explicitly says 'not a systematic review', 'per-vaccine snapshot', or 'does not combine vaccines'. Exactly covid19-vaccines matched: 1/155 topic objects and 1/163 PAGE_MAP entries. Separately, the unsafe literal replacement surface was measured with rg and is 432/1947 recursive *_REVIEW.html files, not the proposed safe behaviour set.",
+  "kinds": {
+   "behaviour_set": {
+    "live page": "1/1",
+    "retired tombstone": "0/1",
+    "redirect stub": "0/1"
+   },
+   "affected_pages": [
+    "COVID19_VACCINES_REVIEW.html"
+   ],
+   "unsafe_literal_replacement_kinds": {
+    "live page": "429/432 recursive *_REVIEW.html hits",
+    "retired tombstone": "3/432 recursive *_REVIEW.html hits",
+    "redirect stub": "0/432 recursive *_REVIEW.html hits"
+   }
+  },
+  "intersects_must_not_break": [],
+  "patch_old": "        (\"Review question (PICO)\", p(canon[\"question\"])),",
+  "patch_new": "        ((\"Review question / evidence scope\"\n          if (\"not a systematic review\" in str(canon.get(\"question\") or \"\").lower()\n              or \"per-vaccine snapshot\" in str(canon.get(\"question\") or \"\").lower()\n              or \"does not combine vaccines\" in str(canon.get(\"question\") or \"\").lower())\n          else \"Review question (PICO)\"), p(canon[\"question\"])),",
+  "three_states": [
+   "Systematic-review question/PICO: keep 'Review question (PICO)'.",
+   "Explicit scope snapshot or non-systematic evidence object: label 'Review question / evidence scope'.",
+   "Unclassifiable or missing question: refuse or emit a neutral 'Question / scope not classified' state rather than forcing either PICO or scope."
+  ],
+  "marker": "Review question / evidence scope",
+  "marker_absent_verified": "Verified absent before writing this JSON with: $m = 'Review question / evidence scope'; rg -F --no-messages -g '!out/cw/log*.txt' -- \"$m\" . ; exit code 1 and no matches. The out/cw/log*.txt exclusion avoids matching this investigation transcript, which had already logged earlier marker probes.",
+  "obvious_fix": "One-line version from the escalation: replace every (\"Review question (PICO)\", p(canon[\"question\"])) with (\"Review question / scope\", p(canon[\"question\"])).",
+  "obvious_fix_would_fire": "Yes, and too broadly. The exact planted command rg -l \"Review question \\\\(PICO\\\\)\" -g \"*_REVIEW.html\" . --no-messages | Measure-Object returned 432 hits. A recursive classifier found 432/1947 *_REVIEW.html files would be touched: 429 live pages, 3 retired tombstones, 0 redirect stubs. It would intersect 28/29 out/must_not_break pages: AGYW_HIV_PREP_REVIEW.html, ALIROCUMAB_LIPID_AUTO_FULL_REVIEW.html, APIXABAN_VTE_PROPHYLAXIS_REVIEW.html, APIXABAN_VTE_TREATMENT_REVIEW.html, ARNI_HF_REVIEW.html, AZILSARTAN_CLD_VS_OLM_HCTZ_REVIEW.html, AZILSARTAN_HTN_AUTO_FULL_REVIEW.html, BEMPEDOIC_ACID_REVIEW.html, BOCOCIZUMAB_LIPID_AUTO_FULL_REVIEW.html, BOCOCIZUMAB_LIPID_REVIEW.html, CAB_PREP_HIV_REVIEW.html, CANGRELOR_PCI_REVIEW.html, CEFTAROLINE_AUTO_FULL_REVIEW.html, EMPAGLIFLOZIN_HF_AUTO_FULL_REVIEW.html, FINERENONE_CV_REVIEW.html, ICOSAPENT_LIPID_AUTO_FULL_REVIEW.html, INCLISIRAN_LIPID_KIDNEY_AUTO_FULL_REVIEW.html, INCRETIN_HFpEF_REVIEW.html, IV_IRON_HF_REVIEW.html, LEFAMULIN_CABP_AUTO_FULL_REVIEW.html, NIRSEVIMAB_INFANT_RSV_REVIEW.html, ROSUVASTATIN_AUTO_FULL_REVIEW.html, ROTAVIRUS_VACCINE_AFRICA_REVIEW.html, ROTAVIRUS_VACCINE_AUTO_FULL_REVIEW.html, SGLT2_HF_REVIEW.html, SGLT2_MACE_CVOT_REVIEW.html, SOTAGLIFLOZIN_HF_REVIEW.html, TIGECYCLINE_CIAI_SSOT.html.",
+  "notes": "COVID19_VACCINES_REVIEW.html:261 currently shows the emitted label. ssot/covid19-vaccines/covid19-vaccines.json explicitly says it is a per-vaccine snapshot, not a systematic review, and does not combine vaccines. Absence of screening alone is not a safe predicate: 96/163 PAGE_MAP entries have no screening block, and another 13/163 have screening but no eligibility. gepotidacin is frozen and is not in the behaviour set. HFREF_NMA_AUTO_FULL_REVIEW.html is excluded. ssot/build_tabbed.py is out of scope and was not edited."
+ }
+]
