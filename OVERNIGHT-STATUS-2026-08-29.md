@@ -51,3 +51,42 @@ landed.
 ## State
 
 Tree clean, nothing half-applied, no plant left in place, everything pushed to `origin/main`.
+
+---
+
+## Rulings 1 and 2 — proven, deliberately unrun
+
+`scripts/lane_rob/apply_rulings_2026_08_28.py` — dry-run by default, `--plant` proves it both ways.
+
+```
+PLANT ruling 1  defect cell detected, derives HIGH   [PASS]
+                clean cell untouched                 [PASS]
+PLANT ruling 2  unfalsifiable claim detected         [PASS]
+                claim naming a route and an id kept  [PASS]
+
+DRY RUN   ruling 1: 21 domain cells across 7 topics
+          ruling 2: 50 unfalsifiable claims across 19 topics
+          fixed 0 / rebuilt 0 / SERVED 0
+```
+
+**Nothing applied, and that is the ruling being followed rather than deferred.** Ruling 1
+requires the change verified SERVED and disclosed on the page with its date — a fleet rebuild.
+Landing the store write without it leaves every page showing the old value, which is the
+staleness class this project has spent the week on. **An unrun applier is a task; a
+half-applied one is a defect.**
+
+⚠️ **50, not 54.** The earlier count asked only whether a claim names an identifier. The
+applier also keeps a claim that names a **route** — four claims say which route was tried
+without naming the document, and those are falsifiable. The stricter rule drops 50.
+
+**To run after the reset:** `--plant`, then apply, then rebuild, then verify served, then
+disclose. In that order.
+
+## Ruling 3 — SPIRE scope, HELD for Mahmood
+
+- **6 trials** (current): the lipid-lowering studies only. Consistent with the review's stated
+  question; the two trials whose protocols we hold stay out.
+- **8 trials**: adds SPIRE-1 `NCT01975376` and SPIRE-2 `NCT01975389`, the cardiovascular
+  outcomes trials. **Their protocols are the only ones we hold** (168pp and 167pp, staged), so
+  D5 becomes answerable for them — but they answer a different question (events, not lipids),
+  which is exactly why it is a scoping call and not ours.
