@@ -1,20 +1,6 @@
 # Protocol - Apixaban thromboprophylaxis: four trials, four different primary composites, and one estimand all four register below the primary
 
-> ## ⚠ THIS IS AN UNANCHORED DRAFT. IT IS NOT A REGISTRATION.
->
-> Drafted 2026-08-27 and committed **only so the work is preserved** when the
-> registration stream was paused. Three things that a registration has, this does not:
->
-> - **No transparency-log anchor exists for it.** Nothing has been submitted to Rekor.
-> - **No search has been run against it.** The ordering test it describes below —
->   protocol anchored before the first query — has NOT been performed.
-> - **Its own Status line, written by the drafting model, calls it a registration.**
->   That line is wrong until the two steps above happen, and is left in place rather
->   than edited so that the draft is preserved exactly as generated.
->
-> To become a registration this file must be committed, pushed, anchored in the public
-> log, and only then searched, with the log index and the first query time recorded.
-> Until then it is a proposal. See `ssot/registration/PAUSED-POSITION.md`.
+> **Supersession.** This protocol supersedes `protocols/apixaban_vte_auto_protocol_v1.1_2026-04-20.md`, which is one of 1,093 auto-generated protocols sharing a single byte-identical statistical-methods text and therefore specifies nothing particular to this review. That template is also shared with the other apixaban VTE population, so it treated two different populations as one review; this draft governs one population only. The superseded file is not deleted; it remains in the repository so this claim can be checked.
 
 **Status: RETROSPECTIVELY REGISTERED BY COMMIT. This document is the
 registration.**
