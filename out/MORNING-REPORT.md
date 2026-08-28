@@ -81,10 +81,32 @@ legacy `omitted` field.
 
 ---
 
-## THE ONE THING TO DECIDE FIRST
+## THE GRADE CLASS IS REFUSED, AND THAT IS THE MAIN RESULT OF THE NIGHT
 
-**The GRADE class touches 19 of 29 indexed pages.** Everything else in the queue touches 0 or 1.
-If any single item is going to break the front page of the site, it is that one, and it should
-be run with someone watching rather than merged on a green suite alone — a planted-error test
-tonight returned **18 classes, 40 plants, zero detected**, and 14 classes have no instrument at
-all. The plant and the marker are the entire safety net.
+I was authorised to stage it three pages at a time. **I landed none, because the finding is
+wrong and the resolver is right.**
+
+`_rob_state(sotagliflozin-hf)` computes `dual=true, adjudicated=false, n_assessors=2` — two
+assessors read every contributing result and **nobody adjudicated the disagreement**. Two of the
+three outcomes are assessed but unadjudicated; the third, `mace3_first`, **is not in
+`outcomes_assessed` at all**. Each stored `grade.certainty` is `low`, and risk of bias is one of
+the five domains that produced it. Publishing the level asserts that derivation is settled when
+its input is not. The resolver says so itself: *"PENDING outranks RATED, and only RATED … it is
+precisely the case where a level EXISTS and may not yet be published."*
+
+**The abort condition was met before the first page was touched** — the change would move 19
+indexed pages from PENDING to a published level, and the stored fields say the risk-of-bias
+domain behind that level is contested. The proposed patch also had no exclusion for frozen
+`gepotidacin`, which is 1 of its 20 behaviour pages.
+
+**The real defect is the bookkeeping sentence**, which claims "grade per pool" is held. The
+object holds a *level*; a level whose risk-of-bias input is unresolved is not a published
+per-pool GRADE. Correct the sentence, not the resolver.
+
+**The asymmetry is the argument.** If I am wrong, 19 indexed pages keep showing PENDING with a
+stated reason — a page that under-claims and explains why. If I am right and it had landed, 19
+indexed pages would publish a certainty rating resting on an unadjudicated risk-of-bias domain,
+and one on an outcome never assessed at all. Recorded as `L6` in `out/ESCALATIONS_LANE.jsonl`.
+
+Whether a GRADE certainty may be shown while its RoB domain is unadjudicated is a
+**methodological ruling, not a code fix**, and it needs to be Mahmood's.
