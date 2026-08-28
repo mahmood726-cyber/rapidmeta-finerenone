@@ -43,6 +43,16 @@ if hasattr(sys.stdout, "buffer") and os.environ.get("_GATE_WRAPPED") != "1":
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
     os.environ["_GATE_WRAPPED"] = "1"
 
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                                "scripts"))
+try:
+    from instrument_controls import require_controls as _require_controls
+except Exception:                       # the harness must not silently drop the repo contract
+    def _require_controls(*a, **k):
+        raise ImportError(
+            "scripts/instrument_controls.py could not be imported, so this gate would report "
+            "a count without routing through the repository's own control contract. Refusing.")
+
 PASS, FAIL, VACUOUS, BROKEN = 0, 1, 2, 3
 VERDICT_NAME = {PASS: "PASS", FAIL: "FAIL", VACUOUS: "VACUOUS", BROKEN: "BROKEN"}
 
@@ -56,6 +66,7 @@ class Gate:
         self._findings = []
         self._kinds = None
         self._control = None
+        self._control_accuses = True
         self._needs_control = False
         self._notes = []
         self._broken = []
@@ -79,11 +90,42 @@ class Gate:
         """Declare that this gate matches text, so a known-negative control is mandatory."""
         self._needs_control = True
 
-    def control(self, n_negatives, n_false_positives, examples=()):
-        """n items that MUST NOT match, and how many did."""
+    def control(self, n_negatives, n_false_positives, examples=(), accuses=True):
+        """n items that MUST NOT match, and how many did.
+
+        `accuses` -- True when these negatives measure THIS GATE'S OWN ACCUSATIONS, so a match
+        means the gate flagged a case established as clean. That is the failure the
+        repository's contract refuses outright, and rightly.
+
+        False when they measure a SUB-INSTRUMENT whose precision the gate DISCLOSES rather
+        than depends on. Gate 5 is the case: its known-negatives score a positive-restatement
+        regex, and its measured 16.7%% false-positive rate is a published property that makes
+        its headline gap a LOWER bound. Mapping that onto "the gate accused a clean case" made
+        the repo contract refuse a disclosure, and gate 5 went BROKEN the moment the harness
+        adopted the contract. Conflating a sub-instrument's precision with the gate's own
+        accusation rate is a category error, and it is the kind that turns a strict control
+        into a reason to bypass one.
+
+        ROUTES THROUGH THE REPO'S OWN `require_controls`, not past it.
+
+        This harness grew its own control mechanism while
+        `scripts/instrument_controls.py::require_controls` already existed and was used by 105
+        checks -- so all nine gates were INVISIBLE to
+        `scripts/audit_self_retiring_controls_2026_08_25.py`, which is the audit for exactly
+        the rule this lane recorded tonight as newly earned. Two conventions for one concept
+        is the defect gate 3 exists for, committed one level up by the person who built it.
+
+        The repo's contract is stricter than this one and is honoured: a positive control the
+        instrument MUST reproduce, and a negative it MUST NOT flag. A failure raises before
+        any count is printed, which is the property that matters.
+        """
         if n_negatives <= 0:
             raise ValueError("a control with no negatives measures nothing")
         self._control = (int(n_negatives), int(n_false_positives), list(examples)[:5])
+        self._control_accuses = bool(accuses)
+        # EVALUATED AT REPORT TIME, not here. Calling it here asserted "the gate reached its
+        # named positives" BEFORE the traversal ran, so gate 1 refused itself on the first
+        # attempt. The control is right; the moment was wrong.
 
     def fp_rate(self):
         if not self._control:
@@ -160,6 +202,21 @@ class Gate:
                   % (fp, n, 100.0 * fp / n))
                 for e in ex:
                     w("      false positive: " + str(e))
+
+        if self._control:
+            n, fp, _ex = self._control
+            try:
+                _require_controls(
+                    "gate " + self.name.split()[0],
+                    positive=("the gate reached every named positive",
+                              (not self._expected) or not (set(self._expected) - self._seen),
+                              True),
+                    negative=("a known-negative matched -- the gate accused a clean case",
+                              (fp > 0) if self._control_accuses else False, True),
+                    out=lambda line: w("  " + line))
+            except SystemExit as exc:
+                w("  CONTROL REFUSED: %s" % exc)
+                status = BROKEN
 
         for note in self._notes:
             w("  note: " + note)

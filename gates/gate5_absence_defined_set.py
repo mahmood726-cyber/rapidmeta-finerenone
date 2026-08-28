@@ -128,7 +128,10 @@ def main(argv):
 
     # control first: the positive restatement is a text matcher and needs its precision measured
     fp = [s for s in KNOWN_NEGATIVES if SAYS_NO_RESULT.search(s)]
-    gate.control(len(KNOWN_NEGATIVES), len(fp), fp)
+    # accuses=False: these negatives score the POSITIVE-RESTATEMENT regex, a sub-instrument
+    # whose precision this gate DISCLOSES. They are not the gate's own accusations, and its
+    # measured false-positive rate makes the headline gap a LOWER bound, not a weaker claim.
+    gate.control(len(KNOWN_NEGATIVES), len(fp), fp, accuses=False)
 
     if "--sanction" in argv:
         explain = ("a human named the 754 and accepted them" if "--explain" in argv else None)

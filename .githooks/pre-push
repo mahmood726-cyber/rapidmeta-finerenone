@@ -303,5 +303,38 @@ if [ "$GATE_STATUS" -ne 0 ]; then
 fi
 echo "[pre-push] Executable-rule gates PASS (6 of 9; 2, 5 and 6 are CI-only, see above)."
 
+# ---------------------------------------------------------------------------
+# THE CHECKS THIS REPOSITORY ALREADY OWNED, added 2026-08-28.
+#
+# 200 scripts here are named like a gate and CAN fail. 156 were called by NOTHING; 44 were
+# wired. A further 59 are named like a gate and have no failing exit at all -- so 17% of the
+# check-shaped scripts in this repository were operative. That is not a missing gate, it is
+# knowledge recorded and connected to nothing.
+#
+# 24 of them run GREEN in 32 seconds total, MEASURED by running all 48 candidates rather than
+# by reading their names. The labelled set would have blocked every push and taken an hour.
+# gates/WIRED_REPO_CHECKS.json carries the exit code and wall time behind every entry, plus
+# the 8 that are CI-only, the 12 that fail on the corpus today, and the 4 that time out.
+#
+# Failures are reported PER CHECK with the script named. A group gate whose failure you
+# cannot read is a group gate that gets skipped.
+# ---------------------------------------------------------------------------
+RCHECKS="$REPO_ROOT/gates/run_repo_checks.py"
+if [ ! -f "$RCHECKS" ]; then
+    echo "[pre-push] gates/run_repo_checks.py is missing." >&2
+    echo "[pre-push] Refusing to pass a check that is not present." >&2
+    exit 1
+fi
+set +e
+python "$RCHECKS"
+RC_STATUS=$?
+set -e
+if [ "$RC_STATUS" -ne 0 ]; then
+    echo ""
+    echo "[pre-push] A repo check FAILED. These are this project's own checks, named above."
+    echo "[pre-push] Fix it, or move it out of gates/WIRED_REPO_CHECKS.json with a reason."
+    exit 1
+fi
+
 echo "[pre-push] Regression check PASS on $COUNT page(s). Proceeding with push."
 exit 0
