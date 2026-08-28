@@ -16,15 +16,16 @@ not exist in the corpus beforehand.
 | 1 | `269aa7051` | render recovered evidence (4 trials, in their own words) | 155 | 1 | 0 of 29 |
 | 2 | `9e32a702b` | four pages concluded no trial exists when nothing recorded a search | 6 | 4 | 0 of 29 |
 | 3 | `f3eed0702` | forest caption counted the object's rows, not the plot's | 155 | 1 | 0 of 29 |
+| 4 | `6279e4885` | leave-one-out sentence counted every sensitivity row and read none | 5 | 2 | 2 of 29 |
 
-**SERVED: 0.** All three are generator changes. They reach a reader only when the rebuild lane
+**SERVED: 0.** All four are generator changes. They reach a reader only when the rebuild lane
 rebuilds those pages. `fixed` is not `served` and this report will not blur them.
 
 ---
 
 ## HELD — investigated, not landed, with the reason
 
-Nine class-wide items are investigated and ready to decide, in `out/cw/ALL.json`: exact site,
+Seven class-wide items remain investigated and ready to decide, in `out/cw/ALL.json`: exact site,
 gate7 radius, kinds in the behaviour set, intersection with the 29 indexed pages, a proposed
 patch, three states where the defect is a two-state answer, a verified-absent marker, and
 whether the *obvious* one-line fix would actually fire.
@@ -62,6 +63,21 @@ Recorded because the failures are more useful than the successes.
 4. **My blast-radius estimate was wrong by an order of magnitude** earlier in the run — I
    reported 15 where gate7 derives 155. A behaviour-change count is not a radius, and the
    smaller number is the reassuring one.
+
+---
+
+## CLASS 4 IS THE ONE THAT CHANGED AN INDEXED PAGE, AND IT IMPROVED TWO
+
+Two pages were asserting robustness results they had not computed. `tigecycline-ciai` counted
+all eight sensitivity rows when only three remove a study, and none carries an exclusion
+verdict, so it printed "no refit excludes no difference" while its own table showed one that
+does. `apixaban-vte-treatment` made the same definite claim from three rows holding a trial
+name and nothing else -- no verdict, no interval, no result. Both are in the indexed 29 and
+both now say something true; ARNI, BOCOCIZUMAB x2 and INCLISIRAN were verified unchanged.
+
+The obvious one-line fix would have fixed one page and silently deleted a true sentence from
+twelve, because only 1 of 13 page-outcomes uses the `leave-out` id convention and 12 use a
+legacy `omitted` field.
 
 ---
 
