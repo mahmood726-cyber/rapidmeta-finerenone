@@ -295,7 +295,99 @@ def main():
 
     io.open(KEEP, "w", encoding="utf-8").write(
         "".join(k["page"] + chr(10) for k in keep))
-    json.dump({"head": head, "keep": keep, "n_keep": len(keep),
+    # ---- THE CRITERION AS A MACHINE-READABLE RESULT ------------------------------
+    # A LIST IS NOT A RESULT. This file used to emit 26 page names and the reasons for the
+    # rejects. Another lane could not re-derive the set from it, which made the front page of
+    # the site a number with no recomputable field behind it -- the exact defect this project
+    # has spent the night finding in other people's estimates.
+    #
+    # So every page in PAGE_MAP gets a verdict, the leg that decided it, and the fields that
+    # were read to decide. A second instrument can now recompute and either agree or produce
+    # a DISAGREEMENT, which is a finding. Two lanes getting different numbers off the same
+    # corpus is only a mystery when neither can show its work.
+    LEGS = [
+        {"leg": 1, "states": "the page has a store object in PAGE_MAP and that file parses",
+         "reads": ["ssot/PAGE_MAP.json", "<object>.json"]},
+        {"leg": 2, "states": "some outcome has pooled.point not null AND a non-empty "
+                             "per_trial list AND none of the refusal fields set",
+         "reads": ["<object>.results.by_outcome.*.pooled.point",
+                   "<object>.results.by_outcome.*.per_trial",
+                   "<object>.results.by_outcome.*.withdrawn_reason",
+                   "<object>.results.by_outcome.*.withdrawn_note",
+                   "<object>.results.by_outcome.*.not_poolable_reason",
+                   "<object>.results.by_outcome.*.absent_reason"]},
+        {"leg": 3, "states": "the page exists on disk and is served",
+         "reads": ["<page>.html"]},
+        {"leg": 4, "states": "the build stamp on the served page CONTAINS every commit in "
+                             "REQUIRED_GENERATOR_COMMITS as a git ancestor -- not merely "
+                             "that a stamp is present",
+         "reads": ["<page>.html Generator build stamp",
+                   "ssot/do_not_rebuild.py REQUIRED_GENERATOR_COMMITS",
+                   "git merge-base --is-ancestor <required> <stamp>"]},
+    ]
+    kept_pages = set(k["page"] for k in keep)
+    ruled_pages = set(a["page"] for a in admitted)
+    deduped_pages = dict((d["page"], d["duplicate_of"]) for d in dropped)
+    fail_by_page = dict(rejected)
+
+    verdicts = []
+    for page in sorted(set(pm) | kept_pages | ruled_pages):
+        if page in ruled_pages:
+            a = [x for x in admitted if x["page"] == page][0]
+            verdicts.append({"page": page, "verdict": "RULED_IN",
+                             "criterion_result": "FAIL",
+                             "failed_leg": a["fails"],
+                             "why_present": a["ruling"],
+                             "note": "PRESENT BY INSTRUCTION, NOT BY THE CRITERION. It does "
+                                     "not pass and is not counted as passing."})
+        elif page in deduped_pages:
+            verdicts.append({"page": page, "verdict": "DEDUPED",
+                             "criterion_result": "PASS",
+                             "duplicate_of": deduped_pages[page],
+                             "note": "passes the criterion but resolves to the SAME object "
+                                     "file as the page named; one review, one card"})
+        elif page in kept_pages:
+            verdicts.append({"page": page, "verdict": "PASS", "criterion_result": "PASS"})
+        else:
+            why = fail_by_page.get(page, "not evaluated")
+            verdicts.append({"page": page, "verdict": "FAIL", "criterion_result": "FAIL",
+                             "failed_leg": why})
+
+    # A DEDUPED PAGE STILL PASSES THE CRITERION. Counting it out of the pass total made this
+    # artefact contradict itself on its first run -- 24 + 2 - 3 = 23 against an index of 26 --
+    # which is the arithmetic it exists to expose, caught on itself before anyone else saw it.
+    n_pass = len([v for v in verdicts if v["verdict"] in ("PASS", "DEDUPED")])
+    n_indexed_pass = len([v for v in verdicts if v["verdict"] == "PASS"])
+    reproduce = {
+        "how": "run scripts/build_ready_index_2026_08_28.py at the commit named below; it "
+               "reads only the fields listed under each leg and writes this file",
+        "expected": "%d pages PASS the criterion. %d of those resolve to an object another "
+                    "page already represents and are deduplicated away, leaving %d. %d more "
+                    "are RULED_IN by instruction and do NOT pass. The index carries %d cards."
+                    % (n_pass, len(deduped_pages), n_indexed_pass, len(ruled_pages),
+                       len(keep)),
+        "arithmetic": "%d pass - %d deduped + %d ruled in = %d cards"
+                      % (n_pass, len(deduped_pages), len(ruled_pages), len(keep)),
+        "population": "%d pages evaluated = %d in PAGE_MAP plus %d ruled in from outside it "
+                      "(HFREF has no store object, which is its leg-1 failure)"
+                      % (len(verdicts), len(pm), len(verdicts) - len(pm)),
+        "if_you_get_a_different_number": "that is a FINDING, not a mystery -- compare the "
+                                         "per-page verdicts below and name the leg that "
+                                         "disagrees",
+    }
+
+    json.dump({"head": head,
+               "computed_at_commit": head, "computed_at_date": "2026-08-28",
+               "criterion_legs": LEGS,
+               "reproduce": reproduce,
+               "verdicts": verdicts,
+               "n_pages_evaluated": len(verdicts),
+               "n_pass_criterion": n_pass,
+               "n_pass_and_indexed": n_indexed_pass,
+               "n_ruled_in": len(ruled_pages),
+               "n_deduped": len(deduped_pages),
+               "n_cards_on_index": len(keep),
+               "keep": keep, "n_keep": len(keep),
                "excluded_by_name": {p: excluded_reason(p) for p in excluded},
                "excluded_by_name_no_store": dict(excluded_not_in_pagemap),
                "admitted_by_ruling": admitted,
