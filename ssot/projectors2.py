@@ -983,8 +983,59 @@ def visual_abstract(canon, res, outcome, p):
         # it is false: if every refit excludes the null then the estimate DOES survive.
         # Measured before the fix: 6 of 12 emitted sentences were self-falsifying.
         _k = res.get("k") if res.get("k") is not None else len(res.get("per_trial") or [])
-        _n, _tot = len(kept), len(rows)
-        if _k == 2:
+
+        # ABSENT IS NOT NEGATIVE, AND NOT EVERY SENSITIVITY ROW IS A REFIT.
+        #
+        # `kept` counts truthy `still_excludes_null`. On tigecycline-ciai that field is absent
+        # from all eight rows, so the count was 0 and the served page asserted "no refit
+        # excludes no difference; the estimate does not survive removal of any single trial".
+        # Hand-derived from the intervals the object DOES carry, the truth is 1 of 3.
+        #
+        # Two errors produced that one sentence:
+        #   1. None was read as False. A missing verdict is not a computed negative -- the
+        #      same absence-as-negative class this corpus has been audited for all day.
+        #   2. Five of those eight rows are not leave-one-out at all: they change the summary
+        #      statistic, the model, the event definition or the analysis population. A
+        #      leave-one-out sentence must be a function of the LEAVE-ONE-OUT rows only.
+        #
+        # So: select the refits, derive exclusion from the interval where the flag is absent,
+        # and refuse the sentence outright when nothing is derivable.
+        def _is_refit(a):
+            blob = ("%s %s" % (a.get("id") or "", a.get("changed") or "")).lower()
+            return ("leave-out" in blob or "leave one out" in blob
+                    or "by removing" in blob or a.get("omitted") is not None)
+
+        def _excludes(a):
+            """True / False / None -- None means NOT COMPUTED and never counts as False."""
+            flag = a.get("still_excludes_null")
+            if flag is not None:
+                return bool(flag)
+            r = a.get("result") if isinstance(a.get("result"), dict) else a
+            lo, hi = r.get("ci_low"), r.get("ci_high")
+            null = outcome.get("null_value", 1)
+            if lo is None or hi is None:
+                return None
+            return not (lo <= null <= hi)
+
+        _refits = [a for a in rows if _is_refit(a)]
+        _decided = [a for a in _refits if _excludes(a) is not None]
+        _n, _tot = len([a for a in _decided if _excludes(a)]), len(_decided)
+        _undecided = len(_refits) - len(_decided)
+        _suffix = ("" if not _undecided else
+                   " A further %d refit(s) carry no interval and are not counted."
+                   % _undecided)
+
+        if not _refits:
+            loo = ("No leave-one-out refit is recorded for this outcome. The %d sensitivity "
+                   "analyses here vary the summary statistic, the model, the event definition "
+                   "or the analysis population; none removes a trial, so none of them can say "
+                   "whether the estimate survives removal of one." % len(rows))
+        elif not _decided:
+            loo = ("Leave-one-out: %d refit(s) are recorded and none carries an interval or a "
+                   "verdict, so whether the estimate survives removal of a single trial is "
+                   "NOT ESTABLISHED. That is an absence, not a negative result."
+                   % len(_refits))
+        elif _k == 2:
             # GENERALISED TO EVERY k=2 POOL, not special-cased to one topic. With two trials
             # a leave-one-out refit IS the other trial, so it cannot be robustness evidence
             # however the arithmetic comes out, and saying so is the honest reading.
@@ -993,14 +1044,14 @@ def visual_abstract(canon, res, outcome, p):
                    "difference." % (_n, _tot))
         elif _n == _tot:
             loo = ("Leave-one-out: all %d refits still exclude no difference; the estimate "
-                   "survives removal of any single trial." % _tot)
+                   "survives removal of any single trial.%s" % (_tot, _suffix))
         elif _n == 0:
-            loo = ("Leave-one-out: no refit excludes no difference; the estimate does not "
-                   "survive removal of any single trial." % ())
+            loo = ("Leave-one-out: none of the %d refits excludes no difference; the estimate "
+                   "does not survive removal of any single trial.%s" % (_tot, _suffix))
         else:
             loo = ("Leave-one-out: %d of %d refits still exclude no difference; the estimate "
-                   "does not survive removal of every single trial."
-                   % (_n, _tot))
+                   "does not survive removal of every single trial.%s"
+                   % (_n, _tot, _suffix))
     return fig(visual_abstract_svg(
         canon.get("title", ""), canon.get("question", ""),
         (res["k"] if res.get("k") is not None else len(res.get("per_trial") or [])),
