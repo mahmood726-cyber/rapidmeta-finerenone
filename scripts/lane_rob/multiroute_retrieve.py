@@ -90,8 +90,15 @@ def retrieve(pmcid=None, pmid=None, doi=None, out_dir=None, save_as=None):
     """
     out_dir = out_dir or os.environ.get("TEMP", ".")
     tmp = os.path.join(out_dir, "_mr_tmp")
+    # THE RECORD MUST NAME THE DOCUMENT AND FINGERPRINT IT. Two lanes retrieved the same 21
+    # trials and got DIFFERENT CONTENT for 20 of them, because each resolved the trial to a
+    # different paper. Neither manifest could show it alone: one stored the identifier and no
+    # hash, the other a hash and no identifier, so "same trial" was mistaken for "same
+    # document". A trial is not a document. Both fields travel from here on.
     rec = {"pmcid": pmcid, "pmid": pmid, "doi": doi, "attempts": [],
-           "route": None, "rendered_chars": 0, "saved_to": None}
+           "route": None, "rendered_chars": 0, "saved_to": None,
+           "document_id": pmcid or (("PMID:" + str(pmid)) if pmid else doi),
+           "sha256": None}
     for name, url in routes_for(pmcid, pmid, doi):
         code, size, ctype = _curl(url, tmp)
         chars = _rendered(tmp) if code == "200" and size else 0
@@ -100,6 +107,11 @@ def retrieve(pmcid=None, pmid=None, doi=None, out_dir=None, save_as=None):
         if code == "200" and chars >= MIN_TEXT:
             rec["route"] = name
             rec["rendered_chars"] = chars
+            try:
+                import hashlib
+                rec["sha256"] = hashlib.sha256(io.open(tmp, "rb").read()).hexdigest()
+            except OSError:
+                pass
             if save_as:
                 try:
                     with io.open(tmp, "rb") as s, io.open(save_as, "wb") as d:
