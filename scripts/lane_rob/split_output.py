@@ -113,7 +113,17 @@ def main():
     m, a, secs = split(html)
     m_light = strip_raster_downloads(m)
 
-    lost, both = check_complete(html, m, a)
+    # ⛔ CHECK THE BYTES THAT ARE WRITTEN, NOT THE ONES BEFORE THE LAST TRANSFORM.
+    #
+    # This read `check_complete(html, m, a)` while line below writes `m_light` --
+    # strip_raster_downloads() runs in between. The completeness guarantee, which is the whole
+    # reason this component is allowed to split a document at all, was being made about a string
+    # that is not the one delivered.
+    #
+    # Harmless as it happens: the transform replaces <a download> anchors and cannot remove an
+    # <h2>. That is luck, not design, and it is exactly the shape that put a dateless quotation
+    # on the page tonight -- a check on the sentence, a render of sentence[:300].
+    lost, both = check_complete(html, m_light, a)
     print("")
     print("SPLIT -- %s" % os.path.basename(src))
     print("  sections found                    %3d" % len([h for h, _ in secs if h]))
