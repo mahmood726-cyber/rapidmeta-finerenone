@@ -46,6 +46,12 @@ GATES = [
 
 
 def main(argv):
+    if "--replay" in argv:
+        # HISTORICAL REPLAY: read-only over git history. Nothing is planted and nothing needs
+        # restoring. Opt-in because it walks many historical blobs.
+        return subprocess.call([sys.executable,
+                                os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                             "replay.py")] + argv[argv.index("--replay") + 1:])
     if "--tier2" in argv:
         # TIER 2: plant the real corpus, gate it, restore, assert the restoration. Mutates
         # tracked files, so it is opt-in and never runs from a hook. It refuses on a dirty
