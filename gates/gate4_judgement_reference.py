@@ -30,6 +30,7 @@ STALE. Kinds B, C and D report NOT-CHECKABLE -- and NOT-CHECKABLE is never a pas
 """
 from __future__ import annotations
 
+import ast
 import collections
 import copy
 import hashlib
@@ -56,6 +57,7 @@ KIND_C = "C IDENTIFIER  -- names a mutable subject, pins no version"
 KIND_D = "D NOTHING     -- no reference to what was judged"
 
 BACKLOG = "JUDGEMENT_REFERENCE_BACKLOG.json"
+WRITER_BACKLOG = "JUDGEMENT_WRITER_BACKLOG.json"
 
 # KNOWN-NEGATIVE CONTROL for the kind classifier -- key sets that must NOT be read as
 # VERSIONED. Added because gate 2 caught this module reporting counts from a regex over field
@@ -162,6 +164,68 @@ def prove_undetectable(gate):
     return results
 
 
+# ---------------------------------------------------------------------------
+# ARM C -- a path that WRITES a judgement must write it through the stamped writer.
+#
+# Mahmood, 2026-08-28: "make the GENERATOR write subject_ref on every judgement it emits, and
+# make the meta-gate FAIL if a judgement-writing path exists that does not." The stamp lives in
+# ssot/atomic_write.py::write_json, which is the choke point 45 modules and every topic object
+# pass through -- so the enforceable question is whether a judgement-writer goes through it.
+#
+# 56 modules persist a judgement into ssot/. 17 go through the stamped writer; 39 do not, and
+# almost all of those are one-shot 2026-08-19 migrations already applied. They are FROZEN by
+# name: the class cannot grow, which is the property that was missing.
+# ---------------------------------------------------------------------------
+JUDGE_WRITE_KEYS = set(JUDGE_KEYS)
+
+
+def _writes_judgement(tree):
+    for n in ast.walk(tree):
+        if isinstance(n, ast.Assign):
+            for t in n.targets:
+                if isinstance(t, ast.Subscript) and isinstance(t.slice, ast.Constant)                         and t.slice.value in JUDGE_WRITE_KEYS:
+                    return True
+        if isinstance(n, ast.Dict):
+            for k in n.keys:
+                if isinstance(k, ast.Constant) and k.value in JUDGE_WRITE_KEYS:
+                    return True
+    return False
+
+
+def arm_c(gate, repo):
+    kinds = collections.Counter()
+    bypass, stamped = [], []
+    for d in ("scripts", "ssot"):
+        base = os.path.join(repo, d)
+        if not os.path.isdir(base):
+            continue
+        for fn in sorted(os.listdir(base)):
+            if not fn.endswith(".py"):
+                continue
+            with open(os.path.join(base, fn), "r", encoding="utf-8", errors="replace") as fh:
+                src = fh.read()
+            try:
+                tree = ast.parse(src)
+            except SyntaxError:
+                kinds["unparseable"] += 1
+                continue
+            if not _writes_judgement(tree):
+                kinds["does not write a judgement"] += 1
+                continue
+            if not (("json.dump" in src or "write_json" in src) and "ssot" in src):
+                kinds["writes a judgement but does not persist it to ssot/"] += 1
+                continue
+            rel = "%s/%s" % (d, fn)
+            kinds["persists a judgement into ssot/"] += 1
+            if "atomic_write" in src or "write_json" in src:
+                kinds["  through the STAMPED writer"] += 1
+                stamped.append(rel)
+            else:
+                kinds["  BYPASSES the stamped writer -- its judgements reference nothing"] += 1
+                bypass.append(rel)
+    return bypass, stamped, kinds
+
+
 def ratchet(gate, repo, bare_sites):
     path = os.path.join(repo, "gates", BACKLOG)
     now = sorted(bare_sites)
@@ -243,11 +307,31 @@ def main(argv):
 
     new_bare = ratchet(gate, repo, bare_sites)
 
+    bypass, stamped, kinds_c = arm_c(gate, repo)
+    if "--plant-writer" in argv:
+        bypass.append("scripts/__planted_judgement_writer.py")
+        kinds_c["  BYPASSES the stamped writer -- its judgements reference nothing"] += 1
+        gate.note("PLANTED: a new judgement-writer bypassing the stamped writer")
+    new_writers = H.ratchet(gate, WRITER_BACKLOG, bypass,
+                            "modules that persist a judgement into ssot/ without going "
+                            "through the stamped writer, so the judgements they emit "
+                            "reference nothing.")
+    for mod in new_writers:
+        gate.finding("JUDGEMENT-WRITER-BYPASSES-THE-STAMP",
+                     "%s persists a judgement into ssot/ without ssot/atomic_write.write_json, "
+                     "so the judgement it emits carries no reference to what it judged. It is "
+                     "NEW since the backlog was frozen." % mod,
+                     numerator=len(new_writers), denominator=len(bypass) + len(stamped))
+
     total = sum(counts.values())
     merged = dict(kinds_pop)
     for k in (KIND_A, KIND_B, KIND_C, KIND_D):
         merged[k] = counts.get(k, 0)
+    merged.update({k: v for k, v in kinds_c.items()
+                   if k != "does not write a judgement"})
     gate.kinds(merged)
+    gate.note("the stamp is wired at ssot/atomic_write.py::write_json (blast radius 155, "
+              "acknowledged) and fires on ssot/<topic>/<topic>.json only.")
     if total:
         gate.note("exactly re-checkable: %d/%d = %.1f%% of stored judgements. The remainder "
                   "are believed, not checked." % (counts[KIND_A], total,

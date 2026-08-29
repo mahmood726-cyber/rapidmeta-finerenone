@@ -43,7 +43,16 @@ EFFECT = re.compile(
     r"\b(?:hazard ratio|risk ratio|odds ratio|rate ratio|mean difference|\bHR\b|\bRR\b|"
     r"\bOR\b)\s*[,:=]?\s*\d|\d\.\d{1,3}\s*\(\s*95\s*%", re.I)
 
+# ⚠️ A SYSTEMATIC REVIEW HAS METHODS AND RESULTS TOO, so the structural test cannot tell it
+# from a trial report and must not be asked to. This kind is checked FIRST, and it was missing:
+# the first run of this classifier called a 27-trial meta-analysis of antidiabetic agents a
+# PRIMARY_REPORT for EMPA-REG, because it had both sections. That inflated "70 primary reports"
+# and made a downstream sweep compare registry arm sizes against a review that never states
+# them. The structural test was right about structure and wrong about kind.
 KINDS = [
+    ("SYSTEMATIC_REVIEW", re.compile(
+        r"systematic review|meta[- ]analys[ie]s|PRISMA|network meta[- ]analysis|"
+        r"we searched (?:PubMed|MEDLINE|Embase|the Cochrane)", re.I)),
     ("PROTOCOL_OR_SAP", re.compile(
         r"statistical analysis plan|clinical (?:study|trial) protocol|protocol amendment|"
         r"\bSAP\b\s+version", re.I)),
@@ -59,6 +68,17 @@ KINDS = [
 def rendered(raw):
     t = re.sub(r"(?is)<(script|style).*?</\1>", " ", raw)
     return re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", t)).strip()
+
+
+def names_trial(text, nct):
+    """Does this document NAME the trial it was joined to?
+
+    The sharpest question and the one nobody asked. A document retrieved by searching an NCT
+    is not thereby ABOUT that trial: Europe PMC returns anything citing it, and the first hit
+    is often a review. If the document never states the registration, the join is a citation
+    link and not an identity.
+    """
+    return bool(nct) and nct in text.replace(" ", "")
 
 
 def assess(text):

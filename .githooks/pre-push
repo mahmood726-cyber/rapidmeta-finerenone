@@ -133,6 +133,99 @@ if [ "$DUR_STATUS" -ne 0 ]; then
 fi
 echo "[pre-push] Durable artefacts tracked."
 
+# ---------------------------------------------------------------------------
+# ORDER IS LOAD-BEARING: THESE RUN BEFORE THE SCOPED EARLY EXIT.
+#
+# They were appended AFTER it, and so they never ran. A push that touches no
+# *_REVIEW.html -- which is most pushes, including the one that installed them --
+# hit `exit 0` at the 'nothing to regression-check' line thirty lines below and
+# returned SUCCESS without executing a single gate. Nine gates, the meta-gate and
+# 24 repo checks: installed, invoked, and inert.
+#
+# The durable-artefact gate above already records this exact reasoning -- 'scope
+# followed what changed, when the risk lives in what does not' -- and the mistake
+# was made anyway, in the wiring of the suite built to catch it. That is the fifth
+# available-not-operative instance of this run and the only one that was mine.
+#
+# A gate whose position makes it unreachable is indistinguishable, in a log, from
+# a gate that passed.
+# ---------------------------------------------------------------------------
+# ---------------------------------------------------------------------------
+# EXECUTABLE-RULE GATES, added 2026-08-28. gates/run_all.py --fast
+#
+# WHY THESE EXIST AT ALL. Every rule they enforce was already written down, owned, and broken
+# anyway. `prune_legacy_corpus_2026_08_26.py` says in its own docstring "never delete what you
+# merely failed to recognise", and a sibling script selected 763 pages by absence two days
+# later. `field_aliases.py` exists specifically to stop one concept being read under several
+# names, and the two spellings actually in use were not in it. A rule fires only when its
+# author already knows which rule applies, which is the part that goes wrong.
+#
+# --fast RUNS SIX OF THE NINE. Gates 2, 5 and 6 read all 1,426 delivered pages and take
+# about 70 seconds; they run in CI and by hand, not on every push. The runner PRINTS which
+# gates it skipped, because a scoped pass that does not name its scope is how "53 apps" turned
+# out to be 1,522.
+#
+# EXIT 2 IS VACUOUS AND IT BLOCKS. A gate that never reached the case it was built to find is
+# more dangerous than one that objected, because it reads as a pass. This hook treats it as a
+# failure, deliberately.
+# ---------------------------------------------------------------------------
+GATES="$REPO_ROOT/gates/run_all.py"
+if [ ! -f "$GATES" ]; then
+    echo "[pre-push] gates/run_all.py is missing." >&2
+    echo "[pre-push] Refusing to pass a check that is not present." >&2
+    exit 1
+fi
+set +e
+python "$GATES" --fast
+GATE_STATUS=$?
+set -e
+if [ "$GATE_STATUS" -eq 2 ]; then
+    echo ""
+    echo "[pre-push] A gate went VACUOUS: it never reached a case it was built to find."
+    echo "[pre-push] That is a filter hiding the motivating case, not a clean run."
+    exit 1
+fi
+if [ "$GATE_STATUS" -ne 0 ]; then
+    echo ""
+    echo "[pre-push] Executable-rule gates FAILED (exit $GATE_STATUS)."
+    echo "[pre-push] Run: python gates/run_all.py     This gate has no override."
+    exit 1
+fi
+echo "[pre-push] Executable-rule gates PASS (6 of 9; 2, 5 and 6 are CI-only, see above)."
+
+# ---------------------------------------------------------------------------
+# THE CHECKS THIS REPOSITORY ALREADY OWNED, added 2026-08-28.
+#
+# 200 scripts here are named like a gate and CAN fail. 156 were called by NOTHING; 44 were
+# wired. A further 59 are named like a gate and have no failing exit at all -- so 17% of the
+# check-shaped scripts in this repository were operative. That is not a missing gate, it is
+# knowledge recorded and connected to nothing.
+#
+# 24 of them run GREEN in 32 seconds total, MEASURED by running all 48 candidates rather than
+# by reading their names. The labelled set would have blocked every push and taken an hour.
+# gates/WIRED_REPO_CHECKS.json carries the exit code and wall time behind every entry, plus
+# the 8 that are CI-only, the 12 that fail on the corpus today, and the 4 that time out.
+#
+# Failures are reported PER CHECK with the script named. A group gate whose failure you
+# cannot read is a group gate that gets skipped.
+# ---------------------------------------------------------------------------
+RCHECKS="$REPO_ROOT/gates/run_repo_checks.py"
+if [ ! -f "$RCHECKS" ]; then
+    echo "[pre-push] gates/run_repo_checks.py is missing." >&2
+    echo "[pre-push] Refusing to pass a check that is not present." >&2
+    exit 1
+fi
+set +e
+python "$RCHECKS"
+RC_STATUS=$?
+set -e
+if [ "$RC_STATUS" -ne 0 ]; then
+    echo ""
+    echo "[pre-push] A repo check FAILED. These are this project's own checks, named above."
+    echo "[pre-push] Fix it, or move it out of gates/WIRED_REPO_CHECKS.json with a reason."
+    exit 1
+fi
+
 if [ -z "$CHANGED" ]; then
     echo "[pre-push] No *_REVIEW.html pages in this push; nothing to regression-check."
     exit 0
@@ -260,48 +353,6 @@ fi
 # the page -- not a fixture written by whoever wrote the fix.
 python "$(git rev-parse --show-toplevel)/scripts/lint_field_name_in_reader_prose_2026_08_23.py" >/dev/null || { echo "[pre-push] REFUSED: a schema identifier reaches reader-facing prose (scripts/lint_field_name_in_reader_prose_2026_08_23.py)"; exit 1; }
 
-# ---------------------------------------------------------------------------
-# EXECUTABLE-RULE GATES, added 2026-08-28. gates/run_all.py --fast
-#
-# WHY THESE EXIST AT ALL. Every rule they enforce was already written down, owned, and broken
-# anyway. `prune_legacy_corpus_2026_08_26.py` says in its own docstring "never delete what you
-# merely failed to recognise", and a sibling script selected 763 pages by absence two days
-# later. `field_aliases.py` exists specifically to stop one concept being read under several
-# names, and the two spellings actually in use were not in it. A rule fires only when its
-# author already knows which rule applies, which is the part that goes wrong.
-#
-# --fast RUNS FIVE OF THE EIGHT. Gates 2, 5 and 6 read all 1,426 delivered pages and take
-# about 70 seconds; they run in CI and by hand, not on every push. The runner PRINTS which
-# gates it skipped, because a scoped pass that does not name its scope is how "53 apps" turned
-# out to be 1,522.
-#
-# EXIT 2 IS VACUOUS AND IT BLOCKS. A gate that never reached the case it was built to find is
-# more dangerous than one that objected, because it reads as a pass. This hook treats it as a
-# failure, deliberately.
-# ---------------------------------------------------------------------------
-GATES="$REPO_ROOT/gates/run_all.py"
-if [ ! -f "$GATES" ]; then
-    echo "[pre-push] gates/run_all.py is missing." >&2
-    echo "[pre-push] Refusing to pass a check that is not present." >&2
-    exit 1
-fi
-set +e
-python "$GATES" --fast
-GATE_STATUS=$?
-set -e
-if [ "$GATE_STATUS" -eq 2 ]; then
-    echo ""
-    echo "[pre-push] A gate went VACUOUS: it never reached a case it was built to find."
-    echo "[pre-push] That is a filter hiding the motivating case, not a clean run."
-    exit 1
-fi
-if [ "$GATE_STATUS" -ne 0 ]; then
-    echo ""
-    echo "[pre-push] Executable-rule gates FAILED (exit $GATE_STATUS)."
-    echo "[pre-push] Run: python gates/run_all.py     This gate has no override."
-    exit 1
-fi
-echo "[pre-push] Executable-rule gates PASS (5 of 8; 2, 5 and 6 are CI-only, see above)."
-
 echo "[pre-push] Regression check PASS on $COUNT page(s). Proceeding with push."
+
 exit 0

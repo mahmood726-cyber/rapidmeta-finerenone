@@ -166,6 +166,57 @@ def arm_a(gate, repo):
     return uncalled, kinds
 
 
+# ---------------------------------------------------------------------------
+# ARM A2 -- THE REPO'S OWN GATES, not just this lane's.
+#
+# Arm A covered gates/ and found one uncalled module: itself. Pointed at scripts/, the same
+# question returns a very different number, and it is the answer to "is the system stopping us
+# repeating mistakes": 200 scripts named like a gate CAN fail, and 156 of them are called by
+# NOTHING. A further 59 are named like a gate and have no failing exit at all.
+#
+# The instance that earned this arm: scripts/lint_shared_scratch_path_2026_08_24.py was
+# written four days ago, documents a lane clobbering another lane's file in the shared scratch
+# root, and is called by nothing -- so it did not fire when this lane did exactly that.
+# ---------------------------------------------------------------------------
+REPO_GATE = re.compile(r"^(gate|check|lint|audit|sweep|verify|assert|detect|probe)_"
+                       r"|_(gate|check|lint|audit|sweep)\.py$")
+UNCALLED_BACKLOG = "UNCALLED_REPO_GATES.json"
+
+
+def arm_a2(gate, repo):
+    callers = ""
+    for rel in (".githooks/pre-push", ".githooks/pre-commit", ".githooks/pre-commit-staging",
+                "gates/run_all.py", "gates/verify_gates_can_fail.py"):
+        p = os.path.join(repo, rel)
+        if os.path.exists(p):
+            with open(p, "r", encoding="utf-8", errors="replace") as fh:
+                callers += fh.read()
+    wf = os.path.join(repo, ".github", "workflows")
+    if os.path.isdir(wf):
+        for f in sorted(os.listdir(wf)):
+            with open(os.path.join(wf, f), "r", encoding="utf-8", errors="replace") as fh:
+                callers += fh.read()
+
+    kinds = collections.Counter()
+    uncalled = []
+    sdir = os.path.join(repo, "scripts")
+    for fn in sorted(os.listdir(sdir)):
+        if not fn.endswith(".py") or not REPO_GATE.search(fn):
+            continue
+        with open(os.path.join(sdir, fn), "r", encoding="utf-8", errors="replace") as fh:
+            src = fh.read()
+        if "sys.exit" not in src and "SystemExit" not in src:
+            kinds["named like a gate, has NO failing exit -- cannot fail at all"] += 1
+            continue
+        kinds["repo gate/lint that CAN fail"] += 1
+        if fn[:-3] in callers or fn in callers:
+            kinds["  called by a hook or CI"] += 1
+        else:
+            kinds["  CALLED BY NOTHING -- available, not operative"] += 1
+            uncalled.append("scripts/" + fn)
+    return uncalled, kinds
+
+
 def arm_b(gate, repo):
     regpath = os.path.join(repo, "gates", REGISTRY)
     registry = H.load(regpath) if os.path.exists(regpath) else {"paths": {}}
@@ -222,6 +273,10 @@ def main(argv):
     H.assert_append_only_intact(gate, repo)
 
     uncalled, kinds_a = arm_a(gate, repo)
+    repo_uncalled, kinds_a2 = arm_a2(gate, repo)
+    new_uncalled = H.ratchet(gate, UNCALLED_BACKLOG, repo_uncalled,
+                             "scripts named like a gate that CAN fail and are called by "
+                             "nothing. Available, not operative.")
     if kinds_a.get("  named by a caller"):
         gate.saw("a-gate-has-a-caller")
 
@@ -241,6 +296,7 @@ def main(argv):
         gate.note("PLANTED: a new removal-shaped script in neither the registry nor wired")
 
     merged = dict(kinds_a)
+    merged.update(kinds_a2)
     merged.update(kinds_b)
     gate.kinds(merged)
     gate.note("KNOWN BLIND SPOT, stated every run: a removal performed by os.replace/os.rename "
@@ -254,6 +310,11 @@ def main(argv):
                      "and a check that cannot fail is verification theatre." % g,
                      numerator=len(uncalled),
                      denominator=kinds_a.get("gate module with a main()", 0))
+    for mod in new_uncalled:
+        gate.finding("NEW-GATE-WITH-NO-CALLER",
+                     "%s is named like a gate, can fail, and nothing runs it. It is NEW since "
+                     "the backlog was frozen -- a gate written and left inert." % mod,
+                     numerator=len(new_uncalled), denominator=len(repo_uncalled))
     for rel in unregistered:
         gate.finding("REMOVAL-PATH-NOT-DECLARED",
                      "%s deletes or tombstones a corpus artefact and is neither wired to "

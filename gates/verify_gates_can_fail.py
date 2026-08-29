@@ -43,6 +43,8 @@ PLANTS = [
      "an unacknowledged edit to a file 155 topics build through"),
     ("gate8_caller_and_wiring", ["--plant"],
      "a removal-shaped script in neither the registry nor wired to the precondition"),
+    ("gate9_shared_scratch", ["--plant"],
+     "a new generic name in the shared scratch root"),
 ]
 
 

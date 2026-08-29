@@ -1,0 +1,245 @@
+{
+ "frozen_utc": "2026-08-28",
+ "what": "Checks this repository already owned that ran GREEN and FAST on 2026-08-28 and were called by NOTHING. Measured by running each one, not by reading its name. run_repo_checks.py executes the pre_push list on every push.",
+ "how_measured": "each script executed once with a 120s timeout; exit code and wall time recorded. One observation per script on one tree -- a check green today can be red after another lane lands, which is what the per-check reporting is for.",
+ "pre_push": [
+  {
+   "script": "scripts/audit_our_k_against_theirs.py",
+   "secs": 0.4
+  },
+  {
+   "script": "scripts/audit_self_retiring_controls_2026_08_25.py",
+   "secs": 0.7
+  },
+  {
+   "script": "scripts/audit_standing_instructions.py",
+   "secs": 0.2
+  },
+  {
+   "script": "scripts/audit_stub_pages_project_and_duplicate.py",
+   "secs": 0.4
+  },
+  {
+   "script": "scripts/double_escape_gate.py",
+   "secs": 0.2
+  },
+  {
+   "script": "scripts/gate_built_and_linked_reconcile_2026_08_23.py",
+   "secs": 0.3
+  },
+  {
+   "script": "scripts/gate_certainty_column_four_states_2026_08_23.py",
+   "secs": 0.6
+  },
+  {
+   "script": "scripts/gate_integrity.py",
+   "secs": 3.0
+  },
+  {
+   "script": "scripts/gate_kinds.py",
+   "secs": 0.2
+  },
+  {
+   "script": "scripts/gate_layer_vs_defect_layer_2026_08_26_audit.py",
+   "secs": 5.8
+  },
+  {
+   "script": "scripts/headline_reproducible_gate.py",
+   "secs": 0.3
+  },
+  {
+   "script": "scripts/lint_interactive_layer_2026_08_26.py",
+   "secs": 2.9
+  },
+  {
+   "script": "scripts/lint_refusal_citation_resolves.py",
+   "secs": 1.0
+  },
+  {
+   "script": "scripts/lint_split_children_are_reachable.py",
+   "secs": 0.6
+  },
+  {
+   "script": "scripts/probe_store_derivable_2026_08_27.py",
+   "secs": 0.4
+  },
+  {
+   "script": "scripts/protocol_subject_gate.py",
+   "secs": 0.2
+  },
+  {
+   "script": "scripts/sweep_mixed_measure_pools_2026_08_21.py",
+   "secs": 0.7
+  },
+  {
+   "script": "scripts/sweep_r_output_labels_reproduce.py",
+   "secs": 0.6
+  },
+  {
+   "script": "scripts/sweep_rendered_interval_is_the_house_interval.py",
+   "secs": 2.2
+  },
+  {
+   "script": "scripts/v1_coverage_audit.py",
+   "secs": 7.0
+  },
+  {
+   "script": "scripts/vacuity_audit.py",
+   "secs": 0.6
+  },
+  {
+   "script": "scripts/verify_denominators.py",
+   "secs": 0.2
+  },
+  {
+   "script": "scripts/verify_search_record_reconciles.py",
+   "secs": 3.5
+  },
+  {
+   "script": "scripts/withdrawal_reason_gate.py",
+   "secs": 0.2
+  }
+ ],
+ "ci_only": [
+  {
+   "script": "scripts/audit_continuous_conventions.py",
+   "secs": 106.0
+  },
+  {
+   "script": "scripts/audit_review_arm_counts.py",
+   "secs": 112.3
+  },
+  {
+   "script": "scripts/audit_v65_engine_coverage.py",
+   "secs": 72.2
+  },
+  {
+   "script": "scripts/check_card_object_consistency.py",
+   "secs": 28.7
+  },
+  {
+   "script": "scripts/cross_app_nct_name_check.py",
+   "secs": 30.9
+  },
+  {
+   "script": "scripts/ctgov_cross_check.py",
+   "secs": 23.4
+  },
+  {
+   "script": "scripts/data_integrity_audit.py",
+   "secs": 41.1
+  },
+  {
+   "script": "scripts/null_count_audit.py",
+   "secs": 13.1
+  }
+ ],
+ "red_not_yet_a_gate": [
+  {
+   "script": "scripts/arm_identity_gate.py",
+   "exit": 1,
+   "secs": 0.3,
+   "kind": "MY-HARNESS-ERROR",
+   "what_it_says": "needs a glob argument; my triage ran it with none (IndexError on sys.argv[1])"
+  },
+  {
+   "script": "scripts/audit_analysis_population_estimand.py",
+   "exit": 2,
+   "secs": 0.3,
+   "kind": "NOT_ASSESSABLE",
+   "what_it_says": "no registered-primary cache at outputs/nct_primaries.json -- an honest abstention, exit 2, not a failure"
+  },
+  {
+   "script": "scripts/audit_grade_per_pool_2026_08_23.py",
+   "exit": 1,
+   "secs": 4.1,
+   "kind": "REAL-FINDING",
+   "what_it_says": "sglt2-hf rates an outcome it did NOT pool while its pooled outcomes carry no rating in that location"
+  },
+  {
+   "script": "scripts/audit_mixed_contrast_pools.py",
+   "exit": 1,
+   "secs": 2.3,
+   "kind": "CONTROL-CANNOT-LOAD",
+   "what_it_says": "'the positive control was not read. No count.' It refuses correctly rather than reporting."
+  },
+  {
+   "script": "scripts/audit_refusal_overclaim_2026_08_24.py",
+   "exit": 1,
+   "secs": 4.3,
+   "kind": "REAL-FINDING",
+   "what_it_says": "10 notices overclaim beyond the object's own scoped wording -- 'an overclaimed criticism reads as rigour'"
+  },
+  {
+   "script": "scripts/audit_skipped_but_current.py",
+   "exit": 2,
+   "secs": 0.3,
+   "kind": "NOT_ASSESSABLE",
+   "what_it_says": "the log names no skipped page -- honest abstention"
+  },
+  {
+   "script": "scripts/gate_paper_reads_as_prose_2026_08_22.py",
+   "exit": 1,
+   "secs": 13.0,
+   "kind": "REAL-FINDING",
+   "what_it_says": "6 papers carry a sentence that does not parse"
+  },
+  {
+   "script": "scripts/gate_paper_reads_terribly_2026_08_24.py",
+   "exit": 1,
+   "secs": 74.8,
+   "kind": "REAL-FINDING",
+   "what_it_says": "empty refusals naming nothing; VERDICT_AS_TITLE on MAVACAMTEN_OHCM"
+  },
+  {
+   "script": "scripts/lint_container_repr_on_a_page.py",
+   "exit": 1,
+   "secs": 35.4,
+   "kind": "REAL-FINDING",
+   "what_it_says": "a raw Python dict repr is rendered onto a delivered page -- reader-facing"
+  },
+  {
+   "script": "scripts/lint_scope_derivations_agree.py",
+   "exit": 1,
+   "secs": 10.4,
+   "kind": "REAL-FINDING",
+   "what_it_says": "MALARIA_VACCINES_REVIEW.html is in the index-derived scope and absent from the PAGE_MAP-derived one"
+  },
+  {
+   "script": "scripts/precision_sample_gate.py",
+   "exit": 2,
+   "secs": 0.3,
+   "kind": "MY-HARNESS-ERROR",
+   "what_it_says": "requires --glob or --selftest; my triage supplied neither"
+  },
+  {
+   "script": "scripts/vacuity_sweep.py",
+   "exit": 1,
+   "secs": 1.5,
+   "kind": "BROKEN-CODE",
+   "what_it_says": "AttributeError: 'Report' object has no attribute 'blocks' (should be 'block'). The check cannot run."
+  }
+ ],
+ "timeout_needs_scoping": [
+  {
+   "script": "scripts/audit_citation_consistency.py"
+  },
+  {
+   "script": "scripts/audit_mitt_vs_allocated.py"
+  },
+  {
+   "script": "scripts/clone_contamination_gate.py"
+  },
+  {
+   "script": "scripts/staleness_gate.py"
+  }
+ ],
+ "correction_2026_08_28": "The 12 non-zero exits were first reported as 'fails on the corpus as it stands'. Reading their output shows FOUR kinds, and two of the twelve were MY OWN harness error -- the triage ran every script with no arguments, and two require one. Six are REAL FINDINGS in checks nobody was running. Counting a non-zero exit as a finding is the same shape as counting a bucket label as a measurement, one level up.",
+ "red_kinds": {
+  "MY-HARNESS-ERROR": 2,
+  "NOT_ASSESSABLE": 2,
+  "REAL-FINDING": 6,
+  "CONTROL-CANNOT-LOAD": 1,
+  "BROKEN-CODE": 1
+ }
+}

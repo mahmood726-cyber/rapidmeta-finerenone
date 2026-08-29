@@ -13,7 +13,8 @@ acknowledgement is not a promise to be careful, it is evidence that the count wa
 HOW RADIUS IS DERIVED -- and the inversion at the centre of it:
 
     ssot/<topic>/...              radius = that one topic
-    module IN the build closure   radius = EVERY topic, whether or not it names any
+    module IN the corpus closure  radius = EVERY topic, whether or not it names any
+                                  (closure = page builders AND object writers)
     module outside it, naming N   radius = those N topics
     module outside it, naming 0   radius = 0 (tooling; reaches no reader)
 
@@ -42,7 +43,20 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import _harness as H                                                        # noqa: E402
 
-ROOTS = ("ssot/build_app_v2.py", "ssot/build_tabbed.py", "ssot/paper_projector.py")
+# TWO KINDS OF ROOT, AND THE SECOND WAS MISSING FOR A DAY.
+#
+# BUILD roots are the page builders. WRITE roots are the object-write choke points. The first
+# version had only the build roots, and reported `ssot/atomic_write.py` at RADIUS 2 -- because
+# no page builder imports it and it happens to name two topic ids in its docstrings. It is the
+# atomic writer that 45 modules and every topic object pass through; its real radius is the
+# corpus. A file can be class-wide by what WRITES through it as well as by what BUILDS through
+# it, and a closure that models only one of those under-reports the other to almost nothing.
+#
+# Found by challenging a number that looked wrong -- radius 2 for the universal writer -- which
+# is the same instrument that found the CRLF phantom diff. Not by a gate.
+BUILD_ROOTS = ("ssot/build_app_v2.py", "ssot/build_tabbed.py", "ssot/paper_projector.py")
+WRITE_ROOTS = ("ssot/atomic_write.py",)
+ROOTS = BUILD_ROOTS + WRITE_ROOTS
 ACK = "BLAST_RADIUS_ACK.json"
 
 # KNOWN-NEGATIVE CONTROL for the topic-id matcher: source text that must NOT be read as naming
@@ -74,15 +88,26 @@ def imports_of(path):
 
 
 def build_closure(repo, gate):
-    """Modules reachable from the page builders, by import, inside ssot/."""
+    """Modules reachable from the page builders OR the object writers, inside ssot/.
+
+    Named `build_closure` for continuity; it is the CORPUS closure -- build paths and write
+    paths both. See ROOTS above for why the write half had to be added.
+    """
     avail = {}
     ssot = os.path.join(repo, "ssot")
     for fn in os.listdir(ssot):
         if fn.endswith(".py"):
-            avail[fn[:-3]] = os.path.join("ssot", fn)
+            # FORWARD SLASHES, ALWAYS. os.path.join gives "ssot\x.py" on Windows while ROOTS
+            # and the `rel` computed in radius_map are forward-slash, so every module reached
+            # THROUGH a root failed the membership test and only the roots themselves scored
+            # class-wide. statement.py acknowledged 6 and derives 155 -- a ~25x under-report,
+            # and TWO class-wide changes were approved on that figure. A blast-radius
+            # instrument that returns a confident small number is the most dangerous kind,
+            # which is the second time this gate has demonstrated that about itself.
+            avail[fn[:-3]] = "ssot/" + fn
     closure, queue = set(), []
     for r in ROOTS:
-        if os.path.exists(os.path.join(repo, r)):
+        if os.path.exists(os.path.join(repo, r.replace("/", os.sep))):
             closure.add(r)
             queue.append(r)
         else:
@@ -90,7 +115,7 @@ def build_closure(repo, gate):
                         "would under-report every radius." % r)
     while queue:
         cur = queue.pop()
-        for mod in imports_of(os.path.join(repo, cur)):
+        for mod in imports_of(os.path.join(repo, cur.replace("/", os.sep))):
             rel = avail.get(mod)
             if rel and rel not in closure:
                 closure.add(rel)
