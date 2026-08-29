@@ -3,9 +3,8 @@
  "verdicts": "CONSISTENT / INVERTED / SUSPECT / UNDECIDABLE; INVERTED requires BOTH matched arms wrong in opposite directions",
  "matching": "normalised equality, else 0.6 token overlap with a unique best candidate; anything else is UNDECIDABLE rather than a guess",
  "counts": {
-  "UNDECIDABLE": 39,
-  "CONSISTENT": 116,
-  "INVERTED": 5,
+  "UNDECIDABLE": 38,
+  "CONSISTENT": 122,
   "SUSPECT": 8
  },
  "n": 168,
@@ -227,25 +226,25 @@
   {
    "page": "ACS_ANTIPLATELET_REVIEW.html",
    "nct": "NCT00391872",
-   "verdict": "INVERTED",
-   "detail": "both matched arms wrong, in opposite directions",
+   "verdict": "CONSISTENT",
+   "detail": "",
    "arms": [
     {
-     "object_label": "Clopidogrel",
-     "role": "treatment",
-     "registry_label": "Clopidogrel",
-     "registry_type": "ACTIVE_COMPARATOR",
-     "registry_drugs": [
-      "Drug: Clopidogrel"
-     ]
-    },
-    {
      "object_label": "Ticagrelor",
-     "role": "control",
+     "role": "treatment",
      "registry_label": "Ticagrelor",
      "registry_type": "EXPERIMENTAL",
      "registry_drugs": [
       "Drug: Ticagrelor"
+     ]
+    },
+    {
+     "object_label": "Clopidogrel",
+     "role": "control",
+     "registry_label": "Clopidogrel",
+     "registry_type": "ACTIVE_COMPARATOR",
+     "registry_drugs": [
+      "Drug: Clopidogrel"
      ]
     }
    ]
@@ -543,26 +542,22 @@
   {
    "page": "APIXABAN_AF_AUTO_FULL_REVIEW.html",
    "nct": "NCT00412984",
-   "verdict": "INVERTED",
-   "detail": "both matched arms wrong, in opposite directions",
+   "verdict": "UNDECIDABLE",
+   "detail": "no arm label matched a registry arm",
    "arms": [
     {
-     "object_label": "1",
+     "object_label": "apixaban (2)",
      "role": "treatment",
-     "registry_label": "1",
-     "registry_type": "ACTIVE_COMPARATOR",
-     "registry_drugs": [
-      "Drug: warfarin"
-     ]
+     "registry_label": null,
+     "registry_type": null,
+     "registry_drugs": []
     },
     {
-     "object_label": "2",
+     "object_label": "warfarin (1)",
      "role": "control",
-     "registry_label": "2",
-     "registry_type": "EXPERIMENTAL",
-     "registry_drugs": [
-      "Drug: apixaban"
-     ]
+     "registry_label": null,
+     "registry_type": null,
+     "registry_drugs": []
     }
    ]
   },
@@ -1013,12 +1008,12 @@
   {
    "page": "ATTR_PN_REVIEW.html",
    "nct": "NCT04136184",
-   "verdict": "INVERTED",
-   "detail": "both matched arms wrong, in opposite directions",
+   "verdict": "CONSISTENT",
+   "detail": "",
    "arms": [
     {
      "object_label": "Inotersen",
-     "role": "treatment",
+     "role": "control",
      "registry_label": "Inotersen",
      "registry_type": "ACTIVE_COMPARATOR",
      "registry_drugs": [
@@ -1028,7 +1023,7 @@
     },
     {
      "object_label": "Eplontersen",
-     "role": "control",
+     "role": "treatment",
      "registry_label": "Eplontersen",
      "registry_type": "EXPERIMENTAL",
      "registry_drugs": [
@@ -2098,12 +2093,12 @@
   {
    "page": "EVOLOCUMAB_MIXED_DYSLIPIDEMIA_AUTO_FULL_REVIEW.html",
    "nct": "NCT02662569",
-   "verdict": "INVERTED",
-   "detail": "both matched arms wrong, in opposite directions",
+   "verdict": "CONSISTENT",
+   "detail": "",
    "arms": [
     {
      "object_label": "Atorvastatin (Q2W)",
-     "role": "treatment",
+     "role": "control",
      "registry_label": "Atorvastatin (Q2W)",
      "registry_type": "ACTIVE_COMPARATOR",
      "registry_drugs": [
@@ -2113,7 +2108,7 @@
     },
     {
      "object_label": "Evolocumab QM + Atorvastatin",
-     "role": "control",
+     "role": "treatment",
      "registry_label": "Evolocumab QM + Atorvastatin",
      "registry_type": "EXPERIMENTAL",
      "registry_drugs": [
@@ -2178,24 +2173,24 @@
   {
    "page": "FCM_HF_REVIEW.html",
    "nct": "NCT02642562",
-   "verdict": "INVERTED",
-   "detail": "both matched arms wrong, in opposite directions",
+   "verdict": "CONSISTENT",
+   "detail": "",
    "arms": [
     {
-     "object_label": "Standard care",
-     "role": "treatment",
-     "registry_label": "Standard care",
-     "registry_type": "NO_INTERVENTION",
-     "registry_drugs": []
-    },
-    {
      "object_label": "Standard care plus IV iron infusion",
-     "role": "control",
+     "role": "treatment",
      "registry_label": "Standard care plus IV iron infusion",
      "registry_type": "EXPERIMENTAL",
      "registry_drugs": [
       "Drug: Ferric Derisomaltose"
      ]
+    },
+    {
+     "object_label": "Standard care",
+     "role": "control",
+     "registry_label": "Standard care",
+     "registry_type": "NO_INTERVENTION",
+     "registry_drugs": []
     }
    ]
   },
@@ -2386,8 +2381,8 @@
   {
    "page": "HEPATITIS_B_TAF_TDF_REVIEW.html",
    "nct": "NCT01940341",
-   "verdict": "UNDECIDABLE",
-   "detail": "registry types do not discriminate (all EXPERIMENTAL)",
+   "verdict": "CONSISTENT",
+   "detail": "",
    "arms": [
     {
      "object_label": "TAF 25 mg",
@@ -2400,12 +2395,13 @@
      ]
     },
     {
-     "object_label": "Open-label TAF",
+     "object_label": "TDF 300 mg",
      "role": "control",
-     "registry_label": "Open-label TAF",
-     "registry_type": "EXPERIMENTAL",
+     "registry_label": "TDF 300 mg",
+     "registry_type": "ACTIVE_COMPARATOR",
      "registry_drugs": [
-      "Drug: TAF"
+      "Drug: TAF Placebo",
+      "Drug: TDF"
      ]
     }
    ]
@@ -2413,8 +2409,8 @@
   {
    "page": "HEPATITIS_B_TAF_TDF_REVIEW.html",
    "nct": "NCT01940471",
-   "verdict": "UNDECIDABLE",
-   "detail": "registry types do not discriminate (all EXPERIMENTAL)",
+   "verdict": "CONSISTENT",
+   "detail": "",
    "arms": [
     {
      "object_label": "TAF 25 mg",
@@ -2427,12 +2423,13 @@
      ]
     },
     {
-     "object_label": "Open-label TAF",
+     "object_label": "TDF 300 mg",
      "role": "control",
-     "registry_label": "Open-label TAF",
-     "registry_type": "EXPERIMENTAL",
+     "registry_label": "TDF 300 mg",
+     "registry_type": "ACTIVE_COMPARATOR",
      "registry_drugs": [
-      "Drug: TAF"
+      "Drug: TAF Placebo",
+      "Drug: TDF"
      ]
     }
    ]

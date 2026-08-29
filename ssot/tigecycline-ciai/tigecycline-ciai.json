@@ -634,7 +634,7 @@
       "the evaluable populations differ by roughly an order of magnitude between the largest and the smallest, so the smallest contributes little weight but can still move a random-effects estimate"
      ]
     },
-    "poolable_reason": "Identical across the pooled trials: indication, comparator, outcome definition and analysis population. Not identical, and pooled anyway with the reason recorded against each: blinding, region and trial size. Each difference that could plausibly drive the result has a matching entry in the sensitivity block.",
+    "poolable_reason": "Identical across the pooled trials: indication, comparator and outcome definition. Analysis population is not identical: the finding block for this pool records the registered populations as none recorded, ME and m-mITT, and CE. Not identical, and pooled anyway with the reason recorded against each: analysis population, blinding, region and trial size. Each difference that could plausibly drive the result has a matching entry in the sensitivity block.",
     "model": "random",
     "estimator": "REML",
     "estimator_used": "REML",
@@ -822,7 +822,7 @@
     "POOL_FINDINGS_2026_08_21": {
      "a_this_pool_crosses_analysis_populations": "THE ANALYSIS POPULATION IS PART OF THE ESTIMAND AND THIS POOL CROSSES IT. Read from the registrations on 2026-08-21: NCT00081744 registers 'NO PRIMARY OUTCOME IS RECORDED ON THIS REGISTRATION' (population: NONE RECORDED); NCT00136201 registers 'Clinical response for all microbiologically evaluable and microbiologically modified intent-to-treat subjects' (population: ME and m-mITT); NCT01721408 registers 'Clinical Response at the Test-of-Cure (TOC) Assessment Within the Clinically Evaluable (CE) Population' (population: CE). The populations pooled are CE and ME and m-mITT.",
      "b_why_that_matters": "A CLINICALLY EVALUABLE population EXCLUDES protocol violators and indeterminate responses, and microbiologically-defined populations exclude patients without a qualifying pathogen. Those are SELECTED SUBSETS of the modified intent-to-treat population and systematically yield HIGHER cure rates. A cure-rate ratio computed in one is not an estimate of the same quantity as one computed in another, so this pooled value depends on which trial registered which population.",
-     "c_what_is_not_claimed": "NOT that the arithmetic is wrong. NOT that the direction would reverse -- that would need the per-population counts and is NOT established. And NOT that these are non-inferiority trials: THE REGISTRATIONS FETCHED DO NOT USE THAT WORD, so the design question is unresolved from the registry rather than assumed.",
+     "c_what_is_not_claimed": "NOT that the arithmetic is wrong. NOT that the direction would reverse -- that would need the per-population counts and is NOT established. And NOT that every contributing registration establishes a non-inferiority design: NCT01721408's posted results include nonInferiorityType NON_INFERIORITY_OR_EQUIVALENCE and a -15% non-inferiority criterion, while the other contributing registrations do not settle that design question here.",
      "a_a_fifteen_study_network_finds_no_difference_where_this_pool_finds_inferiority": "A PUBLISHED NETWORK META-ANALYSIS OF FIFTEEN STUDIES AND 6,745 PARTICIPANTS CONCLUDES: 'No differences in clinical and microbiological outcomes were observed between different carbapenems and TGC' (Yu et al., Medicine 2019, PMID 31577763). THIS POOL REPORTS RR 0.9351 (0.8885 to 0.9842) ON THREE TRIALS -- an interval that excludes no difference, read as tigecycline being inferior on clinical cure.",
      "b_and_our_own_small_sample_correction_agrees_with_them": "THE INFERIORITY CONCLUSION DOES NOT SURVIVE THIS OBJECT'S OWN ADJUSTMENT. The Hartung-Knapp interval at k = 3 is 0.8327 to 1.0501 on t = 4.3027 with 2 degrees of freedom, and it INCLUDES no difference. A reader taking inferiority from this page is reading the unadjusted interval only.",
      "c_the_evidence_base_here_is_weaker_than_the_interval_suggests": "One contributing trial is OPEN-LABEL (NCT00136201 registers masking NONE) on an assessed clinical-response endpoint; one registers NO PRIMARY OUTCOME AT ALL (NCT00081744, open item O0a) so its result cannot be checked against anything; and the three define their primary in DIFFERENT ANALYSIS POPULATIONS. GRADE certainty is VERY LOW.",
@@ -1593,7 +1593,7 @@
      {
       "domain": "inconsistency",
       "move": "no downgrade",
-      "reason": "The stored refit gives tau^2 0.000025, Q 2.1564 on 2 df, p = 0.3402, I-squared 1.16%. The three trials agree closely -- WHICH IS NOT REASSURING HERE: agreement between an open-label trial and masked trials does not remove the open-label problem, it only means the estimates are similar."
+      "reason": "The REML/metafor refit prints tau^2 0.000025, Q 2.1564 on 2 df, p = 0.3402 and I-squared 1.16%; the Higgins I-squared displayed for this result is 7.29%. The three trials agree closely -- WHICH IS NOT REASSURING HERE: agreement between an open-label trial and masked trials does not remove the open-label problem, it only means the estimates are similar."
      },
      {
       "domain": "indirectness",
@@ -1611,7 +1611,7 @@
       "reason": "k = 3; asymmetry tests have no power (Handbook 13.3.5.4)."
      }
     ],
-    "summary": "VERY LOW certainty. An open-label trial contributes to a pooled assessed endpoint; one contributing trial registers no primary outcome and so cannot be checked at all; the pool crosses analysis populations; and the inferiority conclusion does not survive the Hartung-Knapp adjustment at k = 3.",
+    "summary": "No final certainty level is published for this outcome. The stored work so far records an open-label trial contributing to a pooled assessed endpoint, one contributing trial with no registered primary outcome, a pool crossing analysis populations, and an inferiority conclusion that does not survive the Hartung-Knapp adjustment at k = 3.",
     "RISK_OF_BIAS_DOMAIN_CONSUMES_THESE_RESULT_LEVEL_ASSESSMENTS": [
      "NCT00081744: HIGH",
      "NCT00136201: HIGH",

@@ -9,10 +9,10 @@
    "positives (must match)": 126,
    "known negatives (must NOT match)": 378,
    "pages read": 48,
-   "out of scope (not a check/gate/lint/audit/sweep)": 666,
-   "in scope, does not match text": 52,
+   "out of scope (not a check/gate/lint/audit/sweep)": 676,
+   "in scope, does not match text": 53,
    "text-matching check with NO measured precision": 188,
-   "text-matching check WITH a control or stated exemption": 36
+   "text-matching check WITH a control or stated exemption": 40
   },
   "expected_cases": {},
   "cases_seen": [],
@@ -26,9 +26,9 @@
   "notes": [
    "ground truth for arm A comes from the SSOT store, not from the matcher; the negative sample was drawn at seed 20260828, recorded before it was drawn.",
    "naive (token anywhere on the page): 126/126  (known-negative control 6/378 matched, measured false-positive rate 1.6%)",
-   "    false positives sit on pages of median 70455 chars against a corpus median of 46185 -- the confounder, visible.",
+   "    false positives sit on pages of median 70905 chars against a corpus median of 47001 -- the confounder, visible.",
    "contiguous (registration within 300c): 126/126  (known-negative control 1/378 matched, measured false-positive rate 0.3%)",
-   "    false positives sit on pages of median 106921 chars against a corpus median of 46185 -- the confounder, visible.",
+   "    false positives sit on pages of median 107561 chars against a corpus median of 47001 -- the confounder, visible.",
    "uncontrolled-matcher backlog: 188 frozen, 188 now, 0 retired, 0 NEW"
   ],
   "findings": []
@@ -49,7 +49,7 @@
     {
      "topic": "bococizumab-lipid-review",
      "acronym": "DELIVER",
-     "page_chars": 106921
+     "page_chars": 107561
     },
     {
      "topic": "colchicine-cvd-review",
@@ -64,12 +64,12 @@
     {
      "topic": "inclisiran-lipid-kidney-auto-full-review",
      "acronym": "STEP",
-     "page_chars": 93248
+     "page_chars": 93756
     },
     {
      "topic": "sglt2-mace-cvot-review",
      "acronym": "STEP",
-     "page_chars": 47663
+     "page_chars": 48054
     }
    ]
   },
@@ -83,7 +83,7 @@
     {
      "topic": "bococizumab-lipid-review",
      "acronym": "DELIVER",
-     "page_chars": 106921
+     "page_chars": 107561
     }
    ]
   }
@@ -298,11 +298,15 @@
   "scripts/gate_paper_reads_terribly_2026_08_24.py",
   "scripts/lint_arm_role_is_read_not_sorted_2026_08_23.py",
   "scripts/lint_collinear_protocol.py",
+  "scripts/lint_destructive_without_asserted_backup.py",
   "scripts/lint_instrument_declares_a_control.py",
   "scripts/lint_object_write_is_atomic.py",
   "scripts/lint_zero_is_a_value_2026_08_23.py",
   "scripts/sweep_arm_roles_2026_08_28.py",
+  "scripts/sweep_partial_repairs_2026_08_28.py",
   "scripts/verify_served_bytes_2026_08_23_writer2.py",
+  "scripts/verify_served_index_2026_08_28.py",
+  "gates/gate10_noninferiority_pooled_as_superiority.py",
   "gates/gate1_trial_identity.py",
   "gates/gate2_textmatch_control.py",
   "gates/gate3_one_reason_field.py",

@@ -170,22 +170,34 @@ def pair_by_nearest(text, nct, radius=120):
 # ARM C'S KNOWN-NEGATIVE CONTROL: the ceftaroline pair is CORRECT in the store, so a page
 # rendering it must NOT be called a swap. Keyed to an answer fixed outside this gate --
 # ClinicalTrials.gov -- and it is the control that caught the window artefact.
+#
+# *** THE FOCUS FIXTURES WERE REVERSED, 2026-08-29, AND THE CONTROL WAS DEFENDING THE SWAP.
+# Every string here paired FOCUS 1 with NCT00509106. That is the wrong way round, so once the
+# store was corrected the gate rightly flagged these strings and the control scored its own
+# correctness as a 55.6% false-positive rate. A control keyed to the wrong answer does not
+# merely fail to catch a defect -- it argues for it, and it makes the fix look like the bug.
+#
+# The discriminator is the SPONSOR PROTOCOL NUMBER on each registration, which neither gate
+# had used: NCT00621504 is P903-08 (FOCUS 1) and NCT00509106 is P903-09 (FOCUS 2). The old
+# orientation reads as having reasoned from the start date -- NCT00509106 began 2007-07, six
+# months earlier -- but FOCUS 1 and 2 are named by protocol, not by which enrolled first.
+# gate1's pinned registry carried the same reversal and is corrected in the same change.
 ARM_C_NEGATIVES = [
-    ("FOCUS 1 NCT00509106 ... FOCUS 2 NCT00621504", "NCT00509106"),
-    ("FOCUS 1 NCT00509106 ... FOCUS 2 NCT00621504", "NCT00621504"),
+    ("FOCUS 1 NCT00621504 ... FOCUS 2 NCT00509106", "NCT00621504"),
+    ("FOCUS 1 NCT00621504 ... FOCUS 2 NCT00509106", "NCT00509106"),
     ("The Ring Study NCT01539226 and ASPIRE NCT01617096", "NCT01539226"),
     ("The Ring Study NCT01539226 and ASPIRE NCT01617096", "NCT01617096"),
-    ("Contributing trials: FOCUS 2 (NCT00621504) 0.88; FOCUS 1 (NCT00509106) 0.91",
-     "NCT00621504"),
+    ("Contributing trials: FOCUS 2 (NCT00509106) 0.88; FOCUS 1 (NCT00621504) 0.91",
+     "NCT00509106"),
     # ADDED AFTER A REAL-DATA FAILURE, and recorded as such. The reference-list rendering on
     # CEFTAROLINE_AUTO_FULL_REVIEW.html put a 44-character URL between a label and its id, so
     # raw nearest-distance paired NCT00509106 with FOCUS 2 and called the correct pair a swap.
     # The control did not catch it; the corpus did. Extending the control after the corpus
     # finds a case is legitimate; tuning the matcher until the ORIGINAL control passes is not.
-    ("Included studies FOCUS 1 &mdash; https://clinicaltrials.gov/study/NCT00509106 "
-     "FOCUS 2 &mdash; https://clinicaltrials.gov/study/NCT00621504 CAP China", "NCT00509106"),
-    ("Included studies FOCUS 1 &mdash; https://clinicaltrials.gov/study/NCT00509106 "
-     "FOCUS 2 &mdash; https://clinicaltrials.gov/study/NCT00621504 CAP China", "NCT00621504"),
+    ("Included studies FOCUS 1 &mdash; https://clinicaltrials.gov/study/NCT00621504 "
+     "FOCUS 2 &mdash; https://clinicaltrials.gov/study/NCT00509106 CAP China", "NCT00621504"),
+    ("Included studies FOCUS 1 &mdash; https://clinicaltrials.gov/study/NCT00621504 "
+     "FOCUS 2 &mdash; https://clinicaltrials.gov/study/NCT00509106 CAP China", "NCT00509106"),
 ]
 
 

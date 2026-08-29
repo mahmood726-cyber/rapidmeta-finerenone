@@ -140,6 +140,12 @@ def check(out_path):
 # here names a commit that already exists and can be resolved. Do not "simplify" this into
 # one commit; it quietly breaks that property.
 REQUIRED_GENERATOR_COMMITS = {
+    "a441e41870bf1befc68b0854a4c1f48487862339": (
+        "read arm counts THROUGH to as_posted instead of copying them into arms -- a trial "
+        "storing no arms now derives the cell from the one authoritative location and states "
+        "its provenance, its read date, that the counts are UNCORRECTED, and whether a "
+        "continuity correction applies. Without it those pages say 'not recorded on this "
+        "object' while the object holds the counts a field away"),
     "7f18a5da2": ("derive the direction-of-benefit label, never default it -- rewrote "
                   "ssot/build_app_v2.py and carries eight served render corrections"),
     "561ebb9dd": ("derive or refuse the effect scale, the subgroup heading and the "

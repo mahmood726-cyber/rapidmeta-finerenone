@@ -1,0 +1,232 @@
+[
+ {
+  "page": "SGLT2_HF_REVIEW.html",
+  "key": "no statistical heterogeneity was detected i squared",
+  "touches_number_or_named_trial": true,
+  "readjudicated_label": "Q2",
+  "evidence_held_at": "ssot/sglt2-hf/sglt2-hf.json: results.by_outcome.harmonised_cvdeath_or_hhf.heterogeneity.i2 = 0.0; results.by_outcome.threecomp_cvdeath_hhf_urgent.heterogeneity.i2 = 22.51",
+  "state": "ESCALATED_CLASS_WIDE",
+  "blocker": "The bad manuscript Results sentence is emitted by prohibited class-wide ssot/paper_projector.py, not by a per-object field.",
+  "fix_site": "ssot/paper_projector.py: manuscript Results heterogeneity sentence",
+  "plant": {
+   "fails_before": true,
+   "passes_after": null,
+   "fails_on_replant": null,
+   "passes_after_restore": null,
+   "byte_identical": null,
+   "not_run_reason": "Escalated only; prohibited class-wide source was not edited by this lane."
+  },
+  "blast_radius": {
+   "would_touch_objects": 1,
+   "denominator_objects": 155,
+   "count_rule": "canonical ssot/<topic>/<topic>.json objects with more than one live pooled result and distinct held I-squared values"
+  },
+  "proposed_patch": "In ssot/paper_projector.py, before appending the single no-statistical-heterogeneity sentence, derive live pooled outcomes and their own heterogeneity.i2 values. If more than one live pooled outcome has distinct I-squared values, emit per-outcome heterogeneity instead of one global I-squared sentence; otherwise keep the existing single-outcome branch.",
+  "reason": "Q2 by evidence: both I-squared values are held in the object. Not landed because the emitting code is class-wide and prohibited for this lane."
+ },
+ {
+  "page": "SGLT2_HF_REVIEW.html",
+  "key": "a named two trial programme rather than the yield of a database search",
+  "touches_number_or_named_trial": true,
+  "readjudicated_label": "Q2",
+  "evidence_held_at": "ssot/sglt2-hf/sglt2-hf.json: search.databases[0..2]; search.databases[1].covers_all_included = true; k_cascade.k_included_in_object = 4",
+  "state": "ESCALATED_CLASS_WIDE",
+  "blocker": "The bad limitation bullet is emitted by prohibited class-wide ssot/projectors.py when search.strategy is absent, even if search.databases records executed searches.",
+  "fix_site": "ssot/projectors.py: readiness/limitations search branch",
+  "plant": {
+   "fails_before": true,
+   "passes_after": null,
+   "fails_on_replant": null,
+   "passes_after_restore": null,
+   "byte_identical": null,
+   "not_run_reason": "Escalated only; prohibited class-wide source was not edited by this lane."
+  },
+  "blast_radius": {
+   "would_touch_objects": 16,
+   "denominator_objects": 155,
+   "count_rule": "canonical objects with executed search.databases records, no search.strategy field, and at least one executed database limb"
+  },
+  "proposed_patch": "In ssot/projectors.py, change the no-search limitation branch to test executed search.databases separately from search.strategy. Only emit \"No systematic search was run\" when neither search.strategy nor executed database records are held. When executed database records are held but search.strategy is absent, emit a limitation that the search is recorded as executed database limbs rather than as a normalized strategy field.",
+  "reason": "Q2 by evidence: the SGLT2 object holds executed ClinicalTrials.gov and PubMed search records and a four-trial included set. Not landed because the emitting code is class-wide and prohibited for this lane."
+ },
+ {
+  "page": "BOSENTAN_PH_NOT_GROUP1_REVIEW.html",
+  "key": "all eight are named on this page with their status and enrolment",
+  "touches_number_or_named_trial": true,
+  "readjudicated_label": "Q2",
+  "evidence_held_at": "ssot/bosentan-ph-not-group1/bosentan-ph-not-group1.json: inputs.trials[*].nct; inputs.trials[*].name; inputs.trials[*].design; inputs.trials[*].enrolled",
+  "state": "ESCALATED_CLASS_WIDE",
+  "blocker": "The required visible table change belongs in forbidden class-wide file ssot/statement.py, not in a per-object SSOT value or page file.",
+  "fix_site": "ESCALATE ssot/statement.py statement_html registered-trial summary table. Proposed patch text: add helper `_trial_meta_by_nct(obj)` and `_present_count(v)`; in `statement_html`, before rendering the `What was found` table, compute `meta = _trial_meta_by_nct(obj)`; change the header from `<th>Registration</th><th>Trial</th>` to `<th>Registration</th><th>Trial</th><th>Status</th><th>Enrolment</th>`; inside the trial loop, read `m = meta.get(nct, {})`, `status = m.get('design') or m.get('status') or 'not recorded'`, and `enrolment = _present_count(m.get('enrolled'))`, then emit four cells. `_present_count` must treat numeric 0 as present, not as falsy.",
+  "plant": null,
+  "blast_radius": {
+   "objects_touched_numerator": 95,
+   "objects_touched_denominator": 113,
+   "denominator_description": "113 PAGE_MAP objects currently satisfy statement.holds_no_poolable_evidence(obj); 95 of those have at least one inputs.trials row and would receive the additional Status and Enrolment columns.",
+   "portfolio_denominator": 163,
+   "trial_rows_touched_numerator": 270,
+   "count_method": "Imported ssot/statement.py read-only, loaded ssot/PAGE_MAP.json, counted objects where holds_no_poolable_evidence(obj) is true and inputs.trials is non-empty."
+  },
+  "reason": "The evidence is held for all 8 of 8 bosentan trials, including the zero-enrolment withdrawn trial, but the renderer that omits the status/enrolment columns is class-wide and forbidden for this slice. No page file was edited."
+ },
+ {
+  "page": "TIGECYCLINE_CIAI_SSOT.html",
+  "key": "leave one out no refit excludes no difference the estimate does not survive removal of any single trial",
+  "touches_number_or_named_trial": true,
+  "readjudicated_label": "Q2",
+  "evidence_held_at": "$.results.by_outcome.cure_toc_me.sensitivity.analyses[5].result.ci_low/.ci_high and verdict; $.results.by_outcome.cure_toc_me.sensitivity.analyses[6].result.ci_low/.ci_high and verdict; $.results.by_outcome.cure_toc_me.sensitivity.analyses[7].result.ci_low/.ci_high and verdict; outcome null value is 1",
+  "state": "ESCALATED_CLASS_WIDE",
+  "blocker": null,
+  "fix_site": "ssot/projectors2.py visual_abstract_fig leave-one-out sentence",
+  "plant": null,
+  "blast_radius": {
+   "corpus_denominator": "163 PAGE_MAP entries",
+   "affected_pages": 1,
+   "affected_outcomes": 1,
+   "affected_examples": [
+    [
+     "TIGECYCLINE_CIAI_SSOT.html",
+     "cure_toc_me",
+     "old_count 0/8",
+     "derived_leave_one_out_count 1/3"
+    ]
+   ]
+  },
+  "proposed_patch_text": "In ssot/projectors2.py, change the visual_abstract_fig leave-one-out block to build rows from analyses whose id starts with 'leave-out' or whose changed text contains 'removing ', derive still-excludes-null from explicit still_excludes_null when present otherwise from result.ci_low/result.ci_high against outcome.null_value, and use that leave-one-out denominator in the emitted sentence. Do not count non-leave-one-out sensitivity rows in a sentence about removing single trials.",
+  "reason": "The needed values are held, but the defect is caused by class-wide renderer logic: it counts all sensitivity rows and only recognizes an optional still_excludes_null boolean. The permitted lane cannot edit projectors*.py, so the class-wide patch is escalated with measured blast radius."
+ },
+ {
+  "page": "COVID19_VACCINES_REVIEW.html",
+  "key": "figure forest plot symptomatic laboratory confirmed covid k",
+  "touches_number_or_named_trial": true,
+  "readjudicated_label": "Q2",
+  "evidence_held_at": "$.results.by_outcome.symptomatic_covid.k = 3; $.results.by_outcome.symptomatic_covid.per_trial[0].point/.ci_low/.ci_high; $.results.by_outcome.symptomatic_covid.per_trial[1].point/.ci_low/.ci_high; $.results.by_outcome.symptomatic_covid.per_trial[2].not_computed_reason",
+  "state": "ESCALATED_CLASS_WIDE",
+  "blocker": null,
+  "fix_site": "ssot/paper_projector.py figure caption construction for forest plots",
+  "plant": null,
+  "blast_radius": {
+   "corpus_denominator": "163 PAGE_MAP entries",
+   "affected_pages": 2,
+   "affected_outcomes": 3,
+   "affected_examples": [
+    [
+     "COVID19_VACCINES_REVIEW.html",
+     "symptomatic_covid",
+     "stored k 3",
+     "plotted rows 2"
+    ],
+    [
+     "LENACAPAVIR_PREP_SSOT.html",
+     "len_vs_ftdf",
+     "stored k 2",
+     "plotted rows 1"
+    ],
+    [
+     "LENACAPAVIR_PREP_SSOT.html",
+     "len_vs_background",
+     "stored k 2",
+     "plotted rows 1"
+    ]
+   ]
+  },
+  "proposed_patch_text": "In ssot/paper_projector.py around the forest-figure caption, compute plotted_k from the same plottability predicate used by projectors.forest_svg, then render the caption as 'plotted k = <plotted_k> of <stored k> stored trial rows' when plotted_k differs from stored k. Keep the existing k caption when plotted_k equals stored k, and cite results.by_outcome.<oid>.per_trial as the source field.",
+  "reason": "The store legitimately holds three trial rows, one of which has no computed risk ratio, and the renderer legitimately plots two rows. The contradiction is the class-wide manuscript caption using stored k as if it were plotted k. The safe fix is in a forbidden class-wide file, so it is escalated with blast radius."
+ },
+ {
+  "page": "ABLATION_AF_HEART_FAILURE_REVIEW.html",
+  "key": "the prisma flow counts are held for this review and reconcile with the executed searches above",
+  "touches_number_or_named_trial": false,
+  "readjudicated_label": "n/a",
+  "evidence_held_at": null,
+  "state": "ESCALATED_CLASS_WIDE",
+  "blocker": null,
+  "fix_site": "ESCALATE patch text only, not landed: in ssot/projectors.py, before the generic screen absent-state branch, handle tid == 'screen' and (canon.get('prisma_flow') or canon.get('k_cascade')) as partially held, with note 'Screening counts are held in this object and shown in the PRISMA/cascade panels; the per-record screening log is not held unless records are listed below.'",
+  "plant": {
+   "performed": false,
+   "reason": "No class-wide file may be edited by this lane."
+  },
+  "blast_radius": {
+   "objects": 10,
+   "pages": 10,
+   "count_basis": "Corpus count of ssot/*/*.json with prisma_flow or k_cascade held and no nonempty screening.records list.",
+   "affected_pages": [
+    "ABLATION_AF_HEART_FAILURE_REVIEW.html",
+    "ABLATION_AF_MEDICAL_THERAPY_REVIEW.html",
+    "ALIROCUMAB_LIPID_AUTO_FULL_REVIEW.html",
+    "ATTR_CM_REVIEW.html",
+    "BEMPEDOIC_ACID_REVIEW.html",
+    "BOSENTAN_PAH_CHILDREN_REVIEW.html",
+    "BOSENTAN_PAH_COMBINATION_REVIEW.html",
+    "BOSENTAN_PAH_MONOTHERAPY_REVIEW.html",
+    "BOSENTAN_PH_NOT_GROUP1_REVIEW.html",
+    "COLCHICINE_CVD_CORONARY_REVIEW.html"
+   ]
+  },
+  "reason": "The fix belongs in the shared tab absent-state renderer, not in this one page. The object already holds prisma_flow and k_cascade, so deleting those counts would destroy held evidence; the false denial comes from class-wide empty-screen wording."
+ },
+ {
+  "topic": "ceftazidime-avibactam-auto-full-review",
+  "key": "canonical object and registered at",
+  "before_sentence": "This page CANNOT be rebuilt from what is recorded here: no canonical object is recorded and no registered commit is recorded.",
+  "after_sentence": "ESCALATED_CLASS_WIDE: the object supports a canonical store path at ssot/ceftazidime-avibactam-auto-full-review/ceftazidime-avibactam-auto-full-review.json and holds NCT02475733 and NCT02497781, but the reproducibility sentence is generated in ssot/build_tabbed.py, which is off limits for this slice.",
+  "evidence_read_at": "out/withdraw/probe_ceftazidime.html:2 and :428; ssot/ceftazidime-avibactam-auto-full-review/ceftazidime-avibactam-auto-full-review.json: app_id, inputs.trials[0:2], trial_identity_check; class-wide source located in ssot/build_tabbed.py _repro_note/build path.",
+  "state": "ESCALATED_CLASS_WIDE",
+  "plant": {
+   "not_landed": true,
+   "probe_build": "out/withdraw/probe_ceftazidime.html",
+   "supported_store_path_visible_in_served_bytes": true,
+   "unsupported_rebuild_sentence_visible_in_served_bytes": true,
+   "blast_radius_count": 119,
+   "blast_radius_command": "rg -l \"This page CANNOT be rebuilt from what is recorded here: no canonical object is recorded\" -g \"*_REVIEW.html\" . --no-messages | Measure-Object | Select-Object -ExpandProperty Count",
+   "patch_text": "In ssot/build_tabbed.py, derive the Canonical object row and the no-canonical-object limb of _repro_note from the verified store declaration used for the html data-store attribute, not from registration.path. Keep the registered-commit limb tied to registration.commits. A minimal patch would move the _store_declaration(canon) call before body construction, pass the resulting store path into the reproducibility card, and make _repro_note say no canonical object is recorded only when that store path is absent."
+  },
+  "reason": "A store object exists and the served HTML already exposes data-store plus both NCTs, so the no-canonical-object limb is unsupported. The fix belongs to an off-limits class-wide generator."
+ },
+ {
+  "topic": "covid19-vaccines",
+  "key": "the page labels its review question review question pico",
+  "before_sentence": "Review question (PICO)",
+  "after_sentence": "ESCALATED_CLASS_WIDE: this should be labelled as a scope/question row, because the object says it is a per-vaccine snapshot and not a systematic review, and no screening or eligibility block is recorded.",
+  "evidence_read_at": "COVID19_VACCINES_REVIEW.html:261; out/withdraw/probe_covid.html:261; ssot/covid19-vaccines/covid19-vaccines.json: question and manuscript.introduction; class-wide source located at ssot/projectors2.py:299.",
+  "state": "ESCALATED_CLASS_WIDE",
+  "plant": {
+   "not_landed": true,
+   "probe_build": "out/withdraw/probe_covid.html",
+   "unsupported_label_visible_in_served_bytes": true,
+   "supported_scope_sentence_visible_in_served_bytes": true,
+   "blast_radius_count": 432,
+   "blast_radius_command": "rg -l \"Review question \\(PICO\\)\" -g \"*_REVIEW.html\" . --no-messages | Measure-Object | Select-Object -ExpandProperty Count",
+   "patch_text": "diff --git a/ssot/projectors2.py b/ssot/projectors2.py\n@@\n- (\"Review question (PICO)\", p(canon[\"question\"])),\n+ (\"Review question / scope\", p(canon[\"question\"])),"
+  },
+  "reason": "The object expressly refuses systematic-review scope, while the rendered table imposes a PICO label from an off-limits class-wide projector."
+ },
+ {
+  "topic": "sotagliflozin-hf",
+  "key": "the page supplies a clinical evidence assessment for its three outcomes",
+  "before_sentence": "Certainty of evidence is rated per outcome rather than in a single review-level block. 3 outcome(s) are pending and carry no published rating.",
+  "after_sentence": "Proposed class-wide patch text: when results.by_outcome.<id>.grade.certainty is held and bookkeeping_2026_08_21.which_limbs_this_review_refuses says grade per pool is held, render the recorded GRADE level with its recorded grounds instead of overriding it to pending solely from an unadjudicated risk-of-bias object.",
+  "evidence_read_at": "SOTAGLIFLOZIN_HF_REVIEW.html:1870 and :1905; ssot/sotagliflozin-hf/sotagliflozin-hf.json:1167,1486,1664,2950; ssot/grade_authority.py:273-315",
+  "state": "ESCALATED_CLASS_WIDE",
+  "plant": {
+   "not_run": true,
+   "why": "The displayed pending-certainty sentence is generated by ssot/grade_authority.py, which is class-wide and off limits for this slice.",
+   "blast_radius_count": 20
+  },
+  "reason": "The store records low certainty for all 3/3 outcomes and says grade per pool is held, but the class-wide certainty resolver renders the same three outcomes as pending. Fixing that renderer has a 20-page corpus blast radius."
+ },
+ {
+  "topic": "emtricitabine-hiv-auto-full-review",
+  "key": "what was found no registered trial was identified for this question",
+  "before_sentence": "What was found. No registered trial was identified for this question.",
+  "after_sentence": "Proposed class-wide patch text: for zero-trial objects with no search record or screening log, render 'What was found. No trial records are held in this object. No search or screening record is held either, so this page cannot conclude that no registered trial exists.'",
+  "evidence_read_at": "EMTRICITABINE_HIV_AUTO_FULL_REVIEW.html:226,282,285,421,424; ssot/emtricitabine-hiv-auto-full-review/emtricitabine-hiv-auto-full-review.json:15,46,54,60; ssot/statement.py:499-519",
+  "state": "ESCALATED_CLASS_WIDE",
+  "plant": {
+   "not_run": true,
+   "why": "The exact What-was-found sentence is generated by ssot/statement.py, which is class-wide and off limits for this slice.",
+   "blast_radius_count": 4
+  },
+  "reason": "The store holds 0 trial records and says 'WE NEVER LOOKED'; the page's no-registered-trial conclusion is generated for 4/4 zero-trial corpus pages by a class-wide statement branch."
+ }
+]

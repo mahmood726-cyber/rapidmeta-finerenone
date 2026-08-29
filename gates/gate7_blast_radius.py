@@ -97,10 +97,17 @@ def build_closure(repo, gate):
     ssot = os.path.join(repo, "ssot")
     for fn in os.listdir(ssot):
         if fn.endswith(".py"):
-            avail[fn[:-3]] = os.path.join("ssot", fn)
+            # FORWARD SLASHES, ALWAYS. os.path.join gives "ssot\x.py" on Windows while ROOTS
+            # and the `rel` computed in radius_map are forward-slash, so every module reached
+            # THROUGH a root failed the membership test and only the roots themselves scored
+            # class-wide. statement.py acknowledged 6 and derives 155 -- a ~25x under-report,
+            # and TWO class-wide changes were approved on that figure. A blast-radius
+            # instrument that returns a confident small number is the most dangerous kind,
+            # which is the second time this gate has demonstrated that about itself.
+            avail[fn[:-3]] = "ssot/" + fn
     closure, queue = set(), []
     for r in ROOTS:
-        if os.path.exists(os.path.join(repo, r)):
+        if os.path.exists(os.path.join(repo, r.replace("/", os.sep))):
             closure.add(r)
             queue.append(r)
         else:
@@ -108,7 +115,7 @@ def build_closure(repo, gate):
                         "would under-report every radius." % r)
     while queue:
         cur = queue.pop()
-        for mod in imports_of(os.path.join(repo, cur)):
+        for mod in imports_of(os.path.join(repo, cur.replace("/", os.sep))):
             rel = avail.get(mod)
             if rel and rel not in closure:
                 closure.add(rel)

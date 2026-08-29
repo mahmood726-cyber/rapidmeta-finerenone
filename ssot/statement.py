@@ -494,13 +494,37 @@ def statement_html(obj, e):
     # project holds is that an absence DECLARES itself with a reason, in the markup a
     # reader's eye and a checker both recognise, rather than being inferred from a short
     # page. Same content; stated as what it is.
+    # THREE STATES, BECAUSE "WE FOUND NOTHING" AND "WE DID NOT LOOK" ARE DIFFERENT CLAIMS.
+    #
+    # This branch told a reader the page should be read "as A SEARCH THAT FOUND NOTHING". Four
+    # live objects reach it -- caspofungin-fungal, emtricitabine-hiv, etesevimab-covid,
+    # men-acwy -- and NONE of them holds a search, a screening record, a PRISMA flow or a
+    # k-cascade. There is nothing in any of them recording that a search was ever executed, and
+    # one says so in its own words: WE NEVER LOOKED. Asserting a search found nothing, when no
+    # search is recorded, is a claim about the world made from an absence in our own file.
+    #
+    # THE OBVIOUS FIX DOES NOT WORK, and testing it is why this helper exists. `searched` is
+    # non-empty for all four -- it returns "Conditions, arm groups with types, and registered
+    # outcome measures at every rank", which describes WHICH FIELDS OF A REGISTRATION WERE READ,
+    # not that a search was run. Gating on it would have fired never and looked like a fix.
+    _search_run = any(
+        (obj.get(k) not in (None, "", [], {}))
+        for k in ("search", "screening", "prisma_flow", "k_cascade"))
     if not trials:
         out.append(
             "<div class='absent-state' role='note'><strong>No trial was identified for "
             "this question.</strong> This review holds no contributing trial, so there is "
             "no evidence here to summarise, pool or assess. What was checked and when is "
             "given below, so that this is read as a search that found nothing rather than "
-            "as a page that failed to load.</div>")
+            "as a page that failed to load.</div>"
+            if _search_run else
+            "<div class='absent-state' role='note'><strong>No trial records are held on "
+            "this object, and no search record is held either.</strong> This page holds no "
+            "contributing trial, and it also holds no search, screening record, PRISMA flow "
+            "or screening cascade &mdash; so it cannot tell you whether a registered trial "
+            "for this question exists. Read this as a page that has not looked, NOT as a "
+            "search that found nothing. The two are different claims and only the first is "
+            "supported here.</div>")
 
     if question:
         out.append("<p><strong>Question.</strong> %s</p>" % e(question))
@@ -515,9 +539,16 @@ def statement_html(obj, e):
             out.append("<tr><td>%s</td><td>%s</td></tr>"
                        % (e(nct), e(label or "title not recorded in the registry read")))
         out.append("</table>")
-    else:
+    elif _search_run:
         out.append("<p><strong>What was found.</strong> No registered trial was "
                    "identified for this question.</p>")
+    else:
+        # The same distinction, in the sentence a reader is most likely to quote. "No
+        # registered trial was identified" reads as a finding about the evidence base; without
+        # a search record it is only a fact about this file.
+        out.append("<p><strong>What was found.</strong> No trial records are held on this "
+                   "object. Because no search or screening record is held either, this page "
+                   "cannot conclude that no registered trial exists for this question.</p>")
 
     # WHAT THE TRIALS FOUND, WHERE THEY FOUND ANYTHING.
     #

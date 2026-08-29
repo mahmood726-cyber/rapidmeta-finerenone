@@ -972,9 +972,60 @@ def visual_abstract(canon, res, outcome, p):
     g = res.get("grade") or {}
     sens = res.get("sensitivity") or {}
     loo = ""
-    rows = [a for a in (sens.get("analyses") or []) if isinstance(a, dict)]
-    kept = [a for a in rows if a.get("still_excludes_null")]
-    if rows:
+    _all_sens = [a for a in (sens.get("analyses") or []) if isinstance(a, dict)]
+
+    # A LEAVE-ONE-OUT SENTENCE MUST COUNT LEAVE-ONE-OUT REFITS, AND NOTHING ELSE.
+    # tigecycline-ciai/cure_toc_me holds EIGHT sensitivity rows and only THREE remove a study;
+    # the other five change the summary statistic, the event definition, the model or the
+    # analysis population. Counting all eight made the denominator wrong, and because none of
+    # the eight carries `still_excludes_null` the numerator came out 0 -- so the page said "no
+    # refit excludes no difference; the estimate does not survive removal of any single trial"
+    # while its own leave-one-out table showed removal of study-3xx still excluding the null.
+    #
+    # THE SELECTOR MUST ACCEPT BOTH CONVENTIONS. Selecting on `id` alone is the obvious fix and
+    # is unsafe class-wide: only 1 of 13 page-outcomes with sensitivity rows uses leave-out ids,
+    # and 12 of 13 use a legacy non-empty `omitted`. Dropping those would delete a true sentence
+    # from twelve pages to fix one.
+    def _is_leave_one_out(a):
+        return (str(a.get("id") or "").startswith("leave-out")
+                or a.get("omitted") not in (None, "")
+                or " by removing " in str(a.get("changed") or "").lower())
+
+    # DERIVE THE VERDICT WHERE THE BOOLEAN IS ABSENT, AND REFUSE WHERE IT CANNOT BE DERIVED.
+    # `still_excludes_null` is honoured when stored. Otherwise it is read off the stored
+    # interval against this outcome's null -- 1 for a ratio, 0 for a difference. A row that
+    # supplies neither is UNDECIDABLE and must not be silently counted as "does not exclude",
+    # which is how a missing field became a false claim about robustness in the first place.
+    _measure = str((res.get("pooled") or {}).get("measure")
+                   or res.get("measure") or outcome.get("measure") or "").upper()
+    _null = 0.0 if _measure in ("MD", "SMD", "RD", "WMD") else 1.0
+
+    def _excludes_null(a):
+        if isinstance(a.get("still_excludes_null"), bool):
+            return a["still_excludes_null"]
+        # TWO SCHEMAS, AND READING ONLY ONE TURNS A READABLE REFIT INTO AN UNREADABLE ONE.
+        # tigecycline nests the interval under `result`; apixaban-vte-treatment stores it on
+        # the ROW ITSELF ({"omitted": "CARAVAGGIO", "point": ..., "ci_low": ...}). Reading
+        # only the nested shape declared all three apixaban refits unreadable and printed
+        # "3 refits cannot be read here" about three rows that each carry an interval.
+        # Same family as as_posted's eight schemas: a reader written against one shape
+        # reports the others as absent.
+        r = a.get("result") or a.get("refit") or a
+        lo, hi = r.get("ci_low"), r.get("ci_high")
+        if isinstance(lo, (int, float)) and isinstance(hi, (int, float)):
+            return not (lo <= _null <= hi)
+        return None
+
+    rows = [a for a in _all_sens if _is_leave_one_out(a)]
+    _verdicts = [_excludes_null(a) for a in rows]
+    _undecidable = [v for v in _verdicts if v is None]
+    kept = [a for a, v in zip(rows, _verdicts) if v is True]
+    if rows and _undecidable:
+        loo = ("Leave-one-out: %d refit%s cannot be read here, because %d of them store "
+               "neither an exclusion verdict nor an interval. No count is given rather than "
+               "one that treats an unreadable refit as a refit that failed."
+               % (len(rows), "" if len(rows) == 1 else "s", len(_undecidable)))
+    elif rows:
         # A SENTENCE ABOUT A NUMBER MUST BE A FUNCTION OF THAT NUMBER.
         # The previous version appended "the estimate does not survive removal of the
         # largest trial" unconditionally, reading `kept` for the count and then ignoring it
@@ -982,6 +1033,18 @@ def visual_abstract(canon, res, outcome, p):
         # does not survive removal of the largest trial" -- which is not merely contradictory,
         # it is false: if every refit excludes the null then the estimate DOES survive.
         # Measured before the fix: 6 of 12 emitted sentences were self-falsifying.
+        _k = res.get("k") if res.get("k") is not None else len(res.get("per_trial") or [])
+
+        # THE OTHER LANE'S IMPLEMENTATION SUPERSEDES MINE AND IS STRICTLY BETTER.
+        # This lane independently fixed the same class last night: absent read as negative,
+        # and non-refit rows counted as refits. Merging brought both fixes into one function
+        # and the duplicate is removed rather than left to run twice, because two counts of
+        # one quantity is how a page ends up asserting whichever ran last.
+        #
+        # Theirs wins on the part that matters: it derives the null from the MEASURE -- 0 for
+        # MD/SMD/RD, 1 for a ratio -- where mine defaulted to 1 and would have miscounted
+        # every mean-difference outcome. It also filters to leave-one-out rows BEFORE this
+        # point, so the selection my version repeated has already happened.
         _k = res.get("k") if res.get("k") is not None else len(res.get("per_trial") or [])
         _n, _tot = len(kept), len(rows)
         if _k == 2:
@@ -995,12 +1058,11 @@ def visual_abstract(canon, res, outcome, p):
             loo = ("Leave-one-out: all %d refits still exclude no difference; the estimate "
                    "survives removal of any single trial." % _tot)
         elif _n == 0:
-            loo = ("Leave-one-out: no refit excludes no difference; the estimate does not "
-                   "survive removal of any single trial." % ())
+            loo = ("Leave-one-out: none of the %d refits excludes no difference; the estimate "
+                   "does not survive removal of any single trial." % _tot)
         else:
             loo = ("Leave-one-out: %d of %d refits still exclude no difference; the estimate "
-                   "does not survive removal of every single trial."
-                   % (_n, _tot))
+                   "does not survive removal of every single trial." % (_n, _tot))
     return fig(visual_abstract_svg(
         canon.get("title", ""), canon.get("question", ""),
         (res["k"] if res.get("k") is not None else len(res.get("per_trial") or [])),

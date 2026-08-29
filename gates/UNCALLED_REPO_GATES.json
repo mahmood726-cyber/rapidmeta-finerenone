@@ -2,7 +2,7 @@
  "frozen_utc": "2026-08-28",
  "what": "scripts named like a gate that CAN fail and are called by nothing. Available, not operative.",
  "escalated_to": "out/ESCALATIONS.jsonl",
- "count": 156,
+ "count": 160,
  "keys": [
   "scripts/absence_reason_gate.py",
   "scripts/alignment_gate.py",
@@ -101,6 +101,7 @@
   "scripts/lint_claim_traces_to_object.py",
   "scripts/lint_commit_claims_verified.py",
   "scripts/lint_container_repr_on_a_page.py",
+  "scripts/lint_destructive_without_asserted_backup.py",
   "scripts/lint_encoding_defaults.py",
   "scripts/lint_hr_between_or_and_rr.py",
   "scripts/lint_interactive_layer_2026_08_26.py",
@@ -136,8 +137,10 @@
   "scripts/subject_match_gate.py",
   "scripts/sweep_abstract_omits_withdrawn_2026_08_22.py",
   "scripts/sweep_arm_roles_2026_08_28.py",
+  "scripts/sweep_crossfile_arms_2026_08_28.py",
   "scripts/sweep_groupc_with_estimates_2026_08_28.py",
   "scripts/sweep_mixed_measure_pools_2026_08_21.py",
+  "scripts/sweep_partial_repairs_2026_08_28.py",
   "scripts/sweep_phase_filter_recall_2026_08_19.py",
   "scripts/sweep_r_output_labels_reproduce.py",
   "scripts/sweep_rendered_interval_is_the_house_interval.py",
@@ -156,9 +159,23 @@
   "scripts/verify_projector_delta_2026_08_24.py",
   "scripts/verify_search_record_reconciles.py",
   "scripts/verify_served_bytes_2026_08_23_writer2.py",
+  "scripts/verify_served_index_2026_08_28.py",
   "scripts/verify_shrink_is_safe_2026_08_24.py",
   "scripts/verify_then_write_provenance.py",
   "scripts/withdrawal_proportionality_sweep.py",
   "scripts/withdrawal_reason_gate.py"
+ ],
+ "admitted_at_merges": [
+  {
+   "merge": "origin/main 7a8978691",
+   "utc": "2026-08-29",
+   "added": [
+    "scripts/lint_destructive_without_asserted_backup.py",
+    "scripts/sweep_crossfile_arms_2026_08_28.py",
+    "scripts/sweep_partial_repairs_2026_08_28.py",
+    "scripts/verify_served_index_2026_08_28.py"
+   ],
+   "why": "introduced by ANOTHER LANE's commits merged from origin/main, not by this lane. A ratchet keyed on paths fires on every cross-lane merge; the entries are admitted here and ATTRIBUTED rather than silenced, so the class still cannot grow unnoticed."
+  }
  ]
 }
