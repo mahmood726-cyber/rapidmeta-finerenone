@@ -2012,6 +2012,16 @@ if __name__ == "__main__":
             "BUILD REFUSED: the interval component failed (%s: %s). A page that reports one "
             "interval without showing what the other estimator gives does not build."
             % (type(_e).__name__, _e))
+    # How current this page is against its designated comparator. Network failure inside the
+    # component is a stated NOT_YET_ATTEMPTED on the page, not a build failure -- the build only
+    # refuses if the component itself is broken.
+    try:
+        import currency_query as _cur
+        _html = _cur.inject(_html, obj)
+    except Exception as _e:
+        raise SystemExit(
+            "BUILD REFUSED: the currency component failed (%s: %s). A page that cannot say how "
+            "old its evidence base is does not build." % (type(_e).__name__, _e))
     try:
         import integrity_section as _isec
     except Exception as _e:
