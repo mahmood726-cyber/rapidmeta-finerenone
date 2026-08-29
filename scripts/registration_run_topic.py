@@ -371,6 +371,26 @@ def do_topic(topic, rel=None, query_override=None):
         "executed_by": "run_topic.py",
         "written_utc": now(),
     }
+    # ⛔ NEVER REPLACE AN EARLIER SEARCH. If a record already exists it is carried into
+    # the new one under `superseded_search`, with its own sources and timestamps intact.
+    # Three topics here were searched with two or three sources before the five-source
+    # design was ruled; re-running them is right, and silently overwriting the evidence
+    # that they were once searched more narrowly is not. The same rule that produced
+    # `amended_search` for a malformed query applies to a widened one.
+    if os.path.isfile(rec_p):
+        try:
+            prev = json.load(open(rec_p, encoding="utf-8"))
+            record["superseded_search"] = {
+                "_why": ("This topic was searched before the five-source design was ruled. "
+                         "The earlier record is preserved verbatim rather than overwritten; "
+                         "a narrower search that actually happened is a fact about this "
+                         "review."),
+                "n_sources_then": len(prev.get("databases") or []),
+                "record": prev,
+            }
+        except (ValueError, OSError) as e:
+            record["superseded_search"] = {"_error": "prior record unreadable: %s"
+                                           % type(e).__name__}
     open(rec_p, "w", encoding="utf-8", newline="").write(
         json.dumps(record, ensure_ascii=False, indent=1))
     git("add", "--", rec_rel)
