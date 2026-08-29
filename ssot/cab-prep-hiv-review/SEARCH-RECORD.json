@@ -313,5 +313,14 @@
    "executed_utc": "2026-08-28T23:04:31.985Z"
   }
  ],
- "_retry_note": "A source that FAILED was queried again. The original FAILED entry in 'databases' is left exactly as it was: the failure is a fact about this search and is not erased by a later success. Both attempts carry their own timestamp. The retry happened AFTER this record was first anchored, so the retry is covered by the anchor of the amended record, not the first one."
+ "_retry_note": "A source that FAILED was queried again. The original FAILED entry in 'databases' is left exactly as it was: the failure is a fact about this search and is not erased by a later success. Both attempts carry their own timestamp. The retry happened AFTER this record was first anchored, so the retry is covered by the anchor of the amended record, not the first one.",
+ "READ_IS_NOT_APPRAISED": {
+  "records_read": 46,
+  "records_appraised": 1,
+  "retrieved_but_never_appraised": 45,
+  "_what_this_corrects": "This topic's published-comparison denominator carries a field named 'read' whose value is the RETRIEVED count. 46 records were retrieved and 1 appraised, so 45 were listed and never read. 'read' that means 'retrieved' reads as diligence and is not.",
+  "_why_this_is_not_pedantry": "On lefamulin-cabp-auto-full-review an external reader found a genuinely missing randomised trial, LEAP China. Re-running that topic's search exactly as the pipeline sent it RETURNED the 2025 pooled analysis whose abstract names LEAP China, and the 2021 pooled analysis carrying the validation figures. THE SEARCH FOUND THE ANSWER. The object recorded '19 read', appraised one, and the answer was discarded between retrieval and appraisal. A high read-count is exactly what makes that invisible.",
+  "_scope": "This states the gap. It does not appraise the records, and this topic must not be described as having screened them.",
+  "declared_utc": "2026-08-29"
+ }
 }
