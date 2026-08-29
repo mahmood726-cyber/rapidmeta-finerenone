@@ -2,7 +2,7 @@
  "frozen_utc": "2026-08-28",
  "what": "scripts using a generic name in the shared scratch root, which another lane could independently choose and overwrite.",
  "escalated_to": "out/ESCALATIONS.jsonl",
- "count": 61,
+ "count": 69,
  "keys": [
   "scripts/add_r_output.py:6 -> arni\\r_out.json",
   "scripts/build_vintage_arm_2026_08_27.py:31 -> wt\\genstore",
@@ -20,6 +20,8 @@
   "scripts/lane_rob/characterise_storeless_pages.py:48 -> pend\\page_attribution.json",
   "scripts/lane_rob/chk_noninferiority_pooled_as_superiority.py:266 -> pend\\out\\noninferiority_detector.json",
   "scripts/lane_rob/d5_protocol_retrieval.py:92 -> pend",
+  "scripts/lane_rob/data_finder.py:286 -> pend\\out\\data_finder_yield.json",
+  "scripts/lane_rob/data_finder.py:52 -> pend\\out\\registry_full",
   "scripts/lane_rob/deliver_k4_harmonised.py:161 -> pend\\out\\deliver_k4.json",
   "scripts/lane_rob/document_kind.py:150 -> pend\\out\\fulltext\\*.xml",
   "scripts/lane_rob/document_kind.py:176 -> pend\\out\\document_kinds.json",
@@ -32,6 +34,7 @@
   "scripts/lane_rob/funder_vs_retrievability.py:34 -> pend\\funder_retrievability.jsonl",
   "scripts/lane_rob/gate_index_estimates.py:213 -> pend\\index_estimates.json",
   "scripts/lane_rob/gate_scale_vs_measure.py:7 -> blind-review.",
+  "scripts/lane_rob/hta_guidance.py:39 -> pend\\hta",
   "scripts/lane_rob/legacy_live_or_retired.py:171 -> pend\\legacy_live_or_retired.json",
   "scripts/lane_rob/legacy_live_or_retired.py:176 -> pend\\legacy_live_or_retired.json",
   "scripts/lane_rob/legacy_live_or_retired.py:176 -> pend\\page_attribution.json",
@@ -42,9 +45,13 @@
   "scripts/lane_rob/live_sole_populated_or_empty.py:97 -> pend\\legacy_live_or_retired.json",
   "scripts/lane_rob/measure_conflicting_levels.py:121 -> pend\\conflict_levels.json",
   "scripts/lane_rob/ni_provenance.py:191 -> pend\\ni_provenance.json",
+  "scripts/lane_rob/obtainability_matrix.py:168 -> pend\\out\\obtainability_rung2.json",
+  "scripts/lane_rob/obtainability_matrix.py:50 -> pend\\out\\registry_full",
   "scripts/lane_rob/overnight_fulltext_harvest.py:31 -> pend\\out",
   "scripts/lane_rob/overnight_fulltext_harvest.py:36 -> pend\\funder_retrievability.jsonl",
-  "scripts/lane_rob/regeneration_test.py:80 -> pend\\out\\regen_test.html",
+  "scripts/lane_rob/page_weight.py:67 -> pend\\ready.json",
+  "scripts/lane_rob/page_weight.py:90 -> pend\\out\\page_weight.json",
+  "scripts/lane_rob/regeneration_test.py:92 -> pend\\out\\regen_test.html",
   "scripts/lane_rob/registry_vs_publication.py:45 -> pend\\out\\registry_full",
   "scripts/lane_rob/registry_vs_publication.py:46 -> pend\\out\\fulltext",
   "scripts/lane_rob/registry_vs_publication.py:47 -> pend\\out\\registry_vs_publication.json",
@@ -56,6 +63,7 @@
   "scripts/lane_rob/retrieve_by_result_reference.py:39 -> pend\\out\\RESULT-JOIN.DONE",
   "scripts/lane_rob/size_rebuild_queue.py:103 -> pend\\rebuild_queue.json",
   "scripts/lane_rob/size_rebuild_queue.py:66 -> pend\\conflict_levels.json",
+  "scripts/lane_rob/split_output.py:140 -> pend\\out",
   "scripts/lane_rob/sweep_d4_functional_unblinding.py:151 -> pend\\d4_sweep.json",
   "scripts/lane_rob/sweep_pico_wider_than_trials.py:160 -> pend\\pico_sweep.json",
   "scripts/lane_rob/what_pages_declare.py:61 -> pend\\has_store_144.json",
@@ -185,6 +193,72 @@
    ],
    "retired": [],
    "why": "Arrived by merge. Admitted rather than edited: these paths belong to another lane, and rewriting them here would be a class-wide change to code this lane does not own. Keyed to the commit that introduced each line."
+  },
+  {
+   "merge": "origin/main",
+   "utc": "2026-08-29",
+   "added": [
+    "scripts/lane_rob/data_finder.py:286 -> pend\\out\\data_finder_yield.json",
+    "scripts/lane_rob/data_finder.py:52 -> pend\\out\\registry_full",
+    "scripts/lane_rob/hta_guidance.py:39 -> pend\\hta",
+    "scripts/lane_rob/obtainability_matrix.py:168 -> pend\\out\\obtainability_rung2.json",
+    "scripts/lane_rob/obtainability_matrix.py:50 -> pend\\out\\registry_full",
+    "scripts/lane_rob/page_weight.py:67 -> pend\\ready.json",
+    "scripts/lane_rob/page_weight.py:90 -> pend\\out\\page_weight.json",
+    "scripts/lane_rob/regeneration_test.py:92 -> pend\\out\\regen_test.html",
+    "scripts/lane_rob/split_output.py:140 -> pend\\out"
+   ],
+   "attribution": [
+    {
+     "key": "scripts/lane_rob/data_finder.py:286 -> pend\\out\\data_finder_yield.json",
+     "introduced_by": "28b4ce7b6",
+     "subject": "The data finder layer: one sanctioned finder, five named rungs, 78.1% from rung 2 alone"
+    },
+    {
+     "key": "scripts/lane_rob/data_finder.py:52 -> pend\\out\\registry_full",
+     "introduced_by": "28b4ce7b6",
+     "subject": "The data finder layer: one sanctioned finder, five named rungs, 78.1% from rung 2 alone"
+    },
+    {
+     "key": "scripts/lane_rob/hta_guidance.py:39 -> pend\\hta",
+     "introduced_by": "969c0a9c5",
+     "subject": "HTA and guidance rung: built narrow, and it finds NOTHING yet for the pilot -- which matters"
+    },
+    {
+     "key": "scripts/lane_rob/obtainability_matrix.py:168 -> pend\\out\\obtainability_rung2.json",
+     "introduced_by": "7b3a6a0e2",
+     "subject": "Obtainability, not holdings: I quoted a ceiling that was a measure of our own extraction"
+    },
+    {
+     "key": "scripts/lane_rob/obtainability_matrix.py:50 -> pend\\out\\registry_full",
+     "introduced_by": "7b3a6a0e2",
+     "subject": "Obtainability, not holdings: I quoted a ceiling that was a measure of our own extraction"
+    },
+    {
+     "key": "scripts/lane_rob/page_weight.py:67 -> pend\\ready.json",
+     "introduced_by": "f803cc87d",
+     "subject": "Page weight for the reader in Dhaka: 81% of the corpus is raster nobody ever sees"
+    },
+    {
+     "key": "scripts/lane_rob/page_weight.py:90 -> pend\\out\\page_weight.json",
+     "introduced_by": "f803cc87d",
+     "subject": "Page weight for the reader in Dhaka: 81% of the corpus is raster nobody ever sees"
+    },
+    {
+     "key": "scripts/lane_rob/regeneration_test.py:92 -> pend\\out\\regen_test.html",
+     "introduced_by": "81070dea1",
+     "subject": "The regeneration test: the harness reproduces 0 of 13 winning features. The margin was 100% hand-written"
+    },
+    {
+     "key": "scripts/lane_rob/split_output.py:140 -> pend\\out",
+     "introduced_by": "68d87ae3a",
+     "subject": "\"The data is always there\": NOT_YET_FOUND becomes the default, and the split format is measured"
+    }
+   ],
+   "retired": [
+    "scripts/lane_rob/regeneration_test.py:80 -> pend\\out\\regen_test.html"
+   ],
+   "why": "Arrived by merge from another lane. Admitted rather than edited: these are that lane's output paths, and rewriting them here would be a class-wide change to code this lane does not own."
   }
  ]
 }

@@ -32,7 +32,8 @@ sys.path.insert(0, HERE)
 # Written through a shell heredoc, every intended word-boundary escape became a literal
 # BACKSPACE character (0x08). The compiled pattern PRINTED as 'hazard|cox|rate ratio|HR|IRR'
 # -- visually perfect -- and search('HR') returned False, because the real pattern was
-# 'hazard|cox|rate ratio|HR'. An invisible control character produced a
+# 'hazard|<BS>cox<BS>|rate ratio|<BS>HR<BS>', where <BS> is a literal 0x08. An
+# invisible control character produced a
 # check that appears installed and is inert: the available-not-operative family, at character
 # level. Caught only because the classifier suddenly called HR, RR and MD unrecognised.
 TIME_TO_EVENT = re.compile(r"hazard|\bcox\b|rate ratio|incidence rate|\bHR\b|\bIRR\b", re.I)

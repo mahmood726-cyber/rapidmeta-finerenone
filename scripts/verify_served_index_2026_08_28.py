@@ -31,9 +31,23 @@ OUT = os.path.join(REPO, "outputs", "served_index_2026_08_28.json")
 SURFACES = ["index.html", "sitemap.xml", "audit_table.html", "portfolio_pools.html",
             "auto-gallery.html", "index_indicators.json", "outputs/portfolio_index.json"]
 
-# How many KEEP cards carried a DATED readiness state when this floor was set, 2026-08-28.
-# Raise it if a real assessment adds more; never lower it to make a check pass.
-READINESS_FLOOR = 19
+# THE FIRST VERSION OF THIS FLOOR COUNTED THE WRONG SET AND ACCUSED THE WRONG THING.
+# It counted cards BOTH in the KEEP list AND carrying a dated readiness state, against a
+# floor of 19. On 2026-08-29 it read 17 and reported "readiness flags dropped ... removing
+# them is fabrication by deletion". No flag had been removed: the served file held 23
+# cards and all 23 carried a state, unchanged across the file's entire history. What moved
+# was KEEP MEMBERSHIP -- the intersection, not the flags.
+#
+# A check must measure the property it names. The property is "no card silently loses its
+# not-ready flag", which is a statement about the FILE, not about its overlap with a list
+# that is expected to move. Two assertions replace the one:
+#
+#   every card that exists carries a dated state   -- nothing was stripped
+#   the number of cards has not fallen             -- nothing was deleted wholesale
+#
+# Neither can be satisfied by changing what is indexed, which is the loophole the old form
+# had, and neither can be quietly lowered to make a run pass.
+CARDS_FLOOR = 23
 
 
 def fetch(path):
@@ -210,31 +224,35 @@ def main():
     # FABRICATION BY DELETION, and this fails if the count drops.
     say("")
     say("STANDING ORDER: the dated not-ready flags must not be deleted")
-    n_flag = 0
     try:
         doc = json.loads(bodies.get("index_indicators.json") or "{}") or {}
     except ValueError:
         doc = {}
     cards = doc.get("cards") or {}
     # The date is the FILE's _measured. `readiness` carries only a state, and
-    # internal.measured dates the identifier audit -- a different measurement. The first
-    # version of this check demanded readiness.measured, a field that does not exist, and
-    # so reported 0 of 19 and accused a healthy file of having lost its flags.
+    # internal.measured dates the identifier audit -- a different measurement.
     when = doc.get("_measured")
-    for k, v in cards.items():
-        if not isinstance(v, dict):
-            continue
-        if (k + ".html") not in keep:
-            continue
-        if (v.get("readiness") or {}).get("state") and when:
-            n_flag += 1
-    say("   KEEP cards carrying a DATED readiness state: %d (floor %d)"
-        % (n_flag, READINESS_FLOOR))
-    if n_flag < READINESS_FLOOR:
+    n_cards = sum(1 for v in cards.values() if isinstance(v, dict))
+    n_flag = sum(1 for v in cards.values()
+                 if isinstance(v, dict) and (v.get("readiness") or {}).get("state") and when)
+    stripped = n_cards - n_flag
+    say("   cards in the served file: %d (floor %d)" % (n_cards, CARDS_FLOOR))
+    say("   of those, carrying a DATED readiness state: %d; WITHOUT one: %d"
+        % (n_flag, stripped))
+    if stripped:
         bad.append(("index_indicators.json",
-                    "readiness flags dropped to %d, below the floor of %d -- removing them "
-                    "without a replacement assessment is fabrication by deletion"
-                    % (n_flag, READINESS_FLOOR)))
+                    "%d card(s) exist with no dated readiness state. Removing a not-ready "
+                    "flag without a replacement assessment is fabrication by deletion."
+                    % stripped))
+    if n_cards < CARDS_FLOOR:
+        bad.append(("index_indicators.json",
+                    "the served file carries %d cards, below the floor of %d -- cards were "
+                    "deleted rather than reassessed" % (n_cards, CARDS_FLOOR)))
+    say("   (%d of these cards are in KEEP. That overlap is NOT the test: it moves "
+        "whenever index membership moves, and the previous version of this check read "
+        "such a move as a deletion.)"
+        % sum(1 for k, v in cards.items()
+              if isinstance(v, dict) and (k + ".html") in keep))
 
     # nothing was deleted: pages dropped from the indexes must still serve
     say("")
