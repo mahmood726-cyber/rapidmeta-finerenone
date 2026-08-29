@@ -410,6 +410,26 @@ methodologically secure, and both are true at once.</li>
 reports, because one primary report is not held. They are labelled at that tier.</li>
 </ul>
 
+<h2>What was checked before this page was published</h2>
+
+<p>These are the specific errors that would otherwise be in the numbers above. Each class was
+derived from a real defect found by auditing this corpus, and each carries the defect that
+generated it.</p>
+
+<p><b>Checked against 9 instrumented defect classes. 0 flagged on this build.</b></p>
+
+<div class="scroll"><table>
+<tr><th>Class</th><th>What it catches</th><th>The defect that generated it</th></tr>
+<tr><td><span class="mono">unfilled-template-token</span></td><td>a placeholder shipped unsubstituted</td><td>11 pages cited protocols/name_protocol_v1.0.md -- 'name' was the placeholder</td></tr><tr><td><span class="mono">bare-none-rendered</span></td><td>a Python None reaching rendered output</td><td>1110 dashboards rendered as 626-byte stubs from `None` in a JS literal</td></tr><tr><td><span class="mono">markup-imbalance</span></td><td>unbalanced tags after a hand edit</td><td>div-balance drift after HTML edits, repeatedly</td></tr><tr><td><span class="mono">estimand-unnamed</span></td><td>a pooled quantity presented without naming what it estimates</td><td>binary counts pooled where both trials analysed time to event</td></tr><tr><td><span class="mono">hksj-unqualified</span></td><td>a small-k interval reported without naming the variance floor</td><td>raw HKSJ narrows below Wald when Q < k-1; the q* floor was missing</td></tr><tr><td><span class="mono">ratio-on-natural-scale</span></td><td>a ratio measure said to be on the natural scale</td><td>sglt2-hf rendered 'on the natural scale' for a hazard ratio</td></tr><tr><td><span class="mono">denial-of-something-held</span></td><td>the page denies what the corpus holds</td><td>92 pages stated no protocol exists while a protocol sat in the repository</td></tr><tr><td><span class="mono">statistic-rendered-twice</span></td><td>one statistic with two values on one page</td><td>the same number rendered from two code paths</td></tr><tr><td><span class="mono">untraceable-number</span></td><td>a number with no source</td><td>stored estimates that do not follow from their own counts: 172 of 178 uncheckable</td></tr>
+</table></div>
+
+<p><b>Flagged on this build:</b></p><ul><li>none on this build</li></ul>
+
+<h3>6 classes we know about and cannot yet detect</h3>
+
+<p>Named because a taxonomy that lists only what it catches is marketing.</p>
+<ul><li><b>narrative-contradicts-its-own-table</b> &mdash; prose that disagrees with the table beside it -- semantic, no instrument exists</li><li><b>value-does-not-reconcile-with-its-source</b> &mdash; a stored number that does not follow from the document it cites; needs the source in hand, and we hold the primary report for a minority of trials</li><li><b>planned-field-shown-as-observed</b> &mdash; a registered plan displayed in a field labelled as observation -- found by hand on this page's follow-up figure</li><li><b>prior-synthesis-value-presented-as-primary</b> &mdash; a competitor's extraction reported as our own read; labelled here by hand, not detected</li><li><b>subgroup-claim-beyond-the-trial-strata</b> &mdash; a subgroup statement the trial's own strata do not support</li><li><b>adjudicated-versus-submitted-counts</b> &mdash; registry and publication disagreeing on event counts; detectable only where both are held</li></ul>
+
 <h2>Audit trail</h2>
 
 <div class="scroll">
