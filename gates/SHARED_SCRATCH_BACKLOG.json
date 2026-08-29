@@ -2,7 +2,7 @@
  "frozen_utc": "2026-08-28",
  "what": "scripts using a generic name in the shared scratch root, which another lane could independently choose and overwrite.",
  "escalated_to": "out/ESCALATIONS.jsonl",
- "count": 69,
+ "count": 70,
  "keys": [
   "scripts/add_r_output.py:6 -> arni\\r_out.json",
   "scripts/build_vintage_arm_2026_08_27.py:31 -> wt\\genstore",
@@ -11,6 +11,7 @@
   "scripts/corpus/corpus_detectors.py:50 -> ssot\\build",
   "scripts/gate_integrity.py:417 -> finerenone-pre-push.BROKEN.bak",
   "scripts/lane_rob/aact_retrieval.py:153 -> pend\\aact_retrieval.json",
+  "scripts/lane_rob/absence_claims_audit.py:173 -> pend\\out\\absence_claims.json",
   "scripts/lane_rob/adjudication_triage.py:192 -> pend\\adjudication_triage.json",
   "scripts/lane_rob/attribute_unassessed_pages.py:190 -> pend\\page_attribution.json",
   "scripts/lane_rob/blind_judge_control.py:38 -> pend\\out\\judge",
@@ -276,6 +277,22 @@
    "retired": [
     "scripts/lane_rob/regeneration_test.py:92 -> pend\\out\\regen_test.html"
    ],
+   "why": "Arrived by merge from another lane. Admitted rather than edited: these are that lane's output paths, and rewriting them here would be a class-wide change to code this lane does not own."
+  },
+  {
+   "merge": "origin/main",
+   "utc": "2026-08-29",
+   "added": [
+    "scripts/lane_rob/absence_claims_audit.py:173 -> pend\\out\\absence_claims.json"
+   ],
+   "attribution": [
+    {
+     "key": "scripts/lane_rob/absence_claims_audit.py:173 -> pend\\out\\absence_claims.json",
+     "introduced_by": "57960e431",
+     "subject": "A 404 is not an absence: sweep the corpus, and I was wrong about sglt2"
+    }
+   ],
+   "retired": [],
    "why": "Arrived by merge from another lane. Admitted rather than edited: these are that lane's output paths, and rewriting them here would be a class-wide change to code this lane does not own."
   }
  ]

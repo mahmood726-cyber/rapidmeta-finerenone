@@ -203,7 +203,7 @@ def _c_unanchored_authority(html, txt):
     # of every submission Drugs@FDA serves, which is a stronger demonstration than a URL, and was
     # being flagged by this class purely because it did not contain one.
     ANCH = re.compile(r"https?://|10665/|NCT\d{8}|PMID|PMC\d+|doi|retrieved|sha256|ISBN|openFDA|"
-                      r"staged|probed?|enumerat\w+|submissions asked|server'?s answers", re.I)
+                      r"staged|probed?\b|enumerat\w+|submissions asked|server'?s answers", re.I)
     # A verb that asserts a POSITION held by that body, rather than merely naming it.
     STANCE = re.compile(r"\b(%s)\b[^.]{0,90}?\b(recommend\w*|approv\w*|endors\w*|extended|"
                         r"guidance is|advises|requires|concluded|records|states)\b" % AUTH, re.I)
