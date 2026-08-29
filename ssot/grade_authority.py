@@ -118,10 +118,65 @@ PENDING_TEXT = (
     "that this review has not finalised: %s Cochrane rates certainty per outcome by "
     "aggregating the risk-of-bias judgements of the results contributing to it, so a "
     "certainty rating cannot be more final than the risk-of-bias assessment it reads. "
-    "%s The rating this object currently records, and the steps behind it, are shown "
-    "below as the work so far rather than as this review's answer. No level is published "
-    "for this outcome -- not the recorded one, not a more cautious one, and not a "
-    "midpoint -- because choosing one would be the judgement that has not been made.")
+    "%s No level is published for this outcome -- not the recorded one, not a more "
+    "cautious one, and not a midpoint -- because choosing one would be the judgement "
+    "that has not been made. %s")
+
+
+# THE DOMAINS THAT ARE SETTLED ARE PUBLISHED. THE ONE THAT IS NOT, IS NOT.
+#
+# Ruling from Mahmood, 2026-08-28: "no certainty rating is published while its risk-of-bias
+# domain is unadjudicated -- publish the established downgrade reasons and state that
+# certainty is unrated because bias is unresolved. If the resolver's effect is to fill in a
+# certainty over an unadjudicated assessment, that is not the fix, that is the defect with
+# better plumbing."
+#
+# WHAT WAS ACTUALLY WRONG, and it is not what the queue item proposed. The queue proposed
+# publishing the recorded level; that IS the defect. What PENDING got wrong was the other
+# half -- it withheld the level, correctly, and withheld the REASONING along with it, while
+# the sentence it printed promised the opposite. Served today on both rebuildable pages:
+# "the steps behind it are shown below as the work so far", with nothing below. A page that
+# announces its own workings and then omits them has said something false about itself.
+#
+# `certainty_derivation` IS NOT USABLE HERE, which is why the domains are walked one at a
+# time instead. All ten stored derivations end by naming the level -- "start high;
+# risk_of_bias serious (-1), imprecision serious (-1); total -2 -> low". Emitting that string
+# publishes the certainty in prose while the cell withholds it: the plumbing the ruling
+# forbids. So per-domain ratings and their recorded reasons, no total, no arrow, no level.
+#
+# RISK OF BIAS IS EXCLUDED BY NAME rather than by being absent, because on some outcomes it
+# is rated `not serious` and contributes no downgrade at all -- iv-iron-hf's
+# hierarchical_primary derives "start high; imprecision serious (-1)". A filter that dropped
+# only DOWNGRADING domains would publish that outcome's risk-of-bias judgement as settled,
+# and it is the unadjudicated one whatever it was rated.
+_REASON_FIELDS = ("basis_in_sources", "derived_from", "triggers_computed",
+                  "not_assessable_because", "reason")
+
+
+def _established_grounds(s_blk, t_blk):
+    """Every domain except risk of bias, with the reason the object recorded for it."""
+    seen, parts = set(), []
+    for blk in (s_blk, t_blk):
+        dom = (blk or {}).get("domains")
+        if not isinstance(dom, dict):
+            continue
+        for name, v in dom.items():
+            if name == "risk_of_bias" or name in seen:
+                continue
+            if not isinstance(v, dict) or not v.get("rating"):
+                continue
+            seen.add(name)
+            why = next((str(v[k]).strip() for k in _REASON_FIELDS if v.get(k)), "")
+            label = name.replace("_", " ")
+            parts.append("%s is rated %s%s"
+                         % (label, v["rating"], (" -- %s" % why.rstrip(".")) if why else ""))
+    if not parts:
+        return ""
+    return ("What this review HAS settled about this outcome is published here, because none "
+            "of it depends on the unresolved judgement: %s. The domain that is not settled is "
+            "risk of bias, and it is the one every certainty level for this outcome would have "
+            "to read, so the level waits and these do not."
+            % "; ".join(parts))
 
 
 def _rob_claim(s_blk, t_blk):
@@ -311,7 +366,8 @@ def resolve(canon, oid):
             out.update(state="PENDING", cell=CELL_PENDING, level=None,
                        pending_because=why, recorded_level=lvl,
                        needs_footnote=True,
-                       comment=PENDING_TEXT % (why, cited))
+                       comment=PENDING_TEXT % (why, cited,
+                                              _established_grounds(s_blk, t_blk)))
             return out
 
     out.update(state="RATED", level=lvl,
