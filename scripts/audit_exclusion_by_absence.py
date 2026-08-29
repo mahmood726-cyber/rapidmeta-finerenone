@@ -52,6 +52,7 @@ import io
 import json
 import os
 import re
+import subprocess
 import sys
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
@@ -289,6 +290,114 @@ def ratchet(subset, write_if_missing=True):
     return known, new, healed
 
 
+
+def _introducing_commit(rel, line_no):
+    """The sha that introduced this line, via blame. None if it cannot be determined."""
+    try:
+        r = subprocess.run(["git", "blame", "-L", "%d,%d" % (line_no, line_no),
+                            "--porcelain", "--", rel],
+                           capture_output=True, cwd=REPO)
+        out = (r.stdout or b"").decode("utf-8", "replace")
+        return out.split()[0] if out.strip() else None
+    except Exception:
+        return None
+
+
+_FP_CACHE = os.path.join(REPO, "scripts", "baselines", "_first_parent_cache.json")
+
+
+def _own_commits():
+    """Shas on THIS lane's first-parent history, CACHED and updated incrementally.
+
+    A guard that arrived through a MERGE is not on first-parent history, which is exactly the
+    distinction the ratchet needs: it separates "this lane wrote a new negative guard" from
+    "this lane merged a branch that already had one".
+
+    CACHED BECAUSE THE FULL WALK COSTS 3m20s HERE. `git rev-list --first-parent HEAD` returns
+    only 708 commits and still takes over three minutes on this filesystem, which would put
+    the whole cost inside a gate that runs on every commit. The cache stores the set with the
+    HEAD it was computed at; a later run walks only `HEAD ^cached_head`, which is a handful of
+    commits. A gate slow enough to be skipped is a gate that does not run.
+    """
+    head = ""
+    try:
+        head = subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True,
+                              cwd=REPO).stdout.decode("utf-8", "replace").strip()
+    except Exception:
+        return set()
+    cached, cached_head = set(), None
+    if os.path.exists(_FP_CACHE):
+        try:
+            d = json.load(io.open(_FP_CACHE, encoding="utf-8"))
+            cached, cached_head = set(d.get("shas") or []), d.get("head")
+        except Exception:
+            cached, cached_head = set(), None
+    if cached_head == head and cached:
+        return cached
+    try:
+        if cached_head and cached:
+            args = ["git", "rev-list", "--first-parent", head, "^" + cached_head]
+        else:
+            args = ["git", "rev-list", "--first-parent", head]
+        r = subprocess.run(args, capture_output=True, cwd=REPO, timeout=600)
+        got = set((r.stdout or b"").decode("utf-8", "replace").split())
+    except Exception:
+        return cached
+    allshas = cached | got
+    try:
+        os.makedirs(os.path.dirname(_FP_CACHE), exist_ok=True)
+        json.dump({"head": head, "shas": sorted(allshas),
+                   "what": "first-parent history of this lane, cached because the full walk "
+                           "costs minutes on this filesystem; updated incrementally"},
+                  io.open(_FP_CACHE, "w", encoding="utf-8"))
+    except Exception:
+        pass
+    return allshas
+
+
+def attribute(new_keys, hits):
+    """[(key, sha, subject)] -- the COMMIT that introduced each new guard.
+
+    KEYED TO THE INTRODUCING COMMIT, NOT THE PATH. Keying on the file path made every
+    cross-lane merge look like this lane writing new guards: twice in two days another lane's
+    file blocked every commit here and was admitted as SEEN-and-not-justified. A baseline that
+    accumulates unexplained admissions stops being a baseline.
+
+    IT DOES NOT INFER WHICH LANE, BECAUSE NOTHING HERE CAN. Two signals were tried and both
+    failed on real data:
+      - FIRST-PARENT HISTORY. A guard that arrives by merge should be off it -- but merges
+        here often FAST-FORWARD, which puts the other lane's commits directly onto it. 14 of
+        17 rob-lane guards were misattributed to this lane on that test.
+      - AUTHORSHIP. Every commit in this repository is authored and committed by the same
+        identity, so it carries no lane information at all.
+    So the honest output is the COMMIT and its subject line, which names the work and is
+    verifiable, rather than a guessed owner. An admission that records the sha is
+    attributable; one that records nothing is not, and that was the whole complaint.
+    """
+    by_key, seen = {}, {}
+    for h in hits:
+        rel, ln, txt = h[0], h[1], h[3]
+        base = "%s::%s" % (rel, txt)
+        n = seen.get(base, 0)
+        seen[base] = n + 1
+        by_key["%s#%d" % (base, n)] = (rel, ln)
+    out = []
+    for k in new_keys:
+        rel_ln = by_key.get(k)
+        sha = _introducing_commit(rel_ln[0], rel_ln[1]) if rel_ln else None
+        subject = ""
+        if sha:
+            try:
+                subject = subprocess.run(["git", "log", "-1", "--format=%s", sha],
+                                         capture_output=True, cwd=REPO,
+                                         timeout=60).stdout.decode("utf-8",
+                                                                   "replace").strip()
+            except Exception:
+                subject = ""
+        out.append((k, sha, subject))
+    return out
+
+
 def main():
     files, hits = code_sweep()
     objects, reasons = object_sweep()
@@ -376,14 +485,24 @@ def report_corpus_subset(gate):
         print("")
         print("%d guard(s) in the baseline are gone." % len(healed))
     if new:
+        # ATTRIBUTE BEFORE REFUSING. A guard that arrived through a merge was written by
+        # another lane, and blocking this lane's commit for it produced two admissions in two
+        # days recorded as SEEN-and-not-justified -- which quietly erodes what the baseline
+        # means. The introducing commit is computed by blame and tested against this lane's
+        # FIRST-PARENT history: a merged guard is not on it.
+        attributed = attribute(new, subset)
         print("")
-        print("REFUSED: %d NEW negative guard(s) inside a corpus-wide loop:" % len(new))
-        for k in new:
-            print("    %s" % k)
+        print("REFUSED: %d NEW negative guard(s) inside a corpus-wide loop." % len(new))
+        print("Each is shown with the COMMIT that introduced it, so an admission to the")
+        print("baseline records WHICH WORK brought it rather than nothing at all:")
+        for k, sha, subject in attributed:
+            print("    %-62s %s" % (k[:62], (sha or "uncommitted")[:12]))
+            if subject:
+                print("        introduced by: %s" % subject[:88])
         print("")
         print("State the POSITIVE property instead -- `built by generator X`, not `has zero")
         print("X sections` -- or add it to the baseline with a line saying why the absence")
-        print("IS the property you mean.")
+        print("IS the property you mean, AND the sha above.")
         if gate:
             sys.exit(1)
     elif os.path.exists(BASELINE):

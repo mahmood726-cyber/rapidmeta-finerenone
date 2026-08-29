@@ -77,6 +77,36 @@ def entries(body, path, reviews):
                           body)) & reviews
 
 
+# KNOWN_NEGATIVE control for the entry matcher. A COUNT WITHOUT A MEASURED PRECISION IS NOT
+# A FINDING -- this lane has said so to two other lanes tonight, and gate 2 correctly said it
+# back. `entries()` decides what an index ADVERTISES, so a matcher that over-counts turns a
+# clean surface into a violation and one that under-counts certifies a dirty one.
+#
+# The negatives are strings that LOOK like a page reference and must not be counted: a name
+# that is not a review page, one inside a prose sentence rather than a link, and one that is
+# a prefix of a real page but not equal to it.
+KNOWN_NEGATIVES_HTML = [
+    ('<a href="methods.html">methods</a>', "methods.html is not a review page"),
+    ('mentions ARNI_HF_REVIEW.html in prose, not as a link',
+     "a bare mention is not a navigable entry"),
+    ('<a href="ARNI_HF_REVIEW_OLD.html">x</a>',
+     "a longer name that merely starts with a real one"),
+]
+
+
+def measure_matcher_precision(reviews, say):
+    """Run the negatives through the real matcher and PRINT the rate, never assume it."""
+    fp = 0
+    for text, why in KNOWN_NEGATIVES_HTML:
+        if entries(text, "index.html", reviews):
+            fp += 1
+            say("   CONTROL FAILED: matched %r -- %s" % (text[:48], why))
+    rate = (100.0 * fp / len(KNOWN_NEGATIVES_HTML)) if KNOWN_NEGATIVES_HTML else 0.0
+    say("   known-negative control: %d/%d matched (measured false-positive rate %.1f%%)"
+        % (fp, len(KNOWN_NEGATIVES_HTML), rate))
+    return fp
+
+
 def main():
     raw = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace",
                            write_through=True)
@@ -98,6 +128,9 @@ def main():
     stamp = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
     say("SERVED verification at %s" % stamp)
     say("KEEP %d   review population %d" % (len(keep), len(reviews)))
+    say("")
+    say("MATCHER PRECISION, measured before any count is reported:")
+    measure_matcher_precision(reviews, say)
     say("")
     say("%-34s %5s %8s %9s %9s" % ("surface (live)", "http", "entries", "in KEEP", "outside"))
 

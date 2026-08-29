@@ -1,0 +1,219 @@
+[
+  {
+    "page": "IV_IRON_HF_REVIEW.html",
+    "key": "fair hf is excluded on outcome",
+    "touches_number_or_named_trial": true,
+    "readjudicated_label": "Q2",
+    "evidence_held_at": "ssot/iv-iron-hf/iv-iron-hf.json: screening.records[trial='FAIR-HF']; k_cascade.remainder_dispositions; screening_of_remainder.iv_iron_2026_08_19.trials[nct='NCT00520780']",
+    "state": "FIXED",
+    "blocker": null,
+    "fix_site": "ssot/iv-iron-hf/iv-iron-hf.json: changed FAIR-HF remainder disposition from ELIGIBLE_NOT_POOLABLE/POOLABILITY to EXCLUDED/OUTCOME, changed remainder counts to EXCLUDED 14, ELIGIBLE_NOT_POOLABLE 5, ELIGIBLE_NO_RESULTS_YET 10, and replaced the contradictory notable_eligible_not_poolable text with notable_excluded_on_outcome.",
+    "plant": {
+      "temp_fixed": "out/readjud/tmp/IV.fixed2.html",
+      "fixed_checks": {
+        "ELIGIBLE AND NOT POOLED absent": true,
+        "PASSES the outcome criterion absent": true
+      },
+      "replanted_in_real_source": "git apply -R out/readjud/tmp/iv.diff",
+      "temp_replanted": "out/readjud/tmp/IV.replanted2.html",
+      "replanted_checks": {
+        "ELIGIBLE AND NOT POOLED returned": true,
+        "PASSES the outcome criterion returned": true
+      },
+      "restored_in_real_source": "git apply out/readjud/tmp/iv.diff",
+      "temp_restored": "out/readjud/tmp/IV.restored2.html",
+      "restored_checks": {
+        "ELIGIBLE AND NOT POOLED absent": true,
+        "PASSES the outcome criterion absent": true
+      },
+      "byte_identical_fixed_vs_restored": true,
+      "fixed_sha256": "86ff783ebe8445b4d1867bf33da605399c3d4a429209598d1bc108862bc7b4c7",
+      "restored_sha256": "86ff783ebe8445b4d1867bf33da605399c3d4a429209598d1bc108862bc7b4c7"
+    },
+    "blast_radius": null,
+    "reason": "The object itself held the FAIR-HF exclusion basis: it says FAIR-HF has eligible P/I, but fails OUTCOME because registered primaries are Patient Global Assessment and NYHA class, no clinical-event endpoint is designated, and the staged abstract has no extractable walk-distance cell. The contradictory remainder fields were rederived to 14 + 5 + 10 = 29, with eligible remainder 5 + 10 = 15 of 29."
+  },
+  {
+    "page": "IV_IRON_HF_REVIEW.html",
+    "key": "there is no effect estimate to rate",
+    "touches_number_or_named_trial": true,
+    "readjudicated_label": "Q2",
+    "evidence_held_at": "ssot/iv-iron-hf/iv-iron-hf.json: results.by_outcome.hierarchical_primary.per_trial[0]; results.by_outcome.hierarchical_primary.grade; results.by_outcome.six_min_walk_24w.per_trial[0]; results.by_outcome.six_min_walk_24w.grade; grade.by_outcome.hierarchical_primary; grade.by_outcome.six_min_walk_24w",
+    "state": "FIXED",
+    "blocker": null,
+    "fix_site": "ssot/iv-iron-hf/iv-iron-hf.json: removed the two false top-level grade.by_outcome entries for hierarchical_primary and six_min_walk_24w that said their pools were declined/withdrawn with no effect estimate. The held single-trial estimates and per-outcome grade blocks remain under results.by_outcome.",
+    "plant": {
+      "temp_fixed": "out/readjud/tmp/IV.fixed2.html",
+      "fixed_checks": {
+        "there is no effect estimate to rate absent": true
+      },
+      "replanted_in_real_source": "git apply -R out/readjud/tmp/iv.diff",
+      "temp_replanted": "out/readjud/tmp/IV.replanted2.html",
+      "replanted_checks": {
+        "there is no effect estimate to rate returned": true
+      },
+      "restored_in_real_source": "git apply out/readjud/tmp/iv.diff",
+      "temp_restored": "out/readjud/tmp/IV.restored2.html",
+      "restored_checks": {
+        "there is no effect estimate to rate absent": true
+      },
+      "byte_identical_fixed_vs_restored": true,
+      "fixed_sha256": "86ff783ebe8445b4d1867bf33da605399c3d4a429209598d1bc108862bc7b4c7",
+      "restored_sha256": "86ff783ebe8445b4d1867bf33da605399c3d4a429209598d1bc108862bc7b4c7"
+    },
+    "blast_radius": null,
+    "reason": "The fix changes a reader-facing count/statement, so it was re-adjudicated. The object holds WIN_RATIO 1.1 (99% CI 0.99 to 1.23) for hierarchical_primary and MD 33 (95% CI 11.4404 to 54.5596) for six_min_walk_24w, each with its own results.by_outcome grade. The top-level false no-estimate entries were deleted rather than replaced with a softer falsehood."
+  },
+  {
+    "page": "IV_IRON_HF_REVIEW.html",
+    "key": "of these pooled outcome s carries a stated qualification",
+    "touches_number_or_named_trial": true,
+    "readjudicated_label": "Q2",
+    "evidence_held_at": "ssot/iv-iron-hf/iv-iron-hf.json: results.by_outcome.hfh_cvd_recurrent.POOL_FINDINGS_2026_08_21.f_tau_squared_is_exactly_zero_so_this_is_a_fixed_effect_interval",
+    "state": "FIXED",
+    "blocker": null,
+    "fix_site": "ssot/iv-iron-hf/iv-iron-hf.json: copied the held POOL_FINDINGS_2026_08_21 qualification onto results.by_outcome.hfh_cvd_first, results.by_outcome.hfh_recurrent, and results.by_outcome.acm, where the held text says the same finding applies.",
+    "plant": {
+      "temp_fixed": "out/readjud/tmp/IV.fixed2.html",
+      "fixed_checks": {
+        "1 of these pooled outcome(s) carries a stated qualification absent": true,
+        "4 of these pooled outcome(s) carry present": true
+      },
+      "replanted_in_real_source": "git apply -R out/readjud/tmp/iv.diff",
+      "temp_replanted": "out/readjud/tmp/IV.replanted2.html",
+      "replanted_checks": {
+        "1 of these pooled outcome(s) carries a stated qualification returned": true
+      },
+      "restored_in_real_source": "git apply out/readjud/tmp/iv.diff",
+      "temp_restored": "out/readjud/tmp/IV.restored2.html",
+      "restored_checks": {
+        "1 of these pooled outcome(s) carries a stated qualification absent": true,
+        "4 of these pooled outcome(s) carry present": true
+      },
+      "byte_identical_fixed_vs_restored": true,
+      "fixed_sha256": "86ff783ebe8445b4d1867bf33da605399c3d4a429209598d1bc108862bc7b4c7",
+      "restored_sha256": "86ff783ebe8445b4d1867bf33da605399c3d4a429209598d1bc108862bc7b4c7"
+    },
+    "blast_radius": null,
+    "reason": "The existing qualification text explicitly names four affected pools and their values: hfh_cvd_recurrent RATE_RATIO 0.8066, hfh_cvd_first HR 0.7957, hfh_recurrent RATE_RATIO 0.7645, and acm HR 0.978. The renderer counts outcomes carrying a qualification, so the safe object fix was additive on the three empty affected outcome blocks."
+  },
+  {
+    "page": "IV_IRON_HF_REVIEW.html",
+    "key": "outcome s were not rated because their pool is declined or withdrawn there is no effect estimate to rate",
+    "touches_number_or_named_trial": true,
+    "readjudicated_label": "Q2",
+    "evidence_held_at": "ssot/iv-iron-hf/iv-iron-hf.json: results.by_outcome.hierarchical_primary.per_trial[0]; results.by_outcome.hierarchical_primary.grade; results.by_outcome.six_min_walk_24w.per_trial[0]; results.by_outcome.six_min_walk_24w.grade; grade.by_outcome.hierarchical_primary; grade.by_outcome.six_min_walk_24w",
+    "state": "FIXED",
+    "blocker": null,
+    "fix_site": "Same source repair as key 'there is no effect estimate to rate': removed the two false top-level no-estimate grade entries from ssot/iv-iron-hf/iv-iron-hf.json.",
+    "plant": {
+      "temp_fixed": "out/readjud/tmp/IV.fixed2.html",
+      "fixed_checks": {
+        "there is no effect estimate to rate absent": true
+      },
+      "replanted_in_real_source": "git apply -R out/readjud/tmp/iv.diff",
+      "temp_replanted": "out/readjud/tmp/IV.replanted2.html",
+      "replanted_checks": {
+        "there is no effect estimate to rate returned": true
+      },
+      "restored_in_real_source": "git apply out/readjud/tmp/iv.diff",
+      "temp_restored": "out/readjud/tmp/IV.restored2.html",
+      "restored_checks": {
+        "there is no effect estimate to rate absent": true
+      },
+      "byte_identical_fixed_vs_restored": true,
+      "fixed_sha256": "86ff783ebe8445b4d1867bf33da605399c3d4a429209598d1bc108862bc7b4c7",
+      "restored_sha256": "86ff783ebe8445b4d1867bf33da605399c3d4a429209598d1bc108862bc7b4c7"
+    },
+    "blast_radius": null,
+    "reason": "Duplicate defect with a broader quote. The object holds k=1 Pending display rows and concrete single-trial estimates, so the false no-estimate top-level grade entries were deleted."
+  },
+  {
+    "page": "IV_IRON_HF_REVIEW.html",
+    "key": "no systematic search was run the included set is a named two trial programme rather than the yield of a database search",
+    "touches_number_or_named_trial": true,
+    "readjudicated_label": "Q2",
+    "evidence_held_at": "ssot/iv-iron-hf/iv-iron-hf.json: search.databases[0]; search.databases[1]; screening.search_note; screening.known_limitation; prisma_flow.identification",
+    "state": "FIXED",
+    "blocker": null,
+    "fix_site": "ssot/iv-iron-hf/iv-iron-hf.json: added search.strategy derived from the held ClinicalTrials.gov API v2 searches, including query 2 returning 47 of 47 records with 5 of 5 recall on the included set, and query 1 returning 16 of 16 with 3 of 5 recall.",
+    "plant": {
+      "temp_fixed": "out/readjud/tmp/IV.fixed2.html",
+      "fixed_checks": {
+        "No systematic search was run absent": true,
+        "The included set is a named two-trial programme absent": true
+      },
+      "replanted_in_real_source": "git apply -R out/readjud/tmp/iv.diff",
+      "temp_replanted": "out/readjud/tmp/IV.replanted2.html",
+      "replanted_checks": {
+        "No systematic search was run returned": true,
+        "The included set is a named two-trial programme returned": true
+      },
+      "restored_in_real_source": "git apply out/readjud/tmp/iv.diff",
+      "temp_restored": "out/readjud/tmp/IV.restored2.html",
+      "restored_checks": {
+        "No systematic search was run absent": true,
+        "The included set is a named two-trial programme absent": true
+      },
+      "byte_identical_fixed_vs_restored": true,
+      "fixed_sha256": "86ff783ebe8445b4d1867bf33da605399c3d4a429209598d1bc108862bc7b4c7",
+      "restored_sha256": "86ff783ebe8445b4d1867bf33da605399c3d4a429209598d1bc108862bc7b4c7"
+    },
+    "blast_radius": null,
+    "reason": "The object held an executed ClinicalTrials.gov search but lacked the `search.strategy` field that the readiness projector uses. The added strategy is derived only from held fields; it does not claim a multi-database systematic search."
+  },
+  {
+    "page": "BOSENTAN_PH_NOT_GROUP1_REVIEW.html",
+    "key": "all eight are named on this page with their status and enrolment",
+    "touches_number_or_named_trial": true,
+    "readjudicated_label": "Q2",
+    "evidence_held_at": "ssot/bosentan-ph-not-group1/bosentan-ph-not-group1.json: inputs.trials[*].nct; inputs.trials[*].name; inputs.trials[*].design; inputs.trials[*].enrolled",
+    "state": "ESCALATED_CLASS_WIDE",
+    "blocker": "The required visible table change belongs in forbidden class-wide file ssot/statement.py, not in a per-object SSOT value or page file.",
+    "fix_site": "ESCALATE ssot/statement.py statement_html registered-trial summary table. Proposed patch text: add helper `_trial_meta_by_nct(obj)` and `_present_count(v)`; in `statement_html`, before rendering the `What was found` table, compute `meta = _trial_meta_by_nct(obj)`; change the header from `<th>Registration</th><th>Trial</th>` to `<th>Registration</th><th>Trial</th><th>Status</th><th>Enrolment</th>`; inside the trial loop, read `m = meta.get(nct, {})`, `status = m.get('design') or m.get('status') or 'not recorded'`, and `enrolment = _present_count(m.get('enrolled'))`, then emit four cells. `_present_count` must treat numeric 0 as present, not as falsy.",
+    "plant": null,
+    "blast_radius": {
+      "objects_touched_numerator": 95,
+      "objects_touched_denominator": 113,
+      "denominator_description": "113 PAGE_MAP objects currently satisfy statement.holds_no_poolable_evidence(obj); 95 of those have at least one inputs.trials row and would receive the additional Status and Enrolment columns.",
+      "portfolio_denominator": 163,
+      "trial_rows_touched_numerator": 270,
+      "count_method": "Imported ssot/statement.py read-only, loaded ssot/PAGE_MAP.json, counted objects where holds_no_poolable_evidence(obj) is true and inputs.trials is non-empty."
+    },
+    "reason": "The evidence is held for all 8 of 8 bosentan trials, including the zero-enrolment withdrawn trial, but the renderer that omits the status/enrolment columns is class-wide and forbidden for this slice. No page file was edited."
+  },
+  {
+    "page": "BOSENTAN_PH_NOT_GROUP1_REVIEW.html",
+    "key": "checked against each registration s arm structure on of trials were confirmed the drug is part of the randomised comparison",
+    "touches_number_or_named_trial": true,
+    "readjudicated_label": "Q2",
+    "evidence_held_at": "ssot/bosentan-ph-not-group1/bosentan-ph-not-group1.json: inputs.trials[*].arms; precondition_verdict.verdicts.arm_role_resolved; precondition_verdict.verdicts.contributes_a_randomised_contrast; trial_identity_check",
+    "state": "FIXED",
+    "blocker": null,
+    "fix_site": "ssot/bosentan-ph-not-group1/bosentan-ph-not-group1.json: changed trial_identity_check.by_trial[*].state from studied to undecidable, changed n_studied/n_not_studied/n_undecidable from 8/0/0 to 0/0/8, and replaced the undecidable explanation with the held no-readable-arm-roles basis.",
+    "plant": {
+      "temp_fixed": "out/readjud/tmp/BOS.fixed2.html",
+      "fixed_checks": {
+        "8 of 8 trials were confirmed absent": true,
+        "8 could NOT be decided this way present": true
+      },
+      "replanted_in_real_source": "git apply -R out/readjud/tmp/bos.diff",
+      "temp_replanted": "out/readjud/tmp/BOS.replanted2.html",
+      "replanted_checks": {
+        "8 of 8 trials were confirmed returned": true,
+        "the drug is part of the randomised comparison returned": true
+      },
+      "restored_in_real_source": "git apply out/readjud/tmp/bos.diff",
+      "temp_restored": "out/readjud/tmp/BOS.restored2.html",
+      "restored_checks": {
+        "8 of 8 trials were confirmed absent": true,
+        "8 could NOT be decided this way present": true
+      },
+      "byte_identical_fixed_vs_restored": true,
+      "fixed_sha256": "96da452dc3d27e1b9331296f3cab4e399bf626461fd1787e311adbd3a6005bd2",
+      "restored_sha256": "96da452dc3d27e1b9331296f3cab4e399bf626461fd1787e311adbd3a6005bd2"
+    },
+    "blast_radius": null,
+    "reason": "The object holds 8 of 8 trials with empty arms arrays, and the randomised-contrast precondition says NOT-ASSESSABLE because 8 of 8 trial(s) carry no readable arm roles. The trial identity claim was therefore not evidence-blocked; it was contradicted by held evidence and was corrected to undecidable."
+  }
+]

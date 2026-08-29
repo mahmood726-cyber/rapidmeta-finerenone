@@ -90,6 +90,8 @@
   "scripts/lane_rob/adjudication_triage.py::if j2 is None:#0",
   "scripts/lane_rob/adjudication_triage.py::if not isinstance(dv, dict):#0",
   "scripts/lane_rob/adjudication_triage.py::if not sa:#0",
+  "scripts/lane_rob/chk_noninferiority_pooled_as_superiority.py::if not hits:#0",
+  "scripts/lane_rob/chk_noninferiority_pooled_as_superiority.py::if not trials:#0",
   "scripts/lane_rob/gate_estimate_reconciles.py::if nt is None:#0",
   "scripts/lane_rob/gate_no_certainty_over_unadjudicated_rob.py::if len(pend) == 0:#0",
   "scripts/lane_rob/gate_no_certainty_over_unadjudicated_rob.py::if not os.path.isfile(obj_path):#0",
@@ -353,5 +355,77 @@
   "scripts/lane_rob/adjudication_triage.py::if not isinstance(dv, dict):#0",
   "scripts/lane_rob/adjudication_triage.py::if not sa:#0"
  ],
- "why_admitted_from_another_lane_2026_08_28": "THESE FOUR ARE NOT THIS LANE'S CODE AND THIS LANE HAS NOT READ THEM. They arrived in scripts/lane_rob/adjudication_triage.py through a merge of origin/main from the rob-retrieval lane on 2026-08-28 and immediately blocked every commit here, because the ratchet correctly reports them as new. Admitted so the block clears, recorded as SEEN and NOT as justified: whether each absence is the property that lane means is that lane's call, not this one's. Vouching for four guards I have not examined, in a file I did not write, would be exactly the false clearance this gate exists to prevent. Same pattern as admitted_unexamined_2026_08_24, and flagged to the rob-retrieval lane."
+ "why_admitted_from_another_lane_2026_08_28": "THESE FOUR ARE NOT THIS LANE'S CODE AND THIS LANE HAS NOT READ THEM. They arrived in scripts/lane_rob/adjudication_triage.py through a merge of origin/main from the rob-retrieval lane on 2026-08-28 and immediately blocked every commit here, because the ratchet correctly reports them as new. Admitted so the block clears, recorded as SEEN and NOT as justified: whether each absence is the property that lane means is that lane's call, not this one's. Vouching for four guards I have not examined, in a file I did not write, would be exactly the false clearance this gate exists to prevent. Same pattern as admitted_unexamined_2026_08_24, and flagged to the rob-retrieval lane.",
+ "admitted_from_another_lane_2026_08_29": [
+  "scripts/lane_rob/chk_noninferiority_pooled_as_superiority.py::if not hits:#0",
+  "scripts/lane_rob/chk_noninferiority_pooled_as_superiority.py::if not trials:#0"
+ ],
+ "why_admitted_from_another_lane_2026_08_29": "SECOND TIME IN TWO DAYS, SAME MECHANISM. These arrived in scripts/lane_rob/chk_noninferiority_pooled_as_superiority.py through a merge of origin/main from the rob-retrieval lane and immediately blocked every commit here, because the ratchet correctly reports a merged file's guards as new. Admitted so the block clears, recorded as SEEN and NOT as justified: whether each absence is the property that lane means is that lane's call. Vouching for guards this lane did not write and has not read is the false clearance the gate exists to prevent. THE RECURRENCE IS THE FINDING: a per-lane ratchet keyed on file paths will fire on every cross-lane merge forever, and the fix is for the ratchet to attribute a guard to the lane that introduced it rather than to whoever merges it next.",
+ "guard_origin_2026_08_29": {
+  "scripts/lane_rob/adjudication_triage.py::if d1 is None:#0": {
+   "introduced_by": "23468cba26bde69197ddffaa252f130dc0ed9f8d",
+   "subject": "Adjudication protocol: the queue is a RE-ASK queue, and zero cells are adjudicable today"
+  },
+  "scripts/lane_rob/adjudication_triage.py::if j2 is None:#0": {
+   "introduced_by": "23468cba26bde69197ddffaa252f130dc0ed9f8d",
+   "subject": "Adjudication protocol: the queue is a RE-ASK queue, and zero cells are adjudicable today"
+  },
+  "scripts/lane_rob/adjudication_triage.py::if not isinstance(dv, dict):#0": {
+   "introduced_by": "23468cba26bde69197ddffaa252f130dc0ed9f8d",
+   "subject": "Adjudication protocol: the queue is a RE-ASK queue, and zero cells are adjudicable today"
+  },
+  "scripts/lane_rob/adjudication_triage.py::if not sa:#0": {
+   "introduced_by": "23468cba26bde69197ddffaa252f130dc0ed9f8d",
+   "subject": "Adjudication protocol: the queue is a RE-ASK queue, and zero cells are adjudicable today"
+  },
+  "scripts/lane_rob/chk_noninferiority_pooled_as_superiority.py::if not hits:#0": {
+   "introduced_by": "309db7e1aba39b00d45dfc1f4925605b8dbb347e",
+   "subject": "Detect non-inferiority trials pooled as superiority: 35 topics, 0 pages state a margin"
+  },
+  "scripts/lane_rob/chk_noninferiority_pooled_as_superiority.py::if not trials:#0": {
+   "introduced_by": "309db7e1aba39b00d45dfc1f4925605b8dbb347e",
+   "subject": "Detect non-inferiority trials pooled as superiority: 35 topics, 0 pages state a margin"
+  },
+  "scripts/lane_rob/gate_no_certainty_over_unadjudicated_rob.py::if len(pend) == 0:#0": {
+   "introduced_by": "1f1c42e5241146fe80bf868996bfd5a7c4e67107",
+   "subject": "Clear the exclusion-by-absence gate, and fix the one real delivered-path build failure"
+  },
+  "scripts/lane_rob/gate_no_certainty_over_unadjudicated_rob.py::if not os.path.isfile(obj_path):#0": {
+   "introduced_by": "06a9f71c956785656b1e4a9e92b3eacb5fe9b589",
+   "subject": "Gate: no certainty level over an unadjudicated risk-of-bias assessment"
+  },
+  "scripts/lane_rob/gate_no_certainty_over_unadjudicated_rob.py::if not topic:#0": {
+   "introduced_by": "06a9f71c956785656b1e4a9e92b3eacb5fe9b589",
+   "subject": "Gate: no certainty level over an unadjudicated risk-of-bias assessment"
+  },
+  "scripts/lane_rob/gate_no_certainty_over_unadjudicated_rob.py::if not topic:#1": {
+   "introduced_by": "36ae41332611a33a37ff041d158683f6dd8698a3",
+   "subject": "Per-outcome participant counts, withdrawn-state fallthrough, and a gate that was passing an empty set"
+  },
+  "scripts/lane_rob/gate_scale_vs_measure.py::if len(hits) == 0:#0": {
+   "introduced_by": "1f1c42e5241146fe80bf868996bfd5a7c4e67107",
+   "subject": "Clear the exclusion-by-absence gate, and fix the one real delivered-path build failure"
+  },
+  "scripts/lane_rob/ni_provenance.py::if b is None:#0": {
+   "introduced_by": "1f1c42e5241146fe80bf868996bfd5a7c4e67107",
+   "subject": "Clear the exclusion-by-absence gate, and fix the one real delivered-path build failure"
+  },
+  "scripts/lane_rob/sweep_d4_functional_unblinding.py::if drug_hit is None:#0": {
+   "introduced_by": "1f1c42e5241146fe80bf868996bfd5a7c4e67107",
+   "subject": "Clear the exclusion-by-absence gate, and fix the one real delivered-path build failure"
+  },
+  "scripts/lane_rob/sweep_d4_functional_unblinding.py::if m is None:#0": {
+   "introduced_by": "1f1c42e5241146fe80bf868996bfd5a7c4e67107",
+   "subject": "Clear the exclusion-by-absence gate, and fix the one real delivered-path build failure"
+  },
+  "scripts/lane_rob/sweep_d4_functional_unblinding.py::if not isinstance(o, dict):#0": {
+   "introduced_by": "33bd367885d0d65bac8e2065ccb18319868db82a",
+   "subject": "Two sweeps for two new error classes: D4 functional unblinding, and PICO wider than trials"
+  },
+  "scripts/lane_rob/sweep_d4_functional_unblinding.py::if not isinstance(rec, dict):#0": {
+   "introduced_by": "33bd367885d0d65bac8e2065ccb18319868db82a",
+   "subject": "Two sweeps for two new error classes: D4 functional unblinding, and PICO wider than trials"
+  }
+ },
+ "why_guard_origin": "RE-DERIVED, as ruled. The 17 lane_rob guards were previously admitted as SEEN-and-not-justified with no record of where they came from. Each now carries the COMMIT that introduced it and that commit subject, so the admission is attributable instead of anonymous. NOTE what could NOT be derived: which LANE owns a guard. First-parent history fails because merges here fast-forward, putting another lane commits directly onto it -- it misattributed 14 of these 17 to this lane. Authorship fails because every commit in the repository carries one identity. The commit is the strongest true attribution available."
 }

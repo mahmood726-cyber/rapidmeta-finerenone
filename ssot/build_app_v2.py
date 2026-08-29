@@ -678,7 +678,7 @@ def _not_contributing(canon, p, e):
     rows = ""
     for st in studies:
         link = st.get("source_url")
-        reg = st.get("id") or ""
+        reg = st.get("id") or st.get("nct") or st.get("registration") or ""
         linkhtml = ('<a href="%s" rel="noopener">%s</a>' % (e(link), e(reg))
                     if link else e(reg) or "—")
         rows += ("    <tr><td><strong>%s</strong><br><small>%s</small></td>"
@@ -1548,8 +1548,75 @@ def _outcome_section(canon, oid, p, e):
 {rows}  </table>
   <p><small>{p(outcome.get('definition_note'))}</small></p>
 </div>
-{_endpoint_definitions(canon, oid, p, e)}{_not_contributing(canon, p, e)}{hb}{sens}{dissent}{subgroups}{note}</section>
+{_endpoint_definitions(canon, oid, p, e)}{_not_contributing(canon, p, e)}{_published_reports_read(canon, p, e)}{hb}{sens}{dissent}{subgroups}{note}</section>
 """
+
+
+def _published_reports_read(canon, p, e):
+    """The published reports, in the papers' own words. ADDITIVE: emits nothing without them.
+
+    WHY IT EXISTS. colchicine-pericarditis named an extraction file that had been sitting in
+    this repository since 19 August -- four trials with citation, PMID, DOI, and verbatim
+    quotes for population, comparator and primary outcome -- and the object held none of it.
+    Recovered into `inputs.trials[].published_report_read` on 28 August, and then MEASURED at
+    served bytes: 0 of 4 trials had any of it on the page, because nothing rendered the field.
+    Evidence recovered into a store that no reader can see is not recovered.
+
+    WHY IT IS NOT A `per_trial` ROW, and this is the point of the section. `per_trial` is a
+    POOL-INPUT structure: 176 of 182 rows corpus-wide carry trial_id, measure, point and an
+    interval ON A COMMON SCALE. These four trials report four different quantities, so putting
+    them there would assert the commensurability the extraction refutes -- and the builder
+    refused it outright with KeyError: 'trial_id'. The schema was right. This section is
+    therefore an EVIDENCE TABLE and says so; it publishes no estimate and no pool.
+
+    RADIUS. build_app_v2.py is in the build closure, so its radius is every topic -- 155,
+    acknowledged in gates/BLAST_RADIUS_ACK.json. The BEHAVIOUR radius is 1: the section renders
+    only where a trial carries `published_report_read`, and exactly one object does.
+    """
+    trials = [t for t in (canon.get("inputs") or {}).get("trials") or []
+              if isinstance(t, dict) and t.get("published_report_read")]
+    if not trials:
+        return ""
+    rows = ""
+    for t in trials:
+        r = t["published_report_read"]
+
+        def q(key):
+            v = r.get(key) or {}
+            if not isinstance(v, dict):
+                return ""
+            txt, where = v.get("quote"), v.get("where")
+            if not txt:
+                return ""
+            return ("<br><small>&ldquo;%s&rdquo;%s</small>"
+                    % (e(txt), (" &mdash; %s" % e(where)) if where else ""))
+
+        ident = e(t.get("acronym_the_registration_declares") or t.get("nct") or "")
+        link = ("<a href='https://clinicaltrials.gov/study/%s' rel='noopener'>%s</a>"
+                % (e(t.get("nct")), e(t.get("nct")))) if t.get("nct") else ""
+        pmid = ("<a href='https://pubmed.ncbi.nlm.nih.gov/%s/' rel='noopener'>PMID %s</a>"
+                % (e(r.get("pmid")), e(r.get("pmid")))) if r.get("pmid") else ""
+        state = e(r.get("extraction_state") or "")
+        rows += ("    <tr><td><strong>%s</strong><br><small>%s</small></td>"
+                 "<td>%s%s</td><td>%s%s</td>"
+                 "<td><small>%s<br>%s%s</small></td></tr>\n"
+                 % (ident, link,
+                    e((r.get("population_as_the_paper_states_it") or {}).get("value") or ""),
+                    q("population_as_the_paper_states_it"),
+                    e((r.get("primary_outcome_as_the_paper_states_it") or {}).get("value") or ""),
+                    q("primary_outcome_as_the_paper_states_it"),
+                    e(r.get("citation") or ""), pmid,
+                    ("<br>%s" % state) if state else ""))
+    return ("<div class='card'>" + NL
+            + "  <h3>What the published reports say, in their own words</h3>" + NL
+            + "  <p><small>Read from the published reports and quoted verbatim, with the "
+              "section each quote came from. THIS IS AN EVIDENCE TABLE, NOT A POOL: the "
+              "trials below do not report a common quantity, which is why this review "
+              "publishes no combined estimate.</small></p>" + NL
+            + "  <table>" + NL
+            + "    <tr><th>Trial</th><th>Population, as the paper states it</th>"
+              "<th>Primary outcome, as the paper states it</th><th>Source</th></tr>" + NL
+            + rows + "  </table>" + NL + "</div>" + NL)
 
 
 def _page(canon, sections, p, e):
