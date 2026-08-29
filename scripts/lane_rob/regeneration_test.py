@@ -38,7 +38,19 @@ NEGATION = re.compile(
     r"not adjudicated|cannot be|is absent|were not|lacks|limitations", re.I)
 
 FEATURES = [
-    ("estimand named", r"\bestimand\b"),
+    # ⚠️ THIS WAS A PROXY FOR THE CAPABILITY AND WAS WEAKER THAN IT.
+    #
+    # The first version searched for the literal word "estimand". A component then landed that
+    # states the pooled quantity and its kind on every page -- "Pooled as RR ... binary counts"
+    # -- and the test still read ABSENT, because the component uses plainer words than the
+    # detector's proxy.
+    #
+    # The WRONG fix is to make the page print "estimand" to satisfy the test: that is content
+    # written for a detector, which is the thing this project refuses. So the detector now
+    # requires SUBSTANCE -- the page must say what it pooled AND what kind of quantity that is.
+    # A page cannot pass by printing one word, and it passes when it does the real thing.
+    ("states the pooled quantity and its kind",
+     r"pooled as.{0,400}?(binary counts|time to event|continuous measure)"),
     ("binary-versus-time-to-event stated", r"time[- ]to[- ]event"),
     ("absolute effects per 1000", r"per 1,?000 (?:women|people|patients)"),
     ("number needed to treat", r"number needed to treat|\bNNT\b"),
