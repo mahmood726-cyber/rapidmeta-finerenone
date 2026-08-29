@@ -89,7 +89,20 @@ def main():
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace",
                                   line_buffering=True)
     obj = sys.argv[1] if len(sys.argv) > 1 else "ssot/agyw-hiv-prep-review/agyw-hiv-prep-review.json"
-    out = r"F:\claude-temp\pend\out\regen_test.html"
+    # ⛔ ONE OUTPUT PATH PER OBJECT, and the shared path was a real defect in this test.
+    #
+    # Every topic used to write to regen_test.html. The manuscript guard then compared THIS
+    # topic's build against the LAST topic's page and refused a 48% "shrink" that was simply a
+    # shorter review -- so the score depended on the order the topics were run in. Dapivirine
+    # measured 2 of 13 when it ran first and REFUSED TO BUILD AT ALL when it ran second.
+    #
+    # A measurement that changes with run order is not a measurement, and this one failed in the
+    # direction that looks like a regression in the thing being tested rather than a fault in
+    # the instrument -- the same shape as the adjudicator that searched a different haystack
+    # than it displayed.
+    out = os.path.join(r"F:\claude-temp\pend\out",
+                       "regen_" + re.sub(r"[^A-Za-z0-9_-]", "_",
+                                         os.path.splitext(os.path.basename(obj))[0]) + ".html")
     rc, tail = regenerate(obj, out)
     if rc != 0 or not os.path.exists(out):
         print("REFUSED: the harness could not build %s (rc=%d)\n%s" % (obj, rc, tail))

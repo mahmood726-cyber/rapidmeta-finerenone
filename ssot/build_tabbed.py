@@ -2002,6 +2002,16 @@ if __name__ == "__main__":
         raise SystemExit(
             "BUILD REFUSED: the estimand component failed (%s: %s). A page that cannot say "
             "what it is estimating does not build." % (type(_e).__name__, _e))
+    # Both intervals, and which one is reported. Same refusal discipline: an interval whose
+    # estimator is not stated is a number a reader cannot compare with anyone else's.
+    try:
+        import both_intervals as _bi
+        _html = _bi.inject(_html, obj)
+    except Exception as _e:
+        raise SystemExit(
+            "BUILD REFUSED: the interval component failed (%s: %s). A page that reports one "
+            "interval without showing what the other estimator gives does not build."
+            % (type(_e).__name__, _e))
     try:
         import integrity_section as _isec
     except Exception as _e:
