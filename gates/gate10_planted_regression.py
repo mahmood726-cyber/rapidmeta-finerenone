@@ -39,6 +39,7 @@ TM = importlib.import_module("textmatch")
 ICP = importlib.import_module("interval_contains_point")
 NIP = importlib.import_module("noninferiority_pooling")
 PRC = importlib.import_module("pool_rows_consistency")
+ARI = importlib.import_module("arm_role_inversion")
 
 # The NI join needs the external registry. Read once, and a failure here is BROKEN, never a
 # quiet pass -- an empty registry would make every S3 probe report "not detected" and read
@@ -181,6 +182,29 @@ def p_s1_refuses():
                                                  % [r["cls"] for r in rows])
 
 
+
+def p_a2_inverted():
+    rows, seen = ARI.scan(RP.fx_arm_role_inverted())
+    if not seen["rows_with_a_directional_claim"]:
+        raise AssertionError("the A2 fixture never reached the directional test; a filter is "
+                             "hiding the case this probe exists to exercise")
+    return bool(rows), "scan -> %d row(s) over %d directional row(s)" % (
+        len(rows), seen["rows_with_a_directional_claim"])
+
+
+def p_a2_agrees():
+    rows, _ = ARI.scan(RP.fx_arm_role_agrees())
+    return bool(rows), "scan -> %d row(s) on THE MODEL ANSWER" % len(rows)
+
+
+def p_a2_mean_difference():
+    rows, seen = ARI.scan(RP.fx_arm_role_mean_difference())
+    if not seen["rows_refused_non_ratio_measure"]:
+        raise AssertionError("the MD fixture was not REFUSED as a non-ratio measure; it was "
+                             "either judged or dropped silently, and both are wrong")
+    return bool(rows), "scan -> %d row(s); the MD row was refused, not judged" % len(rows)
+
+
 PROBES = {k: v for k, v in list(globals().items()) if k.startswith("p_")}
 
 
@@ -236,11 +260,23 @@ def main(argv):
 
     gate.kinds(kinds)
 
+    # COUNT BY INSTRUMENT, NOT BY EXPECTATION. Until 2026-08-29 every entry expecting ZERO
+    # also had instrument=None, so "expect == DETECTED" was a usable proxy for "an instrument
+    # exists". It stopped being one the moment MODEL-ANSWER controls arrived: those carry a
+    # real instrument and expect ZERO on purpose, because the correct form of the behaviour
+    # must not be accused. Counting them as uninstrumented understated the coverage; counting
+    # them as detections would overstate it. So both numbers are printed, from the field that
+    # actually says which.
+    instrumented = [p for p in plants if p.get("instrument")]
     det = [p for p in plants if p["expect"] == "DETECTED"]
-    zero = sorted({p["cls"] for p in plants if p["expect"] == "ZERO"}
-                  - {p["cls"] for p in det})
-    gate.note("MEASURED RECALL, tier %d: %d of %d class-instances have any instrument at all."
-              % (tier, len(det), len(plants)))
+    cls_with_instrument = {p["cls"] for p in instrumented}
+    zero = sorted({p["cls"] for p in plants} - cls_with_instrument)
+    gate.note("MEASURED RECALL, tier %d: %d of %d class-instances are exercised against a real "
+              "instrument (%d of those are POSITIVE plants expected to be DETECTED; the rest "
+              "are model answers and known negatives expected to stay silent)."
+              % (tier, len(instrumented), len(plants), len(det)))
+    gate.note("CLASSES WITH AN INSTRUMENT: %d of %d."
+              % (len(cls_with_instrument), len({p["cls"] for p in plants})))
     gate.note("CLASSES AT ZERO -- nothing we own reports these (%d):" % len(zero))
     for c in zero:
         gate.note("    " + c)

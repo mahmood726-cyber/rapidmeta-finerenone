@@ -308,6 +308,29 @@ def append_only(path, lines):
     A shared append-only log is exactly the file a lane will clobber, because every lane
     creates it the same way on first use and `>` is one character from `>>`.
     """
+    # A MISSING FILE IS NOT A ZERO BASELINE. On 2026-08-29 this function was called from a
+    # SPARSE worktree where out/ESCALATIONS.jsonl was not checked out. It created a fresh
+    # one-record file, the before/after size check passed (0 -> 1436 bytes is growth), and the
+    # result would have replaced 28 records committed by other lanes. The guard was real and
+    # the hole was that it only compares the file WITH ITSELF across one call. So: if the path
+    # is absent here but present in HEAD, refuse.
+    if not os.path.exists(path):
+        import subprocess
+        root = os.path.dirname(os.path.dirname(os.path.abspath(path)))
+        rel = os.path.relpath(path, root).replace(os.sep, "/")
+        try:
+            head = subprocess.run(["git", "show", "HEAD:" + rel], cwd=root,
+                                  capture_output=True)
+        except Exception:
+            head = None
+        if head is not None and head.returncode == 0 and head.stdout.strip():
+            raise IOError(
+                "%s is ABSENT here but HEAD holds %d records. Appending would create a fresh "
+                "file and destroy them. This is what a sparse or partial checkout looks like "
+                "from inside; check the path out before writing to it."
+                % (rel, len([x for x in head.stdout.split(chr(10).encode())
+                            if x.strip()])))
+
     before = os.path.getsize(path) if os.path.exists(path) else 0
     with open(path, "a", encoding="utf-8") as fh:
         for line in lines:

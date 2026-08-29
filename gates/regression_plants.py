@@ -168,6 +168,39 @@ def fx_no_rows_but_refuses():
         "poolable_reason": "no trial reported this outcome in a poolable form"}}}}
 
 
+def fx_arm_role_inverted():
+    """The arms imply protection; the stored ratio claims harm, with an interval excluding
+    the null. The mechanism is the SIGN disagreement, not any word on the page."""
+    return {"inputs": {"trials": [{"nct": "NCT-FX", "arms": [
+        {"role": "treatment", "events": 10, "participants": 200},
+        {"role": "control", "events": 40, "participants": 200}]}]},
+        "results": {"by_outcome": {"primary": {"per_trial": [
+            {"nct": "NCT-FX", "measure": "RR", "point": 4.0,
+             "ci_low": 2.1, "ci_high": 7.6}]}}}}
+
+
+def fx_arm_role_agrees():
+    """THE MODEL ANSWER: the same counts with the effect pointing the same way as its arms."""
+    return {"inputs": {"trials": [{"nct": "NCT-FX", "arms": [
+        {"role": "treatment", "events": 10, "participants": 200},
+        {"role": "control", "events": 40, "participants": 200}]}]},
+        "results": {"by_outcome": {"primary": {"per_trial": [
+            {"nct": "NCT-FX", "measure": "RR", "point": 0.25,
+             "ci_low": 0.13, "ci_high": 0.48}]}}}}
+
+
+def fx_arm_role_mean_difference():
+    """A MEAN DIFFERENCE is read against a null of ZERO. Comparing it to a crude ratio is a
+    category error, and the first version of gate 16 made exactly that accusation against a
+    correct page. It must be REFUSED, not judged."""
+    return {"inputs": {"trials": [{"nct": "NCT-FX", "arms": [
+        {"role": "treatment", "events": 10, "participants": 200},
+        {"role": "control", "events": 40, "participants": 200}]}]},
+        "results": {"by_outcome": {"primary": {"per_trial": [
+            {"nct": "NCT-FX", "measure": "MD", "point": 6.9,
+             "ci_low": 3.3, "ci_high": 10.6}]}}}}
+
+
 PLANTS = [
     # ---- Attribution ------------------------------------------------------------------
     dict(id="A1a", cls="A1 swapped trial name, registration correct", tier=1, layer="store",
@@ -188,9 +221,19 @@ PLANTS = [
          expect="ZERO",
          note="REACH, NOT COVERAGE. gate 1's entire authority is four registrations; a swap "
               "between any other pair of trials is outside its universe by construction."),
-    dict(id="A2", cls="A2 role inversion on the arms", tier=1, layer="store",
-         instrument=None, probe="p_none", expect="ZERO",
-         note="no instrument reads comparator/intervention roles for inversion"),
+    dict(id="A2a", cls="A2 role inversion on the arms", tier=1, layer="store",
+         instrument="gates/arm_role_inversion.scan", probe="p_a2_inverted", expect="DETECTED",
+         note="a SIGN test against the object's own arm counts -- no tolerance, no threshold. "
+              "Found a real instance on its first run: IRONMAN in fcm-hf-review, escalated."),
+    dict(id="A2b", cls="A2 role inversion on the arms", tier=1, layer="store",
+         instrument="gates/arm_role_inversion.scan", probe="p_a2_agrees", expect="ZERO",
+         note="MODEL ANSWER: counts and effect pointing the same way must NOT be accused."),
+    dict(id="A2c", cls="A2 role inversion on the arms", tier=1, layer="store",
+         instrument="gates/arm_role_inversion.scan", probe="p_a2_mean_difference",
+         expect="ZERO",
+         note="a mean difference has a null of ZERO. Gate 16's first run accused MD 6.900 of "
+              "contradicting a crude ratio -- a confident, plausible, WRONG accusation "
+              "against a correct page. This fixture keeps that fix honest."),
     dict(id="A3", cls="A3 result published under trials that did not produce it", tier=1,
          layer="store", instrument=None, probe="p_none", expect="ZERO",
          note="no instrument joins pooled rows back to the topic's own source list"),
