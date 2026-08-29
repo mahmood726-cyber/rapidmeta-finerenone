@@ -118,7 +118,26 @@ def _c_traceable(html, txt):
         "no number carries a source"]
 
 
+def _c_single_trial_pooled(html, txt):
+    """A single trial's result presented with pooling language.
+
+    Added 2026-08-29 to test that the layer GROWS: a new class must reach every page on the
+    next regeneration without anyone editing a page. Traced to a real defect -- the front page
+    carried "the withdrawn HR 0.85 (0.79-0.92) was a single trial's result shown as a two-trial
+    pool".
+    """
+    out = []
+    for m in re.finditer(r"pooled[^.]{0,120}?k\s*=\s*1", txt, re.I):
+        out.append(re.sub(r"\s+", " ", m.group(0))[:90])
+    for m in re.finditer(r"k\s*=\s*1[^.]{0,80}?pooled", txt, re.I):
+        out.append(re.sub(r"\s+", " ", m.group(0))[:90])
+    return out
+
+
 CLASSES = [
+    ("single-trial-shown-as-pooled", "one trial's result presented as a pool",
+     "the front page carried a single trial's HR 0.85 (0.79-0.92) as a two-trial pool",
+     _c_single_trial_pooled),
     ("unfilled-template-token", "a placeholder shipped unsubstituted",
      "11 pages cited protocols/name_protocol_v1.0.md -- 'name' was the placeholder", _c_tokens),
     ("bare-none-rendered", "a Python None reaching rendered output",
@@ -202,6 +221,21 @@ generated it.</p>
 <p>Named because a taxonomy that lists only what it catches is marketing.</p>
 <ul>%s</ul>
 """ % (n, len(found), rows, flagged, len(UNINSTRUMENTED), unins)
+
+
+def inject(html):
+    """Append the generated integrity section to a built page.
+
+    Called from the generator's WRITE PATH, beside the do-not-rebuild refusal and the
+    generator pin, because that is where this project has learned build-time rules belong: a
+    check that lives in a caller script knows nothing about the two pages that were rebuilt
+    after an explicit decision not to touch them, and both overwrites went through the write
+    path.
+    """
+    if REQUIRED_MARKER in html:
+        return html
+    section = render(html)
+    return html + '\n<div class="card">\n' + section + '\n</div>\n'
 
 
 REQUIRED_MARKER = "What was checked before this page was published"

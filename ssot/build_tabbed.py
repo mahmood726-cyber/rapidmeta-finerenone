@@ -1968,5 +1968,22 @@ if __name__ == "__main__":
     # delivered page untouched.
     import manuscript_guard as _mg
     _mg.enforce(_html, out)
+    # ⛔ THE DEFECT SUITE RUNS, REPORTS, AND IS EMBEDDED -- OR NOTHING IS EMITTED.
+    #
+    # Standing priority: the error-detector and methodology layer must WORK IN HARNESS, and
+    # "works" is a testable state rather than an aspiration: for every review the harness
+    # produces, the suite RAN, it REPORTED, and its result is IN THE PAGE. This is the only
+    # form of protection that has survived on this project. Five times in one week a rule
+    # existed, was correct, and was called by nothing -- including the entire gate suite,
+    # which was installed, invoked and INERT while its log showed success.
+    #
+    # Placed on the WRITE PATH, beside the do-not-rebuild refusal and the generator pin,
+    # because a check that lives in a caller script does not run when a different caller
+    # writes the file.
+    sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(
+        os.path.abspath(__file__))), "scripts", "lane_rob"))
+    import integrity_section as _isec
+    _html = _isec.inject(_html)
+    _isec.assert_present(_html, out)
     open(out, "w", encoding="utf-8").write(_html)
     print("built %s (%d bytes)" % (out, os.path.getsize(out)))
