@@ -1,103 +1,438 @@
 {
- "_what_this_is": "The executed search for antimalarial-act, recorded after execution. The protocol registering it was committed, pushed and anchored BEFORE the first query.",
+ "_what_this_is": "The executed search for this topic, written after execution and anchored so its time is fixed by a third party.",
+ "topic": "antimalarial-act",
+ "governing_protocol": "ssot/antimalarial-act/PROTOCOL.md",
  "registration": {
-  "protocol_path": "ssot/antimalarial-act/PROTOCOL.md",
-  "protocol_commit": "8e5d6c657142773d07710529b7c231cf785c6825",
-  "protocol_committed_utc": "2026-08-26T19:38:15Z",
-  "protocol_sha256": "56abb0a91eb426fea44a3708cb628c9d4b0946f82adb1df444e99c2feb97118a",
-  "anchor": {
-   "log": "Rekor",
-   "uuid": "108e9186e8c5677a26e0162b71f6c42364aade665a9db48e58ff2013ad0e3a92a20a4058b2af2a8e",
-   "logIndex": 2606041205,
-   "integratedTime_utc": "2026-08-26T19:42:47Z",
-   "how_to_check": "ssot/registration/VERIFY.md",
-   "what_it_proves": "The protocol text existed NO LATER THAN this log time, set by a third party. Not when the commit was made; not that no earlier version existed elsewhere."
-  }
+  "protocol_commit": "f8f7bc374eeda02c1962280099dee278efad4a64",
+  "protocol_anchor_logIndex": 2639699762,
+  "protocol_anchored_utc": "2026-08-29T16:00:04Z"
  },
- "ordering": {
-  "protocol_committed_utc": "2026-08-26T19:38:15Z",
-  "protocol_anchored_utc": "2026-08-26T19:42:47Z",
-  "first_query_attempted_utc": "2026-08-26T19:42:49.374Z",
-  "first_query_executed_utc": "2026-08-26T19:43:42.122Z",
-  "verdict": "established",
-  "reason": "The protocol was anchored at 2026-08-26T19:42:47Z, before the first query was attempted at 2026-08-26T19:42:49.374Z. The FAILED attempt is the time used, not the later success. Using the success would move first-query 53 seconds later and flatter the claim."
- },
+ "query_text": "Artemisinin-based combination therapies artemether-lumefantrine",
  "databases": [
   {
-   "database": "PubMed -- ATTEMPT 1, THE REGISTERED STRING, REJECTED BY THE SERVICE",
-   "query_as_executed": "the section 5 PubMed string, verbatim and unmodified",
-   "attempted_utc": "2026-08-26T19:42:49.374Z",
-   "failed_utc": "2026-08-26T19:43:26.240Z",
-   "records_returned": 0,
-   "outcome": "REJECTED",
-   "error": "Query too complex: too many boolean operators (max: 20); operators=24",
-   "WHY_THIS_IS_RECORDED": "It returned nothing, so it could have been dropped and nobody would know. It is the FIRST query time and therefore the one the ordering test uses. A search record that keeps only its successful attempts reports a later first-query time than actually occurred."
+   "source": "pubmed",
+   "url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&retmode=json&retmax=100&term=Artemisinin-based+combination+therapies+artemether-lumefantrine",
+   "params": {
+    "db": "pubmed",
+    "retmode": "json",
+    "retmax": 100,
+    "term": "Artemisinin-based combination therapies artemether-lumefantrine"
+   },
+   "attempted_utc": "2026-08-29T16:00:09.891Z",
+   "completed_utc": "2026-08-29T16:00:10.270Z",
+   "http_status": 200,
+   "response_bytes": 2903,
+   "n_records": 213,
+   "ids": [
+    "42616037",
+    "42608602",
+    "42471622",
+    "42467750",
+    "42363010",
+    "42259352",
+    "42235650",
+    "42155493",
+    "41963472",
+    "41570756",
+    "41435896",
+    "41365464",
+    "41345950",
+    "41136960",
+    "41094456",
+    "41085194",
+    "41059932",
+    "41052792",
+    "41043959",
+    "41029666",
+    "40845863",
+    "40463542",
+    "40343740",
+    "39701119",
+    "39425178",
+    "39186698",
+    "38900782",
+    "38871381",
+    "38716192",
+    "38713730",
+    "38536824",
+    "38421163",
+    "38352311",
+    "38251206",
+    "38223355",
+    "37754284",
+    "37748497",
+    "37748496",
+    "37744730",
+    "37710229",
+    "37679753",
+    "37612601",
+    "37606241",
+    "37516752",
+    "37061211",
+    "36894982",
+    "36588779",
+    "36473514",
+    "36442488",
+    "36315579",
+    "36310880",
+    "36260349",
+    "36049377",
+    "35761273",
+    "35726133",
+    "35685627",
+    "38455314",
+    "35637506",
+    "35543380",
+    "35292598",
+    "35276064",
+    "35271592",
+    "35226874",
+    "35009051",
+    "34978744",
+    "34926171",
+    "34838151",
+    "34673330",
+    "34569928",
+    "34491220",
+    "34158055",
+    "33794897",
+    "33691704",
+    "33589447",
+    "33556786",
+    "33403998",
+    "33289099",
+    "33079495",
+    "33013398",
+    "32805422",
+    "32778875",
+    "32530424",
+    "32482173",
+    "32420402",
+    "32368010",
+    "32171078",
+    "32129851",
+    "31884993",
+    "31856172",
+    "31831942",
+    "31383040",
+    "31369106",
+    "30892640",
+    "30880921",
+    "30869127",
+    "30696921",
+    "30656608",
+    "30620055",
+    "30587297",
+    "30522524"
+   ],
+   "outcome": "EXECUTED"
   },
   {
-   "database": "PubMed (NCBI E-utilities esearch) -- ATTEMPT 2, A DEPARTURE",
-   "tool": "mcp__plugin_bio-research_pubmed__search_articles",
-   "query_as_executed": "(lumefantrine[tiab] OR piperaquine[tiab] OR amodiaquine[tiab] OR pyronaridine[tiab]) AND (malaria[MeSH Terms] OR malaria[tiab]) AND (randomized controlled trial[pt] OR randomised[tiab] OR randomized[tiab])",
-   "executed_utc": "2026-08-26T19:43:42.122Z",
-   "hit_count": 940,
-   "records_retrieved": 60,
-   "records_not_retrieved": 880,
-   "DEPARTURE_FROM_THE_REGISTERED_STRING": "DECLARED. The registered string carries 24 boolean operators; the interface caps them at 20 and refused it. The executed string drops the hyphen, space and slash spelling variants and the combination-product names, keeping ONE BARE PARTNER-DRUG TERM PER NODE: lumefantrine, piperaquine, amodiaquine, pyronaridine. DIRECTION OF THE CHANGE, STATED BECAUSE IT MATTERS: a bare partner-drug term is BROADER than the hyphenated combination name it replaces, since lumefantrine[tiab] matches every record containing artemether-lumefantrine. So the departure WIDENS the query rather than narrowing it, and is not a recall risk. It is still not the registered string, and the registered string is NOT edited after the fact to match what ran.",
-   "known_blind_spot": "artesunate and artemether as standalone terms are absent from both strings. Every node here is an artemisinin COMBINATION and is reachable via its partner drug, but a hypothetical artemisinin monotherapy comparator would not be found. Recorded as a known blind spot of this string rather than left implicit."
+   "source": "europepmc",
+   "url": "https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=Artemisinin-based+combination+therapies+artemether-lumefantrine&format=json&pageSize=25",
+   "params": {
+    "query": "Artemisinin-based combination therapies artemether-lumefantrine",
+    "format": "json",
+    "pageSize": 25
+   },
+   "attempted_utc": "2026-08-29T16:00:10.270Z",
+   "completed_utc": "2026-08-29T16:00:40.250Z",
+   "http_status": 200,
+   "response_bytes": 23265,
+   "n_records": 2320,
+   "ids": [
+    "42363010",
+    "42608602",
+    "42616037",
+    "42467750",
+    "42259352",
+    "42235650",
+    "42106704",
+    "42225854",
+    "42155493",
+    "42415199",
+    "42471622",
+    "42006802",
+    "41435896",
+    "41927306",
+    "42078190",
+    "42032728",
+    "41985582",
+    "PPR1254857",
+    "41345950",
+    "42180246",
+    "41365464",
+    "41552003",
+    "41291512",
+    "41957831",
+    "PPR1114487"
+   ],
+   "outcome": "EXECUTED"
   },
   {
-   "database": "ClinicalTrials.gov API v2",
-   "tool": "mcp__plugin_bio-research_c-trials__search_trials",
-   "query_as_executed": "query.intr=artemether lumefantrine OR Coartem OR dihydroartemisinin piperaquine OR piperaquine OR artesunate amodiaquine OR amodiaquine OR pyronaridine artesunate OR pyronaridine; query.cond=malaria OR Plasmodium falciparum; filter.overallStatus=COMPLETED|TERMINATED|ACTIVE_NOT_RECRUITING; page_size=100",
-   "executed_utc": "2026-08-26T19:44:08.968Z",
-   "hit_count": 376,
-   "records_retrieved": 100,
-   "records_not_retrieved": 276,
-   "IMPORTANT": "100 of 376 retrieved. The other 276 are UNEXAMINED, not screened and not excluded. This bounds everything below: the candidate set is drawn from a QUARTER of the registry yield."
+   "source": "ctgov",
+   "url": "https://clinicaltrials.gov/api/v2/studies?query.term=Artemisinin-based+combination+therapies+artemether-lumefantrine&pageSize=50&countTotal=true",
+   "params": {
+    "query.term": "Artemisinin-based combination therapies artemether-lumefantrine",
+    "pageSize": 50,
+    "countTotal": "true"
+   },
+   "attempted_utc": "2026-08-29T16:00:40.251Z",
+   "completed_utc": "2026-08-29T16:00:40.799Z",
+   "http_status": 200,
+   "response_bytes": 1084686,
+   "n_records": 127,
+   "ids": [
+    "NCT05958810",
+    "NCT01152931",
+    "NCT02213211",
+    "NCT00297882",
+    "NCT04858087",
+    "NCT06300970",
+    "NCT04280692",
+    "NCT02600767",
+    "NCT06967519",
+    "NCT02325180",
+    "NCT05951595",
+    "NCT03352843",
+    "NCT02184637",
+    "NCT01967472",
+    "NCT03452475",
+    "NCT01941264",
+    "NCT00118794",
+    "NCT02242799",
+    "NCT03939104",
+    "NCT01449045",
+    "NCT00852423",
+    "NCT01038063",
+    "NCT05060198",
+    "NCT01704508",
+    "NCT04661579",
+    "NCT00677833",
+    "NCT00885287",
+    "NCT05340153",
+    "NCT00393679",
+    "NCT02461628",
+    "NCT07235033",
+    "NCT03923725",
+    "NCT03241901",
+    "NCT00460369",
+    "NCT04020653",
+    "NCT04708496",
+    "NCT05764746",
+    "NCT01228344",
+    "NCT04264130",
+    "NCT05192265",
+    "NCT03783299",
+    "NCT00301015",
+    "NCT01899820",
+    "NCT02528279",
+    "NCT04675931",
+    "NCT05540470",
+    "NCT02168569",
+    "NCT00119145",
+    "NCT00540202",
+    "NCT00699920"
+   ],
+   "outcome": "EXECUTED"
+  },
+  {
+   "source": "isrctn",
+   "url": "https://www.isrctn.com/api/query/format/default?q=antimalarial",
+   "params": {
+    "q": "antimalarial"
+   },
+   "attempted_utc": "2026-08-29T16:00:40.814Z",
+   "ictrp_route": "ISRCTN free XML API, used as the programmatic stopgap for ICTRP. The WHO ICTRP bulk-crawling service is unavailable; the WHO portal itself was NOT searched by this query.",
+   "completed_utc": "2026-08-29T16:00:41.129Z",
+   "http_status": 200,
+   "response_bytes": 232603,
+   "n_records": 84,
+   "ids": [
+    "ISRCTN11384306",
+    "ISRCTN12108982",
+    "ISRCTN20573724",
+    "ISRCTN10885288",
+    "ISRCTN17524311",
+    "ISRCTN14711763",
+    "ISRCTN45944555",
+    "ISRCTN85988131",
+    "ISRCTN57717892",
+    "ISRCTN68390623"
+   ],
+   "outcome": "EXECUTED"
+  },
+  {
+   "source": "guideline_bodies",
+   "attempted_utc": "2026-08-29T16:00:41.162Z",
+   "registry_used_to_enumerate": {
+    "registry": "Guidelines International Network (GIN)",
+    "endpoint": "https://g-i-n.net/wp-json/wp/v2/organisation",
+    "x_wp_total": 136,
+    "retrieved_utc": "2026-08-28T10:32:09Z",
+    "records_bulk_modified_gmt": "2026-08-27T11:45:02..03"
+   },
+   "AN_INDEX_IS_NOT_A_SOURCE": "GIN enumerates WHO the bodies are and carries no external URL on any of its 136 records, so it cannot itself be queried for guidance.",
+   "queried": [
+    {
+     "body": "FDA (openFDA drug label API)",
+     "http": 200,
+     "n_records": 811,
+     "outcome": "EXECUTED"
+    }
+   ],
+   "unreachable": [
+    {
+     "body": "WHO IRIS",
+     "obstacle": "HTTP 403 on its REST search endpoint"
+    },
+    {
+     "body": "NICE",
+     "obstacle": "HTTP 401 -- syndication API requires a key"
+    },
+    {
+     "body": "TRIP",
+     "obstacle": "HTTP 200 but a Cloudflare challenge page; the query term appears zero times. A 200 is not a result."
+    },
+    {
+     "body": "Epistemonikos",
+     "obstacle": "HTTP 405 on the documented API path; site search is HTML only"
+    }
+   ],
+   "coverage_fraction": {
+    "registry_lists": 136,
+    "queried": 1,
+    "unreachable_named": 4,
+    "not_yet_resolved_to_an_endpoint": 131,
+    "STATEMENT": "Of the 136 bodies GIN lists, 1 were queried, 4 were reached and refused or blocked by a named obstacle, and 131 have not been resolved to a queryable endpoint at all. This is a coverage fraction, not a checkmark, and 'all guideline bodies' is NOT a claim this supports."
+   }
   }
  ],
- "outcome_against_the_pre_specified_readings": {
-  "_which": "(d) OCCURRED. Section 5A named in advance the single most valuable thing this search could return: a head-to-head trial between two of the three non-comparator ACTs, which would close a loop and convert the consistency assumption from UNTESTABLE to TESTABLE. Candidates for exactly that were returned.",
-  "network_as_registered": {
-   "nodes": 4,
-   "edges": 3,
-   "shape": "star centred on artemether-lumefantrine",
-   "independent_loops": 0,
-   "consistency_testable": false
-  },
-  "loop_closing_candidates_found": 10,
-  "candidate_basis": "Records whose INTERVENTION LIST names two or more of dihydroartemisinin-piperaquine, artesunate-amodiaquine, pyronaridine-artesunate.",
-  "spoke_to_spoke_pairs_observed": {
-   "AS-AQ + DHA-PPQ": 6,
-   "DHA-PPQ + PA": 1
-  },
-  "examples": [
-   {
-    "nct": "NCT03939104",
-    "pair": "AS-AQ + DHA-PPQ",
-    "phase": "PHASE3",
-    "title_fragment": "Multi-centre randomised controlled NON-INFERIORITY trial comparing efficacy, safety and tolerability"
-   },
-   {
-    "nct": "NCT01231113",
-    "pair": "AS-AQ + DHA-PPQ",
-    "phase": "PHASE3",
-    "title_fragment": "Efficacy, safety and tolerability of dihydroartemisinin-piperaquine for TREATMENT of uncomplicated falciparum"
-   },
-   {
-    "nct": "NCT04049916",
-    "pair": "DHA-PPQ + PA",
-    "phase": "PHASE2/PHASE3",
-    "title_fragment": "Pyronaridine-artesunate with low-dose primaquine for preventing transmission"
-   }
-  ],
-  "THESE_ARE_CANDIDATES_AND_NOT_YET_A_LOOP": "Read from intervention lists, not from registered outcome modules or eligibility criteria. Several are visibly CHEMOPREVENTION or SEASONAL MALARIA CHEMOPREVENTION trials whose population and outcome are not treatment of uncomplicated malaria with PCR-corrected treatment failure, and those will not close anything. A co-listed intervention is not a randomised head-to-head comparison either: a trial may name two ACTs and randomise neither against the other. Nothing here yet changes the registered geometry.",
-  "WHY_RESOLUTION_IS_NOT_ATTEMPTED_IN_THIS_RECORD": "276 of 376 registry records were never retrieved. Resolving 10 candidates drawn from a quarter of the yield would give a confident answer about an incomplete candidate set. And because the question is whether a loop EXISTS, a partial search can only ever find loops, never rule them out. The honest next step is to retrieve all 376 first, then resolve. Screening 10 now would look like completion and would not be."
+ "three_counts": {
+  "EXECUTED": 5,
+  "EMPTY": 0,
+  "FAILED": 0
+ },
+ "ordering": {
+  "protocol_anchored_utc": "2026-08-29T16:00:04Z",
+  "first_query_attempted_utc": "2026-08-29T16:00:09.891Z",
+  "state": "HELD",
+  "holds": true,
+  "_note": "Rekor integratedTime has one-second resolution, so an anchor stamped :58 lies anywhere in [58.000, 58.999]. A query inside that second is INDETERMINATE -- neither held nor violated -- and must never be counted as held."
  },
  "what_this_record_does_not_establish": [
-  "NOT an adequate search. Embase, CENTRAL, Web of Science and Scopus were not searched, and for African trial literature the omission of regional databases is a real limitation named in the protocol.",
-  "NOT that the network has a loop. Candidates were found; none is confirmed.",
-  "NOT that the network has NO loop either. Only a quarter of the registry yield was examined.",
-  "NOT that 940 PubMed records were screened. 60 retrieved, 880 unexamined.",
-  "NOT third-party execution times. Those are this lane's clock; only the log entries carry a time set by anyone else."
- ]
+  "It does not establish that the search was COMPLETE. It records which sources were queried and what each returned, nothing wider.",
+  "It does not establish that guideline evidence was covered. Source 5 reports a fraction against the GIN denominator and most bodies remain unresolved.",
+  "The ICTRP leg is served by ISRCTN, which is a ROUTE to some ICTRP-registered trials and is not ICTRP. It is recorded under its own name for that reason.",
+  "A git commit timestamp is author-supplied and forgeable. Only the two transparency-log times are independent of us."
+ ],
+ "executed_by": "run_topic.py",
+ "written_utc": "2026-08-29T16:00:43.026Z",
+ "superseded_search": {
+  "_why": "This topic was searched before the five-source design was ruled. The earlier record is preserved verbatim rather than overwritten; a narrower search that actually happened is a fact about this review.",
+  "n_sources_then": 3,
+  "record": {
+   "_what_this_is": "The executed search for antimalarial-act, recorded after execution. The protocol registering it was committed, pushed and anchored BEFORE the first query.",
+   "registration": {
+    "protocol_path": "ssot/antimalarial-act/PROTOCOL.md",
+    "protocol_commit": "8e5d6c657142773d07710529b7c231cf785c6825",
+    "protocol_committed_utc": "2026-08-26T19:38:15Z",
+    "protocol_sha256": "56abb0a91eb426fea44a3708cb628c9d4b0946f82adb1df444e99c2feb97118a",
+    "anchor": {
+     "log": "Rekor",
+     "uuid": "108e9186e8c5677a26e0162b71f6c42364aade665a9db48e58ff2013ad0e3a92a20a4058b2af2a8e",
+     "logIndex": 2606041205,
+     "integratedTime_utc": "2026-08-26T19:42:47Z",
+     "how_to_check": "ssot/registration/VERIFY.md",
+     "what_it_proves": "The protocol text existed NO LATER THAN this log time, set by a third party. Not when the commit was made; not that no earlier version existed elsewhere."
+    }
+   },
+   "ordering": {
+    "protocol_committed_utc": "2026-08-26T19:38:15Z",
+    "protocol_anchored_utc": "2026-08-26T19:42:47Z",
+    "first_query_attempted_utc": "2026-08-26T19:42:49.374Z",
+    "first_query_executed_utc": "2026-08-26T19:43:42.122Z",
+    "verdict": "established",
+    "reason": "The protocol was anchored at 2026-08-26T19:42:47Z, before the first query was attempted at 2026-08-26T19:42:49.374Z. The FAILED attempt is the time used, not the later success. Using the success would move first-query 53 seconds later and flatter the claim."
+   },
+   "databases": [
+    {
+     "database": "PubMed -- ATTEMPT 1, THE REGISTERED STRING, REJECTED BY THE SERVICE",
+     "query_as_executed": "the section 5 PubMed string, verbatim and unmodified",
+     "attempted_utc": "2026-08-26T19:42:49.374Z",
+     "failed_utc": "2026-08-26T19:43:26.240Z",
+     "records_returned": 0,
+     "outcome": "REJECTED",
+     "error": "Query too complex: too many boolean operators (max: 20); operators=24",
+     "WHY_THIS_IS_RECORDED": "It returned nothing, so it could have been dropped and nobody would know. It is the FIRST query time and therefore the one the ordering test uses. A search record that keeps only its successful attempts reports a later first-query time than actually occurred."
+    },
+    {
+     "database": "PubMed (NCBI E-utilities esearch) -- ATTEMPT 2, A DEPARTURE",
+     "tool": "mcp__plugin_bio-research_pubmed__search_articles",
+     "query_as_executed": "(lumefantrine[tiab] OR piperaquine[tiab] OR amodiaquine[tiab] OR pyronaridine[tiab]) AND (malaria[MeSH Terms] OR malaria[tiab]) AND (randomized controlled trial[pt] OR randomised[tiab] OR randomized[tiab])",
+     "executed_utc": "2026-08-26T19:43:42.122Z",
+     "hit_count": 940,
+     "records_retrieved": 60,
+     "records_not_retrieved": 880,
+     "DEPARTURE_FROM_THE_REGISTERED_STRING": "DECLARED. The registered string carries 24 boolean operators; the interface caps them at 20 and refused it. The executed string drops the hyphen, space and slash spelling variants and the combination-product names, keeping ONE BARE PARTNER-DRUG TERM PER NODE: lumefantrine, piperaquine, amodiaquine, pyronaridine. DIRECTION OF THE CHANGE, STATED BECAUSE IT MATTERS: a bare partner-drug term is BROADER than the hyphenated combination name it replaces, since lumefantrine[tiab] matches every record containing artemether-lumefantrine. So the departure WIDENS the query rather than narrowing it, and is not a recall risk. It is still not the registered string, and the registered string is NOT edited after the fact to match what ran.",
+     "known_blind_spot": "artesunate and artemether as standalone terms are absent from both strings. Every node here is an artemisinin COMBINATION and is reachable via its partner drug, but a hypothetical artemisinin monotherapy comparator would not be found. Recorded as a known blind spot of this string rather than left implicit."
+    },
+    {
+     "database": "ClinicalTrials.gov API v2",
+     "tool": "mcp__plugin_bio-research_c-trials__search_trials",
+     "query_as_executed": "query.intr=artemether lumefantrine OR Coartem OR dihydroartemisinin piperaquine OR piperaquine OR artesunate amodiaquine OR amodiaquine OR pyronaridine artesunate OR pyronaridine; query.cond=malaria OR Plasmodium falciparum; filter.overallStatus=COMPLETED|TERMINATED|ACTIVE_NOT_RECRUITING; page_size=100",
+     "executed_utc": "2026-08-26T19:44:08.968Z",
+     "hit_count": 376,
+     "records_retrieved": 100,
+     "records_not_retrieved": 276,
+     "IMPORTANT": "100 of 376 retrieved. The other 276 are UNEXAMINED, not screened and not excluded. This bounds everything below: the candidate set is drawn from a QUARTER of the registry yield."
+    }
+   ],
+   "outcome_against_the_pre_specified_readings": {
+    "_which": "(d) OCCURRED. Section 5A named in advance the single most valuable thing this search could return: a head-to-head trial between two of the three non-comparator ACTs, which would close a loop and convert the consistency assumption from UNTESTABLE to TESTABLE. Candidates for exactly that were returned.",
+    "network_as_registered": {
+     "nodes": 4,
+     "edges": 3,
+     "shape": "star centred on artemether-lumefantrine",
+     "independent_loops": 0,
+     "consistency_testable": false
+    },
+    "loop_closing_candidates_found": 10,
+    "candidate_basis": "Records whose INTERVENTION LIST names two or more of dihydroartemisinin-piperaquine, artesunate-amodiaquine, pyronaridine-artesunate.",
+    "spoke_to_spoke_pairs_observed": {
+     "AS-AQ + DHA-PPQ": 6,
+     "DHA-PPQ + PA": 1
+    },
+    "examples": [
+     {
+      "nct": "NCT03939104",
+      "pair": "AS-AQ + DHA-PPQ",
+      "phase": "PHASE3",
+      "title_fragment": "Multi-centre randomised controlled NON-INFERIORITY trial comparing efficacy, safety and tolerability"
+     },
+     {
+      "nct": "NCT01231113",
+      "pair": "AS-AQ + DHA-PPQ",
+      "phase": "PHASE3",
+      "title_fragment": "Efficacy, safety and tolerability of dihydroartemisinin-piperaquine for TREATMENT of uncomplicated falciparum"
+     },
+     {
+      "nct": "NCT04049916",
+      "pair": "DHA-PPQ + PA",
+      "phase": "PHASE2/PHASE3",
+      "title_fragment": "Pyronaridine-artesunate with low-dose primaquine for preventing transmission"
+     }
+    ],
+    "THESE_ARE_CANDIDATES_AND_NOT_YET_A_LOOP": "Read from intervention lists, not from registered outcome modules or eligibility criteria. Several are visibly CHEMOPREVENTION or SEASONAL MALARIA CHEMOPREVENTION trials whose population and outcome are not treatment of uncomplicated malaria with PCR-corrected treatment failure, and those will not close anything. A co-listed intervention is not a randomised head-to-head comparison either: a trial may name two ACTs and randomise neither against the other. Nothing here yet changes the registered geometry.",
+    "WHY_RESOLUTION_IS_NOT_ATTEMPTED_IN_THIS_RECORD": "276 of 376 registry records were never retrieved. Resolving 10 candidates drawn from a quarter of the yield would give a confident answer about an incomplete candidate set. And because the question is whether a loop EXISTS, a partial search can only ever find loops, never rule them out. The honest next step is to retrieve all 376 first, then resolve. Screening 10 now would look like completion and would not be."
+   },
+   "what_this_record_does_not_establish": [
+    "NOT an adequate search. Embase, CENTRAL, Web of Science and Scopus were not searched, and for African trial literature the omission of regional databases is a real limitation named in the protocol.",
+    "NOT that the network has a loop. Candidates were found; none is confirmed.",
+    "NOT that the network has NO loop either. Only a quarter of the registry yield was examined.",
+    "NOT that 940 PubMed records were screened. 60 retrieved, 880 unexamined.",
+    "NOT third-party execution times. Those are this lane's clock; only the log entries carry a time set by anyone else."
+   ]
+  }
+ }
 }
