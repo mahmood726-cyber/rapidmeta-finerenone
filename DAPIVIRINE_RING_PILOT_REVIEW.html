@@ -131,17 +131,41 @@ the plausible range runs from 30 to 116. The number needed to treat is given bec
 ratio alone does not tell a clinician or a programme what a ring costs per infection averted.</p>
 
 <h3>Interval methods, both reported and both named</h3>
-<p>With <b>k = 2</b> the ordinary Wald interval above is the one carried. A Hartung–Knapp
-interval at k = 2 uses a <i>t</i> multiplier of <b>12.71</b>, and that width is a property of the
-degrees of freedom rather than of these trials &mdash; it would be nearly as wide whatever the
-two trials had found. The Wald interval has the opposite fault: it treats a between-trial
-variance estimated from two numbers as if it were known. <b>At k = 2 this page therefore gives
-neither interval as the answer</b> and prints both, so a reader can see the size of the gap
-instead of inheriting whichever one an author preferred. Where a
-Hartung–Knapp interval is reported anywhere in this review it is the <b>modified</b> form,
-with the variance multiplier floored at <span class="mono">max(1, Q/(k−1))</span> — without
-that floor an interval becomes <i>narrower</i> when studies agree more than chance, which is
-anti-conservative in exactly the situation small-k intervals exist to protect against.</p>
+
+<p><b>At k = 2 this page reports neither interval as the answer.</b> Both are printed, because
+the gap between them is the honest measure of what two trials can settle. Both rows below are
+the <b>adjudicated</b> pool &mdash; the same counts as the headline result above.</p>
+
+<div class="scroll">
+<table>
+<tr><th>Interval</th><th>Pooled RR (95%)</th><th>Multiplier</th><th>What it assumes</th></tr>
+<tr><td>Random-effects Wald</td><td><b>0.713</b> (0.572 to 0.889)</td><td>1.96</td>
+    <td>that the between-trial variance is <i>known</i></td></tr>
+<tr><td>Modified Hartung&ndash;Knapp</td><td><b>0.713</b> (0.170 to 2.983)</td><td>12.71</td>
+    <td>that it was <i>estimated</i> &mdash; here, from two numbers</td></tr>
+</table>
+</div>
+
+<p><b>In plain terms: two trials tell you almost nothing about how much results vary between
+trials.</b> So the wide interval is wide by construction &mdash; it would be nearly as wide
+whatever these two trials had found, and it must not be read as evidence that the ring does not
+work. The narrow interval has the opposite fault: it treats a between-trial variance estimated
+from two numbers as though it were a known quantity, so it is too confident for the same
+reason. Neither is wrong arithmetic; they answer different questions, and at k = 2 neither
+question has a good answer.</p>
+
+<p>What these trials do show is <b>agreement</b>: risk ratios of <b>0.734</b> and <b>0.688</b>,
+with Q = 0.08 on 1 degree of freedom and &tau;&sup2; of exactly zero. That agreement, rather
+than either interval, is the reason to take the direction of effect seriously &mdash; and two
+trials agreeing is a weaker thing than one narrow confidence interval makes it look.</p>
+
+<p>Where a Hartung&ndash;Knapp interval is reported anywhere in this review it is the
+<b>modified</b> form, with the variance multiplier floored at
+<span class="mono">max(1, Q/(k&minus;1))</span>. Without that floor the interval becomes
+<i>narrower</i> when studies agree more closely than chance would predict &mdash; letting the
+estimator that carries more uncertainty appear more confident, which is anti-conservative in
+exactly the situation small-k intervals exist to protect against. <b>Here the floor binds</b>:
+q = 0.08, so q* = 1.</p>
 
 <h2>Which counts were used, and what difference it makes</h2>
 
