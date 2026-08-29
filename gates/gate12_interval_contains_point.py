@@ -57,7 +57,7 @@ def main(argv):
     gate.requires_control()
 
     # -- leg 3 and 4: the control, and the precision it measures ---------------
-    (nn, fp, fpx), (npos, missed, missx) = U.control()
+    (nn, fp, fpx), (npos, missed, missx) = U.control2()
     gate.control(nn, fp, fpx)
     case = gate.expect_case("positives", "the four known positives are still detected")
     if missed == 0:
@@ -72,8 +72,8 @@ def main(argv):
     for p in pages:
         t = page_text(p)
         loose += len(LOOSE.findall(t))
-        examined += len(U.PAT.findall(t))
-        findings += U.findings(t, os.path.basename(p))
+        examined += len(U.PAT2.findall(t))
+        findings += U.findings2(t, os.path.basename(p))
 
     gate.kinds({
         "delivered pages read": len(pages),
@@ -100,9 +100,14 @@ def main(argv):
               "contradiction found and hand-read as genuine -- CD005470 / PMC13353907, "
               "'OR 0.46 (95% CI 1.29 to 1.65)', held in a single <list-item><p> element, so it "
               "is not an artefact of flattening. 30% of that corpus's intervals were examined.")
-    gate.note("The WIDE pattern (no measure name required) raises reach and measures a 19% "
-              "false-positive rate. It is kept in the module and NOT used: against external "
-              "content a false accusation costs more than a miss.")
+    gate.note("PAT2 keeps the measure-name anchor and relaxes only the punctuation between "
+              "the point and the CI marker. That anchor is what holds the false-positive rate "
+              "at zero: the WIDE variant, which drops it, measures 19% and is NOT used.")
+    gate.note("THE FIXTURE CONTROL DID NOT TRANSFER. PAT2 measured 0% on fixtures and then "
+              "produced a false accusation against a Cochrane review on its first real run -- "
+              "a middle-dot decimal (0·71) read as the integer 0. That shape, and every "
+              "other real one that fooled it, is now a permanent known negative. A control "
+              "holding only the shapes its author thought of measures the author.")
     return gate.report(denominator="%d estimates examined across %d pages" % (examined, len(pages)))
 
 

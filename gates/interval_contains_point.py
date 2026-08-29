@@ -36,7 +36,8 @@ MEASURES = (r"RR|OR|HR|IRR|RD|MD|SMD|WMD|aOR|aHR|risk ratio|odds ratio|hazard ra
             r"rate ratio|risk difference|mean difference|standardised mean difference|"
             r"standardized mean difference")
 
-NUM = r"[-−]?\d+(?:[.,]\d+)?"
+NUM = r"[-−]?\d+(?:[.,·]\d+)?"   # U+00B7 middle dot: Lancet-style decimals appear verbatim inside Cochrane tables,
+# and reading "0·71" as the integer 0 turned a correct interval into an accusation.
 
 # point, then an interval opened by a CI marker. The CI marker is REQUIRED -- without it,
 # "0.79 (0.71 to 0.88)" also matches ordinary prose like a date range in parentheses.
@@ -54,7 +55,7 @@ TOL = 1e-9
 
 
 def _f(s):
-    s = s.replace("−", "-").strip()
+    s = s.replace("−", "-").replace("·", ".").strip()
     # a comma is a thousands separator only with 3 trailing digits; otherwise a decimal comma
     if "," in s and re.search(r",\d{3}$", s):
         s = s.replace(",", "")
@@ -168,3 +169,63 @@ WIDE_NEGATIVES = KNOWN_NEGATIVES + [
 
 def findings_wide(text, source="?"):
     return _scan(PAT_WIDE, text, source)
+
+
+# ---------------------------------------------------------------------------
+# PAT2 -- the SAME anchor, a wider bracket convention. Measured 2026-08-29 on CD007961.pub3:
+# PAT examined 0 of 7 candidate intervals there, because that review writes
+#     (RR 0.83, 95% CI 0.68 to 1.02,
+# with the bracket opening BEFORE the measure and the CI marker following a COMMA, while PAT
+# required a bracket immediately after the point. A "0 findings" over 0 examined is vacuous and
+# was withdrawn rather than reported.
+#
+# The measure name stays REQUIRED beside the point -- that anchor is what holds the false
+# positive rate at zero, and the wide no-measure variant is measured at 19%. Only the
+# punctuation between the point and the CI marker is relaxed, and the closing bracket is
+# optional because this convention often closes on a comma instead.
+CI_MARK = (r"(?:9[05](?:\.\d)?\s*%\s*(?:CI|confidence\s+interval)(?:\s*\(\s*CI\s*\))?"
+           r"|confidence\s+interval\s*\(\s*CI\s*\)|CI)")
+
+PAT2 = re.compile(
+    r"(?<![\w.])(?P<measure>" + MEASURES + r")\s*(?:\(\s*(?:RR|OR|HR|SMD|MD)\s*\)\s*)?"
+    r"(?:of|was|=|:|\s)\s*"
+    r"(?P<point>" + NUM + r")(?![\d.])\s*"
+    r"[,;]?\s*[\(\[]?\s*"
+    + CI_MARK + r"\s*[:=]?\s*"
+    r"(?P<lo>" + NUM + r")(?![\d.])\s*(?P<sep>to|a|–|—|--|,|;|-)\s*"
+    r"(?P<hi>" + NUM + r")(?![\d.])",
+    re.I)
+
+PAT2_NEGATIVES = KNOWN_NEGATIVES + [
+    # Both of these were reported as findings against a published Cochrane review by the first
+    # version of PAT2, and both were FALSE. They are kept verbatim: a control that only holds
+    # shapes its author thought of measures the author, not the detector. Fixture precision
+    # was 0% while real-text precision was 1 in 3.
+    "WMD 23.09, 95% CI 7.26 to 38.92, P = 0.005",          # point sliced to 3.09
+    "Rate ratio 0.51 (95% CI 0.37 to 0.71)",               # bounds read from a neighbour
+    "WMD 20.58, 95% CI 6.44 a 34.73, P = 0.005",           # Spanish separator, in the source
+    "WMD −8.24, 95% CI −21.77 to 5.29, P = 0.226",
+    "Rate ratio 0.79 (95% CI 0.52 to 1.19)",
+    "Rate ratio 0.51 (95% CI 0.37 to 0·71)",   # middle-dot upper bound
+    "SMD 0·35 (95% CI 0·10 to 0·60) in Lancet decimal style",
+    "risk ratio (RR) 0.71, (95% confidence interval (CI) 0.57 to 0.89, I2 = 0%, 2 trials.",
+    "(RR 0.83, 95% CI 0.68 to 1.02, low-certainty evidence)",
+    "and SAVVY (RR 1.38, 95% CI 0.79 to 2.41). Existing evidence suggests",
+    "(RR 0.55, 95% CI 0.36 to 0.82; 224 participants)",
+    "cellulose sulphate (RR 0.99, 95% CI 0.37 to 2.62, 1 trial, 1425 women)",
+]
+
+PAT2_POSITIVES = KNOWN_POSITIVES + [
+    "(RR 1.40, 95% CI 0.68 to 1.02, low-certainty evidence)",
+    "risk ratio (RR) 0.20, (95% confidence interval (CI) 0.57 to 0.89, 2 trials.",
+]
+
+
+def findings2(text, source="?"):
+    return _scan(PAT2, text, source)
+
+
+def control2():
+    fp = [t for t in PAT2_NEGATIVES if findings2(t, "control")]
+    missed = [t for t in PAT2_POSITIVES if not findings2(t, "control")]
+    return (len(PAT2_NEGATIVES), len(fp), fp), (len(PAT2_POSITIVES), len(missed), missed)
