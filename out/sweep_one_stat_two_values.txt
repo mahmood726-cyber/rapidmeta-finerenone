@@ -1,0 +1,66 @@
+CONTROLS, all three legs, every run
+  POSITIVE  lefamulin 0.7313 vs 0.7316   -> NEAR : True
+  NEGATIVE  same value twice             -> NEAR : False  (must be False)
+  NEGATIVE  two different pools          -> NEAR : False  (must be False)
+  NEGATIVE  5.161 vs 5.16, a rounding    -> NEAR : False  (must be False)
+  POSITIVE  same df, I2 7.287 vs 1.16    -> BUNDLE: True
+  NEGATIVE  different df (2 vs 7)        -> BUNDLE: False  (must be False)
+  CONTROLS PASS: True
+
+KINDS BEFORE COUNTS
+   page with no repeated statistic            1427
+   one value at two precisions (not a contradiction) 35
+   page with several pools, no NEAR mismatch  25
+   page with a NEAR mismatch                  11
+   pages examined                             1463
+
+NEAR MISMATCHES on 11 page(s)
+
+  AGYW_HIV_PREP_REVIEW.html
+      Q        0.1533  vs  0.1535   (differ by 0.13%, both printed to 4/4 dp)
+  ALIROCUMAB_LIPID_AUTO_FULL_REVIEW.html
+      Q        58.42  vs  58.4577   (differ by 0.064%, both printed to 2/4 dp)
+      tau2     61.44  vs  61.451183   (differ by 0.018%, both printed to 2/6 dp)
+  ALIROCUMAB_LIPID_SSOT.html
+      I2       87.9  vs  88.0   (differ by 0.11%, both printed to 1/1 dp)
+      I2       87.9  vs  88.02   (differ by 0.14%, both printed to 1/2 dp)
+  APIXABAN_VTE_TREATMENT_REVIEW.html
+      Q        1.257  vs  1.2575   (differ by 0.04%, both printed to 3/4 dp)
+  BOCOCIZUMAB_LIPID_AUTO_FULL_REVIEW.html
+      I2       56.66  vs  56.8   (differ by 0.25%, both printed to 2/1 dp)
+      I2       56.7  vs  56.8   (differ by 0.18%, both printed to 1/1 dp)
+  BOCOCIZUMAB_LIPID_REVIEW.html
+      I2       56.66  vs  56.8   (differ by 0.25%, both printed to 2/1 dp)
+      I2       56.7  vs  56.8   (differ by 0.18%, both printed to 1/1 dp)
+  CEFTAROLINE_AUTO_FULL_REVIEW.html
+      Q        0.6553  vs  0.6562   (differ by 0.14%, both printed to 4/4 dp)
+  GEPOTIDACIN_URINARY_TRACT_AUTO_FULL_REVIEW.html
+      Q        3.385  vs  3.3879   (differ by 0.086%, both printed to 3/4 dp)
+  LEFAMULIN_CABP_AUTO_FULL_REVIEW.html
+      Q        0.7313  vs  0.7316   (differ by 0.041%, both printed to 4/4 dp)
+  NIRSEVIMAB_INFANT_RSV_REVIEW.html
+      Q        0.0876  vs  0.0879   (differ by 0.34%, both printed to 4/4 dp)
+  TIGECYCLINE_CIAI_SSOT.html
+      Q        2.1564  vs  2.157   (differ by 0.028%, both printed to 4/3 dp)
+
+SAME-df BUNDLE CONFLICTS on 6 page(s) -- any size of difference
+
+  ALIROCUMAB_LIPID_AUTO_FULL_REVIEW.html
+      df=7   Q     58.42  vs  58.4577     [same pool via I2=90.02]
+      df=7   tau2  61.44  vs  61.451183     [same pool via I2=90.02]
+  GEPOTIDACIN_URINARY_TRACT_AUTO_FULL_REVIEW.html
+      df=1   Q     3.385  vs  3.3879     [same pool via I2=70.5]
+  INCLISIRAN_LIPID_KIDNEY_AUTO_FULL_REVIEW.html
+      df=2   I2    74.1  vs  72     [same pool via Q=7.143]
+      df=2   I2    74.1  vs  72.0     [same pool via Q=7.143]
+      df=2   I2    72  vs  74.1     [same pool via Q=7.14]
+      df=2   I2    72.0  vs  74.1     [same pool via Q=7.1426]
+  ROTAVIRUS_VACCINE_AFRICA_REVIEW.html
+      df=2   I2    57.62  vs  56.97     [same pool via Q=4.72]
+  ROTAVIRUS_VACCINE_AUTO_FULL_REVIEW.html
+      df=2   I2    57.62  vs  56.97     [same pool via Q=4.72]
+  TIGECYCLINE_CIAI_SSOT.html
+      df=2   Q     2.157  vs  2.1564     [same pool via tau2=0.000025]
+      df=2   I2    7.287  vs  1.16     [same pool via tau2=0.000025]
+
+WIDE groups (several pools; counted, not reported as findings): 48
