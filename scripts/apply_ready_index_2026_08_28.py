@@ -437,6 +437,25 @@ def esc(s):
     return (str(s).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;"))
 
 
+# A PAGE WITH NO OBJECT DECLARES NO SPECIALTY, AND ABSENCE THEN DECIDES ITS PLACEMENT.
+# Both RULED_IN pages are hand-authored. ARNI has an object whose `specialty` block names
+# sp-cardiology, so it lands in Cardiology. The HFrEF network has NO object at all, so
+# nothing declared a section and the leftover bucket took it -- a heart-failure network
+# meta-analysis filed under "Also ready" because of a missing file, not a judgement.
+#
+# That is the complaint this index was built to answer: the working reviews are hard to
+# find. Being present is not the same as being findable, which is the whole lesson of the
+# card that rendered at pixel 24,221 of a 24,498-pixel page.
+#
+# So the ruled-in page carries an explicit section here, beside the ruling that admitted
+# it. It is deliberately NOT a general fallback: any other page with no declared specialty
+# still goes to the bucket, where a reader can see that nothing placed it. Keyed by page,
+# so a page that later gains an object with a specialty block stops needing this.
+RULED_IN_SECTION = {
+    "HFREF_NMA_AUTO_FULL_REVIEW.html": "sp-cardiology",
+}
+
+
 def _specialty_section(page, pm):
     """The index section id this topic belongs in, from the OBJECT, or None.
 
@@ -445,6 +464,8 @@ def _specialty_section(page, pm):
     clinical judgement. That is exactly the right key: it is the index's own historical
     placement, read back, not a specialty this lane invented.
     """
+    if page in RULED_IN_SECTION:
+        return RULED_IN_SECTION[page]
     rel = pm.get(page)
     if not rel or not os.path.exists(os.path.join(REPO, rel)):
         return None
