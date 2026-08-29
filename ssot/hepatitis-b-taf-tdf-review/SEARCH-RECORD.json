@@ -316,7 +316,10 @@
  "ordering": {
   "protocol_anchored_utc": "2026-08-29T15:47:34Z",
   "first_query_attempted_utc": "2026-08-29T15:47:34.927Z",
-  "holds": false
+  "holds": false,
+  "state": "INDETERMINATE",
+  "_corrected_2026_08_29": "The pipeline first recorded holds=false here, but by a LEXICOGRAPHIC STRING COMPARE of mixed-precision ISO times ('.' is 0x2E, 'Z' is 0x5A, so '...58.990Z' sorts before '...58Z'). That test is not a time comparison and its answer was right by accident. Parsed properly the anchor precedes the query -- but Rekor's integratedTime has ONE-SECOND resolution, so an anchor stamped :58 lies anywhere in [58.000, 58.999] and this query fell inside that same second. The true state is INDETERMINATE: not held, not violated, and unprovable either way. It is recorded as such rather than rounded to whichever answer is convenient.",
+  "_class_removed": "The pipeline now sleeps until the wall clock passes the anchor's second before issuing any query, so ordering is determinate by construction. This topic ran before that fix."
  },
  "what_this_record_does_not_establish": [
   "It does not establish that the search was COMPLETE. It records which sources were queried and what each returned, nothing wider.",

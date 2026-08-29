@@ -296,13 +296,45 @@ def do_topic(topic, rel=None, query_override=None):
         return log
     log["protocol_anchor"] = a
 
+    # ⛔ WAIT PAST THE ANCHOR'S SECOND BEFORE QUERYING.
+    # Rekor's integratedTime is a UNIX SECOND, so an anchor stamped :58 lies anywhere in
+    # [58.000, 58.999]. A query at 58.990 is then UNPROVABLE either way -- not held, not
+    # violated, INDETERMINATE. Three topics landed in exactly that window. Sleeping until
+    # the wall clock passes the anchor's second makes the ordering determinate by
+    # construction, which is cheaper than arguing about it afterwards.
+    anchored = datetime.datetime.strptime(
+        a["integratedTime_utc"], "%Y-%m-%dT%H:%M:%SZ").replace(
+        tzinfo=datetime.timezone.utc)
+    while datetime.datetime.now(datetime.timezone.utc) < anchored + datetime.timedelta(seconds=1.2):
+        time.sleep(0.2)
+
     recs, first_attempt, qtext = search_topic(topic, obj, query_override)
     log["query_text"] = qtext
     log["first_query_attempted_utc"] = first_attempt
+    # THREE STATES, NOT TWO, AND PARSED RATHER THAN STRING-COMPARED.
+    # The previous test was `anchor_string < query_string`. That is a lexicographic
+    # compare of MIXED-PRECISION ISO times: "." is 0x2E and "Z" is 0x5A, so
+    # "...58.990Z" sorts BEFORE "...58Z" and a perfectly fine ordering read as broken.
+    # It is also two-valued, which cannot express the real third case: the anchor is
+    # only known to the second, so a query inside that same second is UNPROVABLE.
+    _a = datetime.datetime.strptime(a["integratedTime_utc"], "%Y-%m-%dT%H:%M:%SZ").replace(
+        tzinfo=datetime.timezone.utc)
+    _q = datetime.datetime.fromisoformat(first_attempt.replace("Z", "+00:00"))
+    if _a + datetime.timedelta(seconds=1) <= _q:
+        _state = "HELD"
+    elif _q < _a:
+        _state = "VIOLATED"
+    else:
+        _state = "INDETERMINATE"
     log["ordering"] = {
         "protocol_anchored_utc": a["integratedTime_utc"],
         "first_query_attempted_utc": first_attempt,
-        "holds": a["integratedTime_utc"] < first_attempt,
+        "state": _state,
+        "holds": _state == "HELD",
+        "_note": ("Rekor integratedTime has one-second resolution, so an anchor stamped "
+                  ":58 lies anywhere in [58.000, 58.999]. A query inside that second is "
+                  "INDETERMINATE -- neither held nor violated -- and must never be "
+                  "counted as held."),
     }
     log["sources"] = recs
     log["three_counts"] = tally(recs)
