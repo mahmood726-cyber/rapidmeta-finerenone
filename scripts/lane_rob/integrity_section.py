@@ -127,9 +127,9 @@ def _c_single_trial_pooled(html, txt):
     pool".
     """
     out = []
-    for m in re.finditer(r"pooled[^.]{0,120}?k\s*=\s*1", txt, re.I):
+    for m in re.finditer(r"pooled[^.]{0,120}?\bk\s*=\s*1\b", txt, re.I):
         out.append(re.sub(r"\s+", " ", m.group(0))[:90])
-    for m in re.finditer(r"k\s*=\s*1[^.]{0,80}?pooled", txt, re.I):
+    for m in re.finditer(r"\bk\s*=\s*1\b[^.]{0,80}?pooled", txt, re.I):
         out.append(re.sub(r"\s+", " ", m.group(0))[:90])
     return out
 
