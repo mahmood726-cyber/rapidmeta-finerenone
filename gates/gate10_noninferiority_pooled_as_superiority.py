@@ -40,13 +40,23 @@ import io
 import json
 import os
 import subprocess
+import tempfile
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import _harness as H  # noqa: E402
 
 DETECTOR = "scripts/lane_rob/chk_noninferiority_pooled_as_superiority.py"
-RESULT = r"F:\claude-temp\pend\out\noninferiority_detector.json"
+# ⛔ NO DRIVE LETTER. This read an absolute F:\ path, which does not exist on the CI runner, so
+# the gate reported BROKEN -- "the detector ran but its result file could not be read" -- on
+# EVERY run since it was registered. It passed locally, so nothing looked wrong: a gate that can
+# only run on one machine is the available-not-operative class wearing a green tick everywhere
+# else, and this one was built to police a class that makes readers act in the wrong direction.
+#
+# The gate now NAMES the file it wants and passes it to the detector with --out. That also
+# removes the generic-name-in-a-shared-root collision gate 9 polices, rather than re-freezing it.
+RESULT = os.path.join(tempfile.gettempdir(),
+                      "gate10_noninferiority_detector.%d.json" % os.getpid())
 BACKLOG = "GATE10_KNOWN_NI_TOPICS.json"
 
 # The cases this gate was built to find. Never reaching one is VACUOUS, never a pass.
@@ -87,7 +97,8 @@ def main(argv):
         gate.broken("the detector's plant did not pass 4/4; its findings are not usable. "
                     "stdout: %s" % pout[-300:].replace("\n", " "))
 
-    proc = subprocess.run([sys.executable, path], cwd=repo, capture_output=True)
+    proc = subprocess.run([sys.executable, path, "--out", RESULT],
+                          cwd=repo, capture_output=True)
     if proc.returncode == 2:
         gate.broken("the detector REFUSED: %s"
                     % proc.stdout.decode("utf-8", "replace")[-300:].replace("\n", " "))

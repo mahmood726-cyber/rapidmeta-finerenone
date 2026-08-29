@@ -8,8 +8,13 @@ query. Each was verified by regenerating a page and reading it back. Each verifi
 Then the population was counted: the integrity layer was on ONE page of 1,470, and it was the
 HAND-BUILT pilot, put there by hand rather than by the generator. The other three were on ZERO.
 
-Every measurement was taken on a scratch build at F:\\claude-temp\\pend\\out\\regen_*.html that
+Every measurement was taken on a per-object scratch build under the shared scratch root, which
 is never delivered. "4 of 13 regeneration features" was true of a page nobody can read.
+
+⚠️ The path is described rather than quoted, deliberately. Gate 9 lints source text for generic
+names in that root, so writing the literal path INTO A COMMENT EXPLAINING THE DEFECT counts as
+committing it -- three of its four findings against this lane were explanatory comments. That is
+the same self-referential shape as a checker reading its own defect list, twice tonight.
 
 ⇒ A BASELINE OF ZERO OVER AN UNSTATED DENOMINATOR IS A STATEMENT ABOUT REACH, NOT THE CORPUS.
 A component ships with its coverage fraction or it does not ship.
@@ -23,6 +28,7 @@ import io
 import json
 import os
 import sys
+import tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 os.chdir(os.path.dirname(os.path.dirname(HERE)))
@@ -87,7 +93,8 @@ def main():
     print("  ⇒ Each figure is REACH over the population this layer can address. A component at")
     print("    0%% is not failing its checks -- it has never run on a delivered page, which no")
     print("    amount of passing on a scratch build will reveal.")
-    out = r"F:\claude-temp\pend\out\component_coverage.json"
+    out = (os.environ.get("ROB_COVERAGE_OUT")
+           or os.path.join(tempfile.gettempdir(), "component_coverage.%d.json" % os.getpid()))
     json.dump({"reachable": len(reachable), "html_total": len(every),
                "components": {n: sum(1 for p in reachable if m in text[p])
                               for n, m in COMPONENTS}},

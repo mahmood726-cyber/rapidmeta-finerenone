@@ -27,6 +27,7 @@ import io
 import os
 import re
 import sys
+import tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 os.chdir(os.path.dirname(os.path.dirname(HERE)))
@@ -147,11 +148,29 @@ def main():
     for h, _ in _sections(a):
         if h:
             print("     %s" % h[:70])
-    out = r"F:\claude-temp\pend\out"
-    io.open(os.path.join(out, "split_main.html"), "w", encoding="utf-8").write(m_light)
-    io.open(os.path.join(out, "split_appendix.html"), "w", encoding="utf-8").write(a)
+    # ⛔ A GENERIC NAME IN A SHARED ROOT IS A COLLISION WAITING FOR A SECOND LANE.
+    #
+    # This wrote split_main.html and split_appendix.html into the shared scratch root -- two
+    # names so generic that any other lane splitting any other document overwrites them, with no
+    # error. It is the same class that made the regeneration test order-dependent tonight, where
+    # one shared regen_test.html meant each topic was compared against the previous topic's page
+    # and dapivirine REFUSED TO BUILD depending on what ran before it.
+    #
+    # Gate 9 caught this one. It also mis-attributed it: the ratchet is keyed on file:line, so
+    # inserting a comment above the path retired "line 140" and reported "line 150" as NEW. The
+    # instance was real either way, so it is removed rather than re-frozen -- names now derive
+    # from the input document, under a directory the caller may name.
+    out = (sys.argv[2] if len(sys.argv) > 2
+           else os.environ.get("ROB_SPLIT_OUT") or tempfile.mkdtemp(prefix="rob_split_"))
+    os.makedirs(out, exist_ok=True)
+    stem = re.sub(r"[^A-Za-z0-9_-]", "_", os.path.splitext(os.path.basename(src))[0])[:60]
+    mp = os.path.join(out, stem + ".main.html")
+    ap = os.path.join(out, stem + ".appendix.html")
+    io.open(mp, "w", encoding="utf-8").write(m_light)
+    io.open(ap, "w", encoding="utf-8").write(a)
     print("")
-    print("  -> split_main.html, split_appendix.html")
+    print("  -> %s" % mp)
+    print("  -> %s" % ap)
     return 0
 
 
