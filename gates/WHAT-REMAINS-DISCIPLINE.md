@@ -138,6 +138,38 @@ Both require a glob. Until someone decides what they should be pointed at on eve
 cannot be wired. `vacuity_sweep.py` has a one-character bug (`blocks` for `block`) and cannot
 run at all; not fixed here because a wrong guess silently changes what it measures.
 
+## 15. A PARAPHRASED AUTHORITY DETECTOR — **buildable, not built**
+
+**The rule:** a provenance field degrades into a paraphrase exactly where the work was not
+done, and you can *tell*, because its neighbours cite real fields.
+
+    gate1, ASPIRE      "acronym field is literally 'ASPIRE'; detailed_description begins
+                        'MTN-020 will enrol approximately 3676...'; enrolment 2629"   <- QUERIED
+    gate1, FOCUS 1     "first of the two CAP trials (FOCUS 1)"                        <- PARAPHRASE
+
+The second restates the conclusion. It cites nothing. It was wrong, and it was wrong in **both**
+gates, and the control encoded the same belief so it **argued for** the error.
+
+**The detector:** scan any provenance column for entries that restate the claim instead of
+citing a source — a named field, an identifier, a quoted string, a URL, a date. Rows whose
+authority contains no such token are the rows nobody checked. Mechanical signals: absence of a
+field name (`orgStudyId`, `acronym`, `enrolment`), absence of a quoted fragment, and
+authority-text that is a substring-or-restatement of the claim it supports.
+
+**Scope: it applies to all ~170 prose-provenance estimates, not just to gate registries.** It
+would have found the FOCUS swap months ago. **Nothing implements it yet.**
+
+## 16. A CLEAN AUTO-MERGE IS WHERE A WRONG VALUE WINS QUIETLY — **not defendable by a gate**
+
+`gate1` and `gate6` carried a reversed FOCUS pair. Merging `origin/main`, which had the
+correction, produced **no conflict on either file**. Git reported success. Had the wrong side
+won, nothing would have said so — **there is no error message in this failure mode at all.**
+
+Same family as the exit-0 destructions on this list, and worse: those at least produced an
+artefact you could inspect. **The only defence found so far is to name the fact you care about
+and check it explicitly after every merge**, which is discipline, not a gate. It is here
+because it is not defendable, not because it is small.
+
 ---
 
 ## Register entries — earned 2026-08-28
@@ -162,7 +194,25 @@ run at all; not fixed here because a wrong guess silently changes what it measur
 > **TWO CONVENTIONS FOR ONE CONCEPT, COMMITTED BY THE PERSON BUILDING THE GATE AGAINST IT.**
 > `scripts/instrument_controls.py::require_controls` already existed and was used by 105 checks.
 > All nine gates here were invisible to it, and to the audit for the very rule this lane
-> recorded as newly earned. The harness now routes through it.
+> recorded as newly earned. The harness now routes through it.>
+> **A PROVENANCE FIELD DEGRADES INTO A PARAPHRASE EXACTLY WHERE THE WORK WAS NOT DONE.** And
+> its neighbours give it away: the entries beside it cite real registry fields, because for
+> those the query actually happened. See item 15 — this one is a detector, not just a lesson.
+>
+> **CORRECTING A NUMBER WITHOUT RECORDING THAT IT WAS WRONG LAUNDERS IT.** `statement.py` was
+> acknowledged at 6 and derives 155; `projectors2.py` at 5. Both are corrected AND both wrong
+> figures are kept under `_approved_on_a_wrong_figure`, because the artefact that matters is
+> not the right number — it is that **two class-wide changes were approved on a wrong one**.
+>
+> **A BLAST-RADIUS INSTRUMENT THAT MODELS THE WRONG THING RETURNS A CONFIDENT *SMALL* NUMBER.**
+> The dangerous direction: nobody challenges a reassuring figure. gate7 has now demonstrated
+> its own thesis about itself twice — once modelling the build graph and not the write graph,
+> once seeding a path set with the wrong separator (~25x under-report).
+>
+> **A CONTROL KEYED TO THE WRONG ANSWER DOES NOT MERELY MISS A DEFECT — IT ARGUES FOR IT, AND
+> MAKES THE FIX LOOK LIKE THE BUG.** gate6's fixtures hardcoded the reversed FOCUS pair; once
+> the store was corrected the control scored the *correct* data as a 55.6% false-positive rate.
+
 
 ---
 
