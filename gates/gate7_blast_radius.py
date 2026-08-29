@@ -79,7 +79,14 @@ def build_closure(repo, gate):
     ssot = os.path.join(repo, "ssot")
     for fn in os.listdir(ssot):
         if fn.endswith(".py"):
-            avail[fn[:-3]] = os.path.join("ssot", fn)
+            # FORWARD SLASHES, BECAUSE THE MEMBERSHIP TEST USES THEM. os.path.join gives
+            # backslashes on Windows, while radius_map normalises `rel` with .replace and
+            # then asks `rel in closure`. So every module reached THROUGH a root failed
+            # that test and was filed "outside the build closure" -- 14 of them, including
+            # grade_authority, statement and projectors2. The three ROOTS were added as
+            # literals with forward slashes and so were spared, which is why the roots-only
+            # self-check below passed while the gate under-reported everything else.
+            avail[fn[:-3]] = "ssot/" + fn
     closure, queue = set(), []
     for r in ROOTS:
         if os.path.exists(os.path.join(repo, r)):
@@ -216,6 +223,43 @@ def main(argv):
                             % (root, got, n_topics))
     else:
         gate.broken("ssot/build_tabbed.py is not in the radius map at all.")
+
+    # A CONTROL DRAWN FROM THE POPULATION THE BUG SPARES IS NOT A CONTROL.
+    #
+    # This gate shipped with a separator bug that filed 14 modules -- grade_authority,
+    # statement, projectors2 among them -- as "outside the build closure", so their radius
+    # read 3 and 6 and 5 instead of 155. Two of those understated numbers were acknowledged
+    # and shipped on. Every control passed while it did, and the reason is exact: the two
+    # named positives were a ROOT (added as a forward-slash literal, so the bug could not
+    # touch it) and a TOPIC-OWNED file (resolved before the closure test is ever reached),
+    # and the derivation self-check above loops over ROOTS only.
+    #
+    # So the control this gate lacked is the one below: a module that is in the closure ONLY
+    # by being imported through a root. It is the whole affected population, and nothing
+    # above could see it.
+    gate.expect_case("transitive-closure-member",
+                     "a module reached only THROUGH a root must be class-wide")
+    gate.expect_case("outside-closure-negative",
+                     "a module reachable from no page builder must NOT be class-wide")
+    n_topics = len(H.topic_objects(repo)[0])   # rebound: the branch above may not have run
+    _via = "ssot/grade_authority.py"     # imported by build_tabbed; never a root itself
+    _out = "ssot/corpus_reconcile.py"    # imported by nothing in the closure
+    _vr = rmap.get(_via, {}).get("radius")
+    _or_ = rmap.get(_out, {}).get("radius")
+    if _via in rmap and _via not in ROOTS:
+        gate.saw("transitive-closure-member")
+        if _vr != n_topics:
+            gate.broken("%s is imported by a page builder, so every topic builds through it, "
+                        "and its radius must be %d. This gate computed %r. An under-reported "
+                        "radius is the reassurance this gate exists to withhold, and it is how "
+                        "two class-wide edits were acknowledged at 6 and 5."
+                        % (_via, n_topics, _vr))
+    if _out in rmap:
+        gate.saw("outside-closure-negative")
+        if _or_ == n_topics:
+            gate.broken("%s reaches no page builder yet computed the corpus-wide radius %r. "
+                        "A gate that calls everything class-wide has stopped discriminating."
+                        % (_out, _or_))
 
     if any(v["radius"] == 1 and v["why"].startswith("belongs to topic") for v in rmap.values()):
         gate.saw("topic-owned")
