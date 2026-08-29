@@ -437,24 +437,94 @@ def esc(s):
     return (str(s).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;"))
 
 
+def _specialty_section(page, pm):
+    """The index section id this topic belongs in, from the OBJECT, or None.
+
+    The object's `specialty` block carries `derived_from: "index section sp-cardiology"` and
+    says of itself that it records WHERE THE INDEX PLACED THE TOPIC rather than making a
+    clinical judgement. That is exactly the right key: it is the index's own historical
+    placement, read back, not a specialty this lane invented.
+    """
+    rel = pm.get(page)
+    if not rel or not os.path.exists(os.path.join(REPO, rel)):
+        return None
+    try:
+        obj = json.load(io.open(os.path.join(REPO, rel), encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    sp = obj.get("specialty")
+    if isinstance(sp, dict) and sp.get("value"):
+        return "sp-" + str(sp["value"]).strip().lower()
+    if isinstance(sp, str) and sp.strip():
+        return "sp-" + sp.strip().lower()
+    return None
+
+
 def add_to_index(keep, reviews, pm, log):
+    """Place each missing KEEP page in ITS OWN SECTION, and never append a second bucket.
+
+    *** THIS FUNCTION PUT THE FLAGSHIP 12,000 PIXELS BELOW WHERE ANYONE LOOKS FOR IT. ***
+    It appended every added card to a generic "Also ready" grid at the END of the page.
+    ARNI_HF_REVIEW rendered at pixel 24,221 of a 24,498-pixel page while the Cardiology
+    section sat at 12,137 with nine cards and no ARNI. Mahmood reported the flagship as GONE
+    from the site. It was not gone: it was present, visible, correctly linked, and
+    unfindable. A card nobody scrolls to is not on the index in any sense a reader cares
+    about, and "it is in the HTML" is the same excuse as "it is committed".
+    
+    It also appended a NEW <h2 id="sp-ready-more"> on every run, so the page carried TWO
+    sections with the SAME id -- invalid HTML and a growing pile. Existing blocks are removed
+    before anything is added, so this is idempotent.
+    """
     fp = os.path.join(REPO, "index.html")
     original = read_text(fp)
     body = original
+
+    # 1. remove every previously appended bucket, so re-running cannot accumulate them
+    n_old = len(re.findall(r'<h2 id="sp-ready-more">', body))
+    body = re.sub(r'<h2 id="sp-ready-more">.*?</div>', "", body, flags=re.S)
+
     have = html_entries(body, reviews) & keep
     missing = sorted(keep - have)
-    if missing:
-        cards = "".join(card_for(p, pm) for p in missing)
-        block = ('<h2 id="sp-ready-more">Also ready</h2><div class="grid">%s</div>' % cards)
-        body = body.replace("</body>", block + "</body>", 1) if "</body>" in body \
-            else body + block
+
+    # 2. place each card in its own specialty section where the object names one
+    placed, leftover = [], []
+    for page in missing:
+        sec = _specialty_section(page, pm)
+        card = card_for(page, pm)
+        if sec:
+            m = re.search(r'(<h2 id="' + re.escape(sec) + r'">.*?<div class="grid">)',
+                          body, re.S)
+            if m:
+                body = body[:m.end()] + card + body[m.end():]
+                placed.append((page, sec))
+                continue
+        leftover.append((page, card))
+
+    # 3. anything with no section goes in ONE bucket, placed immediately after the last
+    #    specialty section rather than at the foot of the page
+    if leftover:
+        block = ('<h2 id="sp-ready-more">Also ready</h2><div class="grid">%s</div>'
+                 % "".join(c for _p, c in leftover))
+        anchor = None
+        for m in re.finditer(r'<h2 id="sp-[a-z0-9\-]+">.*?</div>', body, re.S):
+            anchor = m
+        if anchor:
+            body = body[:anchor.end()] + block + body[anchor.end():]
+        elif "</body>" in body:
+            body = body.replace("</body>", block + "</body>", 1)
+        else:
+            body += block
+
     if BANNER_ID not in body:
         body = re.sub(r"(<body[^>]*>)", lambda m: m.group(1) + (BANNER % len(keep)),
                       body, count=1)
     write_if_changed(fp, body, original)
     log.append({"surface": "index.html (added)", "kind": "add",
                 "before": len(have), "after": len(html_entries(body, reviews) & keep),
-                "removed": -len(missing)})
+                "removed": -len(missing),
+                "placed_in_own_section": [{"page": p, "section": s} for p, s in placed],
+                "no_section_declared": [p for p, _c in leftover],
+                "stale_buckets_removed": n_old})
 
 
 def add_to_sitemap(keep, reviews, log):
