@@ -65,11 +65,27 @@ def cochrane_dapivirine():
     lines = io.open(COCHRANE, encoding="utf-8", errors="replace").read().split("\n")
     take = []
     take.append("SUMMARY OF FINDINGS")
-    take += lines[182:262]
+    # ⚠️ STOP AT THE NEXT INTERVENTION'S TABLE. The first extraction ran to a fixed line and
+    # spilled into "Summary of findings 2. Tenofovir", carrying cellulose sulphate, PRO 2000
+    # and SAVVY material with it. Two of three judges then scored the comparator DOWN for lack
+    # of focus on dapivirine -- an axis it lost because of MY extraction, not its own writing.
+    # That is a PICO mismatch in our own favour, which is the mirror of the error this project
+    # refuses elsewhere, and it made part of round 1 unusable.
+    OTHER = re.compile(r"tenofovir|cellulose sulphate|PRO 2000|SAVVY|BufferGel|Carraguard",
+                       re.I)
+    take += lines[182:281]          # ends immediately before "Summary of findings 2."
     take.append("\nRISK OF BIAS ASSESSMENT")
+    # Their risk-of-bias narrative genuinely covers all twelve trials and names these two among
+    # them. That is the comparator's own writing and is left exactly as it stands.
     take += lines[1044:1096]
     take.append("\nRESULTS AND CONCLUSIONS FOR THIS INTERVENTION")
-    take += [l for l in lines[1195:1260] if l.strip()]
+    res = []
+    for ln in lines[1203:1260]:
+        if OTHER.search(ln):
+            break
+        if ln.strip():
+            res.append(ln)
+    take += res
     take.append("\nSEARCH")
     take += [l for l in lines[725:750] if l.strip()]
     return blind("\n".join(take))
