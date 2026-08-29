@@ -45,7 +45,21 @@ PLANTS = [
      "a removal-shaped script in neither the registry nor wired to the precondition"),
     ("gate9_shared_scratch", ["--plant"],
      "a new generic name in the shared scratch root"),
+    # ADDED 2026-08-29 with the gates themselves. Both were verified to fail on a
+    # plant by hand when they were written; a hand check proves it once, and this
+    # is what proves it on every push.
+    ("gate11_one_statistic_one_value", ["--plant"],
+     "an object whose stored heterogeneity field disagrees with its own R output"),
+    ("gate12_planned_shown_as_observed", ["--plant"],
+     "a page showing a registered planned duration under an observed label"),
 ]
+
+# GATES WITH NO PLANT HERE, NAMED RATHER THAN OMITTED. gate5 is exercised through
+# --action rather than --plant and is in the table above; gate10 has no entry, so
+# NOTHING asserts that it can still fail. It was added by another lane and this lane
+# will not write a plant for a detector it does not own -- but an uncovered gate is
+# a hole, and a hole nobody has written down is indistinguishable from coverage.
+UNPLANTED = ["gate10_noninferiority_pooled_as_superiority"]
 
 
 def run(mod, args):
@@ -58,7 +72,10 @@ def main(argv):
     gate = H.Gate("0  GATES CAN FAIL",
                   "every gate is planted with its own defect, watched to fail, restored, and "
                   "the restoration asserted")
-    kinds = {"gates under test": len(PLANTS), "plants that tripped their gate": 0,
+    kinds = {"gates registered in run_all": len(PLANTS) + len(UNPLANTED),
+             "gates under test here": len(PLANTS),
+             "gates with NO plant -- unproven, not passing": len(UNPLANTED),
+             "plants that tripped their gate": 0,
              "plants that did NOT trip their gate": 0,
              "gates that returned to PASS after restoration": 0,
              "gates that did NOT return to PASS": 0}

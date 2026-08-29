@@ -250,6 +250,19 @@ def main(argv):
 
     # --plant swaps the two ceftaroline labels IN MEMORY, to prove the gate can fail on a
     # pair it currently passes. It never touches the store.
+    #
+    # THIS PLANT WAS DISARMED BY A CORRECTION TO THE REGISTRY ABOVE, AND THE GATE WENT
+    # GREEN AND UNFALSIFIABLE WITHOUT ANYTHING LOOKING WRONG. On 2026-08-29 the FOCUS
+    # mapping here was corrected -- NCT00621504 is FOCUS 1 (protocol P903-08) and
+    # NCT00509106 is FOCUS 2 (P903-09) -- and the KNOWN_NEGATIVES were corrected with
+    # it. These two lines were not. They still named the OLD mapping, so neither
+    # condition could match, the plant swapped nothing, and the gate passed a planted
+    # run because there was no plant. Caught by verify_gates_can_fail, which is the
+    # only thing in the repository that could have caught it: every other signal said
+    # PASS.
+    #
+    # A PLANT IS PART OF THE REGISTRY IT PLANTS AGAINST. Changing the truth without
+    # changing the plant leaves a gate that can only ever agree with itself.
     planted = None
     if "--plant" in argv:
         planted = "ceftaroline FOCUS 1 <-> FOCUS 2, in memory only"
@@ -260,9 +273,9 @@ def main(argv):
             obj = copy.deepcopy(obj)
             for path, node in H.walk(obj):
                 if isinstance(node, dict) and isinstance(node.get("label"), str):
-                    if node.get("nct") == "NCT00509106" and node["label"] == "FOCUS 1":
+                    if node.get("nct") == "NCT00621504" and node["label"] == "FOCUS 1":
                         node["label"] = "FOCUS 2"
-                    elif node.get("nct") == "NCT00621504" and node["label"] == "FOCUS 2":
+                    elif node.get("nct") == "NCT00509106" and node["label"] == "FOCUS 2":
                         node["label"] = "FOCUS 1"
             objects["ceftaroline-auto-full-review"] = obj
 
