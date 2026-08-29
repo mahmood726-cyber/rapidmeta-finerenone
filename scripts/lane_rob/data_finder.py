@@ -15,10 +15,11 @@ THE LADDER, escalating until found, recording which rung succeeded:
   4 FDA / EMA documents    where the hard-to-get data lives
   5 registry history, protocols and SAPs as free supplements
 
-⛔ THREE STATES, NEVER ONE STRING:
-     OBTAINED               a value, with its rung and its evidence
-     UNOBTAINABLE           every rung tried and named, and none held it
-     NOT_YET_ATTEMPTED      a rung that has no implementation yet
+⛔ FOUR STATES, AND THE DEFAULT IS A STATEMENT ABOUT US:
+     OBTAINED                a value, with its rung and its evidence
+     NOT_YET_FOUND           every implemented rung tried and none held it -- THE DEFAULT
+     GENUINELY_UNOBTAINABLE  a claim about the WORLD; cannot be set without a stated reason
+     NOT_YET_ATTEMPTED       a rung that has no implementation yet
    "We did not extract it" and "it does not exist" are different facts, and a layer that
    collapses them will report our own gaps as properties of the evidence base. That error was
    made at the strategic level this week: 6 of 178 stored arm counts was quoted as a ceiling
@@ -50,7 +51,29 @@ import multiroute_retrieve as MR  # noqa: E402
 
 REG = r"F:\claude-temp\pend\out\registry_full"
 
-OBTAINED, UNOBTAINABLE, NOT_YET = "OBTAINED", "UNOBTAINABLE", "NOT_YET_ATTEMPTED"
+# ⛔ "THE DATA IS ALWAYS THERE. SEARCH AND EXTRACT HARDER." The default changed on 2026-08-29
+# because every "we could not find it" this project has produced was wrong: 43 of 317 documents
+# needed a route past the first index; seven "abstract only" claims were false; the identifiers
+# were sitting in the registrations all along; and a ceiling of "37 of 353" was quoted three
+# times when it measured our extraction rather than the world.
+#
+# So NOT_FOUND is the default and it is a statement about US. UNOBTAINABLE is a claim about the
+# WORLD and needs evidence like any other -- the trial never reported it, the application was
+# withdrawn, the document does not exist. It cannot be set without a reason.
+OBTAINED = "OBTAINED"
+NOT_FOUND = "NOT_YET_FOUND"            # ladder exhausted; says nothing about the world
+UNOBTAINABLE = "GENUINELY_UNOBTAINABLE"  # requires `because`
+NOT_YET = "NOT_YET_ATTEMPTED"          # a rung with no implementation
+
+
+def unobtainable(rec, because):
+    """The ONLY way to mark a datum unobtainable, and it demands its evidence."""
+    if not because or len(str(because).strip()) < 20:
+        raise ValueError(
+            "GENUINELY_UNOBTAINABLE requires a stated reason of substance. A datum is not "
+            "unobtainable because we did not find it -- that is NOT_YET_FOUND.")
+    rec.update(state=UNOBTAINABLE, because=because)
+    return rec
 
 
 def _now():
@@ -216,8 +239,14 @@ def find(nct, datum):
             rec.update(state=OBTAINED, value=v, source_class=name, rung=num)
             return rec
     # EVERY RUNG NAMED. Unimplemented rungs mean NOT_YET_ATTEMPTED, never UNOBTAINABLE.
+    # EVERY RUNG NAMED, AND THE LADDER IS CLIMBED IN FULL BEFORE ANYTHING IS RETURNED.
+    # Never UNOBTAINABLE here: that state is a claim about the world and this function has only
+    # evidence about our own reach.
     unimplemented = [r for r in rec["rungs_tried"] if r["result"] == "not implemented"]
-    rec["state"] = NOT_YET if unimplemented else UNOBTAINABLE
+    rec["state"] = NOT_YET if unimplemented else NOT_FOUND
+    rec["note"] = ("every implemented rung was tried and none held it. This says nothing about "
+                   "whether the datum exists; %d rung(s) have no implementation yet."
+                   % len(unimplemented))
     return rec
 
 
