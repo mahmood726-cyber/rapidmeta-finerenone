@@ -42,7 +42,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 REPO = os.path.dirname(HERE)
 
-REGISTRIES = ("tier2_plants_a", "tier2_plants_b", "tier2_plants_c")
+REGISTRIES = ("tier2_plants_a", "tier2_plants_b", "tier2_plants_c", "tier2_plants_d")
 FORBIDDEN_BRANCHES = ("main", "master")
 
 

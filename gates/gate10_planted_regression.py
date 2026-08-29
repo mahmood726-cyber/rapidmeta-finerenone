@@ -36,6 +36,7 @@ G3 = importlib.import_module("gate3_one_reason_field")
 G4 = importlib.import_module("gate4_judgement_reference")
 G6 = importlib.import_module("gate6_nct_beside_name")
 TM = importlib.import_module("textmatch")
+ICP = importlib.import_module("interval_contains_point")
 
 
 # ---------------------------------------------------------------------------
@@ -113,6 +114,16 @@ def p_falsy_served():
     if "None" not in text:                      # the fixture must really reach the reader
         raise AssertionError("AS6 fixture does not render None into page text")
     return False, "page_text carries 'None'; no shipped module refuses a falsy in served prose"
+
+
+def p_interval_outside():
+    f = ICP.findings("The pooled effect was RR 1.20 (95% CI 0.60 to 1.10).", "fixture")
+    return bool(f), "findings -> %d" % len(f)
+
+
+def p_interval_inside():
+    f = ICP.findings("The pooled effect was RR 0.79 (95% CI 0.71 to 0.88).", "fixture")
+    return bool(f), "findings on a VALID interval -> %d" % len(f)
 
 
 def p_none():

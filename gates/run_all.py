@@ -42,6 +42,7 @@ GATES = [
     ("gate9_shared_scratch", "the shared-scratch lint actually runs", "fast"),
     ("gate10_planted_regression", "every defect class we found is still found", "fast"),
     ("gate11_no_plant_leaks", "no plant fixture has reached a corpus file", "fast"),
+    ("gate12_interval_contains_point", "an estimate lies inside its own interval", "slow"),
 ]
 
 
