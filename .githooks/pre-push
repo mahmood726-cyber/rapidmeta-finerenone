@@ -226,7 +226,31 @@ if [ "$(curl -sf "http://127.0.0.1:$PORT/$NONCE" 2>/dev/null || true)" != "hook-
     if curl -sf "http://127.0.0.1:$PORT/index.html" > /dev/null 2>&1; then
         echo "[pre-push] Port $PORT is answering but is NOT serving $REPO_ROOT."
         echo "[pre-push] Using an unused port instead of another tree's bytes."
-        PORT=8799
+        # SEARCH FOR A FREE PORT, DO NOT FALL BACK TO ONE FIXED ALTERNATIVE.
+        #
+        # This used to be `PORT=8799` and nothing more. When 8799 was ALSO held by a foreign
+        # tree the hook started nothing, the nonce probe failed, regression_check exited 2,
+        # and the push was refused with "Regression check FAILED" -- while the very same check
+        # run by hand over the very same pages reported 8/8 fully_ok. The refusal was correct
+        # (reading another directory's bytes is worse than not running) but it named the wrong
+        # thing, twice in one day.
+        #
+        # `exec` upstream stopped THIS hook orphaning its own server. It cannot stop a SIBLING
+        # WORKTREE's hook, which runs whatever version of this file that branch has checked
+        # out, so a foreign holder on any single fallback port must be assumed.
+        PORT=""
+        for CAND in 8799 8800 8801 8802 8803 8804 8805 8806; do
+            if ! curl -s -o /dev/null --max-time 1 "http://127.0.0.1:$CAND/" 2>/dev/null; then
+                PORT=$CAND
+                break
+            fi
+        done
+        if [ -z "$PORT" ]; then
+            echo "[pre-push] No free port in 8799-8806; every one is answering."
+            echo "[pre-push] Refusing rather than reading another tree's bytes."
+            exit 1
+        fi
+        echo "[pre-push] Selected free port $PORT."
     fi
 fi
 if [ "$(curl -sf "http://127.0.0.1:$PORT/$NONCE" 2>/dev/null || true)" != "hook-identity-probe" ]; then
