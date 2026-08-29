@@ -90,6 +90,8 @@
   "scripts/lane_rob/adjudication_triage.py::if j2 is None:#0",
   "scripts/lane_rob/adjudication_triage.py::if not isinstance(dv, dict):#0",
   "scripts/lane_rob/adjudication_triage.py::if not sa:#0",
+  "scripts/lane_rob/chk_noninferiority_pooled_as_superiority.py::if not hits:#0",
+  "scripts/lane_rob/chk_noninferiority_pooled_as_superiority.py::if not trials:#0",
   "scripts/lane_rob/gate_estimate_reconciles.py::if nt is None:#0",
   "scripts/lane_rob/gate_no_certainty_over_unadjudicated_rob.py::if len(pend) == 0:#0",
   "scripts/lane_rob/gate_no_certainty_over_unadjudicated_rob.py::if not os.path.isfile(obj_path):#0",
@@ -353,5 +355,10 @@
   "scripts/lane_rob/adjudication_triage.py::if not isinstance(dv, dict):#0",
   "scripts/lane_rob/adjudication_triage.py::if not sa:#0"
  ],
- "why_admitted_from_another_lane_2026_08_28": "THESE FOUR ARE NOT THIS LANE'S CODE AND THIS LANE HAS NOT READ THEM. They arrived in scripts/lane_rob/adjudication_triage.py through a merge of origin/main from the rob-retrieval lane on 2026-08-28 and immediately blocked every commit here, because the ratchet correctly reports them as new. Admitted so the block clears, recorded as SEEN and NOT as justified: whether each absence is the property that lane means is that lane's call, not this one's. Vouching for four guards I have not examined, in a file I did not write, would be exactly the false clearance this gate exists to prevent. Same pattern as admitted_unexamined_2026_08_24, and flagged to the rob-retrieval lane."
+ "why_admitted_from_another_lane_2026_08_28": "THESE FOUR ARE NOT THIS LANE'S CODE AND THIS LANE HAS NOT READ THEM. They arrived in scripts/lane_rob/adjudication_triage.py through a merge of origin/main from the rob-retrieval lane on 2026-08-28 and immediately blocked every commit here, because the ratchet correctly reports them as new. Admitted so the block clears, recorded as SEEN and NOT as justified: whether each absence is the property that lane means is that lane's call, not this one's. Vouching for four guards I have not examined, in a file I did not write, would be exactly the false clearance this gate exists to prevent. Same pattern as admitted_unexamined_2026_08_24, and flagged to the rob-retrieval lane.",
+ "admitted_from_another_lane_2026_08_29": [
+  "scripts/lane_rob/chk_noninferiority_pooled_as_superiority.py::if not hits:#0",
+  "scripts/lane_rob/chk_noninferiority_pooled_as_superiority.py::if not trials:#0"
+ ],
+ "why_admitted_from_another_lane_2026_08_29": "SECOND TIME IN TWO DAYS, SAME MECHANISM. These arrived in scripts/lane_rob/chk_noninferiority_pooled_as_superiority.py through a merge of origin/main from the rob-retrieval lane and immediately blocked every commit here, because the ratchet correctly reports a merged file's guards as new. Admitted so the block clears, recorded as SEEN and NOT as justified: whether each absence is the property that lane means is that lane's call. Vouching for guards this lane did not write and has not read is the false clearance the gate exists to prevent. THE RECURRENCE IS THE FINDING: a per-lane ratchet keyed on file paths will fire on every cross-lane merge forever, and the fix is for the ratchet to attribute a guard to the lane that introduced it rather than to whoever merges it next."
 }

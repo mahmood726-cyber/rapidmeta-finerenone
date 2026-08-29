@@ -53,17 +53,43 @@ PINNED = {
                       "literally 'ASPIRE'; detailed_description begins 'MTN-020 will enrol "
                       "approximately 3676...'; enrolment 2629."),
     },
-    "NCT00509106": {
+    # CORRECTED 2026-08-29, AND THE PAIR WAS THE WRONG WAY ROUND.
+    #
+    # These two entries previously read NCT00509106 = FOCUS 1 and NCT00621504 = FOCUS 2, and
+    # their "authority" strings were "first of the two CAP trials" and "second of the two"
+    # -- which RESTATE the claim rather than evidence it. Compare the ASPIRE entry above,
+    # which cites the acronym field, the detailed_description and the enrolment. A pinned
+    # registry entry whose authority is a paraphrase of its own conclusion cannot adjudicate
+    # anything, and this one was adjudicating against corrected data.
+    #
+    # THE DISCRIMINATOR NEITHER SIDE HAD USED IS THE SPONSOR'S PROTOCOL NUMBER, which is on
+    # the registration and is a hard identifier. FOCUS 1 and FOCUS 2 are named by protocol,
+    # not by which enrolled first:
+    #     NCT00621504  orgStudyId P903-08  start 2008-01  n=606   -> FOCUS 1
+    #     NCT00509106  orgStudyId P903-09  start 2007-07  n=622   -> FOCUS 2
+    # The earlier entry reads as having reasoned from the START DATE -- NCT00509106 began
+    # six months earlier, so it was called "first". That is a true fact about enrolment and
+    # not the fact the name encodes.
+    #
+    # Both registrations carry acronym "CAP" and near-identical official titles, so the
+    # acronym field CANNOT separate them; this lane recorded that limitation when it applied
+    # the mapping and did not claim registry verification for it. The orgStudyId does
+    # separate them, and it agrees with the published FOCUS numbering.
+    "NCT00621504": {
         "name": "FOCUS 1",
         "aliases": ("focus 1", "focus-1", "focus i "),
-        "authority": ("ClinicalTrials.gov NCT00509106 -- ceftaroline registrational "
-                      "programme, first of the two CAP trials (FOCUS 1)."),
+        "authority": ("ClinicalTrials.gov NCT00621504, read 2026-08-29: orgStudyId is "
+                      "P903-08, the first ceftaroline CAP protocol, published as FOCUS 1. "
+                      "Enrolment 606, start 2008-01. The acronym field reads 'CAP' on both "
+                      "trials and cannot discriminate them."),
     },
-    "NCT00621504": {
+    "NCT00509106": {
         "name": "FOCUS 2",
         "aliases": ("focus 2", "focus-2", "focus ii"),
-        "authority": ("ClinicalTrials.gov NCT00621504 -- ceftaroline registrational "
-                      "programme, second of the two CAP trials (FOCUS 2)."),
+        "authority": ("ClinicalTrials.gov NCT00509106, read 2026-08-29: orgStudyId is "
+                      "P903-09, the second ceftaroline CAP protocol, published as FOCUS 2. "
+                      "Enrolment 622, start 2007-07 -- it began EARLIER, which is why a "
+                      "date-based reading called it the first."),
     },
 }
 
@@ -148,8 +174,12 @@ KNOWN_NEGATIVES = [
     ("NCT01539226", "The Ring Study (IPM 027)"),
     ("NCT01617096", "ASPIRE"),
     ("NCT01617096", "ASPIRE / MTN-020"),
-    ("NCT00509106", "FOCUS 1"),
-    ("NCT00621504", "FOCUS 2"),
+    # SWAPPED WITH THE REGISTRY ENTRIES ABOVE, 2026-08-29. These are the known NEGATIVES --
+    # pairs the gate must NOT flag -- so leaving them on the old mapping would have made the
+    # control assert the very swap the correction removes, and the measured false-positive
+    # rate would have read 0% while the control was wrong.
+    ("NCT00621504", "FOCUS 1"),
+    ("NCT00509106", "FOCUS 2"),
     # descriptors: no name claimed, so no identity to contradict
     ("NCT00509106", "FOCUS-style trial, IV ceftriaxone comparator"),
     ("NCT00621504", "second registrational trial, IV ceftriaxone comparator"),

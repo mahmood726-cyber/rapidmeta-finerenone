@@ -100,6 +100,29 @@ def compare(trial, ap):
     return "AGREE", ""
 
 
+# KNOWN_NEGATIVE control for the repair-marker regex. The count of "objects carrying a repair
+# marker" is reported as a denominator (50 of 163), so its precision is load-bearing: a marker
+# that fires on ordinary prose would inflate the population this sweep claims to cover.
+KNOWN_NEGATIVES_MARKER = [
+    ("the estimate was withdrawn on 2026-08-18", "a withdrawal is not a repair"),
+    ("repairing the roof", "an English word that is not the marker"),
+    ("CORRECTNESS was checked", "a longer word beginning with CORRECT"),
+    ("recovered from the page's own bytes", "lowercase prose, not the RECOVERED marker"),
+]
+
+
+def measure_marker_precision(say):
+    fp = 0
+    for text, why in KNOWN_NEGATIVES_MARKER:
+        if MARKER.search(text):
+            fp += 1
+            say("   CONTROL FAILED: %r matched -- %s" % (text[:44], why))
+    rate = 100.0 * fp / len(KNOWN_NEGATIVES_MARKER)
+    say("   known-negative control: %d/%d matched (measured false-positive rate %.1f%%)"
+        % (fp, len(KNOWN_NEGATIVES_MARKER), rate))
+    return fp
+
+
 def main():
     raw = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace",
                            write_through=True)
@@ -141,6 +164,9 @@ def main():
                              "as_posted_read_utc": ap.get("read_utc")})
 
     total = sum(c.values())
+    say("MARKER PRECISION, measured before the denominator is reported:")
+    measure_marker_precision(say)
+    say("")
     say("objects in PAGE_MAP read            : %d" % n_obj)
     say("objects storing the fact TWICE      : %d" % n_both)
     say("trial-outcome pairs comparable      : %d" % total)
