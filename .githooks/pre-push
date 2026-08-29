@@ -231,7 +231,16 @@ if [ "$(curl -sf "http://127.0.0.1:$PORT/$NONCE" 2>/dev/null || true)" != "hook-
 fi
 if [ "$(curl -sf "http://127.0.0.1:$PORT/$NONCE" 2>/dev/null || true)" != "hook-identity-probe" ]; then
     echo "[pre-push] Starting local HTTP server on :$PORT ..."
-    ( cd "$REPO_ROOT" && python -m http.server $PORT --bind 127.0.0.1 > /dev/null 2>&1 ) &
+    # `exec`, BECAUSE $! WAS THE SUBSHELL AND NOT THE SERVER.
+    # Without it `( cd ... && python ... ) &` sets SERVER_PID to the subshell, the
+    # cleanup trap kills that, and the python process it spawned is orphaned still
+    # holding the port. They accumulate: on 2026-08-29 THREE servers were listening
+    # on 8799 from earlier runs of this hook, each serving a different tree, and
+    # whichever accepted first was not this one. The nonce probe caught it and
+    # refused -- correctly -- but the refusal reads as a regression in the push,
+    # which is the wrong place to look. `exec` replaces the subshell with python, so
+    # $! is the server and the trap kills the thing it names.
+    ( cd "$REPO_ROOT" && exec python -m http.server $PORT --bind 127.0.0.1 > /dev/null 2>&1 ) &
     SERVER_PID=$!
     sleep 2
 fi
