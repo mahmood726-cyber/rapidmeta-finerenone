@@ -1,0 +1,659 @@
+[
+ {
+  "topic": "ceftazidime-avibactam-auto-full-review",
+  "key": "canonical object and registered at",
+  "checked_field": "ssot/ceftazidime-avibactam-auto-full-review/ceftazidime-avibactam-auto-full-review.json: app_id; inputs.trials[]; trial_identity_check",
+  "field_holds": "app_id is present; inputs.trials holds NCT02475733 and NCT02497781 with ClinicalTrials.gov source URLs and read_utc 2026-08-18; trial_identity_check marks both studied.",
+  "blocker_named": "No new evidence is needed: the class blocker 'Canonical object missing' should be withdrawn because the canonical store object exists and names both registrations.",
+  "state": "RELABEL_Q2_WITHDRAWABLE",
+  "why": "The object contradicts the blocker directly; this is an unsupported blocker label, not an evidence gap."
+ },
+ {
+  "topic": "incretin-hfpef",
+  "key": "step hfpef step hfpef dm and summit all report benefit",
+  "checked_field": "ssot/incretin-hfpef-review/incretin-hfpef-review.json: results.by_outcome.kccq_css_change.per_trial; eligible_but_not_contributing; REGISTRATION_DISCREPANCY_2026_08_21",
+  "field_holds": "per_trial holds NCT04788511 STEP-HFpEF MD 7.8 (4.8 to 10.9) and NCT04847557 SUMMIT MD 6.9 (3.3 to 10.6); eligible_but_not_contributing holds NCT04916470 STEP-HFpEF DM with no registry results section; REGISTRATION_DISCREPANCY_2026_08_21 says the object contradicts itself about whether NCT04788511 or NCT04916470 supplied the semaglutide value.",
+  "blocker_named": "STEP-HFpEF DM's KCCQ clinical-summary-score result and its source table are the missing item; the object says NCT04916470 has no CT.gov results section and the semaglutide per-trial value is internally conflicted. Source that would settle it: the STEP-HFpEF DM publication results table or a CT.gov results section for NCT04916470.",
+  "state": "EVIDENCE_BLOCKED",
+  "why": "The store object names the trial and missing value-source; choosing between NCT04788511 and NCT04916470 from the object alone would be guessing."
+ },
+ {
+  "topic": "apixaban-vte-prophylaxis",
+  "key": "symptomatic venous thromboembolism",
+  "checked_field": "ssot/apixaban-vte-prophylaxis/apixaban-vte-prophylaxis.json: outcomes[0].definition; inputs.trials[].by_outcome.major_vte.outcome_definition",
+  "field_holds": "The pooled endpoint is 'Proximal DVT, non-fatal pulmonary embolism, or VTE-related death'; per-trial definitions for NCT00457002, NCT00423319, NCT00371683 and NCT00452530 name proximal DVT/non-fatal PE/VTE-related death but do not display a symptomatic restriction for proximal DVT.",
+  "blocker_named": "The symptom-status definition for proximal DVT in the four apixaban prophylaxis trial results is missing. Source that would settle it: the CT.gov results descriptions or primary publications for NCT00457002, NCT00423319, NCT00371683 and NCT00452530.",
+  "state": "EVIDENCE_BLOCKED",
+  "why": "The object supports the composite name but not the symptomatic qualifier used by the review question."
+ },
+ {
+  "topic": "arni-hfref",
+  "key": "the screening log names a trial only as li",
+  "checked_field": "ssot/arni-hfref/arni-hfref.json: screening.records[] where trial == 'Li 2019'",
+  "field_holds": "Li 2019 is sourced only to a prior-meta included-study table; it has no NCT, no DOI, no PubMed record, no Crossref match, and disposition 'screened, eligibility could not be established'.",
+  "blocker_named": "Li 2019's own trial report or registration is missing; it would need to establish whether this 126-participant sacubitril/valsartan-versus-enalapril trial reports the time-to-first cardiovascular-death-or-heart-failure-hospitalization hazard ratio. Source that would settle it: the Chinese Journal of Geriatrics 2019 article, pages 520-524, or a resolvable registry record.",
+  "state": "EVIDENCE_BLOCKED",
+  "why": "The object names the instance and the exact missing source; it correctly refuses to infer eligibility from the prior meta-analysis."
+ },
+ {
+  "topic": "etesevimab-covid-auto-full-review",
+  "key": "etesevimab covid is a pooled estimate possible",
+  "checked_field": "ssot/etesevimab-covid-auto-full-review/etesevimab-covid-auto-full-review.json: inputs.trials; results.by_outcome.primary.why_no_registration_is_seeded",
+  "field_holds": "inputs.trials is an empty array; why_no_registration_is_seeded says 'WE NEVER LOOKED' and describes the absence as an assembly gap.",
+  "blocker_named": "The object lists no trial records at all, so the missing pooled-estimate item cannot be named at trial level from this object.",
+  "state": "CANNOT_NAME",
+  "why": "Naming an etesevimab trial or outcome would require an external search; the store object itself supplies no instance."
+ },
+ {
+  "topic": "rivaroxaban-acs-review",
+  "key": "the counts stored here against favour the comparator",
+  "checked_field": "ssot/rivaroxaban-acs-review/rivaroxaban-acs-review.json: inputs.trials[nct=NCT00809965].by_outcome.primary.outcome_definition_source.analysis_set_as_the_registry_states_it; results.by_outcome.primary.pooled.withdrawn_note",
+  "field_holds": "NCT00809965 ATLAS ACS 2 is recorded with stored counts 390 against 363 favouring the comparator; withdrawn_note says the replacement efficacy-composite synthesis is parked because each trial's registered efficacy counts must be read from source.",
+  "blocker_named": "ATLAS ACS 2's registered efficacy-composite counts for NCT00809965 are missing, and ATLAS ACS TIMI 46's efficacy-primary counts for NCT00402597 are also needed before the parked replacement can be built. Source that would settle it: the CT.gov results sections or primary publications for those two efficacy endpoints.",
+  "state": "EVIDENCE_BLOCKED",
+  "why": "The object names the contradictory value and the exact trial-level values needed; it does not hold a source sentence for them."
+ },
+ {
+  "topic": "sglt2-mace-cvot-review",
+  "key": "declare timi contributes the mace composite to the pool",
+  "checked_field": "ssot/sglt2-mace-cvot-review/sglt2-mace-cvot-review.json: inputs.trials[nct=NCT01730534].registry_read_2026_08_20; results.by_outcome.primary.POOL_FINDINGS_2026_08_21",
+  "field_holds": "NCT01730534 DECLARE-TIMI 58 contributes the MACE composite, but the object also says it has two co-primaries and the review recorded no reason for choosing MACE over cardiovascular death or heart-failure hospitalization.",
+  "blocker_named": "DECLARE-TIMI 58's co-primary selection is the missing decision: why NCT01730534's MACE co-primary, rather than its cardiovascular-death-or-heart-failure-hospitalization co-primary, enters this pool. Source that would settle it: a review protocol, SAP, or explicit object scope decision selecting that co-primary before looking at direction.",
+  "state": "EVIDENCE_BLOCKED",
+  "why": "The trial and alternative value are named in the object; the selection rationale is absent."
+ },
+ {
+  "topic": "amoxicillin-aom",
+  "key": "the review question is presented as a review question pico",
+  "checked_field": "ssot/amoxicillin-aom/amoxicillin-aom.json: question; outcomes[0]; inputs.trials[]; top-level pico key",
+  "field_holds": "question is a prose sentence; outcomes[0] says 'a clinical endpoint that no registration declares'; inputs.trials holds NCT00377260 and NCT03818815 with different registered outcome sets; no top-level pico key is present.",
+  "blocker_named": "The object has no structured PICO field, and its two trial records do not identify one shared clinical endpoint or comparator that can be named as the missing PICO value from the object alone.",
+  "state": "CANNOT_NAME",
+  "why": "A structured PICO would require authoring or a protocol source; deriving it from the current object would invent at least the comparator/outcome axis."
+ },
+ {
+  "topic": "dabigatran-af",
+  "key": "the site index describes this page with a present index card",
+  "checked_field": "ssot/dabigatran-af/dabigatran-af.json: top-level index_card/card_note/display_change_announced keys; results.by_outcome.stroke_se",
+  "field_holds": "No index_card, card_note, or display_change_announced key is present; results.by_outcome.stroke_se records k=1 and a withdrawn single-trial/no-pool reason.",
+  "blocker_named": "The missing item is the dabigatran-af site-index card text corresponding to this object. Source that would settle it: the rendered index.html card or the index-card registry entry for dabigatran-af.",
+  "state": "EVIDENCE_BLOCKED",
+  "why": "The store layer cannot verify a claim about the site index because it holds no index-card text."
+ },
+ {
+  "topic": "finerenone-review",
+  "key": "the displayed trial estimates are ors with confidence intervals",
+  "checked_field": "ssot/finerenone-review/finerenone-review.json: inputs.trials[].by_outcome.primary.effect; results.by_outcome.primary.per_trial",
+  "field_holds": "Per-trial ORs and CIs are present for NCT02540993, NCT02545049, NCT04435626 and a nulled NCT01874431 row, but each derivation says it was recovered from the page/extractor and no source document or source sentence was consulted; source_url is null.",
+  "blocker_named": "The source-backed calculation inputs for the displayed finerenone trial ORs are missing for FIDELIO-DKD NCT02540993, FIGARO-DKD NCT02545049, FINEARTS-HF NCT04435626, and the nulled ARTS-DN NCT01874431 row. Source that would settle it: each trial's CT.gov results section or primary publication with the exact numerator, denominator, effect measure and interval.",
+  "state": "EVIDENCE_BLOCKED",
+  "why": "The object holds derived numbers but explicitly says no source sentence backs them."
+ },
+ {
+  "topic": "ablation-af-review",
+  "key": "a strategy arm in which most patients received antiarrhythmic drugs",
+  "checked_field": "ssot/ablation-af-review/ablation-af-review.json: inputs.trials[nct=NCT01288352].subject_scope_flag; inputs.trials[nct=NCT01288352].design",
+  "field_holds": "NCT01288352 EAST-AFNET 4 is flagged as early standardized rhythm control, not ablation; the field says most patients received antiarrhythmic drugs but gives no treatment-distribution numerator or denominator.",
+  "blocker_named": "EAST-AFNET 4's treatment-distribution value is missing: how many NCT01288352 participants in the early-rhythm-control arm received antiarrhythmic drugs versus ablation. Source that would settle it: the EAST-AFNET 4 primary publication, supplement, or CT.gov results table reporting intervention delivery.",
+  "state": "EVIDENCE_BLOCKED",
+  "why": "The object names the trial and qualitative issue but not the numeric distribution behind 'most'."
+ },
+ {
+  "topic": "sotagliflozin-hf",
+  "key": "the page supplies a clinical evidence assessment for its three outcomes",
+  "checked_field": "ssot/sotagliflozin-hf/sotagliflozin-hf.json: results.by_outcome.{hfcv_total,hfcv_first,mace3_first}.grade; bookkeeping_2026_08_21.which_limbs_this_review_refuses",
+  "field_holds": "Each of the three outcomes has a grade object with certainty 'low'; bookkeeping says all four completion properties are held, including grade per pool.",
+  "blocker_named": "No new evidence is needed: the 'unperformed certainty assessment' blocker should be withdrawn because the store object now holds a GRADE assessment for all three outcomes.",
+  "state": "RELABEL_Q2_WITHDRAWABLE",
+  "why": "The checked fields directly discharge the class blocker."
+ },
+ {
+  "topic": "pcsk9-inhibitors-cv-review",
+  "key": "revascularisation is the highest frequency component in this class of trial",
+  "checked_field": "ssot/pcsk9-inhibitors-cv-review/pcsk9-inhibitors-cv-review.json: results.by_outcome.primary.pooled.withdrawn_reason; inputs.trials[].registration_other_outcome_counts",
+  "field_holds": "withdrawn_reason asserts revascularisation is the highest-frequency component; the object holds component rows such as FOURIER's 'Time to First Coronary Revascularization' and ODYSSEY's ischemia-driven coronary revascularization row, but no summarized class-wide frequency comparison.",
+  "blocker_named": "The missing item is a source-backed component-frequency comparison showing coronary revascularization is the highest-frequency component for the PCSK9 CV-outcome trial class. Source that would settle it: FOURIER and ODYSSEY OUTCOMES component event tables or CT.gov results rows, summarized by component with denominators.",
+  "state": "EVIDENCE_BLOCKED",
+  "why": "The object names the component and relevant trials but does not hold the class-level frequency table the sentence claims."
+ },
+ {
+  "topic": "etesevimab-covid-auto-full-review",
+  "key": "the page reports that registered outcome measures were checked at every rank on",
+  "checked_field": "ssot/etesevimab-covid-auto-full-review/etesevimab-covid-auto-full-review.json: inputs.trials; results.by_outcome.primary.withholding_check; results.by_outcome.primary.why_no_registration_is_seeded",
+  "field_holds": "inputs.trials is empty; withholding_check says every seeded registration was read at every rank, but why_no_registration_is_seeded says no registration was seeded and 'WE NEVER LOOKED'.",
+  "blocker_named": "The object lists no seeded registration, so an every-rank registry check cannot be named at trial level from this object.",
+  "state": "CANNOT_NAME",
+  "why": "The field is internally non-actionable: with zero trial records, there is no NCT/outcome-rank instance to check."
+ },
+ {
+  "topic": "etripamil-psvt",
+  "key": "the review asks whether etripamil affects each trial s registered primary outcome",
+  "checked_field": "ssot/etripamil-psvt/etripamil-psvt.json: inputs.trials[].registered_primaries; results.by_outcome.primary.pooled",
+  "field_holds": "NCT02296190 registers conversion from PSVT to sinus rhythm within 15 minutes; NCT03464019 registers time to conversion; pooled is withdrawn and per-trial effects/results are absent.",
+  "blocker_named": "The missing items are the primary-outcome results for NCT02296190 and NCT03464019 on their own registered primary endpoints. Source that would settle it: each trial's CT.gov results section or primary publication reporting the 15-minute conversion proportion and time-to-conversion result.",
+  "state": "EVIDENCE_BLOCKED",
+  "why": "The object names both trial endpoints but deliberately extracted no result values."
+ },
+ {
+  "topic": "doac-af-review",
+  "key": "methods eligibility criteria not recorded on the page this object was extracted from",
+  "checked_field": "ssot/doac-af-review/doac-af-review.json: screening.eligibility; screening.records; absent_from_source.screening",
+  "field_holds": "screening.eligibility is 'not recorded on the page this object was extracted from'; screening.records is empty; absent_from_source.screening says no screening log was recoverable.",
+  "blocker_named": "The object contains no eligibility records, so the missing eligibility item cannot be named at trial level from this object.",
+  "state": "CANNOT_NAME",
+  "why": "There is no trial-level screening row to refine; a protocol or screening log would have to be supplied first."
+ },
+ {
+  "topic": "rivaroxaban-vasc-review",
+  "key": "does adding low dose rivaroxaban to antiplatelet therapy reduce major vascular events",
+  "checked_field": "ssot/rivaroxaban-vasc-review/rivaroxaban-vasc-review.json: inputs.trials[].arms; inputs.trials[].registration_declared_contrasts",
+  "field_holds": "COMPASS NCT01776424 and VOYAGER PAD NCT02504216 explicitly show aspirin in their declared contrasts; COMMANDER HF NCT01877915 and ATLAS ACS 2 NCT00809965 show rivaroxaban versus placebo arms without an antiplatelet exposure field.",
+  "blocker_named": "Background antiplatelet exposure is unverified for COMMANDER HF NCT01877915 and ATLAS ACS 2 NCT00809965. Source that would settle it: each trial protocol, CT.gov intervention description, or primary publication section stating required aspirin/antiplatelet background therapy by arm.",
+  "state": "EVIDENCE_BLOCKED",
+  "why": "The object verifies aspirin exposure for two trials but not for the two trials whose arm labels omit it."
+ },
+ {
+  "topic": "bosentan-pah-children",
+  "key": "the page discusses individual trials using labels such as early compass future of trial and trial",
+  "checked_field": "ssot/bosentan-pah-children/bosentan-pah-children.json: split_provenance.why_split; k_cascade.and_the_paediatric_boundary_was_wrong_first_time; search.databases[0].recall_on_included_set",
+  "field_holds": "The object names FUTURE-2 and gives NCT00319020, and names FUTURE-3 as NCT01223352; it mentions EARLY and COMPASS-2 only as labels admitting adolescents from 12, without NCT identifiers in this child object.",
+  "blocker_named": "The child-store object does not hold the NCT identifiers for EARLY and COMPASS-2, so those label-level missing identifiers cannot be named from this object alone.",
+  "state": "CANNOT_NAME",
+  "why": "The object partly resolves FUTURE labels but does not provide the EARLY/COMPASS-2 instances the finding asks about."
+ },
+ {
+  "topic": "intensive-bp-review",
+  "key": "this withdrawal is about what this page can show not about whether intensive blood pressure lowering works",
+  "checked_field": "ssot/intensive-bp-review/intensive-bp-review.json: results.by_outcome.primary.pooled.withdrawn_note",
+  "field_holds": "withdrawn_note says the included landmark trials are correct, SPRINT's row is sound, and external syntheses support the underlying claim; it frames the withdrawal as a page-support problem, not a treatment-effect claim.",
+  "blocker_named": "No new evidence is needed to fix this blocker if the concern is unsupported reassurance about the underlying intervention: withdraw that contextual claim rather than treating it as an evidence precondition for the page withdrawal.",
+  "state": "RELABEL_Q2_WITHDRAWABLE",
+  "why": "The actionable fix is content withdrawal/qualification, not obtaining a trial value to support the already-withdrawn page estimate."
+ },
+ {
+  "topic": "rotavirus-vaccine-africa-review",
+  "key": "the page states that a random effects reml model was fitted and that analyses were computed under r with metafor",
+  "checked_field": "ssot/rotavirus-vaccine-africa-review/rotavirus-vaccine-africa-review.json: results.by_outcome.primary.r_output",
+  "field_holds": "r_output.state is PRESENT; it holds the call 'Rscript ssot/fit_from_per_trial.R rotavirus-vaccine-africa-review primary', environment 'R 4.6.0 with metafor 5.0.1', and verbatim REML output.",
+  "blocker_named": "No new evidence is needed: the 'model output evidence absent' blocker should be withdrawn because the REML/metafor output is stored verbatim.",
+  "state": "RELABEL_Q2_WITHDRAWABLE",
+  "why": "The checked field directly contains the requested model-output evidence."
+ },
+ {
+  "topic": "doravirine-hiv",
+  "key": "every registration on this page was read on at all three ranks primary secondary and other outcome measures from clinicaltrials gov",
+  "checked_field": "ssot/doravirine-hiv/doravirine-hiv.json: inputs.trials[].registered_primaries; inputs.trials[].registered_secondaries; all_ranks_captured_2026_08_18",
+  "field_holds": "NCT02397096 and NCT02652260 have registered primary and secondary outcome arrays; all_ranks_captured_2026_08_18 records primary, secondary and other outcomes re-read on 2026-08-18.",
+  "blocker_named": "No new evidence is needed at the store-object layer: the endpoint enumeration exists for the two doravirine registrations and the every-rank read is dated.",
+  "state": "RELABEL_Q2_WITHDRAWABLE",
+  "why": "The class blocker 'endpoint enumeration not displayed' is not supported by the checked object fields."
+ },
+ {
+  "topic": "attr-pn-review",
+  "key": "it reports that both consistently demonstrated significant improvements in neuropathy quality of life and cardiac function narratively",
+  "checked_field": "ssot/attr-pn-review/attr-pn-review.json: published_comparison.reviews[1].outcome_pooled; published_comparison.reviews[1].estimate_quoted; published_comparison.reviews[1].their_k_basis",
+  "field_holds": "The comparison record says the 2024 Frontiers review pooled NONE across drugs and reports narrative improvements; estimate_quoted is null; their_k_basis says no included-study list was read.",
+  "blocker_named": "The outcome-specific narrative evidence for the 2024 patisiran/vutrisiran review is missing: which trials and values support neuropathy, quality-of-life and cardiac-function improvement. Source that would settle it: the Frontiers in Neurology 2024 full text tables/results and its included-study list.",
+  "state": "EVIDENCE_BLOCKED",
+  "why": "The store object holds a narrative summary of a review but not the underlying outcome rows or trial identities."
+ },
+ {
+  "topic": "tecovirimat-mpox",
+  "key": "in adults and children with mpox does tecovirimat oral capsule compared with placebo affect cumulative proportion with clinical resolution by day",
+  "checked_field": "ssot/tecovirimat-mpox/tecovirimat-mpox.json: question_restated_2026_08_19.population_from_stdAges; inputs.trials[0].registered_secondaries; results.by_outcome.primary",
+  "field_holds": "population_from_stdAges says adults and children; NCT05534984 has one child-specific secondary on tecovirimat concentrations; results.primary says k=1 and no pool; no age-stratified enrollment count is held.",
+  "blocker_named": "The age-enrollment value for children in NCT05534984 is missing. Source that would settle it: the CT.gov participant-flow/baseline table or primary publication showing how many enrolled/randomized participants were under 18.",
+  "state": "EVIDENCE_BLOCKED",
+  "why": "The object supports the age-label but not the child numerator/denominator behind it."
+ },
+ {
+  "topic": "covid-oral-antivirals",
+  "key": "whether these trials study this subject checked against each registration s arm structure on could not be decided this way they remain unverified and no other c",
+  "checked_field": "ssot/covid-oral-antivirals/covid-oral-antivirals.json: trial_identity_check.by_trial",
+  "field_holds": "NCT04575597 and NCT04960202 are both state 'undecidable' because no arm name matches the drug pattern and the method cannot decide identity from paraphrased arm names.",
+  "blocker_named": "The subject-match evidence is missing for NCT04575597 and NCT04960202: a source tying MK-4482 to molnupiravir and PF-07321332/ritonavir to the review's oral antiviral intervention in each randomized arm. Source that would settle it: CT.gov interventionsModule with synonym mapping, protocol, or primary publication arm descriptions.",
+  "state": "EVIDENCE_BLOCKED",
+  "why": "The object names both undecidable trial instances; not-assessable identity is not a pass."
+ },
+ {
+  "topic": "dabigatran-vte-surgical",
+  "key": "in adults undergoing elective hip or knee arthroplasty does dabigatran prevent venous thromboembolism compared with the comparator each trial actually randomise",
+  "checked_field": "ssot/dabigatran-vte-surgical/dabigatran-vte-surgical.json: trial_identity_check.by_trial; inputs.trials[]",
+  "field_holds": "trial_identity_check marks NCT01225822 and NCT06581965 as undecidable; inputs.trials names both registrations but the arm-name method cannot confirm they studied dabigatran as the randomized intervention.",
+  "blocker_named": "Randomized-comparison verification is missing for NCT01225822 and NCT06581965. Source that would settle it: each trial's CT.gov arms/interventions record, protocol, or publication showing dabigatran in the randomized intervention arm and naming the comparator.",
+  "state": "EVIDENCE_BLOCKED",
+  "why": "The object already names the two unresolved trial instances; it correctly refuses to treat undecidable as verified."
+ },
+ {
+  "topic": "bamlanivimab-covid",
+  "key": "each is registered and reports its own primary",
+  "checked_field": "results.by_outcome.primary and inputs.trials[0].registered_primaries",
+  "field_holds": "results.by_outcome.primary has k=1, pooled.withdrawn=true, and no per_trial result values; inputs.trials[0] names NCT04427501 and lists seven registered primary measures from ClinicalTrials.gov.",
+  "blocker_named": "NCT04427501's registered primary-outcome result is not held. Source that would settle it: the NCT04427501 ClinicalTrials.gov results section or a trial publication reporting the BLAZE-1 primary outcome results.",
+  "state": "EVIDENCE_BLOCKED",
+  "why": "The object identifies the trial and its registered primary measures, but it does not hold endpoint result values, denominators, or an effect for those measures."
+ },
+ {
+  "topic": "cefepime-taz-auto-full-review",
+  "key": "canonical object registered at",
+  "checked_field": "inputs.trials[].source_url, inputs.trials[].provenance, sources, and top-level canonical-object fields",
+  "field_holds": "inputs.trials names NCT02497781 and NCT03840148 with ClinicalTrials.gov source_url/provenance; sources is {}; no canonical object or registered_at field is present on the store object.",
+  "blocker_named": "The cefepime-taz page's canonical-object location and registration-location values are absent. Source that would settle it: the page build or reproducibility metadata identifying the canonical object and where the page is registered.",
+  "state": "EVIDENCE_BLOCKED",
+  "why": "The store object can identify the two trial registrations, but it cannot supply the artifact-location fields that the finding is about."
+ },
+ {
+  "topic": "alirocumab-lipid",
+  "key": "risk of bias traffic light not computable",
+  "checked_field": "risk_of_bias.by_outcome.ldlc_pct_change_wk24 and results.by_outcome.ldlc_pct_change_wk24.per_trial",
+  "field_holds": "risk_of_bias.by_outcome.ldlc_pct_change_wk24 has rows for NCT01507831, NCT01617655, NCT01623115, NCT01644175, NCT01709500, and NCT02107898; results.per_trial has k=8, adding NCT02289963 and NCT02585778.",
+  "blocker_named": "RoB 2 assessment rows are missing for NCT02289963 and NCT02585778 on the LDL-C percent-change-at-week-24 result. Source that would settle it: those trials' reports, protocols, SAPs, or registry fields sufficient to judge the RoB 2 domains for that result.",
+  "state": "EVIDENCE_BLOCKED",
+  "why": "The risk-of-bias layer covers six of the eight contributing results, so the missing rows can be named by comparing the RoB field with the result field."
+ },
+ {
+  "topic": "colchicine-stroke-prevention",
+  "key": "reduce s recurrent stroke or vascular events",
+  "checked_field": "results.by_outcome.primary and inputs.trials",
+  "field_holds": "results.by_outcome.primary has k=9, poolable=false, pooled.absent=true, and per_trial=null; inputs.trials lists NCT02282098, NCT02898610, NCT05439356, NCT05476991, NCT05503225, NCT06102720, NCT06352632, NCT06396858, and NCT07035405 with registered primaries and source URLs.",
+  "blocker_named": "Clinical outcome results for recurrent stroke or vascular events are not held for the nine eligible registrations: NCT02282098, NCT02898610, NCT05439356, NCT05476991, NCT05503225, NCT06102720, NCT06352632, NCT06396858, and NCT07035405. Source that would settle it: each trial's ClinicalTrials.gov results section or publication reporting the relevant outcome.",
+  "state": "EVIDENCE_BLOCKED",
+  "why": "The object names the trial set and registered primaries but explicitly holds no posted clinical results or per-trial effects."
+ },
+ {
+  "topic": "agyw-hiv-prep-review",
+  "key": "no participant under was eligible for either trial",
+  "checked_field": "results.by_outcome.primary.per_trial[].registered_eligibility",
+  "field_holds": "NCT01539226 eligibility says women >18 and <45 at screening; NCT01617096 eligibility says age 18 through 45 inclusive; no participant-level enrolled ages or adolescence-definition field is held.",
+  "blocker_named": "No new evidence is needed to withdraw the unsupported enrollment claim. The object supports an eligibility statement about NCT01539226 and NCT01617096, but it does not prove that no adolescent was actually enrolled.",
+  "state": "RELABEL_Q2_WITHDRAWABLE",
+  "why": "The fix is to withdraw or narrow the overclaim from enrollment to eligibility; supplying participant-level ages is not required to remove the false implication."
+ },
+ {
+  "topic": "rivaroxaban-vasc-review",
+  "key": "a great many deaths an antithrombotic cannot prevent",
+  "checked_field": "results.by_outcome.primary.poolable_reason, inputs.trials[1], inputs.trials[2], and absent_from_source.sources",
+  "field_holds": "VOYAGER PAD (NCT02504216) is recorded as counting acute limb ischemia and major amputation in its primary composite, but no component-specific counts are held; COMMANDER HF (NCT01877915) is recorded as all-cause mortality/MI/stroke with arm events null; absent_from_source says effect values are page-embedded and not source-quoted.",
+  "blocker_named": "NCT02504216's component-specific acute-limb-ischemia and major-amputation results, and NCT01877915's cause-specific death data within all-cause mortality, are not held. Source that would settle it: the trials' ClinicalTrials.gov results sections or publications reporting component and cause-specific outcomes.",
+  "state": "EVIDENCE_BLOCKED",
+  "why": "The object supports that the endpoint definitions differ, but not the quantitative or causal claims about how much those components contributed."
+ },
+ {
+  "topic": "covid19-vaccines",
+  "key": "the page labels its review question review question pico",
+  "checked_field": "question and screening/eligibility fields",
+  "field_holds": "question describes a per-vaccine snapshot of sourceable trials and explicitly says it is not a systematic review; no screening or eligibility-criteria field is present.",
+  "blocker_named": "No new evidence is needed to withdraw the PICO/review-question label. The object should be relabelled as a sourceable per-vaccine snapshot unless a real review-level eligibility block is added.",
+  "state": "RELABEL_Q2_WITHDRAWABLE",
+  "why": "The problem is a label/claim mismatch, not a missing trial result."
+ },
+ {
+  "topic": "colchicine-cvd-review",
+  "key": "does low dose colchicine reduce major cardiovascular events",
+  "checked_field": "screening.eligibility and absent_from_source",
+  "field_holds": "screening.eligibility is 'not recorded on the page this object was built from'; absent_from_source says no protocol, search strategy, or screening log was recoverable.",
+  "blocker_named": "The review-level eligibility criteria and trial-selection source for the colchicine cardiovascular-prevention set are absent. Source that would settle it: a protocol, search record, or screening log defining how NCT02551094, NCT03048825, and NCT02898610 were selected for this clinical question.",
+  "state": "EVIDENCE_BLOCKED",
+  "why": "The object names trials and endpoints, but not the selection rule that makes the broad clinical question reproducible."
+ },
+ {
+  "topic": "sacubitril-heartfail",
+  "key": "the intervention is described as sacubitril versus enalapril",
+  "checked_field": "question and inputs.trials[0].arms_as_registered",
+  "field_holds": "question names sacubitril versus enalapril; inputs.trials[0] is NCT01035255 and its registered arms are 'Drug: LCZ696 200 mg BID LCZ696' and 'Drug: Enalapril 10 mg BID Enalapril'.",
+  "blocker_named": "NCT01035255's mapping from the registered intervention 'LCZ696 200 mg BID' to the review's named 'sacubitril' intervention is absent. Source that would settle it: the NCT01035255 registry intervention record, trial publication, or drug-label source identifying LCZ696.",
+  "state": "EVIDENCE_BLOCKED",
+  "why": "The object holds the registered arm label but not the synonym/product mapping needed to justify the review wording."
+ },
+ {
+  "topic": "sglt2-ckd-review",
+  "key": "canagliflozin dapagliflozin and empagliflozin in kidney disease",
+  "checked_field": "screening.eligibility, outcomes, and inputs.trials",
+  "field_holds": "screening.eligibility is 'not recorded on the page this object was extracted from'; outcomes concatenates three different trial-declared kidney composites; inputs.trials lists CREDENCE/NCT02065791, DAPA-CKD/NCT03036150, and EMPA-KIDNEY/NCT03594110.",
+  "blocker_named": "The review-level population, comparator, and eligibility criteria for the three SGLT2 CKD trials are absent. Source that would settle it: a protocol, search record, or screening log defining the CKD scope and comparator rules for NCT02065791, NCT03036150, and NCT03594110.",
+  "state": "EVIDENCE_BLOCKED",
+  "why": "The object names the included trials and their divergent endpoints, but the clinical scope behind the broad title is not held."
+ },
+ {
+  "topic": "finerenone-review",
+  "key": "no harmonised outcome exists at any rank checked before withdrawing",
+  "checked_field": "inputs.trials[].registration_other_outcome_counts and results.by_outcome.primary.poolable_reason",
+  "field_holds": "NCT02540993, NCT02545049, and NCT04435626 have registration_other_outcome_counts including secondary outcomes; the fourth row is NULLED:NCT01874431 with nct=null and no all-rank outcome inventory, while poolable_reason still invokes ARTS-DN/NCT01874431.",
+  "blocker_named": "ARTS-DN/NCT01874431's all-rank registered-outcome inventory is not held. Source that would settle it: the NCT01874431 ClinicalTrials.gov protocol/results record or publication showing whether any harmonised finerenone outcome exists at any rank.",
+  "state": "EVIDENCE_BLOCKED",
+  "why": "The object can support all-rank checking for three trials, but the trial that makes the withdrawal claim critical is represented only as a nulled row."
+ },
+ {
+  "topic": "menacyw-healthy-volunteers-auto-full-review",
+  "key": "clinicaltrials gov registrations supplied the registered primary outcomes",
+  "checked_field": "sources and inputs.trials[].registered_primaries",
+  "field_holds": "sources is {}; inputs.trials names NCT03537508 and NCT03691610 and lists their registered_primaries with ClinicalTrials.gov source URLs.",
+  "blocker_named": "The source-layer rows linking NCT03537508 and NCT03691610 ClinicalTrials.gov registrations to the registered primary outcomes are absent. Source that would settle it: the two CT.gov registration records as explicit source entries in the store/source layer.",
+  "state": "EVIDENCE_BLOCKED",
+  "why": "The object stores the primary-outcome text under trials, but the source inventory that the finding asks about is empty."
+ },
+ {
+  "topic": "apixaban-vte-prophylaxis",
+  "key": "the review question asks about symptomatic venous thromboembolism and bleeding",
+  "checked_field": "question, results.by_outcome, and inputs.trials[4]",
+  "field_holds": "question asks about symptomatic VTE and bleeding; results.by_outcome contains only major_vte; inputs.trials[4] is NCT02366871 with empty arms and by_outcome, and screening_of_remainder says its registered primaries are major bleeding and clinically relevant non-major bleeding.",
+  "blocker_named": "NCT02366871's major-bleeding and clinically-relevant-non-major-bleeding results versus enoxaparin are not extracted. Source that would settle it: the NCT02366871 ClinicalTrials.gov results section or publication reporting those bleeding outcomes.",
+  "state": "EVIDENCE_BLOCKED",
+  "why": "The object identifies the bleeding trial but carries no bleeding outcome block or effect."
+ },
+ {
+  "topic": "intensive-bp-review",
+  "key": "do intensive systolic blood pressure targets reduce major cardiovascular events",
+  "checked_field": "screening.eligibility and inputs.trials",
+  "field_holds": "screening.eligibility is 'not recorded on the page this object was built from'; inputs.trials lists six materially different trial populations: SPRINT/NCT01206062, ACCORD/NCT00000620, STEP/NCT03015311, ESPRIT/NCT04030234, BPROAD/NCT03808311, and SPS3/NCT00059306.",
+  "blocker_named": "The predefined population and eligibility criteria for combining or comparing the six intensive-blood-pressure trials are absent. Source that would settle it: a protocol, search record, or screening log defining eligibility for NCT01206062, NCT00000620, NCT03015311, NCT04030234, NCT03808311, and NCT00059306.",
+  "state": "EVIDENCE_BLOCKED",
+  "why": "The object names the heterogeneous trials, but the selection criteria behind the broad PICO-style question are not held."
+ },
+ {
+  "topic": "malaria-vaccine",
+  "key": "r seasonal first months hr to k and rts s recurrent episodes in children irr to k",
+  "checked_field": "pointer_to_another_review_2026_08_21, sources, and results.by_outcome.primary",
+  "field_holds": "pointer_to_another_review_2026_08_21 quotes R21 seasonal first-12-month HR 0.2167 (0.1753 to 0.2678, k=2) and RTS,S recurrent-episodes IRR 0.6372 (0.5967 to 0.6805, k=2); sources is {}; this object's results.by_outcome.primary has no per_trial result values.",
+  "blocker_named": "The source inputs and analysis artifact for the separate MALARIA_VACCINES_REVIEW.html estimates are absent from this object: R21 seasonal first-12-month HR 0.2167 and RTS,S recurrent-episodes IRR 0.6372. Source that would settle it: that review's SSOT object, trial inputs, and model output supporting those two pooled estimates.",
+  "state": "EVIDENCE_BLOCKED",
+  "why": "The object only points to another review and repeats its numeric estimates; it does not hold the source layer or analysis that generated them."
+ },
+ {
+  "topic": "fcm-hf-review",
+  "key": "table presents four derived odds ratios and confidence intervals as extracted values",
+  "checked_field": "inputs.trials[].arms, inputs.trials[].by_outcome.primary.provenance, results.by_outcome.harmonised_cvdeath_or_hfh, and absent_from_source.sources",
+  "field_holds": "inputs.trials holds event counts and derived ORs for NCT02937454, NCT02642562, NCT01453608, and NCT00520780, but provenance is RECOVERED with empty source_quotes; absent_from_source says no value carries a resolvable link or quoted source sentence; harmonised_cvdeath_or_hfh says NCT02642562 posts no results section and the IRONMAN row is unattributed.",
+  "blocker_named": "Source sentences or source documents for the arm-level event counts behind the four derived ORs are absent, especially the NCT02642562 IRONMAN counts used in the harmonised row. Source that would settle it: CT.gov results sections or publications for NCT02937454, NCT02642562, NCT01453608, and NCT00520780 reporting the event counts.",
+  "state": "EVIDENCE_BLOCKED",
+  "why": "The object has numeric counts, but labels them as recovered from the page without source quotes, so the extracted-value claim is not source-backed."
+ },
+ {
+  "topic": "pediatric-hiv-art",
+  "key": "in pediatric hiv art what is the effect on each trial s own registered primary outcome",
+  "checked_field": "trial_identity_check.by_trial.NCT02259127, inputs.trials[0], and results.by_outcome.primary",
+  "field_holds": "trial_identity_check marks NCT02259127 undecidable; inputs.trials[0] lists NCT02259127 with registered primary 'Difference in Proportion With Failure (Clinical or Virological)' but no registered_eligibility field; results.by_outcome.primary has per_trial=[].",
+  "blocker_named": "NCT02259127's population/intervention eligibility for the Pediatric HIV ART framing, and its primary-outcome result/effect, are not held. Source that would settle it: the NCT02259127 ClinicalTrials.gov eligibility/results records or its publication.",
+  "state": "EVIDENCE_BLOCKED",
+  "why": "The object names the sole trial and primary outcome, but the identity check is undecidable and no result is stored."
+ },
+ {
+  "topic": "bamlanivimab-covid",
+  "key": "the page asks for the effect of bamlanivimab versus placebo on each trial s registered primary outcome",
+  "checked_field": "inputs.trials[0].registered_primaries, inputs.trials[0].arms_as_registered, and results.by_outcome.primary",
+  "field_holds": "NCT04427501 has seven registered primary measures and five registered arm groups, including bamlanivimab-alone, bamlanivimab/etesevimab, pediatric addendum, bebtelovimab, and placebo; results.by_outcome.primary has no selected arm comparison, no selected primary measure, and no per_trial result.",
+  "blocker_named": "The exact missing value cannot be named from the object: it names NCT04427501 but does not identify which registered primary measure and which bamlanivimab-versus-placebo arm comparison should answer the stated question. Source that would settle it: NCT04427501 CT.gov results or publication plus an explicit estimand selection.",
+  "state": "CANNOT_NAME",
+  "why": "Naming a single trial value would require choosing among multiple primary measures and arm structures that the object itself does not select."
+ },
+ {
+  "topic": "prevnar15-pneumo",
+  "key": "a published synthesis of these vaccines covers this stratum and pools more trials than this object carries",
+  "checked_field": "results.by_outcome.injection_site_pain.subgroups[0].note and published_comparison/manuscript references",
+  "field_holds": "the result note asserts that a published synthesis covers the stratum and pools more trials, but the object does not name or cite the synthesis or provide an included-set mapping for it.",
+  "blocker_named": "The exact synthesis cannot be named from the object: it asserts an external published synthesis but supplies no citation, identifier, or included-trial set. Source that would settle it: the named synthesis citation and its included-trial registration mapping.",
+  "state": "CANNOT_NAME",
+  "why": "The object gives only an unnamed external-source class, so an instance-level blocker would require inventing a synthesis identity."
+ },
+ {
+  "topic": "bosentan-pah-monotherapy",
+  "key": "the headline and summary call these four eligible trials in adults with who group pulmonary arterial hypertension",
+  "checked_field": "screening.eligibility, inputs.trials[1], inputs.trials[3], and trial_identity_check",
+  "field_holds": "screening.eligibility is derived post hoc for adults with WHO group 1 PAH; trial_identity_check marks all four studied; inputs.trials lists NCT00377455 as a scleroderma-patient study and NCT01827059 as exercise-induced PAH in congenital heart disease, with no registered_eligibility details.",
+  "blocker_named": "Population eligibility evidence is absent for NCT00377455 and NCT01827059 under the adult WHO group 1 PAH monotherapy scope. Source that would settle it: those trials' ClinicalTrials.gov eligibility/condition records or publications establishing whether their populations meet the stated scope.",
+  "state": "EVIDENCE_BLOCKED",
+  "why": "The object names the suspect trials and gives only derived eligibility, not source-backed adjudication of the population boundary."
+ },
+ {
+  "topic": "apixaban-vte-treatment",
+  "key": "the headline and cascade state that eight trials reported a recurrent vte outcome and that the noncontributing trials are each named",
+  "checked_field": "withholding_question.per_trial_ranks_read, results.by_outcome.recurrent_vte.coherence_screen, and results.by_outcome.recurrent_vte.per_trial",
+  "field_holds": "withholding_question records nine trials with recurrent-VTE ranks read and says eight had posted results; results.per_trial lists the three pooled trials; coherence_screen names and classifies NCT00643201, NCT00633893, NCT03045406, NCT03266783, NCT01780987, NCT04168203, NCT03196349, and NCT02744092, with failing axes for nonpooled trials.",
+  "blocker_named": "No new evidence is needed to withdraw or relabel the display-level finding: the store object already holds the recurrent-VTE mapping and nonpooled-trial reasons. If the page cannot display that mapping, the unsupported headline count should be withdrawn.",
+  "state": "RELABEL_Q2_WITHDRAWABLE",
+  "why": "At the store-object layer this is not evidence-blocked; the instance mapping exists under coherence_screen."
+ },
+ {
+  "topic": "anidulafungin-candida-auto-full-review",
+  "key": "neutropenia changes both the infection and the outcome because the host response that clears candidaemia is the response neutropenia removes",
+  "checked_field": "inputs.trials[2].registered_conditions and results.by_outcome.primary.poolable_reason",
+  "field_holds": "inputs.trials[2] is NCT00806351 and includes registered condition Neutropenia; results.by_outcome.primary.poolable_reason repeats the clinical causal assertion, while sources is {} and no subgroup or clinical source field supports it.",
+  "blocker_named": "No new evidence is needed to withdraw the unsupported mechanistic assertion. The object can say NCT00806351 enrolled neutropenic patients, but it should not assert that neutropenia changes the outcome without a cited clinical source or subgroup result.",
+  "state": "RELABEL_Q2_WITHDRAWABLE",
+  "why": "The actionable fix is to remove the causal overclaim; the trial condition alone does not support it."
+ },
+ {
+  "topic": "bosentan-ph-not-group1",
+  "key": "sarcoidosis interstitial lung disease diastolic heart failure sickle cell disease twice idiopathic pulmonary fibrosis and a treatment regimen comparison",
+  "checked_field": "inputs.trials, withholding_question.per_trial, and registration_identity.trials",
+  "field_holds": "inputs.trials and registration_identity name the eight NCTs: NCT00310830, NCT00313196, NCT00581607, NCT00625469, NCT00637065, NCT00820352, NCT00926627, and NCT01449253; withholding_question.per_trial also maps these trials to names and rank/result status.",
+  "blocker_named": "No new evidence is needed to withdraw the descriptor-only sentence or replace it with the stored NCT mapping. The object already names the trials behind the descriptors.",
+  "state": "RELABEL_Q2_WITHDRAWABLE",
+  "why": "The store object resolves the trial identities; the blocker is a display/prose problem, not absent evidence."
+ },
+ {
+  "topic": "covid19-vaccines",
+  "key": "two removals are not that a registration carrying counts that belong to a pooled analysis of several trials and a trial of a different disease both are itemised",
+  "checked_field": "removed_citations.categories and completeness_statement",
+  "field_holds": "removed_citations.categories itemizes NCT04324606 as a units-of-analysis error with sources NCT04324606.ctgov.json and PMID33306989.pubmed.xml, and NCT04627298 as wrong disease area; completeness_statement says both are itemised in the removal table.",
+  "blocker_named": "No new evidence is needed to withdraw or relabel the display-level finding: the store object already itemizes the two removals as NCT04324606 and NCT04627298. If the page cannot render the removal table, the 'itemised below' claim should be withdrawn.",
+  "state": "RELABEL_Q2_WITHDRAWABLE",
+  "why": "At the store-object layer the removal identities and reasons are present, so the class blocker is not terminal evidence absence."
+ },
+ {
+  "topic": "colchicine-cvd-review",
+  "key": "it examines randomised trials and does not pool them",
+  "checked_field": "inputs.trials; eligible_but_not_contributing; trial_identity_check",
+  "field_holds": "inputs.trials holds three NCT rows (NCT02551094 COLCOT, NCT03048825 CLEAR SYNERGY, NCT02898610 CONVINCE) with arms and endpoint data; eligible_but_not_contributing names ACTRN12614000093684 LoDoCo2 and ACTRN-COPS; trial_identity_check says the three NCT rows are studied but does not hold an allocation/randomization field.",
+  "blocker_named": "The missing item is each trial's allocation/randomization source for the asserted randomized-trial set: NCT02551094, NCT03048825, NCT02898610, plus ACTRN12614000093684 and ACTRN-COPS if the five-trial include list is being claimed. Source that would settle it: protocolSection.designModule.allocation on ClinicalTrials.gov for the NCT trials and the ANZCTR design/allocation records for the ACTRN trials.",
+  "state": "EVIDENCE_BLOCKED",
+  "why": "The object names the trial instances but the checked fields hold arm/intervention identity, not randomization/allocation evidence."
+ },
+ {
+  "topic": "pitavastatin-auto-full-review",
+  "key": "adults with hypercholesterolemia",
+  "checked_field": "question_restated_2026_08_19.derived_from; inputs.trials",
+  "field_holds": "question_restated_2026_08_19.derived_from holds population_from_stdAges='adults', condition_chosen='Hypercholesterolemia', conditions_coded=['Dyslipidemia','Hypercholesterolemia'], and n_trials_read=2; inputs.trials names NCT00309738 and NCT00309777 but does not hold eligibility text or participant descriptions.",
+  "blocker_named": "The missing item is participant eligibility text for NCT00309738 and NCT00309777 showing that the enrolled population is adults with hypercholesterolemia. Source that would settle it: each trial's ClinicalTrials.gov eligibilityModule/conditionsModule, or the corresponding publication participant section.",
+  "state": "EVIDENCE_BLOCKED",
+  "why": "The object has coded age/condition derivation, but not the source-level participant descriptions requested by the finding."
+ },
+ {
+  "topic": "rotavirus-vaccine-africa-review",
+  "key": "extracted values and where each came from",
+  "checked_field": "inputs.trials; results.by_outcome.primary.per_trial; absent_from_source.sources",
+  "field_holds": "inputs/results hold NCT00241644 21/1042 vs 37/1047, NCT00362648 79/2733 vs 129/2735, and NCT02145000 31/2207 vs 87/2206 with derived ORs; absent_from_source.sources says no source registry was recoverable and no value carries a resolvable link or quoted source sentence.",
+  "blocker_named": "The missing item is the source trace for each extracted severe-rotavirus-gastroenteritis value: NCT00241644's 21/1042 and 37/1047, NCT00362648's 79/2733 and 129/2735, and NCT02145000's 31/2207 and 87/2206. Source that would settle it: the matching ClinicalTrials.gov results tables or the primary trial publications' event-count tables.",
+  "state": "EVIDENCE_BLOCKED",
+  "why": "The object names the trials and values, but explicitly says the value-source trace is absent."
+ },
+ {
+  "topic": "etripamil-psvt",
+  "key": "this is the closest of the seven to poolable",
+  "checked_field": "results.by_outcome.primary.poolable_reason; inputs.trials",
+  "field_holds": "poolable_reason asserts 'closest of the seven' but inputs.trials only holds NCT02296190 and NCT03464019; no field lists the seven-member comparison set or their relative poolability ranking.",
+  "blocker_named": "No new evidence is needed to support the nonpoolability decision. Withdraw the unsupported comparative phrase 'closest of the seven' unless a separate comparison-set ledger is supplied.",
+  "state": "RELABEL_Q2_WITHDRAWABLE",
+  "why": "The actionable fix is to remove an unsupported comparative claim; the two-trial endpoint mismatch is already named in the object."
+ },
+ {
+  "topic": "gepotidacin-urinary-tract-auto-full-review",
+  "key": "in adults with uncomplicated urinary tract infection",
+  "checked_field": "not checked beyond topic name",
+  "field_holds": "Entry touches gepotidacin.",
+  "blocker_named": "FROZEN per instruction.",
+  "state": "FROZEN",
+  "why": "The task explicitly says gepotidacin is frozen; no further assessment was made."
+ },
+ {
+  "topic": "remdesivir-covid",
+  "key": "the review question specifically names time to recovery",
+  "checked_field": "question; inputs.trials; results.by_outcome.primary",
+  "field_holds": "question names time to recovery; inputs.trials holds NCT04280705 with registered_primaries including 'Time to Recovery'; results.by_outcome.primary holds k=1 and no per_trial extracted effect value.",
+  "blocker_named": "The missing item is NCT04280705 ACTT's time-to-recovery result value for remdesivir versus placebo. Source that would settle it: the ClinicalTrials.gov resultsSection primary outcome for NCT04280705 or the ACTT publication's time-to-recovery analysis.",
+  "state": "EVIDENCE_BLOCKED",
+  "why": "The outcome name is held, but the trial-level result for that outcome is not held in the object."
+ },
+ {
+  "topic": "pcsk9-inhibitors-cv-review",
+  "key": "pcsk inhibitors in atherosclerotic cardiovascular disease",
+  "checked_field": "question; inputs.trials; trial_identity_check",
+  "field_holds": "inputs.trials names NCT01764633 FOURIER and NCT01663402 ODYSSEY OUTCOMES with PCSK9 inhibitor arms and cardiovascular endpoints; trial_identity_check marks both undecidable for drug-pattern identity; no checked field holds ASCVD eligibility or condition text.",
+  "blocker_named": "The missing item is source-backed eligibility showing the ASCVD population for NCT01764633 and NCT01663402. Source that would settle it: each trial's ClinicalTrials.gov conditionsModule/eligibilityModule or the trial publication eligibility section.",
+  "state": "EVIDENCE_BLOCKED",
+  "why": "The object names the two trials and endpoints but does not hold participant eligibility evidence for the ASCVD label."
+ },
+ {
+  "topic": "men-acwy-auto-full-review",
+  "key": "review question pico men acwy is a pooled estimate possible",
+  "checked_field": "inputs.trials; results.by_outcome.primary.poolable_reason; which_limb_fails",
+  "field_holds": "inputs.trials is absent/empty; which_limb_fails is 'NO REGISTRATION'; poolable_reason says 'THIS PAGE SEEDS NO REGISTRATION AT ALL.'",
+  "blocker_named": "The object lists no trial records at all, so the missing item cannot be named at trial level from this store object. A terminal blocker would require at least one MenACWY registration ID and its PICO fields.",
+  "state": "CANNOT_NAME",
+  "why": "No trial instance exists in the object to attach a named missing value or source to."
+ },
+ {
+  "topic": "incretin-hfpef",
+  "key": "step hfpef dm would very likely move this estimate very little",
+  "checked_field": "ssot/incretin-hfpef/incretin-hfpef.json",
+  "field_holds": "The exact store object path does not exist.",
+  "blocker_named": "The object for topic 'incretin-hfpef' is absent, so the missing STEP-HFpEF DM item cannot be named from the required store layer without switching topics.",
+  "state": "CANNOT_NAME",
+  "why": "The task requires ssot/<topic>/<topic>.json; that file is absent for this topic."
+ },
+ {
+  "topic": "fcm-hf-review",
+  "key": "ironman favouring the control arm contradicts the published trial",
+  "checked_field": "inputs.trials; topic_state; trial_identity_check",
+  "field_holds": "inputs.trials holds NCT02642562 IRONMAN with 'Standard care' as treatment (336/569) and 'Standard care plus IV iron infusion' as control (411/568); topic_state says the harmonised k=2 was withdrawn on an unattributed IRONMAN row; trial_identity_check is undecidable for NCT02642562.",
+  "blocker_named": "The missing item is IRONMAN NCT02642562's source-backed arm role and event-count direction for standard care plus IV iron versus standard care. Source that would settle it: the IRONMAN ClinicalTrials.gov resultsSection or the IRONMAN publication's primary outcome table/abstract.",
+  "state": "EVIDENCE_BLOCKED",
+  "why": "The object exposes the suspect row and values but does not hold a source quote or resolvable result source proving the arm direction."
+ },
+ {
+  "topic": "attr-cm-review",
+  "key": "for attribute cm the page displays analysed treatment control counts of",
+  "checked_field": "inputs.trials[].by_outcome.primary.analysed; inputs.trials[].registration_primary_counts; extraction.cells",
+  "field_holds": "For NCT03860935 ATTRibute-CM, analysed holds treatment=409 and control=202 and registration_primary_counts holds 79 and 52; extraction.cells records endpoint measures and arm roles but does not include a cell proving the displayed analysis population/counts from the results source.",
+  "blocker_named": "The missing item is source-backed analysis-population/count provenance for ATTRibute-CM NCT03860935: 409 analysed on acoramidis, 202 on placebo, with 79 and 52 displayed counts. Source that would settle it: the ClinicalTrials.gov resultsSection primary-outcome table or the ATTRibute-CM primary publication.",
+  "state": "EVIDENCE_BLOCKED",
+  "why": "The values are held, but the checked extraction layer does not hold a source cell for the displayed analysis population/counts."
+ },
+ {
+  "topic": "tigecycline-ciai",
+  "key": "tigecycline carries an fda boxed warning for increased all cause mortality",
+  "checked_field": "results.by_outcome.primary.pooled.a_this_page_never_mentions_the_mortality_warning; sources",
+  "field_holds": "The results note asserts an FDA boxed warning for increased all-cause mortality and says the page never mentions it; the sources found in the object are trial/publication/registry/methods sources, not an FDA label source for the boxed warning.",
+  "blocker_named": "The missing item is the FDA boxed-warning source for tigecycline/TYGACIL increased all-cause mortality. Source that would settle it: the FDA prescribing information or FDA drug-safety communication containing the boxed warning.",
+  "state": "EVIDENCE_BLOCKED",
+  "why": "The object contains the warning as an assertion beside the estimate, but not the regulatory source that proves it."
+ },
+ {
+  "topic": "sglt2-ckd-review",
+  "key": "and the three results agree crude risk ratios of and all in the same direction",
+  "checked_field": "inputs.trials; results.by_outcome.primary.per_trial; absent_from_source.sources",
+  "field_holds": "inputs/results hold CREDENCE NCT02065791 245/2202 vs 340/2199, DAPA-CKD NCT03036150 197/2152 vs 312/2152, and EMPA-KIDNEY NCT03594110 432/3304 vs 558/3305 with derived ORs; absent_from_source.sources says no event count carries a quoted source sentence.",
+  "blocker_named": "The missing item is source-backed arm-count provenance for the three crude same-direction results: NCT02065791 245/2202 vs 340/2199, NCT03036150 197/2152 vs 312/2152, and NCT03594110 432/3304 vs 558/3305. Source that would settle it: each trial's ClinicalTrials.gov resultsSection or primary publication event table.",
+  "state": "EVIDENCE_BLOCKED",
+  "why": "The object holds the values and direction, but explicitly says the count-level source sentences are absent."
+ },
+ {
+  "topic": "apixaban-af-review",
+  "key": "aristotle and averroes both favour it on their own registered efficacy endpoints",
+  "checked_field": "inputs.trials; results.by_outcome.primary; absent_from_source.sources",
+  "field_holds": "inputs.trials holds ARISTOTLE NCT00412984 212/9120 vs 265/9081 and AVERROES NCT00496769 51/2808 vs 113/2791 on stroke/systemic embolism endpoints; absent_from_source.sources says per-trial counts are the page's own and carry no quoted source sentence.",
+  "blocker_named": "The missing item is each efficacy trial's source-backed effect/value on its registered stroke/systemic-embolism endpoint: ARISTOTLE NCT00412984 and AVERROES NCT00496769. Source that would settle it: the ClinicalTrials.gov resultsSection for each registration or the primary publications' efficacy endpoint analyses.",
+  "state": "EVIDENCE_BLOCKED",
+  "why": "The object names the two trials and values, but does not hold the source sentence or trial-reported effect proving the registered endpoint result."
+ },
+ {
+  "topic": "attr-cm-review",
+  "key": "the core claim is that both registered primary endpoints were analysed by win ratio",
+  "checked_field": "results.by_outcome.primary.poolable_reason; inputs.trials[].by_outcome.primary.outcome_definition_source; extraction.cells",
+  "field_holds": "poolable_reason states both trials register hierarchical endpoints analysed by win ratio; inputs outcome_definition_source stores endpoint wording and analysis-set text; extraction.cells records the two primary endpoint measures and a derived 'hierarchies differ' cell, but no cell holding each trial's win-ratio estimate and variance.",
+  "blocker_named": "The missing item is each trial's own win-ratio analysis value and variance for the registered primary endpoint: ATTR-ACT NCT01994889 and ATTRibute-CM NCT03860935. Source that would settle it: each trial's ClinicalTrials.gov results statistical-analysis fields or the primary publication/SAP reporting the win ratio.",
+  "state": "EVIDENCE_BLOCKED",
+  "why": "The object supports withdrawing the 2x2-count reduction, but a replacement win-ratio synthesis still lacks named estimate/variance sources."
+ },
+ {
+  "topic": "incretin-hfpef-review",
+  "key": "five points is the usual threshold for a clinically meaningful within patient change",
+  "checked_field": "results.by_outcome.kccq_css_change.pooled.caveats; manuscript_draft_2026_08_21.is_the_effect_size_clinically_meaningful",
+  "field_holds": "pooled.caveats says five points is the usual threshold for clinically meaningful within-patient KCCQ change; manuscript_draft_2026_08_21.is_the_effect_size_clinically_meaningful says no field on the object records a threshold of importance.",
+  "blocker_named": "The missing item is the source for the 5-point KCCQ clinical-summary-score within-patient meaningful-change threshold. Source that would settle it: a KCCQ validation/MCID paper, instrument manual, or trial SAP/publication that defines 5 points as the clinically meaningful threshold.",
+  "state": "EVIDENCE_BLOCKED",
+  "why": "The threshold is asserted in caveats while another checked field explicitly says no threshold source is recorded."
+ },
+ {
+  "topic": "ablation-af-review",
+  "key": "in ablation and rhythm control in atrial fibrillation what do the contributing trials show",
+  "checked_field": "inputs.trials; screening.duplicate_screening; trial_identity_check; published_comparison.checks",
+  "field_holds": "inputs.trials holds CASTLE-AF, CABANA, EAST-AFNET 4, and RAFT-AF; trial_identity_check marks all four undecidable by the drug-pattern method; published_comparison.checks says EAST-AFNET 4 is early standardized rhythm control, not an ablation trial, while screening.duplicate_screening records unresolved/soft screening caveats.",
+  "blocker_named": "The missing item is source-backed eligibility for each contributing trial under this review's ablation/rhythm-control scope, especially whether EAST-AFNET 4 NCT01288352 belongs in an ablation review. Source that would settle it: the ClinicalTrials.gov armGroups/interventions and primary publications for NCT00643188, NCT00911508, NCT01288352, and NCT01420393.",
+  "state": "EVIDENCE_BLOCKED",
+  "why": "The object names the trial-level eligibility problem but the checked identity field cannot settle the trial identities under the review scope."
+ },
+ {
+  "topic": "bosentan-pah-children",
+  "key": "the page reports a fully reconciled cascade with surfaced records role located records and eligible trials",
+  "checked_field": "search; prisma_flow; k_cascade; screening",
+  "field_holds": "search holds 57 CT.gov records returned; prisma_flow/k_cascade hold k0_surfaced=57, k2_role_located=47/52-style cascade data, k_eligible=2, k_unscreened_remainder=0, and included NCT01223352/NCT01389856; screening holds summary criteria and provenance but not the full per-record disposition list inside the object.",
+  "blocker_named": "The missing item is the per-record screening disposition ledger for the 57 surfaced bosentan registrations, including the five assigned to the pediatric reading and the two eligible registrations NCT01223352 and NCT01389856. Source that would settle it: the recorded screening evidence file named by the object or a store-field table containing each NCT disposition.",
+  "state": "EVIDENCE_BLOCKED",
+  "why": "The object carries reconciled counts but not the row-level dispositions needed to audit the cascade instance by instance."
+ },
+ {
+  "topic": "colchicine-pericarditis",
+  "key": "published reports of four of the five trials read cell by cell with each number s quote and location recorded",
+  "checked_field": "inputs.trials; sources.literature_extraction; results.by_outcome.primary.per_trial",
+  "field_holds": "inputs.trials lists five registrations (NCT00128414, NCT00128453, NCT00235079, NCT01266694, NCT05805930); sources.literature_extraction holds only the path evidence/2026-08-19-batch1/pericarditis_publication_extraction.json; results.by_outcome.primary.per_trial is absent/empty in the store object.",
+  "blocker_named": "The object does not identify which four of the five trials have published cell-by-cell extraction, so the missing item cannot be named at the promised four-trial level from this store object. A terminal blocker would need the four trial IDs plus each cell's quoted number and publication location.",
+  "state": "CANNOT_NAME",
+  "why": "The store layer lists five candidate trials and an external extraction-file path, but not the four trial instances or their quoted cells."
+ },
+ {
+  "topic": "lenacapavir-prep",
+  "key": "this review has been retired it held the same trials as lenacapavir prep and that review now answers this question",
+  "checked_field": "absorbed_topics.lenacapavir-prep-review",
+  "field_holds": "absorbed_topics.lenacapavir-prep-review holds retired_utc=2026-08-19, says the trial set is identical, and stores the retired object's two registrations NCT04925752 and NCT04994509 inside THE_WHOLE_OBJECT_VERBATIM.",
+  "blocker_named": "No new analysis evidence is needed. The actionable fix is to keep the duplicate retired/absorbed rather than demand another value from the retired review.",
+  "state": "RELABEL_Q2_WITHDRAWABLE",
+  "why": "This is a retirement/duplicate-withdrawal bookkeeping claim, not an evidence gap needing a new result value."
+ },
+ {
+  "topic": "sglt2-ckd-review",
+  "key": "a per cent threshold admits strictly more patients than a per cent threshold which admits strictly more than a doubling of creatinine",
+  "checked_field": "results.by_outcome.primary.poolable_reason; inputs.trials; absent_from_source.sources",
+  "field_holds": "poolable_reason states the kidney-decline thresholds differ: CREDENCE doubling of serum creatinine, DAPA-CKD sustained eGFR decline >=50%, and EMPA-KIDNEY sustained eGFR decline >=40%; absent_from_source.sources says the event counts/components do not carry quoted source sentences.",
+  "blocker_named": "The missing item is component-count evidence for the renal-decline components behind the threshold claim: CREDENCE NCT02065791 doubling of serum creatinine, DAPA-CKD NCT03036150 >=50% sustained eGFR decline, and EMPA-KIDNEY NCT03594110 >=40% sustained eGFR decline. Source that would settle it: each trial's ClinicalTrials.gov component-outcome results or primary publication component table.",
+  "state": "EVIDENCE_BLOCKED",
+  "why": "The threshold hierarchy is named, but the object does not hold the component counts/source quotes that would quantify the claim."
+ },
+ {
+  "topic": "early-rhythm-control-af",
+  "key": "raft af registers no secondary outcome at all there is nothing below its primary to harmonise on so no estimand can be shared by all four trials",
+  "checked_field": "results.by_outcome.primary.poolable_reason; inputs.trials; screening.records",
+  "field_holds": "poolable_reason asserts RAFT-AF has no secondary outcome; inputs.trials in this object holds only EAST-AFNET 4 NCT01288352, not RAFT-AF; screening.records is a large adjudication list but does not put a RAFT-AF all-ranks record in the included-trials field.",
+  "blocker_named": "The missing item is RAFT-AF NCT01420393's all-ranks outcome record showing secondary outcomes are empty or absent. Source that would settle it: ClinicalTrials.gov outcomesModule for NCT01420393, read at primary, secondary, and other outcome ranks.",
+  "state": "EVIDENCE_BLOCKED",
+  "why": "The object makes a specific RAFT-AF all-ranks assertion, but the checked store fields do not hold RAFT-AF as an included trial with its secondary-outcome list."
+ },
+ {
+  "topic": "anidulafungin-fungal-auto-full-review",
+  "key": "neutropenia is not a co label it changes both the infection and the outcome the host response that clears candidaemia is the response neutropenia removes so glo",
+  "checked_field": "inputs.trials; results.by_outcome.primary.poolable_reason; topic_state",
+  "field_holds": "inputs.trials holds NCT00805740 and NCT00806351 with distinct registered primaries; poolable_reason says NCT00805740 enrols candidiasis/fungemia and posts percentages, while NCT00806351 enrols fungemia with neutropenia and posts counts; topic_state is NOT POOLABLE.",
+  "blocker_named": "No new evidence is needed to supply a pooled value. The false pooled claim should stay withdrawn because the object already names the two trials, populations, outcome units, denominators, and source date.",
+  "state": "RELABEL_Q2_WITHDRAWABLE",
+  "why": "The finding is not terminally evidence-blocked; the supported action is withdrawal of an incommensurable pool."
+ },
+ {
+  "topic": "cryptococcal-meningitis-africa",
+  "key": "whether these trials study this subject checked against each registration s arm structure on could not be decided this way it remains unverified and no other ch",
+  "checked_field": "inputs.trials; trial_identity_check",
+  "field_holds": "inputs.trials holds NCT01075152 with arms for Earlier HIV Therapy and Deferred HIV Therapy; trial_identity_check marks NCT01075152 as undecidable because no arm name matches the pattern and arm names are paraphrases.",
+  "blocker_named": "The missing item is intervention-identity confirmation for NCT01075152: whether its registered arms settle the subject as earlier HIV therapy versus deferred HIV therapy in cryptococcal meningitis. Source that would settle it: the ClinicalTrials.gov armGroups/interventions record plus the trial protocol or publication describing the timing comparison.",
+  "state": "EVIDENCE_BLOCKED",
+  "why": "The object names the single trial and the undecidable identity check; the blocker is that no second source has confirmed the arm interpretation."
+ }
+]

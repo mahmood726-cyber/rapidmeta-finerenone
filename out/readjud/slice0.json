@@ -1,0 +1,142 @@
+[
+  {
+    "page": "SGLT2_HF_REVIEW.html",
+    "key": "no statistical heterogeneity was detected i squared",
+    "touches_number_or_named_trial": true,
+    "readjudicated_label": "Q2",
+    "evidence_held_at": "ssot/sglt2-hf/sglt2-hf.json: results.by_outcome.harmonised_cvdeath_or_hhf.heterogeneity.i2 = 0.0; results.by_outcome.threecomp_cvdeath_hhf_urgent.heterogeneity.i2 = 22.51",
+    "state": "ESCALATED_CLASS_WIDE",
+    "blocker": "The bad manuscript Results sentence is emitted by prohibited class-wide ssot/paper_projector.py, not by a per-object field.",
+    "fix_site": "ssot/paper_projector.py: manuscript Results heterogeneity sentence",
+    "plant": {
+      "fails_before": true,
+      "passes_after": null,
+      "fails_on_replant": null,
+      "passes_after_restore": null,
+      "byte_identical": null,
+      "not_run_reason": "Escalated only; prohibited class-wide source was not edited by this lane."
+    },
+    "blast_radius": {
+      "would_touch_objects": 1,
+      "denominator_objects": 155,
+      "count_rule": "canonical ssot/<topic>/<topic>.json objects with more than one live pooled result and distinct held I-squared values"
+    },
+    "proposed_patch": "In ssot/paper_projector.py, before appending the single no-statistical-heterogeneity sentence, derive live pooled outcomes and their own heterogeneity.i2 values. If more than one live pooled outcome has distinct I-squared values, emit per-outcome heterogeneity instead of one global I-squared sentence; otherwise keep the existing single-outcome branch.",
+    "reason": "Q2 by evidence: both I-squared values are held in the object. Not landed because the emitting code is class-wide and prohibited for this lane."
+  },
+  {
+    "page": "SGLT2_HF_REVIEW.html",
+    "key": "no result level rob assessment exists for this outcome",
+    "touches_number_or_named_trial": false,
+    "readjudicated_label": "n/a",
+    "evidence_held_at": "ssot/sglt2-hf/sglt2-hf.json: risk_of_bias.by_outcome.harmonised_cvdeath_or_hhf; risk_of_bias.by_outcome.threecomp_cvdeath_hhf_urgent",
+    "state": "FIXED",
+    "blocker": null,
+    "fix_site": "ssot/sglt2-hf/sglt2-hf.json: grade.by_outcome.harmonised_cvdeath_or_hhf.steps[0].reason; grade.by_outcome.threecomp_cvdeath_hhf_urgent.steps[0].reason",
+    "plant": {
+      "fails_before": true,
+      "passes_after": true,
+      "fails_on_replant": true,
+      "passes_after_restore": true,
+      "byte_identical": true
+    },
+    "reason": "The fix removes the false denial of result-level RoB 2 assessment and states that recorded assessments exist and are not low risk of bias."
+  },
+  {
+    "page": "SGLT2_HF_REVIEW.html",
+    "key": "cardiovascular death or a worsening heart failure event",
+    "touches_number_or_named_trial": true,
+    "readjudicated_label": "Q2",
+    "evidence_held_at": "ssot/sglt2-hf/sglt2-hf.json: results.by_outcome.cvdeath_or_whf_first.poolable = false; results.by_outcome.cvdeath_or_whf_first.pooled.withdrawn = true; results.by_outcome.harmonised_cvdeath_or_hhf.k = 3; results.by_outcome.threecomp_cvdeath_hhf_urgent.k = 2",
+    "state": "FIXED",
+    "blocker": null,
+    "fix_site": "ssot/sglt2-hf/sglt2-hf.json: manuscript.introduction",
+    "plant": {
+      "fails_before": true,
+      "passes_after": true,
+      "fails_on_replant": true,
+      "passes_after_restore": true,
+      "byte_identical": true
+    },
+    "reason": "The introduction now says the review includes four trials, publishes the two coherent pooled outcomes, and examines but does not pool the broader four-trial outcome because the endpoint is not shared."
+  },
+  {
+    "page": "SGLT2_HF_REVIEW.html",
+    "key": "a named two trial programme rather than the yield of a database search",
+    "touches_number_or_named_trial": true,
+    "readjudicated_label": "Q2",
+    "evidence_held_at": "ssot/sglt2-hf/sglt2-hf.json: search.databases[0..2]; search.databases[1].covers_all_included = true; k_cascade.k_included_in_object = 4",
+    "state": "ESCALATED_CLASS_WIDE",
+    "blocker": "The bad limitation bullet is emitted by prohibited class-wide ssot/projectors.py when search.strategy is absent, even if search.databases records executed searches.",
+    "fix_site": "ssot/projectors.py: readiness/limitations search branch",
+    "plant": {
+      "fails_before": true,
+      "passes_after": null,
+      "fails_on_replant": null,
+      "passes_after_restore": null,
+      "byte_identical": null,
+      "not_run_reason": "Escalated only; prohibited class-wide source was not edited by this lane."
+    },
+    "blast_radius": {
+      "would_touch_objects": 16,
+      "denominator_objects": 155,
+      "count_rule": "canonical objects with executed search.databases records, no search.strategy field, and at least one executed database limb"
+    },
+    "proposed_patch": "In ssot/projectors.py, change the no-search limitation branch to test executed search.databases separately from search.strategy. Only emit \"No systematic search was run\" when neither search.strategy nor executed database records are held. When executed database records are held but search.strategy is absent, emit a limitation that the search is recorded as executed database limbs rather than as a normalized strategy field.",
+    "reason": "Q2 by evidence: the SGLT2 object holds executed ClinicalTrials.gov and PubMed search records and a four-trial included set. Not landed because the emitting code is class-wide and prohibited for this lane."
+  },
+  {
+    "page": "SGLT2_HF_REVIEW.html",
+    "key": "pool four trials reporting the same effect measure for the same outcome concept",
+    "touches_number_or_named_trial": true,
+    "readjudicated_label": "Q2",
+    "evidence_held_at": "ssot/sglt2-hf/sglt2-hf.json: results.by_outcome.cvdeath_or_whf_first.poolable = false; results.by_outcome.cvdeath_or_whf_first.poolable_reason; results.by_outcome.cvdeath_or_whf_first.pooled.withdrawn = true",
+    "state": "FIXED",
+    "blocker": null,
+    "fix_site": "ssot/sglt2-hf/sglt2-hf.json: results.by_outcome.cvdeath_or_whf_first.handbook.decision",
+    "plant": {
+      "fails_before": true,
+      "passes_after": true,
+      "fails_on_replant": true,
+      "passes_after_restore": true,
+      "byte_identical": true
+    },
+    "reason": "The methods decision now says not to pool the four-trial outcome and points to separately recorded split two-trial pools, matching the held withdrawn/poolable fields."
+  },
+  {
+    "page": "SGLT2_HF_REVIEW.html",
+    "key": "the pooled benefit depends on no single trial every leave one out fit keeps the null outside its interval",
+    "touches_number_or_named_trial": true,
+    "readjudicated_label": "Q2",
+    "evidence_held_at": "ssot/sglt2-hf/sglt2-hf.json: results.by_outcome.cvdeath_or_whf_first.pooled.withdrawn = true; results.by_outcome.cvdeath_or_whf_first.poolable = false; results.by_outcome.cvdeath_or_whf_first.sensitivity",
+    "state": "FIXED",
+    "blocker": null,
+    "fix_site": "ssot/sglt2-hf/sglt2-hf.json: results.by_outcome.cvdeath_or_whf_first.sensitivity.decision_under_test; results.by_outcome.cvdeath_or_whf_first.sensitivity.leave_one_out_finding",
+    "plant": {
+      "fails_before": true,
+      "passes_after": true,
+      "fails_on_replant": true,
+      "passes_after_restore": true,
+      "byte_identical": true
+    },
+    "reason": "The leave-one-out text now labels the rows as an audit trail for a withdrawn calculation, not robustness evidence for a live full pool."
+  },
+  {
+    "page": "COLCHICINE_CVD_CORONARY_REVIEW.html",
+    "key": "of trial s verified live against the registry",
+    "touches_number_or_named_trial": true,
+    "readjudicated_label": "Q2",
+    "evidence_held_at": "ssot/colchicine-cvd-coronary/colchicine-cvd-coronary.json: registration_identity.trials[0].verified = true; registration_identity.trials[1].verified = NOT_ASSESSABLE with registration_id ACTRN12614000093684; registration_identity.trials[2].verified = true",
+    "state": "FIXED",
+    "blocker": null,
+    "fix_site": "ssot/colchicine-cvd-coronary/colchicine-cvd-coronary.json: build_stamp.properties.P8_registration_identity",
+    "plant": {
+      "fails_before": true,
+      "passes_after": true,
+      "fails_on_replant": true,
+      "passes_after_restore": true,
+      "byte_identical": true
+    },
+    "reason": "The property row now refuses the all-verified claim and reports 2 of 3 verified by the ClinicalTrials.gov method, with the remaining trial not assessable by that method."
+  }
+]

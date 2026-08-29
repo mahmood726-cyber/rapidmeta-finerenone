@@ -1,0 +1,155 @@
+[
+  {
+    "page": "ABLATION_AF_MEDICAL_THERAPY_REVIEW.html",
+    "key": "the number of events in each arm",
+    "touches_number_or_named_trial": false,
+    "readjudicated_label": "n/a",
+    "evidence_held_at": null,
+    "state": "FIXED",
+    "blocker": null,
+    "fix_site": "No new source edit in this turn. Current generator logic in ssot/paper_projector.py:_clinical_gaps reads held arm events from ssot/ablation-af-medical-therapy/ablation-af-medical-therapy.json:inputs.trials[*].arms[*].events.",
+    "plant": {
+      "fixed_temp": "out/readjud/ablation-af-medical-therapy.ablation_med_arm_events.fixed.html",
+      "fixed_defect_gone": true,
+      "replant_temp": "out/readjud/ablation-af-medical-therapy.ablation_med_arm_events.replant.html",
+      "replant_defect_returned": true,
+      "restore_temp": "out/readjud/ablation-af-medical-therapy.ablation_med_arm_events.restore.html",
+      "restore_defect_gone": true,
+      "restore_byte_identical_to_fixed_after_page_generated_normalization": true
+    },
+    "blast_radius": null,
+    "reason": "The proposed fix does not change a reader-facing number or add/alter a named-trial statement. A fresh temp build omits the false denial because the object holds arm-event counts for all 3 of 3 trials: CASTLE-AF, CABANA, and RAFT-AF."
+  },
+  {
+    "page": "ABLATION_AF_MEDICAL_THERAPY_REVIEW.html",
+    "key": "the cleanest available form of this review s question",
+    "touches_number_or_named_trial": true,
+    "readjudicated_label": "Q2",
+    "evidence_held_at": "ssot/ablation-af-medical-therapy/ablation-af-medical-therapy.json:question; outcomes[0].comparator; k_cascade.remainder_dispositions.what_would_change_this_answer",
+    "state": "FIXED",
+    "blocker": null,
+    "fix_site": "ssot/ablation-af-medical-therapy/ablation-af-medical-therapy.json:k_cascade.remainder_dispositions.what_would_change_this_answer",
+    "plant": {
+      "fixed_temp": "out/readjud/ablation-af-medical-therapy.ablation_med_cleanest.rerun.fixed.html",
+      "fixed_defect_gone": true,
+      "replant_temp": "out/readjud/ablation-af-medical-therapy.ablation_med_cleanest.rerun.replant.html",
+      "replant_defect_returned": true,
+      "restore_temp": "out/readjud/ablation-af-medical-therapy.ablation_med_cleanest.rerun.restore.html",
+      "restore_defect_gone": true,
+      "restore_byte_identical_to_fixed_after_page_generated_normalization": true
+    },
+    "blast_radius": null,
+    "reason": "Q2 confirmed. The store itself holds the active-comparator review question and comparator, while the disputed field calls four NCTs sham-controlled. I changed only the comparator claim from 'the cleanest available form of this review's question' to a separate sham-comparator question."
+  },
+  {
+    "page": "ABLATION_AF_MEDICAL_THERAPY_REVIEW.html",
+    "key": "the review asks about catheter ablation versus medical rate or rhythm control therapy on death stroke and hospitalisation",
+    "touches_number_or_named_trial": true,
+    "readjudicated_label": "Q2",
+    "evidence_held_at": "ssot/ablation-af-medical-therapy/ablation-af-medical-therapy.json:question_provenance; outcomes[0].name; outcomes[0].definition_note; results.by_outcome.primary.poolable_reason; inputs.trials[*].registered_primaries",
+    "state": "FIXED",
+    "blocker": null,
+    "fix_site": "ssot/ablation-af-medical-therapy/ablation-af-medical-therapy.json:question and manuscript.introduction",
+    "plant": {
+      "fixed_temp": "out/readjud/ablation-af-medical-therapy.ablation_med_question_outcome.fixed.html",
+      "fixed_defect_gone": true,
+      "replant_temp": "out/readjud/ablation-af-medical-therapy.ablation_med_question_outcome.replant.html",
+      "replant_defect_returned": true,
+      "restore_temp": "out/readjud/ablation-af-medical-therapy.ablation_med_question_outcome.restore.html",
+      "restore_defect_gone": true,
+      "restore_byte_identical_to_fixed_after_page_generated_normalization": true
+    },
+    "blast_radius": null,
+    "reason": "Q2 confirmed. The object repeatedly states that the outcome is each trial's own registered primary composite and that the three composites differ. I aligned the root question and stored manuscript introduction to that held outcome instead of inventing a harmonised death/stroke/hospitalisation endpoint."
+  },
+  {
+    "page": "ABLATION_AF_HEART_FAILURE_REVIEW.html",
+    "key": "the prisma flow counts are held for this review and reconcile with the executed searches above",
+    "touches_number_or_named_trial": false,
+    "readjudicated_label": "n/a",
+    "evidence_held_at": null,
+    "state": "ESCALATED_CLASS_WIDE",
+    "blocker": null,
+    "fix_site": "ESCALATE patch text only, not landed: in ssot/projectors.py, before the generic screen absent-state branch, handle tid == 'screen' and (canon.get('prisma_flow') or canon.get('k_cascade')) as partially held, with note 'Screening counts are held in this object and shown in the PRISMA/cascade panels; the per-record screening log is not held unless records are listed below.'",
+    "plant": {
+      "performed": false,
+      "reason": "No class-wide file may be edited by this lane."
+    },
+    "blast_radius": {
+      "objects": 10,
+      "pages": 10,
+      "count_basis": "Corpus count of ssot/*/*.json with prisma_flow or k_cascade held and no nonempty screening.records list.",
+      "affected_pages": [
+        "ABLATION_AF_HEART_FAILURE_REVIEW.html",
+        "ABLATION_AF_MEDICAL_THERAPY_REVIEW.html",
+        "ALIROCUMAB_LIPID_AUTO_FULL_REVIEW.html",
+        "ATTR_CM_REVIEW.html",
+        "BEMPEDOIC_ACID_REVIEW.html",
+        "BOSENTAN_PAH_CHILDREN_REVIEW.html",
+        "BOSENTAN_PAH_COMBINATION_REVIEW.html",
+        "BOSENTAN_PAH_MONOTHERAPY_REVIEW.html",
+        "BOSENTAN_PH_NOT_GROUP1_REVIEW.html",
+        "COLCHICINE_CVD_CORONARY_REVIEW.html"
+      ]
+    },
+    "reason": "The fix belongs in the shared tab absent-state renderer, not in this one page. The object already holds prisma_flow and k_cascade, so deleting those counts would destroy held evidence; the false denial comes from class-wide empty-screen wording."
+  },
+  {
+    "page": "ABLATION_AF_HEART_FAILURE_REVIEW.html",
+    "key": "where a result is rated worse than low overall the domain carrying that judgement is deviations from the intended intervention on result s selection of the repo",
+    "touches_number_or_named_trial": true,
+    "readjudicated_label": "Q2",
+    "evidence_held_at": "ssot/ablation-af-heart-failure/ablation-af-heart-failure.json:risk_of_bias.SECOND_ASSESSOR_2026_08_21.DISAGREEMENT_RATE; risk_of_bias.SECOND_ASSESSOR_2026_08_21.PER_DOMAIN; risk_of_bias.by_outcome.primary.*.overall_note",
+    "state": "FIXED",
+    "blocker": null,
+    "fix_site": "ssot/ablation-af-heart-failure/ablation-af-heart-failure.json:bookkeeping_2026_08_21.which_risk_of_bias_domains_drove_the_rating",
+    "plant": {
+      "fixed_temp": "out/readjud/ablation-af-heart-failure.ablation_hf_rob_domains.rerun.fixed.html",
+      "fixed_defect_gone": true,
+      "replant_temp": "out/readjud/ablation-af-heart-failure.ablation_hf_rob_domains.rerun.replant.html",
+      "replant_defect_returned": true,
+      "restore_temp": "out/readjud/ablation-af-heart-failure.ablation_hf_rob_domains.rerun.restore.html",
+      "restore_defect_gone": true,
+      "restore_byte_identical_to_fixed_after_page_generated_normalization": true
+    },
+    "blast_radius": null,
+    "reason": "Q2 confirmed. The object holds 8 of 12 dual-assessor judgements disagreeing, OVERALL 2 of 2 disagreeing, and per-result notes saying no overall judgement is synthesised. I replaced the false domain-driver sentence with that unresolved final-judgement state."
+  },
+  {
+    "page": "FINERENONE_CV_REVIEW.html",
+    "key": "moderate certainty the two trials agree almost exactly both are quadruple masked so the single downgrade is for the unread deviation and missing data domains an",
+    "touches_number_or_named_trial": true,
+    "readjudicated_label": "Q3",
+    "evidence_held_at": null,
+    "state": "EVIDENCE_BLOCKED",
+    "blocker": "Trial/value: FIDELIO-DKD NCT02540993 and FIGARO-DKD NCT02545049, cv_composite_first certainty level. Needed value: a final adjudicated risk-of-bias judgement that can license publishing a GRADE certainty level. Source that would settle it: a third-reader/adjudicator record in risk_of_bias resolving the remaining D5 and OVERALL disagreements, or source documents sufficient to adjudicate those RoB domains. The current store records a MODERATE GRADE block, but also records unresolved dual-assessor disagreement and no final RoB adjudication.",
+    "fix_site": null,
+    "plant": {
+      "performed": false,
+      "reason": "Evidence blocked under the binding re-adjudication rule."
+    },
+    "blast_radius": null,
+    "reason": "NOT HELD. The current authority resolver correctly marks certainty pending when a risk-of-bias-dependent GRADE level rests on unadjudicated dual-assessor disagreements. Removing either the pending warning or the MODERATE summary would decide a named-trial certainty state without the adjudication record."
+  },
+  {
+    "page": "ALIROCUMAB_LIPID_AUTO_FULL_REVIEW.html",
+    "key": "six of six contributing values are therefore confirmed against their registry records the only topic in this lane where the trial by trial check is complete",
+    "touches_number_or_named_trial": true,
+    "readjudicated_label": "Q2",
+    "evidence_held_at": "ssot/alirocumab-lipid/alirocumab-lipid.json:inputs.trials; results.by_outcome.ldlc_pct_change_wk24.k; results.by_outcome.ldlc_pct_change_wk24.per_trial; published_comparison.checks[id=ldl-values-vs-registry-6].detail; build_stamp.properties.P7_published_comparison.reason; build_stamp.properties.P8_registration_identity.reason",
+    "state": "FIXED",
+    "blocker": null,
+    "fix_site": "ssot/alirocumab-lipid/alirocumab-lipid.json:published_comparison.checks[id=ldl-values-vs-registry-6].detail",
+    "plant": {
+      "fixed_temp": "out/readjud/alirocumab-lipid.alirocumab_six_of_six.fixed.html",
+      "fixed_defect_gone": true,
+      "replant_temp": "out/readjud/alirocumab-lipid.alirocumab_six_of_six.replant.html",
+      "replant_defect_returned": true,
+      "restore_temp": "out/readjud/alirocumab-lipid.alirocumab_six_of_six.restore.html",
+      "restore_defect_gone": true,
+      "restore_byte_identical_to_fixed_after_page_generated_normalization": true
+    },
+    "blast_radius": null,
+    "reason": "Q2 confirmed. The store holds 8 pooled trials and names NCT02289963 and NCT02585778 as recovered contributors; the six-row registry-value table is therefore not complete over the pooled set. I changed only the row-level completeness sentence."
+  }
+]

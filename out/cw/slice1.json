@@ -1,0 +1,155 @@
+[
+ {
+  "item": "SGLT2_HF_REVIEW.html / search limitation says no systematic search despite dated executed database limbs",
+  "site": "ssot/projectors.py:505-510",
+  "code_quoted": "    if not (canon.get(\"search\") or {}).get(\"strategy\"):\n        limits.append({\n            \"label\": \"No systematic search was run\",\n            \"detail\": (\"The included set is a named two-trial programme rather than the \"\n                       \"yield of a database search. Nothing on this page should be read \"\n                       \"as though a systematic search had been performed.\")})",
+  "radius_file": {
+   "label": "Gate-7 file radius",
+   "count": 1,
+   "denominator": "620 files under ssot/; 1 in this change",
+   "why": "outside the build closure, names 1 topic id(s)",
+   "topics": [
+    "malaria-vaccines"
+   ]
+  },
+  "radius_file_source": "Ran `python gates/gate7_blast_radius.py --files ssot/projectors.py` in an isolated temp copy of the current F:/fixwt/live tree to avoid rewriting live out/gate7_blast_radius.json. Gate output for the file: `\"ssot/projectors.py\": { \"radius\": 1, \"why\": \"outside the build closure, names 1 topic id(s)\", \"topics\": [\"malaria-vaccines\"] }`. The same run reported: `denominator examined: 620 files under ssot/; 1 in this change`; `VERDICT: PASS`.",
+  "radius_behaviour": {
+   "label": "Behaviour-change count, not Gate-7 radius",
+   "objects": 16,
+   "denominator_objects": 155,
+   "served_pages": 18,
+   "denominator_page_map_entries": 163,
+   "current_bad_string_hits": "18/18 served pages contain `No systematic search was run`"
+  },
+  "radius_behaviour_how": "Counted canonical objects where `ssot/<topic>/<topic>.json` exists, `search.strategy` is absent/false, and at least one `search.databases[]` dict has `date_executed`. That is 16/155 objects. Mapped those objects through `ssot/PAGE_MAP.json`, yielding 18/163 served page entries because azilsartan and bococizumab each have two mapped pages. Served-byte check found the current bad label in 18/18 affected pages.",
+  "kinds": {
+   "live pages": {
+    "count": 18,
+    "denominator": 18,
+    "pages": [
+     "ABLATION_AF_HEART_FAILURE_REVIEW.html",
+     "ABLATION_AF_MEDICAL_THERAPY_REVIEW.html",
+     "ALIROCUMAB_LIPID_AUTO_FULL_REVIEW.html",
+     "APIXABAN_VTE_PROPHYLAXIS_REVIEW.html",
+     "APIXABAN_VTE_TREATMENT_REVIEW.html",
+     "ATTR_CM_REVIEW.html",
+     "AZILSARTAN_CLD_VS_OLM_HCTZ_REVIEW.html",
+     "AZILSARTAN_HTN_AUTO_FULL_REVIEW.html",
+     "BEMPEDOIC_ACID_REVIEW.html",
+     "BOCOCIZUMAB_LIPID_AUTO_FULL_REVIEW.html",
+     "BOCOCIZUMAB_LIPID_REVIEW.html",
+     "BOSENTAN_PAH_CHILDREN_REVIEW.html",
+     "BOSENTAN_PAH_COMBINATION_REVIEW.html",
+     "BOSENTAN_PAH_MONOTHERAPY_REVIEW.html",
+     "BOSENTAN_PH_NOT_GROUP1_REVIEW.html",
+     "COLCHICINE_CVD_CORONARY_REVIEW.html",
+     "EARLY_RHYTHM_CONTROL_AF_REVIEW.html",
+     "SGLT2_HF_REVIEW.html"
+    ]
+   },
+   "retired tombstones": {
+    "count": 0,
+    "denominator": 18,
+    "pages": []
+   },
+   "redirect stubs": {
+    "count": 0,
+    "denominator": 18,
+    "pages": []
+   },
+   "classification_how": "For each PAGE_MAP served page, classified root HTML as redirect if it contained refresh/window.location/moved-page redirect markers, tombstone if the title started `Retired --` or tombstone classes were present, otherwise live. All 18 affected served pages are live."
+  },
+  "intersects_must_not_break": [
+   "ALIROCUMAB_LIPID_AUTO_FULL_REVIEW.html",
+   "APIXABAN_VTE_PROPHYLAXIS_REVIEW.html",
+   "APIXABAN_VTE_TREATMENT_REVIEW.html",
+   "AZILSARTAN_CLD_VS_OLM_HCTZ_REVIEW.html",
+   "AZILSARTAN_HTN_AUTO_FULL_REVIEW.html",
+   "BEMPEDOIC_ACID_REVIEW.html",
+   "BOCOCIZUMAB_LIPID_AUTO_FULL_REVIEW.html",
+   "BOCOCIZUMAB_LIPID_REVIEW.html",
+   "SGLT2_HF_REVIEW.html"
+  ],
+  "patch_old": "    if not (canon.get(\"search\") or {}).get(\"strategy\"):\n        limits.append({\n            \"label\": \"No systematic search was run\",\n            \"detail\": (\"The included set is a named two-trial programme rather than the \"\n                       \"yield of a database search. Nothing on this page should be read \"\n                       \"as though a systematic search had been performed.\")})",
+  "patch_new": "    _search = canon.get(\"search\") or {}\n    _executed_dbs = [d for d in (_search.get(\"databases\") or [])\n                     if isinstance(d, dict) and d.get(\"date_executed\")]\n    if not _search.get(\"strategy\") and not _executed_dbs:\n        limits.append({\n            \"label\": \"No systematic search was run\",\n            \"detail\": (\"The included set is a named two-trial programme rather than the \"\n                       \"yield of a database search. Nothing on this page should be read \"\n                       \"as though a systematic search had been performed.\")})\n    elif not _search.get(\"strategy\") and _executed_dbs:\n        limits.append({\n            \"label\": \"Search recorded as executed database limbs\",\n            \"detail\": (\"Dated database-search limbs are held; no normalized strategy field is held. \"\n                       \"Read the Search tab for the exact database, query, date, and yield \"\n                       \"records; do not treat the missing strategy field as evidence that no \"\n                       \"systematic search was run.\")})",
+  "three_states": [
+   "No search evidence held: no `search.strategy` and no dated executed `search.databases[]` limb; the existing `No systematic search was run` limitation may still be true.",
+   "Normalized search strategy held: `search.strategy` exists; do not emit either no-search or third-state limitation.",
+   "Executed database limbs held but no normalized strategy: at least one `search.databases[]` entry has `date_executed`; emit the third-state limitation instead of denying the search. This is the affected 16/155-object state."
+  ],
+  "marker": "Dated database-search limbs are held; no normalized strategy field is held.",
+  "marker_absent_verified": "Verified before writing this report with fixed-string grep via a temporary pattern file: `rg -n -F -f <temp-pattern-file> .` returned exit 1 and the wrapper printed `ABSENT 0 hits for 2 markers`. This marker had 0 hits anywhere under F:/fixwt/live at verification time.",
+  "obvious_fix": "One-line version: change the condition to `if not (canon.get(\"search\") or {}).get(\"strategy\") and not (canon.get(\"search\") or {}).get(\"databases\"):` and leave the rest unchanged.",
+  "obvious_fix_would_fire": "No for the affected set: tested over the 16 dated-database/no-strategy objects, and that one-line condition fired 0/16 because all 16 affected objects have nonempty `search.databases`. It would suppress the bad denial on 16/16, but it would not emit the required third-state served marker and would also treat undated database records as enough to suppress the old limitation.",
+  "notes": "The slice's 16-object count is reproducible only when `executed` means a database limb with `date_executed`; a broader nonempty-database predicate returns 17/155 by including ARNI, whose database records lack `date_executed`. Checked frozen/excluded objects: gepotidacin and HFREF-like objects did not match this predicate. No edits made to `ssot/projectors.py`; proposed patch only."
+ },
+ {
+  "item": "ABLATION_AF_HEART_FAILURE_REVIEW.html / screen tab says no screening log although PRISMA/cascade counts are held",
+  "site": "ssot/projectors.py:122-124 and ssot/projectors.py:1821-1840",
+  "code_quoted": "ABSENT_STATE screen text at 122-124:\n \"screen\":   (\"No screening log is recorded for this review. The included set was reconciled \"\n              \"against published syntheses rather than screened from a search, so no \"\n              \"records-identified, excluded-with-reason or dual-screening counts exist.\"),\n\nAbsent/partial branch at 1821-1840:\n        if len(text) < FLOOR_CHARS or (data < 1 and not prose_tab):\n            skipped.append((tid, len(text), data))\n            # Emit the tab with an honest state instead of dropping it. Any thin\n            # body it did carry is shown beneath the statement rather than being\n            # merged invisibly into the previous panel.\n            _tbl = (ABSENT_STATE_CONVERTED\n                    if (canon.get(\"build_mode\") == \"CONVERTED\") else ABSENT_STATE)\n            # THREE STATES, NOT TWO. If the thin body carries something real, the page says\n            # which part is held rather than denying the whole and then printing it.\n            _carries_something = bool(re.search(r\"<(?:pre|table|svg|li|dl)[ >/]\", body))                 or len(re.sub(r\"<[^>]+>\", \" \", body).strip()) > 80\n            if _carries_something and tid in PARTIAL_STATE:\n                _label = \"Partially held.\"\n                # COMPUTED WHERE IT CAN BE, RECITED ONLY WHERE IT CANNOT. The screen\n                # tab's note names counts it can read off the panel; if it cannot read\n                # them it returns None and the constant stands.\n                note = (screen_partial_note(body) if tid == \"screen\" else None) \\\n                    or PARTIAL_STATE[tid]\n            else:\n                _label = \"Not held in this object.\"\n                note = _tbl.get(tid, \"No content is held in this object for this section.\")",
+  "radius_file": {
+   "label": "Gate-7 file radius",
+   "count": 1,
+   "denominator": "620 files under ssot/; 1 in this change",
+   "why": "outside the build closure, names 1 topic id(s)",
+   "topics": [
+    "malaria-vaccines"
+   ]
+  },
+  "radius_file_source": "Ran `python gates/gate7_blast_radius.py --files ssot/projectors.py` in an isolated temp copy of the current F:/fixwt/live tree to avoid rewriting live out/gate7_blast_radius.json. Gate output for the file: `\"ssot/projectors.py\": { \"radius\": 1, \"why\": \"outside the build closure, names 1 topic id(s)\", \"topics\": [\"malaria-vaccines\"] }`. The same run reported: `denominator examined: 620 files under ssot/; 1 in this change`; `VERDICT: PASS`.",
+  "radius_behaviour": {
+   "label": "Behaviour-change count, not Gate-7 radius",
+   "objects": 10,
+   "denominator_objects": 155,
+   "served_pages": 10,
+   "denominator_page_map_entries": 163,
+   "current_bad_string_hits": "10/10 served pages contain `No screening log is recorded for this review`"
+  },
+  "radius_behaviour_how": "Counted canonical objects where `ssot/<topic>/<topic>.json` exists, either `prisma_flow` or `k_cascade` is held, and `screening.records` is absent/empty. That is 10/155 objects. Mapped those objects through `ssot/PAGE_MAP.json`, yielding 10/163 served page entries. Served-byte check found the current bad screen absence sentence in 10/10 affected pages.",
+  "kinds": {
+   "live pages": {
+    "count": 10,
+    "denominator": 10,
+    "pages": [
+     "ABLATION_AF_HEART_FAILURE_REVIEW.html",
+     "ABLATION_AF_MEDICAL_THERAPY_REVIEW.html",
+     "ALIROCUMAB_LIPID_AUTO_FULL_REVIEW.html",
+     "ATTR_CM_REVIEW.html",
+     "BEMPEDOIC_ACID_REVIEW.html",
+     "BOSENTAN_PAH_CHILDREN_REVIEW.html",
+     "BOSENTAN_PAH_COMBINATION_REVIEW.html",
+     "BOSENTAN_PAH_MONOTHERAPY_REVIEW.html",
+     "BOSENTAN_PH_NOT_GROUP1_REVIEW.html",
+     "COLCHICINE_CVD_CORONARY_REVIEW.html"
+    ]
+   },
+   "retired tombstones": {
+    "count": 0,
+    "denominator": 10,
+    "pages": []
+   },
+   "redirect stubs": {
+    "count": 0,
+    "denominator": 10,
+    "pages": []
+   },
+   "classification_how": "For each PAGE_MAP served page, classified root HTML as redirect if it contained refresh/window.location/moved-page redirect markers, tombstone if the title started `Retired --` or tombstone classes were present, otherwise live. All 10 affected served pages are live."
+  },
+  "intersects_must_not_break": [
+   "ALIROCUMAB_LIPID_AUTO_FULL_REVIEW.html",
+   "BEMPEDOIC_ACID_REVIEW.html"
+  ],
+  "patch_old": "            if _carries_something and tid in PARTIAL_STATE:\n                _label = \"Partially held.\"\n                # COMPUTED WHERE IT CAN BE, RECITED ONLY WHERE IT CANNOT. The screen\n                # tab's note names counts it can read off the panel; if it cannot read\n                # them it returns None and the constant stands.\n                note = (screen_partial_note(body) if tid == \"screen\" else None) \\\n                    or PARTIAL_STATE[tid]\n            else:\n                _label = \"Not held in this object.\"\n                note = _tbl.get(tid, \"No content is held in this object for this section.\")\n                if tid == \"protocol\":\n                    note = protocol_state_note(canon, note)",
+  "patch_new": "            _screen_counts_held = (tid == \"screen\"\n                                   and (canon.get(\"prisma_flow\") or canon.get(\"k_cascade\")))\n            if _screen_counts_held:\n                _label = \"Partially held.\"\n                note = (\"Aggregate PRISMA counts are held; row-level screening decisions are absent. \"\n                        \"Screening counts are held in this object and shown in the PRISMA/cascade \"\n                        \"panels; the per-record screening log is not held unless records are \"\n                        \"listed below.\")\n            elif _carries_something and tid in PARTIAL_STATE:\n                _label = \"Partially held.\"\n                # COMPUTED WHERE IT CAN BE, RECITED ONLY WHERE IT CANNOT. The screen\n                # tab's note names counts it can read off the panel; if it cannot read\n                # them it returns None and the constant stands.\n                note = (screen_partial_note(body) if tid == \"screen\" else None) \\\n                    or PARTIAL_STATE[tid]\n            else:\n                _label = \"Not held in this object.\"\n                note = _tbl.get(tid, \"No content is held in this object for this section.\")\n                if tid == \"protocol\":\n                    note = protocol_state_note(canon, note)",
+  "three_states": [
+   "No screening evidence held: no per-record `screening.records` and no aggregate `prisma_flow`/`k_cascade`; use the absent-state wording.",
+   "Aggregate screening counts held but row-level log absent: `prisma_flow` or `k_cascade` exists, while `screening.records` is empty; emit the third-state note. This is the affected 10/155-object state.",
+   "Per-record screening log held: `screening.records` is nonempty; let `screen_partial_note(body)` compute which count limbs are held/missing from the actual screen panel."
+  ],
+  "marker": "Aggregate PRISMA counts are held; row-level screening decisions are absent.",
+  "marker_absent_verified": "Verified before writing this report with fixed-string grep via a temporary pattern file: `rg -n -F -f <temp-pattern-file> .` returned exit 1 and the wrapper printed `ABSENT 0 hits for 2 markers`. This marker had 0 hits anywhere under F:/fixwt/live at verification time.",
+  "obvious_fix": "One-line version: change `_carries_something` to also be true when `tid == \"screen\" and (canon.get(\"prisma_flow\") or canon.get(\"k_cascade\"))`, leaving the existing `screen_partial_note(body) or PARTIAL_STATE[tid]` note selection unchanged.",
+  "obvious_fix_would_fire": "Yes, but incompletely: tested over the 10 aggregate-count/no-record objects, that one-line condition would fire for 10/10 because every affected object has `prisma_flow` or `k_cascade`. It would route them to the generic PARTIAL_STATE screen note, not the safer specific sentence that aggregate counts are in PRISMA/cascade while row-level screening decisions are absent.",
+  "notes": "The item from the slice is reproduced exactly at 10/155 canonical objects and 10/163 PAGE_MAP pages. Checked frozen/excluded objects: gepotidacin and HFREF-like objects did not match this predicate. No edits made to `ssot/projectors.py`; proposed patch only."
+ }
+]

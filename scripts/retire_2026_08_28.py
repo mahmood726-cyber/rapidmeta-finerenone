@@ -35,6 +35,20 @@ import sys
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(REPO, "outputs", "retirement_run_2026_08_28.json")
 
+# THE PRECONDITION, WIRED 2026-08-28. gates/absence.py existed for a day before anything
+# called it -- AVAILABLE, NOT OPERATIVE, which is the distinction .githooks/pre-commit already
+# warns about and is the diagnosis this whole batch is named after. A gate no script invokes is
+# a rule in a document with extra steps.
+sys.path.insert(0, os.path.join(REPO, "gates"))
+import absence as _absence                                              # noqa: E402
+
+# A page positively IS resultless when it SAYS so. This is the POSITIVE restatement of the
+# selector above, and it exists so the two counts can be compared before anything is written.
+POSITIVE_NO_RESULT = re.compile(
+    r"no pooled (estimate|result)|nothing is pooled|not pooled|no combined (figure|estimate)|"
+    r"no meta-analys|no synthesis was|declines to pool|refuses to pool|"
+    r"no quantitative synthesis|not been pooled", re.I)
+
 TOMBSTONE_MODE = "tombstone"      # flip to "404" only after a backlink/access-log check
 
 SCRIPT = re.compile(r"<script\b.*?</script>", re.S | re.I)
@@ -145,9 +159,50 @@ def main():
     for p, why in rejected[:20]:
         say("     %-52s %s" % (p[:52], why))
     say("")
+    # ------------------------------------------------------------------
+    # NO IRREVERSIBLE ACTION ON AN ABSENCE-DEFINED SET.
+    # Deliberately ABOVE the dry-run return: a refusal you only meet at --apply time is a
+    # refusal you meet with your hand already on the lever. A dry run must show it.
+    #
+    # `verify()` above selects by what a detector could NOT find: no store, no interval
+    # matching one regex, no apparatus. That set contains, indistinguishably, the pages that
+    # genuinely have no result and the pages whose result the regex cannot see. One of them is
+    # PREDICTION_MODEL_KFRE_REVIEW.html, which states 0.88 (95% CI 0.86-0.90) with an EN-DASH
+    # -- a character the regex does not accept.
+    #
+    # So the positive restatement runs first and both counts are printed. `sanction` refuses to
+    # issue a token while the difference is unexplained, and nothing below it can run without
+    # one. Override deliberately and ON THE RECORD:
+    #     RETIRE_EXPLAIN="<why the gap is acceptable>" python scripts/retire_2026_08_28.py ...
+    # ------------------------------------------------------------------
+    def _positive(page):
+        try:
+            with io.open(os.path.join(REPO, page), encoding="utf-8", errors="replace") as fh:
+                return bool(POSITIVE_NO_RESULT.search(rendered(fh.read())))
+        except OSError:
+            return False
+
+    try:
+        token, _neg, _pos = _absence.sanction(
+            "retire %d pages" % len(ok), ok,
+            negative=lambda _p: True,          # membership already decided by verify()
+            positive=_positive,
+            explain=os.environ.get("RETIRE_EXPLAIN") or None)
+    except _absence.Unsanctioned as exc:
+        say("")
+        say("REFUSED: " + str(exc))
+        say("")
+        say("Nothing was written. Name what the difference is, then re-run with")
+        say("RETIRE_EXPLAIN set. A count of what a detector failed to recognise is not")
+        say("a count of what is absent.")
+        return 1
+    say("SANCTIONED: " + token.line())
+    _absence.require_sanction(token, "write %d tombstones" % len(ok))
+
     if not apply_:
         say("(dry run -- nothing written; pass --apply)")
         return 0
+
 
     written = 0
     for p in ok:

@@ -1,0 +1,70 @@
+{
+  "fixes": [
+    {
+      "finding": "Trial identifiers are held as href targets but not shown as visible NCT ids in eligible-but-not-contributing tables.",
+      "layer": "generator",
+      "fix_site": "ssot/build_app_v2.py::_not_contributing",
+      "what_changed": "The renderer now falls back from id to nct to registration when building the visible registration label, so already-held NCT values render as link text without adding store fields.",
+      "plant": {
+        "fails_before": true,
+        "passes_after": true,
+        "fails_on_replant": true,
+        "passes_after_restore": true,
+        "byte_identical": true
+      }
+    },
+    {
+      "finding": "Table 61 \"Every trial, with its reason\" rendered an empty table and dash-filled screening summary.",
+      "layer": "generator",
+      "fix_site": "ssot/build_tabbed.py::_standard_block",
+      "what_changed": "The screening-of-remainder renderer now enters the table path only for canonical summary fields or canonical rows. For IV iron's nested remainder record, it emits a visible refusal explaining that the table is suppressed until the record is normalised, avoiding a caption that promises absent per-trial rows.",
+      "plant": {
+        "fails_before": true,
+        "passes_after": true,
+        "fails_on_replant": true,
+        "passes_after_restore": true,
+        "byte_identical": true
+      }
+    },
+    {
+      "finding": "The PICO said intravenous iron generally while the eligibility criterion restricts molecules to ferric carboxymaltose or ferric derisomaltose.",
+      "layer": "store",
+      "fix_site": "ssot/iv-iron-hf/iv-iron-hf.json:question and paper.introduction",
+      "what_changed": "The PICO wording now states that intravenous iron is restricted here to ferric carboxymaltose or ferric derisomaltose. The matching manuscript-introduction field was aligned so the broader PICO cannot resurface from the store.",
+      "plant": {
+        "fails_before": true,
+        "passes_after": true,
+        "fails_on_replant": true,
+        "passes_after_restore": true,
+        "byte_identical": true
+      }
+    }
+  ],
+  "deferred": [],
+  "numerator_denominator": {
+    "upheld_findings_fixed": {
+      "numerator": 3,
+      "denominator": 3
+    },
+    "deferred_findings": {
+      "numerator": 0,
+      "denominator": 3
+    },
+    "reader_facing_numbers_changed": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "named_trial_claims_added_or_altered": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "notes": [
+    "No *_REVIEW.html file was edited. Temporary builds were written under out/fix/.",
+    "Normal CLI builds: out/fix/IV_IRON_HF_REVIEW.before.html reproduced the defects; out/fix/IV_IRON_HF_REVIEW.fixed.html and out/fix/IV_IRON_HF_REVIEW.final.html passed the three signature checks.",
+    "Plant/replant byte identity used deterministic builds from ssot/build_tabbed.py::build with a fixed Page generated value, because the normal CLI emits a live UTC generation minute and browser-generated PNG data.",
+    "Final signature checks on out/fix/IV_IRON_HF_REVIEW.final.html: all four eligible-but-not-contributing NCT ids are visible, blank eligible NCT anchors are absent, Table 61 is absent, the screening refusal is visible, the broad PICO phrase is absent, and the molecule-restricted PICO is visible.",
+    "Verification passed: python -m py_compile ssot/build_app_v2.py ssot/build_tabbed.py; python -m json.tool ssot/iv-iron-hf/iv-iron-hf.json; git diff --check -- ssot/build_app_v2.py ssot/build_tabbed.py ssot/iv-iron-hf/iv-iron-hf.json.",
+    "Repository validator did not complete: python ssot/validate_v2.py ssot/iv-iron-hf/iv-iron-hf.json fails with AttributeError: 'Report' object has no attribute 'blocks'."
+  ]
+}

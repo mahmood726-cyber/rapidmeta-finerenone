@@ -1,0 +1,42 @@
+{
+ "frozen_utc": "2026-08-28",
+ "what": "Every script whose SHAPE includes deleting or tombstoning a path that is not obviously temporary. The shape is detected mechanically by gate 8; the VERDICT below is hand-read, and each carries its reason. A removal-shaped script in neither this registry nor wired to absence.sanction fails gate 8.",
+ "states": {
+  "WIRED": "removes corpus artefacts and calls absence.sanction before doing so",
+  "NOT-A-CORPUS-REMOVAL": "the deleted path is a lock, a probe, a scratch dir or a temp file -- nothing a reader receives",
+  "HISTORICAL": "a one-shot migration that has already been applied; it removes corpus artefacts and is NOT wired, and that is recorded rather than hidden"
+ },
+ "paths": {
+  "scripts/retire_2026_08_28.py": {"state": "WIRED", "why": "the 763-page retirement. Wired 2026-08-28: computes the positive restatement, prints both counts, and refuses without RETIRE_EXPLAIN. Verified by dry run -- 756 vs 2, exit 1, nothing written."},
+  "scripts/remove_nonpoolable_apps.py": {"state": "HISTORICAL", "why": "one-shot, already applied. It deletes *_REVIEW.html pages selected by a non-poolable predicate. UNWIRED and recorded as such: if it is ever re-run it must be wired first."},
+  "scripts/rebuild_paper_corpus_2026_08_20.py": {"state": "HISTORICAL", "why": "one-shot rebuild that removes and regenerates pages. Already applied. Removal is followed by regeneration from source, so the set is not absence-defined -- but it is not wired and that is stated."},
+  "scripts/prune_legacy_corpus_2026_08_26.py": {"state": "HISTORICAL", "why": "the 1,191-page prune. Its own docstring says it is a one-shot whose assertions can never fail again, and it uses an ALLOW-list rather than a deny-list -- the correct shape. Recorded, not wired, because re-running it is already forbidden by its own header."},
+  "scripts/lane_daemon.py": {"state": "NOT-A-CORPUS-REMOVAL", "why": "removes its own per-lane output file between runs"},
+  "scripts/rerun_bookkeeping_with_lead_ins_2026_08_23.py": {"state": "NOT-A-CORPUS-REMOVAL", "why": "removes a quarantine directory it created itself"},
+  "scripts/clone_contamination_gate.py": {"state": "NOT-A-CORPUS-REMOVAL", "why": "unlinks its own output file before rewriting it -- absent beats silently-old"},
+  "scripts/durable_artefact_gate.py": {"state": "NOT-A-CORPUS-REMOVAL", "why": "removes a probe file it wrote a line earlier"},
+  "scripts/k_consistency_gate.py": {"state": "NOT-A-CORPUS-REMOVAL", "why": "removes a temp artefact"},
+  "scripts/protocol_subject_gate.py": {"state": "NOT-A-CORPUS-REMOVAL", "why": "removes a temp artefact"},
+  "scripts/lint_expected_value_is_a_literal.py": {"state": "NOT-A-CORPUS-REMOVAL", "why": "removes a synthetic probe file"},
+  "scripts/lint_object_write_is_atomic.py": {"state": "NOT-A-CORPUS-REMOVAL", "why": "removes a synthetic probe directory"},
+  "scripts/lint_scope_derivations_agree.py": {"state": "NOT-A-CORPUS-REMOVAL", "why": "removes a synthetic probe directory"},
+  "scripts/lint_split_children_are_reachable.py": {"state": "NOT-A-CORPUS-REMOVAL", "why": "removes a synthetic probe directory"},
+  "scripts/lint_instrument_declares_a_control.py": {"state": "NOT-A-CORPUS-REMOVAL", "why": "removes a synthetic probe directory"},
+  "scripts/plant_curated_overwrite_guard.py": {"state": "NOT-A-CORPUS-REMOVAL", "why": "a plant harness; removes the tree it planted"},
+  "scripts/prove_composite_by_components.py": {"state": "NOT-A-CORPUS-REMOVAL", "why": "removes PROBE_DIR, which it created"},
+  "scripts/prove_position_and_withholding.py": {"state": "NOT-A-CORPUS-REMOVAL", "why": "removes PROBE_PY, which it created"},
+  "scripts/prove_never_fired_by_graft.py": {"state": "NOT-A-CORPUS-REMOVAL", "why": "removes a grafted probe tree"},
+  "scripts/prove_the_never_fired.py": {"state": "NOT-A-CORPUS-REMOVAL", "why": "removes a probe tree"},
+  "scripts/registration_ordering_gate.py": {"state": "NOT-A-CORPUS-REMOVAL", "why": "removes a probe tree"},
+  "scripts/rollout_corpus_rebuild_2026_08_23.py": {"state": "NOT-A-CORPUS-REMOVAL", "why": "removes its own LOCK file"},
+  "scripts/rollout_figures_2026_08_20.py": {"state": "NOT-A-CORPUS-REMOVAL", "why": "removes its own LOCK file"},
+  "scripts/rollout_paper_studio_2026_08_21.py": {"state": "NOT-A-CORPUS-REMOVAL", "why": "removes its own LOCK file"},
+  "scripts/verify_engine_metafor_parity.py": {"state": "NOT-A-CORPUS-REMOVAL", "why": "removes a temp R output file"},
+  "scripts/test_manuscript_guard.py": {"state": "NOT-A-CORPUS-REMOVAL", "why": "a test; removes its own fixture"},
+  "scripts/audit_degenerate_artefact_scores.py": {"state": "NOT-A-CORPUS-REMOVAL", "why": "removes a temp artefact"},
+  "scripts/_js_parse_gate.py": {"state": "NOT-A-CORPUS-REMOVAL", "why": "unlinks a temp JS file it wrote for node --check"},
+  "scripts/jscheck.py": {"state": "NOT-A-CORPUS-REMOVAL", "why": "unlinks a temp JS file"},
+  "scripts/verify_shrink_is_safe_2026_08_24.py": {"state": "NOT-A-CORPUS-REMOVAL", "why": "removes a temp artefact"},
+  "scripts/rollout_corpus_rebuild_2026_08_23_lock.py": {"state": "NOT-A-CORPUS-REMOVAL", "why": "lock handling"}
+ }
+}

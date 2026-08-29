@@ -1244,10 +1244,27 @@ def _clinical_gaps(obj):
     _COUNTABLE = {"HR", "RR", "OR", "IRR", "RD", "PETO OR", "RATE RATIO", "RATIO"}
     _has_countable = bool(_measures & _COUNTABLE) or not _measures
 
+    # THE ARMS ARE THE OTHER PLACE EVENT COUNTS LIVE, and probing only `per_trial` walked this
+    # function into the exact failure its own docstring warns about: it probed the wrong key.
+    #
+    # Measured 2026-08-28 at origin/main e3a9c964b: of 141 objects carrying a results block,
+    # 38 hold arm-level event counts at inputs.trials[*].arms[*].events while holding none of
+    # the per_trial keys below -- so each was telling a clinician "this review does not give
+    # you the number of events in each arm" on a page that gives exactly that. On
+    # ablation-af-medical-therapy all 3 of 3 trials carry them: CASTLE-AF 51/179 vs 82/184,
+    # CABANA 89/1108 vs 101/1096, RAFT-AF 50/214 vs 64/197.
+    #
+    # A FALSE DENIAL IS THE HARDER HALF TO SEE. Every detector here looks for a page claiming
+    # too much; a page claiming too LITTLE reads as modesty and passes. This clause was
+    # generating that defect rather than catching it.
+    _arm_events = any(a.get("events") is not None
+                      for t in trials for a in (t.get("arms") or [])
+                      if isinstance(a, dict))
     gaps = []
-    if _has_countable and not any_key(rows, ("events_int", "events_ctrl", "e_int", "e_ctrl",
-                                             "events", "n_events", "treatment_evaluable",
-                                             "control_evaluable")):
+    if _has_countable and not _arm_events and not any_key(
+            rows, ("events_int", "events_ctrl", "e_int", "e_ctrl",
+                   "events", "n_events", "treatment_evaluable",
+                   "control_evaluable")):
         gaps.append("the number of events in each arm")
     if _has_countable and not any_key(blks, ("absolute", "risk_difference", "nnt",
                                              "absolute_effect", "control_risk",
@@ -4973,11 +4990,35 @@ def project(obj, journal="generic", length="standard"):
             # with the pooled result" sat under a slot reading "Figure 1 not drawn" on 126
             # pages, several of them at k = 0 with the estimate withdrawn. When the figure
             # is refused the caption names it and the reason carries the rest.
+            # THE CAPTION MUST COUNT WHAT THE FIGURE DRAWS, NOT WHAT THE OBJECT HOLDS.
+            #
+            # COVID19_VACCINES stores three trial rows and the plot draws two: NCT04510207 has
+            # no computed risk ratio, so it cannot be placed on the axis. The caption said
+            # "k = 3" over a figure showing two effects and two labels -- an overstatement of
+            # the evidence in the one place a reader counts it, and the store was right both
+            # times. `usable` is the set actually drawn, a few lines above.
+            #
+            # THREE STATES, because "k" answers a two-state question that has three answers:
+            #   stored k equals the rows drawn      -> "k = n" is true, keep it
+            #   stored k exceeds the rows drawn     -> say BOTH numbers; one k cannot carry it
+            #   nothing drawable, or pool withdrawn -> the refusal caption already handles it,
+            #                                          and must not describe a figure as drawn
+            _stored_k = k if isinstance(k, int) else None
+            _drawn = len(usable)
+            if _drawn and _stored_k is not None and _drawn != _stored_k:
+                # NO HTML ENTITY HERE. This string is escaped downstream, so "&mdash;"
+                # arrives at the reader as the literal text "&mdash;" -- caught by reading the
+                # served bytes rather than trusting the marker to mean the caption was right.
+                _kcap = ("%d plotted rows against %d stored trial rows, the difference being "
+                         "trials this object holds without an estimate that can be placed "
+                         "on the axis" % (_drawn, _stored_k))
+            else:
+                _kcap = "k = %s" % kw
             s.add_figure(
                 obj,
-                ("Forest plot -- %s. k = %s." % (name, kw)) if why else
+                ("Forest plot -- %s. %s." % (name, _kcap)) if why else
                 ("Forest plot -- %s. Each contributing trial's stored estimate and interval, "
-                 "with the pooled result. k = %s." % (name, kw)),
+                 "with the pooled result. %s." % (name, _kcap)),
                 svg, src, refusal=why)
 
             # -- FUNNEL ------------------------------------------------------------------
