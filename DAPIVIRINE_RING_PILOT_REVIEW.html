@@ -132,8 +132,12 @@ ratio alone does not tell a clinician or a programme what a ring costs per infec
 
 <h3>Interval methods, both reported and both named</h3>
 <p>With <b>k = 2</b> the ordinary Wald interval above is the one carried. A Hartung–Knapp
-interval at k = 2 uses a <i>t</i> multiplier of <b>12.71</b>, and Cochrane's guidance is that
-at this k it may be far too wide while the Wald interval is too narrow. Where a
+interval at k = 2 uses a <i>t</i> multiplier of <b>12.71</b>, and that width is a property of the
+degrees of freedom rather than of these trials &mdash; it would be nearly as wide whatever the
+two trials had found. The Wald interval has the opposite fault: it treats a between-trial
+variance estimated from two numbers as if it were known. <b>At k = 2 this page therefore gives
+neither interval as the answer</b> and prints both, so a reader can see the size of the gap
+instead of inheriting whichever one an author preferred. Where a
 Hartung–Knapp interval is reported anywhere in this review it is the <b>modified</b> form,
 with the variance multiplier floored at <span class="mono">max(1, Q/(k−1))</span> — without
 that floor an interval becomes <i>narrower</i> when studies agree more than chance, which is
@@ -215,7 +219,7 @@ dapivirine ring against placebo for HIV-1 acquisition in women exist, and both a
 <tr><td>PubMed / Europe PMC</td><td class="good">yes</td><td>ASPIRE primary report retrieved; Ring Study not open</td></tr>
 <tr><td>PubMed Central</td><td class="good">yes</td><td>ASPIRE via NCBI <span class="mono">efetch</span> after Europe PMC returned 404</td></tr>
 <tr><td><b>FDA review documents</b></td><td class="stop">not available</td>
-    <td><b>The United States application was withdrawn</b>, so no FDA review of this product exists</td></tr>
+    <td><b>No FDA review was found.</b> openFDA returned no record for dapivirine (2026-08-29). That is the result of a search, not a demonstration that no review exists &mdash; the earlier wording asserted the latter and could not be sourced</td></tr>
 <tr><td><b>EMA assessment report</b></td><td class="stop">refused</td>
     <td>Medicine page returned <b>404</b>; site search returned <b>403</b> (automated access blocked)</td></tr>
 <tr><td>ICTRP</td><td class="warn">not run</td><td>Recorded as not run rather than implied</td></tr>
@@ -238,7 +242,7 @@ stated, rather than against the number of databases queried.</p>
 <h2>Relation to previously published syntheses</h2>
 
 <p>Published syntheses of these same two trials exist — including a Cochrane review and
-Musekiwa 2020. <b>This review does not claim to be the first.</b> An earlier version of this
+Musekiwa 2020 <span class="mono">[Cochrane: PMID 33719075, Cochrane Database Syst Rev, 13 Mar 2021 &mdash; “Topical microbicides for preventing sexually transmitted infections”, a broader scope than this question. Musekiwa: PMID 32306503, Trop Med Int Health, Jul 2020, doi:10.1111/tmi.13401. Both retrieved via NCBI E-utilities 2026-08-29.]</span>. <b>This review does not claim to be the first.</b> An earlier version of this
 page stated that no published synthesis existed; that statement was wrong and is withdrawn.</p>
 
 <p>The pooled estimate here, <b>0.7127 (0.5715–0.8889)</b>, reproduces the published
@@ -251,8 +255,7 @@ trials is evidence that neither contains an arithmetic error.</p>
 <div class="flag">
 <p><b>The evidence does not support a claim about adolescent girls and young women.</b>
 Enrolment extended to age 45 and the mean age was 26–27. Efficacy was <b>not demonstrated in
-participants aged 18–21</b>, and WHO's assessment records no demonstrated protection at ages
-21 and below.</p>
+participants aged 18–21</b>. WHO's guideline states that “<i>the data from the trials were not able to demonstrate efficacy among women younger than 21 years, who had low adherence to ring use</i>”, and that in the investigators' pooled individual-level analysis “<i>no risk reduction was observed in participants 21 years or younger</i>”. <span class="mono">[WHO 2021, 10665/340190, s.2.1]</span></p>
 <p>This review is therefore scoped to <b>adult women</b>. Where age-stratified estimates are
 wanted they must be extracted as such; a whole-population estimate must not be read as applying
 to the youngest stratum, in which it was not observed.</p>
@@ -309,8 +312,7 @@ what should be offered to whom.</b></p>
 <p><b>These are post-hoc analyses and are labelled as such.</b> They were not pre-specified, the
 strata were formed to give approximately equal numbers of infections, and a subgroup finding of
 this kind is hypothesis-generating. <b>It is nonetheless the most decision-relevant result in
-these trials</b>, it points the same way in both, and WHO records no demonstrated protection at
-ages 21 and below.</p>
+these trials</b>, it points the same way in both, and WHO's guideline records no demonstrated efficacy below 21, attributing it to low adherence rather than to absence of drug effect. <span class="mono">[WHO 2021, 10665/340190, s.2.1]</span></p>
 
 <p>Adherence is the proposed explanation and it was measured, not assumed: the youngest stratum
 had both the lowest protection and the lowest adherence. <b>That makes the age finding an
@@ -376,10 +378,17 @@ adherence inside a trial with monthly contact.</li>
 question, five years is not a neutral gap:</p>
 
 <ul>
-<li><b>The European Medicines Agency extended its positive opinion to girls aged 16 and
-over</b> &mdash; directly addressing the age stratum in which these two trials showed
-nothing.</li>
-<li><b>WHO has recommended the ring</b> as an additional prevention choice.</li>
+<li><b>WHO issued a conditional recommendation.</b> Its exact words: the ring
+&ldquo;<i>may be offered as an additional prevention choice for women at substantial risk of
+HIV infection as part of combination prevention approaches (Conditional recommendation;
+moderate-certainty evidence)</i>&rdquo;, where substantial risk means HIV incidence above 3 per
+100 person-years without PrEP. <span class="mono">WHO. Guidelines: updated recommendations on
+HIV prevention, infant diagnosis, antiretroviral initiation and monitoring. 17 March 2021.
+ISBN 9789240022232. iris.who.int/handle/10665/340190 &mdash; retrieved 2026-08-29, 84 pp,
+sha256 0e044354ed6bf11a&hellip;</span> The qualifiers are not decoration: <b>conditional</b>
+means WHO judged that well-informed women would differ in whether they would choose it, and
+the recommendation is for women at substantial risk as part of combination prevention &mdash;
+not a general one.</li>
 <li><b>REACH and iMatter</b> supply adolescent safety, adherence and acceptability evidence
 that did not exist when these trials were last synthesised.</li>
 </ul>
@@ -398,7 +407,8 @@ time to event. The pooled hazard ratio is refused, not estimated.</li>
 <li><b>k = 2.</b> Heterogeneity cannot be meaningfully estimated; I² of 0% at k = 2 carries
 almost no information.</li>
 <li><b>No regulatory assessment was obtained</b>, for two different reasons, one of which is
-that no FDA review exists.</li>
+that <b>no FDA review was found</b> &mdash; openFDA returned no dapivirine record on
+2026-08-29. That is the outcome of a search, not a demonstration that no review exists.</li>
 <li><b>ICTRP was not searched.</b> For this question the eligible set is closed by
 registration, but that is an argument, not a search.</li>
 <li><b>Adherence is reported but not modelled here</b>, and it is the dominant effect
