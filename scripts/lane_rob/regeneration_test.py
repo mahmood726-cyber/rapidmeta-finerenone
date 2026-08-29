@@ -83,13 +83,36 @@ def main():
         print("REFUSED: the harness could not build %s (rc=%d)\n%s" % (obj, rc, tail))
         return 2
     t = DK.rendered(io.open(out, encoding="utf-8", errors="replace").read())
+    # ⛔ THE INTEGRITY SECTION IS EXCLUDED FROM THE BODY BEING SCORED, and this is not tidiness.
+    #
+    # That section NAMES the defect classes -- "binary counts pooled where both trials analysed
+    # time to event", "a pooled quantity presented without naming what it estimates". A feature
+    # detector searching the whole page then finds those phrases and credits the page with
+    # HAVING the feature, when what it actually has is a description of the feature's absence.
+    #
+    # Measured: wiring the integrity section into the harness moved this test from 0 of 13 to
+    # "3 of 13" -- and two of the three were the checker describing the defect. Zero occurrences
+    # of "estimand" or "time-to-event" in the page body; three and one inside the section.
+    #
+    # A checker whose own output raises the score of the thing it checks is a closed loop. The
+    # features must be present in the REVIEW, not in the list of things that could be wrong
+    # with it.
+    # AND THE INTEGRITY FEATURE ITSELF IS SCORED ON THE FULL PAGE, because truncating at the
+    # marker also removed the only evidence that the section exists. The first attempt at this
+    # exclusion took 3 of 13 to 0 of 13 by deleting the one real capability along with the two
+    # false ones. Body for twelve features; whole page for the thirteenth.
+    marker = "What was checked before this page was published"
+    full = t
+    i = t.find(marker)
+    if i >= 0:
+        t = t[:i]
     print("")
     print("REGENERATION TEST -- %s" % os.path.basename(obj))
     print("  harness output: %d rendered characters" % len(t))
     print("")
     have = 0
     for name, pat in FEATURES:
-        ok, ctx = present(t, pat)
+        ok, ctx = present(full if name == "integrity section" else t, pat)
         have += ok
         print("  %-36s %s" % (name, "PRESENT" if ok else "ABSENT"))
         if not ok:
