@@ -134,7 +134,102 @@ def _c_single_trial_pooled(html, txt):
     return out
 
 
+def _c_unanchored_authority(html, txt):
+    """An external body's position asserted with nothing that could be retrieved to check it.
+
+    ⛔ THIS CLASS EXISTS BECAUSE THE WORST INSTANCE WAS MINE. Mahmood told me in conversation
+    that WHO had recommended the ring; I put "WHO has recommended the ring as an additional
+    prevention choice" on the live pilot page with no document behind it. A claim that exists
+    only in a conversation is indistinguishable downstream from one that was retrieved.
+
+    Retrieval then showed the sentence was also WRONG IN SUBSTANCE, not merely unsourced. WHO's
+    actual words are "may be offered ... (Conditional recommendation; moderate-certainty
+    evidence)" for women at substantial risk as part of combination prevention. "Has
+    recommended" drops the conditionality, the certainty grade and the population -- every
+    qualifier a clinician needs. Unsourced claims do not merely lack support; they drift toward
+    the strongest form, because nothing is holding them to the weaker one.
+
+    Four instances on one page, three of which nobody had flagged:
+      - WHO recommendation, stated bare            -> sourced, and corrected to conditional
+      - EMA "extended its opinion to girls 16+"    -> unretrievable (404); REMOVED
+      - "Cochrane's guidance is that ..."          -> attribution dropped; the arithmetic stands
+      - "no FDA review of this product EXISTS"     -> a claim about the world doing load-bearing
+        work: it converted a retrieval gap into "genuinely unobtainable". openFDA returns 404
+        for dapivirine, and a 404 from an API is not a demonstration that no review exists.
+        Restated as what was established: no FDA review was FOUND.
+
+    ⚠️ And it was present TWICE -- in the obtainability table and again in Limitations. Fixing
+    the first and re-scanning is what caught the second. Withdraw on both surfaces.
+    """
+    # (?-i:WHO) -- case-sensitive. Under re.I the bare word matched the interrogative pronoun,
+    # and "Who did what is a fact about people" was reported as an unsourced WHO position on two
+    # generated pages. An acronym that is also an English word must be matched as an acronym.
+    AUTH = (r"(?-i:WHO)|World Health Organization|(?-i:FDA)|(?-i:EMA)|European Medicines Agency|"
+            r"Cochrane|(?-i:NICE)|UNAIDS|EACS|BHIVA")
+    ANCH = re.compile(r"https?://|10665/|NCT\d{8}|PMID|PMC\d+|doi|retrieved|sha256|ISBN|openFDA",
+                      re.I)
+    # A verb that asserts a POSITION held by that body, rather than merely naming it.
+    STANCE = re.compile(r"\b(%s)\b[^.]{0,90}?\b(recommend\w*|approv\w*|endors\w*|extended|"
+                        r"guidance is|advises|requires|concluded|records|states)\b" % AUTH, re.I)
+    # ⚠️ THE WINDOW IS THE ENCLOSING BLOCK, AND GETTING THERE TOOK TWO WRONG ANSWERS.
+    #
+    # First version: two sentences either side. It flagged the CORRECTED page and a deliberately
+    # sourced control, because the citation begins "WHO. Guidelines: ..." and the sentence
+    # splitter breaks on that abbreviation's full stop, producing a one-word "sentence" that
+    # shunted the real anchor out of the window.
+    #
+    # Second version: 400 characters either side. Still flagged the corrected page, because a
+    # claim quoted in full plus its citation runs longer than that. The fix there would have
+    # been to raise 400 until the page went quiet -- which is fitting the threshold to the one
+    # page in front of me, and would have made the check weaker on every other page silently.
+    #
+    # A document already has the right unit: the block the sentence sits in. A claim and its
+    # citation belong to the same <p>, <li> or <td>; a citation in a different block is not
+    # backing this claim. So the check reads the MARKUP rather than the flattened text, and
+    # nothing needs tuning. A check that fires on text already fixed is worse than one that
+    # misses, because it teaches the reader to skip it.
+    # ⛔ THE INTEGRITY SECTION IS CUT BEFORE SCANNING, and this is the second time tonight that
+    # a checker scored its own output. This class's lineage line quotes the offending sentence
+    # -- "'WHO has recommended the ring' went live from a conversation" -- so once the section
+    # renders, the checker finds that quotation and reports the defect as still present, on
+    # every page, forever. A checker that reads its own description of a defect as an instance
+    # of it can never go quiet, which makes it useless exactly when the page is finally clean.
+    body = (html or "")
+    _cut = body.find("What was checked before this page was published")
+    if _cut > 0:
+        body = body[:_cut]
+    out = []
+    seen = set()
+    blocks = re.findall(r"(?is)<(p|li|td|h[1-6])\b[^>]*>(.*?)</\1>", body)
+    for _tag, inner in blocks:
+        btxt = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", inner))
+        for m in STANCE.finditer(btxt):
+            if ANCH.search(btxt):
+                continue
+            # "FDA approved label" names a DOCUMENT; it does not assert a position -- the stance
+            # word is adjectival there. Known limit: this is a word list, not grammar.
+            if re.match(r"[^ ]+ approved (label|product|indication|drug|dose|use)",
+                        btxt[m.start():m.start() + 60], re.I):
+                continue
+            frag = re.sub(r"\s+", " ", btxt[m.start():m.start() + 110])
+            if frag[:40] not in seen:
+                seen.add(frag[:40])
+                out.append(frag)
+    if not blocks:                     # plain text handed in directly (tests, controls)
+        for m in STANCE.finditer(txt):
+            if not ANCH.search(txt[max(0, m.start() - 300):m.end() + 900]):
+                out.append(re.sub(r"\s+", " ", txt[m.start():m.start() + 110]))
+    # A claim that something does not EXIST is stronger than a claim it was not FOUND.
+    for m in re.finditer(r"no (?:FDA|EMA|WHO)[^.]{0,60}\bexists?\b", txt, re.I):
+        out.append("absence asserted as fact: " + re.sub(r"\s+", " ", m.group(0))[:80])
+    return out
+
+
 CLASSES = [
+    ("unanchored-external-authority",
+     "an outside body's position asserted with nothing retrievable behind it",
+     "'WHO has recommended the ring' went live from a conversation, and dropped the "
+     "conditionality WHO actually attached", _c_unanchored_authority),
     ("single-trial-shown-as-pooled", "one trial's result presented as a pool",
      "the front page carried a single trial's HR 0.85 (0.79-0.92) as a two-trial pool",
      _c_single_trial_pooled),
