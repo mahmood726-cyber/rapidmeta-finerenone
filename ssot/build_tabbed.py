@@ -1982,8 +1982,31 @@ if __name__ == "__main__":
     # writes the file.
     sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(
         os.path.abspath(__file__))), "scripts", "lane_rob"))
-    import integrity_section as _isec
-    _html = _isec.inject(_html)
-    _isec.assert_present(_html, out)
+    #
+    # ⛔ AND THE FAILURE MODE IS DELIBERATE, NOT ACCIDENTAL. When this was first wired the
+    # integrity module happened to be syntactically broken, the import raised, and the build
+    # exited 1 without writing -- the right shape BY ACCIDENT. A fail-safe that works by
+    # accident is one refactor away from being a silent skip: the first person who wraps this
+    # in a `try: ... except: pass` to "make the build more robust" turns the whole protection
+    # off, and the log will say success.
+    #
+    # So both failures are caught and both REFUSE with a named reason. NEVER add a bare except
+    # here, and never let this fall through to the write.
+    try:
+        import integrity_section as _isec
+    except Exception as _e:
+        raise SystemExit(
+            "BUILD REFUSED: the integrity layer could not be loaded (%s: %s). No review is "
+            "emitted without the defect suite having run and reported. Fix the layer; do not "
+            "bypass this." % (type(_e).__name__, _e))
+    try:
+        _html = _isec.inject(_html)
+        _isec.assert_present(_html, out)
+    except SystemExit:
+        raise
+    except Exception as _e:
+        raise SystemExit(
+            "BUILD REFUSED: the integrity layer raised while checking this page (%s: %s). A "
+            "suite that errors has not passed." % (type(_e).__name__, _e))
     open(out, "w", encoding="utf-8").write(_html)
     print("built %s (%d bytes)" % (out, os.path.getsize(out)))
