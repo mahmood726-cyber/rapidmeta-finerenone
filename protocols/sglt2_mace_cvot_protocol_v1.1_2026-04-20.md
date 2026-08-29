@@ -132,3 +132,71 @@ templates -- which is the test the ruling set, and a lower bar than "bespoke".
 record states how many were queried, how many were reached and refused by a named
 obstacle, and how many were never resolved to a queryable endpoint. "All guideline
 bodies" is not a claim this search supports.
+
+## Amendment 2 -- 2026-08-29 -- the executed query was malformed; disclosed, corrected, and BOTH results published
+
+**This amendment is written and committed BEFORE the corrected query is run.** That
+ordering is the entire point of registering a protocol first, and this is the first
+occasion in this project where it pays out rather than merely being defensible.
+
+### The defect
+
+The search executed under Amendment 1 derived its query from this topic's `title`. That is
+sound only when the title is a review question. **This title is not a title.** It is four
+ClinicalTrials.gov outcome-measure strings concatenated with `|`:
+
+> *Multiple trial-declared outcomes: Time to the First Occurrence of Any of the Following
+> Adjudicated Components of the Primary Composite Endpoint (3-point M | Major Adverse
+> Cardiovascular Events (MACE) Composite of Cardiovascular (CV) Death, Non-Fatal Myocardial
+> Infarction (MI), | Subjects Included in the Composite Endpoint of CV Death, MI or
+> Ischemic Stroke | Time to First Occurrence of MACE ...*
+
+Truncated to its first four usable words, the query actually sent was:
+
+> **`Multiple trial-declared outcomes Time`**
+
+### The result it produced, recorded rather than discarded
+
+| source | outcome | n |
+|---|---|---|
+| PubMed | EXECUTED | **78,608** |
+| Europe PMC | EXECUTED | **125,695** |
+| ClinicalTrials.gov | EXECUTED | 22 |
+| ISRCTN | EXECUTED | 42 |
+
+**Every source returned EXECUTED.** Nothing failed, nothing was empty, and the three-count
+law recorded a clean row. The counts are of generic English words and mean nothing about
+SGLT2 inhibitors, but *the record could not tell the difference* -- which is the finding,
+not the numbers.
+
+**AN EXECUTED SEARCH IS NOT A VALID ONE.** A query that runs and returns a number is
+indistinguishable, in the record, from a query that means something. This sits beside
+*a 200 is not a document* and *a 000 is not a paywall*.
+
+### The corrected query, stated here before it is executed
+
+> **`SGLT2 inhibitor major adverse cardiovascular events`**
+
+**Derived from the topic's declared scope and its own trials, NOT from its title** -- the
+slug names SGLT2, MACE and CVOT, and the two trials held are EMPA-REG OUTCOME
+(`NCT01131676`, empagliflozin) and DECLARE-TIMI 58 (`NCT01730534`, dapagliflozin). The
+derivation is written down so that it can be disagreed with, and so that it is fixed before
+any count from it is seen.
+
+### What is NOT done, and why it matters more than what is
+
+**The original result is not replaced, overwritten, or removed.** Both searches will stand
+side by side in `SEARCH-RECORD.json`, each with its own query, timestamps and counts.
+
+Changing a search strategy *after seeing its result* is the defect a registered protocol
+exists to prevent. Changing it after **disclosing** that result is method. The difference
+between the two is not the change -- it is the disclosure, and this amendment is the
+disclosure.
+
+### Ordering, unchanged
+
+The governing protocol was committed and anchored before the original search
+(anchored 2026-08-28T23:01:31Z). This amendment is committed before the corrected search.
+No search precedes its own registration; the corrected search is a **declared re-run under
+an amended protocol**, not a fresh registration, and it must never be reported as
+prospective with respect to the trials this topic already holds.
