@@ -51,7 +51,7 @@ EFFECT = re.compile(
 # them. The structural test was right about structure and wrong about kind.
 KINDS = [
     ("SYSTEMATIC_REVIEW", re.compile(
-        r"systematic review|meta[- ]analys[ie]s|PRISMA|network meta[- ]analysis|"
+        r"systematic review|meta[- ]analys[ie]s|\bPRISMA\b|network meta[- ]analysis|"
         r"we searched (?:PubMed|MEDLINE|Embase|the Cochrane)", re.I)),
     ("PROTOCOL_OR_SAP", re.compile(
         r"statistical analysis plan|clinical (?:study|trial) protocol|protocol amendment|"

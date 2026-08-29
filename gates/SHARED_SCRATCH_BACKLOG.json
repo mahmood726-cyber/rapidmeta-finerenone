@@ -2,7 +2,7 @@
  "frozen_utc": "2026-08-28",
  "what": "scripts using a generic name in the shared scratch root, which another lane could independently choose and overwrite.",
  "escalated_to": "out/ESCALATIONS.jsonl",
- "count": 43,
+ "count": 61,
  "keys": [
   "scripts/add_r_output.py:6 -> arni\\r_out.json",
   "scripts/build_vintage_arm_2026_08_27.py:31 -> wt\\genstore",
@@ -13,12 +13,22 @@
   "scripts/lane_rob/aact_retrieval.py:153 -> pend\\aact_retrieval.json",
   "scripts/lane_rob/adjudication_triage.py:192 -> pend\\adjudication_triage.json",
   "scripts/lane_rob/attribute_unassessed_pages.py:190 -> pend\\page_attribution.json",
+  "scripts/lane_rob/blind_judge_control.py:38 -> pend\\out\\judge",
+  "scripts/lane_rob/blind_judge_control.py:39 -> pend\\cochrane_cd007961.txt",
+  "scripts/lane_rob/blind_judge_control.py:40 -> pend\\rev\\PMC11458098.xml",
   "scripts/lane_rob/characterise_storeless_pages.py:124 -> pend\\storeless.json",
   "scripts/lane_rob/characterise_storeless_pages.py:48 -> pend\\page_attribution.json",
   "scripts/lane_rob/chk_noninferiority_pooled_as_superiority.py:266 -> pend\\out\\noninferiority_detector.json",
   "scripts/lane_rob/d5_protocol_retrieval.py:92 -> pend",
-  "scripts/lane_rob/document_kind.py:130 -> pend\\out\\fulltext\\*.xml",
-  "scripts/lane_rob/document_kind.py:156 -> pend\\out\\document_kinds.json",
+  "scripts/lane_rob/deliver_k4_harmonised.py:161 -> pend\\out\\deliver_k4.json",
+  "scripts/lane_rob/document_kind.py:150 -> pend\\out\\fulltext\\*.xml",
+  "scripts/lane_rob/document_kind.py:176 -> pend\\out\\document_kinds.json",
+  "scripts/lane_rob/fetch_registry_results.py:24 -> pend\\out\\registry_full",
+  "scripts/lane_rob/fetch_registry_results.py:25 -> pend\\out\\regpub_population.json",
+  "scripts/lane_rob/fetch_registry_results.py:26 -> pend\\out\\registry_fetch.jsonl",
+  "scripts/lane_rob/fetch_registry_results.py:27 -> pend\\out\\REGISTRY-FETCH.DONE",
+  "scripts/lane_rob/find_comparator.py:111 -> pend\\ready.json",
+  "scripts/lane_rob/find_comparator.py:38 -> pend\\out\\comparators.json",
   "scripts/lane_rob/funder_vs_retrievability.py:34 -> pend\\funder_retrievability.jsonl",
   "scripts/lane_rob/gate_index_estimates.py:213 -> pend\\index_estimates.json",
   "scripts/lane_rob/gate_scale_vs_measure.py:7 -> blind-review.",
@@ -34,8 +44,16 @@
   "scripts/lane_rob/ni_provenance.py:191 -> pend\\ni_provenance.json",
   "scripts/lane_rob/overnight_fulltext_harvest.py:31 -> pend\\out",
   "scripts/lane_rob/overnight_fulltext_harvest.py:36 -> pend\\funder_retrievability.jsonl",
+  "scripts/lane_rob/regeneration_test.py:80 -> pend\\out\\regen_test.html",
+  "scripts/lane_rob/registry_vs_publication.py:45 -> pend\\out\\registry_full",
+  "scripts/lane_rob/registry_vs_publication.py:46 -> pend\\out\\fulltext",
+  "scripts/lane_rob/registry_vs_publication.py:47 -> pend\\out\\registry_vs_publication.json",
   "scripts/lane_rob/retest_access_claims.py:141 -> pend\\access_claim_retest.json",
   "scripts/lane_rob/retest_access_claims.py:56 -> pend\\funder_retrievability.jsonl",
+  "scripts/lane_rob/retrieve_by_result_reference.py:36 -> pend\\out\\registry_result_pmids.json",
+  "scripts/lane_rob/retrieve_by_result_reference.py:37 -> pend\\out\\result_reports",
+  "scripts/lane_rob/retrieve_by_result_reference.py:38 -> pend\\out\\result_reference_join.jsonl",
+  "scripts/lane_rob/retrieve_by_result_reference.py:39 -> pend\\out\\RESULT-JOIN.DONE",
   "scripts/lane_rob/size_rebuild_queue.py:103 -> pend\\rebuild_queue.json",
   "scripts/lane_rob/size_rebuild_queue.py:66 -> pend\\conflict_levels.json",
   "scripts/lane_rob/sweep_d4_functional_unblinding.py:151 -> pend\\d4_sweep.json",
@@ -65,6 +83,108 @@
     "scripts/lint_destructive_without_asserted_backup.py:140 -> x.bak"
    ],
    "why": "introduced by ANOTHER LANE's commits merged from origin/main, not by this lane. A ratchet keyed on paths fires on every cross-lane merge; the entries are admitted here and ATTRIBUTED rather than silenced, so the class still cannot grow unnoticed."
+  },
+  {
+   "merge": "origin/main into lane/generator-store-path at 255fa9e0c",
+   "utc": "2026-08-29",
+   "added": [
+    "scripts/lane_rob/deliver_k4_harmonised.py:161 -> pend\\out\\deliver_k4.json",
+    "scripts/lane_rob/document_kind.py:150 -> pend\\out\\fulltext\\*.xml",
+    "scripts/lane_rob/document_kind.py:176 -> pend\\out\\document_kinds.json",
+    "scripts/lane_rob/fetch_registry_results.py:24 -> pend\\out\\registry_full",
+    "scripts/lane_rob/fetch_registry_results.py:25 -> pend\\out\\regpub_population.json",
+    "scripts/lane_rob/fetch_registry_results.py:26 -> pend\\out\\registry_fetch.jsonl",
+    "scripts/lane_rob/fetch_registry_results.py:27 -> pend\\out\\REGISTRY-FETCH.DONE",
+    "scripts/lane_rob/registry_vs_publication.py:45 -> pend\\out\\registry_full",
+    "scripts/lane_rob/registry_vs_publication.py:46 -> pend\\out\\fulltext",
+    "scripts/lane_rob/registry_vs_publication.py:47 -> pend\\out\\registry_vs_publication.json"
+   ],
+   "why": "introduced by ANOTHER LANE's commits merged from origin/main, not by this lane. Every one is under scripts/lane_rob/. Admitted and ATTRIBUTED rather than silenced, in the same shape that lane used for its own merge admissions -- both lanes independently reached the same remedy for a path-keyed ratchet firing on cross-lane merges.",
+   "note_from_the_gate_itself": "the lint was written 2026-08-24 and called by nothing until now; it did not fire when this lane truncated another lane's file in the shared root. A lint with no caller is not a control, and that is why this backlog exists at all.",
+   "transcription_note": "The first attempt at this admission RETYPED the paths and lost a backslash level, so 7 of 10 keys matched nothing and would have sat here forever as entries that could never retire -- a backlog quietly growing junk. The keys are now taken verbatim from the gate's own output."
+  },
+  {
+   "merge": "origin/main (RoB lane, blind_judge_control.py)",
+   "utc": "2026-08-29",
+   "added": [
+    "scripts/lane_rob/blind_judge_control.py:38 -> pend\\out\\judge",
+    "scripts/lane_rob/blind_judge_control.py:39 -> pend\\cochrane_cd007961.txt",
+    "scripts/lane_rob/blind_judge_control.py:40 -> pend\\rev\\PMC11458098.xml"
+   ],
+   "attribution": [
+    {
+     "key": "scripts/lane_rob/blind_judge_control.py:38 -> pend\\out\\judge",
+     "introduced_by": "f25744bd1",
+     "subject": "Control run: the judges discriminate, Cochrane is beatable, and it loses on axes we lack"
+    },
+    {
+     "key": "scripts/lane_rob/blind_judge_control.py:39 -> pend\\cochrane_cd007961.txt",
+     "introduced_by": "f25744bd1",
+     "subject": "Control run: the judges discriminate, Cochrane is beatable, and it loses on axes we lack"
+    },
+    {
+     "key": "scripts/lane_rob/blind_judge_control.py:40 -> pend\\rev\\PMC11458098.xml",
+     "introduced_by": "f25744bd1",
+     "subject": "Control run: the judges discriminate, Cochrane is beatable, and it loses on axes we lack"
+    }
+   ],
+   "retired": [
+    "scripts/lane_rob/document_kind.py:130 -> pend\\out\\fulltext\\*.xml",
+    "scripts/lane_rob/document_kind.py:156 -> pend\\out\\document_kinds.json"
+   ],
+   "why": "Arrived by merge from another lane. Admitted rather than fixed: the paths are that lane's to choose, and editing them here would be a class-wide change to code I do not own. Each is keyed to the commit that introduced the line."
+  },
+  {
+   "merge": "origin/main (RoB lane: find_comparator, regeneration_test, retrieve_by_result_reference)",
+   "utc": "2026-08-29",
+   "added": [
+    "scripts/lane_rob/find_comparator.py:111 -> pend\\ready.json",
+    "scripts/lane_rob/find_comparator.py:38 -> pend\\out\\comparators.json",
+    "scripts/lane_rob/regeneration_test.py:80 -> pend\\out\\regen_test.html",
+    "scripts/lane_rob/retrieve_by_result_reference.py:36 -> pend\\out\\registry_result_pmids.json",
+    "scripts/lane_rob/retrieve_by_result_reference.py:37 -> pend\\out\\result_reports",
+    "scripts/lane_rob/retrieve_by_result_reference.py:38 -> pend\\out\\result_reference_join.jsonl",
+    "scripts/lane_rob/retrieve_by_result_reference.py:39 -> pend\\out\\RESULT-JOIN.DONE"
+   ],
+   "attribution": [
+    {
+     "key": "scripts/lane_rob/find_comparator.py:111 -> pend\\ready.json",
+     "introduced_by": "ad504619d",
+     "subject": "Comparator component, and the finding that the corpus does not contain eight aged comparators"
+    },
+    {
+     "key": "scripts/lane_rob/find_comparator.py:38 -> pend\\out\\comparators.json",
+     "introduced_by": "ad504619d",
+     "subject": "Comparator component, and the finding that the corpus does not contain eight aged comparators"
+    },
+    {
+     "key": "scripts/lane_rob/regeneration_test.py:80 -> pend\\out\\regen_test.html",
+     "introduced_by": "81070dea1",
+     "subject": "The regeneration test: the harness reproduces 0 of 13 winning features. The margin was 100% hand-written"
+    },
+    {
+     "key": "scripts/lane_rob/retrieve_by_result_reference.py:36 -> pend\\out\\registry_result_pmids.json",
+     "introduced_by": "99940e65b",
+     "subject": "Round 1: 3 of 3 judges, all DECISIVELY -- and two of my own errors found on the way"
+    },
+    {
+     "key": "scripts/lane_rob/retrieve_by_result_reference.py:37 -> pend\\out\\result_reports",
+     "introduced_by": "99940e65b",
+     "subject": "Round 1: 3 of 3 judges, all DECISIVELY -- and two of my own errors found on the way"
+    },
+    {
+     "key": "scripts/lane_rob/retrieve_by_result_reference.py:38 -> pend\\out\\result_reference_join.jsonl",
+     "introduced_by": "99940e65b",
+     "subject": "Round 1: 3 of 3 judges, all DECISIVELY -- and two of my own errors found on the way"
+    },
+    {
+     "key": "scripts/lane_rob/retrieve_by_result_reference.py:39 -> pend\\out\\RESULT-JOIN.DONE",
+     "introduced_by": "99940e65b",
+     "subject": "Round 1: 3 of 3 judges, all DECISIVELY -- and two of my own errors found on the way"
+    }
+   ],
+   "retired": [],
+   "why": "Arrived by merge. Admitted rather than edited: these paths belong to another lane, and rewriting them here would be a class-wide change to code this lane does not own. Keyed to the commit that introduced each line."
   }
  ]
 }

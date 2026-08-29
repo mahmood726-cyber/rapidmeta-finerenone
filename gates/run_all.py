@@ -44,6 +44,18 @@ GATES = [
     # sitting unmerged when the class was found.
     ("gate10_noninferiority_pooled_as_superiority",
      "non-inferiority pooled as superiority", "fast"),
+    # ADDED 2026-08-29, and registered in the same commit that created it. An external
+    # reviewer found Q printed twice on one page with different values; the sweep that
+    # traced it to a dozen independent poolers was itself caught by gate 8 as a check
+    # nothing called. Registering it here is what makes it operative.
+    ("gate11_one_statistic_one_value",
+     "a displayed statistic matches the R output stored beside it", "fast"),
+    # ADDED 2026-08-29 alongside gate 11, and for the same reason: the sweep behind it was
+    # written for a reported defect and would otherwise sit inert. Its named case is the
+    # page that handles this CORRECTLY, because a gate whose only named case is a defect
+    # goes vacuous the moment the defect is fixed.
+    ("gate12_planned_shown_as_observed",
+     "a planned duration displayed where a reader reads an observed one", "fast"),
 ]
 
 

@@ -197,6 +197,31 @@ def arm_a2(gate, repo):
             with open(os.path.join(wf, f), "r", encoding="utf-8", errors="replace") as fh:
                 callers += fh.read()
 
+    # A GATE THAT IS ITSELF CALLED IS A CALLER. Arm A2 previously read only the hooks and
+    # the workflows, so a script invoked by a REGISTERED gate -- which the hook does run,
+    # every push -- was still reported as "called by nothing". That is not a lenient
+    # definition being tightened; it is a wrong answer: the script runs on every push.
+    #
+    # THE GUARANTEE IS PRESERVED BECAUSE ONLY REGISTERED GATES COUNT. The names are taken
+    # from run_all.GATES, which is the list the hook actually executes. A script called
+    # only by an UNregistered gate module is still inert and still reported, because that
+    # gate is itself inert -- which arm A already catches.
+    registered = ""
+    try:
+        sys.path.insert(0, os.path.join(repo, "gates"))
+        import run_all as _ra
+        for mod, _what, _speed in _ra.GATES:
+            gp = os.path.join(repo, "gates", mod + ".py")
+            if os.path.exists(gp):
+                with open(gp, "r", encoding="utf-8", errors="replace") as fh:
+                    registered += fh.read()
+    except Exception:
+        # A failure here must not silently widen the caller set: leaving `registered`
+        # empty means this arm falls back to hooks and CI only, which OVER-reports
+        # inertness. That is the safe direction, and it is stated rather than assumed.
+        registered = ""
+    callers += registered
+
     kinds = collections.Counter()
     uncalled = []
     sdir = os.path.join(repo, "scripts")

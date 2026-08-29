@@ -169,6 +169,34 @@ def main():
         if not present:
             bad.append((path, "changed-today marker %r absent from the live bytes" % needle))
 
+    # EVERY RULED_IN PAGE MUST BE ON THE SERVED INDEX. A ruling that survives only while
+    # someone remembers it is not a ruling. ARNI and the HFrEF network are in the index by
+    # Mahmood's explicit instruction and FAIL the criterion -- ARNI on leg 4, HFrEF on leg 1 --
+    # so nothing in the four legs will ever put them back. They are carried as first-class
+    # members of the keep list, and this asserts that against the LIVE bytes rather than
+    # against the repository.
+    say("")
+    say("RULED_IN PAGES MUST BE ON THE SERVED INDEX")
+    try:
+        ri = json.load(io.open(os.path.join(REPO, "outputs",
+                                            "ready_index_2026_08_28.json"), encoding="utf-8"))
+        ruled = [a["page"] for a in (ri.get("admitted_by_ruling") or [])]
+    except (OSError, ValueError):
+        ruled = []
+    idx = bodies.get("index.html") or ""
+    if not ruled:
+        say("   NOT ASSESSABLE: no admitted_by_ruling entries found to check against")
+        bad.append(("index.html", "the ruled-in list could not be read, so this gate did "
+                                  "not run -- that is an absence, not a pass"))
+    for page in ruled:
+        carded = bool(re.search(re.escape(page) + r'"[^>]*class="card', idx))
+        say("   %-44s carded on the live index: %s" % (page[:44], carded))
+        if not carded:
+            bad.append(("index.html",
+                        "RULED_IN page %s is not on the served index. It fails the criterion "
+                        "by design and only the ruling puts it there, so its absence means "
+                        "the ruling was dropped by a regeneration." % page))
+
     # THE not-ready FLAGS MUST SURVIVE. This is a standing order expressed as a CHECK,
     # because a convention that depends on someone remembering gets broken by the next
     # person in a hurry and fails silently.
