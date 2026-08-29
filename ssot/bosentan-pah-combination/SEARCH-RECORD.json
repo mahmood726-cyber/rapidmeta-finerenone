@@ -1,0 +1,186 @@
+{
+ "_what_this_is": "The executed search for this topic, written after execution and anchored so its time is fixed by a third party.",
+ "topic": "bosentan-pah-combination",
+ "governing_protocol": "ssot/bosentan-pah-combination/PROTOCOL.md",
+ "registration": {
+  "protocol_commit": "1dc7675b02fb69c278f4526d8cbda509c9c2a379",
+  "protocol_anchor_logIndex": 2639442289,
+  "protocol_anchored_utc": "2026-08-29T15:43:46Z"
+ },
+ "query_text": "Bosentan added established pulmonary",
+ "databases": [
+  {
+   "source": "pubmed",
+   "url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&retmode=json&retmax=100&term=Bosentan+added+established+pulmonary",
+   "params": {
+    "db": "pubmed",
+    "retmode": "json",
+    "retmax": 100,
+    "term": "Bosentan added established pulmonary"
+   },
+   "attempted_utc": "2026-08-29T15:43:47.890Z",
+   "completed_utc": "2026-08-29T15:43:48.097Z",
+   "http_status": 200,
+   "response_bytes": 1222,
+   "n_records": 6,
+   "ids": [
+    "39735698",
+    "33980104",
+    "22291467",
+    "19755415",
+    "16856046",
+    "16100158"
+   ],
+   "outcome": "EXECUTED"
+  },
+  {
+   "source": "europepmc",
+   "url": "https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=Bosentan+added+established+pulmonary&format=json&pageSize=25",
+   "params": {
+    "query": "Bosentan added established pulmonary",
+    "format": "json",
+    "pageSize": 25
+   },
+   "attempted_utc": "2026-08-29T15:43:48.097Z",
+   "completed_utc": "2026-08-29T15:43:48.846Z",
+   "http_status": 200,
+   "response_bytes": 22745,
+   "n_records": 904,
+   "ids": [
+    "42317665",
+    "41924877",
+    "40955205",
+    "41348401",
+    "41723501",
+    "41888245",
+    "41660505",
+    "41923748",
+    "41584275",
+    "41708122",
+    "42278978",
+    "41658488",
+    "PMC13298438",
+    "40731929",
+    "41524047",
+    "42328183",
+    "41524392",
+    "42210996",
+    "41377705",
+    "42328959",
+    "41766785",
+    "41865030",
+    "41613828",
+    "41567594",
+    "41425720"
+   ],
+   "outcome": "EXECUTED"
+  },
+  {
+   "source": "ctgov",
+   "url": "https://clinicaltrials.gov/api/v2/studies?query.term=Bosentan+added+established+pulmonary&pageSize=50&countTotal=true",
+   "params": {
+    "query.term": "Bosentan added established pulmonary",
+    "pageSize": 50,
+    "countTotal": "true"
+   },
+   "attempted_utc": "2026-08-29T15:43:48.847Z",
+   "completed_utc": "2026-08-29T15:43:48.987Z",
+   "http_status": 200,
+   "response_bytes": 9716,
+   "n_records": 1,
+   "ids": [
+    "NCT01383083"
+   ],
+   "outcome": "EXECUTED"
+  },
+  {
+   "source": "isrctn",
+   "url": "https://www.isrctn.com/api/query/format/default?q=bosentan",
+   "params": {
+    "q": "bosentan"
+   },
+   "attempted_utc": "2026-08-29T15:43:48.988Z",
+   "ictrp_route": "ISRCTN free XML API, used as the programmatic stopgap for ICTRP. The WHO ICTRP bulk-crawling service is unavailable; the WHO portal itself was NOT searched by this query.",
+   "completed_utc": "2026-08-29T15:43:49.229Z",
+   "http_status": 200,
+   "response_bytes": 229847,
+   "n_records": 13,
+   "ids": [
+    "ISRCTN69006251",
+    "ISRCTN68041248",
+    "ISRCTN58098350",
+    "ISRCTN66274524",
+    "ISRCTN47127434",
+    "ISRCTN38690336",
+    "ISRCTN16320634",
+    "ISRCTN27767229",
+    "ISRCTN51795022",
+    "ISRCTN04371709"
+   ],
+   "outcome": "EXECUTED"
+  },
+  {
+   "source": "guideline_bodies",
+   "attempted_utc": "2026-08-29T15:43:49.240Z",
+   "registry_used_to_enumerate": {
+    "registry": "Guidelines International Network (GIN)",
+    "endpoint": "https://g-i-n.net/wp-json/wp/v2/organisation",
+    "x_wp_total": 136,
+    "retrieved_utc": "2026-08-28T10:32:09Z",
+    "records_bulk_modified_gmt": "2026-08-27T11:45:02..03"
+   },
+   "AN_INDEX_IS_NOT_A_SOURCE": "GIN enumerates WHO the bodies are and carries no external URL on any of its 136 records, so it cannot itself be queried for guidance.",
+   "queried": [
+    {
+     "body": "FDA (openFDA drug label API)",
+     "http": 200,
+     "n_records": 1836,
+     "outcome": "EXECUTED"
+    }
+   ],
+   "unreachable": [
+    {
+     "body": "WHO IRIS",
+     "obstacle": "HTTP 403 on its REST search endpoint"
+    },
+    {
+     "body": "NICE",
+     "obstacle": "HTTP 401 -- syndication API requires a key"
+    },
+    {
+     "body": "TRIP",
+     "obstacle": "HTTP 200 but a Cloudflare challenge page; the query term appears zero times. A 200 is not a result."
+    },
+    {
+     "body": "Epistemonikos",
+     "obstacle": "HTTP 405 on the documented API path; site search is HTML only"
+    }
+   ],
+   "coverage_fraction": {
+    "registry_lists": 136,
+    "queried": 1,
+    "unreachable_named": 4,
+    "not_yet_resolved_to_an_endpoint": 131,
+    "STATEMENT": "Of the 136 bodies GIN lists, 1 were queried, 4 were reached and refused or blocked by a named obstacle, and 131 have not been resolved to a queryable endpoint at all. This is a coverage fraction, not a checkmark, and 'all guideline bodies' is NOT a claim this supports."
+   }
+  }
+ ],
+ "three_counts": {
+  "EXECUTED": 5,
+  "EMPTY": 0,
+  "FAILED": 0
+ },
+ "ordering": {
+  "protocol_anchored_utc": "2026-08-29T15:43:46Z",
+  "first_query_attempted_utc": "2026-08-29T15:43:47.890Z",
+  "holds": true
+ },
+ "what_this_record_does_not_establish": [
+  "It does not establish that the search was COMPLETE. It records which sources were queried and what each returned, nothing wider.",
+  "It does not establish that guideline evidence was covered. Source 5 reports a fraction against the GIN denominator and most bodies remain unresolved.",
+  "The ICTRP leg is served by ISRCTN, which is a ROUTE to some ICTRP-registered trials and is not ICTRP. It is recorded under its own name for that reason.",
+  "A git commit timestamp is author-supplied and forgeable. Only the two transparency-log times are independent of us."
+ ],
+ "executed_by": "run_topic.py",
+ "written_utc": "2026-08-29T15:43:51.077Z"
+}
