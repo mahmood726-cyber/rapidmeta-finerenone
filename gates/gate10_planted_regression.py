@@ -37,14 +37,19 @@ G4 = importlib.import_module("gate4_judgement_reference")
 G6 = importlib.import_module("gate6_nct_beside_name")
 TM = importlib.import_module("textmatch")
 ICP = importlib.import_module("interval_contains_point")
+DD = importlib.import_module("declared_digest")
+CR = importlib.import_module("count_matches_rows")
+CA = importlib.import_module("certainty_over_adjudication")
+FV = importlib.import_module("falsy_in_value_slot")
 NIP = importlib.import_module("noninferiority_pooling")
 PRC = importlib.import_module("pool_rows_consistency")
 ARI = importlib.import_module("arm_role_inversion")
 
-# The NI join needs the external registry. Read once, and a failure here is BROKEN, never a
-# quiet pass -- an empty registry would make every S3 probe report "not detected" and read
-# as a coverage regression rather than a missing input.
-_NI, _NI_PATH = NIP.registrations(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# The NI join needs the external registry. A failure here is BROKEN, never a quiet
+# pass: an empty registry would make every S3 probe report "not detected" and read as
+# a coverage regression rather than a missing input.
+_NI, _NI_PATH = NIP.registrations(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
 # ---------------------------------------------------------------------------
@@ -124,6 +129,100 @@ def p_falsy_served():
     return False, "page_text carries 'None'; no shipped module refuses a falsy in served prose"
 
 
+# ---- the four units added 2026-08-29. Each probe calls the SHIPPED predicate and each
+# class carries a MODEL-ANSWER probe beside it: the exemplary correct form of the behaviour
+# the class enforces, asserted to stay at ZERO. A detector that fires on the model answer
+# drives the corpus away from the behaviour it enforces, and only the model-answer probe
+# measures that.
+def p_declared_digest_truncated():
+    f = DD.findings(RP.fx_fake_full_hash())
+    return bool(f), "declared_digest.findings -> %d (%s)" % (
+        len(f), f[0]["reason"] if f else "-")
+
+
+def p_declared_digest_model_answer():
+    """MODEL ANSWER: the same eight characters under a name that declares eight characters."""
+    obj = {"source_sha256_prefix": "9c1b8e07", "review": {"verdict": "low risk of bias"}}
+    n, ok, bad = DD.assessable(obj)
+    return bool(DD.findings(obj)), (
+        "honestly-named prefix -> %d finding(s); %d field(s) declare a full digest"
+        % (len(DD.findings(obj)), n))
+
+
+def p_count_vs_rows():
+    outcome = {"k": 5, "per_trial": [{"nct": "NCT03036124"}, {"nct": "NCT03619213"}]}
+    f = CR.findings(outcome)
+    return bool(f), "count_matches_rows.findings -> %d (%s)" % (
+        len(f), f[0]["quote"] if f else "-")
+
+
+def p_count_rows_no_claim():
+    """MODEL ANSWER: rows shown, no count claimed. Refusing to state an underived number."""
+    obj = {"per_trial": [{"nct": "NCT03036124"}, {"nct": "NCT03619213"}]}
+    return bool(CR.findings(obj)), "rows with no declared count -> %d finding(s)" % len(
+        CR.findings(obj))
+
+
+def p_certainty_unadjudicated():
+    obj = {"certainty": "moderate", "rob_overall": "no information"}
+    f = CA.findings(obj)
+    return bool(f), "certainty_over_adjudication.findings -> %d (%s)" % (
+        len(f), f[0]["quote"] if f else "-")
+
+
+def p_certainty_withheld():
+    """MODEL ANSWER: the input is missing and the rating is WITHHELD rather than published.
+
+    If this ever fires, the cheapest way to satisfy the detector becomes publishing a rating,
+    which is the defect the class is about.
+    """
+    obj = {"certainty": "pending", "rob_overall": "no information"}
+    return bool(CA.findings(obj)), "a withheld rating -> %d finding(s)" % len(CA.findings(obj))
+
+
+def p_certainty_field_absent():
+    """REACH, NOT COVERAGE: a rating with no RoB field held at this layer is NOT ASSESSABLE.
+
+    A query on a typed field measures that FIELD'S ADOPTION, not the condition it names.
+    """
+    obj = {"certainty": "high"}
+    rated, na, ok, bad = CA.assessable(obj)
+    return bool(CA.findings(obj)), (
+        "rated=%d not-assessable=%d adjudicated=%d unadjudicated=%d" % (rated, na, ok, bad))
+
+
+def p_falsy_slot():
+    f = FV.findings("<p>Pooled efficacy: None (95% CI None to None).</p>")
+    return bool(f), "falsy_in_value_slot.findings -> %d (%s)" % (
+        len(f), ", ".join(sorted({x["kind"] for x in f})))
+
+
+def p_falsy_model_answer():
+    """MODEL ANSWER: a visible refusal carrying its reason. Derive or refuse, never a falsy."""
+    html = "<td>Direction not recorded &mdash; the object does not hold it</td>"
+    return bool(FV.findings(html)), "a stated refusal -> %d finding(s)" % len(FV.findings(html))
+
+
+def p_falsy_integrity_excluded():
+    """The declared exclusion, exercised rather than asserted.
+
+    The integrity section quotes the very tokens this unit scans for. The exclusion is
+    DECLARED and its effect is COUNTED, so it can never become an invisible cut.
+    """
+    html = ('<section id="integrity-statement"><p>Checked against known defect classes; one '
+            "was falsy values reaching the reader: None, ?, em dash.</p>"
+            "<td>None</td></section>")
+    ex = FV.excluded_count(html)
+    return bool(FV.findings(html)), "excluded subtrees %s -> %d finding(s)" % (
+        {k: v for k, v in ex.items() if v}, len(FV.findings(html)))
+
+
+def p_falsy_zero_is_a_value():
+    """MODEL ANSWER: zero is a MEASUREMENT. Reading it as falsy would delete real data."""
+    html = "<td>0</td><td>0.0</td><td>0%</td>"
+    return bool(FV.findings(html)), "zero cells -> %d finding(s)" % len(FV.findings(html))
+
+
 def p_interval_outside():
     f = ICP.findings("The pooled effect was RR 1.20 (95% CI 0.60 to 1.10).", "fixture")
     return bool(f), "findings -> %d" % len(f)
@@ -160,17 +259,6 @@ def p_s3_empty_margin():
     return bool(rows), "scan -> %d row(s) with a margin field present but None" % len(rows)
 
 
-def p_q4_disagrees():
-    rows, _ = PRC.scan(RP.fx_k_disagrees_with_rows())
-    return any(r["cls"] == "Q4" for r in rows), "scan -> %s" % [r["cls"] for r in rows]
-
-
-def p_q4_refusal():
-    rows, _ = PRC.scan(RP.fx_k_refusal_states_k_with_no_rows())
-    return any(r["cls"] == "Q4" for r in rows), ("scan -> %s on a DECLARED REFUSAL"
-                                                 % [r["cls"] for r in rows])
-
-
 def p_s1_no_rows():
     rows, _ = PRC.scan(RP.fx_result_with_no_rows())
     return any(r["cls"] == "S1" for r in rows), "scan -> %s" % [r["cls"] for r in rows]
@@ -180,7 +268,6 @@ def p_s1_refuses():
     rows, _ = PRC.scan(RP.fx_no_rows_but_refuses())
     return any(r["cls"] == "S1" for r in rows), ("scan -> %s on THE MODEL ANSWER (refuses)"
                                                  % [r["cls"] for r in rows])
-
 
 
 def p_a2_inverted():
@@ -260,20 +347,19 @@ def main(argv):
 
     gate.kinds(kinds)
 
-    # COUNT BY INSTRUMENT, NOT BY EXPECTATION. Until 2026-08-29 every entry expecting ZERO
-    # also had instrument=None, so "expect == DETECTED" was a usable proxy for "an instrument
-    # exists". It stopped being one the moment MODEL-ANSWER controls arrived: those carry a
-    # real instrument and expect ZERO on purpose, because the correct form of the behaviour
-    # must not be accused. Counting them as uninstrumented understated the coverage; counting
-    # them as detections would overstate it. So both numbers are printed, from the field that
-    # actually says which.
+    # COUNT BY INSTRUMENT, NOT BY EXPECTATION. "expect == DETECTED" was a usable proxy for
+    # "an instrument exists" only while every ZERO entry had instrument=None. MODEL-ANSWER
+    # controls broke that: they carry a real instrument and expect ZERO on purpose, because
+    # the correct form of the behaviour must not be accused. Counting them as uninstrumented
+    # understates coverage; counting them as detections overstates it. Both numbers are now
+    # printed, from the field that actually says which.
     instrumented = [p for p in plants if p.get("instrument")]
     det = [p for p in plants if p["expect"] == "DETECTED"]
     cls_with_instrument = {p["cls"] for p in instrumented}
     zero = sorted({p["cls"] for p in plants} - cls_with_instrument)
     gate.note("MEASURED RECALL, tier %d: %d of %d class-instances are exercised against a real "
-              "instrument (%d of those are POSITIVE plants expected to be DETECTED; the rest "
-              "are model answers and known negatives expected to stay silent)."
+              "instrument (%d are POSITIVE plants expected to be DETECTED; the rest are model "
+              "answers and known negatives expected to stay silent)."
               % (tier, len(instrumented), len(plants), len(det)))
     gate.note("CLASSES WITH AN INSTRUMENT: %d of %d."
               % (len(cls_with_instrument), len({p["cls"] for p in plants})))

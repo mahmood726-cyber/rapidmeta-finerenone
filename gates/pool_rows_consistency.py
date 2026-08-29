@@ -1,9 +1,17 @@
-"""Q4 and S1 -- the pool and the rows behind it must agree, or the block must refuse.
+"""S1 -- a result published with no rows behind it, and no refusal.
+
+Q4 WAS HERE AND HAS BEEN RETIRED FROM THIS MODULE, 2026-08-29. Two lanes instrumented Q4
+independently. Cross-run against both plant sets, `count_matches_rows.findings` scored 7/7 on
+positives where this module scored 1/7 -- it DERIVES the count/row pairing from the naming
+relation and reaches every block, where this one only ever looked at
+`results.by_outcome.<id>.k` against `per_trial`. It keeps the class.
+
+What survived from this side is the DECLARED-REFUSAL exclusion, which was merged INTO that
+module: on the real corpus it returned 38 findings to this module's 1, and 37 of the 38 were
+blocks declaring they decline to pool while stating the k they WOULD have pooled. Merged, it
+scores 7/7 positives, 11/11 negatives and 1 corpus finding.
 
 LINEAGE.
-  Q4, register: "pooled k disagreeing with the rows behind it". Gate 10 has carried this class
-  at ZERO with a probe that computes the disagreement only to prove its own fixture is really
-  defective, then reports that nothing we own looks.
   S1, register C8: "An outcome published with ZERO check payloads behind it -- and, worse, a
   CERTAINTY over it", with the standing warning to DISTINGUISH ABSENT FROM UNEXPORTED.
 
@@ -18,6 +26,26 @@ blocks with fewer than 2 rows") would fit one page and silently weaken every oth
 from __future__ import annotations
 
 REFUSAL_MARKER = "the_pool_this_refusal_declines_to_report"
+
+# NO KEY VOCABULARY. The first version asked whether the block held a key named `certainty`,
+# `grade`, `grade_certainty` or `certainty_of_evidence`. Measured against this corpus that hand
+# list MISSED 5 of the 7 distinct certainty-ish key names present -- and it missed them in the
+# dangerous direction, where a certainty under an unlisted name means the check stays silent.
+# Extending the list would have been the open-vocabulary defect for the eighth time.
+#
+# So the question is asked of the VALUE instead of the key: GRADE defines exactly four levels,
+# and that vocabulary is closed by the GRADE handbook rather than by us. Any key at all whose
+# value IS one of those levels is a certainty rating; prose fields such as
+# `certainty_derivation` or `what_this_certainty_is_about` hold sentences, not levels, and are
+# correctly not read as ratings. There is no list here to fall behind the corpus.
+GRADE_LEVELS = ("high", "moderate", "low", "very low")
+
+
+def _is_grade_level(v):
+    if not isinstance(v, str):
+        return False
+    norm = " ".join(v.strip().lower().replace("_", " ").replace("-", " ").split())
+    return norm in GRADE_LEVELS
 
 
 def is_refusal(block):
@@ -37,10 +65,9 @@ def asserts_a_result(block):
     pooled = block.get("pooled")
     if isinstance(pooled, dict) and any(v is not None for v in pooled.values()):
         return True, "a populated `pooled` block"
-    for key in ("certainty", "grade", "grade_certainty", "certainty_of_evidence"):
-        v = block.get(key)
-        if v not in (None, "", {}, []):
-            return True, "a certainty rendered over it (%s)" % key
+    for key, v in block.items():
+        if _is_grade_level(v):
+            return True, "a GRADE level rendered over it (%s=%r)" % (key, v)
     return False, None
 
 
@@ -63,21 +90,6 @@ def scan(obj, topic="fixture"):
             seen["blocks_stating_k"] += 1
         if isinstance(per_trial, list) and per_trial:
             seen["blocks_with_rows"] += 1
-
-        # ---- Q4: k stated, rows present, and they disagree -------------------
-        if isinstance(k, int) and isinstance(per_trial, list) and per_trial:
-            if k != len(per_trial):
-                rows.append({
-                    "cls": "Q4", "topic": topic, "outcome": oid, "k": k,
-                    "rows": len(per_trial), "refusal": why,
-                    "detail": ("outcome %r states k=%d over %d rows. A reader takes k as the "
-                               "number of studies behind the estimate; the rows are what is "
-                               "actually there.%s"
-                               % (oid, k, len(per_trial),
-                                  " The block also declares a refusal (%s), so the disagreement "
-                                  "is not excused by it -- a refusal with rows still publishes "
-                                  "those rows." % why if refused else "")),
-                })
 
         # ---- S1: a result asserted with no rows behind it, and no refusal -----
         if not per_trial and not refused:

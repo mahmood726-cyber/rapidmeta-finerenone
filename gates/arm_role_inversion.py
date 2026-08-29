@@ -29,8 +29,28 @@ import math
 # signal, it is a category error, and it produced a confident, plausible, WRONG accusation
 # against a correct page -- the direction our detectors are measured to fail in. A measure
 # this gate cannot classify is REFUSED and counted as out of reach, never quietly passed.
+# A WHITELIST IN THE SAFE DIRECTION: a measure not named here is REFUSED and counted as out
+# of reach, never judged and never counted clean. Separators are NORMALISED rather than
+# enumerated -- the first version listed "rate ratio" and therefore refused the corpus's own
+# "rate_ratio" on 4 rows, which is the open-vocabulary defect in miniature: a hand list that
+# spells one variant and silently drops the others. Normalising derives every separator form
+# from one entry instead of adding entries.
+# Measured coverage on this corpus: 145 of 177 per_trial rows carry a measure this recognises
+# as a ratio; 9 distinct measure values exist and 4 are refused (md, none, win_ratio,
+# ratio-type-not-named-in-source), each for a stated reason.
+# win_ratio is refused DELIBERATELY, not overlooked: its polarity is inverted relative to a
+# risk ratio (a win ratio above 1 favours treatment), so judging it on the same sign rule
+# would manufacture the very inversion this gate reports.
 RATIO_MEASURES = ("rr", "or", "hr", "irr", "risk ratio", "odds ratio", "hazard ratio",
                   "rate ratio", "incidence rate ratio", "relative risk")
+REFUSED_WITH_REASON = {"win_ratio": "polarity is inverted relative to a risk ratio",
+                       "md": "a difference is read against a null of zero, not one",
+                       "smd": "a difference is read against a null of zero, not one"}
+
+
+def _normalise_measure(m):
+    """Separator-insensitive: rate_ratio, rate-ratio and 'rate ratio' are one measure."""
+    return " ".join(str(m or "").strip().lower().replace("_", " ").replace("-", " ").split())
 
 TREATMENT_ROLES = ("treatment", "experimental", "intervention", "active")
 CONTROL_ROLES = ("control", "comparator", "placebo", "usual care", "standard")
@@ -108,7 +128,7 @@ def scan(obj, topic="fixture"):
             if rr is None:
                 continue
             seen["rows_with_usable_counts"] += 1
-            if str(r.get("measure") or "").strip().lower() not in RATIO_MEASURES:
+            if _normalise_measure(r.get("measure")) not in [_normalise_measure(m) for m in RATIO_MEASURES]:
                 seen["rows_refused_non_ratio_measure"] += 1
                 continue
             seen["rows_on_a_ratio_measure"] += 1

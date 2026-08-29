@@ -110,14 +110,9 @@ def fx_fake_full_hash():
 # probe: name of a probe function on the runner. expect: DETECTED | ZERO.
 # corpus_plants: tier-2 instances, by id, in scratch plant registries (see TIER2_SOURCES).
 
-# ---------------------------------------------------------------------------------------
-# S3 / Q4 / S1 fixtures -- added 2026-08-29 with their instruments (gates 13 and 14).
-# Each fixture is the SMALLEST object that exercises the real mechanism: the NI ones turn on
-# an NCT that the external registry lists, not on any word in the prose, because that NCT is
-# what the shipped predicate actually joins on.
-# ---------------------------------------------------------------------------------------
-NI_REGISTERED_NCT = "NCT01721408"      # present in out/blind-review/noninferiority_trials.json
-NOT_NI_NCT = "NCT00643188"             # present in the corpus, absent from that list
+# ---- merged 2026-08-29 from lane/undefended-classes: S3, S1, A2 fixtures -----------
+NI_REGISTERED_NCT = "NCT01721408"   # in out/blind-review/noninferiority_trials.json
+NOT_NI_NCT = "NCT00643188"          # in the corpus, absent from that list
 
 
 def fx_ni_pooled_as_superiority():
@@ -140,19 +135,6 @@ def fx_ni_margin_present_but_empty():
     return {"results": {"by_outcome": {"primary": {
         "k": 2, "favours": "treatment", "non_inferiority_margin_pp": None,
         "per_trial": [{"nct": NI_REGISTERED_NCT}, {"nct": NOT_NI_NCT}]}}}}
-
-
-def fx_k_disagrees_with_rows():
-    return {"results": {"by_outcome": {"primary": {
-        "k": 3, "per_trial": [{"nct": "NCT1"}, {"nct": "NCT2"}, {"nct": "NCT3"},
-                              {"nct": "NCT4"}]}}}}
-
-
-def fx_k_refusal_states_k_with_no_rows():
-    """THE MODEL ANSWER for Q4: a refusal states the k it WOULD have pooled and carries none."""
-    return {"results": {"by_outcome": {"primary": {
-        "k": 3, "per_trial": [], "poolable": False,
-        "poolable_reason": "the three trials do not share a comparator"}}}}
 
 
 def fx_result_with_no_rows():
@@ -221,19 +203,7 @@ PLANTS = [
          expect="ZERO",
          note="REACH, NOT COVERAGE. gate 1's entire authority is four registrations; a swap "
               "between any other pair of trials is outside its universe by construction."),
-    dict(id="A2a", cls="A2 role inversion on the arms", tier=1, layer="store",
-         instrument="gates/arm_role_inversion.scan", probe="p_a2_inverted", expect="DETECTED",
-         note="a SIGN test against the object's own arm counts -- no tolerance, no threshold. "
-              "Found a real instance on its first run: IRONMAN in fcm-hf-review, escalated."),
-    dict(id="A2b", cls="A2 role inversion on the arms", tier=1, layer="store",
-         instrument="gates/arm_role_inversion.scan", probe="p_a2_agrees", expect="ZERO",
-         note="MODEL ANSWER: counts and effect pointing the same way must NOT be accused."),
-    dict(id="A2c", cls="A2 role inversion on the arms", tier=1, layer="store",
-         instrument="gates/arm_role_inversion.scan", probe="p_a2_mean_difference",
-         expect="ZERO",
-         note="a mean difference has a null of ZERO. Gate 16's first run accused MD 6.900 of "
-              "contradicting a crude ratio -- a confident, plausible, WRONG accusation "
-              "against a correct page. This fixture keeps that fix honest."),
+    # A2 SUPERSEDED 2026-08-29 -- instrumented; see A2a/A2b below
     dict(id="A3", cls="A3 result published under trials that did not produce it", tier=1,
          layer="store", instrument=None, probe="p_none", expect="ZERO",
          note="no instrument joins pooled rows back to the topic's own source list"),
@@ -250,9 +220,13 @@ PLANTS = [
          instrument=None, probe="p_none", expect="ZERO"),
     dict(id="Q3", cls="Q3 narrative interval differing from the declared method", tier=1,
          layer="served", instrument=None, probe="p_none", expect="ZERO"),
-    # Q4 SUPERSEDED 2026-08-29 by Q4a/Q4b -- an instrument now exists
-    #     (gates/pool_rows_consistency.scan). Kept as a comment rather than deleted so the
-    #     lineage from "no instrument" to "instrumented" stays readable in one file.
+    dict(id="Q4", cls="Q4 pooled k disagreeing with the rows behind it", tier=1, layer="store",
+         instrument="gates/count_matches_rows.findings", probe="p_count_vs_rows",
+         expect="DETECTED",
+         note="INSTRUMENTED 2026-08-29. The pairing is DERIVED from the naming relation "
+              "n_X/num_X/X_count -> the sibling list X, not hand-listed: the first version "
+              "carried an explicit field list and missed `n_fixes_applied` beside "
+              "`fixes_applied` on the first real file it was pointed at."),
 
     # ---- Assertion --------------------------------------------------------------------
     dict(id="AS1", cls="AS1 page denying what it holds", tier=1, layer="served",
@@ -271,20 +245,78 @@ PLANTS = [
          note="THE REALISTIC CASE. The identical judgement under one dated ancestor is "
               "scored TIMESTAMPED, so the kind-D ratchet never fires."),
     dict(id="AS5", cls="AS5 truncated hash presented as complete", tier=1, layer="store",
-         instrument="gates/gate4_judgement_reference.judgement_blocks", probe="p_gate4_fake_hash",
-         expect="ZERO",
-         note="WORSE THAN A MISS. An 8-character fake sha256 promotes the judgements beneath "
-              "it to VERSIONED and RAISES the corpus integrity metric."),
+         instrument="gates/declared_digest.findings", probe="p_declared_digest_truncated",
+         expect="DETECTED",
+         note="INSTRUMENTED 2026-08-29. WORSE THAN A MISS, which is why it went first: an "
+              "8-character fake sha256 promotes the judgements beneath it to VERSIONED and "
+              "RAISES the corpus integrity metric. The boundary is the FIELD NAME as a type "
+              "declaration -- nothing numeric, nothing to tune."),
     dict(id="AS6", cls="AS6 falsy value reaching the reader", tier=1, layer="served",
-         instrument=None, probe="p_falsy_served", expect="ZERO",
-         note="the probe proves the fixture really renders 'None' in reader-facing text"),
+         instrument="gates/falsy_in_value_slot.findings", probe="p_falsy_slot",
+         expect="DETECTED",
+         note="INSTRUMENTED 2026-08-29. The boundary is the enclosing VALUE SLOT, so the same "
+              "token in prose is not examined -- prose about a missing value is how a refusal "
+              "is written. The integrity section is a DECLARED exclusion with its count "
+              "printed, because it quotes the tokens this unit scans for."),
 
     # ---- Structure --------------------------------------------------------------------
-    # S1 SUPERSEDED 2026-08-29 by S1a/S1b -- see gates/pool_rows_consistency.scan
+    # S1 SUPERSEDED 2026-08-29 -- instrumented; see S1a/S1b below
     dict(id="S2", cls="S2 certainty rating over an unadjudicated assessment", tier=1,
-         layer="store", instrument=None, probe="p_none", expect="ZERO"),
-    # S3 SUPERSEDED 2026-08-29 by S3a/S3b/S3c -- the join the old note said was missing
-    #     now exists in gates/noninferiority_pooling.scan
+         layer="store", instrument="gates/certainty_over_adjudication.findings",
+         probe="p_certainty_unadjudicated", expect="DETECTED",
+         note="INSTRUMENTED 2026-08-29 from register A10, which was fixed at the generator "
+              "and never instrumented -- a class marked LANDED with no standing measurement "
+              "is a class we will rediscover."),
+
+    # ---- MODEL-ANSWER CONTROLS, one per newly instrumented class -----------------------
+    # The exemplary correct form of the behaviour each class enforces, asserted to stay at
+    # ZERO. Added 2026-08-29 after a detector on this project flagged a model answer as a
+    # violation: a detector that accuses the correct form drives the corpus away from it.
+    dict(id="AS5-model", cls="AS5 truncated hash presented as complete", tier=1, layer="store",
+         instrument="gates/declared_digest.findings",
+         probe="p_declared_digest_model_answer", expect="ZERO",
+         note="MODEL ANSWER: eight hex characters under a name that DECLARES eight. The "
+              "behaviour enforced is 'name the field for what you actually hold', and if "
+              "this fired the only ways to satisfy it would be to stop recording short "
+              "digests or to rename them into the full form -- the second is the defect."),
+    dict(id="Q4-model", cls="Q4 pooled k disagreeing with the rows behind it", tier=1,
+         layer="store", instrument="gates/count_matches_rows.findings",
+         probe="p_count_rows_no_claim", expect="ZERO",
+         note="MODEL ANSWER: rows shown, no count claimed. Refusing to state a number you "
+              "have not derived is correct; a detector demanding a count wherever rows exist "
+              "would push the corpus to manufacture the claim."),
+    dict(id="S2-model", cls="S2 certainty rating over an unadjudicated assessment", tier=1,
+         layer="store", instrument="gates/certainty_over_adjudication.findings",
+         probe="p_certainty_withheld", expect="ZERO",
+         note="MODEL ANSWER, and the load-bearing one: the input is missing so the rating is "
+              "WITHHELD. If this fired, the cheapest way to satisfy the detector would be to "
+              "PUBLISH a rating -- exactly the defect the class is about."),
+    dict(id="S2-reach", cls="S2 certainty rating over an unadjudicated assessment", tier=1,
+         layer="store", instrument="gates/certainty_over_adjudication.assessable",
+         probe="p_certainty_field_absent", expect="ZERO",
+         note="REACH, NOT COVERAGE: a rating with no RoB field at this layer is NOT "
+              "ASSESSABLE and is reported as its own kind. A query on a typed field measures "
+              "that FIELD'S ADOPTION, not the condition it names, so this detector is a "
+              "FLOOR and under-finds by exactly the not-assessable column."),
+    dict(id="AS6-model", cls="AS6 falsy value reaching the reader", tier=1, layer="served",
+         instrument="gates/falsy_in_value_slot.findings", probe="p_falsy_model_answer",
+         expect="ZERO",
+         note="MODEL ANSWER: a visible refusal carrying its reason. Derive or refuse -- and "
+              "an em dash is a finding only as a WHOLE slot, never as a character in a "
+              "sentence, so the refusal that contains one still passes."),
+    dict(id="AS6-zero", cls="AS6 falsy value reaching the reader", tier=1, layer="served",
+         instrument="gates/falsy_in_value_slot.findings", probe="p_falsy_zero_is_a_value",
+         expect="ZERO",
+         note="MODEL ANSWER: ZERO IS A MEASUREMENT. Reading 0, 0.0 or 0%% as falsy would "
+              "delete real data from the corpus."),
+    dict(id="AS6-excl", cls="AS6 falsy value reaching the reader", tier=1, layer="served",
+         instrument="gates/falsy_in_value_slot.excluded_count",
+         probe="p_falsy_integrity_excluded", expect="ZERO",
+         note="THE SELF-REFERENTIAL CASE, exercised rather than asserted. The integrity "
+              "section quotes the tokens this unit scans for. The exclusion is DECLARED, its "
+              "reason is stated, and the number of subtrees it removed is printed -- so it "
+              "can never become an invisible cut."),
+    # S3 SUPERSEDED 2026-08-29 -- instrumented; see S3a/S3b below
     dict(id="S4", cls="S4 partial repair, one copy fixed and another not", tier=1,
          layer="store+served", instrument=None, probe="p_none", expect="ZERO"),
 
@@ -301,7 +333,20 @@ PLANTS = [
          layer="served", instrument="gates/interval_contains_point.findings",
          probe="p_interval_inside", expect="ZERO",
          note="KNOWN NEGATIVE: a valid interval must NOT fire"),
-    # ---- S3 / Q4 / S1: instrumented 2026-08-29, gates 13 and 14 ------------------------
+    # ---- merged from lane/undefended-classes 2026-08-29 ----------------------------
+    dict(id="A2a", cls="A2 role inversion on the arms", tier=1, layer="store",
+         instrument="gates/arm_role_inversion.scan", probe="p_a2_inverted", expect="DETECTED",
+         note="a SIGN test against the object's own arm counts -- no tolerance, no threshold. "
+              "Found a real instance on its first run: IRONMAN in fcm-hf-review, escalated."),
+    dict(id="A2b", cls="A2 role inversion on the arms", tier=1, layer="store",
+         instrument="gates/arm_role_inversion.scan", probe="p_a2_agrees", expect="ZERO",
+         note="MODEL ANSWER: counts and effect pointing the same way must NOT be accused."),
+    dict(id="A2c", cls="A2 role inversion on the arms", tier=1, layer="store",
+         instrument="gates/arm_role_inversion.scan", probe="p_a2_mean_difference",
+         expect="ZERO",
+         note="a mean difference has a null of ZERO. Gate 16's first run accused MD 6.900 of "
+              "contradicting a crude ratio -- a confident, plausible, WRONG accusation "
+              "against a correct page. This fixture keeps that fix honest."),
     dict(id="S3a", cls="S3 non-inferiority trial pooled as superiority", tier=1, layer="store",
          instrument="gates/noninferiority_pooling.scan", probe="p_s3_pooled_as_superiority",
          expect="DETECTED",
@@ -319,15 +364,18 @@ PLANTS = [
          expect="DETECTED",
          note="a margin FIELD whose value is None records nothing and must not launder the "
               "block"),
-    dict(id="Q4a", cls="Q4 pooled k disagreeing with the rows behind it", tier=1, layer="store",
-         instrument="gates/pool_rows_consistency.scan", probe="p_q4_disagrees",
-         expect="DETECTED"),
-    dict(id="Q4b", cls="Q4 pooled k disagreeing with the rows behind it", tier=1, layer="store",
-         instrument="gates/pool_rows_consistency.scan", probe="p_q4_refusal",
-         expect="ZERO",
-         note="MODEL ANSWER: 26 of this corpus's 27 k-vs-rows disagreements are declared "
-              "refusals stating the k they would have pooled. Excluded by their DECLARED "
-              "STATE, never by a count."),
+    dict(id="S3-served", cls="S3 non-inferiority trial pooled as superiority", tier=2,
+         layer="served",
+         instrument="scripts/lane_rob/chk_noninferiority_pooled_as_superiority.scan",
+         probe="p_none", expect="DETECTED",
+         note="RECONCILED 2026-08-29, and kept ALONGSIDE S3a rather than merged into it. The "
+              "two detectors share a class NAME and do not share a MECHANISM: this one reads "
+              "the SERVED page (does it name non-inferiority, state a margin, or DENY a design "
+              "the registry records) and joins locally cached registry margins; S3a reads the "
+              "STORE (does a pooled block hold an NI registration with no margin recorded in "
+              "the block). Merging by name would have silently dropped a layer. TIER 2 for one "
+              "reason only: it takes 69.0s against a 0.33s fast-set budget, so it cannot run "
+              "on every build. It is ratcheted at 35 known findings and PASSES."),
     dict(id="S1a", cls="S1 outcome published with no rows behind it", tier=1, layer="store",
          instrument="gates/pool_rows_consistency.scan", probe="p_s1_no_rows",
          expect="DETECTED",

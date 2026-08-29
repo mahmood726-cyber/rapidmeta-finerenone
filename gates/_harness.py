@@ -56,6 +56,7 @@ class Gate:
         self._findings = []
         self._kinds = None
         self._control = None
+        self._control_accuses = True
         self._needs_control = False
         self._notes = []
         self._broken = []
@@ -81,11 +82,23 @@ class Gate:
         """Declare that this gate matches text, so a known-negative control is mandatory."""
         self._needs_control = True
 
-    def control(self, n_negatives, n_false_positives, examples=()):
-        """n items that MUST NOT match, and how many did."""
+    def control(self, n_negatives, n_false_positives, examples=(), accuses=True):
+        """n items that MUST NOT match, and how many did.
+
+        `accuses` -- ported verbatim in meaning from lane/rob-retrieval 2026-08-29, because
+        two harnesses had diverged on it and merging by file would have dropped the
+        distinction. True when the negatives measure THIS GATE'S OWN accusations: a match
+        means it flagged a case established as clean. False when they measure a
+        SUB-INSTRUMENT whose precision the gate DISCLOSES rather than depends on -- gate 5's
+        positive-restatement regex is the case, where a published 16.7% false-positive rate
+        makes its headline gap a LOWER bound. Conflating a disclosed sub-instrument's
+        precision with the gate's own accusation rate is a category error, and it is the kind
+        that turns a strict control into a reason to bypass one.
+        """
         if n_negatives <= 0:
             raise ValueError("a control with no negatives measures nothing")
         self._control = (int(n_negatives), int(n_false_positives), list(examples)[:5])
+        self._control_accuses = bool(accuses)
 
     def fp_rate(self):
         if not self._control:
@@ -150,6 +163,10 @@ class Gate:
         if self._kinds is None:
             w("  BROKEN: kinds() was never called. Kinds before counts.")
             status = BROKEN
+        else:
+            w("  kinds in population:")
+            for k, v in self._kinds.items():
+                w("      %7s  %s" % (v, k))
 
         if self._coverage is not None:
             cs, pop, unit, blind = self._coverage
@@ -165,10 +182,6 @@ class Gate:
             w("  BROKEN: coverage() was never called on a gate that requires it. A gate that")
             w("  cannot state what it can SEE cannot have its zero believed.")
             status = BROKEN
-        else:
-            w("  kinds in population:")
-            for k, v in self._kinds.items():
-                w("      %7s  %s" % (v, k))
 
         if self._expected:
             missed = [c for c in self._expected if c not in self._seen]
@@ -194,6 +207,11 @@ class Gate:
                 n, fp, ex = self._control
                 w("  known-negative control: %d/%d matched  (measured false-positive rate %.1f%%)"
                   % (fp, n, 100.0 * fp / n))
+                if not self._control_accuses:
+                    w("      these negatives score a DISCLOSED SUB-INSTRUMENT, not this "
+                      "gate's own accusations;")
+                    w("      its error rate makes this gate's headline a LOWER bound rather "
+                      "than an accusation.")
                 for e in ex:
                     w("      false positive: " + str(e))
 
