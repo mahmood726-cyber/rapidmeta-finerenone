@@ -48,7 +48,7 @@ VERDICT_NAME = {PASS: "PASS", FAIL: "FAIL", VACUOUS: "VACUOUS", BROKEN: "BROKEN"
 
 
 class Gate:
-    def __init__(self, name, what):
+    def __init__(self, name, what, needs_coverage=False):
         self.name = name
         self.what = what
         self._expected = {}
@@ -59,6 +59,8 @@ class Gate:
         self._needs_control = False
         self._notes = []
         self._broken = []
+        self._coverage = None
+        self._needs_coverage = bool(needs_coverage)
         self._t0 = time.time()
 
     # -- 1. named positives -------------------------------------------------
@@ -90,6 +92,25 @@ class Gate:
             return None
         n, fp, _ = self._control
         return fp / n
+
+    # -- 4. coverage: what the gate CAN SEE over what it claims to police ----
+    def coverage(self, can_see, population, what, blind_to=None):
+        """The fraction of the policed population this gate is CAPABLE of inspecting.
+
+        WHY THIS IS SEPARATE FROM kinds() AND FROM THE DENOMINATOR. `kinds()` describes the
+        population. The denominator describes what was examined on THIS run. Neither says
+        what the instrument is STRUCTURALLY BLIND TO. A gate that reaches 83 of 1,464 pages
+        and reports "baseline 0" has made a statement about its own reach and none about the
+        corpus -- and "baseline 0" is exactly how that reads to anyone downstream.
+
+        can_see    -- items this gate is capable of inspecting at all
+        population -- items it claims to police
+        what       -- the unit, named
+        blind_to   -- why the remainder is unreachable, in words, not a number
+        """
+        if population <= 0:
+            raise ValueError("a coverage fraction over an empty population measures nothing")
+        self._coverage = (int(can_see), int(population), str(what), blind_to)
 
     # -- 3. kinds, then counts ---------------------------------------------
     def kinds(self, mapping):
@@ -128,6 +149,21 @@ class Gate:
 
         if self._kinds is None:
             w("  BROKEN: kinds() was never called. Kinds before counts.")
+            status = BROKEN
+
+        if self._coverage is not None:
+            cs, pop, unit, blind = self._coverage
+            w("  COVERAGE: this gate can inspect %d of %d %s (%.1f%%)."
+              % (cs, pop, unit, 100.0 * cs / pop))
+            if blind:
+                w("      blind to the remainder because: " + str(blind))
+            if cs < pop:
+                w("      a count of 0 findings here is a statement about %d %s, NOT about the"
+                  % (cs, unit))
+                w("      %d this gate does not reach." % (pop - cs))
+        elif self._needs_coverage:
+            w("  BROKEN: coverage() was never called on a gate that requires it. A gate that")
+            w("  cannot state what it can SEE cannot have its zero believed.")
             status = BROKEN
         else:
             w("  kinds in population:")
@@ -199,6 +235,10 @@ class Gate:
                          "false_positives": self._control[1],
                          "fp_rate": self.fp_rate(),
                          "examples": self._control[2]} if self._control else None),
+            "coverage": ({"can_see": self._coverage[0], "population": self._coverage[1],
+                          "unit": self._coverage[2],
+                          "fraction": self._coverage[0] / self._coverage[1],
+                          "blind_to": self._coverage[3]} if self._coverage else None),
             "notes": self._notes,
             "findings": self._findings,
         }

@@ -37,6 +37,13 @@ G4 = importlib.import_module("gate4_judgement_reference")
 G6 = importlib.import_module("gate6_nct_beside_name")
 TM = importlib.import_module("textmatch")
 ICP = importlib.import_module("interval_contains_point")
+NIP = importlib.import_module("noninferiority_pooling")
+PRC = importlib.import_module("pool_rows_consistency")
+
+# The NI join needs the external registry. Read once, and a failure here is BROKEN, never a
+# quiet pass -- an empty registry would make every S3 probe report "not detected" and read
+# as a coverage regression rather than a missing input.
+_NI, _NI_PATH = NIP.registrations(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
 # ---------------------------------------------------------------------------
@@ -129,6 +136,49 @@ def p_interval_inside():
 def p_none():
     """No instrument exists for this class. Recorded, not inferred."""
     return False, "no shipped instrument reads for this class"
+
+
+
+def p_s3_pooled_as_superiority():
+    rows, seen = NIP.scan(RP.fx_ni_pooled_as_superiority(), _NI)
+    if not seen["ni_rows_seen"]:
+        raise AssertionError("the S3 fixture reached the predicate with NO NI row recognised; "
+                             "the registry or the fixture NCT has drifted and this probe would "
+                             "otherwise report a false regression")
+    return bool(rows), "scan -> %d row(s) over %d NI row(s) seen" % (len(rows), seen["ni_rows_seen"])
+
+
+def p_s3_model_answer():
+    rows, _ = NIP.scan(RP.fx_ni_with_margin(), _NI)
+    return bool(rows), ("scan -> %d row(s) on THE MODEL ANSWER (margin recorded); any row here "
+                        "is a detector accusing correct work" % len(rows))
+
+
+def p_s3_empty_margin():
+    rows, _ = NIP.scan(RP.fx_ni_margin_present_but_empty(), _NI)
+    return bool(rows), "scan -> %d row(s) with a margin field present but None" % len(rows)
+
+
+def p_q4_disagrees():
+    rows, _ = PRC.scan(RP.fx_k_disagrees_with_rows())
+    return any(r["cls"] == "Q4" for r in rows), "scan -> %s" % [r["cls"] for r in rows]
+
+
+def p_q4_refusal():
+    rows, _ = PRC.scan(RP.fx_k_refusal_states_k_with_no_rows())
+    return any(r["cls"] == "Q4" for r in rows), ("scan -> %s on a DECLARED REFUSAL"
+                                                 % [r["cls"] for r in rows])
+
+
+def p_s1_no_rows():
+    rows, _ = PRC.scan(RP.fx_result_with_no_rows())
+    return any(r["cls"] == "S1" for r in rows), "scan -> %s" % [r["cls"] for r in rows]
+
+
+def p_s1_refuses():
+    rows, _ = PRC.scan(RP.fx_no_rows_but_refuses())
+    return any(r["cls"] == "S1" for r in rows), ("scan -> %s on THE MODEL ANSWER (refuses)"
+                                                 % [r["cls"] for r in rows])
 
 
 PROBES = {k: v for k, v in list(globals().items()) if k.startswith("p_")}
