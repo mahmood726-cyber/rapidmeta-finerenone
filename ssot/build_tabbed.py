@@ -1992,6 +1992,16 @@ if __name__ == "__main__":
     #
     # So both failures are caught and both REFUSE with a named reason. NEVER add a bare except
     # here, and never let this fall through to the write.
+    # The estimand statement: what quantity this page pools, and whether the trials analysed
+    # it. Placed before the integrity check so that a failure here is caught by the same
+    # refusal discipline, and so the section is inside the page the suite then examines.
+    try:
+        import estimand_statement as _est
+        _html = _est.inject(_html, obj)
+    except Exception as _e:
+        raise SystemExit(
+            "BUILD REFUSED: the estimand component failed (%s: %s). A page that cannot say "
+            "what it is estimating does not build." % (type(_e).__name__, _e))
     try:
         import integrity_section as _isec
     except Exception as _e:
