@@ -1,0 +1,34 @@
+EMA CENTRAL-AUTHORISATION ENUMERATION -- intravenous iron products
+Run 2026-08-29 against EMA's own published medicine register.
+
+WHY THIS FILE EXISTS. Twelve cells asserted that no European Public Assessment
+Report exists for these products, and the reason offered was that 'the canonical
+EPAR paths for both were probed and both returned not-found'. A 404 is not an
+absence: it is equally consistent with a wrong URL. This replaces the failed
+lookup with the register's own enumeration.
+
+SOURCE  https://www.ema.europa.eu/en/documents/report/medicines-output-medicines-report_en.xlsx
+        reached from https://www.ema.europa.eu/en/medicines/download-medicine-data
+        retrieved 2026-08-29, 897661 bytes, sha256 19c195990013616735091d1b57019fa43afb66a492002ab8a3a9a58d2f0954e7
+        2741 rows, 2734 with content; header row names Category, Name of medicine,
+        EMA product number, Medicine status, INN, Active substance.
+
+POSITIVE CONTROLS -- an enumeration that can only answer 'absent' is not a check.
+  dapagliflozin            rows: 7
+  empagliflozin            rows: 3
+  Forxiga                  rows: 1
+  Jardiance                rows: 1
+  Ferriprox                rows: 1
+  deferiprone              rows: 3
+
+THE SUBSTANCES IN QUESTION
+  ferric carboxymaltose    rows: 0
+  iron sucrose             rows: 0
+  ferric derisomaltose     rows: 0
+  iron isomaltoside        rows: 0
+  iron                     rows: 27   (bare term, to show the search is live)
+
+CONCLUSION. The register that would list a centrally authorised medicine lists
+none of these substances, while listing every control. An EPAR is produced only
+for centrally authorised medicines, so no EPAR exists to hold these cells. That
+is a demonstration from an enumeration, not the outcome of a path probe.

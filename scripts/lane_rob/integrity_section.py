@@ -134,6 +134,38 @@ def _c_single_trial_pooled(html, txt):
     return out
 
 
+SELF_DESCRIPTION_MARKER = "What was checked before this page was published"
+
+
+def scannable_body(html):
+    """The part of the page a defect checker may read: everything ABOVE the integrity section.
+
+    ⛔ A DECLARED EXCLUSION WITH A REASON, NOT AN AD-HOC CUT IN ONE CHECKER.
+
+    The integrity section names the defect classes and quotes real examples of each -- that is
+    what makes it useful to a reader and what makes it poison to a checker. Two classes scored
+    their own output in one night:
+
+      - the regeneration test read "binary counts pooled where both trials analysed time to
+        event" out of the class list and credited the review with HAVING the feature; 0 of 13
+        became "3 of 13", two of the three being the checker describing the defect;
+      - `unanchored-external-authority` quotes the sentence "'WHO has recommended the ring' went
+        live from a conversation", so it reported the defect as live on every page forever.
+
+    The failure is structural, not a bug in either class: any new class that names its example
+    will do this on the day it is added. So the exclusion is declared HERE, once, with the
+    reason, and every checker calls it -- rather than each author remembering a cut that is
+    invisible until the class goes permanently red.
+
+    ⚠️ The exclusion is one-directional. A checker must not read the section, but the section
+    must still be checked BY something -- assert_present() tests the rendered section itself, on
+    the full page, for exactly that reason.
+    """
+    h = html or ""
+    i = h.find(SELF_DESCRIPTION_MARKER)
+    return h[:i] if i > 0 else h
+
+
 def _c_unanchored_authority(html, txt):
     """An external body's position asserted with nothing that could be retrieved to check it.
 
@@ -166,8 +198,12 @@ def _c_unanchored_authority(html, txt):
     # generated pages. An acronym that is also an English word must be matched as an acronym.
     AUTH = (r"(?-i:WHO)|World Health Organization|(?-i:FDA)|(?-i:EMA)|European Medicines Agency|"
             r"Cochrane|(?-i:NICE)|UNAIDS|EACS|BHIVA")
-    ANCH = re.compile(r"https?://|10665/|NCT\d{8}|PMID|PMC\d+|doi|retrieved|sha256|ISBN|openFDA",
-                      re.I)
+    # Evidence-of-retrieval markers. "probed/staged/enumerated/server's answers" belong here for
+    # the same reason "retrieved" does: sglt2-hf backs its FDA absence claim with an enumeration
+    # of every submission Drugs@FDA serves, which is a stronger demonstration than a URL, and was
+    # being flagged by this class purely because it did not contain one.
+    ANCH = re.compile(r"https?://|10665/|NCT\d{8}|PMID|PMC\d+|doi|retrieved|sha256|ISBN|openFDA|"
+                      r"staged|probed?|enumerat\w+|submissions asked|server'?s answers", re.I)
     # A verb that asserts a POSITION held by that body, rather than merely naming it.
     STANCE = re.compile(r"\b(%s)\b[^.]{0,90}?\b(recommend\w*|approv\w*|endors\w*|extended|"
                         r"guidance is|advises|requires|concluded|records|states)\b" % AUTH, re.I)
@@ -188,16 +224,7 @@ def _c_unanchored_authority(html, txt):
     # backing this claim. So the check reads the MARKUP rather than the flattened text, and
     # nothing needs tuning. A check that fires on text already fixed is worse than one that
     # misses, because it teaches the reader to skip it.
-    # ⛔ THE INTEGRITY SECTION IS CUT BEFORE SCANNING, and this is the second time tonight that
-    # a checker scored its own output. This class's lineage line quotes the offending sentence
-    # -- "'WHO has recommended the ring' went live from a conversation" -- so once the section
-    # renders, the checker finds that quotation and reports the defect as still present, on
-    # every page, forever. A checker that reads its own description of a defect as an instance
-    # of it can never go quiet, which makes it useless exactly when the page is finally clean.
-    body = (html or "")
-    _cut = body.find("What was checked before this page was published")
-    if _cut > 0:
-        body = body[:_cut]
+    body = scannable_body(html)
     out = []
     seen = set()
     blocks = re.findall(r"(?is)<(p|li|td|h[1-6])\b[^>]*>(.*?)</\1>", body)
@@ -211,17 +238,39 @@ def _c_unanchored_authority(html, txt):
             if re.match(r"[^ ]+ approved (label|product|indication|drug|dose|use)",
                         btxt[m.start():m.start() + 60], re.I):
                 continue
+            # "The FDA label records ..." reports what a document we hold SAYS. That is a
+            # document reference, not the agency taking a position, and belongs to the sourcing
+            # classes rather than this one.
+            if re.match(r"[^ ]+ (label|review|report|assessment|guideline|document|annex)\b",
+                        btxt[m.start():m.start() + 60], re.I):
+                continue
             frag = re.sub(r"\s+", " ", btxt[m.start():m.start() + 110])
             if frag[:40] not in seen:
                 seen.add(frag[:40])
                 out.append(frag)
+        # ⛔ THE ABSENCE SUB-CHECK MUST RESPECT THE SAME ANCHOR, and it did not.
+        #
+        # It ran unconditionally over the whole page, so sglt2-hf was reported for "no FDA
+        # review document exists" -- a claim that object backs with an enumeration of every
+        # submission Drugs@FDA serves for both applications, 21 letters and 29 submissions with
+        # per-submission answers. That is the strongest demonstration in the corpus, and the
+        # check was calling it the defect. A checker that flags the model answer teaches people
+        # to stop doing the right thing.
+        if not ANCH.search(btxt):
+            for m in re.finditer(r"no (?:FDA|EMA|WHO)[^.]{0,60}\bexists?\b", btxt, re.I):
+                frag = "absence asserted as fact: " + re.sub(r"\s+", " ", m.group(0))[:80]
+                if frag[:50] not in seen:
+                    seen.add(frag[:50])
+                    out.append(frag)
     if not blocks:                     # plain text handed in directly (tests, controls)
         for m in STANCE.finditer(txt):
             if not ANCH.search(txt[max(0, m.start() - 300):m.end() + 900]):
                 out.append(re.sub(r"\s+", " ", txt[m.start():m.start() + 110]))
-    # A claim that something does not EXIST is stronger than a claim it was not FOUND.
-    for m in re.finditer(r"no (?:FDA|EMA|WHO)[^.]{0,60}\bexists?\b", txt, re.I):
-        out.append("absence asserted as fact: " + re.sub(r"\s+", " ", m.group(0))[:80])
+        # Same absence sub-check for the plain-text path, and it carries the anchor test too.
+        for m in re.finditer(r"no (?:FDA|EMA|WHO)[^.]{0,60}\bexists?\b", txt, re.I):
+            if not ANCH.search(txt[max(0, m.start() - 300):m.end() + 900]):
+                out.append("absence asserted as fact: "
+                           + re.sub(r"\s+", " ", m.group(0))[:80])
     return out
 
 
