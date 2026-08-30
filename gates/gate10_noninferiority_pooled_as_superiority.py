@@ -40,13 +40,23 @@ import io
 import json
 import os
 import subprocess
+import tempfile
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import _harness as H  # noqa: E402
 
 DETECTOR = "scripts/lane_rob/chk_noninferiority_pooled_as_superiority.py"
-RESULT = r"F:\claude-temp\pend\out\noninferiority_detector.json"
+# ⛔ NO DRIVE LETTER. This read an absolute F:\ path, which does not exist on the CI runner, so
+# the gate reported BROKEN -- "the detector ran but its result file could not be read" -- on
+# EVERY run since it was registered. It passed locally, so nothing looked wrong: a gate that can
+# only run on one machine is the available-not-operative class wearing a green tick everywhere
+# else, and this one was built to police a class that makes readers act in the wrong direction.
+#
+# The gate now NAMES the file it wants and passes it to the detector with --out. That also
+# removes the generic-name-in-a-shared-root collision gate 9 polices, rather than re-freezing it.
+RESULT = os.path.join(tempfile.gettempdir(),
+                      "gate10_noninferiority_detector.%d.json" % os.getpid())
 BACKLOG = "GATE10_KNOWN_NI_TOPICS.json"
 
 # The cases this gate was built to find. Never reaching one is VACUOUS, never a pass.
@@ -87,7 +97,8 @@ def main(argv):
         gate.broken("the detector's plant did not pass 4/4; its findings are not usable. "
                     "stdout: %s" % pout[-300:].replace("\n", " "))
 
-    proc = subprocess.run([sys.executable, path], cwd=repo, capture_output=True)
+    proc = subprocess.run([sys.executable, path, "--out", RESULT],
+                          cwd=repo, capture_output=True)
     if proc.returncode == 2:
         gate.broken("the detector REFUSED: %s"
                     % proc.stdout.decode("utf-8", "replace")[-300:].replace("\n", " "))
@@ -142,12 +153,12 @@ def main(argv):
     # COVERAGE. The detector reads LOCALLY CACHED registry records only. A pooled topic
     # whose trials are not cached cannot be assessed for a non-inferiority design at all,
     # and its absence from the findings means nothing was read, not that nothing is there.
-    # H.topic_objects returns (objects, kinds). len() on the TUPLE is 2, which made this
-    # print "35 of 35" -- 100%% coverage -- from a type error. A wrong instrument reports
-    # good news; that is the whole reason this fraction exists.
+    #
+    # H.topic_objects returns (objects, kinds). len() on the TUPLE is 2, which made an
+    # earlier version print "35 of 35" -- 100%% coverage -- from a type error. A wrong
+    # instrument reports good news; that is the whole reason this fraction exists.
     _objs, _ = H.topic_objects(repo)
-    _pooled = len(_objs)
-    gate.coverage(len(rows), max(_pooled, len(rows)),
+    gate.coverage(len(rows), max(len(_objs), len(rows)),
                   "pooled topics with no locally cached registry record for their trials, "
                   "where a non-inferiority design would be invisible to this detector")
     return gate.report(denominator="%d topics with an NI trial, %d frozen"

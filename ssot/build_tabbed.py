@@ -1992,6 +1992,20 @@ if __name__ == "__main__":
     #
     # So both failures are caught and both REFUSE with a named reason. NEVER add a bare except
     # here, and never let this fall through to the write.
+    # ⛔ A NUMBER MUST CARRY THE LABEL OF THE ROWS IT WAS COMPUTED FROM. Refuses the build when
+    # a pooled figure would be published under a count source or estimand its own inputs do not
+    # carry -- the near-swap that nearly put the registry-as-submitted 0.703 under a headline
+    # that is the adjudicated 0.713.
+    try:
+        import estimand_label_gate as _elg
+        _elg.enforce(obj, out)
+    except Exception as _e:
+        if type(_e).__name__ == "LabelMismatch":
+            raise SystemExit(str(_e))
+        raise SystemExit(
+            "BUILD REFUSED: the estimand-label gate could not run (%s: %s). A page whose numbers "
+            "cannot be checked against their own inputs does not build."
+            % (type(_e).__name__, _e))
     # The estimand statement: what quantity this page pools, and whether the trials analysed
     # it. Placed before the integrity check so that a failure here is caught by the same
     # refusal discipline, and so the section is inside the page the suite then examines.
@@ -2012,6 +2026,16 @@ if __name__ == "__main__":
             "BUILD REFUSED: the interval component failed (%s: %s). A page that reports one "
             "interval without showing what the other estimator gives does not build."
             % (type(_e).__name__, _e))
+    # How current this page is against its designated comparator. Network failure inside the
+    # component is a stated NOT_YET_ATTEMPTED on the page, not a build failure -- the build only
+    # refuses if the component itself is broken.
+    try:
+        import currency_query as _cur
+        _html = _cur.inject(_html, obj)
+    except Exception as _e:
+        raise SystemExit(
+            "BUILD REFUSED: the currency component failed (%s: %s). A page that cannot say how "
+            "old its evidence base is does not build." % (type(_e).__name__, _e))
     try:
         import integrity_section as _isec
     except Exception as _e:
