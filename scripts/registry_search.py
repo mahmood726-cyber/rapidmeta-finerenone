@@ -57,7 +57,16 @@ DETERMINATE = (OK, EMPTY)
 # deliberate: EMPTY is a claim about the world and must be earned.
 NO_RESULT_PATTERNS = re.compile(
     r"no (?:results?|records?|trials?|studies|study|matches?) (?:were )?(?:found|match)"
-    r"|0 results?\b|nothing found|no trial found|search returned no", re.I)
+    r"|0 results?\b|nothing found|no trial found|search returned no"
+    # ⚠️ ADDED 2026-08-30 AFTER A BROWSER PASS PROVED THIS LIST WAS THE DEFECT.
+    # EU-CTR says "Query did not match any clinical trials" and shows "(0)" beside each
+    # result class. curl HAD fetched that page -- 18,875 bytes -- and this module called it
+    # INDETERMINATE because the wording was not in this list. So one of the six
+    # INDETERMINATE verdicts was MY VOCABULARY, not the registry rendering client-side.
+    # The asymmetry still holds and is still right -- a registry whose wording we have not
+    # established cannot return EMPTY -- but "not established" has to mean we looked.
+    r"|did not match any|matched no |no matching (?:trials?|records?|studies)"
+    r"|please enter another search query", re.I)
 
 # Endpoint per registry. Only free, non-robots-disallowed paths.
 # ⚠️ ISRCTN's robots.txt disallows /search and permits /api/query -- so the API is the
@@ -66,8 +75,20 @@ REGISTRIES = {
     "ISRCTN": {"url": "https://www.isrctn.com/api/query/format/default?q={q}",
                "id": r"ISRCTN\d{8}",
                "note": "robots.txt disallows /search; /api/query is permitted"},
-    "DRKS": {"url": "https://drks.de/search/en/trial/search?query={q}",
-             "id": r"DRKS\d{8}"},
+    # ⚠️ THE URL HERE WAS WRONG AND THE ERROR WAS MINE. `/search/en/trial/search?query=`
+    # is parsed by DRKS as a DRKS-ID lookup for the literal id "search", and it returns an
+    # error page with HTTP 200 -- which this module duly recorded as INDETERMINATE. A
+    # browser pass on 2026-08-30 found the real form, and for `dapivirine` DRKS answers
+    # "No results found. Please enter another search query." -- a genuine EMPTY.
+    #
+    # ⛔ AND THERE IS NO STABLE ENDPOINT TO SCRIPT. DRKS is a JSF application whose search
+    # field is named `searchForm:j_idt76` -- an AUTO-GENERATED component id, not a
+    # contract, and it will change. Same class as the ICTRP portal's ASP.NET ViewState.
+    # The finding below is browser-verified and is NOT reproducible by this script, which
+    # is why the url is None rather than a guess that would silently rot.
+    "DRKS": {"url": None, "id": r"DRKS\d{8}",
+             "note": ("JSF form, auto-generated field ids, no stable endpoint. "
+                      "BROWSER-VERIFIED 2026-08-30: dapivirine -> no results found")},
     "ANZCTR": {"url": "https://www.anzctr.org.au/TrialSearch.aspx?searchTxt={q}"
                       "&ddlSearch=Registered",
                "id": r"ACTRN\d{14}"},
