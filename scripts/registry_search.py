@@ -12,23 +12,36 @@ in Laos and Uganda." A method that depends on a subscription cannot be reproduce
 reader it is for, and verifiable-not-authoritative is the axis this project wins on. Every
 endpoint below is free to anyone with a browser.
 
-⚠️⚠️ FIVE STATES, AND THE FOURTH IS THE ONE THAT MATTERS.
+⚠️⚠️ SEVEN STATES. THE THIRD IS THE ONE THAT MATTERS AND THE SIXTH WAS FOUND BY READING.
 
     OK              records were parsed. A real result.
     EMPTY           the registry SAID it found nothing. Also a real result.
-    INDETERMINATE   HTTP 200, no records parsed, AND NO "no results" MESSAGE. The page
-                    renders its results in the browser, so what we hold is a shell.
+    INDETERMINATE   HTTP 200, no records parsed, AND NO "no results" MESSAGE. What we hold
+                    may be a shell -- OR OUR OWN QUERY OR VOCABULARY MAY BE WRONG.
     FAILED          transport or HTTP error. An absence of evidence, not evidence.
-    ROBOTS_REFUSED  the host disallows automated access.
-    NO_ENDPOINT     we have not established a free query endpoint for this registry.
+    ROBOTS_REFUSED  robots.txt disallows automated access.
+    POLICY_REFUSED  the site forbids automated download IN PAGE TEXT, not in robots.txt.
+    NO_ENDPOINT     no free query endpoint established, or none that is stable.
 
-⭐ INDETERMINATE EXISTS BECAUSE FOUR OF FIVE REGISTRIES TESTED RETURNED IT. DRKS, ANZCTR,
-EU-CTR and ChiCTR all answered 200 with zero parseable identifiers and no "nothing found"
-banner -- EU-CTR even echoes the drug name in its page title, which a careless parser would
-read as a hit. Recording those as EMPTY would convert "our parser cannot see this registry"
-into "this registry holds no such trial", which is a statement about the world we have not
-earned. It is the same defect as reporting a scan's reach as its coverage, arriving through
-an HTTP client.
+⚠️ THE COUNT IN THIS DOCSTRING SAID "FIVE" WHILE THE CODE HAD SIX, AND THEN SEVEN. Fixed
+2026-08-30. A module whose purpose is careful counting must not miscount itself.
+
+⭐ INDETERMINATE EXISTS BECAUSE FOUR OF FIVE REGISTRIES TESTED RETURNED IT, and recording
+those as EMPTY would convert "our parser cannot see this registry" into "this registry
+holds no such trial" -- a statement about the world we have not earned, and the same defect
+as reporting a scan's reach as its coverage.
+
+⚠️ BUT A BROWSER PASS ON 2026-08-30 FOUND THAT TWO OF THE SIX WERE OUR OWN FAULT, NOT THE
+REGISTRIES'. DRKS was queried at a URL it reads as a DRKS-ID lookup for the literal id
+"search", returning an error page with HTTP 200. EU-CTR says "Query did not match any
+clinical trials", which simply was not in our no-results vocabulary. Both are genuinely
+EMPTY for dapivirine.
+
+⇒ SO INDETERMINATE IS NOT ONLY "THE PAGE RENDERS CLIENT-SIDE". It is also "our query was
+wrong" and "our vocabulary was short", and those are the ones worth looking for first
+because they are ours to fix. The state stays -- withholding EMPTY until it is earned is
+still right -- but it must not become a comfortable place to file a registry we have not
+actually tried properly.
 
 ⚠️ AND THE COVERAGE FIGURE IS OF DETERMINATE ANSWERS, NOT OF QUERIES SENT. "We searched 18
 registries" is the unfalsifiable sentence this file exists to replace. What is reportable
@@ -50,6 +63,10 @@ UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
 
 OK, EMPTY, INDETERMINATE = "OK", "EMPTY", "INDETERMINATE"
 FAILED, ROBOTS_REFUSED, NO_ENDPOINT = "FAILED", "ROBOTS_REFUSED", "NO_ENDPOINT"
+# A refusal stated in page text rather than in robots.txt. jRCT is the case: only a
+# human reading the page finds it, and a robots-only compliance check passes a site that
+# has forbidden you in plain English.
+POLICY_REFUSED = "POLICY_REFUSED"
 DETERMINATE = (OK, EMPTY)
 
 # "No results" wording, per registry where known. ⚠️ A registry whose wording we have NOT
@@ -96,8 +113,23 @@ REGISTRIES = {
                "id": r"\b\d{4}-\d{6}-\d{2}\b"},
     "ChiCTR": {"url": "https://www.chictr.org.cn/searchproj.html?title={q}",
                "id": r"ChiCTR[-\w]{6,20}"},
-    "jRCT": {"url": "https://jrct.mhlw.go.jp/search?language=en&keyword={q}",
-             "id": r"jRCT[0-9a-z]{8,12}"},
+    # ⛔ POLICY REFUSAL, AND IT IS NOT IN robots.txt. jRCT states on its own search page:
+    #   "The jRCT requests that you use publicly available data in an appropriate manner.
+    #    Users are prohibited to download data through automatic programming beyond the
+    #    scope of personal use."
+    # This module IS automatic programming. An earlier version carried a jRCT query URL
+    # and would have queried it -- a stated prohibition that robots.txt does not express
+    # and that no amount of checking robots.txt would ever have surfaced.
+    #
+    # ⚠️ SO THERE ARE THREE KINDS OF REFUSAL, NOT ONE: a robots.txt directive (CRiS), a
+    # terms statement in human-readable page text (jRCT), and a technical block such as a
+    # 403 or a login. Only the first is machine-checkable, which means the other two can
+    # only be found by READING THE PAGE -- and a compliance check that only parses
+    # robots.txt will report a clean bill of health on a site that has forbidden you in
+    # plain English.
+    "jRCT": {"url": None, "id": r"jRCT[0-9a-z]{8,12}",
+             "note": ("POLICY: the site prohibits automated download beyond personal "
+                      "use. Not queried by this module. Read 2026-08-30.")},
     "IRCT": {"url": "https://www.irct.ir/search?query={q}", "id": r"IRCT\d{11,20}N\d{1,3}"},
     "CRiS": {"url": None, "id": None,
              "note": "robots.txt is a blanket Disallow: / -- not queried"},
@@ -149,7 +181,9 @@ def query(code, term):
            "utc": datetime.datetime.now(datetime.timezone.utc).isoformat(),
            "endpoint": spec.get("url"), "note": spec.get("note")}
     if not spec.get("url"):
-        rec["status"] = (ROBOTS_REFUSED if "Disallow" in (spec.get("note") or "")
+        note = spec.get("note") or ""
+        rec["status"] = (ROBOTS_REFUSED if "Disallow" in note
+                         else POLICY_REFUSED if note.startswith("POLICY:")
                          else NO_ENDPOINT)
         rec["ids"] = []
         return rec
