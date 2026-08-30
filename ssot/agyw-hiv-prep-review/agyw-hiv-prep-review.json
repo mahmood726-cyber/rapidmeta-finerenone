@@ -303,7 +303,9 @@
       "direction": "protective",
       "migrated_from": "stratified_analyses['age (prespecified)'] -- the block theirs lacked. Without it the page shows only POST-HOC strata and a reader cannot tell that a prespecified analysis also exists.",
       "note": "PRESPECIFIED stratum, and NOT a demonstration of no effect. Efficacy 10% (−41 to 43), P = 0.64 in the source: the interval is compatible with substantial benefit. What it establishes is that protection was not demonstrated in this stratum.",
-      "composition": "ASPIRE only; the Ring Study's own age analysis is not this number"
+      "composition": "ASPIRE only; the Ring Study's own age analysis is not this number",
+      "stratification": "age_prespecified_25",
+      "stratification_basis": "stratified_analyses['age (prespecified)'] -- the block theirs lacked. Without it the page shows only POST-HOC strata and a reader cannot tell that a prespecified analysis also exists."
      },
      {
       "label": "25 years or older",
@@ -330,7 +332,9 @@
       "direction": "protective",
       "migrated_from": "stratified_analyses['age (prespecified)'] -- the block theirs lacked. Without it the page shows only POST-HOC strata and a reader cannot tell that a prespecified analysis also exists.",
       "note": "PRESPECIFIED stratum. ASPIRE's own prespecified age split; efficacy 61% (32 to 77), P<0.001 in the source.",
-      "composition": "ASPIRE only; the Ring Study's own age analysis is not this number"
+      "composition": "ASPIRE only; the Ring Study's own age analysis is not this number",
+      "stratification": "age_prespecified_25",
+      "stratification_basis": "stratified_analyses['age (prespecified)'] -- the block theirs lacked. Without it the page shows only POST-HOC strata and a reader cannot tell that a prespecified analysis also exists."
      },
      {
       "label": "21 years of age or younger",
@@ -374,7 +378,10 @@
         }
        }
       ],
-      "label_in_source": "18 to 21 years"
+      "label_in_source": "18 to 21 years",
+      "stratification": "age_posthoc_dichotomy_21",
+      "stratification_basis": "labelled from this record's own source sentence: the post hoc dichotomy at 21",
+      "shared_with": "This is also the LOWEST BAND of the post-hoc thirds: the source reports -27% (-133 to 31) for 'those 18 to 21 years of age' and the same figure for 'those 21 years of age or younger'. One group, one number, reported under two labels in the same paper."
      },
      {
       "label": "22 to 26 years",
@@ -403,7 +410,9 @@
       "direction": "protective",
       "composition": "ASPIRE only; the Ring Study's own age analysis is not this number",
       "note": "Post hoc, and one of ASPIRE's three age bands. Reported alongside the other two so the GRADIENT is visible: protection rises across the bands rather than switching on at 21. Restored after a migration collapsed the three bands into a single over-21 figure.",
-      "migrated_from": "stratified_analyses.age (post-hoc thirds)"
+      "migrated_from": "stratified_analyses.age (post-hoc thirds)",
+      "stratification": "age_posthoc_thirds",
+      "stratification_basis": "stratified_analyses.age (post-hoc thirds)"
      },
      {
       "label": "27 to 45 years",
@@ -432,7 +441,9 @@
       "direction": "protective",
       "composition": "ASPIRE only; the Ring Study's own age analysis is not this number",
       "note": "Post hoc, and one of ASPIRE's three age bands. Reported alongside the other two so the GRADIENT is visible: protection rises across the bands rather than switching on at 21. Restored after a migration collapsed the three bands into a single over-21 figure.",
-      "migrated_from": "stratified_analyses.age (post-hoc thirds)"
+      "migrated_from": "stratified_analyses.age (post-hoc thirds)",
+      "stratification": "age_posthoc_thirds",
+      "stratification_basis": "stratified_analyses.age (post-hoc thirds)"
      },
      {
       "label": "Older than 21 years",
@@ -459,10 +470,12 @@
       },
       "direction": "protective",
       "composition": "ASPIRE only; the Ring Study's own age analysis is not this number",
-      "note": "POST HOC. The source's words: 'In a post hoc analysis'. Not a prespecified stratum."
+      "note": "POST HOC. The source's words: 'In a post hoc analysis'. Not a prespecified stratum.",
+      "stratification": "age_posthoc_dichotomy_21",
+      "stratification_basis": "labelled from this record's own source sentence: the post hoc dichotomy at 21"
      }
     ],
-    "subgroups_stratified_by": "age at enrolment",
+    "subgroups_stratified_by": "age at enrolment -- THREE DIFFERENT ANALYSES, not one set of strata: a prespecified split at 25, a post-hoc dichotomy at 21, and post-hoc thirds. The rows below do NOT partition the population and must not be read down the column as one table.",
     "other_outcomes": {
      "_note": "⚠️ THIS TABLE IS ASPIRE'S UNLESS A ROW SAYS OTHERWISE. The Ring Study's safety table has not been read at source in this pass, so no row claims two trials. The rows are the outcomes the retrieved article body reports, plus the ones it explicitly does not: “not measured” and “not reported in a poolable form” are outcomes of the search and are printed rather than dropped, because a table that lists only what was found reads as a table of everything that exists.",
      "rows": [
@@ -820,8 +833,8 @@
      "how_to_read_it": "⚠️ AN INTERACTION TEST STRENGTHENS A POST-HOC SUBGROUP; IT DOES NOT MAKE IT PRESPECIFIED. P = 0.02 is reported for the PRESPECIFIED age split, and the age-categorised thirds below it remain POST HOC. Both facts must be read together: presenting the thirds as a finding because an interaction test exists would recreate exactly the overclaim this review caught in its own reference -- a post-hoc subgroup presented as a finding.",
      "migrated_from": "stratified_analyses['age (prespecified)'].interaction"
     },
-    "subgroup_heading": "By age at enrolment",
-    "subgroup_footnote": "Two of these strata are PRESPECIFIED (under 25 versus 25 and over) and two are POST HOC; each row says which. For the prespecified split the trial reports P = 0.02 for interaction, applying to the PRESPECIFIED split (under 25 versus 25 and over). That test strengthens the prespecified split — it does NOT make the post-hoc strata prespecified, and no interaction test is reported for them. The source's words: “However, the efficacy of HIV-1 protection differed significantly according to age, with an efficacy of 61% (95% CI, 32 to 77; P<0.001) among women 25 years of age or older and 10% (95% CI, −41 to 43; P = 0.64) among those under the age of 25 years (P = 0.02 for interaction).” These strata are reported, not tested against one another beyond that single interaction test."
+    "subgroup_heading": "Age subgroups, from three separate analyses",
+    "subgroup_footnote": "Two of these strata are PRESPECIFIED (under 25 versus 25 and over) and two are POST HOC; each row says which. For the prespecified split the trial reports P = 0.02 for interaction, applying to the PRESPECIFIED split (under 25 versus 25 and over). That test strengthens the prespecified split — it does NOT make the post-hoc strata prespecified, and no interaction test is reported for them. The source's words: “However, the efficacy of HIV-1 protection differed significantly according to age, with an efficacy of 61% (95% CI, 32 to 77; P<0.001) among women 25 years of age or older and 10% (95% CI, −41 to 43; P = 0.64) among those under the age of 25 years (P = 0.02 for interaction).” These strata are reported, not tested against one another beyond that single interaction test. These rows come from THREE DIFFERENT ANALYSES of the same trial report, not one set of strata: a PRESPECIFIED split at 25 years, a POST-HOC dichotomy at 21, and POST-HOC thirds. They overlap and do not partition the population, so they must not be read down the column as one table -- two rows both read 56% with different intervals (31 to 71 for older than 21; 19 to 76 for 22 to 26). Each row carries the analysis it belongs to."
    }
   }
  },

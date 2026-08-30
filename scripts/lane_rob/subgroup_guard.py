@@ -65,9 +65,41 @@ def _numbers_in(text):
     return {int(x) for x in re.findall(r"-?\d+", t)}
 
 
+def _stratification_check(canon):
+    """⛔ ROWS FROM DIFFERENT ANALYSES MAY NOT SIT IN ONE UNLABELLED TABLE.
+
+    Two lanes wrote age subgroups into this object independently and git merged them cleanly.
+    The result was SIX rows from THREE different analyses of the same paper -- a prespecified
+    split at 25, a post-hoc dichotomy at 21, and post-hoc thirds -- in one list, with nothing
+    saying which was which. They do not partition the population: they overlap and triple-count,
+    and two different rows both read "56%" with different intervals (31 to 71 for "older than
+    21", 19 to 76 for "22 to 26 years").
+
+    Nothing was duplicated and no number was wrong, so no existing check fired. The missing fact
+    was WHICH ANALYSIS EACH ROW BELONGS TO -- which is why the fix is a typed field and not a
+    second key for a fact already stored.
+    """
+    bad = []
+    for oid, block in (((canon.get("results") or {}).get("by_outcome")) or {}).items():
+        if not isinstance(block, dict):
+            continue
+        subs = block.get("subgroups") or []
+        if not isinstance(subs, list) or len(subs) < 2:
+            continue
+        strata = [r.get("stratification") for r in subs if isinstance(r, dict)]
+        named = [x for x in strata if x]
+        if len(set(named)) > 1 and len(named) != len(strata):
+            bad.append(("results.by_outcome.%s.subgroups" % oid,
+                        "the list mixes %d analyses but %d of %d rows carry no stratification "
+                        "field. Rows from different analyses in one unlabelled table read as "
+                        "one set of strata and do not partition the population."
+                        % (len(set(named)), len(strata) - len(named), len(strata))))
+    return bad
+
+
 def check(canon):
     """[(path, problem)] -- empty when every subgroup record is renderable."""
-    bad = []
+    bad = list(_stratification_check(canon))
     for path, rec in _subgroup_records(canon):
         st = rec.get("analysis_status")
         if not st:
@@ -125,6 +157,25 @@ def _controls():
         out.append(("normalised number absent from the verbatim", "PUBLISHED", "REFUSE"))
     except SubgroupRefusal:
         out.append(("normalised number absent from the verbatim", "REFUSED", "REFUSE"))
+    mixed = {"results": {"by_outcome": {"primary": {"subgroups": [
+        dict(good["results"]["by_outcome"]["primary"]["subgroups"][0], stratification="a"),
+        dict(good["results"]["by_outcome"]["primary"]["subgroups"][0], label="other",
+             stratification="b"),
+        dict(good["results"]["by_outcome"]["primary"]["subgroups"][0], label="unlabelled")]}}}}
+    try:
+        enforce(mixed, "control:mixed-stratifications")
+        out.append(("two analyses in one list, a row unlabelled", "PUBLISHED", "REFUSE"))
+    except SubgroupRefusal:
+        out.append(("two analyses in one list, a row unlabelled", "REFUSED", "REFUSE"))
+    allsame = {"results": {"by_outcome": {"primary": {"subgroups": [
+        dict(good["results"]["by_outcome"]["primary"]["subgroups"][0], stratification="a"),
+        dict(good["results"]["by_outcome"]["primary"]["subgroups"][0], label="x",
+             stratification="a")]}}}}
+    try:
+        enforce(allsame, "control:one-stratification")
+        out.append(("one analysis, all rows labelled", "PUBLISHED", "PUBLISH"))
+    except SubgroupRefusal:
+        out.append(("one analysis, all rows labelled", "REFUSED", "PUBLISH"))
     noverb = json.loads(json.dumps(good))
     del noverb["results"]["by_outcome"]["primary"]["subgroups"][0]["verbatim"]
     try:
