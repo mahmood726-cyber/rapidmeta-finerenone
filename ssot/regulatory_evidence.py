@@ -111,6 +111,20 @@ DOCUMENT_CLASSES = {
     "fda_medical_review": ("FDA Medical Review", None, "D1a, D1c"),
     "fda_statistical_review": ("FDA Statistical Review", None, "D2, D3"),
     "ema_epar": ("EMA European Public Assessment Report", None, "not yet probed"),
+    # ⚠️ ADDED 2026-08-30, AND IT MAKES THE MODULE NAME A MISNOMER. A trial's own primary
+    # report is not a regulatory document, and storing one under a key called
+    # `regulatory_evidence` mislabels it. The key is KEPT because `grade_engine` reads it
+    # and renaming a store that three surfaces already consume would risk more than the
+    # tidiness is worth -- but the misnomer is named here rather than left for someone to
+    # discover. What this store actually holds is EXTERNAL EVIDENCE answering RoB 2
+    # signalling questions the registry record could not, whatever document supplied it.
+    #
+    # ⭐ AND THE CLASS MATTERS FOR MORE THAN LABELLING: a trial report is the investigators'
+    # own account, while a regulatory review is an independent assessor reading their
+    # dossier. Those are different evidence, and a reader should be able to tell which
+    # answered a question without opening the quote.
+    "trial_publication": ("The trial's own primary report", None,
+                          "whatever the paper states; the investigators' own account"),
 }
 
 
