@@ -33,7 +33,22 @@ import tempfile
 HERE = os.path.dirname(os.path.abspath(__file__))
 os.chdir(os.path.dirname(os.path.dirname(HERE)))
 
+# ⛔ THE CLINICAL READING IS TRACKED AT ZERO, ON PURPOSE.
+#
+# Mahmood's bar is that the generated clinical reading must equal the hand-written one. Measured
+# across the 163 generator-reachable pages, the section DOES NOT EXIST: not one carries it. A
+# word-list search first said 44 pages had something clinical, but all 32 distinct matching
+# headings are outcome names, methods notes or the registry's own name -- "ClinicalTrials.gov
+# API v2", "clinical cure at test-of-cure", "a clinical endpoint that no registration declares".
+#
+# The only page with a real one is the hand-built pilot, which is absent from PAGE_MAP.
+#
+# ⇒ So the gap is not quality, it is ABSENCE, and the claim-ledger baseline is 0 of 16 on every
+# delivered page by construction. The row below is keyed on the SECTION-ROLE contract rather
+# than on wording, so the number moves the moment the generator emits one and cannot be
+# satisfied by a heading that merely contains the word "clinical".
 COMPONENTS = [
+    ("clinical reading", "data-role='clinical-reading'"),
     ("integrity layer", "What was checked before this page was published"),
     ("estimand statement", "What is being estimated"),
     ("both intervals", "Both intervals, and which one this page reports"),
