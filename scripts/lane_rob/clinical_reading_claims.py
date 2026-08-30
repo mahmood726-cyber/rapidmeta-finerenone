@@ -1,0 +1,160 @@
+# -*- coding: utf-8 -*-
+"""THE MEASUREMENT: what the hand-written clinical reading claims, so a generated one can be
+scored claim by claim.
+
+WHY A LEDGER AND NOT A JUDGEMENT. "Equal to hand-written" is not scoreable as an impression. It
+becomes scoreable when the hand-written section is decomposed into propositions, each with the
+SOURCE that grounds it and the HEDGE it was written with, and a candidate is then measured
+against that list: recall n of n, and separately whether each recalled claim kept its hedge.
+
+⛔ THE HEDGE IS PART OF THE CLAIM. "The ring works in women over 21" and "a post hoc subgroup
+showed 56% protection in women over 21" are different claims, and only the second is true of the
+evidence. This project has already published a CONDITIONAL WHO recommendation as unconditional;
+the same error one layer down turns a hypothesis-generating subgroup into a treatment decision.
+
+⛔ AND BUILDING THIS FOUND ONE IMMEDIATELY. The hand-written section says "56% protection in the
+age-stratified analysis". ASPIRE's own words are "IN A POST HOC ANALYSIS, higher rates of HIV-1
+protection were observed among women over the age of 21 years (56%; 95% CI, 31 to 71)". The page
+drops "post hoc". Its own Age section elsewhere calls the finding hypothesis-generating, so the
+review knows -- the clinical reading, the part a busy clinician actually reads, does not say it.
+
+PROVENANCE OF THE ENUMERATION. Propositions were enumerated mechanically by codex (GPT-5, no
+network, evidence inline) and the modal/polarity assignments were checked by hand. Sources were
+retrieved and verified here; codex was given no retrieval role because it has none.
+"""
+import io
+import json
+import os
+import re
+import sys
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+os.chdir(os.path.dirname(os.path.dirname(HERE)))
+
+ASPIRE = "ASPIRE primary, PMID 26900902, PMC4993693, doi 10.1056/NEJMoa1506110, retrieved 2026-08-30"
+WHO = "WHO guideline, iris handle 10665/340190, 17 March 2021, retrieved 2026-08-29"
+PAGE = "computed on this page from the adjudicated counts"
+
+# id, verbatim span, the proposition, the hedge AS WRITTEN, polarity, source, grounded?
+CLAIMS = [
+    ("C1", "In women over 21 the ring works",
+     "In women over 21 the ring works", "unhedged assertion", "assert", ASPIRE, "HEDGE_WEAKER",
+     "ASPIRE calls this a POST HOC analysis; the page states it flat. A post-hoc subgroup "
+     "presented as a finding is the difference between a hypothesis and a recommendation."),
+    ("C2", "56% protection in the age-stratified analysis",
+     "56% protection in the age-stratified analysis", "unhedged assertion", "assert", ASPIRE,
+     "GROUNDED_PARTIAL",
+     "The figure is exact -- 56% (95% CI, 31 to 71) -- but the source says post hoc, and the "
+     "page gives no interval where the source gives one."),
+    ("C3", "about 45 women using it for roughly 18 months prevents one infection",
+     "NNT about 45 over roughly 18 months", "about; roughly", "assert", PAGE, "GROUNDED",
+     "Derived on the page from the adjudicated pool and stated with its range elsewhere (30 to 116)."),
+    ("C4", "In women 21 and under it has not been shown to work",
+     "In women 21 and under efficacy has not been shown", "has not been shown", "cannot-determine",
+     ASPIRE, "GROUNDED",
+     "ASPIRE: -27% (95% CI, -133 to 31; P = 0.45). Absence of evidence, correctly not stated "
+     "as evidence of absence."),
+    ("C5", "these trials cannot say whether that is the product or the adherence",
+     "The trials cannot separate product failure from non-adherence", "cannot say",
+     "cannot-determine", ASPIRE, "GROUNDED",
+     "ASPIRE ties the age difference to reduced adherence but does not resolve causation."),
+    ("C6", "Offering it as though the pooled figure applied would overstate what is known",
+     "Applying the pooled figure to under-21s would overstate what is known", "would", "predict",
+     PAGE, "GROUNDED", "Follows from C2 and C4 holding together."),
+    ("C7", "It is safe on everything measured",
+     "The ring is safe on every outcome measured", "unhedged assertion", "assert", ASPIRE,
+     "GROUNDED_SCOPED",
+     "True of what was measured; the wording already scopes it with 'everything measured'."),
+    ("C8", "no excess of severe or serious adverse events",
+     "No excess of severe adverse events", "unhedged assertion", "deny", ASPIRE, "GROUNDED", ""),
+    ("C9", "no excess of severe or serious adverse events",
+     "No excess of serious adverse events", "unhedged assertion", "deny", ASPIRE, "GROUNDED", ""),
+    ("C10", "no resistance signal among women who seroconverted",
+     "No resistance signal among women who seroconverted", "unhedged assertion", "deny", ASPIRE,
+     "GROUNDED", ""),
+    ("C11", "It protects against nothing else",
+     "The ring protects against nothing other than HIV-1", "unhedged assertion", "deny", WHO,
+     "GROUNDED", "WHO records STI incidence unchanged; the ring is a single-agent ARV."),
+    ("C12", "Condoms, STI screening and partner services remain necessary",
+     "Condoms remain necessary", "remain necessary", "obligation", WHO, "GROUNDED",
+     "WHO recommends the ring as part of COMBINATION prevention, not alone."),
+    ("C13", "Condoms, STI screening and partner services remain necessary",
+     "STI screening remains necessary", "remain necessary", "obligation", WHO, "GROUNDED", ""),
+    ("C14", "Condoms, STI screening and partner services remain necessary",
+     "Partner services remain necessary", "remain necessary", "obligation", WHO, "GROUNDED", ""),
+    ("C15", "Effectiveness in use will be lower than this efficacy",
+     "Real-world effectiveness will be lower than trial efficacy", "will", "predict", ASPIRE,
+     "GROUNDED_INFERENCE",
+     "An inference from trial-context adherence, not a measured quantity. Defensible and "
+     "labelled here as inference rather than result."),
+    ("C16", "which was already limited by adherence inside a trial with monthly contact",
+     "Trial efficacy was already limited by adherence despite monthly contact", "unhedged "
+     "assertion", "assert", ASPIRE, "GROUNDED", ""),
+]
+
+# Words that carry the hedge. A candidate that states the claim but drops these has not
+# reproduced the claim -- it has reproduced a stronger one.
+HEDGE_TOKENS = {
+    "has not been shown": ["not been shown", "not demonstrated", "no evidence of benefit"],
+    "cannot say": ["cannot say", "cannot determine", "could not separate", "cannot distinguish"],
+    "would": ["would"],
+    "will": ["will", "expected to"],
+    "about; roughly": ["about", "roughly", "approximately", "around"],
+    "remain necessary": ["remain", "still necessary", "continue to"],
+}
+
+
+def score(candidate_text):
+    """Recall n of n, and whether each recalled claim kept the hedge it was written with."""
+    t = re.sub(r"\s+", " ", candidate_text or "").lower()
+    rows = []
+    for cid, verbatim, claim, modal, pol, src, grounded, note in CLAIMS:
+        key = [w for w in re.findall(r"[a-z0-9%]+", verbatim.lower()) if len(w) > 3]
+        hit = sum(1 for w in key if w in t)
+        present = len(key) > 0 and hit / len(key) >= 0.6
+        kept = None
+        if present and modal in HEDGE_TOKENS:
+            kept = any(h in t for h in HEDGE_TOKENS[modal])
+        rows.append({"id": cid, "claim": claim, "modal": modal, "polarity": pol,
+                     "grounded": grounded, "present": present, "hedge_kept": kept})
+    return rows
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace",
+                                  line_buffering=True)
+    src = sys.argv[1] if len(sys.argv) > 1 else r"F:\claude-temp\pend\clinical_reading_handwritten.txt"
+    text = io.open(src, encoding="utf-8", errors="replace").read()
+    rows = score(text)
+    n = len(rows)
+    present = sum(1 for r in rows if r["present"])
+    lost = [r for r in rows if r["present"] and r["hedge_kept"] is False]
+    print("")
+    print("CLINICAL READING -- claim ledger")
+    print("")
+    print("  propositions enumerated                 %3d" % n)
+    for g in ("GROUNDED", "GROUNDED_PARTIAL", "GROUNDED_SCOPED", "GROUNDED_INFERENCE",
+              "HEDGE_WEAKER"):
+        c = sum(1 for c_ in CLAIMS if c_[6] == g)
+        if c:
+            print("    %-20s %3d" % (g, c))
+    print("")
+    print("  SCORED AGAINST: %s" % os.path.basename(src))
+    print("    recall                                %3d of %d" % (present, n))
+    print("    recalled but HEDGE DROPPED            %3d" % len(lost))
+    for r in lost:
+        print("      %-4s %s  (written: %s)" % (r["id"], r["claim"][:60], r["modal"]))
+    missing = [r for r in rows if not r["present"]]
+    if missing:
+        print("")
+        print("    NOT RECALLED:")
+        for r in missing:
+            print("      %-4s %-58s %s" % (r["id"], r["claim"][:58], r["modal"]))
+    out = r"F:\claude-temp\pend\out\clinical_reading_score.json"
+    os.makedirs(os.path.dirname(out), exist_ok=True)
+    json.dump(rows, io.open(out, "w", encoding="utf-8"), indent=1)
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
