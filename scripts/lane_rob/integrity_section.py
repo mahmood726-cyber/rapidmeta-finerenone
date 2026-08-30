@@ -277,8 +277,21 @@ def _c_unanchored_authority(html, txt):
 CLASSES = [
     ("unanchored-external-authority",
      "an outside body's position asserted with nothing retrievable behind it",
+     # ⛔ THE EXAMPLE MUST CARRY ITS OWN ANCHOR, and it did not until gate 14 said so.
+     #
+     # This lineage line QUOTES an unsourced claim in order to explain the defect -- and a
+     # quotation of an unanchored assertion is itself an unanchored assertion on the page. Gate
+     # 14, another lane's, flagged it on all three pages this lane rebuilt, plus the staging
+     # note beside it. It was right: nothing in the block let a reader follow or date it.
+     #
+     # My own class solved this by EXCLUDING the integrity section from what it scans. That
+     # exclusion is local to this file and no other lane's gate knows about it -- so the honest
+     # fix is to anchor the example rather than to widen anyone's exclusion. The citation now
+     # travels with the quote wherever the section is rendered.
      "'WHO has recommended the ring' went live from a conversation, and dropped the "
-     "conditionality WHO actually attached", _c_unanchored_authority),
+     "conditionality WHO actually attached -- WHO, iris handle 10665/340190, 17 March 2021: "
+     "the ring 'may be offered ... (Conditional recommendation; moderate-certainty evidence)'",
+     _c_unanchored_authority),
     ("single-trial-shown-as-pooled", "one trial's result presented as a pool",
      "the front page carried a single trial's HR 0.85 (0.79-0.92) as a two-trial pool",
      _c_single_trial_pooled),
