@@ -387,6 +387,49 @@ def d_risk_of_bias(canon, oid, res):
                                           for i, v in unresolved)),
                     inputs_missing=["risk_of_bias adjudication"])
 
+    # ⛔ AN ADJUDICATION MUST BE APPLIED, NOT MERELY COUNTED AS PRESENT.
+    #
+    # Until this was fixed, the presence of an adjudication record stopped the refusal
+    # above and NOTHING ELSE: the disputed result stayed out of `verdicts` and the domain
+    # was rated on the remainder. On agyw-hiv-prep-review that printed "1 of 1 contributing
+    # result(s) carry SOME CONCERNS ... (0 low)" for a pooled result with TWO trials, one of
+    # which had just been adjudicated to LOW. The rating happened to be unchanged; the
+    # DENOMINATOR WAS NOT, and a reader was told the domain rested on one result when it
+    # rests on two.
+    #
+    # ⚠️ SAME CLASS AS EVERY OTHER DENOMINATOR DEFECT THIS PROJECT HAS FOUND: an item was
+    # dropped upstream of the count, so the count described the engine's reach rather than
+    # the evidence. It is worse here than in a scan, because the number carries a rating.
+    #
+    # ⇒ So the adjudicated verdict is folded in, and where the record does not SAY which
+    # verdict won, the domain refuses rather than silently rating on a subset.
+    if unresolved:
+        rec = st.get("record") if isinstance(st.get("record"), dict) else {}
+        resmap = rec.get("resolutions") if isinstance(rec.get("resolutions"), dict) else {}
+        still = []
+        for rid, ov in unresolved:
+            raw = resmap.get(rid)
+            # A bare `resolution` is honoured ONLY when exactly one result is disputed --
+            # otherwise it is ambiguous about which result it settles, and guessing would
+            # attach a real adjudication to the wrong trial.
+            if raw is None and len(unresolved) == 1:
+                raw = rec.get("resolution")
+            v = _verdict(raw)
+            if v in KNOWN_VERDICTS and v != NO_INFO:
+                verdicts.append(v)
+            else:
+                still.append((rid, ov))
+        if still:
+            return _dom("risk_of_bias", REFUSED,
+                        "An adjudication record exists, but it does not state which verdict "
+                        "was reached for %d disputed result(s) (%s). A record that says a "
+                        "disagreement was resolved without saying HOW cannot be applied, and "
+                        "rating the domain on the results that happen to agree would report "
+                        "a denominator smaller than the evidence."
+                        % (len(still), "; ".join("%s: %s" % (i, "/".join(v))
+                                                 for i, v in still[:4])),
+                        inputs_missing=["adjudication.resolutions[<result id>]"])
+
     n = len(verdicts)
     high = sum(1 for v in verdicts if "HIGH" in v)
     some = sum(1 for v in verdicts if "SOME" in v)
