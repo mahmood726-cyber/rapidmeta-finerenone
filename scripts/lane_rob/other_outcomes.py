@@ -238,6 +238,8 @@ def render(canon):
             # a reader shown both in one table will compare them unless told not to.
             QUALS = [
                 ("estimand_note", "What this figure is, and is not"),
+                ("only_one_trial_contributes", "Which trials contribute"),
+                ("corroboration", "Corroboration, and from which tier"),
                 ("prespecified_basis", "Prespecified?"),
                 ("replaces", "What this replaces"),
                 ("what_is_still_missing", "What is still missing"),
