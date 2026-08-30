@@ -123,14 +123,39 @@ DOCUMENT_CLASSES = {
     # own account, while a regulatory review is an independent assessor reading their
     # dossier. Those are different evidence, and a reader should be able to tell which
     # answered a question without opening the quote.
+    # ⭐ ADDED 2026-08-30. The registry's RESULTS SECTION -- a different document from the
+    # registration at the same URL. Free by construction: no subscription, no publisher, no
+    # institutional login, so a reader anywhere can check it. Answers D1 q1.3 (baseline
+    # table), D3 (participant flow with withdrawal reasons) and D2 q2.6 (the analysis
+    # population, in the sponsor's own words), for ANY registered trial that posted results
+    # -- which is a strictly larger set than the FDA route, that reaches only US approvals.
+    "registry_posted_results": ("ClinicalTrials.gov posted results", 2008,
+                                "D1 q1.3, D2 q2.6, D3 -- baseline table, analysis "
+                                "population, participant flow"),
     "trial_publication": ("The trial's own primary report", None,
                           "whatever the paper states; the investigators' own account"),
 }
 
 
 def answer(question, response, tier, quote, document, section=None, url=None,
-           retrieved_utc=None, document_class="fda_integrated_review"):
-    """One typed answer. Refuses to build a malformed one rather than store it."""
+           retrieved_utc=None, document_class="fda_integrated_review",
+           table_evidence=None):
+    """One typed answer. Refuses to build a malformed one rather than store it.
+
+    ⭐ `table_evidence` EXISTS BECAUSE THE QUOTE RULE WAS WRITTEN FOR PROSE AND SOME
+    EVIDENCE IS A TABLE. This review refused RoB 2 question 1.3 -- do baseline differences
+    suggest a problem with randomisation -- with the reason "the paper prints a table, and a
+    table is not a sentence". That was honest about the instrument and WRONG ABOUT THE
+    WORLD: ClinicalTrials.gov posts the same baseline table arm by arm, machine-readable,
+    free, at the trial's own registration. Demanding a sentence for it would have forced an
+    assessor either to keep refusing or to paraphrase a table into prose and quote their own
+    paraphrase -- which is worse than either.
+
+    ⚠️ IT IS NOT A LOOSER QUOTE RULE, IT IS A DIFFERENT EVIDENCE KIND, and it must carry
+    GROUP-WISE VALUES. A baseline row with a single pooled number cannot speak to BALANCE
+    BETWEEN ARMS, which is the only thing 1.3 asks about; accepting one would let a table
+    that cannot answer the question stand where a sentence that could not was refused.
+    """
     if question not in SUPPORTED_QUESTIONS:
         raise ValueError("signalling question %r is not one this source class has been "
                          "measured to answer: %s" % (question,
@@ -142,7 +167,19 @@ def answer(question, response, tier, quote, document, section=None, url=None,
     # answer, and NO_INFORMATION means the document is silent; neither has a sentence to
     # quote, and demanding one would push an assessor to stretch an unrelated span.
     routed = str(response).strip().upper() in ("NA", "NOT_APPLICABLE", "NO_INFORMATION")
-    if not routed and (not quote or len(str(quote).split()) < 4):
+    if table_evidence is not None:
+        rows = (table_evidence or {}).get("rows")
+        if not rows:
+            raise ValueError("table_evidence was supplied with no rows; question %s"
+                             % question)
+        multiarm = [r for r in rows
+                    if isinstance(r.get("by_group"), dict) and len(r["by_group"]) >= 2]
+        if not multiarm:
+            raise ValueError(
+                "table_evidence carries no row with values for two or more groups, so it "
+                "cannot speak to BALANCE BETWEEN ARMS -- the only thing question %s asks. "
+                "A pooled column is not evidence of balance." % question)
+    elif not routed and (not quote or len(str(quote).split()) < 4):
         raise ValueError("an answer without a verbatim quote of at least four words is "
                          "not evidence; question %s" % question)
     if not document:
@@ -154,6 +191,7 @@ def answer(question, response, tier, quote, document, section=None, url=None,
             "quote": quote,
             "document": document,
             "document_class": document_class,
+            "table_evidence": table_evidence,
             "section": section,
             "url": url,
             "retrieved_utc": retrieved_utc}

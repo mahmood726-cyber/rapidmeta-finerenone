@@ -199,8 +199,42 @@
        "declared_because_this_change_improves_our_own_rating": "This judgement moves the certainty UP, from VERY LOW to LOW, and it replaces a DOWNGRADE recorded here earlier the same day. That direction is exactly why the reason is the executed search and not a preference: the rule -- the tested PICO governs -- was fixed BEFORE the rating was recomputed, and both readings are published side by side above so a reader can apply the other one and get VERY LOW without asking us.",
        "judged_by": "Explicit stored judgement. grade_engine refuses this domain by design and will not infer it."
       },
-      "judged_by": "Explicit stored judgement. grade_engine refuses this domain by design and will not infer it."
+      "judged_by": "Explicit stored judgement. grade_engine refuses this domain by design and will not infer it.",
+      "reviewer_challenge_2026_08_30": "A cross-family reviewer (openai) called this \"partly sound, but DECISIVE is overstated\", and the qualification is accepted. Two points stand against the strong form: ASPIRE’s interaction is significant (P = 0.02) while the Ring Study’s is only same-direction and NOT significant (P = 0.43), so the evidence for modification is one trial rather than two; and this is correctly NOT an inconsistency issue, because the two whole-trial estimates agree (I-squared 0%) -- it is a within-study subgroup difference, which is the more reliable kind, but it is still one study’s subgroup finding.",
+      "the_better_move_that_is_now_owed": "⭐ The reviewer names an action stronger than the downgrade: where an effect modifier is credible and decision-relevant, Cochrane asks for SUBGROUP-SPECIFIC ESTIMATES AND SEPARATE SUMMARY-OF-FINDINGS ROWS, not a blunt downgrade of the pooled average. A reader aged 30 and a reader aged 19 are owed different numbers, and this review currently gives them one. The downgrade stands as the honest rating of the POOLED estimate; the age-stratified presentation is recorded as OWED.",
+      "load_bearing_quote_VERIFIED": {
+       "quote": "However, the efficacy of HIV-1 protection differed significantly according to age, with an efficacy of 61% (95% CI, 32 to 77; P<0.001) among women 25 years of age or older and 10% (95% CI, −41 to 43; P = 0.64) among those under the age of 25 years (P = 0.02 for interaction).",
+       "document": "Baeten JM et al. N Engl J Med 2016. PMID 26900902, PMC4993693.",
+       "extracted_by": "answer_rob_from_fulltext.find_quote -- cut from the document by code, not typed.",
+       "verified_utc": "2026-08-30T15:41:11.180561+00:00",
+       "⛔_the_guard_caught_the_author": "The version of this sentence I had TYPED into prose FAILED the exact-substring test that every risk-of-bias quote on this object passes. Two differences: I dropped the leading \"However, \", and I typed a HYPHEN-MINUS in \"-41\" where the paper prints a UNICODE MINUS \"−41\" -- a character identical to a human eye and different to a matcher. The finding is unaffected; my transcription of it was not verbatim. FIFTH SEPARATOR-CLASS DEFECT here, after [_ ] vs hyphens, SOME CONCERNS vs SOME_CONCERNS, LEAP 2 vs LEAP2, and CHAMPION-PHOENIX as one token. ⇒ THE ONE QUOTE I DID NOT PUT THROUGH THE EXTRACTOR IS THE ONE THAT WAS WRONG, and it was the load-bearing evidence for this domain."
+      },
+      "burden_relevance_is_a_PRIORITISATION_argument": "Handbook 14.2.2 domain (3) never mentions disease burden. That the trials ran where the burden is, is a reason they were the RIGHT TRIALS TO RUN -- it can reduce concern, and it does not erase geographic or health-system indirectness. My original NO_DOWNGRADE rested on exactly that conflation.",
+      "what_would_have_to_differ_BOTH_ARMS": {
+       "for_NO_downgrade": "Either (a) the review narrows its question to the population studied AND SAYS SO IN ITS TITLE AND QUESTION, or (b) the treatment-by-age interaction is shown absent or an artefact that would not recur elsewhere.",
+       "for_a_LARGER_downgrade": "Two levels would need the mismatch to be severe enough that the trials do not address the question at all. Not so here: the population is a RESTRICTED VERSION of the one asked about, not a different one. Codex reached DOWNGRADE 1 and explicitly not 2.",
+       "⛔_the_guard_on_arm_(a)": "NARROWING THE QUESTION TO ESCAPE A DOWNGRADE IS THE SAME DEFECT AS REMOVING THE DOWNGRADE. Both non-Claude readers endorsed this. Rescoping is legitimate ONLY as an editorial decision about what the review claims, taken independently of the rating it produces, and it must change the title and the question a reader meets -- not a note beside a letter."
+      }
+     },
+     "derived_certainty_2026_08_30": {
+      "certainty": "VERY_LOW",
+      "state": "RATED",
+      "downgrade_levels": 3,
+      "sensitivity": "This letter DEPENDS on the imprecision threshold: under line_of_no_effect it would be LOW.",
+      "regenerate_with": "grade_engine.derive(canon, \"primary\")",
+      "this_is_a_cache_not_a_source": "Stored so a consumer that cannot import the engine still reads the right letter. It is STALE THE MOMENT ANY INPUT CHANGES -- which is exactly how the ledger above went wrong -- so the engine is the source and this is a convenience."
      }
+    },
+    "decision_threshold": {
+     "lo": 0.9,
+     "hi": 1.1111111111111112,
+     "declared_utc": "2026-08-30T15:38:31.789473+00:00",
+     "source": "Declared for this topic from the clinical question, BEFORE the letter was recomputed.",
+     "the_threshold": "A relative risk of 0.90 -- a 10% relative reduction in HIV-1 seroconversion.",
+     "why_a_topic_specific_threshold_at_all": "The engine otherwise falls back to the Handbook rough guide of 0.75 to 1.25, which is a DECLARED DEFAULT and not a clinical judgement. A cross-family reviewer put the objection plainly: the confidence interval 0.566 to 0.873 does not cross no effect and does not cross harm -- it crosses only the 0.75 line, and that line \"needs clinical or absolute-effect justification\". It had none. A default standing in for a judgement is the most important line on the page being drawn by nobody.",
+     "justification_from_absolute_EFFECT_not_from_the_ratio": "The placebo arms of these trials ran at roughly 4 to 6 HIV-1 seroconversions per 100 person-years, and WHO defines \"substantial risk\" warranting pre-exposure prophylaxis as an incidence of 3 or more per 100 person-years. Taking a placebo incidence of about 4.5 per 100 person-years: RR 0.90 prevents about 0.45 infections per 100 woman-years, RR 0.80 about 0.9, RR 0.75 about 1.13. In a population at substantial risk, with a user-controlled option intended for women who cannot or will not use daily oral or injectable prophylaxis, a 10% relative reduction is the smallest effect that would still change what is offered. Below it the absolute benefit falls under half an infection per 100 woman-years and the adherence burden is not obviously worth carrying.",
+     "what_this_threshold_is_NOT": "⚠️ It is not a claim that a 9% reduction is worthless, and it is not derived from a published MID -- none exists for this outcome. It is a stated, arguable line, and its whole value is that it is STATED. A reader who prefers 0.80 or the Handbook default can apply either: the engine reports the letter under every threshold it holds, and both alternatives are in the sensitivity block beside the rating.",
+     "declared_BEFORE_recomputation_and_this_is_checkable": "⛔ A THRESHOLD CHOSEN AFTER SEEING WHICH LETTER IT PRODUCES IS A TUNED THRESHOLD. This was written and committed before the engine was re-run. It is also known IN ADVANCE that it will move the letter UP -- the whole interval 0.566 to 0.873 lies below 0.90, so imprecision will not downgrade -- and that direction is stated here rather than discovered afterwards, because a favourable threshold declared in advance is a judgement and the same threshold declared afterwards is a result."
     }
    }
   }
@@ -757,16 +791,366 @@
      "1.3": {
       "question": "1.3",
       "question_text": "Did baseline differences between intervention groups suggest a problem with the randomization process?",
-      "response": "NO_INFORMATION",
+      "response": "NO",
       "tier": "STATED",
       "quote": "",
-      "document": "Baeten JM et al. Use of a Vaginal Ring Containing Dapivirine for HIV-1 Prevention in Women. N Engl J Med 2016. PMID 26900902, PMC4993693.",
-      "document_class": "trial_publication",
-      "section": "the report presents a baseline table but makes NO PROSE STATEMENT about balance between groups. This instrument reads sentences; a table is not a sentence, and inferring balance from one would be this tool asserting something the document does not say.",
-      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4993693/",
-      "retrieved_utc": "2026-08-30T14:56:10.671447+00:00",
-      "routed_by_the_tool_not_the_paper": false,
-      "the_document_is_silent": true
+      "document": "ClinicalTrials.gov posted results for NCT01617096 (ASPIRE / MTN-020)",
+      "document_class": "registry_posted_results",
+      "table_evidence": {
+       "rows": [
+        {
+         "measure": "Age, Continuous",
+         "category": "",
+         "unit": "years",
+         "param": "MEAN",
+         "by_group": {
+          "BG000": "27.2",
+          "BG001": "27.3",
+          "BG002": "27.2"
+         }
+        },
+        {
+         "measure": "Sex: Female, Male",
+         "category": "Female",
+         "unit": "Participants",
+         "param": "COUNT_OF_PARTICIPANTS",
+         "by_group": {
+          "BG000": "1313",
+          "BG001": "1316",
+          "BG002": "2629"
+         }
+        },
+        {
+         "measure": "Sex: Female, Male",
+         "category": "Male",
+         "unit": "Participants",
+         "param": "COUNT_OF_PARTICIPANTS",
+         "by_group": {
+          "BG000": "0",
+          "BG001": "0",
+          "BG002": "0"
+         }
+        },
+        {
+         "measure": "Race (NIH/OMB)",
+         "category": "American Indian or Alaska Native",
+         "unit": "Participants",
+         "param": "COUNT_OF_PARTICIPANTS",
+         "by_group": {
+          "BG000": "0",
+          "BG001": "0",
+          "BG002": "0"
+         }
+        },
+        {
+         "measure": "Race (NIH/OMB)",
+         "category": "Asian",
+         "unit": "Participants",
+         "param": "COUNT_OF_PARTICIPANTS",
+         "by_group": {
+          "BG000": "13",
+          "BG001": "3",
+          "BG002": "16"
+         }
+        },
+        {
+         "measure": "Race (NIH/OMB)",
+         "category": "Native Hawaiian or Other Pacific Islander",
+         "unit": "Participants",
+         "param": "COUNT_OF_PARTICIPANTS",
+         "by_group": {
+          "BG000": "0",
+          "BG001": "0",
+          "BG002": "0"
+         }
+        },
+        {
+         "measure": "Race (NIH/OMB)",
+         "category": "Black or African American",
+         "unit": "Participants",
+         "param": "COUNT_OF_PARTICIPANTS",
+         "by_group": {
+          "BG000": "1228",
+          "BG001": "1226",
+          "BG002": "2454"
+         }
+        },
+        {
+         "measure": "Race (NIH/OMB)",
+         "category": "White",
+         "unit": "Participants",
+         "param": "COUNT_OF_PARTICIPANTS",
+         "by_group": {
+          "BG000": "2",
+          "BG001": "0",
+          "BG002": "2"
+         }
+        },
+        {
+         "measure": "Race (NIH/OMB)",
+         "category": "More than one race",
+         "unit": "Participants",
+         "param": "COUNT_OF_PARTICIPANTS",
+         "by_group": {
+          "BG000": "0",
+          "BG001": "0",
+          "BG002": "0"
+         }
+        },
+        {
+         "measure": "Race (NIH/OMB)",
+         "category": "Unknown or Not Reported",
+         "unit": "Participants",
+         "param": "COUNT_OF_PARTICIPANTS",
+         "by_group": {
+          "BG000": "70",
+          "BG001": "87",
+          "BG002": "157"
+         }
+        },
+        {
+         "measure": "Region of Enrollment",
+         "category": "South Africa",
+         "unit": "Participants",
+         "param": "COUNT_OF_PARTICIPANTS",
+         "by_group": {
+          "BG000": "713",
+          "BG001": "713",
+          "BG002": "1426"
+         }
+        },
+        {
+         "measure": "Region of Enrollment",
+         "category": "Zimbabwe",
+         "unit": "Participants",
+         "param": "COUNT_OF_PARTICIPANTS",
+         "by_group": {
+          "BG000": "338",
+          "BG001": "340",
+          "BG002": "678"
+         }
+        },
+        {
+         "measure": "Region of Enrollment",
+         "category": "Malawi",
+         "unit": "Participants",
+         "param": "COUNT_OF_PARTICIPANTS",
+         "by_group": {
+          "BG000": "135",
+          "BG001": "137",
+          "BG002": "272"
+         }
+        },
+        {
+         "measure": "Region of Enrollment",
+         "category": "Uganda",
+         "unit": "Participants",
+         "param": "COUNT_OF_PARTICIPANTS",
+         "by_group": {
+          "BG000": "127",
+          "BG001": "126",
+          "BG002": "253"
+         }
+        },
+        {
+         "measure": "BMI",
+         "category": "",
+         "unit": "kg/(m^2)",
+         "param": "MEAN",
+         "by_group": {
+          "BG000": "26.8",
+          "BG001": "27.2",
+          "BG002": "27.0"
+         }
+        },
+        {
+         "measure": "Education Status",
+         "category": "Less than Secondary School",
+         "unit": "Participants",
+         "param": "COUNT_OF_PARTICIPANTS",
+         "by_group": {
+          "BG000": "212",
+          "BG001": "192",
+          "BG002": "404"
+         }
+        },
+        {
+         "measure": "Education Status",
+         "category": "Secondary School and Higher",
+         "unit": "Participants",
+         "param": "COUNT_OF_PARTICIPANTS",
+         "by_group": {
+          "BG000": "1101",
+          "BG001": "1124",
+          "BG002": "2225"
+         }
+        },
+        {
+         "measure": "Marital Status",
+         "category": "Married",
+         "unit": "Participants",
+         "param": "COUNT_OF_PARTICIPANTS",
+         "by_group": {
+          "BG000": "527",
+          "BG001": "547",
+          "BG002": "1074"
+         }
+        },
+        {
+         "measure": "Marital Status",
+         "category": "Non-Married",
+         "unit": "Participants",
+         "param": "COUNT_OF_PARTICIPANTS",
+         "by_group": {
+          "BG000": "786",
+          "BG001": "767",
+          "BG002": "1553"
+         }
+        },
+        {
+         "measure": "Marital Status",
+         "category": "Missing",
+         "unit": "Participants",
+         "param": "COUNT_OF_PARTICIPANTS",
+         "by_group": {
+          "BG000": "0",
+          "BG001": "2",
+          "BG002": "2"
+         }
+        },
+        {
+         "measure": "Has children",
+         "category": "",
+         "unit": "Participants",
+         "param": "COUNT_OF_PARTICIPANTS",
+         "by_group": {
+          "BG000": "1188",
+          "BG001": "1177",
+          "BG002": "2365"
+         }
+        },
+        {
+         "measure": "Has main partner",
+         "category": "Yes",
+         "unit": "Participants",
+         "param": "COUNT_OF_PARTICIPANTS",
+         "by_group": {
+          "BG000": "1307",
+          "BG001": "1309",
+          "BG002": "2616"
+         }
+        },
+        {
+         "measure": "Has main partner",
+         "category": "Missing",
+         "unit": "Participants",
+         "param": "COUNT_OF_PARTICIPANTS",
+         "by_group": {
+          "BG000": "0",
+          "BG001": "1",
+          "BG002": "1"
+         }
+        },
+        {
+         "measure": "Has main partner",
+         "category": "No",
+         "unit": "Participants",
+         "param": "COUNT_OF_PARTICIPANTS",
+         "by_group": {
+          "BG000": "6",
+          "BG001": "6",
+          "BG002": "12"
+         }
+        },
+        {
+         "measure": "Presence of STIs",
+         "category": "",
+         "unit": "Participants",
+         "param": "COUNT_OF_PARTICIPANTS",
+         "by_group": {
+          "BG000": "268",
+          "BG001": "265",
+          "BG002": "533"
+         }
+        },
+        {
+         "measure": "Partner knowledge of ring use",
+         "category": "Yes",
+         "unit": "Participants",
+         "param": "COUNT_OF_PARTICIPANTS",
+         "by_group": {
+          "BG000": "835",
+          "BG001": "845",
+          "BG002": "1680"
+         }
+        },
+        {
+         "measure": "Partner knowledge of ring use",
+         "category": "Missing",
+         "unit": "Participants",
+         "param": "COUNT_OF_PARTICIPANTS",
+         "by_group": {
+          "BG000": "0",
+          "BG001": "1",
+          "BG002": "1"
+         }
+        },
+        {
+         "measure": "Partner knowledge of ring use",
+         "category": "No",
+         "unit": "Participants",
+         "param": "COUNT_OF_PARTICIPANTS",
+         "by_group": {
+          "BG000": "478",
+          "BG001": "470",
+          "BG002": "948"
+         }
+        },
+        {
+         "measure": "Number of sex partners in the last 3 months",
+         "category": "0-1 partners",
+         "unit": "Participants",
+         "param": "COUNT_OF_PARTICIPANTS",
+         "by_group": {
+          "BG000": "1101",
+          "BG001": "1089",
+          "BG002": "2190"
+         }
+        },
+        {
+         "measure": "Number of sex partners in the last 3 months",
+         "category": ">2",
+         "unit": "Participants",
+         "param": "COUNT_OF_PARTICIPANTS",
+         "by_group": {
+          "BG000": "212",
+          "BG001": "227",
+          "BG002": "439"
+         }
+        }
+       ],
+       "groups": {
+        "BG000": "Dapivirine Vaginal Ring",
+        "BG001": "Placebo Ring",
+        "BG002": "Total"
+       },
+       "population_description": "Primary safety cohort"
+      },
+      "section": "baselineCharacteristicsModule",
+      "url": "https://clinicaltrials.gov/study/NCT01617096?tab=results",
+      "retrieved_utc": "2026-08-30T15:37:02.376027+00:00",
+      "assessor_reasoning": "1:1 allocation. Age 27.2 vs 27.3 years, BMI 26.8 vs 27.2, South Africa 713 vs 713, Zimbabwe 338 vs 340, less-than-secondary education 212/1313 (16.1%) vs 192/1316 (14.6%). No difference of a size or kind that suggests a problem with the randomisation process.",
+      "the_document_is_silent": false,
+      "ctgov_results_state": "POSTED",
+      "ctgov_state_means": "Results are posted and were read at the stamped version.",
+      "version": {
+       "retrieved_utc": "2026-08-30T15:37:02.376027+00:00",
+       "results_first_posted": "2022-12-16",
+       "last_update_posted": "2022-12-21",
+       "source": "ClinicalTrials.gov API v2, resultsSection",
+       "a_claim_about_a_registry_is_a_claim_about_a_version": "Posted results are edited -- sponsors correct counts, add outcomes and answer QC review. These stamps say which version produced the figures beside them."
+      },
+      "lifted_from_NO_INFORMATION_because": "This question was refused with the reason \"the paper prints a table, and a table is not a sentence\". True of the instrument, false of the world: the registry posts the same baseline table ARM BY ARM, machine-readable and free."
      },
      "2.1": {
       "question": "2.1",
@@ -943,16 +1327,311 @@
      "1.3": {
       "question": "1.3",
       "question_text": "Did baseline differences between intervention groups suggest a problem with the randomization process?",
-      "response": "NO_INFORMATION",
+      "response": "PROBABLY_NO",
       "tier": "STATED",
       "quote": "",
-      "document": "Nel A et al. Safety and Efficacy of a Dapivirine Vaginal Ring for HIV Prevention in Women. N Engl J Med 2016. PMID 27959766, doi 10.1056/NEJMoa1602046.",
-      "document_class": "trial_publication",
-      "section": "as for the companion trial: a baseline table without a prose statement about balance.",
-      "url": "https://www.nejm.org/doi/pdf/10.1056/NEJMoa1602046",
-      "retrieved_utc": "2026-08-30T14:56:10.671447+00:00",
-      "routed_by_the_tool_not_the_paper": false,
-      "the_document_is_silent": true
+      "document": "ClinicalTrials.gov posted results for NCT01539226 (The Ring Study / IPM 027)",
+      "document_class": "registry_posted_results",
+      "table_evidence": {
+       "rows": [
+        {
+         "measure": "Age, Continuous",
+         "category": "",
+         "unit": "years",
+         "param": "MEAN",
+         "by_group": {
+          "BG000": "26.1",
+          "BG001": "25.9",
+          "BG002": "26.0"
+         }
+        },
+        {
+         "measure": "Sex: Female, Male",
+         "category": "Female",
+         "unit": "Participants",
+         "param": "COUNT_OF_PARTICIPANTS",
+         "by_group": {
+          "BG000": "652",
+          "BG001": "1307",
+          "BG002": "1959"
+         }
+        },
+        {
+         "measure": "Sex: Female, Male",
+         "category": "Male",
+         "unit": "Participants",
+         "param": "COUNT_OF_PARTICIPANTS",
+         "by_group": {
+          "BG000": "0",
+          "BG001": "0",
+          "BG002": "0"
+         }
+        },
+        {
+         "measure": "Race (NIH/OMB)",
+         "category": "American Indian or Alaska Native",
+         "unit": "Participants",
+         "param": "COUNT_OF_PARTICIPANTS",
+         "by_group": {
+          "BG000": "0",
+          "BG001": "0",
+          "BG002": "0"
+         }
+        },
+        {
+         "measure": "Race (NIH/OMB)",
+         "category": "Asian",
+         "unit": "Participants",
+         "param": "COUNT_OF_PARTICIPANTS",
+         "by_group": {
+          "BG000": "0",
+          "BG001": "0",
+          "BG002": "0"
+         }
+        },
+        {
+         "measure": "Race (NIH/OMB)",
+         "category": "Native Hawaiian or Other Pacific Islander",
+         "unit": "Participants",
+         "param": "COUNT_OF_PARTICIPANTS",
+         "by_group": {
+          "BG000": "0",
+          "BG001": "0",
+          "BG002": "0"
+         }
+        },
+        {
+         "measure": "Race (NIH/OMB)",
+         "category": "Black or African American",
+         "unit": "Participants",
+         "param": "COUNT_OF_PARTICIPANTS",
+         "by_group": {
+          "BG000": "642",
+          "BG001": "1299",
+          "BG002": "1941"
+         }
+        },
+        {
+         "measure": "Race (NIH/OMB)",
+         "category": "White",
+         "unit": "Participants",
+         "param": "COUNT_OF_PARTICIPANTS",
+         "by_group": {
+          "BG000": "0",
+          "BG001": "0",
+          "BG002": "0"
+         }
+        },
+        {
+         "measure": "Race (NIH/OMB)",
+         "category": "More than one race",
+         "unit": "Participants",
+         "param": "COUNT_OF_PARTICIPANTS",
+         "by_group": {
+          "BG000": "0",
+          "BG001": "0",
+          "BG002": "0"
+         }
+        },
+        {
+         "measure": "Race (NIH/OMB)",
+         "category": "Unknown or Not Reported",
+         "unit": "Participants",
+         "param": "COUNT_OF_PARTICIPANTS",
+         "by_group": {
+          "BG000": "10",
+          "BG001": "8",
+          "BG002": "18"
+         }
+        },
+        {
+         "measure": "Region of Enrollment",
+         "category": "South Africa",
+         "unit": "participants",
+         "param": "NUMBER",
+         "by_group": {
+          "BG000": "587",
+          "BG001": "1175",
+          "BG002": "1762"
+         }
+        },
+        {
+         "measure": "Region of Enrollment",
+         "category": "Uganda",
+         "unit": "participants",
+         "param": "NUMBER",
+         "by_group": {
+          "BG000": "65",
+          "BG001": "132",
+          "BG002": "197"
+         }
+        },
+        {
+         "measure": "BMI",
+         "category": "",
+         "unit": "kg/(m^2)",
+         "param": "MEAN",
+         "by_group": {
+          "BG000": "28.2",
+          "BG001": "28.1",
+          "BG002": "28.1"
+         }
+        },
+        {
+         "measure": "Education level",
+         "category": "secondary education",
+         "unit": "Participants",
+         "param": "COUNT_OF_PARTICIPANTS",
+         "by_group": {
+          "BG000": "371",
+          "BG001": "775",
+          "BG002": "1146"
+         }
+        },
+        {
+         "measure": "Education level",
+         "category": "primary education",
+         "unit": "Participants",
+         "param": "COUNT_OF_PARTICIPANTS",
+         "by_group": {
+          "BG000": "228",
+          "BG001": "384",
+          "BG002": "612"
+         }
+        },
+        {
+         "measure": "Education level",
+         "category": "tertiary education",
+         "unit": "Participants",
+         "param": "COUNT_OF_PARTICIPANTS",
+         "by_group": {
+          "BG000": "29",
+          "BG001": "90",
+          "BG002": "119"
+         }
+        },
+        {
+         "measure": "Education level",
+         "category": "unknown",
+         "unit": "Participants",
+         "param": "COUNT_OF_PARTICIPANTS",
+         "by_group": {
+          "BG000": "24",
+          "BG001": "58",
+          "BG002": "82"
+         }
+        },
+        {
+         "measure": "Marital status",
+         "category": "Never married",
+         "unit": "Participants",
+         "param": "COUNT_OF_PARTICIPANTS",
+         "by_group": {
+          "BG000": "581",
+          "BG001": "1166",
+          "BG002": "1747"
+         }
+        },
+        {
+         "measure": "Marital status",
+         "category": "Married",
+         "unit": "Participants",
+         "param": "COUNT_OF_PARTICIPANTS",
+         "by_group": {
+          "BG000": "63",
+          "BG001": "118",
+          "BG002": "181"
+         }
+        },
+        {
+         "measure": "Marital status",
+         "category": "Legally separated",
+         "unit": "Participants",
+         "param": "COUNT_OF_PARTICIPANTS",
+         "by_group": {
+          "BG000": "7",
+          "BG001": "13",
+          "BG002": "20"
+         }
+        },
+        {
+         "measure": "Marital status",
+         "category": "Widowed",
+         "unit": "Participants",
+         "param": "COUNT_OF_PARTICIPANTS",
+         "by_group": {
+          "BG000": "0",
+          "BG001": "8",
+          "BG002": "8"
+         }
+        },
+        {
+         "measure": "Marital status",
+         "category": "Divorced",
+         "unit": "Participants",
+         "param": "COUNT_OF_PARTICIPANTS",
+         "by_group": {
+          "BG000": "1",
+          "BG001": "2",
+          "BG002": "3"
+         }
+        },
+        {
+         "measure": "Has children",
+         "category": "",
+         "unit": "Participants",
+         "param": "COUNT_OF_PARTICIPANTS",
+         "by_group": {
+          "BG000": "601",
+          "BG001": "1190",
+          "BG002": "1791"
+         }
+        },
+        {
+         "measure": "Has main sex partner",
+         "category": "",
+         "unit": "Participants",
+         "param": "COUNT_OF_PARTICIPANTS",
+         "by_group": {
+          "BG000": "640",
+          "BG001": "1284",
+          "BG002": "1924"
+         }
+        },
+        {
+         "measure": "Usual number of vaginal sex act each month",
+         "category": "",
+         "unit": "vaginal sex acts per month",
+         "param": "MEAN",
+         "by_group": {
+          "BG000": "8.4",
+          "BG001": "8.1",
+          "BG002": "8.2"
+         }
+        }
+       ],
+       "groups": {
+        "BG000": "Placebo Vaginal Ring",
+        "BG001": "Dapivirine Vaginal Ring",
+        "BG002": "Total"
+       },
+       "population_description": null
+      },
+      "section": "baselineCharacteristicsModule",
+      "url": "https://clinicaltrials.gov/study/NCT01539226?tab=results",
+      "retrieved_utc": "2026-08-30T15:37:02.376027+00:00",
+      "assessor_reasoning": "2:1 allocation (652 placebo, 1307 dapivirine), so COUNTS ARE COMPARED AS PROPORTIONS and not as totals -- a 2:1 trial looks imbalanced on every raw count by construction. Age 26.1 vs 25.9 years, BMI 28.2 vs 28.1, South Africa 90.0% vs 89.9%, Uganda 10.0% vs 10.1%. Education is the one row that moves: primary 35.0% vs 29.4%, tertiary 4.4% vs 6.9%. PROBABLY NO rather than NO, because that difference is real and modest and this instrument does not test it.",
+      "the_document_is_silent": false,
+      "ctgov_results_state": "POSTED",
+      "ctgov_state_means": "Results are posted and were read at the stamped version.",
+      "version": {
+       "retrieved_utc": "2026-08-30T15:37:02.376027+00:00",
+       "results_first_posted": "2022-10-19",
+       "last_update_posted": "2022-10-19",
+       "source": "ClinicalTrials.gov API v2, resultsSection",
+       "a_claim_about_a_registry_is_a_claim_about_a_version": "Posted results are edited -- sponsors correct counts, add outcomes and answer QC review. These stamps say which version produced the figures beside them."
+      },
+      "lifted_from_NO_INFORMATION_because": "This question was refused with the reason \"the paper prints a table, and a table is not a sentence\". True of the instrument, false of the world: the registry posts the same baseline table ARM BY ARM, machine-readable and free."
      },
      "2.1": {
       "question": "2.1",
@@ -1110,7 +1789,17 @@
    "both_papers_are_free": "No access exception was needed. ASPIRE is readable at PMC4993693 (an NIH author manuscript: free to read, no reuse licence). The Ring Study has no PMC record and isOpenAccess=N, yet Europe PMC's fullTextUrlList reports availability Free and Unpaywall reports is_oa true; the publisher PDF fetched at 590,022 bytes.",
    "completed_from_trial_reports_2026_08_30": "28 signalling-question answers, 14 per trial, read from the two primaries. Both are free: ASPIRE at PMC4993693, The Ring Study from the publisher. Every substantive answer carries a quote CUT FROM the paper by code rather than typed, and every NOT-APPLICABLE says which earlier answer routed it.",
    "who_prequalification_checked_and_cannot_answer_this": "The ring is WHO prequalified (extranet.who.int/prequal/medicines/ema-art-58-h-w-002168, Status Prequalified, INN 'Dapivirine Vaginal ring 25mg'). The Basis of listing is ALTERNATIVE LISTING via EMA Article 58, so WHO made no independent assessment, no WHOPAR is attached, and the page's WHOPAR reference block returns HTTP 403. WHO PQ settles a registration question and not a risk-of-bias one. Recorded because a source that was checked and does not answer is a finding; leaving it out would make the next reader check it again.",
-   "what_is_still_refused": "1.3 on both trials (neither paper states in prose whether baseline characteristics were balanced -- both print a table, and this instrument reads sentences) and 1.2 on The Ring Study (randomisation and stratification are described; no concealment mechanism is). These keep D1 at SOME CONCERNS on both trials rather than LOW."
+   "what_is_still_refused": "1.3 on both trials (neither paper states in prose whether baseline characteristics were balanced -- both print a table, and this instrument reads sentences) and 1.2 on The Ring Study (randomisation and stratification are described; no concealment mechanism is). These keep D1 at SOME CONCERNS on both trials rather than LOW.",
+   "ctgov_posted_results_2026_08_30": {
+    "hard_rule": "ClinicalTrials.gov posted results are consulted for every trial, always, and the state is recorded even when nothing is found.",
+    "states_seen": {
+     "NCT01617096": "POSTED",
+     "NCT01539226": "POSTED"
+    },
+    "what_it_answered_here": "D1 question 1.3 on BOTH trials, lifting the last two NO_INFORMATION answers held for lack of a document.",
+    "what_it_did_not_change": "⚠️ NOT THE RATING. ASPIRE D1 was already LOW (Table 4 row 1 accepts 1.3 = NI) and the Ring Study stays SOME CONCERNS on 1.2 alone -- the concealment mechanism, which posted results do not report either. THE VALUE IS THAT A REFUSAL BECAME AN ANSWER, not that a letter moved, and saying so is the difference between a capability and a claim.",
+    "why_this_beats_the_FDA_route": "The FDA Integrated Review answers the same domains but exists only for US approvals. Posted results exist for any registered trial that posted them, approved or not."
+   }
   },
   "analysis_population_NOT_stated_corrected_because": "Corrected 2026-08-30 from ClinicalTrials.gov, read the same day: NCT01539226 is orgStudyId IPM 027, The Ring Study, n=1,959, and its registered locations are South Africa and Uganda; NCT01617096 is acronym ASPIRE, MTN-020, n=2,629, locations Malawi, South Africa, Uganda and Zimbabwe. The previous wording attached each trial's facts to the OTHER trial. ⛔ THESE TWO FIELDS ARE PROSE WITH NO NCT IN THE STRING, so neither this repo's NCT-keyed sweep nor the staging lane's gate could reach them -- both walk identifier keys. A name in free text has no key to walk. Found by rapidmeta-staging-33.",
   "ADJUDICATION": {
@@ -1133,7 +1822,7 @@
    "primary": {
     "k": 2,
     "starting_certainty": "HIGH",
-    "certainty": "LOW",
+    "certainty": "VERY_LOW",
     "steps": [
      {
       "domain": "risk_of_bias",
@@ -1152,8 +1841,10 @@
      },
      {
       "domain": "imprecision",
-      "move": "LOW to VERY LOW -- WARRANTED AND NOT APPLIED, see reason",
-      "reason": "k = 2. The Hartung-Knapp interval is RR 0.7030 (0.1725 to 2.8655) on t = 12.7062 with 1 df AND IT INCLUDES NO DIFFERENCE, where the unadjusted interval excludes it. A downgrade is warranted on that alone. IT IS NOT APPLIED, and the reason is stated rather than hidden: at k = 2 the t critical value is 12.7062 and ONLY A VERY LARGE EFFECT SURVIVES HARTUNG-KNAPP AT ALL, so the adjusted interval at this k is weak evidence of imprecision in either direction. The rating is left at LOW and the disagreement is disclosed to the reader instead."
+      "move": "no downgrade -- NOT WARRANTED, because the Hartung-Knapp interval at k = 2 is uninformative in either direction",
+      "reason": "k = 2. The Hartung-Knapp interval is RR 0.7030 (0.1725 to 2.8655) on t = 12.7062 with 1 df AND IT INCLUDES NO DIFFERENCE, where the unadjusted interval excludes it. A downgrade is warranted on that alone. IT IS NOT APPLIED, and the reason is stated rather than hidden: at k = 2 the t critical value is 12.7062 and ONLY A VERY LARGE EFFECT SURVIVES HARTUNG-KNAPP AT ALL, so the adjusted interval at this k is weak evidence of imprecision in either direction. The rating is left at LOW and the disagreement is disclosed to the reader instead.",
+      "move_before_2026_08_30": "LOW to VERY LOW -- WARRANTED AND NOT APPLIED, see reason",
+      "label_corrected_because": "The previous label said the downgrade was WARRANTED AND NOT APPLIED. Those cannot both be true: if it is warranted the level moves, and if the evidence for it is too weak to act on then it is not warranted. The step’s own reason argues the second. Nothing about the DECISION changed -- only the label, which any consumer parsing `move` would have read as a warranted downgrade withheld, in the direction that flatters us. Found by rapidmeta-staging-33 (register class A28)."
      },
      {
       "domain": "publication_bias",
@@ -1162,7 +1853,21 @@
      }
     ],
     "summary": "LOW certainty. The two trials agree closely and ran in the right countries, so the downgrades are for the unread adherence and attrition domains and for a population mismatch the topic's own name conceals: NEITHER TRIAL ENROLLED ANYONE UNDER 18.",
-    "rating_up_not_applied": "No domain is rated UP. Rating up for a large effect, a dose-response gradient or opposing plausible confounding applies to observational evidence; these are randomised trials, which start HIGH."
+    "rating_up_not_applied": "No domain is rated UP. Rating up for a large effect, a dose-response gradient or opposing plausible confounding applies to observational evidence; these are randomised trials, which start HIGH.",
+    "SUPERSEDED_2026_08_30": {
+     "superseded_by": "grade_engine.derive(canon, \"primary\")",
+     "this_ledger_says": "LOW",
+     "the_engine_derives": "VERY_LOW",
+     "why_they_differ": "Two reasons, and neither is arithmetic. (a) THIS LEDGER APPLIES TWO DOWNGRADES AND THE ENGINE APPLIES THREE: this ledger declined the imprecision downgrade on Hartung-Knapp grounds at k = 2, while the engine downgrades imprecision because the confidence interval spans the declared appreciable-benefit-or-harm zone of 0.75 to 1.25. Those are different questions and both are defensible; they are not the same calculation done twice. (b) THIS LEDGER’S INDIRECTNESS STEP RESTS ON THE AGYW READING -- its reason opens \"THIS TOPIC IS NAMED FOR ADOLESCENT GIRLS AND YOUNG WOMEN\" -- and that reading has since been ruled NON-GOVERNING: the executed search, the title and the stated question all say \"in women\", and the slug is the untested artefact.",
+     "why_it_is_kept": "It is the hand-written rating six blinded judges scored, so deleting it would destroy the record of what they read. It is marked superseded rather than removed.",
+     "what_must_not_happen": "⛔ NO SURFACE MAY RENDER BOTH. One object carrying two GRADE certainties for one result is a worse defect than either being wrong, because a reader cannot tell which is the review’s answer. The engine’s derivation is the review’s answer.",
+     "and_this_is_the_bespoke_section_problem_in_one_object": "A hand-written GRADE block is exactly the \"14th bespoke section\" this project ruled against building. It cannot regenerate, so it went stale in two independent ways within a day -- a population ruling and a threshold choice -- while the generator tracked both. That is the argument for the generator, stated on the artefact that demonstrates it rather than in a design note.",
+     "recorded_utc": "2026-08-30T15:18:26.739312+00:00",
+     "field_now_carries": "VERY_LOW"
+    },
+    "certainty_recorded_by_the_hand_written_ledger": "LOW",
+    "certainty_source": "grade_engine.derive(canon, \"primary\"), regenerated -- not hand-written.",
+    "certainty_moved_2026_08_30": "⛔ THIS FIELD HELD 'LOW' WHILE A MARKER BESIDE IT SAID THAT VALUE WAS SUPERSEDED. The engine derives 'VERY_LOW'. A supersede marker written in PROSE is a claim ABOUT the data, not a change TO it: `certainty` is the field a generator reads, so the constraint \"no surface may render both\" was being satisfied by rendering only the WRONG one, and a rebuild would have published it. ⇒ A DISCLOSURE IS NOT A FIX. The disclosure was right and was doing nothing. Found by rapidmeta-staging-33; registered as class A32."
    }
   }
  },
@@ -1542,6 +2247,20 @@
   "and_the_search_carried_no_population_block": "Deliberately: the concept block is the drug and its development codes alone, and the whole retrieved set was screened. So the search cannot be read as having quietly restricted the population to adults -- it restricted nothing, and the age range of the evidence is a property of the trials that exist, not of the query.",
   "what_is_now_wrong_and_must_be_corrected": "THE TOPIC IDENTIFIER `agyw-hiv-prep-review`. It names a population this review does not ask about and the evidence does not cover. It is a legacy slug and it is the artefact that disagrees.",
   "why_the_rename_is_not_done_in_this_commit": "The slug is the directory name, the PAGE_MAP key and the delivered page filename, and the page lane is rebuilding this exact page right now. Renaming underneath a live rebuild would break the join between object and page -- the precise failure this review spent the day repairing. It is sequenced after the rebuild and the page lane is told. RECORDED AS OWED, NOT AS DONE.",
-  "recorded_utc": "2026-08-30T15:05:54.039602+00:00"
+  "recorded_utc": "2026-08-30T15:05:54.039602+00:00",
+  "authority_2026_08_30_CORRECTED": "THE SCREENING AND ELIGIBILITY DECISIONS ACTUALLY APPLIED -- for which the executed search document is the record, not the authority. An earlier version of this field named the SEARCH STRING as the authority \"because it was tested against the world\". A cross-family reviewer (openai) rejected that rationale and is right: A SEARCH IS DERIVED FROM THE QUESTION, NOT THE REVERSE. Worse, the specific argument was self-defeating -- this search deliberately carried NO population block in order to maximise sensitivity, and a query that deliberately omits the population cannot be the thing that defines it. The CONCLUSION is unchanged (the slug is the artefact that disagrees) but it now rests on the eligibility actually applied: 63 registrations screened, 61 excluded on stated and attributed grounds, and NOT ONE excluded for the age of its participants.",
+  "a_real_gap_this_exposed": "⚠️ THIS REVIEW HAS NO PROTOCOL BLOCK AND NO SCREENING BLOCK ON THE OBJECT. `protocol` is absent and `screening` is empty. The proper authority for the review question is the pre-specified protocol PICO; we do not have one, which is why the question had to be settled from downstream artefacts at all. That is a finding about this review, not a detail of this ruling: three artefacts could disagree about the population precisely because nothing upstream of them fixed it.",
+  "authority_2026_08_30_FINAL": "THE TITLE AND THE STATED QUESTION, ON THEIR OWN AUTHORITY. Both say \"in women\"; the topic slug says AGYW. That comparison needs no third artefact to settle it -- a title and a stated question ARE the review question, and a directory name is a label.",
+  "two_earlier_bases_and_why_BOTH_were_wrong": "⛔ I cited the EXECUTED SEARCH first, \"because it is the only one tested against the world\", then corrected it to THE ELIGIBILITY ACTUALLY APPLIED. Two non-Claude families independently rejected both: the review question and eligibility criteria DEFINE the PICO, and the search is the METHOD FOR FINDING STUDIES under it. And my own words defeat the first version -- I wrote that this search \"restricted nothing\". A SEARCH THAT RESTRICTS NOTHING CANNOT DEFINE ANYTHING; it measures reach, not scope. The conclusion never depended on either basis, which is why it survived both corrections unchanged.",
+  "what_this_cost_and_what_it_did_not": "Nothing about the answer changed across three statements of its basis. That is worth noticing in both directions: the conclusion was robust, AND a conclusion reached from a wrong reason twice is not thereby justified. The reasoning is the part a reader can check, so the reasoning is the part that had to be right."
+ },
+ "standing_rules": {
+  "scope_decision_before_domain_judgement": {
+   "rule": "A decision about WHICH ARTEFACT DEFINES THE POPULATION (J1) is a SCOPE decision. A GRADE domain judgement that depends on the population (J2) is CONDITIONAL on it. J1 must be locked before J2 is attempted, and the two must be separated by turn or by assessor.",
+   "why": "⚠️ THIS OBJECT RECORDS THE HAZARD RATHER THAN HYPOTHESISING IT. In a single turn one assessor selected which artefact defines the population AND used that selection to clear an indirectness downgrade, raising its own certainty a level. Each step was defensible; the SEQUENCE was not. Choosing the scope and cashing the choice in the same breath means the scope decision is made by an agent that can already see what it buys.",
+   "the_self_correction_is_not_a_substitute": "The error was caught and reversed within minutes, and that is to the assessor’s credit and is NOT the control. A hazard caught by luck or conscience on one occasion is uncontrolled; separation is what makes it structurally unavailable.",
+   "agreed_by": "Three model families independently, 2026-08-30.",
+   "recorded_utc": "2026-08-30T15:41:11.180561+00:00"
+  }
  }
 }
