@@ -2,7 +2,7 @@
  "frozen_utc": "2026-08-28",
  "what": "scripts using a generic name in the shared scratch root, which another lane could independently choose and overwrite.",
  "escalated_to": "out/ESCALATIONS.jsonl",
- "count": 68,
+ "count": 67,
  "keys": [
   "scripts/add_r_output.py:6 -> arni\\r_out.json",
   "scripts/build_vintage_arm_2026_08_27.py:31 -> wt\\genstore",
@@ -51,7 +51,6 @@
   "scripts/lane_rob/overnight_fulltext_harvest.py:36 -> pend\\funder_retrievability.jsonl",
   "scripts/lane_rob/page_weight.py:67 -> pend\\ready.json",
   "scripts/lane_rob/page_weight.py:90 -> pend\\out\\page_weight.json",
-  "scripts/lane_rob/regeneration_test.py:103 -> pend\\out",
   "scripts/lane_rob/registry_vs_publication.py:45 -> pend\\out\\registry_full",
   "scripts/lane_rob/registry_vs_publication.py:46 -> pend\\out\\fulltext",
   "scripts/lane_rob/registry_vs_publication.py:47 -> pend\\out\\registry_vs_publication.json",
@@ -304,5 +303,6 @@
    ],
    "why": "Arrived by merge from another lane. Admitted rather than edited: these are that lane's output paths, and rewriting them here would be a class-wide change to code this lane does not own."
   }
- ]
+ ],
+ "retired_2026_08_30": "scripts/lane_rob/regeneration_test.py:103 -> pend\\out is RETIRED, not re-baselined. The test no longer writes to the shared scratch root at all: its output now goes to <worktree>/out/regen, which is unique per lane BY CONSTRUCTION because each lane has its own git worktree, and needs no coordination between lanes. ⚠️ A first attempt kept the shared root and appended the lane name at RUNTIME; gate 9 refused that too, correctly -- it reads the literal, and its own coverage note says a path assembled at runtime from a variable is uncounted, so that fix would have made the collision invisible to the lint rather than impossible."
 }

@@ -130,7 +130,27 @@ def main():
     # direction that looks like a regression in the thing being tested rather than a fault in
     # the instrument -- the same shape as the adjudicator that searched a different haystack
     # than it displayed.
-    out = os.path.join(r"F:\claude-temp\pend\out",
+    # ⛔ AND ONE OUTPUT DIRECTORY PER LANE, WHICH THE PER-OBJECT FILENAME ABOVE DOES NOT GIVE.
+    #
+    # The path was `F:\claude-temp\pend\out` -- the SHARED scratch root. Per-object filenames
+    # stop THIS test colliding with itself; they do nothing about a second lane running the
+    # same object, which lands on the identical path and hands one lane the other's page. Gate
+    # 9 refused the push for it, and its note records that the same lint "did not fire when
+    # this lane truncated another lane's file in the shared root" -- so this is not
+    # hypothetical, it has already happened here.
+    #
+    # ⭐ THE UNIQUENESS IS STRUCTURAL, NOT A CHOSEN SUFFIX, AND THE OUTPUT LEAVES THE SHARED
+    # ROOT ENTIRELY. Each lane works in its own git worktree, so a path INSIDE the worktree is
+    # unique by construction and needs no coordination between lanes.
+    #
+    # ⚠️ A LANE SUBDIRECTORY UNDER THE SHARED ROOT WAS NOT ENOUGH, AND THE GATE WAS RIGHT TO
+    # SAY SO. The first fix kept the literal `F:\claude-temp\regen-out` and appended the lane
+    # name at RUNTIME. Gate 9 reads the literal and states in its own coverage note that "any
+    # path assembled at runtime from a variable" is uncounted -- so that fix made the collision
+    # invisible to the lint rather than impossible. The literal now contains no shared root.
+    out_dir = os.environ.get("REGEN_OUT_DIR") or os.path.join(REPO, "out", "regen")
+    os.makedirs(out_dir, exist_ok=True)
+    out = os.path.join(out_dir,
                        "regen_" + re.sub(r"[^A-Za-z0-9_-]", "_",
                                          os.path.splitext(os.path.basename(obj))[0]) + ".html")
     rc, tail = regenerate(obj, out)
