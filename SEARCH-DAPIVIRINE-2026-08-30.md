@@ -147,3 +147,44 @@ risk-of-bias *detail* sits behind one.
 
 ⚠️ Which keeps the two claims separate, as they must be: **the SEARCH is free-source and
 complete at 2 of 2. The RISK-OF-BIAS ASSESSMENT is not complete, and says so.**
+
+### WHO prequalification — discovered properly, and it does not answer the question
+
+My earlier WHO 404s were **my guessed URLs**, so the site was asked instead of guessed. The
+record exists:
+
+> **`EMA Art 58 H-W-002168` — Dapivirine Vaginal ring 25 mg — HIV/AIDS — International
+> Partnership for Microbicides Belgium**
+> Basis of listing: **Alternative Listing** · Basis of alternative listing: **EMA Article
+> 58** · Reference authority: **European Medicines Agency**
+
+⚠️ **And it carries NO ASSESSMENT REPORT.** The record holds manufacturing sites, packaging,
+shelf life and storage — registration facts. WHO listed the product on the strength of the
+**EMA Article 58 opinion** rather than performing and publishing its own assessment, so
+there is no WHOPAR to read. **The assessment document is EMA's**, and EMA presents a
+bot-detection challenge that is not bypassed.
+
+⭐ **Two things worth separating.** The discovery was worth doing and produced a real
+result: a free, citable prequalification record with a procedure number. It simply does not
+contain what risk of bias needs. *"We looked properly and it does not answer the question"*
+is a different and much better statement than *"we guessed a URL and got a 404."*
+
+**One incidental finding about the WHO site itself:** its `search_api_fulltext` parameter is
+accepted and **silently does not filter** — a query for dapivirine returned Zidovudine,
+Lamivudine and Nevirapine, i.e. the unfiltered list. The named field `field_sf_generic_name_value`
+filters correctly. ⚠️ A search box that accepts a term and returns everything is the most
+dangerous kind, because the result looks like an answer.
+
+### ⇒ The exception request, now fully evidenced
+
+| route | outcome |
+|---|---|
+| FDA | **no application exists** — a fact about the drug |
+| WHO PQ | **record exists, no assessment report** — listing rests on EMA |
+| EMA | **bot-detection challenge — not bypassed** |
+| ASPIRE primary | ⭐ **FREE at PMC4993693** — no exception needed |
+
+**One paper: Nel A et al., N Engl J Med 2016, PMID 27959766 — no PMC record.**
+**Three signalling questions, for `NCT01617096` only: 1.2 allocation concealment · 2.6
+appropriate analysis to estimate the effect of assignment · 3.1 outcome data available for
+all or nearly all participants.**
