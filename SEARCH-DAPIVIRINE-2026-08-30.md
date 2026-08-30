@@ -119,3 +119,31 @@ in our set failed the screen.
 queries and writes every query string, HTTP status, reported count, retrieved count and a
 payload hash. `scripts/registry_search.py` re-executes the non-US registry pass with its
 seven states. Neither requires a subscription or a login.
+
+---
+
+## ⚠️ The regulatory-review route does NOT transfer to this page
+
+The FDA Integrated Review route was proven on finerenone, sotagliflozin and cabotegravir:
+it completes RoB 2 domains D1–D4 where a registry record cannot. **It does not work here,
+and the reason is not a retrieval failure.**
+
+| route | result | kind of obstacle |
+|---|---|---|
+| **FDA** | **no application exists** — openFDA returns 404 for dapivirine | ⭐ a FACT ABOUT THE DRUG. The ring was never FDA-approved; it holds an EMA Article 58 positive scientific opinion and WHO prequalification instead. |
+| **EMA** | **bot-detection challenge** — *"This page checks to see if it's really you sending the request and not a robot"* | ⛔ **NOT BYPASSED.** Completing or evading bot detection is out of bounds regardless of how useful the document would be. Recorded as refused. |
+| **WHO prequalification** | URLs not found | ⚠️ **my guessing, not their absence.** No robots.txt is served and I guessed paths, which is the exact defect recorded in `RETRIEVAL-IDENTITY-RULES.md`. Needs discovery before any claim. |
+
+⇒ **So the risk-of-bias gap on this page cannot be closed by the route that closed it
+elsewhere.** D2 and D3 remain NO_INFORMATION because they were assessed from registry
+records, and no free regulatory document has been reached for these two trials.
+
+⭐ **AND THIS IS EXACTLY THE CASE THE SCOPE RULE ANTICIPATES.** Mahmood's ruling permits
+*"an occasional firewalled paper for a specific datum, never a database as a dependency."*
+Two specific papers — the ASPIRE and Ring Study primary reports — for two specific
+signalling questions is that exception precisely, and it is not a subscription dependency:
+the search above reaches every one of these trials without any paywall. Only the
+risk-of-bias *detail* sits behind one.
+
+⚠️ Which keeps the two claims separate, as they must be: **the SEARCH is free-source and
+complete at 2 of 2. The RISK-OF-BIAS ASSESSMENT is not complete, and says so.**
