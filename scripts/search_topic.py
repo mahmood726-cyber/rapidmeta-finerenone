@@ -32,6 +32,34 @@ manufactured three misses that do not exist.
 ⚠️ AND THE INTERVENTION TERM IS A CANDIDATE, NOT A FACT. It is extracted from the object's
 own title and question and RECORDED in the output so a reader can see what was searched.
 If it is wrong the whole search is wrong, so it is surfaced rather than buried.
+
+⛔⛔ MEASURED LIMITATION, 2026-08-30, AND IT QUALIFIES THE COST CLAIM THIS FILE WAS BUILT ON.
+
+Run across 18 live topics at 8.7 s each, the SEARCH generalises and the SCREEN does not.
+The mechanical screen's precision is entirely topic-dependent:
+
+    ser109-cdi        4 registrations ->   2 candidates   usable as it stands
+    agyw-hiv-prep    56 registrations ->  35 candidates   needs real screening
+    arni-hfref      ~.. registrations -> 105 candidates   a whole drug programme
+    colchicine-*                      -> 125 candidates   on every one of six topics
+
+⇒ "Topic 2 cost 5.9 seconds" is TRUE OF THE SEARCH AND FALSE OF THE WORK. SER-109 was cheap
+because four registrations exist for it. A widely studied drug returns its entire
+development programme, and the expensive step -- deciding which of 125 trials match the
+review's comparator, population and outcome -- is exactly the step that has NOT been
+generalised and cannot be, because it is the review's PICO.
+
+⛔ AND AN INTERVENTION-ONLY CONCEPT BLOCK CANNOT DISTINGUISH TOPICS THAT DIFFER BY
+POPULATION. The six colchicine topics -- intracerebral haemorrhage, mixed ASCVD,
+pericarditis, peripheral arterial, periprocedural, stroke prevention -- return the IDENTICAL
+125 candidates, because the block is built from the drug alone. For those topics this
+procedure narrows nothing, and a "gap" computed from its output would be meaningless.
+
+⚠️ SO A LARGE CANDIDATE COUNT IS NOT A SEARCH GAP. Subtracting held trials from candidates
+gives a number that looks like missing evidence and is not: on dapivirine three candidates
+passed and all three were eligibility exclusions. The coverage fraction therefore REFUSES
+until each candidate is adjudicated, and that refusal is the only thing standing between
+this procedure and a fabricated recall statistic.
 """
 import datetime
 import hashlib
