@@ -44,6 +44,10 @@ CONTROL_PREFIX = "__control_"
 NCT = "NCT00000001"
 
 
+def _verdict_is_no_info(v):
+    return str(v or "").strip().upper().replace(" ", "_").replace("-", "_")         in ("NO_INFORMATION", "NI", "NO_INFO")
+
+
 def _rob(outcome, overall="LOW", agreed=True, second=None):
     """A risk-of-bias store in the REAL canonical shape, not an invented one.
 
@@ -65,11 +69,17 @@ def _rob(outcome, overall="LOW", agreed=True, second=None):
     # the per-domain inputs never reached the record at all. A fixture that omits the
     # thing under test passes for the wrong reason, which is the failure mode the
     # standing rules call a vacuous pass.
-    DOMS = [("D1_randomisation_process", "LOW"),
-            ("D2_deviations_from_intended_intervention", "LOW"),
-            ("D3_missing_outcome_data", "LOW"),
-            ("D4_measurement_of_the_outcome", "LOW"),
-            ("D5_selection_of_the_reported_result", "LOW")]
+    # ⚠️ THE DOMAINS FOLLOW THE OVERALL. A fixture with five LOW domains and a stored
+    # overall of NO_INFORMATION is INTERNALLY INCONSISTENT, and once the RoB 2 algorithm
+    # was wired it resolved that contradiction to LOW and the refusal test failed. The
+    # test was right and the fixture was wrong: a genuine no-information assessment has
+    # no information in its domains either.
+    dj = "NO_INFORMATION" if _verdict_is_no_info(overall) else "LOW"
+    DOMS = [("D1_randomisation_process", dj),
+            ("D2_deviations_from_intended_intervention", dj),
+            ("D3_missing_outcome_data", dj),
+            ("D4_measurement_of_the_outcome", dj),
+            ("D5_selection_of_the_reported_result", dj)]
     store = {
         "tool": "RoB 2",
         "by_outcome": {
@@ -495,6 +505,104 @@ def test_bound_is_reported_but_never_becomes_a_rating():
           not r3.get("certainty_bounds") and r3["rated"] is True)
 
 
+def test_regulatory_lift_fires_and_declares_itself():
+    """⭐ THE LIFT: a NO_INFORMATION refusal may be resolved through the RoB 2 ALGORITHM,
+    and when it is, the record must say so and must keep the evidence tier separate.
+
+    ⚠️ THE FAILURE MODE THIS GUARDS is a lift that quietly replaces an assessor's verdict
+    with a computed one. The whole value of the lift is that it is TRACEABLE: it names the
+    algorithm, the questions that were re-derived, the documents that answered them, and
+    whether any answer is INFERRED rather than STATED.
+    """
+    print("\n[14] REGULATORY LIFT -- it fires, and it declares itself")
+    import regulatory_evidence as R
+
+    def with_sq(overall="NO_INFORMATION", concealed="NO_INFORMATION"):
+        """The REAL shape of a blocked result, not an all-unknown one.
+
+        ⚠️ An earlier version of this fixture set every domain to NO_INFORMATION and then
+        expected the lift to fire. It did not, and correctly: an overall judgement is a
+        statement about all five domains, so with D2-D5 unknown there is nothing to
+        compute. The corpus's actual blocked results look like `alirocumab-lipid` --
+        D2 to D5 judged, D1 carrying `allocation_concealed: NO_INFORMATION` -- which is
+        exactly the one domain a regulatory review answers.
+        """
+        o = clean_object(rob_overall=overall)
+        rec = o["risk_of_bias"]["by_outcome"]["primary"][NCT]
+        for name in ("D2_deviations_from_intended_intervention",
+                     "D3_missing_outcome_data", "D4_measurement_of_the_outcome",
+                     "D5_selection_of_the_reported_result"):
+            rec["domains"][name]["judgement"] = "LOW"
+        rec["domains"]["D1_randomisation_process"]["signalling_questions"] = {
+            "allocation_sequence_random": "PROBABLY_YES",
+            "allocation_concealed": concealed,
+            "baseline_imbalance_suggesting_a_problem": "NO",
+        }
+        return o
+
+    # NEGATIVE FIRST: no signalling questions, no regulatory evidence -> stays refused.
+    r0 = ge.derive(clean_object(rob_overall="NO_INFORMATION"), "primary")
+    d0 = [d for d in r0["domains"] if d["domain"] == "risk_of_bias"][0]
+    check("with nothing to re-derive from, the refusal STANDS",
+          d0["state"] == ge.REFUSED, d0["reason"][:90])
+
+    # POSITIVE: a complete D1 question set lets the published table decide.
+    r1 = ge.derive(with_sq(), "primary")
+    d1 = [d for d in r1["domains"] if d["domain"] == "risk_of_bias"][0]
+    check("a complete D1 signalling set lifts the refusal",
+          d1["state"] in (ge.DOWNGRADE, ge.NO_DOWNGRADE), d1["state"])
+    check("and the lift declares it used the RoB 2 algorithm",
+          d1.get("derived_through_rob2_algorithm") is True)
+    check("and names the published tool as its authority",
+          "22 August 2019" in (d1.get("rob2_authority") or ""))
+    check("and shows the per-result re-derivation",
+          bool(d1.get("per_result_rederivation")))
+    check("no-information concealment + random sequence -> SOME CONCERNS, not LOW",
+          d1["levels"] == 1, "levels=%s" % d1["levels"])
+
+    # THE TIER MUST SURVIVE. An INFERRED answer must be flagged on the verdict itself.
+    o2 = with_sq()
+    o2["risk_of_bias"]["regulatory_evidence"] = {"by_trial": {NCT: {"1.2": R.answer(
+        "1.2", "PROBABLY_YES", R.INFERRED,
+        "stratum assignment between Interactive Response Technology and eCRF occurred",
+        "FDA Integrated Review (__control_)", section="5.2.2")}}}
+    r2 = ge.derive(o2, "primary")
+    d2 = [d for d in r2["domains"] if d["domain"] == "risk_of_bias"][0]
+    check("an INFERRED regulatory answer is flagged on the verdict",
+          d2.get("rests_on_inferred_evidence") is True)
+    check("and the reason says the evidence was inferred, not stated",
+          "INFERRED EVIDENCE" in d2["reason"])
+    check("and the provenance names the document",
+          any("Integrated Review" in doc
+              for p in (d2.get("regulatory_provenance") or [])
+              for doc in p.get("documents", [])))
+
+    # A STATED answer must NOT carry the inferred flag.
+    o3 = with_sq()
+    o3["risk_of_bias"]["regulatory_evidence"] = {"by_trial": {NCT: {"1.2": R.answer(
+        "1.2", "YES", R.STATED,
+        "Randomization was managed centrally using an interactive voice and web response",
+        "FDA Integrated Review (__control_)", section="Randomization")}}}
+    r3 = ge.derive(o3, "primary")
+    d3 = [d for d in r3["domains"] if d["domain"] == "risk_of_bias"][0]
+    check("a STATED answer does NOT carry the inferred flag",
+          d3.get("rests_on_inferred_evidence") is False)
+    check("stated concealment + random sequence -> LOW risk on D1",
+          d3["levels"] == 0, "levels=%s" % d3["levels"])
+
+    # And the schema refuses a malformed answer rather than storing it.
+    for bad, why in ((("9.9", "YES", R.STATED, "a quote long enough to pass"),
+                      "unsupported signalling question"),
+                     (("1.2", "YES", "GUESSED", "a quote long enough to pass"),
+                      "unknown tier"),
+                     (("1.2", "YES", R.STATED, "too short"), "quote too short")):
+        try:
+            R.answer(bad[0], bad[1], bad[2], bad[3], "doc")
+            check("schema refuses: %s" % why, False, "it accepted it")
+        except ValueError:
+            check("schema refuses: %s" % why, True)
+
+
 def test_incoherent_inputs_refuse_rather_than_rate():
     """⭐ THE THIRD STATE: inputs that are all PRESENT and cannot all be TRUE.
 
@@ -566,6 +674,7 @@ def main():
               test_domain_inputs_are_printed_not_summarised,
               test_no_information_is_not_a_verdict_and_separators_do_not_refuse,
               test_bound_is_reported_but_never_becomes_a_rating,
+              test_regulatory_lift_fires_and_declares_itself,
               test_incoherent_inputs_refuse_rather_than_rate,
               test_plant_detects_a_broken_engine):
         try:

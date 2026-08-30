@@ -331,14 +331,37 @@ def d_risk_of_bias(canon, oid, res):
     # limit on what could be REACHED, not a judgement against the trial -- a distinction
     # this project exists to make -- and it is not a level GRADE can aggregate.
     if no_info:
+        # ⭐⭐⭐ BEFORE REFUSING, ASK WHETHER A REGULATORY REVIEW ANSWERS THE QUESTION.
+        #
+        # NO INFORMATION is a statement about the documents that were READ, not about the
+        # trial. The assessments behind these were made from ClinicalTrials.gov
+        # registrations, which do not report the concealment mechanism, the analysis
+        # population, or missing-data handling. An FDA Integrated Review reports all
+        # three, is free, and was measured to answer all four probed sub-domains.
+        #
+        # So this re-derives the verdict through the PUBLISHED RoB 2 ALGORITHM using the
+        # regulatory answers -- the first time `rob2_algorithm` is called on the write
+        # path. It was transcribed from the 22 August 2019 tool months ago and, until now,
+        # only two scripts ever imported it. A tool that is available but never invoked
+        # is not a capability.
+        lifted, still = _lift_no_information(canon, trials, no_info)
+        if lifted and not still:
+            return lifted
+        extra = ""
+        if still:
+            extra = (" A regulatory-review lift was attempted and did not resolve %d of "
+                     "them (%s), so the refusal stands for the whole domain rather than "
+                     "being applied to the part that resolved."
+                     % (len(still), "; ".join(i for i, _ in still[:4])))
         return _dom("risk_of_bias", REFUSED,
                     "An assessor recorded NO INFORMATION as the overall risk-of-bias "
                     "judgement for %d contributing result(s) (%s). That is a statement "
                     "about what the source documents contain, not a finding against the "
                     "trial, and it is not a verdict this domain can aggregate. Rating the "
                     "domain anyway would convert 'we could not find out' into 'we found "
-                    "out and it was acceptable'."
-                    % (len(no_info), "; ".join("%s: %s" % (i, v) for i, v in no_info[:4])),
+                    "out and it was acceptable'.%s"
+                    % (len(no_info), "; ".join("%s: %s" % (i, v) for i, v in no_info[:4]),
+                       extra),
                     inputs_missing=["a risk-of-bias judgement that is not NO_INFORMATION"])
 
     if not verdicts and not unresolved:
@@ -393,6 +416,188 @@ def d_risk_of_bias(canon, oid, res):
                     "high risk of bias (%d low)." % (some, n, low))
     return _out(NO_DOWNGRADE, 0,
                 "All %d contributing result(s) are at LOW risk of bias on RoB 2." % n)
+
+
+# The corpus writes RoB 2 signalling questions by PHRASE; the published tool numbers them.
+# This is the join, written out rather than guessed, from the names actually present on
+# 145 domain records. ⚠️ A name absent here is NOT mapped to a neighbouring number -- an
+# unmapped question is simply not supplied, and the domain then falls back to the stored
+# judgement rather than being derived from a question it never answered.
+_SQ_NAME_TO_NUMBER = {
+    "allocation_sequence_random": "1.1",
+    "allocation_concealed": "1.2",
+    "baseline_imbalance_suggesting_a_problem": "1.3",
+    "participants_aware": "2.1",
+    "carers_aware": "2.2",
+    "appropriate_analysis_used": "2.6",
+    "data_available_for_all_randomised": "3.1",
+    "method_inappropriate": "4.1",
+    "assessors_aware_of_intervention": "4.3",
+    "assessment_could_be_influenced_by_knowledge": "4.4",
+    "analysed_per_prespecified_plan": "5.1",
+    "selected_from_multiple_eligible_measurements": "5.2",
+    "trial_selected_from_multiple_eligible_measurements": "5.2",
+    "trial_selected_from_multiple_eligible_analyses": "5.3",
+}
+
+
+def _lift_no_information(canon, trials, no_info):
+    """Re-derive NO_INFORMATION verdicts through the RoB 2 algorithm using regulatory
+    answers. Returns (domain_record_or_None, still_unresolved).
+
+    ⚠️ WHAT IT WILL NOT DO, and each of these was a way to get a flattering wrong answer:
+
+      * It does not INVENT a response. Only signalling questions a regulatory document
+        actually answered are supplied; every other question keeps whatever the original
+        assessment held, and `rob2_algorithm` returns UNDERIVABLE rather than defaulting
+        if the combination selects no row of the published table.
+      * It does not lift PART of the domain. If any contributing result is still
+        unresolved, the whole domain refuses -- an estimate pooled from three results
+        cannot have its risk of bias rated on two of them.
+      * It does not hide that the answer came from elsewhere. The returned record names
+        the documents, the questions they answered, and whether any answer is INFERRED
+        rather than STATED.
+    """
+    try:
+        import regulatory_evidence as _re
+        import rob2_algorithm as _r2
+    except ImportError:
+        from . import regulatory_evidence as _re
+        from . import rob2_algorithm as _r2
+
+    unresolved, resolved, prov_all = [], [], []
+    byid = {(t.get("id") or t.get("trial")): t for t in trials}
+    for tid, _v in no_info:
+        # ⭐ TWO SEPARATE UNBLOCKS, AND CONFLATING THEM WOULD HAVE HIDDEN THE CHEAPER ONE.
+        #
+        # The first version required regulatory evidence before it would attempt anything.
+        # That was wrong, and testing it on a real object showed why: `alirocumab-lipid`
+        # lifts from REFUSED to SOME CONCERNS even when the supplied regulatory answer is
+        # itself NO_INFORMATION -- because RoB 2's own Table 4 says that a random sequence
+        # with NO INFORMATION on concealment is SOME CONCERNS, not "no information".
+        #
+        # ⇒ THE STORED OVERALL VERDICTS ARE MORE PESSIMISTIC THAN THE PUBLISHED ALGORITHM
+        # APPLIED TO THE CORPUS'S OWN RECORDED ANSWERS. That is a defect the algorithm
+        # fixes with NO RETRIEVAL AT ALL, and it is separable from what a regulatory
+        # review adds. So derivation is attempted always; regulatory answers are optional
+        # enrichment that fill questions the object does not hold.
+        responses, prov = _re.responses_and_provenance(canon, tid)
+        t = byid.get(tid) or {}
+        # ⚠️ THE CORPUS STORES SIGNALLING QUESTIONS BY NAME AND ONLY FOR SOME DOMAINS.
+        # 145 of 375 domain records carry a `signalling_questions` map keyed by phrase --
+        # `allocation_concealed`, not "1.2" -- and the sets are COMPLETE for D1 (all three)
+        # and PARTIAL for the rest (3 of 7 for D2, 1 of 4 for D3). The first version of
+        # this function read a key called `responses` that no object has, so the lift
+        # could never fire. Read the real key, and map the names.
+        #
+        # ⇒ SO ONLY THE DOMAINS WITH A COMPLETE QUESTION SET ARE RE-DERIVED. The others
+        # keep their STORED DOMAIN JUDGEMENT, which is a judgement an assessor made and
+        # this module has no business recomputing. `rob2_algorithm.overall` takes domain
+        # judgements, so the two halves compose exactly as the tool intends.
+        stored_q, stored_j = {}, {}
+        for d in (t.get("domains") or []):
+            dn = str(d.get("domain_name") or d.get("domain") or "")[:2].upper()
+            sq = d.get("signalling_questions")
+            if isinstance(sq, dict):
+                for name, val in sq.items():
+                    q = _SQ_NAME_TO_NUMBER.get(str(name).strip().lower())
+                    if q:
+                        stored_q[q] = val
+            j = d.get("judgement")
+            if j is None:
+                js = [x for x in (d.get("judgements") or []) if x]
+                j = js[0] if js else None
+            if dn and j:
+                stored_j[dn] = _verdict(j)
+
+        merged = dict(stored_q)
+        merged.update({k: v for k, v in responses.items() if v is not None})
+
+        # ⚠️ THE DOMAIN FUNCTIONS TAKE CODED RESPONSES, NOT RAW STRINGS. `rob2_algorithm`
+        # publishes `code()` for exactly this: "PROBABLY_YES" is Y/PY, "NO_INFORMATION" is
+        # NI, "NO" is N/PN. Passing the stored wording straight through made `d1` return
+        # "Table 4: responses select no row" -- the module refusing rather than guessing,
+        # which is correct behaviour and looked from outside like the lift not working.
+        # An unrecognised response codes to None and the domain then falls back to the
+        # stored judgement; it is never coerced onto a row.
+        doms, underivable, rederived = {}, [], []
+        for dname, (fn, qs) in _r2.DOMAIN.items():
+            got = {q: _r2.code(merged[q]) for q in qs if merged.get(q) is not None}
+            if all(got.get(q) is not None for q in qs):
+                try:
+                    verdict, _why = fn(got)
+                except Exception:
+                    verdict = None
+                if verdict is not None:
+                    doms[dname] = verdict
+                    rederived.append(dname)
+                    continue
+            # Fall back to the assessor's own domain judgement, never to a default.
+            j = stored_j.get(dname)
+            doms[dname] = j if j in (_r2.LOW, _r2.SOME, _r2.HIGH) else None
+            if doms[dname] is None:
+                underivable.append(dname)
+        prov["domains_rederived_from_signalling_questions"] = sorted(rederived)
+        prov["domains_taken_from_stored_judgement"] = sorted(
+            d for d in doms if d not in rederived and doms[d] is not None)
+        ov, why = _r2.overall(doms)
+        if ov is None:
+            unresolved.append((tid, "still underivable: %s"
+                               % (", ".join(sorted(set(underivable))) or why[:60])))
+            continue
+        resolved.append((tid, ov, doms, why))
+        prov_all.append((tid, prov))
+
+    if unresolved or not resolved:
+        return None, unresolved
+
+    verdicts = [ov for _t, ov, _d, _w in resolved]
+    n = len(verdicts)
+    high = sum(1 for v in verdicts if v == _r2.HIGH)
+    some = sum(1 for v in verdicts if v == _r2.SOME)
+    inferred = sorted({q for _t, p in prov_all for q in p["inferred_questions"]})
+    docs = sorted({d for _t, p in prov_all for d in p["documents"]})
+
+    if high:
+        state, levels = DOWNGRADE, (2 if high == n else 1)
+        head = "%d of %d contributing result(s) are at HIGH risk of bias" % (high, n)
+    elif some:
+        state, levels = DOWNGRADE, 1
+        head = ("%d of %d contributing result(s) carry SOME CONCERNS and none is at high "
+                "risk of bias" % (some, n))
+    else:
+        state, levels = NO_DOWNGRADE, 0
+        head = "All %d contributing result(s) are at LOW risk of bias" % n
+
+    reason = (
+        "%s. ⚠️ THIS VERDICT WAS NOT READ OFF THE STORED ASSESSMENT. The stored assessment "
+        "recorded NO INFORMATION for %d result(s), because it was made from registry "
+        "records that do not report the concealment mechanism, the analysis population or "
+        "missing-data handling. The judgement above was RE-DERIVED through the published "
+        "RoB 2 algorithm (%s) after a regulatory review supplied the missing signalling "
+        "questions: %s. Documents read: %s."
+        % (head, len(no_info), _r2.AUTHORITY,
+           ", ".join(sorted({q for _t, p in prov_all
+                             for q in p["questions_from_regulatory_review"]})),
+           "; ".join(docs) or "not named"))
+    if inferred:
+        reason += (" ⚠️ AND IT RESTS IN PART ON INFERRED EVIDENCE: signalling question(s) "
+                   "%s were answered from a document that evidences the mechanism without "
+                   "stating the property. That is weaker than a stated answer and is "
+                   "recorded as a separate tier rather than folded in."
+                   % ", ".join(inferred))
+
+    d = _dom("risk_of_bias", state, reason, levels=levels,
+             inputs_read=["risk_of_bias", "risk_of_bias.regulatory_evidence",
+                          "%d result-level judgement(s) re-derived" % n])
+    d["derived_through_rob2_algorithm"] = True
+    d["rob2_authority"] = _r2.AUTHORITY
+    d["per_result_rederivation"] = [
+        {"result": tid, "overall": ov, "domains": doms, "why": why}
+        for tid, ov, doms, why in resolved]
+    d["regulatory_provenance"] = [{"result": tid, **p} for tid, p in prov_all]
+    d["rests_on_inferred_evidence"] = bool(inferred)
+    return d, []
 
 
 def _rob_inputs(block, trials):
