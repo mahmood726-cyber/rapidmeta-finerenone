@@ -52,9 +52,25 @@ FEATURES = [
     ("states the pooled quantity and its kind",
      r"pooled as.{0,400}?(binary counts|time to event|continuous measure)"),
     ("binary-versus-time-to-event stated", r"time[- ]to[- ]event"),
-    ("absolute effects per 1000", r"per 1,?000 (?:women|people|patients)"),
+    # ⚠️ ANOTHER PROXY THAT WAS WEAKER THAN THE CAPABILITY, and the third time this file has
+    # learned it. The old pattern required the literal phrase "per 1000 women". The component
+    # that landed prints a table headed "Risk per 1,000, control" and "Absolute reduction per
+    # 1,000" -- the real thing, in the words a table uses -- and scored ABSENT.
+    #
+    # ⛔ THE PAGE WAS NOT CHANGED TO SATISFY THE DETECTOR. The replacement was PLANTED BOTH WAYS
+    # against a genuine pre-change build of this same object (built from the unmodified harness,
+    # 56,396 rendered characters): it matches NOTHING there and matches the new table. A pattern
+    # that fires on the old page would be measuring the renderer's vocabulary, not its output.
+    ("absolute effects per 1000",
+     r"(?:risk|reduction|events?|infections?)[^.<]{0,40}per 1,?000"),
     ("number needed to treat", r"number needed to treat|\bNNT\b"),
-    ("age-stratified efficacy", r"21 or younger|age[- ]stratified"),
+    # ⚠️ SAME SHAPE. "21 or younger" is the phrasing of ASPIRE's ABSTRACT; the component reads
+    # the RESULTS section, where the strata are "18 to 21 years" and "under 25 years" -- and the
+    # under-25 split is the PRESPECIFIED one, which the hand-built page mislabelled "18 to 24".
+    # A detector keyed to the hand-built wording would have scored the more accurate page as
+    # missing the feature. Planted both ways against the pre-change build: no match there.
+    ("age-stratified efficacy",
+     r"(?:by age|age[- ]stratified|age stratum)[\s\S]{0,800}?\b\d{2} (?:years|to \d{2})"),
     ("safety outcomes", r"serious adverse event|grade 3 adverse"),
     ("other STI outcomes", r"gonorrh|chlamyd|trichomon|syphilis"),
     ("currency: what changed since", r"since (?:the|these)[^.]{0,40}(?:search|synthes)"),
@@ -63,6 +79,20 @@ FEATURES = [
     ("audit trail / provenance", r"audit trail|sha256"),
     ("integrity section", r"What was checked before"),
     ("modified HKSJ named", r"modified[^.]{0,30}(?:hartung|knapp)"),
+]
+
+# ⛔ SCORED SEPARATELY, AND DELIBERATELY NOT ADDED TO FEATURES ABOVE.
+#
+# These are the axes the COMPARATOR won, named by all six blinded judges. Folding them into
+# FEATURES would change the denominator of the acceptance bar, and "13 of 13" and "14 of 14"
+# would then mean different things while looking like progress. The bar is about reproducing
+# what WON; this list is about closing what LOST. Two questions, two denominators.
+LOSING_AXES = [
+    ("formal GRADE certainty for our own estimate",
+     r"certainty in this estimate is|starting at .{0,20}for randomised evidence"),
+    ("the certainty is derived, not asserted",
+     r"recomputed from the table"),
+    ("search breadth: ICTRP run", r"ICTRP"),
 ]
 
 
@@ -142,6 +172,16 @@ def main():
         print("  %-36s %s" % (name, "PRESENT" if ok else "ABSENT"))
         if not ok:
             print("        %s" % ctx[:130])
+    print("")
+    print("  LOSING AXES -- what the comparator had and we did not. Separate denominator.")
+    lose = 0
+    for name, pat in LOSING_AXES:
+        ok, ctx = present(t, pat)
+        lose += ok
+        print("  %-36s %s" % (name, "PRESENT" if ok else "ABSENT"))
+        if not ok:
+            print("        %s" % ctx[:130])
+    print("  HARNESS NOW COVERS %d of %d losing axes" % (lose, len(LOSING_AXES)))
     print("")
     print("  HARNESS REPRODUCES %d of %d winning features" % (have, len(FEATURES)))
     print("  bespoke fraction of the winning margin: %.0f%%"
