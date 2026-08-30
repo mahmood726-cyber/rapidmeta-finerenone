@@ -112,21 +112,76 @@ def shared_runs(a, b, minlen=SHARED_MIN):
     return hits
 
 
-QUOTE = re.compile(r"[\"“]([^\"”\n]{25,200})[\"”]")
+# ⛔ AN ASCII " CARRIES NO DIRECTION, AND THE OLD PATTERN PAIRED A CLOSING MARK WITH THE NEXT
+# OPENING ONE. On `close the "no information" judgements on D2 (deviations/adherence) and D3
+# (missing data/attrition), finalise GRADE, and remove the "Pending" status`, the phrase
+# "no information" is 14 characters -- BELOW the 25-character floor -- so the pattern skipped
+# it, then began at its CLOSING quote and ran to the OPENING quote of "Pending", capturing the
+# judge's own UNQUOTED PROSE as though it were a quotation from the document. That prose is of
+# course not on the page, so the verdict was recorded as "quoted text not on the page" -- an
+# accusation of fabrication manufactured entirely by the gate.
+#
+# ⚠️ IT WOULD HAVE INVALIDATED BOTH ANTHROPIC VERDICTS -- AN ENTIRE FAMILY, one third of the
+# panel -- on a regex artefact, and the discard reads as a finding about the MODEL. That is the
+# third time this project has recorded an instrument accusing the thing it was checking.
+#
+# FIX: pair ASCII marks BY ORDER (1st with 2nd, 3rd with 4th, ...), which is the only way an
+# undirected mark can be paired, and pair curly marks directionally, which is what they are for.
+CURLY = re.compile("“([^”\n]{25,200})”")
+
+
+def _quoted_spans(text):
+    """Quoted runs: ASCII marks paired by ORDER, curly marks paired directionally."""
+    out = [m.group(1) for m in CURLY.finditer(text)]
+    parts = text.split('"')
+    # parts[1], parts[3], ... lie between an odd mark and an even one -> genuinely quoted.
+    for i in range(1, len(parts), 2):
+        if "\n" not in parts[i]:
+            out.append(parts[i])
+    return out
 
 
 def grounding(verdict_text, shown_text):
-    """Quotes in the verdict that are NOT in what that judge was shown. -> list."""
+    """Quotes in the verdict that are NOT in what that judge was shown.
+
+    Returns (quote, longest_matching_prefix, quote_length) so a PARAPHRASE is distinguishable
+    from a FABRICATION. A judge that drops two words from a real heading -- "what a clinician
+    should take from this" for "what a clinician or a programme should take from this" -- has
+    invented nothing, and reporting that identically to an invention is the same overclaim
+    running in the opposite direction.
+    """
     def norm(s):
         return re.sub(r"[^a-z0-9 ]", " ", re.sub(r"\s+", " ", s.lower())).strip()
     hay = norm(shown_text)
     bad = []
-    for m in QUOTE.finditer(verdict_text):
-        q = norm(m.group(1))
-        if len(q) < 25:
+    for raw in _quoted_spans(verdict_text):
+        q = norm(raw)
+        if len(q) < 25 or q in hay:
             continue
-        if q not in hay:
-            bad.append(m.group(1)[:120])
+        # ⛔ A LONGEST-PREFIX MEASURE CANNOT SEE A MIDDLE OMISSION, and the omission that
+        # matters is exactly that: a judge wrote "what a clinician should take from this" for a
+        # heading reading "what a clinician OR A PROGRAMME should take from this". The prefix
+        # dies at word four while every word the judge wrote is on the page, in order. Scored
+        # by prefix it reads 17 of 38 and is reported as an invention.
+        #
+        # So the test is a WORD SUBSEQUENCE inside a bounded window: every word of the quote
+        # present, in order, within a span not much longer than the quote itself. That admits
+        # dropped words and refuses reordered or invented ones.
+        qw, hw = q.split(), hay.split()
+        best, span = 0, len(qw) + 8
+        for start in range(len(hw)):
+            if hw[start] != qw[0]:
+                continue
+            j, k = 0, start
+            while j < len(qw) and k < min(len(hw), start + span):
+                if hw[k] == qw[j]:
+                    j += 1
+                k += 1
+            if j > best:
+                best = j
+            if best == len(qw):
+                break
+        bad.append((raw[:120], best, len(qw)))
     return bad
 
 
@@ -236,8 +291,12 @@ def score():
         proved = model_proved(v, m["family"])
         rows.append((tag, m, v, ungrounded, proved))
         print("  %-26s model-proved=%-5s ungrounded-quotes=%d" % (tag, proved, len(ungrounded)))
-        for q in ungrounded[:2]:
-            print("        NOT IN WHAT THIS JUDGE SAW: %s" % q)
+        for q, best, tot in ungrounded[:3]:
+            kind = ("PARAPHRASE (%d of %d words present, in order)" % (best, tot)
+                    if best == tot else
+                    "NEAR (%d of %d words)" % (best, tot) if best >= tot - 2 else
+                    "NOT ON THE PAGE (%d of %d words)" % (best, tot))
+            print("        %s: %s" % (kind, q))
     print("")
     print("  ⛔ A verdict with an ungrounded quote is INVALID, not merely weaker: a judge")
     print("     reasoning about text that was not in front of it is not judging our page.")

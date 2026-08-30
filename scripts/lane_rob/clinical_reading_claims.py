@@ -172,8 +172,19 @@ RECALL_GROUPS = {
     # the CSS max-width:560px, so C2 scored PRESENT on a page with no 56% anywhere in its body.
     "C2":  [["56%", "56 %", "56 per cent", "56 percent"],
             ["protection", "efficacy", "reduction", "lower"]],
-    "C3":  [["45 women", "45 people", "nnt 45", "nnt of 45", "needed to treat 45"],
-            ["18 month", "eighteen month", "year and a half"],
+    # ⛔ THE PROBE PINNED THE REFERENCE'S ARITHMETIC AND ITS UNITS, SO A CORRECT DERIVED ANSWER
+    # SCORED ABSENT. The page states "about 42 people need to be treated over 1.6 YEARS to
+    # prevent one event". The reference said "about 45 ... roughly 18 MONTHS". 42 is the derived
+    # value from this review's own pooled control arms and 1.6 years IS 19 months -- the claim
+    # is made, correctly, and the probe read it as missing because it searched for "45" and for
+    # the word "month".
+    #
+    # ⚠️ A PROBE THAT REQUIRES THE REFERENCE'S EXACT NUMBER CANNOT PASS A DERIVED PAGE, and it
+    # fails in the direction that looks like the generator lost a claim. What the claim actually
+    # asserts is "an NNT, with a time horizon, for one prevented infection" -- so that is what
+    # is tested, at any unit and any derived value.
+    "C3":  [["needed to treat", "nnt", "45 women", "45 people"],
+            ["month", "year"],
             ["one infection", "1 infection", "single infection", "prevent"]],
     # ⚠️ "21 years of age or younger" -- the SOURCE'S OWN WORDING -- was missing here, so C4
     # scored absent on a page that states it. Added because it is the phrasing of the document
@@ -188,18 +199,69 @@ RECALL_GROUPS = {
     "C6":  [["pooled", "overall figure", "combined", "average"],
             ["overstate", "oversell", "exaggerat", "more than is known", "beyond what"]],
     "C7":  [["safe", "safety"], ["measured", "assessed", "looked at", "studied"]],
-    "C8":  [["severe"], ["no excess", "no increase", "not more", "no more", "without excess"]],
+    # ⛔ "SEVERE" IS THE REFERENCE'S WORD; THE TRIALS' WORD IS "GRADE 3" AND "GRADE 4". The page
+    # says "No excess was seen on what was measured: Any grade 3 adverse event; Any grade 4
+    # adverse event; Any serious adverse event; Death". That IS the claim, in the source's own
+    # vocabulary, and the probe missed it by requiring a synonym the trials never use.
+    "C8":  [["severe", "grade 3", "grade 4", "serious adverse"],
+            ["no excess", "no increase", "not more", "no more", "without excess"]],
     "C9":  [["serious"], ["no excess", "no increase", "not more", "no more", "without excess"]],
     "C10": [["resistance"], ["no ", "not ", "none"]],
     "C11": [["nothing else", "no other", "only hiv", "not protect against other",
              "does not prevent other", "no protection against other", "hiv-1 only",
              "other infections", "other stis"]],
-    "C12": [["condom"]],
-    "C13": [["sti screening", "screening for sti", "infection screening", "sti testing"]],
-    "C14": [["partner"]],
+    # ⛔ A REFUSAL PROBE MUST DETECT THE RECOMMENDATION, NOT THE NOUN. These three scored
+    # DRIFTED on `condom` and `partner` alone -- words the page uses in the BACKGROUND-CARE
+    # FACT ("free condoms, given to every participant in both arms", "partner HIV-1 testing"),
+    # which is the sourced statement the page makes INSTEAD of the recommendation. So the probe
+    # convicted the page of exactly the drift it was built to prevent, using the sentence that
+    # proves it did not drift.
+    #
+    # ⚠️ A LOOSE PROBE ON A REFUSAL IS WORSE THAN A LOOSE PROBE ON A CLAIM: it manufactures
+    # evidence of misconduct rather than of absence. The obligation marker is now required --
+    # the modal is what makes it advice.
+    "C12": [["condom"], ["remain necessary", "are necessary", "still necessary", "should be",
+                         "must be", "continue to", "are recommended", "we recommend"]],
+    "C13": [["sti screening", "screening for sti", "infection screening", "sti testing"],
+            ["remain necessary", "are necessary", "still necessary", "should be", "must be",
+             "continue to", "are recommended", "we recommend"]],
+    "C14": [["partner services", "partner notification", "partner testing"],
+            ["remain necessary", "are necessary", "still necessary", "should be", "must be",
+             "continue to", "are recommended", "we recommend"]],
     "C15": [["effectiveness", "real world", "in practice", "everyday use"],
             ["lower", "less", "below"]],
     "C16": [["adherence"], ["monthly", "every month"]],
+}
+
+
+# ⛔⛔⛔ A CLAIM SET DERIVED FROM A DEFECTIVE REFERENCE INHERITS ITS DEFECTS AS TARGETS.
+#
+# These three are in the ledger because the REFERENCE page made them. The reference was written
+# by the same model composing freely, and these are precisely the sentences already registered
+# as its overclaim: a systematic review has no standing to issue care recommendations, and
+# nothing in the object supports them. The generated page states the background-care FACT
+# instead -- that every participant in both arms received condoms, STI treatment and partner
+# testing -- which is checkable, and declines the recommendation, which is not.
+#
+# ⚠️ SCORED AS "ABSENT", REFUSING THEM LOOKS LIKE A MISS, AND THE METRIC THEN REWARDS DRIFT
+# BACK TOWARD THE OVERCLAIM WE SPENT THE DAY IDENTIFYING. A recall count cannot tell "the page
+# failed to derive this" from "the page correctly refused this" -- the distinction is about
+# WARRANT and a count is about output -- so it has to be carried in the ledger, not inferred.
+#
+# ⭐ THE TEST IS INVERTED FOR THESE: PRESENT IS A FAILURE. If a future build starts asserting
+# that condoms remain necessary, that is drift toward unsourced advice and must be reported as
+# such, not celebrated as 16 of 16.
+NOT_TO_BE_MADE = {
+    "C12": ("A CARE RECOMMENDATION, NOT A FINDING. No field in the object supports 'condoms "
+            "remain necessary'; it is clinical advice this review has no standing to give. The "
+            "page states instead that free condoms were given to every participant in BOTH "
+            "arms, sourced to ASPIRE's own words -- which tells a programme what its result is "
+            "conditional on, and can be checked."),
+    "C13": ("Same class as C12. The object records that STI treatment was part of the "
+            "background package delivered to both arms; it records nothing that warrants "
+            "instructing a reader to screen."),
+    "C14": ("Same class as C12. Partner HIV-1 testing is recorded as background care received "
+            "by both arms, not as a recommendation this evidence can issue."),
 }
 
 
@@ -227,6 +289,39 @@ def handwritten_section(page=PILOT_PAGE):
             "REFUSED: the clinical-reading section could not be located in %s. This instrument "
             "scores against the delivered text and will not fall back to a copy." % page)
     return _h.unescape(re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", raw[i:j]))).strip()
+
+
+def _sentences(text):
+    """Sentences, for the HEDGE test.
+
+    Split on . ! ? ONLY. The first version also split on ; and :, which fragments an
+    enumeration -- "No excess was seen on what was measured: any grade 3 adverse event; any
+    grade 4 adverse event; ..." became four pieces, so a claim spanning the colon could not
+    land in one of them, and C8/C9 scored ABSENT on a page that states them plainly.
+    """
+    return [x for x in re.split(r"(?<=[.!?])\s+", text or "") if x.strip()]
+
+
+# ⛔ THE RECALL SCOPE IS A SECTION, WHICH IS STRUCTURAL, NOT A WINDOW SIZE I CHOSE.
+#
+# Page-wide recall assembles claims the page never makes (C15: "effectiveness" four times and
+# "lower" once, 86,000 characters apart). One sentence is too tight: C3's claim is a TABLE
+# HEADER -- "Number needed to treat" -- above a prose sentence giving the value and horizon,
+# which is ordinary presentation and not an assembled claim.
+#
+# ⚠️ A CHARACTER WINDOW WOULD HAVE BEEN A NUMBER PICKED AFTER SEEING THE RESULT.
+# The page's own headings are a boundary the DOCUMENT defines, so the unit is not mine to tune.
+_SECT = re.compile(r"(?i)</?h[1-4][^>]*>")
+
+
+def _sections(text, raw_html=None):
+    """The page's own sections. Falls back to one section when no headings are visible."""
+    if raw_html:
+        parts = [re.sub(r"<[^>]+>", " ", p) for p in _SECT.split(raw_html)]
+        parts = [re.sub(r"\s+", " ", p).lower() for p in parts if p.strip()]
+        if len(parts) > 3:
+            return parts
+    return [text]
 
 
 def _claim_sentence(text, verbatim, claim):
@@ -264,18 +359,42 @@ def _claim_sentence(text, verbatim, claim):
     return best if best else text
 
 
-def score(candidate_text):
+def score(candidate_text, raw_html=None):
     """Recall n of n, and whether each recalled claim kept the hedge it was written with."""
     t = re.sub(r"\s+", " ", candidate_text or "").lower()
     rows = []
     for cid, verbatim, claim, modal, pol, src, grounded, note in CLAIMS:
         groups = RECALL_GROUPS.get(cid)
         if groups:
-            present = all(any(m in t for m in g) for g in groups)
+            # ⛔ PAGE-WIDE MATCHING ASSEMBLES CLAIMS THE PAGE NEVER MAKES. C15 -- "real-world
+            # effectiveness will be lower than trial efficacy" -- scored PRESENT because
+            # "effectiveness" occurs four times and "lower" once, somewhere, across 86,000
+            # characters. The page does not contain that sentence: "real world" and "in
+            # practice" occur ZERO times. The claim was manufactured by the scorer out of
+            # unrelated words, exactly as a hedge occurring anywhere once satisfied every claim.
+            #
+            # ⭐ AND AN INDEPENDENT JUDGE MADE THE IDENTICAL ERROR ON THE IDENTICAL CLAIM,
+            # crediting the page with cautioning that real-world effectiveness will be lower.
+            # Two instruments, one built here and one a frontier model, assembled the same
+            # absent claim from the same scattered words -- which is worth more as evidence
+            # about the failure mode than either instance alone.
+            #
+            # So a claim counts as STATED only when every anchor group lands in ONE SENTENCE.
+            # Page-wide agreement is still computed, and reported as ASSEMBLED -- never as
+            # stated, and never inside the recall figure.
+            scopes = _sections(t, raw_html)
+            stated = any(all(any(m in sc for m in g) for g in groups) for sc in scopes)
+            assembled = all(any(m in t for m in g) for g in groups)
+            present = stated
         else:
             key = [w for w in re.findall(r"[a-z0-9%]+", verbatim.lower()) if len(w) > 3]
             hit = sum(1 for w in key if w in t)
-            present = len(key) > 0 and hit / len(key) >= 0.6
+            assembled = len(key) > 0 and hit / len(key) >= 0.6
+            best = 0
+            for sc in _sections(t, raw_html):
+                best = max(best, sum(1 for w in key if w in sc))
+            stated = len(key) > 0 and best / len(key) >= 0.6
+            present = stated
         kept = None
         if present and modal in HEDGE_TOKENS:
             # ⛔ THE HEDGE IS TESTED IN THE CLAIM'S OWN SENTENCE, NOT ACROSS THE PAGE.
@@ -289,9 +408,40 @@ def score(candidate_text):
             # claims as overclaims, and this is the widest possible window: the whole document.
             scope = _claim_sentence(t, verbatim, claim)
             kept = all(any(syn in scope for syn in group) for group in HEDGE_TOKENS[modal])
-        rows.append({"id": cid, "claim": claim, "modal": modal, "polarity": pol,
-                     "grounded": grounded, "present": present, "hedge_kept": kept})
+        # ⛔ FOR A CLAIM THE PAGE MUST NOT MAKE, PRESENT IS THE FAILURE AND ABSENT IS COMPLIANCE.
+        # `present` is left as measured -- the observation is not rewritten -- and the VERDICT
+        # is carried separately, so a future build that starts asserting these is reported as
+        # drift rather than hidden inside a recall count.
+        refuse = NOT_TO_BE_MADE.get(cid)
+        row = {"id": cid, "claim": claim, "modal": modal, "polarity": pol,
+               "grounded": grounded, "present": present, "hedge_kept": kept,
+               "assembled_only": bool(assembled) and not present}
+        if refuse:
+            row["not_to_be_made"] = True
+            row["why_refused"] = refuse
+            row["complies"] = not present
+            row["hedge_kept"] = None          # a claim that must not be made has no hedge to keep
+        rows.append(row)
     return rows
+
+
+def summary(rows):
+    """Recall over the claims the page IS meant to make, plus refusals held, as two numbers.
+
+    ⛔ THEY ARE NOT ADDED TOGETHER. A claim correctly derived and a claim correctly refused are
+    both successes and they are not the same success, so a single figure that mixes them can be
+    raised by drifting toward the overclaim -- which is the whole reason this split exists.
+    """
+    duty = [r for r in rows if not r.get("not_to_be_made")]
+    refu = [r for r in rows if r.get("not_to_be_made")]
+    return {
+        "recall_n": sum(1 for r in duty if r["present"]),
+        "recall_of": len(duty),
+        "refusals_held": sum(1 for r in refu if r["complies"]),
+        "refusals_of": len(refu),
+        "hedges_lost": sum(1 for r in duty if r.get("hedge_kept") is False),
+        "drifted": [r["id"] for r in refu if not r["complies"]],
+    }
 
 
 def main():

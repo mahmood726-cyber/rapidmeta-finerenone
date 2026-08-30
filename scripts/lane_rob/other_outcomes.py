@@ -177,6 +177,12 @@ def render(canon):
             out.append("<p><b>What the tiers mean.</b> %s</p>"
                        % " ".join("<i>%s</i> &mdash; %s." % (_esc(t), TIER_NOTE[t])
                                   for t in TIERS if t in tiers_used))
+            # ⛔ THE `break` PRINTED ONE EXPLANATION AND SUPPRESSED THE REST. With one borrowed
+            # row that is indistinguishable from printing them all; with five it means a reader
+            # sees the provenance note for chlamydia and nothing for syphilis, gonorrhoea,
+            # trichomoniasis or HPV -- four rows whose numbers are the comparator's, presented
+            # as though only the first were. A coverage gap inside the very component that
+            # exists to report provenance.
             if any(t in BORROWED for t in tiers_used):
                 for row in rows:
                     if (isinstance(row, dict)
@@ -185,7 +191,30 @@ def render(canon):
                         out.append("<p><b>%s.</b> %s</p>"
                                    % (_esc(row.get("outcome")),
                                       _esc(row["why_the_primary_read_did_not_land"])))
-                        break
+
+            # ⭐ THE PRIMARY-SOURCE READ, PRINTED PER ROW. The object now records, for each
+            # borrowed outcome, that the primary trials WERE read and what state that read
+            # returned. Held in the object and shown nowhere, it would be a fact nobody can
+            # check -- which is the failure this project keeps finding in its own work.
+            pr = [r for r in rows if isinstance(r, dict) and r.get("primary_read_2026_08_30")]
+            if pr:
+                out.append("<h3>What the primary trials say about these outcomes</h3>")
+                out.append(
+                    "<p>Each borrowed row below was checked against the trial reports "
+                    "themselves. <b>Three states are distinguished, and they are not the same "
+                    "thing:</b> <i>RETRIEVED_NO_VALUE</i> &mdash; the document was read and the "
+                    "value is not in it; <i>NOT_RETRIEVABLE_OPEN_ACCESS</i> &mdash; the document "
+                    "could not be read at all, which is a fact about this review's reach and "
+                    "not about the trial; <i>RETRIEVED_QUALITATIVE_ONLY</i> &mdash; the trial "
+                    "states a direction and gives no figure.</p>")
+                for row in pr:
+                    d = row["primary_read_2026_08_30"]
+                    out.append(
+                        "<p><b>%s.</b> %s<br><small>ASPIRE: <code>%s</code> &middot; "
+                        "Ring Study: <code>%s</code>. %s</small></p>"
+                        % (_esc(row.get("outcome")), _esc(d.get("finding")),
+                           _esc(d.get("aspire_state")), _esc(d.get("ring_study_state")),
+                           _esc(d.get("why_the_borrowed_figure_stands"))))
         if note:
             out.append("<p>%s</p>" % _esc(note))
         for name, why in refused:
@@ -310,6 +339,48 @@ EMPTY_CONTROL = {"app_id": "__control_empty",
 
 def _plain(html):
     return re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", html))
+
+
+def plant_retrieval_states():
+    """⭐ THE THREE RETRIEVAL STATES MUST STAY THREE, AND THEY MUST REACH THE PAGE.
+
+    `RETRIEVED_NO_VALUE` (the document was read and the value is not in it) and
+    `NOT_RETRIEVABLE_OPEN_ACCESS` (the document could not be read) are different facts about
+    different things -- the first is about the evidence, the second about THIS REVIEW'S REACH.
+    Collapsing them into "no data" reports our limitation as a property of the trial, which is
+    the same error as a scan reporting its own reach as coverage.
+
+    ⛔ AND BOTH WAYS. A row carrying the states must print them; a row carrying none must not
+    invent one. The second half is what stops the component filling a silence with a state.
+    """
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    base = {"outcome": "Chlamydia", "tier": "prior-meta table (unverified)",
+            "effect": "RR 0.97 (0.89 to 1.07)",
+            "why_the_primary_read_did_not_land": "the comparator is the only source held",
+            "trials": "2 trials"}
+    with_states = dict(base, primary_read_2026_08_30={
+        "finding": "ASPIRE reports STIs only as a composite.",
+        "aspire_state": "RETRIEVED_NO_VALUE",
+        "ring_study_state": "NOT_RETRIEVABLE_OPEN_ACCESS",
+        "why_the_borrowed_figure_stands": "no primary-source alternative is reachable"})
+    def page(row):
+        return _plain(render({"results": {"by_outcome": {"primary": {
+            "other_outcomes": {"rows": [row]}}}}}))
+    a, b = page(with_states), page(base)
+    ok_a = ("RETRIEVED_NO_VALUE" in a and "NOT_RETRIEVABLE_OPEN_ACCESS" in a
+            and a.count("RETRIEVED_NO_VALUE") != a.count("NOT_RETRIEVABLE_OPEN_ACCESS") - 99)
+    ok_b = ("RETRIEVED_NO_VALUE" not in b and "NOT_RETRIEVABLE_OPEN_ACCESS" not in b)
+    print("")
+    print("PLANT -- the three retrieval states")
+    print("   row WITH a primary read prints both states          %s   [%s]"
+          % (ok_a, "PASS" if ok_a else "FAIL"))
+    print("   row WITHOUT one invents neither                     %s   [%s]"
+          % (ok_b, "PASS" if ok_b else "FAIL"))
+    print("   ⚠️ the second is the one that matters: a component that")
+    print("      defaults a missing state has turned silence into a finding.")
+    assert ok_a, "a row carrying retrieval states did not print them"
+    assert ok_b, "a row carrying no retrieval state had one invented for it"
+    return 0
 
 
 def plant():
