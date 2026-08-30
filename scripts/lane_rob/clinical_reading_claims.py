@@ -168,8 +168,12 @@ HEDGE_TOKENS = {
 RECALL_GROUPS = {
     "C1":  [["over 21", "older than 21", "above 21", "21 and over", "aged over 21"],
             ["works", "effective", "efficacy", "protect", "reduces", "reduction"]],
-    "C2":  [["56"], ["protection", "efficacy", "reduction", "lower"]],
-    "C3":  [["45"], ["18 month", "eighteen month", "year and a half"],
+    # ⛔ A BARE NUMBER IS NOT AN ANCHOR. "56" matched the CI bound 0.566, a sha-256 prefix and
+    # the CSS max-width:560px, so C2 scored PRESENT on a page with no 56% anywhere in its body.
+    "C2":  [["56%", "56 %", "56 per cent", "56 percent"],
+            ["protection", "efficacy", "reduction", "lower"]],
+    "C3":  [["45 women", "45 people", "nnt 45", "nnt of 45", "needed to treat 45"],
+            ["18 month", "eighteen month", "year and a half"],
             ["one infection", "1 infection", "single infection", "prevent"]],
     "C4":  [["21 and under", "under 21", "younger than 21", "21 or younger", "up to 21"],
             ["not been shown", "not demonstrated", "no evidence", "unproven", "not shown"]],
