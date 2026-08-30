@@ -656,6 +656,57 @@
      "statement": "⚠️ THE QUANTITY POOLED HERE IS NOT THE QUANTITY THE TRIALS ANALYSED. Both trials analysed HIV-1 acquisition as TIME TO EVENT, with censoring and unequal follow-up; ASPIRE reports a median of 1.6 years per participant and a follow-up window of 12 to 14 months on its registered primary outcome. What this review pools is a RISK RATIO over binary counts, because binary counts are what the object holds. That is a different quantity from the trials' own estimand: it weights a participant followed for two years the same as one followed for twelve months, and it will differ from a hazard ratio whenever follow-up differs between arms. It is reported because it is what the evidence here supports, and it is labelled rather than presented as though it were the trials' own analysis.",
      "source_quote": "ASPIRE, registered primary outcome time frame: “minimum of 12 months and a maximum of 14 months per participant”. The Ring Study: “24 months”.",
      "what_would_fix_it": "Per-arm person-time or the trials' own hazard ratios with their standard errors. Neither is in this object; neither has been extracted; and no hazard ratio is derived here from counts, because a hazard ratio derived from binary counts is a risk ratio wearing a different name."
+    },
+    "followup": {
+     "median": 1.6,
+     "unit": "years",
+     "iqr": "1.1 to 2.3",
+     "maximum": 2.6,
+     "person_years": 4280,
+     "source": {
+      "document_id": "PMC4993693",
+      "what": "ASPIRE / MTN-020 primary report",
+      "route": "ncbi_efetch (Europe PMC returned 503)",
+      "retrieved_utc": "2026-08-30",
+      "tier": "trial report",
+      "sha256": "a6c75ad7e331aff7ff37a7792efa39d3631550600aeebe8c1b219457c4a03752",
+      "scope": "⚠️ ASPIRE ONLY. The Ring Study's report is not held (PMID 27959766, no PMC id, europepmc_by_pmid 404), so none of these values is claimed for both trials."
+     },
+     "source_quote": "The median follow-up was 1.6 years (interquartile range, 1.1 to 2.3), and the maximum follow-up was 2.6 years; 1024 women contributed more than 2 years of follow-up.",
+     "basis": "⛔ THIS IS ASPIRE'S MEDIAN, NOT A POOLED FOLLOW-UP, and the number needed to treat derived beside it is over BOTH trials. It is reported as the horizon the larger trial observed rather than as the review's own, because the object holds no pooled follow-up and inventing one would attach a false precision to the figure a clinician remembers."
+    },
+    "background_care": {
+     "delivered_to": "every participant in both arms",
+     "what": "counselling on HIV-1 risk reduction, partner HIV-1 testing, treatment of sexually transmitted infections in participants and partners, and free condoms",
+     "source": {
+      "document_id": "PMC4993693",
+      "what": "ASPIRE / MTN-020 primary report",
+      "route": "ncbi_efetch (Europe PMC returned 503)",
+      "retrieved_utc": "2026-08-30",
+      "tier": "trial report",
+      "sha256": "a6c75ad7e331aff7ff37a7792efa39d3631550600aeebe8c1b219457c4a03752",
+      "scope": "⚠️ ASPIRE ONLY. The Ring Study's report is not held (PMID 27959766, no PMC id, europepmc_by_pmid 404), so none of these values is claimed for both trials."
+     },
+     "source_quote": "All participants received a package of HIV-1 prevention services, including counseling with respect to HIV-1 risk reduction, partner HIV-1 testing, treatment of sexually transmitted infections in participants and partners, and free condoms.",
+     "what_it_means_for_the_estimate": "The effect is measured ON TOP OF this package, delivered to both arms. It therefore describes the ring ADDED to that care and says nothing about the ring used INSTEAD of it. ⭐ Stated as a property of the evidence rather than as advice: this review has no standing to recommend a package of care, and it does have standing to say what its own estimate is conditional on."
+    },
+    "adherence": {
+     "measured": true,
+     "how": "dapivirine detection in plasma, residual drug in returned rings, and the composite of those two measures",
+     "rate_over_21": "more than 70% overall",
+     "contact_schedule": "monthly follow-up visits including HIV-1 serologic testing, safety monitoring and individualised adherence counselling",
+     "source": {
+      "document_id": "PMC4993693",
+      "what": "ASPIRE / MTN-020 primary report",
+      "route": "ncbi_efetch (Europe PMC returned 503)",
+      "retrieved_utc": "2026-08-30",
+      "tier": "trial report",
+      "sha256": "a6c75ad7e331aff7ff37a7792efa39d3631550600aeebe8c1b219457c4a03752",
+      "scope": "⚠️ ASPIRE ONLY. The Ring Study's report is not held (PMID 27959766, no PMC id, europepmc_by_pmid 404), so none of these values is claimed for both trials."
+     },
+     "source_quote": "For women who were older than 21 years of age, the efficacy of HIV-1 protection was 56% (95% CI, 31 to 71; P<0.001), and the rate of adherence was more than 70% overall, as defined by dapivirine detection in plasma, in returned rings, and in the composite of those two measures.",
+     "schedule_quote": "Women returned for monthly follow-up visits, which included HIV-1 serologic testing, safety monitoring, and individualized adherence counseling.",
+     "what_it_means_for_the_estimate": "Adherence was OBSERVED, not assumed, and it was observed under monthly contact. A service that does not reproduce monthly contact should expect lower adherence and therefore a smaller effect than this one: the estimate is an efficacy under trial conditions, not an effectiveness in use."
     }
    }
   }

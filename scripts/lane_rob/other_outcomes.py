@@ -74,6 +74,44 @@ def _cell(v):
     return _esc(s)
 
 
+def _has_figure(v):
+    """Does this reading actually carry a NUMBER a reader would take away?"""
+    return bool(re.search(r"\d", str(v or "")))
+
+
+def _attribution(row):
+    """A short phrase naming where a borrowed figure came from. Never a bare tier name."""
+    if row.get("attribution"):
+        return str(row["attribution"])
+    src = row.get("source")
+    if isinstance(src, dict):
+        what = str(src.get("what") or "")
+        if "COMPARATOR" in what.upper():
+            return "the comparator's own pooled figure"
+        if what:
+            return what.split(",")[0]
+    return "a prior synthesis"
+
+
+def _effect_cell(row, tier):
+    """⛔ A BORROWED NUMBER CARRIES ITS SOURCE IN ITS OWN CELL.
+
+    The tier lived in a separate column and the reason in a paragraph below the table, so the
+    figure travelled without either: a reader who copies "RR 0.97 (0.89 to 1.07)" out of this
+    page takes an unattributed number with them, and an unsourced claim drifts to its strongest
+    form. ⚠️ A CAVEAT THAT TRAILS A CONCLUSION DOES NOT TRAVEL -- it has to share the sentence.
+
+    The gonorrhoea row was already correct because its reading is prose that names the
+    comparator; the two rows carrying FIGURES were the ones that were not. So the rule is keyed
+    to whether the cell carries a number, not to the tier alone.
+    """
+    v = _cell(row.get("effect"))
+    if tier in BORROWED and _has_figure(row.get("effect")):
+        return "%s &mdash; <span class=\"warn\">%s, not read at source</span>" % (
+            v, _esc(_attribution(row)))
+    return v
+
+
 def _rows(res):
     oo = res.get("other_outcomes")
     if isinstance(oo, dict):
@@ -129,7 +167,7 @@ def render(canon):
                 "<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td>"
                 "<td class=\"tier %s\">%s</td></tr>"
                 % (_esc(row.get("outcome")), _cell(row.get("treatment")),
-                   _cell(row.get("control")), _cell(row.get("effect")),
+                   _cell(row.get("control")), _effect_cell(row, tier),
                    _cell(row.get("trials")), cls, _esc(row.get("tier"))))
             printed += 1
         if body:
@@ -231,6 +269,16 @@ MODEL_ANSWER = {
          "tier": "prior-meta table (unverified)",
          "why_the_primary_read_did_not_land":
              "the counts are in a supplementary appendix this retrieval did not obtain"},
+        # ⛔ A BORROWED ROW THAT CARRIES A FIGURE -- the case the in-cell attribution control
+        # exists for. Without it that control passed VACUOUSLY: the fixture had borrowed rows and
+        # rows with figures, and none that was both. An assertion that never meets its case is
+        # indistinguishable from one that passes.
+        {"outcome": "Chlamydia", "treatment": "not stated in what we hold",
+         "control": "not stated in what we hold", "effect": "RR 0.97 (0.89 to 1.07)",
+         "trials": "two trials", "tier": "prior-meta table (unverified)",
+         "source": {"what": "a prior review, THE DESIGNATED COMPARATOR"},
+         "why_the_primary_read_did_not_land":
+             "the underlying counts are in a supplement this retrieval did not obtain"},
         {"outcome": "Herpes simplex virus", "treatment": "&mdash;", "control": "&mdash;",
          "effect": "NOT MEASURABLE &mdash; not screened for", "trials": "&mdash;",
          "tier": "absent by design"},
@@ -270,8 +318,8 @@ def plant():
     t = _plain(html)
     tiers = re.findall(r"<td class=\"tier[^\"]*\">([^<]*)</td>", html)
     print("MODEL ANSWER -- four rows, four tiers, three states of evidence.")
-    assert tiers == ["trial report", "prior-meta table (unverified)", "absent by design",
-                     "absent"], tiers
+    assert tiers == ["trial report", "prior-meta table (unverified)",
+                     "prior-meta table (unverified)", "absent by design", "absent"], tiers
     print("   tier column: %s   [PASS]" % "; ".join(tiers))
     assert "NOT MEASURABLE" in t and "NOT REPORTED" in t, t[:400]
     print("   'not measured' and 'not reported in a usable form' both printed   [PASS]")
@@ -295,6 +343,23 @@ def plant():
         print("   reason stated: %s   row withheld: %s   [%s]"
               % (said, no_row, "PASS" if said and no_row else "FAIL"))
         assert said and no_row, tt[:400]
+    # ⭐ A BORROWED NUMBER MUST NAME ITS SOURCE IN THE CELL THAT CARRIES IT.
+    # ⚠️ The tier column and the paragraph below the table are both FOOTNOTES: a reader who
+    # copies the figure out takes neither with them. This control asserts the attribution shares
+    # the cell with the number, and that a borrowed row WITHOUT a figure is not padded with one.
+    h = render(MODEL_ANSWER)
+    import re as _re
+    cells = _re.findall(r"<tr>.*?</tr>", h, _re.S)
+    figure_rows = [c for c in cells
+                   if "prior-meta table (unverified)" in c and _re.search(r"\d", _plain(c))]
+    print("REFUSAL CONTROL -- a borrowed FIGURE names its source in its own cell")
+    ok = True
+    for c in figure_rows:
+        if "not read at source" not in c:
+            ok = False
+    print("   borrowed rows carrying a figure: %d   all attributed in-cell: %s   [%s]"
+          % (len(figure_rows), ok, "PASS" if ok and figure_rows else "FAIL"))
+    assert figure_rows and ok, "a borrowed figure travels without its source"
     print("")
     print("⚠️ A row may not be promoted to a stronger tier to make the table look better")
     print("   sourced. The tier is the row's own account of where its number came from.")

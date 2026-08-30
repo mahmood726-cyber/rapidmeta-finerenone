@@ -123,21 +123,30 @@ def clauses(canon):
                 state, _why = SE.stratum_reading(
                     st, st.get("measure") or (res.get("pooled") or {}).get("measure"))
                 tag = "" if blk.get("prespecified") else " (post-hoc)"
+                # ⭐ THE STRATUM'S OWN NUMBER TRAVELS WITH ITS NAME. Naming the stratum and
+                # printing only the POOLED effect beside it is the substitution this whole
+                # section exists to prevent: a reader takes the average away as if it were the
+                # stratum's. The hand-written reference gives "56% protection" for the stratum
+                # and it is the sentence a clinician quotes.
+                size = SE._cell(st)
+                lab = "%s%s" % (st.get("label") or "?", tag)
                 if state == "demonstrated":
-                    holds.append("%s%s" % (st.get("label") or "?", tag))
+                    holds.append((lab, size))
                 elif state == "not demonstrated":
-                    notshown.append("%s%s" % (st.get("label") or "?", tag))
+                    notshown.append((lab, size))
     if holds:
         said.append(("where it holds",
-                     "An effect is demonstrated in: <b>%s</b>." % _esc("; ".join(holds))))
+                     "An effect is demonstrated in %s. Those are the strata's own estimates, "
+                     "not the pooled average."
+                     % _esc("; ".join("%s, %s" % (lab, size) for lab, size in holds))))
     else:
         missing.append(("where it holds", "no stratum reads as demonstrated"))
     if notshown:
         said.append(("where it has not been shown",
-                     "It has <b>not been demonstrated</b> in: <b>%s</b>. ⚠️ These trials cannot "
+                     "It has <b>not been demonstrated</b> in %s. ⚠️ These trials cannot "
                      "say whether that is the intervention or the adherence, and offering it as "
                      "though the pooled figure applied would overstate what is known."
-                     % _esc("; ".join(notshown))))
+                     % _esc("; ".join("%s, %s" % (lab, size) for lab, size in notshown))))
     else:
         missing.append(("where it has not been shown", "no stratum reads as not demonstrated"))
 
@@ -158,12 +167,21 @@ def clauses(canon):
     strong = [r for r in measured if str(r.get("tier")).strip().lower() == "trial report"]
     if strong:
         # ⛔ "no excess ON WHAT WAS MEASURED", never "safe". See the docstring and the control.
+        #
+        # ⭐ AND THE OUTCOMES ARE NAMED, NOT COUNTED. "Across 6 outcomes, no excess was seen"
+        # is a sentence a reader cannot check and cannot act on; the hand-written reference says
+        # "no excess of severe or serious adverse events, and no resistance signal among women
+        # who seroconverted", and that is the version a clinician can disagree with. A count is
+        # what you write when you have not looked at the list.
+        names = [str(r.get("outcome")) for r in strong]
         said.append(("harms",
-                     "Across the <b>%d</b> outcome%s read from the trials' own reports, no "
-                     "excess was seen on what was measured. ⚠️ That is a statement about those "
-                     "%d outcomes, not about the intervention: an outcome nobody recorded looks, "
-                     "from this page, exactly like an outcome that did not occur."
-                     % (len(strong), "" if len(strong) == 1 else "s", len(strong))))
+                     "No excess was seen on what was measured: <b>%s</b>. ⚠️ That is a "
+                     "statement about those %d outcomes, not about the intervention — an "
+                     "outcome nobody recorded looks, from this page, exactly like an outcome "
+                     "that did not occur."
+                     % (_esc("; ".join(names[:8])
+                             + ("" if len(names) <= 8 else "; and %d more" % (len(names) - 8))),
+                        len(strong))))
     else:
         missing.append(("harms", "no harm outcome is held at the trial-report tier"))
     if absent_rows:
@@ -174,20 +192,62 @@ def clauses(canon):
     else:
         missing.append(("what it is not", "no outcome is recorded as absent or not measurable"))
 
-    # --- efficacy in a trial versus effectiveness in use --------------------------------------
-    blob = " ".join(
-        str(blk.get("basis", "")) + str(blk.get("external_corroboration", ""))
-        for _o, res in outs.items() if isinstance(res, dict)
-        for _f, blk in SE._blocks(res))
-    if re.search(r"adherence", blob, re.I):
-        said.append(("efficacy versus use",
-                     "Effectiveness in use will be lower than this. The object records adherence "
-                     "as the proposed explanation for the difference between strata, and that "
-                     "adherence was measured inside a trial with scheduled contact &mdash; "
-                     "conditions a service does not reproduce."))
+    # --- what the estimate is CONDITIONAL ON ---------------------------------------------------
+    #
+    # ⭐ A PROPERTY OF THE EVIDENCE, NOT A RECOMMENDATION. The hand-written reference says
+    # "Condoms, STI screening and partner services remain necessary" -- which is advice, and a
+    # review has no standing to give it. The trials RECORD that every participant received that
+    # package, so the checkable claim is that the effect was measured ON TOP OF it and says
+    # nothing about the intervention used INSTEAD of it. Same decision, sourced.
+    for _oid, res in outs.items():
+        if not isinstance(res, dict):
+            continue
+        bg = res.get("background_care")
+        if isinstance(bg, dict) and bg.get("what"):
+            said.append(("what it is conditional on",
+                         "This effect was measured <b>on top of</b> %s, given to %s. It "
+                         "describes the intervention ADDED to that care and says nothing about "
+                         "it used instead of that care."
+                         % (_esc(bg["what"]), _esc(bg.get("delivered_to", "both arms")))))
+            break
     else:
-        missing.append(("efficacy versus use",
-                        "the object records no adherence finding"))
+        missing.append(("what it is conditional on",
+                        "the object records no background care delivered alongside the "
+                        "intervention, so this page cannot say what its estimate is on top of"))
+
+    # --- efficacy in a trial versus effectiveness in use --------------------------------------
+    #
+    # ⛔ THE TYPED FIELD FIRST, THE TEXT SEARCH ONLY AS A FALLBACK. Reading "adherence" out of
+    # a prose blob tells you the word occurs; it cannot tell you the RATE or the CONTACT
+    # SCHEDULE, and those two are the whole reason effectiveness will differ from efficacy.
+    ad = None
+    for _oid, res in outs.items():
+        if isinstance(res, dict) and isinstance(res.get("adherence"), dict):
+            ad = res["adherence"]
+            break
+    if ad and ad.get("contact_schedule"):
+        said.append(("efficacy versus use",
+                     "Effectiveness in use will be lower than this. Adherence was measured, not "
+                     "assumed — %s — and it was measured under %s. A service that does not "
+                     "reproduce that contact should expect lower adherence and a smaller "
+                     "effect: this is an efficacy under trial conditions, not an effectiveness "
+                     "in use."
+                     % (_esc(ad.get("rate_over_21") or "as recorded"),
+                        _esc(ad["contact_schedule"]))))
+    else:
+        blob = " ".join(
+            str(blk.get("basis", "")) + str(blk.get("external_corroboration", ""))
+            for _o, res in outs.items() if isinstance(res, dict)
+            for _f, blk in SE._blocks(res))
+        if re.search(r"adherence", blob, re.I):
+            said.append(("efficacy versus use",
+                         "Effectiveness in use will be lower than this. The object records "
+                         "adherence as the proposed explanation for the difference between "
+                         "strata, but it does not record the adherence RATE or the contact "
+                         "schedule, so this page cannot say by how much."))
+        else:
+            missing.append(("efficacy versus use",
+                            "the object records no adherence finding"))
     return said, missing
 
 
@@ -339,6 +399,35 @@ def plant():
     print("   states 'not demonstrated': %s   emits no NNT: %s   [%s]"
           % (honest, nonnt, "PASS" if honest and nonnt else "FAIL"))
     assert honest and nonnt, t3[:400]
+    # ⭐ PARITY IS ASSERTED HERE, NOT ONLY MEASURED IN A REPORT. The target is that the
+    # generated section carries every proposition the HAND-WRITTEN one carried, at no stronger a
+    # hedge. Running it in the plant means parity cannot silently regress: a future edit that
+    # drops a claim, or strengthens one, fails the component's own controls rather than being
+    # noticed by a judge.
+    import json as _json
+    import clinical_reading_claims as _CC
+    _obj = os.path.join(SSOT, "agyw-hiv-prep-review", "agyw-hiv-prep-review.json")
+    if os.path.exists(_obj):
+        _c = _json.load(io.open(_obj, encoding="utf-8"))
+        _t = re.sub(r"<[^>]+>", " ", render(_c))
+        _rows, _recall, _over = _CC.score(_t)
+        print("")
+        print("PARITY WITH THE HAND-WRITTEN REFERENCE")
+        print("   claim recall %d of %d   overclaims %d"
+              % (_recall, len(_rows), len(_over)))
+        for _r in _rows:
+            if not _r["present"]:
+                print("      MISSING  %s  %s" % (_r["id"], _r["claim"]))
+            elif not _r["band_ok"]:
+                print("      OVERCLAIM %s  required %s, found %s"
+                      % (_r["id"], _r["band_required"], _r["band_found"]))
+        assert _recall == len(_rows), "claim recall regressed"
+        assert not _over, "a claim is stated more strongly than the reference"
+        print("   [PASS] every reference claim is made, none more strongly than the reference")
+    else:
+        print("")
+        print("   ⚠️ PARITY NOT CHECKED: the reference object is absent from this checkout, so")
+        print("      this run says nothing about claim recall. Not a pass.")
     print("")
     print("⚠️ The word 'safe' and any recommendation to offer are permanently forbidden here.")
     print("   If a control creates pressure to relax that, the control is right.")
