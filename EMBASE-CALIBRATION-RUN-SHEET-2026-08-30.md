@@ -6,8 +6,8 @@ method. It is run once to measure what the free-source search already found. See
 
 Question: *Does a dapivirine vaginal ring reduce HIV-1 seroconversion compared with a
 placebo vaginal ring in women?*
-Our search date: **2026-08-18** · Our included set: **2 trials** — ASPIRE / MTN-020
-(NCT01539226), The Ring Study / IPM 027 (NCT01617096).
+Our search date: **2026-08-18** · Our included set: **2 trials** — The Ring Study / IPM 027
+(NCT01539226), ASPIRE / MTN-020 (NCT01617096).
 
 ---
 
@@ -169,3 +169,10 @@ Query term for all six: **`dapivirine`**
 ⭐ Point 4 is worth as much as the endpoints. **1 of 18 determinate is the number I have to
 publish today**, and every registry that turns out to genuinely hold nothing moves it
 honestly rather than by assumption.
+
+> ⛔ **CORRECTED 2026-08-30.** An earlier version of this document named the two
+> trials the wrong way round. ClinicalTrials.gov: `NCT01539226` is orgStudyId IPM 027,
+> **The Ring Study**, n=1,959; `NCT01617096` is acronym ASPIRE, MTN-020, n=2,629. The
+> defect came from the SSOT object's own labels, which were inverted and have since
+> been fixed in all three places they appeared. A LABEL IS NOT AN IDENTITY; THE
+> REGISTRY IS.

@@ -1,115 +1,97 @@
-# Embase calibration — result log
+# Embase calibration: what a subscription database adds to a free-source search
 
-**Logged as it arrives, prediction first, so nothing can be quietly adjusted afterwards.**
+**Topic:** dapivirine vaginal ring for HIV-1 prevention in women (`agyw-hiv-prep-review`).
+**Run:** Ovid Embase, executed by Mahmood 2026-08-30, exported as RIS and handed over.
+**Purpose:** measure, once, what our free-source-only search misses. Embase is a *ruler
+here, never a source* — it is unavailable in Laos and Uganda, and a method that depends on
+a subscription cannot be reproduced by the reader it is for.
 
 ---
 
-## 1. ⚠️ THE PREDICTION MISSED ON THE RECORD COUNT. Recorded before the export landed.
+## THE SENTENCE THIS WAS FOR
 
-| quantity | predicted | observed | verdict |
+> **This search uses only sources freely available worldwide. Measured against a
+> subscription database, it recovered 2 of 2 eligible trials.**
+
+---
+
+## 1. THE EXPORT WAS VERIFIED BEFORE ANYTHING WAS COUNTED
+
+| check | result |
+|---|---|
+| record count | **1,044 `TY` starts, 1,044 `ER` terminators — matches Ovid's 1,044 exactly.** Not truncated. |
+| format | Abstracts 927/1044 (89%), Emtree 1044/1044 (100%) → **Complete Reference**. |
+| registry numbers | ⚠️ `RN` present in **0/1044**. Ovid's RIS carries no structured registry field. |
+| Human limit | **NOT applied** — 451 records carry animal/nonhuman Emtree terms. Filtered on our side. |
+
+⚠️ **The `RN` finding changes the method, not just a footnote.** Absent registry numbers
+would normally mean the default `Citation` format, but abstracts and Emtree are both
+present, so this *is* Complete Reference — Ovid's RIS simply has no tag for registry
+numbers. **Trial matching therefore had to come from NCT strings in free text.**
+
+⭐ **AND THAT IS WHY THE SCREEN COULD NOT STOP AT NCTs.** 62 distinct NCTs appear in the
+file. The Ring Study's own primary report — *Safety and efficacy of a dapivirine vaginal
+ring for HIV prevention in women*, N Engl J Med 2016, n=1,959, South Africa and Uganda —
+**carries no NCT at all**. An NCT-only match would have missed one of the two trials the
+review is built on, while reporting a clean result.
+
+## 2. THE PREDICTION, SCORED AS WRITTEN
+
+Logged **before** the run, both halves:
+
+| half | predicted | observed | verdict |
 |---|---|---|---|
-| Embase records | **300–700** | **1,044** unrestricted | ⚠️ **OUT OF RANGE — MISS** |
-| trials judged ELIGIBLE (M) | 2 | *pending export* | open |
-| of those held by free sources (N) | 2 | *pending export* | open |
-| recovery N/M | 100% | *pending* | open |
-| additional eligible trials | 0 | *pending* | open |
+| eligible trials | **2 of 2, 100%, ZERO additional** | 2 of 2, zero Embase-only eligible trials | **CONFIRMED** |
+| record count | **300–700** | **1,044** | ⛔ **MISSED — 49% above the upper bound** |
 
-**The record-count half of my prediction is wrong and stays on the record as wrong.** It
-was a falsifiable number, it was falsified, and the half that matters — eligible trials —
-is untouched and still open. A prediction that only counts when it wins is not a
-prediction.
+⛔ **The miss is reported in the same breath as the confirmation, and it is the half that
+should temper the other.** The eligibility prediction was falsifiable by a single
+Embase-only eligible trial and none was found; the record-count prediction was simply
+wrong, and being wrong about the size of the haystack is a reason to distrust intuitions
+about what is in it. Both stand.
 
-### ⚠️ BUT THE MISS IS NOT YET ATTRIBUTED, AND ATTRIBUTION COMES BEFORE INTERPRETATION
+## 3. THE COVERAGE FRACTION
 
-Two candidate causes, and they are not the same finding:
+    trials named by any source            45
+    retrieved by our free-source search    2
+    excluded on ELIGIBILITY               43
+    outside what our sources index         0
+    SEARCH MISSES                          0
+    ---------------------------------------
+    eligible denominator                   2
+    RECALL                              100% (2/2)
 
-**(a) My estimate was simply too low** for the strategy as written — plausible, because the
-Emtree term turned out to expand far more widely than I allowed for (section 2).
+⚠️ **43 IS NOT A NUMBER OF MISSING TRIALS, AND SUBTRACTION IS HOW IT WOULD BECOME ONE.**
+`search_coverage_fraction.py` refuses to report a recall figure while any non-retrieved
+trial is unattributed, so every one of the 43 carries its specific exclusion, derived from
+registry fields rather than assigned by hand: 17 have a safety or pharmacokinetic primary
+outcome, 12 are open label with no placebo comparison, 6 are WITHDRAWN registrations with
+0 actual enrolment, 5 are non-randomised (open-label extensions HOPE and DREAM among
+them), 2 are observational, and 1 measures PrEP uptake rather than infection.
 
-**(b) A BROADER QUERY WAS EXECUTED THAN THE ONE I SUPPLIED.** The run is reported as a
-*"single combined line"* with *Map Term to Subject Heading* **off**, and Ovid flattened one
-level of nesting. My sheet was 19 numbered lines in which the drug block is **ANDed** with
-the HIV block and with the vaginal-ring block (lines 16, 17). A single combined line built
-as an **OR across all concepts** would return far more, and 1,044 would then be a fact
-about a different search.
+The two most tempting near-misses were settled rather than waved past:
 
-⇒ **I am not treating 1,044 as a measurement of my strategy until the EXECUTED string is
-recorded.** Ovid reports the string it ran; that string, not the one I wrote, is what goes
-in the protocol and what the count belongs to. ⚠️ *A number attributed to the wrong query is
-the same defect as a finding attributed to the wrong trial, and this project has already
-met that one today.*
+- **IPM 009A / 009B** (`NCT01337570`, `NCT01337583`) are phase 3, randomised,
+  double-masked, dapivirine ring versus placebo, with **HIV-1 seroconversion as the primary
+  outcome** — eligible on every design field. Both are **WITHDRAWN with 0 actual
+  enrolment**. No participants, no data, no trial.
+- **MTN-023/IPM 030** in adolescents is randomised, double-blind and placebo-controlled,
+  and is **phase IIa with a safety primary outcome**.
 
-**Requested:** the executed search string exactly as Ovid reports it, and the per-line
-counts from the saved history.
+## 4. WHAT THIS RESULT IS NOT
 
----
+⚠️ **THE SCREEN WAS MECHANICAL, NOT BLINDED, AND I KNEW THE ANSWER.** The eligibility
+rules are registry fields — study type, allocation, masking, primary-outcome text,
+recruitment status, actual enrolment — and they were applied by the same agent that knows
+which two trials the review holds. That is a real weakness and it is recorded as one
+rather than dropped. A second screen by an assessor blind to the included set would
+strengthen this, and nothing here should be read as though that has been done.
 
-## 2. ⭐⭐⭐ THE EMTREE FINDING — CONFIRMED BY EXECUTION, NOT ASSERTED
+⚠️ **THE DENOMINATOR IS TWO.** A 100% recall over two eligible trials is a weak
+measurement in isolation, however clean. It says the free-source route lost nothing *on
+this question*, not that it loses nothing. The claim widens only by running the same
+calibration on further topics.
 
-I refused to claim `dapivirine/` was an Emtree preferred term because I cannot see licensed
-vocabulary from here, and built the strategy to survive its absence. **It mapped.** Ovid's
-own *"Search terms used"* list, verbatim:
-
-```
-4 [4 (2,4,6 trimethylanilino) 2 pyrimidinylamino]benzonitrile
-4 [4 (2,4,6 trimethylanilino) 2 pyrimidylamino]benzonitrile
-4 [4 (2,4,6 trimethylanilino)pyrimidin 2 ylamino]benzonitrile
-4 [[4 [(2,4,6 trimethylphenyl)amino] 2 pyrimidinyl]amino]benzonitrile
-4 [[4 [(2,4,6 trimethylphenyl)amino] 2 pyrimidyl]amino]benzonitrile
-4 [[4 [(2,4,6 trimethylphenyl)amino]pyrimidin 2 yl]amino]benzonitrile
-[broader terms] · [narrower terms] · [used for]
-dapavirine · dapivirine · r 147681 · r-147681 · r147681
-tmc 120 · tmc-120 · tmc120 · dpv
-nonnucleoside reverse transcriptase inhibitor · pyrimidine derivative
-anti human immunodeficiency virus agent · drug implant
-female contraceptive device · ring, vaginal · rings, vaginal · vaginal ring
-```
-
-**Embase holds a full Emtree drug term that expands to SIX chemical-name variants plus
-broader, narrower and used-for relations. MEDLINE holds only a Supplementary Concept
-Record, which does none of that.**
-
-⭐ **This is the worked example of why "translated by assumption" is not a search.** The
-asymmetry is not "Embase has more records" — vague, and easy to wave away. It is a named
-mechanism: **a record indexed only under `4-[[4-[(2,4,6-trimethylphenyl)amino]pyrimidin-2-
-yl]amino]benzonitrile` is invisible to any strategy that searches the word *dapivirine*.**
-A free-source search using the INN and the development codes reaches the first eleven terms
-in that list and not the six chemical names.
-
-⚠️ **AND THAT IS A CONCRETE, TESTABLE MECHANISM FOR A MISS — which makes it far more useful
-than a coverage complaint.** It generates the question the calibration must now answer: *are
-there records in the 1,044 that carry ONLY a chemical-name form?* If yes, that is exactly
-where an Embase-only trial would hide, and it is checkable in the export.
-
-⚠️ **It does NOT yet mean a trial was missed.** Six chemical synonyms of one drug are a
-retrieval mechanism, not a trial. Whether any of them carries an *eligible* trial our search
-lacks is the open question, and it is answered by the blinded screen, not by this list.
-
----
-
-## 3. What is prepared for the export
-
-* **`scripts/embase_calibration_screen.py`** — parses the RIS, deduplicates, extracts
-  registry identifiers, flags records whose only drug mention is a chemical-name form, and
-  emits the screening worksheet.
-* **The screen is BLINDED to provenance by construction:** the worksheet carries no column
-  for "we already hold this". The join to our included set happens only *after* eligibility
-  is fixed, in a second pass, so an eligibility judgement can never be a judgement about our
-  own performance.
-* **`scripts/search_coverage_fraction.py` refuses** to emit a recall figure while any
-  difference is unattributed — it is already refusing on this question because two PACTR
-  registrations cannot be attributed from a page that serves a 3,679-byte JavaScript shell.
-
-## 4. Two numbers, and what each denominator is OF
-
-* **1,044** — records returned by the executed Embase query, unrestricted, no human limit,
-  no date limit. ⚠️ A count of **RECORDS**, not trials, and not yet attributed to a
-  strategy string (section 1).
-* **Human-limited count** — pending; an *"Invalid setting"* alert appeared on the limits
-  attempt. If the limit will not apply, the unrestricted 1,044 is exported and the
-  2026-08-18 cut is applied on my side from each record's own dates, which was the plan
-  regardless. **Then the Ovid limit is the cross-check on my filtering rather than the
-  source of the number.**
-* **M**, the calibration denominator, is neither of those. It is **trials** the blinded
-  screen judges eligible for *"randomised comparison of a dapivirine vaginal ring against a
-  placebo vaginal ring, reporting HIV-1 seroconversion"*.
+⚠️ **IT MEASURES RETRIEVAL, NOT THE SCREEN.** What was tested is whether free sources
+surface the eligible trials. Whether our *screen* would admit them correctly is a separate
+property, already qualified elsewhere: the search generalises, the screen does not.

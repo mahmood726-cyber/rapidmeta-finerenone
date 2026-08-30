@@ -92,7 +92,7 @@ seroconversion** as a primary outcome.
 > Zero search misses. 61 of the 63 registrations screened are excluded on stated grounds,
 > each attributed.**
 
-Both included trials — ASPIRE/MTN-020 `NCT01539226` (n=1,959) and The Ring Study/IPM 027
+Both included trials — The Ring Study/IPM 027 `NCT01539226` (n=1,959) and ASPIRE/MTN-020
 `NCT01617096` (n=2,629) — were **found by the search**, not merely confirmed by it. Nothing
 in our set failed the screen.
 
@@ -185,6 +185,14 @@ dangerous kind, because the result looks like an answer.
 | ASPIRE primary | ⭐ **FREE at PMC4993693** — no exception needed |
 
 **One paper: Nel A et al., N Engl J Med 2016, PMID 27959766 — no PMC record.**
-**Three signalling questions, for `NCT01617096` only: 1.2 allocation concealment · 2.6
+**Three signalling questions, for `NCT01539226` only — Nel's paper is THE RING STUDY,
+and an earlier version of this line attached it to ASPIRE's NCT: 1.2 allocation concealment · 2.6
 appropriate analysis to estimate the effect of assignment · 3.1 outcome data available for
 all or nearly all participants.**
+
+> ⛔ **CORRECTED 2026-08-30.** An earlier version of this document named the two
+> trials the wrong way round. ClinicalTrials.gov: `NCT01539226` is orgStudyId IPM 027,
+> **The Ring Study**, n=1,959; `NCT01617096` is acronym ASPIRE, MTN-020, n=2,629. The
+> defect came from the SSOT object's own labels, which were inverted and have since
+> been fixed in all three places they appeared. A LABEL IS NOT AN IDENTITY; THE
+> REGISTRY IS.

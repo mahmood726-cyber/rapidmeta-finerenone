@@ -22,8 +22,8 @@ database. Do not translate one into the other — they are written separately on
 Review question: *Does a dapivirine vaginal ring reduce HIV-1 seroconversion compared with
 a placebo vaginal ring in women?*
 Our stated search date: **2026-08-18** (the date the seeded registrations were read).
-Our current included set: **2 trials** — ASPIRE / MTN-020 (NCT01539226) and The Ring Study
-/ IPM 027 (NCT01617096).
+Our current included set: **2 trials** — The Ring Study / IPM 027 (NCT01539226) and ASPIRE
+/ MTN-020 (NCT01617096).
 
 ---
 
@@ -224,3 +224,10 @@ the subscription; bulk full-text retrieval is not, and is not being asked for.
 
 Tell me what line 1 of the Embase block mapped to. I could not verify Emtree from here and
 I would rather record what it actually did than assume.
+
+> ⛔ **CORRECTED 2026-08-30.** An earlier version of this document named the two
+> trials the wrong way round. ClinicalTrials.gov: `NCT01539226` is orgStudyId IPM 027,
+> **The Ring Study**, n=1,959; `NCT01617096` is acronym ASPIRE, MTN-020, n=2,629. The
+> defect came from the SSOT object's own labels, which were inverted and have since
+> been fixed in all three places they appeared. A LABEL IS NOT AN IDENTITY; THE
+> REGISTRY IS.

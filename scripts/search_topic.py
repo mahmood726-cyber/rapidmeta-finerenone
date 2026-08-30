@@ -130,6 +130,44 @@ def candidate_intervention(obj):
     return None, "no title or question on this object"
 
 
+# Words that describe a study rather than a population, stripped before the population
+# terms are built. Kept small on purpose: over-filtering loses real condition words.
+POP_STOP = set("""adults adult patients people women men children infant infants
+participants subjects with without versus compared placebo controlled randomised
+randomized trial trials study studies effect effects each own registered primary
+outcome outcomes what does how much reduce reduces reducing change baseline from
+treatment therapy prevention risk high low first total the a an of for in on and or
+to is are its their""".split())
+
+
+def population_terms(obj, intervention):
+    """The POPULATION arm of the block, derived from the object's own title and question.
+
+    ⛔ THIS IS USED TO SCREEN, NEVER TO SEARCH, AND THE DISTINCTION IS THE WHOLE POINT.
+    ANDing a population block into the query would cost recall -- a trial that never spells
+    the condition in its title would vanish -- and recall is what the drug-only block exists
+    to protect. So the search stays broad and the SCREEN gains a population signal.
+
+    ⚠️ WITHOUT THIS THE PROCEDURE CANNOT TELL SIX TOPICS APART. colchicine-pericarditis,
+    colchicine-stroke-prevention, colchicine-mixed-ascvd, colchicine-periprocedural,
+    colchicine-peripheral-arterial and colchicine-intracerebral-haemorrhage all returned the
+    IDENTICAL 125 candidates on 2026-08-30, because the block was built from the drug alone.
+    A procedure that narrows nothing on precisely the topics where narrowing matters is not
+    a procedure.
+    """
+    src = " ".join([str(obj.get("title") or ""), str(obj.get("question") or "")])
+    iv = (intervention or "").lower()
+    words = [w for w in re.findall(r"[A-Za-z][A-Za-z-]{3,}", src)]
+    terms = []
+    for w in words:
+        lw = w.lower()
+        if lw in POP_STOP or lw == iv or lw in iv or iv in lw:
+            continue
+        if lw not in [t.lower() for t in terms]:
+            terms.append(w)
+    return terms[:12]
+
+
 def rxnorm_synonyms(term):
     """NLM RxNorm. Free, no key. Returns names, or an empty list with a status."""
     d, st = _json("https://rxnav.nlm.nih.gov/REST/rxcui.json?name=%s&search=2"
@@ -249,8 +287,15 @@ def run_sources(terms):
     return rows, sorted(ncts)
 
 
-def mechanical_screen(ncts, terms):
-    """⛔ MECHANICAL ONLY. Never judges comparator or outcome -- those are the PICO."""
+def mechanical_screen(ncts, terms, pop_terms=None):
+    """⛔ MECHANICAL ONLY. Never judges comparator or outcome -- those are the PICO.
+
+    Candidates are additionally flagged for POPULATION OVERLAP with the review's own
+    question. ⚠️ THE FLAG RANKS, IT DOES NOT EXCLUDE: a trial whose registry record never
+    spells the condition is not thereby ineligible, and dropping it would be the mechanical
+    screen quietly deciding the P of the PICO. Candidates with no overlap are still
+    emitted, marked, and still require adjudication.
+    """
     if not ncts:
         return {"candidates": [], "excluded": {}, "note": "no registrations returned"}
     body, code = _curl("https://clinicaltrials.gov/api/v2/studies?filter.ids=%s"
@@ -264,6 +309,8 @@ def mechanical_screen(ncts, terms):
     except ValueError:
         return {"candidates": [], "excluded": {}, "note": "FAILED_UNPARSEABLE"}
     rx = re.compile("|".join(re.escape(t) for t in terms), re.I)
+    poprx = (re.compile("|".join(re.escape(t) for t in pop_terms), re.I)
+             if pop_terms else None)
     cands, excl = [], {"drug_not_named": 0, "not_interventional": 0,
                        "not_randomised": 0, "withdrawn_zero_participants": 0}
     withdrawn = []
@@ -290,8 +337,20 @@ def mechanical_screen(ncts, terms):
         if (des.get("designInfo") or {}).get("allocation") != "RANDOMIZED":
             excl["not_randomised"] += 1
             continue
+        conds = " ".join((p.get("conditionsModule") or {}).get("conditions") or [])
+        hay = blob + " " + conds
+        hits = sorted({m.group(0).lower() for m in poprx.finditer(hay)}) if poprx else []
+        # ⚠️ TWO DISTINCT TERMS, NOT ONE. A single generic word is not a population match.
+        # Measured 2026-08-30: with a one-hit rule, "Thromboprophylaxis After Trauma"
+        # scored as intracerebral haemorrhage on the word "after", and a chronic kidney
+        # disease trial scored as stroke prevention on "disease". Requiring two distinct
+        # terms drops those while keeping the true ones -- the SER-109 trials match
+        # clostridium, difficile AND infection. The rule is arbitrary in the way any
+        # threshold is; it is stated rather than tuned until the answer looked good.
         cands.append({"nct": nct, "title": (idm.get("briefTitle") or "")[:110],
                       "phase": ",".join(des.get("phases") or []), "enrolment": n,
+                      "population_overlap": hits,
+                      "population_matched": len(hits) >= 2,
                       "ELIGIBLE": None, "ELIGIBILITY_REASON": ""})
     return {"candidates": cands, "excluded": excl, "withdrawn_named": withdrawn,
             "screen_is": ("MECHANICAL ONLY: drug named, interventional, randomised, "
@@ -309,8 +368,12 @@ def search(topic, root="."):
     cb = build_concept_block(obj)
     if not cb.get("terms"):
         return {"topic": topic, "status": "NO_CONCEPT_BLOCK", "concept_block": cb}
+    pop = population_terms(obj, cb.get("candidate_intervention"))
+    cb["population_terms"] = pop
+    cb["population_terms_are_for"] = (
+        "SCREENING ONLY, never the query. ANDing them into the search would cost recall.")
     rows, ncts = run_sources(cb["terms"])
-    scr = mechanical_screen(ncts, cb["terms"])
+    scr = mechanical_screen(ncts, cb["terms"], pop)
     return {"topic": topic, "status": "OK", "executed_utc": started,
             "question": obj.get("question"), "title": obj.get("title"),
             "concept_block": cb, "sources": rows,

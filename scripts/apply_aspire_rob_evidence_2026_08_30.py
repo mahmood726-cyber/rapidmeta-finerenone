@@ -40,7 +40,13 @@ import atomic_write as aw          # noqa: E402
 import regulatory_evidence as R    # noqa: E402
 
 TOPIC = "agyw-hiv-prep-review"
-TRIAL = "NCT01539226"              # ASPIRE / MTN-020 ONLY. Not the Ring Study.
+TRIAL = "NCT01617096"              # ASPIRE / MTN-020. VERIFIED AGAINST THE REGISTRY.
+# ⛔ THIS SCRIPT IS SUPERSEDED and must not be re-run. It was written when the object
+# labelled the two trials the wrong way round, so it wrote Baeten's ASPIRE evidence
+# against NCT01539226 -- which is IPM 027, The Ring Study. The constant above is
+# corrected so the file does not carry a false identity, but the store it writes was
+# rebuilt wholesale by scripts/fix_dapivirine_trial_labels_2026_08_30.py, which keys
+# both trials from ClinicalTrials.gov. Re-running this would undo that.
 UTC = datetime.datetime.now(datetime.timezone.utc).isoformat()
 
 DOC = ("Baeten JM et al. Use of a Vaginal Ring Containing Dapivirine for HIV-1 Prevention "
@@ -108,7 +114,7 @@ def main(apply_changes=False):
             "`document_class` on each answer: `trial_publication` is the investigators' "
             "account, an FDA class is an independent assessor reading their dossier."),
         "coverage_within_this_topic": (
-            "ASPIRE / MTN-020 (NCT01539226) only. The Ring Study / IPM 027 (NCT01617096, "
+            "ASPIRE / MTN-020 (NCT01617096) only. The Ring Study / IPM 027 (NCT01539226, "
             "PMID 27959766, N Engl J Med) has NO PMC record and its questions 1.2, 2.6 and "
             "3.1 remain unanswered."),
         "what_this_changes_and_what_it_does_not": (
