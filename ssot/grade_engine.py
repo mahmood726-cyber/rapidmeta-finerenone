@@ -748,6 +748,38 @@ def d_indirectness(canon, oid, res):
     # "in women". No regex settles which of those the rating should answer to.
     q = canon.get("question")
     q = q if isinstance(q, str) else None
+
+    # ⭐ THE CASE WHERE THIS DOMAIN CANNOT DISCRIMINATE, AND WHY IT IS NOT A LOOPHOLE.
+    #
+    # Indirectness asks whether the trials answer the question ASKED. Where the question is
+    # itself scoped to the contributing trials -- "in both phase 3 trials that supported
+    # sotagliflozin's approval, what is the effect of..." -- the population, intervention,
+    # comparator and outcome are the ones asked about BY CONSTRUCTION, and the domain
+    # carries no information. That is the same shape as funnel-plot asymmetry below ten
+    # studies: structurally uninformative rather than unmeasured.
+    #
+    # ⚠️ AND IT IS A GAMING RISK, SAID OUT LOUD. A review could dodge an indirectness
+    # downgrade by writing its question narrowly enough to be answered by exactly the
+    # trials it found. So this state is NEVER inferred from the wording of the question. A
+    # regex over question prose is a filter, not an identity -- one written while
+    # investigating this matched 2 of 40 topics, which is a plausible number and no
+    # evidence that it matched the RIGHT two. The state fires only where the object
+    # RECORDS the scope explicitly, and the rating it permits carries the caveat.
+    scope = canon.get("question_scope")
+    scope = scope if isinstance(scope, dict) else {}
+    if scope.get("scoped_to_contributing_trials") is True:
+        return _dom("indirectness", NOT_ASSESSABLE,
+                    "This review's question is SCOPED TO THE TRIALS THAT ANSWER IT: %s "
+                    "Population, intervention, comparator and outcome therefore match by "
+                    "construction, and the indirectness domain cannot discriminate -- it "
+                    "is structurally uninformative here, not unmeasured. ⚠️ THE RATING "
+                    "THIS PERMITS SPEAKS ONLY TO THAT SCOPE. It says nothing about "
+                    "applicability to any population, comparator or outcome the question "
+                    "does not name, and a reader wanting that must read the question "
+                    "first. Recorded because: %s"
+                    % (('"%s"' % q[:180]) if q else "the question is not held on this "
+                       "object.", scope.get("because") or "no reason recorded"),
+                    inputs_read=["question", "question_scope"])
     quoted = []
     for t in (res.get("per_trial") or []):
         if isinstance(t, dict) and t.get("registered_eligibility"):

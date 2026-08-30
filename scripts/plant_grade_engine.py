@@ -603,6 +603,49 @@ def test_regulatory_lift_fires_and_declares_itself():
             check("schema refuses: %s" % why, True)
 
 
+def test_scoped_question_is_declared_never_inferred():
+    """⭐ A question scoped to its own trials makes indirectness uninformative -- and that
+    state must be DECLARED on the object, never guessed from the wording.
+
+    ⚠️ THIS IS THE ONE STATE IN THE ENGINE THAT COULD BE GAMED. Writing a question narrowly
+    enough to be answered by exactly the trials you found would dodge an indirectness
+    downgrade. So the control checks BOTH halves: that a declared scope produces
+    NOT_ASSESSABLE with the caveat, and that question WORDING alone never does.
+    """
+    print("\n[15] SCOPED QUESTION -- declared, never inferred from wording")
+    worded = clean_object()
+    worded["question"] = ("In both phase 3 trials that supported the control drug's "
+                          "approval, what is the effect of the control intervention?")
+    del worded["results"]["by_outcome"]["primary"]["grade"]
+    r = ge.derive(worded, "primary")
+    d = [x for x in r["domains"] if x["domain"] == "indirectness"][0]
+    check("wording ALONE does not trigger the scoped state", d["state"] == ge.REFUSED,
+          d["state"])
+    check("and the result still earns no letter", r["rated"] is False)
+
+    declared = json.loads(json.dumps(worded))
+    declared["question_scope"] = {"scoped_to_contributing_trials": True,
+                                  "because": "__control_ fixture"}
+    r2 = ge.derive(declared, "primary")
+    d2 = [x for x in r2["domains"] if x["domain"] == "indirectness"][0]
+    check("a DECLARED scope makes indirectness NOT_ASSESSABLE",
+          d2["state"] == ge.NOT_ASSESSABLE, d2["state"])
+    check("it carries no downgrade", d2["levels"] == 0)
+    check("and the caveat that the rating speaks only to that scope is in the reason",
+          "SPEAKS ONLY TO THAT SCOPE" in d2["reason"])
+    check("with the scope declared, the result CAN be rated", r2["rated"] is True,
+          "state=%s" % r2.get("state"))
+
+    # A declaration that is not exactly True must not fire it.
+    for bad in ("true", 1, "yes", None):
+        o = json.loads(json.dumps(worded))
+        o["question_scope"] = {"scoped_to_contributing_trials": bad}
+        dd = [x for x in ge.derive(o, "primary")["domains"]
+              if x["domain"] == "indirectness"][0]
+        check("a non-True declaration %-6r does not fire it" % (bad,),
+              dd["state"] == ge.REFUSED)
+
+
 def test_incoherent_inputs_refuse_rather_than_rate():
     """⭐ THE THIRD STATE: inputs that are all PRESENT and cannot all be TRUE.
 
@@ -675,6 +718,7 @@ def main():
               test_no_information_is_not_a_verdict_and_separators_do_not_refuse,
               test_bound_is_reported_but_never_becomes_a_rating,
               test_regulatory_lift_fires_and_declares_itself,
+              test_scoped_question_is_declared_never_inferred,
               test_incoherent_inputs_refuse_rather_than_rate,
               test_plant_detects_a_broken_engine):
         try:

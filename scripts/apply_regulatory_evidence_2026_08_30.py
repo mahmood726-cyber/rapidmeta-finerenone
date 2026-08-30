@@ -229,11 +229,24 @@ def main(apply_changes=False):
                  sum(len(v) for v in store["by_trial"].values()),
                  "" if before != after else "  (unchanged)"))
         if apply_changes:
-            tmp = path + ".tmp"
-            with open(tmp, "w", encoding="utf-8") as fh:
-                json.dump(obj, fh, indent=1, ensure_ascii=False)
-            os.replace(tmp, path)
-            print("   WRITTEN")
+            # USE THE PROJECT'S OWN WRITER. The first version of this script opened
+            # the temp file with a plain open(path, 'w'), which on Windows turns a
+            # bare line feed into a carriage-return line-feed pair -- so both
+            # objects were rewritten from LF to CRLF and EVERY LINE CHANGED. The
+            # content was semantically identical (checked: parsed equality
+            # CHANGED. The content was semantically identical (checked: parsed equality
+            # excluding the added block, and the non-ascii character counts unchanged),
+            # but the diff was 9,256 lines for a 470-line addition, which hides a real
+            # change inside noise nobody will read.
+            #
+            # `atomic_write.write_json` detects the file's EXISTING newline -- the module
+            # notes alirocumab is CRLF while others are LF, so this is per-file and cannot
+            # be assumed -- serialises completely before touching disk, and replaces
+            # atomically. It exists because an applier once truncated an object to zero
+            # bytes between the open and the write.
+            import atomic_write as _aw
+            n = _aw.write_json(path, obj)
+            print("   WRITTEN (%d bytes, newline preserved)" % n)
         else:
             print("   dry run -- pass --apply to write")
 
