@@ -92,6 +92,8 @@
   "scripts/lane_rob/adjudication_triage.py::if not sa:#0",
   "scripts/lane_rob/chk_noninferiority_pooled_as_superiority.py::if not hits:#0",
   "scripts/lane_rob/chk_noninferiority_pooled_as_superiority.py::if not trials:#0",
+  "scripts/lane_rob/estimand_label_gate.py::if not isinstance(block, dict):#0",
+  "scripts/lane_rob/estimand_label_gate.py::if not os.path.exists(p):#0",
   "scripts/lane_rob/gate_estimate_reconciles.py::if nt is None:#0",
   "scripts/lane_rob/gate_no_certainty_over_unadjudicated_rob.py::if len(pend) == 0:#0",
   "scripts/lane_rob/gate_no_certainty_over_unadjudicated_rob.py::if not os.path.isfile(obj_path):#0",
@@ -427,5 +429,27 @@
    "subject": "Two sweeps for two new error classes: D4 functional unblinding, and PICO wider than trials"
   }
  },
- "why_guard_origin": "RE-DERIVED, as ruled. The 17 lane_rob guards were previously admitted as SEEN-and-not-justified with no record of where they came from. Each now carries the COMMIT that introduced it and that commit subject, so the admission is attributable instead of anonymous. NOTE what could NOT be derived: which LANE owns a guard. First-parent history fails because merges here fast-forward, putting another lane commits directly onto it -- it misattributed 14 of these 17 to this lane. Authorship fails because every commit in the repository carries one identity. The commit is the strongest true attribution available."
+ "why_guard_origin": "RE-DERIVED, as ruled. The 17 lane_rob guards were previously admitted as SEEN-and-not-justified with no record of where they came from. Each now carries the COMMIT that introduced it and that commit subject, so the admission is attributable instead of anonymous. NOTE what could NOT be derived: which LANE owns a guard. First-parent history fails because merges here fast-forward, putting another lane commits directly onto it -- it misattributed 14 of these 17 to this lane. Authorship fails because every commit in the repository carries one identity. The commit is the strongest true attribution available.",
+ "_admitted": [
+  {
+   "utc": "2026-08-30",
+   "added": [
+    "scripts/lane_rob/estimand_label_gate.py::if not isinstance(block, dict):#0",
+    "scripts/lane_rob/estimand_label_gate.py::if not os.path.exists(p):#0"
+   ],
+   "attribution": [
+    [
+     "scripts/lane_rob/estimand_label_gate.py::if not isinstance(block, dict):#0",
+     "9619cb209baef82d626b48d302f952b58149a2df",
+     "Estimand-label refusal: a number must carry the label of the rows it was computed from"
+    ],
+    [
+     "scripts/lane_rob/estimand_label_gate.py::if not os.path.exists(p):#0",
+     "9619cb209baef82d626b48d302f952b58149a2df",
+     "Estimand-label refusal: a number must carry the label of the rows it was computed from"
+    ]
+   ],
+   "why": "Negative guards in scripts/lane_rob/estimand_label_gate.py, arriving by merge from the RoB lane. Admitted rather than rewritten: they are that lane's code, and restating another author's guard positively would be an edit to a detector this lane does not own. Keys come from the audit's OWN scanner and ratchet -- never retyped from the console, whose display truncates them, and never rebuilt by hand: a first attempt passed a list of paths to keys_for(), which expects hit tuples, and wrote the junk key 's::i#0' into this file. That was reverted."
+  }
+ ]
 }

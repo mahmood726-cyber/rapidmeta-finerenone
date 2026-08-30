@@ -52,6 +52,10 @@ PLANTS = [
      "an object whose stored heterogeneity field disagrees with its own R output"),
     ("gate12_planned_shown_as_observed", ["--plant"],
      "a page showing a registered planned duration under an observed label"),
+    ("gate13_nonraw_regex_escape", ["--plant"],
+     "a new non-raw literal carrying a regex escape"),
+    ("gate14_unanchored_authority", ["--plant"],
+     "a new page asserting something through an authority with nothing to follow"),
 ]
 
 # GATES WITH NO PLANT HERE, NAMED RATHER THAN OMITTED. gate5 is exercised through
@@ -78,13 +82,39 @@ def main(argv):
              "plants that tripped their gate": 0,
              "plants that did NOT trip their gate": 0,
              "gates that returned to PASS after restoration": 0,
-             "gates that did NOT return to PASS": 0}
+             "gates that did NOT return to PASS": 0,
+             "gates publishing a COVERAGE fraction": 0,
+             "gates publishing NONE -- counts read as corpus-wide and are not": 0}
 
     for mod, args, what in PLANTS:
         gate.expect_case(mod, what)
 
         planted_rc, _ = run(mod, args)
-        restored_rc, _ = run(mod, [])
+        restored_rc, restored_out = run(mod, [])
+
+        # A GATE MUST PUBLISH WHAT IT CAN SEE, OVER WHAT IT CLAIMS TO POLICE.
+        # Every finding count in this suite was a statement about REACH and was read as one
+        # about the corpus. Measured the evening this was added: gate 4 can exactly re-check
+        # 40 of 2,789 stored judgements (1.4%); gate 12 can compare 83 of 1,464 delivered
+        # pages (5.7%); gate 11 has an authority for 32 of 53 outcome blocks (60%). Each had
+        # been reporting a ratchet baseline with no denominator beside it, and "baseline 0"
+        # over a tenth of the corpus is not a clean corpus.
+        #
+        # This is the ripgrep-honours-gitignore lesson at the gate layer. A tool reports what
+        # it reached; nothing in the output separates "looked and found nothing" from "could
+        # not look"; and both read as good news.
+        #
+        # So an undeclared coverage fraction is now the same class of defect as a missing
+        # control, and it is refused here rather than noted.
+        if "COVERAGE:" in restored_out:
+            kinds["gates publishing a COVERAGE fraction"] += 1
+        else:
+            kinds["gates publishing NONE -- counts read as corpus-wide and are not"] += 1
+            gate.finding("GATE-PUBLISHES-NO-COVERAGE-FRACTION",
+                         "%s reports findings without declaring what it can see over the "
+                         "population it polices. Its counts describe its own reach and will "
+                         "be read as describing the corpus. Call gate.coverage(visible, "
+                         "population, what_the_rest_are)." % mod)
 
         tripped = planted_rc != H.PASS
         restored = restored_rc == H.PASS
@@ -116,6 +146,8 @@ def main(argv):
     gate.kinds(kinds)
     gate.note("a plant is in memory or in a scratch file this module removes; none writes to "
               "the store and none touches a shared output path.")
+    gate.coverage(len(PLANTS), len(PLANTS) + len(UNPLANTED),
+                  "registered gates with no plant here, which nothing asserts can still fail")
     return gate.report(denominator="%d gates" % len(PLANTS))
 
 

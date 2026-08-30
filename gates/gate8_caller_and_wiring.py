@@ -358,6 +358,14 @@ def main(argv):
                    "unregistered_removal_paths": unregistered,
                    "mis_declared": mis_declared}, fh, indent=1)
 
+    # COVERAGE. A file named like a gate with NO failing exit cannot be assessed for whether
+    # it would fail; there is nothing to trip. The known os.replace blind spot is real and
+    # is NOT in this fraction, because it cannot be counted -- it is named in a note instead.
+    gate.coverage(gate.kind("repo gate/lint that CAN fail"),
+                  max(gate.kind("repo gate/lint that CAN fail")
+                      + gate.kind("named like a gate, has NO failing exit -- cannot fail at all"), 1),
+                  "files named like a gate with no reachable failing exit, which this gate "
+                  "counts but cannot assess, plus an uncountable blind spot named in the notes")
     return gate.report(denominator="%d gate modules; %d removal-shaped scripts"
                                    % (kinds_a.get("gate module with a main()", 0),
                                       kinds_b.get("removal-shaped script", 0)))

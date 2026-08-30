@@ -163,6 +163,13 @@ def main(argv):
         gate.finding("STATISTIC-DISAGREES-WITH-STORED-R", detail,
                      numerator=len(new), denominator=len(rows))
 
+    # COVERAGE. This gate compares a stored field against a stored metafor block. An outcome
+    # with no R output stores nothing to compare against, so it is not agreeing -- it is
+    # unexamined, and a ratchet frozen at 12 says nothing whatever about those.
+    _with = doc.get("n_blocks_with_authority", len(rows))
+    gate.coverage(_with, max(_with + len(no_auth), 1),
+                  "outcome blocks storing no metafor output, where there is no authority to "
+                  "compare the displayed statistic against")
     return gate.report(denominator="%d outcome blocks compared against a stored R output, "
                                    "%d frozen" % (len(rows) + 0, len(found) - len(new)))
 

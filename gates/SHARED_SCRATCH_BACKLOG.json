@@ -2,7 +2,7 @@
  "frozen_utc": "2026-08-28",
  "what": "scripts using a generic name in the shared scratch root, which another lane could independently choose and overwrite.",
  "escalated_to": "out/ESCALATIONS.jsonl",
- "count": 70,
+ "count": 68,
  "keys": [
   "scripts/add_r_output.py:6 -> arni\\r_out.json",
   "scripts/build_vintage_arm_2026_08_27.py:31 -> wt\\genstore",
@@ -19,7 +19,6 @@
   "scripts/lane_rob/blind_judge_control.py:40 -> pend\\rev\\PMC11458098.xml",
   "scripts/lane_rob/characterise_storeless_pages.py:124 -> pend\\storeless.json",
   "scripts/lane_rob/characterise_storeless_pages.py:48 -> pend\\page_attribution.json",
-  "scripts/lane_rob/chk_noninferiority_pooled_as_superiority.py:266 -> pend\\out\\noninferiority_detector.json",
   "scripts/lane_rob/d5_protocol_retrieval.py:92 -> pend",
   "scripts/lane_rob/data_finder.py:286 -> pend\\out\\data_finder_yield.json",
   "scripts/lane_rob/data_finder.py:52 -> pend\\out\\registry_full",
@@ -64,7 +63,6 @@
   "scripts/lane_rob/retrieve_by_result_reference.py:39 -> pend\\out\\RESULT-JOIN.DONE",
   "scripts/lane_rob/size_rebuild_queue.py:103 -> pend\\rebuild_queue.json",
   "scripts/lane_rob/size_rebuild_queue.py:66 -> pend\\conflict_levels.json",
-  "scripts/lane_rob/split_output.py:140 -> pend\\out",
   "scripts/lane_rob/sweep_d4_functional_unblinding.py:151 -> pend\\d4_sweep.json",
   "scripts/lane_rob/sweep_pico_wider_than_trials.py:160 -> pend\\pico_sweep.json",
   "scripts/lane_rob/what_pages_declare.py:61 -> pend\\has_store_144.json",
@@ -293,6 +291,17 @@
     }
    ],
    "retired": [],
+   "why": "Arrived by merge from another lane. Admitted rather than edited: these are that lane's output paths, and rewriting them here would be a class-wide change to code this lane does not own."
+  },
+  {
+   "merge": "origin/main",
+   "utc": "2026-08-30",
+   "added": [],
+   "attribution": [],
+   "retired": [
+    "scripts/lane_rob/chk_noninferiority_pooled_as_superiority.py:266 -> pend\\out\\noninferiority_detector.json",
+    "scripts/lane_rob/split_output.py:140 -> pend\\out"
+   ],
    "why": "Arrived by merge from another lane. Admitted rather than edited: these are that lane's output paths, and rewriting them here would be a class-wide change to code this lane does not own."
   }
  ]

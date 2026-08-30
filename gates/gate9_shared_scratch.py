@@ -97,6 +97,21 @@ def main(argv):
                      "unique suffix." % f,
                      numerator=len(new), denominator=len(found))
 
+    # COVERAGE. The lint reads Python source under scripts/ and gates/. A shared-scratch
+    # path built at runtime -- os.path.join with a variable, a name from a config file --
+    # is invisible to it, and so is any script outside those two trees.
+    _scanned = 0
+    for _d in ("scripts", "gates"):
+        for _root, _dirs, _files in os.walk(os.path.join(repo, _d)):
+            _scanned += sum(1 for _f in _files if _f.endswith(".py"))
+    _py_total = 0
+    for _root, _dirs, _files in os.walk(repo):
+        if ".git" in _root:
+            continue
+        _py_total += sum(1 for _f in _files if _f.endswith(".py"))
+    gate.coverage(_scanned, max(_py_total, _scanned),
+                  "Python files outside scripts/ and gates/, plus -- uncounted, and named "
+                  "here rather than hidden -- any path assembled at runtime from a variable")
     return gate.report(denominator="%d shared-scratch paths, %d frozen" % (len(found),
                                                                           len(found) - len(new)))
 

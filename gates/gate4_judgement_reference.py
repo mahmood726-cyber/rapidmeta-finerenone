@@ -351,6 +351,16 @@ def main(argv):
         json.dump({"gate": gate.as_json(), "counts": dict(counts),
                    "new_bare": new_bare}, fh, indent=1)
 
+    # COVERAGE. Only a VERSIONED reference can be re-checked; the other three kinds name a
+    # mutable subject or nothing. This gate has been reporting that as a note for weeks.
+    _all = sum(gate.kind(k) for k in (
+        "A VERSIONED   -- hash, verbatim snapshot or commit; exactly re-checkable",
+        "B TIMESTAMPED -- when it was read, not what was read",
+        "C IDENTIFIER  -- names a mutable subject, pins no version",
+        "D NOTHING     -- no reference to what was judged"))
+    gate.coverage(gate.kind("A VERSIONED   -- hash, verbatim snapshot or commit; exactly re-checkable"), max(_all, 1),
+                  "stored judgements whose reference pins no version, so staleness in "
+                  "them is not detectable by anything -- they are believed, not checked")
     return gate.report(denominator="%d stored judgement blocks in %d topic objects"
                                    % (total, len(objects)))
 

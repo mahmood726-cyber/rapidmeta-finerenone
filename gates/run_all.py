@@ -56,6 +56,20 @@ GATES = [
     # goes vacuous the moment the defect is fixed.
     ("gate12_planned_shown_as_observed",
      "a planned duration displayed where a reader reads an observed one", "fast"),
+    # ADDED 2026-08-29. Four word boundaries arrived as control characters in one
+    # evening and three of the four had silenced a live check. The sweep behind this
+    # was, predictably, caught by gate 8 as a check nothing called.
+    ("gate13_nonraw_regex_escape",
+     # SLOW: it parses every .py in the tree, twice (plant, then real). 9 minutes on
+     # this machine. The pre-push hook runs --fast and will SKIP it, and says so by
+     # name; CI runs the full set. A gate that makes every push nine minutes longer
+     # is a gate people start bypassing.
+     "a regex escape in a non-raw literal makes a check inert", "slow"),
+    # ADDED 2026-08-30. An unsourced claim drifts to its strongest form; this is the
+    # DISPLAYED-bytes leg, complementary to another lane's detector rather than a
+    # duplicate of it. Slow: it renders 932,327 blocks across every delivered page.
+    ("gate14_unanchored_authority",
+     "an authority named as the source of a claim with nothing to follow", "slow"),
 ]
 
 

@@ -284,6 +284,16 @@ def main(argv):
         json.dump({"gate": gate.as_json(), "radius": rmap,
                    "build_closure": sorted(closure), "changed": changed}, fh, indent=1)
 
+    # COVERAGE. The radius comes from the build closure; a file outside it has no radius
+    # this gate can compute.
+    _outside = kinds.get("module outside the build closure", 0)
+    _files = sum(kinds.get(k, 0) for k in (
+        "one-off module naming specific topics", "shared non-module file",
+        "module outside the build closure", "CLASS-WIDE module (in the build closure)",
+        "topic-owned file (radius 1)"))
+    gate.coverage(max(_files - _outside, 0), max(_files, 1),
+                  "modules outside the build closure, whose blast radius this gate cannot "
+                  "compute")
     return gate.report(denominator="%d files under ssot/; %d in this change" % (len(rmap),
                                                                                 len(changed)))
 

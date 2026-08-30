@@ -150,6 +150,17 @@ def main(argv):
                      "the design and the margin, or refuse the pooled claim." % (topic, verdict),
                      numerator=len(new), denominator=len(rows))
 
+    # COVERAGE. The detector reads LOCALLY CACHED registry records only. A pooled topic
+    # whose trials are not cached cannot be assessed for a non-inferiority design at all,
+    # and its absence from the findings means nothing was read, not that nothing is there.
+    #
+    # H.topic_objects returns (objects, kinds). len() on the TUPLE is 2, which made an
+    # earlier version print "35 of 35" -- 100%% coverage -- from a type error. A wrong
+    # instrument reports good news; that is the whole reason this fraction exists.
+    _objs, _ = H.topic_objects(repo)
+    gate.coverage(len(rows), max(len(_objs), len(rows)),
+                  "pooled topics with no locally cached registry record for their trials, "
+                  "where a non-inferiority design would be invisible to this detector")
     return gate.report(denominator="%d topics with an NI trial, %d frozen"
                        % (len(rows), len(found) - len(new)))
 
