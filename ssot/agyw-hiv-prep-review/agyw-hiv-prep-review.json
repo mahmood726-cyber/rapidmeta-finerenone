@@ -1090,7 +1090,41 @@
      "migrated_from": "stratified_analyses['age (prespecified)'].interaction"
     },
     "subgroup_heading": "By age at enrolment",
-    "subgroup_footnote": "Two of these strata are PRESPECIFIED (under 25 versus 25 and over) and two are POST HOC; each row says which. For the prespecified split the trial reports P = 0.02 for interaction, applying to the PRESPECIFIED split (under 25 versus 25 and over). That test strengthens the prespecified split — it does NOT make the post-hoc strata prespecified, and no interaction test is reported for them. The source's words: “However, the efficacy of HIV-1 protection differed significantly according to age, with an efficacy of 61% (95% CI, 32 to 77; P<0.001) among women 25 years of age or older and 10% (95% CI, −41 to 43; P = 0.64) among those under the age of 25 years (P = 0.02 for interaction).” These strata are reported, not tested against one another beyond that single interaction test."
+    "subgroup_footnote": "Two of these strata are PRESPECIFIED (under 25 versus 25 and over) and two are POST HOC; each row says which. For the prespecified split the trial reports P = 0.02 for interaction, applying to the PRESPECIFIED split (under 25 versus 25 and over). That test strengthens the prespecified split — it does NOT make the post-hoc strata prespecified, and no interaction test is reported for them. The source's words: “However, the efficacy of HIV-1 protection differed significantly according to age, with an efficacy of 61% (95% CI, 32 to 77; P<0.001) among women 25 years of age or older and 10% (95% CI, −41 to 43; P = 0.64) among those under the age of 25 years (P = 0.02 for interaction).” These strata are reported, not tested against one another beyond that single interaction test.",
+    "recompute_bases_2026_08_30": {
+     "why_this_exists": "⛔ A RECOMPUTABLE PAGE THAT SILENTLY SELECTS ONE OF TWO DEFENSIBLE INPUTS IS VERIFIABLE AND STILL MISLEADING. A reader can check our arithmetic perfectly and never learn there was a choice. Both bases are therefore given, with the headline named.",
+     "headline_basis": "registry results",
+     "why_the_headline_basis": "It is the tier this object DECLARES in `inputs.trials[].arms_basis.tier`, and that declaration predates this comparison. ⚠️ The rule was fixed BEFORE the alternative was computed, so the headline cannot have been chosen by which answer it gave.",
+     "bases": [
+      {
+       "name": "registry results",
+       "headline": true,
+       "counts": {
+        "NCT01539226": "82/1302 vs 61/650",
+        "NCT01617096": "71/1313 vs 97/1313"
+       },
+       "pooled": "RR 0.7030 (95% CI 0.5660 to 0.8731)",
+       "tau2": 0.0,
+       "Q": 0.1533,
+       "excludes_no_difference": true
+      },
+      {
+       "name": "best published (adjudicated publication + trial report)",
+       "headline": false,
+       "counts": {
+        "NCT01539226": "77/1300 vs 56/650 — external review citing the adjudicated publication",
+        "NCT01617096": "71/1313 vs 97/1316 — trial report"
+       },
+       "pooled": "RR 0.7127 (95% CI 0.5715 to 0.8889)",
+       "tau2": 0.0,
+       "Q": 0.082,
+       "excludes_no_difference": true
+      }
+     ],
+     "what_changes": "NEITHER THE DIRECTION NOR THE SIGNIFICANCE. The pooled risk ratio moves from 0.7030 to 0.7127 — a shift of 0.0097, about one per cent of the effect. Both intervals exclude no difference and heterogeneity is zero under both. ⭐ Saying so costs nothing and is worth stating: a reader who prefers the adjudicated counts gets essentially our answer.",
+     "the_bases_are_not_interchangeable_per_trial": "⛔ THE TIERS ARE NOT SYMMETRIC AND MAY NOT BE MIXED. The Ring Study holds ‘external review citing the adjudicated publication’; ASPIRE holds ‘trial report’. Asking both for the same second tier fails, correctly, because one of them does not have it. Pooling one trial's adjudicated counts with another's registry counts would be a MIXED BASIS presented as one — the arithmetic would succeed and the result would not be the quantity its label claims. `ma_studies_envelope.assert_one_basis` now refuses that pool by name.",
+     "recompute_it_yourself": "The study-level effects behind the headline basis are published as a `ma-studies-v1` envelope, derived from THIS OBJECT rather than from the rendered page, and recomputing them reproduces the published estimate to within rounding: 0.702983 against 0.703000."
+    }
    }
   }
  },

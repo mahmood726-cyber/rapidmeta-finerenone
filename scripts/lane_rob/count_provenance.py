@@ -226,16 +226,69 @@ MARKER = "<h2>Which counts were used, and what difference it makes</h2>"
 MARKER_ESTIMAND = "<h2>What quantity this is, and what the trials actually analysed</h2>"
 
 
+MARKER_BASES = "Two count bases, and which one the headline uses"
+
+
 def inject(html, canon):
     if MARKER not in html:
         html = html + "\n<div class=\"card\">\n" + render_counts(canon) + "\n</div>\n"
     if MARKER_ESTIMAND not in html:
         html = html + "\n<div class=\"card\">\n" + render_estimand(canon) + "\n</div>\n"
+    # ⛔ THE BUILD CALLS `inject`, NOT `render`. A block added to `render` alone is a block the
+    # page never sees, and I verified this one by calling the COMPONENT and reading its 2,507
+    # characters of correct output -- which proved the renderer and proved nothing about the
+    # page. COMPONENT-RENDERS AND PAGE-SHOWS ARE DIFFERENT CLAIMS; only the second is what a
+    # reader gets, and only the displayed bytes can tell them apart.
+    if MARKER_BASES not in html:
+        html = html + "\n" + render_recompute_bases(canon) + "\n"
     return html
 
 
+def render_recompute_bases(canon):
+    """The TWO count bases, side by side, with the headline named.
+
+    ⛔ A RECOMPUTABLE PAGE THAT SILENTLY SELECTS ONE OF TWO DEFENSIBLE INPUTS IS VERIFIABLE AND
+    STILL MISLEADING. This component already repools registry against adjudicated counts and
+    publishes the difference; what was missing is the PER-TRIAL counts a reader needs to redo it,
+    and any statement that the recompute link hands over ONE of the two. A reader could check our
+    arithmetic perfectly and never learn there was a choice.
+
+    ⚠️ VERIFIABLE AND STILL MISLEADING IS A SUBTLER FAILURE THAN WRONG, and it is the one this
+    project's gates are worst at seeing: every check passes.
+    """
+    b = ((canon.get("results") or {}).get("by_outcome") or {}).get("primary", {}).get(
+        "recompute_bases_2026_08_30")
+    if not b:
+        return ""
+    q = chr(34)
+    rows = []
+    for basis in b.get("bases", []):
+        cells = "<br>".join("<code>%s</code> %s" % (_esc(k), _esc(v))
+                            for k, v in sorted((basis.get("counts") or {}).items()))
+        rows.append(
+            "<tr><td>%s%s</td><td>%s</td><td>%s</td><td class=%snum%s>%s</td></tr>"
+            % (_esc(basis.get("name")),
+               " <b>&larr; the headline</b>" if basis.get("headline") else "",
+               cells, _esc(basis.get("pooled")), q, q,
+               "yes" if basis.get("excludes_no_difference") else "no"))
+    return (
+        "<div class=%scard%s>\n<h2>Two count bases, and which one the headline uses</h2>\n"
+        "<p>%s</p>\n"
+        "<div class=%sscroll%s><table><tr><th>Basis</th><th>Per-trial counts</th>"
+        "<th>Pooled</th><th>Excludes no difference</th></tr>%s</table></div>\n"
+        "<p><b>Why this basis is the headline.</b> %s</p>\n"
+        "<p><b>What changes under the other.</b> %s</p>\n"
+        "<p><small>%s</small></p>\n"
+        "<p><small>%s</small></p>\n</div>"
+        % (q, q, _esc(b.get("why_this_exists")), q, q, "".join(rows),
+           _esc(b.get("why_the_headline_basis")), _esc(b.get("what_changes")),
+           _esc(b.get("the_bases_are_not_interchangeable_per_trial")),
+           _esc(b.get("recompute_it_yourself"))))
+
+
 def render(canon):
-    return render_counts(canon) + render_estimand(canon)
+    return (render_counts(canon) + render_estimand(canon)
+            + render_recompute_bases(canon))
 
 
 # ---------------------------------------------------------------------------------------------
