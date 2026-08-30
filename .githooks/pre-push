@@ -318,8 +318,49 @@ trap cleanup_nonce EXIT
 if [ "$(curl -sf "http://127.0.0.1:$PORT/$NONCE" 2>/dev/null || true)" != "hook-identity-probe" ]; then
     if curl -sf "http://127.0.0.1:$PORT/index.html" > /dev/null 2>&1; then
         echo "[pre-push] Port $PORT is answering but is NOT serving $REPO_ROOT."
-        echo "[pre-push] Using an unused port instead of another tree's bytes."
-        PORT=8799
+        # ⛔ A HARD-CODED FALLBACK IS A SAMPLE OF SIZE ONE, AND ON 2026-08-30 IT RAN OUT.
+        #
+        # The fallback was `PORT=8799`. With three lanes pushing, 8787 was held by one
+        # sibling tree and 8799 by another, so this hook started a server that could not
+        # bind, the other tree kept answering, and the identity probe failed deep inside the
+        # regression script -- correctly refusing, but for a reason that reads as a defect in
+        # the pushed pages rather than a port collision. Two hard-coded ports are two
+        # lanes' worth of headroom on a machine that runs more than two.
+        #
+        # ⭐ THE PORT IS FOUND BY ASKING THE OS, NOT BY PROBING IT.
+        #
+        # The first version of this scanned for a curl exit of 7 (connection refused), which
+        # is the answer a free port gives on Linux. ⚠️ ON WINDOWS IT DOES NOT: a closed port
+        # here returns exit 28 -- a TIMEOUT, because the packets are dropped rather than
+        # refused -- and 28 is also what a slow server returns, so it cannot be read as
+        # "free". That test would have refused every genuinely free port on this machine.
+        # Measured before landing: 8805 free -> curl 28, 8787 in use -> curl 0.
+        #
+        # A bind either succeeds or it does not, on every platform, and it is the same
+        # question the server is about to ask. Unchanged: the nonce probe below is still the
+        # only thing that proves the server serves THIS tree, and failure to find a port
+        # REFUSES rather than falling through to whatever answers.
+        PORT="$(python -c "
+import socket
+for p in range(8799, 8830):
+    s = socket.socket()
+    try:
+        s.bind(('127.0.0.1', p))
+        print(p)
+        break
+    except OSError:
+        pass
+    finally:
+        s.close()
+" 2>/dev/null)"
+        if [ -z "$PORT" ]; then
+            echo "[pre-push] REFUSED: no free port in 8799-8829 to serve $REPO_ROOT."
+            echo "[pre-push] Every candidate is answering, so every one belongs to another"
+            echo "[pre-push] tree. Reusing one would measure this push against another"
+            echo "[pre-push] lane's bytes, which is the defect this block exists to prevent."
+            exit 1
+        fi
+        echo "[pre-push] Using free port $PORT instead of another tree's bytes."
     fi
 fi
 if [ "$(curl -sf "http://127.0.0.1:$PORT/$NONCE" 2>/dev/null || true)" != "hook-identity-probe" ]; then
@@ -327,6 +368,16 @@ if [ "$(curl -sf "http://127.0.0.1:$PORT/$NONCE" 2>/dev/null || true)" != "hook-
     ( cd "$REPO_ROOT" && python -m http.server $PORT --bind 127.0.0.1 > /dev/null 2>&1 ) &
     SERVER_PID=$!
     sleep 2
+    # ⭐ AND THE IDENTITY IS RE-PROVEN AFTER STARTING, HERE, WHERE IT CAN BE NAMED.
+    # Previously the hook started a server and proceeded on faith; when the bind failed the
+    # regression script discovered it several layers down and reported it as its own refusal.
+    # A failure diagnosed at its cause is worth more than the same failure diagnosed later.
+    if [ "$(curl -sf "http://127.0.0.1:$PORT/$NONCE" 2>/dev/null || true)" != "hook-identity-probe" ]; then
+        echo "[pre-push] REFUSED: started a server on :$PORT but the identity nonce does not"
+        echo "[pre-push] come back. The port is held by something else, so the regression"
+        echo "[pre-push] check would read another tree's bytes. Not a pass."
+        exit 1
+    fi
 fi
 cleanup() { [ -n "$SERVER_PID" ] && kill "$SERVER_PID" 2>/dev/null || true; }
 trap cleanup EXIT
