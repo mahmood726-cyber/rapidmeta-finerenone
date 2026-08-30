@@ -119,11 +119,39 @@ def _blocks(res):
     trial's post-hoc strata would have been published inside a table headed as a pooled
     analysis, and nothing would have said so.
     """
-    sg = res.get("stratified_analyses")
-    if isinstance(sg, dict):
-        return [(k, v) for k, v in sg.items() if isinstance(v, dict)]
-    if isinstance(sg, list):
-        return [(b.get("factor") or "subgroup", b) for b in sg if isinstance(b, dict)]
+    # ⛔ THE RENDERER IS RETIRED; THIS READER IS NOT. One finding, one key, one renderer --
+    # the store key is now `subgroups`, feeding the renderer that predates both lanes. But
+    # clinical_reading DERIVES C1 and C4 through this function, so retiring it wholesale would
+    # have silently dropped the safety-critical "not demonstrated in 18 to 21" claim from the
+    # clinical reading. ⚠️ A SCHEMA MIGRATION THAT MOVES A KEY MUST FOLLOW EVERY READER OF IT,
+    # and git cannot see that dependency any more than it could see the duplicate write.
+    sg = res.get("subgroups")
+    if isinstance(sg, list) and sg:
+        pre = [x for x in sg if isinstance(x, dict) and x.get("prespecified")]
+        post = [x for x in sg if isinstance(x, dict) and not x.get("prespecified")]
+        out = []
+        for name, group, flag in (("age (prespecified)", pre, True),
+                                  ("age (post-hoc)", post, False)):
+            if not group:
+                continue
+            out.append((name, {
+                "prespecified": flag,
+                "strata": [{"label": x.get("label"),
+                            "efficacy_percent": x.get("ve_percent", x.get("point")),
+                            "ci_low": x.get("ci_low"), "ci_high": x.get("ci_high"),
+                            "p": x.get("p_as_printed"),
+                            "source_quote": x.get("verbatim")} for x in group],
+                "interaction": ({"stated": res["subgroups_interaction"].get("how_to_read_it"),
+                                 "p": res["subgroups_interaction"].get("p")}
+                                if flag and isinstance(res.get("subgroups_interaction"), dict)
+                                else None),
+                "basis": "analysis_status: %s" % ", ".join(
+                    sorted({str(x.get("analysis_status")) for x in group})),
+            }))
+        return out
+    legacy = res.get("stratified_analyses")
+    if isinstance(legacy, dict):
+        return [(k, v) for k, v in legacy.items() if isinstance(v, dict)]
     return []
 
 

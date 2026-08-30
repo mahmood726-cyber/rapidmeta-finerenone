@@ -277,6 +277,192 @@
      "verbatim": "R version 4.6.0 (2026-04-24 ucrt) \nmetafor 5.0.1 \nrun_utc 2026-08-21\n\n================================================================\nTOPIC   agyw-hiv-prep-review\nOUTCOME primary\nSTORED  RR 0.7030 (0.5660 to 0.8731), k = 2, random-effects / REML\nINPUTS READ FROM THE OBJECT (log scale, SE derived from the published interval):\n   NCT01539226      0.6711 (0.4884 to 0.9221)  yi=-0.398837  sei=0.162125\n   NCT01617096      0.7320 (0.5442 to 0.9845)  yi=-0.311975  sei=0.151232\n----------------------------------------------------------------\nCALL: rma(yi = yi, sei = sei, method = \"REML\", test = \"knha\")\n\n\nRandom-Effects Model (k = 2; tau^2 estimator: REML)\n\n  logLik  deviance       AIC       BIC      AICc   \n  0.8573   -1.7145    2.2855   -1.7145   14.2855   \n\ntau^2 (estimated amount of total heterogeneity): 0 (SE = 0.0348)\ntau (square root of estimated tau^2 value):      0\nI^2 (total heterogeneity / total variability):   0.00%\nH^2 (total variability / sampling variability):  1.00\n\nTest for Heterogeneity:\nQ(df = 1) = 0.1535, p-val = 0.6952\n\nModel Results:\n\nestimate      se     zval    pval    ci.lb    ci.ub     \n -0.3524  0.1106  -3.1865  0.0014  -0.5691  -0.1356  ** \n\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n\n--- SAME FIT WITH HARTUNG-KNAPP (test = \"knha\") ---\n\nRandom-Effects Model (k = 2; tau^2 estimator: REML)\n\n  logLik  deviance       AIC       BIC      AICc   \n  0.8573   -1.7145    2.2855   -1.7145   14.2855   \n\ntau^2 (estimated amount of total heterogeneity): 0 (SE = 0.0348)\ntau (square root of estimated tau^2 value):      0\nI^2 (total heterogeneity / total variability):   0.00%\nH^2 (total variability / sampling variability):  1.00\n\nTest for Heterogeneity:\nQ(df = 1) = 0.1535, p-val = 0.6952\n\nModel Results:\n\nestimate      se     tval  df    pval    ci.lb   ci.ub    \n -0.3524  0.0433  -8.1334   1  0.0779  -0.9029  0.1981  . \n\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n\nBACK-TRANSFORMED:\n   unadjusted     0.7030 (0.5660 to 0.8732)\n   Hartung-Knapp  0.7030 (0.1725 to 2.8655)   [t crit 12.7062 on 1 df]  <- HOUSE INTERVAL, inflation factor floored at 1 (raw 0.3918)\n   metafor raw    0.7030 (0.4054 to 1.2191)   [test=knha, UNFLOORED]\n   tau^2 0.000000   Q 0.1535 on 1 df, p = 0.6952   I^2 0.00%\n\nAGREES WITH THE STORED POINT TO 4 dp: YES\n",
      "stored_at": "evidence/africa_prep_fits_2026_08_21/agyw-hiv-prep-review.txt"
     },
+    "subgroups": [
+     {
+      "label": "Under 25 years",
+      "k": 1,
+      "trial_ids": [
+       "NCT01617096"
+      ],
+      "measure": "efficacy, % reduction in HIV-1 incidence",
+      "point": 10,
+      "ci_low": -41,
+      "ci_high": 43,
+      "ve_percent": 10,
+      "p_as_printed": "P=0.64",
+      "analysis_status": "PRESPECIFIED",
+      "prespecified": true,
+      "verbatim": "However, the efficacy of HIV-1 protection differed significantly according to age, with an efficacy of 61% (95% CI, 32 to 77; P<0.001) among women 25 years of age or older and 10% (95% CI, −41 to 43; P = 0.64) among those under the age of 25 years (P = 0.02 for interaction).",
+      "source": {
+       "pmid": "26900902",
+       "pmcid": "PMC4993693",
+       "doi": "10.1056/NEJMoa1506110",
+       "sha256": "a6c75ad7e331aff7ff37a7792efa39d3631550600aeebe8c1b219457c4a03752",
+       "retrieved_utc": "2026-08-30"
+      },
+      "direction": "protective",
+      "migrated_from": "stratified_analyses['age (prespecified)'] -- the block theirs lacked. Without it the page shows only POST-HOC strata and a reader cannot tell that a prespecified analysis also exists.",
+      "note": "PRESPECIFIED stratum, and NOT a demonstration of no effect. Efficacy 10% (−41 to 43), P = 0.64 in the source: the interval is compatible with substantial benefit. What it establishes is that protection was not demonstrated in this stratum.",
+      "composition": "ASPIRE only; the Ring Study's own age analysis is not this number"
+     },
+     {
+      "label": "25 years or older",
+      "k": 1,
+      "trial_ids": [
+       "NCT01617096"
+      ],
+      "measure": "efficacy, % reduction in HIV-1 incidence",
+      "point": 61,
+      "ci_low": 32,
+      "ci_high": 77,
+      "ve_percent": 61,
+      "p_as_printed": "P=<0.001",
+      "analysis_status": "PRESPECIFIED",
+      "prespecified": true,
+      "verbatim": "However, the efficacy of HIV-1 protection differed significantly according to age, with an efficacy of 61% (95% CI, 32 to 77; P<0.001) among women 25 years of age or older and 10% (95% CI, −41 to 43; P = 0.64) among those under the age of 25 years (P = 0.02 for interaction).",
+      "source": {
+       "pmid": "26900902",
+       "pmcid": "PMC4993693",
+       "doi": "10.1056/NEJMoa1506110",
+       "sha256": "a6c75ad7e331aff7ff37a7792efa39d3631550600aeebe8c1b219457c4a03752",
+       "retrieved_utc": "2026-08-30"
+      },
+      "direction": "protective",
+      "migrated_from": "stratified_analyses['age (prespecified)'] -- the block theirs lacked. Without it the page shows only POST-HOC strata and a reader cannot tell that a prespecified analysis also exists.",
+      "note": "PRESPECIFIED stratum. ASPIRE's own prespecified age split; efficacy 61% (32 to 77), P<0.001 in the source.",
+      "composition": "ASPIRE only; the Ring Study's own age analysis is not this number"
+     },
+     {
+      "label": "21 years of age or younger",
+      "k": 1,
+      "trial_ids": [
+       "NCT01617096"
+      ],
+      "measure": "efficacy, % reduction in HIV-1 incidence",
+      "point": -27,
+      "ci_low": -133,
+      "ci_high": 31,
+      "ve_percent": -27,
+      "p_as_printed": "P = 0.45",
+      "analysis_status": "POST_HOC",
+      "prespecified": false,
+      "verbatim": "In a post hoc analysis, higher rates of HIV-1 protection were observed among women over the age of 21 years (56%; 95% CI, 31 to 71; P<0.001) but not among those 21 years of age or younger (-27%; 95% CI, −133 to 31; P = 0.45), a difference that was correlated with reduced adherence.",
+      "source": {
+       "pmid": "26900902",
+       "pmcid": "PMC4993693",
+       "doi": "10.1056/NEJMoa1506110",
+       "staged_as": "sources/ASPIRE_PMC4993693.extract.txt",
+       "sha256": "5386f694f8ec74e46b0eac494901027649b9c4a7be1c734ab3af6e417201b125",
+       "retrieved_utc": "2026-08-30"
+      },
+      "direction": "not demonstrated",
+      "composition": "ASPIRE only; the Ring Study's own age analysis is not this number",
+      "note": "POST HOC, and NOT a demonstration of no effect. The interval runs from -133% to 31%: compatible with substantial benefit and with substantial harm. What it establishes is that protection was NOT DEMONSTRATED. The source correlates the difference with reduced adherence and does not resolve product versus adherence.",
+      "supporting_verbatim": [
+       {
+        "quote": "Lack of HIV-1 protection, along with lower adherence, was seen in participants who were 18 to 21 years of age, with an efficacy of HIV-1 protection of −27% (95% CI, −133 to 31; P = 0.45). For women who were older than 21 years of age, the efficacy of HIV-1 protection was 56% (95% CI, 31 to 71; P<0.001), and the rate of adherence was more than 70% overall.",
+        "why_it_is_here": "ASPIRE's own sentence for THIS band. The row's main verbatim states the over-21 versus 21-and-under contrast; this one names the band itself, its interval, and the adherence correlation together.",
+        "label_in_source": "18 to 21 years",
+        "source": {
+         "document_id": "PMC4993693",
+         "what": "ASPIRE / MTN-020 primary report",
+         "route": "ncbi_efetch (Europe PMC returned 503)",
+         "retrieved_utc": "2026-08-30",
+         "rendered_chars": 44179,
+         "sha256": "a6c75ad7e331aff7ff37a7792efa39d3631550600aeebe8c1b219457c4a03752",
+         "tier": "trial report"
+        }
+       }
+      ],
+      "label_in_source": "18 to 21 years"
+     },
+     {
+      "label": "22 to 26 years",
+      "k": 1,
+      "trial_ids": [
+       "NCT01617096"
+      ],
+      "measure": "efficacy, % reduction in HIV-1 incidence",
+      "point": 56,
+      "ci_low": 19,
+      "ci_high": 76,
+      "ve_percent": 56,
+      "events": "752 participants, 51 infections",
+      "analysis_status": "POST_HOC",
+      "prespecified": false,
+      "verbatim": "Panel A shows that the efficacy of HIV-1 protection in the dapivirine group was −27% (95% CI, −133 to 31) for those 18 to 21 years of age, 56% (95% CI, 19 to 76) for those 22 to 26 years of age, and 51% (95% CI, 8 to 74) for those 27 to 45 years of age, as compared with placebo. The combined efficacy of HIV-1 prevention for participants over the age of 21 years was 56% (95% CI, 31 to 71; P<0.001).",
+      "source": {
+       "document_id": "PMC4993693",
+       "what": "ASPIRE / MTN-020 primary report",
+       "route": "ncbi_efetch (Europe PMC returned 503)",
+       "retrieved_utc": "2026-08-30",
+       "rendered_chars": 44179,
+       "sha256": "a6c75ad7e331aff7ff37a7792efa39d3631550600aeebe8c1b219457c4a03752",
+       "tier": "trial report"
+      },
+      "direction": "protective",
+      "composition": "ASPIRE only; the Ring Study's own age analysis is not this number",
+      "note": "Post hoc, and one of ASPIRE's three age bands. Reported alongside the other two so the GRADIENT is visible: protection rises across the bands rather than switching on at 21. Restored after a migration collapsed the three bands into a single over-21 figure.",
+      "migrated_from": "stratified_analyses.age (post-hoc thirds)"
+     },
+     {
+      "label": "27 to 45 years",
+      "k": 1,
+      "trial_ids": [
+       "NCT01617096"
+      ],
+      "measure": "efficacy, % reduction in HIV-1 incidence",
+      "point": 51,
+      "ci_low": 8,
+      "ci_high": 74,
+      "ve_percent": 51,
+      "events": "1192 participants, 44 infections",
+      "analysis_status": "POST_HOC",
+      "prespecified": false,
+      "verbatim": "Panel A shows that the efficacy of HIV-1 protection in the dapivirine group was −27% (95% CI, −133 to 31) for those 18 to 21 years of age, 56% (95% CI, 19 to 76) for those 22 to 26 years of age, and 51% (95% CI, 8 to 74) for those 27 to 45 years of age, as compared with placebo. The combined efficacy of HIV-1 prevention for participants over the age of 21 years was 56% (95% CI, 31 to 71; P<0.001).",
+      "source": {
+       "document_id": "PMC4993693",
+       "what": "ASPIRE / MTN-020 primary report",
+       "route": "ncbi_efetch (Europe PMC returned 503)",
+       "retrieved_utc": "2026-08-30",
+       "rendered_chars": 44179,
+       "sha256": "a6c75ad7e331aff7ff37a7792efa39d3631550600aeebe8c1b219457c4a03752",
+       "tier": "trial report"
+      },
+      "direction": "protective",
+      "composition": "ASPIRE only; the Ring Study's own age analysis is not this number",
+      "note": "Post hoc, and one of ASPIRE's three age bands. Reported alongside the other two so the GRADIENT is visible: protection rises across the bands rather than switching on at 21. Restored after a migration collapsed the three bands into a single over-21 figure.",
+      "migrated_from": "stratified_analyses.age (post-hoc thirds)"
+     },
+     {
+      "label": "Older than 21 years",
+      "k": 1,
+      "trial_ids": [
+       "NCT01617096"
+      ],
+      "measure": "efficacy, % reduction in HIV-1 incidence",
+      "point": 56,
+      "ci_low": 31,
+      "ci_high": 71,
+      "ve_percent": 56,
+      "p_as_printed": "P<0.001",
+      "analysis_status": "POST_HOC",
+      "prespecified": false,
+      "verbatim": "In a post hoc analysis, higher rates of HIV-1 protection were observed among women over the age of 21 years (56%; 95% CI, 31 to 71; P<0.001) but not among those 21 years of age or younger (-27%; 95% CI, −133 to 31; P = 0.45), a difference that was correlated with reduced adherence.",
+      "source": {
+       "pmid": "26900902",
+       "pmcid": "PMC4993693",
+       "doi": "10.1056/NEJMoa1506110",
+       "staged_as": "sources/ASPIRE_PMC4993693.extract.txt",
+       "sha256": "5386f694f8ec74e46b0eac494901027649b9c4a7be1c734ab3af6e417201b125",
+       "retrieved_utc": "2026-08-30"
+      },
+      "direction": "protective",
+      "composition": "ASPIRE only; the Ring Study's own age analysis is not this number",
+      "note": "POST HOC. The source's words: 'In a post hoc analysis'. Not a prespecified stratum."
+     }
+    ],
+    "subgroups_stratified_by": "age at enrolment",
     "other_outcomes": {
      "_note": "⚠️ THIS TABLE IS ASPIRE'S UNLESS A ROW SAYS OTHERWISE. The Ring Study's safety table has not been read at source in this pass, so no row claims two trials. The rows are the outcomes the retrieved article body reports, plus the ones it explicitly does not: “not measured” and “not reported in a poolable form” are outcomes of the search and are printed rather than dropped, because a table that lists only what was found reads as a table of everything that exists.",
      "rows": [
@@ -560,96 +746,6 @@
       }
      ]
     },
-    "stratified_analyses": {
-     "age (prespecified)": {
-      "prespecified": true,
-      "scope": "ASPIRE / MTN-020 (NCT01617096) ALONE. The Ring Study contributes nothing to these strata, so this is one of the two pooled trials and not the review.",
-      "basis": "Prespecified in the trial's analysis plan as age under 25 versus 25 and over. Source sentence: “However, the efficacy of HIV-1 protection differed significantly according to age, with an efficacy of 61% (95% CI, 32 to 77; P<0.001) among women 25 years of age or older and 10% (95% CI, −41 to 43; P = 0.64) among those under the age of 25 years (P = 0.02 for interaction).”",
-      "source": {
-       "document_id": "PMC4993693",
-       "what": "ASPIRE / MTN-020 primary report",
-       "route": "ncbi_efetch (Europe PMC returned 503)",
-       "retrieved_utc": "2026-08-30",
-       "rendered_chars": 44179,
-       "sha256": "a6c75ad7e331aff7ff37a7792efa39d3631550600aeebe8c1b219457c4a03752",
-       "tier": "trial report"
-      },
-      "measure": "efficacy_percent",
-      "interaction": {
-       "stated": "P = 0.02 for interaction, reported by the trial for this prespecified split. This is a test, not a comparison of two intervals by eye, and it is the strongest statement available about whether the difference is real.",
-       "p": 0.02
-      },
-      "strata": [
-       {
-        "label": "25 years or older",
-        "efficacy_percent": 61,
-        "ci_low": 32,
-        "ci_high": 77,
-        "p": "<0.001",
-        "source_quote": "However, the efficacy of HIV-1 protection differed significantly according to age, with an efficacy of 61% (95% CI, 32 to 77; P<0.001) among women 25 years of age or older and 10% (95% CI, −41 to 43; P = 0.64) among those under the age of 25 years (P = 0.02 for interaction)."
-       },
-       {
-        "label": "Under 25 years",
-        "efficacy_percent": 10,
-        "ci_low": -41,
-        "ci_high": 43,
-        "p": "0.64",
-        "source_quote": "However, the efficacy of HIV-1 protection differed significantly according to age, with an efficacy of 61% (95% CI, 32 to 77; P<0.001) among women 25 years of age or older and 10% (95% CI, −41 to 43; P = 0.64) among those under the age of 25 years (P = 0.02 for interaction)."
-       }
-      ]
-     },
-     "age (post-hoc thirds)": {
-      "prespecified": false,
-      "scope": "ASPIRE / MTN-020 (NCT01617096) ALONE.",
-      "basis": "Exploratory and conducted after the prespecified split showed an age effect. The strata were formed to balance statistical power, not on clinical grounds: “To better characterize the relationship between age and HIV-1 protection seen in the pre-specified subgroup analysis (age <25 vs. ≥25 years), an exploratory analysis was conducted post hoc. Age-categorized subgroups with balanced statistical power were created after dividing the 2395 participants into three groups with approximately equal numbers of those with HIV-1 infection.”",
-      "source": {
-       "document_id": "PMC4993693",
-       "what": "ASPIRE / MTN-020 primary report",
-       "route": "ncbi_efetch (Europe PMC returned 503)",
-       "retrieved_utc": "2026-08-30",
-       "rendered_chars": 44179,
-       "sha256": "a6c75ad7e331aff7ff37a7792efa39d3631550600aeebe8c1b219457c4a03752",
-       "tier": "trial report"
-      },
-      "measure": "efficacy_percent",
-      "external_corroboration": "WHO's 2021 guideline records no demonstrated efficacy below 21 and attributes it to low adherence rather than to absence of drug effect (WHO, iris handle 10665/340190, retrieved 2026-08-29). ⚠️ That is corroboration of the READING, not an independent estimate: it rests on this same trial.",
-      "strata": [
-       {
-        "label": "18 to 21 years",
-        "efficacy_percent": -27,
-        "ci_low": -133,
-        "ci_high": 31,
-        "p": "0.45",
-        "events": "451 participants, 44 infections",
-        "source_quote": "Lack of HIV-1 protection, along with lower adherence, was seen in participants who were 18 to 21 years of age, with an efficacy of HIV-1 protection of −27% (95% CI, −133 to 31; P = 0.45). For women who were older than 21 years of age, the efficacy of HIV-1 protection was 56% (95% CI, 31 to 71; P<0.001), and the rate of adherence was more than 70% overall."
-       },
-       {
-        "label": "22 to 26 years",
-        "efficacy_percent": 56,
-        "ci_low": 19,
-        "ci_high": 76,
-        "events": "752 participants, 51 infections",
-        "source_quote": "Panel A shows that the efficacy of HIV-1 protection in the dapivirine group was −27% (95% CI, −133 to 31) for those 18 to 21 years of age, 56% (95% CI, 19 to 76) for those 22 to 26 years of age, and 51% (95% CI, 8 to 74) for those 27 to 45 years of age, as compared with placebo. The combined efficacy of HIV-1 prevention for participants over the age of 21 years was 56% (95% CI, 31 to 71; P<0.001)."
-       },
-       {
-        "label": "27 to 45 years",
-        "efficacy_percent": 51,
-        "ci_low": 8,
-        "ci_high": 74,
-        "events": "1192 participants, 44 infections",
-        "source_quote": "Panel A shows that the efficacy of HIV-1 protection in the dapivirine group was −27% (95% CI, −133 to 31) for those 18 to 21 years of age, 56% (95% CI, 19 to 76) for those 22 to 26 years of age, and 51% (95% CI, 8 to 74) for those 27 to 45 years of age, as compared with placebo. The combined efficacy of HIV-1 prevention for participants over the age of 21 years was 56% (95% CI, 31 to 71; P<0.001)."
-       },
-       {
-        "label": "Over 21 years, combined",
-        "efficacy_percent": 56,
-        "ci_low": 31,
-        "ci_high": 71,
-        "p": "<0.001",
-        "source_quote": "Panel A shows that the efficacy of HIV-1 protection in the dapivirine group was −27% (95% CI, −133 to 31) for those 18 to 21 years of age, 56% (95% CI, 19 to 76) for those 22 to 26 years of age, and 51% (95% CI, 8 to 74) for those 27 to 45 years of age, as compared with placebo. The combined efficacy of HIV-1 prevention for participants over the age of 21 years was 56% (95% CI, 31 to 71; P<0.001)."
-       }
-      ]
-     }
-    },
     "estimand_mismatch": {
      "pooled_quantity": "risk ratio over binary counts",
      "trials_analysed": "time to event, with censoring and unequal follow-up",
@@ -707,7 +803,25 @@
      "source_quote": "For women who were older than 21 years of age, the efficacy of HIV-1 protection was 56% (95% CI, 31 to 71; P<0.001), and the rate of adherence was more than 70% overall, as defined by dapivirine detection in plasma, in returned rings, and in the composite of those two measures.",
      "schedule_quote": "Women returned for monthly follow-up visits, which included HIV-1 serologic testing, safety monitoring, and individualized adherence counseling.",
      "what_it_means_for_the_estimate": "Adherence was OBSERVED, not assumed, and it was observed under monthly contact. A service that does not reproduce monthly contact should expect lower adherence and therefore a smaller effect than this one: the estimate is an efficacy under trial conditions, not an effectiveness in use."
-    }
+    },
+    "subgroups_interaction": {
+     "p_as_printed": "P = 0.02 for interaction",
+     "p": 0.02,
+     "applies_to": "the PRESPECIFIED split (under 25 versus 25 and over)",
+     "analysis_status": "PRESPECIFIED",
+     "verbatim": "However, the efficacy of HIV-1 protection differed significantly according to age, with an efficacy of 61% (95% CI, 32 to 77; P<0.001) among women 25 years of age or older and 10% (95% CI, −41 to 43; P = 0.64) among those under the age of 25 years (P = 0.02 for interaction).",
+     "source": {
+      "pmid": "26900902",
+      "pmcid": "PMC4993693",
+      "doi": "10.1056/NEJMoa1506110",
+      "sha256": "a6c75ad7e331aff7ff37a7792efa39d3631550600aeebe8c1b219457c4a03752",
+      "retrieved_utc": "2026-08-30"
+     },
+     "how_to_read_it": "⚠️ AN INTERACTION TEST STRENGTHENS A POST-HOC SUBGROUP; IT DOES NOT MAKE IT PRESPECIFIED. P = 0.02 is reported for the PRESPECIFIED age split, and the age-categorised thirds below it remain POST HOC. Both facts must be read together: presenting the thirds as a finding because an interaction test exists would recreate exactly the overclaim this review caught in its own reference -- a post-hoc subgroup presented as a finding.",
+     "migrated_from": "stratified_analyses['age (prespecified)'].interaction"
+    },
+    "subgroup_heading": "By age at enrolment",
+    "subgroup_footnote": "Two of these strata are PRESPECIFIED (under 25 versus 25 and over) and two are POST HOC; each row says which. For the prespecified split the trial reports P = 0.02 for interaction, applying to the PRESPECIFIED split (under 25 versus 25 and over). That test strengthens the prespecified split — it does NOT make the post-hoc strata prespecified, and no interaction test is reported for them. The source's words: “However, the efficacy of HIV-1 protection differed significantly according to age, with an efficacy of 61% (95% CI, 32 to 77; P<0.001) among women 25 years of age or older and 10% (95% CI, −41 to 43; P = 0.64) among those under the age of 25 years (P = 0.02 for interaction).” These strata are reported, not tested against one another beyond that single interaction test."
    }
   }
  },
@@ -910,13 +1024,13 @@
   "rule": "Every field added falls into RELOCATION, GENUINELY EMPTY, or DERIVED FROM RECORDED CONTENT. A field falling into none was REFUSED. Adding a key to satisfy a generator is not the same as adding the content that key should hold.",
   "fields": [
    "carried_contrasts=[] (empty)",
+   "sources={} (empty)",
+   "pooled.measure (reloc)",
    "estimator_used (reloc)",
    "het.i2 (reloc)",
    "het.i2_pct (reloc)",
    "outcomes (derived)",
-   "pooled.measure (reloc)",
-   "question (derived)",
-   "sources={} (empty)"
+   "question (derived)"
   ]
  },
  "risk_of_bias": {
@@ -1323,10 +1437,10 @@
     "the_claim": "Why the question is still open -- the specific uncertainty this review addresses",
     "draft": "The evidence identified on this question is 2 randomised trials (NCT01539226, NCT01617096), pooled here at 0.703 (95% CI 0.566 to 0.873) for HIV-1 seroconversion. Certainty in that estimate is rated LOW, rated down for risk of bias, inconsistency and indirectness. What this estimate does not establish is recorded in full with the result in Results, and is not restated here. WHICH OF THOSE UNRESOLVED POINTS MAKES THE QUESTION WORTH ASKING NOW IS THE AUTHOR'S JUDGEMENT.",
     "facts_from": [
-     "grade.by_outcome.primary.certainty",
-     "results.by_outcome.primary.k",
      "results.by_outcome.primary.pooled",
-     "results.by_outcome.primary.what_this_does_not_establish"
+     "results.by_outcome.primary.k",
+     "results.by_outcome.primary.what_this_does_not_establish",
+     "grade.by_outcome.primary.certainty"
     ],
     "is_a_draft": true,
     "the_judgement_that_is_the_authors": "This sentence is the author's judgement and is not derivable from any field here."
@@ -1347,8 +1461,8 @@
     "the_claim": "WHY this result differs from the published ones, mechanically or methodologically",
     "draft": "No published synthesis was appraised against this review, so no difference between this result and a published one is recorded. There is nothing here for this sentence to explain, and stating a reason for a difference that has not been established would be inventing one.",
     "facts_from": [
-     "published_comparison.identity_basis",
-     "published_comparison.reviews"
+     "published_comparison.reviews",
+     "published_comparison.identity_basis"
     ],
     "is_a_draft": true,
     "the_judgement_that_is_the_authors": "This sentence is the author's judgement and is not derivable from any field here."
@@ -1369,10 +1483,10 @@
     "the_claim": "Whether the effect size is clinically meaningful",
     "draft": "The pooled RR is 0.703 (95% CI 0.566 to 0.873) over 2 trials, against placebo vaginal ring. Certainty is rated LOW. Every contributing interval excludes no effect. WHETHER A CHANGE OF THAT MAGNITUDE IS CLINICALLY MEANINGFUL IN THIS POPULATION IS THE AUTHOR'S JUDGEMENT: NO FIELD ON THIS OBJECT RECORDS A THRESHOLD OF IMPORTANCE, AND NONE IS ASSUMED HERE.",
     "facts_from": [
-     "grade.by_outcome.primary.certainty",
-     "results.by_outcome.primary.comparator",
+     "results.by_outcome.primary.pooled",
      "results.by_outcome.primary.k",
-     "results.by_outcome.primary.pooled"
+     "results.by_outcome.primary.comparator",
+     "grade.by_outcome.primary.certainty"
     ],
     "is_a_draft": true,
     "the_judgement_that_is_the_authors": "This sentence is the author's judgement and is not derivable from any field here."
@@ -1382,8 +1496,8 @@
     "the_claim": "Whether the evidence base is adequate to answer the question",
     "draft": "The evidence base is 2 trials, assessed for risk of bias as SOME_CONCERNS on 2 result(s). GRADE certainty is LOW, rated down for risk of bias, inconsistency and indirectness. WHETHER THAT IS ENOUGH TO ANSWER THE QUESTION DEPENDS ON THE DECISION THE ANSWER IS FOR, WHICH IS NOT STATED ON THIS OBJECT, AND IS THE AUTHOR'S JUDGEMENT.",
     "facts_from": [
-     "grade.by_outcome.primary",
-     "risk_of_bias.by_outcome"
+     "risk_of_bias.by_outcome",
+     "grade.by_outcome.primary"
     ],
     "is_a_draft": true,
     "the_judgement_that_is_the_authors": "This sentence is the author's judgement and is not derivable from any field here."
@@ -1413,10 +1527,10 @@
     "the_claim": "A one-sentence statement of what the evidence shows",
     "draft": "Across 2 randomised trials, RR was 0.703 (95% CI 0.566 to 0.873) for HIV-1 seroconversion against placebo vaginal ring. Certainty in that estimate is LOW. THAT IS THE ESTIMATE. WHAT THE EVIDENCE SHOWS -- STATED AS A FINDING RATHER THAN AS A NUMBER -- IS THE AUTHOR'S SENTENCE.",
     "facts_from": [
-     "grade.by_outcome.primary.certainty",
+     "results.by_outcome.primary.pooled",
      "results.by_outcome.primary.k",
      "results.by_outcome.primary.outcome",
-     "results.by_outcome.primary.pooled"
+     "grade.by_outcome.primary.certainty"
     ],
     "is_a_draft": true,
     "the_judgement_that_is_the_authors": "This sentence is the author's judgement and is not derivable from any field here."
@@ -1426,9 +1540,9 @@
     "the_claim": "The implication for clinical practice",
     "draft": "What a clinician should do differently on this evidence -- the estimate and certainty stated above -- is a RECOMMENDATION, not a measurement. No field on this object can back one, and none is drafted. It is the author's sentence.",
     "facts_from": [
-     "grade.by_outcome.primary",
+     "results.by_outcome.primary.pooled",
      "results.by_outcome.primary.k",
-     "results.by_outcome.primary.pooled"
+     "grade.by_outcome.primary"
     ],
     "is_a_draft": true,
     "the_judgement_that_is_the_authors": "This sentence is the author's judgement and is not derivable from any field here."
@@ -1438,9 +1552,9 @@
     "the_claim": "The implication for policy",
     "draft": "What a payer, guideline or programme should do on this evidence -- the estimate and certainty stated above -- is a RECOMMENDATION, not a measurement. No field on this object can back one, and none is drafted. It is the author's sentence.",
     "facts_from": [
-     "grade.by_outcome.primary",
+     "results.by_outcome.primary.pooled",
      "results.by_outcome.primary.k",
-     "results.by_outcome.primary.pooled"
+     "grade.by_outcome.primary"
     ],
     "is_a_draft": true,
     "the_judgement_that_is_the_authors": "This sentence is the author's judgement and is not derivable from any field here."
@@ -1450,9 +1564,9 @@
     "the_claim": "The implication for future research",
     "draft": "What should be studied next on this evidence -- the estimate and certainty stated above -- is a RECOMMENDATION, not a measurement. No field on this object can back one, and none is drafted. It is the author's sentence.",
     "facts_from": [
-     "grade.by_outcome.primary",
+     "results.by_outcome.primary.pooled",
      "results.by_outcome.primary.k",
-     "results.by_outcome.primary.pooled"
+     "grade.by_outcome.primary"
     ],
     "is_a_draft": true,
     "the_judgement_that_is_the_authors": "This sentence is the author's judgement and is not derivable from any field here."

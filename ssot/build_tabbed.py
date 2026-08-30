@@ -1992,6 +1992,19 @@ if __name__ == "__main__":
     #
     # So both failures are caught and both REFUSE with a named reason. NEVER add a bare except
     # here, and never let this fall through to the write.
+    # ⛔ A SUBGROUP ESTIMATE MAY NOT BE RENDERED WITHOUT ITS ANALYSIS STATUS. The dapivirine age
+    # strata are post hoc in the source's own first four words; a page showing 56% without that
+    # turns a hypothesis-generating subgroup into a finding. If this refuses, the fix is to
+    # record the status or drop the subgroup -- never to relax the check.
+    try:
+        import subgroup_guard as _sg
+        _sg.enforce(obj, out)
+    except Exception as _e:
+        if type(_e).__name__ == "SubgroupRefusal":
+            raise SystemExit(str(_e))
+        raise SystemExit(
+            "BUILD REFUSED: the subgroup guard could not run (%s: %s)."
+            % (type(_e).__name__, _e))
     # ⛔ A NUMBER MUST CARRY THE LABEL OF THE ROWS IT WAS COMPUTED FROM. Refuses the build when
     # a pooled figure would be published under a count source or estimand its own inputs do not
     # carry -- the near-swap that nearly put the registry-as-submitted 0.703 under a headline
@@ -2052,9 +2065,13 @@ if __name__ == "__main__":
             ("absolute effects", "absolute_effects",
              "A page that gives a ratio and no absolute effect leaves a clinician without the "
              "quantity they act on"),
-            ("stratified reading", "subgroup_efficacy",
-             "A page that reports one average over a population in which the effect differs "
-             "hides the result that decides who is offered the intervention"),
+            # ⛔ subgroup_efficacy'S RENDERER IS RETIRED. ONE FINDING, ONE KEY, ONE RENDERER.
+            # The store key is `subgroups`, feeding build_app_v2's outcome section, which
+            # predates both lanes -- "the renderer existed all along". Rendering the same
+            # stratum through a second component put the safety-critical 18-to-21 result on the
+            # page TWICE, from two keys, with no way for a maintainer to tell which was
+            # authoritative. ⚠️ The module survives as the READER clinical_reading derives C1
+            # and C4 through; only its section is withdrawn.
             ("other outcomes", "other_outcomes",
              "A page that reports benefit and not harms is not a review"),
             ("count provenance", "count_provenance",
