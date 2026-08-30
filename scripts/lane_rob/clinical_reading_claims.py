@@ -193,6 +193,32 @@ RECALL_GROUPS = {
 }
 
 
+PILOT_PAGE = "DAPIVIRINE_RING_PILOT_REVIEW.html"
+SECTION_START = "What a clinician or a programme should take from this"
+SECTION_END = "What has happened since these trials were last synthesised"
+
+
+def handwritten_section(page=PILOT_PAGE):
+    """The hand-written clinical reading, read FROM THE REPOSITORY.
+
+    ⛔ THE DEFAULT USED TO BE A FILE IN MY SCRATCH DIRECTORY. Two defects in one line: a generic
+    name in a shared root, which gate 9 refused for the third time tonight -- correctly -- and a
+    reproducibility hole, because the reference text this whole instrument scores against existed
+    only on one machine. Anyone cloning the repository would have measured against nothing.
+
+    The section is extracted from the delivered page instead, so the reference is whatever is
+    actually published, and it moves when the page moves.
+    """
+    import html as _h
+    raw = io.open(page, encoding="utf-8", errors="replace").read()
+    i, j = raw.find(SECTION_START), raw.find(SECTION_END)
+    if i < 0 or j <= i:
+        raise SystemExit(
+            "REFUSED: the clinical-reading section could not be located in %s. This instrument "
+            "scores against the delivered text and will not fall back to a copy." % page)
+    return _h.unescape(re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", raw[i:j]))).strip()
+
+
 def score(candidate_text):
     """Recall n of n, and whether each recalled claim kept the hedge it was written with."""
     t = re.sub(r"\s+", " ", candidate_text or "").lower()
@@ -216,8 +242,12 @@ def score(candidate_text):
 def main():
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace",
                                   line_buffering=True)
-    src = sys.argv[1] if len(sys.argv) > 1 else r"F:\claude-temp\pend\clinical_reading_handwritten.txt"
-    text = io.open(src, encoding="utf-8", errors="replace").read()
+    if len(sys.argv) > 1:
+        src = sys.argv[1]
+        text = io.open(src, encoding="utf-8", errors="replace").read()
+    else:
+        src = PILOT_PAGE + " [clinical reading section]"
+        text = handwritten_section()
     rows = score(text)
     n = len(rows)
     present = sum(1 for r in rows if r["present"])
@@ -243,7 +273,10 @@ def main():
         print("    NOT RECALLED:")
         for r in missing:
             print("      %-4s %-58s %s" % (r["id"], r["claim"][:58], r["modal"]))
-    out = r"F:\claude-temp\pend\out\clinical_reading_score.json"
+    import tempfile
+    out = (os.environ.get("ROB_CLAIM_SCORE_OUT")
+           or os.path.join(tempfile.gettempdir(),
+                           "clinical_reading_score.%d.json" % os.getpid()))
     os.makedirs(os.path.dirname(out), exist_ok=True)
     json.dump(rows, io.open(out, "w", encoding="utf-8"), indent=1)
     return 0
