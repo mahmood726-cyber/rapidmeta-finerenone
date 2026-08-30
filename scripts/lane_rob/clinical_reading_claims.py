@@ -29,9 +29,28 @@ wearing a number, so this one was measured against adversarial sets rather than 
                similarity 0.736 to 0.904 against the original -- i.e. genuine rewordings of
                10-26% of the text, not near-copies.
 
-⚠️ WHAT THAT DOES NOT ESTABLISH. The paraphrases are MODERATE: median similarity ~0.87. This
-says nothing about a radical rewrite, which could lose recall on the 0.6 keyword-overlap test
-without dropping any hedge. The recall side is the weaker half and is not yet ablated.
+  RECALL       BRITTLE, AND MEASURED SO. Against 8 RADICAL rewrites (similarity 0.28-0.54,
+               same claims, same hedges, different words) recall fell to 13-14 of 16. Replacing
+               word-overlap with concept groups moved clean runs only from 1 of 8 to 2 of 8 and
+               cost one specificity case (8/8 -> 7/8). What still fails: C8/C9 "no excess of
+               severe/serious adverse events" (5 of 8 each), C11 "protects against nothing else"
+               (5), C6 "would overstate what is known" (4).
+
+⛔ AND I STOPPED TUNING RATHER THAN CHASE THOSE. Each extra synonym would have been copied from
+the very rewrites used to measure the instrument, which fits the validation set and destroys the
+only number I have about it. THE MECHANISM IS THE LIMIT, not the vocabulary: string matching
+cannot recognise "rates were similar between groups" as "no excess of serious adverse events".
+Recall against arbitrary rewording needs an entailment check, which is a model call and a design
+decision, not a patch.
+
+⇒ WHAT THIS INSTRUMENT IS FIT FOR. Scoring a GENERATED clinical reading written from the same
+claim set -- i.e. a moderate paraphrase, where specificity is 7-8 of 8 and the hedge check is
+14/14. It is NOT fit for judging an independently written section that happens to say the same
+things. Reporting a low recall on such a text would be a fact about this checker.
+
+⚠️ ALL THREE ADVERSARIAL SETS ARE NOW BURNED for the recall mechanism. The sensitivity and
+specificity figures above predate the recall change and are unaffected by it; any future recall
+figure needs a set generated after these groups were written.
 
 PROVENANCE OF THE ENUMERATION. Propositions were enumerated mechanically by codex (GPT-5, no
 network, evidence inline) and the modal/polarity assignments were checked by hand. Both
@@ -133,14 +152,59 @@ HEDGE_TOKENS = {
 }
 
 
+# ⛔ RECALL BY CONCEPT, NOT BY WORD OVERLAP. Each entry is a list of GROUPS; the claim counts as
+# recalled only if EVERY group has one of its members present. Authored from what each claim
+# MEANS, not from the rewrites that exposed the problem.
+#
+# The first version required 60% overlap of the words longer than three characters in the
+# verbatim span. Measured against 8 radical rewrites (similarity 0.28-0.54 to the original),
+# recall fell to 13-14 of 16, and C6 and C11 were missed in SEVEN of eight. Both are short and
+# idiomatic -- "it protects against nothing else" survives almost no rewording intact -- so the
+# test was measuring phrasing, not content, exactly where a generated section will differ most.
+#
+# ⚠️ THE 8 REWRITES THAT EXPOSED THIS ARE NOW A BURNED VALIDATION SET. Re-measuring on them
+# after this change tells us the mechanism works, NOT how well it generalises. An unbiased
+# recall figure needs a fresh set generated after these groups were written.
+RECALL_GROUPS = {
+    "C1":  [["over 21", "older than 21", "above 21", "21 and over", "aged over 21"],
+            ["works", "effective", "efficacy", "protect", "reduces", "reduction"]],
+    "C2":  [["56"], ["protection", "efficacy", "reduction", "lower"]],
+    "C3":  [["45"], ["18 month", "eighteen month", "year and a half"],
+            ["one infection", "1 infection", "single infection", "prevent"]],
+    "C4":  [["21 and under", "under 21", "younger than 21", "21 or younger", "up to 21"],
+            ["not been shown", "not demonstrated", "no evidence", "unproven", "not shown"]],
+    "C5":  [["cannot", "could not", "unable"],
+            ["product", "ring itself", "drug"], ["adherence", "use", "wearing"]],
+    "C6":  [["pooled", "overall figure", "combined", "average"],
+            ["overstate", "oversell", "exaggerat", "more than is known", "beyond what"]],
+    "C7":  [["safe", "safety"], ["measured", "assessed", "looked at", "studied"]],
+    "C8":  [["severe"], ["no excess", "no increase", "not more", "no more", "without excess"]],
+    "C9":  [["serious"], ["no excess", "no increase", "not more", "no more", "without excess"]],
+    "C10": [["resistance"], ["no ", "not ", "none"]],
+    "C11": [["nothing else", "no other", "only hiv", "not protect against other",
+             "does not prevent other", "no protection against other", "hiv-1 only",
+             "other infections", "other stis"]],
+    "C12": [["condom"]],
+    "C13": [["sti screening", "screening for sti", "infection screening", "sti testing"]],
+    "C14": [["partner"]],
+    "C15": [["effectiveness", "real world", "in practice", "everyday use"],
+            ["lower", "less", "below"]],
+    "C16": [["adherence"], ["monthly", "every month"]],
+}
+
+
 def score(candidate_text):
     """Recall n of n, and whether each recalled claim kept the hedge it was written with."""
     t = re.sub(r"\s+", " ", candidate_text or "").lower()
     rows = []
     for cid, verbatim, claim, modal, pol, src, grounded, note in CLAIMS:
-        key = [w for w in re.findall(r"[a-z0-9%]+", verbatim.lower()) if len(w) > 3]
-        hit = sum(1 for w in key if w in t)
-        present = len(key) > 0 and hit / len(key) >= 0.6
+        groups = RECALL_GROUPS.get(cid)
+        if groups:
+            present = all(any(m in t for m in g) for g in groups)
+        else:
+            key = [w for w in re.findall(r"[a-z0-9%]+", verbatim.lower()) if len(w) > 3]
+            hit = sum(1 for w in key if w in t)
+            present = len(key) > 0 and hit / len(key) >= 0.6
         kept = None
         if present and modal in HEDGE_TOKENS:
             kept = all(any(syn in t for syn in group) for group in HEDGE_TOKENS[modal])
