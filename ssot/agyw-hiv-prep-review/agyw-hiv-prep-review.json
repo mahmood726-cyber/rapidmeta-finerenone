@@ -260,7 +260,21 @@
       "quote_is_stored_at": "results.by_outcome.primary.grade.indirectness.load_bearing_quote_VERIFIED",
       "why_it_matters": "A trial that reports an effect modifier INSIDE its studied range has supplied evidence that transfer beyond that range is unsupported. This turns an anticipated concern into a measured one."
      }
-    ]
+    ],
+    "certainty_vs_the_published_comparator": {
+     "verified_utc": "2026-08-30T16:06:12.547445+00:00",
+     "comparator": "Cochrane CD007961.pub3, \"Topical microbicides for preventing sexually transmitted infections\", PMID 33719075, PMC8092571. Abstract read via Europe PMC -- the Cochrane Library itself returns HTTP 412 to a plain fetch, so the free route was used, which is the route this review requires of itself anyway.",
+     "what_it_says": "\"Dapivirine probably reduces the risk of acquiring HIV infection: risk ratio (RR) 0.[..], I2 = 0%, 2 trials, 4588 women; moderate-certainty evidence.\"",
+     "it_is_the_same_evidence_and_that_is_checked_not_assumed": "4,588 = 1,959 + 2,629 exactly -- The Ring Study plus ASPIRE. Same two trials, same participants, same outcome, same I2 of 0%. There is no evidence difference to explain the disagreement.",
+     "⛔_we_are_three_levels_below_our_comparator": "Cochrane MODERATE (one downgrade from HIGH); this review VERY LOW (three). On identical evidence. That is not a small methodological difference and it is recorded here rather than left for a reader to discover, because a review that rates three levels below the standard comparator owes an account of why.",
+     "where_the_three_levels_come_from_and_which_are_defensible": {
+      "risk_of_bias_1_level": "DEFENSIBLE. 1 of 2 contributing results is at SOME CONCERNS -- The Ring Study, whose report describes randomisation and stratification but no concealment mechanism, so signalling question 1.2 is NO INFORMATION. That is a fact about the document, stated as one. Cochrane may have judged concealment adequately reported; our answer is quoted and checkable.",
+      "indirectness_1_level": "DEFENSIBLE, AND NOTE THE DIRECTION. Adjudicated unanimously across three model families. And Cochrane's question is BROADER than ours -- all topical microbicides for all sexually transmitted infections -- so on the restriction argument they had MORE reason to downgrade for indirectness than we do, not less.",
+      "imprecision_1_level": "⚠️ THE DISPUTED ONE, AND THE DISPUTE IS INTERNAL TO THIS OBJECT. The engine downgrades because at k = 2 the Hartung-Knapp interval (0.1725 to 2.865, t = 12.7062) INCLUDES the null while the unadjusted interval (0.566 to 0.873) excludes it, so the two disagree about whether an effect is demonstrated. But TWO OF THIS OBJECT'S OWN ARTEFACTS SAY NOT TO DOWNGRADE: the declared decision threshold of RR 0.90, which the whole interval clears, and the superseded hand-written ledger, which read the SAME Hartung-Knapp fact as grounds NOT to downgrade because an uninformative adjusted interval is weak evidence in either direction. Cochrane used a FIXED-EFFECT model, under which no Hartung-Knapp adjustment arises at all."
+     },
+     "⛔_what_is_NOT_being_done_about_it": "THE RATING IS NOT BEING CHANGED TO MATCH THE COMPARATOR. Tuning a letter to land beside a published one is the same defect as tuning a threshold to produce a letter, and it would be worse here because the comparator is the thing this review is measured against. The divergence is recorded, its three components are separated, and the one that is genuinely disputed is named as disputed.",
+     "what_would_settle_the_disputed_level": "A ruling on whether an uninformative small-k adjusted interval is evidence FOR imprecision or merely absence of evidence about it. The engine takes the first view and this object's other two artefacts take the second. It is worth one whole level and it is currently decided by which artefact a reader happens to read."
+    }
    }
   }
  },
@@ -729,7 +743,7 @@
    "ClinicalTrials.gov API v2 NCT01539226 -- design module, eligibility module, arm groups and registered primary outcomes",
    "ClinicalTrials.gov API v2 NCT01617096 -- design module, eligibility module, arm groups and registered primary outcomes"
   ],
-  "sources_NOT_read": "The trial publications. D2 and D3 are the domains that depend on them, and both are NO_INFORMATION for that reason.",
+  "sources_NOT_read": "NONE that bear on this assessment. ⛔ THIS FIELD PREVIOUSLY READ: \"The trial publications. D2 and D3 are the domains that depend on them, and both are NO INFORMATION.\" That was true when written and is now FALSE. Both primaries have been read -- ASPIRE at PMC4993693 and The Ring Study from the publisher -- and D2 and D3 are LOW on both trials. A SELF-DECLARED GAP THAT HAS BEEN CLOSED AND NOT UPDATED IS WORSE THAN ONE NEVER DECLARED: it tells a reader the review is incomplete in a way it is not, and it is the kind of sentence a blinded judge quotes back.",
   "ceiling": {
    "statement": "A domain that cannot be judged from the sources read is NO_INFORMATION, never LOW. Low-by-default asserts a fact; high-by-default invents a defect. Overall is capped at SOME_CONCERNS wherever a domain is NO_INFORMATION.",
    "shape_note": "A DICT, NOT A STRING -- paper_projector does ceil.get('statement'), and a bare string collapses the manuscript to a projector-failed banner (registry class 70)."
@@ -1838,6 +1852,20 @@
     "ASPIRE / MTN-020": "LOW"
    },
    "resolutions_are_keyed_by": "the result id grade_engine uses -- t[\"id\"] or t[\"trial\"] -- so the resolution attaches to a specific contributing result and not to the topic."
+  },
+  "sources_NOT_read_before_2026_08_30": "The trial publications. D2 and D3 are the domains that depend on them, and both are NO_INFORMATION for that reason.",
+  "sources_read_2026_08_30": {
+   "trial_publications": [
+    "Baeten JM et al, N Engl J Med 2016, PMC4993693 -- ASPIRE / MTN-020 (NCT01617096).",
+    "Nel A et al, N Engl J Med 2016, PMID 27959766 -- The Ring Study / IPM 027 (NCT01539226)."
+   ],
+   "registry_posted_results": [
+    "ClinicalTrials.gov resultsSection for both NCTs: participant flow, baseline characteristics and per-outcome analysis population. Results first posted 2022-12-16 (ASPIRE) and 2022-10-19 (Ring Study)."
+   ],
+   "source_kind_is_recorded_per_answer": "Every signalling-question answer carries `document_class`: `trial_publication` for the investigators own report, `registry_posted_results` for the registry. RoB 2 may weigh them differently and a reader must be able to see which answered what without opening the quote. On The Ring Study, 1.1 and 1.2 come from the paper and 1.3 from the registry -- three answers, two tiers, in one domain.",
+   "what_the_disagreement_turned_out_to_be": "Two assessors disagreed on D1 for NCT01539226 -- NO INFORMATION against SOME CONCERNS -- and it was never a difference of judgement. Both had read only the registration, and A REGISTRATION CANNOT ANSWER WHETHER AN ALLOCATION SEQUENCE WAS RANDOM. The Ring Study's own paper answers it in one sentence: \"In this randomized, double-blind, placebo-controlled, phase 3 trial, we randomly assigned participants in a 2:1 ratio\". So 1.1 is YES, 1.2 stays NO INFORMATION because that paper describes no concealment mechanism, 1.3 is PROBABLY NO from the registry baseline table, and D1 resolves to SOME CONCERNS on the evidence rather than on a third opinion.",
+   "⚠️_the_trap_that_was_avoided_and_only_just": "The quote offered elsewhere as evidence for NCT01539226 was ASPIRE's -- \"fixed-size block randomization, stratified according to site\" -- and NCT01539226 IS THE RING STUDY. Keying every answer from the NCT rather than from a label is what kept it out. That inversion cost this project twice today already.",
+   "recorded_utc": "2026-08-30T16:26:45.878060+00:00"
   }
  },
  "grade": {
