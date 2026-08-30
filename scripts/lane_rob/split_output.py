@@ -67,8 +67,38 @@ def _sections(html):
     return out
 
 
-def _is_main(head):
-    h = head.lower()
+ROLE = re.compile(r"""(?is)<h2[^>]*\bdata-role\s*=\s*['"]([a-z-]+)['"]""")
+
+
+def _role(chunk):
+    """The role the GENERATOR stamped on this section, or None if it stamped none."""
+    m = ROLE.search(chunk or "")
+    return m.group(1).lower() if m else None
+
+
+# Roles that belong in the light main paper. Everything else is apparatus.
+MAIN_ROLES = {"finding", "result", "recommendation", "limitation"}
+
+
+def _is_main(head, chunk=None):
+    """⭐ ROLE FIRST, KEYWORDS ONLY AS A NAMED FALLBACK.
+
+    The keyword list below was written against ONE hand-built page's vocabulary and is
+    clinically backwards on generated pages: measured on IV_IRON_HF_REVIEW it sent "Time to a
+    first cardiovascular death or hospitalisation for heart failure" to the APPENDIX and kept
+    four sections headed only "Pooled result" in the main paper. A clinician would open the
+    light page and find no named outcome.
+
+    Adding the generator's phrasings would have fitted it to a second instance and failed on the
+    third. The fix is that the GENERATOR SAYS what a section is -- data-role on the <h2> -- and
+    this classifier reads that. Keywords remain only for sections carrying no role, and the
+    proportion classified each way is REPORTED, because a fallback that quietly covers 90% of
+    sections is the keyword classifier wearing a new name.
+    """
+    r = _role(chunk) if chunk is not None else None
+    if r:
+        return r in MAIN_ROLES
+    h = (head or "").lower()
     return any(k in h for k in MAIN)
 
 
@@ -79,7 +109,7 @@ def split(html):
         if not head:                       # preamble: title, styles, stamp
             main.append(chunk)
             continue
-        (main if _is_main(head) else appx).append(chunk)
+        (main if _is_main(head, chunk) else appx).append(chunk)
     return "".join(main), "".join(appx), secs
 
 
@@ -127,7 +157,13 @@ def main():
     lost, both = check_complete(html, m_light, a)
     print("")
     print("SPLIT -- %s" % os.path.basename(src))
-    print("  sections found                    %3d" % len([h for h, _ in secs if h]))
+    roled = sum(1 for h, c in secs if h and _role(c))
+    named = len([h for h, _ in secs if h])
+    print("  sections found                    %3d" % named)
+    print("    classified by GENERATOR ROLE    %3d   %5.1f%%   <- the real classifier"
+          % (roled, 100.0 * roled / max(1, named)))
+    print("    fallen back to heading keywords %3d   %5.1f%%   <- the old, page-specific one"
+          % (named - roled, 100.0 * (named - roled) / max(1, named)))
     print("  in the main paper                 %3d" % len([h for h, _ in _sections(m) if h]))
     print("  in the appendix                   %3d" % len([h for h, _ in _sections(a) if h]))
     print("")

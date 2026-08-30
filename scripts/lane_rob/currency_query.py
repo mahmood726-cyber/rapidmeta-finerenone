@@ -195,11 +195,12 @@ def new_since(canon, since_iso, known_ncts):
             "n_completed": sum(1 for r in rows if r["bucket"] == "completed_no_results")}
 
 
-MARKER = "<h2>What has changed since these trials were last synthesised</h2>"
+MARKER = "What has changed since these trials were last synthesised</h2>"
 
 
 def render(canon):
-    out = [MARKER]
+    out = ["<h2 data-role='finding'>What has changed since these trials were "
+           "last synthesised</h2>"]
     pmid = comparator_pmid(canon)
     if not pmid:
         cands = comparator_candidates(canon)
