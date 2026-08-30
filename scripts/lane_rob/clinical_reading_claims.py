@@ -224,32 +224,51 @@ def handwritten_section(page=PILOT_PAGE):
 
 
 def _claim_sentence(text, verbatim, claim):
-    """The sentence the claim sits in. Falls back to the whole text ONLY if it cannot be found.
+    """The sentence that BEST matches the claim -- not the first one containing any anchor word.
 
-    ⛔ THE FALLBACK IS NAMED RATHER THAN SILENT: if the claim cannot be located, the hedge
-    test degrades to the old page-wide behaviour, and that is a weaker test -- not a passing one.
-    Callers that care can detect it because the returned scope equals the input.
+    ⛔ THE FIRST VERSION TOOK THE FIRST SENTENCE CONTAINING ANY ANCHOR, AND IT SCOPED C6 TO THE
+    WRONG SENTENCE. The anchor "pooled" occurs earlier on the page in "the pooled estimate is
+    0.703 ...", so the hedge test ran against the section's opening line, found no "would", and
+    reported a hedge LOST on a claim whose own sentence reads "... would overstate what is
+    known". ⚠️ A LOST HEDGE IS AN OVERCLAIM, so that false positive would have blocked a judging
+    run for a defect that did not exist -- and it was in the patch I sent to fix a scoping bug.
+
+    ⭐ THE SCOPE IS NOW THE BEST-MATCHING SENTENCE: split into sentences, score each by how many
+    distinct anchor words it carries, take the highest. A single shared word can no longer
+    capture the scope from the sentence that carries the whole claim.
     """
-    anchors = []
-    for s in (claim, verbatim):
-        w = [x for x in re.findall(r"[a-z0-9%]+", (s or "").lower()) if len(x) > 4]
-        if w:
-            anchors.append(w)
-    best = -1
-    for words in anchors:
-        for w in words:
-            i = text.find(w)
-            if i >= 0:
-                best = i
-                break
-        if best >= 0:
-            break
-    if best < 0:
+    anchors = set()
+    for s_ in (claim, verbatim):
+        anchors |= {w for w in re.findall(r"[a-z0-9%]+", (s_ or "").lower()) if len(w) > 4}
+    if not anchors:
         return text
-    lo = max(text.rfind(". ", 0, best), text.rfind("; ", 0, best), 0)
-    nxt = [x for x in (text.find(". ", best), text.find("; ", best)) if x != -1]
-    hi = min(nxt) if nxt else len(text)
-    return text[lo:hi + 1]
+    sentences = re.split(r"(?<=[.;!?])\s+", text)
+    best, score_ = None, 0
+    for sent in sentences:
+        low = sent.lower()
+        hits = sum(1 for a in anchors if a in low)
+        if hits > score_:
+            best, score_ = sent, hits
+    # ⚠️ KNOWN LIMITATION, RECORDED RATHER THAN TUNED AWAY: A CLAIM CAN SPAN SENTENCES.
+    #
+    # C15 is "real-world effectiveness will be lower than trial efficacy". The candidate states
+    # it across two sentences -- "Effectiveness in use WILL be lower than this." then an
+    # explanation ending "...this is an efficacy under trial conditions, not an effectiveness in
+    # use." The SECOND carries more anchors (efficacy, trial, effectiveness) and no "will", so
+    # best-match scopes there and reports the hedge lost. The hedge is present; the scope is
+    # wrong.
+    #
+    # ⛔ NOT FIXED BY WIDENING TO ADJACENT SENTENCES, and the plant is why: its negative case
+    # puts the hedge in the NEXT sentence deliberately, and any rule that reaches into
+    # neighbours makes that case pass -- destroying the only check that can catch a genuinely
+    # dropped hedge. A wider scope trades a false LOST for a false KEPT, and a false KEPT is the
+    # worse error because it certifies an overclaim.
+    #
+    # ⇒ So this is left as a known false-LOST, counted in the ratchet's ceiling rather than
+    # tuned around. STOP TUNING AND RECORD WHAT THE MECHANISM CANNOT DO.
+    # ⛔ THE FALLBACK IS NAMED RATHER THAN SILENT: with no sentence carrying an anchor the test
+    # degrades to the whole text, which is the WEAKER page-wide behaviour -- not a pass.
+    return best if best else text
 
 
 def score(candidate_text):
