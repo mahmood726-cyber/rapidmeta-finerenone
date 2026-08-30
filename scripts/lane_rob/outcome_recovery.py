@@ -114,19 +114,60 @@ def trial_sources(canon):
     return out
 
 
-def read_one(source, terms, fetch):
-    """Read ONE primary for these terms. -> (state, evidence)."""
-    pmcid = source.get("pmcid")
-    if not pmcid:
-        return STATE_UNREADABLE, {
-            "why": ("no PMCID is recorded for this report, so no open-access full text exists "
-                    "to read. ⚠️ This is a fact about THIS REVIEW'S REACH, not about "
-                    "the trial, which may report the outcome in its full article."),
-            "checked": sorted(terms)}
-    text = fetch(pmcid)
+ROUTES = ("pmc", "europepmc_free_pdf", "publisher_doi")
+
+
+def read_one(source, terms, fetch, routes=ROUTES):
+    """Read ONE primary for these terms, trying EVERY route before declaring it unreadable.
+
+    ⛔ THE FIRST VERSION DECLARED NOT_RETRIEVABLE_OPEN_ACCESS ON A SINGLE FAILED ROUTE, AND IT
+    WAS WRONG ABOUT A REAL DOCUMENT. PubMed returns no PMCID for the Ring Study (PMID 27959766),
+    so this function returned "no open-access full text exists to read" and the page carried
+    that state. Europe PMC records a FREE PDF at the publisher for the same article; it fetched
+    on the first attempt, 590,025 bytes, and contained a section devoted to the outcome with
+    per-group rates and intervals.
+
+    ⇒ ***A "NOT RETRIEVABLE" VERDICT THAT RESTS ON ONE ROUTE HAVING FAILED IS A STATEMENT ABOUT
+    THE ROUTE, NOT ABOUT THE DOCUMENT.*** The state was correct about PMC and wrong about
+    reachability, and the difference was a second route nobody tried. It is the same error as
+    a scan reporting its own reach as coverage, and here it cost a real primary-source figure.
+
+    ⚠️ SO THE UNREADABLE STATE NOW NAMES EVERY ROUTE THAT WAS TRIED. A state that cannot say
+    what was attempted is not falsifiable by the next person, and this one was believed for
+    hours precisely because it looked definitive.
+
+    `fetch` is called as fetch(identifier, route) when it accepts two arguments, and
+    fetch(identifier) otherwise, so an existing single-route fetch keeps working.
+    """
+    tried = []
+
+    def _call(ident, route):
+        tried.append({"route": route, "identifier": ident})
+        try:
+            return fetch(ident, route)
+        except TypeError:
+            return fetch(ident)
+
+    text = None
+    for route in routes:
+        ident = {"pmc": source.get("pmcid"),
+                 "europepmc_free_pdf": source.get("pmid"),
+                 "publisher_doi": source.get("doi")}.get(route)
+        if not ident:
+            tried.append({"route": route, "identifier": None,
+                          "skipped": "the object records no identifier for this route"})
+            continue
+        text = _call(ident, route)
+        if text:
+            break
+
     if not text:
         return STATE_UNREADABLE, {
-            "why": "the full text could not be retrieved for %s." % pmcid,
+            "why": ("every retrieval route recorded for this report was tried and none "
+                    "returned a full text. ⚠️ This is a fact about THIS REVIEW'S "
+                    "REACH, not about the trial, which may report the outcome perfectly well "
+                    "in a document reachable another way."),
+            "routes_tried": tried,
             "checked": sorted(terms)}
     low = text.lower()
     hits = [t for t in terms if t in low]
@@ -284,6 +325,57 @@ MODEL = {
 }
 
 
+def plant_routes():
+    """⛔ THE REGRESSION TEST FOR THE VERDICT I GOT WRONG.
+
+    A source with NO PMCID but a reachable publisher PDF must be READ, not declared unreachable.
+    That is exactly the Ring Study: PubMed has no PMCID, Europe PMC has a free PDF, and the
+    first version of this function returned NOT_RETRIEVABLE_OPEN_ACCESS without trying it.
+
+    ⚠️ AND THE OPPOSITE CASE MUST STILL REFUSE, with every attempted route NAMED. A state that
+    cannot say what it tried is not falsifiable by the next person to look, which is why the
+    wrong verdict stood for hours: it read as definitive.
+    """
+    _utf8_stdout()
+    no_pmcid = {"pmid": "27959766", "doi": "10.1056/NEJMoa1602046", "tier": "trial report"}
+    body = ("Secondary objectives included sexually transmitted infections. The overall "
+            "incidence rates of sexually transmitted infections were similar in the two "
+            "trial groups.")
+
+    def fetch_pmc_only(ident, route=None):
+        return body if route == "pmc" else None
+
+    def fetch_publisher(ident, route=None):
+        return body if route == "europepmc_free_pdf" else None
+
+    def fetch_nothing(ident, route=None):
+        return None
+
+    s1, e1 = read_one(no_pmcid, ["sexually transmitted"], fetch_pmc_only)
+    s2, e2 = read_one(no_pmcid, ["sexually transmitted"], fetch_publisher)
+    s3, e3 = read_one(no_pmcid, ["sexually transmitted"], fetch_nothing)
+
+    ok_1 = s1 == STATE_UNREADABLE            # PMC route unavailable AND nothing else answered
+    ok_2 = s2 == STATE_QUALITATIVE           # the second route rescued it
+    ok_3 = s3 == STATE_UNREADABLE and len(e3.get("routes_tried") or []) >= 3
+    print("")
+    print("PLANT -- retrieval routes (regression for a verdict this module got WRONG)")
+    print("   no PMCID, only PMC offered      -> %-28s [%s]"
+          % (s1, "PASS" if ok_1 else "FAIL"))
+    print("   no PMCID, publisher PDF exists  -> %-28s [%s]   <- the one that was wrong"
+          % (s2, "PASS" if ok_2 else "FAIL"))
+    print("   nothing reachable anywhere      -> %-28s [%s]"
+          % (s3, "PASS" if ok_3 else "FAIL"))
+    print("   routes named in the refusal: %s"
+          % ", ".join(r["route"] for r in (e3.get("routes_tried") or [])))
+    print("   ⚠️ a state that cannot say what it TRIED is not falsifiable, which is")
+    print("      why the wrong verdict stood: it read as definitive.")
+    assert ok_1, "a single available route did not behave"
+    assert ok_2, "a document reachable by a second route was declared unreachable -- THE BUG"
+    assert ok_3, "an unreachable document did not name the routes tried"
+    return 0
+
+
 def plant():
     """⭐ BOTH WAYS, AND THE THIRD STATE MUST SURVIVE.
 
@@ -336,4 +428,4 @@ def plant():
 
 
 if __name__ == "__main__":
-    raise SystemExit(plant() or coverage())
+    raise SystemExit(plant() or plant_routes() or coverage())
