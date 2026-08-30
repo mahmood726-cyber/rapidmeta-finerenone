@@ -2542,5 +2542,215 @@
    "scripts/bibliographic_screen_dapivirine.py"
   ],
   "ledger_is_at": "evidence/2026-08-30-dapivirine-ahead/BIBLIOGRAPHIC_SCREEN.json -- 1443 rows, one per screened record"
+ },
+ "registry_extraction_2026_08_30": {
+  "_what": "Participant flow, analysis populations and harms read from ClinicalTrials.gov POSTED RESULTS by machine, for both contributing trials. Nothing here is transcribed.",
+  "extracted_utc": "2026-08-30T17:44:27.404335+00:00",
+  "sources": {
+   "primary": "ClinicalTrials.gov API v2, https://clinicaltrials.gov/api/v2/studies/<NCT>. A URL. Any reader can fetch it.",
+   "independent_second_source": "The AACT 2026-04-12 flat-file snapshot -- tables result_groups, milestones, drop_withdrawals, outcome_counts. AACT is a 17 GB download and is therefore NEVER the route a reader is asked to take; it is here to check the API, not to replace it.",
+   "the_two_agree_on": "Every group-to-arm mapping in both trials, and every flow count."
+  },
+  "THE_ARM_CODE_INVERSION": {
+   "finding": "⚠️ ON NCT01539226 THE GROUP INDEX MEANS DIFFERENT ARMS IN DIFFERENT MODULES OF THE SAME REGISTRATION. Baseline, participant flow and adverse events all put PLACEBO at index 000. The outcome-measures module -- the one carrying the effect estimate -- puts DAPIVIRINE at index 000. On NCT01617096 all four modules put dapivirine first.",
+   "why_it_matters": "An extractor that joins the flow table to the outcome table on the index number, which is the obvious join, swaps the arms of ONE of these two trials and not the other. It would not fail; it would return a completed, plausible, inverted 2x2. On this pair the swap turns The Ring Study's RR of 0.6711 into 1.4901 and the pooled direction with it.",
+   "what_protects_against_it": "Keying every count from the GROUP TITLE, never from the index, and recording the per-module mapping so the check is visible rather than remembered. This object already had the rule -- \"key everything from the NCT, never a label\" -- and this is its within-registration form.",
+   "verified_by": "Two independent sources: the API's own group titles, and AACT `result_groups.result_type` + `title`. They agree.",
+   "and_the_stored_2x2s_were_CHECKED_against_it": "The object stores 82/1302 dapivirine and 61/650 placebo for NCT01539226. The posted denominators are OG000 (Dapivirine Vaginal Ring) = 1302 and OG001 (Placebo Vaginal Ring) = 650, with values 82 and 61. THE STORED 2x2 IS CORRECT AND IS NOW CHECKED RATHER THAN ASSUMED. Same for NCT01617096: 71/1313 dapivirine, 97/1313 placebo."
+  },
+  "participant_flow": {
+   "NCT01539226": {
+    "groups_by_module": {
+     "baseline": {
+      "BG000": "Placebo Vaginal Ring",
+      "BG001": "Dapivirine Vaginal Ring"
+     },
+     "participant_flow": {
+      "FG000": "Placebo Vaginal Ring",
+      "FG001": "Dapivirine Vaginal Ring"
+     },
+     "adverse_events": {
+      "EG000": "Placebo Vaginal Ring",
+      "EG001": "Dapivirine Vaginal Ring"
+     },
+     "outcome_measures": {
+      "OG000": "Dapivirine Vaginal Ring",
+      "OG001": "Placebo Vaginal Ring"
+     }
+    },
+    "randomised": 1959,
+    "started": {
+     "placebo": 652,
+     "dapivirine": 1307
+    },
+    "completed": {
+     "placebo": 435,
+     "dapivirine": 902
+    },
+    "not_completed": {
+     "placebo": 217,
+     "dapivirine": 405
+    },
+    "completed_note": "The registry's own comment: \"A number of completed participants rolled over to the open-label extension of this trial (IPM 032, NCT02862171)\". COMPLETED here is completion of the double-blind period, not of follow-up for the endpoint.",
+    "primary_outcome_analysed": {
+     "dapivirine": 1302,
+     "placebo": 650
+    }
+   },
+   "NCT01617096": {
+    "groups_by_module": {
+     "baseline": {
+      "BG000": "Dapivirine Vaginal Ring",
+      "BG001": "Placebo Ring"
+     },
+     "participant_flow": {
+      "FG000": "Dapivirine Vaginal Ring",
+      "FG001": "Placebo Ring"
+     },
+     "adverse_events": {
+      "EG000": "Dapivirine Vaginal Ring",
+      "EG001": "Placebo Ring"
+     },
+     "outcome_measures": {
+      "OG000": "Dapivirine Vaginal Ring",
+      "OG001": "Placebo Ring"
+     }
+    },
+    "randomised": 2629,
+    "started": {
+     "dapivirine": 1313,
+     "placebo": 1316
+    },
+    "completed": {
+     "dapivirine": 1165,
+     "placebo": 1179
+    },
+    "not_completed": {
+     "dapivirine": 148,
+     "placebo": 137
+    },
+    "primary_outcome_analysed": {
+     "dapivirine": 1313,
+     "placebo": 1313
+    }
+   }
+  },
+  "analysis_populations_VERBATIM": {
+   "NCT01539226": "This population consisted of all participants included in the ITT population (all randomised), excluding those who were not identified as HIV-seropositive at the Enrollment Visit, but who were later found to be already HIV-1 infected at enrollment through HIV-1 RNA PCR testing.",
+   "NCT01617096": "The primary effectiveness Cohort included all eligible randomised participants excluding participants deemed to be HIV-1 RNA positive at the time of randomization, based on retrospective PCR testing of stored blood samples taken at enrollment.",
+   "field": "resultsSection.outcomeMeasuresModule[0].populationDescription",
+   "this_supersedes": "`risk_of_bias.analysis_population_NOT_stated`, which has stood since this object was written. It is stated, in terms, in a free machine-readable field, and both trials use a MODIFIED intention-to-treat population of the same shape."
+  },
+  "what_the_posted_results_ANSWER_in_RoB_2": {
+   "⚠️_this_is_evidence_not_a_rating": "The answers below are recorded as EVIDENCE. No stored domain judgement is changed by this script. This object is governed by a two-assessor process with a recorded adjudication, and answering a signalling question is a different act from moving a domain. Collapsing the two is how a review quietly rates itself up.",
+   "3.1_outcome_data_for_all_or_nearly_all": {
+    "was": "NO_INFORMATION -- a registration does not report it",
+    "now_answerable": true,
+    "answer": "YES for both trials",
+    "arithmetic": {
+     "NCT01539226": "1302 + 650 = 1952 analysed of 1959 randomised = 99.64%. Excluded: 5 of 1307 from dapivirine, 2 of 652 from placebo.",
+     "NCT01617096": "1313 + 1313 = 2626 of 2629 randomised = 99.89%. Excluded: 0 of 1313 from dapivirine, 3 of 1316 from placebo."
+    },
+    "the_distinction_that_matters": "STUDY DISCONTINUATION IS NOT MISSING OUTCOME DATA. NCT01539226 records 622 of 1959 (31.8%) as NOT COMPLETED and NCT01617096 records 285 of 2629 (10.8%), and a reader who took those as missingness would downgrade both trials. They are not: the endpoint is time to HIV-1 seroconversion, a participant who leaves at month six contributes six months of seronegative follow-up and is CENSORED, not missing. The number that answers 3.1 is the analysis population against the randomised total, and it is 99.6% and 99.9%."
+   },
+   "2.6_appropriate_analysis_for_the_effect_of_assignment": {
+    "was": "NO_INFORMATION",
+    "now_answerable": true,
+    "answer": "PROBABLY YES for both trials, and not YES",
+    "reason": "Both analyses are MODIFIED intention-to-treat: participants shown by retrospective PCR on stored enrolment samples to have been HIV-1 infected before randomisation are excluded. That is a post-randomisation exclusion and therefore a deviation from strict ITT, which is why the answer is not YES. It is PROBABLY YES rather than PROBABLY NO because the exclusion removes participants who could not experience the outcome, it is decided by a laboratory assay on stored specimens rather than by anyone who knew the allocation, and it is tiny -- 7 of 1959 and 3 of 2629.",
+    "what_is_still_NOT_answered": "Whether the excluded participants' allocation was known to whoever ran the retrospective PCR. The posted results do not say. The exclusion counts are small enough that it could not plausibly matter, and that is a judgement, stated as one."
+   },
+   "1.2_allocation_concealment_STILL_OPEN": "Posted results do not report a concealment mechanism and neither does either registration. This remains the ONE signalling question that no free machine-readable source in this review has answered, and it is why NCT01539226's D1 stands at SOME CONCERNS. Naming it precisely is the point: the gap is one question on one domain on one trial, not an unspecified incompleteness.",
+   "domain_implication_AWAITING_SECOND_ASSESSOR": "If 3.1 = YES and 2.6 = PROBABLY YES are accepted, D2 and D3 cease to be NO_INFORMATION and the GRADE risk-of-bias downgrade -- whose stated reason is \"D2 and D3 are NO_INFORMATION and on a PrEP trial those are the adherence and attrition domains\" -- would need re-deriving. THAT IS NOT DONE HERE. It moves the certainty rating in the direction that flatters this review, which is exactly the class of change that must go through the second assessor rather than through the author who found the evidence."
+  }
+ },
+ "harms_2026_08_30": {
+  "_what": "Serious adverse events and deaths, per arm, both trials, from ClinicalTrials.gov posted results. THE REVIEW HELD ONE OUTCOME BEFORE THIS -- HIV-1 seroconversion -- and outcome scope was scored against it 0-2 by blinded judges.",
+  "extracted_utc": "2026-08-30T17:44:27.404335+00:00",
+  "source_field": "resultsSection.adverseEventsModule.eventGroups",
+  "arm_keying": "Keyed from the eventGroup TITLE. On NCT01539226 EG000 is PLACEBO, which is the opposite of that trial's OG000. See THE_ARM_CODE_INVERSION.",
+  "serious_adverse_events": {
+   "per_trial": {
+    "NCT01539226": {
+     "dapivirine": {
+      "events": 41,
+      "n": 1306
+     },
+     "placebo": {
+      "events": 9,
+      "n": 652
+     },
+     "rr": {
+      "point": 2.2743,
+      "ci_low": 1.1122,
+      "ci_high": 4.6506,
+      "se_log_rr": 0.364968
+     }
+    },
+    "NCT01617096": {
+     "dapivirine": {
+      "events": 116,
+      "n": 1313
+     },
+     "placebo": {
+      "events": 130,
+      "n": 1316
+     },
+     "rr": {
+      "point": 0.8943,
+      "ci_low": 0.7047,
+      "ci_high": 1.1351,
+      "se_log_rr": 0.12162
+     }
+    }
+   },
+   "⛔_NOT_POOLED": {
+    "decision": "The two trials' serious adverse events are NOT pooled.",
+    "why": "THE TWO PLACEBO ARMS DIFFER SEVEN-FOLD. Serious adverse events occurred in 9 of 652 placebo participants (1.38%) in NCT01539226 and 130 of 1316 (9.88%) in NCT01617096 -- a ratio of 7.2 -- in trials that enrolled women of the same ages, in the same four countries, over overlapping years, against the same placebo ring. A seven-fold difference in the CONTROL arm is a difference in what was counted and reported, not in what happened. Pooling across it produces a number (0.9817) that is arithmetic wearing the clothes of evidence.",
+    "the_statistic_that_shows_it": "Fixed-effect Q = 5.8868 on 1 degree of freedom, p = 0.0153. The two relative risks are 2.27 (1.11 to 4.65) and 0.89 (0.70 to 1.14): they do not merely differ in size, THEY POINT IN OPPOSITE DIRECTIONS and one of them excludes no difference.",
+    "what_IS_reported_instead": "Both 2x2s, both relative risks, both intervals, and this reason. A reader who disagrees can pool them in one line from the counts printed here. Declining to pool is a judgement and it is shown rather than enacted silently.",
+    "and_this_is_not_a_safety_verdict": "⚠️ NCT01539226's serious-adverse-event relative risk of 2.27 excludes no difference. It is NOT reported here as a harm signal: it sits beside a companion trial showing 0.89, on a control-arm rate seven times lower, which is the signature of an ascertainment difference rather than of a hazard. It is shown because hiding an inconvenient interval is worse than showing one that needs explaining."
+   }
+  },
+  "deaths": {
+   "per_trial": {
+    "NCT01539226": {
+     "dapivirine": {
+      "events": 2,
+      "n": 1306
+     },
+     "placebo": {
+      "events": 3,
+      "n": 652
+     },
+     "rr": {
+      "point": 0.3328,
+      "ci_low": 0.0558,
+      "ci_high": 1.9869,
+      "se_log_rr": 0.911611
+     }
+    },
+    "NCT01617096": {
+     "dapivirine": {
+      "events": 4,
+      "n": 1313
+     },
+     "placebo": {
+      "events": 3,
+      "n": 1316
+     },
+     "rr": {
+      "point": 1.3364,
+      "ci_low": 0.2997,
+      "ci_high": 5.9593,
+      "se_log_rr": 0.762766
+     }
+    }
+   },
+   "consistency": "Q = 1.3679 on 1 df, p = 0.2422 -- consistent, but on 12 deaths in 4587 participants the statistic has essentially no power and consistency here is not evidence of anything.",
+   "not_pooled_either": "Twelve events across two trials. A pooled relative risk on 12 events would carry an interval spanning an order of magnitude in both directions and would be reported as if it were a finding. The counts are given."
+  },
+  "what_this_does_NOT_add": "⚠️ THIS IS NOT A FULL HARMS REVIEW. It reports the two summary categories the registry posts -- serious adverse events and deaths -- per arm. It does not extract the MedDRA system-organ-class tables, does not address the genital-and-urinary events that are the relevant harms for a vaginal ring, and does not search for harms outside these two registrations. Outcome scope is WIDER than it was and is still narrower than a Cochrane review's.",
+  "why_the_registry_and_not_the_papers": "Both papers are free to read and both report adverse events in prose and tables. The registry is used because it gives the counts in a fixed schema with a per-arm denominator, so the extraction is checkable field by field and the arm mapping is explicit. The papers are the cross-check, not the source."
  }
 }

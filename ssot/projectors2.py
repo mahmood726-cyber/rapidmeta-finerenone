@@ -13,7 +13,7 @@ from projectors import (NL, e, fmt, kv_card, fig, scatter_svg, rows_svg,
                         funnel_svg, rob_traffic_light_svg, prisma_flow_svg,
                         visual_abstract_svg,
                         not_computable_svg, GRADE_DOMAINS)
-from rob_block import rob_block
+from rob_block import rob_block, rob_adjudication_state
 
 # THE ONE PLACE CERTAINTY IS RESOLVED. This module printed the stored level directly and
 # was therefore a seventh consumer outside the module built to be the single answer.
@@ -904,8 +904,23 @@ def visual_abstract(canon, res, outcome, p):
         _interval_caption(pooled, outcome.get("null_value", 1)))
 
 
-def _agreement_statement(rb, ag, two):
+def _agreement_statement(rb, ag, two, canon=None):
     """What to say about inter-assessor agreement, which right now is: not the rate.
+
+    ⛔ AND WHEN AN ADJUDICATION EXISTS, NONE OF THE BELOW IS TRUE. This function used to end
+    "No adjudication has been performed, so this review holds no final risk-of-bias
+    judgement for these results" UNCONDITIONALLY. On agyw-hiv-prep-review that sentence was
+    rendered onto a delivered page while the object carried a full adjudication record with
+    per-result resolutions, `rob_adjudication_state` reported adjudicated=True, and
+    `grade_authority.resolve` returned RATED. The store was correct and the PAGE said the
+    work had not been done.
+
+    ⚠️ THAT DIRECTION IS THE EXPENSIVE ONE. A page that under-claims looks like an honest
+    review with a gap, so nobody chases it -- this one had its author asked three separate
+    times to close an assessment that was already closed. A stale disclosure costs more than
+    a missing one because it is invisible to everybody except the reader it misleads.
+
+    WHAT FOLLOWS APPLIES ONLY WHEN NO ADJUDICATION EXISTS.
 
     SUPPRESSED WITH A REASON, NOT SILENTLY OMITTED. The measured disagreement on these
     records is not a property of the evidence -- it is an artefact of how the second
@@ -924,19 +939,59 @@ def _agreement_statement(rb, ag, two):
     if not two:
         return ("One assessor. No inter-assessor comparison is available for this "
                 "review, and none is implied by the table above.")
+    # ⭐ THE ADJUDICATED BRANCH. Print the resolution and its reason; do not tell a reader
+    # the work has not been done when the object records that it has.
+    _st = rob_adjudication_state(canon) if canon else {}
+    _rec = _st.get("record") if isinstance(_st.get("record"), dict) else {}
+    if _st.get("adjudicated"):
+        _res = _rec.get("resolutions") if isinstance(_rec.get("resolutions"), dict) else {}
+        _pairs = "; ".join("<strong>%s &rarr; %s</strong>" % (e(str(k)), e(str(v)))
+                           for k, v in sorted(_res.items())) or "&mdash;"
+        return (
+            "This assessment is DUAL &mdash; two assessors from different model families, "
+            "the second asked blind &mdash; and the disagreements have been "
+            "<strong>ADJUDICATED</strong>. %s. %s "
+            "<p>Both assessors&rsquo; per-result judgements remain in the table above, "
+            "unchanged, so a reader can see what each said rather than only the outcome. "
+            "The adjudicated value is this review&rsquo;s finding; the individual "
+            "judgements are the working.</p>"
+            "<p><small>%s</small></p>"
+            % (_pairs,
+               e(str(_rec.get("disagreement", ""))),
+               e(str(_rec.get("resolved_because", "")))
+               or "No reason is recorded with the adjudication."))
     n = ag.get("per_domain_total") or 0
+    # THE EXPLANATION THIS SENTENCE USED TO GIVE WAS WRONG, AND IT WAS OURS.
+    #
+    # It said the blinding prompt withheld the decision rule -- that the guard refuses any
+    # text containing a verdict word, that our default rule is written in verdict words,
+    # and that the two assessors therefore answered under different rules. Checked against
+    # the code the run actually used: the guard scans the assembled FACT BLOCKS only and
+    # never the header, and the header carries the rule in full -- "a domain that cannot
+    # be judged from the facts given is NO_INFORMATION, never LOW" -- verbatim in commit
+    # 0f6764f42, dated 2026-08-21, which is the version the second assessor ran under.
+    # The rule was transmitted. The harness-artefact explanation is withdrawn.
+    #
+    # AND THE DIRECTIONS RUN THE OTHER WAY FROM WHAT IT PREDICTED. A reader who never got
+    # the rule would score LOW where the other said NO_INFORMATION. On D1 to D3 the
+    # opposite happens: assessor 1 gives a judgement and assessor 2 answers
+    # NO_INFORMATION (26, 11 and 16 times respectively), which is the rule being applied
+    # MORE strictly, not less. On D4 and D5 assessor 2 is the more lenient one. That is a
+    # domain-dependent reading difference between two readers, and it is not explained by
+    # a missing instruction.
     return (
         "This assessment is DUAL &mdash; two assessors from different model families, the "
         "second asked blind. <strong>The agreement rate is withheld pending "
-        "adjudication.</strong> It is not reported because it is not currently "
-        "interpretable: the blinding prompt withholds any text containing a risk-of-bias "
-        "verdict word, and this review’s own default rule is written in those words, "
-        "so the two assessors answered under different rules rather than reading the same "
-        "evidence differently. A number computed across %d domain comparison(s) on that "
-        "basis would describe our procedure, not these trials. <strong>Both assessors’ "
-        "per-result judgements are shown in the table above, unadjudicated, and neither "
-        "is this review’s finding.</strong> No adjudication has been performed, so this "
-        "review holds no final risk-of-bias judgement for these results."
+        "adjudication.</strong> Both readers were given this review’s decision rule; "
+        "an earlier version of this sentence said the blinding had withheld it, and that "
+        "was wrong. What the %d domain comparison(s) show is a reading difference that "
+        "runs in OPPOSITE directions by domain &mdash; on domains 1 to 3 the second "
+        "assessor more often declines to judge at all, and on domains 4 and 5 it more "
+        "often judges low. A single agreement rate averages those two behaviours into one "
+        "number that describes neither. <strong>Both assessors’ per-result judgements "
+        "are shown in the table above, unadjudicated, and neither is this review’s "
+        "finding.</strong> No adjudication has been performed, so this review holds no "
+        "final risk-of-bias judgement for these results."
         % n)
 
 
@@ -1320,7 +1375,7 @@ def rob2_card(canon, p):
                NL, p(f1), p(f2),
                ("<th>Carried</th>" if has_carried else ""), NL, rows, NL, NL,
                NL, NL, NL, p(f1), p(f2), NL, ov, NL, NL,
-               NL, NL, _agreement_statement(rb, ag, two), NL,
+               NL, NL, _agreement_statement(rb, ag, two, canon), NL,
                p(ag.get("comparison_to_screening", "")), NL, NL, dis, flags))
 
 

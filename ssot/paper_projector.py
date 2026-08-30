@@ -1350,7 +1350,19 @@ def _second_assessor_tally(obj):
             if isinstance(rec, dict) and a2.get((oc, nct)):
                 if (rec.get("overall") or "") != a2[(oc, nct)]:
                     dis += 1
-    return counts, dis, bool(rb.get("adjudication"))
+    # ⛔ KEY CASING, AND IT COST A DELIVERED FALSE SENTENCE. This read `rb.get("adjudication")`
+    # -- lowercase, one spelling, hand-written here -- while `rob_block.ADJUDICATION_KEYS`
+    # already enumerates six: ADJUDICATION, ADJUDICATED, adjudication, adjudicated_by,
+    # RESOLUTION_OF_DISAGREEMENTS, consensus. agyw-hiv-prep-review stores `ADJUDICATION`, so
+    # this returned False over a full adjudication record and the page told a reader "NO
+    # ADJUDICATION HAS BEEN PERFORMED" about work that had been done and stored.
+    #
+    # ⚠️ THIRD HAND-LISTED KEY SET TO FAIL TODAY, after a label audit that keyed
+    # nct/trial/label and missed `registration`, and a gate that keyed four id fields and
+    # missed the same one. The defect is not the spelling chosen; it is choosing a spelling
+    # HERE when a module already owns the list. Ask the owner.
+    from rob_block import ADJUDICATION_KEYS as _AK
+    return counts, dis, any(isinstance(rb.get(k), dict) or rb.get(k) for k in _AK)
 
 
 def _rob_distribution(obj):
