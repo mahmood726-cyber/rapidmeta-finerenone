@@ -223,7 +223,46 @@
       "sensitivity": "This letter DEPENDS on the imprecision threshold: under line_of_no_effect it would be LOW.",
       "regenerate_with": "grade_engine.derive(canon, \"primary\")",
       "this_is_a_cache_not_a_source": "Stored so a consumer that cannot import the engine still reads the right letter. It is STALE THE MOMENT ANY INPUT CHANGES -- which is exactly how the ledger above went wrong -- so the engine is the source and this is a convenience."
-     }
+     },
+     "certainty": "VERY_LOW",
+     "domains": {
+      "risk_of_bias": {
+       "rating": "serious",
+       "levels": 1,
+       "state": "DOWNGRADE",
+       "basis_in_sources": "1 of 2 contributing result(s) carry SOME CONCERNS and none is at high risk of bias (1 low)."
+      },
+      "inconsistency": {
+       "rating": "not serious",
+       "levels": 0,
+       "state": "NO_DOWNGRADE",
+       "basis_in_sources": "I-squared 0.0%, tau-squared 0.0000, Q 0.1533 on 1 df. No downgrade: the contributing estimates do not disagree beyond chance. AT k = 2 THE STATISTIC IS NEARLY POWERLESS: I-squared and Q have very little ability to detect heterogeneity with this few studies, so a low value is weak evidence of consistency rather than evidence of it (Handbook s10.10.1, which distinguishes clinical and methodological diversity from the statistic)."
+      },
+      "indirectness": {
+       "rating": "serious",
+       "levels": 1,
+       "state": "DOWNGRADE",
+       "basis_in_sources": "Downgraded one level for indirectness of POPULATION. The question is \"in women\", UNQUALIFIED. The evidence is women aged 18-45 (ClinicalTrials.gov, read 2026-08-30: both trials FEMALE, min 18 / max 45) recruited in four sub-Saharan African countries. A pooled effect from one region and one age band is not a direct answer to a question about women without qualification."
+      },
+      "imprecision": {
+       "rating": "serious",
+       "levels": 1,
+       "state": "DOWNGRADE",
+       "basis_in_sources": "RR 0.703 (0.566 to 0.8731). The interval excludes the line of no effect and does not span appreciable benefit and harm, but k = 2. The Hartung-Knapp interval is 0.1725 to 2.865 on t = 12.7062 and it INCLUDES the line of no effect. THE TWO INTERVALS DISAGREE ABOUT WHETHER AN EFFECT IS DEMONSTRATED, and that disagreement is disclosed rather than resolved silently in either direction. At this k the interval is itself estimated from almost no information about between-study variance (Handbook s10.10.4.5, which is why the more conservative interval is reported beside the ordinary one at small k). Optimal information size is NOT evaluated. Handbook s14.2.2 rates precision on the interval AND on whether the accrued events or participants exceed the OIS, and this object does not hold the pooled sample size and event count for this outcome. So no rating here may claim precision is adequate on OIS grounds; a downgrade rests on the interval alone and could only ever be MORE severe once OIS were known, never less. SENSITIVITY OF THIS RATING TO THE THRESHOLD: under line_of_no_effect (structural) it would NOT be rated down; under appreciable_benefit_or_harm_0.75_1.25 (declared default) it WOULD be rated down. The rating above uses decision_threshold. Naming the alternatives is how a reader disagrees with a specific step rather than with a letter."
+      },
+      "publication_bias": {
+       "rating": "not assessable",
+       "levels": 0,
+       "state": "NOT_ASSESSABLE",
+       "basis_in_sources": "k = 2, below the ten studies at which funnel-plot asymmetry can be tested with any power. Handbook ch 13 s13.3.4.4: \"As a rule of thumb, tests for funnel plot asymmetry should be used only when there are at least 10 studies included in the meta-analysis, because when there are fewer studies the power of the tests is low.\" THIS IS 'NOT ASSESSABLE', NOT 'UNDETECTED': no test capable of detecting small-study effects was available here, so their absence is not evidence of their absence."
+      }
+     },
+     "starting_point": "HIGH",
+     "starting_point_because": "The contributing studies are randomized trials, which begin at HIGH certainty under GRADE (Handbook ch 14).",
+     "certainty_derivation": "Started HIGH; rated down 3 level(s) across risk of bias, indirectness, imprecision; total -3 -> VERY_LOW.",
+     "certainty_is_threshold_sensitive": "This letter DEPENDS on the imprecision threshold: under line_of_no_effect it would be LOW.",
+     "projected_from": "grade_engine.derive(canon, 'primary'), projected into the renderer's shape by scripts/project_grade_for_render_2026_08_30.py. DERIVED, NOT AUTHORED -- re-run after any input change and it overwrites.",
+     "projected_utc": "2026-08-30T17:12:55.706401+00:00"
     },
     "decision_threshold": {
      "lo": 0.9,
@@ -258,7 +297,69 @@
       "modifier": "age",
       "evidence": "ASPIRE, within its own studied range: efficacy 61% (95% CI, 32 to 77; P<0.001) at 25 years or older against 10% (95% CI, -41 to 43; P = 0.64) below, P = 0.02 for interaction.",
       "quote_is_stored_at": "results.by_outcome.primary.grade.indirectness.load_bearing_quote_VERIFIED",
-      "why_it_matters": "A trial that reports an effect modifier INSIDE its studied range has supplied evidence that transfer beyond that range is unsupported. This turns an anticipated concern into a measured one."
+      "why_it_matters": "A trial that reports an effect modifier INSIDE its studied range has supplied evidence that transfer beyond that range is unsupported. This turns an anticipated concern into a measured one.",
+      "ICEMAN_2026_08_30": {
+       "instrument": "ICEMAN, Instrument for assessing the Credibility of Effect Modification Analyses. Schandelmaier S et al, CMAJ 2020;192:E901-6. PMID 32778601, PMC7829020. Tool at https://www.iceman.help. The 8 META-ANALYSIS core questions were read from Table 1 of the paper, not reconstructed.",
+       "version_used": "meta-analysis form, 8 core questions",
+       "what_is_being_assessed": "The claim that the effect of the dapivirine ring on HIV-1 seroconversion is modified by AGE.",
+       "its_warrant_is_consensus_not_simulation": "ICEMAN was developed by expert consensus and usability-tested with 17 users. No simulation establishes its operating characteristics, because it is not that kind of instrument. Stated rather than dressed up.",
+       "the_correction": "THE AGE INTERACTION IS NOT POST HOC, AND THIS REVIEW SAID IT WAS. ASPIRE states: 'To better characterize the relationship between age and HIV-1 protection seen in the PRE-SPECIFIED SUBGROUP ANALYSIS (age <25 vs. >=25 years), an exploratory analysis was conducted post hoc.' The figures this review cites -- 61% at 25 or above against 10% below, P = 0.02 for interaction -- come from the PRE-SPECIFIED analysis. What was post hoc is the 21-year cut (56% against -27%) and the age-thirds exploration. The Ring Study likewise states its 21-year subgroup 'was prespecified in the statistical analysis plan'. ⚠️ THIS CORRECTION RAISES THE CREDIBILITY OF OUR OWN CLAIM, which is the direction that deserves suspicion -- so it is quoted rather than asserted, and anyone can check it in one search of a free full text.",
+       "items": [
+        {
+         "n": 1,
+         "question": "Is the analysis of effect modification based on comparison within rather than between trials?",
+         "answer": "DEFINITELY YES",
+         "why": "Both contributing trials report age subgroups computed WITHIN the trial, each comparing randomised arms inside an age stratum. No part of the claim rests on comparing one trial against the other."
+        },
+        {
+         "n": 2,
+         "question": "For within-trial comparisons, is the effect modification similar from trial to trial?",
+         "answer": "POSSIBLY YES -- the weakest item, and it is not favourable",
+         "why": "DIRECTION agrees and STRENGTH does not. ASPIRE: P = 0.02 for interaction. The Ring Study: hazard ratio 0.63 above 21 against 0.85 at 21 or younger, P = 0.43 for interaction -- same direction, not significant. And the two trials cut age at DIFFERENT points, 25 and 21, so the subgroups are not the same subgroups."
+        },
+        {
+         "n": 3,
+         "question": "For between-trial comparisons, is the number of trials large?",
+         "answer": "NOT APPLICABLE",
+         "why": "The claim is within-trial (item 1). ICEMAN provides NA and it is used rather than scored, because scoring an inapplicable item would manufacture a number."
+        },
+        {
+         "n": 4,
+         "question": "Was the direction of effect modification correctly hypothesized a priori?",
+         "answer": "PROBABLY YES, WITH A DISTINCTION STATED",
+         "why": "The ANALYSIS was pre-specified in both trials, quoted above. But ICEMAN asks about the DIRECTION, and neither paper states that a direction was hypothesised in advance. Pre-specifying that age will be examined is not the same as predicting which way it will go, and the item is answered at PROBABLY rather than DEFINITELY for exactly that reason."
+        },
+        {
+         "n": 5,
+         "question": "Does a test for interaction suggest that chance is an unlikely explanation of the apparent effect modification?",
+         "answer": "POSSIBLY YES",
+         "why": "ASPIRE P = 0.02; the Ring Study P = 0.43. One of two contributing trials supports it. A single significant interaction test across two trials is weak evidence that chance is an unlikely explanation."
+        },
+        {
+         "n": 6,
+         "question": "Did the authors test only a small number of effect modifiers, or consider the number in their statistical analysis?",
+         "answer": "CANNOT BE ANSWERED FROM WHAT THIS REVIEW HOLDS",
+         "why": "ASPIRE states 'Prespecified subgroup analyses were planned' and reports a forest plot of several, without stating how many were tested or any multiplicity adjustment. ⛔ REFUSED RATHER THAN GUESSED: the number of modifiers tested is the single strongest determinant of a false subgroup claim, and inventing a favourable answer for it would corrupt the whole instrument."
+        },
+        {
+         "n": 7,
+         "question": "Did the authors use a random-effects model?",
+         "answer": "NO",
+         "why": "This review has not pooled the interaction across the two trials at all -- it cites ASPIRE's within-trial interaction and notes the Ring Study runs the same direction. No random-effects model of the effect modification exists here."
+        },
+        {
+         "n": 8,
+         "question": "If the effect modifier is a continuous variable, were arbitrary cut points avoided?",
+         "answer": "NO",
+         "why": "⛔ THE CLEAREST UNFAVOURABLE ANSWER. Age is continuous and was dichotomised -- at 25 in ASPIRE, at 21 in the Ring Study, and additionally into thirds in ASPIRE's post-hoc exploration. Three different cut points across two trials, none derived from anything but convenience."
+        }
+       ],
+       "summary_rating": "LOW to MODERATE credibility",
+       "summary_reasoning": "Favourable on the structural items -- the comparison is within-trial (1) and the analysis was pre-specified (4). Unfavourable on the statistical ones -- arbitrary cut points on a continuous modifier (8), no random-effects model (7), and only one of two trials showing a significant interaction (5). Unresolvable on the item that matters most (6). ⇒ NOT the 'highly credible' reading our prose implied, and NOT the 'post hoc, therefore weak' reading the commissioning brief assumed either. THE INSTRUMENT DISAGREED WITH THE AUTHOR IN BOTH DIRECTIONS, on different items.",
+       "what_this_does_to_the_indirectness_domain": "The indirectness downgrade is justified partly on this interaction being MEASURED rather than anticipated. At LOW-to-MODERATE credibility that support is weaker than the prose claimed. ⭐ THE DOWNGRADE ITSELF DOES NOT FALL: the plain restriction argument stands on its own -- the question asks about women, the trials enrolled women aged 18 to 45 in four sub-Saharan African countries -- and Handbook 14.2.2 reaches indirectness with no modifier at all. What weakens is the STRENGTH of the supporting argument, and that is recorded rather than left implied.",
+       "run_alongside_the_prose_judgement": "The prose judgement is unchanged and still published beside this. That is the improvement-not-regression rule: the instrument is ADDED, the incumbent is NOT removed, and where they differ the difference is the finding. Here they differ in STRENGTH, not direction -- prose said the interaction is evidence against transfer; ICEMAN says that evidence is of low-to-moderate credibility.",
+       "assessed_utc": "2026-08-30T16:45:56.464831+00:00"
+      }
      }
     ],
     "certainty_vs_the_published_comparator": {
@@ -2205,7 +2306,10 @@
     "status": "TRUNCATED",
     "reported": 1443,
     "retrieved": 1000,
-    "note": "The page cap. The remaining 443 were NOT fetched and are NOT recorded as absent. Paging is required before any Europe PMC figure enters a denominator."
+    "note": "The page cap. The remaining 443 were NOT fetched and are NOT recorded as absent. Paging is required before any Europe PMC figure enters a denominator.",
+    "status_2026_08_30_LATER": "OK -- paged",
+    "retrieved_after_paging": 1443,
+    "note_2026_08_30_LATER": "SUPERSEDED. The 443 unfetched records were fetched with cursorMark by scripts/bibliographic_screen_dapivirine.py. 1,443 of 1,443. The TRUNCATED status above is kept because it is what the search recorded when it ran."
    },
    {
     "source": "ClinicalTrials.gov API v2",
@@ -2242,7 +2346,8 @@
     "NCT01337570",
     "NCT01337583"
    ],
-   "withdrawn_named_because": "Both are 'A Safety and Efficacy Trial of Dapivirine Vaginal Ring in Africa', both double-blind randomised placebo-controlled phase 3 BY DESIGN, both WITHDRAWN with enrolment 0 (ACTUAL). Eligible in design, no participants and no data, so they cannot contribute to a synthesis. Named rather than dropped: an eligibility exclusion is a decision and a decision should be visible."
+   "withdrawn_named_because": "Both are 'A Safety and Efficacy Trial of Dapivirine Vaginal Ring in Africa', both double-blind randomised placebo-controlled phase 3 BY DESIGN, both WITHDRAWN with enrolment 0 (ACTUAL). Eligible in design, no participants and no data, so they cannot contribute to a synthesis. Named rather than dropped: an eligibility exclusion is a decision and a decision should be visible.",
+   "_what_this_screen_IS_OF": "⚠️ THE 63 CLINICALTRIALS.GOV REGISTRATIONS ONLY. It is not the search's screen; it is the registry limb's screen. The 1443 bibliographic records are screened in `bibliographic_screen_2026_08_30`, per record. Before 2026-08-30 this block stood alone and `candidates_screened: 63` was the only screening number in the object."
   },
   "adjudication_of_non_included_that_passed_screen": [
    {
@@ -2270,7 +2375,10 @@
    "eligible_trials_held": 2,
    "recall": "2 of 2",
    "search_misses": 0,
-   "means": "Of the trials this search identifies as eligible for this question, this review holds both. Both were FOUND by the search rather than merely confirmed by it, and nothing in the included set failed the screen."
+   "denominator_is_now": "63 ClinicalTrials.gov registrations + 1 ISRCTN registration + 1443 deduplicated bibliographic records, EACH SCREENED WITH A RECORDED PER-RECORD DECISION.",
+   "what_changed_and_what_did_not": "⭐ THE NUMBER DID NOT MOVE. The denominator did. The earlier figure rested on the 63 registrations alone and did not say so, so it measured the registry limb against itself; this one rests on the registry set AND the bibliographic set, and the two candidate misses the bibliographic screen threw up (NCT02404038, NCT01796613) were each resolved by reading the registration and excluded on the intervention. An unchanged numerator on a corrected denominator is the honest outcome and it is not a smaller result than a changed one.",
+   "means": "Of the trials this search identifies as eligible for this question, this review holds both, and a second independent limb -- 1,443 bibliographic records -- surfaced no third.",
+   "still_NOT_claimed": "That no eligible trial exists. 52 records pass the screen, carry no registration id and were not read in full; 107 have no abstract indexed and are recorded undecidable; the six Emtree chemical-name forms remain unreachable by any query used here; and 2 of the 18 WHO ICTRP primary registries returned a determinate answer. Recall is measured against what was retrieved, which is not the world."
   },
   "limits": [
    "Six chemical-name forms. Ovid showed Emtree expanding `dapivirine` to variants such as 4-[[4-[(2,4,6-trimethylphenyl)amino]pyrimidin-2-yl]amino]benzonitrile. A record indexed ONLY under such a form is invisible to every query used here. This is the one named mechanism by which a free-source search could miss a trial.",
@@ -2282,7 +2390,20 @@
   "reproduce_with": [
    "scripts/systematic_search_dapivirine.py",
    "scripts/registry_search.py"
-  ]
+  ],
+  "ctgov_completeness_CHECKED_2026_08_30": {
+   "what_was_missing": "Both ClinicalTrials.gov queries recorded `status: OK` with `reported_count: null`. The API returns `totalCount` only when `countTotal=true` is passed and it was not, so OK was recorded WITHOUT ANY EVIDENCE THAT THE RETRIEVED SET WAS THE WHOLE SET. A guard that cannot fire is not a guard, and this one could only ever report OK.",
+   "measured_now": "Re-run with countTotal=true and pageToken paging: the intervention query reports totalCount 52 and returns 52; the free-text query reports totalCount 63 and returns 63; the union is 63, IDENTICAL to the set the executed search recorded.",
+   "so": "The registry search was not truncated. THE FIGURE WAS RIGHT AND THE CHECK WAS ABSENT, which are different things, and only the second was in our control.",
+   "checked_utc": "2026-08-30T17:15:08.427152+00:00"
+  },
+  "coverage_fraction_SUPERSEDED_2026_08_30": {
+   "eligible_trials_identified": 2,
+   "eligible_trials_held": 2,
+   "recall": "2 of 2",
+   "search_misses": 0,
+   "means": "Of the trials this search identifies as eligible for this question, this review holds both. Both were FOUND by the search rather than merely confirmed by it, and nothing in the included set failed the screen."
+  }
  },
  "risk_of_bias_completeness_2026_08_30": {
   "complete": false,
@@ -2315,5 +2436,111 @@
    "agreed_by": "Three model families independently, 2026-08-30.",
    "recorded_utc": "2026-08-30T15:41:11.180561+00:00"
   }
+ },
+ "bibliographic_screen_2026_08_30": {
+  "_what": "A PER-RECORD title-and-abstract screen of the BIBLIOGRAPHIC half of the executed search: one ledger row for every deduplicated record, carrying the decision, the rule id that decided it, and the FIELD the rule read. Cochrane publishes a handful of near-miss exclusions with reasons. This publishes the screened set, so a reader with no subscription can pull any record and check the exclusion.",
+  "executed_utc": "2026-08-30T17:05:56.364177+00:00",
+  "why_it_exists": "⛔ THE OBJECT'S OWN COVERAGE FRACTION WAS REGISTRY-INTERNAL AND DID NOT SAY SO. `screen.candidates_screened: 63` is the ClinicalTrials.gov set; the search had also retrieved 374 PubMed and 1,000 Europe PMC records, and none of them entered a screen. `recall: \"2 of 2\", search_misses: 0` therefore measured the registry limb against itself. Found by reading the object's own numbers against its own sources table -- no external reviewer raised it, which is the only reason it is worth recording as a finding rather than as a fix.",
+  "sources": {
+   "pubmed": {
+    "status": "OK",
+    "reported": 374,
+    "retrieved": 372,
+    "ids_listed": 374,
+    "query": "\"dapivirine\"[All Fields] OR \"dapavirine\"[All Fields] OR \"TMC 120\"[All Fields] OR \"TMC-120\"[All Fields] OR \"TMC120\"[All Fields] OR \"R 147681\"[All Fields] OR \"R-147681\"[All Fields] OR \"R147681\"[All Fields]"
+   },
+   "europepmc": {
+    "status": "OK",
+    "reported": 1443,
+    "retrieved": 1443,
+    "pages": 3,
+    "query": "\"dapivirine\" OR \"dapavirine\" OR \"TMC 120\" OR \"TMC-120\" OR \"TMC120\" OR \"R 147681\" OR \"R-147681\" OR \"R147681\""
+   }
+  },
+  "europe_pmc_truncation_CLOSED": {
+   "was": "TRUNCATED -- reported 1,443, retrieved 1,000, the pageSize cap. Named as a limit in the executed search.",
+   "now": "OK -- 1,443 of 1,443, fetched in 3 pages with cursorMark.",
+   "so": "This removes one of the four named limits of the executed search. The limit is superseded, not deleted: the executed-search block still records that it was there."
+  },
+  "pubmed_efetch_shortfall_and_why_it_cost_NOTHING": {
+   "what_happened": "esearch listed 374 PMIDs; efetch returned 372. Two records were not parsed.",
+   "checked": "All 374 listed PMIDs appear in the final ledger. The two arrived through Europe PMC, which indexes MEDLINE, and the dedup key is the PMID.",
+   "why_this_is_recorded_anyway": "It cost nothing HERE because two sources overlapped. On a single-source search the same shortfall would have removed two records from a denominator with no trace. The check that caught it -- listed ids against ledger ids -- is the check, not the luck."
+  },
+  "denominator": {
+   "pubmed_records_parsed": 372,
+   "europepmc_records": 1443,
+   "sum_before_dedup": 1815,
+   "duplicates_removed": 372,
+   "records_screened": 1443,
+   "_what_the_denominator_is_OF": "DEDUPLICATED BIBLIOGRAPHIC RECORDS returned by the two free bibliographic sources for the concept block, on 2026-08-30. It is NOT the literature. It is NOT the 63 registrations, which are screened separately. Every PubMed record was also in Europe PMC, so 372 + 1,443 = 1,815 collapses to 1,443 and ADDING the two source counts would have double-counted the corpus."
+  },
+  "decisions": {
+   "PASS_NO_ID": 61,
+   "EXCLUDE": 1238,
+   "PASS_ALREADY_RETRIEVED": 22,
+   "PASS_INCLUDED_TRIAL": 13,
+   "UNDECIDABLE": 107,
+   "PASS_OUTSIDE_REGISTRY_SET": 2
+  },
+  "decisions_sum_to_the_denominator": "1443 of 1443",
+  "rules": {
+   "R1": "no dapivirine term in title or abstract -> EXCLUDE",
+   "R1b": "no dapivirine term in title AND no abstract -> UNDECIDABLE",
+   "R2": "secondary publication type and no trial signal in title -> EXCLUDE",
+   "R3": "no randomisation/control/phase signal -> EXCLUDE",
+   "R3b": "no trial signal in title AND no abstract -> UNDECIDABLE",
+   "R4": "trial signal but no vaginal-ring signal -> EXCLUDE",
+   "R5a": "passes; names an NCT this review pools",
+   "R5b": "passes; names an NCT the registry search already retrieved -- NOT a miss",
+   "R5c": "passes; names an NCT the registry search did NOT retrieve -- CANDIDATE MISS",
+   "R5d": "passes; names no id -- resolve by hand"
+  },
+  "negative_test": {
+   "what": "Two synthetic records put through the same rules before the real screen runs: one that must be flagged as a candidate search miss, one that must be excluded.",
+   "planted_miss_scored": "PASS_OUTSIDE_REGISTRY_SET / R5c",
+   "planted_editorial_scored": "EXCLUDE / R2",
+   "both_passed": true,
+   "controls_are_not_in_the_denominator": "The two probes are discarded after scoring. They are not in `ledger` and not in `records_screened`. A control that enters the counted population has stopped being a control."
+  },
+  "candidate_search_misses_RESOLVED": {
+   "how_many": "2 of 1443 screened",
+   "what_a_candidate_miss_IS": "A record that passes the title-and-abstract screen and names a registration the ClinicalTrials.gov search did NOT retrieve. A record naming one of the 63 retrieved registrations is not evidence of anything -- the registry search found it -- and the FIRST VERSION OF THIS RULE COMPARED AGAINST THE 2 INCLUDED TRIALS INSTEAD OF THE 63 RETRIEVED ONES, which would have reported 18 companion papers as misses. The comparison set is the whole rule.",
+   "NCT02404038": {
+    "cited_by": "PMID 37919697 (BMC Public Health 2023)",
+    "registration_read_utc": "2026-08-30T17:15:08.427152+00:00",
+    "what_it_is": "UChoose. A randomised, open-label trial of CONTRACEPTIVE options -- Nur-Isterate injectable, NuvaRing, Triphasil oral -- in 131 South African females aged 16-17, as a PROXY for HIV prevention methods. Primary outcome: a 13-item contraceptive satisfaction/acceptability score at 32 weeks.",
+    "verdict": "EXCLUDE -- INTERVENTION",
+    "reason": "No arm contains dapivirine. The registry search was right not to return it; the bibliographic record mentions dapivirine in its discussion, which is why the screen surfaced it.",
+    "NOT_a_search_miss": true
+   },
+   "NCT01796613": {
+    "cited_by": "PMID 25880636 (BMC Public Health 2015)",
+    "registration_read_utc": "2026-08-30T17:15:08.427152+00:00",
+    "what_it_is": "Ring-Plus / ITMC0313. A randomised open-label trial of two NuvaRing (etonogestrel/ethinylestradiol) regimens -- intermittent against continuous -- in 120 women aged 18-35. Primary outcome: vaginal bacterial counts at 5 months.",
+    "verdict": "EXCLUDE -- INTERVENTION",
+    "reason": "A contraceptive vaginal ring, not a dapivirine ring. Same mechanism as above.",
+    "NOT_a_search_miss": true
+   },
+   "so": "⭐ ZERO CONFIRMED SEARCH MISSES, and the zero is worth something because the check produced two candidates and each was resolved by reading its registration rather than by asserting that none existed."
+  },
+  "residual_NAMED_not_swept": {
+   "PASS_NO_ID": {
+    "n": "61 of 1443",
+    "what": "Records that pass the screen but name no registration id, so they cannot be resolved against the registry set from the abstract alone.",
+    "how_far_they_were_taken": "8 of the 61 name a known dapivirine-programme trial in the title (ASPIRE, MTN-020/025/023/030/034/042, IPM 027, HOPE, DREAM, REACH, DELIVER). EXACTLY ONE carries an HIV-incidence or seroconversion outcome signal: PMID 33206462, \"Greater dapivirine release from the dapivirine vaginal ring is correlated with lower risk of HIV-1 acquisition\", which is a SECONDARY ANALYSIS of the trials already held, not a further trial.",
+    "what_is_therefore_still_open": "The other 52 pass the screen, carry no registration id and carry no HIV-incidence outcome signal in the title. They are companion, pharmacokinetic, adherence and acceptability reports. NONE WAS READ IN FULL. If one of them is the primary report of an unregistered placebo-controlled efficacy trial, this screen would not have found it -- that is the named residual risk and it is not claimed away."
+   },
+   "UNDECIDABLE": {
+    "n": "107 of 1443",
+    "what": "Records with NO ABSTRACT INDEXED whose title alone cannot decide them. Recorded as undecidable and named in the ledger rather than swept into an exclusion bucket: \"we could not decide\" and \"we decided against\" are different facts and only one of them is true.",
+    "what_they_mostly_are": "Editorials, conference highlights, commentaries and news items -- the classes that carry no abstract. The class is named; each record is in the ledger."
+   }
+  },
+  "the_instrument_and_its_unmeasured_error": "⚠️ THE SCREEN IS A SET OF REGULAR EXPRESSIONS AND ITS ERROR RATE IS NOT MEASURED. Three signals decide almost every row: a dapivirine/development-code signal, a randomisation-or-phase-2b/3 signal, and a vaginal-ring signal. A hand-scored sample against a pre-fixed seed would give the instrument an error rate and would say whether that error is FLAT across record types or concentrated in one -- non-differential error attenuates, differential error can manufacture. NEITHER HAS BEEN DONE. Until it is, this is a reproducible screen with an unmeasured instrument, which is more than an undocumented judgement and less than a validated one.",
+  "reproduce_with": [
+   "scripts/bibliographic_screen_dapivirine.py"
+  ],
+  "ledger_is_at": "evidence/2026-08-30-dapivirine-ahead/BIBLIOGRAPHIC_SCREEN.json -- 1443 rows, one per screened record"
  }
 }
