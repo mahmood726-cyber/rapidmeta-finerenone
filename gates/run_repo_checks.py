@@ -58,7 +58,7 @@ def main(argv):
           % (len(entries), sum(e["secs"] for e in entries)))
     print("-" * 78)
 
-    failed, missing, slow = [], [], []
+    failed, missing, slow, indeterminate = [], [], [], []
     t0 = time.time()
     for e in entries:
         script = e["script"]
@@ -81,6 +81,29 @@ def main(argv):
             slow.append((script, dt))
         if rc == 0:
             print("  ok       %-56s %5.1fs" % (script, dt))
+        elif rc is None:
+            # ⛔ A TIMEOUT IS NOT A REFUSAL. `rc is None` means the check REACHED NO VERDICT --
+            # it did not examine the diff and find it wanting, it ran out of clock. Recording
+            # that identically to a non-zero exit is the exact class this project has spent a
+            # day hunting: A CHECK WHOSE INABILITY TO ANSWER IS INDISTINGUISHABLE FROM ITS
+            # NEGATIVE RESULT IS NOT A CHECK.
+            #
+            # ⚠️ IT HAS ALREADY BLOCKED A REAL PUSH ON A JUDGEMENT NOBODY MADE.
+            # `gate_layer_vs_defect_layer_2026_08_26_audit.py` hit the 120s cap on a contended
+            # disk and printed `FAILED ... exit=None`. Run uncapped immediately afterwards it
+            # returned rc=0 -- it is an inventory audit that classifies 624 modules and objects
+            # to nothing. The suite was 23 ok, 1 "FAILED", and the one had no verdict at all.
+            #
+            # ⭐ WHETHER AN INDETERMINATE GATE SHOULD BLOCK A PUSH IS A POLICY QUESTION AND IT IS
+            # LEFT OPEN HERE -- they are still counted against the push, deliberately, because a
+            # check that cannot run is not evidence of safety either. What is fixed is the
+            # CONFLATION: the operator is now told which of the two happened, and how long it
+            # waited, so "slow tonight" can never again be read as "found a defect".
+            indeterminate.append((script, dt, tail))
+            print("  INDETERMINATE %-51s %5.1fs  NO VERDICT REACHED" % (script, dt))
+            print("             %s -- the check did not judge this diff; it ran out of clock."
+                  % tail)
+            print("             Re-run it uncapped before treating this as a finding.")
         else:
             failed.append((script, rc, tail))
             print("  FAILED   %-56s %5.1fs  exit=%s" % (script, dt, rc))
@@ -89,8 +112,19 @@ def main(argv):
 
     total = time.time() - t0
     print("-" * 78)
-    print("  %d ok, %d FAILED, %d missing, %.1fs total" %
-          (len(entries) - len(failed) - len(missing), len(failed), len(missing), total))
+    print("  %d ok, %d FAILED, %d INDETERMINATE, %d missing, %.1fs total" %
+          (len(entries) - len(failed) - len(missing) - len(indeterminate),
+           len(failed), len(indeterminate), len(missing), total))
+    if indeterminate:
+        print("")
+        print("  ⛔ %d check(s) REACHED NO VERDICT. They did not judge this diff; they ran out"
+              % len(indeterminate))
+        print("     of clock at %ds. A TIMEOUT IS NOT A REFUSAL." % BUDGET_SECONDS)
+        for s, dt, _ in indeterminate:
+            print("       %-56s %5.1fs" % (s, dt))
+        print("     ⚠️ Before treating any of these as a finding, RUN IT UNCAPPED. And before")
+        print("        moving one out of the manifest, note that 'it was slow tonight' is not")
+        print("        evidence the check is unsound -- that is a bypass wearing a reason.")
     if slow:
         print("  slower than measured (>15s), consider moving to CI:")
         for s, dt in slow:
@@ -100,7 +134,16 @@ def main(argv):
         print("  stopped existing without anyone noticing.")
     print("=" * 78)
 
-    if failed or missing:
+    # ⛔ INDETERMINATE STILL BLOCKS, AND THAT IS DELIBERATE. Splitting the state out of FAILED
+    # was a REPORTING fix, not a licence: a check that could not run is not evidence of safety
+    # either, and quietly letting timeouts through would turn a contended disk into a silent
+    # bypass for the whole suite.
+    #
+    # ⚠️ THE FIRST DRAFT OF THIS FIX DID EXACTLY THAT. Removing timeouts from `failed` without
+    # touching this line would have made every timed-out gate PASS the push -- weakening the
+    # gate while appearing to improve its reporting, and doing it in the very edit that
+    # unblocked my own work. That is the shape a bypass takes when it is not intended as one.
+    if failed or missing or indeterminate:
         return H.FAIL
     return H.PASS
 
