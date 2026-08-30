@@ -110,7 +110,7 @@ def _fmt(v, log_scale):
 def render(canon):
     outs = ((canon.get("results") or {}).get("by_outcome")) or {}
     if not outs:
-        return ("<h2>Both intervals, and which one this page reports</h2><p>This object records "
+        return ("<h2 data-role='finding'>Both intervals, and which one this page reports</h2><p>This object records "
                 "no outcome, so there is nothing to pool. That is a refusal, not an omission.</p>")
     body, notes = [], []
     for oid, res in outs.items():
@@ -153,7 +153,7 @@ def render(canon):
                " (at the floor &mdash; without it the more careful estimator would have returned "
                "a <i>narrower</i> interval than the Wald one)" if p["floor_bound"] else "",
                p["k"] - 1, p["t"], p["z"], p["widen"]))
-    out = ["<h2>Both intervals, and which one this page reports</h2>"]
+    out = ["<h2 data-role='finding'>Both intervals, and which one this page reports</h2>"]
     if body:
         out.append("<div class=\"scroll\"><table><tr><th>Outcome</th><th>k</th><th>Pooled</th>"
                    "<th>Random-effects Wald</th><th>Modified Hartung&ndash;Knapp</th>"
@@ -207,7 +207,7 @@ def render(canon):
     return "".join(out)
 
 
-MARKER = "<h2>Both intervals, and which one this page reports</h2>"
+MARKER = "Both intervals, and which one this page reports</h2>"  # attribute-tolerant: the role may change
 
 
 def inject(html, canon):

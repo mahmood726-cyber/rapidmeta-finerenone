@@ -27,6 +27,7 @@ import io
 import os
 import re
 import sys
+import tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 os.chdir(os.path.dirname(os.path.dirname(HERE)))
@@ -66,8 +67,38 @@ def _sections(html):
     return out
 
 
-def _is_main(head):
-    h = head.lower()
+ROLE = re.compile(r"""(?is)<h2[^>]*\bdata-role\s*=\s*['"]([a-z-]+)['"]""")
+
+
+def _role(chunk):
+    """The role the GENERATOR stamped on this section, or None if it stamped none."""
+    m = ROLE.search(chunk or "")
+    return m.group(1).lower() if m else None
+
+
+# Roles that belong in the light main paper. Everything else is apparatus.
+MAIN_ROLES = {"finding", "result", "recommendation", "limitation"}
+
+
+def _is_main(head, chunk=None):
+    """⭐ ROLE FIRST, KEYWORDS ONLY AS A NAMED FALLBACK.
+
+    The keyword list below was written against ONE hand-built page's vocabulary and is
+    clinically backwards on generated pages: measured on IV_IRON_HF_REVIEW it sent "Time to a
+    first cardiovascular death or hospitalisation for heart failure" to the APPENDIX and kept
+    four sections headed only "Pooled result" in the main paper. A clinician would open the
+    light page and find no named outcome.
+
+    Adding the generator's phrasings would have fitted it to a second instance and failed on the
+    third. The fix is that the GENERATOR SAYS what a section is -- data-role on the <h2> -- and
+    this classifier reads that. Keywords remain only for sections carrying no role, and the
+    proportion classified each way is REPORTED, because a fallback that quietly covers 90% of
+    sections is the keyword classifier wearing a new name.
+    """
+    r = _role(chunk) if chunk is not None else None
+    if r:
+        return r in MAIN_ROLES
+    h = (head or "").lower()
     return any(k in h for k in MAIN)
 
 
@@ -78,7 +109,7 @@ def split(html):
         if not head:                       # preamble: title, styles, stamp
             main.append(chunk)
             continue
-        (main if _is_main(head) else appx).append(chunk)
+        (main if _is_main(head, chunk) else appx).append(chunk)
     return "".join(main), "".join(appx), secs
 
 
@@ -113,10 +144,26 @@ def main():
     m, a, secs = split(html)
     m_light = strip_raster_downloads(m)
 
-    lost, both = check_complete(html, m, a)
+    # ⛔ CHECK THE BYTES THAT ARE WRITTEN, NOT THE ONES BEFORE THE LAST TRANSFORM.
+    #
+    # This read `check_complete(html, m, a)` while line below writes `m_light` --
+    # strip_raster_downloads() runs in between. The completeness guarantee, which is the whole
+    # reason this component is allowed to split a document at all, was being made about a string
+    # that is not the one delivered.
+    #
+    # Harmless as it happens: the transform replaces <a download> anchors and cannot remove an
+    # <h2>. That is luck, not design, and it is exactly the shape that put a dateless quotation
+    # on the page tonight -- a check on the sentence, a render of sentence[:300].
+    lost, both = check_complete(html, m_light, a)
     print("")
     print("SPLIT -- %s" % os.path.basename(src))
-    print("  sections found                    %3d" % len([h for h, _ in secs if h]))
+    roled = sum(1 for h, c in secs if h and _role(c))
+    named = len([h for h, _ in secs if h])
+    print("  sections found                    %3d" % named)
+    print("    classified by GENERATOR ROLE    %3d   %5.1f%%   <- the real classifier"
+          % (roled, 100.0 * roled / max(1, named)))
+    print("    fallen back to heading keywords %3d   %5.1f%%   <- the old, page-specific one"
+          % (named - roled, 100.0 * (named - roled) / max(1, named)))
     print("  in the main paper                 %3d" % len([h for h, _ in _sections(m) if h]))
     print("  in the appendix                   %3d" % len([h for h, _ in _sections(a) if h]))
     print("")
@@ -137,11 +184,29 @@ def main():
     for h, _ in _sections(a):
         if h:
             print("     %s" % h[:70])
-    out = r"F:\claude-temp\pend\out"
-    io.open(os.path.join(out, "split_main.html"), "w", encoding="utf-8").write(m_light)
-    io.open(os.path.join(out, "split_appendix.html"), "w", encoding="utf-8").write(a)
+    # ⛔ A GENERIC NAME IN A SHARED ROOT IS A COLLISION WAITING FOR A SECOND LANE.
+    #
+    # This wrote split_main.html and split_appendix.html into the shared scratch root -- two
+    # names so generic that any other lane splitting any other document overwrites them, with no
+    # error. It is the same class that made the regeneration test order-dependent tonight, where
+    # one shared regen_test.html meant each topic was compared against the previous topic's page
+    # and dapivirine REFUSED TO BUILD depending on what ran before it.
+    #
+    # Gate 9 caught this one. It also mis-attributed it: the ratchet is keyed on file:line, so
+    # inserting a comment above the path retired "line 140" and reported "line 150" as NEW. The
+    # instance was real either way, so it is removed rather than re-frozen -- names now derive
+    # from the input document, under a directory the caller may name.
+    out = (sys.argv[2] if len(sys.argv) > 2
+           else os.environ.get("ROB_SPLIT_OUT") or tempfile.mkdtemp(prefix="rob_split_"))
+    os.makedirs(out, exist_ok=True)
+    stem = re.sub(r"[^A-Za-z0-9_-]", "_", os.path.splitext(os.path.basename(src))[0])[:60]
+    mp = os.path.join(out, stem + ".main.html")
+    ap = os.path.join(out, stem + ".appendix.html")
+    io.open(mp, "w", encoding="utf-8").write(m_light)
+    io.open(ap, "w", encoding="utf-8").write(a)
     print("")
-    print("  -> split_main.html, split_appendix.html")
+    print("  -> %s" % mp)
+    print("  -> %s" % ap)
     return 0
 
 

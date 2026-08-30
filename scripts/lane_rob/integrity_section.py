@@ -345,7 +345,7 @@ def render(html):
                        for cid, _, _, hits in found)
                or "<li>none on this build</li>")
     return """
-<h2>What was checked before this page was published</h2>
+<h2 data-role='finding'>What was checked before this page was published</h2>
 
 <p>These are the specific errors that would otherwise be in the numbers above. Each class was
 derived from a real defect found by auditing this corpus, and each carries the defect that

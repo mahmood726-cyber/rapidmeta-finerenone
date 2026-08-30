@@ -219,6 +219,27 @@ def plant():
     return 0
 
 
+
+def _out_path():
+    """Where the detector writes its result. Caller wins; otherwise a per-process temp file.
+
+    Order: --out on the command line, then ROB_DETECTOR_OUT in the environment, then a unique
+    file in the system temp directory. No absolute drive letter anywhere, and no generic name in
+    a directory another lane also writes to.
+    """
+    import tempfile
+    argv = sys.argv
+    if "--out" in argv:
+        i = argv.index("--out")
+        if i + 1 < len(argv):
+            return argv[i + 1]
+    env = os.environ.get("ROB_DETECTOR_OUT")
+    if env:
+        return env
+    return os.path.join(tempfile.gettempdir(),
+                        "noninferiority_detector.%d.json" % os.getpid())
+
+
 def main():
     if "--plant" in sys.argv:
         return plant()
@@ -263,12 +284,23 @@ def main():
     print("  topics where the registry states an explicit margin %3d" % len(withm))
     print("  topics whose PAGE states any margin                 %3d"
           % sum(1 for r in rows if r["page_states_margin"]))
-    out = r"F:\claude-temp\pend\out\noninferiority_detector.json"
+    # ⛔ AN ABSOLUTE LOCAL PATH IN A FILE CI EXECUTES IS A CHECK THAT ONLY RUNS ON ONE MACHINE.
+    #
+    # This wrote to an absolute path under the shared scratch root unconditionally. Locally that worked, so the
+    # detector and the gate both looked healthy. In CI there is no F: drive, so gate 10 reported
+    # BROKEN -- "the detector ran but its result file could not be read" -- on every run since it
+    # was registered. The gate I built to catch a defect class has never once run in CI.
+    #
+    # Two defects in one line: a hardcoded local path in code that ships, and a GENERIC NAME in a
+    # shared scratch root, which is the collision class that made the regeneration test
+    # order-dependent earlier tonight. The caller now names the file; the fallback is a real
+    # temporary directory, unique per process.
+    out = _out_path()
     os.makedirs(os.path.dirname(out), exist_ok=True)
     json.dump([{**r, "verdict": verdict(r)} for r in rows],
               io.open(out, "w", encoding="utf-8"), indent=1)
     print("")
-    print("  detail -> noninferiority_detector.json")
+    print("  detail -> %s" % out)
     return 1 if (v["DENIAL_CONTRADICTED_BY_REGISTRY"] or v["UNDISCLOSED_NI_DESIGN"]) else 0
 
 

@@ -84,12 +84,12 @@ def render(canon):
             continue
         rows.append((oid, measure, _kind(measure), len(res.get("per_trial") or [])))
     if not rows:
-        return ("<h2>What is being estimated</h2><p>This object records no pooled measure, so "
+        return ("<h2 data-role='finding'>What is being estimated</h2><p>This object records no pooled measure, so "
                 "there is no estimand to state. That is a refusal, not an omission.</p>")
 
     params = _registry_params(canon)
     declared = sorted({str(v).upper() for v in params.values() if v})
-    out = ["<h2>What is being estimated</h2>"]
+    out = ["<h2 data-role='finding'>What is being estimated</h2>"]
     out.append("<div class=\"scroll\"><table><tr><th>Outcome</th><th>Pooled as</th>"
                "<th>Which is</th><th>Trials</th></tr>")
     for oid, measure, kind, k in rows:
@@ -122,7 +122,7 @@ def render(canon):
     return "".join(out)
 
 
-MARKER = "<h2>What is being estimated</h2>"
+MARKER = "What is being estimated</h2>"  # attribute-tolerant: the role may change
 
 
 def inject(html, canon):
