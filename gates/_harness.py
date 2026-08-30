@@ -65,6 +65,7 @@ class Gate:
         self._seen = set()
         self._findings = []
         self._kinds = None
+        self._coverage = None
         self._control = None
         self._control_accuses = True
         self._needs_control = False
@@ -138,6 +139,44 @@ class Gate:
         """Enumerate the KINDS of item in the population before reporting its size."""
         self._kinds = dict(mapping)
 
+    def kind(self, key, default=0):
+        """Read back a count already published by kinds().
+
+        Coverage must be computed from the SAME numbers the gate prints, or the
+        fraction and the table beneath it can drift apart and both look authoritative.
+        """
+        return (self._kinds or {}).get(key, default)
+
+    def coverage(self, visible, population, what):
+        """What this gate CAN SEE, over the population it claims to police.
+
+        EVERY FINDING COUNT IN THIS SUITE WAS A STATEMENT ABOUT REACH AND READ AS ONE ABOUT
+        THE CORPUS. Three examples from one evening, all true and all meaningless without
+        this line: gate 11 froze at 12 disagreements while 21 outcome blocks store no R
+        output for it to compare against; gate 12 baselined at 0 while its object leg can
+        reach 4 objects of 163; the sweep behind it read 163 of 1,464 pages, blind on 89%.
+        "Baseline 0" over a denominator that is a tenth of the corpus is not a clean corpus.
+
+        This is the ripgrep-honours-gitignore lesson arriving at the gate layer. A tool
+        reports what it reached. Nothing in the output distinguishes "looked and found
+        nothing" from "could not look", and the two read identically -- as good news.
+
+        `visible`     items this gate can actually decide on
+        `population`  items it claims to police
+        `what`        one sentence naming what the gap CONTAINS, not that a gap exists.
+                      "21 outcome blocks store no R output" is usable; "some items are not
+                      covered" is the same silence with a number in front of it.
+
+        A gate that never calls this is refused by verify_gates_can_fail. Not printing a
+        coverage fraction is now the same class of defect as not having a control.
+        """
+        if population < 0 or visible < 0:
+            raise ValueError("coverage takes counts, not proportions")
+        if visible > population:
+            raise ValueError("a gate cannot see more items than the population it polices: "
+                             "%d of %d" % (visible, population))
+        self._coverage = (int(visible), int(population), str(what))
+
     def note(self, text):
         self._notes.append(text)
 
@@ -175,6 +214,19 @@ class Gate:
             w("  kinds in population:")
             for k, v in self._kinds.items():
                 w("      %7s  %s" % (v, k))
+
+        if self._coverage is None:
+            w("")
+            w("  COVERAGE NOT DECLARED. This gate reports findings over a population it has")
+            w("  not measured its own reach against, so its counts describe what it reached")
+            w("  and will be read as describing the corpus.")
+        else:
+            vis, pop, what = self._coverage
+            pct = (100.0 * vis / pop) if pop else 0.0
+            w("  COVERAGE: %d of %d (%.1f%%) -- what this gate CAN SEE over the population"
+              % (vis, pop, pct))
+            w("            it polices. A finding count below is scoped to this fraction.")
+            w("            the other %d: %s" % (pop - vis, what))
 
         if self._expected:
             missed = [c for c in self._expected if c not in self._seen]
@@ -249,6 +301,10 @@ class Gate:
             "gate": self.name,
             "what": self.what,
             "kinds": self._kinds,
+            "coverage": ({"visible": self._coverage[0], "population": self._coverage[1],
+                          "fraction": (self._coverage[0] / self._coverage[1]
+                                       if self._coverage[1] else None),
+                          "the_rest_are": self._coverage[2]} if self._coverage else None),
             "expected_cases": self._expected,
             "cases_seen": sorted(self._seen),
             "cases_not_seen": sorted(set(self._expected) - self._seen),

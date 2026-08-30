@@ -311,6 +311,15 @@ def main(argv):
     with open(art, "w", encoding="utf-8") as fh:
         json.dump({"gate": gate.as_json(), "rows": rows}, fh, indent=1)
 
+    # COVERAGE. This gate decides a label only when its registration is in the hand-kept
+    # registry above. Every other trial name in the corpus is invisible to it, and a PASS
+    # has never said anything about those.
+    _assessable = (merged.get("  of those, CONFIRMED (names its own trial)", 0)
+                   + merged.get("  of those, SWAPPED (names a different pinned trial)", 0))
+    _all_labels = merged.get("label beside a pinned registration", 0)
+    gate.coverage(_assessable, max(_all_labels, _assessable),
+                  "labels beside a registration this gate holds no pinned identity for, so "
+                  "it cannot say whether the name is the right one")
     return gate.report(denominator="%d labels beside a pinned registration, in %d topic objects"
                                    % (len(rows), len(objects)))
 

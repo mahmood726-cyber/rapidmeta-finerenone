@@ -217,6 +217,11 @@ def main():
     DEFINITIONAL = re.compile(
         r"(?i)(sum of all|total of|calculated as|divided by|defined as|is computed)")
 
+    # THE POPULATION THIS LEG CLAIMS TO POLICE is every delivered page, not the subset
+    # that happens to have an object with a registered timeframe. Counting only the
+    # latter would make the gate look complete by defining away everything it misses.
+    n_delivered = sum(1 for f in os.listdir(REPO)
+                      if f.endswith(".html") and os.path.isfile(os.path.join(REPO, f)))
     leg_b, leg_b_clean, leg_b_suppressed = [], 0, 0
     for page, objpath in sorted(pm.items()):
         full = os.path.join(REPO, objpath)
@@ -269,7 +274,8 @@ def main():
 
     json.dump({"n_both": both, "n_uncheckable": len(uncheckable), "n_neither": neither,
                "uncheckable": uncheckable, "findings": hits,
-               "leg_b_pages_checked": leg_b_clean + len(leg_b), "leg_b_findings": leg_b},
+               "leg_b_pages_checked": leg_b_clean + len(leg_b),
+               "n_delivered_pages": n_delivered, "leg_b_findings": leg_b},
               io.open(OUT, "w", encoding="utf-8"), indent=1)
     say("")
     say("wrote %s" % os.path.relpath(OUT, REPO))
