@@ -1,235 +1,353 @@
 # -*- coding: utf-8 -*-
-"""THE REFERENCE CLAIM SET: what the hand-written clinical reading actually says, enumerated.
+"""THE MEASUREMENT: what the hand-written clinical reading claims, so a generated one can be
+scored claim by claim.
 
-⛔ THE TARGET IS PARITY, AND "PRESENT" IS NOT PARITY. A generated section that fills slots reads
-like a form and will be scored as worse than the prose it replaced. The hand-written version won
-because it said what the numbers MEAN FOR A DECISION -- who benefits, how much, at what cost,
-and where the evidence runs out.
+WHY A LEDGER AND NOT A JUDGEMENT. "Equal to hand-written" is not scoreable as an impression. It
+becomes scoreable when the hand-written section is decomposed into propositions, each with the
+SOURCE that grounds it and the HEDGE it was written with, and a candidate is then measured
+against that list: recall n of n, and separately whether each recalled claim kept its hedge.
 
-So the target is made measurable: enumerate the PROPOSITIONS the human version asserts, then
-require the generated one to assert each of them, FROM THE OBJECT, at the same hedging strength.
-A claim in the reference and absent from the output is a measurable failure. That is the recall
-number, reported as n of n.
+⛔ THE HEDGE IS PART OF THE CLAIM. "The ring works in women over 21" and "a post hoc subgroup
+showed 56% protection in women over 21" are different claims, and only the second is true of the
+evidence. This project has already published a CONDITIONAL WHO recommendation as unconditional;
+the same error one layer down turns a hypothesis-generating subgroup into a treatment decision.
 
-⚠️ HEDGING STRENGTH IS PART OF THE CLAIM, AND UPGRADING A HEDGE IS WORSE THAN OMITTING A
-SENTENCE. This project has already published a CONDITIONAL WHO recommendation as an
-unconditional one. "has not been shown to work" and "does not work" are different claims about
-the same interval; the second is false. Each claim therefore carries a required MODAL band, and
-a generated sentence that strengthens past it FAILS -- it does not merely score lower.
+⛔ AND BUILDING THIS FOUND ONE IMMEDIATELY. The hand-written section says "56% protection in the
+age-stratified analysis". ASPIRE's own words are "IN A POST HOC ANALYSIS, higher rates of HIV-1
+protection were observed among women over the age of 21 years (56%; 95% CI, 31 to 71)". The page
+drops "post hoc". Its own Age section elsewhere calls the finding hypothesis-generating, so the
+review knows -- the clinical reading, the part a busy clinician actually reads, does not say it.
 
-⭐ AND THE PROOF THAT CLINICAL REASONING CAN BE GENERATED IS ALREADY IN THIS CORPUS. The k = 2
-both-intervals paragraph was cited by 3 of 6 judges and was the top-weighted axis win twice, and
-it came from A RULE: at k = 2, publish both intervals and refuse a single pooled answer.
-Reasoning that follows from the DATA'S STRUCTURE can be generated. The claims below were chosen
-to be of that kind -- each is a consequence of something the object holds, not a matter of
-phrasing.
+MEASURED ERROR RATES, BOTH DIRECTIONS. A checker with no measured error rate is an assumption
+wearing a number, so this one was measured against adversarial sets rather than asserted:
 
-⛔ AND WHERE A CLAIM CANNOT BE DERIVED, THE SECTION MUST SAY SO RATHER THAN APPROXIMATE IT. A
-missing claim is then a SCHEMA finding -- a field the store does not carry -- and is reported as
-one. Three of the twelve below were exactly that this morning; they are now typed fields read at
-source (`followup`, `background_care`, `adherence`), which is why they can be claimed at all.
+  SENSITIVITY  14 of 14 single-hedge ablations detected. Each ablation is the passage with
+               exactly ONE hedge removed. The first version scored 10 of 14; both misses were
+               C3's COMPOUND hedge ("about 45 ... roughly 18 months"), where a flat any() let
+               either survivor satisfy the test.
+  SPECIFICITY  8 of 8 hedge-preserving paraphrases passed clean, zero false flags, at
+               similarity 0.736 to 0.904 against the original -- i.e. genuine rewordings of
+               10-26% of the text, not near-copies.
+
+  RECALL       BRITTLE, AND MEASURED SO. Against 8 RADICAL rewrites (similarity 0.28-0.54,
+               same claims, same hedges, different words) recall fell to 13-14 of 16. Replacing
+               word-overlap with concept groups moved clean runs only from 1 of 8 to 2 of 8 and
+               cost one specificity case (8/8 -> 7/8). What still fails: C8/C9 "no excess of
+               severe/serious adverse events" (5 of 8 each), C11 "protects against nothing else"
+               (5), C6 "would overstate what is known" (4).
+
+⛔ AND I STOPPED TUNING RATHER THAN CHASE THOSE. Each extra synonym would have been copied from
+the very rewrites used to measure the instrument, which fits the validation set and destroys the
+only number I have about it. THE MECHANISM IS THE LIMIT, not the vocabulary: string matching
+cannot recognise "rates were similar between groups" as "no excess of serious adverse events".
+Recall against arbitrary rewording needs an entailment check, which is a model call and a design
+decision, not a patch.
+
+⇒ WHAT THIS INSTRUMENT IS FIT FOR. Scoring a GENERATED clinical reading written from the same
+claim set -- i.e. a moderate paraphrase, where specificity is 7-8 of 8 and the hedge check is
+14/14. It is NOT fit for judging an independently written section that happens to say the same
+things. Reporting a low recall on such a text would be a fact about this checker.
+
+⚠️ ALL THREE ADVERSARIAL SETS ARE NOW BURNED for the recall mechanism. The sensitivity and
+specificity figures above predate the recall change and are unaffected by it; any future recall
+figure needs a set generated after these groups were written.
+
+PROVENANCE OF THE ENUMERATION. Propositions were enumerated mechanically by codex (GPT-5, no
+network, evidence inline) and the modal/polarity assignments were checked by hand. Both
+adversarial sets -- ablations and paraphrases -- were generated by codex too, which is the right
+use of it: mechanical variation of text already in hand. Sources were retrieved and verified
+here; codex was given no retrieval role because it has none.
 """
 import io
+import json
+import os
 import re
 import sys
 
-# Modal bands, weakest to strongest. A generated claim may sit at the reference's band or
-# BELOW it; sitting ABOVE it is a failure, not a lower score.
-BANDS = ["not-shown", "may", "probably", "assertive"]
+HERE = os.path.dirname(os.path.abspath(__file__))
+os.chdir(os.path.dirname(os.path.dirname(HERE)))
 
-BAND_PATTERNS = [
-    ("not-shown", re.compile(
-        r"has not been (?:shown|demonstrated)|not been demonstrated|cannot say|does not "
-        r"establish|is not known|no bounded|not demonstrated", re.I)),
-    ("may", re.compile(r"\bmay\b|\bmight\b|\bcould\b|\bsuggests\b|\bconsistent with\b", re.I)),
-    ("probably", re.compile(r"\bprobably\b|\blikely\b|\bshould expect\b|\bwill be\b", re.I)),
-    ("assertive", re.compile(r"\bis\b|\bare\b|\bworks\b|\bprevents\b|\breduces\b|\bshows\b",
-                             re.I)),
+ASPIRE = "ASPIRE primary, PMID 26900902, PMC4993693, doi 10.1056/NEJMoa1506110, retrieved 2026-08-30"
+WHO = "WHO guideline, iris handle 10665/340190, 17 March 2021, retrieved 2026-08-29"
+PAGE = "computed on this page from the adjudicated counts"
+
+# id, verbatim span, the proposition, the hedge AS WRITTEN, polarity, source, grounded?
+CLAIMS = [
+    ("C1", "In women over 21 the ring works",
+     "In women over 21 the ring works", "unhedged assertion", "assert", ASPIRE, "HEDGE_WEAKER",
+     "ASPIRE calls this a POST HOC analysis; the page states it flat. A post-hoc subgroup "
+     "presented as a finding is the difference between a hypothesis and a recommendation."),
+    ("C2", "56% protection in the age-stratified analysis",
+     "56% protection in the age-stratified analysis", "unhedged assertion", "assert", ASPIRE,
+     "GROUNDED_PARTIAL",
+     "The figure is exact -- 56% (95% CI, 31 to 71) -- but the source says post hoc, and the "
+     "page gives no interval where the source gives one."),
+    ("C3", "about 45 women using it for roughly 18 months prevents one infection",
+     "NNT about 45 over roughly 18 months", "about; roughly", "assert", PAGE, "GROUNDED",
+     "Derived on the page from the adjudicated pool and stated with its range elsewhere (30 to 116)."),
+    ("C4", "In women 21 and under it has not been shown to work",
+     "In women 21 and under efficacy has not been shown", "has not been shown", "cannot-determine",
+     ASPIRE, "GROUNDED",
+     "ASPIRE: -27% (95% CI, -133 to 31; P = 0.45). Absence of evidence, correctly not stated "
+     "as evidence of absence."),
+    ("C5", "these trials cannot say whether that is the product or the adherence",
+     "The trials cannot separate product failure from non-adherence", "cannot say",
+     "cannot-determine", ASPIRE, "GROUNDED",
+     "ASPIRE ties the age difference to reduced adherence but does not resolve causation."),
+    ("C6", "Offering it as though the pooled figure applied would overstate what is known",
+     "Applying the pooled figure to under-21s would overstate what is known", "would", "predict",
+     PAGE, "GROUNDED", "Follows from C2 and C4 holding together."),
+    ("C7", "It is safe on everything measured",
+     "The ring is safe on every outcome measured", "unhedged assertion", "assert", ASPIRE,
+     "GROUNDED_SCOPED",
+     "True of what was measured; the wording already scopes it with 'everything measured'."),
+    ("C8", "no excess of severe or serious adverse events",
+     "No excess of severe adverse events", "unhedged assertion", "deny", ASPIRE, "GROUNDED", ""),
+    ("C9", "no excess of severe or serious adverse events",
+     "No excess of serious adverse events", "unhedged assertion", "deny", ASPIRE, "GROUNDED", ""),
+    ("C10", "no resistance signal among women who seroconverted",
+     "No resistance signal among women who seroconverted", "unhedged assertion", "deny", ASPIRE,
+     "GROUNDED", ""),
+    ("C11", "It protects against nothing else",
+     "The ring protects against nothing other than HIV-1", "unhedged assertion", "deny", WHO,
+     "GROUNDED", "WHO records STI incidence unchanged; the ring is a single-agent ARV."),
+    ("C12", "Condoms, STI screening and partner services remain necessary",
+     "Condoms remain necessary", "remain necessary", "obligation", WHO, "GROUNDED",
+     "WHO recommends the ring as part of COMBINATION prevention, not alone."),
+    ("C13", "Condoms, STI screening and partner services remain necessary",
+     "STI screening remains necessary", "remain necessary", "obligation", WHO, "GROUNDED", ""),
+    ("C14", "Condoms, STI screening and partner services remain necessary",
+     "Partner services remain necessary", "remain necessary", "obligation", WHO, "GROUNDED", ""),
+    ("C15", "Effectiveness in use will be lower than this efficacy",
+     "Real-world effectiveness will be lower than trial efficacy", "will", "predict", ASPIRE,
+     "GROUNDED_INFERENCE",
+     "An inference from trial-context adherence, not a measured quantity. Defensible and "
+     "labelled here as inference rather than result."),
+    ("C16", "which was already limited by adherence inside a trial with monthly contact",
+     "Trial efficacy was already limited by adherence despite monthly contact", "unhedged "
+     "assertion", "assert", ASPIRE, "GROUNDED", ""),
 ]
 
-# ---------------------------------------------------------------------------------------------
-# THE REFERENCE. Transcribed from DAPIVIRINE_RING_PILOT_REVIEW.html, the page six blinded judges
-# preferred, section "What a clinician or a programme should take from this". Five bullets;
-# TWELVE propositions.
-# ---------------------------------------------------------------------------------------------
-REFERENCE = [
-    {"id": "C1", "claim": "an effect IS demonstrated in a named older stratum",
-     "reference_text": "In women over 21 the ring works.",
-     "band": "assertive",
-     "derivable_from": "results.by_outcome.primary.stratified_analyses -> a stratum whose "
-                       "interval excludes no difference"},
-    {"id": "C2", "claim": "the size of the effect IN THAT STRATUM, not the pooled average",
-     "reference_text": "56% protection in the age-stratified analysis",
-     "band": "assertive",
-     "derivable_from": "the same stratum's efficacy_percent and interval"},
-    {"id": "C3", "claim": "the absolute cost per event averted, with a time horizon",
-     "reference_text": "about 45 women using it for roughly 18 months prevents one infection",
-     "band": "assertive",
-     "derivable_from": "absolute_effects NNT from the pooled control arms + "
-                       "results.by_outcome.primary.followup"},
-    {"id": "C4", "claim": "an effect has NOT been demonstrated in a named younger stratum",
-     "reference_text": "In women 21 and under it has not been shown to work",
-     "band": "not-shown",
-     "derivable_from": "a stratum whose interval includes no difference",
-     "must_not_say": ["does not work", "is ineffective", "has no effect", "no benefit"]},
-    {"id": "C5", "claim": "the CAUSE of that non-demonstration is unresolved by these trials",
-     "reference_text": "these trials cannot say whether that is the product or the adherence",
-     "band": "not-shown",
-     "derivable_from": "results.by_outcome.primary.adherence beside the stratum reading"},
-    {"id": "C6", "claim": "applying the pooled average to that stratum would overstate what is "
-                          "known",
-     "reference_text": "Offering it as though the pooled figure applied would overstate what "
-                       "is known.",
-     "band": "probably",
-     "derivable_from": "the coexistence of a pooled estimate and a not-demonstrated stratum"},
-    {"id": "C7", "claim": "no excess of harm was seen, QUALIFIED to what was measured",
-     "reference_text": "It is safe on everything measured",
-     "band": "assertive",
-     "derivable_from": "other_outcomes rows at the trial-report tier",
-     "must_not_say": ["it is safe.", "proven safe", "safe and effective"]},
-    {"id": "C8", "claim": "WHICH harms were looked at, by name",
-     "reference_text": "no excess of severe or serious adverse events, and no resistance signal "
-                       "among women who seroconverted",
-     "band": "assertive",
-     "derivable_from": "the outcome names on those same rows"},
-    {"id": "C9", "claim": "it protects against nothing else",
-     "reference_text": "It protects against nothing else.",
-     "band": "assertive",
-     "derivable_from": "the other-STI rows, none of which shows an effect"},
-    {"id": "C10", "claim": "the estimate is conditional on a background package of care",
-     "reference_text": "Condoms, STI screening and partner services remain necessary.",
-     "band": "assertive",
-     "derivable_from": "results.by_outcome.primary.background_care",
-     "note": "⭐ The generated form is STRONGER than the reference here. The hand page makes a "
-             "care RECOMMENDATION, which a review has no standing to make. The object records "
-             "that every participant RECEIVED that package, so the honest claim is that the "
-             "estimate is an effect measured ON TOP OF it -- a property of the evidence, and "
-             "checkable."},
-    {"id": "C11", "claim": "effectiveness in use will be lower than this efficacy",
-     "reference_text": "Effectiveness in use will be lower than this efficacy",
-     "band": "probably",
-     "derivable_from": "results.by_outcome.primary.adherence"},
-    {"id": "C12", "claim": "why: adherence was already limited under trial conditions",
-     "reference_text": "which was already limited by adherence inside a trial with monthly "
-                       "contact",
-     "band": "assertive",
-     "band_was": "probably",
-     "band_corrected_2026_08_30":
-         "⚠️ I CHANGED THIS BAND AFTER SEEING IT FLAG MY OWN OUTPUT, WHICH IS EXACTLY THE MOVE "
-         "THAT NEEDS A RECORD. Original assignment: `probably`. It was wrong, and wrong for a "
-         "identifiable reason: I read the band off the reference SENTENCE, whose governing hedge "
-         "belongs to the projection it is subordinate to (\"Effectiveness in use WILL BE lower "
-         "…, which was already limited by adherence\"), rather than off the PROPOSITION C12 "
-         "names. That proposition is an OBSERVED FACT: adherence was measured at more than 70% "
-         "under monthly visits, both stored as typed fields with the trial report's own sentence "
-         "behind them. Hedging an observed measurement would be false modesty, and the hedge "
-         "belongs on C11, where it is and stays.\n"
-         "⛔ WHAT THE CORRECTION DOES AND DOES NOT CHANGE: recall is 12 of 12 EITHER WAY -- the "
-         "claim was PRESENT under both bands. It moves only the overclaim count, 1 to 0. Both "
-         "numbers are reported.",
-     "derivable_from": "adherence.rate_over_21 and adherence.contact_schedule"},
-]
-
-
-def sentence_around(text, start, end):
-    """The SENTENCE the match sits in -- not a fixed window around it.
-
-    ⛔ THE FIRST VERSION MEASURED A 360-CHARACTER WINDOW AND REPORTED THREE FALSE OVERCLAIMS.
-    "It has not been demonstrated in: Under 25 years" is correctly hedged; the window around it
-    contained a neighbouring sentence with the word "is", the assertive pattern matched THAT,
-    and a correctly-hedged claim was scored as an overclaim.
-
-    ⚠️ An instrument that accuses the thing it is checking, using bytes the thing did not say,
-    is the same defect as a verifier searching a different haystack than it displayed. The band
-    is now measured on the claim's own sentence.
-    """
-    lo = max(text.rfind(". ", 0, start), text.rfind("? ", 0, start),
-             text.rfind("! ", 0, start), 0)
-    hi = min([x for x in (text.find(". ", end), text.find("? ", end), text.find("! ", end))
-              if x != -1] or [len(text)])
-    return text[lo:hi + 1].strip(". ").strip()
-
-
-def band_of(sentence):
-    """The WEAKEST band the sentence reaches -- the hedge that GOVERNS it.
-
-    ⛔ NOT THE STRONGEST. "It has not been demonstrated" also contains "is"; reading the
-    strongest marker present would score every hedged sentence as assertive, because English
-    hedges are added to assertive clauses rather than replacing them. The weakest marker is the
-    one doing the work.
-    """
-    for name, pat in BAND_PATTERNS:          # BANDS order: weakest first
-        if pat.search(sentence):
-            return name
-    return "assertive"
-
-
-def score(generated_text, reference=None):
-    """-> (rows, recall, overclaims). Each row: id, present, band_ok, why."""
-    reference = reference or REFERENCE
-    t = re.sub(r"\s+", " ", generated_text)
-    rows = []
-    for c in reference:
-        probes = c.get("probes") or PROBES.get(c["id"]) or []
-        hit = None
-        for p in probes:
-            m = re.search(p, t, re.I)
-            if m:
-                # ⛔ THE SENTENCE, NOT A WINDOW. See sentence_around().
-                hit = sentence_around(t, m.start(), m.end())
-                break
-        forbidden = [f for f in (c.get("must_not_say") or []) if f.lower() in t.lower()]
-        band = band_of(hit) if hit else None
-        # ⛔ A claim may sit AT or BELOW the reference band. Above it is an overclaim.
-        band_ok = (hit is not None
-                   and BANDS.index(band) <= BANDS.index(c["band"])
-                   and not forbidden)
-        rows.append({"id": c["id"], "claim": c["claim"], "present": hit is not None,
-                     "band_required": c["band"], "band_found": band, "band_ok": band_ok,
-                     "forbidden_found": forbidden,
-                     "evidence": (hit or "")[:180]})
-    recall = sum(1 for r in rows if r["present"])
-    overclaims = [r for r in rows if r["present"] and not r["band_ok"]]
-    return rows, recall, overclaims
-
-
-# What counts as the claim being MADE. Deliberately not the reference's wording: the generated
-# section may say it differently, and requiring the same words would be testing paraphrase
-# rather than content.
-PROBES = {
-    "C1": [r"demonstrated in[^.]{0,120}(?:over|older|25|21)"],
-    "C2": [r"\b\d{1,2}%\s*\((?:-?\d+)\s*to\s*\d+\)"],
-    "C3": [r"need to be treated[^.]{0,160}(?:prevent|avert)"],
-    "C4": [r"not been demonstrated in|has <b>not been demonstrated</b> in|not demonstrated in"],
-    "C5": [r"cannot say whether|whether that is the (?:product|intervention) or the adherence"],
-    "C6": [r"overstate what is known|as though the pooled figure applied"],
-    "C7": [r"no excess was seen on what was measured|no excess[^.]{0,60}measured"],
-    "C8": [r"(?:adverse event|resistance)[^.]{0,120}(?:adverse event|resistance)"],
-    "C9": [r"protects against nothing else|offers nothing on"],
-    "C10": [r"on top of|in addition to[^.]{0,80}(?:condom|prevention)"],
-    "C11": [r"effectiveness in use will be lower|lower than this"],
-    "C12": [r"monthly contact|monthly follow-up|adherence[^.]{0,120}(?:70|monthly)"],
+# Words that carry the hedge. A candidate that states the claim but drops these has not
+# reproduced the claim -- it has reproduced a stronger one.
+#
+# ⛔ EVERY REQUIRED HEDGE MUST SURVIVE, NOT ANY ONE OF THEM. Each entry is a list of GROUPS; a
+# group is a set of acceptable synonyms for one hedge, and the claim keeps its hedging only if
+# EVERY group is satisfied.
+#
+# The first version was a flat any(): for C3, whose hedge is compound -- "ABOUT 45 women using
+# it for ROUGHLY 18 months" -- deleting "about" left "roughly" to satisfy the test, and deleting
+# "roughly" left "about". Measured against 14 single-hedge ablations generated by codex, the
+# check scored 10 of 14; both misses were this. An instrument with no measured error rate is an
+# assumption wearing a number, and ablation is how the number gets measured.
+HEDGE_TOKENS = {
+    "has not been shown": [["not been shown", "not demonstrated", "no evidence of benefit"]],
+    "cannot say": [["cannot say", "cannot determine", "could not separate", "cannot distinguish",
+                    "cannot tell"]],
+    "would": [["would"]],
+    "will": [["will", "expected to"]],
+    "about; roughly": [["about", "approximately", "around", "some"],
+                       ["roughly", "approximately", "around", "or so"]],
+    "remain necessary": [["remain", "still necessary", "continue to"]],
 }
 
 
+# ⛔ RECALL BY CONCEPT, NOT BY WORD OVERLAP. Each entry is a list of GROUPS; the claim counts as
+# recalled only if EVERY group has one of its members present. Authored from what each claim
+# MEANS, not from the rewrites that exposed the problem.
+#
+# The first version required 60% overlap of the words longer than three characters in the
+# verbatim span. Measured against 8 radical rewrites (similarity 0.28-0.54 to the original),
+# recall fell to 13-14 of 16, and C6 and C11 were missed in SEVEN of eight. Both are short and
+# idiomatic -- "it protects against nothing else" survives almost no rewording intact -- so the
+# test was measuring phrasing, not content, exactly where a generated section will differ most.
+#
+# ⚠️ THE 8 REWRITES THAT EXPOSED THIS ARE NOW A BURNED VALIDATION SET. Re-measuring on them
+# after this change tells us the mechanism works, NOT how well it generalises. An unbiased
+# recall figure needs a fresh set generated after these groups were written.
+RECALL_GROUPS = {
+    "C1":  [["over 21", "older than 21", "above 21", "21 and over", "aged over 21"],
+            ["works", "effective", "efficacy", "protect", "reduces", "reduction"]],
+    # ⛔ A BARE NUMBER IS NOT AN ANCHOR. "56" matched the CI bound 0.566, a sha-256 prefix and
+    # the CSS max-width:560px, so C2 scored PRESENT on a page with no 56% anywhere in its body.
+    "C2":  [["56%", "56 %", "56 per cent", "56 percent"],
+            ["protection", "efficacy", "reduction", "lower"]],
+    "C3":  [["45 women", "45 people", "nnt 45", "nnt of 45", "needed to treat 45"],
+            ["18 month", "eighteen month", "year and a half"],
+            ["one infection", "1 infection", "single infection", "prevent"]],
+    "C4":  [["21 and under", "under 21", "younger than 21", "21 or younger", "up to 21"],
+            ["not been shown", "not demonstrated", "no evidence", "unproven", "not shown"]],
+    "C5":  [["cannot", "could not", "unable"],
+            ["product", "ring itself", "drug"], ["adherence", "use", "wearing"]],
+    "C6":  [["pooled", "overall figure", "combined", "average"],
+            ["overstate", "oversell", "exaggerat", "more than is known", "beyond what"]],
+    "C7":  [["safe", "safety"], ["measured", "assessed", "looked at", "studied"]],
+    "C8":  [["severe"], ["no excess", "no increase", "not more", "no more", "without excess"]],
+    "C9":  [["serious"], ["no excess", "no increase", "not more", "no more", "without excess"]],
+    "C10": [["resistance"], ["no ", "not ", "none"]],
+    "C11": [["nothing else", "no other", "only hiv", "not protect against other",
+             "does not prevent other", "no protection against other", "hiv-1 only",
+             "other infections", "other stis"]],
+    "C12": [["condom"]],
+    "C13": [["sti screening", "screening for sti", "infection screening", "sti testing"]],
+    "C14": [["partner"]],
+    "C15": [["effectiveness", "real world", "in practice", "everyday use"],
+            ["lower", "less", "below"]],
+    "C16": [["adherence"], ["monthly", "every month"]],
+}
+
+
+PILOT_PAGE = "DAPIVIRINE_RING_PILOT_REVIEW.html"
+SECTION_START = "What a clinician or a programme should take from this"
+SECTION_END = "What has happened since these trials were last synthesised"
+
+
+def handwritten_section(page=PILOT_PAGE):
+    """The hand-written clinical reading, read FROM THE REPOSITORY.
+
+    ⛔ THE DEFAULT USED TO BE A FILE IN MY SCRATCH DIRECTORY. Two defects in one line: a generic
+    name in a shared root, which gate 9 refused for the third time tonight -- correctly -- and a
+    reproducibility hole, because the reference text this whole instrument scores against existed
+    only on one machine. Anyone cloning the repository would have measured against nothing.
+
+    The section is extracted from the delivered page instead, so the reference is whatever is
+    actually published, and it moves when the page moves.
+    """
+    import html as _h
+    raw = io.open(page, encoding="utf-8", errors="replace").read()
+    i, j = raw.find(SECTION_START), raw.find(SECTION_END)
+    if i < 0 or j <= i:
+        raise SystemExit(
+            "REFUSED: the clinical-reading section could not be located in %s. This instrument "
+            "scores against the delivered text and will not fall back to a copy." % page)
+    return _h.unescape(re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", raw[i:j]))).strip()
+
+
+def _claim_sentence(text, verbatim, claim):
+    """The sentence the claim sits in. Falls back to the whole text ONLY if it cannot be found.
+
+    ⛔ THE FALLBACK IS NAMED RATHER THAN SILENT: if the claim cannot be located, the hedge
+    test degrades to the old page-wide behaviour, and that is a weaker test -- not a passing one.
+    Callers that care can detect it because the returned scope equals the input.
+    """
+    anchors = []
+    for s in (claim, verbatim):
+        w = [x for x in re.findall(r"[a-z0-9%]+", (s or "").lower()) if len(x) > 4]
+        if w:
+            anchors.append(w)
+    best = -1
+    for words in anchors:
+        for w in words:
+            i = text.find(w)
+            if i >= 0:
+                best = i
+                break
+        if best >= 0:
+            break
+    if best < 0:
+        return text
+    lo = max(text.rfind(". ", 0, best), text.rfind("; ", 0, best), 0)
+    nxt = [x for x in (text.find(". ", best), text.find("; ", best)) if x != -1]
+    hi = min(nxt) if nxt else len(text)
+    return text[lo:hi + 1]
+
+
+def score(candidate_text):
+    """Recall n of n, and whether each recalled claim kept the hedge it was written with."""
+    t = re.sub(r"\s+", " ", candidate_text or "").lower()
+    rows = []
+    for cid, verbatim, claim, modal, pol, src, grounded, note in CLAIMS:
+        groups = RECALL_GROUPS.get(cid)
+        if groups:
+            present = all(any(m in t for m in g) for g in groups)
+        else:
+            key = [w for w in re.findall(r"[a-z0-9%]+", verbatim.lower()) if len(w) > 3]
+            hit = sum(1 for w in key if w in t)
+            present = len(key) > 0 and hit / len(key) >= 0.6
+        kept = None
+        if present and modal in HEDGE_TOKENS:
+            # ⛔ THE HEDGE IS TESTED IN THE CLAIM'S OWN SENTENCE, NOT ACROSS THE PAGE.
+            #
+            # `t` is the whole candidate. Asking `syn in t` lets a hedge occurring ANYWHERE
+            # satisfy the requirement for EVERY claim -- on an 87,000-character page containing
+            # "cannot say", "would", "will" and "about" many times over, `hedge_kept` is true by
+            # construction and the check cannot fail.
+            #
+            # ⚠️ Same family as a 360-character window scoring three correctly-hedged
+            # claims as overclaims, and this is the widest possible window: the whole document.
+            scope = _claim_sentence(t, verbatim, claim)
+            kept = all(any(syn in scope for syn in group) for group in HEDGE_TOKENS[modal])
+        rows.append({"id": cid, "claim": claim, "modal": modal, "polarity": pol,
+                     "grounded": grounded, "present": present, "hedge_kept": kept})
+    return rows
+
+
 def main():
-    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace",
+                                  line_buffering=True)
+    if len(sys.argv) > 1:
+        src = sys.argv[1]
+        text = io.open(src, encoding="utf-8", errors="replace").read()
+    else:
+        src = PILOT_PAGE + " [clinical reading section]"
+        text = handwritten_section()
+    rows = score(text)
+    n = len(rows)
+    present = sum(1 for r in rows if r["present"])
+    lost = [r for r in rows if r["present"] and r["hedge_kept"] is False]
     print("")
-    print("REFERENCE CLAIM SET -- the hand-written clinical reading, enumerated")
-    print("  %d propositions from 5 bullets." % len(REFERENCE))
+    print("CLINICAL READING -- claim ledger")
     print("")
-    for c in REFERENCE:
-        print("  %-4s [%-10s] %s" % (c["id"], c["band"], c["claim"]))
-        print("        ref: %s" % c["reference_text"][:96])
-        print("        from: %s" % c["derivable_from"][:96])
-        if c.get("must_not_say"):
-            print("        MUST NOT SAY: %s" % ", ".join(c["must_not_say"]))
+    print("  propositions enumerated                 %3d" % n)
+    for g in ("GROUNDED", "GROUNDED_PARTIAL", "GROUNDED_SCOPED", "GROUNDED_INFERENCE",
+              "HEDGE_WEAKER"):
+        c = sum(1 for c_ in CLAIMS if c_[6] == g)
+        if c:
+            print("    %-20s %3d" % (g, c))
     print("")
-    print("  ⚠️ A claim may be stated at its band or WEAKER. Stating it STRONGER is a failure,")
-    print("     not a lower score: we have already published a conditional recommendation as an")
-    print("     unconditional one.")
+    print("  SCORED AGAINST: %s" % os.path.basename(src))
+    print("    recall                                %3d of %d" % (present, n))
+    print("    recalled but HEDGE DROPPED            %3d" % len(lost))
+    for r in lost:
+        print("      %-4s %s  (written: %s)" % (r["id"], r["claim"][:60], r["modal"]))
+    missing = [r for r in rows if not r["present"]]
+    if missing:
+        print("")
+        print("    NOT RECALLED:")
+        for r in missing:
+            print("      %-4s %-58s %s" % (r["id"], r["claim"][:58], r["modal"]))
+    import tempfile
+    out = (os.environ.get("ROB_CLAIM_SCORE_OUT")
+           or os.path.join(tempfile.gettempdir(),
+                           "clinical_reading_score.%d.json" % os.getpid()))
+    os.makedirs(os.path.dirname(out), exist_ok=True)
+    json.dump(rows, io.open(out, "w", encoding="utf-8"), indent=1)
     return 0
 
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
+
+def plant_hedge_scope():
+    """⭐ BOTH WAYS. A claim whose OWN sentence is assertive must score hedge-LOST even when
+    the page carries the hedge somewhere else -- which is exactly what the page-wide test could
+    not do."""
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    hedged = ("In women 21 and under it has not been shown to work. "
+              "Separately, the trials cannot say whether that is the product or the adherence.")
+    stripped = ("In women 21 and under the ring does not work. "
+                "Elsewhere on this page: it has not been shown, and the trials cannot say.")
+    r1 = {r["id"]: r for r in score(hedged)}
+    r2 = {r["id"]: r for r in score(stripped)}
+    ok1 = r1["C4"]["present"] and r1["C4"]["hedge_kept"] is True
+    ok2 = (r2["C4"]["present"] and r2["C4"]["hedge_kept"] is False)
+    print("PLANT -- hedge scoping")
+    print("   hedged sentence      C4 present=%s hedge_kept=%s   [%s]"
+          % (r1["C4"]["present"], r1["C4"]["hedge_kept"], "PASS" if ok1 else "FAIL"))
+    print("   hedge moved AWAY     C4 present=%s hedge_kept=%s   [%s]"
+          % (r2["C4"]["present"], r2["C4"]["hedge_kept"], "PASS" if ok2 else "FAIL"))
+    print("   ⚠️ the second case is the one the page-wide test could not fail on.")
+    assert ok1, "a correctly hedged claim was scored as hedge-lost"
+    assert ok2, "a claim whose own sentence dropped the hedge scored as hedge-kept"
+    return 0

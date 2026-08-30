@@ -105,3 +105,42 @@ long, and we find out what that costs.**
 ⚠️ That check mattered more this round than last: our page now QUOTES the comparator for
 chlamydia and syphilis, because the comparator is the only source we hold for those outcomes.
 A long shared string would have told a judge which document was derivative. It reads 0.
+
+---
+
+## ⭐⭐⭐ CORRECTION TO WHAT THIS RUN IS TESTING — logged before the judges, 2026-08-30
+
+**Mahmood: *"That page was written by Claude Code and not me."***
+
+⛔ **THE REFERENCE IS AI-WRITTEN. This is not machine-versus-human.** It is **the same model,
+twice, in two modes** — and every framing of this run that said "hand-written" or implied a human
+author is wrong.
+
+| mode | what it produced |
+|---|---|
+| **free composition** | stated a POST HOC subgroup flat (C1); wrote *"condoms… remain necessary"*, advice a review has no standing to give (C10) |
+| **constrained to derive from typed fields** | carried the post-hoc label three times; stated the background package as what both arms RECEIVED |
+
+⇒ ***The failure is not the model. It is free composition.*** And that is the strongest argument
+the architecture has: **derivation is not a slower path to the same prose — it prevents a class of
+overclaim that the identical model commits when unconstrained.** Two independent instances, C1
+and C10, both in the direction of overstating certainty, both removed by the constraint.
+
+### The two claims, stated separately so the second cannot hide inside the first
+
+1. **REPEATABILITY** — 13 of 13 winning features regenerate from the SSOT object; bespoke
+   fraction 0%. *The harness can repeat itself.*
+2. ⭐ **CORRECTNESS** — derivation eliminates a demonstrated overclaim class that the same model
+   commits when composing freely. *The harness is right more often.*
+
+**The second is worth more, and it was found inside the first rather than looked for.**
+
+### What the six judges are therefore being asked
+
+Not "does a harness beat a person". **"Does constrained derivation beat free composition, both
+from the same model, against a published comparator."** ⚠️ That is a far more interesting
+question, and if the regenerated page wins it is the version to write up.
+
+⛔ **AND IT DOES NOT SOFTEN THE CRITERION.** Mahmood's prediction — *"today is the day we solve
+the issue and beat Cochrane using harness"* — still resolves only on the SERVED regenerated page,
+judged blind, six verdicts. Nothing above changes that.

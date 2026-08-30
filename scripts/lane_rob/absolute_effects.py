@@ -161,8 +161,20 @@ def _horizon(canon, res):
     """
     for src in (res, canon):
         f = src.get("followup") if isinstance(src, dict) else None
-        if isinstance(f, dict) and f.get("value") and f.get("unit"):
-            return ("%s %s" % (f["value"], f["unit"]), f.get("basis") or "", True)
+        if not isinstance(f, dict):
+            continue
+        # ⛔ THE FIELD WAS THERE AND THIS FUNCTION COULD NOT SEE IT. It required `value`; the
+        # field was landed as `median`/`unit` by the retrieval that read it at source, so the
+        # horizon silently fell through to the verbatim-timeframes branch and the NNT was
+        # published with no span at all.
+        #
+        # ⚠️ CAUGHT BY A SIBLING LANE'S CLAIM LEDGER, NOT BY MINE: my own ledger's C3 probe
+        # asked only for "need to be treated ... prevent", which the sentence satisfied WITHOUT
+        # a horizon. A reader-facing claim that names a number of people and no period of time
+        # is not the claim -- and a probe that does not require the horizon cannot notice.
+        for key in ("value", "median", "mean"):
+            if f.get(key) and f.get("unit"):
+                return ("%s %s" % (f[key], f["unit"]), f.get("basis") or "", True)
     inp = canon.get("inputs")
     trials = (inp or {}).get("trials") if isinstance(inp, dict) else None
     quoted = []

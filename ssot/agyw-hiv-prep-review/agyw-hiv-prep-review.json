@@ -862,7 +862,34 @@
  ],
  "renamed_2026_08_18": "Renamed from agyw-hiv-prep-auto-full-review. THE READER LANDS ON agyw-hiv-prep_REVIEW.html and the object now says so. Leaving the mismatch would have made PAGE_MAP the only place that truth lived -- one more route, and every multi-route value in this corpus has diverged. Done as a git mv, not a delete-and-write.",
  "carried_contrasts": [],
- "sources": {},
+ "sources": {
+  "ASPIRE_PRIMARY_PMC": {
+   "layer": "Trial primary report, open access via PubMed Central",
+   "layer_rank": 1,
+   "name": "Baeten et al. Use of a Vaginal Ring Containing Dapivirine for HIV-1 Prevention in Women. N Engl J Med 2016.",
+   "pmid": "26900902",
+   "pmcid": "PMC4993693",
+   "doi": "10.1056/NEJMoa1506110",
+   "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4993693/",
+   "staged_as": "sources/ASPIRE_PMC4993693.jats.xml",
+   "extract_as": "sources/ASPIRE_PMC4993693.extract.txt",
+   "retrieved_utc": "2026-08-30",
+   "bytes": 87588,
+   "sha256": "a6c75ad7e331aff7ff37a779",
+   "how_found": "PubMed E-utilities esearch on NCT01617096[si] -- the REGISTRATION link, not a publication-type filter. The query returned 9 records for this trial and most are sub-studies carrying the same registration; the primary was identified by title and date. A type tag is not a role.",
+   "access_note": "Staged because the page's headline clinical figure -- 56% protection in women over 21 -- was grounded in nothing we held. Source: ASPIRE, PMID 26900902, PMC4993693, doi 10.1056/NEJMoa1506110, retrieved 2026-08-30. Zero hits for '56' or 'age-strat' in this object, no sources directory existed, and the WHO guideline's two '56%' are the upper CI bound of a different estimate and a sexual-partner percentage. The figure is real and this file is where it lives: 'In a post hoc analysis, higher rates of HIV-1 protection were observed among women over the age of 21 years (56%; 95% CI, 31 to 71; P<0.001) but not among those 21 years of age or younger (-27%; 95% CI, -133 to 31; P = 0.45)'. The clinical reading states the 56% without 'post hoc' and without the interval."
+  },
+  "RING_STUDY_PRIMARY": {
+   "layer": "Trial primary report",
+   "layer_rank": 1,
+   "name": "Nel et al. Safety and Efficacy of a Dapivirine Vaginal Ring for HIV Prevention in Women. N Engl J Med 2016.",
+   "pmid": "27959766",
+   "pmcid": null,
+   "state": "NOT_YET_FOUND",
+   "how_found": "PubMed E-utilities esearch on NCT01539226[si]; 6 records, primary identified by title and date.",
+   "access_note": "PMID recovered 2026-08-30; the id converter returns NO PMC id, so no open full text was reachable by this route. That is a statement about the routes tried, not a claim that no full text exists. The page's 'primary report NOT held -- paywalled' is consistent with this and is now backed by a named attempt rather than asserted."
+  }
+ },
  "outcomes": [
   {
    "id": "primary",
@@ -883,13 +910,13 @@
   "rule": "Every field added falls into RELOCATION, GENUINELY EMPTY, or DERIVED FROM RECORDED CONTENT. A field falling into none was REFUSED. Adding a key to satisfy a generator is not the same as adding the content that key should hold.",
   "fields": [
    "carried_contrasts=[] (empty)",
-   "sources={} (empty)",
-   "pooled.measure (reloc)",
    "estimator_used (reloc)",
    "het.i2 (reloc)",
    "het.i2_pct (reloc)",
    "outcomes (derived)",
-   "question (derived)"
+   "pooled.measure (reloc)",
+   "question (derived)",
+   "sources={} (empty)"
   ]
  },
  "risk_of_bias": {
@@ -1296,10 +1323,10 @@
     "the_claim": "Why the question is still open -- the specific uncertainty this review addresses",
     "draft": "The evidence identified on this question is 2 randomised trials (NCT01539226, NCT01617096), pooled here at 0.703 (95% CI 0.566 to 0.873) for HIV-1 seroconversion. Certainty in that estimate is rated LOW, rated down for risk of bias, inconsistency and indirectness. What this estimate does not establish is recorded in full with the result in Results, and is not restated here. WHICH OF THOSE UNRESOLVED POINTS MAKES THE QUESTION WORTH ASKING NOW IS THE AUTHOR'S JUDGEMENT.",
     "facts_from": [
-     "results.by_outcome.primary.pooled",
+     "grade.by_outcome.primary.certainty",
      "results.by_outcome.primary.k",
-     "results.by_outcome.primary.what_this_does_not_establish",
-     "grade.by_outcome.primary.certainty"
+     "results.by_outcome.primary.pooled",
+     "results.by_outcome.primary.what_this_does_not_establish"
     ],
     "is_a_draft": true,
     "the_judgement_that_is_the_authors": "This sentence is the author's judgement and is not derivable from any field here."
@@ -1320,8 +1347,8 @@
     "the_claim": "WHY this result differs from the published ones, mechanically or methodologically",
     "draft": "No published synthesis was appraised against this review, so no difference between this result and a published one is recorded. There is nothing here for this sentence to explain, and stating a reason for a difference that has not been established would be inventing one.",
     "facts_from": [
-     "published_comparison.reviews",
-     "published_comparison.identity_basis"
+     "published_comparison.identity_basis",
+     "published_comparison.reviews"
     ],
     "is_a_draft": true,
     "the_judgement_that_is_the_authors": "This sentence is the author's judgement and is not derivable from any field here."
@@ -1342,10 +1369,10 @@
     "the_claim": "Whether the effect size is clinically meaningful",
     "draft": "The pooled RR is 0.703 (95% CI 0.566 to 0.873) over 2 trials, against placebo vaginal ring. Certainty is rated LOW. Every contributing interval excludes no effect. WHETHER A CHANGE OF THAT MAGNITUDE IS CLINICALLY MEANINGFUL IN THIS POPULATION IS THE AUTHOR'S JUDGEMENT: NO FIELD ON THIS OBJECT RECORDS A THRESHOLD OF IMPORTANCE, AND NONE IS ASSUMED HERE.",
     "facts_from": [
-     "results.by_outcome.primary.pooled",
-     "results.by_outcome.primary.k",
+     "grade.by_outcome.primary.certainty",
      "results.by_outcome.primary.comparator",
-     "grade.by_outcome.primary.certainty"
+     "results.by_outcome.primary.k",
+     "results.by_outcome.primary.pooled"
     ],
     "is_a_draft": true,
     "the_judgement_that_is_the_authors": "This sentence is the author's judgement and is not derivable from any field here."
@@ -1355,8 +1382,8 @@
     "the_claim": "Whether the evidence base is adequate to answer the question",
     "draft": "The evidence base is 2 trials, assessed for risk of bias as SOME_CONCERNS on 2 result(s). GRADE certainty is LOW, rated down for risk of bias, inconsistency and indirectness. WHETHER THAT IS ENOUGH TO ANSWER THE QUESTION DEPENDS ON THE DECISION THE ANSWER IS FOR, WHICH IS NOT STATED ON THIS OBJECT, AND IS THE AUTHOR'S JUDGEMENT.",
     "facts_from": [
-     "risk_of_bias.by_outcome",
-     "grade.by_outcome.primary"
+     "grade.by_outcome.primary",
+     "risk_of_bias.by_outcome"
     ],
     "is_a_draft": true,
     "the_judgement_that_is_the_authors": "This sentence is the author's judgement and is not derivable from any field here."
@@ -1386,10 +1413,10 @@
     "the_claim": "A one-sentence statement of what the evidence shows",
     "draft": "Across 2 randomised trials, RR was 0.703 (95% CI 0.566 to 0.873) for HIV-1 seroconversion against placebo vaginal ring. Certainty in that estimate is LOW. THAT IS THE ESTIMATE. WHAT THE EVIDENCE SHOWS -- STATED AS A FINDING RATHER THAN AS A NUMBER -- IS THE AUTHOR'S SENTENCE.",
     "facts_from": [
-     "results.by_outcome.primary.pooled",
+     "grade.by_outcome.primary.certainty",
      "results.by_outcome.primary.k",
      "results.by_outcome.primary.outcome",
-     "grade.by_outcome.primary.certainty"
+     "results.by_outcome.primary.pooled"
     ],
     "is_a_draft": true,
     "the_judgement_that_is_the_authors": "This sentence is the author's judgement and is not derivable from any field here."
@@ -1399,9 +1426,9 @@
     "the_claim": "The implication for clinical practice",
     "draft": "What a clinician should do differently on this evidence -- the estimate and certainty stated above -- is a RECOMMENDATION, not a measurement. No field on this object can back one, and none is drafted. It is the author's sentence.",
     "facts_from": [
-     "results.by_outcome.primary.pooled",
+     "grade.by_outcome.primary",
      "results.by_outcome.primary.k",
-     "grade.by_outcome.primary"
+     "results.by_outcome.primary.pooled"
     ],
     "is_a_draft": true,
     "the_judgement_that_is_the_authors": "This sentence is the author's judgement and is not derivable from any field here."
@@ -1411,9 +1438,9 @@
     "the_claim": "The implication for policy",
     "draft": "What a payer, guideline or programme should do on this evidence -- the estimate and certainty stated above -- is a RECOMMENDATION, not a measurement. No field on this object can back one, and none is drafted. It is the author's sentence.",
     "facts_from": [
-     "results.by_outcome.primary.pooled",
+     "grade.by_outcome.primary",
      "results.by_outcome.primary.k",
-     "grade.by_outcome.primary"
+     "results.by_outcome.primary.pooled"
     ],
     "is_a_draft": true,
     "the_judgement_that_is_the_authors": "This sentence is the author's judgement and is not derivable from any field here."
@@ -1423,9 +1450,9 @@
     "the_claim": "The implication for future research",
     "draft": "What should be studied next on this evidence -- the estimate and certainty stated above -- is a RECOMMENDATION, not a measurement. No field on this object can back one, and none is drafted. It is the author's sentence.",
     "facts_from": [
-     "results.by_outcome.primary.pooled",
+     "grade.by_outcome.primary",
      "results.by_outcome.primary.k",
-     "grade.by_outcome.primary"
+     "results.by_outcome.primary.pooled"
     ],
     "is_a_draft": true,
     "the_judgement_that_is_the_authors": "This sentence is the author's judgement and is not derivable from any field here."
