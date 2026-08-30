@@ -1992,6 +1992,19 @@ if __name__ == "__main__":
     #
     # So both failures are caught and both REFUSE with a named reason. NEVER add a bare except
     # here, and never let this fall through to the write.
+    # ⛔ A SUBGROUP ESTIMATE MAY NOT BE RENDERED WITHOUT ITS ANALYSIS STATUS. The dapivirine age
+    # strata are post hoc in the source's own first four words; a page showing 56% without that
+    # turns a hypothesis-generating subgroup into a finding. If this refuses, the fix is to
+    # record the status or drop the subgroup -- never to relax the check.
+    try:
+        import subgroup_guard as _sg
+        _sg.enforce(obj, out)
+    except Exception as _e:
+        if type(_e).__name__ == "SubgroupRefusal":
+            raise SystemExit(str(_e))
+        raise SystemExit(
+            "BUILD REFUSED: the subgroup guard could not run (%s: %s)."
+            % (type(_e).__name__, _e))
     # ⛔ A NUMBER MUST CARRY THE LABEL OF THE ROWS IT WAS COMPUTED FROM. Refuses the build when
     # a pooled figure would be published under a count source or estimand its own inputs do not
     # carry -- the near-swap that nearly put the registry-as-submitted 0.703 under a headline

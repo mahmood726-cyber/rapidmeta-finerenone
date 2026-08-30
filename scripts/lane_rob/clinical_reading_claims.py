@@ -175,7 +175,13 @@ RECALL_GROUPS = {
     "C3":  [["45 women", "45 people", "nnt 45", "nnt of 45", "needed to treat 45"],
             ["18 month", "eighteen month", "year and a half"],
             ["one infection", "1 infection", "single infection", "prevent"]],
-    "C4":  [["21 and under", "under 21", "younger than 21", "21 or younger", "up to 21"],
+    # ⚠️ "21 years of age or younger" -- the SOURCE'S OWN WORDING -- was missing here, so C4
+    # scored absent on a page that states it. Added because it is the phrasing of the document
+    # the claim is grounded in, not because it made a number better. But the honest note is that
+    # I added it AFTER seeing it fail on that page, so this page's recall figure is no longer
+    # independent of the checker; a clean figure needs a page built after this change.
+    "C4":  [["21 and under", "under 21", "younger than 21", "21 or younger", "up to 21",
+             "21 years of age or younger", "aged 21 or", "21 years or younger"],
             ["not been shown", "not demonstrated", "no evidence", "unproven", "not shown"]],
     "C5":  [["cannot", "could not", "unable"],
             ["product", "ring itself", "drug"], ["adherence", "use", "wearing"]],
