@@ -235,7 +235,32 @@
      "justification_from_absolute_EFFECT_not_from_the_ratio": "The placebo arms of these trials ran at roughly 4 to 6 HIV-1 seroconversions per 100 person-years, and WHO defines \"substantial risk\" warranting pre-exposure prophylaxis as an incidence of 3 or more per 100 person-years. Taking a placebo incidence of about 4.5 per 100 person-years: RR 0.90 prevents about 0.45 infections per 100 woman-years, RR 0.80 about 0.9, RR 0.75 about 1.13. In a population at substantial risk, with a user-controlled option intended for women who cannot or will not use daily oral or injectable prophylaxis, a 10% relative reduction is the smallest effect that would still change what is offered. Below it the absolute benefit falls under half an infection per 100 woman-years and the adherence burden is not obviously worth carrying.",
      "what_this_threshold_is_NOT": "⚠️ It is not a claim that a 9% reduction is worthless, and it is not derived from a published MID -- none exists for this outcome. It is a stated, arguable line, and its whole value is that it is STATED. A reader who prefers 0.80 or the Handbook default can apply either: the engine reports the letter under every threshold it holds, and both alternatives are in the sensitivity block beside the rating.",
      "declared_BEFORE_recomputation_and_this_is_checkable": "⛔ A THRESHOLD CHOSEN AFTER SEEING WHICH LETTER IT PRODUCES IS A TUNED THRESHOLD. This was written and committed before the engine was re-run. It is also known IN ADVANCE that it will move the letter UP -- the whole interval 0.566 to 0.873 lies below 0.90, so imprecision will not downgrade -- and that direction is stated here rather than discovered afterwards, because a favourable threshold declared in advance is a judgement and the same threshold declared afterwards is a result."
-    }
+    },
+    "question_pico": {
+     "population": "women",
+     "intervention": "dapivirine vaginal ring",
+     "comparator": "placebo vaginal ring",
+     "outcome": "HIV-1 seroconversion",
+     "declared_utc": "2026-08-30T15:54:34.570155+00:00",
+     "source": "The title and the stated question, which are the review question. Declared axis by axis so the indirectness comparison is possible at all -- prose cannot be compared axis by axis, and this object refused for exactly that reason."
+    },
+    "trial_pico": {
+     "population": "women aged 18-45",
+     "intervention": "dapivirine vaginal ring",
+     "comparator": "placebo vaginal ring",
+     "outcome": "HIV-1 seroconversion",
+     "setting": "Malawi, South Africa, Uganda, Zimbabwe",
+     "source": "ClinicalTrials.gov eligibility and location modules for NCT01539226 and NCT01617096, read 2026-08-30."
+    },
+    "effect_modifiers": [
+     {
+      "axis": "population",
+      "modifier": "age",
+      "evidence": "ASPIRE, within its own studied range: efficacy 61% (95% CI, 32 to 77; P<0.001) at 25 years or older against 10% (95% CI, -41 to 43; P = 0.64) below, P = 0.02 for interaction.",
+      "quote_is_stored_at": "results.by_outcome.primary.grade.indirectness.load_bearing_quote_VERIFIED",
+      "why_it_matters": "A trial that reports an effect modifier INSIDE its studied range has supplied evidence that transfer beyond that range is unsupported. This turns an anticipated concern into a measured one."
+     }
+    ]
    }
   }
  },
