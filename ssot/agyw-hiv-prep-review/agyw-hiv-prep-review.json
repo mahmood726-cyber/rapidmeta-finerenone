@@ -622,8 +622,8 @@
       },
       {
        "outcome": "Sexually transmitted infections, all incident (composite)",
-       "trials": "The Ring Study (rates); ASPIRE (direction only)",
-       "effect": "similar in the two groups — the trials' own reading, and BOTH primaries now say so at source.",
+       "trials": "The Ring Study, 1895 analysed",
+       "effect": "RR 1.063 (95% CI 0.969 to 1.167) — derived here from the registry's own posted 2×2. ⚠️ The interval includes no difference, so this establishes no effect in either direction.",
        "source": {
         "document_id": "PMID27959766",
         "what": "The Ring Study (IPM 027) primary report, full PDF",
@@ -637,21 +637,36 @@
         "sha256_excerpt": "721eeec382da37896ef126a35389392060e90503dc9c6d29b7eeaebe40cdcec6",
         "tier": "trial report"
        },
-       "estimand_note": "⛔ THIS IS NOT THE SAME QUANTITY AS THE COMPARATOR'S PER-ORGANISM RISK RATIOS. It is an INCIDENCE RATE PER 100 PERSON-YEARS for a COMPOSITE of curable sexually transmitted infections; the comparator reports RISK RATIOS for chlamydia and syphilis individually. The two differ on three axes at once — composite versus per-organism, rate versus risk, person-time versus participants — so neither confirms nor contradicts the other, and no pooling of them is possible or attempted.",
+       "estimand_note": "⛔ THIS IS A COMPOSITE ACROSS FOUR ORGANISMS — gonorrhoea, chlamydia, trichomonas and syphilis — AS THE REGISTRY DEFINES IT, and it counts PARTICIPANTS testing positive over 24 months. The comparator reports RISK RATIOS FOR SINGLE ORGANISMS. A composite and its components are different quantities: this row cannot confirm or contradict the chlamydia or syphilis rows below it, and none of them may be pooled together.",
        "replaces": "reliance on the comparator for the direction of effect on sexually transmitted infections. The comparator's per-organism rows remain, still labelled as its own, because they are a different quantity — not because no primary was found.",
        "retrieval_state": "RETRIEVED_WITH_VALUE",
-       "tier": "trial report",
-       "source_quote": "The overall incidence rates of sexually transmitted infections were similar in the two trial groups. We observed 32.0 infections (95% CI, 29.6 to 34.5) per 100 person-years in the dapivirine group and 31.1 infections (95% CI, 27.7 to 34.6) per 100 person-years in the placebo group.",
+       "tier": "registry results",
+       "source_quote": "The percentage of participants testing positive for any STI (gonorrhoea, chlamydia, trichomonas, syphilis) will be assessed.",
        "trial_ids": [
-        "NCT01539226",
-        "NCT01617096"
+        "NCT01539226"
        ],
        "trials_label_note": "The attribution is keyed to NCT01617096. The name shown is DERIVED from the registry payload for that identifier, so a change to any label in this object cannot move which trial this row's numbers came from.",
-       "treatment": "32.0 per 100 person-years (95% CI, 29.6 to 34.5)",
-       "control": "31.1 per 100 person-years (95% CI, 27.7 to 34.6)",
+       "treatment": "682 / 1271 (53.7%)",
+       "control": "315 / 624 (50.5%)",
        "prespecified": true,
        "prespecified_basis": "The Ring Study names this a SECONDARY TRIAL OBJECTIVE: “Secondary trial objectives were to assess the incidence rate of curable sexually transmitted infections, adherence to ring use, and incidence of pregnancy.” It is not an incidental observation.",
-       "what_is_still_missing": "Per-organism counts are stated to be in Table S10 of the Ring Study's Supplementary Appendix, a separate document not held here. ASPIRE reports sexually transmitted infections only as a composite and gives no figure at all in its body text."
+       "what_is_still_missing": "Per-organism counts for this trial. The registry posts the composite only; the paper points to Table S10 of the Supplementary Appendix, which NEJM serves behind bot protection (every supplement URL returns the same 68,132-byte HTML page, not a PDF). ASPIRE posts no STI outcome measure at all and reports the outcome only qualitatively.",
+       "derived_from": {
+        "source": "ClinicalTrials.gov posted results for NCT01539226, outcome measure “The Incidence of Curable STIs”",
+        "declared_type": "SECONDARY",
+        "param_type": "COUNT_OF_PARTICIPANTS",
+        "time_frame": "24 months",
+        "definition_verbatim": "The percentage of participants testing positive for any STI (gonorrhoea, chlamydia, trichomonas, syphilis) will be assessed.",
+        "counts": {
+         "intervention_events": 682,
+         "intervention_n": 1271,
+         "control_events": 315,
+         "control_n": 624
+        },
+        "computation": "RR = (682/1271) / (315/624); log-scale Wald interval with se(logRR) = sqrt(1/682 - 1/1271 + 1/315 - 1/624) = 0.0475.",
+        "staged_as": "evidence/acquisition/NCT01539226/registry.txt"
+       },
+       "corroboration": "The trial's own report states the same finding as rates rather than risks: “The overall incidence rates of sexually transmitted infections were similar in the two trial groups. We observed 32.0 infections (95% CI, 29.6 to 34.5) per 100 person-years in the dapivirine group and 31.1 infections (95% CI, 27.7 to 34.6) per 100 person-years in the placebo group.” Two routes, one trial, the same direction — and the RR above is the one derived from counts, not from those rates."
       },
       {
        "outcome": "Chlamydia",

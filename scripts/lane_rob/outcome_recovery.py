@@ -114,7 +114,196 @@ def trial_sources(canon):
     return out
 
 
-ROUTES = ("pmc", "europepmc_free_pdf", "publisher_doi")
+# ⭐ POSTED RESULTS FIRST, AND THIS ORDER IS A FINDING RATHER THAN A PREFERENCE.
+#
+# The route that recovered a real outcome on this topic was not a full text at all. The Ring
+# Study's ClinicalTrials.gov entry posts a PRESPECIFIED SECONDARY outcome measure -- "The
+# Incidence of Curable STIs", COUNT_OF_PARTICIPANTS, 24 months -- with its definition verbatim
+# and a complete 2x2: 682/1271 against 315/624. That is a poolable result, and it arrived from
+# the file this project had already downloaded and was reading only for identifiers and dates.
+#
+# ⇒ ***CT.GOV POSTED RESULTS ARE A DATA SOURCE, NOT A METADATA SOURCE.*** Treating the registry
+# as a place that holds NCTs and enrolment dates left a countable outcome unread on disk.
+#
+# ⚠️ AND IT IS THE ONLY ROUTE THAT NEEDS NO PUBLISHER AT ALL. No paywall, no bot protection, no
+# PMC deposit -- so a reader anywhere can repeat the read, which is the property this project
+# claims and the one a full-text route cannot promise. PMC, which I originally treated as
+# definitive, was the least useful of the four tried on this topic.
+ROUTES = ("registry_results", "pmc", "europepmc_free_pdf", "publisher_doi")
+
+
+def posted_results(nct, root=None):
+    """Every posted outcome measure for this trial, from the registry payload already on disk.
+
+    ⭐ THIS NEEDS NO NETWORK AND NO PUBLISHER. The payload is fetched once for identifiers and
+    then read again here for RESULTS -- which is the whole point: the file was already there.
+
+    -> list of {title, description, type, param_type, time_frame, groups, counts, denoms}
+    """
+    p = os.path.join(root or os.path.join(REPO, "evidence", "acquisition"), nct, "registry.txt")
+    if not os.path.exists(p):
+        return []
+    try:
+        d = json.load(io.open(p, encoding="utf-8"))
+    except Exception:
+        return []
+    rs = d.get("resultsSection") or {}
+    out = []
+    for om in ((rs.get("outcomeMeasuresModule") or {}).get("outcomeMeasures") or []):
+        counts, denoms = {}, {}
+        for cl in om.get("classes") or []:
+            for cat in cl.get("categories") or []:
+                for m in cat.get("measurements") or []:
+                    counts[m.get("groupId")] = m.get("value")
+        for dn in om.get("denoms") or []:
+            for cnt in dn.get("counts") or []:
+                denoms[cnt.get("groupId")] = cnt.get("value")
+        out.append({
+            "title": om.get("title"), "description": om.get("description"),
+            "type": om.get("type"), "param_type": om.get("paramType"),
+            "time_frame": om.get("timeFrame"), "unit": om.get("unitOfMeasure"),
+            "groups": {g.get("id"): g.get("title") for g in om.get("groups") or []},
+            "counts": counts, "denoms": denoms,
+        })
+    return out
+
+
+def match_posted(nct, terms, root=None):
+    """The posted outcome measure matching these terms, if exactly one does. -> dict or None.
+
+    ⛔ EXACTLY ONE. Two matching measures is an ambiguity a component may not resolve by
+    picking the first -- that is the first-hit selector this project has now been bitten by
+    three times. Ambiguity is reported, never silently narrowed.
+    """
+    hits = []
+    for om in posted_results(nct, root):
+        blob = ("%s %s" % (om.get("title") or "", om.get("description") or "")).lower()
+        if any(t in blob for t in terms):
+            hits.append(om)
+    return hits[0] if len(hits) == 1 else None
+
+
+# ⛔⛔⛔ HARD RULE: CT.GOV POSTED RESULTS ARE A MANDATORY ROUTE FOR EVERY OUTCOME.
+#
+# Not a fallback and not a corroboration -- a REQUIRED attempt, whose result is recorded even
+# when it yields nothing. ⚠️ A RULE THAT IS MERELY AVAILABLE GETS SKIPPED; A RULE WHOSE ABSENCE
+# IS VISIBLE DOES NOT. So an outcome with no attempt recorded is INCOMPLETE and the object can
+# say so, which is the difference between a convention and a gate.
+#
+# WHY THIS IS THE STRONGEST ROUTE WE HAVE, and it took a lost axis to notice: it needs NO full
+# text, no subscription, no publisher and no PMC deposit. It is free-source by construction and
+# a reader anywhere can repeat the read. PMC -- which this module originally treated as
+# definitive -- was the least useful of four routes tried on the topic that prompted this.
+CTGOV_POSTED = "POSTED"                       # counts obtained
+CTGOV_NO_RESULTS = "NO_RESULTS_POSTED"        # the registry has no results section
+CTGOV_OTHER_OUTCOME = "POSTED_DIFFERENT_OUTCOME"   # results exist, this outcome is not among them
+CTGOV_NO_TERM_MATCH = "POSTED_BUT_NO_TERM_MATCHED"  # results exist; OUR terms matched none of them
+CTGOV_NOT_ATTEMPTED = "NOT_ATTEMPTED"         # nobody looked
+
+CTGOV_STATE_MEANING = {
+    CTGOV_POSTED: "the registry posts this outcome and its counts were read",
+    CTGOV_NO_RESULTS: "this trial has posted no results section at all",
+    CTGOV_OTHER_OUTCOME: ("the trial HAS posted results, and this outcome is not among the "
+                          "measures it posted"),
+    CTGOV_NO_TERM_MATCH: (
+        "⛔ THE TRIAL HAS POSTED RESULTS AND OUR SEARCH TERMS MATCHED NONE OF THEM. This "
+        "is a statement about THIS REVIEW'S MATCHING, not about the registry, and the two were "
+        "conflated in the first version of this component: it reported POSTED_DIFFERENT_OUTCOME "
+        "for the dapivirine STI outcome, which the registry posts as “The Incidence of "
+        "Curable STIs”. The row calls it “sexually transmitted infections” and "
+        "the registry calls it “STIs”, so no term matched — and a miss by our "
+        "matcher was rendered as an absence in the evidence. ⚠️ EVERY POSTED "
+        "TITLE IS LISTED BESIDE THIS STATE so the miss is visible in one glance rather than "
+        "believed."),
+    CTGOV_NOT_ATTEMPTED: ("⛔ NOBODY LOOKED. This is not an absence of data and must never "
+                          "render as one — it is an absence of a check."),
+}
+
+
+def _registry_version(nct, root=None):
+    """What VERSION of the registry record a figure came from. Results change over time."""
+    p = os.path.join(root or os.path.join(REPO, "evidence", "acquisition"), nct, "registry.txt")
+    if not os.path.exists(p):
+        return None
+    import hashlib
+    raw = io.open(p, "rb").read()
+    try:
+        d = json.loads(raw.decode("utf-8"))
+    except Exception:
+        return {"sha256": hashlib.sha256(raw).hexdigest(), "unparseable": True}
+    st = ((d.get("protocolSection") or {}).get("statusModule") or {})
+    return {
+        "sha256": hashlib.sha256(raw).hexdigest(),
+        "last_update_posted": (st.get("lastUpdatePostDateStruct") or {}).get("date"),
+        "results_first_posted": (st.get("resultsFirstPostDateStruct") or {}).get("date"),
+        "status_verified": st.get("statusVerifiedDate"),
+        "staged_as": "evidence/acquisition/%s/registry.txt" % nct,
+    }
+
+
+def ctgov_attempt(nct, terms, root=None, retrieved_utc=None):
+    """THE MANDATORY ATTEMPT. Always returns a record; never returns nothing.
+
+    ⭐ THE REGISTRY'S OWN DEFINITION TRAVELS WITH THE NUMBER, VERBATIM. A composite and its
+    components are different quantities, and the definition is the only thing that stops them
+    being pooled: "the percentage of participants testing positive for any STI (gonorrhoea,
+    chlamydia, trichomonas, syphilis)" is not chlamydia, and a table that shows the number
+    without the sentence invites exactly that mistake.
+    """
+    rec = {"nct": nct, "terms_searched": sorted(terms),
+           "retrieved_utc": retrieved_utc or "unrecorded",
+           "registry_version": _registry_version(nct, root)}
+    oms = posted_results(nct, root)
+    if not oms:
+        rec["state"] = CTGOV_NO_RESULTS
+        rec["meaning"] = CTGOV_STATE_MEANING[CTGOV_NO_RESULTS]
+        return rec
+    rec["posted_outcome_measures"] = len(oms)
+    om = match_posted(nct, terms, root)
+    if not om:
+        # ⛔ "OUR TERMS FOUND NOTHING" IS NOT "THE TRIAL POSTED SOMETHING ELSE". Only the
+        # first is knowable from here, so only the first is claimed.
+        rec["state"] = CTGOV_NO_TERM_MATCH
+        rec["meaning"] = CTGOV_STATE_MEANING[CTGOV_NO_TERM_MATCH]
+        rec["what_was_posted"] = [o.get("title") for o in oms][:20]
+        rec["how_to_resolve"] = (
+            "Read the titles above. If one of them IS this outcome under another name, the "
+            "row's name and the registry's differ and a human should say which measure "
+            "applies; the component will not guess, because a wrong match here silently "
+            "attributes another outcome's counts to this row.")
+        return rec
+    rec["state"] = CTGOV_POSTED
+    rec["meaning"] = CTGOV_STATE_MEANING[CTGOV_POSTED]
+    rec["title"] = om.get("title")
+    rec["definition_verbatim"] = om.get("description")
+    rec["declared_type"] = om.get("type")
+    rec["param_type"] = om.get("param_type")
+    rec["time_frame"] = om.get("time_frame")
+    rec["unit"] = om.get("unit")
+    rec["groups"] = om.get("groups")
+    rec["counts"] = om.get("counts")
+    rec["denoms"] = om.get("denoms")
+    rec["poolable"] = len(om.get("counts") or {}) >= 2 and len(om.get("denoms") or {}) >= 2
+    return rec
+
+
+def outcomes_missing_ctgov_attempt(canon):
+    """Every outcome row with NO ct.gov attempt recorded. -> list of (outcome_id, row name).
+
+    ⛔ THIS IS WHAT MAKES THE RULE A RULE. An outcome that was never checked against the
+    registry is INCOMPLETE, and a component that cannot name those outcomes leaves the rule
+    depending on somebody remembering it.
+    """
+    missing = []
+    for oid, block in (((canon.get("results") or {}).get("by_outcome")) or {}).items():
+        if not isinstance(block, dict):
+            continue
+        for row in ((block.get("other_outcomes") or {}).get("rows")) or []:
+            if not isinstance(row, dict):
+                continue
+            if not row.get("ctgov_results"):
+                missing.append((oid, row.get("outcome") or "(unnamed row)"))
+    return missing
 
 
 def read_one(source, terms, fetch, routes=ROUTES):
@@ -150,7 +339,8 @@ def read_one(source, terms, fetch, routes=ROUTES):
 
     text = None
     for route in routes:
-        ident = {"pmc": source.get("pmcid"),
+        ident = {"registry_results": source.get("nct"),
+                 "pmc": source.get("pmcid"),
                  "europepmc_free_pdf": source.get("pmid"),
                  "publisher_doi": source.get("doi")}.get(route)
         if not ident:
