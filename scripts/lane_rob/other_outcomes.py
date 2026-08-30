@@ -93,6 +93,17 @@ def _attribution(row):
     return "a prior synthesis"
 
 
+def _utf8_once():
+    """⛔ WRAP STDOUT ONCE. Two plants in one process each wrapped it, and the second wrap
+    closed the first's buffer -- the bug this project's own lessons file describes, hit twice
+    tonight in two different modules. A guard, not a convention."""
+    if getattr(sys.stdout, "_oo_wrapped", False):
+        return
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace",
+                                  line_buffering=True)
+    sys.stdout._oo_wrapped = True
+
+
 def _trials_cell(row):
     """The trial name PLUS its registry identifier, in the same cell as the attribution.
 
@@ -215,6 +226,34 @@ def render(canon):
                         out.append("<p><b>%s.</b> %s</p>"
                                    % (_esc(row.get("outcome")),
                                       _esc(row["why_the_primary_read_did_not_land"])))
+
+            # ⛔ A QUALIFICATION STORED AND NOT SHOWN IS A QUALIFICATION NOBODY CAN ACT ON, and
+            # this component has now hidden one three times in a night: the retirement note,
+            # the retrieval states, and the estimand note below. The fix is to stop adding a
+            # renderer branch per field and print EVERY qualification a row carries, so the
+            # next field to be typed is visible the moment it exists.
+            #
+            # ⚠️ THE ESTIMAND NOTE IS THE ONE THAT MATTERS HERE. A composite INCIDENCE RATE
+            # PER PERSON-YEAR and a per-organism RISK RATIO differ on three axes at once, and
+            # a reader shown both in one table will compare them unless told not to.
+            QUALS = [
+                ("estimand_note", "What this figure is, and is not"),
+                ("prespecified_basis", "Prespecified?"),
+                ("replaces", "What this replaces"),
+                ("what_is_still_missing", "What is still missing"),
+                ("retrieval_state", "Retrieval state"),
+            ]
+            quals = [(row, k, lab) for row in rows if isinstance(row, dict)
+                     for k, lab in QUALS if row.get(k)]
+            if quals:
+                out.append("<h3>Qualifications carried by these rows</h3>")
+                last = None
+                for row, k, lab in quals:
+                    if row.get("outcome") != last:
+                        out.append("<p><b>%s</b></p>" % _esc(row.get("outcome")))
+                        last = row.get("outcome")
+                    out.append("<p><small><i>%s.</i> %s</small></p>"
+                               % (_esc(lab), _esc(row.get(k))))
 
             # ⭐ THE PRIMARY-SOURCE READ, PRINTED PER ROW. The object now records, for each
             # borrowed outcome, that the primary trials WERE read and what state that read
@@ -377,7 +416,7 @@ def plant_retrieval_states():
     ⛔ AND BOTH WAYS. A row carrying the states must print them; a row carrying none must not
     invent one. The second half is what stops the component filling a silence with a state.
     """
-    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    _utf8_once()
     base = {"outcome": "Chlamydia", "tier": "prior-meta table (unverified)",
             "effect": "RR 0.97 (0.89 to 1.07)",
             "why_the_primary_read_did_not_land": "the comparator is the only source held",
@@ -408,7 +447,7 @@ def plant_retrieval_states():
 
 
 def plant():
-    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    _utf8_once()
     html = render(MODEL_ANSWER)
     t = _plain(html)
     tiers = re.findall(r"<td class=\"tier[^\"]*\">([^<]*)</td>", html)
