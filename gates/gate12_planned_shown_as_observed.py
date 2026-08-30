@@ -140,6 +140,13 @@ def main(argv):
                      "figure." % (page, where, leg),
                      numerator=len(new), denominator=checked)
 
+    # COVERAGE. A page can only be checked where an object gives a registered duration to
+    # compare its prose against. Most delivered pages have no object at all, so a baseline
+    # of 0 is a statement about 83 pages, not about the corpus.
+    _delivered = doc.get("n_delivered_pages") or checked
+    gate.coverage(checked, max(_delivered, checked),
+                  "delivered pages with no registered duration stored anywhere to compare "
+                  "their prose against, where a planned figure shown as observed is invisible")
     return gate.report(denominator="%d pages carrying a registered duration; %d objects "
                                    "unreachable for lack of any observed value"
                        % (checked, doc.get("n_uncheckable", 0)))

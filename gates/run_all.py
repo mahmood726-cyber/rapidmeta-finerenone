@@ -56,6 +56,33 @@ GATES = [
     # goes vacuous the moment the defect is fixed.
     ("gate12_planned_shown_as_observed",
      "a planned duration displayed where a reader reads an observed one", "fast"),
+    # ADDED 2026-08-29. Four word boundaries arrived as control characters in one
+    # evening and three of the four had silenced a live check. The sweep behind this
+    # was, predictably, caught by gate 8 as a check nothing called.
+    ("gate13_nonraw_regex_escape",
+     # SLOW: it parses every .py in the tree, twice (plant, then real). 9 minutes on
+     # this machine. The pre-push hook runs --fast and will SKIP it, and says so by
+     # name; CI runs the full set. A gate that makes every push nine minutes longer
+     # is a gate people start bypassing.
+     "a regex escape in a non-raw literal makes a check inert", "slow"),
+    # ADDED 2026-08-30. An unsourced claim drifts to its strongest form; this is the
+    # DISPLAYED-bytes leg, complementary to another lane's detector rather than a
+    # duplicate of it. Slow: it renders 932,327 blocks across every delivered page.
+    ("gate14_unanchored_authority",
+     "an authority named as the source of a claim with nothing to follow", "slow"),
+    # ADDED 2026-08-30. Ten components are now wired onto the write path and nothing checked
+    # that a wired component carries controls at all. Registering it here is what makes it
+    # operative -- a gate nothing calls is the available-not-operative shape gate 8 exists to
+    # expose, and this suite has produced four such files already.
+    #
+    # ⛔ IT RATCHETS. Four components predate the contract; refusing on them would block every
+    # lane's push (this suite runs in pre-push, which has no override) for a backlog none of
+    # those lanes introduced. The backlog is recorded in gates/COMPONENT_CONTRACT_BACKLOG.json
+    # with what each one lacks and why, printed on every run, and the gate refuses only a NEW
+    # non-conformance or a REGRESSION. Proven both ways: with the backlog file absent it
+    # REFUSES 4; with it present it passes and says the backlog has not risen.
+    ("gate15_component_contract",
+     "a wired generator component carries no controls", "fast"),
 ]
 
 

@@ -459,5 +459,27 @@
  },
  "why_guard_origin": "RE-DERIVED, as ruled. The 17 lane_rob guards were previously admitted as SEEN-and-not-justified with no record of where they came from. Each now carries the COMMIT that introduced it and that commit subject, so the admission is attributable instead of anonymous. NOTE what could NOT be derived: which LANE owns a guard. First-parent history fails because merges here fast-forward, putting another lane commits directly onto it -- it misattributed 14 of these 17 to this lane. Authorship fails because every commit in the repository carries one identity. The commit is the strongest true attribution available.",
  "admitted_2026_08_30_regen_features": "13 guards from the six-component landing (absolute effects, stratified reading, other outcomes, count provenance, clinical reading, audit trail) plus the certainty profile. ALL ARE INSIDE coverage(), and every one was made COUNTED before it was admitted: each coverage() now carries a `skipped` Counter and prints a 'SKIPPED, by kind' block, so the objects these guards pass over are a named kind rather than a silent shrinkage of the denominator. Measured after the patch: absolute_effects reports 141 objects with a pooled result AND 20 skipped as 'no results.by_outcome recorded' -- 161 files, all accounted for. ⚠️ The admission is only true because of that patch; admitting these guards while they still dropped rows silently would have been the erosion this baseline exists to prevent. Uncommitted at the time of admission, so no sha could be recorded: they are introduced by the commit that carries this baseline change.",
- "admitted_2026_08_30_by_merge_not_authored_here": "Two guards from commit 9619cb209bae admitted by the regen-features lane, which did not write them: they entered only through a merge of origin/main. The reasons recorded are a READER'S READING of what the lines do, explicitly not the author's justification, and each records the residual denominator gap the reading found. ⚠️ An admission that says nothing is what erodes a baseline; an admission that says what it does not know is not the same thing."
+ "admitted_2026_08_30_by_merge_not_authored_here": "Two guards from commit 9619cb209bae admitted by the regen-features lane, which did not write them: they entered only through a merge of origin/main. The reasons recorded are a READER'S READING of what the lines do, explicitly not the author's justification, and each records the residual denominator gap the reading found. ⚠️ An admission that says nothing is what erodes a baseline; an admission that says what it does not know is not the same thing.",
+ "_admitted": [
+  {
+   "utc": "2026-08-30",
+   "added": [
+    "scripts/lane_rob/estimand_label_gate.py::if not isinstance(block, dict):#0",
+    "scripts/lane_rob/estimand_label_gate.py::if not os.path.exists(p):#0"
+   ],
+   "attribution": [
+    [
+     "scripts/lane_rob/estimand_label_gate.py::if not isinstance(block, dict):#0",
+     "9619cb209baef82d626b48d302f952b58149a2df",
+     "Estimand-label refusal: a number must carry the label of the rows it was computed from"
+    ],
+    [
+     "scripts/lane_rob/estimand_label_gate.py::if not os.path.exists(p):#0",
+     "9619cb209baef82d626b48d302f952b58149a2df",
+     "Estimand-label refusal: a number must carry the label of the rows it was computed from"
+    ]
+   ],
+   "why": "Negative guards in scripts/lane_rob/estimand_label_gate.py, arriving by merge from the RoB lane. Admitted rather than rewritten: they are that lane's code, and restating another author's guard positively would be an edit to a detector this lane does not own. Keys come from the audit's OWN scanner and ratchet -- never retyped from the console, whose display truncates them, and never rebuilt by hand: a first attempt passed a list of paths to keys_for(), which expects hit tuples, and wrote the junk key 's::i#0' into this file. That was reverted."
+  }
+ ]
 }

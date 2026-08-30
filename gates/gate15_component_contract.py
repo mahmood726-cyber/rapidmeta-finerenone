@@ -2,6 +2,7 @@
 import argparse
 import ast
 import io
+import json
 import sys
 from pathlib import Path
 
@@ -464,7 +465,65 @@ def run_scan(repo_root, provider, output):
 
     results = check_discovered_modules(repo_root, provider, discovered)
     print_results(results, output)
-    return 0 if all(result["status"] == "wired-and-conforming" for result in results) else 1
+
+    # ⛔ RATCHET, NOT CLEARANCE -- and the reason is that this gate runs in the pre-push hook,
+    # which has NO OVERRIDE.
+    #
+    # Four components landed before this contract existed and do not satisfy it. Failing on
+    # them would block EVERY LANE'S PUSH on a pre-existing backlog that none of those lanes
+    # introduced, and a gate people cannot push past is a gate that gets deleted. Passing on
+    # them silently would make this the "available but not operative" shape the suite exists
+    # to expose.
+    #
+    # So the currently non-conforming set is RECORDED with what each one lacks, and the gate
+    # refuses only a NEW non-conformance or a REGRESSION in a recorded one. The backlog is
+    # printed every run, so it cannot quietly become permanent.
+    backlog = load_backlog(repo_root)
+    new, regressed, healed = [], [], []
+    for r in results:
+        if r["status"] == "wired-and-conforming":
+            if r["module"] in backlog:
+                healed.append(r["module"])
+            continue
+        missing = set(letter for letter, _n in CHECKS if not r["checks"].get(letter))
+        recorded = set((backlog.get(r["module"]) or {}).get("missing") or [])
+        if r["module"] not in backlog:
+            new.append((r["module"], sorted(missing)))
+        elif missing - recorded:
+            regressed.append((r["module"], sorted(missing - recorded)))
+    print("", file=output)
+    print("RATCHET -- recorded backlog: %d component(s). This gate refuses a NEW "
+          "non-conformance or a REGRESSION, not the backlog itself." % len(backlog),
+          file=output)
+    for mod, entry in sorted(backlog.items()):
+        print("    %-22s missing %-12s %s"
+              % (mod, ",".join(entry.get("missing") or []), (entry.get("why") or "")[:70]),
+              file=output)
+    if healed:
+        print("    healed since the backlog was written: %s" % ", ".join(sorted(healed)),
+              file=output)
+    if new or regressed:
+        for mod, miss in new:
+            print("    NEW          %-22s missing %s" % (mod, ",".join(miss)), file=output)
+        for mod, miss in regressed:
+            print("    REGRESSED    %-22s newly missing %s" % (mod, ",".join(miss)),
+                  file=output)
+        print("REFUSED: %d new, %d regressed." % (len(new), len(regressed)), file=output)
+        return 1
+    print("NO NEW NON-CONFORMANCE. The backlog has not risen.", file=output)
+    return 0
+
+
+def load_backlog(repo_root):
+    """The components recorded as already non-conforming, each with what it lacks and why."""
+    p = Path(repo_root) / "gates" / "COMPONENT_CONTRACT_BACKLOG.json"
+    if not p.exists():
+        return {}
+    try:
+        d = json.loads(p.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+    return {k: v for k, v in d.items() if isinstance(v, dict) and not k.startswith("_")}
 
 
 def plant(output):
@@ -553,12 +612,26 @@ for _name, _mod, _why in (
 
 
 def main(argv=None):
-    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    # ⛔ NO sys.stdout REASSIGNMENT HERE. gates/run_all.py IMPORTS this module and calls main().
+    # Wrapping sys.stdout.buffer inside main() hands the caller a wrapper over ITS OWN buffer;
+    # when this one is dropped and collected it CLOSES that buffer, and the runner's very next
+    # print dies with "ValueError: I/O operation on closed file" -- which run_all reports as
+    # "GATE ... CRASHED", the worst verdict it has, for a gate that ran correctly.
+    # Observed exactly that on the first run through the runner. The wrap now happens only on
+    # the standalone path, at the bottom of this file.
 
     parser = argparse.ArgumentParser(description="Enforce generator-component contract.")
-    parser.add_argument("--repo", default="F:/wt-regen", help="repository root")
+    # ⛔ THE REPO ROOT IS DERIVED, NOT HARD-CODED. A gate that defaults to one machine's path
+    # reports "build_tabbed.py absent" -- a REFUSAL, exit 2 -- on every other checkout of this
+    # repository, and that reads as a defect in the corpus rather than in the gate.
+    parser.add_argument("--repo", default=str(Path(__file__).resolve().parent.parent),
+                        help="repository root")
     parser.add_argument("--plant", action="store_true", help="run in-memory self-test")
-    args = parser.parse_args(argv)
+    # ⛔ parse_known_args, BECAUSE gates/run_all.py FORWARDS ITS OWN ARGV. It calls
+    # `m.main([a for a in argv if a not in ("--fast",)])`, so `--only gate15_component_contract`
+    # arrives here and a strict parser exits 2 on it -- which run_all reads as BROKEN, the
+    # worst verdict in its scale, for a gate that is working perfectly.
+    args, _unknown = parser.parse_known_args(argv)
 
     if args.plant:
         return plant(sys.stdout)
@@ -567,4 +640,5 @@ def main(argv=None):
 
 
 if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
     raise SystemExit(main())

@@ -394,6 +394,13 @@ def main(argv):
                    "swaps": [{"page": p, "nct": n, "named": nm} for p, n, nm, _ in swaps]},
                   fh, indent=1)
 
+    # COVERAGE. Arm C can only check that a NAME IS THE RIGHT ONE where the registration is
+    # pinned in this gate's registry. For every other prose name it can see that a
+    # registration is nearby, never that the pairing is correct.
+    gate.coverage(gate.kind("pinned registration, nearest name AGREES with the registry"),
+                  max(gate.kind("trial name in rendered prose"), 1),
+                  "trial names in served prose whose registration is not pinned here, so "
+                  "the name beside it is unverified -- proximity is checked, identity is not")
     return gate.report(denominator="%d generator render sites; %d trial names in served prose"
                                    % (kinds_a.get("render site naming a trial", 0),
                                       kinds_bc.get("trial name in rendered prose", 0)))

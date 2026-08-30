@@ -250,6 +250,7 @@ def main():
     say("")
 
     leg_a, no_authority, leg_b, definitional = [], [], [], []
+    n_blocks_with_authority = 0
     n_obj = 0
 
     for page, objpath in sorted(pm.items()):
@@ -272,6 +273,7 @@ def main():
                     no_authority.append({"page": page, "outcome": outcome})
                 continue
             rv = r_values(verb)
+            n_blocks_with_authority += 1 if rv else 0
             if not rv:
                 no_authority.append({"page": page, "outcome": outcome})
                 continue
@@ -417,6 +419,7 @@ def main():
                ", ".join(str(x) for x in d["page_authorities"][:5]) or "(none)"))
 
     json.dump({"tolerance": TOL, "r_printed_dp": R_PRINTED_DP, "n_objects": n_obj,
+               "n_blocks_with_authority": n_blocks_with_authority,
                "leg_a_definitional_not_errors": definitional,
                "leg_a_disagreements": leg_a,
                "leg_a_no_authority": no_authority,

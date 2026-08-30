@@ -241,6 +241,14 @@ def main(argv):
     with open(art, "w", encoding="utf-8") as fh:
         json.dump({"gate": gate.as_json(), "divergences": rows}, fh, indent=1)
 
+    # COVERAGE. An outcome with NO reason under any spelling cannot be compared against a
+    # second spelling: it is silent, not consistent.
+    _noreason = kinds.get("outcome with NO reason under any spelling", 0)
+    _outcomes = sum(v for k, v in kinds.items()
+                    if k.startswith("multi-spelling") or k.startswith("outcome"))
+    gate.coverage(max(_outcomes - _noreason, 0), max(_outcomes, 1),
+                  "outcomes carrying no reason under any spelling, where there is nothing "
+                  "for a second spelling to contradict")
     return gate.report(denominator="%d outcomes across %d topic objects"
                                    % (n_outcomes, len(objects)))
 

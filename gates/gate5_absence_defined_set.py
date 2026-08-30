@@ -204,6 +204,13 @@ def main(argv):
                    "positive_restatement": pos_set, "missed_by_selector": only_wider},
                   fh, indent=1)
 
+    # COVERAGE. The whole point of this gate is the gap between the two counts, so the gap
+    # IS its blind region: it can positively restate only a handful of the removal set.
+    gate.coverage(gate.kind("POSITIVE restatement (the page SAYS it has no result)"),
+                  max(gate.kind("ABSENCE-DEFINED removal set"), 1),
+                  "pages the absence-defined selector would remove but which say nothing "
+                  "positive about having no result -- removal there is a failure to "
+                  "recognise, not a decision")
     return gate.report(denominator="%d *_REVIEW.html pages scanned" % len(pages))
 
 

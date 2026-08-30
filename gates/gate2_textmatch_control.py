@@ -355,6 +355,15 @@ def main(argv):
                    "arm_b_unmeasured": unmeasured, "arm_b_controlled": controlled,
                    "arm_b_new_since_freeze": new_uncontrolled}, fh, indent=1)
 
+    # COVERAGE, ARM A. Only an ACRONYM is usable as a match token. A registry title and a
+    # bare registration used as a name are not, so the precision this gate measures is
+    # measured on a third of the trial-name strings in the corpus.
+    gate.coverage(gate.kind("ACRONYM (usable for a text-match task)"),
+                  max(gate.kind("ACRONYM (usable for a text-match task)")
+                      + gate.kind("registry title / descriptor (not a token)")
+                      + gate.kind("registration used as a name"), 1),
+                  "trial-name strings that are registry titles or bare registrations, on "
+                  "which no match precision has been measured at all")
     return gate.report(denominator="%d in-scope text-matching checks (%d controlled, %d in the "
                                    "frozen backlog); %d match-task cases"
                                    % (in_scope_matchers, len(controlled), len(unmeasured),
