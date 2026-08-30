@@ -1,0 +1,18 @@
+# HFrEF verification artefacts: keep BYTE-EXACT on checkout.
+#
+# core.autocrlf is repo-LOCAL config and does NOT travel with a clone. This
+# worktree has autocrlf=false, so the hazard is invisible here -- but a fresh
+# clone on a machine with the Windows default (autocrlf=true) rewrites line
+# endings, and the recorded byte hashes no longer reproduce. .gitattributes
+# is the only part of this that travels.
+#
+# Measured 2026-08-30, simulating an autocrlf=true clone (checkout-index):
+#   hfref_source_verification.json  17161 -> 17310 B  (+149 CR)  MANGLED
+#   hfref_quarantine_ledger.json    44577 -> 44918 B  (+341 CR)  MANGLED
+#   hfref_integrity_gates.json      12327 -> 12327 B  (blob already CRLF)
+#   hfref_coprimary_fit.json       177532 -> 177532 B (blob already CRLF)
+#
+# NOTE: these four siblings were written by the same pipeline with MIXED line
+# endings (two LF, two CRLF). -text freezes each file exactly as committed; it
+# deliberately does NOT normalise them, which would rewrite blobs.
+outputs/hfref_*.json -text
