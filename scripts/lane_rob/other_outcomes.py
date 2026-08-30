@@ -93,6 +93,30 @@ def _attribution(row):
     return "a prior synthesis"
 
 
+def _trials_cell(row):
+    """The trial name PLUS its registry identifier, in the same cell as the attribution.
+
+    ⛔ A LABEL ON OUR OBJECT IS NOT AN IDENTITY -- THE REGISTRY IS. A row reading "ASPIRE, 2629
+    women" attributes its numbers to a trial by a NAME WE WROTE. Correct today is not the same
+    property as checkable: if a label anywhere in this object were flipped, every such cell would
+    follow it silently, and a reader would have nothing to check it against.
+
+    ⭐ AND THIS IS THE ANSWER TO A FINDING ABOUT THE JUDGES. Six blinded judges read the page and
+    NONE checked a trial name against a registry -- which is precisely the work this page claims
+    to make possible. It is hard to blame them while the identifier lives in the object and not
+    in the cell. Putting the NCT beside the name makes the check one click rather than a search.
+    """
+    base = _cell(row.get("trials"))
+    ids = row.get("trial_ids") or []
+    ids = [i for i in ids if isinstance(i, str) and i.startswith("NCT")]
+    if not ids:
+        return base
+    links = " ".join(
+        "<a href=\"https://clinicaltrials.gov/study/%s\">%s</a>" % (_esc(i), _esc(i))
+        for i in ids)
+    return "%s<br><small>%s</small>" % (base, links)
+
+
 def _effect_cell(row, tier):
     """⛔ A BORROWED NUMBER CARRIES ITS SOURCE IN ITS OWN CELL.
 
@@ -168,7 +192,7 @@ def render(canon):
                 "<td class=\"tier %s\">%s</td></tr>"
                 % (_esc(row.get("outcome")), _cell(row.get("treatment")),
                    _cell(row.get("control")), _effect_cell(row, tier),
-                   _cell(row.get("trials")), cls, _esc(row.get("tier"))))
+                   _trials_cell(row), cls, _esc(row.get("tier"))))
             printed += 1
         if body:
             out.append("<div class=\"scroll\"><table><tr><th>Outcome</th><th>Intervention</th>"
