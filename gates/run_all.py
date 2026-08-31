@@ -81,6 +81,14 @@ GATES = [
     # with what each one lacks and why, printed on every run, and the gate refuses only a NEW
     # non-conformance or a REGRESSION. Proven both ways: with the backlog file absent it
     # REFUSES 4; with it present it passes and says the backlog has not risen.
+    # ADDED 2026-08-31, and registered in the same commit that created it. The moat this
+    # project claims is a READER-LEVEL one -- take a trial from the page, find its
+    # registration beside the name, click through and confirm it -- and until now it had
+    # been demonstrated exactly once, by hand, on one page. A demonstration does not apply
+    # to the next topic. Registering it here is what makes it operative; a check that runs
+    # in CI after the push cannot block the push.
+    ("gate16_reader_can_check",
+     "a reader can take a trial from the page and confirm it in the registry", "slow"),
     ("gate15_component_contract",
      "a wired generator component carries no controls", "fast"),
 ]
