@@ -8,56 +8,101 @@
 #
 # Override with a reason on the record:
 #   SSOT_ALLOW_NET_DELETION="why" git commit ...
+# =========================================================================================
+# THE OFFENDER FIRST, THE RULE SECOND, THE GATE LAST AND LABELLED AS SUCH.
+#
+# Every refusal below used to read `REFUSED: <rule> (scripts/<gate>.py)` with the check run
+# as `>/dev/null`. THE PATH IN THE PARENTHESES IS THE GATE, NOT THE FILE TO FIX -- and the
+# gates print their offenders on stdout, which the redirect discarded. Two lanes lost hours
+# to that message: one spent an hour looking for a file matching *_gate.py because a refusal
+# named lint_gate_can_fail.py, and none of the three offending files matched that pattern.
+#
+#     A REFUSAL THAT NAMES THE CHECKER AND NOT THE OFFENDER DOES NOT MERELY FAIL TO HELP.
+#     IT HANDS THE READER A SPECIFIC, CORRECT-LOOKING FILENAME THAT POINTS AWAY FROM THE
+#     PROBLEM, AND A WRONG BELIEF THAT ARRIVES WITH A PRECISE ERROR STRING DOES NOT GET
+#     RE-EXAMINED.
+#
+# _refuse <logfile> <rule sentence> <gate invocation>
+# =========================================================================================
+_refuse() {
+    _log="$1"; _rule="$2"; _gate="$3"
+    echo ""
+    echo "REFUSED."
+    echo ""
+    echo "  WHAT TO FIX -- paths named by the check itself:"
+    # SEPARATOR CLASS, AND IT COST A TEST RUN TO FIND. This pattern first required a
+    # forward slash. scripts/lint_control_chars.py prints os.sep -- on Windows
+    # `scripts\plant_refusal_names_the_offender.py:7` -- so the extractor found
+    # NOTHING and the refusal fell through to "this check named no path of its own":
+    # a false accusation against a check that had named its offender perfectly, inside
+    # the very helper written to stop refusals misdirecting the reader. Both separators.
+    _paths=$(grep -oE '(scripts|ssot|gates|evidence|outputs|figs|docs|tools)[\/\\][A-Za-z0-9_.@-]+([\/\\][A-Za-z0-9_.@-]+)*\.(py|json|html|md|txt|yml|yaml)(:[0-9]+)?' "$_log" 2>/dev/null | sort -u | head -25)
+    if [ -n "$_paths" ]; then
+        printf '%s\n' "$_paths" | sed 's/^/      /'
+    else
+        echo "      (this check named no path of its own -- read its full output below;"
+        echo "       a check that refuses without naming what to fix is its own defect)"
+    fi
+    echo ""
+    echo "  RULE: $_rule"
+    echo "  found by: $_gate"
+    echo "  full output: $_log"
+    exit 1
+}
+
+
 python "$(git rev-parse --show-toplevel)/scripts/ssot_net_deletion_check.py" || exit 1
 
 # class-3 staging guard
 sh "$(git rev-parse --show-toplevel)/.githooks/pre-commit-staging" || exit 1
 
-python "$(git rev-parse --show-toplevel)/scripts/lint_subprocess_decode.py" >/dev/null || { echo "REFUSED: subprocess decode-hazard sites present (scripts/lint_subprocess_decode.py)"; exit 1; }
+_L="$(mktemp)"; python "$(git rev-parse --show-toplevel)/scripts/lint_subprocess_decode.py" > "$_L" 2>&1 || _refuse "$_L" "subprocess decode-hazard sites present" "scripts/lint_subprocess_decode.py"
 
 # HEREDOC MANGLING, both halves. The class recurred EIGHT times in one night against an author
 # who had read, written, and committed the rule. Prose does not hold it; these two do.
 #   control chars in SOURCE  -- the shell-transport path (`\b` arriving as 0x08)
 #   escape hazards in VALUES -- the non-raw-literal path, which leaves the source byte-clean
 R="$(git rev-parse --show-toplevel)"
-python "$R/scripts/lint_control_chars.py"   >/dev/null || { echo "REFUSED: control characters in tracked text (scripts/lint_control_chars.py)"; exit 1; }
-python "$R/scripts/lint_escape_hazards.py"  >/dev/null || { echo "REFUSED: escape hazards in pattern literals (scripts/lint_escape_hazards.py)"; exit 1; }
+
+
+_L="$(mktemp)"; python "$R/scripts/lint_control_chars.py" > "$_L" 2>&1 || _refuse "$_L" "control characters in tracked text" "scripts/lint_control_chars.py"
+_L="$(mktemp)"; python "$R/scripts/lint_escape_hazards.py" > "$_L" 2>&1 || _refuse "$_L" "escape hazards in pattern literals" "scripts/lint_escape_hazards.py"
 
 # E8 -- a shipped page must name a build command that exists and a commit that RESOLVES.
 # The stamp was always honest; nothing ever asserted it named something real.
-python "$R/scripts/generator_stamp_gate.py" >/dev/null || { echo "REFUSED: a gated page carries a generator stamp that names nothing checkable (scripts/generator_stamp_gate.py)"; exit 1; }
+_L="$(mktemp)"; python "$R/scripts/generator_stamp_gate.py" > "$_L" 2>&1 || _refuse "$_L" "a gated page carries a generator stamp that names nothing checkable" "scripts/generator_stamp_gate.py"
 
 # A FILE NAMED *_gate.py MUST BE ABLE TO FAIL. The name is a promise. Four files named gate had
 # no reachable non-zero exit -- they were correctly-built TRIAGE tools wearing the wrong name,
 # and are now *_triage.py. This stops the fifth being written tomorrow.
-python "$R/scripts/lint_gate_can_fail.py" >/dev/null || { echo "REFUSED: a file named *_gate.py cannot fail (scripts/lint_gate_can_fail.py)"; exit 1; }
+_L="$(mktemp)"; python "$R/scripts/lint_gate_can_fail.py" > "$_L" 2>&1 || _refuse "$_L" "a file named *_gate.py cannot fail" "scripts/lint_gate_can_fail.py"
 
 # ABSENCE IS NOT ZERO. 3 of 135 topics carry a k_cascade; 132 have never had k counted. Any
 # summary that adds NO_CASCADE to remainder:0 declares a false all-clear over 132 topics.
-python "$R/scripts/lint_no_false_allclear.py" >/dev/null || { echo "REFUSED: code turns an uncounted topic into a clear one (scripts/lint_no_false_allclear.py)"; exit 1; }
+_L="$(mktemp)"; python "$R/scripts/lint_no_false_allclear.py" > "$_L" 2>&1 || _refuse "$_L" "code turns an uncounted topic into a clear one" "scripts/lint_no_false_allclear.py"
 
 # A REVIEW QUESTION MUST NOT BE ONE OF ITS TRIALS' REGISTRY FIELDS.
-python "$R/scripts/lint_question_is_a_question.py" >/dev/null || { echo "REFUSED: a NEW topic's question/title is a copied registry field, above the known baseline (scripts/lint_question_is_a_question.py) -- see BLOCKED-ablation-af-review-2026-08-19.md"; exit 1; }
+_L="$(mktemp)"; python "$R/scripts/lint_question_is_a_question.py" > "$_L" 2>&1 || _refuse "$_L" "a NEW topic's question/title is a copied registry field, above the known baseline (scripts/lint_question_is_a_question.py) -- see BLOCKED-ablation-af-review-2026-08-19.md" "scripts/lint_question_is_a_question.py"
 
 # A STORED BLOCK MAY NOT ASSERT A STATE THE OBJECT CONTRADICTS. P6 once refused with a reason
 # that was not true -- "k=1, no meta-analysis was performed" on an object that pooled six.
-python "$R/scripts/lint_block_contradicts_object.py" >/dev/null || { echo "REFUSED: a stored block asserts a state its own object contradicts (scripts/lint_block_contradicts_object.py)"; exit 1; }
+_L="$(mktemp)"; python "$R/scripts/lint_block_contradicts_object.py" > "$_L" 2>&1 || _refuse "$_L" "a stored block asserts a state its own object contradicts" "scripts/lint_block_contradicts_object.py"
 
 # RESTRAINT (E4). Every other check here catches overreach. This one catches an instrument
 # REFUSING where an independent instrument decides -- the class that silently shrank evidence
 # bases corpus-wide and that no guard could see, because withholding leaves no trace in the
 # object. A ratchet: findings are DISAGREEMENTS to adjudicate, not proven defects, so it blocks
 # on an increase rather than on a nonzero count.
-python "$R/scripts/lint_restraint.py" >/dev/null || { echo "REFUSED: new restraint candidate(s) -- an instrument refuses where an independent one decides (scripts/lint_restraint.py)"; exit 1; }
+_L="$(mktemp)"; python "$R/scripts/lint_restraint.py" > "$_L" 2>&1 || _refuse "$_L" "new restraint candidate(s) -- an instrument refuses where an independent one decides" "scripts/lint_restraint.py"
 
 # IDENTIFIERS FROM RECALL. A recalled id in a build makes a wrong value; in an AUDIT it makes
 # an accusation, and nothing audits the auditor. Exit 2 = empty vocabulary, which is a broken
 # instrument, not a pass.
-python "$R/scripts/lint_identifier_pairing.py" >/dev/null
+_L="$(mktemp)"; python "$R/scripts/lint_identifier_pairing.py" > "$_L" 2>&1
 case $? in
   0) ;;
-  1) echo "REFUSED: a registration id is written beside another trial's acronym (scripts/lint_identifier_pairing.py)"; exit 1 ;;
-  *) echo "REFUSED: identifier-pairing check could not run -- empty acronym vocabulary. A check with nothing to check against passes everything."; exit 1 ;;
+  1) _refuse "$_L" "a registration id is written beside another trial's acronym" "scripts/lint_identifier_pairing.py" ;;
+  *) _refuse "$_L" "identifier-pairing check could not run -- empty acronym vocabulary. A check with nothing to check against passes everything." "scripts/lint_identifier_pairing.py" ;;
 esac
 
 # ROUTE 7 -- A SCREENER THAT ASKS THE NEIGHBOURING TOPIC'S QUESTION UNDER THIS TOPIC'S NAME.
@@ -65,14 +110,14 @@ esac
 # the output is complete, plausible and INVERTED. A sed-renamed sibling screener parses, imports,
 # runs, and passes every other detector in this file -- proven by planting the regenerated
 # artefact (scripts/prove_criteria_fingerprint.py). Only a behavioural fingerprint sees it.
-python "$R/scripts/lint_criteria_fingerprint.py" >/dev/null || { echo "REFUSED: a screener does not implement its own review's criteria (scripts/lint_criteria_fingerprint.py)"; exit 1; }
+_L="$(mktemp)"; python "$R/scripts/lint_criteria_fingerprint.py" > "$_L" 2>&1 || _refuse "$_L" "a screener does not implement its own review's criteria" "scripts/lint_criteria_fingerprint.py"
 
 # THE VERSION MARKER THAT MAKES STALENESS VISIBLE WENT STALE, AND NOTHING NOTICED FOR SEVEN
 # BUMPS. PAGE-STANDARD.md said 1.6.0, its own newest log entry said 1.12.0, and the builder
 # stamped 1.13.0. Nothing shipped wrong -- pages carry the CODE's version -- which is precisely
 # why it survived: the drift had NO DOWNSTREAM SYMPTOM. On its first live run this gate found a
 # second drift of the same kind in the same file: ten properties listed and never dated.
-python "$R/scripts/standard_version_agreement_gate.py" >/dev/null || { echo "REFUSED: PAGE-STANDARD.md, its version log and ssot/build_to_standard.py do not agree on the standard version (scripts/standard_version_agreement_gate.py)"; exit 1; }
+_L="$(mktemp)"; python "$R/scripts/standard_version_agreement_gate.py" > "$_L" 2>&1 || _refuse "$_L" "PAGE-STANDARD.md, its version log and ssot/build_to_standard.py do not agree on the standard version" "scripts/standard_version_agreement_gate.py"
 
 # A BARE STRING WHERE A COLLECTION OF TERMS IS EXPECTED. `locate(study, "bococizumab")` made
 # `any(s in blob for s in syns)` iterate CHARACTERS -- every arm matched on single letters, the
@@ -80,29 +125,29 @@ python "$R/scripts/standard_version_agreement_gate.py" >/dev/null || { echo "REF
 # excluded because its ATORVASTATIN arm "contained bococizumab". No exception, no null, nothing
 # malformed: THE WRONG ANSWER HAS THE SHAPE OF THE RIGHT ONE. Caught only by a known-answer
 # trial falling out. Runtime half: topic_identity.require_terms().
-python "$R/scripts/lint_string_where_collection_expected.py" >/dev/null || { echo "REFUSED: a bare string reaches a parameter that is membership-tested (scripts/lint_string_where_collection_expected.py)"; exit 1; }
-python "$R/scripts/lint_pmid_names_two_trials.py" >/dev/null || { echo "REFUSED: one PMID is attributed to two different trials somewhere in the corpus (scripts/lint_pmid_names_two_trials.py). It is wrong on at least one side and the command cannot say which -- look both up."; exit 1; }
-python "$R/scripts/lint_refusal_contradicted_by_its_own_section.py" >/dev/null || { echo "REFUSED: a page opens a tab by denying something it then prints (scripts/lint_refusal_contradicted_by_its_own_section.py). A refusal contradicted by the content beneath it reads as diligence and is false. Re-run with --repair."; exit 1; }
+_L="$(mktemp)"; python "$R/scripts/lint_string_where_collection_expected.py" > "$_L" 2>&1 || _refuse "$_L" "a bare string reaches a parameter that is membership-tested" "scripts/lint_string_where_collection_expected.py"
+_L="$(mktemp)"; python "$R/scripts/lint_pmid_names_two_trials.py" > "$_L" 2>&1 || _refuse "$_L" "one PMID is attributed to two different trials somewhere in the corpus (scripts/lint_pmid_names_two_trials.py). It is wrong on at least one side and the command cannot say which -- look both up." "scripts/lint_pmid_names_two_trials.py"
+_L="$(mktemp)"; python "$R/scripts/lint_refusal_contradicted_by_its_own_section.py" > "$_L" 2>&1 || _refuse "$_L" "a page opens a tab by denying something it then prints (scripts/lint_refusal_contradicted_by_its_own_section.py). A refusal contradicted by the content beneath it reads as diligence and is false. Re-run with --repair." "scripts/lint_refusal_contradicted_by_its_own_section.py"
 # A MANUSCRIPT IS CHECKED AS A WHOLE DOCUMENT, because the defect that motivated this
 # existed only BETWEEN two sections: the risk-of-bias ceiling was emitted by
 # methods_synthesis and again by risk_of_bias, and neither site was wrong on its own.
 # A per-section check is structurally blind to it. Found 20 more on its first run.
-python "$R/scripts/lint_manuscript_whole_document.py" >/dev/null || { echo "REFUSED: a projected manuscript repeats a paragraph or a table, or refuses for want of a field another section uses (scripts/lint_manuscript_whole_document.py). Run it for the detail."; exit 1; }
+_L="$(mktemp)"; python "$R/scripts/lint_manuscript_whole_document.py" > "$_L" 2>&1 || _refuse "$_L" "a projected manuscript repeats a paragraph or a table, or refuses for want of a field another section uses (scripts/lint_manuscript_whole_document.py). Run it for the detail." "scripts/lint_manuscript_whole_document.py"
 # A P46 REFUSAL IS ABOUT PRODUCIBILITY, NOT PROVENANCE. 34 objects say 'no risk-of-bias
 # assessment was recoverable from the page' -- true, identical on all 34, and about the
 # wrong thing: RoB is assessed from the registrations those objects already hold. The
 # test is structural, not a keyword: a reason true of ONE topic cannot be byte-identical
 # across many. Ratchets on a measured baseline; it may fall and must not rise.
-python "$R/scripts/lint_p46_refusal_is_producibility.py" --gate >/dev/null || { echo "REFUSED: a provenance note was added where a P46 refusal belongs (scripts/lint_p46_refusal_is_producibility.py --gate). A refusal names what was reached and found insufficient, and what would have to be obtained."; exit 1; }
-python "$R/scripts/sweep_mojibake.py" --gate >/dev/null || { echo "REFUSED: a delivered page carries a double-encoded character (scripts/sweep_mojibake.py --gate). The GENERATOR that produces them is UNTRACED, so this cannot be assumed fixed. Re-run: python scripts/fix_double_encoded_delivered_pages.py --apply"; exit 1; }
-python "$R/scripts/dashboard_projection_gate.py" >/dev/null || { echo "REFUSED: the dashboard data is stale against the objects, or serves a pooled estimate for a topic whose object withdrew one (scripts/dashboard_projection_gate.py). Re-run: python scripts/project_dashboard_index.py --apply"; exit 1; }
+_L="$(mktemp)"; python "$R/scripts/lint_p46_refusal_is_producibility.py" --gate > "$_L" 2>&1 || _refuse "$_L" "a provenance note was added where a P46 refusal belongs (scripts/lint_p46_refusal_is_producibility.py --gate). A refusal names what was reached and found insufficient, and what would have to be obtained." "scripts/lint_p46_refusal_is_producibility.py --gate"
+_L="$(mktemp)"; python "$R/scripts/sweep_mojibake.py" --gate > "$_L" 2>&1 || _refuse "$_L" "a delivered page carries a double-encoded character (scripts/sweep_mojibake.py --gate). The GENERATOR that produces them is UNTRACED, so this cannot be assumed fixed. Re-run: python scripts/fix_double_encoded_delivered_pages.py --apply" "scripts/sweep_mojibake.py --gate"
+_L="$(mktemp)"; python "$R/scripts/dashboard_projection_gate.py" > "$_L" 2>&1 || _refuse "$_L" "the dashboard data is stale against the objects, or serves a pooled estimate for a topic whose object withdrew one (scripts/dashboard_projection_gate.py). Re-run: python scripts/project_dashboard_index.py --apply" "scripts/dashboard_projection_gate.py"
 
 # A PUBLISHED ESTIMATE THE PAGE CANNOT DISPLAY IS ONE NOBODY CAN VERIFY. Twice in one
 # session, on the first two CONTINUOUS endpoints ever gated: the object stored four
 # DECIMALS and the page renders four SIGNIFICANT FIGURES, so the stored string appeared
 # nowhere in the delivered bytes and verify_delivered_bytes.py refused -- AFTER a deploy.
 # A ratchet, not a block: 13 topics predate it and are baselined, unabsolved.
-python "$R/scripts/lint_pooled_point_is_displayable.py" >/dev/null || { echo "REFUSED: a NEW pooled point is stored at a precision the page cannot render (scripts/lint_pooled_point_is_displayable.py)"; exit 1; }
+_L="$(mktemp)"; python "$R/scripts/lint_pooled_point_is_displayable.py" > "$_L" 2>&1 || _refuse "$_L" "a NEW pooled point is stored at a precision the page cannot render" "scripts/lint_pooled_point_is_displayable.py"
 
 # E10 -- CURSOR ABANDONMENT. A search that returned fewer records than it REPORTED must say
 # so. colchicine returned 100 of 137 with a live cursor, and CLEAR SYNERGY (n=7264) -- one of
@@ -110,32 +155,32 @@ python "$R/scripts/lint_pooled_point_is_displayable.py" >/dev/null || { echo "RE
 # page produces a cascade that reconciles with itself and is missing trials, in the direction
 # that makes a review look FINISHED. A DECLARED shortfall passes; an undeclared one is the
 # defect. Same class as the phase filter that cost apixaban NCT02366871, by a different route.
-python "$R/scripts/lint_search_pagination_declared.py" >/dev/null || { echo "REFUSED: a search returned fewer records than it reported and does not declare the shortfall (scripts/lint_search_pagination_declared.py)"; exit 1; }
+_L="$(mktemp)"; python "$R/scripts/lint_search_pagination_declared.py" > "$_L" 2>&1 || _refuse "$_L" "a search returned fewer records than it reported and does not declare the shortfall" "scripts/lint_search_pagination_declared.py"
 
 # P35 -- THE PRIMARY OUTCOME IS READ BY MATCHING ITS TEXT, NEVER BY POSITION.
 # `outcomeMeasures[0]` is ADVANCE-2's SECONDARY and its three companions' PRIMARY. A pool built
 # on element zero is WRONG WITH NOTHING MALFORMED ANYWHERE -- no parse error, no null, no
 # missing key, four numbers of the right shape. There is no downstream symptom to notice, which
 # is why prose cannot hold this class. Twelve baselined sites remain and are printed, unabsolved.
-python "$R/scripts/lint_primary_by_position.py" >/dev/null || { echo "REFUSED: a new positional read of an outcome collection (scripts/lint_primary_by_position.py)"; exit 1; }
+_L="$(mktemp)"; python "$R/scripts/lint_primary_by_position.py" > "$_L" 2>&1 || _refuse "$_L" "a new positional read of an outcome collection" "scripts/lint_primary_by_position.py"
 
 # P33 + P36 -- COMPOSITES ARE COMPARED BY COMPONENTS, NEVER BY NAME.
 # "total VTE + VTE-RELATED death" and "VTE + ALL-CAUSE death" are the same name and different
 # endpoints. Three instances in one night, and heterogeneity settled none of them: mismatched
 # estimands pooled at 0.0%, 3.9% and 83.6%. Pooling a mismatch may be right; doing it SILENTLY
 # never is, so the block is on an unrecorded mismatch, not on mismatch.
-python "$R/scripts/lint_composite_by_components.py" >/dev/null || { echo "REFUSED: a pool combines endpoints with different component sets and records no component_mismatch (scripts/lint_composite_by_components.py)"; exit 1; }
+_L="$(mktemp)"; python "$R/scripts/lint_composite_by_components.py" > "$_L" 2>&1 || _refuse "$_L" "a pool combines endpoints with different component sets and records no component_mismatch" "scripts/lint_composite_by_components.py"
 
 # E4 -- A REFUSAL TO POOL MUST HAVE LOOKED BELOW THE PRIMARY.
 # Withholding leaves NO trace in the object, which is why this guard is about the process and
 # not the result. 115 topics decline at least one outcome; 46 carry no evidence that anything
 # below the primary was ever read. Two of exactly that shape became real pooled estimates
 # tonight, one of them replacing a k=1 figure that measured a different question entirely.
-python "$R/scripts/lint_withholding_asked.py" >/dev/null
+_L="$(mktemp)"; python "$R/scripts/lint_withholding_asked.py" > "$_L" 2>&1
 case $? in
   0) ;;
-  1) echo "REFUSED: a new refusal to pool with no evidence that any rank below the primary was read (scripts/lint_withholding_asked.py)"; exit 1 ;;
-  *) echo "REFUSED: the withholding check found NO topic declining anything -- its vocabulary no longer matches the objects. A check with nothing to check against passes everything."; exit 1 ;;
+  1) _refuse "$_L" "a new refusal to pool with no evidence that any rank below the primary was read" "scripts/lint_withholding_asked.py" ;;
+  *) _refuse "$_L" "the withholding check found NO topic declining anything -- its vocabulary no longer matches the objects. A check with nothing to check against passes everything." "scripts/lint_withholding_asked.py" ;;
 esac
 
 # AND THE OTHER HALF OF E4: the check above proves the question was ASKED. This one proves the
@@ -144,11 +189,11 @@ esac
 # convenient answer cannot be told apart from no check. apixaban TREATMENT ran the identical
 # discipline and went 8 -> 3, costing it the two largest trials in its field. Neither number is
 # publishable without the other, so an object stating one is refused.
-python "$R/scripts/lint_withholding_direction_paired.py" >/dev/null
+_L="$(mktemp)"; python "$R/scripts/lint_withholding_direction_paired.py" > "$_L" 2>&1
 case $? in
   0) ;;
-  1) echo "REFUSED: an object states its withholding direction without a counter-instance that exists, points back, and runs the other way (scripts/lint_withholding_direction_paired.py)"; exit 1 ;;
-  *) echo "REFUSED: NO object declares a withholding direction -- the check has nothing to check against, which is a broken instrument and not a clean corpus."; exit 1 ;;
+  1) _refuse "$_L" "an object states its withholding direction without a counter-instance that exists, points back, and runs the other way" "scripts/lint_withholding_direction_paired.py" ;;
+  *) _refuse "$_L" "NO object declares a withholding direction -- the check has nothing to check against, which is a broken instrument and not a clean corpus." "scripts/lint_withholding_direction_paired.py" ;;
 esac
 
 # ---------------------------------------------------------------------------------------
@@ -168,19 +213,19 @@ esac
 # THE ACCUSING DIRECTION. Four wrong accusations in one night, every one caught by a person
 # reading the instance and none by the instrument. A new corpus instrument declares a case
 # whose answer is already known -- and, where it can over-flag, a case it must NOT flag.
-python "$R/scripts/lint_instrument_declares_a_control.py" >/dev/null || { echo "REFUSED: a new corpus-wide instrument reports findings with no control (scripts/lint_instrument_declares_a_control.py). Route it through instrument_controls.require_controls, or declare '# no-control: <reason>'."; exit 1; }
+_L="$(mktemp)"; python "$R/scripts/lint_instrument_declares_a_control.py" > "$_L" 2>&1 || _refuse "$_L" "a new corpus-wide instrument reports findings with no control (scripts/lint_instrument_declares_a_control.py). Route it through instrument_controls.require_controls, or declare '# no-control: <reason>'." "scripts/lint_instrument_declares_a_control.py"
 
 # EXCLUSION BY ABSENCE, corpus-wide subset only. 1,300 negative guards is a population; the
 # 125 inside a loop over the corpus are what decides WHAT A FIX REACHES, and `zero paper-*
 # sections` standing in for `built by an older generator` dropped three live pages.
-python "$R/scripts/audit_exclusion_by_absence.py" --gate >/dev/null || { echo "REFUSED: a NEW negative guard sits inside a corpus-wide loop (scripts/audit_exclusion_by_absence.py --gate). State the positive property, or baseline it with a reason."; exit 1; }
+_L="$(mktemp)"; python "$R/scripts/audit_exclusion_by_absence.py" --gate > "$_L" 2>&1 || _refuse "$_L" "a NEW negative guard sits inside a corpus-wide loop (scripts/audit_exclusion_by_absence.py --gate). State the positive property, or baseline it with a reason." "scripts/audit_exclusion_by_absence.py --gate"
 
 # AND THE TABLE ITSELF. A class whose named command cannot fail is prose wearing a filename.
-python "$R/scripts/audit_class_mechanisation.py" --gate >/dev/null || { echo "REFUSED: a defect class names a command that cannot fail (scripts/audit_class_mechanisation.py --gate)."; exit 1; }
+_L="$(mktemp)"; python "$R/scripts/audit_class_mechanisation.py" --gate > "$_L" 2>&1 || _refuse "$_L" "a defect class names a command that cannot fail (scripts/audit_class_mechanisation.py --gate)." "scripts/audit_class_mechanisation.py --gate"
 
 # CLASS 55. The ten arm-role contradictions an object states against itself are baselined;
 # an eleventh refuses. Not a clearance -- FOURIER's swapped arms still carry their counts.
-python "$R/scripts/lint_arm_roles_contradict_the_object.py" --gate >/dev/null || { echo "REFUSED: a NEW arm-role contradiction (scripts/lint_arm_roles_contradict_the_object.py --gate). Establish the contrast from the REGISTRATION before changing anything."; exit 1; }
+_L="$(mktemp)"; python "$R/scripts/lint_arm_roles_contradict_the_object.py" --gate > "$_L" 2>&1 || _refuse "$_L" "a NEW arm-role contradiction (scripts/lint_arm_roles_contradict_the_object.py --gate). Establish the contrast from the REGISTRATION before changing anything." "scripts/lint_arm_roles_contradict_the_object.py --gate"
 
 # ---- 2026-08-23: THE FOUR GATES BUILT TODAY WERE NOT IN THIS FILE ------------------------
 # An audit of our own controls returned ENFORCED 1 of 15. Every gate written today sat in the
@@ -190,25 +235,25 @@ python "$R/scripts/lint_arm_roles_contradict_the_object.py" --gate >/dev/null ||
 
 # PROSE MUST NOT BYPASS THE RENDER TRANSFORM. Two render points now (paper panel, card
 # callable); the gate proves itself against a mutant of each before it reports.
-python "$R/scripts/gate_no_prose_bypasses_the_tidy_2026_08_23.py" >/dev/null || { echo "REFUSED: a prose render point does not apply the transform (scripts/gate_no_prose_bypasses_the_tidy_2026_08_23.py)"; exit 1; }
+_L="$(mktemp)"; python "$R/scripts/gate_no_prose_bypasses_the_tidy_2026_08_23.py" > "$_L" 2>&1 || _refuse "$_L" "a prose render point does not apply the transform" "scripts/gate_no_prose_bypasses_the_tidy_2026_08_23.py"
 
 # GRAMMAR SEAMS IN STORED PROSE. A change that alters the SHAPE of generated text invalidates
 # every join around it, and the joins are invisible in a diff of the generator. Found 111
 # semicolon seams, 19 double full stops and a space-before-period on its first real run.
-python "$R/scripts/gate_no_grammar_seam_in_stored_prose_2026_08_23.py" >/dev/null || { echo "REFUSED: a punctuation seam in stored prose (scripts/gate_no_grammar_seam_in_stored_prose_2026_08_23.py)"; exit 1; }
+_L="$(mktemp)"; python "$R/scripts/gate_no_grammar_seam_in_stored_prose_2026_08_23.py" > "$_L" 2>&1 || _refuse "$_L" "a punctuation seam in stored prose" "scripts/gate_no_grammar_seam_in_stored_prose_2026_08_23.py"
 
 # EVERY LINKED TARGET RESOLVES. A removal that updates two surfaces of three is how
 # audit_table.html came to carry 569 links to pages deliberately deleted eleven weeks earlier.
-python "$R/scripts/gate_every_linked_target_resolves_2026_08_23.py" >/dev/null || { echo "REFUSED: the front page links a target that does not resolve (scripts/gate_every_linked_target_resolves_2026_08_23.py)"; exit 1; }
+_L="$(mktemp)"; python "$R/scripts/gate_every_linked_target_resolves_2026_08_23.py" > "$_L" 2>&1 || _refuse "$_L" "the front page links a target that does not resolve" "scripts/gate_every_linked_target_resolves_2026_08_23.py"
 
 # FALSE METHOD CLAIMS FROM LITERALS. Table 1 asserted "two independent screeners ... with named
 # human adjudication" on pages whose own text said no screening log is recorded. ARNI holds the
 # timestamps that make those sentences true; they were copied everywhere as constants. Demands
 # ZERO, not a ratchet -- a sentence saying a procedure was carried out has no tolerable floor.
-python "$R/scripts/audit_procedural_constants_all_surfaces_2026_08_23.py" >/dev/null || { echo "REFUSED: a procedural claim is asserted from a literal rather than projected (scripts/audit_procedural_constants_all_surfaces_2026_08_23.py)"; exit 1; }
+_L="$(mktemp)"; python "$R/scripts/audit_procedural_constants_all_surfaces_2026_08_23.py" > "$_L" 2>&1 || _refuse "$_L" "a procedural claim is asserted from a literal rather than projected" "scripts/audit_procedural_constants_all_surfaces_2026_08_23.py"
 
 # AN EIGHTH SPELLING OF A FROZEN CONCEPT. `absent_reason` beside `withdrawn_reason` meant 17
 # pages printed "No reason recorded." while holding a substantive reason.
-python "$R/scripts/gate_no_new_schema_synonym_2026_08_23.py" >/dev/null || { echo "REFUSED: a new spelling of a concept that already has one (scripts/gate_no_new_schema_synonym_2026_08_23.py)"; exit 1; }
+_L="$(mktemp)"; python "$R/scripts/gate_no_new_schema_synonym_2026_08_23.py" > "$_L" 2>&1 || _refuse "$_L" "a new spelling of a concept that already has one" "scripts/gate_no_new_schema_synonym_2026_08_23.py"
 
-python "$R/scripts/lint_collinear_protocol.py" >/dev/null || { echo "REFUSED: undeclared collinearity risk (scripts/lint_collinear_protocol.py)"; exit 1; }
+_L="$(mktemp)"; python "$R/scripts/lint_collinear_protocol.py" > "$_L" 2>&1 || _refuse "$_L" "undeclared collinearity risk" "scripts/lint_collinear_protocol.py"

@@ -77,12 +77,52 @@ def facts(path):
         k = len(tr) if isinstance(tr, list) else None
     pt, lo, hi = pooled.get("point"), pooled.get("ci_low"), pooled.get("ci_high")
     meas = pooled.get("measure") or (blk or {}).get("measure") or ""
+
+    # THE CHOICE BETWEEN INTERVALS IS MADE HERE, BY NAME, AND IS RENDERED.
+    #
+    # This object holds TWO intervals for one estimate and says why:
+    #   pooled                RR 0.703 (0.566 - 0.8731)  excludes 1  PROTECTIVE
+    #   pooled_hartung_knapp       (0.1725 - 2.8653)  spans 1     NOT SIGNIFICANT
+    #   "Handbook 6.5 10.10.4.5 recommends Hartung-Knapp where k is small.
+    #    Shown ALONGSIDE the unadjusted interval, not instead of it."
+    #
+    # The first version read `pooled` and nothing else, so it took the
+    # protective interval and dropped the one spanning the null WITHOUT
+    # DECIDING TO -- a field-name default choosing between two published
+    # findings. That replaces a VISIBLE disagreement (a stale literal anyone
+    # could see) with an INVISIBLE one, which is strictly worse than what it
+    # replaced.
+    #
+    # RULE: `pooled` is primary. A SIBLING interval is found BY SHAPE, not by
+    # a hard-coded name, and when it disagrees with the primary about the
+    # null it is rendered beside it. A row showing one of two intervals
+    # without saying so is not a shorter row, it is a different claim.
+    sibs = []
+    for _k, _v in (blk or {}).items():
+        if _k == "pooled" or not isinstance(_v, dict):
+            continue
+        _lo, _hi = _v.get("ci_low"), _v.get("ci_high")
+        if _lo is None or _hi is None:
+            continue
+        sibs.append((_k, _lo, _hi))
+
+    def _spans(a, b, m):
+        null = 0.0 if str(m).upper() in ("MD", "SMD", "RD") else 1.0
+        return a <= null <= b
+
     if pt is None:
         est = ""
     elif lo is None or hi is None:
         est = "%s %s" % (meas, pt)
     else:
         est = "%s %.4g (%.4g–%.4g)" % (meas, pt, lo, hi)
+        primary = _spans(lo, hi, meas)
+        for _k, _lo, _hi in sibs:
+            if _spans(_lo, _hi, meas) != primary:
+                est += "; %s (%.4g–%.4g) %s the null" % (
+                    _k.replace("pooled_", "").replace("_", "-"), _lo, _hi,
+                    "spans" if _spans(_lo, _hi, meas) else "excludes")
+                break
     return title, k, est.strip()
 
 
