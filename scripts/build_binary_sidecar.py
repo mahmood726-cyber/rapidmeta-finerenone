@@ -23,7 +23,7 @@ Limitations:
   * Requires k >= 2 trials (k=1 is a single-study summary, not a pool).
 """
 from __future__ import annotations
-import sys, io, re, json, math
+import sys, io, re, json, math, argparse, datetime, hashlib, subprocess
 from pathlib import Path
 
 # sys.stdout reassignment lives in main() to avoid breaking importers
@@ -33,6 +33,64 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent.parent
 SIDECAR_DIR = HERE / "outputs" / "r_validation"
 SIDECAR_DIR.mkdir(parents=True, exist_ok=True)
+
+
+def generator_provenance():
+    """WHEN this ran and WHICH CODE ran, both measured at run time.
+
+    The previous version wrote a hardcoded `"generated_on": "2026-05-26"` on
+    every file it produced. Regenerating with that in place would stamp 692
+    rebuilt artefacts with a date that was not true, and a reader could not
+    then tell a corrected artefact from the original by its provenance --
+    which would leave the corrected corpus indistinguishable from the broken
+    one, the exact property the regeneration exists to remove.
+
+    A DATE ALONE IS NOT ENOUGH. It says when, not which code. Two artefacts
+    built the same day either side of an estimator fix carry the same date
+    and different numbers. So this also records:
+
+      generator_sha256  the hash of THIS FILE as it ran. This is the field
+                        that actually separates a pre-fix artefact from a
+                        post-fix one, and it works even when the generator
+                        is uncommitted -- which it is during a fix.
+      generator_commit  the repository HEAD, for humans. Recorded as
+                        "unavailable" rather than omitted if git cannot be
+                        reached, because a missing field reads as an
+                        oversight while a named absence reads as a fact.
+      generator_tree_dirty  whether the working tree had uncommitted changes,
+                        so `generator_commit` is never mistaken for a
+                        complete description of what ran.
+    """
+    src = Path(__file__).resolve()
+    try:
+        digest = hashlib.sha256(src.read_bytes()).hexdigest()
+    except Exception:
+        digest = "unavailable"
+    commit, dirty = "unavailable", None
+    try:
+        p = subprocess.run(["git", "-C", str(HERE), "rev-parse", "HEAD"],
+                           capture_output=True)
+        if p.returncode == 0:
+            commit = p.stdout.decode("utf-8", "replace").strip()
+        p2 = subprocess.run(["git", "-C", str(HERE), "status", "--porcelain",
+                             "--", str(src)], capture_output=True)
+        if p2.returncode == 0:
+            dirty = bool(p2.stdout.decode("utf-8", "replace").strip())
+    except Exception:
+        pass
+    return {
+        "generated_by": "scripts/build_binary_sidecar.py",
+        "generated_on": datetime.datetime.now(
+            datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "generator_sha256": digest,
+        "generator_commit": commit,
+        "generator_file_uncommitted": dirty,
+        "estimator": "REML tau2 via the Viechtbauer (2005) direct update, "
+                     "including the 1/sum(w) term. Artefacts stamped with a "
+                     "generator_sha256 other than this one may have been "
+                     "built by the earlier increment form, which could not "
+                     "return a non-zero tau2 once a step went negative.",
+    }
 
 # Trial-block regex handles all three NCT-key quote forms (post-terser).
 TRIAL_RE = re.compile(
@@ -160,9 +218,45 @@ def log_or_per_trial(tE, tN, cE, cN):
     return yi, vi
 
 
-def reml_tau2(yis, vis, max_iter=200, tol=1e-10):
-    """REML estimator of tau-squared. Iterative per Viechtbauer 2005.
-    Returns tau^2."""
+def reml_tau2(yis, vis, max_iter=1000, tol=1e-16):
+    """REML estimator of tau-squared, Viechtbauer (2005).
+
+        w = 1/(v + tau2);  sw = sum(w);  mu = sum(w*y)/sw
+        tau2 <- sum(w^2 * ((y - mu)^2 - v)) / sum(w^2)  +  1/sw
+
+    CORRECTED 2026-08-31. The previous implementation was
+
+        tau2 <- tau2 + sum(w^2 * ((y - mu)^2 - v)) / sum(w^2)
+
+    which differs in two ways, and both matter. It was an INCREMENT on the
+    previous value rather than a direct assignment, and it OMITTED the
+    `1/sum(w)` term -- which is the entire difference between REML and ML.
+    Without that term the estimator is biased downward, and because the
+    result is clamped at zero it had a fixed point AT zero: once a step went
+    negative the loop returned exactly 0.0 and stopped.
+
+    WHY THIS SURVIVED SO LONG, AND THE GENERAL LESSON. tau2 = 0 means "no
+    heterogeneity detected", which is a legitimate and common finding. The
+    FAILURE VALUE of this estimator was also a MEANINGFUL VALUE, so its
+    output was indistinguishable from a real result. No range check, no
+    assertion and no plausibility test on the number itself could separate
+    the two. Only an EXTERNAL ORACLE -- the same quantity computed by an
+    independent program -- can. Here that oracle is metafor 5.0.1 under
+    R 4.6.0, run by scripts/metafor_oracle.R, whose output is the fixture
+    tests/fixtures/metafor_oracle.json. When a computation's failure value is
+    also a meaningful value, an external oracle is not a nicety; it is the
+    only detector.
+
+    MEASURED EFFECT of the defect, before this fix: of 351 sidecars whose
+    stored tau2 was exactly 0.0, 250 were legitimately zero (the correct
+    estimator agrees), 86 had heterogeneity erased, and 3 of those carried a
+    published interval that excluded the null and no longer does.
+
+    Do NOT "simplify" this back toward the old form. Both the direct
+    assignment and the `1/sw` term are load-bearing, and
+    tests/test_metafor_oracle.py fails against 15 metafor-computed values if
+    either is removed.
+    """
     k = len(yis)
     if k < 2:
         return 0.0
@@ -171,14 +265,17 @@ def reml_tau2(yis, vis, max_iter=200, tol=1e-10):
         ws = [1.0 / (v + tau2) for v in vis]
         sw = sum(ws)
         mu = sum(w * y for w, y in zip(ws, yis)) / sw
-        # REML update: numerator and denominator per V&D 2005
-        num = sum((w**2) * ((y - mu)**2 - v) for w, y, v in zip(ws, yis, vis))
-        den = sum(w**2 for w in ws)
-        new_tau2 = tau2 + num / den
+        den = sum(w ** 2 for w in ws)
+        if den <= 0 or not math.isfinite(den):
+            return 0.0
+        num = sum((w ** 2) * ((y - mu) ** 2 - v)
+                  for w, y, v in zip(ws, yis, vis))
+        new_tau2 = num / den + 1.0 / sw
+        if not math.isfinite(new_tau2):
+            return tau2
         new_tau2 = max(0.0, new_tau2)
         if abs(new_tau2 - tau2) < tol:
-            tau2 = new_tau2
-            break
+            return new_tau2
         tau2 = new_tau2
     return tau2
 
@@ -346,10 +443,16 @@ def sidecar_stem(page_name: str) -> str:
     return n
 
 
-def emit_sidecar(page_path: Path, force=False) -> dict:
-    """Generate (or refuse) a sidecar for the given page. Returns status dict."""
+def emit_sidecar(page_path: Path, force=False, out_dir=None) -> dict:
+    """Generate (or refuse) a sidecar for the given page. Returns status dict.
+
+    out_dir lets a regeneration write to a PARALLEL location, so a rebuilt
+    corpus can be compared against the served one before anything is
+    replaced. Nothing is swapped in place by this function.
+    """
     stem = sidecar_stem(page_path.name)
-    out_path = SIDECAR_DIR / f"{stem}.json"
+    out_path = Path(out_dir or SIDECAR_DIR) / f"{stem}.json"
+    out_path.parent.mkdir(parents=True, exist_ok=True)
     if out_path.exists() and not force:
         return {"status": "exists", "page": page_path.name, "stem": stem}
 
@@ -386,10 +489,13 @@ def emit_sidecar(page_path: Path, force=False) -> dict:
         "pi_df_convention": pool["pi_df_convention"],
         "hksj_floor_applied": pool["hksj_floor_applied"],
         "method": pool["method"],
-        "generated_by": "scripts/build_binary_sidecar.py",
-        "generated_on": "2026-05-26",
         "trials": trial_records,
     }
+    # Provenance measured at run time, never asserted. See
+    # generator_provenance(): a date says WHEN, the generator hash says
+    # WHICH CODE, and only the second distinguishes an artefact built before
+    # the reml_tau2 correction from one built after it.
+    sidecar.update(generator_provenance())
     out_path.write_text(json.dumps(sidecar, indent=2), encoding="utf-8")
     return {"status": "generated", "page": page_path.name, "stem": stem,
             "k": pool["k"], "pooled_OR": pool["pooled_OR"]}
@@ -398,18 +504,33 @@ def emit_sidecar(page_path: Path, force=False) -> dict:
 def main():
     if hasattr(sys.stdout, "buffer"):
         sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    ap = argparse.ArgumentParser(description="build binary-outcome sidecars")
+    ap.add_argument("--out-dir", default=None,
+                    help="write to a PARALLEL directory instead of the served "
+                         "one. Nothing is replaced in place.")
+    ap.add_argument("--force", action="store_true",
+                    help="rebuild sidecars that already exist at the target")
+    args = ap.parse_args()
+    out_dir = Path(args.out_dir) if args.out_dir else SIDECAR_DIR
+
     targets = sorted(p for p in HERE.glob("*_FULL_REVIEW.html") if p.is_file())
     print(f"Candidate FULL_REVIEW pages: {len(targets):,}")
+    print(f"Writing to: {out_dir}")
+    if out_dir == SIDECAR_DIR:
+        print("  NOTE: this is the SERVED directory.")
+    prov = generator_provenance()
+    print(f"  generator sha256 {prov['generator_sha256'][:16]}  "
+          f"commit {prov['generator_commit'][:12]}  "
+          f"uncommitted={prov['generator_file_uncommitted']}")
 
     stats = {"generated": 0, "exists": 0, "insufficient_k": 0}
     for i, p in enumerate(targets, 1):
-        r = emit_sidecar(p)
+        r = emit_sidecar(p, force=args.force, out_dir=out_dir)
         stats[r["status"]] = stats.get(r["status"], 0) + 1
         if i % 200 == 0:
             print(f"  [{i}/{len(targets)}]  {stats}")
     print(f"\nDone. {stats}")
-    print(f"Existing sidecars before: 378")
-    print(f"Sidecars now in outputs/r_validation: {len(list(SIDECAR_DIR.rglob('*.json'))):,}")
+    print(f"Sidecars now in {out_dir}: {len(list(Path(out_dir).rglob('*.json'))):,}")
 
 
 if __name__ == "__main__":

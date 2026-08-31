@@ -2,10 +2,28 @@
 # CLASS 3 RULE MADE MECHANICAL: stage by path, never `git add -A`.
 # Prose did not hold it -- the rule was broken in the commit immediately after
 # it was written. This refuses a commit that stages files outside ssot/,
-# scripts/, .githooks/, or a top-level markdown/config file, unless
+# scripts/, .githooks/, evidence/, or a top-level markdown/config file, unless
 # STAGING_WIDE=1 is set deliberately.
+#
+# evidence/ ADDED 2026-08-31. It is a TRACKED directory holding 30+ committed files and the
+# set above never named it, so every commit that adds evidence had to reach for
+# STAGING_WIDE=1. TWO LANES HIT THAT IN ONE NIGHT.
+#
+# A guard lanes route around stops being a guard: the override gets used often enough to
+# become reflex, and is then available for the case the guard exists to catch. The refusals
+# were correct about the letter and wrong about the set.
+#
+# tests/ ADDED 2026-08-31, for the identical reason and by the identical evidence: it is a
+# TRACKED directory holding 61 committed files, the set never named it, and a lane adding a
+# test file was refused. Naming it is the remedy this file already prescribes for evidence/;
+# reaching for STAGING_WIDE=1 to add a test is exactly the reflex the note above warns about.
+# The recurrence is itself the finding -- the set was enumerated from habit rather than from
+# `git ls-files`, so it will keep missing tracked directories until it is derived from them.
+#
+# The purpose is unchanged and is NOT widened. This still exists to refuse `git add -A`, and
+# it still refuses everything outside the named prefixes and a top-level markdown/config file.
 changed=$(git diff --cached --name-only)
-bad=$(printf '%s\n' "$changed" | grep -vE '^(ssot/|scripts/|\.githooks/|[A-Za-z0-9_.-]+\.(md|json|txt|yml|yaml)$|\.gitignore$)' | head -20)
+bad=$(printf '%s\n' "$changed" | grep -vE '^(ssot/|scripts/|\.githooks/|evidence/|tests/|[A-Za-z0-9_.-]+\.(md|json|txt|yml|yaml)$|\.gitignore$)' | head -20)
 if [ -n "$bad" ] && [ "$STAGING_WIDE" != "1" ]; then
   echo "REFUSED: staged paths outside the declared set." >&2
   echo "$bad" >&2
