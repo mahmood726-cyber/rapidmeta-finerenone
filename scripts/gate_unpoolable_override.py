@@ -55,7 +55,13 @@ def read(spec):
         return fh.read()
 
 
-POOLS_ROW = re.compile(r"<tr[^>]*data-stem=\"([^\"]+)\"", re.S)
+# READ THE ROW'S OWN href, NOT data-stem.upper(). `data-stem="incretin_hfpef"`
+# uppercases to INCRETIN_HFPEF, but the page is INCRETIN_HFpEF -- so every
+# mixed-case topic was silently missed on the pools side. INCRETIN_HFpEF was
+# caught only because it is ALSO on the dashboard; a page served on pools alone
+# would have been invisible to this gate. The href carries the true filename.
+POOLS_HREF = re.compile(r'<tr[^>]*data-stem="[^"]+"[^>]*>.*?href="([A-Za-z0-9_]+_REVIEW\.html)"',
+                        re.S)
 
 
 def served_pages(pools_spec, portfolio_spec):
@@ -63,8 +69,16 @@ def served_pages(pools_spec, portfolio_spec):
     out = set()
     html = read(pools_spec)
     if html:
-        for stem in POOLS_ROW.findall(html):
-            out.add(stem.upper() + "_REVIEW.html")
+        # A row whose pool is WITHHELD is not a page a reader can see a number
+        # on. Without this the gate keeps counting a page as served after the
+        # number has been replaced by the store's refusal text -- it would score
+        # the fix as having changed nothing.
+        for row in re.findall(r"<tr[^>]*>.*?</tr>", html, re.S):
+            if 'data-withheld=' in row or 'class="withheld-pool"' in row:
+                continue
+            m = re.search(r'href="([A-Za-z0-9_]+_REVIEW\.html)"', row)
+            if m and 'data-stem=' in row:
+                out.add(m.group(1))
     raw = read(portfolio_spec)
     if raw:
         try:

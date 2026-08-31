@@ -343,7 +343,16 @@ function renderRows(rows) {
     // real reason is that the review WITHDREW its estimate or no longer exists. 92 rows were in
     // that state. A reader told "k<2" about a withdrawal has been told something false.
     const st = r.ssot_state;
-    const orHtml = r.pooled_OR != null
+    const wh = (r.withheld || []).map(w =>
+      '<div class="withheld-reason" data-fact="' + w.kind + '">' +
+      (w.kind === 'store-refusal'
+        ? 'The store refused to pool this and recorded why: <q>' + w.verbatim + '</q>'
+        : w.verbatim) +
+      ' <span class="withheld-src">— ' + w.source + '</span></div>').join('');
+    const orHtml = wh
+      ? '<span class="withheld-pool" data-withheld="' +
+        (r.withheld || []).map(w => w.kind).join(',') + '">withheld</span>' + wh
+      : r.pooled_OR != null
       ? (() => {
           const sig = (r.ci_low > 1) || (r.ci_high < 1);
           const cls = sig ? 'or-sig' : 'or-ns';

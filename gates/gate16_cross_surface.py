@@ -39,10 +39,20 @@ sys.path.insert(0, os.path.join(REPO, "scripts"))
 BASELINE = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                         "GATE16_CROSS_SURFACE_BASELINE.json")
 
-# The cases this gate was built to find. Never reaching one is VACUOUS, not a pass.
-FLIPS = ("AGYW_HIV_PREP_REVIEW.html",
-         "BEMPEDOIC_ACID_REVIEW.html",
-         "CEFTAROLINE_AUTO_FULL_REVIEW.html")
+# THE NAMED POSITIVE MUST BE SYNTHETIC, NOT A LIVE DEFECT.
+#
+# This gate first named three live direction flips -- AGYW_HIV_PREP,
+# BEMPEDOIC_ACID, CEFTAROLINE. Two were fixed hours later by withholding their
+# estimates, the gate could no longer reach them, and the harness correctly
+# refused it as VACUOUS: "a case this gate was built to find was never reached".
+# A control anchored to live data RETIRES ITSELF the moment the defect is fixed,
+# and then the gate cries wolf about its own success.
+#
+# So the named positive is a SYNTHETIC flip built in memory on every run. It
+# cannot be fixed, cannot drift, and proves the detector still finds a direction
+# disagreement -- which is the property being asserted. Live flips are reported
+# as findings and counted in the ratchet, which is where they belong.
+SYNTHETIC_FLIP = "synthetic-direction-flip"
 
 
 def main(argv):
@@ -58,9 +68,8 @@ def main(argv):
         gate.coverage(0, 1, "the detector did not load, so nothing was inspected")
         return gate.report()
 
-    for f in FLIPS:
-        gate.expect_case("flip:" + f.split("_REVIEW")[0].lower(),
-                         "%s disagrees on the DIRECTION of effect across surfaces" % f)
+    gate.expect_case(SYNTHETIC_FLIP,
+                     "a planted opposite-direction pair is detected as DIRECTION_FLIP")
 
     # ---- known-negative control ------------------------------------------
     # The synthetic clean pair from the shipped control suite. It is designed to
@@ -85,9 +94,17 @@ def main(argv):
     now = {(c, s) for c, s, _ in fail}
     detail = {(c, s): d for c, s, d in fail}
 
-    for c, s, _d in fail:
-        if c == "DIRECTION_FLIP" and s in FLIPS:
-            gate.saw("flip:" + s.split("_REVIEW")[0].lower())
+    # reach the synthetic positive: plant an opposite-direction pair in memory
+    try:
+        import test_cross_surface_gate_controls as C2
+        import tempfile as _tf
+        h2, d2 = C2.clean_pair()
+        h2, d2 = C2.m_direction(h2, d2)
+        with _tf.TemporaryDirectory() as _t:
+            if any(c == "DIRECTION_FLIP" for c, _s, _d in C2.run(h2, d2, _t)):
+                gate.saw(SYNTHETIC_FLIP)
+    except Exception as exc:
+        gate.broken("the synthetic direction-flip positive did not run: %s" % exc)
 
     by_code = {}
     for c, _s, _d in fail:

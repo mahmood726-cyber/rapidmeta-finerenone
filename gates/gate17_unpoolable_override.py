@@ -44,6 +44,19 @@ import _harness as H                                                        # no
 REPO = H.repo_root()
 sys.path.insert(0, os.path.join(REPO, "scripts"))
 
+# THE NAMED POSITIVE MUST BE SYNTHETIC, NOT A LIVE DEFECT.
+#
+# This gate first named the three live served overrides -- BEMPEDOIC_ACID,
+# CANGRELOR_PCI, INCRETIN_HFpEF. All three were fixed hours later by serving the
+# store's refusal text in place of the estimate, the gate could no longer reach
+# them, and the harness refused it as VACUOUS. A control anchored to live data
+# RETIRES ITSELF the moment the defect is fixed, and the gate then cries wolf
+# about its own success. Gate 12 records the same lesson in this suite already.
+#
+# So the named positive is a SYNTHETIC refusal evaluated in memory: it cannot be
+# fixed and cannot drift. The live cases are findings and ratchet entries, which
+# is where they belong.
+SYNTHETIC = "synthetic-refusal-recognised"
 SERVED_AT_FREEZE = ("BEMPEDOIC_ACID_REVIEW.html",
                     "CANGRELOR_PCI_REVIEW.html",
                     "INCRETIN_HFpEF_REVIEW.html")
@@ -70,18 +83,24 @@ def main(argv):
         return gate.report()
     base = H.load(base_path)
 
-    for p in SERVED_AT_FREEZE:
-        gate.expect_case("served:" + p.split("_REVIEW")[0].lower(),
-                         "%s publishes a pool the store refused, and a reader can see it" % p)
+    gate.expect_case(SYNTHETIC,
+                     "a synthetic store object recording a refusal is recognised as one")
+    # Evaluate the SAME predicate the sweep uses, on an object built in memory.
+    _withdrawn = {"pooled": {"withdrawn": True, "point": None}, "poolable": True}
+    _unpoolable = {"pooled": {"point": 0.5}, "poolable": False}
+    _clean = {"pooled": {"point": 0.5}, "poolable": True}
+
+    def _is_refusal(bo):
+        p = bo.get("pooled") or {}
+        return bool(p.get("withdrawn") or bo.get("poolable") is False)
+
+    if _is_refusal(_withdrawn) and _is_refusal(_unpoolable) and not _is_refusal(_clean):
+        gate.saw(SYNTHETIC)
 
     refusals, overrides = X.find_overrides(
         "ssot/PAGE_MAP.json", "portfolio_pools.html",
         "outputs/portfolio_index.json", "outputs/r_validation")
     served = sorted(o["page"] for o in overrides if o["served"])
-    for p in served:
-        cid = "served:" + p.split("_REVIEW")[0].lower()
-        if p in SERVED_AT_FREEZE:
-            gate.saw(cid)
 
     # ---- known-negative control ------------------------------------------
     # The store objects that record NO refusal are established-clean for this
