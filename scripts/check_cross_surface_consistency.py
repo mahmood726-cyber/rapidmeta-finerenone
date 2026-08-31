@@ -42,6 +42,19 @@ from collections import Counter
 # whatever the review's own headline estimand happens to be.
 PORTFOLIO_MEASURE = "OR"
 
+# The null of an estimate is a property of its MEASURE, not an assumption.  A
+# direction test that compares every estimate against 1 reads every DIFFERENCE
+# measure as inverted: the null of a mean difference is 0.  Direction is only
+# comparable within a scale family - but WITHIN the ratio family it is strictly
+# comparable, because OR, RR, HR and rate ratio all lie on the same side of 1
+# for the same comparison.  So an RR/OR direction disagreement is a real
+# contradiction, while an MD/OR one is not a claim we are entitled to make.
+SCALE_FAMILY = {
+    "OR": "ratio", "RR": "ratio", "HR": "ratio", "RATE_RATIO": "ratio",
+    "MD": "diff", "SMD": "diff", "RD": "diff",
+}
+NULL_OF = {"ratio": 1.0, "diff": 0.0}
+
 CARD_RE = re.compile(
     r'<a href="(?P<file>[A-Za-z0-9_]+_REVIEW\.html)"[^>]*class="card[^"]*"[^>]*>'
     r'\s*<span class="name">(?P<name>.*?)</span>'
@@ -50,9 +63,13 @@ CARD_RE = re.compile(
 )
 # "Pooled: HR 0.8715 (0.7461 to 1.018), k=4"
 # "Published: HR 0.84 (0.77&ndash;0.91), k=3"
+# "Single trial: HR 0.87 (0.79 to 0.96), k=1"
+# A narrower prefix or measure list silently shrinks the population this gate
+# reaches: "Single trial:" and "RATE_RATIO" were each one tile, and missing
+# them cost one real direction flip (BEMPEDOIC_ACID) and one comparison.
 EST_RE = re.compile(
-    r'(?:Pooled|Published)\s*:\s*'
-    r'(?P<measure>HR|OR|RR|MD|SMD)\s*'
+    r'(?:Pooled|Published|Single trial)\s*:\s*'
+    r'(?P<measure>RATE_RATIO|SMD|HR|OR|RR|MD|RD)\s*'
     r'(?P<est>-?\d+(?:\.\d+)?)\s*'
     r'\(\s*(?P<lo>-?\d+(?:\.\d+)?)\s*'
     r'(?:to|&ndash;|&mdash;|–|—)\s*'
@@ -60,6 +77,9 @@ EST_RE = re.compile(
     r'[^k]*?k\s*=\s*(?P<k>\d+)',
     re.S,
 )
+# portfolio_pools.html: Topic | Scale | k | Pooled | 95% CI | 95% PI | I2 | Qp | tau2 | HKSJ
+POOLS_ROW_RE = re.compile(r"<tr.*?</tr>", re.S)
+POOLS_CELL_RE = re.compile(r"<td.*?</td>", re.S)
 
 
 def read_surface(spec: str) -> str:
@@ -107,7 +127,86 @@ def close(a, b, rel=0.01):
     return abs(a - b) <= rel * max(1e-9, abs(a), abs(b))
 
 
-def check(index_spec, portfolio_spec, ci_ratio_max=1e4):
+def parse_pools(html):
+    """portfolio_pools.html: review file -> {measure, est, lo, hi, k}.
+
+    Columns: Topic | Scale | k | Pooled | 95% CI | 95% PI | I2 | Q p | tau2 | HKSJ.
+    The Topic cell is a topic stem, so it is keyed back to <TOPIC>_REVIEW.html to
+    join against the landing page and the dashboard's data.
+    """
+    out = {}
+    m = re.search(r"<tbody.*?</tbody>", html, re.S)
+    if not m:
+        return out
+    for tr in POOLS_ROW_RE.findall(m.group(0)):
+        td = [re.sub(r"<[^>]+>", "", c).strip()
+              for c in POOLS_CELL_RE.findall(tr)]
+        if len(td) < 5:
+            continue
+        ci = re.match(r"\s*(-?[\d.eE+]+)\s*to\s*(-?[\d.eE+]+)", td[4] or "")
+        try:
+            rec = {"measure": td[1], "est": float(td[3]), "k": int(td[2]),
+                   "lo": float(ci.group(1)) if ci else None,
+                   "hi": float(ci.group(2)) if ci else None}
+        except (ValueError, TypeError):
+            continue
+        out["{}_REVIEW.html".format(td[0])] = rec
+    return out
+
+
+def compare_surfaces(name_a, a, name_b, b, bad):
+    """Every review present on BOTH of two surfaces must agree.
+
+    Order matters: direction is checked BEFORE measure, because a direction
+    contradiction is the serious finding and it is valid across any two ratio
+    measures - OR, RR, HR and rate ratio all lie on the same side of 1 for the
+    same comparison.  Measure equality is the weaker, downstream question.
+    """
+    for f in sorted(set(a) & set(b)):
+        i, p = a[f], b[f]
+        fam_i, fam_p = SCALE_FAMILY.get(i["measure"]), SCALE_FAMILY.get(p["measure"])
+
+        # A0. DIRECTION.  Only comparable within a scale family: the null of a
+        # mean difference is 0 and of a ratio is 1, so comparing an MD against 1
+        # reads every difference measure as inverted.  No claim is made across
+        # families - that is a MEASURE_MISMATCH, not a direction flip.
+        if fam_i and fam_i == fam_p:
+            null = NULL_OF[fam_i]
+            si = (i["est"] > null) - (i["est"] < null)
+            sp = (p["est"] > null) - (p["est"] < null)
+            if si * sp < 0:
+                bad("DIRECTION_FLIP", f,
+                    "{} says {} {:g} and {} says {} {:g} - opposite sides of the "
+                    "null ({:g}). A reader takes the opposite direction of effect "
+                    "depending which page they land on.".format(
+                        name_a, i["measure"], i["est"],
+                        name_b, p["measure"], p["est"], null))
+                continue
+
+        if i["measure"] != p["measure"]:
+            bad("MEASURE_MISMATCH", f,
+                "{} declares {} {:g} ({}-{}) k={}; {} declares {} {:g} ({}-{}) "
+                "k={}. Different estimands rendered under one column header.".format(
+                    name_a, i["measure"], i["est"], i["lo"], i["hi"], i["k"],
+                    name_b, p["measure"], p["est"], p["lo"], p["hi"], p["k"]))
+            continue
+
+        if i["k"] != p["k"]:
+            bad("K_MISMATCH", f,
+                "{} k={}, {} k={} - same measure over different trial "
+                "sets.".format(name_a, i["k"], name_b, p["k"]))
+            continue
+
+        if not close(i["est"], p["est"]):
+            bad("ESTIMATE_MISMATCH", f,
+                "{} {:g} vs {} {:g}".format(name_a, i["est"], name_b, p["est"]))
+        if None not in (i["lo"], i["hi"], p["lo"], p["hi"]) and                 not (close(i["lo"], p["lo"]) and close(i["hi"], p["hi"])):
+            bad("INTERVAL_MISMATCH", f,
+                "{} [{}-{}] vs {} [{}-{}]".format(
+                    name_a, i["lo"], i["hi"], name_b, p["lo"], p["hi"]))
+
+
+def check(index_spec, portfolio_spec, ci_ratio_max=1e4, pools_spec=None):
     fail = []
     doc, prows = parse_portfolio(read_surface(portfolio_spec))
     idx = parse_index(read_surface(index_spec))
@@ -116,40 +215,22 @@ def check(index_spec, portfolio_spec, ci_ratio_max=1e4):
     def bad(code, subject, detail):
         fail.append((code, subject, detail))
 
-    # ---- A. Cross-surface: every review present on BOTH surfaces ----------
-    both = sorted(set(idx) & set(prows))
-    for f in both:
-        i, p = idx[f], prows[f]
-        pooled = p.get("pooled_OR")
-        if pooled is None:
-            continue
+    # ---- A. Cross-surface: compare every pair of surfaces we can read -----
+    # The dashboard's data has no per-row measure field; `pooled_OR` is the
+    # column it is rendered under, so it is declared as OR here.
+    dash = {f: {"measure": PORTFOLIO_MEASURE, "est": r["pooled_OR"],
+                "lo": r.get("ci_low"), "hi": r.get("ci_high"), "k": r.get("k")}
+            for f, r in prows.items() if r.get("pooled_OR") is not None}
+    surfaces = [("index.html", idx), ("dashboard", dash)]
+    if pools_spec:
+        surfaces.append(("portfolio_pools", parse_pools(read_surface(pools_spec))))
 
-        # A1. The measure must agree.  This is the check that catches ARNI.
-        if i["measure"] != PORTFOLIO_MEASURE:
-            bad("MEASURE_MISMATCH", f,
-                "index.html declares {} {} ({}-{}) k={}; portfolio serves an {} "
-                "{:.4g} ({}-{}) k={}. Different estimands rendered under one "
-                "column header.".format(
-                    i["measure"], i["est"], i["lo"], i["hi"], i["k"],
-                    PORTFOLIO_MEASURE, pooled, p.get("ci_low"), p.get("ci_high"),
-                    p.get("k")))
-            continue
-
-        # A2. Same measure -> the trial set must agree before values can.
-        if i["k"] != p.get("k"):
-            bad("K_MISMATCH", f,
-                "index.html k={}, portfolio k={} - same measure over different "
-                "trial sets.".format(i["k"], p.get("k")))
-            continue
-
-        # A3. Same measure, same k -> estimate and interval must agree.
-        if not close(i["est"], pooled):
-            bad("ESTIMATE_MISMATCH", f,
-                "index.html {} vs portfolio {:.6g}".format(i["est"], pooled))
-        if not (close(i["lo"], p.get("ci_low")) and close(i["hi"], p.get("ci_high"))):
-            bad("INTERVAL_MISMATCH", f,
-                "index.html [{}-{}] vs portfolio [{}-{}]".format(
-                    i["lo"], i["hi"], p.get("ci_low"), p.get("ci_high")))
+    n_both = 0
+    for x in range(len(surfaces)):
+        for y in range(x + 1, len(surfaces)):
+            (na, a), (nb, b) = surfaces[x], surfaces[y]
+            n_both = max(n_both, len(set(a) & set(b)))
+            compare_surfaces(na, a, nb, b, bad)
 
     # ---- B. Cross-field within the portfolio surface ----------------------
     for r in rows:
@@ -227,7 +308,7 @@ def check(index_spec, portfolio_spec, ci_ratio_max=1e4):
                 "identical (k, estimate, CI, I2) = ({}, {!r}) - one analysis "
                 "served as {} reviews".format(key[0], key[1], len(files)))
 
-    return fail, len(both), len(rows)
+    return fail, n_both, len(rows)
 
 
 def main(argv=None):
@@ -237,11 +318,13 @@ def main(argv=None):
                     help="path or gitref:path to the landing page")
     ap.add_argument("--portfolio", default="outputs/portfolio_index.json",
                     help="path or gitref:path to the dashboard's data")
+    ap.add_argument("--pools", default=None,
+                    help="path or gitref:path to portfolio_pools.html (third surface)")
     ap.add_argument("--ci-ratio-max", type=float, default=1e4)
     ap.add_argument("--quiet", action="store_true", help="summary only")
     a = ap.parse_args(argv)
 
-    fail, n_both, n_rows = check(a.index, a.portfolio, a.ci_ratio_max)
+    fail, n_both, n_rows = check(a.index, a.portfolio, a.ci_ratio_max, a.pools)
 
     print("cross-surface consistency gate")
     print("  index     : {}".format(a.index))

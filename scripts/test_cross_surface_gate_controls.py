@@ -143,7 +143,35 @@ def m_duplicate(html, doc):
     return html, doc
 
 
+def m_direction(html, doc):
+    # index says protective (RR 0.75), portfolio says harmful (OR 1.60)
+    doc["rows"][0]["pooled_OR"] = 1.60
+    doc["rows"][0]["ci_low"] = 1.20
+    doc["rows"][0]["ci_high"] = 2.13
+    return html, doc
+
+
+def m_direction_md_not_flagged(html, doc):
+    """The false positive that must NOT happen.
+
+    A mean difference of -54.72 is protective and an OR of 0.125 is protective,
+    but -54.72 < 1 and 0.125 < 1, so a direction test that compares everything
+    against 1 calls MD -54.72 "below the null" and OR 0.125 "below the null" -
+    agreeing by luck - while MD +7.43 vs OR 0.436 reads as a flip when it is
+    nothing of the kind. The null must be read from the measure.
+    """
+    import re
+    html, n = re.subn(r"Pooled: OR 0\.75 \([^)]*\), k=4",
+                      "Pooled: MD 7.43 (5.09 to 9.77), k=4", html)
+    assert n == 1, "control mutation did not apply (n=%d)" % n
+    doc["rows"][0]["pooled_OR"] = 0.436
+    doc["rows"][0]["ci_low"] = 0.121
+    doc["rows"][0]["ci_high"] = 1.571
+    return html, doc
+
+
 MUTATIONS = [
+    ("DIRECTION_FLIP", "index protective RR 0.75, portfolio harmful OR 1.60", m_direction),
     ("MEASURE_MISMATCH", "landing page declares HR where portfolio serves OR", m_measure),
     ("K_MISMATCH", "same measure, k=9 on one surface and k=4 on the other", m_k),
     ("ESTIMATE_MISMATCH", "portfolio estimate moved off the published one", m_estimate),
@@ -182,6 +210,22 @@ def main():
                     "{:24s} fires on: {}{}".format(
                         code, desc,
                         "" if code in codes else "   [got {}]".format(sorted(codes))))
+
+        # ---- 3. the rule must NOT fire where it has no standing ---------
+        # A difference measure and a ratio measure cannot be compared for
+        # direction at all. This control exists because that exact false
+        # positive was raised against this corpus and had to be withdrawn.
+        print("\n[3] NEGATIVE CONTROL ON THE DIRECTION RULE")
+        html, doc = clean_pair()
+        html, doc = m_direction_md_not_flagged(html, doc)
+        fail = run(html, doc, tmp)
+        codes = {c for c, _, _ in fail}
+        assert_("DIRECTION_FLIP" not in codes,
+                "MD 7.43 vs OR 0.436 is NOT reported as a direction flip "
+                "(null is 0 for a difference, 1 for a ratio)")
+        assert_("MEASURE_MISMATCH" in codes,
+                "it is reported as a MEASURE_MISMATCH instead, which is the "
+                "claim we are entitled to make")
 
     print("\n" + "=" * 72)
     print("CONTROLS PROVEN: the gate passes clean input and every rule can fire."
