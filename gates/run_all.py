@@ -83,6 +83,35 @@ GATES = [
     # REFUSES 4; with it present it passes and says the backlog has not risen.
     ("gate15_component_contract",
      "a wired generator component carries no controls", "fast"),
+    # ADDED 2026-08-31. Three served surfaces disagreed about the same review and no
+    # single-file gate could see it: the landing page served ARNI as HR 0.8715 k=4 while
+    # the dashboard served 0.85 k=3, and each file is internally consistent. Six reviews
+    # disagree on the DIRECTION of effect, one of them an HIV-prevention estimate that
+    # reads protective on one page and harmful on two others.
+    #
+    # IT RATCHETS, for the same reason gate 15 does. 67 divergences (48 unique code+page
+    # pairs) predate this gate; refusing on them would block every lane's push for a
+    # backlog no lane introduced. Frozen in gates/GATE16_CROSS_SURFACE_BASELINE.json marked
+    # OWED - NOT CLEARED, with the 6 DIRECTION_FLIPs named rather than buried in a total.
+    # Refuses on a NEW (code, page) pair OR a rise in unique pairs -- both arms are needed,
+    # and the count arm was UNFIREABLE on first writing because it compared a set size
+    # against a raw finding count (48 can never exceed 67). Fixed before registering.
+    ("gate16_cross_surface",
+     "three served surfaces must not disagree about one review", "fast"),
+    # ADDED 2026-08-31, and it is the better instrument. Every other cross-artefact check
+    # here compares two surfaces and inherits that comparison's reach; this one compares an
+    # artefact against OUR OWN RECORDED REFUSALS, so it has no reach limit. The store writes
+    # `poolable: false` with a reason in full -- median 705 characters, none under 109 -- and
+    # 88 of its 108 refusals are overridden by a sidecar that publishes anyway. It would have
+    # caught all three served cases on day one, from the store alone.
+    #
+    # IT RATCHETS on the number that matters: SERVED overrides must not rise AND no new page
+    # may join the served set. Baseline outputs/override_gate_baseline.json, OWED - NOT
+    # CLEARED. Root cause is one point, not 88: build_binary_sidecar.py is never told the
+    # store refuses. Remedy specified, not applied, in
+    # SPEC-sidecar-must-honour-store-refusals-2026-08-31.md -- that script is another lane's.
+    ("gate17_unpoolable_override",
+     "nothing may publish a pool the store has recorded a refusal for", "fast"),
 ]
 
 
