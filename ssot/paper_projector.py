@@ -1444,6 +1444,40 @@ _CITATION_KEY = re.compile(
     r"(?<![\w-])(?:PM|OA|FDA|EMA|REG|DOI|PMC)_[A-Z0-9_]+(?![\w-])")
 
 
+def _assert_identity_without_keys():
+    """The invariant, run at import: with no citation key present,
+    strip_citation_keys is the identity.
+
+    ⭐ A GUARD THAT HAS NEVER FIRED IS NOT PROVEN, so the first three cases are
+    REAL DAMAGE taken verbatim from the corpus scan -- each one was altered by
+    this function before 2026-08-30 and each must now pass through untouched.
+    The fourth is the sentence that surfaced the bug as "a bare None on the
+    page". If any of them is ever altered again, import fails loudly rather
+    than 890 strings changing meaning in silence.
+    """
+    for s in (
+        "There is no set of eligible measurements to have selected from, so "
+        "the selection concern cannot arise.",
+        "It cannot be read without the registry fields the judgement was made "
+        "from, so no blind second assessment could be given.",
+        "It was read from the publication and there is no second surface to "
+        "check it against.",
+        "The venue requires each funder's name, the grant number where "
+        "applicable, and the person the grant was assigned to. None of that "
+        "is derivable from a synthesis.",
+    ):
+        got = strip_citation_keys(s)
+        if got != s:
+            raise AssertionError(
+                "strip_citation_keys is not the identity on text with no "
+                "citation key. in=%r out=%r" % (s, got))
+    # And it must still DO ITS JOB where a key is present.
+    withkey = "Compared with PM_VADUGANATHAN2022, the estimate is lower."
+    if "PM_VADUGANATHAN2022" in strip_citation_keys(withkey):
+        raise AssertionError("strip_citation_keys no longer strips keys: %r"
+                             % strip_citation_keys(withkey))
+
+
 def strip_citation_keys(text):
     """Remove source keys from prose, and repair what removing them leaves behind.
 
@@ -1456,6 +1490,47 @@ def strip_citation_keys(text):
     keys. A sentence whose whole content was a list of reference labels has nothing to say
     to a reader once the labels are gone, and the references themselves are in References.
     """
+    # ⛔ NOTHING TO STRIP MEANS NOTHING TO REPAIR, AND THIS GATE BELONGS HERE
+    # RATHER THAN 20 LINES DOWN.
+    #
+    # THE ARGUMENT FOR IT IS ALREADY IN THIS FUNCTION. The sentence-drop below
+    # carries a long comment explaining that a rule written for key-stripped
+    # text destroys values that never contained a key -- 20 distinct values, 33
+    # occurrences, an empty Title section on meropenem -- and it gates itself on
+    # `_had_keys` for exactly that reason. THE THREE JOIN REPAIRS IMMEDIATELY
+    # BELOW WERE NEVER GATED THE SAME WAY, so the class was fixed at one site
+    # and left live at three others in the same function.
+    #
+    # WHAT IT COST, MEASURED RATHER THAN ESTIMATED: walking every string in
+    # every SSOT object and running this function over the ones containing NO
+    # citation key at all -- where it must be the identity -- it altered
+    # 890 of 85,162 strings (1.05%), touching 146 of 161 objects (91%).
+    # The damage is not cosmetic. Three real examples:
+    #
+    #   "...no set of eligible measurements to have selected from, so the
+    #    selection concern cannot arise"
+    #     -> "...no set of eligible measurements to have so the selection
+    #        concern cannot arise"
+    #
+    #   "...without the registry fields the judgement was made from, so no
+    #    blind second assessment could be given"
+    #     -> "...without the registry fields the judgement was so no blind
+    #        second assessment could be given"
+    #
+    #   "...the person the grant was assigned to. None of that is derivable"
+    #     -> "...the person the grant was assigned . None of that is derivable"
+    #
+    # The first two DELETE A CLAUSE and leave a grammatical-looking sentence
+    # that says something different. The third is the visible one, and it is
+    # the only one anybody noticed -- it was reported as "two bare None on the
+    # page", which is the stray space beside an unrelated English word.
+    #
+    # THE INVARIANT, stated so it can be tested: strip_citation_keys must be
+    # the IDENTITY on any text that contains no citation key. Enforced by the
+    # early return, and checked by _assert_identity_without_keys() below.
+    if not _CITATION_KEY.search(str(text or "")):
+        return str(text or "")
+
     out = re.sub(r"\s*\(?%s\)?" % _CITATION_KEY.pattern, "", str(text or ""))
     # Repair the joins the removal left. Order matters: collapse the doubled connective
     # first, then drop a preposition that now governs nothing. "Compared with PM_X and

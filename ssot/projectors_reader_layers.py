@@ -406,3 +406,63 @@ def reader_renderings_card(canon, p=None):
     inner += "  <div class='absent-state'>%s</div>\n" % _e(
         r.get("what_this_does_NOT_fix", ""))
     return _card("Four readers, one store — and the check that they agree", inner)
+
+
+# ------------------------------------------------------ judgement register --
+def judgement_register_card(canon, p=None):
+    """Every judgement a harness cannot derive, with its alternative and the
+    consequence of that alternative.
+
+    RENDERED, NOT JUST STORED -- and that sentence is here because the four
+    blocks above spent an afternoon in a JSON file no reader would open. A
+    register of judgements that a reader cannot see is worth exactly as much as
+    the undeclared judgements it was written to replace.
+    """
+    r = canon.get("judgement_register_2026_08_30") or {}
+    if not r:
+        return ""
+    rows = ""
+    for j in (r.get("per_topic_judgements") or []):
+        alt = j.get("if_alternative")
+        if isinstance(j.get("if_alternative_COMPUTED"), dict):
+            c = j["if_alternative_COMPUTED"]
+            alt = " ".join(str(v) for v in c.values() if isinstance(v, str))
+        elif j.get("if_alternative_COMPUTED"):
+            alt = j["if_alternative_COMPUTED"]
+        rows += (
+            "    <tr><td><code>%s</code><br><strong>%s</strong></td>"
+            "<td>%s</td><td><small>%s</small></td>"
+            "<td>%s</td><td><small>%s</small></td></tr>\n"
+            % (_e(j.get("id")), _e(j.get("judgement")), _e(j.get("decided")),
+               _e(j.get("decided_by")), _e(j.get("alternative")), _e(alt)))
+
+    cnt = r.get("count") or {}
+    st = r.get("standing_rules_NOT_counted_per_topic") or {}
+    srows = "".join("    <tr><td>%s</td><td><small>%s</small></td></tr>\n"
+                    % (_e(x.get("rule")), _e(x.get("scope")))
+                    for x in (st.get("rules") or []))
+
+    inner = (
+        _para(r.get("_what"))
+        + "  <div class='absent-state'>%s</div>\n"
+          % _e(r.get("⛔_the_rule_that_keeps_this_honest", ""))
+        + _para(r.get("_why_this_is_the_claim_worth_making"))
+        + _h3("The judgements, each with its alternative and what that would change")
+        + "  <table>\n    <tr><th>Judgement</th><th>Decided</th><th>Decided by</th>"
+          "<th>Alternative</th><th>If the alternative had been taken</th></tr>\n"
+        + rows + "  </table>\n"
+        + _h3("The count")
+        + "  <table>\n    <tr><th>Measure</th><th>Value</th></tr>\n"
+        + "".join("    <tr><td>%s</td><td><strong>%s</strong></td></tr>\n"
+                  % (_e(k.replace("_", " ")), _e(v)) for k, v in cnt.items())
+        + "  </table>\n"
+        + _h3("Standing rules — paid once for the corpus, not once per topic")
+        + _para(st.get("_what"))
+        + "  <table>\n    <tr><th>Rule</th><th>Scope</th></tr>\n" + srows
+        + "  </table>\n"
+        + "  <div class='absent-state'>%s</div>\n"
+          % _e(r.get("⭐_the_scaling_claim_stated_precisely", ""))
+        + "  <div class='absent-state'>%s</div>\n"
+          % _e(r.get("what_this_register_does_NOT_do", ""))
+    )
+    return _card("The judgement register — what a harness cannot derive", inner)

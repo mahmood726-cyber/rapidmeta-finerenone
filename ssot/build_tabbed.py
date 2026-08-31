@@ -17,6 +17,10 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 
 import build_app_v2 as G          # noqa: E402
+import projectors_reader_layers as prl   # noqa: E402
+import projectors_generated as pgen        # noqa: E402
+import projectors_evidence as pev          # noqa: E402
+import screening_ledger as sled            # noqa: E402
 
 # The base generator carries its own fmt() and it is what renders the pooled
 # result card -- which is why "HR 0.8392 (0.7429 to 0.948)" survived rounding the
@@ -151,6 +155,53 @@ READER_JS = """
 """
 
 
+def _prose_text(v):
+    """Flatten a manuscript section (str, or a list of {heading, text}) to plain text."""
+    if isinstance(v, str):
+        return v.strip()
+    if isinstance(v, list):
+        out = []
+        for x in v:
+            if isinstance(x, dict):
+                out.append(str(x.get("text") or ""))
+            elif isinstance(x, str):
+                out.append(x)
+        return " ".join(out).strip()
+    return ""
+
+
+def _authored_prose_sections(canon):
+    """Manuscript sections holding AUTHORED background or interpretation.
+
+    ⛔ WHY THIS EXISTS. The "Introduction and Discussion" bullet below asserted that the
+    object holds no background or interpretation -- unconditionally, as a literal, with no
+    field lookup and no data test. It was therefore a FALSE DENIAL on any page that does
+    hold interpretation, and a page claiming TOO LITTLE reads as modesty and passes every
+    detector we have. Same class as pages stating no protocol exists while a protocol sat
+    in the repository.
+
+    ⚠️ AND THE OBVIOUS FIX IS WORSE THAN THE BUG. A naive "does `manuscript.introduction`
+    exist" test passes on 138 of 152 objects, because a repair pass wrote an introduction
+    for almost every topic that merely RESTATES the generated question ("This review
+    asks: ..."). A templated restatement of the question is not interpretation. Counting it
+    would replace a false denial on ONE page with a false assertion on 137 -- strictly
+    worse, and in the flattering direction.
+
+    Measured 2026-08-30: naive test 138/152; templated restatements 137; genuinely authored
+    prose 1 (`arni-hfref`).
+    """
+    man = canon.get("manuscript")
+    if not isinstance(man, dict):
+        return []
+    found = []
+    for key in ("introduction", "discussion"):
+        text = _prose_text(man.get(key))
+        if not text or text.startswith("This review asks:"):
+            continue
+        found.append(key)
+    return found
+
+
 def paper_studio(canon, res, p):
     """A drafting surface carrying a PROJECTED manuscript, not an empty box.
 
@@ -202,11 +253,24 @@ def paper_studio(canon, res, p):
               if _g0["state"] == "RATED" else
               ("%s %s" % (p(_g0["cell"]), p(_g0["comment"])))))
         + li("What this review could not settle", p(sc.get("known_limitation", "")))
+        # ⛔ CONDITIONAL, because this bullet used to DENY unconditionally. The refusal is
+        # correct where the object genuinely holds nothing; asserting it where the object
+        # holds authored prose is a false denial, and a page that claims too little is not
+        # caught by any detector we have.
         + li("Introduction and Discussion",
-             "Not written here. The object holds no background or interpretation, "
-             "and generating either would be argument that no source in this "
-             "review supports. Left for the author, and its absence stated rather "
-             "than filled.")
+             ("Not written here. The object holds no background or interpretation, "
+              "and generating either would be argument that no source in this "
+              "review supports. Left for the author, and its absence stated rather "
+              "than filled."
+              if not _authored_prose_sections(canon) else
+              # ⚠️ NAMES WHAT IS HELD AND GENERATES NOTHING. Writing interpretation prose
+              # here is a separate decision with its own constraint; this bullet's only job
+              # is to stop denying what the object actually carries.
+              "Held on this object: %s. Not reproduced in this drafting surface -- the "
+              "authored prose lives on the object and nothing is generated for this "
+              "bullet."
+              % ", ".join("manuscript.%s" % s
+                          for s in _authored_prose_sections(canon))))
     )
     snips = [("Pooled estimate",
               "%s %s (%s to %s)" % (meas, pj.fmt(pooled["point"]),
@@ -1389,6 +1453,90 @@ def _standard_block(canon, e_):
            _v(_pp._tidy(stamp.get("_ratchet", "")))))
 
 
+def _screening_ledger_fragment(canon):
+    """The other lane's ledger renderer, resolved PER TOPIC.
+
+    ⛔ OWNERSHIP. `ssot/screening_ledger.py` is the ruled implementation and it
+    is NOT modified here. It is better than the one this lane wrote in two
+    ways that decide the question: it FAILS CLOSED when the row count
+    disagrees with the declared denominator, and it applies NO TRUNCATION AT
+    ALL where this lane's version carried a declared 4,000-row bound. A bound
+    that never fires is still a bound, and on a format whose whole claim is
+    "every record" the difference is not cosmetic.
+
+    ⚠️ SO THIS LANE'S `projectors_evidence.screening_ledger_card` IS UNWIRED
+    below rather than left beside it. Two ledgers on one page is the four-
+    descriptions-of-one-URL defect in miniature, and it would be this lane
+    shipping it a day after reporting it.
+
+    The path comes from a DECLARED FIELD on the object -- any block carrying
+    `ledger_is_at` -- so this resolves for any topic without a table mapping
+    topics to paths. A hand-kept table is one more surface that can drift.
+    """
+    import datetime
+    import re as _re
+    for k in canon:
+        v = canon.get(k)
+        if not isinstance(v, dict):
+            continue
+        loc = v.get("ledger_is_at")
+        if not loc:
+            continue
+        m = _re.match(r"\s*([^\s]+\.json)", str(loc))
+        if not m:
+            continue
+        path = m.group(1)
+        if not os.path.isabs(path):
+            path = os.path.join(os.path.dirname(HERE), path)
+        if not os.path.exists(path):
+            continue
+        try:
+            frag = sled.render(path, datetime.datetime.now(
+                datetime.timezone.utc).isoformat(timespec="seconds"))
+        except ValueError as exc:
+            # THE FAIL-CLOSED GUARD REACHING THE READER. A ledger that
+            # disagrees with its own denominator must not render as a screen,
+            # and must not vanish silently either.
+            return ("<div class='card warn'><h2>Screening ledger</h2>"
+                    "<div class='absent-state'>REFUSED: %s</div></div>"
+                    % html.escape(str(exc)))
+        # ⛔ PRESENT AND COLLAPSED, which is the ruling, and the fragment does
+        # not arrive that way. `screening_ledger.render` opens every group
+        # except EXCLUDE, so 205 of the 1,443 records render expanded and the
+        # page comes to 652,905 rendered characters -- SEVEN AND A HALF TIMES
+        # the 87,000 at which two blinded judges already called this page
+        # cluttered, and that was before the ledger existed.
+        #
+        # The `open` attribute is stripped HERE rather than in
+        # ssot/screening_ledger.py, which this lane does not own and which
+        # three lanes have touched tonight. It is a one-token change in their
+        # module (`" open" if g != "EXCLUDE" else ""`) and they should fold it
+        # in; until they do, the ruling is honoured at the wiring without
+        # editing their file underneath them.
+        #
+        # ⚠️ COLLAPSED IS NOT TRUNCATED. Every one of the 1,443 rows is in the
+        # bytes and in the saved file; a reader opens a group to read it and
+        # Ctrl-F finds text inside a closed <details> in current browsers.
+        # Truncation removes records; collapsing defers them.
+        # ⭐ THE `open` STRIP THAT WAS HERE IS GONE, AND THAT IS THE POINT.
+        # It was applied at this wiring on 2026-08-31 because three lanes were
+        # in screening_ledger.py that night and editing it underneath them was
+        # the worse risk. It was always a habit rather than a guarantee: it
+        # held only while every caller remembered it, and a caller written
+        # tomorrow would not have.
+        #
+        # The module now REFUSES TO EMIT a fragment containing `<details ...
+        # open>` at all. Collapse is its guarantee, enforced at the only place
+        # that can enforce it, so the strip here is a no-op -- and a no-op left
+        # in place is one more thing a later reader has to work out before
+        # touching anything. Removed rather than kept "just in case", which is
+        # how the wiring acquired a responsibility that was never its.
+        return ("<div class='card'>" + NL
+                + "  <h2>Screening ledger &mdash; every record, in this file</h2>"
+                + NL + frag + "</div>" + NL)
+    return ""
+
+
 def build(canon):
     # AN OBJECT WITH NO TITLE AND NO RESULTS IS NOT A PAPER, AND THIS SAYS SO ONCE.
     #
@@ -1555,16 +1703,43 @@ def build(canon):
                          "contain</h3>%s  <p>%s</p>%s</div>%s"
                          % (NL, NL, p(stmt), NL, NL)) if stmt else "",
         "authority": "",
-        "searchcard": "",
+        # ⭐ THIS SLOT WAS AN EMPTY STRING, WHICH IS WHY THE SEARCH TAB
+        # RENDERED 343 BYTES AND ZERO ROWS while the object held a fully
+        # executed six-source search -- concept block, reported against
+        # retrieved per source, screen, coverage fraction and four named
+        # limits. The search axis is the one this project loses 0-5 to
+        # Cochrane on, and it was losing it for material already in the store
+        # and merely unrendered. Same shape as the published comparison and
+        # the bibliographic screen before it: content written, no projector.
+        "searchcard": pev.search_card(canon, p),
         "searchstrings": p2.search_strings_card(canon, p),
-        "screening": p2.screening_cards(canon, p),
+        # THE BIBLIOGRAPHIC SCREEN HAD NO RENDERER, WHICH IS THE THIRD TIME
+        # THIS FILE HAS RECORDED THAT SENTENCE. A 1,443-record per-record
+        # ledger was written into the object and the delivered page contained
+        # zero occurrences of it. A screen a reader cannot see is not a screen
+        # the review has.
+        "screening": (p2.screening_cards(canon, p)
+                      + prl.bibliographic_screen_card(canon, p)
+                      + pev.registry_screen_card(canon, p)
+                      + _screening_ledger_fragment(canon)),
         "corpus": p2.corpus_card(canon, p),
         # The Extraction tab is the AUDIT SURFACE: a reader must be able to see
         # every extracted value and reach its source without reading the
         # manuscript and without trusting us. This slot was empty, so the tab
         # rendered the numbers only inside prose, with no clickable link anywhere.
-        "carried": pj.extraction_provenance_table(canon),
-        "considered": "", "components": "",
+        "carried": (pev.extraction_rows_card(canon, p)
+                    + pj.extraction_provenance_table(canon)),
+        # TWO SLOTS THAT WERE EMPTY STRINGS. `considered` now carries the
+        # registry extraction -- participant flow, the verbatim analysis
+        # populations, and the finding that ClinicalTrials.gov numbers its
+        # result groups differently in different modules of ONE registration.
+        # `components` carries harms, which this review did not hold at all
+        # until 2026-08-30 and lost an outcome-scope verdict for not holding.
+        "considered": (prl.registry_extraction_card(canon, p)
+                       + pgen.recompute_envelope_card(canon, p)
+                       + pgen.count_bases_card(canon, p)),
+        "components": (prl.harms_card(canon, p)
+                       + pgen.absolute_effect_card(canon, p)),
         "rob": p2.endpoint_correction_card(canon, p) + p2.rob2_card(canon, p),
         "switching": p2.discrepancies_card(canon, p),
         "sources_card": (p2.bibliography_card(canon, p)
@@ -1577,7 +1752,11 @@ def build(canon):
         # got four token counts from it and the page got nothing. `recon` was an
         # empty slot sitting in the tab that should have carried it.
         "network": p2.outcomes_card(canon, p),
-        "recon": p2.published_comparison_card(canon, p), "removal": "",
+        "recon": p2.published_comparison_card(canon, p),
+        # `removal` was an empty slot in the Scientific Output tab, which is
+        # exactly where four renderings of one store belong -- an HTA body, a
+        # guideline panel, a clinician and the public are OUTPUTS.
+        "removal": prl.reader_renderings_card(canon, p),
         "output": output_card(canon, p),
         # OBJECT-LEVEL, SO IT GOES ON `page` AND NOT ON A PART.
         #
@@ -1587,7 +1766,9 @@ def build(canon):
         # another, it rendered nowhere: the card written to fix "the projector never
         # learned to look here" was itself written where the projector does not look.
         # Caught by building a page that holds 34 one-offs and finding none of them.
-        "otherquals": other_qualifications_card(canon, p),
+        "otherquals": (other_qualifications_card(canon, p)
+                       + pgen.generated_judgements_card(canon, p)
+                       + prl.judgement_register_card(canon, p)),
         # WYSIWYG ONLY. The panel used to render the manuscript THREE times: the
         # document view, then manuscript_section's card version, then
         # paper_studio's draft. Fifteen headings appeared twice -- two Abstracts,
